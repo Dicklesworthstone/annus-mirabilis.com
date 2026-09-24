@@ -1,16 +1,24 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
 import {
   SR08_CAPTION,
-  SR08_MODEL,
   SR08_NOT_MODELED,
   type Sr08Parameters,
 } from "../../../experiments/sr08/definition.ts";
 import { validateSr08Parameters } from "../../../experiments/sr08/parameters.ts";
-import { createSr08Session, type PreparedSr08Example } from "../../../experiments/sr08/session.ts";
+import {
+  createSr08Session,
+  type PreparedSr08Example,
+  SR08_SESSION_OUTPUTS,
+} from "../../../experiments/sr08/session.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
@@ -113,13 +121,23 @@ export function FieldFrameChangeLab({
   const fLab = result(snapshot, "transverseForceLaboratory");
   const fCom = result(snapshot, "transverseForceComoving");
 
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      SR08_SESSION_OUTPUTS,
+      example.sourceDigest,
+      snapshot === session.getServerSnapshot().accepted,
+    ).label,
+  );
   return (
     <section
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="sr-08"
       {...identity(snapshot)}
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, view, "electricFieldStationary")}
       data-source-digest={example.sourceDigest}
     >
       <header className="lab-heading">
@@ -127,8 +145,14 @@ export function FieldFrameChangeLab({
           <p className="eyebrow">Electrodynamics §6</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <span className="badge">{SR08_MODEL.label}</span>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          modelNote={modelNoteFromView(view, { notModeled: `${SR08_NOT_MODELED.join("; ")}.` })}
+        />
+      </div>
 
       <noscript>
         <p className="notice">
