@@ -334,15 +334,22 @@
  * a subscript) into a separate item and breaks the sentence apart. Classed labels keep their own
  * design, and an inline style still wins. Measured by injection on live, all 41 lab routes at 390px:
  * it reaches 19 labels on 6 routes, and labels under 24px fall 9 -> 3 (the other three are SR-01's,
- * fixed in 156a1ac5, and one link), with no page overflow.
+ * fixed in 156a1ac5, and one link), with no page overflow. Embeds carry the same forms: across
+ * the 27 at 390px, SR-04's four constraint labels were 23px; with the rule, 0 of 505 targets are under
+ * 24px.
  */
-.lab-route fieldset label:not([class]):has(> input:is([type="radio"], [type="checkbox"])) {
+:is(.lab-route, .embedded-laboratory)
+  fieldset
+  label:not([class]):has(> input:is([type="radio"], [type="checkbox"])) {
   display: block;
   min-height: 44px;
   padding-block: 0.6rem;
 }
 
-.lab-route fieldset label:not([class]) > input:is([type="radio"], [type="checkbox"]) {
+:is(.lab-route, .embedded-laboratory)
+  fieldset
+  label:not([class])
+  > input:is([type="radio"], [type="checkbox"]) {
   margin-inline: 0 0.45rem;
 }
 
