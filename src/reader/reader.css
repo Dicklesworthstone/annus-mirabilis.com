@@ -401,6 +401,15 @@
     flex: none;
     font-size: var(--type-fine);
   }
+  /* Two selects (Detail, and Letters on the papers that have it) share the first line and the
+     qualifications box takes the second: three on one line left each select 66px at 390, too
+     narrow for "Full explanation". */
+  .reader-root .reader-options:has(> .reader-option ~ .reader-option) {
+    flex-wrap: wrap;
+  }
+  .reader-root .reader-options:has(> .reader-option ~ .reader-option) > .reader-option {
+    flex: 1 1 40%;
+  }
   .reader-root .reader-outline {
     margin-top: 0.25rem;
   }

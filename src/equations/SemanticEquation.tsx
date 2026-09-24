@@ -12,6 +12,7 @@ import {
 import { exponentialParts } from "../units/scientific.ts";
 import { useEquationScope } from "./EquationScope.tsx";
 import { readTermValue, resolveSlot, retainedState } from "./live/values.ts";
+import { NotationNote } from "./NotationNote.tsx";
 import { navigate } from "./navigation.ts";
 import { createSelectionStore } from "./selectionStore.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
@@ -136,6 +137,7 @@ export function SemanticEquation({
   const quantityOfTerm = (id: string | undefined) =>
     id ? equation.terms.find((t) => t.termId === id)?.quantityId : undefined;
   const legend = [...new Map(equation.terms.map((t) => [t.quantityId, t.quantity.name]))];
+  const printedNotation = equation.notationForm?.state === "printed" ? equation.notationForm : undefined;
   const navLabel = effectiveScopeLabel
     ? `Terms and operations in ${equation.title || equation.id} (${effectiveScopeLabel})`
     : `Terms and operations in ${equation.title || equation.id}`;
@@ -150,7 +152,17 @@ export function SemanticEquation({
       data-pattern={String(pattern)}
     >
       <header>
-        <p className="eyebrow">Explore the equation · Modern model notation</p>
+        <p className="eyebrow">
+          Explore the equation ·{" "}
+          {printedNotation ? (
+            <>
+              <span data-notation-form="modern">Modern model notation</span>
+              <span data-notation-form="printed">Einstein's letters</span>
+            </>
+          ) : (
+            "Modern model notation"
+          )}
+        </p>
         <h3>{equation.title}</h3>
       </header>
       <section
@@ -169,28 +181,56 @@ export function SemanticEquation({
           }
         }}
       >
+        {/* Both notations are in the page; html[data-notation] shows one (equations.css). The
+            hidden one is display: none, so it is out of the accessibility tree as well. */}
         <div
           className="equation-visual"
           aria-hidden="true"
+          data-notation-form={printedNotation ? "modern" : undefined}
           {...{ dangerouslySetInnerHTML: { __html: equation.html } }}
         />
         <div
           className="equation-mathml"
+          data-notation-form={printedNotation ? "modern" : undefined}
           {...{ dangerouslySetInnerHTML: { __html: equation.mathml } }}
         />
+        {printedNotation ? (
+          <>
+            <div
+              className="equation-visual"
+              aria-hidden="true"
+              data-notation-form="printed"
+              {...{ dangerouslySetInnerHTML: { __html: printedNotation.html } }}
+            />
+            <div
+              className="equation-mathml"
+              data-notation-form="printed"
+              {...{ dangerouslySetInnerHTML: { __html: printedNotation.mathml } }}
+            />
+          </>
+        ) : null}
       </section>
-      <p className="equation-sentence">
-        {equation.sentence.map((f) => (
-          <span
-            key={`${f.nodeId ?? "frag"}-${f.text}`}
-            data-selected={String(!!selectedNode(f.nodeId))}
-            className={quantityOfTerm(f.nodeId) ? "equation-quantity" : undefined}
-            data-quantity-id={quantityOfTerm(f.nodeId)}
-          >
-            {f.text}
-          </span>
-        ))}
-      </p>
+      {equation.notationForm?.state === "modern" ? <NotationNote /> : null}
+      {(printedNotation
+        ? ([
+            ["modern", equation.sentence],
+            ["printed", printedNotation.sentence],
+          ] as const)
+        : ([[undefined, equation.sentence]] as const)
+      ).map(([form, sentence]) => (
+        <p key={form ?? "one"} className="equation-sentence" data-notation-form={form}>
+          {sentence.map((f) => (
+            <span
+              key={`${f.nodeId ?? "frag"}-${f.text}`}
+              data-selected={String(!!selectedNode(f.nodeId))}
+              className={quantityOfTerm(f.nodeId) ? "equation-quantity" : undefined}
+              data-quantity-id={quantityOfTerm(f.nodeId)}
+            >
+              {f.text}
+            </span>
+          ))}
+        </p>
+      ))}
       {/* The keyboard help is shown while the formula has focus (equations.css), and it is the
           formula's accessible description either way: aria-describedby reads a hidden node. */}
       <p id={`${uid}-keys`} className="fine equation-keys">

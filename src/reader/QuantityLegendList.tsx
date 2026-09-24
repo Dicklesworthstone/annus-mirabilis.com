@@ -11,14 +11,15 @@ export function QuantityLegendList({
   label,
   className = "equation-legend",
 }: {
-  legend: ReturnType<typeof quantityLegend>;
+  /** printedGlyphHtml: the glyph in Einstein's letters, shown instead under html[data-notation]. */
+  legend: readonly (ReturnType<typeof quantityLegend>[number] & { printedGlyphHtml?: string })[];
   label: string;
   className?: string;
 }) {
   if (legend.length === 0) return null;
   return (
     <ul className={className} aria-label={label}>
-      {legend.map(({ quantityId, colour }) => (
+      {legend.map(({ quantityId, colour, printedGlyphHtml }) => (
         <li
           key={`${quantityId} ${colour.glyphHtml}`}
           className="equation-quantity"
@@ -28,8 +29,17 @@ export function QuantityLegendList({
           <span
             className="equation-legend-glyph"
             aria-hidden="true"
+            data-notation-form={printedGlyphHtml ? "modern" : undefined}
             {...{ dangerouslySetInnerHTML: { __html: colour.glyphHtml } }}
           />
+          {printedGlyphHtml ? (
+            <span
+              className="equation-legend-glyph"
+              aria-hidden="true"
+              data-notation-form="printed"
+              {...{ dangerouslySetInnerHTML: { __html: printedGlyphHtml } }}
+            />
+          ) : null}
           <span className="equation-legend-name">{colour.name}</span>
         </li>
       ))}

@@ -2,12 +2,14 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { renderToString } from "katex";
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
+import { loadConcordanceForPaper } from "../src/content/notation/loader.ts";
 import { citedLessonTitles } from "../src/equations/citedLessonTitles.ts";
 import { buildMassEnergyElimination } from "../src/equations/derivations/massEnergyElimination.ts";
 import { buildMassEnergyLowSpeed } from "../src/equations/derivations/massEnergyLowSpeed.ts";
 import { renderLowSpeedProof } from "../src/equations/derivations/renderLowSpeed.ts";
 import { assignQuantityColours, QUANTITY_PALETTE } from "../src/equations/quantityColours.ts";
-import { compileEquation } from "../src/equations/render.ts";
+import { compileEquation, compileEquationWithNotation } from "../src/equations/render.ts";
+import { NOTATION_TOGGLE_PAPERS } from "../src/reader/navigation/state.ts";
 import { loadReadingFiles } from "./build-content.ts";
 
 const result = compileReadingContent(await loadReadingFiles());
@@ -20,14 +22,31 @@ for (const step of elimination.steps) {
     throw new Error(`Missing derivation foundation ${step.foundation}.`);
 }
 const lowSpeed = buildMassEnergyLowSpeed(massEnergyPaper.equations);
+// The papers whose explanation faces carry the notation toggle (am-read-perspective-toggle-abd):
+// each of their records is drawn a second time in Einstein's letters, read from the paper's
+// concordance for the section its argument sits in.
 // The foundation lessons' records compile beside the papers', under their own "paper".
 const equations = [
-  ...result.papers.flatMap((p) => p.equations.map(compileEquation)),
+  ...result.papers.flatMap((p) => {
+    if (!NOTATION_TOGGLE_PAPERS.includes(p.paper.id)) return p.equations.map(compileEquation);
+    const { entries } = loadConcordanceForPaper(p.paper.id);
+    const sectionOf = new Map(p.arguments.map((a) => [a.id, a.section]));
+    // A record with no section is matched to no entry, so it keeps today's letters and says so.
+    return p.equations.map((e) =>
+      compileEquationWithNotation(e, {
+        entries,
+        section: (e.argument ? sectionOf.get(e.argument) : undefined) ?? "",
+      }),
+    );
+  }),
   ...result.foundationEquations.map(compileEquation),
 ];
 const sourcePaths = [
   "src/equations/render.ts",
   "src/equations/latex.ts",
+  "src/equations/latex/render.ts",
+  "src/equations/notationForms.ts",
+  "content/notation/special-relativity.yaml",
   "src/equations/record.ts",
   "src/equations/ast.ts",
   "src/equations/dimensions.ts",

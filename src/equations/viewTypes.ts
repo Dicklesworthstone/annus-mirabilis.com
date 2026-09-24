@@ -18,4 +18,20 @@ export type CompiledEquation = EquationRecord &
     }>[];
     /** The legend's glyph for each quantity this record prints with its own letter. */
     printedGlyphHtml?: Readonly<Record<string, string>>;
+    /**
+     * The notation toggle (html[data-notation]). "printed": the same tree drawn in Einstein's
+     * letters, with its sentence and legend glyphs. "modern": it keeps today's letters in both
+     * states and says so. Absent where the toggle does not apply or his letters are today's.
+     */
+    notationForm?: Readonly<
+      | {
+          state: "printed";
+          html: string;
+          mathml: string;
+          plainLatex: string;
+          sentence: EquationRecord["sentence"];
+          glyphHtml: Readonly<Record<string, string>>;
+        }
+      | { state: "modern" }
+    >;
   }>;

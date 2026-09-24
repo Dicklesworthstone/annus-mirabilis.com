@@ -571,3 +571,19 @@
   font-family: var(--font-sans);
   font-size: var(--type-fine);
 }
+/* THE NOTATION TOGGLE (am-read-perspective-toggle-abd). A formula that can be drawn in Einstein's
+   letters carries both forms, and html[data-notation] shows one. Inside a reader the printed state
+   is the default, so a page with no choice made, and a page read with JavaScript off, shows his
+   letters; a formula that keeps today's letters then says so in one line. Outside a reader (a
+   laboratory's equation cards) nothing switches and today's letters show. The hidden form is
+   display: none, which also takes it out of the accessibility tree. */
+[data-notation-form="printed"]:not([data-reader-root] *),
+[data-notation-note]:not([data-reader-root] *),
+:root[data-notation="modern"] [data-notation-form="printed"],
+:root[data-notation="modern"] [data-notation-note],
+:root:not([data-notation="modern"]) [data-reader-root] [data-notation-form="modern"] {
+  display: none;
+}
+.notation-note {
+  margin-block: 0.25rem 0;
+}

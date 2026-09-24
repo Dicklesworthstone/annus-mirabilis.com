@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useId } from "react";
+import { useEffect, useId, useRef } from "react";
 import { makeDismissible } from "../a11y/modal/dismiss.ts";
 import {
   applyElsewhere,
@@ -20,8 +20,12 @@ import {
   FACES,
   type Face,
   MAX_CLARIFICATION_DEPTH,
+  NOTATION_STORAGE_KEY,
+  NOTATION_TOGGLE_PAPERS,
+  type Notation,
   openFoundation,
   parseDetail,
+  parseNotation,
   parseReaderLocation,
   passageHref,
   type ReaderRegistry,
@@ -51,6 +55,10 @@ export function ReaderController(props: Props) {
   // the navigation owner and steal focus from the trigger we just restored.
   const navigation = JSON.stringify(props);
   const detailId = useId();
+  const notationId = useId();
+  // The Letters control is this component's own element, on the papers that have it; a ref, not a
+  // lookup, so a paper without it simply has none.
+  const notationRef = useRef<HTMLSelectElement>(null);
   const copyFallbackId = useId();
   useEffect(() => {
     const { registry, titles, questions } = JSON.parse(navigation) as Props;
@@ -64,6 +72,7 @@ export function ReaderController(props: Props) {
     const announcement = announcementEl;
     const detailControls = [...root.querySelectorAll<HTMLSelectElement>("[data-detail-control]")];
     const lensControls = [...root.querySelectorAll<HTMLInputElement>("[data-lens-control]")];
+    const notationControls = notationRef.current ? [notationRef.current] : [];
     let stored: string | null = null;
     try {
       stored = localStorage.getItem(DETAIL_STORAGE_KEY);
@@ -121,6 +130,39 @@ export function ReaderController(props: Props) {
     [...detailControls, ...lensControls].forEach((control) => {
       control.disabled = false;
     });
+    // The pre-paint script already chose the letters (query, then storage, then Einstein's); the
+    // control starts from what the page shows.
+    notationControls.forEach((control) => {
+      control.value = document.documentElement.dataset.notation === "modern" ? "modern" : "printed";
+      control.disabled = false;
+    });
+    /**
+     * LETTERS, Einstein's or today's (am-read-perspective-toggle-abd). Every formula carries both
+     * forms and CSS shows one, so nothing re-renders; a formula that keeps today's letters gains or
+     * loses its one-line note, so the passage in view is held in place across the change. The
+     * choice is stored, and the address names it only when it is not the default.
+     */
+    function setNotation(notation: Notation) {
+      placeHold.across(passageInView, () => {
+        document.documentElement.dataset.notation = notation;
+      });
+      try {
+        localStorage.setItem(NOTATION_STORAGE_KEY, notation);
+      } catch {
+        /* Optional preference persistence. */
+      }
+      const u = new URL(location.href);
+      if (notation === "modern") u.searchParams.set("notation", "modern");
+      else u.searchParams.delete("notation");
+      history.replaceState(history.state, "", u);
+      notationControls.forEach((control) => {
+        control.value = notation;
+      });
+      announcement.textContent =
+        notation === "printed"
+          ? "Formulas are shown in Einstein's letters. One that cannot be says so."
+          : "Formulas are shown in today's letters.";
+    }
     /**
      * Start from the current location so unrelated query keys survive a face change.
      * Copy-passage links below intentionally build clean portable links instead.
@@ -479,6 +521,8 @@ export function ReaderController(props: Props) {
           parseDetail(target.value) ?? 1,
           "Changed detail without restarting the laboratory or closing your explanation.",
         );
+      } else if (target instanceof HTMLSelectElement && notationControls.includes(target)) {
+        setNotation(parseNotation(target.value) ?? "printed");
       } else if (target instanceof HTMLInputElement && lensControls.includes(target))
         change(
           { ...state, lens: target.checked },
@@ -684,6 +728,21 @@ export function ReaderController(props: Props) {
               <option value="2">Show every step</option>
             </select>
           </div>
+          {NOTATION_TOGGLE_PAPERS.includes(props.registry.paperId) ? (
+            <div className="reader-option">
+              <label htmlFor={notationId}>Letters</label>
+              <select
+                id={notationId}
+                ref={notationRef}
+                data-notation-control
+                defaultValue="printed"
+                disabled
+              >
+                <option value="printed">Einstein's letters</option>
+                <option value="modern">Today's letters</option>
+              </select>
+            </div>
+          ) : null}
           <label className="check">
             <input type="checkbox" data-lens-control disabled />
             Show modern qualifications
