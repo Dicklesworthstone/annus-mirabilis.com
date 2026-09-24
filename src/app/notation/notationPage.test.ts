@@ -328,8 +328,8 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
   });
 
   it("the verification notice says the right thing in each of its three states", () => {
-    const entry = (checkedAgainst: string, paperTitle = "Mass and energy") =>
-      ({ verification: { checkedAgainst }, paperTitle }) as unknown as EnrichedConcordanceEntry;
+    const entry = (checkedAgainst: string, paperTitle = "Mass and energy", by = "A. Reviewer") =>
+      ({ verification: { checkedAgainst, by }, paperTitle }) as unknown as EnrichedConcordanceEntry;
     const pending = entry("Pending facsimile scan (ap-17-132)", "Light quanta");
     const checked = entry("Pinned facsimile ap-18-639, read as images");
 
@@ -351,6 +351,28 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
     );
     // "Pending" elsewhere in the text is not the controlled prefix.
     expect(describeVerification([entry("Checked; nothing pending")]).checkedCount).toBe(1);
+
+    // An agent reading page images is not a person reviewing them, and the notice says which.
+    const agent = entry("Plate of printed page 639, read by eye", "Mass and energy", "agent:X");
+    expect(describeVerification([agent, agent]).message).toEndWith(
+      "An agent did that checking, reading each page image, and no person has reviewed it yet.",
+    );
+    expect(describeVerification([agent, checked, pending]).message).toContain(
+      "1 of those checks was made by an agent reading the page images, and no person has reviewed it yet.",
+    );
+    expect(describeVerification([checked, checked]).message).not.toContain("agent");
+  });
+
+  it("an entry an agent read from the plate never reads as a review", () => {
+    let agentChecked = 0;
+    for (const entry of data.allEntries) {
+      if (!entry.verification.by.startsWith("agent:")) continue;
+      agentChecked += 1;
+      expect(entry.checkedLabel).toStartWith("Read from the printed page by an agent");
+      expect(entry.checkedLabel).toEndWith("No person has reviewed it yet.");
+    }
+    // Non-vacuity: agents read most of the concordance from the plates on 2026-09-24.
+    expect(agentChecked).toBeGreaterThan(0);
   });
 
   it("scope tokens read as a reader would say them", () => {

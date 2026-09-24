@@ -90,9 +90,11 @@ function formatCheckedLabel(entry: ConcordanceEntry): string {
     return "Not yet checked against the printed page; taken from a transcription.";
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(entry.verification.date);
   const month = m ? MONTHS[Number(m[2]) - 1] : undefined;
-  return m && month
-    ? `Checked against the printed page on ${Number(m[3])} ${month} ${m[1]}.`
-    : "Checked against the printed page.";
+  const on = m && month ? ` on ${Number(m[3])} ${month} ${m[1]}` : "";
+  // An agent's reading of the page image is not a review, and the label must not read like one.
+  if (entry.verification.by.startsWith("agent:"))
+    return `Read from the printed page by an agent${on}. No person has reviewed it yet.`;
+  return `Checked against the printed page${on}.`;
 }
 
 export interface CollisionCluster {
@@ -191,7 +193,15 @@ export function describeVerification(entries: readonly EnrichedConcordanceEntry[
           ? "The one entry has been checked symbol by symbol against the printed pages."
           : `All ${entries.length} entries have been checked symbol by symbol against the printed pages.`
         : `${checked.length} of ${entries.length} entries ${checked.length === 1 ? "has" : "have"} been checked symbol by symbol against the printed pages${where}. The other ${pendingCount} ${pending}.`;
-  return { checkedCount: checked.length, pendingCount, message };
+  // Say who did the checking: an agent reading page images is not a person reviewing them.
+  const byAgent = checked.filter((e) => e.verification.by.startsWith("agent:")).length;
+  const agentNote =
+    byAgent === 0
+      ? ""
+      : byAgent === checked.length
+        ? " An agent did that checking, reading each page image, and no person has reviewed it yet."
+        : ` ${byAgent} of those checks ${byAgent === 1 ? "was" : "were"} made by an agent reading the page images, and no person has reviewed ${byAgent === 1 ? "it" : "them"} yet.`;
+  return { checkedCount: checked.length, pendingCount, message: message + agentNote };
 }
 
 const PAPER_METADATA: Record<string, { title: string; number: number; locator: string }> = {
