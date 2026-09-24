@@ -1,13 +1,21 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import {
+  executionLabelFor,
+  executionStateKindFromHostLabel,
+} from "../../experiments/labels/executionLabelFor.ts";
+import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
+import {
+  deriveHostExecution,
+  type ExecutionStateKind,
+} from "../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../experiments/results/explanations.ts";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import {
   SR02_APPARATUS_CAPTIONS,
-  SR02_APPARATUS_LABEL,
   SR02_CAPTION,
-  SR02_MODEL,
   SR02_NOT_MODELED,
+  SR02_OUTPUTS,
   type Sr02Parameters,
 } from "../../experiments/sr02/definition.ts";
 import { validateSr02Parameters } from "../../experiments/sr02/parameters.ts";
@@ -104,6 +112,19 @@ export function MagnetConductorLab({
     apply(checked.data);
   }
   const apparatus = p.mode === "apparatus";
+  // Earned per snapshot (am-inst-execution-labels-5ywv). The apparatus mode draws no computed field,
+  // so it is always a static worked example; in the numerical mode the build-time example is static
+  // and only an accepted recalculation is a host calculation.
+  const executionKind: ExecutionStateKind = apparatus
+    ? "static-example"
+    : executionStateKindFromHostLabel(
+        deriveHostExecution(
+          view,
+          SR02_OUTPUTS,
+          example.sourceDigest,
+          snapshot === session.getServerSnapshot().accepted,
+        ).label,
+      );
   const resolutionOpen = p.resolution === "shown";
   return (
     <section
@@ -111,7 +132,7 @@ export function MagnetConductorLab({
       aria-labelledby={`${id}-title`}
       data-instrument-id={apparatus ? "sr-02:apparatus" : "sr-02"}
       {...identity(snapshot)}
-      data-execution-label={apparatus ? "static" : "host"}
+      {...executionLabelAttributes(executionKind)}
       data-source-digest={example.sourceDigest}
       data-mode={p.mode}
     >
@@ -120,7 +141,7 @@ export function MagnetConductorLab({
           <p className="eyebrow">Magnet and conductor</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <span className="badge">{apparatus ? SR02_APPARATUS_LABEL : SR02_MODEL.label}</span>
+        <span className="badge">{executionLabelFor(executionKind).text}</span>
       </header>
       <noscript>
         <p className="notice">
