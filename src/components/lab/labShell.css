@@ -363,6 +363,17 @@
   font-variant-numeric: tabular-nums;
 }
 
+/*
+ * BM-06's density curve as numbers (DistributionPlot): four numeric columns. The site's
+ * `tbody th { width: 58% }` is for a label beside one value, and on a phone the table-scroll
+ * rule lets the last column break anywhere, which at 390px set "60.7%" one character to a line.
+ * Here every column takes its content's width and no number is split; the region scrolls instead.
+ */
+.table-scroll table.curve-values :is(th, td) {
+  width: auto;
+  overflow-wrap: normal;
+}
+
 /* An open code listing takes the whole row. In one of the lab-bottom's two columns it was 242px
    wide inside the Brownian reading at 1280, with up to 609px of each listing scrolled out of
    view; across both columns it is 566px there, and on /lab/bm-01/ at 1280 it is 1,116px, where
