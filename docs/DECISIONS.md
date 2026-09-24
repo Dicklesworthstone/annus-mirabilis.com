@@ -1018,3 +1018,26 @@ appIcon: "asset catalog AppIcon, one 1024 px universal image"
 - **Beads unblocked:** `am-app-xcodegen-scaffold-z228`, `am-app-scheme-handler-ghuu`, `am-app-edition-export-kwpu`.
 - **Revisit trigger:** a real-device or Lockdown Mode run disagrees with a row above; a new iOS major; the website adopts a
   CSP; the edition starts using client-side navigation, whose payload fetches this probe did not exercise.
+
+## D-2026-09-24-fonts-ship-whole
+
+- **Question:** Should the six self-hosted faces (Newsreader, Plus Jakarta Sans and JetBrains Mono, upright and italic)
+  ship subset, as `am-design-themes-typography-288q` specifies, given that a subset changes how small text rasterizes?
+  (bead `am-design-themes-typography-288q`, criterion 4)
+- **Options:** (a) ship the 21-block subset NavyKite built and measured on 2026-09-24; (b) ship the faces whole, as today.
+- **Choice:** (b). The faces ship whole. No KaTeX glyph manifest and no subsetting step are built.
+- **Reason:** The subset saves 16% of font bytes: 746.5 to 625.1 KiB brotli for the six, and 516.7 to 441.5 KiB for the
+  home page's faces. Every face is served with `cache-control: public, max-age=31536000, immutable`, so a reader pays that
+  once. Against it, the subset changes small-size rasterization in Chromium on macOS: 66,874 of 2,383,290 px differ on the
+  phone home page, and the 11 px bold eyebrows set lighter. The cause was not isolated. Seven single-table and single-option
+  variants all still differ, while a fontTools re-save of the original gives 0 px. A face that renders differently for a
+  reason nobody can name has not been tested, and saving 75 KiB once is not worth shipping it.
+- **What this settles for the bead:** criterion 4's glyph-coverage tests run against the shipped files, which are the whole
+  upstream faces pinned at google/fonts `23e54b51ddffbc7713c583748e3bd86f62b1fa4a`. So the coverage they prove is the coverage
+  a reader gets. KaTeX's fonts also ship whole, so there is no manifest for a subset to omit.
+- **Decider:** `agent:TanElk` (orchestrator). The owner was not asked. This is a call under the owner's standing instruction
+  of 2026-09-23 to keep improving the site and finishing the beads. Measurement by `agent:NavyKite`, recorded on the bead at
+  2026-09-24T11:35:15Z.
+- **Date:** 2026-09-24.
+- **Revisit trigger:** the cause is isolated and a subset renders 0 px different from the original at 11, 17 and 32 px; or a
+  real-device measurement shows first-visit font bytes are what keeps a phone reader waiting.
