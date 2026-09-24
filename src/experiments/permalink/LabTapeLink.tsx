@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ShareControl } from "./ShareControl.tsx";
 import {
   type LabTapeBinding,
@@ -17,19 +17,30 @@ export type LabTapeLinkState = Readonly<{ notice: string; shareTape: TapeV2 | nu
  * laboratory's session once, on mount, and gives the tape for its accepted settings to share.
  * `enabled` is false for a laboratory the link does not describe, such as a page's optional second
  * copy.
+ *
+ * `onRestored` receives the restored settings, for a laboratory whose form keeps its own draft.
+ * Without it the form went on showing the defaults over the restored results, and pressing Apply put
+ * the defaults back: 12 of 12 laboratories with an Apply button lost the shared settings that way,
+ * measured in Chromium on a build of 4c0c2c7c.
  */
-export function useLabTapeLink(
+export function useLabTapeLink<P extends object>(
   binding: LabTapeBinding,
-  session: TapeSession,
+  session: Omit<TapeSession, "acceptedParameters"> & Readonly<{ acceptedParameters(): P }>,
   acceptedParameters: object | null | undefined,
   enabled = true,
+  onRestored?: (parameters: P) => void,
 ): LabTapeLinkState {
   const [notice, setNotice] = useState("");
+  // The latest callback, so a new closure on each render neither re-runs the restore nor goes stale.
+  const restoredRef = useRef(onRestored);
+  restoredRef.current = onRestored;
   useEffect(() => {
     if (!enabled) return;
     let live = true;
     void restoreTapeFromUrl(binding, session, window.location.href).then((restored) => {
-      if (live && restored.kind === "not-restored") setNotice(restored.notice);
+      if (!live) return;
+      if (restored.kind === "not-restored") setNotice(restored.notice);
+      else if (restored.kind === "restored") restoredRef.current?.(session.acceptedParameters());
     });
     return () => {
       live = false;

@@ -124,7 +124,13 @@ export function EntropyWorkbenchLab({
     session.getServerSnapshot,
   );
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
-  const tapeLink = useLabTapeLink(LQ04_TAPE, session, session.acceptedParameters());
+  const tapeLink = useLabTapeLink(
+    LQ04_TAPE,
+    session,
+    session.acceptedParameters(),
+    true,
+    (restored) => setDraft(toDraft(restored)),
+  );
 
   const fallback =
     session.getServerSnapshot().accepted ??

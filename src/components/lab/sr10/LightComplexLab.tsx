@@ -78,7 +78,13 @@ export function LightComplexLab({
     session.getServerSnapshot,
   );
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
-  const tapeLink = useLabTapeLink(SR10_TAPE, session, session.acceptedParameters());
+  const tapeLink = useLabTapeLink(
+    SR10_TAPE,
+    session,
+    session.acceptedParameters(),
+    true,
+    (restored) => setDraft({ ...restored }),
+  );
   const snapshot = view.accepted;
   const p = (snapshot?.parameters ?? example.parameters) as Sr10Parameters;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));

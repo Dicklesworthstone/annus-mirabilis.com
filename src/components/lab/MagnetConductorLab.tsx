@@ -90,7 +90,13 @@ export function MagnetConductorLab({
     session.getServerSnapshot,
   );
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
-  const tapeLink = useLabTapeLink(SR02_TAPE, session, session.acceptedParameters());
+  const tapeLink = useLabTapeLink(
+    SR02_TAPE,
+    session,
+    session.acceptedParameters(),
+    true,
+    (restored) => setDraft({ ...restored }),
+  );
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr02Parameters;
   // One sentence for the status line: the force on the charge in each description, which agree.

@@ -80,7 +80,13 @@ export function BoundaryLedgerLab({
     session.getServerSnapshot,
   );
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
-  const tapeLink = useLabTapeLink(ME03_TAPE, session, session.acceptedParameters(), !sharedSession);
+  const tapeLink = useLabTapeLink(
+    ME03_TAPE,
+    session,
+    session.acceptedParameters(),
+    !sharedSession,
+    (restored) => setDraft(toMe03Draft(restored)),
+  );
 
   const fallbackParams = example?.parameters ?? ME03_DEFAULTS;
   const accepted = view.accepted;

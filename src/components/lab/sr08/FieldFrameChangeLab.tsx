@@ -84,7 +84,13 @@ export function FieldFrameChangeLab({
     session.getServerSnapshot,
   );
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
-  const tapeLink = useLabTapeLink(SR08_TAPE, session, session.acceptedParameters());
+  const tapeLink = useLabTapeLink(
+    SR08_TAPE,
+    session,
+    session.acceptedParameters(),
+    true,
+    (restored) => setDraft({ ...restored }),
+  );
   const [draft, setDraft] = useState<Sr08Parameters>(() => ({ ...example.parameters }));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");

@@ -63,7 +63,13 @@ export function ChargeCurrentLab({
     session.getServerSnapshot,
   );
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
-  const tapeLink = useLabTapeLink(SR12_TAPE, session, session.acceptedParameters());
+  const tapeLink = useLabTapeLink(
+    SR12_TAPE,
+    session,
+    session.acceptedParameters(),
+    true,
+    (restored) => setDraft({ ...restored }),
+  );
   const [draft, setDraft] = useState<Sr12Parameters>(() => ({ ...example.parameters }));
   const [error, setError] = useState("");
   const [prediction, setPrediction] = useState<string | null>(null);

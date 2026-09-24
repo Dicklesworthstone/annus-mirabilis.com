@@ -77,7 +77,13 @@ export function VelocityCompositionLab({
     session.getServerSnapshot,
   );
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
-  const tapeLink = useLabTapeLink(SR06_TAPE, session, session.acceptedParameters());
+  const tapeLink = useLabTapeLink(
+    SR06_TAPE,
+    session,
+    session.acceptedParameters(),
+    true,
+    (restored) => setDraft(toSr06Draft(restored)),
+  );
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr06Parameters;
   // Earned per snapshot (am-inst-execution-labels-5ywv). The eyebrow used to print "Ideal model,

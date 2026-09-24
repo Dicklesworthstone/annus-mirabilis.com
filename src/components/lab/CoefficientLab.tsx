@@ -199,7 +199,13 @@ export function CoefficientLab({
     session.getServerSnapshot,
   );
   // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
-  const tapeLink = useLabTapeLink(ME02_TAPE, session, session.acceptedParameters());
+  const tapeLink = useLabTapeLink(
+    ME02_TAPE,
+    session,
+    session.acceptedParameters(),
+    true,
+    (restored) => setDraft({ ...restored }),
+  );
   const accepted = view.accepted ?? session.getServerSnapshot().accepted;
   if (!accepted) {
     throw new Error("Missing accepted snapshot for CoefficientLab");
