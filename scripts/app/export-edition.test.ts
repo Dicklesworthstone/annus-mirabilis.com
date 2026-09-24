@@ -6,7 +6,7 @@
 
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
@@ -92,6 +92,8 @@ const SITE: Record<string, string> = {
   "offline/chapter-1.html": "an offline chapter",
   "wasm/kernel.wasm": "\u0000asm",
   "fonts/newsreader/OFL.txt": "licence",
+  "pdfjs/pdf.worker.min.mjs": "the PDF.js worker",
+  "pdfjs/wasm/openjpeg.wasm": "\u0000asm",
 };
 
 describe("contentTypeFor", () => {
@@ -135,6 +137,13 @@ describe("planEdition", () => {
 
   it("drops the pinned facsimile PDFs", () => {
     assert.deepEqual(excludedBy("facsimile-pdf"), ["papers/pdfs/ap-17-132.pdf"]);
+  });
+
+  it("drops the PDF viewer, which opens only the facsimile PDFs the app never bundles", () => {
+    assert.deepEqual(excludedBy("unused-pdf-viewer"), [
+      "pdfjs/pdf.worker.min.mjs",
+      "pdfjs/wasm/openjpeg.wasm",
+    ]);
   });
 
   it("drops a flight payload only where its page exists, and keeps other text files", () => {
@@ -289,6 +298,51 @@ describe("exportEdition", () => {
     assert.ok(outputs.some((line) => line.endsWith(`/${NATIVE_CATALOG_FILE}`)));
     // The app labels and exports the reader's data from this, never from its own copy.
     assert.deepEqual(manifest.readerData, JSON.parse(JSON.stringify(readerDataManifest())));
+  });
+
+  it("leaves pdfjs/ out of the edition although the build has it, and reports what the rule dropped", () => {
+    const out = fixture(SITE);
+    const dest = mkdtempSync(join(tmpdir(), "app-edition-dest-"));
+    exportEdition({ repo: dirname(out), outDir: out, dest, catalog: CATALOG });
+    const manifest = JSON.parse(readFileSync(join(dest, "edition-manifest.json"), "utf8"));
+    const viewer = ["pdfjs/pdf.worker.min.mjs", "pdfjs/wasm/openjpeg.wasm"];
+    for (const path of viewer) {
+      assert.ok(existsSync(join(out, path)), `the build has ${path}`);
+    }
+    const shipped = manifest.files.map((file: { path: string }) => file.path);
+    assert.ok(shipped.length > 0);
+    assert.deepEqual(
+      shipped.filter((path: string) => path.startsWith("pdfjs/")),
+      [],
+    );
+    const listed = readFileSync(join(dest, "edition-files.txt"), "utf8");
+    assert.ok(!listed.includes("pdfjs/"), "the bundling phase's file list names no pdfjs/ file");
+    const rule = manifest.exclusions.find(
+      (entry: { rule: string }) => entry.rule === "unused-pdf-viewer",
+    );
+    assert.equal(rule.files, 2);
+    assert.equal(
+      rule.bytes,
+      viewer.reduce((sum, path) => sum + Buffer.byteLength(SITE[path] ?? ""), 0),
+    );
+  });
+
+  it("refuses to leave the PDF viewer out when a shipped page or script names it", () => {
+    for (const [path, text] of [
+      ["papers/index.html", `<script>new Worker("/pdfjs/pdf.worker.min.mjs")</script>`],
+      ["_next/static/chunks/viewer.js", `o.workerSrc="pdf.worker.min.mjs"`],
+    ] as const) {
+      const out = fixture({ ...SITE, [path]: text });
+      const dest = mkdtempSync(join(tmpdir(), "app-edition-dest-"));
+      assert.throws(
+        () => exportEdition({ repo: dirname(out), outDir: out, dest, catalog: CATALOG }),
+        (error: unknown) =>
+          error instanceof AppExportError &&
+          error.code === "pdf-viewer-referenced" &&
+          error.message.includes(path),
+        path,
+      );
+    }
   });
 
   it("refuses an edition over its budget and names the size", () => {

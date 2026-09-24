@@ -58,7 +58,8 @@ export type AppExportErrorCode =
   | "catalog-route-missing"
   | "no-route-list"
   | "route-needs-server"
-  | "referenced-file-missing";
+  | "referenced-file-missing"
+  | "pdf-viewer-referenced";
 
 /** A refusal of the export, with a code a caller or a test can branch on. */
 export class AppExportError extends Error {
@@ -149,6 +150,12 @@ export const EXCLUSION_RULES: readonly ExclusionRule[] = [
     matches: (path) => path.startsWith("papers/pdfs/") && path.endsWith(".pdf"),
   },
   {
+    id: "unused-pdf-viewer",
+    reason:
+      "pdfjs/ holds the PDF.js worker and its wasm, which open a facsimile PDF, and the app bundles no facsimile PDF. Measured on the build of 2026-09-24 (c1e80b4b): no shipped file named pdf.worker or /pdfjs/, and the directory was 15 files, 2,811,558 bytes. The export refuses if a shipped file ever names either (pdf-viewer-referenced).",
+    matches: (path) => path.startsWith("pdfjs/"),
+  },
+  {
     id: "flight-payload",
     reason:
       "React flight payloads serve next/link client navigation, which one component uses (the facsimile face). When a payload is missing, Next loads the document instead, and the edition links with plain anchors everywhere else.",
@@ -188,6 +195,23 @@ export const EXCLUSION_RULES: readonly ExclusionRule[] = [
     matches: (path) => path === ".DS_Store" || path.endsWith("/.DS_Store"),
   },
 ];
+
+/** What a file that uses the PDF viewer names: its worker, or anything under its directory. */
+export const PDF_VIEWER_REFERENCE = /pdf\.worker|\/pdfjs\//;
+
+/**
+ * Shipped text files that name the PDF viewer the unused-pdf-viewer rule leaves out. Any one
+ * means the viewer is a real dependency after all, and the rule would hide it, so the export
+ * refuses instead of shipping a page that asks for a file the app does not have.
+ */
+export function pdfViewerReferences(
+  included: readonly string[],
+  readText: (path: string) => string,
+): string[] {
+  return included.filter(
+    (path) => SCANNED_FOR_REFERENCES.test(path) && PDF_VIEWER_REFERENCE.test(readText(path)),
+  );
+}
 
 /**
  * Digests named by any file outside a digest directory, then closed over
@@ -474,6 +498,15 @@ export function exportEdition(options: {
   const plan = planEdition(paths, digests);
 
   checkRoutesAndReferences(outDir, paths, plan.included);
+  const viewerUsers = pdfViewerReferences(plan.included, (path) =>
+    readFileSync(join(outDir, path), "utf8"),
+  );
+  if (viewerUsers.length > 0) {
+    throw new AppExportError(
+      "pdf-viewer-referenced",
+      `${viewerUsers.length} shipped file(s) name the PDF viewer that the unused-pdf-viewer rule leaves out of the app, so it is a real dependency: ${viewerUsers.slice(0, 10).join(", ")}. Bundle pdfjs/ by removing the rule, or remove the reference.`,
+    );
+  }
 
   const catalog = options.catalog ?? buildNativeCatalog(join(repo, "content"));
   const pages = new Set(plan.included);
