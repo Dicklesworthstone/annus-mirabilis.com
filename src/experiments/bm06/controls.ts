@@ -1,4 +1,5 @@
 import { formatScaledDecimal, parseScaledDecimal } from "../../units/decimalScale.ts";
+import { enterNumberSentence } from "../results/refusalSentence.ts";
 import type { Bm06Parameters } from "./definition.ts";
 /** The four copiedDiffusivity* fields are never free-typed; they round-trip through the draft
  * unchanged except when the explicit copy action (BrownianLab's "Copy D from BM-01") sets them. */
@@ -51,11 +52,7 @@ export function fromBm06Draft(draft: Bm06Draft): Bm06Parameters {
     try {
       return [f.key, parseScaledDecimal(draft[f.key], f.power)];
     } catch {
-      throw new Error(
-        f.unit === "count"
-          ? `${f.label}: enter a whole number.`
-          : `${f.label}: enter a number, in ${f.unit}.`,
-      );
+      throw new Error(enterNumberSentence(f.label, f.unit));
     }
   });
   return {

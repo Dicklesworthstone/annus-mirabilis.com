@@ -4,6 +4,18 @@ import { BM04_DEFAULTS, type Bm04Parameters } from "./definition.ts";
 
 const keys = Object.keys(BM04_DEFAULTS);
 
+/** What each numeric control is called on the page (bm04/controls.ts), with its unit. */
+const BM04_FIELD_NAMES: Partial<Record<string, string>> = {
+  F: "the external force, in fN,",
+  m: "the kick strength multiplier",
+  T: "the temperature, in K,",
+  eta: "the viscosity, in mPa·s,",
+  a: "the particle radius, in μm,",
+  W: "the box width, in μm,",
+  cells: "the number of spatial cells",
+  dt: "the time step, in ms,",
+  steps: "the number of simulation steps",
+};
 function refused(parameterIds: readonly string[], requirements: string): Computation<never> {
   return {
     kind: "refused",
@@ -41,31 +53,35 @@ export function validateBm04Parameters(input: unknown): Computation<Bm04Paramete
         return refused([key], "Profile must be uniform, step, equilibrium, or spike.");
       }
     } else if (typeof record[key] !== "number" || !Number.isFinite(record[key])) {
-      return { kind: "refused", refusal: makeRefusal("nonfinite-input", { parameterIds: [key] }) };
+      return {
+        kind: "refused",
+        refusal: makeRefusal(
+          "nonfinite-input",
+          { parameterIds: [key] },
+          {
+            details: {
+              requirements: `Enter ${BM04_FIELD_NAMES[key] ?? "this value"} as a number.`,
+            },
+          },
+        ),
+      };
     }
   }
   const p = record as unknown as Bm04Parameters;
-  if (p.T <= 0 || p.eta <= 0 || p.a <= 0 || p.W <= 0 || p.dt <= 0) {
-    return refused(
-      ["T", "eta", "a", "W", "dt"],
-      "Temperature, viscosity, radius, box width, and time step must be positive.",
-    );
-  }
+  if (p.T <= 0) return refused(["T"], "Enter a temperature above 0 K.");
+  if (p.eta <= 0) return refused(["eta"], "Enter a viscosity greater than zero, in mPa·s.");
+  if (p.a <= 0) return refused(["a"], "Enter a particle radius greater than zero, in μm.");
+  if (p.W <= 0) return refused(["W"], "Enter a box width greater than zero, in μm.");
+  if (p.dt <= 0) return refused(["dt"], "Enter a time step greater than zero, in ms.");
   if (p.m < 0) {
-    return refused(["m"], "Kick strength multiplier m must be non-negative.");
+    return refused(["m"], "Enter a kick strength multiplier of zero or more.");
   }
   if (!Number.isFinite(p.F)) {
-    return refused(["F"], "External force F must be a finite number.");
+    return refused(["F"], "Enter the external force, in fN, as a number.");
   }
-  if (
-    !Number.isSafeInteger(p.cells) ||
-    p.cells < 3 ||
-    p.cells > 4097 ||
-    !Number.isSafeInteger(p.steps) ||
-    p.steps < 1 ||
-    p.steps > 4_000_000
-  ) {
-    return refused(["cells", "steps"], "Use 3–4097 spatial cells and 1–4000000 whole time steps.");
-  }
+  if (!Number.isSafeInteger(p.cells) || p.cells < 3 || p.cells > 4097)
+    return refused(["cells"], "Enter a whole number of spatial cells from 3 to 4097.");
+  if (!Number.isSafeInteger(p.steps) || p.steps < 1 || p.steps > 4_000_000)
+    return refused(["steps"], "Enter a whole number of simulation steps from 1 to 4 000 000.");
   return { kind: "accepted", data: Object.freeze({ ...p }) };
 }

@@ -1,4 +1,5 @@
 import { formatScaledDecimal, parseScaledDecimal } from "../../units/decimalScale.ts";
+import { enterNumberSentence } from "../results/refusalSentence.ts";
 import type { Bm04Parameters } from "./definition.ts";
 
 export type NumericBm04Key = Exclude<keyof Bm04Parameters, "profile">;
@@ -36,7 +37,7 @@ export function fromBm04Draft(draft: Bm04Draft): Bm04Parameters {
     try {
       return [f.key, parseScaledDecimal(draft[f.key], f.power)];
     } catch {
-      throw new Error(`${f.label}: enter a representable finite decimal number in ${f.unit}.`);
+      throw new Error(enterNumberSentence(f.label, f.unit));
     }
   });
   return {

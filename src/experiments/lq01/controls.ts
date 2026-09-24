@@ -1,4 +1,5 @@
 import { formatScaledDecimal, parseScaledDecimal } from "../../units/decimalScale.ts";
+import { enterNumberSentence } from "../results/refusalSentence.ts";
 import type { Lq01Parameters } from "./definition.ts";
 
 export type NumericLq01Key =
@@ -52,7 +53,7 @@ export function fromLq01Draft(draft: Lq01Draft): Lq01Parameters {
     try {
       return [f.key, parseScaledDecimal(draft[f.key], f.power)];
     } catch {
-      throw new Error(`${f.label}: enter a representable finite decimal number in ${f.unit}.`);
+      throw new Error(enterNumberSentence(f.label, f.unit));
     }
   });
   return {

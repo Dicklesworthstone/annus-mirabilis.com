@@ -1,4 +1,5 @@
 import { formatScaledDecimal, parseScaledDecimal } from "../../units/decimalScale.ts";
+import { enterNumberSentence } from "../results/refusalSentence.ts";
 import type { Bm03Model, Bm03Notation, Bm03Parameters, Bm03Step } from "./definition.ts";
 
 export type Bm03NumericKey = "Np" | "volumeRatio" | "V0" | "T";
@@ -38,7 +39,7 @@ export function fromBm03Draft(draft: Bm03Draft): Bm03Parameters {
     try {
       return [f.key, parseScaledDecimal(draft[f.key], f.power)];
     } catch {
-      throw new Error(`${f.label}: enter a representable finite decimal number in ${f.unit}.`);
+      throw new Error(enterNumberSentence(f.label, f.unit));
     }
   });
   return {

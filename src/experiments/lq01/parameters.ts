@@ -4,6 +4,18 @@ import { LQ01_DEFAULTS, type Lq01Parameters } from "./definition.ts";
 
 const keys = Object.keys(LQ01_DEFAULTS);
 
+/** What each numeric control is called on the page (lq01/controls.ts), with its unit. */
+const LQ01_FIELD_NAMES: Partial<Record<string, string>> = {
+  A1: "the wave 1 amplitude",
+  A2: "the wave 2 amplitude",
+  delta: "the relative phase, in radians,",
+  wavelength: "the wavelength",
+  separation: "the source separation, in wavelengths,",
+  screenDistance: "the screen distance, in wavelengths,",
+  t: "the time phase, in radians,",
+  P: "the source power, in W,",
+  r: "the observation radius, in m,",
+};
 function refused(parameterIds: readonly string[], requirements: string): Computation<never> {
   return {
     kind: "refused",
@@ -51,29 +63,42 @@ export function validateLq01Parameters(input: unknown): Computation<Lq01Paramete
         return refused([key], "Screen position must be center, first-min, or first-max.");
       }
     } else if (typeof record[key] !== "number" || !Number.isFinite(record[key])) {
-      return { kind: "refused", refusal: makeRefusal("nonfinite-input", { parameterIds: [key] }) };
+      return {
+        kind: "refused",
+        refusal: makeRefusal(
+          "nonfinite-input",
+          { parameterIds: [key] },
+          {
+            details: {
+              requirements: `Enter ${LQ01_FIELD_NAMES[key] ?? "this value"} as a number.`,
+            },
+          },
+        ),
+      };
     }
   }
   const p = record as unknown as Lq01Parameters;
-  if (p.A1 < 0 || p.A2 < 0) {
-    return refused(["A1", "A2"], "Amplitudes A1 and A2 must be non-negative.");
-  }
+  if (p.A1 < 0) return refused(["A1"], "Enter a wave 1 amplitude of zero or more.");
+  if (p.A2 < 0) return refused(["A2"], "Enter a wave 2 amplitude of zero or more.");
   if (p.wavelength <= 0) {
-    return refused(["wavelength"], "Wavelength must be strictly positive.");
+    return refused(["wavelength"], "Enter a wavelength greater than zero.");
   }
   if (p.separation < 0) {
-    return refused(["separation"], "Source separation must be non-negative.");
+    return refused(["separation"], "Enter a source separation of zero or more, in wavelengths.");
   }
   if (p.screenDistance <= 0) {
-    return refused(["screenDistance"], "Screen distance must be strictly positive.");
+    return refused(
+      ["screenDistance"],
+      "Enter a screen distance greater than zero, in wavelengths.",
+    );
   }
   if (p.P <= 0) {
-    return refused(["P"], "Source radiant power P must be strictly positive.");
+    return refused(["P"], "Enter a source power greater than zero, in W.");
   }
   if (p.r <= 0) {
     return refused(
       ["r"],
-      "Observation distance r must be strictly positive: the point-source idealization has no finite intensity at the source.",
+      "Enter an observation radius greater than zero, in m: an ideal point source has no finite intensity at the source itself.",
     );
   }
   return { kind: "accepted", data: Object.freeze({ ...p }) };
