@@ -360,7 +360,9 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
       }
       procResult = spawnObserved(cmd, args, {
         cwd: rootDir,
-        env: process.env,
+        // A step that writes its own JSONL (the apple family) logs under this run's id, so one gate
+        // run is one file per suite instead of one per step process.
+        env: { ...process.env, AM_LOG_RUN_ID: logRunId },
       });
     } catch (err) {
       const stepDuration = Date.now() - stepStart;

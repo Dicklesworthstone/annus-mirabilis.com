@@ -183,6 +183,33 @@ describe("Quality Gates Runner Engine", () => {
     expect(summary.failedCount).toBe(0);
   });
 
+  it("gives every step the run's log id, so a step's own JSONL joins the run's", () => {
+    const logRunId = "20260924T120000Z-0a1b2c3d";
+    const summary = runQualityGates({
+      steps: [
+        {
+          id: "run-id-step",
+          title: "Sees the run's log id",
+          command: [
+            "bun",
+            "-e",
+            `process.exit(process.env.AM_LOG_RUN_ID === "${logRunId}" ? 0 : 5)`,
+          ],
+          family: "fast",
+          cadence: "every-run",
+          requiredInCi: true,
+          requiredInProfiles: ["scaffold"],
+          availability: {},
+          owner: "test-owner",
+        },
+      ],
+      mode: "fail-fast",
+      silent: true,
+      logRunId,
+    });
+    expect(summary.outcome).toBe("passed");
+  });
+
   it("stops at first failure in fail-fast mode", () => {
     const fixtureSteps: GateStep[] = [
       {
