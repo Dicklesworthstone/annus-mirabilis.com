@@ -8,12 +8,17 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import {
   SR07_CAPTION,
   SR07_COMPONENTS,
   SR07_EQUATIONS,
-  SR07_MODEL,
   SR07_NOT_MODELED,
+  SR07_OUTPUTS,
   SR07_PRESETS,
   SR07_STEPS,
   type Sr07EquationId,
@@ -142,20 +147,38 @@ export function FieldEquationsLab({
   const invariant =
     formOk.status === "value" && typeof formOk.value === "number" && formOk.value === 1;
 
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation of the residuals a host calculation. The algebra above them
+  // is always a static worked example, and the text beside the residuals says so.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      SR07_OUTPUTS,
+      example.sourceDigest,
+      snapshot !== undefined && snapshot === session.getServerSnapshot().accepted,
+    ).label,
+  );
   return (
     <section
       className="laboratory-shell"
       aria-label={title}
       data-instrument-id="sr-07"
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, view, "residualMax")}
       data-source-digest={example.sourceDigest}
       data-unit-layer={p.unitLayer}
       {...identity(snapshot)}
     >
       <header className="lab-heading">
-        <p className="eyebrow">{SR07_MODEL.label}</p>
+        <p className="eyebrow">An executable model</p>
         <h2>{title}</h2>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          modelNote={modelNoteFromView(view, { notModeled: `${SR07_NOT_MODELED.join("; ")}.` })}
+        />
+      </div>
       <p data-detail="0">{withScripts(SR07_CAPTION.r0)}</p>
       <p data-detail="1">{withScripts(SR07_CAPTION.r1)}</p>
       <p data-detail="2" hidden>

@@ -3,6 +3,7 @@ import { Formula } from "../../../components/edition/Formula.tsx";
 import { FieldEquationsComparison } from "../../../components/lab/sr07/FieldEquationsLab.tsx";
 import { validateSr07Parameters } from "../../../experiments/sr07/parameters.ts";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr07/session.ts";
+import labDigests from "../../../generated/lab-source-digests.json";
 import "./equations.css";
 
 export const metadata: Metadata = {
@@ -26,7 +27,12 @@ export default function FieldEquationsPage() {
         </p>
       </header>
       <FieldEquationsComparison
-        example={{ ...DEFAULT_PREPARED_EXAMPLE, parameters: checked.data }}
+        // The example names its host source by digest (scripts/generate-lab-digests.mjs).
+        example={{
+          ...DEFAULT_PREPARED_EXAMPLE,
+          parameters: checked.data,
+          sourceDigest: labDigests["sr-07"],
+        }}
       />
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
