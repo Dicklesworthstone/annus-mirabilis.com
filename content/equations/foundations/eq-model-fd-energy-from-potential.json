@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-energy-from-potential",
+  "paper": "foundations",
+  "argument": "electromagnetism-charges",
+  "title": "The energy a charge gains across a potential difference",
+  "spoken": "Delta W equals q times Delta V.",
+  "explanation": "A potential difference of one volt gives each coulomb of charge one joule. An electron, charge 1.602 × 10⁻¹⁹ C, crossing one volt gains 1.602 × 10⁻¹⁹ J: one electron volt.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "The charge starts at rest and nothing else does work on it.",
+    "A foundation lesson's worked case in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-energy-from-potential.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-energy-from-potential.t.w",
+      "quantityId": "kineticEnergy"
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-energy-from-potential.op.product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-energy-from-potential.t.q",
+          "quantityId": "particleChargeMagnitude"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-energy-from-potential.t.v",
+          "quantityId": "acceleratingPotential"
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-energy-from-potential.op.relation",
+      "title": "What it asserts",
+      "explanation": "The energy gained is the charge times the potential difference crossed.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-fd-energy-from-potential.op.product",
+      "title": "Charge times voltage",
+      "explanation": "Coulombs times volts gives joules.",
+      "foundation": "bridge-scientific-notation-units"
+    },
+    {
+      "nodeId": "eq-model-fd-energy-from-potential.t.w",
+      "title": "Energy gained",
+      "explanation": "ΔW: the energy the charge gains, in joules.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-fd-energy-from-potential.t.q",
+      "title": "Charge",
+      "explanation": "q: the size of the charge, here the electron's 1.602 × 10⁻¹⁹ C.",
+      "foundation": "electromagnetism-charges"
+    },
+    {
+      "nodeId": "eq-model-fd-energy-from-potential.t.v",
+      "title": "Potential difference",
+      "explanation": "ΔV: the voltage crossed, 1 V in the example.",
+      "foundation": "electromagnetism-charges"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The "
+    },
+    {
+      "text": "energy gained",
+      "nodeId": "eq-model-fd-energy-from-potential.t.w"
+    },
+    {
+      "text": " is the "
+    },
+    {
+      "text": "charge",
+      "nodeId": "eq-model-fd-energy-from-potential.t.q"
+    },
+    {
+      "text": " times the "
+    },
+    {
+      "text": "potential difference",
+      "nodeId": "eq-model-fd-energy-from-potential.t.v"
+    },
+    {
+      "text": " it crosses."
+    }
+  ]
+}

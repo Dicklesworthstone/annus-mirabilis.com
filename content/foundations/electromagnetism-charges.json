@@ -41,7 +41,8 @@
     {
       "kind": "formula",
       "latex": "\\Delta W = q\\,\\Delta V",
-      "spoken": "The change in energy equals the charge times the potential difference."
+      "spoken": "The change in energy equals the charge times the potential difference.",
+      "equations": ["eq-model-fd-energy-from-potential"]
     },
     {
       "kind": "steps",

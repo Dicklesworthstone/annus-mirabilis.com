@@ -397,6 +397,23 @@ export const FOUNDATION_QUANTITIES: QuantityRegistry = Object.freeze(
         role: "result",
         definition: "The momentum light carries in one direction: its energy divided by c.",
       }),
+      // Charges, fields and light: the energy a charge gains crossing a potential difference,
+      // printed ΔW = q ΔV in the lesson.
+      pick(SPECIAL_RELATIVITY_QUANTITIES, "particleChargeMagnitude", {
+        name: "Charge",
+        glyph: "q",
+        definition: "q: the size of the charge carried across, here the electron's e.",
+      }),
+      pick(SPECIAL_RELATIVITY_QUANTITIES, "acceleratingPotential", {
+        name: "Potential difference",
+        glyph: "\\Delta V",
+        definition: "ΔV: the potential difference the charge crosses, in volts.",
+      }),
+      pick(SPECIAL_RELATIVITY_QUANTITIES, "kineticEnergy", {
+        name: "Energy gained",
+        glyph: "\\Delta W",
+        definition: "ΔW: the energy the charge gains crossing ΔV, starting from rest.",
+      }),
     ].map((q) => [q.id, q]),
   ),
 );
