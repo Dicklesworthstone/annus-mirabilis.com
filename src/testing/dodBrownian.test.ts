@@ -20,7 +20,7 @@ test("Brownian DoD Item 1: complete paper text inventory", async () => {
   assert.equal(paper.sourceStatus, "in-preparation");
 
   const sectionIds = (paper.sections || []).map((s: { id: string }) => s.id);
-  assert.deepEqual(sectionIds, ["s0", "s4", "s5"]);
+  assert.deepEqual(sectionIds, ["s0", "s1", "s4", "s5"]);
 
   suiteLogger.log({
     testId: "dod-item-1-complete-paper-text",
@@ -28,7 +28,8 @@ test("Brownian DoD Item 1: complete paper text inventory", async () => {
     paper: "brownian-motion",
     outcome: "passed",
     durationMs: Date.now() - startTime,
-    message: "Verified Item 1: the introduction, §4 and §5 authored; §§1-3 and the closing absent.",
+    message:
+      "Verified Item 1: the introduction, §1, §4 and §5 authored; §§2-3 and the closing absent.",
     extra: {
       item: "1. Complete paper text",
       check: "sections-inventory",
@@ -89,6 +90,7 @@ test("Brownian DoD Item 3: explanations and foundations inventory", async () => 
     "arg-bm-inference.json",
     "arg-bm-introduction.json",
     "arg-bm-observable.json",
+    "arg-bm-osmotic-suspended.json",
   ]);
   assert.equal(
     argFiles.includes("entrance-brownian-motion.json"),
@@ -107,7 +109,7 @@ test("Brownian DoD Item 3: explanations and foundations inventory", async () => 
     outcome: "passed",
     durationMs: Date.now() - startTime,
     message:
-      "Verified Item 3: 7 arguments for the introduction and §§4-5, and >=18 foundation records present.",
+      "Verified Item 3: 8 arguments for the introduction, §1 and §§4-5, and >=18 foundation records present.",
     extra: {
       item: "3. Explanations",
       check: "arguments-and-foundations-count",

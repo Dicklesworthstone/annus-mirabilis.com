@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-bm-osmotic-suspended",
+  "paper": "brownian-motion",
+  "section": "s1",
+  "title": "Why a suspended grain should press like a dissolved molecule",
+  "question": "Should small bodies suspended in a liquid press on a wall that holds them back, as dissolved molecules do, and what would tell the two expectations apart?",
+  "recap": "Classical thermodynamics, as Einstein characterizes it, expects no force on the wall from suspended bodies, because the free energy seems not to depend on where they are. On the molecular-kinetic view a dissolved molecule differs from a suspended body only in size, so equally many of either, far enough apart, should exert the same osmotic pressure, RT/N times their number per unit volume.",
+  "review": "draft",
+  "premises": [
+    "Van 't Hoff's law for a dilute solution of a non-electrolyte held behind a wall that passes the solvent only: pV* = RTz, for large enough V*/z.",
+    "On the molecular-kinetic theory of heat, a dissolved molecule differs from a suspended body only in size.",
+    "The suspended bodies are few enough that neighbouring bodies are far apart."
+  ],
+  "limitations": [
+    "Gravity is set aside, and so are the energy and entropy of the surfaces between bodies and liquid (capillary forces), on the assumption that the moves considered do not change those surfaces.",
+    "§1 states the molecular-kinetic expectation; §2 derives it from the theory. Neither section says which view nature follows; that is for observation.",
+    "The law is for great dilution. Crowded bodies, or bodies that act on one another, depart from it."
+  ],
+  "citations": ["ap-17-549"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "A dissolved substance held behind a wall that passes only the solvent presses on it with the osmotic pressure. Classical thermodynamics, as Einstein characterizes it, expects small suspended bodies to exert no such force, because the free energy seems not to depend on where they are; on the molecular-kinetic view they differ from dissolved molecules only in size, so equally many of either, far enough apart, should press alike."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "Take a liquid of total volume V. In part of it, a volume \\(V^*\\), dissolve z gram-molecules of a non-electrolyte, a substance that does not split into ions, and separate \\(V^*\\) from the pure solvent by a wall that lets the solvent through but not the dissolved substance. The dissolved molecules push on that wall. The push on each unit of its area is the osmotic pressure p, and when \\(V^*/z\\) is large enough, that is, when the solution is dilute, it obeys the law van 't Hoff found, which has the form of the gas law:"
+      },
+      {
+        "kind": "formula",
+        "latex": "pV^*=RTz",
+        "spoken": "p times V star equals R times T times z."
+      },
+      {
+        "kind": "paragraph",
+        "text": "R is the gas constant and T the absolute temperature. Pressure is force per unit area: the force on the whole wall is p times the wall's area."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Now put small bodies suspended in the liquid into \\(V^*\\) in place of the dissolved substance, bodies that also cannot pass through the wall. What does classical thermodynamics expect? Einstein states its answer together with its reason. At a fixed temperature the force on the wall follows from how the free energy of the system changes when the wall is moved. On the usual view the free energy depends on the total masses and kinds of the suspended substance, the liquid and the wall, and on pressure and temperature, but not on where the wall and the suspended bodies are. If moving the wall does not change the free energy, the wall feels no force. So, gravity aside, classical thermodynamics does not expect the suspended bodies to exert any force on the wall."
+      },
+      {
+        "kind": "foundation",
+        "id": "free-energy-osmotic-pressure",
+        "returnCaption": "Return to the classical expectation for suspended bodies."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Einstein sets two effects aside so that the comparison is fair. Gravity, which would pull the bodies down, does not concern him here. The energy and entropy of the surfaces where the bodies meet the liquid (capillary forces) would also enter the free energy, but he assumes the moves considered do not change the size or nature of those surfaces, so they drop out."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The classical expectation is a coherent position, and for ordinary bodies it agrees with experience: a few pebbles held behind a sieve do not push on it measurably. The question is whether it still holds for bodies small enough to be jostled by the molecules of the liquid."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The molecular-kinetic theory of heat reaches a different view. On it, a dissolved molecule differs from a suspended body only in size (Einstein sets 'lediglich', only, in italics), and there is no reason why a number of suspended bodies should not give the same osmotic pressure as the same number of dissolved molecules. Jostled by the molecular motion of the liquid, the suspended bodies must perform an irregular motion in it, however slow; if the wall keeps them from leaving \\(V^*\\), they exert forces on it, just as dissolved molecules do."
+      },
+      {
+        "kind": "paragraph",
+        "text": "With n suspended bodies in \\(V^*\\), so that there are \\(\\nu = n/V^*\\) of them in each unit of volume, and with neighbouring bodies far enough apart, the osmotic pressure should be"
+      },
+      {
+        "kind": "formula",
+        "latex": "p=\\frac{RT}{V^*}\\frac{n}{N}=\\frac{RT}{N}\\,\\nu",
+        "spoken": "p equals R T over V star, times n over N, which equals R T over N, times nu."
+      },
+      {
+        "kind": "paragraph",
+        "text": "where N is the number of real molecules in a gram-molecule. The first form is van 't Hoff's law with \\(z = n/N\\) gram-molecules; the second says that the pressure depends on the number of bodies per unit volume and on the temperature, and not on their size or mass."
+      },
+      {
+        "kind": "foundation",
+        "id": "temperature-thermal-energy",
+        "returnCaption": "Return to where the pressure depends on temperature and number, not size."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The two views disagree about something that can be looked for. If suspended bodies exert osmotic pressure, then wherever their number per unit volume varies, so does the pressure, and it pushes them toward thinner regions; §3 shows that this appears as diffusion, and §§4 and 5 predict how far a grain wanders in a given time. On the classical expectation there is no osmotic pressure to drive such a spread. Observing the predicted wandering, with the predicted size, would count for the molecular-kinetic view, and its absence against it. First, §2 shows that the molecular-kinetic theory really leads to the extended law."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "paragraph",
+        "text": "Letters, as the paper prints them. V is the total volume of the liquid and \\(V^*\\) the part of it behind the wall. z is the number of gram-molecules dissolved in \\(V^*\\); a gram-molecule is what is now called a mole. p is the osmotic pressure, R the gas constant, T the absolute temperature. n is the number of suspended bodies, a count. ν is their number per unit volume, \\(\\nu = n/V^*\\), and not a frequency. N is the number of real molecules in a gram-molecule, now called Avogadro's number. Three letters, three different numbers: n counts the bodies, ν counts them per unit volume, N counts the molecules in a gram-molecule."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The wall. It is semipermeable: the solvent, say water, passes through it; the dissolved substance does not. The solution is on one side, pure solvent on the other.",
+          "Osmotic pressure. The dissolved molecules push on the wall. The push on each unit of area is the osmotic pressure p. Pressure is force divided by area, so a wall of area A feels the force \\(pA\\).",
+          "Van 't Hoff's law. For a dilute solution, one in which \\(V^*/z\\) is large, the pressure obeys the same law as an ideal gas of as many molecules in the same volume:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "pV^*=RTz",
+        "spoken": "p times V star equals R times T times z."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Reading it. Doubling the amount dissolved, z, doubles p. Doubling the volume \\(V^*\\) at fixed z halves p. Raising the absolute temperature T raises p in proportion.",
+          "A worked case, with today's value of the gas constant, \\(R \\approx 8.314\\) joule per kelvin per gram-molecule: one gram-molecule in 22.4 litres at 273 K gives \\(p = RTz/V^* \\approx 8.314 \\times 273 / 0.0224 \\approx 101\\,300\\) pascal, about one atmosphere, the pressure one gram-molecule of gas exerts in that volume at 0 °C.",
+          "Classical thermodynamics, for suspended bodies. Replace the dissolved substance by small bodies that float in the liquid and also cannot pass the wall. At a fixed temperature the force on the wall is found from the free energy F of the whole system: if moving the wall a little changes F, there is a force; if not, there is none.",
+          "On the usual view, F depends on the total masses and kinds of the suspended substance, the liquid and the wall, and on pressure and temperature. It does not depend on where the wall is, or where the bodies are. So moving the wall leaves F unchanged, and classical thermodynamics expects no force on the wall from the suspended bodies.",
+          "What is set aside. Gravity, which would make the bodies sink. And the energy and entropy of the surfaces between bodies and liquid, the capillary forces, removed by assuming that the moves considered do not change those surfaces. Without these set-asides the classical expectation would carry extra forces that have nothing to do with the question."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "free-energy-osmotic-pressure",
+        "returnCaption": "Return to the classical expectation for suspended bodies."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Why the classical expectation is reasonable. For ordinary bodies it matches experience: a few pebbles held behind a sieve do not press on it measurably. It is a coherent position, and §1 treats it as one: the question it asks is whether the expectation still holds for bodies small enough to be jostled by molecules.",
+          "The molecular-kinetic view. A dissolved molecule and a suspended body differ only in size. Both are struck by the liquid's molecules and move irregularly, the body far more slowly. A body kept in by the wall strikes it now and then, and so pushes on it, as a dissolved molecule does.",
+          "So equally many bodies and molecules should give the same pressure. Take n bodies in \\(V^*\\). They amount to \\(z = n/N\\) gram-molecules' worth of particles, because a gram-molecule holds N particles. Put that z into van 't Hoff's law and divide by \\(V^*\\); since \\(\\nu = n/V^*\\), the last step replaces \\(n/V^*\\) by ν:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "p=\\frac{RT}{V^*}\\frac{n}{N}=\\frac{RT}{N}\\,\\nu",
+        "spoken": "p equals R T over V star, times n over N, which equals R T over N, times nu."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Reading the result. The pressure is RT/N times ν, the number of bodies per unit volume. Their size and mass do not appear. A body a thousand times bigger than a molecule presses no harder, as long as there are equally many per unit volume.",
+          "The condition. Neighbouring bodies must be far enough apart, the same condition as a dilute solution. Crowded bodies, or bodies that act on one another, depart from the law.",
+          "For scale, with today's value of R/N, \\(1.38\\times10^{-23}\\) joule per kelvin, at T = 290 K, the 17 °C of the paper's §5 example, the factor RT/N is about \\(4.0\\times10^{-21}\\) joule. A suspension with \\(10^{16}\\) grains per cubic metre, ten million per cubic millimetre, would press with about \\(4\\times10^{-5}\\) pascal: far too little to measure directly. The paper's test lies in the motion, in §§4 and 5."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "temperature-thermal-energy",
+        "returnCaption": "Return to where the pressure depends on temperature and number, not size."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "What tells the views apart. On the molecular-kinetic view, wherever the number per unit volume varies, the pressure varies, and it pushes the bodies toward thinner regions: §3 shows that this is diffusion, and §§4 and 5 predict how far a grain wanders in a given time. On the classical expectation there is no osmotic pressure to drive such a spread.",
+          "So observing the predicted wandering, with its predicted size, would count for the molecular-kinetic view, and its absence against it. §1 only states the expectation; §2 shows that the molecular-kinetic theory really leads to it."
+        ]
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "Van 't Hoff stated the law for dilute solutions in 1887 (Zeitschrift für physikalische Chemie 1, p. 481), drawing on Wilhelm Pfeffer's measurements of 1877 with membranes that pass water but not sugar (Osmotische Untersuchungen). The paper takes the law as known and cites neither."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The expectation Einstein attributes to classical thermodynamics is his own characterization of 'the usual view' (der üblichen Auffassung); the paper names no one who held it. The paper does not call that view mistaken. It says the molecular-kinetic theory leads to a different one, and §2 shows how."
+      },
+      {
+        "kind": "paragraph",
+        "text": "A modern lens: R/N is what is now written \\(k_B\\), Boltzmann's constant, so the extended law reads \\(p = \\nu k_B T\\), the ideal-gas law for particles of any size. The paper's N is what is now called Avogadro's number; since 2019 it has an exact defined value, and in 1905 it was known only roughly. §5 of this paper proposes a way to measure it."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Later evidence: Jean Perrin's measurements of 1908 and 1909 found that the grains of a suspension at rest thin out with height as a gas of very heavy molecules would, which is what the extended law predicts once gravity is put back. That is later evidence, dated after this paper, and not a premise of it."
+      }
+    ]
+  },
+  "prerequisites": [],
+  "help": {
+    "why": "free-energy-osmotic-pressure",
+    "missingStep": "ratios-scaling",
+    "example": "temperature-thermal-energy"
+  },
+  "experiments": ["bm-02"],
+  "meaning": {
+    "logicalRole": "heuristic-inference",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "approximation",
+    "executionStatus": "static-illustration"
+  }
+}

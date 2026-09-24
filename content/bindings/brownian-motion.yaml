@@ -15,16 +15,13 @@ paragraphs:
     passages: [arg-bm-introduction]
     r0: "If the motion and its laws can be observed, classical thermodynamics no longer holds exactly for spaces visible under a microscope, and the true size of atoms can be determined exactly; if the predicted motion is not found, that is a serious argument against the molecular-kinetic view of heat."
   - unit: s1-p1
-    status: unexplained
-    reason: "No explanation passage covers §1 yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-osmotic-suspended]
     r0: "A dissolved substance held in part of a liquid by a wall that lets the solvent through presses on that wall with the osmotic pressure, which for a dilute solution obeys the gas law, pressure times volume equals R times T times the number of gram-molecules."
   - unit: s1-p2
-    status: unexplained
-    reason: "No explanation passage covers §1 yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-osmotic-suspended]
     r0: "By classical thermodynamics, small suspended bodies held back by the same kind of wall should exert no force on it, because the free energy of the system seems not to depend on where the wall and the bodies are."
   - unit: s1-p3
-    status: unexplained
-    reason: "No explanation passage covers §1 yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-osmotic-suspended]
     r0: "On the molecular-kinetic view a dissolved molecule differs from a suspended body only in size, so suspended bodies in slow irregular motion should press on the wall as dissolved molecules do, with osmotic pressure RT/N times their number per unit volume, N being the number of real molecules in a gram-molecule; §2 is to show that the theory leads there."
   - unit: s2-fn1
     status: unexplained
@@ -129,11 +126,11 @@ paragraphs:
     r0: "Einstein closes by hoping that a researcher will soon succeed in deciding the question raised here, which he calls important for the theory of heat."
 displays:
   - unit: eq-s1-d1
-    status: unexplained
-    reason: "No explanation passage covers §1 yet; the paper page lists it as not yet explained."
+    status: no-record
+    reason: "Printed in §1 and shown as a formula in arg-bm-osmotic-suspended, which explains it in prose; no equation record draws this display."
   - unit: eq-s1-d2
-    status: unexplained
-    reason: "No explanation passage covers §1 yet; the paper page lists it as not yet explained."
+    status: no-record
+    reason: "Printed in §1 and shown as a formula in arg-bm-osmotic-suspended, which explains it in prose; no equation record draws this display."
   - unit: eq-s2-d1
     status: unexplained
     reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
@@ -251,8 +248,7 @@ obligations:
   - obligation: "arg:brownian-introduction-conditional"
     passages: [arg-bm-introduction]
   - obligation: "arg:brownian-osmotic-pressure"
-    status: unexplained
-    reason: "No explanation passage covers §1 yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-osmotic-suspended]
   - obligation: "arg:brownian-statistical-mechanics"
     status: unexplained
     reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
