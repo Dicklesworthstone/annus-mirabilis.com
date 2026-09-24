@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { ME02_DEFAULTS } from "../experiments/me02/definition.ts";
 import { validateMe02Parameters } from "../experiments/me02/parameters.ts";
 import { refusalSentence } from "../experiments/results/refusalSentence.ts";
+import { SR01_DEFAULTS } from "../experiments/sr01/definition.ts";
+import { validateSr01Parameters } from "../experiments/sr01/parameters.ts";
 import { SR02_DEFAULTS } from "../experiments/sr02/definition.ts";
 import { validateSr02Parameters } from "../experiments/sr02/parameters.ts";
 import { SR08_DEFAULTS } from "../experiments/sr08/definition.ts";
@@ -86,4 +88,38 @@ describe("a typed value outside a lab's range is refused with a sentence that sa
     expect(refusalSentence({ message: GENERIC })).toBe(GENERIC);
     expect(refusalSentence({ message: GENERIC, details: { requirements: "   " } })).toBe(GENERIC);
   });
+});
+
+/**
+ * SR-01 gave a requirement sentence, but it named the code's parameter ids ("stationSeparationLs
+ * must be a finite, positive number of light-seconds."), and the lab showed it verbatim. Every
+ * refusal a reader can reach by typing must name the control as the page does and say what to
+ * enter. A camel-case identifier in the sentence is the tell.
+ */
+const IDENTIFIER = /\b[a-z]+[A-Z][A-Za-z]*\b/;
+const SR01_CASES: readonly (readonly [string, Record<string, unknown>, string])[] = [
+  ["station separation 0", { stationSeparationLs: 0 }, "station separation AB"],
+  ["pair separation -3", { pairSeparationLs: -3 }, "moving pair's separation L"],
+  ["emission time not a number", { emissionTimeA: Number.NaN }, "emission time at A"],
+  ["clock offset text", { clockOffsetB: "x" }, "clock B's initial offset"],
+  ["pair velocity c", { pairBeta: 1 }, "moving pair's velocity"],
+  ["station speed -1.2", { rodBeta: -1.2 }, "stations' speed"],
+  ["frame not a number", { frameBeta: Number.NaN }, "frame of description"],
+];
+
+describe("SR-01 refusals name the control as the page does, never a parameter id", () => {
+  test("the identifier pattern catches the old sentence (positive control)", () => {
+    expect(IDENTIFIER.test("stationSeparationLs must be a finite, positive number.")).toBe(true);
+  });
+  for (const [label, bad, names] of SR01_CASES) {
+    test(label, () => {
+      const checked = validateSr01Parameters({ ...SR01_DEFAULTS, ...bad });
+      expect(checked.kind).toBe("refused");
+      if (checked.kind !== "refused") return;
+      const sentence = refusalSentence(checked.refusal);
+      expect(sentence.startsWith("Enter")).toBe(true);
+      expect(sentence).toContain(names);
+      expect(sentence).not.toMatch(IDENTIFIER);
+    });
+  }
 });
