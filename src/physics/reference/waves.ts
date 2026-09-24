@@ -1407,7 +1407,7 @@ export function evaluateSr11(input: Sr11Input): Sr11EvaluationResult {
   let explanation: string;
 
   if (frame === "mirror") {
-    const ledger = mirrorFrameLedger(beta, phiRad, { I: u, Am, c });
+    const ledger = mirrorFrameLedger(beta, phiRad, { I: u * c, Am, c }); // I is intensity, u·c
     frequencyRatio = ledger.frequencyFactor;
     cosPhiReflected = ledger.cosPhiPrime;
     phiReflectedRad = ledger.phiPrimeRad;
