@@ -83,7 +83,7 @@ struct EditionLinkPolicyTests {
         "every other scheme is refused",
         arguments: [
             "http://example.com/", "mailto:someone@example.com", "tel:123", "javascript:alert(1)", "data:text/html,x",
-            "am-edition://elsewhere/",
+            "am-edition://elsewhere/", "file:///etc/hosts", "file:///private/var/mobile/Containers/Data/", "sms:123",
         ])
     func refusedSchemes(link: String) {
         #expect(EditionLinkPolicy.decide(URL(string: link)!, catalog: catalog) == .refuse)

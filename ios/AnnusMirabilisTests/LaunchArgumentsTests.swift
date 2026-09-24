@@ -62,6 +62,12 @@ struct LaunchArgumentsTests {
         #expect(!(try LaunchArguments.parse([]).get().holdLoad))
     }
 
+    @Test("-AMFailFirstLoad fails the first page load once, and only when asked")
+    func failFirstLoad() throws {
+        #expect(try LaunchArguments.parse(["-AMFailFirstLoad"]).get().failFirstLoad)
+        #expect(!(try LaunchArguments.parse(["-AMUITest"]).get().failFirstLoad))
+    }
+
     @Test("a state suite names a separate store, and only a plain name is accepted")
     func stateSuite() throws {
         let parsed = try LaunchArguments.parse(["-AMStateSuite", "uitest-3F2A"]).get()

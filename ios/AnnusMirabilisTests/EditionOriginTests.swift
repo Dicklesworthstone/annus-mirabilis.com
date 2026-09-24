@@ -156,5 +156,6 @@ struct EditionOriginTests {
         await handler.settle()
         #expect(task.response == nil)
         #expect((task.failure as? URLError)?.code == .fileDoesNotExist)
+        #expect((task.failure as? URLError)?.failingURL == task.request.url, "the failure names its page")
     }
 }

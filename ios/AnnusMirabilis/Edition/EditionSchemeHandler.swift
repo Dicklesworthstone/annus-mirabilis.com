@@ -65,7 +65,9 @@ final class EditionSchemeHandler: NSObject, WKURLSchemeHandler {
             let body = await read(source)
             guard inFlight.remove(id) != nil else { return }
             guard let body else {
-                urlSchemeTask.didFailWithError(URLError(.fileDoesNotExist))
+                // Named, so the reader's "Try again" reloads this page (EditionSession.didFailLoad).
+                let failure = URLError(.fileDoesNotExist, userInfo: [NSURLErrorFailingURLErrorKey: url])
+                urlSchemeTask.didFailWithError(failure)
                 return
             }
             respond(urlSchemeTask, url: url, status: status, body: body, contentType: file.contentType)

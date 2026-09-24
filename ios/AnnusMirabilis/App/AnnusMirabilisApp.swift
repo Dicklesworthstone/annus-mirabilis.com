@@ -27,8 +27,8 @@ enum EditionStore {
         var launchURL: URL?
         var holdLoad = false
         var siteLink: URL?
-        var killWebContent = false
         #if DEBUG
+            var debugLaunch: LaunchArguments?
             if case .success(let launch) = LaunchArguments.parse(arguments) {
                 if let suite = launch.stateSuite, let isolated = UserDefaults(suiteName: suite) {
                     defaults = isolated
@@ -39,7 +39,7 @@ enum EditionStore {
                 launchURL = launch.openRoute.flatMap { EditionCatalog.url(route: $0, anchor: launch.openAnchor) }
                 holdLoad = launch.holdLoad
                 siteLink = launch.openSiteURL
-                killWebContent = launch.killWebContentOnceReady
+                debugLaunch = launch
             }
         #endif
         let store = ReaderLocationStore(defaults: defaults)
@@ -49,7 +49,7 @@ enum EditionStore {
             readerData: readerData, themeStore: PageThemeStore(defaults: defaults),
             contentSize: UIApplication.shared.preferredContentSizeCategory)
         #if DEBUG
-            session.killWebContentOnceReady = killWebContent
+            if let debugLaunch { session.apply(debugLaunch) }
         #endif
         if holdLoad {
             Task { @MainActor in
@@ -100,6 +100,12 @@ struct RootView: View {
                 EditionWebView(session: session)
                     .ignoresSafeArea()
                     .preferredColorScheme(session.pageColorScheme)
+                    // Under the page actions, so Contents still reaches every other page.
+                    .overlay {
+                        if session.loadFailure != nil {
+                            LoadFailureView { session.retryLoad() }
+                        }
+                    }
                     .overlay(alignment: .bottomTrailing) {
                         PageActionsButton(session: session)
                             .padding(.trailing, 16)
@@ -183,6 +189,43 @@ struct EditionUnavailableView: View {
         .frame(maxWidth: .infinity)
         .background(Color("LaunchBackground"))
         .accessibilityIdentifier("edition-unavailable")
+    }
+}
+
+/// Shown over the reader when a page could not be loaded (bead am-app-edition-webview-ju3v,
+/// criterion 5): what happened, in plain words, and the same page again on request.
+struct LoadFailureView: View {
+    let retry: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Each text takes its whole height: in the flexible frame below, the audit found the
+            // three-line explanation "may be clipped" (run 20260924T130548Z-d52ca419).
+            Text("This page could not be opened")
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(Color("PageInk"))
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
+            Text("The app carries the whole edition, so no connection is needed. Trying again reloads the page.")
+                .font(.body)
+                .foregroundStyle(Color("PageInk"))
+                .fixedSize(horizontal: false, vertical: true)
+            Button(action: retry) {
+                Text("Try again")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Color("PageInk"))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color("PageInk"), lineWidth: 1))
+            }
+            .accessibilityIdentifier("load-failure-retry")
+        }
+        .padding(24)
+        .frame(maxWidth: 560, maxHeight: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity)
+        .background(Color("LaunchBackground").ignoresSafeArea())
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("load-failure")
     }
 }
 

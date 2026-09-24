@@ -31,6 +31,10 @@ final class EditionSession {
     private(set) var lastSafariLink: URL?
     /// How often the page's web process has ended and the passage been reloaded.
     private(set) var webProcessTerminations = 0
+    /// The page that could not be loaded, which the reader can try again; nil while pages load.
+    var loadFailure: URL?
+    /// The page the app last asked the web view for: the one to retry when WebKit names none.
+    @ObservationIgnored var lastRequestedURL: URL?
     /// DEBUG UI tests only: the lifecycle events sent to the page, newest last.
     var deliveredLifecycleEvents: [String] = []
     /// DEBUG UI tests only: the site keys in the last snapshot the page mirrored to the app, never
@@ -119,13 +123,13 @@ final class EditionSession {
         navigator.onWebProcessTerminated = { [weak self] in
             self?.recoverFromTermination()
         }
+        navigator.onLoadFailed = { [weak self] in self?.didFailLoad($0) }
+        navigator.onLoadFinished = { [weak self] in self?.loadFailure = nil }
         observeLifecycle()
         router.onTheme = { [weak self] theme in
             self?.didReceiveTheme(theme)
         }
-        router.onTypeSize = { [weak self] size in
-            self?.pageTypeSize = size
-        }
+        router.onTypeSize = { [weak self] in self?.pageTypeSize = $0 }
         router.onStorageWrite = { [weak self] namespace, key, value in
             guard let self, exposesRouteForTests, let record = catalog.readerData?.snapshot,
                 namespace == record.namespace, key == record.key
@@ -194,10 +198,6 @@ final class EditionSession {
 
     /// The page on the website, for sharing and Handoff.
     var canonicalURL: URL? { currentURL.flatMap(SiteURL.canonical(for:)) }
-
-    func load(_ url: URL) {
-        webView.load(URLRequest(url: url))
-    }
 
     /// The website inside the app, over whatever is showing. A link that launches the app arrives
     /// before the web view is in a window, with nothing yet to present from, so it waits for one:

@@ -46,6 +46,38 @@
         }
     }
 
+    /// A launch's test-only switches (LaunchArguments).
+    extension EditionSession {
+        func apply(_ launch: LaunchArguments) {
+            killWebContentOnceReady = launch.killWebContentOnceReady
+            if launch.failFirstLoad { failFirstDocumentLoad() }
+        }
+
+        /// The edition origin fails the first page it is asked for, once, the way a failed read does,
+        /// so the load-failure screen and its retry can be tested (bead am-app-edition-webview-ju3v).
+        private func failFirstDocumentLoad() {
+            let scheme = EditionCatalog.scheme
+            guard let handler = webView.configuration.urlSchemeHandler(forURLScheme: scheme) as? EditionSchemeHandler
+            else { return }
+            let read = handler.read
+            let armed = FailOnce()
+            handler.read = { url in
+                if url.pathExtension == "html", await armed.fire() { return nil }
+                return await read(url)
+            }
+        }
+    }
+
+    /// True the first time it is asked, and never again.
+    private actor FailOnce {
+        private var armed = true
+
+        func fire() -> Bool {
+            defer { armed = false }
+            return armed
+        }
+    }
+
     extension EditionCatalog {
         /// The test console's source, only if its bytes match the recorded digest.
         func verifiedTestConsole() -> String? {

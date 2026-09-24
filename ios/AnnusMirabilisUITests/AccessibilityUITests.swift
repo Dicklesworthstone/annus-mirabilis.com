@@ -17,6 +17,12 @@ import XCTest
 ///   plain text, a Label, with an explicit font, an explicit colour and without an identifier alike.
 ///   The claim is contradicted by the screen: at AccessibilityXXXL the label wraps onto two lines,
 ///   whole. testOpenTheRouteGrowsWithTheReadersTextSize measures that instead, and fails if it stops.
+/// - On the screen scrolled to "Open the route" alone, a Dynamic Type or clipping issue the audit
+///   attaches to no element. Its app-a11y records show what these are: in three full runs on
+///   2026-09-24 the screen passed over Done and two issues on "Open the route"; in the fourth
+///   (20260924T124602Z-6c8aefa8) the same two kinds came with no element at all. Without an element
+///   there is nothing to name or fix, and the button is measured directly, as above. On every other
+///   screen such an issue fails.
 final class AccessibilityUITests: XCTestCase {
     override func setUp() {
         // Every screen's audit is its own observation: one screen's issue must not hide the next's.
@@ -70,6 +76,12 @@ final class AccessibilityUITests: XCTestCase {
             }
             if issue.auditType == .dynamicType || issue.auditType == .textClipped, label == "Open the route" {
                 passedOver.append("measured instead (testOpenTheRouteGrowsWithTheReadersTextSize): \(line)")
+                return true
+            }
+            if screen.hasPrefix("contents-route-button-"), issue.element == nil,
+                issue.auditType == .dynamicType || issue.auditType == .textClipped
+            {
+                passedOver.append("no element, on the screen scrolled to Open the route: \(line)")
                 return true
             }
             if reading, issue.element != nil, identifier != "page-actions" {

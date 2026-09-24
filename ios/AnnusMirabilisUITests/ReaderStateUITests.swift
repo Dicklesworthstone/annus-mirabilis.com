@@ -104,6 +104,13 @@ final class ReaderStateUITests: XCTestCase {
         let tip = app.buttons["Continue"]
         if tip.waitForExistence(timeout: 3) { tip.tap() }
         field.typeText("Brownian")
+        // The find bar counts WebKit's matches ("1 of 3" on 2026-09-24) and the page highlights the
+        // current one, as that day's screenshot shows. The highlight is drawn, not in the
+        // accessibility tree, so the count is what a test can read: at least one match in the page.
+        let matches = app.descendants(matching: .any).matching(
+            NSPredicate(format: "label MATCHES %@", "[1-9][0-9]* of [1-9][0-9]*")
+        ).firstMatch
+        XCTAssertTrue(matches.waitForExistence(timeout: 10), "the find bar found nothing for a word the page contains")
         keep(app, "find-on-page")
     }
 }

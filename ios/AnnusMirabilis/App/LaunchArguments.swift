@@ -26,6 +26,9 @@
         /// Ends the page's web process once, after the first page reports ready, as the system does
         /// when it reclaims memory, so a UI test can watch the app bring the passage back.
         var killWebContentOnceReady = false
+        /// Fails the first page the edition origin is asked for, once, as a failed read would, so a
+        /// UI test sees the load-failure screen and its retry.
+        var failFirstLoad = false
 
         enum ParseError: Error, Equatable {
             case missingValue(flag: String)
@@ -53,17 +56,23 @@
                     }
                     if let error = parsed.assign(flag, value: arguments[index]) { return .failure(error) }
                     index += 1
-                case "-AMUITest":
-                    parsed.uiTest = true
-                case "-AMHoldLoad":
-                    parsed.holdLoad = true
-                case "-AMKillWebContentOnceReady":
-                    parsed.killWebContentOnceReady = true
+                case "-AMUITest", "-AMHoldLoad", "-AMKillWebContentOnceReady", "-AMFailFirstLoad":
+                    parsed.turnOn(flag)
                 default:
                     return .failure(.unknownFlag(flag))
                 }
             }
             return .success(parsed)
+        }
+
+        /// The flags that take no value.
+        private mutating func turnOn(_ flag: String) {
+            switch flag {
+            case "-AMUITest": uiTest = true
+            case "-AMHoldLoad": holdLoad = true
+            case "-AMKillWebContentOnceReady": killWebContentOnceReady = true
+            default: failFirstLoad = true
+            }
         }
 
         private mutating func assign(_ flag: String, value: String) -> ParseError? {

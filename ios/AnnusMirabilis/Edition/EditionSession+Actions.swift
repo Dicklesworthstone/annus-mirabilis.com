@@ -54,9 +54,30 @@ extension EditionSession {
         }
     }
 
+    /// Loads a page of the edition, remembering it as the page to retry if it fails.
+    func load(_ url: URL) {
+        lastRequestedURL = url
+        webView.load(URLRequest(url: url))
+    }
+
     /// Opens a page of the edition, at an anchor when given, from a native screen.
     func open(route: String, anchor: String?) {
         guard let url = EditionCatalog.url(route: route, anchor: anchor) else { return }
+        load(url)
+    }
+
+    /// A page could not be loaded: remember which, so the reader can try it again. WebKit names
+    /// the address it failed on (the edition origin always does); when it does not, the page the app
+    /// last asked for is the one. The page last shown is not: on a first load there is none, and the
+    /// home page would open instead (measured 2026-09-24, run 20260924T124602Z-6c8aefa8).
+    func didFailLoad(_ url: URL?) {
+        loadFailure = url ?? lastRequestedURL ?? currentURL ?? EditionCatalog.homeURL
+    }
+
+    /// Loads the page that failed, once more.
+    func retryLoad() {
+        guard let url = loadFailure else { return }
+        loadFailure = nil
         load(url)
     }
 }

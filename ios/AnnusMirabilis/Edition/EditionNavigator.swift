@@ -11,6 +11,11 @@ final class EditionNavigator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDo
     var onSavedFile: ((URL) -> Void)?
     /// Told when the page's web process ends, to bring the reader back to the same passage.
     var onWebProcessTerminated: (() -> Void)?
+    /// Told when a page could not be loaded, with its address when WebKit gives one
+    /// (bead am-app-edition-webview-ju3v, criterion 5).
+    var onLoadFailed: ((URL?) -> Void)?
+    /// Told when a page has finished loading.
+    var onLoadFinished: (() -> Void)?
     private var destinations: [ObjectIdentifier: URL] = [:]
 
     init(catalog: EditionCatalog) {
@@ -95,6 +100,34 @@ final class EditionNavigator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDo
             webView.load(URLRequest(url: url))
         }
         return nil
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        onLoadFinished?()
+    }
+
+    func webView(
+        _ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: any Error
+    ) {
+        reportFailure(error)
+    }
+
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: any Error) {
+        reportFailure(error)
+    }
+
+    private func reportFailure(_ error: any Error) {
+        guard !Self.isExpectedInterruption(error) else { return }
+        onLoadFailed?((error as NSError).userInfo[NSURLErrorFailingURLErrorKey] as? URL)
+    }
+
+    /// An ending that is not a failure: a newer navigation replaced this one, or this app's own
+    /// policy cancelled it (a link opened in Safari, or a file handed to the share sheet).
+    nonisolated static func isExpectedInterruption(_ error: any Error) -> Bool {
+        let error = error as NSError
+        if error.domain == NSURLErrorDomain, error.code == NSURLErrorCancelled { return true }
+        // WebKitErrorFrameLoadInterruptedByPolicyChange.
+        return error.domain == "WebKitErrorDomain" && error.code == 102
     }
 
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
