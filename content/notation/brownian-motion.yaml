@@ -1,12 +1,11 @@
 # Scoped Notation Concordance for Brownian Motion (ap-17-549)
 # Specification: AGENTS.md, am-not-concordance-model-uag, am-not-entries-brownian-1rq.
-# Verification status: on 2026-09-24 agent:ConcordanceCheck-brownian-motion read 37 of the
+# Verification status: on 2026-09-24 agent:ConcordanceCheck-brownian-motion read 38 of the
 # 40 entries by eye from the plates in public/figures/plates/pages/ap-17-549/ (never the text
 # layer), and set each first-use page and anchor to where the glyph is printed, naming
 # paragraphs from the frozen manifest content/source-blocks/brownian-motion/manifest.yaml.
-# Three stay pending: bm.v.driftVelocity and bm.Sek.unitSymbol, whose glyphs are not printed
-# on the plates, and bm.poise.viscosityUnitConversion, which p. 559 prints as 1,35 . 10⁻²
-# rather than as recorded. No human has reviewed any entry.
+# Two stay pending, bm.v.driftVelocity and bm.Sek.unitSymbol, because their glyphs are not
+# printed on the plates. No human has reviewed any entry.
 
 paper: brownian-motion
 
@@ -1090,10 +1089,11 @@ entries:
     paper: brownian-motion
     scope: ["bm-s5"]
     glyph:
-      unicode: "1.35*10^-2"
-      latex: "1.35 \\times 10^{-2}"
+      unicode: "1,35 . 10⁻²"
+      latex: "1{,}35 . 10^{-2}"
       variant: plain
-    meaning: "Viscosity of water at 17 °C, printed in poise (CGS); SI uses Pa·s"
+    meaning: "Viscosity of water at 17 °C, printed as a bare number; in CGS units it is in poise, and SI uses Pa·s"
+    notes: "Corrected 2026-09-24 from the plate: page 559 prints 1,35 . 10⁻², with a decimal comma and a dot for the product, where this entry had 1.35 × 10⁻². The page prints no unit."
     binding:
       quantityId: viscosity
     operation:
@@ -1107,9 +1107,9 @@ entries:
       anchor: bm-s5-p2
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-549)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 559 (public/figures/plates/pages/ap-17-549/559-1280.webp): glyph read by eye from the page image, not the text layer. Printed as (k = 1,35 . 10⁻²) in s5-p2, with a decimal comma, a dot for the product, and no unit. An agent check, not a human review."
+      by: "agent:ConcordanceCheck-brownian-motion"
+      date: "2026-09-24"
 
   - id: bm.Mikron.unitSymbol
     paper: brownian-motion
