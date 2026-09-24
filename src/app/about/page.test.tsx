@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { dayAndMonth, loadFirstPages } from "../../components/home/firstPages.ts";
 import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts";
+import { reuseOf } from "../sources/reuse.ts";
 import About from "./page";
 import { PORTRAIT } from "./portrait.ts";
 
@@ -14,6 +15,23 @@ const text = html
   .replace(/<[^>]+>/g, "")
   .replace(/&#x27;|&rsquo;/g, "’")
   .replace(/ |&nbsp;/g, " ");
+
+/** The text of the section headed by the element with this id, up to the next heading of its rank. */
+function sectionText(id: string, rank: "h2" | "h3" = "h2"): string {
+  const at = html.indexOf(`id="${id}"`);
+  expect(at).toBeGreaterThan(-1);
+  // From the end of the heading's opening tag, so the id attribute's own quotes are not text.
+  const start = html.indexOf(">", at) + 1;
+  const next = html.indexOf(`<${rank} `, start + 1);
+  const end = rank === "h3" ? html.indexOf("</section>", start) : next === -1 ? html.length : next;
+  return html
+    .slice(start, end === -1 ? html.length : end)
+    .replace(/<[^>]+>/g, "")
+    .replace(/&#x27;|&rsquo;/g, "’")
+    .replace(/&ldquo;/g, "“")
+    .replace(/&rdquo;/g, "”")
+    .replace(/ |&nbsp;/g, " ");
+}
 
 describe("/about/", () => {
   test("the count note is at #count-note and dates every paper from its receipt", () => {
@@ -72,6 +90,81 @@ describe("/about/", () => {
     expect(caption).toContain("The library records the photographer as unknown");
     expect(caption).toContain(`often attributed to ${PORTRAIT.attributedTo}`);
     expect(caption).not.toMatch(/\bby Lucien Chavan\b|Lucien Chavan[’']s|photograph(?:ed)? by/i);
+  });
+
+  test("every section the page promises is there, at its anchor", () => {
+    for (const id of [
+      "count-note",
+      "authorship",
+      "about-method",
+      "license",
+      "cite",
+      "reuse",
+      "contribute",
+      "accessibility",
+      "tested-routes",
+      "privacy",
+    ])
+      expect({ id, present: html.includes(`id="${id}"`) }).toEqual({ id, present: true });
+  });
+
+  test("the count note gives the Habicht letter's four in paraphrase and quotes none of it", () => {
+    const note = sectionText("count-note");
+    expect(note).toContain("Conrad Habicht");
+    expect(note).toContain("paraphrased here, not quoted");
+    // Each of the letter's four, described in the page's own words.
+    for (const subject of [
+      "energy of light",
+      "size of atoms",
+      "molecular theory of heat",
+      "moving bodies",
+    ])
+      expect(note).toContain(subject);
+    // Nothing of the letter's own German, and no quotation marks at all in the note: the
+    // transcription and its translation are the Collected Papers' editorial work (docs/RIGHTS.md).
+    expect(note).not.toMatch(/revolution|verspreche|Atomgr|Elektrodynamik|Lehre von Raum/i);
+    expect(note).not.toMatch(/[„“”"«»]/);
+  });
+
+  test("each revision a citation names is the compiled content index's own", () => {
+    const index = JSON.parse(readFileSync("generated/content/index.json", "utf8")) as {
+      buildDigest: string;
+      payloads: { kind: string; id: string; sha256: string }[];
+    };
+    const papers = loadFirstPages();
+    expect(papers.length).toBeGreaterThan(0);
+    const cite = sectionText("cite");
+    expect(cite).toContain(`edition revision ${index.buildDigest.slice(0, 12)}`);
+    for (const paper of papers) {
+      const entry = index.payloads.find((e) => e.kind === "paper" && e.id === paper.slug);
+      expect(entry).toBeDefined();
+      expect(cite).toContain((entry?.sha256 ?? "").slice(0, 12));
+    }
+  });
+
+  test("what may be reused is each scan's own record, and no site-wide answer stands in for it", () => {
+    const reuse = sectionText("reuse", "h3");
+    const receipts = loadProvenanceReceipts().receipts;
+    expect(receipts.length).toBeGreaterThan(0);
+    for (const { key, receipt } of receipts) {
+      expect(receipt).toBeDefined();
+      const record = reuseOf(receipt?.frontMatter as NonNullable<typeof receipt>["frontMatter"]);
+      expect({ key, words: reuse.includes(record.words.replace(/'/g, "’")) }).toEqual({
+        key,
+        words: true,
+      });
+      for (const statement of record.statements) expect(html).toContain(`href="${statement.url}"`);
+    }
+    // The license is stated once, as the license; it is not offered again as the terms of a scan.
+    expect(reuse).not.toMatch(/\bMIT\b|Rider/);
+    expect(reuse).toContain(PORTRAIT.rights);
+  });
+
+  test("the privacy statement names the host and where its own policy is", () => {
+    const privacy = sectionText("privacy");
+    expect(privacy).toContain("no cookies");
+    expect(privacy).toContain("Vercel");
+    expect(html).toContain('href="https://vercel.com/legal/privacy-policy"');
   });
 
   test("no em dash in the page's text", () => {

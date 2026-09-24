@@ -14,6 +14,30 @@
   font-style: italic;
 }
 
+/* The revisions a citation names: a label and a short digest per line, the digest in the mono face
+   so it reads as an identifier to copy. */
+.about-revisions {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0 0 1rem;
+}
+.about-revisions > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.75rem;
+}
+.about-revisions dt {
+  min-width: 11rem;
+}
+.about-revisions dd {
+  margin: 0;
+}
+/* The citation forms and the reuse records: a list whose items are sentences, so each keeps the
+   prose measure and some air between them. */
+.about-formats > li + li {
+  margin-top: 0.5rem;
+}
+
 /* The photograph (portrait.ts). On a phone, a row: the picture at 7rem with its credit beside it,
    so it does not push the first section a screen down. From 1100px the page is two columns and
    the photograph stays beside the prose while it is read, in the width the prose leaves empty. */

@@ -1,15 +1,16 @@
 import type { PaperDate } from "../../content/provenance/receiptSchema.ts";
 
 /**
- * The four ways /about/ refuses to build, each with a code (as FirstPagesError does for the home
- * page). Every date and the attribution line come from records, so a missing record stops the
- * export instead of the page printing a guess.
+ * The five ways /about/ refuses to build, each with a code (as FirstPagesError does for the home
+ * page). Every date, the attribution line and every revision come from records, so a missing
+ * record stops the export instead of the page printing a guess.
  */
 export type AboutErrorCode =
   | "attribution-block-missing"
   | "receipt-missing"
   | "receipt-day-date-missing"
-  | "receipt-publication-date-missing";
+  | "receipt-publication-date-missing"
+  | "content-revision-missing";
 
 export class AboutError extends Error {
   readonly code: AboutErrorCode;
@@ -59,4 +60,15 @@ export function publicationDate(dates: readonly PaperDate[], key: string): strin
     );
   }
   return found.iso;
+}
+
+/** A paper's compiled revision, from the content index; a paper the index lacks stops the build. */
+export function requireRevision(revision: string | undefined, slug: string): string {
+  if (!revision || !/^[0-9a-f]{64}$/.test(revision)) {
+    throw new AboutError(
+      "content-revision-missing",
+      `The content index has no compiled revision for the paper ${slug}.`,
+    );
+  }
+  return revision;
 }
