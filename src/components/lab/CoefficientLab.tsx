@@ -3,9 +3,12 @@ import { type FormEvent, useEffect, useId, useRef, useState, useSyncExternalStor
 import { EquationScope } from "../../equations/EquationScope.tsx";
 import { SemanticEquation } from "../../equations/SemanticEquation.tsx";
 import type { CompiledEquation } from "../../equations/viewTypes.ts";
+import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import {
   ME02_CAPTION,
-  ME02_MODEL,
   ME02_NOT_MODELED,
   ME02_OUTPUTS,
   ME02_PREDICT_PROMPT,
@@ -254,6 +257,9 @@ export function CoefficientLab({
     example.sourceDigest,
     snapshot === session.getServerSnapshot().accepted,
   );
+  // The label is earned from the derived state: the build-time example reads as a static worked
+  // example, an accepted recalculation as a host calculation (am-inst-execution-labels-5ywv).
+  const executionKind = executionStateKindFromHostLabel(execution.label);
   const boundEquations = equations.filter(
     (equation) =>
       equation.paper === "mass-energy" &&
@@ -269,7 +275,7 @@ export function CoefficientLab({
       {...identity(snapshot)}
       data-input-revision={view.requested?.revisions.input ?? snapshot.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, view, "kineticEnergyDifference")}
       data-source-digest={example.sourceDigest}
     >
       <header className="lab-heading">
@@ -277,8 +283,14 @@ export function CoefficientLab({
           <p className="eyebrow">An executable model</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <span className="badge">{ME02_MODEL.label}</span>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          modelNote={modelNoteFromView(view, { notModeled: `${ME02_NOT_MODELED.join("; ")}.` })}
+        />
+      </div>
       <noscript>
         <p className="notice">
           JavaScript is off. This is a complete worked example calculated when the site was built.
