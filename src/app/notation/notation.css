@@ -9,7 +9,9 @@
   margin: 0 auto;
   /* No side padding: main already carries the page gutter, and a second inset put this page's
      text 8px (390) to 16px (1440) inside the header's left edge. */
-  padding: 1.5rem 0 4rem;
+  /* 3rem above, as .page-intro has, so the heading starts at the other pages' height (1.5rem set it
+     24px higher, y=176 against 200 at 1440). */
+  padding: 3rem 0 4rem;
   color: var(--ink);
   font-family: inherit;
 }
