@@ -58,7 +58,13 @@ function overflowing(page: Page) {
       const style = getComputedStyle(holder);
       const available =
         holder.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-      if (drawn > available + 1) rows.push(`${Math.round(drawn)}/${Math.round(available)}`);
+      // A red names the formula, so it can be found in the source without a second probe.
+      const tex = (
+        display.querySelector('annotation[encoding="application/x-tex"]')?.textContent ?? ""
+      )
+        .replace(/\s+/g, " ")
+        .slice(0, 60);
+      if (drawn > available + 1) rows.push(`${Math.round(drawn)}/${Math.round(available)} ${tex}`);
     }
     return { laidOut, rows };
   });
