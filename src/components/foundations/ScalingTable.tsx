@@ -97,9 +97,7 @@ export function ScalingTable({ headingLevel = 3 }: { readonly headingLevel?: Hea
         {outcome.status === "scaled" ? (
           <dl className="readout-grid">
             <dt>Length</dt>
-            <dd>
-              × k = <Factor value={outcome.length} />
-            </dd>
+            <dd>× k = {String(outcome.k)}</dd>
             <dt>Area</dt>
             <dd>
               × k² = <Factor value={outcome.area} />
@@ -111,8 +109,7 @@ export function ScalingTable({ headingLevel = 3 }: { readonly headingLevel?: Hea
             <dt>Spread, k times as long</dt>
             <dd>
               × √k = <Factor value={outcome.spreadLongerTime} />: {PAPER_SPREAD_UM} μm in 1 s
-              becomes <Factor value={outcome.paperSpreadLongerTimeUm} /> μm in{" "}
-              <Factor value={outcome.k} /> s
+              becomes <Factor value={outcome.paperSpreadLongerTimeUm} /> μm in {String(outcome.k)} s
             </dd>
             <dt>Spread, k times the radius</dt>
             <dd>
