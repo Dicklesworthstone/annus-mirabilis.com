@@ -230,6 +230,12 @@ export type Door = Readonly<{
   title: string;
   arrivesAtEquationId: string;
   entryRecordId?: string | undefined;
+  /** Where the door opens: a page or an instrument. A door a reader cannot open is only a label. */
+  href?: string | undefined;
+  /** What the reader already owns that the door starts from, in a sentence. */
+  summary?: string | undefined;
+  /** The equation it arrives at, as a reader names it; the id is for the build. */
+  arrivesAtLabel?: string | undefined;
 }>;
 
 export type Doors = Readonly<{
@@ -977,6 +983,9 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
     title: String(fdRaw.title ?? ""),
     arrivesAtEquationId: String(fdRaw.arrivesAtEquationId ?? ""),
     entryRecordId: typeof fdRaw.entryRecordId === "string" ? fdRaw.entryRecordId : undefined,
+    href: typeof fdRaw.href === "string" ? fdRaw.href : undefined,
+    summary: typeof fdRaw.summary === "string" ? fdRaw.summary : undefined,
+    arrivesAtLabel: typeof fdRaw.arrivesAtLabel === "string" ? fdRaw.arrivesAtLabel : undefined,
   };
   const sideDoors: Door[] = Array.isArray(doorsRaw.sideDoors)
     ? doorsRaw.sideDoors.map((sd) => {
@@ -986,6 +995,9 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
           title: String(s.title ?? ""),
           arrivesAtEquationId: String(s.arrivesAtEquationId ?? ""),
           entryRecordId: typeof s.entryRecordId === "string" ? s.entryRecordId : undefined,
+          href: typeof s.href === "string" ? s.href : undefined,
+          summary: typeof s.summary === "string" ? s.summary : undefined,
+          arrivesAtLabel: typeof s.arrivesAtLabel === "string" ? s.arrivesAtLabel : undefined,
         };
       })
     : [];
