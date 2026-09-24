@@ -285,6 +285,21 @@ export async function buildWasmArtifacts(options: BuildOptions = {}): Promise<Bu
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  // This generator writes the synthetic placeholder. Once public/wasm/manifest.json names a
+  // compiled artifact (scripts/wasm-artifacts/placeCompiledArtifact.ts), running it bare would
+  // silently point the edition back at the placeholder, so it refuses.
+  const liveManifest = resolve("public/wasm/manifest.json");
+  if (existsSync(liveManifest)) {
+    const live = JSON.parse(readFileSync(liveManifest, "utf8")) as {
+      build?: { generatorType?: string };
+    };
+    if (live.build?.generatorType !== "synthetic-placeholder") {
+      console.error(
+        `Refusing: ${liveManifest} names a ${live.build?.generatorType ?? "non-placeholder"} artifact, and this script writes the synthetic placeholder over it.`,
+      );
+      process.exit(1);
+    }
+  }
   try {
     const summary = await buildWasmArtifacts();
     console.log(`Successfully built WASM bundle: ${summary.bundleId}`);
