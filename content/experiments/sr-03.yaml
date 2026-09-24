@@ -176,6 +176,24 @@ outputs:
       - not-applicable
       - outside-domain
     primary: true
+  - id: rodLengthK
+    quantityId: lengthMeasuredStationary
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: rodLengthKPrime
+    quantityId: lengthMeasuredMoving
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
+  - id: readingsOnRodEnds
+    quantityId: measurementKind
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: false
   - id: spacetimeIntervalSquared
     quantityId: spacetimeIntervalSquared
     allowedStatuses:

@@ -288,6 +288,16 @@
   frame: stationary-system
   colorRole: space-geometry
 
+- id: lengthMeasuredMoving
+  name: Measured length (moving system)
+  description: A rod's length as measured from the moving system k, the distance between its two ends read at one time of k.
+  dimensionStatus: declared
+  dimension: [1, 0, 0, 0, 0, 0]
+  observation: measured
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: space-geometry
+
 - id: sphereRadius
   name: Sphere radius
   description: The radius of a sphere used in a section 3/4 rigid-body construction.

@@ -1,4 +1,7 @@
-export type FrameId = "K" | "k";
+import type { FrameId } from "../../experiments/sr03/definition.ts";
+import type { Sr03ReadingsView } from "../../experiments/sr03/readings.ts";
+
+export type { FrameId };
 
 /**
  * SR-03's three drawings. Each was a 480-unit SVG carrying its own sentences, so on a 390px phone
@@ -16,116 +19,41 @@ const diagramLabel = {
   fontFamily: "var(--font-sans)",
 } as const;
 
-/** What each endpoint pair's two events are, where they are not the rod's ends. */
-const PAIR_WORDS: Readonly<Record<string, string>> = {
-  "platform-simultaneous": "two marks on the platform",
-  "causal-timelike": "two events of the causal-order example",
-  "causal-lightlike": "two events of the causal-order example",
-  "causal-threshold": "two events of the causal-order example",
-  custom: "the two events you entered",
-};
-
-/**
- * Whether a pair's two events are the rod's two ends read at one time of the measuring frame. The
- * platform pair is two marks L₀ apart at t = 0 in K, which are the rod's ends only when the rod
- * rests in K; the frame-simultaneous pair is built from the rod's ends.
- */
-export function pairIsRodEnds(endpointPairId: string, rodRestFrame: FrameId): boolean {
-  if (endpointPairId === "frame-simultaneous") return true;
-  if (endpointPairId === "platform-simultaneous") return rodRestFrame === "K";
-  return false;
-}
-
-/**
- * The verdict under the strips, and the laboratory's status line. SR-03's default pair is two
- * platform marks 10 ls apart, simultaneous in K, and the verdict called their separation "a distance
- * in frame K: 10.00 ls" beside a strip drawing the rod at 8.00 ls there, so a reader took 10 ls for
- * the rod's length. A separation is called the rod's length only when the readings are the rod's
- * ends; otherwise the verdict names what was read and gives the rod's own length beside it.
- */
-export function readingsVerdict(args: {
-  endpointPairId: string;
-  rodRestFrame: FrameId;
-  measuringFrame: FrameId;
-  /** The rod's own length in the measuring frame, as the strips draw it. */
-  rodLength: number;
-  measuredLength: number | null;
-  isSimultaneous: boolean;
-}): string {
-  const {
-    endpointPairId,
-    rodRestFrame,
-    measuringFrame,
-    rodLength,
-    measuredLength,
-    isSimultaneous,
-  } = args;
-  const rodEnds = pairIsRodEnds(endpointPairId, rodRestFrame);
-  const rod = `The rod itself, its ends read at one time of frame ${measuringFrame}, is ${rodLength.toFixed(2)} ls long there.`;
-  const separation = measuredLength === null ? "not computed" : `${measuredLength.toFixed(2)} ls`;
-  if (!isSimultaneous)
-    return `They are not simultaneous there, so their separation is not a length measurement.${rodEnds ? "" : ` ${rod}`}`;
-  if (rodEnds)
-    return `They are the rod's two ends, read at one time of frame ${measuringFrame}, so their separation is the rod's length there: ${separation}.`;
-  return `They are ${PAIR_WORDS[endpointPairId] ?? "two chosen events"}, not the rod's ends, and simultaneous in frame ${measuringFrame}, so ${separation} is the distance between them there, not the rod's length. ${rod}`;
-}
-
 export interface RodStripPlotProps {
-  endpointPairId: string;
+  /** What the readings are and what the rod measures, from the owner (experiments/sr03/readings.ts). */
+  readings: Sr03ReadingsView;
   rodRestFrame: FrameId;
   measuringFrame: FrameId;
   v: number;
   L0: number;
-  measuredLength: number | null;
-  isSimultaneous: boolean;
-  dxK: number;
-  dtK: number;
-  dxk: number;
-  dtk: number;
 }
 
-export function RodStripPlot({
-  endpointPairId,
-  rodRestFrame,
-  measuringFrame,
-  v,
-  L0,
-  measuredLength,
-  isSimultaneous,
-  dxK,
-  dtK,
-  dxk,
-  dtk,
-}: RodStripPlotProps) {
+/**
+ * The rod in K and in k, and the verdict on the two readings. Every length and every word about
+ * what a distance is comes from the view model, which reads only the owner's outputs, so the
+ * number set beside the drawn rod is the rod's and a platform distance is never offered as it
+ * (am-sr03-default-readings-not-rod-ends-bf7w). Only the scale of the drawing is computed here.
+ */
+export function RodStripPlot({ readings, rodRestFrame, measuringFrame, v, L0 }: RodStripPlotProps) {
   const width = 300;
   const padding = { left: 12, right: 12 };
   const plotW = width - padding.left - padding.right;
 
   const maxSpan = Math.max(20, L0 * 1.5);
   const scaleX = (x: number) => padding.left + (x / maxSpan) * plotW;
+  const lsText = (value: number | null) =>
+    value === null ? "not computed" : `${value.toFixed(2)} ls`;
 
-  const g = 1 / Math.sqrt(1 - v * v);
-  const contractedL = L0 / g;
-  const dx = measuringFrame === "K" ? dxK : dxk;
-  const cdt = measuringFrame === "K" ? dtK : dtk;
-
-  const strips = (["K", "k"] as const).map((frame) => {
-    const atRest = rodRestFrame === frame;
-    return {
-      frame,
-      atRest,
-      length: atRest ? L0 : contractedL,
-      words: atRest ? (
-        <>
-          <strong>{L0.toFixed(2)} ls</strong>, the proper length L₀
-        </>
-      ) : (
-        <>
-          <strong>{contractedL.toFixed(2)} ls</strong>, L₀/γ
-        </>
-      ),
-    };
-  });
+  const strips = readings.strips.map((strip) => ({
+    ...strip,
+    drawn: strip.length ?? 0,
+    words: (
+      <>
+        <strong>{lsText(strip.length)}</strong>
+        {strip.atRest ? ", the proper length L₀" : ", L₀/γ"}
+      </>
+    ),
+  }));
 
   return (
     <div data-view-id="sr-03-strip-view" className="sr03-figure">
@@ -137,24 +65,23 @@ export function RodStripPlot({
         sees.
       </p>
       <p className="fine sr03-figure-note">
-        The two readings are Δx = {dx.toFixed(2)} ls and cΔt = {cdt.toFixed(2)} ls apart in frame{" "}
-        {measuringFrame}.{" "}
+        The two readings are Δx = {lsText(readings.dx)} and cΔt = {lsText(readings.cdt)} apart in
+        frame {measuringFrame}.{" "}
         <strong
-          className={isSimultaneous ? "sr03-verdict" : "sr03-verdict sr03-verdict-refused"}
-          data-rod-ends={String(pairIsRodEnds(endpointPairId, rodRestFrame))}
+          className={readings.simultaneous ? "sr03-verdict" : "sr03-verdict sr03-verdict-refused"}
+          data-rod-ends={String(readings.rodEnds)}
+          data-readings-kind={readings.kind}
         >
-          {readingsVerdict({
-            endpointPairId,
-            rodRestFrame,
-            measuringFrame,
-            rodLength: measuringFrame === rodRestFrame ? L0 : contractedL,
-            measuredLength,
-            isSimultaneous,
-          })}
+          {readings.verdict}
         </strong>
       </p>
       {strips.map((strip) => (
-        <div key={strip.frame} className="sr03-strip">
+        <div
+          key={strip.frame}
+          className="sr03-strip"
+          data-rod-frame={strip.frame}
+          data-rod-length={strip.length ?? undefined}
+        >
           <p className="sr03-strip-label">
             {strip.frame === "K"
               ? "Frame K, the platform: "
@@ -164,7 +91,7 @@ export function RodStripPlot({
           <svg
             viewBox={`0 0 ${width} 30`}
             role="img"
-            aria-label={`The rod in frame ${strip.frame}: ${strip.length.toFixed(2)} light-seconds`}
+            aria-label={`The rod in frame ${strip.frame}: ${strip.length === null ? "not computed" : `${strip.length.toFixed(2)} light-seconds`}`}
             className="sr03-strip-svg"
           >
             <line
@@ -178,7 +105,7 @@ export function RodStripPlot({
             <rect
               x={scaleX(0)}
               y="5"
-              width={scaleX(strip.length) - scaleX(0)}
+              width={scaleX(strip.drawn) - scaleX(0)}
               height="20"
               rx="3"
               fill={strip.atRest ? "#38bdf8" : "#f59e0b"}
@@ -187,7 +114,7 @@ export function RodStripPlot({
               strokeWidth="1.5"
             />
             <circle cx={scaleX(0)} cy="15" r="3.5" fill="#ef4444" />
-            <circle cx={scaleX(strip.length)} cy="15" r="3.5" fill="#ef4444" />
+            <circle cx={scaleX(strip.drawn)} cy="15" r="3.5" fill="#ef4444" />
           </svg>
         </div>
       ))}

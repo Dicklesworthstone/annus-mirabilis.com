@@ -15,6 +15,7 @@ import {
   type Sr03Parameters,
 } from "../../experiments/sr03/definition.ts";
 import { decodeSr03Settings, encodeSr03Settings } from "../../experiments/sr03/permalink.ts";
+import { sr03ReadingsView } from "../../experiments/sr03/readings.ts";
 import { createSr03Session, type PreparedSr03Example } from "../../experiments/sr03/session.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
@@ -25,7 +26,6 @@ import { identity } from "./presentation.ts";
 import {
   MinkowskiDiagramPlot,
   RodStripPlot,
-  readingsVerdict,
   SphereEllipsoidPlot,
 } from "./RodSimultaneityPlots.tsx";
 import { Sci } from "./Sci.tsx";
@@ -45,7 +45,11 @@ const SR03_VALUE_LABELS: Readonly<Record<string, string>> = {
   simultaneityK: "Their time order in K",
   simultaneityKPrime: "Their time order in k",
   // Not "Measured length": for the default platform marks it is 10 ls while the rod is 8 ls in K.
+  // What the readings are is the view model's to say (sr03ReadingsView), and its label wins.
   measuredLength: "Distance between the readings at one time of the measuring frame",
+  rodLengthK: "The rod's length in K, its ends read at one time of K",
+  rodLengthKPrime: "The rod's length in k, its ends read at one time of k",
+  readingsOnRodEnds: "Are the two readings the rod's ends?",
   spacetimeIntervalSquared: "Interval, s² = Δx² − c²Δt²",
   causalOrder: "Kind of separation",
   gammaFactor: "Lorentz factor, γ",
@@ -63,6 +67,10 @@ const SR03_CLASS_WORDS: Readonly<Record<string, Readonly<Record<string, string>>
     "-1": "second event earlier",
   },
   causalOrder: { "1": "spacelike", "0": "lightlike", "-1": "timelike" },
+  readingsOnRodEnds: {
+    "1": "yes, one at each end of the rod",
+    "0": "no, they are not the rod's ends",
+  },
 };
 
 /** The answer to "Could one of these events have caused the other?", keyed as causalOrder. */
@@ -184,8 +192,6 @@ export function RodSimultaneityLab({
   const dxk = dxkOut?.status === "value" && typeof dxkOut.value === "number" ? dxkOut.value : 0;
   const dtk = dtkOut?.status === "value" && typeof dtkOut.value === "number" ? dtkOut.value : 0;
   const g = gammaOut?.status === "value" && typeof gammaOut.value === "number" ? gammaOut.value : 1;
-  const measuredL =
-    measOut?.status === "value" && typeof measOut.value === "number" ? measOut.value : null;
   const s2 = s2Out?.status === "value" && typeof s2Out.value === "number" ? s2Out.value : 0;
   // The time orders and the causal order are the owner's classifications (events.ts), read as
   // they are published rather than recomputed here from Δt and s².
@@ -208,20 +214,11 @@ export function RodSimultaneityLab({
 
   const isNonSimultaneousRefusal =
     measOut?.status === "not-applicable" && measOut.reason.includes("simultaneous");
-  // One sentence for the status line: the readings' separation and the verdict the strip figure
-  // prints, from the same function, so the two cannot disagree about what was measured.
-  const dxShown = p.measuringFrame === "K" ? dxK : dxk;
-  const cdtShown = p.measuringFrame === "K" ? dtK : dtk;
-  const statusSummary = `the two readings are ${fixed(dxShown, 2)} ls and cΔt = ${fixed(cdtShown, 2)} ls apart in frame ${p.measuringFrame}. ${readingsVerdict(
-    {
-      endpointPairId: p.endpointPairId,
-      rodRestFrame: p.rodRestFrame,
-      measuringFrame: p.measuringFrame,
-      rodLength: p.rodRestFrame === p.measuringFrame ? p.L0 : p.L0 / g,
-      measuredLength: measuredL,
-      isSimultaneous: !isNonSimultaneousRefusal,
-    },
-  )}`;
+  // What the two readings are, what the rod measures, and what each distance is called, from the
+  // owner's outputs alone (experiments/sr03/readings.ts). The strip figure prints the same verdict,
+  // so the status line and the figure cannot disagree about what was measured.
+  const readings = sr03ReadingsView(p, snapshot.outputs);
+  const statusSummary = `the two readings are ${readings.dx === null ? "not computed" : `${fixed(readings.dx, 2)} ls`} and cΔt = ${readings.cdt === null ? "not computed" : `${fixed(readings.cdt, 2)} ls`} apart in frame ${p.measuringFrame}. ${readings.verdict}`;
 
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation.
@@ -293,17 +290,11 @@ export function RodSimultaneityLab({
         }}
       >
         <RodStripPlot
-          endpointPairId={p.endpointPairId}
+          readings={readings}
           rodRestFrame={p.rodRestFrame}
           measuringFrame={p.measuringFrame}
           v={p.v}
           L0={p.L0}
-          measuredLength={measuredL}
-          isSimultaneous={!isNonSimultaneousRefusal}
-          dxK={dxK}
-          dtK={dtK}
-          dxk={dxk}
-          dtk={dtk}
         />
         <MinkowskiDiagramPlot
           v={p.v}
@@ -804,7 +795,11 @@ export function RodSimultaneityLab({
             <tbody>
               {snapshot.outputs.map((out) => (
                 <tr key={out.quantityId} data-quantity-id={out.quantityId}>
-                  <th scope="row">{SR03_VALUE_LABELS[out.quantityId] ?? out.quantityId}</th>
+                  <th scope="row">
+                    {readings.valueLabels[out.quantityId] ??
+                      SR03_VALUE_LABELS[out.quantityId] ??
+                      out.quantityId}
+                  </th>
                   <td data-output={out.quantityId}>
                     {out.status !== "value" ? (
                       "reason" in out ? (

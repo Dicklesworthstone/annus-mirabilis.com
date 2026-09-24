@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import RodSimultaneityPage from "../app/lab/sr-03/page.tsx";
 import { type FrameId, RodStripPlot } from "../components/lab/RodSimultaneityPlots.tsx";
 import { SR03_DEFAULTS } from "../experiments/sr03/definition.ts";
+import { sr03ReadingsView } from "../experiments/sr03/readings.ts";
 import { evaluateSr03 } from "../workers/operations/sr03.ts";
 import { exportMarkup } from "./exportMarkup.ts";
 
@@ -42,26 +43,15 @@ async function stripFor(endpointPairId: string, rodRestFrame: FrameId, measuring
   const evaluated = await evaluateSr03(params);
   if (evaluated.kind !== "accepted") throw new TypeError(`SR-03 refused ${endpointPairId}`);
   const outputs = evaluated.data.outputs;
-  const num = (id: string) => {
-    const o = outputs.find((x) => x.quantityId === id);
-    return o?.status === "value" && typeof o.value === "number" ? o.value : 0;
-  };
   const meas = outputs.find((o) => o.quantityId === "measuredLength");
+  // The strip renders the view model built from the owner's outputs, as the lab does.
   const html = renderToStaticMarkup(
     <RodStripPlot
-      endpointPairId={endpointPairId}
+      readings={sr03ReadingsView(params, outputs)}
       rodRestFrame={rodRestFrame}
       measuringFrame={measuringFrame}
       v={params.v}
       L0={params.L0}
-      measuredLength={
-        meas?.status === "value" && typeof meas.value === "number" ? meas.value : null
-      }
-      isSimultaneous={!(meas?.status === "not-applicable" && meas.reason.includes("simultaneous"))}
-      dxK={num("spatialSeparationK")}
-      dtK={num("temporalSeparationK")}
-      dxk={num("spatialSeparationKPrime")}
-      dtk={num("temporalSeparationKPrime")}
     />,
   );
   const verdict = text(

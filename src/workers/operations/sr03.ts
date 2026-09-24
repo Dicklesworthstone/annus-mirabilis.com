@@ -12,6 +12,7 @@ import {
   causalOrder,
   classifySimultaneity,
   measureRodLength,
+  selectSimultaneousEndpoints,
 } from "../../physics/reference/events.ts";
 import type { Event } from "../../physics/reference/kinematics/types.ts";
 import {
@@ -20,6 +21,7 @@ import {
   gamma,
   transformEvent,
 } from "../../physics/reference/kinematics.ts";
+import { withinTolerance } from "../../units/tolerance.ts";
 
 export type Sr03Evaluation = Readonly<{
   outputs: readonly ScientificResult[];
@@ -195,6 +197,31 @@ export async function evaluateSr03(
     c,
   );
 
+  // The rod's own length in each frame: its two ends read at one time of that frame, from the
+  // reference owner (selectSimultaneousEndpoints). The lab's strips and verdict read these, so the
+  // distance it calls the rod's is never a component's L0/γ (am-sr03-default-readings-not-rod-ends-bf7w).
+  const rodEndsK = selectSimultaneousEndpoints(p.rodRestFrame, "K", p.v, p.L0, 0, c);
+  const rodEndsk = selectSimultaneousEndpoints(p.rodRestFrame, "k", p.v, p.L0, 0, c);
+  if (rodEndsK.status !== "value" || rodEndsk.status !== "value") {
+    return {
+      kind: "refused",
+      refusal: makeRefusal("invalid-parameter", { parameterIds: ["L0", "v"] }),
+    };
+  }
+  const rodLengthK = Math.abs(rodEndsK.value.e2.x - rodEndsK.value.e1.x);
+  const rodLengthk = Math.abs(rodEndsk.value.e2.x - rodEndsk.value.e1.x);
+
+  // Whether the two readings lie on the rod's two ends. In its rest frame the rod's ends stay at
+  // x = 0 and x = L0 (the frame-simultaneous pair is built from them), so the readings are its ends
+  // when one sits at each there. The default platform pair is two marks L0 apart in K: its ends only
+  // when the rod rests in K.
+  const restE1 = p.rodRestFrame === "K" ? e1K : e1k;
+  const restE2 = p.rodRestFrame === "K" ? e2K : e2k;
+  const at = (x: number, end: number) =>
+    withinTolerance(x, end, { absolute: 1e-9 * p.L0, relative: 1e-9 }).ok;
+  const onRodEnds =
+    (at(restE1.x, 0) && at(restE2.x, p.L0)) || (at(restE1.x, p.L0) && at(restE2.x, 0));
+
   // Sphere ellipsoid axes
   const axesRes = ellipsoidAxes(p.R, p.v);
   const longitudinal = axesRes.status === "value" ? axesRes.value.longitudinal : p.R / g;
@@ -218,6 +245,9 @@ export async function evaluateSr03(
           "measuredLength",
           meas.reason ?? "these endpoint events are not simultaneous in the measuring frame",
         ),
+    value("rodLengthK", rodLengthK),
+    value("rodLengthKPrime", rodLengthk),
+    value("readingsOnRodEnds", onRodEnds ? 1 : 0),
     value("spacetimeIntervalSquared", s2),
     value("causalOrder", causalVal),
     value("gammaFactor", g),

@@ -91,6 +91,12 @@ export const SR03_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     "not-applicable",
     "outside-domain",
   ]),
+  // The rod's own length in each frame, its two ends read at one time of that frame, and whether
+  // the two readings lie on those ends (am-sr03-default-readings-not-rod-ends-bf7w): the distance
+  // the lab calls the rod's comes from here, never from a component's L0/γ.
+  rodLengthK: contract("ls", "measured-quantity", SR03_MODEL.id, ["value", "outside-domain"]),
+  rodLengthKPrime: contract("ls", "measured-quantity", SR03_MODEL.id, ["value", "outside-domain"]),
+  readingsOnRodEnds: contract("1", "classification", SR03_MODEL.id, ["value", "outside-domain"]),
   spacetimeIntervalSquared: contract("ls^2", "invariant-scalar", SR03_MODEL.id, [
     "value",
     "outside-domain",
