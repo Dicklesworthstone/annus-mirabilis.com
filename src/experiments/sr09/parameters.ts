@@ -32,10 +32,17 @@ export function validateSr09Parameters(input: unknown): Sr09ParameterCheck {
     typeof o.selectedEventId === "string" ? o.selectedEventId : "sr-09-event-origin-tick";
   const showCovectorNote = Boolean(o.showCovectorNote);
 
-  if (!Number.isFinite(beta) || Math.abs(beta) >= 1) {
+  if (!Number.isFinite(beta)) {
     return {
       kind: "refused",
       refusal: makeRefusal("invalid-parameter", { parameterIds: ["beta"] }),
+    };
+  }
+  // v = ±V is not a slower speed the model cannot handle: no inertial observer moves at it.
+  if (Math.abs(beta) >= 1) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal("superluminal-observer", { parameterIds: ["beta"] }),
     };
   }
   if (!Number.isFinite(propagationAngleDeg)) {
