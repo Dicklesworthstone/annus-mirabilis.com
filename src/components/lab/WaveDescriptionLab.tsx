@@ -18,8 +18,9 @@ import { createLq01Session, type PreparedLq01Example } from "../../experiments/l
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
+import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
-import { array, identity, result, scalar } from "./presentation.ts";
+import { array, identity, result, scalar, sentenceNumber } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { SliderField } from "./SliderField.tsx";
@@ -215,6 +216,10 @@ export function WaveDescriptionLab({
   const chosen = selectedCandidates[prompt.id];
   const phaseDegrees = phaseInDegrees(p.delta);
   const phaseReadout = `${phaseInPi(p.delta)}π rad${phaseDegrees === null ? "" : `, ${phaseDegrees}°`}`;
+  // One sentence for the status line, from the accepted outputs of the mode on screen.
+  const statusSummary = interference
+    ? `two waves of amplitude ${sentenceNumber(p.A1)} and ${sentenceNumber(p.A2)}, ${phaseDegrees === null ? `${phaseInPi(p.delta)}π rad` : `${phaseDegrees}°`} apart in phase: the centre of the screen has intensity ${sentenceNumber(centerIntensity)}, where one wave of amplitude 1 alone gives 1, and the fringes have visibility ${sentenceNumber(fringeVisibility)}.`
+    : `a ${sentenceNumber(p.P)} W source spread over a sphere of radius ${sentenceNumber(p.r)} m gives ${sentenceNumber(pointSourceIntensity)} W/m², and the whole sphere still carries ${sentenceNumber(shellPower)} W.`;
 
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation.
@@ -506,6 +511,10 @@ export function WaveDescriptionLab({
             {linkNote && <p className="notice">{linkNote}</p>}
           </fieldset>
         </form>
+        <AcceptedStatus
+          worked={snapshot === session.getServerSnapshot().accepted}
+          summary={statusSummary}
+        />
 
         <div className="lab-results">
           {interference ? (

@@ -25,8 +25,9 @@ import {
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { fixed, identity } from "../presentation.ts";
+import { fixed, identity, readablePowers, sentenceNumber } from "../presentation.ts";
 import { PowerOfTen, Sci } from "../Sci.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { IndependentConfigurationsPlot } from "./IndependentConfigurationsPlot.tsx";
@@ -73,6 +74,15 @@ export function IndependentConfigurationsLab({
   const [predictAnswer, setPredictAnswer] = useState<string | null>(null);
 
   const evaluation = evaluateLq05(p);
+  // One sentence for the status line: the chance that every point sits in the chosen fraction.
+  const chance = p.locked
+    ? sentenceNumber(evaluation.locked.value)
+    : evaluation.independentProbability.linearRepresentable
+      ? sentenceNumber(evaluation.independentProbability.value)
+      : `about ${readablePowers(`1e${Math.round(evaluation.independentProbability.log10W)}`)}`;
+  const statusSummary = p.locked
+    ? `${p.n} locked points move as one, so all of them sit in a fraction ${fixed(p.f, 4)} of the volume with probability ${chance}, the fraction itself.`
+    : `${p.n} independent points all sit in a fraction ${fixed(p.f, 4)} of the volume with probability ${fixed(p.f, 4)} to the power ${p.n}, ${chance}.`;
 
   useEffect(() => {
     const shared = decodeLq05Settings(window.location.search);
@@ -476,10 +486,18 @@ export function IndependentConfigurationsLab({
         </form>
 
         {error && (
-          <div className="notice error" style={{ marginTop: "1rem", padding: "0.75rem" }}>
+          <div
+            className="notice error"
+            role="alert"
+            style={{ marginTop: "1rem", padding: "0.75rem" }}
+          >
             {error}
           </div>
         )}
+        <AcceptedStatus
+          worked={snapshot === session.getServerSnapshot().accepted}
+          summary={statusSummary}
+        />
         {linkNote && (
           <div className="notice" style={{ marginTop: "0.75rem", padding: "0.75rem" }}>
             {linkNote}
