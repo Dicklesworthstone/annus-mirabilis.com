@@ -12,6 +12,8 @@
  *   which the Xcode bundling phase checks twice (source still matches, bundle
  *   matches);
  * - `edition-files.txt`: the list `rsync --files-from` copies;
+ * - `bridge-user-script.js`: the native bridge's document-start script, whose
+ *   SHA-256 the manifest records; the app injects it only when the digest matches;
  * - `edition-inputs.xcfilelist` and `edition-outputs.xcfilelist`: the bundling
  *   phase's declared inputs and outputs, so user-script sandboxing stays on.
  *
@@ -23,8 +25,12 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { BRIDGE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/userScripts.ts";
 
 export const EDITION_SCHEMA_VERSION = "annus-mirabilis-app-edition.v1";
+
+/** The bridge user script, written beside the manifest and bundled beside it, never inside Edition/. */
+export const BRIDGE_SCRIPT_FILE = "bridge-user-script.js";
 
 export type AppExportErrorCode = "no-web-build" | "unsafe-edition-path" | "edition-over-budget";
 
@@ -145,8 +151,10 @@ export const EXCLUSION_RULES: readonly ExclusionRule[] = [
   {
     id: "share-card-image",
     reason:
-      "Share-card images are fetched by other sites when a link is shared; no page in the app displays them (App plan §5.2).",
-    matches: (path) => /(^|\/)(opengraph-image|twitter-image)(\.[a-z]+)?$/.test(path),
+      "Share-card images (opengraph-image, and share/*.png since the cards moved there) are fetched by other sites when a link is shared. Pages name them only in og:image and twitter:image metadata, as absolute https URLs, so no page in the app displays them (App plan §5.2).",
+    matches: (path) =>
+      /(^|\/)(opengraph-image|twitter-image)(\.[a-z]+)?$/.test(path) ||
+      /^share\/[a-z0-9-]+\.png$/.test(path),
   },
   {
     id: "finder-metadata",
@@ -232,6 +240,46 @@ export function largestFiles(
     .slice(0, count)
     .map((file) => `${file.path} (${file.size} bytes)`)
     .join(", ");
+}
+
+export type SiteBinding = {
+  readonly commit: string | null;
+  readonly binding: "unbound" | "clean-worktree-head";
+  readonly reason: string;
+};
+
+/**
+ * Name the commit that built out/ only when that is the one reading left: the
+ * build sits in a clean git worktree and is newer than its HEAD commit. The
+ * main checkout is never clean in a shared tree, so an edition exported from
+ * it stays unbound, and says why.
+ */
+export function siteBinding(input: {
+  readonly head: string | null;
+  readonly clean: boolean | null;
+  readonly headCommittedAt: string | null;
+  readonly outBuiltAt: Date;
+}): SiteBinding {
+  const unbound = (reason: string): SiteBinding => ({ commit: null, binding: "unbound", reason });
+  if (input.head === null || input.headCommittedAt === null) {
+    return unbound("out/ is not inside a git worktree, so no commit can be read for it.");
+  }
+  if (input.clean !== true) {
+    return unbound(
+      "The worktree holding out/ has uncommitted changes, so out/ may contain work that no commit records.",
+    );
+  }
+  if (input.outBuiltAt.getTime() < new Date(input.headCommittedAt).getTime()) {
+    return unbound(
+      "out/ is older than its worktree's HEAD commit, so it was built from an earlier commit.",
+    );
+  }
+  return {
+    commit: input.head,
+    binding: "clean-worktree-head",
+    reason:
+      "out/ sits in a clean worktree and was built after that worktree's HEAD commit. Inferred from the tree, not from a release record; the verified app release still checks the release record (App plan §14.3).",
+  };
 }
 
 /** Characters Xcode's file lists or `shasum -c` would misread. */
@@ -371,8 +419,17 @@ export function exportEdition(options: {
   }
 
   const outMtime = statSync(indexHtml).mtime;
-  const head = git(repo, ["rev-parse", "HEAD"]);
-  const headDate = git(repo, ["log", "-1", "--format=%cI", "HEAD"]);
+  const sourceTree = git(outDir, ["rev-parse", "--show-toplevel"]);
+  const sourceHead = sourceTree === null ? null : git(sourceTree, ["rev-parse", "HEAD"]);
+  const sourceHeadDate =
+    sourceTree === null ? null : git(sourceTree, ["log", "-1", "--format=%cI", "HEAD"]);
+  const porcelain = sourceTree === null ? null : git(sourceTree, ["status", "--porcelain"]);
+  const binding = siteBinding({
+    head: sourceHead,
+    clean: porcelain === null ? null : porcelain === "",
+    headCommittedAt: sourceHeadDate,
+    outBuiltAt: outMtime,
+  });
   const digest = editionDigest(files);
 
   const manifest = {
@@ -384,14 +441,9 @@ export function exportEdition(options: {
       indexHtmlModifiedAt: outMtime.toISOString(),
     },
     site: {
-      commit: null,
-      binding: "unbound",
-      reason:
-        "The static export records no commit and no web release record exists for it yet, so this edition cannot name the commit that built it. The verified app release binds it (App plan §14.3).",
-      gitHeadAtExport: head,
-      gitHeadCommittedAt: headDate,
-      exportOlderThanHead:
-        headDate === null ? null : outMtime.getTime() < new Date(headDate).getTime(),
+      ...binding,
+      sourceTree,
+      sourceHeadCommittedAt: sourceHeadDate,
     },
     budget: { maxBytes: budgetBytes, totalBytes, fileCount: files.length },
     exclusions: EXCLUSION_RULES.map((rule) => {
@@ -404,6 +456,14 @@ export function exportEdition(options: {
       };
     }),
     untypedFiles: untyped,
+    userScripts: [
+      {
+        id: "bridge",
+        file: BRIDGE_SCRIPT_FILE,
+        sha256: createHash("sha256").update(BRIDGE_USER_SCRIPT_SOURCE).digest("hex"),
+        bytes: Buffer.byteLength(BRIDGE_USER_SCRIPT_SOURCE),
+      },
+    ],
     files,
   };
 
@@ -415,14 +475,18 @@ export function exportEdition(options: {
     files.map((file) => `${file.sha256}  ${file.path}\n`).join(""),
   );
   writeFileSync(join(dest, "edition-files.txt"), files.map((file) => `${file.path}\n`).join(""));
-  const outFromIos = relative(join(repo, "ios"), outDir).split("\\").join("/");
+  writeFileSync(join(dest, BRIDGE_SCRIPT_FILE), BRIDGE_USER_SCRIPT_SOURCE);
+  // The bundling phase reads out/ from wherever this export read it, not only the main checkout.
+  writeFileSync(join(dest, "edition-source.txt"), `${outDir}\n`);
   writeFileSync(
     join(dest, "edition-inputs.xcfilelist"),
     `${[
       "$(SRCROOT)/../generated/app-edition/edition-manifest.json",
       "$(SRCROOT)/../generated/app-edition/edition.sha256",
       "$(SRCROOT)/../generated/app-edition/edition-files.txt",
-      ...files.map((file) => `$(SRCROOT)/${outFromIos}/${file.path}`),
+      `$(SRCROOT)/../generated/app-edition/${BRIDGE_SCRIPT_FILE}`,
+      "$(SRCROOT)/../generated/app-edition/edition-source.txt",
+      ...files.map((file) => `${outDir}/${file.path}`),
     ].join("\n")}\n`,
   );
   const bundled = "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)";
@@ -430,6 +494,7 @@ export function exportEdition(options: {
     join(dest, "edition-outputs.xcfilelist"),
     `${[
       `${bundled}/edition-manifest.json`,
+      `${bundled}/${BRIDGE_SCRIPT_FILE}`,
       `${bundled}/Edition`,
       // The script sandbox grants writes only to declared outputs, directories included.
       ...editionDirectories(files).map((directory) => `${bundled}/Edition/${directory}`),

@@ -10,8 +10,10 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
+import { BRIDGE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/userScripts.ts";
 import {
   AppExportError,
+  BRIDGE_SCRIPT_FILE,
   contentTypeFor,
   EXCLUSION_RULES,
   editionDigest,
@@ -21,6 +23,7 @@ import {
   OCTET_STREAM,
   planEdition,
   referencedDigests,
+  siteBinding,
   unsafePathReason,
 } from "./export-edition.ts";
 
@@ -52,6 +55,7 @@ const SITE: Record<string, string> = {
   "robots.txt": "User-agent: *",
   "sitemap.xml": "<urlset/>",
   "opengraph-image": "png bytes",
+  "share/brownian-motion.png": "png bytes",
   "offline/chapter-1.html": "an offline chapter",
   "wasm/kernel.wasm": "\u0000asm",
   "fonts/newsreader/OFL.txt": "licence",
@@ -115,7 +119,10 @@ describe("planEdition", () => {
 
   it("drops crawler files and share cards", () => {
     assert.deepEqual(excludedBy("crawler-file"), ["robots.txt", "sitemap.xml"]);
-    assert.deepEqual(excludedBy("share-card-image"), ["opengraph-image"]);
+    assert.deepEqual(excludedBy("share-card-image"), [
+      "opengraph-image",
+      "share/brownian-motion.png",
+    ]);
   });
 
   it("ships everything no rule names, including offline chapters, 404 and WASM", () => {
@@ -194,7 +201,19 @@ describe("exportEdition", () => {
       directories.indexOf("edition") < directories.indexOf(`edition/${LIVE}`),
       "parents come first",
     );
-    assert.equal(outputs.length, 2 + directories.length + result.fileCount);
+    assert.equal(outputs.length, 3 + directories.length + result.fileCount);
+    const [script] = manifest.userScripts;
+    const written = readFileSync(join(dest, BRIDGE_SCRIPT_FILE), "utf8");
+    assert.equal(written, BRIDGE_USER_SCRIPT_SOURCE);
+    assert.equal(script.file, BRIDGE_SCRIPT_FILE);
+    assert.equal(script.sha256, createHash("sha256").update(written).digest("hex"));
+    assert.ok(
+      outputs.some((line) => line.endsWith(`/${BRIDGE_SCRIPT_FILE}`)),
+      "the script is a declared output",
+    );
+    assert.equal(readFileSync(join(dest, "edition-source.txt"), "utf8"), `${out}\n`);
+    const inputs = readFileSync(join(dest, "edition-inputs.xcfilelist"), "utf8").trim().split("\n");
+    assert.ok(inputs.includes(`${out}/index.html`), "inputs name out/ by its absolute path");
     assert.ok(
       outputs.some((line) => line.endsWith("/Edition/papers")),
       "a directory is declared",
@@ -243,5 +262,47 @@ describe("exportEdition", () => {
       () => exportEdition({ repo: dirname(out), outDir: out, dest }),
       (error: unknown) => error instanceof AppExportError && error.code === "unsafe-edition-path",
     );
+  });
+});
+
+describe("siteBinding", () => {
+  const built = new Date("2026-09-24T01:40:28Z");
+  const committed = "2026-09-23T21:31:52-04:00";
+
+  it("names the commit for a clean worktree built after its HEAD", () => {
+    const binding = siteBinding({
+      head: "b9af6ebe",
+      clean: true,
+      headCommittedAt: committed,
+      outBuiltAt: built,
+    });
+    assert.equal(binding.commit, "b9af6ebe");
+    assert.equal(binding.binding, "clean-worktree-head");
+  });
+
+  it("stays unbound for a dirty tree, a build older than HEAD, or no git at all, and says which", () => {
+    const dirty = siteBinding({
+      head: "b9af6ebe",
+      clean: false,
+      headCommittedAt: committed,
+      outBuiltAt: built,
+    });
+    assert.match(dirty.reason, /uncommitted/);
+    const early = new Date("2026-09-23T20:00:00Z");
+    const stale = siteBinding({
+      head: "b9af6ebe",
+      clean: true,
+      headCommittedAt: committed,
+      outBuiltAt: early,
+    });
+    assert.match(stale.reason, /older than/);
+    const none = siteBinding({ head: null, clean: null, headCommittedAt: null, outBuiltAt: built });
+    assert.match(none.reason, /not inside a git worktree/);
+    for (const clean of [false, null]) {
+      assert.equal(
+        siteBinding({ head: "x", clean, headCommittedAt: committed, outBuiltAt: built }).commit,
+        null,
+      );
+    }
   });
 });
