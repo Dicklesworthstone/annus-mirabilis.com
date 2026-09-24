@@ -21,6 +21,7 @@ struct ReaderDataView: View {
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Done") { dismiss() }
+                            .tint(Color("PageInk"))
                     }
                 }
         }
@@ -38,6 +39,7 @@ struct ReaderDataView: View {
                 } footer: {
                     Text(Self.footnote)
                 }
+                .editionPaperRow()
                 Section {
                     Button {
                         session.share(data.export(at: Date()))
@@ -46,7 +48,9 @@ struct ReaderDataView: View {
                     }
                     .accessibilityIdentifier("reader-data-export-all")
                 }
+                .editionPaperRow()
             }
+            .onEditionPaper()
             .accessibilityIdentifier("reader-data-list")
         case .data:
             ContentUnavailableView(

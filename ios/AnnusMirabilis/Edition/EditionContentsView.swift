@@ -49,6 +49,7 @@ struct EditionContentsView: View {
     private var done: some ToolbarContent {
         ToolbarItem(placement: .confirmationAction) {
             Button("Done") { dismiss() }
+                .tint(Color("PageInk"))
         }
     }
 
@@ -66,7 +67,9 @@ struct EditionContentsView: View {
                 }
                 .padding(.vertical, 4)
             }
+            .editionPaperRow()
         }
+        .onEditionPaper()
     }
 
     private func outline(_ paper: NativeCatalog.Paper) -> some View {
@@ -81,6 +84,7 @@ struct EditionContentsView: View {
                     }
                 }
             }
+            .editionPaperRow()
             Section {
                 ForEach(paper.sections) { section in
                     Button {
@@ -90,7 +94,9 @@ struct EditionContentsView: View {
                     }
                 }
             }
+            .editionPaperRow()
         }
+        .onEditionPaper()
         .navigationTitle(paper.name)
         .toolbar { done }
     }
@@ -108,7 +114,9 @@ struct EditionContentsView: View {
                 }
                 .padding(.vertical, 4)
             }
+            .editionPaperRow()
         }
+        .onEditionPaper()
     }
 
     private func steps(_ route: NativeCatalog.DiscoverRoute) -> some View {
@@ -121,6 +129,7 @@ struct EditionContentsView: View {
                     Label("Open the route", systemImage: "arrow.forward")
                 }
             }
+            .editionPaperRow()
             Section {
                 ForEach(Array(route.steps.enumerated()), id: \.offset) { index, step in
                     HStack(alignment: .firstTextBaseline, spacing: 12) {
@@ -131,7 +140,9 @@ struct EditionContentsView: View {
                     .accessibilityElement(children: .combine)
                 }
             }
+            .editionPaperRow()
         }
+        .onEditionPaper()
         .navigationTitle(route.name)
         .toolbar { done }
     }
@@ -155,7 +166,9 @@ struct EditionContentsView: View {
             } header: {
                 Text(group.name).foregroundStyle(Color("MutedInk"))
             }
+            .editionPaperRow()
         }
+        .onEditionPaper()
     }
 
     /// German titles are marked as German, so VoiceOver reads them in German.
@@ -163,5 +176,20 @@ struct EditionContentsView: View {
         var german = AttributedString(text)
         german.languageIdentifier = "de"
         return german
+    }
+}
+
+extension View {
+    /// A native sheet's list on the edition's own paper. Its text is then read against the colours it
+    /// was chosen for: MutedInk on LaunchBackground is 5.98:1 in both themes. The system's sheet greys
+    /// differ by device, and an iPad's elevated form sheet takes the muted ink to 4.19:1 in dark mode,
+    /// which its accessibility audit failed (run 20260924T162927Z-8561e429).
+    func onEditionPaper() -> some View {
+        scrollContentBackground(.hidden).background(Color("LaunchBackground"))
+    }
+
+    /// A list row, or every row of a section, on the edition's paper (onEditionPaper).
+    func editionPaperRow() -> some View {
+        listRowBackground(Color("LaunchBackground"))
     }
 }

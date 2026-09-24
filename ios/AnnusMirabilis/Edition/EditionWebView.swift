@@ -89,6 +89,7 @@ struct PageActionsButton: View {
         .sheet(isPresented: $showingReaderData) {
             ReaderDataView(session: session)
                 .preferredColorScheme(session.pageColorScheme)
+                .presentationBackground(Color("LaunchBackground"))
         }
         .sheet(isPresented: $showingContents) {
             if let catalog = session.nativeCatalog {
@@ -96,6 +97,7 @@ struct PageActionsButton: View {
                     session.open(route: route, anchor: anchor)
                 }
                 .preferredColorScheme(session.pageColorScheme)
+                .presentationBackground(Color("LaunchBackground"))
             }
         }
     }
