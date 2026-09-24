@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LightThreadLab } from "../../../components/lab/lightThread/LightThreadLab.tsx";
+import labDigests from "../../../generated/lab-source-digests.json";
 
 export const metadata: Metadata = {
   title: "The light thread: quantum energy, relativity, and inertia",
@@ -27,7 +28,7 @@ export default function LightThreadPage() {
           <a href="/connections">Open the connections between the papers</a>
         </p>
       </header>
-      <LightThreadLab />
+      <LightThreadLab sourceDigest={labDigests["light-thread"]} />
     </>
   );
 }

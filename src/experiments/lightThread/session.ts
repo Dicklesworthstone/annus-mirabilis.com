@@ -34,7 +34,7 @@ const classes: Readonly<Record<keyof LightThreadParameters, ParameterClass>> = O
   angleDeg: "input",
 });
 
-const outputs: Readonly<Record<string, OutputContract>> = Object.freeze(
+export const LIGHT_THREAD_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze(
   Object.fromEntries(
     Object.entries(LIGHT_THREAD_QUANTITIES).map(([id, quantity]) => [
       id,
@@ -76,7 +76,7 @@ export function createLightThreadSession(
     instanceId,
     initialParameters: initial.snapshot.parameters,
     parameterClasses: classes,
-    outputs,
+    outputs: LIGHT_THREAD_OUTPUTS,
   });
   const first = store.issue("setup-change");
   const published = store.publish({

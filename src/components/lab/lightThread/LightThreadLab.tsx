@@ -1,6 +1,9 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import {
   decodeLightThreadParameters,
   encodeLightThreadParameters,
@@ -11,7 +14,11 @@ import {
   type LightThreadParameters,
   type LightThreadQuantityId,
 } from "../../../experiments/lightThread/definition.ts";
-import { createLightThreadSession } from "../../../experiments/lightThread/session.ts";
+import {
+  createLightThreadSession,
+  LIGHT_THREAD_OUTPUTS,
+} from "../../../experiments/lightThread/session.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { ExperimentRuntimeError } from "../../../experiments/refusal.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
@@ -88,7 +95,7 @@ function QuantityTable({
   );
 }
 
-export function LightThreadLab() {
+export function LightThreadLab({ sourceDigest = "" }: { sourceDigest?: string } = {}) {
   const id = useId();
   const [session] = useState(() => createLightThreadSession(`light-thread-${id}`));
   const view = useSyncExternalStore(
@@ -184,11 +191,22 @@ export function LightThreadLab() {
     apply(draftParameters());
   }
 
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation; without the page's source digest no label
+  // is earned.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      LIGHT_THREAD_OUTPUTS,
+      sourceDigest,
+      snapshot === session.getServerSnapshot().accepted,
+    ).label,
+  );
   return (
     <section
       className="laboratory"
       data-instrument-id="light-thread"
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, view, "frequencyMoving")}
       aria-labelledby={`${id}-title`}
       {...identity(snapshot)}
     >
@@ -197,8 +215,10 @@ export function LightThreadLab() {
           <p className="eyebrow">One pulse · Three distinct questions</p>
           <h2 id={`${id}-title`}>Follow the energy without confusing the claims</h2>
         </div>
-        <span className="badge">Ideal model, host calculation</span>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome state={executionKind} view={view} />
+      </div>
       <noscript>
         <p className="notice">
           The default worked example and all its numbers are readable without JavaScript. Changing
