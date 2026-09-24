@@ -10,7 +10,6 @@ import {
   LQ01_CAPTION,
   LQ01_OUTPUTS,
   LQ01_PRESETS,
-  LQ01_PROMPTS,
   type Lq01Parameters,
 } from "../../experiments/lq01/definition.ts";
 import { decodeLq01Settings, encodeLq01Settings } from "../../experiments/lq01/permalink.ts";
@@ -18,8 +17,10 @@ import { createLq01Session, type PreparedLq01Example } from "../../experiments/l
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
+import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
 import { array, identity, result, scalar, sentenceNumber } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
@@ -40,6 +41,17 @@ export type WaveDescriptionLabProps = Readonly<{
 }>;
 
 type Mode = Lq01Parameters["mode"];
+
+// One prompt per view, as ME-03 does per mode: the phase prompt with the two sources, the distance
+// prompt with the one.
+const LQ01_PROMPTS_BY_MODE: Readonly<Record<Mode, (typeof PREDICT_PROMPTS)[string]>> = {
+  interference: (PREDICT_PROMPTS["lq-01"] ?? []).filter(
+    (p) => p.promptId === "lq-01-predict-phase-shift",
+  ),
+  spreading: (PREDICT_PROMPTS["lq-01"] ?? []).filter(
+    (p) => p.promptId === "lq-01-predict-inverse-square",
+  ),
+};
 
 /** What each preset does, in the reader's words. The ids and parameters stay in definition.ts. */
 const PRESET_LABELS: Readonly<Record<keyof typeof LQ01_PRESETS, string>> = {
@@ -127,7 +139,6 @@ export function WaveDescriptionLab({
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const [linkNote, setLinkNote] = useState("");
-  const [selectedCandidates, setSelectedCandidates] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setReady(true);
@@ -212,8 +223,8 @@ export function WaveDescriptionLab({
   const screenProfile = array(snapshot, "screenIntensity").copy();
 
   const interference = p.mode === "interference";
-  const prompt = interference ? LQ01_PROMPTS["phase-shift"] : LQ01_PROMPTS["inverse-square"];
-  const chosen = selectedCandidates[prompt.id];
+  // The drawings, axes and controls come first; the curve and the numbers they ask about wait.
+  const gate = usePredictGate("lq-01", LQ01_PROMPTS_BY_MODE[p.mode]);
   const phaseDegrees = phaseInDegrees(p.delta);
   const phaseReadout = `${phaseInPi(p.delta)}π rad${phaseDegrees === null ? "" : `, ${phaseDegrees}°`}`;
   // One sentence for the status line, from the accepted outputs of the mode on screen.
@@ -291,52 +302,7 @@ export function WaveDescriptionLab({
               </button>
             </div>
 
-            <details className="lab-predict">
-              <summary>Predict first</summary>
-              <fieldset>
-                <legend>{prompt.question}</legend>
-                {prompt.candidates.map((c) => (
-                  <label key={c.id} className="lab-predict-candidate">
-                    <input
-                      type="radio"
-                      name={`${id}-predict-${prompt.id}`}
-                      value={c.id}
-                      checked={chosen === c.id}
-                      onChange={() =>
-                        setSelectedCandidates((prev) => ({ ...prev, [prompt.id]: c.id }))
-                      }
-                    />
-                    <span>
-                      <strong>{c.label}.</strong> {c.description}.
-                    </span>
-                  </label>
-                ))}
-              </fieldset>
-              {chosen && (
-                <div className="lab-predict-reveal">
-                  {interference ? (
-                    <p>
-                      The model says it drops to zero. Two equal waves half a wave apart cancel at
-                      the centre, while in step they give four times one wave alone.
-                    </p>
-                  ) : (
-                    <p>
-                      The model says it drops to a quarter. The same power spreads over a sphere of
-                      area 4πr², and doubling r makes that area four times larger.
-                    </p>
-                  )}
-                  <button
-                    type="button"
-                    className="secondary"
-                    onClick={() =>
-                      interference ? applyChange({ delta: Math.PI }) : applyChange({ r: 2 * p.r })
-                    }
-                  >
-                    {interference ? "Delay one wave by half a wave" : "Double the distance"}
-                  </button>
-                </div>
-              )}
-            </details>
+            <PredictGatePanels gate={gate} />
 
             {interference ? (
               <>
@@ -514,6 +480,7 @@ export function WaveDescriptionLab({
         <AcceptedStatus
           worked={snapshot === session.getServerSnapshot().accepted}
           summary={statusSummary}
+          response={gate.response}
         />
 
         <div className="lab-results">
@@ -529,11 +496,13 @@ export function WaveDescriptionLab({
                 screenPosition={p.screenPosition}
                 readout={p.readout}
                 delta={p.delta}
+                response={gate.response}
               />
               <WavefrontPlot
                 separation={p.separation}
                 delta={p.delta}
                 centerIntensity={centerIntensity}
+                response={gate.response}
               />
             </div>
           ) : (
@@ -543,13 +512,14 @@ export function WaveDescriptionLab({
                 radius={p.r}
                 intensity={pointSourceIntensity}
                 shellPower={shellPower}
+                response={gate.response}
               />
             </div>
           )}
         </div>
       </div>
 
-      <div data-view-id="lq-01-data-table" className="lab-values">
+      <div data-view-id="lq-01-data-table" className="lab-values" {...gate.response}>
         <h3>Values at these settings</h3>
         {interference && (
           <p className="fine">

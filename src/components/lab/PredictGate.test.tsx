@@ -9,6 +9,7 @@ import type { PreparedBm04Example } from "../../experiments/bm04/session.ts";
 import type { PreparedBm05Example } from "../../experiments/bm05/session.ts";
 import type { PreparedBm07Example } from "../../experiments/bm07/session.ts";
 import type { PreparedBm08Example } from "../../experiments/bm08/session.ts";
+import type { PreparedLq01Example } from "../../experiments/lq01/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as ME01_EXAMPLE } from "../../experiments/me01/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as ME02_EXAMPLE } from "../../experiments/me02/session.ts";
 import { decodeTapePermalink } from "../../experiments/permalink/codec.ts";
@@ -31,6 +32,7 @@ import rawBm04Example from "../../generated/bm04-example.json";
 import rawBm05Example from "../../generated/bm05-example.json";
 import rawBm07Example from "../../generated/bm07-example.json";
 import rawBm08Example from "../../generated/bm08-example.json";
+import rawLq01Example from "../../generated/lq01-example.json";
 import { type GeneratedPredictPrompt, PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import rawSr10Example from "../../generated/sr10-example.json";
 import { createStorageContext } from "../../platform/storage/store.ts";
@@ -70,6 +72,7 @@ import { MovingMirrorLab } from "./sr11/MovingMirrorLab.tsx";
 import { ChargeCurrentLab } from "./sr12/ChargeCurrentLab.tsx";
 import { ElectronDynamicsLab } from "./sr13/ElectronDynamicsLab.tsx";
 import { WalkLab } from "./WalkLab.tsx";
+import { WaveDescriptionLab } from "./WaveDescriptionLab.tsx";
 
 /**
  * Predict mode hides a laboratory's result until the reader answers (am-inst-predict-mode-ti7m).
@@ -82,8 +85,8 @@ import { WalkLab } from "./WalkLab.tsx";
  */
 /**
  * The gated labs. `result` is text from each lab's result that the server markup must carry.
- * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-04, BM-05, BM-07 and BM-08
- * share none (their worker runner is not written); BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
+ * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-04, BM-05, BM-07, BM-08
+ * and LQ-01 share none (their worker runner is not written); BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
  * in a worktree (dispatch 145). `statusLine`: whether the lab has a status line; BM-04, LQ-06 and ME-02 have none.
  */
 type GatedLab = Readonly<{
@@ -133,6 +136,16 @@ const LABS: readonly GatedLab[] = [
     element: () =>
       createElement(CameraLab, { example: rawBm08Example as unknown as PreparedBm08Example }),
     result: "Four estimates, different assumptions",
+    sharesTape: false,
+    statusLine: true,
+  },
+  {
+    lab: "lq-01",
+    element: () =>
+      createElement(WaveDescriptionLab, {
+        example: rawLq01Example as unknown as PreparedLq01Example,
+      }),
+    result: "Values at these settings",
     sharesTape: false,
     statusLine: true,
   },

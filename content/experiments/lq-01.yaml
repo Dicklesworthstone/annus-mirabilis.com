@@ -547,27 +547,29 @@ predictMode:
     - promptId: lq-01-predict-phase-shift
       supportedCandidateId: drops-to-zero
       controlId: delta
-      question: "Two equal waves meet at the center of the screen. What happens to the intensity there when the phase difference goes from 0 to π?"
+      question: "Two equal waves meet at the centre of the screen. What happens to the intensity there when the phase difference goes from 0 to π?"
+      explanation: "The fields add before they are squared. Two equal waves half a wave apart have opposite fields at the centre, which sum to zero, so the intensity there is zero; in step they give four times the intensity of one wave alone."
       candidates:
         - id: unchanged
           label: "It stays the same"
           description: "Interference does not change the total brightness at the center"
           relation: "⟨I⟩(π) = ⟨I⟩(0)"
-          separatingAssumption: "Assumes radiant powers add directly without linear scalar field superposition or interference."
+          separatingAssumption: "Adds the two waves' intensities rather than their fields, so the phase difference could not matter. The intensity is the square of the summed field."
         - id: halves
           label: "It halves"
           description: "Shifting one wave cancels half the incoming radiant power"
           relation: "⟨I⟩(π) = 0.5 * ⟨I⟩(0)"
-          separatingAssumption: "Assumes shifting by half a wave cancels only half the incoming field instead of complete phase reversal."
+          separatingAssumption: "Lets a half-wave delay cancel half of the second wave. Half a wave reverses its field completely, so two equal waves cancel."
         - id: drops-to-zero
           label: "It drops to zero"
           description: "Equal waves out of phase by half a cycle cancel completely"
           relation: "⟨I⟩(π) = 0"
-          separatingAssumption: "Follows from linear field superposition: equal waves with delta = pi cancel completely at the center."
+          separatingAssumption: "Adds the fields first: at δ = π one field is the other reversed, so equal amplitudes sum to zero at the centre, and so does the intensity."
     - promptId: lq-01-predict-inverse-square
       supportedCandidateId: quarters
       controlId: r
       question: "The source keeps its power. What happens to the intensity when the distance from it doubles?"
+      explanation: "The same power spreads over a sphere of area 4πr². Doubling r makes that area four times larger, so each square metre receives a quarter as much."
       candidates:
         - id: halves
           label: "It halves"
@@ -576,14 +578,14 @@ predictMode:
           separatingAssumption: "This lets the intensity fall as 1/r. The light spreads over a sphere whose area grows as r², so at twice the distance the intensity is a quarter."
         - id: quarters
           label: "It drops to a quarter"
-          description: "Energy spreads over the spherical area 4*pi*r^2"
+          description: "Energy spreads over the spherical area 4πr²"
           relation: "I ∝ r^(-2)"
-          separatingAssumption: "Follows from spherical surface area 4*pi*r^2: doubling radius quadruples area, quartering intensity."
+          separatingAssumption: "Spreads the source's power over a sphere of area 4πr². Doubling r quadruples the area, so the intensity falls to a quarter."
         - id: unchanged
           label: "It stays the same"
           description: "Power radiates without geometric dilution"
           relation: "I ∝ r^0"
-          separatingAssumption: "Assumes collimated beam propagation without geometric angular spreading."
+          separatingAssumption: "Treats the light as a parallel beam that does not spread. A point source sends its power out in every direction."
 acceptanceCases:
   - waves-lq01
 defaultScenario: waves-lq01
