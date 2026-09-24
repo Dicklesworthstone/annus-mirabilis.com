@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "vectors-components",
+  "title": "Vectors and their components",
+  "question": "How can one arrow have different numbers in different coordinate systems?",
+  "summary": "A vector is an arrow with a length and a direction. Its components are the numbers that describe it along chosen axes. Turn the axes and the components change while the arrow stays the same: a change of description, not a change of the world.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "A velocity, a force and an electric field each have a size and a direction. Drawn as an arrow, such a quantity is a vector. To write it down with numbers, choose axes and ask how far the arrow reaches along each one. Those numbers are its components, written \\((v_x, v_y)\\) in two dimensions or \\((v_x, v_y, v_z)\\) in three."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The components belong to the axes as much as to the arrow. A particle moving at 0.6c along x has components \\((0.6c, 0)\\). Describe the same motion with axes turned so that the new x axis makes an angle θ with the old one, and the components become \\((0.6c\\cosθ,\\ -0.6c\\sinθ)\\). The numbers changed; the particle did not. Its speed, the arrow's length, is the same in both descriptions."
+    },
+    {
+      "kind": "formula",
+      "latex": "|\\mathbf{v}| = \\sqrt{v_x^2 + v_y^2}",
+      "spoken": "The length of v is the square root of v x squared plus v y squared."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Physics often splits a vector into two parts with respect to a direction that matters: the component along it and the part across it. For a boost along x, an electric field of 5 units pointing 3 along x and 4 along y has a parallel component of 3 and a perpendicular part of 4. The split matters in §6 of the relativity paper, where the component along the motion, which Einstein writes X, is the same in both frames, while the components across it, Y and Z, change."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Two different operations can both look like new numbers for a vector. Turning the axes, or moving the observer, changes the description and leaves the world as it was. Pushing the particle changes the world itself. The site's instruments keep the two apart: an observer change never starts a new experiment."
+    }
+  ],
+  "exampleTitle": "One velocity in two sets of axes",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "A particle moves at 0.6c along x. In the first axes its components are \\((0.6c, 0)\\).",
+        "Turn the axes so that \\(\\cosθ = 0.8\\) and \\(\\sinθ = 0.6\\), an angle of about 36.9°.",
+        "The new components are \\(0.6c \\times 0.8 = 0.48c\\) along the new x axis and \\(-0.6c \\times 0.6 = -0.36c\\) along the new y axis.",
+        "The length is unchanged: \\(\\sqrt{0.48^2 + 0.36^2} = \\sqrt{0.2304 + 0.1296} = \\sqrt{0.36} = 0.6\\), so the speed is 0.6c in both descriptions."
+      ]
+    }
+  ],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:quantities-units",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:functions-graphs",
+      "kind": "proof-edge"
+    }
+  ],
+  "stoppingPoint": "A vector is an arrow with a length and a direction. This lesson stops at describing it along different axes.",
+  "citations": ["ap-17-891"]
+}

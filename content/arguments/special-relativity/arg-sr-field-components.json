@@ -66,6 +66,11 @@
       },
       {
         "kind": "foundation",
+        "id": "vectors-components",
+        "returnCaption": "Return to the field components along the motion and across it."
+      },
+      {
+        "kind": "foundation",
         "id": "unit-system-1905",
         "returnCaption": "Return to the field transformation in SI units, which the paper writes in Gaussian units."
       }
