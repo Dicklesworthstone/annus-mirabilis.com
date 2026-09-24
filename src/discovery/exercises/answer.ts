@@ -1,7 +1,7 @@
 /** Shared reader-answer workflow. No browser storage, network, eval or alternate RNG. */
 import { type ToleranceSpec, validateToleranceSpec } from "../../units/tolerance.ts";
 import { checkEquivalence, type EquivalenceOutcome } from "./equivalence.ts";
-import { ALLOWED_FUNCTIONS, parse } from "./grammar.ts";
+import { ALLOWED_FUNCTIONS, echo, parse } from "./grammar.ts";
 import { normalize } from "./normalize.ts";
 import { type Domain, validateDomains } from "./samplePoints.ts";
 
@@ -16,7 +16,12 @@ export interface ExpressionExercisePart {
 }
 export type AnswerVerdict =
   | Readonly<{ kind: "parse-error"; position: number; message: string }>
-  | Readonly<{ kind: "checked"; outcome: EquivalenceOutcome }>;
+  | Readonly<{
+      kind: "checked";
+      outcome: EquivalenceOutcome;
+      /** How the reader's expression was read, every grouping explicit (grammar.ts echo). */
+      readAs?: string;
+    }>;
 
 function field(value: unknown, name: string): unknown {
   if (!value || ![Object.prototype, null].includes(Object.getPrototypeOf(value)))
@@ -169,6 +174,7 @@ export async function checkExerciseAnswer(
     return {
       kind: "checked",
       outcome: checkEquivalence(reader.expr, reference.expr, p.domains, p.tolerance, { seed }),
+      readAs: echo(reader.expr),
     };
   } catch (error) {
     return {

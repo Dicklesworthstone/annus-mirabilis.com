@@ -323,6 +323,32 @@ function countNodes(expr: Expr): number {
 }
 
 /** Parses `text` (already normalize()'d) against `declaredNames`, the only identifiers this expression may use. */
+const ECHO_OPERATORS = { "+": "+", "-": "\u2212", "*": "\u00b7", "/": "/", "^": "^" } as const;
+
+/**
+ * The parsed expression written back with every grouping explicit, so a reader sees how the
+ * checker read their answer before seeing whether it matched: 2*x/3*y reads as ((2 · x) / 3) · y,
+ * -x^2 as −(x^2), and 2^3^2 as 2^(3^2). Every operand that is itself a sum, product, quotient or
+ * power is bracketed; names, numbers and function calls are not.
+ */
+export function echo(expr: Expr): string {
+  const operand = (e: Expr): string => (e.kind === "binary" ? `(${echo(e)})` : echo(e));
+  switch (expr.kind) {
+    case "number":
+      return String(expr.value);
+    case "identifier":
+      return expr.name;
+    case "unary":
+      return `\u2212${operand(expr.operand)}`;
+    case "binary":
+      return expr.op === "^"
+        ? `${operand(expr.left)}^${operand(expr.right)}`
+        : `${operand(expr.left)} ${ECHO_OPERATORS[expr.op]} ${operand(expr.right)}`;
+    case "call":
+      return `${expr.name}(${echo(expr.arg)})`;
+  }
+}
+
 export function parse(text: string, declaredNames: ReadonlySet<string>): ParseSuccess | ParseError {
   if (text.length > MAX_LENGTH) {
     return fail(MAX_LENGTH, `Expression is longer than ${MAX_LENGTH} characters.`);

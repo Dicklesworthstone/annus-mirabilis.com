@@ -8,6 +8,7 @@ import {
   type ExpressionExercisePart,
   exerciseDefinitionKey,
 } from "../../discovery/exercises/answer.ts";
+import { Sci } from "../lab/Sci.tsx";
 
 export type { ExpressionExercisePart } from "../../discovery/exercises/answer.ts";
 
@@ -93,15 +94,25 @@ function ExerciseForm({ part }: { part: ExpressionExercisePart }) {
       )}
       {verdict?.kind === "checked" && (
         <div className="exercise-verdict" role="status">
+          {verdict.readAs && (
+            <p>
+              Read as <code>{verdict.readAs}</code>
+            </p>
+          )}
           {verdict.outcome.status === "equivalent" && <p>{verdict.outcome.label}</p>}
           {verdict.outcome.status === "not-equivalent" && (
             <p>
               Not equivalent. At{" "}
-              {Object.entries(verdict.outcome.point)
-                .map(([name, value]) => `${name} = ${value.toPrecision(6)}`)
-                .join(", ") || "the constant input"}
-              , your expression gives {verdict.outcome.readerValue.toPrecision(6)} and the reference
-              gives {verdict.outcome.referenceValue.toPrecision(6)}.
+              {Object.entries(verdict.outcome.point).length === 0
+                ? "the constant input"
+                : Object.entries(verdict.outcome.point).map(([name, value], i) => (
+                    <span key={name}>
+                      {i > 0 ? ", " : ""}
+                      {name} = <Sci value={value} digits={5} />
+                    </span>
+                  ))}
+              , your expression gives <Sci value={verdict.outcome.readerValue} digits={5} /> and the
+              reference gives <Sci value={verdict.outcome.referenceValue} digits={5} />.
             </p>
           )}
           {verdict.outcome.status === "could-not-compare" && (
