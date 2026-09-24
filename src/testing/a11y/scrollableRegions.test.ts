@@ -635,6 +635,67 @@ export function deriveScrollClassesFromCss(rootDir: string = ROOT): ReadonlySet<
 }
 
 /**
+ * am-unaudited-scroll-regions-r4jx. deriveScrollClassesFromCss credits every class in a scrolling
+ * rule's selector, so a rule whose TARGET (the last compound selector, the element the declaration
+ * lands on) carries no class of its own is either credited to an ancestor or not seen at all:
+ *
+ * - `div:has(> table.data-table) { overflow-x: auto }` (globals.css, 0b505d9a) made a scroll region
+ *   of every data table's container, and its only class sits inside `:has()`, on a descendant;
+ * - `.linear-formula > [aria-hidden] { overflow-x: auto }` recorded `linear-formula`, the parent,
+ *   while the aria-hidden child scrolled, and the page's overflow script put four tab stops inside
+ *   aria-hidden content on /papers/mass-energy/ (repaired in 2e1e7b13).
+ *
+ * This finds every such rule so each is placed on purpose in CLASSLESS_SCROLL_TARGETS. Text inside
+ * parentheses is blanked before the target is read, because a class inside `:has()`, `:not()` or
+ * `:is()` belongs to some other element.
+ */
+export function classlessScrollTargets(css: string): { line: number; selector: string }[] {
+  const text = stripCssComments(css);
+  const targets: { line: number; selector: string }[] = [];
+  for (const rule of text.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const [, rawSelector = "", body = ""] = rule;
+    if (!/overflow(?:-x|-y)?\s*:\s*(?:auto|scroll)\b/.test(body)) continue;
+    const start = (rule.index ?? 0) + rawSelector.length - rawSelector.trimStart().length;
+    const line = text.slice(0, start).split("\n").length;
+    let depth = 0;
+    const flat = [...rawSelector.trim()]
+      .map((ch) => {
+        if (ch === "(") depth++;
+        else if (ch === ")") depth--;
+        else if (depth > 0) return " ";
+        return ch;
+      })
+      .join("");
+    const originals = rawSelector.trim();
+    let offset = 0;
+    for (const part of flat.split(",")) {
+      const selector = originals.slice(offset, offset + part.length).trim();
+      offset += part.length + 1;
+      const target =
+        part
+          .trim()
+          .split(/\s*[>+~]\s*|\s+/)
+          .filter(Boolean)
+          .at(-1) ?? "";
+      if (!/\.[A-Za-z_]/.test(target)) targets.push({ line, selector });
+    }
+  }
+  return targets;
+}
+
+/**
+ * Every scrolling rule in src/**\/*.css whose target carries no class, with how a keyboard reaches
+ * the element. A new one fails the test below until it is placed here, and an entry whose rule is
+ * gone fails as stale.
+ */
+export const CLASSLESS_SCROLL_TARGETS: ReadonlyMap<string, string> = new Map([
+  [
+    "[data-instrument-clarification-dialog]",
+    "a modal <dialog>: mountDirectOpen.ts opens it with showModal() and moves focus to its heading",
+  ],
+]);
+
+/**
  * Baseline recorded post-fix for am-bc6s (2026-09-17).
  * The fixed files (kitchen/page.tsx, DerivationStepComponent.tsx, SplitTabs.tsx, FacsimileFace.tsx, edition/Formula.tsx)
  * are at 0 and omitted from this map.
@@ -815,6 +876,75 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
       stale,
       [],
       `These NOT_YET_AUDITED entries no longer describe a gap: ${stale.join(", ")}. Delete them.`,
+    );
+  });
+
+  test("every scrolling rule whose target carries no class is placed on purpose (am-unaudited-scroll-regions-r4jx)", () => {
+    const found: { file: string; line: number; selector: string }[] = [];
+    let files = 0;
+    let scrollingRules = 0;
+    const walk = (dir: string): void => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        if (entry.name === "node_modules" || entry.name.startsWith(".")) continue;
+        const full = join(dir, entry.name);
+        if (entry.isDirectory()) walk(full);
+        else if (entry.isFile() && entry.name.endsWith(".css")) {
+          files++;
+          const css = stripCssComments(readFileSync(full, "utf8"));
+          scrollingRules += [...css.matchAll(/\{[^{}]*overflow(?:-x|-y)?\s*:\s*(?:auto|scroll)\b/g)]
+            .length;
+          for (const target of classlessScrollTargets(css))
+            found.push({ file: relative(ROOT, full), ...target });
+        }
+      }
+    };
+    walk(join(ROOT, "src"));
+    // The denominator, so a scan that read nothing cannot pass as a clean one.
+    assert.ok(files > 50, `the CSS walk found only ${files} stylesheets`);
+    assert.ok(scrollingRules > 20, `the CSS walk found only ${scrollingRules} scrolling rules`);
+
+    const unplaced = found
+      .filter((t) => !CLASSLESS_SCROLL_TARGETS.has(t.selector))
+      .map((t) => `${t.file}:${t.line} ${t.selector}`);
+    assert.deepEqual(
+      unplaced,
+      [],
+      "These rules make an element scroll that no class names, so the class-based audit cannot see " +
+        "it. Give the scrolling element a class the audit lists, or record here how a keyboard reaches it.",
+    );
+    const stale = [...CLASSLESS_SCROLL_TARGETS.keys()].filter(
+      (selector) => !found.some((t) => t.selector === selector),
+    );
+    assert.deepEqual(stale, [], `No stylesheet has these rules any more: ${stale.join(", ")}`);
+  });
+
+  test("classlessScrollTargets reports the rules the class scan cannot see, and only those", () => {
+    const selectors = (css: string) => classlessScrollTargets(css).map((t) => t.selector);
+    // The two real cases, verbatim. The first is globals.css at 0b505d9a: its only class is inside
+    // :has(), on the table, so it names no scrolling element.
+    assert.deepEqual(selectors("div:has(> table.data-table) {\n  overflow-x: auto;\n}\n"), [
+      "div:has(> table.data-table)",
+    ]);
+    assert.deepEqual(selectors(".linear-formula > [aria-hidden] {\n  overflow-x: auto;\n}"), [
+      ".linear-formula > [aria-hidden]",
+    ]);
+    // A class on the target is the class scan's business, whatever sits above it.
+    assert.deepEqual(
+      selectors(".table-scroll { overflow-x: auto }\n.a > .b { overflow: scroll }"),
+      [],
+    );
+    assert.deepEqual(
+      selectors("section.linear-formula-scroll:focus-visible { overflow: auto }"),
+      [],
+    );
+    // In a list, only the class-less member; a class inside :not() does not count.
+    assert.deepEqual(selectors(".a, pre:not(.b) { overflow-y: auto }"), ["pre:not(.b)"]);
+    // Not scrolling, or inside a comment: nothing.
+    assert.deepEqual(selectors("pre { overflow: hidden }\n/* div { overflow: auto } */"), []);
+    // Inside @media, with the rule's own line.
+    assert.deepEqual(
+      classlessScrollTargets("@media (max-width: 30em) {\n  pre {\n    overflow-x: auto;\n  }\n}"),
+      [{ line: 2, selector: "pre" }],
     );
   });
 
