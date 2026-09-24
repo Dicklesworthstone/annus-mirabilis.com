@@ -533,11 +533,16 @@ p {
   flex-direction: column;
   gap: 0;
 }
+/* A link that wraps on a phone ("Read without a connection" at 390) sat 6px from the next one,
+   closer than its own two lines at the body's 26px leading, so two links read as one. Tighter
+   leading inside a link and padding between them keep each one a unit; single-line links stay
+   44px tall. */
 .site-footer nav a {
   display: flex;
   align-items: center;
   min-height: 44px;
-  padding: 0;
+  padding: 0.4rem 0;
+  line-height: 1.3;
 }
 .site-footer-colophon {
   margin: 0.5rem 0 0;
