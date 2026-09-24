@@ -87,3 +87,29 @@ describe("LQ-09 Session Management (am-lq-09-ionization-mbul)", () => {
     expect(ionRate2?.status).toBe("underdetermined");
   });
 });
+
+describe("LQ-09 refuses a named gas without a citation before evaluating", () => {
+  it("keeps the accepted snapshot and never publishes the owner's zero-filled refusal as values", () => {
+    const session = createLq09Session("inst-lq09-uncited-gas");
+    const before = session.getSnapshot().accepted;
+    const res = session.apply({ ...LQ09_DEFAULTS, gasName: "Neon", gasCitation: "" });
+    expect(res.kind).toBe("refused");
+    // Before the refusal moved into validation, this was accepted and published quantumEnergyEv,
+    // thresholdFrequency and excessEnergyEv as the value 0.
+    expect(session.getSnapshot().accepted).toBe(before);
+    const quantum = session
+      .getSnapshot()
+      .accepted?.outputs.find((o) => o.quantityId === "quantumEnergyEv");
+    expect(
+      quantum?.status === "value" && typeof quantum.value === "number" && quantum.value > 0,
+    ).toBe(true);
+  });
+
+  it("accepts an unnamed gas, and a named gas with a citation", () => {
+    const session = createLq09Session("inst-lq09-cited-gas");
+    expect(session.apply({ ...LQ09_DEFAULTS, gasName: "", gasCitation: "" }).kind).toBe("accepted");
+    expect(
+      session.apply({ ...LQ09_DEFAULTS, gasName: "Neon", gasCitation: "A cited source" }).kind,
+    ).toBe("accepted");
+  });
+});
