@@ -4,7 +4,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import * as os from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { brotliCompressSync, gzipSync } from "node:zlib";
+import { brotliCompressSync, gzipSync, constants as zlibConstants } from "node:zlib";
 import { loadCommittedProfiles } from "../src/testing/perfProfiles.ts";
 import { measureReadingFace, READING_FACE_BUDGET_BYTES } from "./measure-reading-face.ts";
 import { loadCommittedBudgets } from "./perf/budgets.ts";
@@ -77,6 +77,16 @@ export const BUILD_DEPENDENT_ROWS = ["initial-route-js", "reading-face-html"] as
  * so a run where the build-dependent rows dropped out and nothing failed reported outcome "pass".
  * A false PASS is available whenever the surviving rows happen to be the ones under budget.
  */
+/**
+ * HTML and CSS are compressed at brotli quality 9, not the default 11. Measured on 2026-09-24:
+ * out/papers/brownian-motion/index.html (1,578 KB) is 73,438 B at q11 in 1,629 ms, and 80,948 B
+ * at q9 in 26 ms. q11 made each budget run seconds slower, and the tests call it repeatedly. So
+ * this figure is up to about 10% above the q11 size, never below it; the JS chunks keep q11.
+ */
+function brotliStaticBytes(buf: Buffer): number {
+  return brotliCompressSync(buf, { params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 9 } }).length;
+}
+
 export function unmeasuredBuildRows(
   metrics: Readonly<Record<string, { readonly status?: "pass" | "fail" | "not-available" }>>,
 ): readonly string[] {
@@ -179,6 +189,50 @@ export async function runPerformanceBudgets(
    * failure naming the reason rather than substituting a passing number: a gate
    * that cannot measure must say so, not guess low.
    */
+  /**
+   * The route's own HTML plus every stylesheet it links, brotli-compressed, read from the built
+   * `out/`. With the route's JavaScript this is the page's static transfer. Fonts and images are
+   * excluded, and a note says so. Until 2026-09-24 the total was the script bytes plus a constant
+   * 25,000 labelled "estimated HTML/CSS transfer", reported beside real measurements
+   * (am-perf-total-transfer-is-a-constant-qfe1). Returns null when the HTML was not built, so an
+   * absent page is reported as unmeasured, never estimated.
+   */
+  function readRouteHtmlCssBytes(rootDir: string, route: string): number | null {
+    // A pattern route such as /papers/[paper] is measured on its first built instance, in sorted
+    // order, so the figure is always one real page's transfer, never an average or a guess.
+    let dir = resolve(rootDir, "out");
+    for (const segment of route.split("/").filter(Boolean)) {
+      if (/^\[.+\]$/.test(segment)) {
+        const instances = existsSync(dir)
+          ? readdirSync(dir, { withFileTypes: true })
+              .filter((e) => e.isDirectory() && existsSync(resolve(dir, e.name, "index.html")))
+              .map((e) => e.name)
+              .sort()
+          : [];
+        const first = instances.find((name) => !name.startsWith("_"));
+        if (first === undefined) return null;
+        dir = resolve(dir, first);
+      } else {
+        dir = resolve(dir, segment);
+      }
+    }
+    const htmlPath = resolve(dir, "index.html");
+    if (!existsSync(htmlPath)) return null;
+    const html = readFileSync(htmlPath);
+    let bytes = brotliStaticBytes(html);
+    const hrefs = new Set<string>();
+    for (const m of html
+      .toString("utf8")
+      .matchAll(/<link[^>]+rel="stylesheet"[^>]*href="([^"]+)"/g)) {
+      if (m[1]) hrefs.add(m[1]);
+    }
+    for (const href of hrefs) {
+      const cssPath = resolve(rootDir, "out", href.replace(/^\//, "").split("?")[0] ?? "");
+      if (existsSync(cssPath)) bytes += brotliStaticBytes(readFileSync(cssPath));
+    }
+    return bytes;
+  }
+
   function readRouteChunkSizes(
     rootDir: string,
     manifest: AppBuildManifest,
@@ -315,7 +369,15 @@ export async function runPerformanceBudgets(
         continue;
       }
       scriptBytes = res.byteAccounting.effectiveBytes;
-      totalBytes = scriptBytes + 25_000; // estimated HTML/CSS transfer
+      const htmlCssBytes = readRouteHtmlCssBytes(root, route);
+      if (htmlCssBytes === null) {
+        totalBytes = scriptBytes;
+        routeNotes.push(
+          `${route}: total transfer is JavaScript only; out/ holds no HTML for this route`,
+        );
+      } else {
+        totalBytes = scriptBytes + htmlCssBytes;
+      }
       routeAccounting = {
         rawBytes: res.byteAccounting.rawBytes,
         gzipBytes: res.byteAccounting.gzipBytes,
