@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import {
   applyElsewhere,
+  clearUnitOverride,
   effectiveDetailForUnit,
   hasOverrides,
   initialOverrideState,
@@ -70,5 +71,26 @@ describe("applyElsewhere (am-read-detail-axis-sfc)", () => {
     expect(hasOverrides(afterGlobalChange)).toBe(true);
     expect(effectiveDetailForUnit(afterGlobalChange, "unit-a")).toBe(2);
     expect(afterGlobalChange.globalDetail).toBe(0);
+  });
+
+  it("clearUnitOverride removes one unit's override and keeps the others", () => {
+    let state = initialOverrideState(1);
+    state = setUnitOverride(state, "unit-a", 2);
+    state = setUnitOverride(state, "unit-b", 0);
+    const cleared = clearUnitOverride(state, "unit-b");
+    expect(effectiveDetailForUnit(cleared, "unit-b")).toBe(1);
+    expect(effectiveDetailForUnit(cleared, "unit-a")).toBe(2);
+    // Apply now uses the latest remaining override's level, not the cleared one's.
+    expect(cleared.lastOverrideLevel).toBe(2);
+    expect(applyElsewhere(cleared).globalDetail).toBe(2);
+  });
+
+  it("clearUnitOverride of the last override leaves nothing to apply", () => {
+    const state = setUnitOverride(initialOverrideState(1), "unit-a", 2);
+    const cleared = clearUnitOverride(state, "unit-a");
+    expect(hasOverrides(cleared)).toBe(false);
+    expect(cleared.lastOverrideLevel).toBeNull();
+    // And a unit with no override is returned unchanged.
+    expect(clearUnitOverride(cleared, "unit-z")).toBe(cleared);
   });
 });
