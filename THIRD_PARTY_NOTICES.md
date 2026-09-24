@@ -45,7 +45,7 @@ This inventory does not state or imply rights to scans, photographs, historical 
 
 | Package / Asset | Version | License | Source Path | Notes / Reference |
 |---|---|---|---|---|
-| fs-annus-diffusion (FrankenSim WASM artifact) | 5bbbfae | MIT with OpenAI/Anthropic Rider | `public/wasm/fs-annus-diffusion/105d7ffc15414de5` | FrankenSim upstream revision 5bbbfae6f7de614422f6f97f5798a3e00f8ad813; capabilities: [] |
+| fs-annus-diffusion (FrankenSim WASM artifact) | 0182465 | MIT with OpenAI/Anthropic Rider | `public/wasm/fs-annus-diffusion/80a1f8fda6f69003` | FrankenSim upstream revision 01824653087a69272d5a9c0c6ea2e2789ad05f54; capabilities: [diffusion.brownian-frames, diffusion.philox-normals, diffusion.ftcs-1d] |
 
 ## 4. Extracted Donor Modules (classic-patents.com)
 
