@@ -21,10 +21,20 @@ describe("with the workbench admitted as an embed", () => {
     expect(html).toContain('data-foundation-construction="entropy-temperature"');
     expect(text(html)).toContain("1 ÷ 3000 = 3.333 × 10⁻⁴ per kelvin");
     expect(html).toContain('href="/lab/lq-04/"');
-    expect(html).toMatch(/<details><summary>Show the workbench here<\/summary><\/details>/);
+    expect(html).toMatch(/<details><summary>Show the workbench here<\/summary><noscript>/);
     // Measured in Chromium: a lazy iframe inside a closed <details> still fetched the laboratory.
     expect(html).not.toContain("<iframe");
     expect(html).not.toContain("not yet available");
+  });
+
+  test("without JavaScript the opened disclosure says why and links to the laboratory's page", () => {
+    // Measured on live at 01478983: with scripting off the disclosure opened onto nothing.
+    const inside = html.match(/<details>([\s\S]*)<\/details>/)?.[1] ?? "";
+    const fallback = inside.match(/<noscript>([\s\S]*)<\/noscript>/)?.[1] ?? "";
+    expect(fallback).toContain('href="/lab/lq-04/"');
+    expect(text(fallback)).toContain(
+      "JavaScript is off, so the workbench cannot load inside this page.",
+    );
   });
 
   test("the voice lint finds no error", () => {

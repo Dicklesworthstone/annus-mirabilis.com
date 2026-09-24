@@ -67,6 +67,15 @@ export function EntropyTemperatureCheck({
           </p>
           <details onToggle={(e) => setOpen(e.currentTarget.open)}>
             <summary>Show the workbench here</summary>
+            {/* The frame needs the toggle handler, so without JavaScript this disclosure opened
+                onto nothing (measured on live at 01478983). The laboratory's own page works. */}
+            <noscript>
+              <p className="notice">
+                JavaScript is off, so the workbench cannot load inside this page.{" "}
+                <a href={`/lab/${instrumentId}/`}>Open the {instrument.title.toLowerCase()}</a> on
+                its own page instead.
+              </p>
+            </noscript>
             {open && (
               <iframe
                 src={`/embed/lab/${instrumentId}/`}
