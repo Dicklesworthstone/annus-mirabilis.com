@@ -143,6 +143,13 @@ export interface NotationPageData {
      * says what they see still finds it (WCAG 2.5.3), then says how many meanings it has.
      */
     name: string;
+    /**
+     * What the glyph means in each paper that prints it, in the page's own order, with the symbol
+     * a modern reader would write where the concordance gives one. Site search indexes the glyph
+     * from this (src/search/documents.ts, notationDocuments), so a search for a symbol and this
+     * page group its meanings the same way.
+     */
+    meanings: readonly { paperTitle: string; meaning: string; modernGlyph: string | null }[];
   }[];
   /**
    * How far the entries have been checked against the printed pages, computed from each entry's
@@ -338,6 +345,21 @@ export function buildFirstUseUrl(paperSlug: string, anchor: string): string {
   return `/papers/${paperSlug}?view=reading#${anchor}`;
 }
 
+/**
+ * The symbol a modern reader would write for an entry, as the concordance records it (a LaTeX or
+ * Unicode string, or a glyph), or null where the operation names none.
+ */
+function modernGlyphOf(entry: EnrichedConcordanceEntry): string | null {
+  const target = (entry.operation as { target?: { modernGlyph?: unknown } }).target;
+  const glyph = target?.modernGlyph;
+  if (typeof glyph === "string") return glyph.trim() || null;
+  if (glyph && typeof glyph === "object") {
+    const { latex, unicode } = glyph as { latex?: string; unicode?: string };
+    return latex?.trim() || unicode?.trim() || null;
+  }
+  return null;
+}
+
 /** "φ, 7 meanings" for a glyph with several meanings; the glyph alone for one. */
 export function glyphLinkName(display: string, meanings: number): string {
   return meanings > 1 ? `${display}, ${meanings} meanings` : display;
@@ -525,6 +547,11 @@ export function loadNotationPageData(
       html: renderStaticKatex(key).html,
       href: `#${list[0]?.id ?? ""}`,
       name: glyphLinkName(list[0]?.glyph.unicode || key, list.length),
+      meanings: list.map((entry) => ({
+        paperTitle: entry.paperTitle,
+        meaning: entry.meaning,
+        modernGlyph: modernGlyphOf(entry),
+      })),
     }))
     .sort((a, b) => a.key.localeCompare(b.key));
 

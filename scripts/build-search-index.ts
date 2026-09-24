@@ -1,11 +1,14 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadNotationPageData } from "../src/app/notation/notationData.ts";
 import {
   loadContentIndex,
   loadFoundationPayload,
   loadPaperPayload,
 } from "../src/content/compiler/serverLoaders.ts";
+import { loadGermanSourceFace } from "../src/content/editions/germanSourceFace.ts";
+import type { RouteSlug } from "../src/content/ids.ts";
 import { recordLatex } from "../src/equations/recordLatex.ts";
 import {
   CATALOGUE_IDS,
@@ -13,20 +16,35 @@ import {
   CATALOGUE_STATUS,
   catalogueLabel,
 } from "../src/experiments/catalogue.ts";
+import { paperSourceFaces } from "../src/reader/paperSourceFaces.ts";
 import { packageSearchIndex } from "../src/search/build.ts";
+import type { SearchAlias, SearchDocument } from "../src/search/core.ts";
 import {
   aliasesForDocuments,
   assertSearchCoverage,
   documentsFromCompiled,
+  germanSourceDocuments,
+  notationAliases,
+  notationDocuments,
+  type SearchProfile,
   searchProfile,
 } from "../src/search/documents.ts";
 
-/** Compiled, digest-checked projections only. Never scrape raw YAML or build a second corpus. */
-export async function buildSearchIndex(
-  root = process.cwd(),
-  profileValue = process.env.AM_RELEASE_PROFILE,
-) {
-  const profile = searchProfile(profileValue);
+/**
+ * Everything the index holds, as the build publishes it. Compiled, digest-checked projections for
+ * the papers, lessons and instruments. Two sources the content index does not compile come from
+ * the pages that render them, so a hit says what its page shows: the notation concordance through
+ * the /notation/ page's own data (loadNotationPageData), and the German passages through the
+ * German face's own loader (loadGermanSourceFace). Never scrape raw YAML or build a second corpus.
+ */
+export async function loadSearchCorpus(
+  root: string,
+  profile: SearchProfile,
+): Promise<{
+  documents: readonly SearchDocument[];
+  aliases: readonly SearchAlias[];
+  buildDigest: string;
+}> {
   const index = await loadContentIndex(root);
   assertSearchCoverage(index.payloads.map((entry) => entry.kind));
   const papers = await Promise.all(
@@ -50,13 +68,41 @@ export async function buildSearchIndex(
       paper.equations.map((equation) => [equation.id, recordLatex(equation) ?? ""]),
     ),
   );
-  const documents = documentsFromCompiled(papers, foundations, instruments, profile, equationTerms);
-  const bundle = packageSearchIndex(
+  const glyphs = loadNotationPageData().uniqueGlyphs;
+  const notation = notationDocuments(glyphs, profile);
+  // The German a reader can open: only where the paper's German face renders the drafted ledger,
+  // decided by the same rule the reader uses (paperSourceFaces), so no hit names a page that shows
+  // a notice instead of text, or a block id a compiled edition would not have.
+  const german: SearchDocument[] = [];
+  for (const { paper } of papers) {
+    const sources = await paperSourceFaces(paper.id);
+    if (!sources.germanIsDraft || sources.availability.german !== "available") continue;
+    const face = loadGermanSourceFace(paper.id as RouteSlug, root);
+    if (face)
+      german.push(
+        ...germanSourceDocuments(paper, { label: face.notice.label, blocks: face.blocks }, profile),
+      );
+  }
+  const documents = [
+    ...documentsFromCompiled(papers, foundations, instruments, profile, equationTerms),
+    ...notation,
+    ...german,
+  ];
+  return {
     documents,
-    aliasesForDocuments(documents),
-    index.buildDigest,
-    profile,
-  );
+    aliases: [...aliasesForDocuments(documents), ...notationAliases(glyphs, documents)],
+    buildDigest: index.buildDigest,
+  };
+}
+
+/** Writes the content-addressed shards and their manifest into generated/search. */
+export async function buildSearchIndex(
+  root = process.cwd(),
+  profileValue = process.env.AM_RELEASE_PROFILE,
+) {
+  const profile = searchProfile(profileValue);
+  const { documents, aliases, buildDigest } = await loadSearchCorpus(root, profile);
+  const bundle = packageSearchIndex(documents, aliases, buildDigest, profile);
   const directory = resolve(root, "generated/search");
   await mkdir(directory, { recursive: true });
   for (const file of bundle.files) {

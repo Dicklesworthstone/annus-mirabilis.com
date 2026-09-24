@@ -258,6 +258,36 @@ export function validateAliases(input: unknown, ids: ReadonlySet<string>): reado
   );
 }
 
+/**
+ * Optimal string alignment distance (insertions, deletions, substitutions, and a swap of two
+ * neighbouring letters as one edit), stopping early once every path exceeds `limit`.
+ */
+export function editDistance(a: string, b: string, limit: number): number {
+  const rows = a.length + 1,
+    cols = b.length + 1;
+  const d: number[][] = Array.from({ length: rows }, (_, i) =>
+    Array.from({ length: cols }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)),
+  );
+  for (let i = 1; i < rows; i++) {
+    let rowBest = Number.POSITIVE_INFINITY;
+    for (let j = 1; j < cols; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      let value = Math.min(
+        (d[i - 1]?.[j] ?? 0) + 1,
+        (d[i]?.[j - 1] ?? 0) + 1,
+        (d[i - 1]?.[j - 1] ?? 0) + cost,
+      );
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1])
+        value = Math.min(value, (d[i - 2]?.[j - 2] ?? 0) + 1);
+      const row = d[i];
+      if (row) row[j] = value;
+      rowBest = Math.min(rowBest, value);
+    }
+    if (rowBest > limit) return rowBest;
+  }
+  return d[rows - 1]?.[cols - 1] ?? Number.POSITIVE_INFINITY;
+}
+
 export function createSearchEngine(
   documents: readonly SearchDocument[],
   aliases: readonly SearchAlias[] = [],
@@ -336,6 +366,21 @@ export function createSearchEngine(
               matching.set(index, Math.max(matching.get(index) ?? 0, weight * 0.5));
           }
         }
+        // A term nothing matches, not even as a prefix, is probably mistyped ("brownain",
+        // "relativty"). Words one edit away (two from eight letters), a swapped pair counting as
+        // one, stand in at a lower weight. A term that matches anything is left as typed, so a
+        // correctly spelled word is never diluted by its neighbours.
+        if (!matching.size && term.length >= 4 && !/^[-+]?\d/u.test(term)) {
+          const allowed = term.length >= 8 ? 2 : 1;
+          for (const word of vocabulary) {
+            if (Math.abs(word.length - term.length) > allowed) continue;
+            if (editDistance(term, word, allowed) > allowed) continue;
+            const wordPostings = postings.get(word);
+            if (!wordPostings) continue;
+            for (const [index, weight] of wordPostings)
+              matching.set(index, Math.max(matching.get(index) ?? 0, weight * 0.4));
+          }
+        }
         if (termIndex === 0) candidates = matching;
         else {
           for (const [index, score] of candidates) {
@@ -374,6 +419,10 @@ export function createSearchEngine(
         if (title === phrase) score += 80;
         else if (title?.includes(phrase)) score += 25;
         if (keys[index] === phrase) score += 100;
+        // Matching folds case and marks, so k, K and k* all normalize to "k" and a short title
+        // like "k*" even scores as an exact title. A term spelled exactly as typed, case and
+        // marks included, is the letter the reader meant, and it outranks its folded neighbours.
+        if (document.terms.includes(query.trim())) score += 100;
         const text = document.text.replace(/\s+/gu, " ").trim();
         hits.push({
           document,

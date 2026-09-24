@@ -35,7 +35,9 @@ export const metadata: Metadata = {
  * SIZE, measured before committing to a single page: the index holds 191 documents across seven
  * types (argument 42, result 42, instrument 34, foundation 27, section 24, equation 18, paper 4).
  * That is a page a reader can scroll and a browser can find in. If the index grows past a few
- * hundred, this wants splitting by type rather than quietly becoming a wall.
+ * hundred, this wants splitting by type rather than quietly becoming a wall. It did grow, by the
+ * notation's printed letters and the German passages, and those two kinds point at the pages that
+ * already list them (LISTED_ELSEWHERE) instead of being listed here again.
  *
  * THE LIST IS THE INDEX ITSELF, not a second description of it. It is read from
  * generated/search/ through src/search/server.ts, which verifies every shard against the
@@ -69,6 +71,16 @@ const TYPE_ORDER: readonly string[] = [
   "sentence-en",
   "glossary",
 ];
+
+/**
+ * Two kinds the palette searches are not listed here entry by entry, because each already has a
+ * page that lists every one of them, where the browser's find works just as well: the notation
+ * page holds every printed letter with its meanings in each paper, and each paper's German face
+ * holds every German passage in the order it was printed. Listed here they would be 250 more lines
+ * of "β, 2 meanings" and "§ 8, paragraph 2", the wall the size note below warned against, so each
+ * kind is one sentence pointing at the page that holds it.
+ */
+const LISTED_ELSEWHERE: ReadonlySet<string> = new Set(["glossary", "sentence-de"]);
 
 type Entry = Readonly<{
   id: string;
@@ -180,6 +192,9 @@ export default async function SearchIndexPage() {
     }
   }
   const sections = TYPE_ORDER.filter((type) => (byType.get(type)?.length ?? 0) > 0);
+  const listed = sections
+    .filter((type) => !LISTED_ELSEWHERE.has(type))
+    .reduce((sum, type) => sum + (byType.get(type)?.length ?? 0), 0);
 
   return (
     <>
@@ -191,9 +206,10 @@ export default async function SearchIndexPage() {
             sits inside the field, shown only where there is a keyboard to press it on. */}
         <SearchPageField />
         <p className="lead">
-          Every entry in the edition&rsquo;s index is listed below, once each: {seen.size} of them,
+          Every entry in the edition&rsquo;s index is listed below, once each: {listed} of them,
           each linking to the passage, argument, equation, instrument or lesson it names. Your
-          browser&rsquo;s own find reaches every one of them.
+          browser&rsquo;s own find reaches every one of them. The notation and the German passages
+          search also finds are listed on the pages that hold them, linked below.
         </p>
       </section>
 
@@ -206,7 +222,24 @@ export default async function SearchIndexPage() {
             <h2 id={`kind-${type}`}>
               {TYPE_LABELS[type] ?? type} <span className="search-index-count">{list.length}</span>
             </h2>
-            {flat ? (
+            {type === "glossary" ? (
+              <p>
+                Every letter and symbol as printed, with what it means in each paper, is on{" "}
+                <a href="/notation/">the notation page</a>.
+              </p>
+            ) : type === "sentence-de" ? (
+              <p>
+                Every German passage is on its paper&rsquo;s German source page, in the order it was
+                printed:{" "}
+                {groups.map((group, i) => (
+                  <span key={group.key}>
+                    {i > 0 ? (i === groups.length - 1 ? " and " : ", ") : ""}
+                    <a href={`/papers/${group.key}/view/german/`}>{group.label}</a>
+                  </span>
+                ))}
+                .
+              </p>
+            ) : flat ? (
               <ul className="search-index-list">
                 {groups
                   .flatMap((g) => g.entries)

@@ -1,7 +1,12 @@
 import { parseInstrumentId } from "../content/ids.ts";
 import { inlineMathPlain } from "../content/inlineMath.ts";
 import { labName } from "../reader/actions/labNames.ts";
-import { type SearchAlias, type SearchDocument, validateSearchDocument } from "./core.ts";
+import {
+  normalizeSearchText,
+  type SearchAlias,
+  type SearchDocument,
+  validateSearchDocument,
+} from "./core.ts";
 
 export type SearchProfile = "scaffold" | "preview" | "launch";
 export function searchProfile(value: string | undefined): SearchProfile {
@@ -323,4 +328,163 @@ export function aliasesForDocuments(documents: readonly SearchDocument[]): reado
     { phrase: "E = mc²", target: "instrument:me-01", label: "modern term" },
   ];
   return suggestions.filter((alias) => ids.has(alias.target));
+}
+
+/** One printed glyph as /notation/ lists it: its meanings, paper by paper, and where it lands. */
+export type SearchNotationGlyph = Readonly<{
+  key: string;
+  display: string;
+  href: string;
+  name: string;
+  meanings: readonly Readonly<{
+    paperTitle: string;
+    meaning: string;
+    modernGlyph: string | null;
+  }>[];
+}>;
+
+/**
+ * A reader who types a symbol (β, "beta", k, V) wants to know what it means where it is printed,
+ * and before this nothing in the index said: "β" found three mass-energy arguments and never that
+ * Einstein's β in the relativity paper is the modern γ. One document per printed glyph, from the
+ * notation page's own glyph groups (notationData.ts, uniqueGlyphs), landing where that page's
+ * symbol index lands. The concordance is the only source; nothing here is typed by hand.
+ */
+export function notationDocuments(
+  glyphs: readonly SearchNotationGlyph[],
+  profile: SearchProfile,
+): readonly SearchDocument[] {
+  searchProfile(profile);
+  // The same publication rule as documentsFromCompiled: the concordance is still marked pending
+  // verification, so it is searchable where the explanations are, in the scaffold profile only.
+  if (profile !== "scaffold") return [];
+  return glyphs
+    .map((glyph) =>
+      validateSearchDocument({
+        id: `notation:${glyph.key}`,
+        type: "glossary",
+        paper: "cross-paper",
+        section: "",
+        lang: "en",
+        route: "/notation/",
+        anchor: glyph.href.replace(/^#/u, ""),
+        face: "",
+        title: glyph.name,
+        text: glyph.meanings.map((m) => `${m.paperTitle}: ${m.meaning}.`).join(" "),
+        terms: [glyph.display],
+        scopeLabel: "Notation · each letter as printed, and what it means in each paper",
+      }),
+    )
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
+/**
+ * The modern symbol for a printed one, as the concordance records it, is a way in: a reader who
+ * types "gamma" is looking for the relativity paper's β. Each is a "modern term" alias to the
+ * printed glyph's document, never a claim that the modern symbol is printed.
+ *
+ * A letter that is itself printed keeps its own document first. The concordance renames ν and f to
+ * a modern n, and several glyphs to k and v, and as aliases those names outranked the printed N, k
+ * and V a reader had typed. So a modern name that some printed glyph already carries is not an
+ * alias; the renamed glyph is still found through its meanings.
+ */
+export function notationAliases(
+  glyphs: readonly SearchNotationGlyph[],
+  documents: readonly SearchDocument[],
+): readonly SearchAlias[] {
+  const ids = new Set(documents.map((document) => document.id));
+  const printed = new Set(glyphs.map((glyph) => normalizeSearchText(glyph.display)));
+  const seen = new Set<string>();
+  const aliases: SearchAlias[] = [];
+  for (const glyph of glyphs) {
+    const target = `notation:${glyph.key}`;
+    if (!ids.has(target)) continue;
+    for (const { modernGlyph } of glyph.meanings) {
+      if (!modernGlyph) continue;
+      const phrase = normalizeSearchText(modernGlyph);
+      if (!phrase || printed.has(phrase)) continue;
+      const key = `${phrase}\0${target}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      aliases.push({ phrase: modernGlyph, target, label: "modern term" });
+    }
+  }
+  return aliases;
+}
+
+/** One block of a paper's German face, as src/content/editions/germanSourceFace.ts assembles it. */
+export type SearchGermanBlock = Readonly<{ id: string; kind: string; text: string }>;
+
+/**
+ * The source's own markup made plain for matching: Sperrsatz and italic tags come out of the word
+ * they wrap, a footnote mark leaves the word it follows whole, display mathematics is dropped (a
+ * formula is not a word anyone types), and inline mathematics becomes its plain letters.
+ */
+export function germanSourcePlain(text: string): string {
+  return inlineMathPlain(
+    text
+      .replace(/\$\$[\s\S]*?\$\$/gu, " ")
+      .replace(/\[\[\/?(?:SPERR|EM)\]\]|\[\[FN-MARK [^\]]*\]\]/gu, "")
+      .replace(/\[\[[^\]]*\]\]/gu, " "),
+  )
+    .replace(/\s+/gu, " ")
+    .trim();
+}
+
+/**
+ * The German a reader can already open, so a German word finds the passage that prints it:
+ * "Lichtquanten", "Relativitätsprinzip" and "Lichtgeschwindigkeit" found nothing, because the
+ * index held only the English explanations and the German titles. One document per heading,
+ * paragraph and footnote of the paper's German face, landing on that block's id there.
+ *
+ * The text is the transcription that face shows under its draft label, and each document's scope
+ * line carries the same label, so a hit never reads as a reviewed edition. Titles are ours and
+ * count as the reader sees the face ("§ 8, paragraph 2"), because block ids keep their gaps after
+ * a join and "s8-p4" is not the fourth paragraph a reader counts.
+ */
+export function germanSourceDocuments(
+  paper: Readonly<{ id: string; title: string }>,
+  face: Readonly<{ label: string; blocks: readonly SearchGermanBlock[] }>,
+  profile: SearchProfile,
+): readonly SearchDocument[] {
+  searchProfile(profile);
+  if (profile !== "scaffold") return [];
+  const sectioned = face.blocks.some((block) => block.kind === "heading");
+  const ordinals = new Map<string, number>();
+  const documents: SearchDocument[] = [];
+  for (const block of face.blocks) {
+    if (!["heading", "paragraph", "footnote"].includes(block.kind)) continue;
+    const section = /^(s\d+)/u.exec(block.id)?.[1] ?? "";
+    const number = section.slice(1);
+    const where = section === "s0" ? (sectioned ? "Introduction" : "") : `§ ${number}`;
+    const text = germanSourcePlain(block.text);
+    if (!text) continue;
+    let title: string;
+    if (block.kind === "heading") title = text;
+    else if (block.kind === "footnote") {
+      const footnote = /-fn(\d+)$/u.exec(block.id)?.[1] ?? "";
+      title = where ? `${where}, footnote ${footnote}` : `Footnote ${footnote}`;
+    } else {
+      const ordinal = (ordinals.get(section) ?? 0) + 1;
+      ordinals.set(section, ordinal);
+      title = where ? `${where}, paragraph ${ordinal}` : `Paragraph ${ordinal}`;
+    }
+    documents.push(
+      validateSearchDocument({
+        id: `german:${paper.id}:${block.id}`,
+        type: "sentence-de",
+        paper: paper.id,
+        section,
+        lang: "de",
+        route: `/papers/${paper.id}/view/german/`,
+        anchor: block.id,
+        face: "",
+        title,
+        text,
+        terms: [],
+        scopeLabel: `${paper.title} · German source, ${face.label.toLowerCase()}`,
+      }),
+    );
+  }
+  return documents;
 }
