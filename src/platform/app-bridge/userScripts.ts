@@ -9,9 +9,13 @@
  * and defines nothing: the website never loads it anyway.
  *
  * What it does in the app, version 1:
- * - defines a frozen `window.__AM_APP__` with bridgeVersion, capabilities, an
- *   empty settings snapshot (filled by the settings bead), and `dispatch`,
- *   which re-emits only the enumerated native events as `am-app:<name>` DOM events;
+ * - defines a frozen `window.__AM_APP__` with bridgeVersion, capabilities, the
+ *   app's settings snapshot (settingsSnapshot.ts, injected just before this), and
+ *   `dispatch`, which re-emits only the enumerated native events as
+ *   `am-app:<name>` DOM events;
+ * - sets the page's type size to the one the app maps from the reader's system
+ *   text size, unless the reader chose a size in the page, and follows it live;
+ *   posts `settings.changed` with the type size the page shows;
  * - posts `route.changed` (route, anchor, title) when the document is ready and
  *   on every hashchange and popstate, which gives the app the page's title and
  *   a readiness point instead of guessing from the web view's URL;
@@ -32,6 +36,7 @@ import {
   NATIVE_EVENT_NAMES,
   SITE_ORIGIN,
 } from "./schemas.ts";
+import { SITE_TYPE_SCALE_KEY, SITE_TYPE_SIZES } from "./settingsSnapshot.ts";
 
 /**
  * The site's theme storage key, its "no choice yet" value, and its theme ids:
@@ -80,9 +85,12 @@ export function installBridge(
   storagePrefix: string,
   maxSnapshotLength: number,
   snapshotRecord: { readonly namespace: string; readonly key: string },
+  typeScaleKey: string,
+  typeSizes: readonly number[],
 ): void {
   const w = window as unknown as {
     __AM_APP__?: unknown;
+    __AM_APP_SETTINGS__?: { typeSize?: unknown };
     webkit?: { messageHandlers?: Record<string, { postMessage: (message: unknown) => unknown }> };
   };
   const handler = w.webkit?.messageHandlers?.[handlerName];
@@ -118,7 +126,7 @@ export function installBridge(
     value: Object.freeze({
       bridgeVersion: version,
       capabilities: Object.freeze(capabilities.slice()),
-      settings: Object.freeze({}),
+      settings: w.__AM_APP_SETTINGS__ ?? Object.freeze({}),
       dispatch,
     }),
     writable: false,
@@ -208,6 +216,40 @@ export function installBridge(
     }
     reportedTheme = value;
     post("settings.changed", { theme: value.slice(0, 64) });
+  };
+  // The type size the app maps from the reader's system text size (Dynamic Type). A size the
+  // reader chose in the page is stored under the site's key, and it wins: this only fills in
+  // for a reader who has not chosen. What the page then shows is reported to the app.
+  const snapshotSize = w.__AM_APP_SETTINGS__?.typeSize;
+  let appTypeSize: number | null =
+    typeof snapshotSize === "number" && typeSizes.indexOf(snapshotSize) !== -1
+      ? snapshotSize
+      : null;
+  const readerChoseTypeSize = (): boolean => {
+    try {
+      const stored = localStorage.getItem(typeScaleKey);
+      return stored !== null && typeSizes.indexOf(Number(stored)) !== -1;
+    } catch {
+      return false;
+    }
+  };
+  let reportedTypeSize: number | null = null;
+  const applyTypeSize = () => {
+    const root = document.documentElement;
+    if (!root) {
+      return;
+    }
+    if (appTypeSize !== null && !readerChoseTypeSize()) {
+      const wanted = String(appTypeSize);
+      if (root.getAttribute("data-type-scale") !== wanted) {
+        root.setAttribute("data-type-scale", wanted);
+      }
+    }
+    const shown = Number(root.getAttribute("data-type-scale"));
+    if (typeSizes.indexOf(shown) !== -1 && shown !== reportedTypeSize) {
+      reportedTypeSize = shown;
+      post("settings.changed", { typeSize: shown });
+    }
   };
   // The reader's own data (notes, predictions, journeys, settings: every key under
   // the site's prefix) is mirrored into the app's store, so it survives if WebKit
@@ -336,6 +378,7 @@ export function installBridge(
   const ready = () => {
     reportRoute();
     reportTheme();
+    applyTypeSize();
     if (siteKeys().length === 0) {
       restore();
     } else {
@@ -354,7 +397,21 @@ export function installBridge(
       attributes: true,
       attributeFilter: ["data-theme"],
     });
+    // The site's pre-paint sets its stored or default size after this script; the callback
+    // runs before the first paint and puts the app's size back when the reader chose none.
+    new MutationObserver(applyTypeSize).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-type-scale"],
+    });
   }
+  window.addEventListener("am-app:settings.changed", (event) => {
+    const size = (event as unknown as { detail?: { typeSize?: unknown } }).detail?.typeSize;
+    if (typeof size === "number" && typeSizes.indexOf(size) !== -1) {
+      appTypeSize = size;
+      applyTypeSize();
+    }
+  });
+  applyTypeSize();
 }
 
 export const BRIDGE_USER_SCRIPT_SOURCE = `(${installBridge.toString()})(${[
@@ -369,6 +426,8 @@ export const BRIDGE_USER_SCRIPT_SOURCE = `(${installBridge.toString()})(${[
   SITE_STORAGE_PREFIX,
   MAX_SNAPSHOT_LENGTH,
   SNAPSHOT_RECORD,
+  SITE_TYPE_SCALE_KEY,
+  SITE_TYPE_SIZES,
 ]
   .map((argument) => JSON.stringify(argument))
   .join(",")});`;

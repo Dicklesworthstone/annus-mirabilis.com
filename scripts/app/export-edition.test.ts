@@ -11,6 +11,11 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
 import { readerDataManifest } from "../../src/platform/app-bridge/readerData.ts";
+import {
+  SETTINGS_SNAPSHOT_PLACEHOLDER,
+  SETTINGS_SNAPSHOT_TEMPLATE,
+  SITE_TYPE_SIZES,
+} from "../../src/platform/app-bridge/settingsSnapshot.ts";
 import { BRIDGE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/userScripts.ts";
 import {
   AppExportError,
@@ -24,6 +29,7 @@ import {
   OCTET_STREAM,
   planEdition,
   referencedDigests,
+  SETTINGS_SNAPSHOT_FILE,
   siteBinding,
   unsafePathReason,
 } from "./export-edition.ts";
@@ -202,8 +208,9 @@ describe("exportEdition", () => {
       directories.indexOf("edition") < directories.indexOf(`edition/${LIVE}`),
       "parents come first",
     );
-    assert.equal(outputs.length, 3 + directories.length + result.fileCount);
-    const [script] = manifest.userScripts;
+    // The manifest, the two user scripts, and Edition/ itself, then its directories and files.
+    assert.equal(outputs.length, 4 + directories.length + result.fileCount);
+    const [script, snapshot] = manifest.userScripts;
     const written = readFileSync(join(dest, BRIDGE_SCRIPT_FILE), "utf8");
     assert.equal(written, BRIDGE_USER_SCRIPT_SOURCE);
     assert.equal(script.file, BRIDGE_SCRIPT_FILE);
@@ -222,6 +229,19 @@ describe("exportEdition", () => {
     assert.equal(manifest.site.commit, null);
     assert.equal(manifest.site.binding, "unbound");
     assert.equal(manifest.editionDigest, result.editionDigest);
+    // The settings snapshot: pinned like the bridge, with the one span the app fills in.
+    const template = readFileSync(join(dest, SETTINGS_SNAPSHOT_FILE), "utf8");
+    assert.equal(template, SETTINGS_SNAPSHOT_TEMPLATE);
+    assert.equal(snapshot.id, "settings-snapshot");
+    assert.equal(snapshot.sha256, createHash("sha256").update(template).digest("hex"));
+    assert.equal(snapshot.placeholder, SETTINGS_SNAPSHOT_PLACEHOLDER);
+    assert.equal(
+      template.split(SETTINGS_SNAPSHOT_PLACEHOLDER).length,
+      2,
+      "exactly one placeholder",
+    );
+    assert.ok(outputs.some((line) => line.endsWith(`/${SETTINGS_SNAPSHOT_FILE}`)));
+    assert.deepEqual(manifest.settings, { typeSizes: [...SITE_TYPE_SIZES] });
     // The app labels and exports the reader's data from this, never from its own copy.
     assert.deepEqual(manifest.readerData, JSON.parse(JSON.stringify(readerDataManifest())));
   });

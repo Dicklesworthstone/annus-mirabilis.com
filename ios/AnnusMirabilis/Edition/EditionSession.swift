@@ -23,11 +23,18 @@ final class EditionSession {
     private(set) var bridgeRoute: String?
     /// The page's own theme, as the page reports it; nil until it does.
     private(set) var pageColorScheme: ColorScheme?
+    /// The type size the app asks the page for, mapped from the reader's system text size.
+    private(set) var typeSize: Int?
+    /// The type size the page reports it shows: the app's, or one the reader chose in the page.
+    private(set) var pageTypeSize: Int?
 
     @ObservationIgnored private let store: ReaderLocationStore
     @ObservationIgnored private let navigator: EditionNavigator
     @ObservationIgnored private let router: BridgeRouter
     @ObservationIgnored private let themeStore: PageThemeStore?
+    @ObservationIgnored private let bridgeSource: String?
+    @ObservationIgnored private let settingsSnapshot: SettingsSnapshot?
+    @ObservationIgnored private var contentSizeObserver: (any NSObjectProtocol)?
     /// DEBUG UI tests only: the route, and the pasteboard, are exposed for assertions.
     let exposesRouteForTests: Bool
     @ObservationIgnored private var observations: [NSKeyValueObservation] = []
@@ -37,7 +44,8 @@ final class EditionSession {
     /// nothing has to be deleted to start clean. A reader's launch never sets it.
     init(
         catalog: EditionCatalog, store: ReaderLocationStore, exposesRouteForTests: Bool = false,
-        ephemeralWebStorage: Bool = false, readerData: ReaderDataStore? = nil, themeStore: PageThemeStore? = nil
+        ephemeralWebStorage: Bool = false, readerData: ReaderDataStore? = nil, themeStore: PageThemeStore? = nil,
+        contentSize: UIContentSizeCategory = .large
     ) {
         self.catalog = catalog
         self.store = store
@@ -49,7 +57,10 @@ final class EditionSession {
         self.router = router
         self.themeStore = themeStore
         let bridgeSource = catalog.verifiedBridgeScript()
+        self.bridgeSource = bridgeSource
+        self.settingsSnapshot = catalog.verifiedSettingsSnapshot()
         self.bridgeInstalled = bridgeSource != nil
+        self.typeSize = EditionTypeSize.percent(for: contentSize, steps: catalog.typeSizes)
         self.webView = EditionSession.makeWebView(
             catalog: catalog, navigator: navigator, router: router, bridgeSource: bridgeSource,
             ephemeralWebStorage: ephemeralWebStorage)
@@ -58,18 +69,8 @@ final class EditionSession {
         handoff.isEligibleForSearch = false
         handoff.isEligibleForPublicIndexing = false
         webView.userActivity = handoff
-        router.onShare = { [weak self] url in
-            self?.presentShareSheet(for: url)
-        }
-        navigator.onSavedFile = { [weak self] file in
-            self?.presentShareSheet(for: file)
-        }
-        router.onTheme = { [weak self] theme in
-            self?.didReceiveTheme(theme)
-        }
-        router.onRoute = { [weak self] route, anchor, title in
-            self?.didReceiveRoute(route: route, anchor: anchor, title: title)
-        }
+        installUserScripts()
+        wireCallbacks()
 
         observations.append(
             webView.observe(\.url, options: [.initial, .new]) { [weak self] webView, _ in
@@ -81,6 +82,65 @@ final class EditionSession {
             })
         // The reader's last theme, painted before the page loads, so a dark choice never starts light.
         if let saved = themeStore?.load() { applyTheme(saved) }
+    }
+
+    /// What the page, the navigator and the system tell the session.
+    private func wireCallbacks() {
+        router.onShare = { [weak self] url in
+            self?.presentShareSheet(for: url)
+        }
+        navigator.onSavedFile = { [weak self] file in
+            self?.presentShareSheet(for: file)
+        }
+        router.onTheme = { [weak self] theme in
+            self?.didReceiveTheme(theme)
+        }
+        router.onTypeSize = { [weak self] size in
+            self?.pageTypeSize = size
+        }
+        router.onRoute = { [weak self] route, anchor, title in
+            self?.didReceiveRoute(route: route, anchor: anchor, title: title)
+        }
+        contentSizeObserver = NotificationCenter.default.addObserver(
+            forName: UIContentSizeCategory.didChangeNotification, object: nil, queue: .main
+        ) { [weak self] notification in
+            let category = notification.userInfo?[UIContentSizeCategory.newValueUserInfoKey] as? UIContentSizeCategory
+            MainActor.assumeIsolated {
+                self?.didChangeContentSize(category ?? UIApplication.shared.preferredContentSizeCategory)
+            }
+        }
+    }
+
+    /// The reader changed their text size in Settings: the page follows at once, and every page
+    /// loaded after this starts at the new size (bead am-app-settings-prepaint-tydj, requirement 4).
+    func didChangeContentSize(_ category: UIContentSizeCategory) {
+        guard let size = EditionTypeSize.percent(for: category, steps: catalog.typeSizes), size != typeSize else {
+            return
+        }
+        typeSize = size
+        installUserScripts()
+        guard bridgeInstalled else { return }
+        Task { [webView] in
+            // The one fixed entry point for native events (App plan §7.2), called with arguments.
+            _ = try? await webView.callAsyncJavaScript(
+                "window.__AM_APP__ && window.__AM_APP__.dispatch(name, payload)",
+                arguments: ["name": "settings.changed", "payload": ["typeSize": size]], in: nil, contentWorld: .page)
+        }
+    }
+
+    /// The settings snapshot, then the bridge, both at document start and only when the bridge
+    /// script matched its digest (App plan §7). Reinstalled when a setting changes, so the next
+    /// page starts with it.
+    private func installUserScripts() {
+        let controller = webView.configuration.userContentController
+        controller.removeAllUserScripts()
+        guard let bridgeSource else { return }
+        if let snapshot = settingsSnapshot?.source(.init(typeSize: typeSize)) {
+            controller.addUserScript(
+                WKUserScript(source: snapshot, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: .page))
+        }
+        controller.addUserScript(
+            WKUserScript(source: bridgeSource, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: .page))
     }
 
     /// The page on the website, for sharing and Handoff.
@@ -189,9 +249,8 @@ final class EditionSession {
     ) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         // The bridge exists only when its script matched the recorded digest (App plan §7).
-        if let bridgeSource {
-            configuration.userContentController.addUserScript(
-                WKUserScript(source: bridgeSource, injectionTime: .atDocumentStart, forMainFrameOnly: true, in: .page))
+        // Its user scripts are installed by installUserScripts().
+        if bridgeSource != nil {
             configuration.userContentController.addScriptMessageHandler(
                 router, contentWorld: .page, name: BridgeProtocol.handlerName)
         }
@@ -219,137 +278,5 @@ final class EditionSession {
         webView.underPageBackgroundColor = paper
         webView.accessibilityIdentifier = "edition-web-view"
         return webView
-    }
-}
-
-/// Link policy, downloads, new windows and process recovery for the web view.
-@MainActor
-final class EditionNavigator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate {
-    private let catalog: EditionCatalog
-    /// Receives a file the page saved (its own export of notes, data or a notebook).
-    var onSavedFile: ((URL) -> Void)?
-    private var destinations: [ObjectIdentifier: URL] = [:]
-
-    init(catalog: EditionCatalog) {
-        self.catalog = catalog
-    }
-
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async
-        -> WKNavigationActionPolicy
-    {
-        guard let url = navigationAction.request.url else { return .cancel }
-        if Self.isPageExport(url, shouldDownload: navigationAction.shouldPerformDownload) {
-            return .download
-        }
-        return follow(url, in: webView)
-    }
-
-    func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse) async
-        -> WKNavigationResponsePolicy
-    {
-        // Nothing opens inside the reader that it cannot show (App plan §6.4); a file the page
-        // itself saves is handed to the share sheet instead of being dropped.
-        if navigationResponse.canShowMIMEType { return .allow }
-        guard let url = navigationResponse.response.url, Self.isPageExport(url, shouldDownload: true) else {
-            return .cancel
-        }
-        return .download
-    }
-
-    /// A file the edition itself makes (a Blob behind a download link): the site's own
-    /// "Download all of it (JSON)" and the notebook's exports. Nothing from elsewhere.
-    static func isPageExport(_ url: URL, shouldDownload: Bool) -> Bool {
-        guard shouldDownload else { return false }
-        if url.scheme == "blob" {
-            return url.absoluteString.hasPrefix("blob:\(EditionCatalog.scheme)://\(EditionCatalog.host)/")
-        }
-        return false
-    }
-
-    func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
-        download.delegate = self
-    }
-
-    func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) {
-        download.delegate = self
-    }
-
-    func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String)
-        async -> URL?
-    {
-        guard let destination = ExportFiles.destination(suggested: suggestedFilename) else { return nil }
-        destinations[ObjectIdentifier(download)] = destination
-        return destination
-    }
-
-    func downloadDidFinish(_ download: WKDownload) {
-        guard let file = destinations.removeValue(forKey: ObjectIdentifier(download)) else { return }
-        onSavedFile?(file)
-    }
-
-    func download(_ download: WKDownload, didFailWithError error: any Error, resumeData: Data?) {
-        destinations.removeValue(forKey: ObjectIdentifier(download))
-    }
-
-    /// The page's suggested name, reduced to a plain file name.
-    nonisolated static func safeFilename(_ suggested: String) -> String {
-        let last = (suggested as NSString).lastPathComponent
-        let cleaned = String(
-            last.unicodeScalars.filter { CharacterSet.alphanumerics.contains($0) || "-_. ".unicodeScalars.contains($0) }
-        )
-        .trimmingCharacters(in: .whitespaces)
-        return cleaned.isEmpty || cleaned.hasPrefix(".") ? "annus-mirabilis-export" : cleaned
-    }
-
-    func webView(
-        _ webView: WKWebView,
-        createWebViewWith configuration: WKWebViewConfiguration,
-        for navigationAction: WKNavigationAction,
-        windowFeatures: WKWindowFeatures
-    ) -> WKWebView? {
-        // A link that asks for a new window follows the same policy in this one.
-        if let url = navigationAction.request.url, follow(url, in: webView) == .allow {
-            webView.load(URLRequest(url: url))
-        }
-        return nil
-    }
-
-    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
-        // The system reclaimed the page's process; bring back the same page.
-        webView.reload()
-    }
-
-    private func follow(_ url: URL, in webView: WKWebView) -> WKNavigationActionPolicy {
-        switch EditionLinkPolicy.decide(url, catalog: catalog) {
-        case .allow:
-            return .allow
-        case .openInEdition(let local):
-            webView.load(URLRequest(url: local))
-            return .cancel
-        case .openOutside(let external):
-            guard var presenter = webView.window?.rootViewController else { return .cancel }
-            while let next = presenter.presentedViewController {
-                presenter = next
-            }
-            presenter.present(SFSafariViewController(url: external), animated: true)
-            return .cancel
-        case .refuse:
-            return .cancel
-        }
-    }
-}
-
-/// Files the reader takes away: a page's own export, or the app's export of the reader's data.
-/// Each goes in a fresh folder in the app's temporary directory, which the system clears; the
-/// reader chooses where it goes from the share sheet.
-enum ExportFiles {
-    static func destination(suggested: String) -> URL? {
-        let folder = FileManager.default.temporaryDirectory
-            .appendingPathComponent("exports", isDirectory: true)
-            .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        guard (try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)) != nil else {
-            return nil
-        }
-        return folder.appendingPathComponent(EditionNavigator.safeFilename(suggested), isDirectory: false)
     }
 }

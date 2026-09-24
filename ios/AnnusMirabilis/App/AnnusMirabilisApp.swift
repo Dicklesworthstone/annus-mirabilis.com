@@ -42,7 +42,8 @@ enum EditionStore {
         let start = startURL(launchURL: launchURL, saved: store.load(), catalog: catalog)
         let session = EditionSession(
             catalog: catalog, store: store, exposesRouteForTests: exposesRoute, ephemeralWebStorage: ephemeral,
-            readerData: readerData, themeStore: PageThemeStore(defaults: defaults))
+            readerData: readerData, themeStore: PageThemeStore(defaults: defaults),
+            contentSize: UIApplication.shared.preferredContentSizeCategory)
         if holdLoad {
             Task { @MainActor in
                 try? await Task.sleep(for: .seconds(3))
@@ -96,7 +97,10 @@ struct RootView: View {
                     }
                     .overlay(alignment: .topLeading) {
                         #if DEBUG
-                            if session.exposesRouteForTests { DebugPasteboardProbe() }
+                            if session.exposesRouteForTests {
+                                DebugPasteboardProbe()
+                                DebugProbe(text: session.pageTypeSize.map(String.init) ?? "none", id: "debug-type-size")
+                            }
                         #endif
                     }
                     .onChange(of: scenePhase, initial: true) { _, phase in
@@ -147,6 +151,20 @@ struct EditionUnavailableView: View {
 }
 
 #if DEBUG
+    /// UI tests only: a value the app knows, on a nearly invisible element.
+    private struct DebugProbe: View {
+        let text: String
+        let id: String
+
+        var body: some View {
+            Text(text)
+                .font(.system(size: 1))
+                .frame(width: 1, height: 1)
+                .opacity(0.02)
+                .accessibilityIdentifier(id)
+        }
+    }
+
     /// UI tests only: the app's own pasteboard text, on a nearly invisible element,
     /// so a test can check what a copy placed there. Read from inside the app, the
     /// pasteboard raises no paste prompt; read from the test runner, it does.

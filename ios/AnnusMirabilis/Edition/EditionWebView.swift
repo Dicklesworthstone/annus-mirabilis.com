@@ -20,6 +20,11 @@ struct EditionWebView: UIViewRepresentable {
 struct PageActionsButton: View {
     let session: EditionSession
     @State private var showingReaderData = false
+    /// 44 points at the default text size, growing with the reader's up to 64. It floats over
+    /// the reading column, so past that it would cover the page it serves: at 88 points it hid
+    /// the Detail control's chevron. At accessibility sizes a long press shows the Large Content
+    /// Viewer instead, the system's answer for a control that cannot keep growing.
+    @ScaledMetric(relativeTo: .body) private var side: CGFloat = 44
 
     var body: some View {
         Menu {
@@ -52,10 +57,14 @@ struct PageActionsButton: View {
             Image(systemName: "ellipsis")
                 .font(.body.weight(.semibold))
                 .foregroundStyle(Color("PageInk"))
-                .frame(width: 44, height: 44)
+                .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+                .frame(width: min(side, 64), height: min(side, 64))
                 .modifier(FloatingSurface())
         }
         .tint(.primary)
+        .accessibilityShowsLargeContentViewer {
+            Label("Page actions", systemImage: "ellipsis")
+        }
         .accessibilityLabel("Page actions")
         .accessibilityHint("Share, print, or find on this page, or see your data on this device")
         .accessibilityIdentifier("page-actions")

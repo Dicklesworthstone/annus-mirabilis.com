@@ -16,14 +16,17 @@
 		4F347DAAC224058D5994956C /* ReaderLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6E1217410E51C5C95A4A252 /* ReaderLocation.swift */; };
 		5D250543230E23CB29ACA214 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ACD2DA53DE6BD842758FA3C /* LaunchArguments.swift */; };
 		606E29042E3F96E075DE8811 /* ReaderDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E1AA06A6496CB9F0773BD60 /* ReaderDataTests.swift */; };
+		626C3B5A38EF06785B1B3827 /* EditionSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A097A9673B1BD332945B1687 /* EditionSettings.swift */; };
 		67833D3163CDDB550D3010E8 /* ReaderStateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2892AE57F3F7A9E453870489 /* ReaderStateUITests.swift */; };
 		6A19BAEAFB16369878DC4405 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0C6198F8914D9B9D69540867 /* Assets.xcassets */; };
 		6DA5C5208F4B92B0B0D6ED3C /* LaunchArgumentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A0DFD2057A1F85A9C474E3 /* LaunchArgumentsTests.swift */; };
 		6DB67CD89C0EC5C8821AE7D9 /* EditionSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE83B62BCBDFB221F1DBD4DC /* EditionSchemeHandler.swift */; };
 		747D5281B62498025511A9AD /* BridgeProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A8E9C99819609C323B4D836 /* BridgeProtocol.swift */; };
 		88D6CAE32AE3F4D040F7E4F4 /* messages.json in Resources */ = {isa = PBXBuildFile; fileRef = 004295BEA9A687881C2A6F3D /* messages.json */; };
+		8C804696348758F459B1F74F /* DynamicTypeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB256F53D4419B7058BCC5E /* DynamicTypeUITests.swift */; };
 		90C9E3C5B34D556B520BF278 /* ReaderDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97E075D4E49873A3D12CAE90 /* ReaderDataStore.swift */; };
 		94DD47765329488872C319C0 /* EditionSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950A8BFF301A9FE3344A71AC /* EditionSession.swift */; };
+		94EC6845C1AC17FC1211D79F /* EditionSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BA4F3604F81BA5851B8EEF /* EditionSettingsTests.swift */; };
 		975A55E84F3778A714C9664D /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D8563F17B5B6651CA67DE2C /* LaunchUITests.swift */; };
 		9BCC3392AA7207B963B9ED6E /* ThemeChromeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA49FD9D0BADC636CBAEF69F /* ThemeChromeUITests.swift */; };
 		9D937E719174EF3487485891 /* ShareLinkUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D562253A5B5879C5E9985C /* ShareLinkUITests.swift */; };
@@ -35,6 +38,7 @@
 		E9C74E04BCCF49DD33AA7E53 /* EditionCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389658343BC6CD373BE08A23 /* EditionCatalog.swift */; };
 		F0F1F8A24F70DF2021A0A818 /* EditionLinkPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C19C1BFB271E0C8C0B8EEE4 /* EditionLinkPolicy.swift */; };
 		F28367CE6F973CB27EA0DB49 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7A7D1B3F474E6080BDE63784 /* PrivacyInfo.xcprivacy */; };
+		FA00ACD27F3B097BD91C9532 /* EditionNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59C42EBE06B5DF7D705F7947 /* EditionNavigator.swift */; };
 		FD75F19119F74D1DC5624C26 /* ReaderDataUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A391444B1505CD32F0924AC3 /* ReaderDataUITests.swift */; };
 /* End PBXBuildFile section */
 
@@ -69,6 +73,8 @@
 		403C99A15417A43D75CF8990 /* AnnusMirabilisTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = AnnusMirabilisTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C19C1BFB271E0C8C0B8EEE4 /* EditionLinkPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionLinkPolicy.swift; sourceTree = "<group>"; };
 		4E1AA06A6496CB9F0773BD60 /* ReaderDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderDataTests.swift; sourceTree = "<group>"; };
+		53BA4F3604F81BA5851B8EEF /* EditionSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionSettingsTests.swift; sourceTree = "<group>"; };
+		59C42EBE06B5DF7D705F7947 /* EditionNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionNavigator.swift; sourceTree = "<group>"; };
 		5CE1AF82107316C66CE977DE /* ExportUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportUITests.swift; sourceTree = "<group>"; };
 		653560149B9612070697FA56 /* ReaderDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderDataView.swift; sourceTree = "<group>"; };
 		6D8563F17B5B6651CA67DE2C /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchUITests.swift; sourceTree = "<group>"; };
@@ -79,7 +85,9 @@
 		97E075D4E49873A3D12CAE90 /* ReaderDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderDataStore.swift; sourceTree = "<group>"; };
 		9A47BB6BD84F103AC9B53641 /* EditionWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionWebView.swift; sourceTree = "<group>"; };
 		9CFA1414C3CFD36A14BE9E0C /* SiteURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteURL.swift; sourceTree = "<group>"; };
+		A097A9673B1BD332945B1687 /* EditionSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionSettings.swift; sourceTree = "<group>"; };
 		A391444B1505CD32F0924AC3 /* ReaderDataUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderDataUITests.swift; sourceTree = "<group>"; };
+		AEB256F53D4419B7058BCC5E /* DynamicTypeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicTypeUITests.swift; sourceTree = "<group>"; };
 		B6EF587BE1969B4D2C963ECB /* BridgeRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeRouter.swift; sourceTree = "<group>"; };
 		D07FB803069A297565CF1DCA /* EditionCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionCatalogTests.swift; sourceTree = "<group>"; };
 		DA49FD9D0BADC636CBAEF69F /* ThemeChromeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeChromeUITests.swift; sourceTree = "<group>"; };
@@ -96,6 +104,7 @@
 		00425B16411FAD2A3C8489D5 /* AnnusMirabilisUITests */ = {
 			isa = PBXGroup;
 			children = (
+				AEB256F53D4419B7058BCC5E /* DynamicTypeUITests.swift */,
 				5CE1AF82107316C66CE977DE /* ExportUITests.swift */,
 				6D8563F17B5B6651CA67DE2C /* LaunchUITests.swift */,
 				A391444B1505CD32F0924AC3 /* ReaderDataUITests.swift */,
@@ -130,6 +139,7 @@
 			children = (
 				851F4EFBE39CBE28B3D2D5C2 /* BridgeTests.swift */,
 				D07FB803069A297565CF1DCA /* EditionCatalogTests.swift */,
+				53BA4F3604F81BA5851B8EEF /* EditionSettingsTests.swift */,
 				15A0DFD2057A1F85A9C474E3 /* LaunchArgumentsTests.swift */,
 				4E1AA06A6496CB9F0773BD60 /* ReaderDataTests.swift */,
 				EBDEAC6506CA4F173D998AFC /* ReaderLocationTests.swift */,
@@ -191,8 +201,10 @@
 			children = (
 				389658343BC6CD373BE08A23 /* EditionCatalog.swift */,
 				4C19C1BFB271E0C8C0B8EEE4 /* EditionLinkPolicy.swift */,
+				59C42EBE06B5DF7D705F7947 /* EditionNavigator.swift */,
 				EE83B62BCBDFB221F1DBD4DC /* EditionSchemeHandler.swift */,
 				950A8BFF301A9FE3344A71AC /* EditionSession.swift */,
+				A097A9673B1BD332945B1687 /* EditionSettings.swift */,
 				9A47BB6BD84F103AC9B53641 /* EditionWebView.swift */,
 				653560149B9612070697FA56 /* ReaderDataView.swift */,
 				F6E1217410E51C5C95A4A252 /* ReaderLocation.swift */,
@@ -375,7 +387,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "# App plan §5.4: the bundle holds exactly the files the edition manifest\n# lists, byte for byte. The export (never this phase) decides what ships.\nset -euo pipefail\nGEN=\"${SRCROOT}/../generated/app-edition\"\nOUT=\"$(cat \"${GEN}/edition-source.txt\")\"\nRES=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\nDEST=\"${RES}/Edition\"\nREEXPORT=\"bun scripts/app/export-edition.ts\"\nif [ ! -f \"${GEN}/edition-manifest.json\" ]; then\n  echo \"error: This build has no app edition. From the repository root, run: ${REEXPORT}\"\n  exit 1\nfi\nif ! (cd \"${OUT}\" && /usr/bin/shasum -a 256 -c --quiet \"${GEN}/edition.sha256\"); then\n  echo \"error: ${OUT} has changed since the edition was exported. From the repository root, run: ${REEXPORT} --out <that out directory>\"\n  exit 1\nfi\nmkdir -p \"${DEST}\"\n/usr/bin/rsync -a --inplace --files-from=\"${GEN}/edition-files.txt\" \"${OUT}/\" \"${DEST}/\"\n/bin/cp \"${GEN}/edition-manifest.json\" \"${RES}/edition-manifest.json\"\n/bin/cp \"${GEN}/bridge-user-script.js\" \"${RES}/bridge-user-script.js\"\nif ! (cd \"${DEST}\" && /usr/bin/shasum -a 256 -c --quiet \"${GEN}/edition.sha256\"); then\n  echo \"error: A bundled edition file does not match its manifest digest.\"\n  exit 1\nfi\nunlisted=\"$(cd \"${DEST}\" && find . -type f | sed 's|^\\./||' | LC_ALL=C sort | LC_ALL=C comm -23 - <(LC_ALL=C sort \"${GEN}/edition-files.txt\"))\"\nif [ -n \"${unlisted}\" ]; then\n  echo \"error: The bundled edition holds files its manifest does not list, first: $(printf '%s\\n' \"${unlisted}\" | head -n 1). Clean the build folder and build again.\"\n  exit 1\nfi\necho \"note: bundled $(wc -l < \"${GEN}/edition-files.txt\" | tr -d ' ') edition files\"\n";
+			shellScript = "# App plan §5.4: the bundle holds exactly the files the edition manifest\n# lists, byte for byte. The export (never this phase) decides what ships.\nset -euo pipefail\nGEN=\"${SRCROOT}/../generated/app-edition\"\nOUT=\"$(cat \"${GEN}/edition-source.txt\")\"\nRES=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\nDEST=\"${RES}/Edition\"\nREEXPORT=\"bun scripts/app/export-edition.ts\"\nif [ ! -f \"${GEN}/edition-manifest.json\" ]; then\n  echo \"error: This build has no app edition. From the repository root, run: ${REEXPORT}\"\n  exit 1\nfi\nif ! (cd \"${OUT}\" && /usr/bin/shasum -a 256 -c --quiet \"${GEN}/edition.sha256\"); then\n  echo \"error: ${OUT} has changed since the edition was exported. From the repository root, run: ${REEXPORT} --out <that out directory>\"\n  exit 1\nfi\nmkdir -p \"${DEST}\"\n/usr/bin/rsync -a --inplace --files-from=\"${GEN}/edition-files.txt\" \"${OUT}/\" \"${DEST}/\"\n/bin/cp \"${GEN}/edition-manifest.json\" \"${RES}/edition-manifest.json\"\n/bin/cp \"${GEN}/bridge-user-script.js\" \"${RES}/bridge-user-script.js\"\n/bin/cp \"${GEN}/settings-snapshot.js\" \"${RES}/settings-snapshot.js\"\nif ! (cd \"${DEST}\" && /usr/bin/shasum -a 256 -c --quiet \"${GEN}/edition.sha256\"); then\n  echo \"error: A bundled edition file does not match its manifest digest.\"\n  exit 1\nfi\nunlisted=\"$(cd \"${DEST}\" && find . -type f | sed 's|^\\./||' | LC_ALL=C sort | LC_ALL=C comm -23 - <(LC_ALL=C sort \"${GEN}/edition-files.txt\"))\"\nif [ -n \"${unlisted}\" ]; then\n  echo \"error: The bundled edition holds files its manifest does not list, first: $(printf '%s\\n' \"${unlisted}\" | head -n 1). Clean the build folder and build again.\"\n  exit 1\nfi\necho \"note: bundled $(wc -l < \"${GEN}/edition-files.txt\" | tr -d ' ') edition files\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -389,8 +401,10 @@
 				2B93561B203FC8944C87DD35 /* BridgeRouter.swift in Sources */,
 				E9C74E04BCCF49DD33AA7E53 /* EditionCatalog.swift in Sources */,
 				F0F1F8A24F70DF2021A0A818 /* EditionLinkPolicy.swift in Sources */,
+				FA00ACD27F3B097BD91C9532 /* EditionNavigator.swift in Sources */,
 				6DB67CD89C0EC5C8821AE7D9 /* EditionSchemeHandler.swift in Sources */,
 				94DD47765329488872C319C0 /* EditionSession.swift in Sources */,
+				626C3B5A38EF06785B1B3827 /* EditionSettings.swift in Sources */,
 				B1563B04905CF0DCE72C6D88 /* EditionWebView.swift in Sources */,
 				5D250543230E23CB29ACA214 /* LaunchArguments.swift in Sources */,
 				44505959A55D78618F7EB8F2 /* ReaderData.swift in Sources */,
@@ -407,6 +421,7 @@
 			files = (
 				4EBA02B5BCAC73033CA8F879 /* BridgeTests.swift in Sources */,
 				DA6870F53C094B8E5454D26E /* EditionCatalogTests.swift in Sources */,
+				94EC6845C1AC17FC1211D79F /* EditionSettingsTests.swift in Sources */,
 				6DA5C5208F4B92B0B0D6ED3C /* LaunchArgumentsTests.swift in Sources */,
 				606E29042E3F96E075DE8811 /* ReaderDataTests.swift in Sources */,
 				055096FB8D126E7973B621DC /* ReaderLocationTests.swift in Sources */,
@@ -417,6 +432,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8C804696348758F459B1F74F /* DynamicTypeUITests.swift in Sources */,
 				3CDBC63CE8EACC77D5FA87C2 /* ExportUITests.swift in Sources */,
 				975A55E84F3778A714C9664D /* LaunchUITests.swift in Sources */,
 				FD75F19119F74D1DC5624C26 /* ReaderDataUITests.swift in Sources */,

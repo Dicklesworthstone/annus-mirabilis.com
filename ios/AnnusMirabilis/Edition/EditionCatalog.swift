@@ -19,6 +19,13 @@ struct EditionManifest: Decodable, Sendable {
         let id: String
         let file: String
         let sha256: String
+        /// The one span the app fills in, for a template (the settings snapshot).
+        var placeholder: String?
+    }
+
+    /// The edition's own setting steps the app maps system settings onto.
+    struct Settings: Decodable, Sendable, Equatable {
+        let typeSizes: [Int]
     }
 
     let schemaVersion: String
@@ -27,6 +34,7 @@ struct EditionManifest: Decodable, Sendable {
     var userScripts: [UserScript]?
     /// The site's registry of the reader's data; absent from exports made before it was recorded.
     var readerData: ReaderDataManifest?
+    var settings: Settings?
 }
 
 enum EditionCatalogError: Error, Equatable {
@@ -46,6 +54,10 @@ struct EditionCatalog: Sendable {
     /// The bridge script's manifest entry, when the export recorded one.
     let bridgeScript: EditionManifest.UserScript?
     let readerData: ReaderDataManifest?
+    /// The settings snapshot template's manifest entry, when the export recorded one.
+    let settingsSnapshotScript: EditionManifest.UserScript?
+    /// The edition's type-size steps, in percent; empty for an export made before they were recorded.
+    let typeSizes: [Int]
     private let files: [String: EditionManifest.File]
 
     init(root: URL, manifest: EditionManifest) throws(EditionCatalogError) {
@@ -57,6 +69,8 @@ struct EditionCatalog: Sendable {
         self.files = Dictionary(manifest.files.map { ($0.path, $0) }, uniquingKeysWith: { first, _ in first })
         self.bridgeScript = manifest.userScripts?.first { $0.id == "bridge" }
         self.readerData = manifest.readerData
+        self.settingsSnapshotScript = manifest.userScripts?.first { $0.id == "settings-snapshot" }
+        self.typeSizes = manifest.settings?.typeSizes ?? []
     }
 
     static func load(from bundle: Bundle = .main) throws(EditionCatalogError) -> EditionCatalog {
@@ -79,6 +93,14 @@ struct EditionCatalog: Sendable {
     /// The bridge script's source, only if its bytes match the recorded digest.
     func verifiedBridgeScript() -> String? {
         BridgeScript.load(bridgeScript, directory: scriptDirectory)
+    }
+
+    /// The settings snapshot template, only if its bytes match the recorded digest.
+    func verifiedSettingsSnapshot() -> SettingsSnapshot? {
+        guard let entry = settingsSnapshotScript, let placeholder = entry.placeholder,
+            let template = BridgeScript.load(entry, directory: scriptDirectory)
+        else { return nil }
+        return SettingsSnapshot(template: template, placeholder: placeholder)
     }
 
     var fileCount: Int { files.count }

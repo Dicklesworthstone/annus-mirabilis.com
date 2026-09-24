@@ -8,6 +8,12 @@ import { describe, it } from "node:test";
 import { runInNewContext } from "node:vm";
 import { NATIVE_EVENT_NAMES, validateEditionMessage } from "./schemas.ts";
 import {
+  SETTINGS_SNAPSHOT_PLACEHOLDER,
+  SETTINGS_SNAPSHOT_TEMPLATE,
+  SITE_TYPE_SCALE_KEY,
+  SITE_TYPE_SIZES,
+} from "./settingsSnapshot.ts";
+import {
   BRIDGE_CAPABILITIES,
   BRIDGE_USER_SCRIPT_SOURCE,
   MAX_SNAPSHOT_LENGTH,
@@ -52,6 +58,10 @@ function sandbox(options: {
   stored?: Record<string, string>;
   session?: Record<string, string>;
   replies?: Record<string, unknown>;
+  /** <html>'s data-type-scale at document start; null means <html> exists without it. */
+  typeScale?: string | null;
+  /** The JSON the app fills into the settings snapshot, which then runs before the bridge. */
+  appSettings?: string;
 }) {
   // Each sandbox gets its own Storage class, since the script wraps the prototype.
   class Storage extends FakeStorage {}
@@ -101,10 +111,18 @@ function sandbox(options: {
       observers.push(this.callback);
     }
   }
+  const attributes = new Map<string, string>();
+  if (typeof options.typeScale === "string") attributes.set("data-type-scale", options.typeScale);
   const documentElement =
-    options.theme === undefined
+    options.theme === undefined && options.typeScale === undefined
       ? undefined
-      : { getAttribute: (name: string) => (name === "data-theme" ? theme.value : null) };
+      : {
+          getAttribute: (name: string) =>
+            name === "data-theme" ? theme.value : (attributes.get(name) ?? null),
+          setAttribute: (name: string, value: string) => {
+            attributes.set(name, String(value));
+          },
+        };
   const document = {
     readyState: options.readyState ?? "complete",
     title: "Brownian motion",
@@ -129,6 +147,7 @@ function sandbox(options: {
     },
     dispatchEvent: (event: { type: string; detail: unknown }) => {
       dispatched.push({ type: event.type, detail: event.detail });
+      for (const listener of windowListeners.get(event.type) ?? []) listener(event);
       return true;
     },
   };
@@ -162,7 +181,21 @@ function sandbox(options: {
     setTimeout: (callback: () => void) => timers.push(callback),
     clearTimeout: () => {},
   };
-  const run = () => runInNewContext(BRIDGE_USER_SCRIPT_SOURCE, context);
+  const run = () => {
+    if (options.appSettings !== undefined) {
+      runInNewContext(
+        SETTINGS_SNAPSHOT_TEMPLATE.replace(SETTINGS_SNAPSHOT_PLACEHOLDER, options.appSettings),
+        context,
+      );
+    }
+    runInNewContext(BRIDGE_USER_SCRIPT_SOURCE, context);
+  };
+  /** The site's pre-paint (or its settings panel) sets <html>'s type size; observers then run. */
+  const setTypeScale = (value: string) => {
+    attributes.set("data-type-scale", value);
+    for (const observer of observers) observer();
+  };
+  const typeScale = () => attributes.get("data-type-scale") ?? null;
   const fire = (target: "window" | "document", type: string) => {
     for (const listener of (target === "window" ? windowListeners : documentListeners).get(type) ??
       []) {
@@ -194,6 +227,8 @@ function sandbox(options: {
     run,
     fire,
     setTheme,
+    setTypeScale,
+    typeScale,
     tick,
     settle,
     of,
@@ -452,5 +487,73 @@ describe("the reader's data mirrored into the app", () => {
     await missing.settle();
     assert.equal(missing.reloads(), 0);
     assert.equal(missing.localStorage.length, 0);
+  });
+});
+
+describe("the type size the app maps from the reader's system text size", () => {
+  const sizes = (page: ReturnType<typeof sandbox>) =>
+    page
+      .of("settings.changed")
+      .flatMap((message) => (message.body.typeSize === undefined ? [] : [message.body.typeSize]));
+  const settingsOf = (page: ReturnType<typeof sandbox>) =>
+    JSON.parse(JSON.stringify((page.window.__AM_APP__ as { settings: unknown }).settings));
+
+  it("is the site's own four steps, from its registry", () => {
+    assert.deepEqual([...SITE_TYPE_SIZES], [100, 112, 125, 150]);
+  });
+
+  it("fills in for a reader who chose no size, and is put back after the site's pre-paint", () => {
+    const page = sandbox({ inApp: true, typeScale: null, appSettings: '{"typeSize":150}' });
+    page.run();
+    assert.equal(page.typeScale(), "150");
+    // The site's pre-paint then writes its default; the observer runs before the first paint.
+    page.setTypeScale("100");
+    assert.equal(page.typeScale(), "150");
+    assert.deepEqual(sizes(page), [150]);
+    assert.deepEqual(settingsOf(page), { typeSize: 150 });
+  });
+
+  it("leaves a size the reader chose in the page alone, and reports that one", () => {
+    const page = sandbox({
+      inApp: true,
+      typeScale: null,
+      appSettings: '{"typeSize":150}',
+      stored: { [SITE_TYPE_SCALE_KEY]: "112" },
+    });
+    page.run();
+    page.setTypeScale("112");
+    assert.equal(page.typeScale(), "112");
+    assert.deepEqual(sizes(page), [112]);
+  });
+
+  it("follows a new system text size live, through settings.changed", () => {
+    const page = sandbox({ inApp: true, typeScale: null, appSettings: '{"typeSize":100}' });
+    page.run();
+    page.setTypeScale("100");
+    const app = page.window.__AM_APP__ as { dispatch: (name: string, payload: unknown) => boolean };
+    assert.equal(app.dispatch("settings.changed", { typeSize: 125 }), true);
+    assert.equal(page.typeScale(), "125");
+    // A size the site does not have is ignored.
+    app.dispatch("settings.changed", { typeSize: 300 });
+    assert.equal(page.typeScale(), "125");
+    assert.deepEqual(sizes(page), [100, 125]);
+  });
+
+  it("keeps only a size the site has: anything else in the snapshot never reaches the page", () => {
+    for (const json of ['{"typeSize":133}', '{"typeSize":"150"}', '{"theme":"x"}', "7", "null"]) {
+      const page = sandbox({ inApp: true, typeScale: null, appSettings: json });
+      page.run();
+      page.setTypeScale("100");
+      assert.equal(page.typeScale(), "100", json);
+      assert.deepEqual(settingsOf(page), {}, json);
+    }
+  });
+
+  it("without the app's snapshot, the page's own size stands and is reported", () => {
+    const page = sandbox({ inApp: true, typeScale: null });
+    page.run();
+    page.setTypeScale("125");
+    assert.equal(page.typeScale(), "125");
+    assert.deepEqual(sizes(page), [125]);
   });
 });

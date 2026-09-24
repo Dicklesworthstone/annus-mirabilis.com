@@ -26,12 +26,18 @@ import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "n
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readerDataManifest } from "../../src/platform/app-bridge/readerData.ts";
+import {
+  SETTINGS_SNAPSHOT_PLACEHOLDER,
+  SETTINGS_SNAPSHOT_TEMPLATE,
+  SITE_TYPE_SIZES,
+} from "../../src/platform/app-bridge/settingsSnapshot.ts";
 import { BRIDGE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/userScripts.ts";
 
 export const EDITION_SCHEMA_VERSION = "annus-mirabilis-app-edition.v1";
 
 /** The bridge user script, written beside the manifest and bundled beside it, never inside Edition/. */
 export const BRIDGE_SCRIPT_FILE = "bridge-user-script.js";
+export const SETTINGS_SNAPSHOT_FILE = "settings-snapshot.js";
 
 export type AppExportErrorCode = "no-web-build" | "unsafe-edition-path" | "edition-over-budget";
 
@@ -464,7 +470,17 @@ export function exportEdition(options: {
         sha256: createHash("sha256").update(BRIDGE_USER_SCRIPT_SOURCE).digest("hex"),
         bytes: Buffer.byteLength(BRIDGE_USER_SCRIPT_SOURCE),
       },
+      {
+        // Injected first. The app replaces the placeholder with the settings' JSON and nothing else.
+        id: "settings-snapshot",
+        file: SETTINGS_SNAPSHOT_FILE,
+        sha256: createHash("sha256").update(SETTINGS_SNAPSHOT_TEMPLATE).digest("hex"),
+        bytes: Buffer.byteLength(SETTINGS_SNAPSHOT_TEMPLATE),
+        placeholder: SETTINGS_SNAPSHOT_PLACEHOLDER,
+      },
     ],
+    // The site's type-size steps, which the app maps the reader's system text size onto.
+    settings: { typeSizes: SITE_TYPE_SIZES },
     // The site's registry, so the app lists and exports the reader's data with /your-data/'s labels.
     readerData: readerDataManifest(),
     files,
@@ -479,6 +495,7 @@ export function exportEdition(options: {
   );
   writeFileSync(join(dest, "edition-files.txt"), files.map((file) => `${file.path}\n`).join(""));
   writeFileSync(join(dest, BRIDGE_SCRIPT_FILE), BRIDGE_USER_SCRIPT_SOURCE);
+  writeFileSync(join(dest, SETTINGS_SNAPSHOT_FILE), SETTINGS_SNAPSHOT_TEMPLATE);
   // The bundling phase reads out/ from wherever this export read it, not only the main checkout.
   writeFileSync(join(dest, "edition-source.txt"), `${outDir}\n`);
   writeFileSync(
@@ -488,6 +505,7 @@ export function exportEdition(options: {
       "$(SRCROOT)/../generated/app-edition/edition.sha256",
       "$(SRCROOT)/../generated/app-edition/edition-files.txt",
       `$(SRCROOT)/../generated/app-edition/${BRIDGE_SCRIPT_FILE}`,
+      `$(SRCROOT)/../generated/app-edition/${SETTINGS_SNAPSHOT_FILE}`,
       "$(SRCROOT)/../generated/app-edition/edition-source.txt",
       ...files.map((file) => `${outDir}/${file.path}`),
     ].join("\n")}\n`,
@@ -498,6 +516,7 @@ export function exportEdition(options: {
     `${[
       `${bundled}/edition-manifest.json`,
       `${bundled}/${BRIDGE_SCRIPT_FILE}`,
+      `${bundled}/${SETTINGS_SNAPSHOT_FILE}`,
       `${bundled}/Edition`,
       // The script sandbox grants writes only to declared outputs, directories included.
       ...editionDirectories(files).map((directory) => `${bundled}/Edition/${directory}`),

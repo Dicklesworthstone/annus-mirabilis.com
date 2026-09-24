@@ -20,6 +20,8 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
     var onShare: ((URL) -> Void)?
     /// Called for every accepted `settings.changed` that names the page's theme.
     var onTheme: ((String) -> Void)?
+    /// Called for every accepted `settings.changed` that names the type size the page shows.
+    var onTypeSize: ((Int) -> Void)?
 
     private var limiter = BridgeRateLimiter()
     private let capabilities: [String]
@@ -86,6 +88,9 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
             return readerDataReply(message.type, body)
         case "settings.changed":
             if let theme = Self.string(body, "theme") { onTheme?(theme) }
+            if case .number(let size) = body["typeSize"], size.isFinite, size == size.rounded() {
+                onTypeSize?(Int(size))
+            }
             return Self.okay
         case "route.changed":
             onRoute?(Self.string(body, "route") ?? "", Self.string(body, "anchor"), Self.string(body, "title") ?? "")
