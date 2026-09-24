@@ -1,4 +1,5 @@
 import { formatScaledDecimal, parseScaledDecimal } from "../../units/decimalScale.ts";
+import { carriesTapeLink } from "../permalink/codecCore.ts";
 import type {
   Lq06ForkAChoice,
   Lq06Parameters,
@@ -29,7 +30,7 @@ export function encodeLq06Settings(p: Lq06Parameters): string {
 }
 
 export function decodeLq06Settings(search: string): DecodedLq06Settings {
-  if (!search || search === "?") return { kind: "absent" };
+  if (!search || search === "?" || carriesTapeLink(search)) return { kind: "absent" };
   const raw = search.startsWith("?") ? search.slice(1) : search;
   const invalid = (): DecodedLq06Settings => ({
     kind: "invalid",

@@ -278,3 +278,12 @@ export function decodeTapeText(text: string): TapeDecodeResult {
     };
   }
 }
+
+/**
+ * Whether an address's query carries a ?tape= link. A laboratory that also reads an older settings
+ * link of its own skips it then: its decoder would call the tape's query an incomplete settings link,
+ * and LQ-05, LQ-06 and LQ-07 said so under state the tape had restored.
+ */
+export function carriesTapeLink(search: string): boolean {
+  return new URLSearchParams(search).has("tape");
+}

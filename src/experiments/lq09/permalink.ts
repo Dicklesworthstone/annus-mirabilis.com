@@ -1,4 +1,5 @@
 import { parseScaledDecimal } from "../../units/decimalScale.ts";
+import { carriesTapeLink } from "../permalink/codecCore.ts";
 import type { Lq09AbsorptionMode, Lq09Parameters } from "./definition.ts";
 import { validateLq09Parameters } from "./parameters.ts";
 
@@ -22,7 +23,7 @@ export function encodeLq09Settings(p: Lq09Parameters): string {
 }
 
 export function decodeLq09Settings(search: string): DecodedLq09Settings {
-  if (!search || search === "?") return { kind: "empty" };
+  if (!search || search === "?" || carriesTapeLink(search)) return { kind: "empty" };
   const raw = search.startsWith("?") ? search.slice(1) : search;
   const invalid = (): DecodedLq09Settings => ({
     kind: "invalid",

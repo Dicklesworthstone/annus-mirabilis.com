@@ -1,4 +1,5 @@
 import { parseScaledDecimal } from "../../units/decimalScale.ts";
+import { carriesTapeLink } from "../permalink/codecCore.ts";
 import { BM03_DEFAULTS, type Bm03Parameters } from "./definition.ts";
 import { validateBm03Parameters } from "./parameters.ts";
 
@@ -19,7 +20,7 @@ export function decodeBm03Settings(
   | { kind: "absent" }
   | { kind: "settings"; parameters: Bm03Parameters }
   | { kind: "invalid"; message: string } {
-  if (!search || search === "?") return { kind: "absent" };
+  if (!search || search === "?" || carriesTapeLink(search)) return { kind: "absent" };
   const invalid = () => ({
     kind: "invalid" as const,
     message:

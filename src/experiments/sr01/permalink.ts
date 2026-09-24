@@ -1,3 +1,4 @@
+import { carriesTapeLink } from "../permalink/codecCore.ts";
 import { SR01_DEFAULTS, type Sr01Parameters } from "./definition.ts";
 import { validateSr01Parameters } from "./parameters.ts";
 
@@ -17,7 +18,7 @@ const KEYS: readonly { key: keyof Sr01Parameters; param: string }[] = [
 ];
 
 export function decodeSr01Settings(search: string): Sr01PermalinkResult {
-  if (!search || search === "?") return { kind: "none" };
+  if (!search || search === "?" || carriesTapeLink(search)) return { kind: "none" };
   const invalid = (): Sr01PermalinkResult => ({
     kind: "invalid",
     message:

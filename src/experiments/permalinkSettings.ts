@@ -1,6 +1,12 @@
-/** Strict, bounded URL settings. A typo must not silently select a different scientific setup. */
+import { carriesTapeLink } from "./permalink/codecCore.ts";
+
+/**
+ * Strict, bounded URL settings. A typo must not silently select a different scientific setup.
+ * An address carrying a ?tape= link is not a settings link, so it is not read as one: its "tape"
+ * key failed as an unknown setting, and ME-02 said "Unknown setting: tape." over a restored state.
+ */
 export function settingsQuery(search: string, allowed: readonly string[]): URLSearchParams | null {
-  if (!search || search === "?") return null;
+  if (!search || search === "?" || carriesTapeLink(search)) return null;
   if (search.length > 4096) throw new Error("The settings link is too long.");
   const params = new URLSearchParams(search);
   if (!params.size) return null;

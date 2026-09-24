@@ -1,4 +1,5 @@
 import { parseScaledDecimal } from "../../units/decimalScale.ts";
+import { carriesTapeLink } from "../permalink/codecCore.ts";
 import { LQ05_DEFAULTS, type Lq05Parameters, type Lq05View } from "./definition.ts";
 import { validateLq05Parameters } from "./parameters.ts";
 
@@ -19,7 +20,7 @@ export function encodeLq05Settings(p: Lq05Parameters): string {
 }
 
 export function decodeLq05Settings(search: string): DecodedLq05Settings {
-  if (!search || search === "?") return { kind: "empty" };
+  if (!search || search === "?" || carriesTapeLink(search)) return { kind: "empty" };
   const raw = search.startsWith("?") ? search.slice(1) : search;
   const invalid = (): DecodedLq05Settings => ({
     kind: "invalid",
