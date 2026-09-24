@@ -68,8 +68,11 @@ describe("tokensExport: CSS and TypeScript tokens stay in sync", () => {
   });
 
   test("the three font-family tokens name exactly Newsreader, Plus Jakarta Sans, and JetBrains Mono", () => {
-    expect(CSS).toContain('--font-serif: "Newsreader"');
-    expect(CSS).toContain('--font-sans: "Plus Jakarta Sans"');
-    expect(CSS).toContain('--font-mono: "JetBrains Mono"');
+    // Whitespace collapsed first: a stack longer than Biome's 100 columns is wrapped onto
+    // continuation lines after the colon, and the claim here is about the first family.
+    const flat = CSS.replace(/\s+/g, " ");
+    expect(flat).toContain('--font-serif: "Newsreader"');
+    expect(flat).toContain('--font-sans: "Plus Jakarta Sans"');
+    expect(flat).toContain('--font-mono: "JetBrains Mono"');
   });
 });
