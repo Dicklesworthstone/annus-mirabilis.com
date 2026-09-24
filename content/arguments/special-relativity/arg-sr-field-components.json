@@ -63,6 +63,11 @@
           "Before comparing forces, transform the charge’s velocity as well: a charge moving with the observer is at rest in the new frame.",
           "To go back, use the same equations with \\(-v\\) in place of \\(v\\); they return the original components."
         ]
+      },
+      {
+        "kind": "foundation",
+        "id": "unit-system-1905",
+        "returnCaption": "Return to the field transformation in SI units, which the paper writes in Gaussian units."
       }
     ],
     "margin": [

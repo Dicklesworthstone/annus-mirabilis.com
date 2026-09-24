@@ -46,8 +46,13 @@ entries:
     kind: node
     cluster: quantities-magnitudes
     ownerBead: am-found-quantities-magnitudes-igxe
-    status: planned
-    plannedCallers: []
+    status: authored
+    plannedCallers:
+      - "light-quanta:s1"
+      - "light-quanta:s2"
+      - "light-quanta:s9"
+      - "special-relativity:s10"
+      - "mass-energy"
   - id: "foundation:functions-graphs"
     kind: node
     cluster: calculus

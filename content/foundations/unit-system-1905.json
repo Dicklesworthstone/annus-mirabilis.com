@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "unit-system-1905",
+  "title": "The units of 1905",
+  "question": "How do Einstein's numbers, printed in centimetres, grams, ergs and the old electrical units, become SI units?",
+  "summary": "The papers use the centimetre-gram-second system and its two electrical variants. A printed number becomes an SI number when it is multiplied by a ratio equal to one, such as 0.1 pascal-seconds per poise. The electrical ratios are conventional correspondences, not exact identities.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Einstein's papers measure length in centimetres, mass in grams and time in seconds, the CGS system. Energy is in ergs, and one erg is 10⁻⁷ joules. Viscosity is in grams per centimetre per second, the unit now called the poise, and one poise is 0.1 pascal-seconds. These mechanical factors are exact, because they follow from 1 cm = 0.01 m and 1 g = 0.001 kg."
+    },
+    {
+      "kind": "paragraph",
+      "text": "To convert, multiply by a ratio equal to one. Since 1 poise is 0.1 pascal-seconds, the ratio (0.1 Pa s)/(1 P) equals one, and multiplying by it changes the unit without changing the viscosity. The Brownian paper gives water's viscosity as 1,35 · 10⁻², with no unit name; it is in poise, so the viscosity is 1.35 × 10⁻³ Pa s. The paper calls this viscosity k, which is not Boltzmann's constant."
+    },
+    {
+      "kind": "formula",
+      "latex": "1.35\\times10^{-2}\\,\\mathrm{P}\\times\\frac{0.1\\,\\mathrm{Pa\\,s}}{1\\,\\mathrm{P}} = 1.35\\times10^{-3}\\,\\mathrm{Pa\\,s}",
+      "spoken": "1.35 times ten to the minus two poise, times 0.1 pascal-seconds per poise, equals 1.35 times ten to the minus three pascal-seconds."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The same ratio works for compound units. The gas constant R = 8.31 × 10⁷ erg per mole per kelvin is 8.31 joules per mole per kelvin. Neither the light paper nor the Brownian paper prints this number; the edition supplies the standard value of 1905 as an editorial input and labels it that way."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Electricity had two CGS systems. The electrostatic system builds its charge unit, the statcoulomb, from the force between charges. The electromagnetic system builds its current unit from the force between currents; its units are the abcoulomb and the abvolt. One abcoulomb is 10 coulombs, one abvolt is 10⁻⁸ volts, one statvolt is 299.792458 volts, and one gauss is 10⁻⁴ tesla."
+    },
+    {
+      "kind": "paragraph",
+      "text": "These electrical correspondences are conventional, not exact. They assume the magnetic constant \\(\\mu_0\\) is exactly 4π × 10⁻⁷ henry per metre. Since the 2019 revision of the SI it is a measured quantity, equal to that value within about one part in a billion. The site marks every electrical conversion conventional."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The light paper's photoelectric check in §8 uses the electromagnetic system. It takes E = 9,6 · 10³ for the charge of one gram-equivalent of a monovalent ion, so a potential Π comes out in abvolts, and the paper multiplies by 10⁻⁸ to get volts. It prints the result as about 4,3 volts. On the result line the factor is set as 10⁷; the edition records this as a misprint, because the sentence four lines earlier gives 10⁻⁸."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The paper's R, E and J are amounts per gram-equivalent, a mole of monovalent ions. Dividing by N gives the amount per molecule, R/N, or per electron, ε. With the paper's E and the N it prints in §2, 6,17 · 10²³, the charge on one ion is 9.6 × 10³ ÷ 6.17 × 10²³ = 1.56 × 10⁻²⁰ abcoulombs, which is 1.56 × 10⁻¹⁹ coulombs. The paper does not print this quotient."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The relativity paper writes its fields in Gaussian units, where electric and magnetic fields share one unit. That is why its transformation reads β(Y − (v/V)N), with the dimensionless ratio v/V; here N is a magnetic field component, not Avogadro's number. SI measures the electric field in volts per metre and the magnetic field in tesla, so the same law reads \\(\\gamma(E_y - vB_z)\\), with the speed itself multiplying the magnetic field. One statvolt per centimetre is 2.998 × 10⁴ volts per metre."
+    },
+    {
+      "kind": "formula",
+      "latex": "1\\,\\mathrm{abV} = 10^{-8}\\,\\mathrm{V},\\qquad 1\\,\\mathrm{abC} = 10\\,\\mathrm{C},\\qquad 1\\,\\mathrm{statV} = 299.792458\\,\\mathrm{V},\\qquad 1\\,\\mathrm{G} = 10^{-4}\\,\\mathrm{T}",
+      "spoken": "One abvolt corresponds to ten to the minus eight volts, one abcoulomb to ten coulombs, one statvolt to 299.792458 volts, and one gauss to ten to the minus four tesla, all by convention."
+    }
+  ],
+  "exampleTitle": "The photoelectric check, converted to volts",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "The inputs: β = 4,866 · 10⁻¹¹ and ν = 1,03 · 10¹⁵ per second are printed in §8, and so is E = 9,6 · 10³. R = 8.31 × 10⁷ erg per mole per kelvin is the edition's editorial input, because the paper does not print it.",
+        "With P′ = 0, Π = Rβν/E = 8.31 × 10⁷ × 4.866 × 10⁻¹¹ × 1.03 × 10¹⁵ ÷ 9.6 × 10³ = 4.34 × 10⁸ abvolts.",
+        "Multiply by the ratio 10⁻⁸ volts per abvolt: 4.34 volts. The paper prints about 4,3 volts.",
+        "In §9 the conversion runs the other way. An energy per gram-equivalent divided by E is a potential: the printed Rβν = 6,4 · 10¹² erg gives 6.4 × 10¹² ÷ 9.6 × 10³ = 6.67 × 10⁸ abvolts, or 6.67 volts.",
+        "Stark's ionization voltage of 10 volts is 10⁹ abvolts, and 10⁹ × 9.6 × 10³ = 9.6 × 10¹² erg per gram-equivalent, the upper bound for J that §9 prints.",
+        "E itself, 9.6 × 10³ abcoulombs, is 9.6 × 10⁴ coulombs per gram-equivalent. Beside it, the modern Faraday constant is 96 485 coulombs per mole (set modern-si-2019); Einstein's value is 0.50 percent below it."
+      ]
+    }
+  ],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:bridge-scientific-notation-units",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:bridge-fractions-ratios",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:quantities-units",
+      "kind": "cross-link"
+    }
+  ],
+  "stoppingPoint": "A conversion factor is a ratio equal to one. This lesson converts units only: it never turns a historical constant's value into a modern one, and it treats every electrical correspondence as a convention.",
+  "citations": ["ap-17-132", "ap-17-549", "ap-17-891"]
+}

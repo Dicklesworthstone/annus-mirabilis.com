@@ -47,6 +47,11 @@
         "kind": "foundation",
         "id": "electromagnetism-charges",
         "returnCaption": "Return to charge magnitude, signed voltage, and the retarding energy budget."
+      },
+      {
+        "kind": "foundation",
+        "id": "unit-system-1905",
+        "returnCaption": "Return to the stopping voltage, beside the paper's 4.3-volt check in electromagnetic units."
       }
     ],
     "steps": [
