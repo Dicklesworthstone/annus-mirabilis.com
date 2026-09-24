@@ -36,7 +36,7 @@ async function bindings(): Promise<[string, LabTapeBinding][]> {
  * Laboratories whose validator accepts a text value for a number by putting its default back, a
  * silent coercion recorded on am-lab-domains-silently-clamped-pzj5. Named here so a new one fails.
  */
-const COERCING_LABS: readonly string[] = ["sr-13"];
+const COERCING_LABS: readonly string[] = [];
 
 /** One setting moved inside its declared domain, and accepted by the laboratory. */
 function changedSettings(binding: LabTapeBinding): Record<string, unknown> | null {

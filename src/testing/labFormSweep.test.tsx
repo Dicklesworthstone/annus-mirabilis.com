@@ -46,7 +46,6 @@ const UNFINISHED: readonly string[] = [
   "sr-09",
   "sr-10",
   "sr-11",
-  "sr-13",
 ];
 
 const VALUES = ["abc", "", "1e300", "-1e300"] as const;

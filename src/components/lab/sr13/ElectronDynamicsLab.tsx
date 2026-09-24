@@ -1,5 +1,6 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { readTypedNumber } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
@@ -64,6 +65,19 @@ function SnapshotReading({
 // The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate.
 const SR13_PROMPTS = PREDICT_PROMPTS["sr-13"] ?? [];
 
+/**
+ * The three typed fields, as the reader typed them, read on Apply (dispatch 165). Number(field) as
+ * they typed turned a cleared field into 0 and applied it without a word.
+ */
+type Sr13Typed = Readonly<{ initialSpeed: string; electricFieldY: string; magneticFieldZ: string }>;
+function typedFrom(p: Sr13Parameters): Sr13Typed {
+  return {
+    initialSpeed: String(p.initialSpeed),
+    electricFieldY: String(p.electricFieldY),
+    magneticFieldZ: String(p.magneticFieldZ),
+  };
+}
+
 export function ElectronDynamicsLab({
   example,
   title = "Dynamics of the slowly accelerated electron",
@@ -91,6 +105,7 @@ export function ElectronDynamicsLab({
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr13Parameters;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
+  const [typed, setTyped] = useState<Sr13Typed>(() => typedFrom(example.parameters));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
 
@@ -105,12 +120,24 @@ export function ElectronDynamicsLab({
       return;
     }
     setDraft(parameters);
+    setTyped(typedFrom(parameters));
     setError("");
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const checked = validateSr13Parameters(draft);
+    const speed = readTypedNumber(typed.initialSpeed, "the initial speed β");
+    if (speed.kind === "refused") return setError(speed.requirement);
+    const ey = readTypedNumber(typed.electricFieldY, "the electric field Ey");
+    if (ey.kind === "refused") return setError(ey.requirement);
+    const bz = readTypedNumber(typed.magneticFieldZ, "the magnetic field Bz");
+    if (bz.kind === "refused") return setError(bz.requirement);
+    const checked = validateSr13Parameters({
+      ...draft,
+      initialSpeed: speed.value,
+      electricFieldY: ey.value,
+      magneticFieldZ: bz.value,
+    });
     if (checked.kind !== "accepted") {
       setError(refusalSentence(checked.refusal));
       return;
@@ -269,9 +296,9 @@ export function ElectronDynamicsLab({
                   step="0.01"
                   min="-0.95"
                   max="0.95"
-                  value={draft.initialSpeed}
+                  value={typed.initialSpeed}
                   onChange={(event) =>
-                    setDraft({ ...draft, initialSpeed: Number(event.currentTarget.value) })
+                    setTyped({ ...typed, initialSpeed: event.currentTarget.value })
                   }
                 />
               </div>
@@ -304,9 +331,9 @@ export function ElectronDynamicsLab({
                     name="electricFieldY"
                     inputMode="decimal"
                     step="10000"
-                    value={draft.electricFieldY}
+                    value={typed.electricFieldY}
                     onChange={(event) =>
-                      setDraft({ ...draft, electricFieldY: Number(event.currentTarget.value) })
+                      setTyped({ ...typed, electricFieldY: event.currentTarget.value })
                     }
                   />
                 </div>
@@ -318,9 +345,9 @@ export function ElectronDynamicsLab({
                     name="magneticFieldZ"
                     inputMode="decimal"
                     step="0.005"
-                    value={draft.magneticFieldZ}
+                    value={typed.magneticFieldZ}
                     onChange={(event) =>
-                      setDraft({ ...draft, magneticFieldZ: Number(event.currentTarget.value) })
+                      setTyped({ ...typed, magneticFieldZ: event.currentTarget.value })
                     }
                   />
                 </div>
