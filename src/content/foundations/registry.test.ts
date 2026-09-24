@@ -181,23 +181,13 @@ describe("checkRecordsAgainstRegistry: real content directory", () => {
   const registry = loadRegistry();
   const issues = checkRecordsAgainstRegistry(registry);
 
-  test("flags foundation:error-inference as authored-without-record", () => {
-    // content/foundations/error-and-inference.json exists but its own `id`
-    // field is "error-and-inference", not "error-inference" — a real,
-    // observed mismatch, not a fixture. The registry marks this entry
-    // `planned` precisely because of it, so this check should find nothing
-    // to flag for this specific id once the registry agrees with reality.
-    const entry = registry.entries.find((e) => e.id === "foundation:error-inference");
-    expect(entry?.status).toBe("planned");
-    expect(issues.some((i) => i.id === "foundation:error-inference")).toBe(false);
-  });
-
-  test("reports content/foundations/error-and-inference.json as an unregistered record", () => {
-    expect(
-      issues.some(
-        (i) => i.code === "unregistered-record" && i.detail.includes("error-and-inference.json"),
-      ),
-    ).toBe(true);
+  test("the error-and-inference lesson is registered under its own id, and authored", () => {
+    // The registry once named it foundation:error-inference, which matched no record, so the
+    // lesson was reported as unregistered while the entry stayed planned. Renamed on 2026-09-24.
+    const entry = registry.entries.find((e) => e.id === "foundation:error-and-inference");
+    expect(entry?.status).toBe("authored");
+    expect(registry.entries.some((e) => e.id === "foundation:error-inference")).toBe(false);
+    expect(issues.filter((i) => i.detail.includes("error-and-inference"))).toEqual([]);
   });
 
   test("every entry marked authored in the real registry has a matching file", () => {

@@ -41,7 +41,9 @@ export const CANONICAL_FOUNDATION_IDS: readonly CanonicalFoundationEntry[] = Obj
   ["foundation:flux-continuity", "node", "am-bm-slice-foundations-f5z9"],
   ["foundation:diffusion-equation", "node", "am-bm-slice-foundations-f5z9"],
   ["foundation:random-walks", "node", "am-bm-slice-foundations-f5z9"],
-  ["foundation:error-inference", "node", "am-found-statistics-inference-pzqv"],
+  // Renamed from "foundation:error-inference" to the lesson record's own id on 2026-09-24, by the
+  // orchestrator's ruling (agent:TanElk, Agent Mail message 38024), recorded on am-ep-foundations-z1e.
+  ["foundation:error-and-inference", "node", "am-found-statistics-inference-pzqv"],
   ["foundation:two-measurements-two-unknowns", "node", "am-found-statistics-inference-pzqv"],
   ["foundation:viscosity-stokes-drag", "node", "am-found-transport-thermo-smv3"],
   ["foundation:free-energy-osmotic-pressure", "node", "am-found-transport-thermo-smv3"],

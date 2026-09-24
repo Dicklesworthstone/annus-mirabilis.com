@@ -10,11 +10,12 @@
 # each file's own `id` field, not by filename alone:
 #   - 17 ids are `authored` (a matching content/foundations/<slug>.json
 #     record exists with that exact id).
-#   - `foundation:error-inference` is `planned`, even though
-#     content/foundations/error-and-inference.json exists: that file's
-#     internal id is "error-and-inference", not "error-inference", so it
-#     does not match this registry entry. Flagged, not silently renamed
-#     (renaming would edit a file owned by another bead's authoring lane).
+#   - The entry that was `foundation:error-inference` did not match
+#     content/foundations/error-and-inference.json, whose own id is
+#     "error-and-inference", so it stayed `planned` while the lesson existed.
+#     On 2026-09-24 the orchestrator (agent:TanElk, Agent Mail message 38024)
+#     ruled that the registry id be renamed to the record's:
+#     `foundation:error-and-inference`, now `authored`.
 #     See docs/decisions/foundation-library-scope.md.
 #   - Every other id is `planned`: no matching file exists yet.
 #
@@ -158,11 +159,11 @@ entries:
     ownerBead: am-bm-slice-foundations-f5z9
     status: authored
     plannedCallers: []
-  - id: "foundation:error-inference"
+  - id: "foundation:error-and-inference"
     kind: node
     cluster: statistics-inference
     ownerBead: am-found-statistics-inference-pzqv
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:two-measurements-two-unknowns"
     kind: node

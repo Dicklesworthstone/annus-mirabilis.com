@@ -62,15 +62,21 @@ part of the epic's table. `status` was set by reading every file under
 (never its filename) against the canonical slug: 17 ids match an existing
 file and are `authored`; the remaining 29 are `planned`.
 
-**`foundation:error-inference` is marked `planned`, not `authored`,
+**`foundation:error-inference` was marked `planned`, not `authored`,
 despite `content/foundations/error-and-inference.json` existing.** That
-file's own `id` field is `"error-and-inference"`, not `"error-inference"`
-— a real, observed mismatch, asserted directly against the real content
-directory by `registry.test.ts`'s `checkRecordsAgainstRegistry` suite. Not
-silently renamed: the file is owned by the statistics-inference cluster
-bead (`am-found-statistics-inference-pzqv`), and this bead does not edit
-another bead's content. Flagged here and in a `br comments add` on that
-bead instead.
+file's own `id` field is `"error-and-inference"`, not `"error-inference"`,
+a real, observed mismatch asserted directly against the real content
+directory by `registry.test.ts`'s `checkRecordsAgainstRegistry` suite. It
+was not silently renamed at the time: the file is owned by the
+statistics-inference cluster bead (`am-found-statistics-inference-pzqv`),
+and this bead does not edit another bead's content.
+
+**Resolved on 2026-09-24.** The orchestrator ruled (agent:TanElk, Agent
+Mail message 38024) that the registry id take the record's name. The entry
+is now `foundation:error-and-inference`, `authored`, in both
+`registry.yaml` and `src/content/foundations/canonicalIds.ts`, and
+`registry.test.ts` asserts that the old id is gone and nothing about this
+lesson is flagged.
 
 `plannedCallers` is left empty for all 46 entries. No real data exists yet
 about which future paper sections will call which foundation; inventing
