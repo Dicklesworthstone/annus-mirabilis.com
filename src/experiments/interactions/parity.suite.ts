@@ -28,6 +28,17 @@ export type FieldsBoostOwner = Readonly<{
   ) => Readonly<{ e2MinusC2B2: number }>;
 }>;
 
+/** What the probability-diffusion family calls: the diffusion owner's intervalProbability
+ * (src/physics/reference/diffusion/distributions.ts), or an owner of the same shape. */
+export type ProbabilityDiffusionOwner = Readonly<{
+  intervalProbability: (
+    x1: number,
+    x2: number,
+    t: number,
+    D: number,
+  ) => Readonly<{ result: Readonly<{ status: string; value?: number | Float64Array }> }>;
+}>;
+
 export type OwnerSource = "reference-evaluator" | "runtime-fixture";
 
 export interface ParitySuiteOptions {
@@ -246,21 +257,49 @@ export async function familyParityCases(
     }
 
     case "probability-diffusion": {
-      // Stokes-Einstein RMS displacement <x^2> = 2Dt
-      const D = 2.14e-13; // m^2/s
-      const t = 1.0; // s
-      const rmsDisplacement = Math.sqrt(2 * D * t);
-
-      results.push({
-        parityCaseId: "probability-diffusion-bm01-stokes-einstein",
-        family,
-        ownerSource: options.ownerSource,
-        ownerLabel: options.ownerLabel,
-        passed: Math.abs(rmsDisplacement - 6.542170893518491e-7) < 1e-12,
-        expected: 6.542170893518491e-7,
-        actual: rmsDisplacement,
-        message: "Brownian mean square displacement follows 2Dt.",
-      });
+      // A BM-01 tracer at D = 2.14e-13 m²/s after t = 1 s, where σ = √(2Dt) = 0.654 μm. Three
+      // intervals from the bead's test plan, each computed BY THE OWNER in options.owner (the
+      // diffusion owner's intervalProbability): [−σ, σ] is erf(1/√2), the degenerate [0, 0] is 0,
+      // and [−10⁶σ, 0], far outside any visible track, is 1/2. The case used to compute √(2Dt)
+      // inline, so a run labelled "diffusion.ts" exercised no owner at all.
+      const D = 2.14e-13;
+      const t = 1;
+      const sigma = Math.sqrt(2 * D * t);
+      const intervals = [
+        { id: "one-sigma", x1: -sigma, x2: sigma, expected: 0.6826894921370859 },
+        { id: "degenerate", x1: 0, x2: 0, expected: 0 },
+        { id: "wide-half", x1: -1e6 * sigma, x2: 0, expected: 0.5 },
+      ] as const;
+      const owner = options.owner as Partial<ProbabilityDiffusionOwner> | null | undefined;
+      for (const interval of intervals) {
+        const base = {
+          parityCaseId: `probability-diffusion-bm01-${interval.id}`,
+          family,
+          ownerSource: options.ownerSource,
+          ownerLabel: options.ownerLabel,
+          expected: interval.expected,
+        };
+        if (!owner || typeof owner.intervalProbability !== "function") {
+          results.push({
+            ...base,
+            passed: false,
+            actual: null,
+            message:
+              "No owner was exercised: pass an owner with intervalProbability (diffusion distributions.ts).",
+          });
+          continue;
+        }
+        const r = owner.intervalProbability(interval.x1, interval.x2, t, D).result;
+        const actual = r.status === "value" && typeof r.value === "number" ? r.value : null;
+        results.push({
+          ...base,
+          // Probabilities lie in [0, 1] and one reference is exactly 0, so the bound is absolute.
+          passed:
+            actual !== null && withinTolerance(actual, interval.expected, { absolute: 1e-12 }).ok,
+          actual,
+          message: `Interval probability ${interval.id} from the owner's intervalProbability.`,
+        });
+      }
       break;
     }
 
