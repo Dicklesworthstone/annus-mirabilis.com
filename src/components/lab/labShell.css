@@ -378,17 +378,20 @@
  * injecting these rules on live across all 41 lab routes: 229 -> 15 at 390px (the rest are
  * subscripted symbols the line count mistakes for wraps, and ids breaking at their hyphens), 0
  * page overflow before and after, 5 -> 8 regions that scroll; at 1440px no change.
+ * An embed has the same tables and no .lab-route, and its .embedded-laboratory also sets
+ * overflow-wrap: anywhere for everything inside it: across the 27 embeds at 390px, 46 -> 7, 0 page
+ * overflow before and after, 0 -> 4 regions that scroll.
  */
-.lab-route table :is(th, td) {
+:is(.lab-route, .embedded-laboratory) table :is(th, td) {
   overflow-wrap: normal;
 }
 
 /* Outranks the phone-width outer-column rule in globals.css, (0, 2, 1). */
-.lab-route .table-scroll table :is(th, td) {
+:is(.lab-route, .embedded-laboratory) .table-scroll table :is(th, td) {
   overflow-wrap: normal;
 }
 
-.lab-route tbody tr:has(> td + td) > th {
+:is(.lab-route, .embedded-laboratory) tbody tr:has(> td + td) > th {
   width: auto;
 }
 
