@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { DETAIL_STORAGE_KEY, FACES, parseDetail } from "../navigation/state.ts";
+import { SEED_ENTRIES, type SettingRegistration } from "../../platform/storage/keys.ts";
+import {
+  DETAIL_STORAGE_KEY,
+  FACES,
+  NOTATION_STORAGE_KEY,
+  parseDetail,
+  parseNotation,
+} from "../navigation/state.ts";
 import { applyReaderPrepaint, READER_PREPAINT } from "./prepaint.ts";
 
 const originals = {
@@ -10,13 +17,17 @@ const originals = {
 
 type Dataset = Record<string, string | undefined>;
 
-function stub(options: { search?: string; stored?: string | null } = {}): { dataset: Dataset } {
+function stub(
+  options: { search?: string; stored?: string | null; storedNotation?: string | null } = {},
+): { dataset: Dataset } {
   const dataset: Dataset = {};
   (globalThis as { document: unknown }).document = { documentElement: { dataset } };
   (globalThis as { location: unknown }).location = { search: options.search ?? "" };
   const stored = options.stored ?? null;
+  const storedNotation = options.storedNotation ?? null;
   (globalThis as { localStorage: unknown }).localStorage = {
-    getItem: (key: string) => (key === DETAIL_STORAGE_KEY ? stored : null),
+    getItem: (key: string) =>
+      key === DETAIL_STORAGE_KEY ? stored : key === NOTATION_STORAGE_KEY ? storedNotation : null,
   };
   return { dataset };
 }
@@ -27,10 +38,86 @@ afterEach(() => {
   (globalThis as { localStorage: unknown }).localStorage = originals.localStorage;
 });
 
+const arm = () =>
+  applyReaderPrepaint(DETAIL_STORAGE_KEY, parseDetail, FACES, NOTATION_STORAGE_KEY, parseNotation);
+
+describe("notation before first paint (am-read-perspective-toggle-abd)", () => {
+  test("printed letters by default, with no query and nothing stored", () => {
+    const { dataset } = stub();
+    arm();
+    expect(dataset.notation).toBe("printed");
+  });
+
+  test("?notation=modern applies, and wins over a stored printed", () => {
+    const { dataset } = stub({ search: "?notation=modern", storedNotation: "printed" });
+    arm();
+    expect(dataset.notation).toBe("modern");
+  });
+
+  test("a stored modern applies when the query names none", () => {
+    const { dataset } = stub({ storedNotation: "modern" });
+    arm();
+    expect(dataset.notation).toBe("modern");
+  });
+
+  test("invalid or repeated values are ignored, never written raw", () => {
+    for (const [search, storedNotation] of [
+      ["?notation=Modern", null],
+      ["?notation=modern&notation=printed", null],
+      ["", "gamma"],
+    ] as const) {
+      const { dataset } = stub({ search, storedNotation });
+      arm();
+      expect(dataset.notation).toBe("printed");
+    }
+  });
+
+  test("blocked storage still arms the query value and the defaults", () => {
+    const { dataset } = stub({ search: "?notation=modern" });
+    (globalThis as { localStorage: unknown }).localStorage = {
+      getItem: () => {
+        throw new Error("SecurityError");
+      },
+    };
+    arm();
+    expect(dataset.notation).toBe("modern");
+    expect(dataset.detail).toBe("1");
+  });
+
+  test("notation and the lens are separate settings: each can be modern without the other", () => {
+    const a = stub({ search: "?notation=modern" });
+    arm();
+    expect([a.dataset.notation, a.dataset.lens]).toEqual(["modern", "paper"]);
+    const b = stub({ search: "?lens=modern" });
+    arm();
+    expect([b.dataset.notation, b.dataset.lens]).toEqual(["printed", "modern"]);
+  });
+
+  test("the key and its values are the storage registry's own", () => {
+    const entry = SEED_ENTRIES.find(
+      (e) => e.kind === "setting" && e.key === NOTATION_STORAGE_KEY,
+    ) as SettingRegistration | undefined;
+    expect(entry?.ownerBeadId).toBe("am-read-perspective-toggle-abd");
+    expect(entry?.prePaint).toBe(true);
+    expect(entry?.defaultValue).toBe("printed");
+    for (const value of entry?.allowedValues ?? []) expect(parseNotation(value)).toBe(value);
+    expect(entry?.allowedValues.length).toBe(2);
+  });
+
+  test("the injected script carries the registered key and the real parser", () => {
+    expect(READER_PREPAINT).toContain(JSON.stringify(NOTATION_STORAGE_KEY));
+    expect(READER_PREPAINT).toContain("function parseNotation");
+    const { dataset } = stub({ search: "?notation=modern" });
+    // eslint-disable-next-line no-new-func
+    new Function(READER_PREPAINT)();
+    expect(dataset.notation).toBe("modern");
+  });
+});
+
 describe("applyReaderPrepaint", () => {
   test("defaults to detail 1, lens paper, view reading with no query and no stored value", () => {
     const { dataset } = stub();
-    applyReaderPrepaint(DETAIL_STORAGE_KEY, parseDetail, FACES);
+    arm();
     expect(dataset.detail).toBe("1");
     expect(dataset.lens).toBe("paper");
     expect(dataset.view).toBe("reading");
@@ -38,67 +125,67 @@ describe("applyReaderPrepaint", () => {
 
   test("a ?detail= query value wins over a stored value", () => {
     const { dataset } = stub({ search: "?detail=2", stored: "0" });
-    applyReaderPrepaint(DETAIL_STORAGE_KEY, parseDetail, FACES);
+    arm();
     expect(dataset.detail).toBe("2");
   });
 
   test("a stored value applies when the query has none", () => {
     const { dataset } = stub({ stored: "0" });
-    applyReaderPrepaint(DETAIL_STORAGE_KEY, parseDetail, FACES);
+    arm();
     expect(dataset.detail).toBe("0");
   });
 
   test("detail 0 (falsy) is not dropped in favor of the default", () => {
     const { dataset } = stub({ search: "?detail=0" });
-    applyReaderPrepaint(DETAIL_STORAGE_KEY, parseDetail, FACES);
+    arm();
     expect(dataset.detail).toBe("0");
   });
 
   test("word aliases (overview, full, steps) resolve to the same canonical digits as parseDetail", () => {
     const { dataset } = stub({ search: "?detail=overview" });
-    applyReaderPrepaint(DETAIL_STORAGE_KEY, parseDetail, FACES);
+    arm();
     expect(dataset.detail).toBe("0");
   });
 
   test("an invalid detail value falls back to the default rather than being written raw", () => {
     const { dataset } = stub({ search: "?detail=bogus" });
-    applyReaderPrepaint(DETAIL_STORAGE_KEY, parseDetail, FACES);
+    arm();
     expect(dataset.detail).toBe("1");
   });
 
   test("a repeated detail query parameter is ambiguous and is ignored, same as a missing one", () => {
     const { dataset } = stub({ search: "?detail=0&detail=2" });
-    applyReaderPrepaint(DETAIL_STORAGE_KEY, parseDetail, FACES);
+    arm();
     expect(dataset.detail).toBe("1");
   });
 
   test("?lens=modern sets the modern lens", () => {
     const { dataset } = stub({ search: "?lens=modern" });
-    applyReaderPrepaint(DETAIL_STORAGE_KEY, parseDetail, FACES);
+    arm();
     expect(dataset.lens).toBe("modern");
   });
 
   test("lens is paper by default and for any non-modern value", () => {
     const { dataset } = stub({ search: "?lens=bogus" });
-    applyReaderPrepaint(DETAIL_STORAGE_KEY, parseDetail, FACES);
+    arm();
     expect(dataset.lens).toBe("paper");
   });
 
   test("a known ?view= value is copied through", () => {
     const { dataset } = stub({ search: "?view=german" });
-    applyReaderPrepaint(DETAIL_STORAGE_KEY, parseDetail, FACES);
+    arm();
     expect(dataset.view).toBe("german");
   });
 
   test("an unknown ?view= value falls back to reading", () => {
     const { dataset } = stub({ search: "?view=bogus" });
-    applyReaderPrepaint(DETAIL_STORAGE_KEY, parseDetail, FACES);
+    arm();
     expect(dataset.view).toBe("reading");
   });
 
   test("an oversized query string is ignored rather than parsed", () => {
     const { dataset } = stub({ search: `?detail=2&pad=${"x".repeat(5000)}` });
-    applyReaderPrepaint(DETAIL_STORAGE_KEY, parseDetail, FACES);
+    arm();
     expect(dataset.detail).toBe("1");
   });
 
@@ -106,7 +193,7 @@ describe("applyReaderPrepaint", () => {
     (globalThis as { document: unknown }).document = undefined;
     (globalThis as { location: unknown }).location = { search: "" };
     (globalThis as { localStorage: unknown }).localStorage = { getItem: () => null };
-    expect(() => applyReaderPrepaint(DETAIL_STORAGE_KEY, parseDetail, FACES)).not.toThrow();
+    expect(() => arm()).not.toThrow();
   });
 
   test("never throws when localStorage access throws", () => {
@@ -121,7 +208,7 @@ describe("applyReaderPrepaint", () => {
         },
       },
     );
-    expect(() => applyReaderPrepaint(DETAIL_STORAGE_KEY, parseDetail, FACES)).not.toThrow();
+    expect(() => arm()).not.toThrow();
     expect(dataset.detail).toBe("1");
   });
 });

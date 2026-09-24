@@ -39,6 +39,17 @@ export function parseDetail(input: string | null): Detail | null {
         ? 2
         : null;
 }
+/**
+ * NOTATION: the explanation faces print Einstein's letters by default ("printed") or the modern
+ * renames the notation concordance records ("modern"). The key is the one the storage registry
+ * gives this setting (src/platform/storage/keys.ts, owner am-read-perspective-toggle-abd).
+ */
+export const NOTATION_STORAGE_KEY = "am:settings:v1:notation";
+export type Notation = "printed" | "modern";
+/** Self-contained: the pre-paint script receives it through `.toString()`. */
+export function parseNotation(input: string | null): Notation | null {
+  return input === "printed" || input === "modern" ? input : null;
+}
 export function parseReaderLocation(
   search: string,
   hash: string,

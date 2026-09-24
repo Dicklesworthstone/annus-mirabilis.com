@@ -1,11 +1,19 @@
-import { DETAIL_STORAGE_KEY, type Detail, FACES, parseDetail } from "../navigation/state.ts";
+import {
+  DETAIL_STORAGE_KEY,
+  type Detail,
+  FACES,
+  NOTATION_STORAGE_KEY,
+  type Notation,
+  parseDetail,
+  parseNotation,
+} from "../navigation/state.ts";
 
 const STORAGE_KEY: string = DETAIL_STORAGE_KEY;
 const VIEW_IDS: readonly string[] = FACES;
 
 /**
- * Sets `data-detail`, `data-lens`, and `data-view` on `<html>` before first
- * paint, from `?detail=`/`?lens=`/`?view=` or `localStorage`, so
+ * Sets `data-detail`, `data-lens`, `data-view` and `data-notation` on `<html>` before first
+ * paint, from `?detail=`/`?lens=`/`?view=`/`?notation=` or `localStorage`, so
  * `src/reader/reader.css` shows the matching static reading with no client
  * render and no flash of the wrong one. Only static, trusted code is
  * embedded; query text never becomes JavaScript or HTML.
@@ -27,6 +35,8 @@ export function applyReaderPrepaint(
   storageKey: string,
   parseDetailValue: (input: string | null) => Detail | null,
   viewIds: readonly string[],
+  notationKey: string,
+  parseNotationValue: (input: string | null) => Notation | null,
 ): void {
   try {
     const params = new URLSearchParams(location.search.length <= 4096 ? location.search : "");
@@ -40,6 +50,15 @@ export function applyReaderPrepaint(
     const detail = parseDetailValue(single("detail")) ?? parseDetailValue(stored) ?? 1;
     document.documentElement.dataset.detail = String(detail);
     document.documentElement.dataset.lens = single("lens") === "modern" ? "modern" : "paper";
+    // Notation is its own setting, never the lens's: printed letters by default.
+    let storedNotation: string | null = null;
+    try {
+      storedNotation = localStorage.getItem(notationKey);
+    } catch {
+      /* As above. */
+    }
+    document.documentElement.dataset.notation =
+      parseNotationValue(single("notation")) ?? parseNotationValue(storedNotation) ?? "printed";
     const view = single("view");
     document.documentElement.dataset.view =
       view !== null && viewIds.indexOf(view) !== -1 ? view : "reading";
@@ -50,4 +69,6 @@ export function applyReaderPrepaint(
 
 export const READER_PREPAINT = `(${applyReaderPrepaint.toString()})(${JSON.stringify(
   STORAGE_KEY,
-)},${parseDetail.toString()},${JSON.stringify(VIEW_IDS)});`;
+)},${parseDetail.toString()},${JSON.stringify(VIEW_IDS)},${JSON.stringify(
+  NOTATION_STORAGE_KEY,
+)},${parseNotation.toString()});`;
