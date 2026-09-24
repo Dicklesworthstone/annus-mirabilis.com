@@ -587,3 +587,11 @@ html[data-lens="modern"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[
     --spectral-orange: #fb8c00;
   }
 }
+
+/* BM-06's interval limits (DistributionPlot.tsx): the plot colour, which contrast.test.ts holds at
+   4.5:1 or better on either paper, dashed so a limit does not read as part of the curve. */
+.interval-limit {
+  stroke: var(--plot);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}

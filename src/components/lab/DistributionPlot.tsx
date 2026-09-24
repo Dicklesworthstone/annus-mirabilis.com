@@ -109,6 +109,21 @@ export function DistributionPlot({
                 </clipPath>
               </defs>
               <path className="area" d={area} clipPath={`url(#${clipId})`} />
+              {/* The interval's limits. The tint alone marked them, at 1.78:1 on the light paper;
+                  each limit inside the drawing also gets a line. A limit beyond the drawn range
+                  gets none, since a line at the edge would claim a limit that is not there. */}
+              {[px(lower), px(upper)]
+                .filter((edge) => edge > 38 && edge < 278)
+                .map((edge) => (
+                  <line
+                    key={`interval-limit-${edge}`}
+                    className="interval-limit"
+                    x1={edge}
+                    x2={edge}
+                    y1="40"
+                    y2="210"
+                  />
+                ))}
               <path className="curve" d={curve} />
               <text x="38" y="20">
                 Density (per μm)
