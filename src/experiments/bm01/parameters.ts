@@ -1,6 +1,8 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import { parseU64 } from "../../physics/reference/philox.ts";
+import { type DomainDisplay, refuseOutsideDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
+import { BM01_FIELDS } from "./controls.ts";
 import { BM01_DEFAULTS, type Bm01Parameters } from "./definition.ts";
 
 /** What each numeric control is called on the page (bm01/controls.ts BM01_FIELDS), with its unit. */
@@ -15,6 +17,14 @@ const BM01_FIELD_NAMES: Partial<Record<string, string>> = {
   d: "the number of coordinates",
   axis: "the coordinate",
 };
+
+/** Each numeric control as the page labels it, in the unit and scale it is typed in (BM01_FIELDS). */
+const BM01_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = Object.fromEntries(
+  BM01_FIELDS.map(([id, label, unit, power]) => [
+    id,
+    { label, unit: unit === "count" ? "" : unit, scale: 10 ** power },
+  ]),
+);
 
 /** A value echoed into a sentence, at six significant figures, never a binary-float tail. */
 const shown = (x: number) => String(Number(x.toPrecision(6)));
@@ -54,6 +64,9 @@ export function validateBm01Parameters(input: unknown): Computation<Bm01Paramete
     if (typeof v !== "number" || !Number.isFinite(v))
       return bad(`Enter ${BM01_FIELD_NAMES[k] ?? "this value"} as a number.`);
   }
+  // The ranges content/experiments/bm-01.yaml declares: 273-330 K is liquid water, and 1e300 K is not.
+  const outside = refuseOutsideDeclaredDomain("bm-01", p, BM01_DOMAIN_DISPLAY);
+  if (outside) return outside;
   if (p.T <= 0) return bad("Enter a temperature above 0 K.");
   if (p.eta <= 0) return bad("Enter a viscosity greater than zero, in mPa·s.");
   if (p.a <= 0) return bad("Enter a particle radius greater than zero, in μm.");
