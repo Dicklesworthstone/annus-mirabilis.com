@@ -8,18 +8,18 @@ order: 2
 locators:
   - pdfPageIndex: 1
     printedPage: 639
-diplomaticText: "von A. Einstein"
+diplomaticText: "von A. Einstein."
 inlines:
   - kind: "text"
-    text: "von A. Einstein"
+    text: "von A. Einstein."
 sentenceSpans:
   - id: "masthead-author"
     span:
       start: 0
-      end: 15
-      blockRevision: 1
-      textDigest: "bb7a2a37c03c43f6cd32b43145482714927b5c1568eaaeff7524a9e58741ade4"
-revision: 1
+      end: 16
+      blockRevision: 2
+      textDigest: "46be645248888bc989f431b6791db79ecc9ca75ae737495aa4bc4119ff47565b"
+revision: 2
 status:
   transcription: "draft"
   mathTranscription: "not-applicable"

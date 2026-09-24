@@ -17,17 +17,17 @@ inlines:
   - kind: "emphasis"
     inlines:
       - kind: "text"
-        text: "Maxwellschen"
+        text: "Maxwell"
   - kind: "text"
-    text: " Gleichungen enthalten."
+    text: "schen Gleichungen enthalten."
 sentenceSpans:
   - id: "s0-fn2"
     span:
       start: 0
       end: 120
-      blockRevision: 1
+      blockRevision: 2
       textDigest: "1df422076ad20a551868a878ccf6e29edfd20c34f683ab5fe1b94e804bb00d97"
-revision: 1
+revision: 2
 status:
   transcription: "draft"
   mathTranscription: "not-applicable"

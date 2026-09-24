@@ -16,23 +16,23 @@ inlines:
   - kind: "emphasis"
     inlines:
       - kind: "text"
-        text: "Maxwell-Hertzschen"
+        text: "Maxwell-Hertz"
   - kind: "text"
-    text: " Gleichungen für den leeren Raum nebst dem "
+    text: "schen Gleichungen für den leeren Raum nebst dem "
   - kind: "emphasis"
     inlines:
       - kind: "text"
-        text: "Maxwellschen"
+        text: "Maxwell"
   - kind: "text"
-    text: " Ausdruck für die elektromagnetische Energie des Raumes zugrunde und außerdem das Prinzip:"
+    text: "schen Ausdruck für die elektromagnetische Energie des Raumes zugrunde und außerdem das Prinzip:"
 sentenceSpans:
   - id: "s0-p2-s1"
     span:
       start: 0
       end: 182
-      blockRevision: 1
+      blockRevision: 2
       textDigest: "8adca8e3747a9a3980d41d2fe6f580b883a91d2f681e42310ba99ff957f1c1d7"
-revision: 1
+revision: 2
 status:
   transcription: "draft"
   mathTranscription: "not-applicable"

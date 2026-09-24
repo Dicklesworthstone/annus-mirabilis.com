@@ -10,16 +10,20 @@ locators:
     printedPage: 641
 diplomaticText: "Bern, September 1905."
 inlines:
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Bern"
   - kind: "text"
-    text: "Bern, September 1905."
+    text: ", September 1905."
 sentenceSpans:
   - id: "closing-dateline"
     span:
       start: 0
       end: 21
-      blockRevision: 1
+      blockRevision: 2
       textDigest: "1691828be3d4808f190c491050fd64cc9a0b508e7bc6a0bd5b42a8343556bbf2"
-revision: 1
+revision: 2
 status:
   transcription: "draft"
   mathTranscription: "not-applicable"
