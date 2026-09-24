@@ -32,33 +32,32 @@ export function validateSr04Parameters(input: unknown): Computation<Sr04Paramete
   const p = input as Sr04Parameters;
 
   if (!Number.isFinite(p.vOverC) || Math.abs(p.vOverC) > 0.95)
-    return bad("The frame speed must be a fraction of c with magnitude at most 0.95.");
+    return bad("Enter the frame speed as a fraction of c between −0.95 and 0.95.");
   if (typeof p.enabledConstraints !== "string")
     return bad("Enabled constraints must be a comma-joined list of construction constraint ids.");
   const requestedConstraints = splitConstraints(p.enabledConstraints);
   if (requestedConstraints.some((cid) => !(ALL_CONSTRAINTS as readonly string[]).includes(cid)))
     return bad("Enabled constraints must be a subset of the six named construction constraints.");
-  for (const field of [
-    "candidateA",
-    "candidateB",
-    "candidateD",
-    "candidateTransverseScale",
+  // Named as the candidate form labels them: a, b, d (s/m) and the transverse scale.
+  for (const [field, name] of [
+    ["candidateA", "the candidate coefficient a"],
+    ["candidateB", "the candidate coefficient b"],
+    ["candidateD", "the candidate coefficient d, in s/m,"],
+    ["candidateTransverseScale", "the candidate's transverse scale"],
   ] as const) {
     if (!Number.isFinite(p[field]) || Math.abs(p[field]) > 1e6)
-      return bad(
-        `Candidate coefficient ${field} must be a finite number with magnitude at most 1e6.`,
-      );
+      return bad(`Enter ${name} as a number between −1 000 000 and 1 000 000.`);
   }
   if (typeof p.testCandidate !== "boolean") return bad("testCandidate must be true or false.");
   if (typeof p.showLaterAids !== "boolean") return bad("showLaterAids must be true or false.");
   // The slow case needs a slow observer and object (SR-06 owns faster composition).
   if (!Number.isFinite(p.observerSpeed) || Math.abs(p.observerSpeed) > 1e4)
     return bad(
-      "The slow case's observer speed must be at most 1e4 m/s in magnitude; faster composition belongs to SR-06.",
+      "Enter an observer speed of at most 10 000 m/s either way: this is the slow case, and faster composition is in the velocity-composition laboratory.",
     );
   if (!Number.isFinite(p.objectSpeed) || Math.abs(p.objectSpeed) > 1e4)
     return bad(
-      "The slow case's object speed must be at most 1e4 m/s in magnitude; faster composition belongs to SR-06.",
+      "Enter an object speed of at most 10 000 m/s either way: this is the slow case, and faster composition is in the velocity-composition laboratory.",
     );
 
   return { kind: "accepted", data: Object.freeze({ ...p }) };
