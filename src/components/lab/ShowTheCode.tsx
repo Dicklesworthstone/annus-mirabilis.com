@@ -8,14 +8,18 @@ import { roleForQuantity } from "../../content/kernel/trace.ts";
 import type { WorkedTrace } from "../../content/kernel/types.ts";
 import { KERNEL_DISPLAY_ROLE_LABELS, type KernelListing } from "../../content/kernel/types.ts";
 import { paperOfId } from "../../equations/paperOfId.ts";
-import { display, unitText } from "./presentation.ts";
+import { display, readablePowers, unitText } from "./presentation.ts";
 import "./showTheCode.css";
 import { withScripts } from "./subscripts.tsx";
 
 /** A worked value at five significant figures with its power of ten raised, not the raw binary64
- * string: bm-01's table printed "0.000006156364840452743" and "1.2723450247038662e-8". */
+ * string: bm-01's table printed "0.000006156364840452743" and "1.2723450247038662e-8". Below 10⁻³
+ * the power of ten is kept too, so one column never mixes "7.9478 × 10⁻⁷" with "0.0000061564". */
 function traceValue(value: unknown): string {
-  return typeof value === "number" && Number.isFinite(value) ? display(value) : String(value);
+  if (typeof value !== "number" || !Number.isFinite(value)) return String(value);
+  if (value !== 0 && Math.abs(value) < 1e-3)
+    return readablePowers(Number(value.toPrecision(5)).toExponential()).replace(/^-/, "−");
+  return display(value);
 }
 
 /** A unit with its powers raised: the trace's "kg s^{-1}" reads kg s⁻¹. */
