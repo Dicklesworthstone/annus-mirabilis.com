@@ -67,5 +67,9 @@ describe("lab and embed pages have a heading outline without gaps", () => {
     console.log(`[headings] ${renders} lab and embed renders; ${found.length} with a gap`);
     expect(renders).toBeGreaterThan(60);
     expect(found).toEqual([]);
-  });
+    // 20 s, not bun's 5 s default (TanElk, dispatch 165). It imports and renders all 83 lab and
+    // embed pages. Measured on 2026-09-24: 1.6, 1.9 and 2.0 s run alone, but 5.8 s and 7.0 s inside
+    // combined runs, where it failed on time alone with 0 gaps found. A deploy must not fail on
+    // how busy the machine is. Nothing it asserts changed.
+  }, 20_000);
 });
