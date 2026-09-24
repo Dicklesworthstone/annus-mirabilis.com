@@ -70,8 +70,10 @@ targets:
             echo "error: This build has no app edition. From the repository root, run: ${REEXPORT}"
             exit 1
           fi
-          if ! (cd "${OUT}" && /usr/bin/shasum -a 256 -c --quiet "${GEN}/edition.sha256"); then
-            echo "error: ${OUT} has changed since the edition was exported. From the repository root, run: ${REEXPORT} --out <that out directory>"
+          # shasum names each file it fails; the first goes in the error, which is what Xcode shows.
+          if ! failed="$(cd "${OUT}" && /usr/bin/shasum -a 256 -c --quiet "${GEN}/edition.sha256" 2>&1)"; then
+            first="$(printf '%s\n' "${failed}" | grep -m 1 'FAILED' | sed 's/: FAILED.*//')"
+            echo "error: ${OUT} has changed since the edition was exported, first: ${first}. From the repository root, run: ${REEXPORT} --out <that out directory>"
             exit 1
           fi
           mkdir -p "${DEST}"
@@ -82,8 +84,9 @@ targets:
           # Inert text in a reader's build: only a DEBUG build has the code that injects it.
           /bin/cp "${GEN}/test-console.js" "${RES}/test-console.js"
           /bin/cp "${GEN}/native-catalog.json" "${RES}/native-catalog.json"
-          if ! (cd "${DEST}" && /usr/bin/shasum -a 256 -c --quiet "${GEN}/edition.sha256"); then
-            echo "error: A bundled edition file does not match its manifest digest."
+          if ! failed="$(cd "${DEST}" && /usr/bin/shasum -a 256 -c --quiet "${GEN}/edition.sha256" 2>&1)"; then
+            first="$(printf '%s\n' "${failed}" | grep -m 1 'FAILED' | sed 's/: FAILED.*//')"
+            echo "error: A bundled edition file does not match its manifest digest, first: ${first}."
             exit 1
           fi
           unlisted="$(cd "${DEST}" && find . -type f | sed 's|^\./||' | LC_ALL=C sort | LC_ALL=C comm -23 - <(LC_ALL=C sort "${GEN}/edition-files.txt"))"
