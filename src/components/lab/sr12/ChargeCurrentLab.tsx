@@ -1,13 +1,18 @@
 "use client";
 
 import { type FormEvent, useId, useState, useSyncExternalStore } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
 import {
   SR12_CAPTION,
   SR12_DEFAULTS,
-  SR12_MODEL,
   SR12_NOT_MODELED,
+  SR12_OUTPUTS,
   type Sr12Parameters,
 } from "../../../experiments/sr12/definition.ts";
 import { validateSr12Parameters } from "../../../experiments/sr12/parameters.ts";
@@ -149,13 +154,23 @@ export function ChargeCurrentLab({
     },
   ];
 
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      SR12_OUTPUTS,
+      example.sourceDigest,
+      snapshot === session.getServerSnapshot().accepted,
+    ).label,
+  );
   return (
     <section
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="sr-12"
       {...identity(snapshot)}
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, view, "chargeDensityStationary")}
       data-source-digest={example.sourceDigest}
     >
       <header className="lab-heading">
@@ -163,8 +178,14 @@ export function ChargeCurrentLab({
           <p className="eyebrow">Special relativity §9</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <span className="badge">{SR12_MODEL.label}</span>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          modelNote={modelNoteFromView(view, { notModeled: `${SR12_NOT_MODELED.join("; ")}.` })}
+        />
+      </div>
 
       {/* Presets */}
       {/* Main interactive visualization */}
