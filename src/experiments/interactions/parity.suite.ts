@@ -9,6 +9,24 @@
  */
 
 import type { ActionFamily } from "../../content/schemas/experiment.ts";
+import { withinTolerance } from "../../units/tolerance.ts";
+
+type FieldVector = Readonly<{ x: number; y: number; z: number }>;
+/** What the fields-boosts family calls: fields.ts's transformSI and fieldInvariants, or an owner of
+ * the same shape. The suite does not import fields.ts, so a test can hand it a wrong owner. */
+export type FieldsBoostOwner = Readonly<{
+  transformSI: (input: {
+    E: FieldVector;
+    B: FieldVector;
+    boost: number;
+    c?: number;
+  }) => Readonly<{ E: FieldVector; B: FieldVector }>;
+  fieldInvariants: (
+    E: FieldVector,
+    B: FieldVector,
+    c?: number,
+  ) => Readonly<{ e2MinusC2B2: number }>;
+}>;
 
 export type OwnerSource = "reference-evaluator" | "runtime-fixture";
 
@@ -127,27 +145,57 @@ export async function familyParityCases(
     }
 
     case "fields-boosts": {
-      // Boost of electric field E = (0, 1, 0) V/m along x at beta = 0.6
-      const beta = 0.6;
-      const gamma = 1 / Math.sqrt(1 - beta * beta); // 1.25
+      // SR-08's fixture, E = (0, 1, 0) V/m boosted along x at 0.6c, computed BY THE OWNER passed in
+      // options.owner (fields.ts's transformSI and fieldInvariants). The case used to compute the
+      // transform inline, so a run labelled "fields.ts" exercised no owner at all; an absent or
+      // non-callable owner now fails the case instead.
       const c = 299792458;
-      const Ey = 1.0;
-      const EyPrime = gamma * Ey; // 1.25 V/m
-      const BzPrime = (-gamma * beta * Ey) / c; // -2.5017307e-9 T
-
-      // Field invariant: E^2 - c^2 B^2
-      const invariant = EyPrime * EyPrime - c * c * BzPrime * BzPrime;
-
+      const expected = { EyPrime: 1.25, BzPrime: -0.75 / c, invariant: 1.0 };
+      const owner = options.owner as Partial<FieldsBoostOwner> | null | undefined;
+      if (
+        !owner ||
+        typeof owner.transformSI !== "function" ||
+        typeof owner.fieldInvariants !== "function"
+      ) {
+        results.push({
+          parityCaseId: "fields-boosts-sr08-ey-transformation",
+          family,
+          ownerSource: options.ownerSource,
+          ownerLabel: options.ownerLabel,
+          passed: false,
+          expected,
+          actual: null,
+          message:
+            "No owner was exercised: pass an owner with transformSI and fieldInvariants (fields.ts).",
+        });
+        break;
+      }
+      const boosted = owner.transformSI({
+        E: { x: 0, y: 1, z: 0 },
+        B: { x: 0, y: 0, z: 0 },
+        boost: 0.6 * c,
+        c,
+      });
+      const invariants = owner.fieldInvariants(boosted.E, boosted.B, c);
+      const actual = {
+        EyPrime: boosted.E.y,
+        BzPrime: boosted.B.z,
+        invariant: invariants.e2MinusC2B2,
+      };
+      const close = (a: number, b: number) => withinTolerance(a, b, { relative: 1e-12 }).ok;
       results.push({
         parityCaseId: "fields-boosts-sr08-ey-transformation",
         family,
         ownerSource: options.ownerSource,
         ownerLabel: options.ownerLabel,
-        passed: Math.abs(EyPrime - 1.25) < 1e-10 && Math.abs(invariant - 1.0) < 1e-10,
-        expected: { EyPrime: 1.25, invariant: 1.0 },
-        actual: { EyPrime, invariant },
+        passed:
+          close(actual.EyPrime, expected.EyPrime) &&
+          close(actual.BzPrime, expected.BzPrime) &&
+          close(actual.invariant, expected.invariant),
+        expected,
+        actual,
         message:
-          "E=(0,1,0) boosted at 0.6c transforms to E'y=1.25 and preserves invariant E^2 - c^2 B^2 = 1.",
+          "E=(0,1,0) boosted at 0.6c: the owner gives E'y=1.25, B'z=-0.75/c and E^2 - c^2 B^2 = 1.",
       });
       break;
     }
