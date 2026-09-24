@@ -59,16 +59,57 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: the paper writes Wien's law as \\(\\rho=\\alpha\\nu^3e^{-\\beta\\nu/T}\\), with the α and β of §2 (A and B here), and writes lg for the natural logarithm (ln here). The paper notes that observations show this law is not exactly valid, but that for large values of ν/T it was confirmed very completely by experiment. It bases its calculation on the law and keeps in mind that the results hold only within certain limits."
+      },
+      {
+        "kind": "formula",
+        "latex": "\\rho_\\nu=A\\nu^3\\exp(-B\\nu/T)",
+        "spoken": "Wien spectral energy density is A times frequency cubed times the exponential of minus B frequency over temperature.",
+        "equations": ["eq-model-lq-wien-spectrum"]
+      },
+      {
         "kind": "steps",
         "items": [
-          "Fix frequency and the positive spectral constants A and B.",
-          "Divide Wien’s law by \\(A\\nu^3\\), then take the natural logarithm.",
-          "Solve for 1/T and insert it into the entropy derivative.",
-          "Use the antiderivative of \\(\\ln(\\rho/a)\\): \\(\\rho\\ln(\\rho/a) - \\rho\\).",
-          "Retain \\(C(\\nu)\\), since integration with respect to density can leave a frequency-dependent constant.",
-          "Evaluate the zero-density limit: the density-dependent terms vanish.",
-          "Apply the stated zero-radiation condition to fix \\(C(\\nu)\\), rather than asserting that an arbitrary constant cancels."
+          "Fix ν. Divide both sides by \\(A\\nu^3\\): \\(\\frac{\\rho_\\nu}{A\\nu^3}=\\exp(-B\\nu/T)\\). The left side has no units, since A carries the units that make \\(A\\nu^3\\) a spectral density.",
+          "Take the natural logarithm of both sides: \\(\\ln\\frac{\\rho_\\nu}{A\\nu^3}=-\\frac{B\\nu}{T}\\).",
+          "Divide both sides by \\(-B\\nu\\) to leave 1/T alone. This is the paper's first result in §4, printed with lg."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{1}{T}=-\\frac{1}{B\\nu}\\ln\\frac{\\rho_\\nu}{A\\nu^3}",
+        "spoken": "Inverse temperature is minus one over B frequency times the natural logarithm of density over A frequency cubed.",
+        "equations": ["eq-model-lq-wien-inverse-temperature"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Check the sign. A density that obeys Wien's law is smaller than \\(A\\nu^3\\), so the ratio is below 1 and its logarithm is negative; the minus sign in front makes 1/T positive, as it must be.",
+          "§3 found that the entropy derivative is 1/T. Substitute: \\(\\frac{\\partial s_\\nu}{\\partial\\rho_\\nu}=-\\frac{1}{B\\nu}\\ln\\frac{\\rho_\\nu}{A\\nu^3}\\).",
+          "Integrate with respect to \\(\\rho_\\nu\\) at fixed ν. Write \\(a=A\\nu^3\\) for short. The antiderivative of \\(\\ln(\\rho/a)\\) is \\(\\rho\\ln(\\rho/a)-\\rho\\); differentiating it gives back \\(\\ln(\\rho/a)+1-1\\).",
+          "Multiply by \\(-1/(B\\nu)\\) and add a constant of integration. Because ν was held fixed, the constant may depend on ν, so it is written C(ν)."
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "s_\\nu=-\\frac{\\rho_\\nu}{B\\nu}\\left[\\ln\\frac{\\rho_\\nu}{A\\nu^3}-1\\right]+C(\\nu)",
+        "spoken": "The integrated entropy density is minus density over B frequency times the bracketed logarithm minus one, plus a frequency-dependent constant.",
+        "equations": ["eq-model-lq-wien-entropy-density"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Now the boundary condition. As \\(\\rho_\\nu\\) falls toward zero, \\(\\rho\\ln\\rho\\) also falls toward zero, because the logarithm grows more slowly than ρ shrinks, and so does ρ itself. What remains in the limit is C(ν).",
+          "Worked limit, in units of a: at \\(\\rho/a=10^{-3}\\), \\(\\rho\\ln(\\rho/a)\\) is -0.0069; at \\(\\rho/a=10^{-6}\\) it is \\(-1.38\\times10^{-5}\\). The density-dependent terms shrink toward zero.",
+          "The paper requires the entropy to vanish when there is no radiation (φ = 0 at ρ = 0, end of §3). So C(ν) = 0, and the paper's printed result is the bracket without any constant: \\(\\varphi(\\rho,\\nu)=-\\frac{\\rho}{\\beta\\nu}\\left\\{\\lg\\frac{\\rho}{\\alpha\\nu^3}-1\\right\\}\\).",
+          "The constant was fixed by a stated condition; it was not dropped for looking small. Kept, it would add a term proportional to the volume to the comparison in the next step."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "logarithms",
+        "returnCaption": "Return to the logarithm, its dimensionless argument, and the zero-density limit."
       }
     ],
     "margin": [

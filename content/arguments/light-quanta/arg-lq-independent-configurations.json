@@ -62,15 +62,46 @@
         "returnCaption": "Return to the chance that all n points are in the chosen part."
       },
       {
+        "kind": "paragraph",
+        "text": "Letters: the paper writes W for the probability of a state and \\(S-S_0=\\frac{R}{N}\\lg W\\) for Boltzmann's principle, and for the case below \\(W=(v/v_0)^n\\). This explanation writes f for \\(v/v_0\\) and \\(k_B\\) for R/N."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Choose the subvolume fraction \\(f = V/V_0\\) between zero and one.",
-          "For a single uniform point, the probability of being inside is f.",
-          "Multiply only when the \\(n\\) positions are independent: \\(W = f^n\\).",
-          "For \\(n = 4\\) and \\(f = 1/2\\), count one all-inside result among sixteen equally likely inside/outside patterns.",
-          "Take \\(\\ln W = n \\ln f\\) and multiply by \\(k_B\\) for the entropy difference.",
-          "Now lock all positions to one uniform coordinate: there is only one independent condition, so \\(W = f\\)."
+          "Boltzmann's principle, as the paper states it: the entropy of a system is a function of the probability of its state. For two systems that do not act on each other, the entropies add and the probabilities multiply. A function that turns products into sums is a logarithm, so the entropy is C times ln W plus a constant, and the paper takes C = R/N from the kinetic theory of gases.",
+          "The setting: n movable points in a volume \\(v_0\\), so few that they do not act on each other, with no part of the space and no direction preferred. They could be the molecules of a dilute gas or of a dissolved substance.",
+          "The question: at a moment chosen at random, what is the probability that all n points are in a chosen part v of \\(v_0\\)?",
+          "One point is equally likely to be anywhere, so the chance that it is in v is the fraction of the volume, \\(f=v/v_0\\).",
+          "Two independent points are both inside with probability f × f. For n independent points, multiply n times: \\(W=f^n\\).",
+          "Worked case: n = 4 and f = 1/2. Mark each point as in or out: there are 2 × 2 × 2 × 2 = 16 equally likely patterns, and exactly one has all four in, so W = 1/16, which is \\((1/2)^4\\).",
+          "Take the logarithm: \\(\\ln W=n\\ln f\\). In the worked case, \\(\\ln(1/16)=4\\ln(1/2)\\), about -2.77.",
+          "Multiply by \\(k_B\\), the paper's R/N, to get the entropy difference."
         ]
+      },
+      {
+        "kind": "foundation",
+        "id": "entropy-multiplicity",
+        "returnCaption": "Return to why the entropy is the logarithm of the probability."
+      },
+      {
+        "kind": "formula",
+        "latex": "W=f^n,\\qquad\\Delta S=k_B\\ln W=nk_B\\ln f",
+        "spoken": "The probability is f to the n; the entropy difference is Boltzmann's constant times its logarithm, or n times Boltzmann's constant times the logarithm of f.",
+        "equations": ["eq-model-lq-configuration-probability", "eq-model-lq-configuration-entropy"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "In the paper's letters this is \\(S-S_0=R\\frac{n}{N}\\lg\\frac{v}{v_0}\\). Here n/N is the number of gram-molecules of points, so R times it is the gas constant for that amount.",
+          "A footnote draws the gas law from it: the work \\(p\\,dv\\) equals \\(T\\,dS=R\\frac{n}{N}\\frac{dv}{v}\\), so \\(pv=R\\frac{n}{N}T\\), the law of Boyle and Gay-Lussac and the same law for osmotic pressure. The paper remarks that no assumption about how the molecules move was needed.",
+          "Independence is doing the work. If the four points were locked to one shared position, the chance of finding all of them in half the volume would be 1/2, not 1/16. Four labels do not by themselves give four independent factors.",
+          "The sign: concentrating the points into a smaller part (f less than 1) makes ln f negative, so the concentrated state has the lower entropy. Reversing the comparison reverses the sign."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "probability-independence",
+        "returnCaption": "Return to the independence assumption behind the volume exponent."
       }
     ],
     "margin": [

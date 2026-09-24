@@ -55,16 +55,46 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Two results sit side by side. From §4: dilute radiation of energy E in a narrow band at ν changes its entropy by \\(\\frac{E}{\\beta\\nu}\\lg\\frac{v}{v_0}\\) when its volume goes from \\(v_0\\) to v. From §5: n independent points change theirs by \\(\\frac{R}{N}n\\lg\\frac{v}{v_0}\\). In this explanation f is \\(v/v_0\\), B is β, and \\(k_B\\) is R/N."
+      },
+      {
+        "kind": "formula",
+        "latex": "\\Delta S_{\\mathrm{gas}}=nk_B\\ln f,\\qquad\\Delta S_{\\mathrm{rad}}=\\frac{E}{B\\nu}\\ln f",
+        "spoken": "The gas entropy change has coefficient n times Boltzmann's constant; the radiation change has coefficient E divided by B times frequency.",
+        "equations": ["eq-model-lq-gas-entropy-change", "eq-model-lq-radiation-entropy-change"]
+      },
+      {
         "kind": "steps",
         "items": [
-          "Put the two entropy changes beside each other at the same volume ratio.",
-          "Identify the shared logarithmic dependence, rather than matching unrelated symbols.",
-          "Equate the two coefficients only as the proposed correspondence: \\(n_\\text{eff} k_B = E/(B\\nu)\\).",
-          "Solve for \\(n_\\text{eff}\\), then divide \\(E\\) by that coefficient.",
-          "Only now use \\(h = k_B B\\) as modern notation for the inferred energy scale.",
-          "Mark the interpretation as heuristic and keep the Wien-regime restriction.",
-          "Ask what additional assumptions are needed to apply the scale to an individual electron or fluorescent event."
+          "Both are a coefficient times ln f, the same function of the volume ratio. That shared form is what the comparison uses; letters that happen to look alike are not.",
+          "The paper rewrites the radiation result in the form of Boltzmann's principle, \\(S-S_0=\\frac{R}{N}\\lg W\\), by moving the coefficient into the exponent, since \\(a\\ln f=\\ln f^{a}\\). With \\(a=\\frac{N}{R}\\frac{E}{\\beta\\nu}\\) this gives \\(S-S_0=\\frac{R}{N}\\lg\\left[\\left(\\frac{v}{v_0}\\right)^{\\frac{N}{R}\\frac{E}{\\beta\\nu}}\\right]\\).",
+          "Read the bracket as a probability, as Boltzmann's principle invites: the probability that all the radiation energy is found, at a moment chosen at random, in the part v of the volume \\(v_0\\) is \\(W=(v/v_0)^{\\frac{N}{R}\\frac{E}{\\beta\\nu}}\\).",
+          "Compare it with §5's \\(W=(v/v_0)^n\\). The exponent \\(\\frac{N}{R}\\frac{E}{\\beta\\nu}\\) stands where the number of independent points stood.",
+          "Set the coefficients equal, only as the proposed correspondence: \\(n_{\\mathrm{eff}}k_B=E/(B\\nu)\\). Divide both sides by \\(k_B\\)."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "n_{\\mathrm{eff}}=\\frac{E}{k_BB\\nu},\\qquad\\frac{E}{n_{\\mathrm{eff}}}=k_BB\\nu=h\\nu",
+        "spoken": "The effective coefficient is E divided by Boltzmann's constant times B times frequency. The implied energy scale is Boltzmann's constant times B times frequency, written h times frequency in modern notation.",
+        "equations": ["eq-model-lq-effective-count", "eq-model-lq-energy-per-point"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Divide E by that number to find the energy of one independent element: \\(k_BB\\nu\\), which the paper writes Rβν/N. The letter h for \\(k_BB\\), in the formula's last step, is a later name and is not the paper's.",
+          "Worked size, from the paper's inputs: \\(R\\beta/N\\) is \\(8.31\\times10^{7}\\times4.866\\times10^{-11}/(6.17\\times10^{23})=6.55\\times10^{-27}\\) erg-seconds, with R the standard value of 1905. At a frequency of \\(10^{15}\\) per second, in the ultraviolet, one element would carry \\(6.55\\times10^{-12}\\) erg.",
+          "A second comparison in §6: using Wien's formula, the paper finds the mean size of an energy element in black radiation to be \\(3\\frac{R}{N}T\\), twice the mean kinetic energy \\(\\frac{3}{2}\\frac{R}{N}T\\) of a molecule's motion at the same temperature.",
+          "Keep \\(n_{\\mathrm{eff}}\\) as it comes out. It is a pure number that need not be whole, and nothing here rounds it.",
+          "Mark the status. The paper concludes that monochromatic radiation of low density, within the range of Wien's formula, behaves in thermodynamic respects as if it consisted of independent energy quanta of size Rβν/N. 'As if' is the claim: a heuristic reading of a matching form, not a proof of what light is.",
+          "What follows in the paper is a further question: whether the laws by which light is produced and transformed are also such as if light consisted of these quanta. §§7 to 9 test it on fluorescence, on electrons released by light, and on the ionization of gases."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "bridge-fractions-ratios",
+        "returnCaption": "Return to where matching the two formulas is kept apart from what the match means."
       }
     ],
     "margin": [

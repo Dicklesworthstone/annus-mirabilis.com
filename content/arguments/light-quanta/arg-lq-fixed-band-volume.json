@@ -58,16 +58,50 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: the paper's radiation has energy E in the narrow band between ν and ν + dν and fills a volume v; this explanation writes the band width Δν and the volume V. \\(S_0\\) is the entropy when the same radiation fills the volume \\(v_0\\), written \\(V_0\\) here."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Write the energy density in the initial state as \\(E/(V_0\\,\\Delta\\nu)\\).",
-          "Write the energy density in the final state as \\(E/(V\\,\\Delta\\nu)\\).",
-          "Check the approximation at both densities before comparing them.",
-          "Multiply each spectral entropy density by its own \\(V\\,\\Delta\\nu\\) to obtain total entropy.",
-          "Subtract the two total entropies; the logarithms leave \\(\\ln(V/V_0)\\).",
-          "Retaining \\(C(\\nu)\\) would leave \\(\\Delta\\nu\\,C(\\nu)\\,(V - V_0)\\), so fixing it was essential.",
-          "Do not replace this state comparison with an adiabatic moving-wall trajectory."
+          "In the band, the energy is volume times band width times density: \\(E=V\\Delta\\nu\\,\\rho_\\nu\\), so \\(\\rho_\\nu=E/(V\\Delta\\nu)\\).",
+          "The entropy is volume times band width times entropy density: \\(S=V\\Delta\\nu\\,s_\\nu\\).",
+          "Insert the entropy density of the previous step, keeping C(ν) for now: \\(S=-\\frac{E}{B\\nu}\\left[\\ln\\frac{E}{VA\\nu^3\\Delta\\nu}-1\\right]+V\\Delta\\nu\\,C(\\nu)\\). The factor \\(V\\Delta\\nu\\) times \\(\\rho_\\nu/(B\\nu)\\) has become \\(E/(B\\nu)\\).",
+          "Write the same expression with \\(V_0\\) in place of V, at the same E, the same ν and the same band.",
+          "Subtract. Every term without V cancels. Inside the logarithms, \\(\\ln\\frac{E}{VA\\nu^3\\Delta\\nu}-\\ln\\frac{E}{V_0A\\nu^3\\Delta\\nu}=\\ln\\frac{V_0}{V}\\), and the minus sign in front turns it into \\(\\ln\\frac{V}{V_0}\\)."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "S(V)-S(V_0)=\\frac{E}{B\\nu}\\ln\\frac{V}{V_0}",
+        "spoken": "The entropy difference is E over B frequency times the natural logarithm of the volume ratio.",
+        "equations": ["eq-model-lq-volume-entropy"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The C(ν) term does not cancel. It leaves the piece below, proportional to the difference of the volumes. That is why the constant had to be fixed, and the zero-radiation condition fixed it at zero."
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\Delta S_C=\\Delta\\nu\\,C(\\nu)(V-V_0)",
+        "spoken": "An unfixed entropy-density constant would add bandwidth times C of frequency times the volume difference.",
+        "equations": ["eq-model-lq-unfixed-constant"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked numbers: halve the volume, \\(V/V_0=1/2\\), and the entropy falls by \\((E/B\\nu)\\ln2\\), about 0.693 times \\(E/(B\\nu)\\). Halve it again and it falls by the same amount again. Only the ratio of the volumes matters, not their size.",
+          "Units: B is in seconds times kelvin, so Bν is in kelvin and \\(E/(B\\nu)\\) is energy per kelvin, the unit of entropy. Only after reading B as \\(h/k_B\\), a later identification, does \\(E/(B\\nu)\\) become \\(k_B\\) times the pure number \\(E/(h\\nu)\\).",
+          "The paper notes that the entropy of monochromatic radiation of low enough density varies with volume by the same law as the entropy of an ideal gas or a dilute solution. §5 asks where that law comes from for a gas.",
+          "Check the conditions at both ends: the same energy, the same narrow band, and a density low enough for Wien's law in both volumes. This compares two states. A mirror that moves while the radiation is inside changes frequencies and energy, which is a different comparison."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "partial-derivatives",
+        "returnCaption": "Return to keeping energy and the narrow band fixed."
       }
     ],
     "margin": [

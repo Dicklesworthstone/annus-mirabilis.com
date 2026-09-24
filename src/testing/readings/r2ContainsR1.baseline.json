@@ -3,33 +3,10 @@
   "measuredAt": "2026-09-24",
   "examined": 42,
   "violators": {
-    "arg-lq-entropy-correspondence": {
-      "paper": "light-quanta",
-      "missing": [
-        "eq-model-lq-gas-entropy-change+eq-model-lq-radiation-entropy-change",
-        "eq-model-lq-effective-count+eq-model-lq-energy-per-point"
-      ],
-      "wordGap": 0
-    },
-    "arg-lq-entropy-temperature": {
-      "paper": "light-quanta",
-      "missing": ["eq-model-lq-entropy-temperature"],
-      "wordGap": 42
-    },
-    "arg-lq-fixed-band-volume": {
-      "paper": "light-quanta",
-      "missing": ["eq-model-lq-volume-entropy", "eq-model-lq-unfixed-constant"],
-      "wordGap": 12
-    },
     "arg-lq-fluorescence-budget": {
       "paper": "light-quanta",
       "missing": ["eq-model-lq-fluorescence-bound"],
       "wordGap": 34
-    },
-    "arg-lq-independent-configurations": {
-      "paper": "light-quanta",
-      "missing": ["eq-model-lq-configuration-probability+eq-model-lq-configuration-entropy"],
-      "wordGap": 39
     },
     "arg-lq-ionization-and-counts": {
       "paper": "light-quanta",
@@ -45,15 +22,6 @@
       "paper": "light-quanta",
       "missing": ["eq-model-lq-stopping-energy"],
       "wordGap": 48
-    },
-    "arg-lq-wien-integration": {
-      "paper": "light-quanta",
-      "missing": [
-        "eq-model-lq-wien-spectrum",
-        "eq-model-lq-wien-inverse-temperature",
-        "eq-model-lq-wien-entropy-density"
-      ],
-      "wordGap": 0
     },
     "arg-sr-charge-current": {
       "paper": "special-relativity",

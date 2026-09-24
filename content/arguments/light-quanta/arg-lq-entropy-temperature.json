@@ -51,15 +51,40 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: the paper puts the radiation in a volume v, writes ρ for its density at each frequency ν, and writes φ(ρ, ν) for its entropy per unit volume and unit frequency. This explanation writes \\(\\rho_\\nu\\) and \\(s_\\nu\\) for the same two quantities. The paper takes it as given that the observable properties of the radiation are fixed once ρ is known for all frequencies; a footnote calls this assumption arbitrary, to be kept until experiment forces it to be dropped."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Describe total entropy as volume times the integral of spectral entropy density.",
-          "Describe total energy with the same volume and frequency measure.",
-          "Transfer equal and opposite small energies between two bands, preserving the total.",
-          "At maximum entropy the first-order change is zero; both bands have the same entropy derivative.",
-          "Identify that common derivative with inverse absolute temperature.",
-          "Hold frequency fixed when integrating with respect to density."
+          "Radiation of different frequencies can be separated without doing work and without supplying heat, so entropy and energy are sums over frequencies: \\(S=v\\int_0^\\infty\\varphi(\\rho,\\nu)\\,d\\nu\\) and \\(E=v\\int_0^\\infty\\rho\\,d\\nu\\).",
+          "Black radiation is the equilibrium state: for the given energy, its entropy is as large as it can be. Take v = 1 and change the spectrum by a small amount \\(δρ\\) at each frequency.",
+          "The energy must not change: \\(\\int_0^\\infty δρ\\,d\\nu=0\\). At a maximum, the entropy must not change to first order either: \\(\\int_0^\\infty\\frac{\\partial\\varphi}{\\partial\\rho}δρ\\,d\\nu=0\\).",
+          "Both statements must hold for every such change. That is possible only if \\(\\int_0^\\infty\\left(\\frac{\\partial\\varphi}{\\partial\\rho}-\\lambda\\right)δρ\\,d\\nu=0\\) with λ a number that does not depend on ν. So \\(\\partial\\varphi/\\partial\\rho\\) has the same value at every frequency.",
+          "A two-band check of that step: move a small amount of energy q out of band 1 and into band 2, keeping the total fixed. The entropy changes by q times (the derivative in band 2 minus the derivative in band 1). If the two derivatives differed, choosing the sign of q would raise the entropy, so at the maximum they are equal.",
+          "Now warm black radiation of volume 1 by dT. Its entropy changes by \\(dS=\\int_0^\\infty\\frac{\\partial\\varphi}{\\partial\\rho}d\\rho\\,d\\nu\\). Because the derivative is the same at every frequency, it comes outside the integral, and what remains is the change of energy: \\(dS=\\frac{\\partial\\varphi}{\\partial\\rho}dE\\).",
+          "dE is the heat supplied, and the warming is reversible, so thermodynamics also gives \\(dS=\\frac{1}{T}dE\\).",
+          "Compare the two expressions for dS. The common derivative is the inverse temperature, which in the explanatory letters is the formula below."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\left(\\frac{\\partial s_\\nu}{\\partial\\rho_\\nu}\\right)_\\nu=\\frac{1}{T}",
+        "spoken": "At fixed frequency, the partial derivative of spectral entropy density with respect to spectral energy density is inverse temperature.",
+        "equations": ["eq-model-lq-entropy-temperature"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Read it in words: at fixed frequency, adding a little energy density raises the entropy density by that amount divided by the temperature.",
+          "So a known radiation law, which gives T as a function of ρ at each ν, gives \\(\\partial\\varphi/\\partial\\rho\\) as a function of ρ. Integrating recovers φ, once one more condition fixes the constant of integration: the paper requires φ to vanish when ρ = 0.",
+          "The paper credits this reasoning to a celebrated work of W. Wien and includes it for completeness. It uses no picture of how radiation is produced or how it travels."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "entropy-temperature",
+        "returnCaption": "Return to recovering the entropy derivative from temperature."
       }
     ],
     "margin": [
