@@ -7,6 +7,7 @@ import { FACE_REGISTRY, type FaceId } from "./faces/registry.ts";
 import { FacsimilePanel } from "./facsimile/FacsimilePanel.tsx";
 import { loadFacsimileDocument } from "./facsimile/server.ts";
 import { FACE_FALLBACK_IDS, type FaceFallbackId, faceLinkHref, paperPath } from "./paperRoutes.ts";
+import { PaperStatus } from "./paperStatus.tsx";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline.ts";
 import "./reader.css";
 
@@ -80,13 +81,18 @@ export async function FaceFallback(
         </p>
         <h1>{section ? sections[0]?.title : paper.title}</h1>
         <p className="lead">{paper.description}</p>
-        <p className="notice" data-source-status>
-          {face === "facsimile"
-            ? facsimile?.kind === "available"
+        {/* The paper's status is the one-line disclosure the reading page opens with (PaperStatus),
+            not the full notice as a slab: on /view/results/ at 390 it filled the first screen
+            before a single result. The facsimile keeps its own short statement about the scan. */}
+        {face === "facsimile" ? (
+          <p className="notice" data-source-status>
+            {facsimile?.kind === "available"
               ? "This is the pinned original journal scan. A scan is not this edition’s transcription or translation, and does not certify their review status."
-              : "The source scan is unavailable in this build. The explanation remains readable, but does not stand in for the original."
-            : paper.sourceNotice}
-        </p>
+              : "The source scan is unavailable in this build. The explanation remains readable, but does not stand in for the original."}
+          </p>
+        ) : (
+          <PaperStatus paper={paper} />
+        )}
       </header>
       <FaceChooser paperId={paperId} section={section} current={face} availability={availability} />
       {facsimile?.kind === "available" && (
