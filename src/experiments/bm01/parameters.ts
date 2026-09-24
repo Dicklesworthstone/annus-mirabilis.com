@@ -16,6 +16,9 @@ const BM01_FIELD_NAMES: Partial<Record<string, string>> = {
   axis: "the coordinate",
 };
 
+/** A value echoed into a sentence, at six significant figures, never a binary-float tail. */
+const shown = (x: number) => String(Number(x.toPrecision(6)));
+
 export function validateBm01Parameters(input: unknown): Computation<Bm01Parameters> {
   const bad = (requirements: string): Computation<never> => ({
     kind: "refused",
@@ -57,10 +60,13 @@ export function validateBm01Parameters(input: unknown): Computation<Bm01Paramete
   if (!Number.isInteger(p.M) || p.M < 1 || p.M > 3000)
     return bad("Enter a whole number of tracers from 1 to 3000.");
   if (p.h <= 0) return bad("Enter a recording time resolution greater than zero, in seconds.");
+  // Above 600 s no recording length could satisfy the next sentence, so the resolution is at fault.
+  if (p.h > 600)
+    return bad("Enter a recording time resolution of at most 600 s, the longest recording.");
   if (p.H < p.h || p.H > 600)
-    return bad(`Enter a recording length from ${p.h} s, the time resolution, up to 600 s.`);
+    return bad(`Enter a recording length from ${shown(p.h)} s, the time resolution, up to 600 s.`);
   if (p.interval < 0 || p.interval > p.H)
-    return bad(`Enter an observation time from 0 s up to the recording length, ${p.H} s.`);
+    return bad(`Enter an observation time from 0 s up to the recording length, ${shown(p.H)} s.`);
   if (![1, 2, 3].includes(p.d)) return bad("Choose one, two or three coordinates.");
   if (![0, 1, 2].includes(p.axis)) return bad("Choose the x, y or z coordinate.");
   if (!["mean", "mean-square", "rms", "apparent"].includes(p.statistic))
