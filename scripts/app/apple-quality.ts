@@ -45,7 +45,21 @@ import {
   MARK_SIZE,
   rasterize,
 } from "./generate-app-icon.ts";
-import { ensureSimulators } from "./simulators.ts";
+import { recordedIdentity } from "./identity.ts";
+import {
+  ensureSimulators,
+  planSimulators,
+  readSimulatorSpecs,
+  type SimctlDevices,
+} from "./simulators.ts";
+import {
+  APP_EVIDENCE_FOLDER,
+  checkEvidence,
+  type EvidenceItem,
+  evidenceFolderName,
+  failureRecord,
+  gatherEvidence,
+} from "./test-evidence.ts";
 import { collectTestRecords, writeTestRecords } from "./test-records.ts";
 import { DERIVED_DATA_PATH, isInsideRepository } from "./xcode.ts";
 
@@ -168,6 +182,8 @@ export type XcresultSummary = {
   readonly failed: number;
   readonly skipped: number;
   readonly failures: readonly string[];
+  /** Each failing test once, by the identifier the .xcresult gives it, with its first failure. */
+  readonly failedTests: readonly { readonly id: string; readonly text: string }[];
   readonly device: string | null;
   readonly osVersion: string | null;
   readonly udid: string | null;
@@ -199,6 +215,14 @@ export function summarizeXcresult(json: unknown): XcresultSummary | null {
         return `${String(f.testIdentifierString ?? f.testName ?? "?")}: ${String(f.failureText ?? "")}`;
       })
     : [];
+  const failedTests: { id: string; text: string }[] = [];
+  for (const entry of Array.isArray(d.testFailures) ? d.testFailures : []) {
+    const f = entry as Record<string, unknown>;
+    const id = typeof f.testIdentifierString === "string" ? f.testIdentifierString : null;
+    if (id !== null && !failedTests.some((test) => test.id === id)) {
+      failedTests.push({ id, text: String(f.failureText ?? "") });
+    }
+  }
   const config = Array.isArray(d.devicesAndConfigurations)
     ? (d.devicesAndConfigurations[0] as { device?: Record<string, unknown> } | undefined)
     : undefined;
@@ -210,6 +234,7 @@ export function summarizeXcresult(json: unknown): XcresultSummary | null {
     failed,
     skipped,
     failures,
+    failedTests,
     device: typeof device?.deviceName === "string" ? device.deviceName : null,
     osVersion: typeof device?.osVersion === "string" ? device.osVersion : null,
     udid: typeof device?.deviceId === "string" ? device.deviceId : null,
@@ -240,6 +265,47 @@ export function testVerdict(
     };
   }
   return { outcome: "passed", message: `${label}: ${counts}.`, details: { ...summary } };
+}
+
+/** The one test the seeded-failure lane runs (HarnessUITests.swift), as the .xcresult names it. */
+export const SEEDED_TEST = "HarnessUITests/testSeededFailureRetainsEvidence()";
+
+/**
+ * The seeded-failure lane (bead am-app-test-harness-da6e, requirement 7) passes only when the run
+ * failed the seeded test alone, for the seeded reason, and its evidence lacks nothing. A run that
+ * passed, failed another way, or kept less than everything fails the lane.
+ */
+export function seededFailureVerdict(
+  summary: XcresultSummary | null,
+  items: readonly EvidenceItem[] | null,
+): StepVerdict {
+  if (summary === null) {
+    return { outcome: "failed", message: "Seeded failure: no readable .xcresult summary." };
+  }
+  const [only] = summary.failedTests;
+  if (summary.total !== 1 || summary.failed !== 1 || only?.id !== SEEDED_TEST) {
+    return {
+      outcome: "failed",
+      message: `Seeded failure: expected ${SEEDED_TEST} to be the one test and to fail; ran ${summary.total}, ${summary.failed} failed (${summary.failures.slice(0, 3).join(" | ") || "none"}).`,
+    };
+  }
+  if (!only.text.includes("seeded failure")) {
+    return {
+      outcome: "failed",
+      message: `Seeded failure: the test failed before its seeded failure, so the evidence shows another state: ${only.text}`,
+    };
+  }
+  const missing = (items ?? []).filter((item) => !item.present);
+  if (items === null || items.length === 0 || missing.length > 0) {
+    return {
+      outcome: "failed",
+      message: `Seeded failure: evidence missing: ${items === null || items.length === 0 ? "all of it" : missing.map((item) => `${item.item} (${item.detail})`).join("; ")}.`,
+    };
+  }
+  return {
+    outcome: "passed",
+    message: `Seeded failure kept every evidence item: ${items.map((item) => `${item.item} (${item.detail})`).join("; ")}.`,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -276,14 +342,40 @@ function toolchain(): AppleToolchain | null {
   return parseAppleToolchain(readFileSync(join(REPO, "docs", "DECISIONS.md"), "utf8"));
 }
 
-function xcodebuildArgs(action: readonly string[], resultBundle?: string): string[] {
+/**
+ * The gate's simulator by UDID (bead am-app-test-harness-da6e, requirement 4): the one the
+ * apple-toolchain decision names DEVICE on its runtime, so a simulator of the same name on another
+ * runtime is never picked. Null when the decision does not name DEVICE, or it does not exist yet.
+ */
+function gateDeviceUdid(): string | null {
+  const spec = (
+    readSimulatorSpecs(readFileSync(join(REPO, "docs", "DECISIONS.md"), "utf8")) ?? []
+  ).find((candidate) => candidate.name === DEVICE);
+  if (spec === undefined) return null;
+  let listed: SimctlDevices;
+  try {
+    listed = JSON.parse(
+      execFileSync("xcrun", ["simctl", "list", "devices", "--json"], { encoding: "utf8" }),
+    ) as SimctlDevices;
+  } catch {
+    return null;
+  }
+  const [entry] = planSimulators([spec], listed);
+  return entry?.action === "reuse" ? entry.udid : null;
+}
+
+function xcodebuildArgs(
+  action: readonly string[],
+  resultBundle?: string,
+  udid: string | null = gateDeviceUdid(),
+): string[] {
   const args = [
     "-project",
     "AnnusMirabilis.xcodeproj",
     "-scheme",
     "AnnusMirabilis",
     "-destination",
-    `platform=iOS Simulator,name=${DEVICE}`,
+    udid === null ? `platform=iOS Simulator,name=${DEVICE}` : `id=${udid}`,
     "-derivedDataPath",
     DERIVED_DATA_PATH,
   ];
@@ -293,20 +385,48 @@ function xcodebuildArgs(action: readonly string[], resultBundle?: string): strin
   return [...args, ...action];
 }
 
-function runTests(
-  label: string,
+type TestRun = {
+  readonly status: number | null;
+  readonly output: string;
+  readonly summary: XcresultSummary | null;
+  readonly bundle: string;
+  readonly udid: string;
+  readonly records: { readonly invalid: readonly string[]; readonly summary: string };
+  /** Each failing test's evidence items, by the identifier the .xcresult gives it. */
+  readonly evidence: ReadonlyMap<string, readonly EvidenceItem[]>;
+};
+
+function noSimulator(label: string): StepVerdict {
+  return {
+    outcome: "failed",
+    message: `${label}: ${DEVICE} is not a simulator the apple-toolchain decision names on its runtime, or it does not exist yet. Run the apple-simulators step.`,
+  };
+}
+
+/**
+ * Runs a test target, or one test, on the gate's simulator by UDID, then collects the tests' records
+ * and each failing test's evidence. Null when the gate's simulator does not exist.
+ */
+function runTestTarget(
   target: string,
   logRunId: string,
   extra: readonly string[],
-): StepVerdict {
-  const bundle = join(DERIVED_DATA_PATH, "Results", `${logRunId}-${target}.xcresult`);
-  // The runner sees TEST_RUNNER_-prefixed variables without the prefix: AMTestLog reads AM_LOG_RUN_ID.
+  env: Readonly<Record<string, string>> = {},
+): TestRun | null {
+  const udid = gateDeviceUdid();
+  if (udid === null) return null;
+  const name = `${logRunId}-${target.replaceAll("/", "-")}`;
+  const bundle = join(DERIVED_DATA_PATH, "Results", `${name}.xcresult`);
+  const started = new Date();
+  // The runner sees TEST_RUNNER_-prefixed variables without the prefix: AMTestLog reads
+  // AM_LOG_RUN_ID, and HarnessDevice holds every launch to AM_SIMULATOR_UDID.
   const test = run(
     "xcodebuild",
-    xcodebuildArgs(["test-without-building", `-only-testing:${target}`, ...extra], bundle),
+    xcodebuildArgs(["test-without-building", `-only-testing:${target}`, ...extra], bundle, udid),
     IOS,
-    { TEST_RUNNER_AM_LOG_RUN_ID: logRunId },
+    { TEST_RUNNER_AM_LOG_RUN_ID: logRunId, TEST_RUNNER_AM_SIMULATOR_UDID: udid, ...env },
   );
+  const window = { start: started, end: new Date() };
   const summaryRun = run("xcrun", [
     "xcresulttool",
     "get",
@@ -322,32 +442,91 @@ function runTests(
   } catch {
     summary = null;
   }
-  const counted = testVerdict(label, test.status, summary);
-  const records = collectRecords(bundle, `${logRunId}-${target}`);
+  const attachments = join(DERIVED_DATA_PATH, "Results", `${name}-attachments`);
+  const records = collectRecords(bundle, attachments);
+  const evidence = keepEvidence(
+    summary?.failedTests ?? [],
+    attachments,
+    logRunId,
+    bundle,
+    udid,
+    window,
+  );
+  return { status: test.status, output: test.output, summary, bundle, udid, records, evidence };
+}
+
+function runTests(
+  label: string,
+  target: string,
+  logRunId: string,
+  extra: readonly string[],
+): StepVerdict {
+  const tested = runTestTarget(target, logRunId, extra);
+  if (tested === null) return noSimulator(label);
+  const counted = testVerdict(label, tested.status, tested.summary);
+  const reported = tested.summary?.udid ?? null;
+  const problems = [
+    ...(reported !== null && reported !== tested.udid
+      ? [`The run reports simulator ${reported}, but the gate chose ${tested.udid}.`]
+      : []),
+    ...(tested.records.invalid.length > 0
+      ? [
+          `${tested.records.invalid.length} test record(s) fail the shared log schema, first: ${tested.records.invalid[0]}`,
+        ]
+      : []),
+  ];
+  const kept =
+    tested.evidence.size > 0
+      ? ` Evidence for ${tested.evidence.size} failing test(s) in artifacts/test-logs/app-evidence/${logRunId}/.`
+      : "";
   const verdict: StepVerdict =
-    records.invalid.length > 0
+    problems.length > 0
       ? {
           ...counted,
           outcome: "failed",
-          message: `${counted.message} ${records.invalid.length} test record(s) fail the shared log schema, first: ${records.invalid[0]}`,
+          message: `${counted.message} ${problems.join(" ")}${kept}`,
         }
-      : { ...counted, message: `${counted.message} ${records.summary}` };
+      : { ...counted, message: `${counted.message} ${tested.records.summary}${kept}` };
   return {
     ...verdict,
     details: {
       ...verdict.details,
-      xcresultPath: bundle,
-      ...(verdict.outcome === "failed" ? { lastOutput: lastLines(test.output, 200) } : {}),
+      xcresultPath: tested.bundle,
+      ...(verdict.outcome === "failed" ? { lastOutput: lastLines(tested.output, 200) } : {}),
+    },
+  };
+}
+
+/** The seeded-failure lane: the one seeded test, which must fail and leave every evidence item. */
+function seededFailureLane(logRunId: string): StepVerdict {
+  const tested = runTestTarget(
+    `AnnusMirabilisUITests/${SEEDED_TEST.replace(/\(\)$/, "")}`,
+    logRunId,
+    ["-parallel-testing-enabled", "NO"],
+    { TEST_RUNNER_AM_SEEDED_FAILURE: "1" },
+  );
+  if (tested === null) return noSimulator("Seeded failure");
+  const verdict = seededFailureVerdict(tested.summary, tested.evidence.get(SEEDED_TEST) ?? null);
+  const outcome = tested.records.invalid.length > 0 ? "failed" : verdict.outcome;
+  return {
+    outcome,
+    message:
+      tested.records.invalid.length > 0
+        ? `${verdict.message} A test record fails the shared log schema: ${tested.records.invalid[0]}`
+        : `${verdict.message} In artifacts/test-logs/app-evidence/${logRunId}/${evidenceFolderName(SEEDED_TEST)}/.`,
+    details: {
+      xcresultPath: tested.bundle,
+      udid: tested.udid,
+      ...(outcome === "failed" ? { lastOutput: lastLines(tested.output, 200) } : {}),
     },
   };
 }
 
 /**
- * The tests' AMTestLog records (bead am-app-test-harness-da6e): exported from the .xcresult,
- * validated with the web's own schema, appended to artifacts/test-logs/<suite>/<logRunId>.jsonl.
+ * The tests' AMTestLog records (bead am-app-test-harness-da6e): exported from the .xcresult into
+ * `dir`, validated with the web's own schema, appended to artifacts/test-logs/<suite>/<logRunId>.jsonl.
  */
-function collectRecords(bundle: string, name: string): { invalid: string[]; summary: string } {
-  const dir = join(DERIVED_DATA_PATH, "Results", `${name}-attachments`);
+function collectRecords(bundle: string, dir: string): { invalid: string[]; summary: string } {
   mkdirSync(dir, { recursive: true });
   const exported = run("xcrun", [
     "xcresulttool",
@@ -370,6 +549,109 @@ function collectRecords(bundle: string, name: string): { invalid: string[]; summ
     invalid: invalid.map((entry) => `${entry.attachment}: ${entry.reason}`),
     summary: `${records.length} test record(s)${files.length > 0 ? ` in ${files.join(", ")}` : ""}.`,
   };
+}
+
+/**
+ * Each failing test's evidence (bead am-app-test-harness-da6e, requirement 5), gathered into
+ * artifacts/test-logs/app-evidence/<logRunId>/<test>/, and the test's record, naming the files, in
+ * artifacts/test-logs/app-ui/<logRunId>.jsonl. A record the schema refuses is itself a missing item.
+ */
+function keepEvidence(
+  failed: XcresultSummary["failedTests"],
+  attachmentsDir: string,
+  logRunId: string,
+  xcresultPath: string,
+  udid: string,
+  window: { readonly start: Date; readonly end: Date },
+): Map<string, EvidenceItem[]> {
+  const kept = new Map<string, EvidenceItem[]>();
+  if (failed.length === 0) return kept;
+  const bundleId = recordedIdentity(REPO)?.bundleId ?? null;
+  const container = bundleId === null ? null : appDataContainer(udid, bundleId);
+  const appEvidence =
+    container === null ? null : join(container, "Library", "Caches", APP_EVIDENCE_FOLDER);
+  const recordsPath = join(REPO, "artifacts", "test-logs", "app-ui", `${logRunId}.jsonl`);
+  mkdirSync(dirname(recordsPath), { recursive: true });
+  for (const test of failed) {
+    const dest = join(
+      REPO,
+      "artifacts",
+      "test-logs",
+      "app-evidence",
+      logRunId,
+      evidenceFolderName(test.id),
+    );
+    gatherEvidence({
+      attachmentsDir,
+      appEvidenceDir: appEvidence,
+      testIdentifier: test.id,
+      dest,
+      appLog: (start, end) => (bundleId === null ? "" : appLog(udid, bundleId, start, end)),
+      fallbackWindow: window,
+    });
+    const items = checkEvidence(dest, xcresultPath);
+    try {
+      const record = failureRecord({
+        repo: REPO,
+        logRunId,
+        testIdentifier: test.id,
+        failureText: test.text,
+        dir: dest,
+        xcresultPath,
+        items,
+      });
+      appendFileSync(recordsPath, `${JSON.stringify(record)}\n`);
+      items.push({
+        item: "record",
+        present: true,
+        detail: `in ${recordsPath.slice(REPO.length + 1)}`,
+      });
+    } catch (error) {
+      items.push({
+        item: "record",
+        present: false,
+        detail: error instanceof Error ? error.message : String(error),
+      });
+    }
+    kept.set(test.id, items);
+  }
+  return kept;
+}
+
+/** The app's data container on the simulator, or null when the app is not installed there. */
+function appDataContainer(udid: string, bundleId: string): string | null {
+  const found = spawnSync("xcrun", ["simctl", "get_app_container", udid, bundleId, "data"], {
+    encoding: "utf8",
+  });
+  return found.status === 0 && found.stdout.trim() !== "" ? found.stdout.trim() : null;
+}
+
+/** The app's own log lines between two instants, as ndjson, from the simulator's log store. */
+function appLog(udid: string, bundleId: string, start: Date, end: Date): string {
+  const two = (n: number) => String(n).padStart(2, "0");
+  // `log show` reads local wall-clock times; the simulator keeps the host's time zone.
+  const local = (d: Date) =>
+    `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())} ${two(d.getHours())}:${two(d.getMinutes())}:${two(d.getSeconds())}`;
+  const shown = spawnSync(
+    "xcrun",
+    [
+      "simctl",
+      "spawn",
+      udid,
+      "log",
+      "show",
+      "--style",
+      "ndjson",
+      "--start",
+      local(start),
+      "--end",
+      local(new Date(end.getTime() + 1000)),
+      "--predicate",
+      `subsystem == "${bundleId}"`,
+    ],
+    { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
+  );
+  return shown.status === 0 ? shown.stdout : "";
 }
 
 function sameRaster(
@@ -467,7 +749,12 @@ export function runStep(id: AppleStepId, logRunId: string): StepVerdict {
         : { outcome: "failed", message: `SwiftLint:\n${lastLines(lint.output, 40)}` };
     }
     case "apple-swift-format": {
-      const roots = ["AnnusMirabilis", "AnnusMirabilisTests", "AnnusMirabilisUITests"];
+      const roots = [
+        "AnnusMirabilis",
+        "AnnusMirabilisTests",
+        "AnnusMirabilisUITests",
+        "AnnusMirabilisTestSupport",
+      ];
       const examined = roots.reduce(
         (sum, root) =>
           sum +
@@ -631,6 +918,8 @@ export function runStep(id: AppleStepId, logRunId: string): StepVerdict {
         "-parallel-testing-enabled",
         "NO",
       ]);
+    case "apple-harness-evidence":
+      return seededFailureLane(logRunId);
   }
 }
 

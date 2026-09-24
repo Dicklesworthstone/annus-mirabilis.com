@@ -26,6 +26,10 @@ export const APPLE_STEPS = [
   { id: "apple-build", title: "Apple: simulator build for testing" },
   { id: "apple-unit-tests", title: "Apple: unit tests (Swift Testing)" },
   { id: "apple-ui-tests", title: "Apple: UI tests (XCUITest)" },
+  {
+    id: "apple-harness-evidence",
+    title: "Apple: a seeded failing UI test leaves every evidence item",
+  },
 ] as const;
 
 export type AppleStepId = (typeof APPLE_STEPS)[number]["id"];

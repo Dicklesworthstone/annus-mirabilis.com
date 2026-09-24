@@ -1,0 +1,17 @@
+{
+  "about": "A failing test's evidence folder: the app names it from the launch's test id (TestEvidence.folder(for:)), the gate from the .xcresult identifier (evidenceFolderName in scripts/app/test-evidence.ts). Both must give the same folder.",
+  "cases": [
+    {
+      "xcresult": "LifecycleUITests/testAKilledWebProcessComesBackToTheSamePassage()",
+      "launch": "LifecycleUITests/testAKilledWebProcessComesBackToTheSamePassage",
+      "folder": "LifecycleUITests_testAKilledWebProcessComesBackToTheSamePassage"
+    },
+    {
+      "xcresult": "HarnessUITests/testSeededFailureRetainsEvidence()",
+      "launch": "HarnessUITests/testSeededFailureRetainsEvidence",
+      "folder": "HarnessUITests_testSeededFailureRetainsEvidence"
+    },
+    { "xcresult": "a b/c:d.e-f_g()", "launch": "a b/c:d.e-f_g", "folder": "a_b_c_d.e-f_g" },
+    { "xcresult": "", "launch": "", "folder": "unnamed" }
+  ]
+}

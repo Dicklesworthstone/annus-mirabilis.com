@@ -15,10 +15,13 @@ import {
   parseAppleToolchain,
   parseXcodegenVersion,
   parseXcodeVersion,
+  SEEDED_TEST,
+  seededFailureVerdict,
   summarizeXcresult,
   testVerdict,
   toolchainMismatches,
 } from "./apple-quality.ts";
+import type { EvidenceItem } from "./test-evidence.ts";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(HERE, "..", "..");
@@ -118,6 +121,17 @@ describe("test results from .xcresult", () => {
     assert.equal(testVerdict("Unit tests", 65, passed).outcome, "failed");
   });
 
+  it("names each failing test once, by the identifier its evidence folder is named from", () => {
+    const summary = summarizeXcresult(fixture("xcresult-summary-failed.json"));
+    assert.deepEqual(summary?.failedTests, [
+      {
+        id: "ReaderStateUITests/testPageActionsSharePrintAndFind()",
+        text: "XCTAssertTrue failed - the share sheet did not open",
+      },
+    ]);
+    assert.deepEqual(summarizeXcresult(fixture("xcresult-summary-passed.json"))?.failedTests, []);
+  });
+
   it("fails when there is no readable summary, as when the runner crashed before writing one", () => {
     assert.equal(summarizeXcresult({ error: "no test results" }), null);
     assert.equal(summarizeXcresult(null), null);
@@ -131,8 +145,64 @@ describe("the step list", () => {
     assert.equal(new Set(ids).size, ids.length);
     assert.ok(ids.every((id) => id.startsWith("apple-")));
     assert.equal(ids[0], "apple-disk");
-    assert.deepEqual(ids.slice(-3), ["apple-build", "apple-unit-tests", "apple-ui-tests"]);
+    assert.deepEqual(ids.slice(-4), [
+      "apple-build",
+      "apple-unit-tests",
+      "apple-ui-tests",
+      "apple-harness-evidence",
+    ]);
     // Parity reads the same build freshness does, so it runs right after it.
     assert.equal(ids.indexOf("apple-edition-parity"), ids.indexOf("apple-edition-fresh") + 1);
+  });
+});
+
+describe("the seeded-failure lane", () => {
+  const passed = summarizeXcresult(fixture("xcresult-summary-passed.json"));
+  assert.ok(passed !== null);
+  const seeded = (text: string, total = 1) => ({
+    ...passed,
+    result: "Failed",
+    total,
+    passed: total - 1,
+    failed: 1,
+    failures: [`${SEEDED_TEST}: ${text}`],
+    failedTests: [{ id: SEEDED_TEST, text }],
+  });
+  const all: EvidenceItem[] = ["xcresult", "screenshot", "dom", "console", "record"].map(
+    (item) => ({ item, present: true, detail: "kept" }),
+  );
+
+  it("passes only when the seeded test alone failed, for its reason, and kept every item", () => {
+    const reason = "failed - seeded failure: the harness must keep this test's evidence";
+    assert.equal(seededFailureVerdict(seeded(reason), all).outcome, "passed");
+  });
+
+  it("fails a run that passed, ran more than the one test, or failed another test", () => {
+    assert.equal(seededFailureVerdict(passed, all).outcome, "failed");
+    assert.equal(seededFailureVerdict(seeded("seeded failure", 2), all).outcome, "failed");
+    const other = {
+      ...seeded("seeded failure"),
+      failedTests: [{ id: "LaunchUITests/testLaunch()", text: "seeded failure" }],
+    };
+    assert.equal(seededFailureVerdict(other, all).outcome, "failed");
+    assert.equal(seededFailureVerdict(null, all).outcome, "failed");
+  });
+
+  it("fails a test that broke before its seeded failure: its evidence shows another state", () => {
+    const verdict = seededFailureVerdict(seeded("the page never reported ready"), all);
+    assert.equal(verdict.outcome, "failed");
+    assert.match(verdict.message, /before its seeded failure/);
+  });
+
+  it("fails when any evidence item is missing, and names it", () => {
+    const reason = "seeded failure: the harness must keep this test's evidence";
+    const lacking = all.map((item) =>
+      item.item === "dom" ? { ...item, present: false, detail: "no DOM snapshot" } : item,
+    );
+    const verdict = seededFailureVerdict(seeded(reason), lacking);
+    assert.equal(verdict.outcome, "failed");
+    assert.match(verdict.message, /dom \(no DOM snapshot\)/);
+    assert.equal(seededFailureVerdict(seeded(reason), []).outcome, "failed");
+    assert.equal(seededFailureVerdict(seeded(reason), null).outcome, "failed");
   });
 });
