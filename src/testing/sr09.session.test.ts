@@ -44,7 +44,13 @@ describe("SR-09 session store and parameter validation", () => {
     });
     expect(checked.kind).toBe("refused");
     if (checked.kind === "refused") {
-      expect(checked.refusal.code).toBe("invalid-parameter");
+      // The bead asks for v = -V to be refused with the explanation, not the generic refusal.
+      expect(checked.refusal.code).toBe("superluminal-observer");
+      expect(checked.refusal.message).toContain("more slowly than light");
+    }
+    for (const beta of [-1, 1]) {
+      const edge = validateSr09Parameters({ ...SR09_DEFAULTS, beta });
+      expect(edge.kind === "refused" && edge.refusal.code).toBe("superluminal-observer");
     }
 
     const session = createSr09Session("sr09-refuse");
