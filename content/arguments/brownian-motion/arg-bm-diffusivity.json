@@ -55,6 +55,11 @@
       },
       {
         "kind": "foundation",
+        "id": "temperature-thermal-energy",
+        "returnCaption": "Return to where Boltzmann's constant and R/N turn out to be one quantity."
+      },
+      {
+        "kind": "foundation",
         "id": "flux-continuity",
         "returnCaption": "Return to balancing drift and diffusive fluxes."
       }

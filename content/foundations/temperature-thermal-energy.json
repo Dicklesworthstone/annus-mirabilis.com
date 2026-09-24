@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "temperature-thermal-energy",
+  "title": "Temperature and thermal energy",
+  "question": "What does a temperature say about the jostling of molecules and grains?",
+  "summary": "In equilibrium at a given temperature, every kind of particle, molecule or grain, has the same average energy of motion along each direction it can move: half of Boltzmann's constant times the temperature. The temperature fixes that average over many particles. It is not the energy of any one of them.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "The air in a room at 20 °C is a crowd of molecules moving in every direction and colliding billions of times a second. Warm the room and, on average, they move faster. The kinetic theory of heat reads temperature this way: through the average energy of motion of the particles, taken over very many of them."
+    },
+    {
+      "kind": "paragraph",
+      "text": "For any particle in equilibrium with its surroundings, the average energy of motion along each direction is the same:"
+    },
+    {
+      "kind": "formula",
+      "latex": "\\left\\langle \\frac{1}{2} m v_x^2 \\right\\rangle = \\frac{1}{2} k_B T",
+      "spoken": "The average of one half m v x squared equals one half k B T."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Here m is the particle's mass, \\(v_x\\) its speed along x, T the absolute temperature, and \\(k_B\\) = 1.38 × 10⁻²³ joules per kelvin is Boltzmann's constant. It equals R/N, the gas constant shared out per molecule. The Brownian paper writes RT/N where a modern text writes \\(k_BT\\); the paper's own letter k means the viscosity, not this constant."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The average is the point. One molecule's energy of motion changes at every collision, from almost nothing to several times the average. The temperature fixes how energy is shared out over many particles. It is not the energy of any one of them."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Nothing in the rule mentions size. A grain ten billion times heavier than a molecule has the same average energy of motion, so it moves more slowly, by the square root of the mass ratio. That is why a suspended grain belongs to the same thermal story as a dissolved molecule, as §1 of the paper insists."
+    }
+  ],
+  "exampleTitle": "A nitrogen molecule and a half-micrometre grain at 20 °C",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "At T = 293 K, \\(k_BT\\) = 1.38 × 10⁻²³ × 293 = 4.05 × 10⁻²¹ J, so the average energy of motion along one direction is half of that, 2.02 × 10⁻²¹ J.",
+        "A nitrogen molecule has a mass of 4.65 × 10⁻²⁶ kg. Setting \\(\\frac{1}{2} m v_x^2\\) equal to \\(\\frac{1}{2} k_BT\\) gives a typical speed along one direction of √(4.05 × 10⁻²¹ ÷ 4.65 × 10⁻²⁶), about 295 metres a second.",
+        "A grain of radius 0.5 μm and density 1200 kg/m³ has a mass of 6.3 × 10⁻¹⁶ kg, about 1.4 × 10¹⁰ times the molecule's. The same average energy gives it about 2.5 millimetres a second.",
+        "In water that motion is turned about within some 70 nanoseconds: the grain's mass divided by its drag coefficient 6πηa. That is far too brief to follow, so what a microscope sees is the net result of the zigzag."
+      ]
+    },
+    {
+      "kind": "paragraph",
+      "text": "This is why the Brownian paper asks for a displacement over a time rather than a speed: the thermal speed is real, but it turns about far faster than any observer can watch."
+    }
+  ],
+  "prerequisites": [
+    "work-energy",
+    "bridge-scientific-notation-units",
+    "bridge-squaring-square-roots"
+  ],
+  "stoppingPoint": "This lesson stops at the average energy of motion. How the jostling of many molecules makes a grain wander, and how far, is §4 of the Brownian paper.",
+  "citations": [
+    "ap-17-549"
+  ]
+}
