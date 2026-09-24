@@ -25,7 +25,7 @@ export function isCardVerified(card: KnowledgeCard): boolean {
         card.verification.method,
     );
   }
-  return Boolean(card.verifier && (card.dateVerified || card.date) && card.evidenceLocator);
+  return Boolean(card.verifier && card.dateVerified && card.evidenceLocator);
 }
 
 export type PublicationGateCitation = Readonly<{
