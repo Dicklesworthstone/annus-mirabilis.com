@@ -20,6 +20,11 @@ binding gutter, black film borders and slivers of the facing page. This script:
      stretching, so the four pages show the same type size.
 The binding still compresses a few letters at the gutter edge of pp. 132 and 891. That is in the
 scan, and no crop can restore it.
+
+COMPANIONS. With --companions it writes the first pages of the dissertation (ap-19-289, p. 289) and
+Einstein's 1911 correction to it (ap-34-591, p. 591) for /sources/, and leaves the four untouched.
+The four are still read, because their printed blocks set the one scale every plate shares; a
+companion whose block would not fit that page stops the run rather than being shrunk to fit.
 """
 import sys
 sys.dont_write_bytecode = True  # no __pycache__ beside the scripts
@@ -28,9 +33,11 @@ from PIL import Image
 from plate_cleanup import ROOT, detect, load, place, render_page
 
 KEYS = ["ap-17-132", "ap-17-549", "ap-17-891", "ap-18-639"]
+COMPANIONS = ["ap-19-289", "ap-34-591"]
 OUT = os.path.join(ROOT, "public/figures/plates")
 
 def main():
+    companions = "--companions" in sys.argv[1:]
     work = tempfile.mkdtemp(prefix="first-page-plates-")
     frames = {k: load(render_page(k, 1, 400, os.path.join(work, k))) for k in KEYS}
     boxes = {k: detect(a) for k, a in frames.items()}
@@ -40,14 +47,21 @@ def main():
     cw = tw + 2 * side
     ch = round(cw * 662 / 400)
     assert ch >= th + top + int(tw * 0.05), (cw, ch, th)
+    if companions:
+        frames = {k: load(render_page(k, 1, 400, os.path.join(work, k))) for k in COMPANIONS}
+        boxes = {k: detect(a) for k, a in frames.items()}
+        for k, (x0, x1, y0, y1) in boxes.items():
+            assert x1 - x0 <= cw - 2 * int(tw * 0.02), (k, "wider than the shared page", x1 - x0, cw)
+            assert y1 - y0 + top + int(tw * 0.05) <= ch, (k, "taller than the shared page", y1 - y0, ch)
     report = {}
     for k, a in frames.items():
         canvas = place(a, boxes[k], cw, ch, tw, top)
         for w in (400, 800, 1200):
             canvas.resize((w, round(w * 662 / 400)), Image.LANCZOS).save(
                 os.path.join(OUT, f"{k}-first-page-{w}.webp"), "WEBP", quality=72, method=6)
-        canvas.resize((660, 1092), Image.LANCZOS).convert("RGB").save(
-            os.path.join(OUT, "share", f"{k}.jpg"), "JPEG", quality=84, optimize=True, progressive=True)
+        if not companions:  # the share cards are the four papers' only
+            canvas.resize((660, 1092), Image.LANCZOS).convert("RGB").save(
+                os.path.join(OUT, "share", f"{k}.jpg"), "JPEG", quality=84, optimize=True, progressive=True)
         x0, x1, y0, y1 = boxes[k]
         report[k] = dict(textBlock=[x0, y0, x1 - x0, y1 - y0], canvas=[cw, ch])
     print(json.dumps(report))

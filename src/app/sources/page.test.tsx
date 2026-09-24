@@ -60,6 +60,31 @@ describe("/sources/", () => {
     }
   });
 
+  test("each entry shows its own scan's first page, at every width its srcSet names", () => {
+    // The plate is cut from the entry's pinned PDF (scripts/figures/first_page_plates.py); an
+    // entry must never borrow another scan's page, or name a width that was not cut.
+    for (const { key, fm } of receipts) {
+      const entry = entries.find((e) => e.includes(fm.scan.sha256)) ?? "";
+      const srcSet = /class="sources-entry-plate"[^>]*srcSet="([^"]+)"/.exec(entry)?.[1] ?? "";
+      const files = srcSet.split(", ").map((candidate) => candidate.split(" ")[0] ?? "");
+      expect(files.length).toBeGreaterThan(0);
+      for (const file of files) {
+        expect(file).toStartWith(`/figures/plates/${key}-first-page-`);
+        expect(existsSync(join("public", file))).toBe(true);
+      }
+      expect(entry).toContain(`First page, p. ${fm.paper.journal.pages.first}`);
+    }
+  });
+
+  test("the scans come first, directly under the introduction that points to them", () => {
+    // The lead says the page images are cut from "the scans below". Until 2026-09-24 two
+    // sections of prose stood between them, and on a 390px phone the list began at y=1509.
+    const sections = [...html.matchAll(/<h2 id="([^"]+)"/g)].map((m) => m[1]);
+    expect(sections.length).toBeGreaterThan(1);
+    expect(sections[0]).toBe("sources-scans");
+    expect(html).toContain("scans below");
+  });
+
   test("no em dash in the page's text", () => {
     expect(html.replace(/<[^>]+>/g, "")).not.toContain("—");
   });

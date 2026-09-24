@@ -10,6 +10,7 @@
 /* A sentence of prose inside the full-width scans section keeps the reading measure. */
 .sources-note {
   max-width: 64ch;
+  margin-top: 2.5rem;
 }
 .sources-list {
   list-style: none;
@@ -30,13 +31,55 @@
   padding-top: 1.25rem;
   border-top: 1px solid var(--line);
 }
+/* The scan's printed first page beside its name, so each entry shows the thing it describes. */
+.sources-entry-head {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.sources-entry-head:not(:has(.sources-entry-plate)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 560px) {
+  .sources-entry-head {
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: 1.25rem;
+  }
+}
+.sources-entry-plate {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* Only seen while the plate loads; the scan itself is the page colour. */
+  background: var(--wash);
+  border: 1px solid var(--rule);
+  box-shadow: 0 10px 22px -16px rgb(0 0 0 / 0.5);
+}
+/* The pages are light paper. After dark they sit on a mat and are dimmed a little, as the home
+   page's plates are, so their white does not outshine the ink. */
+:root[data-theme="kramgasse-night"] .sources-entry-plate {
+  padding: 3px;
+  opacity: 0.9;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .sources-entry-plate {
+    padding: 3px;
+    opacity: 0.9;
+  }
+}
 .sources-entry-name {
   margin: 0;
   font-size: var(--type-lead);
 }
 .sources-entry-title {
-  margin: 0.35rem 0 1rem;
+  margin: 0.35rem 0 0;
   font-style: italic;
+  color: var(--muted);
+}
+.sources-entry-page {
+  margin: 0.5rem 0 0;
   color: var(--muted);
 }
 .sources-facts {

@@ -1,7 +1,11 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import type { Metadata } from "next";
-import { loadFirstPages } from "../../components/home/firstPages.ts";
+import {
+  FIRST_PAGE_PLATE_WIDTHS,
+  firstPagePlate,
+  loadFirstPages,
+} from "../../components/home/firstPages.ts";
 import "../../components/home/wideProse.css";
 import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts";
 import type { PaperDate, RightsStatus } from "../../content/provenance/receiptSchema.ts";
@@ -117,6 +121,11 @@ function loadScans() {
         };
       }
       const published = fm.paper.dates.find((d) => d.type === "issue-publication")?.iso ?? "";
+      // The scan's first page, cut from this same PDF (scripts/figures/first_page_plates.py), when
+      // a plate has been cut for it at every width the srcSet names.
+      const plated = FIRST_PAGE_PLATE_WIDTHS.every((width) =>
+        existsSync(join(process.cwd(), "public/figures/plates", `${key}-first-page-${width}.webp`)),
+      );
       return {
         key,
         slug: fm.slug,
@@ -135,6 +144,7 @@ function loadScans() {
         transcription: transcriptionOf(key),
         citation: citationOf(fm),
         published,
+        plate: plated ? firstPagePlate(key) : undefined,
       };
     })
     .sort((a, b) => a.published.localeCompare(b.published));
@@ -155,55 +165,39 @@ export default function SourcesPage() {
         </p>
       </header>
 
-      <section className="reading page-flush sources-section" aria-labelledby="sources-rights">
-        <h2 id="sources-rights">Whose text this is</h2>
-        <p>
-          The papers were printed in the Annalen der Physik in 1905 and 1906, and the correction in
-          1911. Einstein died in 1955, so the German text is in the public domain and may be copied,
-          transcribed and translated freely.
-        </p>
-        <p>
-          A scan is a separate thing from the text: the library or archive that made it can set
-          terms of its own. Each scan&rsquo;s terms are recorded with it below, with the date they
-          were read.
-        </p>
-        <p>
-          The English translation on this site will be its own, made from the German. The published
-          translations (Perrett and Jeffery, 1923; Cowper, 1926; Arons and Peppard, 1965; Beck,
-          1989) are not reused. They serve only as witnesses to compare readings against, and a
-          reading taken from one will name it. The two older ones are in the public domain in the
-          United States by date of publication but not necessarily elsewhere, and the two newer ones
-          are in copyright. This is an editorial choice, not a legal opinion.
-        </p>
-      </section>
-
-      <section className="reading page-flush sources-section" aria-labelledby="sources-state">
-        <h2 id="sources-state">How far the text has got</h2>
-        <p>
-          {reviewed === 0
-            ? "No transcription has yet been reviewed by a second reader."
-            : `${inWords(reviewed)} of the ${inWords(scans.length)} transcriptions have been reviewed by a second reader.`}{" "}
-          A draft is shown as a draft wherever it appears, and the explanations on this site are new
-          writing in modern notation, marked as awaiting review. The English translation has not
-          been started.
-        </p>
-      </section>
-
       <section className="page-flush sources-section" aria-labelledby="sources-scans">
         <h2 id="sources-scans">The scans</h2>
-        <p className="sources-note">
-          Each paper&rsquo;s page carries the same record in a machine-readable form, with this
-          site&rsquo;s own commentary kept as a separate entry. It helps reference managers and
-          search engines read the record correctly; it does not decide where, or how, any of them
-          lists the paper.
-        </p>
         <ol className="sources-list">
           {scans.map((scan) => (
             <li key={scan.key} className="sources-entry">
-              <h3 className="sources-entry-name">{scan.name}</h3>
-              <p className="sources-entry-title" lang="de">
-                {scan.titleGerman}
-              </p>
+              <div className="sources-entry-head">
+                {scan.plate ? (
+                  // The printed first page, beside the entry that describes its scan. The words
+                  // beside it name it, so it carries no alt text of its own. A plain img with a
+                  // srcSet, as on the home page (firstPagePlate says why).
+                  <img
+                    className="sources-entry-plate"
+                    {...scan.plate}
+                    sizes="6rem"
+                    width={400}
+                    height={662}
+                    loading="lazy"
+                    decoding="async"
+                    alt=""
+                  />
+                ) : null}
+                <div>
+                  <h3 className="sources-entry-name">{scan.name}</h3>
+                  <p className="sources-entry-title" lang="de">
+                    {scan.titleGerman}
+                  </p>
+                  {scan.plate ? (
+                    <p className="sources-entry-page fine">
+                      First page, p. {scan.journal.pages.first}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
               <dl className="sources-facts">
                 <div>
                   <dt>Printed in</dt>
@@ -284,6 +278,46 @@ export default function SourcesPage() {
             </li>
           ))}
         </ol>
+        <p className="sources-note fine">
+          Each paper&rsquo;s page carries the same record in a machine-readable form, with this
+          site&rsquo;s own commentary kept as a separate entry. It helps reference managers and
+          search engines read the record correctly; it does not decide where, or how, any of them
+          lists the paper.
+        </p>
+      </section>
+
+      <section className="reading page-flush sources-section" aria-labelledby="sources-rights">
+        <h2 id="sources-rights">Whose text this is</h2>
+        <p>
+          The papers were printed in the Annalen der Physik in 1905 and 1906, and the correction in
+          1911. Einstein died in 1955, so the German text is in the public domain and may be copied,
+          transcribed and translated freely.
+        </p>
+        <p>
+          A scan is a separate thing from the text: the library or archive that made it can set
+          terms of its own. Each scan&rsquo;s terms are recorded in its entry above, with the date
+          they were read.
+        </p>
+        <p>
+          The English translation on this site will be its own, made from the German. The published
+          translations (Perrett and Jeffery, 1923; Cowper, 1926; Arons and Peppard, 1965; Beck,
+          1989) are not reused. They serve only as witnesses to compare readings against, and a
+          reading taken from one will name it. The two older ones are in the public domain in the
+          United States by date of publication but not necessarily elsewhere, and the two newer ones
+          are in copyright. This is an editorial choice, not a legal opinion.
+        </p>
+      </section>
+
+      <section className="reading page-flush sources-section" aria-labelledby="sources-state">
+        <h2 id="sources-state">How far the text has got</h2>
+        <p>
+          {reviewed === 0
+            ? "No transcription has yet been reviewed by a second reader."
+            : `${inWords(reviewed)} of the ${inWords(scans.length)} transcriptions have been reviewed by a second reader.`}{" "}
+          A draft is shown as a draft wherever it appears, and the explanations on this site are new
+          writing in modern notation, marked as awaiting review. The English translation has not
+          been started.
+        </p>
       </section>
     </div>
   );
