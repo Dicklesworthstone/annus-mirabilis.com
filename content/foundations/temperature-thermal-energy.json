@@ -39,7 +39,7 @@
     {
       "kind": "steps",
       "items": [
-        "At T = 293 K, \\(k_BT\\) = 1.38 × 10⁻²³ × 293 = 4.05 × 10⁻²¹ J, so the average energy of motion along one direction is half of that, 2.02 × 10⁻²¹ J.",
+        "At T = 293 K, \\(k_BT\\) = 1.381 × 10⁻²³ × 293 = 4.05 × 10⁻²¹ J, so the average energy of motion along one direction is half of that, 2.02 × 10⁻²¹ J.",
         "A nitrogen molecule has a mass of 4.65 × 10⁻²⁶ kg. Setting \\(\\frac{1}{2} m v_x^2\\) equal to \\(\\frac{1}{2} k_BT\\) gives a typical speed along one direction of √(4.05 × 10⁻²¹ ÷ 4.65 × 10⁻²⁶), about 295 metres a second.",
         "A grain of radius 0.5 μm and density 1200 kg/m³ has a mass of 6.3 × 10⁻¹⁶ kg, about 1.4 × 10¹⁰ times the molecule's. The same average energy gives it about 2.5 millimetres a second.",
         "In water that motion is turned about within some 70 nanoseconds: the grain's mass divided by its drag coefficient 6πηa. That is far too brief to follow, so what a microscope sees is the net result of the zigzag."
