@@ -56,15 +56,35 @@ describe("am-not-entries-relativity-f6e: special-relativity notation concordance
     );
   });
 
-  test("Honesty: every entry is pending facsimile verification", () => {
+  test("Honesty: no entry claims a human review; each is pending or an agent check that says so", () => {
+    // Until 2026-09-24 every entry was pending and this required it. The glyphs have since been
+    // read by an agent from the plate images (am-concordance-glyphs-verified-against-plates-13lx),
+    // so the property worth holding is that none is presented as reviewed by a person. "Pending"
+    // is the controlled wording the notation page reads (PENDING_SCAN in notationData.ts).
+    const pendingScan = /^Pending facsimile scan\b/;
+    const honest = (v: { checkedAgainst: string; by: string }) =>
+      pendingScan.test(v.checkedAgainst) ||
+      (v.by.startsWith("agent:") && v.checkedAgainst.includes("not a human review"));
+
+    // Negatives: a named reviewer, and an agent record that does not say it is not a review.
+    assert.equal(
+      honest({ by: "A. Reviewer", checkedAgainst: "Plate of printed page 900." }),
+      false,
+    );
+    assert.equal(honest({ by: "agent:X", checkedAgainst: "Plate of printed page 900." }), false);
+
     const file = loadConcordanceForPaper(paper);
+    let agentChecked = 0;
     for (const entry of file.entries) {
+      const { checkedAgainst, by } = entry.verification;
       assert.ok(
-        entry.verification.checkedAgainst.toLowerCase().includes("pending"),
-        `${entry.id} must record pending facsimile verification`,
+        honest(entry.verification),
+        `${entry.id} must be pending, or an agent check that says it is not a human review`,
       );
+      if (!pendingScan.test(checkedAgainst) && by.startsWith("agent:")) agentChecked += 1;
     }
-    logPass("honesty-pending-verification", "All entries marked pending facsimile");
+    assert.ok(agentChecked > 0, "the population of agent checks is not empty");
+    logPass("honesty-no-human-review-claimed", `${agentChecked} agent checks, none a review`);
   });
 
   test("Bindings: beta at a §3 anchor binds lorentzFactor, is danger, and renames to gamma", () => {
