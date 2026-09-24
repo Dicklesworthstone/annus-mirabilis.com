@@ -7,6 +7,7 @@ import type { HeadingLevel } from "./headingLevel.ts";
 import { LogarithmProductTable } from "./LogarithmProductTable.tsx";
 import { MagnitudeScale } from "./MagnitudeScale.tsx";
 import { NudgeSensitivityDemo } from "./NudgeSensitivityDemo.tsx";
+import { RapidityAdder } from "./RapidityAdder.tsx";
 import { RepeatedIntervals } from "./RepeatedIntervals.tsx";
 import { RepeatedProportionalTable } from "./RepeatedProportionalTable.tsx";
 import { ScalingTable } from "./ScalingTable.tsx";
@@ -58,5 +59,7 @@ export function FoundationConstruction({
       return <RepeatedIntervals headingLevel={headingLevel} />;
     case "matrices-linear-maps":
       return <BoostTable headingLevel={headingLevel} />;
+    case "hyperbolic-functions-rapidity":
+      return <RapidityAdder headingLevel={headingLevel} />;
   }
 }

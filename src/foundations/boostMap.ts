@@ -107,10 +107,29 @@ export function boost(speedRatio: number, kind: MapKind): BoostOutcome {
   };
 }
 
-/** Reads a typed speed ratio: 0.6, 0,6, −0.6 or -0.6. */
+export type ReadSpeed =
+  | { readonly kind: "ratio"; readonly value: number }
+  | { readonly kind: "refused"; readonly message: string };
+
+/** Reads a typed speed ratio, 0.6, 0,6, −0.6 or -0.6, and refuses |v/c| above SPEED_LIMIT. */
+export function readSpeedRatio(text: string): ReadSpeed {
+  const trimmed = text
+    .trim()
+    .replace(/\u2212/g, "-")
+    .replace(",", ".");
+  if (trimmed === "") return { kind: "refused", message: BOOST_REFUSALS.empty };
+  if (!/^[+-]?(\d+(\.\d*)?|\.\d+)$/.test(trimmed))
+    return { kind: "refused", message: BOOST_REFUSALS.unreadable };
+  const value = Number(trimmed);
+  if (Math.abs(value) > SPEED_LIMIT)
+    return { kind: "refused", message: BOOST_REFUSALS["at-light"] };
+  return { kind: "ratio", value };
+}
+
+/** Reads a typed speed ratio and maps with it. */
 export function boostTyped(text: string, kind: MapKind): BoostOutcome {
-  const trimmed = text.trim().replace(/−/g, "-").replace(",", ".");
-  if (trimmed === "") return refused("empty");
-  if (!/^[+-]?(\d+(\.\d*)?|\.\d+)$/.test(trimmed)) return refused("unreadable");
-  return boost(Number(trimmed), kind);
+  const read = readSpeedRatio(text);
+  return read.kind === "ratio"
+    ? boost(read.value, kind)
+    : { status: "refused", message: read.message };
 }
