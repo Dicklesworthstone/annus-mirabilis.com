@@ -5,14 +5,17 @@ import { createBm05BrowserChannel } from "../../experiments/bm05/browser.ts";
 import { BM05_FIELDS, fromWalkDraft, toWalkDraft } from "../../experiments/bm05/controls.ts";
 import {
   BM05_CAPTION,
+  BM05_OUTPUTS,
   BM05_PROMPT,
   type Bm05Parameters,
 } from "../../experiments/bm05/definition.ts";
 import { decodeBm05Settings, encodeBm05Settings } from "../../experiments/bm05/permalink.ts";
 import { createBm05Session, type PreparedBm05Example } from "../../experiments/bm05/session.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
@@ -72,6 +75,12 @@ export function WalkLab({
     ),
     snapshot = view.accepted ?? serverAccepted,
     p = snapshot.parameters as Bm05Parameters;
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time worked example every reader
+  // first sees is a static worked example; only an accepted recalculation is a host calculation.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(view, BM05_OUTPUTS, example.sourceDigest, snapshot === serverAccepted)
+      .label,
+  );
   const [draft, setDraft] = useState(() => toWalkDraft(example.parameters)),
     [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
@@ -165,7 +174,7 @@ export function WalkLab({
       data-input-revision={view.requested?.revisions.input ?? snapshot.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
-      {...labelRootAttributes("host-accepted", view, "sampleRms")}
+      {...labelRootAttributes(executionKind, view, "sampleRms")}
       data-selected-step={p.n}
       data-kernel={p.kernel}
       data-recording-draws={scalar(snapshot, "recordingDraws")}
@@ -451,7 +460,7 @@ export function WalkLab({
           </table>
           <div className="lab-status-row">
             <ExecutionChrome
-              state="host-accepted"
+              state={executionKind}
               view={view}
               modelNote={modelNoteFromView(view, {
                 notModeled: "A continuous Langevin path; only independent steps of a chosen law.",

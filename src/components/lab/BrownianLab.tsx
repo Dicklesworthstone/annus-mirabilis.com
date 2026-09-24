@@ -10,6 +10,7 @@ import {
 import {
   BM06_CAPTION,
   BM06_MODEL,
+  BM06_OUTPUTS,
   BM06_PRESETS,
   BM06_RADIAL_EXPLANATIONS,
   type Bm06Parameters,
@@ -17,8 +18,10 @@ import {
 import { decodeBm06Settings, encodeBm06Settings } from "../../experiments/bm06/permalink.ts";
 import { createBm06Session, type PreparedBm06Example } from "../../experiments/bm06/session.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { DistributionPlot, GridComparison } from "./DistributionPlot.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
@@ -67,6 +70,12 @@ export function BrownianLab({
     session.getServerSnapshot,
   );
   const snapshot = view.accepted ?? serverAccepted;
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time worked example every reader
+  // first sees is a static worked example; only an accepted recalculation is a host calculation.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(view, BM06_OUTPUTS, example.sourceDigest, snapshot === serverAccepted)
+      .label,
+  );
   const p = snapshot.parameters as Bm06Parameters;
   const [draft, setDraft] = useState(() => toDraft(example.parameters));
   const [ready, setReady] = useState(false),
@@ -167,7 +176,7 @@ export function BrownianLab({
       data-input-revision={view.requested?.revisions.input ?? snapshot.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
-      {...labelRootAttributes("host-accepted", view, "probabilityDensity")}
+      {...labelRootAttributes(executionKind, view, "probabilityDensity")}
       data-source-digest={example.sourceDigest}
     >
       <header className="lab-heading">
@@ -389,7 +398,7 @@ export function BrownianLab({
           />
           <div className="lab-status-row">
             <ExecutionChrome
-              state="host-accepted"
+              state={executionKind}
               view={view}
               modelNote={modelNoteFromView(view, {
                 notModeled: "The ballistic short-time regime and inertia.",
