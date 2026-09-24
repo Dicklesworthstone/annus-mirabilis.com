@@ -44,6 +44,19 @@ export function setUnitOverride(
   return Object.freeze({ ...state, overrides, lastOverrideLevel: level });
 }
 
+/** Removes one unit's override, when the reader sets it back to the page's level. The level
+ * "Apply this to the rest of the page" would use becomes the latest remaining override's. */
+export function clearUnitOverride(state: OverrideState, unitId: string): OverrideState {
+  if (!state.overrides.has(unitId)) return state;
+  const overrides = new Map(state.overrides);
+  overrides.delete(unitId);
+  return Object.freeze({
+    ...state,
+    overrides,
+    lastOverrideLevel: [...overrides.values()].at(-1) ?? null,
+  });
+}
+
 export function hasOverrides(state: OverrideState): boolean {
   return state.overrides.size > 0;
 }

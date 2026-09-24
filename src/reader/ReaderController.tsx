@@ -1,12 +1,21 @@
 "use client";
 import { useEffect, useId } from "react";
 import { makeDismissible } from "../a11y/modal/dismiss.ts";
+import {
+  applyElsewhere,
+  clearUnitOverride,
+  effectiveDetailForUnit,
+  initialOverrideState,
+  setGlobalDetail,
+  setUnitOverride,
+} from "./detail/applyElsewhere.ts";
 import { FACE_REGISTRY } from "./faces/registry.ts";
 import { InlineFacsimile } from "./facsimile/InlineFacsimile.tsx";
 import { placeOf, scrollToKeep } from "./keepPlace.ts";
 import { loadLessonBody, unmountLessonConstructions } from "./lessonBody.ts";
 import {
   DETAIL_STORAGE_KEY,
+  type Detail,
   FACES,
   type Face,
   MAX_CLARIFICATION_DEPTH,
@@ -74,6 +83,15 @@ export function ReaderController(props: Props) {
       moved to a passage; history navigation re-reads it. The anchor itself is unchanged.
     */
     let urlNamesPassage = location.hash.length > 1;
+    /*
+      PER-PASSAGE OVERRIDES OF THE PAGE'S DETAIL (am-read-detail-axis-sfc): a passage whose steps
+      the reader opened, or closed, against the page's level. The page's Detail control never
+      clears one. "Apply this to the rest of the page", which appears beside the latest override,
+      clears them all and makes that passage's level the page's.
+    */
+    let layers = initialOverrideState(state.detail);
+    let applyDetail: HTMLElement | null = null;
+    const unitOf = (steps: Element) => steps.closest("article[data-unit]")?.id ?? "";
     let trigger = 0;
     let returnAnimation = 0;
     const cancelReturn = () => {
@@ -144,11 +162,12 @@ export function ReaderController(props: Props) {
       root.dataset.ready = "false";
       document.documentElement.dataset.detail = String(state.detail);
       // The steps reading is one <details> per passage (PaperPage, PaperReader). At "Show every
-      // step" it IS the passage's text, so it is open; leaving that level closes it again, and
+      // step" it IS the passage's text, so it is open; leaving that level closes it again. A
+      // passage the reader set on its own (an override) keeps its setting either way, and
       // otherwise a reader's own open or closed choice is left alone.
       if (state.detail === 2 || previous?.detail === 2)
         for (const steps of root.querySelectorAll<HTMLDetailsElement>('details[data-reading="2"]'))
-          steps.open = state.detail === 2;
+          steps.open = effectiveDetailForUnit(layers, unitOf(steps)) === 2;
       document.documentElement.dataset.lens = state.lens ? "modern" : "paper";
       document.documentElement.dataset.view = state.view;
       root.dataset.view = state.view;
@@ -229,7 +248,7 @@ export function ReaderController(props: Props) {
       )
         return;
       const control = event.target.closest<HTMLElement>(
-        "[data-clarification-open],[data-foundation],[data-view-link],[data-reader-anchor],[data-reader-back],[data-reader-close],[data-copy-passage]",
+        "[data-clarification-open],[data-foundation],[data-view-link],[data-reader-anchor],[data-reader-back],[data-reader-close],[data-copy-passage],[data-apply-detail]",
       );
       if (!control || !root.contains(control)) return;
       if (control.dataset.clarificationOpen) {
@@ -316,6 +335,18 @@ export function ReaderController(props: Props) {
       } else if (control.hasAttribute("data-reader-close")) {
         event.preventDefault();
         change({ ...state, frames: [] }, false, "Returned to the exact step.");
+      } else if (control.hasAttribute("data-apply-detail")) {
+        event.preventDefault();
+        // The latest override's level becomes the page's, and the overrides go (applyElsewhere.ts),
+        // so the page's new level reaches every passage.
+        layers = applyElsewhere(layers);
+        placeApply(null);
+        setDetail(
+          layers.globalDetail,
+          layers.globalDetail === 2
+            ? "Every step is shown in every passage."
+            : "The full explanation is shown in every passage.",
+        );
       } else if (
         control.dataset.copyPassage &&
         registry.anchors.includes(control.dataset.copyPassage)
@@ -351,18 +382,64 @@ export function ReaderController(props: Props) {
         else fallback();
       }
     };
+    function setDetail(detail: Detail, message: string) {
+      // The page's level alone never clears an override (applyElsewhere.ts).
+      layers = setGlobalDetail(layers, detail);
+      try {
+        localStorage.setItem(DETAIL_STORAGE_KEY, String(detail));
+      } catch {
+        /* Optional preference persistence. */
+      }
+      change({ ...state, detail }, false, message);
+    }
+    /**
+     * A passage's steps opened or closed against the page's level is an override: open is "Show
+     * every step" (2), closed at "Show every step" is the full explanation (1). Set back to the
+     * page's level, it is not. The page's own openings and closings match its level, so they
+     * never count.
+     */
+    function noteOverride(details: HTMLDetailsElement) {
+      const unit = unitOf(details);
+      if (!unit) return;
+      const level: Detail = details.open ? 2 : state.detail === 2 ? 1 : state.detail;
+      layers =
+        level === state.detail
+          ? clearUnitOverride(layers, unit)
+          : setUnitOverride(layers, unit, level);
+      const latest = [...layers.overrides.keys()].at(-1);
+      const beside = layers.overrides.has(unit) ? unit : latest;
+      placeApply(
+        beside
+          ? root.querySelector<HTMLDetailsElement>(
+              `article[id="${CSS.escape(beside)}"] details[data-reading="2"]`,
+            )
+          : null,
+      );
+    }
+    /** The one "Apply this to the rest of the page" control, beside the latest override. */
+    function placeApply(at: HTMLDetailsElement | null) {
+      if (!at) {
+        applyDetail?.remove();
+        applyDetail = null;
+        return;
+      }
+      if (!applyDetail) {
+        applyDetail = document.createElement("p");
+        applyDetail.className = "fine";
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "secondary";
+        button.setAttribute("data-apply-detail", "");
+        button.textContent = "Apply this to the rest of the page";
+        applyDetail.append(button);
+      }
+      at.after(applyDetail);
+    }
     const changeControl = (event: Event) => {
       const target = event.target;
       if (target instanceof HTMLSelectElement && detailControls.includes(target)) {
-        const detail = parseDetail(target.value) ?? 1;
-        try {
-          localStorage.setItem(DETAIL_STORAGE_KEY, String(detail));
-        } catch {
-          /* Optional preference persistence. */
-        }
-        change(
-          { ...state, detail },
-          false,
+        setDetail(
+          parseDetail(target.value) ?? 1,
           "Changed detail without restarting the laboratory or closing your explanation.",
         );
       } else if (target instanceof HTMLInputElement && lensControls.includes(target))
@@ -408,7 +485,9 @@ export function ReaderController(props: Props) {
     // caught on the way down; a disclosure already open before this ran is loaded here.
     const toggleSteps = (event: Event) => {
       const details = event.target;
-      if (!(details instanceof HTMLDetailsElement) || !details.open) return;
+      if (!(details instanceof HTMLDetailsElement)) return;
+      if (details.matches('details[data-reading="2"]')) noteOverride(details);
+      if (!details.open) return;
       const placeholder = details.querySelector<HTMLElement>(":scope > [data-steps-body]");
       if (placeholder) void loadStepsBody(placeholder);
     };
