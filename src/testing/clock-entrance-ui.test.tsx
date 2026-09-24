@@ -174,13 +174,18 @@ test("a malformed shared link preserves the actual prepared laboratory ledger", 
       "prepared example is unchanged",
     );
     expect(container.querySelector(".derived-outputs dd")?.textContent).toBe("10 s");
-    const reveal = Array.from(container.querySelectorAll("button")).find(
-      (button) => button.textContent === "Show the outcome without a prediction",
+    // A reader may see the outcome without predicting: skipping shows it (am-inst-predict-mode-ti7m).
+    const skip = Array.from(container.querySelectorAll("button")).find(
+      (button) => button.textContent === "Skip prediction",
     )!;
     await act(async () => {
-      reveal.click();
+      skip.click();
     });
-    expect(container.querySelector(".predict-reveal")).not.toBeNull();
+    const responses = Array.from(container.querySelectorAll("[data-predict-response]"));
+    expect(responses.length).toBeGreaterThan(0);
+    expect(responses.every((el) => el.getAttribute("data-predict-response") === "shown")).toBe(
+      true,
+    );
   } finally {
     await act(async () => {
       root.unmount();

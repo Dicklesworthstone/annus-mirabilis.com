@@ -375,6 +375,7 @@ predictMode:
       supportedCandidateId: trailing-clock-ahead
       controlId: pairBeta
       question: "A pair of clocks rides past at a steady speed, and the riders set their clocks with the same light-signal rule. Judged by our clocks, what do theirs show?"
+      explanation: "This is what vL/c² gives directly: for a positive velocity, the trailing clock is observed ahead in the platform frame, by an amount that grows with both the speed and the proper separation."
       candidates:
         - id: they-agree
           label: "They agree with ours"

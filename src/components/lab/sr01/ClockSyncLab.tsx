@@ -13,7 +13,6 @@ import {
   SR01_MODEL,
   SR01_NOT_MODELED,
   SR01_OUTPUTS,
-  SR01_PREDICT_MOVING_PAIR,
   SR01_PRESETS,
   type Sr01Parameters,
 } from "../../../experiments/sr01/definition.ts";
@@ -22,7 +21,6 @@ import {
   computeSr01Ledger,
   createSr01Session,
   type PreparedSr01Example,
-  predictAnswerFor,
 } from "../../../experiments/sr01/session.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
@@ -30,7 +28,9 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { withScripts } from "../subscripts.tsx";
 import "../labControls.css";
 import "../showTheCode.css";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
+import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
 import { numberText, sentenceNumber } from "../presentation.ts";
 
 function outputByQuantityId(
@@ -49,6 +49,10 @@ function formatOutput(output: PublishedResult | undefined): string {
   if (output.status === "outside-domain") return `outside domain`;
   return output.status;
 }
+
+// The manifest's prompt (scripts/generate-predict-prompts.mjs), one stable array for the gate. It
+// replaces the lab's use of SR01_PREDICT_MOVING_PAIR, whose question it drew below the ledger.
+const SR01_PREDICT_PROMPTS = PREDICT_PROMPTS["sr-01"] ?? [];
 
 export function ClockSyncLab({
   example,
@@ -96,8 +100,8 @@ export function ClockSyncLab({
   const [error, setError] = useState("");
   const [refusalCode, setRefusalCode] = useState<string | null>(null);
   const [sharedUrl, setSharedUrl] = useState("");
-  const [predictAnswer, setPredictAnswer] = useState<string | null>(null);
-  const [predictRevealed, setPredictRevealed] = useState(false);
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("sr-01", SR01_PREDICT_PROMPTS);
   const [linkNote, setLinkNote] = useState("");
   const restored = useRef(false);
 
@@ -149,7 +153,6 @@ export function ClockSyncLab({
     .join("; ")
     .concat(".");
   const ledger = computeSr01Ledger(p);
-  const settledAnswer = predictAnswerFor(p);
 
   function apply(next: Sr01Parameters) {
     const outcome = session.apply(next);
@@ -250,7 +253,9 @@ export function ClockSyncLab({
         honest alternative here: it admits only a region measured at diff 0, and this one is 437
         against 320.
       */}
+      <PredictGatePanels gate={gate} />
       <section
+        {...gate.response}
         className="table-scroll"
         // biome-ignore lint/a11y/noNoninteractiveTabindex: a region that scrolls must be focusable or its off-screen columns cannot be reached by keyboard at all (am-bc6s)
         tabIndex={0}
@@ -283,7 +288,7 @@ export function ClockSyncLab({
         </table>
       </section>
 
-      <dl className="derived-outputs">
+      <dl className="derived-outputs" {...gate.response}>
         <dt>Assigned remote time (stated procedure)</dt>
         <dd>{formatOutput(outputByQuantityId(outputs, "assignedRemoteTime"))} s</dd>
         <dt>Round-trip speed</dt>
@@ -435,50 +440,8 @@ export function ClockSyncLab({
       <AcceptedStatus
         worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
         summary={statusSummary}
+        response={gate.response}
       />
-
-      <section className="predict-section" aria-label="Prediction mode">
-        <h3>Predict before changing the moving pair's velocity:</h3>
-        <p className="predict-question">{SR01_PREDICT_MOVING_PAIR.question}</p>
-        <div className="predict-options" role="radiogroup">
-          {SR01_PREDICT_MOVING_PAIR.candidates.map((c) => (
-            <label key={c.id} className="lab-predict-candidate">
-              <input
-                type="radio"
-                name={`predict-moving-pair-${id}`}
-                value={c.id}
-                checked={predictAnswer === c.id}
-                onChange={() => setPredictAnswer(c.id)}
-              />
-              <span>{c.label}</span>
-            </label>
-          ))}
-        </div>
-        <div className="predict-actions">
-          <button
-            type="button"
-            className="button"
-            disabled={!predictAnswer}
-            onClick={() => setPredictRevealed(true)}
-          >
-            Commit prediction and reveal
-          </button>
-          <button type="button" className="button" onClick={() => setPredictRevealed(true)}>
-            Show the outcome without a prediction
-          </button>
-        </div>
-        {predictRevealed && (
-          <section className="predict-reveal" aria-live="polite">
-            <p className="reveal-title">What the model says</p>
-            <p>
-              {
-                SR01_PREDICT_MOVING_PAIR.candidates.find((c) => c.id === settledAnswer)
-                  ?.separatingAssumption
-              }
-            </p>
-          </section>
-        )}
-      </section>
 
       <details className="show-the-code">
         <summary>Show the reference code &amp; kernel bindings</summary>
