@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { ExercisePart } from "../../../components/discover/ExercisePart.tsx";
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { MASS_ENERGY_SHELF_CARDS } from "../../../content/massEnergyShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { MASS_GIVEN_UP_EXERCISE } from "../../../discovery/massEnergy/massExercise.ts";
 import { SEALED_LAMP_YEAR } from "../../../discovery/massEnergy/numericExercises.ts";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
@@ -222,6 +224,8 @@ export default function MassEnergyRoute() {
             nothing, which is a different thing from taking the limit.
           </p>
         </details>
+        <p>First write the result as the paper prints it, in its own letters.</p>
+        <ExercisePart part={MASS_GIVEN_UP_EXERCISE} />
         <p>
           Now put a number to it. The coefficient is small in the units of everyday things, and
           working one case shows how small.

@@ -34,6 +34,21 @@ describe("step 05 puts the coefficient to a number", () => {
     expect(text(part)).toContain("A sealed box holds a lamp and the battery that powers it.");
   });
 
+  test("the formula comes first, in the paper's letters L and V, before the lamp", () => {
+    const step = stepFive();
+    const formula = step.indexOf('data-exercise-part="me-mass-given-up-formula"');
+    expect(formula).toBeGreaterThan(
+      step.indexOf("Why the slow-speed limit and not the exact factor"),
+    );
+    expect(formula).toBeLessThan(step.indexOf('data-exercise-part="me-sealed-lamp-year"'));
+    const part = text(
+      step.slice(formula, step.indexOf('data-exercise-part="me-sealed-lamp-year"')),
+    );
+    expect(part).toContain("Write it using L and V");
+    const errors = checkVoice(part, { context: "prose" }).filter((f) => f.severity === "error");
+    expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
+  });
+
   test("the part's words pass the voice lint as prose", () => {
     const part = text(
       stepFive().slice(stepFive().indexOf('data-exercise-part="me-sealed-lamp-year"')),
