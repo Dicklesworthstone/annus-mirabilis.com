@@ -192,4 +192,16 @@ extension View {
     func editionPaperRow() -> some View {
         listRowBackground(Color("LaunchBackground"))
     }
+
+    /// On an iPad, a sheet the size of a page rather than a small form. At the largest text size a
+    /// form sheet showed one paper at a time, and a row below its edge sat over the dimmed page, where
+    /// the accessibility audit measured its contrast (run 20260924T173045Z-f7160a6e). An iPhone's
+    /// sheet is already the height of the screen and does not change.
+    @ViewBuilder func pageSizedSheet() -> some View {
+        if #available(iOS 18.0, *) {
+            presentationSizing(.page)
+        } else {
+            self
+        }
+    }
 }
