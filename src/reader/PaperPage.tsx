@@ -234,6 +234,24 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
   const sectionId = resolved.section;
   const sections = sectionId ? paper.sections.filter((s) => s.id === sectionId) : paper.sections;
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
+  // Where each passage's source notice sends a reader. ?view=german on this page shows that
+  // notice in every passage, and it used to end there: measured on live, light-quanta and
+  // mass-energy gave 12 and 8 notices with no link while their /view/german/ pages hold the
+  // drafted German. Decided by the dispatch's own predicate, so the link appears exactly when
+  // the German face renders text, and is labelled a draft when that is what it is.
+  const editionBlocks =
+    (await loadBilingualEdition(paper.id).catch(() => null))?.blocks.length ?? 0;
+  const draftBlocks =
+    editionBlocks === 0 ? (loadGermanSourceFace(paper.id as RouteSlug)?.blocks.length ?? 0) : 0;
+  const germanSource = germanFaceHasContent(editionBlocks, draftBlocks)
+    ? {
+        href: `/papers/${paper.id}/view/german/`,
+        label:
+          editionBlocks > 0
+            ? "Read the German source for the whole paper →"
+            : "Read the drafted German source for the whole paper →",
+      }
+    : null;
   const entrance =
     paper.id === "mass-energy" ? validateEntranceRecord(entranceExample.record) : null;
   const lightEntrance =
@@ -422,6 +440,11 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                         this passage are not yet available. The explanation does not stand in for
                         those source layers.
                       </p>
+                      {germanSource && (
+                        <p>
+                          <a href={germanSource.href}>{germanSource.label}</a>
+                        </p>
+                      )}
                     </div>
                     <details className="model-limits">
                       <summary>Assumptions and limits: {a.title}</summary>
