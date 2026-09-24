@@ -18,10 +18,13 @@ import "./countingEntrance.css";
  * `encounter-table` is not one of the AUDITED_SCROLL_CLASSES in
  * src/testing/a11y/scrollableRegions.test.ts, so this is a removal that satisfies both
  * that ratchet and a11y/noNoninteractiveTabindex (am-6iz4).
+ *
+ * A plain div, not a named section: the table renders nine times with one label, which made
+ * nine landmarks of the same name (axe landmark-unique). Each table's caption names it.
  */
 function OutcomeTable({ example }: { example: TokenExample }) {
   return (
-    <section className="encounter-table" aria-label="Complete list of arrangements">
+    <div className="encounter-table">
       <table>
         <caption>
           {example.favorable} of {example.total} equally likely arrangements put every token in the
@@ -48,7 +51,7 @@ function OutcomeTable({ example }: { example: TokenExample }) {
           ))}
         </tbody>
       </table>
-    </section>
+    </div>
   );
 }
 

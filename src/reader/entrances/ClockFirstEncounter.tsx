@@ -18,13 +18,13 @@ import "./countingEntrance.css";
  * 780/780 scrollWidth over clientWidth. `encounter-table` is not one of the
  * AUDITED_SCROLL_CLASSES in src/testing/a11y/scrollableRegions.test.ts, so this is a
  * removal that satisfies both that ratchet and a11y/noNoninteractiveTabindex (am-6iz4).
+ *
+ * A plain div, not a named section: the table renders three times with one label, which made
+ * three landmarks of the same name (axe landmark-unique). Each table's caption names it.
  */
 function ClockTable({ example, agreed }: { example: ClockExample; agreed: boolean }) {
   return (
-    <section
-      className="encounter-table"
-      aria-label="Clock readings and the distinct distant assignment"
-    >
+    <div className="encounter-table">
       <table>
         <caption>
           Readings in seconds. The distant entry is an assignment, not a local observation at A.
@@ -52,7 +52,7 @@ function ClockTable({ example, agreed }: { example: ClockExample; agreed: boolea
           </tr>
         </tbody>
       </table>
-    </section>
+    </div>
   );
 }
 
