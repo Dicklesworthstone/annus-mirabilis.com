@@ -1,14 +1,89 @@
-import type { Doors as DoorsType } from "../content/schemas/journey.ts";
+import type { Door, Doors as DoorsType } from "../content/schemas/journey.ts";
 
 export interface DoorsProps {
   readonly doors: DoorsType;
 }
 
+const monoFine = {
+  fontFamily: "var(--font-mono, monospace)",
+  fontSize: "0.6875rem",
+  color: "var(--muted)",
+} as const;
+
+/**
+ * One door. When the record carries a link, a summary and a readable arrival, the reader sees
+ * those; the ids beside them are for the build and are shown only for a record that has nothing
+ * else to show (the framework's fixtures).
+ */
+function DoorCard({ door, kind }: { door: Door; kind: "front-door" | "side-door" }) {
+  const readable = door.href !== undefined;
+  return (
+    <div
+      id={door.id}
+      data-door-id={door.id}
+      data-door-type={kind}
+      style={{
+        padding: "1rem",
+        borderRadius: "0.5rem",
+        border: kind === "front-door" ? "1px solid var(--accent)" : "1px solid var(--line)",
+        background: "var(--wash)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.5rem",
+        fontSize: "0.875rem",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "space-between",
+          gap: "0.5rem",
+        }}
+      >
+        <span
+          className="eyebrow"
+          style={{
+            fontSize: "0.6875rem",
+            fontFamily: "var(--font-mono, monospace)",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            color: kind === "front-door" ? "var(--accent)" : "var(--muted)",
+          }}
+        >
+          {kind === "front-door" ? "Front door · Primary route" : "Side door"}
+        </span>
+        {!readable && <span style={monoFine}>#{door.id}</span>}
+      </div>
+      <h4
+        style={{
+          fontSize: "1rem",
+          fontWeight: "bold",
+          color: "var(--ink)",
+          fontFamily: "var(--font-serif, serif)",
+          margin: 0,
+        }}
+      >
+        {door.href ? <a href={door.href}>{door.title}</a> : door.title}
+      </h4>
+      {door.summary && <p style={{ margin: 0, color: "var(--ink)" }}>{door.summary}</p>}
+      <p style={{ color: "var(--muted)", margin: 0 }}>
+        Arrives at: {door.arrivesAtLabel ?? door.arrivesAtEquationId}
+      </p>
+      {!readable && door.entryRecordId && (
+        <p style={{ ...monoFine, margin: 0 }}>entry: #{door.entryRecordId}</p>
+      )}
+    </div>
+  );
+}
+
 export function Doors({ doors }: DoorsProps) {
   const { frontDoor, sideDoors } = doors;
+  const arrival = frontDoor.arrivesAtLabel ?? frontDoor.arrivesAtEquationId;
 
   return (
     <section
+      data-journey-doors
       style={{
         margin: "2.5rem 0",
         padding: "1.5rem",
@@ -61,16 +136,7 @@ export function Doors({ doors }: DoorsProps) {
             marginBottom: 0,
           }}
         >
-          All doors converge on equation:{" "}
-          <span
-            style={{
-              fontFamily: "var(--font-mono, monospace)",
-              color: "var(--accent)",
-              fontWeight: 600,
-            }}
-          >
-            {frontDoor.arrivesAtEquationId}
-          </span>
+          All doors arrive at the same result: {arrival}
         </p>
       </header>
 
@@ -79,156 +145,11 @@ export function Doors({ doors }: DoorsProps) {
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(min(240px, 100%), 1fr))",
           gap: "1rem",
-          fontSize: "0.75rem",
         }}
       >
-        {/* Front Door */}
-        <div
-          id={frontDoor.id}
-          data-door-id={frontDoor.id}
-          data-door-type="front-door"
-          style={{
-            padding: "1rem",
-            borderRadius: "0.5rem",
-            background: "var(--wash)",
-            border: "1px solid var(--line)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "0.5rem",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <span
-              className="eyebrow"
-              style={{
-                fontWeight: "bold",
-                color: "var(--accent)",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-              }}
-            >
-              Front door · Primary route
-            </span>
-            <span
-              style={{
-                fontFamily: "var(--font-mono, monospace)",
-                fontSize: "0.625rem",
-                color: "var(--muted)",
-              }}
-            >
-              #{frontDoor.id}
-            </span>
-          </div>
-          <h4
-            style={{
-              fontSize: "0.875rem",
-              fontFamily: "var(--font-serif, serif)",
-              fontWeight: "bold",
-              color: "var(--ink)",
-              margin: 0,
-            }}
-          >
-            {frontDoor.title}
-          </h4>
-          <p style={{ color: "var(--muted)", margin: 0 }}>
-            Arrives at:{" "}
-            <span
-              style={{
-                fontFamily: "var(--font-mono, monospace)",
-                color: "var(--accent)",
-              }}
-            >
-              {frontDoor.arrivesAtEquationId}
-            </span>
-          </p>
-        </div>
-
-        {/* Side Doors */}
+        <DoorCard door={frontDoor} kind="front-door" />
         {sideDoors.map((sideDoor) => (
-          <div
-            key={sideDoor.id}
-            id={sideDoor.id}
-            data-door-id={sideDoor.id}
-            data-door-type="side-door"
-            style={{
-              padding: "1rem",
-              borderRadius: "0.5rem",
-              background: "var(--wash)",
-              border: "1px solid var(--line)",
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.5rem",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <span
-                className="eyebrow"
-                style={{
-                  fontWeight: "bold",
-                  color: "var(--accent)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                Side door · Alternative perspective
-              </span>
-              <span
-                style={{
-                  fontFamily: "var(--font-mono, monospace)",
-                  fontSize: "0.625rem",
-                  color: "var(--muted)",
-                }}
-              >
-                #{sideDoor.id}
-              </span>
-            </div>
-            <h4
-              style={{
-                fontSize: "0.875rem",
-                fontFamily: "var(--font-serif, serif)",
-                fontWeight: "bold",
-                color: "var(--ink)",
-                margin: 0,
-              }}
-            >
-              {sideDoor.title}
-            </h4>
-            <p style={{ color: "var(--muted)", margin: 0 }}>
-              Arrives at:{" "}
-              <span
-                style={{
-                  fontFamily: "var(--font-mono, monospace)",
-                  color: "var(--accent)",
-                }}
-              >
-                {sideDoor.arrivesAtEquationId}
-              </span>
-            </p>
-            {sideDoor.entryRecordId && (
-              <p
-                style={{
-                  fontSize: "0.6875rem",
-                  color: "var(--muted)",
-                  fontFamily: "var(--font-mono, monospace)",
-                  margin: 0,
-                }}
-              >
-                entry: #{sideDoor.entryRecordId}
-              </p>
-            )}
-          </div>
+          <DoorCard key={sideDoor.id} door={sideDoor} kind="side-door" />
         ))}
       </div>
     </section>
