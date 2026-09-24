@@ -5,14 +5,22 @@ export type Sr01ParameterCheck =
   | { kind: "accepted"; data: Sr01Parameters }
   | { kind: "refused"; refusal: ReturnType<typeof makeRefusal> };
 
+/** What each speed control is called on the page, for the sentence a refused value shows. */
+const SPEED_NAMES: Partial<Record<keyof Sr01Parameters, string>> = {
+  rodBeta: "the stations' speed (section 2)",
+  pairBeta: "the moving pair's velocity",
+  frameBeta: "the frame of description's speed",
+};
+
 function refuseBeta(name: keyof Sr01Parameters, value: number): Sr01ParameterCheck | null {
+  const speed = SPEED_NAMES[name] ?? "the speed";
   if (!Number.isFinite(value)) {
     return {
       kind: "refused",
       refusal: makeRefusal(
         "nonfinite-input",
         { parameterIds: [name] },
-        { details: { requirements: `${name} must be a finite number.` } },
+        { details: { requirements: `Enter ${speed} as a fraction of c, between −1 and 1.` } },
       ),
     };
   }
@@ -25,7 +33,7 @@ function refuseBeta(name: keyof Sr01Parameters, value: number): Sr01ParameterChe
         {
           details: {
             code: "superluminal-observer",
-            requirements: "No inertial observer moves at or above light speed (|v/c| < 1).",
+            requirements: `Enter ${speed} as a fraction of c strictly between −1 and 1: no inertial observer moves at or above light speed.`,
           },
         },
       ),
@@ -35,6 +43,8 @@ function refuseBeta(name: keyof Sr01Parameters, value: number): Sr01ParameterChe
 }
 
 function refuseSeparation(name: keyof Sr01Parameters, value: number): Sr01ParameterCheck | null {
+  const what =
+    name === "pairSeparationLs" ? "the moving pair's separation L" : "the station separation AB";
   if (!Number.isFinite(value) || value <= 0) {
     return {
       kind: "refused",
@@ -42,7 +52,9 @@ function refuseSeparation(name: keyof Sr01Parameters, value: number): Sr01Parame
         "invalid-parameter",
         { parameterIds: [name] },
         {
-          details: { requirements: `${name} must be a finite, positive number of light-seconds.` },
+          details: {
+            requirements: `Enter ${what} as a number greater than zero, in light-seconds.`,
+          },
         },
       ),
     };
@@ -75,7 +87,11 @@ export function validateSr01Parameters(input: unknown): Sr01ParameterCheck {
       refusal: makeRefusal(
         "nonfinite-input",
         { parameterIds: ["emissionTimeA"] },
-        { details: { requirements: "emissionTimeA must be a finite number of seconds." } },
+        {
+          details: {
+            requirements: "Enter the signal's emission time at A as a number of seconds.",
+          },
+        },
       ),
     };
   }
@@ -87,7 +103,7 @@ export function validateSr01Parameters(input: unknown): Sr01ParameterCheck {
       refusal: makeRefusal(
         "nonfinite-input",
         { parameterIds: ["clockOffsetB"] },
-        { details: { requirements: "clockOffsetB must be a finite number of seconds." } },
+        { details: { requirements: "Enter clock B's initial offset as a number of seconds." } },
       ),
     };
   }

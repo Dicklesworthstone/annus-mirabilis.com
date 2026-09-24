@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
 import {
   SR01_CAPTION,
   SR01_DEFAULTS,
@@ -91,7 +92,7 @@ export function ClockSyncLab({
     }
     const result = session.apply(decoded.parameters);
     if (result.kind === "refused") {
-      setError(result.refusal.message);
+      setError(refusalSentence(result.refusal));
       setRefusalCode(result.refusal.code);
       return;
     }
@@ -113,10 +114,8 @@ export function ClockSyncLab({
     const outcome = session.apply(next);
     if (outcome.kind === "refused") {
       const details = outcome.refusal.details;
-      const req =
-        typeof details?.requirements === "string" ? details.requirements : outcome.refusal.message;
       const code = typeof details?.code === "string" ? details.code : outcome.refusal.code;
-      setError(req);
+      setError(refusalSentence(outcome.refusal));
       setRefusalCode(code);
       return;
     }
