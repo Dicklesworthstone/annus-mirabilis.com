@@ -4,7 +4,7 @@
 
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { installDom, uninstallDom } from "../testing/reactDom.ts";
-import { dropRepeatedHits } from "./CommandPalette.ts";
+import { dropRepeatedHits, filtersLabel, openCommandPalette } from "./CommandPalette.ts";
 import { isEditableTarget, isPaletteShortcut } from "./CommandPalette.tsx";
 import type { SearchDocument, SearchHit } from "./core.ts";
 
@@ -128,5 +128,56 @@ describe("dropRepeatedHits: the palette lists a result once", () => {
     const argument = hit(doc({}), 3);
     const sameTitleElsewhere = hit(doc({ id: "arg-other", anchor: "arg-other" }), 2);
     expect(dropRepeatedHits([argument, sameTitleElsewhere])).toHaveLength(2);
+  });
+});
+
+describe("the Filters disclosure (dispatch 118: the palette on a phone)", () => {
+  beforeEach(async () => {
+    await installDom();
+  });
+  afterEach(async () => {
+    for (const dialog of document.querySelectorAll("dialog")) dialog.remove();
+    await uninstallDom();
+  });
+
+  it("labels itself by the number of filters in use", () => {
+    expect(filtersLabel([])).toBe("Filters");
+    expect(filtersLabel(["", ""])).toBe("Filters");
+    expect(filtersLabel(["light-quanta", ""])).toBe("Filters · 1");
+    expect(filtersLabel(["light-quanta", "equation"])).toBe("Filters · 2");
+  });
+
+  it("sits between the query and the filters it controls, and opens and closes them", async () => {
+    // The index is fetched as the palette opens; there is no server here, so answer 404 at once.
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = (async () => new Response("", { status: 404 })) as unknown as typeof fetch;
+    try {
+      const close = openCommandPalette({});
+      const dialog = document.querySelector("dialog[data-search-dialog]") as HTMLDialogElement;
+      const input = dialog.querySelector("input") as HTMLInputElement;
+      const toggle = dialog.querySelector(".search-filters-toggle") as HTMLButtonElement;
+      const filters = dialog.querySelector(".search-filters") as HTMLElement;
+      const results = dialog.querySelector(".search-results") as HTMLElement;
+      expect(toggle).not.toBeNull();
+      // Reading and tabbing order: the query, then the filters, then the results.
+      const order = [
+        ...dialog.querySelectorAll(
+          "input, .search-filters-toggle, .search-filters, .search-results",
+        ),
+      ];
+      expect(order).toEqual([input, toggle, filters, results]);
+      expect(toggle.getAttribute("aria-controls")).toBe(filters.id);
+      expect(toggle.getAttribute("aria-expanded")).toBe("false");
+      expect(filters.classList.contains("is-open")).toBe(false);
+      toggle.click();
+      expect(toggle.getAttribute("aria-expanded")).toBe("true");
+      expect(filters.classList.contains("is-open")).toBe(true);
+      toggle.click();
+      expect(toggle.getAttribute("aria-expanded")).toBe("false");
+      expect(filters.classList.contains("is-open")).toBe(false);
+      close();
+    } finally {
+      globalThis.fetch = realFetch;
+    }
   });
 });

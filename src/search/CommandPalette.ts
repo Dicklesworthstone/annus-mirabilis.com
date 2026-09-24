@@ -37,11 +37,12 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, text?: string, c
   return node;
 }
 
-/**
- * A lazily mounted, native modal. It owns only its appended subtree and releases every
- * listener on close. Text is assigned with textContent; no result HTML is interpreted.
- * Keeping the controller DOM-native lets the same implementation run in browser fixtures.
- */
+/** "Filters", or "Filters · 2" when two filters narrow the search (an empty value is "all"). */
+export function filtersLabel(values: readonly string[]): string {
+  const active = values.filter((value) => value !== "").length;
+  return active ? `Filters · ${active}` : "Filters";
+}
+
 /**
  * A hit whose destination AND title repeat a better-ranked one is dropped; the order of the rest
  * is kept. Destination alone is not enough: an equation links to the argument that holds it, under
@@ -59,6 +60,11 @@ export function dropRepeatedHits(hits: readonly SearchHit[]): SearchHit[] {
   });
 }
 
+/**
+ * A lazily mounted, native modal. It owns only its appended subtree and releases every
+ * listener on close. Text is assigned with textContent; no result HTML is interpreted.
+ * Keeping the controller DOM-native lets the same implementation run in browser fixtures.
+ */
 export function openCommandPalette(
   options: {
     load?: () => Promise<LoadedSearch>;
@@ -91,7 +97,7 @@ export function openCommandPalette(
   const privacy = element(
     "p",
     "Your searches stay on this device and are not saved. Once the index has loaded, search keeps working offline while this page is open.",
-    "fine",
+    "fine search-privacy",
   );
   privacy.id = `${id}-privacy`;
   const label = element("label", "Words, names or symbols");
@@ -108,6 +114,14 @@ export function openCommandPalette(
   input.setAttribute("aria-expanded", "false");
   input.setAttribute("aria-controls", `${id}-results`);
   const filters = element("div", undefined, "search-filters");
+  filters.id = `${id}-filters`;
+  // On a phone the two filters sit behind this button (search.css hides it from 580px up, where
+  // the filters always show): stacked, they took about 160px of a 390x844 screen, and the results
+  // pane had room for no whole result. The label counts the filters in use.
+  const filtersToggle = element("button", "Filters", "secondary search-filters-toggle");
+  filtersToggle.type = "button";
+  filtersToggle.setAttribute("aria-expanded", "false");
+  filtersToggle.setAttribute("aria-controls", filters.id);
   const paperLabel = element("label", "Paper or collection");
   const paper = element("select");
   paperLabel.htmlFor = `${id}-paper`;
@@ -149,7 +163,19 @@ export function openCommandPalette(
     "Use Up and Down to select a result, Enter to open it, or Escape to return to your reading.",
     "fine search-keyboard-help",
   );
-  dialog.append(heading, privacy, label, input, filters, status, results, retry, help, browse);
+  dialog.append(
+    heading,
+    privacy,
+    label,
+    input,
+    filtersToggle,
+    filters,
+    status,
+    results,
+    retry,
+    help,
+    browse,
+  );
 
   function close() {
     if (closed) return;
@@ -333,6 +359,20 @@ export function openCommandPalette(
   input.addEventListener("input", scheduleSearch, events);
   paper.addEventListener("change", scheduleSearch, events);
   type.addEventListener("change", scheduleSearch, events);
+  const countFilters = () => {
+    filtersToggle.textContent = filtersLabel([paper.value, type.value]);
+  };
+  paper.addEventListener("change", countFilters, events);
+  type.addEventListener("change", countFilters, events);
+  filtersToggle.addEventListener(
+    "click",
+    () => {
+      const open = filtersToggle.getAttribute("aria-expanded") !== "true";
+      filtersToggle.setAttribute("aria-expanded", String(open));
+      filters.classList.toggle("is-open", open);
+    },
+    events,
+  );
   retry.addEventListener(
     "click",
     () => {
