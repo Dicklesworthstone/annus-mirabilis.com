@@ -9,8 +9,9 @@
  * WHAT THE ARCHIVE RECORDS, read from its own page on 2026-09-24 (ETH-Bibliothek, "Einstein online",
  * Beamter im Patentamt 1900-1909): caption "Einstein at the Patent Office Bern, ca. 1905",
  * photographer "Unknown", Public Domain Mark, doi:10.3932/ethz-a-000495740. The decision above and
- * Wikimedia Commons credit Lucien Chavan. The two disagree, so the caption gives the archive's
- * record and says the picture is also credited to Chavan, rather than choosing between them.
+ * Wikimedia Commons credit Lucien Chavan. TanElk's ruling (dispatch 123, 2026-09-24): credit what the
+ * holding institution records, link its record, and label the Chavan attribution as an attribution,
+ * never as fact.
  *
  * WHERE THE FILE CAME FROM. Wikimedia Commons' copy of the archive's scan, uploaded from ETH and
  * credited there to "ETH-Bibliothek Zürich, Bildarchiv", 8206 x 11811 px, fetched 2026-09-24. The
@@ -26,7 +27,8 @@ export const PORTRAIT = {
   doi: "10.3932/ethz-a-000495740",
   archiveCaption: "Einstein at the Patent Office Bern, ca. 1905",
   archivePhotographer: "Unknown",
-  alsoCreditedTo: "Lucien Chavan",
+  /** An attribution, not the library's record: shown as "often attributed to", never as fact. */
+  attributedTo: "Lucien Chavan",
   rights: "Public Domain Mark",
   recordReadAt: "2026-09-24",
   originUrl:

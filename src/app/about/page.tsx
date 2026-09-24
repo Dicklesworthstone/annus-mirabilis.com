@@ -97,8 +97,8 @@ export default function AboutPage() {
         </p>
       </header>
 
-      {/* The credit is the archive's own record (portrait.ts), including where it and the usual
-          attribution disagree. A plain img with a srcSet, as the plates are: images.unoptimized
+      {/* The credit is the holding library's own record (portrait.ts), and the usual attribution
+          is labelled as one, never stated as fact (TanElk's ruling, dispatch 123, 2026-09-24). A plain img with a srcSet, as the plates are: images.unoptimized
           means next/image would emit no srcset of its own. */}
       <figure className="about-portrait">
         <img
@@ -111,10 +111,9 @@ export default function AboutPage() {
           alt={PORTRAIT.alt}
         />
         <figcaption>
-          Einstein at the patent office in Bern, about 1905. {PORTRAIT.archive},{" "}
-          <a href={`https://doi.org/${PORTRAIT.doi}`}>{PORTRAIT.identifier}</a>, public domain. The
-          archive records the photographer as unknown; the picture is also credited to{" "}
-          {PORTRAIT.alsoCreditedTo}.
+          Einstein at the Bern patent office, about 1905. {PORTRAIT.archive},{" "}
+          <a href={`https://doi.org/${PORTRAIT.doi}`}>{PORTRAIT.identifier}</a>. The library records
+          the photographer as unknown; the portrait is often attributed to {PORTRAIT.attributedTo}.
         </figcaption>
       </figure>
 
