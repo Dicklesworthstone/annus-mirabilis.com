@@ -112,32 +112,48 @@ describe("WASM Artifact Verification Suite", () => {
 
   describe("anti-RH-2 honesty and capability export invariants (am-a11y-action-contracts-n68n)", () => {
     it("manifest does not assert false build step, toolchain, wasm-pack or wasm-bindgen version", () => {
+      // Repinned from the synthetic placeholder to the compiled artifact
+      // (am-frankensim-repin-and-bind-jvhg). The assertion is unchanged: every build claim the
+      // manifest makes is true. What is true changed. Each claimed value is now read back from
+      // the file that decides it, and nothing the build did not use is claimed.
       const rawManifest = manifest as unknown as Record<string, unknown>;
-      assert.equal(rawManifest.toolchain, undefined, "Manifest must not claim a false toolchain");
+      const crate = resolve("scripts/wasm-artifacts/fs-annus-wasm");
+      const channel = readFileSync(join(crate, "rust-toolchain.toml"), "utf8").match(
+        /^channel = "([^"]+)"/m,
+      )?.[1];
+      assert.equal(rawManifest.toolchain, channel, "Manifest must not claim a false toolchain");
       assert.equal(
         rawManifest.wasmPackVersion,
         undefined,
-        "Manifest must not claim a false wasm-pack version",
+        "Manifest must not claim a false wasm-pack version (wasm-pack is not used)",
       );
-      assert.equal(
-        rawManifest.wasmBindgenVersion,
-        undefined,
+      const lock = readFileSync(join(crate, "Cargo.lock"), "utf8");
+      assert.ok(
+        lock.includes(
+          `name = "wasm-bindgen"\nversion = "${String(rawManifest.wasmBindgenVersion)}"`,
+        ),
         "Manifest must not claim a false wasm-bindgen version",
       );
       assert.equal(
         manifest.build?.generator,
-        "scripts/wasm-artifacts/wasmArtifactGenerator.ts",
-        "Manifest must truthfully identify the placeholder generator",
+        "scripts/wasm-artifacts/fs-annus-wasm",
+        "Manifest must truthfully identify the crate that built the artifact",
       );
       assert.equal(
         manifest.build?.generatorType,
-        "synthetic-placeholder",
-        "Manifest must truthfully label artifact as synthetic placeholder",
+        "rust-wasm-bindgen",
+        "Manifest must truthfully label the artifact as a compiled Rust build",
       );
-      assert.equal(
-        (manifest.build as Record<string, unknown> | undefined)?.command,
-        undefined,
+      const command = (manifest.build as Record<string, unknown> | undefined)?.command;
+      assert.match(
+        String(command),
+        /^cargo build --release --locked --target wasm32-unknown-unknown .*wasm-bindgen --target web/,
         "Manifest must not assert a false build command",
+      );
+      const pins = readFileSync(join(crate, "src/pins.rs"), "utf8");
+      assert.ok(
+        pins.includes(`FRANKENSIM_REVISION: &str = "${manifest.revisions.frankensim}"`),
+        "Manifest must not claim a FrankenSim revision the crate does not pin",
       );
     });
 
@@ -177,14 +193,21 @@ describe("WASM Artifact Verification Suite", () => {
         validateCapabilitiesAgainstWasm(manifest.capabilities, actualExports),
       );
 
-      // Must throw for unexported capabilities (e.g. brownian_frames or bogus export)
+      // Must throw for unexported capabilities. Repinned: the placeholder lacked brownian_frames;
+      // the compiled artifact exports it but not brownian_frames_window.
+      assert.equal(actualExports.has("brownian_frames"), true);
       assert.throws(
         () =>
           validateCapabilitiesAgainstWasm(
-            [{ capabilityId: "diffusion.brownian-frames", browserExport: "brownian_frames" }],
+            [
+              {
+                capabilityId: "diffusion.brownian-frames-window",
+                browserExport: "brownian_frames_window",
+              },
+            ],
             actualExports,
           ),
-        /Missing export: capability "diffusion\.brownian-frames" requires "brownian_frames"/,
+        /Missing export: capability "diffusion\.brownian-frames-window" requires "brownian_frames_window"/,
       );
       assert.throws(
         () =>
@@ -196,13 +219,26 @@ describe("WASM Artifact Verification Suite", () => {
       );
     });
 
-    it("acceptanceState: owner-decided is not claimed for unaccepted capabilities", () => {
+    it("acceptanceState: no capability claims more acceptance than its matrix row records", async () => {
+      // Repinned. With the placeholder, capabilities was [] and any "owner-decided" would have
+      // been a claim about capabilities that did not exist. The compiled artifact declares the
+      // three it exports, copying their rows' state, owner-decided (docs/FRANKENSIM_BINDING.md
+      // family 3). The assertion is still that no acceptance is overclaimed. The states that
+      // need evidence, verified and adopted, stay unclaimed, and each state equals its row's.
+      const { parseCapabilityMatrix } = await import(
+        "../../scripts/wasm-artifacts/capabilityMatrix.ts"
+      );
+      const matrix = parseCapabilityMatrix(
+        readFileSync(resolve("docs/FRANKENSIM_BINDING.md"), "utf8"),
+      );
+      assert.ok(manifest.capabilities.length > 0);
       for (const cap of manifest.capabilities) {
-        assert.notEqual(
-          cap.acceptanceState,
-          "owner-decided",
-          `Capability "${cap.capabilityId}" falsely asserts acceptanceState "owner-decided"`,
+        assert.ok(
+          !["verified", "adopted"].includes(cap.acceptanceState),
+          `Capability "${cap.capabilityId}" claims "${cap.acceptanceState}" without evidence`,
         );
+        const row = matrix.find((r) => r.capabilityId === cap.capabilityId);
+        assert.equal(cap.acceptanceState, row?.acceptanceState, cap.capabilityId);
       }
     });
 

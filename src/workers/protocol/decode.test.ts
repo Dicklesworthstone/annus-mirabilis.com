@@ -31,9 +31,9 @@ registerAdmittedEvaluators({
 registerAdmittedManifest({
   schemaVersion: 1,
   bundleId: "test-bundle",
-  wasmDigest: "105d7ffc15414de5eccebcbcae942015b187fed0ea67a26ced5c50949593bb7b",
-  wasmBytes: 154,
-  hashPrefix: "105d7ffc",
+  wasmDigest: "80a1f8fda6f69003c9aa40f991726933c265b6c13ce6062faf5faef479a917bd",
+  wasmBytes: 92751,
+  hashPrefix: "80a1f8fd",
   revisions: { frankensim: "pinned" },
   streamSemanticsVersion: 1,
   capabilities: [
@@ -48,7 +48,7 @@ registerAdmittedManifest({
   sizeBudget: {
     maxBytes: 500000,
     fullPackageBytes: 400000,
-    recordedBytes: 154,
+    recordedBytes: 92751,
   },
   files: {},
 });

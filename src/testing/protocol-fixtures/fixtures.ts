@@ -293,7 +293,7 @@ export const MALFORMED_CORPUS: readonly MalformedTestCase[] = [
         ownerKind: "frankensim",
         capabilityId: "unadmitted-super-solver",
         modelVersion: "1.0.0",
-        artifactDigest: "sha256:105d7ffc15414de5eccebcbcae942015b187fed0ea67a26ced5c50949593bb7b",
+        artifactDigest: "sha256:80a1f8fda6f69003c9aa40f991726933c265b6c13ce6062faf5faef479a917bd",
         streamVersion: 1,
         determinismClass: "bitwise-identical",
       },
