@@ -23,12 +23,11 @@ async function deflateRaw(bytes: Uint8Array): Promise<Uint8Array> {
   return new Uint8Array(await new Response(stream).arrayBuffer());
 }
 
-class DecompressedTooLarge extends Error {
-  override readonly name = "DecompressedTooLarge";
-}
-
 /** Inflates, stopping as soon as the output passes the cap, as node's maxOutputLength does. */
-async function inflateRawCapped(bytes: Uint8Array, cap: number): Promise<Uint8Array> {
+async function inflateRawCapped(
+  bytes: Uint8Array,
+  cap: number,
+): Promise<Readonly<{ kind: "bytes"; bytes: Uint8Array }> | Readonly<{ kind: "too-large" }>> {
   const reader = new Blob([bytes])
     .stream()
     .pipeThrough(new DecompressionStream("deflate-raw"))
@@ -41,7 +40,7 @@ async function inflateRawCapped(bytes: Uint8Array, cap: number): Promise<Uint8Ar
     total += value.byteLength;
     if (total > cap) {
       await reader.cancel();
-      throw new DecompressedTooLarge(`Output length exceeded ${cap} bytes.`);
+      return { kind: "too-large" };
     }
     chunks.push(value);
   }
@@ -51,7 +50,7 @@ async function inflateRawCapped(bytes: Uint8Array, cap: number): Promise<Uint8Ar
     out.set(chunk, offset);
     offset += chunk.byteLength;
   }
-  return out;
+  return { kind: "bytes", bytes: out };
 }
 
 /** encodeTapePermalink for a page: the same Base64URL text codec.ts writes for the same tape. */
@@ -72,10 +71,12 @@ export async function decodeTapePermalinkInBrowser(
 
   let text = "";
   try {
-    const decompressed = await inflateRawCapped(bytes, MAX_DECOMPRESSED_TAPE_BYTES);
-    text = new TextDecoder("utf-8", { fatal: true }).decode(decompressed);
+    const inflated = await inflateRawCapped(bytes, MAX_DECOMPRESSED_TAPE_BYTES);
+    if (inflated.kind === "too-large") {
+      return oversizeDecompressed(`Output length exceeded ${MAX_DECOMPRESSED_TAPE_BYTES} bytes.`);
+    }
+    text = new TextDecoder("utf-8", { fatal: true }).decode(inflated.bytes);
   } catch (err: unknown) {
-    if (err instanceof DecompressedTooLarge) return oversizeDecompressed(err);
     const fallback = uncompressedFallback(bytes, err);
     if (fallback.kind !== "text") return fallback;
     text = fallback.text;
