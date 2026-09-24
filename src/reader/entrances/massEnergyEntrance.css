@@ -38,6 +38,31 @@
 .me-subtraction-steps li {
   margin-block: 0.75rem;
 }
+/* THE PREMISE GROUP IS NOT A BOX. A fieldset draws its border through its legend, and at 390 this
+   legend is two lines ("Test the interpretation, not the arithmetic"): the rule broke across the
+   first line and the second hung inside the box below it. The group already sits inside the
+   entrance's frame, so it needs only its legend. */
+.me-entrance .me-premise {
+  border: 0;
+  padding: 0;
+}
+/* The checkbox was the browser's default blue, the one blue on the page; the counting and clock
+   entrances already give theirs the ink colour and a 20px box (countingEntrance.css). */
+.me-entrance input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--ink);
+}
+/* On a phone the entrance's frame cost two borders and two paddings of a 358px column, around
+   ledger cards that draw their own borders around dashed boxes: three nested frames, and a
+   330px measure for the text. The other first encounters have no frame at any width. */
+@media (max-width: 560px) {
+  .me-entrance {
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+}
 .me-table {
   max-width: 100%;
   overflow-x: auto;
