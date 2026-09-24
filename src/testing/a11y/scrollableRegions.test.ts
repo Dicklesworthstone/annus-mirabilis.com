@@ -242,6 +242,15 @@ export const RECORDED_NON_OVERFLOWING: ReadonlyMap<string, NonOverflowingRecord>
           "Telemetry snapshot table formats short numeric cells and fits the container at both widths, so its tabIndex is a tab stop with nothing to scroll.",
         measuredBy: "pane28, measured against the built site under am-6iz4",
       },
+      {
+        file: "src/equations/missingStep/MissingStepPanel.tsx",
+        className: "missing-step-math",
+        url: "/papers/brownian-motion/",
+        measurements: "320px: 254px/254px (diff 0); 1280px: 308px/308px (diff 0)",
+        reason:
+          "One JSX element rendering the Before and After of each missing step: 16 instances, 8 on /papers/brownian-motion/ and 8 on its /s4/ section, all measured on live 254d3459 with every <details> opened, and the widest is given. It was 4 of 16 overflowing (317px/254px) before the derivation steps were given row layouts. The content is build-time KaTeX and does not grow with reader input; if one ever overflows, formulaOverflow.inline.ts gives it a named tab stop at runtime.",
+        measuredBy: "GreenBarn under am-14at, 2026-09-24",
+      },
     ] satisfies readonly NonOverflowingRecord[]
   ).map((r) => [recordKey(r.file, r.className, r.ariaLabel), r]),
 );
@@ -502,6 +511,13 @@ export const AUDITED_SCROLL_CLASSES = [
   // aria-label "Accepted observations, residuals and row selection"; the focus ring is the global
   // :focus-visible outline.
   "photo-data-table",
+  // missing-step-math: overflow-x: auto on the Before and After of each Brownian missing step.
+  // Promoted from NOT_YET_AUDITED under am-14at: all 16 instances fit at 320px and 1280px, so the
+  // element needs no tabIndex, and without one it is exempt only through its
+  // RECORDED_NON_OVERFLOWING entry.
+  // Listing it here is what makes that entry load-bearing: removed, the element counts as
+  // unreachable, where before this class was not counted at all.
+  "missing-step-math",
 ];
 
 /**
@@ -540,7 +556,6 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   ["low-speed-table", 1],
   ["mass-energy-investigation", 1],
   ["me-table", 0],
-  ["missing-step-math", 0],
   ["missing-step-table", 1],
   ["notebook-dialog", 0],
   ["notebook-replay", 0],
