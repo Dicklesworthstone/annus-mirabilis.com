@@ -730,6 +730,10 @@ h3 {
      buys - the section opening is long because the copy in it is long, not because
      the title is large. See the commit for the block-by-block budget. */
   font-size: clamp(2.1rem, 3.6vw, 3.4rem);
+  /* The global -0.045em is set for 90px poster type; at 34-54px it closes letters up against
+     each other ("rt", "th", "idea"). -0.02em is the value .encounter h1 settled on for the
+     same reason. */
+  letter-spacing: -0.02em;
 }
 .encounter header {
   margin-bottom: 3rem;
