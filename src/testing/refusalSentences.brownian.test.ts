@@ -6,9 +6,13 @@ import { BM03_DEFAULTS } from "../experiments/bm03/definition.ts";
 import { fromBm04Draft, toBm04Draft } from "../experiments/bm04/controls.ts";
 import { BM04_DEFAULTS } from "../experiments/bm04/definition.ts";
 import { validateBm04Parameters } from "../experiments/bm04/parameters.ts";
+import { BM05_DEFAULTS } from "../experiments/bm05/definition.ts";
+import { validateBm05Parameters } from "../experiments/bm05/parameters.ts";
 import { fromBm06Draft, toBm06Draft } from "../experiments/bm06/controls.ts";
 import { BM06_DEFAULTS } from "../experiments/bm06/definition.ts";
 import { validateBm06Parameters } from "../experiments/bm06/parameters.ts";
+import { BM07_DEFAULTS } from "../experiments/bm07/definition.ts";
+import { validateBm07Parameters } from "../experiments/bm07/parameters.ts";
 import { fromLq01Draft, toLq01Draft } from "../experiments/lq01/controls.ts";
 import { LQ01_DEFAULTS } from "../experiments/lq01/definition.ts";
 import { validateLq01Parameters } from "../experiments/lq01/parameters.ts";
@@ -21,7 +25,7 @@ import { enterNumberSentence, refusalSentence } from "../experiments/results/ref
  * in norm". Each refused value must now name its control and say what to enter.
  */
 const UNSPECIFIC =
-  /stated units|One of the inputs|representable|finite decimal|in (norm|ratio|count|×)\b|must be positive/;
+  /stated units|One of the inputs|representable|finite decimal|in (norm|ratio|count|×)\b|must be positive|\[0, ?1\]/;
 
 type Check = { kind: string; refusal?: Parameters<typeof refusalSentence>[0] };
 const VALIDATOR_CASES: readonly (readonly [string, () => Check, string])[] = [
@@ -58,6 +62,46 @@ const VALIDATOR_CASES: readonly (readonly [string, () => Check, string])[] = [
     "bm-06 viscosity NaN",
     () => validateBm06Parameters({ ...BM06_DEFAULTS, eta: Number.NaN }),
     "viscosity",
+  ],
+  [
+    "bm-05 step RMS 0",
+    () => validateBm05Parameters({ ...BM05_DEFAULTS, stepRms: 0 }),
+    "step RMS size",
+  ],
+  [
+    "bm-05 20000 recorded steps",
+    () => validateBm05Parameters({ ...BM05_DEFAULTS, runSteps: 20000 }),
+    "recorded steps",
+  ],
+  [
+    "bm-05 right-step probability 2",
+    () => validateBm05Parameters({ ...BM05_DEFAULTS, bias: 2 }),
+    "right-step probability",
+  ],
+  [
+    "bm-05 time between steps NaN",
+    () => validateBm05Parameters({ ...BM05_DEFAULTS, tau: Number.NaN }),
+    "time between steps",
+  ],
+  [
+    "bm-07 generator radius 0",
+    () => validateBm07Parameters({ ...BM07_DEFAULTS, generatorRadius: 0 }),
+    "generator radius",
+  ],
+  [
+    "bm-07 radius relative bound 100%",
+    () => validateBm07Parameters({ ...BM07_DEFAULTS, radiusError: 1 }),
+    "radius relative bound",
+  ],
+  [
+    "bm-07 assumed viscosity NaN",
+    () => validateBm07Parameters({ ...BM07_DEFAULTS, eta: Number.NaN }),
+    "assumed viscosity",
+  ],
+  [
+    "bm-07 0 displacements",
+    () => validateBm07Parameters({ ...BM07_DEFAULTS, M: 0 }),
+    "displacements",
   ],
   [
     "lq-01 wave 2 amplitude -1",
