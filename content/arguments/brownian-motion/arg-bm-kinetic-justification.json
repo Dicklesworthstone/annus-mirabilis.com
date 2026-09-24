@@ -1,0 +1,302 @@
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-bm-kinetic-justification",
+  "paper": "brownian-motion",
+  "section": "s2",
+  "title": "How molecular theory gives the osmotic law without solving the motion",
+  "question": "How can a theory of countless moving molecules give the osmotic pressure of dissolved molecules and suspended bodies without anyone solving their motion?",
+  "recap": "Einstein writes the free energy as F = -(RT/N) lg B, where B is an integral over every state of the system. He cannot compute B, but he needs only how it depends on the volume V* the particles are held in. If they move independently to a sufficient approximation, in a homogeneous liquid, with no forces on them, B is a factor J that does not depend on V* times V* to the power n, and the change of F with V* gives p = (RT/N)ν for dissolved molecules and suspended bodies alike.",
+  "review": "draft",
+  "premises": [
+    "Einstein's statistical theory of heat of 1902 and 1903: for a system whose state variables change by equations whose rates satisfy the sum condition of §2, the entropy and the free energy are given by the logarithm of an integral over all its states.",
+    "The particles move independently of one another to a sufficient approximation, the liquid is homogeneous, and no forces act on the particles.",
+    "The total volume of the particles is small compared with the volume V* that holds them."
+  ],
+  "limitations": [
+    "The footnote to the heading says this section, and Einstein's earlier papers on the foundations of thermodynamics, are not needed to understand the paper's results. The passage explains the section for the reader who wants to know how the law is obtained.",
+    "The argument finds only how the free energy depends on V*; it computes nothing else about the integral B.",
+    "Independence, homogeneity and the absence of forces are assumptions. With particles that act on one another, or crowded ones, J would depend on their positions and the pressure would depart from the dilute law."
+  ],
+  "citations": ["ap-17-549"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "Einstein's statistical theory of heat gives the free energy as a logarithm of an integral over all the states of the system. He cannot compute that integral, but he needs only how it changes with the volume the particles are held in, and if they move independently in a uniform liquid with no forces on them, that dependence gives the osmotic pressure (RT/N)ν for dissolved molecules and suspended bodies alike. A footnote says the section is not needed for the paper's results."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "A footnote to the heading says what this section assumes and what it is for. It takes as known Einstein's papers on the foundations of thermodynamics (Ann. d. Phys. 9, p. 417, 1902; 11, p. 170, 1903), and says that neither those papers nor this section is needed to understand the results of the present paper. The section is still worth reading, because it answers the question §1 leaves open: how can a theory of countless colliding molecules give a law as simple as van 't Hoff's, for dissolved molecules and suspended bodies alike, without anyone solving their motions?"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Einstein describes the whole system, liquid, wall and particles, by state variables \\(p_1, \\ldots, p_l\\) that fix its momentary state completely, for example the coordinates and velocity components of all its atoms. How they change in time is given by equations of the form"
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{\\partial p_\\nu}{\\partial t}=\\varphi_\\nu(p_1,\\ldots,p_l)",
+        "spoken": "The rate of change of p nu with time equals phi nu, a function of p 1 through p l."
+      },
+      {
+        "kind": "paragraph",
+        "text": "with the condition \\(\\sum \\frac{\\partial \\varphi_\\nu}{\\partial p_\\nu} = 0\\). Two of these letters are used elsewhere in the paper for other things: these \\(p_\\nu\\) are not the osmotic pressure p of §1, and these \\(\\varphi_\\nu\\), the rates of change of the state variables, are not the φ of §4."
+      },
+      {
+        "kind": "paragraph",
+        "text": "For such a system his earlier theory gives the entropy S as an expression containing the logarithm, printed lg and meaning the natural logarithm, of an integral taken over every combination of the state variables that the conditions of the problem allow. In it T is the absolute temperature, Ē (printed with a bar) the energy of the system, and E the energy as a function of the \\(p_\\nu\\). The constant is printed as 2κ, and Einstein ties κ to N by 2κN = R, so 2κ is R/N. For the free energy F he obtains"
+      },
+      {
+        "kind": "formula",
+        "latex": "F=-\\frac{R}{N}T\\lg\\int e^{-\\frac{EN}{RT}}\\,dp_1\\ldots dp_l=-\\frac{RT}{N}\\lg B",
+        "spoken": "F equals minus R over N times T times the logarithm of the integral of e to the minus E N over R T, over d p 1 through d p l, which equals minus R T over N times the logarithm of B."
+      },
+      {
+        "kind": "paragraph",
+        "text": "and the integral is named B."
+      },
+      {
+        "kind": "foundation",
+        "id": "logarithms",
+        "returnCaption": "Return to the free energy as a logarithm of the integral B."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Even if the molecular picture were fixed in every detail, Einstein says, computing B would be so hard that an exact calculation of F is hardly conceivable. But the pressure needs only how F depends on the volume \\(V^*\\) in which all the particles are held. (Particles, 'Teilchen', is his short word for dissolved molecules and suspended bodies alike.)"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Put n particles in \\(V^*\\), held there by a semipermeable wall, their total volume small compared with \\(V^*\\). Where the wall stands limits the range of the integral B. Name the coordinates of the particles' centres of gravity \\(x_1, y_1, z_1\\) through \\(x_n, y_n, z_n\\), give each centre a tiny box inside \\(V^*\\), and ask for the part of B that comes from states with every centre in its box. It has the form"
+      },
+      {
+        "kind": "formula",
+        "latex": "dB=dx_1\\,dy_1\\ldots dz_n\\cdot J",
+        "spoken": "d B equals d x 1, d y 1, and so on up to d z n, times J."
+      },
+      {
+        "kind": "paragraph",
+        "text": "where the factor J does not depend on the box sizes, nor on \\(V^*\\), that is, on where the wall is. J does not depend on where the boxes are either. Take a second set of boxes, of the same sizes, in other places inside \\(V^*\\); its part of B is \\(dB'\\) with a factor \\(J'\\). Since the sizes are equal,"
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{dB}{dB'}=\\frac{J}{J'}",
+        "spoken": "d B over d B prime equals J over J prime."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Einstein's earlier theory gives these parts a meaning: dB/B is the probability that, at a moment chosen at random, the centres are in the given boxes. If the particles move independently of one another, to a sufficient approximation, the liquid is homogeneous and no forces act on the particles, then equal boxes are equally probable wherever they are, so"
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{dB}{B}=\\frac{dB'}{B}",
+        "spoken": "d B over B equals d B prime over B."
+      },
+      {
+        "kind": "paragraph",
+        "text": "and with the previous equation, \\(J = J'\\)."
+      },
+      {
+        "kind": "foundation",
+        "id": "probability-independence",
+        "returnCaption": "Return to why equal boxes are equally probable."
+      },
+      {
+        "kind": "paragraph",
+        "text": "So J depends neither on \\(V^*\\) nor on where the particles are. Integrating over all positions of the n centres, each ranging over the volume \\(V^*\\), gives"
+      },
+      {
+        "kind": "formula",
+        "latex": "B=\\int J\\,dx_1\\ldots dz_n=JV^{*n}",
+        "spoken": "B equals the integral of J over d x 1 through d z n, which equals J times V star to the power n."
+      },
+      {
+        "kind": "paragraph",
+        "text": "and so the free energy is"
+      },
+      {
+        "kind": "formula",
+        "latex": "F=-\\frac{RT}{N}\\left\\{\\lg J+n\\lg V^*\\right\\}",
+        "spoken": "F equals minus R T over N, times the logarithm of J plus n times the logarithm of V star."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The pressure on the wall is minus the rate at which F changes as \\(V^*\\) grows:"
+      },
+      {
+        "kind": "formula",
+        "latex": "p=-\\frac{\\partial F}{\\partial V^*}=\\frac{RT}{V^*}\\frac{n}{N}=\\frac{RT}{N}\\,\\nu",
+        "spoken": "p equals minus the partial derivative of F with respect to V star, which equals R T over V star times n over N, which equals R T over N times nu."
+      },
+      {
+        "kind": "foundation",
+        "id": "partial-derivatives",
+        "returnCaption": "Return to the pressure as the change of free energy with volume."
+      },
+      {
+        "kind": "paragraph",
+        "text": "This shows, Einstein concludes, that osmotic pressure is a consequence of the molecular-kinetic theory of heat, and that on this theory equal numbers of dissolved molecules and suspended bodies behave exactly alike as regards osmotic pressure at great dilution. The question of how the theory avoids solving every molecular motion has a plain answer: the hard part of B, the factor J, is never computed. Only its independence of \\(V^*\\) is needed, and that follows from equal boxes being equally probable. The volume enters only through \\(V^{*n}\\), and its logarithm, \\(n\\lg V^*\\), gives the pressure."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "paragraph",
+        "text": "Letters, as the paper prints them. \\(p_1, \\ldots, p_l\\) are the state variables, l of them, which fix the state of the whole system: for example every atom's coordinates and velocity components. They are not the osmotic pressure p. \\(\\varphi_\\nu\\) is the rate at which \\(p_\\nu\\) changes; it is not the φ of §4. ∂ marks a partial derivative, a rate of change with the other variables held fixed, and Σ a sum. T is the absolute temperature. Ē, printed with a bar, is the energy of the system; E is the energy as a function of the state variables. κ is a constant with 2κN = R, where R is the gas constant and N the number of real molecules in a gram-molecule, so 2κ is R/N. lg is the natural logarithm, today written ln. S is the entropy and F the free energy. B is an integral over all states. \\(V^*\\) is the volume holding the particles, n their number, and \\(x_i, y_i, z_i\\) the coordinates of the centre of the i-th particle."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The footnote first. The section takes Einstein's 1902 and 1903 papers as known, and says that neither they nor this section is needed to understand the paper's results. A reader may skip to §3 and lose none of them. What the section adds is an answer to a question: how can a theory of countless colliding molecules give van 't Hoff's simple law, for molecules and suspended bodies alike, without anyone solving their motions?",
+          "The system. Everything, liquid, wall and particles, is described by state variables \\(p_1, \\ldots, p_l\\). How each one changes in time is given by an equation:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{\\partial p_\\nu}{\\partial t}=\\varphi_\\nu(p_1,\\ldots,p_l)",
+        "spoken": "The rate of change of p nu with time equals phi nu, a function of p 1 through p l."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The condition \\(\\sum \\frac{\\partial \\varphi_\\nu}{\\partial p_\\nu} = 0\\) says that the motion neither crowds the possible states together nor spreads them apart; the equations of mechanics have this property when the forces do not depend on the velocities. Einstein's earlier theory needs it.",
+          "Entropy and free energy. The earlier theory gives the entropy S through the logarithm of an integral of \\(e^{-EN/RT}\\) over every combination of the state variables that the conditions allow. States of higher energy E count for less, by that exponential factor. Writing 2κ as R/N, the free energy is:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "F=-\\frac{R}{N}T\\lg\\int e^{-\\frac{EN}{RT}}\\,dp_1\\ldots dp_l=-\\frac{RT}{N}\\lg B",
+        "spoken": "F equals minus R over N times T times the logarithm of the integral of e to the minus E N over R T, over d p 1 through d p l, which equals minus R T over N times the logarithm of B."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The integral is named B. So F is minus RT/N times the logarithm of B: whatever makes B larger makes F smaller.",
+          "Hopeless in full, Einstein says: even with the molecular picture fixed in every detail, computing B would be too hard for an exact calculation of F.",
+          "Not needed in full. The pressure on the wall is the change of F when the wall moves, that is, when \\(V^*\\) changes. So only how B depends on \\(V^*\\) is needed.",
+          "The particles. n of them, dissolved molecules or suspended bodies, are held in \\(V^*\\) by a semipermeable wall, and they take up little of \\(V^*\\). The wall's position sets the limits of the integral B.",
+          "Boxes. Give the centre of each particle a tiny box inside \\(V^*\\), of sides \\(dx_1, dy_1, dz_1\\) for the first particle, and so on. The part of B from states with every centre in its box is the product of the box sizes times a factor J:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "dB=dx_1\\,dy_1\\ldots dz_n\\cdot J",
+        "spoken": "d B equals d x 1, d y 1, and so on up to d z n, times J."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "J collects everything else: the liquid's molecules, the velocities, the insides of the particles. It does not depend on the box sizes, nor on where the wall is.",
+          "Moving the boxes. Choose a second set of boxes, the same sizes, in other places inside \\(V^*\\). Their part of B is \\(dB'\\), with its own factor \\(J'\\). The box sizes are the same, so dividing one form by the other leaves:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{dB}{dB'}=\\frac{J}{J'}",
+        "spoken": "d B over d B prime equals J over J prime."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "What the parts mean. dB/B is the probability that, at a moment chosen at random, every centre is in its box. The footnoted 1903 paper supplies this reading.",
+          "The assumptions. The particles move independently of one another, to a sufficient approximation; the liquid is the same everywhere; no forces act on the particles. Then no place inside \\(V^*\\) is preferred, and boxes of equal size are equally probable wherever they are:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{dB}{B}=\\frac{dB'}{B}",
+        "spoken": "d B over B equals d B prime over B."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "So \\(J = J'\\): J does not depend on where the boxes are, and, from before, not on \\(V^*\\) either.",
+          "Adding up the boxes. To get all of B, let each centre range over the whole of \\(V^*\\). Each centre contributes a factor \\(V^*\\), and there are n centres:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "B=\\int J\\,dx_1\\ldots dz_n=JV^{*n}",
+        "spoken": "B equals the integral of J over d x 1 through d z n, which equals J times V star to the power n."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "A worked case. Two particles in a box: doubling the box doubles the room for each centre, so the number of ways to place both grows by 2 × 2 = 4. With 10 particles, doubling the volume multiplies B by \\(2^{10} = 1024\\). In general B grows as \\(V^*\\) to the power n.",
+          "Taking the logarithm. The logarithm turns a product into a sum and a power into a multiple: \\(\\lg(JV^{*n}) = \\lg J + n\\lg V^*\\). So:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "F=-\\frac{RT}{N}\\left\\{\\lg J+n\\lg V^*\\right\\}",
+        "spoken": "F equals minus R T over N, times the logarithm of J plus n times the logarithm of V star."
+      },
+      {
+        "kind": "foundation",
+        "id": "logarithms",
+        "returnCaption": "Return to the free energy as a logarithm of the integral B."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The pressure. Pressure is minus the rate at which F changes with the volume. lg J does not change with \\(V^*\\). The rate of change of \\(n\\lg V^*\\) with \\(V^*\\) is n divided by \\(V^*\\). The two minus signs cancel, and \\(n/V^*\\) is ν, the number per unit volume:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "p=-\\frac{\\partial F}{\\partial V^*}=\\frac{RT}{V^*}\\frac{n}{N}=\\frac{RT}{N}\\,\\nu",
+        "spoken": "p equals minus the partial derivative of F with respect to V star, which equals R T over V star times n over N, which equals R T over N times nu."
+      },
+      {
+        "kind": "foundation",
+        "id": "partial-derivatives",
+        "returnCaption": "Return to the pressure as the change of free energy with volume."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The conclusion, as Einstein states it: osmotic pressure is a consequence of the molecular-kinetic theory of heat, and at great dilution equal numbers of dissolved molecules and suspended bodies behave exactly alike as regards osmotic pressure.",
+          "How no molecular motion had to be solved: the factor J, which holds all the hard physics, was never computed. Its independence of \\(V^*\\) was enough, and that came from equal boxes being equally probable. Nothing about a particle's size or mass entered; only its number, the temperature and the volume did.",
+          "Where it would fail: if the particles act on one another, or crowd each other, some placements are more probable than others, J depends on the positions, and the pressure departs from the dilute law. Those are exactly the assumptions Einstein states."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "probability-independence",
+        "returnCaption": "Return to why equal boxes are equally probable."
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "The footnote cites Einstein's 'Kinetische Theorie des Wärmegleichgewichtes und des zweiten Hauptsatzes der Thermodynamik' (Ann. d. Phys. 9, p. 417, 1902) and 'Eine Theorie der Grundlagen der Thermodynamik' (11, p. 170, 1903); the second footnote cites the 1903 paper for the probability reading of dB/B. A third paper of the series, 'Zur allgemeinen molekularen Theorie der Wärme' (14, p. 354, 1904), is not cited here. J. Willard Gibbs set out a closely related formulation in Elementary Principles in Statistical Mechanics (1902)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "A modern lens: the condition \\(\\sum \\frac{\\partial \\varphi_\\nu}{\\partial p_\\nu} = 0\\) is the property later texts discuss under the name of Liouville's theorem; Einstein does not use the name. In modern notation 2κ = R/N is \\(k_B\\), B is, up to a constant factor, the classical partition function, and \\(F = -\\frac{RT}{N}\\lg B\\) is \\(F = -k_BT\\ln Z\\)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "A modern lens on the limits: for particles that act on one another, J depends on their positions, and the osmotic pressure picks up corrections in powers of the number density, the virial expansion of later statistical mechanics. §2 excludes them by its stated assumptions, and §1's condition that neighbours be far apart says the same."
+      }
+    ]
+  },
+  "prerequisites": [
+    {
+      "id": "arg-bm-osmotic-suspended",
+      "edge": "cross-reference"
+    }
+  ],
+  "help": {
+    "why": "entropy-multiplicity",
+    "missingStep": "logarithms",
+    "example": "probability-independence"
+  },
+  "experiments": ["bm-03"],
+  "meaning": {
+    "logicalRole": "derivation",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "approximation",
+    "executionStatus": "static-illustration"
+  }
+}

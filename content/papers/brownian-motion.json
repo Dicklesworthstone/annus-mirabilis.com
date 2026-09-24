@@ -21,6 +21,11 @@
       "arguments": ["arg-bm-osmotic-suspended"]
     },
     {
+      "id": "s2",
+      "title": "§2 · Osmotic pressure from the molecular-kinetic theory",
+      "arguments": ["arg-bm-kinetic-justification"]
+    },
+    {
       "id": "s4",
       "title": "§4 · From random displacement to diffusion",
       "arguments": [

@@ -78,20 +78,19 @@ describe("a section's own page", () => {
     }
   });
 
-  test("Brownian §4, from its own reader: §1 before, §5 next, both in the outline, back to #s4", async () => {
+  test("Brownian §4, from its own reader: §2 before, §5 next, both in the outline, back to #s4", async () => {
     const page = await parse(await exportMarkup(await PaperReader({ section: "s4" })));
     try {
       expect(page.pager).toEqual([
-        "prev /papers/brownian-motion/s1/",
+        "prev /papers/brownian-motion/s2/",
         "next /papers/brownian-motion/s5/",
       ]);
-      // §2 has no explanation yet: the outline lists it in printed order and opens Einstein's text
-      // for it (unexplainedParts.ts), never a 404. §3 is explained by a passage filed under §5,
-      // and its entry opens that passage on the §5 page.
+      // Every part is in the outline in printed order. §3 is explained by a passage filed under §5,
+      // and its entry opens that passage on the §5 page, never a §3 page that does not exist.
       expect(page.outline).toEqual([
         "/papers/brownian-motion/s0/",
         "/papers/brownian-motion/s1/",
-        "/papers/brownian-motion/view/german/#s2",
+        "/papers/brownian-motion/s2/",
         "/papers/brownian-motion/s5/#arg-bm-diffusivity",
         "#s4",
         "/papers/brownian-motion/s5/",

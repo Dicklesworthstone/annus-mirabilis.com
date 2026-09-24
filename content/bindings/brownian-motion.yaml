@@ -24,40 +24,31 @@ paragraphs:
     passages: [arg-bm-osmotic-suspended]
     r0: "On the molecular-kinetic view a dissolved molecule differs from a suspended body only in size, so suspended bodies in slow irregular motion should press on the wall as dissolved molecules do, with osmotic pressure RT/N times their number per unit volume, N being the number of real molecules in a gram-molecule; §2 is to show that the theory leads there."
   - unit: s2-fn1
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-kinetic-justification]
     r0: "The footnote says that this section assumes Einstein's earlier papers on the foundations of thermodynamics, of 1902 and 1903, and that neither they nor the section itself is needed to understand the paper's results."
   - unit: s2-p1
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-kinetic-justification]
     r0: "Using his earlier statistical theory of heat, Einstein writes the entropy of a system whose state is fixed by its state variables as an integral over all their allowed values, and from it the free energy, minus RT/N times the logarithm of that integral, B."
   - unit: s2-p2
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-kinetic-justification]
     r0: "A liquid of volume V holds n dissolved molecules or suspended bodies kept by a semipermeable wall within a part V* of it; where the wall stands changes the limits of the integral B, and the particles together take up little of V*."
   - unit: s2-p3
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-kinetic-justification]
     r0: "Computing B exactly would be hopeless even with the whole molecular picture fixed, but all that is needed is how the free energy depends on the volume V* in which the particles are held."
   - unit: s2-p4
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-kinetic-justification]
     r0: "Split the integral according to where each particle's centre lies: for small boxes around the centres, all inside V*, the contribution is the product of the box sizes times a factor J that does not depend on the wall; boxes of the same sizes placed elsewhere give a factor J′."
   - unit: s2-p5
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-kinetic-justification]
     r0: "The share of B from a set of boxes is the probability of finding the particles' centres in them at a moment chosen at random; if the particles move independently, the liquid is uniform and no forces act, equal boxes are equally probable, so J equals J′."
   - unit: s2-fn2
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-kinetic-justification]
     r0: "The footnote cites Einstein's 1903 paper in Annalen der Physik, volume 11, page 170."
   - unit: s2-p7
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-kinetic-justification]
     r0: "So J depends neither on V* nor on where the particles are; integrating gives B as J times V* to the power n, the free energy follows, and its change with V* is the osmotic pressure, RT/N times the number of particles per unit volume."
   - unit: s2-p8
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-kinetic-justification]
     r0: "This shows that osmotic pressure follows from the molecular-kinetic theory of heat, and that on this theory equal numbers of dissolved molecules and suspended bodies behave exactly alike as regards osmotic pressure at great dilution."
   - unit: s3-p1
     passages: [arg-bm-diffusivity]
@@ -132,41 +123,41 @@ displays:
     status: no-record
     reason: "Printed in §1 and shown as a formula in arg-bm-osmotic-suspended, which explains it in prose; no equation record draws this display."
   - unit: eq-s2-d1
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    status: no-record
+    reason: "Printed in §2 and explained in the prose of arg-bm-kinetic-justification, which shows most of these displays as formulas and describes the rest in words; no equation record draws this display."
   - unit: eq-s2-d2
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    status: no-record
+    reason: "Printed in §2 and explained in the prose of arg-bm-kinetic-justification, which shows most of these displays as formulas and describes the rest in words; no equation record draws this display."
   - unit: eq-s2-d3
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    status: no-record
+    reason: "Printed in §2 and explained in the prose of arg-bm-kinetic-justification, which shows most of these displays as formulas and describes the rest in words; no equation record draws this display."
   - unit: eq-s2-d4
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    status: no-record
+    reason: "Printed in §2 and explained in the prose of arg-bm-kinetic-justification, which shows most of these displays as formulas and describes the rest in words; no equation record draws this display."
   - unit: eq-s2-d5
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    status: no-record
+    reason: "Printed in §2 and explained in the prose of arg-bm-kinetic-justification, which shows most of these displays as formulas and describes the rest in words; no equation record draws this display."
   - unit: eq-s2-d6
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    status: no-record
+    reason: "Printed in §2 and explained in the prose of arg-bm-kinetic-justification, which shows most of these displays as formulas and describes the rest in words; no equation record draws this display."
   - unit: eq-s2-d7
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    status: no-record
+    reason: "Printed in §2 and explained in the prose of arg-bm-kinetic-justification, which shows most of these displays as formulas and describes the rest in words; no equation record draws this display."
   - unit: eq-s2-d8
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    status: no-record
+    reason: "Printed in §2 and explained in the prose of arg-bm-kinetic-justification, which shows most of these displays as formulas and describes the rest in words; no equation record draws this display."
   - unit: eq-s2-d9
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    status: no-record
+    reason: "Printed in §2 and explained in the prose of arg-bm-kinetic-justification, which shows most of these displays as formulas and describes the rest in words; no equation record draws this display."
   - unit: eq-s2-d10
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    status: no-record
+    reason: "Printed in §2 and explained in the prose of arg-bm-kinetic-justification, which shows most of these displays as formulas and describes the rest in words; no equation record draws this display."
   - unit: eq-s2-d11
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    status: no-record
+    reason: "Printed in §2 and explained in the prose of arg-bm-kinetic-justification, which shows most of these displays as formulas and describes the rest in words; no equation record draws this display."
   - unit: eq-s2-d12
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    status: no-record
+    reason: "Printed in §2 and explained in the prose of arg-bm-kinetic-justification, which shows most of these displays as formulas and describes the rest in words; no equation record draws this display."
   - unit: eq-s3-d1
     status: no-record
     reason: "Printed in §3 and explained in the prose of arg-bm-diffusivity, which derives the same balance with mobility b = 1/(6πηa); no equation record draws this display."
@@ -250,8 +241,7 @@ obligations:
   - obligation: "arg:brownian-osmotic-pressure"
     passages: [arg-bm-osmotic-suspended]
   - obligation: "arg:brownian-statistical-mechanics"
-    status: unexplained
-    reason: "No explanation passage covers §2, the statistical derivation of osmotic pressure, yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-kinetic-justification]
   - obligation: "arg:brownian-stokes-diffusion"
     passages: [arg-bm-diffusivity]
   - obligation: "arg:brownian-random-walk-diffusion"
