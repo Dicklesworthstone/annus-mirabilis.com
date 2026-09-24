@@ -14,6 +14,8 @@ import {
 } from "../../../experiments/lq08/definition.ts";
 import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
 import { createLq08Session, type PreparedLq08Example } from "../../../experiments/lq08/session.ts";
+import { lq08TapeFor, restoreLq08FromUrl } from "../../../experiments/lq08/tape.ts";
+import { ShareControl } from "../../../experiments/permalink/ShareControl.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
@@ -36,6 +38,11 @@ export type PhotoelectricLabProps = Readonly<{
   millikan?: MillikanOverlayResult | undefined;
   /** False for the optional second laboratory, so the page carries the caption readings once. */
   readings?: boolean;
+  /**
+   * Whether this laboratory restores a shared ?tape= link and offers one. The optional second
+   * laboratory is independent of the link, so it does neither.
+   */
+  linked?: boolean;
 }>;
 
 type PredictCandidate = Readonly<{
@@ -248,7 +255,12 @@ function ValueCell({
   return <>Not determined by these settings</>;
 }
 
-export function PhotoelectricLab({ example, millikan, readings = true }: PhotoelectricLabProps) {
+export function PhotoelectricLab({
+  example,
+  millikan,
+  readings = true,
+  linked = true,
+}: PhotoelectricLabProps) {
   const instanceId = useId();
   const session = useMemo(() => createLq08Session(instanceId, example), [instanceId, example]);
   const view = useSyncExternalStore(
@@ -261,6 +273,19 @@ export function PhotoelectricLab({ example, millikan, readings = true }: Photoel
   const [showMillikan, setShowMillikan] = useState<boolean>(true);
   const [drafts, setDrafts] = useState<Partial<Record<FieldKey, string>>>({});
   const [error, setError] = useState("");
+  const [tapeNotice, setTapeNotice] = useState("");
+
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  useEffect(() => {
+    if (!linked) return;
+    let live = true;
+    void restoreLq08FromUrl(session, window.location.href).then((restored) => {
+      if (live && restored.kind === "not-restored") setTapeNotice(restored.notice);
+    });
+    return () => {
+      live = false;
+    };
+  }, [session, linked]);
 
   const accepted = view.accepted;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
@@ -281,6 +306,9 @@ export function PhotoelectricLab({ example, millikan, readings = true }: Photoel
       quantumEfficiency: 0.1,
       collectorPotential: 0.0,
     }) as Lq08Params;
+
+  // The tape for the accepted settings, rebuilt only when they change.
+  const shareTape = useMemo(() => lq08TapeFor(params), [params]);
 
   const outputs = accepted?.outputs ?? [];
   const find = (id: string) => outputs.find((o) => o.quantityId === id);
@@ -494,10 +522,16 @@ export function PhotoelectricLab({ example, millikan, readings = true }: Photoel
               {error}
             </p>
           )}
+          {tapeNotice && (
+            <p role="alert" className="notice error" data-tape-notice="">
+              {tapeNotice} The laboratory shows its default settings.
+            </p>
+          )}
           <AcceptedStatus
             worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
             summary={statusSummary}
           />
+          {linked && <ShareControl tape={shareTape} />}
         </div>
 
         <div className="lab-results">
@@ -643,7 +677,9 @@ export function PhotoelectricComparison({
           stepwise state and accepted results.
         </p>
       </div>
-      {second && <PhotoelectricLab example={example} millikan={millikan} readings={false} />}
+      {second && (
+        <PhotoelectricLab example={example} millikan={millikan} readings={false} linked={false} />
+      )}
     </>
   );
 }
