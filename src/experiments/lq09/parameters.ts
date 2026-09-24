@@ -2,6 +2,16 @@ import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { LQ09_DEFAULTS, type Lq09Parameters } from "./definition.ts";
 
+/** What each typed field is called on the page (IonizationLab FIELDS), with the unit it is entered in. */
+const LQ09_FIELD_NAMES: Partial<Record<keyof Lq09Parameters, string>> = {
+  frequency: "the frequency ν, in THz,",
+  incidentPower: "the light power, in μW,",
+  ionizationEnergyEv: "the ionization energy per molecule J, in eV,",
+  absorptionEfficiency: "the share of the light absorbed",
+  duration: "the exposure, in seconds,",
+  declaredFraction: "the share of absorbed quanta that ionize, a,",
+};
+
 export function validateLq09Parameters(input: unknown): Computation<Lq09Parameters> {
   const bad = (requirements: string): Computation<never> => ({
     kind: "refused",
@@ -46,18 +56,18 @@ export function validateLq09Parameters(input: unknown): Computation<Lq09Paramete
   for (const key of numericKeys) {
     const v = p[key];
     if (typeof v !== "number" || !Number.isFinite(v)) {
-      return bad(`Enter a finite number for ${key}.`);
+      return bad(`Enter ${LQ09_FIELD_NAMES[key] ?? "this value"} as a number.`);
     }
   }
 
   if (p.frequency <= 0) {
-    return bad("Enter a frequency greater than zero.");
+    return bad("Enter a frequency ν greater than zero, in THz.");
   }
   if (p.ionizationEnergyEv < 0) {
-    return bad("Ionization energy cannot be negative.");
+    return bad("Enter an ionization energy per molecule J of zero or more, in eV.");
   }
   if (p.incidentPower < 0) {
-    return bad("Enter a light power of zero or more.");
+    return bad("Enter a light power of zero or more, in μW.");
   }
   if (p.absorptionEfficiency < 0 || p.absorptionEfficiency > 1) {
     return bad("Enter a share of the light absorbed from 0 to 1.");
@@ -77,7 +87,7 @@ export function validateLq09Parameters(input: unknown): Computation<Lq09Paramete
   }
 
   if (typeof p.gasName !== "string" || typeof p.gasCitation !== "string") {
-    return bad("Gas name and citation must be strings.");
+    return bad("Give the gas a name and a citation, both as text.");
   }
   // A named gas brings a measured ionization energy, so it needs a source. Refused here, before
   // evaluation, so the owner's zero-filled refusal record never reaches a view as values.

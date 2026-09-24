@@ -40,12 +40,18 @@ export function validateSr03Parameters(input: unknown): Computation<Sr03Paramete
 
   const rodRestFrame = raw.rodRestFrame as FrameId;
   if (rodRestFrame !== "K" && rodRestFrame !== "k") {
-    return refused(["rodRestFrame"], "Rod rest frame must be 'K' (platform) or 'k' (moving).");
+    return refused(
+      ["rodRestFrame"],
+      "Choose the platform frame K or the moving frame k as the rod's rest frame.",
+    );
   }
 
   const measuringFrame = raw.measuringFrame as FrameId;
   if (measuringFrame !== "K" && measuringFrame !== "k") {
-    return refused(["measuringFrame"], "Measuring frame must be 'K' (platform) or 'k' (moving).");
+    return refused(
+      ["measuringFrame"],
+      "Choose the platform frame K or the moving frame k as the measuring observer's frame.",
+    );
   }
 
   const vRaw = raw.v;
@@ -80,7 +86,7 @@ export function validateSr03Parameters(input: unknown): Computation<Sr03Paramete
   if (typeof L0Raw !== "number" || !Number.isFinite(L0Raw) || L0Raw < 1e-6 || L0Raw > 1e6) {
     return refused(
       ["L0"],
-      `The proper rod length L_{0} must be between ${powerOfTenText(1e-6)} and ${powerOfTenText(1e6)} light-seconds.`,
+      `Enter a proper rod length L_{0} from ${powerOfTenText(1e-6)} to ${powerOfTenText(1e6)} light-seconds.`,
     );
   }
 
@@ -88,7 +94,7 @@ export function validateSr03Parameters(input: unknown): Computation<Sr03Paramete
   if (typeof RRaw !== "number" || !Number.isFinite(RRaw) || RRaw < 1e-6 || RRaw > 1e6) {
     return refused(
       ["R"],
-      `The sphere radius R must be between ${powerOfTenText(1e-6)} and ${powerOfTenText(1e6)} light-seconds.`,
+      `Enter a sphere radius R from ${powerOfTenText(1e-6)} to ${powerOfTenText(1e6)} light-seconds.`,
     );
   }
 

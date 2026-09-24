@@ -37,10 +37,12 @@ export function validateSr05Parameters(input: unknown): Computation<Sr05Paramete
   const p = input as Sr05Parameters;
 
   if (typeof p.speed !== "number" || !Number.isFinite(p.speed)) {
-    return bad('"speed" must be a finite number.');
+    return bad("Enter the clock's speed v/c as a number.");
   }
   if (Math.abs(p.speed) > NUMERICAL_SPEED_BOUND) {
-    return bad(`"speed" must satisfy |speed| <= ${NUMERICAL_SPEED_BOUND} (fraction of c).`);
+    return bad(
+      `Enter a clock speed v/c from −${NUMERICAL_SPEED_BOUND} to ${NUMERICAL_SPEED_BOUND}.`,
+    );
   }
   if (typeof p.worldlinePreset !== "string" || !WORLDLINE_PRESETS.includes(p.worldlinePreset)) {
     return bad(`"worldlinePreset" must be one of: ${WORLDLINE_PRESETS.join(", ")}.`);
@@ -51,7 +53,7 @@ export function validateSr05Parameters(input: unknown): Computation<Sr05Paramete
     p.coordinateDuration < 1e-9 ||
     p.coordinateDuration > 1e9
   ) {
-    return bad('"coordinateDuration" must be a finite number in [1e-9, 1e9] seconds.');
+    return bad("Enter a coordinate duration from 10⁻⁹ to 10⁹ seconds.");
   }
   if (
     typeof p.lightClockArm !== "number" ||
@@ -59,14 +61,14 @@ export function validateSr05Parameters(input: unknown): Computation<Sr05Paramete
     p.lightClockArm < 1e-9 ||
     p.lightClockArm > 1e3
   ) {
-    return bad('"lightClockArm" must be a finite number in [1e-9, 1e3] light-seconds.');
+    return bad("Enter a light-clock arm from 10⁻⁹ to 1000 light-seconds.");
   }
   if (typeof p.frameOfDescription !== "number" || !Number.isFinite(p.frameOfDescription)) {
-    return bad('"frameOfDescription" must be a finite number.');
+    return bad("Enter the frame of description v/c as a number.");
   }
   if (Math.abs(p.frameOfDescription) > NUMERICAL_SPEED_BOUND) {
     return bad(
-      `"frameOfDescription" must satisfy |v| <= ${NUMERICAL_SPEED_BOUND} (fraction of c).`,
+      `Enter a frame of description v/c from −${NUMERICAL_SPEED_BOUND} to ${NUMERICAL_SPEED_BOUND}.`,
     );
   }
   if (typeof p.showPrintedSecondOrder !== "boolean") {
