@@ -254,7 +254,10 @@ export function ShelfOpticsLab({
       data-instance-id={instance}
       data-run-id={`${instance}-${accepted.revision}`}
       data-snapshot-version={accepted.revision}
+      data-input-revision={accepted.revision}
       data-accepted-input-revision={accepted.revision}
+      // Evaluated synchronously on an accepted apply, so nothing is ever pending.
+      data-pending="false"
       {...executionLabelAttributes(executionKind)}
       data-calibration="modern-si-2019"
       data-ready={String(ready)}

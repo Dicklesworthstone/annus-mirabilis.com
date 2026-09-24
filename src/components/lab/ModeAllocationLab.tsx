@@ -64,7 +64,15 @@ export function ModeAllocationLab({
   title?: string;
 }) {
   const id = useId();
-  const [accepted, setAccepted] = useState<Lq02Inputs>(example);
+  const [accepted, setAcceptedInputs] = useState<Lq02Inputs>(example);
+  // The harness DOM contract's runtime identity. With no instance store, evaluation is synchronous on
+  // an accepted apply: nothing is ever pending, and the requested input is the accepted one. The
+  // revision counts accepted applies, the convention ShelfOpticsLab already uses.
+  const [revision, setRevision] = useState(0);
+  function setAccepted(next: Lq02Inputs) {
+    setAcceptedInputs(next);
+    setRevision((r) => r + 1);
+  }
   // Earned per state (am-inst-execution-labels-5ywv): the build's worked example until a reader's
   // settings are accepted, a host calculation after. There is no instance store here, so the test is
   // identity with the state the lab started from, as in the reasoning workbenches (12a926b9).
@@ -111,6 +119,12 @@ export function ModeAllocationLab({
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="lq-02"
+      data-instance-id={id}
+      data-run-id={`${id}-${revision}`}
+      data-snapshot-version={revision}
+      data-input-revision={revision}
+      data-accepted-input-revision={revision}
+      data-pending="false"
       {...executionLabelAttributes(executionKind)}
     >
       <header className="lab-heading">
