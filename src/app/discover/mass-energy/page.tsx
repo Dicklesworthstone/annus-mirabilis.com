@@ -81,6 +81,11 @@ export default function MassEnergyRoute() {
             a question, not a fact about how bodies emit light.
           </p>
         </details>
+        <StepDoors>
+          <StepDoor href="/papers/mass-energy/#arg-me-symmetric-emission">
+            Go straight to the explanation: why the light leaves in two equal, opposite flashes
+          </StepDoor>
+        </StepDoors>
       </section>
 
       <section id="step-02">
@@ -103,6 +108,12 @@ export default function MassEnergyRoute() {
             position predicts none.
           </p>
         </details>
+        <StepDoors>
+          <StepDoor href="/papers/mass-energy/#arg-me-mass-change">
+            Go straight to the explanation: what the argument identifies, and which way the change
+            points
+          </StepDoor>
+        </StepDoors>
       </section>
 
       <section id="step-03">
@@ -137,6 +148,9 @@ export default function MassEnergyRoute() {
           </p>
         </details>
         <StepDoors>
+          <StepDoor href="/papers/mass-energy/#arg-me-two-ledgers">
+            Go straight to the explanation: two accounts of the same loss
+          </StepDoor>
           <StepDoor href="/lab/sr-10/">
             Transform a finite light complex and watch its energy change
           </StepDoor>
@@ -170,6 +184,9 @@ export default function MassEnergyRoute() {
           </p>
         </details>
         <StepDoors>
+          <StepDoor href="/papers/mass-energy/#arg-me-subtraction">
+            Go straight to the explanation: which difference survives the subtraction
+          </StepDoor>
           <StepDoor href="/discover/mass-energy/investigate/">
             Assemble the argument yourself and take that premise out
           </StepDoor>
@@ -204,6 +221,9 @@ export default function MassEnergyRoute() {
           </p>
         </details>
         <StepDoors>
+          <StepDoor href="/papers/mass-energy/#arg-me-small-speed">
+            Go straight to the explanation: why the slow-speed coefficient is the one to read
+          </StepDoor>
           <StepDoor href="/lab/me-02/">
             Compare the finite-speed proxy with the limit that identifies the mass
           </StepDoor>

@@ -103,6 +103,11 @@ export default function SpecialRelativityRoute() {
             says the same.
           </p>
         </details>
+        <StepDoors>
+          <StepDoor href="/papers/special-relativity/s0/#arg-sr-magnet-conductor">
+            Go straight to the explanation: one apparatus, two descriptions
+          </StepDoor>
+        </StepDoors>
       </section>
 
       <section id="step-03">
@@ -149,6 +154,9 @@ export default function SpecialRelativityRoute() {
           simultaneous. Neither has made a mistake.
         </p>
         <StepDoors>
+          <StepDoor href="/papers/special-relativity/s1/#arg-sr-synchronization">
+            Go straight to the explanation: how distant clocks come to share a time
+          </StepDoor>
           <StepDoor href="/lab/sr-01/">
             Set two distant clocks and watch what the procedure commits you to
           </StepDoor>
@@ -173,6 +181,9 @@ export default function SpecialRelativityRoute() {
           it beyond the two principles, the clock-setting rule, and that sameness of space and time.
         </p>
         <StepDoors>
+          <StepDoor href="/papers/special-relativity/s3/#arg-sr-lorentz-map">
+            Go straight to the explanation: the map that respects light in both directions
+          </StepDoor>
           <StepDoor href="/lab/sr-04/">Build the map rather than receive it</StepDoor>
         </StepDoors>
       </section>
@@ -197,6 +208,9 @@ export default function SpecialRelativityRoute() {
           </p>
         </details>
         <StepDoors>
+          <StepDoor href="/papers/special-relativity/s4/#arg-sr-clock-and-length">
+            Go straight to the explanation: what a moving clock and rod actually report
+          </StepDoor>
           <StepDoor href="/lab/sr-05/">
             Separate what the clock reads from what a camera sees
           </StepDoor>
@@ -243,6 +257,13 @@ export default function SpecialRelativityRoute() {
           of frequency together, from one relation rather than two.
         </p>
         <StepDoors>
+          <StepDoor href="/papers/special-relativity/s5/#arg-sr-velocity-composition">
+            Go straight to the explanation: why two speeds do not simply add
+          </StepDoor>
+          <StepDoor href="/papers/special-relativity/s7/#arg-sr-doppler-aberration">
+            Go straight to the explanation: why a change of frequency comes with a change of
+            direction
+          </StepDoor>
           <StepDoor href="/lab/sr-06/">Recover the partial drag from velocity addition</StepDoor>
           <StepDoor href="/lab/sr-09/">Get aberration and Doppler from one transformation</StepDoor>
           <StepDoor href="/lab/sr-08/">

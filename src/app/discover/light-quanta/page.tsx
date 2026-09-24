@@ -99,6 +99,11 @@ export default function LightQuantaRoute() {
             the region where the evidence for waves runs out.
           </p>
         </details>
+        <StepDoors>
+          <StepDoor href="/papers/light-quanta/s0/#arg-lq-wave-and-transfer">
+            Go straight to the explanation: why averaged optics leaves a single emission untested
+          </StepDoor>
+        </StepDoors>
       </section>
 
       <section id="step-03">
@@ -130,6 +135,9 @@ export default function LightQuantaRoute() {
           </p>
         </details>
         <StepDoors>
+          <StepDoor href="/papers/light-quanta/s1/#arg-lq-classical-allocation">
+            Go straight to the explanation: why a finite window cannot cure an infinite total
+          </StepDoor>
           <StepDoor href="/lab/lq-02/">Watch the total refuse to settle</StepDoor>
         </StepDoors>
       </section>
@@ -149,6 +157,9 @@ export default function LightQuantaRoute() {
           is a question about counting, not about mechanism, and it can be answered.
         </p>
         <StepDoors>
+          <StepDoor href="/papers/light-quanta/s4/#arg-lq-fixed-band-volume">
+            Go straight to the explanation: the entropy at fixed energy and frequency band
+          </StepDoor>
           <StepDoor href="/lab/lq-03/">
             Find where Wien&rsquo;s law holds and where it stops
           </StepDoor>
@@ -173,6 +184,9 @@ export default function LightQuantaRoute() {
           regime where a measured law holds, one for a gas of a known number of independent things.
         </p>
         <StepDoors>
+          <StepDoor href="/papers/light-quanta/s5/#arg-lq-independent-configurations">
+            Go straight to the explanation: why independence raises the probability to a power
+          </StepDoor>
           <StepDoor href="/lab/lq-05/">Count independent configurations in the gas</StepDoor>
         </StepDoors>
       </section>
@@ -212,6 +226,9 @@ export default function LightQuantaRoute() {
           </p>
         </details>
         <StepDoors>
+          <StepDoor href="/papers/light-quanta/s6/#arg-lq-entropy-correspondence">
+            Go straight to the explanation: how the exponent suggests an element of energy
+          </StepDoor>
           <StepDoor href="/lab/lq-06/">
             Put the two entropy laws side by side and read the exponent
           </StepDoor>
@@ -246,6 +263,10 @@ export default function LightQuantaRoute() {
           </p>
         </details>
         <StepDoors>
+          <StepDoor href="/papers/light-quanta/s8/#arg-lq-photoelectric-energy">
+            Go straight to the explanation: what higher frequency changes, and what more light
+            changes
+          </StepDoor>
           <StepDoor href="/lab/lq-07/">Test the fluorescence budget</StepDoor>
           <StepDoor href="/lab/lq-08/">Separate how many electrons from how energetic</StepDoor>
           <StepDoor href="/lab/lq-09/">Set a threshold and see what it does not determine</StepDoor>
