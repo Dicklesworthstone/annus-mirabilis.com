@@ -84,6 +84,11 @@
   padding: 0.6rem;
   border: 1px solid currentColor;
   text-align: start;
+  /* The entrance sets overflow-wrap: anywhere, which lets a cell's minimum width fall to one
+     letter. On screen the table's 30rem floor hid that; in print the floor is lifted and the
+     number columns were squeezed to "Res / t- / fra / me" (measured on a live A4 print).
+     break-word still breaks a word that cannot fit, and leaves the columns their width. */
+  overflow-wrap: break-word;
 }
 /* The phone form of the comparison (MassEnergyFirstEncounter.tsx): one list per speed. Only one
    of the table and the lists is ever displayed. */
@@ -154,6 +159,9 @@
   }
   .me-table table {
     min-width: 0;
+  }
+  .me-table tr {
+    break-inside: avoid;
   }
   .me-subtraction-steps li[hidden] {
     display: list-item;
