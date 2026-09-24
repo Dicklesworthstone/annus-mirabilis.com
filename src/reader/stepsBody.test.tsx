@@ -8,6 +8,7 @@ import { exportMarkup } from "../testing/exportMarkup.ts";
 import { installDom, uninstallDom } from "../testing/reactDom.ts";
 import { CONSTRUCTION_SELECTOR } from "./lessonBody.ts";
 import { PaperPage } from "./PaperPage.tsx";
+import { PaperReader } from "./PaperReader.tsx";
 import { extractSteps, forgetStepsPages, loadStepsBody } from "./stepsBody.ts";
 
 const PAPER = "special-relativity";
@@ -238,6 +239,66 @@ describe("loadStepsBody", () => {
         "failed",
       );
       expect(calls.length).toBe(0);
+    },
+    RENDER_TIMEOUT,
+  );
+});
+
+/*
+  Brownian motion is rendered by PaperReader, not PaperPage (d16a45ca). Its steps embed whole
+  lessons, so they were nearly half its page; the same loader lifts them from its section pages.
+*/
+let brownian: Promise<{ whole: string; sections: Record<string, string> }> | null = null;
+function brownianPages() {
+  brownian ??= (async () => {
+    const whole = await exportMarkup(await PaperReader({}));
+    const sections: Record<string, string> = {};
+    for (const m of whole.matchAll(/data-steps-src="(\/papers\/brownian-motion\/[a-z0-9-]+\/)"/g)) {
+      const src = m[1] ?? "";
+      const section = src.split("/")[3] ?? "";
+      sections[src] ??= `<!doctype html><html><body><main id="main">${await exportMarkup(
+        await PaperReader({ section }),
+      )}</main></body></html>`;
+    }
+    return { whole, sections };
+  })();
+  return brownian;
+}
+
+describe("Brownian motion's whole-paper page (PaperReader)", () => {
+  test(
+    "holds a link for every passage's steps, and lifts each from its section page",
+    async () => {
+      const { whole, sections } = await brownianPages();
+      document.body.innerHTML = `<main id="main">${whole}</main>`;
+      const units = document.querySelectorAll("article[data-unit]").length;
+      const placeholders = [...document.querySelectorAll<HTMLElement>("[data-steps-body]")];
+      expect(units).toBeGreaterThan(0);
+      expect(placeholders.length).toBe(units);
+      expect(document.querySelectorAll('details[data-reading="2"] .foundation-inline').length).toBe(
+        0,
+      );
+      const results = await Promise.all(
+        placeholders.map((p) =>
+          loadStepsBody(p, { fetch: fetchFrom(sections), mount: () => ({ unmount: () => {} }) }),
+        ),
+      );
+      expect(results.every((r) => r === "loaded")).toBe(true);
+      // Each passage now reads as its section page's does, embedded lessons included.
+      for (const details of document.querySelectorAll('details[data-reading="2"]')) {
+        const id = details.closest("article")?.id ?? "";
+        const section = details.closest("section.reader-section")?.id;
+        const source = new DOMParser()
+          .parseFromString(sections[`/papers/brownian-motion/${section}/`] ?? "", "text/html")
+          .getElementById(id)
+          ?.querySelector('details[data-reading="2"]');
+        expect(stepsText(details)).toBe(stepsText(source as Element));
+      }
+      expect(
+        document.querySelectorAll('details[data-reading="2"] .foundation-inline').length,
+      ).toBeGreaterThan(0);
+      const ids = [...document.querySelectorAll("[id]")].map((e) => e.id);
+      expect(ids.length).toBe(new Set(ids).size);
     },
     RENDER_TIMEOUT,
   );
