@@ -16,6 +16,7 @@ import type {
 } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
+import { withScripts } from "../subscripts.tsx";
 import { ElectronDynamicsPlot } from "./ElectronDynamicsPlot.tsx";
 
 function numericOf(item: PublishedResult | undefined): number | null {
@@ -434,13 +435,13 @@ export function ElectronDynamicsLab({
         </div>
       </div>
       {/* The caption follows the instrument it describes; above it, it came between a phone's heading and the result. */}
-      <p data-detail="0">{SR13_CAPTION.r0}</p>
-      <p data-detail="1">{SR13_CAPTION.r1}</p>
+      <p data-detail="0">{withScripts(SR13_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(SR13_CAPTION.r1)}</p>
       <p data-detail="2" hidden>
-        {SR13_CAPTION.r2}
+        {withScripts(SR13_CAPTION.r2)}
       </p>
       <p data-detail="3" hidden>
-        {SR13_CAPTION.r3}
+        {withScripts(SR13_CAPTION.r3)}
       </p>
       <p className="fine">Not modeled: {SR13_NOT_MODELED.join("; ")}.</p>
     </section>
