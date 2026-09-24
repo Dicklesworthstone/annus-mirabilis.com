@@ -19,7 +19,7 @@ parameters:
       max: 1
       minInclusive: false
       maxInclusive: false
-      reason: "No inertial observer at |v| >= c"
+      reason: "No inertial observer moves at or beyond the speed of light"
     visualRange:
       min: -0.95
       max: 0.95

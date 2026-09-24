@@ -1,3 +1,4 @@
+import { withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { SR06_DEFAULTS, type Sr06Mode, type Sr06Parameters } from "./definition.ts";
 
@@ -18,7 +19,7 @@ const SR06_FIELD_NAMES: Partial<Record<string, string>> = {
   flowSpeed: "the medium flow speed, in m/s,",
 };
 
-export function validateSr06Parameters(input: unknown): Sr06ParameterCheck {
+function validateSr06Fields(input: unknown): Sr06ParameterCheck {
   const bad = (requirements: string, parameterIds: string[] = [], code = "invalid-parameter") => ({
     kind: "refused" as const,
     refusal: makeRefusal(
@@ -70,4 +71,9 @@ export function validateSr06Parameters(input: unknown): Sr06ParameterCheck {
   if (!Number.isFinite(p.flowSpeed) || Math.abs(p.flowSpeed) > 1e3)
     return bad("Enter a medium flow speed of at most 1000 m/s either way.", ["flowSpeed"]);
   return { kind: "accepted", data: Object.freeze({ ...p }) };
+}
+
+/** The fields above, then every range content/experiments/sr-06.yaml declares (dispatch 134). */
+export function validateSr06Parameters(input: unknown): Sr06ParameterCheck {
+  return withinDeclaredDomain("sr-06", validateSr06Fields(input));
 }

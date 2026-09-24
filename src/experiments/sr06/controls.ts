@@ -12,7 +12,10 @@ export function toSr06Draft(p: Sr06Parameters): Sr06Draft {
 export function fromSr06Draft(draft: Sr06Draft): Sr06Parameters {
   const p: Record<string, number | string | boolean> = {};
   for (const k of Object.keys(SR06_DEFAULTS) as (keyof Sr06Parameters)[]) {
-    if (typeof SR06_DEFAULTS[k] === "number") p[k] = Number(draft[k]);
+    // A cleared field is not a number: Number("") would read it as 0 and apply it without a word
+    // (dispatch 165), so it goes to the validator as NaN and is refused by name.
+    if (typeof SR06_DEFAULTS[k] === "number")
+      p[k] = draft[k].trim() === "" ? Number.NaN : Number(draft[k]);
     else if (k === "showRapidity") p[k] = draft[k] === "true";
     else p[k] = draft[k];
   }
