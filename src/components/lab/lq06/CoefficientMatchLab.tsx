@@ -385,7 +385,8 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
         </div>
       </details>
 
-      <div className="lab-values">
+      {/* n_eff and the two mean energies answer the prompts, so the table waits with the plots. */}
+      <div className="lab-values" {...gate.response}>
         <h3>Values at these settings</h3>
         <section className="table-scroll" aria-label="Values at these settings">
           <table className="data-table">

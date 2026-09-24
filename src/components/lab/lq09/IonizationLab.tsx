@@ -327,7 +327,8 @@ export function IonizationLab({ example }: IonizationLabProps) {
         </div>
       </div>
 
-      <div className="lab-values">
+      {/* The ionization count answers the prompts, so the table waits with the plots. */}
+      <div className="lab-values" {...gate.response}>
         <h3>Values at these settings</h3>
         <section className="table-scroll" aria-label="Values at these settings">
           <table className="data-table">

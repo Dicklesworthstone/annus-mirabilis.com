@@ -511,7 +511,10 @@ export function CameraLab({
         it is observed. Then compare the estimates that ignore camera error with a procedure that
         accounts for it.
       </p>
-      <section className="grid-result camera-results">
+      {/* This section and the next answer the prompt (the neighbouring steps' correlation, the
+          naive D, the apparent spread), so they wait with the results. The coverage run below
+          does not, and its button stays. */}
+      <section className="grid-result camera-results" {...gate.response}>
         <h3>Look for the camera’s fingerprint</h3>
         <p>
           Neighboring displacements share a localization error with opposite signs. Exposure
@@ -598,7 +601,7 @@ export function CameraLab({
           </div>
         </details>
       </section>
-      <section className="grid-result camera-results">
+      <section className="grid-result camera-results" {...gate.response}>
         <h3>Faster pictures need not reveal a physical speed</h3>
         <p>
           This separate analytical comparison holds the accepted diffusivity and localization error
