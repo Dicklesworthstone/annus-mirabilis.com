@@ -65,6 +65,8 @@ export type InstrumentAuditRow = Readonly<{
   predictPrompts?: readonly string[];
   teachingTapes?: readonly string[];
   testedAddresses?: readonly string[];
+  /** Set when the manifest exists but does not parse; its fields are then unknown, not empty. */
+  manifestError?: string;
 }>;
 
 export function auditInstruments(rows: readonly InstrumentAuditRow[]): AuditReport {
@@ -96,11 +98,18 @@ export function auditInstruments(rows: readonly InstrumentAuditRow[]): AuditRepo
         `${row.id} is treated as non-core but is not in the declared non-core list.`,
       );
     }
-    if (row.probes.length === 0) fail("probes", `${row.id} declares no probes.`);
+    // A manifest that does not parse is not an empty manifest: say so, rather than report its
+    // probes, notModeled and tape as missing (sr-10.yaml went unread for 8 days that way).
+    const unread = row.manifestError
+      ? `${row.id}: content/experiments/${row.id}.yaml does not parse (${row.manifestError}), so this is unknown, not absent.`
+      : undefined;
+    if (row.probes.length === 0) fail("probes", unread ?? `${row.id} declares no probes.`);
     if (row.notModeled.length === 0) {
-      fail("notModeled", `${row.id} has an empty notModeled list.`);
+      fail("notModeled", unread ?? `${row.id} has an empty notModeled list.`);
     }
-    if (!row.tapeModelId?.trim()) fail("tape-identity", `${row.id} has no tape model identity.`);
+    if (!row.tapeModelId?.trim()) {
+      fail("tape-identity", unread ?? `${row.id} has no tape model identity.`);
+    }
     if (!row.ownerTest) fail("owner-test", `${row.id} has no owner test file.`);
     if (row.actionContracts < 1) {
       fail("action-contract", `${row.id} has no action contract for an interactive action.`);
@@ -266,6 +275,7 @@ export function loadLiveInstrumentRows(
     let presets: string[] = [];
     let predictPrompts: string[] = [];
     let teachingTapes: string[] = [];
+    let manifestError: string | undefined;
 
     if (existsSync(manifestPath)) {
       try {
@@ -312,8 +322,9 @@ export function loadLiveInstrumentRows(
             actionContracts = parsed.actionContracts.length;
           }
         }
-      } catch {
-        // Fall back to defaults
+      } catch (error) {
+        // Recorded, never swallowed: the audit reports an unreadable manifest as unreadable.
+        manifestError = String((error as { reason?: string }).reason ?? error).split("\n")[0];
       }
     }
 
@@ -357,6 +368,7 @@ export function loadLiveInstrumentRows(
       presets,
       predictPrompts,
       teachingTapes,
+      ...(manifestError !== undefined ? { manifestError } : {}),
     });
   }
 
