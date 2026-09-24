@@ -10,6 +10,7 @@ import { RepeatedProportionalTable } from "./RepeatedProportionalTable.tsx";
 import { ScalingTable } from "./ScalingTable.tsx";
 import { TableToPlotBuilder } from "./TableToPlotBuilder.tsx";
 import { TaylorBinomialExtension } from "./TaylorBinomialExtension.tsx";
+import { UnitCancellationTable } from "./UnitCancellationTable.tsx";
 import { UnitConversionCalculator } from "./UnitConversionCalculator.tsx";
 
 export interface FoundationConstructionProps {
@@ -49,5 +50,7 @@ export function FoundationConstruction({
       return <ScalingTable headingLevel={headingLevel} />;
     case "orders-of-magnitude":
       return <MagnitudeScale headingLevel={headingLevel} />;
+    case "quantities-units":
+      return <UnitCancellationTable headingLevel={headingLevel} />;
   }
 }

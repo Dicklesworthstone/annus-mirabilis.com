@@ -21,6 +21,7 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "unit-system-1905",
   "ratios-scaling",
   "orders-of-magnitude",
+  "quantities-units",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];
