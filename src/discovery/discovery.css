@@ -61,6 +61,17 @@
   border-radius: 4px;
 }
 
+/* The explanation part's text box: the column's width, the site's type, and taller on request. */
+.exercise-explanation {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  resize: vertical;
+  margin-block: 0.5rem 0.25rem;
+}
+
 .exercise-worked {
   margin-top: 1rem;
   border-top: 1px dashed var(--line);

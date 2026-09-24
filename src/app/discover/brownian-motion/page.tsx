@@ -3,6 +3,10 @@ import {
   ExercisePart,
   type ExpressionExercisePart,
 } from "../../../components/discover/ExercisePart.tsx";
+import {
+  type ExplanationExercisePart,
+  ExplanationPart,
+} from "../../../components/discover/ExplanationPart.tsx";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
 import type { KnowledgeCard } from "../../../discovery/cards/types.ts";
@@ -194,6 +198,20 @@ const DISPLACEMENT_SCALE_EXERCISE: ExpressionExercisePart = {
   workedExplanation:
     "The squared distance from the start is x² + y². Each axis contributes a mean square of 2·D·t, independently, so the mean square distance is 4·D·t, and its root is sqrt(4·D·t) = 2·sqrt(D·t). That is sqrt(2) times the one-axis value, sqrt(2·D·t), not twice it: the two mean squares add, not the two distances.",
 };
+const SQUARE_ROOT_IN_WORDS: ExplanationExercisePart = {
+  id: "bm-square-root-in-words",
+  prompt:
+    "Put it in your own words. In four times as long, a particle kicked about at random typically gets only twice as far. Why not four times as far, as a particle drifting at a steady speed would?",
+  criteria: [
+    "Each kick is independent of the last, so a step one way is as likely to be undone by the next step as to be continued.",
+    "What grows in proportion to time is the mean square displacement, because the mean squares of independent steps add.",
+    "The typical distance is the square root of the mean square, so four times the time gives the square root of four: twice as far.",
+    "A drifting particle’s steps all point the same way, so nothing cancels and its distance grows in proportion to time.",
+  ],
+  workedExplanation:
+    "Split the time into many short intervals. In each one the particle is kicked one way or the other, independently of every earlier kick, and its displacement is the sum of these steps. The average of that sum is zero, because each direction is equally likely, but the average of its square is not. Squaring the sum gives each step’s own square plus products of pairs of different steps, and because the steps are independent each of those products averages to zero. What is left is the sum of the steps’ own squares, which grows with the number of steps, and so in proportion to time. Four times as long gives four times the mean square, and the typical distance, its square root, is the square root of four times as large: twice. A particle drifting at a steady speed takes steps that all point the same way. Nothing cancels, and four times the time carries it four times as far.",
+};
+
 export default function BrownianEncounter() {
   return (
     <article className="reading encounter">
@@ -271,6 +289,7 @@ export default function BrownianEncounter() {
             diffusion coefficient. It is not three independent measurements.
           </p>
         </details>
+        <ExplanationPart part={SQUARE_ROOT_IN_WORDS} />
         <StepDoors>
           <StepDoor href="/papers/brownian-motion/s4/#arg-bm-gaussian">
             Go straight to the explanation: why the spread grows as the square root of time
