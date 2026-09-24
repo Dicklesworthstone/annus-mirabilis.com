@@ -60,9 +60,11 @@ describe("am-not-entries-brownian-1rq: Brownian notation concordance", () => {
     const modern = modernSymbolFor(paper, "bm-s3", "k", emptyManifestIndex, file);
     assert.equal(modern, "\\eta");
 
-    // Danger collision first uses
-    const firstUseAnchor = firstUseInSection(paper, "bm-s3", "k", file);
-    assert.equal(firstUseAnchor, "bm-s3-p2");
+    // Danger collision first uses, where the plates print them: in §3, k is first printed on
+    // p. 555 in s3-p6 ("den Reibungskoeffizienten k"), and p. 554's s3-p2 has no k; in §5 it is
+    // first printed in D = RT/N · 1/6πkP (s5-p1).
+    assert.equal(firstUseInSection(paper, "bm-s3", "k", file), "bm-s3-p6");
+    assert.equal(firstUseInSection(paper, "bm-s5", "k", file), "bm-s5-p1");
   });
 
   test("Bindings: \\nu in §1 binds numberDensity, never frequency", () => {
