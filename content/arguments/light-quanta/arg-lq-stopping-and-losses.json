@@ -82,7 +82,7 @@
       {
         "kind": "steps",
         "items": [
-          "Divide by e: \\(V_s=(h\\nu-\\Phi)/e\\). Worked with the previous passage's hypothetical numbers: \\(K_{\\mathrm{max}}\\) is 0.481 electron volts, so \\(V_s\\) is 0.481 volts, since one electron volt is e times one volt.",
+          "Divide by e: \\(V_s=(h\\nu-\\Phi)/e\\). Worked with the previous passage's hypothetical numbers: \\(K_{\\mathrm{max}}\\) is 0.4814 electron volts, so \\(V_s\\) is 0.4814 volts, since one electron volt is e times one volt.",
           "Keep sizes and signs apart. \\(V_s\\) is a size, zero or positive. The electron's charge is negative, and writing e for its size does not change that. A voltage read from an instrument also needs its reference electrode named.",
           "The paper's gram-equivalent form of the stopping condition is \\(ΠE=R\\beta\\nu-P'\\), with \\(P'\\) the potential of a gram-equivalent of negative electricity with respect to the body: the work for that much electricity to leave it. A footnote attached to it takes up one more possibility.",
           "Suppose the light must first free each electron from a neutral molecule, at the cost of a certain work, before the electron can make its way out. The footnote says nothing in the derived relation changes; \\(P'\\) is then to be read as a sum of two terms.",
