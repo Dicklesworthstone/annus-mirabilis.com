@@ -148,10 +148,53 @@ const ARG_LQ_INDEPENDENT_CONFIGURATIONS_OBSTACLES: ObstacleResponses = {
   },
 };
 
+/**
+ * Relativity's velocity composition: why two ordinary-looking speeds do not simply add. The numbers
+ * are the passage's own (arg-sr-velocity-composition): 0.6c and 0.6c give 15c/17, about 0.882c,
+ * where plain addition says 1.2c, and light comes out at c in every frame.
+ */
+const RETURN_SR = "Return to the denominator changes as well.";
+const srLink = (foundationId: string) => [
+  { foundationId, callingAnchor: "arg-sr-velocity-composition", returnCaption: RETURN_SR },
+];
+const ARG_SR_VELOCITY_COMPOSITION_OBSTACLES: ObstacleResponses = {
+  unfamiliarWordOrSymbol: {
+    explanation:
+      "v is the speed of the moving frame, measured in the original one. w is the object's speed measured in the moving frame, and U is the same object's speed measured in the original frame. c is the speed of light. uₓ and u′ₓ are the object's velocities along x in the two frames.",
+    foundationLinks: srLink("bridge-letter-for-quantity"),
+  },
+  physicalReason: {
+    explanation:
+      "A speed is a distance divided by the time taken, and the two frames disagree about both. They disagree about the time because each sets its distant clocks by its own light signals. So a speed cannot pass from one frame to the other by adding v; the time between the same two events changes too.",
+    foundationLinks: srLink("frames-events"),
+  },
+  connectionToPicture: {
+    explanation:
+      "Picture two neighbouring events on the object's path: here at one moment, and a little further along a little later. Each frame measures the distance and the time between those same two events. Both numbers change from frame to frame, and the speed is their ratio.",
+    foundationLinks: srLink("frames-events"),
+  },
+  tooMuchAtOnce: {
+    explanation:
+      "One example: v = w = 0.6c. Plain addition gives 1.2c. The formula divides that by 1 + 0.6 × 0.6 = 1.36, which gives 15c/17, about 0.882c. The faster the two speeds, the further the divisor rises above 1.",
+    foundationLinks: srLink("bridge-fractions-ratios"),
+  },
+  algebraicMove: {
+    explanation:
+      "Transform the two small changes first, then divide. With dx′ = γ(dx − v dt) and dt′ = γ(dt − v dx/c²), the ratio dx′/dt′ is (uₓ − v)/(1 − v uₓ/c²). The factors γ cancel, and the second term of dt′ is what puts 1 − v uₓ/c² in the denominator.",
+    foundationLinks: srLink("derivatives"),
+  },
+  purposeOfCalculation: {
+    explanation:
+      "It finds what the two postulates require of speeds. Put in light, uₓ = c, and the formula returns c in every frame, as the second postulate demands, and two speeds below c combine to a speed below c. At everyday speeds v w/c² is tiny and the formula is ordinary addition.",
+    foundationLinks: srLink("orders-of-magnitude"),
+  },
+};
+
 /** The passages marked hard, each with an authored answer for all six obstacles. */
 const OBSTACLES: Readonly<Record<string, ObstacleResponses>> = {
   "arg-bm-observable": ARG_BM_OBSERVABLE_OBSTACLES,
   "arg-lq-independent-configurations": ARG_LQ_INDEPENDENT_CONFIGURATIONS_OBSTACLES,
+  "arg-sr-velocity-composition": ARG_SR_VELOCITY_COMPOSITION_OBSTACLES,
 };
 
 export function passageActionsFromArgument(argument: Argument): PassageActions {
