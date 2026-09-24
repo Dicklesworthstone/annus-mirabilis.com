@@ -12,6 +12,10 @@ import {
 
 const PARTICLE_KEYS = ["particle-1", "particle-2", "particle-3", "particle-4"] as const;
 
+/** The lesson link opens beside the text (ReaderController) and comes back here, as on the other papers. */
+const RETURN_CAPTION =
+  "Back to the first encounter: whether particles that wander in all directions get anywhere.";
+
 export interface BrownianFirstEncounterProps {
   readonly record?: EntranceRecord | undefined;
   readonly initialEntries?: readonly number[] | undefined;
@@ -779,6 +783,8 @@ export function BrownianFirstEncounter({
                 </div>
                 <a
                   href="/foundations/mean-variance-rms/"
+                  data-foundation="mean-variance-rms"
+                  data-return-caption={RETURN_CAPTION}
                   onClick={(e) => {
                     if (onNavigateFoundation) {
                       e.preventDefault();
@@ -873,7 +879,12 @@ export function BrownianFirstEncounter({
             </div>
           </div>
           <div className="button-group" style={{ marginTop: "1rem" }}>
-            <a href="/foundations/mean-variance-rms/" className="button secondary">
+            <a
+              href="/foundations/mean-variance-rms/"
+              data-foundation="mean-variance-rms"
+              data-return-caption={RETURN_CAPTION}
+              className="button secondary"
+            >
               Open the foundation on mean, variance and RMS
             </a>
             <a href="/lab/bm-01/" className="button secondary">

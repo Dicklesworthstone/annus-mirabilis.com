@@ -1,4 +1,6 @@
+import brownianEntrance from "../../content/arguments/brownian-motion/entrance-brownian-motion.json";
 import { ModalCloseButton } from "../a11y/modal/ModalCloseButton.tsx";
+import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
 import { loadPaper } from "../content/server";
 import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
@@ -26,6 +28,9 @@ import { SectionPager } from "./SectionPager.tsx";
 import { sectionPlate } from "./sectionPlate.ts";
 import "./reader.css";
 
+/** The Brownian first encounter's id (BrownianFirstEncounter.tsx), a return anchor like a passage. */
+const ENTRY_ANCHOR = "entry-brownian-motion";
+
 function companionKindFromQuery(raw: string | undefined): CompanionKind {
   try {
     return resolveCompanionKind(raw);
@@ -50,10 +55,18 @@ export async function PaperReader({
   const sections = section ? paper.sections.filter((s) => s.id === section) : paper.sections;
   if (!sections.length) throw new Error("Section is not in the compiled outline.");
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
-  const anchors = [...args.map((a) => a.id), ...sections.map((s) => s.id)];
+  // The first encounter is shown on the whole paper and on §4. Its lesson link opens the lesson
+  // beside the text, as the other papers' entrances do, so it is a place the reader returns to.
+  const showsEntrance = !section || section === "s4";
+  const anchors = [
+    ...(showsEntrance ? [ENTRY_ANCHOR] : []),
+    ...args.map((a) => a.id),
+    ...sections.map((s) => s.id),
+  ];
   const registry = { paperId: paper.id, anchors, foundations: foundations.map((f) => f.id) };
   const titles = Object.fromEntries(foundations.map((f) => [f.id, f.title]));
   const questions = Object.fromEntries(args.map((a) => [a.id, a.question]));
+  if (showsEntrance) questions[ENTRY_ANCHOR] = validateEntranceRecord(brownianEntrance).question;
   /*
     THE COMPANION ON A SECTION PAGE: the page the section was printed on, and a key to its symbols.
     It held a placeholder sentence in every state, so at 1920 a 368px column beside the text said
@@ -235,7 +248,7 @@ export async function PaperReader({
         }
       >
         <div className="reader-body">
-          {paper.id === "brownian-motion" && (!section || section === "s4") && (
+          {showsEntrance && (
             <section className="reader-entrance-section" aria-label="First encounter">
               <LazyBrownianFirstEncounter />
             </section>

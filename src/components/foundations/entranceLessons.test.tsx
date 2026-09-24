@@ -78,6 +78,24 @@ describe("lessons a paper's first encounter links", () => {
     }
   });
 
+  test("each entrance's lesson links open beside the text, and it shows the question the drawer names", () => {
+    // ReaderController opens a link with data-foundation in the drawer and names the place it
+    // returns to by its question (PaperPage and PaperReader read it from the record). The
+    // Brownian entrance's links had none, so they left the page.
+    for (const [paper, html] of Object.entries(RENDERED)) {
+      const links = [...html.matchAll(/<a\b[^>]*href="\/foundations\/[^"]*"[^>]*>/g)].map(
+        (m) => m[0],
+      );
+      expect(links.length, paper).toBeGreaterThan(0);
+      for (const link of links) {
+        const lesson = /href="\/foundations\/([^/"]+)\//.exec(link)?.[1];
+        expect(link, paper).toContain(`data-foundation="${lesson}"`);
+        expect(link, paper).toContain("data-return-caption=");
+      }
+      expect(html, paper).toContain(entrances.get(paper)?.question ?? "(no question)");
+    }
+  });
+
   test("the lesson's rail names the entrance first under its paper, by its question", () => {
     for (const [paper, lesson] of MEASURED) {
       const uses = lessonUses(lesson, papers, new Map(), entrances);

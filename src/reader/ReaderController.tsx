@@ -39,6 +39,12 @@ type Props = {
   titles: Readonly<Record<string, string>>;
   questions: Readonly<Record<string, string>>;
 };
+/** The nearest element above `el` whose id the page registers as a place to return to. */
+function enclosingAnchor(el: HTMLElement, anchors: readonly string[]): HTMLElement | null {
+  for (let node = el.parentElement; node; node = node.parentElement)
+    if (node.id && anchors.includes(node.id)) return node;
+  return null;
+}
 /** Navigation controls leave the existing prose, math and laboratory subtrees mounted. */
 export function ReaderController(props: Props) {
   // App Router history restoration may recreate equal object props. Do not remount
@@ -285,7 +291,13 @@ export function ReaderController(props: Props) {
         const id = control.dataset.foundation;
         if (!id || !registry.foundations.includes(id)) return;
         event.preventDefault();
-        const anchor = control.closest<HTMLElement>(".reader-passage")?.id ?? state.anchor;
+        // Outside every passage, the place to come back to is the nearest enclosing element the
+        // page registers as an anchor: the Brownian first encounter, which is not a
+        // .reader-passage (the other three entrances are), and whose id PaperReader registers.
+        const place =
+          control.closest<HTMLElement>(".reader-passage") ??
+          enclosingAnchor(control, registry.anchors);
+        const anchor = place?.id ?? state.anchor;
         if (!control.id) control.id = `reader-trigger-${++trigger}`;
         const base = { ...state, anchor };
         // The reader may have scrolled here without using the outline. Seal the actual return anchor.
