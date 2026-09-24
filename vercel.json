@@ -6,6 +6,12 @@
   "git": {
     "deploymentEnabled": false
   },
+  "headers": [
+    {
+      "source": "/fonts/(.*)\\.(ttf|woff2)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    }
+  ],
   "redirects": [
     { "source": "/opengraph-image", "destination": "/share/home.png", "permanent": true },
     { "source": "/opengraph-image/", "destination": "/share/home.png", "permanent": true }

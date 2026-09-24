@@ -76,7 +76,7 @@
    bead's BATCH_PENDING for the disclosed subsetting/Greek-coverage gap). */
 @font-face {
   font-family: "Newsreader";
-  src: url("/fonts/newsreader/Newsreader-Variable.ttf") format("truetype-variations");
+  src: url("/fonts/newsreader/Newsreader-Variable.ttf?v=8a08d13f") format("truetype-variations");
   font-weight: 200 800;
   font-style: normal;
   font-display: swap;
@@ -85,7 +85,8 @@
 /* The italic twin of the face above; see globals.css. */
 @font-face {
   font-family: "Newsreader";
-  src: url("/fonts/newsreader/Newsreader-Italic-Variable.ttf") format("truetype-variations");
+  src: url("/fonts/newsreader/Newsreader-Italic-Variable.ttf?v=79666861")
+    format("truetype-variations");
   font-weight: 200 800;
   font-style: italic;
   font-display: swap;
@@ -93,7 +94,8 @@
 
 @font-face {
   font-family: "Plus Jakarta Sans";
-  src: url("/fonts/plus-jakarta-sans/PlusJakartaSans-Variable.ttf") format("truetype-variations");
+  src: url("/fonts/plus-jakarta-sans/PlusJakartaSans-Variable.ttf?v=89b3fb38")
+    format("truetype-variations");
   font-weight: 200 800;
   font-style: normal;
   font-display: swap;
@@ -101,7 +103,7 @@
 
 @font-face {
   font-family: "Plus Jakarta Sans";
-  src: url("/fonts/plus-jakarta-sans/PlusJakartaSans-Italic-Variable.ttf")
+  src: url("/fonts/plus-jakarta-sans/PlusJakartaSans-Italic-Variable.ttf?v=9529eb88")
     format("truetype-variations");
   font-weight: 200 800;
   font-style: italic;
@@ -110,7 +112,8 @@
 
 @font-face {
   font-family: "JetBrains Mono";
-  src: url("/fonts/jetbrains-mono/JetBrainsMono-Variable.ttf") format("truetype-variations");
+  src: url("/fonts/jetbrains-mono/JetBrainsMono-Variable.ttf?v=48715a42")
+    format("truetype-variations");
   font-weight: 100 800;
   font-style: normal;
   font-display: swap;
@@ -118,7 +121,8 @@
 
 @font-face {
   font-family: "JetBrains Mono";
-  src: url("/fonts/jetbrains-mono/JetBrainsMono-Italic-Variable.ttf") format("truetype-variations");
+  src: url("/fonts/jetbrains-mono/JetBrainsMono-Italic-Variable.ttf?v=85ae2a5c")
+    format("truetype-variations");
   font-weight: 100 800;
   font-style: italic;
   font-display: swap;
