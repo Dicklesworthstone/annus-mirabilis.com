@@ -1338,7 +1338,7 @@ export function fluorescenceBudget(input: FluorescenceBudgetInput): Fluorescence
         wienParameterX: x,
         wienDeviationExpMinusX: expMinusX,
         verdictReason:
-          "the light-quantum description used here is admitted only for Wien-regime radiation; the paper says non-Wien radiation may behave differently, so no bound is derived",
+          "The light-quantum description is admitted only where Wien's law holds, and §7 allows that other light may behave differently, so no bound is derived.",
         refusalCode: "outside-wien-domain",
       });
     }
@@ -1365,8 +1365,8 @@ export function fluorescenceBudget(input: FluorescenceBudgetInput): Fluorescence
       wienParameterX: x,
       wienDeviationExpMinusX: expMinusX,
       verdictReason: allowed
-        ? "Allowed: Exciting light is in the Wien regime (exp(−x) ≤ 0.01) and emitted frequency ν₂ ≤ ν₁."
-        : "Disallowed: Emitted frequency ν₂ exceeds incident frequency ν₁ in the Wien regime.",
+        ? "Allowed: the exciting light is in the range where Wien's law holds, and ν₂ does not exceed ν₁."
+        : "Disallowed: the emitted frequency ν₂ exceeds the exciting frequency ν₁, and Wien's law holds.",
     });
   }
 
@@ -1395,8 +1395,8 @@ export function fluorescenceBudget(input: FluorescenceBudgetInput): Fluorescence
       energyDeficitJoules: deficitJ,
       energyDeficitEv: deficitJ / e,
       verdictReason: allowed
-        ? `Allowed under deviation case (1): ${k} absorbed quanta supply ${totalInEv.toFixed(4)} eV, permitting emission up to ${k}*nu1.`
-        : `Disallowed: Emitted frequency nu2 exceeds ${k}*nu1 (${(e2Ev - totalInEv).toFixed(4)} eV deficit).`,
+        ? `Allowed under deviation case 1: ${k} absorbed quanta together supply ${totalInEv.toFixed(4)} eV, enough for emission up to ${k}ν₁.`
+        : `Disallowed: the emitted quantum needs ${(e2Ev - totalInEv).toFixed(4)} eV more than ${k} absorbed quanta supply (ν₂ above ${k}ν₁).`,
     });
   }
 
@@ -1429,8 +1429,8 @@ export function fluorescenceBudget(input: FluorescenceBudgetInput): Fluorescence
       thermalExtraJoules: extraJ,
       thermalExtraEv: extraEv,
       verdictReason: allowed
-        ? `Allowed under modern thermal allowance: Body vibrational energy contributes +${extraEv.toFixed(4)} eV (nu2,max = ${(nu2Max / 1e12).toFixed(2)} THz; not in 1905 paper).`
-        : `Disallowed: Emitted frequency nu2 exceeds modern thermal bound nu2,max.`,
+        ? `Allowed under a modern thermal allowance, not in the 1905 paper: the body can add ${extraEv.toFixed(4)} eV, so ν₂ may reach ${(nu2Max / 1e12).toFixed(2)} THz.`
+        : `Disallowed: ν₂ exceeds even the modern thermal bound of ${(nu2Max / 1e12).toFixed(2)} THz.`,
     });
   }
 
@@ -1438,21 +1438,21 @@ export function fluorescenceBudget(input: FluorescenceBudgetInput): Fluorescence
   const nu2Max = nu1;
   let allowed = nu2 <= nu1;
   let reason = allowed
-    ? "Allowed under Stokes's rule: emitted quantum energy does not exceed absorbed quantum energy (ν₂ ≤ ν₁)."
-    : "Disallowed under standard single-quantum Stokes assumptions: emitted quantum energy exceeds absorbed quantum energy (ν₂ > ν₁).";
+    ? "Allowed under Stokes's rule: the emitted quantum has no more energy than the absorbed one (ν₂ ≤ ν₁)."
+    : "Disallowed under the paper's single-quantum assumption: the emitted quantum would need more energy than the absorbed one supplies (ν₂ > ν₁).";
 
   if (channels === "light-only") {
     if (nu2 < nu1) {
       allowed = false;
       reason =
-        "Disallowed under light-only channel assumption: absorbed energy exceeds emitted light energy with no other channel to absorb the remaining energy.";
+        "Disallowed under the light-only assumption: the absorbed quantum has energy left over and no other channel to take it.";
     } else if (nu2 > nu1) {
       allowed = false;
       reason =
-        "Disallowed: emitted light energy exceeds absorbed energy with no additional energy input.";
+        "Disallowed: the emitted light would carry more energy than was absorbed, with nothing to supply the difference.";
     } else {
       allowed = true;
-      reason = "Allowed: exact resonance fluorescence with no energy lost to other channels.";
+      reason = "Allowed: resonance fluorescence, with no energy lost to other channels.";
     }
   }
 
