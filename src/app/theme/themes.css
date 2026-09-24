@@ -127,10 +127,10 @@
 /* The metric-matched stand-ins; the measurements are in globals.css. */
 @font-face {
   font-family: "Newsreader Fallback";
-  src: local("Times New Roman");
-  size-adjust: 100.1%;
-  ascent-override: 73.43%;
-  descent-override: 26.47%;
+  src: local("Georgia");
+  size-adjust: 91%;
+  ascent-override: 80.77%;
+  descent-override: 29.12%;
   line-gap-override: 0%;
   unicode-range:
     U+0020-007E, U+00A0-00AC, U+00AE-0131, U+2013-2014, U+2018-201A, U+201C-201E, U+2020-2022,

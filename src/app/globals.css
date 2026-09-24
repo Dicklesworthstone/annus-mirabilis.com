@@ -51,20 +51,26 @@
 }
 
 /* Metric-matched stand-ins, drawn until the web fonts arrive (and for good if they are blocked),
-   so that text does not rewrap and jump when they land. Measured in Chromium on the site's own prose: at the 19px reading size
-   Times New Roman sets Newsreader's width to within 0.2%, and Arial needs 103.92% to set Plus
-   Jakarta Sans's. The vertical overrides are each web font's own ascent and descent (0.735/0.265
-   and 1.038/0.222 of the em) divided by that size-adjust. Where neither local font exists
-   (Android, most Linux) the stack falls through to the next family, unadjusted, as before.
-   The unicode-range is Latin text only, and every code point in it is one both web fonts have.
-   A character they lack, such as Greek, skips the stand-in and is drawn by the next family, as it
-   was before: otherwise every Greek letter in prose would be resized Times New Roman for good. */
+   so that text does not rewrap and jump when they land. Measured in Chromium on the site's own
+   prose at the 19px reading size, and a stand-in has to match two widths, not one: the average
+   letter, which sets how much text fits a fixed width, and the "0", because the reading columns
+   are measured in ch. Newsreader's average letter is 0.728 of its "0". Georgia's is 0.717, the
+   closest of the local serifs measured (Times New Roman 0.800, Iowan Old Style 0.803), and at
+   91% Georgia's average letter is Newsreader's (0.4008 em). Arial at 103.92% matches Plus
+   Jakarta Sans's average letter; no common sans comes near Jakarta's wide "0", and the sans is
+   rarely what a column's ch is measured in. The vertical overrides are each web font's own
+   ascent and descent (0.735/0.265 and 1.038/0.222 of the em) divided by that size-adjust.
+   Where neither local font exists (Android, most Linux) the stack falls through to the next
+   family, unadjusted, as before. The unicode-range is Latin text only, and every code point in it
+   is one both web fonts have. A character they lack, such as Greek, skips the stand-in and is
+   drawn by the next family, as it was before: otherwise every Greek letter in prose would be a
+   resized Georgia or Arial for good. */
 @font-face {
   font-family: "Newsreader Fallback";
-  src: local("Times New Roman");
-  size-adjust: 100.1%;
-  ascent-override: 73.43%;
-  descent-override: 26.47%;
+  src: local("Georgia");
+  size-adjust: 91%;
+  ascent-override: 80.77%;
+  descent-override: 29.12%;
   line-gap-override: 0%;
   unicode-range:
     U+0020-007E, U+00A0-00AC, U+00AE-0131, U+2013-2014, U+2018-201A, U+201C-201E, U+2020-2022,
