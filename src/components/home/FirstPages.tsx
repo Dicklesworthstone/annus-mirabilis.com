@@ -5,17 +5,35 @@ import "./firstPages.css";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /**
+ * The question each paper opens with on the home page, under its first page, with two ways in: an
+ * example first, or the paper itself (am-design-home-page-0s7s). Interface copy written for this
+ * edition, not a quotation. Keyed by slug; a paper with no question here shows none, and the home
+ * page's test requires all four.
+ */
+export const INVITATIONS: Readonly<Record<string, string>> = {
+  "light-quanta": "What could a spectrum tell you about the structure of light?",
+  "brownian-motion": "How would you count what you cannot see?",
+  "special-relativity": "How would you synchronize distant clocks?",
+  "mass-energy": "What does a body lose when it emits light?",
+};
+
+/** Where "Show me with an example" goes: the paper's first encounter, rendered at #entry-<slug>. */
+export function exampleHref(slug: string): string {
+  return `/papers/${slug}/#entry-${slug}`;
+}
+
+/**
  * The four first pages, as printed, in the order Annalen der Physik received them, large enough to
  * read as pages of German type with a title block. Each is dated on a calendar label above it and
  * carries one mark per printed page below it. On a wide screen a ruler of 1905 underneath places
  * the four received dates to the day. Everything drawn is also in the text.
  */
-export function FirstPages() {
+export function FirstPages({ invitations = false }: { invitations?: boolean }) {
   const papers = loadFirstPages();
   return (
     <figure className="first-pages">
       <ol
-        className="first-pages-list"
+        className={invitations ? "first-pages-list first-pages-invite" : "first-pages-list"}
         aria-label="The four papers in the order the journal received them"
       >
         {papers.map((paper) => {
@@ -55,6 +73,22 @@ export function FirstPages() {
                 {paper.pages} pages, printed{" "}
                 <time dateTime={paper.printed}>{dayAndMonth(paper.printed)}</time>
               </p>
+              {invitations && INVITATIONS[paper.slug] ? (
+                <>
+                  <p className="first-page-question">{INVITATIONS[paper.slug]}</p>
+                  {/* Each link names its paper to a screen reader, since the four pairs read alike. */}
+                  <p className="first-page-actions">
+                    <a href={exampleHref(paper.slug)}>
+                      Show me with an example
+                      <span className="visually-hidden">: {paper.title}</span>
+                    </a>
+                    <a href={`/papers/${paper.slug}/`}>
+                      Take me to the paper
+                      <span className="visually-hidden">: {paper.title}</span>
+                    </a>
+                  </p>
+                </>
+              ) : null}
             </li>
           );
         })}

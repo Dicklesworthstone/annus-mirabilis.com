@@ -125,6 +125,31 @@
   width: 1px;
   background: var(--ink);
 }
+/* THE HOME PAGE'S INVITATIONS (pane %48, dispatch 130). Under each first page, the paper's
+   question and two ways in: an example first, or the paper. Two more rows of the same subgrid, so
+   the four questions start level and so do the four pairs of links, whatever wraps. */
+.first-pages-invite .first-page {
+  grid-row: span 5;
+}
+.first-page-question {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-serif);
+  font-size: var(--type-body);
+  line-height: 1.3;
+  color: var(--ink);
+}
+.first-page-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 0;
+  font-size: var(--type-small);
+}
+.first-page-actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
 .first-pages-ruler {
   display: none;
 }

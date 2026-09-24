@@ -18,7 +18,7 @@ export default function Home() {
             </p>
           </div>
         </div>
-        <FirstPages />
+        <FirstPages invitations />
         <div className="actions">
           <a className="button" href="/papers/">
             Read the papers
