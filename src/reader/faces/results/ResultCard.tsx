@@ -53,9 +53,7 @@ function ProbeLink({ probe }: { probe: ResultCardData["probes"][number] }) {
         <a href={`/lab/${probe.instrumentId}/`}>
           {labName(probe.instrumentId)}: <InlineMathText text={probe.question} />
         </a>
-        {preset ? (
-          <span className="fine"> Choose the preset &ldquo;{preset}&rdquo; there.</span>
-        ) : null}
+        {preset ? <span className="fine">{` Choose the preset “${preset}” there.`}</span> : null}
       </p>
     );
   }

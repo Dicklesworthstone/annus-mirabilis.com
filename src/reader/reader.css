@@ -2353,6 +2353,9 @@ html:is(
   margin: 0.5rem 0;
 }
 
+.result-printed,
+.result-modern,
+.result-qualifications,
 .result-decoder,
 .result-printed-checks,
 .result-probes,
@@ -2374,6 +2377,30 @@ html:is(
   margin-top: 1rem;
   font-size: var(--type-fine);
   color: var(--muted);
+}
+
+/* THE AS-PRINTED LAYER IS EINSTEIN'S GERMAN, quoted from the German face (ResultCard.tsx): set off
+   by the rule the other layers use, not indented further, so a display keeps the card's width. */
+.result-printed blockquote {
+  margin: 0;
+}
+
+/* The four kinds of meaning, as a quiet key at the card's foot: label and value on one line. */
+.result-meanings {
+  margin: 1.25rem 0 0;
+  font-size: var(--type-fine);
+  color: var(--muted);
+}
+.result-meanings > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.5rem;
+}
+.result-meanings dt {
+  font-weight: 600;
+}
+.result-meanings dd {
+  margin: 0;
 }
 
 /* Misconception Callout styles (am-read-misconception-callouts-a3o, am-vw1o) */
