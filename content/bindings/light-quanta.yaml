@@ -27,8 +27,7 @@ paragraphs:
     passages: [arg-lq-classical-allocation]
     r0: "The setup for section 1: a space enclosed by perfectly reflecting walls holds gas molecules and electrons that move freely and collide like the molecules of a gas, and further electrons bound to fixed points by springlike forces. These bound electrons, called resonators, emit and absorb electromagnetic waves of definite periods."
   - unit: s1-fn1
-    status: unexplained
-    reason: "No passage discusses Drude's assumption or its use for metals; the passage on the classical allocation starts from each resonator's mean energy, not from this equivalence."
+    passages: [arg-lq-equilibrium-assumptions]
     r0: "The footnote says this assumption amounts to supposing that gas molecules and electrons have equal mean kinetic energies at the same temperature, which Drude assumed when he derived the ratio of heat conduction to electrical conduction in metals."
   - unit: s1-p2
     passages: [arg-lq-classical-allocation]
@@ -43,8 +42,7 @@ paragraphs:
     passages: [arg-lq-classical-allocation]
     r0: "The footnote cites Planck's paper in Annalen der Physik, volume 1, page 99, 1900."
   - unit: s1-fn3
-    status: unexplained
-    reason: "No passage explains this definition of disordered radiation; the passage on the classical allocation uses Planck's relation without discussing the condition it rests on."
+    passages: [arg-lq-equilibrium-assumptions]
     r0: "The footnote defines radiation as disordered as possible: when the electric field at a point is expanded in a long Fourier series, the probabilities of the amplitudes and phases are independent of one another. The radiation here comes closer to that the more each pair of them depends on emission and absorption by particular groups of resonators."
   - unit: s1-p5
     passages: [arg-lq-classical-allocation]
