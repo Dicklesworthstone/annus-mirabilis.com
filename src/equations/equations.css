@@ -762,3 +762,53 @@
       box-shadow 0.15s ease;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   THE TERM INSPECTOR (dispatch 144 unit c). One pinned quantity as a short list under its chips:
+   symbol and name, what it does in this formula, unit, dimension and value. It opens on a pin and
+   closes on an unpin, so it moves the page only when the reader asks. Its text is ink on the wash,
+   its glyph the quantity's own colour, and its left rule the one mark of that colour on the panel.
+   In the explorer it is also the equation-inspector panel and takes that panel's place.
+   --------------------------------------------------------------------------- */
+.term-inspector {
+  margin: 0.75rem 0 0;
+  padding: 0.75rem 0.9rem;
+  border-left: 3px solid color-mix(in srgb, var(--qc, var(--ink)) 70%, transparent);
+  background: var(--wash);
+  color: var(--ink);
+  text-align: start;
+  font-size: var(--type-small);
+}
+.term-inspector .term-inspector-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem;
+}
+.term-inspector .term-inspector-glyph {
+  color: var(--qc, var(--ink));
+}
+.term-inspector .term-inspector-facts {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+}
+.term-inspector .term-inspector-facts div {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.75rem;
+}
+.term-inspector .term-inspector-facts dt {
+  min-width: 7.5rem;
+  font-weight: 600;
+}
+.term-inspector .term-inspector-facts dd {
+  flex: 1 1 14rem;
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.term-inspector p {
+  margin: 0.6rem 0 0;
+}

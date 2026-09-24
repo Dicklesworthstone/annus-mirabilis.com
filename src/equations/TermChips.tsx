@@ -1,6 +1,8 @@
 "use client";
 import { type CSSProperties, useContext } from "react";
 import { TermHighlightContext } from "./TermHighlight.tsx";
+import { SymbolicValue, TermInspector } from "./TermInspector.tsx";
+import type { TermFacts } from "./termFacts.ts";
 
 /**
  * THE TERM CHIPS (dispatch 144 unit b): each quantity of a formula as a button with a dot of its
@@ -20,6 +22,8 @@ export type TermChipItem = Readonly<{
   /** The glyph in Einstein's letters, shown instead under html[data-notation] (notation toggle). */
   printedGlyphHtml?: string | undefined;
   style?: CSSProperties | undefined;
+  /** What the inspector says once this quantity is pinned (unit c). Absent, no inspector opens. */
+  facts?: TermFacts | undefined;
 }>;
 
 export function TermChips({
@@ -85,7 +89,12 @@ export function TermChips({
   );
 }
 
-/** Chips inside a TermHighlight block, which pins, lights and reports readiness for them. */
+/**
+ * Chips inside a TermHighlight block, which pins, lights and reports readiness for them, and the
+ * inspector for the pinned quantity. Nothing here follows the pointer: the inspector and the live
+ * region change when a quantity is pinned or unpinned, which is a reader's commit, and never on a
+ * mouse move, so a screen reader is not read a stream of names as the pointer crosses a formula.
+ */
 export function BlockTermChips({
   items,
   label,
@@ -94,13 +103,36 @@ export function BlockTermChips({
   label: string;
 }) {
   const block = useContext(TermHighlightContext);
+  const pinned = block?.pinned ?? null;
+  const item = pinned === null ? undefined : items.find((i) => i.quantityId === pinned);
   return (
-    <TermChips
-      items={items}
-      label={label}
-      pressed={block?.pinned ?? null}
-      disabled={!block?.ready}
-      onClear={block ? () => block.pin(null) : undefined}
-    />
+    <>
+      <TermChips
+        items={items}
+        label={label}
+        pressed={pinned}
+        disabled={!block?.ready}
+        onClear={block ? () => block.pin(null) : undefined}
+      />
+      {item?.facts ? (
+        <TermInspector
+          name={item.name}
+          glyphHtml={item.glyphHtml}
+          printedGlyphHtml={item.printedGlyphHtml}
+          facts={item.facts}
+          style={item.style}
+          value={<SymbolicValue lab={item.facts.lab} />}
+        />
+      ) : null}
+      <p className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+        {item ? announcement(item) : ""}
+      </p>
+    </>
   );
+}
+
+/** What the live region says on a pin: the name, and what the quantity does in this formula. */
+export function announcement(item: Pick<TermChipItem, "name" | "facts">): string {
+  const role = item.facts?.roles[0]?.explanation;
+  return role ? `${item.name}. ${role}` : item.name;
 }

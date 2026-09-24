@@ -17,6 +17,8 @@ import { navigate } from "./navigation.ts";
 import { createSelectionStore } from "./selectionStore.ts";
 import { TermChips } from "./TermChips.tsx";
 import { lightQuantity, quantityAt } from "./TermHighlight.tsx";
+import { SymbolicValue, TermInspector } from "./TermInspector.tsx";
+import { termFacts, termGlyphHtml } from "./termFacts.ts";
 import { withQuantityIds } from "./termQuantities.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
 import "./equations.css";
@@ -146,6 +148,30 @@ export function SemanticEquation({
     (current === id ||
       (selected?.quantityId &&
         equation.terms.find((t) => t.termId === id)?.quantityId === selected.quantityId));
+  /**
+   * The inspector's value line for a term: the laboratory's accepted value where this page's slot
+   * computes the quantity, with the execution label that earned it; otherwise one line saying why
+   * there is none. The binding is found by quantity, so every place the quantity is printed reads
+   * the one accepted output, each scaled as its term is.
+   */
+  function termValueLine(t: CompiledEquation["terms"][number]): ReactNode {
+    if (!slot)
+      return resolution?.kind === "ambiguous" ? (
+        resolution.message
+      ) : (
+        <SymbolicValue
+          lab={equation.bindings.find((b) => b.quantityId === t.quantityId)?.experimentId}
+        />
+      );
+    const bound = equation.bindings.some((b) => b.quantityId === t.quantityId);
+    const v = readTermValue(t, bound ? slot : null);
+    if (v.kind !== "value") return v.text;
+    return (
+      <>
+        {termText(v.text)} {v.unit} ({slot.execution.text})
+      </>
+    );
+  }
   const equationId = effectiveScope ? `${equation.id}-${effectiveScope}` : equation.id;
   /*
     ONE COLOUR PER QUANTITY, from CSS alone. The root names its paper (data-paper), each coloured
@@ -353,7 +379,44 @@ export function SemanticEquation({
           })}
         </nav>
       </details>
-      {note && (
+      {/* A selected term opens the term inspector (dispatch 144 unit c); a selected operation keeps
+          its note. Either changes only on a selection, never on a pointer move. */}
+      {term ? (
+        <TermInspector
+          className="equation-inspector"
+          nodeId={current ?? undefined}
+          name={term.quantity.name}
+          glyphHtml={termGlyphHtml(equation.html, term.termId)}
+          printedGlyphHtml={
+            printedNotation ? termGlyphHtml(printedNotation.html, term.termId) : undefined
+          }
+          glyphQuantityId={term.quantityId}
+          facts={termFacts([equation], term.quantity)}
+          value={termValueLine(term)}
+        >
+          <p className="fine">{term.quantity.definition}</p>
+          {note ? (
+            <p>
+              <a
+                href={`/foundations/${note.foundation}/`}
+                data-foundation={note.foundation}
+                data-return-caption={`Return to ${equation.title}.`}
+              >
+                Show the missing step →
+              </a>
+            </p>
+          ) : null}
+          {term.quantity.role === "input" && scopeContext?.editQuantity && (
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => scopeContext.editQuantity?.(term.quantityId)}
+            >
+              Edit this input in the laboratory
+            </button>
+          )}
+        </TermInspector>
+      ) : note ? (
         <section
           className="equation-inspector"
           aria-label="Selected equation part"
@@ -361,12 +424,6 @@ export function SemanticEquation({
         >
           <h4>{note.title}</h4>
           <p>{note.explanation}</p>
-          {term && (
-            <p className="fine">
-              Role: {term.quantity.role}. Canonical quantity: <code>{term.quantityId}</code>. Unit:{" "}
-              {term.quantity.displayUnit}. {term.quantity.definition}
-            </p>
-          )}
           <p>
             <a
               href={`/foundations/${note.foundation}/`}
@@ -376,17 +433,8 @@ export function SemanticEquation({
               Show the missing step →
             </a>
           </p>
-          {term?.quantity.role === "input" && scopeContext?.editQuantity && (
-            <button
-              type="button"
-              className="secondary"
-              onClick={() => scopeContext.editQuantity?.(term.quantityId)}
-            >
-              Edit this input in the laboratory
-            </button>
-          )}
         </section>
-      )}
+      ) : null}
       <div
         className="equation-values"
         data-equation-values

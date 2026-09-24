@@ -17,6 +17,7 @@ import { NotationNote } from "../equations/NotationNote.tsx";
 import { colourStyle, quantityLegend } from "../equations/quantityColourView.ts";
 import { BlockTermChips } from "../equations/TermChips.tsx";
 import { TermHighlight } from "../equations/TermHighlight.tsx";
+import { termFacts } from "../equations/termFacts.ts";
 import { withQuantityIds } from "../equations/termQuantities.ts";
 import type { CompiledEquation } from "../equations/viewTypes.ts";
 import "../equations/equations.css";
@@ -32,7 +33,12 @@ export function ColouredFormula({ equations }: { equations: readonly CompiledEqu
     const printedGlyphHtml = equations
       .map((e) => printedOf(e)?.glyphHtml[item.quantityId])
       .find((glyph) => glyph !== undefined);
-    return { ...item, printedGlyphHtml };
+    const quantity = equations
+      .flatMap((e) => e.terms)
+      .find((t) => t.quantityId === item.quantityId)?.quantity;
+    // The inspector's facts are worked out here, on the server, so the island carries strings.
+    const facts = quantity ? termFacts(equations, quantity) : undefined;
+    return { ...item, printedGlyphHtml, facts };
   });
   const rowLabel = `Formula: ${equations.map((e) => e.title || e.id).join("; ")}`;
   return (
@@ -100,12 +106,13 @@ export function ColouredFormula({ equations }: { equations: readonly CompiledEqu
       ) : null}
       <BlockTermChips
         label="Quantities in this formula"
-        items={legend.map(({ quantityId, colour, printedGlyphHtml }) => ({
+        items={legend.map(({ quantityId, colour, printedGlyphHtml, facts }) => ({
           quantityId,
           name: colour.name,
           glyphHtml: colour.glyphHtml,
           printedGlyphHtml,
           style: colourStyle(colour),
+          facts,
         }))}
       />
     </TermHighlight>
