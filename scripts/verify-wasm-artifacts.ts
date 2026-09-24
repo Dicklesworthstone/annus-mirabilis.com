@@ -438,8 +438,9 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
         testId: "export-validity-small-cases",
         passed: shapesValid,
         comparisonKind: "structural",
-        message:
-          "brownian_frames, philox_normals and diffusion1d_frames each return an ok envelope and a buffer of the declared shape. brownian_frames_window is not exported by this artifact and is not called.",
+        message: shapesValid
+          ? "brownian_frames, philox_normals and diffusion1d_frames each return an ok envelope and a buffer of the declared shape. brownian_frames_window is not exported by this artifact and is not called."
+          : `An export did not return an ok envelope of the declared shape: kinds ${kinds.join(", ")}; lengths ${bf.length}, ${pn.length}, ${df.length}.`,
         expected: { kinds: ["accepted", "accepted", "accepted"], bfLen: 10, pnLen: 10, dfLen: 50 },
         actual: { kinds, bfLen: bf.length, pnLen: pn.length, dfLen: df.length },
       });
@@ -714,7 +715,9 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
         passed: coinValid && uniformValid && k2k3Coincide && kernelRefused,
         comparisonKind: "bitwise",
         message:
-          "Coin steps are exactly +-sqrt(2 D dt); kernel 3 at 2 D dt = 1 equals kernel 2 bitwise; step kernel 4 is the typed unsupported-kernel refusal.",
+          coinValid && uniformValid && k2k3Coincide && kernelRefused
+            ? "Coin steps are exactly +-sqrt(2 D dt); kernel 3 at 2 D dt = 1 equals kernel 2 bitwise; step kernel 4 is the typed unsupported-kernel refusal."
+            : `Brownian kernels failed: coin ${coinValid}, uniform ${uniformValid}, kernel 3 = kernel 2 ${k2k3Coincide}, kernel 4 refused ${kernelRefused}.`,
         expected: { coinValid: true, uniformValid: true, k2k3Coincide: true, kernelRefused: true },
         actual: { coinValid, uniformValid, k2k3Coincide, kernelRefused },
       });
@@ -765,8 +768,9 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
         testId: "ftcs-1d-stability-boundary",
         passed,
         comparisonKind: "structural",
-        message:
-          "r = 0.5 is accepted and conserves mass; r > 0.5 returns the typed ftcs-unstable refusal in its envelope, with no field.",
+        message: passed
+          ? "r = 0.5 is accepted and conserves mass; r > 0.5 returns the typed ftcs-unstable refusal in its envelope, with no field."
+          : `FTCS boundary failed: r = 0.5 accepted ${stablePassed}, mass conserved ${massConserved}, r > 0.5 gave ${refusalCode}.`,
         expected: { stablePassed: true, massConserved: true, refusalCode: "ftcs-unstable" },
         actual: { stablePassed, massConserved, refusalCode },
         failureDetails: passed
@@ -950,8 +954,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     // A capability no row admits and no export backs, such as brownian_frames_window, which this
     // artifact does not export, must still be refused.
     const brownianAdmitted = isAdmittedCapability("diffusion.brownian-frames");
-    const unadmittedRejected =
-      brownianAdmitted && !isAdmittedCapability("diffusion.brownian-frames-window");
+    const unadmittedRejected = !isAdmittedCapability("diffusion.brownian-frames-window");
 
     const bogusRejected = !isAdmittedWasmDigest(
       "0000000000000000000000000000000000000000000000000000000000000000",
@@ -959,10 +962,14 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
 
     checks.push({
       testId: "provenance-registry-admission",
-      passed: digestAdmitted && allDeclaredCapsAdmitted && unadmittedRejected && bogusRejected,
+      passed:
+        digestAdmitted &&
+        allDeclaredCapsAdmitted &&
+        brownianAdmitted &&
+        unadmittedRejected &&
+        bogusRejected,
       comparisonKind: "structural",
-      message:
-        "Provenance registry admits the manifest digest and every declared capability, diffusion.brownian-frames included now that the module exports brownian_frames, and rejects an undeclared capability and a foreign digest.",
+      message: `Provenance registry: manifest digest admitted ${digestAdmitted}; every declared capability admitted ${allDeclaredCapsAdmitted}; diffusion.brownian-frames admitted ${brownianAdmitted} (the compiled module exports brownian_frames, so it must be); undeclared capability refused ${unadmittedRejected}; foreign digest refused ${bogusRejected}.`,
       expected: {
         digestAdmitted: true,
         allDeclaredCapsAdmitted: true,
