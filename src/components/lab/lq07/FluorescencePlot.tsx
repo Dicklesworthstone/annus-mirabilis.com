@@ -186,16 +186,17 @@ export function FluorescencePlot({
             </pattern>
           </defs>
 
-          {/* Ground level */}
+          {/* Ground level, labelled at its left end like an axis tick. The label used to sit below
+              the line under "absorbed hν₁", and on a phone it read as that bar's value. */}
           <line
-            x1="10"
+            x1="40"
             y1={groundY}
             x2={svgWidth - 10}
             y2={groundY}
             stroke="var(--line)"
             strokeWidth="1.5"
           />
-          <text x="10" y={groundY + 34}>
+          <text x="36" y={groundY + 4} textAnchor="end">
             0 eV
           </text>
 
