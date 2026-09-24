@@ -81,8 +81,23 @@ describe("PaperReader nav landmark unique accessible names (am-rv2t)", () => {
   });
 
   test("prerequisite navs across different passages pointing to the same foundation get distinct context names (AC 4)", async () => {
-    const html = await exportMarkup(await PaperReader());
-    const navs = extractNavLandmarks(html);
+    // The steps, with their embedded lessons, are served on the section pages; the whole-paper
+    // page lifts each passage's steps in when they open (stepsBody.ts), so with every passage
+    // open it holds the navs of every one of its section pages. Those are what is collected here.
+    const whole = await exportMarkup(await PaperReader());
+    const sections = new Set(
+      [...whole.matchAll(/<section\b[^>]*\sid="(s\d+)"[^>]*class="reader-section"/g)].map(
+        (m) => m[1] ?? "",
+      ),
+    );
+    expect(sections.size).toBeGreaterThan(0);
+    const navs = (
+      await Promise.all(
+        [...sections].map(async (section) =>
+          extractNavLandmarks(await exportMarkup(await PaperReader({ section }))),
+        ),
+      )
+    ).flat();
     const meanVarianceNavs = navs.filter((n) =>
       n.accessibleName.includes("Mean, variance and RMS"),
     );

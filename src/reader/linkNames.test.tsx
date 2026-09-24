@@ -43,6 +43,21 @@ export function groupLinksByName(links: readonly ExtractedLink[]): Map<string, S
 }
 
 /** The Brownian section pages, which serve the equation cards the whole-paper page loads lazily. */
+/**
+ * Every section page of the whole-paper page's sections. The steps, with the lessons embedded in
+ * them, are served there, and the whole-paper page lifts them in when they open (stepsBody.ts).
+ */
+async function stepsSectionPages(wholePage: string): Promise<readonly string[]> {
+  const sections = new Set(
+    [...wholePage.matchAll(/<section\b[^>]*\sid="(s\d+)"[^>]*class="reader-section"/g)].map(
+      (m) => m[1] ?? "",
+    ),
+  );
+  return Promise.all(
+    [...sections].map(async (section) => exportMarkup(await PaperReader({ section }))),
+  );
+}
+
 async function brownianSectionPagesHtml(): Promise<string> {
   const pages = await Promise.all(
     ["s4", "s5"].map(async (section) => exportMarkup(await PaperReader({ section }))),
@@ -203,11 +218,22 @@ describe("PaperReader link accessible names (am-jmma)", () => {
         expect(hrefs.size).toBe(1);
       }
 
+      // Classes 2, 4, 5 and 6 name lessons that the steps embed, and the steps are served on the
+      // section pages (the whole-paper page lifts them in when they open). Each page is checked
+      // on its own: wherever the name appears it reaches exactly its one destination, and it
+      // appears on at least one page.
+      const pages = [html, ...(await stepsSectionPages(html))];
+      expect(pages.length).toBeGreaterThan(1);
+      const reachesOnly = (name: string, href: string) => {
+        const found = pages
+          .map((page) => groupLinksByName(extractLinks(page)).get(name))
+          .filter((hrefs) => hrefs !== undefined);
+        expect(found.length).toBeGreaterThan(0);
+        for (const hrefs of found) expect([...hrefs]).toEqual([href]);
+      };
+
       // 2. "Adding and averaging": reaches exactly 1 destination (/foundations/bridge-sum-average/)
-      expect(byName.get("Adding and averaging")?.size).toBe(1);
-      expect(byName.get("Adding and averaging")?.has("/foundations/bridge-sum-average/")).toBe(
-        true,
-      );
+      reachesOnly("Adding and averaging", "/foundations/bridge-sum-average/");
 
       // 3. "Open this as a full reading page →" / "Open this as a full reading page": 0 bare instances
       expect(byName.has("Open this as a full reading page →")).toBe(false);
@@ -226,24 +252,13 @@ describe("PaperReader link accessible names (am-jmma)", () => {
       }
 
       // 4. "Squares and square roots": reaches exactly 1 destination
-      expect(byName.get("Squares and square roots")?.size).toBe(1);
-      expect(
-        byName.get("Squares and square roots")?.has("/foundations/bridge-squaring-square-roots/"),
-      ).toBe(true);
+      reachesOnly("Squares and square roots", "/foundations/bridge-squaring-square-roots/");
 
       // 5. "A sign records direction": reaches exactly 1 destination
-      expect(byName.get("A sign records direction")?.size).toBe(1);
-      expect(
-        byName
-          .get("A sign records direction")
-          ?.has("/foundations/bridge-negative-numbers-direction/"),
-      ).toBe(true);
+      reachesOnly("A sign records direction", "/foundations/bridge-negative-numbers-direction/");
 
       // 6. "Mean, variance and RMS": reaches exactly 1 destination
-      expect(byName.get("Mean, variance and RMS")?.size).toBe(1);
-      expect(byName.get("Mean, variance and RMS")?.has("/foundations/mean-variance-rms/")).toBe(
-        true,
-      );
+      reachesOnly("Mean, variance and RMS", "/foundations/mean-variance-rms/");
 
       // 7. "Why?": 0 bare instances, each discriminated instance reaches 1 destination
       expect(byName.has("Why?")).toBe(false);
