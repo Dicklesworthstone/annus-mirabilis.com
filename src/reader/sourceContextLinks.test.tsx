@@ -66,6 +66,24 @@ describe("a passage's Source context links only faces that exist", () => {
     expect(intro?.hrefs[0]).toBe("/papers/light-quanta/view/german/#s0-p1");
   });
 
+  test("mass-energy: the English link opens the English face at an id it has, never #<argument id>", async () => {
+    // No English unit carries an argument's id. Until passages are bound to paragraphs the link
+    // names its section's first English sentence (paperSourceFaces.englishSectionFragment).
+    const lines = await contextLines("mass-energy");
+    expect(lines.length).toBeGreaterThan(0);
+    const english = await exportMarkup(
+      await PaperPage({ paperId: "mass-energy", face: "english" }),
+    );
+    const ids = new Set([...english.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+    const hrefs = lines.flatMap((l) => l.hrefs.filter((h) => h.includes("/view/english/")));
+    expect(hrefs.length).toBe(lines.length);
+    for (const href of hrefs) {
+      const fragment = href.split("#")[1] ?? "";
+      expect(fragment.startsWith("arg-")).toBe(false);
+      expect(ids.has(fragment)).toBe(true);
+    }
+  });
+
   test("special-relativity has no German: its lines offer the facsimile alone", async () => {
     const lines = await contextLines("special-relativity");
     expect(lines.length).toBeGreaterThan(0);

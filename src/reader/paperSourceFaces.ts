@@ -31,6 +31,12 @@ export interface PaperSourceFaces {
    * opens the face rather than naming an id that is not there.
    */
   sectionFragment(section: string): string;
+  /**
+   * "#<unit id>" for the English face's first unit whose source sits in `section`, or "" when the
+   * edition says of none, so the link opens the face rather than naming an id it lacks. Passages
+   * are not yet bound to paragraphs, so this is the section's first sentence, not the passage's.
+   */
+  englishSectionFragment(section: string): string;
 }
 
 export async function paperSourceFaces(paperId: string): Promise<PaperSourceFaces> {
@@ -49,9 +55,26 @@ export async function paperSourceFaces(paperId: string): Promise<PaperSourceFace
   const anchors = new Set<string>(
     rendersEdition ? blocks.map((b) => b.id) : Object.values(draft?.anchors.anchorOf ?? {}),
   );
+  // Each block's section, under its own id and its sentences' ids, which is what a unit's
+  // sourceRefs name; then the first unit, in the face's order, whose source lies in each section.
+  const sectionOf = new Map<string, string>();
+  for (const block of blocks) {
+    if (!block.section) continue;
+    sectionOf.set(block.id, block.section);
+    for (const span of block.sentenceSpans ?? []) sectionOf.set(span.id, block.section);
+  }
+  const firstUnit = new Map<string, string>();
+  for (const unit of edition?.units ?? []) {
+    const section = unit.sourceRefs.map((r) => sectionOf.get(r.id)).find((s) => s !== undefined);
+    if (section !== undefined && !firstUnit.has(section)) firstUnit.set(section, unit.id);
+  }
   return {
     availability,
     germanIsDraft: !rendersEdition,
+    englishSectionFragment: (section) => {
+      const id = firstUnit.get(section);
+      return id ? `#${id}` : "";
+    },
     sectionFragment: (section) =>
       anchors.has(section) ? `#${section}` : anchors.has(`${section}-p1`) ? `#${section}-p1` : "",
   };

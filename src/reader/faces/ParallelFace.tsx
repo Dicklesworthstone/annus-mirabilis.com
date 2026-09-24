@@ -1,11 +1,12 @@
 import type { SourceFaceNotice as SourceFaceNoticeRecord } from "../../content/provenance/sourceFaceNotice.ts";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
-import type {
-  Alignment,
-  EditorialNote,
-  Paper,
-  SourceBlock,
-  TranslationUnit,
+import {
+  type Alignment,
+  type EditorialNote,
+  type Paper,
+  plainText,
+  type SourceBlock,
+  type TranslationUnit,
 } from "../../content/schemas/source.ts";
 import { FACE_FALLBACK_IDS, faceLinkHref } from "../paperRoutes.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
@@ -18,6 +19,7 @@ import { isPaperTranslationUnreviewed } from "./reviewState.ts";
 import { SourceBlock as SourceBlockItem } from "./SourceBlock.tsx";
 import { SourceFaceNotice } from "./SourceFaceNotice.tsx";
 import { TranslationUnit as TranslationUnitItem, unitsBySourceRef } from "./TranslationUnit.tsx";
+import { MASTHEAD_TITLE_ID, unitTranslating } from "./translationMasthead.ts";
 import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
 import "../reader.css";
 
@@ -60,6 +62,7 @@ export function ParallelFace({
   const isStacked = layout === "stacked";
   const alignmentIndex = buildAlignmentIndex(alignment, blocks, units);
   const footnoteUnits = unitsBySourceRef(units);
+  const titleUnit = unitTranslating(units, MASTHEAD_TITLE_ID);
 
   const filteredBlocks = sectionId
     ? blocks.filter((b) => b.section === sectionId || !b.section)
@@ -99,7 +102,10 @@ export function ParallelFace({
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
       <header className="page-intro">
         <p className="eyebrow">Parallel edition · {paper.titleEnglishWorking}</p>
-        <h1 className="parallel-paper-title">{paper.titleEnglishWorking}</h1>
+        {/* The translated masthead (translationMasthead.ts); both columns still print it. */}
+        <h1 className="parallel-paper-title">
+          {titleUnit ? plainText(titleUnit.inlines) : paper.titleEnglishWorking}
+        </h1>
         <p className="parallel-german-title" lang="de">
           <em>{paper.titleGerman}</em>
         </p>

@@ -307,7 +307,8 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         face: "english",
         label: "English",
         name: "English translation",
-        href: `/papers/${paper.id}/view/english/#${a.id}`,
+        // No English unit carries an argument's id; the section's first English sentence does.
+        href: `/papers/${paper.id}/view/english/${sources.englishSectionFragment(a.section)}`,
       },
       sources.availability.gloss === "available" && {
         face: "gloss",
