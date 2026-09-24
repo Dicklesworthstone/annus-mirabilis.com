@@ -46,6 +46,8 @@ const REQUIRED_REFUSAL_CODES = [
   "quantile-not-converged",
   // am-ref-inference-2w9
   "circular-radius-from-displacement",
+  // Dispatch 134: a laboratory setting outside its manifest's declared modelDomain.
+  "outside-model-domain",
 ];
 
 describe("status-enum-leak data lists", () => {
@@ -62,9 +64,9 @@ describe("status-enum-leak data lists", () => {
     );
   });
 
-  it("contains all twenty-one refusal codes of requirement 3 (ten initial, seven tape, three diffusion, one inference)", () => {
+  it("contains all twenty-two refusal codes of requirement 3 (ten initial, seven tape, three diffusion, one inference, one model domain)", () => {
     assert.deepEqual(new Set(statusEnumLeak.ids.refusalCodes), new Set(REQUIRED_REFUSAL_CODES));
-    assert.equal(statusEnumLeak.ids.refusalCodes.length, 21);
+    assert.equal(statusEnumLeak.ids.refusalCodes.length, 22);
   });
 
   it("contains both donor labels", () => {

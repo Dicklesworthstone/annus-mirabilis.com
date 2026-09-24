@@ -183,6 +183,8 @@ rules:
         - drift-diffusion-unstable
         - drift-cfl-exceeded
         - quantile-not-converged
+        # Dispatch 134: a laboratory setting outside its manifest's declared modelDomain.
+        - outside-model-domain
         # am-ref-inference-2w9.
         - circular-radius-from-displacement
       # Donor labels that must never leak as a visible execution label.

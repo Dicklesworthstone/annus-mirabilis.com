@@ -64,6 +64,13 @@ export const refusalCodeRegistry = defineRefusalRegistry({
     message: "This Stokes-drag model omits the slip correction needed for small tracers in a gas.",
     repair: "Choose a Newtonian liquid, or a model with a slip correction.",
   },
+  // A laboratory setting outside the modelDomain its manifest declares (content/experiments/<id>.yaml).
+  // The refusal's details.requirements names the range, in the page's units, and the manifest's reason.
+  "outside-model-domain": {
+    domainKind: "model",
+    message: "This setting is outside the range the model describes.",
+    repair: "Enter a value inside the stated range.",
+  },
   "invalid-seed": {
     domainKind: "input",
     message: "The seed must be an unsigned 64-bit whole number written in canonical decimal form.",
