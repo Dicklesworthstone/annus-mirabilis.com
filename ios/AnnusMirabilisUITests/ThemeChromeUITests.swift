@@ -3,7 +3,7 @@ import XCTest
 /// The band behind the status bar, and the status bar itself, follow the PAGE's
 /// theme; the page follows the DEVICE until the reader presses its toggle.
 /// Checked by sampling the screenshot above the Dynamic Island, where only the
-/// app's own background shows.
+/// app's own background shows, and the page-actions button's dot against its disc.
 final class ThemeChromeUITests: XCTestCase {
     override func setUp() {
         continueAfterFailure = false
@@ -31,9 +31,14 @@ final class ThemeChromeUITests: XCTestCase {
     @MainActor
     private func bandLuminance(_ app: XCUIApplication) -> Double {
         let screenshot = app.screenshot().image
+        return luminance(of: screenshot, atPoint: CGPoint(x: screenshot.size.width / 2, y: 3))
+    }
+
+    /// WCAG relative luminance of one screenshot pixel, given in points.
+    private func luminance(of screenshot: UIImage, atPoint point: CGPoint) -> Double {
         guard let image = screenshot.cgImage,
             let pixel = image.cropping(
-                to: CGRect(x: image.width / 2, y: Int(3 * screenshot.scale), width: 1, height: 1))
+                to: CGRect(x: Int(point.x * screenshot.scale), y: Int(point.y * screenshot.scale), width: 1, height: 1))
         else { return -1 }
         var bytes = [UInt8](repeating: 0, count: 4)
         let drawn = bytes.withUnsafeMutableBytes { buffer -> Bool in
@@ -46,7 +51,21 @@ final class ThemeChromeUITests: XCTestCase {
             return true
         }
         guard drawn else { return -1 }
-        return (0.2126 * Double(bytes[0]) + 0.7152 * Double(bytes[1]) + 0.0722 * Double(bytes[2])) / 255
+        func linear(_ byte: UInt8) -> Double {
+            let value = Double(byte) / 255
+            return value <= 0.04045 ? value / 12.92 : pow((value + 0.055) / 1.055, 2.4)
+        }
+        return 0.2126 * linear(bytes[0]) + 0.7152 * linear(bytes[1]) + 0.0722 * linear(bytes[2])
+    }
+
+    /// Contrast of the page-actions button: its middle dot against the disc 12 points above it.
+    @MainActor
+    private func buttonContrast(_ app: XCUIApplication) -> Double {
+        let frame = app.buttons["page-actions"].frame
+        let screenshot = app.screenshot().image
+        let dot = luminance(of: screenshot, atPoint: CGPoint(x: frame.midX, y: frame.midY))
+        let disc = luminance(of: screenshot, atPoint: CGPoint(x: frame.midX, y: frame.midY - 12))
+        return (max(dot, disc) + 0.05) / (min(dot, disc) + 0.05)
     }
 
     /// Polls, because the page reports its theme a moment after it paints.
@@ -57,7 +76,7 @@ final class ThemeChromeUITests: XCTestCase {
         var last = -1.0
         for _ in 0..<20 {
             last = bandLuminance(app)
-            if dark ? last < 0.25 : last > 0.8 { return }
+            if dark ? last < 0.05 : last > 0.6 { return }
             Thread.sleep(forTimeInterval: 0.5)
         }
         XCTFail("the band behind the status bar stayed at luminance \(last)", file: file, line: line)
@@ -79,6 +98,7 @@ final class ThemeChromeUITests: XCTestCase {
         XCTAssertTrue(toggle.waitForExistence(timeout: 10))
         toggle.tap()
         waitForBand(app, dark: true)
+        XCTAssertGreaterThanOrEqual(buttonContrast(app), 4.5, "the page-actions button on the dark page")
         keep(app, "dark-page-on-light-device")
     }
 
@@ -89,6 +109,7 @@ final class ThemeChromeUITests: XCTestCase {
         waitForBand(app, dark: true)
         XCUIDevice.shared.appearance = .light
         waitForBand(app, dark: false)
+        XCTAssertGreaterThanOrEqual(buttonContrast(app), 4.5, "the page-actions button on the light page")
         keep(app, "follows-device-back-to-light")
     }
 }

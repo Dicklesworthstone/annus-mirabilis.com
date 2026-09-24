@@ -13,6 +13,7 @@
  *   AppIcon.appiconset/AppIcon-light.png, AppIcon-dark.png, Contents.json
  *   LaunchBackground.colorset/Contents.json
  *   AccentColor.colorset/Contents.json (the site's accent, for system controls in the app)
+ *   PageInk.colorset/Contents.json (the site's ink, for native controls over the page)
  *   PageMark.imageset/ (the mark at 180 px, for the share sheet's preview)
  *
  * Usage: `bun scripts/app/generate-app-icon.ts`
@@ -234,6 +235,12 @@ export function accentColorContents() {
   return colorsetContents(light.last, dark.last);
 }
 
+/** The page's ink, for native controls drawn over the page, so they read at the site's own contrast. */
+export function pageInkContents() {
+  const { light, dark } = iconPalettes();
+  return colorsetContents(light.bar, dark.bar);
+}
+
 /** The mark for the share sheet's preview: 60 points at 3x. */
 export const MARK_SIZE = 180;
 
@@ -270,6 +277,11 @@ function main(): number {
   writeFileSync(
     join(catalog, "LaunchBackground.colorset", "Contents.json"),
     `${JSON.stringify(launchBackgroundContents(), null, 2)}\n`,
+  );
+  mkdirSync(join(catalog, "PageInk.colorset"), { recursive: true });
+  writeFileSync(
+    join(catalog, "PageInk.colorset", "Contents.json"),
+    `${JSON.stringify(pageInkContents(), null, 2)}\n`,
   );
   mkdirSync(join(catalog, "AccentColor.colorset"), { recursive: true });
   writeFileSync(

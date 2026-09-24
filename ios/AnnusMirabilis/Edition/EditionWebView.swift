@@ -44,7 +44,7 @@ struct PageActionsButton: View {
         } label: {
             Image(systemName: "ellipsis")
                 .font(.body.weight(.semibold))
-                .foregroundStyle(.primary)
+                .foregroundStyle(Color("PageInk"))
                 .frame(width: 44, height: 44)
                 .modifier(FloatingSurface())
         }
@@ -55,14 +55,19 @@ struct PageActionsButton: View {
     }
 }
 
-/// Liquid Glass where the system has it, a material circle before iOS 26.
+/// Liquid Glass where the system has it, a plain disc before iOS 26. Either way
+/// the disc carries the page's paper and the icon the page's ink, so the button
+/// reads at the site's own ink-on-paper contrast in both themes. Untinted glass
+/// adapts to what lies behind it: on a dark page it was caught once as a grey
+/// disc with grey dots at 2.08:1, and rendered at 15:1 on a later run. The tint
+/// takes the contrast out of the glass's hands.
 private struct FloatingSurface: ViewModifier {
     func body(content: Content) -> some View {
         if #available(iOS 26.0, *) {
-            content.glassEffect(.regular.interactive(), in: .circle)
+            content.glassEffect(.regular.tint(Color("LaunchBackground").opacity(0.9)).interactive(), in: .circle)
         } else {
             content
-                .background(.regularMaterial, in: Circle())
+                .background(Color("LaunchBackground").opacity(0.95), in: Circle())
                 .overlay(Circle().strokeBorder(.separator, lineWidth: 0.5))
         }
     }

@@ -24,6 +24,7 @@ import {
   MARK_SIZE,
   PAGE_COUNTS,
   PAGE_MARK_CONTENTS,
+  pageInkContents,
   rasterize,
 } from "./generate-app-icon.ts";
 
@@ -126,6 +127,10 @@ describe("app icon", () => {
       readFileSync(join(CATALOG, "AccentColor.colorset", "Contents.json"), "utf8"),
     );
     assert.deepEqual(accent, accentColorContents());
+    const ink = JSON.parse(
+      readFileSync(join(CATALOG, "PageInk.colorset", "Contents.json"), "utf8"),
+    );
+    assert.deepEqual(ink, pageInkContents());
     const mark = JSON.parse(
       readFileSync(join(CATALOG, "PageMark.imageset", "Contents.json"), "utf8"),
     );
