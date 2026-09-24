@@ -57,17 +57,26 @@ export function TracerLab({
   title = "The tracer ensemble",
   equationScope,
   equationScopeLabel,
+  session: sharedSession,
 }: {
   example: PreparedBm01Example;
   instanceId?: string | undefined;
   title?: string;
   equationScope?: string | undefined;
   equationScopeLabel?: string | undefined;
+  /**
+   * A session owned by the component that embeds the lab, so that something beside it reads the
+   * same accepted snapshot (the Brownian journey's check against the world). Omitted, the lab
+   * owns its own, as on /lab/bm-01/. Either way there is one owner per instance.
+   */
+  session?: ReturnType<typeof createBm01Session> | undefined;
 }) {
   const generatedId = useId();
   const id = explicitInstanceId ?? generatedId;
-  const [session] = useState(() =>
-    createBm01Session(explicitInstanceId ?? `bm01-${id}`, example, createBm01BrowserChannel),
+  const [session] = useState(
+    () =>
+      sharedSession ??
+      createBm01Session(explicitInstanceId ?? `bm01-${id}`, example, createBm01BrowserChannel),
   );
   const serverAccepted = session.getServerSnapshot().accepted;
   if (!serverAccepted) {

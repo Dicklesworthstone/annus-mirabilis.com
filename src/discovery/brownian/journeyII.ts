@@ -7,7 +7,13 @@
  * names is on the page's 1904 shelf (src/content/brownianShelf.ts) or, for later evidence, beside
  * the check against the world.
  */
-import type { Fork, JourneyMove, PpeTask, SourceJump } from "../../content/schemas/journey.ts";
+import type {
+  Fork,
+  JourneyMove,
+  PpeTask,
+  SourceJump,
+  WorldCheck,
+} from "../../content/schemas/journey.ts";
 
 /** The observation that does not fit (plan §9.3). */
 export const NAGGING_FACT =
@@ -193,3 +199,29 @@ export const FORK_EXNER: Fork = {
     },
   ],
 };
+
+/**
+ * Check it against the world (plan §9.1 item 7, §9.3). The prediction is BM-01's own
+ * lambdaX1s and lambdaX60s, read from the accepted snapshot of the tracer ensemble embedded beside
+ * it; the static reference is what Einstein printed in §5 (plate p. 559: "0,8 Mikron" in one
+ * second, "ca. 6 Mikron" in one minute, for particles 0,001 mm across in water at 17 °C). The later
+ * measurement is the Perrin card in src/content/brownianShelf.ts, flagged as later evidence.
+ */
+export const WORLD_CHECK: WorldCheck = {
+  id: "bm-world-check-displacement",
+  claim:
+    "Einstein predicted a displacement a microscope could follow: for particles 0.001 mm across in water at 17 °C, about 0.8 micron in one second and about 6 microns in one minute. Set the tracer ensemble to his inputs, or to your own, and compare.",
+  instrumentId: "bm-01",
+  quantityId: "lambdaX1s",
+  expected: "about 0.8 µm in one second, about 6 µm in one minute",
+  comparisonKind: "printed-prediction",
+  staticWorkedExample: {
+    label: "What Einstein printed in §5, taking N = 6 × 10^23 from gas theory",
+    value: "about 0.8 µm in one second, about 6 µm in one minute",
+    unit: "",
+    constantSetId: "einstein-1905-brownian-printed",
+  },
+};
+
+/** Einstein's §5 inputs, as the laboratory takes them: 17 °C, k = 1.35 × 10^-2 poise, 0.001 mm across. */
+export const EINSTEIN_TRACER_INPUTS = { T: 290.15, eta: 0.00135, a: 0.5e-6 } as const;

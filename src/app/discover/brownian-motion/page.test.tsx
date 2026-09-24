@@ -55,12 +55,12 @@ describe("step 04 asks the reader to put the square-root argument in words", () 
       expect(words).toContain(idea);
   });
 
-  test("the expression exercise in step 07 is still there", () => {
-    expect(section("step-07")).toContain('data-exercise-part="bm-displacement-scale-rewrite"');
+  test("the expression exercise in step 08 is still there", () => {
+    expect(section("step-08")).toContain('data-exercise-part="bm-displacement-scale-rewrite"');
   });
 
-  test("step 07 lets the reader arrive at Einstein's number, as the page's lead promises", () => {
-    const step = section("step-07");
+  test("step 08 lets the reader arrive at Einstein's number, as the page's lead promises", () => {
+    const step = section("step-08");
     expect(text(html)).toContain("You can arrive at the same number here");
     const start = step.indexOf('data-exercise-part="bm-einstein-one-second"');
     expect(start).toBeGreaterThan(step.indexOf("bm-displacement-scale-rewrite"));
@@ -102,7 +102,9 @@ describe("the route carries the discovery skeleton, in the plan's order", () => 
       "data-move-marker",
       'id="step-05"',
       'id="step-06"',
+      "data-world-check-live",
       'id="step-07"',
+      'id="step-08"',
       'id="in-the-paper"',
     ].map(at);
     expect(order).toEqual([...order].sort((a, b) => a - b));
@@ -223,5 +225,18 @@ describe("the route's forks name their people and work each branch to an outcome
       expect(errors.map((x) => `${f.id} ${x.rule}: ${x.matchedText}`)).toEqual([]);
       expect(text(fork(f.id))).not.toContain(f.varies);
     }
+  });
+});
+
+describe("step 06 checks the prediction against the world", () => {
+  test("the live readout, Einstein's printed values and the later evidence are in the step", () => {
+    const start = html.indexOf('<section id="step-06"');
+    const end = html.indexOf('<section id="step-07"');
+    const step = html.slice(start, end);
+    expect(step).toContain("06 / Check it against the world");
+    expect(step).toContain('data-world-check-quantity="lambdaX1s"');
+    expect(step).toContain('data-world-check-quantity="lambdaX60s"');
+    expect(step).toContain("about 0.8 µm in one second, about 6 µm in one minute");
+    expect(step).toContain('data-card-id="perrin-1909-molecular-reality"');
   });
 });

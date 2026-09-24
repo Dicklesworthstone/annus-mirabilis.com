@@ -1,10 +1,17 @@
+import type { ReactNode } from "react";
 import type { WorldCheck as WorldCheckType } from "../content/schemas/journey.ts";
 
 export interface WorldCheckProps {
   readonly check: WorldCheckType;
+  /**
+   * The prediction computed from the instrument's accepted snapshot, rendered by the page that
+   * owns that snapshot (plan §9.1 item 7). Given, it replaces the static description of the
+   * instrument, the quantity id and the expected value, which a reader cannot use.
+   */
+  readonly live?: ReactNode | undefined;
 }
 
-export function WorldCheck({ check }: WorldCheckProps) {
+export function WorldCheck({ check, live }: WorldCheckProps) {
   const {
     id,
     claim,
@@ -60,7 +67,7 @@ export function WorldCheck({ check }: WorldCheckProps) {
             color: "var(--accent)",
           }}
         >
-          World check · #{id}
+          Check it against the world
         </span>
         <span
           style={{
@@ -134,77 +141,83 @@ export function WorldCheck({ check }: WorldCheckProps) {
           >
             {staticWorkedExample.value} {staticWorkedExample.unit}
           </p>
-          <p
-            style={{
-              margin: 0,
-              fontSize: "0.6875rem",
-              color: "var(--muted)",
-              fontFamily: "var(--font-mono, monospace)",
-            }}
-          >
-            constants: {staticWorkedExample.constantSetId}
-          </p>
-        </div>
-
-        <div
-          style={{
-            padding: "0.75rem",
-            borderRadius: "0.25rem",
-            background: "var(--wash)",
-            border: "1px solid var(--line)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "0.25rem",
-          }}
-        >
-          <span
-            className="eyebrow"
-            style={{
-              fontWeight: 600,
-              color: "var(--muted)",
-              display: "block",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            Live instrument check
-          </span>
-          <p style={{ margin: 0, color: "var(--ink)" }}>
-            Instrument:{" "}
-            <a
-              href={`/lab/${instrumentId}/`}
+          {live === undefined && (
+            <p
               style={{
+                margin: 0,
+                fontSize: "0.6875rem",
+                color: "var(--muted)",
                 fontFamily: "var(--font-mono, monospace)",
-                color: "var(--accent)",
-                textDecoration: "underline",
               }}
             >
-              {instrumentId}
-            </a>
-          </p>
-          <p style={{ margin: 0, color: "var(--ink)" }}>
-            Quantity:{" "}
-            <span style={{ fontFamily: "var(--font-mono, monospace)", color: "var(--ink)" }}>
-              {quantityId}
-            </span>
-          </p>
-          <p
+              constants: {staticWorkedExample.constantSetId}
+            </p>
+          )}
+        </div>
+
+        {live ?? (
+          <div
             style={{
-              margin: 0,
-              fontFamily: "var(--font-mono, monospace)",
-              color: "var(--ink)",
-              fontWeight: 600,
+              padding: "0.75rem",
+              borderRadius: "0.25rem",
+              background: "var(--wash)",
+              border: "1px solid var(--line)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.25rem",
             }}
           >
-            Expected: {String(expected)}
-            {tolerance?.relative !== undefined && (
-              <span style={{ color: "var(--muted)", fontSize: "0.6875rem", fontWeight: "normal" }}>
-                {" "}
-                (±{tolerance.relative * 100}%)
+            <span
+              className="eyebrow"
+              style={{
+                fontWeight: 600,
+                color: "var(--muted)",
+                display: "block",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
+              Live instrument check
+            </span>
+            <p style={{ margin: 0, color: "var(--ink)" }}>
+              Instrument:{" "}
+              <a
+                href={`/lab/${instrumentId}/`}
+                style={{
+                  fontFamily: "var(--font-mono, monospace)",
+                  color: "var(--accent)",
+                  textDecoration: "underline",
+                }}
+              >
+                {instrumentId}
+              </a>
+            </p>
+            <p style={{ margin: 0, color: "var(--ink)" }}>
+              Quantity:{" "}
+              <span style={{ fontFamily: "var(--font-mono, monospace)", color: "var(--ink)" }}>
+                {quantityId}
               </span>
-            )}
-          </p>
-        </div>
+            </p>
+            <p
+              style={{
+                margin: 0,
+                fontFamily: "var(--font-mono, monospace)",
+                color: "var(--ink)",
+                fontWeight: 600,
+              }}
+            >
+              Expected: {String(expected)}
+              {tolerance?.relative !== undefined && (
+                <span
+                  style={{ color: "var(--muted)", fontSize: "0.6875rem", fontWeight: "normal" }}
+                >
+                  {" "}
+                  (±{tolerance.relative * 100}%)
+                </span>
+              )}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Later Evidence Badge */}

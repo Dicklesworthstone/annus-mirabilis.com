@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BrownianWorldCheck } from "../../../components/discover/BrownianWorldCheck.tsx";
 import {
   ExercisePart,
   type ExpressionExercisePart,
@@ -9,7 +10,7 @@ import {
 } from "../../../components/discover/ExplanationPart.tsx";
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { Formula } from "../../../components/edition/Formula.tsx";
-import { BROWNIAN_SHELF_CARDS } from "../../../content/brownianShelf.ts";
+import { BROWNIAN_LATER_EVIDENCE, BROWNIAN_SHELF_CARDS } from "../../../content/brownianShelf.ts";
 import {
   FIRST_HONEST_QUESTION,
   FORK_EXNER,
@@ -19,6 +20,7 @@ import {
   NAGGING_FACT,
   PPE_TASK,
   SOURCE_JUMPS,
+  WORLD_CHECK,
 } from "../../../discovery/brownian/journeyII.ts";
 import { EINSTEIN_ONE_SECOND } from "../../../discovery/brownian/numericExercises.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
@@ -30,6 +32,7 @@ import { SourceJump } from "../../../discovery/SourceJump.tsx";
 import { StepDoor, type StepDoorHref, StepDoors } from "../../../discovery/StepDoor.tsx";
 import { BM04_PRESETS } from "../../../experiments/bm04/definition.ts";
 import { encodeBm04Settings } from "../../../experiments/bm04/permalink.ts";
+import tracerExample from "../../../generated/bm01-example.json";
 
 /** Nägeli's world in BM-04: kicks off, no force, a step profile. Loads as a draft to apply. */
 const NAEGELI_WORLD: StepDoorHref = `/lab/bm-04/${encodeBm04Settings(BM04_PRESETS["naegeli-zero-force"].parameters)}`;
@@ -309,7 +312,28 @@ export default function BrownianEncounter() {
         </StepDoors>
       </section>
       <section id="step-06">
-        <p className="step-number">06 / Turn the question around</p>
+        <p className="step-number">06 / Check it against the world</p>
+        <h2>A number a microscope can follow.</h2>
+        <p>
+          Everything in the displacement is something a laboratory can set or read: the temperature,
+          the viscosity of the liquid, the radius of the particle, and how long you wait. Give the
+          ensemble below Einstein’s inputs and it gives his numbers. Give it your own and it gives
+          theirs.
+        </p>
+        <BrownianWorldCheck
+          example={tracerExample}
+          check={WORLD_CHECK}
+          laterEvidence={BROWNIAN_LATER_EVIDENCE}
+        />
+        <p>
+          The later evidence is not a displacement for these particles. Perrin measured suspensions
+          of his own, and what he reported was the number of molecules that makes the formulas fit
+          them. It came out close to the 6 × 10<sup>23</sup> Einstein took from gas theory, and that
+          number is what sets the size of the displacements he printed.
+        </p>
+      </section>
+      <section id="step-07">
+        <p className="step-number">07 / Turn the question around</p>
         <h2>What can a finite sample tell you?</h2>
         <p>
           In the next laboratory, the molecular number behind a made-up set of paths is hidden. How
@@ -325,8 +349,8 @@ export default function BrownianEncounter() {
           <StepDoor href="/lab/bm-07/">Estimate the number and repeat the experiment</StepDoor>
         </StepDoors>
       </section>
-      <section id="step-07">
-        <p className="step-number">07 / Try it yourself</p>
+      <section id="step-08">
+        <p className="step-number">08 / Try it yourself</p>
         <h2>From one axis to two</h2>
         <p>
           A microscope sees the plane, not one axis. Work out how far a particle gets in two
