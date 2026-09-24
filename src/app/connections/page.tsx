@@ -70,7 +70,7 @@ export default function ConnectionsPage() {
         <p>
           <a href="/papers/light-quanta/#s5">Light quanta §5</a> ·{" "}
           <a href="/lab/lq-05">Independent configurations</a> ·{" "}
-          <a href="/papers/brownian-motion/#s2">Brownian motion §2</a> ·{" "}
+          <a href="/papers/brownian-motion/view/german/#s2">Brownian motion §2</a> ·{" "}
           <a href="/lab/bm-03">Configuration integral</a>
         </p>
       </section>
