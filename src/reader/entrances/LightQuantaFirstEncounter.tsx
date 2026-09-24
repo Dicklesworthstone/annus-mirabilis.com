@@ -276,7 +276,9 @@ export function LightQuantaFirstEncounter({ record }: { record: EntranceRecord }
         <p>
           <a href="/papers/light-quanta/s5/#arg-lq-independent-configurations">
             Continue to the section 5 counting argument →
-          </a>{" "}
+          </a>
+        </p>
+        <p>
           <a href="/papers/light-quanta/s6/#arg-lq-entropy-correspondence">
             Then inspect the section 6 “as if” inference →
           </a>
