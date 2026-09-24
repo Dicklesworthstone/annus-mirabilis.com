@@ -4,7 +4,7 @@
   "id": "free-energy-osmotic-pressure",
   "title": "Osmotic pressure and free energy",
   "question": "Why should grains floating in water push on a wall the way dissolved molecules do?",
-  "summary": "Dissolved molecules held behind a wall that lets water through push on it with the pressure an ideal gas of the same particles would exert: p = (RT/N)ν. §1 of the Brownian paper argues that suspended grains must push in the same way, and §2 checks it by the bookkeeping of free energy.",
+  "summary": "In a dilute solution, dissolved molecules held behind a wall that lets water through push on it with the pressure an ideal gas of the same particles would exert: p = (RT/N)ν. §1 of the Brownian paper argues that suspended grains must push in the same way, and §2 checks it by the bookkeeping of free energy.",
   "review": "draft",
   "explanation": [
     {
@@ -47,7 +47,7 @@
     },
     {
       "kind": "paragraph",
-      "text": "The pressure depends on the number of particles and the temperature, not on their size or mass. That is what lets §3 treat a grain like a molecule and weigh its jostling against a force."
+      "text": "While the particles are few and far apart, the pressure depends on their number and the temperature, not on their size or mass. That is what lets §3 treat a grain like a molecule and weigh its jostling against a force."
     }
   ],
   "prerequisites": [
