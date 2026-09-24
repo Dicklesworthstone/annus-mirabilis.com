@@ -17,8 +17,8 @@ export default function ConnectionsPage() {
         <p className="lead">
           The same constants, the same counting arguments and the same light pulse turn up in more
           than one of the four papers. The map says which kind of connection each one is, from a
-          premise one paper borrows to a link drawn by physicists decades later, because the
-          difference between them is the difference between evidence and resemblance.
+          premise one paper borrows from another to a link physicists drew decades later. The first
+          is evidence of how the papers depend on each other; the last is a resemblance.
         </p>
       </header>
       <ConnectionMap />
