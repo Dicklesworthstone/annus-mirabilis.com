@@ -15,6 +15,7 @@ import type {
 } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
+import { withScripts } from "../subscripts.tsx";
 import { DopplerAberrationPlot } from "./DopplerAberrationPlot.tsx";
 
 function numericOf(item: PublishedResult | undefined): number | null {
@@ -112,13 +113,13 @@ export function DopplerAberrationLab({
           changing the settings requires JavaScript.
         </p>
       </noscript>
-      <p data-detail="0">{SR09_CAPTION.r0}</p>
-      <p data-detail="1">{SR09_CAPTION.r1}</p>
+      <p data-detail="0">{withScripts(SR09_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(SR09_CAPTION.r1)}</p>
       <p data-detail="2" hidden>
-        {SR09_CAPTION.r2}
+        {withScripts(SR09_CAPTION.r2)}
       </p>
       <p data-detail="3" hidden>
-        {SR09_CAPTION.r3}
+        {withScripts(SR09_CAPTION.r3)}
       </p>
       <div className="lab-columns">
         <form onSubmit={submit} aria-label="Doppler and aberration settings">
