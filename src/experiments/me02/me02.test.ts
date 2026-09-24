@@ -296,7 +296,8 @@ describe("ME-02 instrument contract", () => {
     const manifest = validateExperiment(rawManifest);
     expect(manifest.id).toBe("me-02");
     expect(manifest.assumptions.some((a) => a.includes("Newtonian"))).toBe(true);
-    expect(ME02_CAPTION.r3.includes("1/√(1 − v²/V²)")).toBe(true);
+    // The radical as page 641 prints it, (v/V) squared under the root (checked on the ap-18-639 plates).
+    expect(ME02_CAPTION.r3.includes("1/√(1 − (v/V)^{2})")).toBe(true);
   });
 
   test("AC8: full instrument contract - action contracts validate and enforce accessible equivalence", () => {
