@@ -67,6 +67,19 @@ export async function renderEmbeddedLaboratory(id: EmbeddableId): Promise<ReactN
         />
       );
     }
+    case "sr-01": {
+      const { ClockSyncLab } = await import("../../components/lab/sr01/ClockSyncLab.tsx");
+      const { DEFAULT_PREPARED_EXAMPLE } = await import("../sr01/session.ts");
+      return <ClockSyncLab example={DEFAULT_PREPARED_EXAMPLE} />;
+    }
+    case "sr-02": {
+      const { MagnetConductorLab } = await import("../../components/lab/MagnetConductorLab.tsx");
+      const { validateSr02Parameters } = await import("../sr02/parameters.ts");
+      const { default: example } = await import("../../generated/sr02-example.json");
+      const checked = validateSr02Parameters(example.parameters);
+      if (checked.kind !== "accepted") return preparedExampleFailed("sr-02");
+      return <MagnetConductorLab example={{ ...example, parameters: checked.data }} />;
+    }
     case "sr-03": {
       const { RodSimultaneityLab } = await import("../../components/lab/RodSimultaneityLab.tsx");
       const { validateSr03Parameters } = await import("../sr03/parameters.ts");

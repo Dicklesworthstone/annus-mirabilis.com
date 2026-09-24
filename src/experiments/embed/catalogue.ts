@@ -149,6 +149,24 @@ export const EMBED_INSTRUMENTS = [
     steps:
       "Choose the fields and the starting speed, then read the work done and the kinetic energy; the speed never reaches that of light. Compare Einstein's transverse mass with the modern one: the difference comes from how force is defined, not from the physics.",
   },
+  {
+    id: "sr-01",
+    title: "Clock synchronization with the event ledger",
+    source: "/papers/special-relativity/#s1",
+    overview: "Give a time to a distant event by sending a signal and halving the round trip.",
+    full: "Section 1 defines the time at a distant clock by setting the light's outward and return times equal. The one-way time is never measured; the lab reports it as not applicable, while the round-trip speed is a real measurement with one clock.",
+    steps:
+      "Send a flash from A, reflect it at B, and read the time the rule assigns to the reflection. Then move the stations as in section 2 and see the two legs become unequal, and set a moving pair of clocks in step to find the trailing clock ahead as judged from the platform.",
+  },
+  {
+    id: "sr-02",
+    title: "Magnet and conductor",
+    source: "/papers/special-relativity/#s6",
+    overview: "Describe the same relative motion of a magnet and a wire in each body's rest frame.",
+    full: "Moving the magnet or the wire gives the same current, but the physics of 1905 explained the two cases differently. Transformed to the wire's frame, the magnet's field has an electric part, and that is what drives the charges.",
+    steps:
+      "Compare the work per unit charge along a segment across the motion in both frames, vBℓ and γvBℓ, then turn the segment along the motion, where the force points across it and the work is zero. The apparatus mode tells the story without computing it.",
+  },
 ] as const;
 
 export type EmbeddableId = (typeof EMBED_INSTRUMENTS)[number]["id"];
