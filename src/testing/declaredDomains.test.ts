@@ -62,7 +62,7 @@ describe("the refusal sentence", () => {
 
   test("names the range in the page's units and the manifest's reason", () => {
     expect(domainRequirement(closed)).toBe(
-      "Temperature must be from 273 to 330 K in this model: liquid state of water at ordinary laboratory pressure.",
+      "Enter the temperature from 273 to 330 K, the range this model describes: liquid state of water at ordinary laboratory pressure.",
     );
     // A stored value in Pa·s, typed in mPa·s.
     expect(
@@ -90,12 +90,24 @@ describe("the refusal sentence", () => {
     );
   });
 
+  test("reads a label mid-sentence and keeps a closing symbol's case", () => {
+    expect(domainRequirement({ ...closed, label: "Radiation Energy" })).toMatch(
+      /^Enter the radiation energy from/,
+    );
+    expect(domainRequirement({ ...closed, label: "Quantum Yield Y" })).toMatch(
+      /^Enter the quantum yield Y from/,
+    );
+    expect(domainRequirement({ ...closed, label: "External energy input Ein" })).toMatch(
+      /^Enter the external energy input Ein from/,
+    );
+  });
+
   test("keeps a name's capital after the colon and lowers an ordinary word's", () => {
     expect(
       domainRequirement({ ...closed, reason: "Newtonian-liquid Stokes drag regime" }),
-    ).toContain("in this model: Newtonian-liquid Stokes drag regime.");
+    ).toContain("the range this model describes: Newtonian-liquid Stokes drag regime.");
     expect(domainRequirement({ ...closed, reason: "A probability" })).toContain(
-      "in this model: a probability.",
+      "the range this model describes: a probability.",
     );
   });
 });
@@ -111,7 +123,7 @@ describe("BM-01 enforces its declared domain", () => {
     expect(refusal?.code).toBe("outside-model-domain");
     expect(refusal?.domainKind).toBe("model");
     expect(refusal?.details?.requirements).toBe(
-      "Temperature must be from 273 to 330 K in this model: liquid state of water at ordinary laboratory pressure.",
+      "Enter the temperature from 273 to 330 K, the range this model describes: liquid state of water at ordinary laboratory pressure.",
     );
   });
 
@@ -125,8 +137,12 @@ describe("BM-01 enforces its declared domain", () => {
   test("each declared control speaks in the unit it is typed in", () => {
     expect(refusedFor("eta", 0.05)?.details?.requirements).toContain("from 0.5 to 20 mPa·s");
     expect(refusedFor("a", 1e-8)?.details?.requirements).toContain("from 0.1 to 5 μm");
-    expect(refusedFor("M", 5000)?.details?.requirements).toContain(
-      "Number of tracers must be from 1 to 3000 in this model",
+    expect(refusedFor("h", 2)?.details?.requirements).toContain(
+      "Enter the recording time resolution from 0.001 to 1 s",
+    );
+    // The lab's own sentence still comes first where it has one.
+    expect(refusedFor("M", 5000)?.details?.requirements).toBe(
+      "Enter a whole number of tracers from 1 to 3000.",
     );
   });
 

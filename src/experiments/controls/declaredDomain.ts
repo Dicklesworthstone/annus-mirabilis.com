@@ -11,7 +11,6 @@
  * reason, which every laboratory already displays.
  */
 import { MODEL_DOMAINS } from "../../generated/model-domains.ts";
-import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import { exponentialParts } from "../../units/scientific.ts";
 import { makeRefusal } from "../results/refusals.ts";
 
@@ -113,12 +112,31 @@ export function rangeText(domain: DeclaredDomain, display: DomainDisplay = {}): 
   return `${openHi ? "less than" : "at most"} ${hi}${tail}`;
 }
 
-/** First words of manifest reasons that are names or symbols, so keep their capital after a colon. */
+/** Words that are names, so keep their capital wherever they fall. */
 const KEEPS_CAPITAL = new Set(["Newtonian", "Monte", "Stokes", "Wien", "Planck", "Boltzmann"]);
 
-/** The reader's sentence for one setting outside its declared domain. */
+/**
+ * A label as it reads mid-sentence: "Radiation Energy" becomes "the radiation energy", while a
+ * closing symbol keeps its case ("Quantum Yield Y", "External energy input Ein", "Current density Jx").
+ */
+function labelInSentence(label: string): string {
+  const words = label.trim().split(/\s+/);
+  const last = words.length - 1;
+  const phrased = words.map((word, i) =>
+    /^[A-Z][a-z]+$/.test(word) && !KEEPS_CAPITAL.has(word) && !(i === last && word.length <= 3)
+      ? word.toLowerCase()
+      : word,
+  );
+  return `the ${phrased.join(" ")}`;
+}
+
+/**
+ * The reader's sentence for one setting outside its declared domain, in the laboratories' own form
+ * ("Enter ..."): "Enter the temperature from 273 to 330 K, the range this model describes: liquid
+ * state of water at ordinary laboratory pressure."
+ */
 export function domainRequirement(domain: DeclaredDomain, display: DomainDisplay = {}): string {
-  const label = display.label ?? domain.label;
+  const label = labelInSentence(display.label ?? domain.label);
   const reason = domain.reason.trim().replace(/\.$/, "");
   const first = reason.split(/[\s,-]/, 1)[0] ?? "";
   // A one-letter first word is a symbol ("H must be...", "L must be...") unless it is the article.
@@ -126,7 +144,7 @@ export function domainRequirement(domain: DeclaredDomain, display: DomainDisplay
   const because = reason
     ? `: ${keep ? reason : `${reason.charAt(0).toLowerCase()}${reason.slice(1)}`}`
     : "";
-  return `${label} must be ${rangeText(domain, display)} in this model${because}.`;
+  return `Enter ${label} ${rangeText(domain, display)}, the range this model describes${because}.`;
 }
 
 /**
@@ -134,11 +152,13 @@ export function domainRequirement(domain: DeclaredDomain, display: DomainDisplay
  * outside-model-domain refusal; undefined when every declared setting is inside. Settings the lab
  * does not store as numbers are left to the lab's own checks.
  */
+export type DomainRefusal = Readonly<{ kind: "refused"; refusal: ReturnType<typeof makeRefusal> }>;
+
 export function refuseOutsideDeclaredDomain(
   labId: string,
   params: Readonly<Record<string, unknown>>,
   display: Readonly<Record<string, DomainDisplay>> = {},
-): Computation<never> | undefined {
+): DomainRefusal | undefined {
   for (const [parameterId, domain] of Object.entries(declaredDomains(labId))) {
     const value = params[parameterId];
     if (typeof value !== "number" || !Number.isFinite(value)) continue;
@@ -153,4 +173,20 @@ export function refuseOutsideDeclaredDomain(
     };
   }
   return undefined;
+}
+
+/**
+ * A validator's result, or the refusal its accepted data earns against the lab's declared domain.
+ * The lab's own checks run first and keep their sentences; this is the backstop for every range the
+ * manifest declares and the validator did not already test.
+ */
+export function withinDeclaredDomain<R extends Readonly<{ kind: string }>>(
+  labId: string,
+  result: R,
+  display: Readonly<Record<string, DomainDisplay>> = {},
+): R | DomainRefusal {
+  if (result.kind !== "accepted" || !("data" in result)) return result;
+  const data = result.data;
+  if (typeof data !== "object" || data === null) return result;
+  return refuseOutsideDeclaredDomain(labId, data as Record<string, unknown>, display) ?? result;
 }

@@ -66,11 +66,15 @@ function pinned(id, example, identity) {
   );
 }
 
+// T is scaled by 1.1, not doubled: BM-01 refuses a temperature outside 273-330 K, liquid water, the
+// range its manifest declares (bd626337), and 2 × 290.15 K is 580.3 K. D ∝ T/(ηa) holds at any ratio.
+const SCALE = { a: 2, eta: 2, T: 1.1 };
 for (const key of ["a", "eta", "T"]) {
-  test(`the real owner propagates a doubled ${key} into diffusivity and both RMS readouts`, async () => {
+  test(`the real owner propagates ${key} × ${SCALE[key]} into diffusivity and both RMS readouts`, async () => {
     const example = await examples(),
       identity = bm01ComparisonIdentity(example);
-    const p = { ...parameters, [key]: parameters[key] * 2 };
+    const factor = SCALE[key];
+    const p = { ...parameters, [key]: parameters[key] * factor };
     const recording = unwrap(await createBm01Recording(p, { yieldControl: async () => {} }));
     const evaluated = unwrap(measureBm01(recording, p, false));
     const result = compareBaselines(
@@ -79,7 +83,7 @@ for (const key of ["a", "eta", "T"]) {
       BM01_COMPARISON,
     );
     assert.equal(result.kind, "accepted");
-    const expectedD = key === "T" ? 2 : 0.5;
+    const expectedD = key === "T" ? factor : 1 / factor;
     for (const [id, expected] of [
       ["diffusionCoefficient", expectedD],
       ["rmsDisplacement1d", Math.sqrt(expectedD)],

@@ -64,9 +64,6 @@ export function validateBm01Parameters(input: unknown): Computation<Bm01Paramete
     if (typeof v !== "number" || !Number.isFinite(v))
       return bad(`Enter ${BM01_FIELD_NAMES[k] ?? "this value"} as a number.`);
   }
-  // The ranges content/experiments/bm-01.yaml declares: 273-330 K is liquid water, and 1e300 K is not.
-  const outside = refuseOutsideDeclaredDomain("bm-01", p, BM01_DOMAIN_DISPLAY);
-  if (outside) return outside;
   if (p.T <= 0) return bad("Enter a temperature above 0 K.");
   if (p.eta <= 0) return bad("Enter a viscosity greater than zero, in mPa·s.");
   if (p.a <= 0) return bad("Enter a particle radius greater than zero, in μm.");
@@ -89,5 +86,9 @@ export function validateBm01Parameters(input: unknown): Computation<Bm01Paramete
     return bad(
       "Enter a recording length that is a whole number of time-resolution steps, at most 30 000 of them.",
     );
+  // Then every range content/experiments/bm-01.yaml declares, as the other labs check them: its own
+  // sentences above come first, and 273-330 K is liquid water, which 1e300 K is not.
+  const outside = refuseOutsideDeclaredDomain("bm-01", p, BM01_DOMAIN_DISPLAY);
+  if (outside) return outside;
   return { kind: "accepted", data: Object.freeze({ ...p }) };
 }
