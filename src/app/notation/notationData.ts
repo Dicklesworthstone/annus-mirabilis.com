@@ -136,6 +136,13 @@ export interface NotationPageData {
     count: number;
     html: string;
     href: string;
+    /**
+     * The link's accessible name. Its only content is KaTeX, whose visual half is aria-hidden, and
+     * neither Chromium nor WebKit names a link from the MathML half: on live /notation/ all 121
+     * links read as "link" with no name. It begins with the glyph as displayed, so a reader who
+     * says what they see still finds it (WCAG 2.5.3), then says how many meanings it has.
+     */
+    name: string;
   }[];
   /**
    * How far the entries have been checked against the printed pages, computed from each entry's
@@ -331,6 +338,11 @@ export function buildFirstUseUrl(paperSlug: string, anchor: string): string {
   return `/papers/${paperSlug}?view=reading#${anchor}`;
 }
 
+/** "φ, 7 meanings" for a glyph with several meanings; the glyph alone for one. */
+export function glyphLinkName(display: string, meanings: number): string {
+  return meanings > 1 ? `${display}, ${meanings} meanings` : display;
+}
+
 /**
  * Loads and constructs the full notation page data model.
  */
@@ -512,6 +524,7 @@ export function loadNotationPageData(
       count: list.length,
       html: renderStaticKatex(key).html,
       href: `#${list[0]?.id ?? ""}`,
+      name: glyphLinkName(list[0]?.glyph.unicode || key, list.length),
     }))
     .sort((a, b) => a.key.localeCompare(b.key));
 

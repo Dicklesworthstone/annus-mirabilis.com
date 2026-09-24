@@ -4,6 +4,7 @@ import "./notation.css";
 import "../../components/home/wideProse.css";
 import { CollisionClusterView } from "./CollisionClusterView.tsx";
 import { loadFirstUseTargets, resolveFirstUse } from "./firstUseTargets.ts";
+import { GlyphNav } from "./GlyphNav.tsx";
 import { KATEX_PRELOAD_FONTS, katexPreloadHref } from "./katexPreload.ts";
 import { NotationEntryCard } from "./NotationEntryCard.tsx";
 import { NotationPageClient } from "./NotationPageClient.tsx";
@@ -43,20 +44,7 @@ export default async function NotationPage() {
         <p className="callout-note notation-status">{data.honestyNotice.message}</p>
       </header>
 
-      {/* Every printed symbol, set as printed, each linking to the first entry that uses it.
-          Plain links, so the index works without JavaScript. */}
-      <nav className="glyph-nav" aria-labelledby="glyph-nav-title">
-        <h2 className="glyph-nav-title" id="glyph-nav-title">
-          Go to a symbol
-        </h2>
-        <ul className="glyph-nav-list">
-          {data.uniqueGlyphs.map((g) => (
-            <li key={g.key} className="glyph-nav-item">
-              <a href={g.href} {...{ dangerouslySetInnerHTML: { __html: g.html } }} />
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <GlyphNav glyphs={data.uniqueGlyphs} />
 
       {/* Static Fallback for No-JS Readers & Hydration Anchor */}
       <noscript>

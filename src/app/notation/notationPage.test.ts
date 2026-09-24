@@ -4,14 +4,18 @@
  */
 
 import { describe, expect, it } from "bun:test";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import type { PaperConcordance } from "../../content/schemas/concordance.ts";
 import { getLogger, newRunIdentity } from "../../testing/log/logger.ts";
 import { type FirstUseTargets, loadFirstUseTargets, resolveFirstUse } from "./firstUseTargets.ts";
+import { GlyphNav } from "./GlyphNav.tsx";
 import {
   describeVerification,
   type EnrichedConcordanceEntry,
   formatScope,
   formatScopeToken,
+  glyphLinkName,
   loadNotationPageData,
   renderStaticKatex,
 } from "./notationData.ts";
@@ -390,6 +394,24 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
       expect(g.html).toContain("<math");
     }
     logTestPass("glyph-index-targets", `${data.uniqueGlyphs.length} symbols, each to an entry.`);
+  });
+
+  it("names every symbol link, since a link holding only KaTeX has no name in any browser", () => {
+    // Measured on live /notation/ before this: 121 of 121 links with no name in the Chromium and
+    // WebKit accessibility trees, and axe link-name on every one.
+    expect(glyphLinkName("α", 1)).toBe("α");
+    expect(glyphLinkName("φ", 7)).toBe("φ, 7 meanings");
+    const html = renderToStaticMarkup(createElement(GlyphNav, { glyphs: data.uniqueGlyphs }));
+    const links = [...html.matchAll(/<a\b[^>]*>/g)].map((m) => m[0]);
+    expect(links.length).toBe(data.uniqueGlyphs.length);
+    const unnamed = links.filter((a) => !/\saria-label="[^"]+"/.test(a));
+    expect(unnamed).toEqual([]);
+    for (const g of data.uniqueGlyphs) {
+      // The name starts with what a sighted reader sees (WCAG 2.5.3, label in name).
+      expect(g.name.startsWith(g.display)).toBe(true);
+      expect(g.name.includes("meanings")).toBe(g.count > 1);
+    }
+    logTestPass("glyph-index-names", `${links.length} symbol links, each named.`);
   });
 
   it("spoken aria-labels are generated with full context for accessibility", () => {
