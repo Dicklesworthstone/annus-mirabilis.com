@@ -9,6 +9,7 @@ import { citationTitleClose } from "../content/citationTitle.ts";
 import { loadGermanSourceFace } from "../content/editions/germanSourceFace.ts";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
 import type { RouteSlug } from "../content/ids.ts";
+import { loadConcordanceForPaper } from "../content/notation/loader.ts";
 import { getModalityClasses } from "../content/schemas/glossConventions.ts";
 import { loadPaper } from "../content/server.ts";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
@@ -21,6 +22,7 @@ import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
 import { ReadingBlocks } from "./Blocks.tsx";
 import type { MassEnergyEntranceScenario } from "./entrances/massEnergyExample.ts";
 import { FaceFallback } from "./FaceFallback.tsx";
+import { FirstUseCallout } from "./FirstUseCallout.tsx";
 import {
   englishFaceHasContent,
   faceAvailability,
@@ -34,6 +36,7 @@ import { GermanDraftFace } from "./faces/GermanDraftFace.tsx";
 import { GermanFace } from "./faces/GermanFace.tsx";
 import { GlossFace } from "./faces/GlossFace.tsx";
 import { ParallelFace } from "./faces/ParallelFace.tsx";
+import { firstUseCallouts } from "./firstUse.ts";
 import {
   LazyClockFirstEncounter,
   LazyLightQuantaFirstEncounter,
@@ -240,6 +243,17 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
   const sectionId = resolved.section;
   const sections = sectionId ? paper.sections.filter((s) => s.id === sectionId) : paper.sections;
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
+  // Einstein's beta and paper 2's k, called out in red where the explanation first uses them.
+  const firstUses = firstUseCallouts(
+    loadConcordanceForPaper(paper.id).entries,
+    args,
+    (argumentId) =>
+      new Set(
+        [...equationsById.values()]
+          .filter((e) => e.argument === argumentId)
+          .flatMap((e) => e.terms.map((t) => t.quantityId)),
+      ),
+  );
   // Where a passage sends a reader for its source: "Read the original", the "Source context"
   // line, and the notice ?view=german shows in the passage's place. paperSourceFaces decides by
   // the chooser's rule, so each offers only a face with something in it, at the passage's section.
@@ -399,6 +413,9 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                     <p className="passage-kind">{passageKind(a.meaning)}</p>
                     <h3>{a.title}</h3>
                     <p className="passage-question">{a.question}</p>
+                    {firstUses.get(a.id)?.map((entry) => (
+                      <FirstUseCallout key={entry.id} entry={entry} />
+                    ))}
                     <div data-face-reading>
                       {(["overview", "full"] as const).map((reading, i) => (
                         <div

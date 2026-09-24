@@ -2705,3 +2705,18 @@ html:is(
   font-size: var(--type-fine);
   color: var(--muted);
 }
+/* THE FIRST-USE CALLOUT (FirstUseCallout.tsx): a letter a reader will misread, where the explanation
+   first uses it. AGENTS.md asks for these two in red, and the accent is the red: the note
+   family's field with the accent as its rule, and the flag in the accent, as on /notation. */
+.first-use-callout {
+  --callout-rule: var(--accent);
+  margin-block: 0.5rem 0.75rem;
+  font-size: var(--type-small);
+}
+.first-use-callout > p {
+  margin: 0;
+}
+.first-use-flag {
+  color: var(--accent);
+  font-weight: 700;
+}

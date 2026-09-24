@@ -759,6 +759,7 @@ entries:
           anchor: bm-s3-p2
         - sectionId: bm-s5
           anchor: bm-s5-p2
+    notes: "Einstein writes the liquid's viscosity as k; today it is η. It is not Boltzmann's constant, which this paper writes as R/N, or as 2κ."
     sources:
       facsimilePage: 554
       anchor: bm-s3-p2

@@ -1,6 +1,7 @@
 import brownianEntrance from "../../content/arguments/brownian-motion/entrance-brownian-motion.json";
 import { ModalCloseButton } from "../a11y/modal/ModalCloseButton.tsx";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
+import { loadConcordanceForPaper } from "../content/notation/loader.ts";
 import { loadPaper } from "../content/server";
 import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
@@ -17,6 +18,8 @@ import type { CompiledMissingStepLesson } from "../equations/missingStep/compile
 import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel.tsx";
 import { quantityLegend } from "../equations/quantityColourView.ts";
 import missingSteps from "../generated/missing-steps.json";
+import { FirstUseCallout } from "./FirstUseCallout.tsx";
+import { firstUseCallouts } from "./firstUse.ts";
 import { OutlineSectionTitle } from "./OutlineSectionTitle.tsx";
 import { paperEquations } from "./paperEquations.ts";
 import { originalHref, paperSourceFaces } from "./paperSourceFaces.ts";
@@ -56,6 +59,18 @@ export async function PaperReader({
   const sections = section ? paper.sections.filter((s) => s.id === section) : paper.sections;
   if (!sections.length) throw new Error("Section is not in the compiled outline.");
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
+  // Einstein's k is the viscosity, not Boltzmann's constant: called out in red where the
+  // explanation first uses it (firstUse.ts).
+  const firstUses = firstUseCallouts(
+    loadConcordanceForPaper(paper.id).entries,
+    args,
+    (argumentId) =>
+      new Set(
+        [...equationsById.values()]
+          .filter((e) => e.argument === argumentId)
+          .flatMap((e) => e.terms.map((t) => t.quantityId)),
+      ),
+  );
   // The first encounter is shown on the whole paper and on §4. Its lesson link opens the lesson
   // beside the text, as the other papers' entrances do, so it is a place the reader returns to.
   const showsEntrance = !section || section === "s4";
@@ -277,6 +292,9 @@ export async function PaperReader({
                     <p className="passage-kind">{passageKind(a.meaning)}</p>
                     <h3>{a.title}</h3>
                     <p className="passage-question">{a.question}</p>
+                    {firstUses.get(a.id)?.map((entry) => (
+                      <FirstUseCallout key={entry.id} entry={entry} />
+                    ))}
                     <div data-face-reading>
                       {(["overview", "full"] as const).map((reading, i) => (
                         <div
