@@ -53,3 +53,34 @@ describe("the embed catalogue keeps the manifests' embeddable promise", () => {
     });
   }
 });
+
+/**
+ * Every embed is one route module, so any laboratory the adapter imports directly ships in every
+ * embed's first JavaScript: on live 211e9af4 each /embed/lab page loaded 44 scripts, 536,520 bytes
+ * gzip. The laboratories are reached only through React.lazy in lazyEmbeddedLabs.tsx. This reads
+ * the two modules with comments blanked, so a comment naming a laboratory is not an import of it.
+ */
+describe("an embed loads its own laboratory and no other", () => {
+  const EMBED = fileURLToPath(new URL("../experiments/embed/", import.meta.url));
+  const code = (name: string) =>
+    readFileSync(join(EMBED, name), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, (c) => c.replace(/[^\n]/g, " "))
+      .replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+  const LAB_MODULE = /["']\.\.\/\.\.\/components\/lab\/[^"']+\.tsx["']/g;
+
+  test("the server adapter imports no laboratory component", () => {
+    expect(code("adapters.tsx").match(LAB_MODULE) ?? []).toEqual([]);
+  });
+
+  test("the wrapper names each laboratory as a type and loads it only through lazy()", () => {
+    const wrapper = code("lazyEmbeddedLabs.tsx");
+    const typeOnly = wrapper.match(/import type \{ \w+ \} from ["'][^"']+["']/g) ?? [];
+    const lazyLoads = wrapper.match(/lazy\(\(\) =>\s*import\(\s*["'][^"']+["']/g) ?? [];
+    const all = wrapper.match(LAB_MODULE) ?? [];
+    console.log(
+      `[embed split] ${all.length} laboratory module references: ${typeOnly.length} type-only, ${lazyLoads.length} lazy`,
+    );
+    expect(lazyLoads.length).toBeGreaterThan(0);
+    expect(all.length).toBe(typeOnly.length + lazyLoads.length);
+  });
+});
