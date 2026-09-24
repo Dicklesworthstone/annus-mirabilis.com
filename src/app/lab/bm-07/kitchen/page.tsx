@@ -1,6 +1,8 @@
 import "./kitchen.css";
 import type { Metadata } from "next";
 import { KitchenComparison } from "../../../../components/lab/kitchen/KitchenLab.tsx";
+import { withScripts } from "../../../../components/lab/subscripts.tsx";
+import { KITCHEN_CAPTION } from "../../../../experiments/bm07/kitchen/caption.ts";
 import practice from "../../../../generated/kitchen-practice.json";
 export const metadata: Metadata = { title: "Analyze your Brownian observations" };
 export default function KitchenObservationPage() {
@@ -17,6 +19,16 @@ export default function KitchenObservationPage() {
         </p>
       </header>
       <KitchenComparison practice={practice} />
+      <section className="lab-readings" aria-label="The analysis in words">
+        <p data-detail="0">{withScripts(KITCHEN_CAPTION.r0)}</p>
+        <p data-detail="1">{withScripts(KITCHEN_CAPTION.r1)}</p>
+        <p data-detail="2" hidden>
+          {withScripts(KITCHEN_CAPTION.r2)}
+        </p>
+        <p data-detail="3" hidden>
+          {withScripts(KITCHEN_CAPTION.r3)}
+        </p>
+      </section>
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
         <ul>
