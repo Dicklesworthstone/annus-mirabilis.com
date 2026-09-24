@@ -53,6 +53,11 @@
     "steps": [
       {
         "kind": "foundation",
+        "id": "bridge-letter-for-quantity",
+        "returnCaption": "Return to λx, the displacement after a time t."
+      },
+      {
+        "kind": "foundation",
         "id": "gaussian-distributions",
         "returnCaption": "Return to the bell curve for particles that all start at one point."
       },

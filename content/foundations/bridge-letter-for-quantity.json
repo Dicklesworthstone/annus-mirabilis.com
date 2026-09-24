@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "bridge-letter-for-quantity",
+  "title": "A letter stands for a quantity",
+  "question": "What does a letter such as t mean in a formula?",
+  "summary": "A letter holds the place of a quantity whose value can change. The letter t means the time elapsed, in seconds, whatever number it takes; the sentence around the formula says what each letter means.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Fill in the blanks: \"After ___ seconds the particle had wandered about ___ micrometres.\" The Brownian paper fills them twice. After 1 second, about 0.8 micrometres; after 60 seconds, about 6."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Write t for the first blank and λx for the second, and the sentence becomes a relation between two quantities. The letter t keeps meaning the time elapsed, in seconds, while its value goes from 1 to 60. The letter λx keeps meaning how far the particle has wandered along one direction while its value grows from about 0.8 to about 6 micrometres."
+    },
+    {
+      "kind": "paragraph",
+      "text": "A letter's meaning belongs to the place where it is used, not to the letter. In the light-quanta paper L is the speed of light in §§1 and 2, and in §9 it is the light energy absorbed. Each passage says what its letters mean, and so does every formula on this site, in its legend."
+    }
+  ],
+  "exampleTitle": "The paper's two estimates, and where they come from",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "§5 of the Brownian paper prints λx = 8 × 10⁻⁵ cm = 0.8 micrometres for t = 1 second, and about 6 micrometres for one minute, for a particle 0.001 mm across in water at 17 °C.",
+        "Worked out again with the paper's own constants, R = 8.31 and N = 6 × 10²³ (the constant set einstein-1905-brownian-printed), the values are 0.7948 μm at t = 1 s and 6.1564 μm at t = 60 s.",
+        "With the modern Boltzmann constant in place of R/N (the exact value of the set modern-si-2019), and the same particle and water, they are 0.7935 μm and 6.1467 μm.",
+        "In every line t means the same thing, the time elapsed. Only its value changes, and λx changes with it."
+      ]
+    }
+  ],
+  "prerequisites": [],
+  "stoppingPoint": "A letter names a quantity: its value can change while its meaning stays the same. The rule that turns t into λx is the subject of the Brownian paper's §4.",
+  "citations": ["ap-17-549", "ap-17-132"]
+}

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "bridge-probability-notation",
+  "title": "A probability, a frequency and a single trial",
+  "question": "What does a probability of 1/4 say about one try, and about a hundred?",
+  "summary": "A model probability counts the favoured outcomes among equally likely ones. A frequency counts what happened over many trials. A single trial either happens or does not. The three answer different questions.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Drop two tokens into a box, each landing in the left or the right half with equal chance. There are four outcomes: left and left, left and right, right and left, right and right. One of the four is both left, so the model probability of both left is 1/4."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Now drop them 100 times and count. Both might land left 23 times: a frequency of 23/100. Over more and more trials the frequency tends to settle near 1/4, but any particular count can differ from 25."
+    },
+    {
+      "kind": "paragraph",
+      "text": "A single drop either lands both left or it does not. A probability of 1/4 is not a quarter of an outcome. It says how often, over many drops."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The light-quanta paper counts in exactly this way in §5. The chance that n independent points are all in a part v of a volume v₀ is (v/v₀)ⁿ, and the paper calls it a statistical probability: a frequency over many moments."
+    }
+  ],
+  "exampleTitle": "Counting outcomes for two tokens and for four",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "Two tokens: 4 equally likely outcomes, 1 of them both left, so the probability is 1/4.",
+        "Four tokens: 2⁴ = 16 outcomes, 1 of them all left, so the probability is 1/16, which is (½)⁴.",
+        "A run of 100 drops of four tokens might show all left 5 times: a frequency of 5/100, near 1/16 (about 6 in 100) but not equal to it.",
+        "Any one drop shows all left or it does not. The 1/16 is about the long run."
+      ]
+    }
+  ],
+  "prerequisites": [],
+  "stoppingPoint": "A probability counts favoured outcomes among equally likely ones; a frequency counts what happened. How a probability becomes an entropy is the lesson on entropy and the number of ways.",
+  "citations": ["ap-17-132"]
+}

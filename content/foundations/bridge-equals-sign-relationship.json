@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "bridge-equals-sign-relationship",
+  "title": "An equals sign states a balance",
+  "question": "Is an equals sign an instruction to calculate, or a statement?",
+  "summary": "In physics an equals sign usually states that two quantities are the same, like the two sides of a balanced account. It does not say which side to work out first.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "In school, 7 + 5 = asks for an answer. In physics the equals sign more often states a fact: two ways of counting the same thing agree."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Here is an account in made-up units. A body starts with 100 units of energy, sends 30 away as light and keeps 70. Energy before equals energy after plus energy sent out: 100 = 70 + 30. The line is a balance to check, not a sum to do, and it is just as true written 100 − 70 = 30."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The mass-energy paper writes the same kind of balance: E₀ − E₁ = L. The body's energy before, minus its energy after, equals the energy L that the light carries away. It is a statement about the two accounts. Nothing in it says to work out E₀ first."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Because an equation states a balance, it can be read from either side and rearranged without changing what it says. E₁ = E₀ − L tells the same story."
+    }
+  ],
+  "exampleTitle": "Rearranging a balance without changing it",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "Start from 100 = 70 + 30, in made-up units.",
+        "Take 70 from both sides: 100 − 70 = 30. Still true, and still the same account.",
+        "Put the paper's letters in place of the numbers: E₀ = E₁ + L, or E₀ − E₁ = L.",
+        "Whichever form is written, it states one fact: what the body lost is what the light carried away."
+      ]
+    }
+  ],
+  "prerequisites": [],
+  "stoppingPoint": "An equals sign states that two quantities are the same. Which quantities, measured how, is what the paper around it has to say.",
+  "citations": ["ap-18-639"]
+}

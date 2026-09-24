@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "bridge-mathematical-punctuation",
+  "title": "Marks that look alike and do different jobs",
+  "question": "What do Δ, d, a prime and a small raised number each ask of the reader?",
+  "summary": "Small marks carry different instructions. Δ is a change by a definite amount, d/dt a rate at an instant, a prime another observer's value, a raised number repeated multiplication, and the printed lg of 1905 the natural logarithm.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Δ is a change by a definite amount. In the Brownian paper Δ is how far a particle moves in one short interval: an actual distance, such as 1 micrometre."
+    },
+    {
+      "kind": "paragraph",
+      "text": "d, as in dx/dt, is a rate at one instant: how fast x changes as t changes, the value that a change in x divided by a change in t settles on as both shrink. It is not d times x divided by d times t. The curly ∂ is the same idea when other quantities are held fixed."
+    },
+    {
+      "kind": "paragraph",
+      "text": "A prime marks another observer's value. In §7 of the relativity paper ν is the frequency of a light wave for one observer and ν′ the frequency of the same wave for an observer moving relative to the first; φ and φ′ are its direction for each."
+    },
+    {
+      "kind": "paragraph",
+      "text": "A small raised number is repeated multiplication. In the light-quanta paper's §5, W = (v/v₀)ⁿ multiplies v/v₀ by itself n times: with v/v₀ = ½ and n = 4 that is 1/16."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The papers of 1905 print lg for the natural logarithm, which a modern text writes ln. Today lg often means the logarithm to base 10; in these papers it never does."
+    }
+  ],
+  "exampleTitle": "Five marks, five jobs",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "A particle at 3 μm moves to 4 μm: Δx = 1 μm, a definite change.",
+        "A ball that has gone 3t² metres after t seconds has average speeds of 9, 6.3 and 6.03 m/s over shorter and shorter intervals from t = 1 s; they settle on dx/dt = 6 m/s.",
+        "An observer at rest finds a frequency ν; one moving away from the source finds ν′, a smaller number for the same wave.",
+        "(½)⁴ = ½ × ½ × ½ × ½ = 1/16.",
+        "lg 2 in the 1905 papers is ln 2 = 0.693, not the base-10 value 0.301."
+      ]
+    }
+  ],
+  "prerequisites": [],
+  "stoppingPoint": "Each mark has one job where it appears. A formula that uses several at once, such as the diffusion equation, is read one mark at a time in its own lesson.",
+  "citations": ["ap-17-549", "ap-17-891", "ap-17-132"]
+}

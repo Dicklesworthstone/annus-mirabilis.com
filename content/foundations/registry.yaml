@@ -265,25 +265,25 @@ entries:
     kind: bridge
     cluster: zero-algebra-rest
     ownerBead: am-found-zero-algebra-rest-oipl
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:bridge-equals-sign-relationship"
     kind: bridge
     cluster: zero-algebra-rest
     ownerBead: am-found-zero-algebra-rest-oipl
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:bridge-mathematical-punctuation"
     kind: bridge
     cluster: zero-algebra-rest
     ownerBead: am-found-zero-algebra-rest-oipl
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:bridge-probability-notation"
     kind: bridge
     cluster: zero-algebra-rest
     ownerBead: am-found-zero-algebra-rest-oipl
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:bridge-negative-numbers-direction"
     kind: bridge

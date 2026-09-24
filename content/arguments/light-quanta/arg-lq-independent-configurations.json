@@ -57,6 +57,11 @@
     ],
     "steps": [
       {
+        "kind": "foundation",
+        "id": "bridge-probability-notation",
+        "returnCaption": "Return to the chance that all n points are in the chosen part."
+      },
+      {
         "kind": "steps",
         "items": [
           "Choose the subvolume fraction \\(f = V/V_0\\) between zero and one.",

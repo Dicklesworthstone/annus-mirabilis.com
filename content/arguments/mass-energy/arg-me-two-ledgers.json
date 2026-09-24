@@ -39,6 +39,11 @@
     ],
     "steps": [
       {
+        "kind": "foundation",
+        "id": "bridge-equals-sign-relationship",
+        "returnCaption": "Return to the two energy accounts, each written as a balance."
+      },
+      {
         "kind": "steps",
         "items": [
           "Draw the boundary around the body alone.",

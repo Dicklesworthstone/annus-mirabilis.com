@@ -53,6 +53,11 @@
     ],
     "steps": [
       {
+        "kind": "foundation",
+        "id": "bridge-mathematical-punctuation",
+        "returnCaption": "Return to ν′ and φ′, the other observer's frequency and direction."
+      },
+      {
         "kind": "steps",
         "items": [
           "Give the light’s direction in the original frame by the angle \\(\\varphi\\) between its wave normal and the \\(x\\) axis.",
