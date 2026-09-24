@@ -39,6 +39,17 @@ import { BoundaryLedgerPlot } from "./BoundaryLedgerPlot.tsx";
 import { PhotonBoxPlot } from "./PhotonBoxPlot.tsx";
 import "./me03.css";
 import "../showTheCode.css";
+import { numberText } from "../presentation.ts";
+
+/** The energy figure's kind, in words: the card carried its id ("radiated-power") to the reader. */
+const ENERGY_FIGURE_WORDS: Readonly<Record<string, string>> = {
+  "decay-energy-per-event": "energy released per decay",
+  "radiated-power": "power radiated",
+  "heat-of-combustion": "heat of combustion",
+  "heat-release-rate": "rate of heat release",
+  "electrical-input": "electrical input",
+  "stated-transfer": "stated energy transfer",
+};
 
 export function BoundaryLedgerLab({
   example,
@@ -690,8 +701,8 @@ export function BoundaryLedgerLab({
                   <div className="fact-item">
                     <dt style={{ fontWeight: 600, color: "var(--ink)" }}>6. Energy figure:</dt>
                     <dd style={{ color: "var(--ink)", fontFamily: "var(--font-mono, monospace)" }}>
-                      {facts.energyFigure.value} {facts.energyFigure.unit} (
-                      {facts.energyFigure.kind})
+                      {numberText(facts.energyFigure.value)} {facts.energyFigure.unit} (
+                      {ENERGY_FIGURE_WORDS[facts.energyFigure.kind]})
                     </dd>
                   </div>
                 </dl>
