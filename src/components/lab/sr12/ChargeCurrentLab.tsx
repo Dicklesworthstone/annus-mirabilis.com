@@ -189,6 +189,13 @@ export function ChargeCurrentLab({
         />
       </div>
 
+      <noscript>
+        <p className="notice">
+          JavaScript is off. This is a complete worked example calculated when the site was built,
+          and its values and explanations remain available. The controls need JavaScript to respond.
+        </p>
+      </noscript>
+
       {/* Presets */}
       {/* Main interactive visualization */}
       <ChargeCurrentPlot
