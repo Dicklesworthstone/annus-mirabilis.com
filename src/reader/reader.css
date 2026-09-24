@@ -530,6 +530,15 @@ html:is(
 .clarification-dialog h2:focus-visible {
   outline: none;
 }
+/* The same for the passage, section or paragraph a link lands on: it takes focus so the keyboard
+   goes on from there (search/launcher.ts, the reader's own jumps), and both engines ringed it in the
+   accent, 1,781px of red box round relativity's arg-sr-light-complex. The link put it at the top of
+   the screen, which says where the reader is. Controls, and anything with a role (a tree's items
+   use tabindex -1 when not current), keep their rings. */
+.reader-root
+[tabindex="-1"]:not([role], a, button, input, select, textarea, summary):focus-visible {
+  outline: none;
+}
 .foundation-page {
   max-width: 780px;
   margin: 3rem auto;
