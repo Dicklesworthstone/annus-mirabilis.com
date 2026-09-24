@@ -293,7 +293,10 @@ export function Branch({ branch }: BranchProps) {
             }}
           >
             <span style={{ fontWeight: 600 }}>Later resolving measurement: </span>
-            <span>{outcome.whatWouldDecide.name}</span>
+            {/* The record is a card on the page, anchored as proponents' cards are. */}
+            <a href={`#${cardAnchor(outcome.whatWouldDecide.recordId)}`}>
+              {outcome.whatWouldDecide.name}
+            </a>
             {outcome.whatWouldDecide.year && (
               <span
                 className="fine"
@@ -305,15 +308,6 @@ export function Branch({ branch }: BranchProps) {
                 ({outcome.whatWouldDecide.year})
               </span>
             )}
-            <span
-              className="fine"
-              style={{
-                marginLeft: "0.5rem",
-                fontFamily: "var(--font-mono, monospace)",
-              }}
-            >
-              [#{outcome.whatWouldDecide.recordId}]
-            </span>
           </p>
         )}
       </div>

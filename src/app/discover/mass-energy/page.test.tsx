@@ -1,10 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { checkVoice } from "../../../content/checks/voice/index.ts";
+import { MASS_ENERGY_LATER_EVIDENCE } from "../../../content/massEnergyShelf.ts";
+import { checkMoveSummary } from "../../../discovery/checks/moveSummaryGuard.ts";
 import {
   BOX_1906_HREF,
   DOORS,
   FIRST_HONEST_QUESTION,
+  FORK_FIELD_MASS,
   FORK_POINCARE,
   MOVE,
   NAGGING_FACT,
@@ -71,9 +74,10 @@ describe("step 05 puts the coefficient to a number", () => {
 });
 
 /**
- * Journey IV's skeleton (plan §9.1, §9.5; dispatch 139): the shelf first, the nagging fact and the
- * first honest question, the chain with its move marked, Poincaré's fork worked honestly, the check
- * against the world, a predict-perturb-explain task, and the doors.
+ * Journey IV's skeleton (plan §9.1, §9.5; dispatch 139; am-disc-journey-iv-chain-wwrz): the shelf
+ * first, the nagging fact and the first honest question, the chain with its move marked at the
+ * identification, Poincaré's fork and the field-or-energy fork worked honestly, the check against the
+ * world, a predict-perturb-explain task, and the doors.
  */
 describe("the route carries the discovery skeleton", () => {
   const at = (marker: string) => {
@@ -89,10 +93,11 @@ describe("the route carries the discovery skeleton", () => {
       'id="first-question"',
       'id="step-01"',
       'id="step-03"',
-      "data-move-marker",
       'id="step-04"',
       'id="step-05"',
+      "data-move-marker",
       'id="arg-fork-poincare-fluid"',
+      'id="arg-fork-field-or-energy"',
       'id="step-06"',
       "data-world-check-live",
       'data-ppe-task-id="me-predict-perturb-explain-joule"',
@@ -102,13 +107,43 @@ describe("the route carries the discovery skeleton", () => {
     expect(order).toEqual([...order].sort((a, b) => a - b));
   });
 
-  test("the move is marked at the two accounts and opens that argument", () => {
+  test("the move is marked at the identification, after the coefficient, and opens that argument", () => {
     const start = at("data-move-marker");
     const marker = html.slice(start, html.indexOf("</aside>", start));
     expect(text(marker)).toContain("The move");
-    expect(marker).toContain('href="/papers/mass-energy/#arg-me-two-ledgers"');
-    expect(start).toBeGreaterThan(at('id="step-03"'));
-    expect(start).toBeLessThan(at('id="step-04"'));
+    expect(text(marker)).toContain("Read the coefficient as a lost mass");
+    expect(marker).toContain('href="/papers/mass-energy/#arg-me-mass-change"');
+    expect(start).toBeGreaterThan(at('id="step-05"'));
+    // Step 03 is bookkeeping any reader can check, and no longer calls itself the move.
+    const three = html.slice(at('id="step-03"'), at('id="step-04"'));
+    expect(text(three)).not.toContain("This is the move");
+  });
+
+  test("the move's summary passes the framework's guard and stays a draft", () => {
+    const result = checkMoveSummary(MOVE.r0Summary.text);
+    expect(result.issues).toEqual([]);
+    expect(result.valid).toBe(true);
+    expect(MOVE.r0Summary.reviewState).toBe("draft");
+    // The identification is limited to slow motion and to the paper's premises.
+    expect(MOVE.r0Summary.text).toContain("when the motion is slow");
+    expect(MOVE.r0Summary.text).toContain("within the paper's stated premises");
+  });
+
+  test("electromagnetic mass is undecided on 1904 evidence, and names the later measurement", () => {
+    const start = at('id="arg-fork-field-or-energy"');
+    const fork = html.slice(start, html.indexOf("</section>", start));
+    expect(fork).toContain('data-outcome-type="undecided-on-available-evidence"');
+    expect(fork).toContain('data-outcome-type="papers-route"');
+    expect(text(fork)).toContain("J. J. Thomson, 1881");
+    expect(text(fork)).toContain("no measurement of a body whose non-electromagnetic energy");
+    // The deciding record is a link to its card on this page, not a printed id.
+    expect(fork).toContain('href="#card-cockcroft-walton-1932-lithium"');
+    expect(text(fork)).not.toContain("[#");
+    const decider = FORK_FIELD_MASS.branches[0]?.outcome.whatWouldDecide;
+    const card = MASS_ENERGY_LATER_EVIDENCE.find((c) => c.id === decider?.recordId);
+    // Not decidable from the shelf: a later card, after 1904.
+    expect(card?.status).toBe("later");
+    expect(card?.date.latestYear).toBeGreaterThan(1904);
   });
 
   test("Poincaré's fluid is worked as equivalent within its scope, not refuted", () => {
@@ -172,12 +207,13 @@ describe("the route carries the discovery skeleton", () => {
       PPE_TASK.task,
       PPE_TASK.perturbPrompt,
       PPE_TASK.explainPrompt,
-      FORK_POINCARE.question,
-      ...FORK_POINCARE.branches.flatMap((b) => [
+      ...[FORK_POINCARE, FORK_FIELD_MASS].flatMap((f) => [f.question]),
+      ...[...FORK_POINCARE.branches, ...FORK_FIELD_MASS.branches].flatMap((b) => [
         b.label,
         b.hypothesis,
         b.worksWhen,
         b.outcome.plainLanguage,
+        b.outcome.insufficiency ?? "",
         ...b.steps.map((s) => s.text),
       ]),
       ...SOURCE_JUMPS.flatMap((j) => [j.label, j.pointer]),

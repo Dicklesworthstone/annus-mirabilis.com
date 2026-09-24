@@ -27,22 +27,26 @@ export const FIRST_HONEST_QUESTION =
   "If you already know how the energy of a light pulse changes between frames, what does the conservation of energy force you to say about the body that gave it off?";
 
 /**
- * The one non-obvious step: writing the same emission down a second time, from a moving frame, so
- * that the body's unknown energy appears in both accounts and a subtraction removes it. It is the
- * paper's two-ledger argument, arg-me-two-ledgers, whose second account is the moving ledger.
+ * The one non-obvious step (plan §9.5; am-disc-journey-iv-chain-wwrz, chain step 6): reading the
+ * limiting coefficient of v²/2 as a loss of mass, L/V², within the paper's premises. The two
+ * accounts and the subtraction before it are bookkeeping any careful reader can check; this is the
+ * identification the paper asks the reader to accept, and it is made only in the slow limit.
+ *
+ * The summary is the bead's authored sentence, recorded as a draft: only a named physics reviewer
+ * may set it reviewed.
  */
 export const MOVE: JourneyMove = {
-  label: "Describe the same emission twice",
-  chainId: "arg-me-two-ledgers",
-  stepId: "eq-model-me-moving-ledger",
+  label: "Read the coefficient as a lost mass",
+  chainId: "arg-me-mass-change",
+  stepId: "eq-model-me-mass-decrease",
   r0Summary: {
-    text: "Write the body's energy before and after the emission as a resting observer does, and again as a moving observer does. Each account holds the body's unknown total energy, the same unknown in both, so taking one account from the other removes it and leaves only what can be computed.",
+    text: "Seen by an observer moving past, the body carries less energy of motion after giving off light than before, at the same speed, just as a slightly lighter body would when the motion is slow, so, within the paper's stated premises, giving off energy lowers the body's mass by an amount set by that energy.",
     reviewState: "draft",
   },
 };
 
 /** Where the marked step opens, in the reading face. */
-export const MOVE_HREF = "/papers/mass-energy/#arg-me-two-ledgers";
+export const MOVE_HREF = "/papers/mass-energy/#arg-me-mass-change";
 
 /**
  * The fork (plan §9.5): Poincaré's fictitious fluid, worked honestly as bookkeeping that is
@@ -52,7 +56,8 @@ export const MOVE_HREF = "/papers/mass-energy/#arg-me-two-ledgers";
 export const FORK_POINCARE: Fork = {
   id: "arg-fork-poincare-fluid",
   afterStageId: "step-05",
-  question: "Where does the mass go: to a fluid you assign to the light, or out of the body?",
+  question:
+    "Two accounts of the same bookkeeping: does a fictitious fluid carried by the light save the centre of mass, or did the body's own inertia change?",
   varies: "theoretical-postulate",
   branches: [
     {
@@ -76,7 +81,8 @@ export const FORK_POINCARE: Fork = {
       ],
       outcome: {
         type: "empirically-equivalent-not-refuted",
-        scopeNote: "The centre of mass of a body and its radiation.",
+        scopeNote:
+          "The centre-of-mass bookkeeping of emission and absorption treated in Poincaré's 1900 paper.",
         plainLanguage:
           "Within its scope the fluid gives the same numbers, and nothing on the 1904 shelf refutes it. It says something different: it gives mass to the light and leaves the body's inertia alone, where the paper's route says the body's inertia changed.",
       },
@@ -100,6 +106,76 @@ export const FORK_POINCARE: Fork = {
         type: "papers-route",
         plainLanguage:
           "This is the paper's conclusion. Its last step, from light to any form of energy, is a stated inference and not a further derivation.",
+      },
+    },
+  ],
+};
+
+/**
+ * The second fork (am-disc-journey-iv-chain-wwrz, fork 2): how far the claim reaches. Electromagnetic
+ * mass was a serious quantitative programme, and what 1904 lacked was not a better account of it but
+ * a body whose non-field energy could be weighed. So its branch is undecided on the evidence of the
+ * day, and names the later measurement that bears on it, which is on the page as later evidence.
+ */
+export const FORK_FIELD_MASS: Fork = {
+  id: "arg-fork-field-or-energy",
+  afterStageId: "step-05",
+  question:
+    "How far does the claim reach: to the energy of a charged body's field, or to energy of every kind?",
+  varies: "theoretical-postulate",
+  branches: [
+    {
+      id: "arg-branch-field-mass",
+      label: "Only the field's energy has inertia",
+      proponent: { name: "J. J. Thomson, 1881", cardId: "thomson-1881-electromagnetic-mass" },
+      hypothesis:
+        "A charged body's field adds to its inertia, so inertia belongs to the energy of the electromagnetic field. The light in this argument is field energy, so its leaving lowers the inertia, and nothing follows about energy of other kinds.",
+      worksWhen:
+        "For charged bodies and their fields, where the added inertia can be calculated. How much it adds depends on the model of the charge.",
+      steps: [
+        {
+          text: "Start from Thomson's result: a moving charged sphere carries a magnetic field whose energy makes it harder to accelerate.",
+        },
+        {
+          text: "Read the paper's argument the same way. The energy that leaves is light, which is field energy, so the lost inertia can be booked to the field.",
+        },
+        {
+          text: "Ask what would tell this apart from the paper's claim: a body whose energy of another kind changes by enough to weigh.",
+        },
+      ],
+      outcome: {
+        type: "undecided-on-available-evidence",
+        insufficiency:
+          "The 1904 shelf carries no measurement of a body whose non-electromagnetic energy changes by enough to weigh, so it cannot separate a claim about field energy from a claim about energy as such.",
+        whatWouldDecide: {
+          name: "Cockcroft and Walton's lithium disintegration",
+          recordId: "cockcroft-walton-1932-lithium",
+          year: 1932,
+          status: "later",
+        },
+        plainLanguage:
+          "On the evidence of 1904 this branch is neither refuted nor confirmed. It is a narrower claim than the paper's, and the measurement that bears on it came twenty-seven years later.",
+      },
+    },
+    {
+      id: "arg-branch-energy-as-such",
+      label: "Energy of every kind has inertia",
+      hypothesis:
+        "The inertia of a body depends on its energy content, whatever form that energy takes.",
+      worksWhen:
+        "Wherever the paper's premises hold. Its last step, from light to energy of any form, is the one sentence in the paper that goes beyond the calculation.",
+      steps: [
+        {
+          text: "Find where the argument used the fact that the energy left as light: only in the rule for how the light's energy changes between frames. What it concluded is about the body's energy of motion.",
+        },
+        {
+          text: "Conclude, as the paper does, that the mass of a body is a measure of its energy content.",
+        },
+      ],
+      outcome: {
+        type: "papers-route",
+        plainLanguage:
+          "This is the paper's statement, and it is a stated inference: the paper calls it evident that nothing depends on the energy leaving as radiation.",
       },
     },
   ],

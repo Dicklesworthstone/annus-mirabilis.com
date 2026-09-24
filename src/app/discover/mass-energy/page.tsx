@@ -14,6 +14,7 @@ import { MoveMarker } from "../../../discovery/MoveMarker.tsx";
 import {
   DOORS,
   FIRST_HONEST_QUESTION,
+  FORK_FIELD_MASS,
   FORK_POINCARE,
   MOVE,
   MOVE_HREF,
@@ -75,8 +76,8 @@ export default function MassEnergyRoute() {
         <p className="lead">
           A body at rest gives off two flashes of light. Its energy has gone down, and nothing you
           can see about it has changed. The shortest of the four papers asks what has, and answers
-          with a number. You can reach it yourself in five moves, the only hard one being to know
-          what to subtract, and then check the number against the world.
+          with a number. You can reach it yourself in five moves and then check the number against
+          the world.
         </p>
         <p className="fine">
           A route you could take, not a transcript of Einstein&rsquo;s private thoughts. Every step
@@ -175,10 +176,10 @@ export default function MassEnergyRoute() {
         <p className="step-number">03 / Describe the same event twice</p>
         <h2>Two accounts of one emission</h2>
         <p>
-          This is the move, and the only one in the route that is not bookkeeping. Describe the same
-          emission a second time, from a frame gliding steadily past at speed <em>v</em>. Nothing
-          about the body changes; you have changed only where you are standing. Write down the
-          body&rsquo;s energy before and after in each account, four quantities in all.
+          Describe the same emission a second time, from a frame gliding steadily past at speed{" "}
+          <em>v</em>. Nothing about the body changes; you have changed only where you are standing.
+          Write down the body&rsquo;s energy before and after in each account, four quantities in
+          all.
         </p>
         <p>
           You cannot evaluate any of the four, because each contains the body&rsquo;s absolute
@@ -211,7 +212,6 @@ export default function MassEnergyRoute() {
           </StepDoor>
         </StepDoors>
       </section>
-      <MoveMarker move={MOVE} href={MOVE_HREF} />
 
       <section id="step-04">
         <p className="step-number">04 / Subtract</p>
@@ -292,7 +292,9 @@ export default function MassEnergyRoute() {
           </StepDoor>
         </StepDoors>
       </section>
+      <MoveMarker move={MOVE} href={MOVE_HREF} />
       <Fork fork={FORK_POINCARE} />
+      <Fork fork={FORK_FIELD_MASS} />
 
       <section id="step-06">
         <p className="step-number">06 / Check it against the world</p>
