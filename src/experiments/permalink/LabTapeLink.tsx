@@ -42,8 +42,17 @@ export function useLabTapeLink(
   return { notice, shareTape };
 }
 
-/** The notice for a link that could not be restored, and the share control for the accepted state. */
+/**
+ * The notice for a link that could not be restored, and the share control for the accepted state.
+ *
+ * The share control is drawn only after hydration. Without JavaScript nothing can be encoded, so
+ * there is no link to copy, and a reader without it gets no control that cannot work (AGENTS.md:
+ * "No-JavaScript readers get real links, never hydration-dependent buttons"). Drawn in the server
+ * markup, its field sat ahead of the "controls need JavaScript" notice on five lab pages.
+ */
 export function LabTapeLink({ link }: Readonly<{ link: LabTapeLinkState }>) {
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
   return (
     <>
       {link.notice && (
@@ -51,7 +60,7 @@ export function LabTapeLink({ link }: Readonly<{ link: LabTapeLinkState }>) {
           {link.notice} The laboratory shows its default settings.
         </p>
       )}
-      {link.shareTape && <ShareControl tape={link.shareTape} />}
+      {hydrated && link.shareTape && <ShareControl tape={link.shareTape} />}
     </>
   );
 }
