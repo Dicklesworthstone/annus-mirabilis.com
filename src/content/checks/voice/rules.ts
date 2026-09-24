@@ -85,9 +85,29 @@ export interface WordListRule {
   };
   readonly constructionGated?: {
     readonly words: readonly string[];
+    /**
+     * Contexts that exist to report a reader's standing. There, and only there, a SCORE DISPLAY
+     * is enough on its own: the word as the whole label ("Points"), a numeral just before it
+     * ("150 points") or a colon and numeral just after it ("Points: 150"). A bare noun phrase is
+     * not a score display, so "Number of independent points" as an equation title stays quiet.
+     */
     readonly scoringContexts: readonly VoiceContext[];
     readonly triggers: readonly string[];
     readonly maxTokensBetween: number;
+    /**
+     * Words that make the occurrence a score when they come just AFTER it: "your points total",
+     * "points are awarded". The follower must be the next word, or the word after a copula, so
+     * "n points in total" (a count of Einstein's points) does not reach "total".
+     */
+    readonly followingTriggers?: readonly string[];
+    readonly copulas?: readonly string[];
+    /**
+     * Gated words that are a score only as a COUNT, with a numeral just before them. The
+     * singular "point" is this: "Earn 1 point" is a score, and "questions ... lose their point"
+     * (the seat of the electromotive force, relativity section 6) is an idiom for "become
+     * pointless", which "lose" would otherwise reach.
+     */
+    readonly numeralOnly?: readonly string[];
   };
   /**
    * Words that are this rule's vocabulary in two constructions and a TERM OF ART everywhere

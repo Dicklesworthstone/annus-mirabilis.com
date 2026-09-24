@@ -263,15 +263,33 @@ rules:
     # ever have reached it. D-2026-09-19-theater-points-compounds predicted this and named the
     # remedy: move the discriminator from the modifier noun to the scoring construction.
     #
-    # THE ALLOWLIST BELOW IS STILL REQUIRED, which answers the acceptance question directly. It
-    # no longer carries prose, where the gate now does the work; it carries the SCORING
-    # CONTEXTS, where a bare "points" is a score display by default and "Plot all data points"
-    # is a button label that must not fire. Removing it turns six existing assertions red.
+    # THE ALLOWLIST BELOW IS STILL REQUIRED, for one case. Under dispatch 148 the gate reads the
+    # construction in every context, so a bare technical noun no longer needs it: removing it
+    # turned no other assertion red (measured in a scratch copy). What it still does is keep a
+    # technical compound quiet when a scoring word or score shape reaches it, as in "Total data
+    # points: 150" on a progress readout; voice.test.ts pins that case.
     constructionGated:
+      # The singular is gated too (dispatch 148): "Earn 1 point" is the same construction, and
+      # "a material point" the same ordinary noun.
       words:
         - points
-      # In these three contexts the surface exists to report a reader's standing, so a bare
-      # "points" is a score unless the allowlist names it as technical.
+        - point
+      # ...but the singular only as a COUNT, with a numeral just before it. Measured with
+      # scripts/lint-voice.ts: gating the bare singular added two findings, both the R3 margin's
+      # "questions about the seat of the electromotive force ... lose their point" (relativity
+      # section 6), where "lose" reached an idiom for "become pointless".
+      numeralOnly:
+        - point
+      # In these three contexts the surface exists to report a reader's standing, so a SCORE
+      # DISPLAY is enough on its own: the word as the whole label ("Points"), a numeral just
+      # before it ("150 points") or a colon and a numeral just after ("Points: 150").
+      #
+      # Until dispatch 148 every bare "points" here fired, and that misread physics. A record's
+      # `title` field resolves to ui-label, so five light-quanta equation titles - "Number of
+      # independent points", "Entropy change of the points", "How many independent points the
+      # radiation behaves like" - were errors, and they were the last five errors verify-content
+      # reported. Those are Einstein's moving points in the volume v0. Retitling his physics to
+      # satisfy a lint is the wrong repair; the rule now asks whether the occurrence is a score.
       scoringContexts:
         - ui-label
         - task-feedback
@@ -298,6 +316,9 @@ rules:
         - win
         - wins
         - won
+        - gain
+        - gains
+        - gained
         - lose
         - loses
         - lost
@@ -318,12 +339,38 @@ rules:
         - achievement
         - xp
       maxTokensBetween: 3
+      # A scoring word just AFTER the occurrence: "your points total is 40", "points earned",
+      # "points are awarded for each answer". It must be the next word, or the word after one of
+      # the copulas, so "n points in total" - a count - does not reach "total".
+      followingTriggers:
+        - total
+        - totals
+        - tally
+        - earned
+        - awarded
+        - scored
+        - won
+        - deducted
+      copulas:
+        - is
+        - are
+        - was
+        - were
+        - be
+        - been
+        - being
+        - get
+        - gets
+        - got
     allowlist:
       - data points
       - data point
       - plot points
+      - plot point
       - sample points
+      - sample point
       - grid points
+      - grid point
     severityByContext:
       task-feedback: error
       reader-progress: error

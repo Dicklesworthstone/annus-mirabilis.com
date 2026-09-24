@@ -788,8 +788,8 @@ describe("theater: points is gated on the scoring construction (am-gzxs)", () =>
     // test would prove nothing about the bound. Verified by planting: bound 3 -> 50 on that
     // sentence changed no assertion. The second occurrence here is "recorded points", which the
     // allowlist does NOT name, so only the token bound can keep it quiet. PROSE, deliberately:
-    // a scoring context bypasses the gate by design, so the bound cannot be observed there
-    // either, and asserting it in task-feedback passes for the wrong reason. Both wrong
+    // a scoring context adds the score-display construction (a numeral just before the word),
+    // so there "5 points" fires on its own and the bound cannot be observed. Both wrong
     // versions of this test were written and planted against before this one.
     const mixed = theaterOf("Earn 5 points and then mark the recorded points on the plot.");
     assert.equal(mixed.length, 1, "only the scoring occurrence is reported");
@@ -810,6 +810,86 @@ describe("theater: points is gated on the scoring construction (am-gzxs)", () =>
     // "badge" is theater vocabulary in its own right and must still be reported, which is what
     // makes this a test of the sentence boundary rather than of the rule being switched off.
     assert.ok(findings.some((f) => f.matchedText.toLowerCase() === "badge"));
+  });
+});
+
+/**
+ * Dispatch 148: in a scoring context "points" used to fire on every bare occurrence, and a
+ * record's `title` resolves to ui-label, so five light-quanta equation titles were errors:
+ * "Number of independent points", "Entropy change of the points", "How many independent points
+ * the radiation behaves like". Those are Einstein's moving points in the volume v0. The gate now
+ * asks whether the occurrence is a SCORE: a scoring verb before it, a scoring word after it, or
+ * (only where the surface reports a reader's standing) a score display. The physics cases are
+ * checked in every context, because ui-label is where they misfired.
+ */
+describe("theater: points is a score only in a scoring construction (dispatch 148)", () => {
+  const CONTEXTS = ["prose", "ui-label", "task-feedback", "reader-progress"] as const;
+  const theaterOf = (text: string, context: (typeof CONTEXTS)[number] = "prose") =>
+    checkVoice(text, { context }).filter((f) => f.rule === "theater");
+  const pointsOf = (text: string, context: (typeof CONTEXTS)[number] = "prose") =>
+    theaterOf(text, context).filter((f) => /^points?$/iu.test(f.matchedText));
+
+  it("Einstein's moving points are not a score, in any context", () => {
+    for (const text of [
+      "The probability that all n moving points are in v",
+      "Points of the volume v0 are equally likely to be found anywhere in it.",
+      "Number of independent points",
+      "Entropy change of the points",
+      "How many independent points the radiation behaves like",
+      "A material point moves with the velocity v.",
+      // content/editorial/readings-owners/am-sr-08-field-frame-change-5ibt.yaml, the R3 margin
+      // on section 6: an idiom for "become pointless", which the scoring verb "lose" reaches.
+      "says that questions about the seat of the electromotive force in unipolar machines lose their point.",
+      "There are n points in total, and each is independent of the others.",
+    ]) {
+      for (const context of CONTEXTS) {
+        assert.deepEqual(pointsOf(text, context), [], `${context}: ${text}`);
+      }
+    }
+  });
+
+  it("a scoring construction is still a score, plural or singular, wherever it stands", () => {
+    for (const context of CONTEXTS) {
+      assert.equal(
+        pointsOf("Earn 10 points for a correct prediction", context).length,
+        1,
+        `${context}: a scoring verb before the word`,
+      );
+      assert.equal(
+        pointsOf("Earn 1 point for a correct prediction", context).length,
+        1,
+        `${context}: the singular`,
+      );
+      assert.equal(
+        pointsOf("Points are awarded for each correct prediction.", context).length,
+        1,
+        `${context}: at a sentence start, a scoring word after a copula`,
+      );
+      assert.equal(
+        pointsOf("Your points total is 40.", context).length,
+        1,
+        `${context}: a points total`,
+      );
+    }
+  });
+
+  it("a score display fires where the surface reports standing, and only there", () => {
+    for (const context of ["ui-label", "task-feedback", "reader-progress"] as const) {
+      for (const text of ["Points", "150 points", "Points: 150", "You have 1 point"]) {
+        assert.equal(pointsOf(text, context).length, 1, `${context}: ${text}`);
+      }
+    }
+    // In prose a numeral before "points" is a count, as in a paper's "20 points".
+    assert.deepEqual(pointsOf("The plate records 20 points on the curve."), []);
+  });
+
+  it("the allowlist is what keeps a technical compound quiet when a scoring word reaches it", () => {
+    // Measured under dispatch 148: with the allowlist removed, no other assertion in this file,
+    // contexts.test.ts or componentText.test.ts goes red, because the gate now reads the
+    // construction. This is the case left for it: "total" and ": 150" both make a score of the
+    // occurrence, and only the compound says the points are data.
+    assert.deepEqual(pointsOf("Total data points: 150", "reader-progress"), []);
+    assert.deepEqual(pointsOf("Show 12 extra grid points", "ui-label"), []);
   });
 });
 

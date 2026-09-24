@@ -36,21 +36,33 @@ describe("resolveVoiceContext: record kind and field path decide the severity", 
     // contexts on ONE string rather than inspecting one finding in one context. That is stronger
     // than what it replaces, and it no longer depends on which words another rule treats as
     // vocabulary.
-    const asProse = checkVoice(SCHOLARLY_RECAP, {
-      context: resolveVoiceContext("argument", "recap"),
-    }).filter((f) => f.rule === "theater");
-    const asProgress = checkVoice(SCHOLARLY_RECAP, { context: "reader-progress" }).filter(
-      (f) => f.rule === "theater",
-    );
-
+    //
+    // Dispatch 148 moved the contrast off this string. It used to assert that the same recap on
+    // a progress readout WAS gamification, because a scoring context fired on every bare
+    // "points". That was the misfire: the points are Einstein's, and the theater rule now asks
+    // whether an occurrence is a score, so this sentence is quiet in every context. The contrast
+    // between contexts is kept, on mark vocabulary, which prose exempts and progress copy does
+    // not.
+    const recapTheater = (context: Parameters<typeof checkVoice>[1]["context"]) =>
+      checkVoice(SCHOLARLY_RECAP, { context }).filter((f) => f.rule === "theater");
     assert.deepEqual(
-      asProse,
+      recapTheater(resolveVoiceContext("argument", "recap")),
       [],
       "an argument's recap is prose, and 'uniformly distributed points' is the mathematical noun",
     );
+    assert.deepEqual(
+      recapTheater("reader-progress"),
+      [],
+      "the mathematical noun is not a score on any surface",
+    );
+
+    const MARKED = "Correct: 3 of 5 predictions.";
+    const markedTheater = (context: Parameters<typeof checkVoice>[1]["context"]) =>
+      checkVoice(MARKED, { context }).filter((f) => f.rule === "theater");
+    assert.deepEqual(markedTheater(resolveVoiceContext("argument", "recap")), []);
     assert.ok(
-      asProgress.some((f) => f.severity === "error"),
-      "the same words on a progress readout are still gamification, or the contrast proves nothing",
+      markedTheater(resolveVoiceContext("notebook", "recap")).some((f) => f.severity === "error"),
+      "the same words on a progress readout are a mark, or the contrast proves nothing",
     );
   });
 

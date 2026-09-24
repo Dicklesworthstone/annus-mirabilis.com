@@ -215,6 +215,51 @@ function precedingTokensContain(
   return tokens.some((t) => wantedSet.has(t));
 }
 
+/**
+ * A score display: the occurrence is the whole label once numerals and punctuation are set
+ * aside ("Points", "150 points", "Points: 150"), a numeral stands just before it ("You have 150
+ * points"), or a colon and a numeral follow it ("Points: 150 this week"). A letter such as the
+ * n in "n moving points" is not a numeral, and a modifier ("independent points") is not a label.
+ */
+function isScoreDisplay(text: string, start: number, end: number): boolean {
+  const before = text.slice(0, start);
+  const after = text.slice(end);
+  if (!/\p{L}/u.test(before + after)) return true;
+  if (numeralJustBefore(text, start)) return true;
+  return /^\s*:\s*[+\-−]?\d/u.test(after);
+}
+
+/** A numeral ends just before `start`: "150 points", "+1 point". A variable letter is not one. */
+function numeralJustBefore(text: string, start: number): boolean {
+  return /(?<![\p{L}\p{N}])[+\-−]?\d[\d,.]*\s*$/u.test(text.slice(0, start));
+}
+
+/**
+ * Whether a scoring word comes just after the occurrence: the next word ("points total",
+ * "points earned"), or the word after a copula ("points are awarded"). Nothing further: in
+ * "n points in total" the preposition stands between, and the count is Einstein's.
+ */
+function followedByScoringWord(
+  text: string,
+  endIndex: number,
+  followers: readonly string[],
+  copulas: readonly string[],
+): boolean {
+  if (followers.length === 0) return false;
+  const after = text.slice(endIndex);
+  const sentenceEnd = after.search(/[.;!?\n]/u);
+  const window = sentenceEnd === -1 ? after : after.slice(0, sentenceEnd);
+  const [first, second] = window
+    .split(/[^\p{L}\p{N}'-]+/u)
+    .filter((t) => t.length > 0)
+    .slice(0, 2)
+    .map((t) => t.toLowerCase());
+  const wanted = new Set(followers.map((t) => t.toLowerCase()));
+  if (first !== undefined && wanted.has(first)) return true;
+  const copulaSet = new Set(copulas.map((t) => t.toLowerCase()));
+  return first !== undefined && copulaSet.has(first) && second !== undefined && wanted.has(second);
+}
+
 /** The mirror of precedingTokensContain, for a word that is judged by what it MODIFIES. */
 function followingTokensContain(
   text: string,
@@ -351,21 +396,26 @@ export function matchWordListRule(
   }
 
   // Construction-gated words (am-gzxs). Kept OUT of `words` above, so the plain path never sees
-  // them: they are this rule's vocabulary only inside a scoring construction, or in a context
-  // whose entire purpose is scoring. The allowlist still applies, because a scoring context is
-  // exactly where "Plot all data points" appears as a button label.
+  // them: they are this rule's vocabulary only inside a scoring construction, in any context. A
+  // context whose purpose is scoring adds one construction of its own, the score display. It
+  // used to fire on EVERY bare occurrence there, so the equation title "Number of independent
+  // points" (a title is a ui-label) was reported as gamification: Einstein's moving points in
+  // the volume v0, five times over (dispatch 148). The allowlist still applies, because a
+  // scoring context is exactly where "Plot all data points" appears as a button label.
   if (rule.constructionGated) {
     const gated = rule.constructionGated;
     const inScoringContext = gated.scoringContexts.includes(context);
+    const numeralOnly = new Set((gated.numeralOnly ?? []).map((w) => w.toLowerCase()));
     for (const word of gated.words) {
       for (const m of findPhraseMatches(text, word)) {
         if (overlapsAny(m.index, m.matchedText.length, allowlistRanges)) continue;
-        if (
-          !inScoringContext &&
-          !precedingTokensContain(text, m.index, gated.triggers, gated.maxTokensBetween)
-        ) {
-          continue;
-        }
+        if (numeralOnly.has(word.toLowerCase()) && !numeralJustBefore(text, m.index)) continue;
+        const end = m.index + m.matchedText.length;
+        const scoring =
+          precedingTokensContain(text, m.index, gated.triggers, gated.maxTokensBetween) ||
+          followedByScoringWord(text, end, gated.followingTriggers ?? [], gated.copulas ?? []) ||
+          (inScoringContext && isScoreDisplay(text, m.index, end));
+        if (!scoring) continue;
         let severity =
           isQuotation && rule.quotationDowngrade ? rule.quotationDowngrade : baseSeverity;
         if (source.layer === "translation" && severity === "error") severity = "flag";
