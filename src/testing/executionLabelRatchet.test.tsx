@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { renderToStaticMarkup } from "react-dom/server";
+import { parseInstrumentRoot } from "../../scripts/e2e/domContract.ts";
 import { exportMarkup } from "./exportMarkup.ts";
 
 /**
@@ -80,6 +81,12 @@ const DERIVED_ROUTES = [
 const HOST_AT_BUILD_TIME = ["bm-03/"];
 
 /**
+ * Routes whose instrument root may render with no label at build time, and so may not pass the
+ * harness DOM-contract parser either; every other root on every lab page must pass it
+ * (scripts/e2e/domContract.ts parseInstrumentRoot). On 2026-09-24, 14 of 42 roots passed; the labs
+ * spread the label attributes without the store's instrumentRootAttributes, and ME-01 and ME-03
+ * marked a drawing as a second instrument root (a3b8b10d, fd4e13f0, f716fb06, 90b0974c, 7f3742fb).
+ *
  * Routes whose instrument root may render with no label at build time. The kitchen holds no data
  * until a reader loads their own; none of the four labels describes an empty workbench, and its badge
  * says "No data loaded". Every other instrument root carries a label: on 2026-09-24 BM-07, SR-05 and
@@ -180,10 +187,12 @@ describe("execution labels are derived, not written", () => {
     }
   });
 
-  test("no lab route renders a host label at build time except the listed labs', and every instrument root carries a label", async () => {
+  test("no lab route renders a host label at build time except the listed labs', and every instrument root carries a label and passes the harness DOM contract", async () => {
     const pages = labPages(LAB_APP);
     const host: string[] = [];
     const unlabelled: string[] = [];
+    const contract: string[] = [];
+    let roots = 0;
     let renders = 0;
     for (const rel of pages) {
       const mod = await import(`${LAB_APP}${rel}page.tsx`);
@@ -201,6 +210,19 @@ describe("execution labels are derived, not written", () => {
         if (html.includes('data-execution-label="host"')) host.push(route);
         if (html.includes("data-instrument-id=") && !html.includes("data-execution-label="))
           unlabelled.push(route);
+        // Every instrument root must pass the harness's own DOM-contract parser.
+        for (const tag of html.matchAll(/<[a-z]+\s[^>]*data-instrument-id="[^"]*"[^>]*>/g)) {
+          roots += 1;
+          const attrs: Record<string, string> = {};
+          for (const a of tag[0].matchAll(/([a-z-]+)="([^"]*)"/g))
+            attrs[a[1] as string] = a[2] as string;
+          try {
+            parseInstrumentRoot(attrs);
+          } catch (error) {
+            if (!UNLABELLED_AT_BUILD_TIME.includes(route))
+              contract.push(`${route} ${attrs["data-instrument-id"]}: ${(error as Error).message}`);
+          }
+        }
       }
     }
     console.log(
@@ -212,5 +234,10 @@ describe("execution labels are derived, not written", () => {
       `[execution labels] ${unlabelled.length} render an instrument root with no label: ${unlabelled.join(", ")}`,
     );
     expect(unlabelled.sort()).toEqual([...UNLABELLED_AT_BUILD_TIME].sort());
+    console.log(
+      `[execution labels] ${roots} instrument roots through the harness parser; ${contract.length} refused`,
+    );
+    expect(roots).toBeGreaterThan(30);
+    expect(contract).toEqual([]);
   });
 });
