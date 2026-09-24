@@ -77,6 +77,59 @@ describe("each gap is refused by name", () => {
     expect(got).toContain("mass-energy obligation low-speed-expansion resolves to nothing");
   });
 
+  describe("a paragraph no passage explains is declared unexplained, with its reason and its r0", () => {
+    const P15 = "  - unit: s0-p15\n    passages: [arg-me-scope]\n";
+    const declare = (lines: string) => (y: string) => {
+      if (!y.includes(P15))
+        throw new Error("the s0-p15 binding moved; this fixture needs updating");
+      return y.replace(P15, `  - unit: s0-p15\n${lines}`);
+    };
+    const REASON = '    reason: "No passage explains it yet."\n';
+
+    test("accepted: counted as declared, not as bound, and named in the report", () => {
+      const root = copyWith("declared", declare(`    status: unexplained\n${REASON}`));
+      const r = checkParagraphBindings(root, "mass-energy");
+      if (!r) throw new Error("no report");
+      expect(r.problems).toEqual([]);
+      expect(r.paragraphs.declared).toBe(1);
+      expect(r.paragraphs.bound + r.paragraphs.declared).toBe(r.paragraphs.of);
+      expect(reportLine(r)).toContain(", 1 declared unexplained,");
+    });
+
+    test("refused: declared without a reason", () => {
+      expect(problems("no-reason", declare("    status: unexplained\n"))).toContain(
+        "mass-energy s0-p15 is declared unexplained without a reason",
+      );
+    });
+
+    test("refused: declared and bound to passages at once", () => {
+      expect(
+        problems(
+          "both",
+          declare(`    status: unexplained\n${REASON}    passages: [arg-me-scope]\n`),
+        ),
+      ).toContain(
+        "mass-energy s0-p15 names passages and is declared unexplained; it is one or the other",
+      );
+    });
+
+    test("refused: any status other than unexplained", () => {
+      expect(problems("other", declare(`    status: printed-only\n${REASON}`))).toContain(
+        "mass-energy s0-p15 declares printed-only; a paragraph may only be declared unexplained",
+      );
+    });
+
+    test("refused: declared without its r0", () => {
+      const got = problems("no-r0", (y) =>
+        declare(`    status: unexplained\n${REASON}`)(y).replace(
+          /( {2}- unit: s0-p15\n(?: {4}(?!r0).*\n)*) {4}r0: .*\n/,
+          "$1",
+        ),
+      );
+      expect(got).toContain("mass-energy s0-p15 has no r0 overview");
+    });
+  });
+
   test("a required paper with no bindings file", () => {
     const root = join(scratch, "missing");
     for (const dir of ["source-blocks", "arguments", "equations"])

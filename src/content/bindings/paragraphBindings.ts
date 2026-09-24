@@ -6,6 +6,8 @@
  * passage that explains it. The explanation-grain decision (D-2026-09-24-explanation-grain) keeps
  * the argument passages as the unit of explanation and binds the source to them explicitly:
  * - every printed paragraph and footnote names one or more passages, and has its own r0 overview;
+ *   a paragraph no passage explains yet is declared "unexplained" with its reason instead, keeps its
+ *   r0, and is counted apart, so a gap is stated rather than covered by an invented passage;
  * - every printed display names equation records, or carries a declared status and its reason;
  * - every argument obligation the manifest records resolves to passages or a declared status.
  * The bindings live in content/bindings/<paper>.yaml. This reads them against the frozen manifest,
@@ -21,7 +23,8 @@ export const BINDINGS_REQUIRED: readonly string[] = ["mass-energy"];
 
 export type BindingReport = Readonly<{
   paper: string;
-  paragraphs: Readonly<{ bound: number; of: number }>;
+  /** Bound to passages, and declared unexplained with a reason: together they must be all of them. */
+  paragraphs: Readonly<{ bound: number; declared: number; of: number }>;
   displays: Readonly<{ bound: number; of: number }>;
   obligations: Readonly<{ resolved: number; of: number }>;
   problems: readonly string[];
@@ -69,7 +72,16 @@ function recordIds(root: string, dir: string, paper: string): ReadonlySet<string
   );
 }
 
-type Paragraph = { unit?: unknown; passages?: unknown; r0?: unknown };
+type Paragraph = {
+  unit?: unknown;
+  passages?: unknown;
+  r0?: unknown;
+  status?: unknown;
+  reason?: unknown;
+};
+
+/** The only status a paragraph may declare: no passage explains it yet. */
+export const PARAGRAPH_STATUS = "unexplained";
 type Display = { unit?: unknown; equations?: unknown; status?: unknown; reason?: unknown };
 type Obligation = { obligation?: unknown; passages?: unknown; status?: unknown; reason?: unknown };
 
@@ -118,6 +130,7 @@ export function checkParagraphBindings(root: string, paper: string): BindingRepo
   };
 
   let paragraphsBound = 0;
+  let paragraphsDeclared = 0;
   for (const unit of paragraphs) {
     const b = paragraphBindings.get(unit.id);
     if (!b) {
@@ -126,6 +139,21 @@ export function checkParagraphBindings(root: string, paper: string): BindingRepo
     }
     const r0 = typeof b.r0 === "string" ? b.r0.trim() : "";
     if (r0 === "") problems.push(`${paper} ${unit.id} has no r0 overview`);
+    if (b.status !== undefined) {
+      const reason = typeof b.reason === "string" ? b.reason.trim() : "";
+      if (b.status !== PARAGRAPH_STATUS)
+        problems.push(
+          `${paper} ${unit.id} declares ${String(b.status)}; a paragraph may only be declared ${PARAGRAPH_STATUS}`,
+        );
+      else if (reason === "")
+        problems.push(`${paper} ${unit.id} is declared ${PARAGRAPH_STATUS} without a reason`);
+      else if (strings(b.passages).length > 0)
+        problems.push(
+          `${paper} ${unit.id} names passages and is declared ${PARAGRAPH_STATUS}; it is one or the other`,
+        );
+      else if (r0 !== "") paragraphsDeclared++;
+      continue;
+    }
     if (passagesOk(`${paper} ${unit.id}`, strings(b.passages)) && r0 !== "") paragraphsBound++;
   }
 
@@ -163,16 +191,21 @@ export function checkParagraphBindings(root: string, paper: string): BindingRepo
 
   return {
     paper,
-    paragraphs: { bound: paragraphsBound, of: paragraphs.length },
+    paragraphs: { bound: paragraphsBound, declared: paragraphsDeclared, of: paragraphs.length },
     displays: { bound: displaysBound, of: displays.length },
     obligations: { resolved: obligationsResolved, of: obligations.length },
     problems,
   };
 }
 
-/** "mass-energy: 14 of 14 paragraphs bound, 7 of 7 printed displays bound or declared, ..." */
+/**
+ * "mass-energy: 14 of 14 paragraphs bound, 7 of 7 printed displays bound or declared, ...", with
+ * the paragraphs declared unexplained named beside the bound ones when there are any.
+ */
 export const reportLine = (r: BindingReport): string =>
-  `${r.paper}: ${r.paragraphs.bound} of ${r.paragraphs.of} paragraphs bound, ${r.displays.bound} of ${r.displays.of} printed displays bound or declared, ${r.obligations.resolved} of ${r.obligations.of} obligations resolved`;
+  `${r.paper}: ${r.paragraphs.bound} of ${r.paragraphs.of} paragraphs bound${
+    r.paragraphs.declared > 0 ? `, ${r.paragraphs.declared} declared ${PARAGRAPH_STATUS}` : ""
+  }, ${r.displays.bound} of ${r.displays.of} printed displays bound or declared, ${r.obligations.resolved} of ${r.obligations.of} obligations resolved`;
 
 export type ParagraphBinding = Readonly<{
   unit: string;
