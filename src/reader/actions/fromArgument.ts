@@ -190,11 +190,55 @@ const ARG_SR_VELOCITY_COMPOSITION_OBSTACLES: ObstacleResponses = {
   },
 };
 
+/**
+ * Mass-energy's subtraction: which difference survives when the two accounts are subtracted. The
+ * numbers are the paper's example as the two-ledgers passage gives it: the rest account assigns the
+ * light 10 units and a traveler at sixty percent of light speed 12.5, so L(γ − 1) = 2.5. The
+ * passage's limit is kept: the subtraction is algebra, and naming what survives needs a premise.
+ */
+const RETURN_ME = "Return to subtract what you cannot measure.";
+const meLink = (foundationId: string) => [
+  { foundationId, callingAnchor: "arg-me-subtraction", returnCaption: RETURN_ME },
+];
+const ARG_ME_SUBTRACTION_OBSTACLES: ObstacleResponses = {
+  unfamiliarWordOrSymbol: {
+    explanation:
+      "E is the body's energy counted in its own rest frame, and H is the same body's energy as a traveler moving past it counts it. The subscript 0 means before the light leaves, 1 after. L is the light's energy in the rest frame, and γ, 1.25 at sixty percent of light speed, is how much larger the traveler finds it.",
+    foundationLinks: meLink("bridge-letter-for-quantity"),
+  },
+  physicalReason: {
+    explanation:
+      "Each observer's account balances on its own: the body's energy drops by exactly the energy the light carries away, in that observer's reckoning. The two observers only assign the light different amounts, so the body's drop differs between the accounts. Neither account is wrong.",
+    foundationLinks: meLink("conservation-symmetry"),
+  },
+  connectionToPicture: {
+    explanation:
+      "Picture two ledgers for one emission. In the rest ledger the body's energy falls by 10 units; in the traveler's by 12.5. Taking one ledger's change from the other's needs only those two losses, not the balances themselves, which nobody can measure.",
+    foundationLinks: meLink("work-energy"),
+  },
+  tooMuchAtOnce: {
+    explanation:
+      "One example: the light carries 10 units in the rest frame, and the traveler moves at sixty percent of light speed, so γ = 1.25. The rest account loses 10, the traveler's loses 12.5, and the difference is 2.5, which is 10 × (1.25 − 1). Nothing more of the passage is needed yet.",
+    foundationLinks: meLink("two-measurements-two-unknowns"),
+  },
+  algebraicMove: {
+    explanation:
+      "Two balances, H₀ − H₁ = γL and E₀ − E₁ = L, taken one from the other: H₀ − H₁ − E₀ + E₁ = γL − L. Grouping the left as (H₀ − E₀) − (H₁ − E₁) and taking L out on the right gives L(γ − 1). The unknown energies are never given values, only compared.",
+    foundationLinks: meLink("bridge-equals-sign-relationship"),
+  },
+  purposeOfCalculation: {
+    explanation:
+      "It isolates the one quantity both accounts agree how to compute, L(γ − 1), without knowing the body's total energy in either frame. The passage stops there on purpose: that this difference is a change in the body's energy of motion is a separate premise, which the next passage states.",
+    foundationLinks: meLink("work-energy"),
+  },
+};
+
 /** The passages marked hard, each with an authored answer for all six obstacles. */
 const OBSTACLES: Readonly<Record<string, ObstacleResponses>> = {
   "arg-bm-observable": ARG_BM_OBSERVABLE_OBSTACLES,
   "arg-lq-independent-configurations": ARG_LQ_INDEPENDENT_CONFIGURATIONS_OBSTACLES,
   "arg-sr-velocity-composition": ARG_SR_VELOCITY_COMPOSITION_OBSTACLES,
+  "arg-me-subtraction": ARG_ME_SUBTRACTION_OBSTACLES,
 };
 
 export function passageActionsFromArgument(argument: Argument): PassageActions {
