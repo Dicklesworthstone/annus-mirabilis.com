@@ -130,7 +130,7 @@ export default function Home() {
         <p>
           <em>L</em> is the energy the body has just given off, <em>V</em> is the speed of light,
           and <em>K</em>
-          <sub>0</sub> &minus; <em>K</em>
+          <sub>0</sub>&nbsp;&minus;&nbsp;<em>K</em>
           <sub>1</sub> is the kinetic energy it has lost in doing so. Set that beside the
           schoolroom&rsquo;s <em>½mv</em>
           <sup>2</sup> and the quantity <em>L</em>/<em>V</em>
