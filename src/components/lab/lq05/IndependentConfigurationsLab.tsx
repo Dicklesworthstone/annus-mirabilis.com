@@ -15,7 +15,7 @@ import {
   type Lq05Parameters,
   type Lq05View,
 } from "../../../experiments/lq05/definition.ts";
-import { decodeLq05Settings, encodeLq05Settings } from "../../../experiments/lq05/permalink.ts";
+import { decodeLq05Settings } from "../../../experiments/lq05/permalink.ts";
 import {
   buildLq05Snapshot,
   createLq05Session,
@@ -80,7 +80,6 @@ export function IndependentConfigurationsLab({
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState("");
   const [linkNote, setLinkNote] = useState("");
-  const [sharedUrl, setSharedUrl] = useState("");
   const [predictAnswer, setPredictAnswer] = useState<string | null>(null);
 
   const evaluation = evaluateLq05(p);
@@ -149,16 +148,6 @@ export function IndependentConfigurationsLab({
     const next = { ...p, locked: !p.locked };
     setDraft(toLq05Draft(next));
     apply(next);
-  }
-
-  function share() {
-    const query = encodeLq05Settings(p);
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const url = `${origin}/lab/lq-05?${query}`;
-    setSharedUrl(url);
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(url).catch(() => {});
-    }
   }
 
   return (
@@ -420,9 +409,6 @@ export function IndependentConfigurationsLab({
             <button type="submit" className="button">
               Apply parameters
             </button>
-            <button type="button" onClick={share} className="button secondary">
-              Copy permalink
-            </button>
             {dirty && (
               <span className="fine" style={{ color: "var(--accent)" }}>
                 Unapplied parameter edits.
@@ -512,20 +498,6 @@ export function IndependentConfigurationsLab({
         {linkNote && (
           <div className="notice" style={{ marginTop: "0.75rem", padding: "0.75rem" }}>
             {linkNote}
-          </div>
-        )}
-        {sharedUrl && (
-          <div
-            className="notice"
-            style={{
-              marginTop: "0.75rem",
-              padding: "0.75rem",
-              fontFamily: "var(--font-mono)",
-              fontSize: "var(--type-fine)",
-              wordBreak: "break-all",
-            }}
-          >
-            Copied link: {sharedUrl}
           </div>
         )}
       </section>

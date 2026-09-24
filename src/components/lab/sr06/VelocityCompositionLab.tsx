@@ -15,7 +15,7 @@ import {
   type Sr06Mode,
   type Sr06Parameters,
 } from "../../../experiments/sr06/definition.ts";
-import { decodeSr06Settings, encodeSr06Settings } from "../../../experiments/sr06/permalink.ts";
+import { decodeSr06Settings } from "../../../experiments/sr06/permalink.ts";
 import { createSr06Session, type PreparedSr06Example } from "../../../experiments/sr06/session.ts";
 import { SR06_TAPE } from "../../../experiments/sr06/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
@@ -273,18 +273,6 @@ export function VelocityCompositionLab({
           </fieldset>
           {error ? <p className="notice error">{error}</p> : null}
           {note ? <p className="fine">{note}</p> : null}
-          <p>
-            <button
-              type="button"
-              className="secondary"
-              onClick={() => {
-                const href = encodeSr06Settings(p);
-                if (typeof window !== "undefined") window.history.replaceState(null, "", href);
-              }}
-            >
-              Copy these settings into the address
-            </button>
-          </p>
         </form>
         <AcceptedStatus
           worked={snapshot === session.getServerSnapshot().accepted}

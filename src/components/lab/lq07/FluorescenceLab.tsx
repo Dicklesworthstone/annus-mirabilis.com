@@ -16,7 +16,7 @@ import {
   type Lq07Parameters,
   type Lq07Regime,
 } from "../../../experiments/lq07/definition.ts";
-import { decodeLq07Settings, encodeLq07Settings } from "../../../experiments/lq07/permalink.ts";
+import { decodeLq07Settings } from "../../../experiments/lq07/permalink.ts";
 import {
   buildLq07Snapshot,
   createLq07Session,
@@ -79,7 +79,6 @@ export function FluorescenceLab({
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState("");
   const [linkNote, setLinkNote] = useState("");
-  const [sharedUrl, setSharedUrl] = useState("");
   const [predictAnswer1, setPredictAnswer1] = useState<string | null>(null);
   const [predictAnswer2, setPredictAnswer2] = useState<string | null>(null);
 
@@ -145,16 +144,6 @@ export function FluorescenceLab({
     const next = { ...p, channels: ch };
     setDraft(toLq07Draft(next));
     apply(next);
-  }
-
-  function share() {
-    const query = encodeLq07Settings(p);
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const url = `${origin}/lab/lq-07?${query}`;
-    setSharedUrl(url);
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(url).catch(() => {});
-    }
   }
 
   return (
@@ -634,9 +623,6 @@ export function FluorescenceLab({
             <button type="submit" className="button">
               Apply parameters
             </button>
-            <button type="button" onClick={share} className="button secondary">
-              Copy permalink
-            </button>
             {dirty && (
               <span className="fine" style={{ color: "var(--accent)" }}>
                 Unapplied parameter edits.
@@ -658,14 +644,6 @@ export function FluorescenceLab({
         {linkNote && (
           <div className="notice" style={{ marginTop: "0.75rem" }}>
             {linkNote}
-          </div>
-        )}
-        {sharedUrl && (
-          <div
-            className="notice"
-            style={{ marginTop: "0.75rem", fontFamily: "var(--font-mono)", wordBreak: "break-all" }}
-          >
-            Copied link: {sharedUrl}
           </div>
         )}
       </section>

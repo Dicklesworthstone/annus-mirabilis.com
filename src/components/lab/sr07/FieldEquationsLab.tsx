@@ -28,7 +28,7 @@ import {
   type Sr07UnitLayer,
   type Sr07Wave,
 } from "../../../experiments/sr07/definition.ts";
-import { decodeSr07Settings, encodeSr07Settings } from "../../../experiments/sr07/permalink.ts";
+import { decodeSr07Settings } from "../../../experiments/sr07/permalink.ts";
 import { createSr07Session, type PreparedSr07Example } from "../../../experiments/sr07/session.ts";
 import { SR07_TAPE } from "../../../experiments/sr07/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
@@ -260,7 +260,7 @@ export function FieldEquationsLab({
                 ))}
               </div>
             </fieldset>
-            <ExperimentSettings contents="printed or SI units, the validation wave, its polarization and boost, a link to these settings">
+            <ExperimentSettings contents="printed or SI units, the validation wave, its polarization and boost">
               <fieldset>
                 <legend>Unit layer</legend>
                 <label>
@@ -326,16 +326,6 @@ export function FieldEquationsLab({
                 />
               </div>
               <button type="submit">Apply boost</button>
-              <button
-                type="button"
-                className="secondary"
-                onClick={() => {
-                  if (typeof window !== "undefined")
-                    window.history.replaceState(null, "", encodeSr07Settings(p));
-                }}
-              >
-                Copy these settings into the address
-              </button>
             </ExperimentSettings>
           </form>
           {error ? (

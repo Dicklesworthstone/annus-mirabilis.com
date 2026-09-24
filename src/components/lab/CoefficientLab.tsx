@@ -14,7 +14,7 @@ import {
   type Me02Parameters,
 } from "../../experiments/me02/definition.ts";
 import { validateMe02Parameters } from "../../experiments/me02/parameters.ts";
-import { decodeMe02Settings, encodeMe02Settings } from "../../experiments/me02/permalink.ts";
+import { decodeMe02Settings } from "../../experiments/me02/permalink.ts";
 import { createMe02Session, type PreparedMe02Example } from "../../experiments/me02/session.ts";
 import { ME02_TAPE } from "../../experiments/me02/tape.ts";
 import { LabTapeLink, useLabTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
@@ -363,7 +363,7 @@ export function CoefficientLab({
                 />
               </div>
               <button type="submit">Apply settings</button>
-              <ExperimentSettings contents="emitted energy, energy unit, a diagnostic, a link to these settings">
+              <ExperimentSettings contents="emitted energy, energy unit, a diagnostic">
                 <div className="input-grid">
                   <div className="input-field">
                     <label htmlFor={`${id}-emittedEnergy`}>Emitted energy L</label>
@@ -413,11 +413,6 @@ export function CoefficientLab({
                   Changing the input unit reinterprets the entered number and creates a new setup.
                   Physical outputs use joules and kilograms; normalized mode uses c = 1 and
                   normalized energy and mass units.
-                </p>
-                <p>
-                  <a data-settings-permalink href={encodeMe02Settings(p)}>
-                    Permalink to the accepted configuration
-                  </a>
                 </p>
               </ExperimentSettings>
               {error ? (

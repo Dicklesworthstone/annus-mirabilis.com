@@ -22,7 +22,7 @@ import {
   type Me03PulseSystem,
   type Me03RadiationDisposition,
 } from "../../../experiments/me03/definition.ts";
-import { decodeMe03Settings, encodeMe03Settings } from "../../../experiments/me03/permalink.ts";
+import { decodeMe03Settings } from "../../../experiments/me03/permalink.ts";
 import { buildMe03BoxScale, validateMe03BoxScale } from "../../../experiments/me03/scale.ts";
 import {
   createMe03Session,
@@ -117,7 +117,6 @@ export function BoundaryLedgerLab({
   const [refusalCode, setRefusalCode] = useState<string | null>(null);
   const [linkNote, setLinkNote] = useState("");
   const [linkPending, setLinkPending] = useState(false);
-  const [sharedUrl, setSharedUrl] = useState("");
 
   const isBox = p.mode === "box-1906";
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer. The prompt
@@ -253,15 +252,6 @@ export function BoundaryLedgerLab({
     const next = { ...p, notation };
     setDraft(toMe03Draft(next));
     apply(next);
-  }
-
-  function share() {
-    const query = encodeMe03Settings(p);
-    const url = `${window.location.origin}${window.location.pathname}${query}`;
-    setSharedUrl(url);
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url).catch(() => {});
-    }
   }
 
   return (
@@ -452,8 +442,8 @@ export function BoundaryLedgerLab({
           <ExperimentSettings
             contents={
               isBox
-                ? "the box's mass, length and pulse energy, magnification, notation, a link to these settings"
-                : "seven cited energy sources, notation, a link to these settings"
+                ? "the box's mass, length and pulse energy, magnification, notation"
+                : "seven cited energy sources, notation"
             }
           >
             {isBox ? (
@@ -613,14 +603,6 @@ export function BoundaryLedgerLab({
                 </button>
               </div>
             </fieldset>
-            <button type="button" className="secondary" onClick={share}>
-              Copy a link to these settings
-            </button>
-            {sharedUrl && (
-              <p className="fine">
-                Link copied: <code>{sharedUrl}</code>
-              </p>
-            )}
           </ExperimentSettings>
           {error && (
             <p className="notice error" role="alert" data-refusal-code={refusalCode ?? undefined}>
