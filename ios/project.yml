@@ -4,6 +4,10 @@
 #
 # Identity comes from D-2026-09-23-app-identity. No DEVELOPMENT_TEAM is set while
 # that entry's team id is the owner's placeholder; simulator builds need none.
+# Universal links: the associated-domains entitlement (applinks:annus-mirabilis.com) is a
+# REFUSED PLACEHOLDER for the same reason. The handling, the vectors and the association-file
+# generator exist (am-app-universal-links-re8v); scripts/app/identity.test.ts refuses the
+# entitlement while the team id is the placeholder and requires it once a real one is recorded.
 
 name: AnnusMirabilis
 options:

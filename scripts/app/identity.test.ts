@@ -11,13 +11,20 @@ import { dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
+import { APPLINKS_ENTITLEMENT } from "./association-file.ts";
 import { type AppIdentity, readIdentityBlock, TEAM_ID_PLACEHOLDER } from "./identity.ts";
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 type ProjectSpec = {
   options: { deploymentTarget: { iOS: string } };
-  targets: Record<string, { settings: { base: Record<string, unknown> } }>;
+  targets: Record<
+    string,
+    {
+      settings: { base: Record<string, unknown> };
+      entitlements?: { path?: string; properties?: Record<string, unknown> };
+    }
+  >;
 };
 
 /** The mismatches between a recorded identity and a project spec, as sentences. */
@@ -65,11 +72,28 @@ export function identityMismatches(
   } else if (team !== identity.teamId) {
     problems.push(`DEVELOPMENT_TEAM ${String(team)} is not the recorded ${identity.teamId}`);
   }
+  // Universal links (am-app-universal-links-re8v). The associated-domains entitlement is a named,
+  // refused placeholder: signing it needs the team, so it is refused while the team id is the
+  // owner's placeholder, and required, exactly, once a real one is recorded.
+  const domains = spec.targets.AnnusMirabilis?.entitlements?.properties?.[ASSOCIATED_DOMAINS];
+  if (identity.teamId === TEAM_ID_PLACEHOLDER) {
+    if (domains !== undefined) {
+      problems.push(
+        `${ASSOCIATED_DOMAINS} is declared while the recorded team id is still the owner's placeholder`,
+      );
+    }
+  } else if (JSON.stringify(domains) !== JSON.stringify([APPLINKS_ENTITLEMENT])) {
+    problems.push(
+      `${ASSOCIATED_DOMAINS} is ${JSON.stringify(domains)}, not ["${APPLINKS_ENTITLEMENT}"], now that the team id is recorded`,
+    );
+  }
   if (displayName !== identity.homeScreenName) {
     problems.push(`home screen name ${displayName} is not the recorded ${identity.homeScreenName}`);
   }
   return problems;
 }
+
+const ASSOCIATED_DOMAINS = "com.apple.developer.associated-domains";
 
 function displayNameOf(plist: string): string {
   return /<key>CFBundleDisplayName<\/key>\s*<string>([^<]*)<\/string>/.exec(plist)?.[1] ?? "";
@@ -124,6 +148,59 @@ describe("app identity (D-2026-09-23-app-identity)", () => {
       },
     };
     assert.match(identityMismatches(identity, seeded, displayName).join(" "), /placeholder/);
+  });
+
+  it("refuses the associated-domains entitlement while the team id is the placeholder", () => {
+    const app = spec.targets.AnnusMirabilis;
+    assert.ok(app !== undefined);
+    const seeded: ProjectSpec = {
+      ...spec,
+      targets: {
+        ...spec.targets,
+        AnnusMirabilis: {
+          ...app,
+          entitlements: { properties: { [ASSOCIATED_DOMAINS]: [APPLINKS_ENTITLEMENT] } },
+        },
+      },
+    };
+    assert.equal(identity.teamId, TEAM_ID_PLACEHOLDER);
+    assert.match(
+      identityMismatches(identity, seeded, displayName).join(" "),
+      /associated-domains is declared while/,
+    );
+  });
+
+  it("requires exactly the applinks entitlement once a real team id is recorded", () => {
+    const app = spec.targets.AnnusMirabilis;
+    assert.ok(app !== undefined);
+    const teamed: AppIdentity = { ...identity, teamId: "ABCDE12345" };
+    const withTeam = (entitlements?: { properties: Record<string, unknown> }): ProjectSpec => ({
+      ...spec,
+      targets: {
+        ...spec.targets,
+        AnnusMirabilis: {
+          settings: { base: { ...app.settings.base, DEVELOPMENT_TEAM: "ABCDE12345" } },
+          ...(entitlements === undefined ? {} : { entitlements }),
+        },
+      },
+    });
+    assert.match(identityMismatches(teamed, withTeam(), displayName).join(" "), /not \["applinks/);
+    assert.match(
+      identityMismatches(
+        teamed,
+        withTeam({ properties: { [ASSOCIATED_DOMAINS]: ["applinks:www.example.com"] } }),
+        displayName,
+      ).join(" "),
+      /not \["applinks/,
+    );
+    assert.deepEqual(
+      identityMismatches(
+        teamed,
+        withTeam({ properties: { [ASSOCIATED_DOMAINS]: [APPLINKS_ENTITLEMENT] } }),
+        displayName,
+      ),
+      [],
+    );
   });
 
   it("refuses a home screen name that is not the recorded one", () => {
