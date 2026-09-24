@@ -6,7 +6,6 @@ import { CollisionClusterView } from "./CollisionClusterView.tsx";
 import { loadFirstUseTargets, resolveFirstUse } from "./firstUseTargets.ts";
 import { GlyphNav } from "./GlyphNav.tsx";
 import { KATEX_PRELOAD_FONTS, katexPreloadHref } from "./katexPreload.ts";
-import { NotationEntryCard } from "./NotationEntryCard.tsx";
 import { NotationPageClient } from "./NotationPageClient.tsx";
 import { loadNotationPageData } from "./notationData.ts";
 
@@ -46,24 +45,15 @@ export default async function NotationPage() {
 
       <GlyphNav glyphs={data.uniqueGlyphs} />
 
-      {/* Static Fallback for No-JS Readers & Hydration Anchor */}
+      {/* Without JavaScript the catalogue below is already in the page, rendered on the server;
+          what a reader cannot reach is the symbols-with-several-meanings view, which only its
+          toggle shows. So that is all this adds. It used to repeat the whole catalogue as well:
+          measured on live 2026-09-24 with JavaScript off, 387 entry cards instead of 199, 376
+          duplicated ids, and a page 50,373px tall instead of 24,271. */}
       <noscript>
-        <section
-          className="no-js-concordance-view"
-          aria-label="Full concordance catalogue (JavaScript disabled)"
-        >
+        <div className="no-js-concordance-view">
           <CollisionClusterView clusters={data.collisionClusters} />
-          {data.papers.map((p) => (
-            <div key={p.paperSlug} className="paper-section">
-              <h2>{p.paperTitle}</h2>
-              <div className="entries-grid">
-                {p.entries.map((e) => (
-                  <NotationEntryCard key={e.id} entry={e} />
-                ))}
-              </div>
-            </div>
-          ))}
-        </section>
+        </div>
       </noscript>
 
       {/* Interactive Client Component */}
