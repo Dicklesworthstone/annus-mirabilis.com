@@ -55,9 +55,11 @@ const PINNED_GOLDENS = {
     printed_plain: "D = \\frac{R\\,T}{N}\\,\\frac{1}{6\\,\\pi\\,k\\,P}",
     modern_plain: "D = k_B\\,T\\,\\frac{1}{6\\,\\pi\\,\\eta\\,a}",
   },
+  // The concordance's target for lambda_x is Einstein's own letter, the one the records print
+  // (bm.lambda_x.rmsDisplacement, p. 559), so both forms read as he printed it.
   paper2_displacement: {
     printed_plain: "\\lambda_x = \\sqrt{2\\,D\\,t}",
-    modern_plain: "\\sqrt{\\langle x^2 \\rangle} = \\sqrt{2\\,D\\,t}",
+    modern_plain: "\\lambda_x = \\sqrt{2\\,D\\,t}",
   },
   paper3_boost: {
     printed_plain: "\\tau = \\beta\\,\\left(t - \\frac{v}{V^{2}}\\,x\\right)",
@@ -141,7 +143,12 @@ test("render.golden.test: Paper 2 RMS displacement matches pinned goldens", () =
     "=",
     sym("eq-bm.t.lambda", "rmsDisplacement1d"),
     root2(
-      prod(num("2"), sym("eq-bm.t.D", "diffusionCoefficient"), sym("eq-bm.t.t", "elapsedTime")),
+      // t is the observation interval, as the real record eq-model-bm-rms binds it.
+      prod(
+        num("2"),
+        sym("eq-bm.t.D", "diffusionCoefficient"),
+        sym("eq-bm.t.t", "observationInterval"),
+      ),
     ),
     "eq-bm.op.rel",
   );

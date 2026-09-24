@@ -118,6 +118,32 @@ describe("am-not-entries-brownian-1rq: Brownian notation concordance", () => {
     );
   });
 
+  test("Bindings: the time letters bind what the records bind: τ the walk's step, t the observation interval, λ_x from the end of §4", () => {
+    const file = loadConcordanceForPaper(paper);
+    const bound = (section: string, glyph: string) => {
+      const res = resolveGlyph(paper, section, glyph, emptyManifestIndex, file);
+      assert.ok(res.ok, `${glyph} in ${section} must resolve`);
+      assert.ok("quantityId" in res.entry.binding);
+      return res.entry.binding.quantityId;
+    };
+    // p. 556: tau is very small beside the observable intervals, the step of the walk; the
+    // records bind it as stepInterval, never as the interval over which a displacement is watched.
+    assert.equal(bound("bm-s4", "\\tau"), "stepInterval");
+    // t is the time over which a displacement is observed (lambda_x = sqrt(2Dt), p. 559).
+    assert.equal(bound("bm-s4", "t"), "observationInterval");
+    assert.equal(bound("bm-s5", "t"), "observationInterval");
+    // lambda_x is first printed at the head of p. 559, still in section 4, and renames to itself:
+    // the records print Einstein's own letter.
+    for (const section of ["bm-s4", "bm-s5"]) {
+      assert.equal(bound(section, "\\lambda_x"), "rmsDisplacement1d");
+      assert.equal(
+        modernSymbolFor(paper, section, "\\lambda_x", emptyManifestIndex, file),
+        "\\lambda_x",
+      );
+    }
+    assert.equal(firstUseInSection(paper, "bm-s4", "\\lambda_x", file), "bm-s4-p11");
+  });
+
   test("Bindings: R binds molarGasConstant and N binds avogadroConstant", () => {
     const file = loadConcordanceForPaper(paper);
     const rRes = resolveGlyph(paper, "bm-s1", "R", emptyManifestIndex, file);

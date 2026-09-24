@@ -926,9 +926,10 @@ entries:
       unicode: "τ"
       latex: "\\tau"
       variant: plain
-    meaning: "Small observation time interval during which particle steps occur"
+    meaning: "The walk's short step: a time interval very small beside the intervals one can observe, yet long enough that a particle's motions in successive intervals are independent"
+    notes: "Rebound on 2026-09-24 from observationInterval to stepInterval (agent:SapphireCastle, approved on am-read-perspective-toggle-abd): page 556 introduces τ as very small beside the observable time intervals, which is the walk's step, the quantity the records bind for τ. The id is kept so /notation/ anchors hold."
     binding:
-      quantityId: observationInterval
+      quantityId: stepInterval
     operation:
       kind: rename
       target:
@@ -1042,8 +1043,9 @@ entries:
       latex: "t"
       variant: plain
     meaning: "Elapsed observation time"
+    notes: "Bound on 2026-09-24 to observationInterval, in place of elapsedTime, which no Brownian record binds (agent:SapphireCastle, approved on am-read-perspective-toggle-abd). The records bind observationInterval for the time over which a displacement is observed, as λ_x = √(2Dt) uses t at the end of §4 and in §5 (p. 559). The id is kept so /notation/ anchors hold."
     binding:
-      quantityId: elapsedTime
+      quantityId: observationInterval
     operation:
       kind: rename
       target:
@@ -1063,22 +1065,23 @@ entries:
   # =========================================================================
   - id: bm.lambda_x.rmsDisplacement
     paper: brownian-motion
-    scope: ["bm-s5"]
+    scope: ["bm-s4", "bm-s5"]
     glyph:
       unicode: "λ_x"
       latex: "\\lambda_x"
       variant: plain
     meaning: "Mean square root displacement (RMS displacement scale) along x-axis"
+    notes: "Scoped to §4 as well on 2026-09-24 (agent:SapphireCastle, approved on am-read-perspective-toggle-abd): λ_x is first printed at the head of p. 559, the end of §4, before §5 prints it again. Its target is Einstein's own λ_x, the letter this edition's formulas print for it; written out, it is the square root of the mean squared displacement, √⟨x²⟩."
     binding:
       quantityId: rmsDisplacement1d
     operation:
       kind: rename
       target:
         form: symbol
-        modernGlyph: "\\sqrt{\\langle x^2 \\rangle}"
+        modernGlyph: "\\lambda_x"
     sources:
       facsimilePage: 559
-      anchor: bm-s5-p1
+      anchor: bm-s4-p11
     verification:
       printed: true
       checkedAgainst: "Plate of printed page 559 (public/figures/plates/pages/ap-17-549/559-1280.webp): glyph read by eye from the page image, not the text layer. First printed at the head of p. 559 in §4 (s4-p11, 'die Verrückung λ_x in Richtung der X-Achse', λ_x = √(2Dt)), before §5 begins on the same page. The anchor stays at its first use in §5 (s5-p1) because the entry is scoped to §5. An agent check, not a human review."
