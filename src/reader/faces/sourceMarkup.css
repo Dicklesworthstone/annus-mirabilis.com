@@ -15,8 +15,13 @@
    inside its line instead of widening the page. Measured at 390px on the three drafts:
    10 of 102 display formulas are wider than the 358px column and scroll; the page itself
    never does. No `gap`: the printed number keeps its own margin from .source-equation-label.
+
+   The footnotes are named beside [data-german-draft] because they sit outside it, after the text.
+   Light quanta's footnotes on pp. 135 and 142 hold five display formulas (three and two); without
+   the flex line they were inline spans, which cannot scroll, so the page itself scrolled sideways:
+   96px at 320, 26px at 390.
    --------------------------------------------------------------------------- */
-[data-german-draft] .source-equation {
+:is([data-german-draft], .source-footnotes) .source-equation {
   display: flex;
   align-items: center;
 }

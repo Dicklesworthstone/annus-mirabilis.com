@@ -38,7 +38,7 @@
 .reader-root:has(.source-column) {
   container-type: inline-size;
 }
-[data-german-draft] .source-equation {
+:is([data-german-draft], .source-footnotes) .source-equation {
   width: max-content;
   min-width: 100%;
   max-width: 100cqi;
