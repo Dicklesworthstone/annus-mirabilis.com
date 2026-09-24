@@ -60,7 +60,9 @@ describe("Papers index: the Brownian entry can be chosen without knowing its nam
     // link a reader can see - had not changed. A copy-verbatim assertion does not merely go
     // stale; it actively resists the campaign that is meant to improve the copy.
     const anchor =
-      /<a[^>]*href="\/papers\/brownian-motion#entry-brownian-motion"[^>]*>([^<]*)<\/a>/.exec(html);
+      /<a[^>]*href="\/papers\/brownian-motion\/#entry-brownian-motion"[^>]*>([^<]*)<\/a>/.exec(
+        html,
+      );
     expect(anchor, "the first-encounter anchor must be rendered as an <a>").not.toBeNull();
     expect((anchor?.[1] ?? "").trim().length).toBeGreaterThan(0);
   });
@@ -154,5 +156,19 @@ describe("Papers index: the other three entries are named by the site's names", 
         `an entry names ${name}`,
       ).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("Papers index: every internal page link carries the trailing slash", () => {
+  test("no link on the index answers with a 308 before its page loads", () => {
+    // The site exports with trailingSlash: true. On 2026-09-24 the index's "Start with one worked
+    // example" pointed at /papers/brownian-motion#entry-brownian-motion, a redirect; the lab and
+    // embed sweep (src/testing/labLinksTrailingSlash.test.tsx) does not render this page.
+    const links = [...html.matchAll(/href="(\/[^"#?]*)([#?][^"]*)?"/g)].map((m) => m[1] ?? "");
+    expect(links.length).toBeGreaterThan(4);
+    const slashless = links.filter(
+      (path) => path !== "/" && !/\.[a-z0-9]+$/i.test(path) && !path.endsWith("/"),
+    );
+    expect(slashless).toEqual([]);
   });
 });

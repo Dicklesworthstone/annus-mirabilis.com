@@ -40,7 +40,7 @@ const papers = [
         germanBasis: "no-direct-basis",
       },
     ],
-    firstEncounterAnchor: "/papers/brownian-motion#entry-brownian-motion",
+    firstEncounterAnchor: "/papers/brownian-motion/#entry-brownian-motion",
   },
   {
     slug: "special-relativity",
