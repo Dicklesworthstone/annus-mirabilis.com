@@ -206,10 +206,15 @@ function ReceiptSections({
 
       <section className="reading page-flush sources-section" aria-labelledby={`${ids}witnesses`}>
         <Heading id={`${ids}witnesses`}>What the transcription is compared against</Heading>
+        <p>
+          The scan is the primary source. Each record below is a comparison witness: another
+          edition, transcription or translation that a reading is checked against, and never the
+          source itself.
+        </p>
         <ul className="receipt-witnesses">
           {fm.witnesses.map((w) => (
             <li key={`${w.kind}-${w.identity}`}>
-              <strong>{WITNESS_LABELS[w.kind]}.</strong>{" "}
+              <strong>{WITNESS_LABELS[w.kind]}</strong>, a comparison witness.{" "}
               {w.url ? <a href={w.url}>{w.identity}</a> : w.identity}
               {w.identity.endsWith(".") ? " " : ". "}
               {w.availability === "available"

@@ -217,6 +217,12 @@ export default function SourcesPage() {
               </div>
               <dl className="sources-facts">
                 <div>
+                  {/* The role of this record among the edition's sources: the scan is the
+                      printed paper itself, where a receipt's witnesses are only compared with it. */}
+                  <dt>Role</dt>
+                  <dd>Primary source: the paper as printed, in this scan of the journal.</dd>
+                </div>
+                <div>
                   <dt>Printed in</dt>
                   <dd>
                     Annalen der Physik, series {scan.journal.series}, volume {scan.journal.volume},
