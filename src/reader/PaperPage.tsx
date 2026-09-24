@@ -11,6 +11,7 @@ import { loadGermanSourceFace, printedUnits } from "../content/editions/germanSo
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
 import type { RouteSlug } from "../content/ids.ts";
 import { loadConcordanceForPaper } from "../content/notation/loader.ts";
+import { hasResultCards } from "../content/results/resultCards.ts";
 import { getModalityClasses } from "../content/schemas/glossConventions.ts";
 import { loadPaper } from "../content/server.ts";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
@@ -405,6 +406,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         titles={titles}
         questions={questions}
         notationHelp={notationHelp}
+        resultCards={hasResultCards(process.cwd(), paper.id)}
       />
       <div className="reader-layout">
         <aside className="reader-outline">

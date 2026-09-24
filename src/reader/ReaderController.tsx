@@ -44,6 +44,12 @@ type Props = {
   questions: Readonly<Record<string, string>>;
   /** The Letters control's reach on this paper, from the built payload (notationReachLine). */
   notationHelp?: string | undefined;
+  /**
+   * The paper has result cards (content/results), which live on its results page. The Results tab
+   * then goes there, as the German source tab does, instead of switching this page in place to
+   * the passages' recaps, where a reader with JavaScript would never meet the cards.
+   */
+  resultCards?: boolean | undefined;
 };
 /** The nearest element above `el` whose id the page registers as a place to return to. */
 function enclosingAnchor(el: HTMLElement, anchors: readonly string[]): HTMLElement | null {
@@ -690,8 +696,13 @@ export function ReaderController(props: Props) {
             {FACE_REGISTRY.reading.label}
           </a>
           {/* The href is the static results page, so without JavaScript the link reaches the
-              results face; with it, data-view-link switches the face in place as before. */}
-          <a href={`/papers/${props.registry.paperId}/view/results/`} data-view-link="results">
+              results face; with it, data-view-link switches the face in place as before. A paper
+              with result cards drops data-view-link, so the link is followed with JavaScript too:
+              the cards are on that page and nowhere on this one. */}
+          <a
+            href={`/papers/${props.registry.paperId}/view/results/`}
+            {...(props.resultCards ? {} : { "data-view-link": "results" })}
+          >
             {FACE_REGISTRY.results.label}
           </a>
           {/* THE GERMAN SOURCE ROUTE, AND DELIBERATELY WITHOUT data-view-link.

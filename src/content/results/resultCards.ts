@@ -389,6 +389,11 @@ export function resultContext(
   };
 }
 
+/** Whether a paper has result cards, so its results face is a page of its own. */
+export function hasResultCards(root: string, paper: string): boolean {
+  return existsSync(join(root, "content", "results", `${paper}.yaml`));
+}
+
 /** A paper's result cards and their problems, or null when it has no content/results file. */
 export function loadResultCards(
   root: string,

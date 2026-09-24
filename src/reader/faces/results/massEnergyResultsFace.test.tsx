@@ -103,3 +103,27 @@ describe("mass-energy's results face, static", () => {
     for (const a of passages) expect(html).toContain(`id="${a.id}"`);
   });
 });
+
+describe("the explanation page's Results tab reaches the cards", () => {
+  /** The Results tab of the explanation page's face tabs. */
+  const resultsTab = (page: string, paper: string) =>
+    [...page.matchAll(/<a\b[^>]*>/g)]
+      .map((m) => m[0])
+      .find(
+        (a) => a.includes(`href="/papers/${paper}/view/results/"`) && !a.includes("aria-label"),
+      );
+
+  test("mass-energy's tab is a plain link, so the browser follows it with JavaScript on", async () => {
+    // The controller intercepts only [data-view-link] (ReaderController.tsx); without it the
+    // link navigates to the results page, where the cards are.
+    const page = await exportMarkup(await PaperPage({ paperId: PAPER } as never));
+    const tab = resultsTab(page, PAPER);
+    expect(tab).toBeDefined();
+    expect(tab).not.toContain("data-view-link");
+  });
+
+  test("a paper without result cards keeps switching its face in place", async () => {
+    const page = await exportMarkup(await PaperPage({ paperId: "light-quanta" } as never));
+    expect(resultsTab(page, "light-quanta")).toContain('data-view-link="results"');
+  });
+});
