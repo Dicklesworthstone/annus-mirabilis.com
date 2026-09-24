@@ -238,6 +238,7 @@ export function ChargeCurrentLab({
             <button
               type="button"
               className={p.unitLayer === "si" ? "button" : "button secondary"}
+              aria-pressed={p.unitLayer === "si"}
               style={{ padding: "0.2rem 0.5rem", fontSize: "var(--type-fine)", minHeight: "auto" }}
               onClick={() => apply({ ...p, unitLayer: "si" })}
             >
@@ -246,6 +247,7 @@ export function ChargeCurrentLab({
             <button
               type="button"
               className={p.unitLayer === "gaussian" ? "button" : "button secondary"}
+              aria-pressed={p.unitLayer === "gaussian"}
               style={{ padding: "0.2rem 0.5rem", fontSize: "var(--type-fine)", minHeight: "auto" }}
               onClick={() => apply({ ...p, unitLayer: "gaussian" })}
             >
@@ -269,6 +271,7 @@ export function ChargeCurrentLab({
             key={preset.id}
             type="button"
             className={p.mode === preset.params.mode ? "button" : "button secondary"}
+            aria-pressed={p.mode === preset.params.mode}
             onClick={() => apply({ ...p, ...preset.params })}
           >
             {preset.label}
@@ -686,6 +689,7 @@ export function ChargeCurrentLab({
               key={cand.id}
               type="button"
               className={prediction === cand.id ? "button" : "button secondary"}
+              aria-pressed={prediction === cand.id}
               style={{ fontSize: "var(--type-fine)" }}
               onClick={() => setPrediction(cand.id)}
             >

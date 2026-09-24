@@ -206,6 +206,7 @@ export function IndependentConfigurationsLab({
             <button
               type="button"
               className={`button ${predictAnswer === "1/2" ? "" : "secondary"}`}
+              aria-pressed={predictAnswer === "1/2"}
               style={{ textAlign: "left", padding: "0.5rem 0.75rem" }}
               onClick={() => setPredictAnswer("1/2")}
             >
@@ -217,6 +218,7 @@ export function IndependentConfigurationsLab({
             <button
               type="button"
               className={`button ${predictAnswer === "1/20" ? "" : "secondary"}`}
+              aria-pressed={predictAnswer === "1/20"}
               style={{ textAlign: "left", padding: "0.5rem 0.75rem" }}
               onClick={() => setPredictAnswer("1/20")}
             >
@@ -228,6 +230,7 @@ export function IndependentConfigurationsLab({
             <button
               type="button"
               className={`button ${predictAnswer === "1/1000" ? "" : "secondary"}`}
+              aria-pressed={predictAnswer === "1/1000"}
               style={{ textAlign: "left", padding: "0.5rem 0.75rem" }}
               onClick={() => setPredictAnswer("1/1000")}
             >
@@ -414,6 +417,7 @@ export function IndependentConfigurationsLab({
                   <button
                     type="button"
                     className={`button ${p.view === "enumeration" ? "" : "secondary"}`}
+                    aria-pressed={p.view === "enumeration"}
                     style={{ padding: "0.25rem 0.625rem", fontSize: "var(--type-fine)" }}
                     onClick={() => setViewMode("enumeration")}
                   >
@@ -422,6 +426,7 @@ export function IndependentConfigurationsLab({
                   <button
                     type="button"
                     className={`button ${p.view === "sampling" ? "" : "secondary"}`}
+                    aria-pressed={p.view === "sampling"}
                     style={{ padding: "0.25rem 0.625rem", fontSize: "var(--type-fine)" }}
                     onClick={() => setViewMode("sampling")}
                   >
@@ -430,6 +435,7 @@ export function IndependentConfigurationsLab({
                   <button
                     type="button"
                     className={`button ${p.view === "logarithmic" ? "" : "secondary"}`}
+                    aria-pressed={p.view === "logarithmic"}
                     style={{ padding: "0.25rem 0.625rem", fontSize: "var(--type-fine)" }}
                     onClick={() => setViewMode("logarithmic")}
                   >

@@ -297,10 +297,10 @@ export function TwoLedgersLab({
               <span className="field-label">
                 The additive constant <var>C</var>
               </span>
-              <div className="toggle-group">
+              <div className="button-group">
                 <button
                   type="button"
-                  className={`button-toggle ${p.premise === "unchanged" ? "active" : ""}`}
+                  className={p.premise === "unchanged" ? undefined : "secondary"}
                   onClick={() => togglePremise("unchanged")}
                   aria-pressed={p.premise === "unchanged"}
                 >
@@ -308,7 +308,7 @@ export function TwoLedgersLab({
                 </button>
                 <button
                   type="button"
-                  className={`button-toggle ${p.premise === "relaxed" ? "active" : ""}`}
+                  className={p.premise === "relaxed" ? undefined : "secondary"}
                   onClick={() => togglePremise("relaxed")}
                   aria-pressed={p.premise === "relaxed"}
                 >
@@ -318,10 +318,10 @@ export function TwoLedgersLab({
             </div>
             <div className="control-row">
               <span className="field-label">Internal energies written as</span>
-              <div className="toggle-group">
+              <div className="button-group">
                 <button
                   type="button"
-                  className={`button-toggle ${p.offsetDisplay === "symbolic" ? "active" : ""}`}
+                  className={p.offsetDisplay === "symbolic" ? undefined : "secondary"}
                   onClick={() => toggleOffsetDisplay("symbolic")}
                   aria-pressed={p.offsetDisplay === "symbolic"}
                 >
@@ -329,7 +329,7 @@ export function TwoLedgersLab({
                 </button>
                 <button
                   type="button"
-                  className={`button-toggle ${p.offsetDisplay === "offsets" ? "active" : ""}`}
+                  className={p.offsetDisplay === "offsets" ? undefined : "secondary"}
                   onClick={() => toggleOffsetDisplay("offsets")}
                   aria-pressed={p.offsetDisplay === "offsets"}
                 >
@@ -339,10 +339,10 @@ export function TwoLedgersLab({
             </div>
             <div className="control-row">
               <span className="field-label">Notation</span>
-              <div className="toggle-group">
+              <div className="button-group">
                 <button
                   type="button"
-                  className={`button-toggle ${p.notation === "printed" ? "active" : ""}`}
+                  className={p.notation === "printed" ? undefined : "secondary"}
                   onClick={() => toggleNotation("printed")}
                   aria-pressed={p.notation === "printed"}
                 >
@@ -350,7 +350,7 @@ export function TwoLedgersLab({
                 </button>
                 <button
                   type="button"
-                  className={`button-toggle ${p.notation === "modern" ? "active" : ""}`}
+                  className={p.notation === "modern" ? undefined : "secondary"}
                   onClick={() => toggleNotation("modern")}
                   aria-pressed={p.notation === "modern"}
                 >

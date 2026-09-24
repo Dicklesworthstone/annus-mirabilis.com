@@ -250,6 +250,7 @@ export function OsmoticPartitionLab({
                 <button
                   type="button"
                   className={accepted.model === "molecular-kinetic" ? "primary" : "secondary"}
+                  aria-pressed={accepted.model === "molecular-kinetic"}
                   onClick={() => setModel("molecular-kinetic")}
                 >
                   Molecular-kinetic (Einstein §§1–2)
@@ -261,6 +262,7 @@ export function OsmoticPartitionLab({
                       ? "primary"
                       : "secondary"
                   }
+                  aria-pressed={accepted.model === "classical-thermodynamics-suspended-bodies"}
                   onClick={() => setModel("classical-thermodynamics-suspended-bodies")}
                 >
                   Classical expectation for suspended bodies
@@ -471,6 +473,7 @@ export function OsmoticPartitionLab({
           <button
             type="button"
             className={predictAnswer === "harder" ? "primary" : "secondary"}
+            aria-pressed={predictAnswer === "harder"}
             onClick={() => setPredictAnswer("harder")}
           >
             Harder
@@ -478,6 +481,7 @@ export function OsmoticPartitionLab({
           <button
             type="button"
             className={predictAnswer === "same" ? "primary" : "secondary"}
+            aria-pressed={predictAnswer === "same"}
             onClick={() => setPredictAnswer("same")}
           >
             The same
@@ -485,6 +489,7 @@ export function OsmoticPartitionLab({
           <button
             type="button"
             className={predictAnswer === "less" ? "primary" : "secondary"}
+            aria-pressed={predictAnswer === "less"}
             onClick={() => setPredictAnswer("less")}
           >
             Less

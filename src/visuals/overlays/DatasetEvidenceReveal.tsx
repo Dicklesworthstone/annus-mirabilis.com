@@ -93,6 +93,7 @@ export function DatasetEvidenceReveal({
         <button
           type="button"
           className={activeStep === 1 ? "button" : "button secondary"}
+          aria-pressed={activeStep === 1}
           style={{
             padding: "0.375rem 0.75rem",
             fontSize: "0.75rem",
@@ -108,6 +109,7 @@ export function DatasetEvidenceReveal({
         <button
           type="button"
           className={activeStep === 2 ? "button" : "button secondary"}
+          aria-pressed={activeStep === 2}
           style={{
             padding: "0.375rem 0.75rem",
             fontSize: "0.75rem",
@@ -123,6 +125,7 @@ export function DatasetEvidenceReveal({
         <button
           type="button"
           className={activeStep === 3 ? "button" : "button secondary"}
+          aria-pressed={activeStep === 3}
           style={{
             padding: "0.375rem 0.75rem",
             fontSize: "0.75rem",
@@ -138,6 +141,7 @@ export function DatasetEvidenceReveal({
         <button
           type="button"
           className={activeStep === 4 ? "button" : "button secondary"}
+          aria-pressed={activeStep === 4}
           style={{
             padding: "0.375rem 0.75rem",
             fontSize: "0.75rem",

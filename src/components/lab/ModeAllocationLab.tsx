@@ -349,6 +349,7 @@ export function ModeAllocationLab({
           <button
             type="button"
             className={predictWiden === "10x" ? "primary" : "secondary"}
+            aria-pressed={predictWiden === "10x"}
             onClick={() => setPredictWiden("10x")}
           >
             About ×10
@@ -356,6 +357,7 @@ export function ModeAllocationLab({
           <button
             type="button"
             className={predictWiden === "1000x" ? "primary" : "secondary"}
+            aria-pressed={predictWiden === "1000x"}
             onClick={() => setPredictWiden("1000x")}
           >
             About ×1000
@@ -363,6 +365,7 @@ export function ModeAllocationLab({
           <button
             type="button"
             className={predictWiden === "levels-off" ? "primary" : "secondary"}
+            aria-pressed={predictWiden === "levels-off"}
             onClick={() => setPredictWiden("levels-off")}
           >
             It levels off
@@ -382,6 +385,7 @@ export function ModeAllocationLab({
           <button
             type="button"
             className={predictDiverge === "yes" ? "primary" : "secondary"}
+            aria-pressed={predictDiverge === "yes"}
             onClick={() => setPredictDiverge("yes")}
           >
             Yes, it settles
@@ -389,6 +393,7 @@ export function ModeAllocationLab({
           <button
             type="button"
             className={predictDiverge === "no" ? "primary" : "secondary"}
+            aria-pressed={predictDiverge === "no"}
             onClick={() => setPredictDiverge("no")}
           >
             No, it grows without bound

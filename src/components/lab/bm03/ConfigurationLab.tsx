@@ -250,6 +250,7 @@ export function ConfigurationLab({
                 <button
                   type="button"
                   className={p.model === "independent" ? "primary" : "secondary"}
+                  aria-pressed={p.model === "independent"}
                   onClick={() => setModel("independent")}
                 >
                   Independent (§2 premise)
@@ -257,6 +258,7 @@ export function ConfigurationLab({
                 <button
                   type="button"
                   className={p.model === "locked-cluster" ? "primary" : "secondary"}
+                  aria-pressed={p.model === "locked-cluster"}
                   onClick={() => setModel("locked-cluster")}
                 >
                   Locked cluster (counterexample)
@@ -274,6 +276,7 @@ export function ConfigurationLab({
                 <button
                   type="button"
                   className={p.notation === "printed" ? "primary" : "secondary"}
+                  aria-pressed={p.notation === "printed"}
                   onClick={() => setNotation("printed")}
                 >
                   Einstein 1905 printed (B, J, n, V*, 2κ)
@@ -281,6 +284,7 @@ export function ConfigurationLab({
                 <button
                   type="button"
                   className={p.notation === "modern" ? "primary" : "secondary"}
+                  aria-pressed={p.notation === "modern"}
                   onClick={() => setNotation("modern")}
                 >
                   Modern (N<sub>p</sub>, V, ln, k<sub>B</sub>)

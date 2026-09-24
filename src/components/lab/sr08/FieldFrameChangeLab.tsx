@@ -474,6 +474,7 @@ export function FieldFrameChangeLab({
           <button
             type="button"
             className={prediction === "none" ? "selected" : "secondary"}
+            aria-pressed={prediction === "none"}
             onClick={() => setPrediction("none")}
           >
             No magnetic field
@@ -481,6 +482,7 @@ export function FieldFrameChangeLab({
           <button
             type="button"
             className={prediction === "perp" ? "selected" : "secondary"}
+            aria-pressed={prediction === "perp"}
             onClick={() => setPrediction("perp")}
           >
             Perpendicular magnetic field B′z
@@ -488,6 +490,7 @@ export function FieldFrameChangeLab({
           <button
             type="button"
             className={prediction === "par" ? "selected" : "secondary"}
+            aria-pressed={prediction === "par"}
             onClick={() => setPrediction("par")}
           >
             Parallel magnetic field B′x

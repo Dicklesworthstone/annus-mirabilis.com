@@ -191,12 +191,15 @@ export function PredictPanel({
       <p>{prompt.question}</p>
 
       {pending && (
+        // The chosen format is drawn as an action button and the others as secondary, from the same
+        // test as aria-selected. They used an "active" class no stylesheet declares, so every tab
+        // drew in the same ink and the choice showed only to a screen reader (live /lab/me-02/).
         <div className="predict-mode-tabs" role="tablist" aria-label="Prediction format">
           <button
             type="button"
             role="tab"
             aria-selected={activeTab === "candidate"}
-            className={activeTab === "candidate" ? "active" : ""}
+            className={activeTab === "candidate" ? undefined : "secondary"}
             onClick={() => setActiveTab("candidate")}
           >
             Candidate relation
@@ -205,7 +208,7 @@ export function PredictPanel({
             type="button"
             role="tab"
             aria-selected={activeTab === "sketch"}
-            className={activeTab === "sketch" ? "active" : ""}
+            className={activeTab === "sketch" ? undefined : "secondary"}
             onClick={() => setActiveTab("sketch")}
           >
             Sketch curve
@@ -214,7 +217,7 @@ export function PredictPanel({
             type="button"
             role="tab"
             aria-selected={activeTab === "verbal"}
-            className={activeTab === "verbal" ? "active" : ""}
+            className={activeTab === "verbal" ? undefined : "secondary"}
             onClick={() => setActiveTab("verbal")}
           >
             Verbal prediction
@@ -224,7 +227,7 @@ export function PredictPanel({
               type="button"
               role="tab"
               aria-selected={activeTab === "values"}
-              className={activeTab === "values" ? "active" : ""}
+              className={activeTab === "values" ? undefined : "secondary"}
               onClick={() => setActiveTab("values")}
             >
               Enter values

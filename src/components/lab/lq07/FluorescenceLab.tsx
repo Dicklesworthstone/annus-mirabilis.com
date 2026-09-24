@@ -213,6 +213,7 @@ export function FluorescenceLab({
             <button
               type="button"
               className={`button ${predictAnswer1 === "intensity" ? "" : "secondary"}`}
+              aria-pressed={predictAnswer1 === "intensity"}
               style={{ textAlign: "left", padding: "0.75rem" }}
               onClick={() => setPredictAnswer1("intensity")}
             >
@@ -224,6 +225,7 @@ export function FluorescenceLab({
             <button
               type="button"
               className={`button ${predictAnswer1 === "always" ? "" : "secondary"}`}
+              aria-pressed={predictAnswer1 === "always"}
               style={{ textAlign: "left", padding: "0.75rem" }}
               onClick={() => setPredictAnswer1("always")}
             >
@@ -235,6 +237,7 @@ export function FluorescenceLab({
             <button
               type="button"
               className={`button ${predictAnswer1 === "never" ? "" : "secondary"}`}
+              aria-pressed={predictAnswer1 === "never"}
               style={{ textAlign: "left", padding: "0.75rem" }}
               onClick={() => setPredictAnswer1("never")}
             >
@@ -287,6 +290,7 @@ export function FluorescenceLab({
             <button
               type="button"
               className={`button ${predictAnswer2 === "threshold" ? "" : "secondary"}`}
+              aria-pressed={predictAnswer2 === "threshold"}
               style={{ textAlign: "left", padding: "0.75rem" }}
               onClick={() => setPredictAnswer2("threshold")}
             >
@@ -298,6 +302,7 @@ export function FluorescenceLab({
             <button
               type="button"
               className={`button ${predictAnswer2 === "linear" ? "" : "secondary"}`}
+              aria-pressed={predictAnswer2 === "linear"}
               style={{ textAlign: "left", padding: "0.75rem" }}
               onClick={() => setPredictAnswer2("linear")}
             >
@@ -416,6 +421,7 @@ export function FluorescenceLab({
               <button
                 type="button"
                 className={`button ${p.regime === "standard-stokes" ? "" : "secondary"}`}
+                aria-pressed={p.regime === "standard-stokes"}
                 onClick={() => setRegime("standard-stokes")}
               >
                 Stokes's rule (§7)
@@ -423,6 +429,7 @@ export function FluorescenceLab({
               <button
                 type="button"
                 className={`button ${p.regime === "deviation-multi-quantum" ? "" : "secondary"}`}
+                aria-pressed={p.regime === "deviation-multi-quantum"}
                 onClick={() => setRegime("deviation-multi-quantum")}
               >
                 Deviation case 1 (k quanta)
@@ -430,6 +437,7 @@ export function FluorescenceLab({
               <button
                 type="button"
                 className={`button ${p.regime === "deviation-non-wien" ? "" : "secondary"}`}
+                aria-pressed={p.regime === "deviation-non-wien"}
                 onClick={() => setRegime("deviation-non-wien")}
               >
                 Deviation case 2 (Wien check)
@@ -437,6 +445,7 @@ export function FluorescenceLab({
               <button
                 type="button"
                 className={`button ${p.regime === "modern-thermal" ? "" : "secondary"}`}
+                aria-pressed={p.regime === "modern-thermal"}
                 onClick={() => setRegime("modern-thermal")}
               >
                 Modern thermal (anti-Stokes)
@@ -567,6 +576,7 @@ export function FluorescenceLab({
                     <button
                       type="button"
                       className={`button ${p.channels === "light-plus-heat" ? "" : "secondary"}`}
+                      aria-pressed={p.channels === "light-plus-heat"}
                       onClick={() => setChannels("light-plus-heat")}
                     >
                       Light and heat (E<sub>other</sub> ≥ 0)
@@ -574,6 +584,7 @@ export function FluorescenceLab({
                     <button
                       type="button"
                       className={`button ${p.channels === "light-only" ? "" : "secondary"}`}
+                      aria-pressed={p.channels === "light-only"}
                       onClick={() => setChannels("light-only")}
                     >
                       Light only (E<sub>other</sub> = 0)
