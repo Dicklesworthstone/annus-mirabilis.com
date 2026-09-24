@@ -3,7 +3,7 @@
 <div align="center">
 
 [![License: MIT + Rider](https://img.shields.io/badge/License-MIT_+_OpenAI/Anthropic_Rider-blue.svg)](./LICENSE)
-[![Status: Early construction](https://img.shields.io/badge/Status-Early_construction-orange.svg)](./COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_MERGED.md)
+[![Status: Live, unreviewed](https://img.shields.io/badge/Status-Live%2C_unreviewed-orange.svg)](./COMPREHENSIVE_PLAN_FOR_ANNUS_MIRABILIS_SITE_MERGED.md)
 [![Framework: Next.js App Router](https://img.shields.io/badge/Framework-Next.js_App_Router-black.svg)](https://nextjs.org/)
 [![Physics: TS reference owners; FrankenSim WASM planned](https://img.shields.io/badge/Physics-TS_reference_owners_%C2%B7_FrankenSim_WASM_planned-b7410e.svg)](https://github.com/Dicklesworthstone/frankensim)
 [![Math: KaTeX + MathML](https://img.shields.io/badge/Math-KaTeX_+_MathML-329894.svg)](https://katex.org/)
@@ -16,11 +16,13 @@
 
 </div>
 
-> **Status: early construction, one paper partly standing.** This repository holds the master plan (version 2.0), the iPhone app plan, the dependency-ordered task graph derived from them, and a working application that covers a small part of one paper.
+> **Status: live, in preparation, and reviewed by no one but its editor.** Measured on 2026-09-24; each claim names the command that produced it.
 >
-> **Built and tested** (measured 2026-09-16): a Next.js App Router application of about 5,300 lines of TypeScript across ten routes; audited reference physics owners (Philox4x32-10 streams, erf, Stokes-Einstein and Gaussian propagators, a bounded FTCS diffusion stepper with a typed stability refusal); the typed result algebra, refusal registry, instance-scoped snapshot store, and versioned worker protocols; a content compiler over 23 authored records; and three Brownian laboratories (BM-01 tracer ensemble, BM-05 random steps, BM-06 Gaussian spread). `node --experimental-strip-types --test src/testing/*.test.mjs` reports 224 tests, 224 pass, 0 fail.
+> **Live.** `annus-mirabilis.com` serves the application. Each of the four papers answers 200 at `/papers/<slug>/` (`curl -o /dev/null -w "%{http_code}"`). All 33 core instruments, `lq-01` to `me-03`, have a page in the live `/sitemap.xml`. The registry holds 38 catalogue ids, 37 of them registered (`bun run check:types`, registry line).
 >
-> **Not built**: no pinned facsimile, reviewed German ledger, translation, or notation concordance. No FrankenSim WASM artifact is in use; every number is a labeled host calculation. 30 of the 33 instruments and 3 of the 4 papers do not exist. The application is not deployed; `annus-mirabilis.com` still serves a static in-preparation placeholder page.
+> **Present.** Six pinned facsimiles, each matching the SHA-256 in its receipt: `find public/papers/pdfs -maxdepth 1 -name '*.pdf'` gives 6, and `bun test src/app/sources/page.test.tsx` renders /sources, which hashes every served PDF against its receipt. A German source face for light quanta, Brownian motion, and mass and energy: machine drafts, corrected by hand, labelled as drafts. Special relativity's German face is not published (`curl` of each `/papers/<slug>/view/german/` for its first paragraph: 3 of 4). A notation concordance of 194 entries over 127 printed symbols (`loadNotationPageData()`).
+>
+> **Not done.** No reviewed German ledger: `public/papers/transcripts/` holds four `*-machine-draft.txt` files and no `*-reviewed.txt`. No English translation: the English face reads "not yet available" on 4 of 4 papers. No FrankenSim result reaches a reader: the only `.tsx` that imports the WASM loader is a planted guard fixture (`rg -l "workers/wasm" src --glob '*.tsx'`), so every number shown is a labelled host calculation. No reviewer is named except the owner: `docs/OWNERS.md` lists one person and 55 slots marked `open: recruiting` (`grep -c`).
 >
 > Everything below describes the product the plans specify, not a finished website.
 
