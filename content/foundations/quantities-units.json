@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "quantities-units",
+  "title": "Quantities and units",
+  "question": "Can a number of metres be compared with a number of seconds?",
+  "summary": "A physical quantity is a number times a unit. Only quantities of the same kind can be added or compared, so every term of a correct equation carries the same units, and checking that catches many slips.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "\"The particle moved 6\" says nothing until the unit is added: 6 micrometres, or 6 seconds? A physical quantity is a number times a unit, and the number alone changes when the unit does. Six micrometres is 0.006 millimetres: the same length, written with another unit."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Quantities of different kinds cannot be added or compared: 3 metres plus 2 seconds has no meaning. So in a correct equation every term, on both sides, carries the same units. Checking that is the quickest test a formula can pass or fail."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Take the Brownian diffusion coefficient, \\(D = k_BT/(6\\pi\\eta a)\\). Boltzmann's constant is in joules per kelvin, T in kelvins, the viscosity η in pascal-seconds and the radius a in metres. The units work out to square metres per second, which is what a diffusion coefficient must be. The worked example below goes through it."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Units also tell apart quantities that share a letter. The light paper's \\(\\rho_\\nu\\) is an energy per unit volume per unit of frequency, joules per cubic metre per hertz, not per unit of wavelength: two different quantities with different units. And its L is the speed of light in §§1 and 2 but an absorbed energy in §9. A unit check starts from what the quantity is, not from its letter."
+    }
+  ],
+  "exampleTitle": "Checking that D comes out in square metres per second",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "\\(k_BT\\): joules per kelvin times kelvins is joules, which are newton-metres.",
+        "\\(6\\pi\\eta a\\): 6π has no units, and pascal-seconds times metres is (newtons per square metre) × seconds × metres, which is newton-seconds per metre.",
+        "Divide: newton-metres divided by newton-seconds per metre is square metres per second.",
+        "With numbers: 1.380649 × 10⁻²³ × 290.15 ÷ (6π × 1.35 × 10⁻³ × 5 × 10⁻⁷) = 3.15 × 10⁻¹³ m²/s. That is the modern Boltzmann constant (set modern-si-2019) with the paper's water at 17 °C and its particle."
+      ]
+    }
+  ],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:bridge-scientific-notation-units",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:bridge-fractions-ratios",
+      "kind": "proof-edge"
+    }
+  ],
+  "stoppingPoint": "This lesson stops at checking units. Converting the papers' own units into SI units is a separate step, with its own conventions.",
+  "citations": ["ap-17-549", "ap-17-132"]
+}

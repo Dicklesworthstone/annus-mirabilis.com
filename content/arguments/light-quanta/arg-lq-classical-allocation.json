@@ -53,6 +53,11 @@
     ],
     "steps": [
       {
+        "kind": "foundation",
+        "id": "quantities-units",
+        "returnCaption": "Return to the energy density per unit of frequency and its units."
+      },
+      {
         "kind": "steps",
         "items": [
           "Specify a positive equilibrium temperature and a finite cutoff frequency.",

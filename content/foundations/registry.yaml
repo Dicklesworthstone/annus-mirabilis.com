@@ -28,7 +28,7 @@ entries:
     kind: node
     cluster: quantities-magnitudes
     ownerBead: am-found-quantities-magnitudes-igxe
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:ratios-scaling"
     kind: node
