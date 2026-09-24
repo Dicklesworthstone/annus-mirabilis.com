@@ -111,6 +111,10 @@ describe("bm01.accessibility: Keyboard Navigation & Usability (AC 13)", () => {
     expect(html).toContain('data-scale-bar="1um"');
     expect(html).toContain('data-real-rate-card="true"');
     expect(html).toContain('data-rate-mode="natural"');
-    expect(html).toContain("Natural rate: ~0.8 μm per second Brownian walk (scale bar: 1 μm)");
+    // The line reads this trial's snapshot: 0.93 μm in 1 s at the default a = 0.5 μm, 1.0 mPa·s,
+    // 293.15 K. It used to state a fixed "~0.8 μm per second" at every setting.
+    expect(html).toContain("At the natural rate a tracer moves about");
+    expect(html).toContain("0.93");
+    expect(html).not.toContain("0.8 μm per second");
   });
 });
