@@ -9,12 +9,10 @@ paper: brownian-motion
 decision: D-2026-09-24-explanation-grain
 paragraphs:
   - unit: s0-p1
-    status: unexplained
-    reason: "No explanation passage covers the introduction yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-introduction]
     r0: "Einstein sets out to show that, on the molecular-kinetic theory of heat, bodies large enough to see in a microscope, suspended in a liquid, must move by amounts a microscope can detect. These motions may be the so-called Brownian molecular motion, but he finds the reports available to him too imprecise to judge."
   - unit: s0-p2
-    status: unexplained
-    reason: "No explanation passage covers the introduction yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-introduction]
     r0: "If the motion and its laws can be observed, classical thermodynamics no longer holds exactly for spaces visible under a microscope, and the true size of atoms can be determined exactly; if the predicted motion is not found, that is a serious argument against the molecular-kinetic view of heat."
   - unit: s1-p1
     status: unexplained
@@ -251,8 +249,7 @@ displays:
     equations: [eq-model-bm-avogadro-inference]
 obligations:
   - obligation: "arg:brownian-introduction-conditional"
-    status: unexplained
-    reason: "No explanation passage covers the introduction yet; the paper page lists it as not yet explained."
+    passages: [arg-bm-introduction]
   - obligation: "arg:brownian-osmotic-pressure"
     status: unexplained
     reason: "No explanation passage covers §1 yet; the paper page lists it as not yet explained."

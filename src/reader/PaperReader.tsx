@@ -315,7 +315,9 @@ export async function PaperReader({
                       {paper.sections.map((s, i) => (
                         <span key={s.id}>
                           {i > 0 ? ", " : ""}
-                          <a href={`/papers/brownian-motion/${s.id}/`}>§{s.id.replace(/^s/, "")}</a>
+                          <a href={`/papers/brownian-motion/${s.id}/`}>
+                            {s.id === "s0" ? "Introduction" : `§${s.id.replace(/^s/, "")}`}
+                          </a>
                         </span>
                       ))}
                       .

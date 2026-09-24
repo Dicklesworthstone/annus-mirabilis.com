@@ -11,6 +11,11 @@
   "sourceNotice": "This is newly written explanation in modern notation, and its editorial review is pending. It is not the German source, an English translation, or a complete edition of the paper. The German source face holds a machine-drafted transcription with hand correction that no one has reviewed yet, and the facsimile face shows the pinned journal pages; an English translation is not ready. The headings name the part of the argument each passage discusses; they are not a list of the paper’s paragraphs.",
   "sections": [
     {
+      "id": "s0",
+      "title": "Introduction · A motion the theory requires",
+      "arguments": ["arg-bm-introduction"]
+    },
+    {
       "id": "s4",
       "title": "§4 · From random displacement to diffusion",
       "arguments": [

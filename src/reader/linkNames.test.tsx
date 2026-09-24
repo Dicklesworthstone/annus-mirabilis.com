@@ -156,7 +156,11 @@ describe("PaperReader link accessible names (am-jmma)", () => {
       const multi = [...byName.entries()].filter(([_, hrefs]) => hrefs.size > 1);
       const unTriagedMulti = multi.filter(([name]) => !BENIGN_SAME_TARGET_NAMES.has(name));
       expect(unTriagedMulti.length).toBeGreaterThan(0);
-      expect(byName.get("Section-only reading →")?.size).toBe(2);
+      // One per section of the paper, read from the payload: the count grows as sections are
+      // explained, and the property is that each section's link collapses to the one bare name.
+      const { paper } = await loadPaper("brownian-motion");
+      expect(paper.sections.length).toBeGreaterThan(1);
+      expect(byName.get("Section-only reading →")?.size).toBe(paper.sections.length);
     });
 
     test("two sections offering the same action type without section title collide", () => {
@@ -260,10 +264,13 @@ describe("PaperReader link accessible names (am-jmma)", () => {
       // 6. "Mean, variance and RMS": reaches exactly 1 destination
       reachesOnly("Mean, variance and RMS", "/foundations/mean-variance-rms/");
 
-      // 7. "Why?": 0 bare instances, each discriminated instance reaches 1 destination
+      // 7. "Why?": 0 bare instances, each discriminated instance reaches 1 destination. One per
+      // passage, so the number follows the argument records rather than a frozen census.
+      const { arguments: passages } = await loadPaper("brownian-motion");
+      expect(passages.length).toBeGreaterThan(1);
       expect(byName.has("Why?")).toBe(false);
       const whyLinks = [...byName.entries()].filter(([name]) => name.startsWith("Why?: "));
-      expect(whyLinks.length).toBe(6);
+      expect(whyLinks.length).toBe(passages.length);
       for (const [_, hrefs] of whyLinks) {
         expect(hrefs.size).toBe(1);
       }
@@ -273,7 +280,7 @@ describe("PaperReader link accessible names (am-jmma)", () => {
       const stepLinks = [...byName.entries()].filter(([name]) =>
         name.startsWith("Show the missing step: "),
       );
-      expect(stepLinks.length).toBe(6);
+      expect(stepLinks.length).toBe(passages.length);
       for (const [_, hrefs] of stepLinks) {
         expect(hrefs.size).toBe(1);
       }
@@ -293,7 +300,10 @@ describe("PaperReader link accessible names (am-jmma)", () => {
       // 10. "Try it": 0 bare instances, each reaches 1 destination
       expect(byName.has("Try it")).toBe(false);
       const tryItLinks = [...byName.entries()].filter(([name]) => name.startsWith("Try it: "));
-      expect(tryItLinks.length).toBe(4);
+      // One per distinct laboratory that some passage opens first (its "Try it").
+      const firstLabs = new Set(passages.flatMap((a) => a.experiments.slice(0, 1)));
+      expect(firstLabs.size).toBeGreaterThan(1);
+      expect(tryItLinks.length).toBe(firstLabs.size);
       for (const [_, hrefs] of tryItLinks) {
         expect(hrefs.size).toBe(1);
       }

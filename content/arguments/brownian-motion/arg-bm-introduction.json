@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-bm-introduction",
+  "paper": "brownian-motion",
+  "section": "s0",
+  "title": "What the paper sets out to show, and what would decide it",
+  "question": "What does Einstein say the molecular-kinetic theory requires of suspended bodies, how sure is he that this is the Brownian motion, and what would observing it decide?",
+  "recap": "On the molecular-kinetic theory of heat, bodies just large enough to see in a microscope must move by amounts a microscope can detect. Einstein thinks this may be the Brownian motion, but says the reports he could obtain were too imprecise for him to judge. Observing the motion and its laws would mean classical thermodynamics is not exactly valid for spaces a microscope can resolve and would allow the size of atoms to be determined; a failed prediction would weigh heavily against the molecular view.",
+  "review": "draft",
+  "premises": [
+    "The molecular-kinetic theory of heat: the heat of a liquid is the irregular motion of its molecules.",
+    "A body suspended in the liquid, large enough to see in a microscope, is struck by those molecules."
+  ],
+  "limitations": [
+    "The introduction states what the later sections derive; it derives nothing itself.",
+    "Einstein does not identify his motion with the Brownian motion; he says the reports available to him were too imprecise for a judgment.",
+    "Both consequences are conditional. The passage does not say the motion had been observed with its laws, nor that the existence of molecules was settled in 1905."
+  ],
+  "citations": ["ap-17-549"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "On the molecular-kinetic theory of heat, Einstein writes, bodies just visible in a microscope must move enough to be seen, and this may be the Brownian motion, though the reports he could obtain were too imprecise for him to judge. If the motion and its laws are observed, classical thermodynamics is not exactly valid for spaces a microscope can resolve and the true size of atoms can be determined; if the prediction fails, that is a weighty argument against the molecular-kinetic view of heat."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "The paper opens with a claim about what a theory requires. The molecular-kinetic theory of heat takes the heat of a liquid to be the irregular motion of its molecules. From that theory, Einstein announces, it will be shown that bodies suspended in a liquid and large enough to see in a microscope must, because of the molecules' thermal motion, move by amounts large enough to be detected easily with a microscope."
+      },
+      {
+        "kind": "foundation",
+        "id": "temperature-thermal-energy",
+        "returnCaption": "Return to the claim that heat is molecular motion."
+      },
+      {
+        "kind": "paragraph",
+        "text": "He does not claim to have explained a motion already seen. The motions to be treated, he writes, may be the same as the so-called Brownian molecular motion; but the information he could obtain about it was 'so ungenau, daß ich mir hierüber kein Urteil bilden konnte': so imprecise that he could form no judgment. The identification is left open. The paper predicts a motion and derives its laws; whether the reported motion is that one is a question for observation."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The second paragraph says what depends on the prediction, in both directions. If the motion, together with the laws the paper expects it to follow, can really be observed, then classical thermodynamics can no longer be regarded as exactly valid even for spaces that can be told apart in a microscope, and an exact determination of the true size of atoms becomes possible. If instead the prediction proves false, that would be a weighty argument against the molecular-kinetic view of heat."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Why would a visible motion limit thermodynamics? Classical thermodynamics describes a liquid in equilibrium at one temperature by a few quantities, such as its pressure and temperature, which then stay fixed. It has no place for a part of the liquid that keeps moving of its own accord, now one way and now another. On the molecular view such restless departures from the average are always present. For a body of ordinary size they are far too small to notice; the paper argues that for a grain about a thousandth of a millimetre across, the size §5 uses, they are large enough to see."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Why would it give the size of atoms? §§4 and 5 tie how far such a grain wanders in a given time to N, the number of real molecules in a gram-molecule. With N known, the mass of a single molecule is the mass of a gram-molecule divided by N, and its size can be estimated from the volume a gram-molecule fills. The introduction announces this; the later sections carry it out."
+      },
+      {
+        "kind": "foundation",
+        "id": "orders-of-magnitude",
+        "returnCaption": "Return to why a grain's motion could give the size of atoms."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The road there: §1 argues that suspended bodies should exert osmotic pressure just as dissolved molecules do; §2 derives that from the molecular-kinetic theory; §3 turns it into a diffusion coefficient; §§4 and 5 give the spread of a grain over time and the displacement to look for."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "paragraph",
+        "text": "Words first. The molecular-kinetic theory of heat is the view that heat is the motion of molecules too small to see. A body suspended in a liquid floats in it without dissolving, like a fine grain of powder stirred into water. The paper's own example, in §5, is a grain a thousandth of a millimetre across: far too small to see by eye, easy to see in a microscope. A gram-molecule is the amount of a substance whose mass in grams equals its molecular weight, what is now called a mole."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The claim. If the molecular-kinetic theory is right, the molecules of a liquid are always moving and always striking any grain suspended in it. Einstein announces that the paper will show that, for grains big enough to see in a microscope, these impacts must move the grain by amounts a microscope can detect easily.",
+          "The word 'must' belongs to the theory: the motion is required if the theory holds. The paper does not report having watched it.",
+          "The identification, left open. A jittering of small particles in liquids had been reported and was called the Brownian motion, after the botanist Robert Brown. Einstein writes that his motions may be the same, but that the information he could obtain about it was so imprecise ('so ungenau') that he could form no judgment. So the paper predicts a motion; whether the reported jitter is that motion is for observation to say.",
+          "The stakes, first direction. Suppose the motion, and the laws the paper derives for it, are observed. Then classical thermodynamics, which describes a liquid at one temperature by a few steady quantities such as its pressure and temperature, is not exactly valid for regions as small as a microscope can resolve. And the true size of atoms can be determined exactly."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "temperature-thermal-energy",
+        "returnCaption": "Return to the claim that heat is molecular motion."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Why thermodynamics would fail there. A grain that keeps moving, now left, now right, in a liquid at one temperature is an unevenness that those steady quantities do not describe. On the molecular view such unevenness is always present. For an ordinary body it is far too small to notice; for a grain a thousandth of a millimetre across, the paper argues, it is large enough to see.",
+          "Why atoms could be measured. §§4 and 5 connect the grain's wandering over a given time to N, the number of real molecules in a gram-molecule, what is now called Avogadro's number. A gram-molecule of a substance is a known mass of it, so once N is known, one molecule's mass is that mass divided by N, and its size can be estimated from the volume a gram-molecule fills.",
+          "The stakes, second direction. Suppose the predicted motion is looked for carefully and is not there. Einstein says that would be a weighty argument against the molecular-kinetic view of heat. He calls it an argument, and a weighty one: a failed prediction would count heavily against the theory.",
+          "What is not said. The introduction does not claim that the existence of molecules had been settled, that the motion had been measured with these laws, or that Einstein had studied the Brownian reports in detail. Each consequence is conditional: if the motion is observed, then one thing follows; if the prediction fails, then another.",
+          "The plan of the paper. §1 argues that suspended bodies should exert osmotic pressure just as dissolved molecules do. §2 derives that from the molecular-kinetic theory. §3 turns it into a diffusion coefficient. §§4 and 5 give the spread of a grain over time and the displacement a microscope should show."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "orders-of-magnitude",
+        "returnCaption": "Return to why a grain's motion could give the size of atoms."
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "Robert Brown described the irregular motion of small particles suspended in water in 1828, from observations made in 1827. Later students of the motion included Christian Wiener (1863) and Louis Georges Gouy, who argued in 1888 (Journal de Physique (2) 7, p. 561) that it comes from the thermal agitation of the liquid; Carl Nägeli had argued in 1879 that single molecular impacts are far too weak to move such particles visibly. The 1905 paper cites none of this literature, which fits the introduction's statement that the information available to Einstein was too imprecise for a judgment."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Einstein's next paper on the subject, 'Zur Theorie der Brownschen Bewegung' (Ann. d. Phys. 19, p. 371, 1906), opens by saying that after this paper appeared, Siedentopf told him that Gouy and other physicists had become convinced by direct observation that the Brownian motion comes from the irregular thermal motion of the liquid's molecules."
+      },
+      {
+        "kind": "paragraph",
+        "text": "In 1905 the molecular-kinetic theory was in wide use, and it also had critics who treated atoms as a useful hypothesis rather than an established fact. The second paragraph speaks to that disagreement by naming an observation that could count against the theory as well as for it. Jean Perrin's measurements of 1908 and 1909 on suspended grains are later evidence, dated after this paper; they do not appear in it."
+      },
+      {
+        "kind": "paragraph",
+        "text": "A modern lens: the motion the introduction predicts is what is now called a thermal fluctuation, and the spaces that can be told apart in a microscope are where such fluctuations become visible. The term is later usage; the paper speaks of classical thermodynamics ceasing to hold exactly."
+      }
+    ]
+  },
+  "prerequisites": [],
+  "help": {
+    "why": "temperature-thermal-energy",
+    "missingStep": "orders-of-magnitude",
+    "example": "random-walks"
+  },
+  "experiments": ["bm-01"],
+  "meaning": {
+    "logicalRole": "qualification",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}
