@@ -65,13 +65,18 @@ async function brownianSectionPagesHtml(): Promise<string> {
   return pages.join("\n");
 }
 
-export const BENIGN_SAME_TARGET_NAMES = new Set([
-  "Zero average is not no movement",
-  "Why the square grows with time",
-  "From a step law to a density law",
-  "What the spreading curve predicts",
-  "Why viscosity changes the spread",
-]);
+// The names that may reach two hrefs: a passage's title, linked from the outline ("#id") and from
+// the "Earlier step" line of a passage that names it as a prerequisite ("/papers/brownian-motion/#id").
+// Both resolve to the same anchor, which the invariant test below checks for every name here. The set
+// is read from the passages' prerequisites, so a new prerequisite edge joins it; it was a hand-typed
+// census of five titles, which the sixth edge (arg-bm-kinetic-justification to
+// arg-bm-osmotic-suspended) turned red although nothing collided.
+const { arguments: BROWNIAN_PASSAGES } = await loadPaper("brownian-motion");
+export const BENIGN_SAME_TARGET_NAMES = new Set(
+  BROWNIAN_PASSAGES.filter((a) =>
+    BROWNIAN_PASSAGES.some((b) => b.prerequisites.some((p) => p.id === a.id)),
+  ).map((a) => a.title),
+);
 
 describe("PaperReader link accessible names (am-jmma)", () => {
   test("re-measurement: every name with genuinely differing destinations reaches exactly 1 destination", async () => {
@@ -320,6 +325,8 @@ describe("PaperReader link accessible names (am-jmma)", () => {
       const links = extractLinks(html);
       const byName = groupLinksByName(links);
 
+      // Non-vacuity: the set is derived, so an empty one would pass the loop below unexamined.
+      expect(BENIGN_SAME_TARGET_NAMES.size).toBeGreaterThan(0);
       for (const benignName of BENIGN_SAME_TARGET_NAMES) {
         const hrefs = byName.get(benignName);
         expect(hrefs).toBeDefined();
