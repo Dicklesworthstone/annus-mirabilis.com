@@ -41,6 +41,22 @@ describe("integration", () => {
     expect(t).toContain("½ × 4 × 0.5 = 1");
     expect(t).toContain("0 + 0.125 + 0.25 + 0.375 = 0.75");
   });
+
+  test("eight strips: heights 1.75, area 0.875; sixteen: 0.9375; the shortfall 0.25, 0.125, 0.0625", () => {
+    // Left edges of n equal strips across 4 μm under the density 0.125 x.
+    const heights = (n: number) => Array.from({ length: n }, (_, k) => 0.125 * k * (4 / n));
+    const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
+    const area = (n: number) => sum(heights(n)) * (4 / n);
+    expect(sum(heights(8))).toBe(1.75);
+    expect([area(4), area(8), area(16)]).toEqual([0.75, 0.875, 0.9375]);
+    expect([1 - area(4), 1 - area(8), 1 - area(16)]).toEqual([0.25, 0.125, 0.0625]);
+    expect(t).toContain(
+      "Eight strips 0.5 µm wide: the heights add to 1.75, and times 0.5 that is 0.875.",
+    );
+    expect(t).toContain(
+      "Sixteen strips 0.25 µm wide: 0.9375. The shortfall halves each time the strips do: 0.25, then 0.125, then 0.0625.",
+    );
+  });
 });
 
 describe("taylor-expansion: (2 + Δ)² against 4 + 4Δ", () => {
@@ -69,6 +85,18 @@ describe("taylor-expansion: (2 + Δ)² against 4 + 4Δ", () => {
     expect(4 / 16).toBe(0.25);
     expect(t).toContain("Δ = 2: 12 instead of 16. The error, 4, is a quarter of the answer.");
   });
+
+  test("2.1 squared: two strips 2 by 0.1 add 0.4, the corner 0.01, so 4.41; forty times smaller", () => {
+    expect(printed(2 * (2 * 0.1), 0.4, 1)).toBe(true);
+    expect(printed(0.1 * 0.1, 0.01, 1)).toBe(true);
+    expect(printed(2.1 ** 2, 4.41, 3)).toBe(true);
+    expect(printed(4 + 0.4 + 0.01, 4.41, 3)).toBe(true);
+    expect(printed(0.4 / 0.01, 40, 1)).toBe(true);
+    expect(t).toContain(
+      "It gains two strips, each 2 long and 0.1 thick, which add 0.4, and a small corner, 0.1 by 0.1, which adds 0.01. So 2.1 squared is 4.41.",
+    );
+    expect(t).toContain("the second, 0.01, is forty times smaller");
+  });
 });
 
 describe("distributions", () => {
@@ -79,7 +107,11 @@ describe("distributions", () => {
     expect(printed(0.3 / 2e-6, 150_000, 2)).toBe(true);
     expect(1 / 4).toBe(0.25);
     expect(1 / 2).toBe(0.5);
+    expect(t).toContain(
+      "Mark where 100 particles end up on a ruler divided into 2 μm bins. If 30 land in one bin, that bin holds a probability of about 0.3",
+    );
     expect(t).toContain("0.3 divided by 2 μm, or 0.15 per micrometre");
+    expect(t).toContain("while the bin still holds 0.3");
     expect(t).toContain("150,000 per metre");
     expect(t).toContain("1 divided by 4 μm, or 0.25 per micrometre");
     expect(t).toContain("the height doubles to 0.5 per micrometre");
@@ -160,12 +192,114 @@ describe("random walks and the diffusion equation", () => {
     );
   });
 
+  test("a hundred steps leave 10 m and four hundred 20 m; the path walked is 100 m", () => {
+    expect([Math.sqrt(100), Math.sqrt(400)]).toEqual([10, 20]);
+    expect([400 / 100, Math.sqrt(400) / Math.sqrt(100)]).toEqual([4, 2]);
+    expect(100 * 1).toBe(100);
+    const t = text("random-walks");
+    expect(t).toContain(
+      "A hundred steps of typical size 1 m leave a typical distance of 10 m from the start, because the square root of 100 is 10. Four hundred steps leave 20 m: four times the steps, twice the distance.",
+    );
+    expect(t).toContain("to end 10 m from home, the walker has walked 100 m");
+  });
+
   test("double D: √2 × 1 mm ≈ 1.4 mm; four times as long: 2 mm", () => {
     expect(printed(Math.SQRT2 * 1, 1.4, 2)).toBe(true);
     expect(Math.sqrt(4) * 1).toBe(2);
     const t = text("diffusion-equation");
     expect(t).toContain("the typical distance becomes about 1.4 mm");
     expect(t).toContain("the typical distance doubles, to 2 mm");
+  });
+});
+
+describe("probability-independence: two coin steps of 1 m", () => {
+  const t = text("probability-independence");
+  const steps = [1, -1] as const;
+  const pairs = steps.flatMap((first) => steps.map((second) => [first, second] as const));
+  const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+
+  test("four walks end 2 m right, at the start twice, 2 m left; squares 4, 0, 0, 4 average 2", () => {
+    const ends = pairs.map(([a, b]) => a + b);
+    expect(ends).toEqual([2, 0, 0, -2]);
+    expect(ends.map((e) => e * e)).toEqual([4, 0, 0, 4]);
+    expect(mean(ends.map((e) => e * e))).toBe(2);
+    expect(mean(ends.map((e) => e * e)) / 2).toBe(1);
+    expect(t).toContain(
+      "They leave you 2 m to the right, back at the start, back at the start, or 2 m to the left.",
+    );
+    expect(t).toContain(
+      "Square those distances so that left and right count alike: 4, 0, 0 and 4. Their average is 2, one square metre for each step.",
+    );
+  });
+
+  test("the products are +1, −1, −1, +1 and average zero; a drift of +1 per step makes it 1", () => {
+    const products = pairs.map(([a, b]) => a * b);
+    expect(products).toEqual([1, -1, -1, 1]);
+    expect(mean(products)).toBe(0);
+    expect(1 * 1).toBe(1);
+    expect(t).toContain(
+      "the product of the two steps is +1 for right-right and left-left and −1 for the other two, so on average it is zero",
+    );
+    expect(t).toContain(
+      "If each step drifts, averaging +1, the product of the averages is 1, not 0.",
+    );
+  });
+
+  test("a second step that copies the first: squared distance 4 every time, not 2", () => {
+    const copied = steps.map((first) => first + first);
+    expect(copied.map((e) => e * e)).toEqual([4, 4]);
+    expect(mean(copied.map((e) => e * e)) - mean(pairs.map(([a, b]) => (a + b) ** 2))).toBe(2);
+    expect(t).toContain(
+      "the squared distance is 4 every time: the average is 4, not 2. Independence removed that extra 2.",
+    );
+  });
+});
+
+describe("flux-continuity: counting across the ends of a stretch", () => {
+  test("7 in and 5 out raise the count by 2; 5 in and 5 out leave it, though 10 crossed", () => {
+    expect(7 - 5).toBe(2);
+    expect(5 - 5).toBe(0);
+    expect(5 + 5).toBe(10);
+    const t = text("flux-continuity");
+    expect(t).toContain(
+      "7 particles cross into the stretch and 5 cross out. The count inside rises by 2.",
+    );
+    expect(t).toContain(
+      "5 cross in and 5 cross out. The count is unchanged, although 10 particles crossed.",
+    );
+  });
+});
+
+describe("bridge-negative-numbers-direction and bridge-a-graph", () => {
+  const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+
+  test("+3 and −3 sum to zero and their distances to six; −1 and +1 average zero and distance one", () => {
+    expect(3 + -3).toBe(0);
+    expect(Math.abs(3) + Math.abs(-3)).toBe(6);
+    expect(mean([-1, 1])).toBe(0);
+    expect(mean([-1, 1].map(Math.abs))).toBe(1);
+    const t = text("bridge-negative-numbers-direction");
+    expect(t).toContain(
+      "has displacement +3; one three units to the left has displacement −3. Adding the signed displacements gives zero. Adding the distances from the start gives six.",
+    );
+    expect(t).toContain(
+      "one at −1 and the other at +1. The signed average is zero. The average distance is one.",
+    );
+  });
+
+  test("0, 14 and 28 m at 0, 10 and 20 s climb 1.4 m/s; −3, −1, +1, +3 average 0", () => {
+    // A steady walk: 14 m for every 10 s.
+    const metres = (seconds: number) => (14 * seconds) / 10;
+    expect([0, 10, 20].map(metres)).toEqual([0, 14, 28]);
+    expect(printed(14 / 10, 1.4, 2)).toBe(true);
+    expect(mean([-3, -1, 1, 3])).toBe(0);
+    const t = text("bridge-a-graph");
+    expect(t).toContain("0 m at the start, 14 m after ten seconds, 28 m after twenty");
+    expect(t).toContain("This one climbs 14 metres for every 10 seconds: 1.4 metres per second.");
+    expect(t).toContain(
+      "Four particles end at −3, −1, +1 and +3 micrometres from where they started.",
+    );
+    expect(t).toContain("The picture is symmetric, so the average position is 0.");
   });
 });
 
@@ -186,5 +320,17 @@ describe("the notation bridges", () => {
     expect(text("bridge-scientific-notation-units")).toContain(
       "(6 × 10⁻⁶ m)² = 36 × 10⁻¹² m² = 3.6 × 10⁻¹¹ m²",
     );
+  });
+
+  test("0.001 mm is 0.000001 m, 10⁻⁶ m: the point moved six places", () => {
+    expect(printed(0.001 * 1e-3, 1e-6, 1)).toBe(true);
+    expect(Number("0.000001")).toBe(1e-6);
+    expect("0.000001".split(".")[1]?.length).toBe(6);
+    const t = text("bridge-scientific-notation-units");
+    expect(t).toContain("for particles 0.001 mm across. In metres that is 0.000001 m");
+    expect(t).toContain(
+      "Written as 10⁻⁶ m, the −6 says the decimal point has moved six places to the left",
+    );
+    expect(t).toContain("1 micrometre (1 μm) is 10⁻⁶ metres, or 0.000001 m.");
   });
 });
