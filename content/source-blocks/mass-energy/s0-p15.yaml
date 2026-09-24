@@ -1,0 +1,29 @@
+# SourceBlock s0-p15: German source text from public/papers/transcripts/ap-18-639-machine-draft.txt.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s0-p15"
+kind: "paragraph"
+paper: "mass-energy"
+section: "s0"
+order: 23
+locators:
+  - pdfPageIndex: 3
+    printedPage: 641
+diplomaticText: "Wenn die Theorie den Tatsachen entspricht, so überträgt die Strahlung Trägheit zwischen den emittierenden und absorbierenden Körpern."
+inlines:
+  - kind: "text"
+    text: "Wenn die Theorie den Tatsachen entspricht, so überträgt die Strahlung Trägheit zwischen den emittierenden und absorbierenden Körpern."
+sentenceSpans:
+  - id: "s0-p15-s1"
+    span:
+      start: 0
+      end: 133
+      blockRevision: 1
+      textDigest: "64c11cde9252fbe8b7e0edbcbbc599003d786e0f6512f8a0edf3ff3efbcf11bc"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

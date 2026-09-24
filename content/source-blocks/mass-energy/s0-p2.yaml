@@ -1,0 +1,41 @@
+# SourceBlock s0-p2: German source text from public/papers/transcripts/ap-18-639-machine-draft.txt.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s0-p2"
+kind: "paragraph"
+paper: "mass-energy"
+section: "s0"
+order: 5
+locators:
+  - pdfPageIndex: 1
+    printedPage: 639
+diplomaticText: "Ich legte dort die Maxwell-Hertzschen Gleichungen für den leeren Raum nebst dem Maxwellschen Ausdruck für die elektromagnetische Energie des Raumes zugrunde und außerdem das Prinzip:"
+inlines:
+  - kind: "text"
+    text: "Ich legte dort die "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Maxwell-Hertzschen"
+  - kind: "text"
+    text: " Gleichungen für den leeren Raum nebst dem "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Maxwellschen"
+  - kind: "text"
+    text: " Ausdruck für die elektromagnetische Energie des Raumes zugrunde und außerdem das Prinzip:"
+sentenceSpans:
+  - id: "s0-p2-s1"
+    span:
+      start: 0
+      end: 182
+      blockRevision: 1
+      textDigest: "8adca8e3747a9a3980d41d2fe6f580b883a91d2f681e42310ba99ff957f1c1d7"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,46 @@
+# SourceBlock s0-p12: German source text from public/papers/transcripts/ap-18-639-machine-draft.txt.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s0-p12"
+kind: "paragraph"
+paper: "mass-energy"
+section: "s0"
+order: 20
+locators:
+  - pdfPageIndex: 3
+    printedPage: 641
+diplomaticText: "Gibt ein Körper die Energie L in Form von Strahlung ab, so verkleinert sich seine Masse um L/V^2. Hierbei ist es offenbar unwesentlich, daß die dem Körper entzogene Energie gerade in Energie der Strahlung übergeht, so daß wir zu der allgemeineren Folgerung geführt werden:"
+inlines:
+  - kind: "text"
+    text: "Gibt ein Körper die Energie "
+  - kind: "math"
+    latex: "L"
+  - kind: "text"
+    text: " in Form von Strahlung ab, so verkleinert sich seine Masse um "
+  - kind: "math"
+    latex: "L/V^2"
+  - kind: "text"
+    text: "."
+  - kind: "space"
+  - kind: "text"
+    text: "Hierbei ist es offenbar unwesentlich, daß die dem Körper entzogene Energie gerade in Energie der Strahlung übergeht, so daß wir zu der allgemeineren Folgerung geführt werden:"
+sentenceSpans:
+  - id: "s0-p12-s1"
+    span:
+      start: 0
+      end: 97
+      blockRevision: 1
+      textDigest: "d4fea3c1f1499b5e24b482d18948adf638e331098f5f069f9f2d0bed5956f952"
+  - id: "s0-p12-s2"
+    span:
+      start: 98
+      end: 272
+      blockRevision: 1
+      textDigest: "d4fea3c1f1499b5e24b482d18948adf638e331098f5f069f9f2d0bed5956f952"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

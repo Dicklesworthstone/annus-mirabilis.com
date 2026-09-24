@@ -1,0 +1,42 @@
+# SourceBlock s0-p11: German source text from public/papers/transcripts/ap-18-639-machine-draft.txt.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s0-p11"
+kind: "paragraph"
+paper: "mass-energy"
+section: "s0"
+order: 18
+locators:
+  - pdfPageIndex: 3
+    printedPage: 641
+diplomaticText: "Unter Vernachlässigung von Größen vierter und höherer Ordnung können wir setzen: Aus dieser Gleichung folgt unmittelbar:"
+inlines:
+  - kind: "text"
+    text: "Unter Vernachlässigung von Größen vierter und höherer Ordnung können wir setzen:"
+  - kind: "math"
+    latex: "K_0 - K_1 = \\frac{L}{V^2} \\frac{v^2}{2}."
+    display: true
+    equationId: "eq-s0-d7"
+  - kind: "space"
+  - kind: "text"
+    text: "Aus dieser Gleichung folgt unmittelbar:"
+sentenceSpans:
+  - id: "s0-p11-s1"
+    span:
+      start: 0
+      end: 80
+      blockRevision: 1
+      textDigest: "4c7f02d21b216bc4abfa79dade54528db23779657c85659431f71571a2ee498c"
+  - id: "s0-p11-s2"
+    span:
+      start: 81
+      end: 120
+      blockRevision: 1
+      textDigest: "4c7f02d21b216bc4abfa79dade54528db23779657c85659431f71571a2ee498c"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

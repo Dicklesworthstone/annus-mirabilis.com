@@ -1,0 +1,26 @@
+# SourceBlock eq-s0-d5: German source text from public/papers/transcripts/ap-18-639-machine-draft.txt.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "eq-s0-d5"
+kind: "equation"
+paper: "mass-energy"
+section: "s0"
+order: 16
+locators:
+  - pdfPageIndex: 3
+    printedPage: 641
+editorialLabel: "ed:s0-d5"
+containedIn: "s0-p7"
+diplomaticText: "\\begin{aligned} H_0 - E_0 &= K_0 + C, \\\\ H_1 - E_1 &= K_1 + C, \\end{aligned}"
+inlines:
+  - kind: "math"
+    latex: "\\begin{aligned} H_0 - E_0 &= K_0 + C, \\\\ H_1 - E_1 &= K_1 + C, \\end{aligned}"
+    equationId: "eq-s0-d5"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

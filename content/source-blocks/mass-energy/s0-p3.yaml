@@ -1,0 +1,29 @@
+# SourceBlock s0-p3: German source text from public/papers/transcripts/ap-18-639-machine-draft.txt.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s0-p3"
+kind: "paragraph"
+paper: "mass-energy"
+section: "s0"
+order: 6
+locators:
+  - pdfPageIndex: 1
+    printedPage: 639
+diplomaticText: "Die Gesetze, nach denen sich die Zustände der physikalischen Systeme ändern, sind unabhängig davon, auf welches von zwei relativ zueinander in gleichförmiger Parallel-Translationsbewegung befindlichen Koordinatensystemen diese Zustandsänderungen bezogen werden (Relativitätsprinzip)."
+inlines:
+  - kind: "text"
+    text: "Die Gesetze, nach denen sich die Zustände der physikalischen Systeme ändern, sind unabhängig davon, auf welches von zwei relativ zueinander in gleichförmiger Parallel-Translationsbewegung befindlichen Koordinatensystemen diese Zustandsänderungen bezogen werden (Relativitätsprinzip)."
+sentenceSpans:
+  - id: "s0-p3-s1"
+    span:
+      start: 0
+      end: 283
+      blockRevision: 1
+      textDigest: "d67bdee254a71fdf1b72c173aa90d0fef6184dca4f4da7cc83c603ace6e877b3"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

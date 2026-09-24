@@ -1,0 +1,26 @@
+# SourceBlock eq-s0-d1: German source text from public/papers/transcripts/ap-18-639-machine-draft.txt.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "eq-s0-d1"
+kind: "equation"
+paper: "mass-energy"
+section: "s0"
+order: 10
+locators:
+  - pdfPageIndex: 1
+    printedPage: 639
+editorialLabel: "ed:s0-d1"
+containedIn: "s0-p5"
+diplomaticText: "l^* = l \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}}"
+inlines:
+  - kind: "math"
+    latex: "l^* = l \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}}"
+    equationId: "eq-s0-d1"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

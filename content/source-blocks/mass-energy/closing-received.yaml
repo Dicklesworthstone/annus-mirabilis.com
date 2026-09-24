@@ -1,0 +1,28 @@
+# SourceBlock closing-received: German source text from public/papers/transcripts/ap-18-639-machine-draft.txt.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "closing-received"
+kind: "closing"
+paper: "mass-energy"
+order: 25
+locators:
+  - pdfPageIndex: 3
+    printedPage: 641
+diplomaticText: "(Eingegangen 27. September 1905.)"
+inlines:
+  - kind: "text"
+    text: "(Eingegangen 27. September 1905.)"
+sentenceSpans:
+  - id: "closing-received"
+    span:
+      start: 0
+      end: 33
+      blockRevision: 1
+      textDigest: "30625c646ab1e18f0768e88da3fb4db954ac692b8e68407d4b8c15bfed9e9dc8"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

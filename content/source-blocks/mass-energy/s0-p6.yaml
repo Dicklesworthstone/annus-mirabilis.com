@@ -1,0 +1,62 @@
+# SourceBlock s0-p6: German source text from public/papers/transcripts/ap-18-639-machine-draft.txt.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s0-p6"
+kind: "paragraph"
+paper: "mass-energy"
+section: "s0"
+order: 11
+locators:
+  - pdfPageIndex: 2
+    printedPage: 640
+diplomaticText: "Es befinde sich nun im System (x, y, z) ein ruhender Körper, dessen Energie — auf das System (x, y, z) bezogen — E_0 sei. Relativ zu dem wie oben mit der Geschwindigkeit v bewegten System (\\xi, \\eta, \\zeta) sei die Energie des Körpers H_0."
+inlines:
+  - kind: "text"
+    text: "Es befinde sich nun im System "
+  - kind: "math"
+    latex: "(x, y, z)"
+  - kind: "text"
+    text: " ein ruhender Körper, dessen Energie — auf das System "
+  - kind: "math"
+    latex: "(x, y, z)"
+  - kind: "text"
+    text: " bezogen — "
+  - kind: "math"
+    latex: "E_0"
+  - kind: "text"
+    text: " sei."
+  - kind: "space"
+  - kind: "text"
+    text: "Relativ zu dem wie oben mit der Geschwindigkeit "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " bewegten System "
+  - kind: "math"
+    latex: "(\\xi, \\eta, \\zeta)"
+  - kind: "text"
+    text: " sei die Energie des Körpers "
+  - kind: "math"
+    latex: "H_0"
+  - kind: "text"
+    text: "."
+sentenceSpans:
+  - id: "s0-p6-s1"
+    span:
+      start: 0
+      end: 121
+      blockRevision: 1
+      textDigest: "63ea2da4ece08f76e6a48b283323e5203037b1aac6f5c52335fb10fef5012ef7"
+  - id: "s0-p6-s2"
+    span:
+      start: 122
+      end: 239
+      blockRevision: 1
+      textDigest: "63ea2da4ece08f76e6a48b283323e5203037b1aac6f5c52335fb10fef5012ef7"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

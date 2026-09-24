@@ -1,0 +1,29 @@
+# SourceBlock s0-p14: German source text from public/papers/transcripts/ap-18-639-machine-draft.txt.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s0-p14"
+kind: "paragraph"
+paper: "mass-energy"
+section: "s0"
+order: 22
+locators:
+  - pdfPageIndex: 3
+    printedPage: 641
+diplomaticText: "Es ist nicht ausgeschlossen, daß bei Körpern, deren Energieinhalt in hohem Maße veränderlich ist (z. B. bei den Radiumsalzen), eine Prüfung der Theorie gelingen wird."
+inlines:
+  - kind: "text"
+    text: "Es ist nicht ausgeschlossen, daß bei Körpern, deren Energieinhalt in hohem Maße veränderlich ist (z. B. bei den Radiumsalzen), eine Prüfung der Theorie gelingen wird."
+sentenceSpans:
+  - id: "s0-p14-s1"
+    span:
+      start: 0
+      end: 166
+      blockRevision: 1
+      textDigest: "31bf92b9ec31eb1bb701ecb2a3be6676b1b2790981913602d856f727613855dd"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"
