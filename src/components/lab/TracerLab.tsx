@@ -505,8 +505,14 @@ export function TracerLab({
                     quantityNormalization: { kind: "none" },
                   }}
                 />
+                {/* From this trial's accepted snapshot, not a fixed figure: the line used to read
+                    "~0.8 μm per second" at every setting, Einstein's printed value for water at
+                    1.35 mPa·s, while this lab's own default gives 0.93 μm in 1 s. A displacement
+                    grows as the square root of time, so it is stated for an interval, not per second. */}
                 <span className="rate-annotation" data-rate-mode="natural">
-                  Natural rate: ~0.8 μm per second Brownian walk (scale bar: 1 μm)
+                  At the natural rate a tracer moves about{" "}
+                  {display(Number(scalar(snapshot, "rmsDisplacement1d").toPrecision(2)), 1e6)} μm
+                  along one axis in {display(p.interval)} s (root mean square; scale bar: 1 μm)
                 </span>
                 <span className="rate-comparison fine" data-rate-mode="sped-up">
                   Simulation view: accelerated snapshot across {p.H} s
