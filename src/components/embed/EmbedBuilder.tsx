@@ -153,12 +153,15 @@ export function EmbedBuilder() {
             step={1}
             value={height}
             aria-invalid={!validHeight}
+            // The alert below says what is wrong; tied to the field, it is read again whenever the
+            // field takes focus, not only once when it appears.
+            aria-describedby={validHeight ? undefined : `${instance}-height-error`}
             onChange={(event) => setHeight(event.currentTarget.value)}
           />
         </div>
       </fieldset>
       {!validHeight && (
-        <p role="alert">
+        <p role="alert" id={`${instance}-height-error`}>
           Choose a whole-number height from 400 to 2000 pixels. The existing preview has not
           changed.
         </p>
