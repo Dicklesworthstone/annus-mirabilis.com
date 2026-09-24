@@ -7,7 +7,16 @@
  * names is on the page's shelf (src/content/massEnergyShelf.ts), where the one 1905 import is
  * marked as one.
  */
-import type { Fork, JourneyMove, PpeTask, SourceJump } from "../../content/schemas/journey.ts";
+import type {
+  Doors,
+  Fork,
+  JourneyMove,
+  PpeTask,
+  SourceJump,
+  WorldCheck,
+} from "../../content/schemas/journey.ts";
+import { ME03_DEFAULTS } from "../../experiments/me03/definition.ts";
+import { encodeMe03Settings } from "../../experiments/me03/permalink.ts";
 
 /** The observation that does not fit (plan §9.5). */
 export const NAGGING_FACT =
@@ -135,4 +144,67 @@ export const PPE_TASK: PpeTask = {
     "Open the boundary ledger with one joule emitted and the boundary around the body alone, and read the change in mass. Then move the boundary around the body and its light together, and read it again.",
   explainPrompt:
     "Explain both readings. Say what you divide the energy by and why the first answer is so small, and why the second is zero.",
+};
+
+/**
+ * Check it against the world (plan §9.1 item 7, §9.5). The prediction is ME-03's own massChange
+ * for the energy the reader lets leave, read from the accepted snapshot of the boundary ledger
+ * embedded beside it. The static reference is the paper's last page (plate p. 641): "ändert sich
+ * die Energie um L, so ändert sich die Masse in demselben Sinne um L/9.10^20, wenn die Energie in
+ * Erg und die Masse in Grammen gemessen wird", and its suggestion that radium salts might test it.
+ */
+export const WORLD_CHECK: WorldCheck = {
+  id: "me-world-check-mass",
+  claim:
+    "The paper ends with a number and a suggestion. A change of energy L changes the mass by L/9·10^20, with the energy in erg and the mass in grams, and bodies whose energy content changes a great deal, radium salts for instance, might test it. Let an energy leave in the ledger below and read the mass that goes with it.",
+  instrumentId: "me-03",
+  quantityId: "massChange",
+  expected: "L/9·10^20 grams for an energy L in erg",
+  comparisonKind: "printed-prediction",
+  staticWorkedExample: {
+    label: "What Einstein printed on the paper's last page",
+    value: "the mass changes by L/9·10^20, with the energy in erg and the mass in grams",
+    unit: "",
+    constantSetId: "einstein-1905-printed",
+  },
+};
+
+/** ME-03 opened in its 1906 box mode: the side door for programmers. */
+export const BOX_1906_HREF = `/lab/me-03/${encodeMe03Settings({ ...ME03_DEFAULTS, mode: "box-1906" })}`;
+
+/**
+ * The doors (plan §9.5): the paper's argument, the 1906 box for programmers (labelled 1906, with
+ * the credit to Poincaré), and the no-algebra door of two accounting sheets. All arrive at the
+ * same result, and the page says so.
+ */
+export const DOORS: Doors = {
+  frontDoor: {
+    id: "door-me-front",
+    title: "The paper's argument: two accounts of one emission",
+    arrivesAtEquationId: "eq-model-me-mass-decrease",
+    arrivesAtLabel: "the mass falls by L/V²",
+    href: "/papers/mass-energy/#arg-me-two-ledgers",
+    summary:
+      "Write the body's energy in two frames, take one account from the other, and read the slow-speed limit.",
+  },
+  sideDoors: [
+    {
+      id: "door-me-box-1906",
+      title: "The 1906 box, for programmers",
+      arrivesAtEquationId: "eq-model-me-mass-decrease",
+      arrivesAtLabel: "the mass falls by L/V²",
+      href: BOX_1906_HREF,
+      summary:
+        "Einstein's argument of 1906, crediting Poincaré's fluid of 1900: a pulse crosses a floating box, and the centre of mass stays put only if the light carries the mass E/c². It comes after the paper, and says so.",
+    },
+    {
+      id: "door-me-two-sheets",
+      title: "Two accounting sheets and one subtraction",
+      arrivesAtEquationId: "eq-model-me-mass-decrease",
+      arrivesAtLabel: "the mass falls by L/V²",
+      href: "/papers/mass-energy/#entry-mass-energy",
+      summary:
+        "No algebra: keep one sheet for an observer at rest and one for an observer gliding past, and take one from the other.",
+    },
+  ],
 };
