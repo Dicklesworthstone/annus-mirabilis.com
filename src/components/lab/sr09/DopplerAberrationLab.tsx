@@ -123,7 +123,7 @@ export function DopplerAberrationLab({
         {withScripts(SR09_CAPTION.r3)}
       </p>
       <div className="lab-columns">
-        <form onSubmit={submit} aria-label="Doppler and aberration settings">
+        <form noValidate onSubmit={submit} aria-label="Doppler and aberration settings">
           <fieldset disabled={!ready}>
             <legend>Set the observer and the ray</legend>
             <div className="lab-choice">

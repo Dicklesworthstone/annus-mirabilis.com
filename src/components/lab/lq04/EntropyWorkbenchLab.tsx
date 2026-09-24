@@ -186,7 +186,7 @@ export function EntropyWorkbenchLab({
       </noscript>
 
       <div className="lab-columns">
-        <form onSubmit={submit} aria-label="Constrained-state comparison controls">
+        <form noValidate onSubmit={submit} aria-label="Constrained-state comparison controls">
           <fieldset>
             <legend>Volume ratio V / V₀</legend>
             <fieldset>

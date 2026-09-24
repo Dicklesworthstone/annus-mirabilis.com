@@ -131,6 +131,7 @@ export function MagnetConductorLab({
       </noscript>
       <div className="lab-columns">
         <form
+          noValidate
           onSubmit={submit}
           aria-label="Magnet and conductor settings"
           aria-describedby={error ? `${id}-error` : undefined}

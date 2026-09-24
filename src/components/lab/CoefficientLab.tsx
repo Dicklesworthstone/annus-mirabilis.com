@@ -298,6 +298,7 @@ export function CoefficientLab({
             />
           </details>
           <form
+            noValidate
             onSubmit={submit}
             aria-label="Mass-energy coefficient settings"
             aria-describedby={error ? `${id}-error` : undefined}

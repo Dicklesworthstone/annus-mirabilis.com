@@ -247,6 +247,7 @@ export function ChargeCurrentLab({
       </nav>
 
       <form
+        noValidate
         onSubmit={submit}
         className="lab-controls"
         style={{ display: "flex", flexDirection: "column", gap: "1rem", paddingTop: "0.5rem" }}

@@ -207,7 +207,12 @@ export function LightThreadLab() {
       </noscript>
       <div className="lab-columns">
         <div>
-          <form className={styles.controls} onSubmit={submit} aria-label="Light-thread settings">
+          <form
+            noValidate
+            className={styles.controls}
+            onSubmit={submit}
+            aria-label="Light-thread settings"
+          >
             <fieldset disabled={!ready}>
               <legend className="visually-hidden">
                 Keep the pulse fixed, or change what was emitted

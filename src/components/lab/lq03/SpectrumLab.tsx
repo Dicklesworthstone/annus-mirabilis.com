@@ -219,6 +219,7 @@ export function SpectrumLab({
 
       <div className="lab-columns">
         <form
+          noValidate
           onSubmit={submit}
           aria-label="Radiation spectrum settings"
           aria-describedby={error ? `${id}-error` : undefined}

@@ -157,7 +157,7 @@ export function LightComplexLab({
         {withScripts(SR10_CAPTION.r3)}
       </p>
       <div className="lab-columns">
-        <form onSubmit={submit} aria-label="Light complex settings">
+        <form noValidate onSubmit={submit} aria-label="Light complex settings">
           <fieldset disabled={!ready}>
             <legend>Set observer speed and packet parameters</legend>
             <div className="lab-choice">

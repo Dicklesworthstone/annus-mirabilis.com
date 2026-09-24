@@ -174,7 +174,7 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
         side by side and a phone shows the result before the form that drives it. */}
       <div className="lab-columns">
         <div>
-          <form onSubmit={apply} aria-label="Configuration comparison settings">
+          <form noValidate onSubmit={apply} aria-label="Configuration comparison settings">
             <fieldset disabled={!ready}>
               <legend>Hold these settings fixed for both models</legend>
               <label htmlFor={`${id}-n`}>Number of labeled points</label>
@@ -380,7 +380,7 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
           known n and f, and identical independently repeated trials. Counting errors, finite
           cluster geometry and partially correlated models are not included.
         </p>
-        <form onSubmit={analyze}>
+        <form noValidate onSubmit={analyze}>
           <label htmlFor={`${id}-record`}>
             Frequencies for K = 0 through {n}, separated by commas or spaces
           </label>

@@ -383,6 +383,7 @@ export function RodSimultaneityLab({
         <ExperimentSettings contents="speed, frames, rod length, sphere radius, event pair">
           {/* Controls Form */}
           <form
+            noValidate
             onSubmit={submit}
             aria-label="Rod measurement and simultaneity settings"
             aria-describedby={error ? `${id}-error` : undefined}

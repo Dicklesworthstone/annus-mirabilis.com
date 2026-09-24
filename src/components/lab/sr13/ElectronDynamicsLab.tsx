@@ -134,7 +134,7 @@ export function ElectronDynamicsLab({
         </p>
       </noscript>
       <div className="lab-columns">
-        <form onSubmit={submit} aria-label="Electron dynamics controls">
+        <form noValidate onSubmit={submit} aria-label="Electron dynamics controls">
           <fieldset disabled={!ready}>
             <legend>Set field strengths, initial speed, and conventions</legend>
             <div className="lab-choice">

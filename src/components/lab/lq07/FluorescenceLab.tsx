@@ -313,7 +313,7 @@ export function FluorescenceLab({
           paddingTop: "1.5rem",
         }}
       >
-        <form onSubmit={submit} className="input-grid">
+        <form noValidate onSubmit={submit} className="input-grid">
           {/* 1. Incident Frequency nu1 */}
           <div className="input-field">
             <label htmlFor={`${id}-nu1`}>Exciting frequency ν₁ (100 – 3000 THz):</label>

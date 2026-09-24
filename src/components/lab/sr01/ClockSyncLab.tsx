@@ -270,7 +270,7 @@ export function ClockSyncLab({
         ))}
       </div>
 
-      <form className="lab-controls" onSubmit={submit}>
+      <form noValidate className="lab-controls" onSubmit={submit}>
         <fieldset className="control-group">
           <legend>Stations and signal</legend>
           <div className="control-row">

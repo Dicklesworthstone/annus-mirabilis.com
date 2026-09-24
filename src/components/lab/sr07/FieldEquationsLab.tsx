@@ -174,7 +174,7 @@ export function FieldEquationsLab({
       </noscript>
       <div className="lab-columns">
         <div>
-          <form onSubmit={submit}>
+          <form noValidate onSubmit={submit}>
             <fieldset>
               <legend>Equation and step</legend>
               <div className="input-field">
@@ -325,6 +325,7 @@ export function FieldEquationsLab({
           <p className="sr07-step">{SR07_STEPS[p.stepIndex]}</p>
           {p.equationId === "ampere-x" && p.stepIndex === 2 && predict === null ? (
             <form
+              noValidate
               onSubmit={(e) => {
                 e.preventDefault();
                 const chosen = new FormData(e.currentTarget).get("candidate");

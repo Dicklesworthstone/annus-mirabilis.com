@@ -149,6 +149,7 @@ export function FieldFrameChangeLab({
 
       <div className="lab-columns">
         <form
+          noValidate
           onSubmit={submit}
           aria-label="Electric and magnetic frame change settings"
           aria-describedby={error ? `${id}-error` : undefined}
