@@ -304,5 +304,5 @@ $$
 
 Möge es bald einem Forscher gelingen, die hier aufgeworfene, für die Theorie der Wärme wichtige Frage zu entscheiden!
 
-[[DATELINE]]Bern, Mai 1905.[[/DATELINE]]
+[[DATELINE]][[SPERR]]Bern[[/SPERR]], Mai 1905.[[/DATELINE]]
 [[RECEIVED]](Eingegangen 11. Mai 1905.)[[/RECEIVED]]

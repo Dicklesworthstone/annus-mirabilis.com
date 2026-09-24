@@ -417,7 +417,7 @@ j = \frac{L}{R \beta \nu} .
 $$
 Diese Beziehung muß, wenn unsere Auffassung der Wirklichkeit entspricht, für jedes Gas gelten, welches (bei der betreffenden Frequenz) keine merkliche nicht von Ionisation begleitete Absorption aufweist.
 
-[[DATELINE]]Bern, den 17. März 1905.[[/DATELINE]]
+[[DATELINE]][[SPERR]]Bern[[/SPERR]], den 17. März 1905.[[/DATELINE]]
 
 [[FN 1)]] J. [[SPERR]]Stark[[/SPERR]], Die Elektrizität in Gasen p. 57. Leipzig 1902.
 [[FN 2)]] Im Gasinnern ist die Ionisierungsspannung für negative Ionen allerdings fünfmal größer.
