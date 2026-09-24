@@ -99,3 +99,24 @@ describe("sr-06 composition against kinematics.ts (am-sr-06-velocity-composition
     expect(scalar("fizeauIncrement", out) / 3.08676358).toBeCloseTo(1, 8);
   });
 });
+
+describe("SR-06 two-boosts mode reports the doubly boosted frame's velocity", () => {
+  const read = (p: Partial<typeof SR06_DEFAULTS>, id: string) => {
+    const o = evaluateSr06({ ...SR06_DEFAULTS, ...p }).find((r) => r.quantityId === id);
+    return o?.status === "value" && typeof o.value === "number" ? o.value : Number.NaN;
+  };
+  test("0.6c then 0.6c at right angles: speed 0.768375c, consistent with gamma 1.5625", () => {
+    // Before the fix the table showed the moving point's collinear 0.882c here, beside the product's
+    // gamma 1.5625, which belongs to 0.768c. The bead's fixture is 0.768375c.
+    const p = { mode: "two-boosts" as const, frameBeta: 0.6, secondBeta: 0.6, secondAngleDeg: 90 };
+    const U = read(p, "composedSpeedOverC");
+    expect(U).toBeCloseTo(0.768375, 6);
+    expect(read(p, "composedUxOverC")).toBeCloseTo(0.6, 12);
+    expect(read(p, "composedUyOverC")).toBeCloseTo(0.48, 12);
+    expect(1 / Math.sqrt(1 - U * U)).toBeCloseTo(read(p, "composedGamma"), 10);
+  });
+  test("the collinear and angled modes still compose the moving point", () => {
+    expect(read({ mode: "collinear" }, "composedSpeedOverC")).toBeCloseTo(15 / 17, 12);
+    expect(read({ mode: "angled", alphaDeg: 90 }, "composedSpeedOverC")).toBeCloseTo(0.768375, 6);
+  });
+});
