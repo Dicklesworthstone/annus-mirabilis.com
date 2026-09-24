@@ -9,7 +9,8 @@
  *
  * Exit codes:
  * - 0: All executed and required steps passed
- * - 1: Any executed or required step failed
+ * - 1: Any executed or required step failed, or NOTHING RAN: no step executed and at least one
+ *      was skipped
  * - 2: Refused (e.g. required step unavailable in profile mode)
  */
 
@@ -69,7 +70,7 @@ export interface QualityGatesSummary {
   readonly profile?: GateProfile | undefined;
   readonly cadence: GateCadence | "all";
   readonly family: GateFamily | "all";
-  readonly outcome: "passed" | "failed" | "refused";
+  readonly outcome: "passed" | "failed" | "refused" | "nothing-ran";
   readonly exitCode: number;
   readonly totalSteps: number;
   readonly passedCount: number;
@@ -458,12 +459,33 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
         })
       : [];
 
-  let overallOutcome: "passed" | "failed" | "refused" = "passed";
+  // A run that executed no step and skipped at least one examined nothing, and a pass over nothing
+  // reads exactly like a clean one (AGENTS.md, "A Tool's Exit Code Is Not Evidence Until You Know
+  // What It Examined"). Measured 2026-09-24: `bun run gates:apple` with xcodebuild off PATH printed
+  // "Status: PASSED (exit code: 0)" over 0 passed and 15 skipped. A partial skip still passes.
+  const nothingRan = passedCount + failedCount === 0 && skippedCount > 0;
+
+  let overallOutcome: QualityGatesSummary["outcome"] = "passed";
   let exitCode = 0;
 
   if (refusedCount > 0) {
     overallOutcome = "refused";
     exitCode = 2;
+  } else if (nothingRan) {
+    overallOutcome = "nothing-ran";
+    exitCode = 1;
+    if (!silent) {
+      const reasons = new Map<string, number>();
+      for (const r of results) {
+        if (r.outcome !== "skipped") continue;
+        const reason = r.reason || "unstated";
+        reasons.set(reason, (reasons.get(reason) ?? 0) + 1);
+      }
+      const why = [...reasons].map(([reason, n]) => `${n} for ${reason}`).join(", ");
+      console.error(
+        `\n🚨 NOTHING RAN: 0 of ${selectedSteps.length} selected step(s) executed; ${skippedCount} skipped (${why}). A run that examined nothing is not a pass.`,
+      );
+    }
   } else if (failedCount > 0 || hasFailed || unmetRequiredSteps.length > 0) {
     overallOutcome = "failed";
     exitCode = 1;
@@ -503,7 +525,8 @@ export function runQualityGates(options: QualityGatesOptions = {}): QualityGates
   if (!silent) {
     console.log(`\n======================================================`);
     console.log(`📊 Quality Gates Summary`);
-    console.log(`   Status:        ${overallOutcome.toUpperCase()} (exit code: ${exitCode})`);
+    const status = overallOutcome === "nothing-ran" ? "NOTHING RAN" : overallOutcome.toUpperCase();
+    console.log(`   Status:        ${status} (exit code: ${exitCode})`);
     console.log(`   Duration:      ${summary.durationMs}ms`);
     console.log(`   Steps Passed:  ${passedCount}`);
     console.log(`   Steps Failed:  ${failedCount}`);

@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 import { generateLogRunId } from "./app-router-architecture.ts";
 import {
   type GateCadence,
@@ -13,6 +14,7 @@ import {
 } from "./quality-gates/registry.ts";
 import { classifyTestFile, partitionTestFiles } from "./quality-gates/test-runner.ts";
 import { parseCliArgs, runQualityGates } from "./quality-gates.ts";
+import { spawnObserved } from "./spawnObserved.ts";
 
 function expect<T>(actual: T) {
   return {
@@ -553,6 +555,94 @@ describe("Quality Gates Runner Engine", () => {
       expect(summary.totalSteps).toBe(0);
       expect(summary.results.length).toBe(0);
     }
+  });
+
+  // A run that executes nothing reads exactly like a clean one. Measured 2026-09-24: `bun run
+  // gates:apple` with xcodebuild off PATH printed "Status: PASSED (exit code: 0)" over 0 passed and
+  // 15 skipped. This drives the real CLI on the real apple family with every tool absent.
+  it("reports NOTHING RAN and exits 1 when every step of a family is skipped for a missing tool", () => {
+    const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+    const apple = QUALITY_GATE_STEPS.filter((step) => step.family === "apple");
+    // Non-vacuity: an emptied apple family would select nothing, skip nothing, and prove nothing.
+    assert.ok(apple.length > 0, "the registry has an apple family");
+    assert.ok(
+      apple.every((step) => step.availability?.tool !== undefined),
+      "every apple step names a tool, so an empty PATH skips every one of them",
+    );
+    const runtimeFlags = process.versions.bun ? [] : ["--experimental-strip-types"];
+    const run = spawnObserved(
+      process.execPath,
+      [...runtimeFlags, "scripts/quality-gates.ts", "--fail-fast", "--family", "apple"],
+      // A PATH naming one directory that does not exist: no tool is found, so nothing is spawned.
+      { cwd: root, env: { ...process.env, PATH: join(root, "no-such-bin-directory") } },
+    );
+    const output = `${run.stdout}\n${run.stderr}`;
+    assert.equal(run.exitCode, 1, output);
+    assert.match(output, /Status: +NOTHING RAN \(exit code: 1\)/);
+    assert.match(output, /NOTHING RAN: 0 of \d+ selected step\(s\) executed/);
+    assert.match(output, new RegExp(`Skipped: +${apple.length}\\n`));
+    assert.match(output, /Steps Passed: +0\n/);
+    assert.doesNotMatch(output, /Status: +PASSED/);
+  });
+
+  it("reports NOTHING RAN when every selected step is skipped for its cadence", () => {
+    const summary = runQualityGates({
+      steps: [
+        {
+          id: "nightly-only-step",
+          title: "Nightly only",
+          command: ["bun", "-e", "process.exit(0)"],
+          family: "perf",
+          cadence: "nightly",
+          requiredInCi: false,
+          requiredInProfiles: ["launch"],
+          availability: {},
+          owner: "test-owner",
+        },
+      ],
+      mode: "all",
+      family: "perf",
+      silent: true,
+    });
+    expect(summary.skippedCount).toBe(1);
+    expect(summary.passedCount).toBe(0);
+    expect(summary.outcome).toBe("nothing-ran");
+    expect(summary.exitCode).toBe(1);
+  });
+
+  it("still passes a run that skipped some steps and ran the rest", () => {
+    const summary = runQualityGates({
+      steps: [
+        {
+          id: "runs-step",
+          title: "Runs",
+          command: ["bun", "-e", "process.exit(0)"],
+          family: "fast",
+          cadence: "every-run",
+          requiredInCi: false,
+          requiredInProfiles: [],
+          availability: {},
+          owner: "test-owner",
+        },
+        {
+          id: "skipped-step",
+          title: "Tool absent",
+          command: ["non_existent_tool_12345"],
+          family: "fast",
+          cadence: "every-run",
+          requiredInCi: false,
+          requiredInProfiles: [],
+          availability: { tool: "non_existent_tool_12345" },
+          owner: "test-owner",
+        },
+      ],
+      mode: "fail-fast",
+      silent: true,
+    });
+    expect(summary.passedCount).toBe(1);
+    expect(summary.skippedCount).toBe(1);
+    expect(summary.outcome).toBe("passed");
+    expect(summary.exitCode).toBe(0);
   });
 
   it("writes valid structured JSONL logs and summary lines with evidence retention on failure", () => {
