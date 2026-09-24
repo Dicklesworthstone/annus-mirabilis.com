@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { encodeTapePermalink } from "./codec.ts";
+import { useEffect, useState } from "react";
+import { encodeTapePermalinkInBrowser } from "./browserCodec.ts";
 import "./permalink.css";
 import { SHARE_FORMS } from "./shareForms.ts";
 import type { TapeV2 } from "./types.ts";
 
 export type ShareControlProps = {
   readonly tape: TapeV2;
+  /** The page the link opens; by default the page this control is on, without its query. */
   readonly baseUrl?: string;
   readonly onCopied?: () => void;
 };
@@ -22,25 +23,37 @@ export type ShareControlProps = {
  * 4. Works without clipboard permission by exposing the URL in a selectable read-only input.
  * 5. Explicitly states whether predictions are included and offers a toggle to exclude them.
  * 6. Builds strictly the experiment permalink form, never carrying passage or notebook state.
+ * 7. Encodes in the browser (browserCodec.ts): codec.ts's node:zlib exists only on the server, so
+ *    until 2026-09-24 this control could not run in a page. The link appears once it is encoded,
+ *    and the copy action waits for it.
  */
-export function ShareControl({
-  tape,
-  baseUrl = "https://annus-mirabilis.com/lab/bm-01",
-  onCopied,
-}: ShareControlProps) {
+export function ShareControl({ tape, baseUrl, onCopied }: ShareControlProps) {
   const [includePredictions, setIncludePredictions] = useState<boolean>(true);
   const [copied, setCopied] = useState<boolean>(false);
+  const [shareUrl, setShareUrl] = useState<string>("");
 
   const hasPredictions = Boolean(tape.predictions && tape.predictions.length > 0);
   const formSpec = SHARE_FORMS["experiment-preset"];
+  // Keyed on the tape's content, so a caller that rebuilds an equal tape each render does not
+  // re-encode, and a changed tape always does.
+  const tapeKey = JSON.stringify(tape);
 
-  const encodedTape = encodeTapePermalink(tape, {
-    includePredictions: hasPredictions ? includePredictions : false,
-  });
-
-  const shareUrl = `${baseUrl}?tape=${encodedTape}`;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: tapeKey stands for tape's content.
+  useEffect(() => {
+    let live = true;
+    const base = baseUrl ?? `${window.location.origin}${window.location.pathname}`;
+    void encodeTapePermalinkInBrowser(tape, {
+      includePredictions: hasPredictions ? includePredictions : false,
+    }).then((encoded) => {
+      if (live) setShareUrl(`${base}?tape=${encoded}`);
+    });
+    return () => {
+      live = false;
+    };
+  }, [tapeKey, baseUrl, hasPredictions, includePredictions]);
 
   const handleCopy = async () => {
+    if (!shareUrl) return;
     try {
       if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(shareUrl);
@@ -97,6 +110,7 @@ export function ShareControl({
           onClick={handleCopy}
           className="share-control-button"
           data-testid="copy-button"
+          disabled={!shareUrl}
           aria-label={formSpec.label}
         >
           {formSpec.label}

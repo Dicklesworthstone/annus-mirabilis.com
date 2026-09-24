@@ -33,16 +33,10 @@ describe("no module reachable from a client entry reads a node: builtin (am-t84m
    * exists to catch. Keyed on the chain, this entry excuses exactly the path that is already
    * here and refuses every new one.
    */
-  const KNOWN: ReadonlyMap<string, string> = new Map([
-    [
-      "src/experiments/permalink/ShareControl.tsx -> src/experiments/permalink/codec.ts",
-      "encodeTapePermalink calls deflateRawSync (codec.ts:149), so the client path genuinely" +
-        " compresses; it needs a browser-safe codec (CompressionStream or a bundled deflate)," +
-        " NOT a webpack fallback, which would emit permalinks that decode to nothing. Dead code" +
-        " today - ShareControl is imported only by an unused barrel - which is why webpack is" +
-        " silent. Owned by the permalink work, not by this gate.",
-    ],
-  ]);
+  // Empty since 2026-09-24: the one entry, "ShareControl.tsx -> permalink/codec.ts" (deflateRawSync
+  // from node:zlib), was repaired as this entry asked, with a browser-safe codec: ShareControl now
+  // encodes with CompressionStream through permalink/browserCodec.ts, and codec.ts is server-only.
+  const KNOWN: ReadonlyMap<string, string> = new Map([]);
 
   test("no node: builtin is reachable from any client entry by a value import", () => {
     const report = scan.findings
