@@ -402,6 +402,68 @@
   stroke-width: 2;
 }
 
+/*
+ * ConfigurationCounter.tsx: one card per arrangement. The kept part of the box is shaded, the cell
+ * walls are thin rules, and a card with every particle inside carries a heavy outline and the words
+ * "all inside", so the shading never carries the difference alone.
+ */
+.config-cards {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 0.5rem;
+}
+
+.config-card {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.25rem;
+  text-align: center;
+  font-size: var(--type-fine);
+}
+
+.config-card-inside {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+.config-box {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.config-kept {
+  fill: var(--wash);
+}
+
+.config-cell {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1;
+}
+
+.config-particle {
+  fill: var(--ink);
+}
+
+.config-mark {
+  display: block;
+  font-family: var(--font-mono, monospace);
+}
+
+.config-inside-note {
+  display: block;
+  font-weight: 600;
+}
+
+.config-splits {
+  width: auto;
+  margin: 0.5rem 0 1rem;
+}
+
 /* Print Media Styles */
 @media print {
   .proportional-controls,

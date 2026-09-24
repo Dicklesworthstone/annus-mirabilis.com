@@ -1,6 +1,7 @@
 "use client";
 
 import { BoostTable } from "./BoostTable.tsx";
+import { ConfigurationCounter } from "./ConfigurationCounter.tsx";
 import { foundationConstructionId } from "./constructionIds.ts";
 import { DescriptionOrWorld } from "./DescriptionOrWorld.tsx";
 import { HeldFixedToggle } from "./HeldFixedToggle.tsx";
@@ -73,5 +74,7 @@ export function FoundationConstruction({
       return <DescriptionOrWorld headingLevel={headingLevel} />;
     case "two-measurements-two-unknowns":
       return <TwoCurves headingLevel={headingLevel} />;
+    case "entropy-multiplicity":
+      return <ConfigurationCounter headingLevel={headingLevel} />;
   }
 }

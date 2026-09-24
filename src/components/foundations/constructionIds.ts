@@ -29,6 +29,7 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "dot-cross-products",
   "conservation-symmetry",
   "two-measurements-two-unknowns",
+  "entropy-multiplicity",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];
