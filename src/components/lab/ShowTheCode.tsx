@@ -65,8 +65,12 @@ function TraceTable({ trace }: { trace: WorkedTrace }) {
                 <th scope="row">{row.label}</th>
                 <td>
                   {row.opId ? (
-                    <a href={`#${row.opId}`} aria-label={`Operation explanation for ${row.opId}`}>
+                    // Named by the expression a reader sees, then where it goes. It was named
+                    // "Operation explanation for eq-model-bm-diffusivity.op.drag", an id, and a
+                    // screen reader heard that in place of "6 π η a".
+                    <a href={`#${row.opId}`}>
                       {withScripts(row.expression)}
+                      <span className="visually-hidden"> (this operation in the equation)</span>
                     </a>
                   ) : (
                     withScripts(row.expression)
