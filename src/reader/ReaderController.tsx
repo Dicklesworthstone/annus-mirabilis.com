@@ -42,6 +42,8 @@ type Props = {
   registry: ReaderRegistry;
   titles: Readonly<Record<string, string>>;
   questions: Readonly<Record<string, string>>;
+  /** The Letters control's reach on this paper, from the built payload (notationReachLine). */
+  notationHelp?: string | undefined;
 };
 /** The nearest element above `el` whose id the page registers as a place to return to. */
 function enclosingAnchor(el: HTMLElement, anchors: readonly string[]): HTMLElement | null {
@@ -56,6 +58,7 @@ export function ReaderController(props: Props) {
   const navigation = JSON.stringify(props);
   const detailId = useId();
   const notationId = useId();
+  const notationHelpId = useId();
   // The Letters control is this component's own element, on the papers that have it; a ref, not a
   // lookup, so a paper without it simply has none.
   const notationRef = useRef<HTMLSelectElement>(null);
@@ -741,6 +744,7 @@ export function ReaderController(props: Props) {
                 ref={notationRef}
                 data-notation-control
                 defaultValue="printed"
+                aria-describedby={props.notationHelp ? notationHelpId : undefined}
                 disabled
               >
                 <option value="printed">Einstein's letters</option>
@@ -753,6 +757,11 @@ export function ReaderController(props: Props) {
             Show modern qualifications
           </label>
         </div>
+        {NOTATION_TOGGLE_PAPERS.includes(props.registry.paperId) && props.notationHelp ? (
+          <p className="fine" id={notationHelpId} data-notation-reach>
+            {props.notationHelp}
+          </p>
+        ) : null}
         <p
           className="reader-announcement fine"
           role="status"

@@ -24,7 +24,7 @@ import missingSteps from "../generated/missing-steps.json";
 import { FirstUseCallout } from "./FirstUseCallout.tsx";
 import { firstUseCallouts } from "./firstUse.ts";
 import { OutlineSectionTitle } from "./OutlineSectionTitle.tsx";
-import { paperEquations } from "./paperEquations.ts";
+import { notationReach, notationReachLine, paperEquations } from "./paperEquations.ts";
 import { originalHref, paperSourceFaces } from "./paperSourceFaces.ts";
 import { PaperStatus } from "./paperStatus.tsx";
 import { passageKind } from "./passageKind.ts";
@@ -94,6 +94,9 @@ export async function PaperReader({
     ...sections.map((s) => s.id),
   ];
   const registry = { paperId: paper.id, anchors, foundations: foundations.map((f) => f.id) };
+  // The Letters control says how many of the paper's formulas it redraws (paperEquations.ts).
+  const reach = notationReach(paper.id);
+  const notationHelp = reach ? notationReachLine(reach) : undefined;
   const titles = Object.fromEntries(foundations.map((f) => [f.id, f.title]));
   const questions = Object.fromEntries(args.map((a) => [a.id, a.question]));
   if (showsEntrance) questions[ENTRY_ANCHOR] = validateEntranceRecord(brownianEntrance).question;
@@ -145,7 +148,12 @@ export async function PaperReader({
           <a href={`/papers/brownian-motion/#${section}`}>Read this section in the whole paper →</a>
         )}
       </header>
-      <ReaderController registry={registry} titles={titles} questions={questions} />
+      <ReaderController
+        registry={registry}
+        titles={titles}
+        questions={questions}
+        notationHelp={notationHelp}
+      />
       <noscript>
         <p className="notice">
           JavaScript is off. The full explanation is shown. Each passage’s “Show every step here”

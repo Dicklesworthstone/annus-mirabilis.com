@@ -51,7 +51,7 @@ export type Notation = "printed" | "modern";
  * build draws a second time in Einstein's letters (scripts/build-equations.ts). A paper joins with
  * both at once: a control with nothing to switch, or letters with no control, is not shipped.
  */
-export const NOTATION_TOGGLE_PAPERS: readonly string[] = ["special-relativity"];
+export const NOTATION_TOGGLE_PAPERS: readonly string[] = ["special-relativity", "brownian-motion"];
 /** Self-contained: the pre-paint script receives it through `.toString()`. */
 export function parseNotation(input: string | null): Notation | null {
   return input === "printed" || input === "modern" ? input : null;

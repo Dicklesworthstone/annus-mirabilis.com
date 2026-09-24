@@ -13,6 +13,7 @@ import { assignQuantityColours, QUANTITY_PALETTE } from "../src/equations/quanti
 import { compileEquation, compileEquationWithNotation } from "../src/equations/render.ts";
 import { NOTATION_TOGGLE_PAPERS } from "../src/reader/navigation/state.ts";
 import { paperSourceFaces } from "../src/reader/paperSourceFaces.ts";
+import { partLabel } from "../src/reader/unexplainedParts.ts";
 import { loadReadingFiles } from "./build-content.ts";
 
 const result = compileReadingContent(await loadReadingFiles());
@@ -57,6 +58,8 @@ const equations = [
           germanAvailable: sources?.availability.german === "available",
           germanFragment: sources?.sectionFragment(section) ?? "",
           pdfHref,
+          // The notes on one page link to different sections, so each link names its section.
+          part: section ? partLabel(section) : undefined,
         }),
       });
     });
@@ -69,7 +72,8 @@ const sourcePaths = [
   "src/equations/latex/render.ts",
   "src/equations/notationForms.ts",
   "src/equations/notationNoteTarget.ts",
-  "content/notation/special-relativity.yaml",
+  // Every paper whose records are drawn in Einstein's letters reads its concordance.
+  ...NOTATION_TOGGLE_PAPERS.map((paper) => `content/notation/${paper}.yaml`),
   "src/equations/record.ts",
   "src/equations/ast.ts",
   "src/equations/dimensions.ts",

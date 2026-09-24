@@ -5,7 +5,10 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { paperSourceFaces } from "../reader/paperSourceFaces.ts";
+import { NotationNote } from "./NotationNote.tsx";
 import { notationNoteTarget } from "./notationNoteTarget.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
 
@@ -16,6 +19,29 @@ describe("notationNoteTarget", () => {
       face: "german",
       href: "/papers/special-relativity/view/german/#s3",
     });
+  });
+  test("the German link names its section, so notes that open different sections read differently", () => {
+    expect(
+      notationNoteTarget({ ...base, germanAvailable: true, pdfHref: null, part: "§3" }),
+    ).toEqual({ face: "german", href: "/papers/special-relativity/view/german/#s3", part: "§3" });
+    // With no section to open at, the link opens the face and names no part.
+    expect(
+      notationNoteTarget({
+        ...base,
+        germanFragment: "",
+        germanAvailable: true,
+        pdfHref: null,
+        part: "§3",
+      }),
+    ).toEqual({ face: "german", href: "/papers/special-relativity/view/german/" });
+    const note = renderToStaticMarkup(
+      createElement(NotationNote, {
+        seeAt: { face: "german", href: "/papers/brownian-motion/view/german/#s4", part: "§4" },
+      }),
+    );
+    expect(note).toContain(
+      '<a href="/papers/brownian-motion/view/german/#s4">§4 of the German source face</a>',
+    );
   });
   test("the facsimile when the German face has nothing, and nothing when neither exists", () => {
     expect(notationNoteTarget({ ...base, germanAvailable: false, pdfHref: "/p.pdf" })).toEqual({

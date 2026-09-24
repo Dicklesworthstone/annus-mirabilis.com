@@ -10,7 +10,12 @@ export function NotationNote({ seeAt }: { seeAt?: NotationNoteTarget | undefined
   // Where his letters are, by the face chooser's rule: never a face that shows "not yet available".
   return (
     <p className="fine notation-note" data-notation-note="">
-      {seeAt?.face === "german" ? (
+      {seeAt?.face === "german" && seeAt.part ? (
+        <>
+          Shown in modern letters; Einstein's are in{" "}
+          <a href={seeAt.href}>{seeAt.part} of the German source face</a>.
+        </>
+      ) : seeAt?.face === "german" ? (
         <>
           Shown in modern letters; Einstein's are on the <a href={seeAt.href}>German source face</a>
           .

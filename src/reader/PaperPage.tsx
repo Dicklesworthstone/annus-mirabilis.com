@@ -48,7 +48,7 @@ import {
 import { MassEnergyDerivation } from "./MassEnergyDerivation.tsx";
 import { MassEnergyLowSpeed } from "./MassEnergyLowSpeed.tsx";
 import { OutlineSectionTitle } from "./OutlineSectionTitle.tsx";
-import { paperEquations } from "./paperEquations.ts";
+import { notationReach, notationReachLine, paperEquations } from "./paperEquations.ts";
 import {
   isFaceFallbackId,
   type PaperRouteRequest,
@@ -363,6 +363,9 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
     ...sections.map((s) => s.id),
   ];
   const registry = { paperId: paper.id, anchors, foundations: foundations.map((f) => f.id) };
+  // The Letters control says how many of the paper's formulas it redraws (paperEquations.ts).
+  const reach = notationReach(paper.id);
+  const notationHelp = reach ? notationReachLine(reach) : undefined;
   const titles = Object.fromEntries(foundations.map((f) => [f.id, f.title]));
   const questions = Object.fromEntries(args.map((a) => [a.id, a.question]));
   if (entrance) questions["entry-mass-energy"] = entrance.question;
@@ -392,7 +395,12 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           </p>
         )}
       </header>
-      <ReaderController registry={registry} titles={titles} questions={questions} />
+      <ReaderController
+        registry={registry}
+        titles={titles}
+        questions={questions}
+        notationHelp={notationHelp}
+      />
       <div className="reader-layout">
         <aside className="reader-outline">
           <h2>Follow the argument</h2>
