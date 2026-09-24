@@ -109,10 +109,13 @@ export function FirstPages({ invitations = false }: { invitations?: boolean }) {
           </span>
         ))}
       </div>
+      {/* The total is the sum of the receipts' page counts, the same numbers the marks are drawn
+          from, never typed into the copy. */}
       <figcaption className="fine">
-        Each paper&rsquo;s first page as printed, dated by the day the journal received it. The
-        German text is set for three of the four; the English translation, made from the German, has
-        not been started. Scans: Bell &amp; Howell / UMI microfilm, via the Internet Archive.
+        Each paper&rsquo;s first page as printed, dated by the day the journal received it:{" "}
+        {papers.reduce((sum, paper) => sum + paper.pages, 0)} printed pages in all. The German text
+        is set for three of the four; the English translation, made from the German, has not been
+        started. Scans: Bell &amp; Howell / UMI microfilm, via the Internet Archive.
       </figcaption>
     </figure>
   );

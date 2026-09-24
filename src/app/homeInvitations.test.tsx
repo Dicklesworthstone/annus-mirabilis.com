@@ -13,6 +13,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { exampleHref, INVITATIONS } from "../components/home/FirstPages.tsx";
+import { loadFirstPages } from "../components/home/firstPages.ts";
 import { paperStaticParams } from "../reader/paperRoutes.ts";
 import { exportMarkup } from "../testing/exportMarkup.ts";
 import { installDom, uninstallDom } from "../testing/reactDom.ts";
@@ -101,6 +102,18 @@ describe("the home page invites a reader into each paper with a question", () =>
   test("a missing route and a missing anchor are refused by the same resolver", async () => {
     expect(await unresolved("/papers/no-such-paper/")).toContain("not a generated route");
     expect(await unresolved("/papers/light-quanta/#entry-nowhere")).toContain("occurs 0 times");
+  });
+
+  test("the marks and the caption's total come from the receipts, not the copy", () => {
+    const papers = loadFirstPages();
+    expect(papers.length).toBeGreaterThan(0);
+    const marks = [
+      ...html.matchAll(/<span class="first-page-marks"[^>]*>((?:<i><\/i>)*)<\/span>/g),
+    ].map((m) => (m[1] ?? "").split("<i></i>").length - 1);
+    expect(marks).toEqual(papers.map((p) => p.pages));
+    const total = papers.reduce((sum, p) => sum + p.pages, 0);
+    expect(total).toBeGreaterThan(0);
+    expect(html).toContain(`${total} printed pages in all`);
   });
 
   test("the 404 page shows the first pages without invitations", async () => {
