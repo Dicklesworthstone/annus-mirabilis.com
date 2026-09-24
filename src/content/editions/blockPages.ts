@@ -152,6 +152,24 @@ export function storedDisplayPages(
   blocks: readonly ProposedBlock[],
   units: readonly ManifestUnit[],
 ): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const [id, unit] of Object.entries(pairDisplays(blocks, units))) {
+    if (unit.page !== undefined) out[id] = unit.page;
+  }
+  return out;
+}
+
+/**
+ * Each face display id and the manifest display it is, by the rule storedDisplayPages states: in
+ * reading order, body displays with body displays and footnote displays with footnote displays,
+ * and nothing from a list whose length differs from the face's or whose body displays disagree
+ * with the face on a section. The German face publishes each display under the manifest's id
+ * (manifestAnchors.ts); a display this leaves out has no id to publish.
+ */
+export function pairDisplays(
+  blocks: readonly ProposedBlock[],
+  units: readonly ManifestUnit[],
+): Record<string, ManifestUnit> {
   const footnotes = new Set(units.filter((u) => u.kind === "footnote").map((u) => u.id));
   const displays = units.filter((u) => u.kind === "display-equation");
   const inFootnote = (u: ManifestUnit) =>
@@ -167,7 +185,7 @@ export function storedDisplayPages(
       (block.kind === "footnote" ? faceNotes : faceBody).push(id);
     }
   }
-  const out: Record<string, number> = {};
+  const out: Record<string, ManifestUnit> = {};
   const pair = (face: readonly string[], manifest: readonly ManifestUnit[], sections: boolean) => {
     if (face.length !== manifest.length) return;
     // A face id's section is its prefix (s4-eq6); a manifest display without one is not checked.
@@ -175,8 +193,8 @@ export function storedDisplayPages(
     if (sections && face.some((id, i) => (manifest[i]?.section ?? section(id)) !== section(id)))
       return;
     face.forEach((id, i) => {
-      const page = manifest[i]?.page;
-      if (page !== undefined) out[id] = page;
+      const unit = manifest[i];
+      if (unit) out[id] = unit;
     });
   };
   pair(
