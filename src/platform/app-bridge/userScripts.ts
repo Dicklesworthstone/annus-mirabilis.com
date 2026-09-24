@@ -100,7 +100,8 @@ export function installBridge(
     editionOrigin !== "null"
   ) {
     const escaped = editionOrigin.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const pattern = new RegExp(`${escaped}(?=[/?#]|$)`, "g");
+    // Not followed by a hostname character, so "am-edition://editionX" is left alone.
+    const pattern = new RegExp(`${escaped}(?![A-Za-z0-9.-])`, "g");
     const toSite = (text: string) => text.replace(pattern, siteOrigin);
     const nav = navigator as Navigator & {
       clipboard?: { writeText?: (text: string) => Promise<void> };
