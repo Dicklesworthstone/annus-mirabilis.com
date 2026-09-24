@@ -164,7 +164,13 @@ entries:
     cluster: statistics-inference
     ownerBead: am-found-statistics-inference-pzqv
     status: authored
-    plannedCallers: []
+    plannedCallers:
+      - "lab:bm-07"
+      - "lab:bm-08"
+      - "lab:bm-07:kitchen"
+      - "lab:avogadro-lab"
+      - "molecular-dimensions"
+      - "lab:what-can-you-infer"
   - id: "foundation:two-measurements-two-unknowns"
     kind: node
     cluster: statistics-inference
