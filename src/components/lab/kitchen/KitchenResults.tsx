@@ -24,6 +24,21 @@ export const GAS_CONSTANT_PROVENANCE_LABELS: Readonly<Record<string, string>> = 
   "not-applicable": "this set declares no gas constant",
 };
 
+/**
+ * Reader names for the registered constant sets (content/quantities/constant-sets/*.yaml), so the
+ * card never prints an id such as "scenario-gas-constant-measured". The id stays in a data
+ * attribute; a set added later reads "the set the file declares" until it is named here.
+ */
+export const CONSTANT_SET_READER_NAMES: Readonly<Record<string, string>> = {
+  "modern-si-2019": "the 2019 SI",
+  "modern-codata-2022": "CODATA 2022",
+  "scenario-gas-constant-measured": "a gas constant measured from gases",
+  "einstein-1905-brownian-printed": "the Brownian paper's printed constants (1905)",
+  "einstein-1905-light-quanta-printed": "the light-quanta paper's printed constants (1905)",
+  "einstein-1905-mass-energy-printed": "the mass–energy paper's printed constants (1905)",
+  "planck-1900-1901-printed": "Planck's printed constants (1900–1901)",
+};
+
 export function KitchenPlot({ accepted }: { accepted: KitchenAccepted }) {
   const { document, report, snapshot } = accepted;
   const indices = report.tracks.find((t) => t.key === report.selectedTrack)?.indices ?? [];
@@ -228,7 +243,11 @@ export function KitchenResults({ accepted }: { accepted: KitchenAccepted }) {
         </>
       )}
       <p className="fine">
-        Gas-constant source: {r.constantSetId}. Classification:{" "}
+        Gas-constant source:{" "}
+        <span data-constant-set={r.constantSetId}>
+          {CONSTANT_SET_READER_NAMES[r.constantSetId] ?? "the set the file declares"}
+        </span>
+        . Classification:{" "}
         {GAS_CONSTANT_PROVENANCE_LABELS[r.gasConstantProvenance] ?? "not recorded"}. The
         interpretation depends on these declared inputs and does not certify a real suspension.
       </p>

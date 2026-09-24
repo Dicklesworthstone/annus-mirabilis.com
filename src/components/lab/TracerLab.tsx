@@ -555,7 +555,7 @@ export function TracerLab({
                       className="fine constant-set-annotation"
                       data-constant-set-id={constantSetId}
                     >
-                      ({constantSetId})
+                      ({constantSetLabel})
                     </span>
                   </td>
                 </tr>
@@ -567,7 +567,7 @@ export function TracerLab({
                       className="fine constant-set-annotation"
                       data-constant-set-id={constantSetId}
                     >
-                      ({constantSetId})
+                      ({constantSetLabel})
                     </span>
                   </td>
                 </tr>
@@ -586,7 +586,7 @@ export function TracerLab({
                       className="fine constant-set-annotation"
                       data-constant-set-id={constantSetId}
                     >
-                      ({constantSetId})
+                      ({constantSetLabel})
                     </span>
                   </td>
                 </tr>
@@ -599,7 +599,7 @@ export function TracerLab({
                       className="fine constant-set-annotation"
                       data-constant-set-id={constantSetId}
                     >
-                      ({constantSetId})
+                      ({constantSetLabel})
                     </span>
                   </td>
                 </tr>
