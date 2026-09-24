@@ -3,13 +3,15 @@ import { Formula } from "../../../components/edition/Formula.tsx";
 import { InlineFormula } from "../../../components/lab/InlineFormula.tsx";
 import { ClockSyncComparison } from "../../../components/lab/sr01/ClockSyncLab.tsx";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr01/session.ts";
+import labDigests from "../../../generated/lab-source-digests.json";
 
 export const metadata: Metadata = {
   title: "Clock synchronization with the event ledger",
 };
 
 export default function ClockSyncPage() {
-  const example = DEFAULT_PREPARED_EXAMPLE;
+  // The example names its host source by digest (scripts/generate-lab-digests.mjs).
+  const example = { ...DEFAULT_PREPARED_EXAMPLE, sourceDigest: labDigests["sr-01"] };
 
   return (
     <>

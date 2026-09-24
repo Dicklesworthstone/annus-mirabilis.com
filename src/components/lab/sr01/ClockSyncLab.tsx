@@ -1,12 +1,18 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
+import { executionLabelAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
 import {
   SR01_CAPTION,
   SR01_DEFAULTS,
   SR01_MODEL,
   SR01_NOT_MODELED,
+  SR01_OUTPUTS,
   SR01_PREDICT_MOVING_PAIR,
   SR01_PRESETS,
   type Sr01Parameters,
@@ -60,6 +66,17 @@ export function ClockSyncLab({
   );
   const fallbackParams = example?.parameters ?? SR01_DEFAULTS;
   const accepted = view.accepted;
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation; an example without a source digest
+  // earns no label at all.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      SR01_OUTPUTS,
+      example?.sourceDigest ?? "",
+      accepted !== undefined && accepted === session.getServerSnapshot().accepted,
+    ).label,
+  );
   const p = (accepted?.parameters ?? fallbackParams) as Sr01Parameters;
 
   const [draft, setDraft] = useState<Record<keyof Sr01Parameters, string>>(() => ({
@@ -171,12 +188,19 @@ export function ClockSyncLab({
       data-instance-id={accepted?.instanceId ?? "sr-01"}
       data-run-id={accepted?.runId ?? "sr01-init"}
       data-snapshot-version={accepted?.snapshotVersion ?? 0}
-      data-execution-label="host"
+      {...executionLabelAttributes(executionKind)}
       data-refusal-code={refusalCode ?? undefined}
     >
       <div className="lab-header">
-        <p className="eyebrow">{SR01_MODEL.label}</p>
+        <p className="eyebrow">An executable model</p>
         <h2>{title}</h2>
+      </div>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          modelNote={modelNoteFromView(view, { notModeled: `${SR01_NOT_MODELED.join("; ")}.` })}
+        />
       </div>
 
       {linkNote && (
