@@ -9,13 +9,14 @@
  */
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { createContainer, installDom, removeContainer, uninstallDom } from "../testing/reactDom.ts";
 import { LazyArgumentEquations } from "./LazyArgumentEquations.tsx";
 
-const GENERATED = join(import.meta.dir, "..", "generated");
+const GENERATED = join(dirname(fileURLToPath(import.meta.url)), "..", "generated");
 const PAPER_PAYLOADS = [
   "brownian-equations",
   "light-quanta-equations",
