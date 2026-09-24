@@ -367,3 +367,30 @@ describe("step 09: five pieces to work by hand, then predict, perturb and explai
     expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
   });
 });
+
+describe("every step of the chain can go straight to its explanation", () => {
+  const argumentSection = (id: string) => {
+    const file = join(process.cwd(), "content", "arguments", "light-quanta", `${id}.json`);
+    return existsSync(file)
+      ? (JSON.parse(readFileSync(file, "utf8")) as { section: string }).section
+      : null;
+  };
+  for (const n of ["01", "02", "03", "04", "05", "06", "07", "08"])
+    test(`step ${n} links an argument of the section it opens`, () => {
+      const start = html.indexOf(`<section id="step-${n}"`);
+      expect(start).toBeGreaterThan(-1);
+      // A step can hold sections of its own (step 08's world check), so it runs to the next
+      // step or to the aside, not to the first closing tag.
+      const ends = [html.indexOf('<section id="step-', start + 1), html.indexOf("<aside", start)];
+      const step = html.slice(start, Math.min(...ends.filter((i) => i > start)));
+      const links = [
+        // The door's text sits in nested spans, so the match runs to the link's end.
+        ...step.matchAll(
+          /<a[^>]*href="\/papers\/light-quanta\/(s\d)\/#([^"]+)"[^>]*>([\s\S]*?)<\/a>/g,
+        ),
+      ].filter((m) => (m[3] ?? "").includes("Go straight to the explanation"));
+      expect(links.length).toBe(1);
+      const [, section, anchor] = links[0] ?? [];
+      expect(argumentSection(anchor ?? "")).toBe(section);
+    });
+});

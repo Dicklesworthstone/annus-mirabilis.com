@@ -139,6 +139,10 @@ export default function LightQuantaRoute() {
         </p>
         <StepDoors>
           <StepDoor href="/lab/lq-01/">See what continuous waves account for</StepDoor>
+          <StepDoor href="/papers/light-quanta/s0/#arg-lq-wave-and-transfer">
+            Go straight to the explanation: what the wave account keeps, and where it was never
+            tested
+          </StepDoor>
         </StepDoors>
       </section>
 
@@ -370,6 +374,12 @@ export default function LightQuantaRoute() {
           have, and it is cited here rather than plotted: this edition&rsquo;s table of
           Millikan&rsquo;s points is withdrawn.
         </p>
+        <StepDoors>
+          <StepDoor href="/papers/light-quanta/s8/#arg-lq-stopping-and-losses">
+            Go straight to the explanation: the stopping voltage, and the paper&rsquo;s 4.3-volt
+            check
+          </StepDoor>
+        </StepDoors>
       </section>
 
       <section id="step-09">
