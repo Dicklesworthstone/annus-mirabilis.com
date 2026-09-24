@@ -19,6 +19,12 @@ export function snapshotOutputs(p: Sr10Parameters): ScientificResult[] {
   return [...snap.results];
 }
 
+/** The rigid-body countermodel for the same settings, under its model id. It is a named wrong
+ * model shown for comparison, so it is never published into the accepted snapshot. */
+export function sr10Comparison(p: Sr10Parameters) {
+  return evaluateSr10(sr10InputFromParameters(p)).countermodelComparison;
+}
+
 export const DEFAULT_PREPARED_EXAMPLE: PreparedSr10Example = Object.freeze({
   sourceDigest: "source:sha256:default-sr10",
   parameters: SR10_DEFAULTS,

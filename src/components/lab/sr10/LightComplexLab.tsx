@@ -8,7 +8,11 @@ import {
   type Sr10Parameters,
 } from "../../../experiments/sr10/definition.ts";
 import { validateSr10Parameters } from "../../../experiments/sr10/parameters.ts";
-import { createSr10Session, type PreparedSr10Example } from "../../../experiments/sr10/session.ts";
+import {
+  createSr10Session,
+  type PreparedSr10Example,
+  sr10Comparison,
+} from "../../../experiments/sr10/session.ts";
 import type {
   AcceptedSnapshot,
   PublishedResult,
@@ -108,10 +112,17 @@ export function LightComplexLab({
   const gammaVal = numericOf(result(snapshot, "lorentzFactor"));
   const energyDensityFactor = numericOf(result(snapshot, "energyDensityFactor"));
   const volumeFactor = numericOf(result(snapshot, "volumeFactor"));
-  const countermodelEnergy = numericOf(result(snapshot, "countermodelEnergyMoving"));
-  const countermodelVolume = numericOf(result(snapshot, "countermodelVolumeMoving"));
-  const countermodelEnergyFactor = numericOf(result(snapshot, "countermodelEnergyFactor"));
-  const countermodelVolumeFactor = numericOf(result(snapshot, "countermodelVolumeFactor"));
+  // The rigid-body countermodel is a labelled comparison beside the accepted snapshot, for the same
+  // accepted settings; none of the reader's numbers is taken from it.
+  const comparison = sr10Comparison(p);
+  const fromComparison = (quantityId: string) =>
+    numericOf(
+      comparison.results.find((r) => r.quantityId === quantityId) as PublishedResult | undefined,
+    );
+  const countermodelEnergy = fromComparison("countermodelEnergyMoving");
+  const countermodelVolume = fromComparison("countermodelVolumeMoving");
+  const countermodelEnergyFactor = fromComparison("countermodelEnergyFactor");
+  const countermodelVolumeFactor = fromComparison("countermodelVolumeFactor");
 
   return (
     <section
@@ -151,9 +162,11 @@ export function LightComplexLab({
             <div className="lab-choice">
               <p className="fine">
                 A bounded pulse of light does not transform like a solid rod. Its energy follows q =
-                γ(1 − β cos φ) and its volume 1/q. The tempting mistake, &ldquo;it contracts like a
-                rod&rdquo;, shows at φ = 90° in K, where q = γ and 1/γ differ by γ², and along the
-                axis. At cos φ = β the energy factor equals 1/γ, so that ray cannot tell them apart.
+                γ(1 − β cos φ) and its volume 1/q. The tempting mistake keeps light&rsquo;s energy
+                density, q², but gives the packet a rod&rsquo;s volume, 1/γ, so its energy becomes
+                q²/γ. Along the axis that is 0.2 against 0.5 at 0.6c, and for a ray transverse in
+                the moving frame, cos φ = β, it is 0.512 against 0.8. At φ = 90° in K, q = γ and the
+                two agree at 1.25, so that ray cannot tell them apart.
               </p>
               <div className="actions">
                 <button
@@ -265,7 +278,7 @@ export function LightComplexLab({
                         setDraft({ ...draft, showCountermodel: event.currentTarget.checked })
                       }
                     />
-                    Show material rod countermodel comparison (1/γ)
+                    Show the rigid-rod countermodel (volume 1/γ)
                   </label>
                 </div>
               </div>
@@ -383,17 +396,27 @@ export function LightComplexLab({
               {draft.showCountermodel ? (
                 <>
                   <tr className="countermodel-row">
-                    <th scope="row">Countermodel E′ (1/γ)</th>
-                    <td>
-                      <SnapshotReading snapshot={snapshot} quantityId="countermodelEnergyMoving" />{" "}
-                      J <span className="badge warning">(wrong model)</span>
+                    <th scope="row">Countermodel E′ (q²/γ)</th>
+                    <td
+                      data-quantity-id="countermodelEnergyMoving"
+                      data-model-id={comparison.modelId}
+                    >
+                      {countermodelEnergy === null
+                        ? "Not defined here"
+                        : `${display(countermodelEnergy)} J`}{" "}
+                      <span className="badge warning">(wrong model)</span>
                     </td>
                   </tr>
                   <tr className="countermodel-row">
                     <th scope="row">Countermodel V′ (1/γ)</th>
-                    <td>
-                      <SnapshotReading snapshot={snapshot} quantityId="countermodelVolumeMoving" />{" "}
-                      m³ <span className="badge warning">(wrong model)</span>
+                    <td
+                      data-quantity-id="countermodelVolumeMoving"
+                      data-model-id={comparison.modelId}
+                    >
+                      {countermodelVolume === null
+                        ? "Not defined here"
+                        : `${display(countermodelVolume)} m³`}{" "}
+                      <span className="badge warning">(wrong model)</span>
                     </td>
                   </tr>
                 </>

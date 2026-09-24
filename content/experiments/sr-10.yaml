@@ -161,28 +161,6 @@ outputs:
       - value
       - outside-domain
     primary: false
-  - id: countermodelEnergyFactor
-    quantityId: lorentzFactor
-    allowedStatuses:
-      - value
-      - outside-domain
-    primary: false
-  - id: countermodelVolumeFactor
-    quantityId: lorentzFactor
-    allowedStatuses:
-      - value
-      - outside-domain
-    primary: false
-  - id: countermodelEnergyMoving
-    quantityId: lightComplexEnergyMoving
-    allowedStatuses:
-      - value
-    primary: false
-  - id: countermodelVolumeMoving
-    quantityId: lightComplexVolumeMoving
-    allowedStatuses:
-      - value
-    primary: false
 assumptions:
   - "Bounded electromagnetic wave packet in vacuum enclosed by a moving spherical surface at light speed."
   - "Inertial observers with relative speed |v| < c along the x-axis."
@@ -245,8 +223,6 @@ views:
       - lightComplexVolumeMoving
       - dopplerFactor
       - materialVolumeFactor
-      - countermodelEnergyFactor
-      - countermodelVolumeFactor
 actions:
   - actionId: change-light-complex-boost
     family: fields-boosts

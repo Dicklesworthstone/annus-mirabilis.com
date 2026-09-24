@@ -386,31 +386,35 @@ export function lightComplexVolumeNumeric(beta: number, thetaRad: number, _sampl
 }
 
 /**
- * Planted negative for SR-10: treat the light complex as a material volume.
- * Model identity is 'countermodel-material-contraction', tagged as a named wrong model.
- * The wrong factor is 1/gamma at every angle. It does not use q, so it cannot
- * accidentally agree with the light factor except at the degenerate angle
- * where q itself equals 1/gamma (cos phi = beta, transverse in the moving frame).
- * The discriminating case is a ray transverse in the unprimed frame (cos phi = 0),
- * where light factor is gamma (1.25) and material factor is 1/gamma (0.8), ratio gamma^2.
+ * Planted negative for SR-10 (am-sr-10-light-complex-kek0): the light complex treated as if it
+ * contracted like a rigid body. Its energy density transforms correctly, by q^2 with
+ * q = gamma(1 - beta cos phi), but its volume is given the material factor 1/gamma instead of 1/q,
+ * so its energy factor is q^2/gamma. At beta = 0.6 that is 0.2, 3.2, 0.512 and 1.25 at phi = 0,
+ * 180 deg, cos phi = beta and 90 deg, against the light complex's 0.5, 2, 0.8 and 1.25. The
+ * discriminating case is therefore cos phi = beta, a ray transverse in the moving frame; at
+ * 90 deg (transverse in the stationary frame) q = gamma and the two agree. Model identity
+ * 'countermodel-material-contraction', a named wrong model: evaluateSr10 publishes it only as a
+ * labelled comparison, never among the accepted outputs.
  */
 export function lightComplexMaterialContractionCountermodel(
   beta: number,
-  _thetaRad?: number,
+  thetaRad = 0,
 ): Readonly<{ modelId: string; factor: number; volumeFactor: number }> {
   const gResult = gamma(beta);
-  if (gResult.status !== "value") {
+  if (gResult.status !== "value" || !Number.isFinite(thetaRad)) {
     return Object.freeze({
       modelId: "countermodel-material-contraction",
       factor: Number.NaN,
       volumeFactor: Number.NaN,
     });
   }
-  const factor = 1 / gResult.value;
+  const g = gResult.value;
+  const q = g * (1 - beta * Math.cos(thetaRad));
+  const volumeFactor = 1 / g;
   return Object.freeze({
     modelId: "countermodel-material-contraction",
-    factor,
-    volumeFactor: factor,
+    factor: q * q * volumeFactor,
+    volumeFactor,
   });
 }
 
@@ -1056,6 +1060,8 @@ export interface Sr10EvaluationResult {
   countermodelVolumeFactor: number;
   numericVolumeM3: number;
   results: readonly ScientificResult[];
+  /** The rigid-body countermodel, labelled by its model id; never part of `results`. */
+  countermodelComparison: Readonly<{ modelId: string; results: readonly ScientificResult[] }>;
   status: "value" | "outside-domain";
 }
 
@@ -1124,11 +1130,11 @@ export function evaluateSr10(input: Sr10Input): Sr10EvaluationResult {
         sr10Outside("energyDensityFactor", "1", "ratio"),
         sr10Outside("volumeFactor", "1", "ratio"),
         sr10Outside("materialVolumeFactor", "1", "ratio"),
-        sr10Outside("countermodelEnergyMoving", "J", "energy"),
-        sr10Outside("countermodelVolumeMoving", "m^3", "space-geometry"),
-        sr10Outside("countermodelEnergyFactor", "1", "ratio"),
-        sr10Outside("countermodelVolumeFactor", "1", "ratio"),
       ],
+      countermodelComparison: Object.freeze({
+        modelId: "countermodel-material-contraction",
+        results: Object.freeze([]),
+      }),
       status: "outside-domain",
     });
   }
@@ -1191,11 +1197,18 @@ export function evaluateSr10(input: Sr10Input): Sr10EvaluationResult {
     val("energyDensityFactor", "1", "ratio", q2),
     val("volumeFactor", "1", "ratio", volFactor),
     val("materialVolumeFactor", "1", "ratio", materialVolumeFactor),
-    val("countermodelEnergyMoving", "J", "energy", countermodelEnergyJ),
-    val("countermodelVolumeMoving", "m^3", "space-geometry", countermodelVolumeM3),
-    val("countermodelEnergyFactor", "1", "ratio", countermodelEnergyFactor),
-    val("countermodelVolumeFactor", "1", "ratio", countermodelVolumeFactor),
   ];
+  // The countermodel is a named wrong model: a reader's numbers never come from it, so it is
+  // returned beside the accepted outputs, under its model id, and never among them.
+  const countermodelComparison = Object.freeze({
+    modelId: countermodel.modelId,
+    results: Object.freeze([
+      val("countermodelEnergyMoving", "J", "energy", countermodelEnergyJ),
+      val("countermodelVolumeMoving", "m^3", "space-geometry", countermodelVolumeM3),
+      val("countermodelEnergyFactor", "1", "ratio", countermodelEnergyFactor),
+      val("countermodelVolumeFactor", "1", "ratio", countermodelVolumeFactor),
+    ]),
+  });
 
   return Object.freeze({
     beta,
@@ -1225,6 +1238,7 @@ export function evaluateSr10(input: Sr10Input): Sr10EvaluationResult {
     countermodelVolumeFactor,
     numericVolumeM3,
     results,
+    countermodelComparison,
     status: "value",
   });
 }

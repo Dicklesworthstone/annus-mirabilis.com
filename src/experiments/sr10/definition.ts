@@ -76,8 +76,6 @@ export const SR10_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   energyDensityFactor: c("1", "ratio", "waves", ["value", "outside-domain"]),
   volumeFactor: c("1", "ratio", "waves", ["value", "outside-domain"]),
   materialVolumeFactor: c("1", "ratio", "waves", ["value", "outside-domain"]),
-  countermodelEnergyMoving: c("J", "energy", "waves", ["value", "outside-domain"]),
-  countermodelVolumeMoving: c("m^3", "space-geometry", "waves", ["value", "outside-domain"]),
-  countermodelEnergyFactor: c("1", "ratio", "waves", ["value", "outside-domain"]),
-  countermodelVolumeFactor: c("1", "ratio", "waves", ["value", "outside-domain"]),
+  // The rigid-body countermodel is not an output: sr10Comparison returns it, labelled, beside the
+  // accepted snapshot (am-sr-10-light-complex-kek0: the countermodel never enters accepted outputs).
 });
