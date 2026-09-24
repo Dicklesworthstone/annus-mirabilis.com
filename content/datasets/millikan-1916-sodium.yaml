@@ -1,6 +1,9 @@
 id: millikan-1916-sodium
 title: "Millikan (1916) Direct Photoelectric Determination of Planck's h (Sodium)"
-evidenceStatus: historical-measurement
+evidenceStatus: withdrawn
+withdrawal:
+  date: "2026-09-24"
+  reason: "The six rows this laboratory used to plot could not be traced to Millikan's printed table. No image of the page was recorded, and the row for 312.6 nm gives a frequency 2.7 percent away from the speed of light divided by that wavelength while its voltage still sits on the fitted line, which is what a voltage computed from the frequency does and a reading from the page would not. They are withdrawn until his table is read from a scan of the journal."
 publications:
   - id: millikan-1916-phys-rev
     citation: cit-millikan-1916
@@ -100,7 +103,7 @@ uncertainty:
   type: instrumental-precision
   value: 0.01
   description: "Voltmeter reading precision and contact-potential calibration uncertainty (~0.01 V)"
-notes: "Millikan's precision measurement of stopping potentials for freshly cut sodium in vacuum across mercury arc lines, yielding an experimental value of h/e."
+notes: "Millikan's precision measurement of stopping potentials for freshly cut sodium in vacuum across mercury arc lines, yielding an experimental value of h/e. WITHDRAWN 2026-09-24 (am-data-millikan-1916-zh2q), rows kept for review. Evidence: a least-squares line of V against nu through all six rows leaves residuals of at most 0.214 mV, against a stated precision of 0.01 V; its slope gives h = 6.612e-34 J s, nearer the modern value than Millikan's published one; the 312.6 nm row lists nu = 9.329e14 Hz where c/lambda = 9.590e14 Hz (2.72 percent), and its voltage fits the line at the listed frequency, not the true one; the other five rows agree with c/lambda to 0.033 percent. The digitizer is named only as 'Editorial Team', and the cited page image millikan-1916-p373.png does not exist in the repository. The method line claims a transcription from Table IV and Figure 3 that nothing on file supports. Replace these rows only with values read visually from a pinned scan of Phys. Rev. 7 (1916), never OCR'd, with the page image committed and a named digitizer."
 rights:
   status: public-domain-text
   statement: "Published in Physical Review in 1916; public domain."

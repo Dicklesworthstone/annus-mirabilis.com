@@ -119,9 +119,8 @@ export default function PhotoelectricPage() {
           threshold; it demonstrates the deductive consequences of single-quantum energy exchange
           and surface escape work (<InlineFormula latex={String.raw`E_q = h\nu`} />,{" "}
           <InlineFormula latex={String.raw`W = \Phi`} />
-          ). Independent experiments (such as Millikan’s 1916 precision dataset and later
-          single-photon anti-bunching measurements) test whether those assumptions describe the
-          physical world.
+          ). Independent experiments (such as Millikan’s 1916 measurements and later single-photon
+          anti-bunching measurements) test whether those assumptions describe the physical world.
         </p>
         <p>
           Below <InlineFormula latex={String.raw`\nu_0`} /> there is no stopping potential to

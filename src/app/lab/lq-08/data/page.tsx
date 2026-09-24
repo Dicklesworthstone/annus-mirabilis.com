@@ -112,7 +112,7 @@ export default function PhotoelectricDataPage() {
         <details>
           <summary>Inspect the numerical implementation</summary>
           <p>
-            The existing Millikan OLS function and this workflow share{" "}
+            LQ-08’s line fit and this workflow share{" "}
             <code>src/physics/reference/inference/lineFit.ts</code>. Interpretation and covariance
             propagation are owned by <code>photoelectricData.ts</code>, not the plot. The modern
             reference constants are read from the edition’s constant-set registry and are never
