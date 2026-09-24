@@ -93,6 +93,21 @@
   width: auto;
   min-width: 8rem;
 }
+/* The same for the counting choices: as loose flex items at 390, "Tokens" and its menu filled one
+   row, "Equal parts" ended it, and the parts menu began the next, a label with nothing beside it
+   above a menu with nothing naming it. Two columns keep each label with its menu; the checkbox
+   takes a row of its own. */
+.counting-entrance fieldset {
+  display: grid;
+  grid-template-columns: max-content auto;
+  gap: 0.75rem 1rem;
+}
+.counting-entrance fieldset select {
+  justify-self: start;
+}
+.counting-entrance fieldset > label.check {
+  grid-column: 1 / -1;
+}
 .clock-entrance label:has(> input[type="checkbox"]),
 .counting-entrance label.check {
   display: inline-flex;
