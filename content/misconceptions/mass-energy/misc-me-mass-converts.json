@@ -1,0 +1,41 @@
+{
+  "kind": "misconception",
+  "id": "misc-me-mass-converts",
+  "paper": "mass-energy",
+  "temptingClaims": ["Mass is converted into energy."],
+  "whyTempting": "Popular accounts of nuclear energy say mass is converted, and the paper does tie a loss of mass to a loss of energy.",
+  "whereItIsTrue": "As bookkeeping for the emitting body alone: after giving off the energy \\(L\\) it has less mass, by \\(L/V^2\\).",
+  "whatIsTrue": {
+    "r0": "Nothing is used up. The body has less mass because energy left it, and the light that carries the energy carries the inertia with it.",
+    "r1": "The paper's last sentence says that, if the theory agrees with the facts, radiation carries inertia between the bodies that emit it and the bodies that absorb it. So the body's mass falls because the energy \\(L\\) left it, and the radiation takes that inertia along. Draw the boundary around the body and its light together and nothing has gone: ME-03's sealed lamp and mirror, where the light is emitted and absorbed inside the enclosure, shows a total mass change of zero.",
+    "r2": "(1) Before: a lamp and a mirror, sealed in one box. (2) The lamp emits the energy \\(L\\); its own mass falls by \\(L/V^2\\). (3) The light crosses the box and the mirror absorbs it; the mirror's mass rises by \\(L/V^2\\). (4) Add the two: \\(-L/V^2+L/V^2=0\\), so the mass of the box and everything in it is unchanged. (5) Now draw the boundary around the lamp alone: the energy \\(L\\) crosses it outward, and the lamp's mass falls. The loss is real for the lamp; for the whole box, nothing was converted into anything.",
+    "r3": "The paper states the transfer conditionally ('Wenn die Theorie den Tatsachen entspricht', if the theory corresponds to the facts). That the mass of a closed system stays constant is the modern statement, which uses the invariant mass of later relativity; ME-03's boundary view is that later reading."
+  },
+  "instrumentIds": ["me-03"],
+  "anchors": ["s0-p12", "s0-p15"],
+  "resultIds": [],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 18, 639–641 (1905), plate p. 641",
+    "ME-03 preset me-03-sealed-lamp-and-mirror"
+  ],
+  "intervention": {
+    "instrumentId": "me-03",
+    "defaultsReviewed": {
+      "model": "Not yet reviewed. Described from the manifest: system boundary ledger: the mass change of whatever the boundary encloses, from the energy that crosses it (src/physics/reference/massEnergy.ts)",
+      "labels": "Not yet reviewed. Described from the manifest: the boundary choice, the radiation's disposition and the net mass change",
+      "defaultControls": "Not yet reviewed. Described from the manifest: preset me-03-sealed-lamp-and-mirror; boundary combined-isolated-system, radiation retained",
+      "feedback": "Not yet reviewed. Described from the manifest: a net mass change of exactly zero for the sealed system"
+    },
+    "reviewRecordId": "pending-review-misc-me-mass-converts"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:NavyKite",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}

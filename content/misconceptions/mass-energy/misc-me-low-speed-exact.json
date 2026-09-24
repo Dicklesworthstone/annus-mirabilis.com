@@ -1,0 +1,42 @@
+{
+  "kind": "misconception",
+  "id": "misc-me-low-speed-exact",
+  "paper": "mass-energy",
+  "temptingClaims": ["The low-speed formula gives the mass loss exactly, at any speed."],
+  "whyTempting": "The paper's conclusion follows straight from an approximate equation, and \\(\\frac{L}{V^2}\\frac{v^2}{2}\\) looks like an exact kinetic energy.",
+  "whereItIsTrue": "At speeds small compared with light, where the two agree up to the quantities of fourth and higher order that the paper neglects.",
+  "whatIsTrue": {
+    "r0": "The mass \\(L/V^2\\) is read from the low-speed limit. At a finite speed, the exact energy difference divided by \\(v^2/2\\) gives a larger number.",
+    "r1": "The paper's exact result is \\(K_0-K_1=L\\left\\{\\frac{1}{\\sqrt{1-(v/V)^2}}-1\\right\\}\\). Neglecting quantities of fourth and higher order, it writes \\(K_0-K_1=\\frac{L}{V^2}\\frac{v^2}{2}\\) and reads the mass change off the coefficient of \\(v^2/2\\). That coefficient is a limit. Divide the exact difference by \\(v^2/2\\) at a finite speed and the result is larger: at \\(0.6\\) of the speed of light it is about \\(1.389\\,L/V^2\\), as ME-02's preset for that speed shows.",
+    "r2": "(1) Write \\(\\beta=v/V\\) and \\(\\gamma=1/\\sqrt{1-\\beta^2}\\). The exact difference is \\(L(\\gamma-1)\\). (2) Expand for small \\(\\beta\\): \\(\\gamma=1+\\frac{1}{2}\\beta^2+\\frac{3}{8}\\beta^4+\\ldots\\), so \\(L(\\gamma-1)=\\frac{L}{V^2}\\frac{v^2}{2}+\\ldots\\), where the dots are of fourth and higher order. (3) The paper keeps the first term and compares it with a kinetic energy \\(\\frac{1}{2}mv^2\\): the mass change is \\(L/V^2\\). (4) At \\(\\beta=0.6\\): \\(\\gamma=1.25\\), so \\(L(\\gamma-1)=0.25L\\), while \\(\\frac{1}{2}\\beta^2=0.18\\). Dividing gives \\(0.25/0.18\\approx1.389\\), so the ratio is \\(1.389\\,L/V^2\\). (5) Only as \\(v\\) goes to zero does that ratio become \\(L/V^2\\).",
+    "r3": "Reading a mass off the coefficient of \\(v^2/2\\) compares the body's energy of motion at low speed with Newton's \\(\\frac{1}{2}mv^2\\). The result is the limiting coefficient, and ME-02 keeps it apart from the finite-speed proxy \\(2L(\\gamma-1)/v^2\\)."
+  },
+  "instrumentIds": ["me-02"],
+  "anchors": ["s0-p11"],
+  "resultIds": [],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 18, 639–641 (1905), plate p. 641",
+    "ME-02 preset me-02-0.6c: finiteSpeedMassProxy / limitingCoefficient = 1.38889 at β = 0.6"
+  ],
+  "intervention": {
+    "instrumentId": "me-02",
+    "defaultsReviewed": {
+      "model": "Not yet reviewed. Described from the manifest: the exact kinetic-energy difference, its quadratic approximation and the limiting mass coefficient (src/physics/reference/massEnergy.ts)",
+      "labels": "Not yet reviewed. Described from the manifest: the three outputs at the chosen speed, in the paper's letters",
+      "defaultControls": "Not yet reviewed. Described from the manifest: preset me-02-0.6c; beta 0.6, emitted energy 1",
+      "feedback": "Not yet reviewed. Described from the manifest: the finite-speed proxy, 1.3889 times the limiting coefficient at this speed, is shown beside the limit"
+    },
+    "scenarioId": "me-02-0.6c",
+    "reviewRecordId": "pending-review-misc-me-low-speed-exact"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:NavyKite",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}

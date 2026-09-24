@@ -1,0 +1,42 @@
+{
+  "kind": "misconception",
+  "id": "misc-me-formula-in-paper",
+  "paper": "mass-energy",
+  "temptingClaims": ["The paper derives \\(E=mc^2\\)."],
+  "whyTempting": "It is the one formula every account of this paper quotes, so a reader expects to find it on the page.",
+  "whereItIsTrue": "The paper's conclusion is the same relation written for a change: a body that gives off the energy \\(L\\) loses the mass \\(L/V^2\\), where \\(V\\) is the speed of light.",
+  "whatIsTrue": {
+    "r0": "The paper never writes \\(E=mc^2\\). It says that a body giving off the energy \\(L\\) loses the mass \\(L/V^2\\).",
+    "r1": "The paper states its result on p. 641 as a change: if a body gives off the energy \\(L\\) as radiation, its mass decreases by \\(L/V^2\\), with \\(V\\) the speed of light. It then prints the conversion for everyday units: the mass changes by \\(L/9\\cdot10^{20}\\) when the energy is measured in erg and the mass in grams. It never writes the familiar equation, and it never gives a whole body an energy equal to its mass times the square of the speed of light.",
+    "r2": "(1) The letters: \\(L\\) is the energy the body gives off, and \\(V\\) is the speed of light. (2) The printed statement: the mass decreases by \\(L/V^2\\). (3) The printed conversion: \\(9\\cdot10^{20}\\) is the square of \\(3\\cdot10^{10}\\), the speed of light in centimetres per second, so an energy change of \\(L\\) erg changes the mass by \\(L/9\\cdot10^{20}\\) grams. (4) Worked case: \\(L=9\\cdot10^{20}\\) erg changes the mass by 1 gram. (5) What the page does not contain: an equation giving a body's whole energy as its mass times \\(V^2\\). The paper works only with differences of energy, and it says its energies carry arbitrary additive constants, so no total energy appears.",
+    "r3": "The familiar equation belongs to later writings, not to this paper. As a relation between changes, the paper's \\(L/V^2\\) is what later notation writes as \\(\\Delta m=\\Delta E/c^2\\)."
+  },
+  "instrumentIds": ["me-02"],
+  "anchors": ["s0-p12", "s0-p13"],
+  "resultIds": [],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 18, 639–641 (1905), plate p. 641",
+    "scenario mass-energy-printed-factor: L = 9·10²⁰ erg gives 1 g"
+  ],
+  "intervention": {
+    "instrumentId": "me-02",
+    "defaultsReviewed": {
+      "model": "Not yet reviewed. Described from the manifest: the exact kinetic-energy difference, its quadratic approximation and the limiting mass coefficient, with the printed erg-to-gram conversion (src/physics/reference/massEnergy.ts)",
+      "labels": "Not yet reviewed. Described from the manifest: the three outputs and the printed conversion, in the paper's letters",
+      "defaultControls": "Not yet reviewed. Described from the manifest: preset me-02-limit-zero; speed slid toward zero; the printed-erg probe converts an energy in erg to grams",
+      "feedback": "Not yet reviewed. Described from the manifest: the limiting coefficient is shown as a coefficient, never as a finite-speed ratio"
+    },
+    "scenarioId": "mass-energy-printed-factor",
+    "reviewRecordId": "pending-review-misc-me-formula-in-paper"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:NavyKite",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}

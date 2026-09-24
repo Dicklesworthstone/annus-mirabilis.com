@@ -1,0 +1,41 @@
+{
+  "kind": "misconception",
+  "id": "misc-me-massless-pulse",
+  "paper": "mass-energy",
+  "temptingClaims": ["Light has no mass, so it cannot carry mass away."],
+  "whyTempting": "In modern physics light is massless, so a pulse of light seems to have no mass to carry.",
+  "whereItIsTrue": "Of each pulse on its own: a single pulse of light has zero invariant mass.",
+  "whatIsTrue": {
+    "r0": "Two pulses going opposite ways have mass together, though each has none alone. This is a modern way of putting it, and it is not part of the 1905 argument.",
+    "r1": "In the modern formulation, the invariant mass of a system is not the sum of the masses of its parts. The paper's body sends out two equal pulses in opposite directions, with total energy \\(L\\). Their momenta cancel, so the pair has an invariant mass of \\(L/c^2\\), although each pulse alone has none. ME-03's four-momentum mode shows this. It is a later explanation that resolves the puzzle; the 1905 argument speaks of energy and inertia and uses neither idea.",
+    "r2": "(1) A pulse of energy \\(E\\) moving along a line has momentum \\(E/c\\). (2) The pair: energies \\(L/2\\) and \\(L/2\\), momenta \\(L/2c\\) and \\(-L/2c\\), so the total energy is \\(L\\) and the total momentum is \\(0\\). (3) Invariant mass: \\(M^2c^4=E^2-p^2c^2\\) with \\(E=L\\) and \\(p=0\\) gives \\(M=L/c^2\\). (4) One pulse alone: \\(E=L/2\\) and \\(p=L/2c\\), so \\(E^2-p^2c^2=0\\) and its invariant mass is zero. (5) So mass does not add: the system has what no part has.",
+    "r3": "Four-momentum and invariant mass come from the geometric reading of relativity that began with Minkowski in 1908; the paper's argument uses neither. The site keeps this explanation in the modern lens."
+  },
+  "instrumentIds": ["me-03"],
+  "anchors": ["s0-p7", "s0-p15"],
+  "resultIds": [],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 18, 639–641 (1905), plate p. 641",
+    "ME-03 preset me-03-four-momentum-opposite-pulses"
+  ],
+  "intervention": {
+    "instrumentId": "me-03",
+    "defaultsReviewed": {
+      "model": "Not yet reviewed. Described from the manifest: modern four-momentum mode: the invariant mass of a system of pulses (src/physics/reference/massEnergy.ts)",
+      "labels": "Not yet reviewed. Described from the manifest: each pulse's energy and momentum, and the system's invariant mass",
+      "defaultControls": "Not yet reviewed. Described from the manifest: preset me-03-four-momentum-opposite-pulses; mode four-momentum, two opposite pulses, emitted energy 1",
+      "feedback": "Not yet reviewed. Described from the manifest: an invariant mass of L/c^2 for the pair and zero for either pulse"
+    },
+    "reviewRecordId": "pending-review-misc-me-massless-pulse"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:NavyKite",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}

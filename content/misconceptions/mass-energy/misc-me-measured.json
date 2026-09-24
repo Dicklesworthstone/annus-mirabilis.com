@@ -1,0 +1,41 @@
+{
+  "kind": "misconception",
+  "id": "misc-me-measured",
+  "paper": "mass-energy",
+  "temptingClaims": ["Einstein measured the mass change."],
+  "whyTempting": "The paper ends with a numerical conversion and names a material, radium salts.",
+  "whereItIsTrue": "none",
+  "whatIsTrue": {
+    "r0": "The paper reports no measurement. It says only that a test with radium salts is not ruled out.",
+    "r1": "The paper's second-to-last sentence is conditional. It is not ruled out ('Es ist nicht ausgeschlossen'), it says, that bodies whose energy content varies to a high degree, such as radium salts, will allow a test of the theory. No experiment is reported, and none is claimed. ME-03's radium card shows how small the effect is: one alpha decay of radium-226 releases 4.871 MeV, which carries off 5.229 mg of mass for every mole that decays.",
+    "r2": "(1) The sentence on p. 641 begins 'Es ist nicht ausgeschlossen': it is not ruled out. (2) Its subject: bodies whose energy content can change greatly, with radium salts as the example. (3) Its claim: a test of the theory may succeed with them. (4) What it does not contain: a measured mass, an apparatus or a result. (5) Why radium: its decays release far more energy per gram than any chemical change, yet 5.229 mg per mole, out of the 226 g of a mole of radium-226, is still only about 2.3 parts in 100 000.",
+    "r3": "Quantitative checks of the relation came decades later, from nuclear physics. The paper's own remark stays a proposal."
+  },
+  "instrumentIds": ["me-03"],
+  "anchors": ["s0-p14"],
+  "resultIds": [],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 18, 639–641 (1905), plate p. 641",
+    "ME-03 preset me-03-card-radium"
+  ],
+  "intervention": {
+    "instrumentId": "me-03",
+    "defaultsReviewed": {
+      "model": "Not yet reviewed. Described from the manifest: energy-source card: the mass change is the card's energy divided by the square of the speed of light (src/physics/reference/massEnergy.ts)",
+      "labels": "Not yet reviewed. Described from the manifest: the card's label, its energy figure with its citation, and its boundary notes",
+      "defaultControls": "Not yet reviewed. Described from the manifest: preset me-03-card-radium; boundary body-alone, radiation escapes",
+      "feedback": "Not yet reviewed. Described from the manifest: shows the mass change beside the boundary note that keeps matter crossing the boundary apart from the mass-energy effect"
+    },
+    "reviewRecordId": "pending-review-misc-me-measured"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:NavyKite",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}

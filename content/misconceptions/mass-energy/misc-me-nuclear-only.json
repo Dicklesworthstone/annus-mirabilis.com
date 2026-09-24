@@ -1,0 +1,41 @@
+{
+  "kind": "misconception",
+  "id": "misc-me-nuclear-only",
+  "paper": "mass-energy",
+  "temptingClaims": ["\\(E=mc^2\\) is about nuclear bombs."],
+  "whyTempting": "The formula became famous with nuclear physics, where a small change of mass releases a very large energy.",
+  "whereItIsTrue": "Nuclear reactions are where the energy released per unit mass is large enough for the mass change to be easy to measure.",
+  "whatIsTrue": {
+    "r0": "The paper's argument applies to any body that gives off energy. A candle flame loses mass this way too, only very little.",
+    "r1": "Nothing in the paper's argument depends on where the energy comes from: a body that gives off the energy \\(L\\) loses the mass \\(L/V^2\\). ME-03's candle card makes it concrete. A flame giving off about 80 W for one hour releases 288 kJ, which carries off about 3.20 ng of mass. That is separate from the grams of wax that leave as combustion products, which is matter crossing the boundary. Nuclear reactions only make the energy released per unit mass large.",
+    "r2": "(1) Energy: \\(80\\) watts for \\(3600\\) seconds is \\(288\\,000\\) joules. (2) Mass: divide by the square of the speed of light, about \\(8.99\\cdot10^{16}\\) square metres per square second, which gives \\(3.20\\cdot10^{-12}\\) kg, that is 3.20 ng. (3) The paper's own conversion gives the same: \\(288\\,000\\) joules is \\(2.88\\cdot10^{12}\\) erg, and \\(2.88\\cdot10^{12}/9\\cdot10^{20}=3.2\\cdot10^{-9}\\) grams. (4) Keep it apart from the wax: the candle also loses grams of wax as gas and soot, which is matter leaving, not the effect the paper describes. (5) Compare the radium card: a mole of radium-226 decaying carries off 5.229 mg. Per gram of fuel the nuclear change is far larger; the rule is the same.",
+    "r3": "The candle figure uses today's value of the speed of light and a measured heat-release rate for a candle; the card cites Sundström (1995) for it."
+  },
+  "instrumentIds": ["me-03"],
+  "anchors": ["s0-p12", "s0-p14"],
+  "resultIds": [],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 18, 639–641 (1905), plate p. 641",
+    "ME-03 preset me-03-card-candle (Sundström 1995, candle heat release near 80 W)"
+  ],
+  "intervention": {
+    "instrumentId": "me-03",
+    "defaultsReviewed": {
+      "model": "Not yet reviewed. Described from the manifest: energy-source card: the mass change is the card's energy divided by the square of the speed of light (src/physics/reference/massEnergy.ts)",
+      "labels": "Not yet reviewed. Described from the manifest: the card's label, its energy figure with its citation, and its boundary notes",
+      "defaultControls": "Not yet reviewed. Described from the manifest: preset me-03-card-candle; boundary body-alone, radiation escapes",
+      "feedback": "Not yet reviewed. Described from the manifest: shows the mass change beside the boundary note that keeps matter crossing the boundary apart from the mass-energy effect"
+    },
+    "reviewRecordId": "pending-review-misc-me-nuclear-only"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:NavyKite",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}

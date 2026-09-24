@@ -1,0 +1,43 @@
+{
+  "kind": "misconception",
+  "id": "misc-me-radiation-only",
+  "paper": "mass-energy",
+  "temptingClaims": [
+    "Only light carries this mass; heating a body or storing chemical energy does not change its inertia."
+  ],
+  "whyTempting": "Every step of the paper's argument is about light sent out by a body.",
+  "whereItIsTrue": "Of the derivation: it treats only energy given off as radiation.",
+  "whatIsTrue": {
+    "r0": "The paper goes beyond light: it concludes that the mass of a body measures its whole energy content, however the energy leaves.",
+    "r1": "The derivation covers only energy given off as radiation. The paper then judges it 'offenbar unwesentlich', evidently inessential, that the energy taken from the body turns into radiation, and draws the more general conclusion that the mass of a body is a measure of its energy content. That step goes beyond what the calculation shows, and the paper presents it as a conclusion it is led to rather than as a second derivation. In the modern formulation every form of internal energy contributes: ME-03's heated sealed box gains mass equal to the energy fed in through its leads divided by \\(c^2\\), with no light leaving.",
+    "r2": "(1) What was derived: a body that gives off the energy \\(L\\) as two equal pulses of light loses the mass \\(L/V^2\\). (2) Why light: the calculation needed the energy of the emitted light in two frames, and the relativity paper's §8 had given how the energy of light transforms. (3) The inference the paper draws: the form in which the energy leaves seemed inessential, so a change of energy content by any means changes the mass by the same rule. (4) The statement it reaches: the mass of a body is a measure of its energy content, and a change of \\(L\\) erg changes the mass by \\(L/9\\cdot10^{20}\\) grams. (5) The modern check in ME-03: feed the energy \\(E_{\\text{in}}\\) into a sealed box as heat, and its mass rises by \\(E_{\\text{in}}/c^2\\), though no radiation crosses its boundary.",
+    "r3": "The generalization is an inference, and the paper presents it as one ('so daß wir zu der allgemeineren Folgerung geführt werden'). The modern statement, that every form of internal energy contributes to a body's inertia, belongs to later relativity."
+  },
+  "instrumentIds": ["me-03"],
+  "anchors": ["s0-p12", "s0-p13"],
+  "resultIds": [],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 18, 639–641 (1905), plate p. 641",
+    "ME-03 preset me-03-heated-sealed-box"
+  ],
+  "intervention": {
+    "instrumentId": "me-03",
+    "defaultsReviewed": {
+      "model": "Not yet reviewed. Described from the manifest: system boundary ledger with external energy input (src/physics/reference/massEnergy.ts)",
+      "labels": "Not yet reviewed. Described from the manifest: the energy fed in, the sealed boundary and the mass change",
+      "defaultControls": "Not yet reviewed. Described from the manifest: preset me-03-heated-sealed-box; boundary combined-isolated-system, energy input 1",
+      "feedback": "Not yet reviewed. Described from the manifest: the mass rises by the input energy divided by the square of the speed of light, with no matter crossing"
+    },
+    "reviewRecordId": "pending-review-misc-me-radiation-only"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:NavyKite",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}
