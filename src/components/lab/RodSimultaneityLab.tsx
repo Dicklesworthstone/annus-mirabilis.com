@@ -458,6 +458,7 @@ export function RodSimultaneityLab({
                   <input
                     id={`${id}-v-range`}
                     type="range"
+                    aria-label="Relative speed v (fraction of c), slider"
                     min="-0.95"
                     max="0.95"
                     step="0.05"
@@ -499,6 +500,7 @@ export function RodSimultaneityLab({
                   <input
                     id={`${id}-l0-range`}
                     type="range"
+                    aria-label="Proper length L₀ (light-seconds), slider"
                     min="1"
                     max="50"
                     step="1"
@@ -540,6 +542,7 @@ export function RodSimultaneityLab({
                   <input
                     id={`${id}-r-range`}
                     type="range"
+                    aria-label="Sphere radius R (ls), slider"
                     min="0.5"
                     max="10"
                     step="0.5"
