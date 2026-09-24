@@ -25,10 +25,18 @@ describe("Papers index: the Brownian entry can be chosen without knowing its nam
     expect(html).toContain(
       "a particle visible under a microscope and suspended in a liquid at rest",
     );
-    const workingTitleAndScope =
-      "On the Motion of Small Particles Suspended in Liquids at Rest, as Required by the Molecular-Kinetic Theory of Heat" +
-      "The document about tiny particles suspended in a liquid that is not being stirred or heated unevenly, and what the ceaseless motion of heat should make them do.";
-    expect(workingTitleAndScope.toLowerCase()).not.toContain("brownian");
+    // Read from the rendered entry. This used to check a string typed into the test, which was
+    // already a different sentence from the page's and could not fail whatever the page said.
+    const entry =
+      html
+        .split('<li class="paper-entry">')
+        .find((e) => e.includes("Also known as: Brownian motion.")) ?? "";
+    const heading = /<h2 class="paper-entry-title">([\s\S]*?)<\/h2>/.exec(entry)?.[1] ?? "";
+    const scope = /<\/h2>(?:[\s\S]*?<\/details>)?\s*<p>([\s\S]*?)<\/p>/.exec(entry)?.[1] ?? "";
+    // Both must be found, or the check below would pass on two empty strings.
+    expect(heading).toContain("On the Motion of Small Particles");
+    expect(scope.length).toBeGreaterThan(20);
+    expect(`${heading} ${scope}`.toLowerCase()).not.toContain("brownian");
   });
 
   test("the conventional name 'Brownian motion' appears only after the working title and scope, never as the only identifier", () => {
