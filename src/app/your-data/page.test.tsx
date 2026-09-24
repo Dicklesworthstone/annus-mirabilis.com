@@ -23,7 +23,7 @@ describe("YourDataPage", () => {
     const html = renderToStaticMarkup(<YourDataPage />);
 
     expect(html).toContain("Your data stays on your device.");
-    expect(containsHeading(html, "No network transmission")).toBe(true);
+    expect(containsHeading(html, "Nothing you save is sent")).toBe(true);
     expect(containsHeading(html, "Take it with you")).toBe(true);
     expect(containsHeading(html, "Delete it yourself")).toBe(true);
     expect(html).toContain('data-testid="privacy-guarantees"');

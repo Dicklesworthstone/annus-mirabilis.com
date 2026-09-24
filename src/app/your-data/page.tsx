@@ -29,10 +29,10 @@ export default function YourDataPage() {
         className="privacy-guarantees"
       >
         <div className="privacy-card">
-          <h2 className="privacy-card-title">No network transmission</h2>
+          <h2 className="privacy-card-title">Nothing you save is sent</h2>
           <p className="privacy-card-desc">
-            Stored data never leaves your device. No analytics, tracking beacons, or cloud sync
-            services are used.
+            No server receives your notes, settings or predictions. The site runs no analytics and
+            syncs nothing.
           </p>
         </div>
 
