@@ -42,9 +42,9 @@ entries:
       anchor: sr-s0-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plates of printed pages 892 and 894 (public/figures/plates/pages/ap-17-891/892-1280.webp, public/figures/plates/pages/ap-17-891/894-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 891 does not print it; its first use is on p. 892. Italic capital V, 'unabhängigen Geschwindigkeit V' in the introduction; p. 894 names it the speed of light in empty space. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.v.frameSpeed
     paper: special-relativity
@@ -66,9 +66,9 @@ entries:
       anchor: sr-s0-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plates of printed pages 895 and 897 (public/figures/plates/pages/ap-17-891/895-1280.webp, public/figures/plates/pages/ap-17-891/897-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 891 does not print it; its first use is on p. 895. Italic v; on p. 895 it is the speed given to the rod along the X-axis, and on p. 897 the speed of the moving system k in the direction of increasing x of K, as the entry states. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.K.stationarySystem
     paper: special-relativity
@@ -100,9 +100,9 @@ entries:
       anchor: sr-s0-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 897 (public/figures/plates/pages/ap-17-891/897-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 891 does not print it; its first use is on p. 897. Italic capital K, 'des anderen, ruhenden Systems (K)', §3. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.k.movingSystem
     paper: special-relativity
@@ -134,9 +134,9 @@ entries:
       anchor: sr-s0-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 897 (public/figures/plates/pages/ap-17-891/897-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 891 does not print it; its first use is on p. 897. Italic lowercase k, 'Systeme (k)', the system given the speed v, §3. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.x.coordinatePositionStationary
     paper: special-relativity
@@ -159,9 +159,9 @@ entries:
       anchor: sr-s1-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plates of printed pages 895 and 898 (public/figures/plates/pages/ap-17-891/895-1280.webp, public/figures/plates/pages/ap-17-891/898-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 892 does not print it; its first use is on p. 895. Italic x, 'im Sinne der wachsenden x' of the resting system (§2); p. 898 lists x, y, z, t for the resting system. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.y.coordinatePositionStationary
     paper: special-relativity
@@ -185,9 +185,9 @@ entries:
       anchor: sr-s1-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 898 (public/figures/plates/pages/ap-17-891/898-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 892 does not print it; its first use is on p. 898. Italic y, 'die Koordinaten x, y, z bez. ξ, η, ζ' (§3). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.z.coordinatePositionStationary
     paper: special-relativity
@@ -211,9 +211,9 @@ entries:
       anchor: sr-s1-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 898 (public/figures/plates/pages/ap-17-891/898-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 892 does not print it; its first use is on p. 898. Italic z, 'die Koordinaten x, y, z bez. ξ, η, ζ' (§3). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.t.coordinateTimeStationary
     paper: special-relativity
@@ -236,9 +236,9 @@ entries:
       anchor: sr-s1-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plates of printed pages 895 and 897 (public/figures/plates/pages/ap-17-891/895-1280.webp, public/figures/plates/pages/ap-17-891/897-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 892 does not print it; its first use is on p. 895. Italic t, 'zu einer bestimmten Zeit t' (§2); p. 897 states that t always denotes a time of the resting system. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.tA.coordinateTimeStationary
     paper: special-relativity
@@ -261,9 +261,9 @@ entries:
       anchor: sr-s1-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 894 (public/figures/plates/pages/ap-17-891/894-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 893 does not print it; its first use is on p. 894. Italic t with subscript A, 'zur A-Zeit t_A', and in the display t_B − t_A = t′_A − t_B. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.tB.coordinateTimeStationary
     paper: special-relativity
@@ -286,9 +286,9 @@ entries:
       anchor: sr-s1-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 894 (public/figures/plates/pages/ap-17-891/894-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 893 does not print it; its first use is on p. 894. Italic t with subscript B, 'zur B-Zeit t_B', and in the display t_B − t_A = t′_A − t_B. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.tAret.returnTimeAtA
     paper: special-relativity
@@ -321,9 +321,9 @@ entries:
       anchor: sr-s1-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 894 (public/figures/plates/pages/ap-17-891/894-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 893 does not print it; its first use is on p. 894. Italic t with a prime and subscript A, the A-time at which the reflected ray arrives back at A. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.AB.eventSeparationSpatial
     paper: special-relativity
@@ -345,9 +345,9 @@ entries:
       anchor: sr-s1-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 894 (public/figures/plates/pages/ap-17-891/894-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 893 does not print it; its first use is on p. 894. AB with a bar over both letters, in the display 2·AB/(t′_A − t_A) = V. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.rAB.lengthMeasuredStationary
     paper: special-relativity
@@ -370,9 +370,9 @@ entries:
       anchor: sr-s2-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plates of printed pages 896 and 897 (public/figures/plates/pages/ap-17-891/896-1280.webp, public/figures/plates/pages/ap-17-891/897-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 895 does not print it; its first use is on p. 896. Italic r with subscript AB, in t_B − t_A = r_AB/(V − v); p. 897 defines it as the length of the moving rod measured in the resting system. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.l.lengthProper
     paper: special-relativity
@@ -406,9 +406,9 @@ entries:
       anchor: sr-s2-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plates of printed pages 895 and 896 (public/figures/plates/pages/ap-17-891/895-1280.webp, public/figures/plates/pages/ap-17-891/896-1280.webp): glyph read by eye from the page image, not the text layer. Italic l, 'die Länge l' of the rod at rest, measured with a rod at rest (§2); p. 896 repeats it as 'der Länge l des ruhenden Stabes'. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.xi.coordinatePositionMoving
     paper: special-relativity
@@ -441,9 +441,9 @@ entries:
       anchor: sr-s3-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 898 (public/figures/plates/pages/ap-17-891/898-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 897 does not print it; its first use is on p. 898. Greek ξ, the first coordinate of the moving system k (§3). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.eta.coordinatePositionMoving
     paper: special-relativity
@@ -467,9 +467,9 @@ entries:
       anchor: sr-s3-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 898 (public/figures/plates/pages/ap-17-891/898-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 897 does not print it; its first use is on p. 898. Greek η, the second coordinate of the moving system k (§3). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.zeta.coordinatePositionMoving
     paper: special-relativity
@@ -493,9 +493,9 @@ entries:
       anchor: sr-s3-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 898 (public/figures/plates/pages/ap-17-891/898-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 897 does not print it; its first use is on p. 898. Greek ζ, the third coordinate of the moving system k (§3). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.tau.coordinateTimeMoving
     paper: special-relativity
@@ -528,9 +528,9 @@ entries:
       anchor: sr-s3-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 898 (public/figures/plates/pages/ap-17-891/898-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 897 does not print it; its first use is on p. 898. Greek τ, 'die Zeit τ des bewegten Systems' (§3). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.xprime.auxiliaryGalileanCoordinate
     paper: special-relativity
@@ -562,9 +562,9 @@ entries:
       anchor: sr-s3-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 898 (public/figures/plates/pages/ap-17-891/898-1280.webp): glyph read by eye from the page image, not the text layer. Italic x with a prime, 'Setzen wir x′ = x − vt' (§3). An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.beta.lorentzFactor
     paper: special-relativity
@@ -596,9 +596,9 @@ entries:
       anchor: sr-s3-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plates of printed pages 900 and 902 (public/figures/plates/pages/ap-17-891/900-1280.webp, public/figures/plates/pages/ap-17-891/902-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 898 does not print it; its first use is on p. 900. Greek β, defined on p. 900 as β = 1/√(1 − (v/V)²) and defined again on p. 902. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.a.transformationCoefficientA
     paper: special-relativity
@@ -621,9 +621,9 @@ entries:
       anchor: sr-s3-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plate of printed page 899 (public/figures/plates/pages/ap-17-891/899-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 898 does not print it; its first use is on p. 899. Italic a, in τ = a(t − v/(V² − v²)·x′), 'wobei a eine vorläufig unbekannte Funktion φ(v) ist'. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.varphi.scaleFactorUnknown
     paper: special-relativity
@@ -654,9 +654,9 @@ entries:
       anchor: sr-s3-p1
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Plates of printed pages 899, 900 and 902 (public/figures/plates/pages/ap-17-891/899-1280.webp, public/figures/plates/pages/ap-17-891/900-1280.webp, public/figures/plates/pages/ap-17-891/902-1280.webp): glyph read by eye from the page image, not the text layer. The curled phi, φ(v). The entry's p. 900 prints it, in the transformation equations and 'und φ eine vorläufig unbekannte Funktion von v ist', but its first use is on p. 899, 'wobei a eine vorläufig unbekannte Funktion φ(v) ist'; p. 902 concludes φ(v) = 1. An agent check, not a human review. Human review pending."
+      by: "agent:ConcordanceCheck-special-relativity"
+      date: "2026-09-24"
 
   - id: sr.R.sphereRadius
     paper: special-relativity
