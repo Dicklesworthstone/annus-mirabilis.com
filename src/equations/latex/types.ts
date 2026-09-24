@@ -27,6 +27,12 @@ export interface RenderLatexOptions {
   readonly manifestIndex?: SourceManifestIndex | undefined;
   readonly registry?: QuantityRegistry | undefined;
   readonly strictConcordance?: boolean | undefined;
+  /**
+   * `quantityId#index` to a letter that replaces a symbol's glyph AND its index: Einstein printed
+   * the y component of the electric force as Y, where the tree binds E with index y
+   * (src/equations/notationForms.ts). A symbol not named here draws as before.
+   */
+  readonly componentGlyphs?: Readonly<Record<string, string>> | undefined;
 
   /**
    * Optional alternate form to render (e.g. unit-conversion or modernization).

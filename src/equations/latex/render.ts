@@ -45,12 +45,22 @@ function isAtomicSymbol(
   n: Extract<Expression, { kind: "symbol" }>,
   options: RenderLatexOptions,
 ): boolean {
-  const glyph = resolveSymbolGlyph(n, options).glyph;
+  const glyph = componentGlyph(n, options) ?? resolveSymbolGlyph(n, options).glyph;
   return (
     (!n.scale || (n.scale.num === 1 && n.scale.den === 1)) &&
     !glyph.includes("^") &&
     SINGLE_TOKEN_GLYPH.test(glyph)
   );
+}
+
+/** The letter a component draws as when Einstein printed it as its own (Y for E with index y). */
+function componentGlyph(
+  n: Extract<Expression, { kind: "symbol" }>,
+  options: RenderLatexOptions,
+): string | undefined {
+  return n.index === undefined
+    ? undefined
+    : options.componentGlyphs?.[`${n.quantityId}#${n.index}`];
 }
 
 /**
@@ -78,10 +88,12 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
 
       case "symbol": {
         const resolved = resolveSymbolGlyph(n, options);
-        s = resolved.glyph;
+        const component = componentGlyph(n, options);
+        s = component ?? resolved.glyph;
         // A component or instance label is part of the term, inside its colour: E_y, t_0. A glyph
-        // that already carries a subscript is braced first, so the label never doubles one.
-        if (n.index !== undefined) {
+        // that already carries a subscript is braced first, so the label never doubles one. A
+        // component letter already names its component, so it takes no label.
+        if (n.index !== undefined && component === undefined) {
           s = s.includes("_") ? `{${s}}_{${n.index}}` : `${s}_{${n.index}}`;
         }
 
@@ -342,7 +354,8 @@ function isRenderLatexOptions(
     "anchor" in obj ||
     "equationId" in obj ||
     "concordance" in obj ||
-    "alternateForm" in obj
+    "alternateForm" in obj ||
+    "componentGlyphs" in obj
   );
 }
 

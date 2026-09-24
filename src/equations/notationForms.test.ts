@@ -1,39 +1,50 @@
 /**
- * Einstein's letters for a formula come from the notation concordance only where it is
- * unambiguous (notationForms.ts). Checked on the real special-relativity concordance and records.
+ * Einstein's letters for a formula come from the notation concordance, and a formula takes them
+ * only when every symbol resolves (notationForms.ts, ruling (c): no formula mixes notations).
+ * Checked on the real special-relativity concordance and records.
  */
 import { describe, expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadConcordanceForPaper } from "../content/notation/loader.ts";
+import type { ConcordanceEntry } from "../content/schemas/concordance.ts";
 import type { Expression } from "./ast.ts";
 import { expressionLatex } from "./latex.ts";
-import { printedLetters } from "./notationForms.ts";
+import { componentKey, type PrintedForm, printedForm } from "./notationForms.ts";
 import { recordQuantities } from "./printedGlyphs.ts";
+import type { QuantityRegistry } from "./quantities.ts";
 import { teachingProfile } from "./teachingProfiles.ts";
 
 const ROOT = process.cwd();
+const DIR = join(ROOT, "content/equations/special-relativity");
 const table = teachingProfile("special-relativity")?.quantities ?? {};
 const { entries } = loadConcordanceForPaper("special-relativity");
 const tree = (id: string): Expression =>
-  JSON.parse(readFileSync(join(ROOT, "content/equations/special-relativity", `${id}.json`), "utf8"))
-    .tree;
-const letters = (id: string, section: string) => printedLetters(tree(id), table, entries, section);
-const printedLatex = (id: string, section: string) =>
-  expressionLatex(
-    tree(id),
-    recordQuantities(
-      table,
-      Object.fromEntries(Object.entries(letters(id, section)).map(([q, l]) => [q, l.latex])),
-    ),
-  );
+  JSON.parse(readFileSync(join(DIR, `${id}.json`), "utf8")).tree;
+const form = (id: string, section: string, from = entries, registry = table) =>
+  printedForm(tree(id), registry, from, section);
+/** The formula as printed mode draws it: Einstein's letters, or today's when it keeps them. */
+const drawn = (id: string, f: PrintedForm, registry: QuantityRegistry = table) =>
+  f.state === "modern"
+    ? expressionLatex(tree(id), registry)
+    : expressionLatex(tree(id), {
+        registry: recordQuantities(
+          registry,
+          Object.fromEntries(Object.entries(f.letters).map(([q, l]) => [q, l.latex])),
+        ),
+        componentGlyphs: Object.fromEntries(
+          Object.entries(f.components).map(([k, l]) => [k, l.latex]),
+        ),
+        strictConcordance: false,
+      });
+const reasons = (f: PrintedForm) =>
+  f.state === "modern" ? f.unprinted.map((u) => `${u.quantityId}:${u.reason}`) : [];
 
-describe("printedLetters", () => {
-  test("V for the speed of light and beta for the Lorentz factor, where one rename applies", () => {
-    const l = letters("eq-model-sr-slow-clock", "s4");
-    expect(l.speedOfLight?.latex).toBe("V");
-    expect(l.lorentzFactor?.latex).toBe("\\beta");
-    expect(printedLatex("eq-model-sr-slow-clock", "s4")).toBe(
+describe("printedForm", () => {
+  test("V for the speed of light and beta for the Lorentz factor, when every symbol resolves", () => {
+    const f = form("eq-model-sr-slow-clock", "s4");
+    expect(f.state).toBe("printed");
+    expect(drawn("eq-model-sr-slow-clock", f)).toBe(
       "1 - \\frac{1}{\\beta} \\approx \\frac{1}{2}\\,\\frac{v^{2}}{V^{2}}",
     );
     // The same tree with the table's letters is what readers see today.
@@ -42,56 +53,134 @@ describe("printedLetters", () => {
     );
   });
 
-  test("a vector whose components Einstein printed as separate letters is left alone", () => {
-    const l = letters("eq-model-sr-field-ey", "s6");
-    expect(l.electricFieldStationary).toBeUndefined();
-    expect(l.magneticFieldStationary).toBeUndefined();
-    expect(printedLatex("eq-model-sr-field-ey", "s6")).toBe(
-      "E'_{y} = \\beta\\,\\left(E_{y} - v\\,B_{z}\\right)",
+  test("one unresolved symbol keeps the whole formula in today's letters: V and beta too", () => {
+    // Kinetic energy has no entry. Before the ruling this drew K = mu V^2 (beta - 1): two of
+    // Einstein's letters beside one of ours, a formula in nobody's notation.
+    const f = form("eq-model-sr-electron-work-result", "s10");
+    expect(reasons(f)).toEqual(["kineticEnergy:no-entry"]);
+    expect(drawn("eq-model-sr-electron-work-result", f)).toBe(
+      expressionLatex(tree("eq-model-sr-electron-work-result"), table),
+    );
+    expect(drawn("eq-model-sr-electron-work-result", f)).not.toContain("V");
+  });
+
+  test("an electromagnetic quantity keeps its formula in today's letters: SI records, Gaussian print", () => {
+    const f = form("eq-model-sr-field-ey", "s6");
+    expect(new Set(reasons(f))).toEqual(
+      new Set([
+        "electricFieldMoving:electromagnetic-units",
+        "electricFieldStationary:electromagnetic-units",
+        "magneticFieldStationary:electromagnetic-units",
+      ]),
+    );
+    expect(drawn("eq-model-sr-field-ey", f)).toBe(
+      "E'_{y} = \\gamma\\,\\left(E_{y} - v\\,B_{z}\\right)",
     );
   });
 
-  test("a quantity whose concordance target differs from the record's letter is left alone", () => {
+  test("the units rule is what holds the fields: without it Data 1's component letters draw", () => {
+    // The fields' dimensions with the current exponent zeroed: the one change that lifts the units
+    // rule. Every component then reaches its own entry through its index (Y', Y, N; beta is the
+    // Lorentz factor), never through a letter. The result is also why the rule exists: the plate
+    // of page 909 prints Y' = beta(Y - v/V N), and this SI tree has no 1/V.
+    const lifted: QuantityRegistry = Object.fromEntries(
+      Object.entries(table).map(([id, q]) => [
+        id,
+        q.dimension[4] === "0"
+          ? q
+          : { ...q, dimension: q.dimension.map((d, i) => (i === 4 ? "0" : d)) },
+      ]),
+    );
+    const f = form("eq-model-sr-field-ey", "s6", entries, lifted);
+    expect(f.state).toBe("printed");
+    if (f.state !== "printed") return;
+    expect(f.components[componentKey("electricFieldMoving", "y")]?.entryId).toBe(
+      "sr.Yprime.electricFieldMoving",
+    );
+    expect(f.components[componentKey("electricFieldStationary", "y")]?.entryId).toBe(
+      "sr.Y.electricFieldStationary",
+    );
+    expect(f.components[componentKey("magneticFieldStationary", "z")]?.entryId).toBe(
+      "sr.N.magneticFieldStationary",
+    );
+    expect(drawn("eq-model-sr-field-ey", f, lifted)).toBe("Y' = \\beta\\,\\left(Y - v\\,N\\right)");
+  });
+
+  test("a component label that no entry names stays on the quantity's own letter", () => {
+    // t_0 and t_1 are two readings of one clock, not components: the entry for t applies and the
+    // label is kept. Nothing is recorded as a component letter.
+    const f = form("eq-model-sr-transported-clock", "s4");
+    if (f.state === "printed") expect(Object.keys(f.components)).toEqual([]);
+    expect(reasons(f).filter((r) => r.startsWith("coordinateTimeStationary"))).toEqual([]);
+  });
+
+  test("a quantity whose concordance target differs from the record's letter keeps the formula modern", () => {
     // The concordance renames phi to vartheta; the records and their prose print phi.
-    expect(letters("eq-model-sr-aberration", "s7").propagationAngleStationary).toBeUndefined();
-  });
-
-  test("a quantity with no entry keeps its letter: never matched to an entry by its glyph", () => {
-    // Kinetic energy prints K, the letter of Einstein's stationary system, whose rename is S.
-    expect(letters("eq-model-sr-electron-work-result", "s10").kineticEnergy).toBeUndefined();
-    expect(printedLatex("eq-model-sr-electron-work-result", "s10")).toBe(
-      "K = \\mu\\,V^{2}\\,\\left(\\beta - 1\\right)",
+    expect(reasons(form("eq-model-sr-aberration", "s7"))).toContain(
+      "propagationAngleStationary:target-differs",
     );
   });
 
-  test("two entries for one quantity in one section: neither is taken, not even the first", () => {
-    // The field and coordinate cases above are also refused by the target check, so this is the
-    // case that holds the "exactly one" rule on its own: both entries pass the target check.
-    const v = entries.find((e) => e.id === "sr.V.speedOfLight");
+  test("two entries for one quantity in one section: neither is taken, and the formula stays modern", () => {
+    const v = entries.find((e) => e.id === "sr.V.speedOfLight") as ConcordanceEntry;
     expect(v).toBeDefined();
-    const twin = {
-      ...(v as NonNullable<typeof v>),
-      id: "sr.C.speedOfLight",
-      glyph: { unicode: "C", latex: "C" },
-    };
-    const l = printedLetters(tree("eq-model-sr-slow-clock"), table, [...entries, twin], "s4");
-    expect(l.speedOfLight).toBeUndefined();
-    expect(l.lorentzFactor?.latex).toBe("\\beta");
+    const twin = { ...v, id: "sr.C.speedOfLight", glyph: { unicode: "C", latex: "C" } };
+    const f = form("eq-model-sr-slow-clock", "s4", [...entries, twin]);
+    expect(reasons(f)).toEqual(["speedOfLight:ambiguous"]);
   });
 
   test("an entry applies only in its sections", () => {
-    const l = letters("eq-model-sr-simultaneity-offset", "s2");
-    expect(l.speedOfLight?.latex).toBe("V");
-    expect(l.lorentzFactor).toBeUndefined();
+    // Einstein's beta is introduced in section 3; a section 2 formula that uses gamma has no
+    // printed letter for it.
+    const f = form("eq-model-sr-simultaneity-offset", "s2");
+    expect(reasons(f)).toContain("lorentzFactor:no-entry");
+    expect(reasons(form("eq-model-sr-simultaneity-offset", "s3"))).not.toContain(
+      "lorentzFactor:no-entry",
+    );
   });
 
-  test("every letter names the entry that gives it, and bindings are untouched", () => {
-    for (const [quantityId, letter] of Object.entries(letters("eq-model-sr-velocity-y", "s5"))) {
-      const entry = entries.find((e) => e.id === letter.entryId);
-      expect(entry && "quantityId" in entry.binding ? entry.binding.quantityId : "").toBe(
-        quantityId,
-      );
-      expect(entry?.glyph.latex).toBe(letter.latex);
+  test("what Einstein wrote out is not a letter: the formula keeps today's letters", () => {
+    // The mass-energy paper writes the Lorentz factor out as 1/sqrt(1 - v^2/V^2) and the kinetic
+    // energy drop as K_0 - K_1. In a symbol's place either can lose the brackets it needs.
+    const meTable = teachingProfile("mass-energy")?.quantities ?? {};
+    const me = loadConcordanceForPaper("mass-energy").entries;
+    const meTree = (id: string): Expression =>
+      JSON.parse(readFileSync(join(ROOT, "content/equations/mass-energy", `${id}.json`), "utf8"))
+        .tree;
+    expect(reasons(printedForm(meTree("eq-model-me-lorentz-factor"), meTable, me, "s0"))).toContain(
+      "lorentzFactor:not-a-letter",
+    );
+    expect(
+      reasons(printedForm(meTree("eq-model-me-kinetic-drop-definition"), meTable, me, "s0")),
+    ).toContain("kineticEnergyDifference:not-a-letter");
+  });
+
+  test("every letter drawn names the entry that gives it, bound to that quantity and component", () => {
+    let printed = 0;
+    for (const file of readdirSync(DIR).filter((n) => n.endsWith(".json"))) {
+      const id = file.replace(/\.json$/, "");
+      for (const section of ["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10"]) {
+        const f = form(id, section);
+        if (f.state !== "printed") continue;
+        printed++;
+        for (const [quantityId, letter] of Object.entries(f.letters)) {
+          const entry = entries.find((e) => e.id === letter.entryId);
+          expect(entry && "quantityId" in entry.binding ? entry.binding.quantityId : "").toBe(
+            quantityId,
+          );
+          expect(entry && "quantityId" in entry.binding ? entry.binding.index : "none").toBe(
+            undefined,
+          );
+          expect(entry?.glyph.latex).toBe(letter.latex);
+        }
+        for (const [key, letter] of Object.entries(f.components)) {
+          const entry = entries.find((e) => e.id === letter.entryId);
+          const b = entry && "quantityId" in entry.binding ? entry.binding : undefined;
+          expect(b ? componentKey(b.quantityId, b.index ?? "") : "").toBe(key);
+        }
+      }
     }
+    // Not vacuous: some formula in some section is drawn in Einstein's letters.
+    expect(printed).toBeGreaterThan(0);
   });
 });
