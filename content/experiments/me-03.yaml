@@ -596,6 +596,8 @@ teachingTapes:
   - tapeId: the-1906-box
     title: the 1906 box
 
+realRate:
+  natural: false
 predictMode:
   enabled: true
   prompts:

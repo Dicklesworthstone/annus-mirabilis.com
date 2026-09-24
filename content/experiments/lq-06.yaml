@@ -28,7 +28,7 @@ parameters:
       max: 1e-7
     default: 9.055615e-9
     mapping:
-      kind: logarithmic
+      kind: log
     role: independent
     commandClass: setup-change
   - id: frequency
