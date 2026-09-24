@@ -1,12 +1,17 @@
 "use client";
 import { useEffect, useId, useState, useSyncExternalStore } from "react";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
 import {
   SR11_CAPTION,
-  SR11_MODEL,
   SR11_NOT_MODELED,
+  SR11_OUTPUTS,
   type Sr11Parameters,
 } from "../../../experiments/sr11/definition.ts";
 import { createSr11Session, type PreparedSr11Example } from "../../../experiments/sr11/session.ts";
@@ -146,13 +151,23 @@ export function MovingMirrorLab({
   const notApplicableItem = result(snapshot, "frequencyRatio");
   const notApplicableReason = "reason" in notApplicableItem ? notApplicableItem.reason : undefined;
 
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      SR11_OUTPUTS,
+      example.sourceDigest,
+      snapshot === session.getServerSnapshot().accepted,
+    ).label,
+  );
   return (
     <section
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="sr-11"
       {...identity(snapshot)}
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, view, "frequencyRatio")}
       data-source-digest={example.sourceDigest}
     >
       <header className="lab-heading">
@@ -160,8 +175,14 @@ export function MovingMirrorLab({
           <p className="eyebrow">Moving mirror reflection and radiation pressure</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <span className="badge">{SR11_MODEL.label}</span>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          modelNote={modelNoteFromView(view, { notModeled: `${SR11_NOT_MODELED.join("; ")}.` })}
+        />
+      </div>
 
       <noscript>
         <p className="notice">
