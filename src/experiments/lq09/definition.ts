@@ -146,7 +146,7 @@ export const LQ09_PRESETS = Object.freeze({
     id: "lq-09-historical-checks",
     label: "Historical Lenard Check (190 nm UV, 6.459 eV)",
     description:
-      "Lenard's 1900 quartz UV cutoff at 190 nm (1578.95 THz) corresponding to ca. 6.6 Volt potential.",
+      "Lenard's 1900 longest ionizing wavelength for air, 190 nm (1578.95 THz), about 6.65 volts per unit charge; the paper prints the energy, not the voltage.",
     parameters: Object.freeze({
       frequency: 1.57895e15,
       ionizationEnergyEv: 6.459,

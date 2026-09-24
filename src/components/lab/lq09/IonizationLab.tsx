@@ -413,16 +413,21 @@ export function IonizationLab({ example }: IonizationLabProps) {
       <div className="lab-bottom">
         <div className="lq09-historical">
           <h3>Einstein’s 1905 checks in §9</h3>
+          {/* The paper prints Rβν = 6,4 · 10^12 Erg here and no voltage (plates 147-148), so the
+              potential is shown as derived; the owner's lenardCheck.printedPotentialText is not
+              printed text and is not displayed. */}
           <p>
-            <strong>Lenard, 1900, air ionized by ultraviolet.</strong> Cutoff λ ≤ 190 nm, so Rβν ={" "}
-            {histChecks.lenardCheck.printedEnergyText} (
-            {histChecks.lenardCheck.printedPotentialText}
-            ). With modern constants, 190 nm is{" "}
+            <strong>Lenard, 1900: the longest wavelength that ionizes air.</strong> About 190 nm, so
+            Rβν ={" "}
+            {withScripts(histChecks.lenardCheck.printedEnergyText.replace(/\^(\d+)/gu, "^{$1}"))}{" "}
+            per gram-equivalent, as printed. That is{" "}
+            {histChecks.lenardCheck.potentialDifferenceVolts.toFixed(2)} volts per unit charge, a
+            figure derived here, not printed. With modern constants, 190 nm is{" "}
             {histChecks.lenardCheck.modernEnergyEvAt190nm.toFixed(2)} eV per molecule.
           </p>
           <p>
-            <strong>Stark, 1902, cathode rays.</strong> Ionization potential{" "}
-            {histChecks.starkCheck.printedPotentialText}, so λ₀ ≈{" "}
+            <strong>Stark, 1902: the smallest measured ionization voltage for air</strong>, at
+            platinum anodes, {histChecks.starkCheck.printedPotentialText}, so λ₀ ≈{" "}
             {histChecks.starkCheck.thresholdWavelengthNm.toFixed(0)} nm; J ={" "}
             <Sci value={histChecks.starkCheck.energyPerGramEquivalentErg} digits={1} /> erg per
             gram-equivalent.
