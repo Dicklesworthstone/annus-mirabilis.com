@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { SPECIAL_RELATIVITY_SHELF_CARDS } from "../../../content/specialRelativityShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
+import { MOVING_ROD } from "../../../discovery/relativity/numericExercises.ts";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = {
@@ -207,6 +209,8 @@ export default function SpecialRelativityRoute() {
             calculated on its own. Keeping the two apart is the whole of the distinction.
           </p>
         </details>
+        <p>Try the rod on numbers.</p>
+        <NumericPart part={MOVING_ROD} />
         <StepDoors>
           <StepDoor href="/papers/special-relativity/s4/#arg-sr-clock-and-length">
             Go straight to the explanation: what a moving clock and rod actually report
