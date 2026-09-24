@@ -1,0 +1,363 @@
+# Which explanation passage explains each printed paragraph, footnote and display of the
+# light-quanta paper (am-bind-paragraphs-and-displays-lq-4dh2), under D-2026-09-24-explanation-grain:
+# the argument passages stay the unit of explanation, every source paragraph is bound to one or
+# more of them or declared unexplained with its reason, every paragraph has its own one- or
+# two-sentence overview (r0), and every printed display is bound to an equation record or given a
+# declared status. Units are the frozen manifest's (content/source-blocks/light-quanta), in printed
+# order. Each r0 was written from the German of that unit on the German face (a machine draft
+# with hand correction, pages 132 to 148). A paragraph is bound only where a passage's own
+# readings treat what it says; otherwise it is declared unexplained. The r0 lines are
+# explanatory preview prose, not a translation and not Einstein's words; no review is claimed.
+paper: light-quanta
+decision: D-2026-09-24-explanation-grain
+paragraphs:
+  - unit: s0-p1
+    passages: [arg-lq-wave-and-transfer]
+    r0: "Physicists describe a gas or any other body by a finite, if very large, number of atoms and electrons, while Maxwell's theory describes light by quantities spread continuously through space. So a body's energy cannot be divided without limit, but the energy of a light ray spreading from a point is thought to spread over an ever larger volume."
+  - unit: s0-p2
+    passages: [arg-lq-wave-and-transfer]
+    r0: "The wave theory of light works superbly for optics and will probably never be replaced there, but optical observations measure averages over time. It is conceivable that the theory conflicts with experience when it is applied to how light is produced and transformed."
+  - unit: s0-p3
+    passages: [arg-lq-wave-and-transfer]
+    r0: "Einstein's proposal: black radiation, photoluminescence, the production of cathode rays by ultraviolet light and related effects seem easier to understand if the energy of light is distributed discontinuously in space. On this assumption a ray from a point carries a finite number of energy quanta, localized at points, which move without dividing and are absorbed or produced only as wholes."
+  - unit: s0-p4
+    passages: [arg-lq-wave-and-transfer]
+    r0: "He will set out the reasoning and the facts that led him to this view, in the hope that it may be of use to other researchers."
+  - unit: s1-p1
+    passages: [arg-lq-classical-allocation]
+    r0: "The setup for section 1: a space enclosed by perfectly reflecting walls holds gas molecules and electrons that move freely and collide like the molecules of a gas, and further electrons bound to fixed points by springlike forces. These bound electrons, called resonators, emit and absorb electromagnetic waves of definite periods."
+  - unit: s1-fn1
+    status: unexplained
+    reason: "No passage discusses Drude's assumption or its use for metals; the passage on the classical allocation starts from each resonator's mean energy, not from this equivalence."
+    r0: "The footnote says this assumption amounts to supposing that gas molecules and electrons have equal mean kinetic energies at the same temperature, which Drude assumed when he derived the ratio of heat conduction to electrical conduction in metals."
+  - unit: s1-p2
+    passages: [arg-lq-classical-allocation]
+    r0: "On the current view of how light arises, the radiation in this space at equilibrium, worked out with Maxwell's theory, should be the same as black radiation, at least if resonators of every frequency that matters are present."
+  - unit: s1-p3
+    passages: [arg-lq-classical-allocation]
+    r0: "Setting the radiation aside, collisions with the gas require each resonator vibration along one line to have the mean energy (R/N)T, where R is the gas constant, N the number of molecules in a gram-equivalent and T the temperature. With more or less energy on average, the collisions would give energy to the gas or take it from the gas, so equilibrium needs exactly this mean energy."
+  - unit: s1-p4
+    passages: [arg-lq-classical-allocation]
+    r0: "Planck had found the corresponding equilibrium between a resonator and the radiation around it, assuming the radiation is as disordered as possible: the resonator's mean energy fixes the radiation's energy density at its frequency."
+  - unit: s1-fn2
+    passages: [arg-lq-classical-allocation]
+    r0: "The footnote cites Planck's paper in Annalen der Physik, volume 1, page 99, 1900."
+  - unit: s1-fn3
+    status: unexplained
+    reason: "No passage explains this definition of disordered radiation; the passage on the classical allocation uses Planck's relation without discussing the condition it rests on."
+    r0: "The footnote defines radiation as disordered as possible: when the electric field at a point is expanded in a long Fourier series, the probabilities of the amplitudes and phases are independent of one another. The radiation here comes closer to that the more each pair of them depends on emission and absorption by particular groups of resonators."
+  - unit: s1-p5
+    passages: [arg-lq-classical-allocation]
+    r0: "For the radiation at each frequency to neither gain nor lose energy on balance, both conditions must hold, and together they fix its density. The result disagrees with experience, and it also means the picture allows no definite division of energy between ether and matter: the wider the range of resonator frequencies, the larger the radiation energy, without limit."
+  - unit: s2-p1
+    passages: [arg-lq-planck-constants]
+    r0: "Einstein will show that Planck's determination of the elementary quanta, the constants that fix the size of atoms, does not depend entirely on Planck's theory of black radiation."
+  - unit: s2-p2
+    passages: [arg-lq-planck-constants]
+    r0: "Planck's formula, which fits all experience so far, reduces for long wavelengths and high densities to the form found in section 1. Matching the two coefficients gives N = 6.17 × 10²³, so a hydrogen atom weighs 1.62 × 10⁻²⁴ gram: Planck's own value, in fair agreement with other methods."
+  - unit: s2-fn1
+    passages: [arg-lq-planck-constants]
+    r0: "The footnote cites Planck's paper in Annalen der Physik, volume 4, page 561, 1901."
+  - unit: s2-p4
+    passages: [arg-lq-planck-constants]
+    r0: "So the theoretical foundations of section 1 work better the higher the energy density and the longer the wavelength, and they fail completely for short wavelengths and low densities."
+  - unit: s2-p5
+    passages: [arg-lq-entropy-temperature]
+    r0: "From here on, black radiation is treated from experience, without any picture of how radiation is produced or travels."
+  - unit: s3-p1
+    passages: [arg-lq-entropy-temperature]
+    r0: "The next argument is Wien's, from a well-known paper, and is included only for completeness."
+  - unit: s3-p2
+    passages: [arg-lq-entropy-temperature]
+    r0: "Radiation filling a volume v is taken to be fully described by its energy density at every frequency. Since radiation of different frequencies can be separated without work or heat, its entropy is the volume times a sum over frequencies of an entropy density that depends on the density and the frequency."
+  - unit: s3-fn1
+    passages: [arg-lq-entropy-temperature]
+    r0: "The footnote calls that assumption arbitrary: it is the simplest one, to be kept until experiment forces it to be dropped."
+  - unit: s3-p3
+    passages: [arg-lq-entropy-temperature]
+    r0: "For black radiation the entropy is as large as it can be for the given energy, which means the rate at which the entropy density grows with the energy density is the same at every frequency."
+  - unit: s3-p4
+    passages: [arg-lq-entropy-temperature]
+    r0: "Warming black radiation in a unit volume, and comparing with the rule that entropy grows by the added heat divided by the temperature, shows that this common rate is one over the temperature. That is the law of black radiation, so the entropy density can be found from the radiation law, and the radiation law from it."
+  - unit: s4-p1
+    passages: [arg-lq-wien-integration]
+    r0: "Wien's radiation law is known not to hold exactly, but experiment confirmed it very well when the frequency is large compared with the temperature. Einstein builds on it while keeping in mind that his results hold only within those limits."
+  - unit: s4-p2
+    passages: [arg-lq-wien-integration, arg-lq-fixed-band-volume]
+    r0: "Putting Wien's law into the relation from section 3 gives the entropy density. For radiation of energy E in a narrow band of frequencies, the entropy changes by E/(βν) times the logarithm of v/v₀ when its volume changes from v₀ to v."
+  - unit: s4-p5
+    passages: [arg-lq-fixed-band-volume, arg-lq-entropy-correspondence]
+    r0: "So the entropy of dilute monochromatic radiation depends on its volume by the same law as the entropy of an ideal gas or a dilute solution. Einstein will interpret this with Boltzmann's principle, that the entropy of a system is a function of the probability of its state."
+  - unit: s5-p1
+    status: unexplained
+    reason: "No passage discusses Einstein's remark on the meaning of probability or the separate paper he promises; the passage on independent configurations starts from the probability W that this section goes on to use."
+    r0: "Einstein notes that molecular theory often uses the word probability in a sense that differs from its mathematical definition, and says he will show in another paper that statistical probability is enough; here he gives only the general principle and some special cases."
+  - unit: s5-p2
+    passages: [arg-lq-independent-configurations]
+    r0: "If entropy is a function of the probability of a state, two systems that do not act on each other have entropies that add while their probabilities multiply, because their states are independent events."
+  - unit: s5-p6
+    passages: [arg-lq-independent-configurations]
+    r0: "It follows that entropy is a universal constant times the logarithm of the probability, plus a constant. Kinetic theory gives that constant as R/N, so the entropy difference between two states is R/N times the logarithm of their relative probability."
+  - unit: s5-p3
+    passages: [arg-lq-independent-configurations]
+    r0: "A special case: n moving points, such as molecules, in a volume v₀, with nothing assumed about how they move except that no part of the space and no direction is preferred, and so few of them that they do not act on each other."
+  - unit: s5-p4
+    passages: [arg-lq-independent-configurations]
+    r0: "This system, an ideal gas or a dilute solution for example, has some entropy. Imagine all n points moved into a part v of the volume with nothing else changed: the new state has a different entropy, to be found from Boltzmann's principle."
+  - unit: s5-p7
+    passages: [arg-lq-independent-configurations]
+    r0: "The question: how probable is it that, at a moment chosen at random, all n independently moving points happen to be in the part v?"
+  - unit: s5-p8
+    passages: [arg-lq-independent-configurations]
+    r0: "That statistical probability is v/v₀ raised to the power n, and Boltzmann's principle turns it into an entropy difference of R(n/N) times the logarithm of v/v₀."
+  - unit: s5-p5
+    passages: [arg-lq-independent-configurations]
+    r0: "Remarkably, this equation, from which Boyle and Gay-Lussac's law and the matching law of osmotic pressure follow, needs no assumption about the law by which the molecules move."
+  - unit: s5-fn1
+    passages: [arg-lq-independent-configurations]
+    r0: "The footnote derives the gas law from that entropy difference: the work p dv equals T dS, which gives pv = R(n/N)T."
+  - unit: s6-p1
+    passages: [arg-lq-entropy-correspondence]
+    r0: "Section 4 found how the entropy of monochromatic radiation depends on its volume. Rewritten as R/N times the logarithm of a power of the volume ratio, and compared with Boltzmann's principle, it leads to a conclusion."
+  - unit: s6-p5
+    passages: [arg-lq-entropy-correspondence]
+    r0: "For monochromatic radiation of energy E shut into a volume v₀ by mirrors, the probability that at a moment chosen at random all its energy is in the part v is the volume ratio raised to the power (N/R)(E/βν)."
+  - unit: s6-p2
+    passages: [arg-lq-entropy-correspondence]
+    r0: "A connecting line: from that probability Einstein draws a further conclusion, stated next."
+  - unit: s6-p6
+    passages: [arg-lq-entropy-correspondence]
+    r0: "Monochromatic radiation of low density, where Wien's law holds, behaves in its thermal properties as if it consisted of independent energy quanta of size Rβν/N."
+  - unit: s6-p3
+    passages: [arg-lq-entropy-correspondence]
+    r0: "Einstein compares the mean size of these energy quanta in black radiation, which Wien's formula gives as 3(R/N)T, with the mean kinetic energy of a molecule's motion at the same temperature, (3/2)(R/N)T."
+  - unit: s6-p4
+    passages: [arg-lq-entropy-correspondence]
+    r0: "If radiation behaves, in how its entropy depends on volume, like a medium made of such energy quanta, it is natural to ask whether light is also produced and transformed as if it consisted of them. The rest of the paper takes up that question."
+  - unit: s7-p1
+    passages: [arg-lq-fluorescence-budget]
+    r0: "In photoluminescence, light of one frequency is turned into light of another. If both consist of energy quanta, each absorbed quantum gives rise on its own to an emitted one, and unless the substance supplies energy, the emitted quantum cannot carry more energy than the absorbed one: the emitted frequency is at most the exciting one, which is Stokes's rule."
+  - unit: s7-p2
+    passages: [arg-lq-fluorescence-budget]
+    r0: "On this view, under weak illumination the light produced is proportional to the exciting light, since each quantum acts independently, and there is no lower limit of intensity below which light fails to excite."
+  - unit: s7-p3
+    passages: [arg-lq-fluorescence-budget]
+    r0: "Exceptions to Stokes's rule are conceivable in two cases: when so many quanta are transformed at once that one emitted quantum takes energy from several exciting ones, and when the light is not like black radiation within the range of Wien's law, as with light from a very hot source."
+  - unit: s7-p4
+    passages: [arg-lq-fluorescence-budget]
+    r0: "The second case is of special interest: radiation that does not follow Wien's law might behave differently in its energy even when very dilute."
+  - unit: s8-p1
+    passages: [arg-lq-photoelectric-energy]
+    r0: "The usual view, that the energy of light is spread continuously, meets great difficulties in explaining the photoelectric effects, which Lenard described in detail."
+  - unit: s8-fn1
+    passages: [arg-lq-photoelectric-energy]
+    r0: "The footnote cites Lenard, Annalen der Physik, volume 8, pages 169 and 170, 1902."
+  - unit: s8-p2
+    passages: [arg-lq-photoelectric-energy, arg-lq-stopping-and-losses]
+    r0: "If the exciting light consists of energy quanta, the production of cathode rays by light can be pictured simply: quanta enter the surface layer and give their energy, at least in part, to electrons, the simplest case being one quantum to one electron. An electron loses some energy on its way out and must do a work P to leave, so the fastest electrons leave with the energy (R/N)βν − P."
+  - unit: s8-p3
+    passages: [arg-lq-stopping-and-losses]
+    r0: "If the body is charged to the positive potential Π that just stops it losing charge, Π times the electron's charge equals (R/N)βν − P; for a gram-equivalent of electrons this reads ΠE = Rβν − P′."
+  - unit: s8-fn2
+    status: unexplained
+    reason: "No passage discusses splitting P′ into the work to free the electron and the work to leave the body; the passages on the photoelectric effect treat a single escape work."
+    r0: "The footnote says the relation is unchanged if the electron must first be freed from a neutral molecule; P′ is then the sum of two works."
+  - unit: s8-p4
+    passages: [arg-lq-photoelectric-energy]
+    r0: "With E = 9.6 × 10³, Π × 10⁻⁸ is the potential in volts that the body reaches when irradiated in a vacuum."
+  - unit: s8-p5
+    passages: [arg-lq-photoelectric-energy]
+    r0: "As an order-of-magnitude check, with P′ = 0 and the frequency at the ultraviolet end of the solar spectrum, the formula gives about 4.3 volts, the same order as Lenard's results."
+  - unit: s8-fn3
+    passages: [arg-lq-photoelectric-energy]
+    r0: "The footnote cites Lenard, Annalen der Physik, volume 8, pages 165 and 184, plate I, figure 2, 1902."
+  - unit: s8-p6
+    passages: [arg-lq-photoelectric-energy]
+    r0: "If the formula is right, Π plotted against the frequency of the exciting light must be a straight line whose slope does not depend on the substance."
+  - unit: s8-fn4
+    passages: [arg-lq-photoelectric-energy]
+    r0: "The footnote cites the same paper by Lenard, pages 150 and 166 to 168."
+  - unit: s8-p7
+    passages: [arg-lq-photoelectric-energy]
+    r0: "As far as Einstein can see, the view does not contradict what Lenard observed: if each quantum acts independently, the speeds of the electrons do not depend on the intensity of the light, while the number of electrons leaving is proportional to it."
+  - unit: s8-p8
+    status: unexplained
+    reason: "No passage states the photoelectric laws' limits of validity; the passage on the fluorescence budget explains the conditions for Stokes's rule, but not their carry-over to the photoelectric effect."
+    r0: "Einstein adds that the likely limits of validity of these laws call for remarks like those he made about deviations from Stokes's rule."
+  - unit: s8-p9
+    passages: [arg-lq-stopping-and-losses]
+    r0: "The argument assumed that at least some quanta give all their energy to a single electron; without that assumption the equation becomes an inequality, ΠE + P′ ≤ Rβν."
+  - unit: s8-p10
+    passages: [arg-lq-stopping-and-losses]
+    r0: "For cathode luminescence, the reverse process, a similar argument gives ΠE + P′ ≥ Rβν. In Lenard's experiments the electrons had fallen through hundreds or thousands of volts to make visible light, so one electron's energy must go into many light quanta."
+  - unit: s8-fn5
+    passages: [arg-lq-stopping-and-losses]
+    r0: "The footnote cites Lenard, Annalen der Physik, volume 12, page 469, 1903."
+  - unit: s9-p1
+    passages: [arg-lq-ionization-and-counts]
+    r0: "When ultraviolet light ionizes a gas, each absorbed quantum should ionize one molecule, so the work to ionize a molecule cannot exceed the energy of one quantum. Lenard's longest effective wavelength for air, about 1.9 × 10⁻⁵ cm, gives an upper limit of 6.4 × 10¹² erg per gram-equivalent."
+  - unit: s9-p3
+    passages: [arg-lq-ionization-and-counts]
+    r0: "Stark's smallest measured ionizing voltage for air, about 10 volts, gives a nearly equal upper limit of 9.6 × 10¹². A further consequence, worth testing: the number of gram-molecules ionized should equal the absorbed light energy divided by Rβν, for any gas with no noticeable absorption at that frequency that is not accompanied by ionization."
+  - unit: s9-fn1
+    passages: [arg-lq-ionization-and-counts]
+    r0: "The footnote cites Stark, Die Elektrizität in Gasen, page 57, Leipzig 1902."
+  - unit: s9-fn2
+    status: unexplained
+    reason: "No passage discusses the ionizing voltage for negative ions inside the gas; the passage on ionization uses Stark's value measured at platinum anodes."
+    r0: "The footnote notes that inside the gas the ionizing voltage for negative ions is five times larger."
+displays:
+  - unit: eq-s1-d1
+    status: printed-only
+    reason: "The mean energy of one resonator vibration, (R/N)T, is explained in the passage on the classical allocation, which writes it as k_B T; no equation record states this line on its own."
+  - unit: eq-s1-d2
+    status: printed-only
+    reason: "Planck's relation between a resonator's mean energy and the radiation density is explained in the passage on the classical allocation; no equation record states it."
+  - unit: eq-s1-d3
+    status: printed-only
+    reason: "Printed in the footnote that defines disordered radiation, which no passage explains yet (s1-fn3 is declared unexplained)."
+  - unit: eq-s1-d4
+    status: printed-only
+    reason: "Printed in the footnote that defines disordered radiation, which no passage explains yet (s1-fn3 is declared unexplained)."
+  - unit: eq-s1-d5
+    status: printed-only
+    reason: "Printed in the footnote that defines disordered radiation, which no passage explains yet (s1-fn3 is declared unexplained)."
+  - unit: eq-s1-d6
+    status: printed-only
+    reason: "The equilibrium condition joining the two mean energies is the step the passage on the classical allocation takes to reach the density; the density itself is eq-model-lq-classical-density."
+  - unit: eq-s1-d7
+    equations: [eq-model-lq-classical-density]
+  - unit: eq-s1-d8
+    equations: [eq-model-lq-cutoff-integral, eq-model-lq-cutoff-total]
+  - unit: eq-s2-d1
+    equations: [eq-model-lq-planck-low-frequency]
+  - unit: eq-s2-d2
+    status: printed-only
+    reason: "Planck's constant alpha as printed: a value, explained where it enters the calculation in the passage on Planck's constants, not an equation."
+  - unit: eq-s2-d3
+    status: printed-only
+    reason: "Planck's constant beta as printed: a value, explained where it enters the calculation in the passage on Planck's constants, not an equation."
+  - unit: eq-s2-d4
+    equations: [eq-model-lq-planck-low-frequency]
+  - unit: eq-s2-d5
+    equations: [eq-model-lq-coefficient-match]
+  - unit: eq-s2-d6
+    equations: [eq-model-lq-avogadro-from-spectrum]
+  - unit: eq-s3-d1
+    status: printed-only
+    reason: "A step of the entropy-maximum argument, explained in the passage on entropy and temperature; the relation it arrives at is eq-model-lq-entropy-temperature."
+  - unit: eq-s3-d2
+    status: printed-only
+    reason: "A step of the entropy-maximum argument, explained in the passage on entropy and temperature; the relation it arrives at is eq-model-lq-entropy-temperature."
+  - unit: eq-s3-d3
+    status: printed-only
+    reason: "A step of the entropy-maximum argument, explained in the passage on entropy and temperature; the relation it arrives at is eq-model-lq-entropy-temperature."
+  - unit: eq-s3-d4
+    status: printed-only
+    reason: "A step of the entropy-maximum argument, explained in the passage on entropy and temperature; the relation it arrives at is eq-model-lq-entropy-temperature."
+  - unit: eq-s3-d5
+    status: printed-only
+    reason: "A step of the entropy-maximum argument, explained in the passage on entropy and temperature; the relation it arrives at is eq-model-lq-entropy-temperature."
+  - unit: eq-s3-d6
+    status: printed-only
+    reason: "A step of the entropy-maximum argument, explained in the passage on entropy and temperature; the relation it arrives at is eq-model-lq-entropy-temperature."
+  - unit: eq-s3-d7
+    status: printed-only
+    reason: "A step of the entropy-maximum argument, explained in the passage on entropy and temperature; the relation it arrives at is eq-model-lq-entropy-temperature."
+  - unit: eq-s3-d8
+    equations: [eq-model-lq-entropy-temperature]
+  - unit: eq-s4-d1
+    equations: [eq-model-lq-wien-spectrum]
+  - unit: eq-s4-d2
+    equations: [eq-model-lq-wien-inverse-temperature]
+  - unit: eq-s4-d3
+    equations: [eq-model-lq-wien-entropy-density]
+  - unit: eq-s4-d4
+    status: printed-only
+    reason: "The entropy of the band, the step from the entropy density to the volume law, is explained in the passage comparing two volumes; eq-model-lq-unfixed-constant states what a dropped constant would add."
+  - unit: eq-s4-d5
+    equations: [eq-model-lq-volume-entropy]
+  - unit: eq-s5-d1
+    status: printed-only
+    reason: "A step of the argument that entropy is a logarithm of probability, explained in the passage on independent configurations; the result it leads to is eq-model-lq-configuration-entropy."
+  - unit: eq-s5-d2
+    status: printed-only
+    reason: "A step of the argument that entropy is a logarithm of probability, explained in the passage on independent configurations; the result it leads to is eq-model-lq-configuration-entropy."
+  - unit: eq-s5-d3
+    status: printed-only
+    reason: "A step of the argument that entropy is a logarithm of probability, explained in the passage on independent configurations; the result it leads to is eq-model-lq-configuration-entropy."
+  - unit: eq-s5-d4
+    status: printed-only
+    reason: "A step of the argument that entropy is a logarithm of probability, explained in the passage on independent configurations; the result it leads to is eq-model-lq-configuration-entropy."
+  - unit: eq-s5-d5
+    status: printed-only
+    reason: "A step of the argument that entropy is a logarithm of probability, explained in the passage on independent configurations; the result it leads to is eq-model-lq-configuration-entropy."
+  - unit: eq-s5-d6
+    equations: [eq-model-lq-configuration-entropy]
+  - unit: eq-s5-d7
+    equations: [eq-model-lq-configuration-probability]
+  - unit: eq-s5-d8
+    equations: [eq-model-lq-gas-entropy-change]
+  - unit: eq-s5-d9
+    status: printed-only
+    reason: "Printed in the footnote that derives the gas law pv = R(n/N)T, explained in the passage on independent configurations; no equation record states it."
+  - unit: eq-s5-d10
+    status: printed-only
+    reason: "Printed in the footnote that derives the gas law pv = R(n/N)T, explained in the passage on independent configurations; no equation record states it."
+  - unit: eq-s6-d1
+    equations: [eq-model-lq-radiation-entropy-change]
+  - unit: eq-s6-d2
+    equations: [eq-model-lq-effective-count]
+  - unit: eq-s6-d3
+    equations: [eq-model-lq-configuration-entropy]
+  - unit: eq-s6-d4
+    equations: [eq-model-lq-configuration-probability, eq-model-lq-effective-count]
+  - unit: eq-s6-d5
+    status: printed-only
+    reason: "The mean size of an energy element in black radiation, 3(R/N)T, is worked in the passage on the entropy correspondence; no equation record states it."
+  - unit: eq-s7-d1
+    equations: [eq-model-lq-fluorescence-bound]
+  - unit: eq-s7-d2
+    equations: [eq-model-lq-fluorescence-bound]
+  - unit: eq-s8-d1
+    equations: [eq-model-lq-photoelectric-maximum]
+  - unit: eq-s8-d2
+    equations: [eq-model-lq-stopping-energy]
+  - unit: eq-s8-d3
+    equations: [eq-model-lq-stopping-energy]
+  - unit: eq-s8-d4
+    status: printed-only
+    reason: "The inequality for partial transfer is explained in the passage on stopping potentials and losses; no equation record states it."
+  - unit: eq-s8-d5
+    status: printed-only
+    reason: "The inequality for cathode luminescence, the reverse process, is explained in the passage on stopping potentials and losses; no equation record states it."
+  - unit: eq-s9-d1
+    equations: [eq-model-lq-ionization-threshold]
+  - unit: eq-s9-d2
+    equations: [eq-model-lq-ionization-threshold]
+  - unit: eq-s9-d3
+    equations: [eq-model-lq-ion-count-bound]
+obligations:
+  - obligation: optics-undulation-heuristic
+    passages: [arg-lq-wave-and-transfer]
+  - obligation: blackbody-rayleigh-divergence
+    passages: [arg-lq-classical-allocation]
+  - obligation: planck-quanta-constants
+    passages: [arg-lq-planck-constants]
+  - obligation: radiation-entropy-identity
+    passages: [arg-lq-entropy-temperature]
+  - obligation: wien-regime-entropy-volume
+    passages: [arg-lq-wien-integration, arg-lq-fixed-band-volume]
+  - obligation: boltzmann-entropy-gas-solution
+    passages: [arg-lq-independent-configurations]
+  - obligation: quanta-entropy-inference
+    passages: [arg-lq-entropy-correspondence]
+  - obligation: stokes-rule-photoluminescence
+    passages: [arg-lq-fluorescence-budget]
+  - obligation: photoelectric-stopping-potential
+    passages: [arg-lq-photoelectric-energy, arg-lq-stopping-and-losses]
+  - obligation: gas-ionization-bounds
+    passages: [arg-lq-ionization-and-counts]
+  - obligation: closing-dated-provenance
+    status: printed-only
+    reason: "The date-line and the journal's receipt note are printed facts, shown on the German face and in the paper's dates; they carry no step of the argument to explain."
