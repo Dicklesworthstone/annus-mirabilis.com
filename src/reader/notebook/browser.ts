@@ -1,5 +1,6 @@
 import { createModalCloseButton, makeDismissible } from "../../a11y/modal/dismiss.ts";
 import { authoredLastPlace, frameForPassage } from "./lastFrame.ts";
+import { RECAP_PAGES } from "./mountTiming.ts";
 import type { NotebookStore } from "./notebookStore.ts";
 import { mountNotebookPanel } from "./panel.ts";
 import { type NotebookFrame, notebookFrameHref } from "./schema.ts";
@@ -38,14 +39,6 @@ export const browserRecapMemory: RecapMemory = {
   },
 };
 
-/**
- * The only two pages that offer to take a reader back. The owner, 2026-09-22: "these reading
- * reminder things are super annoying". The reminder used to be a bordered block with the recap
- * text prepended to <main> on EVERY page, and dismissing it lasted one page view. On a page with
- * its own content the reader has already chosen where to be.
- */
-const RECAP_PAGES = new Set(["/", "/index.html", "/papers", "/papers/", "/papers/index.html"]);
-
 const SVG = "http://www.w3.org/2000/svg";
 function icon(d: string) {
   const svg = document.createElementNS(SVG, "svg");
@@ -67,13 +60,18 @@ export function mountReaderNotebook(
   store: NotebookStore,
   readingLocation: () => Pick<Location, "pathname" | "search" | "hash"> = () => window.location,
   recapMemory: RecapMemory = browserRecapMemory,
+  /**
+   * The notebook mounts on a reading page's first interaction (mountTiming.ts); when that was in
+   * the text, it counts, as it would have if the notebook had been listening already.
+   */
+  options: Readonly<{ interacted?: boolean }> = {},
 ) {
   store.open();
   const mainEl = document.querySelector<HTMLElement>("main");
   if (!mainEl) return () => {};
   const main = mainEl;
   let tracking = true,
-    interacted = false,
+    interacted = options.interacted === true,
     disposed = false;
   let timer: ReturnType<typeof setTimeout> | null = null;
   /** Each enhanced passage and the one bookmark button added to it. */
