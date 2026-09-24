@@ -104,6 +104,39 @@ describe("formulaOverflow (am-bc6s)", () => {
     }
   });
 
+  test("started from <head>, before <body> exists, it still marks a region that scrolls later", async () => {
+    // The script runs from <head>. Until 2026-09-24 its MutationObserver was attached only when
+    // document.body already existed, which from <head> it never does, so no page had one.
+    await installDom();
+    try {
+      document.body.remove();
+      expect(document.body).toBeNull();
+      initFormulaOverflow();
+      // A new body, as the parser would make one. Reusing the old node would let an observer an
+      // earlier test attached to it mark the region, and this test would pass without this fix.
+      document.documentElement.appendChild(document.createElement("body"));
+      document.dispatchEvent(new Event("DOMContentLoaded"));
+      // Let the one-shot passes run first (fonts.ready resolves in a microtask), so the region
+      // below arrives after them, as a lazily mounted one does.
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const late = document.createElement("div");
+      late.style.overflowX = "auto";
+      late.setAttribute("data-latex", "L/V^2");
+      Object.defineProperty(late, "scrollWidth", { value: 738, configurable: true });
+      Object.defineProperty(late, "clientWidth", { value: 288, configurable: true });
+      document.body.appendChild(late);
+      // The observer's 50ms debounce, and well short of the first timed re-check at 300ms, so
+      // only the observer can have marked it.
+      await new Promise((resolve) => setTimeout(resolve, 120));
+      expect(late.getAttribute("tabindex")).toBe("0");
+      expect(late.getAttribute("aria-label")).toBe("Scrollable mathematical formula: L/V^2");
+      late.remove();
+    } finally {
+      await uninstallDom();
+    }
+  });
+
   test("initFormulaOverflow does not throw in any environment", () => {
     expect(() => initFormulaOverflow()).not.toThrow();
   });

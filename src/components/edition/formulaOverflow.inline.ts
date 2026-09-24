@@ -165,7 +165,8 @@ export function initFormulaOverflow(): void {
 
       That is also why /lab/bm-05/ and /lab/bm-08/ looked fine: their labs render plots and tables
       after hydrating, those are childList mutations, and the observer re-ran update for them by
-      luck rather than by design.
+      luck rather than by design. (Corrected 2026-09-24: the observer was never attached, see
+      below, so whatever re-ran update for those two labs, it was not this.)
 
       Re-checking after hydration is what fixes it. Attribute observation would be the tidier
       mechanism and is not used on purpose: this script's own writes are attribute changes, so
@@ -177,13 +178,23 @@ export function initFormulaOverflow(): void {
     setTimeout(afterHydration, 300);
     setTimeout(afterHydration, 1200);
 
-    if (typeof MutationObserver !== "undefined" && document.body) {
+    if (typeof MutationObserver !== "undefined") {
       let timer: ReturnType<typeof setTimeout> | undefined;
       const observer = new MutationObserver(() => {
         if (timer) clearTimeout(timer);
         timer = setTimeout(update, 50);
       });
-      observer.observe(document.body, { childList: true, subtree: true });
+      // This script runs from <head> (app/layout.tsx), where document.body does not exist yet.
+      // Until 2026-09-24 the guard above read `&& document.body`, so the observer was attached on
+      // no page at all: a region that began to scroll after the timed re-checks got no tab stop
+      // until the window was resized. Measured on live /papers/mass-energy/ at 320px: four
+      // scrolling boxes a probe added to the DOM after hydration stayed unmarked for 1.5s, then
+      // were marked at once by a resize.
+      const watch = (): void => {
+        if (document.body) observer.observe(document.body, { childList: true, subtree: true });
+      };
+      if (document.body) watch();
+      else document.addEventListener("DOMContentLoaded", watch);
     }
   } catch {
     /* Degrades gracefully in non-DOM environments */
