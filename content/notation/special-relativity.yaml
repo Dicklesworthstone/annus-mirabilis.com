@@ -1419,7 +1419,7 @@ entries:
       kind: rename
       target:
         form: symbol
-        modernGlyph: "\\vartheta"
+        modernGlyph: "\\varphi"
     collision:
       severity: caution
       kind: within-paper
@@ -1428,7 +1428,7 @@ entries:
       firstUseBySection:
         - sectionId: sr-s7
           anchor: sr-s7-p1
-    notes: "In §3, phi is the unknown scale function. Spectral entropy density in paper 1; transition kernel in paper 2."
+    notes: "In §3, phi is the unknown scale function. Spectral entropy density in paper 1; transition kernel in paper 2. The modern view keeps φ, the letter this edition's formulas and prose use for the angle, where many modern texts write θ."
     sources:
       facsimilePage: 910
       anchor: sr-s7-p1
@@ -1537,7 +1537,7 @@ entries:
       kind: rename
       target:
         form: symbol
-        modernGlyph: "\\mathcal{E}"
+        modernGlyph: "E"
     collision:
       severity: caution
       kind: within-paper
@@ -1547,7 +1547,7 @@ entries:
       firstUseBySection:
         - sectionId: sr-s8
           anchor: sr-s8-p1
-    notes: "Energy of a light complex here. Electric-field components in this paper are X, Y, Z, not E."
+    notes: "Energy of a light complex here. Electric-field components in this paper are X, Y, Z, not E. The modern view keeps E, the letter this edition's formulas use: no field stands beside it in the formulas of §8."
     sources:
       facsimilePage: 912
       anchor: sr-s8-p1
@@ -1572,7 +1572,8 @@ entries:
       kind: rename
       target:
         form: symbol
-        modernGlyph: "\\mathcal{E}'"
+        modernGlyph: "E'"
+    notes: "The modern view keeps E′, the letter this edition's formulas use, as it keeps E for the same light in K."
     sources:
       facsimilePage: 912
       anchor: sr-s8-p1
@@ -1791,22 +1792,23 @@ entries:
       unicode: "W"
       latex: "W"
       variant: plain
-    meaning: "Work done on the electron"
+    meaning: "The electron's energy of motion (Bewegungsenergie), set equal to the work the field does on it"
     binding:
-      quantityId: electronWork
+      quantityId: kineticEnergy
     operation:
       kind: rename
       target:
         form: symbol
-        modernGlyph: "W"
+        modernGlyph: "K"
+    notes: "Einstein names W the electron's energy of motion and sets it equal to the work the field does on it, the integral of εX dx. The formulas of this edition call that energy K."
     sources:
-      facsimilePage: 919
-      anchor: sr-s10-p1
+      facsimilePage: 920
+      anchor: sr-s10-p10
     verification:
       printed: true
-      checkedAgainst: "Pending facsimile scan (ap-17-891)"
-      by: "Editorial Staff"
-      date: "2026-09-17"
+      checkedAgainst: "Pending facsimile verification (ap-17-891); glyph read by an agent from the plate of printed page 920 (PDF page 30), not a review"
+      by: "agent:SapphireCastle"
+      date: "2026-09-24"
 
 modernOnlySymbols:
   - id: sr.chi.rapidity

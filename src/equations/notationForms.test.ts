@@ -53,15 +53,26 @@ describe("printedForm", () => {
     );
   });
 
-  test("one unresolved symbol keeps the whole formula in today's letters: V and beta too", () => {
-    // Kinetic energy has no entry. Before the ruling this drew K = mu V^2 (beta - 1): two of
-    // Einstein's letters beside one of ours, a formula in nobody's notation.
-    const f = form("eq-model-sr-electron-work-result", "s10");
-    expect(reasons(f)).toEqual(["kineticEnergy:no-entry"]);
-    expect(drawn("eq-model-sr-electron-work-result", f)).toBe(
-      expressionLatex(tree("eq-model-sr-electron-work-result"), table),
+  test("one unresolved symbol keeps the whole formula in today's letters: V too", () => {
+    // Einstein's phi' has no entry yet. Drawing the rest would give his V beside our phi', a
+    // formula in nobody's notation.
+    const f = form("eq-model-sr-aberration", "s7");
+    expect(reasons(f)).toEqual(["propagationAngleMoving:no-entry"]);
+    expect(drawn("eq-model-sr-aberration", f)).toBe(
+      expressionLatex(tree("eq-model-sr-aberration"), table),
     );
-    expect(drawn("eq-model-sr-electron-work-result", f)).not.toContain("V");
+    expect(drawn("eq-model-sr-aberration", f)).not.toContain("V");
+  });
+
+  test("kinetic energy is Einstein's W: the section 10 result draws whole in his letters", () => {
+    // Data 3, read from the plate of page 920. Before the ruling this formula drew K beside his
+    // mu, V and beta; with no W it now either draws whole or not at all.
+    const f = form("eq-model-sr-electron-work-result", "s10");
+    expect(f.state).toBe("printed");
+    if (f.state === "printed") expect(f.letters.kineticEnergy?.entryId).toBe("sr.W.electronWork");
+    expect(drawn("eq-model-sr-electron-work-result", f)).toBe(
+      "W = \\mu\\,V^{2}\\,\\left(\\beta - 1\\right)",
+    );
   });
 
   test("an electromagnetic quantity keeps its formula in today's letters: SI records, Gaussian print", () => {
@@ -115,10 +126,19 @@ describe("printedForm", () => {
   });
 
   test("a quantity whose concordance target differs from the record's letter keeps the formula modern", () => {
-    // The concordance renames phi to vartheta; the records and their prose print phi.
-    expect(reasons(form("eq-model-sr-aberration", "s7"))).toContain(
-      "propagationAngleStationary:target-differs",
+    // The real V entry with its modern letter changed: the records print c, so V no longer maps
+    // onto the letter the formula prints and nothing in the formula changes.
+    const v = entries.find((e) => e.id === "sr.V.speedOfLight") as ConcordanceEntry;
+    const moved = {
+      ...v,
+      operation: { kind: "rename", target: { form: "symbol", modernGlyph: "C" } },
+    } as ConcordanceEntry;
+    const f = form(
+      "eq-model-sr-slow-clock",
+      "s4",
+      entries.map((e) => (e.id === v.id ? moved : e)),
     );
+    expect(reasons(f)).toEqual(["speedOfLight:target-differs"]);
   });
 
   test("two entries for one quantity in one section: neither is taken, and the formula stays modern", () => {
