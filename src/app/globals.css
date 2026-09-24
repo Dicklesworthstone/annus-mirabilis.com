@@ -254,6 +254,16 @@ button[aria-disabled="true"] {
   cursor: not-allowed;
   opacity: 0.55;
 }
+/* The page's content, in a fieldset that is disabled until JavaScript has run
+   (components/chrome/HydrationGate.tsx). It makes no box, so the page lays out as if it were not
+   there; the reset is for a browser that ignores display: contents on a fieldset. */
+.hydration-gate {
+  display: contents;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
+}
 /* A control that no longer applies but keeps keyboard focus (TableToPlotBuilder): no pointer
    hover or click reaches it, so it never lights up as though it would act. */
 button[aria-disabled="true"] {

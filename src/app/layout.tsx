@@ -7,6 +7,7 @@ import "../a11y/readingSettings/readingSettings.css";
 import "../a11y/modal/modal.css";
 import { READING_SETTINGS_PREPAINT } from "../a11y/readingSettings/prepaint";
 import { ReadingSettingsPanel } from "../a11y/readingSettings/ReadingSettingsPanel";
+import { HydrationGate } from "../components/chrome/HydrationGate.tsx";
 import { MenuToggle } from "../components/chrome/MenuToggle.tsx";
 import { PrimaryNavLinks } from "../components/chrome/PrimaryNavLinks.tsx";
 import { FORMULA_OVERFLOW_SOURCE } from "../components/edition/formulaOverflow.inline";
@@ -84,7 +85,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <Suspense fallback={null}>
           <GuidedTourTrail />
         </Suspense>
-        <main id="main">{children}</main>
+        <main id="main">
+          <HydrationGate>{children}</HydrationGate>
+        </main>
         <Suspense fallback={null}>
           <GuidedTourTrail compact />
         </Suspense>

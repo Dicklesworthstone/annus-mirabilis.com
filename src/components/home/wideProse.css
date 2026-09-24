@@ -41,7 +41,7 @@
   :root .catalogue-intro,
   :root .hero-with-plates-head .lead,
   :root .notation-header > .lead,
-  :root main > .page-intro > .lead {
+  :root main > .hydration-gate > .page-intro > .lead {
     font-size: var(--type-lead-wide);
   }
 
@@ -53,7 +53,7 @@
   :root .paper-catalogue article p:where(:not([class]), .german-title),
   :root .paper-entry-body > p:where(:not([class]), .german-title),
   :root .reading.page-flush p:not(.fine),
-  :root main > .page-intro > p:not([class]),
+  :root main > .hydration-gate > .page-intro > p:not([class]),
   :root .notation-status {
     font-size: var(--type-body-wide);
     max-width: max(666px, 54ch);
