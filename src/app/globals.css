@@ -477,8 +477,10 @@ p {
     grid-column: auto;
   }
 }
+/* 3rem above, as .page-intro has: /instruments/ and /search/, the two pages on a plain .hero, set
+   their heading 32px lower than every other top-level page (y=232 against 200 at 1440). */
 .hero {
-  padding: 5rem 0 4rem;
+  padding: 3rem 0 4rem;
   max-width: 940px;
 }
 h1 {
