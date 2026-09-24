@@ -12,6 +12,7 @@ import {
   assertCompletePrebuiltArtifact,
   assertQualityGatesResult,
   type CommandResult,
+  candidateRecordWithoutChecks,
   deploymentUrl,
   determinePromotionHostnames,
   executePromotionStateMachine,
@@ -393,5 +394,22 @@ describe("scripts/verified-production-deploy.ts pipeline safety tests", () => {
     expect(() => loadReleaseCandidate("nonexistent-deployment-id", fixturesDir)).toThrow(
       /Candidate release record not found for identifier 'nonexistent-deployment-id'/,
     );
+  });
+
+  test("a release record never claims candidate checks that did not run (am-release-records-claim-unrun-checks-xxri)", () => {
+    const record = candidateRecordWithoutChecks({
+      toolRunId: "20260924T000000Z-test",
+      createdAt: "2026-09-24T00:00:00.000Z",
+      commit: "0123456789012345678901234567890123456789",
+      profile: "scaffold",
+      candidateUrl: "https://example.invalid/candidate",
+    });
+    // No candidate check exists yet, so the record must say so rather than claim a pass.
+    expect(record.candidateChecksPassed).toBe(false);
+    expect(record.candidateCheckSummary ?? "").toMatch(/^not-implemented: /);
+    // And a record nobody verified cannot be promoted through --promote.
+    expect(() =>
+      validatePromotePreconditions({ record, currentHeadCommit: record.commit }),
+    ).toThrow(/has failed candidate checks/i);
   });
 });

@@ -498,6 +498,39 @@ export function executePromotionStateMachine(options: {
   };
 }
 
+/**
+ * The release record this script writes today. No candidate check runs against the unpromoted
+ * deployment yet (am-rel-candidate-checks-kc7y), so the record says exactly that: the checks are
+ * not implemented and did not pass. Until 2026-09-24 this record hard-coded
+ * `candidateChecksPassed: true`, so every release record claimed checks that never ran
+ * (am-release-records-claim-unrun-checks-xxri). The direct deploy path still promotes, and the
+ * record no longer lies about it. `--promote` refuses such a record, because nothing verified it.
+ */
+export function candidateRecordWithoutChecks(fields: {
+  toolRunId: string;
+  createdAt: string;
+  commit: string;
+  profile: ReleaseProfile;
+  candidateUrl: string;
+  authorizationRef?: string | undefined;
+  targetHostnames?: readonly string[] | undefined;
+}): ReleaseCandidateRecord {
+  return {
+    schema: RELEASE_RECORD_SCHEMA,
+    toolRunId: fields.toolRunId,
+    createdAt: fields.createdAt,
+    commit: fields.commit,
+    profile: fields.profile,
+    candidateUrl: fields.candidateUrl,
+    candidateDeploymentId: fields.candidateUrl,
+    candidateChecksPassed: false,
+    candidateCheckSummary:
+      "not-implemented: no candidate check ran against this deployment (am-rel-candidate-checks-kc7y)",
+    authorizationRef: fields.authorizationRef,
+    targetHostnames: fields.targetHostnames,
+  };
+}
+
 export function validatePromotePreconditions(options: {
   record: ReleaseCandidateRecord;
   currentHeadCommit: string;
@@ -725,18 +758,15 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     const candidateUrl = deploymentUrl(deployResult.stdout);
 
     const toolRunId = newToolRunId();
-    const candidateRecord: ReleaseCandidateRecord = {
-      schema: RELEASE_RECORD_SCHEMA,
+    const candidateRecord = candidateRecordWithoutChecks({
       toolRunId,
       createdAt: new Date().toISOString(),
       commit: headCommit,
       profile: options.profile,
       candidateUrl,
-      candidateDeploymentId: candidateUrl,
-      candidateChecksPassed: true,
       authorizationRef: authResult.reference,
       targetHostnames,
-    };
+    });
     saveReleaseCandidateRecord(candidateRecord);
 
     if (options.candidateOnly) {
