@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { TwoLedgersComparison } from "../../../components/lab/me01/TwoLedgersLab.tsx";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/me01/session.ts";
+import labDigests from "../../../generated/lab-source-digests.json";
 
 export const metadata: Metadata = {
   title: "Opposite pulses and two ledgers",
 };
 
 export default function TwoLedgersPage() {
-  const example = DEFAULT_PREPARED_EXAMPLE;
+  // The example names its host source by digest (scripts/generate-lab-digests.mjs).
+  const example = { ...DEFAULT_PREPARED_EXAMPLE, sourceDigest: labDigests["me-01"] };
 
   return (
     <>

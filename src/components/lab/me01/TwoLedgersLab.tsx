@@ -1,12 +1,17 @@
 "use client";
 
 import { useEffect, useId, useState, useSyncExternalStore } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
+import { executionLabelAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import { fromMe01Draft, type Me01Draft, toMe01Draft } from "../../../experiments/me01/controls.ts";
 import {
   ME01_CAPTION,
   ME01_DEFAULTS,
   ME01_MODEL,
   ME01_NOT_MODELED,
+  ME01_OUTPUTS,
   ME01_PRESETS,
   ME01_PROMPTS,
   type Me01Notation,
@@ -21,6 +26,7 @@ import {
   evaluateMe01,
   type PreparedMe01Example,
 } from "../../../experiments/me01/session.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
@@ -57,6 +63,17 @@ export function TwoLedgersLab({
 
   const fallbackParams = example?.parameters ?? ME01_DEFAULTS;
   const accepted = view.accepted;
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation; an example without a source digest
+  // earns no label at all.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      ME01_OUTPUTS,
+      example?.sourceDigest ?? "",
+      accepted !== undefined && accepted === session.getServerSnapshot().accepted,
+    ).label,
+  );
   const p = (accepted?.parameters ?? fallbackParams) as Me01Parameters;
   const [draft, setDraft] = useState(() => toMe01Draft(p));
   const [error, setError] = useState("");
@@ -192,14 +209,21 @@ export function TwoLedgersLab({
       data-input-revision={session.getSnapshot().requested?.revisions.input ?? 0}
       data-accepted-input-revision={session.getSnapshot().accepted?.revisions.input ?? 0}
       data-pending={session.getSnapshot().pending ? "true" : "false"}
-      data-execution-label="host"
+      {...executionLabelAttributes(executionKind)}
       data-refusal-code={refusalCode ?? undefined}
     >
       <div className="lab-header">
         <div>
-          <p className="eyebrow">{ME01_MODEL.label}</p>
+          <p className="eyebrow">An executable model</p>
           <h2>{title}</h2>
         </div>
+      </div>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          modelNote={modelNoteFromView(view, { notModeled: `${ME01_NOT_MODELED.join("; ")}.` })}
+        />
       </div>
 
       <div className="lab-columns">

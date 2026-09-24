@@ -8,6 +8,7 @@ import {
   WORKED_ARGUMENT,
 } from "../../../../discovery/massEnergyArgument.ts";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../../experiments/me01/session.ts";
+import labDigests from "../../../../generated/lab-source-digests.json";
 import "../../../../discovery/investigationPage.css";
 import "./argument.css";
 import { StepDoor, StepDoors } from "../../../../discovery/StepDoor.tsx";
@@ -151,7 +152,9 @@ export default function MassEnergyArgumentPage() {
           two-ledgers instrument, not by the argument checker above, and a computed consequence
           cannot check its own premises.
         </p>
-        <TwoLedgersComparison example={DEFAULT_PREPARED_EXAMPLE} />
+        <TwoLedgersComparison
+          example={{ ...DEFAULT_PREPARED_EXAMPLE, sourceDigest: labDigests["me-01"] }}
+        />
       </section>
       <footer className="reading actions">
         <a className="button" href="/papers/mass-energy/#arg-me-two-ledgers">
