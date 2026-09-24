@@ -108,8 +108,18 @@ async function readIndex(): Promise<readonly Entry[]> {
   }
   // Stable, readable order within a type. The shards are content-addressed, so their own order is
   // a hashing artefact and would reshuffle a reader's page for no reason on an unrelated edit.
-  // Numeric, so "§2" comes before "§10".
-  return out.sort((a, b) => a.title.localeCompare(b.title, "en", { numeric: true }));
+  // Numeric, so "§2" comes before "§10". A paper's sections go in the paper's own order, by their
+  // anchor (s0 is the unnumbered introduction): by title, "Introduction · ..." sorted after "§10".
+  // One key for every pair (paper, then section number, then title) keeps the comparison
+  // consistent; entries that are not sections compare equal on the middle key.
+  const sectionNumber = (e: Entry) =>
+    e.type === "section" ? Number(/^s(\d+)$/.exec(e.anchor)?.[1] ?? Number.POSITIVE_INFINITY) : 0;
+  return out.sort(
+    (a, b) =>
+      a.paper.localeCompare(b.paper) ||
+      sectionNumber(a) - sectionNumber(b) ||
+      a.title.localeCompare(b.title, "en", { numeric: true }),
+  );
 }
 
 /**
