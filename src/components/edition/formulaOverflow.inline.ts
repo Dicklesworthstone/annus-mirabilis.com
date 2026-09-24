@@ -23,6 +23,10 @@ export function syncFormulaOverflow(): void {
           ? `Scrollable mathematical formula: ${tex}`
           : `Scrollable mathematical formula ${i + 1}`;
         el.setAttribute("aria-label", label);
+        // The same rule as initFormulaOverflow's: a named span or div needs a role that takes a name.
+        if (!el.hasAttribute("role") && /^(SPAN|DIV)$/.test(el.tagName)) {
+          el.setAttribute("role", "group");
+        }
       }
     } else if (el.hasAttribute("tabindex")) {
       el.removeAttribute("tabindex");
@@ -96,6 +100,20 @@ export function initFormulaOverflow(): void {
                   ? `Scrollable region: ${heading}`
                   : `Scrollable region ${i + 1}`;
             el.setAttribute("aria-label", label);
+          }
+          // A NAME ON A SPAN OR DIV IS PROHIBITED (axe aria-prohibited-attr): neither has a role
+          // that takes one, so the label is ignored or misread. Measured on live
+          // /papers/mass-energy/view/german/: seven overflowing source equations, spans named
+          // "Scrollable mathematical formula: ...", each flagged serious. A group takes a name and
+          // is not a landmark, so seven formulas do not become seven regions. Checked on every
+          // pass, not only when the label is set, so a role lost to hydration comes back with the
+          // tab stop. An element with a role of its own keeps it.
+          if (
+            el.hasAttribute("aria-label") &&
+            !el.hasAttribute("role") &&
+            /^(SPAN|DIV)$/.test(el.tagName)
+          ) {
+            el.setAttribute("role", "group");
           }
         } else if (el.hasAttribute("data-scroll-focus")) {
           el.removeAttribute("tabindex");
