@@ -165,6 +165,9 @@ export function expressionToSpokenText(expr: Expression): string {
     case "limit":
       return `the limit, as ${expressionToSpokenText(expr.variable)} approaches ${expressionToSpokenText(expr.approaches)}, of ${expressionToSpokenText(expr.expression)}`;
 
+    case "indexedSum":
+      return `the sum, for ${expr.index} from ${expressionToSpokenText(expr.from)} to ${expressionToSpokenText(expr.to)}, of ${expressionToSpokenText(expr.expression)}`;
+
     case "partialOperator":
       return `partial derivative with respect to ${expressionToSpokenText(expr.variable)}`;
 

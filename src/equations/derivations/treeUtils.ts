@@ -117,6 +117,14 @@ export function structurallyEqual(a: Expression, b: Expression): boolean {
         structurallyEqual(a.variable, b.variable) &&
         structurallyEqual(a.approaches, b.approaches)
       );
+    case "indexedSum":
+      return (
+        b.kind === "indexedSum" &&
+        a.index === b.index &&
+        structurallyEqual(a.expression, b.expression) &&
+        structurallyEqual(a.from, b.from) &&
+        structurallyEqual(a.to, b.to)
+      );
     case "partialOperator":
       return b.kind === "partialOperator" && structurallyEqual(a.variable, b.variable);
   }
@@ -184,6 +192,8 @@ export function substituteNode(
     case "limit":
       // Like an integral's variable, the variable and the value it approaches are not rewritten.
       return { ...root, expression: substituteNode(root.expression, targetId, replacement) };
+    case "indexedSum":
+      return { ...root, expression: substituteNode(root.expression, targetId, replacement) };
     case "partialOperator":
       return root;
   }
@@ -231,6 +241,8 @@ function childrenOf(n: Expression): readonly Expression[] {
       ];
     case "limit":
       return [n.expression, n.variable, n.approaches];
+    case "indexedSum":
+      return [n.expression, n.from, n.to];
     case "partialOperator":
       return [n.variable];
   }

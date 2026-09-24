@@ -212,7 +212,7 @@ test("collisions.test: collision with modernOnlySymbols is an ERROR", () => {
   assert.ok(result.diagnostics.some((d) => d.rule === "modern-only-symbol-collision"));
 });
 
-test("collisions.test: renderEquationLatex throws NotationScopeError on modern glyph collision (render.ts:495)", () => {
+test("collisions.test: renderEquationLatex throws NotationScopeError on modern glyph collision (render.ts:503)", () => {
   const realConcordance = loadConcordanceForPaper("special-relativity");
 
   // Mutated concordance where auxiliaryGalileanCoordinate also modernizes to x'

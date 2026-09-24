@@ -8,7 +8,7 @@ import { ContentError } from "../content/compiler/json.ts";
 import { record } from "./ast.ts";
 
 describe("ast refusal throw sites (am-muyh)", () => {
-  test("refusal (ast.ts:128): equation-invalid rejects non-record input in record()", () => {
+  test("refusal (ast.ts:142): equation-invalid rejects non-record input in record()", () => {
     // Accept: valid record
     const accepted = record({ a: 1, b: "ok" }, "test-path", ["a"], ["b"]);
     assert.equal(accepted.a, 1);

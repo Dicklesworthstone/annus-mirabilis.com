@@ -155,6 +155,7 @@ export function evaluateExpression(
     case "derivative":
     case "integral":
     case "limit":
+    case "indexedSum":
     case "partialOperator":
       throw new SpotCheckDomainError(
         `a ${tree.kind} node is not directly evaluable; spot-check its algebraic result instead.`,

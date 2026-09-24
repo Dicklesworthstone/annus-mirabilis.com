@@ -76,6 +76,18 @@ export type Expression =
         approaches: Expression;
         expression: Expression;
       }>)
+  /** A sum over an index, the sum for i from `from` to `to` of `expression`: the mean of M values,
+      (1/M) times the sum of x_i, and the sum of n steps in paper 2, section 4. The index is one
+      letter that the body's symbols carry as their `index`; the bounds are counts, so they are
+      dimensionless; the sum has the body's dimension. */
+  | (Op &
+      Readonly<{
+        kind: "indexedSum";
+        index: string;
+        from: Expression;
+        to: Expression;
+        expression: Expression;
+      }>)
   /** The operator "partial derivative with respect to variable", standing alone: an identity
       between operators (paper 3, section 6) relates these, not quantities. */
   | (Op & Readonly<{ kind: "partialOperator"; variable: Expression }>);
@@ -115,6 +127,8 @@ export function children(n: Expression): readonly Expression[] {
       ];
     case "limit":
       return [n.expression, n.variable, n.approaches];
+    case "indexedSum":
+      return [n.expression, n.from, n.to];
     case "partialOperator":
       return [n.variable];
   }
@@ -209,6 +223,7 @@ export function parseExpression(
       derivative: ["expression", "variable", "order", "partial"],
       integral: ["expression", "variable"],
       limit: ["variable", "approaches", "expression"],
+      indexedSum: ["index", "from", "to", "expression"],
       partialOperator: ["variable"],
     };
     if (typeof kind !== "string" || !Object.hasOwn(fields, kind))
@@ -276,7 +291,8 @@ export function parseExpression(
           if (
             !["degree", "name", "operator", "order", "partial"].includes(key) &&
             !(key === "exponent" && kind === "power") &&
-            !(key === "approaches" && kind === "limit")
+            !(key === "approaches" && kind === "limit") &&
+            !(key === "index" && kind === "indexedSum")
           )
             // A negated limit is still a limit: minus infinity is -(infinity).
             parse(o[key], `${path}.${key}`, depth + 1, limit && kind === "negate");
@@ -339,6 +355,13 @@ export function parseExpression(
             path,
             "The value a limit approaches cannot contain the variable that approaches it.",
           );
+      }
+      if (kind === "indexedSum") {
+        if (typeof o.index !== "string" || !/^[a-z]$/.test(o.index))
+          fail(path, "An indexed sum's index is one lower-case letter.");
+        const index = o.index;
+        if (!walk(o.expression as Expression).some((s) => s.kind === "symbol" && s.index === index))
+          fail(path, "The body of an indexed sum must use its index.");
       }
       if (kind === "integral") {
         if (Object.hasOwn(o, "lower") !== Object.hasOwn(o, "upper"))

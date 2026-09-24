@@ -305,6 +305,14 @@ export function renderLatex(tree: Expression, options: RenderLatexOptions = {}):
         break;
       }
 
+      case "indexedSum": {
+        const e = n.expression;
+        const inner = render(e);
+        const wrap = e.kind === "sum" || e.kind === "relation" || e.kind === "negate";
+        s = `\\sum_{${n.index}=${render(n.from)}}^{${render(n.to)}} ${wrap ? `\\left(${inner}\\right)` : inner}`;
+        break;
+      }
+
       case "partialOperator":
         s = `\\partial_{${render(n.variable)}}`;
         break;

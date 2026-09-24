@@ -493,6 +493,21 @@ export function checkDimensions(
         return exprDim;
       }
 
+      case "indexedSum": {
+        // The bounds count terms, so they are pure numbers; the sum has its body's dimension.
+        for (const bound of [node.from, node.to]) {
+          const d = visit(bound, depth + 1);
+          if (!isDimensionless(d))
+            return refusePair(
+              n,
+              d,
+              DIMENSIONLESS,
+              `indexed sum bound (${describeSubexpression(bound)})`,
+            );
+        }
+        return visit(node.expression, depth + 1);
+      }
+
       case "partialOperator": {
         // The partial derivative with respect to a variable, standing alone, has the inverse
         // of the variable's dimension: an operator identity balances these, per metre or per

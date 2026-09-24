@@ -257,6 +257,15 @@ export function isTreeEquivalentUpToRenames(
         isTreeEquivalentUpToRenames(a.approaches, b.approaches, options)
       );
     }
+    case "indexedSum": {
+      return (
+        b.kind === "indexedSum" &&
+        a.index === b.index &&
+        isTreeEquivalentUpToRenames(a.expression, b.expression, options) &&
+        isTreeEquivalentUpToRenames(a.from, b.from, options) &&
+        isTreeEquivalentUpToRenames(a.to, b.to, options)
+      );
+    }
     case "partialOperator": {
       return (
         b.kind === "partialOperator" && isTreeEquivalentUpToRenames(a.variable, b.variable, options)
