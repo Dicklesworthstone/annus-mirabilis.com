@@ -13,7 +13,6 @@ import {
   ME01_NOT_MODELED,
   ME01_OUTPUTS,
   ME01_PRESETS,
-  ME01_PROMPTS,
   type Me01Notation,
   type Me01OffsetDisplay,
   type Me01Parameters,
@@ -35,7 +34,9 @@ import { TwoLedgersPlot } from "./TwoLedgersPlot.tsx";
 import "../labControls.css";
 import "./me01.css";
 import "../showTheCode.css";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
+import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
 import { sentenceNumber } from "../presentation.ts";
 
 const STEPS: readonly { id: Me01Step; label: string; number: number }[] = [
@@ -46,6 +47,10 @@ const STEPS: readonly { id: Me01Step; label: string; number: number }[] = [
   { id: "subtraction-move", label: "5. The subtraction", number: 5 },
   { id: "premise-kinetic", label: "6. Kinetic drop", number: 6 },
 ];
+
+// The manifest's prompt (scripts/generate-predict-prompts.mjs), one stable array for the gate. It
+// replaces the lab's use of ME01_PROMPTS, a TypeScript copy me01.test.ts still reads.
+const ME01_PREDICT_PROMPTS = PREDICT_PROMPTS["me-01"] ?? [];
 
 export function TwoLedgersLab({
   example,
@@ -85,7 +90,8 @@ export function TwoLedgersLab({
   const [linkNote, setLinkNote] = useState("");
   const [linkPending, setLinkPending] = useState(false);
   const [sharedUrl, setSharedUrl] = useState("");
-  const [predictAnswer, setPredictAnswer] = useState<string | null>(null);
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("me-01", ME01_PREDICT_PROMPTS);
 
   const evaluation = evaluateMe01(p);
   // One sentence for the status line: what the two pulses carry in the moving frame, and what the
@@ -210,8 +216,6 @@ export function TwoLedgersLab({
     }
   }
 
-  const prompt = ME01_PROMPTS.tiltAxis;
-
   return (
     <section
       className="laboratory-shell"
@@ -242,28 +246,9 @@ export function TwoLedgersLab({
         </p>
       </noscript>
 
+      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <div>
-          <details className="lab-predict">
-            <summary>Predict first</summary>
-            <fieldset>
-              <legend>{prompt.question}</legend>
-              {prompt.candidates.map((c) => (
-                <label key={c.id} className="lab-predict-candidate">
-                  <input
-                    type="radio"
-                    name={`predict-angle-${id}`}
-                    value={c.id}
-                    checked={predictAnswer === c.id}
-                    onChange={() => setPredictAnswer(c.id)}
-                  />
-                  <span>{c.label}</span>
-                </label>
-              ))}
-              {predictAnswer && <p className="lab-predict-reveal">{prompt.explanation}</p>}
-            </fieldset>
-          </details>
-
           <SliderField
             {...field("frameSpeed")}
             label="Observer speed v/c"
@@ -393,6 +378,7 @@ export function TwoLedgersLab({
           <AcceptedStatus
             worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
             summary={statusSummary}
+            response={gate.response}
           />
           {linkNote && (
             <div className="notice">
@@ -406,7 +392,7 @@ export function TwoLedgersLab({
           )}
         </div>
 
-        <div className="lab-results">
+        <div className="lab-results" {...gate.response}>
           <TwoLedgersPlot parameters={p} evaluation={evaluation} clipId={`plot-clip-${id}`} />
           <nav className="step-nav" aria-label="Derivation steps">
             {STEPS.map((s) => (

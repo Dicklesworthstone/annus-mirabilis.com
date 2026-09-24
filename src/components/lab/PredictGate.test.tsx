@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { act, createElement, type ReactElement } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
+import { DEFAULT_PREPARED_EXAMPLE as ME01_EXAMPLE } from "../../experiments/me01/session.ts";
 import { decodeTapePermalink } from "../../experiments/permalink/codec.ts";
 import { writeGlobalPredictEntry } from "../../experiments/predict/predictEntry.ts";
 import {
@@ -37,6 +38,7 @@ import {
   removeContainer,
   uninstallDom,
 } from "../../testing/reactDom.ts";
+import { TwoLedgersLab } from "./me01/TwoLedgersLab.tsx";
 import { presentedOrder } from "./PredictGate.tsx";
 import { VelocityCompositionLab } from "./sr06/VelocityCompositionLab.tsx";
 import { FieldFrameChangeLab } from "./sr08/FieldFrameChangeLab.tsx";
@@ -55,42 +57,56 @@ import { ElectronDynamicsLab } from "./sr13/ElectronDynamicsLab.tsx";
  * rule that hides it applies under the reader pre-paint's data-detail, which only a running script
  * sets. Each row names a lab and a piece of its result's text, which the server markup must carry.
  */
-const LABS: readonly (readonly [string, () => ReactElement, string])[] = [
+const LABS: readonly (readonly [string, () => ReactElement, string, boolean])[] = [
+  // ME-01 has no ?tape= link yet: its binding waits in a worktree (dispatch 145).
+  [
+    "me-01",
+    () => createElement(TwoLedgersLab, { example: ME01_EXAMPLE }),
+    "Derivation steps",
+    false,
+  ],
   [
     "sr-06",
     () => createElement(VelocityCompositionLab, { example: SR06_EXAMPLE }),
     "Accepted composition",
+    true,
   ],
   [
     "sr-08",
     () => createElement(FieldFrameChangeLab, { example: SR08_EXAMPLE }),
     "Transformation ledger",
+    true,
   ],
   [
     "sr-09",
     () => createElement(DopplerAberrationLab, { example: SR09_EXAMPLE }),
     "Values at these settings",
+    true,
   ],
   [
     "sr-10",
     () =>
       createElement(LightComplexLab, { example: rawSr10Example as unknown as PreparedSr10Example }),
     "Values at these settings",
+    true,
   ],
   [
     "sr-11",
     () => createElement(MovingMirrorLab, { example: SR11_EXAMPLE }),
     "Values at these settings",
+    true,
   ],
   [
     "sr-12",
     () => createElement(ChargeCurrentLab, { example: SR12_EXAMPLE }),
     "Charge and current density telemetry across frames",
+    true,
   ],
   [
     "sr-13",
     () => createElement(ElectronDynamicsLab, { example: SR13_EXAMPLE }),
     "Values at these settings",
+    true,
   ],
 ];
 
@@ -151,7 +167,7 @@ describe("with JavaScript, a first-time reader answers before the result shows",
     await uninstallDom();
   });
 
-  for (const [lab, element] of LABS) {
+  for (const [lab, element, , sharesTape] of LABS) {
     const prompt = PREDICT_PROMPTS[lab]?.[0];
     const supported = prompt?.candidates.find((c) => c.id === prompt.supportedCandidateId);
     const other = prompt?.candidates.find((c) => c.id !== prompt.supportedCandidateId);
@@ -212,6 +228,11 @@ describe("with JavaScript, a first-time reader answers before the result shows",
           prediction: { form: "candidate", candidateId: supported?.id ?? "" },
         });
         // The share control encodes after hydration; its link carries the prediction as an event.
+        // A lab with no ?tape= link offers no share control to carry a prediction.
+        if (!sharesTape) {
+          expect(container.querySelector('[data-testid="selectable-url"]')).toBeNull();
+          return;
+        }
         let link = "";
         for (let i = 0; i < 100 && !link; i++) {
           await settle();

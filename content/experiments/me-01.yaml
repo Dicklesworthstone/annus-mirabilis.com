@@ -470,9 +470,10 @@ predictMode:
       supportedCandidateId: me-01-candidate-sum-unchanged
       controlId: emissionAngle
       question: "If the body emits the two opposite pulses at an angle φ = 60° rather than along the direction of motion (φ = 0°), what happens to the total energy of the two light pulses measured by the moving observer?"
+      explanation: "The two pulses have energies (L/2)γ(1 − β cos φ) and (L/2)γ(1 + β cos φ). In the sum, the terms −β cos φ and +β cos φ cancel for any angle φ, leaving exactly γL."
       candidates:
         - id: me-01-candidate-sum-unchanged
-          label: "The total light energy in the moving frame is unchanged (still γL), because the angle terms cancel in the sum."
+          label: "The total light energy is unchanged, because what one pulse gains the other loses."
           description: "The Doppler angle factors -β cos φ and +β cos φ sum to zero."
           separatingAssumption: "Symmetric emission in opposite directions ensures complete cancellation in the energy sum."
         - id: me-01-candidate-sum-decreases
