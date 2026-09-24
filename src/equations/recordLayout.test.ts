@@ -78,6 +78,29 @@ describe("an authored row layout", () => {
     expect(checked).toBeGreaterThan(100);
   });
 
+  test("every record that declares rows renders as rows with its single line's ids", () => {
+    const declared: string[] = [];
+    for (const paper of readdirSync(ROOT, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && d.name !== "derivations")
+      .map((d) => d.name))
+      for (const file of readdirSync(new URL(`${paper}/`, ROOT)).filter((f) =>
+        f.endsWith(".json"),
+      )) {
+        const record = load(paper, file.slice(0, -5));
+        if (record.kind !== "equation" || record.layout === undefined) continue;
+        declared.push(record.id);
+        const rowsForm = compileEquation(record);
+        const { layout: _rows, ...oneLine } = record;
+        const lineForm = compileEquation(oneLine as EquationRecord);
+        expect(rowsForm.plainLatex, record.id).toStartWith("\\begin{aligned}");
+        expect(ids(rowsForm.html), record.id).toEqual(ids(lineForm.html));
+      }
+    // Measured on live at 320px, 2026-09-24: the mass-energy subtraction chain ran 333px in a
+    // 260px explorer box and a 288px reading row, in both places it is shown.
+    expect(declared).toContain("eq-model-me-ledger-subtraction-chain");
+    expect(declared).toContain(CHAIN.id);
+  });
+
   test("each relation sign in rows is the sign the single-line renderer prints", () => {
     const d = (t: string) =>
       ({
