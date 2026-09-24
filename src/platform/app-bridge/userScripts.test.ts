@@ -30,9 +30,24 @@ function sandbox(options: {
   const documentListeners = new Map<string, Listener[]>();
   const dispatched: { type: string; detail: unknown }[] = [];
   const location = {
+    origin: "am-edition://edition",
     pathname: "/papers/brownian-motion/",
     search: "?detail=2",
     hash: options.hash ?? "",
+  };
+  const copied: string[] = [];
+  const shared: unknown[] = [];
+  const navigator = {
+    clipboard: {
+      writeText: (text: string) => {
+        copied.push(text);
+        return Promise.resolve();
+      },
+    },
+    share: (data: unknown) => {
+      shared.push(data);
+      return Promise.resolve();
+    },
   };
   const state: { theme: string | null; stored: string | null } = {
     theme: options.theme ?? null,
@@ -101,6 +116,7 @@ function sandbox(options: {
     CustomEvent,
     MutationObserver,
     localStorage,
+    navigator,
     decodeURIComponent,
   };
   const run = () => runInNewContext(BRIDGE_USER_SCRIPT_SOURCE, context);
@@ -119,7 +135,7 @@ function sandbox(options: {
       observer();
     }
   };
-  return { window, location, posted, dispatched, run, fire, setTheme };
+  return { window, location, navigator, copied, shared, posted, dispatched, run, fire, setTheme };
 }
 
 describe("the bridge user script", () => {
@@ -235,5 +251,40 @@ describe("the bridge user script", () => {
       page.posted.filter((m) => (m as { type: string }).type === "settings.changed").length,
       0,
     );
+  });
+
+  it("rewrites the app's origin to the website's in copied text, and leaves everything else alone", async () => {
+    const page = sandbox({ inApp: true });
+    page.run();
+    await page.navigator.clipboard.writeText("am-edition://edition/lab/bm-01/?tape=abc#lab-bm-01");
+    await page.navigator.clipboard.writeText(
+      "see am-edition://edition and am-edition://edition/papers/",
+    );
+    await page.navigator.clipboard.writeText("am-edition://editionX/not-ours https://example.com/");
+    assert.deepEqual(page.copied, [
+      "https://annus-mirabilis.com/lab/bm-01/?tape=abc#lab-bm-01",
+      "see https://annus-mirabilis.com and https://annus-mirabilis.com/papers/",
+      "am-edition://editionX/not-ours https://example.com/",
+    ]);
+  });
+
+  it("rewrites the url and text of a native share, keeping the title", async () => {
+    const page = sandbox({ inApp: true });
+    page.run();
+    await page.navigator.share({
+      title: "Brownian motion",
+      url: "am-edition://edition/papers/brownian-motion/#s4",
+    });
+    // Objects built inside the vm sandbox belong to another realm; compare their JSON.
+    assert.deepEqual(JSON.parse(JSON.stringify(page.shared)), [
+      { title: "Brownian motion", url: "https://annus-mirabilis.com/papers/brownian-motion/#s4" },
+    ]);
+  });
+
+  it("leaves the clipboard alone in a browser", async () => {
+    const page = sandbox({ inApp: false });
+    page.run();
+    await page.navigator.clipboard.writeText("am-edition://edition/papers/");
+    assert.deepEqual(page.copied, ["am-edition://edition/papers/"]);
   });
 });
