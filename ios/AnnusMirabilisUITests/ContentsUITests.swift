@@ -57,7 +57,7 @@ final class ContentsUITests: XCTestCase {
         let route = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Brownian motion'")).firstMatch
         XCTAssertTrue(route.waitForExistence(timeout: 10))
         route.tap()
-        let start = app.buttons["contents-open-route"]
+        let start = app.buttons["Open the route"]
         XCTAssertTrue(start.waitForExistence(timeout: 10))
         keep(app, "contents-discover-route")
         start.tap()

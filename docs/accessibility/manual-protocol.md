@@ -132,3 +132,64 @@ When conducting manual or co-design evaluation sessions, record results in `docs
 
 > [!NOTE]
 > Human co-design testing with screen-reader users, refreshable braille displays, switch controls, and motor-impaired readers is scheduled under `am-bm-slice-a11y-codesign-3xuq` and `am-a11y-disabled-reader-rounds-jkjr`. As an AI agent, this pilot records only automated and simulated programmatic verifications.
+
+---
+
+## 8. The iPhone and iPad App (`am-app-accessibility-4h2o`)
+
+The app shows the same edition inside a web view, with a small native chrome around it: the
+page-actions button and its menu, the Contents sheet (papers and outlines, Discover routes,
+instruments) and the "Your data on this device" sheet. The website's own checks above still
+govern the edition's pages; this section is about the native chrome and about how the edition
+behaves inside the app.
+
+### 8.1 What automated tests establish, and what they cannot
+
+`ios/AnnusMirabilisUITests/AccessibilityUITests.swift` runs Apple's accessibility audit
+(`performAccessibilityAudit`, all audit types) on every native screen. It runs at the default text
+size in the light theme, and at the largest accessibility size (AX5) in the dark theme. An issue on a
+native control fails the run. The issues it passes over are attached to every run, with the reason:
+DEBUG-only test probes; bar buttons, which stop growing by the system's design and offer the Large
+Content Viewer instead; the edition's own web content on the reading screen; and one label the audit
+misreads. The audit says the Discover route's "Open the route" text cannot change size and may be
+clipped. At the largest size it wraps onto two lines, whole, so a dedicated test measures it instead:
+its text must grow to more than twice its default height and stay inside its button.
+
+These tests run in the iOS Simulator with VoiceOver off. They cannot establish:
+
+- what VoiceOver says, or where its focus lands;
+- that the rotor lists the page's headings as headings. The tests show only that the headings are in
+  the accessibility tree;
+- that Voice Control and Switch Control can reach every control;
+- how equations are announced (section 4 applies inside the app too).
+
+Each of those needs a person with the assistive technology on a real device, as below. None has
+been performed yet.
+
+### 8.2 Reasoning tasks on a device
+
+Run on an iPhone and, where noted, an iPad, with the app installed from the build under review.
+Record results in the section 6 template, naming the device, the iOS version and the build.
+
+1. **VoiceOver, into a passage and back.** Open the page-actions menu, then Contents, then Papers,
+   choose Brownian motion, then §4. *Expected:* VoiceOver announces the new page and its focus
+   moves into it. The heading rotor lists the page's headings, §4 among them. Close a sheet
+   without choosing: focus returns to the page-actions button.
+2. **VoiceOver, an equation in §4.** Explore the displayed equation for the diffusion coefficient.
+   *Expected:* the authored spoken form, read once, with no duplicate announcement (section 4).
+3. **Largest text size.** Settings, Accessibility, Display & Text Size, Larger Text, at the largest
+   size. Open every native screen. *Expected:* no essential label is truncated and nothing needs
+   horizontal scrolling. The page's type size follows at the edition's largest step (150 percent);
+   the page-actions button grows to 64 points and a long press shows its Large Content Viewer.
+4. **Voice Control.** Say "Show names". *Expected:* each native control's spoken name matches its
+   visible text. Examples: "Page actions", "Contents", "Your data on this device", each
+   paper, route and instrument by its title, "Export all of it (JSON)".
+5. **Switch Control.** Using item scanning, reach every item in the page-actions menu. Open
+   Contents, move through all three tabs, and export the reader's data. *Expected:* no native
+   action needs a gesture.
+6. **Reduce Motion.** Settings, Accessibility, Motion, Reduce Motion on. Open and close each sheet.
+   *Expected:* the system's reduced transitions. The native chrome adds no motion of its own, and
+   the edition's pages follow `prefers-reduced-motion` (section 1, Reduced Motion row).
+7. **Keyboard on iPad.** With a hardware keyboard: Tab and the arrow keys move through the
+   native controls. *Not yet built:* Command-K (search) and Command-F (find) shortcuts and their
+   entries in the shortcut overlay.

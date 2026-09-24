@@ -118,9 +118,8 @@ struct EditionContentsView: View {
                 Button {
                     go(route.route)
                 } label: {
-                    Text("Open the route")
+                    Label("Open the route", systemImage: "arrow.forward")
                 }
-                .accessibilityIdentifier("contents-open-route")
             }
             Section {
                 ForEach(Array(route.steps.enumerated()), id: \.offset) { index, step in
