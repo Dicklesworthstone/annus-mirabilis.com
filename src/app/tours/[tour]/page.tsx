@@ -36,9 +36,9 @@ export default async function GuidedTourPage({ params }: Props) {
           explanation is available below without submitting an answer.
         </p>
         <p className="notice">
-          An explanatory route through existing edition pages, not a reviewed historical Journey
-          record. A laboratory models a claim; it does not turn a computed result into an
-          observation.
+          This path strings together pages of the edition; it is not a reviewed account of how the
+          paper came about. A laboratory works out what a claim implies, and what it shows is a
+          calculation, not an observation.
         </p>
         <nav className="guided-tour-actions" aria-label="Begin or leave this reading path">
           {first && (

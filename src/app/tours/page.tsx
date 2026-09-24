@@ -25,9 +25,9 @@ export default function GuidedToursIndex() {
           answer is required.
         </p>
         <p className="notice">
-          These are explanatory paths through the edition in preparation. They do not certify a
-          reviewed translation, historical reconstruction or completed learning outcome. Each
-          destination states its own model and editorial limits.
+          These paths lead through an edition that is still in preparation, and following one is not
+          a sign that anything on it has been reviewed. Each page a path reaches says what it shows
+          and where it stops.
         </p>
       </header>
       <div className="guided-tour-catalogue">
