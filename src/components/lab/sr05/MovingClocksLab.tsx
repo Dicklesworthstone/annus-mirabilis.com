@@ -1,8 +1,13 @@
 "use client";
 
 import { useId, useMemo, useSyncExternalStore } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import {
   SR05_CAPTION,
+  SR05_OUTPUTS,
   SR05_PRESETS,
   type Sr05Parameters,
 } from "../../../experiments/sr05/definition.ts";
@@ -65,6 +70,16 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
   );
 
   const accepted = view.accepted;
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      SR05_OUTPUTS,
+      example?.sourceDigest ?? "",
+      accepted !== undefined && accepted === session.getServerSnapshot().accepted,
+    ).label,
+  );
   const params = (accepted?.parameters ?? example?.parameters) as Sr05Parameters | undefined;
   const outputs = accepted?.outputs ?? [];
 
@@ -87,10 +102,14 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
       className="laboratory"
       aria-labelledby={`${instanceId}-title`}
       data-testid="moving-clocks-lab"
+      {...labelRootAttributes(executionKind, view, "properTime")}
     >
       <header className="lab-heading">
         <h2 id={`${instanceId}-title`}>Moving clocks</h2>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome state={executionKind} view={view} />
+      </div>
       <div className="lab-columns">
         <div>
           <fieldset className="lab-choice">
