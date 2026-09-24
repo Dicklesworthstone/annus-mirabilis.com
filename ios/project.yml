@@ -115,6 +115,9 @@ targets:
       # Evidence folder names, which the app and the gate must agree on (test-evidence.test.ts too).
       - path: ../scripts/app/fixtures/evidence-folders.json
         buildPhase: resources
+      # Requests to the edition origin and their answers; origin-vectors.test.ts reads them too.
+      - path: ../scripts/app/fixtures/origin-vectors.json
+        buildPhase: resources
     dependencies:
       - target: AnnusMirabilis
     settings:

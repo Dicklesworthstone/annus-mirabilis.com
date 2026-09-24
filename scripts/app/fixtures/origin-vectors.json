@@ -1,0 +1,220 @@
+{
+  "about": "Requests to the app's edition origin and what each must get back (bead am-app-scheme-handler-ghuu, requirement 8). The Swift tests serve every vector through EditionSchemeHandler with this manifest; scripts/app/origin-vectors.test.ts holds each content type to the export's contentTypeFor and each digest to its body. Every response carries X-Content-Type-Options: nosniff and Referrer-Policy: no-referrer, and none carries Set-Cookie.",
+  "maxPathLength": 2048,
+  "headers": {
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer"
+  },
+  "forbiddenHeaders": ["Set-Cookie"],
+  "files": [
+    {
+      "path": "index.html",
+      "body": "<!DOCTYPE html><html><title>Annus Mirabilis</title></html>",
+      "contentType": "text/html; charset=utf-8",
+      "size": 58,
+      "sha256": "ccd392cd0be329e1beb9eb99ad9795df25357477f0d9ed4ef6a70f2248b3838c"
+    },
+    {
+      "path": "404.html",
+      "body": "<!DOCTYPE html><html><title>Not in this edition</title></html>",
+      "contentType": "text/html; charset=utf-8",
+      "size": 62,
+      "sha256": "4124b1fe141e4efd65120f1196a640e52ea4268c9b348a2865117967dd8ed5f9"
+    },
+    {
+      "path": "papers/brownian-motion/index.html",
+      "body": "<!DOCTYPE html><html><title>Brownian motion</title></html>",
+      "contentType": "text/html; charset=utf-8",
+      "size": 58,
+      "sha256": "141b2f962fbe9dae4c86538cdb22558c03b04a0dd4c08c4d755efcaeb2008285"
+    },
+    {
+      "path": "_next/static/chunks/app-0a1b.js",
+      "body": "self.__am=1;",
+      "contentType": "text/javascript; charset=utf-8",
+      "size": 12,
+      "sha256": "8af2eb99a6452ec43c7af73ad0df9106d6b8596ed30315eb8c94f794fffca116"
+    },
+    {
+      "path": "_next/static/css/site-2c3d.css",
+      "body": "body{margin:0}",
+      "contentType": "text/css; charset=utf-8",
+      "size": 14,
+      "sha256": "2007703776e20c24376ebae0a759bc90112c3d0632a9f44428e11f7a8444a297"
+    },
+    {
+      "path": "wasm/fs-diffusion-4e5f.wasm",
+      "body": "\u0000asm\u0001\u0000\u0000\u0000",
+      "contentType": "application/wasm",
+      "size": 8,
+      "sha256": "93a44bbb96c751218e4c00d479e4c14358122a389acca16205b1e4d0dc5f9476"
+    },
+    {
+      "path": "search/index.json",
+      "body": "{\"entries\":[]}",
+      "contentType": "application/json",
+      "size": 14,
+      "sha256": "d801aa1fb7ddcc330a5e3173372ea6af4a3d08ec58074478e85aa5603e926658"
+    },
+    {
+      "path": "fonts/newsreader-latin.woff2",
+      "body": "wOF2",
+      "contentType": "font/woff2",
+      "size": 4,
+      "sha256": "78636849015e5d2ab5689e3f2aff050a589cbede7b789470076f450f03acb2bb"
+    },
+    {
+      "path": "figures/mark.svg",
+      "body": "<svg xmlns=\"http://www.w3.org/2000/svg\"/>",
+      "contentType": "image/svg+xml",
+      "size": 41,
+      "sha256": "900fbe934249ad120004bd24adf66aad8817d89586273c0cc50e187bddebb601"
+    },
+    {
+      "path": "papers/transcripts/ap-17-549-machine-draft.txt",
+      "body": "Über die ...",
+      "contentType": "text/plain; charset=utf-8",
+      "size": 13,
+      "sha256": "b8ca7b44be2284e2bd81a84cb504cfc0ef86c740b3847908d6b79bcc20b23a11"
+    }
+  ],
+  "vectors": [
+    {
+      "name": "the home page",
+      "path": "/",
+      "status": 200,
+      "file": "index.html"
+    },
+    {
+      "name": "a route with its trailing slash",
+      "path": "/papers/brownian-motion/",
+      "status": 200,
+      "file": "papers/brownian-motion/index.html"
+    },
+    {
+      "name": "the same route without it",
+      "path": "/papers/brownian-motion",
+      "status": 200,
+      "file": "papers/brownian-motion/index.html"
+    },
+    {
+      "name": "a script",
+      "path": "/_next/static/chunks/app-0a1b.js",
+      "status": 200,
+      "file": "_next/static/chunks/app-0a1b.js"
+    },
+    {
+      "name": "a stylesheet",
+      "path": "/_next/static/css/site-2c3d.css",
+      "status": 200,
+      "file": "_next/static/css/site-2c3d.css"
+    },
+    {
+      "name": "WebAssembly, for compileStreaming",
+      "path": "/wasm/fs-diffusion-4e5f.wasm",
+      "status": 200,
+      "file": "wasm/fs-diffusion-4e5f.wasm"
+    },
+    {
+      "name": "JSON",
+      "path": "/search/index.json",
+      "status": 200,
+      "file": "search/index.json"
+    },
+    {
+      "name": "a font",
+      "path": "/fonts/newsreader-latin.woff2",
+      "status": 200,
+      "file": "fonts/newsreader-latin.woff2"
+    },
+    {
+      "name": "an SVG",
+      "path": "/figures/mark.svg",
+      "status": 200,
+      "file": "figures/mark.svg"
+    },
+    {
+      "name": "plain text, decoded once",
+      "path": "/papers/transcripts/ap-17-549-machine-draft.txt",
+      "status": 200,
+      "file": "papers/transcripts/ap-17-549-machine-draft.txt"
+    },
+    {
+      "name": "a file the manifest does not list",
+      "path": "/edition-manifest.json",
+      "status": 404,
+      "file": "404.html"
+    },
+    {
+      "name": "a route the manifest does not list",
+      "path": "/papers/unknown/",
+      "status": 404,
+      "file": "404.html"
+    },
+    {
+      "name": "a parent segment",
+      "path": "/../edition-manifest.json",
+      "status": 404,
+      "file": "404.html"
+    },
+    {
+      "name": "a parent segment inside a route",
+      "path": "/papers/../../Info.plist",
+      "status": 404,
+      "file": "404.html"
+    },
+    {
+      "name": "an encoded parent segment",
+      "path": "/%2e%2e/Info.plist",
+      "status": 404,
+      "file": "404.html"
+    },
+    {
+      "name": "an encoded separator",
+      "path": "/papers%2fbrownian-motion/",
+      "status": 404,
+      "file": "404.html"
+    },
+    {
+      "name": "an encoded separator, upper case",
+      "path": "/papers%2Fbrownian-motion/",
+      "status": 404,
+      "file": "404.html"
+    },
+    {
+      "name": "an encoded backslash",
+      "path": "/papers%5cindex.html",
+      "status": 404,
+      "file": "404.html"
+    },
+    {
+      "name": "an encoded NUL",
+      "path": "/index.html%00.png",
+      "status": 404,
+      "file": "404.html"
+    },
+    {
+      "name": "a dot segment",
+      "path": "/./index.html",
+      "status": 404,
+      "file": "404.html"
+    },
+    {
+      "name": "a path over the length limit",
+      "path": "/a",
+      "status": 404,
+      "file": "404.html",
+      "repeat": {
+        "segment": "a",
+        "count": 2100
+      }
+    },
+    {
+      "name": "another host",
+      "path": "/index.html",
+      "status": 404,
+      "file": "404.html",
+      "host": "elsewhere"
+    }
+  ]
+}

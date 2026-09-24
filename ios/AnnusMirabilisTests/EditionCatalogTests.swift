@@ -30,6 +30,15 @@ struct EditionPathTests {
     func refused(path: String) {
         #expect(EditionCatalog.candidatePaths(percentEncodedPath: path) == nil)
     }
+
+    @Test("a path over the length limit is refused, one at the limit is not")
+    func length() {
+        let limit = EditionCatalog.maxPathLength
+        let overLimit = "/" + String(repeating: "a", count: limit)
+        #expect(EditionCatalog.candidatePaths(percentEncodedPath: overLimit) == nil)
+        let atLimit = "/" + String(repeating: "a", count: limit - 1)
+        #expect(EditionCatalog.candidatePaths(percentEncodedPath: atLimit) != nil)
+    }
 }
 
 @Suite("Link policy")

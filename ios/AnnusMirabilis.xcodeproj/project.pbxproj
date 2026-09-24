@@ -14,6 +14,8 @@
 		256B0912BCA785EB0D622D9B /* AnnusMirabilisApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE2A6403E53924FA09D6328 /* AnnusMirabilisApp.swift */; };
 		28C9748D65D31A1694DE9E91 /* AMTestLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE08CE70CB4B062759F3A61 /* AMTestLog.swift */; };
 		2B93561B203FC8944C87DD35 /* BridgeRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EF587BE1969B4D2C963ECB /* BridgeRouter.swift */; };
+		3119E3815082FB8176A23159 /* origin-vectors.json in Resources */ = {isa = PBXBuildFile; fileRef = 2A7B9261B773FD5E5CC5EC9C /* origin-vectors.json */; };
+		35DF88ADA6D0CCE59C7CD439 /* EditionWebKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AA98D71A32A8C37497873EA /* EditionWebKitTests.swift */; };
 		36968AE7C0F39D599071D623 /* evidence-folders.json in Resources */ = {isa = PBXBuildFile; fileRef = 3C2FA31E56803DF6254C94C8 /* evidence-folders.json */; };
 		3CDBC63CE8EACC77D5FA87C2 /* ExportUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE1AF82107316C66CE977DE /* ExportUITests.swift */; };
 		3EABF477C936EE4ED3322C8D /* route-vectors.json in Resources */ = {isa = PBXBuildFile; fileRef = EC3E13D628538E80DBC9D988 /* route-vectors.json */; };
@@ -29,6 +31,7 @@
 		67833D3163CDDB550D3010E8 /* ReaderStateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2892AE57F3F7A9E453870489 /* ReaderStateUITests.swift */; };
 		6A19BAEAFB16369878DC4405 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0C6198F8914D9B9D69540867 /* Assets.xcassets */; };
 		6AF25A96E6BA0245AC00C0A4 /* EditionSession+TestEvidence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4F9A58455E333924096D7 /* EditionSession+TestEvidence.swift */; };
+		6D0BF2E3A5E8E5B7536E5E2A /* EditionOriginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 719F497416F1BEA4DAA30C9F /* EditionOriginTests.swift */; };
 		6DA5C5208F4B92B0B0D6ED3C /* LaunchArgumentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A0DFD2057A1F85A9C474E3 /* LaunchArgumentsTests.swift */; };
 		6DB67CD89C0EC5C8821AE7D9 /* EditionSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE83B62BCBDFB221F1DBD4DC /* EditionSchemeHandler.swift */; };
 		718758D50DA89200D4B84776 /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FED4D7A2251ADD8720C8D7 /* UITestSupport.swift */; };
@@ -94,6 +97,7 @@
 		17038BE8A4890AE1F28D1E2F /* AnnusMirabilis.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AnnusMirabilis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		25C10D4693DB2F04A8D647F2 /* EditionSession+Actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditionSession+Actions.swift"; sourceTree = "<group>"; };
 		2892AE57F3F7A9E453870489 /* ReaderStateUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderStateUITests.swift; sourceTree = "<group>"; };
+		2A7B9261B773FD5E5CC5EC9C /* origin-vectors.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "origin-vectors.json"; sourceTree = "<group>"; };
 		2ACD2DA53DE6BD842758FA3C /* LaunchArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArguments.swift; sourceTree = "<group>"; };
 		2E91455869D2622BFBFA1270 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		3104E7B6220C4A69AD3D88A7 /* AccessibilityUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityUITests.swift; sourceTree = "<group>"; };
@@ -102,6 +106,7 @@
 		3C2FA31E56803DF6254C94C8 /* evidence-folders.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "evidence-folders.json"; sourceTree = "<group>"; };
 		3F6C3B670ABCE073E0E14EE1 /* LifecycleEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleEvent.swift; sourceTree = "<group>"; };
 		403C99A15417A43D75CF8990 /* AnnusMirabilisTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = AnnusMirabilisTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4AA98D71A32A8C37497873EA /* EditionWebKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionWebKitTests.swift; sourceTree = "<group>"; };
 		4C19C1BFB271E0C8C0B8EEE4 /* EditionLinkPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionLinkPolicy.swift; sourceTree = "<group>"; };
 		4DD0E5A9463113E9E29C4601 /* NativeCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeCatalog.swift; sourceTree = "<group>"; };
 		4E1AA06A6496CB9F0773BD60 /* ReaderDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderDataTests.swift; sourceTree = "<group>"; };
@@ -116,6 +121,7 @@
 		688B44C15731E3A2DCF51FB7 /* UniversalLinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalLinkTests.swift; sourceTree = "<group>"; };
 		6D8563F17B5B6651CA67DE2C /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchUITests.swift; sourceTree = "<group>"; };
 		71109BBD49D1968FB6D70799 /* HarnessObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HarnessObserver.swift; sourceTree = "<group>"; };
+		719F497416F1BEA4DAA30C9F /* EditionOriginTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionOriginTests.swift; sourceTree = "<group>"; };
 		7A7D1B3F474E6080BDE63784 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		7CE2A6403E53924FA09D6328 /* AnnusMirabilisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnusMirabilisApp.swift; sourceTree = "<group>"; };
 		851F4EFBE39CBE28B3D2D5C2 /* BridgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeTests.swift; sourceTree = "<group>"; };
@@ -203,7 +209,9 @@
 				57E2F4C436B26CDB0D2FBF7B /* AMTestLogTests.swift */,
 				851F4EFBE39CBE28B3D2D5C2 /* BridgeTests.swift */,
 				D07FB803069A297565CF1DCA /* EditionCatalogTests.swift */,
+				719F497416F1BEA4DAA30C9F /* EditionOriginTests.swift */,
 				53BA4F3604F81BA5851B8EEF /* EditionSettingsTests.swift */,
+				4AA98D71A32A8C37497873EA /* EditionWebKitTests.swift */,
 				15A0DFD2057A1F85A9C474E3 /* LaunchArgumentsTests.swift */,
 				03CCF2E983E9E721F19D30A8 /* LifecycleEventTests.swift */,
 				931788825CA32E21ACA7A517 /* NativeCatalogTests.swift */,
@@ -269,6 +277,7 @@
 			children = (
 				C41B8057A09E114ED57F3B4B /* amtestlog-record.json */,
 				3C2FA31E56803DF6254C94C8 /* evidence-folders.json */,
+				2A7B9261B773FD5E5CC5EC9C /* origin-vectors.json */,
 				EC3E13D628538E80DBC9D988 /* route-vectors.json */,
 			);
 			path = fixtures;
@@ -466,6 +475,7 @@
 				A56AA32BBCD9C230540294ED /* amtestlog-record.json in Resources */,
 				36968AE7C0F39D599071D623 /* evidence-folders.json in Resources */,
 				88D6CAE32AE3F4D040F7E4F4 /* messages.json in Resources */,
+				3119E3815082FB8176A23159 /* origin-vectors.json in Resources */,
 				D6A1CF81319FF67D13AE3027 /* readerDataExport.json in Resources */,
 				3EABF477C936EE4ED3322C8D /* route-vectors.json in Resources */,
 			);
@@ -535,7 +545,9 @@
 				732E16927E632A4F4C5AA0C7 /* AMTestLogTests.swift in Sources */,
 				4EBA02B5BCAC73033CA8F879 /* BridgeTests.swift in Sources */,
 				DA6870F53C094B8E5454D26E /* EditionCatalogTests.swift in Sources */,
+				6D0BF2E3A5E8E5B7536E5E2A /* EditionOriginTests.swift in Sources */,
 				94EC6845C1AC17FC1211D79F /* EditionSettingsTests.swift in Sources */,
+				35DF88ADA6D0CCE59C7CD439 /* EditionWebKitTests.swift in Sources */,
 				6DA5C5208F4B92B0B0D6ED3C /* LaunchArgumentsTests.swift in Sources */,
 				BB15ED74DFF5DD887F7791DF /* LifecycleEventTests.swift in Sources */,
 				84CC8D54A6D8A7B98E0B6A69 /* NativeCatalogTests.swift in Sources */,

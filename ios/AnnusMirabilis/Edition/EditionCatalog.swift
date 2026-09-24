@@ -163,10 +163,15 @@ struct EditionCatalog: Sendable {
         root.appendingPathComponent(file.path, isDirectory: false)
     }
 
+    /// The longest request path served, in bytes as sent: a longer one is refused before anything
+    /// is decoded (scripts/app/fixtures/origin-vectors.json names the same limit).
+    static let maxPathLength = 2048
+
     /// The manifest keys a request path may name, most specific first, or nil
     /// when the path is refused. The static export uses trailing slashes, so
     /// `/papers/` is `papers/index.html`; `/papers` is tried as the same page.
     static func candidatePaths(percentEncodedPath raw: String) -> [String]? {
+        guard raw.utf8.count <= maxPathLength else { return nil }
         let path = raw.isEmpty ? "/" : raw
         let lowered = path.lowercased()
         // An encoded separator or NUL would let a segment smuggle "/" or "\" past the checks below.
