@@ -6,6 +6,9 @@
     ///
     /// `-AMOpenRoute /papers/brownian-motion/ -AMOpenAnchor s4 -AMUITest -AMStateSuite run-1`
     ///
+    /// `-AMOpenSiteURL https://annus-mirabilis.com/papers/brownian-motion/#s4` hands the app a
+    /// website link exactly as a universal link would arrive, through the same handler.
+    ///
     /// `-AMStateSuite` keeps the app's own remembered state in a separate store,
     /// so each UI test starts clean without deleting anything a reader saved.
     ///
@@ -15,6 +18,7 @@
     struct LaunchArguments: Equatable, Sendable {
         var openRoute: String?
         var openAnchor: String?
+        var openSiteURL: URL?
         var stateSuite: String?
         var uiTest = false
         /// Delays the first page load by three seconds, so a UI test can see what is painted before it.
@@ -27,6 +31,7 @@
             case invalidRoute(String)
             case invalidAnchor(String)
             case invalidStateSuite(String)
+            case invalidSiteURL(String)
         }
 
         static func parse(_ arguments: [String]) -> Result<LaunchArguments, ParseError> {
@@ -39,7 +44,7 @@
                 guard flag.hasPrefix("-AM") else { continue }
                 guard seen.insert(flag).inserted else { return .failure(.repeated(flag: flag)) }
                 switch flag {
-                case "-AMOpenRoute", "-AMOpenAnchor", "-AMStateSuite":
+                case "-AMOpenRoute", "-AMOpenAnchor", "-AMStateSuite", "-AMOpenSiteURL":
                     guard index < arguments.count, !arguments[index].hasPrefix("-") else {
                         return .failure(.missingValue(flag: flag))
                     }
@@ -64,6 +69,12 @@
             case "-AMOpenAnchor":
                 guard Self.isAnchor(value) else { return .invalidAnchor(value) }
                 openAnchor = value
+            case "-AMOpenSiteURL":
+                // Any https address: deciding what the app does with it is the handler's job.
+                guard let url = URL(string: value), url.scheme == "https", url.host() != nil else {
+                    return .invalidSiteURL(value)
+                }
+                openSiteURL = url
             default:
                 guard Self.isAnchor(value), !value.hasPrefix(".") else { return .invalidStateSuite(value) }
                 stateSuite = value

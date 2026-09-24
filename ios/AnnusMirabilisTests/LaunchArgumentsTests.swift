@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 
 @testable import AnnusMirabilis
@@ -68,6 +69,15 @@ struct LaunchArgumentsTests {
         #expect(LaunchArguments.parse(["-AMStateSuite", "../x"]) == .failure(.invalidStateSuite("../x")))
         #expect(LaunchArguments.parse(["-AMStateSuite", ".."]) == .failure(.invalidStateSuite("..")))
         #expect(LaunchArguments.parse(["-AMStateSuite"]) == .failure(.missingValue(flag: "-AMStateSuite")))
+    }
+
+    @Test("-AMOpenSiteURL takes an https address, for the handler to decide on, and nothing else")
+    func siteURL() throws {
+        let link = "https://annus-mirabilis.com/papers/brownian-motion/#s4"
+        #expect(try LaunchArguments.parse(["-AMOpenSiteURL", link]).get().openSiteURL == URL(string: link))
+        for bad in ["http://annus-mirabilis.com/", "/papers/brownian-motion/", "https://", "am-edition://edition/"] {
+            #expect(LaunchArguments.parse(["-AMOpenSiteURL", bad]) == .failure(.invalidSiteURL(bad)), "\(bad)")
+        }
     }
 
     @Test("the retired reset flag is refused, so no test can ask the app to delete data")

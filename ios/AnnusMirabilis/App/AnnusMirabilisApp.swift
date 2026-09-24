@@ -26,6 +26,7 @@ enum EditionStore {
         var readerData = ReaderDataStore.standard()
         var launchURL: URL?
         var holdLoad = false
+        var siteLink: URL?
         #if DEBUG
             if case .success(let launch) = LaunchArguments.parse(arguments) {
                 if let suite = launch.stateSuite, let isolated = UserDefaults(suiteName: suite) {
@@ -36,6 +37,7 @@ enum EditionStore {
                 exposesRoute = launch.uiTest
                 launchURL = launch.openRoute.flatMap { EditionCatalog.url(route: $0, anchor: launch.openAnchor) }
                 holdLoad = launch.holdLoad
+                siteLink = launch.openSiteURL
             }
         #endif
         let store = ReaderLocationStore(defaults: defaults)
@@ -52,6 +54,7 @@ enum EditionStore {
         } else {
             session.load(start)
         }
+        if let siteLink { session.openSiteLink(siteLink) }
         return session
     }
 
@@ -82,6 +85,8 @@ enum EditionStore {
 struct RootView: View {
     @State private var session: EditionSession?
     @State private var unavailable = false
+    /// A website link that arrived before the session existed (a universal link at launch).
+    @State private var pendingSiteLink: URL?
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
@@ -100,6 +105,8 @@ struct RootView: View {
                             if session.exposesRouteForTests {
                                 DebugPasteboardProbe()
                                 DebugProbe(text: session.pageTypeSize.map(String.init) ?? "none", id: "debug-type-size")
+                                DebugProbe(
+                                    text: session.lastSafariLink?.absoluteString ?? "none", id: "debug-safari-link")
                             }
                         #endif
                     }
@@ -117,6 +124,24 @@ struct RootView: View {
             guard session == nil, !unavailable else { return }
             session = EditionStore.makeSession()
             unavailable = session == nil
+            if let session, let link = pendingSiteLink {
+                pendingSiteLink = nil
+                session.openSiteLink(link)
+            }
+        }
+        // Universal links (App plan §8.5). The associated-domains entitlement that lets the system
+        // send them is not granted yet (it needs the Apple team id); the handling is ready for it.
+        .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
+            if let url = activity.webpageURL { receive(url) }
+        }
+        .onOpenURL { url in receive(url) }
+    }
+
+    private func receive(_ url: URL) {
+        if let session {
+            session.openSiteLink(url)
+        } else {
+            pendingSiteLink = url
         }
     }
 }

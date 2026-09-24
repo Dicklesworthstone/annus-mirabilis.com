@@ -98,6 +98,9 @@ targets:
       # The site's export of the reader's data, computed by exportNamespaces (readerData.test.ts).
       - path: ../src/platform/app-bridge/fixtures/readerDataExport.json
         buildPhase: resources
+      # Website links and what the app does with each; association-file.test.ts reads them too.
+      - path: ../scripts/app/fixtures/route-vectors.json
+        buildPhase: resources
     dependencies:
       - target: AnnusMirabilis
     settings:

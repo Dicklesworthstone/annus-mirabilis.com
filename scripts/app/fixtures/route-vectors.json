@@ -1,0 +1,89 @@
+[
+  {
+    "url": "https://annus-mirabilis.com/papers/brownian-motion/#s4",
+    "app": "edition",
+    "path": "/papers/brownian-motion/",
+    "anchor": "s4",
+    "association": true,
+    "why": "a paper passage: the app opens its bundled copy at the anchor"
+  },
+  {
+    "url": "https://annus-mirabilis.com/papers/brownian-motion/s4/",
+    "app": "edition",
+    "path": "/papers/brownian-motion/s4/",
+    "association": true,
+    "why": "a section page"
+  },
+  {
+    "url": "https://annus-mirabilis.com/lab/bm-01/?detail=2",
+    "app": "edition",
+    "path": "/lab/bm-01/",
+    "query": "detail=2",
+    "association": true,
+    "why": "a laboratory, with its query passed to the edition, which applies its own bounds"
+  },
+  {
+    "url": "https://annus-mirabilis.com/discover/brownian-motion/",
+    "app": "edition",
+    "path": "/discover/brownian-motion/",
+    "association": true,
+    "why": "a Discover route"
+  },
+  {
+    "url": "https://annus-mirabilis.com/",
+    "app": "edition",
+    "path": "/",
+    "association": true,
+    "why": "the home page"
+  },
+  {
+    "url": "https://annus-mirabilis.com/papers/no-such-paper/",
+    "app": "safari",
+    "association": true,
+    "why": "a path under a section the app claims, but no page it carries: Safari inside the app, never a loop"
+  },
+  {
+    "url": "https://annus-mirabilis.com/embed/lab/bm-03/",
+    "app": "edition",
+    "path": "/embed/lab/bm-03/",
+    "association": false,
+    "why": "an embed stays in the page that embeds it; the system never hands it over"
+  },
+  {
+    "url": "https://annus-mirabilis.com/search/index-manifest.json",
+    "app": "safari",
+    "association": false,
+    "why": "a file, not a page"
+  },
+  {
+    "url": "https://www.annus-mirabilis.com/lab/bm-01/",
+    "app": "edition",
+    "path": "/lab/bm-01/",
+    "association": false,
+    "why": "the entitlement claims annus-mirabilis.com only (D-2026-09-23-app-identity); a www link reaching the app some other way still opens the page"
+  },
+  {
+    "url": "http://annus-mirabilis.com/papers/brownian-motion/",
+    "app": "refuse",
+    "association": false,
+    "why": "not https"
+  },
+  {
+    "url": "https://annus-mirabilis.com:8443/papers/brownian-motion/",
+    "app": "refuse",
+    "association": false,
+    "why": "not the site's own port"
+  },
+  {
+    "url": "https://example.com/papers/brownian-motion/",
+    "app": "refuse",
+    "association": false,
+    "why": "another site"
+  },
+  {
+    "url": "https://annus-mirabilis.vercel.app/",
+    "app": "refuse",
+    "association": false,
+    "why": "another Vercel account's project (AGENTS.md hazard), never this site"
+  }
+]

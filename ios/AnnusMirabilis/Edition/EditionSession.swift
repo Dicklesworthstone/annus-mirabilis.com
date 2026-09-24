@@ -27,6 +27,8 @@ final class EditionSession {
     private(set) var typeSize: Int?
     /// The type size the page reports it shows: the app's, or one the reader chose in the page.
     private(set) var pageTypeSize: Int?
+    /// The last website address the app opened in Safari rather than in the edition.
+    private(set) var lastSafariLink: URL?
 
     @ObservationIgnored private let store: ReaderLocationStore
     @ObservationIgnored private let navigator: EditionNavigator
@@ -153,6 +155,44 @@ final class EditionSession {
         webView.load(URLRequest(url: url))
     }
 
+    /// A link to the website the system handed the app (a universal link, or a URL opened in the
+    /// app). What the edition carries opens in it; the rest of the site opens in Safari in the app.
+    func openSiteLink(_ url: URL) {
+        switch EditionLinkPolicy.siteLink(url, catalog: catalog) {
+        case .openInEdition(let local):
+            load(local)
+        case .openOutside(let site):
+            presentSafari(site)
+        case .allow, .refuse:
+            break
+        }
+    }
+
+    /// The website inside the app, over whatever is showing. A link that launches the app arrives
+    /// before the web view is in a window, with nothing yet to present from, so it waits for one:
+    /// up to three seconds, in 150 ms steps, rather than being dropped.
+    func presentSafari(_ url: URL, attempts: Int = 20) {
+        guard let presenter = topPresenter else {
+            guard attempts > 0 else { return }
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .milliseconds(150))
+                self?.presentSafari(url, attempts: attempts - 1)
+            }
+            return
+        }
+        lastSafariLink = url
+        presenter.present(SFSafariViewController(url: url), animated: true)
+    }
+
+    /// The controller at the top of the window's presentation chain.
+    private var topPresenter: UIViewController? {
+        guard var presenter = webView.window?.rootViewController else { return nil }
+        while let next = presenter.presentedViewController {
+            presenter = next
+        }
+        return presenter
+    }
+
     /// Opens a page of the edition, at an anchor when given, from a native screen.
     func open(route: String, anchor: String?) {
         guard let url = EditionCatalog.url(route: route, anchor: anchor) else { return }
@@ -208,10 +248,7 @@ final class EditionSession {
     /// The share sheet for a page of the website when the page asks for one (`share.request`),
     /// or for a file the page saved. The page-actions menu shares through SwiftUI's ShareLink.
     func presentShareSheet(for url: URL) {
-        guard var presenter = webView.window?.rootViewController else { return }
-        while let next = presenter.presentedViewController {
-            presenter = next
-        }
+        guard let presenter = topPresenter else { return }
         let sheet = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         // Anchored in the presenter's own view: the web view sits under any sheet the app shows.
         if let anchor = presenter.view {
