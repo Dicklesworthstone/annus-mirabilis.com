@@ -42,6 +42,23 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, text?: string, c
  * listener on close. Text is assigned with textContent; no result HTML is interpreted.
  * Keeping the controller DOM-native lets the same implementation run in browser fixtures.
  */
+/**
+ * The index holds an argument's synopsis as its own document under the argument's title and link,
+ * so one query listed the same line twice, in two groups (live 211e9af4: "coefficient suggests"
+ * gave "A coefficient suggests an energy element" twice). A hit whose destination AND title repeat
+ * a better-ranked one is dropped; the order of the rest is kept. Destination alone is not enough:
+ * an equation links to the argument that holds it, under its own title. /search/ does the same.
+ */
+export function dropRepeatedHits(hits: readonly SearchHit[]): SearchHit[] {
+  const seen = new Set<string>();
+  return hits.filter((hit) => {
+    const key = `${searchResultHref(hit.document)}\u0000${hit.document.title}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export function openCommandPalette(
   options: {
     load?: () => Promise<LoadedSearch>;
@@ -187,7 +204,7 @@ export function openCommandPalette(
       limit: SEARCH_LIMITS.results,
     });
     const groups = new Map<SearchType, SearchHit[]>();
-    for (const hit of found)
+    for (const hit of dropRepeatedHits(found))
       groups.set(hit.document.type, [...(groups.get(hit.document.type) ?? []), hit]);
     hits = [...groups.values()].flat();
     let index = 0;
@@ -246,7 +263,7 @@ export function openCommandPalette(
     input.setAttribute("aria-expanded", String(hits.length > 0));
     select(0);
     status.textContent = hits.length
-      ? `${hits.length} result${hits.length === 1 ? "" : "s"} shown${hits.length === SEARCH_LIMITS.results ? "; narrow the search for more specific matches" : ""}.`
+      ? `${hits.length} result${hits.length === 1 ? "" : "s"} shown${found.length === SEARCH_LIMITS.results ? "; narrow the search for more specific matches" : ""}.`
       : "Nothing matches. Try fewer words, or a single symbol.";
   }
   function scheduleSearch() {

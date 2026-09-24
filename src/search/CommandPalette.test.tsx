@@ -4,7 +4,9 @@
 
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { installDom, uninstallDom } from "../testing/reactDom.ts";
+import { dropRepeatedHits } from "./CommandPalette.ts";
 import { isEditableTarget, isPaletteShortcut } from "./CommandPalette.tsx";
+import type { SearchDocument, SearchHit } from "./core.ts";
 
 describe("CommandPalette keyboard handlers", () => {
   beforeEach(async () => {
@@ -85,5 +87,46 @@ describe("CommandPalette keyboard handlers", () => {
     // Clean up
     triggerButton.remove();
     input.remove();
+  });
+});
+
+describe("dropRepeatedHits: the palette lists a result once", () => {
+  const doc = (over: Partial<SearchDocument>): SearchDocument => ({
+    id: "arg-lq-entropy-correspondence",
+    type: "argument",
+    paper: "light-quanta",
+    section: "s6",
+    lang: "en",
+    title: "A coefficient suggests an energy element",
+    text: "text",
+    terms: [],
+    route: "/papers/light-quanta/",
+    anchor: "arg-lq-entropy-correspondence",
+    face: "",
+    scopeLabel: "Light quanta",
+    ...over,
+  });
+  const hit = (document: SearchDocument, score: number): SearchHit => ({
+    document,
+    score,
+    snippet: "",
+    aliasLabel: null,
+  });
+
+  it("drops a hit whose title and destination repeat a better-ranked one, and keeps the order", () => {
+    const argument = hit(doc({}), 3);
+    const synopsis = hit(doc({ id: "result-lq-entropy-correspondence", type: "result" }), 2);
+    const equation = hit(
+      doc({ id: "eq-lq-1", type: "equation", title: "The entropy of dilute radiation" }),
+      1,
+    );
+    const kept = dropRepeatedHits([argument, synopsis, equation]);
+    expect(kept.map((h) => h.document.id)).toEqual(["arg-lq-entropy-correspondence", "eq-lq-1"]);
+  });
+
+  it("keeps a hit that shares only its destination, or only its title", () => {
+    const argument = hit(doc({}), 3);
+    const sameTitleElsewhere = hit(doc({ id: "arg-other", anchor: "arg-other" }), 2);
+    expect(dropRepeatedHits([argument, sameTitleElsewhere])).toHaveLength(2);
   });
 });
