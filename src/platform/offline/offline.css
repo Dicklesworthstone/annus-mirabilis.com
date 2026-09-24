@@ -11,12 +11,14 @@
   padding: 0;
   list-style: none;
 }
+/* Title and size in two columns, the size always at the right. As a wrapping flex row, a title
+   too long for one line pushed its size below it, flush left, so on a phone the sizes zigzagged
+   down the list (at 390, 12 of the 24 rows; at 320, 22). */
 .offline-chapter-list > li {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 0 1rem;
+  column-gap: 1rem;
   padding: 0.6rem 0;
   border-top: 1px solid var(--line);
 }
