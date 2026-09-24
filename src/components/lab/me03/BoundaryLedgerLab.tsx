@@ -37,6 +37,7 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { BoundaryLedgerPlot } from "./BoundaryLedgerPlot.tsx";
 import { PhotonBoxPlot } from "./PhotonBoxPlot.tsx";
+import "../labControls.css";
 import "./me03.css";
 import "../showTheCode.css";
 import { numberText } from "../presentation.ts";

@@ -32,6 +32,7 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { TwoLedgersPlot } from "./TwoLedgersPlot.tsx";
+import "../labControls.css";
 import "./me01.css";
 import "../showTheCode.css";
 

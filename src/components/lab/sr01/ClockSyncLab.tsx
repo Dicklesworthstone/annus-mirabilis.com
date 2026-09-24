@@ -28,6 +28,7 @@ import { instrumentRootAttributes } from "../../../experiments/store/identityAtt
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { withScripts } from "../subscripts.tsx";
+import "../labControls.css";
 import "../showTheCode.css";
 import { numberText } from "../presentation.ts";
 

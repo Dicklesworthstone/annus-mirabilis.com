@@ -1,0 +1,151 @@
+/*
+ * Laboratory controls shared by ME-01, ME-03, SR-01, SR-08 and SR-12: preset bars, control rows
+ * and groups, the prediction section, the code panel and the not-modeled note.
+ *
+ * These rules were written in me03.css and the four other laboratories used the same class names
+ * without loading that stylesheet. On live SR-01 its six presets and both prediction buttons drew
+ * as solid ink blocks touching on every side, and ME-01's row labels fell back to body type, because
+ * the rules that space and size them never reached the page. Each of the five imports this file.
+ * A rule that only ME-03 uses stays in me03.css.
+ */
+
+.presets-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.presets-label {
+  font-size: var(--type-fine);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.button-preset {
+  padding: 0.3rem 0.6rem;
+  font-size: var(--type-fine);
+  border: 1px solid var(--rule);
+  background: var(--wash);
+  color: var(--ink);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.button-preset:hover {
+  border-color: var(--ink);
+}
+
+.lab-controls {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.control-group {
+  border: 1px solid var(--line);
+  padding: 1rem;
+  border-radius: 4px;
+  background: var(--panel);
+}
+
+.control-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.control-row:last-child {
+  margin-bottom: 0;
+}
+
+.field-label {
+  font-size: var(--type-fine);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.predict-section {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--wash);
+}
+
+.predict-question {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.predict-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.predict-candidate {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+/* A row of buttons, so it wraps with a gap: at 390px SR-01's two stacked with no space between. */
+.predict-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.predict-reveal {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--panel);
+  border-left: 3px solid var(--accent);
+  border-radius: 2px;
+}
+
+.reveal-title {
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.show-the-code {
+  margin: 1.5rem 0;
+}
+
+.code-panel {
+  padding: 1rem;
+  background: var(--wash);
+  border-radius: 4px;
+  font-size: var(--type-fine);
+}
+
+.lab-not-modeled {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  font-size: var(--type-fine);
+  color: var(--muted);
+}
+
+.not-modeled-heading {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.not-modeled-line {
+  margin: 0;
+}

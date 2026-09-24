@@ -25,6 +25,7 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import { FieldFrameChangePlot } from "./FieldFrameChangePlot.tsx";
+import "../labControls.css";
 
 const C_SI = 299792458;
 

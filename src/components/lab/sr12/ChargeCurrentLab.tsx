@@ -23,6 +23,7 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, fixed, identity, result } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import { ChargeCurrentPlot } from "./ChargeCurrentPlot.tsx";
+import "../labControls.css";
 
 const C_SI = 299792458;
 

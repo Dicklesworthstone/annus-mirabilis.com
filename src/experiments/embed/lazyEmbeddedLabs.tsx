@@ -49,6 +49,7 @@ import type { WaveDescriptionLab } from "../../components/lab/WaveDescriptionLab
 // The shared laboratory stylesheets first, so each laboratory's own rules come after the shell
 // they refine.
 import "../../components/lab/labShell.css";
+import "../../components/lab/labControls.css";
 import "../../components/lab/sci.css";
 import "../../equations/equations.css";
 import "../../experiments/labels/executionChrome.css";
