@@ -21,7 +21,10 @@ function text(value: unknown, maximum = 160): value is string {
   return typeof value === "string" && value.length > 0 && value.length <= maximum;
 }
 function identifier(value: unknown): value is string {
-  return text(value) && /^[a-z][a-z0-9._:-]*$/.test(value) && !value.startsWith("facsimile-page-");
+  // The same id form as document.ts, where `eq-A` is the reason it admits an uppercase letter.
+  return (
+    text(value) && /^[a-z][A-Za-z0-9._:-]*$/.test(value) && !value.startsWith("facsimile-page-")
+  );
 }
 function positiveInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value > 0;

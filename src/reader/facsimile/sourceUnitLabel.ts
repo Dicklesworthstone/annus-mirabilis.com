@@ -20,6 +20,10 @@ export function sourceUnitLabel(id: string, kind: string, sectioned: boolean): s
     "masthead-author": "Author line",
     "closing-dateline": "Date-line",
     "closing-received": "Date received",
+    "closing-ack": "Acknowledgment",
+    // Relativity's two parts, printed "I. Kinematischer Teil" and "II. Elektrodynamischer Teil".
+    "part-1": "Part I heading",
+    "part-2": "Part II heading",
   };
   const named = fixed[id];
   if (named) return named;
@@ -49,5 +53,8 @@ export function sourceUnitLabel(id: string, kind: string, sectioned: boolean): s
     return at(sectionPrinted[1], `equation ${printed(sectionPrinted[2])}`);
   const paperPrinted = /^eq-(\d+[a-z]?p{0,2})$/.exec(id);
   if (paperPrinted?.[1]) return `Equation ${printed(paperPrinted[1])}`;
+  // A printed letter label: relativity §10's (A), frozen as `eq-A`.
+  const lettered = /^eq-([A-Z])$/.exec(id);
+  if (lettered?.[1]) return `Equation (${lettered[1]})`;
   return `${id} (${kind.replaceAll("-", " ")})`;
 }

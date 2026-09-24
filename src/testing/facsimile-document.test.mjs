@@ -127,7 +127,7 @@ test("rejects unsafe URLs, mismatched identity, unknown decisions and invalid pi
   // the catch around `new URL` was driven by nothing in this file until now.
   const unparseable = config();
   unparseable.pinned.originUrl = "not a url";
-  refusesWith(() => project(unparseable), "facsimile-data-invalid", "(document.ts:118)");
+  refusesWith(() => project(unparseable), "facsimile-data-invalid", "(document.ts:122)");
 });
 test("same-length wrong page window, stale extract map and out-of-parent pages are rejected", () => {
   // Deleting the anchor leaves `config.verifiedAnchor ?? article.verifiedAnchor` undefined, so
@@ -193,7 +193,7 @@ test("malformed and unknown fragments never fabricate a matching page", () => {
     refusesWith(
       () => facsimilePdfHref(project(), page),
       "facsimile-page-out-of-range",
-      "(document.ts:335)",
+      "(document.ts:339)",
     );
 });
 test("inventory identity, page ranges, missing locators, duplicate ids and unsafe aliases fail closed", () => {
@@ -213,6 +213,27 @@ test("inventory identity, page ranges, missing locators, duplicate ids and unsaf
     const i = inventory();
     mutate(i);
     refusesWith(() => project(config(), i), "facsimile-data-invalid", "(document.ts:49)");
+  }
+});
+
+test("a frozen id with a printed letter label is admitted, and a malformed id is still refused", () => {
+  // Relativity §10 numbers one display (A); its frozen id is eq-A and its edition alias
+  // block-special-relativity-eq-A. The lowercase-only id form refused both, and with them the
+  // whole relativity page map (am-sr-facsimile-face-refuses-tq16).
+  const i = inventory();
+  i.units.push({
+    id: "eq-A",
+    kind: "display-equation",
+    locators: [{ page: 641 }],
+    destination: { editionBlockId: "block-mass-energy-eq-A" },
+  });
+  const d = project(config(), i);
+  assert.equal(resolveFacsimileTarget(d, "#eq-A"), 3);
+  assert.equal(resolveFacsimileTarget(d, "#block-mass-energy-eq-A"), 3);
+  for (const id of ["Eq-A", "eq A", "eq-<A>", "eq-A\n", "", `eq-${"A".repeat(160)}`]) {
+    const bad = inventory();
+    bad.units[1].id = id;
+    refusesWith(() => project(config(), bad), "facsimile-data-invalid", "(document.ts:49)");
   }
 });
 

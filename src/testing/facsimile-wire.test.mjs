@@ -157,3 +157,15 @@ test("unknown metadata is not copied into the client document", () => {
   assert.equal("internalPath" in result.document, false);
   assert.equal("untrustedMarkup" in result.document.units[0], false);
 });
+test("a frozen id with a printed letter label crosses the wire, and a malformed one does not", () => {
+  // Relativity §10's display (A) is frozen as eq-A (am-sr-facsimile-face-refuses-tq16). The
+  // decoder shares document.ts's id form, so the server's projection is not refused in the reader.
+  const value = envelope();
+  value.document.units[0].id = "eq-A";
+  assert.equal(decode(value).document.units[0].id, "eq-A");
+  for (const id of ["Eq-A", "eq A", "eq-<A>", "facsimile-page-1"]) {
+    const bad = envelope();
+    bad.document.units[0].id = id;
+    assert.throws(() => decode(bad), /facsimile/);
+  }
+});

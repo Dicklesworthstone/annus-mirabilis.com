@@ -51,8 +51,12 @@ function requireData(condition: unknown, message: string): asserts condition {
 function integer(value: unknown, minimum = 1): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value >= minimum;
 }
+// A frozen id may carry an uppercase letter after its first character. Einstein numbers one
+// display in relativity §10 with the letter (A), and its frozen id is `eq-A`
+// (content/source-blocks/special-relativity/manifest.ids.snapshot.txt). The lowercase-only form
+// refused it, and with it the whole relativity page map (am-sr-facsimile-face-refuses-tq16).
 function identifier(value: unknown): value is string {
-  return typeof value === "string" && /^[a-z][a-z0-9._:-]{0,159}$/.test(value);
+  return typeof value === "string" && /^[a-z][A-Za-z0-9._:-]{0,159}$/.test(value);
 }
 function sectionFor(unit: Record<string, unknown>): string | null {
   if (unit.section !== undefined && unit.section !== "closing") {

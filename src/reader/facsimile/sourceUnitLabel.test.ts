@@ -9,6 +9,10 @@ describe("sourceUnitLabel", () => {
     expect(sourceUnitLabel("masthead-author", "masthead-author", true)).toBe("Author line");
     expect(sourceUnitLabel("closing-dateline", "closing-dateline", true)).toBe("Date-line");
     expect(sourceUnitLabel("closing-received", "closing-received", true)).toBe("Date received");
+    expect(sourceUnitLabel("closing-ack", "closing-ack", true)).toBe("Acknowledgment");
+    expect(sourceUnitLabel("part-1", "part-heading", true)).toBe("Part I heading");
+    expect(sourceUnitLabel("part-2", "part-heading", true)).toBe("Part II heading");
+    expect(sourceUnitLabel("eq-A", "display-equation", true)).toBe("Equation (A)");
     expect(sourceUnitLabel("s3", "section-heading", true)).toBe("§3 heading");
     expect(sourceUnitLabel("s3-p2", "paragraph", true)).toBe("§3, paragraph 2");
     expect(sourceUnitLabel("s0-p1", "paragraph", true)).toBe("Introduction, paragraph 1");
@@ -23,7 +27,7 @@ describe("sourceUnitLabel", () => {
   });
 
   test("an unknown shape keeps its id and kind rather than a guessed name", () => {
-    expect(sourceUnitLabel("part-1", "part-heading", true)).toBe("part-1 (part heading)");
+    expect(sourceUnitLabel("widget-3", "widget", true)).toBe("widget-3 (widget)");
     // A roman printed label is normalised to roman-<n> (CONTENT_IDS.md §4.2) and has no name yet.
     expect(sourceUnitLabel("eq-roman-2", "display-equation", true)).toBe(
       "eq-roman-2 (display equation)",
