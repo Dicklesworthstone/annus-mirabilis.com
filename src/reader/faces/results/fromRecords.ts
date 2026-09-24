@@ -39,8 +39,9 @@ type Scenario = {
 /**
  * The printed check a card names, from its scenario and the scenario's owner. Only the scenarios a
  * card can name have a reproducer here; any other is refused, never shown without its owner.
+ * Exported for fromRecords.test.ts, which reaches each refusal from a fixture root.
  */
-function printedCheckFor(
+export function printedCheckFor(
   root: string,
   scenarioId: string,
 ): Readonly<{ checks: readonly PrintedCheck[]; comparison: string }> {
@@ -66,7 +67,9 @@ function printedCheckFor(
       `${scenarioId}: ${r.reason ?? "the owner refused the input"}`,
     );
   const transcriptionPending = scenario.transcription?.status !== "verified";
-  const statedInputs = { L: `${energy.value.toExponential()} J (${r.emittedEnergyErg.toExponential()} erg)` };
+  const statedInputs = {
+    L: `${energy.value.toExponential()} J (${r.emittedEnergyErg.toExponential()} erg)`,
+  };
   return {
     checks: [
       projectPrintedCheck({
@@ -98,7 +101,8 @@ function printedCheckFor(
   };
 }
 
-function toCard(
+/** One card from its record. Exported for fromRecords.test.ts. */
+export function toCard(
   root: string,
   record: ResultCardRecord,
   passages: ReadonlyMap<string, Readonly<{ limitations: readonly string[] }>>,
