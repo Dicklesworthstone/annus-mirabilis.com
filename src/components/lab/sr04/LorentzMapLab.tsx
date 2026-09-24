@@ -1,6 +1,11 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import {
   ALL_CONSTRAINTS,
@@ -9,6 +14,7 @@ import {
   SR04_CAPTION,
   SR04_DEFAULTS,
   SR04_NOT_MODELED,
+  SR04_OUTPUTS,
   SR04_QUESTION,
   type Sr04Parameters,
   splitConstraints,
@@ -113,6 +119,16 @@ export function LorentzMapLab({
     buildSr04Snapshot(`sr04-${id}`, "sr04-init", SR04_DEFAULTS, 0, 0);
   const snapshot = view.accepted ?? fallback;
   const p = snapshot.parameters as Sr04Parameters;
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation; no example, no earned label.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      SR04_OUTPUTS,
+      example?.sourceDigest ?? "",
+      snapshot === session.getServerSnapshot().accepted,
+    ).label,
+  );
   const [draft, setDraft] = useState(() => toDraft(p));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
@@ -163,15 +179,21 @@ export function LorentzMapLab({
       data-input-revision={view.requested?.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, view, "candidateResiduals")}
     >
       <header className="lab-heading">
         <div>
           <p className="eyebrow">Construct the map</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <span className="badge">Ideal model, host calculation</span>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          modelNote={modelNoteFromView(view, { notModeled: `${SR04_NOT_MODELED.join("; ")}.` })}
+        />
+      </div>
 
       <p className="lab-question">{SR04_QUESTION}</p>
 

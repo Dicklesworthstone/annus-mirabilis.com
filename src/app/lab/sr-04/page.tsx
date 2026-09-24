@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LorentzMapComparison } from "../../../components/lab/sr04/LorentzMapLab.tsx";
 import { SR04_DEFAULTS } from "../../../experiments/sr04/definition.ts";
 import { evaluateSr04 } from "../../../experiments/sr04/session.ts";
+import labDigests from "../../../generated/lab-source-digests.json";
 
 export const metadata: Metadata = {
   title: "Construct the Lorentz map",
@@ -11,7 +12,8 @@ export default function LorentzMapPage() {
   const example = {
     parameters: SR04_DEFAULTS,
     evaluation: evaluateSr04(SR04_DEFAULTS),
-    sourceDigest: "src/physics/reference/kinematics.ts",
+    // The host source, by digest (scripts/generate-lab-digests.mjs).
+    sourceDigest: labDigests["sr-04"],
   };
 
   return (
