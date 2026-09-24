@@ -28,7 +28,7 @@ export function KitchenAnalysisControls({
       ...accepted.report.options,
       track: accepted.report.selectedTrack,
     }),
-    [coverage, setCoverage] = useState(String(accepted.report.options.coverage * 100));
+    [coverage, setCoverage] = useState(display(accepted.report.options.coverage, 100));
   function submit(e: FormEvent) {
     e.preventDefault();
     const n = Number(coverage);

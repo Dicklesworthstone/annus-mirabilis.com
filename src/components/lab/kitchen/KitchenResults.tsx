@@ -275,7 +275,7 @@ export function KitchenResults({ accepted }: { accepted: KitchenAccepted }) {
           <dd data-kitchen-combined-coverage>
             {r.uncertainty.combinedCoverage === null
               ? "Not claimed"
-              : `At least ${r.options.coverage * 100}%, conditional on the declared inputs and model`}
+              : `At least ${display(r.options.coverage, 100)}%, conditional on the declared inputs and model`}
           </dd>
         </dl>
         <details>
