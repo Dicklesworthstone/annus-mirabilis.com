@@ -16,7 +16,8 @@
   "limitations": [
     "A threshold is a necessary energy condition, not a material cross-section or a guaranteed event.",
     "An unknown absorbed fraction or yield is never silently taken to be 100 percent.",
-    "The energy budget does not predict recombination, collisions, or avalanche multiplication."
+    "The energy budget does not predict recombination, collisions, or avalanche multiplication.",
+    "The footnote gives no source and no reason for the fivefold ionizing voltage inside the gas, and the passage supplies neither."
   ],
   "citations": ["ap-17-132"],
   "readings": {
@@ -46,6 +47,10 @@
         "latex": "n_{\\mathrm{ions}}\\le\\frac{E_{\\mathrm{abs}}}{h\\nu}",
         "spoken": "The ionization count is at most absorbed energy divided by quantum energy, under the at-most-one-ionization assumption.",
         "equations": ["eq-model-lq-ion-count-bound"]
+      },
+      {
+        "kind": "paragraph",
+        "text": "The paper compares two upper limits for the work of ionizing a gram-equivalent of air. Lenard's longest ionizing wavelength gives \\(6.4\\times10^{12}\\) erg, and Stark's smallest measured ionizing voltage, about 10 volts at platinum anodes, gives \\(9.6\\times10^{12}\\), nearly the same. A footnote concedes that inside the gas the ionizing voltage for negative ions is five times larger. Each measured voltage caps the work, so the smallest gives the tightest cap; the fivefold figure caps it only at about \\(4.8\\times10^{13}\\) erg, and the near agreement the paper notes holds for the smallest value."
       },
       {
         "kind": "paragraph",
@@ -81,6 +86,9 @@
           "The paper's form, for one gram-equivalent: multiply both sides by N, and the condition reads Rβν at least J.",
           "Worked with the paper's inputs. Lenard's longest wavelength that still ionizes air is about \\(1{,}9\\cdot10^{-5}\\) cm. Its frequency is the speed of light divided by the wavelength, \\(3\\times10^{10}/(1.9\\times10^{-5})=1.58\\times10^{15}\\) per second. Then Rβν is \\(8.31\\times10^{7}\\times4.866\\times10^{-11}\\times1.58\\times10^{15}=6.4\\times10^{12}\\) erg, with R the standard value of 1905; the page prints \\(6{,}4\\cdot10^{12}\\) erg.",
           "So J is at most about \\(6.4\\times10^{12}\\) erg per gram-equivalent. An independent upper bound comes from Stark's smallest measured ionizing voltage for air, about 10 volts: 10 volts times the charge of a gram-equivalent, \\(9.6\\times10^{3}\\) electromagnetic units, is \\(10\\times10^{8}\\times9.6\\times10^{3}=9.6\\times10^{12}\\) erg. The paper remarks that the two bounds are nearly equal.",
+          "The footnote on Stark's figure: inside the gas, the ionizing voltage for negative ions is, to be sure, five times larger. The 10 volts is the smallest value measured, at platinum anodes.",
+          "Why the smallest value is the one to use: the paper takes an ionizing voltage as giving an upper limit. A charge that has fallen through it had that much energy available to ionize a molecule, so the work of ionization cannot be larger. Each measured voltage gives a cap, and the smallest gives the tightest.",
+          "Worked with the footnote's factor: five times 10 volts is 50 volts, and \\(50\\times10^{8}\\times9.6\\times10^{3}=4.8\\times10^{13}\\) erg per gram-equivalent, 7.5 times Lenard's figure. That is a looser upper limit, not a contradiction; the near agreement the paper notes is between Lenard's figure and the smallest voltage.",
           "Now the count. With light of one frequency, the absorbed energy divided by the energy of one quantum is the number of quanta absorbed.",
           "If each absorbed quantum ionizes at most one molecule, the number of ions cannot exceed that number of quanta."
         ]
@@ -109,7 +117,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "§9 applies the same bound to gases ionized by ultraviolet light: at most one molecule ionized for each absorbed quantum, and none unless the quantum carries at least the ionization energy. The paper ends after this section, with its date-line."
+        "text": "§9 applies the same bound to gases ionized by ultraviolet light: at most one molecule ionized for each absorbed quantum, and none unless the quantum carries at least the ionization energy. The paper ends after this section, with its date-line. The footnote to Stark's 10 volts (J. Stark, Die Elektrizität in Gasen, p. 57, Leipzig 1902) adds, without a source of its own, that inside the gas the ionizing voltage for negative ions is five times larger; the comparison of upper limits rests on the smallest measured value."
       }
     ]
   },

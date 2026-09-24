@@ -14,7 +14,8 @@
   ],
   "limitations": [
     "No stopping endpoint for emitted electrons is supplied when emission is not allowed.",
-    "A negative energy deficit and a signed collector voltage are different quantities."
+    "A negative energy deficit and a signed collector voltage are different quantities.",
+    "The footnote gives no size for the work of freeing an electron from a molecule; the passage's figures for it are hypothetical."
   ],
   "citations": ["ap-17-132"],
   "readings": {
@@ -38,6 +39,10 @@
       {
         "kind": "paragraph",
         "text": "If the electron receives only part of the available energy or loses energy inside matter, its outgoing kinetic energy is at most \\(h\\nu - \\Phi\\). These losses do not reverse the frequency dependence or turn extra intensity into extra energy for one electron."
+      },
+      {
+        "kind": "paragraph",
+        "text": "A footnote to the stopping condition allows that the light may also have to free each electron from a neutral molecule, at the cost of some work, before the electron can leave. The paper says nothing in the derived relation changes: its P′, which it defines as the potential of a gram-equivalent of negative electricity with respect to the body, is then read as a sum of two terms, the work to free the electron and the work to leave the body. In the letters used here, \\(\\Phi\\) stands for that sum, and the stopping potential still rises in a straight line with frequency, with the same slope."
       },
       {
         "kind": "paragraph",
@@ -79,6 +84,11 @@
         "items": [
           "Divide by e: \\(V_s=(h\\nu-\\Phi)/e\\). Worked with the previous passage's hypothetical numbers: \\(K_{\\mathrm{max}}\\) is 0.481 electron volts, so \\(V_s\\) is 0.481 volts, since one electron volt is e times one volt.",
           "Keep sizes and signs apart. \\(V_s\\) is a size, zero or positive. The electron's charge is negative, and writing e for its size does not change that. A voltage read from an instrument also needs its reference electrode named.",
+          "The paper's gram-equivalent form of the stopping condition is ΠE = Rβν − P′, with P′ the potential of a gram-equivalent of negative electricity with respect to the body: the work for that much electricity to leave it. A footnote attached to it takes up one more possibility.",
+          "Suppose the light must first free each electron from a neutral molecule, at the cost of a certain work, before the electron can make its way out. The footnote says nothing in the derived relation changes; P′ is then to be read as a sum of two terms.",
+          "Why nothing changes: one quantum's energy, (R/N)βν per electron (\\(h\\nu\\) in the explanatory letters), now pays two works in turn, freeing the electron from its molecule and taking it out of the body. Both come out of the same quantum, so the fastest electron keeps the quantum's energy less their sum. Write \\(\\Phi\\) for the sum, and \\(eV_s=h\\nu-\\Phi\\) stands as before.",
+          "Worked case, with hypothetical numbers: freeing the electron costs 1.0 electron volt and leaving the body 2.0, so \\(\\Phi\\) is 3.0 electron volts. A quantum of 3.5 electron volts leaves the fastest electron 3.5 − 1.0 − 2.0 = 0.5 electron volts, and \\(V_s\\) is 0.5 volts. A quantum of 2.5 electron volts releases no electron from the body.",
+          "What stays: the frequency enters only through the quantum's energy, so the stopping potential plotted against frequency is still a straight line whose slope does not depend on the substance. The two works together only move the frequency at which the line reaches zero.",
           "Partial transfer and losses: if an electron receives only part of a quantum, or loses energy inside the body, it reaches the surface with less than \\(h\\nu-\\Phi\\). The paper then replaces the equation by an inequality: in its letters, Π times E, plus the escape work for a gram-equivalent, is at most Rβν.",
           "In the explanatory letters: \\(eV_s\\le h\\nu-\\Phi\\). Losses can only lower the stopping potential; they cannot give one electron more than the quantum it received.",
           "The inverse process, cathode luminescence: electrons that have fallen through a potential produce light. Reversing the budget, the energy supplied per electron must be at least the energy of the quantum produced, \\(eV\\ge h\\nu\\) in the explanatory letters.",
@@ -100,7 +110,7 @@
     "margin": [
       {
         "kind": "paragraph",
-        "text": "This modern voltage-magnitude convention does not silently replace the paper’s printed charge and potential symbols. The historical 4.3-volt check belongs to its separately identified constant and unit convention in the photoelectric laboratory."
+        "text": "This modern voltage-magnitude convention does not silently replace the paper’s printed charge and potential symbols. The historical 4.3-volt check belongs to its separately identified constant and unit convention in the photoelectric laboratory. The footnote on P′ leaves room for electrons bound in neutral molecules without giving that work a value; §9 applies the same one-quantum budget to freeing an electron from a gas molecule, which is ionization."
       }
     ]
   },

@@ -156,8 +156,7 @@ paragraphs:
     passages: [arg-lq-stopping-and-losses]
     r0: "If the body is charged to the positive potential Π that just stops it losing charge, Π times the electron's charge equals (R/N)βν − P; for a gram-equivalent of electrons this reads ΠE = Rβν − P′."
   - unit: s8-fn2
-    status: unexplained
-    reason: "No passage discusses splitting P′ into the work to free the electron and the work to leave the body; the passages on the photoelectric effect treat a single escape work."
+    passages: [arg-lq-stopping-and-losses]
     r0: "The footnote says the relation is unchanged if the electron must first be freed from a neutral molecule; P′ is then the sum of two works."
   - unit: s8-p4
     passages: [arg-lq-photoelectric-energy]
@@ -199,8 +198,7 @@ paragraphs:
     passages: [arg-lq-ionization-and-counts]
     r0: "The footnote cites Stark, Die Elektrizität in Gasen, page 57, Leipzig 1902."
   - unit: s9-fn2
-    status: unexplained
-    reason: "No passage discusses the ionizing voltage for negative ions inside the gas; the passage on ionization uses Stark's value measured at platinum anodes."
+    passages: [arg-lq-ionization-and-counts]
     r0: "The footnote notes that inside the gas the ionizing voltage for negative ions is five times larger."
 displays:
   - unit: eq-s1-d1
