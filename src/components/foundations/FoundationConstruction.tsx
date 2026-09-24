@@ -2,7 +2,11 @@
 
 import { BoostTable } from "./BoostTable.tsx";
 import { ConfigurationCounter } from "./ConfigurationCounter.tsx";
-import { foundationConstructionId } from "./constructionIds.ts";
+import {
+  CONSTRUCTIONS_WITH_CONTROLS,
+  type FoundationConstructionId,
+  foundationConstructionId,
+} from "./constructionIds.ts";
 import { DescriptionOrWorld } from "./DescriptionOrWorld.tsx";
 import { EnergyLedger } from "./EnergyLedger.tsx";
 import { EntropyTemperatureCheck } from "./EntropyTemperatureCheck.tsx";
@@ -40,10 +44,29 @@ export function FoundationConstruction({
   foundationId,
   headingLevel = 3,
 }: FoundationConstructionProps) {
-  // Typed by the server-readable list (constructionIds.ts), so each case must be one of its ids
-  // and a construction cannot be added here without being added there.
   const id = foundationConstructionId(foundationId);
   if (id === null) return null;
+  const construction = constructionFor(id, headingLevel);
+  if (!CONSTRUCTIONS_WITH_CONTROLS.includes(id)) return construction;
+  // Without JavaScript the controls change nothing. Measured on live at 01478983: 19 of the 22
+  // constructions on lesson pages showed controls that did nothing, and none said so.
+  return (
+    <>
+      <noscript>
+        <p className="notice">
+          JavaScript is off, so the controls below cannot change anything. The construction shows
+          its first setting, and its closing paragraph, “What it shows, in words”, describes the
+          rest.
+        </p>
+      </noscript>
+      {construction}
+    </>
+  );
+}
+
+function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLevel) {
+  // Typed by the server-readable list (constructionIds.ts), so each case must be one of its ids
+  // and a construction cannot be added here without being added there.
   switch (id) {
     case "functions-graphs":
       return <TableToPlotBuilder headingLevel={headingLevel} />;

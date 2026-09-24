@@ -39,6 +39,34 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];
 
+/**
+ * The constructions a reader operates: buttons, fields, sliders or choices. Without JavaScript
+ * those controls change nothing, so FoundationConstruction puts a notice before them.
+ * constructionNoScript.test.tsx renders every construction and requires this list to match the
+ * ones whose markup holds a control, in both directions.
+ */
+export const CONSTRUCTIONS_WITH_CONTROLS: readonly FoundationConstructionId[] = [
+  "functions-graphs",
+  "derivatives",
+  "partial-derivatives",
+  "exponentials",
+  "logarithms",
+  "unit-system-1905",
+  "ratios-scaling",
+  "orders-of-magnitude",
+  "quantities-units",
+  "error-and-inference",
+  "matrices-linear-maps",
+  "hyperbolic-functions-rapidity",
+  "vectors-components",
+  "dot-cross-products",
+  "conservation-symmetry",
+  "two-measurements-two-unknowns",
+  "entropy-multiplicity",
+  "work-energy",
+  "temperature-thermal-energy",
+];
+
 /** The construction id for a foundation, with or without its `foundation:` prefix, or null. */
 export function foundationConstructionId(foundationId: string): FoundationConstructionId | null {
   const clean = foundationId.replace(/^foundation:/, "");
