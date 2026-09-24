@@ -318,7 +318,7 @@ export const EMBED_INSTRUMENTS = [
   },
   {
     id: "sr-05",
-    title: "Moving clocks",
+    title: "The light clock and moving clocks",
     source: "/papers/special-relativity/#s4",
     overview: "Compare what a travelling clock reads with the platform clocks it moves past.",
     full: "A clock moving at speed v falls behind the platform clocks by 1 − √(1 − v²/c²) seconds each second, which §4 prints to second order as ½(v/c)². A trip out and back, or round a circle, returns the clock to its start, where both clocks are read at one place and no simultaneity convention is needed.",
