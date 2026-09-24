@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { loadFirstPages } from "../../components/home/firstPages.ts";
-import type { SearchType } from "../../search/core.ts";
+import { type SearchType, searchResultHref } from "../../search/core.ts";
 import { parseSearchShard } from "../../search/protocol.ts";
 import { SearchPageField } from "../../search/SearchPageField.tsx";
 import { readCurrentSearchShard, readSearchManifest } from "../../search/server.ts";
@@ -76,6 +76,8 @@ type Entry = Readonly<{
   title: string;
   route: string;
   anchor: string;
+  /** The palette's own link for this document (searchResultHref), view included. */
+  href: string;
   paper: string;
 }>;
 
@@ -97,6 +99,7 @@ async function readIndex(): Promise<readonly Entry[]> {
         title: doc.title,
         route: doc.route,
         anchor: doc.anchor,
+        href: searchResultHref(doc),
         // `paper`, not `scopeLabel`. Measured on the 191 documents: scopeLabel runs 41 to 111
         // characters, median 95, against a median title of 35. Printed beside every entry it
         // would be three times the length of the thing it qualifies and the list would read as a
@@ -159,12 +162,13 @@ function groupByPaper(list: readonly Entry[], titles: ReadonlyMap<string, string
 export default async function SearchIndexPage() {
   const entries = await readIndex();
   const titles = new Map(loadFirstPages().map((p) => [p.slug, p.title]));
-  const href = (entry: Entry) => (entry.anchor ? `${entry.route}#${entry.anchor}` : entry.route);
+  // Each entry links where the palette sends it. This page used to build route#anchor itself and
+  // drop the document's view, so an argument's synopsis, which opens the results view
+  // (?view=results), linked to the reading view like the argument, and the two looked identical.
+  const href = (entry: Entry) => entry.href;
   // An entry that repeats an earlier one exactly, the same title leading to the same place, is
-  // listed once, under the first kind in TYPE_ORDER. An argument's synopsis is indexed as its own
-  // document under the argument's title and link: on live 211e9af4 all 42 "Argument synopses"
-  // repeated an entry of "Arguments". The key is title AND destination: an equation leads to the
-  // argument that holds it, under its own title, and is a separate entry a reader looks for.
+  // listed once, under the first kind in TYPE_ORDER. With each entry on its real link this drops
+  // nothing today: a synopsis shares its argument's title but opens the results view.
   const seen = new Set<string>();
   const byType = new Map<string, Entry[]>();
   for (const type of TYPE_ORDER) {
