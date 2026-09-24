@@ -44,13 +44,24 @@
       {
         "kind": "steps",
         "items": [
-          "Use the kinetic-energy coefficient to identify the positive mass decrease.",
-          "For final minus initial mass, change the sign.",
-          "Keep L positive for energy emitted out of the body.",
-          "For the printed conversion, divide energy in erg by the printed factor 9 × 10²⁰ to obtain grams.",
-          "For modern SI, divide joules by c squared in metres-squared per second-squared to obtain kilograms.",
-          "Never combine an erg input with an SI denominator without converting the units.",
-          "Do not label a finite-speed proxy as the exact mass decrease."
+          "From the small-speed comparison, m₀ − m₁ = L/c². L is the light energy emitted, measured in the rest frame, and it is positive, so the difference is positive: the body’s mass after the emission is the smaller one.",
+          "The signed change is the final mass minus the initial mass, Δm = m₁ − m₀. It is the negative of the difference above:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "m_0-m_1=\\frac{L}{c^2},\\qquad\\Delta m=m_1-m_0=-\\frac{L}{c^2}",
+        "spoken": "The mass before minus the mass after is positive L over c squared; the signed final-minus-initial change is negative L over c squared.",
+        "equations": ["eq-model-me-mass-difference", "eq-model-me-mass-change-signed"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "In the historical units energy is in erg, mass in grams, and c² is the rounded printed factor 9 × 10²⁰, in centimetres squared per second squared. An emission of L = 9 × 10²⁰ erg would lower the mass by 9 × 10²⁰ erg divided by 9 × 10²⁰ cm²/s², which is 1 gram.",
+          "In modern SI units energy is in joules and mass in kilograms, and c = 299 792 458 metres per second exactly, so c² is about 8.99 × 10¹⁶ m²/s². An emission of 1 joule lowers the mass by 1/c², about 1.11 × 10⁻¹⁷ kilogram.",
+          "Never divide an energy in erg by an SI value of c², or joules by the printed factor: convert the units first. A unit conversion changes how the result is described, not the physical event.",
+          "The result is a difference between two masses. It does not fill the unknown energies E₀ and E₁ with mc², and the paper’s broader relation between energy content and inertia is a further inference, kept separate from this calculation.",
+          "A finite-speed estimate such as 2L(γ − 1)/v² at some nonzero speed is not this mass decrease; only its zero-speed limit is."
         ]
       }
     ],

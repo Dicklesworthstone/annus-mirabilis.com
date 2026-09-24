@@ -50,12 +50,41 @@
       {
         "kind": "steps",
         "items": [
-          "Before emission write the moving account as the rest account plus energy of motion plus C₀.",
-          "After emission write the corresponding relation with C₁.",
-          "The subtraction gives (K₀ − K₁) + (C₀ − C₁) = L(γ − 1).",
-          "Admit C₀ = C₁ to cancel the offsets and identify the kinetic-energy drop.",
-          "Relax that premise in the two-ledgers laboratory: the light totals and algebraic subtraction remain known, but the kinetic interpretation becomes underdetermined."
+          "Let K₀ and K₁ be the body’s energy of motion, its kinetic energy, in the moving frame before and after the emission. In its rest frame the body does not move, so there it has none.",
+          "The premise: the difference between the two accounts is the kinetic energy plus a constant C that does not change when the body emits light. The same C before and after:"
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "H_0-E_0=K_0+C,\\qquad H_1-E_1=K_1+C",
+        "spoken": "Each frame-energy difference equals the corresponding kinetic energy plus the same additive constant C.",
+        "equations": ["eq-model-me-offset-before", "eq-model-me-offset-after"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Subtract the second relation from the first: (H₀ − E₀) − (H₁ − E₁) = (K₀ + C) − (K₁ + C).",
+          "On the right, +C and −C cancel: K₀ + C − K₁ − C = K₀ − K₁.",
+          "The left side is the subtraction already worked out, L(γ − 1). So the kinetic-energy drop is:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "K_0-K_1=L(\\gamma-1)",
+        "spoken": "The kinetic energy before minus the kinetic energy after equals L times gamma minus one.",
+        "equations": ["eq-model-me-kinetic-drop-difference"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "If the offsets were allowed to differ, C₀ before and C₁ after, the same steps would give (K₀ − K₁) + (C₀ − C₁) = L(γ − 1), and the kinetic-energy drop could not be separated from the change in offset. The unchanged C is what makes the identification possible, and it is asserted by this route, not measured.",
+          "The body moves at the same speed before and after, yet its kinetic energy drops. The small-speed passage compares this drop with Newton’s kinetic energy to find what changed."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "work-energy",
+        "returnCaption": "Return to energy of motion at the same speed."
       }
     ],
     "margin": [

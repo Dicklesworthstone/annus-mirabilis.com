@@ -116,51 +116,6 @@
       ],
       "wordGap": 0
     },
-    "arg-me-constant-premise": {
-      "paper": "mass-energy",
-      "missing": [
-        "eq-model-me-offset-before+eq-model-me-offset-after",
-        "eq-model-me-kinetic-drop-difference"
-      ],
-      "wordGap": 0
-    },
-    "arg-me-import": {
-      "paper": "mass-energy",
-      "missing": [
-        "eq-model-me-light-energy-transform+eq-model-me-speed-ratio+eq-model-me-lorentz-factor-beta"
-      ],
-      "wordGap": 0
-    },
-    "arg-me-mass-change": {
-      "paper": "mass-energy",
-      "missing": ["eq-model-me-mass-difference+eq-model-me-mass-change-signed"],
-      "wordGap": 8
-    },
-    "arg-me-scope": {
-      "paper": "mass-energy",
-      "missing": [],
-      "wordGap": 41
-    },
-    "arg-me-small-speed": {
-      "paper": "mass-energy",
-      "missing": ["eq-model-me-kinetic-drop-low-speed", "eq-model-me-low-speed-limit"],
-      "wordGap": 0
-    },
-    "arg-me-subtraction": {
-      "paper": "mass-energy",
-      "missing": ["eq-model-me-ledger-subtraction-chain"],
-      "wordGap": 10
-    },
-    "arg-me-symmetric-emission": {
-      "paper": "mass-energy",
-      "missing": ["eq-model-me-symmetric-sum"],
-      "wordGap": 0
-    },
-    "arg-me-two-ledgers": {
-      "paper": "mass-energy",
-      "missing": ["eq-model-me-rest-ledger+eq-model-me-moving-ledger"],
-      "wordGap": 4
-    },
     "arg-sr-charge-current": {
       "paper": "special-relativity",
       "missing": ["eq-model-sr-charge-density+eq-model-sr-current-density"],

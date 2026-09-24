@@ -51,14 +51,39 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Two frames describe one emission. In the first, the body is at rest. The second moves at a constant speed v along a line called the motion axis, and v is smaller than the speed of light c. Describing the body from a second frame does nothing to it: these are two accounts of the same event."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Specify the relative speed v, with magnitude smaller than light speed c.",
-          "Write β for v divided by c, and γ for one divided by the square root of one minus β squared. These are modern teaching symbols.",
-          "Measure the pulse direction in the body’s rest frame. Its cosine determines whether the traveler’s account assigns more or less energy.",
-          "Multiply the pulse energy by γ(1 − β cos φ). Do this for each pulse of the same emission.",
-          "Keep the body’s energies unspecified. A rule for light is not a measurement of the body’s absolute internal energy."
+          "Divide the relative speed by the speed of light: β = v/c. It is a pure number, 0 when the frames share a speed and closer to 1 the faster they move apart.",
+          "Form γ = 1/√(1 − β²). At β = 0 it is exactly 1, and it grows without bound as β approaches 1. For β = 0.6: 1 − β² = 1 − 0.36 = 0.64, and √0.64 = 0.8, so γ = 1/0.8 = 1.25.",
+          "Let e be the energy of one pulse of light, measured in the body’s rest frame, and φ the angle between the pulse’s direction and the motion axis, measured in the same frame.",
+          "The imported rule gives the energy e′ that the moving frame assigns to that pulse:"
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "e'=e\\gamma(1-\\beta\\cos\\varphi),\\qquad\\beta=v/c,\\qquad\\gamma=\\frac{1}{\\sqrt{1-\\beta^2}}",
+        "spoken": "The transformed pulse energy is its original energy times gamma times one minus beta cosine phi; beta is speed divided by light speed.",
+        "equations": [
+          "eq-model-me-light-energy-transform",
+          "eq-model-me-speed-ratio",
+          "eq-model-me-lorentz-factor-beta"
+        ]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Check it at β = 0.6, where γ = 1.25. A pulse along the motion axis has cos φ = 1, so e′ = e × 1.25 × (1 − 0.6) = 0.5e. A pulse against it has cos φ = −1, so e′ = e × 1.25 × 1.6 = 2e. A pulse across it has cos φ = 0, so e′ = 1.25e.",
+          "The rule is borrowed from the relativity paper, where it is derived for light. It says nothing yet about the body’s own energy before or after the emission, and nothing in it assumes a loss of mass."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "frames-events",
+        "returnCaption": "Return to the two descriptions of the same emission."
       }
     ],
     "margin": [

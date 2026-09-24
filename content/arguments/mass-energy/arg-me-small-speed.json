@@ -55,14 +55,43 @@
       {
         "kind": "steps",
         "items": [
-          "Calculate the exact difference L(γ − 1) from the admitted two-ledger model.",
-          "Expand γ − 1 at zero speed: β²/2 + 3β⁴/8 plus higher even powers.",
-          "Keep only the quadratic term for the low-speed comparison.",
-          "Replace β² by v²/c² and compare with the Newtonian coefficient (m₀ − m₁)/2.",
-          "At a nonzero finite speed the ratio 2L(γ − 1)/v² still contains higher-order terms. It is not the limiting coefficient.",
-          "At exactly zero speed do not calculate 0/0. Evaluate the analytic limit separately.",
-          "The kinetic-energy laboratory displays the exact drop, quadratic estimate, finite-speed proxy, and limiting coefficient as distinct quantities."
+          "Start from the exact result: K₀ − K₁ = L(γ − 1), with γ = 1/√(1 − β²) and β = v/c.",
+          "Write γ as a power: γ is (1 − β²) raised to the power −1/2. For small x, (1 − x) to the power −1/2 equals 1 + x/2 + 3x²/8 + and so on: the binomial series, a Taylor expansion at x = 0. Put x = β².",
+          "So γ − 1 = β²/2 + 3β⁴/8 + and so on, every later term carrying a higher even power of β.",
+          "Check the series at β = 0.1: γ = 1/√0.99 = 1.0050378, so γ − 1 = 0.0050378, and the first two terms give 0.005 + 0.0000375 = 0.0050375.",
+          "At low speed keep only the first term: K₀ − K₁ is close to Lβ²/2. Replace β² by v²/c²:"
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "K_0-K_1\\approx\\frac{1}{2}\\frac{L}{c^2}v^2",
+        "spoken": "At low speed, the kinetic-energy drop is approximately one half times L over c squared times v squared.",
+        "equations": ["eq-model-me-kinetic-drop-low-speed"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Newton’s kinetic energy for a body of mass m at speed v is mv²/2. The speed is the same before and after, so Newton writes the drop as m₀v²/2 − m₁v²/2 = (m₀ − m₁)v²/2.",
+          "Both expressions are a coefficient times v²/2: (m₀ − m₁) in Newton’s, and L/c² in the one above. Setting the coefficients equal gives m₀ − m₁ = L/c². No rest-energy formula was assumed to get here.",
+          "The same identification, stated exactly: divide the exact drop by v²/2 and let v go to zero. From the series, 2(γ − 1)/v² = 1/c² + 3v²/(4c⁴) + and so on, so every later term vanishes in the limit:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\lim_{v\\to0}\\frac{2L(\\gamma-1)}{v^2}=\\frac{L}{c^2}",
+        "spoken": "The limit as speed approaches zero of twice the kinetic-energy drop divided by speed squared is L over c squared.",
+        "equations": ["eq-model-me-low-speed-limit"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "At exactly v = 0 the quotient is 0/0 and cannot be computed; the limit is taken instead. At any nonzero speed the quotient still contains the later terms, so it is not the limiting coefficient itself."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "taylor-expansion",
+        "returnCaption": "Return to keeping the second-order term."
       }
     ],
     "margin": [

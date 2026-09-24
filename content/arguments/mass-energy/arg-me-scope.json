@@ -42,12 +42,14 @@
       {
         "kind": "steps",
         "items": [
-          "Choose a boundary before interpreting any reported change.",
-          "Body only: energy L has crossed outward in the rest frame.",
-          "Radiation only: the emitted energy is present in the departing pulses.",
-          "Body and all light: no energy has crossed the larger isolated boundary.",
-          "Separate the conditional prediction from an independently calibrated observation.",
-          "Return to the subtraction and name its two essential ingredients: the imported transformation and the unchanged-offset premise, followed by the low-speed identification."
+          "Choose a boundary before reading any change of energy. The same emission reads differently depending on what the boundary encloses.",
+          "Body only: energy L has crossed the boundary outward, in the rest frame, and the body’s account records a loss.",
+          "Radiation only: the two departing pulses carry the emitted energy, L in total in the rest frame, and this account records a gain.",
+          "Body and all of the light together: nothing has crossed the larger boundary, so its total energy is the same before and after, in each frame separately.",
+          "A loss from one subsystem is therefore not a disappearance from the isolated whole. The light has left the body; it has not vanished.",
+          "The paper proposes bodies whose energy content varies strongly, such as radium salts, as possible tests, and leaves the physical claim conditional on agreement with facts. A prediction is not an observation: keep the conditional prediction apart from any independently calibrated measurement.",
+          "Return to the chain of the argument and name its three ingredients: the imported transformation of light energy, the premise that the offset between the two accounts does not change, and the low-speed identification that turns the kinetic-energy drop into a mass difference.",
+          "The system-boundaries laboratory lets you move the boundary yourself. Its modern invariant-mass reading and the 1906 box extension are later explanations, not steps hidden inside the 1905 inference."
         ]
       }
     ],

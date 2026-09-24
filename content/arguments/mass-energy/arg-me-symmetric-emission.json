@@ -41,12 +41,25 @@
       {
         "kind": "steps",
         "items": [
-          "Call the total emitted light energy in the body’s rest frame L.",
-          "Give each pulse energy L/2 in that frame.",
-          "Apply the same imported transformation to each pulse, with opposite signs of cos φ.",
-          "Add the two energies. The negative and positive angle terms cancel.",
-          "The sum is γL for every emission angle, although each pulse can change with angle.",
-          "The cancellation concerns the light totals. It does not assert any absolute energy for the body."
+          "Call L the total energy of the light the body emits, measured in its rest frame. It sends L/2 one way and L/2 the opposite way.",
+          "The first pulse travels at angle φ to the motion axis. By the imported rule the moving frame assigns it (L/2)γ(1 − β cos φ).",
+          "The second pulse travels the opposite way. Turning a direction around reverses its cosine, so its cosine is −cos φ, and the moving frame assigns it (L/2)γ(1 + β cos φ).",
+          "Add the two energies. Both terms share the factor (L/2)γ, so take it out: (L/2)γ times the sum (1 − β cos φ) + (1 + β cos φ).",
+          "In that sum −β cos φ and +β cos φ cancel, leaving 1 + 1 = 2. Then (L/2)γ × 2 = γL:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{L}{2}\\gamma(1-\\beta\\cos\\varphi)+\\frac{L}{2}\\gamma(1+\\beta\\cos\\varphi)=\\gamma L",
+        "spoken": "The opposite-direction terms cancel, leaving total moving-frame light energy gamma times L.",
+        "equations": ["eq-model-me-symmetric-sum"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Check it at β = 0.6, where γ = 1.25, with φ = 0: the moving frame assigns the pulses 0.25L and 1.0L, and 0.25L + 1.0L = 1.25L = γL. Another angle gives a different pair with the same sum.",
+          "Why two opposite pulses: each pushes the body back as it leaves, and two equal pushes in opposite directions cancel. The body stays at rest in its own frame, so the moving frame assigns it the same speed before and after the emission.",
+          "The cancellation concerns the light’s energy totals only. It assigns no absolute energy to the body."
         ]
       }
     ],

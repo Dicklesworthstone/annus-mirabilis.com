@@ -38,11 +38,24 @@
       {
         "kind": "steps",
         "items": [
-          "Start with H₀ − H₁ = γL and E₀ − E₁ = L.",
-          "Subtract the second equation from the first: H₀ − H₁ − E₀ + E₁ = γL − L.",
-          "Regroup the left as (H₀ − E₀) − (H₁ − E₁).",
-          "Factor L on the right to obtain L(γ − 1).",
-          "Keep the result as a difference between accounts until the relation to energy of motion has been stated."
+          "Start from the two accounts written as changes: H₀ − H₁ = γL in the moving frame, and E₀ − E₁ = L in the rest frame.",
+          "Subtract the second equation from the first, side by side: (H₀ − H₁) − (E₀ − E₁) = γL − L.",
+          "Remove the brackets on the left. A minus sign in front of a bracket changes the sign of every term inside it, which gives H₀ − H₁ − E₀ + E₁.",
+          "Put the two terms from before the emission together, and the two from after: (H₀ − E₀) − (H₁ − E₁). Expanding this again gives H₀ − E₀ − H₁ + E₁, the same four terms, so nothing was lost.",
+          "On the right, L is a common factor: γL − L = L(γ − 1). The whole chain reads:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "(H_0-E_0)-(H_1-E_1)=(\\gamma L)-L=L(\\gamma-1)",
+        "spoken": "The before frame-energy difference minus the after frame-energy difference equals L times gamma minus one.",
+        "equations": ["eq-model-me-ledger-subtraction-chain"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Read each bracket. H₀ − E₀ is how much the moving account exceeds the rest account before the emission, and H₁ − E₁ is the same comparison after it. Their difference is L(γ − 1), which is 0.25L at β = 0.6.",
+          "No absolute energy was needed. The algebra does not say what the surviving quantity is physically: calling it a change in energy of motion needs a premise, which the next passage states."
         ]
       }
     ],
