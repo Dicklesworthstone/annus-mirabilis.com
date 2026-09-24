@@ -419,15 +419,37 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                         JavaScript; with Detail at "Show every step", ReaderController opens it
                         and detail.css hides its summary, so it reads as the passage's text.
                       */}
+                      {/*
+                        ON A WHOLE-PAPER PAGE THE STEPS LOAD WHEN THEY OPEN (stepsBody.ts). The
+                        section's own page renders them inline; here the disclosure holds a real
+                        link to it, and ReaderController lifts the steps from that page on first
+                        opening, or for every passage at "Show every step".
+                      */}
                       <details className="local-steps reading-version" data-reading={2}>
                         <summary>Show every step here: {a.title}</summary>
-                        <ReadingBlocks
-                          blocks={a.readings.steps}
-                          foundations={foundations}
-                          embed
-                          contextLabel={`${a.title}, reading steps`}
-                          equations={equationsById}
-                        />
+                        {sectionId ? (
+                          <ReadingBlocks
+                            blocks={a.readings.steps}
+                            foundations={foundations}
+                            embed
+                            contextLabel={`${a.title}, reading steps`}
+                            equations={equationsById}
+                          />
+                        ) : (
+                          <p
+                            className="fine"
+                            data-steps-body={a.id}
+                            data-steps-src={`/papers/${paper.id}/${a.section}/`}
+                          >
+                            <a
+                              href={`/papers/${paper.id}/${a.section}/#${a.id}`}
+                              aria-label={`Read every step on this section’s own page: ${a.title}`}
+                            >
+                              Read every step on this section&rsquo;s own page
+                            </a>
+                            , where they are part of the page.
+                          </p>
+                        )}
                       </details>
                       {(missingSteps.lessons as readonly CompiledMissingStepLesson[])
                         .filter((lesson) => lesson.argument === a.id)

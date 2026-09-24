@@ -17,6 +17,7 @@ import {
   type ReaderState,
   restoreReaderState,
 } from "./navigation/state";
+import { loadStepsBody, unmountStepsConstructions } from "./stepsBody.ts";
 import "./actions/kindRegistration.ts";
 import "../equations/missingStep/register.ts";
 import { resolveOpenParam } from "./stack/history.ts";
@@ -383,6 +384,20 @@ export function ReaderController(props: Props) {
     root.addEventListener("change", changeControl);
     dialog.addEventListener("cancel", cancel);
     window.addEventListener("popstate", pop);
+    // On a whole-paper page a passage's steps load when its disclosure first opens, whether the
+    // reader opened it or "Show every step" did (stepsBody.ts). `toggle` does not bubble, so it is
+    // caught on the way down; a disclosure already open before this ran is loaded here.
+    const toggleSteps = (event: Event) => {
+      const details = event.target;
+      if (!(details instanceof HTMLDetailsElement) || !details.open) return;
+      const placeholder = details.querySelector<HTMLElement>(":scope > [data-steps-body]");
+      if (placeholder) void loadStepsBody(placeholder);
+    };
+    root.addEventListener("toggle", toggleSteps, true);
+    for (const placeholder of root.querySelectorAll<HTMLElement>(
+      "details[open] > [data-steps-body]",
+    ))
+      void loadStepsBody(placeholder);
     /* The owner's rule for every overlay: an X top right, and a press outside closes it. Both
        close the whole lesson stack and return to the passage, as "Return to the exact step"
        does; Escape keeps its own meaning here, one step back (the cancel handler above). */
@@ -448,9 +463,11 @@ export function ReaderController(props: Props) {
       root.removeEventListener("change", changeControl);
       dialog.removeEventListener("cancel", cancel);
       window.removeEventListener("popstate", pop);
+      root.removeEventListener("toggle", toggleSteps, true);
       dismissal.abort();
       closeDirectOpenDialog(document);
       unmountLessonConstructions();
+      unmountStepsConstructions();
     };
   }, [navigation]);
   return (
