@@ -22,7 +22,9 @@ describe("Papers index: the Brownian entry can be chosen without knowing its nam
 
   test("the working English title and plain scope sentence render, and neither contains 'Brownian'", () => {
     expect(html).toContain("On the Motion of Small Particles Suspended in Liquids at Rest");
-    expect(html).toContain("tiny particles suspended in a liquid");
+    expect(html).toContain(
+      "a particle visible under a microscope and suspended in a liquid at rest",
+    );
     const workingTitleAndScope =
       "On the Motion of Small Particles Suspended in Liquids at Rest, as Required by the Molecular-Kinetic Theory of Heat" +
       "The document about tiny particles suspended in a liquid that is not being stirred or heated unevenly, and what the ceaseless motion of heat should make them do.";

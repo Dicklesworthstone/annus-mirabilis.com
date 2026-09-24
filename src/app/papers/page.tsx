@@ -29,7 +29,7 @@ const papers = [
     locator: "Annalen der Physik (4), 17, 549–560 (1905)",
     status: "German text set · English translation not started",
     plainScope:
-      "A paper about tiny particles suspended in a liquid that nobody is stirring or heating unevenly, and what the ceaseless motion of heat should make them do.",
+      "If heat is the motion of molecules, a particle visible under a microscope and suspended in a liquid at rest should never stop moving. Einstein works out how far it should wander in a given time: a number a laboratory can check.",
     workingTitle:
       "On the Motion of Small Particles Suspended in Liquids at Rest, as Required by the Molecular-Kinetic Theory of Heat",
     editorialAdditions: [
