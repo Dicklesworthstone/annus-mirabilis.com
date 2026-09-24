@@ -15,15 +15,13 @@ import { renderToStaticMarkup } from "react-dom/server";
  * Two lab groups remain for reasons recorded on the bead:
  * - no generated example with a source digest, so deriveHostExecution cannot earn a label
  *   (Avogadro, LightThread, TwoLedgers, BoundaryLedger, ShelfOptics, ClockSync);
- * - a heading of another shape (RodSimultaneity carries two badges), a composite label
- *   (FieldEquations), or a test that pins "host".
+ * - a composite label (FieldEquations), or a test that pins "host".
  * WaveDescription and DriftDiffusion derive their label without a model note: their not-modeled
  * lists live only in the manifests.
  */
 const STILL_HARD_CODED = [
   "lab/ModeAllocationLab.tsx",
   "lab/OsmoticPartitionLab.tsx",
-  "lab/RodSimultaneityLab.tsx",
   "lab/avogadro/AvogadroLab.tsx",
   "lab/bm03/ConfigurationLab.tsx",
   "lab/lightThread/LightThreadLab.tsx",
@@ -47,6 +45,7 @@ const DERIVED_ROUTES = [
   "lq-08",
   "lq-09",
   "me-02",
+  "sr-03",
   "sr-08",
   "sr-09",
   "sr-10",
