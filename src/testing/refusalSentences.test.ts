@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { ME02_DEFAULTS } from "../experiments/me02/definition.ts";
 import { validateMe02Parameters } from "../experiments/me02/parameters.ts";
+import { ME03_DEFAULTS } from "../experiments/me03/definition.ts";
+import { validateMe03Parameters } from "../experiments/me03/parameters.ts";
 import { refusalSentence } from "../experiments/results/refusalSentence.ts";
 import { SR01_DEFAULTS } from "../experiments/sr01/definition.ts";
 import { validateSr01Parameters } from "../experiments/sr01/parameters.ts";
@@ -120,6 +122,45 @@ describe("SR-01 refusals name the control as the page does, never a parameter id
       expect(sentence.startsWith("Enter")).toBe(true);
       expect(sentence).toContain(names);
       expect(sentence).not.toMatch(IDENTIFIER);
+    });
+  }
+});
+
+/**
+ * ME-03's sentences read as code ("Box length ell must be a positive finite number.", "requires
+ * E / (M * c^2) <= 10^-3."). Each one a reader can reach must say what to enter, in words.
+ */
+const CODE_TOKEN = /<=|>=|\*|\^|\bell\b/;
+const ME03_CASES: readonly (readonly [string, Record<string, unknown>, string])[] = [
+  ["energy given off 0", { emittedEnergy: 0 }, "energy L given off"],
+  ["energy taken in -1", { inputEnergy: -1 }, "energy taken in"],
+  ["box mass 0", { mode: "box-1906", boxMass: 0 }, "box mass M"],
+  ["box length not a number", { mode: "box-1906", boxLength: Number.NaN }, "box length ℓ"],
+  ["pulse energy -2", { mode: "box-1906", pulseEnergy: -2 }, "pulse energy E"],
+  [
+    "pulse energy beyond the box's bound",
+    { mode: "box-1906", pulseEnergy: 1e15, boxMass: 1 },
+    "a thousandth of Mc²",
+  ],
+];
+
+describe("ME-03 refusals say what to enter, in words", () => {
+  test("the code-token pattern catches the old sentences (positive control)", () => {
+    expect(
+      CODE_TOKEN.test("The nonrelativistic recoil approximation requires E / (M * c^2) <= 10^-3."),
+    ).toBe(true);
+    expect(CODE_TOKEN.test("Box length ell must be a positive finite number.")).toBe(true);
+  });
+  for (const [label, bad, names] of ME03_CASES) {
+    test(label, () => {
+      const checked = validateMe03Parameters({ ...ME03_DEFAULTS, ...bad });
+      expect(checked.kind).toBe("refused");
+      if (checked.kind !== "refused") return;
+      const sentence = refusalSentence(checked.refusal);
+      expect(sentence.startsWith("Enter")).toBe(true);
+      expect(sentence).toContain(names);
+      expect(sentence).not.toMatch(IDENTIFIER);
+      expect(sentence).not.toMatch(CODE_TOKEN);
     });
   }
 });
