@@ -113,7 +113,7 @@ export function ClockFirstEncounter({ record }: { record: EntranceRecord }) {
         <p>{record.agreement}</p>
         <fieldset disabled={!ready}>
           <legend>Choose whether to use the equal-travel-time agreement</legend>
-          <label>
+          <label className="check">
             <input
               type="checkbox"
               checked={agreed}
