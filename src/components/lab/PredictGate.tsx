@@ -134,6 +134,28 @@ export function usePredictGate(
   };
 }
 
+/** FNV-1a over a string: a stable number for ordering, not a digest anyone checks. */
+function stableHash(text: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 16777619) >>> 0;
+  return h;
+}
+
+/**
+ * The order a prompt's candidates are drawn in: by a stable hash of the prompt and candidate ids.
+ * The manifests list the supported candidate first in 19 of 40 prompts and last in 3, so their own
+ * order told a reader which to pick. This order reads nothing about which candidate is supported,
+ * and it is the same on every visit.
+ */
+export function presentedOrder(prompt: GeneratedPredictPrompt): GeneratedPredictPrompt {
+  const candidates = [...prompt.candidates].sort(
+    (a, b) =>
+      stableHash(`${prompt.promptId}:${a.id}`) - stableHash(`${prompt.promptId}:${b.id}`) ||
+      a.id.localeCompare(b.id),
+  );
+  return { ...prompt, candidates };
+}
+
 /** The laboratory's predict panels. Shown only with JavaScript; see predict.css. */
 export function PredictGatePanels({ gate }: Readonly<{ gate: PredictGateState }>) {
   if (gate.prompts.length === 0) return null;
@@ -142,7 +164,7 @@ export function PredictGatePanels({ gate }: Readonly<{ gate: PredictGateState }>
       {gate.prompts.map((prompt) => (
         <PredictPanel
           key={prompt.promptId}
-          prompt={prompt}
+          prompt={presentedOrder(prompt)}
           record={gate.records.get(prompt.promptId) ?? beginPrompt(prompt.promptId)}
           forms={["candidate"]}
           resultShown

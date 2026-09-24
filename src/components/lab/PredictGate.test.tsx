@@ -35,6 +35,7 @@ import {
   removeContainer,
   uninstallDom,
 } from "../../testing/reactDom.ts";
+import { presentedOrder } from "./PredictGate.tsx";
 import { VelocityCompositionLab } from "./sr06/VelocityCompositionLab.tsx";
 import { DopplerAberrationLab } from "./sr09/DopplerAberrationLab.tsx";
 import { LightComplexLab } from "./sr10/LightComplexLab.tsx";
@@ -286,6 +287,30 @@ describe("with JavaScript, a first-time reader answers before the result shows",
       });
     });
   }
+});
+
+describe("the order a gate draws candidates in", () => {
+  const all = Object.values(PREDICT_PROMPTS).flat();
+
+  test("is each prompt's own candidates, in the same order on every call", () => {
+    expect(all.length).toBeGreaterThan(0);
+    for (const prompt of all) {
+      const once = presentedOrder(prompt).candidates.map((c) => c.id);
+      expect([...once].sort()).toEqual(prompt.candidates.map((c) => c.id).sort());
+      expect(presentedOrder(prompt).candidates.map((c) => c.id)).toEqual(once);
+    }
+  });
+
+  test("does not depend on which candidate the model supports", () => {
+    for (const prompt of all) {
+      const order = presentedOrder(prompt).candidates.map((c) => c.id);
+      for (const c of prompt.candidates) {
+        expect(
+          presentedOrder({ ...prompt, supportedCandidateId: c.id }).candidates.map((x) => x.id),
+        ).toEqual(order);
+      }
+    }
+  });
 });
 
 describe("without JavaScript, nothing is hidden", () => {
