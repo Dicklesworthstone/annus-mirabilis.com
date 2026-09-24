@@ -3,27 +3,16 @@
 import { type ReactNode, useSyncExternalStore } from "react";
 
 /*
- * A CONTROL THAT NEEDS JAVASCRIPT IS DISABLED UNTIL JAVASCRIPT HAS RUN (am-nojs-dead-controls-3agt).
+ * SUPERSEDED AND UNUSED, KEPT ONLY UNTIL ITS DELETION IS APPROVED (AGENTS.md RULE 1).
  *
- * With JavaScript off, 267 buttons on 41 of the 197 pages in the live sitemap looked enabled and
- * did nothing (measured 2026-09-24, Playwright, every enabled and laid-out button): lab presets,
- * view toggles, the lessons' constructions. Every one is wired by React. No form on the site has
- * an action, so none of them could ever work without it.
- *
- * About 35 components rendered them, each with its own hydration flag, and the ones that forgot
- * to use it were the dead ones. So the cause is fixed once, here, rather than in each of them:
- * the page's content sits in one disabled fieldset in the served HTML, which disables every
- * button, input, select and textarea inside it, and hydration lifts it. A reader without
- * JavaScript sees the controls greyed (globals.css, button:disabled), next to the note each page
- * already carries that JavaScript is off; links and <details> drawers are not form controls and
- * keep working.
- *
- * The fieldset makes no box (display: contents) and no group (role="none"), so layout and the
- * accessibility tree are the page's own. A control a component disables for its own reasons stays
- * disabled after hydration: the fieldset only ever adds a reason, never removes one.
- *
- * The server snapshot is false and the client snapshot true, so hydration renders the served
- * markup first and then lifts the gate, with no mismatch and no effect to wait for.
+ * This was the first fix for am-nojs-dead-controls-3agt: the page's content in one fieldset,
+ * disabled in the served HTML and lifted by hydration. It was committed by the shared-tree sweeper
+ * (a13b5f45) before it had been checked in a browser, and a browser showed it wrong:
+ * - with display: contents, Chromium collapsed the paper pages' reading grid to height 0 (a
+ *   container query inside the fieldset), and the fieldset's interface font was inherited by every
+ *   page's text;
+ * - as a block, a fieldset is its own formatting context, and headings moved by up to 70px.
+ * The root layout no longer uses it. The fix is src/components/chrome/noScriptControls.ts.
  */
 const subscribe = () => () => {};
 
@@ -34,8 +23,7 @@ export function HydrationGate({ children }: { readonly children: ReactNode }) {
     () => false,
   );
   return (
-    // The fieldset exists only to carry `disabled`; it must not announce a group around the page.
-    <fieldset className="hydration-gate" role="none" disabled={!hydrated}>
+    <fieldset role="none" disabled={!hydrated}>
       {children}
     </fieldset>
   );

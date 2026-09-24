@@ -3,18 +3,17 @@
  *
  * Measured on live on 2026-09-24 with JavaScript off: 267 enabled, laid-out buttons on 41 of the
  * 197 sitemap pages, every one wired by React, and no form on the site has an action, so none
- * could work. The fix is one fieldset around the page content, disabled in the served HTML and
- * lifted by hydration (src/components/chrome/HydrationGate.tsx).
+ * could work. The fix is a rule in a <noscript> in the head that hides enabled buttons
+ * (src/components/chrome/noScriptControls.ts); a button a component disables until hydration stays.
  *
- * WHAT COUNTS AS DEAD: a button, input, select or textarea that is enabled (not :disabled, not
- * aria-disabled) and laid out (a box, not display:none, not inside [hidden]). A control hidden
- * without JavaScript (.enhanced-only) is not seen, so it is not counted.
+ * WHAT COUNTS AS DEAD: a button, a button-like input or a role=button element that is enabled (not
+ * :disabled, not aria-disabled) and laid out (a box, not display:none, not inside [hidden]).
  *
- * THE POSITIVE CONTROL is a hydration-only button planted into a real built page, outside the
- * gate, by rewriting the served HTML. If the detector cannot see that one, a clean result on the
- * routes means nothing.
+ * THE POSITIVE CONTROL is a real built page served without that rule and with a hydration-only
+ * button planted in it. The detector must flag the planted button; if it cannot, a clean result on
+ * the routes means nothing. It is also the fix's own planted negative: the page as it was.
  *
- * With JavaScript on: the gate lifts, and two controls that were dead act as they did before.
+ * With JavaScript on: the rule does not apply, and two controls that were dead act as before.
  *
  * Runs against out/ (freshness checked), in Chromium and WebKit.
  */
@@ -33,6 +32,7 @@ const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT_DIR = join(REPO_ROOT, "out");
 const BEAD = "am-nojs-dead-controls-3agt";
 const SUITE = "nojs-dead-controls";
+const PLANTED = 'button "Planted, needs JavaScript"';
 
 /** The bead's ten pages: four papers, three sections, three labs. */
 const ROUTES = [
@@ -108,12 +108,15 @@ function log(event: Record<string, unknown>): void {
   );
 }
 
-/** Every enabled, laid-out form control on the page, described so a failure names it. */
+/** Every enabled, laid-out button on the page, described so a failure names it. */
 function deadControls(page: Page): Promise<string[]> {
   return page.evaluate(() =>
-    [...document.querySelectorAll("button, input, select, textarea, [role=button]")]
+    [
+      ...document.querySelectorAll(
+        "button, input[type=button], input[type=submit], input[type=reset], [role=button]",
+      ),
+    ]
       .filter((el) => !(el.matches(":disabled") || el.getAttribute("aria-disabled") === "true"))
-      .filter((el) => (el as HTMLInputElement).type !== "hidden")
       .filter((el) => {
         const style = getComputedStyle(el);
         const box = el.getBoundingClientRect();
@@ -129,12 +132,26 @@ function deadControls(page: Page): Promise<string[]> {
   );
 }
 
+/** Clicks until hydration has wired the control (before it, a click does nothing), then reports. */
+async function actsOn(
+  page: Page,
+  click: () => Promise<void>,
+  changed: () => Promise<boolean>,
+): Promise<boolean> {
+  for (let attempt = 0; attempt < 20; attempt++) {
+    await click();
+    await page.waitForTimeout(250);
+    if (await changed()) return true;
+  }
+  return false;
+}
+
 const ENGINES = [
   { name: "chromium", launcher: chromium },
   { name: "webkit", launcher: webkit },
 ] as const;
 
-test("with JavaScript off, no control on the bead's pages is enabled; with it on, they work", async (t) => {
+test("with JavaScript off, no button on the bead's pages is enabled and shown; with it on, they work", async (t) => {
   assertOutFreshness(OUT_DIR, REPO_ROOT);
   for (const route of ROUTES) {
     assert.ok(
@@ -148,15 +165,16 @@ test("with JavaScript off, no control on the bead's pages is enabled; with it on
       const browser: Browser = await launcher.launch();
       try {
         await t.test(
-          `${name}: the detector sees a hydration-only button planted in a real page`,
+          `${name}: served without the rule, a planted hydration-only button is flagged`,
           async () => {
             const context = await browser.newContext({ javaScriptEnabled: false });
             const page = await context.newPage();
-            // Planted inside <main> but outside the gate, as a component that renders its own
-            // button past the fieldset would be.
             await page.route(`${baseUrl}/lab/lq-08/`, async (route) => {
               const response = await route.fetch();
-              const body = (await response.text()).replace(
+              const html = await response.text();
+              const stripped = html.replace(/<noscript><style>[^<]*<\/style><\/noscript>/, "");
+              assert.notEqual(stripped, html, "the served page carries no noscript rule to strip");
+              const body = stripped.replace(
                 '<main id="main">',
                 '<main id="main"><button type="button" data-planted="1">Planted, needs JavaScript</button>',
               );
@@ -164,23 +182,24 @@ test("with JavaScript off, no control on the bead's pages is enabled; with it on
             });
             await page.goto(`${baseUrl}/lab/lq-08/`);
             const dead = await deadControls(page);
+            const flagged = dead.includes(PLANTED);
             log({
               testId: "planted",
               browser: name,
               jsEnabled: false,
               instrumentId: "lq-08",
-              expected: 1,
+              expected: "the planted button among the dead",
               actual: dead.length,
-              outcome: dead.length === 1 ? "pass" : "fail",
+              outcome: flagged ? "pass" : "fail",
               message: dead.join("; "),
             });
-            assert.deepEqual(dead, ['button "Planted, needs JavaScript"']);
+            assert.ok(flagged, `the detector missed the planted button: ${dead.join("; ")}`);
             await context.close();
           },
         );
 
         await t.test(
-          `${name}: JavaScript off, 0 dead controls on ${ROUTES.length} pages`,
+          `${name}: JavaScript off, 0 dead buttons on ${ROUTES.length} pages`,
           async () => {
             const context = await browser.newContext({
               javaScriptEnabled: false,
@@ -205,55 +224,51 @@ test("with JavaScript off, no control on the bead's pages is enabled; with it on
               await page.close();
             }
             await context.close();
-            assert.deepEqual(found, [], `${found.length} dead control(s) with JavaScript off`);
+            assert.deepEqual(found, [], `${found.length} dead button(s) with JavaScript off`);
           },
         );
 
-        await t.test(`${name}: JavaScript on, the gate lifts and the controls act`, async () => {
+        await t.test(`${name}: JavaScript on, the buttons are shown and act`, async () => {
           const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
           const page = await context.newPage();
-          for (const route of ROUTES) {
-            await page.goto(`${baseUrl}${route}`);
-            await page.waitForSelector("fieldset.hydration-gate:not([disabled])", {
-              timeout: 20000,
-            });
-          }
           // The Brownian entrance's view switch was dead without JavaScript: it still switches.
           await page.goto(`${baseUrl}/papers/brownian-motion/`);
-          await page.waitForSelector("fieldset.hydration-gate:not([disabled])");
           const table = page.getByRole("button", { name: "Table and typed values" });
-          await table.click();
-          const pressed = await table.getAttribute("aria-pressed");
+          const switched = await actsOn(
+            page,
+            () => table.click(),
+            async () => (await table.getAttribute("aria-pressed")) === "true",
+          );
           log({
             testId: "js-on-toggle",
             browser: name,
             jsEnabled: true,
             paper: "brownian-motion",
-            expected: "true",
-            actual: pressed,
-            outcome: pressed === "true" ? "pass" : "fail",
+            expected: true,
+            actual: switched,
+            outcome: switched ? "pass" : "fail",
           });
-          assert.equal(pressed, "true");
-          // LQ-08's first preset was dead without JavaScript: it still changes the experiment.
+          assert.ok(switched, "the Brownian view switch did not switch with JavaScript on");
+          // LQ-08's presets were dead without JavaScript: one still changes the experiment.
           await page.goto(`${baseUrl}/lab/lq-08/`);
-          await page.waitForSelector("fieldset.hydration-gate:not([disabled])");
+          const preset = page.getByRole("button", { name: /Red light, 450 THz/ });
+          assert.ok(await preset.isVisible(), "with JavaScript on, the noscript rule hid a preset");
           const before = await page.locator("main").innerText();
-          await page.getByRole("button", { name: /Red light, 450 THz/ }).click();
-          await page.waitForFunction(
-            (was) => document.querySelector("main")?.innerText !== was,
-            before,
+          const acted = await actsOn(
+            page,
+            () => preset.click(),
+            async () => (await page.locator("main").innerText()) !== before,
           );
-          const changed = (await page.locator("main").innerText()) !== before;
           log({
             testId: "js-on-preset",
             browser: name,
             jsEnabled: true,
             instrumentId: "lq-08",
             expected: true,
-            actual: changed,
-            outcome: changed ? "pass" : "fail",
+            actual: acted,
+            outcome: acted ? "pass" : "fail",
           });
-          assert.ok(changed, "the LQ-08 preset changed nothing with JavaScript on");
+          assert.ok(acted, "the LQ-08 preset changed nothing with JavaScript on");
           await context.close();
         });
       } finally {

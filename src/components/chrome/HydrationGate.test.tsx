@@ -11,9 +11,9 @@ import {
 import { HydrationGate } from "./HydrationGate.tsx";
 
 /*
- * The gate is disabled in the served HTML, so every control inside is inert for a reader without
- * JavaScript, and hydration lifts it (am-nojs-dead-controls-3agt). The browser half, over the
- * built pages with JavaScript off and on, is scripts/e2e/nojsDeadControls.e2e.test.ts.
+ * SUPERSEDED: the layout no longer uses HydrationGate (see its header), and these tests stay only
+ * until the component and this file may be deleted. The fix that replaced it is
+ * src/components/chrome/noScriptControls.ts, checked by scripts/e2e/nojsDeadControls.e2e.test.ts.
  */
 function Page() {
   return (
@@ -38,7 +38,7 @@ afterEach(async () => {
 describe("HydrationGate", () => {
   test("the served HTML disables the page's controls, in a fieldset that makes no group", () => {
     const html = renderToString(<Page />);
-    expect(html).toMatch(/<fieldset class="hydration-gate" role="none" disabled="">/);
+    expect(html).toMatch(/<fieldset role="none" disabled="">/);
     expect(html).toContain('data-probe="plain"');
   });
 
