@@ -9,12 +9,12 @@
   "recap": "In the moving observer’s coordinates the derivatives in time and along x mix. Grouping the result so that the Maxwell-Hertz equations keep their form points to the moving observer’s electric and magnetic components; the form alone does not prove that identification, which rests on the principle of relativity.",
   "review": "draft",
   "premises": [
-    "Use the Lorentz coordinate map and vacuum Maxwell equations.",
-    "The example is expressed in SI with explicit factors of c."
+    "The coordinates transform by the Lorentz map, and the fields obey Maxwell’s equations in empty space.",
+    "The example is in SI units, so factors of c appear explicitly."
   ],
   "limitations": [
-    "SI factors cannot be obtained by merely renaming the source’s Gaussian field symbols.",
-    "A common field scale needs a normalization argument in addition to rearranging equations."
+    "Einstein’s Gaussian equations become SI ones by a change of units, not by renaming symbols.",
+    "A common factor on all the new fields is fixed by a separate argument, going there and back and the symmetry of space; rearranging the equations does not fix it."
   ],
   "citations": ["ap-17-891"],
   "readings": {

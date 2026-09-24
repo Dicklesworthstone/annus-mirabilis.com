@@ -9,12 +9,12 @@
   "recap": "First check that the light can catch the mirror: its speed along the mirror’s normal, c cos φ, must exceed the mirror’s speed away from it. Then change to the mirror’s rest frame, reflect the light there, and change back.",
   "review": "draft",
   "premises": [
-    "Use an ideal planar perfect reflector with subluminal normal speed.",
-    "The incident ray must satisfy c cos φ greater than v."
+    "The mirror is flat and perfectly reflecting, and it moves slower than light.",
+    "The light must be able to reach the mirror: c cos φ is greater than v."
   ],
   "limitations": [
-    "At the interception boundary, a tolerance-limited numerical result is not a valid reflection event.",
-    "A reflected ray can still have positive laboratory x velocity and separate from a faster receding mirror."
+    "Where the light only just fails to catch the mirror, a number from the calculation is not a reflection.",
+    "A reflected ray can still move towards +x in the laboratory, and a mirror receding faster moves away from it."
   ],
   "citations": ["ap-17-891"],
   "readings": {

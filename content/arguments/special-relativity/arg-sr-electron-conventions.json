@@ -9,12 +9,12 @@
   "recap": "Einstein’s transverse mass, m times gamma squared, divides the force measured in the electron’s momentary rest frame by the acceleration measured in the laboratory. Measure both in the laboratory and the ratio is m times gamma. The two numbers answer two different questions; the electron has one mass m.",
   "review": "draft",
   "premises": [
-    "Start with the electron’s instantaneous rest-frame force law.",
-    "Specify the frame of each force and acceleration component."
+    "In its momentary rest frame the electron obeys ordinary mechanics for slow motion.",
+    "Every force and every acceleration is labelled with the frame it is measured in."
   ],
   "limitations": [
-    "The historical coefficients are not a claim that invariant rest mass changes with observer speed.",
-    "The ideal slowly accelerated point-particle treatment omits radiation reaction and self-field dynamics."
+    "The two masses are ratios of force to acceleration under stated conventions; the electron’s own mass does not change with the observer’s speed.",
+    "The electron is treated as a point driven slowly, without the effects of its own radiation or field."
   ],
   "citations": ["ap-17-891"],
   "readings": {

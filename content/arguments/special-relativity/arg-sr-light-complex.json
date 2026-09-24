@@ -9,12 +9,12 @@
   "recap": "In the new frame the light’s energy density changes by the factor q squared, while the volume of the same light complex, measured at one instant of the new time, changes by 1/q. Its total energy therefore changes by q, the same factor as its frequency.",
   "review": "draft",
   "premises": [
-    "Compare the same finite light complex on each frame’s own simultaneous slice.",
-    "Use the plane-wave field transformation with q defined from the unprimed direction."
+    "The same finite light complex is compared, each frame measuring its volume at one instant of its own time.",
+    "The waves transform as plane waves, with q defined from the light’s direction in the original frame."
   ],
   "limitations": [
-    "A light complex is not a material rod or a photon rest frame.",
-    "The energy law does not need the light-quantum hypothesis or the desired mass-energy conclusion."
+    "A light complex is not a rod, and light has no rest frame.",
+    "The result needs neither light quanta nor the mass-energy relation it later supports."
   ],
   "citations": ["ap-17-891"],
   "readings": {

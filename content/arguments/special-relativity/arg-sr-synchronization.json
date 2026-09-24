@@ -9,12 +9,12 @@
   "recap": "To set a distant clock, send light to it and back, and give the moment of reflection the time halfway between sending and receiving. That rule defines the time of a distant event; it is not the moment its image arrives.",
   "review": "draft",
   "premises": [
-    "The clocks and endpoints are at rest in one inertial frame.",
-    "The light-based convention assigns equal outward and return travel times."
+    "The clocks and the endpoints are at rest in one inertial frame.",
+    "The rule assumes light takes as long to go as to come back."
   ],
   "limitations": [
-    "One round-trip clock reading alone does not independently measure both one-way travel times.",
-    "Synchronizing clocks is distinct from moving them or changing their rates."
+    "A round trip read on one clock cannot measure the two one-way times separately.",
+    "Setting clocks does not move them or change their rates."
   ],
   "citations": ["ap-17-891"],
   "readings": {

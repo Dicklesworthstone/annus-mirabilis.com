@@ -9,12 +9,12 @@
   "recap": "A clock moving at constant speed runs slow: between two of its ticks, less time passes on it than on the resting clocks it passes. A moving rod, with both ends marked at the same time, is shorter than at rest. Both are results of measurement, not of how things look in a photograph.",
   "review": "draft",
   "premises": [
-    "Use an ideal clock and inertial rod, with the appropriate event pairs.",
-    "γ uses the relative inertial speed in the specified frame."
+    "The clock is ideal and the rod rigid, both moving at constant velocity, and each measurement uses the right pair of events.",
+    "γ is computed from the relative speed of the two frames."
   ],
   "limitations": [
-    "Reciprocal moving-clock rates compare different distant-clock procedures.",
-    "A single transformed event separation is not automatically a length or clock reading."
+    "Each of two clocks in relative motion runs slow as judged from the other, because the two judgments use different distant clocks.",
+    "Transforming one pair of events does not by itself give a length or a clock reading; the pair has to be the right one."
   ],
   "citations": ["ap-17-891"],
   "readings": {

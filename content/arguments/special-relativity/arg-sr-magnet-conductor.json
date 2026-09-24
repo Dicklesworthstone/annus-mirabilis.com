@@ -9,12 +9,12 @@
   "recap": "Move the magnet past a resting conductor, or the conductor past a resting magnet: the current is the same, yet the physics of 1905 explained the two cases differently. Einstein's paper begins from that asymmetry and asks for one description that depends only on the relative motion.",
   "review": "draft",
   "premises": [
-    "Compare inertial descriptions of the same apparatus and events.",
-    "The relativity principle and light-speed postulate are stated physical assumptions."
+    "Both descriptions concern the same apparatus and the same events, seen from two inertial frames.",
+    "The principle of relativity and the constancy of the speed of light are assumptions, and stated as such."
   ],
   "limitations": [
-    "A simulator cannot prove its own postulates.",
-    "The restricted dipole-and-conductor model does not cover every induction experiment."
+    "A simulation built on the postulates cannot prove them.",
+    "The model of a magnet and a conductor loop does not cover every induction experiment."
   ],
   "citations": ["ap-17-891"],
   "readings": {

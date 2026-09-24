@@ -9,12 +9,12 @@
   "recap": "Two clocks that part and meet again can be compared directly, and the one that travelled shows less elapsed time. That comparison adds up each clock's whole path. Einstein's remark about a clock at the equator needs more than this model, because a real Earth has gravity.",
   "review": "draft",
   "premises": [
-    "Use ideal clocks following specified subluminal paths in flat spacetime.",
-    "The comparison fixes the departure and reunion events."
+    "The clocks are ideal, move slower than light along given paths, and gravity is absent.",
+    "Both clocks start together and meet again at named events."
   ],
   "limitations": [
-    "Real terrestrial comparisons also require gravitational effects.",
-    "Acceleration changes the path; no universal extra acceleration penalty is added to the clock formula."
+    "Comparisons on the real Earth also need gravity.",
+    "Acceleration changes the path a clock takes; it adds no extra slowing of its own to the formula."
   ],
   "citations": ["ap-17-891"],
   "readings": {

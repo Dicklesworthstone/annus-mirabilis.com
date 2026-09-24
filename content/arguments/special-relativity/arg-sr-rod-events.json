@@ -9,12 +9,12 @@
   "recap": "To measure a moving rod, mark both of its ends at the same time in your own frame. Two marks that are simultaneous in another frame are made at different times in yours, so they do not measure the rod.",
   "review": "draft",
   "premises": [
-    "The rod moves inertially along the boost axis with a fixed rest length.",
-    "Each frame uses its own synchronized clocks."
+    "The rod moves at constant velocity along the direction of motion and keeps its rest length.",
+    "Each frame reads time on its own synchronized clocks."
   ],
   "limitations": [
-    "Coordinate length is not the appearance in a photograph.",
-    "Comparing different event pairs is essential, not an optional correction."
+    "The measured length is not what a photograph of the moving rod would show.",
+    "Choosing a different pair of end events for each frame is the point of the measurement, not a correction to it."
   ],
   "citations": ["ap-17-891"],
   "readings": {

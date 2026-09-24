@@ -9,12 +9,12 @@
   "recap": "A velocity is a distance divided by a time, and both change between frames. Transform both before dividing, and two speeds below c combine to a speed that is still below c, while light stays at c.",
   "review": "draft",
   "premises": [
-    "Use the same two neighboring events on a particle’s trajectory.",
-    "Frames are inertial and the boost is along x."
+    "The velocity comes from two neighbouring events on the object’s path.",
+    "The frames move at constant velocity relative to each other, along x."
   ],
   "limitations": [
-    "The plus-sign composition formula and a passive frame change have different stated directions.",
-    "Non-collinear boosts generally include a rotation, not only another aligned boost."
+    "The plus-sign formula for combining speeds and the minus-sign change of frame run in opposite directions.",
+    "Two boosts in different directions combine into a boost and a rotation."
   ],
   "citations": ["ap-17-891"],
   "readings": {

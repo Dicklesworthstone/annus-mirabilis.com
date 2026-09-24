@@ -9,12 +9,12 @@
   "recap": "Rewriting the phase of a light wave in the moving observer’s coordinates gives the new frequency and the new direction in one step. At 0.6c, light travelling the same way as the observer has half its frequency in the new frame; light that crosses the motion at right angles in the original frame has 1.25 times its frequency.",
   "review": "draft",
   "premises": [
-    "Use a vacuum plane wave and corresponding events under an inertial Lorentz map.",
-    "The angle is between the unprimed propagation direction and positive boost axis."
+    "The light is a plane wave in empty space, and both observers describe the same events.",
+    "The angle φ is measured in the original frame, between the direction of the light and the direction of motion."
   ],
   "limitations": [
-    "Transverse in one frame need not mean transverse in the other.",
-    "No inertial observer reaches light speed."
+    "Light that crosses the motion at right angles in one frame does not, in general, do so in the other.",
+    "No observer can move at the speed of light, so the formulas’ limit at v = c describes no frame."
   ],
   "citations": ["ap-17-891"],
   "readings": {

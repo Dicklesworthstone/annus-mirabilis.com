@@ -9,12 +9,12 @@
   "recap": "For an observer moving along x, the field components along x stay the same, and the electric and magnetic components across the motion mix into each other. Where one observer finds only a magnetic field, the other can find an electric one.",
   "review": "draft",
   "premises": [
-    "Use vacuum SI fields and a boost of speed v along positive x.",
-    "Compare forces at corresponding events with transformed particle velocity."
+    "Fields are in SI units in empty space, and the new observer moves at speed v along positive x.",
+    "Forces are compared at the same event, with the charge’s velocity transformed too."
   ],
   "limitations": [
-    "A charge’s momentary rest frame is not one global frame for an accelerated path.",
-    "Fields, forces, and electromotive quantities need their own transformation laws."
+    "An accelerating charge has a different momentary rest frame at each instant, not one frame for its whole path.",
+    "Fields, forces and electromotive force each transform by their own rule."
   ],
   "citations": ["ap-17-891"],
   "readings": {

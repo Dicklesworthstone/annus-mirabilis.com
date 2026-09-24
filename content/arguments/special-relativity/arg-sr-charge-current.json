@@ -9,12 +9,12 @@
   "recap": "Charge density and the current along the motion mix when the frame changes, so a wire that is neutral while it carries a current has a charge density in a frame moving along it. There is no single charge velocity to find by dividing current by charge density: in a neutral wire that ratio divides by zero.",
   "review": "draft",
   "premises": [
-    "Use a physical charge-current distribution and a boost along x.",
-    "Track the same isolated body when comparing its total charge."
+    "Charge and current are spread through a real body, and the new observer moves along x.",
+    "When total charge is compared between frames, it is the charge of the same isolated body."
   ],
   "limitations": [
-    "Charge density is not total charge.",
-    "A neutral two-species current need not have a single common velocity."
+    "Charge density is not total charge: a density can change between frames while the body’s charge stays fixed.",
+    "In a neutral wire the positive and negative charges move at different speeds, so there is no single velocity of the charge."
   ],
   "citations": ["ap-17-891"],
   "readings": {

@@ -9,12 +9,12 @@
   "recap": "Light along the motion says nothing about lengths across it. Send light across instead and require it to move at c in the moving frame too; with going there and back, that leaves the sideways coordinates unchanged: y' = y, z' = z.",
   "review": "draft",
   "premises": [
-    "Use the scale fixed in the longitudinal transformation.",
-    "Light has the same speed in all spatial directions, not only along x."
+    "The factor along the motion is already fixed at γ.",
+    "Light has the same speed in every direction, not only along x."
   ],
   "limitations": [
-    "Checking a single axial ray cannot test transverse normalization.",
-    "Matrix determinants and interval checks verify this result but do not replace its stated physical premises."
+    "Checking a ray along the motion cannot fix the sideways scale.",
+    "Checks by determinant or interval confirm the result; they do not replace the physical premises it rests on."
   ],
   "citations": ["ap-17-891"],
   "readings": {

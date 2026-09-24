@@ -9,12 +9,12 @@
   "recap": "Adding up the work of the force along the motion, from rest to speed v, gives the electron’s kinetic energy, mc²(γ − 1). Einstein then gives two more relations a laboratory can test: the voltage that accelerates the electron, and how sharply electric and magnetic fields bend its path.",
   "review": "draft",
   "premises": [
-    "Use invariant mass m, subluminal speed, and the stated force convention.",
-    "For the voltage relation, the particle begins at rest and field work becomes kinetic energy."
+    "The electron has a fixed mass m and moves slower than light, and force is defined as stated.",
+    "For the voltage relation, the electron starts at rest and all the work of the field becomes its energy of motion."
   ],
   "limitations": [
-    "The ideal treatment excludes radiation loss and material interactions.",
-    "A kinetic-energy expression alone does not derive the September statement about changing rest energy."
+    "Losses by radiation and interactions with matter are left out.",
+    "The kinetic energy formula alone does not give the September paper’s result that a body’s mass changes with its energy."
   ],
   "citations": ["ap-17-891"],
   "readings": {

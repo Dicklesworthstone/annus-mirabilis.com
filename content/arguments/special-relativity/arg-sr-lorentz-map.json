@@ -9,13 +9,13 @@
   "recap": "Ask for a linear map that keeps light at speed c in both directions along the motion, and space and time must mix. One overall factor is left over; going there and back, and the symmetry of space, fix it at gamma.",
   "review": "draft",
   "premises": [
-    "Use aligned inertial axes and coincident origins at zero time.",
-    "Assume homogeneous space and time so the coordinate map is linear.",
-    "Use the postulates together with reciprocity, spatial isotropy, and continuity at zero speed."
+    "The two frames’ axes are parallel, and their origins coincide at time zero.",
+    "Space and time are the same everywhere, so the map between coordinates is linear.",
+    "The two postulates hold, together with going there and back, the symmetry of space, and continuity at zero speed."
   ],
   "limitations": [
-    "Preserving a light ray alone does not uniquely fix all transformation coefficients.",
-    "A spacetime interval or matrix is a later verification aid, not an unannounced 1905 premise."
+    "Keeping one light ray at speed c does not fix every coefficient of the map.",
+    "The spacetime interval and matrices check the result later; the 1905 argument does not assume them."
   ],
   "citations": ["ap-17-891"],
   "readings": {
