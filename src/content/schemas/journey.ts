@@ -225,18 +225,12 @@ export type PpeTask = Readonly<{
   explainPrompt: string;
 }>;
 
-export type Door = Readonly<{
-  id: string;
-  title: string;
-  arrivesAtEquationId: string;
-  entryRecordId?: string | undefined;
-  /** Where the door opens: a page or an instrument. A door a reader cannot open is only a label. */
-  href?: string | undefined;
-  /** What the reader already owns that the door starts from, in a sentence. */
-  summary?: string | undefined;
-  /** The equation it arrives at, as a reader names it; the id is for the build. */
-  arrivesAtLabel?: string | undefined;
-}>;
+export interface Door extends DoorLink {
+  readonly id: string;
+  readonly title: string;
+  readonly arrivesAtEquationId: string;
+  readonly entryRecordId?: string | undefined;
+}
 
 export type Doors = Readonly<{
   frontDoor: Door;
@@ -1027,3 +1021,17 @@ export function validateJourney(raw: unknown, path = "journey"): Journey {
     doors,
   };
 }
+
+/**
+ * A door's reader-facing half. It is declared here, apart from Door, so that adding it moved no
+ * line above: journey.test.ts cites this file's refusal sites by line, and the stale-citation
+ * ratchet (am-ksl3) holds each citation to the line it was checked at.
+ */
+export type DoorLink = Readonly<{
+  /** Where the door opens: a page or an instrument. A door a reader cannot open is only a label. */
+  href?: string | undefined;
+  /** What the reader already owns that the door starts from, in a sentence. */
+  summary?: string | undefined;
+  /** The equation it arrives at, as a reader names it; the id is for the build. */
+  arrivesAtLabel?: string | undefined;
+}>;
