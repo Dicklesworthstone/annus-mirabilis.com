@@ -15,7 +15,7 @@ import { exportMarkup } from "./exportMarkup.ts";
  * only shrink. Embed an instrument and remove it here in the same change; a new manifest that
  * claims embeddable without an embed fails.
  */
-const NOT_YET_EMBEDDED = ["bm-05", "bm-07", "bm-08", "sr-06", "sr-07"];
+const NOT_YET_EMBEDDED: string[] = [];
 
 const MANIFESTS = fileURLToPath(new URL("../../content/experiments", import.meta.url));
 
