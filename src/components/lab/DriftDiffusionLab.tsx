@@ -5,13 +5,17 @@ import { BM04_FIELDS, fromBm04Draft, toBm04Draft } from "../../experiments/bm04/
 import { bm04DataCsv } from "../../experiments/bm04/dataExport.ts";
 import {
   BM04_CAPTION,
-  BM04_MODEL,
+  BM04_OUTPUTS,
   BM04_PRESETS,
   BM04_PROMPT,
   type Bm04Parameters,
 } from "../../experiments/bm04/definition.ts";
 import { decodeBm04Settings, encodeBm04Settings } from "../../experiments/bm04/permalink.ts";
 import { createBm04Session, type PreparedBm04Example } from "../../experiments/bm04/session.ts";
+import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
+import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import {
   DensityProfilePlot,
   FluxBalancePlot,
@@ -188,6 +192,16 @@ export function DriftDiffusionLab({
   const cells = p.cells;
   const dx = (p.W * 1e6) / cells;
 
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      BM04_OUTPUTS,
+      example.sourceDigest,
+      snapshot === session.getServerSnapshot().accepted,
+    ).label,
+  );
   return (
     <section
       className="laboratory"
@@ -197,7 +211,7 @@ export function DriftDiffusionLab({
       data-input-revision={view.requested?.revisions.input ?? 1}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, view, "densityProfile")}
       data-source-digest={example.sourceDigest}
       data-result-status={primaryResult.status}
       {...(view.refusal ? { "data-refusal-code": view.refusal.code } : {})}
@@ -207,8 +221,10 @@ export function DriftDiffusionLab({
           <p className="eyebrow">An executable model</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <span className="badge">{BM04_MODEL.label}</span>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome state={executionKind} view={view} />
+      </div>
 
       <noscript>
         <p className="notice">
