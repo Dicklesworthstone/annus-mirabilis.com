@@ -10,6 +10,8 @@ import WebKit
 final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
     /// Called for every accepted `route.changed`: route, anchor, title.
     var onRoute: ((String, String?, String) -> Void)?
+    /// Called for an accepted `share.request`; the schema has already checked the URL is a page of the website.
+    var onShare: ((URL) -> Void)?
     /// Called for every accepted `settings.changed` that names the page's theme.
     var onTheme: ((String) -> Void)?
 
@@ -60,31 +62,44 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
         }
     }
 
+    private static let okay: [String: Any] = ["status": "ok"]
+    /// Accepted by the schema, not yet served by this build: said plainly, never faked.
+    private static let unavailable: [String: Any] = ["status": "unavailable"]
+
     private func handle(_ message: BridgeMessage) -> [String: Any] {
+        let body = message.body
         switch message.type {
         case "hello":
             return ["status": "ok", "value": ["bridgeVersion": BridgeProtocol.version, "capabilities": capabilities]]
+        case "share.request":
+            return share(body)
         case "settings.changed":
-            if case .string(let theme) = message.body["theme"] { onTheme?(theme) }
-            return ["status": "ok"]
+            if let theme = Self.string(body, "theme") { onTheme?(theme) }
+            return Self.okay
         case "route.changed":
-            var route = ""
-            var anchor: String?
-            var title = ""
-            if case .string(let text) = message.body["route"] { route = text }
-            if case .string(let text) = message.body["anchor"] { anchor = text }
-            if case .string(let text) = message.body["title"] { title = text }
-            onRoute?(route, anchor, title)
-            return ["status": "ok"]
+            onRoute?(Self.string(body, "route") ?? "", Self.string(body, "anchor"), Self.string(body, "title") ?? "")
+            return Self.okay
         #if DEBUG
             case "test.log":
-                if case .string(let text) = message.body["message"] { print("edition: \(text)") }
-                return ["status": "ok"]
+                print("edition: \(Self.string(body, "message") ?? "")")
+                return Self.okay
         #endif
         default:
-            // Accepted by the schema, not yet served by this build: said plainly, never faked.
-            return ["status": "unavailable"]
+            return Self.unavailable
         }
+    }
+
+    private func share(_ body: [String: JSONValue]) -> [String: Any] {
+        guard let text = Self.string(body, "url"), let url = URL(string: text), let onShare else {
+            return Self.unavailable
+        }
+        onShare(url)
+        return Self.okay
+    }
+
+    private static func string(_ body: [String: JSONValue], _ key: String) -> String? {
+        if case .string(let text) = body[key] { return text }
+        return nil
     }
 }
 

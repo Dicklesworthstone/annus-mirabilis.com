@@ -65,6 +65,11 @@ struct RootView: View {
                             .padding(.trailing, 16)
                             .padding(.bottom, 12)
                     }
+                    .overlay(alignment: .topLeading) {
+                        #if DEBUG
+                            if session.exposesRouteForTests { DebugPasteboardProbe() }
+                        #endif
+                    }
                     .onChange(of: scenePhase, initial: true) { _, phase in
                         if phase == .active { session.handoff.becomeCurrent() }
                     }
@@ -110,3 +115,23 @@ struct EditionUnavailableView: View {
         .accessibilityIdentifier("edition-unavailable")
     }
 }
+
+#if DEBUG
+    /// UI tests only: the app's own pasteboard text, on a nearly invisible element,
+    /// so a test can check what a copy placed there. Read from inside the app, the
+    /// pasteboard raises no paste prompt; read from the test runner, it does.
+    private struct DebugPasteboardProbe: View {
+        @State private var text = ""
+
+        var body: some View {
+            Text(text.isEmpty ? "empty" : text)
+                .font(.system(size: 1))
+                .frame(width: 1, height: 1)
+                .opacity(0.02)
+                .accessibilityIdentifier("debug-pasteboard")
+                .onReceive(NotificationCenter.default.publisher(for: UIPasteboard.changedNotification)) { _ in
+                    text = UIPasteboard.general.string ?? ""
+                }
+        }
+    }
+#endif

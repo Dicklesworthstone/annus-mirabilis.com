@@ -27,7 +27,8 @@ final class EditionSession {
     @ObservationIgnored private let store: ReaderLocationStore
     @ObservationIgnored private let navigator: EditionNavigator
     @ObservationIgnored private let router: BridgeRouter
-    @ObservationIgnored private let exposesRouteForTests: Bool
+    /// DEBUG UI tests only: the route, and the pasteboard, are exposed for assertions.
+    let exposesRouteForTests: Bool
     @ObservationIgnored private var observations: [NSKeyValueObservation] = []
 
     /// `ephemeralWebStorage` gives the page a non-persistent WebKit store. UI tests use it
@@ -53,6 +54,9 @@ final class EditionSession {
         handoff.isEligibleForSearch = false
         handoff.isEligibleForPublicIndexing = false
         webView.userActivity = handoff
+        router.onShare = { [weak self] url in
+            self?.presentShareSheet(for: url)
+        }
         router.onTheme = { [weak self] theme in
             self?.didReceiveTheme(theme)
         }
@@ -116,6 +120,20 @@ final class EditionSession {
         if exposesRouteForTests {
             webView.accessibilityValue = bridgeRoute
         }
+    }
+
+    /// The share sheet for a page of the website, when the page asks for one
+    /// (`share.request`). The page-actions menu shares through SwiftUI's ShareLink.
+    func presentShareSheet(for url: URL) {
+        guard var presenter = webView.window?.rootViewController else { return }
+        while let next = presenter.presentedViewController {
+            presenter = next
+        }
+        let sheet = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        sheet.popoverPresentationController?.sourceView = webView
+        sheet.popoverPresentationController?.sourceRect = CGRect(
+            x: webView.bounds.midX, y: webView.bounds.midY, width: 1, height: 1)
+        presenter.present(sheet, animated: true)
     }
 
     /// Print, or save as PDF, the page as the edition's print styles set it.
