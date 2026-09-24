@@ -300,9 +300,10 @@ export default function MassEnergyRoute() {
         <p className="step-number">06 / Check it against the world</p>
         <h2>Where the paper says to look</h2>
         <p>
-          The result has two things in it you can set: the energy that leaves, and the boundary
-          around what you are weighing. Let an energy leave the ledger below, move the boundary, and
-          read the mass that goes with it.
+          What the result says depends on what you weigh. In the ledger below one joule of light
+          leaves a body: draw the boundary around the body alone, around the light, or around both,
+          and read the mass that goes with it. Its cards put the same rule to radium, the Sun, coal,
+          a candle and a year of a light bulb.
         </p>
         <MassEnergyWorldCheck
           example={ledgerExample}

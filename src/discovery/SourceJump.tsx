@@ -47,7 +47,7 @@ export function SourceJump({ jump }: SourceJumpProps) {
             fontWeight: "bold",
           }}
         >
-          Source bridge · Where the move appears in 1905
+          In the 1905 paper
         </span>
         {weavePredicateId && (
           <span

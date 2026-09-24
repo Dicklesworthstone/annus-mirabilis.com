@@ -88,7 +88,7 @@ export default function TwoLedgersPage() {
           latex={String.raw`\begin{gathered}H_0 = H_1 + \gamma L \\ \implies H_0 - H_1 = \gamma L\end{gathered}`}
         />
 
-        <h2>The subtraction move: eliminating the unknown internal energies</h2>
+        <h2>The subtraction: removing the unknown internal energies</h2>
         <p>
           Neither <var>E₀</var> nor <var>H₀</var> is known. But subtracting the stationary-system
           balance from the moving-system balance completely eliminates the body&apos;s unknown

@@ -102,9 +102,9 @@ export function MassEnergyWorldCheck({
         </>
       )}
       <p className="fine">
-        An ideal model computed here, with today&rsquo;s speed of light. Divide the energy in erg by
-        9·10<sup>20</sup> and set it beside the mass in grams. Change the energy or move the
-        boundary in the ledger and apply it, and these numbers follow.
+        An ideal model computed here, with today&rsquo;s speed of light, for the one joule the
+        ledger lets leave. Divide the energy in erg by 9·10<sup>20</sup> and set it beside the mass
+        in grams. Move the boundary or choose a setup in the ledger, and these numbers follow.
       </p>
     </div>
   );

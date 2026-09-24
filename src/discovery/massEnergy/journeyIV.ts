@@ -193,7 +193,7 @@ export const SOURCE_JUMPS: readonly SourceJump[] = [
     section: "",
     targetAnchor: "arg-me-two-ledgers",
     pointer:
-      "The move: the paper writes the body's energy before and after the emission in two frames, and uses the June paper's rule for the energy of the light in each.",
+      "The two accounts: the paper writes the body's energy before and after the emission in two frames, and uses the June paper's rule for the energy of the light in each.",
   },
   {
     id: "jump-me-subtraction",
@@ -235,7 +235,7 @@ export const PPE_TASK: PpeTask = {
 export const WORLD_CHECK: WorldCheck = {
   id: "me-world-check-mass",
   claim:
-    "The paper ends with a number and a suggestion. A change of energy L changes the mass by L/9·10²⁰, with the energy in erg and the mass in grams, and bodies whose energy content changes a great deal, radium salts for instance, might test it. Let an energy leave in the ledger below and read the mass that goes with it.",
+    "The paper ends with a number and a suggestion. A change of energy L changes the mass by L/9·10²⁰, with the energy in erg and the mass in grams, and bodies whose energy content changes a great deal, radium salts for instance, might test it. The ledger below lets one joule of light leave a body. Move its boundary and read the mass that goes with it.",
   instrumentId: "me-03",
   quantityId: "massChange",
   expected: "L/9·10²⁰ grams for an energy L in erg",

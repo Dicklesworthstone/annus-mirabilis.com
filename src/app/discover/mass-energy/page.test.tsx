@@ -148,6 +148,18 @@ describe("the route carries the discovery skeleton", () => {
     );
   });
 
+  test("the page calls one step the move, and it is the marker's", () => {
+    // TanElk, 2026-09-24: one step on the site carries the word, the identification. On live
+    // c1e80b4b this page said it five times: step 03, the marker, and every source jump's eyebrow.
+    const said = text(html).match(/\bthe move\b/gi) ?? [];
+    expect(said.length).toBe(1);
+    const marker = html.slice(
+      at("data-move-marker"),
+      html.indexOf("</aside>", at("data-move-marker")),
+    );
+    expect(text(marker)).toContain("The move");
+  });
+
   test("the move's summary passes the framework's guard and stays a draft", () => {
     const result = checkMoveSummary(MOVE.r0Summary.text);
     expect(result.issues).toEqual([]);
