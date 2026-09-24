@@ -66,7 +66,7 @@ export default function TwoLedgersPage() {
           <var>&phi; + 180&deg;</var>). Conservation of energy in the stationary frame requires:
         </p>
         <Formula
-          latex={String.raw`\begin{aligned}E_0 &= E_1 + \frac{1}{2}L + \frac{1}{2}L \\ &= E_1 + L \implies E_0 - E_1 \\ &= L\end{aligned}`}
+          latex={String.raw`\begin{gathered}E_0 = E_1 + \frac{1}{2}L + \frac{1}{2}L = E_1 + L \\ \implies E_0 - E_1 = L\end{gathered}`}
         />
         <p>
           Now consider the same physical event as measured by an observer moving at speed{" "}
@@ -74,7 +74,7 @@ export default function TwoLedgersPage() {
           pulses have energies:
         </p>
         <Formula
-          latex={String.raw`\begin{aligned}\text{Pulse 1} &= \frac{1}{2}L\,\gamma\,(1 - \beta\cos\varphi), \qquad \text{Pulse 2} \\ &= \frac{1}{2}L\,\gamma\,(1 + \beta\cos\varphi)\end{aligned}`}
+          latex={String.raw`\begin{gathered}\text{Pulse 1} = \frac{1}{2}L\,\gamma\,(1 - \beta\cos\varphi), \\ \text{Pulse 2} = \frac{1}{2}L\,\gamma\,(1 + \beta\cos\varphi)\end{gathered}`}
         />
         <p>
           When the two pulse energies are added together, the angle terms{" "}
@@ -85,7 +85,7 @@ export default function TwoLedgersPage() {
         />
         <p>Energy conservation in the moving frame therefore gives:</p>
         <Formula
-          latex={String.raw`\begin{aligned}H_0 &= H_1 + \gamma L \implies H_0 - H_1 \\ &= \gamma L\end{aligned}`}
+          latex={String.raw`\begin{gathered}H_0 = H_1 + \gamma L \\ \implies H_0 - H_1 = \gamma L\end{gathered}`}
         />
 
         <h2>The subtraction move: eliminating the unknown internal energies</h2>

@@ -42,7 +42,7 @@ export default function BrownianLabPage() {
       <section className="reading" id="model">
         <h2>The relationship behind the instrument</h2>
         <Formula
-          latex={String.raw`\begin{aligned}D &= \frac{k_B T}{6\pi\eta a}, \qquad \langle x^2\rangle \\ &= 2Dt, \qquad \lambda_x \\ &= \sqrt{2Dt}\end{aligned}`}
+          latex={String.raw`\begin{gathered}D = \frac{k_B T}{6\pi\eta a}, \\ \langle x^2\rangle = 2Dt, \\ \lambda_x = \sqrt{2Dt}\end{gathered}`}
         />
         <p>
           Temperature is <var>T</var>, viscosity is <var>η</var>, particle radius is <var>a</var>,
@@ -57,7 +57,7 @@ export default function BrownianLabPage() {
           from the area under that curve.
         </p>
         <Formula
-          latex={String.raw`\begin{aligned}& p(x,t) \\ &\qquad = \frac{1}{\sqrt{4\pi Dt}}\exp\!\left(-\frac{x^2}{4Dt}\right)\quad (D>0,\ t>0)\end{aligned}`}
+          latex={String.raw`\begin{gathered}p(x,t)=\frac{1}{\sqrt{4\pi Dt}}\exp\!\left(-\frac{x^2}{4Dt}\right) \\ (D>0,\ t>0)\end{gathered}`}
         />
         <p>
           At the starting time there is a point distribution, not a finite density curve. The

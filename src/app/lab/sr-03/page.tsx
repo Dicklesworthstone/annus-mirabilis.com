@@ -61,7 +61,7 @@ export default function RodSimultaneityPage() {
           speed <InlineFormula latex="c + v" />:
         </p>
         <Formula
-          latex={String.raw`\begin{aligned}t_B - t_A &= \frac{r_{AB}}{c - v}, \qquad t'_A - t_B \\ &= \frac{r_{AB}}{c + v}\end{aligned}`}
+          latex={String.raw`\begin{gathered}t_B - t_A = \frac{r_{AB}}{c - v}, \\ t'_A - t_B = \frac{r_{AB}}{c + v}\end{gathered}`}
         />
         <p>
           The two times differ, <InlineFormula latex="t_B - t_A \neq t'_A - t_B" />. So observers

@@ -53,7 +53,7 @@ export default function LightComplexPage() {
           front, the volume of the complex in k transforms as:
         </p>
         <Formula
-          latex={String.raw`\begin{aligned}\frac{V'}{V} &= \frac{1}{q} \\ &= \frac{\sqrt{1 - \beta^2}}{1 - \beta\cos\varphi} \\ &= \frac{1}{0.5} \\ &= 2.0\implies V' \\ &= 2.0\text{ m}^3\end{aligned}`}
+          latex={String.raw`\begin{gathered}\frac{V'}{V} = \frac{1}{q} = \frac{\sqrt{1 - \beta^2}}{1 - \beta\cos\varphi} = \frac{1}{0.5} = 2.0 \\ \implies V' = 2.0\text{ m}^3\end{gathered}`}
         />
         <p>
           Meanwhile, the energy density transforms with the square of the amplitude ratio,{" "}

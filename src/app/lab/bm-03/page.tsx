@@ -55,7 +55,7 @@ export default function ConfigurationPage() {
           contribute a clean volume factor <InlineFormula latex="V^{N_p}" />.
         </p>
         <Formula
-          latex={String.raw`\begin{aligned}B &= \int\cdots\int dx_1\dots dz_n \\ &= V^{*n}J,\qquad F \\ &= -2\kappa T\lg B \\ &= -2\kappa Tn\lg V^*-2\kappa T\lg J+\text{const}\end{aligned}`}
+          latex={String.raw`\begin{gathered}B=\int\cdots\int dx_1\dots dz_n=V^{*n}J, \\ \begin{aligned}F &= -2\kappa T\lg B \\ &= -2\kappa Tn\lg V^*-2\kappa T\lg J+\text{const}\end{aligned}\end{gathered}`}
         />
         <p>
           In modern notation, <InlineFormula latex={String.raw`2\kappa N = R`} /> gives{" "}

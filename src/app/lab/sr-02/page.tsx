@@ -47,7 +47,7 @@ export default function MagnetConductorPage() {
           electromotive forces is exactly γ.
         </p>
         <Formula
-          latex={String.raw`\begin{aligned}\mathcal{E} &= vB\ell,\qquad \mathcal{E}' \\ &= \gamma vB\ell,\qquad \mathbf{E}'_\perp \\ &= \gamma(\mathbf{v}\times\mathbf{B})_\perp\end{aligned}`}
+          latex={String.raw`\begin{gathered}\mathcal{E}=vB\ell, \\ \mathcal{E}'=\gamma vB\ell, \\ \mathbf{E}'_\perp=\gamma(\mathbf{v}\times\mathbf{B})_\perp\end{gathered}`}
         />
         <p>
           At 10 m/s with B = 1 T and ℓ = 0.1 m the magnet-frame value is 1 V. The excess γ − 1 is

@@ -50,14 +50,14 @@ export default function WalkPage() {
           individual squared steps remain.
         </p>
         <Formula
-          latex={String.raw`\begin{aligned}x_n &= \sum_{j=1}^{n}\Delta_j,\qquad \langle\Delta\rangle \\ &= 0,\qquad \langle x_n^2\rangle \\ &= n\langle\Delta^2\rangle\end{aligned}`}
+          latex={String.raw`\begin{gathered}x_n=\sum_{j=1}^{n}\Delta_j, \\ \langle\Delta\rangle=0, \\ \langle x_n^2\rangle=n\langle\Delta^2\rangle\end{gathered}`}
         />
         <p>
           With one step every τ seconds, elapsed time is nτ. The coefficient connecting mean square
           with time is therefore fixed by the variance of one step divided by twice its interval.
         </p>
         <Formula
-          latex={String.raw`\begin{aligned}D &= \frac{\langle\Delta^2\rangle}{2\tau},\qquad \langle x^2\rangle \\ &= 2Dt,\qquad \sqrt{\langle x^2\rangle}\propto\sqrt{t}\end{aligned}`}
+          latex={String.raw`\begin{gathered}D=\frac{\langle\Delta^2\rangle}{2\tau}, \\ \langle x^2\rangle=2Dt, \\ \sqrt{\langle x^2\rangle}\propto\sqrt{t}\end{gathered}`}
         />
         <h2>From a finite jump to a continuous density</h2>
         <p>

@@ -58,7 +58,7 @@ export default function ChargeCurrentPage() {
           (c&rho;)&sup2; &minus; |J|&sup2;:
         </p>
         <Formula
-          latex={String.raw`\begin{aligned}(c\rho)^2 - J_x^2 &= 0 - 1 \\ &= -1\text{ (A/m}^2)^2,\qquad (c\rho')^2 - (J'_x)^2 \\ &= (-0.75)^2 - (1.25)^2 \\ &= 0.5625 - 1.5625 \\ &= -1\text{ (A/m}^2)^2\end{aligned}`}
+          latex={String.raw`\begin{gathered}(c\rho)^2 - J_x^2 = 0 - 1 = -1\text{ (A/m}^2)^2, \\ \begin{aligned}(c\rho')^2 - (J'_x)^2 &= (-0.75)^2 - (1.25)^2 \\ &= 0.5625 - 1.5625 \\ &= -1\text{ (A/m}^2)^2\end{aligned}\end{gathered}`}
         />
         <p>
           For a rectangular current loop of length l<sub>x</sub> = 1 m carrying current I = 1 A at

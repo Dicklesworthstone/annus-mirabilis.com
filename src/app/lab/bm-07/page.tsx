@@ -46,7 +46,7 @@ export default function InferencePage() {
           time interval. The result estimates the diffusion coefficient.
         </p>
         <Formula
-          latex={String.raw`\begin{aligned}\widehat D &= \frac{1}{2dM\Delta t}\sum_{i=1}^{M}\lVert\Delta\mathbf r_i\rVert^2,\qquad q \\ &= dM\end{aligned}`}
+          latex={String.raw`\begin{gathered}\widehat D=\frac{1}{2dM\Delta t}\sum_{i=1}^{M}\lVert\Delta\mathbf r_i\rVert^2, \\ q=dM\end{gathered}`}
         />
         <p>
           When drift is fitted from the same observations, subtract the mean increment in each
