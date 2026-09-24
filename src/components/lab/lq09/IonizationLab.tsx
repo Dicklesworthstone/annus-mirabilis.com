@@ -30,48 +30,16 @@ import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { IonizationCountingPlot, IonizationThresholdLadderPlot } from "./IonizationPlot.tsx";
 import "./ionizationLab.css";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
 
 export type IonizationLabProps = Readonly<{
   example?: PreparedLq09Example | undefined;
 }>;
 
-type PredictPrompt = Readonly<{
-  id: string;
-  question: string;
-  options: readonly string[];
-  explanation: string;
-}>;
-
-/**
- * Two predictions. The answer is revealed after a choice and reads the same whichever option
- * was chosen: a prediction is a starting point, never a score.
- */
-const PREDICT_PROMPTS: readonly PredictPrompt[] = [
-  {
-    id: "sub-threshold",
-    question:
-      "A quantum's energy hν is below the energy J needed to ionize one molecule. How many molecules does the light ionize, one quantum at a time?",
-    options: [
-      "Some, if the light is concentrated to a high intensity.",
-      "None, however bright the light.",
-      "Some, once a molecule has absorbed enough energy gradually.",
-    ],
-    explanation:
-      "In Einstein's §9 hypothesis each ionization is one elementary process needing at least one quantum with hν ≥ J. Below that, no single quantum ionizes, whatever the intensity.",
-  },
-  {
-    id: "power-doubling",
-    question:
-      "Double the light's power at the same frequency. What happens to the number of molecules ionized?",
-    options: [
-      "It stays the same, because each quantum's energy is unchanged.",
-      "It grows fourfold, as the square of the power.",
-      "It doubles.",
-    ],
-    explanation:
-      "Under the paper's hypothesis the number ionized is proportional to the light energy absorbed, j = L / (Rβν). Twice the power absorbs twice the quanta, so twice the molecules.",
-  },
-];
+// The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate. They
+// replace two prompts this file kept for itself, with their explanations now in the manifest.
+const LQ09_PROMPTS = PREDICT_PROMPTS["lq-09"] ?? [];
 
 /** Presets, named for what they set up. The parameters stay in definition.ts. */
 const PRESET_ORDER = [
@@ -166,7 +134,8 @@ export function IonizationLab({ example }: IonizationLabProps) {
       ? `${quantum}, ${fixed(excessEnergyEv, 2)} eV more than the ${fixed(currentParams.ionizationEnergyEv, 2)} eV ionization energy, so one quantum can ionize one molecule.`
       : `${quantum}, ${fixed(excessEnergyEv, 2)} eV more than the ${fixed(currentParams.ionizationEnergyEv, 2)} eV ionization energy, so molecules are ionized at ${sentenceNumber(ionizationRate)} per second.`;
 
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("lq-09", LQ09_PROMPTS);
   const [drafts, setDrafts] = useState<Partial<Record<FieldKey, string>>>({});
   const [error, setError] = useState("");
 
@@ -247,31 +216,9 @@ export function IonizationLab({ example }: IonizationLabProps) {
         </p>
       </noscript>
 
+      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <div>
-          <details className="lab-predict">
-            <summary>Predict first</summary>
-            {PREDICT_PROMPTS.map((prompt) => (
-              <fieldset key={prompt.id}>
-                <legend>{prompt.question}</legend>
-                {prompt.options.map((option, idx) => (
-                  <label key={option} className="lab-predict-candidate">
-                    <input
-                      type="radio"
-                      name={`${uid}-${prompt.id}`}
-                      checked={answers[prompt.id] === idx}
-                      onChange={() => setAnswers((a) => ({ ...a, [prompt.id]: idx }))}
-                    />
-                    <span>{option}</span>
-                  </label>
-                ))}
-                {answers[prompt.id] !== undefined && (
-                  <p className="lab-predict-reveal">{prompt.explanation}</p>
-                )}
-              </fieldset>
-            ))}
-          </details>
-
           <SliderField
             {...field("frequency")}
             unit="THz"
@@ -353,10 +300,11 @@ export function IonizationLab({ example }: IonizationLabProps) {
           <AcceptedStatus
             worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
             summary={statusSummary}
+            response={gate.response}
           />
         </div>
 
-        <div className="lab-results">
+        <div className="lab-results" {...gate.response}>
           <div className="lq09-plots">
             <IonizationThresholdLadderPlot
               frequency={currentParams.frequency}

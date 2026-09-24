@@ -38,6 +38,7 @@ import {
   removeContainer,
   uninstallDom,
 } from "../../testing/reactDom.ts";
+import { IonizationLab } from "./lq09/IonizationLab.tsx";
 import { TwoLedgersLab } from "./me01/TwoLedgersLab.tsx";
 import { presentedOrder } from "./PredictGate.tsx";
 import { ClockSyncLab } from "./sr01/ClockSyncLab.tsx";
@@ -59,7 +60,8 @@ import { ElectronDynamicsLab } from "./sr13/ElectronDynamicsLab.tsx";
  * sets. Each row names a lab and a piece of its result's text, which the server markup must carry.
  */
 const LABS: readonly (readonly [string, () => ReactElement, string, boolean])[] = [
-  // ME-01 and SR-01 have no ?tape= link yet: their bindings wait in a worktree (dispatch 145).
+  ["lq-09", () => createElement(IonizationLab, {}), "Values at these settings", false],
+  // LQ-09, ME-01 and SR-01 have no ?tape= link yet: their bindings wait in a worktree (dispatch 145).
   [
     "me-01",
     () => createElement(TwoLedgersLab, { example: ME01_EXAMPLE }),

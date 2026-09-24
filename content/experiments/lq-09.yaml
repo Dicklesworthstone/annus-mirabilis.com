@@ -325,34 +325,36 @@ predictMode:
     - promptId: lq-09-predict-subthreshold
       supportedCandidateId: lq-09-predict-subthreshold-zero
       controlId: frequency
-      question: "If the incident photon energy is below the molecular ionization threshold (h*nu < J_mol), what is the single-quantum ionization rate?"
+      question: "A quantum's energy hν is below the energy J needed to ionize one molecule. How many molecules does the light ionize, one quantum at a time?"
+      explanation: "In Einstein's §9 hypothesis each ionization is one elementary process needing at least one quantum with hν ≥ J. Below that, no single quantum ionizes, whatever the intensity."
       candidates:
         - id: lq-09-predict-subthreshold-zero
-          label: "Zero (not applicable)"
+          label: "None, however bright the light."
           description: "No single-quantum ionization can occur without sufficient energy per quantum"
           separatingAssumption: "Light-quantum hypothesis: each ionization event requires at least one full quantum of magnitude h*nu >= J_mol."
         - id: lq-09-predict-subthreshold-accumulate
-          label: "Ions form after a delay"
+          label: "Some, once a molecule has absorbed enough energy gradually."
           description: "Gas molecules accumulate energy gradually from continuous wave absorption"
-          separatingAssumption: "Classical continuous wave absorption assumption."
+          separatingAssumption: "This assumes a molecule can gather energy from the light gradually, as from a continuous wave, rather than one quantum at a time."
         - id: lq-09-predict-subthreshold-partial
-          label: "Reduced non-zero rate"
+          label: "Some, if the light is concentrated to a high intensity."
           description: "Sub-threshold photons still ionize some fraction of molecules"
-          separatingAssumption: "Assumes partial quantum energy transfer can induce ionization."
+          separatingAssumption: "This assumes enough light at once can make up for each quantum's shortfall. In the §9 hypothesis each ionization takes one quantum with hν ≥ J, whatever the intensity."
     - promptId: lq-09-predict-power-count
       supportedCandidateId: lq-09-predict-power-doubles
       controlId: incidentPower
       question: "Under the paper's assumption that all absorbed light ionizes, what happens to the number of ionized molecules if you double the radiant power?"
+      explanation: "Under the paper's hypothesis the number ionized is proportional to the light energy absorbed, j = L / (Rβν). Twice the power absorbs twice the quanta, so twice the molecules."
       candidates:
         - id: lq-09-predict-power-doubles
-          label: "Ion count doubles"
+          label: "It doubles."
           description: "Doubling absorbed energy L doubles the number of absorbed quanta L/(h*nu) and hence the ion count"
           separatingAssumption: "Single-quantum proportionality: j = L / (R*beta*nu)."
         - id: lq-09-predict-power-unchanged
-          label: "Ion count is unchanged"
+          label: "It stays the same, because each quantum's energy is unchanged."
           description: "Ionization rate is saturated"
-          separatingAssumption: "Saturation regime assumption."
+          separatingAssumption: "This treats each quantum's unchanged energy as fixing the count. Doubling the power at the same frequency doubles the number of quanta absorbed."
         - id: lq-09-predict-power-quadruples
-          label: "Ion count quadruples"
+          label: "It grows fourfold, as the square of the power."
           description: "Ionization rate scales with light intensity squared"
-          separatingAssumption: "Non-linear multi-photon absorption assumption."
+          separatingAssumption: "This assumes an ionization needs several quanta at once, so the count would grow as the square of the power. The paper assumes one quantum per ionization."
