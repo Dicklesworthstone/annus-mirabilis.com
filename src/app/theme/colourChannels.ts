@@ -65,25 +65,38 @@ export function findProjectCssFiles(root: string): string[] {
   return out.sort();
 }
 
-export function scanColourRules(cssRoot: string, repoRoot: string): ColourRule[] {
+/**
+ * The meaning-bearing colour rules in one stylesheet's text, each at the line it occupies in the
+ * file as written (am-i1zb). Comments are blanked rather than deleted, keeping every newline, so a
+ * commented-out rule is not scanned and the offsets still match the file; the line is taken from
+ * the selector's first character, not from the whitespace before it. Deleting the comments had
+ * reported .facsimile-page at line 29, inside a different rule, when it stands at line 45.
+ */
+export function colourRulesIn(css: string, file: string): ColourRule[] {
   const rules: ColourRule[] = [];
-  for (const file of findProjectCssFiles(cssRoot)) {
-    const raw = readFileSync(file, "utf8").replace(COMMENT, "");
-    for (const match of raw.matchAll(RULE)) {
-      const selector = (match[1] ?? "").trim().replace(/\s+/g, " ");
-      const body = match[2] ?? "";
-      if (!body.includes(`var(${MEANING_BEARING_TOKEN})`)) continue;
-      if (!COLOUR_PROPERTIES.test(body)) continue;
-      rules.push({
-        file: file.slice(repoRoot.length + 1),
-        line: raw.slice(0, match.index).split("\n").length,
-        selector,
-        body: body.trim().replace(/\s+/g, " "),
-        hasInlineChannel: NON_COLOUR_CHANNEL.test(body),
-      });
-    }
+  const text = css.replace(COMMENT, (comment) => comment.replace(/[^\n]/g, " "));
+  for (const match of text.matchAll(RULE)) {
+    const prelude = match[1] ?? "";
+    const selector = prelude.trim().replace(/\s+/g, " ");
+    const body = match[2] ?? "";
+    if (!body.includes(`var(${MEANING_BEARING_TOKEN})`)) continue;
+    if (!COLOUR_PROPERTIES.test(body)) continue;
+    const start = (match.index ?? 0) + (prelude.length - prelude.trimStart().length);
+    rules.push({
+      file,
+      line: text.slice(0, start).split("\n").length,
+      selector,
+      body: body.trim().replace(/\s+/g, " "),
+      hasInlineChannel: NON_COLOUR_CHANNEL.test(body),
+    });
   }
   return rules;
+}
+
+export function scanColourRules(cssRoot: string, repoRoot: string): ColourRule[] {
+  return findProjectCssFiles(cssRoot).flatMap((file) =>
+    colourRulesIn(readFileSync(file, "utf8"), file.slice(repoRoot.length + 1)),
+  );
 }
 
 /**
