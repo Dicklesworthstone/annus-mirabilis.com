@@ -293,8 +293,8 @@ export const PRINTED_CONVERSIONS: readonly PrintedConversion[] = [
   },
   {
     id: "gas-constant",
-    source: "Supplied by the edition",
-    quantity: "The gas constant R, which neither paper prints",
+    source: "not printed in either paper; supplied by the edition",
+    quantity: "The gas constant R",
     value: 8.31e7,
     digits: 2,
     pairId: "erg",
