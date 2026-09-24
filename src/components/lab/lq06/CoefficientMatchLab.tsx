@@ -1,17 +1,22 @@
 "use client";
 
 import { useId, useMemo, useState, useSyncExternalStore } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import {
   LQ06_CAPTION,
   LQ06_DEFAULTS,
-  LQ06_MODEL,
   LQ06_NOT_MODELED,
+  LQ06_OUTPUTS,
   LQ06_PRESETS,
   type Lq06ForkAChoice,
   type Lq06Parameters,
   type Lq06SubexpressionChoice,
 } from "../../../experiments/lq06/definition.ts";
 import { createLq06Session, type PreparedLq06Example } from "../../../experiments/lq06/session.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
@@ -152,6 +157,16 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
   );
 
   const accepted = snapshot.accepted;
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation; no example, no earned label.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      snapshot,
+      LQ06_OUTPUTS,
+      example?.sourceDigest ?? "",
+      accepted !== undefined && accepted === session.getServerSnapshot().accepted,
+    ).label,
+  );
   const currentParams: Lq06Parameters = useMemo(() => {
     return (accepted?.parameters ?? LQ06_DEFAULTS) as unknown as Lq06Parameters;
   }, [accepted]);
@@ -239,14 +254,20 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
       className="laboratory lq06"
       data-instrument-id="lq-06"
       data-testid="lq06-coefficient-match-lab"
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, snapshot, "quantumEnergy")}
       {...(accepted ? identity(accepted) : {})}
     >
       <header className="lab-heading">
         <p className="eyebrow">The move in §6</p>
         <h2>Matching the entropy laws to find the light quantum</h2>
-        <span className="badge">{LQ06_MODEL.label}</span>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={snapshot}
+          modelNote={modelNoteFromView(snapshot, { notModeled: `${LQ06_NOT_MODELED.join("; ")}.` })}
+        />
+      </div>
 
       <noscript>
         <p className="notice">
