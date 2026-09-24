@@ -249,7 +249,7 @@ predictMode:
         - id: looks-like-lighter-body
           label: Looks like a lighter body
           description: It looks like the energy of motion of a body that lost a little mass.
-          separatingAssumption: "The coefficient of 1/2 v^2 approaches L/c^2 as the speed vanishes."
+          separatingAssumption: "The coefficient of ½v² approaches L/c² as the speed vanishes."
         - id: drops-to-nothing-faster
           label: Drops to nothing faster
           description: It falls away faster than the speed does, leaving nothing to compare.
@@ -257,4 +257,4 @@ predictMode:
         - id: stays-a-fixed-fraction
           label: Stays a fixed fraction
           description: It stays the same fraction of the emitted energy.
-          separatingAssumption: "The exact difference L(gamma-1) is treated as independent of speed."
+          separatingAssumption: "The exact difference L(γ − 1) is treated as independent of speed."

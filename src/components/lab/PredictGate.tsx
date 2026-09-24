@@ -157,7 +157,10 @@ export function presentedOrder(prompt: GeneratedPredictPrompt): GeneratedPredict
 }
 
 /** The laboratory's predict panels. Shown only with JavaScript; see predict.css. */
-export function PredictGatePanels({ gate }: Readonly<{ gate: PredictGateState }>) {
+export function PredictGatePanels({
+  gate,
+  reasoningHref,
+}: Readonly<{ gate: PredictGateState; reasoningHref?: string }>) {
   if (gate.prompts.length === 0) return null;
   return (
     <div className="lab-predict" data-predict-gate={gate.open ? "open" : "awaiting"}>
@@ -169,6 +172,7 @@ export function PredictGatePanels({ gate }: Readonly<{ gate: PredictGateState }>
           forms={["candidate"]}
           resultShown
           describeCandidates={false}
+          {...(reasoningHref ? { reasoningHref } : {})}
           onRecord={(choice) => gate.record(prompt.promptId, choice)}
           onKeepToSelf={() => gate.keep(prompt.promptId)}
           onSkip={() => gate.skip(prompt.promptId)}

@@ -8,6 +8,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import type { PreparedBm07Example } from "../../experiments/bm07/session.ts";
 import type { PreparedBm08Example } from "../../experiments/bm08/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as ME01_EXAMPLE } from "../../experiments/me01/session.ts";
+import { DEFAULT_PREPARED_EXAMPLE as ME02_EXAMPLE } from "../../experiments/me02/session.ts";
 import { decodeTapePermalink } from "../../experiments/permalink/codec.ts";
 import { writeGlobalPredictEntry } from "../../experiments/predict/predictEntry.ts";
 import {
@@ -45,6 +46,7 @@ import {
 } from "../../testing/reactDom.ts";
 import { ConfigurationLab } from "./bm03/ConfigurationLab.tsx";
 import { CameraLab } from "./CameraLab.tsx";
+import { CoefficientLab } from "./CoefficientLab.tsx";
 import { InferenceLab } from "./InferenceLab.tsx";
 import { CoefficientMatchLab } from "./lq06/CoefficientMatchLab.tsx";
 import { IonizationLab } from "./lq09/IonizationLab.tsx";
@@ -74,7 +76,7 @@ import { ElectronDynamicsLab } from "./sr13/ElectronDynamicsLab.tsx";
  * The gated labs. `result` is text from each lab's result that the server markup must carry.
  * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-07 and BM-08 share none
  * (their worker runner is not written); BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
- * in a worktree (dispatch 145). `statusLine`: whether the lab has a status line; LQ-06 has none.
+ * in a worktree (dispatch 145). `statusLine`: whether the lab has a status line; LQ-06 and ME-02 have none.
  */
 type GatedLab = Readonly<{
   lab: string;
@@ -128,6 +130,13 @@ const LABS: readonly GatedLab[] = [
     result: "Derivation steps",
     sharesTape: false,
     statusLine: true,
+  },
+  {
+    lab: "me-02",
+    element: () => createElement(CoefficientLab, { example: ME02_EXAMPLE }),
+    result: "Named-speed comparison (worked example)",
+    sharesTape: true,
+    statusLine: false,
   },
   {
     lab: "me-03",

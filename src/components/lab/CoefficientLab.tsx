@@ -11,7 +11,6 @@ import {
   ME02_CAPTION,
   ME02_NOT_MODELED,
   ME02_OUTPUTS,
-  ME02_PREDICT_PROMPT,
   type Me02Parameters,
 } from "../../experiments/me02/definition.ts";
 import { validateMe02Parameters } from "../../experiments/me02/parameters.ts";
@@ -19,15 +18,6 @@ import { decodeMe02Settings, encodeMe02Settings } from "../../experiments/me02/p
 import { createMe02Session, type PreparedMe02Example } from "../../experiments/me02/session.ts";
 import { ME02_TAPE } from "../../experiments/me02/tape.ts";
 import { LabTapeLink, useLabTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
-import {
-  amendAfterReveal,
-  beginPrompt,
-  keepToSelf,
-  type PredictPromptRecord,
-  reveal,
-  skipPrediction,
-  submitPrediction,
-} from "../../experiments/predict/predictState.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { parseResult } from "../../experiments/results/codec.ts";
 import { statusMessage } from "../../experiments/results/explanations.ts";
@@ -35,9 +25,10 @@ import type { ScientificResult } from "../../experiments/results/types.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
-import { PredictPanel } from "./PredictPanel.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import "./coefficientLab.css";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
+import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { display, identity, result } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
 
@@ -180,6 +171,11 @@ function CoefficientBars({ snapshot, clipId }: { snapshot: AcceptedSnapshot; cli
   );
 }
 
+// The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate. They
+// replace ME02_PREDICT_PROMPT, which PredictPanel's and predictReveal's tests still read, and add
+// the manifest's second prompt, toward low speed.
+const ME02_PROMPTS = PREDICT_PROMPTS["me-02"] ?? [];
+
 export function CoefficientLab({
   example,
   title = "Inertia from the small-speed coefficient",
@@ -215,9 +211,8 @@ export function CoefficientLab({
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
-  const [predictRecord, setPredictRecord] = useState<PredictPromptRecord>(() =>
-    beginPrompt(ME02_PREDICT_PROMPT.promptId),
-  );
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("me-02", ME02_PROMPTS);
   const linkLoaded = useRef(false);
   useEffect(() => {
     if (linkLoaded.current) return;
@@ -240,16 +235,6 @@ export function CoefficientLab({
     }
     setDraft(parameters);
     setError("");
-    setPredictRecord((current) => {
-      if (
-        current.state === "predicted" ||
-        current.state === "predicted-unrecorded" ||
-        current.state === "skipped"
-      ) {
-        return reveal(current);
-      }
-      return current;
-    });
   }
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -305,7 +290,7 @@ export function CoefficientLab({
           view={view}
           modelNote={modelNoteFromView(view, { notModeled: `${ME02_NOT_MODELED.join("; ")}.` })}
         />
-        <LabTapeLink link={tapeLink} />
+        <LabTapeLink link={withPredictions(tapeLink, gate)} />
       </div>
       <noscript>
         <p className="notice">
@@ -322,24 +307,11 @@ export function CoefficientLab({
       <p data-detail="3" hidden>
         {withScripts(ME02_CAPTION.r3)}
       </p>
+      {/* Absolute, so the embed (which has no #coefficient-argument) opens the laboratory's own
+          section rather than a link that goes nowhere (labFragmentLinks.test.tsx). */}
+      <PredictGatePanels gate={gate} reasoningHref="/lab/me-02/#coefficient-argument" />
       <div className="lab-columns">
         <div>
-          <details className="lab-predict">
-            <summary>Predict before the numbers</summary>
-            <PredictPanel
-              prompt={ME02_PREDICT_PROMPT}
-              record={predictRecord}
-              onRecord={(choice) =>
-                setPredictRecord((current) => submitPrediction(current, choice))
-              }
-              onSkip={() => setPredictRecord((current) => skipPrediction(current))}
-              onKeepToSelf={() => setPredictRecord((current) => keepToSelf(current))}
-              onAmend={(choice) => setPredictRecord((current) => amendAfterReveal(current, choice))}
-              // Absolute, so the embed (which has no #coefficient-argument) opens the laboratory's own
-              // section rather than a link that goes nowhere (labFragmentLinks.test.tsx).
-              reasoningHref="/lab/me-02/#coefficient-argument"
-            />
-          </details>
           <form
             noValidate
             onSubmit={submit}
@@ -456,7 +428,7 @@ export function CoefficientLab({
             </fieldset>
           </form>
         </div>
-        <div className="lab-results">
+        <div className="lab-results" {...gate.response}>
           <div data-response="">
             <div className="me02-bars">
               <CoefficientBars snapshot={snapshot} clipId={id} />
