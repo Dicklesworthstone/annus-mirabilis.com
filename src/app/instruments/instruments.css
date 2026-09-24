@@ -189,12 +189,25 @@
   .instrument-plate-note {
     display: none;
   }
-  /* A table's own words would be smaller than print can be read at 6rem, so on a phone its plate is
-     the drawn table, and the question beside it says what it asks. */
-  .instrument-plate-words {
-    background: var(--plate-table-drawing);
+  /* A table's own words cannot be read at 6rem: squeezed there, the plate was a grey box with a
+     bar in it, which read as a picture that failed to load (TanElk, dispatch 129, live 1d12f3d7 at
+     390). On a phone the entry is the question and, below it at full width, the same words as on a
+     desktop: the rows it answers with and the columns it compares, at the fine size, values still
+     dotted rules. Rows with a picture keep their 6rem plate. */
+  .instrument-specimen a:has(.instrument-plate-words) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
   }
-  .instrument-plate-words .plate-table {
+  .instrument-plate-words {
+    order: 2;
+    aspect-ratio: auto;
+    padding: 0.6rem 0.75rem;
+  }
+  .plate-table-head > span {
+    font-size: var(--type-fine);
+  }
+  /* Three rows say what the table answers; a fourth only made the page longer. */
+  .plate-table:not(:has(.plate-table-head)) > .plate-table-row:nth-child(4) {
     display: none;
   }
   /* An instrument without a picture yet keeps the whole row for its question. */
