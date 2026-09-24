@@ -4,9 +4,18 @@ import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { LIGHT_QUANTA_SHELF_CARDS } from "../../../content/lightQuantaShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { Fork } from "../../../discovery/Fork.tsx";
 import { GREATEST_ENERGY_EXERCISE } from "../../../discovery/lightQuanta/electronExercise.ts";
-import { FIRST_HONEST_QUESTION, NAGGING_FACT } from "../../../discovery/lightQuanta/journeyI.ts";
+import {
+  FIRST_HONEST_QUESTION,
+  FORK_ENTROPY_ACCOUNT,
+  FORK_ONE_LUMP,
+  MOVE,
+  MOVE_HREF,
+  NAGGING_FACT,
+} from "../../../discovery/lightQuanta/journeyI.ts";
 import { GREATEST_ELECTRON_ENERGY } from "../../../discovery/lightQuanta/numericExercises.ts";
+import { MoveMarker } from "../../../discovery/MoveMarker.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
@@ -204,6 +213,7 @@ export default function LightQuantaRoute() {
           </StepDoor>
         </StepDoors>
       </section>
+      <Fork fork={FORK_ENTROPY_ACCOUNT} />
 
       <section id="step-05">
         <p className="step-number">05 / Do the same sum for something you understand</p>
@@ -229,7 +239,7 @@ export default function LightQuantaRoute() {
 
       <section id="step-06">
         <p className="step-number">06 / Compare the two, and read the exponent</p>
-        <h2>The move</h2>
+        <h2>What plays the part of the number of molecules?</h2>
         <p>
           The two expressions have the same shape. Set them beside each other and the multiplier
           that counts particles in the gas is matched, in the radiation case, by the total energy
@@ -270,6 +280,8 @@ export default function LightQuantaRoute() {
           </StepDoor>
         </StepDoors>
       </section>
+      <MoveMarker move={MOVE} href={MOVE_HREF} />
+      <Fork fork={FORK_ONE_LUMP} />
 
       <section id="step-07">
         <p className="step-number">07 / Check it against the world</p>

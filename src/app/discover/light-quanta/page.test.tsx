@@ -1,8 +1,18 @@
 import { describe, expect, test } from "bun:test";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { checkVoice } from "../../../content/checks/voice/index.ts";
 import { LIGHT_QUANTA_SHELF_CARDS } from "../../../content/lightQuantaShelf.ts";
-import { FIRST_HONEST_QUESTION, NAGGING_FACT } from "../../../discovery/lightQuanta/journeyI.ts";
+import { checkMoveSummary } from "../../../discovery/checks/moveSummaryGuard.ts";
+import {
+  FIRST_HONEST_QUESTION,
+  FORK_ENTROPY_ACCOUNT,
+  FORK_ONE_LUMP,
+  MOVE,
+  MOVE_HREF,
+  NAGGING_FACT,
+} from "../../../discovery/lightQuanta/journeyI.ts";
 import LightQuantaEncounter from "./page";
 
 /** /discover/light-quanta/: the numeric exercise in step 07 (am-disc-exercise-checker-i4h2). */
@@ -102,8 +112,98 @@ describe("the route carries the discovery skeleton", () => {
     expect(words).not.toMatch(/\bphotons?\b/i);
   });
 
+  test("the forks and the move sit where the bead puts them", () => {
+    const order = [
+      'id="step-04"',
+      'id="arg-fork-lq-volume-logarithm"',
+      'id="step-05"',
+      'id="step-06"',
+      "data-move-marker",
+      'id="arg-fork-lq-one-lump"',
+      'id="step-07"',
+    ].map(at);
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+  });
+
+  test("Fork A keeps Planck's account weaker, not refuted, and names him", () => {
+    const start = at('id="arg-fork-lq-volume-logarithm"');
+    const fork = html.slice(start, html.indexOf("</section>", start));
+    expect(fork).toContain('data-outcome-type="correct-but-weaker"');
+    expect(fork).toContain('data-outcome-type="papers-route"');
+    expect(fork).not.toContain('data-outcome-type="dead-end-on-constraint"');
+    expect(text(fork)).toContain("Max Planck, 1900–1901");
+    expect(html).toContain('href="#card-planck-1901-energy-elements"');
+  });
+
+  test("Fork B's spreading account fails against Lenard's card, linked and not printed as an id", () => {
+    const start = at('id="arg-fork-lq-one-lump"');
+    const fork = html.slice(start, html.indexOf("</section>", start));
+    expect(fork).toContain('data-outcome-type="dead-end-on-constraint"');
+    expect(fork).toContain('data-outcome-type="papers-route"');
+    expect(fork).toContain('href="#card-lenard-1902-photoelectric"');
+    expect(text(fork)).not.toContain("#lenard");
+  });
+
+  test("the move is marked after the comparison, opens §6, and its ids are the paper's", () => {
+    const start = at("data-move-marker");
+    const marker = html.slice(start, html.indexOf("</aside>", start));
+    expect(text(marker)).toContain("The move");
+    expect(marker).toContain(`href="${MOVE_HREF}"`);
+    // The ids resolve: the chain is the §6 argument record, and the step is an equation record
+    // that belongs to it.
+    const root = process.cwd();
+    const argument = join(root, "content/arguments/light-quanta", `${MOVE.chainId}.json`);
+    expect(existsSync(argument)).toBe(true);
+    expect(JSON.parse(readFileSync(argument, "utf8")).section).toBe("s6");
+    const equation = JSON.parse(
+      readFileSync(join(root, "content/equations/light-quanta", `${MOVE.stepId}.json`), "utf8"),
+    );
+    expect(equation.argument).toBe(MOVE.chainId);
+    expect(MOVE_HREF).toBe(`/papers/light-quanta/s6/#${MOVE.chainId}`);
+  });
+
+  test("the move's summary keeps its heuristic status and passes the guard", () => {
+    const summary = MOVE.r0Summary.text;
+    expect(checkMoveSummary(summary).issues).toEqual([]);
+    expect(MOVE.r0Summary.reviewState).toBe("draft");
+    expect(summary).toContain("heuristic");
+    expect(summary).toContain("as if");
+    expect(summary.split(/\s+/).length).toBeLessThanOrEqual(100);
+    for (const banned of [
+      "photon",
+      "ultraviolet catastrophe",
+      "proved",
+      "proves",
+      "not a wave",
+      "particles of light",
+    ])
+      expect(summary.toLowerCase()).not.toContain(banned);
+  });
+
+  test("every in-page link lands on an element of the page", () => {
+    const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+    const targets = [...html.matchAll(/href="#([^"]+)"/g)].map((m) => m[1] ?? "");
+    expect(targets.length).toBeGreaterThan(3);
+    expect(targets.filter((target) => !ids.has(target))).toEqual([]);
+  });
+
   test("the new prose passes the voice lint", () => {
-    const words = [NAGGING_FACT, FIRST_HONEST_QUESTION].join(" ");
+    const words = [
+      NAGGING_FACT,
+      FIRST_HONEST_QUESTION,
+      MOVE.label,
+      MOVE.r0Summary.text,
+      ...[FORK_ENTROPY_ACCOUNT, FORK_ONE_LUMP].flatMap((f) => [
+        f.question,
+        ...f.branches.flatMap((b) => [
+          b.label,
+          b.hypothesis,
+          b.worksWhen,
+          b.outcome.plainLanguage,
+          ...b.steps.map((s) => s.text),
+        ]),
+      ]),
+    ].join(" ");
     const errors = checkVoice(words, { context: "prose" }).filter((f) => f.severity === "error");
     expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
   });

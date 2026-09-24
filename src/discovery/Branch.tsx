@@ -255,16 +255,13 @@ export function Branch({ branch }: BranchProps) {
 
         {outcome.constraintRef && (
           <p style={{ margin: 0, color: "var(--accent)" }}>
-            <span style={{ fontWeight: 600 }}>Contradicted by evidence / constraint: </span>
+            <span style={{ fontWeight: 600 }}>It fails against: </span>
+            {/* The constraint is a card on the page, anchored as proponents' cards are. */}
             <a
-              href={`#${outcome.constraintRef}`}
-              style={{
-                textDecoration: "underline",
-                color: "var(--accent)",
-                fontFamily: "var(--font-mono, monospace)",
-              }}
+              href={`#${cardAnchor(outcome.constraintRef)}`}
+              style={{ textDecoration: "underline", color: "var(--accent)" }}
             >
-              #{outcome.constraintRef}
+              the measurement on the shelf
             </a>
           </p>
         )}
