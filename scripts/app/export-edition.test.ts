@@ -33,10 +33,34 @@ import {
   siteBinding,
   unsafePathReason,
 } from "./export-edition.ts";
+import {
+  NATIVE_CATALOG_FILE,
+  NATIVE_CATALOG_SCHEMA,
+  type NativeCatalog,
+} from "./native-catalog.ts";
 
 const LIVE = "a".repeat(64);
 const STALE = "b".repeat(64);
 const CHAINED = "c".repeat(64);
+
+/** A catalogue whose pages the fixture site carries; the real one is built from content/. */
+const CATALOG: NativeCatalog = {
+  schemaVersion: NATIVE_CATALOG_SCHEMA,
+  papers: [
+    {
+      slug: "light-quanta",
+      name: "Light quanta",
+      title: "Light quanta",
+      germanTitle:
+        "Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt",
+      description: "A fixture.",
+      route: "/papers/",
+      sections: [{ id: "s1", title: "§1", route: "/papers/", anchor: "s1" }],
+    },
+  ],
+  discover: [],
+  labs: [],
+};
 
 function fixture(files: Record<string, string>): string {
   const root = mkdtempSync(join(tmpdir(), "app-edition-out-"));
@@ -181,7 +205,7 @@ describe("exportEdition", () => {
   it("writes a manifest, checksums and file lists that agree with the bytes on disk", () => {
     const out = fixture(SITE);
     const dest = mkdtempSync(join(tmpdir(), "app-edition-dest-"));
-    const result = exportEdition({ repo: dirname(out), outDir: out, dest });
+    const result = exportEdition({ repo: dirname(out), outDir: out, dest, catalog: CATALOG });
     const manifest = JSON.parse(readFileSync(join(dest, "edition-manifest.json"), "utf8"));
 
     assert.equal(manifest.files.length, result.fileCount);
@@ -208,8 +232,9 @@ describe("exportEdition", () => {
       directories.indexOf("edition") < directories.indexOf(`edition/${LIVE}`),
       "parents come first",
     );
-    // The manifest, the two user scripts, and Edition/ itself, then its directories and files.
-    assert.equal(outputs.length, 4 + directories.length + result.fileCount);
+    // The manifest, the two user scripts, the catalogue, and Edition/ itself, then its
+    // directories and files.
+    assert.equal(outputs.length, 5 + directories.length + result.fileCount);
     const [script, snapshot] = manifest.userScripts;
     const written = readFileSync(join(dest, BRIDGE_SCRIPT_FILE), "utf8");
     assert.equal(written, BRIDGE_USER_SCRIPT_SOURCE);
@@ -242,6 +267,14 @@ describe("exportEdition", () => {
     );
     assert.ok(outputs.some((line) => line.endsWith(`/${SETTINGS_SNAPSHOT_FILE}`)));
     assert.deepEqual(manifest.settings, { typeSizes: [...SITE_TYPE_SIZES] });
+    // The native screens' data, pinned like the scripts.
+    const catalogText = readFileSync(join(dest, NATIVE_CATALOG_FILE), "utf8");
+    assert.deepEqual(JSON.parse(catalogText), CATALOG);
+    assert.equal(
+      manifest.nativeCatalog.sha256,
+      createHash("sha256").update(catalogText).digest("hex"),
+    );
+    assert.ok(outputs.some((line) => line.endsWith(`/${NATIVE_CATALOG_FILE}`)));
     // The app labels and exports the reader's data from this, never from its own copy.
     assert.deepEqual(manifest.readerData, JSON.parse(JSON.stringify(readerDataManifest())));
   });
@@ -250,7 +283,8 @@ describe("exportEdition", () => {
     const out = fixture(SITE);
     const dest = mkdtempSync(join(tmpdir(), "app-edition-dest-"));
     assert.throws(
-      () => exportEdition({ repo: dirname(out), outDir: out, dest, budgetBytes: 10 }),
+      () =>
+        exportEdition({ repo: dirname(out), outDir: out, dest, catalog: CATALOG, budgetBytes: 10 }),
       (error: unknown) =>
         error instanceof AppExportError &&
         error.code === "edition-over-budget" &&
@@ -269,11 +303,34 @@ describe("exportEdition", () => {
     assert.equal(largestFiles(files, 3), "big.js (9 bytes), a.html (5 bytes), b.html (5 bytes)");
   });
 
+  it("refuses a catalogue that would open a page the edition does not carry, naming it", () => {
+    const out = fixture(SITE);
+    const dest = mkdtempSync(join(tmpdir(), "app-edition-dest-"));
+    const lost: NativeCatalog = {
+      ...CATALOG,
+      labs: [
+        {
+          paper: "brownian-motion",
+          name: "Brownian motion",
+          instruments: [{ id: "bm-01", name: "Tracer ensemble", route: "/lab/bm-01/" }],
+        },
+      ],
+    };
+    assert.throws(
+      () => exportEdition({ repo: dirname(out), outDir: out, dest, catalog: lost }),
+      (error: unknown) =>
+        error instanceof AppExportError &&
+        error.code === "catalog-route-missing" &&
+        error.message.includes("/lab/bm-01/") &&
+        !error.message.includes("/papers/,"),
+    );
+  });
+
   it("refuses when there is no web build to export", () => {
     const out = fixture({ "papers/index.html": "no root page" });
     const dest = mkdtempSync(join(tmpdir(), "app-edition-dest-"));
     assert.throws(
-      () => exportEdition({ repo: dirname(out), outDir: out, dest }),
+      () => exportEdition({ repo: dirname(out), outDir: out, dest, catalog: CATALOG }),
       (error: unknown) => error instanceof AppExportError && error.code === "no-web-build",
     );
   });
@@ -282,7 +339,7 @@ describe("exportEdition", () => {
     const out = fixture({ "index.html": "root", "a/$(HOME)/b.html": "x" });
     const dest = mkdtempSync(join(tmpdir(), "app-edition-dest-"));
     assert.throws(
-      () => exportEdition({ repo: dirname(out), outDir: out, dest }),
+      () => exportEdition({ repo: dirname(out), outDir: out, dest, catalog: CATALOG }),
       (error: unknown) => error instanceof AppExportError && error.code === "unsafe-edition-path",
     );
   });

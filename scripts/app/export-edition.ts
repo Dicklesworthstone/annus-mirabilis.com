@@ -32,6 +32,12 @@ import {
   SITE_TYPE_SIZES,
 } from "../../src/platform/app-bridge/settingsSnapshot.ts";
 import { BRIDGE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/userScripts.ts";
+import {
+  buildNativeCatalog,
+  NATIVE_CATALOG_FILE,
+  type NativeCatalog,
+  nativeCatalogRoutes,
+} from "./native-catalog.ts";
 
 export const EDITION_SCHEMA_VERSION = "annus-mirabilis-app-edition.v1";
 
@@ -39,7 +45,11 @@ export const EDITION_SCHEMA_VERSION = "annus-mirabilis-app-edition.v1";
 export const BRIDGE_SCRIPT_FILE = "bridge-user-script.js";
 export const SETTINGS_SNAPSHOT_FILE = "settings-snapshot.js";
 
-export type AppExportErrorCode = "no-web-build" | "unsafe-edition-path" | "edition-over-budget";
+export type AppExportErrorCode =
+  | "no-web-build"
+  | "unsafe-edition-path"
+  | "edition-over-budget"
+  | "catalog-route-missing";
 
 /** A refusal of the export, with a code a caller or a test can branch on. */
 export class AppExportError extends Error {
@@ -377,6 +387,8 @@ export function exportEdition(options: {
   readonly outDir: string;
   readonly dest: string;
   readonly budgetBytes?: number;
+  /** The native screens' data; built from the repository's records when not given. */
+  readonly catalog?: NativeCatalog;
 }): ExportResult {
   const { repo, outDir, dest } = options;
   const budgetBytes = options.budgetBytes ?? EDITION_BUDGET_BYTES;
@@ -403,6 +415,19 @@ export function exportEdition(options: {
 
   const digests = referencedDigests(paths, (path) => readFileSync(join(outDir, path), "utf8"));
   const plan = planEdition(paths, digests);
+
+  const catalog = options.catalog ?? buildNativeCatalog(join(repo, "content"));
+  const pages = new Set(plan.included);
+  const missing = nativeCatalogRoutes(catalog).filter(
+    (route) => !pages.has(`${route.slice(1)}index.html`),
+  );
+  if (missing.length > 0) {
+    throw new AppExportError(
+      "catalog-route-missing",
+      `The app's native screens would open ${missing.length} page(s) this edition does not carry: ${missing.join(", ")}`,
+    );
+  }
+  const catalogText = `${JSON.stringify(catalog, null, 2)}\n`;
 
   const files: EditionFile[] = plan.included.map((path) => {
     const bytes = readFileSync(join(outDir, path));
@@ -483,6 +508,12 @@ export function exportEdition(options: {
     settings: { typeSizes: SITE_TYPE_SIZES },
     // The site's registry, so the app lists and exports the reader's data with /your-data/'s labels.
     readerData: readerDataManifest(),
+    // The library, outlines, Discover routes and lab catalogue the native screens show.
+    nativeCatalog: {
+      file: NATIVE_CATALOG_FILE,
+      sha256: createHash("sha256").update(catalogText).digest("hex"),
+      bytes: Buffer.byteLength(catalogText),
+    },
     files,
   };
 
@@ -496,6 +527,7 @@ export function exportEdition(options: {
   writeFileSync(join(dest, "edition-files.txt"), files.map((file) => `${file.path}\n`).join(""));
   writeFileSync(join(dest, BRIDGE_SCRIPT_FILE), BRIDGE_USER_SCRIPT_SOURCE);
   writeFileSync(join(dest, SETTINGS_SNAPSHOT_FILE), SETTINGS_SNAPSHOT_TEMPLATE);
+  writeFileSync(join(dest, NATIVE_CATALOG_FILE), catalogText);
   // The bundling phase reads out/ from wherever this export read it, not only the main checkout.
   writeFileSync(join(dest, "edition-source.txt"), `${outDir}\n`);
   writeFileSync(
@@ -506,6 +538,7 @@ export function exportEdition(options: {
       "$(SRCROOT)/../generated/app-edition/edition-files.txt",
       `$(SRCROOT)/../generated/app-edition/${BRIDGE_SCRIPT_FILE}`,
       `$(SRCROOT)/../generated/app-edition/${SETTINGS_SNAPSHOT_FILE}`,
+      `$(SRCROOT)/../generated/app-edition/${NATIVE_CATALOG_FILE}`,
       "$(SRCROOT)/../generated/app-edition/edition-source.txt",
       ...files.map((file) => `${outDir}/${file.path}`),
     ].join("\n")}\n`,
@@ -517,6 +550,7 @@ export function exportEdition(options: {
       `${bundled}/edition-manifest.json`,
       `${bundled}/${BRIDGE_SCRIPT_FILE}`,
       `${bundled}/${SETTINGS_SNAPSHOT_FILE}`,
+      `${bundled}/${NATIVE_CATALOG_FILE}`,
       `${bundled}/Edition`,
       // The script sandbox grants writes only to declared outputs, directories included.
       ...editionDirectories(files).map((directory) => `${bundled}/Edition/${directory}`),

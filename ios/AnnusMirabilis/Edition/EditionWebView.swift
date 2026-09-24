@@ -20,6 +20,7 @@ struct EditionWebView: UIViewRepresentable {
 struct PageActionsButton: View {
     let session: EditionSession
     @State private var showingReaderData = false
+    @State private var showingContents = false
     /// 44 points at the default text size, growing with the reader's up to 64. It floats over
     /// the reading column, so past that it would cover the page it serves: at 88 points it hid
     /// the Detail control's chevron. At accessibility sizes a long press shows the Large Content
@@ -28,6 +29,14 @@ struct PageActionsButton: View {
 
     var body: some View {
         Menu {
+            if session.nativeCatalog != nil {
+                Button {
+                    showingContents = true
+                } label: {
+                    Label("Contents", systemImage: "list.bullet")
+                }
+                Divider()
+            }
             if let url = session.canonicalURL {
                 ShareLink(
                     item: url,
@@ -66,10 +75,17 @@ struct PageActionsButton: View {
             Label("Page actions", systemImage: "ellipsis")
         }
         .accessibilityLabel("Page actions")
-        .accessibilityHint("Share, print, or find on this page, or see your data on this device")
+        .accessibilityHint("Contents, share, print, or find on this page, or see your data on this device")
         .accessibilityIdentifier("page-actions")
         .sheet(isPresented: $showingReaderData) {
             ReaderDataView(session: session)
+        }
+        .sheet(isPresented: $showingContents) {
+            if let catalog = session.nativeCatalog {
+                EditionContentsView(catalog: catalog) { route, anchor in
+                    session.open(route: route, anchor: anchor)
+                }
+            }
         }
     }
 }

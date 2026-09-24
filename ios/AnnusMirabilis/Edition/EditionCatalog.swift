@@ -28,6 +28,12 @@ struct EditionManifest: Decodable, Sendable {
         let typeSizes: [Int]
     }
 
+    /// A data file beside the manifest, pinned by SHA-256 (the native catalogue).
+    struct CatalogFile: Decodable, Sendable, Equatable {
+        let file: String
+        let sha256: String
+    }
+
     let schemaVersion: String
     let editionDigest: String
     let files: [File]
@@ -35,6 +41,7 @@ struct EditionManifest: Decodable, Sendable {
     /// The site's registry of the reader's data; absent from exports made before it was recorded.
     var readerData: ReaderDataManifest?
     var settings: Settings?
+    var nativeCatalog: CatalogFile?
 }
 
 enum EditionCatalogError: Error, Equatable {
@@ -58,6 +65,8 @@ struct EditionCatalog: Sendable {
     let settingsSnapshotScript: EditionManifest.UserScript?
     /// The edition's type-size steps, in percent; empty for an export made before they were recorded.
     let typeSizes: [Int]
+    /// The native catalogue's manifest entry, when the export recorded one.
+    let nativeCatalogFile: EditionManifest.CatalogFile?
     private let files: [String: EditionManifest.File]
 
     init(root: URL, manifest: EditionManifest) throws(EditionCatalogError) {
@@ -71,6 +80,7 @@ struct EditionCatalog: Sendable {
         self.readerData = manifest.readerData
         self.settingsSnapshotScript = manifest.userScripts?.first { $0.id == "settings-snapshot" }
         self.typeSizes = manifest.settings?.typeSizes ?? []
+        self.nativeCatalogFile = manifest.nativeCatalog
     }
 
     static func load(from bundle: Bundle = .main) throws(EditionCatalogError) -> EditionCatalog {
@@ -93,6 +103,11 @@ struct EditionCatalog: Sendable {
     /// The bridge script's source, only if its bytes match the recorded digest.
     func verifiedBridgeScript() -> String? {
         BridgeScript.load(bridgeScript, directory: scriptDirectory)
+    }
+
+    /// The native screens' data, only if its bytes match the recorded digest.
+    func verifiedNativeCatalog() -> NativeCatalog? {
+        NativeCatalog.load(nativeCatalogFile, directory: scriptDirectory)
     }
 
     /// The settings snapshot template, only if its bytes match the recorded digest.

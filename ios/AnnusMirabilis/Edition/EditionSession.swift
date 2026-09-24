@@ -34,6 +34,8 @@ final class EditionSession {
     @ObservationIgnored private let themeStore: PageThemeStore?
     @ObservationIgnored private let bridgeSource: String?
     @ObservationIgnored private let settingsSnapshot: SettingsSnapshot?
+    /// The papers, outlines, Discover routes and instruments the native screens list.
+    @ObservationIgnored let nativeCatalog: NativeCatalog?
     @ObservationIgnored private var contentSizeObserver: (any NSObjectProtocol)?
     /// DEBUG UI tests only: the route, and the pasteboard, are exposed for assertions.
     let exposesRouteForTests: Bool
@@ -59,6 +61,7 @@ final class EditionSession {
         let bridgeSource = catalog.verifiedBridgeScript()
         self.bridgeSource = bridgeSource
         self.settingsSnapshot = catalog.verifiedSettingsSnapshot()
+        self.nativeCatalog = catalog.verifiedNativeCatalog()
         self.bridgeInstalled = bridgeSource != nil
         self.typeSize = EditionTypeSize.percent(for: contentSize, steps: catalog.typeSizes)
         self.webView = EditionSession.makeWebView(
@@ -148,6 +151,12 @@ final class EditionSession {
 
     func load(_ url: URL) {
         webView.load(URLRequest(url: url))
+    }
+
+    /// Opens a page of the edition, at an anchor when given, from a native screen.
+    func open(route: String, anchor: String?) {
+        guard let url = EditionCatalog.url(route: route, anchor: anchor) else { return }
+        load(url)
     }
 
     /// Called for every change of page, including a jump to an anchor.
