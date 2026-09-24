@@ -3,6 +3,7 @@ import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from
 import { createBm01BrowserChannel } from "../../experiments/bm01/browser.ts";
 import {
   BM01_COMPARABLE_INPUTS,
+  BM01_COMPARE_CAPTION,
   BM01_COMPARISON,
   type PreparedBm01Comparison,
 } from "../../experiments/bm01/comparison.ts";
@@ -28,6 +29,7 @@ import {
   type ReplayPrediction,
 } from "../../reader/notebook/replayEntry.ts";
 import { SaveComparisonReplay } from "../../reader/notebook/SaveComparisonReplay.tsx";
+import { withScripts } from "./subscripts.tsx";
 
 export function BrownianComparisonLab({
   example,
@@ -339,6 +341,14 @@ export function BrownianComparisonLab({
         ready={ready}
         prediction={predictionForAccepted(issuedPrediction, state)}
       />
+      <p data-detail="0">{withScripts(BM01_COMPARE_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(BM01_COMPARE_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(BM01_COMPARE_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(BM01_COMPARE_CAPTION.r3)}
+      </p>
     </section>
   );
 }
