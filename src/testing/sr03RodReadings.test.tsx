@@ -97,7 +97,7 @@ describe("SR-03's verdict and the rod it sits beside agree", () => {
         });
 
   test("the default page names the platform marks and gives the rod 8.00 ls in K", async () => {
-    const page = await RodSimultaneityPage({ searchParams: Promise.resolve({}) } as never);
+    const page = await RodSimultaneityPage();
     const html = text(await exportMarkup(page));
     // The sentence live 095fe596 showed beside a rod drawn at 8.00 ls in K.
     expect(html).not.toContain("separation is a distance in frame K: 10.00 ls");
