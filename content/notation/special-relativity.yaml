@@ -173,6 +173,7 @@ entries:
     meaning: "Spatial y-coordinate in the stationary system K"
     binding:
       quantityId: coordinatePositionStationary
+      index: y
     frameOrReference: stationary-system
     operation:
       kind: rename
@@ -198,6 +199,7 @@ entries:
     meaning: "Spatial z-coordinate in the stationary system K"
     binding:
       quantityId: coordinatePositionStationary
+      index: z
     frameOrReference: stationary-system
     operation:
       kind: rename
@@ -453,6 +455,7 @@ entries:
     meaning: "Spatial y-coordinate in the moving system k"
     binding:
       quantityId: coordinatePositionMoving
+      index: y
     frameOrReference: moving-system
     operation:
       kind: rename
@@ -478,6 +481,7 @@ entries:
     meaning: "Spatial z-coordinate in the moving system k"
     binding:
       quantityId: coordinatePositionMoving
+      index: z
     frameOrReference: moving-system
     operation:
       kind: rename
@@ -823,6 +827,7 @@ entries:
     meaning: "x-component of the electric force in K (Gaussian)"
     binding:
       quantityId: electricFieldStationary
+      index: x
     frameOrReference: stationary-system
     operation:
       kind: rename
@@ -849,6 +854,7 @@ entries:
     meaning: "y-component of the electric force in K (Gaussian)"
     binding:
       quantityId: electricFieldStationary
+      index: y
     frameOrReference: stationary-system
     operation:
       kind: rename
@@ -875,6 +881,7 @@ entries:
     meaning: "z-component of the electric force in K (Gaussian)"
     binding:
       quantityId: electricFieldStationary
+      index: z
     frameOrReference: stationary-system
     operation:
       kind: rename
@@ -901,6 +908,7 @@ entries:
     meaning: "x-component of the magnetic force in K (Gaussian)"
     binding:
       quantityId: magneticFieldStationary
+      index: x
     frameOrReference: stationary-system
     operation:
       kind: rename
@@ -936,6 +944,7 @@ entries:
     meaning: "y-component of the magnetic force in K (Gaussian)"
     binding:
       quantityId: magneticFieldStationary
+      index: y
     frameOrReference: stationary-system
     operation:
       kind: rename
@@ -962,6 +971,7 @@ entries:
     meaning: "z-component of the magnetic force in K (Gaussian)"
     binding:
       quantityId: magneticFieldStationary
+      index: z
     frameOrReference: stationary-system
     operation:
       kind: rename
@@ -997,6 +1007,7 @@ entries:
     meaning: "y-component of the electric force in k (Gaussian)"
     binding:
       quantityId: electricFieldMoving
+      index: y
     frameOrReference: moving-system
     operation:
       kind: rename
@@ -1012,6 +1023,141 @@ entries:
       checkedAgainst: "Pending facsimile scan (ap-17-891)"
       by: "Editorial Staff"
       date: "2026-09-17"
+
+  - id: sr.Xprime.electricFieldMoving
+    paper: special-relativity
+    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9"]
+    glyph:
+      unicode: "X′"
+      latex: "X'"
+      variant: primed
+    meaning: "x-component of the electric force in k (Gaussian)"
+    binding:
+      quantityId: electricFieldMoving
+      index: x
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "E'_x"
+    notes: "Printed in Gaussian units in the six transformation equations of §6; the conversion to SI is separate, and the modern-notation view does not apply it."
+    sources:
+      facsimilePage: 909
+      anchor: sr-s6-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile verification (ap-17-891); glyph read by an agent from the plate of printed page 909 (PDF page 19), not a review"
+      by: "agent:SapphireCastle"
+      date: "2026-09-24"
+
+  - id: sr.Zprime.electricFieldMoving
+    paper: special-relativity
+    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9"]
+    glyph:
+      unicode: "Z′"
+      latex: "Z'"
+      variant: primed
+    meaning: "z-component of the electric force in k (Gaussian)"
+    binding:
+      quantityId: electricFieldMoving
+      index: z
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "E'_z"
+    notes: "Printed in Gaussian units in the six transformation equations of §6; the conversion to SI is separate, and the modern-notation view does not apply it."
+    sources:
+      facsimilePage: 909
+      anchor: sr-s6-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile verification (ap-17-891); glyph read by an agent from the plate of printed page 909 (PDF page 19), not a review"
+      by: "agent:SapphireCastle"
+      date: "2026-09-24"
+
+  - id: sr.Lprime.magneticFieldMoving
+    paper: special-relativity
+    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9"]
+    glyph:
+      unicode: "L′"
+      latex: "L'"
+      variant: primed
+    meaning: "x-component of the magnetic force in k (Gaussian)"
+    binding:
+      quantityId: magneticFieldMoving
+      index: x
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "B'_x"
+    notes: "Printed in Gaussian units in the six transformation equations of §6; the conversion to SI is separate, and the modern-notation view does not apply it."
+    sources:
+      facsimilePage: 909
+      anchor: sr-s6-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile verification (ap-17-891); glyph read by an agent from the plate of printed page 909 (PDF page 19), not a review"
+      by: "agent:SapphireCastle"
+      date: "2026-09-24"
+
+  - id: sr.Mprime.magneticFieldMoving
+    paper: special-relativity
+    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9"]
+    glyph:
+      unicode: "M′"
+      latex: "M'"
+      variant: primed
+    meaning: "y-component of the magnetic force in k (Gaussian)"
+    binding:
+      quantityId: magneticFieldMoving
+      index: y
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "B'_y"
+    notes: "Printed in Gaussian units in the six transformation equations of §6; the conversion to SI is separate, and the modern-notation view does not apply it."
+    sources:
+      facsimilePage: 909
+      anchor: sr-s6-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile verification (ap-17-891); glyph read by an agent from the plate of printed page 909 (PDF page 19), not a review"
+      by: "agent:SapphireCastle"
+      date: "2026-09-24"
+
+  - id: sr.Nprime.magneticFieldMoving
+    paper: special-relativity
+    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9"]
+    glyph:
+      unicode: "N′"
+      latex: "N'"
+      variant: primed
+    meaning: "z-component of the magnetic force in k (Gaussian)"
+    binding:
+      quantityId: magneticFieldMoving
+      index: z
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "B'_z"
+    notes: "Printed in Gaussian units in the six transformation equations of §6; the conversion to SI is separate, and the modern-notation view does not apply it."
+    sources:
+      facsimilePage: 909
+      anchor: sr-s6-p1
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile verification (ap-17-891); glyph read by an agent from the plate of printed page 909 (PDF page 19), not a review"
+      by: "agent:SapphireCastle"
+      date: "2026-09-24"
 
   - id: sr.gaussianE.unitConversion
     paper: special-relativity
