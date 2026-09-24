@@ -27,6 +27,10 @@ export const TEST_ONLY_MARKERS: readonly string[] = [
   // BridgeRouter's properties that the test.log and test.snapshot handling calls.
   "onTestLog",
   "onTestSnapshot",
+  // The web-content termination hook (bead am-app-lifecycle-resilience-4dhu, "the release binary
+  // contains no termination hook"): the private selector it calls, and the session's switch for it.
+  "_killWebContentProcess",
+  "killWebContentOnceReady",
 ];
 
 /**
