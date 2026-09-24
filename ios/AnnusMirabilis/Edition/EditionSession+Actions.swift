@@ -1,0 +1,43 @@
+import UIKit
+
+/// What the reader can do with the page from the native chrome: share it, print it, find in it,
+/// and take their data away.
+extension EditionSession {
+    /// The share sheet for a page of the website when the page asks for one (`share.request`),
+    /// or for a file the page saved. The page-actions menu shares through SwiftUI's ShareLink.
+    func presentShareSheet(for url: URL) {
+        guard let presenter = topPresenter else { return }
+        let sheet = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        // Anchored in the presenter's own view: the web view sits under any sheet the app shows.
+        if let anchor = presenter.view {
+            sheet.popoverPresentationController?.sourceView = anchor
+            sheet.popoverPresentationController?.sourceRect = CGRect(
+                x: anchor.bounds.midX, y: anchor.bounds.midY, width: 1, height: 1)
+        }
+        presenter.present(sheet, animated: true)
+    }
+
+    /// Writes an export of the reader's data and offers it in the share sheet.
+    func share(_ export: ReaderDataExport) {
+        guard let file = ExportFiles.destination(suggested: export.suggestedFilename),
+            (try? export.jsonData().write(to: file, options: .atomic)) != nil
+        else { return }
+        presentShareSheet(for: file)
+    }
+
+    /// Print, or save as PDF, the page as the edition's print styles set it.
+    func printPage() {
+        let info = UIPrintInfo.printInfo()
+        info.outputType = .general
+        info.jobName = title ?? "Annus Mirabilis"
+        let controller = UIPrintInteractionController.shared
+        controller.printInfo = info
+        controller.printFormatter = webView.viewPrintFormatter()
+        controller.present(animated: true)
+    }
+
+    /// The system find bar, searching the page's text.
+    func findOnPage() {
+        webView.findInteraction?.presentFindNavigator(showingReplace: false)
+    }
+}

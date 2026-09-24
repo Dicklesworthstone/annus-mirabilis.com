@@ -51,11 +51,13 @@ struct ReaderDataView: View {
         case .data:
             ContentUnavailableView(
                 "Nothing saved yet", systemImage: "tray",
-                description: Text("Settings you change and notes you save in the edition appear here."))
+                description: Text("Settings you change and notes you save in the edition appear here.")
+                    .foregroundStyle(Color("MutedInk")))
         case .corrupt:
             ContentUnavailableView(
                 "The app's copy could not be read", systemImage: "exclamationmark.triangle",
-                description: Text("The edition's own copy is untouched, and its Your data page can still export it."))
+                description: Text("The edition's own copy is untouched, and its Your data page can still export it.")
+                    .foregroundStyle(Color("MutedInk")))
         case nil:
             ContentUnavailableView("This build keeps no copy", systemImage: "tray")
         }
@@ -70,7 +72,7 @@ struct ReaderDataView: View {
                         fromByteCount: Int64(data.values[entry.key]?.utf8.count ?? 0), countStyle: .file)
                 )
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color("MutedInk"))
             }
             Spacer()
             if entry.exportable {

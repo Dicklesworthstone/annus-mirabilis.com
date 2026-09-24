@@ -95,9 +95,7 @@ final class ThemeChromeUITests: XCTestCase {
         XCUIDevice.shared.appearance = .light
         let app = launch()
         waitForBand(app, dark: false)
-        let toggle = app.webViews.buttons["Switch to dark theme"]
-        XCTAssertTrue(toggle.waitForExistence(timeout: 10))
-        toggle.tap()
+        app.chooseDarkTheme()
         waitForBand(app, dark: true)
         XCTAssertGreaterThanOrEqual(buttonContrast(app), 4.5, "the page-actions button on the dark page")
         keep(app, "dark-page-on-light-device")
@@ -123,9 +121,7 @@ final class ThemeChromeUITests: XCTestCase {
         let suite = "uitest-\(UUID().uuidString)"
         var app = launch(suite: suite)
         waitForBand(app, dark: false)
-        let toggle = app.webViews.buttons["Switch to dark theme"]
-        XCTAssertTrue(toggle.waitForExistence(timeout: 10))
-        toggle.tap()
+        app.chooseDarkTheme()
         waitForBand(app, dark: true)
         // The mirror is sent 300 ms after the write settles.
         Thread.sleep(forTimeInterval: 2)
@@ -145,9 +141,7 @@ final class ThemeChromeUITests: XCTestCase {
         let suite = "uitest-\(UUID().uuidString)"
         var app = launch(suite: suite)
         waitForBand(app, dark: false)
-        let toggle = app.webViews.buttons["Switch to dark theme"]
-        XCTAssertTrue(toggle.waitForExistence(timeout: 10))
-        toggle.tap()
+        app.chooseDarkTheme()
         waitForBand(app, dark: true)
         app.terminate()
 

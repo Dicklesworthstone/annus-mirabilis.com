@@ -20,9 +20,7 @@ final class ReaderDataUITests: XCTestCase {
         XCTAssertEqual(XCTWaiter().wait(for: [ready], timeout: 30), .completed, "the page never reported ready")
 
         // Nothing is saved on a fresh suite; the reader's theme choice is the first thing saved.
-        let toggle = edition.buttons["Switch to dark theme"]
-        XCTAssertTrue(toggle.waitForExistence(timeout: 10))
-        toggle.tap()
+        app.chooseDarkTheme()
         // The mirror is sent 300 ms after the write settles.
         Thread.sleep(forTimeInterval: 2)
 

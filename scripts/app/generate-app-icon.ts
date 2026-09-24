@@ -14,6 +14,7 @@
  *   LaunchBackground.colorset/Contents.json
  *   AccentColor.colorset/Contents.json (the site's accent, for system controls in the app)
  *   PageInk.colorset/Contents.json (the site's ink, for native controls over the page)
+ *   MutedInk.colorset/Contents.json (the site's muted ink, for secondary text in native lists)
  *   PageMark.imageset/ (the mark at 180 px, for the share sheet's preview)
  *
  * Usage: `bun scripts/app/generate-app-icon.ts`
@@ -241,6 +242,19 @@ export function pageInkContents() {
   return colorsetContents(light.bar, dark.bar);
 }
 
+/**
+ * The site's muted ink, for secondary text in the native sheets. SwiftUI's `.secondary` measured
+ * "Contrast failed" in XCUITest's accessibility audit on the catalogue's list cells (about 3.4:1
+ * on white); the site's own token clears 4.5:1 on every list background it sits on
+ * (generate-app-icon.test.ts).
+ */
+export function mutedInkContents() {
+  return colorsetContents(
+    hexToRgb(THEME_TOKENS.annalen.muted),
+    hexToRgb(THEME_TOKENS["kramgasse-night"].muted),
+  );
+}
+
 /** The mark for the share sheet's preview: 60 points at 3x. */
 export const MARK_SIZE = 180;
 
@@ -282,6 +296,11 @@ function main(): number {
   writeFileSync(
     join(catalog, "PageInk.colorset", "Contents.json"),
     `${JSON.stringify(pageInkContents(), null, 2)}\n`,
+  );
+  mkdirSync(join(catalog, "MutedInk.colorset"), { recursive: true });
+  writeFileSync(
+    join(catalog, "MutedInk.colorset", "Contents.json"),
+    `${JSON.stringify(mutedInkContents(), null, 2)}\n`,
   );
   mkdirSync(join(catalog, "AccentColor.colorset"), { recursive: true });
   writeFileSync(

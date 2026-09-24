@@ -77,14 +77,17 @@ struct PageActionsButton: View {
         .accessibilityLabel("Page actions")
         .accessibilityHint("Contents, share, print, or find on this page, or see your data on this device")
         .accessibilityIdentifier("page-actions")
+        // A sheet is its own presentation: without this it follows the device, not the reader's theme.
         .sheet(isPresented: $showingReaderData) {
             ReaderDataView(session: session)
+                .preferredColorScheme(session.pageColorScheme)
         }
         .sheet(isPresented: $showingContents) {
             if let catalog = session.nativeCatalog {
                 EditionContentsView(catalog: catalog) { route, anchor in
                     session.open(route: route, anchor: anchor)
                 }
+                .preferredColorScheme(session.pageColorScheme)
             }
         }
     }

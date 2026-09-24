@@ -164,7 +164,7 @@ struct EditionUnavailableView: View {
                 .font(.body)
             Text(versionLine)
                 .font(.footnote.monospaced())
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color("MutedInk"))
                 .accessibilityIdentifier("app-version")
         }
         .padding(24)

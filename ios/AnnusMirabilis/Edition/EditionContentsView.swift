@@ -7,15 +7,37 @@ struct EditionContentsView: View {
     let catalog: NativeCatalog
     let open: (_ route: String, _ anchor: String?) -> Void
     @Environment(\.dismiss) private var dismiss
+    @State private var part: Part = .papers
+
+    /// The sheet's three lists, chosen with a segmented control at the top. A tab bar floated its
+    /// glass over the end of each long list, and the accessibility audit measured the text
+    /// beneath it as failing contrast.
+    enum Part: String, CaseIterable, Identifiable {
+        case papers = "Papers"
+        case discover = "Discover"
+        case instruments = "Instruments"
+        var id: String { rawValue }
+    }
 
     var body: some View {
-        TabView {
-            NavigationStack { papers }
-                .tabItem { Label("Papers", systemImage: "books.vertical") }
-            NavigationStack { discover }
-                .tabItem { Label("Discover", systemImage: "point.topleft.down.to.point.bottomright.curvepath") }
-            NavigationStack { instruments }
-                .tabItem { Label("Instruments", systemImage: "dial.medium") }
+        NavigationStack {
+            Group {
+                switch part {
+                case .papers: papers
+                case .discover: discover
+                case .instruments: instruments
+                }
+            }
+            .navigationTitle(part.rawValue)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Picker("Contents", selection: $part) {
+                        ForEach(Part.allCases) { Text($0.rawValue).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+                }
+                done
+            }
         }
     }
 
@@ -40,13 +62,11 @@ struct EditionContentsView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(paper.name).font(.headline)
                     Text(paper.title).font(.subheadline)
-                    Text(Self.german(paper.germanTitle)).font(.footnote).italic().foregroundStyle(.secondary)
+                    Text(Self.german(paper.germanTitle)).font(.footnote).italic().foregroundStyle(Color("MutedInk"))
                 }
                 .padding(.vertical, 4)
             }
         }
-        .navigationTitle("Papers")
-        .toolbar { done }
     }
 
     private func outline(_ paper: NativeCatalog.Paper) -> some View {
@@ -56,8 +76,8 @@ struct EditionContentsView: View {
                     go(paper.route)
                 } label: {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(paper.title).font(.headline).foregroundStyle(.primary)
-                        Text(paper.description).font(.footnote).foregroundStyle(.secondary)
+                        Text(paper.title).font(.headline).foregroundStyle(Color("PageInk"))
+                        Text(paper.description).font(.footnote).foregroundStyle(Color("MutedInk"))
                     }
                 }
             }
@@ -66,7 +86,7 @@ struct EditionContentsView: View {
                     Button {
                         go(section.route, section.anchor)
                     } label: {
-                        Text(section.title).foregroundStyle(.primary)
+                        Text(section.title).foregroundStyle(Color("PageInk"))
                     }
                 }
             }
@@ -84,27 +104,29 @@ struct EditionContentsView: View {
             } label: {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(route.name).font(.headline)
-                    Text(Self.german(route.germanTitle)).font(.footnote).italic().foregroundStyle(.secondary)
+                    Text(Self.german(route.germanTitle)).font(.footnote).italic().foregroundStyle(Color("MutedInk"))
                 }
                 .padding(.vertical, 4)
             }
         }
-        .navigationTitle("Discover")
-        .toolbar { done }
     }
 
     private func steps(_ route: NativeCatalog.DiscoverRoute) -> some View {
         List {
             Section {
                 Text(route.blurb).font(.callout)
-                Button("Open the route") { go(route.route) }
-                    .accessibilityIdentifier("contents-open-route")
+                Button {
+                    go(route.route)
+                } label: {
+                    Text("Open the route")
+                }
+                .accessibilityIdentifier("contents-open-route")
             }
             Section {
                 ForEach(Array(route.steps.enumerated()), id: \.offset) { index, step in
                     HStack(alignment: .firstTextBaseline, spacing: 12) {
                         Text(String(format: "%02d", index + 1)).font(.footnote.monospacedDigit()).foregroundStyle(
-                            .secondary)
+                            Color("MutedInk"))
                         Text(step)
                     }
                     .accessibilityElement(children: .combine)
@@ -119,22 +141,22 @@ struct EditionContentsView: View {
 
     private var instruments: some View {
         List(catalog.labs) { group in
-            Section(group.name) {
+            Section {
                 ForEach(group.instruments) { instrument in
                     Button {
                         go(instrument.route)
                     } label: {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(instrument.name).foregroundStyle(.primary)
-                            Text(instrument.id).font(.caption.monospaced()).foregroundStyle(.secondary)
+                            Text(instrument.name).foregroundStyle(Color("PageInk"))
+                            Text(instrument.id).font(.caption.monospaced()).foregroundStyle(Color("MutedInk"))
                         }
                     }
                     .accessibilityLabel(instrument.name)
                 }
+            } header: {
+                Text(group.name).foregroundStyle(Color("MutedInk"))
             }
         }
-        .navigationTitle("Instruments")
-        .toolbar { done }
     }
 
     /// German titles are marked as German, so VoiceOver reads them in German.

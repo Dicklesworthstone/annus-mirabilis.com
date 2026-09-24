@@ -22,6 +22,7 @@ import {
   iconPalettes,
   launchBackgroundContents,
   MARK_SIZE,
+  mutedInkContents,
   PAGE_COUNTS,
   PAGE_MARK_CONTENTS,
   pageInkContents,
@@ -131,6 +132,10 @@ describe("app icon", () => {
       readFileSync(join(CATALOG, "PageInk.colorset", "Contents.json"), "utf8"),
     );
     assert.deepEqual(ink, pageInkContents());
+    const muted = JSON.parse(
+      readFileSync(join(CATALOG, "MutedInk.colorset", "Contents.json"), "utf8"),
+    );
+    assert.deepEqual(muted, mutedInkContents());
     const mark = JSON.parse(
       readFileSync(join(CATALOG, "PageMark.imageset", "Contents.json"), "utf8"),
     );
@@ -159,5 +164,39 @@ describe("PNG encoding", () => {
 
   it("refuses bytes that are not a PNG", () => {
     assert.equal(decodePng(new Uint8Array(16)), null);
+  });
+});
+
+describe("the muted ink for secondary text in native lists", () => {
+  const luminance = (hex: string) => {
+    const channel = (at: number) => {
+      const value = Number.parseInt(hex.slice(at, at + 2), 16) / 255;
+      return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+    };
+    return 0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5);
+  };
+  const contrast = (a: string, b: string) => {
+    const [high, low] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+    return ((high ?? 0) + 0.05) / ((low ?? 0) + 0.05);
+  };
+  // iOS list backgrounds: cell and grouped ground, light then dark (UIColor.systemBackground,
+  // secondarySystemGroupedBackground, systemGroupedBackground, tertiarySystemGroupedBackground).
+  const grounds = {
+    annalen: ["#ffffff", "#f2f2f7"],
+    "kramgasse-night": ["#000000", "#1c1c1e", "#2c2c2e"],
+  } as const;
+
+  it("clears 4.5:1 on every list background in both themes", () => {
+    for (const theme of ["annalen", "kramgasse-night"] as const) {
+      for (const ground of grounds[theme]) {
+        const ratio = contrast(THEME_TOKENS[theme].muted, ground);
+        assert.ok(ratio >= 4.5, `${theme} muted on ${ground}: ${ratio.toFixed(2)}`);
+      }
+    }
+  });
+
+  it("is a test that can fail: iOS's own secondary label on white does not clear it", () => {
+    // secondaryLabel is #3c3c43 at 60 percent, which composites on white to #8a8a8e.
+    assert.ok(contrast("#8a8a8e", "#ffffff") < 4.5);
   });
 });

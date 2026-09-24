@@ -39,6 +39,8 @@ final class EditionSession {
     /// The papers, outlines, Discover routes and instruments the native screens list.
     @ObservationIgnored let nativeCatalog: NativeCatalog?
     @ObservationIgnored private var contentSizeObserver: (any NSObjectProtocol)?
+    /// The last page announced to VoiceOver as a new screen.
+    @ObservationIgnored private var announcedRoute: String?
     /// DEBUG UI tests only: the route, and the pasteboard, are exposed for assertions.
     let exposesRouteForTests: Bool
     @ObservationIgnored private var observations: [NSKeyValueObservation] = []
@@ -185,7 +187,7 @@ final class EditionSession {
     }
 
     /// The controller at the top of the window's presentation chain.
-    private var topPresenter: UIViewController? {
+    var topPresenter: UIViewController? {
         guard var presenter = webView.window?.rootViewController else { return nil }
         while let next = presenter.presentedViewController {
             presenter = next
@@ -243,50 +245,21 @@ final class EditionSession {
         if exposesRouteForTests {
             webView.accessibilityValue = bridgeRoute
         }
-    }
-
-    /// The share sheet for a page of the website when the page asks for one (`share.request`),
-    /// or for a file the page saved. The page-actions menu shares through SwiftUI's ShareLink.
-    func presentShareSheet(for url: URL) {
-        guard let presenter = topPresenter else { return }
-        let sheet = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        // Anchored in the presenter's own view: the web view sits under any sheet the app shows.
-        if let anchor = presenter.view {
-            sheet.popoverPresentationController?.sourceView = anchor
-            sheet.popoverPresentationController?.sourceRect = CGRect(
-                x: anchor.bounds.midX, y: anchor.bounds.midY, width: 1, height: 1)
+        // A new page is a new screen to VoiceOver, as a page load is in Safari, so its focus moves
+        // into the page rather than staying on the control that opened it. A jump to an anchor on
+        // the same page is the page's own to handle.
+        if route != announcedRoute {
+            announcedRoute = route
+            if UIAccessibility.isVoiceOverRunning {
+                UIAccessibility.post(notification: .screenChanged, argument: webView)
+            }
         }
-        presenter.present(sheet, animated: true)
     }
 
     /// The reader's data as the app holds it; nil when this build has no store or registry.
     func loadReaderData() -> ReaderData.LoadResult? {
         guard let store = router.store, let manifest = catalog.readerData else { return nil }
         return ReaderData.load(from: store, manifest: manifest)
-    }
-
-    /// Writes an export of the reader's data and offers it in the share sheet.
-    func share(_ export: ReaderDataExport) {
-        guard let file = ExportFiles.destination(suggested: export.suggestedFilename),
-            (try? export.jsonData().write(to: file, options: .atomic)) != nil
-        else { return }
-        presentShareSheet(for: file)
-    }
-
-    /// Print, or save as PDF, the page as the edition's print styles set it.
-    func printPage() {
-        let info = UIPrintInfo.printInfo()
-        info.outputType = .general
-        info.jobName = title ?? "Annus Mirabilis"
-        let controller = UIPrintInteractionController.shared
-        controller.printInfo = info
-        controller.printFormatter = webView.viewPrintFormatter()
-        controller.present(animated: true)
-    }
-
-    /// The system find bar, searching the page's text.
-    func findOnPage() {
-        webView.findInteraction?.presentFindNavigator(showingReplace: false)
     }
 
     private static func makeWebView(
