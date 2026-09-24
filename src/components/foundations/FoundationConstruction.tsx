@@ -4,6 +4,7 @@ import { foundationConstructionId } from "./constructionIds.ts";
 import { HeldFixedToggle } from "./HeldFixedToggle.tsx";
 import type { HeadingLevel } from "./headingLevel.ts";
 import { LogarithmProductTable } from "./LogarithmProductTable.tsx";
+import { MagnitudeScale } from "./MagnitudeScale.tsx";
 import { NudgeSensitivityDemo } from "./NudgeSensitivityDemo.tsx";
 import { RepeatedProportionalTable } from "./RepeatedProportionalTable.tsx";
 import { ScalingTable } from "./ScalingTable.tsx";
@@ -46,5 +47,7 @@ export function FoundationConstruction({
       return <UnitConversionCalculator headingLevel={headingLevel} />;
     case "ratios-scaling":
       return <ScalingTable headingLevel={headingLevel} />;
+    case "orders-of-magnitude":
+      return <MagnitudeScale headingLevel={headingLevel} />;
   }
 }

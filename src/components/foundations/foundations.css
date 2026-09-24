@@ -251,6 +251,46 @@
   margin-top: 1rem;
 }
 
+/*
+ * Orders-of-magnitude scale (MagnitudeScale.tsx). One row per number, each with its own line of
+ * powers of ten, so two values a fraction of a power apart never draw on top of each other. The
+ * ticks are a repeating gradient, one period per power of ten; --decades is set on the element.
+ */
+.magnitude-rows {
+  list-style: none;
+  margin: 1rem 0;
+  padding: 0;
+}
+
+.magnitude-rows > li {
+  margin: 0.75rem 0;
+}
+
+.magnitude-track {
+  position: relative;
+  display: block;
+  height: 0.9rem;
+  margin-top: 0.3rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: repeating-linear-gradient(
+    to right,
+    var(--line) 0 1px,
+    transparent 1px calc(100% / var(--decades, 1))
+  );
+}
+
+.magnitude-dot {
+  position: absolute;
+  top: 0.15rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-left: -0.3rem;
+  border-radius: 50%;
+  /* Ink, not accent: the dot means its position, so colour draws no distinction here. */
+  background: var(--ink);
+}
+
 /* Print Media Styles */
 @media print {
   .proportional-controls,
