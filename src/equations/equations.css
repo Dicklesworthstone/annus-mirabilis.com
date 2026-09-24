@@ -526,14 +526,20 @@
 .reading-formula-relation {
   min-width: 0;
 }
-/* A formula keeps its size when it gains colour: the type of the plain .formula it replaced
-   (globals.css), and the reader's smaller phone size (reader.css, same breakpoint). Inheriting
-   the prose size set coloured mathematics at 23px beside 16px plain formulas on a phone, and
-   pushed paper 2's density integral 48px past a 390px screen. */
+/* Reading size on a wide screen, the reader's smaller size on a phone. 8b51baa5 set the
+   secondary size everywhere, to match the plain .formula it replaced; the owner found the result
+   "much worse looking than they used to be" (dispatch 144), so a wide screen takes the reading
+   body again. On a phone the smaller size stays: inheriting the prose size there set coloured
+   mathematics at 23px beside 16px plain formulas and pushed paper 2's density integral 48px past
+   a 390px screen. */
 .reading-formula .equation-visual {
-  font-size: var(--type-small);
+  font-size: var(--type-body);
 }
 @media (max-width: 560px) {
+  /* Lessons and other pages keep the size they had on a phone before; the reader goes smaller. */
+  .reading-formula .equation-visual {
+    font-size: var(--type-small);
+  }
   .reader-root .reading-formula .equation-visual {
     font-size: var(--type-fine);
   }
@@ -643,8 +649,8 @@
   color: var(--ink);
   background: color-mix(in srgb, var(--qc) var(--term-lit), transparent);
   box-shadow:
-    0 0 0 0.08em color-mix(in srgb, var(--qc) var(--term-lit), transparent),
-    0 0 0 0.14em color-mix(in srgb, var(--qc) 80%, transparent),
+    0 0 0 0.05em color-mix(in srgb, var(--qc) var(--term-lit), transparent),
+    0 0 0 0.1em color-mix(in srgb, var(--qc) 80%, transparent),
     0 0 0.6em color-mix(in srgb, var(--qc) 35%, transparent);
   outline: none;
 }
