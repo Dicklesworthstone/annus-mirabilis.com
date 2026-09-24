@@ -547,6 +547,15 @@
 .reader-root [hidden] {
   display: none;
 }
+/* THE HISTORIAN'S MARGIN (R3) under the paper lens: script sets data-lens, so without script the
+   attribute is absent and the margin stays a closed disclosure a reader can open. */
+html[data-lens="paper"] .reader-root details[data-reading="3"] {
+  display: none;
+}
+.modern-margin > summary > h4 {
+  display: inline;
+  margin: 0;
+}
 .reader-root [data-reading="1"] {
   display: block;
 }

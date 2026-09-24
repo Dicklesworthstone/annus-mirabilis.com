@@ -397,10 +397,17 @@ export async function PaperReader({
                         sectionHref={`/papers/${paper.id}/${a.section}/#${a.id}`}
                         title={a.title}
                       />
-                      <aside className="modern-margin callout-limit" data-reading="3" hidden>
-                        <h4>Modern qualifications</h4>
+                      {/* R3, THE HISTORIAN'S MARGIN, IS A DISCLOSURE (am-read-shell-routes-3ua). It was
+                          an aside marked hidden that only the modern lens showed, and the lens is set
+                          by script, so with JavaScript off nothing reached it. Now it is closed and
+                          openable without script; with script the lens decides as before
+                          (reader.css hides it at "paper", ReaderController opens it at "modern"). */}
+                      <details className="modern-margin callout-limit" data-reading="3">
+                        <summary>
+                          <h4>Modern qualifications</h4>
+                        </summary>
                         <ReadingBlocks blocks={a.readings.margin} foundations={foundations} />
-                      </aside>
+                      </details>
                     </div>
                     <div data-face-results hidden>
                       <p>{a.recap}</p>

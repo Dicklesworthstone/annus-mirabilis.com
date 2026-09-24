@@ -32,9 +32,11 @@ describe("am-read-detail-axis-sfc: static reading emission", () => {
     // Brownian page), so no div copy may come back.
     expect(html).toMatch(/<details class="local-steps reading-version" data-reading="2">/);
     expect(html).not.toContain('<div data-reading="2"');
-    // R3 is present and hidden. Its class list is presentation, not the contract: 9a4c224a added
-    // callout-limit to the modern margin and four exact-string checks went red.
-    expect(html).toMatch(/<aside\b[^>]*\sdata-reading="3"[^>]*\shidden=""/);
+    // R3 is a closed disclosure, not hidden, so it opens without JavaScript (am-read-shell-routes-3ua);
+    // the lens hides or opens it with script. Its class list is presentation, not the contract.
+    expect(html).toMatch(/<details\b[^>]*\sdata-reading="3"[^>]*>\s*<summary>/);
+    expect(html).not.toMatch(/<details\b[^>]*\sdata-reading="3"[^>]*\s(?:hidden|open)=/);
+    expect(html).not.toMatch(/<aside\b[^>]*\sdata-reading="3"/);
 
     // The same element is the no-JS per-passage expansion, exactly once per passage.
     const units = (html.match(/<article\b[^>]*\sdata-unit="/g) ?? []).length;
@@ -67,9 +69,11 @@ describe("am-read-detail-axis-sfc: static reading emission", () => {
     // R2 once, as the closed per-passage disclosure (see the PaperReader test above).
     expect(html).toMatch(/<details class="local-steps reading-version" data-reading="2">/);
     expect(html).not.toContain('<div data-reading="2"');
-    // R3 is present and hidden. Its class list is presentation, not the contract: 9a4c224a added
-    // callout-limit to the modern margin and four exact-string checks went red.
-    expect(html).toMatch(/<aside\b[^>]*\sdata-reading="3"[^>]*\shidden=""/);
+    // R3 is a closed disclosure, not hidden, so it opens without JavaScript (am-read-shell-routes-3ua);
+    // the lens hides or opens it with script. Its class list is presentation, not the contract.
+    expect(html).toMatch(/<details\b[^>]*\sdata-reading="3"[^>]*>\s*<summary>/);
+    expect(html).not.toMatch(/<details\b[^>]*\sdata-reading="3"[^>]*\s(?:hidden|open)=/);
+    expect(html).not.toMatch(/<aside\b[^>]*\sdata-reading="3"/);
 
     // The same element is the no-JS per-passage expansion, exactly once per passage.
     const units = (html.match(/<article\b[^>]*\sdata-unit="/g) ?? []).length;

@@ -238,6 +238,11 @@ export function ReaderController(props: Props) {
         placeHold.across(passageInView, swapReadings);
       else swapReadings();
       document.documentElement.dataset.lens = state.lens ? "modern" : "paper";
+      // The historian's margins are disclosures, so a reader without script can open them; the
+      // modern lens opens every one, and reader.css hides them all under the paper lens.
+      root.querySelectorAll<HTMLDetailsElement>('details[data-reading="3"]').forEach((margin) => {
+        margin.open = state.lens;
+      });
       document.documentElement.dataset.view = state.view;
       root.dataset.view = state.view;
       detailControls.forEach((control) => {

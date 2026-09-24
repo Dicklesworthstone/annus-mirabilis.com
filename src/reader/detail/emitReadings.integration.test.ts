@@ -10,7 +10,7 @@ import { PaperReader } from "../PaperReader.tsx";
 import { type CaptionReadingSet, CaptionReadingUnit } from "./CaptionReadingUnit.tsx";
 
 describe("emitReadings.integration (am-read-detail-axis-sfc)", () => {
-  test("paragraph unit contains exactly four readings with R1 visible and R0, R2, R3 hidden", async () => {
+  test("paragraph unit contains exactly four readings with R1 visible, R0 hidden, and R2 and R3 closed disclosures", async () => {
     const page = await PaperReader({ section: "s4" });
     const html = await exportMarkup(page);
 
@@ -23,9 +23,9 @@ describe("emitReadings.integration (am-read-detail-axis-sfc)", () => {
     // R2 once, as the closed per-passage disclosure (see staticReadings.test.tsx).
     expect(html).toContain('<details class="local-steps reading-version" data-reading="2">');
     expect(html).not.toContain('<div data-reading="2"');
-    // R3 is present and hidden. Its class list is presentation, not the contract: 9a4c224a added
-    // callout-limit to the modern margin and four exact-string checks went red.
-    expect(html).toMatch(/<aside\b[^>]*\sdata-reading="3"[^>]*\shidden=""/);
+    // R3 is a closed disclosure, not hidden, so it opens without JavaScript (am-read-shell-routes-3ua).
+    expect(html).toMatch(/<details\b[^>]*\sdata-reading="3"[^>]*>\s*<summary>/);
+    expect(html).not.toMatch(/<details\b[^>]*\sdata-reading="3"[^>]*\s(?:hidden|open)=/);
   });
 
   test("equation unit emits semantic structure within the passage unit", async () => {
