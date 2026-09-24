@@ -62,6 +62,22 @@ function ChargeRow({ n, y, positive }: { n: number; y: number; positive: boolean
   );
 }
 
+/**
+ * The head of a horizontal arrow ending at (x, y), pointing right (+1) or left (-1). It is the
+ * triangle the old <marker> drew (viewBox 10, markerWidth 6 at stroke width 2, refX 7, refY 5),
+ * written as points so that no frame defines an id: every frame defined id="sr12-arrow", and a
+ * page shows two frames.
+ */
+function ArrowHead({ x, y, direction }: { x: number; y: number; direction: number }) {
+  const d = direction > 0 ? 1 : -1;
+  return (
+    <polygon
+      points={`${x - 8.4 * d},${y - 4.8} ${x + 3.6 * d},${y} ${x - 8.4 * d},${y + 4.8}`}
+      fill="var(--muted)"
+    />
+  );
+}
+
 /** A short arrow with a word beside it, pointing left (-1) or right (+1). */
 function MotionArrow({ direction, y, words }: { direction: number; y: number; words: string }) {
   if (direction === 0) return null;
@@ -69,15 +85,8 @@ function MotionArrow({ direction, y, words }: { direction: number; y: number; wo
   const head = direction > 0 ? 160 : 100;
   return (
     <g>
-      <line
-        x1={tail}
-        y1={y}
-        x2={head}
-        y2={y}
-        stroke="var(--muted)"
-        strokeWidth={2}
-        markerEnd="url(#sr12-arrow)"
-      />
+      <line x1={tail} y1={y} x2={head} y2={y} stroke="var(--muted)" strokeWidth={2} />
+      <ArrowHead x={head} y={y} direction={direction} />
       <text
         x={direction > 0 ? 92 : 168}
         y={y + 4}
@@ -87,24 +96,6 @@ function MotionArrow({ direction, y, words }: { direction: number; y: number; wo
         {words}
       </text>
     </g>
-  );
-}
-
-function ArrowMarker() {
-  return (
-    <defs>
-      <marker
-        id="sr12-arrow"
-        viewBox="0 0 10 10"
-        refX="7"
-        refY="5"
-        markerWidth="6"
-        markerHeight="6"
-        orient="auto"
-      >
-        <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--muted)" />
-      </marker>
-    </defs>
   );
 }
 
@@ -126,7 +117,6 @@ function Frame({
       <p className="sr12-frame-title">{title}</p>
       {values ? <p className="fine sr12-frame-values">{withScripts(values)}</p> : null}
       <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={ariaLabel}>
-        <ArrowMarker />
         {children}
       </svg>
       <p className="fine sr12-frame-caption">{caption}</p>
@@ -347,8 +337,8 @@ export function ChargeCurrentPlot({
             y2={30}
             stroke="var(--ink)"
             strokeWidth={2}
-            markerEnd="url(#sr12-arrow)"
           />
+          <ArrowHead x={W / 2 + 20} y={30} direction={1} />
           <line
             x1={W / 2 + 20}
             y1={92}
@@ -356,8 +346,8 @@ export function ChargeCurrentPlot({
             y2={92}
             stroke="var(--ink)"
             strokeWidth={2}
-            markerEnd="url(#sr12-arrow)"
           />
+          <ArrowHead x={W / 2 - 20} y={92} direction={-1} />
           <text x={W / 2} y={20} textAnchor="middle" style={label}>
             current I, no charge
           </text>
