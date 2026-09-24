@@ -26,7 +26,7 @@
     },
     {
       "kind": "paragraph",
-      "text": "Electricity had two CGS systems. The electrostatic system builds its charge unit, the statcoulomb, from the force between charges. The electromagnetic system builds its current unit from the force between currents; its units are the abcoulomb and the abvolt. One abcoulomb is 10 coulombs, one abvolt is 10⁻⁸ volts, one statvolt is 299.792458 volts, and one gauss is 10⁻⁴ tesla."
+      "text": "Electricity had two CGS systems. The electrostatic system builds its charge unit, the statcoulomb, from the force between charges. The electromagnetic system builds its current unit from the force between currents; its units are the abcoulomb and the abvolt. One abcoulomb is 10 coulombs, one abvolt is 10⁻⁸ volts, one statvolt is 299.792458 volts, and one gauss is 10⁻⁴ tesla. Planck's 1901 elementary charge, 4,69 · 10⁻¹⁰ statcoulombs, is 1.56 × 10⁻¹⁹ coulombs."
     },
     {
       "kind": "paragraph",
@@ -34,7 +34,7 @@
     },
     {
       "kind": "paragraph",
-      "text": "The light paper's photoelectric check in §8 uses the electromagnetic system. It takes E = 9,6 · 10³ for the charge of one gram-equivalent of a monovalent ion, so a potential Π comes out in abvolts, and the paper multiplies by 10⁻⁸ to get volts. It prints the result as about 4,3 volts. On the result line the factor is set as 10⁷; the edition records this as a misprint, because the sentence four lines earlier gives 10⁻⁸."
+      "text": "The light paper's photoelectric check in §8 uses the electromagnetic system. It takes E = 9,6 · 10³ for the charge of one gram-equivalent of a monovalent ion, so a potential Π comes out in abvolts, and the paper multiplies by 10⁻⁸ to get volts. It prints the result as about 4,3 volts. On the result line the factor is set as 10⁷; the edition records this as a misprint, because the sentence four lines earlier gives 10⁻⁸. The check can also be run per electron, with Planck's charge in statcoulombs and the result in statvolts, and it gives 4.31 volts; the edition keeps that as a documented alternative and follows the page."
     },
     {
       "kind": "paragraph",
