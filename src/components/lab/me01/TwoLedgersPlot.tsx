@@ -1,6 +1,6 @@
 import type { Me01Parameters } from "../../../experiments/me01/definition.ts";
 import type { Me01Snapshot } from "../../../experiments/me01/session.ts";
-import { fixed } from "../presentation.ts";
+import { fixed, numberText } from "../presentation.ts";
 import "./me01.css";
 
 export interface TwoLedgersPlotProps {
@@ -78,8 +78,8 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
         <div className="emission-geometry">
           <p className="me01-figure-title">Seen from a frame moving at v = {frameSpeed}c</p>
           <p className="fine me01-figure-sub">
-            The body sends out two equal pulses in opposite directions, at φ = {emissionAngle}° to
-            the direction of motion.
+            The body sends out two equal pulses in opposite directions, at φ ={" "}
+            {numberText(emissionAngle)}° to the direction of motion.
           </p>
           <svg
             viewBox="0 0 340 275"

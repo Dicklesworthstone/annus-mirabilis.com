@@ -20,7 +20,7 @@ import {
   evaluateBm03,
   type PreparedBm03Example,
 } from "../../../experiments/bm03/session.ts";
-import { fixed, identity } from "../presentation.ts";
+import { fixed, identity, numberText } from "../presentation.ts";
 import { ConfigurationPlot } from "./ConfigurationPlot.tsx";
 import "./bm03.css";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
@@ -449,7 +449,7 @@ export function ConfigurationLab({
                 </tr>
                 <tr>
                   <th scope="row">Volume expansion ratio V/V₀</th>
-                  <td>{p.volumeRatio}</td>
+                  <td>{numberText(p.volumeRatio)}</td>
                 </tr>
                 <tr>
                   <th scope="row">Position arrangement factor</th>

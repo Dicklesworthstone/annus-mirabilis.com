@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { Bm03Parameters } from "../../../experiments/bm03/definition.ts";
 import type { Bm03Evaluation } from "../../../experiments/bm03/session.ts";
-import { fixed } from "../presentation.ts";
+import { fixed, numberText } from "../presentation.ts";
 import "./bm03.css";
 
 export interface ConfigurationPlotProps {
@@ -37,7 +37,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
     const boxWidth = 60 * Math.min(ratio, 2.5);
     title = `Step 1: one particle in the accessible volume ${V}`;
     lead = "Its possible positions are proportional to the room it has.";
-    pictureLabel = `A particle in a box of volume ${volumeRatio} times V₀`;
+    pictureLabel = `A particle in a box of volume ${numberText(volumeRatio)} times V₀`;
     picture = (
       <>
         <rect
@@ -52,7 +52,7 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
         />
         <circle cx="110" cy="70" r="8" fill="var(--accent)" />
         <text x="110" y="148" textAnchor="middle">
-          {V} = {volumeRatio} × V₀
+          {V} = {numberText(volumeRatio)} × V₀
         </text>
       </>
     );
@@ -60,19 +60,19 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
       <>
         <p className="bm03-card-title">Integral over (x₁, y₁, z₁)</p>
         <p className="bm03-math">B₁ = ∫ dx₁ dy₁ dz₁ = {V}</p>
-        <p>Factor ratio: {volumeRatio}</p>
+        <p>Factor ratio: {numberText(volumeRatio)}</p>
       </>
     );
   } else if (step === "two-particles") {
     const k = Math.max(1, Math.min(4, Math.round(ratio)));
     const cell = 150 / k;
-    const states = exact ?? String(isLocked ? volumeRatio : squared);
+    const states = exact ?? numberText(isLocked ? volumeRatio : squared);
     title = isLocked
       ? "Step 2: two particles locked together"
       : "Step 2: two independent particles";
     lead = isLocked
-      ? `Locked together, the pair moves as one unit, so it has only the ${volumeRatio} choices of one particle.`
-      : `Independence multiplies the choices: ${volumeRatio} for particle 1 × ${volumeRatio} for particle 2 = ${squared}.`;
+      ? `Locked together, the pair moves as one unit, so it has only the ${numberText(volumeRatio)} choices of one particle.`
+      : `Independence multiplies the choices: ${numberText(volumeRatio)} for particle 1 × ${numberText(volumeRatio)} for particle 2 = ${numberText(squared)}.`;
     pictureLabel = `${states} arrangement states`;
     picture = (
       <>
@@ -134,13 +134,13 @@ export function ConfigurationPlot({ parameters, evaluation, clipId }: Configurat
           {isLocked ? `B = ∫ dx dy dz = ${V}` : `B₂ = ∫…∫ dx₁ … dz₂ = ${V}²`}
         </p>
         <p>
-          Volume factor: {isLocked ? volumeRatio : `(${volumeRatio})²`} ={" "}
-          <strong>{exact ?? (isLocked ? volumeRatio : squared)}</strong>
+          Volume factor: {isLocked ? numberText(volumeRatio) : `(${numberText(volumeRatio)})²`} ={" "}
+          <strong>{exact ?? numberText(isLocked ? volumeRatio : squared)}</strong>
         </p>
         <p className="fine">
           {isLocked
-            ? `The choices grow only as V/V₀ = ${volumeRatio}.`
-            : `The choices grow as (V/V₀)² = ${squared}.`}
+            ? `The choices grow only as V/V₀ = ${numberText(volumeRatio)}.`
+            : `The choices grow as (V/V₀)² = ${numberText(squared)}.`}
         </p>
       </>
     );

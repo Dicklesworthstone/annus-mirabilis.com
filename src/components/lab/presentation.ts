@@ -61,7 +61,30 @@ export function unitText(unit: string): string {
  * equally precise whether it was or not. -0 reads 0. A negative value carries the minus sign (U+2212),
  * as Sci and every typeset number on the site do, not the hyphen toFixed writes.
  */
+/**
+ * Whether JavaScript would write this number in exponential notation: toFixed from 10²¹ up, and
+ * String() there and below 10⁻⁶. A value a reader typed can be either, and "1e+300" is not how the
+ * site writes a number.
+ */
+function exponential(value: number): boolean {
+  const magnitude = Math.abs(value);
+  return Number.isFinite(value) && magnitude !== 0 && (magnitude >= 1e21 || magnitude < 1e-6);
+}
+
+/** value.toFixed(decimals), except where that would be exponential, which display() writes instead. */
+export function toFixedReadable(value: number, decimals: number): string {
+  return Number.isFinite(value) && Math.abs(value) >= 1e21
+    ? display(value)
+    : value.toFixed(decimals);
+}
+
+/** A number echoed as it is, as String() writes it, except where that would be exponential. */
+export function numberText(value: number): string {
+  return exponential(value) ? display(value) : String(value);
+}
+
 export function fixed(value: number, decimals: number): string {
+  if (Number.isFinite(value) && Math.abs(value) >= 1e21) return display(value);
   const text = value.toFixed(decimals);
   const trimmed = text.includes(".") ? text.replace(/0+$/, "").replace(/\.$/, "") : text;
   return trimmed === "-0" ? "0" : trimmed.replace(/^-/, "−");

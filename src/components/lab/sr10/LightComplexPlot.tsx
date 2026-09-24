@@ -1,5 +1,5 @@
 import { FramePair } from "../FramePair.tsx";
-import { fixed } from "../presentation.ts";
+import { fixed, toFixedReadable } from "../presentation.ts";
 
 export interface LightComplexPlotProps {
   beta: number;
@@ -88,7 +88,7 @@ export function LightComplexPlot({
           <svg
             viewBox="10 10 370 360"
             role="img"
-            aria-label={`Stationary frame K: a spherical light complex, energy ${energyStationaryJ.toFixed(2)} J, volume ${volumeStationaryM3.toFixed(2)} cubic metres, ray at phi = ${phiStationaryDeg.toFixed(1)} degrees`}
+            aria-label={`Stationary frame K: a spherical light complex, energy ${toFixedReadable(energyStationaryJ, 2)} J, volume ${toFixedReadable(volumeStationaryM3, 2)} cubic metres, ray at phi = ${toFixedReadable(phiStationaryDeg, 1)} degrees`}
             style={{ width: "100%", height: "auto", userSelect: "none" }}
           >
             <title>Stationary frame K</title>
@@ -114,7 +114,8 @@ export function LightComplexPlot({
                 Spherical light complex
               </text>
               <text x={40} y={77} fontSize="12" fill="var(--muted)">
-                E = {energyStationaryJ.toFixed(2)} J · V = {volumeStationaryM3.toFixed(2)} m³
+                E = {toFixedReadable(energyStationaryJ, 2)} J · V ={" "}
+                {toFixedReadable(volumeStationaryM3, 2)} m³
               </text>
 
               {/* Coordinate axes */}
@@ -204,14 +205,14 @@ export function LightComplexPlot({
                 fontWeight="500"
                 fill="var(--plot)"
               >
-                φ = {phiStationaryDeg.toFixed(1)}°
+                φ = {toFixedReadable(phiStationaryDeg, 1)}°
               </text>
             </g>
           </svg>
           <svg
             viewBox="420 10 370 360"
             role="img"
-            aria-label={`Moving frame k at beta = ${beta.toFixed(2)}: the same complex as an ellipsoid, energy ${energyMovingJ.toFixed(2)} J, volume ${volumeMovingM3.toFixed(2)} cubic metres, ray at phi' = ${phiMovingDeg.toFixed(1)} degrees`}
+            aria-label={`Moving frame k at beta = ${beta.toFixed(2)}: the same complex as an ellipsoid, energy ${toFixedReadable(energyMovingJ, 2)} J, volume ${toFixedReadable(volumeMovingM3, 2)} cubic metres, ray at phi' = ${toFixedReadable(phiMovingDeg, 1)} degrees`}
             style={{ width: "100%", height: "auto", userSelect: "none" }}
           >
             <title>Moving frame k</title>
@@ -248,7 +249,8 @@ export function LightComplexPlot({
                 Physical complex
               </text>
               <text x={cx2 - 140} y={77} fontSize="12" fill="var(--muted)">
-                E′ = {energyMovingJ.toFixed(2)} J · V′ = {volumeMovingM3.toFixed(2)} m³
+                E′ = {toFixedReadable(energyMovingJ, 2)} J · V′ ={" "}
+                {toFixedReadable(volumeMovingM3, 2)} m³
               </text>
 
               {/* Coordinate axes */}
@@ -365,7 +367,7 @@ export function LightComplexPlot({
                 fontWeight="500"
                 fill="var(--accent)"
               >
-                φ′ = {phiMovingDeg.toFixed(1)}°
+                φ′ = {toFixedReadable(phiMovingDeg, 1)}°
               </text>
             </g>
           </svg>

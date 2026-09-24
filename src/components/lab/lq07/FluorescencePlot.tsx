@@ -1,6 +1,6 @@
 import type { Lq07Parameters } from "../../../experiments/lq07/definition.ts";
 import type { Lq07Evaluation } from "../../../experiments/lq07/session.ts";
-import { fixed } from "../presentation.ts";
+import { fixed, numberText } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 
 export interface FluorescencePlotProps {
@@ -297,8 +297,8 @@ export function FluorescencePlot({
           </g>
         </svg>
         <p className="fine" style={{ margin: "0.6rem 0 0" }}>
-          Absorbed: {nu1} THz, {band1.wavelengthNm} nm ({plainBand(band1.name)}). Emitted: {nu2}{" "}
-          THz, {band2.wavelengthNm} nm ({plainBand(band2.name)}).{" "}
+          Absorbed: {numberText(nu1)} THz, {band1.wavelengthNm} nm ({plainBand(band1.name)}).
+          Emitted: {numberText(nu2)} THz, {band2.wavelengthNm} nm ({plainBand(band2.name)}).{" "}
           {budget.allowed
             ? "Heat: the rest of the absorbed energy, dissipated in the medium."
             : "Energy deficit: the emitted quantum would carry more energy than the absorbed quanta supply."}{" "}

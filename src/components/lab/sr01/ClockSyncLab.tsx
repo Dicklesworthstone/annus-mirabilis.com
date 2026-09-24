@@ -29,6 +29,7 @@ import type { PublishedResult } from "../../../experiments/store/instanceStore.t
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { withScripts } from "../subscripts.tsx";
 import "../showTheCode.css";
+import { numberText } from "../presentation.ts";
 
 function outputByQuantityId(
   outputs: readonly PublishedResult[],
@@ -39,7 +40,8 @@ function outputByQuantityId(
 
 function formatOutput(output: PublishedResult | undefined): string {
   if (!output) return "unavailable";
-  if (output.status === "value") return String(output.value);
+  if (output.status === "value")
+    return typeof output.value === "number" ? numberText(output.value) : String(output.value);
   if (output.status === "not-applicable")
     return `not applicable (${output.reason ?? "by convention"})`;
   if (output.status === "outside-domain") return `outside domain`;
@@ -251,9 +253,9 @@ export function ClockSyncLab({
                 <td>{row.id}</td>
                 <td>{row.kind}</td>
                 <td>{row.clockId}</td>
-                <td>{row.ownClockReading}</td>
-                <td>{row.t}</td>
-                <td>{row.x}</td>
+                <td>{numberText(row.ownClockReading)}</td>
+                <td>{numberText(row.t)}</td>
+                <td>{numberText(row.x)}</td>
               </tr>
             ))}
           </tbody>

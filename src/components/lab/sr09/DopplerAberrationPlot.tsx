@@ -1,5 +1,5 @@
 import { FramePair } from "../FramePair.tsx";
-import { fixed } from "../presentation.ts";
+import { fixed, toFixedReadable } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 
 export interface DopplerAberrationPlotProps {
@@ -94,7 +94,7 @@ export function DopplerAberrationPlot({
           <svg
             viewBox="10 20 370 340"
             role="img"
-            aria-label={`Stationary frame K: the source ray at theta = ${thetaStationaryDeg.toFixed(1)} degrees, frequency ${frequencyStationaryTHz.toFixed(1)} THz`}
+            aria-label={`Stationary frame K: the source ray at theta = ${toFixedReadable(thetaStationaryDeg, 1)} degrees, frequency ${toFixedReadable(frequencyStationaryTHz, 1)} THz`}
             style={{ width: "100%", height: "auto", userSelect: "none" }}
           >
             <title>Stationary frame K</title>
@@ -120,7 +120,8 @@ export function DopplerAberrationPlot({
                 Source frame
               </text>
               <text x={40} y={82} fontSize="12" fill="var(--muted)">
-                ν = {frequencyStationaryTHz.toFixed(1)} THz · θ = {thetaStationaryDeg.toFixed(1)}°
+                ν = {toFixedReadable(frequencyStationaryTHz, 1)} THz · θ ={" "}
+                {toFixedReadable(thetaStationaryDeg, 1)}°
               </text>
 
               {/* Coordinate axes */}
@@ -191,14 +192,14 @@ export function DopplerAberrationPlot({
                 fontWeight="500"
                 fill="var(--plot)"
               >
-                θ = {thetaStationaryDeg.toFixed(1)}°
+                θ = {toFixedReadable(thetaStationaryDeg, 1)}°
               </text>
             </g>
           </svg>
           <svg
             viewBox="420 20 370 340"
             role="img"
-            aria-label={`Moving frame k at beta = ${fixed(beta, 3)}: the same ray at theta' = ${thetaMovingDeg.toFixed(1)} degrees, frequency ${frequencyMovingTHz.toFixed(1)} THz`}
+            aria-label={`Moving frame k at beta = ${fixed(beta, 3)}: the same ray at theta' = ${toFixedReadable(thetaMovingDeg, 1)} degrees, frequency ${toFixedReadable(frequencyMovingTHz, 1)} THz`}
             style={{ width: "100%", height: "auto", userSelect: "none" }}
           >
             <title>Moving frame k</title>
@@ -235,7 +236,8 @@ export function DopplerAberrationPlot({
                 Observer frame
               </text>
               <text x={cx2 - 140} y={82} fontSize="12" fill="var(--muted)">
-                ν′ = {frequencyMovingTHz.toFixed(1)} THz · θ′ = {thetaMovingDeg.toFixed(1)}°
+                ν′ = {toFixedReadable(frequencyMovingTHz, 1)} THz · θ′ ={" "}
+                {toFixedReadable(thetaMovingDeg, 1)}°
               </text>
 
               {/* Coordinate axes */}
@@ -327,7 +329,7 @@ export function DopplerAberrationPlot({
                 fontWeight="500"
                 fill="var(--accent)"
               >
-                θ′ = {thetaMovingDeg.toFixed(1)}°
+                θ′ = {toFixedReadable(thetaMovingDeg, 1)}°
               </text>
             </g>
           </svg>
