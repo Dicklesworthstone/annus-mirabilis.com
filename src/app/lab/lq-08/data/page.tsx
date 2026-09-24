@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { withScripts } from "../../../../components/lab/subscripts.tsx";
+import { PHOTOELECTRIC_DATA_CAPTION } from "../../../../reasoning/photoelectricData/caption.ts";
 import { PhotoelectricDataWorkbench } from "../../../../reasoning/photoelectricData/PhotoelectricDataWorkbench.tsx";
 import {
   acceptedExampleAnalysis,
@@ -36,6 +38,16 @@ export default function PhotoelectricDataPage() {
         </p>
       </header>
       <PhotoelectricDataWorkbench reference={reference} example={initial} />
+      <section className="lab-readings" aria-label="The fit in words">
+        <p data-detail="0">{withScripts(PHOTOELECTRIC_DATA_CAPTION.r0)}</p>
+        <p data-detail="1">{withScripts(PHOTOELECTRIC_DATA_CAPTION.r1)}</p>
+        <p data-detail="2" hidden>
+          {withScripts(PHOTOELECTRIC_DATA_CAPTION.r2)}
+        </p>
+        <p data-detail="3" hidden>
+          {withScripts(PHOTOELECTRIC_DATA_CAPTION.r3)}
+        </p>
+      </section>
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
         <ul>
