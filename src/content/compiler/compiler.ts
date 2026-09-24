@@ -31,6 +31,7 @@ import {
 import { type CheckFamily, listRegisteredChecks, runAllChecks } from "./checks/registry.ts";
 import { buildContentIndexes, type ContentIndexes } from "./indexes.ts";
 import { ContentError, checkFileSize, checkNfc, parseContentFile } from "./loaders.ts";
+import { checkMisconceptionRecord } from "./marginRecords.ts";
 import {
   buildReviewQueue,
   type FlagReviewRecord,
@@ -197,8 +198,13 @@ export async function compileContent(
           path: file.path,
           extension: validateFoundationExtension(parsed, file.path),
         });
-      const record = validateRecordContent(parsed, file.path, routeMatch.kind);
       const matchParams = routeMatch.params;
+      // A malformed misconception throws here, as a foundation extension does, rather than
+      // passing through unchecked; the record itself still passes through, so the structural and
+      // epistemic checks read its own fields. Editorial notes: see marginRecords.ts.
+      if (routeMatch.kind === "misconception")
+        checkMisconceptionRecord(parsed, file.path, matchParams);
+      const record = validateRecordContent(parsed, file.path, routeMatch.kind);
 
       // Identity validation: record ID matches path parameters
       if (record && typeof record === "object" && "id" in record) {

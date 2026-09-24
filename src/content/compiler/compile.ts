@@ -26,6 +26,7 @@ import {
 } from "../schemas/reading.ts";
 import { type CompileResult, type CompilerOptions, compileContent } from "./compiler.ts";
 import { ContentError, checkFileSize, checkNfc, parseContentFile } from "./loaders.ts";
+import { checkMisconceptionRecord } from "./marginRecords.ts";
 import { matchContentRoute } from "./routes.ts";
 
 export type Diagnostic = Readonly<{
@@ -156,6 +157,20 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
       if (routeMatch.kind === "entrance") {
         const parsed = parseContentFile(file);
         validateEntranceRecord(parsed, file.path);
+        continue;
+      }
+
+      // Misconceptions carry their own schema, and until 2026-09-24 this compiler rejected every
+      // one as an unknown reading record, so none could exist. Each is checked against its schema
+      // and its path here. Editorial notes are admitted as the production compiler admits them;
+      // why they are not checked here is in marginRecords.ts. Neither joins the reading payload:
+      // the paper page reads them itself (src/reader/paperMargins.ts).
+      if (routeMatch.kind === "misconception") {
+        checkMisconceptionRecord(parseContentFile(file), file.path, routeMatch.params);
+        continue;
+      }
+      if (routeMatch.kind === "editorial-note") {
+        parseContentFile(file);
         continue;
       }
 
