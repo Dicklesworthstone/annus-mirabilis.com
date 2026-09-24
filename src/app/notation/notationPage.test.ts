@@ -5,8 +5,8 @@
 
 import { describe, expect, it } from "bun:test";
 import type { PaperConcordance } from "../../content/schemas/concordance.ts";
-import { listReadablePapers } from "../../reader/paperRoutes.ts";
 import { getLogger, newRunIdentity } from "../../testing/log/logger.ts";
+import { type FirstUseTargets, loadFirstUseTargets, resolveFirstUse } from "./firstUseTargets.ts";
 import {
   describeVerification,
   type EnrichedConcordanceEntry,
@@ -48,31 +48,58 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
     );
   });
 
-  it("every first-use link lands on a paper that has a reading page; a first use elsewhere is named, not linked", async () => {
-    // This checked only the URL's shape, so the 22 links to /papers/molecular-dimensions, which
-    // does not exist, passed it. It now checks each linked paper against the real routes.
-    const readable = new Set(await listReadablePapers());
-    const routed = loadNotationPageData(undefined, readable);
+  it("every first-use link opens a page that carries the passage it names", async () => {
+    // This once checked only the URL's shape. The links it passed named an id no page carries
+    // (/papers/<paper>?view=reading#bm-s1-p1), and 4 named the dissertation, which has no page.
+    // Each link is now checked against what the site generates: the German face's block ids, the
+    // section pages, the readable papers.
+    const targets = await loadFirstUseTargets();
+    const routed = loadNotationPageData(undefined, (paper, anchor) =>
+      resolveFirstUse(paper, anchor, targets),
+    );
     const linked = routed.allEntries.filter((e) => e.firstUseUrl !== null);
     expect(linked.length).toBeGreaterThan(0);
     for (const entry of linked) {
-      expect(entry.firstUseUrl).toMatch(/^\/papers\/[a-z-]+(\?view=reading)?#[a-z0-9-]+$/);
-      const slug = /^\/papers\/([a-z-]+)/.exec(entry.firstUseUrl ?? "")?.[1] ?? "";
-      expect(readable.has(slug)).toBe(true);
-      expect(entry.sources.anchor.length).toBeGreaterThan(0);
+      const url = entry.firstUseUrl ?? "";
+      expect(url).toMatch(/^\/papers\/[a-z-]+\/(view\/german\/#[a-z0-9-]+|s\d+\/)?$/);
+      const german = /^\/papers\/([a-z-]+)\/view\/german\/#(.+)$/.exec(url);
+      const section = /^\/papers\/([a-z-]+)\/(s\d+)\/$/.exec(url);
+      const paper = /^\/papers\/([a-z-]+)\/$/.exec(url);
+      if (german) expect(targets.german.get(german[1] ?? "")?.has(german[2] ?? "")).toBe(true);
+      if (section) expect(targets.sections.has(`${section[1]}/${section[2]}`)).toBe(true);
+      if (paper) expect(targets.readable.has(paper[1] ?? "")).toBe(true);
     }
     for (const entry of routed.allEntries.filter((e) => e.firstUseUrl === null)) {
-      expect(readable.has(entry.paper)).toBe(false);
+      expect(targets.readable.has(entry.paper)).toBe(false);
     }
-    // The unlinked path, proved on a paper that does have a page: withhold it from the set and
-    // every one of its entries must lose its link. (Asserting that some entry is unlinked today
-    // would break the day the dissertation gets a page.)
-    const withheld = new Set([...readable].filter((p) => p !== "brownian-motion"));
-    const without = loadNotationPageData(undefined, withheld);
+    // The unlinked path, proved on a paper that does have a page: withhold it, and every one of
+    // its entries loses its link. (Asserting that some entry is unlinked today would break the
+    // day the dissertation gets a page.)
+    const withheld: FirstUseTargets = {
+      ...targets,
+      readable: new Set([...targets.readable].filter((p) => p !== "brownian-motion")),
+    };
+    const without = loadNotationPageData(undefined, (paper, anchor) =>
+      resolveFirstUse(paper, anchor, withheld),
+    );
     const brownian = without.allEntries.filter((e) => e.paper === "brownian-motion");
     expect(brownian.length).toBeGreaterThan(0);
     for (const entry of brownian) expect(entry.firstUseUrl).toBeNull();
-    logTestPass("first-use-links-valid", "Every first-use link lands on a readable paper.");
+    logTestPass("first-use-links-valid", "Every first-use link opens a page carrying its passage.");
+  });
+
+  it("a first use opens the German paragraph, else the section's page, else the paper; a paper with no page is not linked", () => {
+    const targets: FirstUseTargets = {
+      readable: new Set(["a-paper"]),
+      sections: new Set(["a-paper/s2"]),
+      german: new Map([["a-paper", new Set(["s1-p1"])]]),
+    };
+    expect(resolveFirstUse("a-paper", "ap-s1-p1", targets)).toBe(
+      "/papers/a-paper/view/german/#s1-p1",
+    );
+    expect(resolveFirstUse("a-paper", "ap-s2-p3", targets)).toBe("/papers/a-paper/s2/");
+    expect(resolveFirstUse("a-paper", "ap-s9-p1", targets)).toBe("/papers/a-paper/");
+    expect(resolveFirstUse("no-page", "np-s1-p1", targets)).toBeNull();
   });
 
   it("every entry anchor is unique across the entire dataset, including case-distinct anchors", () => {

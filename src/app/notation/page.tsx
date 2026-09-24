@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./notation.css";
 import "../../components/home/wideProse.css";
-import { listReadablePapers } from "../../reader/paperRoutes.ts";
 import { CollisionClusterView } from "./CollisionClusterView.tsx";
+import { loadFirstUseTargets, resolveFirstUse } from "./firstUseTargets.ts";
 import { NotationEntryCard } from "./NotationEntryCard.tsx";
 import { NotationPageClient } from "./NotationPageClient.tsx";
 import { loadNotationPageData } from "./notationData.ts";
@@ -14,7 +14,10 @@ export const metadata: Metadata = {
 };
 
 export default async function NotationPage() {
-  const data = loadNotationPageData(undefined, new Set(await listReadablePapers()));
+  const targets = await loadFirstUseTargets();
+  const data = loadNotationPageData(undefined, (paper, anchor) =>
+    resolveFirstUse(paper, anchor, targets),
+  );
 
   return (
     <div className="notation-page" data-page="notation">

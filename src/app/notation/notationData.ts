@@ -336,10 +336,10 @@ export function buildFirstUseUrl(paperSlug: string, anchor: string): string {
  */
 export function loadNotationPageData(
   injectedConcordances?: readonly PaperConcordance[],
-  /** The papers that have a reading page. When given, a first use in any other paper (the
-   *  dissertation, today) is not linked: /papers/molecular-dimensions does not exist, and 22 links
-   *  on /notation/ pointed at it. */
-  readablePapers?: ReadonlySet<string>,
+  /** Where each first use opens (firstUseTargets.ts: the German paragraph, else the section's
+   *  page, else the paper; null for a paper with no page). Without it the old paper-reading URL
+   *  is built, which the page itself no longer uses. */
+  resolveFirstUse?: (paper: string, anchor: string) => string | null,
 ): NotationPageData {
   const rawConcordances = injectedConcordances ?? loadAllConcordances();
   const allEntries: EnrichedConcordanceEntry[] = [];
@@ -380,10 +380,9 @@ export function loadNotationPageData(
         }
       }
 
-      const firstUseUrl =
-        readablePapers && !readablePapers.has(entry.paper)
-          ? null
-          : buildFirstUseUrl(entry.paper, entry.sources.anchor);
+      const firstUseUrl = resolveFirstUse
+        ? resolveFirstUse(entry.paper, entry.sources.anchor)
+        : buildFirstUseUrl(entry.paper, entry.sources.anchor);
       const searchKeywords = extractSearchKeywords(entry, paperTitle);
 
       const enriched: EnrichedConcordanceEntry = {
