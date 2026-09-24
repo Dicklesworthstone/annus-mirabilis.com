@@ -75,20 +75,40 @@ export function paperName(title: string): string {
 export type ExtraLessons = ReadonlyMap<string, ReadonlySet<string>>;
 
 /**
+ * Each paper's first encounter and the lessons its bridge offers, keyed by paper: see
+ * entranceLessons in passageLessons.ts. An entrance is not an argument, so without this the rail
+ * missed 3 of 72 passage-to-lesson links measured on live at 01478983.
+ */
+export type EntranceLessons = ReadonlyMap<
+  string,
+  Readonly<{ question: string; lessons: ReadonlySet<string> }>
+>;
+
+/**
  * Each passage that sends a reader to `lessonId`, in reading order: papers as Annalen received
- * them, sections as printed, arguments as the section lists them. Each names its paper, and its
- * section by the printed label ("§4", "Introduction") unless the paper has only one.
+ * them, a paper's first encounter before its sections, sections as printed, arguments as the
+ * section lists them. Each names its paper, and its section by the printed label ("§4",
+ * "Introduction") unless the paper has only one; a first encounter is named as one.
  */
 export function lessonUses(
   lessonId: string,
   papers: readonly PaperLike[],
   extra: ExtraLessons = new Map(),
+  entrances: EntranceLessons = new Map(),
 ): LessonUse[] {
   const rank = (id: string) => (PAPER_ORDER.includes(id) ? PAPER_ORDER.indexOf(id) : 99);
   const uses: LessonUse[] = [];
   for (const { paper, arguments: args } of [...papers].sort(
     (a, b) => rank(a.paper.id) - rank(b.paper.id),
   )) {
+    const entrance = entrances.get(paper.id);
+    if (entrance?.lessons.has(lessonId))
+      uses.push({
+        href: `/papers/${paper.id}/#entry-${paper.id}`,
+        paper: paperName(paper.title),
+        section: "First encounter",
+        title: entrance.question,
+      });
     const byId = new Map(args.map((a) => [a.id, a]));
     for (const section of paper.sections)
       for (const argumentId of section.arguments) {

@@ -15,7 +15,7 @@ import { MASS_ENERGY_DERIVATION_ARGUMENT, passageLessons } from "./passageLesson
  * lesson (lesson bodies excluded) and reading each lesson's rail: 9 of 72 passage-to-lesson links
  * had no backlink. Six came from obstacle answers (4) and the mass-energy derivation's step tools
  * (2), which render inside an argument but live outside its record; this file checks those six
- * now reach the rail. The other three, from first-encounter records, are reported on the bead.
+ * now reach the rail. The other three, from first encounters, are in entranceLessons.test.tsx.
  */
 
 const index = await contentIndex();
