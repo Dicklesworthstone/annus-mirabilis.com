@@ -273,7 +273,7 @@ presets:
       initialVolumeM3: 1.0
     scenarioId: sr-10-opposite-0.6
   - presetId: sr-10-transverse-in-k-0.6
-    label: Transverse in moving frame k (degenerate: cos phi = beta)
+    label: "Transverse in moving frame k (degenerate: cos phi = beta)"
     parameterValues:
       beta: 0.6
       propagationAngleDeg: 53.13010235415598
@@ -281,7 +281,7 @@ presets:
       initialVolumeM3: 1.0
     scenarioId: sr-10-transverse-in-k-0.6
   - presetId: sr-10-transverse-unprimed-0.6
-    label: Transverse in stationary frame K (discriminating: phi = 90 deg)
+    label: "Transverse in stationary frame K (discriminating: phi = 90 deg)"
     parameterValues:
       beta: 0.6
       propagationAngleDeg: 90
