@@ -38,9 +38,8 @@ describe("formulaOverflow (am-bc6s)", () => {
 
       // The overflowing element must become focusable with a distinct name
       expect(elOverflowing.getAttribute("tabindex")).toBe("0");
-      expect(elOverflowing.getAttribute("aria-label")).toBe(
-        "Scrollable mathematical formula: p_{\\text{locked}}=\\frac{k_B T}{V}",
-      );
+      // Named for a listener, never by its TeX: an aria-label is read as its text.
+      expect(elOverflowing.getAttribute("aria-label")).toBe("Formula, scrolls sideways");
 
       // The fitting element must NOT have tabindex (preventing useless tab stops)
       expect(elFitting.hasAttribute("tabindex")).toBe(false);
@@ -84,14 +83,10 @@ describe("formulaOverflow (am-bc6s)", () => {
       initFormulaOverflow();
 
       expect(span.getAttribute("tabindex")).toBe("0");
-      expect(span.getAttribute("aria-label")).toBe(
-        "Scrollable mathematical formula: E_0 = E_1 + L",
-      );
+      expect(span.getAttribute("aria-label")).toBe("Formula, scrolls sideways");
       expect(span.getAttribute("role")).toBe("group");
       // A section takes a name on its own; it gets no role from the script.
-      expect(section.getAttribute("aria-label")).toBe(
-        "Scrollable mathematical formula: x' = x - vt",
-      );
+      expect(section.getAttribute("aria-label")).toBe("Formula, scrolls sideways");
       expect(section.hasAttribute("role")).toBe(false);
       // An author's own role is kept.
       expect(figure.getAttribute("role")).toBe("figure");
@@ -99,6 +94,37 @@ describe("formulaOverflow (am-bc6s)", () => {
       expect(stripped.getAttribute("role")).toBe("group");
 
       for (const el of [span, section, figure, stripped]) el.remove();
+    } finally {
+      await uninstallDom();
+    }
+  });
+
+  test("a source equation that scrolls is named by its printed number, never by its TeX", async () => {
+    // TanElk's ruling, 2026-09-24: a wide equation on the German face scrolls inside a region
+    // named like "Equation (7), scrolls sideways". It was "Scrollable mathematical formula:
+    // \frac{\partial p_\nu}{\partial t} = ...": an aria-label is read as its text, character by character.
+    await installDom();
+    try {
+      const make = (label: string | null) => {
+        const el = document.createElement("span");
+        el.className = "source-equation";
+        el.style.overflowX = "auto";
+        el.innerHTML = `<span class="source-equation-math"><annotation encoding="application/x-tex">\\frac{\\partial p_\\nu}{\\partial t}</annotation></span>${label ? `<span class="source-equation-label">${label}</span>` : ""}`;
+        Object.defineProperty(el, "scrollWidth", { value: 610, configurable: true });
+        Object.defineProperty(el, "clientWidth", { value: 288, configurable: true });
+        document.body.appendChild(el);
+        return el;
+      };
+      const numbered = make("(7)");
+      const unnumbered = make(null);
+      initFormulaOverflow();
+      expect(numbered.getAttribute("aria-label")).toBe("Equation (7), scrolls sideways");
+      expect(unnumbered.getAttribute("aria-label")).toBe("Formula, scrolls sideways");
+      for (const el of [numbered, unnumbered]) {
+        expect(el.getAttribute("tabindex")).toBe("0");
+        expect(el.getAttribute("aria-label")).not.toContain("\\");
+        el.remove();
+      }
     } finally {
       await uninstallDom();
     }
@@ -130,7 +156,7 @@ describe("formulaOverflow (am-bc6s)", () => {
       // only the observer can have marked it.
       await new Promise((resolve) => setTimeout(resolve, 120));
       expect(late.getAttribute("tabindex")).toBe("0");
-      expect(late.getAttribute("aria-label")).toBe("Scrollable mathematical formula: L/V^2");
+      expect(late.getAttribute("aria-label")).toBe("Formula, scrolls sideways");
       late.remove();
     } finally {
       await uninstallDom();

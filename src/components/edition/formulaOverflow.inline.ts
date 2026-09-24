@@ -19,9 +19,8 @@ export function syncFormulaOverflow(): void {
         const tex =
           el.getAttribute("data-latex") ||
           el.querySelector('annotation[encoding="application/x-tex"]')?.textContent?.trim();
-        const label = tex
-          ? `Scrollable mathematical formula: ${tex}`
-          : `Scrollable mathematical formula ${i + 1}`;
+        // Named for a listener, as in initFormulaOverflow: never the TeX.
+        const label = tex ? "Formula, scrolls sideways" : `Formula ${i + 1}, scrolls sideways`;
         el.setAttribute("aria-label", label);
         // The same rule as initFormulaOverflow's: a named span or div needs a role that takes a name.
         if (!el.hasAttribute("role") && /^(SPAN|DIV)$/.test(el.tagName)) {
@@ -92,8 +91,15 @@ export function initFormulaOverflow(): void {
               }
               node = node.parentElement;
             }
+            // A formula is named for a listener, never by its TeX: an aria-label is read as its
+            // text, so the name carried "\\frac{\\partial p_\\nu}" character by character, while
+            // the MathML inside already says the formula. Where the page prints a number, the
+            // name says which equation it is (TanElk's ruling, 2026-09-24).
+            const printed = el.querySelector(".source-equation-label")?.textContent?.trim();
             const label = tex
-              ? `Scrollable mathematical formula: ${tex}`
+              ? printed
+                ? `Equation ${printed}, scrolls sideways`
+                : "Formula, scrolls sideways"
               : caption
                 ? `Scrollable table: ${caption}`
                 : heading
