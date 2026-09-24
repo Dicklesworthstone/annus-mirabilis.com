@@ -323,18 +323,6 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
       "Observer velocity vector v and physical kinetic energy change Delta K in moving frame energy ledger",
   },
   // Physical transport mechanisms in DriftDiffusionPlots (Einstein 1905 paper 2, §3):
-  {
-    file: "src/components/lab/DriftDiffusionPlots.tsx",
-    hex: "#27ae60",
-    reason:
-      "Directed Stokes drift flux (J_drift = n*mu*F) physical transport mechanism representation in FluxBalancePlot",
-  },
-  {
-    file: "src/components/lab/DriftDiffusionPlots.tsx",
-    hex: "#c0392b",
-    reason:
-      "Brownian diffusive counter-flux (J_diff = -D*dn/dx) physical transport mechanism representation in FluxBalancePlot",
-  },
   // Particle tracer trajectory and position marker data colors in TrajectoryLayer (2D view kit):
   {
     file: "src/visuals/kit/TrajectoryLayer.tsx",

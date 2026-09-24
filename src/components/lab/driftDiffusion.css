@@ -11,7 +11,25 @@
 /* The two face fluxes as signed bars either side of a zero line; each value is text beside its
    name, so a negative flux never pushes its number off the figure. */
 .flux-balance {
+  --bm04-drift: #219552;
+  --bm04-diffusion: #c0392b;
   margin: 0;
+}
+
+/* The bars' colours on the --wash track. The drift green (#27ae60) stood at 2.57:1 on the light
+   wash and the diffusion red at 2.74:1 on the dark one, under the 3:1 a mark needs; each keeps its
+   hue and moves its lightness in the theme where it fell short, and every pair now stands at 3.3:1
+   or better. Each value is printed beside its bar as well. */
+:root[data-theme="kramgasse-night"] .flux-balance {
+  --bm04-drift: #27ae60;
+  --bm04-diffusion: #d24637;
+}
+/* Without JavaScript the pre-paint script never sets data-theme; this repeats the block above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .flux-balance {
+    --bm04-drift: #27ae60;
+    --bm04-diffusion: #d24637;
+  }
 }
 
 .flux-balance-caption {

@@ -189,7 +189,7 @@ export function FluxBalancePlot({ snapshot }: { snapshot: AcceptedSnapshot }) {
         </>
       ),
       value: driftFlux,
-      color: "#27ae60",
+      color: "var(--bm04-drift)",
     },
     {
       key: "diffusion",
@@ -199,7 +199,7 @@ export function FluxBalancePlot({ snapshot }: { snapshot: AcceptedSnapshot }) {
         </>
       ),
       value: diffFlux,
-      color: "#c0392b",
+      color: "var(--bm04-diffusion)",
     },
   ];
 
