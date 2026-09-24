@@ -11,31 +11,14 @@ import { dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
+import { type AppIdentity, readIdentityBlock, TEAM_ID_PLACEHOLDER } from "./identity.ts";
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-
-export const TEAM_ID_PLACEHOLDER = "OWNER_SUPPLIES_APPLE_TEAM_ID";
-
-type AppIdentity = {
-  appName: string;
-  homeScreenName: string;
-  bundleId: string;
-  teamId: string;
-  devices: string[];
-  macCatalyst: boolean;
-  minimumIOS: { version: string; provisional: boolean };
-};
 
 type ProjectSpec = {
   options: { deploymentTarget: { iOS: string } };
   targets: Record<string, { settings: { base: Record<string, unknown> } }>;
 };
-
-/** The fenced `yaml app-identity` block, parsed, or null when the entry has none. */
-export function readIdentityBlock(decisions: string): AppIdentity | null {
-  const match = /```yaml app-identity\n([\s\S]*?)```/.exec(decisions);
-  return match === null ? null : (yaml.load(match[1] ?? "") as AppIdentity);
-}
 
 /** The mismatches between a recorded identity and a project spec, as sentences. */
 export function identityMismatches(
