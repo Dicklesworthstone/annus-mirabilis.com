@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { loadGermanSourceFace } from "../content/editions/germanSourceFace.ts";
 import { loadPaper } from "../content/server.ts";
 import { FaceChooser } from "./FaceChooser.tsx";
@@ -6,6 +8,7 @@ import { loadBilingualEdition } from "./faces/bilingualLoader.ts";
 import { FACE_REGISTRY, type FaceId } from "./faces/registry.ts";
 import { FacsimilePanel } from "./facsimile/FacsimilePanel.tsx";
 import { loadFacsimileDocument } from "./facsimile/server.ts";
+import { ledgerGaps, pageRanges } from "./ledgerGaps.ts";
 import { FACE_FALLBACK_IDS, type FaceFallbackId, faceLinkHref, paperPath } from "./paperRoutes.ts";
 import { PaperStatus } from "./paperStatus.tsx";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline.ts";
@@ -71,6 +74,17 @@ export async function FaceFallback(
       ? { facsimile: facsimile.kind === "available" ? ("available" as const) : ("empty" as const) }
       : {}),
   });
+  // Which printed pages the German text lacks, read from the ledger itself (ledgerGaps.ts), and
+  // the facsimile that has every page: the notice alone never said which were missing.
+  const gaps =
+    face === "german" && availability.german !== "available"
+      ? ledgerGaps(paperId as Parameters<typeof ledgerGaps>[0])
+      : null;
+  const pdfHref = existsSync(
+    join(process.cwd(), "public", "papers", "pdfs", `${paper.citation}.pdf`),
+  )
+    ? `/papers/pdfs/${paper.citation}.pdf`
+    : null;
   return (
     <div data-reader-root data-ready="true" data-view={face} className="reader-root">
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: harness data-ready contract; source from a tested pure function. */}
@@ -186,6 +200,23 @@ export async function FaceFallback(
               </>
             )}
           </p>
+          {gaps && gaps.untranscribed.length > 0 ? (
+            <p className="fine" data-untranscribed-pages={gaps.untranscribed.join(" ")}>
+              {gaps.untranscribed.length === 1 ? "Printed page " : "Printed pages "}
+              {pageRanges(gaps.untranscribed)} {gaps.untranscribed.length === 1 ? "has" : "have"}{" "}
+              not been transcribed yet
+              {gaps.drafted.length > 0
+                ? `, and ${pageRanges(gaps.drafted)} have only an unreviewed machine draft that this edition does not show`
+                : ""}
+              .
+              {pdfHref ? (
+                <>
+                  {" "}
+                  Every page is in the <a href={pdfHref}>facsimile</a>.
+                </>
+              ) : null}
+            </p>
+          ) : null}
           <p>
             <a href={paperPath(paperId, section)}>Read the explanation instead →</a>
           </p>

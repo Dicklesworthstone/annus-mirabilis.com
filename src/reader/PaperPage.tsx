@@ -6,7 +6,7 @@ import lightQuantaEntrance from "../../content/arguments/light-quanta/entrance-l
 import clockEntranceRaw from "../../content/arguments/special-relativity/entrance-special-relativity.json";
 import { ModalCloseButton } from "../a11y/modal/ModalCloseButton.tsx";
 import { citationTitleClose } from "../content/citationTitle.ts";
-import { loadGermanSourceFace } from "../content/editions/germanSourceFace.ts";
+import { loadGermanSourceFace, printedUnits } from "../content/editions/germanSourceFace.ts";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
 import type { RouteSlug } from "../content/ids.ts";
 import { loadConcordanceForPaper } from "../content/notation/loader.ts";
@@ -58,6 +58,8 @@ import { passageKind } from "./passageKind.ts";
 import { ReaderController } from "./ReaderController.tsx";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline.ts";
 import { SectionPager } from "./SectionPager.tsx";
+import { UnexplainedOutlineEntry, UnexplainedPartsLine } from "./UnexplainedParts.tsx";
+import { outlineOrder, paperParts, unexplainedParts } from "./unexplainedParts.ts";
 import "./reader.css";
 import "./paperLayout.css";
 
@@ -258,6 +260,15 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
   // line, and the notice ?view=german shows in the passage's place. paperSourceFaces decides by
   // the chooser's rule, so each offers only a face with something in it, at the passage's section.
   const sources = await paperSourceFaces(paper.id);
+  // The parts of the paper no passage explains yet, from its frozen manifest (unexplainedParts.ts),
+  // each linked to Einstein's text: the German face at that part, else the facsimile.
+  const missingParts = unexplainedParts(
+    paperParts(printedUnits(process.cwd(), paper.id as RouteSlug)),
+    new Set(payload.arguments.map((a) => a.section)),
+  );
+  const pdf = `papers/pdfs/${paper.citation}.pdf`;
+  const pdfHref = existsSync(join(process.cwd(), "public", pdf)) ? `/${pdf}` : null;
+  const partHref = (part: string) => originalHref(paper.id, sources, part) ?? pdfHref;
   const sourceContext = (a: { id: string; section: string }) =>
     [
       sources.availability.german === "available" && {
@@ -350,30 +361,42 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           <nav aria-label="Argument outline">
             {/* Every section of the paper, on a section's own page too: the others are plain
                 links to their pages, and only this page's sections move within it. */}
-            {paper.sections.map((s) => (
-              <div key={s.id}>
-                <a
-                  data-reader-anchor={sections.includes(s) ? s.id : undefined}
-                  href={paperPath(paper.id, s.id)}
-                  aria-current={sectionId === s.id ? "page" : undefined}
-                  aria-label={s.title}
-                >
-                  <OutlineSectionTitle title={s.title} />
-                </a>
-                {args
-                  .filter((a) => a.section === s.id)
-                  .map((a) => (
-                    <a
-                      key={a.id}
-                      data-reader-anchor={a.id}
-                      href={`${paperPath(paper.id, s.id)}#${a.id}`}
-                    >
-                      {a.title}
-                    </a>
-                  ))}
-              </div>
-            ))}
+            {outlineOrder(paper.sections, missingParts).map((entry) => {
+              if (entry.kind === "missing")
+                return (
+                  <UnexplainedOutlineEntry
+                    key={entry.part}
+                    part={entry.part}
+                    href={partHref(entry.part)}
+                  />
+                );
+              const s = entry.section;
+              return (
+                <div key={s.id}>
+                  <a
+                    data-reader-anchor={sections.includes(s) ? s.id : undefined}
+                    href={paperPath(paper.id, s.id)}
+                    aria-current={sectionId === s.id ? "page" : undefined}
+                    aria-label={s.title}
+                  >
+                    <OutlineSectionTitle title={s.title} />
+                  </a>
+                  {args
+                    .filter((a) => a.section === s.id)
+                    .map((a) => (
+                      <a
+                        key={a.id}
+                        data-reader-anchor={a.id}
+                        href={`${paperPath(paper.id, s.id)}#${a.id}`}
+                      >
+                        {a.title}
+                      </a>
+                    ))}
+                </div>
+              );
+            })}
           </nav>
+          <UnexplainedPartsLine parts={missingParts} hrefFor={partHref} />
         </aside>
         <div className="reader-body">
           {lightEntrance && !sectionId && <LazyLightQuantaFirstEncounter record={lightEntrance} />}

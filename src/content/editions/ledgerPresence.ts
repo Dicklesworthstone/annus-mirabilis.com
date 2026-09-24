@@ -111,6 +111,21 @@ export type LedgerPresence = "absent" | "partial" | "complete";
  * dependency-free, so the next status word cannot break it.
  */
 export function classifyLedgerCoverage(text: string): "partial" | "complete" {
+  const pages = ledgerPageCoverage(text);
+  if (pages.length === 0) return "partial";
+  return pages.every((page) => page.covered) ? "complete" : "partial";
+}
+
+/**
+ * Each page of a ledger in order: the printed page its [[ANNALEN-PAGE n]] anchor names, when it
+ * has one, and whether anything beyond the marker and the anchor was written on it. The rule is
+ * the one classifyLedgerCoverage has always applied; that function is now this one's summary, so
+ * the reader can be told WHICH pages are bare (am-paper-pages-hide-missing-sections-vl4k), not only
+ * that some are.
+ */
+export function ledgerPageCoverage(
+  text: string,
+): readonly Readonly<{ printedPage?: number; covered: boolean }>[] {
   const pages: string[] = [];
   for (const line of text.split("\n")) {
     if (parsePageMarker(line) !== null) {
@@ -119,15 +134,12 @@ export function classifyLedgerCoverage(text: string): "partial" | "complete" {
     }
     if (pages.length > 0) pages[pages.length - 1] += `${line}\n`;
   }
-  if (pages.length === 0) return "partial";
-  for (const page of pages) {
-    const covered = page
-      .split("\n")
-      .map((line) => line.trim())
-      .some((line) => line.length > 0 && !line.startsWith("[[ANNALEN-PAGE"));
-    if (!covered) return "partial";
-  }
-  return "complete";
+  return pages.map((page) => {
+    const lines = page.split("\n").map((line) => line.trim());
+    const anchor = lines.map((line) => /^\[\[ANNALEN-PAGE (\d+)\]\]$/.exec(line)).find(Boolean);
+    const covered = lines.some((line) => line.length > 0 && !line.startsWith("[[ANNALEN-PAGE"));
+    return anchor ? { printedPage: Number(anchor[1]), covered } : { covered };
+  });
 }
 
 export type LedgerPresenceRecord = Readonly<{

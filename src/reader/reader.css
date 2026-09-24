@@ -2720,3 +2720,25 @@ html:is(
   color: var(--accent);
   font-weight: 700;
 }
+/* A PART OF THE PAPER THIS SITE DOES NOT YET EXPLAIN (UnexplainedParts.tsx). It stays in the outline,
+   so the paper does not look shorter than it is, but it is not a section of this page: normal weight
+   and the muted ink, and on a phone its chip has a dashed edge where an explained section's is solid.
+   Its link opens Einstein's text for that part. */
+.reader-outline nav > .outline-unexplained > a:first-child,
+.reader-outline nav > .outline-unexplained > span {
+  font-weight: 400;
+  color: var(--muted);
+}
+.reader-outline nav > .outline-unexplained > span {
+  display: block;
+  padding: 0.3rem 0 0.3rem 0.9rem;
+  font-size: var(--type-fine);
+}
+.unexplained-parts {
+  margin-block: 0.5rem 0;
+}
+@media (max-width: 560px) {
+  .reader-root .reader-outline nav > .outline-unexplained > a:first-child {
+    border-style: dashed;
+  }
+}

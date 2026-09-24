@@ -1,5 +1,8 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import brownianEntrance from "../../content/arguments/brownian-motion/entrance-brownian-motion.json";
 import { ModalCloseButton } from "../a11y/modal/ModalCloseButton.tsx";
+import { printedUnits } from "../content/editions/germanSourceFace.ts";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
 import { loadConcordanceForPaper } from "../content/notation/loader.ts";
 import { loadPaper } from "../content/server";
@@ -30,6 +33,8 @@ import { ReaderController } from "./ReaderController";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline";
 import { SectionPager } from "./SectionPager.tsx";
 import { sectionPlate } from "./sectionPlate.ts";
+import { UnexplainedOutlineEntry, UnexplainedPartsLine } from "./UnexplainedParts.tsx";
+import { outlineOrder, paperParts, unexplainedParts } from "./unexplainedParts.ts";
 import "./reader.css";
 
 /** The Brownian first encounter's id (BrownianFirstEncounter.tsx), a return anchor like a passage. */
@@ -59,6 +64,15 @@ export async function PaperReader({
   const sections = section ? paper.sections.filter((s) => s.id === section) : paper.sections;
   if (!sections.length) throw new Error("Section is not in the compiled outline.");
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
+  // The parts of the paper no passage explains yet, from its frozen manifest (unexplainedParts.ts),
+  // each linked to Einstein's text: the German face at that part, else the facsimile.
+  const missingParts = unexplainedParts(
+    paperParts(printedUnits(process.cwd(), "brownian-motion")),
+    new Set(payload.arguments.map((a) => a.section)),
+  );
+  const pdf = `papers/pdfs/${paper.citation}.pdf`;
+  const pdfHref = existsSync(join(process.cwd(), "public", pdf)) ? `/${pdf}` : null;
+  const partHref = (part: string) => originalHref(paper.id, sources, part) ?? pdfHref;
   // Einstein's k is the viscosity, not Boltzmann's constant: called out in red where the
   // explanation first uses it (firstUse.ts).
   const firstUses = firstUseCallouts(
@@ -146,8 +160,17 @@ export async function PaperReader({
             <nav aria-label="Argument outline">
               {/* Every section of the paper, on a section's own page too; the others link to
                   their pages. */}
-              {paper.sections.map((s) =>
-                sections.includes(s) ? (
+              {outlineOrder(paper.sections, missingParts).map((entry) => {
+                if (entry.kind === "missing")
+                  return (
+                    <UnexplainedOutlineEntry
+                      key={entry.part}
+                      part={entry.part}
+                      href={partHref(entry.part)}
+                    />
+                  );
+                const s = entry.section;
+                return sections.includes(s) ? (
                   <div key={s.id}>
                     <a
                       data-reader-anchor={s.id}
@@ -178,9 +201,10 @@ export async function PaperReader({
                       <OutlineSectionTitle title={s.title} />
                     </a>
                   </div>
-                ),
-              )}
+                );
+              })}
             </nav>
+            <UnexplainedPartsLine parts={missingParts} hrefFor={partHref} />
           </>
         }
         companion={
