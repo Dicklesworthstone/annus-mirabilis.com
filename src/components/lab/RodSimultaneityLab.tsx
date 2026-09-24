@@ -4,6 +4,7 @@ import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from
 import { ExecutionLabel } from "../../experiments/labels/ExecutionLabel.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { createSr03BrowserChannel } from "../../experiments/sr03/browser.ts";
 import { fromSr03Draft, type Sr03Draft, toSr03Draft } from "../../experiments/sr03/controls.ts";
@@ -13,13 +14,14 @@ import {
   SR03_PRESETS,
   type Sr03Parameters,
 } from "../../experiments/sr03/definition.ts";
-import { decodeSr03Settings, encodeSr03Settings } from "../../experiments/sr03/permalink.ts";
+import { SR03_DRAFT_TAPE } from "../../experiments/sr03/draftTape.ts";
+import { decodeSr03Settings } from "../../experiments/sr03/permalink.ts";
 import { sr03ReadingsView } from "../../experiments/sr03/readings.ts";
 import { createSr03Session, type PreparedSr03Example } from "../../experiments/sr03/session.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
-import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { fixed } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
 import "./rodSimultaneityLab.css";
@@ -114,6 +116,10 @@ export function RodSimultaneityLab({
   // Predict mode state
   // The drawings and the controls come first; dt′, the interval ledger and the values wait.
   const gate = usePredictGate("sr-03", SR03_GATE_PROMPTS);
+  // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
+  const tapeLink = useDraftTapeLink(SR03_DRAFT_TAPE, p, true, (settings) =>
+    setDraft(toSr03Draft(settings as unknown as Sr03Parameters)),
+  );
 
   useEffect(() => {
     setReady(true);
@@ -166,17 +172,6 @@ export function RodSimultaneityLab({
     setDraft(toSr03Draft(updated));
     setError("");
     apply(updated);
-  }
-
-  async function share() {
-    const url = new URL(window.location.pathname, window.location.origin);
-    url.search = encodeSr03Settings(session.acceptedParameters());
-    try {
-      await navigator.clipboard.writeText(url.href);
-      setLinkNote("Link to the accepted settings copied.");
-    } catch {
-      setLinkNote("Copy the accepted-settings link from the field below.");
-    }
   }
 
   // Extract snapshot outputs
@@ -658,9 +653,6 @@ export function RodSimultaneityLab({
                 <button type="submit" className="button">
                   Apply settings
                 </button>
-                <button type="button" onClick={share} className="button secondary">
-                  Copy settings link
-                </button>
               </div>
               {linkNote && (
                 <p className="notice" style={{ marginTop: "0.5rem" }}>
@@ -675,6 +667,7 @@ export function RodSimultaneityLab({
           summary={statusSummary}
           response={gate.response}
         />
+        <LabTapeLink link={withPredictions(tapeLink, gate)} />
       </div>
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct

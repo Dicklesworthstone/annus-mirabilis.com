@@ -100,8 +100,8 @@ import { WaveDescriptionLab } from "./WaveDescriptionLab.tsx";
  */
 /**
  * The gated labs. `result` is text from each lab's result that the server markup must carry.
- * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. SR-03 shares none yet (its
- * draft tape is not wired), and BM-02 and LQ-02 have no tape binding; BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
+ * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-02 and LQ-02 have no tape
+ * binding; BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
  * in a worktree (dispatch 145). `statusLine`: whether the lab has a status line; BM-04, LQ-06 and ME-02 have none.
  */
 type GatedLab = Readonly<{
@@ -263,7 +263,7 @@ const LABS: readonly GatedLab[] = [
         example: rawSr03Example as unknown as PreparedSr03Example,
       }),
     result: "Spacetime event coordinates and invariant interval",
-    sharesTape: false,
+    sharesTape: true,
     statusLine: true,
   },
   {

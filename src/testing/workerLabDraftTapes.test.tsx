@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { CameraLab } from "../components/lab/CameraLab.tsx";
 import { DriftDiffusionLab } from "../components/lab/DriftDiffusionLab.tsx";
 import { InferenceLab } from "../components/lab/InferenceLab.tsx";
+import { RodSimultaneityLab } from "../components/lab/RodSimultaneityLab.tsx";
 import { TracerLab } from "../components/lab/TracerLab.tsx";
 import { WalkLab } from "../components/lab/WalkLab.tsx";
 import { WaveDescriptionLab } from "../components/lab/WaveDescriptionLab.tsx";
@@ -20,14 +21,21 @@ import type { PreparedBm08Example } from "../experiments/bm08/session.ts";
 import { LQ01_DRAFT_TAPE } from "../experiments/lq01/draftTape.ts";
 import type { PreparedLq01Example } from "../experiments/lq01/session.ts";
 import { decodeTapePermalink, encodeTapePermalink } from "../experiments/permalink/codec.ts";
-import { type DraftTapeBinding, draftTapeForSettings } from "../experiments/permalink/draftTape.ts";
+import {
+  type DraftTapeBinding,
+  draftTapeForSettings,
+  loadDraftTape,
+} from "../experiments/permalink/draftTape.ts";
 import { settingsFromTape } from "../experiments/permalink/sessionTape.ts";
+import { SR03_DRAFT_TAPE } from "../experiments/sr03/draftTape.ts";
+import type { PreparedSr03Example } from "../experiments/sr03/session.ts";
 import rawBm01Example from "../generated/bm01-example.json";
 import rawBm04Example from "../generated/bm04-example.json";
 import rawBm05Example from "../generated/bm05-example.json";
 import rawBm07Example from "../generated/bm07-example.json";
 import rawBm08Example from "../generated/bm08-example.json";
 import rawLq01Example from "../generated/lq01-example.json";
+import rawSr03Example from "../generated/sr03-example.json";
 import { createContainer, installDom, removeContainer, uninstallDom } from "./reactDom.ts";
 
 /**
@@ -292,4 +300,35 @@ describe("a worker laboratory's shared link fills the form and calculates nothin
       }
     });
   }
+
+  test("SR-03: the speed field shows the shared 0.8c, the reader is told to apply, and no worker starts", async () => {
+    const example = rawSr03Example as unknown as PreparedSr03Example;
+    expect(SR03_DRAFT_TAPE.defaults.v).toBe(0.6);
+    const opened = await openShared(
+      "sr-03",
+      SR03_DRAFT_TAPE,
+      { ...SR03_DRAFT_TAPE.defaults, v: 0.8 },
+      createElement(RodSimultaneityLab, { example }),
+      'input[id$="-v"]',
+    );
+    expect(Number(opened.value)).toBe(0.8);
+    expect(opened.text).toContain(
+      "The shared link's settings are in the form. Apply them to calculate.",
+    );
+    expect(opened.text).not.toContain("This rod simultaneity link is incomplete or unsupported");
+    expect(opened.root?.getAttribute("data-pending")).toBe("false");
+    expect(opened.shares).toBe(true);
+  });
+
+  test("SR-03: a custom event pair's optional coordinates travel in the tape", () => {
+    // The defaults carry no custom coordinates; a tape keeps every key it carries.
+    expect("customT1" in SR03_DRAFT_TAPE.defaults).toBe(false);
+    const custom = { endpointPairId: "custom", customT1: 1, customX1: 2, customT2: 5, customX2: 3 };
+    const tape = draftTapeForSettings(SR03_DRAFT_TAPE, { ...SR03_DRAFT_TAPE.defaults, ...custom });
+    expect(tape).not.toBeNull();
+    if (!tape) return;
+    const loaded = loadDraftTape(SR03_DRAFT_TAPE, tape);
+    expect(loaded.kind).toBe("loaded");
+    if (loaded.kind === "loaded") expect(loaded.settings).toMatchObject(custom);
+  });
 });

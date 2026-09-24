@@ -1,4 +1,5 @@
 import { parseScaledDecimal } from "../../units/decimalScale.ts";
+import { carriesTapeLink } from "../permalink/codecCore.ts";
 import type { Sr03Parameters } from "./definition.ts";
 import { validateSr03Parameters } from "./parameters.ts";
 
@@ -26,7 +27,8 @@ export function encodeSr03Settings(p: Sr03Parameters): string {
 }
 
 export function decodeSr03Settings(search: string): Sr03SettingsLink {
-  if (!search || search === "?") return { kind: "absent" };
+  // A ?tape= address is the draft tape's to read (draftTape.ts), not an invalid settings link.
+  if (!search || search === "?" || carriesTapeLink(search)) return { kind: "absent" };
   const invalid = (): Sr03SettingsLink => ({
     kind: "invalid",
     message:
