@@ -119,6 +119,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <a href="/about/">About this edition</a>
             <a href="/sources/">Where the scans come from</a>
             <a href="/your-data/">What this site stores</a>
+            <a href="/accessibility/">Accessibility</a>
             <a href="/offline/">Read without a connection</a>
             <a href="https://github.com/Dicklesworthstone/annus-mirabilis.com">
               Source and development plan
