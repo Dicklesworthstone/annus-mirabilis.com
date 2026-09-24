@@ -43,6 +43,12 @@ export type PhotoelectricLabProps = Readonly<{
    * laboratory is independent of the link, so it does neither.
    */
   linked?: boolean;
+  /**
+   * A session owned by the component that embeds the lab, so that something beside it reads the
+   * same accepted snapshot (the light-quanta journey's check against the world). Omitted, the lab
+   * owns its own, as on /lab/lq-08/.
+   */
+  session?: ReturnType<typeof createLq08Session> | undefined;
 }>;
 
 type PredictCandidate = Readonly<{
@@ -260,9 +266,13 @@ export function PhotoelectricLab({
   millikan,
   readings = true,
   linked = true,
+  session: sharedSession,
 }: PhotoelectricLabProps) {
   const instanceId = useId();
-  const session = useMemo(() => createLq08Session(instanceId, example), [instanceId, example]);
+  const session = useMemo(
+    () => sharedSession ?? createLq08Session(instanceId, example),
+    [sharedSession, instanceId, example],
+  );
   const view = useSyncExternalStore(
     session.subscribe,
     session.getSnapshot,
