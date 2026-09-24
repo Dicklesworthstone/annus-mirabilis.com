@@ -514,6 +514,14 @@ export function foundationExtensionIssues(
         path,
         message: `Extension ${extension.id} extends ${extension.targetFoundation}, which is not a lesson record.`,
       });
+    // FoundationBody throws on a link to a lesson that does not exist, so the compiler refuses it.
+    for (const block of extension.section?.body ?? [])
+      if (block.kind === "foundation" && !foundationIds.has(block.id))
+        issues.push({
+          code: "extension-foundation-link-missing",
+          path,
+          message: `Extension ${extension.id} links the lesson ${block.id}, which is not a lesson record.`,
+        });
   }
   return issues;
 }

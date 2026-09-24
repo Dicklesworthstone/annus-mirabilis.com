@@ -82,6 +82,25 @@ describe("the checks across records", () => {
     ).toEqual([]);
   });
 
+  test("a link in the body to a lesson that does not exist is refused; one that exists passes", () => {
+    const linking = (id: string) =>
+      validateFoundationExtension(
+        section({
+          body: [{ kind: "foundation", id, returnCaption: "Return to the extension." }],
+        }),
+        "a",
+      );
+    const lessons = new Set(["gaussian-distributions", "distributions"]);
+    expect(
+      foundationExtensionIssues([{ path: "a", extension: linking("no-such-lesson") }], lessons).map(
+        (i) => i.code,
+      ),
+    ).toEqual(["extension-foundation-link-missing"]);
+    expect(
+      foundationExtensionIssues([{ path: "a", extension: linking("distributions") }], lessons),
+    ).toEqual([]);
+  });
+
   test("a missing lesson and a repeated id are both refused", () => {
     const codes = foundationExtensionIssues(
       [
@@ -118,6 +137,14 @@ describe("both compilers, over the real corpus", () => {
     // The schema throws json.ts's ContentError and the compilers test instanceof against
     // loaders.ts's, so a schema refusal arrives as invalid-content, as a lesson's does.
     ["a malformed body", section({ body: "text" }), "fixture-extension", ["invalid-content"]],
+    [
+      "a link to a lesson that does not exist",
+      section({
+        body: [{ kind: "foundation", id: "no-such-lesson", returnCaption: "Return here." }],
+      }),
+      "fixture-extension",
+      ["extension-foundation-link-missing"],
+    ],
   ];
 
   for (const [name, record, file, expected] of cases) {
