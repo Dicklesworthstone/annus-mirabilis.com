@@ -3,11 +3,11 @@
 # Specification: AGENTS.md, am-not-concordance-model-uag.
 # There is no br issue am-not-entries-molecular-dimensions; this file is the
 # companion's concordance so the k-as-viscosity pair with paper 2 is complete.
-# Verification status: all entries are marked pending per honesty constraint
-# (no pinned facsimile scan is currently committed in the repository).
-# Glyphs follow AGENTS.md, PLAN_MINING_DECISIONS.md, and the quantity registry.
-# They are not compared to page pixels. Absence is recorded; invented
-# facsimile readings are not admitted.
+# Verification status: on 2026-09-24, 10 of the 11 entries were read by eye from page images
+# of the pinned scans ap-19-289 and ap-34-591 (pdftoppm pixels, never the text layer) by an
+# agent, and each says so on its own record; md.one.viscosityLawCoefficient1906 stays pending.
+# None has been reviewed by a human. Absence is recorded; invented facsimile readings are not
+# admitted.
 # No parallel markdown ledger: pending/verified status lives on each entry.
 
 paper: molecular-dimensions
@@ -137,7 +137,7 @@ entries:
       firstUseBySection:
         - sectionId: md-1906
           anchor: md-1906-p1
-    notes: "The 1906 printing, not k. The 1911 correction prints 5/2 for the same coefficient, listed separately. The modern value for rigid spheres, 5/2, is not substituted here, or the 1906 error would be hidden."
+    notes: "The 1906 printing, not k. The 1911 correction prints 2,5 for the same coefficient (modern 5/2), listed separately. The modern value for rigid spheres, 5/2, is not substituted here, or the 1906 error would be hidden."
     sources:
       facsimilePage: 289
       anchor: md-1906-p1
@@ -154,7 +154,7 @@ entries:
       unicode: "2,5"
       latex: "2{,}5"
       variant: plain
-    meaning: "Coefficient of φ after the 1911 correction, printed as 5/2"
+    meaning: "Coefficient of φ after the 1911 correction, printed as 2,5 (modern 5/2)"
     binding:
       quantityId: suspensionViscosityCoefficient
     operation:

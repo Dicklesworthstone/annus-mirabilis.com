@@ -785,7 +785,7 @@ entries:
       anchor: sr-s5-p1
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 906 (public/figures/plates/pages/ap-17-891/906-1280.webp): glyph read by eye from the page image, not the text layer. Greek kappa in v = V − κ, 'wobei κ und λ positiv und kleiner als V seien'. The printed letterform is the curled kappa ϰ rather than κ; the letter is kappa either way. An agent check, not a human review. Human review pending."
+      checkedAgainst: "Plate of printed page 906 (public/figures/plates/pages/ap-17-891/906-1280.webp): glyph read by eye from the page image, not the text layer. Greek kappa in v = V − κ, 'wobei κ und λ positiv und kleiner als V seien'. The printed letterform is the curled kappa (Unicode U+03F0) rather than the straight κ; the letter is kappa either way. An agent check, not a human review. Human review pending."
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
@@ -1657,7 +1657,7 @@ entries:
       anchor: sr-s9-p1
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 916 (public/figures/plates/pages/ap-17-891/916-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 914 does not print it; its first use is on p. 916. Greek rho, printed in the curled form ϱ: ϱ = ∂X/∂x + ∂Y/∂y + ∂Z/∂z, 'die 4π-fache Dichte der Elektrizität' (§9). An agent check, not a human review. Human review pending."
+      checkedAgainst: "Plate of printed page 916 (public/figures/plates/pages/ap-17-891/916-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 914 does not print it; its first use is on p. 916. Greek rho, printed in the curled form (Unicode U+03F1): ρ = ∂X/∂x + ∂Y/∂y + ∂Z/∂z, 'die 4π-fache Dichte der Elektrizität' (§9). An agent check, not a human review. Human review pending."
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
@@ -1684,7 +1684,7 @@ entries:
       anchor: sr-s9-p1
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 916 (public/figures/plates/pages/ap-17-891/916-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 914 does not print it; its first use is on p. 916. Curled rho with a prime, ϱ′ = ∂X′/∂ξ + ∂Y′/∂η + ∂Z′/∂ζ = β(1 − v·u_x/V²)ϱ (§9). An agent check, not a human review. Human review pending."
+      checkedAgainst: "Plate of printed page 916 (public/figures/plates/pages/ap-17-891/916-1280.webp): glyph read by eye from the page image, not the text layer. The entry's facsimilePage 914 does not print it; its first use is on p. 916. Curled rho (U+03F1) with a prime, ρ′ = ∂X′/∂ξ + ∂Y′/∂η + ∂Z′/∂ζ = β(1 − v·u_x/V²)ρ (§9). An agent check, not a human review. Human review pending."
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
