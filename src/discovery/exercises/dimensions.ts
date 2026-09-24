@@ -27,8 +27,6 @@ export type DimensionResult =
   | { readonly kind: "unknown" }
   | { readonly kind: "refused"; readonly message: string };
 
-const BASIS = ["length", "mass", "time", "temperature", "current", "amount"] as const;
-
 /** Names for the dimensions an exercise is likely to meet, keyed by their six exponents. */
 const NAMED: Readonly<Record<string, string>> = {
   "0,0,0,0,0,0": "a pure number",
@@ -50,18 +48,45 @@ const NAMED: Readonly<Record<string, string>> = {
 const key = (d: Dimension) =>
   d.map((r) => (r.den === 1n ? String(r.num) : `${r.num}/${r.den}`)).join(",");
 
-/** A dimension in words: "an area", or "length^1/2 · time^-1" when it has no common name. */
+/** SI base units in the order a unit is usually written, kg·m²·s⁻², with the index of each in a Dimension. */
+const UNITS: readonly (readonly [number, string])[] = [
+  [1, "kg"],
+  [0, "m"],
+  [2, "s"],
+  [3, "K"],
+  [4, "A"],
+  [5, "mol"],
+];
+const SUPERSCRIPT: Readonly<Record<string, string>> = {
+  "-": "⁻",
+  "0": "⁰",
+  "1": "¹",
+  "2": "²",
+  "3": "³",
+  "4": "⁴",
+  "5": "⁵",
+  "6": "⁶",
+  "7": "⁷",
+  "8": "⁸",
+  "9": "⁹",
+};
+
+/**
+ * A dimension in words: "an area", or, when it has no common name, the SI units a reader would
+ * measure it in, "a quantity in kg·m²". Units read more plainly than exponent lists such as
+ * "length^2 · mass", and a fractional exponent keeps its fraction: "m^(1/2)".
+ */
 export function describeDimension(d: Dimension): string {
   const named = NAMED[key(d)];
   if (named) return named;
-  const parts = d
-    .map((r, i) => {
-      if (r.num === 0n) return "";
-      const exponent = r.den === 1n ? String(r.num) : `${r.num}/${r.den}`;
-      return exponent === "1" ? BASIS[i] : `${BASIS[i]}^${exponent}`;
-    })
-    .filter(Boolean);
-  return `the dimension ${parts.join(" · ")}`;
+  const parts = UNITS.map(([i, unit]) => {
+    const r = d[i];
+    if (!r || r.num === 0n) return "";
+    if (r.den !== 1n) return `${unit}^(${r.num}/${r.den})`;
+    if (r.num === 1n) return unit;
+    return `${unit}${[...String(r.num)].map((c) => SUPERSCRIPT[c] ?? c).join("")}`;
+  }).filter(Boolean);
+  return `a quantity in ${parts.join("·")}`;
 }
 
 /** An exponent written as a plain number, a negated one, or a quotient of two, as a fraction. */
@@ -171,7 +196,7 @@ export function dimensionMessage(
   if (actual.kind === "refused") return actual.message;
   if (actual.kind === "unknown") return null;
   if (sameDimension(actual.dimension, expected.dimension)) return null;
-  return `Your expression has the dimension of ${describeDimension(actual.dimension).replace(/^the dimension /, "")}; the quantity asked for is ${describeDimension(expected.dimension).replace(/^the dimension /, "")}.`;
+  return `Your expression has the dimension of ${describeDimension(actual.dimension)}; the quantity asked for is ${describeDimension(expected.dimension)}.`;
 }
 
 /**

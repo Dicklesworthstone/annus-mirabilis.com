@@ -48,6 +48,36 @@ describe("the three cases the bead names", () => {
   });
 });
 
+describe("a dimension with no common name is given in SI units", () => {
+  test("kg·m², kg·m²·s⁻¹ and a fractional exponent", async () => {
+    const { describeDimension } = await import("./dimensions.ts");
+    expect(describeDimension(dimension(["2", "1", "0", "0", "0", "0"]))).toBe(
+      "a quantity in kg·m²",
+    );
+    expect(describeDimension(dimension(["2", "1", "-1", "0", "0", "0"]))).toBe(
+      "a quantity in kg·m²·s⁻¹",
+    );
+    expect(describeDimension(dimension(["1/2", "0", "-1", "0", "0", "0"]))).toBe(
+      "a quantity in m^(1/2)·s⁻¹",
+    );
+  });
+
+  test("h/nu − P reads as an energy taken from a quantity in kg·m²", () => {
+    const energy = {
+      h: dimension(["2", "1", "-1", "0", "0", "0"]),
+      nu: dimension(["0", "0", "-1", "0", "0", "0"]),
+      P: dimension(["2", "1", "-2", "0", "0", "0"]),
+    };
+    const parsed = parse("h/nu-P", new Set(["h", "nu", "P"]));
+    if (!parsed.ok) throw new TypeError(parsed.message);
+    expect(dimensionOf(parsed.expr, energy)).toEqual({
+      kind: "refused",
+      message:
+        "Your expression subtracts an energy from a quantity in kg·m², and quantities of different dimensions cannot be added or subtracted.",
+    });
+  });
+});
+
 describe("the rest of the arithmetic", () => {
   test("a speed squared is named as one, not spelled out as length and time exponents", () => {
     const speeds = { v: dimension(["1", "0", "-1", "0", "0", "0"]) };
