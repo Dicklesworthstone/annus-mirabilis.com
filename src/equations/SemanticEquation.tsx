@@ -153,6 +153,7 @@ export function SemanticEquation({
     ? `Terms and operations in ${equation.title || equation.id} (${effectiveScopeLabel})`
     : `Terms and operations in ${equation.title || equation.id}`;
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: delegated listeners only; they light the term under the pointer or focus, and the keyboard route is the focusable formula section below.
     <div
       ref={root}
       className="semantic-equation"

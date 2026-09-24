@@ -62,6 +62,7 @@ export function TermHighlight({ children, ...attributes }: TermHighlightProps) {
   const at = (target: EventTarget | null) =>
     root.current ? quantityAt(root.current, target) : null;
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: delegated listeners only; the lit formula is aria-hidden, and its legend names every quantity in text for every reader.
     <div
       {...attributes}
       ref={root}
