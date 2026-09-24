@@ -1,4 +1,5 @@
 import { parseScaledDecimal } from "../../units/decimalScale.ts";
+import { carriesTapeLink } from "../permalink/codecCore.ts";
 import { BM04_DEFAULTS, type Bm04Parameters } from "./definition.ts";
 import { validateBm04Parameters } from "./parameters.ts";
 
@@ -23,7 +24,8 @@ export type Bm04SettingsLink = Readonly<
 
 /** Links are untrusted input. Loading a link never schedules a calculation. */
 export function decodeBm04Settings(search: string): Bm04SettingsLink {
-  if (!search || search === "?") return { kind: "absent" };
+  // A ?tape= address is the draft tape's to read (draftTape.ts), not an invalid settings link.
+  if (!search || search === "?" || carriesTapeLink(search)) return { kind: "absent" };
   const invalid = (): Bm04SettingsLink => ({
     kind: "invalid",
     message:

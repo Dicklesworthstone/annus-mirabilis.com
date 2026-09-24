@@ -100,8 +100,8 @@ import { WaveDescriptionLab } from "./WaveDescriptionLab.tsx";
  */
 /**
  * The gated labs. `result` is text from each lab's result that the server markup must carry.
- * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-04, BM-05, BM-07,
- * BM-08 and SR-03 share none (their worker runner is not written), and BM-02 and LQ-02 have no tape binding; BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
+ * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. SR-03 shares none yet (its
+ * draft tape is not wired), and BM-02 and LQ-02 have no tape binding; BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
  * in a worktree (dispatch 145). `statusLine`: whether the lab has a status line; BM-04, LQ-06 and ME-02 have none.
  */
 type GatedLab = Readonly<{
@@ -142,7 +142,7 @@ const LABS: readonly GatedLab[] = [
         example: rawBm04Example as unknown as PreparedBm04Example,
       }),
     result: "Inspect and export the accepted dataset",
-    sharesTape: false,
+    sharesTape: true,
     statusLine: false,
   },
   {
@@ -150,7 +150,7 @@ const LABS: readonly GatedLab[] = [
     element: () =>
       createElement(WalkLab, { example: rawBm05Example as unknown as PreparedBm05Example }),
     result: "Step law and whole-ensemble spread",
-    sharesTape: false,
+    sharesTape: true,
     statusLine: true,
   },
   {
@@ -158,7 +158,7 @@ const LABS: readonly GatedLab[] = [
     element: () =>
       createElement(InferenceLab, { example: rawBm07Example as unknown as PreparedBm07Example }),
     result: "What the data identify",
-    sharesTape: false,
+    sharesTape: true,
     statusLine: true,
   },
   {
@@ -166,7 +166,7 @@ const LABS: readonly GatedLab[] = [
     element: () =>
       createElement(CameraLab, { example: rawBm08Example as unknown as PreparedBm08Example }),
     result: "Four estimates, different assumptions",
-    sharesTape: false,
+    sharesTape: true,
     statusLine: true,
   },
   {

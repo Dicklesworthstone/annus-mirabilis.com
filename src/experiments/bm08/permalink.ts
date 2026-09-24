@@ -1,4 +1,5 @@
 import { parseScaledDecimal } from "../../units/decimalScale.ts";
+import { carriesTapeLink } from "../permalink/codecCore.ts";
 import { BM08_DEFAULTS, type Bm08Parameters } from "./definition.ts";
 import { validateBm08Parameters } from "./parameters.ts";
 export function encodeBm08Settings(p: Bm08Parameters): string {
@@ -16,7 +17,8 @@ export function decodeBm08Settings(
   | { kind: "absent" }
   | { kind: "settings"; parameters: Bm08Parameters }
   | { kind: "invalid"; message: string } {
-  if (!search || search === "?") return { kind: "absent" };
+  // A ?tape= address is the draft tape's to read (draftTape.ts), not an invalid settings link.
+  if (!search || search === "?" || carriesTapeLink(search)) return { kind: "absent" };
   const invalid = () => ({
     kind: "invalid" as const,
     message: "This camera link is incomplete or unsupported. The worked example is unchanged.",

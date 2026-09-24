@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
 import { createBm08BrowserChannel } from "../../experiments/bm08/browser.ts";
 import {
   type CameraDraft,
@@ -7,18 +7,20 @@ import {
   toCameraDraft,
 } from "../../experiments/bm08/controls.ts";
 import { BM08_CAPTION, type Bm08Parameters } from "../../experiments/bm08/definition.ts";
+import { BM08_DRAFT_TAPE } from "../../experiments/bm08/draftTape.ts";
 import { cameraObservationCsv } from "../../experiments/bm08/export.ts";
-import { decodeBm08Settings, encodeBm08Settings } from "../../experiments/bm08/permalink.ts";
+import { decodeBm08Settings } from "../../experiments/bm08/permalink.ts";
 import { createBm08Session, type PreparedBm08Example } from "../../experiments/bm08/session.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { CameraMomentTable } from "./CameraMomentTable.tsx";
 import { CameraCoverage, CameraPath, CameraSpeed } from "./CameraPlots.tsx";
 import { InferenceInterval as Interval, InferenceValue as Value } from "./InferencePlots.tsx";
-import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
 
@@ -48,8 +50,19 @@ export function CameraLab({
     [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
     [error, setError] = useState(""),
-    [note, setNote] = useState(""),
-    [shareUrl, setShareUrl] = useState("");
+    [note, setNote] = useState("");
+  // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
+  // Read here, above the early return below, from the accepted snapshot itself. It carries no
+  // coverage experiments, as the older link did not: a reader runs those deliberately.
+  const acceptedParameters = (view.accepted ?? session.getServerSnapshot().accepted)?.parameters;
+  const shareable = useMemo(
+    () => (acceptedParameters ? { ...acceptedParameters, coverageTrials: 0 } : undefined),
+    [acceptedParameters],
+  );
+  const tapeLink = useDraftTapeLink(BM08_DRAFT_TAPE, shareable, true, (settings) => {
+    setDraft(toCameraDraft(settings as unknown as Bm08Parameters));
+    setDirty(true);
+  });
   useEffect(() => {
     setReady(true);
     const link = decodeBm08Settings(window.location.search);
@@ -106,17 +119,6 @@ export function CameraLab({
       });
     } catch {
       setError("Enter another unsigned 64-bit physical seed to start a new path.");
-    }
-  }
-  async function share() {
-    const link = new URL("/lab/bm-08/", window.location.origin);
-    link.search = encodeBm08Settings(session.acceptedParameters());
-    setShareUrl(link.href);
-    try {
-      await navigator.clipboard.writeText(link.href);
-      setNote("Accepted camera settings copied; hypothetical experiments are excluded.");
-    } catch {
-      setNote("Copy the accepted settings from the selectable field.");
     }
   }
   function exportFrames() {
@@ -376,26 +378,12 @@ export function CameraLab({
             <button type="button" disabled={!ready} className="secondary" onClick={newTrial}>
               New independent physical trial
             </button>
-            <button type="button" disabled={!ready} className="secondary" onClick={share}>
-              Copy accepted camera link
-            </button>
             <button type="button" disabled={!ready} className="secondary" onClick={exportFrames}>
               Download accepted camera frames
             </button>
           </div>
-          {shareUrl && (
-            <div className="share-field">
-              <label htmlFor={`${id}-share`}>Accepted camera link</label>
-              <input
-                id={`${id}-share`}
-                type="text"
-                readOnly
-                value={shareUrl}
-                onFocus={(e) => e.target.select()}
-              />
-            </div>
-          )}
           {note && <p className="notice">{note}</p>}
+          <LabTapeLink link={withPredictions(tapeLink, gate)} />
         </div>
         <div className="lab-results camera-results" {...gate.response}>
           {view.refusal && (

@@ -9,11 +9,13 @@ import {
   BM04_PRESETS,
   type Bm04Parameters,
 } from "../../experiments/bm04/definition.ts";
-import { decodeBm04Settings, encodeBm04Settings } from "../../experiments/bm04/permalink.ts";
+import { BM04_DRAFT_TAPE } from "../../experiments/bm04/draftTape.ts";
+import { decodeBm04Settings } from "../../experiments/bm04/permalink.ts";
 import { createBm04Session, type PreparedBm04Example } from "../../experiments/bm04/session.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
@@ -23,7 +25,7 @@ import {
   ForceCancellationPanel,
 } from "./DriftDiffusionPlots.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
-import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
@@ -66,12 +68,16 @@ export function DriftDiffusionLab({
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState("");
   const [linkNote, setLinkNote] = useState("");
-  const [sharedUrl, setSharedUrl] = useState("");
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("bm-04", BM04_PROMPTS);
   const [comparison, setComparison] = useState<ForceComparison | null>(null);
   const [exportNote, setExportNote] = useState("");
 
+  // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
+  const tapeLink = useDraftTapeLink(BM04_DRAFT_TAPE, p, true, (settings) => {
+    setDraft(toBm04Draft(settings as unknown as Bm04Parameters));
+    setDirty(true);
+  });
   useEffect(() => {
     setReady(true);
     const shared = decodeBm04Settings(window.location.search);
@@ -116,18 +122,6 @@ export function DriftDiffusionLab({
     setDraft(toBm04Draft(parameters));
     setDirty(true);
     setError("");
-  }
-
-  async function share() {
-    const url = new URL(window.location.pathname, window.location.origin);
-    url.search = encodeBm04Settings(session.acceptedParameters());
-    setSharedUrl(url.href);
-    try {
-      await navigator.clipboard.writeText(url.href);
-      setLinkNote("Link to the accepted settings copied.");
-    } catch {
-      setLinkNote("Copy the accepted-settings link from the field below.");
-    }
   }
 
   function compareForce() {
@@ -387,9 +381,6 @@ export function DriftDiffusionLab({
                 >
                   Reset to defaults
                 </button>
-                <button type="button" className="secondary" onClick={share}>
-                  Share settings
-                </button>
               </div>
             </ExperimentSettings>
             {error && (
@@ -398,15 +389,7 @@ export function DriftDiffusionLab({
               </p>
             )}
             {linkNote && <p className="form-note">{linkNote}</p>}
-            {sharedUrl && (
-              <input
-                type="text"
-                readOnly
-                value={sharedUrl}
-                aria-label="Shareable settings link"
-                onFocus={(e) => e.target.select()}
-              />
-            )}
+            <LabTapeLink link={withPredictions(tapeLink, gate)} />
           </fieldset>
         </form>
         <div className="lab-results" {...gate.response}>

@@ -1,4 +1,5 @@
 import { parseScaledDecimal } from "../../units/decimalScale.ts";
+import { carriesTapeLink } from "../permalink/codecCore.ts";
 import { BM05_DEFAULTS, type Bm05Parameters } from "./definition.ts";
 import { validateBm05Parameters } from "./parameters.ts";
 export function encodeBm05Settings(p: Bm05Parameters): string {
@@ -15,7 +16,8 @@ export function decodeBm05Settings(
   | { kind: "absent" }
   | { kind: "settings"; parameters: Bm05Parameters }
   | { kind: "invalid"; message: string } {
-  if (!search || search === "?") return { kind: "absent" };
+  // A ?tape= address is the draft tape's to read (draftTape.ts), not an invalid settings link.
+  if (!search || search === "?" || carriesTapeLink(search)) return { kind: "absent" };
   const invalid = () => ({
     kind: "invalid" as const,
     message: "This walk link is incomplete or unsupported. The worked example is unchanged.",

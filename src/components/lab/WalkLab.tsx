@@ -8,18 +8,20 @@ import {
   BM05_OUTPUTS,
   type Bm05Parameters,
 } from "../../experiments/bm05/definition.ts";
-import { decodeBm05Settings, encodeBm05Settings } from "../../experiments/bm05/permalink.ts";
+import { BM05_DRAFT_TAPE } from "../../experiments/bm05/draftTape.ts";
+import { decodeBm05Settings } from "../../experiments/bm05/permalink.ts";
 import { createBm05Session, type PreparedBm05Example } from "../../experiments/bm05/session.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
-import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
@@ -91,10 +93,14 @@ export function WalkLab({
     [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
     [error, setError] = useState(""),
-    [note, setNote] = useState(""),
-    [url, setUrl] = useState("");
+    [note, setNote] = useState("");
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("bm-05", BM05_PROMPTS);
+  // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them.
+  const tapeLink = useDraftTapeLink(BM05_DRAFT_TAPE, p, true, (settings) => {
+    setDraft(toWalkDraft(settings as unknown as Bm05Parameters));
+    setDirty(true);
+  });
   useEffect(() => {
     setReady(true);
     const shared = decodeBm05Settings(window.location.search);
@@ -142,17 +148,6 @@ export function WalkLab({
       setError(
         "A new random seed is unavailable on this device. Enter a different seed explicitly.",
       );
-    }
-  }
-  async function share() {
-    const link = new URL("/lab/bm-05/", window.location.origin);
-    link.search = encodeBm05Settings(session.acceptedParameters());
-    setUrl(link.href);
-    try {
-      await navigator.clipboard.writeText(link.href);
-      setNote("The accepted walk settings were copied.");
-    } catch {
-      setNote("Copy the accepted trial link from the field below.");
     }
   }
   const announcement = view.pending
@@ -347,23 +342,9 @@ export function WalkLab({
             <button type="button" className="secondary" disabled={!ready} onClick={newTrial}>
               New independent trial
             </button>
-            <button type="button" className="secondary" disabled={!ready} onClick={share}>
-              Copy accepted walk link
-            </button>
           </div>
-          {url && (
-            <div className="share-field">
-              <label htmlFor={`${id}-share`}>Accepted trial link</label>
-              <input
-                id={`${id}-share`}
-                type="text"
-                readOnly
-                value={url}
-                onFocus={(e) => e.target.select()}
-              />
-            </div>
-          )}
           {note && <p className="notice">{note}</p>}
+          <LabTapeLink link={withPredictions(tapeLink, gate)} />
           <p className="fine">
             Keeping a seed across step-law changes is a reproducible comparison, not a claim of
             independent trials. Shared links load settings only; they never start a calculation.

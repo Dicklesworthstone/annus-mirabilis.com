@@ -1,15 +1,32 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
+import { CameraLab } from "../components/lab/CameraLab.tsx";
+import { DriftDiffusionLab } from "../components/lab/DriftDiffusionLab.tsx";
+import { InferenceLab } from "../components/lab/InferenceLab.tsx";
 import { TracerLab } from "../components/lab/TracerLab.tsx";
+import { WalkLab } from "../components/lab/WalkLab.tsx";
 import { WaveDescriptionLab } from "../components/lab/WaveDescriptionLab.tsx";
 import { BM01_DRAFT_TAPE } from "../experiments/bm01/draftTape.ts";
 import type { PreparedBm01Example } from "../experiments/bm01/session.ts";
+import { BM04_DRAFT_TAPE } from "../experiments/bm04/draftTape.ts";
+import type { PreparedBm04Example } from "../experiments/bm04/session.ts";
+import { BM05_DRAFT_TAPE } from "../experiments/bm05/draftTape.ts";
+import type { PreparedBm05Example } from "../experiments/bm05/session.ts";
+import { BM07_DRAFT_TAPE } from "../experiments/bm07/draftTape.ts";
+import type { PreparedBm07Example } from "../experiments/bm07/session.ts";
+import { BM08_DRAFT_TAPE } from "../experiments/bm08/draftTape.ts";
+import type { PreparedBm08Example } from "../experiments/bm08/session.ts";
 import { LQ01_DRAFT_TAPE } from "../experiments/lq01/draftTape.ts";
 import type { PreparedLq01Example } from "../experiments/lq01/session.ts";
-import { encodeTapePermalink } from "../experiments/permalink/codec.ts";
+import { decodeTapePermalink, encodeTapePermalink } from "../experiments/permalink/codec.ts";
 import { type DraftTapeBinding, draftTapeForSettings } from "../experiments/permalink/draftTape.ts";
+import { settingsFromTape } from "../experiments/permalink/sessionTape.ts";
 import rawBm01Example from "../generated/bm01-example.json";
+import rawBm04Example from "../generated/bm04-example.json";
+import rawBm05Example from "../generated/bm05-example.json";
+import rawBm07Example from "../generated/bm07-example.json";
+import rawBm08Example from "../generated/bm08-example.json";
 import rawLq01Example from "../generated/lq01-example.json";
 import { createContainer, installDom, removeContainer, uninstallDom } from "./reactDom.ts";
 
@@ -140,4 +157,139 @@ describe("a worker laboratory's shared link fills the form and calculates nothin
       window.history.replaceState(null, "", "/");
     }
   });
+
+  /** One shared change per laboratory, each off its default and inside what the lab accepts. */
+  const BROWNIAN: readonly {
+    lab: string;
+    binding: DraftTapeBinding;
+    change: Record<string, unknown>;
+    element: () => ReturnType<typeof createElement>;
+    field: string;
+    shown: string;
+  }[] = [
+    {
+      lab: "bm-04",
+      binding: BM04_DRAFT_TAPE,
+      change: { profile: "step" },
+      element: () =>
+        createElement(DriftDiffusionLab, {
+          example: rawBm04Example as unknown as PreparedBm04Example,
+        }),
+      field: 'select[id$="-profile"]',
+      shown: "step",
+    },
+    {
+      lab: "bm-05",
+      binding: BM05_DRAFT_TAPE,
+      change: { seed: "2024" },
+      element: () =>
+        createElement(WalkLab, { example: rawBm05Example as unknown as PreparedBm05Example }),
+      field: 'input[id$="-seed"]',
+      shown: "2024",
+    },
+    {
+      lab: "bm-07",
+      binding: BM07_DRAFT_TAPE,
+      change: { d: 1 },
+      element: () =>
+        createElement(InferenceLab, { example: rawBm07Example as unknown as PreparedBm07Example }),
+      field: 'select[id$="-d"]',
+      shown: "1",
+    },
+    {
+      lab: "bm-08",
+      binding: BM08_DRAFT_TAPE,
+      change: { dt: 2 },
+      element: () =>
+        createElement(CameraLab, { example: rawBm08Example as unknown as PreparedBm08Example }),
+      field: 'select[id$="-dt"]',
+      shown: "2",
+    },
+  ];
+
+  for (const { lab, binding, change, element, field, shown } of BROWNIAN) {
+    test(`${lab}: the shared setting reaches the form, the reader is told to apply, and no worker starts`, async () => {
+      for (const [key, value] of Object.entries(change))
+        expect(binding.defaults[key]).not.toBe(value);
+      const opened = await openShared(
+        lab,
+        binding,
+        { ...binding.defaults, ...change },
+        element(),
+        field,
+      );
+      expect(opened.value).toBe(shown);
+      expect(opened.text).toContain(
+        "The shared link's settings are in the form. Apply them to calculate.",
+      );
+      expect(opened.text).not.toContain("link is incomplete or unsupported");
+      expect(opened.root?.getAttribute("data-pending") ?? "false").toBe("false");
+      expect(opened.shares).toBe(true);
+    });
+  }
+
+  /**
+   * BM-07 and BM-08's older links always carried coverageTrials=0, and their decoders refuse any
+   * other value: a reader runs a hundred hypothetical experiments on purpose, not by opening a
+   * link. The tape keeps that. With an accepted trial that ran 100, the shared tape carries 0.
+   */
+  const COVERAGE: readonly {
+    lab: string;
+    binding: DraftTapeBinding;
+    element: (coverageTrials: number) => ReturnType<typeof createElement>;
+  }[] = [
+    {
+      lab: "bm-07",
+      binding: BM07_DRAFT_TAPE,
+      element: (coverageTrials) => {
+        const example = rawBm07Example as unknown as PreparedBm07Example;
+        return createElement(InferenceLab, {
+          example: { ...example, parameters: { ...example.parameters, coverageTrials } },
+        });
+      },
+    },
+    {
+      lab: "bm-08",
+      binding: BM08_DRAFT_TAPE,
+      element: (coverageTrials) => {
+        const example = rawBm08Example as unknown as PreparedBm08Example;
+        return createElement(CameraLab, {
+          example: { ...example, parameters: { ...example.parameters, coverageTrials } },
+        });
+      },
+    },
+  ];
+
+  for (const { lab, binding, element } of COVERAGE) {
+    test(`${lab}: a shared tape carries no coverage experiments, even from a trial that ran 100`, async () => {
+      const container = createContainer();
+      const root = createRoot(container);
+      try {
+        await act(async () => {
+          root.render(element(100));
+        });
+        let link = "";
+        for (let i = 0; i < 100 && !link; i++) {
+          await act(async () => {
+            await new Promise((resolve) => setTimeout(resolve, 10));
+          });
+          link =
+            container.querySelector<HTMLInputElement>('[data-testid="selectable-url"]')?.value ??
+            "";
+        }
+        const decoded = decodeTapePermalink(link);
+        expect(decoded.kind).toBe("success");
+        if (decoded.kind !== "success") return;
+        const shared = settingsFromTape(decoded.tape.initialConditions, binding.defaults);
+        expect(shared.coverageTrials).toBe(0);
+        // The rest of the accepted settings do travel: the seed is the example's.
+        expect(shared.seed).toBe(binding.defaults.seed);
+      } finally {
+        await act(async () => {
+          root.unmount();
+        });
+        removeContainer(container);
+      }
+    });
+  }
 });

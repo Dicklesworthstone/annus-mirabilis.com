@@ -1,5 +1,5 @@
 "use client";
-import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
 import { createBm07BrowserChannel } from "../../experiments/bm07/browser.ts";
 import {
   fromInferenceDraft,
@@ -12,14 +12,16 @@ import {
   BM07_SEMANTIC_KIND_TEXT,
   type Bm07Parameters,
 } from "../../experiments/bm07/definition.ts";
+import { BM07_DRAFT_TAPE } from "../../experiments/bm07/draftTape.ts";
 import { inferenceObservationCsv } from "../../experiments/bm07/export.ts";
-import { decodeBm07Settings, encodeBm07Settings } from "../../experiments/bm07/permalink.ts";
+import { decodeBm07Settings } from "../../experiments/bm07/permalink.ts";
 import { createBm07Session, type PreparedBm07Example } from "../../experiments/bm07/session.ts";
 import {
   executionLabelFor,
   executionStateKindFromHostLabel,
 } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
@@ -30,7 +32,7 @@ import {
   InferencePath,
   InferenceValue,
 } from "./InferencePlots.tsx";
-import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
 
@@ -72,7 +74,6 @@ export function InferenceLab({
     [dirty, setDirty] = useState(false),
     [error, setError] = useState(""),
     [note, setNote] = useState(""),
-    [shareUrl, setShareUrl] = useState(""),
     [revealedRun, setRevealedRun] = useState<string | null>(null);
   const revealed = revealedRun === snapshot.runId,
     isStatic = snapshot === session.getServerSnapshot().accepted;
@@ -82,6 +83,13 @@ export function InferenceLab({
   const executionKind = executionStateKindFromHostLabel(
     deriveHostExecution(view, BM07_OUTPUTS, example.sourceDigest, isStatic).label,
   );
+  // A shared ?tape= link puts its settings in the form and starts no worker; Apply runs them. It
+  // carries no coverage experiments, as the older link did not: a reader runs those deliberately.
+  const shareable = useMemo(() => ({ ...p, coverageTrials: 0 }), [p]);
+  const tapeLink = useDraftTapeLink(BM07_DRAFT_TAPE, shareable, true, (settings) => {
+    setDraft(toInferenceDraft(settings as unknown as Bm07Parameters));
+    setDirty(true);
+  });
   useEffect(() => {
     setReady(true);
     const shared = decodeBm07Settings(window.location.search);
@@ -135,19 +143,6 @@ export function InferenceLab({
       setError(
         "A random seed is unavailable here. Enter another unsigned 64-bit seed in the generator settings.",
       );
-    }
-  }
-  async function share() {
-    const link = new URL("/lab/bm-07/", window.location.origin);
-    link.search = encodeBm07Settings(session.acceptedParameters());
-    setShareUrl(link.href);
-    try {
-      await navigator.clipboard.writeText(link.href);
-      setNote(
-        "The accepted inference settings were copied. Coverage experiments are not included.",
-      );
-    } catch {
-      setNote("Copy the accepted settings from the selectable field below.");
     }
   }
   function exportObservations() {
@@ -443,9 +438,6 @@ export function InferenceLab({
             <button type="button" disabled={!ready} className="secondary" onClick={newTrial}>
               New independent trial
             </button>
-            <button type="button" disabled={!ready} className="secondary" onClick={share}>
-              Copy accepted inference link
-            </button>
             <button
               type="button"
               disabled={!ready}
@@ -455,19 +447,8 @@ export function InferenceLab({
               Download accepted observations
             </button>
           </div>
-          {shareUrl && (
-            <div className="share-field">
-              <label htmlFor={`${id}-share`}>Accepted inference link</label>
-              <input
-                id={`${id}-share`}
-                type="text"
-                readOnly
-                value={shareUrl}
-                onFocus={(e) => e.target.select()}
-              />
-            </div>
-          )}
           {note && <p className="notice">{note}</p>}
+          <LabTapeLink link={withPredictions(tapeLink, gate)} />
           <p className="fine">
             The CSV contains every selected position and displacement in SI units with generator
             metadata. It contains synthetic data, not observations of a real suspension. Opening a

@@ -289,15 +289,28 @@ export async function checkInferenceBrowser(browser, url, check) {
     assert.notEqual((await identity(lab)).run, first.run);
     const largeSeedPaths = await paths(lab);
     await lab.locator('[name="seed"]').fill("bad");
-    await lab.getByRole("button", { name: "Copy accepted inference link", exact: true }).click();
-    const link = await lab.getByLabel("Accepted inference link", { exact: true }).inputValue();
-    assert.equal(new URL(link).searchParams.get("seed"), "9007199254740993");
-    assert.equal(new URL(link).searchParams.get("coverageTrials"), "0");
+    // The tape's share control replaced the older share button (38999). Its selectable field holds
+    // the ?tape= link once the browser has encoded it; settings travel inside the tape.
+    const urlField = lab.getByTestId("selectable-url");
+    await urlField.waitFor();
+    let link = "";
+    for (let i = 0; i < 100 && !link.includes("?tape="); i++) {
+      link = await urlField.inputValue();
+      if (!link.includes("?tape=")) await page.waitForTimeout(50);
+    }
+    assert.match(link, /\/lab\/bm-07\/\?tape=/);
+    // The seed travels in the tape, and coverage experiments never do (workerLabDraftTapes.test.tsx).
     const shared = await context.newPage();
     let sharedWorkers = 0;
     shared.on("worker", () => sharedWorkers++);
     await shared.goto(link);
-    await shared.getByText(/Shared settings are loaded as a draft/).waitFor();
+    await shared
+      .getByText("The shared link's settings are in the form. Apply them to calculate.", {
+        exact: false,
+      })
+      .first()
+      .waitFor();
+    assert.equal(await shared.locator('[name="seed"]').inputValue(), "9007199254740993");
     assert.equal(sharedWorkers, 0);
     assert.equal(
       await shared.locator('[data-instrument-id="bm-07"]').getAttribute("data-radius-known"),

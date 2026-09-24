@@ -1,4 +1,5 @@
 import { parseScaledDecimal } from "../../units/decimalScale.ts";
+import { carriesTapeLink } from "../permalink/codecCore.ts";
 import { BM07_DEFAULTS, type Bm07Parameters } from "./definition.ts";
 import { validateBm07Parameters } from "./parameters.ts";
 export function encodeBm07Settings(p: Bm07Parameters): string {
@@ -16,7 +17,8 @@ export function decodeBm07Settings(
   | { kind: "absent" }
   | { kind: "settings"; parameters: Bm07Parameters }
   | { kind: "invalid"; message: string } {
-  if (!search || search === "?") return { kind: "absent" };
+  // A ?tape= address is the draft tape's to read (draftTape.ts), not an invalid settings link.
+  if (!search || search === "?" || carriesTapeLink(search)) return { kind: "absent" };
   const invalid = () => ({
     kind: "invalid" as const,
     message: "This inference link is incomplete or unsupported. The worked example is unchanged.",
