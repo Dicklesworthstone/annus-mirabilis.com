@@ -76,7 +76,7 @@ final class EditionSession {
                 MainActor.assumeIsolated { self?.title = webView.title.flatMap { $0.isEmpty ? nil : $0 } }
             })
         // The reader's last theme, painted before the page loads, so a dark choice never starts light.
-        if let saved = themeStore?.load(), saved == "never" { applyTheme(saved) }
+        if let saved = themeStore?.load() { applyTheme(saved) }
     }
 
     /// The page on the website, for sharing and Handoff.
