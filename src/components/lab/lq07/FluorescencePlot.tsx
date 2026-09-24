@@ -351,7 +351,7 @@ export function FluorescencePlot({
             gap: "0.25rem",
           }}
         >
-          <h4
+          <h3
             style={{
               fontSize: "var(--type-small)",
               color: "var(--ink)",
@@ -360,7 +360,7 @@ export function FluorescencePlot({
             }}
           >
             Spectral bands and false-colour legend
-          </h4>
+          </h3>
           <span className="fine" style={{ margin: 0, fontSize: "var(--type-fine)" }}>
             Wavelength λ = c / ν
           </span>

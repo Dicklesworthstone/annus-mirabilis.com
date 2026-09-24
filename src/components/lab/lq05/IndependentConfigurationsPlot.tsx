@@ -208,7 +208,7 @@ export function IndependentConfigurationsPlot({
           background: "var(--panel)",
         }}
       >
-        <h4
+        <h3
           style={{
             fontSize: "var(--type-small)",
             color: "var(--ink)",
@@ -217,7 +217,7 @@ export function IndependentConfigurationsPlot({
           }}
         >
           Binomial distribution P(k): the chance that k of the {n} points lie inside
-        </h4>
+        </h3>
 
         <div
           style={{
