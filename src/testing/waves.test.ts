@@ -193,8 +193,9 @@ describe("Waves Reference Physics Evaluator (am-ref-waves-r53)", () => {
       expect(lc0.volumeFactor).toBeCloseTo(2.0, 12);
       expect(lc0.energyFactor).toBeCloseTo(0.5, 12);
 
+      // Countermodel (the bead's): light's density q^2 in a rod's volume 1/gamma, energy q^2/gamma.
       const cm0 = lightComplexMaterialContractionCountermodel(beta, 0);
-      expect(cm0.factor).toBeCloseTo(0.8, 12);
+      expect(cm0.factor).toBeCloseTo(0.2, 12);
       expect(cm0.volumeFactor).toBeCloseTo(0.8, 12);
       expect(Math.abs(lc0.energyFactor - cm0.factor)).toBeCloseTo(0.3, 12);
 
@@ -202,11 +203,12 @@ describe("Waves Reference Physics Evaluator (am-ref-waves-r53)", () => {
       const lcPi = lightComplexFactors(beta, Math.PI);
       expect(lcPi.energyFactor).toBeCloseTo(2.0, 12);
       const cmPi = lightComplexMaterialContractionCountermodel(beta, Math.PI);
-      expect(cmPi.factor).toBeCloseTo(0.8, 12);
+      expect(cmPi.factor).toBeCloseTo(3.2, 12);
       expect(cmPi.volumeFactor).toBeCloseTo(0.8, 12);
       expect(Math.abs(lcPi.energyFactor - cmPi.factor)).toBeCloseTo(1.2, 12);
 
-      // 3. Ray transverse in moving frame (cos(theta) = beta): q = 1/gamma = 0.8 (degenerate coincidence)
+      // 3. Ray transverse in moving frame (cos(theta) = beta): q = 1/gamma = 0.8; the countermodel's
+      //    0.64 x 0.8 = 0.512 differs, so this is the discriminating case
       const thetaTransversePrime = Math.acos(beta);
       const lcTP = lightComplexFactors(beta, thetaTransversePrime);
       expect(lcTP.amplitudeFactor).toBeCloseTo(0.8, 12);
@@ -214,17 +216,18 @@ describe("Waves Reference Physics Evaluator (am-ref-waves-r53)", () => {
       expect(lcTP.volumeFactor).toBeCloseTo(1.25, 12);
       expect(lcTP.energyFactor).toBeCloseTo(0.8, 12);
       const cmTP = lightComplexMaterialContractionCountermodel(beta, thetaTransversePrime);
-      expect(cmTP.factor).toBeCloseTo(0.8, 12);
+      expect(cmTP.factor).toBeCloseTo(0.512, 12);
       expect(cmTP.volumeFactor).toBeCloseTo(0.8, 12);
-      expect(lcTP.energyFactor).toBeCloseTo(cmTP.factor, 12);
+      expect(Math.abs(lcTP.energyFactor - cmTP.factor)).toBeCloseTo(0.288, 12);
 
-      // 4. Ray transverse in unprimed frame (theta = 90 deg): discriminating case (gamma = 1.25 vs 1/gamma = 0.8)
+      // 4. Ray transverse in unprimed frame (theta = 90 deg): q = gamma, and q^2/gamma = gamma too,
+      //    so the countermodel agrees at 1.25 and this ray cannot discriminate
       const lc90 = lightComplexFactors(beta, Math.PI / 2);
       expect(lc90.energyFactor).toBeCloseTo(1.25, 12);
       const cm90 = lightComplexMaterialContractionCountermodel(beta, Math.PI / 2);
-      expect(cm90.factor).toBeCloseTo(0.8, 12);
+      expect(cm90.factor).toBeCloseTo(1.25, 12);
       expect(cm90.volumeFactor).toBeCloseTo(0.8, 12);
-      expect(lc90.energyFactor / cm90.factor).toBeCloseTo(1.5625, 12);
+      expect(lc90.energyFactor / cm90.factor).toBeCloseTo(1, 12);
     });
 
     test("numerical volume calculation agrees with exact 1/q", () => {
