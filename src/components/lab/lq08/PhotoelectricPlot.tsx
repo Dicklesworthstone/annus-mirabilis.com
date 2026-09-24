@@ -84,13 +84,15 @@ export function EnergyLadderPlot({
           borderRadius: "0.25rem",
         }}
       >
-        {/* Zero energy reference line (Vacuum level) */}
+        {/* The vacuum level, 0 eV: the energy an electron needs to be outside the metal, and so
+            the line the ladder is about. It takes --muted (5.98:1 on either paper), not the rule
+            colour, --line, in which it stood at 1.45:1 like a gridline. */}
         <line
           x1={padding.left}
           y1={yZero}
           x2={width - padding.right}
           y2={yZero}
-          stroke="var(--line)"
+          stroke="var(--muted)"
           strokeWidth="1.5"
           strokeDasharray="4 3"
         />
