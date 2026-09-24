@@ -122,6 +122,12 @@ describe("extractSteps", () => {
       const holder = document.createElement("div");
       holder.append(...(nodes ?? []));
       expect(holder.querySelector("summary")).toBeNull();
+      // Compare like with like: the source side drops embedded lessons' constructions (stepsText),
+      // so the lifted side does too. loadStepsBody mounts them afresh rather than reusing this
+      // markup, and a passage whose steps embed a lesson with a construction made the one-sided
+      // comparison fail on text that is present, as it should be, on both sides.
+      for (const c of holder.querySelectorAll(`${CONSTRUCTION_SELECTOR}, [data-construction-slot]`))
+        c.remove();
       const text = (holder.textContent ?? "").replace(/\s+/g, " ").trim();
       expect(text.length).toBeGreaterThan(200);
       expect(text).toBe(stepsText(source as Element));
