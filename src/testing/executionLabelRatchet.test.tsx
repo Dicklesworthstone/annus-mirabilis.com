@@ -8,6 +8,13 @@ import { renderToStaticMarkup } from "react-dom/server";
  * as a literal. On 2026-09-24, 28 lab components hard-coded data-execution-label="host", so the
  * build-time worked example every reader first sees was labelled a live host calculation.
  *
+ * The literal has more than one spelling. Until 2026-09-24 this scanned only data-execution-label="host",
+ * and three labs said "Ideal model, host calculation" over their build-time example on live 211e9af4
+ * in forms it could not see: BM-05 and BM-06 passed state="host-accepted" to ExecutionChrome and
+ * labelRootAttributes, and SR-02 chose its attribute by mode, {apparatus ? "static" : "host"}. Those
+ * spellings are matched too. A label chosen from a per-snapshot test (isStatic ? ... : "host-accepted",
+ * as TracerLab and CameraLab do) is a derivation and is not.
+ *
  * STILL_HARD_CODED is a ratchet. A component may leave it only by deriving its label, and must
  * leave it when it does: the list is compared for equality, so a migrated lab left on the list
  * fails as slack, and a new hard-coded label fails as a regression.
@@ -33,6 +40,8 @@ const DERIVED_ROUTES = [
   "avogadro-lab",
   "light-thread",
   "bm-04",
+  "bm-05",
+  "bm-06",
   "lq-01",
   "lq-03",
   "lq-04",
@@ -45,6 +54,7 @@ const DERIVED_ROUTES = [
   "me-02",
   "me-03",
   "sr-01",
+  "sr-02",
   "sr-03",
   "sr-04",
   "sr-07",
@@ -57,7 +67,14 @@ const DERIVED_ROUTES = [
 ];
 
 const COMPONENTS = fileURLToPath(new URL("../components/", import.meta.url));
-const LITERAL = /data-execution-label="host"/;
+const LITERAL = new RegExp(
+  [
+    'data-execution-label="host"',
+    'data-execution-label=\\{[^}]*"host"\\s*\\}',
+    '\\bstate="host-accepted"',
+    '\\b(?:labelRootAttributes|executionLabelAttributes)\\(\\s*"host-accepted"',
+  ].join("|"),
+);
 
 /** Blank comments before matching, so a comment that DESCRIBES the literal is not the literal. */
 function withoutComments(source: string): string {
@@ -83,6 +100,29 @@ describe("execution labels are derived, not written", () => {
     expect(
       LITERAL.test(withoutComments('<a href="https://x.org" data-execution-label="host">')),
     ).toBe(true);
+  });
+
+  test("each spelling of a fixed host label is caught, and a per-snapshot choice is not", () => {
+    for (const fixed of [
+      '<ExecutionChrome state="host-accepted" view={view} />',
+      '{...labelRootAttributes("host-accepted", view, "probabilityDensity")}',
+      '{...executionLabelAttributes("host-accepted")}',
+      'data-execution-label={apparatus ? "static" : "host"}',
+    ])
+      expect({ fixed, caught: LITERAL.test(withoutComments(fixed)) }).toEqual({
+        fixed,
+        caught: true,
+      });
+    for (const derived of [
+      'state={isStatic ? "static-example" : "host-accepted"}',
+      '{...labelRootAttributes(executionKind, view, "sampleRms")}',
+      "state={executionKind}",
+      '// state="host-accepted" was hard-coded here',
+    ])
+      expect({ derived, caught: LITERAL.test(withoutComments(derived)) }).toEqual({
+        derived,
+        caught: false,
+      });
   });
 
   test("exactly the listed components still hard-code the host label", () => {
