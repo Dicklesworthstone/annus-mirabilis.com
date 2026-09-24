@@ -26,6 +26,9 @@ import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
+// The prediction box uses predict.css's classes; without this import its three options ran
+// together as one paragraph, radios mid-sentence (live /lab/bm-04/).
+import "./predict.css";
 
 type ForceComparison = Readonly<{
   parameters: Bm04Parameters;

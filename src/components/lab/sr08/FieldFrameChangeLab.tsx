@@ -471,7 +471,7 @@ export function FieldFrameChangeLab({
           When a pure electric field in the y direction is described from a frame moving along x at
           0.6c, what magnetic field appears?
         </p>
-        <div className="predict-choices">
+        <div className="button-group">
           <button
             type="button"
             className={prediction === "none" ? "selected" : "secondary"}
