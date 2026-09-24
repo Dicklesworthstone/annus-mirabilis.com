@@ -8,7 +8,8 @@
  * paper's own letters (R, N, β, ν, P) and its word "heuristic"; h appears only in labelled
  * modern-lens text. Every card a part names is on the page's shelf (src/content/lightQuantaShelf.ts).
  */
-import type { Fork, JourneyMove } from "../../content/schemas/journey.ts";
+import type { Fork, JourneyMove, WorldCheck } from "../../content/schemas/journey.ts";
+import { PRINTED_STOPPING_CHECK } from "./worldCheck.ts";
 
 /** The observation that does not fit (am-disc-journey-i-chain-n1lh). */
 export const NAGGING_FACT =
@@ -161,4 +162,26 @@ export const FORK_ONE_LUMP: Fork = {
       },
     },
   ],
+};
+
+/**
+ * Check it against the world (plan §9.1 item 7). The prediction is LQ-08's own stopping potential,
+ * read from the accepted snapshot of the laboratory embedded beside it; the static reference is the
+ * paper's §8 figure from its own constants (worldCheck.ts). Millikan 1916 is later evidence and is
+ * cited, not plotted.
+ */
+export const WORLD_CHECK: WorldCheck = {
+  id: "lq-world-check-stopping-potential",
+  claim:
+    "Section 8 of the paper puts a number to the prediction. Light of frequency 1.03 × 10¹⁵ per second, with the cost of leaving the metal neglected, should give electrons that a potential of about 4.3 volts can stop, which the paper says agrees in order of magnitude with Lenard's results. Set the frequency and the exit cost in the laboratory below and read the stopping potential it computes.",
+  instrumentId: "lq-08",
+  quantityId: "stoppingPotentialMagnitude",
+  expected: "about 4.3 volts at 1.03 × 10¹⁵ per second, with the exit cost neglected",
+  comparisonKind: "printed-prediction",
+  staticWorkedExample: {
+    label: "What the paper prints in §8",
+    value: `about 4.3 volts; from the paper’s own constants, ${Number(PRINTED_STOPPING_CHECK.volts.toPrecision(3))} V`,
+    unit: "",
+    constantSetId: PRINTED_STOPPING_CHECK.constantSetId,
+  },
 };
