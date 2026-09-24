@@ -33,6 +33,7 @@ import { PredictPanel } from "./PredictPanel.tsx";
 import "./coefficientLab.css";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { display, identity, result } from "./presentation.ts";
+import { withScripts } from "./subscripts.tsx";
 
 type Output = ScientificResult | PublishedResult;
 
@@ -274,13 +275,13 @@ export function CoefficientLab({
           changing the settings requires JavaScript.
         </p>
       </noscript>
-      <p data-detail="0">{ME02_CAPTION.r0}</p>
-      <p data-detail="1">{ME02_CAPTION.r1}</p>
+      <p data-detail="0">{withScripts(ME02_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(ME02_CAPTION.r1)}</p>
       <p data-detail="2" hidden>
-        {ME02_CAPTION.r2}
+        {withScripts(ME02_CAPTION.r2)}
       </p>
       <p data-detail="3" hidden>
-        {ME02_CAPTION.r3}
+        {withScripts(ME02_CAPTION.r3)}
       </p>
       <div className="lab-columns">
         <div>
