@@ -91,14 +91,20 @@ export function hasPaperSegment(id: string, marker: "me" | "sr"): boolean {
  * prohibits.
  */
 export function citesForbiddenBodyEnergy(citedEquality: string): boolean {
+  // Every exponent-two spelling folds to ^2 and every Lorentz-factor spelling to γ BEFORE the
+  // whitespace goes, so "c squared" and "gamma" are still words when they are read. Measured on
+  // 2026-09-24 against the bead's own list, the first normalisation let 4 of 8 through: "Mc2"
+  // (which the old spelling list had caught), "gamma mc^2", "M*c**2" and "M c squared".
   const normalised = citedEquality
     .toLowerCase()
     .replace(/\\left|\\right|\\!|\\,|\\;/g, "")
-    .replace(/\\gamma/g, "γ")
+    .replace(/\\gamma|\bgamma\b/g, "γ")
     .replace(/\\cdot|\\times/g, "*")
-    .replace(/²/g, "^2")
+    .replace(/²|\*\*\s*2(?!\d)|[\s-]*squared\b/g, "^2")
     .replace(/[{}]/g, "")
-    .replace(/\s+/g, "");
+    .replace(/\s+/g, "")
+    // "Mc2" and "mc2": a bare 2 after c in a product is the exponent.
+    .replace(/c2(?!\d)/g, "c^2");
 
   const sides = normalised.split("=");
   if (sides.length < 2) return false;

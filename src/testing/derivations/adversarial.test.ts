@@ -113,6 +113,11 @@ test("adversarial.test: E_0 = M c^2 in ordinary notation is refused, not only th
     "E_0 = c^2 M",
     "E_0 = \\gamma M c^2",
     "E_0 = M \\cdot c^{2}",
+    // The four the first normalisation let through, from the bead's own list (2026-09-24).
+    "E0 = Mc2",
+    "E = gamma mc^2",
+    "rest energy E0 = M*c**2",
+    "energy E0 = M c squared",
   ]) {
     assert.equal(
       citesForbiddenBodyEnergy(spelling),
@@ -128,6 +133,8 @@ test("adversarial.test: a symbolic rest energy and the mass definition still pas
     "M = E_0/c^2",
     "E_1 = E_0 - L",
     "K_0 - K_1 = L",
+    // Real corpus text that mentions energy and c squared without assuming the equivalence.
+    "Kinetic energy change Delta K = (1/2) Delta m v-squared equates Delta m = L/c-squared",
   ]) {
     assert.equal(
       citesForbiddenBodyEnergy(legitimate),
