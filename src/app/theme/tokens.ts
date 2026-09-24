@@ -167,7 +167,7 @@ export const THEME_TOKENS: Readonly<Record<ThemeId, ThemeTokens>> = Object.freez
 
 /**
  * Font-family tokens: the families named in AGENTS.md. "Newsreader Fallback" and "Plus Jakarta
- * Sans Fallback" are the local Times New Roman and Arial, resized in globals.css to the web fonts'
+ * Sans Fallback" are the local Georgia and Arial, resized in globals.css to the web fonts'
  * metrics and shown only until those arrive.
  */
 export const FONT_TOKENS = Object.freeze({
