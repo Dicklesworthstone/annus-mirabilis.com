@@ -1438,6 +1438,32 @@ entries:
       by: "Editorial Staff"
       date: "2026-09-17"
 
+  - id: sr.varphiprime.propagationAngleMoving
+    paper: special-relativity
+    scope: ["sr-s7"]
+    glyph:
+      unicode: "φ′"
+      latex: "\\varphi'"
+      variant: primed
+    meaning: "Angle between the wave normal and the line from the source to the observer, in k"
+    binding:
+      quantityId: propagationAngleMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\varphi'"
+    notes: "The same light's angle, seen from the moving system. The modern view keeps φ′, the letter this edition's formulas use."
+    sources:
+      facsimilePage: 912
+      anchor: sr-s7-p6
+    verification:
+      printed: true
+      checkedAgainst: "Pending facsimile verification (ap-17-891); glyph read by an agent from the plate of printed page 912 (PDF page 22), not a review"
+      by: "agent:SapphireCastle"
+      date: "2026-09-24"
+
   - id: sr.A.lightAmplitudeStationary
     paper: special-relativity
     scope: ["sr-s7", "sr-s8"]

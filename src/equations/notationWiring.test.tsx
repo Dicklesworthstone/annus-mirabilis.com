@@ -25,7 +25,7 @@ const slowClock = compileEquationWithNotation(record("eq-model-sr-slow-clock"), 
   entries,
   section: "s4",
 });
-const aberration = compileEquationWithNotation(record("eq-model-sr-aberration"), {
+const dopplerFactor = compileEquationWithNotation(record("eq-model-sr-doppler-factor"), {
   entries,
   section: "s7",
 });
@@ -53,7 +53,7 @@ describe("compileEquationWithNotation", () => {
   });
 
   test("a record held by one symbol is marked, and carries no second drawing", () => {
-    expect(aberration.notationForm).toEqual({ state: "modern" });
+    expect(dopplerFactor.notationForm).toEqual({ state: "modern" });
   });
 
   test("without a context nothing is added: the other papers' payloads are unchanged", () => {
@@ -77,13 +77,13 @@ describe("the views carry both forms", () => {
   });
 
   test("a held card says so in one line and switches nothing", () => {
-    const html = renderToStaticMarkup(<SemanticEquation equation={aberration} />);
+    const html = renderToStaticMarkup(<SemanticEquation equation={dopplerFactor} />);
     expect(html).toContain(NOTE.replace("'", "&#x27;"));
     expect(html).not.toContain("data-notation-form");
   });
 
   test("a reading row with one held relation stays in today's letters throughout", () => {
-    const mixed = renderToStaticMarkup(<ColouredFormula equations={[slowClock, aberration]} />);
+    const mixed = renderToStaticMarkup(<ColouredFormula equations={[slowClock, dopplerFactor]} />);
     expect(mixed).not.toContain("data-notation-form");
     expect(mixed).toContain("data-notation-note");
     const whole = renderToStaticMarkup(<ColouredFormula equations={[slowClock]} />);

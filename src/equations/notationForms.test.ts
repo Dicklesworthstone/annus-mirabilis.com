@@ -53,15 +53,22 @@ describe("printedForm", () => {
     );
   });
 
-  test("one unresolved symbol keeps the whole formula in today's letters: V too", () => {
-    // Einstein's phi' has no entry yet. Drawing the rest would give his V beside our phi', a
+  test("one unresolved symbol keeps the whole formula in today's letters: V and beta too", () => {
+    // The Doppler factor has no entry. Drawing the rest would give his V and beta beside our D, a
     // formula in nobody's notation.
-    const f = form("eq-model-sr-aberration", "s7");
-    expect(reasons(f)).toEqual(["propagationAngleMoving:no-entry"]);
-    expect(drawn("eq-model-sr-aberration", f)).toBe(
-      expressionLatex(tree("eq-model-sr-aberration"), table),
+    const f = form("eq-model-sr-doppler-factor", "s7");
+    expect(reasons(f)).toEqual(["dopplerFactor:no-entry"]);
+    expect(drawn("eq-model-sr-doppler-factor", f)).toBe(
+      expressionLatex(tree("eq-model-sr-doppler-factor"), table),
     );
-    expect(drawn("eq-model-sr-aberration", f)).not.toContain("V");
+    expect(drawn("eq-model-sr-doppler-factor", f)).not.toContain("V");
+    expect(drawn("eq-model-sr-doppler-factor", f)).not.toContain("\\beta");
+  });
+
+  test("the aberration law draws whole once phi' has its entry (p. 912)", () => {
+    const f = form("eq-model-sr-aberration", "s7");
+    expect(f.state).toBe("printed");
+    if (f.state === "printed") expect(Object.keys(f.letters)).toEqual(["speedOfLight"]);
   });
 
   test("kinetic energy is Einstein's W: the section 10 result draws whole in his letters", () => {
