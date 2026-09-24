@@ -274,15 +274,38 @@ export async function PaperReader({
                         JavaScript; with Detail at "Show every step", ReaderController opens it
                         and detail.css hides its summary, so it reads as the passage's text.
                       */}
+                      {/*
+                        ON THE WHOLE-PAPER PAGE THE STEPS LOAD WHEN THEY OPEN (stepsBody.ts), as
+                        on the other papers (PaperPage). Here the five disclosures, embedded
+                        lessons and all, were 39,606 bytes of the live page's gzipped HTML and
+                        46,599 of its flight data: 86 KB of 178 KB. The section's own page renders
+                        them inline; this one holds a real link to it.
+                      */}
                       <details className="local-steps reading-version" data-reading={2}>
                         <summary>Show every step here: {a.title}</summary>
-                        <ReadingBlocks
-                          blocks={a.readings.steps}
-                          foundations={foundations}
-                          embed
-                          contextLabel={`${a.title}, reading steps`}
-                          equations={equationsById}
-                        />
+                        {section ? (
+                          <ReadingBlocks
+                            blocks={a.readings.steps}
+                            foundations={foundations}
+                            embed
+                            contextLabel={`${a.title}, reading steps`}
+                            equations={equationsById}
+                          />
+                        ) : (
+                          <p
+                            className="fine"
+                            data-steps-body={a.id}
+                            data-steps-src={`/papers/${paper.id}/${a.section}/`}
+                          >
+                            <a
+                              href={`/papers/${paper.id}/${a.section}/#${a.id}`}
+                              aria-label={`Read every step on this section’s own page: ${a.title}`}
+                            >
+                              Read every step on this section&rsquo;s own page
+                            </a>
+                            , where they are part of the page.
+                          </p>
+                        )}
                       </details>
                       {(missingSteps.lessons as readonly CompiledMissingStepLesson[])
                         .filter((lesson) => lesson.argument === a.id)
