@@ -10,6 +10,7 @@
 		055096FB8D126E7973B621DC /* ReaderLocationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBDEAC6506CA4F173D998AFC /* ReaderLocationTests.swift */; };
 		256B0912BCA785EB0D622D9B /* AnnusMirabilisApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE2A6403E53924FA09D6328 /* AnnusMirabilisApp.swift */; };
 		2B93561B203FC8944C87DD35 /* BridgeRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EF587BE1969B4D2C963ECB /* BridgeRouter.swift */; };
+		3CDBC63CE8EACC77D5FA87C2 /* ExportUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE1AF82107316C66CE977DE /* ExportUITests.swift */; };
 		4EBA02B5BCAC73033CA8F879 /* BridgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 851F4EFBE39CBE28B3D2D5C2 /* BridgeTests.swift */; };
 		4F347DAAC224058D5994956C /* ReaderLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6E1217410E51C5C95A4A252 /* ReaderLocation.swift */; };
 		5D250543230E23CB29ACA214 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ACD2DA53DE6BD842758FA3C /* LaunchArguments.swift */; };
@@ -62,6 +63,7 @@
 		3A8E9C99819609C323B4D836 /* BridgeProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeProtocol.swift; sourceTree = "<group>"; };
 		403C99A15417A43D75CF8990 /* AnnusMirabilisTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = AnnusMirabilisTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C19C1BFB271E0C8C0B8EEE4 /* EditionLinkPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionLinkPolicy.swift; sourceTree = "<group>"; };
+		5CE1AF82107316C66CE977DE /* ExportUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportUITests.swift; sourceTree = "<group>"; };
 		6D8563F17B5B6651CA67DE2C /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchUITests.swift; sourceTree = "<group>"; };
 		7A7D1B3F474E6080BDE63784 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		7CE2A6403E53924FA09D6328 /* AnnusMirabilisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnusMirabilisApp.swift; sourceTree = "<group>"; };
@@ -84,6 +86,7 @@
 		00425B16411FAD2A3C8489D5 /* AnnusMirabilisUITests */ = {
 			isa = PBXGroup;
 			children = (
+				5CE1AF82107316C66CE977DE /* ExportUITests.swift */,
 				6D8563F17B5B6651CA67DE2C /* LaunchUITests.swift */,
 				2892AE57F3F7A9E453870489 /* ReaderStateUITests.swift */,
 				F0D562253A5B5879C5E9985C /* ShareLinkUITests.swift */,
@@ -395,6 +398,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3CDBC63CE8EACC77D5FA87C2 /* ExportUITests.swift in Sources */,
 				975A55E84F3778A714C9664D /* LaunchUITests.swift in Sources */,
 				67833D3163CDDB550D3010E8 /* ReaderStateUITests.swift in Sources */,
 				9D937E719174EF3487485891 /* ShareLinkUITests.swift in Sources */,

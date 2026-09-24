@@ -60,6 +60,9 @@ final class EditionSession {
         router.onShare = { [weak self] url in
             self?.presentShareSheet(for: url)
         }
+        navigator.onSavedFile = { [weak self] file in
+            self?.presentShareSheet(for: file)
+        }
         router.onTheme = { [weak self] theme in
             self?.didReceiveTheme(theme)
         }
@@ -132,8 +135,8 @@ final class EditionSession {
         }
     }
 
-    /// The share sheet for a page of the website, when the page asks for one
-    /// (`share.request`). The page-actions menu shares through SwiftUI's ShareLink.
+    /// The share sheet for a page of the website when the page asks for one (`share.request`),
+    /// or for a file the page saved. The page-actions menu shares through SwiftUI's ShareLink.
     func presentShareSheet(for url: URL) {
         guard var presenter = webView.window?.rootViewController else { return }
         while let next = presenter.presentedViewController {
@@ -203,8 +206,11 @@ final class EditionSession {
 
 /// Link policy, downloads, new windows and process recovery for the web view.
 @MainActor
-final class EditionNavigator: NSObject, WKNavigationDelegate, WKUIDelegate {
+final class EditionNavigator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate {
     private let catalog: EditionCatalog
+    /// Receives a file the page saved (its own export of notes, data or a notebook).
+    var onSavedFile: ((URL) -> Void)?
+    private var destinations: [ObjectIdentifier: URL] = [:]
 
     init(catalog: EditionCatalog) {
         self.catalog = catalog
@@ -214,14 +220,76 @@ final class EditionNavigator: NSObject, WKNavigationDelegate, WKUIDelegate {
         -> WKNavigationActionPolicy
     {
         guard let url = navigationAction.request.url else { return .cancel }
+        if Self.isPageExport(url, shouldDownload: navigationAction.shouldPerformDownload) {
+            return .download
+        }
         return follow(url, in: webView)
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse) async
         -> WKNavigationResponsePolicy
     {
-        // No downloads inside the reader (App plan §6.4).
-        navigationResponse.canShowMIMEType ? .allow : .cancel
+        // Nothing opens inside the reader that it cannot show (App plan §6.4); a file the page
+        // itself saves is handed to the share sheet instead of being dropped.
+        if navigationResponse.canShowMIMEType { return .allow }
+        guard let url = navigationResponse.response.url, Self.isPageExport(url, shouldDownload: true) else {
+            return .cancel
+        }
+        return .download
+    }
+
+    /// A file the edition itself makes (a Blob behind a download link): the site's own
+    /// "Download all of it (JSON)" and the notebook's exports. Nothing from elsewhere.
+    static func isPageExport(_ url: URL, shouldDownload: Bool) -> Bool {
+        guard shouldDownload else { return false }
+        if url.scheme == "blob" {
+            return url.absoluteString.hasPrefix("blob:\(EditionCatalog.scheme)://\(EditionCatalog.host)/")
+        }
+        return false
+    }
+
+    func webView(_ webView: WKWebView, navigationAction: WKNavigationAction, didBecome download: WKDownload) {
+        download.delegate = self
+    }
+
+    func webView(_ webView: WKWebView, navigationResponse: WKNavigationResponse, didBecome download: WKDownload) {
+        download.delegate = self
+    }
+
+    func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String)
+        async -> URL?
+    {
+        // A fresh folder in the app's temporary directory; the system clears it, the reader
+        // chooses where the file goes from the share sheet.
+        let folder = FileManager.default.temporaryDirectory
+            .appendingPathComponent("exports", isDirectory: true)
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        guard (try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)) != nil else {
+            return nil
+        }
+        let name = Self.safeFilename(suggestedFilename)
+        let destination = folder.appendingPathComponent(name, isDirectory: false)
+        destinations[ObjectIdentifier(download)] = destination
+        return destination
+    }
+
+    func downloadDidFinish(_ download: WKDownload) {
+        guard let file = destinations.removeValue(forKey: ObjectIdentifier(download)) else { return }
+        onSavedFile?(file)
+    }
+
+    func download(_ download: WKDownload, didFailWithError error: any Error, resumeData: Data?) {
+        destinations.removeValue(forKey: ObjectIdentifier(download))
+    }
+
+    /// The page's suggested name, reduced to a plain file name.
+    static func safeFilename(_ suggested: String) -> String {
+        let last = (suggested as NSString).lastPathComponent
+        let cleaned = String(
+            last.unicodeScalars.filter { CharacterSet.alphanumerics.contains($0) || "-_. ".unicodeScalars.contains($0) }
+        )
+        .trimmingCharacters(in: .whitespaces)
+        return cleaned.isEmpty || cleaned.hasPrefix(".") ? "annus-mirabilis-export" : cleaned
     }
 
     func webView(

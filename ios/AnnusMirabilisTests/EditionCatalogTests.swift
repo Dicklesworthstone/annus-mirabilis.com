@@ -137,3 +137,43 @@ struct BundledEditionTests {
         }
     }
 }
+
+@Suite("Files the page saves")
+@MainActor
+struct PageExportTests {
+    @Test("a Blob the edition made, asked to download, is taken as a file")
+    func editionBlobDownloads() throws {
+        let blob = try #require(URL(string: "blob:am-edition://edition/6c0e1f5a-9b1d-4d8e-a1f2-000000000001"))
+        #expect(EditionNavigator.isPageExport(blob, shouldDownload: true))
+    }
+
+    @Test(
+        "nothing else becomes a download",
+        arguments: [
+            ("blob:am-edition://edition/6c0e1f5a", false),
+            ("blob:https://example.com/6c0e1f5a", true),
+            ("blob:am-edition://edition.example.com/6c0e1f5a", true),
+            ("am-edition://edition/your-data/", true),
+            ("https://annus-mirabilis.com/your-data/", true),
+            ("data:application/json,%7B%7D", true),
+        ])
+    func othersAreRefused(address: String, shouldDownload: Bool) throws {
+        let url = try #require(URL(string: address))
+        #expect(!EditionNavigator.isPageExport(url, shouldDownload: shouldDownload))
+    }
+
+    @Test(
+        "the page's suggested name becomes a plain file name",
+        arguments: [
+            ("annus-mirabilis-data-2026-09-24.json", "annus-mirabilis-data-2026-09-24.json"),
+            ("../../Library/Preferences/x.plist", "x.plist"),
+            ("notes/../../escape.json", "escape.json"),
+            ("..", "annus-mirabilis-export"),
+            (".hidden", "annus-mirabilis-export"),
+            ("", "annus-mirabilis-export"),
+            ("a\u{0}b:c*.json", "abc.json"),
+        ])
+    func suggestedNames(suggested: String, expected: String) {
+        #expect(EditionNavigator.safeFilename(suggested) == expected)
+    }
+}
