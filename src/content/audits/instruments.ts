@@ -267,10 +267,11 @@ export function loadLiveInstrumentRows(
     let notModeled: string[] = [];
     let tapeModelId: string | undefined;
     let ownerTest = false;
-    let actionContracts = 1;
+    // No manifest, no evidence: these start empty and are filled only from the manifest itself.
+    let actionContracts = 0;
     let predictEnabled = false;
     let predictExemptionReason: string | undefined;
-    let embeddable: boolean | undefined = true;
+    let embeddable: boolean | undefined;
     const modes: string[] = catId ? [...(DECLARED_MODES[catId] ?? [])] : [];
     let presets: string[] = [];
     let predictPrompts: string[] = [];
@@ -284,8 +285,15 @@ export function loadLiveInstrumentRows(
         if (parsed && typeof parsed === "object") {
           if (Array.isArray(parsed.probes)) probes = parsed.probes.map(String);
           if (Array.isArray(parsed.notModeled)) notModeled = parsed.notModeled.map(String);
+          // The manifests declare `tapeModel: { modelId, modelVersion }`. Until 2026-09-24 this read
+          // `tapeModelId`, a key no manifest uses, so the tape column was never read from real data.
+          const tapeModel = parsed.tapeModel as
+            | { modelId?: unknown; modelVersion?: unknown }
+            | undefined;
           if (parsed.tapeModelId) tapeModelId = String(parsed.tapeModelId);
-          else if (Array.isArray(parsed.teachingTapes) && parsed.teachingTapes.length > 0) {
+          else if (tapeModel && typeof tapeModel.modelId === "string" && tapeModel.modelId.trim()) {
+            tapeModelId = `${tapeModel.modelId}@${String(tapeModel.modelVersion ?? 1)}`;
+          } else if (Array.isArray(parsed.teachingTapes) && parsed.teachingTapes.length > 0) {
             tapeModelId = `${id}@1`;
           }
           if (Array.isArray(parsed.presets)) {
@@ -317,10 +325,13 @@ export function loadLiveInstrumentRows(
           predictExemptionReason = predMode?.exemptionReason
             ? String(predMode.exemptionReason)
             : undefined;
-          embeddable = parsed.embeddable === true;
-          if (Array.isArray(parsed.actionContracts)) {
+          if (typeof parsed.embeddable === "boolean") embeddable = parsed.embeddable;
+          // The manifests declare their action contracts as `actions`. This read `actionContracts`,
+          // a key no manifest uses, and defaulted to 1, so every lab passed the column unread
+          // (am-instrument-audit-defaults-pass-50bl).
+          if (Array.isArray(parsed.actions)) actionContracts = parsed.actions.length;
+          else if (Array.isArray(parsed.actionContracts))
             actionContracts = parsed.actionContracts.length;
-          }
         }
       } catch (error) {
         // Recorded, never swallowed: the audit reports an unreadable manifest as unreadable.
