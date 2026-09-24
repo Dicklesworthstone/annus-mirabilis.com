@@ -50,6 +50,7 @@ export function predictPromptsFrom(files) {
         ...(p.actionId ? { actionId: p.actionId } : {}),
         question: p.question,
         supportedCandidateId: p.supportedCandidateId,
+        ...(p.explanation ? { explanation: p.explanation } : {}),
         candidates: p.candidates.map((c) => ({
           id: c.id,
           label: c.label,
@@ -78,6 +79,8 @@ export type GeneratedPredictPrompt = Readonly<{
   actionId?: string;
   question: string;
   supportedCandidateId: string;
+  /** Why the supported relation holds, shown after the reader answers. */
+  explanation?: string;
   candidates: readonly GeneratedPredictCandidate[];
 }>;
 

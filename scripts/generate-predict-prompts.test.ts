@@ -20,6 +20,7 @@ type ManifestPrompt = {
   promptId: string;
   question: string;
   supportedCandidateId?: string;
+  explanation?: string;
   candidates: { id: string }[];
 };
 type Manifest = {
@@ -31,6 +32,7 @@ type Generated = {
   promptId: string;
   question: string;
   supportedCandidateId: string;
+  explanation?: string;
   candidates: { id: string }[];
 };
 
@@ -70,6 +72,7 @@ describe("generate-predict-prompts reads every manifest's prompts", () => {
         expect(p.question, file).toBe(source?.question ?? "");
         expect(p.candidates.map((c) => c.id)).toEqual(source?.candidates.map((c) => c.id) ?? []);
         expect(p.supportedCandidateId).toBe(source?.supportedCandidateId ?? "");
+        expect(p.explanation).toBe(source?.explanation);
         expect(p.candidates.map((c) => c.id)).toContain(p.supportedCandidateId);
       }
     }

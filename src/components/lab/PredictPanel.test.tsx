@@ -4,7 +4,10 @@ import { ME02_PREDICT_PROMPT } from "../../experiments/me02/definition.ts";
 import {
   amendAfterReveal,
   beginPrompt,
+  keepToSelf,
+  type PredictPromptRecord,
   reveal,
+  skipPrediction,
   submitPrediction,
 } from "../../experiments/predict/predictState.ts";
 import { PredictPanel } from "./PredictPanel.tsx";
@@ -113,5 +116,44 @@ describe("PredictPanel", () => {
       />,
     );
     expect(html).toContain("Recorded prediction: increases, linear");
+  });
+});
+
+describe("PredictPanel shows a prompt's explanation once the result is shown", () => {
+  const prompt = {
+    ...ME02_PREDICT_PROMPT,
+    explanation: "Why the supported relation holds, in one sentence.",
+  };
+  const html = (record: PredictPromptRecord, resultShown: boolean) =>
+    renderToStaticMarkup(
+      <PredictPanel
+        prompt={prompt}
+        record={record}
+        onRecord={noop}
+        onSkip={noop}
+        onKeepToSelf={noop}
+        onAmend={noop}
+        resultShown={resultShown}
+      />,
+    );
+  const start = beginPrompt(prompt.promptId);
+  const chosen = reveal(submitPrediction(start, { form: "candidate", candidateId: "equal" }));
+
+  test("not before the reader answers, in either mode", () => {
+    expect(html(start, true)).not.toContain(prompt.explanation);
+    expect(html(start, false)).not.toContain(prompt.explanation);
+  });
+
+  test("after a stated prediction is revealed, in either mode", () => {
+    expect(html(chosen, true)).toContain(prompt.explanation);
+    expect(html(chosen, false)).toContain(prompt.explanation);
+  });
+
+  test("after a skip or a kept prediction only where the result shows at once", () => {
+    for (const record of [skipPrediction(start), keepToSelf(start)]) {
+      expect(html(record, true)).toContain(prompt.explanation);
+      // Where the result waits for Apply, the explanation waits with it.
+      expect(html(record, false)).not.toContain(prompt.explanation);
+    }
   });
 });

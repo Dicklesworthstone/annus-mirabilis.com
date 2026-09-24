@@ -29,6 +29,8 @@ export type PredictPanelPrompt = Readonly<{
   promptId: string;
   question: string;
   supportedCandidateId: string;
+  /** Why the supported relation holds, shown once the result is. */
+  explanation?: string | undefined;
   candidates: readonly PredictPanelCandidate[];
   sketchAxes?:
     | Readonly<{
@@ -134,6 +136,10 @@ export function PredictPanel({
     chosen !== undefined &&
     chosen.id !== prompt.supportedCandidateId;
   const pending = record.state === "hidden" || record.state === "predicted";
+  // Why the supported relation holds: once the result is shown, whether or not the reader answered.
+  const explained =
+    record.state === "revealed" ||
+    (resultShown && (record.state === "predicted-unrecorded" || record.state === "skipped"));
 
   // Sketch pointer helpers
   const handleSvgPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
@@ -576,6 +582,10 @@ export function PredictPanel({
             </p>
           ) : null}
         </div>
+      ) : null}
+
+      {prompt.explanation && explained ? (
+        <p data-predict-explanation="">{prompt.explanation}</p>
       ) : null}
 
       {record.state === "revealed" && record.choice !== null ? (
