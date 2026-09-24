@@ -474,11 +474,15 @@ export function runStep(id: AppleStepId, logRunId: string): StepVerdict {
           message: "No exported edition. Run: bun scripts/app/export-edition.ts",
         };
       }
+      const sourcePath = join(REPO, "generated", "app-edition", "edition-source.txt");
+      const outDir = existsSync(sourcePath)
+        ? readFileSync(sourcePath, "utf8").trim()
+        : join(REPO, "out");
       const manifest = JSON.parse(readFileSync(manifestPath, "utf8")) as {
         files: { path: string; sha256: string }[];
       };
       const changed = manifest.files.filter((file) => {
-        const source = join(REPO, "out", file.path);
+        const source = join(outDir, file.path);
         return (
           !existsSync(source) ||
           createHash("sha256").update(readFileSync(source)).digest("hex") !== file.sha256
@@ -490,11 +494,11 @@ export function runStep(id: AppleStepId, logRunId: string): StepVerdict {
       return changed.length === 0
         ? {
             outcome: "passed",
-            message: `${manifest.files.length} of ${manifest.files.length} exported files still match out/.`,
+            message: `${manifest.files.length} of ${manifest.files.length} exported files still match ${outDir}.`,
           }
         : {
             outcome: "failed",
-            message: `${changed.length} of ${manifest.files.length} exported files differ from out/ (first: ${changed[0]?.path}). Run: bun scripts/app/export-edition.ts`,
+            message: `${changed.length} of ${manifest.files.length} exported files differ from ${outDir} (first: ${changed[0]?.path}). Run: bun scripts/app/export-edition.ts`,
           };
     }
     case "apple-simulators": {
