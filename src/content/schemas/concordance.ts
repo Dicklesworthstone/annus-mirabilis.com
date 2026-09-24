@@ -122,6 +122,13 @@ export type CollisionRecord = Readonly<{
 
 export type QuantityBinding = Readonly<{
   quantityId: string;
+  /**
+   * The component an entry names when Einstein printed one letter per component of a quantity
+   * the equation trees bind once (X, Y, Z for the electric force; xi, eta, zeta for the moving
+   * coordinates). It is the symbol node's own `index` (src/equations/ast.ts), so a tree symbol
+   * with index y reaches the entry for Y. An entry without one names the unindexed symbol.
+   */
+  index?: string | undefined;
   scale?: RationalScale | undefined;
   dimensionStatus?: DimensionStatus | undefined;
 }>;
@@ -271,8 +278,18 @@ export function validateBinding(raw: unknown, path = "binding"): ConcordanceBind
   if (o.scale !== undefined) {
     scale = validateRationalScale(o.scale, `${path}.scale`, false);
   }
+  // The same rule as a symbol node's index (src/equations/ast.ts): one or two lower-case letters
+  // or digits, so a binding can only ever name a component a tree can carry.
+  if (o.index !== undefined && !(typeof o.index === "string" && /^[a-z0-9]{1,2}$/.test(o.index))) {
+    throw new ConcordanceSchemaError(
+      "invalid-binding-index",
+      `binding.index must be one or two lower-case letters or digits (got "${String(o.index)}").`,
+      `${path}.index`,
+    );
+  }
   return {
     quantityId: o.quantityId,
+    ...(typeof o.index === "string" ? { index: o.index } : {}),
     ...(scale ? { scale } : {}),
     ...(typeof o.dimensionStatus === "string"
       ? { dimensionStatus: o.dimensionStatus as DimensionStatus }

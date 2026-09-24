@@ -36,10 +36,10 @@ function assertConcordanceRefusal(fn: () => unknown, expectedCode: string): void
 }
 
 // ============================================================================
-// Group 1: Glyphs & Bindings (8 sites)
+// Group 1: Glyphs & Bindings (9 sites)
 // ============================================================================
 
-test("Glyph: (concordance.ts:194) missing-glyph rejected when string is empty, accepted with non-empty string", () => {
+test("Glyph: (concordance.ts:201) missing-glyph rejected when string is empty, accepted with non-empty string", () => {
   assertConcordanceRefusal(() => validateGlyph("   "), "missing-glyph");
   assertConcordanceRefusal(() => validateGlyph(""), "missing-glyph");
 
@@ -49,7 +49,7 @@ test("Glyph: (concordance.ts:194) missing-glyph rejected when string is empty, a
   assert.equal(accepted.variant, "plain");
 });
 
-test("Glyph: (concordance.ts:199) invalid-glyph rejected when raw is not an object or string, accepted with valid object", () => {
+test("Glyph: (concordance.ts:206) invalid-glyph rejected when raw is not an object or string, accepted with valid object", () => {
   assertConcordanceRefusal(() => validateGlyph(null), "invalid-glyph");
   assertConcordanceRefusal(() => validateGlyph(123), "invalid-glyph");
   assertConcordanceRefusal(() => validateGlyph(true), "invalid-glyph");
@@ -60,7 +60,7 @@ test("Glyph: (concordance.ts:199) invalid-glyph rejected when raw is not an obje
   assert.equal(accepted.variant, "plain");
 });
 
-test("Glyph: (concordance.ts:207) missing-glyph-unicode rejected when unicode is empty or missing, accepted with valid unicode", () => {
+test("Glyph: (concordance.ts:214) missing-glyph-unicode rejected when unicode is empty or missing, accepted with valid unicode", () => {
   assertConcordanceRefusal(
     () => validateGlyph({ unicode: "   ", latex: "\\beta" }),
     "missing-glyph-unicode",
@@ -71,7 +71,7 @@ test("Glyph: (concordance.ts:207) missing-glyph-unicode rejected when unicode is
   assert.equal(accepted.unicode, "β");
 });
 
-test("Glyph: (concordance.ts:214) missing-glyph-latex rejected when latex is empty or missing, accepted with valid latex", () => {
+test("Glyph: (concordance.ts:221) missing-glyph-latex rejected when latex is empty or missing, accepted with valid latex", () => {
   assertConcordanceRefusal(
     () => validateGlyph({ unicode: "β", latex: "   " }),
     "missing-glyph-latex",
@@ -82,7 +82,7 @@ test("Glyph: (concordance.ts:214) missing-glyph-latex rejected when latex is emp
   assert.equal(accepted.latex, "\\beta");
 });
 
-test("Glyph: (concordance.ts:223) invalid-glyph-variant rejected when variant is unrecognized, accepted with standard variant", () => {
+test("Glyph: (concordance.ts:230) invalid-glyph-variant rejected when variant is unrecognized, accepted with standard variant", () => {
   assertConcordanceRefusal(
     () => validateGlyph({ unicode: "β", latex: "\\beta", variant: "italics" }),
     "invalid-glyph-variant",
@@ -92,7 +92,7 @@ test("Glyph: (concordance.ts:223) invalid-glyph-variant rejected when variant is
   assert.equal(accepted.variant, "primed");
 });
 
-test("Binding: (concordance.ts:246) invalid-binding rejected when raw is not object or string, accepted with string or object", () => {
+test("Binding: (concordance.ts:253) invalid-binding rejected when raw is not object or string, accepted with string or object", () => {
   assertConcordanceRefusal(() => validateBinding(null), "invalid-binding");
   assertConcordanceRefusal(() => validateBinding(42), "invalid-binding");
 
@@ -103,7 +103,7 @@ test("Binding: (concordance.ts:246) invalid-binding rejected when raw is not obj
   assert.deepEqual(acceptedObj, { quantityId: "energy" });
 });
 
-test("Binding: (concordance.ts:255) invalid-non-quantity-kind rejected when kind is unknown, accepted for valid kind", () => {
+test("Binding: (concordance.ts:262) invalid-non-quantity-kind rejected when kind is unknown, accepted for valid kind", () => {
   assertConcordanceRefusal(
     () => validateBinding({ nonQuantityKind: "unsupported-kind" }),
     "invalid-non-quantity-kind",
@@ -113,7 +113,7 @@ test("Binding: (concordance.ts:255) invalid-non-quantity-kind rejected when kind
   assert.deepEqual(accepted, { nonQuantityKind: "operator" });
 });
 
-test("Binding: (concordance.ts:264) missing-quantity-id rejected when quantityId is missing or empty, accepted with quantityId", () => {
+test("Binding: (concordance.ts:271) missing-quantity-id rejected when quantityId is missing or empty, accepted with quantityId", () => {
   assertConcordanceRefusal(() => validateBinding({}), "missing-quantity-id");
   assertConcordanceRefusal(() => validateBinding({ quantityId: "   " }), "missing-quantity-id");
 
@@ -122,11 +122,35 @@ test("Binding: (concordance.ts:264) missing-quantity-id rejected when quantityId
   assert.equal(accepted.quantityId, "wienConstant");
 });
 
+test("Binding: (concordance.ts:284) invalid-binding-index rejected when index is not one or two lower-case letters or digits, accepted and kept when it is", () => {
+  // Einstein's Y′ is the y component of the electric force in k: the index names it, in the symbol
+  // node's own form, so a capital, a number or a word is refused.
+  assertConcordanceRefusal(
+    () => validateBinding({ quantityId: "electricFieldMoving", index: "Y" }),
+    "invalid-binding-index",
+  );
+  assertConcordanceRefusal(
+    () => validateBinding({ quantityId: "electricFieldMoving", index: 1 }),
+    "invalid-binding-index",
+  );
+  assertConcordanceRefusal(
+    () => validateBinding({ quantityId: "electricFieldMoving", index: "xyz" }),
+    "invalid-binding-index",
+  );
+
+  const accepted = validateBinding({ quantityId: "electricFieldMoving", index: "y" });
+  assert.deepEqual(accepted, { quantityId: "electricFieldMoving", index: "y" });
+  // No index given records none: the entry names the unindexed symbol.
+  assert.deepEqual(validateBinding({ quantityId: "electricFieldMoving" }), {
+    quantityId: "electricFieldMoving",
+  });
+});
+
 // ============================================================================
 // Group 2: Operations (12 sites)
 // ============================================================================
 
-test("Operation: (concordance.ts:285) missing-operation rejected when raw is not an object, accepted with valid operation", () => {
+test("Operation: (concordance.ts:302) missing-operation rejected when raw is not an object, accepted with valid operation", () => {
   assertConcordanceRefusal(() => validateOperation(null), "missing-operation");
   assertConcordanceRefusal(() => validateOperation("not-an-object"), "missing-operation");
 
@@ -137,7 +161,7 @@ test("Operation: (concordance.ts:285) missing-operation rejected when raw is not
   assert.equal(accepted.kind, "rename");
 });
 
-test("Operation: (concordance.ts:291) missing-rename-target rejected when rename target is not an object, accepted with target", () => {
+test("Operation: (concordance.ts:308) missing-rename-target rejected when rename target is not an object, accepted with target", () => {
   assertConcordanceRefusal(
     () => validateOperation({ kind: "rename", target: "not-an-object" }),
     "missing-rename-target",
@@ -150,7 +174,7 @@ test("Operation: (concordance.ts:291) missing-rename-target rejected when rename
   assert.equal(accepted.kind, "rename");
 });
 
-test("Operation: (concordance.ts:298) invalid-rename-form rejected when form is unknown, accepted with valid form", () => {
+test("Operation: (concordance.ts:315) invalid-rename-form rejected when form is unknown, accepted with valid form", () => {
   assertConcordanceRefusal(
     () => validateOperation({ kind: "rename", target: { form: "invalid-form" } }),
     "invalid-rename-form",
@@ -163,7 +187,7 @@ test("Operation: (concordance.ts:298) invalid-rename-form rejected when form is 
   assert.equal(accepted.kind, "rename");
 });
 
-test("Operation: (concordance.ts:307) missing-modern-glyph rejected when symbol rename has no modernGlyph, accepted with glyph", () => {
+test("Operation: (concordance.ts:324) missing-modern-glyph rejected when symbol rename has no modernGlyph, accepted with glyph", () => {
   assertConcordanceRefusal(
     () => validateOperation({ kind: "rename", target: { form: "symbol" } }),
     "missing-modern-glyph",
@@ -176,7 +200,7 @@ test("Operation: (concordance.ts:307) missing-modern-glyph rejected when symbol 
   assert.equal(accepted.kind, "rename");
 });
 
-test("Operation: (concordance.ts:326) missing-group-pattern rejected when group rename has no pattern, accepted with pattern", () => {
+test("Operation: (concordance.ts:343) missing-group-pattern rejected when group rename has no pattern, accepted with pattern", () => {
   assertConcordanceRefusal(
     () => validateOperation({ kind: "rename", target: { form: "group", modernGlyph: "B" } }),
     "missing-group-pattern",
@@ -193,7 +217,7 @@ test("Operation: (concordance.ts:326) missing-group-pattern rejected when group 
   assert.equal(accepted.kind, "rename");
 });
 
-test("Operation: (concordance.ts:333) missing-group-modern-glyph rejected when group rename has no modernGlyph, accepted with glyph", () => {
+test("Operation: (concordance.ts:350) missing-group-modern-glyph rejected when group rename has no modernGlyph, accepted with glyph", () => {
   assertConcordanceRefusal(
     () =>
       validateOperation({
@@ -217,7 +241,7 @@ test("Operation: (concordance.ts:333) missing-group-modern-glyph rejected when g
   assert.equal(accepted.kind, "rename");
 });
 
-test("Operation: (concordance.ts:353) missing-modern-tree rejected when expression rename has no modernTree, accepted with tree", () => {
+test("Operation: (concordance.ts:370) missing-modern-tree rejected when expression rename has no modernTree, accepted with tree", () => {
   assertConcordanceRefusal(
     () => validateOperation({ kind: "rename", target: { form: "expression" } }),
     "missing-modern-tree",
@@ -230,7 +254,7 @@ test("Operation: (concordance.ts:353) missing-modern-tree rejected when expressi
   assert.equal(accepted.kind, "rename");
 });
 
-test("Operation: (concordance.ts:379) invalid-unit-system rejected when fromSystem is loose or invalid, accepted with canon name", () => {
+test("Operation: (concordance.ts:396) invalid-unit-system rejected when fromSystem is loose or invalid, accepted with canon name", () => {
   assertConcordanceRefusal(
     () =>
       validateOperation({
@@ -249,7 +273,7 @@ test("Operation: (concordance.ts:379) invalid-unit-system rejected when fromSyst
   assert.equal(accepted.kind, "unitConversion");
 });
 
-test("Operation: (concordance.ts:389) invalid-unit-system rejected when toSystem is loose or invalid, accepted with canon name", () => {
+test("Operation: (concordance.ts:406) invalid-unit-system rejected when toSystem is loose or invalid, accepted with canon name", () => {
   assertConcordanceRefusal(
     () =>
       validateOperation({
@@ -268,7 +292,7 @@ test("Operation: (concordance.ts:389) invalid-unit-system rejected when toSystem
   assert.equal(accepted.kind, "unitConversion");
 });
 
-test("Operation: (concordance.ts:417) missing-modern-lens-ref rejected when modernization has no modernLensRef, accepted with ref", () => {
+test("Operation: (concordance.ts:434) missing-modern-lens-ref rejected when modernization has no modernLensRef, accepted with ref", () => {
   assertConcordanceRefusal(
     () =>
       validateOperation({
@@ -286,7 +310,7 @@ test("Operation: (concordance.ts:417) missing-modern-lens-ref rejected when mode
   assert.equal(accepted.kind, "modernization");
 });
 
-test("Operation: (concordance.ts:424) missing-argument-change-description rejected when description missing, accepted with desc", () => {
+test("Operation: (concordance.ts:441) missing-argument-change-description rejected when description missing, accepted with desc", () => {
   assertConcordanceRefusal(
     () =>
       validateOperation({
@@ -304,7 +328,7 @@ test("Operation: (concordance.ts:424) missing-argument-change-description reject
   assert.equal(accepted.kind, "modernization");
 });
 
-test("Operation: (concordance.ts:437) invalid-operation-kind rejected when kind is unknown, accepted for valid operation kinds", () => {
+test("Operation: (concordance.ts:454) invalid-operation-kind rejected when kind is unknown, accepted for valid operation kinds", () => {
   assertConcordanceRefusal(
     () => validateOperation({ kind: "unsupported-operation" }),
     "invalid-operation-kind",
@@ -329,7 +353,7 @@ const VALID_COLLISION = {
   firstUseBySection: [{ sectionId: "s1", anchor: "s1-p2-s3" }],
 };
 
-test("Collision: (concordance.ts:446) invalid-collision rejected when raw is not an object, accepted with valid collision", () => {
+test("Collision: (concordance.ts:463) invalid-collision rejected when raw is not an object, accepted with valid collision", () => {
   assertConcordanceRefusal(() => validateCollision(null), "invalid-collision");
   assertConcordanceRefusal(() => validateCollision("not-an-object"), "invalid-collision");
 
@@ -337,7 +361,7 @@ test("Collision: (concordance.ts:446) invalid-collision rejected when raw is not
   assert.equal(accepted.severity, "danger");
 });
 
-test("Collision: (concordance.ts:458) invalid-collision-severity rejected when severity unknown, accepted with danger/caution", () => {
+test("Collision: (concordance.ts:475) invalid-collision-severity rejected when severity unknown, accepted with danger/caution", () => {
   assertConcordanceRefusal(
     () => validateCollision({ ...VALID_COLLISION, severity: "warning" as any }),
     "invalid-collision-severity",
@@ -347,7 +371,7 @@ test("Collision: (concordance.ts:458) invalid-collision-severity rejected when s
   assert.equal(accepted.severity, "caution");
 });
 
-test("Collision: (concordance.ts:465) invalid-collision-kind rejected when kind unknown, accepted with valid kind", () => {
+test("Collision: (concordance.ts:482) invalid-collision-kind rejected when kind unknown, accepted with valid kind", () => {
   assertConcordanceRefusal(
     () => validateCollision({ ...VALID_COLLISION, kind: "global" as any }),
     "invalid-collision-kind",
@@ -357,7 +381,7 @@ test("Collision: (concordance.ts:465) invalid-collision-kind rejected when kind 
   assert.equal(accepted.kind, "within-paper");
 });
 
-test("Collision: (concordance.ts:478) collision-targets-empty rejected when both target arrays empty, accepted with targets", () => {
+test("Collision: (concordance.ts:495) collision-targets-empty rejected when both target arrays empty, accepted with targets", () => {
   assertConcordanceRefusal(
     () => validateCollision({ ...VALID_COLLISION, collidesWith: [], collidesWithModern: [] }),
     "collision-targets-empty",
@@ -367,7 +391,7 @@ test("Collision: (concordance.ts:478) collision-targets-empty rejected when both
   assert.equal(accepted.collidesWith.length, 1);
 });
 
-test("Collision: (concordance.ts:486) missing-first-use-anchor rejected when anchor empty or missing, accepted with anchor", () => {
+test("Collision: (concordance.ts:503) missing-first-use-anchor rejected when anchor empty or missing, accepted with anchor", () => {
   assertConcordanceRefusal(
     () => validateCollision({ ...VALID_COLLISION, firstUseAnchor: "   " }),
     "missing-first-use-anchor",
@@ -377,7 +401,7 @@ test("Collision: (concordance.ts:486) missing-first-use-anchor rejected when anc
   assert.equal(accepted.firstUseAnchor, "s1-p2-s3");
 });
 
-test("Collision: (concordance.ts:494) missing-first-use-by-section rejected when array empty or not array, accepted with items", () => {
+test("Collision: (concordance.ts:511) missing-first-use-by-section rejected when array empty or not array, accepted with items", () => {
   assertConcordanceRefusal(
     () => validateCollision({ ...VALID_COLLISION, firstUseBySection: [] }),
     "missing-first-use-by-section",
@@ -387,7 +411,7 @@ test("Collision: (concordance.ts:494) missing-first-use-by-section rejected when
   assert.equal(accepted.firstUseBySection.length, 1);
 });
 
-test("Collision: (concordance.ts:504) invalid-first-use-section-item rejected when item not object, accepted with object", () => {
+test("Collision: (concordance.ts:521) invalid-first-use-section-item rejected when item not object, accepted with object", () => {
   assertConcordanceRefusal(
     () => validateCollision({ ...VALID_COLLISION, firstUseBySection: ["not-an-object" as any] }),
     "invalid-first-use-section-item",
@@ -397,7 +421,7 @@ test("Collision: (concordance.ts:504) invalid-first-use-section-item rejected wh
   assert.equal(accepted.firstUseBySection[0]?.sectionId, "s1");
 });
 
-test("Collision: (concordance.ts:512) missing-section-id rejected when sectionId missing or empty, accepted with sectionId", () => {
+test("Collision: (concordance.ts:529) missing-section-id rejected when sectionId missing or empty, accepted with sectionId", () => {
   assertConcordanceRefusal(
     () =>
       validateCollision({
@@ -411,7 +435,7 @@ test("Collision: (concordance.ts:512) missing-section-id rejected when sectionId
   assert.equal(accepted.firstUseBySection[0]?.sectionId, "s1");
 });
 
-test("Collision: (concordance.ts:519) missing-anchor rejected when section anchor missing or empty, accepted with anchor", () => {
+test("Collision: (concordance.ts:536) missing-anchor rejected when section anchor missing or empty, accepted with anchor", () => {
   assertConcordanceRefusal(
     () =>
       validateCollision({
@@ -470,7 +494,7 @@ const VALID_PAPER_CONCORDANCE = {
   modernOnlySymbols: [VALID_MODERN_ONLY],
 };
 
-test("ConcordanceEntry: (concordance.ts:540) invalid-entry rejected when raw is not an object, accepted with valid entry", () => {
+test("ConcordanceEntry: (concordance.ts:557) invalid-entry rejected when raw is not an object, accepted with valid entry", () => {
   assertConcordanceRefusal(() => validateConcordanceEntry(null), "invalid-entry");
   assertConcordanceRefusal(() => validateConcordanceEntry("not-an-object"), "invalid-entry");
 
@@ -478,7 +502,7 @@ test("ConcordanceEntry: (concordance.ts:540) invalid-entry rejected when raw is 
   assert.equal(accepted.id, "lq.beta.wien-constant");
 });
 
-test("ConcordanceEntry: (concordance.ts:545) missing-id rejected when id is missing or empty, accepted with id", () => {
+test("ConcordanceEntry: (concordance.ts:562) missing-id rejected when id is missing or empty, accepted with id", () => {
   assertConcordanceRefusal(
     () => validateConcordanceEntry({ ...VALID_ENTRY, id: "" }),
     "missing-id",
@@ -492,7 +516,7 @@ test("ConcordanceEntry: (concordance.ts:545) missing-id rejected when id is miss
   assert.equal(accepted.id, "lq.beta.wien-constant");
 });
 
-test("ConcordanceEntry: (concordance.ts:550) invalid-concordance-id-grammar rejected when id has fewer than 3 parts, accepted with 3 parts", () => {
+test("ConcordanceEntry: (concordance.ts:567) invalid-concordance-id-grammar rejected when id has fewer than 3 parts, accepted with 3 parts", () => {
   assertConcordanceRefusal(
     () => validateConcordanceEntry({ ...VALID_ENTRY, id: "invalid-id" }),
     "invalid-concordance-id-grammar",
@@ -506,7 +530,7 @@ test("ConcordanceEntry: (concordance.ts:550) invalid-concordance-id-grammar reje
   assert.equal(accepted.id, "lq.beta.wien-constant");
 });
 
-test("ConcordanceEntry: (concordance.ts:558) missing-paper rejected when paper slug is empty or missing, accepted with paper slug", () => {
+test("ConcordanceEntry: (concordance.ts:575) missing-paper rejected when paper slug is empty or missing, accepted with paper slug", () => {
   assertConcordanceRefusal(
     () => validateConcordanceEntry({ ...VALID_ENTRY, paper: "" }),
     "missing-paper",
@@ -520,7 +544,7 @@ test("ConcordanceEntry: (concordance.ts:558) missing-paper rejected when paper s
   assert.equal(accepted.paper, "light-quanta");
 });
 
-test("ConcordanceEntry: (concordance.ts:566) missing-scope rejected when scope is empty array or not array, accepted with non-empty array", () => {
+test("ConcordanceEntry: (concordance.ts:583) missing-scope rejected when scope is empty array or not array, accepted with non-empty array", () => {
   assertConcordanceRefusal(
     () => validateConcordanceEntry({ ...VALID_ENTRY, scope: [] }),
     "missing-scope",
@@ -534,7 +558,7 @@ test("ConcordanceEntry: (concordance.ts:566) missing-scope rejected when scope i
   assert.equal(accepted.scope.length, 1);
 });
 
-test("ConcordanceEntry: (concordance.ts:574) invalid-scope-id rejected when a scope item is empty or non-string, accepted with string ids", () => {
+test("ConcordanceEntry: (concordance.ts:591) invalid-scope-id rejected when a scope item is empty or non-string, accepted with string ids", () => {
   assertConcordanceRefusal(
     () => validateConcordanceEntry({ ...VALID_ENTRY, scope: ["s1", "   "] }),
     "invalid-scope-id",
@@ -548,7 +572,7 @@ test("ConcordanceEntry: (concordance.ts:574) invalid-scope-id rejected when a sc
   assert.deepEqual(accepted.scope, ["s1"]);
 });
 
-test("ConcordanceEntry: (concordance.ts:586) missing-meaning rejected when meaning is missing or empty, accepted with plain words", () => {
+test("ConcordanceEntry: (concordance.ts:603) missing-meaning rejected when meaning is missing or empty, accepted with plain words", () => {
   assertConcordanceRefusal(
     () => validateConcordanceEntry({ ...VALID_ENTRY, meaning: "" }),
     "missing-meaning",
@@ -562,7 +586,7 @@ test("ConcordanceEntry: (concordance.ts:586) missing-meaning rejected when meani
   assert.ok(accepted.meaning.length > 0);
 });
 
-test("ConcordanceEntry: (concordance.ts:604) missing-sources-anchor rejected when sources.anchor is missing or empty, accepted with anchor", () => {
+test("ConcordanceEntry: (concordance.ts:621) missing-sources-anchor rejected when sources.anchor is missing or empty, accepted with anchor", () => {
   assertConcordanceRefusal(
     () => validateConcordanceEntry({ ...VALID_ENTRY, sources: {} as any }),
     "missing-sources-anchor",
@@ -576,7 +600,7 @@ test("ConcordanceEntry: (concordance.ts:604) missing-sources-anchor rejected whe
   assert.equal(accepted.sources.anchor, "s1-p2-s3");
 });
 
-test("ConcordanceEntry: (concordance.ts:618) missing-verification rejected when verification is not an object, accepted with object", () => {
+test("ConcordanceEntry: (concordance.ts:635) missing-verification rejected when verification is not an object, accepted with object", () => {
   assertConcordanceRefusal(
     () => validateConcordanceEntry({ ...VALID_ENTRY, verification: "not-an-object" as any }),
     "missing-verification",
@@ -586,7 +610,7 @@ test("ConcordanceEntry: (concordance.ts:618) missing-verification rejected when 
   assert.equal(accepted.verification.checkedAgainst, "Annalen der Physik (4) 17, p. 133");
 });
 
-test("ConcordanceEntry: (concordance.ts:625) missing-verification-checked-against rejected when checkedAgainst empty, accepted with source", () => {
+test("ConcordanceEntry: (concordance.ts:642) missing-verification-checked-against rejected when checkedAgainst empty, accepted with source", () => {
   assertConcordanceRefusal(
     () =>
       validateConcordanceEntry({
@@ -600,7 +624,7 @@ test("ConcordanceEntry: (concordance.ts:625) missing-verification-checked-agains
   assert.ok(accepted.verification.checkedAgainst.length > 0);
 });
 
-test("ConcordanceEntry: (concordance.ts:632) missing-verification-by rejected when verification by is missing or empty, accepted with author", () => {
+test("ConcordanceEntry: (concordance.ts:649) missing-verification-by rejected when verification by is missing or empty, accepted with author", () => {
   assertConcordanceRefusal(
     () =>
       validateConcordanceEntry({
@@ -614,7 +638,7 @@ test("ConcordanceEntry: (concordance.ts:632) missing-verification-by rejected wh
   assert.equal(accepted.verification.by, "Editor");
 });
 
-test("ConcordanceEntry: (concordance.ts:639) missing-verification-date rejected when verification date is missing or empty, accepted with date", () => {
+test("ConcordanceEntry: (concordance.ts:656) missing-verification-date rejected when verification date is missing or empty, accepted with date", () => {
   assertConcordanceRefusal(
     () =>
       validateConcordanceEntry({
@@ -628,7 +652,7 @@ test("ConcordanceEntry: (concordance.ts:639) missing-verification-date rejected 
   assert.equal(accepted.verification.date, "2026-09-18");
 });
 
-test("ModernOnlySymbol: (concordance.ts:688) invalid-modern-only-symbol rejected when raw is not an object, accepted with valid object", () => {
+test("ModernOnlySymbol: (concordance.ts:705) invalid-modern-only-symbol rejected when raw is not an object, accepted with valid object", () => {
   assertConcordanceRefusal(() => validateModernOnlySymbol(null), "invalid-modern-only-symbol");
   assertConcordanceRefusal(
     () => validateModernOnlySymbol("not-an-object"),
@@ -639,7 +663,7 @@ test("ModernOnlySymbol: (concordance.ts:688) invalid-modern-only-symbol rejected
   assert.equal(accepted.id, "modern.hbar");
 });
 
-test("ModernOnlySymbol: (concordance.ts:696) missing-modern-only-id rejected when id is missing or empty, accepted with id", () => {
+test("ModernOnlySymbol: (concordance.ts:713) missing-modern-only-id rejected when id is missing or empty, accepted with id", () => {
   assertConcordanceRefusal(
     () => validateModernOnlySymbol({ ...VALID_MODERN_ONLY, id: "" }),
     "missing-modern-only-id",
@@ -653,7 +677,7 @@ test("ModernOnlySymbol: (concordance.ts:696) missing-modern-only-id rejected whe
   assert.equal(accepted.id, "modern.hbar");
 });
 
-test("PaperConcordance: (concordance.ts:720) invalid-paper-concordance rejected when raw is not an object, accepted with valid object", () => {
+test("PaperConcordance: (concordance.ts:737) invalid-paper-concordance rejected when raw is not an object, accepted with valid object", () => {
   assertConcordanceRefusal(() => validatePaperConcordance(null), "invalid-paper-concordance");
   assertConcordanceRefusal(
     () => validatePaperConcordance("not-an-object"),
@@ -664,7 +688,7 @@ test("PaperConcordance: (concordance.ts:720) invalid-paper-concordance rejected 
   assert.equal(accepted.paper, "light-quanta");
 });
 
-test("PaperConcordance: (concordance.ts:728) missing-paper rejected when paper slug is empty or missing, accepted with paper slug", () => {
+test("PaperConcordance: (concordance.ts:745) missing-paper rejected when paper slug is empty or missing, accepted with paper slug", () => {
   assertConcordanceRefusal(
     () => validatePaperConcordance({ ...VALID_PAPER_CONCORDANCE, paper: "" }),
     "missing-paper",
