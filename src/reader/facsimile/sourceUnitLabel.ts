@@ -21,7 +21,8 @@ export function sourceUnitLabel(id: string, kind: string, sectioned: boolean): s
     "closing-dateline": "Date-line",
     "closing-received": "Date received",
     "closing-ack": "Acknowledgment",
-    // Relativity's two parts, printed "I. Kinematischer Teil" and "II. Elektrodynamischer Teil".
+    // Relativity's two parts: "I. Kinematischer Teil." (p. 892) and, with the compositor's
+    // dropped l, "II. Eektrodynamischer Teil." (p. 907, err-typo-p907-1 in its receipt).
     "part-1": "Part I heading",
     "part-2": "Part II heading",
   };
