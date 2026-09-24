@@ -78,7 +78,9 @@ describe("am-not-entries-relativity-f6e: special-relativity notation concordance
     assert.ok(res.entry.collision?.collidesWithModern?.includes("speedRatio"));
     assert.equal(res.entry.operation.kind, "rename");
     assert.equal(modernSymbolFor(paper, "sr-s3", "\\beta", emptyManifestIndex, file), "\\gamma");
-    assert.equal(firstUseInSection(paper, "sr-s3", "\\beta", file), "sr-s3-p1");
+    // β is first printed on p. 900, in s3-p14, the paragraph that holds the transformation
+    // equations and β's definition (eq-s3-d15, eq-s3-d16). s3-p1, on p. 897, prints no β.
+    assert.equal(firstUseInSection(paper, "sr-s3", "\\beta", file), "sr-s3-p14");
     logPass("beta-is-gamma", "beta binds lorentzFactor and renames to gamma", {
       glyph: "\\beta",
       entryId: res.entry.id,
