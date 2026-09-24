@@ -112,6 +112,13 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
       <div className="lab-status-row">
         <ExecutionChrome state={executionKind} view={view} />
       </div>
+
+      <noscript>
+        <p className="notice">
+          JavaScript is off. This is a complete worked example calculated when the site was built,
+          and its values and explanations remain available. The controls need JavaScript to respond.
+        </p>
+      </noscript>
       <div className="lab-columns">
         <div>
           <fieldset className="lab-choice">

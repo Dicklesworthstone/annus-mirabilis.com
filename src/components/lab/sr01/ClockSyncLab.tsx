@@ -202,6 +202,13 @@ export function ClockSyncLab({
         />
       </div>
 
+      <noscript>
+        <p className="notice">
+          JavaScript is off. This is a complete worked example calculated when the site was built,
+          and its values and explanations remain available. The controls need JavaScript to respond.
+        </p>
+      </noscript>
+
       {linkNote && (
         <p role="status" data-shared-clock-settings>
           {linkNote}

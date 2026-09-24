@@ -182,6 +182,13 @@ export function IndependentConfigurationsLab({
         />
       </div>
 
+      <noscript>
+        <p className="notice">
+          JavaScript is off. This is a complete worked example calculated when the site was built,
+          and its values and explanations remain available. The controls need JavaScript to respond.
+        </p>
+      </noscript>
+
       {/* Main Plot & Visualization */}
       <IndependentConfigurationsPlot parameters={p} evaluation={evaluation} />
 
