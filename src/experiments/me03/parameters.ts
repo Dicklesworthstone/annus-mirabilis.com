@@ -66,7 +66,7 @@ export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
         {
           details: {
             code: "nonfinite-input",
-            requirements: "Emitted energy L must be a positive finite number (L > 0).",
+            requirements: "Enter the energy L given off as a number greater than zero, in joules.",
           },
         },
       ),
@@ -83,7 +83,7 @@ export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
         {
           details: {
             code: "nonfinite-input",
-            requirements: "Input energy Ein must be a non-negative finite number.",
+            requirements: "Enter the energy taken in as zero or more, in joules.",
           },
         },
       ),
@@ -125,7 +125,7 @@ export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
         {
           details: {
             code: "nonfinite-input",
-            requirements: "Box mass M must be a positive finite number.",
+            requirements: "Enter a box mass M greater than zero, in kilograms.",
           },
         },
       ),
@@ -142,7 +142,7 @@ export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
         {
           details: {
             code: "nonfinite-input",
-            requirements: "Box length ell must be a positive finite number.",
+            requirements: "Enter a box length ℓ greater than zero, in metres.",
           },
         },
       ),
@@ -159,7 +159,7 @@ export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
         {
           details: {
             code: "nonfinite-input",
-            requirements: "Pulse energy E must be a positive finite number.",
+            requirements: "Enter a pulse energy E greater than zero, in joules.",
           },
         },
       ),
@@ -187,7 +187,7 @@ export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
             details: {
               code: "outside-domain",
               requirements:
-                "The nonrelativistic recoil approximation requires E / (M * c^2) <= 10^-3.",
+                "Enter a pulse energy E of at most a thousandth of Mc², the box's rest energy. The lab computes the recoil for a slowly moving box, and that approximation fails beyond this.",
             },
           },
         ),

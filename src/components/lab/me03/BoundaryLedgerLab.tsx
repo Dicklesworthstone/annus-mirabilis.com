@@ -119,38 +119,9 @@ export function BoundaryLedgerLab({
     commitDraft();
   }
 
-  /** Validate the whole draft and apply it: the box's typed values, or the linked settings. */
+  /** Apply the whole draft. The session's validator owns the domain and says what to enter. */
   function commitDraft() {
-    const parsed = fromMe03Draft(draft);
-    if (parsed.mode === "box-1906") {
-      if (!Number.isFinite(parsed.boxMass) || parsed.boxMass <= 0) {
-        setError("Box mass M must be a positive finite number.");
-        setRefusalCode("nonfinite-input");
-        return;
-      }
-      if (!Number.isFinite(parsed.boxLength) || parsed.boxLength <= 0) {
-        setError("Box length ell must be a positive finite number.");
-        setRefusalCode("nonfinite-input");
-        return;
-      }
-      if (!Number.isFinite(parsed.pulseEnergy) || parsed.pulseEnergy <= 0) {
-        setError("Pulse energy E must be a positive finite number.");
-        setRefusalCode("nonfinite-input");
-        return;
-      }
-    } else {
-      if (!Number.isFinite(parsed.emittedEnergy) || parsed.emittedEnergy <= 0) {
-        setError("Emitted energy L must be a positive finite number (L > 0).");
-        setRefusalCode("nonfinite-input");
-        return;
-      }
-      if (!Number.isFinite(parsed.inputEnergy) || parsed.inputEnergy < 0) {
-        setError("Input energy Ein must be a non-negative finite number.");
-        setRefusalCode("nonfinite-input");
-        return;
-      }
-    }
-    apply(parsed);
+    apply(fromMe03Draft(draft));
   }
 
   function loadPreset(presetId: string) {
