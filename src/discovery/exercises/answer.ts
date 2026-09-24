@@ -1,6 +1,7 @@
 /** Shared reader-answer workflow. No browser storage, network, eval or alternate RNG. */
 import { type ToleranceSpec, validateToleranceSpec } from "../../units/tolerance.ts";
 import { dimensionMessage, readDimensions } from "./dimensions.ts";
+import { contrastOverlaps, type DomainProbeOutcome, probeDomain } from "./domainProbe.ts";
 import { checkEquivalence, type EquivalenceOutcome } from "./equivalence.ts";
 import { ALLOWED_FUNCTIONS, echo, parse } from "./grammar.ts";
 import { normalize } from "./normalize.ts";
@@ -20,6 +21,23 @@ export interface ExpressionExercisePart {
    * before any numeric comparison.
    */
   readonly dimensions?: Readonly<Record<string, readonly string[]>>;
+  /**
+   * Optional: per variable, where the domain probe looks after an "equivalent" verdict. Absent,
+   * the probe uses zero and the mirror of the declared range (domainProbe.ts). A contrast range
+   * that overlaps its declared range is refused, because a point already tested is no contrast.
+   */
+  readonly contrastDomain?: Readonly<Record<string, Domain>>;
+  /** Optional: one authored sentence naming the condition, the probe note's first sentence. */
+  readonly conditionNote?: string;
+}
+/** A refused probe setting. The code names the rule, so a test can name the refusal. */
+export class ExerciseDefinitionError extends TypeError {
+  readonly code: "exercise-contrast-overlap" | "exercise-condition-note-shape";
+  constructor(code: ExerciseDefinitionError["code"], message: string) {
+    super(message);
+    this.name = "ExerciseDefinitionError";
+    this.code = code;
+  }
 }
 export type AnswerVerdict =
   | Readonly<{ kind: "parse-error"; position: number; message: string }>
@@ -29,6 +47,8 @@ export type AnswerVerdict =
       outcome: EquivalenceOutcome;
       /** How the reader's expression was read, every grouping explicit (grammar.ts echo). */
       readAs?: string;
+      /** Present only after an "equivalent" outcome: where the agreement stops, if it does. */
+      probe?: DomainProbeOutcome;
     }>;
 
 function field(value: unknown, name: string): unknown {
@@ -38,6 +58,13 @@ function field(value: unknown, name: string): unknown {
   if (!descriptor?.enumerable || !Object.hasOwn(descriptor, "value"))
     throw new TypeError(`Missing exercise field or accessor: ${name}.`);
   return descriptor.value;
+}
+/** An optional field: undefined when absent, its value when it is a plain enumerable value. */
+function optional(value: object, name: string): unknown {
+  const descriptor = Object.getOwnPropertyDescriptor(value, name);
+  return descriptor?.enumerable && Object.hasOwn(descriptor, "value")
+    ? descriptor.value
+    : undefined;
 }
 function text(value: unknown, label: string, max: number): string {
   if (typeof value !== "string" || !value.trim() || value.length > max)
@@ -135,6 +162,35 @@ export function snapshotExercise(part: ExpressionExercisePart): ExpressionExerci
         ),
       )
     : undefined;
+  const rawContrast = optional(part, "contrastDomain") as
+    | Readonly<Record<string, Domain>>
+    | undefined;
+  let contrastDomain: Readonly<Record<string, Domain>> | undefined;
+  if (rawContrast !== undefined) {
+    const named = validateDomains(rawContrast);
+    const problems = contrastOverlaps(domains, rawContrast);
+    if (problems.length)
+      throw new ExerciseDefinitionError(
+        "exercise-contrast-overlap",
+        `Exercise ${id}: ${problems.join(" ")}`,
+      );
+    contrastDomain = Object.freeze(
+      Object.fromEntries(
+        named.map((name) => {
+          const d = rawContrast[name] as Domain;
+          return [name, Object.freeze({ min: d.min, max: d.max, scale: d.scale ?? "linear" })];
+        }),
+      ),
+    );
+  }
+  const rawNote = optional(part, "conditionNote");
+  const conditionNote =
+    rawNote === undefined ? undefined : text(rawNote, "condition note", 240).trim();
+  if (conditionNote !== undefined && /[\n\r]/.test(conditionNote))
+    throw new ExerciseDefinitionError(
+      "exercise-condition-note-shape",
+      `Exercise ${id}: a condition note is one sentence on one line.`,
+    );
   return Object.freeze({
     id,
     prompt,
@@ -144,6 +200,8 @@ export function snapshotExercise(part: ExpressionExercisePart): ExpressionExerci
     domains,
     tolerance,
     ...(dimensions ? { dimensions } : {}),
+    ...(contrastDomain ? { contrastDomain } : {}),
+    ...(conditionNote ? { conditionNote } : {}),
   });
 }
 
@@ -156,6 +214,20 @@ export function exerciseDefinitionKey(part: ExpressionExercisePart): string {
     [...p.declaredNames].sort(),
     p.domains,
     p.tolerance,
+  ]);
+}
+
+/**
+ * What a page keys a form on: the sampling definition plus the probe's settings, so a changed
+ * contrast range or condition note remounts the form instead of relabelling an old verdict. The
+ * probe settings stay out of exerciseDefinitionKey, which seeds the Philox points.
+ */
+export function exerciseRenderKey(part: ExpressionExercisePart): string {
+  const p = snapshotExercise(part);
+  return JSON.stringify([
+    exerciseDefinitionKey(p),
+    p.contrastDomain ?? null,
+    p.conditionNote ?? null,
   ]);
 }
 
@@ -199,11 +271,16 @@ export async function checkExerciseAnswer(
       if (message) return { kind: "dimension", message, readAs: echo(reader.expr) };
     }
     const seed = await deriveExerciseSeed(exerciseDefinitionKey(p));
-    return {
-      kind: "checked",
-      outcome: checkEquivalence(reader.expr, reference.expr, p.domains, p.tolerance, { seed }),
-      readAs: echo(reader.expr),
-    };
+    const outcome = checkEquivalence(reader.expr, reference.expr, p.domains, p.tolerance, { seed });
+    if (outcome.status !== "equivalent")
+      return { kind: "checked", outcome, readAs: echo(reader.expr) };
+    const probe = probeDomain(reader.expr, reference.expr, {
+      domains: p.domains,
+      tolerance: p.tolerance,
+      ...(p.contrastDomain ? { contrastDomain: p.contrastDomain } : {}),
+      ...(p.conditionNote ? { conditionNote: p.conditionNote } : {}),
+    });
+    return { kind: "checked", outcome, readAs: echo(reader.expr), probe };
   } catch (error) {
     return {
       kind: "checked",

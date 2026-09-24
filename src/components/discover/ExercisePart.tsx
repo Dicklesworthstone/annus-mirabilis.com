@@ -6,8 +6,9 @@ import {
   type AnswerVerdict,
   checkExerciseAnswer,
   type ExpressionExercisePart,
-  exerciseDefinitionKey,
+  exerciseRenderKey,
 } from "../../discovery/exercises/answer.ts";
+import type { DomainProbeOutcome } from "../../discovery/exercises/domainProbe.ts";
 import { Sci } from "../lab/Sci.tsx";
 
 export type { ExpressionExercisePart } from "../../discovery/exercises/answer.ts";
@@ -16,7 +17,7 @@ export type { ExpressionExercisePart } from "../../discovery/exercises/answer.ts
 export function ExercisePart({ part }: { part: ExpressionExercisePart }) {
   let key: string;
   try {
-    key = exerciseDefinitionKey(part);
+    key = exerciseRenderKey(part);
   } catch {
     return (
       <p className="notice" role="alert">
@@ -108,6 +109,7 @@ function ExerciseForm({ part }: { part: ExpressionExercisePart }) {
             </p>
           )}
           {verdict.outcome.status === "equivalent" && <p>{verdict.outcome.label}</p>}
+          {verdict.probe && <ProbeNote probe={verdict.probe} />}
           {verdict.outcome.status === "not-equivalent" && (
             <p>
               Not equivalent. At{" "}
@@ -133,5 +135,28 @@ function ExerciseForm({ part }: { part: ExpressionExercisePart }) {
         <p>{part.workedExplanation}</p>
       </details>
     </div>
+  );
+}
+
+/**
+ * Where an agreement stops, drawn as ordinary prose under the verdict, which stays "equivalent".
+ * Agreement at every probe point adds nothing; a probe that could not run says so, so a missing
+ * note is never read as agreement everywhere.
+ */
+function ProbeNote({ probe }: { probe: DomainProbeOutcome }) {
+  if (probe.kind === "agrees") return null;
+  if (probe.kind === "probe-not-available") return <p>{probe.reason}</p>;
+  return (
+    <p>
+      {probe.segments.map((segment, i) =>
+        typeof segment === "string" ? (
+          // biome-ignore lint/suspicious/noArrayIndexKey: a fixed sentence; segments never reorder
+          <span key={i}>{segment}</span>
+        ) : (
+          // biome-ignore lint/suspicious/noArrayIndexKey: a fixed sentence; segments never reorder
+          <Sci key={i} value={segment.number} />
+        ),
+      )}
+    </p>
   );
 }
