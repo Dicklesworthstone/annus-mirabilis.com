@@ -48,6 +48,7 @@ import { InferenceLab } from "./InferenceLab.tsx";
 import { IonizationLab } from "./lq09/IonizationLab.tsx";
 import { MagnetConductorLab } from "./MagnetConductorLab.tsx";
 import { TwoLedgersLab } from "./me01/TwoLedgersLab.tsx";
+import { BoundaryLedgerLab } from "./me03/BoundaryLedgerLab.tsx";
 import { presentedOrder } from "./PredictGate.tsx";
 import { ClockSyncLab } from "./sr01/ClockSyncLab.tsx";
 import { VelocityCompositionLab } from "./sr06/VelocityCompositionLab.tsx";
@@ -81,6 +82,7 @@ const LABS: readonly (readonly [string, () => ReactElement, string, boolean])[] 
     "Four estimates, different assumptions",
     false,
   ],
+  ["me-03", () => createElement(BoundaryLedgerLab, {}), "Cited energy-source boundary facts", true],
   ["lq-09", () => createElement(IonizationLab, {}), "Values at these settings", false],
   // BM-07 and BM-08 share no ?tape= link (their worker runner is not written); LQ-09, ME-01 and
   // SR-01 have none yet, their bindings waiting in a worktree (dispatch 145).

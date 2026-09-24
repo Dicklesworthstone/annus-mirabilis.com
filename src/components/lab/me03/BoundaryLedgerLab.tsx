@@ -14,7 +14,6 @@ import {
   ME03_NOT_MODELED,
   ME03_OUTPUTS,
   ME03_PRESETS,
-  ME03_PROMPTS,
   type Me03Boundary,
   type Me03CardId,
   type Me03Mode,
@@ -42,7 +41,9 @@ import { PhotonBoxPlot } from "./PhotonBoxPlot.tsx";
 import "../labControls.css";
 import "./me03.css";
 import "../showTheCode.css";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { numberText, sentenceNumber } from "../presentation.ts";
 
 /** The energy figure's kind, in words: the card carried its id ("radiated-power") to the reader. */
@@ -54,6 +55,15 @@ const ENERGY_FIGURE_WORDS: Readonly<Record<string, string>> = {
   "electrical-input": "electrical input",
   "stated-transfer": "stated energy transfer",
 };
+
+// The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array per mode for the
+// gate. They replace the lab's use of ME03_PROMPTS, a TypeScript copy box.test.ts still reads.
+const ME03_SEALED_PROMPTS = (PREDICT_PROMPTS["me-03"] ?? []).filter(
+  (p) => p.promptId === "me-03-predict-sealed-box",
+);
+const ME03_BOX_PROMPTS = (PREDICT_PROMPTS["me-03"] ?? []).filter(
+  (p) => p.promptId === "me-03-predict-box-light-mass",
+);
 
 export function BoundaryLedgerLab({
   example,
@@ -108,9 +118,11 @@ export function BoundaryLedgerLab({
   const [linkNote, setLinkNote] = useState("");
   const [linkPending, setLinkPending] = useState(false);
   const [sharedUrl, setSharedUrl] = useState("");
-  const [predictAnswer, setPredictAnswer] = useState<string | null>(null);
 
   const isBox = p.mode === "box-1906";
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer. The prompt
+  // follows the mode, as the lab's own block did: the sealed box in 1905, the light's mass in the box.
+  const gate = usePredictGate("me-03", isBox ? ME03_BOX_PROMPTS : ME03_SEALED_PROMPTS);
   const evaluation = evaluateMe03(p);
   const card = evaluation.card;
   const facts = card.boundary;
@@ -252,8 +264,6 @@ export function BoundaryLedgerLab({
     }
   }
 
-  const prompt = isBox ? ME03_PROMPTS.boxLightMass : ME03_PROMPTS.sealedBox;
-
   return (
     <section
       className="laboratory-shell"
@@ -292,27 +302,9 @@ export function BoundaryLedgerLab({
         </p>
       </noscript>
 
+      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <div>
-          <details className="lab-predict">
-            <summary>Predict first</summary>
-            <fieldset>
-              <legend>{prompt.question}</legend>
-              {prompt.candidates.map((c) => (
-                <label key={c.id} className="lab-predict-candidate">
-                  <input
-                    type="radio"
-                    name={`${isBox ? "predict-box-light-mass" : "predict-sealed-box"}-${id}`}
-                    value={c.id}
-                    checked={predictAnswer === c.id}
-                    onChange={() => setPredictAnswer(c.id)}
-                  />
-                  <span>{c.label}</span>
-                </label>
-              ))}
-              {predictAnswer && <p className="lab-predict-reveal">{prompt.explanation}</p>}
-            </fieldset>
-          </details>
           <fieldset className="lab-choice">
             <legend>Compare</legend>
             <div className="actions">
@@ -638,8 +630,9 @@ export function BoundaryLedgerLab({
           <AcceptedStatus
             worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
             summary={statusSummary}
+            response={gate.response}
           />
-          <LabTapeLink link={tapeLink} />
+          <LabTapeLink link={withPredictions(tapeLink, gate)} />
           {linkNote && (
             <div className="notice">
               <p>{linkNote}</p>
@@ -652,7 +645,7 @@ export function BoundaryLedgerLab({
           )}
         </div>
 
-        <div className="lab-results">
+        <div className="lab-results" {...gate.response}>
           {/* Main Visual Plot */}
           {isBox && boxEvaluation && boxScale ? (
             <PhotonBoxPlot

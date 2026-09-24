@@ -246,7 +246,7 @@ parameters:
 
   - id: assignLightMass
     label: "Assign inertia to radiation"
-    accessibleName: "Whether the light pulse is assigned equivalent inertial mass m = E/c^2"
+    accessibleName: "Whether the light pulse is assigned equivalent inertial mass m = E/c²"
     accessibleDescription: "Toggling to false demonstrates the center-of-mass shift violation identified by Poincaré and Einstein."
     quantityId: lightMassAssigned
     displayUnit: ""
@@ -623,18 +623,18 @@ predictMode:
       settledCandidateId: stays-the-same
       explanation: "The energy only moves inside the boundary. Light emitted by the lamp is absorbed by the mirror and walls inside the sealed enclosure, so no energy crosses the outer boundary and the box's total mass is unchanged."
     - promptId: me-03-predict-box-light-mass
-      supportedCandidateId: com-shifts
+      supportedCandidateId: com-stationary
       controlId: assignLightMass
-      question: "When a light pulse traverses a closed box and hits the other side, what happens to the total center of mass of the system if light is assumed to carry no mass?"
+      question: "A light pulse crosses a closed, isolated box and is absorbed at the far wall; the box recoils while the pulse is in flight. What happens to the center of mass of the whole system?"
       candidates:
         - id: com-shifts
           label: "The box moves and the center of mass permanently shifts, violating momentum conservation."
           description: "Without mass assigned to the photon, the box's recoil displacement moves the system center of mass with no external force."
-          separatingAssumption: "Light carries momentum but no equivalent mass E/c^2."
+          separatingAssumption: "Light carries momentum but no equivalent mass E/c²."
         - id: com-stationary
           label: "The center of mass stays exactly stationary because the light pulse transfers mass E/c²."
-          description: "Assigning inertial mass m = E/c^2 to the pulse exactly cancels the box's displacement, preserving the center of mass."
-          separatingAssumption: "Energy transfer is equivalent to mass transfer m = E/c^2."
+          description: "Assigning inertial mass m = E/c² to the pulse exactly cancels the box's displacement, preserving the center of mass."
+          separatingAssumption: "Energy transfer is equivalent to mass transfer m = E/c²."
         - id: box-does-not-move
           label: "The box never moves because light pressure is a pure wave phenomenon with no mechanical recoil."
           description: "Rejects mechanical momentum transfer from light emission."
