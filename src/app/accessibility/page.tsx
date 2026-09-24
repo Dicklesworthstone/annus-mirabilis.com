@@ -35,9 +35,9 @@ export default function AccessibilityPage() {
         <h2 id="a11y-checked">What has been checked</h2>
         <p>
           The contrast of every text colour, in both the light and the dark theme, is checked by the
-          site&rsquo;s own tests. Keyboard operation, and the high-contrast colours an operating
-          system can impose, have been checked by hand in Chromium; the names a screen reader
-          announces, in Chromium and WebKit.
+          site&rsquo;s own tests. Keyboard operation, the colours an operating system can force, and
+          the name each control gives a screen reader have been checked by automated runs in
+          Chromium and WebKit, not yet by a person at a keyboard with a screen reader.
         </p>
         <p>
           No round of testing with disabled readers, using their own tools, has been recorded yet.
