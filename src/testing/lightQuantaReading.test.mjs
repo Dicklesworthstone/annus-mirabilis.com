@@ -50,7 +50,20 @@ for (const [name, compile] of [
       payload.paper.sections.map((s) => s.id),
       Array.from({ length: 10 }, (_, i) => `s${i}`),
     );
-    assert.equal(payload.arguments.length, 12);
+    // Every light-quanta argument record on disk is compiled, and nothing else is. This used to
+    // read `payload.arguments.length === 12`, a census that went red on correct work when three
+    // passages were written for paragraphs that had none (dispatch 157). Identity with the
+    // records holds at any size; the length check keeps the comparison from passing on two
+    // empty lists.
+    // The directory also holds the paper's entrance record, which declares no kind.
+    const onDisk = files
+      .filter((f) => /^arguments\/light-quanta\/[^/]+\.json$/.test(f.path))
+      .map((f) => JSON.parse(f.text))
+      .filter((r) => r.kind === "argument")
+      .map((r) => r.id)
+      .sort();
+    assert.ok(onDisk.length > 0, "no light-quanta argument records were read");
+    assert.deepEqual(payload.arguments.map((a) => a.id).sort(), onDisk);
     assert.deepEqual(
       payload.paper.sections.flatMap((s) => s.arguments),
       payload.arguments.map((a) => a.id),
