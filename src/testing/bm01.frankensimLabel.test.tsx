@@ -93,6 +93,11 @@ describe("BM-01's execution label follows the snapshot's producer", () => {
     expect(r.after).not.toContain("Ideal model, host calculation");
     expect(r.after).toContain(FRANKENSIM_BROWNIAN_ENGINE_SENTENCE);
     expect(r.after).toContain(PINNED_ARTIFACT.frankensimRevision.slice(0, 8));
+    // The model notes say who produced this trial too: a sentence denying FrankenSim beside a
+    // FrankenSim label is the contradiction TracerLab shipped with until the note followed the
+    // snapshot.
+    expect(r.after).toContain("FrankenSim computed these positions in a worker.");
+    expect(r.after).not.toContain("No FrankenSim WASM artifact");
     expect(r.label).toBe("frankensim");
   });
 
@@ -105,6 +110,8 @@ describe("BM-01's execution label follows the snapshot's producer", () => {
     expect(r.after).toContain("Ideal model, host calculation");
     expect(r.after).not.toContain("computed with FrankenSim");
     expect(r.after).not.toContain(FRANKENSIM_BROWNIAN_ENGINE_SENTENCE);
+    expect(r.after).toContain("No FrankenSim WASM artifact produced this trial.");
+    expect(r.after).not.toContain("FrankenSim computed these positions");
     expect(r.label).toBe("host");
   });
 });

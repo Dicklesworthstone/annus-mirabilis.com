@@ -690,11 +690,20 @@ export function TracerLab({
               statistic changes reuse those coordinates. The histogram and statistics use every
               tracer, including those outside the view.
             </p>
-            <p>
-              No FrankenSim WASM artifact is used. Integer random draws follow the pinned Philox
-              mapping; Gaussian conversion uses this host’s math functions and is not claimed
-              bitwise identical across browser engines.
-            </p>
+            {isFrankenSim ? (
+              <p>
+                FrankenSim computed these positions in a worker. Its integer random draws follow the
+                same pinned Philox mapping as the host calculation, and its Gaussian conversion uses
+                FrankenSim’s own math functions, so a host calculation of the same trial agrees to
+                within a few units in the last place, not bitwise.
+              </p>
+            ) : (
+              <p>
+                No FrankenSim WASM artifact produced this trial. Integer random draws follow the
+                pinned Philox mapping; Gaussian conversion uses this host’s math functions and is
+                not claimed bitwise identical across browser engines.
+              </p>
+            )}
             <p className="fine">
               Logical recording draws: {scalar(snapshot, "recordingDraws")}.{" "}
               {scalar(snapshot, "reusedRecording") === 1
