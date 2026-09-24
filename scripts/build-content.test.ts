@@ -1,6 +1,43 @@
 import { describe, expect, test } from "bun:test";
+import { cpSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
-import { loadReadingFiles } from "./build-content.ts";
+import { loadReadingFiles, paragraphBindingDiagnostics } from "./build-content.ts";
+
+describe("a required paper's binding gap fails the build by name", () => {
+  const ROOT = process.cwd();
+
+  test("the real mass-energy bindings give no paragraph-binding diagnostic", () => {
+    expect(paragraphBindingDiagnostics(ROOT, ["mass-energy"])).toEqual([]);
+  });
+
+  test("an unbound paragraph is an error diagnostic whose code and rule are paragraph-binding (build-content.ts:141) (build-content.ts:144)", () => {
+    // A copy of mass-energy's manifest, passages, equations and bindings with the binding of
+    // s0-p5 removed, under the OS temp directory: this suite deletes nothing.
+    const root = mkdtempSync(join(tmpdir(), "build-content-bindings-"));
+    for (const dir of ["source-blocks", "arguments", "equations"])
+      cpSync(join(ROOT, "content", dir, "mass-energy"), join(root, "content", dir, "mass-energy"), {
+        recursive: true,
+      });
+    const yaml = readFileSync(join(ROOT, "content/bindings/mass-energy.yaml"), "utf8");
+    const cut = yaml.replace(/ {2}- unit: s0-p5\n(?: {4}.*\n)+/, "");
+    expect(cut).not.toBe(yaml);
+    cpSync(join(ROOT, "content/bindings"), join(root, "content/bindings"), { recursive: true });
+    writeFileSync(join(root, "content/bindings/mass-energy.yaml"), cut);
+
+    const diagnostics = paragraphBindingDiagnostics(root, ["mass-energy"]);
+    expect(diagnostics).toContainEqual({
+      severity: "error",
+      code: "paragraph-binding",
+      path: "content/bindings/mass-energy.yaml",
+      message: "mass-energy s0-p5 is bound to no passage",
+      rule: "paragraph-binding",
+      beadId: "am-bind-paragraphs-and-displays-me-u7bu",
+    });
+    expect(diagnostics.every((d) => d.code === "paragraph-binding")).toBe(true);
+  });
+});
 
 describe("content compiler routing", () => {
   test("a stray JSON file with no owning schema still fails unrouted-content", () => {

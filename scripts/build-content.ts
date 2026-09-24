@@ -122,19 +122,16 @@ export async function loadAllContentFiles(root = ROOT, corpusDir = "content") {
   return files;
 }
 
-export async function buildContent(
-  root = ROOT,
-  options?: { corpusDir?: string; emit?: boolean; shouldEmit?: boolean },
-) {
-  const corpusDir = options?.corpusDir ?? "content";
-  const shouldEmit =
-    options?.emit ?? options?.shouldEmit ?? (root !== ROOT || corpusDir === "content");
-  const files = await loadReadingFiles(root, corpusDir);
-
-  const compiled = await compileContent(files);
-  // Every printed paragraph and display of a required paper reaches its explanation, and every
-  // gap fails the build by name (src/content/bindings/paragraphBindings.ts).
-  const bindingProblems = BINDINGS_REQUIRED.flatMap((paper) => {
+/**
+ * Every printed paragraph and display of a required paper reaches its explanation, and every gap
+ * fails the build by name (src/content/bindings/paragraphBindings.ts): one error diagnostic per
+ * problem the paper's binding report names.
+ */
+export function paragraphBindingDiagnostics(
+  root: string,
+  papers: readonly string[],
+): CompilerDiagnostic[] {
+  return papers.flatMap((paper) => {
     const report = checkParagraphBindings(root, paper);
     if (!report) return [];
     console.log(JSON.stringify({ event: "paragraph-bindings", report: reportLine(report) }));
@@ -149,6 +146,19 @@ export async function buildContent(
       }),
     );
   });
+}
+
+export async function buildContent(
+  root = ROOT,
+  options?: { corpusDir?: string; emit?: boolean; shouldEmit?: boolean },
+) {
+  const corpusDir = options?.corpusDir ?? "content";
+  const shouldEmit =
+    options?.emit ?? options?.shouldEmit ?? (root !== ROOT || corpusDir === "content");
+  const files = await loadReadingFiles(root, corpusDir);
+
+  const compiled = await compileContent(files);
+  const bindingProblems = paragraphBindingDiagnostics(root, BINDINGS_REQUIRED);
   const result =
     bindingProblems.length === 0
       ? compiled
