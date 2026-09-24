@@ -175,6 +175,13 @@ export function TwoCurves({ headingLevel = 3 }: { readonly headingLevel?: Headin
         </text>
       </svg>
 
+      <p>
+        The dissertation's own inversion, from a measured diffusion coefficient and a solution's
+        viscosity, runs in the{" "}
+        <a href="/lab/avogadro-lab/">molecular-dimensions companion preview</a>, with the viscosity
+        coefficient as printed in 1906 or as corrected in 1911.
+      </p>
+
       <div className="construction-text-equivalent">
         <Sub>What it shows, in words</Sub>
         <p>

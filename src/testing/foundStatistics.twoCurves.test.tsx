@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TwoCurves } from "../components/foundations/TwoCurves.tsx";
 import { checkVoice } from "../content/checks/voice/index.ts";
@@ -102,6 +104,16 @@ describe("the construction renders completely without JavaScript", () => {
     expect(text).toContain("not a probability");
     expect(text).toContain("What it shows, in words");
     expect(html).toContain('role="img"');
+  });
+
+  test("the dissertation's inversion is one link away, and the route it names exists", () => {
+    // am-found-statistics-inference-pzqv's lane follows "the link to the companion record's
+    // inversion"; until 2026-09-24 the lesson had none. The preview runs inferMolecularDimensions.
+    expect(html).toContain(
+      '<a href="/lab/avogadro-lab/">molecular-dimensions companion preview</a>',
+    );
+    expect(existsSync(join(process.cwd(), "src/app/lab/avogadro-lab/page.tsx"))).toBe(true);
+    expect(text).toContain("as printed in 1906 or as corrected in 1911");
   });
 
   test("its sentences pass the voice lint, and never name the typed status", () => {
