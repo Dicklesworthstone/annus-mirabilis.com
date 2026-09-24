@@ -8,12 +8,19 @@ import {
 } from "../../experiments/bm07/controls.ts";
 import {
   BM07_CAPTION,
+  BM07_OUTPUTS,
   BM07_SEMANTIC_KIND_TEXT,
   type Bm07Parameters,
 } from "../../experiments/bm07/definition.ts";
 import { inferenceObservationCsv } from "../../experiments/bm07/export.ts";
 import { decodeBm07Settings, encodeBm07Settings } from "../../experiments/bm07/permalink.ts";
 import { createBm07Session, type PreparedBm07Example } from "../../experiments/bm07/session.ts";
+import {
+  executionLabelFor,
+  executionStateKindFromHostLabel,
+} from "../../experiments/labels/executionLabelFor.ts";
+import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import {
   InferenceCoverage,
   InferenceFamily,
@@ -61,6 +68,12 @@ export function InferenceLab({
     [revealedRun, setRevealedRun] = useState<string | null>(null);
   const revealed = revealedRun === snapshot.runId,
     isStatic = snapshot === session.getServerSnapshot().accepted;
+  // Earned per snapshot (am-inst-execution-labels-5ywv), and checked against the output contracts
+  // and the example's source digest: the badge said the right words, but the lab root carried no
+  // label at all.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(view, BM07_OUTPUTS, example.sourceDigest, isStatic).label,
+  );
   useEffect(() => {
     setReady(true);
     const shared = decodeBm07Settings(window.location.search);
@@ -180,6 +193,7 @@ export function InferenceLab({
       aria-labelledby={`${id}-title`}
       data-instrument-id="bm-07"
       {...identity(snapshot)}
+      {...executionLabelAttributes(executionKind)}
       data-pending={String(view.pending)}
       data-radius-known={String(p.radiusKnown)}
       data-estimator={p.estimator}
@@ -195,7 +209,9 @@ export function InferenceLab({
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
         <span className="badge">
-          {isStatic ? "Static worked example" : "Synthetic recovery · host calculation"}
+          {executionKind === "host-accepted"
+            ? "Synthetic recovery · host calculation"
+            : executionLabelFor(executionKind).text}
         </span>
       </header>
       <noscript>
