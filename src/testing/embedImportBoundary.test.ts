@@ -5,10 +5,17 @@ import { fileURLToPath } from "node:url";
 
 /**
  * am-inst-embed-route-rnyg, section A: an embed must not be able to reach the reader's local data.
- * /embed/* is the one route family anyone may frame, and it is served from the reader's origin, so
- * nothing an embed loads may import the storage layer or the notebook, or touch browser storage
- * itself. Measured when this was written: 320 files reachable from the two embed pages (276 of them
- * code), none of them storage.
+ * /embed/* is the one route family anyone may frame, and it is served from the reader's origin.
+ *
+ * WHAT THIS COVERS, AND WHAT IT DOES NOT. It walks the embed pages' own module graph: no module
+ * reachable from a page.tsx under src/app/embed/ may import the storage layer or the notebook, or
+ * touch browser storage itself. Measured when this was written: 320 files reachable from the two
+ * embed pages (276 of them code), none of them storage. It does NOT cover the root layout, which
+ * every embed also loads. That layout reaches storage today: its three pre-paint scripts read
+ * am:settings:v1:* keys, ThemeToggle reads the theme, and NotebookLauncher reaches
+ * src/reader/notebook/ and src/platform/storage/. On live b73d967a each embed read 8 am: keys on
+ * load, among them am:notebook:v1. So this is the embed pages' half of the boundary, and the
+ * embed is not yet isolated from the reader's data.
  *
  * The walk follows relative imports, static and dynamic (the adapter reaches each laboratory through
  * `import()`), and skips `import type`, which emits no code. Comments are blanked before matching,
@@ -86,7 +93,7 @@ function embedPages(dir = join(ROOT, "src/app/embed/")): string[] {
   });
 }
 
-describe("an embed cannot reach the reader's local data", () => {
+describe("the embed pages' own module graph cannot reach the reader's local data", () => {
   test("the detector finds a real storage import, and blanks a comment that only mentions one", () => {
     // Positive control: the kitchen keeps observations through the storage layer (dbcd3777).
     const kitchen = storageReach(["src/components/lab/kitchen/KitchenLab.tsx"]);
