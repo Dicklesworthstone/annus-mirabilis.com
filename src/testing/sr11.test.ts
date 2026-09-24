@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mirrorFrameLedger, movingMirror } from "../physics/reference/waves.ts";
+import { C_SI, evaluateSr11, mirrorFrameLedger, movingMirror } from "../physics/reference/waves.ts";
 
 describe("SR-11 Reference Physics: Moving Mirror Reflection & Radiation Pressure", () => {
   test("Normal incidence receding mirror at beta = 0.6", () => {
@@ -148,5 +148,28 @@ describe("SR-11 Reference Physics: Moving Mirror Reflection & Radiation Pressure
     // 1.0 - 0.1 - 0.3 = 0.6 != 0
     expect(Math.abs(naiveResidual)).toBeGreaterThan(0.5);
     expect(naiveResidual).toBeCloseTo(0.6, 10);
+  });
+});
+
+describe("SR-11 publishes its powers in watts, with the speed of light in m/s", () => {
+  test("the accepted snapshot's powers carry c = 299 792 458 m/s, not c = 1", () => {
+    // 1 J/m³ meeting a 1 m² mirror receding at 0.6c: the light arrives at (c − v) per second, so
+    // 0.4c joules each second, 1.199 × 10⁸ W. Before the fix the snapshot published 0.4 "W".
+    const snap = evaluateSr11({
+      beta: 0.6,
+      incidentAngleDeg: 0,
+      incidentEnergyDensity: 1,
+      mirrorArea: 1,
+    });
+    const read = (id: string) => {
+      const r = snap.results.find((o) => o.quantityId === id);
+      return r?.status === "value" && typeof r.value === "number" ? r.value : Number.NaN;
+    };
+    expect(read("incidentPower") / C_SI).toBeCloseTo(0.4, 12);
+    expect(read("reflectedPower") / C_SI).toBeCloseTo(0.1, 12);
+    expect(read("workRate") / C_SI).toBeCloseTo(0.3, 12);
+    // The pressure does not involve c and stays 0.5 Pa.
+    expect(read("radiationPressure")).toBeCloseTo(0.5, 12);
+    expect(Math.abs(read("energyBalanceResidual")) / read("incidentPower")).toBeLessThan(1e-12);
   });
 });

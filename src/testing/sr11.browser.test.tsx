@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import MovingMirrorPage from "../app/lab/sr-11/page.tsx";
-import { fixed } from "../components/lab/presentation.ts";
 import { MovingMirrorLab } from "../components/lab/sr11/MovingMirrorLab.tsx";
 import {
   MIRROR_FRAME,
@@ -70,7 +69,8 @@ describe("SR-11 Moving Mirror Lab View & Route (am-sr-11-moving-mirror-wnz1)", (
     const pIncOut = snap?.outputs.find((o) => o.quantityId === "incidentPower");
     expect(pIncOut?.status).toBe("value");
     if (pIncOut?.status === "value" && typeof pIncOut.value === "number") {
-      expect(pIncOut.value).toBeCloseTo(0.4, 6);
+      // Watts at c = 299 792 458 m/s: 0.4c for 1 J/m³ on 1 m² at 0.6c (it was 0.4 with c = 1).
+      expect(pIncOut.value / 299792458).toBeCloseTo(0.4, 12);
     }
   });
 
@@ -113,11 +113,13 @@ describe("SR-11 Moving Mirror Lab View & Route (am-sr-11-moving-mirror-wnz1)", (
         isApplicable
       />,
     );
-    // The ledger prints its powers through fixed(), which drops padded zeros ("1.6 W", not "1.600 W").
-    const inflow = fixed(out("incidentPower") - out("workRate"), 3);
-    const outflow = fixed(out("reflectedPower"), 3);
-    expect(inflow).toBe(outflow);
-    expect(html.split(`${inflow} W`).length - 1).toBe(2);
+    // The ledger prints its powers in watts as powers of ten; inflow and outflow must read the same.
+    const values = [...html.matchAll(/class="sr11-ledger-value">(.*?)<\/span> W<\/span>/gu)].map(
+      (m) => m[1]?.replace(/<[^>]+>/gu, ""),
+    );
+    expect(values.length).toBe(2);
+    expect(values[0]).toBe(values[1]);
+    expect(out("incidentPower") - out("workRate")).toBeCloseTo(out("reflectedPower"), -3);
     expect(html).toContain("work the approaching mirror does on the light");
   });
 });
