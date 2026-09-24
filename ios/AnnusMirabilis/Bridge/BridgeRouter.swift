@@ -66,7 +66,7 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
     /// Accepted by the schema, not yet served by this build: said plainly, never faked.
     private static let unavailable: [String: Any] = ["status": "unavailable"]
 
-    private func handle(_ message: BridgeMessage) -> [String: Any] {
+    func handle(_ message: BridgeMessage) -> [String: Any] {
         let body = message.body
         switch message.type {
         case "hello":

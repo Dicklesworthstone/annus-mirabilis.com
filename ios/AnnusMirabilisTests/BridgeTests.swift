@@ -90,6 +90,36 @@ struct BridgeRouterTests {
     }
 }
 
+@Suite("Bridge handlers")
+@MainActor
+struct BridgeHandlerTests {
+    private func message(_ type: String, _ body: [String: JSONValue]) -> BridgeMessage {
+        BridgeMessage(type: type, body: body)
+    }
+
+    @Test("share.request hands the website URL to the share sheet, and says unavailable with nothing to show it")
+    func share() {
+        let router = BridgeRouter()
+        let url = "https://annus-mirabilis.com/papers/brownian-motion/#s4"
+        #expect(router.handle(message("share.request", ["url": .string(url)]))["status"] as? String == "unavailable")
+        var shared: [URL] = []
+        router.onShare = { shared.append($0) }
+        #expect(router.handle(message("share.request", ["url": .string(url)]))["status"] as? String == "ok")
+        #expect(shared == [URL(string: url)!])
+    }
+
+    @Test("settings.changed passes the theme on; a type this build does not serve says unavailable")
+    func settingsAndUnserved() {
+        let router = BridgeRouter()
+        var themes: [String] = []
+        router.onTheme = { themes.append($0) }
+        #expect(router.handle(message("settings.changed", ["theme": .string("system")]))["status"] as? String == "ok")
+        #expect(themes == ["system"])
+        let print = router.handle(message("print.request", [:]))
+        #expect(print["status"] as? String == "unavailable")
+    }
+}
+
 @Suite("Bridge script integrity")
 struct BridgeScriptTests {
     private func directory(with script: String) throws -> URL {
