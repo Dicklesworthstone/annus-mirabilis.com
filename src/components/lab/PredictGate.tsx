@@ -146,6 +146,7 @@ export function PredictGatePanels({ gate }: Readonly<{ gate: PredictGateState }>
           record={gate.records.get(prompt.promptId) ?? beginPrompt(prompt.promptId)}
           forms={["candidate"]}
           resultShown
+          describeCandidates={false}
           onRecord={(choice) => gate.record(prompt.promptId, choice)}
           onKeepToSelf={() => gate.keep(prompt.promptId)}
           onSkip={() => gate.skip(prompt.promptId)}

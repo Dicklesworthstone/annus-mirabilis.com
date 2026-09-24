@@ -82,6 +82,7 @@ export function PredictPanel({
   forms = ALL_FORMS,
   resultShown = false,
   reasoningHref,
+  describeCandidates = true,
 }: {
   prompt: PredictPanelPrompt;
   record: PredictPromptRecord;
@@ -95,6 +96,12 @@ export function PredictPanel({
   resultShown?: boolean;
   /** Where "Show me the reasoning" goes; no link without one. */
   reasoningHref?: string;
+  /**
+   * False draws each candidate by its label alone. A manifest's candidate descriptions give each
+   * candidate's reasoning ("Because the moving frame cuts simultaneous slices ... = 2.0"), which
+   * names the supported one before the reader has chosen.
+   */
+  describeCandidates?: boolean;
 }) {
   const [activeTab, setActiveTab] = useState<PredictionFormTab>(forms[0] ?? "candidate");
   const offers = (tab: PredictionFormTab) => forms.includes(tab);
@@ -273,7 +280,9 @@ export function PredictPanel({
                 checked={chosenId === candidate.id}
                 onChange={() => onRecord({ form: "candidate", candidateId: candidate.id })}
               />{" "}
-              {candidate.label}: {candidate.description}
+              {describeCandidates
+                ? `${candidate.label}: ${candidate.description}`
+                : candidate.label}
             </label>
           ))}
         </fieldset>

@@ -154,6 +154,16 @@ describe("with JavaScript, a first-time reader answers before the result shows",
       });
     });
 
+    test(`${lab}: before the answer each candidate is drawn by its label, never by the reasoning that names the supported one`, async () => {
+      await mounted(element(), async (container) => {
+        const panel = container.querySelector("[data-predict-gate]")?.textContent ?? "";
+        for (const c of prompt?.candidates ?? []) {
+          expect(panel).toContain(c.label);
+          if (!c.label.includes(c.description)) expect(panel).not.toContain(c.description);
+        }
+      });
+    });
+
     test(`${lab}: choosing the supported candidate shows the result, says so, records it, and a shared link carries it`, async () => {
       await mounted(element(), async (container) => {
         const radio = container.querySelector(
