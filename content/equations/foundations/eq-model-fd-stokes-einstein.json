@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-stokes-einstein",
+  "paper": "foundations",
+  "argument": "ratios-scaling",
+  "title": "The diffusion coefficient of a sphere in a liquid",
+  "spoken": "D equals k B T over six pi eta a.",
+  "explanation": "A sphere of radius a in a liquid of viscosity eta at temperature T: doubling the radius or the viscosity halves D.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A sphere much larger than the molecules of the liquid, moving slowly enough for Stokes drag.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-stokes-einstein.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-stokes-einstein.t.d",
+      "quantityId": "diffusionCoefficient"
+    },
+    "right": {
+      "kind": "quotient",
+      "opId": "eq-model-fd-stokes-einstein.op.quotient",
+      "numerator": {
+        "kind": "product",
+        "opId": "eq-model-fd-stokes-einstein.op.thermal",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-stokes-einstein.t.kb",
+            "quantityId": "boltzmannConstant"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-stokes-einstein.t.temp",
+            "quantityId": "temperature"
+          }
+        ]
+      },
+      "denominator": {
+        "kind": "product",
+        "opId": "eq-model-fd-stokes-einstein.op.drag",
+        "args": [
+          {
+            "kind": "number",
+            "value": "6"
+          },
+          {
+            "kind": "constant",
+            "name": "pi"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-stokes-einstein.t.eta",
+            "quantityId": "viscosity"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-stokes-einstein.t.a",
+            "quantityId": "particleRadius"
+          }
+        ]
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-stokes-einstein.op.relation",
+      "title": "What it asserts",
+      "explanation": "The diffusion coefficient is the thermal energy divided by the drag per unit speed.",
+      "foundation": "ratios-scaling"
+    },
+    {
+      "nodeId": "eq-model-fd-stokes-einstein.op.quotient",
+      "title": "Thermal energy over drag",
+      "explanation": "A larger drag in the denominator means a smaller D.",
+      "foundation": "ratios-scaling"
+    },
+    {
+      "nodeId": "eq-model-fd-stokes-einstein.op.thermal",
+      "title": "k B T",
+      "explanation": "The thermal energy scale at temperature T.",
+      "foundation": "ratios-scaling"
+    },
+    {
+      "nodeId": "eq-model-fd-stokes-einstein.op.drag",
+      "title": "Six pi eta a",
+      "explanation": "Stokes drag per unit speed on a sphere of radius a.",
+      "foundation": "ratios-scaling"
+    },
+    {
+      "nodeId": "eq-model-fd-stokes-einstein.t.d",
+      "title": "Diffusion coefficient",
+      "explanation": "D, in square metres per second.",
+      "foundation": "ratios-scaling"
+    },
+    {
+      "nodeId": "eq-model-fd-stokes-einstein.t.kb",
+      "title": "Boltzmann constant",
+      "explanation": "k B, joules per kelvin.",
+      "foundation": "ratios-scaling"
+    },
+    {
+      "nodeId": "eq-model-fd-stokes-einstein.t.temp",
+      "title": "Temperature",
+      "explanation": "T, in kelvins.",
+      "foundation": "ratios-scaling"
+    },
+    {
+      "nodeId": "eq-model-fd-stokes-einstein.t.eta",
+      "title": "Viscosity",
+      "explanation": "eta, the liquid viscosity in pascal-seconds. Einstein writes it k.",
+      "foundation": "ratios-scaling"
+    },
+    {
+      "nodeId": "eq-model-fd-stokes-einstein.t.a",
+      "title": "Radius",
+      "explanation": "a, the radius of the sphere. Einstein writes it P.",
+      "foundation": "ratios-scaling"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The diffusion coefficient",
+      "nodeId": "eq-model-fd-stokes-einstein.t.d"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "the thermal energy",
+      "nodeId": "eq-model-fd-stokes-einstein.op.thermal"
+    },
+    {
+      "text": " divided by "
+    },
+    {
+      "text": "the sphere's drag per unit speed",
+      "nodeId": "eq-model-fd-stokes-einstein.op.drag"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

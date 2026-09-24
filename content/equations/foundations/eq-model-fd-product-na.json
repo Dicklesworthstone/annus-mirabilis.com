@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-product-na",
+  "paper": "foundations",
+  "argument": "two-measurements-two-unknowns",
+  "title": "One measured D fixes only the product N a",
+  "spoken": "N a equals R T over six pi eta D.",
+  "explanation": "Rearranging the Brownian relation shows that a measured D, at a known temperature and viscosity, fixes the product of the molecular number and the radius, not each of them.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "The Brownian paper's relation for a sphere in a dilute suspension.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-product-na.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "product",
+      "opId": "eq-model-fd-product-na.op.pair",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-product-na.t.n",
+          "quantityId": "avogadroConstant"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-product-na.t.a",
+          "quantityId": "particleRadius"
+        }
+      ]
+    },
+    "right": {
+      "kind": "quotient",
+      "opId": "eq-model-fd-product-na.op.quotient",
+      "numerator": {
+        "kind": "product",
+        "opId": "eq-model-fd-product-na.op.gas",
+        "args": [
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-product-na.t.r",
+            "quantityId": "molarGasConstant"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-product-na.t.temp",
+            "quantityId": "temperature"
+          }
+        ]
+      },
+      "denominator": {
+        "kind": "product",
+        "opId": "eq-model-fd-product-na.op.measured",
+        "args": [
+          {
+            "kind": "number",
+            "value": "6"
+          },
+          {
+            "kind": "constant",
+            "name": "pi"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-product-na.t.eta",
+            "quantityId": "viscosity"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-product-na.t.d",
+            "quantityId": "diffusionCoefficient"
+          }
+        ]
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-product-na.op.relation",
+      "title": "What it asserts",
+      "explanation": "Everything on the right is known or measured, so the product on the left is fixed.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-product-na.op.pair",
+      "title": "N times a",
+      "explanation": "Only this product is fixed: double a and halve N and it is unchanged.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-product-na.op.quotient",
+      "title": "Known over measured",
+      "explanation": "The gas constant and temperature over the viscosity and measured D.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-product-na.op.gas",
+      "title": "R T",
+      "explanation": "The gas constant times the temperature.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-product-na.op.measured",
+      "title": "Six pi eta D",
+      "explanation": "The viscosity and the measured diffusion coefficient.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-product-na.t.n",
+      "title": "Molecular number",
+      "explanation": "N, molecules per mole.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-product-na.t.a",
+      "title": "Radius",
+      "explanation": "a, the radius of the suspended sphere.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-product-na.t.r",
+      "title": "Gas constant",
+      "explanation": "R, per mole per kelvin.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-product-na.t.temp",
+      "title": "Temperature",
+      "explanation": "T, in kelvins.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-product-na.t.eta",
+      "title": "Viscosity",
+      "explanation": "eta, in pascal-seconds.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-product-na.t.d",
+      "title": "Diffusion coefficient",
+      "explanation": "D, measured from the spreading.",
+      "foundation": "two-measurements-two-unknowns"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The molecular number",
+      "nodeId": "eq-model-fd-product-na.t.n"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the radius",
+      "nodeId": "eq-model-fd-product-na.t.a"
+    },
+    {
+      "text": " is fixed by "
+    },
+    {
+      "text": "the gas constant and the temperature",
+      "nodeId": "eq-model-fd-product-na.op.gas"
+    },
+    {
+      "text": " over "
+    },
+    {
+      "text": "the viscosity and the measured D",
+      "nodeId": "eq-model-fd-product-na.op.measured"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

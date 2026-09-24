@@ -84,6 +84,10 @@ export const FOUNDATION_QUANTITIES: QuantityRegistry = Object.freeze(
       }),
       // Derivatives: the Brownian paper's section 4 concentration, and the difference quotient.
       pick(BROWNIAN_QUANTITIES, "diffusionCoefficient"),
+      pick(BROWNIAN_QUANTITIES, "rmsDisplacement1d"),
+      pick(BROWNIAN_QUANTITIES, "boltzmannConstant"),
+      pick(BROWNIAN_QUANTITIES, "viscosity"),
+      pick(BROWNIAN_QUANTITIES, "particleRadius"),
       pick(BROWNIAN_QUANTITIES, "positionCoordinate1d", {
         definition: "Position along x.",
       }),

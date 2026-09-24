@@ -14,7 +14,8 @@
     {
       "kind": "formula",
       "latex": "N a = \\frac{RT}{6\\pi\\eta D}",
-      "spoken": "N times a equals R T divided by six pi eta D."
+      "spoken": "N times a equals R T divided by six pi eta D.",
+      "equations": ["eq-model-fd-product-na"]
     },
     {
       "kind": "paragraph",

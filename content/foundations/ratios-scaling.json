@@ -18,7 +18,8 @@
     {
       "kind": "formula",
       "latex": "\\lambda_x=\\sqrt{2Dt},\\qquad D=\\frac{k_BT}{6\\pi\\eta a}",
-      "spoken": "lambda x is the square root of 2 D t, and D is k B T over six pi eta a."
+      "spoken": "lambda x is the square root of 2 D t, and D is k B T over six pi eta a.",
+      "equations": ["eq-model-fd-spread-root-time", "eq-model-fd-stokes-einstein"]
     },
     {
       "kind": "paragraph",

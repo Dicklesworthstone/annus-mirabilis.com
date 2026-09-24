@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-spread-root-time",
+  "paper": "foundations",
+  "argument": "ratios-scaling",
+  "title": "The spread grows as the square root of 2Dt",
+  "spoken": "Lambda x equals the square root of two D t.",
+  "explanation": "The spread of a diffusing particle along one line after a time t: doubling the time multiplies it by the square root of two, not by two.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "Free diffusion along one line, starting from a known position.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-spread-root-time.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-spread-root-time.t.spread",
+      "quantityId": "rmsDisplacement1d"
+    },
+    "right": {
+      "kind": "root",
+      "opId": "eq-model-fd-spread-root-time.op.root",
+      "degree": 2,
+      "radicand": {
+        "kind": "product",
+        "opId": "eq-model-fd-spread-root-time.op.product",
+        "args": [
+          {
+            "kind": "number",
+            "value": "2"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-spread-root-time.t.d",
+            "quantityId": "diffusionCoefficient"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-spread-root-time.t.time",
+            "quantityId": "elapsedTime"
+          }
+        ]
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-spread-root-time.op.relation",
+      "title": "What it asserts",
+      "explanation": "The spread is fixed by the diffusion coefficient and the time.",
+      "foundation": "ratios-scaling"
+    },
+    {
+      "nodeId": "eq-model-fd-spread-root-time.op.root",
+      "title": "A square root",
+      "explanation": "Because of the root, multiplying the time by k multiplies the spread by the square root of k.",
+      "foundation": "ratios-scaling"
+    },
+    {
+      "nodeId": "eq-model-fd-spread-root-time.op.product",
+      "title": "Two, D and t",
+      "explanation": "The product under the root: twice the diffusion coefficient times the time.",
+      "foundation": "ratios-scaling"
+    },
+    {
+      "nodeId": "eq-model-fd-spread-root-time.t.spread",
+      "title": "The spread",
+      "explanation": "Lambda x, the root-mean-square displacement along one line.",
+      "foundation": "ratios-scaling"
+    },
+    {
+      "nodeId": "eq-model-fd-spread-root-time.t.d",
+      "title": "Diffusion coefficient",
+      "explanation": "D, in square metres per second.",
+      "foundation": "ratios-scaling"
+    },
+    {
+      "nodeId": "eq-model-fd-spread-root-time.t.time",
+      "title": "Time",
+      "explanation": "t, the time since the particle was at its starting point.",
+      "foundation": "ratios-scaling"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The spread",
+      "nodeId": "eq-model-fd-spread-root-time.t.spread"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "the square root",
+      "nodeId": "eq-model-fd-spread-root-time.op.root"
+    },
+    {
+      "text": " of twice "
+    },
+    {
+      "text": "the diffusion coefficient",
+      "nodeId": "eq-model-fd-spread-root-time.t.d"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the time",
+      "nodeId": "eq-model-fd-spread-root-time.t.time"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
