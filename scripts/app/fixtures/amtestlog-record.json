@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-09-24T12:00:00.000Z",
+  "suite": "app-lifecycle",
+  "logRunId": "20260924T120000Z-0a1b2c3d",
+  "testId": "LifecycleUITests.testAKilledWebProcessComesBackToTheSamePassage",
+  "beadId": "am-app-lifecycle-resilience-4dhu",
+  "paper": "brownian-motion",
+  "anchor": "s4",
+  "outcome": "passed",
+  "durationMs": 7432,
+  "browser": "wkwebview",
+  "lane": "default",
+  "message": "the passage came back after the web process ended",
+  "extra": {
+    "device": "iPhone",
+    "osVersion": "26.1",
+    "appVersion": "1.0",
+    "appBuild": "1",
+    "webProcessTerminations": 1
+  }
+}

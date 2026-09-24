@@ -46,6 +46,7 @@ import {
   rasterize,
 } from "./generate-app-icon.ts";
 import { ensureSimulators } from "./simulators.ts";
+import { collectTestRecords, writeTestRecords } from "./test-records.ts";
 import { DERIVED_DATA_PATH, isInsideRepository } from "./xcode.ts";
 
 export { APPLE_STEPS, type AppleStepId } from "./apple-steps.ts";
@@ -248,8 +249,18 @@ const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const IOS = join(REPO, "ios");
 const DEVICE = process.env.AM_APPLE_DEVICE ?? "AM iPhone 17";
 
-function run(command: string, args: readonly string[], cwd = REPO) {
-  const result = spawnSync(command, args, { cwd, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
+function run(
+  command: string,
+  args: readonly string[],
+  cwd = REPO,
+  env?: Readonly<Record<string, string>>,
+) {
+  const result = spawnSync(command, args, {
+    cwd,
+    encoding: "utf8",
+    maxBuffer: 256 * 1024 * 1024,
+    env: env === undefined ? process.env : { ...process.env, ...env },
+  });
   return {
     status: result.status,
     output: `${result.stdout ?? ""}${result.stderr ?? ""}`,
@@ -289,10 +300,12 @@ function runTests(
   extra: readonly string[],
 ): StepVerdict {
   const bundle = join(DERIVED_DATA_PATH, "Results", `${logRunId}-${target}.xcresult`);
+  // The runner sees TEST_RUNNER_-prefixed variables without the prefix: AMTestLog reads AM_LOG_RUN_ID.
   const test = run(
     "xcodebuild",
     xcodebuildArgs(["test-without-building", `-only-testing:${target}`, ...extra], bundle),
     IOS,
+    { TEST_RUNNER_AM_LOG_RUN_ID: logRunId },
   );
   const summaryRun = run("xcrun", [
     "xcresulttool",
@@ -309,7 +322,16 @@ function runTests(
   } catch {
     summary = null;
   }
-  const verdict = testVerdict(label, test.status, summary);
+  const counted = testVerdict(label, test.status, summary);
+  const records = collectRecords(bundle, `${logRunId}-${target}`);
+  const verdict: StepVerdict =
+    records.invalid.length > 0
+      ? {
+          ...counted,
+          outcome: "failed",
+          message: `${counted.message} ${records.invalid.length} test record(s) fail the shared log schema, first: ${records.invalid[0]}`,
+        }
+      : { ...counted, message: `${counted.message} ${records.summary}` };
   return {
     ...verdict,
     details: {
@@ -317,6 +339,36 @@ function runTests(
       xcresultPath: bundle,
       ...(verdict.outcome === "failed" ? { lastOutput: lastLines(test.output, 200) } : {}),
     },
+  };
+}
+
+/**
+ * The tests' AMTestLog records (bead am-app-test-harness-da6e): exported from the .xcresult,
+ * validated with the web's own schema, appended to artifacts/test-logs/<suite>/<logRunId>.jsonl.
+ */
+function collectRecords(bundle: string, name: string): { invalid: string[]; summary: string } {
+  const dir = join(DERIVED_DATA_PATH, "Results", `${name}-attachments`);
+  mkdirSync(dir, { recursive: true });
+  const exported = run("xcrun", [
+    "xcresulttool",
+    "export",
+    "attachments",
+    "--path",
+    bundle,
+    "--output-path",
+    dir,
+  ]);
+  if (exported.status !== 0 || !existsSync(join(dir, "manifest.json"))) {
+    return {
+      invalid: [`attachments could not be exported (xcresulttool exit ${exported.status})`],
+      summary: "",
+    };
+  }
+  const { records, invalid } = collectTestRecords(dir);
+  const files = writeTestRecords(REPO, records);
+  return {
+    invalid: invalid.map((entry) => `${entry.attachment}: ${entry.reason}`),
+    summary: `${records.length} test record(s)${files.length > 0 ? ` in ${files.join(", ")}` : ""}.`,
   };
 }
 
