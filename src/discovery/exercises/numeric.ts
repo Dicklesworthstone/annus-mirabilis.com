@@ -87,7 +87,7 @@ export function referenceFromEvaluation(
   result: Readonly<{
     status: string;
     value?: unknown;
-    quantityId?: string;
+    quantityId?: string | undefined;
     representation?: unknown;
   }>,
   context: Readonly<{ constantSetId: string; owner: string; exerciseId: string }>,
@@ -216,6 +216,20 @@ export function checkNumericAnswer(
     return { kind: "agrees", segments, message: said(segments) };
   }
   const ratio = si / reference;
+  // The number that would be right in another accepted unit: the ratio is exactly the step
+  // between the two units. That diagnosis is certain and has one fix, so it comes before slips.
+  const meant = part.units.find(
+    (other) =>
+      other !== unit &&
+      withinTolerance(ratio, convertValue(1, unit, other), { relative: part.tolerance.relative })
+        .ok,
+  );
+  if (meant) {
+    const segments = [
+      `Your number would agree in ${unitLabel(meant)}, not ${unitLabel(unit)}: choose ${unitLabel(meant)}, or convert the number.`,
+    ];
+    return { kind: "differs", ratio, segments, message: said(segments) };
+  }
   const slip = (part.commonSlips ?? []).find(
     (s) => withinTolerance(ratio, s.factor, { relative: part.tolerance.relative }).ok,
   );

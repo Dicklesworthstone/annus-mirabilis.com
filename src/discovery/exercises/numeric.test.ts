@@ -55,10 +55,12 @@ describe("units are converted before comparison", () => {
     expect(checkNumericAnswer(THRESHOLD, "4.836e14", "Hz").kind).toBe("agrees");
   });
 
-  test("the same number in the wrong unit does not agree, and is told the factor in words", () => {
+  test("the same number in the wrong unit does not agree, and is told which unit it fits", () => {
     const verdict = checkNumericAnswer(THRESHOLD, "483.6", "Hz");
     expect(verdict.kind).toBe("differs");
-    expect(verdict.message).toContain("about a trillionth");
+    expect(verdict.message).toBe(
+      "Your number would agree in THz, not Hz: choose THz, or convert the number.",
+    );
   });
 
   test("0.79 μm, Einstein's 0.8 μm, 794.8 nm and 7.9e-7 m all agree", () => {
@@ -109,7 +111,7 @@ describe("a declared common slip produces its hint, and only its hint", () => {
 
 describe("a miss is described by its size, never judged", () => {
   const cases = [
-    ["0.79", "m", "Your value is about a million times the reference."],
+    ["7.9e5", "um", "Your value is about a million times the reference."],
     ["0.00079", "um", "Your value is about a thousandth of the reference."],
     ["-0.79", "um", "Your value has the opposite sign to the reference."],
     ["0", "um", "Your value is zero, and the reference is not."],
@@ -162,6 +164,25 @@ describe("a reference that is not a value fails, with a code, where it is comput
       }
       expect(code).toBe("exercise-reference-not-a-value");
     });
+});
+
+describe("a right number in the wrong unit is told which unit it belongs to", () => {
+  test("0.79 with m chosen would agree in μm; 790 with μm chosen would agree in nm", () => {
+    expect(checkNumericAnswer(LAMBDA, "0.79", "m").message).toBe(
+      "Your number would agree in μm, not m: choose μm, or convert the number.",
+    );
+    expect(checkNumericAnswer(LAMBDA, "794.8", "um").message).toBe(
+      "Your number would agree in nm, not μm: choose nm, or convert the number.",
+    );
+  });
+
+  test("a unit outside the part's list is never suggested", () => {
+    // 7.948e-5 is right in cm, which this part does not accept; typed with m chosen, the ratio is
+    // the m-to-cm step of 100, and the verdict gives the size without naming a unit.
+    const verdict = checkNumericAnswer(LAMBDA, "7.948e-5", "m");
+    expect(verdict.message).not.toContain("would agree in");
+    expect(verdict.message).toStartWith("Your value is about a hundred times the reference.");
+  });
 });
 
 describe("a verdict's segments say the same sentence as its message", () => {
