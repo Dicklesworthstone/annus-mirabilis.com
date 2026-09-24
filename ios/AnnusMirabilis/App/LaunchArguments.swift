@@ -23,6 +23,9 @@
         var uiTest = false
         /// Delays the first page load by three seconds, so a UI test can see what is painted before it.
         var holdLoad = false
+        /// Ends the page's web process once, after the first page reports ready, as the system does
+        /// when it reclaims memory, so a UI test can watch the app bring the passage back.
+        var killWebContentOnceReady = false
 
         enum ParseError: Error, Equatable {
             case missingValue(flag: String)
@@ -54,6 +57,8 @@
                     parsed.uiTest = true
                 case "-AMHoldLoad":
                     parsed.holdLoad = true
+                case "-AMKillWebContentOnceReady":
+                    parsed.killWebContentOnceReady = true
                 default:
                     return .failure(.unknownFlag(flag))
                 }

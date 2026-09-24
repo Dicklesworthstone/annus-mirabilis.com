@@ -80,6 +80,12 @@ struct LaunchArgumentsTests {
         }
     }
 
+    @Test("-AMKillWebContentOnceReady asks for one web process termination, and only when named")
+    func killWebContent() throws {
+        #expect(try LaunchArguments.parse(["-AMKillWebContentOnceReady"]).get().killWebContentOnceReady)
+        #expect(!(try LaunchArguments.parse([]).get().killWebContentOnceReady))
+    }
+
     @Test("the retired reset flag is refused, so no test can ask the app to delete data")
     func resetFlagRetired() {
         #expect(LaunchArguments.parse(["-AMResetLocalData"]) == .failure(.unknownFlag("-AMResetLocalData")))

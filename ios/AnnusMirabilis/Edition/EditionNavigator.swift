@@ -9,6 +9,8 @@ final class EditionNavigator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDo
     private let catalog: EditionCatalog
     /// Receives a file the page saved (its own export of notes, data or a notebook).
     var onSavedFile: ((URL) -> Void)?
+    /// Told when the page's web process ends, to bring the reader back to the same passage.
+    var onWebProcessTerminated: (() -> Void)?
     private var destinations: [ObjectIdentifier: URL] = [:]
 
     init(catalog: EditionCatalog) {
@@ -96,8 +98,12 @@ final class EditionNavigator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDo
     }
 
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
-        // The system reclaimed the page's process; bring back the same page.
-        webView.reload()
+        // The system reclaimed the page's process; bring back the same passage.
+        if let onWebProcessTerminated {
+            onWebProcessTerminated()
+        } else {
+            webView.reload()
+        }
     }
 
     private func follow(_ url: URL, in webView: WKWebView) -> WKNavigationActionPolicy {

@@ -29,6 +29,10 @@ final class EditionSession {
     private(set) var pageTypeSize: Int?
     /// The last website address the app opened in Safari rather than in the edition.
     private(set) var lastSafariLink: URL?
+    /// How often the page's web process has ended and the passage been reloaded.
+    private(set) var webProcessTerminations = 0
+    /// DEBUG UI tests only: the lifecycle events sent to the page, newest last.
+    var deliveredLifecycleEvents: [String] = []
 
     @ObservationIgnored private let store: ReaderLocationStore
     @ObservationIgnored private let navigator: EditionNavigator
@@ -39,6 +43,11 @@ final class EditionSession {
     /// The papers, outlines, Discover routes and instruments the native screens list.
     @ObservationIgnored let nativeCatalog: NativeCatalog?
     @ObservationIgnored private var contentSizeObserver: (any NSObjectProtocol)?
+    @ObservationIgnored var lifecycleObservers: [any NSObjectProtocol] = []
+    #if DEBUG
+        /// UI tests only: end the web process once, after the first page reports ready.
+        @ObservationIgnored var killWebContentOnceReady = false
+    #endif
     /// The last page announced to VoiceOver as a new screen.
     @ObservationIgnored private var announcedRoute: String?
     /// DEBUG UI tests only: the route, and the pasteboard, are exposed for assertions.
@@ -99,6 +108,10 @@ final class EditionSession {
         navigator.onSavedFile = { [weak self] file in
             self?.presentShareSheet(for: file)
         }
+        navigator.onWebProcessTerminated = { [weak self] in
+            self?.recoverFromTermination()
+        }
+        observeLifecycle()
         router.onTheme = { [weak self] theme in
             self?.didReceiveTheme(theme)
         }
@@ -126,12 +139,21 @@ final class EditionSession {
         }
         typeSize = size
         installUserScripts()
-        guard bridgeInstalled else { return }
-        Task { [webView] in
-            // The one fixed entry point for native events (App plan §7.2), called with arguments.
-            _ = try? await webView.callAsyncJavaScript(
-                "window.__AM_APP__ && window.__AM_APP__.dispatch(name, payload)",
-                arguments: ["name": "settings.changed", "payload": ["typeSize": size]], in: nil, contentWorld: .page)
+        Task { await dispatchToPage("settings.changed", ["typeSize": size]) }
+    }
+
+    /// The page's web process ended: the system reclaimed it, or it crashed. The page is gone and has
+    /// not reported, so its route is cleared, and the reader goes back to the passage they were on,
+    /// anchor and all (bead am-app-lifecycle-resilience-4dhu, requirement 4).
+    func recoverFromTermination() {
+        webProcessTerminations += 1
+        bridgeRoute = nil
+        announcedRoute = nil
+        if exposesRouteForTests { webView.accessibilityValue = nil }
+        if let passage = store.load()?.url(in: catalog) {
+            load(passage)
+        } else {
+            webView.reload()
         }
     }
 
@@ -254,6 +276,12 @@ final class EditionSession {
                 UIAccessibility.post(notification: .screenChanged, argument: webView)
             }
         }
+        #if DEBUG
+            if killWebContentOnceReady {
+                killWebContentOnceReady = false
+                debugTerminateWebContent()
+            }
+        #endif
     }
 
     /// The reader's data as the app holds it; nil when this build has no store or registry.

@@ -27,6 +27,7 @@ enum EditionStore {
         var launchURL: URL?
         var holdLoad = false
         var siteLink: URL?
+        var killWebContent = false
         #if DEBUG
             if case .success(let launch) = LaunchArguments.parse(arguments) {
                 if let suite = launch.stateSuite, let isolated = UserDefaults(suiteName: suite) {
@@ -38,6 +39,7 @@ enum EditionStore {
                 launchURL = launch.openRoute.flatMap { EditionCatalog.url(route: $0, anchor: launch.openAnchor) }
                 holdLoad = launch.holdLoad
                 siteLink = launch.openSiteURL
+                killWebContent = launch.killWebContentOnceReady
             }
         #endif
         let store = ReaderLocationStore(defaults: defaults)
@@ -46,6 +48,9 @@ enum EditionStore {
             catalog: catalog, store: store, exposesRouteForTests: exposesRoute, ephemeralWebStorage: ephemeral,
             readerData: readerData, themeStore: PageThemeStore(defaults: defaults),
             contentSize: UIApplication.shared.preferredContentSizeCategory)
+        #if DEBUG
+            session.killWebContentOnceReady = killWebContent
+        #endif
         if holdLoad {
             Task { @MainActor in
                 try? await Task.sleep(for: .seconds(3))
@@ -107,11 +112,16 @@ struct RootView: View {
                                 DebugProbe(text: session.pageTypeSize.map(String.init) ?? "none", id: "debug-type-size")
                                 DebugProbe(
                                     text: session.lastSafariLink?.absoluteString ?? "none", id: "debug-safari-link")
+                                DebugProbe(text: String(session.webProcessTerminations), id: "debug-web-terminations")
+                                DebugProbe(
+                                    text: session.deliveredLifecycleEvents.joined(separator: ", "),
+                                    id: "debug-lifecycle")
                             }
                         #endif
                     }
                     .onChange(of: scenePhase, initial: true) { _, phase in
                         if phase == .active { session.handoff.becomeCurrent() }
+                        session.sceneDidChange(phase)
                     }
             } else if unavailable {
                 EditionUnavailableView()
