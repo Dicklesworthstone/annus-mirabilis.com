@@ -5,7 +5,7 @@ import "../../discovery/tours/tours.css";
 export const metadata: Metadata = {
   title: "Guided reading paths",
   description:
-    "Follow a question through the paper, its experiments and its assumptions, at your own pace.",
+    "Guided paths that follow one question from a first encounter, through the instruments, back to the paper it comes from.",
   alternates: { canonical: "/tours/" },
 };
 

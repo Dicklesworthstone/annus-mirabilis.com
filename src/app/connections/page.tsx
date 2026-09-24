@@ -4,7 +4,7 @@ import { ConnectionMap } from "./ConnectionMap.tsx";
 export const metadata: Metadata = {
   title: "Connections among the four papers",
   description:
-    "Follow the light thread, the energy transformation that joins relativity to mass–energy, and the shared use of counting in the light and Brownian papers.",
+    "Where the four papers meet: a result the mass-energy paper takes from relativity, two routes to one molecular number, a way of counting shared by the light and Brownian papers, and a link drawn only later.",
   alternates: { canonical: "/connections/" },
 };
 

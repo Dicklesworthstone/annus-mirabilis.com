@@ -7,7 +7,7 @@ import "../../components/home/wideProse.css";
 export const metadata: Metadata = {
   title: "Chapters to read offline",
   description:
-    "Download a self-contained explanation chapter with its foundations and source references.",
+    "Each explained section as one HTML file that opens without a connection, with the lessons it links to and its source references.",
 };
 
 export default async function OfflinePage() {
