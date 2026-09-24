@@ -85,3 +85,28 @@
 .sources-cite {
   overflow-wrap: anywhere;
 }
+/* One paper's receipt (/sources/[paper]/): the page map as a compact table, three short columns
+   that fit a phone without scrolling. */
+.receipt-pages {
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+}
+.receipt-pages th,
+.receipt-pages td {
+  padding: 0.35rem 1.25rem 0.35rem 0;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+.receipt-pages th {
+  color: var(--muted);
+  font-weight: 500;
+}
+.receipt-witnesses {
+  padding-left: 1.1rem;
+}
+.receipt-witnesses > li {
+  margin-bottom: 0.6rem;
+  overflow-wrap: anywhere;
+}

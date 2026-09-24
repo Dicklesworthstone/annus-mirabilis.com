@@ -8,6 +8,7 @@ import type { PaperDate, RightsStatus } from "../../content/provenance/receiptSc
 import { receiptToSourceAsset } from "../../content/provenance/receiptToSourceAsset.ts";
 import { citationOf } from "./citation.ts";
 import { assertServedDigest, requireReceipt, rightsWordsFor } from "./refusals.ts";
+import { TRANSCRIPTION_WORDS, transcriptionOf } from "./transcription.ts";
 import "./sources.css";
 
 export const metadata: Metadata = {
@@ -90,22 +91,6 @@ function formatBytes(bytes: number): string {
     : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-type Transcription = "reviewed" | "draft" | "none";
-
-function transcriptionOf(key: string): Transcription {
-  const dir = join(process.cwd(), "public", "papers", "transcripts");
-  if (existsSync(join(dir, `${key}-reviewed.txt`))) return "reviewed";
-  if (existsSync(join(dir, `${key}-machine-draft.txt`))) return "draft";
-  return "none";
-}
-
-const TRANSCRIPTION_WORDS: Readonly<Record<Transcription, string>> = {
-  reviewed: "Transcribed and reviewed against the page images.",
-  draft:
-    "Transcribed in draft: read by machine and corrected by hand against the page images, not yet reviewed by a second reader.",
-  none: "Not yet transcribed.",
-};
-
 /**
  * One entry per provenance receipt, read at build time. The digest is recomputed from the file this
  * site serves, and a file that no longer matches its receipt stops the build: the page states the
@@ -134,6 +119,7 @@ function loadScans() {
       const published = fm.paper.dates.find((d) => d.type === "issue-publication")?.iso ?? "";
       return {
         key,
+        slug: fm.slug,
         name: shortNames.get(key) ?? COMPANION_NAMES[key] ?? fm.paper.titleGerman,
         titleGerman: fm.paper.titleGerman,
         journal: fm.paper.journal,
@@ -285,12 +271,16 @@ export default function SourcesPage() {
                   <dd className="sources-cite">{scan.citation}</dd>
                 </div>
               </dl>
-              {scan.download ? (
-                <p className="sources-download">
-                  <a href={scan.download.href}>Download the scan</a>{" "}
-                  <span className="fine">PDF, {formatBytes(scan.download.bytes)}</span>
-                </p>
-              ) : null}
+              <p className="sources-download">
+                <a href={`/sources/${scan.slug}/`}>The full receipt</a>
+                {scan.download ? (
+                  <>
+                    {" "}
+                    &middot; <a href={scan.download.href}>Download the scan</a>{" "}
+                    <span className="fine">PDF, {formatBytes(scan.download.bytes)}</span>
+                  </>
+                ) : null}
+              </p>
             </li>
           ))}
         </ol>
