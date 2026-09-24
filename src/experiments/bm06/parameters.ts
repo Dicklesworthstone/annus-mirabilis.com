@@ -3,6 +3,18 @@ import { makeRefusal } from "../results/refusals.ts";
 import { BM06_DEFAULTS, type Bm06Parameters } from "./definition.ts";
 
 const keys = Object.keys(BM06_DEFAULTS);
+/** What each numeric control is called on the page (bm06/controls.ts BM06_FIELDS), with its unit. */
+const BM06_FIELD_NAMES: Partial<Record<string, string>> = {
+  T: "the temperature, in K,",
+  eta: "the viscosity, in mPa·s,",
+  a: "the particle radius, in μm,",
+  t: "the elapsed time, in seconds,",
+  lower: "the lower interval endpoint, in μm,",
+  upper: "the upper interval endpoint, in μm,",
+  n: "the number of grid cells",
+  dx: "the cell width, in μm,",
+  steps: "the number of time steps",
+};
 function refused(parameterIds: readonly string[], requirements: string): Computation<never> {
   return {
     kind: "refused",
@@ -37,14 +49,25 @@ export function validateBm06Parameters(input: unknown): Computation<Bm06Paramete
     } else if (stringKeys.has(key)) {
       if (typeof record[key] !== "string") return refused([key], "This setting must be text.");
     } else if (typeof record[key] !== "number" || !Number.isFinite(record[key]))
-      return { kind: "refused", refusal: makeRefusal("nonfinite-input", { parameterIds: [key] }) };
+      return {
+        kind: "refused",
+        refusal: makeRefusal(
+          "nonfinite-input",
+          { parameterIds: [key] },
+          {
+            details: {
+              requirements: `Enter ${BM06_FIELD_NAMES[key] ?? "this value"} as a number.`,
+            },
+          },
+        ),
+      };
   }
   const p = record as Bm06Parameters;
-  if (p.T <= 0 || p.eta <= 0 || p.a <= 0 || p.dx <= 0 || p.t < 0)
-    return refused(
-      ["T", "eta", "a", "t", "dx"],
-      "Temperature, viscosity, radius and cell width must be positive; elapsed time can be zero.",
-    );
+  if (p.T <= 0) return refused(["T"], "Enter a temperature above 0 K.");
+  if (p.eta <= 0) return refused(["eta"], "Enter a viscosity greater than zero, in mPa·s.");
+  if (p.a <= 0) return refused(["a"], "Enter a particle radius greater than zero, in μm.");
+  if (p.dx <= 0) return refused(["dx"], "Enter a cell width greater than zero, in μm.");
+  if (p.t < 0) return refused(["t"], "Enter an elapsed time of zero or more, in seconds.");
   const copyFields = [
     "copiedDiffusivityInstanceId",
     "copiedDiffusivityRunId",
@@ -74,17 +97,12 @@ export function validateBm06Parameters(input: unknown): Computation<Bm06Paramete
       ["lower", "upper"],
       "The lower interval endpoint must not exceed the upper endpoint.",
     );
-  if (
-    !Number.isSafeInteger(p.n) ||
-    p.n < 3 ||
-    p.n > 4097 ||
-    !Number.isSafeInteger(p.steps) ||
-    p.steps < 1 ||
-    p.steps > 4_000_000
-  )
+  if (!Number.isSafeInteger(p.n) || p.n < 3 || p.n > 4097)
+    return refused(["n"], "Enter a whole number of grid cells from 3 to 4097.");
+  if (!Number.isSafeInteger(p.steps) || p.steps < 1 || p.steps > 4_000_000)
     return refused(
-      ["n", "steps"],
-      "Use 3–4097 cells and 1–4000000 whole time steps. The total work budget applies separately.",
+      ["steps"],
+      "Enter a whole number of time steps from 1 to 4 000 000. The total work budget applies separately.",
     );
   return { kind: "accepted", data: Object.freeze({ ...p }) };
 }
