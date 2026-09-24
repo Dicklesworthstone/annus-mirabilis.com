@@ -47,7 +47,7 @@ import type { RouteSlug } from "../ids.ts";
 import { parseReceipt } from "../provenance/parseReceipt.ts";
 import { type SourceFaceNotice, sourceFaceNotice } from "../provenance/sourceFaceNotice.ts";
 import { parseYaml } from "../provenance/yaml.ts";
-import { type BlockPages, blockStartPages } from "./blockPages.ts";
+import { type BlockPages, blockStartPages, storedDisplayPages } from "./blockPages.ts";
 import {
   foldFootnoteRuns,
   type JoinedBlock,
@@ -87,22 +87,36 @@ export class GermanSourceFaceError extends Error {
  * nobody should paper over with the same sentence.
  */
 /**
- * The frozen manifest's units in printed order, id and kind only, or none when the paper has no
- * manifest; with none, joinAfterDisplays joins nothing.
+ * The frozen manifest's units in printed order (id, kind, container, section and first printed
+ * page), or none when the paper has no manifest; with none, joinAfterDisplays joins nothing and
+ * every display's page is found in the ledger.
  */
-function printedUnits(root: string, slug: RouteSlug): readonly ManifestUnit[] {
+export function printedUnits(root: string, slug: RouteSlug): readonly ManifestUnit[] {
   const path = join(root, "content", "source-blocks", slug, "manifest.yaml");
   if (!existsSync(path)) return [];
   const units = (parseYaml(readFileSync(path, "utf8")) as { units?: unknown } | null)?.units;
   if (!Array.isArray(units)) return [];
   return units.flatMap((unit): ManifestUnit[] => {
-    const { id, kind, containedIn } = (unit ?? {}) as {
+    const { id, kind, containedIn, section, locators } = (unit ?? {}) as {
       id?: unknown;
       kind?: unknown;
       containedIn?: unknown;
+      section?: unknown;
+      locators?: unknown;
     };
     if (typeof id !== "string" || typeof kind !== "string") return [];
-    return [{ id, kind, ...(typeof containedIn === "string" ? { containedIn } : {}) }];
+    const page = Array.isArray(locators)
+      ? (locators[0] as { page?: unknown } | undefined)?.page
+      : undefined;
+    return [
+      {
+        id,
+        kind,
+        ...(typeof containedIn === "string" ? { containedIn } : {}),
+        ...(typeof section === "string" ? { section } : {}),
+        ...(typeof page === "number" ? { page } : {}),
+      },
+    ];
   });
 }
 
@@ -160,9 +174,10 @@ export function loadGermanSourceFace(
   // A printed paragraph is one paragraph here, and no id moves (joinContinuations.ts): a
   // footnote's run-on lines go back into the footnote, then paragraphs join where a page broke
   // them and where the print runs on after a display, which only the plate-read manifest records.
+  const units = printedUnits(root, slug);
   const blocks = joinAfterDisplays(
     joinPageContinuations(foldFootnoteRuns(segmented.blocks, ledgerText)),
-    printedUnits(root, slug),
+    units,
   ).blocks;
 
   return {
@@ -170,6 +185,7 @@ export function loadGermanSourceFace(
     bibKey,
     notice,
     blocks,
-    printedPages: blockStartPages(ledgerText, blocks),
+    // A display's page is the one the manifest stores for it, read from the plates.
+    printedPages: blockStartPages(ledgerText, blocks, storedDisplayPages(blocks, units)),
   };
 }

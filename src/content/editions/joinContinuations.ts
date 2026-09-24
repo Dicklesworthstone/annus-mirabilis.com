@@ -129,8 +129,17 @@ export function joinPageContinuations(blocks: readonly ProposedBlock[]): readonl
  * Ids are kept as the page join keeps them: survivors keep theirs, the continuation's is retired
  * and anchored where its words begin.
  */
-/** A manifest unit, as much as the alignment needs: a display names the unit that prints it. */
-export type ManifestUnit = Readonly<{ id: string; kind: string; containedIn?: string | undefined }>;
+/**
+ * A manifest unit, as much as the alignments need: a display names the unit that prints it, and
+ * `page` is the first printed page its locators give (blockPages.ts storedDisplayPages).
+ */
+export type ManifestUnit = Readonly<{
+  id: string;
+  kind: string;
+  containedIn?: string | undefined;
+  section?: string | undefined;
+  page?: number | undefined;
+}>;
 
 type Token = Readonly<{ kind: "P" | "E" | "H"; block?: number }>;
 
