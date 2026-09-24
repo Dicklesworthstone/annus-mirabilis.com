@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
 import { INLINE_SCRIPT_REGISTRY } from "../app/inline-scripts/registry.ts";
-import { GET } from "../app/offline/[paper]/[file]/route.ts";
+import { GET } from "../app/offline/[paper]/[file]/index.html/route.ts";
 import { chapterFixture } from "../platform/offline/chapter.test.mjs";
 import {
   collectChapterFoundations,
@@ -46,8 +46,9 @@ describe("buildOfflineChapters: packaging, inlining, and reproducibility", () =>
       expect(entry!.bytes).toBe(actualBytes);
       expect(chapter!.entry.bytes).toBe(actualBytes);
 
+      // The route's segment is the name without ".html": each chapter is a directory index.
       const response = await GET(new Request(`https://annus-mirabilis.com${entry!.path}`), {
-        params: Promise.resolve({ paper: entry!.paper, file: fileName }),
+        params: Promise.resolve({ paper: entry!.paper, file: fileName.replace(/\.html$/, "") }),
       });
       expect(response.status).toBe(200);
       expect(response.headers.get("Content-Length")).toBe(String(actualBytes));

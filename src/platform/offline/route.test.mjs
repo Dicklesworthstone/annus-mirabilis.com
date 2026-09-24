@@ -8,7 +8,7 @@ import {
   dynamicParams,
   GET,
   generateStaticParams,
-} from "../../app/offline/[paper]/[file]/route.ts";
+} from "../../app/offline/[paper]/[file]/index.html/route.ts";
 import { offlineDigest } from "./chapter.ts";
 import { publishOfflineChapters } from "./server.ts";
 
@@ -39,7 +39,10 @@ test("static route downloads exact admitted bytes, refuses retained files, and r
     profile: "scaffold",
     chapters: [entry],
   };
-  const params = { paper: entry.paper, file: entry.path.split("/").pop() };
+  // The URL segment is the chapter's name without ".html": each chapter is exported as a
+  // directory index, which static hosts serve at "name/".
+  const fileName = entry.path.split("/").pop();
+  const params = { paper: entry.paper, file: fileName.replace(/\.html$/, "") };
   const get = (values = params) =>
     GET(new Request(`https://example.test${entry.path}`), { params: Promise.resolve(values) });
   try {
@@ -59,7 +62,7 @@ test("static route downloads exact admitted bytes, refuses retained files, and r
     assert.equal(response.headers.get("Content-Type"), "text/html; charset=utf-8");
     assert.equal(await response.text(), html);
     assert.equal((await get({ ...params, file: "../../private" })).status, 404);
-    await writeFile(resolve(root, "generated/offline", params.paper, params.file), "tampered");
+    await writeFile(resolve(root, "generated/offline", params.paper, fileName), "tampered");
     await assert.rejects(get(), /integrity/);
     await publishOfflineChapters(root, { ...manifest, chapters: [] }, []);
     assert.deepEqual(await generateStaticParams(), []);

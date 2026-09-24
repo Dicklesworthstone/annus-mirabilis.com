@@ -1,6 +1,15 @@
 import { loadOfflineChapter, loadOfflineManifest } from "./server.ts";
 import "./offline.css";
 
+/**
+ * Where a chapter is served: its manifest path without ".html", as a directory. The export writes
+ * each chapter as a directory index (src/app/offline/[paper]/[file]/index.html/route.ts), because a
+ * static host serves an exported "name.html" only at "name/" and answers 404 to the .html form.
+ */
+export function chapterHref(path: string): string {
+  return `${path.replace(/\.html$/, "")}/`;
+}
+
 /** "558 KB" rather than "571730 bytes": a reader decides by size, not by count. */
 function formatSize(bytes: number): string {
   return bytes < 1024 * 1024
@@ -62,7 +71,7 @@ export async function OfflineChapterLinks({
         {chapters.map((entry) => (
           <li key={entry.path}>
             <a
-              href={entry.path}
+              href={chapterHref(entry.path)}
               download={`${entry.paper}-${entry.section}.html`}
               data-offline-chapter
               data-offline-bytes={entry.bytes}
