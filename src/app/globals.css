@@ -713,7 +713,12 @@ h3 {
   min-height: 44px;
   align-content: center;
 }
-.page-intro h1 {
+/* /instruments/ and /search/ (a plain .hero) and /notation/ (.notation-header) open like the other
+   top-level pages and took the poster-scale h1 instead: 93.6px at 1440 against 51.84px on the
+   twelve others. The home page and the 404 (.hero-with-plates) keep their own title size. */
+.page-intro h1,
+.hero:not(.hero-with-plates) > h1,
+.notation-header > h1 {
   /* A READING PAGE'S TITLE, NOT A HERO. This was clamp(2.5rem, 5vw, 4.6rem), which
      put a section title at 72px in a 920px column above a 450px reading column -
      poster scale for the thing that introduces the prose. Measured on
