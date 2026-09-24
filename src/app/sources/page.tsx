@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Metadata } from "next";
 import {
@@ -14,6 +14,7 @@ import { correctionLog, LAYER_NAMES } from "./corrections.ts";
 import { checkedReceipts, receiptHref } from "./receiptPages.ts";
 import { requireReceipt, rightsWordsFor, servedScan } from "./refusals.ts";
 import { reuseOf, textLayerWords } from "./reuse.ts";
+import { licenseDecision, REPOSITORY, rightsLayers, runtimeLibraries } from "./rightsLayers.ts";
 import { TRANSCRIPTION_WORDS, transcriptionOf } from "./transcription.ts";
 import "./sources.css";
 
@@ -145,8 +146,24 @@ function loadScans() {
     .sort((a, b) => a.published.localeCompare(b.published));
 }
 
+/** "Copyright: Copyright (c) 2026 ..." reads as "Copyright (c) 2026 ...": the key is already the text's first word. */
+function layerStatement(statement: string): string {
+  const keyed = /^([^:]+): (.*)$/.exec(statement);
+  return keyed?.[1] && keyed[2]?.startsWith(keyed[1]) ? keyed[2] : statement;
+}
+
 export default function SourcesPage() {
   const scans = loadScans();
+  const layers = rightsLayers(readFileSync(join(process.cwd(), "NOTICE.md"), "utf8"));
+  const decision = licenseDecision(
+    readFileSync(join(process.cwd(), "docs", "DECISIONS.md"), "utf8"),
+  );
+  const libraries = runtimeLibraries(process.cwd());
+  // The scans' terms, from their receipts: how many scans each reader-facing wording covers.
+  const termsCounts = [...new Set(scans.map((scan) => scan.rights))].map((words) => ({
+    words,
+    count: scans.filter((scan) => scan.rights === words).length,
+  }));
   const reviewed = scans.filter((scan) => scan.transcription === "reviewed").length;
   const nameOf = new Map(scans.map((scan) => [scan.slug, scan.name]));
   const hrefOf = new Map(scans.map((scan) => [scan.slug, scan.receipt]));
@@ -316,6 +333,51 @@ export default function SourcesPage() {
           United States by date of publication but not necessarily elsewhere, and the two newer ones
           are in copyright. This is an editorial choice, not a legal opinion.
         </p>
+      </section>
+
+      <section className="reading page-flush sources-section" aria-labelledby="sources-layers">
+        <h2 id="sources-layers">Rights, layer by layer</h2>
+        <p>
+          Each part of the edition carries its own terms, as the edition&rsquo;s{" "}
+          <a href={`${REPOSITORY}/blob/main/NOTICE.md`}>notice</a> records them. The license for
+          what is written here was decided on {formatDay(decision.date)}
+          {decision.ownerRatified
+            ? ", and the owner has ratified it."
+            : ", under authority the owner delegated; the owner has not yet ratified it, and may reopen it."}
+        </p>
+        <dl className="sources-facts">
+          {layers.map((layer) => (
+            <div key={layer.id} id={`layer-${layer.id}`}>
+              <dt>{layer.name}</dt>
+              <dd>
+                {layer.statements.map((statement) => layerStatement(statement)).join(" ")}
+                {layer.id === "scans"
+                  ? ` From their receipts: ${termsCounts
+                      .map(
+                        ({ words, count }) =>
+                          `${words.replace(/\.$/, "")} (${inWords(count)} of the ${inWords(scans.length)} scans).`,
+                      )
+                      .join(" ")} Each scan’s terms are in its entry above.`
+                  : null}
+                {layer.id === "libraries" ? (
+                  <>
+                    The site&rsquo;s dependencies in its package.json, each under the license its
+                    own package declares:{" "}
+                    {libraries
+                      .map((lib) => `${lib.name} (${lib.license ?? "no license declared"})`)
+                      .join(", ")}
+                    . Every package, the tools that build the site included, is listed with its
+                    license in{" "}
+                    <a href={`${REPOSITORY}/blob/main/THIRD_PARTY_NOTICES.md`}>
+                      the third-party notices
+                    </a>
+                    .
+                  </>
+                ) : null}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </section>
 
       <section className="reading page-flush sources-section" aria-labelledby="sources-state">

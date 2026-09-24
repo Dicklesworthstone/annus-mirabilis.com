@@ -14,7 +14,9 @@ export type SourcesErrorCode =
   | "served-digest-mismatch"
   | "served-file-missing"
   | "receipt-page-unknown"
-  | "receipt-check-failed";
+  | "receipt-check-failed"
+  | "notice-layer-missing"
+  | "license-decision-missing";
 
 export class SourcesError extends Error {
   readonly code: SourcesErrorCode;
