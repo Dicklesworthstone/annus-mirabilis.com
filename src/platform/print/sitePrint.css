@@ -25,6 +25,10 @@
 }
 
 /* --- The site's chrome belongs to a screen ------------------------------------------------ */
+/* .no-print had a rule only in platform/print/print.css, which the offline chapters use and the
+   site never loads, so on the site it hid nothing: "Embed this laboratory on another page"
+   printed under every laboratory that has an embed (measured on live under print emulation). */
+:root .no-print,
 :root .site-header,
 :root .site-footer,
 :root .skip-link,
