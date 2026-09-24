@@ -17,7 +17,7 @@ const OBSTACLE_LABELS: Readonly<Record<ObstacleKindId, string>> = {
   physicalReason: "The physical reason for a step",
   connectionToPicture: "The connection to the picture",
   purposeOfCalculation: "The purpose of the calculation",
-  tooMuchAtOnce: "Simply too much at once",
+  tooMuchAtOnce: "Too much at once",
 };
 
 export interface ObstacleMenuProps {
