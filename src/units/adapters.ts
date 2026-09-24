@@ -30,7 +30,8 @@ const SPEED_OF_LIGHT_M_PER_S = 299792458n;
 
 /** Base unit per family: length -> m, viscosity -> Pa*s, energy -> J, frequency -> Hz,
  * mass -> kg, charge -> C, potential -> V, electricField -> V/m, magneticField -> T,
- * current -> A. Each family's base unit itself is `factor: 1/1, exactness: "exact"`. */
+ * current -> A, action -> J*s, countRate -> 1/s. Each family's base unit itself is
+ * `factor: 1/1, exactness: "exact"`. */
 const UNITS: readonly UnitDefinition[] = Object.freeze([
   // Length
   def("m", "length", 1n, 1n, "exact"),
@@ -79,6 +80,14 @@ const UNITS: readonly UnitDefinition[] = Object.freeze([
   // Current
   def("A", "current", 1n, 1n, "exact"),
   def("abA", "current", 10n, 1n, "conventional"),
+
+  // Action, the unit of Planck's constant: eV*s is exact because the eV is.
+  def("J*s", "action", 1n, 1n, "exact"),
+  def("eV*s", "action", 1_602_176_634n, 10_000_000_000_000_000_000_000_000_000n, "exact"),
+
+  // A count per second: quanta, electrons or events. Kept apart from Hz, which the SI reserves
+  // for periodic phenomena, so a rate of quanta is never offered in hertz.
+  def("1/s", "countRate", 1n, 1n, "exact"),
 ]);
 
 const BY_UNIT = new Map(UNITS.map((u) => [u.unit, u]));

@@ -34,6 +34,15 @@ describe("exact conversions", () => {
     expect(factor.num).toBe(1n);
     expect(factor.den).toBe(1_000_000n);
   });
+  test("1 eV*s in J*s keeps every printed digit, so h can be given in either", () => {
+    expect(convertExact("1", "eV*s", "J*s")).toBe("0.0000000000000000001602176634");
+    expect(conversionFactor("eV*s", "J*s").exactness).toBe("exact");
+  });
+  test("a count per second is its own family: never converted to or from hertz or an action", () => {
+    expect(convertExact("2.5e18", "1/s", "1/s")).toBe("2500000000000000000");
+    for (const other of ["Hz", "J*s"])
+      assert.throws(() => convertValue(1, "1/s", other), { code: "family-mismatch" });
+  });
   test("Hz to THz and g to kg are exact", () => {
     expect(conversionFactor("Hz", "THz").exactness).toBe("exact");
     expect(conversionFactor("g", "kg").exactness).toBe("exact");
