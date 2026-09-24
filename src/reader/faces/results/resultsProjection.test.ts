@@ -112,7 +112,7 @@ describe("resultsProjection refusal coverage (am-muyh)", () => {
     });
   });
 
-  describe("printed-check-nonfinite-reproduction (resultsProjection.ts:191)", () => {
+  describe("printed-check-nonfinite-reproduction (resultsProjection.ts:194)", () => {
     test("reject: throws printed-check-nonfinite-reproduction for NaN or Infinity", () => {
       assert.throws(
         () => {
