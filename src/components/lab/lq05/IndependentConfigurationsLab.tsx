@@ -1,11 +1,16 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import { fromLq05Draft, toLq05Draft } from "../../../experiments/lq05/controls.ts";
 import {
   LQ05_CAPTION,
   LQ05_DEFAULTS,
   LQ05_MODEL,
+  LQ05_OUTPUTS,
   LQ05_PRESETS,
   type Lq05Parameters,
   type Lq05View,
@@ -17,6 +22,7 @@ import {
   evaluateLq05,
   type PreparedLq05Example,
 } from "../../../experiments/lq05/session.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
@@ -48,6 +54,16 @@ export function IndependentConfigurationsLab({
     buildLq05Snapshot(`lq05-${id}`, "lq05-init", null, LQ05_DEFAULTS, 0, 0);
   const snapshot = view.accepted ?? fallback;
   const p = snapshot.parameters as Lq05Parameters;
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation; no example, no earned label.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      LQ05_OUTPUTS,
+      example?.sourceDigest ?? "",
+      snapshot === session.getServerSnapshot().accepted,
+    ).label,
+  );
   const [draft, setDraft] = useState(() => toLq05Draft(p));
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState("");
@@ -133,7 +149,7 @@ export function IndependentConfigurationsLab({
       data-input-revision={view.requested?.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, view, "configurationProbability")}
     >
       <header
         className="lab-heading"
@@ -154,6 +170,15 @@ export function IndependentConfigurationsLab({
           </p>
         </div>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          modelNote={modelNoteFromView(view, {
+            notModeled: `${LQ05_MODEL.notModeled.join("; ")}.`,
+          })}
+        />
+      </div>
 
       {/* Main Plot & Visualization */}
       <IndependentConfigurationsPlot parameters={p} evaluation={evaluation} />

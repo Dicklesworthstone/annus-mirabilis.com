@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IndependentConfigurationsLab } from "../../../components/lab/lq05/IndependentConfigurationsLab.tsx";
 import { LQ05_DEFAULTS } from "../../../experiments/lq05/definition.ts";
 import { evaluateLq05, type PreparedLq05Example } from "../../../experiments/lq05/session.ts";
+import labDigests from "../../../generated/lab-source-digests.json";
 
 export const metadata: Metadata = {
   title: "Independent configurations and Boltzmann entropy",
@@ -12,7 +13,8 @@ export const metadata: Metadata = {
 export default function IndependentConfigurationsPage() {
   const evalResult = evaluateLq05(LQ05_DEFAULTS);
   const example: PreparedLq05Example = {
-    sourceDigest: "src/physics/reference/radiation/configurations.ts",
+    // The host source, by digest (scripts/generate-lab-digests.mjs).
+    sourceDigest: labDigests["lq-05"],
     parameters: LQ05_DEFAULTS,
     results: evalResult.outputs.map(
       (o) => `${o.quantityId}=${o.status === "value" ? String(o.value) : o.status}`,
