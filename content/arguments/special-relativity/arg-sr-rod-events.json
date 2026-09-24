@@ -51,14 +51,41 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: the rod has length l when measured at rest. Moving with speed v along the X axis toward increasing x, its length measured in the stationary system is \\(r_{AB}\\), where A and B are its ends; V is the speed of light. The γ, c and primes of the formula below are this explanation's: the paper's §2 argues without the transformation, which it derives only in §3."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Choose the frame in which you measure the length.",
-          "Take the two end events at the same time in that frame.",
-          "Subtract their positions in that frame.",
-          "When you change frame, transform the events’ times as well as their positions.",
-          "In the new frame, choose a new pair of simultaneous end events before calling their separation the rod’s length."
+          "The two principles, as §2 defines them. First: the laws by which the states of physical systems change do not depend on which of two coordinate systems in uniform translation relative to each other they are referred to. Second: every light ray moves in the stationary system with the definite speed V, whether it was emitted by a body at rest or a body in motion, where speed means light path divided by time interval in the sense of §1.",
+          "Operation a: an observer moving with the rod lays a measuring rod along it, exactly as if rod, observer and measuring rod were at rest. By the principle of relativity this gives l, which the paper calls the length of the rod in the moving system.",
+          "Operation b: an observer at rest uses the stationary system's clocks, set by §1's rule, to find where the two ends of the rod are at one given time t, and measures the distance between those two points. That is the length of the moving rod in the stationary system, \\(r_{AB}\\).",
+          "The kinematics then in general use tacitly assumed that a and b give the same length. The paper sets out to determine b from its two principles, and finds that it differs from l.",
+          "Now put a clock at each end, A and B, in step with the stationary system's clocks, and let observers moving with the clocks apply §1's rule. A ray leaves A at \\(t_A\\), is reflected at B at \\(t_B\\), and arrives back at A at \\(t'_A\\).",
+          "Outward, the light chases the receding end B, so the gap closes at \\(V-v\\): \\(t_B-t_A=r_{AB}/(V-v)\\). Coming back, the light meets A moving toward it, so the gap closes at \\(V+v\\): \\(t'_A-t_B=r_{AB}/(V+v)\\).",
+          "Worked case: v = 0.6V and \\(r_{AB}\\) = 1 light-second. Out: 1/0.4 = 2.5 seconds. Back: 1/1.6 = 0.625 seconds. The two are unequal, so observers moving with the rod would find the clocks not in step, while observers in the stationary system call them in step.",
+          "So simultaneity has no absolute meaning: two events that are simultaneous seen from one coordinate system are not simultaneous seen from a system moving relative to it.",
+          "To measure a moving rod, therefore, mark both ends at the same time in your own frame. Mark one end, then the other 1 second later while the rod moves at 0.6c, and you add \\(0.6\\times3\\times10^{8}=1.8\\times10^{8}\\) metres, the distance it moved in between.",
+          "Borrowing §3's transformation puts a number on the disagreement. Two events with no time difference in one frame and a separation Δx along the motion have, in the other frame, the time difference below."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\Delta t=0:\\quad\\Delta t'=-\\gamma\\frac{v\\Delta x}{c^2}",
+        "spoken": "Events simultaneous in the unprimed frame have a primed time difference of minus gamma v delta x over c squared.",
+        "equations": ["eq-model-sr-simultaneity-offset"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked: Δx = 1 light-second, v = 0.6c, γ = 1.25: \\(\\Delta t'=-1.25\\times0.6\\times1\\) = −0.75 seconds. The minus sign says that, in the moving frame, the event farther along x happens first.",
+          "A measured length is not what a photograph shows. A camera records light that arrives at the same moment, and that light left the two ends at different times."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "frames-events",
+        "returnCaption": "Return to which end marks measure a moving rod."
       }
     ],
     "margin": [

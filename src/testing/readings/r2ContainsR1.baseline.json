@@ -61,25 +61,10 @@
       ],
       "wordGap": 0
     },
-    "arg-sr-magnet-conductor": {
-      "paper": "special-relativity",
-      "missing": [],
-      "wordGap": 136
-    },
     "arg-sr-moving-mirror": {
       "paper": "special-relativity",
       "missing": ["eq-model-sr-mirror-frequency"],
       "wordGap": 9
-    },
-    "arg-sr-rod-events": {
-      "paper": "special-relativity",
-      "missing": ["eq-model-sr-simultaneity-offset"],
-      "wordGap": 62
-    },
-    "arg-sr-synchronization": {
-      "paper": "special-relativity",
-      "missing": ["eq-model-sr-sync-equal-legs", "eq-model-sr-sync-midpoint"],
-      "wordGap": 53
     },
     "arg-sr-transported-clock": {
       "paper": "special-relativity",

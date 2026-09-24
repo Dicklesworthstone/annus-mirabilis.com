@@ -50,14 +50,36 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: the paper writes V for the speed of light in empty space; this explanation writes c. It calls the frame in which Newton's equations hold the stationary system, K from §3 on, and a system moving uniformly relative to it k. The factor this explanation writes γ is the paper's β, which first appears in §3."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Name the pieces: the conductor, the magnet, the charges in the conductor, and the observer who describes them.",
-          "Describe the arrangement from the magnet’s frame: the conductor moves, and a magnetic force drives its charges.",
-          "Describe it from the conductor’s frame: the magnet moves, and an electric field drives the same charges.",
-          "Note what differs between the two descriptions, which field is present, and what does not, the current.",
-          "State the two postulates before using them, and look ahead to §6, where electric and magnetic components turn into each other."
+          "The apparatus: a magnet and a conductor, a loop of wire, in motion relative to each other, with the current in the conductor as the thing observed.",
+          "The first case, as the physics of 1905 explained it: the magnet moves and the conductor rests. Around the moving magnet an electric field arises, carrying a definite energy, and where parts of the conductor are, that field drives a current.",
+          "The second case: the magnet rests and the conductor moves. No electric field arises around the magnet. In the conductor there is instead an electromotive force, to which no energy corresponds in itself, and it drives a current.",
+          "Compare the observations: for the same relative motion, the current has the same size and the same course in both cases. What is observed depends only on the relative motion of conductor and magnet.",
+          "Compare the explanations: one case has an electric field and the other has none. The asymmetry lies in the account, not in what is observed.",
+          "Worked low-speed case: the conductor moves at 10 metres per second across a magnetic field of 0.5 tesla. On a charge q carried with it the magnetic force is qvB, and per unit charge that is \\(vB=10\\times0.5=5\\) volts per metre. In the conductor's own frame §6 gives an electric field of γ times vB, and at this speed γ − 1 is about \\(v^2/(2c^2)=5.6\\times10^{-16}\\): no measurement could tell the two numbers apart.",
+          "At 0.6c they differ by the factor γ = 1.25. §6 derives it: a force across the motion changes between frames by that factor, so the two accounts describe one push.",
+          "The paper adds a second kind of evidence: the unsuccessful attempts to detect the earth's motion relative to the medium of light. Together these lead to the conjecture that absolute rest corresponds to no property of the phenomena, in electrodynamics as in mechanics, and that the same laws of electrodynamics and optics hold in every coordinate system in which the equations of mechanics hold, as had already been shown for quantities of the first order.",
+          "The first premise, the principle of relativity: the paper raises that conjecture to a premise. It is assumed, not proved from the examples.",
+          "The second premise: light in empty space always travels with a definite speed V, independent of the state of motion of the body that emits it. The paper says the two premises are only apparently incompatible.",
+          "What the two premises are said to give: a simple and consistent electrodynamics of moving bodies, built on Maxwell's theory for bodies at rest. A light ether becomes superfluous, since no absolutely stationary space is introduced and no velocity is assigned to a point of empty space in which electromagnetic processes take place.",
+          "Where the work starts: every such theory rests on the kinematics of rigid bodies, since its statements concern rigid bodies used as coordinate systems, clocks, and electromagnetic processes. So §1 begins with what time means.",
+          "The status of the laboratory: a simulation built on the two premises shows their consequences. It cannot prove them."
         ]
+      },
+      {
+        "kind": "foundation",
+        "id": "dot-cross-products",
+        "returnCaption": "Return to the magnetic force on the moving charges, and which way it pushes."
+      },
+      {
+        "kind": "foundation",
+        "id": "electromagnetism-charges",
+        "returnCaption": "Return to why changing the observer should change the explanation."
       }
     ],
     "margin": [

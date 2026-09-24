@@ -53,14 +53,51 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: a light ray leaves A at the A-time \\(t_A\\), is reflected at B at the B-time \\(t_B\\), and arrives back at A at the A-time \\(t'_A\\). This explanation writes that return reading \\(t_{A,\\mathrm{return}}\\). V is the speed of light, c here."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Read departure and return on the same clock at A.",
-          "Name the event in between: the reflection at B.",
-          "Give B’s clock, at that event, the time halfway between departure and return.",
-          "Check the rule: the time out equals the time back.",
-          "Keep the time of a distant event apart from the moment its light reaches you."
+          "Start from one coordinate system in which Newton's equations of mechanics hold; the paper calls it the stationary system. A point at rest in it has a position measured with rigid rods by the methods of Euclidean geometry.",
+          "Describing a motion means giving the coordinates as functions of time, and that has a physical meaning only once it is said what time means. For an event at the place of a clock, the time is the position of the clock's hand at that event.",
+          "A clock at A times the events at A, and a clock at B times the events at B. So far there is an A-time and a B-time, but no time common to A and B. Comparing an event at A with an event at B needs a further rule.",
+          "The rule, set by definition: the time light takes to go from A to B equals the time it takes to come back from B to A. With the three readings above, that is the first formula below."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "t_B-t_A=t_{A,\\mathrm{return}}-t_B",
+        "spoken": "The outward assigned travel time equals the return assigned travel time.",
+        "equations": ["eq-model-sr-sync-equal-legs"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Solve for \\(t_B\\). Add \\(t_B\\) to both sides and \\(t_A\\) to both sides: \\(2t_B=t_A+t_{A,\\mathrm{return}}\\). Divide by 2."
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "t_B=\\frac{t_A+t_{A,\\mathrm{return}}}{2}",
+        "spoken": "The assigned reflection time is the midpoint of departure and return times.",
+        "equations": ["eq-model-sr-sync-midpoint"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked case: A sends the flash at time 0 and the reflection comes back at time 10, so the reflection is given the time 5. If B's clock read 5.3 at the reflection, it is 0.3 ahead and is set back.",
+          "The paper assumes that this definition can be applied without contradiction to any number of points: if the clock at B runs in step with the clock at A, then A's runs in step with B's; and if A's runs in step with both B's and C's, then B's and C's run in step with each other.",
+          "The speed of light comes out of the same readings: twice the distance AB between the stations, divided by \\(t'_A-t_A\\), is V, a universal constant, in agreement with experience. With A and B \\(3\\times10^{8}\\) metres apart and a round trip of 2 seconds, V is \\(3\\times10^{8}\\) metres per second.",
+          "The time of an event is then the reading, at the event, of a clock at rest at its place and in step with the chosen clock. Since it is set with clocks at rest in one system, the paper calls it the time of the stationary system.",
+          "Keep two things apart: the time this rule gives to a distant event, and the moment its light reaches you. Seeing the reflection from A at time 10 does not move it from time 5.",
+          "The status: equal travel times out and back are a definition, not a measurement, and a round trip read on one clock cannot measure the two one-way times separately. §2 shows that clocks set this way in a moving system disagree with the stationary system about which distant events are simultaneous."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "frames-events",
+        "returnCaption": "Return to how clocks in different places can share a time."
       }
     ],
     "margin": [
