@@ -12,6 +12,8 @@ import { Formula } from "../../../components/edition/Formula.tsx";
 import { BROWNIAN_SHELF_CARDS } from "../../../content/brownianShelf.ts";
 import {
   FIRST_HONEST_QUESTION,
+  FORK_EXNER,
+  FORK_NAEGELI,
   MOVE,
   MOVE_HREF,
   NAGGING_FACT,
@@ -20,11 +22,17 @@ import {
 } from "../../../discovery/brownian/journeyII.ts";
 import { EINSTEIN_ONE_SECOND } from "../../../discovery/brownian/numericExercises.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { Fork } from "../../../discovery/Fork.tsx";
 import { MoveMarker } from "../../../discovery/MoveMarker.tsx";
 import { PpeTask } from "../../../discovery/PpeTask.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { SourceJump } from "../../../discovery/SourceJump.tsx";
-import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
+import { StepDoor, type StepDoorHref, StepDoors } from "../../../discovery/StepDoor.tsx";
+import { BM04_PRESETS } from "../../../experiments/bm04/definition.ts";
+import { encodeBm04Settings } from "../../../experiments/bm04/permalink.ts";
+
+/** Nägeli's world in BM-04: kicks off, no force, a step profile. Loads as a draft to apply. */
+const NAEGELI_WORLD: StepDoorHref = `/lab/bm-04/${encodeBm04Settings(BM04_PRESETS["naegeli-zero-force"].parameters)}`;
 
 export const metadata: Metadata = { title: "A first encounter with Brownian motion" };
 
@@ -179,6 +187,12 @@ export default function BrownianEncounter() {
           </StepDoor>
         </StepDoors>
       </section>
+      <Fork fork={FORK_NAEGELI} />
+      <StepDoors>
+        <StepDoor href={NAEGELI_WORLD}>
+          Turn the kicks off in the laboratory, and watch a step in the concentration never relax
+        </StepDoor>
+      </StepDoors>
       <section id="step-03">
         <p className="step-number">03 / Balance a force against drag</p>
         <h2>Pull on the particles, and see what holds them back.</h2>
@@ -256,6 +270,12 @@ export default function BrownianEncounter() {
         </StepDoors>
       </section>
       <MoveMarker move={MOVE} href={MOVE_HREF} />
+      <Fork fork={FORK_EXNER} />
+      <StepDoors>
+        <StepDoor href="/lab/bm-01/">
+          See the apparent speed change with the interval, in the tracer ensemble
+        </StepDoor>
+      </StepDoors>
       <section id="step-05">
         <p className="step-number">05 / Ask an interval question</p>
         <h2>A curve’s height is not a probability.</h2>

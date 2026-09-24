@@ -52,7 +52,7 @@ export function Fork({ fork }: ForkProps) {
               fontWeight: 600,
             }}
           >
-            Historical Fork · {varies}
+            A fork in the route
           </span>
         </div>
         <h3

@@ -10,6 +10,15 @@ export interface BranchProps {
   readonly variesKind?: ForkVariesKind | undefined;
 }
 
+/**
+ * A knowledge card's anchor on the page. KnowledgeCardView and CardDetail anchor a card as
+ * "card-<id>", and a proponent names the card by its id, so the link adds the prefix. An id that
+ * already carries it (the framework's fixtures write "card-exner-1900") is left as it is.
+ */
+export function cardAnchor(cardId: string): string {
+  return cardId.startsWith("card-") ? cardId : `card-${cardId}`;
+}
+
 export function Branch({ branch }: BranchProps) {
   const { id, label, proponent, hypothesis, worksWhen, steps, outcome } = branch;
 
@@ -97,7 +106,7 @@ export function Branch({ branch }: BranchProps) {
             <p className="fine" style={{ margin: "0.125rem 0 0" }}>
               Historical proponent:{" "}
               <a
-                href={`#${proponent.cardId}`}
+                href={`#${cardAnchor(proponent.cardId)}`}
                 style={{
                   color: "var(--accent)",
                   fontWeight: 500,

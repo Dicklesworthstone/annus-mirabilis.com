@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { checkVoice } from "../../../content/checks/voice/index.ts";
+import { FORK_EXNER, FORK_NAEGELI } from "../../../discovery/brownian/journeyII.ts";
+import { decodeBm04Settings } from "../../../experiments/bm04/permalink.ts";
 import BrownianEncounter from "./page";
 
 /**
@@ -143,6 +145,83 @@ describe("the route carries the discovery skeleton, in the plan's order", () => 
         (f) => f.severity === "error",
       );
       expect(errors.map((f) => `${id} ${f.rule}: ${f.matchedText}`)).toEqual([]);
+    }
+  });
+});
+
+/**
+ * The forks (dispatch 136, unit 2): Nägeli and Exner, each worked until one branch fails on a
+ * stated constraint beside the branch the paper takes. Named people are named; nobody is mocked.
+ */
+describe("the route's forks name their people and work each branch to an outcome", () => {
+  const fork = (id: string) => {
+    const start = html.indexOf(`<section id="${id}"`);
+    expect(start, id).toBeGreaterThan(-1);
+    return html.slice(start, html.indexOf("</section>", start));
+  };
+
+  test("Nägeli's fork follows the osmotic question and precedes the force balance", () => {
+    const at = html.indexOf('id="arg-fork-naegeli"');
+    expect(at).toBeGreaterThan(html.indexOf('id="step-02"'));
+    expect(at).toBeLessThan(html.indexOf('id="step-03"'));
+    const markup = fork("arg-fork-naegeli");
+    expect(text(markup)).toContain("Carl Nägeli, 1879");
+    expect(markup).toContain('data-outcome-type="dead-end-on-constraint"');
+    expect(markup).toContain('data-outcome-type="papers-route"');
+  });
+
+  test("the kicks-off world opens in BM-04 as valid settings: no kicks, no force, a step", () => {
+    const link = /href="(\/lab\/bm-04\/\?[^"]+)"/.exec(html)?.[1]?.replace(/&amp;/g, "&");
+    expect(link).toBeDefined();
+    const decoded = decodeBm04Settings(link?.slice("/lab/bm-04/".length) ?? "");
+    expect(decoded.kind).toBe("settings");
+    if (decoded.kind === "settings") {
+      expect(decoded.parameters.m).toBe(0);
+      expect(decoded.parameters.F).toBe(0);
+      expect(decoded.parameters.profile).toBe("step");
+    }
+  });
+
+  test("Exner's fork follows the square-root step and the move", () => {
+    const at = html.indexOf('id="arg-fork-exner"');
+    expect(at).toBeGreaterThan(html.indexOf("data-move-marker"));
+    expect(at).toBeLessThan(html.indexOf('id="step-05"'));
+    const markup = fork("arg-fork-exner");
+    expect(text(markup)).toContain("Felix Exner, 1900");
+    expect(text(markup)).toContain("a quarter of the interval, twice the speed");
+    expect(markup).toContain('data-outcome-type="dead-end-on-constraint"');
+    expect(markup).toContain('data-outcome-type="papers-route"');
+  });
+
+  test("a proponent links to its card on the shelf", () => {
+    for (const card of ["naegeli-1879-single-impacts", "exner-1900-particle-speeds"]) {
+      expect(html).toContain(`href="#card-${card}"`);
+      expect(html).toContain(`id="card-${card}"`);
+    }
+  });
+
+  test("every in-page link on the route lands on an element of the page", () => {
+    const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+    const targets = [...html.matchAll(/href="#([^"]+)"/g)].map((m) => m[1] ?? "");
+    expect(targets.length).toBeGreaterThan(5);
+    expect(targets.filter((t) => !ids.has(t))).toEqual([]);
+  });
+
+  test("the forks' prose passes the voice lint, and no raw schema kind reaches the reader", () => {
+    for (const f of [FORK_NAEGELI, FORK_EXNER]) {
+      const words = [
+        f.question,
+        ...f.branches.flatMap((b) => [
+          b.label,
+          b.hypothesis,
+          b.worksWhen,
+          b.outcome.plainLanguage,
+          ...b.steps.map((s) => s.text),
+        ]),
+      ].join(" ");
+      const errors = checkVoice(words, { context: "prose" }).filter((x) => x.severity === "error");
+      expect(errors.map((x) => `${f.id} ${x.rule}: ${x.matchedText}`)).toEqual([]);
+      expect(text(fork(f.id))).not.toContain(f.varies);
     }
   });
 });

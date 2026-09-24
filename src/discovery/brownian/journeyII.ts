@@ -7,7 +7,7 @@
  * names is on the page's 1904 shelf (src/content/brownianShelf.ts) or, for later evidence, beside
  * the check against the world.
  */
-import type { JourneyMove, PpeTask, SourceJump } from "../../content/schemas/journey.ts";
+import type { Fork, JourneyMove, PpeTask, SourceJump } from "../../content/schemas/journey.ts";
 
 /** The observation that does not fit (plan §9.3). */
 export const NAGGING_FACT =
@@ -74,4 +74,122 @@ export const PPE_TASK: PpeTask = {
     "Open the tracer ensemble, change the radius from 0.5 to 1 micrometre, apply it, and read the one-second displacement again.",
   explainPrompt:
     "Explain the factor you saw. Say what the radius does to the drag, what the drag does to D, and how the distance depends on D.",
+};
+
+/**
+ * Fork A (plan §9.3): Nägeli's argument from single impacts, worked until it fails on a stated
+ * constraint, beside the branch the paper takes. Nobody is mocked: his estimate for one impact is
+ * sound, and the branch says so.
+ */
+export const FORK_NAEGELI: Fork = {
+  id: "arg-fork-naegeli",
+  afterStageId: "step-02",
+  question: "Can molecular impacts move a particle large enough to see?",
+  varies: "theoretical-postulate",
+  branches: [
+    {
+      id: "arg-branch-single-impact",
+      label: "No single impact is big enough",
+      proponent: { name: "Carl Nägeli, 1879", cardId: "naegeli-1879-single-impacts" },
+      hypothesis:
+        "A water molecule is so much lighter than a particle a micron across that one impact changes the particle's speed by far too little to see. Impacts arrive from every side, so they cancel, and the molecules cannot be what moves the particle.",
+      worksWhen:
+        "For one impact on its own the estimate is right: the particle's speed barely changes.",
+      steps: [
+        {
+          text: "Estimate what one impact does. The molecule's momentum, shared with a particle many billions of times heavier, changes the particle's speed by an amount no microscope could follow.",
+        },
+        {
+          text: "Conclude that the impacts, arriving from every side, cancel, so that in still water a particle stays where it is.",
+        },
+        {
+          text: "Follow the consequence. Particles that nothing moves cannot spread, so a step in their concentration stays a step for ever. The laboratory linked below runs that world with the kicks turned off.",
+        },
+      ],
+      outcome: {
+        type: "dead-end-on-constraint",
+        plainLanguage:
+          "The estimate for one impact is sound, and the conclusion does not follow from it. With the kicks off nothing spreads, which contradicts Fick's law for dissolved matter and Gouy's observation that the motion never dies away.",
+      },
+    },
+    {
+      id: "arg-branch-imbalance",
+      label: "The imbalance of many impacts moves it",
+      hypothesis:
+        "In any short interval a particle is struck an enormous number of times. The impacts do not cancel exactly, and the imbalance left over, different in each interval, moves it by an amount you can see over a time you can wait.",
+      worksWhen:
+        "When the particle is watched over intervals long compared with the time between impacts, and the imbalances in successive intervals are independent of one another.",
+      steps: [
+        { text: "Ask how far the particle gets over an interval, not what one impact does." },
+        {
+          text: "Treat its displacements in successive intervals as independent, each as likely to go one way as the other. Their squares add, so the mean square grows in proportion to the time.",
+        },
+      ],
+      outcome: {
+        type: "papers-route",
+        plainLanguage:
+          "This is the paper's route in §4, and it is the move marked below: the products of different displacements average away, so the mean squares of independent displacements add.",
+      },
+    },
+  ],
+};
+
+/**
+ * Fork B (plan §9.3, and §3.4's editorial boundary: the observable is a displacement, not a
+ * velocity). Exner's measurements are taken as careful; what fails is the comparison, because an
+ * apparent speed is set by the interval as much as by the particle.
+ */
+export const FORK_EXNER: Fork = {
+  id: "arg-fork-exner",
+  afterStageId: "step-04",
+  question: "What should you measure: how fast a particle moves, or how far it gets?",
+  varies: "measurement-choice",
+  branches: [
+    {
+      id: "arg-branch-apparent-speed",
+      label: "Measure its speed",
+      proponent: { name: "Felix Exner, 1900", cardId: "exner-1900-particle-speeds" },
+      hypothesis:
+        "Time the particle over a short interval and divide the distance by the time. If molecules shove the particles, their energy of motion should match the molecules' at the same temperature, and the speed tells you whether it does.",
+      worksWhen:
+        "For a particle drifting at a steady speed, where every interval gives the same answer. And as a stated quantity: a speed over a named interval is something you can measure and report.",
+      steps: [
+        {
+          text: "Measure the displacement over an interval τ and divide by τ. Exner did this with care and found speeds far below those kinetic theory gives molecules.",
+        },
+        {
+          text: "Now change τ. For a particle kicked at random the displacement grows only as the square root of τ, so the displacement divided by τ grows as the interval shrinks: a quarter of the interval, twice the speed.",
+        },
+        {
+          text: "So the number depends on how often you look, and it has no limit as you look more often. It is not a property of the particle, and comparing it with the speeds of molecules compares nothing.",
+        },
+      ],
+      outcome: {
+        type: "dead-end-on-constraint",
+        plainLanguage:
+          "The measurements can be right and the comparison still fails: for a randomly kicked particle, an apparent speed is set by the interval as much as by the particle.",
+      },
+    },
+    {
+      id: "arg-branch-displacement",
+      label: "Measure how far it gets in a given time",
+      hypothesis:
+        "Mark where the particle starts, look again after a fixed interval, and record the displacement. Repeat, and take the mean square.",
+      worksWhen:
+        "Whenever the displacements in successive intervals are independent. Then the mean square grows in proportion to the interval, and its ratio to the interval belongs to the particle and the liquid, not to the observer.",
+      steps: [
+        {
+          text: "Fix the interval and record displacements, to the left as negative and to the right as positive.",
+        },
+        {
+          text: "Divide the mean square by twice the interval. The answer does not change with the interval: it is D.",
+        },
+      ],
+      outcome: {
+        type: "papers-route",
+        plainLanguage:
+          "This is the observable the paper chooses. In §5 it predicts how far a particle gets in one second and in one minute, not how fast it moves.",
+      },
+    },
+  ],
 };
