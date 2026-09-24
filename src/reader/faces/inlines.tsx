@@ -5,6 +5,18 @@ import { TermAnnotation } from "./TermAnnotation.tsx";
 
 export interface RenderInlinesOptions {
   readonly renderMathInline?: boolean;
+  /**
+   * Prefixed to every id this renderer emits (a footnote mark's `ref-` id), for a column that
+   * shares its page with another rendering of the same ids: the parallel face's English column.
+   */
+  readonly idPrefix?: string | undefined;
+  /**
+   * The element a footnote mark points at. A German face lists its footnotes as
+   * `footnote-<id>` (Footnote.tsx), which is the default. An English face has no such list: its
+   * footnote is a translation unit with its own id, so it passes that id. `undefined` renders
+   * the mark with no link, because a link to an id the page lacks is a link to nothing.
+   */
+  readonly footnoteTarget?: ((footnoteId: string) => string | undefined) | undefined;
 }
 
 /**
@@ -81,18 +93,26 @@ export function renderInlines(
         }
       }
 
-      case "footnote-mark":
+      case "footnote-mark": {
+        const target = options?.footnoteTarget
+          ? options.footnoteTarget(node.footnoteId)
+          : `footnote-${node.footnoteId}`;
         return (
-          <sup key={key} className="footnote-ref" id={`ref-${node.footnoteId}`}>
-            <a
-              href={`#footnote-${node.footnoteId}`}
-              aria-describedby={`footnote-${node.footnoteId}`}
-              data-footnote-ref={node.footnoteId}
-            >
-              [{node.mark}]
-            </a>
+          <sup
+            key={key}
+            className="footnote-ref"
+            id={`${options?.idPrefix ?? ""}ref-${node.footnoteId}`}
+          >
+            {target ? (
+              <a href={`#${target}`} aria-describedby={target} data-footnote-ref={node.footnoteId}>
+                [{node.mark}]
+              </a>
+            ) : (
+              <span data-footnote-ref={node.footnoteId}>[{node.mark}]</span>
+            )}
           </sup>
         );
+      }
 
       case "term":
         return (

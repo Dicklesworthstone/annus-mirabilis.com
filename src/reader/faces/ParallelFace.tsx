@@ -17,9 +17,16 @@ import { FACE_REGISTRY } from "./registry.ts";
 import { isPaperTranslationUnreviewed } from "./reviewState.ts";
 import { SourceBlock as SourceBlockItem } from "./SourceBlock.tsx";
 import { SourceFaceNotice } from "./SourceFaceNotice.tsx";
-import { TranslationUnit as TranslationUnitItem } from "./TranslationUnit.tsx";
+import { TranslationUnit as TranslationUnitItem, unitsBySourceRef } from "./TranslationUnit.tsx";
 import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
 import "../reader.css";
+
+/**
+ * The English column's DOM ids carry this prefix. A unit's id is its German sentence's id by the
+ * id grammar, so without it the page repeated every aligned id; #s0-p1-s1 names the German sentence
+ * here, as on the German face, and #en-s0-p1-s1 its English.
+ */
+export const ENGLISH_ANCHOR_PREFIX = "en-";
 
 export interface ParallelFaceProps {
   readonly paper: Paper;
@@ -52,6 +59,7 @@ export function ParallelFace({
   const isUnreviewed = isPaperTranslationUnreviewed(units, reviewRecords);
   const isStacked = layout === "stacked";
   const alignmentIndex = buildAlignmentIndex(alignment, blocks, units);
+  const footnoteUnits = unitsBySourceRef(units);
 
   const filteredBlocks = sectionId
     ? blocks.filter((b) => b.section === sectionId || !b.section)
@@ -178,6 +186,8 @@ export function ParallelFace({
                 unit={unit}
                 reviewRecord={reviewRecordsMap.get(unit.id)}
                 editorialNotes={editorialNotes}
+                anchorPrefix={ENGLISH_ANCHOR_PREFIX}
+                footnoteUnits={footnoteUnits}
               />
             ))}
           </div>

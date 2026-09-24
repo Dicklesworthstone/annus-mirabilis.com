@@ -11,6 +11,25 @@ export interface TranslationUnitProps {
   readonly editorialNotes?: readonly EditorialNote[] | undefined;
   readonly activeUnitId?: string | null | undefined;
   readonly highlightedUnitIds?: ReadonlySet<string> | undefined;
+  /**
+   * Prefixed to the DOM ids this unit renders. A unit's id is its German sentence's id by the id
+   * grammar (docs/CONTENT_IDS.md 3.3), so a page showing both, the parallel face, must namespace
+   * one column or repeat every id. data-translation-unit-id stays the bare unit id.
+   */
+  readonly anchorPrefix?: string | undefined;
+  /** Footnote block id to the id of the unit that translates it, so a mark links to it. */
+  readonly footnoteUnits?: ReadonlyMap<string, string> | undefined;
+}
+
+/**
+ * Each source id a unit translates, mapped to that unit's id: what a footnote mark in another
+ * unit links to. Derived from the units' own sourceRefs, never written by hand.
+ */
+export function unitsBySourceRef(units: readonly TranslationUnit[]): ReadonlyMap<string, string> {
+  const map = new Map<string, string>();
+  for (const unit of units)
+    for (const ref of unit.sourceRefs) if (!map.has(ref.id)) map.set(ref.id, unit.id);
+  return map;
 }
 
 const REVIEW_BADGE_CLASS_MAP: Readonly<Record<"reviewed" | "in-progress" | "draft", string>> = {
@@ -25,6 +44,8 @@ export function TranslationUnitComponent({
   editorialNotes = [],
   activeUnitId,
   highlightedUnitIds,
+  anchorPrefix = "",
+  footnoteUnits,
 }: TranslationUnitProps) {
   const badge = evaluateUnitReviewState(unit, reviewRecord);
   const isActive = activeUnitId === unit.id;
@@ -55,7 +76,7 @@ export function TranslationUnitComponent({
 
   return (
     <article
-      id={unit.id}
+      id={`${anchorPrefix}${unit.id}`}
       data-translation-unit-id={unit.id}
       data-aligned-active={isActive ? "true" : undefined}
       data-aligned-partner={!isActive && isHighlighted ? "true" : undefined}
@@ -99,7 +120,17 @@ export function TranslationUnitComponent({
             />
           </div>
         ) : (
-          renderInlines(unit.inlines, undefined, `tr-${unit.id}`)
+          renderInlines(
+            unit.inlines,
+            {
+              idPrefix: anchorPrefix,
+              footnoteTarget: (footnoteId) => {
+                const target = footnoteUnits?.get(footnoteId);
+                return target ? `${anchorPrefix}${target}` : undefined;
+              },
+            },
+            `tr-${unit.id}`,
+          )
         )}
       </div>
 

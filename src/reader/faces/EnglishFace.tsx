@@ -11,7 +11,7 @@ import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { FACE_REGISTRY } from "./registry.ts";
 import { isPaperTranslationUnreviewed } from "./reviewState.ts";
-import { TranslationUnit as TranslationUnitItem } from "./TranslationUnit.tsx";
+import { TranslationUnit as TranslationUnitItem, unitsBySourceRef } from "./TranslationUnit.tsx";
 import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
 import "../reader.css";
 
@@ -34,6 +34,8 @@ export function EnglishFace({
 }: EnglishFaceProps) {
   const isUnreviewed = isPaperTranslationUnreviewed(units, reviewRecords);
   const alignmentIndex = buildAlignmentIndex(alignment, undefined, units);
+  // A footnote mark links to the unit that translates the footnote, which this face does render.
+  const footnoteUnits = unitsBySourceRef(units);
 
   const reviewRecordsMap = new Map<string, ReviewRecord>();
   for (const rec of reviewRecords) {
@@ -98,6 +100,7 @@ export function EnglishFace({
             unit={unit}
             reviewRecord={reviewRecordsMap.get(unit.id)}
             editorialNotes={editorialNotes}
+            footnoteUnits={footnoteUnits}
           />
         ))}
       </main>
