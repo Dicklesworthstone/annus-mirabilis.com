@@ -7,6 +7,8 @@ import example from "../../../generated/lq01-example.json";
 
 export const metadata: Metadata = {
   title: "Wave description and energy spreading",
+  description:
+    "What does a continuous wave description of light explain well, and what exactly does its intensity measure?",
 };
 
 export default function WaveDescriptionPage() {

@@ -7,7 +7,11 @@ import type { PreparedCountermodelCase } from "../../../reasoning/countermodel/s
 import { CountermodelWorkbench } from "../../../reasoning/countermodel/Workbench.tsx";
 import "../../../components/lab/showTheCode.css";
 
-export const metadata: Metadata = { title: "Compare models: which observations can decide?" };
+export const metadata: Metadata = {
+  title: "Compare models: which observations can decide?",
+  description:
+    "A candidate can fail a stated constraint, remain useful in a limited regime, or agree with another candidate on every measurement you have chosen.",
+};
 export default function CountermodelPage() {
   const cases: readonly (Omit<PreparedCountermodelCase, "case"> & { case: unknown })[] =
     generated.cases;

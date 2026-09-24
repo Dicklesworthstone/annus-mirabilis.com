@@ -6,6 +6,8 @@ import labDigests from "../../../generated/lab-source-digests.json";
 
 export const metadata: Metadata = {
   title: "Opposite pulses and two ledgers",
+  description:
+    "If a body at rest emits two equal pulses of light in opposite directions, what do the energy accounting books of two different inertial observers force you to conclude about the body's energy of motion?",
 };
 
 export default function TwoLedgersPage() {

@@ -3,7 +3,11 @@ import "./observations.css";
 import type { Metadata } from "next";
 import { MeasuredTrajectoryLab } from "../../../components/lab/MeasuredTrajectoryLab.tsx";
 
-export const metadata: Metadata = { title: "Analyze your Brownian trajectory data" };
+export const metadata: Metadata = {
+  title: "Analyze your Brownian trajectory data",
+  description:
+    "Load the positions of a particle you tracked, and see which diffusion estimate they support and on what assumptions.",
+};
 export default function BrownianDataPage() {
   return (
     <>

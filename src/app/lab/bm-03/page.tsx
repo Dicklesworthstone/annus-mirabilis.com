@@ -7,6 +7,8 @@ import { evaluateBm03 } from "../../../experiments/bm03/session.ts";
 
 export const metadata: Metadata = {
   title: "The configuration integral and free energy",
+  description:
+    "How can a vast microscopic problem, with every molecule and every suspended particle in motion, yield a law as simple as Π = n k_B T without solving any equation of motion?",
 };
 
 export default function ConfigurationPage() {

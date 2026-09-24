@@ -7,6 +7,7 @@ import example from "../../../generated/sr10-example.json";
 
 export const metadata: Metadata = {
   title: "The finite light complex",
+  description: "How do the energy and volume of a bounded light complex transform between frames?",
 };
 
 export default function LightComplexPage() {

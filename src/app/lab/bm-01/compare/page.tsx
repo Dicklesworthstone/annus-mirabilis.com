@@ -5,6 +5,8 @@ import replayCatalogue from "../../../../generated/notebook-replay.json";
 
 export const metadata: Metadata = {
   title: "Hold something fixed: a controlled Brownian comparison",
+  description:
+    "Double the particle radius from 0.5 to 1 μm, and keep the liquid (1.35 mPa·s at 290.15 K), the observation time and the random draws.",
 };
 export default function BrownianComparisonPage() {
   return (

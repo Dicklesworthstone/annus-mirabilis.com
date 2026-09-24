@@ -6,6 +6,8 @@ import labDigests from "../../../generated/lab-source-digests.json";
 
 export const metadata: Metadata = {
   title: "The radiation spectrum and regime comparison",
+  description:
+    "What does a measured radiation spectrum look like at a given temperature, in which regime is Wien's law or the classical law an accurate description, and what does a density plot actually measure?",
 };
 
 export default function SpectrumPage() {

@@ -6,7 +6,11 @@ import { validateMe02Parameters } from "../../../experiments/me02/parameters.ts"
 import massEnergyEquations from "../../../generated/mass-energy-equations.json";
 import example from "../../../generated/me02-example.json";
 
-export const metadata: Metadata = { title: "Inertia from the small-speed coefficient" };
+export const metadata: Metadata = {
+  title: "Inertia from the small-speed coefficient",
+  description:
+    "Under the unchanged-offset premise, emitting energy L reduces energy of motion by L(γ − 1). What does that drop tell you about the body's inertia?",
+};
 
 export default function CoefficientPage() {
   const checked = validateMe02Parameters(example.parameters);

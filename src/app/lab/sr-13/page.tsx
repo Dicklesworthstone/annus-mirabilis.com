@@ -6,6 +6,8 @@ import example from "../../../generated/sr13-example.json";
 
 export const metadata: Metadata = {
   title: "Dynamics of the slowly accelerated electron",
+  description:
+    "What force, work, energy, and deflection relations follow for a slowly accelerated electron, and why do two different “transverse masses” appear?",
 };
 
 export default function ElectronDynamicsPage() {

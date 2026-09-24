@@ -6,6 +6,8 @@ import labDigests from "../../../generated/lab-source-digests.json";
 
 export const metadata: Metadata = {
   title: "The system-boundary energy ledger",
+  description:
+    "When energy leaves a body as radiation, which system loses mass, and which does not?",
 };
 
 export default function BoundaryLedgerPage() {

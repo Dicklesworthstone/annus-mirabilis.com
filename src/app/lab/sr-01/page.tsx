@@ -7,6 +7,8 @@ import labDigests from "../../../generated/lab-source-digests.json";
 
 export const metadata: Metadata = {
   title: "Clock synchronization with the event ledger",
+  description:
+    "A signal goes out, bounces off a distant clock, and comes back. Splitting the round-trip time in half is Einstein's stated procedure for timing something far away.",
 };
 
 export default function ClockSyncPage() {

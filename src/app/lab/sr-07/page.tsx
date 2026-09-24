@@ -8,6 +8,8 @@ import "./equations.css";
 
 export const metadata: Metadata = {
   title: "Transform the field equations",
+  description:
+    "How do the Maxwell-Hertz equations keep their form under the transformation, and what must the electric and magnetic fields do?",
 };
 
 export default function FieldEquationsPage() {

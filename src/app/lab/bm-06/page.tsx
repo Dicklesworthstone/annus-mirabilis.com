@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { BrownianComparison } from "../../../components/lab/BrownianLab.tsx";
 import example from "../../../generated/bm06-example.json";
-export const metadata: Metadata = { title: "The spreading laboratory" };
+export const metadata: Metadata = {
+  title: "The spreading laboratory",
+  description:
+    "How far from its starting point might a suspended particle be? Change the time, viscosity or radius, then ask about a whole interval, not just a single position.",
+};
 export default function BrownianLabPage() {
   return (
     <>

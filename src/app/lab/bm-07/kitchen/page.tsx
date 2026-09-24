@@ -4,7 +4,11 @@ import { KitchenComparison } from "../../../../components/lab/kitchen/KitchenLab
 import { withScripts } from "../../../../components/lab/subscripts.tsx";
 import { KITCHEN_CAPTION } from "../../../../experiments/bm07/kitchen/caption.ts";
 import practice from "../../../../generated/kitchen-practice.json";
-export const metadata: Metadata = { title: "Analyze your Brownian observations" };
+export const metadata: Metadata = {
+  title: "Analyze your Brownian observations",
+  description:
+    "Keep the measured positions, the missing observations and the assumptions together. Change the analysis without rewriting the evidence.",
+};
 export default function KitchenObservationPage() {
   return (
     <>

@@ -8,6 +8,8 @@ import "./composition.css";
 
 export const metadata: Metadata = {
   title: "Velocity composition",
+  description:
+    "Why doesn't adding speeds preserve light speed, and what happens when the motions are not along one line?",
 };
 
 export default function VelocityCompositionPage() {

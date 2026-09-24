@@ -6,6 +6,8 @@ import example from "../../../generated/lq04-example.json";
 
 export const metadata: Metadata = {
   title: "Radiation entropy workbench",
+  description:
+    "Within the regime where Wien's law holds, how does the entropy of monochromatic radiation depend on the volume it occupies, and what had to be fixed to get a definite answer?",
 };
 
 export default function EntropyWorkbenchPage() {

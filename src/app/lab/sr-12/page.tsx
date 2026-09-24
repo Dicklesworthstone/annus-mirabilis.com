@@ -6,6 +6,8 @@ import example from "../../../generated/sr12-example.json";
 
 export const metadata: Metadata = {
   title: "Charge and current density",
+  description:
+    "How do charge density and current density transform between inertial frames, and why is a neutral current-carrying wire charged in a moving frame?",
 };
 
 export default function ChargeCurrentPage() {

@@ -4,7 +4,11 @@ import { MagnetConductorComparison } from "../../../components/lab/MagnetConduct
 import { validateSr02Parameters } from "../../../experiments/sr02/parameters.ts";
 import example from "../../../generated/sr02-example.json";
 
-export const metadata: Metadata = { title: "Magnet and conductor" };
+export const metadata: Metadata = {
+  title: "Magnet and conductor",
+  description:
+    "Why does moving the magnet instead of the conductor create an explanatory asymmetry, and how does the transformation remove it? Both descriptions are internally coherent.",
+};
 
 export default function MagnetConductorPage() {
   const checked = validateSr02Parameters(example.parameters);

@@ -6,6 +6,8 @@ import example from "../../../generated/sr11-example.json";
 
 export const metadata: Metadata = {
   title: "Moving mirror reflection and radiation pressure",
+  description:
+    "How do the frequency, angle, amplitude, and radiation pressure of light transform when reflected by a moving mirror, and how does energy balance between the light and the mirror's mechanical work?",
 };
 
 export default function MovingMirrorPage() {

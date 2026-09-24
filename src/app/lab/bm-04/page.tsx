@@ -8,6 +8,8 @@ import { NotModeledLine } from "../NotModeledLine.tsx";
 
 export const metadata: Metadata = {
   title: "Drift-diffusion balance and the Stokes-Einstein relation",
+  description:
+    "How can a drag force and equilibrium determine how fast particles diffuse, and why does the magnitude of the force drop out of the resulting diffusion coefficient?",
 };
 
 export default function DriftDiffusionLabPage() {

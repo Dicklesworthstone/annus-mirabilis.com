@@ -6,6 +6,7 @@ import example from "../../../generated/sr09-example.json";
 
 export const metadata: Metadata = {
   title: "Doppler principle and aberration",
+  description: "How do the frequency and propagation direction of light transform between frames?",
 };
 
 export default function DopplerAberrationPage() {

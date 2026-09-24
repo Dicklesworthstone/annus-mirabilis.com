@@ -3,7 +3,11 @@ import { Formula } from "../../../components/edition/Formula.tsx";
 import { OsmoticPartitionLab } from "../../../components/lab/OsmoticPartitionLab.tsx";
 import { DEFAULT_BM02_INPUTS } from "../../../experiments/bm02/session.ts";
 
-export const metadata: Metadata = { title: "The osmotic partition" };
+export const metadata: Metadata = {
+  title: "The osmotic partition",
+  description:
+    "Einstein's §1 makes a daring equivalence: a visible suspended particle should exert osmotic pressure by the same law as a dissolved molecule, because van 't Hoff's law has no term that knows how big the molecule is.",
+};
 
 export default function OsmoticPartitionPage() {
   return (

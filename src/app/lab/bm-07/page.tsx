@@ -4,7 +4,11 @@ import { Formula } from "../../../components/edition/Formula.tsx";
 import { InferenceComparison } from "../../../components/lab/InferenceLab.tsx";
 import { validateBm07Parameters } from "../../../experiments/bm07/parameters.ts";
 import example from "../../../generated/bm07-example.json";
-export const metadata: Metadata = { title: "From wandering to molecular-number inference" };
+export const metadata: Metadata = {
+  title: "From wandering to molecular-number inference",
+  description:
+    "What can a finite set of displacements tell you about the hidden parameters of the equation that predicts their spread, and what must you know independently?",
+};
 export default function InferencePage() {
   const checked = validateBm07Parameters(example.parameters);
   if (checked.kind !== "accepted") throw new Error("The prepared inference settings are invalid.");

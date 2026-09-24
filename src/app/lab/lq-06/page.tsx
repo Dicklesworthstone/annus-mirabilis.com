@@ -7,6 +7,8 @@ import example from "../../../generated/lq06-example.json";
 
 export const metadata: Metadata = {
   title: "Matching the entropy coefficients to derive the light quantum",
+  description:
+    "Why does matching the volume dependence of Wien radiation entropy to Boltzmann's independent-particle law suggest that monochromatic light behaves as independent quanta of energy hν?",
 };
 
 export default function CoefficientMatchPage() {

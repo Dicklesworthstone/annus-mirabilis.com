@@ -5,6 +5,8 @@ import { DEFAULT_LQ02_INPUTS } from "../../../experiments/lq02/session.ts";
 
 export const metadata: Metadata = {
   title: "Classical mode-energy allocation",
+  description:
+    "§1 gives every linear resonator oscillation the same mean energy, whatever its frequency.",
 };
 
 export default function ModeAllocationPage() {

@@ -6,6 +6,8 @@ import example from "../../../generated/lq08-example.json";
 
 export const metadata: Metadata = {
   title: "Photoelectric apparatus and stopping potential",
+  description:
+    "Why does increasing light intensity release more electrons without increasing their individual energy, while increasing frequency increases electron energy without requiring higher intensity?",
 };
 
 export default function PhotoelectricPage() {

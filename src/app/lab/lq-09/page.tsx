@@ -6,6 +6,8 @@ import example from "../../../generated/lq09-example.json";
 
 export const metadata: Metadata = {
   title: "Gas ionization bounds and counting model",
+  description:
+    "How does single-quantum energy conservation set the threshold frequency for ionizing a gas, and why is the number of ionized molecules strictly bounded by the absorbed light quanta?",
 };
 
 export default function IonizationPage() {

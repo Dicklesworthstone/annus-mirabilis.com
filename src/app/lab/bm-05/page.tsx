@@ -5,7 +5,11 @@ import { Formula } from "../../../components/edition/Formula.tsx";
 import { WalkComparison } from "../../../components/lab/WalkLab.tsx";
 import { validateBm05Parameters } from "../../../experiments/bm05/parameters.ts";
 import example from "../../../generated/bm05-example.json";
-export const metadata: Metadata = { title: "From random steps to diffusion" };
+export const metadata: Metadata = {
+  title: "From random steps to diffusion",
+  description:
+    "Begin with a coin walk you can count exactly. Change the shape of each step without changing its variance.",
+};
 export default function WalkPage() {
   const checked = validateBm05Parameters(example.parameters);
   if (checked.kind !== "accepted") throw new Error("The prepared walk parameters are invalid.");

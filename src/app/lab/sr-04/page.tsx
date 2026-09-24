@@ -6,6 +6,8 @@ import labDigests from "../../../generated/lab-source-digests.json";
 
 export const metadata: Metadata = {
   title: "Construct the Lorentz map",
+  description:
+    "What map between two inertial frames keeps both postulates, and what does each requirement decide?",
 };
 
 export default function LorentzMapPage() {

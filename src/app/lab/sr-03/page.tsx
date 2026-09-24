@@ -7,6 +7,8 @@ import example from "../../../generated/sr03-example.json";
 
 export const metadata: Metadata = {
   title: "Rod measurement and simultaneity",
+  description:
+    "How does relative motion affect the synchronization of clocks, the coordinate measurement of moving rods, and the shape of moving spheres?",
 };
 
 export default function RodSimultaneityPage() {

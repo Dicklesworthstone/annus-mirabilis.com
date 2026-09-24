@@ -5,7 +5,11 @@ import { Formula } from "../../../components/edition/Formula.tsx";
 import { CameraComparison } from "../../../components/lab/CameraLab.tsx";
 import { validateBm08Parameters } from "../../../experiments/bm08/parameters.ts";
 import example from "../../../generated/bm08-example.json";
-export const metadata: Metadata = { title: "The particle, the camera, and the estimate" };
+export const metadata: Metadata = {
+  title: "The particle, the camera, and the estimate",
+  description:
+    "A camera averages motion during exposure and adds uncertainty to every position. See why those errors change what you can infer from the same path.",
+};
 export default function CameraPage() {
   const p = validateBm08Parameters(example.parameters);
   if (p.kind !== "accepted") throw new Error("Invalid prepared camera settings.");

@@ -6,6 +6,8 @@ import example from "../../../generated/sr08-example.json";
 
 export const metadata: Metadata = {
   title: "Electric and magnetic frame change",
+  description:
+    "How do electric and magnetic descriptions change together under a boost, and what does a test charge experience in each frame?",
 };
 
 export default function FieldFrameChangePage() {
