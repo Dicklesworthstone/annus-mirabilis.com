@@ -16,6 +16,7 @@ import { ScalingTable } from "./ScalingTable.tsx";
 import { TableToPlotBuilder } from "./TableToPlotBuilder.tsx";
 import { TaylorBinomialExtension } from "./TaylorBinomialExtension.tsx";
 import { TurnedAxes } from "./TurnedAxes.tsx";
+import { TwoCurves } from "./TwoCurves.tsx";
 import { UnitCancellationTable } from "./UnitCancellationTable.tsx";
 import { UnitConversionCalculator } from "./UnitConversionCalculator.tsx";
 
@@ -70,5 +71,7 @@ export function FoundationConstruction({
       return <ProductsView headingLevel={headingLevel} />;
     case "conservation-symmetry":
       return <DescriptionOrWorld headingLevel={headingLevel} />;
+    case "two-measurements-two-unknowns":
+      return <TwoCurves headingLevel={headingLevel} />;
   }
 }

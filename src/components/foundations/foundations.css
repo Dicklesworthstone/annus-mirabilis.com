@@ -378,6 +378,30 @@
   stroke-width: 2.5;
 }
 
+/*
+ * TwoCurves.tsx: the diffusion band reuses .products-area (dashed); the second measurement's band
+ * is a solid outline and the overlap a heavy outline over a light fill, so line style tells the
+ * three apart. The ring marks the true pair.
+ */
+.curves-band-second {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.curves-overlap {
+  fill: var(--muted);
+  fill-opacity: 0.35;
+  stroke: var(--ink);
+  stroke-width: 3;
+}
+
+.curves-truth {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
 /* Print Media Styles */
 @media print {
   .proportional-controls,
