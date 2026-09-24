@@ -36,11 +36,18 @@ export function PassageActionsBar({
   passageId,
   passageLabel,
   actions,
+  originalHref,
 }: {
   paperId: string;
   passageId: string;
   passageLabel: string;
   actions: PassageActions;
+  /**
+   * Where "Read the original" goes: the German face at the passage's section, or null when the
+   * paper has no German text, which leaves the action out (paperSourceFaces.ts). Omitted, it
+   * falls back to the German face at the passage's own id, an id no face renders.
+   */
+  originalHref?: string | null;
 }) {
   const defaultLink = `/papers/${paperId}/#${passageId}`;
   const tryItLabel =
@@ -73,9 +80,9 @@ export function PassageActionsBar({
             Try it: static worked example
           </a>
         ) : null}
-        {actions.original ? (
+        {actions.original && originalHref !== null ? (
           <a
-            href={`${faceLinkHref(paperId, "german")}#${passageId}`}
+            href={originalHref ?? `${faceLinkHref(paperId, "german")}#${passageId}`}
             aria-label={`Read the original German: ${passageLabel}`}
           >
             Read the original

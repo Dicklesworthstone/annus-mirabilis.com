@@ -16,6 +16,7 @@ import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel
 import { quantityLegend } from "../equations/quantityColourView.ts";
 import missingSteps from "../generated/missing-steps.json";
 import { paperEquations } from "./paperEquations.ts";
+import { originalHref, paperSourceFaces } from "./paperSourceFaces.ts";
 import { PaperStatus } from "./paperStatus.tsx";
 import { passageKind } from "./passageKind.ts";
 import { QuantityLegendList } from "./QuantityLegendList.tsx";
@@ -42,6 +43,8 @@ export async function PaperReader({
   const companionKind = companionKindFromQuery(companion);
   const payload = await loadPaper("brownian-motion"),
     { paper, foundations } = payload;
+  // "Read the original" opens the German face at the passage's section (paperSourceFaces.ts).
+  const sources = await paperSourceFaces(paper.id);
   const equationsById = paperEquations(paper.id);
   const sections = section ? paper.sections.filter((s) => s.id === section) : paper.sections;
   if (!sections.length) throw new Error("Section is not in the compiled outline.");
@@ -364,6 +367,7 @@ export async function PaperReader({
                       passageId={a.id}
                       passageLabel={a.title}
                       actions={passageActionsFromArgument(a)}
+                      originalHref={originalHref(paper.id, sources, a.section)}
                     />
                     <p className="fine">
                       Source context:{" "}

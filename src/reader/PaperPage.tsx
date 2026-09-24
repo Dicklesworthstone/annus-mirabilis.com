@@ -48,6 +48,7 @@ import {
   paperPath,
   resolvePaperRoute,
 } from "./paperRoutes.ts";
+import { originalHref, paperSourceFaces } from "./paperSourceFaces.ts";
 import { PaperStatus } from "./paperStatus.tsx";
 import { passageKind } from "./passageKind.ts";
 import { ReaderController } from "./ReaderController.tsx";
@@ -237,73 +238,47 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
   const sectionId = resolved.section;
   const sections = sectionId ? paper.sections.filter((s) => s.id === sectionId) : paper.sections;
   const args = payload.arguments.filter((a) => sections.some((s) => s.id === a.section));
-  // Where each passage's source notice sends a reader. ?view=german on this page shows that
-  // notice in every passage, and it used to end there: measured on live, light-quanta and
-  // mass-energy gave 12 and 8 notices with no link while their /view/german/ pages hold the
-  // drafted German. Decided by the dispatch's own predicate, so the link appears exactly when
-  // the German face renders text, and is labelled a draft when that is what it is.
-  const edition = await loadBilingualEdition(paper.id).catch(() => null);
-  const editionBlocks = edition?.blocks.length ?? 0;
-  const draft = editionBlocks === 0 ? loadGermanSourceFace(paper.id as RouteSlug) : null;
-  const draftBlocks = draft?.blocks.length ?? 0;
-  // Each passage's "Source context" line offers only the faces that have something to show, by
-  // the chooser's own rule, and opens the German and the scan at the passage's section. It used
-  // to offer German, English, interlinear gloss and facsimile on every passage of every paper,
-  // each at #<argument id>: English and gloss are empty for all four papers, special-relativity
-  // has no German, and neither face has an element with an argument's id, so on live light-quanta
-  // 12 passages carried 24 links to "not yet available" and 24 more that opened at the top of the
-  // paper. Facsimile is "unknown" here, never "empty" (faceAvailability.ts), so it stays offered.
-  const availability = faceAvailability({
-    blocks: editionBlocks,
-    units: edition?.units.length ?? 0,
-    glossUnits: edition?.glossUnits?.length ?? 0,
-    germanDraftBlocks: draftBlocks,
-  });
-  const sourceAnchors = new Set<string>(
-    (editionBlocks > 0 ? edition?.blocks : draft?.blocks)?.map((b) => b.id) ?? [],
-  );
-  const sectionFragment = (section: string) =>
-    sourceAnchors.has(section)
-      ? `#${section}`
-      : sourceAnchors.has(`${section}-p1`)
-        ? `#${section}-p1`
-        : "";
+  // Where a passage sends a reader for its source: "Read the original", the "Source context"
+  // line, and the notice ?view=german shows in the passage's place. paperSourceFaces decides by
+  // the chooser's rule, so each offers only a face with something in it, at the passage's section.
+  const sources = await paperSourceFaces(paper.id);
   const sourceContext = (a: { id: string; section: string }) =>
     [
-      availability.german === "available" && {
+      sources.availability.german === "available" && {
         face: "german",
         label: "German source",
         name: "German source",
-        href: `/papers/${paper.id}/view/german/${sectionFragment(a.section)}`,
+        href: `/papers/${paper.id}/view/german/${sources.sectionFragment(a.section)}`,
       },
-      availability.english === "available" && {
+      sources.availability.english === "available" && {
         face: "english",
         label: "English",
         name: "English translation",
         href: `/papers/${paper.id}/view/english/#${a.id}`,
       },
-      availability.gloss === "available" && {
+      sources.availability.gloss === "available" && {
         face: "gloss",
         label: "Interlinear gloss",
         name: "Interlinear gloss",
         href: `/papers/${paper.id}/view/gloss/#${a.id}`,
       },
-      availability.facsimile !== "empty" && {
+      // Facsimile is "unknown" here, never "empty" (faceAvailability.ts), so it stays offered.
+      sources.availability.facsimile !== "empty" && {
         face: "facsimile",
         label: "Facsimile",
         name: "Facsimile scan",
-        href: `/papers/${paper.id}/view/facsimile/${sectionFragment(a.section)}`,
+        href: `/papers/${paper.id}/view/facsimile/${sources.sectionFragment(a.section)}`,
       },
     ].filter((link) => link !== false);
-  const germanSource = germanFaceHasContent(editionBlocks, draftBlocks)
-    ? {
-        href: `/papers/${paper.id}/view/german/`,
-        label:
-          editionBlocks > 0
-            ? "Read the German source for the whole paper →"
-            : "Read the drafted German source for the whole paper →",
-      }
-    : null;
+  const germanSource =
+    sources.availability.german === "available"
+      ? {
+          href: `/papers/${paper.id}/view/german/`,
+          label: sources.germanIsDraft
+            ? "Read the drafted German source for the whole paper →"
+            : "Read the German source for the whole paper →",
+        }
+      : null;
   const entrance =
     paper.id === "mass-energy" ? validateEntranceRecord(entranceExample.record) : null;
   const lightEntrance =
@@ -531,6 +506,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                       passageId={a.id}
                       passageLabel={a.title}
                       actions={passageActionsFromArgument(a)}
+                      originalHref={originalHref(paper.id, sources, a.section)}
                     />
                     {sourceContext(a).length > 0 && (
                       <p className="fine">
