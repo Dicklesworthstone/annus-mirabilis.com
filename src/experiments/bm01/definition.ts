@@ -60,8 +60,23 @@ const c = (
   semanticKind: string,
   ownerId: string,
   statuses: OutputContract["statuses"] = ["value"],
+  admittedOwnerIds?: readonly string[],
 ): OutputContract =>
-  Object.freeze({ unit, semanticKind, ownerId, statuses: Object.freeze([...statuses]) });
+  Object.freeze({
+    unit,
+    semanticKind,
+    ownerId,
+    statuses: Object.freeze([...statuses]),
+    ...(admittedOwnerIds ? { admittedOwnerIds: Object.freeze([...admittedOwnerIds]) } : {}),
+  });
+/**
+ * The two registered producers of a tracer recording: the host reference and FrankenSim's
+ * compiled brownian_frames (am-frankensim-repin-and-bind-jvhg). The three outputs read straight
+ * from the recording (tracerPositions, traceCoordinates, recordingDraws) admit both, name
+ * whichever produced it, and all three name the same one (protocol/bm01.ts checks).
+ */
+export const BM01_HOST_RECORDER_OWNER = "diffusion.recordTracers";
+export const BM01_FRANKENSIM_RECORDER_OWNER = "fs-wasm.brownian_frames";
 export const BM01_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
   temperature: c("K", "absolute-temperature", "bm01.acceptedInputs"),
   viscosity: c("Pa s", "dynamic-viscosity", "bm01.acceptedInputs"),
@@ -81,8 +96,20 @@ export const BM01_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     "value",
     "not-applicable",
   ]),
-  tracerPositions: c("m", "synthetic-tracer-endpoints-xyz", "diffusion.recordTracers"),
-  traceCoordinates: c("m", "synthetic-displacement-traces-xy", "diffusion.recordTracers"),
+  tracerPositions: c(
+    "m",
+    "synthetic-tracer-endpoints-xyz",
+    BM01_HOST_RECORDER_OWNER,
+    ["value"],
+    [BM01_FRANKENSIM_RECORDER_OWNER],
+  ),
+  traceCoordinates: c(
+    "m",
+    "synthetic-displacement-traces-xy",
+    BM01_HOST_RECORDER_OWNER,
+    ["value"],
+    [BM01_FRANKENSIM_RECORDER_OWNER],
+  ),
   traceTimes: c("s", "recorded-trace-times", "bm01.measure"),
   sampleMean: c("m", "sample-coordinate-mean", "diffusion.ensembleMoments"),
   sampleMeanAbsolute: c("m", "sample-coordinate-absolute-mean", "diffusion.ensembleMoments"),
@@ -117,7 +144,13 @@ export const BM01_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     "diffusion.ensembleMomentBands",
     ["value", "underdetermined", "analytic-limit"],
   ),
-  recordingDraws: c("1", "logical-recording-draws", "diffusion.recordTracers"),
+  recordingDraws: c(
+    "1",
+    "logical-recording-draws",
+    BM01_HOST_RECORDER_OWNER,
+    ["value"],
+    [BM01_FRANKENSIM_RECORDER_OWNER],
+  ),
   reusedRecording: c("1", "recording-reuse-indicator", "bm01.measure"),
   ensembleSize: c("1", "sample-count", "bm01.acceptedInputs"),
   signedMean: c("m", "sample-coordinate-mean", "diffusion.ensembleMoments"),

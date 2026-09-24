@@ -10,7 +10,7 @@ import {
   decodeRefusal,
   decodeResultBatch,
 } from "../../experiments/results/codec.ts";
-import type { RequestToken } from "../../experiments/store/instanceStore.ts";
+import { ownerAdmitted, type RequestToken } from "../../experiments/store/instanceStore.ts";
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import type { Bm01Evaluation } from "../operations/bm01.ts";
 
@@ -209,7 +209,7 @@ export function decodeLabResponse(
           continue;
         }
         if (
-          output.ownerId !== c.ownerId ||
+          !ownerAdmitted(c, output.ownerId) ||
           output.semanticKind !== c.semanticKind ||
           output.unit !== c.unit
         )
@@ -252,6 +252,15 @@ export function decodeLabResponse(
         )
           fail("Apparent speed is undefined at the starting point.");
       }
+      // Outputs that more than one owner may produce are read from one recording, so they name
+      // one producer between them.
+      const recordingOwners = new Set(
+        outputs
+          .filter((o) => (BM01_OUTPUTS[o.quantityId]?.admittedOwnerIds?.length ?? 0) > 0)
+          .map((o) => o.ownerId),
+      );
+      if (recordingOwners.size > 1)
+        fail("Outputs read from one recording name different producers.");
     } else if (r?.kind === "refused") {
       record(r, ["kind", "refusal"]);
       decodeRefusal(r.refusal);
