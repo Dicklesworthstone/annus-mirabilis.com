@@ -521,7 +521,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "\\ln"
-    notes: "ISO 80000-2 / DIN 1302 note: Einstein's 'lg' notation represents the natural logarithm (base e), rendered as \\ln in modern standards."
+    notes: "ISO 80000-2 / DIN 1302 note: Einstein's 'lg' notation represents the natural logarithm (base e), written ln in modern standards."
     sources:
       facsimilePage: 551
       anchor: bm-s2-p2

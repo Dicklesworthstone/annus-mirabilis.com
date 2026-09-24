@@ -1526,7 +1526,7 @@ entries:
       toSystem: si
       factor: 1.0e-8
       exact: false
-    notes: "Conventional factor: 1 abV ↔ 10^{-8} V. exactness is conventional, not a 2019 SI identity. Follows the printed representation of the 4.3 V check."
+    notes: "Conventional factor: 1 abV ↔ 10⁻⁸ V. The exactness is conventional, not a 2019 SI identity. Follows the printed representation of the 4.3 V check."
     sources:
       facsimilePage: 145
       anchor: lq-s8-p1
