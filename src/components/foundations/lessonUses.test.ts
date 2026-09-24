@@ -101,6 +101,23 @@ describe("the passages that send a reader to a lesson", () => {
     expect(lessonUses("derivatives", [paper])).toEqual([]);
   });
 
+  test("lessons a passage links from outside its record count, in the same reading order", () => {
+    // a1 names only integration in its record; its obstacle answers or a mounted derivation may
+    // link derivatives too, which passageLessons.ts supplies keyed by argument.
+    const extra = new Map([["a1", new Set(["derivatives"])]]);
+    expect(lessonUses("derivatives", [brownian], extra).map((u) => u.href)).toEqual([
+      "/papers/brownian-motion/s4/#a1",
+      "/papers/brownian-motion/s4/#a2",
+      "/papers/brownian-motion/s5/#a3",
+    ]);
+    // An extra entry for an argument no section lists still reaches nobody.
+    const unlisted = new Map([["a9", new Set(["derivatives"])]]);
+    expect(lessonUses("derivatives", [brownian], unlisted).map((u) => u.href)).toEqual([
+      "/papers/brownian-motion/s4/#a2",
+      "/papers/brownian-motion/s5/#a3",
+    ]);
+  });
+
   test("planted: an argument a section does not list is not a passage a reader can reach", () => {
     const orphan = {
       ...brownian,

@@ -68,11 +68,22 @@ export function paperName(title: string): string {
 }
 
 /**
+ * Lessons a passage sends readers to from outside its own record, keyed by argument id: see
+ * passageLessons.ts. Without them the rail missed 6 of 72 passage-to-lesson links measured on live
+ * at 01478983: 4 from obstacle answers, 2 from the mass-energy derivation's step tools.
+ */
+export type ExtraLessons = ReadonlyMap<string, ReadonlySet<string>>;
+
+/**
  * Each passage that sends a reader to `lessonId`, in reading order: papers as Annalen received
  * them, sections as printed, arguments as the section lists them. Each names its paper, and its
  * section by the printed label ("§4", "Introduction") unless the paper has only one.
  */
-export function lessonUses(lessonId: string, papers: readonly PaperLike[]): LessonUse[] {
+export function lessonUses(
+  lessonId: string,
+  papers: readonly PaperLike[],
+  extra: ExtraLessons = new Map(),
+): LessonUse[] {
   const rank = (id: string) => (PAPER_ORDER.includes(id) ? PAPER_ORDER.indexOf(id) : 99);
   const uses: LessonUse[] = [];
   for (const { paper, arguments: args } of [...papers].sort(
@@ -82,7 +93,11 @@ export function lessonUses(lessonId: string, papers: readonly PaperLike[]): Less
     for (const section of paper.sections)
       for (const argumentId of section.arguments) {
         const argument = byId.get(argumentId);
-        if (!argument || !lessonsNamedBy(argument).has(lessonId)) continue;
+        if (
+          !argument ||
+          !(lessonsNamedBy(argument).has(lessonId) || extra.get(argumentId)?.has(lessonId))
+        )
+          continue;
         const label = section.title.split(" · ")[0] ?? section.title;
         uses.push({
           href: `/papers/${paper.id}/${section.id}/#${argument.id}`,

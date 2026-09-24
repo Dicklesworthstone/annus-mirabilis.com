@@ -4,6 +4,7 @@ import {
   lessonsBuildingOn,
   lessonUses,
 } from "../../../components/foundations/lessonUses";
+import { passageLessons } from "../../../components/foundations/passageLessons";
 import { contentIndex, loadFoundation, loadPaper } from "../../../content/server";
 import { FoundationBody } from "../../../reader/Blocks";
 import "../../../reader/reader.css";
@@ -34,7 +35,9 @@ export default async function Page({ params }: { params: Promise<{ concept: stri
     papers = await Promise.all(
       index.payloads.filter((p) => p.kind === "paper").map((p) => loadPaper(p.id)),
     ),
-    uses = groupByPaper(lessonUses(concept, papers)),
+    uses = groupByPaper(
+      lessonUses(concept, papers, passageLessons(papers.flatMap((p) => p.arguments))),
+    ),
     buildOn = lessonsBuildingOn(concept, lessons);
   return (
     <article className="foundation-page">
