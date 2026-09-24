@@ -22,8 +22,10 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { display, fixed, identity, result } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import { DopplerAberrationPlot } from "./DopplerAberrationPlot.tsx";
@@ -51,6 +53,9 @@ function SnapshotReading({
   return <span data-quantity-id={quantityId}>{statusMessage(item.status)}</span>;
 }
 
+// The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate.
+const SR09_PROMPTS = PREDICT_PROMPTS["sr-09"] ?? [];
+
 export function DopplerAberrationLab({
   example,
   title = "Doppler principle and aberration",
@@ -73,6 +78,8 @@ export function DopplerAberrationLab({
     true,
     (restored) => setDraft({ ...restored }),
   );
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("sr-09", SR09_PROMPTS);
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr09Parameters;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
@@ -166,6 +173,7 @@ export function DopplerAberrationLab({
       <p data-detail="3" hidden>
         {withScripts(SR09_CAPTION.r3)}
       </p>
+      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <form noValidate onSubmit={submit} aria-label="Doppler and aberration settings">
           <fieldset disabled={!ready}>
@@ -266,9 +274,10 @@ export function DopplerAberrationLab({
         <AcceptedStatus
           worked={snapshot === session.getServerSnapshot().accepted}
           summary={statusSummary}
+          response={gate.response}
         />
-        <LabTapeLink link={tapeLink} />
-        <div className="lab-results">
+        <LabTapeLink link={withPredictions(tapeLink, gate)} />
+        <div className="lab-results" {...gate.response}>
           {doppler !== null &&
           thetaK !== null &&
           thetaPrime !== null &&

@@ -22,8 +22,10 @@ import type {
   AcceptedSnapshot,
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import { ElectronDynamicsPlot } from "./ElectronDynamicsPlot.tsx";
@@ -59,6 +61,9 @@ function SnapshotReading({
   return <span data-quantity-id={quantityId}>{statusMessage(item.status)}</span>;
 }
 
+// The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate.
+const SR13_PROMPTS = PREDICT_PROMPTS["sr-13"] ?? [];
+
 export function ElectronDynamicsLab({
   example,
   title = "Dynamics of the slowly accelerated electron",
@@ -81,6 +86,8 @@ export function ElectronDynamicsLab({
     true,
     (restored) => setDraft({ ...restored }),
   );
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("sr-13", SR13_PROMPTS);
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr13Parameters;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
@@ -174,6 +181,7 @@ export function ElectronDynamicsLab({
           available; changing the parameters requires JavaScript.
         </p>
       </noscript>
+      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <form noValidate onSubmit={submit} aria-label="Electron dynamics controls">
           <fieldset disabled={!ready}>
@@ -369,9 +377,10 @@ export function ElectronDynamicsLab({
         <AcceptedStatus
           worked={snapshot === session.getServerSnapshot().accepted}
           summary={statusSummary}
+          response={gate.response}
         />
-        <LabTapeLink link={tapeLink} />
-        <div className="lab-results">
+        <LabTapeLink link={withPredictions(tapeLink, gate)} />
+        <div className="lab-results" {...gate.response}>
           <ElectronDynamicsPlot
             initialSpeed={beta}
             initialDirectionDeg={p.initialDirectionDeg}

@@ -14,8 +14,10 @@ import {
   writePredictionsDocument,
 } from "../../experiments/predict/predictStorage.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR06_EXAMPLE } from "../../experiments/sr06/session.ts";
+import { DEFAULT_PREPARED_EXAMPLE as SR09_EXAMPLE } from "../../experiments/sr09/session.ts";
 import type { PreparedSr10Example } from "../../experiments/sr10/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR11_EXAMPLE } from "../../experiments/sr11/session.ts";
+import { DEFAULT_PREPARED_EXAMPLE as SR13_EXAMPLE } from "../../experiments/sr13/session.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import rawSr10Example from "../../generated/sr10-example.json";
 import { createStorageContext } from "../../platform/storage/store.ts";
@@ -34,8 +36,10 @@ import {
   uninstallDom,
 } from "../../testing/reactDom.ts";
 import { VelocityCompositionLab } from "./sr06/VelocityCompositionLab.tsx";
+import { DopplerAberrationLab } from "./sr09/DopplerAberrationLab.tsx";
 import { LightComplexLab } from "./sr10/LightComplexLab.tsx";
 import { MovingMirrorLab } from "./sr11/MovingMirrorLab.tsx";
+import { ElectronDynamicsLab } from "./sr13/ElectronDynamicsLab.tsx";
 
 /**
  * Predict mode hides a laboratory's result until the reader answers (am-inst-predict-mode-ti7m).
@@ -53,6 +57,11 @@ const LABS: readonly (readonly [string, () => ReactElement, string])[] = [
     "Accepted composition",
   ],
   [
+    "sr-09",
+    () => createElement(DopplerAberrationLab, { example: SR09_EXAMPLE }),
+    "Values at these settings",
+  ],
+  [
     "sr-10",
     () =>
       createElement(LightComplexLab, { example: rawSr10Example as unknown as PreparedSr10Example }),
@@ -61,6 +70,11 @@ const LABS: readonly (readonly [string, () => ReactElement, string])[] = [
   [
     "sr-11",
     () => createElement(MovingMirrorLab, { example: SR11_EXAMPLE }),
+    "Values at these settings",
+  ],
+  [
+    "sr-13",
+    () => createElement(ElectronDynamicsLab, { example: SR13_EXAMPLE }),
     "Values at these settings",
   ],
 ];
