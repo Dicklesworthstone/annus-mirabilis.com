@@ -132,5 +132,7 @@ describe("the step list", () => {
     assert.ok(ids.every((id) => id.startsWith("apple-")));
     assert.equal(ids[0], "apple-disk");
     assert.deepEqual(ids.slice(-3), ["apple-build", "apple-unit-tests", "apple-ui-tests"]);
+    // Parity reads the same build freshness does, so it runs right after it.
+    assert.equal(ids.indexOf("apple-edition-parity"), ids.indexOf("apple-edition-fresh") + 1);
   });
 });

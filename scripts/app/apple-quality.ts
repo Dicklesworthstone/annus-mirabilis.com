@@ -32,6 +32,12 @@ import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
 import { newRunIdentity } from "../../src/testing/log/logger.ts";
 import {
+  compareWithDirectory,
+  type EditionManifestFiles,
+  summary as parityHeadline,
+  writeParityLog,
+} from "./edition-parity.ts";
+import {
   ASSET_CATALOG,
   decodePng,
   ICON_SIZE,
@@ -499,6 +505,42 @@ export function runStep(id: AppleStepId, logRunId: string): StepVerdict {
         : {
             outcome: "failed",
             message: `${changed.length} of ${manifest.files.length} exported files differ from ${outDir} (first: ${changed[0]?.path}). Run: bun scripts/app/export-edition.ts`,
+          };
+    }
+    case "apple-edition-parity": {
+      // Both ways, where apple-edition-fresh looks one way: every web file is carried with the same
+      // bytes or dropped by a declared export rule, and every carried file is in the build.
+      const manifestPath = join(REPO, "generated", "app-edition", "edition-manifest.json");
+      const sourcePath = join(REPO, "generated", "app-edition", "edition-source.txt");
+      if (!existsSync(manifestPath) || !existsSync(sourcePath)) {
+        return {
+          outcome: "failed",
+          message: "No exported edition. Run: bun scripts/app/export-edition.ts --out <build>",
+        };
+      }
+      const outDir = readFileSync(sourcePath, "utf8").trim();
+      if (!existsSync(outDir)) {
+        return {
+          outcome: "failed",
+          message: `The build the edition came from is gone: ${outDir}. Re-export from a build.`,
+        };
+      }
+      const result = compareWithDirectory(
+        JSON.parse(readFileSync(manifestPath, "utf8")) as EditionManifestFiles,
+        outDir,
+      );
+      const log = writeParityLog(REPO, result).replace(`${REPO}/`, "");
+      const failing = result.records.filter(
+        (r) => r.outcome !== "same" && r.outcome !== "excluded",
+      );
+      return result.passed
+        ? { outcome: "passed", message: `${parityHeadline(result)}. Log: ${log}` }
+        : {
+            outcome: "failed",
+            message: `${parityHeadline(result)}. First: ${failing
+              .slice(0, 3)
+              .map((r) => `${r.outcome} ${r.path}`)
+              .join("; ")}. Log: ${log}`,
           };
     }
     case "apple-simulators": {

@@ -18,6 +18,10 @@ export const APPLE_STEPS = [
     id: "apple-edition-fresh",
     title: "Apple: the exported edition still matches the build it came from",
   },
+  {
+    id: "apple-edition-parity",
+    title: "Apple: every file of that build is in the edition or declared excluded",
+  },
   { id: "apple-simulators", title: "Apple: the named simulators exist (created, never deleted)" },
   { id: "apple-build", title: "Apple: simulator build for testing" },
   { id: "apple-unit-tests", title: "Apple: unit tests (Swift Testing)" },
