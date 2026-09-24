@@ -26,7 +26,6 @@ const STILL_HARD_CODED = [
   "lab/bm03/ConfigurationLab.tsx",
   "lab/lightThread/LightThreadLab.tsx",
   "lab/lq05/IndependentConfigurationsLab.tsx",
-  "lab/lq07/FluorescenceLab.tsx",
   "lab/shelfOptics/ShelfOpticsLab.tsx",
   "lab/sr07/FieldEquationsLab.tsx",
 ];
@@ -38,6 +37,7 @@ const DERIVED_ROUTES = [
   "lq-03",
   "lq-04",
   "lq-06",
+  "lq-07",
   "lq-08",
   "lq-09",
   "me-01",
