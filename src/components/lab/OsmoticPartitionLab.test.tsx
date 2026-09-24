@@ -63,8 +63,21 @@ describe("OsmoticPartitionLab: static rendering (no JavaScript)", () => {
     expect(html).toContain("src/experiments/bm02/session.ts");
   });
 
-  test("the predict prompt appears before the reader sees a computed answer bias", () => {
-    expect(html).toContain("Predict before you calculate");
+  test("the chamber comes first and the pressure waits for a prediction or a skip", () => {
+    // Dispatch 156, option (c): the chamber drawing stays in view; the calculated pressure, the
+    // symbol card that states Π = nkT and the status line wait. Without JavaScript they show.
+    expect(html).toContain('data-predict-prompt="bm-02-predict-larger-particle"');
+    const chamber = html.indexOf("Illustration only");
+    expect(chamber).toBeGreaterThan(-1);
+    expect(html.slice(0, chamber)).not.toMatch(/<svg[^>]*data-predict-response/);
+    expect(html).toMatch(
+      /<div class="table-scroll" data-predict-response="awaiting"><table><caption>One accepted calculation/,
+    );
+    expect(html).toMatch(
+      /<section data-predict-response="awaiting"[^>]*aria-label="Three symbols that are easy to confuse"/,
+    );
+    expect(html).toMatch(/class="status-line" data-predict-response="awaiting"/);
+    expect(html).not.toContain('data-predict-response="shown"');
   });
 
   test("renders no script tags itself: works without JavaScript", () => {

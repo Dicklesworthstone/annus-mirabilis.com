@@ -12,8 +12,10 @@ import {
 } from "../../experiments/bm02/session";
 import { executionLabelFor } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
 import { sentenceNumber } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 import { withScripts } from "./subscripts.tsx";
@@ -92,6 +94,8 @@ function formatResult(result: { status: string; value?: unknown }, unit: string)
  * width cap keeps the drawing at illustration size, and non-scaling strokes keep
  * the walls a few pixels thick instead of seven.
  */
+const BM02_PROMPTS = PREDICT_PROMPTS["bm-02"] ?? [];
+
 function ChamberIllustration({ count, admitted }: { count: number; admitted: boolean }) {
   const shown = Math.max(0, Math.min(count, 40));
   const dots = Array.from({ length: shown }, (_, i) => {
@@ -164,7 +168,8 @@ export function OsmoticPartitionLab({
   const executionKind = accepted === example ? "static-example" : "host-accepted";
   const [draft, setDraft] = useState<Draft>(() => toDraft(example));
   const [error, setError] = useState("");
-  const [predictAnswer, setPredictAnswer] = useState<"harder" | "same" | "less" | null>(null);
+  // The chamber and the settings come first; the pressure and what explains it wait.
+  const gate = usePredictGate("bm-02", BM02_PROMPTS);
 
   const snapshot = computeBm02Snapshot(accepted);
   // One sentence for the status line: the pressure on the partition, its force and its water column.
@@ -377,12 +382,16 @@ export function OsmoticPartitionLab({
             </p>
           )}
         </form>
-        <AcceptedStatus worked={executionKind === "static-example"} summary={statusSummary} />
+        <AcceptedStatus
+          worked={executionKind === "static-example"}
+          summary={statusSummary}
+          response={gate.response}
+        />
 
         <div className="lab-results">
           <ChamberIllustration count={accepted.Np} admitted={admitted} />
 
-          <div className="table-scroll">
+          <div className="table-scroll" {...gate.response}>
             <table>
               <caption>One accepted calculation, in explicit units</caption>
               <tbody>
@@ -420,7 +429,9 @@ export function OsmoticPartitionLab({
 
           {/* The three counts share a letter and are easy to confuse, so each is named at every
               reading: the one the reader sets, the one the law uses, and the one it does not. */}
+          {/* It says "The pressure is Π = nkT", the prompt's answer, so it waits too. */}
           <section
+            {...gate.response}
             className="table-scroll"
             // biome-ignore lint/a11y/noNoninteractiveTabindex: a region that scrolls must be focusable or its off-screen columns cannot be reached by keyboard at all (am-bc6s)
             tabIndex={0}
@@ -470,7 +481,7 @@ export function OsmoticPartitionLab({
           )}
 
           {accepted.model === "classical-thermodynamics-suspended-bodies" && (
-            <p className="notice">
+            <p className="notice" {...gate.response}>
               This is the pressure §1 attributes to classical thermodynamics for suspended bodies:
               zero, by that model's own reasoning, not a value this instrument calls refuted. What
               decides between the two models is Einstein's predicted displacements (§5), and later
@@ -479,48 +490,9 @@ export function OsmoticPartitionLab({
           )}
         </div>
       </div>
-      {/* The prediction sits under the instrument in a closed disclosure, as on every other lab;
-          open above it, it came between a phone's heading and the partition. */}
-      <details className="lab-predict">
-        <summary>Predict before you calculate</summary>
-        <p id={`${id}-predict-question`}>
-          At the same number of particles per volume, does a 1000-times-larger particle push harder,
-          the same, or less on the partition?
-        </p>
-        <fieldset aria-labelledby={`${id}-predict-question`} className="actions">
-          <button
-            type="button"
-            className={predictAnswer === "harder" ? "primary" : "secondary"}
-            aria-pressed={predictAnswer === "harder"}
-            onClick={() => setPredictAnswer("harder")}
-          >
-            Harder
-          </button>
-          <button
-            type="button"
-            className={predictAnswer === "same" ? "primary" : "secondary"}
-            aria-pressed={predictAnswer === "same"}
-            onClick={() => setPredictAnswer("same")}
-          >
-            The same
-          </button>
-          <button
-            type="button"
-            className={predictAnswer === "less" ? "primary" : "secondary"}
-            aria-pressed={predictAnswer === "less"}
-            onClick={() => setPredictAnswer("less")}
-          >
-            Less
-          </button>
-        </fieldset>
-        {predictAnswer && (
-          <p className="fine">
-            The model: the ideal osmotic pressure depends on the number of particles per volume, not
-            on their size. The size-independence comparison above shows it, with the same calculated
-            pressure at 0.5 nm and at 500 nm for the same count per volume.
-          </p>
-        )}
-      </details>
+      {/* The prediction sits under the instrument, as on every other lab; above it, it came between
+          a phone's heading and the partition. */}
+      <PredictGatePanels gate={gate} />
 
       <section className="lab-bottom">
         <h3>What this model leaves out</h3>

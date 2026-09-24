@@ -63,6 +63,7 @@ import { IonizationLab } from "./lq09/IonizationLab.tsx";
 import { MagnetConductorLab } from "./MagnetConductorLab.tsx";
 import { TwoLedgersLab } from "./me01/TwoLedgersLab.tsx";
 import { BoundaryLedgerLab } from "./me03/BoundaryLedgerLab.tsx";
+import { OsmoticPartitionLab } from "./OsmoticPartitionLab.tsx";
 import { presentedOrder } from "./PredictGate.tsx";
 import { ClockSyncLab } from "./sr01/ClockSyncLab.tsx";
 import { VelocityCompositionLab } from "./sr06/VelocityCompositionLab.tsx";
@@ -87,7 +88,7 @@ import { WaveDescriptionLab } from "./WaveDescriptionLab.tsx";
 /**
  * The gated labs. `result` is text from each lab's result that the server markup must carry.
  * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-04, BM-05, BM-07, BM-08
- * and LQ-01 share none (their worker runner is not written); BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
+ * and LQ-01 share none (their worker runner is not written), and BM-02 has no tape binding; BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
  * in a worktree (dispatch 145). `statusLine`: whether the lab has a status line; BM-04, LQ-06 and ME-02 have none.
  */
 type GatedLab = Readonly<{
@@ -99,6 +100,13 @@ type GatedLab = Readonly<{
 }>;
 
 const LABS: readonly GatedLab[] = [
+  {
+    lab: "bm-02",
+    element: () => createElement(OsmoticPartitionLab, {}),
+    result: "One accepted calculation, in explicit units",
+    sharesTape: false,
+    statusLine: true,
+  },
   {
     lab: "bm-03",
     element: () => createElement(ConfigurationLab, {}),

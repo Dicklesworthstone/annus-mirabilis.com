@@ -276,19 +276,20 @@ predictMode:
       supportedCandidateId: the-same
       controlId: a_um
       question: "At the same number of particles per volume, does a 1000-times-larger particle push harder, the same, or less on the partition?"
+      explanation: "In the dilute molecular-kinetic model the pressure is Π = nkT. It depends on the number of particles per volume and the temperature, not on their size, so particles of radius 0.5 nm and 500 nm at the same count per volume press on the partition equally."
       candidates:
         - id: harder
           label: "Harder"
           description: "A bigger particle carries more momentum to the partition"
-          separatingAssumption: "The pressure grows with the particle's size or mass at a fixed count per volume."
+          separatingAssumption: "Lets a larger, heavier particle push harder at the same count per volume. At one temperature every particle has the same mean energy of motion, so a heavier one moves more slowly and pushes the same on average."
           relation: "Pi increases with a"
         - id: the-same
           label: "The same"
           description: "Only the count per volume matters"
-          separatingAssumption: "In the dilute molecular-kinetic model the pressure is n k_B T, whatever the particle's size."
+          separatingAssumption: "Takes the dilute molecular-kinetic model, in which the pressure is Π = nkT whatever the particle's size."
           relation: "Pi = n k_B T"
         - id: less
           label: "Less"
           description: "A bigger particle moves too slowly to push"
-          separatingAssumption: "A larger suspended body exerts less pressure, down to none, as the classical expectation holds."
+          separatingAssumption: "Follows the classical expectation §1 describes, in which a suspended body exerts no osmotic pressure. The molecular-kinetic model gives it the pressure of a dissolved molecule at the same count per volume."
           relation: "Pi decreases with a"
