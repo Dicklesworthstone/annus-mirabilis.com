@@ -3996,3 +3996,30 @@ test("Experiment: a predict prompt's supportedCandidateId must be one of its own
     },
   );
 });
+
+test("Experiment: a predict prompt's explanation is kept, and refused when it is not a sentence (predict-explanation-invalid)", () => {
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  const prompt = raw.predictMode.prompts[0];
+  // Absent: nothing is invented.
+  assert.equal((validateExperiment(raw).predictMode as any).prompts[0].explanation, undefined);
+  // Present: carried through unchanged.
+  prompt.explanation = "The two terms in cos(phi) cancel in the sum for any angle.";
+  assert.equal(
+    (validateExperiment(raw).predictMode as any).prompts[0].explanation,
+    prompt.explanation,
+  );
+  // Empty or not text: refused, naming the prompt.
+  for (const bad of ["  ", 42]) {
+    prompt.explanation = bad;
+    assert.throws(
+      () => validateExperiment(raw),
+      (err: any) => {
+        assert.ok(err instanceof ExperimentValidationError);
+        assert.equal(err.code, "predict-explanation-invalid");
+        assert.ok(err.message.includes(prompt.promptId));
+        return true;
+      },
+    );
+  }
+});

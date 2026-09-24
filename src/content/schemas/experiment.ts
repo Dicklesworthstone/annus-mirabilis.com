@@ -3894,15 +3894,35 @@ function validateDatasetWithdrawal(
 export type PredictPrompt = PredictPromptFields &
   Readonly<{
     supportedCandidateId?: string | undefined;
+    /**
+     * Why the supported relation holds, shown after the reader answers. Ten laboratories wrote this
+     * sentence into their own TypeScript copy of the prompt; it belongs with the prompt, so that the
+     * panel drawn from the manifest can show it too.
+     */
+    explanation?: string | undefined;
   }>;
 
 function promptCandidates(
   pr: Record<string, unknown>,
   candidates: readonly PredictCandidate[],
   prPath: string,
-): Readonly<{ candidates: readonly PredictCandidate[]; supportedCandidateId?: string }> {
+): Readonly<{
+  candidates: readonly PredictCandidate[];
+  supportedCandidateId?: string;
+  explanation?: string;
+}> {
+  const explanation = pr.explanation;
+  if (explanation !== undefined && (typeof explanation !== "string" || !explanation.trim())) {
+    throw new ExperimentValidationError(
+      "predict-explanation-invalid",
+      `Predict prompt "${String(pr.promptId)}" has an explanation that is not a sentence: it must be non-empty text when present.`,
+      "Experiment",
+      `${prPath}.explanation`,
+    );
+  }
+  const explained = typeof explanation === "string" ? { explanation } : {};
   const supported = pr.supportedCandidateId;
-  if (supported === undefined) return { candidates };
+  if (supported === undefined) return { candidates, ...explained };
   if (typeof supported !== "string" || !candidates.some((c) => c.id === supported)) {
     throw new ExperimentValidationError(
       "predict-supported-candidate-unknown",
@@ -3911,5 +3931,5 @@ function promptCandidates(
       `${prPath}.supportedCandidateId`,
     );
   }
-  return { candidates, supportedCandidateId: supported };
+  return { candidates, supportedCandidateId: supported, ...explained };
 }
