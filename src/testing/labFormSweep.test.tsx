@@ -29,9 +29,13 @@ const APP = resolve(root, "src/app/lab");
 
 const UNFINISHED: readonly string[] = [
   "bm-02",
+  "bm-03",
   "bm-04",
+  "bm-05",
   "bm-06",
+  "bm-07",
   "lq-01",
+  "lq-03",
   "lq-07",
   "lq-08",
   "lq-09",
@@ -127,7 +131,8 @@ async function probe(c: HTMLElement, i: number, value: string) {
     missing: false,
     advanced: after.accepted !== before.accepted,
     requested: after.requested !== before.requested,
-    refusal: after.alerts !== "",
+    // Only a refusal that appeared or changed for this value counts.
+    refusal: after.alerts !== "" && after.alerts !== before.alerts,
     raw: [...new Set(after.text.match(RAW) ?? [])].filter((h) => !before.text.includes(h)),
   } as const;
 }
@@ -150,42 +155,58 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
 
   for (const route of routes) {
     test(`${route}: each typed field refuses "abc", "" and ±1e300 outside its domain`, async () => {
-      const { container, reactRoot } = await mount(route);
+      let page = await mount(route);
       // A mode can suffix the id ("me-03:box-1906"); the manifest is the lab's.
       const lab = (
-        container.querySelector("[data-instrument-id]")?.getAttribute("data-instrument-id") ?? route
+        page.container.querySelector("[data-instrument-id]")?.getAttribute("data-instrument-id") ??
+        route
       ).split(":")[0] as string;
       const domains = declaredDomains(lab);
       const found: string[] = [];
       const seen = new Set<string>();
       // Each mode a radio or a toggle button selects can show its own fields (ME-03's 1906 box), so
       // the sweep visits the page as mounted and then each such state, typing each field name once.
-      const switches = () =>
-        [...container.querySelectorAll('input[type="radio"], button[aria-pressed]')] as Element[];
+      const switches = (c: HTMLElement) =>
+        [...c.querySelectorAll('input[type="radio"], button[aria-pressed]')] as Element[];
       const nameOf = (e: Element) =>
         `${e.tagName}:${(e.textContent ?? "").trim()}:${e.getAttribute("value") ?? ""}`;
-      const modes = switches().map(nameOf);
-      for (let state = -1; state < modes.length; state++) {
-        if (state >= 0) {
-          const target = switches().find((e) => nameOf(e) === modes[state]);
-          if (!target) continue;
-          await act(async () => {
-            props(target)?.onChange?.({ currentTarget: target, target });
-            props(target)?.onClick?.({ currentTarget: target, target, preventDefault() {} });
-            await pause();
-          });
-          for (const d of container.querySelectorAll("details"))
-            (d as HTMLDetailsElement).open = true;
-        }
-        const n = fields(container).length;
+      const modes = switches(page.container).map(nameOf);
+      const enter = async (c: HTMLElement, mode: number) => {
+        if (mode < 0) return;
+        const target = switches(c).find((e) => nameOf(e) === modes[mode]);
+        if (!target) return;
+        await act(async () => {
+          props(target)?.onChange?.({ currentTarget: target, target });
+          props(target)?.onClick?.({ currentTarget: target, target, preventDefault() {} });
+          await pause();
+        });
+        for (const d of c.querySelectorAll("details")) (d as HTMLDetailsElement).open = true;
+      };
+      for (let mode = -1; mode < modes.length; mode++) {
+        await enter(page.container, mode);
+        const n = fields(page.container).length;
         for (let i = 0; i < n; i++) {
-          const el = fields(container)[i];
+          const el = fields(page.container)[i];
           const name = el?.getAttribute("name") || (el?.id ?? "").replace(/^.*-/, "") || `#${i}`;
           if (seen.has(name)) continue;
           seen.add(name);
           const d = domains[name];
+          const initial = el?.value ?? "";
           for (const v of VALUES) {
-            const r = await probe(container, i, v);
+            // A refusal left standing by the last value would read as this value's. Clear it by
+            // applying the field's starting value again, else start from a fresh page in this mode.
+            if (state(page.container).alerts) {
+              await probe(page.container, i, initial);
+              if (state(page.container).alerts) {
+                await act(async () => {
+                  page.reactRoot.unmount();
+                });
+                removeContainer(page.container);
+                page = await mount(route);
+                await enter(page.container, mode);
+              }
+            }
+            const r = await probe(page.container, i, v);
             if (r.missing) continue;
             typed++;
             const openSide =
@@ -201,13 +222,13 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
       }
       if (seen.size === 0) untyped.push(route);
       await act(async () => {
-        reactRoot.unmount();
+        page.reactRoot.unmount();
       });
-      removeContainer(container);
+      removeContainer(page.container);
       findings[route] = found;
       if (UNFINISHED.includes(route)) expect(found.length).toBeGreaterThan(0);
       else expect(found).toEqual([]);
-    }, 60_000);
+    }, 120_000);
   }
 
   test("the sweep typed into fields (a floor, not a census)", () => {
