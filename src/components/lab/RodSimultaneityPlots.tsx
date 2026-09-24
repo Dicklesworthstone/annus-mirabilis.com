@@ -209,13 +209,15 @@ export function MinkowskiDiagramPlot({
           strokeOpacity="0.6"
         />
 
-        {/* Frame K axes */}
+        {/* Frame K axes. They are one of the two frames being compared, so they take --muted
+            (5.98:1 on the light paper) rather than the rule colour, --line, in which they stood at
+            1.45:1: a guide's colour for half of the diagram's argument. */}
         <line
           x1={originX - 40}
           y1={originY}
           x2={originX + 280}
           y2={originY}
-          stroke="var(--line)"
+          stroke="var(--muted)"
           strokeWidth="1.5"
         />
         <text x={originX + 285} y={originY + 5} fill="var(--ink)" style={diagramLabel}>
@@ -226,7 +228,7 @@ export function MinkowskiDiagramPlot({
           y1={originY + 40}
           x2={originX}
           y2={originY - 200}
-          stroke="var(--line)"
+          stroke="var(--muted)"
           strokeWidth="1.5"
         />
         <text x={originX + 8} y={originY - 190} fill="var(--ink)" style={diagramLabel}>
