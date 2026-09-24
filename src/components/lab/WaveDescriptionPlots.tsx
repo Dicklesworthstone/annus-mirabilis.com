@@ -2,6 +2,12 @@ import type { Lq01Parameters } from "../../experiments/lq01/definition.ts";
 import { display, fixed } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 
+/**
+ * A predict gate's attribute (PredictGate.tsx). Each plot keeps its drawing and axes in view and
+ * spreads this on the curve and numbers a prompt asks about, which then wait for an answer.
+ */
+type PredictResponse = Readonly<{ "data-predict-response": "shown" | "awaiting" }>;
+
 /*
  * Label size and colour. The site rule `svg[role="img"] text` sets every label's font-size and
  * fill, and a stylesheet rule beats an SVG presentation attribute, so fontSize="10" and fill="…"
@@ -43,6 +49,7 @@ export type InterferencePlotProps = Readonly<{
   screenPosition: Lq01Parameters["screenPosition"];
   readout: Lq01Parameters["readout"];
   delta: number;
+  response?: PredictResponse;
 }>;
 
 export function InterferencePlot({
@@ -55,7 +62,10 @@ export function InterferencePlot({
   screenPosition,
   readout,
   delta,
+  response,
 }: InterferencePlotProps) {
+  // While the numbers wait, the drawing's name does not state them either.
+  const awaiting = response?.["data-predict-response"] === "awaiting";
   const width = 480;
   // 272 tall with a 52-unit bottom margin (it was 260 and 40): the centre's tick label and the axis
   // title stood 18 units apart at this plot's text size and overlapped. The plot area is unchanged.
@@ -152,24 +162,27 @@ export function InterferencePlot({
           marginBottom: "0.5rem",
         }}
       >
-        Two coherent point sources, added as waves. At the centre{" "}
-        <strong style={{ fontFamily: "var(--font-mono, monospace)" }}>
-          {fixed(centerIntensity, 3)}
-        </strong>
-        ; fringe visibility{" "}
-        <strong style={{ fontFamily: "var(--font-mono, monospace)" }}>
-          {fixed(fringeVisibility, 3)}
-        </strong>
-        {fringeSpacing > 0 && (
-          <span>
-            ; bright fringes{" "}
-            <strong style={{ fontFamily: "var(--font-mono, monospace)" }}>
-              {fringeSpacing.toFixed(1)} λ
-            </strong>{" "}
-            apart
-          </span>
-        )}
-        .
+        Two coherent point sources, added as waves.{" "}
+        <span {...response}>
+          At the centre{" "}
+          <strong style={{ fontFamily: "var(--font-mono, monospace)" }}>
+            {fixed(centerIntensity, 3)}
+          </strong>
+          ; fringe visibility{" "}
+          <strong style={{ fontFamily: "var(--font-mono, monospace)" }}>
+            {fixed(fringeVisibility, 3)}
+          </strong>
+          {fringeSpacing > 0 && (
+            <span>
+              ; bright fringes{" "}
+              <strong style={{ fontFamily: "var(--font-mono, monospace)" }}>
+                {fringeSpacing.toFixed(1)} λ
+              </strong>{" "}
+              apart
+            </span>
+          )}
+          .
+        </span>
         {readout === "instantaneous" && (
           <>
             {" "}
@@ -183,7 +196,11 @@ export function InterferencePlot({
       <svg
         viewBox={`0 0 ${width} ${height}`}
         role="img"
-        aria-label={`Interference intensity profile with center intensity ${centerIntensity.toFixed(2)} and fringe visibility ${fringeVisibility.toFixed(2)}`}
+        aria-label={
+          awaiting
+            ? "Interference intensity profile across the screen"
+            : `Interference intensity profile with center intensity ${centerIntensity.toFixed(2)} and fringe visibility ${fringeVisibility.toFixed(2)}`
+        }
         style={{
           width: "100%",
           height: "auto",
@@ -261,6 +278,7 @@ export function InterferencePlot({
         {/* Intensity Curve (Data trace - kept literal sky blue) */}
         {polylinePoints && (
           <polyline
+            {...response}
             points={polylinePoints}
             fill="none"
             stroke="#0284c7"
@@ -281,25 +299,27 @@ export function InterferencePlot({
           strokeDasharray="2 2"
           strokeWidth="1.5"
         />
-        <circle
-          cx={selectedX}
-          cy={selectedY}
-          r="4.5"
-          fill="var(--accent)"
-          stroke="var(--paper)"
-          strokeWidth="1.5"
-        />
-        <text
-          x={selectedX}
-          y={Math.max(padding.top + 12, selectedY - 10)}
-          textAnchor="middle"
-          fontFamily="monospace"
-          fontWeight="600"
-          style={{ fill: "var(--accent)" }}
-        >
-          {PROBE_LABEL[screenPosition]}: {selectedIntensity.toFixed(2)} (Δr ={" "}
-          {pathDifference.toFixed(2)}λ)
-        </text>
+        <g {...response}>
+          <circle
+            cx={selectedX}
+            cy={selectedY}
+            r="4.5"
+            fill="var(--accent)"
+            stroke="var(--paper)"
+            strokeWidth="1.5"
+          />
+          <text
+            x={selectedX}
+            y={Math.max(padding.top + 12, selectedY - 10)}
+            textAnchor="middle"
+            fontFamily="monospace"
+            fontWeight="600"
+            style={{ fill: "var(--accent)" }}
+          >
+            {PROBE_LABEL[screenPosition]}: {selectedIntensity.toFixed(2)} (Δr ={" "}
+            {pathDifference.toFixed(2)}λ)
+          </text>
+        </g>
 
         {/* X Axis Label */}
         <text
@@ -320,9 +340,15 @@ export type WavefrontPlotProps = Readonly<{
   separation: number;
   delta: number;
   centerIntensity: number;
+  response?: PredictResponse;
 }>;
 
-export function WavefrontPlot({ separation, delta, centerIntensity }: WavefrontPlotProps) {
+export function WavefrontPlot({
+  separation,
+  delta,
+  centerIntensity,
+  response,
+}: WavefrontPlotProps) {
   const width = 480;
   const height = 260;
 
@@ -491,23 +517,26 @@ export function WavefrontPlot({ separation, delta, centerIntensity }: WavefrontP
         >
           Screen
         </text>
-        <circle
-          cx={width - 50}
-          cy={centerY}
-          r="5"
-          fill={centerIntensity > 0.1 ? "#38bdf8" : "var(--lq01-field-ink)"}
-        />
-        {/* The field is dark in both themes, so the reading takes the sky of its marker dot. */}
-        <text
-          x={width - 58}
-          y={centerY - 10}
-          textAnchor="end"
-          fontFamily="monospace"
-          fontWeight="600"
-          style={{ fill: "#38bdf8" }}
-        >
-          I₀ = {centerIntensity.toFixed(1)}
-        </text>
+        {/* The centre's brightness is what the phase prompt asks about, so it waits. */}
+        <g {...response}>
+          <circle
+            cx={width - 50}
+            cy={centerY}
+            r="5"
+            fill={centerIntensity > 0.1 ? "#38bdf8" : "var(--lq01-field-ink)"}
+          />
+          {/* The field is dark in both themes, so the reading takes the sky of its marker dot. */}
+          <text
+            x={width - 58}
+            y={centerY - 10}
+            textAnchor="end"
+            fontFamily="monospace"
+            fontWeight="600"
+            style={{ fill: "#38bdf8" }}
+          >
+            I₀ = {centerIntensity.toFixed(1)}
+          </text>
+        </g>
       </svg>
     </div>
   );
@@ -518,9 +547,16 @@ export type SpreadingPlotProps = Readonly<{
   radius: number;
   intensity: number;
   shellPower: number;
+  response?: PredictResponse;
 }>;
 
-export function SpreadingPlot({ power, radius, intensity, shellPower }: SpreadingPlotProps) {
+export function SpreadingPlot({
+  power,
+  radius,
+  intensity,
+  shellPower,
+  response,
+}: SpreadingPlotProps) {
   const width = 480;
   const height = 260;
 
@@ -557,6 +593,7 @@ export function SpreadingPlot({ power, radius, intensity, shellPower }: Spreadin
           One source, its energy spread over spheres
         </h3>
         <span
+          {...response}
           className="fine"
           style={{
             fontSize: "var(--type-fine)",
@@ -572,6 +609,7 @@ export function SpreadingPlot({ power, radius, intensity, shellPower }: Spreadin
         </span>
       </div>
       <p
+        {...response}
         className="fine"
         style={{
           fontSize: "var(--type-fine)",
@@ -589,7 +627,7 @@ export function SpreadingPlot({ power, radius, intensity, shellPower }: Spreadin
       <svg
         viewBox={`0 0 ${width} ${height}`}
         role="img"
-        aria-label={`Inverse square spherical spreading from source power ${power} Watts at radius ${radius} meters`}
+        aria-label={`Spherical shells around a source of power P = ${power} W, with the shell at radius r = ${radius} m marked`}
         style={{
           width: "100%",
           height: "auto",
