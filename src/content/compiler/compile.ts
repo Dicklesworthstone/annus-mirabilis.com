@@ -122,7 +122,8 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
         routeMatch.kind === "frozen-id-snapshot" ||
         routeMatch.kind === "source-manifest" ||
         routeMatch.kind === "source-block" ||
-        routeMatch.kind === "aliases"
+        routeMatch.kind === "aliases" ||
+        routeMatch.kind === "paragraph-bindings"
       ) {
         continue;
       }

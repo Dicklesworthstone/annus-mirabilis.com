@@ -3,7 +3,13 @@ import { watch } from "node:fs";
 import { lstat, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  BINDINGS_REQUIRED,
+  checkParagraphBindings,
+  reportLine,
+} from "../src/content/bindings/paragraphBindings.ts";
 import { compileContent } from "../src/content/compiler/compile.ts";
+import type { CompilerDiagnostic } from "../src/content/compiler/compiler.ts";
 import { emitPayloads } from "../src/content/compiler/emitter.ts";
 import { getLogger } from "../src/testing/log/logger.ts";
 
@@ -125,7 +131,28 @@ export async function buildContent(
     options?.emit ?? options?.shouldEmit ?? (root !== ROOT || corpusDir === "content");
   const files = await loadReadingFiles(root, corpusDir);
 
-  const result = await compileContent(files);
+  const compiled = await compileContent(files);
+  // Every printed paragraph and display of a required paper reaches its explanation, and every
+  // gap fails the build by name (src/content/bindings/paragraphBindings.ts).
+  const bindingProblems = BINDINGS_REQUIRED.flatMap((paper) => {
+    const report = checkParagraphBindings(root, paper);
+    if (!report) return [];
+    console.log(JSON.stringify({ event: "paragraph-bindings", report: reportLine(report) }));
+    return report.problems.map(
+      (message): CompilerDiagnostic => ({
+        severity: "error",
+        code: "paragraph-binding",
+        path: `content/bindings/${paper}.yaml`,
+        message,
+        rule: "paragraph-binding",
+        beadId: "am-bind-paragraphs-and-displays-me-u7bu",
+      }),
+    );
+  });
+  const result =
+    bindingProblems.length === 0
+      ? compiled
+      : { ...compiled, ok: false, diagnostics: [...compiled.diagnostics, ...bindingProblems] };
   const logger = getLogger("build-content");
 
   // Log each diagnostic through structured test logger

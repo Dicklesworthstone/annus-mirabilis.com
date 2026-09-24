@@ -36,6 +36,7 @@ export type ContentRouteKind =
   | "gloss-unit"
   | "editorial-note"
   | "aliases"
+  | "paragraph-bindings"
   | "flag-reviews"
   | "readings-owner"
   | "editorial-rules"
@@ -281,6 +282,16 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     schema: "AliasManifest",
     format: "yaml",
     extractParams: (m) => ({ slug: m[1] ?? "", id: m[1] ?? "", format: m[2] ?? "" }),
+  },
+
+  // 19a. Paragraph bindings: each printed paragraph and display to its explanation
+  // (src/content/bindings/paragraphBindings.ts checks them; the record compiler skips them).
+  {
+    pattern: /^(?:content\/)?bindings\/([a-z0-9-]+)\.(yaml|yml)$/,
+    kind: "paragraph-bindings",
+    schema: "ParagraphBindings",
+    format: "yaml",
+    extractParams: (m) => ({ paper: m[1] ?? "", id: m[1] ?? "", format: m[2] ?? "" }),
   },
 
   // 20. Editorial: Flag Reviews

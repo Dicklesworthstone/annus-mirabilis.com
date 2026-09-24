@@ -1,0 +1,86 @@
+# Which explanation passage explains each printed paragraph, footnote and display of the
+# mass-energy paper (am-bind-paragraphs-and-displays-me-u7bu), under the explanation-grain
+# decision D-2026-09-24-explanation-grain: the argument passages stay the unit of explanation,
+# every source paragraph is bound to one or more of them, every paragraph has its own one- or
+# two-sentence overview (r0), and every printed display is bound to an equation record or given
+# a declared status. Units are the frozen manifest's (content/source-blocks/mass-energy); the
+# bindings were checked against the plates of printed pages 639 to 641. The r0 lines are
+# explanatory preview prose, not a translation and not Einstein's words; no review is claimed.
+paper: mass-energy
+decision: D-2026-09-24-explanation-grain
+paragraphs:
+  - unit: s0-p1
+    passages: [arg-me-import]
+    r0: "Einstein announces that his recent paper on the electrodynamics of moving bodies leads to an interesting consequence, which this short paper derives."
+  - unit: s0-fn1
+    passages: [arg-me-import]
+    r0: "The footnote identifies that earlier paper: Annalen der Physik, volume 17, page 891, 1905."
+  - unit: s0-p2
+    passages: [arg-me-import]
+    r0: "He recalls what the earlier paper assumed: the Maxwell-Hertz equations for empty space, Maxwell's expression for electromagnetic energy, and a principle stated next."
+  - unit: s0-p3
+    passages: [arg-me-import]
+    r0: "The principle of relativity: the laws by which physical states change are the same whichever of two uniformly moving coordinate systems they are referred to."
+  - unit: s0-p4
+    passages: [arg-me-import]
+    r0: "On those foundations he had derived, among other things, a result in section 8 of that paper, which he now quotes."
+  - unit: s0-fn2
+    passages: [arg-me-import]
+    r0: "The footnote adds that the constancy of the speed of light, also used there, is contained in Maxwell's equations."
+  - unit: s0-p5
+    passages: [arg-me-import]
+    r0: "Plane light waves with energy l in one coordinate system have a different energy in a second system moving along the x-axis, depending on the speed and on the light's angle to the motion; this transformation is used in what follows."
+  - unit: s0-p6
+    passages: [arg-me-symmetric-emission, arg-me-two-ledgers]
+    r0: "A body at rest in the first system has energy E₀ there, and energy H₀ in the moving system."
+  - unit: s0-p7
+    passages: [arg-me-symmetric-emission, arg-me-two-ledgers, arg-me-subtraction, arg-me-constant-premise]
+    r0: "The body sends equal amounts of light in opposite directions and stays at rest. Balancing energy in both systems and subtracting shows that its kinetic energy in the moving system falls by a fixed amount, since the constant C in H − E = K + C does not change during the emission."
+  - unit: s0-p11
+    passages: [arg-me-small-speed]
+    r0: "Neglecting terms of fourth and higher order, the drop in kinetic energy becomes L divided by V squared, times v squared over 2."
+  - unit: s0-p12
+    passages: [arg-me-mass-change]
+    r0: "So a body that gives off energy L as radiation loses mass L divided by V squared, and Einstein argues that it does not matter that the energy leaves as radiation."
+  - unit: s0-p13
+    passages: [arg-me-mass-change]
+    r0: "The general conclusion: the mass of a body is a measure of its energy content, and a change of energy L changes the mass by L divided by 9 × 10²⁰, with energy in erg and mass in grams."
+  - unit: s0-p14
+    passages: [arg-me-scope]
+    r0: "Bodies whose energy content varies strongly, such as radium salts, might allow the theory to be tested."
+  - unit: s0-p15
+    passages: [arg-me-scope]
+    r0: "If the theory agrees with the facts, radiation carries inertia from the body that emits it to the body that absorbs it."
+displays:
+  - unit: eq-s0-d1
+    equations: [eq-model-me-light-energy-transform]
+  - unit: eq-s0-d2
+    equations: [eq-model-me-rest-ledger]
+  - unit: eq-s0-d3
+    equations: [eq-model-me-moving-ledger, eq-model-me-symmetric-sum]
+  - unit: eq-s0-d4
+    equations: [eq-model-me-ledger-subtraction-chain]
+  - unit: eq-s0-d5
+    equations: [eq-model-me-offset-before, eq-model-me-offset-after]
+  - unit: eq-s0-d6
+    equations: [eq-model-me-kinetic-drop-difference]
+  - unit: eq-s0-d7
+    equations: [eq-model-me-kinetic-drop-low-speed]
+obligations:
+  - obligation: imported-result
+    passages: [arg-me-import]
+  - obligation: equal-opposite-emissions
+    passages: [arg-me-symmetric-emission]
+  - obligation: energy-balances
+    passages: [arg-me-two-ledgers]
+  - obligation: subtraction-kinetic-energy
+    passages: [arg-me-subtraction, arg-me-constant-premise]
+  - obligation: low-speed-expansion
+    passages: [arg-me-small-speed]
+  - obligation: inertia-change-generalization
+    passages: [arg-me-mass-change]
+  - obligation: empirical-closing-remarks
+    passages: [arg-me-scope]
+  - obligation: dateline-receipt
+    status: printed-only
+    reason: "The date-line and the journal's receipt note are printed facts, shown on the German face and in the paper's dates; they carry no step of the argument to explain."
