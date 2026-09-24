@@ -64,7 +64,5 @@
     }
   ],
   "stoppingPoint": "This lesson stops at entropy as the logarithm of a probability. What the comparison with radiation shows, and what it does not, is §6 of the light-quanta paper.",
-  "citations": [
-    "ap-17-132"
-  ]
+  "citations": ["ap-17-132"]
 }
