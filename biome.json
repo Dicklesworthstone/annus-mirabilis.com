@@ -125,16 +125,6 @@
       }
     },
     {
-      "includes": ["src/equations/missingStep/MissingStepPanel.tsx"],
-      "linter": {
-        "rules": {
-          "a11y": {
-            "noNoninteractiveTabindex": "off"
-          }
-        }
-      }
-    },
-    {
       "includes": ["src/reader/entrances/MassEnergyFirstEncounter.tsx"],
       "linter": {
         "rules": {

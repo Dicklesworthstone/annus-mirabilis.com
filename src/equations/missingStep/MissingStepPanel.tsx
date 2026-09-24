@@ -39,17 +39,18 @@ export function MissingStepPanel({
           <section key={label}>
             <h3>{label}</h3>
             {/*
-              KEEP the tabIndex. This site renders many expressions and some are wider
-              than the box: measured over the built site, 4 of 16 instances overflow at
-              BOTH viewports (283/254 and 285/254 at 320px; 315/295 and 317/295 at
-              1280px). a11y/noNoninteractiveTabindex flags it and its FIXABLE fix deletes
-              the attribute, which would take the keyboard's only route into those four.
-              `missing-step-math` is NOT in AUDITED_SCROLL_CLASSES, so the scrollable
-              regions ratchet would not catch that removal either (am-6iz4, am-uj6w).
+              No tabIndex: nothing here scrolls. All 16 instances fit, the widest 254/254 at
+              320px and 308/308 at 1280px (am-14at, measured on live with the disclosures
+              open); four overflowed (317/254) before the steps were given row layouts, and
+              then this was the keyboard's only route into them. A fixed tab stop on a box
+              that fits is a stop with nothing behind it. If one ever overflows again,
+              formulaOverflow.inline.ts gives it a named tab stop at runtime, and
+              formulaWidth.e2e.test.ts fails: it holds these regions to fitting at 320px and
+              1280px. The scrollable-regions ratchet holds this element to its
+              RECORDED_NON_OVERFLOWING entry.
             */}
             <section
               aria-label={`${label} mathematical expression`}
-              tabIndex={0}
               className="missing-step-math"
               // biome-ignore lint/security/noDangerouslySetInnerHtml: only strict build-time KaTeX output from validated expression trees, never reader input
               dangerouslySetInnerHTML={{ __html: html ?? "" }}
