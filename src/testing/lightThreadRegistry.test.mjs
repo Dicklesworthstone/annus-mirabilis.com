@@ -38,7 +38,8 @@ test("connections lead to the real laboratory route rather than an isolated cata
     new URL("../components/chrome/PrimaryNavLinks.tsx", import.meta.url),
     "utf8",
   );
-  assert.ok(connections.includes('href="/lab/light-thread"'));
+  // The lab links carry their trailing slash (84130cfb, ff3ac555), so no reader pays a 308.
+  assert.ok(connections.includes('href="/lab/light-thread/"'));
   assert.ok(/<LightThreadLab[\s/>]/.test(laboratory));
   assert.ok(layout.includes("<PrimaryNavLinks"));
   assert.ok(nav.includes('href: "/connections/"'));
