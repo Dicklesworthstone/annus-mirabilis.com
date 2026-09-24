@@ -14,11 +14,17 @@ import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
+import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { CameraMomentTable } from "./CameraMomentTable.tsx";
 import { CameraCoverage, CameraPath, CameraSpeed } from "./CameraPlots.tsx";
 import { InferenceInterval as Interval, InferenceValue as Value } from "./InferencePlots.tsx";
+import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
+
+// The manifest's prompt (scripts/generate-predict-prompts.mjs), one stable array for the gate.
+const BM08_PROMPTS = PREDICT_PROMPTS["bm-08"] ?? [];
+
 export function CameraLab({
   example,
   title = "What did the camera change?",
@@ -31,6 +37,8 @@ export function CameraLab({
 }) {
   const id = useId(),
     [session] = useState(() => createBm08Session(`bm08-${id}`, example, createBm08BrowserChannel));
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("bm-08", BM08_PROMPTS);
   const view = useSyncExternalStore(
     session.subscribe,
     session.getSnapshot,
@@ -205,6 +213,7 @@ export function CameraLab({
           and explanation remain readable. Changing the camera requires JavaScript.
         </p>
       </noscript>
+      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <div>
           <form onSubmit={submit} noValidate>
@@ -388,7 +397,7 @@ export function CameraLab({
           )}
           {note && <p className="notice">{note}</p>}
         </div>
-        <div className="lab-results camera-results">
+        <div className="lab-results camera-results" {...gate.response}>
           {view.refusal && (
             <div className="notice error" data-refusal-code={view.refusal.code}>
               <p>{String(view.refusal.details?.requirements ?? view.refusal.message)}</p>

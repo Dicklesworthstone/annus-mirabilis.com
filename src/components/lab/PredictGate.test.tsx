@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import { act, createElement, type ReactElement } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
+import type { PreparedBm07Example } from "../../experiments/bm07/session.ts";
+import type { PreparedBm08Example } from "../../experiments/bm08/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as ME01_EXAMPLE } from "../../experiments/me01/session.ts";
 import { decodeTapePermalink } from "../../experiments/permalink/codec.ts";
 import { writeGlobalPredictEntry } from "../../experiments/predict/predictEntry.ts";
@@ -21,6 +23,8 @@ import type { PreparedSr10Example } from "../../experiments/sr10/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR11_EXAMPLE } from "../../experiments/sr11/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR12_EXAMPLE } from "../../experiments/sr12/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR13_EXAMPLE } from "../../experiments/sr13/session.ts";
+import rawBm07Example from "../../generated/bm07-example.json";
+import rawBm08Example from "../../generated/bm08-example.json";
 import { type GeneratedPredictPrompt, PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import rawSr10Example from "../../generated/sr10-example.json";
 import { createStorageContext } from "../../platform/storage/store.ts";
@@ -38,6 +42,8 @@ import {
   removeContainer,
   uninstallDom,
 } from "../../testing/reactDom.ts";
+import { CameraLab } from "./CameraLab.tsx";
+import { InferenceLab } from "./InferenceLab.tsx";
 import { IonizationLab } from "./lq09/IonizationLab.tsx";
 import { TwoLedgersLab } from "./me01/TwoLedgersLab.tsx";
 import { presentedOrder } from "./PredictGate.tsx";
@@ -60,8 +66,22 @@ import { ElectronDynamicsLab } from "./sr13/ElectronDynamicsLab.tsx";
  * sets. Each row names a lab and a piece of its result's text, which the server markup must carry.
  */
 const LABS: readonly (readonly [string, () => ReactElement, string, boolean])[] = [
+  [
+    "bm-07",
+    () =>
+      createElement(InferenceLab, { example: rawBm07Example as unknown as PreparedBm07Example }),
+    "What the data identify",
+    false,
+  ],
+  [
+    "bm-08",
+    () => createElement(CameraLab, { example: rawBm08Example as unknown as PreparedBm08Example }),
+    "Four estimates, different assumptions",
+    false,
+  ],
   ["lq-09", () => createElement(IonizationLab, {}), "Values at these settings", false],
-  // LQ-09, ME-01 and SR-01 have no ?tape= link yet: their bindings wait in a worktree (dispatch 145).
+  // BM-07 and BM-08 share no ?tape= link (their worker runner is not written); LQ-09, ME-01 and
+  // SR-01 have none yet, their bindings waiting in a worktree (dispatch 145).
   [
     "me-01",
     () => createElement(TwoLedgersLab, { example: ME01_EXAMPLE }),

@@ -22,6 +22,7 @@ import {
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
+import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import {
   InferenceCoverage,
   InferenceFamily,
@@ -29,6 +30,7 @@ import {
   InferencePath,
   InferenceValue,
 } from "./InferencePlots.tsx";
+import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
 
@@ -37,6 +39,9 @@ const estimatorNames = {
   "drift-centered": "Fit drift · unbiased spread",
   "maximum-likelihood-centered": "Fit drift · maximum likelihood",
 };
+// The manifest's prompt (scripts/generate-predict-prompts.mjs), one stable array for the gate.
+const BM07_PROMPTS = PREDICT_PROMPTS["bm-07"] ?? [];
+
 export function InferenceLab({
   example,
   title = "What can wandering reveal?",
@@ -49,6 +54,8 @@ export function InferenceLab({
 }) {
   const id = useId(),
     [session] = useState(() => createBm07Session(`bm07-${id}`, example, createBm07BrowserChannel));
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("bm-07", BM07_PROMPTS);
   const serverAccepted = session.getServerSnapshot().accepted;
   if (!serverAccepted) {
     throw new Error("Missing accepted inference snapshot");
@@ -227,6 +234,7 @@ export function InferenceLab({
         observations identify. Then declare the missing information, estimate the number, and test
         what a confidence interval does across hypothetical repeats.
       </p>
+      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <div>
           <form className="inference-controls" onSubmit={submit} noValidate>
@@ -466,7 +474,7 @@ export function InferenceLab({
             shared link starts no worker.
           </p>
         </div>
-        <div className="lab-results inference-results">
+        <div className="lab-results inference-results" {...gate.response}>
           {view.refusal && (
             <div className="notice error">
               <p>{String(view.refusal.details?.requirements ?? view.refusal.message)}</p>
