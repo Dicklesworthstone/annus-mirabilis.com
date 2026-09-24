@@ -5,6 +5,7 @@
  * response is said as unavailable -- never filled with generated help.
  */
 
+import { returnCaption } from "../returnCaption.ts";
 import {
   OBSTACLE_KIND_IDS,
   type ObstacleKindId,
@@ -70,7 +71,7 @@ export function ObstacleMenu({ responses, passageLabel, passageId, hard }: Obsta
                         key={link.foundationId}
                         href={`/foundations/${link.foundationId}/`}
                         data-foundation={link.foundationId}
-                        data-return-caption={link.returnCaption ?? `Return to ${passageLabel}.`}
+                        data-return-caption={link.returnCaption ?? returnCaption(passageLabel)}
                         aria-label={`Open the explanation that addresses this: ${OBSTACLE_LABELS[kind]}`}
                       >
                         Open the explanation that addresses this

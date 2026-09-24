@@ -1,3 +1,4 @@
+import { returnCaption } from "../../reader/returnCaption.ts";
 import type { CompiledMissingStep, CompiledMissingStepLesson } from "./compiled.ts";
 import "./missingStep.css";
 
@@ -64,7 +65,7 @@ export function MissingStepPanel({
           <a
             href={`/foundations/${step.tool}/`}
             data-foundation={step.tool}
-            data-return-caption={`Return to ${lesson.title.toLowerCase()}: ${step.title}.`}
+            data-return-caption={returnCaption(`${lesson.title.toLowerCase()}: ${step.title}`)}
             // Four steps share the visible text and reach different lessons, so the name says
             // which lesson and which step (src/reader/linkNames.test.tsx).
             aria-label={`Open the mathematical tool behind this step: ${step.toolTitle ?? step.tool}, for ${step.title}`}

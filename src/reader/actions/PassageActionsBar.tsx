@@ -1,5 +1,6 @@
 import { FoundationLink } from "../Blocks.tsx";
 import { faceLinkHref } from "../paperRoutes.ts";
+import { returnCaption } from "../returnCaption.ts";
 import { LAB_NAMES } from "./labNames.ts";
 import { ObstacleMenu } from "./ObstacleMenu.tsx";
 import type { PassageActions } from "./passageActions.schema.ts";
@@ -63,7 +64,7 @@ export function PassageActionsBar({
             key={title}
             id={foundationId}
             title={title}
-            caption={`Return to ${passageLabel}.`}
+            caption={returnCaption(passageLabel)}
             ariaLabel={`${title}: ${passageLabel}`}
           />
         ))}

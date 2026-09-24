@@ -25,7 +25,9 @@ describe("missing-step reader content", () => {
       const html = renderToStaticMarkup(<MissingStepPanel lesson={example} step={step} />);
       expect(html).toContain(`href="/foundations/${tool}/" data-foundation="${tool}"`);
       expect(html).toContain("Open the mathematical tool behind this step →");
-      expect(html).toMatch(/data-return-caption="Return to [^"]+: [^"]+\."/);
+      // One closing mark: "vanish?" keeps its question mark and gains no full stop.
+      expect(html).toMatch(/data-return-caption="Return to [^"]+: [^"]+[.?!]"/);
+      expect(html).not.toMatch(/data-return-caption="[^"]*[.?!]\."/);
       // Named by lesson and step: the visible text is the same on every step.
       expect(step.toolTitle, step.id).not.toBeNull();
       expect(html).toContain(
