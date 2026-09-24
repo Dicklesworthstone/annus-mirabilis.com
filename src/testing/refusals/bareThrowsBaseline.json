@@ -223,7 +223,7 @@
   "src/experiments/sr01/entranceScenario.ts": 1,
   "src/experiments/sr01/session.ts": 2,
   "src/experiments/sr02/session.ts": 2,
-  "src/experiments/sr03/controls.ts": 5,
+  "src/experiments/sr03/controls.ts": 3,
   "src/experiments/sr03/permalink.ts": 1,
   "src/experiments/sr03/session.ts": 2,
   "src/experiments/sr06/controls.ts": 1,
