@@ -30,7 +30,8 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { withScripts } from "../subscripts.tsx";
 import "../labControls.css";
 import "../showTheCode.css";
-import { numberText } from "../presentation.ts";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
+import { numberText, sentenceNumber } from "../presentation.ts";
 
 function outputByQuantityId(
   outputs: readonly PublishedResult[],
@@ -128,6 +129,25 @@ export function ClockSyncLab({
   }, [restoreFromLocation, session]);
 
   const outputs = accepted?.outputs ?? [];
+  // One sentence for the status line: the time the light-signal rule gives the remote clock, and
+  // how far apart the moving pair's clocks read.
+  const numberAt = (quantityId: string) => {
+    const item = outputByQuantityId(outputs, quantityId);
+    return item?.status === "value" && typeof item.value === "number" ? item.value : null;
+  };
+  const assigned = numberAt("assignedRemoteTime");
+  const desync = numberAt("desynchronization");
+  const statusSummary = [
+    assigned === null
+      ? null
+      : `the light-signal rule sets the clock at B, ${sentenceNumber(p.stationSeparationLs)} ls from A, to ${sentenceNumber(assigned)} s`,
+    desync === null
+      ? null
+      : `the pair moving at ${sentenceNumber(p.pairBeta)}c, ${sentenceNumber(p.pairSeparationLs)} ls apart, has clocks that read ${sentenceNumber(desync)} s apart, judged from the platform`,
+  ]
+    .filter((part) => part !== null)
+    .join("; ")
+    .concat(".");
   const ledger = computeSr01Ledger(p);
   const settledAnswer = predictAnswerFor(p);
 
@@ -412,6 +432,10 @@ export function ClockSyncLab({
           </div>
         )}
       </form>
+      <AcceptedStatus
+        worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
+        summary={statusSummary}
+      />
 
       <section className="predict-section" aria-label="Prediction mode">
         <h3>Predict before changing the moving pair's velocity:</h3>

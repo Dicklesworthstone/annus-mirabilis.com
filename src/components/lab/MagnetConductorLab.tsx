@@ -22,8 +22,9 @@ import { validateSr02Parameters } from "../../experiments/sr02/parameters.ts";
 import { createSr02Session, type PreparedSr02Example } from "../../experiments/sr02/session.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
+import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
-import { display, identity, result } from "./presentation.ts";
+import { display, identity, result, sentenceNumber } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
 
 const SPEED_06C = 0.6 * 299792458;
@@ -88,6 +89,18 @@ export function MagnetConductorLab({
   );
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr02Parameters;
+  // One sentence for the status line: the force on the charge in each description, which agree.
+  const numberAt = (quantityId: string) => {
+    const item = result(snapshot, quantityId);
+    return item.status === "value" && typeof item.value === "number" ? item.value : null;
+  };
+  const forceMagnet = numberAt("transverseForceLaboratory");
+  const forceConductor = numberAt("transverseForceComoving");
+  const fieldConductor = numberAt("electricFieldMoving");
+  const statusSummary =
+    forceMagnet === null || forceConductor === null || fieldConductor === null
+      ? "the two descriptions' forces are not computed at these settings."
+      : `with the conductor moving at ${sentenceNumber(p.speed)} m/s, described from the magnet's rest frame the charge feels a magnetic force of ${sentenceNumber(forceMagnet)} N; described from the conductor's rest frame an electric field of ${sentenceNumber(fieldConductor)} V/m gives it ${sentenceNumber(forceConductor)} N.`;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
@@ -298,6 +311,10 @@ export function MagnetConductorLab({
             ) : null}
           </fieldset>
         </form>
+        <AcceptedStatus
+          worked={snapshot === session.getServerSnapshot().accepted}
+          summary={statusSummary}
+        />
         <div className="lab-results">
           {apparatus ? (
             <ApparatusPanel

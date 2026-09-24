@@ -35,6 +35,8 @@ import { TwoLedgersPlot } from "./TwoLedgersPlot.tsx";
 import "../labControls.css";
 import "./me01.css";
 import "../showTheCode.css";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
+import { sentenceNumber } from "../presentation.ts";
 
 const STEPS: readonly { id: Me01Step; label: string; number: number }[] = [
   { id: "intro", label: "1. The setup", number: 1 },
@@ -86,6 +88,16 @@ export function TwoLedgersLab({
   const [predictAnswer, setPredictAnswer] = useState<string | null>(null);
 
   const evaluation = evaluateMe01(p);
+  // One sentence for the status line: what the two pulses carry in the moving frame, and what the
+  // body's kinetic energy loses there.
+  const numberIn = (item: { status: string; value?: unknown }) =>
+    item.status === "value" && typeof item.value === "number" ? item.value : null;
+  const pulseSum = numberIn(evaluation.pulseSumMoving);
+  const kineticLoss = numberIn(evaluation.kineticEnergyDifference);
+  const statusSummary =
+    pulseSum === null
+      ? "the moving frame's pulse energies are not computed at these settings."
+      : `a body emits ${sentenceNumber(p.emittedEnergyRestFrame)} L of light in its rest frame; seen from a frame moving at ${sentenceNumber(p.frameSpeed)}c the two pulses carry ${sentenceNumber(pulseSum)} L together${kineticLoss === null ? "" : `, and the body's kinetic energy falls by ${sentenceNumber(kineticLoss)} L`}.`;
 
   useEffect(() => {
     const shared = decodeMe01Settings(window.location.search);
@@ -378,6 +390,10 @@ export function TwoLedgersLab({
               {error}
             </p>
           )}
+          <AcceptedStatus
+            worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
+            summary={statusSummary}
+          />
           {linkNote && (
             <div className="notice">
               <p>{linkNote}</p>

@@ -40,7 +40,8 @@ import { PhotonBoxPlot } from "./PhotonBoxPlot.tsx";
 import "../labControls.css";
 import "./me03.css";
 import "../showTheCode.css";
-import { numberText } from "../presentation.ts";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
+import { numberText, sentenceNumber } from "../presentation.ts";
 
 /** The energy figure's kind, in words: the card carried its id ("radiated-power") to the reader. */
 const ENERGY_FIGURE_WORDS: Readonly<Record<string, string>> = {
@@ -112,6 +113,18 @@ export function BoundaryLedgerLab({
   if (boxScale) {
     validateMe03BoxScale(boxScale, "me-03:box-1906");
   }
+  // One sentence for the status line: in the box mode, how long the pulse takes and how far the
+  // box moves; otherwise the case, where the boundary is drawn and what happens to the radiation.
+  const boundaryWords = {
+    "body-alone": "the body alone",
+    radiation: "the radiation",
+    "combined-isolated-system": "the body and the radiation as one isolated system",
+  }[p.boundary];
+  const statusSummary = boxEvaluation
+    ? boxEvaluation.status === "value"
+      ? `a ${sentenceNumber(p.pulseEnergy)} J pulse crosses a ${sentenceNumber(p.boxMass)} kg box ${sentenceNumber(p.boxLength)} m long in ${sentenceNumber(boxEvaluation.flightTimeValue)} s, and the box moves back ${sentenceNumber(Math.abs(boxEvaluation.displacement))} m.`
+      : (boxEvaluation.reason ?? "the photon box is outside the model's domain at these settings.")
+    : `${card.label}, with the boundary around ${boundaryWords}: the radiation ${facts.radiation.disposition === "partly-retained" ? "is partly retained" : facts.radiation.disposition === "retained" ? "is retained" : "escapes"}, and the energy figure is ${numberText(facts.energyFigure.value)} ${facts.energyFigure.unit}.`;
 
   useEffect(() => {
     const shared = decodeMe03Settings(window.location.search);
@@ -605,6 +618,10 @@ export function BoundaryLedgerLab({
               {error}
             </p>
           )}
+          <AcceptedStatus
+            worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
+            summary={statusSummary}
+          />
           {linkNote && (
             <div className="notice">
               <p>{linkNote}</p>

@@ -12,7 +12,9 @@ import {
 } from "../../experiments/bm02/session";
 import { executionLabelFor } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { sentenceNumber } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 import { withScripts } from "./subscripts.tsx";
 
@@ -165,6 +167,21 @@ export function OsmoticPartitionLab({
   const [predictAnswer, setPredictAnswer] = useState<"harder" | "same" | "less" | null>(null);
 
   const snapshot = computeBm02Snapshot(accepted);
+  // One sentence for the status line: the pressure on the partition, its force and its water column.
+  const valueIn = (item: { status: string; value?: unknown }) =>
+    item.status === "value" && typeof item.value === "number" ? item.value : null;
+  const pressure = valueIn(snapshot.osmoticPressure.result);
+  const force = valueIn(snapshot.partitionForce.result);
+  const head = valueIn(snapshot.hydrostaticHead.result);
+  const density = valueIn(snapshot.numberDensity);
+  const modelWords =
+    accepted.model === "molecular-kinetic"
+      ? "on the molecular-kinetic model"
+      : "on the classical expectation for suspended bodies";
+  const statusSummary =
+    pressure === null || force === null || head === null || density === null
+      ? `${modelWords}, the pressure on the partition is not computed at these settings.`
+      : `${modelWords}, ${sentenceNumber(density)} particles per cubic metre press on the partition with ${sentenceNumber(pressure)} Pa, a force of ${sentenceNumber(force)} N, as much as a ${sentenceNumber(head)} m column of water.`;
   const admitted = "admitted" in snapshot.domain ? snapshot.domain.admitted : false;
 
   function apply(next: Bm02Inputs) {
@@ -360,6 +377,7 @@ export function OsmoticPartitionLab({
             </p>
           )}
         </form>
+        <AcceptedStatus worked={executionKind === "static-example"} summary={statusSummary} />
 
         <div className="lab-results">
           <ChamberIllustration count={accepted.Np} admitted={admitted} />

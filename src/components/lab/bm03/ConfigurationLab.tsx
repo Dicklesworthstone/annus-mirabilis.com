@@ -22,7 +22,8 @@ import {
 } from "../../../experiments/bm03/session.ts";
 import { executionLabelFor } from "../../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../../experiments/labels/resultAttributes.ts";
-import { fixed, identity, numberText } from "../presentation.ts";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
+import { fixed, identity, numberText, readablePowers, sentenceNumber } from "../presentation.ts";
 import { ConfigurationPlot } from "./ConfigurationPlot.tsx";
 import "./bm03.css";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
@@ -80,6 +81,17 @@ export function ConfigurationLab({
   const [predictAnswer, setPredictAnswer] = useState<string | null>(null);
 
   const evaluation = evaluateBm03(p);
+  // One sentence for the status line: how many more arrangements the larger volume allows, and the
+  // free-energy change that follows.
+  const arrangements =
+    evaluation.exactDecimalString ??
+    `about ${readablePowers(`1e${Math.round(evaluation.log10Exponent)}`)}`;
+  const deltaF =
+    evaluation.deltaF.result.status === "value" &&
+    typeof evaluation.deltaF.result.value === "number"
+      ? evaluation.deltaF.result.value
+      : null;
+  const statusSummary = `${p.Np.toLocaleString("en")} ${p.model === "independent" ? "independent" : "locked"} particles in a volume ${numberText(p.volumeRatio)} times larger have ${arrangements} times as many position arrangements${deltaF === null ? "" : `, and the free energy changes by ${sentenceNumber(deltaF)} J`}.`;
 
   useEffect(() => {
     setReady(true);
@@ -384,6 +396,7 @@ export function ConfigurationLab({
             </p>
           )}
         </form>
+        <AcceptedStatus worked={executionKind === "static-example"} summary={statusSummary} />
 
         <div className="lab-results" {...identity(snapshot)}>
           {/* SVG Construction Visual */}

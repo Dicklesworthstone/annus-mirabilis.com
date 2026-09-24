@@ -21,8 +21,9 @@ import {
 } from "../../../experiments/sr08/session.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { display, identity, result } from "../presentation.ts";
+import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import { FieldFrameChangePlot } from "./FieldFrameChangePlot.tsx";
 import "../labControls.css";
@@ -122,6 +123,21 @@ export function FieldFrameChangeLab({
   const gRes = result(snapshot, "lorentzFactor");
   const fLab = result(snapshot, "transverseForceLaboratory");
   const fCom = result(snapshot, "transverseForceComoving");
+  // One sentence for the status line: each field before and after the change of frame.
+  const vectorText = (item: PublishedResult, unit: string) => {
+    if (item.status !== "value" || typeof item.value === "number") return null;
+    const components = item.value;
+    return `(${Array.from({ length: components.length }, (_, i) => sentenceNumber(components.at(i))).join(", ")}) ${unit}`;
+  };
+  const fields = [
+    vectorText(eStat, "V/m"),
+    vectorText(eMov, "V/m"),
+    vectorText(bStat, "T"),
+    vectorText(bMov, "T"),
+  ] as const;
+  const statusSummary = fields.every((text) => text !== null)
+    ? `seen from the frame moving at ${fixed(p.boost / C_SI, 3)}c, the electric field ${fields[0]} becomes ${fields[1]} and the magnetic field ${fields[2]} becomes ${fields[3]}.`
+    : "the moving frame's fields are not computed at these settings.";
 
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation.
@@ -351,6 +367,10 @@ export function FieldFrameChangeLab({
             ) : null}
           </fieldset>
         </form>
+        <AcceptedStatus
+          worked={snapshot === session.getServerSnapshot().accepted}
+          summary={statusSummary}
+        />
 
         <div className="lab-results">
           <FieldFrameChangePlot
