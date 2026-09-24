@@ -3,6 +3,7 @@ import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { validateEntranceRecord } from "../../content/entrances/entranceRecord.ts";
+import { loadPaper } from "../../content/server";
 import { BrownianFirstEncounter } from "../../reader/entrances/BrownianFirstEncounter.tsx";
 import { newRunIdentity, TestLogger } from "../log/logger.ts";
 import { createContainer, installDom, removeContainer, uninstallDom } from "../reactDom.ts";
@@ -427,7 +428,7 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     });
   });
 
-  it("reaches BM-01 by catalogue id and §5 displacement passage by stable sentence id", async () => {
+  it("reaches BM-01 by catalogue id and the §5 passage at an id the §5 page renders", async () => {
     const start = performance.now();
     const root = createRoot(container);
     await act(async () => {
@@ -441,16 +442,21 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     expect(instrumentLink?.getAttribute("href")).toBe("/lab/bm-01");
     expect(instrumentLink?.getAttribute("data-instrument-id")).toBe("bm-01");
 
+    // The §5 page renders no sentence anchors, so "#s5-p1-s1" landed at the top of the page (found
+    // by a fragment crawl of live 211e9af4). The link now opens §5 at its heading, an id the page
+    // does render; that the paper really has a section s5 is checked below.
     const sentenceLink = Array.from(container.querySelectorAll("a")).find((a) =>
-      a.getAttribute("href")?.includes("/papers/brownian-motion/s5/#s5-p1-s1"),
+      a.getAttribute("href")?.includes("/papers/brownian-motion/s5/#s5"),
     );
     expect(sentenceLink).toBeDefined();
-    expect(sentenceLink?.getAttribute("href")).toBe("/papers/brownian-motion/s5/#s5-p1-s1");
+    expect(sentenceLink?.getAttribute("href")).toBe("/papers/brownian-motion/s5/#s5");
+    const brownian = await loadPaper("brownian-motion");
+    expect(brownian.paper.sections.map((s) => s.id)).toContain("s5");
 
     logger.log({
       testId: "ui-less-guidance-catalogue-and-sentence-id",
       beadId: BEAD_ID,
-      expected: { instrumentId: "bm-01", sentenceId: "s5-p1-s1" },
+      expected: { instrumentId: "bm-01", passageAnchor: "s5" },
       actual: {
         instrumentId: instrumentLink?.getAttribute("data-instrument-id"),
         passageHref: sentenceLink?.getAttribute("href"),

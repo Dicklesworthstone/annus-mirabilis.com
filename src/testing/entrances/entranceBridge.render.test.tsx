@@ -129,7 +129,7 @@ describe("Entrance Bridge Rendering Tests (am-bm-first-encounter-fjvh)", () => {
     expect(html).toContain("<noscript>");
     expect(html).toContain('href="/foundations/mean-variance-rms"');
     expect(html).toContain('href="/lab/bm-01"');
-    expect(html).toContain('href="/papers/brownian-motion/s5/#s5-p1-s1"');
+    expect(html).toContain('href="/papers/brownian-motion/s5/#s5"');
 
     // Complete worked example numbers for authored case (-3, -1, +1, +3)
     expect(html).toContain("Authored example (−3, −1, +1, +3 units):");

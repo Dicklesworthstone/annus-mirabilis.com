@@ -823,7 +823,7 @@ export function BrownianFirstEncounter({
                   >
                     Open the tracer-ensemble laboratory
                   </a>
-                  <a href="/papers/brownian-motion/s5/#s5-p1-s1" className="button secondary">
+                  <a href="/papers/brownian-motion/s5/#s5" className="button secondary">
                     Go to the §5 passage
                   </a>
                 </div>
@@ -879,7 +879,7 @@ export function BrownianFirstEncounter({
             <a href="/lab/bm-01" className="button secondary">
               Open the tracer-ensemble laboratory
             </a>
-            <a href="/papers/brownian-motion/s5/#s5-p1-s1" className="button secondary">
+            <a href="/papers/brownian-motion/s5/#s5" className="button secondary">
               Go to the §5 displacement passage
             </a>
           </div>
