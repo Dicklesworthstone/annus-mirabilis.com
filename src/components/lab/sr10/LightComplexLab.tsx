@@ -1,11 +1,16 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
 import {
   SR10_CAPTION,
-  SR10_MODEL,
   SR10_NOT_MODELED,
+  SR10_OUTPUTS,
   type Sr10Parameters,
 } from "../../../experiments/sr10/definition.ts";
 import { validateSr10Parameters } from "../../../experiments/sr10/parameters.ts";
@@ -125,13 +130,23 @@ export function LightComplexLab({
   const countermodelEnergyFactor = fromComparison("countermodelEnergyFactor");
   const countermodelVolumeFactor = fromComparison("countermodelVolumeFactor");
 
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      SR10_OUTPUTS,
+      example.sourceDigest,
+      snapshot === session.getServerSnapshot().accepted,
+    ).label,
+  );
   return (
     <section
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="sr-10"
       {...identity(snapshot)}
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, view, "frameSpeed")}
       data-source-digest={example.sourceDigest}
     >
       <header className="lab-heading">
@@ -139,8 +154,14 @@ export function LightComplexLab({
           <p className="eyebrow">The finite light complex</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <span className="badge">{SR10_MODEL.label}</span>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          modelNote={modelNoteFromView(view, { notModeled: `${SR10_NOT_MODELED.join("; ")}.` })}
+        />
+      </div>
       <noscript>
         <p className="notice">
           JavaScript is off. This is a complete worked example calculated when the site was built.
