@@ -2,9 +2,11 @@
 # Specification: AGENTS.md, am-not-concordance-model-uag, am-not-entries-brownian-1rq.
 # Verification status: on 2026-09-24 agent:ConcordanceCheck-brownian-motion read 37 of the
 # 40 entries by eye from the plates in public/figures/plates/pages/ap-17-549/ (never the text
-# layer). Three stay pending: bm.v.driftVelocity and bm.Sek.unitSymbol, whose glyphs are not
-# printed on the plates, and bm.poise.viscosityUnitConversion, which p. 559 prints as
-# 1,35 . 10⁻² rather than as recorded. No human has reviewed any entry.
+# layer), and set each first-use page and anchor to where the glyph is printed, naming
+# paragraphs from the frozen manifest content/source-blocks/brownian-motion/manifest.yaml.
+# Three stay pending: bm.v.driftVelocity and bm.Sek.unitSymbol, whose glyphs are not printed
+# on the plates, and bm.poise.viscosityUnitConversion, which p. 559 prints as 1,35 . 10⁻²
+# rather than as recorded. No human has reviewed any entry.
 
 paper: brownian-motion
 
@@ -109,13 +111,13 @@ entries:
         - sectionId: bm-s1
           anchor: bm-s1-p1
         - sectionId: bm-s2
-          anchor: bm-s2-p2
+          anchor: bm-s2-p7
     sources:
-      facsimilePage: 549
+      facsimilePage: 550
       anchor: bm-s1-p1
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 549 and 550 (public/figures/plates/pages/ap-17-549/549-1280.webp, public/figures/plates/pages/ap-17-549/550-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 550 in pV* = RTz, not on p. 549 as sources.facsimilePage says. An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 549, 550 and 553 (public/figures/plates/pages/ap-17-549/549-1280.webp, public/figures/plates/pages/ap-17-549/550-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 550 in pV* = RTz, the display equation of s1-p1. Its first use in §2 is p = −∂F/∂V* on p. 553 (s2-p7). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -135,11 +137,11 @@ entries:
         form: symbol
         modernGlyph: "T"
     sources:
-      facsimilePage: 549
+      facsimilePage: 550
       anchor: bm-s1-p1
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 549 and 550 (public/figures/plates/pages/ap-17-549/549-1280.webp, public/figures/plates/pages/ap-17-549/550-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 550 in pV* = RTz, not on p. 549 as sources.facsimilePage says. An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 549 and 550 (public/figures/plates/pages/ap-17-549/549-1280.webp, public/figures/plates/pages/ap-17-549/550-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 550 in pV* = RTz, the display equation of s1-p1. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -159,11 +161,11 @@ entries:
         form: symbol
         modernGlyph: "R"
     sources:
-      facsimilePage: 549
+      facsimilePage: 550
       anchor: bm-s1-p1
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 549 and 550 (public/figures/plates/pages/ap-17-549/549-1280.webp, public/figures/plates/pages/ap-17-549/550-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 550 in pV* = RTz, not on p. 549 as sources.facsimilePage says. An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 549 and 550 (public/figures/plates/pages/ap-17-549/549-1280.webp, public/figures/plates/pages/ap-17-549/550-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 550 in pV* = RTz, the display equation of s1-p1. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -187,18 +189,18 @@ entries:
       kind: cross-toggle
       collidesWith: ["numberDensity", "bm.nu.numberDensity"]
       collidesWithModern: ["numberDensity"]
-      firstUseAnchor: bm-s1-p2
+      firstUseAnchor: bm-s1-p3
       firstUseBySection:
         - sectionId: bm-s1
-          anchor: bm-s1-p2
+          anchor: bm-s1-p3
         - sectionId: bm-s2
           anchor: bm-s2-p2
     sources:
       facsimilePage: 550
-      anchor: bm-s1-p2
+      anchor: bm-s1-p3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 550 (public/figures/plates/pages/ap-17-549/550-1280.webp): glyph read by eye from the page image, not the text layer. Printed as 'n suspendierte Körper im Volumen V*' in the paragraph beginning 'Vom Standpunkte' (s1-p3 in the source manifest), not in s1-p2. An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 550 and 552 (public/figures/plates/pages/ap-17-549/550-1280.webp, public/figures/plates/pages/ap-17-549/552-1280.webp): glyph read by eye from the page images, not the text layer. Printed as 'n suspendierte Körper im Volumen V*' in s1-p3, the paragraph beginning 'Vom Standpunkte'. Its first use in §2 is on p. 552 (s2-p2, 'mögen sich n gelöste Moleküle'). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -222,18 +224,18 @@ entries:
       kind: cross-paper
       collidesWith: ["frequency", "particleCount"]
       collidesWithModern: ["frequency", "particleCount"]
-      firstUseAnchor: bm-s1-p2
+      firstUseAnchor: bm-s1-p3
       firstUseBySection:
         - sectionId: bm-s1
-          anchor: bm-s1-p2
+          anchor: bm-s1-p3
         - sectionId: bm-s3
-          anchor: bm-s3-p1
+          anchor: bm-s3-p2
     sources:
       facsimilePage: 550
-      anchor: bm-s1-p2
+      anchor: bm-s1-p3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 550 (public/figures/plates/pages/ap-17-549/550-1280.webp): glyph read by eye from the page image, not the text layer. Printed in n/V* = ν in the paragraph beginning 'Vom Standpunkte' (s1-p3 in the source manifest), not in s1-p2. In this type the Greek ν and an italic v look nearly alike; read as ν from its definition n/V* = ν. An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 550 and 554 (public/figures/plates/pages/ap-17-549/550-1280.webp, public/figures/plates/pages/ap-17-549/554-1280.webp): glyph read by eye from the page images, not the text layer. Printed in n/V* = ν in s1-p3, the paragraph beginning 'Vom Standpunkte'. In this type the Greek ν and an italic v look nearly alike; read as ν from its definition n/V* = ν. Its first use in §3 is on p. 554 (s3-p2, 'Es sei ν die Anzahl'). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -257,20 +259,20 @@ entries:
       kind: cross-paper
       collidesWith: ["magneticFieldComponent"]
       collidesWithModern: ["magneticFieldComponent"]
-      firstUseAnchor: bm-s1-p2
+      firstUseAnchor: bm-s1-p3
       firstUseBySection:
         - sectionId: bm-s1
-          anchor: bm-s1-p2
+          anchor: bm-s1-p3
         - sectionId: bm-s3
-          anchor: bm-s3-p1
+          anchor: bm-s3-p2
         - sectionId: bm-s5
-          anchor: bm-s5-p2
+          anchor: bm-s5-p1
     sources:
-      facsimilePage: 550
-      anchor: bm-s1-p2
+      facsimilePage: 551
+      anchor: bm-s1-p3
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 550 and 551 (public/figures/plates/pages/ap-17-549/550-1280.webp, public/figures/plates/pages/ap-17-549/551-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 551 (p = RT/V* · n/N, 'wobei N die Anzahl der in einem Gramm-Molekül enthaltenen wirklichen Moleküle bedeutet'), not on p. 550. An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 550, 551, 554 and 559 (public/figures/plates/pages/ap-17-549/550-1280.webp, public/figures/plates/pages/ap-17-549/551-1280.webp, public/figures/plates/pages/ap-17-549/554-1280.webp, public/figures/plates/pages/ap-17-549/559-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 551 in p = RT/V* · n/N, the display equation of s1-p3, followed by 'wobei N die Anzahl der in einem Gramm-Molekül enthaltenen wirklichen Moleküle bedeutet'. Its first uses in §3 and §5 are on p. 554 (s3-p2, in δS) and p. 559 (s5-p1, D = RT/N · 1/6πkP). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -468,16 +470,16 @@ entries:
       kind: cross-toggle
       collidesWith: ["boltzmannConstant"]
       collidesWithModern: ["boltzmannConstant"]
-      firstUseAnchor: bm-s2-p2
+      firstUseAnchor: bm-s2-p1
       firstUseBySection:
         - sectionId: bm-s2
-          anchor: bm-s2-p2
+          anchor: bm-s2-p1
     sources:
       facsimilePage: 551
-      anchor: bm-s2-p2
+      anchor: bm-s2-p1
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 551 (public/figures/plates/pages/ap-17-549/551-1280.webp): glyph read by eye from the page image, not the text layer. Printed in the curly form of kappa (Unicode U+03F0, varkappa); the letter is Greek kappa as recorded. First printed in S = Ē/T + 2κ lg ∫… and '2κN = R', both on p. 551 in s2-p1 and its display equations, not in s2-p2. An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 551 (public/figures/plates/pages/ap-17-549/551-1280.webp): glyph read by eye from the page image, not the text layer. Printed in the curly form of kappa (Unicode U+03F0, varkappa); the letter is Greek kappa as recorded. First printed in S = Ē/T + 2κ lg ∫… and '2κN = R', both in s2-p1. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -502,10 +504,10 @@ entries:
         modernGlyph: "k_B"
     sources:
       facsimilePage: 551
-      anchor: bm-s2-p2
+      anchor: bm-s2-p1
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 551 (public/figures/plates/pages/ap-17-549/551-1280.webp): glyph read by eye from the page image, not the text layer. Printed with the curly form of kappa (U+03F0). First printed on p. 551 in s2-p1 and its display equations, not in s2-p2. An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 551 (public/figures/plates/pages/ap-17-549/551-1280.webp): glyph read by eye from the page image, not the text layer. Printed with the curly form of kappa (U+03F0). First printed in s2-p1, in S = Ē/T + 2κ lg ∫… and '2κN = R'. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -527,10 +529,10 @@ entries:
     notes: "ISO 80000-2 / DIN 1302 note: Einstein's 'lg' notation represents the natural logarithm (base e), written ln in modern standards."
     sources:
       facsimilePage: 551
-      anchor: bm-s2-p2
+      anchor: bm-s2-p1
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 551 (public/figures/plates/pages/ap-17-549/551-1280.webp): glyph read by eye from the page image, not the text layer. Printed upright as lg, first on p. 551 in s2-p1's display equation, not in s2-p2. The plate shows the glyph only; that lg is the natural logarithm is an editorial reading, not something the page states. An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 551 (public/figures/plates/pages/ap-17-549/551-1280.webp): glyph read by eye from the page image, not the text layer. Printed upright as lg, first in S = Ē/T + 2κ lg ∫… in s2-p1. The plate shows the glyph only; that lg is the natural logarithm is an editorial reading, not something the page states. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -554,18 +556,18 @@ entries:
       kind: cross-toggle
       collidesWith: ["externalForcePerParticle", "dragForce"]
       collidesWithModern: ["externalForcePerParticle", "dragForce"]
-      firstUseAnchor: bm-s2-p2
+      firstUseAnchor: bm-s2-p1
       firstUseBySection:
         - sectionId: bm-s2
-          anchor: bm-s2-p2
+          anchor: bm-s2-p1
         - sectionId: bm-s3
-          anchor: bm-s3-p1
+          anchor: bm-s3-p2
     sources:
-      facsimilePage: 552
-      anchor: bm-s2-p2
+      facsimilePage: 551
+      anchor: bm-s2-p1
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 551 and 552 (public/figures/plates/pages/ap-17-549/551-1280.webp, public/figures/plates/pages/ap-17-549/552-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 551 ('Für die freie Energie F erhalten wir daher', F = −R/N T lg ∫…), before p. 552. An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 551, 552 and 554 (public/figures/plates/pages/ap-17-549/551-1280.webp, public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/554-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 551 in s2-p1 ('Für die freie Energie F erhalten wir daher', F = −R/N T lg ∫…). Its first use in §3 is δF = δE − TδS = 0 on p. 554 (s3-p2). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -586,11 +588,11 @@ entries:
         form: symbol
         modernGlyph: "B"
     sources:
-      facsimilePage: 552
-      anchor: bm-s2-p2
+      facsimilePage: 551
+      anchor: bm-s2-p1
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 551 and 552 (public/figures/plates/pages/ap-17-549/551-1280.webp, public/figures/plates/pages/ap-17-549/552-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 551 (F = … = −RT/N lg B), before p. 552 ('Integrales B'). An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 551 and 552 (public/figures/plates/pages/ap-17-549/551-1280.webp, public/figures/plates/pages/ap-17-549/552-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 551 in s2-p1 (F = … = −RT/N lg B), then on p. 552 ('Integrales B'). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -612,10 +614,10 @@ entries:
         modernGlyph: "J"
     sources:
       facsimilePage: 552
-      anchor: bm-s2-p2
+      anchor: bm-s2-p4
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 552 (public/figures/plates/pages/ap-17-549/552-1280.webp): glyph read by eye from the page image, not the text layer. Printed in dB = dx₁ dy₁ … dz_n . J in the paragraph beginning 'Wir nennen x₁, y₁, z₁' (s2-p4 in the source manifest), not in s2-p2. An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 552 (public/figures/plates/pages/ap-17-549/552-1280.webp): glyph read by eye from the page image, not the text layer. Printed in dB = dx₁ dy₁ … dz_n . J in s2-p4, the paragraph beginning 'Wir nennen x₁, y₁, z₁'. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -635,11 +637,11 @@ entries:
         form: symbol
         modernGlyph: "\\delta"
     sources:
-      facsimilePage: 552
-      anchor: bm-s2-p2
+      facsimilePage: 554
+      anchor: bm-s3-p2
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 552 and 553 and 554 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp, public/figures/plates/pages/ap-17-549/554-1280.webp): glyph read by eye from the page images, not the text layer. Not printed on p. 552: §2 (pp. 551-553) prints only the partial-derivative sign ∂. First printed on p. 554 in §3 ('virtuelle Verrückung δx', δF = δE − TδS = 0). An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 551, 552, 553 and 554 (public/figures/plates/pages/ap-17-549/551-1280.webp, public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp, public/figures/plates/pages/ap-17-549/554-1280.webp): glyph read by eye from the page images, not the text layer. §2 (pp. 551-553) prints only the partial-derivative sign ∂, never δ. First printed on p. 554 in s3-p2 ('virtuelle Verrückung δx', δF = δE − TδS = 0). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -671,11 +673,11 @@ entries:
         - sectionId: bm-s3
           anchor: bm-s3-p1
     sources:
-      facsimilePage: 553
+      facsimilePage: 554
       anchor: bm-s3-p1
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 553 and 554 (public/figures/plates/pages/ap-17-549/553-1280.webp, public/figures/plates/pages/ap-17-549/554-1280.webp): glyph read by eye from the page images, not the text layer. Not on p. 553. §3 begins on p. 554, where K is first printed ('eine Kraft K wirkt'). An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 553 and 554 (public/figures/plates/pages/ap-17-549/553-1280.webp, public/figures/plates/pages/ap-17-549/554-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 554 in s3-p1, the opening paragraph of §3 ('eine Kraft K wirkt'). §3 begins on p. 554. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -695,11 +697,11 @@ entries:
         form: symbol
         modernGlyph: "x"
     sources:
-      facsimilePage: 553
-      anchor: bm-s3-p1
+      facsimilePage: 554
+      anchor: bm-s3-p2
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 552 and 553 and 554 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp, public/figures/plates/pages/ap-17-549/554-1280.webp): glyph read by eye from the page images, not the text layer. Bare x, the coordinate along the X-axis, is first printed on p. 554 ('eine solche Funktion von x', δx), not p. 553. Pages 552-553 print only the subscripted particle coordinates x₁ … x_n of §2. An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 552, 553 and 554 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp, public/figures/plates/pages/ap-17-549/554-1280.webp): glyph read by eye from the page images, not the text layer. Bare x, the coordinate along the X-axis, is first printed on p. 554 in s3-p2 ('eine solche Funktion von x', δx). Pages 552-553 print only the subscripted particle coordinates x₁ … x_n of §2. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -723,16 +725,16 @@ entries:
       kind: cross-paper
       collidesWith: ["columnLength"]
       collidesWithModern: ["columnLength"]
-      firstUseAnchor: bm-s3-p1
+      firstUseAnchor: bm-s3-p2
       firstUseBySection:
         - sectionId: bm-s3
-          anchor: bm-s3-p1
+          anchor: bm-s3-p2
     sources:
-      facsimilePage: 553
-      anchor: bm-s3-p1
+      facsimilePage: 554
+      anchor: bm-s3-p2
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 553 and 554 (public/figures/plates/pages/ap-17-549/553-1280.webp, public/figures/plates/pages/ap-17-549/554-1280.webp): glyph read by eye from the page images, not the text layer. Printed on p. 554 ('durch die Ebenen x = 0 und x = l begrenzt'), not p. 553. The same letter l is printed on p. 551 as the number of state variables (p₁ … p_l, ν = 1, 2 … l). An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 551 and 554 (public/figures/plates/pages/ap-17-549/551-1280.webp, public/figures/plates/pages/ap-17-549/554-1280.webp): glyph read by eye from the page images, not the text layer. Printed on p. 554 in s3-p2 ('durch die Ebenen x = 0 und x = l begrenzt'). The same letter l is printed on p. 551 as the number of state variables (p₁ … p_l, ν = 1, 2 … l). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -756,19 +758,19 @@ entries:
       kind: cross-toggle
       collidesWith: ["boltzmannConstant"]
       collidesWithModern: ["boltzmannConstant"]
-      firstUseAnchor: bm-s3-p2
+      firstUseAnchor: bm-s3-p6
       firstUseBySection:
         - sectionId: bm-s3
-          anchor: bm-s3-p2
+          anchor: bm-s3-p6
         - sectionId: bm-s5
-          anchor: bm-s5-p2
+          anchor: bm-s5-p1
     notes: "Einstein writes the liquid's viscosity as k; today it is η. It is not Boltzmann's constant, which this paper writes as R/N, or as 2κ."
     sources:
-      facsimilePage: 554
-      anchor: bm-s3-p2
+      facsimilePage: 555
+      anchor: bm-s3-p6
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 554 and 555 (public/figures/plates/pages/ap-17-549/554-1280.webp, public/figures/plates/pages/ap-17-549/555-1280.webp): glyph read by eye from the page images, not the text layer. Not on p. 554. First printed on p. 555 ('den Reibungskoeffizienten k', K/6πkP), and again on p. 559 (k = 1,35 . 10⁻²). An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 554, 555 and 559 (public/figures/plates/pages/ap-17-549/554-1280.webp, public/figures/plates/pages/ap-17-549/555-1280.webp, public/figures/plates/pages/ap-17-549/559-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 555 in s3-p6 ('den Reibungskoeffizienten k', K/6πkP). Its first use in §5 is D = RT/N · 1/6πkP on p. 559 (s5-p1). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -792,18 +794,18 @@ entries:
       kind: cross-paper
       collidesWith: ["osmoticPressure"]
       collidesWithModern: ["osmoticPressure"]
-      firstUseAnchor: bm-s3-p2
+      firstUseAnchor: bm-s3-p6
       firstUseBySection:
         - sectionId: bm-s3
-          anchor: bm-s3-p2
+          anchor: bm-s3-p6
         - sectionId: bm-s5
-          anchor: bm-s5-p2
+          anchor: bm-s5-p1
     sources:
-      facsimilePage: 554
-      anchor: bm-s3-p2
+      facsimilePage: 555
+      anchor: bm-s3-p6
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 554 and 555 (public/figures/plates/pages/ap-17-549/554-1280.webp, public/figures/plates/pages/ap-17-549/555-1280.webp): glyph read by eye from the page images, not the text layer. Not on p. 554. First printed on p. 555 ('Kugelradius P'), and again on p. 559 ('Kugeln vom Radius P'). An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 554, 555 and 559 (public/figures/plates/pages/ap-17-549/554-1280.webp, public/figures/plates/pages/ap-17-549/555-1280.webp, public/figures/plates/pages/ap-17-549/559-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 555 in s3-p6 ('Kugelradius P'). Its first use in §5 is on p. 559 (s5-p1, 'Kugeln vom Radius P'). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -827,16 +829,16 @@ entries:
       kind: cross-toggle
       collidesWith: ["mobility", "Mikron"]
       collidesWithModern: ["mobility"]
-      firstUseAnchor: bm-s3-p2
+      firstUseAnchor: bm-s3-p7
       firstUseBySection:
         - sectionId: bm-s3
-          anchor: bm-s3-p2
+          anchor: bm-s3-p7
     sources:
       facsimilePage: 555
-      anchor: bm-s3-p2
+      anchor: bm-s3-p7
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 555 (public/figures/plates/pages/ap-17-549/555-1280.webp): glyph read by eye from the page image, not the text layer. An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 555 (public/figures/plates/pages/ap-17-549/555-1280.webp): glyph read by eye from the page image, not the text layer. Printed in s3-p7, the paragraph beginning 'Bezeichnet ferner D' ('μ die Masse eines Teilchens'). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -857,10 +859,10 @@ entries:
         modernGlyph: "D"
     sources:
       facsimilePage: 555
-      anchor: bm-s3-p2
+      anchor: bm-s3-p7
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 555 (public/figures/plates/pages/ap-17-549/555-1280.webp): glyph read by eye from the page image, not the text layer. An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 555 (public/figures/plates/pages/ap-17-549/555-1280.webp): glyph read by eye from the page image, not the text layer. First printed in s3-p7, the paragraph beginning 'Bezeichnet ferner D'. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -907,11 +909,11 @@ entries:
           terms: ["R", "N"]
         modernGlyph: "k_B"
     sources:
-      facsimilePage: 555
-      anchor: bm-s3-p2
+      facsimilePage: 551
+      anchor: bm-s2-p1
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 551 and 555 (public/figures/plates/pages/ap-17-549/551-1280.webp, public/figures/plates/pages/ap-17-549/555-1280.webp): glyph read by eye from the page images, not the text layer. Printed on p. 555 in D = RT/N · 1/6πkP; first printed on p. 551 in §2 (p = RT/N · ν and F = −R/N T lg ∫…). An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 551 and 555 (public/figures/plates/pages/ap-17-549/551-1280.webp, public/figures/plates/pages/ap-17-549/555-1280.webp): glyph read by eye from the page images, not the text layer. First printed as R over N on p. 551 in s2-p1 (F = −R/N T lg ∫…). Earlier on the same page, the display equation of s1-p3 prints RT over N (p = RT/N · ν). Printed again on p. 555 in D = RT/N · 1/6πkP. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -938,16 +940,16 @@ entries:
       kind: cross-paper
       collidesWith: ["coordinateTimeMoving"]
       collidesWithModern: ["coordinateTimeMoving"]
-      firstUseAnchor: bm-s4-p1
+      firstUseAnchor: bm-s4-p3
       firstUseBySection:
         - sectionId: bm-s4
-          anchor: bm-s4-p1
+          anchor: bm-s4-p3
     sources:
       facsimilePage: 556
-      anchor: bm-s4-p1
+      anchor: bm-s4-p3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 556 (public/figures/plates/pages/ap-17-549/556-1280.webp): glyph read by eye from the page image, not the text layer. Printed in the paragraph beginning 'Wir führen ein Zeitintervall τ' (s4-p3 in the source manifest), not s4-p1. The page calls τ very small compared with the observable time intervals ('sehr klein … gegen die beobachtbaren Zeitintervalle'), which the binding observationInterval does not say; reported to the binding owner. An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 556 (public/figures/plates/pages/ap-17-549/556-1280.webp): glyph read by eye from the page image, not the text layer. Printed in s4-p3, the paragraph beginning 'Wir führen ein Zeitintervall τ'. The page calls τ very small compared with the observable time intervals ('sehr klein … gegen die beobachtbaren Zeitintervalle'), which the binding observationInterval does not say; reported to the binding owner. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -968,10 +970,10 @@ entries:
         modernGlyph: "\\Delta x"
     sources:
       facsimilePage: 556
-      anchor: bm-s4-p1
+      anchor: bm-s4-p4
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 556 (public/figures/plates/pages/ap-17-549/556-1280.webp): glyph read by eye from the page image, not the text layer. Printed as an italic capital delta in the paragraph beginning 'Seien nun' (s4-p4 in the source manifest), not s4-p1. An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 556 (public/figures/plates/pages/ap-17-549/556-1280.webp): glyph read by eye from the page image, not the text layer. Printed as an italic capital delta in s4-p4, the paragraph beginning 'Seien nun'. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -995,16 +997,16 @@ entries:
       kind: within-paper
       collidesWith: ["bm.phi_nu.stateVariableRate", "\\varphi_\\nu"]
       collidesWithModern: ["emissionAngle", "fieldScaleFactorUnknown"]
-      firstUseAnchor: bm-s4-p1
+      firstUseAnchor: bm-s4-p4
       firstUseBySection:
         - sectionId: bm-s4
-          anchor: bm-s4-p1
+          anchor: bm-s4-p4
     sources:
       facsimilePage: 556
-      anchor: bm-s4-p1
+      anchor: bm-s4-p4
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 556 (public/figures/plates/pages/ap-17-549/556-1280.webp): glyph read by eye from the page image, not the text layer. Printed in dn = nφ(Δ)dΔ in the paragraph beginning 'Seien nun' (s4-p4 in the source manifest), not s4-p1. An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 556 (public/figures/plates/pages/ap-17-549/556-1280.webp): glyph read by eye from the page image, not the text layer. Printed in dn = nφ(Δ)dΔ in s4-p4, the paragraph beginning 'Seien nun'. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -1025,11 +1027,11 @@ entries:
         modernGlyph: "n"
     notes: "Einstein's f(x,t) represents number density with integral over space equaling total particle count n. Renaming to probability density p(x,t) is an argument modernization."
     sources:
-      facsimilePage: 556
-      anchor: bm-s4-p1
+      facsimilePage: 557
+      anchor: bm-s4-p6
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 556 and 557 and 558 (public/figures/plates/pages/ap-17-549/556-1280.webp, public/figures/plates/pages/ap-17-549/557-1280.webp, public/figures/plates/pages/ap-17-549/558-1280.webp): glyph read by eye from the page images, not the text layer. Not on p. 556. First printed on p. 557 ('Es sei ν = f(x, t) die Anzahl der Teilchen pro Volumeneinheit'). Page 558 redefines f(x, t)dx as the number of particles displaced by between x and x + dx, with ∫f(x, t)dx = n. An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 556, 557 and 558 (public/figures/plates/pages/ap-17-549/556-1280.webp, public/figures/plates/pages/ap-17-549/557-1280.webp, public/figures/plates/pages/ap-17-549/558-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 557 in s4-p6 ('Es sei ν = f(x, t) die Anzahl der Teilchen pro Volumeneinheit'). Page 558 redefines f(x, t)dx as the number of particles displaced by between x and x + dx, with ∫f(x, t)dx = n. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -1049,11 +1051,11 @@ entries:
         form: symbol
         modernGlyph: "t"
     sources:
-      facsimilePage: 556
-      anchor: bm-s4-p1
+      facsimilePage: 551
+      anchor: bm-s2-p1
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 551 and 556 and 557 (public/figures/plates/pages/ap-17-549/551-1280.webp, public/figures/plates/pages/ap-17-549/556-1280.webp, public/figures/plates/pages/ap-17-549/557-1280.webp): glyph read by eye from the page images, not the text layer. Not on p. 556. First printed on p. 551 in §2 (∂p_ν/∂t); its first use in §4 is on p. 557 (f(x, t)). An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 551, 556 and 557 (public/figures/plates/pages/ap-17-549/551-1280.webp, public/figures/plates/pages/ap-17-549/556-1280.webp, public/figures/plates/pages/ap-17-549/557-1280.webp): glyph read by eye from the page images, not the text layer. First printed on p. 551 in s2-p1 (∂p_ν/∂t). Its first use in §4 is on p. 557 (s4-p5, 'nur von x und t abhängt'). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -1080,7 +1082,7 @@ entries:
       anchor: bm-s5-p1
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 559 (public/figures/plates/pages/ap-17-549/559-1280.webp): glyph read by eye from the page image, not the text layer. First printed at the head of p. 559 in §4 ('die Verrückung λ_x in Richtung der X-Achse', λ_x = √(2Dt)), before §5 begins on the same page; §5 prints it again. An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 559 (public/figures/plates/pages/ap-17-549/559-1280.webp): glyph read by eye from the page image, not the text layer. First printed at the head of p. 559 in §4 (s4-p11, 'die Verrückung λ_x in Richtung der X-Achse', λ_x = √(2Dt)), before §5 begins on the same page. The anchor stays at its first use in §5 (s5-p1) because the entry is scoped to §5. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
