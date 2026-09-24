@@ -16,9 +16,21 @@
  *
  * NO VERIFICATION RECORDS, on the same grounds as the mass-energy shelf: VerificationMethod is
  * "library scan" | "bound volume" | "publisher facsimile" | "comparison edition" and I performed
- * none of them. These dates are from standard bibliography. The cards therefore render with
- * CardDetail's "Awaiting verification" marker and publicationGate refuses them in production
- * until a human verifies them, which is the correct refusal.
+ * none of them. The cards therefore render with CardDetail's "Awaiting verification" marker and
+ * publicationGate refuses them in production until a human verifies them, which is the correct
+ * refusal.
+ *
+ * WHAT WAS CHECKED, AND AGAINST WHAT (GreenBarn, 2026-09-24, dispatch 142). Each journal locator
+ * below was compared with the publisher's metadata in Crossref: volume, first page and year agree
+ * for Rayleigh (Phil. Mag. (5) 49, 539; June 1900; doi:10.1080/14786440009463878), Planck
+ * (Ann. Phys. (4) 4, 553; 10.1002/andp.19013090310), Lenard ((4) 8, 149; 10.1002/andp.19023130510),
+ * Wien ((Wied.) 58, 662; 10.1002/andp.18962940803), Stokes (Phil. Trans. 142, 463;
+ * 10.1098/rstl.1852.0022), Rubens and Kurlbaum ((4) 4, 649; 10.1002/andp.19013090402), Hertz
+ * ((Wied.) 31, 983; 10.1002/andp.18872670827) and Thomson (Phil. Mag. (5) 48, 547;
+ * 10.1080/14786449908621447). Crossref numbers the Annalen by whole series, so (4) 4 appears
+ * there as volume 309. Boltzmann's Gastheorie (Leipzig: Barth, 1896) was found on archive.org
+ * (vorlesungenber01bolt). Fresnel's memoir and Boltzmann's 1877 paper are not in Crossref and
+ * were not checked. A metadata match is not a verification: nobody here has read the pages.
  */
 
 import type { KnowledgeCard } from "../discovery/cards/types.ts";
@@ -175,8 +187,10 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "lenard-1902-photoelectric",
     proposition:
-      "The energy of the electrons that ultraviolet light drives out of a metal does not depend on how bright the light is.",
+      "The energy of the electrons that ultraviolet light drives out of a metal does not depend on how bright the light is, while the number driven out grows with the brightness.",
     status: "available",
+    limits:
+      "Lenard found the greatest energy depending on the kind of light, not on its intensity. He did not establish that it rises in proportion to the frequency: that is the 1905 paper's prediction, tested by Millikan in 1916.",
     sources: [
       {
         title: "Über die lichtelektrische Wirkung",
@@ -189,6 +203,119 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
       latest: "1902",
       precision: "year",
       latestYear: 1902,
+      eventKind: "published",
+    },
+    admittedStages: ["stage-02", "stage-07"],
+  },
+  {
+    id: "rayleigh-1900-radiation-law",
+    proposition:
+      "Giving each mode of vibration of the radiation its equal share of energy predicts, at long wavelengths, an intensity proportional to the temperature and to the inverse fourth power of the wavelength.",
+    status: "available",
+    limits:
+      "Rayleigh offered it for long waves only, with a factor of his own to keep it finite at short ones; that printed form is not yet transcribed here. The constant usually quoted with it comes from Jeans in July 1905, after the light-quanta paper was received, and is not on this shelf.",
+    sources: [
+      {
+        title: "Remarks upon the Law of Complete Radiation",
+        date: "1900-06",
+        locator: "Phil. Mag. (5) 49, 539",
+      },
+    ],
+    date: {
+      earliest: "1900-06",
+      latest: "1900-06",
+      precision: "month",
+      latestYear: 1900,
+      eventKind: "published",
+    },
+    admittedStages: ["stage-03"],
+  },
+  {
+    id: "rubens-1901-long-wave-radiation",
+    proposition:
+      "Measured at long wavelengths, black-body radiation departs from Wien's law and grows in proportion to the temperature.",
+    status: "available",
+    limits:
+      "An empirical result at wavelengths of tens of micrometres. Rubens and Kurlbaum reported it to the Berlin Academy in October 1900, before this printed version, and Lummer and Pringsheim found departures from Wien's law the same year.",
+    sources: [
+      {
+        title: "Anwendung der Methode der Reststrahlen zur Prüfung des Strahlungsgesetzes",
+        date: "1901",
+        locator: "Ann. Phys. (4) 4, 649",
+      },
+    ],
+    date: {
+      earliest: "1901",
+      latest: "1901",
+      precision: "year",
+      latestYear: 1901,
+      eventKind: "published",
+    },
+    admittedStages: ["stage-03", "stage-04"],
+  },
+  {
+    id: "boltzmann-1896-gas-volume-entropy",
+    proposition:
+      "At a fixed temperature the entropy of an ideal gas changes with its volume as the logarithm of the volume, multiplied by the number of molecules and a constant: R log(V/V₀) per gram-molecule.",
+    status: "available",
+    limits:
+      "For an ideal gas of independent molecules at low density. The molecular form needs N, the number of molecules in a gram-molecule, whose value was uncertain in 1904. The page of this edition where the form is stated is not yet recorded.",
+    sources: [
+      {
+        title: "Vorlesungen über Gastheorie, I. Theil",
+        date: "1896",
+        locator: "Leipzig: J. A. Barth",
+      },
+    ],
+    date: {
+      earliest: "1896",
+      latest: "1896",
+      precision: "year",
+      latestYear: 1896,
+      eventKind: "published",
+    },
+    admittedStages: ["stage-05", "stage-06"],
+  },
+  {
+    id: "hertz-1887-ultraviolet-spark",
+    proposition: "Ultraviolet light falling on a spark gap makes the spark pass more easily.",
+    status: "available",
+    limits: "A phenomenon, reported without a mechanism.",
+    sources: [
+      {
+        title: "Ueber einen Einfluss des ultravioletten Lichtes auf die electrische Entladung",
+        date: "1887",
+        locator: "Ann. Phys. (Wied.) 31, 983",
+      },
+    ],
+    date: {
+      earliest: "1887",
+      latest: "1887",
+      precision: "year",
+      latestYear: 1887,
+      eventKind: "published",
+    },
+    admittedStages: ["stage-02"],
+  },
+  {
+    id: "thomson-1899-photoelectric-carrier",
+    proposition:
+      "The negative charges released from a metal by ultraviolet light have the same ratio of charge to mass as the particles of cathode rays.",
+    status: "available",
+    limits:
+      "Identifies what comes out of the metal. It says nothing about how much energy each carries.",
+    sources: [
+      {
+        title: "On the Masses of the Ions in Gases at Low Pressures",
+        date: "1899-12",
+        locator: "Phil. Mag. (5) 48, 547",
+      },
+    ],
+    date: {
+      earliest: "1899-12",
+      latest: "1899-12",
+      precision: "month",
+      latestYear: 1899,
       eventKind: "published",
     },
     admittedStages: ["stage-02", "stage-07"],

@@ -5,6 +5,7 @@ import { Formula } from "../../../components/edition/Formula.tsx";
 import { LIGHT_QUANTA_SHELF_CARDS } from "../../../content/lightQuantaShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
 import { GREATEST_ENERGY_EXERCISE } from "../../../discovery/lightQuanta/electronExercise.ts";
+import { FIRST_HONEST_QUESTION, NAGGING_FACT } from "../../../discovery/lightQuanta/journeyI.ts";
 import { GREATEST_ELECTRON_ENERGY } from "../../../discovery/lightQuanta/numericExercises.ts";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
@@ -57,6 +58,37 @@ export default function LightQuantaRoute() {
         </p>
       </header>
       <RouteMap slug="light-quanta" />
+
+      <section id="shelf">
+        <h2>The 1904 shelf</h2>
+        <p>
+          Everything this route uses was available to a careful reader at the end of 1904. There is
+          no imported later result: unlike the mass-energy route, which has to borrow from the June
+          relativity paper, this argument stands on its own shelf.
+        </p>
+        <Shelf cards={LIGHT_QUANTA_SHELF_CARDS} />
+        <p className="fine">
+          Each card&rsquo;s journal reference has been compared with the publisher&rsquo;s record of
+          volume, page and year. No one here has yet read the pages themselves, so the shelf marks
+          each card as awaiting verification. Two results the argument is often told with are not
+          here: Jeans&rsquo;s constant for Rayleigh&rsquo;s law is from July 1905, after the paper
+          was received, and the name &ldquo;ultraviolet catastrophe&rdquo; is Ehrenfest&rsquo;s,
+          from 1911.
+        </p>
+      </section>
+
+      <section id="nagging-fact" aria-labelledby="nagging-fact-title">
+        <p className="eyebrow" id="nagging-fact-title">
+          The nagging fact
+        </p>
+        <p className="lead">{NAGGING_FACT}</p>
+      </section>
+      <section id="first-question" aria-labelledby="first-question-title">
+        <p className="eyebrow" id="first-question-title">
+          The first honest question
+        </p>
+        <p className="lead">{FIRST_HONEST_QUESTION}</p>
+      </section>
 
       <section id="step-01">
         <p className="step-number">01 / Start with what works</p>
@@ -279,20 +311,6 @@ export default function LightQuantaRoute() {
           <StepDoor href="/lab/lq-08/">Separate how many electrons from how energetic</StepDoor>
           <StepDoor href="/lab/lq-09/">Set a threshold and see what it does not determine</StepDoor>
         </StepDoors>
-      </section>
-
-      <section id="shelf">
-        <h2>The 1904 shelf</h2>
-        <p>
-          Everything this route uses was available to a careful reader at the end of 1904. There is
-          no imported later result: unlike the mass-energy route, which has to borrow from the June
-          relativity paper, this argument stands on its own shelf.
-        </p>
-        <Shelf cards={LIGHT_QUANTA_SHELF_CARDS} />
-        <p className="fine">
-          The dates on these cards come from standard bibliographies. No one here has checked them
-          against the volumes, and the shelf marks each card as awaiting verification.
-        </p>
       </section>
 
       <aside className="notice">
