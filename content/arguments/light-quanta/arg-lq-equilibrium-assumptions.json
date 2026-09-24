@@ -91,7 +91,7 @@
       {
         "kind": "steps",
         "items": [
-          "Worked value, with today's value of R/N, 1.38 × 10⁻²³ joule per kelvin, which the paper does not use: at 300 kelvin, E = 1.38 × 10⁻²³ × 300 ≈ 4.14 × 10⁻²¹ joule. The frequency does not enter, so a resonator of any frequency has the same mean energy.",
+          "Worked value, with today's value of R/N, \\(1.38\\times10^{-23}\\) joule per kelvin, which the paper does not use: at 300 kelvin, \\(E=1.38\\times10^{-23}\\times300\\approx4.14\\times10^{-21}\\) joule. The frequency does not enter, so a resonator of any frequency has the same mean energy.",
           "The second assumption comes with Planck's relation, which §1 borrows to connect a resonator to the radiation. Planck derived it for radiation that is as disordered as possible, and the footnote says what that means.",
           "Pick a point in the box and one component Z of the electric field there. Over a time T much longer than every period of vibration that matters, write Z as a sum of sine waves. (Here T is that stretch of time, not the temperature.)"
         ]
@@ -146,7 +146,7 @@
     "missingStep": "probability-independence",
     "example": "probability-independence"
   },
-  "experiments": [],
+  "experiments": ["lq-02"],
   "meaning": {
     "logicalRole": "assumption",
     "historicalStatus": "pedagogical-reconstruction",

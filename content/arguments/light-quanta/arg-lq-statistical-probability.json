@@ -101,7 +101,7 @@
     "missingStep": "logarithms",
     "example": "entropy-multiplicity"
   },
-  "experiments": [],
+  "experiments": ["lq-05"],
   "meaning": {
     "logicalRole": "definition",
     "historicalStatus": "pedagogical-reconstruction",

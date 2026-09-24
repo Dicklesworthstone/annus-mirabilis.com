@@ -209,13 +209,13 @@ displays:
     reason: "Planck's relation between a resonator's mean energy and the radiation density is explained in the passage on the classical allocation; no equation record states it."
   - unit: eq-s1-d3
     status: printed-only
-    reason: "Printed in the footnote that defines disordered radiation, which no passage explains yet (s1-fn3 is declared unexplained)."
+    reason: "The Fourier series of one field component, in the footnote that defines disordered radiation, is explained in the passage on the equilibrium assumptions; no equation record states it."
   - unit: eq-s1-d4
     status: printed-only
-    reason: "Printed in the footnote that defines disordered radiation, which no passage explains yet (s1-fn3 is declared unexplained)."
+    reason: "The probability of each combination of amplitudes and phases, in the same footnote, is explained in the passage on the equilibrium assumptions; no equation record states it."
   - unit: eq-s1-d5
     status: printed-only
-    reason: "Printed in the footnote that defines disordered radiation, which no passage explains yet (s1-fn3 is declared unexplained)."
+    reason: "The product condition for radiation as disordered as possible is explained in the passage on the equilibrium assumptions; no equation record states it."
   - unit: eq-s1-d6
     status: printed-only
     reason: "The equilibrium condition joining the two mean energies is the step the passage on the classical allocation takes to reach the density; the density itself is eq-model-lq-classical-density."

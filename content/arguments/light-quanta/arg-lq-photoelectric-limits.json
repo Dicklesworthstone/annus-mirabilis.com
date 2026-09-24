@@ -56,7 +56,7 @@
     "steps": [
       {
         "kind": "paragraph",
-        "text": "Letters: Π is the potential the illuminated body reaches, E the charge of a gram-equivalent of a univalent ion, P′ the work for a gram-equivalent of electrons to leave the body, R the gas constant, N the number of real molecules in a gram-equivalent, β the constant from Planck's formula in §2, and ν the frequency. (R/N)βν is the energy of one quantum; later physics writes it hν."
+        "text": "Letters: Π is the potential the illuminated body reaches, E the charge of a gram-equivalent of a univalent ion, \\(P'\\) the work for a gram-equivalent of electrons to leave the body, R the gas constant, N the number of real molecules in a gram-equivalent, β the constant from Planck's formula in §2, and ν the frequency. (R/N)βν is the energy of one quantum; later physics writes it hν."
       },
       {
         "kind": "steps",
@@ -75,7 +75,7 @@
       {
         "kind": "steps",
         "items": [
-          "Worked case, with the paper's own check: P′ = 0, R = 8.31 × 10⁷, β = 4.866 × 10⁻¹¹, ν = 1.03 × 10¹⁵ and E = 9.6 × 10³. Then Rβν = 8.31 × 10⁷ × 4.866 × 10⁻¹¹ × 1.03 × 10¹⁵ ≈ 4.16 × 10¹², and Π = Rβν / E ≈ 4.3 × 10⁸, which the paper converts to about 4.3 volts. One quantum, one electron.",
+          "Worked case, with the paper's own check: \\(P'=0\\), \\(R=8.31\\times10^{7}\\), \\(\\beta=4.866\\times10^{-11}\\), \\(\\nu=1.03\\times10^{15}\\) and \\(E=9.6\\times10^{3}\\). Then \\(R\\beta\\nu=8.31\\times10^{7}\\times4.866\\times10^{-11}\\times1.03\\times10^{15}\\approx4.16\\times10^{12}\\), and \\(Π=R\\beta\\nu/E\\approx4.3\\times10^{8}\\), which the paper converts to about 4.3 volts. One quantum, one electron.",
           "The first condition from §7, carried over: if so many quanta are being transformed at once in each unit of volume that one electron could take energy from two quanta, the energy available to it could reach twice (R/N)βν, and the equation above would no longer bound it. The paper names no intensity at which that begins.",
           "The second condition from §7, carried over: the quantum picture came from the entropy of radiation within the range of Wien's law (§6). Light well outside that range, such as light from a very hot source at the wavelength used, is not covered by that argument, so the argument does not fix the size of its energy portions.",
           "What Einstein asserts is only that such remarks would have to be made. He calls the limits presumable and leaves their details open, so neither carried-over case is a prediction of the paper."
@@ -109,7 +109,7 @@
     "missingStep": "orders-of-magnitude",
     "example": "work-energy"
   },
-  "experiments": [],
+  "experiments": ["lq-08"],
   "meaning": {
     "logicalRole": "qualification",
     "historicalStatus": "pedagogical-reconstruction",
