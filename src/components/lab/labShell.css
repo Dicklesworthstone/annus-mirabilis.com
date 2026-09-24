@@ -364,6 +364,35 @@
 }
 
 /*
+ * NO VALUE IS SPLIT MID-NUMBER IN A LABORATORY TABLE. Two site-wide rules did it on phones: at
+ * 480px and below, globals.css lets the first and last column of any .table-scroll table break
+ * anywhere (am-14at, written for dotted identifier columns such as lq08.acceptedInputs), and a
+ * container such as .inference-workbench sets overflow-wrap: anywhere, which every cell inherits.
+ * The identifier columns have since moved into model notes: on 2026-09-24, 0 of 1,724 outermost
+ * .table-scroll cells on the 41 lab routes held one. What was left was numbers, and on live at
+ * 390px 229 single-token cells rendered across two or more lines, 206 of them on
+ * /lab/what-can-you-infer/ ("14.64|9", "10.|873"). The site's `tbody th { width: 58% }`, meant for
+ * a label beside one value, made it worse by giving the row header most of a four-column table.
+ * Here a cell breaks only at a space, and a row header is content-width when its row has two or
+ * more values; a table that still does not fit scrolls in its focusable region. Measured by
+ * injecting these rules on live across all 41 lab routes: 229 -> 15 at 390px (the rest are
+ * subscripted symbols the line count mistakes for wraps, and ids breaking at their hyphens), 0
+ * page overflow before and after, 5 -> 8 regions that scroll; at 1440px no change.
+ */
+.lab-route table :is(th, td) {
+  overflow-wrap: normal;
+}
+
+/* Outranks the phone-width outer-column rule in globals.css, (0, 2, 1). */
+.lab-route .table-scroll table :is(th, td) {
+  overflow-wrap: normal;
+}
+
+.lab-route tbody tr:has(> td + td) > th {
+  width: auto;
+}
+
+/*
  * BM-06's density curve as numbers (DistributionPlot): four numeric columns. The site's
  * `tbody th { width: 58% }` is for a label beside one value, and on a phone the table-scroll
  * rule lets the last column break anywhere, which at 390px set "60.7%" one character to a line.
