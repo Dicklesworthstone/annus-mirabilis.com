@@ -8,13 +8,14 @@ import {
   type SourceBlock,
   type TranslationUnit,
 } from "../../content/schemas/source.ts";
-import { FACE_FALLBACK_IDS, faceLinkHref } from "../paperRoutes.ts";
+import { FaceChooser } from "../FaceChooser.tsx";
+import type { FaceAvailability } from "../faceAvailability.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { withoutClaimedDisplays } from "./displayClaims.ts";
 import { FootnotesSection } from "./Footnote.tsx";
-import { FACE_REGISTRY } from "./registry.ts";
+import type { FaceId } from "./registry.ts";
 import { isPaperTranslationUnreviewed } from "./reviewState.ts";
 import { SourceBlock as SourceBlockItem } from "./SourceBlock.tsx";
 import { SourceFaceNotice } from "./SourceFaceNotice.tsx";
@@ -31,6 +32,8 @@ import "../reader.css";
 export const ENGLISH_ANCHOR_PREFIX = "en-";
 
 export interface ParallelFaceProps {
+  /** Which faces have content, derived by PaperPage from the same counts it dispatches on. */
+  readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
   readonly paper: Paper;
   readonly blocks: readonly SourceBlock[];
   readonly units: readonly TranslationUnit[];
@@ -57,6 +60,7 @@ export function ParallelFace({
   sectionId,
   layout = "side-by-side",
   germanNotice,
+  availability,
 }: ParallelFaceProps) {
   const isUnreviewed = isPaperTranslationUnreviewed(units, reviewRecords);
   const isStacked = layout === "stacked";
@@ -119,30 +123,13 @@ export function ParallelFace({
 
       {isUnreviewed && <UnreviewedBanner />}
 
-      <nav className="reader-controls" aria-label="Reading face">
-        <a
-          href={
-            sectionId
-              ? faceLinkHref(paper.slug, "reading", sectionId)
-              : faceLinkHref(paper.slug, "reading")
-          }
-          data-view-link="reading"
-        >
-          Explanation
-        </a>
-        {FACE_FALLBACK_IDS.map((id) => (
-          <a
-            key={id}
-            href={
-              sectionId ? faceLinkHref(paper.slug, id, sectionId) : faceLinkHref(paper.slug, id)
-            }
-            data-view-link={id}
-            aria-current={id === "parallel" ? "page" : undefined}
-          >
-            {FACE_REGISTRY[id].label}
-          </a>
-        ))}
-      </nav>
+      {/* The chooser every face uses, with this face the current tab (FaceChooser.tsx). */}
+      <FaceChooser
+        paperId={paper.slug}
+        section={sectionId}
+        current="parallel"
+        availability={availability}
+      />
 
       <aside className="parallel-help-bar fine" aria-label="Alignment guidance">
         <p>

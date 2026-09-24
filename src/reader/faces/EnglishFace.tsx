@@ -5,12 +5,13 @@ import type {
   Paper,
   TranslationUnit,
 } from "../../content/schemas/source.ts";
-import { FACE_FALLBACK_IDS, faceLinkHref } from "../paperRoutes.ts";
+import { FaceChooser } from "../FaceChooser.tsx";
+import type { FaceAvailability } from "../faceAvailability.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { renderInlines } from "./inlines.tsx";
-import { FACE_REGISTRY } from "./registry.ts";
+import type { FaceId } from "./registry.ts";
 import { isPaperTranslationUnreviewed } from "./reviewState.ts";
 import { TranslationUnit as TranslationUnitItem, unitsBySourceRef } from "./TranslationUnit.tsx";
 import { MASTHEAD_AUTHOR_ID, MASTHEAD_TITLE_ID, unitTranslating } from "./translationMasthead.ts";
@@ -18,6 +19,8 @@ import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
 import "../reader.css";
 
 export interface EnglishFaceProps {
+  /** Which faces have content, derived by PaperPage from the same counts it dispatches on. */
+  readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
   readonly paper: Paper;
   readonly units: readonly TranslationUnit[];
   readonly alignment?: Alignment | undefined;
@@ -33,6 +36,7 @@ export function EnglishFace({
   editorialNotes = [],
   reviewRecords = [],
   sectionId,
+  availability,
 }: EnglishFaceProps) {
   const isUnreviewed = isPaperTranslationUnreviewed(units, reviewRecords);
   const alignmentIndex = buildAlignmentIndex(alignment, undefined, units);
@@ -95,30 +99,13 @@ export function EnglishFace({
 
       {isUnreviewed && <UnreviewedBanner />}
 
-      <nav className="reader-controls" aria-label="Reading face">
-        <a
-          href={
-            sectionId
-              ? faceLinkHref(paper.slug, "reading", sectionId)
-              : faceLinkHref(paper.slug, "reading")
-          }
-          data-view-link="reading"
-        >
-          Explanation
-        </a>
-        {FACE_FALLBACK_IDS.map((id) => (
-          <a
-            key={id}
-            href={
-              sectionId ? faceLinkHref(paper.slug, id, sectionId) : faceLinkHref(paper.slug, id)
-            }
-            data-view-link={id}
-            aria-current={id === "english" ? "page" : undefined}
-          >
-            {FACE_REGISTRY[id].label}
-          </a>
-        ))}
-      </nav>
+      {/* The chooser every face uses, with this face the current tab (FaceChooser.tsx). */}
+      <FaceChooser
+        paperId={paper.slug}
+        section={sectionId}
+        current="english"
+        availability={availability}
+      />
 
       <main className="translation-units-list" data-translation-body>
         {bodyUnits.map((unit) => (

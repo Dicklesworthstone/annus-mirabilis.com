@@ -194,9 +194,21 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
       }
 
       if (edition) {
+        // The chooser's availability on the edition's faces, from the counts this dispatch decides
+        // on, as the German draft face and FaceFallback derive theirs. The PDF is not hashed.
+        const germanDraft = editionBlocksReviewed(edition.blocks)
+          ? null
+          : loadGermanSourceFace(resolved.paperId as RouteSlug);
+        const availability = faceAvailability({
+          blocks: edition.blocks.length,
+          units: edition.units.length,
+          glossUnits: edition.glossUnits?.length ?? 0,
+          germanDraftBlocks: germanDraft?.blocks.length ?? 0,
+        });
         if (resolved.face === "english" && englishFaceHasContent(edition.units.length)) {
           return (
             <EnglishFace
+              availability={availability}
               paper={edition.paper}
               units={edition.units}
               alignment={edition.alignment}
@@ -212,6 +224,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         ) {
           return (
             <ParallelFace
+              availability={availability}
               paper={edition.paper}
               blocks={edition.blocks}
               units={edition.units}
@@ -225,11 +238,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
               editorialNotes={edition.editorialNotes}
               reviewRecords={edition.reviewRecords}
               sectionId={resolved.section}
-              germanNotice={
-                editionBlocksReviewed(edition.blocks)
-                  ? undefined
-                  : loadGermanSourceFace(resolved.paperId as RouteSlug)?.notice
-              }
+              germanNotice={germanDraft?.notice}
             />
           );
         }
@@ -243,6 +252,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         ) {
           return (
             <GlossFace
+              availability={availability}
               paper={edition.paper}
               blocks={edition.blocks}
               glossUnits={edition.glossUnits}

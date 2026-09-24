@@ -9,10 +9,13 @@ import type {
   SourceBlock,
   TranslationUnit,
 } from "../../content/schemas/source.ts";
+import { FaceChooser } from "../FaceChooser.tsx";
+import type { FaceAvailability } from "../faceAvailability.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { FootnotesSection } from "./Footnote.tsx";
 import { GlossSentence } from "./GlossSentence.tsx";
+import type { FaceId } from "./registry.ts";
 import { isPaperTranslationUnreviewed } from "./reviewState.ts";
 import { SourceBlock as SourceBlockComponent } from "./SourceBlock.tsx";
 import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
@@ -24,6 +27,8 @@ export interface GlossEntryLink {
 }
 
 export interface GlossFaceProps {
+  /** Which faces have content, derived by PaperPage from the same counts it dispatches on. */
+  readonly availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
   readonly paper: Paper;
   readonly blocks: readonly SourceBlock[];
   readonly glossUnits: readonly GlossUnit[];
@@ -60,6 +65,7 @@ export function GlossFace({
   entryLink,
   initialReasoningWords = false,
   modalityClasses,
+  availability,
 }: GlossFaceProps) {
   // If no source blocks exist for the paper, render an honest fallback
   if (!blocks || blocks.length === 0) {
@@ -128,6 +134,9 @@ export function GlossFace({
           <GlossReasoningToggle initiallyChecked={initialReasoningWords} />
         </div>
       </header>
+
+      {/* The chooser every face uses, with this face the current tab (FaceChooser.tsx). */}
+      <FaceChooser paperId={paper.slug} current="gloss" availability={availability} />
 
       {/* Main Blocks Stream */}
       <main className="gloss-face-content">
