@@ -54,4 +54,32 @@ describe("instrument audit reads the manifest keys that exist (am-instrument-aud
     expect(text).toContain("has no action contract");
     expect(text).toContain("does not declare the embed flag");
   });
+
+  test("a predict exemption is read as the schema writes it: exempt: true with a reason", () => {
+    // Until 2026-09-24 the audit read `predictMode.exemptionReason`, which no manifest declares,
+    // so all five exempt labs failed the column. Each case below is a separate lab on one root.
+    const root = rootWith({
+      "lq-03": [
+        "predictMode:",
+        "  exempt: true",
+        '  reason: "No predict affordance yet."',
+        "",
+      ].join("\n"),
+      "lq-04": ["predictMode:", "  exempt: true", ""].join("\n"),
+      "sr-04": [
+        "predictMode:",
+        '  exemptionReason: "The old key, which no schema reads."',
+        "",
+      ].join("\n"),
+    });
+    const rows = loadLiveInstrumentRows(root, { ids: ["lq-03", "lq-04", "sr-04"] });
+    const failing = auditInstruments(rows)
+      .findings.filter((f) => f.requirement === "predict-mode")
+      .map((f) => f.recordId)
+      .sort();
+    expect(rows.find((r) => r.id === "lq-03")?.predictExemptionReason).toBe(
+      "No predict affordance yet.",
+    );
+    expect(failing).toEqual(["lq-04", "sr-04"]);
+  });
 });

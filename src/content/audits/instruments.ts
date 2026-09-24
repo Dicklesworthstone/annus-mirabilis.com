@@ -305,7 +305,7 @@ export function loadLiveInstrumentRows(
               .map(String);
           }
           const predMode = parsed.predictMode as
-            | { enabled?: boolean; exemptionReason?: string; prompts?: unknown[] }
+            | { enabled?: boolean; exempt?: boolean; reason?: unknown; prompts?: unknown[] }
             | undefined;
           if (predMode?.prompts && Array.isArray(predMode.prompts)) {
             predictPrompts = predMode.prompts
@@ -322,9 +322,16 @@ export function loadLiveInstrumentRows(
               .map(String);
           }
           predictEnabled = predMode?.enabled === true;
-          predictExemptionReason = predMode?.exemptionReason
-            ? String(predMode.exemptionReason)
-            : undefined;
+          // The schema writes an exemption as `predictMode: { exempt: true, reason }`
+          // (src/content/schemas/experiment.ts). Until 2026-09-24 this read `exemptionReason`, a key
+          // no manifest uses, so the five exempt labs (lq-03, lq-04, bm-06, sr-04, sr-05) were
+          // reported as having neither predict mode nor an exemption.
+          predictExemptionReason =
+            predMode?.exempt === true &&
+            typeof predMode.reason === "string" &&
+            predMode.reason.trim() !== ""
+              ? predMode.reason
+              : undefined;
           if (typeof parsed.embeddable === "boolean") embeddable = parsed.embeddable;
           // The manifests declare their action contracts as `actions`. This read `actionContracts`,
           // a key no manifest uses, and defaulted to 1, so every lab passed the column unread
