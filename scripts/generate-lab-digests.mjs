@@ -2,7 +2,8 @@
  * Source digests for laboratories whose prepared example has no generator of its own
  * (am-inst-execution-labels-5ywv). A lab earns "Static worked example" or "Ideal model, host
  * calculation" only when its example names the host source that produced it; ME-01, ME-03 and SR-01
- * carried a file path in that field, which deriveHostExecution rightly refuses.
+ * carried a file path in that field, which deriveHostExecution rightly refuses; so did the pages of
+ * LQ-03, LQ-07 and SR-04.
  *
  * Each digest is computed exactly as generate-radiation-entropy.mjs computes LQ-04's: SHA-256 over
  * the session module's relative import closure, plus this generator, each file prefixed by its path
@@ -19,9 +20,12 @@ const self = "scripts/generate-lab-digests.mjs";
 
 /** Laboratory id to the session module whose closure computes its prepared example. */
 export const LAB_SESSIONS = Object.freeze({
+  "lq-03": "src/experiments/lq03/session.ts",
+  "lq-07": "src/experiments/lq07/session.ts",
   "me-01": "src/experiments/me01/session.ts",
   "me-03": "src/experiments/me03/session.ts",
   "sr-01": "src/experiments/sr01/session.ts",
+  "sr-04": "src/experiments/sr04/session.ts",
 });
 
 async function closure(entry) {
