@@ -116,7 +116,7 @@ export default function FluorescencePage() {
 
         <div style={{ paddingTop: "1rem" }}>
           <a
-            href="/papers/light-quanta#s7"
+            href="/papers/light-quanta/#s7"
             style={{
               fontSize: "0.875rem",
               fontWeight: 600,

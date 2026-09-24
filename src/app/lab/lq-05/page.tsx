@@ -87,7 +87,7 @@ export default function IndependentConfigurationsPage() {
         </p>
         <div style={{ paddingTop: "0.5rem" }}>
           <a
-            href="/papers/light-quanta#s5"
+            href="/papers/light-quanta/#s5"
             style={{
               fontSize: "0.875rem",
               fontWeight: 600,
