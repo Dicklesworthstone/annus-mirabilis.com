@@ -2,16 +2,27 @@
  * deterministic numerical checks, not symbolic proofs or secret exam points.
  * Owner: am-disc-exercise-checker-i4h2. RNG: the existing reference Philox owner.
  */
+import { createStreamKey, streamAllocationRegistry } from "../../experiments/streams/allocation.ts";
 import { createPhiloxStream } from "../../physics/reference/philox.ts";
 
 export type Domain = Readonly<{ min: number; max: number; scale?: "linear" | "log" }>;
 export type SamplePoint = Readonly<Record<string, number>>;
 export const HALTON_BASES: readonly number[] = Object.freeze([2, 3, 5, 7, 11, 13, 17, 19]);
 export const SAMPLE_LIMIT = 256;
-/** ASCII EXRC. Local, stateless exercise streams never consume a simulation stream. */
+/**
+ * The registered exercise allocation (src/experiments/streams/allocation.ts): its own production
+ * kernel, one stream per variable (tile = the variable's index), at most 64 draws per stream. Until
+ * 2026-09-24 this module drew from 0x45585243, an unregistered kernel outside the production range,
+ * while the registry's exercise allocation went unused. Exercise streams still never consume a
+ * simulation stream: the allocation's kernel is its own.
+ */
+export const EXERCISE_ALLOCATION_ID = "exercise.sample-points.v1";
+const exerciseAllocation = streamAllocationRegistry.getAllocation(EXERCISE_ALLOCATION_ID);
 export const EXERCISE_STREAM = Object.freeze({
-  kernel: 0x45585243,
-  version: 1,
+  allocationId: EXERCISE_ALLOCATION_ID,
+  kernel: exerciseAllocation.streamKernelId,
+  version: exerciseAllocation.streamVersion,
+  maxDraws: Number(exerciseAllocation.maxDrawsPerStream),
   ownerBeadId: "am-disc-exercise-checker-i4h2",
 });
 
@@ -63,9 +74,9 @@ export function validateDomains(domains: Readonly<Record<string, Domain>>): read
   return names;
 }
 
-function checkCount(count: number): void {
-  if (!Number.isSafeInteger(count) || count < 0 || count > SAMPLE_LIMIT)
-    throw new RangeError(`Sample count must be an integer from zero through ${SAMPLE_LIMIT}.`);
+function checkCount(count: number, limit = SAMPLE_LIMIT): void {
+  if (!Number.isSafeInteger(count) || count < 0 || count > limit)
+    throw new RangeError(`Sample count must be an integer from zero through ${limit}.`);
 }
 
 export function haltonValue(index: number, base: number): number {
@@ -128,12 +139,15 @@ export function philoxPoints(
   seed: string | bigint = "0",
 ): readonly SamplePoint[] {
   const names = [...validateDomains(domains)].sort();
-  checkCount(count);
-  const streams = names.map((_, tile) =>
-    createPhiloxStream({ seed, kernel: EXERCISE_STREAM.kernel, tile }),
-  );
+  // The registered allocation allows this many draws per variable stream, fewer than SAMPLE_LIMIT.
+  checkCount(count, EXERCISE_STREAM.maxDraws);
+  const stream = (variable: number) => {
+    const key = createStreamKey(EXERCISE_ALLOCATION_ID, seed, variable);
+    return createPhiloxStream({ seed: key.seed, kernel: key.kernel, tile: key.tile });
+  };
+  const streams = names.map((_, variable) => stream(variable));
   // Validate seed even when there are no variables.
-  if (!names.length) createPhiloxStream({ seed, kernel: EXERCISE_STREAM.kernel, tile: 0 });
+  if (!names.length) stream(0);
   return Object.freeze(
     Array.from({ length: count }, () =>
       Object.freeze(
