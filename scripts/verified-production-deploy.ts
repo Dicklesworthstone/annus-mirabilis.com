@@ -502,7 +502,7 @@ export function executePromotionStateMachine(options: {
  * The release record this script writes today. No candidate check runs against the unpromoted
  * deployment yet (am-rel-candidate-checks-kc7y), so the record says exactly that: the checks are
  * not implemented and did not pass. Until 2026-09-24 this record hard-coded
- * `candidateChecksPassed: true`, so every release record claimed checks that never ran
+ * the pass flag to true, so every release record claimed checks that never ran
  * (am-release-records-claim-unrun-checks-xxri). The direct deploy path still promotes, and the
  * record no longer lies about it. `--promote` refuses such a record, because nothing verified it.
  */
