@@ -95,7 +95,7 @@ export default function TwoLedgersPage() {
           internal rest energy:
         </p>
         <Formula
-          latex={String.raw`\begin{aligned}(H_0 - E_0) - (H_1 - E_1) &= \gamma L - L \\ &= L\,(\gamma - 1)\end{aligned}`}
+          latex={String.raw`\begin{aligned}&(H_0 - E_0) - (H_1 - E_1) \\ &\qquad = \gamma L - L \\ &\qquad = L\,(\gamma - 1)\end{aligned}`}
         />
 
         <h2>Identifying the kinetic energy drop</h2>

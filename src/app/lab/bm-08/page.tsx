@@ -53,7 +53,7 @@ export default function CameraPage() {
           generated bridge integrals make these averages consistent with the same Brownian path.
         </p>
         <Formula
-          latex={String.raw`\begin{gathered}Y_i=\frac{1}{T_e}\int_{t_i}^{t_i+T_e}X(s)\,ds+v_{\mathrm{stage}}(t_i+T_e/2)+\varepsilon_i, \\ \varepsilon_i\sim\mathcal N(0,\sigma^2)\end{gathered}`}
+          latex={String.raw`\begin{gathered}\begin{aligned}Y_i &= \frac{1}{T_e}\int_{t_i}^{t_i+T_e}X(s)\,ds \\ &\quad + v_{\mathrm{stage}}(t_i+T_e/2)+\varepsilon_i,\end{aligned} \\ \varepsilon_i\sim\mathcal N(0,\sigma^2)\end{gathered}`}
         />
         <h2>Neighbors are correlated</h2>
         <p>

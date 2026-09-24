@@ -47,7 +47,7 @@ export default function FieldFrameChangePage() {
           1.25).
         </p>
         <Formula
-          latex={String.raw`\begin{gathered}E'_y = \gamma(E_y - v B_z) = 1.25\text{ V/m}, \\ B'_z = -\gamma\frac{v}{c^2}E_y = -\frac{0.75}{c} \approx -2.5017\times 10^{-9}\text{ T}\end{gathered}`}
+          latex={String.raw`\begin{aligned}E'_y &= \gamma(E_y - v B_z) \\ &= 1.25\text{ V/m}, \\ B'_z &= -\gamma\frac{v}{c^2}E_y = -\frac{0.75}{c} \\ &\approx -2.5017\times 10^{-9}\text{ T}\end{aligned}`}
         />
         <p>Both frames agree exactly on the Lorentz field invariants:</p>
         <Formula
