@@ -14,7 +14,7 @@ final class ExportUITests: XCTestCase {
         app.launchArguments = [
             "-AMUITest", "-AMStateSuite", "uitest-\(UUID().uuidString)", "-AMOpenRoute", "/your-data/",
         ]
-        app.launch()
+        app.launch(for: self)
         let edition = app.webViews["edition-web-view"]
         let ready = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "value == %@", "/your-data/"), object: edition)

@@ -79,6 +79,8 @@ targets:
           /bin/cp "${GEN}/edition-manifest.json" "${RES}/edition-manifest.json"
           /bin/cp "${GEN}/bridge-user-script.js" "${RES}/bridge-user-script.js"
           /bin/cp "${GEN}/settings-snapshot.js" "${RES}/settings-snapshot.js"
+          # Inert text in a reader's build: only a DEBUG build has the code that injects it.
+          /bin/cp "${GEN}/test-console.js" "${RES}/test-console.js"
           /bin/cp "${GEN}/native-catalog.json" "${RES}/native-catalog.json"
           if ! (cd "${DEST}" && /usr/bin/shasum -a 256 -c --quiet "${GEN}/edition.sha256"); then
             echo "error: A bundled edition file does not match its manifest digest."
@@ -96,6 +98,8 @@ targets:
     platform: iOS
     sources:
       - path: AnnusMirabilisTests
+      # The shared test-log record writer, compiled into both test targets.
+      - path: AnnusMirabilisTestSupport
       # The bridge's golden messages: the same file the TypeScript schema tests read.
       - path: ../src/platform/app-bridge/fixtures/messages.json
         buildPhase: resources
@@ -104,6 +108,12 @@ targets:
         buildPhase: resources
       # Website links and what the app does with each; association-file.test.ts reads them too.
       - path: ../scripts/app/fixtures/route-vectors.json
+        buildPhase: resources
+      # One test-log record as AMTestLog writes it; scripts/app/test-records.test.ts validates it.
+      - path: ../scripts/app/fixtures/amtestlog-record.json
+        buildPhase: resources
+      # Evidence folder names, which the app and the gate must agree on (test-evidence.test.ts too).
+      - path: ../scripts/app/fixtures/evidence-folders.json
         buildPhase: resources
     dependencies:
       - target: AnnusMirabilis
@@ -118,6 +128,7 @@ targets:
     platform: iOS
     sources:
       - path: AnnusMirabilisUITests
+      - path: AnnusMirabilisTestSupport
     dependencies:
       - target: AnnusMirabilis
     settings:
@@ -126,6 +137,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.annus-mirabilis.AnnusMirabilisUITests
         TARGETED_DEVICE_FAMILY: "1,2"
         TEST_TARGET_NAME: AnnusMirabilis
+        # Keeps a screenshot at every failing test's first issue (HarnessObserver.swift).
+        INFOPLIST_KEY_NSPrincipalClass: AnnusMirabilisUITests.HarnessObserver
 
 schemes:
   AnnusMirabilis:

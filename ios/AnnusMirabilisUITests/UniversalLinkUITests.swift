@@ -14,7 +14,7 @@ final class UniversalLinkUITests: XCTestCase {
         app.launchArguments = [
             "-AMUITest", "-AMStateSuite", "uitest-\(UUID().uuidString)", "-AMOpenRoute", "/", "-AMOpenSiteURL", link,
         ]
-        app.launch()
+        app.launch(for: self)
         return app
     }
 

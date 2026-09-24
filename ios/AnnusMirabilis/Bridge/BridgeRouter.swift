@@ -22,6 +22,16 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
     var onTheme: ((String) -> Void)?
     /// Called for every accepted `settings.changed` that names the type size the page shows.
     var onTypeSize: ((Int) -> Void)?
+    /// Called after every write the store accepted: namespace, key, value.
+    var onStorageWrite: ((String, String, String) -> Void)?
+    #if DEBUG
+        /// UI tests' evidence (TestEvidence): the page's console line (level, message), its request
+        /// to keep its DOM (route), and every message's type, outcome and, for storage, namespace.
+        /// Never a message's body, so the reader's data never reaches a log.
+        var onTestLog: ((String, String) -> Void)?
+        var onTestSnapshot: ((String) -> Void)?
+        var onMessage: ((String, String, String?) -> Void)?
+    #endif
 
     private var limiter = BridgeRateLimiter()
     private let capabilities: [String]
@@ -64,11 +74,23 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
         case .rejected(let reason, let detail):
             #if DEBUG
                 print("bridge rejected \(reason.rawValue): \(detail)")
+                onMessage?("rejected", reason.rawValue, nil)
             #endif
             return (["status": "rejected", "reason": reason.rawValue], nil)
         case .accepted(let accepted):
-            return (handle(accepted), nil)
+            return (serve(accepted), nil)
         }
+    }
+
+    /// Serves an accepted message. In a DEBUG build it also reports the message's type and outcome,
+    /// with a storage message's namespace, for a UI test's evidence; never the body.
+    func serve(_ message: BridgeMessage) -> [String: Any] {
+        let reply = handle(message)
+        #if DEBUG
+            let namespace = message.type.hasPrefix("storage.") ? Self.string(message.body, "namespace") : nil
+            onMessage?(message.type, reply["status"] as? String ?? "", namespace)
+        #endif
+        return reply
     }
 
     private static let okay: [String: Any] = ["status": "ok"]
@@ -96,21 +118,34 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
             onRoute?(Self.string(body, "route") ?? "", Self.string(body, "anchor"), Self.string(body, "title") ?? "")
             return Self.okay
         #if DEBUG
-            case "test.log":
-                print("edition: \(Self.string(body, "message") ?? "")")
-                return Self.okay
+            case "test.log", "test.snapshot":
+                return testOnly(message.type, body)
         #endif
         default:
             return Self.unavailable
         }
     }
 
+    #if DEBUG
+        /// A UI-test launch's test console: a console line, or a request to keep the page's DOM.
+        private func testOnly(_ type: String, _ body: [String: JSONValue]) -> [String: Any] {
+            if type == "test.log" {
+                onTestLog?(Self.string(body, "level") ?? "log", Self.string(body, "message") ?? "")
+            } else {
+                onTestSnapshot?(Self.string(body, "route") ?? "")
+            }
+            return Self.okay
+        }
+    #endif
+
     private func storage(_ type: String, _ body: [String: JSONValue]) -> [String: Any] {
         guard let store, let namespace = Self.string(body, "namespace"), let key = Self.string(body, "key") else {
             return Self.unavailable
         }
         if type == "storage.write" {
-            let written = store.write(namespace: namespace, key: key, value: Self.string(body, "value") ?? "")
+            let value = Self.string(body, "value") ?? ""
+            let written = store.write(namespace: namespace, key: key, value: value)
+            if written { onStorageWrite?(namespace, key, value) }
             return ["status": written ? "ok" : "quota"]
         }
         switch store.read(namespace: namespace, key: key) {

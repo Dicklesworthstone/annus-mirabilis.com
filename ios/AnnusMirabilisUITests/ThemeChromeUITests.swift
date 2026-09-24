@@ -19,7 +19,7 @@ final class ThemeChromeUITests: XCTestCase {
         app.launchArguments =
             ["-AMUITest", "-AMStateSuite", suite, "-AMOpenRoute", "/papers/brownian-motion/"]
             + (holdLoad ? ["-AMHoldLoad"] : [])
-        app.launch()
+        app.launch(for: self)
         if holdLoad { return app }
         let ready = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "value == %@", "/papers/brownian-motion/"),
@@ -123,8 +123,7 @@ final class ThemeChromeUITests: XCTestCase {
         waitForBand(app, dark: false)
         app.chooseDarkTheme()
         waitForBand(app, dark: true)
-        // The mirror is sent 300 ms after the write settles.
-        Thread.sleep(forTimeInterval: 2)
+        app.waitForMirror(of: "am:settings:v1:theme")
         app.terminate()
 
         app = launch(suite: suite)

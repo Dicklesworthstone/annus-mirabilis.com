@@ -113,6 +113,7 @@ struct RootView: View {
                                 DebugProbe(
                                     text: session.lastSafariLink?.absoluteString ?? "none", id: "debug-safari-link")
                                 DebugProbe(text: String(session.webProcessTerminations), id: "debug-web-terminations")
+                                DebugProbe(text: session.mirroredKeys.joined(separator: ","), id: "debug-mirror")
                                 DebugProbe(
                                     text: session.deliveredLifecycleEvents.joined(separator: ", "),
                                     id: "debug-lifecycle")

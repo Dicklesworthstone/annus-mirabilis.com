@@ -15,7 +15,7 @@ final class LifecycleUITests: XCTestCase {
                 "-AMUITest", "-AMStateSuite", "uitest-\(UUID().uuidString)",
                 "-AMOpenRoute", "/papers/brownian-motion/", "-AMOpenAnchor", "s4",
             ] + extra
-        app.launch()
+        app.launch(for: self)
         return app
     }
 
@@ -36,6 +36,13 @@ final class LifecycleUITests: XCTestCase {
         let page = app.webViews["edition-web-view"]
         wait(app.staticTexts["debug-web-terminations"], "label", "1", "the web process was never ended")
         wait(page, "value", "/papers/brownian-motion/#s4", "the passage did not come back after the reload")
+        AMTestLog.attach(
+            AMTestLog.record(
+                suite: "app-lifecycle", testId: "LifecycleUITests.testAKilledWebProcessComesBackToTheSamePassage",
+                outcome: "passed", beadId: "am-app-lifecycle-resilience-4dhu", paper: "brownian-motion", anchor: "s4",
+                message: "the passage came back after the web process ended",
+                extra: ["webProcessTerminations": 1]),
+            to: self, name: "web-process-termination")
         let shot = XCTAttachment(screenshot: app.screenshot())
         shot.name = "after-web-process-termination"
         shot.lifetime = .keepAlways
@@ -48,7 +55,10 @@ final class LifecycleUITests: XCTestCase {
         let app = launch()
         wait(app.webViews["edition-web-view"], "value", "/papers/brownian-motion/#s4", "the page never reported ready")
         XCUIDevice.shared.press(.home)
-        Thread.sleep(forTimeInterval: 2)
+        // The app's own state, not a sleep: backgrounded, then brought back.
+        XCTAssertTrue(
+            app.wait(for: .runningBackgroundSuspended, timeout: 15) || app.state == .runningBackground,
+            "the app never went to the background")
         app.activate()
         let log = app.staticTexts["debug-lifecycle"]
         let told = XCTNSPredicateExpectation(

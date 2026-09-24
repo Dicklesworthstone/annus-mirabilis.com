@@ -12,7 +12,7 @@ final class ReaderStateUITests: XCTestCase {
     private func launch(suite: String, _ extra: [String] = []) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-AMUITest", "-AMStateSuite", suite] + extra
-        app.launch()
+        app.launch(for: self)
         return app
     }
 

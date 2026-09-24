@@ -12,7 +12,7 @@ final class LaunchUITests: XCTestCase {
     func testLaunchShowsTheBundledHomePage() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-AMUITest"]
-        app.launch()
+        app.launch(for: self)
 
         let edition = app.webViews["edition-web-view"]
         XCTAssertTrue(edition.waitForExistence(timeout: 30), "the edition web view never appeared")
@@ -33,7 +33,7 @@ final class LaunchUITests: XCTestCase {
     func testLaunchArgumentOpensAPaper() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-AMUITest", "-AMOpenRoute", "/papers/brownian-motion/"]
-        app.launch()
+        app.launch(for: self)
 
         let edition = app.webViews["edition-web-view"]
         XCTAssertTrue(edition.waitForExistence(timeout: 30))

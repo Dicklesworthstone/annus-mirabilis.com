@@ -4,6 +4,7 @@ included:
   - AnnusMirabilis
   - AnnusMirabilisTests
   - AnnusMirabilisUITests
+  - AnnusMirabilisTestSupport
 disabled_rules:
   - trailing_comma      # swift-format adds trailing commas to multi-line literals
   - opening_brace       # swift-format puts a multi-line condition's brace on its own line

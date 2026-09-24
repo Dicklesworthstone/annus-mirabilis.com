@@ -40,4 +40,23 @@ extension EditionSession {
     func findOnPage() {
         webView.findInteraction?.presentFindNavigator(showingReplace: false)
     }
+
+    /// A link to the website the system handed the app (a universal link, or a URL opened in the
+    /// app). What the edition carries opens in it; the rest of the site opens in Safari in the app.
+    func openSiteLink(_ url: URL) {
+        switch EditionLinkPolicy.siteLink(url, catalog: catalog) {
+        case .openInEdition(let local):
+            load(local)
+        case .openOutside(let site):
+            presentSafari(site)
+        case .allow, .refuse:
+            break
+        }
+    }
+
+    /// Opens a page of the edition, at an anchor when given, from a native screen.
+    func open(route: String, anchor: String?) {
+        guard let url = EditionCatalog.url(route: route, anchor: anchor) else { return }
+        load(url)
+    }
 }

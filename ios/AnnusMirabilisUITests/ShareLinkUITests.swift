@@ -13,7 +13,7 @@ final class ShareLinkUITests: XCTestCase {
         app.launchArguments = [
             "-AMUITest", "-AMStateSuite", "uitest-\(UUID().uuidString)", "-AMOpenRoute", "/papers/brownian-motion/",
         ]
-        app.launch()
+        app.launch(for: self)
         let edition = app.webViews["edition-web-view"]
         let ready = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "value == %@", "/papers/brownian-motion/"), object: edition)

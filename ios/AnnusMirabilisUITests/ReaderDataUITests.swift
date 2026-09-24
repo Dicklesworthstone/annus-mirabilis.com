@@ -13,7 +13,7 @@ final class ReaderDataUITests: XCTestCase {
         app.launchArguments = [
             "-AMUITest", "-AMStateSuite", "uitest-\(UUID().uuidString)", "-AMOpenRoute", "/papers/brownian-motion/",
         ]
-        app.launch()
+        app.launch(for: self)
         let edition = app.webViews["edition-web-view"]
         let ready = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "value == %@", "/papers/brownian-motion/"), object: edition)
@@ -21,8 +21,7 @@ final class ReaderDataUITests: XCTestCase {
 
         // Nothing is saved on a fresh suite; the reader's theme choice is the first thing saved.
         app.chooseDarkTheme()
-        // The mirror is sent 300 ms after the write settles.
-        Thread.sleep(forTimeInterval: 2)
+        app.waitForMirror(of: "am:settings:v1:theme")
 
         app.buttons["page-actions"].tap()
         app.buttons["Your data on this device"].tap()

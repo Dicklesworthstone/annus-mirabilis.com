@@ -170,6 +170,55 @@ struct ReaderDataStoreTests {
         #expect(reply["status"] as? String == "ok")
         #expect(reply["value"] as? String == "{}")
     }
+
+    @Test("an accepted write is reported to the app with its namespace, key and value; a refused one is not")
+    func writeIsReported() throws {
+        let router = BridgeRouter()
+        var reported: [[String]] = []
+        router.onStorageWrite = { reported.append([$0, $1, $2]) }
+        router.store = store()
+        let write = BridgeMessage(
+            type: "storage.write",
+            body: ["namespace": .string("localStorage"), "key": .string("snapshot"), "value": .string("{}")])
+        #expect(router.handle(write)["status"] as? String == "ok")
+        #expect(reported == [["localStorage", "snapshot", "{}"]])
+
+        // A store whose directory is a file cannot write: the page hears "quota", the app hears nothing.
+        let blocked = FileManager.default.temporaryDirectory.appendingPathComponent("blocked-\(UUID().uuidString)")
+        try Data("a file, not a folder".utf8).write(to: blocked)
+        router.store = ReaderDataStore(directory: blocked)
+        #expect(router.handle(write)["status"] as? String == "quota")
+        #expect(reported.count == 1)
+    }
+
+    /// A UI test's evidence hears each message's type and outcome, and a storage message's namespace,
+    /// never its body, so the reader's data stays out of the log (bead am-app-test-harness-da6e).
+    @Test
+    func evidenceHearsTypesNotBodies() {
+        let router = BridgeRouter()
+        router.store = store()
+        var heard: [[String]] = []
+        router.onMessage = { heard.append([$0, $1, $2 ?? "-"]) }
+        var console: [[String]] = []
+        router.onTestLog = { console.append([$0, $1]) }
+        var snapshots: [String] = []
+        router.onTestSnapshot = { snapshots.append($0) }
+        let note: [String: JSONValue] = [
+            "namespace": .string("localStorage"), "key": .string("am:notes:v1"), "value": .string("a private note"),
+        ]
+        _ = router.serve(BridgeMessage(type: "storage.write", body: note))
+        _ = router.serve(BridgeMessage(type: "route.changed", body: ["route": .string("/"), "title": .string("Home")]))
+        _ = router.serve(BridgeMessage(type: "test.log", body: ["level": .string("warn"), "message": .string("x")]))
+        _ = router.serve(BridgeMessage(type: "test.snapshot", body: ["route": .string("/")]))
+        #expect(
+            heard == [
+                ["storage.write", "ok", "localStorage"], ["route.changed", "ok", "-"], ["test.log", "ok", "-"],
+                ["test.snapshot", "ok", "-"],
+            ])
+        #expect(!heard.joined().contains { $0.contains("private") || $0.contains("am:notes") })
+        #expect(console == [["warn", "x"]])
+        #expect(snapshots == ["/"])
+    }
 }
 
 @Suite("Bridge script integrity")

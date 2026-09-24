@@ -33,10 +33,13 @@ final class EditionSession {
     private(set) var webProcessTerminations = 0
     /// DEBUG UI tests only: the lifecycle events sent to the page, newest last.
     var deliveredLifecycleEvents: [String] = []
+    /// DEBUG UI tests only: the site keys in the last snapshot the page mirrored to the app, never
+    /// their values. Tests wait on it instead of on the mirror's 300 ms debounce.
+    private(set) var mirroredKeys: [String] = []
 
     @ObservationIgnored private let store: ReaderLocationStore
     @ObservationIgnored private let navigator: EditionNavigator
-    @ObservationIgnored private let router: BridgeRouter
+    @ObservationIgnored let router: BridgeRouter
     @ObservationIgnored private let themeStore: PageThemeStore?
     @ObservationIgnored private let bridgeSource: String?
     @ObservationIgnored private let settingsSnapshot: SettingsSnapshot?
@@ -47,6 +50,8 @@ final class EditionSession {
     #if DEBUG
         /// UI tests only: end the web process once, after the first page reports ready.
         @ObservationIgnored var killWebContentOnceReady = false
+        /// UI tests only: what this launch keeps in case its test fails.
+        @ObservationIgnored var testEvidence: TestEvidence?
     #endif
     /// The last page announced to VoiceOver as a new screen.
     @ObservationIgnored private var announcedRoute: String?
@@ -85,6 +90,9 @@ final class EditionSession {
         handoff.isEligibleForSearch = false
         handoff.isEligibleForPublicIndexing = false
         webView.userActivity = handoff
+        #if DEBUG
+            startTestEvidence()
+        #endif
         installUserScripts()
         wireCallbacks()
 
@@ -118,6 +126,12 @@ final class EditionSession {
         router.onTypeSize = { [weak self] size in
             self?.pageTypeSize = size
         }
+        router.onStorageWrite = { [weak self] namespace, key, value in
+            guard let self, exposesRouteForTests, let record = catalog.readerData?.snapshot,
+                namespace == record.namespace, key == record.key
+            else { return }
+            mirroredKeys = ReaderData.snapshotValues(value)?.keys.sorted() ?? []
+        }
         router.onRoute = { [weak self] route, anchor, title in
             self?.didReceiveRoute(route: route, anchor: anchor, title: title)
         }
@@ -147,6 +161,9 @@ final class EditionSession {
     /// anchor and all (bead am-app-lifecycle-resilience-4dhu, requirement 4).
     func recoverFromTermination() {
         webProcessTerminations += 1
+        #if DEBUG
+            testEvidence?.record("lifecycle", ["event": "web-process-terminated"])
+        #endif
         bridgeRoute = nil
         announcedRoute = nil
         if exposesRouteForTests { webView.accessibilityValue = nil }
@@ -163,6 +180,9 @@ final class EditionSession {
     private func installUserScripts() {
         let controller = webView.configuration.userContentController
         controller.removeAllUserScripts()
+        #if DEBUG
+            addTestConsole(to: controller)
+        #endif
         guard let bridgeSource else { return }
         if let snapshot = settingsSnapshot?.source(.init(typeSize: typeSize)) {
             controller.addUserScript(
@@ -177,19 +197,6 @@ final class EditionSession {
 
     func load(_ url: URL) {
         webView.load(URLRequest(url: url))
-    }
-
-    /// A link to the website the system handed the app (a universal link, or a URL opened in the
-    /// app). What the edition carries opens in it; the rest of the site opens in Safari in the app.
-    func openSiteLink(_ url: URL) {
-        switch EditionLinkPolicy.siteLink(url, catalog: catalog) {
-        case .openInEdition(let local):
-            load(local)
-        case .openOutside(let site):
-            presentSafari(site)
-        case .allow, .refuse:
-            break
-        }
     }
 
     /// The website inside the app, over whatever is showing. A link that launches the app arrives
@@ -215,12 +222,6 @@ final class EditionSession {
             presenter = next
         }
         return presenter
-    }
-
-    /// Opens a page of the edition, at an anchor when given, from a native screen.
-    func open(route: String, anchor: String?) {
-        guard let url = EditionCatalog.url(route: route, anchor: anchor) else { return }
-        load(url)
     }
 
     /// Called for every change of page, including a jump to an anchor.

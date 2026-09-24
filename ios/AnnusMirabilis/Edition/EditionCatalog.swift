@@ -63,6 +63,8 @@ struct EditionCatalog: Sendable {
     let readerData: ReaderDataManifest?
     /// The settings snapshot template's manifest entry, when the export recorded one.
     let settingsSnapshotScript: EditionManifest.UserScript?
+    /// The test console's manifest entry, which only a DEBUG build injects (TestEvidence).
+    let testConsoleScript: EditionManifest.UserScript?
     /// The edition's type-size steps, in percent; empty for an export made before they were recorded.
     let typeSizes: [Int]
     /// The native catalogue's manifest entry, when the export recorded one.
@@ -79,6 +81,7 @@ struct EditionCatalog: Sendable {
         self.bridgeScript = manifest.userScripts?.first { $0.id == "bridge" }
         self.readerData = manifest.readerData
         self.settingsSnapshotScript = manifest.userScripts?.first { $0.id == "settings-snapshot" }
+        self.testConsoleScript = manifest.userScripts?.first { $0.id == "test-console" }
         self.typeSizes = manifest.settings?.typeSizes ?? []
         self.nativeCatalogFile = manifest.nativeCatalog
     }

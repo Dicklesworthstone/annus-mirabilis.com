@@ -14,7 +14,7 @@ final class DynamicTypeUITests: XCTestCase {
             "-AMUITest", "-AMStateSuite", "uitest-\(UUID().uuidString)", "-AMOpenRoute", "/papers/brownian-motion/",
             "-UIPreferredContentSizeCategoryName", category,
         ]
-        app.launch()
+        app.launch(for: self)
         let ready = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "value == %@", "/papers/brownian-motion/"),
             object: app.webViews["edition-web-view"])

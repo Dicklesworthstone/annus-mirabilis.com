@@ -36,7 +36,7 @@ final class ContentsUITests: XCTestCase {
     func testContentsOpensASectionARouteAndAnInstrument() throws {
         let app = XCUIApplication()
         app.launchArguments = ["-AMUITest", "-AMStateSuite", "uitest-\(UUID().uuidString)", "-AMOpenRoute", "/"]
-        app.launch()
+        app.launch(for: self)
         waitForRoute("/", in: app)
 
         // A paper's outline, then one of its sections.

@@ -9,8 +9,12 @@
 /* Begin PBXBuildFile section */
 		055096FB8D126E7973B621DC /* ReaderLocationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBDEAC6506CA4F173D998AFC /* ReaderLocationTests.swift */; };
 		0A51C37DAC22C816EAE9FFD0 /* EditionSession+Lifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F526CCFF0D27ADBC02A45598 /* EditionSession+Lifecycle.swift */; };
+		0B6FFD51B1F5B4E99552C176 /* AMTestLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE08CE70CB4B062759F3A61 /* AMTestLog.swift */; };
+		19972BACB0584350369DB04C /* TestEvidenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D299CF17A18C1E53074F207E /* TestEvidenceTests.swift */; };
 		256B0912BCA785EB0D622D9B /* AnnusMirabilisApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE2A6403E53924FA09D6328 /* AnnusMirabilisApp.swift */; };
+		28C9748D65D31A1694DE9E91 /* AMTestLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE08CE70CB4B062759F3A61 /* AMTestLog.swift */; };
 		2B93561B203FC8944C87DD35 /* BridgeRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6EF587BE1969B4D2C963ECB /* BridgeRouter.swift */; };
+		36968AE7C0F39D599071D623 /* evidence-folders.json in Resources */ = {isa = PBXBuildFile; fileRef = 3C2FA31E56803DF6254C94C8 /* evidence-folders.json */; };
 		3CDBC63CE8EACC77D5FA87C2 /* ExportUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE1AF82107316C66CE977DE /* ExportUITests.swift */; };
 		3EABF477C936EE4ED3322C8D /* route-vectors.json in Resources */ = {isa = PBXBuildFile; fileRef = EC3E13D628538E80DBC9D988 /* route-vectors.json */; };
 		44505959A55D78618F7EB8F2 /* ReaderData.swift in Sources */ = {isa = PBXBuildFile; fileRef = E273010A03F638547E1552D0 /* ReaderData.swift */; };
@@ -24,10 +28,13 @@
 		626C3B5A38EF06785B1B3827 /* EditionSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A097A9673B1BD332945B1687 /* EditionSettings.swift */; };
 		67833D3163CDDB550D3010E8 /* ReaderStateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2892AE57F3F7A9E453870489 /* ReaderStateUITests.swift */; };
 		6A19BAEAFB16369878DC4405 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0C6198F8914D9B9D69540867 /* Assets.xcassets */; };
+		6AF25A96E6BA0245AC00C0A4 /* EditionSession+TestEvidence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FC4F9A58455E333924096D7 /* EditionSession+TestEvidence.swift */; };
 		6DA5C5208F4B92B0B0D6ED3C /* LaunchArgumentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A0DFD2057A1F85A9C474E3 /* LaunchArgumentsTests.swift */; };
 		6DB67CD89C0EC5C8821AE7D9 /* EditionSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE83B62BCBDFB221F1DBD4DC /* EditionSchemeHandler.swift */; };
 		718758D50DA89200D4B84776 /* UITestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FED4D7A2251ADD8720C8D7 /* UITestSupport.swift */; };
+		732E16927E632A4F4C5AA0C7 /* AMTestLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57E2F4C436B26CDB0D2FBF7B /* AMTestLogTests.swift */; };
 		747D5281B62498025511A9AD /* BridgeProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A8E9C99819609C323B4D836 /* BridgeProtocol.swift */; };
+		844E20DEA586D1A7C6FC8AB7 /* HarnessUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55E572A07DA8B116B6AF7E31 /* HarnessUITests.swift */; };
 		84CC8D54A6D8A7B98E0B6A69 /* NativeCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 931788825CA32E21ACA7A517 /* NativeCatalogTests.swift */; };
 		88D6CAE32AE3F4D040F7E4F4 /* messages.json in Resources */ = {isa = PBXBuildFile; fileRef = 004295BEA9A687881C2A6F3D /* messages.json */; };
 		89DCCDD549DF04242DF2523E /* EditionSession+Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C10D4693DB2F04A8D647F2 /* EditionSession+Actions.swift */; };
@@ -41,12 +48,15 @@
 		9BCC3392AA7207B963B9ED6E /* ThemeChromeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA49FD9D0BADC636CBAEF69F /* ThemeChromeUITests.swift */; };
 		9D937E719174EF3487485891 /* ShareLinkUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D562253A5B5879C5E9985C /* ShareLinkUITests.swift */; };
 		9F9C13D920769AE53A5B9FAA /* SiteURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CFA1414C3CFD36A14BE9E0C /* SiteURL.swift */; };
+		A56AA32BBCD9C230540294ED /* amtestlog-record.json in Resources */ = {isa = PBXBuildFile; fileRef = C41B8057A09E114ED57F3B4B /* amtestlog-record.json */; };
 		A7AF844721CA06FF5FCF378F /* ContentsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF6D0CEAD0EBB1163A2671C /* ContentsUITests.swift */; };
 		B1563B04905CF0DCE72C6D88 /* EditionWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A47BB6BD84F103AC9B53641 /* EditionWebView.swift */; };
+		B947E55CA45CCDDD499E93A8 /* HarnessObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71109BBD49D1968FB6D70799 /* HarnessObserver.swift */; };
 		BB15ED74DFF5DD887F7791DF /* LifecycleEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03CCF2E983E9E721F19D30A8 /* LifecycleEventTests.swift */; };
 		BBAEB2F3FEE28F0C8147351E /* LifecycleEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6C3B670ABCE073E0E14EE1 /* LifecycleEvent.swift */; };
 		C17548A0F00753E0D65109D3 /* ReaderDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 653560149B9612070697FA56 /* ReaderDataView.swift */; };
 		D6A1CF81319FF67D13AE3027 /* readerDataExport.json in Resources */ = {isa = PBXBuildFile; fileRef = EE3C019E8FA65922DAAD74FC /* readerDataExport.json */; };
+		DA08581CDBC63F5AEE019DC5 /* TestEvidence.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDCF4A69F389CEF2AFC3BB44 /* TestEvidence.swift */; };
 		DA6870F53C094B8E5454D26E /* EditionCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D07FB803069A297565CF1DCA /* EditionCatalogTests.swift */; };
 		E9C74E04BCCF49DD33AA7E53 /* EditionCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389658343BC6CD373BE08A23 /* EditionCatalog.swift */; };
 		F0F1F8A24F70DF2021A0A818 /* EditionLinkPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C19C1BFB271E0C8C0B8EEE4 /* EditionLinkPolicy.swift */; };
@@ -78,6 +88,7 @@
 		023D916A7995D9A4888C0919 /* EditionContentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionContentsView.swift; sourceTree = "<group>"; };
 		03CCF2E983E9E721F19D30A8 /* LifecycleEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleEventTests.swift; sourceTree = "<group>"; };
 		04061F4BC26A1CDE6EB3E620 /* AnnusMirabilis.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AnnusMirabilis.entitlements; sourceTree = "<group>"; };
+		0AE08CE70CB4B062759F3A61 /* AMTestLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AMTestLog.swift; sourceTree = "<group>"; };
 		0C6198F8914D9B9D69540867 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		15A0DFD2057A1F85A9C474E3 /* LaunchArgumentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArgumentsTests.swift; sourceTree = "<group>"; };
 		17038BE8A4890AE1F28D1E2F /* AnnusMirabilis.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AnnusMirabilis.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -88,18 +99,23 @@
 		3104E7B6220C4A69AD3D88A7 /* AccessibilityUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityUITests.swift; sourceTree = "<group>"; };
 		389658343BC6CD373BE08A23 /* EditionCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionCatalog.swift; sourceTree = "<group>"; };
 		3A8E9C99819609C323B4D836 /* BridgeProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeProtocol.swift; sourceTree = "<group>"; };
+		3C2FA31E56803DF6254C94C8 /* evidence-folders.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "evidence-folders.json"; sourceTree = "<group>"; };
 		3F6C3B670ABCE073E0E14EE1 /* LifecycleEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleEvent.swift; sourceTree = "<group>"; };
 		403C99A15417A43D75CF8990 /* AnnusMirabilisTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = AnnusMirabilisTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4C19C1BFB271E0C8C0B8EEE4 /* EditionLinkPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionLinkPolicy.swift; sourceTree = "<group>"; };
 		4DD0E5A9463113E9E29C4601 /* NativeCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeCatalog.swift; sourceTree = "<group>"; };
 		4E1AA06A6496CB9F0773BD60 /* ReaderDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderDataTests.swift; sourceTree = "<group>"; };
 		53BA4F3604F81BA5851B8EEF /* EditionSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionSettingsTests.swift; sourceTree = "<group>"; };
+		55E572A07DA8B116B6AF7E31 /* HarnessUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HarnessUITests.swift; sourceTree = "<group>"; };
+		57E2F4C436B26CDB0D2FBF7B /* AMTestLogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AMTestLogTests.swift; sourceTree = "<group>"; };
 		58FED4D7A2251ADD8720C8D7 /* UITestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestSupport.swift; sourceTree = "<group>"; };
 		59C42EBE06B5DF7D705F7947 /* EditionNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionNavigator.swift; sourceTree = "<group>"; };
 		5CE1AF82107316C66CE977DE /* ExportUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportUITests.swift; sourceTree = "<group>"; };
+		5FC4F9A58455E333924096D7 /* EditionSession+TestEvidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EditionSession+TestEvidence.swift"; sourceTree = "<group>"; };
 		653560149B9612070697FA56 /* ReaderDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderDataView.swift; sourceTree = "<group>"; };
 		688B44C15731E3A2DCF51FB7 /* UniversalLinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalLinkTests.swift; sourceTree = "<group>"; };
 		6D8563F17B5B6651CA67DE2C /* LaunchUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchUITests.swift; sourceTree = "<group>"; };
+		71109BBD49D1968FB6D70799 /* HarnessObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HarnessObserver.swift; sourceTree = "<group>"; };
 		7A7D1B3F474E6080BDE63784 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		7CE2A6403E53924FA09D6328 /* AnnusMirabilisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnusMirabilisApp.swift; sourceTree = "<group>"; };
 		851F4EFBE39CBE28B3D2D5C2 /* BridgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeTests.swift; sourceTree = "<group>"; };
@@ -114,8 +130,11 @@
 		A844AC2A7AF1759A319A7028 /* UniversalLinkUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalLinkUITests.swift; sourceTree = "<group>"; };
 		AEB256F53D4419B7058BCC5E /* DynamicTypeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicTypeUITests.swift; sourceTree = "<group>"; };
 		B6EF587BE1969B4D2C963ECB /* BridgeRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeRouter.swift; sourceTree = "<group>"; };
+		C41B8057A09E114ED57F3B4B /* amtestlog-record.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "amtestlog-record.json"; sourceTree = "<group>"; };
 		CB4E92C8EA5389D436BF5F1A /* LifecycleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleUITests.swift; sourceTree = "<group>"; };
+		CDCF4A69F389CEF2AFC3BB44 /* TestEvidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestEvidence.swift; sourceTree = "<group>"; };
 		D07FB803069A297565CF1DCA /* EditionCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionCatalogTests.swift; sourceTree = "<group>"; };
+		D299CF17A18C1E53074F207E /* TestEvidenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestEvidenceTests.swift; sourceTree = "<group>"; };
 		DA49FD9D0BADC636CBAEF69F /* ThemeChromeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeChromeUITests.swift; sourceTree = "<group>"; };
 		E273010A03F638547E1552D0 /* ReaderData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderData.swift; sourceTree = "<group>"; };
 		EBDEAC6506CA4F173D998AFC /* ReaderLocationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderLocationTests.swift; sourceTree = "<group>"; };
@@ -136,6 +155,8 @@
 				9BF6D0CEAD0EBB1163A2671C /* ContentsUITests.swift */,
 				AEB256F53D4419B7058BCC5E /* DynamicTypeUITests.swift */,
 				5CE1AF82107316C66CE977DE /* ExportUITests.swift */,
+				71109BBD49D1968FB6D70799 /* HarnessObserver.swift */,
+				55E572A07DA8B116B6AF7E31 /* HarnessUITests.swift */,
 				6D8563F17B5B6651CA67DE2C /* LaunchUITests.swift */,
 				CB4E92C8EA5389D436BF5F1A /* LifecycleUITests.swift */,
 				A391444B1505CD32F0924AC3 /* ReaderDataUITests.swift */,
@@ -179,6 +200,7 @@
 		48509B32F2DCACA2F3E4BE8E /* AnnusMirabilisTests */ = {
 			isa = PBXGroup;
 			children = (
+				57E2F4C436B26CDB0D2FBF7B /* AMTestLogTests.swift */,
 				851F4EFBE39CBE28B3D2D5C2 /* BridgeTests.swift */,
 				D07FB803069A297565CF1DCA /* EditionCatalogTests.swift */,
 				53BA4F3604F81BA5851B8EEF /* EditionSettingsTests.swift */,
@@ -187,6 +209,7 @@
 				931788825CA32E21ACA7A517 /* NativeCatalogTests.swift */,
 				4E1AA06A6496CB9F0773BD60 /* ReaderDataTests.swift */,
 				EBDEAC6506CA4F173D998AFC /* ReaderLocationTests.swift */,
+				D299CF17A18C1E53074F207E /* TestEvidenceTests.swift */,
 				688B44C15731E3A2DCF51FB7 /* UniversalLinkTests.swift */,
 			);
 			path = AnnusMirabilisTests;
@@ -198,6 +221,14 @@
 				8EF63A1AD3AA6393B127E7D3 /* app-bridge */,
 			);
 			path = platform;
+			sourceTree = "<group>";
+		};
+		5C813BAFB8610F075563AB11 /* AnnusMirabilisTestSupport */ = {
+			isa = PBXGroup;
+			children = (
+				0AE08CE70CB4B062759F3A61 /* AMTestLog.swift */,
+			);
+			path = AnnusMirabilisTestSupport;
 			sourceTree = "<group>";
 		};
 		69279A2AB7CF35E92A7B7EA0 /* Resources */ = {
@@ -236,6 +267,8 @@
 		89C61A7755D945A726AB6385 /* fixtures */ = {
 			isa = PBXGroup;
 			children = (
+				C41B8057A09E114ED57F3B4B /* amtestlog-record.json */,
+				3C2FA31E56803DF6254C94C8 /* evidence-folders.json */,
 				EC3E13D628538E80DBC9D988 /* route-vectors.json */,
 			);
 			path = fixtures;
@@ -260,6 +293,7 @@
 				950A8BFF301A9FE3344A71AC /* EditionSession.swift */,
 				25C10D4693DB2F04A8D647F2 /* EditionSession+Actions.swift */,
 				F526CCFF0D27ADBC02A45598 /* EditionSession+Lifecycle.swift */,
+				5FC4F9A58455E333924096D7 /* EditionSession+TestEvidence.swift */,
 				A097A9673B1BD332945B1687 /* EditionSettings.swift */,
 				9A47BB6BD84F103AC9B53641 /* EditionWebView.swift */,
 				3F6C3B670ABCE073E0E14EE1 /* LifecycleEvent.swift */,
@@ -267,6 +301,7 @@
 				653560149B9612070697FA56 /* ReaderDataView.swift */,
 				F6E1217410E51C5C95A4A252 /* ReaderLocation.swift */,
 				9CFA1414C3CFD36A14BE9E0C /* SiteURL.swift */,
+				CDCF4A69F389CEF2AFC3BB44 /* TestEvidence.swift */,
 			);
 			path = Edition;
 			sourceTree = "<group>";
@@ -294,6 +329,7 @@
 				076F5785EFC82F3858755793 /* annus-mirabilis.com */,
 				6D39ECDB5AB074DE4081B199 /* AnnusMirabilis */,
 				48509B32F2DCACA2F3E4BE8E /* AnnusMirabilisTests */,
+				5C813BAFB8610F075563AB11 /* AnnusMirabilisTestSupport */,
 				00425B16411FAD2A3C8489D5 /* AnnusMirabilisUITests */,
 				1C129137BA20E9B63220AAA0 /* Products */,
 			);
@@ -427,6 +463,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A56AA32BBCD9C230540294ED /* amtestlog-record.json in Resources */,
+				36968AE7C0F39D599071D623 /* evidence-folders.json in Resources */,
 				88D6CAE32AE3F4D040F7E4F4 /* messages.json in Resources */,
 				D6A1CF81319FF67D13AE3027 /* readerDataExport.json in Resources */,
 				3EABF477C936EE4ED3322C8D /* route-vectors.json in Resources */,
@@ -454,7 +492,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "# App plan §5.4: the bundle holds exactly the files the edition manifest\n# lists, byte for byte. The export (never this phase) decides what ships.\nset -euo pipefail\nGEN=\"${SRCROOT}/../generated/app-edition\"\nOUT=\"$(cat \"${GEN}/edition-source.txt\")\"\nRES=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\nDEST=\"${RES}/Edition\"\nREEXPORT=\"bun scripts/app/export-edition.ts\"\nif [ ! -f \"${GEN}/edition-manifest.json\" ]; then\n  echo \"error: This build has no app edition. From the repository root, run: ${REEXPORT}\"\n  exit 1\nfi\nif ! (cd \"${OUT}\" && /usr/bin/shasum -a 256 -c --quiet \"${GEN}/edition.sha256\"); then\n  echo \"error: ${OUT} has changed since the edition was exported. From the repository root, run: ${REEXPORT} --out <that out directory>\"\n  exit 1\nfi\nmkdir -p \"${DEST}\"\n/usr/bin/rsync -a --inplace --files-from=\"${GEN}/edition-files.txt\" \"${OUT}/\" \"${DEST}/\"\n/bin/cp \"${GEN}/edition-manifest.json\" \"${RES}/edition-manifest.json\"\n/bin/cp \"${GEN}/bridge-user-script.js\" \"${RES}/bridge-user-script.js\"\n/bin/cp \"${GEN}/settings-snapshot.js\" \"${RES}/settings-snapshot.js\"\n/bin/cp \"${GEN}/native-catalog.json\" \"${RES}/native-catalog.json\"\nif ! (cd \"${DEST}\" && /usr/bin/shasum -a 256 -c --quiet \"${GEN}/edition.sha256\"); then\n  echo \"error: A bundled edition file does not match its manifest digest.\"\n  exit 1\nfi\nunlisted=\"$(cd \"${DEST}\" && find . -type f | sed 's|^\\./||' | LC_ALL=C sort | LC_ALL=C comm -23 - <(LC_ALL=C sort \"${GEN}/edition-files.txt\"))\"\nif [ -n \"${unlisted}\" ]; then\n  echo \"error: The bundled edition holds files its manifest does not list, first: $(printf '%s\\n' \"${unlisted}\" | head -n 1). Clean the build folder and build again.\"\n  exit 1\nfi\necho \"note: bundled $(wc -l < \"${GEN}/edition-files.txt\" | tr -d ' ') edition files\"\n";
+			shellScript = "# App plan §5.4: the bundle holds exactly the files the edition manifest\n# lists, byte for byte. The export (never this phase) decides what ships.\nset -euo pipefail\nGEN=\"${SRCROOT}/../generated/app-edition\"\nOUT=\"$(cat \"${GEN}/edition-source.txt\")\"\nRES=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\nDEST=\"${RES}/Edition\"\nREEXPORT=\"bun scripts/app/export-edition.ts\"\nif [ ! -f \"${GEN}/edition-manifest.json\" ]; then\n  echo \"error: This build has no app edition. From the repository root, run: ${REEXPORT}\"\n  exit 1\nfi\nif ! (cd \"${OUT}\" && /usr/bin/shasum -a 256 -c --quiet \"${GEN}/edition.sha256\"); then\n  echo \"error: ${OUT} has changed since the edition was exported. From the repository root, run: ${REEXPORT} --out <that out directory>\"\n  exit 1\nfi\nmkdir -p \"${DEST}\"\n/usr/bin/rsync -a --inplace --files-from=\"${GEN}/edition-files.txt\" \"${OUT}/\" \"${DEST}/\"\n/bin/cp \"${GEN}/edition-manifest.json\" \"${RES}/edition-manifest.json\"\n/bin/cp \"${GEN}/bridge-user-script.js\" \"${RES}/bridge-user-script.js\"\n/bin/cp \"${GEN}/settings-snapshot.js\" \"${RES}/settings-snapshot.js\"\n# Inert text in a reader's build: only a DEBUG build has the code that injects it.\n/bin/cp \"${GEN}/test-console.js\" \"${RES}/test-console.js\"\n/bin/cp \"${GEN}/native-catalog.json\" \"${RES}/native-catalog.json\"\nif ! (cd \"${DEST}\" && /usr/bin/shasum -a 256 -c --quiet \"${GEN}/edition.sha256\"); then\n  echo \"error: A bundled edition file does not match its manifest digest.\"\n  exit 1\nfi\nunlisted=\"$(cd \"${DEST}\" && find . -type f | sed 's|^\\./||' | LC_ALL=C sort | LC_ALL=C comm -23 - <(LC_ALL=C sort \"${GEN}/edition-files.txt\"))\"\nif [ -n \"${unlisted}\" ]; then\n  echo \"error: The bundled edition holds files its manifest does not list, first: $(printf '%s\\n' \"${unlisted}\" | head -n 1). Clean the build folder and build again.\"\n  exit 1\nfi\necho \"note: bundled $(wc -l < \"${GEN}/edition-files.txt\" | tr -d ' ') edition files\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -473,6 +511,7 @@
 				6DB67CD89C0EC5C8821AE7D9 /* EditionSchemeHandler.swift in Sources */,
 				89DCCDD549DF04242DF2523E /* EditionSession+Actions.swift in Sources */,
 				0A51C37DAC22C816EAE9FFD0 /* EditionSession+Lifecycle.swift in Sources */,
+				6AF25A96E6BA0245AC00C0A4 /* EditionSession+TestEvidence.swift in Sources */,
 				94DD47765329488872C319C0 /* EditionSession.swift in Sources */,
 				626C3B5A38EF06785B1B3827 /* EditionSettings.swift in Sources */,
 				B1563B04905CF0DCE72C6D88 /* EditionWebView.swift in Sources */,
@@ -484,6 +523,7 @@
 				C17548A0F00753E0D65109D3 /* ReaderDataView.swift in Sources */,
 				4F347DAAC224058D5994956C /* ReaderLocation.swift in Sources */,
 				9F9C13D920769AE53A5B9FAA /* SiteURL.swift in Sources */,
+				DA08581CDBC63F5AEE019DC5 /* TestEvidence.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -491,6 +531,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0B6FFD51B1F5B4E99552C176 /* AMTestLog.swift in Sources */,
+				732E16927E632A4F4C5AA0C7 /* AMTestLogTests.swift in Sources */,
 				4EBA02B5BCAC73033CA8F879 /* BridgeTests.swift in Sources */,
 				DA6870F53C094B8E5454D26E /* EditionCatalogTests.swift in Sources */,
 				94EC6845C1AC17FC1211D79F /* EditionSettingsTests.swift in Sources */,
@@ -499,6 +541,7 @@
 				84CC8D54A6D8A7B98E0B6A69 /* NativeCatalogTests.swift in Sources */,
 				606E29042E3F96E075DE8811 /* ReaderDataTests.swift in Sources */,
 				055096FB8D126E7973B621DC /* ReaderLocationTests.swift in Sources */,
+				19972BACB0584350369DB04C /* TestEvidenceTests.swift in Sources */,
 				4DE32950EAD4D1D811211DDC /* UniversalLinkTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -507,10 +550,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				28C9748D65D31A1694DE9E91 /* AMTestLog.swift in Sources */,
 				FA08BA0B2EE610703FC7690C /* AccessibilityUITests.swift in Sources */,
 				A7AF844721CA06FF5FCF378F /* ContentsUITests.swift in Sources */,
 				8C804696348758F459B1F74F /* DynamicTypeUITests.swift in Sources */,
 				3CDBC63CE8EACC77D5FA87C2 /* ExportUITests.swift in Sources */,
+				B947E55CA45CCDDD499E93A8 /* HarnessObserver.swift in Sources */,
+				844E20DEA586D1A7C6FC8AB7 /* HarnessUITests.swift in Sources */,
 				975A55E84F3778A714C9664D /* LaunchUITests.swift in Sources */,
 				5F2923F9EE6C5F929A178861 /* LifecycleUITests.swift in Sources */,
 				FD75F19119F74D1DC5624C26 /* ReaderDataUITests.swift in Sources */,
@@ -635,6 +681,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSPrincipalClass = AnnusMirabilisUITests.HarnessObserver;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -754,6 +801,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSPrincipalClass = AnnusMirabilisUITests.HarnessObserver;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

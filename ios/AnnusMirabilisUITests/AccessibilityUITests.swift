@@ -30,7 +30,7 @@ final class AccessibilityUITests: XCTestCase {
             "-AMUITest", "-AMStateSuite", "uitest-\(UUID().uuidString)", "-AMOpenRoute", "/papers/brownian-motion/",
             "-UIPreferredContentSizeCategoryName", category,
         ]
-        app.launch()
+        app.launch(for: self)
         let ready = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "value == %@", "/papers/brownian-motion/"),
             object: app.webViews["edition-web-view"])
@@ -85,6 +85,7 @@ final class AccessibilityUITests: XCTestCase {
         note.name = "audit-\(screen)"
         note.lifetime = .keepAlways
         add(note)
+        recordAudit(screen, failing: failing, passedOver: passedOver)
         // The handler takes every issue so the record above is always written; a native one fails here.
         XCTAssertEqual(failing, [], "\(screen): native accessibility issues")
     }
@@ -95,6 +96,23 @@ final class AccessibilityUITests: XCTestCase {
         let back = app.navigationBars.buttons.matching(NSPredicate(format: "label != 'Done'")).firstMatch
         XCTAssertTrue(back.waitForExistence(timeout: 10), "no way back to the sheet's root")
         back.tap()
+    }
+
+    /// The screen's audit as a test-log record (suite app-a11y), for the gate to collect.
+    @MainActor
+    private func recordAudit(_ screen: String, failing: [String], passedOver: [String]) {
+        AMTestLog.attach(
+            AMTestLog.record(
+                suite: "app-a11y", testId: "AccessibilityUITests.\(screen)",
+                outcome: failing.isEmpty ? "passed" : "failed",
+                browser: false, beadId: "am-app-accessibility-4h2o",
+                message: "\(failing.count) native issue(s), \(passedOver.count) passed over",
+                extra: [
+                    "screen": screen, "audit": failing.isEmpty ? "passed" : "issues",
+                    "issueTypes": failing.map { String($0.prefix(60)) },
+                    "textSize": screen.hasSuffix("largest") ? "AccessibilityXXXL" : "L",
+                ]),
+            to: self, name: screen)
     }
 
     /// Scrolls until the element exists and can be tapped: at the largest sizes a list is several
@@ -163,8 +181,7 @@ final class AccessibilityUITests: XCTestCase {
     func testEveryNativeScreenAtTheLargestAccessibilitySize() throws {
         let app = launch(category: "UICTContentSizeCategoryAccessibilityXXXL")
         app.chooseDarkTheme()
-        // The mirror is sent 300 ms after the write settles.
-        Thread.sleep(forTimeInterval: 2)
+        app.waitForMirror(of: "am:settings:v1:theme")
         try everyNativeScreen(app, "largest")
     }
 
