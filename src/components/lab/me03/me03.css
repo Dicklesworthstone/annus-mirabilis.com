@@ -242,37 +242,11 @@
   max-width: 14rem;
 }
 
-.notice,
-.error-banner {
-  padding: 0.75rem 1rem;
-  border-radius: 4px;
-  font-size: var(--type-fine);
-}
-
-.error,
-.error-banner {
-  background: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #f87171;
-}
-
-.info-banner {
-  padding: 0.75rem 1rem;
-  border-radius: 4px;
-  background: #eff6ff;
-  color: #1e40af;
-  border: 1px solid #93c5fd;
-  font-size: var(--type-fine);
-}
-
-.share-banner {
-  padding: 0.75rem 1rem;
-  border-radius: 4px;
-  background: #f0fdf4;
-  color: #166534;
-  border: 1px solid #86efac;
-  font-size: var(--type-fine);
-}
+/* No .notice or .error rules here. This file used to restyle both global classes, so on ME-03
+   alone a notice shrank to 13.2px with rounded corners and a refusal became a fixed pink box with
+   dark red text, in the dark theme too (measured on live). The globals.css rules are themed. The
+   .error-banner, .info-banner and .share-banner rules went with them; SR-01, their one user, now
+   uses the global classes. */
 
 /* Boundary ledger plot styles */
 .boundary-ledger-svg-wrap {

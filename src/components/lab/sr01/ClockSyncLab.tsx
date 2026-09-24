@@ -402,12 +402,12 @@ export function ClockSyncLab({
         </div>
 
         {error && (
-          <div className="error-banner" role="alert" data-refusal-code={refusalCode ?? undefined}>
+          <div className="notice error" role="alert" data-refusal-code={refusalCode ?? undefined}>
             {error}
           </div>
         )}
         {sharedUrl && (
-          <div className="share-banner">
+          <div className="notice">
             Link copied to clipboard: <code>{sharedUrl}</code>
           </div>
         )}
