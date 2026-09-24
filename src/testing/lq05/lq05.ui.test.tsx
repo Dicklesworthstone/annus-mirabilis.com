@@ -67,7 +67,11 @@ describe("LQ-05 UI components and route", () => {
   test("IndependentConfigurationsLab renders laboratory root with data attributes and noscript fallback", () => {
     const html = renderToStaticMarkup(<IndependentConfigurationsLab />);
     expect(html).toContain('data-instrument-id="lq-05"');
-    expect(html).toContain('data-execution-label="host"');
+    // The label is derived (am-inst-execution-labels-5ywv); until 67cc8ba1 it was hard-coded "host".
+    // With no example there is no source digest, so neither calculation label is earned here; the
+    // page's example earns "Static worked example" (next test).
+    expect(html).not.toContain('data-execution-label="host"');
+    expect(html).not.toContain('data-execution-label="static"');
     expect(html).toContain("<noscript>");
     expect(html).toContain("JavaScript disabled");
     // The prediction sits in a closed disclosure under the drawing, and the presets are the
@@ -80,6 +84,12 @@ describe("LQ-05 UI components and route", () => {
     expect(html).toContain("Dimensionless entropy change ΔS/k<sub>B</sub>");
   });
 
+  test("the page's build-time example earns the static label", () => {
+    const html = renderToStaticMarkup(<IndependentConfigurationsPage />);
+    expect(html).toContain('data-execution-label="static"');
+    expect(html).toContain("Static worked example");
+    expect(html).not.toContain('data-execution-label="host"');
+  });
   test("IndependentConfigurationsPage route renders without errors and includes article sections", () => {
     const html = renderToStaticMarkup(<IndependentConfigurationsPage />);
     expect(containsHeading(html, "Independent Configurations and the Gas Analogy")).toBe(true);
