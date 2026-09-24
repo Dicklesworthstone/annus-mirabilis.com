@@ -35,7 +35,8 @@
     {
       "kind": "formula",
       "latex": "\\frac{dx}{dt} = \\lim_{\\Delta t \\to 0} \\frac{x(t+\\Delta t) - x(t)}{\\Delta t}",
-      "spoken": "d x by d t is the value that the change in position divided by the change in time settles on as delta t shrinks towards zero."
+      "spoken": "d x by d t is the value that the change in position divided by the change in time settles on as delta t shrinks towards zero.",
+      "equations": ["eq-model-fd-derivative-limit"]
     },
     {
       "kind": "paragraph",

@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-derivative-limit",
+  "paper": "foundations",
+  "argument": "derivatives",
+  "title": "The derivative as the limit of average speeds",
+  "spoken": "d x by d t equals the limit, as Delta t approaches zero, of x at t plus Delta t, minus x at t, all over Delta t.",
+  "explanation": "The distance covered between t and t plus Delta t, divided by Delta t, is the average speed over that interval. The derivative is the value those averages settle on as Delta t shrinks; Delta t itself is never set to zero.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "The averages settle on one value as the interval shrinks, as they do for the rolling ball's 3t².",
+    "A foundation lesson's worked case in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-derivative-limit.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "derivative",
+      "opId": "eq-model-fd-derivative-limit.op.rate",
+      "expression": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-derivative-limit.t.x",
+        "quantityId": "positionCoordinate1d"
+      },
+      "variable": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-derivative-limit.t.t",
+        "quantityId": "elapsedTime"
+      },
+      "order": 1,
+      "partial": false
+    },
+    "right": {
+      "kind": "limit",
+      "opId": "eq-model-fd-derivative-limit.op.limit",
+      "variable": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-derivative-limit.t.dt",
+        "quantityId": "timeIncrement"
+      },
+      "approaches": {
+        "kind": "number",
+        "value": "0"
+      },
+      "expression": {
+        "kind": "quotient",
+        "opId": "eq-model-fd-derivative-limit.op.average",
+        "numerator": {
+          "kind": "sum",
+          "opId": "eq-model-fd-derivative-limit.op.distance",
+          "args": [
+            {
+              "kind": "symbol",
+              "termId": "eq-model-fd-derivative-limit.t.later",
+              "quantityId": "positionCoordinate1d",
+              "at": {
+                "kind": "sum",
+                "opId": "eq-model-fd-derivative-limit.op.laterTime",
+                "args": [
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-fd-derivative-limit.t.t2",
+                    "quantityId": "elapsedTime"
+                  },
+                  {
+                    "kind": "symbol",
+                    "termId": "eq-model-fd-derivative-limit.t.dt2",
+                    "quantityId": "timeIncrement"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "negate",
+              "argument": {
+                "kind": "symbol",
+                "termId": "eq-model-fd-derivative-limit.t.now",
+                "quantityId": "positionCoordinate1d",
+                "at": {
+                  "kind": "symbol",
+                  "termId": "eq-model-fd-derivative-limit.t.t3",
+                  "quantityId": "elapsedTime"
+                }
+              }
+            }
+          ]
+        },
+        "denominator": {
+          "kind": "symbol",
+          "termId": "eq-model-fd-derivative-limit.t.dt3",
+          "quantityId": "timeIncrement"
+        }
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-derivative-limit.op.relation",
+      "title": "What it defines",
+      "explanation": "The speed at an instant is the value the average speeds close in on.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-derivative-limit.op.rate",
+      "title": "The derivative",
+      "explanation": "How fast x changes with t at one instant, in metres per second.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-derivative-limit.op.limit",
+      "title": "As Delta t shrinks",
+      "explanation": "The value the averages settle on as the interval gets shorter and shorter. It is never the quotient at Delta t = 0, which would divide zero by zero.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-derivative-limit.op.average",
+      "title": "Average speed",
+      "explanation": "Distance covered divided by the time taken.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-derivative-limit.op.distance",
+      "title": "Distance covered",
+      "explanation": "Where the ball is at the end of the interval, minus where it was at the start.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-fd-derivative-limit.op.laterTime",
+      "title": "A moment later",
+      "explanation": "The time t plus the short interval Delta t.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-fd-derivative-limit.t.x",
+      "title": "Position",
+      "explanation": "Where the ball is, in metres.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-fd-derivative-limit.t.t",
+      "title": "Time",
+      "explanation": "The instant at which the speed is wanted.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-fd-derivative-limit.t.dt",
+      "title": "The shrinking interval",
+      "explanation": "Delta t, which the limit takes toward zero.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-derivative-limit.t.later",
+      "title": "Position a moment later",
+      "explanation": "x read at t plus Delta t.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-fd-derivative-limit.t.t2",
+      "title": "Time",
+      "explanation": "The same t.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-fd-derivative-limit.t.dt2",
+      "title": "The interval",
+      "explanation": "The same Delta t.",
+      "foundation": "derivatives"
+    },
+    {
+      "nodeId": "eq-model-fd-derivative-limit.t.now",
+      "title": "Position now",
+      "explanation": "x read at t.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-fd-derivative-limit.t.t3",
+      "title": "Time",
+      "explanation": "The same t.",
+      "foundation": "functions-graphs"
+    },
+    {
+      "nodeId": "eq-model-fd-derivative-limit.t.dt3",
+      "title": "The interval",
+      "explanation": "Dividing by Delta t turns a distance into an average speed.",
+      "foundation": "bridge-fractions-ratios"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The speed at "
+    },
+    {
+      "text": "t",
+      "nodeId": "eq-model-fd-derivative-limit.t.t"
+    },
+    {
+      "text": " is where the average speed over "
+    },
+    {
+      "text": "Delta t",
+      "nodeId": "eq-model-fd-derivative-limit.t.dt3"
+    },
+    {
+      "text": " settles as "
+    },
+    {
+      "text": "Delta t",
+      "nodeId": "eq-model-fd-derivative-limit.t.dt"
+    },
+    {
+      "text": " shrinks."
+    }
+  ]
+}
