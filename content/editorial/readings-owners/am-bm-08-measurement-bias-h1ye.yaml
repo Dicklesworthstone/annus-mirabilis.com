@@ -17,63 +17,92 @@ targets:
   - kind: caption
     id: bm-08-apparent-speed-noise
     readings:
-      r0: "Camera noise makes measured apparent speed diverge as the observation interval shrinks."
-      r1: "Below the crossover interval tau = sigma^2/D, camera jitter dominates and apparent speed scales as 1/dt rather than 1/sqrt(dt)."
-      r2: "The apparent rise is an artifact of the finite localization noise 2*sigma^2 in the numerator, not a physical particle acceleration."
-      r3: "Demonstrates the velocity trap on real measurement models; for zero noise the crossover is not applicable."
+      r0: "A speed computed from a camera track, displacement divided by time, grows as the interval between frames shrinks, and the camera's own error makes it grow faster still."
+      r1: "The apparent speed is the typical displacement over an interval Δt divided by Δt. For the particle's own motion that is √(2DΔt)/Δt, which grows as 1/√Δt when Δt shrinks. Each recorded position also carries an error of variance σ^{2}, which adds 2σ^{2} to a step's mean square, so the camera's apparent speed is √(2DΔt + 2σ^{2})/Δt. Below the crossover interval σ^{2}/D the error dominates and the apparent speed grows as 1/Δt; with σ = 0.2 μm and D = 0.429 μm^{2}/s the crossover is 0.093 s."
+      r2: "Start with the particle alone. Over an interval Δt the mean square displacement along one axis is 2DΔt, so the typical displacement is √(2DΔt), and dividing by Δt gives √(2D/Δt), which doubles when Δt shrinks by a factor of four. Now add the camera, with an instantaneous exposure as in this preset. Each recorded position is the true one plus an error of variance σ^{2}, and a step is the difference of two recorded positions, so its mean square gains 2σ^{2}, giving 2DΔt + 2σ^{2}. The two terms are equal when 2DΔt = 2σ^{2}, that is at Δt = σ^{2}/D. With σ = 0.2 μm, σ^{2} = 0.04 μm^{2}, and D = 0.4294 μm^{2}/s, the crossover is 0.04/0.4294 = 0.093 s. At longer intervals the particle dominates and the apparent speed falls as 1/√Δt. At shorter ones the error dominates: the recorded step stays near √2 × 0.2 = 0.28 μm however short the interval, and the apparent speed, about 0.28 μm divided by Δt, grows as 1/Δt. Neither rise is a property of the particle. The first comes from dividing a random walk's displacement by time, the second from the camera. With σ = 0 there is no crossover, and the lab reports none rather than a number."
+      r3: "Einstein pointed out in 1907 that a Brownian particle's speed computed as displacement over time depends on the interval chosen and is not the particle's true speed. The camera-error term is modern, from the analysis of single-particle tracking."
+      r3Citations:
+        - "Einstein, A. (1907). Theoretische Bemerkungen über die Brownsche Bewegung. Zeitschrift für Elektrochemie 13, 41–42."
+        - "Savin, T. and Doyle, P. S. (2005). Static and dynamic errors in particle tracking microrheology. Biophysical Journal 88, 623–638."
+        - "Berglund, A. J. (2010). Statistics of camera-based single-particle tracking. Physical Review E 82, 011917."
   - kind: caption
     id: bm-08-noise-only
     readings:
-      r0: "Localization noise introduces negative lag-1 covariance and inflates the second moment."
-      r1: "Neighboring increments share a position sample with opposite signs, producing Cov = -sigma^2."
-      r2: "The naive independent-increment estimator is biased upward by sigma^2/dt."
-      r3: "Berglund (2010) zero-exposure baseline."
+      r0: "Camera error makes a particle seem to move more than it does, and it makes each recorded step lean against the next."
+      r1: "With an instantaneous exposure, a recorded position is the true one plus an independent error of variance σ^{2}. A recorded step is the difference of two positions, so its variance is 2DΔt + 2σ^{2}, and the naive estimate, the mean squared step divided by 2Δt, is too large by σ^{2}/Δt. Two neighbouring steps share one recorded position with opposite signs, so their covariance is −σ^{2}."
+      r2: "Write the recorded position at frame i as x_{i} + e_{i}, with e_{i} an independent error of variance σ^{2}. A step is (x_{i+1} − x_{i}) + (e_{i+1} − e_{i}). The true part has variance 2DΔt. The error part is a difference of two independent errors, with variance σ^{2} + σ^{2} = 2σ^{2}. The two parts are independent, so their variances add, to 2DΔt + 2σ^{2}. The naive estimator divides the mean squared step by 2Δt and so returns D + σ^{2}/Δt, too large by σ^{2}/Δt. With σ = 0.2 μm and Δt = 1 s that bias is 0.04 μm^{2}/s on a true 0.429, about 9 percent. Now take two neighbouring steps. Their true parts are independent, and so are all the errors except e_{i+1}, which appears in the first step with a plus sign and in the second with a minus sign. Its contribution to their covariance is therefore −σ^{2} = −0.04 μm^{2}. A negative correlation between neighbouring steps is the mark that position error leaves on a track."
+      r3: "The 1905 paper treats every position as exact. The variance and covariance of camera-recorded steps come from the modern analysis of single-particle tracking."
+      r3Citations:
+        - "Berglund, A. J. (2010). Statistics of camera-based single-particle tracking. Physical Review E 82, 011917."
+        - "Vestergaard, C. L., Blainey, P. C. and Flyvbjerg, H. (2014). Optimal estimation of diffusion coefficients from single-particle trajectories. Physical Review E 89, 022726."
   - kind: caption
     id: bm-08-exposure-fixture
     readings:
-      r0: "Finite camera exposure averages positions during the frame, partially cancelling noise."
-      r1: "Uniform exposure Te <= dt yields Var = 2D(dt - Te/3) + 2*sigma^2 and Cov = D*Te/3 - sigma^2."
-      r2: "The identity Var + 2*Cov = 2*D*dt holds exactly for all uniform exposures and noise levels."
-      r3: "Berglund (2010) uniform exposure model."
+      r0: "A camera frame records the particle's average position over the exposure, which blurs the motion and partly offsets the camera's own error."
+      r1: "With a uniform exposure T_{e} no longer than the frame interval Δt, the variance of a recorded step is 2D(Δt − T_{e}/3) + 2σ^{2}, and neighbouring steps have covariance DT_{e}/3 − σ^{2}. Their combination, variance plus twice the covariance, is exactly 2DΔt for every exposure and every error. This preset uses a small error, σ = 0.05 μm, so the blur is the larger effect."
+      r2: "Averaging a position over an exposure T_{e} smooths the path, so the difference of two averaged positions a frame apart has a smaller mean square than the difference of two instantaneous ones. For a random walk averaged uniformly over T_{e}, the loss is 2D × T_{e}/3, so the motion contributes 2D(Δt − T_{e}/3). With D = 0.4294 μm^{2}/s, Δt = 1 s and T_{e} = 0.5 s that is 2 × 0.4294 × (1 − 0.1667) = 0.716 μm^{2}. The errors add 2σ^{2} = 2 × 0.0025 = 0.005 μm^{2}, for a variance of 0.721 μm^{2}. Neighbouring steps overlap through the frame they share. The blur links them positively, by DT_{e}/3 = 0.0716 μm^{2}, and the shared error links them negatively, by −σ^{2} = −0.0025 μm^{2}, so their covariance is 0.0691 μm^{2}. Add twice the covariance to the variance: 0.721 + 0.138 = 0.859 μm^{2}, which is 2DΔt = 2 × 0.4294 = 0.859 μm^{2}, with the exposure terms and the error terms both cancelling. That identity is what lets an estimator recover D without knowing T_{e} or σ."
+      r3: "The uniform-exposure blur formula is modern; the 1905 paper assumes instantaneous, exact positions."
+      r3Citations:
+        - "Savin, T. and Doyle, P. S. (2005). Static and dynamic errors in particle tracking microrheology. Biophysical Journal 88, 623–638."
+        - "Berglund, A. J. (2010). Statistics of camera-based single-particle tracking. Physical Review E 82, 011917."
   - kind: caption
     id: bm-08-drift-fluid
     readings:
-      r0: "Fluid drift is a physical change that forks a new trajectory."
-      r1: "Flow velocity v adds mean displacement v*dt to each increment, inflating uncentered variance."
-      r2: "Because fluid drift alters the physical path, it is classified as a setup-change."
-      r3: "Distinguished from stage drift by its physical causal origin."
+      r0: "If the liquid itself flows, the particle is carried along, and that changes what happens, not only how it is recorded."
+      r1: "A flow of velocity v along one axis adds vΔt to every step along it. An estimator that squares the steps without centring them counts (vΔt)^{2} as spread and overstates D by v^{2}Δt/(2d), where d is the number of coordinates tracked. Because the flow changes the particle's actual path, the lab treats it as a physical change and starts a new run."
+      r2: "Along the flow axis every step gains vΔt, so its mean square gains v^{2}Δt^{2} on top of whatever the motion and the camera already give; the other axis is unchanged. The naive estimator averages the squared steps over all d coordinates and divides by 2Δt, so the extra v^{2}Δt^{2} is shared among d coordinates and the estimate rises by v^{2}Δt/(2d). With this preset's flow of 0.1 μm/s, Δt = 1 s and two coordinates, that is 0.01/4 = 0.0025 μm^{2}/s, under 1 percent of 0.429. A flow of 1 μm/s would add 0.25 μm^{2}/s, more than half. Subtracting the mean step from each step before squaring removes the flow term whatever its size, at the cost of one degree of freedom per coordinate. The flow is classed as a setup change because it moves the particle. The path with a flow is a different path, so the lab starts a new run from the new setup instead of reinterpreting the old recording."
+      r3: "Removing a drift by centring the steps is standard in modern particle tracking; the 1905 paper considers a liquid at rest."
+      r3Citations:
+        - "Berglund, A. J. (2010). Statistics of camera-based single-particle tracking. Physical Review E 82, 011917."
+        - "Vestergaard, C. L., Blainey, P. C. and Flyvbjerg, H. (2014). Optimal estimation of diffusion coefficients from single-particle trajectories. Physical Review E 89, 022726."
   - kind: caption
     id: bm-08-drift-stage
     readings:
-      r0: "Stage drift is an observational motion that preserves the latent physical path."
-      r1: "Constant stage motion shifts measured coordinates without altering latent fluid diffusion."
-      r2: "Classified as a measurement-change; the latent trajectory is preserved bitwise."
-      r3: "Centering by mean increment removes constant stage drift with d*(M-1) degrees of freedom."
+      r0: "If the microscope stage drifts, the recorded positions shift, but the particle's own motion is unchanged."
+      r1: "A stage moving at a constant speed u shifts every recorded position along one axis, so every recorded step gains the same uΔt, while the particle's path in the liquid is untouched. The lab treats it as a change of measurement and keeps the latent trajectory bit for bit. The naive estimate rises by u^{2}Δt/(2d), exactly as for a flow; subtracting the mean step removes it, at the cost of one degree of freedom per coordinate."
+      r2: "Write each recorded step as the step a still stage would record plus s = uΔt along one axis. With this preset's 0.1 μm/s and Δt = 1 s, s = 0.1 μm. Every step shifts by the same s, so the mean step along that axis becomes s and its mean square gains s^{2} = 0.01 μm^{2}; shared over two coordinates and divided by 2Δt, the naive estimate rises by 0.0025 μm^{2}/s, the same as a flow of the same speed. Subtracting the sample mean step from each step removes s exactly, whatever its size, because a constant has no spread. What is lost is one degree of freedom per coordinate: with M steps in d coordinates the centred sum of squares has d(M − 1) degrees of freedom instead of dM, so an interval built from it is slightly wider. The numbers match the flow, but the cause does not. A stage drift moves the microscope, not the particle, so the lab keeps the same latent trajectory, bit for bit, and changes only how it is recorded, whereas a flow moves the particle and starts a new run."
+      r3: "Keeping a physical change apart from a change of measurement is this site's runtime rule; removing drift by centring is modern practice."
+      r3Citations:
+        - "Berglund, A. J. (2010). Statistics of camera-based single-particle tracking. Physical Review E 82, 011917."
+        - "Vestergaard, C. L., Blainey, P. C. and Flyvbjerg, H. (2014). Optimal estimation of diffusion coefficients from single-particle trajectories. Physical Review E 89, 022726."
   - kind: caption
     id: bm-08-overlap-refusal
     readings:
-      r0: "Overlapping displacement windows share increments and are refused."
-      r1: "Passing overlapping windows to the independent estimator is outside the model's domain."
-      r2: "Overlapping windows do not add independent degrees of freedom."
-      r3: "Epistemic refusal protecting against spurious confidence inflation."
+      r0: "Displacements measured over overlapping stretches of one track reuse the same motion, so they add no independent information, and the interval that assumes independence refuses them."
+      r1: "Displacements over windows that overlap share steps, so they are correlated. An interval that treats them as independent overstates the degrees of freedom and comes out narrower than the data support. The independent-step interval therefore admits only equally spaced, non-overlapping steps free of camera error, blur and censoring; given overlapping windows it returns no interval and names the reason. The same rule is why this lab refuses that interval whenever camera error or blur is present."
+      r2: "Take a track of 101 frames, 100 steps, and displacements over two steps. Windows that do not overlap, frames 0 to 2, 2 to 4 and so on up to 98 to 100, give 50 displacements that share no step. Windows that overlap, 0 to 2, 1 to 3, 2 to 4, give 99 displacements, but each shares one of its two steps with each neighbour, so for the particle's own motion half of each displacement's variance is common to the next. An interval that assumed independence would claim 99 degrees of freedom for data whose effective number is well below that, and its chi-square range would come out narrower than it should. The estimate itself would still be close; what would be false is the stated confidence. So the interval is refused, the refusal lists every assumption the data break, from overlapping windows to camera error and blur, and it says that a validated observation model is needed before any interval is given."
+      r3: "The refusal follows the site's rule that a model's domain is stated rather than silently exceeded. Methods that use overlapping windows exist, with their own error models; Qian, Sheetz and Elson gave the variance of the overlapping mean square displacement in 1991."
+      r3Citations:
+        - "Qian, H., Sheetz, M. P. and Elson, E. L. (1991). Single particle tracking. Analysis of diffusion and flow in two-dimensional systems. Biophysical Journal 60, 910–921."
+        - "Vestergaard, C. L., Blainey, P. C. and Flyvbjerg, H. (2014). Optimal estimation of diffusion coefficients from single-particle trajectories. Physical Review E 89, 022726."
   - kind: caption
     id: bm-08-cve
     readings:
-      r0: "Covariance-based estimator yields unbiased point estimates for D and sigma^2."
-      r1: "CVE combines variance and lag-1 covariance to cancel both exposure blur and localization noise."
-      r2: "D_hat_CVE = (Var/2 + Cov)/dt; point estimate is unbiased but has no admitted interval."
-      r3: "Vestergaard, Blainey, and Flyvbjerg (2014)."
+      r0: "Combining how much each step varies with how much neighbouring steps move together gives an estimate of D that is free of both camera error and blur."
+      r1: "The covariance-based estimator takes the variance of the steps and the covariance of neighbouring steps and forms (variance/2 + covariance)/Δt. The blur and error terms cancel in that combination, so on average it returns D. It subtracts a known drift, here zero, rather than a fitted mean. The lab reports its point estimate, and an estimate of σ^{2} from the same two numbers, but gives no confidence interval for D."
+      r2: "From the exposure model, the variance is 2D(Δt − T_{e}/3) + 2σ^{2} and the covariance is DT_{e}/3 − σ^{2}. Half the variance is D(Δt − T_{e}/3) + σ^{2}. Add the covariance: D(Δt − T_{e}/3) + σ^{2} + DT_{e}/3 − σ^{2} = DΔt. The exposure terms cancel and so do the error terms, and dividing by Δt leaves D. With the defaults the expected variance is 0.796 μm^{2} and the expected covariance 0.0316 μm^{2}, and (0.796/2 + 0.0316)/1 s = 0.429 μm^{2}/s, the true D. On a finite track both sample moments scatter, and with 100 steps the scatter is large: this sample gives 0.510 μm^{2}/s. The same two moments give an estimate of σ^{2}, which on this sample comes out negative, −0.019 μm^{2}; the lab shows that value instead of clipping it, because a negative estimate is evidence about the sample. It also shows the large-sample scatter of the two moments, which is not a confidence interval for D. The drift is taken as known because centring on a fitted mean would change the covariance a finite sample is expected to have."
+      r3: "The covariance-based estimator is due to Vestergaard, Blainey and Flyvbjerg (2014); the 1905 paper uses the plain mean square."
+      r3Citations:
+        - "Vestergaard, C. L., Blainey, P. C. and Flyvbjerg, H. (2014). Optimal estimation of diffusion coefficients from single-particle trajectories. Physical Review E 89, 022726."
+        - "Berglund, A. J. (2010). Statistics of camera-based single-particle tracking. Physical Review E 82, 011917."
   - kind: caption
     id: bm-08-pairs-exact-coverage
     readings:
-      r0: "Disjoint frame pairs produce an exact confidence interval when noise is known."
-      r1: "Increments from disjoint pairs (0,1), (2,3) share no camera frames or noise samples."
-      r2: "Sum of squared pair increments follows chi-square distribution with d*(K-1) degrees of freedom."
-      r3: "Exact 1 - alpha physical coverage under known Gaussian localization error."
+      r0: "Using only separate pairs of frames, each frame used once, makes the measured steps independent, so when the camera's error is known the interval for D is exact."
+      r1: "The lab pairs frames 0 and 1, 2 and 3, and so on, so no two pair steps share a frame, a position error or, because each exposure ends within its frame interval, any stretch of motion. Each pair step has variance 2D(Δt − T_{e}/3) + 2σ^{2}. With the drift fitted, the steps' sample variance follows a chi-square law with d(K − 1) degrees of freedom for K pairs, which gives an exact interval for that variance. Subtracting the known 2σ^{2} and dividing by 2(Δt − T_{e}/3) turns it into an interval for D that covers the true value in exactly 95 percent of repeated experiments."
+      r2: "Start with a track of 101 frames. Pairing frame 0 with 1, 2 with 3 and so on up to 98 with 99 gives K = 50 pairs and discards the step between one pair and the next. That is the price of independence. Each frame belongs to one pair only, so no two pair steps share a position error, and because each exposure ends within its frame interval, their stretches of motion do not overlap either. Each pair step has variance v = 2D(Δt − T_{e}/3) + 2σ^{2}, which with the defaults is 0.796 μm^{2}. The lab fits the drift, subtracting the mean pair step in each coordinate, which uses up one degree of freedom per coordinate, so with d = 2 coordinates there are q = d(K − 1) = 98. If s^{2} is the resulting sample variance, q s^{2}/v follows a chi-square law with q degrees of freedom, and the values that leave 2.5 percent in each tail give an exact 95 percent interval for v. Because σ^{2} = 0.04 μm^{2} is known exactly, D = (v − 2σ^{2})/(2(Δt − T_{e}/3)) is a fixed, increasing function of v, so the interval for v maps to an interval for D with exactly the same coverage. Two edge cases are kept honest: a lower end below zero is raised to zero, which cannot lose coverage because D is positive, and an upper end below zero leaves an empty set, which counts as a miss rather than being retried."
+      r3: "Pairing frames to keep steps independent, and a chi-square interval for their variance, is standard statistics applied to a modern camera model; the 1905 paper gives only the mean square."
+      r3Citations:
+        - "Berglund, A. J. (2010). Statistics of camera-based single-particle tracking. Physical Review E 82, 011917."
+        - "Vestergaard, C. L., Blainey, P. C. and Flyvbjerg, H. (2014). Optimal estimation of diffusion coefficients from single-particle trajectories. Physical Review E 89, 022726."
   - kind: caption
     id: bm-08-pairs-estimated-coverage
     readings:
-      r0: "Estimating noise from stationary clicks yields a conservative confidence interval."
-      r1: "Bonferroni splitting allocates alpha/2 to noise estimation and alpha/2 to pair variance."
-      r2: "Conservative confidence set guarantees at least nominal coverage."
-      r3: "Validates inference protocol for hand-clicked laboratory microscopy."
+      r0: "When the camera's error is itself measured, from repeated clicks on a still feature, the interval for D must allow for that uncertainty too, and it comes out wider than needed."
+      r1: "With σ^{2} estimated from clicks on a still feature, the lab builds two chi-square intervals, one for the pair steps' variance and one for σ^{2}, each at half the allowed risk, and combines their extremes. By the Bonferroni inequality the interval for D covers the true value in at least 95 percent of repeated experiments, and usually more. With the defaults, 50 pairs and 30 clicks, the estimate is 0.476 μm^{2}/s with an interval from 0.326 to 0.697 μm^{2}/s, which contains the true 0.429."
+      r2: "Each click on a still feature records its position with error only, so the spread of the clicks estimates σ^{2}. With 30 clicks in two coordinates, centred on their mean, there are 2 × (30 − 1) = 58 degrees of freedom; on this sample the estimate is 0.0273 μm^{2}, against a true 0.04, with a 97.5 percent chi-square interval from 0.0187 to 0.0433 μm^{2}. The 50 disjoint pairs give a second chi-square interval, also at 97.5 percent, for the pair steps' variance v = 2D(Δt − T_{e}/3) + 2σ^{2}. Since D = (v − 2σ^{2})/(2(Δt − T_{e}/3)), the widest honest range takes the lower end of D from the lower end of v and the upper end of σ^{2}, and the upper end of D from the upper end of v and the lower end of σ^{2}. The chance that at least one of the two intervals misses is at most 2.5 + 2.5 = 5 percent, which is the Bonferroni bound, so the range for D, 0.326 to 0.697 μm^{2}/s here, covers the true value at least 95 percent of the time. Because a miss in one interval does not always push D outside its range, the actual coverage is usually higher, which is what conservative means here."
+      r3: "Estimating the camera's error from a still feature is standard in modern tracking; combining two intervals by the Bonferroni inequality gives a guaranteed, if conservative, range."
+      r3Citations:
+        - "NIST/SEMATECH e-Handbook of Statistical Methods, section 7.4.7.3, Bonferroni method."
+        - "Savin, T. and Doyle, P. S. (2005). Static and dynamic errors in particle tracking microrheology. Biophysical Journal 88, 623–638."
+        - "Berglund, A. J. (2010). Statistics of camera-based single-particle tracking. Physical Review E 82, 011917."
