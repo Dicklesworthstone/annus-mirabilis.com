@@ -111,18 +111,38 @@ describe("am-not-entries-relativity-f6e: special-relativity notation concordance
     logPass("phi-scoped", "phi is scale in §3 and angle in §7");
   });
 
-  test("Bindings: l at §3 is lengthProper and at §7 is a direction cosine", () => {
+  test("Bindings: l at §3 is lengthProper; the §7 direction cosines are printed a, b, c", () => {
+    // The plates of pp. 910 and 913 print the direction cosines of the wave normal as a, b, c
+    // ("a, b, c die Richtungskosinus der Wellennormalen"), and no l, m or n is printed as one.
     const file = loadConcordanceForPaper(paper);
     const s3 = resolveGlyph(paper, "sr-s3", "l", emptyManifestIndex, file);
     assert.ok(s3.ok, "l in §3 must resolve");
     assert.ok("quantityId" in s3.entry.binding);
     assert.equal(s3.entry.binding.quantityId, "lengthProper");
 
-    const s7 = resolveGlyph(paper, "sr-s7", "l", emptyManifestIndex, file);
-    assert.ok(s7.ok, "l in §7 must resolve");
-    assert.ok("quantityId" in s7.entry.binding);
-    assert.equal(s7.entry.binding.quantityId, "directionCosineStationary");
-    logPass("ell-scoped", "l is rod length in §3 and a direction cosine in §7");
+    for (const letter of ["a", "b", "c"]) {
+      const s7 = resolveGlyph(paper, "sr-s7", letter, emptyManifestIndex, file);
+      assert.ok(s7.ok, `${letter} in §7 must resolve`);
+      assert.ok("quantityId" in s7.entry.binding);
+      assert.equal(s7.entry.binding.quantityId, "directionCosineStationary");
+    }
+
+    // The letter a is also printed in §3, where it is the transformation's undetermined
+    // coefficient, not a direction cosine.
+    const a3 = resolveGlyph(paper, "sr-s3", "a", emptyManifestIndex, file);
+    assert.ok(a3.ok, "a in §3 must resolve");
+    assert.ok("quantityId" in a3.entry.binding);
+    assert.equal(a3.entry.binding.quantityId, "transformationCoefficientA");
+
+    // Negative: a concordance that still recorded l, m, n in §7 would resolve them there.
+    for (const letter of ["l", "m", "n"]) {
+      assert.equal(
+        resolveGlyph(paper, "sr-s7", letter, emptyManifestIndex, file).ok,
+        false,
+        `${letter} is not printed as a direction cosine in §7`,
+      );
+    }
+    logPass("ell-scoped", "l is the rod length in §3; the direction cosines in §7 are a, b, c");
   });
 
   test("Bindings: L at §6 is magneticFieldStationary, not speed of light", () => {
