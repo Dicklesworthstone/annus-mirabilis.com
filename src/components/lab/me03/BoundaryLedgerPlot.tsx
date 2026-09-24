@@ -1,5 +1,6 @@
 import type { Me03Parameters } from "../../../experiments/me03/definition.ts";
 import type { Me03Snapshot } from "../../../experiments/me03/session.ts";
+import { numberText } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 
 export interface BoundaryLedgerPlotProps {
@@ -341,7 +342,12 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
             </div>
             <div>
               <dt>Energy change ΔE</dt>
-              <dd>{energyDelta > 0 ? `+${energyDelta}` : `${energyDelta}`.replace("-", "−")} J</dd>
+              <dd>
+                {energyDelta > 0
+                  ? `+${numberText(energyDelta)}`
+                  : numberText(energyDelta).replace(/^-/, "−")}{" "}
+                J
+              </dd>
             </div>
             <div>
               <dt>Mass change Δm</dt>

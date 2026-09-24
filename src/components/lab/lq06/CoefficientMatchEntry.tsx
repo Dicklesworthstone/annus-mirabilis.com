@@ -7,7 +7,16 @@ import {
   decodeLq06Settings,
 } from "../../../experiments/lq06/permalink.ts";
 import type { PreparedLq06Example } from "../../../experiments/lq06/session.ts";
+import { readablePowers } from "../presentation.ts";
 import { CoefficientMatchComparison } from "./CoefficientMatchLab.tsx";
+
+/**
+ * A supplied value exactly as the link carries it, with its power of ten written as a reader writes
+ * one. String() printed "9.055615e-9" for the default energy and "1e+300" for an extreme frequency.
+ */
+function exactNumber(value: number): string {
+  return readablePowers(String(value)).replace(/^-/, "−");
+}
 
 /** The existing permalink codec must reach the actual route. Links stage a complete parameter
  * set and never silently substitute it for the server-rendered worked example. */
@@ -43,9 +52,9 @@ export function CoefficientMatchEntry({ example }: { example: PreparedLq06Exampl
           </p>
           <dl>
             <dt>Radiation energy (J)</dt>
-            <dd>{String(shared.parameters.radiationEnergy)}</dd>
+            <dd>{exactNumber(shared.parameters.radiationEnergy)}</dd>
             <dt>Frequency (Hz)</dt>
-            <dd>{String(shared.parameters.frequency)}</dd>
+            <dd>{exactNumber(shared.parameters.frequency)}</dd>
             <dt>Constant set</dt>
             <dd>{shared.parameters.constantSetId}</dd>
           </dl>
