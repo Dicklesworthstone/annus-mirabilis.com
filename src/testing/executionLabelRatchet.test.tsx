@@ -12,9 +12,9 @@ import { renderToStaticMarkup } from "react-dom/server";
  * leave it when it does: the list is compared for equality, so a migrated lab left on the list
  * fails as slack, and a new hard-coded label fails as a regression.
  *
- * The six that remain, and why (recorded on the bead):
+ * The five that remain, and why (recorded on the bead):
  * - no digested example or no fixed output contract: Avogadro (its store builds its contract at
- *   runtime), LightThread, ShelfOptics;
+ *   runtime), ShelfOptics;
  * - no instance store for deriveHostExecution to read: ModeAllocation (LQ-02), OsmoticPartition
  *   (BM-02);
  * - a build-time snapshot whose outputs are not in the contract the lab declares, so a digest
@@ -27,12 +27,12 @@ const STILL_HARD_CODED = [
   "lab/OsmoticPartitionLab.tsx",
   "lab/avogadro/AvogadroLab.tsx",
   "lab/bm03/ConfigurationLab.tsx",
-  "lab/lightThread/LightThreadLab.tsx",
   "lab/shelfOptics/ShelfOpticsLab.tsx",
 ];
 
 /** Routes whose labs now derive the label; each must render the static label at build time. */
 const DERIVED_ROUTES = [
+  "light-thread",
   "bm-04",
   "lq-01",
   "lq-03",
