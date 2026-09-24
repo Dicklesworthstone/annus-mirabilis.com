@@ -118,6 +118,12 @@ a {
 a:hover {
   text-decoration-thickness: 2px;
 }
+/* A raised or lowered figure (the 2 of v², the 0 of K₀) must not push its line away from the
+   lines around it. It did in 12 of the 17 prose blocks holding one, by 3 to 7 px each. */
+sup,
+sub {
+  line-height: 0;
+}
 /* Form controls do not inherit font-family: a UA default wins unless it is set
    explicitly. select, textarea, fieldset and summary were missing from this list,
    so the reading-preferences panel rendered in the system Arial - and because a
