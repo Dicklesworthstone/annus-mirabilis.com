@@ -248,16 +248,17 @@ predictMode:
       supportedCandidateId: perpendicular-magnetic-field
       controlId: boost
       question: "When a pure electric field in the y direction is described from a frame moving along x at 0.6c, what magnetic field appears?"
+      explanation: "In Einstein's §6 a boost turns a transverse electric field into both an electric field E′_{y} = γE_{y} and a magnetic field B′_{z} = −γ(v/c²)E_{y}, perpendicular to both the boost and the electric field."
       candidates:
         - id: no-magnetic-field
-          label: None
+          label: No magnetic field
           description: A pure electric field remains purely electric in all inertial frames.
           separatingAssumption: "Electric and magnetic fields are treated as independent absolute entities."
         - id: perpendicular-magnetic-field
-          label: Perpendicular magnetic field
+          label: "Perpendicular magnetic field B′z"
           description: A magnetic field in the negative z direction appears, proportional to -v Ey / c^2.
           separatingAssumption: "The transformation of Maxwell's equations mixes electric and magnetic components across frames."
         - id: parallel-magnetic-field
-          label: Parallel magnetic field
+          label: "Parallel magnetic field B′x"
           description: A magnetic field appears along the direction of motion.
           separatingAssumption: "The boost is assumed to generate field along the line of travel."

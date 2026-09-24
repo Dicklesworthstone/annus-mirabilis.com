@@ -26,7 +26,9 @@ describe("SR-08 Field Frame Change Lab View & Route (am-sr-08-field-frame-change
     expect(html).toContain("Pure E at 0.6c");
     expect(html).toContain("Pure B at 10 m/s");
     expect(html).toContain("Null field invariant");
-    expect(html).toContain("Predict: Appearing magnetic field");
+    // The question comes from the manifest's prompt, drawn by the predict gate (am-inst-predict-mode-ti7m).
+    expect(html).toContain('data-predict-prompt="sr-08-predict-appearing-field"');
+    expect(html).toContain("what magnetic field appears?");
   });
 
   test("session initializes and computes transformed fields", () => {

@@ -14,6 +14,7 @@ import {
   writePredictionsDocument,
 } from "../../experiments/predict/predictStorage.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR06_EXAMPLE } from "../../experiments/sr06/session.ts";
+import { DEFAULT_PREPARED_EXAMPLE as SR08_EXAMPLE } from "../../experiments/sr08/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR09_EXAMPLE } from "../../experiments/sr09/session.ts";
 import type { PreparedSr10Example } from "../../experiments/sr10/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR11_EXAMPLE } from "../../experiments/sr11/session.ts";
@@ -38,6 +39,7 @@ import {
 } from "../../testing/reactDom.ts";
 import { presentedOrder } from "./PredictGate.tsx";
 import { VelocityCompositionLab } from "./sr06/VelocityCompositionLab.tsx";
+import { FieldFrameChangeLab } from "./sr08/FieldFrameChangeLab.tsx";
 import { DopplerAberrationLab } from "./sr09/DopplerAberrationLab.tsx";
 import { LightComplexLab } from "./sr10/LightComplexLab.tsx";
 import { MovingMirrorLab } from "./sr11/MovingMirrorLab.tsx";
@@ -58,6 +60,11 @@ const LABS: readonly (readonly [string, () => ReactElement, string])[] = [
     "sr-06",
     () => createElement(VelocityCompositionLab, { example: SR06_EXAMPLE }),
     "Accepted composition",
+  ],
+  [
+    "sr-08",
+    () => createElement(FieldFrameChangeLab, { example: SR08_EXAMPLE }),
+    "Transformation ledger",
   ],
   [
     "sr-09",

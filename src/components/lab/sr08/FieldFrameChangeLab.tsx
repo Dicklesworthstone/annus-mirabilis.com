@@ -29,6 +29,8 @@ import { display, fixed, identity, result, sentenceNumber } from "../presentatio
 import { withScripts } from "../subscripts.tsx";
 import { FieldFrameChangePlot } from "./FieldFrameChangePlot.tsx";
 import "../labControls.css";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 
 const C_SI = 299792458;
 
@@ -69,6 +71,10 @@ function SnapshotReading({
   );
 }
 
+// The manifest's prompt (scripts/generate-predict-prompts.mjs), one stable array for the gate. It
+// replaces a question this file kept for itself, drawn below the results it asked about.
+const SR08_PROMPTS = PREDICT_PROMPTS["sr-08"] ?? [];
+
 export function FieldFrameChangeLab({
   example,
   title = "Electric and magnetic frame change",
@@ -91,10 +97,11 @@ export function FieldFrameChangeLab({
     true,
     (restored) => setDraft({ ...restored }),
   );
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("sr-08", SR08_PROMPTS);
   const [draft, setDraft] = useState<Sr08Parameters>(() => ({ ...example.parameters }));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
-  const [prediction, setPrediction] = useState<string | null>(null);
 
   useEffect(() => {
     setReady(true);
@@ -200,6 +207,7 @@ export function FieldFrameChangeLab({
         {withScripts(SR08_CAPTION.r3)}
       </p>
 
+      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <form
           noValidate
@@ -380,10 +388,11 @@ export function FieldFrameChangeLab({
         <AcceptedStatus
           worked={snapshot === session.getServerSnapshot().accepted}
           summary={statusSummary}
+          response={gate.response}
         />
-        <LabTapeLink link={tapeLink} />
+        <LabTapeLink link={withPredictions(tapeLink, gate)} />
 
-        <div className="lab-results">
+        <div className="lab-results" {...gate.response}>
           <FieldFrameChangePlot
             electricStationary={eStat}
             electricMoving={eMov}
@@ -495,49 +504,6 @@ export function FieldFrameChangeLab({
           </div>
         </div>
       </div>
-
-      <section className="predict-section">
-        <h3>Predict: Appearing magnetic field</h3>
-        <p id={`${id}-predict-question`}>
-          When a pure electric field in the y direction is described from a frame moving along x at
-          0.6c, what magnetic field appears?
-        </p>
-        <fieldset aria-labelledby={`${id}-predict-question`} className="button-group">
-          <button
-            type="button"
-            className={prediction === "none" ? "selected" : "secondary"}
-            aria-pressed={prediction === "none"}
-            onClick={() => setPrediction("none")}
-          >
-            No magnetic field
-          </button>
-          <button
-            type="button"
-            className={prediction === "perp" ? "selected" : "secondary"}
-            aria-pressed={prediction === "perp"}
-            onClick={() => setPrediction("perp")}
-          >
-            Perpendicular magnetic field B′z
-          </button>
-          <button
-            type="button"
-            className={prediction === "par" ? "selected" : "secondary"}
-            aria-pressed={prediction === "par"}
-            onClick={() => setPrediction("par")}
-          >
-            Parallel magnetic field B′x
-          </button>
-        </fieldset>
-        {prediction ? (
-          <div className="predict-feedback" role="status">
-            <p>
-              The model: in Einstein&apos;s §6 a boost turns a transverse electric field into both
-              an electric field E′y = γEy and a magnetic field B′z = −γ(v/c²)Ey, here −2.5017×10⁻⁹
-              T, perpendicular to both the boost and the electric field.
-            </p>
-          </div>
-        ) : null}
-      </section>
 
       <p className="fine">Not modeled: {SR08_NOT_MODELED.join("; ")}.</p>
     </section>
