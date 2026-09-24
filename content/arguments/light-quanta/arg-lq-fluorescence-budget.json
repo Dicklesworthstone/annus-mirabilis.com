@@ -53,15 +53,38 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: the paper calls the frequency of the exciting light \\(\\nu_1\\) and that of the light produced \\(\\nu_2\\), and takes both to consist of energy quanta of size \\(\\frac{R}{N}\\beta\\nu\\). This explanation writes \\(\\nu_{\\mathrm{in}}\\) and \\(\\nu_{\\mathrm{out}}\\), and hν for the quantum, with h a later name for Rβ/N."
+      },
+      {
         "kind": "steps",
         "items": [
-          "State the incoming channel and the energy it supplies.",
-          "State whether any thermal or other reservoir may add energy.",
-          "For one incoming and one outgoing quantum with no extra reservoir, write outgoing energy plus retained energy equal to incoming energy.",
-          "Require the retained energy to be nonnegative.",
-          "Divide by positive h to obtain the conditional frequency inequality.",
-          "Relax an input premise explicitly before considering a higher outgoing frequency."
+          "The event: one exciting quantum of frequency \\(\\nu_1\\) is absorbed and, on its own, gives rise to one quantum of frequency \\(\\nu_2\\). Quanta of other frequencies and energy of other kinds, heat for example, may be produced at the same time. The paper holds that the intermediate processes do not matter.",
+          "The energy supply: if the fluorescent substance is not a lasting source of energy, the absorbed quantum is all the energy the event has.",
+          "Write the budget: the energy of the produced quantum plus all other energy produced equals the energy of the absorbed quantum.",
+          "The other energy cannot be negative, so the produced quantum carries at most the absorbed energy: \\(\\frac{R}{N}\\beta\\nu_2\\le\\frac{R}{N}\\beta\\nu_1\\).",
+          "Divide both sides by the positive number \\(\\frac{R}{N}\\beta\\): \\(\\nu_2\\le\\nu_1\\). This is Stokes's rule, that fluorescent light does not have a higher frequency than the light that excites it. In the explanatory letters the budget reads as the formula below."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "h\\nu_{\\mathrm{out}}\\le h\\nu_{\\mathrm{in}}",
+        "spoken": "The emitted quantum energy is at most the absorbed quantum energy in the restricted event budget.",
+        "equations": ["eq-model-lq-fluorescence-bound"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked case: exciting light at \\(7.5\\times10^{14}\\) per second, violet. Under these conditions the budget allows fluorescent light at \\(5.5\\times10^{14}\\), green, and rules out \\(8.5\\times10^{14}\\), in the ultraviolet. In wavelengths: the fluorescent light is at the same or a longer wavelength.",
+          "The conditions are part of the result. The paper names where the rule may fail: when so many quanta are being transformed at once in each unit of volume that one produced quantum can take its energy from several exciting quanta, and when the exciting or produced light is not like black radiation within the range of Wien's law.",
+          "The same picture makes a prediction about weak light. Each exciting quantum causes its own elementary process, independently of the others, so with everything else unchanged the light produced is proportional to the exciting light, and there is no lower intensity below which the light would fail to excite at all.",
+          "The budget sets a bound on each event; it says nothing about how many absorbed quanta produce fluorescence in a given material. That yield is a separate question about the material."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "work-energy",
+        "returnCaption": "Return to which energy sources are included in the fluorescent event."
       }
     ],
     "margin": [

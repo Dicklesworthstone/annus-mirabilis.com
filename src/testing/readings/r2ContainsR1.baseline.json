@@ -3,26 +3,6 @@
   "measuredAt": "2026-09-24",
   "examined": 42,
   "violators": {
-    "arg-lq-fluorescence-budget": {
-      "paper": "light-quanta",
-      "missing": ["eq-model-lq-fluorescence-bound"],
-      "wordGap": 34
-    },
-    "arg-lq-ionization-and-counts": {
-      "paper": "light-quanta",
-      "missing": ["eq-model-lq-ionization-threshold", "eq-model-lq-ion-count-bound"],
-      "wordGap": 37
-    },
-    "arg-lq-photoelectric-energy": {
-      "paper": "light-quanta",
-      "missing": ["eq-model-lq-photoelectric-maximum+eq-model-lq-threshold-frequency"],
-      "wordGap": 28
-    },
-    "arg-lq-stopping-and-losses": {
-      "paper": "light-quanta",
-      "missing": ["eq-model-lq-stopping-energy"],
-      "wordGap": 48
-    },
     "arg-sr-charge-current": {
       "paper": "special-relativity",
       "missing": ["eq-model-sr-charge-density+eq-model-sr-current-density"],

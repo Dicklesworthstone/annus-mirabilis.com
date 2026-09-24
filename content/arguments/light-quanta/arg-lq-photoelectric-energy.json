@@ -53,16 +53,43 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: the paper takes the exciting light to consist of energy quanta of size \\(\\frac{R}{N}\\beta\\nu\\), writes P for the work an electron must do to leave the body (Φ here), and writes ε for the electron's charge. This explanation writes the quantum as hν, with h a later name for Rβ/N."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Choose frequency and escape work independently of optical power.",
-          "Calculate the energy \\(h\\nu\\) available to one electron under the one-quantum hypothesis.",
-          "Subtract the escape work; an additional loss only lowers the outgoing kinetic energy.",
-          "If the budget is below zero, report no energetically allowed emission, not a negative emitted-electron energy.",
-          "At fixed frequency, divide optical power by \\(h\\nu\\) to obtain the incoming quantum rate.",
-          "Vary power without altering \\(h\\nu\\) or \\(\\Phi\\), then compare energy and rate in separate readouts.",
-          "A real experiment can test the model; repeating its own programmed equation cannot independently confirm it."
+          "The simplest picture, which the paper assumes occurs: a light quantum gives its whole energy to a single electron. The paper also leaves open that some electrons take up only part of a quantum's energy.",
+          "An electron excited inside the body loses part of its kinetic energy before it reaches the surface. The fastest electrons are those excited right at the surface and moving straight out.",
+          "Each electron must do a work P, characteristic of the body, to leave it. So the kinetic energy of the fastest electrons is the quantum minus that work: \\(\\frac{R}{N}\\beta\\nu-P\\).",
+          "In the explanatory letters, with hν for the quantum and Φ for P, that is the first half of the formula below. Setting it to zero gives the lowest frequency at which the fastest electron can still escape, the threshold \\(\\nu_0=\\Phi/h\\)."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "K_{\\mathrm{max}}=h\\nu-\\Phi,\\qquad\\nu_0=\\frac{\\Phi}{h}",
+        "spoken": "Maximum kinetic energy equals h frequency minus escape work, with threshold frequency Phi over h.",
+        "equations": ["eq-model-lq-photoelectric-maximum", "eq-model-lq-threshold-frequency"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked case with modern SI constants, for a hypothetical work function of 2 electron volts at a frequency of 600 terahertz: \\(h\\nu=6.626\\times10^{-34}\\times6.00\\times10^{14}=3.976\\times10^{-19}\\) joule, which divided by \\(1.602\\times10^{-19}\\) joule per electron volt is 2.481 electron volts. Subtract 2: the maximum kinetic energy is 0.481 electron volts.",
+          "The threshold for that work function is \\(\\nu_0=2\\) electron volts divided by h, about 484 terahertz.",
+          "Below the threshold, \\(h\\nu-\\Phi\\) is negative. That is a shortfall of energy: no electron escapes by this route, and there is no negative kinetic energy to report.",
+          "The paper's own check, in its letters: charge the body to a positive potential Π that just prevents it from losing electricity. Then Π times the electron's charge ε equals the kinetic energy \\(\\frac{R}{N}\\beta\\nu-P\\).",
+          "Multiply by N: the charge becomes E, the charge of one gram-equivalent of a monovalent ion, and the right side becomes Rβν minus the escape work for that amount of charge. The paper sets that work to zero for an estimate, takes \\(E=9{,}6\\cdot10^{3}\\) in electromagnetic units, \\(\\nu=1{,}03\\cdot10^{15}\\), the limit of the solar spectrum toward the ultraviolet, and \\(\\beta=4{,}866\\cdot10^{-11}\\).",
+          "Then Π = Rβν/E: \\(8.31\\times10^{7}\\times4.866\\times10^{-11}\\times1.03\\times10^{15}/(9.6\\times10^{3})=4.34\\times10^{8}\\) electromagnetic units, with R the standard value of 1905. One volt is \\(10^{8}\\) of those units, so Π is about 4.34 volts. The page gives 4,3 volts and says the result agrees in order of magnitude with Lenard's.",
+          "The paper's further prediction: Π, plotted against the frequency of the exciting light, must be a straight line whose slope does not depend on the substance. In the explanatory letters the slope of \\(K_{\\mathrm{max}}\\) against ν is h for every metal, and only the intercept, set by Φ, changes.",
+          "Power sets the count, not the energy of each electron. Optical power is energy per second; divided by hν it gives quanta per second. At 600 terahertz, one milliwatt carries \\(2.5\\times10^{15}\\) quanta per second, and two milliwatts carry twice as many, each still of 2.481 electron volts.",
+          "So, if each quantum gives up its energy independently of all the others, the speeds of the electrons do not depend on the intensity of the light, while the number leaving the body is proportional to it, other things being equal (p. 147). Twice the power can give twice the electrons per second; it cannot raise the maximum energy of one.",
+          "The laboratory's straight line follows from the equation it is programmed with. It shows a consequence of the model; only measurements made independently can test the model."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "functions-graphs",
+        "returnCaption": "Return to the slope, threshold, and the distinction between energy and count."
       },
       {
         "kind": "foundation",

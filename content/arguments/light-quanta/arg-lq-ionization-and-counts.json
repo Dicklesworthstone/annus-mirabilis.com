@@ -59,16 +59,51 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: the paper writes J for the work needed to ionize one gram-equivalent, L for the amount of light absorbed (not the speed of light here), and j for the number of gram-molecules ionized. This explanation works per molecule: I is the energy needed to ionize one molecule, hν is one quantum, \\(E_{\\mathrm{abs}}\\) is the absorbed energy, and \\(n_{\\mathrm{ions}}\\) is the count of ions."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Specify the ionization channel and its required energy.",
-          "Compare \\(h\\nu\\) with that energy before trying to assign an event rate.",
-          "Determine the absorbed energy or keep the absorbed fraction unknown.",
-          "Divide monochromatic absorbed energy by \\(h\\nu\\) to obtain the available quantum count.",
-          "Under an at-most-one-ionization assumption, treat that count as an upper bound.",
-          "Use equality only after declaring that every absorbed quantum produces one counted ionization.",
-          "Keep real rates, lost charges, and recombination outside this idealized budget unless independently modeled."
+          "The assumption: when a gas is ionized by ultraviolet light, each absorbed quantum is used to ionize one gas molecule.",
+          "A single quantum can pay the cost of ionization only if it carries at least that much energy. Per molecule, that is the formula below."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "h\\nu\\ge I",
+        "spoken": "One-quantum ionization requires quantum energy at least equal to the specified ionization energy.",
+        "equations": ["eq-model-lq-ionization-threshold"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The paper's form, for one gram-equivalent: multiply both sides by N, and the condition reads Rβν at least J.",
+          "Worked with the paper's inputs. Lenard's longest wavelength that still ionizes air is about \\(1{,}9\\cdot10^{-5}\\) cm. Its frequency is the speed of light divided by the wavelength, \\(3\\times10^{10}/(1.9\\times10^{-5})=1.58\\times10^{15}\\) per second. Then Rβν is \\(8.31\\times10^{7}\\times4.866\\times10^{-11}\\times1.58\\times10^{15}=6.4\\times10^{12}\\) erg, with R the standard value of 1905; the page prints \\(6{,}4\\cdot10^{12}\\) erg.",
+          "So J is at most about \\(6.4\\times10^{12}\\) erg per gram-equivalent. An independent upper bound comes from Stark's smallest measured ionizing voltage for air, about 10 volts: 10 volts times the charge of a gram-equivalent, \\(9.6\\times10^{3}\\) electromagnetic units, is \\(10\\times10^{8}\\times9.6\\times10^{3}=9.6\\times10^{12}\\) erg. The paper remarks that the two bounds are nearly equal.",
+          "Now the count. With light of one frequency, the absorbed energy divided by the energy of one quantum is the number of quanta absorbed.",
+          "If each absorbed quantum ionizes at most one molecule, the number of ions cannot exceed that number of quanta."
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "n_{\\mathrm{ions}}\\le\\frac{E_{\\mathrm{abs}}}{h\\nu}",
+        "spoken": "The ionization count is at most absorbed energy divided by quantum energy, under the at-most-one-ionization assumption.",
+        "equations": ["eq-model-lq-ion-count-bound"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The paper's stronger statement assumes exactly one ionization for each absorbed quantum: \\(j=L/(R\\beta\\nu)\\) gram-molecules for absorbed light L. It states the condition: the gas must show, at that frequency, no noticeable absorption that is not accompanied by ionization.",
+          "Worked count: absorb 1 erg of light at Lenard's limit. Per molecule, one quantum carries \\(6.4\\times10^{12}/(6.17\\times10^{23})=1.03\\times10^{-11}\\) erg, so 1 erg is about \\(9.7\\times10^{10}\\) quanta, and at most that many ions.",
+          "Meeting the threshold makes an ionization possible, not certain. An unknown absorbed fraction or yield stays unknown rather than being set to 100 percent.",
+          "The paper calls a test of this count by experiment very important, and ends there, dated Bern, 17 March 1905."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "bridge-scientific-notation-units",
+        "returnCaption": "Return to the energy threshold and the separately conditioned count bound."
       }
     ],
     "margin": [

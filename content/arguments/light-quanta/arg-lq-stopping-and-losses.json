@@ -56,14 +56,45 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: the paper charges the illuminated body to a positive potential Π and writes ε for the electron's charge. This explanation writes \\(V_s\\) for the size of the stopping potential and e for the positive size of the electron's charge; the electron's charge itself is −e."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Choose a voltage reference and state which direction is retarding.",
-          "Keep the electron charge −e separate from the positive magnitude e.",
-          "Use Kmax/e for the positive stopping magnitude only when an emitted-electron endpoint exists.",
-          "For partial transfer or losses, replace an equality by the appropriate upper bound.",
-          "For the inverse light-production question, require at least \\(h\\nu\\) of supplied energy before discussing conversion efficiency."
+          "Set the arrangement and the sign: the body is at the potential \\(V_s\\) above the conductors around it, which are at zero. An electron leaving the body is pulled back toward it, so the potential retards the electron.",
+          "An electron moving from the body out to the surroundings, across a potential difference \\(V_s\\), loses kinetic energy \\(eV_s\\). If it had kinetic energy K at the surface, it arrives with \\(K-eV_s\\), or is turned back if that would be negative.",
+          "The body stops losing electricity when even the fastest electron is turned back, that is, when \\(eV_s\\) equals the largest kinetic energy \\(K_{\\mathrm{max}}\\).",
+          "Insert the one-quantum budget of the previous passage for \\(K_{\\mathrm{max}}\\)."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "eV_s=K_{\\mathrm{max}}=h\\nu-\\Phi",
+        "spoken": "The positive charge magnitude times the stopping-voltage magnitude equals maximum kinetic energy, h frequency minus escape work.",
+        "equations": ["eq-model-lq-stopping-energy"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Divide by e: \\(V_s=(h\\nu-\\Phi)/e\\). Worked with the previous passage's hypothetical numbers: \\(K_{\\mathrm{max}}\\) is 0.481 electron volts, so \\(V_s\\) is 0.481 volts, since one electron volt is e times one volt.",
+          "Keep sizes and signs apart. \\(V_s\\) is a size, zero or positive. The electron's charge is negative, and writing e for its size does not change that. A voltage read from an instrument also needs its reference electrode named.",
+          "Partial transfer and losses: if an electron receives only part of a quantum, or loses energy inside the body, it reaches the surface with less than \\(h\\nu-\\Phi\\). The paper then replaces the equation by an inequality: in its letters, Π times E, plus the escape work for a gram-equivalent, is at most Rβν.",
+          "In the explanatory letters: \\(eV_s\\le h\\nu-\\Phi\\). Losses can only lower the stopping potential; they cannot give one electron more than the quantum it received.",
+          "The inverse process, cathode luminescence: electrons that have fallen through a potential produce light. Reversing the budget, the energy supplied per electron must be at least the energy of the quantum produced, \\(eV\\ge h\\nu\\) in the explanatory letters.",
+          "Worked scale from the paper: in the substances Lenard examined, the cathode rays had to fall through several hundred, in some cases several thousand, volts to produce visible light, far more than the few volts one quantum of visible light needs. The paper concludes that the kinetic energy of one electron is used to produce many light quanta.",
+          "A bound is not a promise: \\(eV\\ge h\\nu\\) states what is needed in energy, not that every collision produces light."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "electromagnetism-charges",
+        "returnCaption": "Return to charge magnitude, signed voltage, and the retarding energy budget."
+      },
+      {
+        "kind": "foundation",
+        "id": "unit-system-1905",
+        "returnCaption": "Return to the stopping voltage, beside the paper's 4.3-volt check in electromagnetic units."
       }
     ],
     "margin": [
