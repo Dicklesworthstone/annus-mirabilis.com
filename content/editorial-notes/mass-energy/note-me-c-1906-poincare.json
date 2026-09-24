@@ -1,0 +1,25 @@
+{
+  "id": "note-me-c-1906-poincare",
+  "author": {
+    "id": "agent:NavyKite",
+    "kind": "model",
+    "modelId": "claude-opus-5-5"
+  },
+  "reviewState": "draft",
+  "kind": "historian-margin",
+  "claim": "In 1906 Einstein reached the same rule by another route. He argued that the rule, a change of energy \\(\\Delta E\\) going with a change of mass \\(\\Delta E/V^2\\), is the necessary and sufficient condition for the law of the conservation of the motion of the centre of gravity to hold, at least to a first approximation, also for systems in which electromagnetic processes occur. He wrote that the simple formal considerations needed for the proof are 'in der Hauptsache bereits in einer Arbeit von H. Poincaré enthalten', citing the Lorentz Festschrift of 1900, and that for the sake of clarity he would not rely on that paper (p. 627).",
+  "sourceSupport": [
+    {
+      "citationId": "cit-einstein-1906-center-of-mass",
+      "locator": "p. 627",
+      "role": "primary"
+    },
+    {
+      "citationId": "cit-poincare-1900",
+      "locator": "p. 252",
+      "role": "primary"
+    }
+  ],
+  "affectedIds": ["s0-p12", "s0-p13"],
+  "evidence": "Checked by agent:NavyKite on 2026-09-24. Einstein 1906, p. 627, read by eye on the Internet Archive scan annalenderphysi115unkngoog (leaf n690): 'Trotzdem die einfachen formalen Betrachtungen, die zum Nachweis dieser Behauptung durchgeführt werden müssen, in der Hauptsache bereits in einer Arbeit von H. Poincaré enthalten sind, werde ich mich doch der Übersichtlichkeit halber nicht auf jene Arbeit stützen', with footnote 2 'H. Poincaré, Lorentz-Festschrift p. 252. 1900.' Bibliographic data checked against Crossref (10.1002/andp.19063250814: vol. 325, the fourth series' vol. 20, no. 8, pp. 627–633). Poincaré 1900: the first page of the Wikimedia Commons scan was read by eye (title, author, and the opening sentence on a monument raised to Lorentz); the Wikisource index gives Archives néerlandaises vol. 5, 1900, 27 pages from p. 252, matching Einstein's footnote. The series number (2) rests on the Internet Archive identifier archivesnerlan0205holl and was not seen on a title page."
+}

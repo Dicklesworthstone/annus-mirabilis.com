@@ -1,0 +1,28 @@
+{
+  "id": "note-me-b-additive-constant",
+  "author": {
+    "id": "agent:NavyKite",
+    "kind": "model",
+    "modelId": "claude-opus-5-5"
+  },
+  "reviewState": "draft",
+  "kind": "dispute",
+  "claim": "The step from energy to mass rests on two premises the paper states. The difference \\(H-E\\) of the body's energies in the two frames differs from its kinetic energy only by an additive constant \\(C\\), which does not change during the emission ('da \\(C\\) sich während der Lichtaussendung nicht ändert', p. 641); and at low speed that kinetic energy is compared with \\(\\frac{1}{2}mv^2\\). In 1952 H. E. Ives argued that the reasoning of the 1905 derivation 'is defective' and that Einstein 'did not derive the mass-energy relation', which Ives traced instead to Poincaré's momentum of radiation (1900) and principle of relativity (1904). In 1982 J. Stachel and R. Torretti argued, 'contrary to what several authors have claimed', that the derivation 'was logically sound', its alleged fallacy lying only in the fact that its conclusion is entailed by its premises. The site records both positions and gives no verdict.",
+  "sourceSupport": [
+    {
+      "citationId": "cit-einstein-1905-inertia",
+      "locator": "pp. 640–641",
+      "role": "primary"
+    },
+    {
+      "citationId": "cit-ives-1952",
+      "role": "secondary"
+    },
+    {
+      "citationId": "cit-stachel-torretti-1982",
+      "role": "secondary"
+    }
+  ],
+  "affectedIds": ["s0-p7", "s0-p11"],
+  "evidence": "Checked by agent:NavyKite on 2026-09-24. The paper's premise was read on the pinned plate of p. 641: 'da C sich während der Lichtaussendung nicht ändert'. Ives 1952: the author's abstract was read on the publisher's page (opg.optica.org, josa-42-8-540); the words quoted are from it: 'The reasoning in Einstein’s 1905 derivation. questioned by Planck, is defective. He did not derive the mass-energy relation.' (the full stop after 'derivation' is as the page prints it) The body of Ives's paper was NOT read. The bead describes Ives as calling the argument circular; the abstract does not use that word, so the record quotes what the abstract says. Stachel and Torretti 1982: the abstract was read through Crossref (10.1119/1.12764); the quoted phrases are from it; the body was NOT read. Bibliographic data for both checked against Crossref (Ives: vol. 42, no. 8, p. 540, August 1952; Crossref gives only the first page; Stachel and Torretti: vol. 50, no. 8, pp. 760–763, August 1982)."
+}

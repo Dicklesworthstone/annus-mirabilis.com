@@ -1,0 +1,25 @@
+{
+  "id": "note-me-d-hasenoehrl",
+  "author": {
+    "id": "agent:NavyKite",
+    "kind": "model",
+    "modelId": "claude-opus-5-5"
+  },
+  "reviewState": "draft",
+  "kind": "historian-margin",
+  "claim": "In 1904, before the paper, F. Hasenöhrl argued that radiation enclosed in a moving cavity gives the cavity an apparent mass, as if the mass of the system had been increased ('als ob die Masse unseres Systems ... vermehrt worden wäre'). He gave its value as \\(\\frac{8}{3}hε_0/c^2\\), where \\(hε_0\\) is the radiation energy in the cavity at rest (p. 363, equation 32). In January 1905 he corrected it: M. Abraham had sent him by letter a method giving half that value, \\(\\frac{4}{3}hε_0/c^2\\), and Hasenöhrl found that the difference came from a calculation error of his own (pp. 589–590). Both values concern radiation enclosed in a cavity, and both were obtained neglecting higher powers of the speed.",
+  "sourceSupport": [
+    {
+      "citationId": "cit-hasenoehrl-1904",
+      "locator": "p. 363",
+      "role": "primary"
+    },
+    {
+      "citationId": "cit-hasenoehrl-1905",
+      "locator": "pp. 589–590",
+      "role": "primary"
+    }
+  ],
+  "affectedIds": ["s0-p12", "s0-p13"],
+  "evidence": "Checked by agent:NavyKite on 2026-09-24. Hasenöhrl 1904, p. 363, read by eye on the Wikimedia Commons scan (Zur Theorie der Strahlung in bewegten Körpern.djvu, page 20): equation (32), 8/3 · hε0/c², the phrase 'als ob die Masse unseres Systems um den Betrag 2hε0τ/w² vermehrt worden wäre', and 'daß das Verhältnis dieser scheinbaren Masse zur Energie des ruhenden Hohlraumes gleich 8/3c² ist'. The meaning of h (the volume of the space) and ε0 (the energy density at rest, p. 359) was located in the Wikisource transcription and is restated in the 1905 correction, p. 589. Hasenöhrl 1905, pp. 589 and 590, read by eye on the Commons scan: the 8/3 value 'nur bei Vernachlässigung von Größen von der Ordnung β⁴ an gültig'; Abraham's method by letter; the longitudinal electromagnetic mass 4/3 · hε0/c², 'genau die Hälfte des von mir angegebenen Wertes'; and 'daß diese Differenz von einem Rechenfehler herrührt', at p. 362, line 6. Bibliographic data checked against Crossref (10.1002/andp.19043201206: vol. 320, the fourth series' vol. 15, pp. 344–370; 10.1002/andp.19053210312: vol. 321, the fourth series' vol. 16, no. 3, pp. 589–592). Later priority claims made on Hasenöhrl's behalf are NOT covered by this record: none has been read."
+}
