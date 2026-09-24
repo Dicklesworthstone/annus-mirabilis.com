@@ -15,22 +15,7 @@ import { EMBED_INSTRUMENTS } from "../experiments/embed/catalogue.ts";
  * only shrink. Embed an instrument and remove it here in the same change; a new manifest that
  * claims embeddable without an embed fails.
  */
-const NOT_YET_EMBEDDED = [
-  "bm-01",
-  "bm-04",
-  "bm-05",
-  "bm-06",
-  "bm-07",
-  "bm-08",
-  "lq-01",
-  "lq-03",
-  "lq-04",
-  "lq-07",
-  "lq-08",
-  "lq-09",
-  "sr-06",
-  "sr-07",
-];
+const NOT_YET_EMBEDDED = ["bm-05", "bm-07", "bm-08", "sr-06", "sr-07"];
 
 const MANIFESTS = fileURLToPath(new URL("../../content/experiments", import.meta.url));
 
