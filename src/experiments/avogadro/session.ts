@@ -239,5 +239,7 @@ export function createAvogadroSession(
       }
       return Object.freeze({ kind: "accepted" as const, parameters: evaluated.parameters });
     },
+    /** The contract this store enforces, for deriving the execution label (am-inst-execution-labels-5ywv). */
+    outputContracts: outputs,
   });
 }

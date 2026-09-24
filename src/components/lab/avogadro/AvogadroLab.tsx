@@ -12,6 +12,10 @@ import {
   parseAvogadroDraft,
 } from "../../../experiments/avogadro/definition.ts";
 import { createAvogadroSession } from "../../../experiments/avogadro/session.ts";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { ExperimentRuntimeError } from "../../../experiments/refusal.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
@@ -57,7 +61,7 @@ function Reading({ snapshot, quantity }: { snapshot: AcceptedSnapshot; quantity:
   );
 }
 
-export function AvogadroLab() {
+export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {}) {
   const id = useId();
   const [session] = useState(() => createAvogadroSession(`avogadro-${id}`));
   const view = useSyncExternalStore(
@@ -167,11 +171,22 @@ export function AvogadroLab() {
     );
   }
 
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation; without the page's source digest no label
+  // is earned. The bead's per-panel labels are separate work.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      session.outputContracts,
+      sourceDigest,
+      snapshot === session.getServerSnapshot().accepted,
+    ).label,
+  );
   return (
     <section
       className="laboratory"
       data-instrument-id="avogadro-lab"
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, view, "radiationNumber")}
       aria-labelledby={`${id}-title`}
       {...identity(snapshot)}
     >
@@ -180,8 +195,11 @@ export function AvogadroLab() {
           <p className="eyebrow">Three methods · One comparison</p>
           <h2 id={`${id}-title`}>What information fixes the molecular number?</h2>
         </div>
-        <span className="badge">Companion preview · Host calculation</span>
+        <span className="badge">Companion preview</span>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome state={executionKind} view={view} />
+      </div>
       <noscript>
         <p className="notice">
           The default worked example and its results are readable without JavaScript. Editing or

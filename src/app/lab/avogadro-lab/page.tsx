@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AvogadroLab } from "../../../components/lab/avogadro/AvogadroLab.tsx";
+import labDigests from "../../../generated/lab-source-digests.json";
 
 export const metadata: Metadata = {
   title: "Three ways to infer the molecular number",
@@ -27,7 +28,7 @@ export default function AvogadroPage() {
           <a href="/connections">Return to connections among the papers</a>
         </p>
       </header>
-      <AvogadroLab />
+      <AvogadroLab sourceDigest={labDigests["avogadro-lab"]} />
     </>
   );
 }
