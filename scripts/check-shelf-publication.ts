@@ -10,7 +10,10 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { BROWNIAN_LATER_EVIDENCE, BROWNIAN_SHELF_CARDS } from "../src/content/brownianShelf.ts";
-import { LIGHT_QUANTA_SHELF_CARDS } from "../src/content/lightQuantaShelf.ts";
+import {
+  LIGHT_QUANTA_LATER_EVIDENCE,
+  LIGHT_QUANTA_SHELF_CARDS,
+} from "../src/content/lightQuantaShelf.ts";
 import {
   MASS_ENERGY_LATER_EVIDENCE,
   MASS_ENERGY_SHELF_CARDS,
@@ -24,7 +27,7 @@ import {
 
 /** Every card a journey page renders: its shelf, and the later evidence beside its check. */
 export const JOURNEY_CARDS: readonly JourneyCards[] = [
-  { journey: "light-quanta", cards: LIGHT_QUANTA_SHELF_CARDS },
+  { journey: "light-quanta", cards: [...LIGHT_QUANTA_SHELF_CARDS, ...LIGHT_QUANTA_LATER_EVIDENCE] },
   { journey: "brownian-motion", cards: [...BROWNIAN_SHELF_CARDS, ...BROWNIAN_LATER_EVIDENCE] },
   { journey: "special-relativity", cards: SPECIAL_RELATIVITY_SHELF_CARDS },
   { journey: "mass-energy", cards: [...MASS_ENERGY_SHELF_CARDS, ...MASS_ENERGY_LATER_EVIDENCE] },
