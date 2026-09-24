@@ -1,9 +1,11 @@
 import { describe, expect, test } from "bun:test";
+import { existsSync, readFileSync } from "node:fs";
 import {
   BUILD_DEPENDENT_ROWS,
   runPerformanceBudgets,
   unmeasuredBuildRows,
 } from "../run-perf-budgets.ts";
+import { normalizeAppManifestKey } from "./initialRouteGraph.ts";
 
 describe("Performance Budgets Gate Execution & Negative Tests", () => {
   test("baseline measurement passes all budgets cleanly", async () => {
@@ -17,6 +19,24 @@ describe("Performance Budgets Gate Execution & Negative Tests", () => {
     for (const r of result.report.routes) {
       expect(r.totalTransferBytes).toBeGreaterThan(r.scriptTransferBytes);
     }
+  });
+
+  test("row 1 measures every page route under /papers/ in the build's manifest", async () => {
+    // It measured "/papers/brownian-motion" alone, so "/papers/[paper]" and every section and face
+    // page had no JavaScript budget. Read from the same manifest the gate reads.
+    const manifestPath = ".next/app-build-manifest.json";
+    expect(existsSync(manifestPath)).toBe(true);
+    const pages = (JSON.parse(readFileSync(manifestPath, "utf8")) as { pages: object }).pages;
+    const expected = Object.keys(pages)
+      .filter((key) => /(^|\/)page$/.test(key))
+      .map(normalizeAppManifestKey)
+      .filter((route) => route.startsWith("/papers/"));
+    // Not vacuous: the three papers' shared route and Brownian's own are both among them.
+    expect(expected).toContain("/papers/[paper]");
+    expect(expected).toContain("/papers/brownian-motion");
+    const result = await runPerformanceBudgets({ silent: true });
+    const measured = result.report.routes.map((r) => r.route);
+    for (const route of expected) expect(measured).toContain(route);
   });
 
   test("fails on planted violation for Row 1: Initial Route JS budget (> 204,800 bytes)", async () => {

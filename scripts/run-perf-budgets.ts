@@ -208,25 +208,41 @@ export async function runPerformanceBudgets(
     const missing: string[] = [];
     for (const chunk of chunks) {
       const chunkPath = resolve(rootDir, ".next", chunk);
-      if (!existsSync(chunkPath)) {
-        missing.push(chunk);
-        continue;
+      let read = measuredChunks.get(chunkPath);
+      if (!read) {
+        if (!existsSync(chunkPath)) {
+          missing.push(chunk);
+          continue;
+        }
+        const buf = readFileSync(chunkPath);
+        read = {
+          size: {
+            raw: buf.byteLength,
+            gzip: gzipSync(buf).length,
+            brotli: brotliCompressSync(buf).length,
+          },
+          content: buf.toString("utf8"),
+        };
+        measuredChunks.set(chunkPath, read);
       }
-      const buf = readFileSync(chunkPath);
-      sizes[chunk] = {
-        raw: buf.byteLength,
-        gzip: gzipSync(buf).length,
-        brotli: brotliCompressSync(buf).length,
-      };
-      contents[chunk] = buf.toString("utf8");
+      sizes[chunk] = read.size;
+      contents[chunk] = read.content;
     }
     return { sizes, contents, missing };
   }
+  /*
+    Each chunk is compressed once per run, however many routes list it. Row 1 measures every paper
+    route, and most chunks are shared by all of them; brotli at its default quality compressed the
+    same framework chunks once per route and took the gate's own test past its 5 s limit.
+  */
+  const measuredChunks = new Map<
+    string,
+    { size: { raw: number; gzip: number; brotli: number }; content: string }
+  >();
 
   // -------------------------------------------------------------------------
   // Row 1: Initial reading route JavaScript budget (<= 204,800 bytes)
   // -------------------------------------------------------------------------
-  const measuredRoutes = ["/", "/papers", "/papers/brownian-motion"];
   let maxRouteJsBytes = 0;
   let row1Passed = true;
   const routeNotes: string[] = [];
@@ -240,6 +256,26 @@ export async function runPerformanceBudgets(
       // ignore
     }
   }
+  /*
+    EVERY READING ROUTE, NOT ONE OF THEM. This measured "/", "/papers" and
+    "/papers/brownian-motion". Brownian motion has its own app route, so "/papers/[paper]" (light
+    quanta, special relativity, mass-energy), every section page and every face page shipped with
+    no JavaScript budget at all. Measured on live b73d967a they load the same entry scripts as
+    Brownian today (169,594 bytes brotli for a module browser; the 41,343-byte polyfills chunk is
+    noModule), so nothing is hidden now, but nothing would have noticed them diverging. Every page
+    route under /papers/ in the build's manifest is measured, so a route added later is too. With
+    no manifest the list falls back to the three, and the rows below say no build was measured.
+  */
+  const paperPageRoutes = Object.keys(appManifest.pages)
+    .filter((key) => /(^|\/)page$/.test(key))
+    .map(normalizeAppManifestKey)
+    .filter((route) => route.startsWith("/papers/"))
+    .sort();
+  const measuredRoutes = [
+    "/",
+    "/papers",
+    ...(paperPageRoutes.length > 0 ? paperPageRoutes : ["/papers/brownian-motion"]),
+  ];
 
   for (const route of measuredRoutes) {
     let scriptBytes = 0;
