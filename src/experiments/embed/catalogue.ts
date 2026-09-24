@@ -167,6 +167,89 @@ export const EMBED_INSTRUMENTS = [
     steps:
       "Compare the work per unit charge along a segment across the motion in both frames, vBℓ and γvBℓ, then turn the segment along the motion, where the force points across it and the work is zero. The apparatus mode tells the story without computing it.",
   },
+  {
+    id: "bm-01",
+    title: "The Brownian tracer ensemble",
+    source: "/papers/brownian-motion/#arg-bm-observable",
+    overview: "Follow hundreds of particles from one start and watch their spread grow.",
+    full: "Each tracer takes its own random path. The average position stays near the start while the typical distance keeps growing as the square root of the time; at the default settings it is about 0.93 μm along one axis after 1 s.",
+    steps:
+      "Pick an observation time and compare the sample mean, mean square and root mean square with the model; four times as long gives twice the typical distance. Changing when you observe re-reads the same paths and draws no new ones.",
+  },
+  {
+    id: "bm-04",
+    title: "Drift-diffusion balance and the Stokes-Einstein relation",
+    source: "/papers/brownian-motion/#s3",
+    overview: "Push suspended particles with a steady force and see drift and diffusion balance.",
+    full: "The force makes the particles drift and pile up, and their random motion spreads them back out. At balance the diffusion coefficient is fixed by the temperature and the drag of the liquid alone, whatever the force was.",
+    steps:
+      "Change the force and watch the steady profile steepen while the diffusion coefficient stays put; then change the temperature, viscosity or radius and see it move. The balance is section 3's route to the Stokes-Einstein relation.",
+  },
+  {
+    id: "bm-06",
+    title: "The spreading laboratory",
+    source: "/papers/brownian-motion/#arg-bm-gaussian",
+    overview: "Watch particles spread from one point into a bell curve.",
+    full: "After a time t a particle could be anywhere nearby, most likely close to where it began. The spread follows a bell curve whose width grows as the square root of the time and is smaller for bigger spheres and thicker liquids.",
+    steps:
+      "Choose an interval and ask how likely a particle is to finish inside it, then compare the bell curve with the stepped numerical model. Doubling the viscosity halves the diffusion coefficient and narrows the spread by a factor of √2, not by half.",
+  },
+  {
+    id: "lq-01",
+    title: "Wave description and energy spreading",
+    source: "/papers/light-quanta/#s0",
+    overview: "Treat light as a continuous wave and see what that picture explains.",
+    full: "Two sources make bright and dark stripes, and the light of one source spreads ever thinner over larger spheres. Einstein granted that the wave picture explains everything purely optical, and asked whether it could still fail where light is produced or absorbed.",
+    steps:
+      "Compare equal and unequal amplitudes and a phase shift, then follow the energy of one source out to larger distances. The wave picture keeps its successes here; the paper's question is about emission and absorption.",
+  },
+  {
+    id: "lq-03",
+    title: "The radiation spectrum and regime comparison",
+    source: "/papers/light-quanta/#s2",
+    overview: "Compare a hot body's glow with Wien's formula and the classical rule.",
+    full: "A hot body glows at every frequency, most brightly in a middle range that moves higher as it gets hotter. Wien's formula matches the high frequencies and the classical rule the low ones, and each fails badly where the other works.",
+    steps:
+      "Set the temperature and read where each law agrees with the full spectrum. Then check what a density plot measures: per unit frequency and per unit wavelength put the peak in different places.",
+  },
+  {
+    id: "lq-04",
+    title: "Radiation entropy workbench",
+    source: "/papers/light-quanta/#s3",
+    overview:
+      "Give faint light of one colour more room at the same energy and see its entropy rise.",
+    full: "Where Wien's law holds, the entropy of monochromatic radiation grows with its volume by the same logarithmic law as an ideal gas that expands. The lab keeps the energy and the frequency band fixed so the comparison is fair.",
+    steps:
+      "Halve or double the volume at fixed energy and band and read the entropy change. Then check where the result needs Wien's regime, and which constant the comparison leaves undetermined.",
+  },
+  {
+    id: "lq-07",
+    title: "Fluorescence energy budget and Stokes's rule",
+    source: "/papers/light-quanta/#s7",
+    overview:
+      "Check whether a glow can come out at a higher frequency than the light that excites it.",
+    full: "On the light-quantum picture one absorbed quantum can pay for at most one emitted quantum of no greater energy, so the glow comes out at a lower frequency. Einstein named the conditions under which the rule could fail, and the lab shows each.",
+    steps:
+      "Set the exciting and emitted frequencies and read the energy budget per quantum. Then try the exceptions, several quanta absorbed together or heat drawn from the body, and see which the model allows.",
+  },
+  {
+    id: "lq-08",
+    title: "Photoelectric apparatus and stopping potential",
+    source: "/papers/light-quanta/#s8",
+    overview: "Shine light on a metal and measure the fastest electrons it releases.",
+    full: "In this model brighter light releases more electrons each second but none faster, while light of a higher frequency makes the fastest ones faster. The stopping potential rises in a straight line with the frequency, as Einstein expected if light gives up its energy in separate quanta.",
+    steps:
+      "Change the intensity and then the frequency, and compare what each does to the current and to the stopping potential. Below the threshold frequency no electron is emitted, and the stopping potential is reported as not applicable rather than zero.",
+  },
+  {
+    id: "lq-09",
+    title: "Gas ionization bounds and counting model",
+    source: "/papers/light-quanta/#s9",
+    overview: "Ionize a gas with ultraviolet light one quantum at a time.",
+    full: "Each quantum must carry at least the work needed to ionize one molecule, which sets a frequency threshold, and the number of molecules ionized should equal the number of quanta absorbed. Einstein proposed that count as a test worth making.",
+    steps:
+      "Choose a gas with a cited ionization energy, set the frequency and the absorbed energy, and read whether the quanta clear the threshold and how many molecules they could ionize. A gas without a citation is refused rather than given a number.",
+  },
 ] as const;
 
 export type EmbeddableId = (typeof EMBED_INSTRUMENTS)[number]["id"];

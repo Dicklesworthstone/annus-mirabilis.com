@@ -5,6 +5,7 @@
 import type { ReactNode } from "react";
 import type { CompiledEquation } from "../../equations/viewTypes.ts";
 import type { PreparedLq06Example } from "../lq06/session.ts";
+import type { PreparedLq07Example } from "../lq07/session.ts";
 import type { EmbeddableId } from "./catalogue.ts";
 
 /** A prepared example that fails its own validation is a build defect. The embed says so and
@@ -66,6 +67,76 @@ export async function renderEmbeddedLaboratory(id: EmbeddableId): Promise<ReactN
           equations={equations.equations as readonly CompiledEquation[]}
         />
       );
+    }
+    case "bm-01": {
+      const { TracerLab } = await import("../../components/lab/TracerLab.tsx");
+      const { default: example } = await import("../../generated/bm01-example.json");
+      return <TracerLab example={example} />;
+    }
+    case "bm-04": {
+      const { DriftDiffusionLab } = await import("../../components/lab/DriftDiffusionLab.tsx");
+      const { validateBm04Parameters } = await import("../bm04/parameters.ts");
+      const { default: example } = await import("../../generated/bm04-example.json");
+      const checked = validateBm04Parameters(example.parameters);
+      if (checked.kind !== "accepted") return preparedExampleFailed("bm-04");
+      return <DriftDiffusionLab example={{ ...example, parameters: checked.data }} />;
+    }
+    case "bm-06": {
+      const { BrownianLab } = await import("../../components/lab/BrownianLab.tsx");
+      const { default: example } = await import("../../generated/bm06-example.json");
+      return <BrownianLab example={example} readings />;
+    }
+    case "lq-01": {
+      const { WaveDescriptionLab } = await import("../../components/lab/WaveDescriptionLab.tsx");
+      const { validateLq01Parameters } = await import("../lq01/parameters.ts");
+      const { default: example } = await import("../../generated/lq01-example.json");
+      const checked = validateLq01Parameters(example.parameters);
+      if (checked.kind !== "accepted") return preparedExampleFailed("lq-01");
+      return <WaveDescriptionLab example={{ ...example, parameters: checked.data }} />;
+    }
+    case "lq-03": {
+      const { SpectrumLab } = await import("../../components/lab/lq03/SpectrumLab.tsx");
+      const { LQ03_DEFAULTS } = await import("../lq03/definition.ts");
+      const { evaluateLq03 } = await import("../lq03/session.ts");
+      const example = {
+        parameters: LQ03_DEFAULTS,
+        evaluation: evaluateLq03(LQ03_DEFAULTS),
+        sourceDigest: "src/physics/reference/radiation.ts",
+      };
+      return <SpectrumLab example={example} />;
+    }
+    case "lq-04": {
+      const { EntropyWorkbenchLab } = await import(
+        "../../components/lab/lq04/EntropyWorkbenchLab.tsx"
+      );
+      const { default: example } = await import("../../generated/lq04-example.json");
+      return <EntropyWorkbenchLab example={example} />;
+    }
+    case "lq-07": {
+      const { FluorescenceLab } = await import("../../components/lab/lq07/FluorescenceLab.tsx");
+      const { LQ07_DEFAULTS } = await import("../lq07/definition.ts");
+      const { evaluateLq07 } = await import("../lq07/session.ts");
+      const evalResult = evaluateLq07(LQ07_DEFAULTS);
+      const example: PreparedLq07Example = {
+        sourceDigest: "src/physics/reference/photoelectric.ts",
+        parameters: LQ07_DEFAULTS,
+        results: evalResult.outputs.map(
+          (o) => `${o.quantityId}=${o.status === "value" ? String(o.value) : o.status}`,
+        ),
+        stepIndex: 1,
+        simulationTime: 1.0,
+      };
+      return <FluorescenceLab example={example} />;
+    }
+    case "lq-08": {
+      const { PhotoelectricLab } = await import("../../components/lab/lq08/PhotoelectricLab.tsx");
+      const { default: example } = await import("../../generated/lq08-example.json");
+      return <PhotoelectricLab example={example} />;
+    }
+    case "lq-09": {
+      const { IonizationLab } = await import("../../components/lab/lq09/IonizationLab.tsx");
+      const { default: example } = await import("../../generated/lq09-example.json");
+      return <IonizationLab example={example} />;
     }
     case "sr-01": {
       const { ClockSyncLab } = await import("../../components/lab/sr01/ClockSyncLab.tsx");
