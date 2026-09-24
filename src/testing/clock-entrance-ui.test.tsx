@@ -42,6 +42,27 @@ test("SSR retains all four explanations, both owner-generated worked tables, and
   }
 });
 
+test("no reading for B's clock is shown before the reader is asked what it should be", () => {
+  const container = createContainer();
+  try {
+    container.innerHTML = renderToStaticMarkup(<ClockFirstEncounter record={record} />);
+    const question = [...container.querySelectorAll("h3")].find(
+      (h) => h.textContent === "What would you say?",
+    );
+    expect(question).toBeDefined();
+    const readings = [...container.querySelectorAll("[data-reflection-reading]")];
+    // Non-vacuity: the tables exist, after the question.
+    expect(readings.length).toBeGreaterThan(0);
+    const before = readings.filter(
+      (cell) =>
+        question && cell.compareDocumentPosition(question) & Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(before.map((cell) => cell.textContent)).toEqual([]);
+  } finally {
+    removeContainer(container);
+  }
+});
+
 test("agreeing assigns the distant time; withdrawing the agreement does not invent a measured time", async () => {
   const container = createContainer();
   const root = createRoot(container);

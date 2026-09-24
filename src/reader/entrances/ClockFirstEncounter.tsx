@@ -99,7 +99,9 @@ export function ClockFirstEncounter({ record }: { record: EntranceRecord }) {
       <p className="notice">
         An authored clock-setting example. The readings below are not experimental evidence.
       </p>
-      <ClockTable example={CLOCK_INITIAL} agreed={false} />
+      {/* No table before the question. One stood here, and its middle row, "Not assigned before
+          an agreement", answered "What would you say?" before the reader was asked; the story
+          above already gives the two readings. The first table follows the choices. */}
       <h3>What would you say?</h3>
       <p>Open any answer to examine its assumptions. Nothing must be answered to continue.</p>
       {record.choices?.map((choice) => (
