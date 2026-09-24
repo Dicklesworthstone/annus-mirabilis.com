@@ -148,6 +148,18 @@ export const FOUNDATION_QUANTITIES: QuantityRegistry = Object.freeze(
         definition:
           "The mean square of the displacements' distances from their own mean: spread around the mean, not distance from zero.",
       }),
+      own({
+        id: "sampleSize",
+        name: "Number of values",
+        glyph: "M",
+        dimension: ["0", "0", "0", "0", "0", "0"],
+        unit: "1",
+        displayUnit: "1",
+        displayPower: 0,
+        semanticKind: "sample-size",
+        role: "input",
+        definition: "M: how many values are averaged, such as the four displacements of the example.",
+      }),
       // The Gaussian: the unitless variable of the moment integral.
       pick(BROWNIAN_QUANTITIES, "scaledDisplacement"),
       // Events and frames: section 1's light signal from clock A to B and back.

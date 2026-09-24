@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-sample-mean",
+  "paper": "foundations",
+  "argument": "mean-variance-rms",
+  "title": "The mean of M values",
+  "spoken": "The mean of x equals one over M times the sum, for i from 1 to M, of x sub i.",
+  "explanation": "Add the M displacements and divide by M. Leftward and rightward values cancel: for −3, −1, +1, +3 the mean is 0, though the particles have spread.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A finite sample of M values, averaged with equal weight.",
+    "A foundation lesson's worked case in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-sample-mean.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "average",
+      "opId": "eq-model-fd-sample-mean.op.mean",
+      "argument": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-sample-mean.t.x",
+        "quantityId": "displacement1d"
+      }
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-sample-mean.op.scaled",
+      "args": [
+        {
+          "kind": "quotient",
+          "opId": "eq-model-fd-sample-mean.op.perValue",
+          "numerator": {
+            "kind": "number",
+            "value": "1"
+          },
+          "denominator": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-sample-mean.t.m",
+            "quantityId": "sampleSize"
+          }
+        },
+        {
+          "kind": "indexedSum",
+          "opId": "eq-model-fd-sample-mean.op.total",
+          "index": "i",
+          "from": {
+            "kind": "number",
+            "value": "1"
+          },
+          "to": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-sample-mean.t.m2",
+            "quantityId": "sampleSize"
+          },
+          "expression": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-sample-mean.t.xi",
+            "quantityId": "displacement1d",
+            "index": "i"
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-sample-mean.op.relation",
+      "title": "What it defines",
+      "explanation": "The mean: add the M values and divide by M.",
+      "foundation": "bridge-sum-average"
+    },
+    {
+      "nodeId": "eq-model-fd-sample-mean.op.mean",
+      "title": "The mean",
+      "explanation": "The average value. For −3, −1, +1, +3 it is 0.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-fd-sample-mean.op.scaled",
+      "title": "Divide the total by M",
+      "explanation": "One over M times the sum is the sum shared equally among the M values.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-sample-mean.op.perValue",
+      "title": "One over M",
+      "explanation": "Each value's share of the total.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-sample-mean.op.total",
+      "title": "Add them all",
+      "explanation": "The sum of the values, for i from 1 to M: the first, plus the second, and so on to the last.",
+      "foundation": "bridge-sum-average"
+    },
+    {
+      "nodeId": "eq-model-fd-sample-mean.t.x",
+      "title": "Displacement",
+      "explanation": "How far a particle has moved, left negative and right positive.",
+      "foundation": "bridge-negative-numbers-direction"
+    },
+    {
+      "nodeId": "eq-model-fd-sample-mean.t.xi",
+      "title": "The i-th displacement",
+      "explanation": "x sub i is the displacement of particle number i.",
+      "foundation": "bridge-sum-average"
+    },
+    {
+      "nodeId": "eq-model-fd-sample-mean.t.m",
+      "title": "Number of values",
+      "explanation": "M, how many displacements are averaged: 4 in the example.",
+      "foundation": "bridge-sum-average"
+    },
+    {
+      "nodeId": "eq-model-fd-sample-mean.t.m2",
+      "title": "Number of values",
+      "explanation": "The same M: the sum runs up to the last value.",
+      "foundation": "bridge-sum-average"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The mean",
+      "nodeId": "eq-model-fd-sample-mean.op.mean"
+    },
+    {
+      "text": " is the "
+    },
+    {
+      "text": "sum",
+      "nodeId": "eq-model-fd-sample-mean.op.total"
+    },
+    {
+      "text": " of the "
+    },
+    {
+      "text": "displacements",
+      "nodeId": "eq-model-fd-sample-mean.t.xi"
+    },
+    {
+      "text": " divided by their "
+    },
+    {
+      "text": "number",
+      "nodeId": "eq-model-fd-sample-mean.t.m"
+    },
+    {
+      "text": "."
+    }
+  ],
+  "printedGlyphs": {
+    "displacement1d": "x"
+  }
+}

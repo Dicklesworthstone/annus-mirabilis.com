@@ -32,7 +32,8 @@
       {
         "kind": "formula",
         "latex": "\\left\\langle\\left(\\sum_{i=1}^n\\Delta_i\\right)^2\\right\\rangle=\\sum_{i=1}^n\\langle\\Delta_i^2\\rangle=nl^2",
-        "spoken": "The mean square of the sum of independent centred increments is the sum of their mean squares."
+        "spoken": "The mean square of the sum of independent centred increments is the sum of their mean squares.",
+        "equations": ["eq-model-bm-sum-of-steps"]
       },
       {
         "kind": "formula",

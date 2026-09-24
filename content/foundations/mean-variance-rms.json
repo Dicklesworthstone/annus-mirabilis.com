@@ -14,12 +14,14 @@
     {
       "kind": "formula",
       "latex": "\\langle x\\rangle=\\frac{1}{M}\\sum_{i=1}^{M}x_i",
-      "spoken": "Add the M signed displacements and divide by M."
+      "spoken": "Add the M signed displacements and divide by M.",
+      "equations": ["eq-model-fd-sample-mean"]
     },
     {
       "kind": "formula",
       "latex": "\\langle x^2\\rangle=\\frac{1}{M}\\sum_{i=1}^{M}x_i^2",
-      "spoken": "Square each displacement before adding and dividing by M."
+      "spoken": "Square each displacement before adding and dividing by M.",
+      "equations": ["eq-model-fd-sample-mean-square"]
     },
     {
       "kind": "formula",

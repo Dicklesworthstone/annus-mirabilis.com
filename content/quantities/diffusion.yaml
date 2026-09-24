@@ -205,6 +205,18 @@
   frame: not-applicable
   colorRole: statistical
 
+- id: sampleSize
+  name: Number of values in a sample
+  description: >
+    The number M of values averaged, as in <x> = (1/M) times the sum of the x_i: the four
+    displacements of the mean-variance lesson, or the particles a microscope follows.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: count
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
 - id: rmsDisplacement1d
   name: RMS displacement (one dimension)
   description: The root-mean-square one-dimensional displacement, sqrt(meanSquareDisplacement1d).

@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 290 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 291 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -238,6 +238,7 @@ Total: 290 quantities, 45 rejected spellings, 2 reserved spellings.
 | relativeSpectralEmission | Relative spectral emission | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | relativeViscosity | Relative viscosity | 0,0,0,0,0,0 | not-applicable | scalar | viscosityRatio |
 | rmsDisplacement1d | RMS displacement (one dimension) | 1,0,0,0,0,0 | not-applicable | scalar | — |
+| sampleSize | Number of values in a sample | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | scaleFactorUnknown | Unknown scale factor: phi(v) | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | scaledDisplacement | Scaled displacement | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | signalDepartureTimeA | Signal departure time at A | 0,0,1,0,0,0 | stationary-system | scalar | — |

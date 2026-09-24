@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-bm-sum-of-steps",
+  "paper": "brownian-motion",
+  "argument": "arg-bm-independent-steps",
+  "title": "The mean square of n independent steps",
+  "spoken": "The mean of the square of the sum, for i from 1 to n, of Delta sub i, equals the sum, for i from 1 to n, of the mean of Delta sub i squared, which equals n l squared.",
+  "explanation": "Square the sum of n steps and average. Every cross term between two different steps averages to zero, because the steps are independent and centred. Only the n squared steps remain, each contributing l squared.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "The n steps are independent, each with mean zero and the same mean square l squared.",
+    "These are modern teaching equations in SI notation, not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-bm-sum-of-steps.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "relation",
+      "opId": "eq-model-bm-sum-of-steps.op.crossTermsVanish",
+      "operator": "=",
+      "left": {
+        "kind": "average",
+        "opId": "eq-model-bm-sum-of-steps.op.meanSquareOfSum",
+        "argument": {
+          "kind": "power",
+          "opId": "eq-model-bm-sum-of-steps.op.squareOfSum",
+          "base": {
+            "kind": "indexedSum",
+            "opId": "eq-model-bm-sum-of-steps.op.sumOfSteps",
+            "index": "i",
+            "from": {
+              "kind": "number",
+              "value": "1"
+            },
+            "to": {
+              "kind": "symbol",
+              "termId": "eq-model-bm-sum-of-steps.t.n",
+              "quantityId": "walkStepCount"
+            },
+            "expression": {
+              "kind": "symbol",
+              "termId": "eq-model-bm-sum-of-steps.t.step",
+              "quantityId": "displacementIncrement",
+              "index": "i"
+            }
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        }
+      },
+      "right": {
+        "kind": "indexedSum",
+        "opId": "eq-model-bm-sum-of-steps.op.sumOfMeanSquares",
+        "index": "i",
+        "from": {
+          "kind": "number",
+          "value": "1"
+        },
+        "to": {
+          "kind": "symbol",
+          "termId": "eq-model-bm-sum-of-steps.t.n2",
+          "quantityId": "walkStepCount"
+        },
+        "expression": {
+          "kind": "average",
+          "opId": "eq-model-bm-sum-of-steps.op.meanStepSquare",
+          "argument": {
+            "kind": "power",
+            "opId": "eq-model-bm-sum-of-steps.op.stepSquare",
+            "base": {
+              "kind": "symbol",
+              "termId": "eq-model-bm-sum-of-steps.t.step2",
+              "quantityId": "displacementIncrement",
+              "index": "i"
+            },
+            "exponent": {
+              "num": 2,
+              "den": 1
+            }
+          }
+        }
+      }
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-bm-sum-of-steps.op.nTimes",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-bm-sum-of-steps.t.n3",
+          "quantityId": "walkStepCount"
+        },
+        {
+          "kind": "power",
+          "opId": "eq-model-bm-sum-of-steps.op.lSquare",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-bm-sum-of-steps.t.l",
+            "quantityId": "stepRms"
+          },
+          "exponent": {
+            "num": 2,
+            "den": 1
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-bm-sum-of-steps.op.relation",
+      "title": "Equal step sizes",
+      "explanation": "Each step has the same mean square l squared, so n of them give n l squared.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-sum-of-steps.op.crossTermsVanish",
+      "title": "The cross terms drop out",
+      "explanation": "Independent, centred steps: every cross term averages to zero, leaving only the squares.",
+      "foundation": "probability-independence"
+    },
+    {
+      "nodeId": "eq-model-bm-sum-of-steps.op.meanSquareOfSum",
+      "title": "Mean square of the net displacement",
+      "explanation": "The average, over many walkers, of the square of where each ends up.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-sum-of-steps.op.squareOfSum",
+      "title": "Squared",
+      "explanation": "The net displacement squared, so left and right count alike.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-sum-of-steps.op.sumOfSteps",
+      "title": "The net displacement",
+      "explanation": "The n steps added, each with its sign.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-sum-of-steps.op.sumOfMeanSquares",
+      "title": "Add the mean squares",
+      "explanation": "The sum, over the n steps, of each step's mean square.",
+      "foundation": "bridge-sum-average"
+    },
+    {
+      "nodeId": "eq-model-bm-sum-of-steps.op.meanStepSquare",
+      "title": "One step's mean square",
+      "explanation": "The average of one step's square over many walkers.",
+      "foundation": "mean-variance-rms"
+    },
+    {
+      "nodeId": "eq-model-bm-sum-of-steps.op.stepSquare",
+      "title": "A step squared",
+      "explanation": "Step i squared.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-sum-of-steps.op.nTimes",
+      "title": "n times",
+      "explanation": "n equal contributions.",
+      "foundation": "bridge-sum-average"
+    },
+    {
+      "nodeId": "eq-model-bm-sum-of-steps.op.lSquare",
+      "title": "l squared",
+      "explanation": "The mean square of one step.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-bm-sum-of-steps.t.step",
+      "title": "Step i",
+      "explanation": "Delta sub i: the i-th signed step of the walk.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-sum-of-steps.t.step2",
+      "title": "Step i",
+      "explanation": "The same Delta sub i.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-sum-of-steps.t.n",
+      "title": "Number of steps",
+      "explanation": "n: how many independent steps the walk takes.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-sum-of-steps.t.n2",
+      "title": "Number of steps",
+      "explanation": "The same n.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-sum-of-steps.t.n3",
+      "title": "Number of steps",
+      "explanation": "The same n.",
+      "foundation": "random-walks"
+    },
+    {
+      "nodeId": "eq-model-bm-sum-of-steps.t.l",
+      "title": "Step length",
+      "explanation": "l: the root mean square length of one step.",
+      "foundation": "mean-variance-rms"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The mean square of the "
+    },
+    {
+      "text": "net displacement",
+      "nodeId": "eq-model-bm-sum-of-steps.op.sumOfSteps"
+    },
+    {
+      "text": " is the "
+    },
+    {
+      "text": "sum of the steps' mean squares",
+      "nodeId": "eq-model-bm-sum-of-steps.op.sumOfMeanSquares"
+    },
+    {
+      "text": ": "
+    },
+    {
+      "text": "n",
+      "nodeId": "eq-model-bm-sum-of-steps.t.n3"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "l",
+      "nodeId": "eq-model-bm-sum-of-steps.t.l"
+    },
+    {
+      "text": " squared."
+    }
+  ]
+}
