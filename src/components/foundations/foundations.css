@@ -324,6 +324,47 @@
   background: transparent;
 }
 
+/*
+ * Turned axes (TurnedAxes.tsx). Line style and labels tell the parts apart, not colour: the
+ * original axes are dashed, the turned axes solid, the projections dotted, the arrow thick with a
+ * head. Widths are in viewBox units, about one to the pixel; the labels take the site-wide
+ * svg[role="img"] text rule.
+ */
+.vector-axes-figure {
+  display: block;
+  width: 100%;
+  max-width: 20rem;
+  height: auto;
+  margin: 1rem auto;
+}
+
+.vector-axis-original {
+  stroke: var(--muted);
+  stroke-width: 1.25;
+  stroke-dasharray: 7 5;
+}
+
+.vector-axis-turned {
+  stroke: var(--ink);
+  stroke-width: 1.75;
+}
+
+.vector-projection {
+  stroke: var(--muted);
+  stroke-width: 1.5;
+  stroke-dasharray: 1.5 3.5;
+  stroke-linecap: round;
+}
+
+.vector-arrow {
+  stroke: var(--ink);
+  stroke-width: 4;
+}
+
+.vector-arrow-head {
+  fill: var(--ink);
+}
+
 /* Print Media Styles */
 @media print {
   .proportional-controls,

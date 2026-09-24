@@ -13,6 +13,7 @@ import { RepeatedProportionalTable } from "./RepeatedProportionalTable.tsx";
 import { ScalingTable } from "./ScalingTable.tsx";
 import { TableToPlotBuilder } from "./TableToPlotBuilder.tsx";
 import { TaylorBinomialExtension } from "./TaylorBinomialExtension.tsx";
+import { TurnedAxes } from "./TurnedAxes.tsx";
 import { UnitCancellationTable } from "./UnitCancellationTable.tsx";
 import { UnitConversionCalculator } from "./UnitConversionCalculator.tsx";
 
@@ -61,5 +62,7 @@ export function FoundationConstruction({
       return <BoostTable headingLevel={headingLevel} />;
     case "hyperbolic-functions-rapidity":
       return <RapidityAdder headingLevel={headingLevel} />;
+    case "vectors-components":
+      return <TurnedAxes headingLevel={headingLevel} />;
   }
 }

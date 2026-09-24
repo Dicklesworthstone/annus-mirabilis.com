@@ -25,6 +25,7 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "error-and-inference",
   "matrices-linear-maps",
   "hyperbolic-functions-rapidity",
+  "vectors-components",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];
