@@ -75,6 +75,32 @@ describe("the page codec and the server codec agree", () => {
     expect(verdicts).toContain("invalid:tape-oversize");
   });
 
+  test("a page's Buffer polyfill without base64url does not break a link", async () => {
+    // Chromium and WebKit threw "Unknown encoding: base64url" on the first LQ-08 tape link: the
+    // page bundle's Buffer polyfill is present but knows no base64url. Recreated here: a Buffer
+    // that refuses the encoding, as the polyfill did.
+    const expected = encodeTapePermalink(FIXTURE_TEACHING_TAPE_EINSTEIN_08);
+    const real = globalThis.Buffer;
+    const polyfill = {
+      isEncoding: (encoding: string) => encoding !== "base64url",
+      from: () => {
+        throw new TypeError("Unknown encoding: base64url");
+      },
+    };
+    let written = "";
+    let read: TapeDecodeResult | undefined;
+    try {
+      (globalThis as { Buffer: unknown }).Buffer = polyfill;
+      written = await encodeTapePermalinkInBrowser(FIXTURE_TEACHING_TAPE_EINSTEIN_08);
+      read = await decodeTapePermalinkInBrowser(expected);
+    } finally {
+      (globalThis as { Buffer: unknown }).Buffer = real;
+    }
+    expect(written).toBe(expected);
+    expect(read?.kind).toBe("success");
+    if (read?.kind === "success") expect(read.tape).toEqual(FIXTURE_TEACHING_TAPE_EINSTEIN_08);
+  });
+
   test("a decompression bomb is refused at the cap, not inflated", async () => {
     // 64 KiB of zeros deflates to a few hundred bytes and would inflate past the 32 KiB cap.
     const bomb = bytesToBase64Url(deflateRawSync(new Uint8Array(MAX_DECOMPRESSED_TAPE_BYTES * 2)));

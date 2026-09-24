@@ -32,10 +32,20 @@ export type EncodeTapeOptions = Readonly<{
 }>;
 
 /**
+ * Node's Buffer, when it is the real one. A page's bundle can carry a Buffer polyfill that has no
+ * base64url encoding: Chromium and WebKit threw "Unknown encoding: base64url" on the first LQ-08
+ * tape link, so a present Buffer is not enough; it has to say it knows the encoding.
+ */
+function nodeBase64UrlBuffer(): typeof Buffer | null {
+  return typeof Buffer !== "undefined" && Buffer.isEncoding?.("base64url") === true ? Buffer : null;
+}
+
+/**
  * Converts a Uint8Array to a URL-safe Base64URL string (RFC 4648 §5).
  */
 export function bytesToBase64Url(bytes: Uint8Array): string {
-  if (typeof Buffer !== "undefined") {
+  const Buffer = nodeBase64UrlBuffer();
+  if (Buffer) {
     return Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString("base64url");
   }
   let binary = "";
@@ -53,7 +63,8 @@ export function bytesToBase64Url(bytes: Uint8Array): string {
 /** A Base64URL string's bytes, or null when it holds a character outside the alphabet. */
 export function decodeBase64Url(base64url: string): Uint8Array | null {
   if (!/^[A-Za-z0-9_-]*$/.test(base64url)) return null;
-  if (typeof Buffer !== "undefined") {
+  const Buffer = nodeBase64UrlBuffer();
+  if (Buffer) {
     const buf = Buffer.from(base64url, "base64url");
     return new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
   }
