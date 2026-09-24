@@ -18,6 +18,7 @@ export function mountFacsimileReader(
 ): () => void {
   const window = root.ownerDocument.defaultView;
   if (!window) return () => {};
+  // Present only where the document has no page plates (FacsimilePanel.tsx).
   const frame = root.querySelector<HTMLIFrameElement>("[data-facsimile-frame]");
   const form = root.querySelector<HTMLFormElement>("[data-facsimile-form]");
   const input = root.querySelector<HTMLInputElement>("[data-facsimile-page-input]");
@@ -31,7 +32,6 @@ export function mountFacsimileReader(
   // Optional: present only when the paper has page plates.
   const plateImage = root.querySelector<HTMLImageElement>("[data-facsimile-plate]");
   if (
-    !frame ||
     !form ||
     !input ||
     !previous ||
@@ -53,8 +53,10 @@ export function mountFacsimileReader(
     if (!page) return;
     selected = page.pdfPage;
     const href = facsimilePdfHref(document, page.pdfPage);
-    if (frame!.getAttribute("src") !== href) frame!.setAttribute("src", href);
-    frame!.title = `Original scan: printed page ${page.printedPage}, PDF page ${page.pdfPage} of ${document.pages.length}`;
+    if (frame) {
+      if (frame.getAttribute("src") !== href) frame.setAttribute("src", href);
+      frame.title = `Original scan: printed page ${page.printedPage}, PDF page ${page.pdfPage} of ${document.pages.length}`;
+    }
     const plate = facsimilePlate(document, page);
     if (plateImage && plate && plateImage.getAttribute("src") !== plate.src) {
       plateImage.srcset = plate.srcSet;

@@ -79,7 +79,9 @@ export function FacsimilePanel({
       <noscript>
         <p className="notice">
           JavaScript is off. Every original-page link and the source directory below still works.
-          The embedded viewer opens at the initial page; use the PDF’s own controls or a page link.
+          {plate
+            ? " The image shows the first page; each page link opens the PDF at its page."
+            : " The embedded viewer opens at the initial page; use the PDF’s own controls or a page link."}
         </p>
       </noscript>
       <form data-facsimile-form className="facsimile-reader-toolbar">
@@ -135,9 +137,15 @@ export function FacsimilePanel({
         it began 1,255px down at 1440 and 1,800px down at 390. It now sits under the page controls
         that drive it, and what explains or bypasses it follows it.
       */}
-      {/* On a phone or tablet the plate stands in for the frame (facsimileReader.css): a phone
-          browser has no dependable inline PDF viewer. The controller keeps it on the selected
-          page; the PDF stays one link away below. */}
+      {/*
+        THE PAGE IS SHOWN AS AN IMAGE WHEREVER THERE IS ONE, AT EVERY WIDTH. The face used to frame
+        the pinned PDF above 900px, and a browser's PDF viewer makes the scan's embedded text layer
+        selectable and searchable. That layer is a third party's machine reading, with errors where
+        the mathematics is, and the reader epic (am-ep-reader-k0z) says the facsimile face never
+        exposes it. Every published facsimile has plates for every page (generate-page-plates.ts),
+        so the frame now appears only for a document without them. The controller keeps the plate
+        on the selected page; the PDF itself is one link away below.
+      */}
       {plate ? (
         <img
           data-facsimile-plate
@@ -151,14 +159,15 @@ export function FacsimilePanel({
           loading="lazy"
           decoding="async"
         />
-      ) : null}
-      <iframe
-        data-facsimile-frame
-        src={facsimilePdfHref(document, initial.pdfPage)}
-        title={`Original scan: printed page ${initial.printedPage}, PDF page ${initial.pdfPage} of ${document.pages.length}`}
-        loading="lazy"
-        referrerPolicy="no-referrer"
-      />
+      ) : (
+        <iframe
+          data-facsimile-frame
+          src={facsimilePdfHref(document, initial.pdfPage)}
+          title={`Original scan: printed page ${initial.printedPage}, PDF page ${initial.pdfPage} of ${document.pages.length}`}
+          loading="lazy"
+          referrerPolicy="no-referrer"
+        />
+      )}
       <p
         id={`${id}-status`}
         data-facsimile-status
@@ -182,12 +191,21 @@ export function FacsimilePanel({
           Return to the explanation
         </a>
       </p>
-      <p className="fine">
-        Printed journal page numbers and PDF page numbers are counted separately. The scan’s
-        machine-readable text may contain errors. A blank embedded display does not mean the source
-        is missing. The direct PDF links work independently of this frame. Some browsers may ignore
-        PDF page fragments; use the PDF page number shown in the directory in that case.
-      </p>
+      {plate ? (
+        <p className="fine">
+          Printed journal page numbers and PDF page numbers are counted separately. The page above
+          is an image of the scan; the links open the pinned PDF itself. Some browsers ignore a PDF
+          page fragment, so use the PDF page number in the directory if one opens at the start.
+        </p>
+      ) : (
+        <p className="fine">
+          Printed journal page numbers and PDF page numbers are counted separately. The scan’s
+          machine-readable text may contain errors. A blank embedded display does not mean the
+          source is missing. The direct PDF links work independently of this frame. Some browsers
+          may ignore PDF page fragments; use the PDF page number shown in the directory in that
+          case.
+        </p>
+      )}
       <details className="facsimile-reader-provenance">
         <summary>Source identity and limits of verification</summary>
         <dl>
