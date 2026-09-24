@@ -3,6 +3,7 @@ import { useEffect, useId } from "react";
 import { makeDismissible } from "../a11y/modal/dismiss.ts";
 import { FACE_REGISTRY } from "./faces/registry.ts";
 import { InlineFacsimile } from "./facsimile/InlineFacsimile.tsx";
+import { placeOf, scrollToKeep } from "./keepPlace.ts";
 import { loadLessonBody, unmountLessonConstructions } from "./lessonBody.ts";
 import {
   DETAIL_STORAGE_KEY,
@@ -269,11 +270,18 @@ export function ReaderController(props: Props) {
         );
       } else if (control.dataset.viewLink && FACES.includes(control.dataset.viewLink as Face)) {
         event.preventDefault();
+        // The passage at the top of the viewport stays where it stood (keepPlace.ts).
+        const place = placeOf(
+          [...root.querySelectorAll("article.reader-passage[data-unit]")],
+          window.innerHeight,
+        );
         change(
           { ...state, view: control.dataset.viewLink as Face },
           true,
           "Changed the reading face; the passage and laboratory are preserved.",
         );
+        const delta = place ? scrollToKeep(place, window.innerHeight) : 0;
+        if (delta !== 0) window.scrollBy({ top: delta, behavior: "instant" });
       } else if (
         control.dataset.readerAnchor &&
         registry.anchors.includes(control.dataset.readerAnchor)
