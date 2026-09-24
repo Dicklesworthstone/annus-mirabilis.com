@@ -3,6 +3,12 @@
 .guided-tour-page {
   max-width: 70rem;
 }
+/* The index of paths is a catalogue. Capped at 70rem, its grid stopped at
+   x=1180 at 1440 while the header and every other index page run to 1380. Uncapped it takes three
+   columns from 1280 up; each path's own page keeps the 70rem measure above. */
+.guided-tour-page.guided-tour-index {
+  max-width: none;
+}
 
 .guided-tour-catalogue {
   display: grid;

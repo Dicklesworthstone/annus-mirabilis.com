@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function GuidedToursIndex() {
   return (
-    <article className="guided-tour-page">
+    <article className="guided-tour-page guided-tour-index">
       <header className="page-intro">
         <p className="eyebrow">A question to carry with you</p>
         <h1>Guided reading paths</h1>
