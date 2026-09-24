@@ -17,12 +17,16 @@ import { FRANKENSIM_BROWNIAN_ENGINE_SENTENCE } from "../../experiments/provenanc
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import equationPayload from "../../generated/bm01-equations.json";
+import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
 import { PLOT_KINDS, TracerHistogram, TracerPaths, TracerScaling } from "./TracerPlots.tsx";
+
+const BM01_PROMPTS = PREDICT_PROMPTS["bm-01"] ?? [];
 
 function SamplingBand({
   snapshot,
@@ -96,8 +100,9 @@ export function TracerLab({
     [error, setError] = useState(""),
     [note, setNote] = useState(""),
     [url, setUrl] = useState(""),
-    [zoom, setZoom] = useState(1),
-    [prediction, setPrediction] = useState("");
+    [zoom, setZoom] = useState(1);
+  // The tracer paths and the controls come first; the spread the prompts ask about waits.
+  const gate = usePredictGate("bm-01", BM01_PROMPTS);
   useEffect(() => {
     setReady(true);
     const shared = decodeBm01Settings(window.location.search);
@@ -260,28 +265,7 @@ export function TracerLab({
         </p>
         <div className="lab-columns">
           <div>
-            <details>
-              <summary>Predict before comparing observation times</summary>
-              <div className="input-field">
-                <label className="fine" htmlFor={`${id}-predict`}>
-                  Watching four times as long: how does the typical distance change?
-                </label>
-                <select
-                  id={`${id}-predict`}
-                  value={prediction}
-                  onChange={(e) => setPrediction(e.target.value)}
-                >
-                  <option value="">Choose a prediction</option>
-                  <option value="four">Four times as large</option>
-                  <option value="twice">Twice as large</option>
-                  <option value="same">Unchanged</option>
-                </select>
-              </div>
-              <p>
-                The independent-step model predicts four times the mean square, hence twice its
-                square root. Your prediction never locks the explanation or controls.
-              </p>
-            </details>
+            <PredictGatePanels gate={gate} />
             <div className="actions">
               <button
                 type="button"
@@ -497,7 +481,13 @@ export function TracerLab({
                 })}
               />
             </div>
-            <p className="status-line" role="status" aria-live="polite" aria-atomic="true">
+            <p
+              className="status-line"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              {...gate.response}
+            >
               {announcement}
             </p>
             <p className="accepted-caption">
@@ -521,7 +511,7 @@ export function TracerLab({
                     "~0.8 μm per second" at every setting, Einstein's printed value for water at
                     1.35 mPa·s, while this lab's own default gives 0.93 μm in 1 s. A displacement
                     grows as the square root of time, so it is stated for an interval, not per second. */}
-                <span className="rate-annotation" data-rate-mode="natural">
+                <span className="rate-annotation" data-rate-mode="natural" {...gate.response}>
                   At the natural rate a tracer moves about{" "}
                   {display(Number(scalar(snapshot, "rmsDisplacement1d").toPrecision(2)), 1e6)} μm
                   along one axis in {display(p.interval)} s (root mean square; scale bar: 1 μm)
@@ -542,8 +532,8 @@ export function TracerLab({
               </button>
               <span className="fine">View only: no calculation or new draws.</span>
             </div>
-            <TracerHistogram snapshot={snapshot} />
-            <table {...identity(snapshot)}>
+            <TracerHistogram snapshot={snapshot} response={gate.response} />
+            <table {...identity(snapshot)} {...gate.response}>
               <caption>
                 Whole-ensemble statistics: signed coordinate {["x", "y", "z"][p.axis]}, total over{" "}
                 {p.d} coordinate{p.d > 1 ? "s" : ""}
@@ -671,7 +661,7 @@ export function TracerLab({
           ))}
         </section>
         <div className="lab-bottom">
-          <TracerScaling snapshot={snapshot} />
+          <TracerScaling snapshot={snapshot} response={gate.response} />
           <section>
             <h3>What is, and is not, being simulated</h3>
             <p>

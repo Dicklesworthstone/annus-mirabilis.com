@@ -4,7 +4,7 @@ import type { Bm01Parameters } from "../../experiments/bm01/definition.ts";
 import { createBm01Session, type PreparedBm01Example } from "../../experiments/bm01/session.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import exampleJson from "../../generated/bm01-example.json";
-import { PLOT_KINDS, TracerScaling } from "./TracerPlots.tsx";
+import { PLOT_KINDS, TracerHistogram, TracerScaling } from "./TracerPlots.tsx";
 
 describe("TracerScaling refusal and plot contracts (am-a11y-action-contracts-clear-biome-debt-kdsl)", () => {
   const example = exampleJson as unknown as PreparedBm01Example;
@@ -71,5 +71,32 @@ describe("TracerScaling refusal and plot contracts (am-a11y-action-contracts-cle
       expect(html).toContain('class="comparison-curve"');
       expect(html).toContain("Read the comparison as a table");
     }
+  });
+
+  // Predict mode (am-inst-predict-mode-ti7m, dispatch 156 option c): the frame stays and the
+  // spread the prompts ask about waits. Without a gate the plots are unchanged.
+  test("the histogram keeps its axis in view while its bars, model line and range wait", () => {
+    const awaiting = { "data-predict-response": "awaiting" } as const;
+    const html = renderToStaticMarkup(
+      <TracerHistogram snapshot={acceptedSnapshot} response={awaiting} />,
+    );
+    expect(html).toMatch(
+      /<path d="M35 35V205H275" class="axis"><\/path><g data-predict-response="awaiting"><rect/,
+    );
+    expect(html).toMatch(/class="comparison-curve"><\/path><text[^>]*>Fraction in each bin/);
+    const plain = renderToStaticMarkup(<TracerHistogram snapshot={acceptedSnapshot} />);
+    expect(plain).not.toContain("data-predict-response");
+  });
+
+  test("the scaling plot keeps its axis and labels while its two curves wait", () => {
+    const html = renderToStaticMarkup(
+      <TracerScaling
+        snapshot={acceptedSnapshot}
+        response={{ "data-predict-response": "awaiting" }}
+      />,
+    );
+    expect(html).toMatch(
+      /class="axis"><\/path><g data-predict-response="awaiting"><path[^>]*class="curve"><\/path><path[^>]*class="comparison-curve"><\/path><\/g>/,
+    );
   });
 });

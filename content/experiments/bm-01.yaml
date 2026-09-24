@@ -534,23 +534,25 @@ predictMode:
       supportedCandidateId: bm-01-predict-observation-interval-twice
       controlId: interval
       question: "If you watch four times as long, does the typical distance from the start become 4 times as large, 2 times as large, or unchanged?"
+      explanation: "Each interval adds an independent step, so the mean square of the displacement grows in proportion to the time, and the typical distance is its square root, λ_{x} = √(2Dt). Watching four times as long multiplies the mean square by four and the typical distance by two."
       candidates:
         - id: bm-01-predict-observation-interval-four-times
           label: "Four times as large"
           description: "Distance grows in direct proportion to time"
-          separatingAssumption: "Assumes displacement accumulates linearly with time, as if drift dominated over diffusion."
+          separatingAssumption: "Lets the distance grow in proportion to time, as it would under a steady drift. Independent steps partly cancel, so their spread grows as the square root of time."
         - id: bm-01-predict-observation-interval-twice
           label: "Two times as large"
           description: "Distance grows as the square root of time"
-          separatingAssumption: "Follows from lambda_x = sqrt(2 D t): the model's answer."
+          separatingAssumption: "Takes the steps to be independent, as §4 does, so the mean square grows as t and λ_{x} = √(2Dt) grows as √t."
         - id: bm-01-predict-observation-interval-unchanged
           label: "It stays the same"
           description: "The typical distance is a property of the particle, not of the watching time"
-          separatingAssumption: "Assumes displacement is a fixed particle speed rather than a growing spread."
+          separatingAssumption: "Treats the typical distance as fixed by the particle. Each further interval adds another independent step, so the spread keeps growing."
     - promptId: bm-01-predict-viscosity
       supportedCandidateId: bm-01-predict-viscosity-root-two
       controlId: eta
       question: "In a liquid twice as viscous, after the same time, does the typical distance become half as large, about 0.71 times as large, or unchanged?"
+      explanation: "The diffusion coefficient is D = k_{B}T/(6πηa) in modern notation, so doubling the viscosity η halves D. The typical distance goes as √D, so it falls by 1/√2, to about 0.71 of its value, not to half."
       candidates:
         - id: bm-01-predict-viscosity-half
           label: "Half as large"
@@ -559,8 +561,8 @@ predictMode:
         - id: bm-01-predict-viscosity-root-two
           label: "About 0.71 times as large"
           description: "Displacement follows the square root of the diffusivity, so it falls by 1/sqrt(2)"
-          separatingAssumption: "Follows from D proportional to 1/eta and lambda_x proportional to sqrt(D): the model's answer."
+          separatingAssumption: "Takes D to be proportional to 1/η, as Stokes's law gives it, and λ_{x} to √D, so doubling η divides λ_{x} by √2."
         - id: bm-01-predict-viscosity-unchanged
           label: "Unchanged"
           description: "The fluid sets the rate of jostling but not the distance reached"
-          separatingAssumption: "Assumes the fluid only changes the tempo of steps, not their size."
+          separatingAssumption: "Lets the liquid set how often the particle is jostled but not how far it gets. A more viscous liquid lowers D, and λ_{x} = √(2Dt) with it."

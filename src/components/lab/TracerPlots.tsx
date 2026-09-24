@@ -84,7 +84,20 @@ export function TracerPaths({ snapshot, zoom }: { snapshot: AcceptedSnapshot; zo
     </figure>
   );
 }
-export function TracerHistogram({ snapshot }: { snapshot: AcceptedSnapshot }) {
+/**
+ * A predict gate's attribute (PredictGate.tsx). The histogram and the scaling plot keep their
+ * axes and titles in view and spread this on the bars, the curves and the ranges, which show the
+ * spread the prompts ask about.
+ */
+type PredictResponse = Readonly<{ "data-predict-response": "shown" | "awaiting" }>;
+
+export function TracerHistogram({
+  snapshot,
+  response,
+}: {
+  snapshot: AcceptedSnapshot;
+  response?: PredictResponse;
+}) {
   const edges = array(snapshot, "histogramEdges"),
     observed = array(snapshot, "histogramFrequencies"),
     model = array(snapshot, "histogramModel");
@@ -102,35 +115,37 @@ export function TracerHistogram({ snapshot }: { snapshot: AcceptedSnapshot }) {
         aria-label="Histogram of every tracer's signed coordinate displacement. Solid bars are sampled proportions; the dashed line gives model probabilities for the same bins."
       >
         <path d="M35 35V205H275" className="axis" />
-        {Array.from({ length: observed.length }, (_, i) => {
-          const xPos = x(i);
-          return (
-            <rect
-              key={xPos}
-              x={xPos}
-              y={y(observed.at(i))}
-              width={240 / observed.length - 0.5}
-              height={205 - y(observed.at(i))}
-              className="histogram-bar"
-            />
-          );
-        })}
-        <path
-          d={Array.from(
-            { length: model.length },
-            (_, i) => `${i ? "L" : "M"}${x(i + 0.5)},${y(model.at(i))}`,
-          ).join(" ")}
-          className="comparison-curve"
-        />
-        <text x="35" y="20">
-          Fraction in each bin
-        </text>
-        <text x="35" y="228">
-          {display(edges.at(0), 1e6)} μm
-        </text>
-        <text x="212" y="228">
-          {display(edges.at(edges.length - 1), 1e6)} μm
-        </text>
+        <g {...response}>
+          {Array.from({ length: observed.length }, (_, i) => {
+            const xPos = x(i);
+            return (
+              <rect
+                key={xPos}
+                x={xPos}
+                y={y(observed.at(i))}
+                width={240 / observed.length - 0.5}
+                height={205 - y(observed.at(i))}
+                className="histogram-bar"
+              />
+            );
+          })}
+          <path
+            d={Array.from(
+              { length: model.length },
+              (_, i) => `${i ? "L" : "M"}${x(i + 0.5)},${y(model.at(i))}`,
+            ).join(" ")}
+            className="comparison-curve"
+          />
+          <text x="35" y="20">
+            Fraction in each bin
+          </text>
+          <text x="35" y="228">
+            {display(edges.at(0), 1e6)} μm
+          </text>
+          <text x="212" y="228">
+            {display(edges.at(edges.length - 1), 1e6)} μm
+          </text>
+        </g>
       </svg>
       <figcaption>
         Solid bars: the synthetic sample. Dashed line: probabilities of the same bins under the
@@ -153,7 +168,13 @@ export const PLOT_KINDS: Readonly<
   rms: { suffix: "Rms", label: "RMS distance", unit: "μm", factor: 1e6 },
   apparent: { suffix: "Apparent", label: "Apparent coordinate speed", unit: "μm/s", factor: 1e6 },
 };
-export function TracerScaling({ snapshot }: { snapshot: AcceptedSnapshot }) {
+export function TracerScaling({
+  snapshot,
+  response,
+}: {
+  snapshot: AcceptedSnapshot;
+  response?: PredictResponse;
+}) {
   const p = snapshot.parameters as Bm01Parameters;
   const kind = PLOT_KINDS[p.statistic];
   if (!kind) {
@@ -207,8 +228,10 @@ export function TracerScaling({ snapshot }: { snapshot: AcceptedSnapshot }) {
           aria-label={`${kind.label} compared with the model. Time uses a logarithmic axis; the vertical axis is ${log ? "logarithmic" : "linear"}. Exact values are in the following table.`}
         >
           <path d="M40 35V205H270" className="axis" />
-          <path d={path(sample)} className="curve" />
-          <path d={path(model)} className="comparison-curve" />
+          <g {...response}>
+            <path d={path(sample)} className="curve" />
+            <path d={path(model)} className="comparison-curve" />
+          </g>
           <text x="40" y="19">
             {kind.unit} · {log ? "log scale" : "linear scale"}
           </text>
