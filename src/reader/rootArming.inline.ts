@@ -20,11 +20,22 @@ import { FACE_IDS } from "./faces/registry.ts";
 
 export const KNOWN_FACE_IDS: readonly string[] = FACE_IDS;
 
+/**
+ * A FACE'S OWN PAGE IS NOT ARMED. /papers/<paper>/view/<face>/ renders its root as that face,
+ * complete, and mounts no shell island that would set it ready again: armed, its root sat at
+ * data-ready="false" and data-view="reading" for good (measured on live 68b45872: 12 of 14 face
+ * pages of light quanta and special relativity, with JavaScript on). So only a root rendered as
+ * the reading face, which the shell readies after hydration, is armed; a root rendered as any
+ * other face keeps what the server wrote. (The explanation is here rather than in the body
+ * because the body is shipped inline in every page.)
+ */
 export function armReaderRoot(knownFaceIds: readonly string[]): void {
   try {
     const script = document.currentScript;
     const root = script?.parentElement;
     if (!root?.dataset) return;
+    const rendered = root.dataset.view;
+    if (rendered !== undefined && rendered !== "reading") return;
     root.dataset.ready = "false";
     const requested = document.documentElement.dataset.view;
     root.dataset.view =
