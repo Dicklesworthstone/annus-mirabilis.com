@@ -63,7 +63,9 @@ export function renderLowSpeedProof(
       };
     }),
     factorization: formula(
-      String.raw`\frac{2\Delta K}{v^2}=\frac{L}{c^2}\,\frac{2(\gamma-1)}{\beta^2},\qquad \beta=\frac{v}{c},\quad v\ne 0`,
+      // Two rows, the relation and then the conditions it holds under: on one line it ran 410px
+      // in a 288px box at 320px (measured on live 2026-09-24).
+      String.raw`\begin{aligned}&\frac{2\Delta K}{v^2}=\frac{L}{c^2}\,\frac{2(\gamma-1)}{\beta^2},\\ &\beta=\frac{v}{c},\quad v\ne 0\end{aligned}`,
       "For nonzero v, twice the kinetic-energy drop over v squared equals L over c squared times the dimensionless quotient twice the difference gamma minus one, divided by beta squared. The unchanged-offset premise is required for the kinetic interpretation.",
     ),
     limit: formula(

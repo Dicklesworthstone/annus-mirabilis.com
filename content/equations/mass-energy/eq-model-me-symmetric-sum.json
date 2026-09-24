@@ -14,6 +14,7 @@
     "Two equal pulses in opposite directions, so the body does not recoil.",
     "These are modern teaching equations in SI notation, not a transcription of the printed paper."
   ],
+  "layout": "terms",
   "tree": {
     "kind": "relation",
     "opId": "eq-model-me-symmetric-sum.op.relation",

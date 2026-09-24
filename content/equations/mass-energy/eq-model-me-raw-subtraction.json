@@ -15,6 +15,7 @@
     "The two inertial descriptions refer to the same emission and the same body boundary; |v| < c.",
     "These are authored modern teaching equations, not a reviewed transcription or printed-notation concordance."
   ],
+  "layout": "break",
   "tree": {
     "kind": "relation",
     "opId": "eq-model-me-raw-subtraction.op.relation",

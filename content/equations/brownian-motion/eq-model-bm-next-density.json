@@ -15,6 +15,7 @@
     "Jumps in successive intervals are independent, and the jump density phi is the same at every place and every time.",
     "These are modern teaching equations in SI notation, not a transcription of the printed paper."
   ],
+  "layout": "break",
   "tree": {
     "kind": "relation",
     "opId": "eq-model-bm-next-density.op.relation",

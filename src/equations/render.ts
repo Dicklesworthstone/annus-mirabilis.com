@@ -5,7 +5,7 @@ import { expressionLatex } from "./latex.ts";
 import { navigationTree } from "./navigation.ts";
 import { recordQuantities } from "./printedGlyphs.ts";
 import { type EquationRecord, parseEquationRecord } from "./record.ts";
-import { relationChain, rowsLatex } from "./rowLayout.ts";
+import { layoutLatex } from "./rowLayout.ts";
 import { teachingProfile } from "./teachingProfiles.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
 export function compileEquation(input: EquationRecord): CompiledEquation {
@@ -16,13 +16,11 @@ export function compileEquation(input: EquationRecord): CompiledEquation {
   // The formula prints the record's letters; the terms below keep the table's quantities, so a
   // printed letter never reaches the paper's colour map or a binding.
   const printed = recordQuantities(quantities, eq.printedGlyphs);
-  // An authored layout ("rows") breaks a chain at its relation signs; without one, one line.
-  // The parser has already refused a layout the tree cannot take, so the chain is well formed.
-  const chain = eq.layout === "rows" ? relationChain(eq.tree) : undefined;
+  // An authored layout (rowLayout.ts: "rows", "break", "terms") sets the formula on aligned rows;
+  // without one, one line. The parser has already refused a layout the tree cannot take.
   const latex = (withMarkers: boolean) =>
-    chain && typeof chain !== "string"
-      ? rowsLatex(chain, (e) => expressionLatex(e, printed, withMarkers), withMarkers)
-      : expressionLatex(eq.tree, printed, withMarkers);
+    layoutLatex(eq.layout, eq.tree, (e) => expressionLatex(e, printed, withMarkers), withMarkers) ??
+    expressionLatex(eq.tree, printed, withMarkers);
   const plain = latex(false),
     marked = latex(true);
   const html = renderToString(marked, {

@@ -54,8 +54,10 @@ export type EquationRecord = Readonly<{
    */
   printedGlyphs?: PrintedGlyphs;
   /**
-   * An authored layout: "rows" sets a relation chain on one aligned row per relation sign
-   * (src/equations/rowLayout.ts). Absent, the formula is one line. am-eq-static-katex-7da.
+   * An authored layout (src/equations/rowLayout.ts): "rows" sets a relation chain on one aligned
+   * row per relation sign; "break" sets a single relation's left side, then "= right side", on
+   * two rows; "terms" gives each addend of a summed left side its own row. Absent, the formula is
+   * one line. am-eq-static-katex-7da.
    */
   layout?: EquationLayout;
 }>;

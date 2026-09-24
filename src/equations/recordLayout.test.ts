@@ -24,6 +24,8 @@ const withLayout = (r: EquationRecord, layout: unknown) =>
   ({ ...r, layout }) as unknown as EquationRecord;
 const ids = (html: string) =>
   new Set([...html.matchAll(/data-(?:term|op)="([^"]+)"/g)].map((m) => m[1]));
+/** The AST declares sum and product as one member, so Extract on kind "sum" alone is never. */
+type SumNode = Extract<Expression, { kind: "sum" | "product" }>;
 const signs = (tree: Expression): number =>
   tree.kind === "relation" ? 1 + signs(tree.left) + signs(tree.right) : 0;
 
@@ -78,7 +80,7 @@ describe("an authored row layout", () => {
     expect(checked).toBeGreaterThan(100);
   });
 
-  test("every record that declares rows renders as rows with its single line's ids", () => {
+  test("every record that declares a layout renders as rows with its single line's ids", () => {
     const declared: string[] = [];
     for (const paper of readdirSync(ROOT, { withFileTypes: true })
       .filter((d) => d.isDirectory() && d.name !== "derivations")
@@ -96,9 +98,32 @@ describe("an authored row layout", () => {
         expect(ids(rowsForm.html), record.id).toEqual(ids(lineForm.html));
       }
     // Measured on live at 320px, 2026-09-24: the mass-energy subtraction chain ran 333px in a
-    // 260px explorer box and a 288px reading row, in both places it is shown.
+    // 260px explorer box and a 288px reading row, in both places it is shown; the two emissions
+    // added ran 331px in the same boxes, and paper 2's p(x, t + tau) = integral 282px in a 260px one.
     expect(declared).toContain("eq-model-me-ledger-subtraction-chain");
     expect(declared).toContain(CHAIN.id);
+    expect(declared).toContain("eq-model-me-symmetric-sum");
+    expect(declared).toContain("eq-model-bm-next-density");
+    // The mass-energy elimination's three widest steps, 318 to 336px in a 288px box.
+    for (const id of [
+      "eq-model-me-raw-subtraction",
+      "eq-model-me-ledger-subtraction",
+      "eq-model-me-offset-substitution",
+    ])
+      expect(declared).toContain(id);
+  });
+
+  test("the low-speed factorization is two rows: the relation, then the conditions it needs", () => {
+    // Authored LaTeX, not a record (renderLowSpeed.ts); on one line it ran 410px in a 288px box.
+    const view = JSON.parse(
+      readFileSync(new URL("../generated/mass-energy-low-speed.json", import.meta.url), "utf8"),
+    ) as { factorization: { latex: string; html: string } };
+    const { latex, html } = view.factorization;
+    expect(latex).toStartWith("\\begin{aligned}");
+    const [relation, conditions] = latex.split("\\\\");
+    expect(relation).toContain("=\\frac{L}{c^2}");
+    expect(conditions).toContain("v\\ne 0");
+    expect(html).not.toContain("katex-error");
   });
 
   test("each relation sign in rows is the sign the single-line renderer prints", () => {
@@ -148,5 +173,59 @@ describe("an authored row layout", () => {
     };
     const record = { ...CHAIN, tree: rightNested, layout: "rows" } as unknown as EquationRecord;
     expect(() => parseEquationRecord(record, CHAIN.id)).toThrow(/nested to the left/);
+  });
+});
+
+describe("a single relation too wide for a phone, broken where its record says", () => {
+  const TERMS = load("mass-energy", "eq-model-me-symmetric-sum");
+  const BREAK = load("brownian-motion", "eq-model-bm-next-density");
+  const rowsOf = (latex: string) => latex.split("\\\\").length;
+  const oneLine = (r: EquationRecord) => {
+    const { layout: _layout, ...rest } = r;
+    return compileEquation(rest as EquationRecord);
+  };
+
+  test('"break": the left side on one row, "= right side" on the next, with every id', () => {
+    expect(BREAK.layout).toBe("break");
+    const broken = compileEquation(BREAK);
+    expect(rowsOf(broken.plainLatex)).toBe(2);
+    expect(broken.plainLatex).toContain("\\qquad \\mathrel{=}");
+    expect(ids(broken.html)).toEqual(ids(oneLine(BREAK).html));
+  });
+
+  test('"terms": each added term on its own row, then "= right side", with every id', () => {
+    expect(TERMS.layout).toBe("terms");
+    const broken = compileEquation(TERMS);
+    const sum = (TERMS.tree as Extract<Expression, { kind: "relation" }>).left as SumNode;
+    expect(rowsOf(broken.plainLatex)).toBe(sum.args.length + 1);
+    expect(ids(broken.html)).toEqual(ids(oneLine(TERMS).html));
+    // The sum's marker cannot span rows, so it wraps each plus sign between them.
+    const plusMarker = `data-op="${sum.opId}"`;
+    expect(broken.html.split(plusMarker).length - 1).toBe(sum.args.length - 1);
+  });
+
+  test("the same MathML meaning on one line and on rows", () => {
+    const mi = (m: string) => [...m.matchAll(/<mi[^>]*>([^<]*)<\/mi>/g)].map((x) => x[1]).join(" ");
+    for (const r of [TERMS, BREAK])
+      expect(mi(compileEquation(r).mathml)).toBe(mi(oneLine(r).mathml));
+  });
+
+  test("planted: each layout refuses a tree it cannot take, by name", () => {
+    expect(() => parseEquationRecord(withLayout(CHAIN, "break"), CHAIN.id)).toThrow(
+      /"break" layout breaks a single relation/,
+    );
+    expect(() => parseEquationRecord(withLayout(BREAK, "terms"), BREAK.id)).toThrow(
+      /left side that is a sum/,
+    );
+    const relation = TERMS.tree as Extract<Expression, { kind: "relation" }>;
+    const sum = relation.left as SumNode;
+    const subtracted = {
+      ...TERMS,
+      tree: {
+        ...relation,
+        left: { ...sum, args: [sum.args[0], { kind: "negate", argument: sum.args[1] }] },
+      },
+    } as unknown as EquationRecord;
+    expect(() => parseEquationRecord(subtracted, TERMS.id)).toThrow(/added, not subtracted/);
   });
 });

@@ -16,6 +16,7 @@
     "These are authored modern teaching equations, not a reviewed transcription or printed-notation concordance.",
     "The relation H − E = K + C uses the same unknown additive C before and after emission. This is a premise; conservation and subtraction do not prove it."
   ],
+  "layout": "break",
   "tree": {
     "kind": "relation",
     "opId": "eq-model-me-offset-substitution.op.relation",
