@@ -14,19 +14,35 @@
  *   which re-emits only the enumerated native events as `am-app:<name>` DOM events;
  * - posts `route.changed` (route, anchor, title) when the document is ready and
  *   on every hashchange and popstate, which gives the app the page's title and
- *   a readiness point instead of guessing from the web view's URL.
+ *   a readiness point instead of guessing from the web view's URL;
+ * - posts `settings.changed` with the reader's chosen theme, or "system" while
+ *   the page is following the device, when the document is ready and whenever
+ *   the theme changes, so the app's chrome matches the page.
  */
 
 import { BRIDGE_VERSION, MESSAGE_HANDLER_NAME, NATIVE_EVENT_NAMES } from "./schemas.ts";
 
+/**
+ * The site's theme storage key, its "no choice yet" value, and its theme ids:
+ * THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM and KNOWN_THEME_IDS in
+ * src/app/theme/themeInit.inline.ts, which a test asserts these equal. Copied,
+ * not imported, because that module's extensionless imports do not load in Node.
+ */
+export const SITE_THEME_KEY = "am:settings:v1:theme";
+export const SITE_THEME_FOLLOW_SYSTEM = "follow-system";
+export const SITE_THEME_IDS: readonly string[] = ["annalen", "kramgasse-night"];
+
 /** What the app offers in version 1; the page may branch on these strings. */
-export const BRIDGE_CAPABILITIES: readonly string[] = ["route", "share", "print", "find"];
+export const BRIDGE_CAPABILITIES: readonly string[] = ["route", "theme", "share", "print", "find"];
 
 export function installBridge(
   handlerName: string,
   version: number,
   capabilities: readonly string[],
   eventNames: readonly string[],
+  themeKey: string,
+  followSystem: string,
+  themeIds: readonly string[],
 ): void {
   const w = window as unknown as {
     __AM_APP__?: unknown;
@@ -80,17 +96,57 @@ export function installBridge(
       title: (document.title || "").slice(0, 512),
     });
   };
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", reportRoute, { once: true });
-  } else {
+  // The page's theme, so the app's own chrome (the band behind the status bar,
+  // the status bar itself, native sheets) matches the page rather than the device.
+  // "system" while the reader has not chosen: the page is following the device,
+  // so the app must too. Only an explicit choice is reported as a theme.
+  let reportedTheme: string | null = null;
+  const reportTheme = () => {
+    const theme = document.documentElement?.getAttribute("data-theme") ?? null;
+    if (theme === null) {
+      return;
+    }
+    let stored: string | null = null;
+    try {
+      stored = localStorage.getItem(themeKey);
+    } catch {
+      stored = null;
+    }
+    const chosen = stored !== null && stored !== followSystem && themeIds.indexOf(stored) !== -1;
+    const value = chosen ? theme : "system";
+    if (value === reportedTheme) {
+      return;
+    }
+    reportedTheme = value;
+    post("settings.changed", { theme: value.slice(0, 64) });
+  };
+  const ready = () => {
     reportRoute();
+    reportTheme();
+  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", ready, { once: true });
+  } else {
+    ready();
   }
   window.addEventListener("hashchange", reportRoute);
   window.addEventListener("popstate", reportRoute);
+  if (typeof MutationObserver === "function" && document.documentElement) {
+    new MutationObserver(reportTheme).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+  }
 }
 
-export const BRIDGE_USER_SCRIPT_SOURCE = `(${installBridge.toString()})(${JSON.stringify(
+export const BRIDGE_USER_SCRIPT_SOURCE = `(${installBridge.toString()})(${[
   MESSAGE_HANDLER_NAME,
-)},${JSON.stringify(BRIDGE_VERSION)},${JSON.stringify(BRIDGE_CAPABILITIES)},${JSON.stringify(
+  BRIDGE_VERSION,
+  BRIDGE_CAPABILITIES,
   NATIVE_EVENT_NAMES,
-)});`;
+  SITE_THEME_KEY,
+  SITE_THEME_FOLLOW_SYSTEM,
+  SITE_THEME_IDS,
+]
+  .map((argument) => JSON.stringify(argument))
+  .join(",")});`;

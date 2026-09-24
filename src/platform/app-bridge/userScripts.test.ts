@@ -7,7 +7,13 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { runInNewContext } from "node:vm";
 import { NATIVE_EVENT_NAMES, validateEditionMessage } from "./schemas.ts";
-import { BRIDGE_CAPABILITIES, BRIDGE_USER_SCRIPT_SOURCE } from "./userScripts.ts";
+import {
+  BRIDGE_CAPABILITIES,
+  BRIDGE_USER_SCRIPT_SOURCE,
+  SITE_THEME_FOLLOW_SYSTEM,
+  SITE_THEME_IDS,
+  SITE_THEME_KEY,
+} from "./userScripts.ts";
 
 type Listener = (event: unknown) => void;
 
@@ -16,6 +22,8 @@ function sandbox(options: {
   readyState?: string;
   hash?: string;
   throwOnPost?: boolean;
+  theme?: string;
+  stored?: string | null;
 }) {
   const posted: unknown[] = [];
   const windowListeners = new Map<string, Listener[]>();
@@ -26,9 +34,31 @@ function sandbox(options: {
     search: "?detail=2",
     hash: options.hash ?? "",
   };
+  const state: { theme: string | null; stored: string | null } = {
+    theme: options.theme ?? null,
+    stored: options.stored ?? null,
+  };
+  const localStorage = {
+    getItem: (key: string) => (key === "am:settings:v1:theme" ? state.stored : null),
+  };
+  const observers: (() => void)[] = [];
+  class MutationObserver {
+    callback: () => void;
+    constructor(callback: () => void) {
+      this.callback = callback;
+    }
+    observe() {
+      observers.push(this.callback);
+    }
+  }
+  const documentElement =
+    options.theme === undefined
+      ? undefined
+      : { getAttribute: (name: string) => (name === "data-theme" ? state.theme : null) };
   const document = {
     readyState: options.readyState ?? "complete",
     title: "Brownian motion",
+    documentElement,
     addEventListener: (type: string, listener: Listener) => {
       documentListeners.set(type, [...(documentListeners.get(type) ?? []), listener]);
     },
@@ -64,7 +94,15 @@ function sandbox(options: {
       },
     };
   }
-  const context = { window, document, location, CustomEvent, decodeURIComponent };
+  const context = {
+    window,
+    document,
+    location,
+    CustomEvent,
+    MutationObserver,
+    localStorage,
+    decodeURIComponent,
+  };
   const run = () => runInNewContext(BRIDGE_USER_SCRIPT_SOURCE, context);
   const fire = (target: "window" | "document", type: string) => {
     for (const listener of (target === "window" ? windowListeners : documentListeners).get(type) ??
@@ -72,7 +110,16 @@ function sandbox(options: {
       listener({ type });
     }
   };
-  return { window, location, posted, dispatched, run, fire };
+  const setTheme = (theme: string, stored?: string) => {
+    state.theme = theme;
+    if (stored !== undefined) {
+      state.stored = stored;
+    }
+    for (const observer of observers) {
+      observer();
+    }
+  };
+  return { window, location, posted, dispatched, run, fire, setTheme };
 }
 
 describe("the bridge user script", () => {
@@ -142,5 +189,51 @@ describe("the bridge user script", () => {
     const first = page.window.__AM_APP__;
     assert.doesNotThrow(() => page.run());
     assert.equal(page.window.__AM_APP__, first);
+  });
+
+  it("reports 'system' while the page follows the device, and the theme once the reader chooses", () => {
+    const page = sandbox({ inApp: true, theme: "annalen" });
+    page.run();
+    const themes = () =>
+      page.posted
+        .filter((m) => (m as { type: string }).type === "settings.changed")
+        .map((m) => (m as { body: { theme: string } }).body.theme);
+    assert.deepEqual(themes(), ["system"]);
+    page.setTheme("kramgasse-night");
+    assert.deepEqual(themes(), ["system"], "a device change is still 'system'");
+    page.setTheme("kramgasse-night", "kramgasse-night");
+    page.setTheme("kramgasse-night");
+    assert.deepEqual(themes(), ["system", "kramgasse-night"], "the choice once, not repeated");
+    page.setTheme("annalen", "annalen");
+    assert.deepEqual(themes(), ["system", "kramgasse-night", "annalen"]);
+    for (const message of page.posted) {
+      const verdict = validateEditionMessage(message);
+      assert.equal(verdict.ok, true, verdict.ok ? "" : verdict.detail);
+    }
+  });
+
+  it("treats the stored follow-system value and an unknown value as no choice", () => {
+    for (const stored of ["follow-system", "slate"]) {
+      const page = sandbox({ inApp: true, theme: "annalen", stored });
+      page.run();
+      const theme = page.posted.find((m) => (m as { type: string }).type === "settings.changed");
+      assert.equal((theme as { body: { theme: string } }).body.theme, "system", stored);
+    }
+  });
+
+  it("uses the site's own theme key and values", async () => {
+    const site = await import("../../app/theme/themeInit.inline.ts");
+    assert.equal(SITE_THEME_KEY, site.THEME_STORAGE_KEY);
+    assert.equal(SITE_THEME_FOLLOW_SYSTEM, site.THEME_FOLLOW_SYSTEM);
+    assert.deepEqual([...SITE_THEME_IDS], [...site.KNOWN_THEME_IDS]);
+  });
+
+  it("sends no theme when the page has none", () => {
+    const page = sandbox({ inApp: true });
+    page.run();
+    assert.equal(
+      page.posted.filter((m) => (m as { type: string }).type === "settings.changed").length,
+      0,
+    );
   });
 });
