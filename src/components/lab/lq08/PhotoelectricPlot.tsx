@@ -3,12 +3,19 @@ import { visibleColor } from "../../../experiments/lq08/session.ts";
 import { fixed } from "../presentation.ts";
 import { Sci, SubSvg } from "../Sci.tsx";
 
+/**
+ * A predict gate's attribute (PredictGate.tsx). Each drawing keeps its axes, levels and inputs in
+ * view and spreads this on what the prompts ask about, which then waits for an answer or a skip.
+ */
+type PredictResponse = Readonly<{ "data-predict-response": "shown" | "awaiting" }>;
+
 export type EnergyLadderProps = Readonly<{
   frequency: number; // Hz
   workFunction: number; // eV
   quantumEnergyEv: number; // eV
   kMaxEv: number | null; // eV or null if sub-threshold
   thresholdFrequency: number; // Hz
+  response?: PredictResponse;
 }>;
 
 export function EnergyLadderPlot({
@@ -17,6 +24,7 @@ export function EnergyLadderPlot({
   quantumEnergyEv,
   kMaxEv,
   thresholdFrequency,
+  response,
 }: EnergyLadderProps) {
   const width = 360;
   const height = 240;
@@ -75,7 +83,7 @@ export function EnergyLadderPlot({
       <svg
         viewBox={`0 0 ${width} ${height}`}
         role="img"
-        aria-label={`Energy ladder diagram showing photon energy ${quantumEnergyEv.toFixed(2)} eV and work function ${workFunction.toFixed(2)} eV`}
+        aria-label={`Energy ladder diagram showing quantum energy ${quantumEnergyEv.toFixed(2)} eV and work function ${workFunction.toFixed(2)} eV`}
         style={{
           width: "100%",
           height: "auto",
@@ -169,46 +177,48 @@ export function EnergyLadderPlot({
           +h&nu; = {quantumEnergyEv.toFixed(2)} eV
         </text>
 
-        {/* Emitted state or below threshold */}
-        {kMaxEv !== null && kMaxEv >= 0 ? (
-          <>
-            <line
-              x1={width / 2 + 10}
-              y1={yZero}
-              x2={width / 2 + 10}
-              y2={yPhoton}
-              stroke="var(--plot)"
-              strokeWidth="2.5"
-            />
-            <circle cx={width / 2 + 10} cy={yPhoton} r="4" fill="var(--plot)" />
+        {/* Emitted state or below threshold: the energy the first prompt asks about, so it waits. */}
+        <g {...response}>
+          {kMaxEv !== null && kMaxEv >= 0 ? (
+            <>
+              <line
+                x1={width / 2 + 10}
+                y1={yZero}
+                x2={width / 2 + 10}
+                y2={yPhoton}
+                stroke="var(--plot)"
+                strokeWidth="2.5"
+              />
+              <circle cx={width / 2 + 10} cy={yPhoton} r="4" fill="var(--plot)" />
+              <text
+                x={width / 2 + 20}
+                y={yPhoton + 4}
+                textAnchor="start"
+                fontSize="11"
+                fill="var(--plot)"
+                fontWeight="bold"
+                fontFamily="var(--font-mono, monospace)"
+              >
+                K
+                <tspan baselineShift="sub" fontSize="75%">
+                  max
+                </tspan>{" "}
+                = {fixed(kMaxEv, 3)} eV
+              </text>
+            </>
+          ) : (
             <text
               x={width / 2 + 20}
               y={yPhoton + 4}
               textAnchor="start"
               fontSize="11"
-              fill="var(--plot)"
-              fontWeight="bold"
-              fontFamily="var(--font-mono, monospace)"
+              fill="var(--muted)"
+              fontWeight="500"
             >
-              K
-              <tspan baselineShift="sub" fontSize="75%">
-                max
-              </tspan>{" "}
-              = {fixed(kMaxEv, 3)} eV
+              h&nu; &lt; &Phi;: no electron escapes
             </text>
-          </>
-        ) : (
-          <text
-            x={width / 2 + 20}
-            y={yPhoton + 4}
-            textAnchor="start"
-            fontSize="11"
-            fill="var(--muted)"
-            fontWeight="500"
-          >
-            h&nu; &lt; &Phi;: no electron escapes
-          </text>
-        )}
+          )}
+        </g>
       </svg>
     </div>
   );
@@ -232,6 +242,7 @@ export type StoppingPlotProps = Readonly<{
   millikanOverlay: boolean;
   /** Built on the server from the record's plot verdict; only a "plottable" result draws points. */
   millikanData?: MillikanOverlayResult | undefined;
+  response?: PredictResponse;
 }>;
 
 export function StoppingPotentialPlot({
@@ -240,6 +251,7 @@ export function StoppingPotentialPlot({
   currentStoppingPotential,
   millikanOverlay,
   millikanData,
+  response,
 }: StoppingPlotProps) {
   const width = 420;
   // 272 tall with a 53-unit bottom margin (it was 260 and 45). At the lab's SVG text size (15.84
@@ -289,7 +301,8 @@ export function StoppingPotentialPlot({
       >
         Stopping potential against frequency
       </h3>
-      <p className="fine" style={{ margin: "0 0 0.5rem" }}>
+      {/* The slope for every metal is the third prompt's answer, so the sentence waits. */}
+      <p {...response} className="fine" style={{ margin: "0 0 0.5rem" }}>
         In the model the slope is h/e = <Sci value={4.1357e-15} digits={3} /> V&middot;s for every
         metal.
       </p>
@@ -392,7 +405,15 @@ export function StoppingPotentialPlot({
 
         {/* Theoretical line */}
         {xStartNu < maxNu && (
-          <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--plot)" strokeWidth="2.5" />
+          <line
+            {...response}
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
+            stroke="var(--plot)"
+            strokeWidth="2.5"
+          />
         )}
 
         {/* Threshold frequency vertical dashed mark */}
@@ -423,7 +444,7 @@ export function StoppingPotentialPlot({
 
         {/* Millikan 1916 Data Points Overlay */}
         {millikanOverlay && millikanData?.kind === "plottable" && (
-          <g data-testid="millikan-dataset">
+          <g data-testid="millikan-dataset" {...response}>
             {millikanData.points.map((pt) => {
               const cx = scaleX(pt.frequencyHz);
               const cy = scaleY(pt.stoppingPotentialVolts);
@@ -447,7 +468,7 @@ export function StoppingPotentialPlot({
         {currentStoppingPotential !== null &&
           currentFrequency >= minNu &&
           currentFrequency <= maxNu && (
-            <g>
+            <g {...response}>
               <circle
                 cx={scaleX(currentFrequency)}
                 cy={scaleY(currentStoppingPotential)}
@@ -473,7 +494,7 @@ export function StoppingPotentialPlot({
         </div>
       )}
       {millikanOverlay && millikanData?.kind === "plottable" && (
-        <div style={MEASURED_NOTE_STYLE}>
+        <div {...response} style={MEASURED_NOTE_STYLE}>
           <p style={{ fontWeight: 600, margin: "0 0 0.25rem" }}>
             Millikan’s 1916 sodium measurements, later evidence
           </p>
@@ -500,6 +521,7 @@ export type CurrentVoltageProps = Readonly<{
   stoppingPotential: number | null; // V
   saturationCurrentMicroAmps: number; // uA
   currentAtOperatingPoint: number | null; // uA or null if underdetermined
+  response?: PredictResponse;
 }>;
 
 export function CurrentVoltagePlot({
@@ -507,6 +529,7 @@ export function CurrentVoltagePlot({
   stoppingPotential,
   saturationCurrentMicroAmps,
   currentAtOperatingPoint,
+  response,
 }: CurrentVoltageProps) {
   const width = 380;
   const height = 220;
@@ -546,7 +569,7 @@ export function CurrentVoltagePlot({
       >
         Current against collector potential
       </h3>
-      <p className="fine" style={{ margin: "0 0 0.5rem" }}>
+      <p {...response} className="fine" style={{ margin: "0 0 0.5rem" }}>
         Saturation current{" "}
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
           I<sub>sat</sub> = {saturationCurrentMicroAmps.toFixed(2)} &mu;A
@@ -632,75 +655,78 @@ export function CurrentVoltagePlot({
           Current I (&mu;A)
         </text>
 
-        {/* Curve Segments */}
-        {/* 1. Full cutoff U_c <= -Vs */}
-        <line
-          x1={padding.left}
-          y1={yZeroI}
-          x2={Math.min(xZero, Math.max(padding.left, xCutoff))}
-          y2={yZeroI}
-          stroke="var(--plot)"
-          strokeWidth="2.5"
-        />
-
-        {/* 2. Underdetermined intermediate regime -Vs < U_c < 0 (dashed) */}
-        {vs > 0 && (
-          <path
-            d={`M ${Math.max(padding.left, xCutoff)} ${yZeroI} Q ${(Math.max(padding.left, xCutoff) + xZero) / 2} ${yZeroI} ${xZero} ${ySat}`}
-            fill="none"
-            stroke="var(--accent)"
-            strokeWidth="2"
-            strokeDasharray="4 3"
+        {/* Curve Segments, the stopping mark and the operating point: they show how the fastest
+            electrons' energy and the current respond, so they wait. The axes stay. */}
+        <g {...response}>
+          {/* 1. Full cutoff U_c <= -Vs */}
+          <line
+            x1={padding.left}
+            y1={yZeroI}
+            x2={Math.min(xZero, Math.max(padding.left, xCutoff))}
+            y2={yZeroI}
+            stroke="var(--plot)"
+            strokeWidth="2.5"
           />
-        )}
 
-        {/* 3. Saturation regime U_c >= 0 */}
-        <line
-          x1={xZero}
-          y1={ySat}
-          x2={width - padding.right}
-          y2={ySat}
-          stroke="var(--plot)"
-          strokeWidth="2.5"
-        />
+          {/* 2. Underdetermined intermediate regime -Vs < U_c < 0 (dashed) */}
+          {vs > 0 && (
+            <path
+              d={`M ${Math.max(padding.left, xCutoff)} ${yZeroI} Q ${(Math.max(padding.left, xCutoff) + xZero) / 2} ${yZeroI} ${xZero} ${ySat}`}
+              fill="none"
+              stroke="var(--accent)"
+              strokeWidth="2"
+              strokeDasharray="4 3"
+            />
+          )}
 
-        {/* Stopping potential mark */}
-        {vs > 0 && (
-          <g>
-            <circle cx={xCutoff} cy={yZeroI} r="4" fill="var(--accent)" />
-            <text
-              x={xCutoff}
-              y={yZeroI - 8}
-              textAnchor="middle"
-              fontSize="10"
-              fill="var(--accent)"
-              fontFamily="var(--font-mono, monospace)"
-              fontWeight="600"
-            >
-              −V<SubSvg>s</SubSvg> = −{vs.toFixed(2)} V
-            </text>
-          </g>
-        )}
-
-        {/* Operating Point */}
-        {collectorPotential >= minU && collectorPotential <= maxU && (
-          <circle
-            cx={scaleX(collectorPotential)}
-            cy={
-              currentAtOperatingPoint !== null
-                ? scaleY(currentAtOperatingPoint)
-                : collectorPotential >= 0
-                  ? ySat
-                  : collectorPotential <= -vs
-                    ? yZeroI
-                    : (ySat + yZeroI) / 2
-            }
-            r="5"
-            fill="var(--plot)"
-            stroke="var(--panel)"
-            strokeWidth="1.5"
+          {/* 3. Saturation regime U_c >= 0 */}
+          <line
+            x1={xZero}
+            y1={ySat}
+            x2={width - padding.right}
+            y2={ySat}
+            stroke="var(--plot)"
+            strokeWidth="2.5"
           />
-        )}
+
+          {/* Stopping potential mark */}
+          {vs > 0 && (
+            <g>
+              <circle cx={xCutoff} cy={yZeroI} r="4" fill="var(--accent)" />
+              <text
+                x={xCutoff}
+                y={yZeroI - 8}
+                textAnchor="middle"
+                fontSize="10"
+                fill="var(--accent)"
+                fontFamily="var(--font-mono, monospace)"
+                fontWeight="600"
+              >
+                −V<SubSvg>s</SubSvg> = −{vs.toFixed(2)} V
+              </text>
+            </g>
+          )}
+
+          {/* Operating Point */}
+          {collectorPotential >= minU && collectorPotential <= maxU && (
+            <circle
+              cx={scaleX(collectorPotential)}
+              cy={
+                currentAtOperatingPoint !== null
+                  ? scaleY(currentAtOperatingPoint)
+                  : collectorPotential >= 0
+                    ? ySat
+                    : collectorPotential <= -vs
+                      ? yZeroI
+                      : (ySat + yZeroI) / 2
+              }
+              r="5"
+              fill="var(--plot)"
+              stroke="var(--panel)"
+              strokeWidth="1.5"
+            />
+          )}
+        </g>
       </svg>
     </div>
   );

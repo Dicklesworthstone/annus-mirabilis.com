@@ -325,50 +325,53 @@ predictMode:
       supportedCandidateId: energy-unchanged
       controlId: incidentPower
       question: "Make the lamp twice as bright without changing its frequency. What happens to the energy of the fastest electrons?"
+      explanation: "In the light-quantum hypothesis each electron takes up one quantum, of energy hν. A brighter lamp at the same frequency sends more quanta each second, so more electrons leave the metal, but the energy of each quantum, and so of the fastest electrons, stays the same."
       candidates:
         - id: energy-increases
           label: "It increases"
           description: "Greater wave intensity delivers more energy per electron."
-          separatingAssumption: "Classical wave assumption: energy transfer depends on light intensity."
+          separatingAssumption: "Treats the light as a wave that gives each electron energy in proportion to its intensity, so a brighter lamp would give each electron more."
         - id: energy-unchanged
           label: "It stays the same"
           description: "Each electron absorbs exactly one light quantum whose energy depends on frequency alone."
-          separatingAssumption: "Light-quantum assumption: one quantum transfers its energy to one electron, changing emission rate but not individual energy."
+          separatingAssumption: "Takes one quantum to give its energy hν to one electron. A brighter lamp sends more quanta, so more electrons leave, each with at most hν less the work of escape."
         - id: energy-decreases
           label: "It decreases"
           description: "Crowding more electrons slows individual electrons down through space charge."
-          separatingAssumption: "Space-charge assumption: assumes collective electron repulsion degrades individual peak kinetic energy."
+          separatingAssumption: "Lets the extra electrons repel one another and slow the fastest. The energy each electron receives is still one quantum's, hν."
     - promptId: lq-08-predict-raise-frequency
       supportedCandidateId: rate-falls
       controlId: frequency
       question: "Raise the frequency while keeping the lamp's power the same. What happens to the number of quanta arriving each second?"
+      explanation: "The lamp's power is the number of quanta arriving each second times the energy hν of each. Raise ν at fixed power and each quantum carries more, so fewer arrive each second."
       candidates:
         - id: rate-rises
           label: "More arrive each second"
           description: "Higher-frequency light has greater penetrating power and frees electrons more readily."
-          separatingAssumption: "Assumes higher frequency increases the quantum count per unit power."
+          separatingAssumption: "Lets a higher frequency bring more quanta at the same power. Each quantum then carries more energy, hν, so the power would have to rise."
         - id: rate-falls
           label: "Fewer arrive each second"
           description: "At fixed power, each quantum carries more energy, so fewer quanta arrive each second."
-          separatingAssumption: "Light-quantum accounting: total power equals quantum rate times quantum energy, so rate falls as frequency rises."
+          separatingAssumption: "Counts the power as the number of quanta each second times hν, so at fixed power a larger hν means fewer quanta."
         - id: rate-unchanged
           label: "The same number arrive each second"
           description: "Total power determines the total energy entering the metal per second, so the quantum count is conserved."
-          separatingAssumption: "Assumes light delivers continuous energy with constant quantum rate at fixed power."
+          separatingAssumption: "Keeps the number of quanta fixed while each carries more energy, which would raise the power the lamp delivers."
     - promptId: lq-08-predict-two-metals
       supportedCandidateId: lines-parallel
       controlId: workFunction
       question: "Two different metals are lit by the same lamp. Plotted against frequency, are their stopping-potential lines parallel, crossing, or identical?"
+      explanation: "In Einstein's §8 equation, written with modern constants, the slope of stopping potential against frequency is h/e, and nothing in it depends on the metal. The work function only moves where each line starts: at the threshold frequency, the work function divided by h. This lab draws both lines from that equation, so it shows what the equation predicts; it cannot show that real metals share one slope. Millikan measured that slope in 1916."
       candidates:
         - id: lines-parallel
           label: "Parallel, with different starting thresholds"
           description: "The slope is a universal constant of radiation and charge, while the work function shifts the starting threshold."
-          separatingAssumption: "Universal quantum slope: the stopping line slope is universal and independent of the material."
+          separatingAssumption: "Takes the slope from §8's equation, h/e in modern constants, which contains nothing about the metal; the work function only moves where each line starts."
         - id: lines-crossing
           label: "Crossing"
           description: "Different metals couple differently to light, so each metal has its own characteristic slope."
-          separatingAssumption: "Material-specific coupling: assumes frequency sensitivity depends on the metal electron structure."
+          separatingAssumption: "Lets each metal set its own slope, as if the metal changed how much of hν an electron receives."
         - id: lines-identical
           label: "Identical"
           description: "The photoelectric response is a universal property of free electrons in all conductors."
-          separatingAssumption: "Free electron assumption: ignores the material-dependent surface escape barrier."
+          separatingAssumption: "Gives every metal the same work function, so both lines would start at one threshold."

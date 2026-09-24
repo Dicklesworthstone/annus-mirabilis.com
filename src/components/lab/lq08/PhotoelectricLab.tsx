@@ -19,8 +19,10 @@ import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabT
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
@@ -44,6 +46,11 @@ export type PhotoelectricLabProps = Readonly<{
    */
   linked?: boolean;
   /**
+   * Whether this laboratory asks its prompts before showing what they ask about. The optional
+   * second laboratory is opened for a comparison, after the first has asked, so it does not.
+   */
+  predict?: boolean;
+  /**
    * A session owned by the component that embeds the lab, so that something beside it reads the
    * same accepted snapshot (the light-quanta journey's check against the world). Omitted, the lab
    * owns its own, as on /lab/lq-08/.
@@ -51,134 +58,10 @@ export type PhotoelectricLabProps = Readonly<{
   session?: ReturnType<typeof createLq08Session> | undefined;
 }>;
 
-type PredictCandidate = Readonly<{
-  id: string;
-  label: string;
-  description: string;
-  separatingAssumption: string;
-  correct: boolean;
-}>;
-
-type PredictPrompt = Readonly<{
-  promptId: string;
-  controlId: string;
-  question: string;
-  candidates: readonly PredictCandidate[];
-  explanation: string;
-}>;
-
-const PREDICT_PROMPTS: readonly PredictPrompt[] = [
-  {
-    promptId: "lq-08-predict-double-power",
-    controlId: "incidentPower",
-    question:
-      "Make the lamp twice as bright without changing its frequency. What happens to the energy of the fastest electrons?",
-    candidates: [
-      {
-        id: "energy-increases",
-        label: "It increases",
-        description: "Greater wave intensity delivers more energy per electron.",
-        separatingAssumption:
-          "Classical wave assumption: energy transfer depends on light intensity.",
-        correct: false,
-      },
-      {
-        id: "energy-unchanged",
-        label: "It stays the same",
-        description:
-          "Each electron absorbs exactly one light quantum whose energy depends on frequency alone.",
-        separatingAssumption:
-          "Light-quantum assumption: one quantum transfers its energy to one electron, changing emission rate but not individual energy.",
-        correct: true,
-      },
-      {
-        id: "energy-decreases",
-        label: "It decreases",
-        description:
-          "Crowding more electrons slows individual electrons down through space charge.",
-        separatingAssumption:
-          "Space-charge assumption: assumes collective electron repulsion degrades individual peak kinetic energy.",
-        correct: false,
-      },
-    ],
-    explanation:
-      "In the light-quantum hypothesis, each electron absorbs exactly one quantum. Radiant power changes the arrival rate, not the energy of individual quanta.",
-  },
-  {
-    promptId: "lq-08-predict-raise-frequency",
-    controlId: "frequency",
-    question:
-      "Raise the frequency while keeping the lamp's power the same. What happens to the number of quanta arriving each second?",
-    candidates: [
-      {
-        id: "rate-rises",
-        label: "More arrive each second",
-        description:
-          "Higher-frequency light has greater penetrating power and frees electrons more readily.",
-        separatingAssumption:
-          "Assumes higher frequency increases the quantum count per unit power.",
-        correct: false,
-      },
-      {
-        id: "rate-falls",
-        label: "Fewer arrive each second",
-        description:
-          "At fixed power, each quantum carries more energy, so fewer quanta arrive each second.",
-        separatingAssumption:
-          "Light-quantum accounting: total power equals quantum rate times quantum energy, so rate falls as frequency rises.",
-        correct: true,
-      },
-      {
-        id: "rate-unchanged",
-        label: "The same number arrive each second",
-        description:
-          "Total power determines the total energy entering the metal per second, so the quantum count is conserved.",
-        separatingAssumption:
-          "Assumes light delivers continuous energy with constant quantum rate at fixed power.",
-        correct: false,
-      },
-    ],
-    explanation:
-      "The lamp's power is the number of quanta arriving each second times the energy hν of each. Raise ν at fixed power and each quantum carries more, so fewer arrive each second.",
-  },
-  {
-    promptId: "lq-08-predict-two-metals",
-    controlId: "workFunction",
-    question:
-      "Two different metals are lit by the same lamp. Plotted against frequency, are their stopping-potential lines parallel, crossing, or identical?",
-    candidates: [
-      {
-        id: "lines-parallel",
-        label: "Parallel, with different starting thresholds",
-        description:
-          "The slope is h/e whatever the metal; the work function only moves where each line starts.",
-        separatingAssumption:
-          "Universal quantum slope: the stopping line slope is universal and independent of the material.",
-        correct: true,
-      },
-      {
-        id: "lines-crossing",
-        label: "Crossing",
-        description:
-          "Different metals couple differently to light, so each metal has its own characteristic slope.",
-        separatingAssumption:
-          "Material-specific coupling: assumes frequency sensitivity depends on the metal electron structure.",
-        correct: false,
-      },
-      {
-        id: "lines-identical",
-        label: "Identical",
-        description:
-          "The photoelectric response is a universal property of free electrons in all conductors.",
-        separatingAssumption:
-          "Free electron assumption: ignores the material-dependent surface escape barrier.",
-        correct: false,
-      },
-    ],
-    explanation:
-      "In Einstein's §8 equation, written with modern constants, the slope of stopping potential against frequency is h/e, and nothing in it depends on the metal. The work function only moves where each line starts: at the threshold frequency, the work function divided by h. This lab draws both lines from that equation, so it shows what the equation predicts; it cannot show that real metals share one slope. Millikan measured that slope in 1916.",
-  },
-];
+// The three prompts come from the manifest, content/experiments/lq-08.yaml, through the generated
+// module; this file kept its own copy of them until 2026-09-24.
+const LQ08_PROMPTS = PREDICT_PROMPTS["lq-08"] ?? [];
+const NO_PROMPTS: typeof LQ08_PROMPTS = [];
 
 /** Presets, in the order a reader meets the argument, named for what they set up. */
 const PRESET_ORDER = [
@@ -266,6 +149,7 @@ export function PhotoelectricLab({
   millikan,
   readings = true,
   linked = true,
+  predict = true,
   session: sharedSession,
 }: PhotoelectricLabProps) {
   const instanceId = useId();
@@ -279,7 +163,8 @@ export function PhotoelectricLab({
     session.getServerSnapshot,
   );
 
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  // The drawings' frames and the controls come first; what the prompts ask about waits.
+  const gate = usePredictGate("lq-08", predict ? LQ08_PROMPTS : NO_PROMPTS);
   const [showMillikan, setShowMillikan] = useState<boolean>(true);
   const [drafts, setDrafts] = useState<Partial<Record<FieldKey, string>>>({});
   const [error, setError] = useState("");
@@ -412,32 +297,7 @@ export function PhotoelectricLab({
 
       <div className="lab-columns">
         <div>
-          <details className="lab-predict">
-            <summary>Predict first</summary>
-            {PREDICT_PROMPTS.map((prompt) => {
-              const chosen = answers[prompt.promptId];
-              return (
-                <fieldset key={prompt.promptId}>
-                  <legend>{prompt.question}</legend>
-                  {prompt.candidates.map((cand) => (
-                    <label key={cand.id} className="lab-predict-candidate">
-                      <input
-                        type="radio"
-                        name={`${instanceId}-${prompt.promptId}`}
-                        value={cand.id}
-                        checked={chosen === cand.id}
-                        onChange={() => setAnswers((a) => ({ ...a, [prompt.promptId]: cand.id }))}
-                      />
-                      <span>
-                        <strong>{cand.label}.</strong> {cand.description}
-                      </span>
-                    </label>
-                  ))}
-                  {chosen && <p className="lab-predict-reveal">{prompt.explanation}</p>}
-                </fieldset>
-              );
-            })}
-          </details>
+          <PredictGatePanels gate={gate} />
 
           <SliderField
             {...field("frequency")}
@@ -458,7 +318,7 @@ export function PhotoelectricLab({
             readout={`${(params.incidentPower * 1e3).toFixed(2)} mW`}
           />
           {qRateVal !== null && (
-            <p className="fine lab-slider-readout">
+            <p className="fine lab-slider-readout" {...gate.response}>
               <Sci value={qRateVal} digits={3} /> quanta arrive each second.
             </p>
           )}
@@ -522,8 +382,9 @@ export function PhotoelectricLab({
           <AcceptedStatus
             worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
             summary={statusSummary}
+            response={gate.response}
           />
-          {linked && <LabTapeLink link={tapeLink} />}
+          {linked && <LabTapeLink link={withPredictions(tapeLink, gate)} />}
         </div>
 
         <div className="lab-results">
@@ -534,6 +395,7 @@ export function PhotoelectricLab({
               quantumEnergyEv={qEnergyEv}
               kMaxEv={kMaxEv}
               thresholdFrequency={tfVal}
+              response={gate.response}
             />
             <StoppingPotentialPlot
               currentFrequency={params.frequency}
@@ -541,18 +403,20 @@ export function PhotoelectricLab({
               currentStoppingPotential={vsVal}
               millikanOverlay={showMillikan}
               millikanData={millikan}
+              response={gate.response}
             />
             <CurrentVoltagePlot
               collectorPotential={params.collectorPotential}
               stoppingPotential={vsVal}
               saturationCurrentMicroAmps={iSatMicroAmps}
               currentAtOperatingPoint={pcMicroAmps}
+              response={gate.response}
             />
           </div>
         </div>
       </div>
 
-      <div className="lab-values">
+      <div className="lab-values" {...gate.response}>
         <h3>Values at these settings</h3>
         <section className="table-scroll" aria-label="Values at these settings">
           <table className="data-table">
@@ -670,7 +534,13 @@ export function PhotoelectricComparison({
         </p>
       </div>
       {second && (
-        <PhotoelectricLab example={example} millikan={millikan} readings={false} linked={false} />
+        <PhotoelectricLab
+          example={example}
+          millikan={millikan}
+          readings={false}
+          linked={false}
+          predict={false}
+        />
       )}
     </>
   );
