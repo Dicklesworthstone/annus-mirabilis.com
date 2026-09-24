@@ -20,6 +20,10 @@ export const EPS0 = constantValue(getConstantSet("modern-codata-2022"), "vacuumP
 
 export const PATH_REFUSAL_REASON =
   "The two ends of this path are not at the same time in the other frame, so the two line integrals are taken over different events. Choose a path across the direction of motion, or state which frame's clock fixes the path's ends.";
+/** A path along the motion, with its slice declared: the force on the charges points across the
+ * path in both frames, so both electromotive forces are zero and there is no ratio to compare. */
+export const ALONG_MOTION_ZERO_REASON =
+  "Along the direction of motion the force on the charges points across the path, in both frames, so the electromotive force is zero in each and there is no ratio to compare. Choose a path across the direction of motion to compare the two descriptions.";
 
 export type Vec3 = Readonly<{ x: number; y: number; z: number }>;
 
@@ -409,7 +413,10 @@ export function evaluateSr02(input: Sr02Input): Sr02Snapshot {
   const nDotV = input.pathOrientation === "along-motion" ? 1 : 0;
   const offset =
     input.pathOrientation === "along-motion" ? (γ * v * input.segmentLength) / (c * c) : 0;
-  const emfMagnet = Math.abs(v * Bz * input.segmentLength);
+  // The force per unit charge, v × B with v along x and B along z, points along −y, so only the
+  // path's component across the motion does work. A path along the motion has zero electromotive
+  // force in the magnet frame, and in the conductor frame too (E′ is along y), for any slice.
+  const emfMagnet = Math.abs(v * Bz * input.segmentLength) * (1 - nDotV);
   const emfConductor = γ * emfMagnet;
   const classification =
     nDotV === 0 ? { sign: "zero" as const } : classifyWithTolerance(nDotV, { absolute: 1e-12 });
@@ -430,6 +437,8 @@ export function evaluateSr02(input: Sr02Input): Sr02Snapshot {
   } else if (classification.sign !== "zero" && !input.sliceDeclared) {
     emfConductorOut = na("ec", PATH_REFUSAL_REASON);
     excessOut = na("xs", PATH_REFUSAL_REASON);
+  } else if (classification.sign !== "zero") {
+    excessOut = na("xs", ALONG_MOTION_ZERO_REASON);
   }
 
   return Object.freeze({
