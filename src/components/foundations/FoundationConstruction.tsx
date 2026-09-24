@@ -11,6 +11,7 @@ import type { HeadingLevel } from "./headingLevel.ts";
 import { LogarithmProductTable } from "./LogarithmProductTable.tsx";
 import { MagnitudeScale } from "./MagnitudeScale.tsx";
 import { NudgeSensitivityDemo } from "./NudgeSensitivityDemo.tsx";
+import { OsmoticTable } from "./OsmoticTable.tsx";
 import { ProductsView } from "./ProductsView.tsx";
 import { RapidityAdder } from "./RapidityAdder.tsx";
 import { RepeatedIntervals } from "./RepeatedIntervals.tsx";
@@ -88,5 +89,7 @@ export function FoundationConstruction({
       return <SinkingSpheres headingLevel={headingLevel} />;
     case "temperature-thermal-energy":
       return <SpeedSpread headingLevel={headingLevel} />;
+    case "free-energy-osmotic-pressure":
+      return <OsmoticTable headingLevel={headingLevel} />;
   }
 }
