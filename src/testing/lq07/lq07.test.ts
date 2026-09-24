@@ -233,3 +233,44 @@ describe("LQ-07 fluorescence energy budget & Stokes's rule contract", () => {
     expect(badK.kind).toBe("refused");
   });
 });
+
+describe("LQ-07 emission follows the budget's verdict", () => {
+  const status = (evaluation: ReturnType<typeof evaluateLq07>, id: string) =>
+    evaluation.outputs.find((o) => o.quantityId === id)?.status;
+
+  test("a forbidden transition reports no emitted rate, power or heat, and keeps the absorbed rate", () => {
+    // nu2 = 1000 THz above nu1 = 850 THz: one quantum cannot supply the emitted one. Before the
+    // fix the rate panel showed 0.588 uW emitted from 1 uW absorbed at yield 0.5.
+    const forbidden = evaluateLq07({ ...LQ07_DEFAULTS, nu2: 1000 });
+    expect(forbidden.budget.allowed).toBe(false);
+    expect(forbidden.rates.status).toBe("not-applicable");
+    for (const id of ["emittedRate", "emittedPowerWatts", "dissipatedHeatWatts"])
+      expect(status(forbidden, id)).toBe("not-applicable");
+    expect(status(forbidden, "absorbedRate")).toBe("value");
+  });
+
+  test("an allowed transition still counts its emission", () => {
+    const allowed = evaluateLq07({ ...LQ07_DEFAULTS, nu2: 600 });
+    expect(allowed.budget.allowed).toBe(true);
+    expect(allowed.rates.status).toBe("value");
+    expect(status(allowed, "emittedPowerWatts")).toBe("value");
+  });
+
+  test("anti-Stokes emission under the thermal allowance draws heat from the body instead of clamping it to zero", () => {
+    // nu2 = 900 THz is inside the modern thermal bound (about 912.5 THz at 300 K). At yield 1 the
+    // emitted power exceeds the absorbed 1 uW, so the heat term is negative, not 0.
+    const cooling = evaluateLq07({
+      ...LQ07_DEFAULTS,
+      regime: "modern-thermal",
+      nu2: 900,
+      quantumYield: 1,
+    });
+    expect(cooling.budget.allowed).toBe(true);
+    expect(cooling.rates.emittedPowerWatts).toBeGreaterThan(1e-6);
+    expect(cooling.rates.dissipatedHeatWatts).toBeLessThan(0);
+    expect(cooling.rates.dissipatedHeatWatts).toBeCloseTo(
+      1e-6 - cooling.rates.emittedPowerWatts,
+      20,
+    );
+  });
+});
