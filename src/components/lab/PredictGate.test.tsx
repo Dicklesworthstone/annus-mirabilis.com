@@ -16,7 +16,11 @@ import { DEFAULT_PREPARED_EXAMPLE as ME02_EXAMPLE } from "../../experiments/me02
 import { decodeTapePermalink } from "../../experiments/permalink/codec.ts";
 import { LOCAL_PREDICT_PERSISTENCE } from "../../experiments/predict/localPredictPersistence.ts";
 import { writeGlobalPredictEntry } from "../../experiments/predict/predictEntry.ts";
-import { installPredictPersistence } from "../../experiments/predict/predictPersistence.ts";
+import {
+  installPredictPersistence,
+  predictPersistence,
+  REMEMBERS_NOTHING,
+} from "../../experiments/predict/predictPersistence.ts";
 import {
   getStoredPrompt,
   markVisited,
@@ -540,6 +544,50 @@ describe("with JavaScript, a first-time reader answers before the result shows",
       });
     });
   }
+});
+
+/**
+ * An embed renders no LocalPredictions, so its gate keeps the port's default, which reads and
+ * writes nothing of the reader's (the embed boundary, src/testing/embedImportBoundary.test.ts).
+ * The same stored answers that open the gate on the site leave it asking in an embed, and an
+ * answer given in an embed is not stored.
+ */
+describe("in an embed the gate remembers nothing of the reader's", () => {
+  const first = LABS[0];
+  const prompt = first ? PREDICT_PROMPTS[first.lab]?.[0] : undefined;
+  beforeEach(async () => {
+    await installDom();
+    installPredictPersistence(REMEMBERS_NOTHING);
+  });
+  afterEach(async () => {
+    installPredictPersistence(LOCAL_PREDICT_PERSISTENCE);
+    await uninstallDom();
+  });
+
+  test("the default port asks and keeps nothing", () => {
+    expect(predictPersistence()).toBe(REMEMBERS_NOTHING);
+    expect(REMEMBERS_NOTHING.asks("any-lab", ["any-prompt"])).toBe(true);
+  });
+
+  test("a reader's stored answer does not open the gate, and a skip there stores nothing", async () => {
+    expect(first && prompt).toBeTruthy();
+    if (!first || !prompt) return;
+    const ctx = createStorageContext();
+    writePredictionsDocument(
+      ctx,
+      markVisited(readPredictionsDocument(ctx), first.lab, prompt.promptId),
+    );
+    const before = JSON.stringify(readPredictionsDocument(createStorageContext()));
+    await mounted(first.element(), async (container) => {
+      expect(responses(container).every((s) => s === "awaiting")).toBe(true);
+      await act(async () => {
+        handlers(button(container, "Skip prediction")).onClick?.();
+      });
+      await settle();
+      expect(responses(container).every((s) => s === "shown")).toBe(true);
+    });
+    expect(JSON.stringify(readPredictionsDocument(createStorageContext()))).toBe(before);
+  });
 });
 
 /**
