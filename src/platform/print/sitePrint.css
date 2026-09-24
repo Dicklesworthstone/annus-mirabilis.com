@@ -74,6 +74,23 @@ summary::marker {
   padding-left: 0;
   font-weight: 600;
 }
+/* The step drawers print open (am-plat-print-3orn). "Show every step here" and "Explore the
+   equations in this step" hold the derivations themselves, and so do the drawers that hold the
+   missing-step explorer's transitions (details:has(.missing-step-math)): closed, BM section 4 printed 50 of the 233 equations a reader brings on screen by
+   opening them (measured on live under print emulation). ::details-content is what a closed
+   drawer's content lives in, hidden; made visible, the content prints under its summary, which
+   prints as a label. The other drawers still print nothing: they hold a control, a term-by-term
+   gloss or a question, not the argument. */
+:root main details.local-steps:not([open]):not(.callout-note),
+:root main details:has(.missing-step-math):not([open]):not(.callout-note) {
+  display: block;
+}
+:root main details.local-steps::details-content,
+:root main details:has(.missing-step-math)::details-content {
+  content-visibility: visible;
+  display: block;
+  block-size: auto;
+}
 
 /* --- The reading layout: one column across the page ---------------------------------------- */
 :root .reader-anatomy {
