@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "kind": "argument",
+  "id": "arg-lq-equilibrium-assumptions",
+  "paper": "light-quanta",
+  "section": "s1",
+  "title": "Two assumptions under the equilibrium of section 1",
+  "question": "What does the equilibrium of §1 assume about the electrons and about the radiation?",
+  "recap": "The equilibrium of §1 rests on two assumptions its footnotes spell out: gas molecules and electrons have the same mean kinetic energy, as Drude assumed for metals, and the radiation is as disordered as possible, meaning its Fourier amplitudes and phases are statistically independent of one another.",
+  "review": "draft",
+  "premises": [
+    "Free electrons collide with the gas molecules as gas molecules collide with each other.",
+    "At equilibrium, gas molecules and electrons have equal mean kinetic energies (the footnote to the setup of §1).",
+    "Planck's relation between a resonator and the radiation around it holds for radiation that is as disordered as possible (the footnote that defines it)."
+  ],
+  "limitations": [
+    "The passage explains what the footnotes state; it does not test whether real radiation in a cavity meets the disorder condition.",
+    "Einstein cites Drude's theory of metals in support; the passage does not assess that theory."
+  ],
+  "citations": ["ap-17-132"],
+  "readings": {
+    "overview": [
+      {
+        "kind": "paragraph",
+        "text": "The result of §1 depends on two assumptions spelled out in its footnotes: electrons and gas molecules have the same average energy of motion, and the radiation is completely disordered, with nothing linking the strengths and timings of its waves."
+      }
+    ],
+    "full": [
+      {
+        "kind": "paragraph",
+        "text": "§1 puts gas molecules, free electrons and bound electrons in a box with mirror walls, and lets the free electrons collide like the molecules of a gas. A footnote says what that amounts to: at equilibrium, gas molecules and electrons have equal mean kinetic energies. Drude, Einstein notes, used the same assumption to derive the ratio of heat conduction to electrical conduction in metals."
+      },
+      {
+        "kind": "paragraph",
+        "text": "That equality is what fixes the mean energy of each straight-line vibration of a resonator. A resonator whose average energy were higher or lower would, through the collisions, keep giving energy to the gas or taking it, so equilibrium needs:"
+      },
+      {
+        "kind": "formula",
+        "latex": "E=\\frac{R}{N}T",
+        "spoken": "The mean energy E of one resonator vibration equals R over N times the temperature T."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The second assumption belongs to Planck's relation between a resonator and the radiation around it, which §1 uses. Planck derived it for radiation that is 'as disordered as possible', and a footnote defines the phrase. At one point of the space, expand one component Z of the electric field over a long time T in a Fourier series of sine waves with amplitudes A and phases α. Repeat the expansion from starting moments chosen at random: the amplitudes and phases come out differently each time, with a statistical probability for each combination."
+      },
+      {
+        "kind": "formula",
+        "latex": "Z=\\sum_{\\nu=1}^{\\infty}A_\\nu\\sin\\left(2\\pi\\nu\\frac{t}{T}+\\alpha_\\nu\\right)",
+        "spoken": "Z equals the sum over nu from one to infinity of A nu times the sine of two pi nu t over T plus alpha nu."
+      },
+      {
+        "kind": "paragraph",
+        "text": "The radiation is as disordered as possible when that probability splits into separate factors, one for each amplitude and one for each phase:"
+      },
+      {
+        "kind": "formula",
+        "latex": "f(A_1,A_2,\\ldots,\\alpha_1,\\alpha_2,\\ldots)=F_1(A_1)F_2(A_2)\\ldots f_1(\\alpha_1)f_2(\\alpha_2)\\ldots",
+        "spoken": "The joint probability density of all the amplitudes and phases equals a product of separate factors, one for each amplitude and one for each phase."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Then the value of any one amplitude or phase tells nothing about the others. Einstein adds that the radiation in his box comes closer to this the more each pair of an amplitude and its phase depends on emission and absorption by its own particular group of resonators. Neither assumption is derived in §1. The footnotes state them, and the equilibrium, with the unbounded total energy it leads to at the end of §1, rests on both."
+      },
+      {
+        "kind": "foundation",
+        "id": "probability-independence",
+        "returnCaption": "Return to the independence the disorder condition asks for."
+      }
+    ],
+    "steps": [
+      {
+        "kind": "paragraph",
+        "text": "Letters: E is the mean energy of one straight-line vibration of a resonator (the paper writes it with a bar), R the gas constant, N the number of real molecules in a gram-equivalent and T the absolute temperature. In the footnote, Z is one component of the electric field at a point, T there is a long stretch of time, A the amplitudes and α the phases of the Fourier series."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "The first assumption: in the box, free electrons collide with gas molecules the way gas molecules collide with each other.",
+          "Its content, from the footnote: at a common temperature the mean kinetic energy of an electron equals the mean kinetic energy of a gas molecule. Drude had made the same assumption to derive the ratio of the thermal to the electrical conductivity of metals.",
+          "A resonator's electron shares in that equality. Kinetic theory gives a gas molecule the mean kinetic energy of its forward motion as (3/2)(R/N)T, so the resonator electron has that mean kinetic energy too.",
+          "Split the electron's motion into three vibrations along lines at right angles. Each gets a third of the kinetic energy: (1/3) × (3/2)(R/N)T = (1/2)(R/N)T.",
+          "In a vibration the time averages of kinetic and potential energy are equal, so each vibration's mean energy is twice its kinetic part: 2 × (1/2)(R/N)T = (R/N)T. That is (R/N)T ÷ (3/2)(R/N)T = 2/3 of the kinetic energy of a free monatomic gas molecule, as the paper says.",
+          "If a resonator had more than that on average, collisions would drain the excess into the gas; if less, collisions would feed it. Equilibrium therefore needs exactly:"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "E=\\frac{R}{N}T",
+        "spoken": "The mean energy E of one resonator vibration equals R over N times the temperature T."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked value, with today's value of R/N, 1.38 × 10⁻²³ joule per kelvin, which the paper does not use: at 300 kelvin, E = 1.38 × 10⁻²³ × 300 ≈ 4.14 × 10⁻²¹ joule. The frequency does not enter, so a resonator of any frequency has the same mean energy.",
+          "The second assumption comes with Planck's relation, which §1 borrows to connect a resonator to the radiation. Planck derived it for radiation that is as disordered as possible, and the footnote says what that means.",
+          "Pick a point in the box and one component Z of the electric field there. Over a time T much longer than every period of vibration that matters, write Z as a sum of sine waves. (Here T is that stretch of time, not the temperature.)"
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "Z=\\sum_{\\nu=1}^{\\infty}A_\\nu\\sin\\left(2\\pi\\nu\\frac{t}{T}+\\alpha_\\nu\\right)",
+        "spoken": "Z equals the sum over nu from one to infinity of A nu times the sine of two pi nu t over T plus alpha nu."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Each term has an amplitude \\(A_\\nu\\), zero or more, and a phase \\(\\alpha_\\nu\\) between 0 and 2π. Start the stretch of time at a different moment, chosen at random, and the amplitudes and phases come out different.",
+          "Doing that many times gives a statistical probability for each combination of amplitudes and phases, written as a density f of all of them together.",
+          "The disorder condition: f is a product of separate factors, one for each amplitude and one for each phase."
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "f(A_1,A_2,\\ldots,\\alpha_1,\\alpha_2,\\ldots)=F_1(A_1)F_2(A_2)\\ldots f_1(\\alpha_1)f_2(\\alpha_2)\\ldots",
+        "spoken": "The joint probability density of all the amplitudes and phases equals a product of separate factors, one for each amplitude and one for each phase."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "What the product means: learning one amplitude or phase changes nothing about the chances of any other. Worked case: if the first amplitude lies above some value in half of the expansions, and the first phase lies in the first half of its circle in half of them, then disorder gives both at once in 1/2 × 1/2 = 1/4 of the expansions.",
+          "When the condition holds only roughly: Einstein says it holds the better, the more each pair of an amplitude and its phase comes from the emission and absorption of its own particular group of resonators.",
+          "Neither assumption is proved in §1. They are the ground under the equilibrium from which §1 draws its conclusion: that on this picture the radiation energy grows without limit as higher frequencies are allowed."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "temperature-thermal-energy",
+        "returnCaption": "Return to the mean energy each vibration shares at equilibrium."
+      }
+    ],
+    "margin": [
+      {
+        "kind": "paragraph",
+        "text": "Drude's electron theory of metals (Annalen der Physik, 1900) treated the conduction electrons as a gas sharing the thermal energy of the metal, which is the use the Drude footnote points to. For Planck's relation §1 cites Ann. d. Phys. 1, p. 99, 1900; that paper derives the relation under a statistical condition on the radiation that Planck called natural radiation, and the footnote examined here is Einstein's own statement of the condition in terms of Fourier amplitudes and phases. On the plate (p. 135) the second α in the sentence after the product is set as an italic x, a misprint the sense of the sentence corrects. Whether cavity radiation meets the condition is a question §1 does not take up."
+      }
+    ]
+  },
+  "prerequisites": [
+    {
+      "id": "arg-lq-classical-allocation",
+      "edge": "cross-reference"
+    }
+  ],
+  "help": {
+    "why": "temperature-thermal-energy",
+    "missingStep": "probability-independence",
+    "example": "probability-independence"
+  },
+  "experiments": [],
+  "meaning": {
+    "logicalRole": "assumption",
+    "historicalStatus": "pedagogical-reconstruction",
+    "modelStatus": "exact-within-model",
+    "executionStatus": "static-illustration"
+  }
+}
