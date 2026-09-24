@@ -34,12 +34,13 @@ describe("registered, authored and owned", () => {
 describe("every existing caller links with a return caption", () => {
   const links: { path: string; id: string; caption: unknown }[] = [];
   const walk = (path: string, value: unknown): void => {
-    if (Array.isArray(value)) value.forEach((v) => walk(path, v));
-    else if (value && typeof value === "object") {
+    if (Array.isArray(value)) {
+      for (const v of value) walk(path, v);
+    } else if (value && typeof value === "object") {
       const o = value as Record<string, unknown>;
       if (o.kind === "foundation" && typeof o.id === "string")
         links.push({ path, id: o.id, caption: o.returnCaption });
-      Object.values(o).forEach((v) => walk(path, v));
+      for (const v of Object.values(o)) walk(path, v);
     }
   };
   for (const { path, json } of argumentRecords()) walk(path, json);
