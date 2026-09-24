@@ -12,11 +12,21 @@
  * 34,925 bytes, held the clock, light-quanta and mass-energy entrances and both explorers.
  *
  * HOW. A component imported through React.lazy from a client module becomes an async chunk,
- * fetched only when a page renders it. The server still renders every island in full: the
- * static export waits for all Suspense boundaries (continueFizzStream awaits allReady), and
- * React then writes a finished boundary in place, so a reader without JavaScript gets the same
- * HTML. On the client each island has its own Suspense boundary, so hydration keeps the
- * server's HTML until that island's chunk arrives and the rest of the page does not wait for it.
+ * fetched only when a page renders it. Measured on a build of 7b2ba7b1: the four paper routes
+ * load 186,233 (SR), 177,787 (LQ), 189,088 (ME) and 180,793 (BM) bytes brotli of JavaScript
+ * through hydration, lazy chunks included.
+ *
+ * NO SUSPENSE BOUNDARY OF ITS OWN, ON PURPOSE. 8ce94625 wrapped each island in <Suspense>, and
+ * the build showed what that does: React wrote every island out of line, into
+ * <div hidden id="S:0">, for a script to move into place. With JavaScript off, all four first
+ * encounters were in the HTML and invisible (Playwright, JavaScript disabled: no client rects,
+ * hidden ancestor S:0, 4 of 4 paper routes). Without a boundary of its own an island suspends the
+ * page's shell, since nothing above <main> is a boundary (app/layout.tsx), so the export waits
+ * for it and writes it inline: the same build then had no outlined segment on any of its 366
+ * pages. next/dynamic does the same for ssr: true (lazy-dynamic/loadable.js renders no Suspense
+ * then). The cost is on the client, where hydration waits for the page's own island chunks.
+ * A <Suspense> around a call site, or in a layout above <main>, brings the hidden segments back;
+ * a built page containing <div hidden id="S: is the symptom.
  *
  * CSS STAYS IN THE PAGE'S HEAD. A stylesheet imported only inside a lazy chunk is fetched with
  * that chunk, by script: a reader without JavaScript would get the island's markup unstyled, and
@@ -27,11 +37,12 @@
  * The foundation constructions have their own wrapper (LazyFoundationConstruction.tsx) so that a
  * foundation page, which renders one, does not take on the entrances' stylesheets.
  *
- * TESTS. renderToStaticMarkup cannot wait for a chunk: on a cold module it renders the fallback,
- * which is nothing. A test that needs an island's markup renders the component itself, or
- * renders the page the way the export does, with renderToReadableStream and allReady.
+ * TESTS. renderToStaticMarkup cannot wait for a chunk. A test that needs an island's markup
+ * renders the component itself, or the page through src/testing/exportMarkup.ts. That shows the
+ * markup but not where Next puts it: in Bun the Suspense-wrapped islands came out inline while
+ * the Next build outlined them, so only a built page shows an island is visible without script.
  */
-import { type ComponentProps, lazy, Suspense } from "react";
+import { type ComponentProps, lazy } from "react";
 import type { LinearProofExplorer } from "../equations/derivations/LinearProofExplorer.tsx";
 import type { LowSpeedExplorer } from "../equations/derivations/LowSpeedExplorer.tsx";
 import type { BrownianFirstEncounter } from "./entrances/BrownianFirstEncounter.tsx";
@@ -72,53 +83,29 @@ const LinearProof = lazy(() =>
 );
 
 export function LazyBrownianFirstEncounter(props: ComponentProps<typeof BrownianFirstEncounter>) {
-  return (
-    <Suspense fallback={null}>
-      <Brownian {...props} />
-    </Suspense>
-  );
+  return <Brownian {...props} />;
 }
 
 export function LazyClockFirstEncounter(props: ComponentProps<typeof ClockFirstEncounter>) {
-  return (
-    <Suspense fallback={null}>
-      <Clock {...props} />
-    </Suspense>
-  );
+  return <Clock {...props} />;
 }
 
 export function LazyLightQuantaFirstEncounter(
   props: ComponentProps<typeof LightQuantaFirstEncounter>,
 ) {
-  return (
-    <Suspense fallback={null}>
-      <LightQuanta {...props} />
-    </Suspense>
-  );
+  return <LightQuanta {...props} />;
 }
 
 export function LazyMassEnergyFirstEncounter(
   props: ComponentProps<typeof MassEnergyFirstEncounter>,
 ) {
-  return (
-    <Suspense fallback={null}>
-      <MassEnergy {...props} />
-    </Suspense>
-  );
+  return <MassEnergy {...props} />;
 }
 
 export function LazyLowSpeedExplorer(props: ComponentProps<typeof LowSpeedExplorer>) {
-  return (
-    <Suspense fallback={null}>
-      <LowSpeed {...props} />
-    </Suspense>
-  );
+  return <LowSpeed {...props} />;
 }
 
 export function LazyLinearProofExplorer(props: ComponentProps<typeof LinearProofExplorer>) {
-  return (
-    <Suspense fallback={null}>
-      <LinearProof {...props} />
-    </Suspense>
-  );
+  return <LinearProof {...props} />;
 }

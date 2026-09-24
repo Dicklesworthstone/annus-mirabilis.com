@@ -7,13 +7,13 @@
  * constructions, about 8 KB brotli, into the first JavaScript of every one of those routes, while
  * of the four paper pages only brownian-motion shows a construction at all. Blocks now renders
  * this only for a lesson that has one (constructionIds.ts), so the chunk is fetched where it
- * draws something. Server rendering is unchanged; see src/reader/lazyIslands.tsx for how a lazy
- * island is still written into the static HTML.
+ * draws something. Like the islands in src/reader/lazyIslands.tsx it has no Suspense boundary of
+ * its own, which is what keeps it inline in the static HTML; that file gives the measurement.
  *
  * The constructions' stylesheets are imported here, by the eagerly loaded wrapper, so they stay
  * linked in the page's head: inside the lazy chunk they would arrive only with its script.
  */
-import { type ComponentProps, lazy, Suspense } from "react";
+import { type ComponentProps, lazy } from "react";
 import type { FoundationConstruction } from "./FoundationConstruction.tsx";
 import "./foundations.css";
 import "../lab/sci.css";
@@ -23,9 +23,5 @@ const Construction = lazy(() =>
 );
 
 export function LazyFoundationConstruction(props: ComponentProps<typeof FoundationConstruction>) {
-  return (
-    <Suspense fallback={null}>
-      <Construction {...props} />
-    </Suspense>
-  );
+  return <Construction {...props} />;
 }
