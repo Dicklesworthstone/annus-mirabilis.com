@@ -220,3 +220,34 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
     admittedStages: ["stage-05"],
   },
 ];
+
+/**
+ * Later evidence: never on the 1904 shelf (cardRules.ts, card-later-on-shelf), shown beside the
+ * route's check against the world. Plan §9.5 names the first quantitative nuclear check as a
+ * timeline card; it is described here without figures, which this edition has not transcribed.
+ */
+export const MASS_ENERGY_LATER_EVIDENCE: readonly KnowledgeCard[] = [
+  {
+    id: "cockcroft-walton-1932-lithium",
+    proposition:
+      "Cockcroft and Walton break lithium nuclei apart with fast protons, producing pairs of alpha particles, and compare the energy the alpha particles carry with the loss of mass computed from the atomic masses. The two agree within the uncertainty of the masses then known.",
+    status: "later",
+    sources: [
+      {
+        title:
+          "Experiments with high velocity positive ions. II. The disintegration of elements by high velocity protons",
+        date: "1932",
+        locator: "Proc. R. Soc. A 137, 229",
+      },
+    ],
+    date: {
+      earliest: "1932-07",
+      latest: "1932-07",
+      precision: "month",
+      latestYear: 1932,
+      eventKind: "published",
+    },
+    limits:
+      "Later evidence, not on the 1904 shelf, and twenty-seven years after the paper. The edition has not transcribed its figures.",
+  },
+];

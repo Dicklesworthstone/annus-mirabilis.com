@@ -11,7 +11,10 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { BROWNIAN_LATER_EVIDENCE, BROWNIAN_SHELF_CARDS } from "../src/content/brownianShelf.ts";
 import { LIGHT_QUANTA_SHELF_CARDS } from "../src/content/lightQuantaShelf.ts";
-import { MASS_ENERGY_SHELF_CARDS } from "../src/content/massEnergyShelf.ts";
+import {
+  MASS_ENERGY_LATER_EVIDENCE,
+  MASS_ENERGY_SHELF_CARDS,
+} from "../src/content/massEnergyShelf.ts";
 import { SPECIAL_RELATIVITY_SHELF_CARDS } from "../src/content/specialRelativityShelf.ts";
 import { KnowledgeCardView } from "../src/discovery/cards/KnowledgeCard.tsx";
 import {
@@ -19,12 +22,12 @@ import {
   type JourneyCards,
 } from "../src/discovery/cards/shelfPublication.ts";
 
-/** Every card a journey page renders: its shelf, and Brownian's later evidence beside its check. */
+/** Every card a journey page renders: its shelf, and the later evidence beside its check. */
 export const JOURNEY_CARDS: readonly JourneyCards[] = [
   { journey: "light-quanta", cards: LIGHT_QUANTA_SHELF_CARDS },
   { journey: "brownian-motion", cards: [...BROWNIAN_SHELF_CARDS, ...BROWNIAN_LATER_EVIDENCE] },
   { journey: "special-relativity", cards: SPECIAL_RELATIVITY_SHELF_CARDS },
-  { journey: "mass-energy", cards: MASS_ENERGY_SHELF_CARDS },
+  { journey: "mass-energy", cards: [...MASS_ENERGY_SHELF_CARDS, ...MASS_ENERGY_LATER_EVIDENCE] },
 ];
 
 if (import.meta.main) {
