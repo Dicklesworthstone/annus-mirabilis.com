@@ -38,9 +38,9 @@ $$
 $$
 gegeben, wobei $\sum \frac{\partial \varphi_\nu}{\partial p_\nu} = 0$, so ist die Entropie des Systems durch den Ausdruck gegeben:
 $$
-S = \frac{E}{T} + 2 \varkappa \lg \int e^{-\frac{E}{2 \varkappa T}} d p_1 \ldots d p_l.
+S = \frac{\bar{E}}{T} + 2 \varkappa \lg \int e^{-\frac{E}{2 \varkappa T}} d p_1 \ldots d p_l.
 $$
-Hierbei bedeutet $T$ die absolute Temperatur, $E$ die Energie des Systems, $E$ die Energie als Funktion der $p_\nu$. Das Integral ist über alle mit den Bedingungen des Problems vereinbaren Wertekombinationen der $p_\nu$ zu erstrecken. $\varkappa$ ist mit der oben erwähnten Konstanten $N$ durch die Relation $2 \varkappa N = R$ verbunden. Für die freie Energie $F$ erhalten wir daher:
+Hierbei bedeutet $T$ die absolute Temperatur, $\bar{E}$ die Energie des Systems, $E$ die Energie als Funktion der $p_\nu$. Das Integral ist über alle mit den Bedingungen des Problems vereinbaren Wertekombinationen der $p_\nu$ zu erstrecken. $\varkappa$ ist mit der oben erwähnten Konstanten $N$ durch die Relation $2 \varkappa N = R$ verbunden. Für die freie Energie $F$ erhalten wir daher:
 $$
 F = -\frac{R}{N} T \lg \int e^{-\frac{E N}{R T}} d p_1 \ldots d p_l = -\frac{R T}{N} \lg B.
 $$
