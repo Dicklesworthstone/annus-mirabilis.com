@@ -1,0 +1,579 @@
+# Which explanation passage explains each printed paragraph, footnote and display of the
+# special-relativity paper (am-bind-paragraphs-and-displays-sr-nlea), under the explanation-grain
+# decision D-2026-09-24-explanation-grain: the argument passages stay the unit of explanation,
+# every source paragraph is bound to one or more of them or declared unexplained with its reason,
+# every paragraph has its own one- or two-sentence overview (r0), and every printed display is
+# bound to an equation record or given a declared status. Units are the frozen manifest's
+# (content/source-blocks/special-relativity). The paragraphs of printed pages 891 to 912 were read
+# in the machine-draft ledger and checked against the plates where the ledger's breaks and the
+# manifest's paragraph starts disagreed (pp. 894, 901, 911, 912); pages 913 to 921, which have no
+# German text yet, were read from the plates. The r0 lines are explanatory preview prose, not a
+# translation and not Einstein's words; no review is claimed.
+#
+# Two notes for the German source reviewer. s7-p4 begins at "Dies ist das Doppelersche Prinzip",
+# which the plate of p. 911 sets flush after the display rather than indented, so it may be a
+# resumption of s7-p3; the frozen ids are kept. At s7-p4 the page prints "v = -oo", a long-noted
+# misprint for -V; the r0 reports what the page prints and corrects nothing.
+paper: special-relativity
+decision: D-2026-09-24-explanation-grain
+paragraphs:
+  - unit: s0-p1
+    passages: [arg-sr-magnet-conductor]
+    r0: "Maxwell's electrodynamics, as it was usually understood, treats a magnet moving past a resting conductor differently from a conductor moving past a resting magnet, although the current observed depends only on their relative motion. Einstein calls this an asymmetry that the phenomena themselves do not seem to have."
+  - unit: s0-p2
+    passages: [arg-sr-magnet-conductor]
+    r0: "Such examples, and the failed attempts to detect the earth's motion through the light medium, lead Einstein to conjecture that absolute rest has no counterpart in electrodynamics either. He raises this principle of relativity to a postulate, adds that light in empty space always travels at one speed V whatever the motion of its source, and says a light ether will prove superfluous."
+  - unit: s0-p3
+    passages: [arg-sr-magnet-conductor]
+    r0: "Every electrodynamics rests on the kinematics of rigid bodies, since its statements concern rigid bodies used as coordinate systems, clocks and electromagnetic processes. Neglecting this, Einstein says, is the root of the present difficulties."
+  - unit: s1-p1
+    passages: [arg-sr-synchronization]
+    r0: "Einstein starts from a coordinate system in which Newton's equations of mechanics hold, and calls it the stationary system."
+  - unit: s1-p2
+    passages: [arg-sr-synchronization]
+    r0: "The position of a point at rest in that system can be found with rigid measuring rods by the methods of Euclidean geometry."
+  - unit: s1-p3
+    passages: [arg-sr-synchronization]
+    r0: "Describing a motion means giving positions as functions of time, which has a meaning only once it is said what time is. Every statement about time is a statement about simultaneous events, such as a train arriving when the small hand of a watch points to 7."
+  - unit: s1-fn1
+    status: unexplained
+    reason: "No passage of this paper takes up the simultaneity of two events at nearly the same place; the passage on synchronization begins with clocks at different places."
+    r0: "A footnote sets aside the imprecision in calling two events at nearly the same place simultaneous, which also has to be bridged by an abstraction."
+  - unit: s1-p5
+    passages: [arg-sr-synchronization]
+    r0: "Reading time from the hand of one clock works only at the place of that clock. It does not connect events that happen at other places, far from the clock."
+  - unit: s1-p6
+    passages: [arg-sr-synchronization]
+    r0: "An observer at the clock could assign each distant event the time at which its light signal arrives, but that assignment depends on where the observer stands. Einstein looks for a more practical rule."
+  - unit: s1-p7
+    passages: [arg-sr-synchronization]
+    r0: "Clocks at A and at B each give a time only for events near them. Einstein defines a common time by declaring that light takes as long to go from A to B as to come back, so the two clocks are synchronous when the outward and the return times agree."
+  - unit: s1-p8
+    passages: [arg-sr-synchronization]
+    r0: "He assumes this definition can be applied without contradiction to any number of clocks: if the clock at B is synchronous with the clock at A, the one at A is synchronous with the one at B, and two clocks synchronous with a third are synchronous with each other."
+  - unit: s1-p9
+    passages: [arg-sr-synchronization]
+    r0: "This fixes what synchronous clocks at rest in different places are, and with it what simultaneous and time mean: the time of an event is the reading, at that event, of a resting clock at its place that is synchronous with one chosen clock."
+  - unit: s1-p10
+    passages: [arg-sr-synchronization]
+    r0: "In agreement with experience, twice the distance between two clocks divided by the time light takes to go there and back is taken to be a universal constant V, the speed of light in empty space."
+  - unit: s1-p11
+    passages: [arg-sr-synchronization]
+    r0: "Because this time is defined by clocks at rest in the stationary system, Einstein calls it the time of the stationary system."
+  - unit: s2-p1
+    passages: [arg-sr-rod-events]
+    r0: "Einstein states the two principles the argument uses: the laws by which physical systems change are the same in any two systems in uniform translation relative to each other, and every light ray moves in the stationary system at the speed V whether its source is at rest or moving."
+  - unit: s2-p2
+    passages: [arg-sr-rod-events]
+    r0: "A rigid rod of length l is set moving along the x-axis at speed v. Its length can be found in two ways: by an observer who moves with it and lays a measuring rod beside it, or by finding where its two ends are at one given time with the synchronized clocks of the stationary system."
+  - unit: s2-p3
+    passages: [arg-sr-rod-events]
+    r0: "By the principle of relativity, the first way, measuring alongside the moving rod, must give its length at rest, l."
+  - unit: s2-p4
+    passages: [arg-sr-rod-events]
+    r0: "The second way gives what Einstein calls the length of the moving rod in the stationary system, and he will find that it differs from l."
+  - unit: s2-p5
+    passages: [arg-sr-rod-events]
+    r0: "The usual kinematics silently assumes the two lengths are equal, that is, that a moving rigid body at a given moment can be replaced, geometrically, by the same body at rest."
+  - unit: s2-p6
+    passages: [arg-sr-rod-events]
+    r0: "Clocks are fixed to both ends of the rod and set to agree with the stationary system's clocks wherever they happen to be."
+  - unit: s2-p7
+    passages: [arg-sr-rod-events]
+    r0: "Observers moving with the rod apply the light-signal test of section 1 to its two clocks. Because the rod moves, light takes longer to go one way along it than to come back, so these observers find the clocks out of step, while observers in the stationary system call them synchronous."
+  - unit: s2-fn1
+    passages: [arg-sr-rod-events]
+    r0: "A footnote says that time here means both the time of the stationary system and the reading of the moving clock at the place in question."
+  - unit: s2-p8
+    passages: [arg-sr-rod-events]
+    r0: "So simultaneity has no absolute meaning: two events that are simultaneous seen from one system are not simultaneous seen from a system moving relative to it."
+  - unit: s3-p1
+    passages: [arg-sr-lorentz-map]
+    r0: "Two coordinate systems are set up in the stationary space, with their x-axes along one line, each with a rigid measuring rod and clocks, all of them exactly alike."
+  - unit: s3-p2
+    passages: [arg-sr-lorentz-map]
+    r0: "One of them, k, is given a constant speed v along the x-axis of the other, K, and keeps its axes parallel to those of K."
+  - unit: s3-p3
+    passages: [arg-sr-lorentz-map]
+    r0: "Each system measures space with its own rod and sets its own clocks by the light signals of section 1, giving coordinates x, y, z and time t in K, and ξ, η, ζ and time τ in k."
+  - unit: s3-p4
+    passages: [arg-sr-lorentz-map]
+    r0: "To the values x, y, z, t of every event belong its values ξ, η, ζ, τ in k, and the task is to find the equations that connect them."
+  - unit: s3-p5
+    passages: [arg-sr-lorentz-map]
+    r0: "Because of the uniformity attributed to space and time, those equations must be linear."
+  - unit: s3-p6
+    passages: [arg-sr-lorentz-map]
+    r0: "Einstein writes x' for x minus vt, which stays fixed for a point at rest in k, and first seeks the time τ of k as what k's clocks show once they are synchronized by the rule of section 1."
+  - unit: s3-p7
+    passages: [arg-sr-lorentz-map]
+    r0: "A light signal sent along the x-axis in k and reflected back must, by the rule of section 1, be reflected at the halfway time. Writing this with light's speed in K, and letting the distance shrink, gives an equation that τ must satisfy."
+  - unit: s3-p9
+    passages: [arg-sr-lorentz-map]
+    r0: "Any other point could have served as the starting point of the signal, so that equation holds throughout k."
+  - unit: s3-p10
+    passages: [arg-sr-lorentz-map]
+    r0: "Light sent along the other two axes shows that τ does not depend on y or z, so τ is an unknown factor times a simple combination of t and x'."
+  - unit: s3-p12
+    passages: [arg-sr-lorentz-map]
+    r0: "Requiring that light also travels at V when measured in k, Einstein follows a ray along the ξ-axis and finds ξ as the same unknown factor times a multiple of x'."
+  - unit: s3-p14
+    passages: [arg-sr-lorentz-map, arg-sr-transverse-and-inverse]
+    r0: "Rays along the other two axes give η and ζ in the same way. Putting back x minus vt for x' yields the transformation up to a still unknown function φ of v, with the factor Einstein calls β, which grows as v approaches V."
+  - unit: s3-p15
+    passages: [arg-sr-lorentz-map]
+    r0: "It remains to prove that light also travels at V measured in k, since the two principles have not yet been shown to be compatible."
+  - unit: s3-p16
+    passages: [arg-sr-lorentz-map]
+    r0: "A spherical light wave is sent out from the shared origin at the moment both systems' clocks read zero; in K its front is a sphere growing at speed V."
+  - unit: s3-p20
+    passages: [arg-sr-lorentz-map]
+    r0: "Transformed into the coordinates of k, the same wavefront is again a sphere growing at speed V."
+  - unit: s3-p17
+    passages: [arg-sr-lorentz-map]
+    r0: "So the wave is spherical with speed V in the moving system too, and the two principles are compatible."
+  - unit: s3-p21
+    passages: [arg-sr-lorentz-map]
+    r0: "The transformation still contains an unknown function φ of v, which Einstein now sets out to determine."
+  - unit: s3-p18
+    passages: [arg-sr-lorentz-map, arg-sr-transverse-and-inverse]
+    r0: "He brings in a third system, moving with speed minus v relative to k, and applies the transformation twice."
+  - unit: s3-p22
+    passages: [arg-sr-lorentz-map, arg-sr-transverse-and-inverse]
+    r0: "Going to k and back must change nothing, so φ(v) times φ(minus v) is 1. A rod lying across the motion shows that φ fixes its length seen from K, which cannot depend on the direction of motion, so φ(v) is 1; this leaves the final transformation equations."
+  - unit: s4-p1
+    passages: [arg-sr-clock-and-length]
+    r0: "A rigid sphere of radius R at rest in the moving system is, seen from the stationary system at one moment, an ellipsoid whose axis along the motion is shortened."
+  - unit: s4-fn1
+    passages: [arg-sr-clock-and-length]
+    r0: "A footnote specifies that the sphere means a body that has the shape of a sphere when examined at rest."
+  - unit: s4-p3
+    passages: [arg-sr-clock-and-length]
+    r0: "Dimensions across the motion are unchanged, while the one along it is shortened, the more so the faster the body moves. At v = V moving bodies would shrink to flat figures, speeds above V make the considerations meaningless, and in the theory the speed of light plays the part of an infinitely great speed."
+  - unit: s4-p4
+    passages: [arg-sr-clock-and-length]
+    r0: "The same results hold the other way round, for bodies at rest in the stationary system viewed from a uniformly moving one."
+  - unit: s4-p5
+    passages: [arg-sr-clock-and-length]
+    r0: "Einstein asks how fast a clock at rest at the origin of the moving system runs, as judged from the stationary system."
+  - unit: s4-p9
+    passages: [arg-sr-clock-and-length]
+    r0: "Using the transformation at the clock's place, he finds that it falls behind by a fixed fraction of a second each second, to a first approximation half of (v/V) squared."
+  - unit: s4-p6
+    passages: [arg-sr-transported-clock]
+    r0: "If, of two synchronized clocks at A and B, the one at A is carried to B at speed v, on arrival it lags behind the clock at B by about half of t times (v/V) squared seconds, where t is the time the journey took."
+  - unit: s4-p7
+    passages: [arg-sr-transported-clock]
+    r0: "The result still holds when the clock travels from A to B along any path made of straight pieces, even when A and B are the same point."
+  - unit: s4-p8
+    passages: [arg-sr-transported-clock]
+    r0: "Assuming the result also holds for a smooth closed curve, a clock sent round such a curve and back to A lags behind the one that stayed. Einstein concludes that a balance-wheel clock at the equator must run very slightly slower than an identical clock at a pole."
+  - unit: s5-p1
+    passages: [arg-sr-velocity-composition]
+    r0: "A point moves uniformly in the moving system k, with constant velocity components along two of k's axes."
+  - unit: s5-p2
+    passages: [arg-sr-velocity-composition]
+    r0: "Transforming its motion to the stationary system shows that the parallelogram law for adding velocities holds only to a first approximation. For two velocities along one line the result is (v + w)/(1 + vw/V²), and combining two speeds below V always gives a speed below V."
+  - unit: s5-p6
+    passages: [arg-sr-velocity-composition]
+    r0: "Combining the speed of light with a slower speed still gives the speed of light. The same addition formula follows from applying two transformations of section 3 in turn, which shows that these transformations form a group."
+  - unit: s5-p8
+    status: unexplained
+    reason: "A sentence that closes the kinematic part and announces the electrodynamic one; no passage explains it, and it makes no claim of its own for a passage to explain."
+    r0: "With the theorems of the kinematics he needs now derived, Einstein turns to their application in electrodynamics."
+  - unit: s6-p1
+    passages: [arg-sr-field-derivatives]
+    r0: "Einstein assumes that the Maxwell-Hertz equations for empty space hold in the stationary system K, with X, Y, Z the electric force and L, M, N the magnetic force."
+  - unit: s6-p2
+    passages: [arg-sr-field-derivatives]
+    r0: "Applying the transformation of section 3, he rewrites these equations in the coordinates and time of the moving system k."
+  - unit: s6-p3
+    passages: [arg-sr-field-derivatives]
+    r0: "The principle of relativity requires that the same equations hold in k, for the electric and magnetic forces measured there by their effects on charges and magnets."
+  - unit: s6-p4
+    passages: [arg-sr-field-derivatives]
+    r0: "Since the two sets of equations for k must say the same thing, the forces measured in k equal combinations of those in K, up to one common factor ψ(v) that may depend on the speed."
+  - unit: s6-p5
+    passages: [arg-sr-field-derivatives, arg-sr-field-components]
+    r0: "Going to k and back, and symmetry, fix that factor at 1, which gives the transformation of the electric and magnetic forces. Einstein states its meaning two ways: the old way speaks of an electromotive force on a moving charge, to a first approximation, and the new way says the force on it is the electric force in a system in which it is momentarily at rest."
+  - unit: s6-fn1
+    passages: [arg-sr-field-derivatives]
+    r0: "A footnote gives the symmetry argument: with only one magnetic component present, reversing the direction of motion must reverse the sign of the transformed electric force without changing its size."
+  - unit: s6-p7
+    passages: [arg-sr-field-components]
+    r0: "The same holds for magnetomotive forces. The electromotive force is only an auxiliary concept, needed because electric and magnetic forces do not exist independently of the state of motion of the coordinate system."
+  - unit: s6-p8
+    passages: [arg-sr-field-components, arg-sr-magnet-conductor]
+    r0: "So the asymmetry noted in the introduction, between a moving magnet and a moving conductor, disappears, and the question of where the electromotive force is seated, as in unipolar machines, loses its point."
+  - unit: s7-p1
+    passages: [arg-sr-doppler-aberration]
+    r0: "Far from the origin of the stationary system is a source of electromagnetic waves, which near the origin are plane waves with a given amplitude, frequency and direction of the wave normal."
+  - unit: s7-p2
+    passages: [arg-sr-doppler-aberration]
+    r0: "Einstein asks what these waves are like for an observer at rest in the moving system. With the transformations of sections 6 and 3 they are again plane waves, with a new frequency and a new direction."
+  - unit: s7-p3
+    passages: [arg-sr-doppler-aberration]
+    r0: "From the new frequency: an observer moving at speed v relative to a very distant source, at an angle φ to the line joining them, receives light whose frequency depends on v and φ in a way Einstein gives exactly."
+  - unit: s7-p4
+    passages: [arg-sr-doppler-aberration]
+    r0: "This is Doppler's principle for any speed. When the observer moves straight away from the source the formula becomes a simple square-root ratio, and Einstein remarks that, against the usual view, the frequency becomes infinite for an extreme speed of approach; the page prints that speed as v = −∞."
+  - unit: s7-p5
+    passages: [arg-sr-doppler-aberration]
+    r0: "The new direction gives the law of aberration in its most general form: the angle at which the moving observer receives the light differs from the angle in the source's system, and light arriving at right angles in one system arrives slanted in the other."
+  - unit: s7-p6
+    passages: [arg-sr-doppler-aberration]
+    r0: "Einstein also finds how the amplitude of the waves changes for the moving observer, and how simple the change is when the observer moves along the line to the source."
+  - unit: s7-p7
+    passages: [arg-sr-doppler-aberration]
+    r0: "It follows that a light source approached at the speed of light would have to appear infinitely intense."
+  - unit: s8-p1
+    passages: [arg-sr-light-complex]
+    r0: "The light energy per unit volume changes between systems as the square of the amplitude, but the volume of a given portion of light changes too. Following a sphere that moves with the light, through whose surface no energy passes, Einstein asks how much energy it encloses, seen from the moving system."
+  - unit: s8-p2
+    passages: [arg-sr-light-complex]
+    r0: "Seen from the moving system the sphere is an ellipsoid of a different volume, and combining the two changes shows how the energy of the enclosed light changes."
+  - unit: s8-p5
+    passages: [arg-sr-light-complex]
+    r0: "The energy and the frequency of a portion of light change with the observer's motion by the same law."
+  - unit: s8-p6
+    passages: [arg-sr-moving-mirror]
+    r0: "A perfectly reflecting mirror at rest in the moving system meets the plane waves of section 7. Einstein asks for the pressure of the light on it and for the direction, frequency and intensity of the light after reflection."
+  - unit: s8-p7
+    passages: [arg-sr-moving-mirror]
+    r0: "He describes the incoming light as seen from the mirror's own system, reflects it there, and transforms the reflected light back into the stationary system."
+  - unit: s8-p10
+    passages: [arg-sr-moving-mirror]
+    r0: "The energy arriving at the mirror and the energy leaving it differ by the work done by the light's pressure, which gives the pressure exactly. To a first approximation it agrees with experience and with other theories."
+  - unit: s8-p12
+    passages: [arg-sr-moving-mirror]
+    r0: "By this method every problem in the optics of moving bodies can be solved: the electric and magnetic forces of the light are transformed into a system at rest relative to the body, which turns the problem into one about bodies at rest."
+  - unit: s9-p1
+    passages: [arg-sr-charge-current]
+    r0: "Einstein starts from the Maxwell-Hertz equations with convection currents, electricity carried along by moving charges. With the charges bound to small rigid bodies, ions or electrons, these are the electromagnetic basis of Lorentz's electrodynamics and optics of moving bodies."
+  - unit: s9-p2
+    passages: [arg-sr-charge-current]
+    r0: "Transformed into the moving system, the equations keep their form, with the velocity of the charges and the density of electricity as measured there. So the electrodynamic basis of Lorentz's theory agrees with the principle of relativity."
+  - unit: s9-p3
+    passages: [arg-sr-charge-current]
+    r0: "A further result: if a charged body moves in any way and its charge, measured in a system moving with it, stays the same, then its charge measured from the stationary system stays constant too."
+  - unit: s10-p1
+    passages: [arg-sr-electron-conventions]
+    r0: "A small particle carrying an electric charge ε, called an electron, moves in an electromagnetic field, and Einstein makes only the following assumption about its law of motion."
+  - unit: s10-p2
+    passages: [arg-sr-electron-conventions]
+    r0: "When the electron is at rest at some moment, its motion in the next instant follows the ordinary law: its mass μ times its acceleration equals ε times the electric force, as long as it moves slowly."
+  - unit: s10-p3
+    passages: [arg-sr-electron-conventions]
+    r0: "Now the electron has a speed v at some moment, and Einstein seeks the law of its motion in the next instant."
+  - unit: s10-p4
+    passages: [arg-sr-electron-conventions]
+    r0: "Without loss of generality the electron is taken to be at the origin at that moment, moving along the x-axis, so that it is momentarily at rest in a system k moving with the same speed."
+  - unit: s10-p5
+    passages: [arg-sr-electron-conventions]
+    r0: "In k it therefore obeys the law for a resting electron, and the transformations of sections 3 and 6 connect the coordinates, time and forces of k with those of the stationary system."
+  - unit: s10-p6
+    passages: [arg-sr-electron-conventions]
+    r0: "Transforming the equations of motion back to the stationary system gives the equations Einstein labels (A)."
+  - unit: s10-p7
+    passages: [arg-sr-electron-conventions]
+    r0: "Following the usual approach, Einstein asks for the electron's longitudinal and transverse mass. Taking the force to be the one measured in a system moving with the electron, for example with a spring balance, and measuring accelerations in the stationary system, he obtains one mass along the motion and another across it."
+  - unit: s10-p8
+    passages: [arg-sr-electron-conventions]
+    r0: "Other definitions of force and acceleration would give other numbers for these masses, so different theories of the electron's motion must be compared with great care."
+  - unit: s10-p9
+    passages: [arg-sr-electron-conventions]
+    r0: "These results about mass hold for any ponderable material point too, since adding an arbitrarily small charge makes it an electron in this sense."
+  - unit: s10-p10
+    passages: [arg-sr-electron-work]
+    r0: "Einstein finds the electron's kinetic energy. An electron starting from rest and accelerated slowly by an electrostatic force, so that it loses no energy as radiation, gains energy equal to the work done on it, which he calculates."
+  - unit: s10-p11
+    passages: [arg-sr-electron-work]
+    r0: "That energy grows without limit as the speed approaches V, so, as in the earlier results, speeds greater than light have no possibility of existing."
+  - unit: s10-p12
+    passages: [arg-sr-electron-work]
+    r0: "By the argument given earlier, the same expression for kinetic energy holds for ponderable masses."
+  - unit: s10-p13
+    passages: [arg-sr-electron-work]
+    r0: "Einstein lists three properties of the electron's motion open to experiment: the ratio of how strongly magnetic and electric forces deflect it, which gives its speed; the relation between the potential difference it passes through and the speed it gains; and the radius of its path in a magnetic field."
+  - unit: s10-p14
+    passages: [arg-sr-electron-work]
+    r0: "These three relations, he says, completely express the laws by which the electron must move according to the theory."
+displays:
+  - unit: eq-s1-d1
+    equations: [eq-model-sr-sync-equal-legs]
+  - unit: eq-s1-d2
+    status: printed-only
+    reason: "The round-trip light speed taken as a universal constant V is explained in the passage on synchronization; no equation record states it."
+  - unit: eq-s2-d1
+    status: printed-only
+    reason: "A definition in words, speed as light path over duration, within the statement of the second principle; the passage on the rod's endpoints explains section 2, and no equation record states it."
+  - unit: eq-s2-d2
+    status: printed-only
+    reason: "The outward light time along the moving rod is explained in the passage on the rod's endpoints, as a step toward the relativity of simultaneity; no equation record states it."
+  - unit: eq-s2-d3
+    status: printed-only
+    reason: "The return light time along the moving rod is explained with the outward time in the passage on the rod's endpoints; no equation record states it."
+  - unit: eq-s3-d1
+    equations: [eq-model-sr-sync-midpoint]
+  - unit: eq-s3-d2
+    status: printed-only
+    reason: "The light-signal condition on k's time, the first step of Einstein's own derivation, is described in the margin of the passage on the Lorentz map, which takes a shorter route; no equation record states it."
+  - unit: eq-s3-d3
+    status: printed-only
+    reason: "The same condition for a vanishing distance, a step of Einstein's derivation, is described in the margin of the passage on the Lorentz map; no equation record states it."
+  - unit: eq-s3-d4
+    status: printed-only
+    reason: "The differential equation for k's time, a step of Einstein's derivation, is described in the margin of the passage on the Lorentz map; no equation record states it."
+  - unit: eq-s3-d5
+    status: printed-only
+    reason: "That k's time does not depend on y or z is a step explained in the passage on the Lorentz map; no equation record states it."
+  - unit: eq-s3-d6
+    equations: [eq-model-sr-map-ansatz-time]
+  - unit: eq-s3-d7
+    status: printed-only
+    reason: "A light ray along the ξ-axis in k, a step toward ξ explained in the passage on the Lorentz map; no equation record states it."
+  - unit: eq-s3-d8
+    status: printed-only
+    reason: "The same ray written with k's time substituted, a step explained in the passage on the Lorentz map; no equation record states it."
+  - unit: eq-s3-d9
+    status: printed-only
+    reason: "The ray's arrival time in K, a step explained in the passage on the Lorentz map; no equation record states it."
+  - unit: eq-s3-d10
+    equations: [eq-model-sr-map-ansatz-position]
+  - unit: eq-s3-d11
+    status: printed-only
+    reason: "A light ray along the η-axis, the step toward η explained in the passage on the transverse coordinates; no equation record states it."
+  - unit: eq-s3-d12
+    status: printed-only
+    reason: "The conditions for that ray, light crossing the motion at the square root of V² minus v² seen from K, explained in the passage on the transverse coordinates; no equation record states it."
+  - unit: eq-s3-d13
+    status: printed-only
+    reason: "η before the unknown factor is fixed, explained in the passage on the transverse coordinates; no equation record states it."
+  - unit: eq-s3-d14
+    status: printed-only
+    reason: "ζ before the unknown factor is fixed, explained with η in the passage on the transverse coordinates; no equation record states it."
+  - unit: eq-s3-d15
+    equations: [eq-model-sr-map-ansatz-time, eq-model-sr-map-ansatz-position]
+  - unit: eq-s3-d16
+    equations: [eq-model-sr-lorentz-factor]
+  - unit: eq-s3-d17
+    status: printed-only
+    reason: "The spherical wavefront in K, with which Einstein shows the two principles compatible, explained in the passage on the Lorentz map; no equation record states it."
+  - unit: eq-s3-d18
+    status: printed-only
+    reason: "The same wavefront in k, explained with the one in K in the passage on the Lorentz map; no equation record states it."
+  - unit: eq-s3-d19
+    equations: [eq-model-sr-inverse-time, eq-model-sr-inverse-position]
+  - unit: eq-s3-d20
+    status: printed-only
+    reason: "There and back is no transformation, φ(v) times φ(minus v) equal to 1, explained in the passages on the Lorentz map and the transverse coordinates; no equation record states it."
+  - unit: eq-s3-d21
+    status: printed-only
+    reason: "One end of the rod lying across the motion, explained in the passage on the transverse coordinates; no equation record states it."
+  - unit: eq-s3-d22
+    status: printed-only
+    reason: "The other end of that rod, explained in the passage on the transverse coordinates; no equation record states it."
+  - unit: eq-s3-d23
+    status: printed-only
+    reason: "The crosswise rod's length unchanged when v changes sign, explained in the passage on the transverse coordinates; no equation record states it."
+  - unit: eq-s3-d24
+    status: printed-only
+    reason: "φ(v) equal to φ(minus v), explained in the passage on the transverse coordinates; no equation record states it."
+  - unit: eq-s3-d25
+    equations: [eq-model-sr-map-time, eq-model-sr-map-position]
+  - unit: eq-s3-d26
+    equations: [eq-model-sr-lorentz-factor]
+  - unit: eq-s4-d1
+    status: printed-only
+    reason: "The sphere's surface in the moving system, explained in the passage on moving clocks and rods; no equation record states it."
+  - unit: eq-s4-d2
+    equations: [eq-model-sr-length-contraction]
+  - unit: eq-s4-d3
+    equations: [eq-model-sr-length-contraction]
+  - unit: eq-s4-d4
+    equations: [eq-model-sr-map-time]
+  - unit: eq-s4-d5
+    status: printed-only
+    reason: "The moving clock's position, x equal to vt, explained in the passage on moving clocks and rods; no equation record states it."
+  - unit: eq-s4-d6
+    equations: [eq-model-sr-time-dilation]
+  - unit: eq-s5-d1
+    status: printed-only
+    reason: "The point's uniform motion in k, the starting point explained in the passage on velocity composition; no equation record states it."
+  - unit: eq-s5-d2
+    equations: [eq-model-sr-velocity-x, eq-model-sr-velocity-y]
+  - unit: eq-s5-d3
+    status: printed-only
+    reason: "Definitions of the two speeds' magnitudes, explained in the passage on velocity composition; no equation record states them."
+  - unit: eq-s5-d4
+    status: printed-only
+    reason: "The definition of the angle between the velocities, explained in the passage on velocity composition; no equation record states it."
+  - unit: eq-s5-d5
+    status: printed-only
+    reason: "The composed speed for any angle between the velocities, explained in the passage on velocity composition; no equation record states the general case."
+  - unit: eq-s5-d6
+    equations: [eq-model-sr-velocity-x]
+  - unit: eq-s5-d7
+    status: printed-only
+    reason: "Two speeds below V compose to a speed below V, explained in the passage on velocity composition; no equation record states the inequality."
+  - unit: eq-s5-d8
+    status: printed-only
+    reason: "Light's speed composed with a slower speed stays V, explained in the passage on velocity composition; no equation record states it."
+  - unit: eq-s5-d9
+    equations: [eq-model-sr-velocity-x]
+  - unit: eq-s6-d1
+    status: printed-only
+    reason: "The Maxwell-Hertz equations for empty space in K, the starting point explained in the passage on transforming the field equations; no equation record states them."
+  - unit: eq-s6-d2
+    status: printed-only
+    reason: "Those equations rewritten in k's coordinates, explained in the passage on transforming the field equations; no equation record states them."
+  - unit: eq-s6-d3
+    equations: [eq-model-sr-lorentz-factor]
+  - unit: eq-s6-d4
+    status: printed-only
+    reason: "The same equations required in k by the principle of relativity, explained in the passage on transforming the field equations; no equation record states them."
+  - unit: eq-s6-d5
+    status: printed-only
+    reason: "The field transformation up to the common factor ψ(v), fixed at 1 two displays later, explained in the passage on transforming the field equations; no equation record states the unfixed form."
+  - unit: eq-s6-d6
+    status: printed-only
+    reason: "ψ(v) times ψ(minus v) equal to 1, explained in the passage on transforming the field equations; no equation record states it."
+  - unit: eq-s6-d7
+    status: printed-only
+    reason: "ψ(v) equal to ψ(minus v) by symmetry, explained in the passage on transforming the field equations; no equation record states it."
+  - unit: eq-s6-d8
+    status: printed-only
+    reason: "ψ(v) equal to 1, explained in the passage on transforming the field equations; no equation record states it."
+  - unit: eq-s6-d9
+    equations: [eq-model-sr-field-ex, eq-model-sr-field-ey, eq-model-sr-field-ez, eq-model-sr-field-bx, eq-model-sr-field-by, eq-model-sr-field-bz]
+  - unit: eq-s7-d1
+    status: printed-only
+    reason: "The plane waves in K, the starting point explained in the passage on Doppler's principle and aberration; no equation record states them."
+  - unit: eq-s7-d2
+    status: printed-only
+    reason: "The same waves in k, with a new phase, explained in the passage on Doppler's principle and aberration; no equation record states them."
+  - unit: eq-s7-d3
+    equations: [eq-model-sr-doppler-factor]
+  - unit: eq-s7-d4
+    equations: [eq-model-sr-aberration]
+  - unit: eq-s7-d5
+    status: printed-only
+    reason: "The second direction cosine in k, explained with the first in the passage on Doppler's principle and aberration; no equation record states it."
+  - unit: eq-s7-d6
+    status: printed-only
+    reason: "The third direction cosine in k, explained with the first in the passage on Doppler's principle and aberration; no equation record states it."
+  - unit: eq-s7-d7
+    equations: [eq-model-sr-doppler-factor]
+  - unit: eq-s7-d8
+    equations: [eq-model-sr-doppler-factor]
+  - unit: eq-s7-d9
+    equations: [eq-model-sr-aberration]
+  - unit: eq-s7-d10
+    equations: [eq-model-sr-aberration]
+  - unit: eq-s7-d11
+    equations: [eq-model-sr-light-density]
+  - unit: eq-s7-d12
+    equations: [eq-model-sr-light-density]
+  - unit: eq-s8-d1
+    status: printed-only
+    reason: "The sphere moving with the light, through which no energy passes, explained in the passage on the light complex; no equation record states it."
+  - unit: eq-s8-d2
+    status: printed-only
+    reason: "That sphere seen from k as an ellipsoid, explained in the passage on the light complex; no equation record states it."
+  - unit: eq-s8-d3
+    equations: [eq-model-sr-light-volume]
+  - unit: eq-s8-d4
+    equations: [eq-model-sr-light-energy]
+  - unit: eq-s8-d5
+    equations: [eq-model-sr-light-energy]
+  - unit: eq-s8-d6
+    equations: [eq-model-sr-light-density]
+  - unit: eq-s8-d7
+    equations: [eq-model-sr-aberration]
+  - unit: eq-s8-d8
+    equations: [eq-model-sr-doppler-factor]
+  - unit: eq-s8-d9
+    status: printed-only
+    reason: "Reflection in the mirror's own system, explained in the passage on the moving mirror; no equation record states it."
+  - unit: eq-s8-d10
+    status: printed-only
+    reason: "The reflected amplitude back in K, which carries the same factor as the reflected frequency (eq-s8-d12), explained in the passage on the moving mirror; no equation record states the amplitude."
+  - unit: eq-s8-d11
+    status: printed-only
+    reason: "The reflected direction back in K, explained in the passage on the moving mirror; no equation record states it."
+  - unit: eq-s8-d12
+    equations: [eq-model-sr-mirror-frequency]
+  - unit: eq-s8-d13
+    status: printed-only
+    reason: "The pressure of light on the moving mirror, explained in the passage on the moving mirror, whose margin notes Einstein's units; no equation record states it."
+  - unit: eq-s8-d14
+    status: printed-only
+    reason: "The pressure to a first approximation, explained in the passage on the moving mirror; no equation record states it."
+  - unit: eq-s9-d1
+    status: printed-only
+    reason: "The Maxwell-Hertz equations with convection currents, the starting point explained in the passage on charge and current; no equation record states them."
+  - unit: eq-s9-d2
+    status: printed-only
+    reason: "The density of electricity as the divergence of the electric force, explained in the passage on charge and current; no equation record states it."
+  - unit: eq-s9-d3
+    status: printed-only
+    reason: "The same equations in k, explained in the passage on charge and current; no equation record states them."
+  - unit: eq-s9-d4
+    equations: [eq-model-sr-velocity-x, eq-model-sr-velocity-y, eq-model-sr-charge-density]
+  - unit: eq-s10-d1
+    status: printed-only
+    reason: "The equations of motion of an electron momentarily at rest, explained in the passage on the electron's two transverse coefficients; no equation record states them."
+  - unit: eq-s10-d2
+    status: printed-only
+    reason: "The same equations in the electron's momentary rest system k, explained in the passage on the electron's two transverse coefficients; no equation record states them."
+  - unit: eq-s10-d3
+    equations: [eq-model-sr-map-time, eq-model-sr-map-position, eq-model-sr-field-ex, eq-model-sr-field-ey, eq-model-sr-field-ez]
+  - unit: eq-A
+    status: printed-only
+    reason: "Einstein's equations (A), the electron's motion in K, explained in the passage on the electron's two transverse coefficients; no equation record states them."
+  - unit: eq-s10-d4
+    equations: [eq-model-sr-longitudinal-mass, eq-model-sr-transverse-mass-printed]
+  - unit: eq-s10-d5
+    status: printed-only
+    reason: "A definition in words, mass number times acceleration number equals force number, explained in the passage on the electron's two transverse coefficients; no equation record states it."
+  - unit: eq-s10-d6
+    equations: [eq-model-sr-longitudinal-mass]
+  - unit: eq-s10-d7
+    equations: [eq-model-sr-transverse-mass-printed]
+  - unit: eq-s10-d8
+    equations: [eq-model-sr-electron-work-integral, eq-model-sr-electron-work-result]
+  - unit: eq-s10-d9
+    status: printed-only
+    reason: "The ratio of magnetic to electric deflectability equal to v/V, explained in the passage on the electron's work, which names the bending of its path; no equation record states it."
+  - unit: eq-s10-d10
+    equations: [eq-model-sr-electron-energy]
+  - unit: eq-s10-d11
+    equations: [eq-model-sr-magnetic-radius]
+  - unit: eq-s10-d12
+    equations: [eq-model-sr-magnetic-radius]
+obligations:
+  - obligation: obl-s0-electrodynamic-asymmetry
+    passages: [arg-sr-magnet-conductor]
+  - obligation: obl-s1-simultaneity-definition
+    passages: [arg-sr-synchronization]
+  - obligation: obl-s2-relativity-lengths-times
+    passages: [arg-sr-rod-events]
+  - obligation: obl-s3-coordinate-transformation
+    passages: [arg-sr-lorentz-map, arg-sr-transverse-and-inverse]
+  - obligation: obl-s4-physical-meaning
+    passages: [arg-sr-clock-and-length, arg-sr-transported-clock]
+  - obligation: obl-s5-velocity-addition
+    passages: [arg-sr-velocity-composition]
+  - obligation: obl-s6-maxwell-hertz-transformation
+    passages: [arg-sr-field-derivatives, arg-sr-field-components]
+  - obligation: obl-s7-doppler-aberration
+    passages: [arg-sr-doppler-aberration]
+  - obligation: obl-s8-energy-radiation-pressure
+    passages: [arg-sr-light-complex, arg-sr-moving-mirror]
+  - obligation: obl-s9-convection-currents
+    passages: [arg-sr-charge-current]
+  - obligation: obl-s10-electron-dynamics
+    passages: [arg-sr-electron-conventions, arg-sr-electron-work]
+  - obligation: obl-closing-acknowledgment
+    status: printed-only
+    reason: "The thanks to M. Besso, the date line Bern, June 1905, and the receipt date are printed facts, shown on the German face; the passage on the electron's work notes them in its margin and carries no step of the argument for them."

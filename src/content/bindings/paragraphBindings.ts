@@ -23,6 +23,7 @@ export const BINDINGS_REQUIRED: readonly string[] = [
   "mass-energy",
   "light-quanta",
   "brownian-motion",
+  "special-relativity",
 ];
 
 export type BindingReport = Readonly<{

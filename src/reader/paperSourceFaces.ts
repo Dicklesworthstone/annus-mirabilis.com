@@ -26,6 +26,12 @@ export interface PaperSourceFaces {
   /** The German face renders the drafted ledger, not a compiled edition. */
   readonly germanIsDraft: boolean;
   /**
+   * The ids the German face publishes as anchors: the edition's block ids, or the draft's manifest
+   * anchors. Empty when the paper has no German text, so a link to a printed paragraph can wait
+   * for its text instead of naming an id no page has.
+   */
+  readonly germanAnchors: ReadonlySet<string>;
+  /**
    * "#s1" where the source has a block with the section's id; "#s0-p1" for a section that starts
    * with a paragraph instead (an introduction has no heading); "" when it has neither, so the link
    * opens the face rather than naming an id that is not there.
@@ -71,6 +77,7 @@ export async function paperSourceFaces(paperId: string): Promise<PaperSourceFace
   return {
     availability,
     germanIsDraft: !rendersEdition,
+    germanAnchors: anchors,
     englishSectionFragment: (section) => {
       const id = firstUnit.get(section);
       return id ? `#${id}` : "";

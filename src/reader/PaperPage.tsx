@@ -493,6 +493,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                     <SourceParagraphs
                       paperId={paper.id}
                       bindings={boundParagraphs.filter((b) => b.passages.includes(a.id))}
+                      germanAnchors={sources.germanAnchors}
                     />
                     <div data-face-reading>
                       {(["overview", "full"] as const).map((reading, i) => (
