@@ -15,6 +15,7 @@ paper: mass-energy
 review: draft
 cards:
   - id: me-light-energy-transformation
+    title: "The imported light-energy transformation"
     section: s0
     arguments: [arg-me-import]
     printed:
@@ -52,6 +53,7 @@ cards:
     selectionReason: "It is the one formula the argument imports, and the two energy balances are built from it."
 
   - id: me-symmetric-emission
+    title: "A symmetric emission"
     section: s0
     arguments: [arg-me-symmetric-emission]
     printed:
@@ -85,6 +87,7 @@ cards:
     selectionReason: "The symmetric emission is what lets the body's speed stay the same, so only its energy changes."
 
   - id: me-two-balances
+    title: "Two energy balances"
     section: s0
     arguments: [arg-me-two-ledgers]
     printed:
@@ -120,6 +123,7 @@ cards:
     selectionReason: "The two balances are the whole of the paper's input on the body's side: one emission, two descriptions of it."
 
   - id: me-kinetic-energy-drop
+    title: "The drop in kinetic energy, and its premise"
     section: s0
     arguments: [arg-me-subtraction, arg-me-constant-premise]
     printed:
@@ -162,6 +166,7 @@ cards:
     selectionReason: "It is where the loss of light energy becomes a loss of the body's energy of motion, and where the argument's one extra premise enters."
 
   - id: me-low-speed-approximation
+    title: "The low-speed approximation"
     section: s0
     arguments: [arg-me-small-speed]
     printed:
@@ -193,6 +198,7 @@ cards:
     selectionReason: "It is where the drop in energy of motion is read as a drop in mass."
 
   - id: me-mass-decrease
+    title: "The mass decrease"
     section: s0
     arguments: [arg-me-mass-change]
     printed:
@@ -232,6 +238,7 @@ cards:
     selectionReason: "It is the paper's answer to its title's question."
 
   - id: me-closing-remarks
+    title: "Two conditional closing remarks"
     section: s0
     arguments: [arg-me-scope]
     printed:

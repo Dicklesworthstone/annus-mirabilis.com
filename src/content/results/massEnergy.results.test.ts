@@ -80,6 +80,7 @@ describe("mass-energy's result cards", () => {
 
   test("the authored text passes the voice lint, and the lint sees a planted error", () => {
     const authored = cards.flatMap((c) => [
+      c.title,
       c.oneSentence,
       c.selectionReason,
       ...Object.values(c.meanings),
@@ -196,6 +197,7 @@ describe("each gap is refused by name", () => {
       (c) => (c.oneSentence = "The paper gives E = mc^2."),
       /shows E = mc²/,
     ],
+    ["no title", (c) => (c.title = ""), /has no title/],
     [
       "a missing kind of meaning",
       (c) => ((c.meanings as Record<string, unknown>).evidentialRole = ""),

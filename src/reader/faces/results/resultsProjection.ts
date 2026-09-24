@@ -154,7 +154,9 @@ export function projectSupport(
  */
 export function projectLimitation(
   argumentId: string,
-  node: ArgumentNode,
+  // Only the limitations are read, so a reading passage (content/arguments) serves as well as an
+  // ArgumentNode: both carry the same `limitations` list.
+  node: Pick<ArgumentNode, "limitations">,
   historiansMarginRecordId?: string,
 ): LimitationLayer {
   if (node.limitations.length === 0) {
@@ -186,6 +188,7 @@ export function projectPrintedCheck(params: {
   comparisonKind: string;
   label: string;
   transcriptionPending: boolean;
+  reproducedText?: string;
 }): PrintedCheck {
   if (!Number.isFinite(params.reproducedValue)) {
     throw new ResultsProjectionError(

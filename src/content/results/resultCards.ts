@@ -40,6 +40,8 @@ export type PrintedExcerpt = Readonly<{
 
 export type ResultCardRecord = Readonly<{
   id: string;
+  /** A short name for the card's heading, in sentence case. */
+  title: string;
   paper: string;
   section: string;
   arguments: readonly string[];
@@ -187,6 +189,8 @@ export function checkResultCards(
     if (seen.has(id)) problems.push(`${at}: id is used twice`);
     seen.add(id);
 
+    const title = str(c.title);
+    if (!title) problems.push(`${at}: has no title`);
     const section = str(c.section);
     if (!context.sections.has(section))
       problems.push(`${at}: section ${section} is not the paper's`);
@@ -278,6 +282,7 @@ export function checkResultCards(
     if (!selectionReason) problems.push(`${at}: says not why it is a result`);
 
     const authored = [
+      title,
       oneSentence,
       ...decoder.flatMap((d) => [d.symbol, d.meaning]),
       ...qualifications.map((q) => q.text),
@@ -289,6 +294,7 @@ export function checkResultCards(
     if (problems.length > before) continue;
     cards.push({
       id,
+      title,
       paper: context.paper,
       section,
       arguments: args,

@@ -1,15 +1,30 @@
 /**
- * Renders one ResultCard (am-read-results-face-uzh). Reads the projected `ResultCard` contract
- * only -- it never recomputes physics, never re-derives support/limitation/reception, and never
- * calls a scenario runner itself.
+ * Renders one ResultCard (am-read-results-face-uzh, am-me-results-cards-c6mf). Reads the projected
+ * `ResultCard` contract only: it never recomputes physics, never re-derives support, limitation or
+ * reception, and never calls a scenario runner itself.
  *
- * Printed/modern equation rendering and the live probe are placeholders, clearly labeled: the
- * real components they reuse (am-eq-colorized-component-1z8, am-eq-live-bindings-2se) do not
- * exist anywhere in this repository yet. A labeled plain-text stand-in is honest; a component
- * that quietly formats numbers itself would be exactly the "component recomputes physics" bug
- * this whole architecture exists to prevent.
+ * The as-printed layer is Einstein's text from the German face, rendered by the face's own markup
+ * and KaTeX policy (sourceMarkup.tsx), in German, with a link to where it stands on the face. The
+ * modern layer is the compiled equation records, coloured by quantity (ColouredFormula). A record
+ * that is not compiled keeps a labelled placeholder rather than a formula typed here.
+ *
+ * A probe links the laboratory and names the preset a reader chooses there. It does not put the
+ * preset in the URL: no laboratory opens a preset from its URL, and a link that says it does would
+ * leave the reader in the laboratory's default setting believing otherwise.
  */
-import type { ResultCard as ResultCardData } from "./types.ts";
+import type { CompiledEquation } from "../../../equations/viewTypes.ts";
+import { ColouredFormula } from "../../ColouredFormula.tsx";
+import { InlineMathText } from "../../InlineMathText.tsx";
+import { renderSourceMarkup, sourceDisplayEquation } from "../sourceMarkup.tsx";
+import type { Qualification, ResultCard as ResultCardData } from "./types.ts";
+
+const QUALIFICATION_LABEL: Readonly<Record<Qualification["kind"], string>> = {
+  premise: "Premise",
+  comparison: "A comparison, not a premise",
+  approximation: "Approximation",
+  inference: "An inference beyond the argument",
+  conditional: "Conditional",
+};
 
 function EquationPlaceholder({ equationId, primary }: { equationId: string; primary: boolean }) {
   return (
@@ -27,17 +42,20 @@ function EquationPlaceholder({ equationId, primary }: { equationId: string; prim
   );
 }
 
+/** "ME-01" for me-01: the name a laboratory page carries. */
+const labName = (id: string) => id.toUpperCase();
+
 function ProbeLink({ probe }: { probe: ResultCardData["probes"][number] }) {
   if (probe.kind === "instrument") {
+    const preset = probe.presetLabel ?? probe.presetOrModeId;
     return (
-      <p className="probe-link" data-probe-kind="instrument">
-        <a href={`/lab/${probe.instrumentId}?preset=${encodeURIComponent(probe.presetOrModeId)}`}>
-          Run the probe: {probe.question}
+      <p className="probe-link" data-probe-kind="instrument" data-preset-id={probe.presetOrModeId}>
+        <a href={`/lab/${probe.instrumentId}/`}>
+          {labName(probe.instrumentId)}: <InlineMathText text={probe.question} />
         </a>
-        <span className="fine">
-          {" "}
-          (live binding pending am-eq-live-bindings-2se; opens the laboratory route)
-        </span>
+        {preset ? (
+          <span className="fine"> Choose the preset &ldquo;{preset}&rdquo; there.</span>
+        ) : null}
       </p>
     );
   }
@@ -50,7 +68,20 @@ function ProbeLink({ probe }: { probe: ResultCardData["probes"][number] }) {
   );
 }
 
-export function ResultCard({ card }: { card: ResultCardData }) {
+export function ResultCard({
+  card,
+  equations,
+}: {
+  card: ResultCardData;
+  /** The paper's compiled equations by id, for the modern layer. */
+  equations?: ReadonlyMap<string, CompiledEquation> | undefined;
+}) {
+  const modern = card.printedEquationIds.flatMap((id) => {
+    const e = equations?.get(id);
+    return e ? [e] : [];
+  });
+  const modernResolved = modern.length > 0 && modern.length === card.printedEquationIds.length;
+  const pages = [...new Set((card.printed ?? []).flatMap((p) => (p.page ? [p.page] : [])))];
   return (
     <article
       className="result-card"
@@ -60,22 +91,85 @@ export function ResultCard({ card }: { card: ResultCardData }) {
     >
       <header>
         <p className="eyebrow">
-          {card.paper} · {card.sectionAnchors.join(", ")}
+          {pages.length > 0
+            ? `${pages.length === 1 ? "Page" : "Pages"} ${pages.join(", ")}`
+            : `${card.paper} · ${card.sectionAnchors.join(", ")}`}
         </p>
-        <h3 id={`result-${card.resultId}-heading`}>{card.oneSentence}</h3>
+        <h3 id={`result-${card.resultId}-heading`}>
+          <InlineMathText text={card.title ?? card.oneSentence} />
+        </h3>
+        {card.title ? (
+          <p data-result-layer="one-sentence">
+            <InlineMathText text={card.oneSentence} />
+          </p>
+        ) : null}
       </header>
 
-      {card.printedEquationIds.map((id, i) => (
-        <EquationPlaceholder key={id} equationId={id} primary={i === 0} />
-      ))}
+      {card.printed && card.printed.length > 0 ? (
+        <section className="result-printed" aria-label="As printed" data-result-layer="printed">
+          <h4>As printed</h4>
+          <blockquote lang="de">
+            {card.printed.map((p) =>
+              p.kind === "display" ? (
+                <div key={p.anchor} data-printed-anchor={p.anchor}>
+                  {sourceDisplayEquation(p.text, undefined, undefined, `${card.resultId}-${p.anchor}`)}
+                </div>
+              ) : (
+                <p key={p.anchor} data-printed-anchor={p.anchor}>
+                  {renderSourceMarkup(p.text, `${card.resultId}-${p.anchor}`)}
+                </p>
+              ),
+            )}
+          </blockquote>
+          <p className="fine">
+            {card.printed.map((p, i) => (
+              <span key={p.anchor}>
+                {i > 0 ? " · " : ""}
+                <a href={p.germanHref}>
+                  {p.kind === "display" ? "Display" : "Text"} on page {p.page ?? "?"} of the German
+                  source
+                </a>
+              </span>
+            ))}
+          </p>
+        </section>
+      ) : null}
+
+      {modernResolved ? (
+        <section className="result-modern" aria-label="In modern notation" data-result-layer="modern">
+          <h4>In modern notation</h4>
+          <ColouredFormula equations={modern} />
+        </section>
+      ) : (
+        card.printedEquationIds.map((id, i) => (
+          <EquationPlaceholder key={id} equationId={id} primary={i === 0} />
+        ))
+      )}
+
+      {card.qualifications && card.qualifications.length > 0 ? (
+        <section className="result-qualifications" aria-label="What kind of statement">
+          <ul>
+            {card.qualifications.map((q) => (
+              <li key={q.text} data-qualification={q.kind}>
+                <strong>{QUALIFICATION_LABEL[q.kind]}: </strong>
+                <InlineMathText text={q.text} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="result-decoder" aria-label="Decoder">
         <h4>Decoder</h4>
         <dl>
           {card.decoder.map((entry) => (
             <div key={entry.symbol}>
-              <dt>{entry.symbol}</dt>
-              <dd>{entry.meaning}</dd>
+              <dt>
+                <InlineMathText text={entry.symbol} />
+              </dt>
+              <dd>
+                <InlineMathText text={entry.meaning} />
+              </dd>
             </div>
           ))}
         </dl>
@@ -97,19 +191,30 @@ export function ResultCard({ card }: { card: ResultCardData }) {
             </thead>
             <tbody>
               {card.printedChecks.map((check) => (
-                <tr key={check.scenarioId} data-scenario-id={check.scenarioId}>
+                <tr
+                  key={`${check.scenarioId}-${check.constantSetId}`}
+                  data-scenario-id={check.scenarioId}
+                  data-constant-set-id={check.constantSetId}
+                >
                   <td data-printed-value="true">{check.printedValue}</td>
                   <td data-reproduced-value="true">
-                    {check.reproducedValue}
+                    {check.reproducedText ?? check.reproducedValue}
                     {check.transcriptionPending && (
                       <span className="notice"> (source transcription pending review)</span>
                     )}
                   </td>
-                  <td data-check-label={check.label}>{check.label}</td>
+                  <td data-check-label={check.label}>
+                    {check.label} <span className="fine">(constant set {check.constantSetId})</span>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          {card.printedCheckComparison ? (
+            <p data-printed-check-comparison="true">
+              Compared: {card.printedCheckComparison}.
+            </p>
+          ) : null}
         </section>
       )}
 
@@ -129,38 +234,50 @@ export function ResultCard({ card }: { card: ResultCardData }) {
         </section>
       )}
 
-      <section className="result-support" aria-label="Support">
-        <h4>Why should I believe this step?</h4>
-        <ul>
-          <li>
-            Selected route: <strong>{card.support.routeKind}</strong> ({card.support.proofRouteId})
-            {card.support.verificationState.status === "authored-unverified" && (
-              <span className="notice">: one step is not yet machine-checked.</span>
-            )}
-          </li>
-          {card.support.entryAssumptions.map((a) => (
-            <li key={a.premiseId}>
-              {a.premiseId}: {a.edgeType}
-            </li>
-          ))}
-          <li>
-            {card.support.empiricalInputs.length === 0
-              ? "No measurement enters this derivation."
-              : card.support.empiricalInputs.map((e) => e.citation).join("; ")}
-          </li>
-          {card.support.alternativeRoutes.length > 0 && (
+      {card.support ? (
+        <section className="result-support" aria-label="Support">
+          <h4>Why should I believe this step?</h4>
+          <ul>
             <li>
-              Alternative routes:{" "}
-              {card.support.alternativeRoutes.map((r) => `${r.title} (${r.routeKind})`).join(", ")}
+              Selected route: <strong>{card.support.routeKind}</strong> (
+              {card.support.proofRouteId})
+              {card.support.verificationState.status === "authored-unverified" && (
+                <span className="notice">: one step is not yet machine-checked.</span>
+              )}
             </li>
-          )}
-        </ul>
-      </section>
+            {card.support.entryAssumptions.map((a) => (
+              <li key={a.premiseId}>
+                {a.premiseId}: {a.edgeType}
+              </li>
+            ))}
+            <li>
+              {card.support.empiricalInputs.length === 0
+                ? "No measurement enters this derivation."
+                : card.support.empiricalInputs.map((e) => e.citation).join("; ")}
+            </li>
+            {card.support.alternativeRoutes.length > 0 && (
+              <li>
+                Alternative routes:{" "}
+                {card.support.alternativeRoutes
+                  .map((r) => `${r.title} (${r.routeKind})`)
+                  .join(", ")}
+              </li>
+            )}
+          </ul>
+        </section>
+      ) : null}
 
-      <p className="result-limitation" data-argument-id={card.limitation.argumentId}>
-        <strong>Where this stops: </strong>
-        {card.limitation.text}
-      </p>
+      {card.limitations.map((limitation) => (
+        <p
+          key={limitation.argumentId}
+          className="result-limitation"
+          data-argument-id={limitation.argumentId}
+        >
+          <strong>Where this stops: </strong>
+          {limitation.text}{" "}
+          <a href={`/papers/${card.paper}/#${limitation.argumentId}`}>Read the argument</a>
+        </p>
+      ))}
 
       {card.reception.length > 0 && (
         <section className="result-reception" aria-label="Reception">
@@ -192,6 +309,25 @@ export function ResultCard({ card }: { card: ResultCardData }) {
       {card.misconceptionIds.length > 0 && (
         <p className="result-misconceptions">Misconceptions: {card.misconceptionIds.join(", ")}</p>
       )}
+
+      <dl className="result-meanings" aria-label="Four kinds of meaning">
+        <div>
+          <dt>Argument</dt>
+          <dd>{card.meanings.argumentStatus}</dd>
+        </div>
+        <div>
+          <dt>Model</dt>
+          <dd>{card.meanings.modelStatus}</dd>
+        </div>
+        <div>
+          <dt>Evidence</dt>
+          <dd>{card.meanings.evidentialRole}</dd>
+        </div>
+        <div>
+          <dt>History</dt>
+          <dd>{card.meanings.historicalStatus}</dd>
+        </div>
+      </dl>
     </article>
   );
 }

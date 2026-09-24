@@ -33,7 +33,7 @@ function minimalCard(resultId: string, section: string): ResultCard {
       verificationState: { status: "verified" },
       isPublicationReady: true,
     },
-    limitation: { argumentId: "arg-x", text: "A limit." },
+    limitations: [{ argumentId: "arg-x", text: "A limit." }],
     reception: [],
   };
 }
@@ -54,10 +54,10 @@ describe("ResultsFace.render: card ordering, section filter, genealogy slot", ()
     expect(two).toContain("results-face-filter");
   });
 
-  test("reserves the genealogy slot with an honest placeholder when none is supplied", () => {
+  test("leaves the genealogy slot out when none is supplied, naming no pending task to a reader", () => {
     const html = renderToStaticMarkup(<ResultsFace paper="p" cards={[minimalCard("r1", "s4")]} />);
-    expect(html).toContain('data-genealogy-slot="true"');
-    expect(html).toContain("pending am-eq-genealogy-hmm");
+    expect(html).not.toContain('data-genealogy-slot="true"');
+    expect(html).not.toContain("pending am-eq-genealogy-hmm");
   });
 
   test("renders a supplied genealogy node in the reserved slot instead of the placeholder", () => {

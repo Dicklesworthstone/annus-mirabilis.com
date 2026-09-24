@@ -85,10 +85,12 @@ const brownianFixture: ResultCardData = Object.freeze({
     },
     isPublicationReady: true,
   },
-  limitation: {
-    argumentId: "arg-bm-05-displacement-law",
-    text: "Holds only where the interval is long compared with the momentum relaxation time.",
-  },
+  limitations: [
+    {
+      argumentId: "arg-bm-05-displacement-law",
+      text: "Holds only where the interval is long compared with the momentum relaxation time.",
+    },
+  ],
   reception: [
     {
       datasetId: "perrin-1908-sedimentation",
@@ -159,10 +161,22 @@ describe("ResultCard.render: the Brownian lambda_x fixture, static markup", () =
     expect(html).toContain("sedimentation-equilibrium counts (1908-1909)");
   });
 
-  test("renders the probe as a link to the laboratory route with the preset, labeled as pending live bindings", () => {
+  test("renders the probe as a link to the laboratory that names the preset, and promises no URL preset", () => {
+    // No laboratory opens a preset from its URL, so the link is the laboratory itself and the
+    // preset is named for the reader to choose there (ResultCard.tsx).
     const html = renderToStaticMarkup(<ResultCard card={brownianFixture} />);
-    expect(html).toContain("/lab/bm-06?preset=bm-06-einstein-1s");
-    expect(html).toContain("pending am-eq-live-bindings-2se");
+    expect(html).toContain('href="/lab/bm-06/"');
+    expect(html).toContain('data-preset-id="bm-06-einstein-1s"');
+    expect(html).toContain("Choose the preset \u201cbm-06-einstein-1s\u201d there.");
+    expect(html).not.toContain("?preset=");
+    expect(html).not.toContain("pending am-eq-live-bindings-2se");
+  });
+
+  test("renders no support section when no derivation chain covers the result", () => {
+    const { support: _support, ...unsupported } = brownianFixture;
+    const html = renderToStaticMarkup(<ResultCard card={unsupported} />);
+    expect(html).not.toContain("result-support");
+    expect(html).toContain('data-argument-id="arg-bm-05-displacement-law"');
   });
 
   test("renders fully without JavaScript: static markup contains every layer with no client-only gaps", () => {

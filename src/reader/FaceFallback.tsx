@@ -6,9 +6,12 @@ import { FaceChooser } from "./FaceChooser.tsx";
 import { faceAvailability } from "./faceAvailability.ts";
 import { loadBilingualEdition } from "./faces/bilingualLoader.ts";
 import { FACE_REGISTRY, type FaceId } from "./faces/registry.ts";
+import { ResultsFace } from "./faces/ResultsFace.tsx";
+import { resultCardsFor } from "./faces/results/fromRecords.ts";
 import { FacsimilePanel } from "./facsimile/FacsimilePanel.tsx";
 import { loadFacsimileDocument } from "./facsimile/server.ts";
 import { ledgerGaps, pageRanges } from "./ledgerGaps.ts";
+import { paperEquations } from "./paperEquations.ts";
 import { FACE_FALLBACK_IDS, type FaceFallbackId, faceLinkHref, paperPath } from "./paperRoutes.ts";
 import { PaperStatus } from "./paperStatus.tsx";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline.ts";
@@ -80,6 +83,13 @@ export async function FaceFallback(
     face === "german" && availability.german !== "available"
       ? ledgerGaps(paperId as Parameters<typeof ledgerGaps>[0])
       : null;
+  // A paper's result cards (content/results), on the results face and its section pages.
+  const resultCards =
+    face === "results"
+      ? ((await resultCardsFor(paperId)) ?? []).filter(
+          (c) => !section || c.sectionAnchors.includes(section),
+        )
+      : [];
   const pdfHref = existsSync(
     join(process.cwd(), "public", "papers", "pdfs", `${paper.citation}.pdf`),
   )
@@ -158,6 +168,14 @@ export async function FaceFallback(
         in a link to the argument it summarises. Every result keeps its passage id, so a face
         change still lands on the same passage.
       */}
+      {resultCards.length > 0 ? (
+        <ResultsFace
+          paper={paperId}
+          cards={resultCards}
+          equations={paperEquations(paperId)}
+          heading="The paper's results"
+        />
+      ) : null}
       {face === "results" ? (
         <div data-face-results className="reading-column">
           {sections.map((s) => {

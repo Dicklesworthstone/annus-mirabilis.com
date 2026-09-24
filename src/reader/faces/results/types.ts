@@ -19,10 +19,35 @@ export type SourceRef = Readonly<{
 }>;
 
 /** A card cites either a registered instrument preset/mode or a teaching tape, never both in one
- * entry -- a sequence of several `ProbeRef`s is how a card asks a reader to run more than one. */
+ * entry -- a sequence of several `ProbeRef`s is how a card asks a reader to run more than one.
+ * `presetLabel` is the label the laboratory's manifest gives the preset, the name a reader finds
+ * among the laboratory's presets; no laboratory opens a preset from its URL. */
 export type ProbeRef =
-  | Readonly<{ kind: "instrument"; instrumentId: string; presetOrModeId: string; question: string }>
+  | Readonly<{
+      kind: "instrument";
+      instrumentId: string;
+      presetOrModeId: string;
+      question: string;
+      presetLabel?: string | undefined;
+    }>
   | Readonly<{ kind: "tape"; tapeId: string; question: string }>;
+
+/** Einstein's text for a result, read from the German face at its anchor, never retyped. */
+export type PrintedLayerEntry = Readonly<{
+  anchor: string;
+  kind: "display" | "sentences";
+  /** Ledger markup: LaTeX for a display, marked text for sentences. */
+  text: string;
+  page: number | undefined;
+  /** The anchor on the German face, where the text stands in its paragraph. */
+  germanHref: string;
+}>;
+
+/** A statement on the card that is not the result itself, labelled for what it is. */
+export type Qualification = Readonly<{
+  kind: "premise" | "comparison" | "approximation" | "inference" | "conditional";
+  text: string;
+}>;
 
 export type DecoderEntry = Readonly<{
   symbol: string;
@@ -58,6 +83,8 @@ export type PrintedCheck = Readonly<{
    * (content/scenarios/*.yaml `transcription.status: "pending"`) -- the check still renders,
    * but never as a fully verified transcription. */
   transcriptionPending: boolean;
+  /** The reproduced value as the card shows it, with its unit, formatted by the projection. */
+  reproducedText?: string | undefined;
 }>;
 
 export type EmpiricalInput = Readonly<{
@@ -120,6 +147,11 @@ export type ResultCard = Readonly<{
   resultId: string;
   paper: string;
   sectionAnchors: readonly string[];
+  /** A short heading. Without one the card is headed by its one sentence. */
+  title?: string | undefined;
+  /** The result as printed, from the German face. */
+  printed?: readonly PrintedLayerEntry[] | undefined;
+  qualifications?: readonly Qualification[] | undefined;
 
   /** `[0]` is primary and renders in the card's headline; the rest render beneath it in printed
    * order. Rendering both as colorized equations is am-eq-colorized-component-1z8's job -- until
@@ -129,6 +161,8 @@ export type ResultCard = Readonly<{
   decoder: readonly DecoderEntry[];
 
   printedChecks: readonly PrintedCheck[];
+  /** The owner's sentence comparing the checks' constant sets, shown with them, never derived. */
+  printedCheckComparison?: string | undefined;
   probes: readonly ProbeRef[];
 
   misconceptionIds: readonly string[];
@@ -138,8 +172,10 @@ export type ResultCard = Readonly<{
   sources: readonly SourceRef[];
   selectionReason: string;
 
-  support: SupportLayer;
-  limitation: LimitationLayer;
+  /** Absent when no derivation-chain registry covers the result; the card then shows no route. */
+  support?: SupportLayer | undefined;
+  /** One per argument passage the result rests on, each that passage's own limitations. */
+  limitations: readonly LimitationLayer[];
   /** Empty means "nothing later addressed this result directly" -- a card renders no reception
    * section at all rather than a placeholder, per the bead's own explicit rule. */
   reception: readonly ReceptionEntry[];
