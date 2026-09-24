@@ -27,7 +27,7 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
   return (
     <div
       className="photon-box-visual-wrap"
-      data-instrument-id="me-03:box-1906"
+      data-view-id="me-03-photon-box"
       data-testid="photon-box-plot"
     >
       <svg

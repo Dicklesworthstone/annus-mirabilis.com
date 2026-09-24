@@ -27,6 +27,7 @@ import {
   type PreparedMe01Example,
 } from "../../../experiments/me01/session.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
+import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
@@ -203,12 +204,7 @@ export function TwoLedgersLab({
       className="laboratory-shell"
       aria-label={title}
       data-instrument-id="me-01"
-      data-instance-id={session.getSnapshot().accepted?.instanceId ?? "me-01"}
-      data-run-id={session.getSnapshot().accepted?.runId ?? "me01-init"}
-      data-snapshot-version={session.getSnapshot().accepted?.snapshotVersion ?? 0}
-      data-input-revision={session.getSnapshot().requested?.revisions.input ?? 0}
-      data-accepted-input-revision={session.getSnapshot().accepted?.revisions.input ?? 0}
-      data-pending={session.getSnapshot().pending ? "true" : "false"}
+      {...instrumentRootAttributes(view)}
       {...executionLabelAttributes(executionKind)}
       data-refusal-code={refusalCode ?? undefined}
     >

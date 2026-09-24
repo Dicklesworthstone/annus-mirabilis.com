@@ -89,7 +89,7 @@ export function BoundaryLedgerPlot({ parameters, evaluation, clipId }: BoundaryL
       data-disposition={disposition}
       data-mode={mode}
       data-card-id={card.id}
-      data-instrument-id="me-03"
+      data-view-id="me-03-boundary-ledger"
     >
       <div className="me03-figure-grid">
         <div className="boundary-diagram">

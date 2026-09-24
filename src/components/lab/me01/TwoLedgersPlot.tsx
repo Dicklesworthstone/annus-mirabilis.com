@@ -72,7 +72,7 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
       data-step={step}
       data-premise={premise}
       data-notation={notation}
-      data-instrument-id="me-01"
+      data-view-id="me-01-ledgers"
     >
       <div className="me01-figure-grid">
         <div className="emission-geometry">
