@@ -281,7 +281,7 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     // case-insensitive match would not have survived either. The href is what makes this link
     // that link, so it is the handle that cannot go stale under a copy edit.
     const foundationLink = Array.from(container.querySelectorAll("a")).find(
-      (a) => a.getAttribute("href") === "/foundations/mean-variance-rms",
+      (a) => a.getAttribute("href") === "/foundations/mean-variance-rms/",
     );
     expect(foundationLink).toBeDefined();
 
@@ -295,7 +295,7 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
     // interactive one. That choice is self-checking rather than assumed: the assertion below
     // requires the click to fire onNavigateInstrument, which the static fallback would not do.
     const instrumentLink = Array.from(container.querySelectorAll("a")).find(
-      (a) => a.getAttribute("href") === "/lab/bm-01",
+      (a) => a.getAttribute("href") === "/lab/bm-01/",
     );
     expect(instrumentLink).toBeDefined();
 
@@ -439,7 +439,7 @@ describe("Brownian First Encounter Interactive UI Component (am-bm-first-encount
       'a[data-instrument-id="bm-01"]',
     ) as HTMLAnchorElement | null;
     expect(instrumentLink).not.toBeNull();
-    expect(instrumentLink?.getAttribute("href")).toBe("/lab/bm-01");
+    expect(instrumentLink?.getAttribute("href")).toBe("/lab/bm-01/");
     expect(instrumentLink?.getAttribute("data-instrument-id")).toBe("bm-01");
 
     // The §5 page renders no sentence anchors, so "#s5-p1-s1" landed at the top of the page (found

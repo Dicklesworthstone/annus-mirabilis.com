@@ -778,7 +778,7 @@ export function BrownianFirstEncounter({
                   </p>
                 </div>
                 <a
-                  href="/foundations/mean-variance-rms"
+                  href="/foundations/mean-variance-rms/"
                   onClick={(e) => {
                     if (onNavigateFoundation) {
                       e.preventDefault();
@@ -811,7 +811,7 @@ export function BrownianFirstEncounter({
                 </div>
                 <div className="button-group">
                   <a
-                    href="/lab/bm-01"
+                    href="/lab/bm-01/"
                     data-instrument-id="bm-01"
                     onClick={(e) => {
                       if (onNavigateInstrument) {
@@ -873,10 +873,10 @@ export function BrownianFirstEncounter({
             </div>
           </div>
           <div className="button-group" style={{ marginTop: "1rem" }}>
-            <a href="/foundations/mean-variance-rms" className="button secondary">
+            <a href="/foundations/mean-variance-rms/" className="button secondary">
               Open the foundation on mean, variance and RMS
             </a>
-            <a href="/lab/bm-01" className="button secondary">
+            <a href="/lab/bm-01/" className="button secondary">
               Open the tracer-ensemble laboratory
             </a>
             <a href="/papers/brownian-motion/s5/#s5" className="button secondary">

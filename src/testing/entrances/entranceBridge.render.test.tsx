@@ -96,8 +96,8 @@ describe("Entrance Bridge Rendering Tests (am-bm-first-encounter-fjvh)", () => {
     expect(lower(html)).toContain(lower("Continue With Your Choice of Guidance"));
     expect(html).toContain("More guidance · Foundations");
     expect(html).toContain("Less guidance · Laboratory and paper");
-    expect(html).toContain('href="/foundations/mean-variance-rms"');
-    expect(html).toContain('href="/lab/bm-01"');
+    expect(html).toContain('href="/foundations/mean-variance-rms/"');
+    expect(html).toContain('href="/lab/bm-01/"');
     expect(html).toContain('data-instrument-id="bm-01"');
 
     // Verify ordering in output string
@@ -127,8 +127,8 @@ describe("Entrance Bridge Rendering Tests (am-bm-first-encounter-fjvh)", () => {
   it("renders complete static links and worked numbers in noscript fallback", () => {
     const html = renderToString(<BrownianFirstEncounter record={validRecord} />);
     expect(html).toContain("<noscript>");
-    expect(html).toContain('href="/foundations/mean-variance-rms"');
-    expect(html).toContain('href="/lab/bm-01"');
+    expect(html).toContain('href="/foundations/mean-variance-rms/"');
+    expect(html).toContain('href="/lab/bm-01/"');
     expect(html).toContain('href="/papers/brownian-motion/s5/#s5"');
 
     // Complete worked example numbers for authored case (-3, -1, +1, +3)
