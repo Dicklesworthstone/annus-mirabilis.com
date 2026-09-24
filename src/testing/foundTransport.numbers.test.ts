@@ -2,9 +2,13 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { constantValue, getConstantSet, thermalConstant } from "../physics/reference/constants.ts";
-import { stokesMobility } from "../physics/reference/diffusion/routeA.ts";
+import { configurationVolumeTerm, stokesMobility } from "../physics/reference/diffusion/routeA.ts";
 import { osmoticPressure } from "../physics/reference/diffusion.ts";
-import { withinTolerance } from "../units/tolerance.ts";
+import {
+  compareBitwise,
+  roundsTo as printedRoundsTo,
+  withinTolerance,
+} from "../units/tolerance.ts";
 
 /**
  * am-found-transport-thermo-smv3: "Quoted numbers match tests." Every number the osmotic-pressure,
@@ -26,9 +30,9 @@ const text = (slug: string) => {
   return out.join(" ");
 };
 
-/** Whether a value, rounded to the given significant figures, is the printed number. */
+/** Whether a value falls inside the printed number's rounding interval at the given figures. */
 const roundsTo = (value: number, printed: number, figures: number) =>
-  withinTolerance(Number(value.toPrecision(figures)), printed, { relative: 1e-12 }).ok;
+  printedRoundsTo(value, printed, { significantFigures: figures }).ok;
 
 const value = (r: { result: { status: string; value?: unknown } }) => {
   if (r.result.status !== "value" || typeof r.result.value !== "number")
@@ -152,5 +156,65 @@ describe("work, entropy counting and entropy with temperature", () => {
     expect(roundsTo(3 / 150, 0.02, 1)).toBe(true);
     expect(t).toContain("3 J ÷ 300 K = 0.01 joule per kelvin");
     expect(t).toContain("0.02 joule per kelvin, twice as much");
+  });
+});
+
+describe("the test plan's fixed values, from the modern 2019 SI set at 293.15 K", () => {
+  const T = 293.15;
+  const R = constantValue(modern, "molarGasConstant").value;
+  const N = constantValue(modern, "avogadroConstant").value;
+  const at7 = (v: number, printed: number) =>
+    printedRoundsTo(v, printed, { significantFigures: 7 }).ok;
+
+  test("the mobility of a 0.5 μm sphere in water at 1 mPa·s is 1.061033 × 10⁸ m N⁻¹ s⁻¹", () => {
+    expect(at7(value(stokesMobility(1e-3, 5e-7)), 1.061033e8)).toBe(true);
+  });
+
+  test("0.1 mol/L gives an osmotic pressure of 2.437385 × 10⁵ Pa, 2.406 atm", () => {
+    const p = value(osmoticPressure({ n: 100 * N, T }, modern));
+    expect(at7(p, 2.437385e5)).toBe(true);
+    expect(printedRoundsTo(p / 101325, 2.406, { significantFigures: 4 }).ok).toBe(true);
+  });
+
+  test("k_BT = 4.047373 × 10⁻²¹ J and 3/2 k_BT = 6.071059 × 10⁻²¹ J, in the ratio 2/3 exactly", () => {
+    const kT = kB * T;
+    expect(at7(kT, 4.047373e-21)).toBe(true);
+    expect(at7(1.5 * kT, 6.071059e-21)).toBe(true);
+    expect(compareBitwise(kT / (1.5 * kT), 2 / 3).ok).toBe(true);
+  });
+
+  test("1 eV is 1.602177 × 10⁻¹⁹ J", () => {
+    expect(at7(constantValue(modern, "elementaryCharge").value, 1.602177e-19)).toBe(true);
+  });
+
+  // The configuration term of the free energy, −kT·n·ln(V/V₀), and the pressure the owner reports.
+  const volumeTerm = (V: number, V0: number) => {
+    const r = configurationVolumeTerm({ Np: 1_000_000, V, V0, T }, modern);
+    if (!("deltaF" in r)) throw new TypeError(r.result.status);
+    return r;
+  };
+
+  test("light §5's footnote: the volume law's slope is a pressure with pv = R(n/N)T", () => {
+    // A numerical derivative at three volumes, not a symbolic one: the repository has no symbolic
+    // differentiator. It still fails if the owner's pressure and free energy disagree.
+    const n = 1_000_000;
+    for (const v of [1e-6, 1e-3, 2.5]) {
+      const h = v * 1e-5;
+      const slope =
+        -(value(volumeTerm(v + h, v).deltaF) - value(volumeTerm(v - h, v).deltaF)) / (2 * h);
+      expect(withinTolerance(slope, value(volumeTerm(v, v).pressure), { relative: 1e-6 }).ok).toBe(
+        true,
+      );
+      expect(withinTolerance(slope * v, R * (n / N) * T, { relative: 1e-6 }).ok).toBe(true);
+    }
+  });
+
+  test("doubling the volume raises the entropy by n k_B ln 2", () => {
+    const n = 1_000_000;
+    const gained = -value(volumeTerm(2, 1).deltaF) / T;
+    expect(withinTolerance(gained, n * kB * Math.LN2, { relative: 1e-12 }).ok).toBe(true);
+    // Halving it lowers the entropy by the same amount, the entropy-multiplicity lesson's R ln ½ per mole.
+    const lost = -value(volumeTerm(1, 2).deltaF) / T;
+    expect(withinTolerance(lost, -n * kB * Math.LN2, { relative: 1e-12 }).ok).toBe(true);
   });
 });
