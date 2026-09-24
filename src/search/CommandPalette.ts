@@ -147,7 +147,7 @@ export function openCommandPalette(
   const help = element(
     "p",
     "Use Up and Down to select a result, Enter to open it, or Escape to return to your reading.",
-    "fine",
+    "fine search-keyboard-help",
   );
   dialog.append(heading, privacy, label, input, filters, status, results, retry, help, browse);
 

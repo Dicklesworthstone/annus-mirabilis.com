@@ -261,3 +261,12 @@ button.search-page-field:focus-visible {
     display: none !important;
   }
 }
+
+/* The keyboard instructions at the foot of the palette, on a touch screen with no keyboard to
+   press, spent two lines of a phone's dialog (at 390 wide the results had room for one entry)
+   explaining keys the reader does not have. */
+@media (hover: none) and (pointer: coarse) {
+  .search-keyboard-help {
+    display: none;
+  }
+}
