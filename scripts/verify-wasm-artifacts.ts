@@ -2,32 +2,39 @@
 /**
  * WASM Artifact and Hash Verification Gate (am-fs-slim-artifact-0yh requirement 7).
  *
- * Verifies:
- * 1. Manifest digests equal file bytes; WebAssembly.validate passes; module instantiates.
- * 2. Capability-matrix agreement against docs/FRANKENSIM_BINDING.md.
- * 3. Export validity and shape/length checks on small fixed cases.
- * 4. Philox normals KATs and reference vectors, suffix draw-indexing property.
- * 5. Brownian trajectories reconstruction (bitwise for coin/uniform, tolerance for Gaussian).
- * 6. FTCS 1D diffusion stability boundary (r=0.5 accepted, r=0.5000001 ftcs-unstable refusal).
- * 7. Malformed output rejection.
- * 8. 64-bit unsigned integer boundary round trips (BigInt).
- * 9. Size budget enforcement (< 500 KB and within 10% drift).
- * 10. Provenance registry admission.
+ * Verifies, against the compiled module itself, called through the same loader and decoder as
+ * the browser worker (am-frankensim-repin-and-bind-jvhg):
+ * 1. Manifest digests equal file bytes; WebAssembly.validate passes.
+ * 2. The module loads through loadBundle (digest, link, build_identity()).
+ * 3. Capability-matrix agreement against docs/FRANKENSIM_BINDING.md.
+ * 4. Export validity and shape/length checks on small fixed cases.
+ * 5. Philox, bitwise: the TS port's KATs and integer draws, and the module's normals, at every
+ *    position in src/physics/reference/philox.vectors.json; the draw-indexed suffix.
+ * 6. The module's normals against the TS port's: tolerance in ulps (the transforms differ).
+ * 7. Brownian step kernels (coin scale; kernel 3 == kernel 2 at 2 D dt = 1; kernel 4 refused).
+ * 8. FTCS stability boundary: r = 0.5 accepted, r > 0.5 the typed ftcs-unstable envelope.
+ * 9. Malformed output rejection by the worker's decoder.
+ * 10. 64-bit seeds as BigInt at the boundaries.
+ * 11. Size budget enforcement (< 500 KB and within 10% drift).
+ * 12. Provenance registry admission (brownian_frames now admitted; see the check).
+ * A check that could not run because the module did not load is reported as failed.
  *
  * Writes structured JSONL to artifacts/test-logs/wasm-artifacts/<log-run-id>.jsonl
  * and failure evidence to artifacts/test-logs/wasm-artifacts/<log-run-id>/failures/<testId>.json.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { philox4x32_10 } from "../src/physics/reference/philox.ts";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { createPhiloxStream, philox4x32_10 } from "../src/physics/reference/philox.ts";
 import { newRunIdentity } from "../src/testing/log/logger.ts";
 import {
   computeArtifactDigest,
   loadWasmBytes,
   validateWasmBytes,
 } from "../src/testing/wasm/artifactHelpers.ts";
+import { compareBitwise, ieee754Hex, withinTolerance } from "../src/units/tolerance.ts";
 import {
   assertAdmittedCapability,
   assertAdmittedWasmDigest,
@@ -36,6 +43,15 @@ import {
   registerAdmittedManifest,
   type WasmArtifactManifest,
 } from "../src/workers/protocol/provenance.ts";
+import {
+  callBrownianFrames,
+  callDiffusion1dFrames,
+  callPhiloxNormals,
+  decodeFrankenSimResult,
+  type FrankenSimCall,
+  type FrankenSimExports,
+} from "../src/workers/wasm/frankensimCalls.ts";
+import { loadBundle, type WasmBindgenGlue, wasmFileOf } from "../src/workers/wasm/loadBundle.ts";
 import { parseCapabilityMatrix } from "./wasm-artifacts/capabilityMatrix.ts";
 import { evaluateSizeBudget } from "./wasm-artifacts/sizeBudget.ts";
 
@@ -94,6 +110,22 @@ export function validateProtocolBuffer(
   return { valid: true };
 }
 
+/** A double's IEEE-754 bits as 16 lowercase hex digits, the form philox.vectors.json records. */
+const bitsHex = (v: number) => ieee754Hex(v).slice(2);
+
+/** Distance in units in the last place between two finite doubles. */
+function ulpDistance(a: number, b: number): bigint {
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return 2n ** 63n;
+  const ordered = (x: number) => {
+    const v = new DataView(new ArrayBuffer(8));
+    v.setFloat64(0, x);
+    const u = v.getBigInt64(0);
+    return u < 0n ? -(u & 0x7fffffffffffffffn) : u;
+  };
+  const d = ordered(a) - ordered(b);
+  return d < 0n ? -d : d;
+}
+
 export interface VerificationOptions {
   readonly manifestPath?: string | undefined;
   readonly bindingDocPath?: string | undefined;
@@ -129,8 +161,8 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     repoRoot,
     manifest.bundleDir ?? `public/wasm/${manifest.bundleId}/${manifest.hashPrefix}`,
   );
-  const wasmPath = join(bundleDir, "fs_annus_diffusion_bg.wasm");
-  const jsPath = join(bundleDir, "fs_annus_diffusion.js");
+  const wasmFile = wasmFileOf(manifest) ?? "fs_annus_diffusion_bg.wasm";
+  const wasmPath = join(bundleDir, wasmFile);
 
   // --- Check 1: Manifest digests equal file bytes & WebAssembly.validate ---
   let wasmDigest = "";
@@ -189,63 +221,54 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     });
   }
 
-  interface WasmDiffusionModule {
-    readonly default?: (opts: { module_or_path: ArrayBuffer | Uint8Array }) => Promise<unknown>;
-    readonly brownian_frames: (
-      n: number,
-      steps: number,
-      kernel: number,
-      seed: string | bigint | number,
-      d: number,
-      dt: number,
-    ) => Float64Array;
-    readonly brownian_frames_window: (
-      n: number,
-      start: number,
-      steps: number,
-      kernel: number,
-      seed: string | bigint | number,
-      d: number,
-      dt: number,
-      startPos: Float64Array | readonly number[],
-    ) => Float64Array;
-    readonly philox_normals: (
-      seed: string | bigint | number,
-      stream_kernel: number,
-      tile: number,
-      start_index: string | bigint | number,
-      count: number,
-    ) => Float64Array;
-    readonly diffusion1d_frames: (
-      n: number,
-      frames: number,
-      steps_per_frame: number,
-      d: number,
-      dx: number,
-      dt: number,
-      profile: number,
-    ) => Float64Array;
-  }
-
-  // --- Import JS Glue and Initialize Module ---
-  let jsModule: WasmDiffusionModule;
+  // --- Check 2: the module loads through the real loader, with its identity checked ---
+  // The same path the browser worker takes (src/workers/wasm/loadBundle.ts): sha256 against the
+  // manifest, compile the verified bytes, initSync on the manifest's own glue, build_identity().
+  let fs: FrankenSimExports | null = null;
+  const glueFile = Object.keys(manifest.files).find((n) => n.endsWith(".js"));
   try {
-    jsModule = (await import(/* @vite-ignore */ jsPath)) as WasmDiffusionModule;
-    if (typeof jsModule.default === "function") {
-      const wasmBytes = await loadWasmBytes(wasmPath);
-      await jsModule.default({ module_or_path: wasmBytes });
-    }
+    const glue = glueFile
+      ? ((await import(
+          /* @vite-ignore */ pathToFileURL(join(bundleDir, glueFile)).href
+        )) as WasmBindgenGlue)
+      : undefined;
+    const loaded = await loadBundle({
+      manifestData: manifest,
+      wasmUrl: wasmPath,
+      readBytes: (p) => readFile(p),
+      ...(glue ? { glue } : {}),
+    });
+    const expectedIdentity = (manifest.build as { identity?: string } | undefined)?.identity;
+    const identityChecked = loaded.kind === "loaded" && loaded.identity === expectedIdentity;
+    if (loaded.kind === "loaded") fs = loaded.exports;
+    checks.push({
+      testId: "module-instantiation",
+      passed: loaded.kind === "loaded" && identityChecked,
+      comparisonKind: "bitwise",
+      message:
+        loaded.kind === "loaded"
+          ? `The compiled module loads through loadBundle and reports build_identity() ${loaded.identity}.`
+          : `The module was refused: ${loaded.outcome}: ${loaded.message}`,
+      expected: { kind: "loaded", identity: expectedIdentity ?? null },
+      actual:
+        loaded.kind === "loaded"
+          ? { kind: "loaded", identity: loaded.identity, digest: loaded.digest }
+          : { kind: "refused", outcome: loaded.outcome },
+      failureDetails:
+        loaded.kind === "loaded"
+          ? undefined
+          : { outcome: loaded.outcome, expectedDigest: manifest.wasmDigest, compilePath: "bytes" },
+    });
   } catch (err) {
     checks.push({
       testId: "module-instantiation",
       passed: false,
       comparisonKind: "structural",
-      message: `Failed to instantiate WASM module: ${err instanceof Error ? err.message : String(err)}`,
+      message: `The glue could not be imported: ${err instanceof Error ? err.message : String(err)}`,
     });
-    return { passed: false, logRunId, checks };
   }
 
-  // --- Check 2: Capability matrix agreement ---
+  // --- Check 3: Capability matrix agreement ---
   try {
     const bindingDoc = readFileSync(bindingDocPath, "utf8");
     const matrix = parseCapabilityMatrix(bindingDoc);
@@ -347,388 +370,529 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     });
   }
 
-  // --- Check 3: Export validity on small fixed cases ---
-  let bf: Float64Array = new Float64Array(0);
-  let bfw: Float64Array = new Float64Array(0);
-  let pn: Float64Array = new Float64Array(0);
-  let df: Float64Array = new Float64Array(0);
-  try {
-    bf = jsModule.brownian_frames(2, 4, 3, "12345", 0.1, 0.05);
-    bfw = jsModule.brownian_frames_window(2, 2, 2, 3, "12345", 0.1, 0.05, [0.0, 0.0]);
-    pn = jsModule.philox_normals("12345", 0x19050001, 0, "0", 10);
-    df = jsModule.diffusion1d_frames(10, 5, 2, 0.1, 0.1, 0.05, 0);
+  // Every check below calls the loaded module. Without it they cannot run, and each says so as
+  // a failure, not a skip: a gate that examined nothing has not passed.
+  const EXPORT_CHECKS = [
+    "export-validity-small-cases",
+    "philox-normals-kats-and-suffix",
+    "philox-normals-wasm-vs-ts-port",
+    "brownian-trajectories-and-kernel-resolution",
+    "ftcs-1d-stability-boundary",
+    "malformed-output-rejection",
+    "u64-boundaries-round-trip",
+  ];
+  if (!fs) {
+    for (const testId of EXPORT_CHECKS)
+      checks.push({
+        testId,
+        passed: false,
+        comparisonKind: "structural",
+        message: "Not run: the module did not load, so there was nothing to call.",
+      });
+  } else {
+    const m = fs;
+    const values = (c: FrankenSimCall): Float64Array =>
+      c.kind === "accepted" ? c.values : new Float64Array(0);
 
-    const bfCheck = validateProtocolBuffer(bf, {
-      layoutId: "brownian-frames",
-      version: 1,
-      shape: [2, 5],
-    });
-    const bfwCheck = validateProtocolBuffer(bfw, {
-      layoutId: "brownian-frames",
-      version: 1,
-      shape: [2, 3],
-    });
-    const pnCheck = validateProtocolBuffer(pn, {
-      layoutId: "philox-normals",
-      version: 1,
-      shape: [10],
-    });
-    const dfCheck = validateProtocolBuffer(df, {
-      layoutId: "diffusion1d-frames",
-      version: 1,
-      shape: [5, 10],
-    });
+    // --- Check 4: every export steps a small case, through the typed decoder ---
+    let bf: Float64Array = new Float64Array(0);
+    let pn: Float64Array = new Float64Array(0);
+    let df: Float64Array = new Float64Array(0);
+    try {
+      const bfc = callBrownianFrames(m, {
+        nParticles: 2,
+        steps: 4,
+        stepKernel: 3,
+        seed: "12345",
+        diffusion: 0.1,
+        dt: 0.05,
+      });
+      const pnc = callPhiloxNormals(m, {
+        seed: "12345",
+        streamKernel: 0x19050001,
+        tile: 0,
+        startIndex: "0",
+        count: 10,
+      });
+      const dfc = callDiffusion1dFrames(m, {
+        n: 10,
+        frames: 5,
+        stepsPerFrame: 2,
+        diffusion: 0.1,
+        dx: 0.1,
+        dt: 0.05,
+        profile: 0,
+      });
+      bf = values(bfc);
+      pn = values(pnc);
+      df = values(dfc);
+      const kinds = [bfc.kind, pnc.kind, dfc.kind];
+      const shapesValid =
+        kinds.every((k) => k === "accepted") &&
+        validateProtocolBuffer(bf, { layoutId: "brownian-frames", version: 1, shape: [2, 5] })
+          .valid &&
+        validateProtocolBuffer(pn, { layoutId: "philox-normals", version: 1, shape: [10] }).valid &&
+        validateProtocolBuffer(df, { layoutId: "diffusion1d-frames", version: 1, shape: [5, 10] })
+          .valid;
+      checks.push({
+        testId: "export-validity-small-cases",
+        passed: shapesValid,
+        comparisonKind: "structural",
+        message:
+          "brownian_frames, philox_normals and diffusion1d_frames each return an ok envelope and a buffer of the declared shape. brownian_frames_window is not exported by this artifact and is not called.",
+        expected: { kinds: ["accepted", "accepted", "accepted"], bfLen: 10, pnLen: 10, dfLen: 50 },
+        actual: { kinds, bfLen: bf.length, pnLen: pn.length, dfLen: df.length },
+      });
+    } catch (err) {
+      checks.push({
+        testId: "export-validity-small-cases",
+        passed: false,
+        comparisonKind: "structural",
+        message: `Export validity check failed: ${err instanceof Error ? err.message : String(err)}`,
+        failureDetails: { error: String(err) },
+      });
+    }
 
-    const shapesValid = bfCheck.valid && bfwCheck.valid && pnCheck.valid && dfCheck.valid;
-
-    checks.push({
-      testId: "export-validity-small-cases",
-      passed: shapesValid,
-      comparisonKind: "structural",
-      message:
-        "All exported diffusion functions step cleanly with expected output buffer lengths and shapes.",
-      expected: { bfLen: 10, bfwLen: 6, pnLen: 10, dfLen: 50 },
-      actual: { bfLen: bf?.length, bfwLen: bfw?.length, pnLen: pn?.length, dfLen: df?.length },
-      failureDetails: shapesValid
-        ? undefined
-        : {
-            caseInputs: {
-              bfArgs: [2, 4, 3, "12345", 0.1, 0.05],
-              bfwArgs: [2, 2, 2, 3, "12345", 0.1, 0.05, [0.0, 0.0]],
-              pnArgs: ["12345", 0x19050001, 0, "0", 10],
-              dfArgs: [10, 5, 2, 0.1, 0.1, 0.05, 0],
-            },
-          },
-    });
-  } catch (err) {
-    checks.push({
-      testId: "export-validity-small-cases",
-      passed: false,
-      comparisonKind: "structural",
-      message: `Export validity check failed: ${err instanceof Error ? err.message : String(err)}`,
-      failureDetails: { error: String(err) },
-    });
-  }
-
-  // --- Check 4: Philox normals KATs and suffix draw-indexing property ---
-  try {
-    const vectorsPath = join(repoRoot, "src/physics/reference/philox.vectors.json");
-    // The array is `knownAnswers`, and each entry's expected block is `block`.
-    // This check previously read `vectorsData.kats[].expected`, a shape the file
-    // has never had: verify-wasm-artifacts.ts was written against a placeholder
-    // schema at 7b602d4, and am-fs-philox-ts-port-7kp landed the real vectors at
-    // 5ec954b with this shape. `kats` was therefore always undefined and
-    // katsPassed was unconditionally false, so this check failed on every run
-    // regardless of which artifact was present.
-    const vectorsData = JSON.parse(readFileSync(vectorsPath, "utf8")) as {
-      readonly knownAnswers: readonly {
-        readonly counter: readonly string[];
-        readonly key: readonly string[];
-        readonly block: readonly string[];
-        readonly source: string;
-      }[];
-    };
-    // And it counted entries rather than checking them, while reporting that the
-    // generator "satisfies Random123 KATs". Run them against the TS port instead,
-    // reusing philox4x32_10 rather than reimplementing the round function here.
-    const knownAnswers = vectorsData.knownAnswers;
-    let katsPassed = Array.isArray(knownAnswers) && knownAnswers.length >= 3;
-    const katFailures: string[] = [];
-    if (katsPassed) {
-      for (const ka of knownAnswers) {
+    // --- Check 5: Philox, bitwise against the recorded vectors, through the real module ---
+    try {
+      const vectorsPath = join(repoRoot, "src/physics/reference/philox.vectors.json");
+      const vectorsData = JSON.parse(readFileSync(vectorsPath, "utf8")) as {
+        readonly knownAnswers: readonly {
+          readonly counter: readonly string[];
+          readonly key: readonly string[];
+          readonly block: readonly string[];
+          readonly source: string;
+        }[];
+        readonly positions: readonly {
+          readonly seed: string;
+          readonly streamKernel: number;
+          readonly tile: number;
+          readonly index: string;
+          readonly u64: string;
+          readonly normalBits: string;
+        }[];
+        readonly normalSequences: readonly {
+          readonly seed: string;
+          readonly streamKernel: number;
+          readonly tile: number;
+          readonly startIndex: string;
+          readonly count: number;
+          readonly normalBits: readonly string[];
+        }[];
+      };
+      // The TS port's block function against the 3 Random123 known answers.
+      const katFailures: string[] = [];
+      for (const ka of vectorsData.knownAnswers) {
         const counter = ka.counter.map((h) => Number.parseInt(h, 16));
         const key = ka.key.map((h) => Number.parseInt(h, 16));
-        const expectedBlock = ka.block.map((h) => Number.parseInt(h, 16));
-        const actual = Array.from(philox4x32_10(counter, key));
-        if (
-          actual.length !== expectedBlock.length ||
-          actual.some((w, i) => w !== expectedBlock[i])
-        ) {
-          katsPassed = false;
-          katFailures.push(
-            `${ka.source}: expected ${ka.block.join(",")} got ${actual.map((w) => (w >>> 0).toString(16).padStart(8, "0")).join(",")}`,
-          );
+        const actual = Array.from(philox4x32_10(counter, key)).map((w) =>
+          (w >>> 0).toString(16).padStart(8, "0"),
+        );
+        if (actual.join(",") !== ka.block.join(","))
+          katFailures.push(`${ka.source}: got ${actual.join(",")}`);
+      }
+      // Every recorded position: the TS port's integer draw, and the module's normal, bitwise.
+      let portU64Mismatches = 0;
+      let wasmNormalMismatches = 0;
+      let wasmNormals = 0;
+      let typedOverflows = 0;
+      for (const p of vectorsData.positions) {
+        const stream = createPhiloxStream(
+          { seed: p.seed, kernel: p.streamKernel, tile: p.tile } as Parameters<
+            typeof createPhiloxStream
+          >[0],
+          p.index,
+        );
+        if (stream.nextU64().toString() !== p.u64) portU64Mismatches++;
+        const r = callPhiloxNormals(m, {
+          seed: p.seed,
+          streamKernel: p.streamKernel,
+          tile: p.tile,
+          startIndex: p.index,
+          count: 1,
+        });
+        if (BigInt(p.index) + 2n > 18446744073709551615n) {
+          if (r.kind === "refused" && r.refusal.code === "stream-index-overflow") typedOverflows++;
+          else wasmNormalMismatches++;
+        } else {
+          wasmNormals++;
+          if (r.kind !== "accepted" || bitsHex(r.values[0] ?? Number.NaN) !== p.normalBits)
+            wasmNormalMismatches++;
         }
       }
-    }
-
-    // Suffix draw indexing check:
-    // sequence starting at draw 2*k equals sequence starting at draw 0 from k-th normal onward
-    const fullSeq = jsModule.philox_normals("99999", 0x19050001, 1, "0", 20);
-    const offsetSeq = jsModule.philox_normals("99999", 0x19050001, 1, "10", 15); // 10 draws = 5 normals offset
-
-    let suffixMatches = true;
-    for (let i = 0; i < 15; i++) {
-      const fVal = fullSeq[5 + i] ?? 0;
-      const oVal = offsetSeq[i] ?? 0;
-      if (Math.abs(fVal - oVal) > 1e-15) {
-        suffixMatches = false;
-        break;
+      let sequenceMismatches = 0;
+      for (const sq of vectorsData.normalSequences) {
+        const r = callPhiloxNormals(m, {
+          seed: sq.seed,
+          streamKernel: sq.streamKernel,
+          tile: sq.tile,
+          startIndex: sq.startIndex,
+          count: sq.count,
+        });
+        if (
+          r.kind !== "accepted" ||
+          Array.from(r.values, bitsHex).join(",") !== sq.normalBits.join(",")
+        )
+          sequenceMismatches++;
       }
+      // start_index counts draws: normal k of a call from 0 is normal 0 of a call from 2k.
+      const full = values(
+        callPhiloxNormals(m, {
+          seed: "99999",
+          streamKernel: 0x19050001,
+          tile: 1,
+          startIndex: "0",
+          count: 20,
+        }),
+      );
+      const offset = values(
+        callPhiloxNormals(m, {
+          seed: "99999",
+          streamKernel: 0x19050001,
+          tile: 1,
+          startIndex: "10",
+          count: 15,
+        }),
+      );
+      const suffixMatches =
+        offset.length === 15 &&
+        Array.from(offset).every((v, i) => compareBitwise(v, full[5 + i]).ok);
+      const passed =
+        vectorsData.knownAnswers.length >= 3 &&
+        katFailures.length === 0 &&
+        vectorsData.positions.length > 0 &&
+        wasmNormals > 0 &&
+        typedOverflows > 0 &&
+        portU64Mismatches === 0 &&
+        wasmNormalMismatches === 0 &&
+        vectorsData.normalSequences.length > 0 &&
+        sequenceMismatches === 0 &&
+        suffixMatches;
+      checks.push({
+        testId: "philox-normals-kats-and-suffix",
+        passed,
+        comparisonKind: "bitwise",
+        message: `Philox, bitwise, over ${vectorsData.positions.length} recorded positions: TS port known-answer failures ${katFailures.length} of ${vectorsData.knownAnswers.length}; TS port integer-draw mismatches ${portU64Mismatches}; module normals compared ${wasmNormals}, mismatched ${wasmNormalMismatches}; typed stream-index-overflow refusals ${typedOverflows}; recorded sequences mismatched ${sequenceMismatches} of ${vectorsData.normalSequences.length}; draw-indexed suffix ${suffixMatches ? "matches" : "differs"}.`,
+        expected: {
+          katFailures: 0,
+          portU64Mismatches: 0,
+          wasmNormalMismatches: 0,
+          sequenceMismatches: 0,
+          suffixMatches: true,
+        },
+        actual: {
+          katFailures: katFailures.length,
+          portU64Mismatches,
+          wasmNormalMismatches,
+          wasmNormals,
+          typedOverflows,
+          sequenceMismatches,
+          suffixMatches,
+        },
+        failureDetails: passed ? undefined : { katFailures },
+      });
+    } catch (err) {
+      checks.push({
+        testId: "philox-normals-kats-and-suffix",
+        passed: false,
+        comparisonKind: "bitwise",
+        message: `Philox check failed: ${err instanceof Error ? err.message : String(err)}`,
+      });
     }
 
-    checks.push({
-      testId: "philox-normals-kats-and-suffix",
-      passed: katsPassed && suffixMatches,
-      comparisonKind: "bitwise",
-      message:
-        "Philox normals generator satisfies Random123 KATs and strict draw-indexing suffix property.",
-      expected: { katsPassed: true, suffixMatches: true, knownAnswerCount: 3 },
-      actual: {
-        katsPassed,
-        suffixMatches,
-        knownAnswerCount: knownAnswers?.length ?? 0,
-        katFailures,
-      },
-    });
-  } catch (err) {
-    checks.push({
-      testId: "philox-normals-kats-and-suffix",
-      passed: false,
-      comparisonKind: "bitwise",
-      message: `Philox normals check failed: ${err instanceof Error ? err.message : String(err)}`,
-    });
-  }
-
-  // --- Check 5: Brownian trajectories reconstruction and kernel resolution ---
-  try {
-    const seed = "42";
-    const D = 0.5;
-    const dt = 0.02;
-
-    // Kernel 0 (coin) & Kernel 1 (uniform): exact bitwise scaling
-    const coinFrames = jsModule.brownian_frames(1, 10, 0, seed, D, dt);
-    const uniformFrames = jsModule.brownian_frames(1, 10, 1, seed, D, dt);
-
-    const coinValid = coinFrames.length === 11 && coinFrames[0] === 0.0;
-    const uniformValid = uniformFrames.length === 11 && uniformFrames[0] === 0.0;
-
-    // Kernel 2 vs Kernel 3 resolution:
-    // When sqrt(2*D*dt) == 1.0 (D=10, dt=0.05 -> 2*D*dt = 1.0), kernel 3 equals kernel 2 bitwise
-    const k2 = jsModule.brownian_frames(1, 10, 2, seed, 10.0, 0.05);
-    const k3 = jsModule.brownian_frames(1, 10, 3, seed, 10.0, 0.05);
-
-    let k2k3Coincide = true;
-    for (let i = 0; i < 11; i++) {
-      const v2 = k2[i] ?? 0;
-      const v3 = k3[i] ?? 0;
-      if (Math.abs(v2 - v3) > 1e-14) {
-        k2k3Coincide = false;
-        break;
-      }
-    }
-
-    checks.push({
-      testId: "brownian-trajectories-and-kernel-resolution",
-      passed: coinValid && uniformValid && k2k3Coincide,
-      comparisonKind: "tolerance",
-      tolerance: 1e-14,
-      maxDeviation: 0,
-      message:
-        "Brownian trajectories match reference step distributions and kernel 2/3 resolution.",
-      expected: { coinValid: true, uniformValid: true, k2k3Coincide: true },
-      actual: { coinValid, uniformValid, k2k3Coincide },
-    });
-  } catch (err) {
-    checks.push({
-      testId: "brownian-trajectories-and-kernel-resolution",
-      passed: false,
-      comparisonKind: "tolerance",
-      message: `Brownian trajectory check failed: ${err instanceof Error ? err.message : String(err)}`,
-    });
-  }
-
-  // --- Check 6: FTCS 1D diffusion stability boundary (r=0.5 accept, r=0.5000001 refuse) ---
-  try {
-    // Stable case: D=0.1, dx=0.1, dt=0.05 -> r = 0.5 (exactly 0.5, admitted)
-    const stableFrames = jsModule.diffusion1d_frames(11, 4, 2, 0.1, 0.1, 0.05, 0);
-    const stablePassed = stableFrames instanceof Float64Array && stableFrames.length === 44;
-
-    // Mass conservation check on profile 0 spike (sum u_i * dx == 1.0)
-    let initialMass = 0;
-    for (let i = 0; i < 11; i++) initialMass += (stableFrames[i] ?? 0) * 0.1;
-    let finalMass = 0;
-    for (let i = 0; i < 11; i++) finalMass += (stableFrames[33 + i] ?? 0) * 0.1;
-    const massConserved = Math.abs(initialMass - 1.0) < 1e-12 && Math.abs(finalMass - 1.0) < 1e-12;
-
-    // Unstable case: D=0.1, dx=0.1, dt=0.0500001 -> r > 0.5 (refused with ftcs-unstable)
-    let refusalCaught = false;
-    let refusalCode = "";
+    // --- Check 6: the module's normals against the TS port's, which are not bitwise by design ---
+    // The integers agree bitwise (check 5). The normal transform does not: fs-math's det ln/cos
+    // against the host's Math (philox.vectors.json records "tolerance, not bitwise"). Bound:
+    // 8 ulps per normal. Measured 2026-09-24 over 40,000 normals: 65% bitwise equal, max 3 ulps.
     try {
-      jsModule.diffusion1d_frames(11, 4, 2, 0.1, 0.1, 0.0500001, 0);
-    } catch (e: unknown) {
-      refusalCaught = true;
-      if (e && typeof e === "object") {
-        const errObj = e as { code?: string; refusal?: { code?: string } };
-        refusalCode = errObj.code ?? errObj.refusal?.code ?? "";
-      }
+      const ULP_BOUND = 8n;
+      let worst = 0n;
+      let compared = 0;
+      for (const seed of ["0", "1905", "9007199254740993", "18446744073709551615"])
+        for (const tile of [0, 1, 4095]) {
+          const w = values(
+            callPhiloxNormals(m, {
+              seed,
+              streamKernel: 0x19050001,
+              tile,
+              startIndex: "0",
+              count: 500,
+            }),
+          );
+          const t = createPhiloxStream({ seed, kernel: 0x19050001, tile } as Parameters<
+            typeof createPhiloxStream
+          >[0]);
+          for (let i = 0; i < 500; i++) {
+            const d = ulpDistance(t.nextNormal(), w[i] ?? Number.NaN);
+            if (d > worst) worst = d;
+            compared++;
+          }
+        }
+      checks.push({
+        testId: "philox-normals-wasm-vs-ts-port",
+        passed: compared === 6000 && worst <= ULP_BOUND,
+        comparisonKind: "tolerance",
+        tolerance: Number(ULP_BOUND),
+        maxDeviation: Number(worst),
+        message: `The module's normals are within ${worst} ulps of the TS port's over ${compared} normals (bound ${ULP_BOUND}).`,
+        expected: { compared: 6000, maxUlps: `<= ${ULP_BOUND}` },
+        actual: { compared, maxUlps: worst.toString() },
+      });
+    } catch (err) {
+      checks.push({
+        testId: "philox-normals-wasm-vs-ts-port",
+        passed: false,
+        comparisonKind: "tolerance",
+        message: `Normal comparison failed: ${err instanceof Error ? err.message : String(err)}`,
+      });
     }
 
-    const ftcsCheckPassed =
-      stablePassed && massConserved && refusalCaught && refusalCode === "ftcs-unstable";
-
-    checks.push({
-      testId: "ftcs-1d-stability-boundary",
-      passed: ftcsCheckPassed,
-      comparisonKind: "structural",
-      message:
-        "FTCS 1D stepper accepts r=0.5 with mass conservation and refuses r > 0.5 with ftcs-unstable refusal.",
-      expected: { stablePassed: true, massConserved: true, refusalCode: "ftcs-unstable" },
-      actual: { stablePassed, massConserved, refusalCaught, refusalCode },
-      failureDetails: ftcsCheckPassed
-        ? undefined
-        : {
-            refusalCode,
-            caseInputs: {
-              stable: {
-                n: 11,
-                frames: 4,
-                steps_per_frame: 2,
-                d: 0.1,
-                dx: 0.1,
-                dt: 0.05,
-                profile: 0,
-              },
-              unstable: {
-                n: 11,
-                frames: 4,
-                steps_per_frame: 2,
-                d: 0.1,
-                dx: 0.1,
-                dt: 0.0500001,
-                profile: 0,
-              },
-            },
-          },
-    });
-  } catch (err) {
-    checks.push({
-      testId: "ftcs-1d-stability-boundary",
-      passed: false,
-      comparisonKind: "structural",
-      message: `FTCS stability check failed: ${err instanceof Error ? err.message : String(err)}`,
-      failureDetails: { error: String(err) },
-    });
-  }
-
-  // --- Check 7: Malformed output rejection through protocol decoder ---
-  try {
-    // 1. Truncated by 8 bytes (1 Float64 element fewer than declared shape)
-    const truncatedBf = new Float64Array(bf.buffer.slice(0, Math.max(0, bf.byteLength - 8)));
-    const truncatedCheck = validateProtocolBuffer(truncatedBf, {
-      layoutId: "brownian-frames",
-      version: 1,
-      shape: [2, 5],
-    });
-    const truncatedRejected = !truncatedCheck.valid;
-
-    // 2. Given a nonfinite value (NaN, Infinity, -Infinity)
-    const nanDf = new Float64Array(df);
-    if (nanDf.length > 3) nanDf[3] = Number.NaN;
-    const nanCheck = validateProtocolBuffer(nanDf, {
-      layoutId: "diffusion1d-frames",
-      version: 1,
-      shape: [5, 10],
-    });
-    const infPn = new Float64Array(pn);
-    if (infPn.length > 0) infPn[0] = Number.POSITIVE_INFINITY;
-    const infCheck = validateProtocolBuffer(infPn, {
-      layoutId: "philox-normals",
-      version: 1,
-      shape: [10],
-    });
-    const negInfBf = new Float64Array(bf);
-    if (negInfBf.length > 1) negInfBf[1] = Number.NEGATIVE_INFINITY;
-    const negInfCheck = validateProtocolBuffer(negInfBf, {
-      layoutId: "brownian-frames",
-      version: 1,
-      shape: [2, 5],
-    });
-    const nonfiniteRejected = !nanCheck.valid && !infCheck.valid && !negInfCheck.valid;
-
-    // 3. Relabeled with a wrong shape (shape does not match buffer dimensions)
-    const wrongShapeCheck = validateProtocolBuffer(df, {
-      layoutId: "diffusion1d-frames",
-      version: 1,
-      shape: [6, 10], // 60 elements expected, buffer has 50
-    });
-    const wrongShapeRejected = !wrongShapeCheck.valid;
-
-    const malformedPassed = truncatedRejected && nonfiniteRejected && wrongShapeRejected;
-
-    checks.push({
-      testId: "malformed-output-rejection",
-      passed: malformedPassed,
-      comparisonKind: "structural",
-      message:
-        "Protocol decoder strictly rejects malformed outputs: truncated buffers (by 8 bytes), nonfinite values (NaN/Infinity), and wrong-shape relabeling.",
-      expected: {
-        truncatedRejected: true,
-        nonfiniteRejected: true,
-        wrongShapeRejected: true,
-      },
-      actual: {
-        truncatedRejected,
-        nonfiniteRejected,
-        wrongShapeRejected,
-      },
-      failureDetails: malformedPassed
-        ? undefined
-        : {
-            truncatedRejected,
-            nonfiniteRejected,
-            wrongShapeRejected,
-            caseInputs: {
-              truncatedLength: truncatedBf.length,
-              expectedLength: 10,
-              shapes: { expected: [5, 10], testedWrong: [6, 10] },
-            },
-          },
-    });
-  } catch (err) {
-    checks.push({
-      testId: "malformed-output-rejection",
-      passed: false,
-      comparisonKind: "structural",
-      message: `Malformed output rejection check failed: ${err instanceof Error ? err.message : String(err)}`,
-      failureDetails: { error: String(err) },
-    });
-  }
-
-  // --- Check 8: 64-bit unsigned integer boundary round trips ---
-  try {
-    const u64Path = join(repoRoot, "src/testing/fixtures/u64-boundaries.json");
-    const u64Data = JSON.parse(readFileSync(u64Path, "utf8"));
-    let u64Passed = true;
-
-    for (const validVal of u64Data.valid) {
-      const parsedBig = BigInt(validVal);
-      const res = jsModule.philox_normals(parsedBig, 0x19050001, 0, 0n, 2);
-      if (!(res instanceof Float64Array) || res.length !== 2) {
-        u64Passed = false;
-        break;
-      }
+    // --- Check 7: Brownian step kernels ---
+    try {
+      const coin = values(
+        callBrownianFrames(m, {
+          nParticles: 1,
+          steps: 10,
+          stepKernel: 0,
+          seed: "42",
+          diffusion: 0.5,
+          dt: 0.02,
+        }),
+      );
+      const uniform = values(
+        callBrownianFrames(m, {
+          nParticles: 1,
+          steps: 10,
+          stepKernel: 1,
+          seed: "42",
+          diffusion: 0.5,
+          dt: 0.02,
+        }),
+      );
+      // With 2 D dt = 1, kernel 3's scale is sqrt(1) = 1 and it equals kernel 2 bitwise.
+      const k2 = values(
+        callBrownianFrames(m, {
+          nParticles: 1,
+          steps: 10,
+          stepKernel: 2,
+          seed: "42",
+          diffusion: 10,
+          dt: 0.05,
+        }),
+      );
+      const k3 = values(
+        callBrownianFrames(m, {
+          nParticles: 1,
+          steps: 10,
+          stepKernel: 3,
+          seed: "42",
+          diffusion: 10,
+          dt: 0.05,
+        }),
+      );
+      const coinValid =
+        coin.length === 11 &&
+        coin[0] === 0 &&
+        Array.from(coin).every(
+          (x, i) =>
+            i === 0 || Math.abs(Math.abs(x - (coin[i - 1] ?? 0)) - 0.1414213562373095) < 1e-15,
+        );
+      const uniformValid = uniform.length === 11 && uniform[0] === 0;
+      const k2k3Coincide = k2.length === 11 && compareBitwise(Array.from(k3), Array.from(k2)).ok;
+      const unsupported = callBrownianFrames(m, {
+        nParticles: 1,
+        steps: 10,
+        stepKernel: 4,
+        seed: "42",
+        diffusion: 0.5,
+        dt: 0.02,
+      });
+      const kernelRefused =
+        unsupported.kind === "refused" && unsupported.refusal.code === "unsupported-kernel";
+      checks.push({
+        testId: "brownian-trajectories-and-kernel-resolution",
+        passed: coinValid && uniformValid && k2k3Coincide && kernelRefused,
+        comparisonKind: "bitwise",
+        message:
+          "Coin steps are exactly +-sqrt(2 D dt); kernel 3 at 2 D dt = 1 equals kernel 2 bitwise; step kernel 4 is the typed unsupported-kernel refusal.",
+        expected: { coinValid: true, uniformValid: true, k2k3Coincide: true, kernelRefused: true },
+        actual: { coinValid, uniformValid, k2k3Coincide, kernelRefused },
+      });
+    } catch (err) {
+      checks.push({
+        testId: "brownian-trajectories-and-kernel-resolution",
+        passed: false,
+        comparisonKind: "bitwise",
+        message: `Brownian check failed: ${err instanceof Error ? err.message : String(err)}`,
+      });
     }
 
-    checks.push({
-      testId: "u64-boundaries-round-trip",
-      passed: u64Passed,
-      comparisonKind: "bitwise",
-      message:
-        "All canonical 64-bit boundary integers round-trip as BigInt without loss of precision.",
-      expected: { allValidPassed: true },
-      actual: { u64Passed },
-    });
-  } catch (err) {
-    checks.push({
-      testId: "u64-boundaries-round-trip",
-      passed: false,
-      comparisonKind: "bitwise",
-      message: `u64 boundary check failed: ${err instanceof Error ? err.message : String(err)}`,
-    });
+    // --- Check 8: FTCS stability boundary; the refusal is an envelope, never a throw ---
+    const unstableInputs = {
+      n: 11,
+      frames: 4,
+      stepsPerFrame: 2,
+      diffusion: 0.1,
+      dx: 0.1,
+      dt: 0.0500001,
+      profile: 0,
+    };
+    try {
+      const stable = callDiffusion1dFrames(m, {
+        n: 11,
+        frames: 4,
+        stepsPerFrame: 2,
+        diffusion: 0.1,
+        dx: 0.1,
+        dt: 0.05,
+        profile: 0,
+      });
+      const sv = values(stable);
+      const stablePassed = stable.kind === "accepted" && sv.length === 44;
+      let initialMass = 0;
+      let finalMass = 0;
+      for (let i = 0; i < 11; i++) {
+        initialMass += (sv[i] ?? 0) * 0.1;
+        finalMass += (sv[33 + i] ?? 0) * 0.1;
+      }
+      const massConserved =
+        withinTolerance(initialMass, 1, { absolute: 1e-12 }).ok &&
+        withinTolerance(finalMass, 1, { absolute: 1e-12 }).ok;
+      const unstable = callDiffusion1dFrames(m, unstableInputs);
+      const refusalCode = unstable.kind === "refused" ? unstable.refusal.code : `${unstable.kind}`;
+      const passed = stablePassed && massConserved && refusalCode === "ftcs-unstable";
+      checks.push({
+        testId: "ftcs-1d-stability-boundary",
+        passed,
+        comparisonKind: "structural",
+        message:
+          "r = 0.5 is accepted and conserves mass; r > 0.5 returns the typed ftcs-unstable refusal in its envelope, with no field.",
+        expected: { stablePassed: true, massConserved: true, refusalCode: "ftcs-unstable" },
+        actual: { stablePassed, massConserved, refusalCode },
+        failureDetails: passed
+          ? undefined
+          : { refusalCode, caseInputs: { unstable: unstableInputs } },
+      });
+    } catch (err) {
+      checks.push({
+        testId: "ftcs-1d-stability-boundary",
+        passed: false,
+        comparisonKind: "structural",
+        message: `FTCS stability check failed: ${err instanceof Error ? err.message : String(err)}`,
+        failureDetails: { error: String(err) },
+      });
+    }
+
+    // --- Check 9: malformed output never becomes a value ---
+    // The worker's own decoder (frankensimCalls.ts), fed real buffers and envelopes corrupted
+    // the ways a broken module or transport could corrupt them, plus the buffer-layout check.
+    try {
+      const ok = (n: number) =>
+        JSON.stringify({
+          ok: { export: "brownian_frames", valueCount: n, quantityId: "latentPosition1d" },
+        });
+      const cases: [string, string, Float64Array][] = [
+        ["truncated by one value", ok(bf.length), bf.slice(0, Math.max(0, bf.length - 1))],
+        ["NaN", ok(bf.length), Float64Array.from(bf, (v, i) => (i === 1 ? Number.NaN : v))],
+        [
+          "Infinity",
+          ok(bf.length),
+          Float64Array.from(bf, (v, i) => (i === 1 ? Number.POSITIVE_INFINITY : v)),
+        ],
+        [
+          "values beside a refusal",
+          JSON.stringify({
+            refusal: { code: "unsupported-kernel", message: "m", ranked_repairs: [], details: {} },
+          }),
+          bf,
+        ],
+        [
+          "an unregistered code",
+          JSON.stringify({
+            refusal: { code: "made-up", message: "m", ranked_repairs: [], details: {} },
+          }),
+          new Float64Array(0),
+        ],
+        ["two envelope keys", JSON.stringify({ ok: {}, refusal: {} }), new Float64Array(0)],
+      ];
+      const decoded = cases.map(([name, env, vals]) => {
+        const r = decodeFrankenSimResult("brownian_frames", env, vals);
+        return {
+          name,
+          rejected: r.kind === "outcome" && r.outcome.outcome === "malformed-response",
+        };
+      });
+      const layoutRejected =
+        !validateProtocolBuffer(df, { layoutId: "diffusion1d-frames", version: 1, shape: [6, 10] })
+          .valid &&
+        !validateProtocolBuffer(
+          Float64Array.from(pn, (v, i) => (i === 0 ? Number.NaN : v)),
+          { layoutId: "philox-normals", version: 1, shape: [10] },
+        ).valid;
+      const controlAccepted =
+        decodeFrankenSimResult("brownian_frames", ok(bf.length), bf).kind === "accepted" &&
+        bf.length === 10;
+      const passed = controlAccepted && layoutRejected && decoded.every((d) => d.rejected);
+      checks.push({
+        testId: "malformed-output-rejection",
+        passed,
+        comparisonKind: "structural",
+        message: `The decoder accepts the real buffer and rejects ${decoded.filter((d) => d.rejected).length} of ${decoded.length} corruptions as malformed-response; the layout check rejects a wrong shape and a NaN.`,
+        expected: { controlAccepted: true, layoutRejected: true, rejected: cases.length },
+        actual: { controlAccepted, layoutRejected, decoded },
+      });
+    } catch (err) {
+      checks.push({
+        testId: "malformed-output-rejection",
+        passed: false,
+        comparisonKind: "structural",
+        message: `Malformed output check failed: ${err instanceof Error ? err.message : String(err)}`,
+        failureDetails: { error: String(err) },
+      });
+    }
+
+    // --- Check 10: 64-bit seeds cross as BigInt ---
+    try {
+      const u64Data = JSON.parse(
+        readFileSync(join(repoRoot, "src/testing/fixtures/u64-boundaries.json"), "utf8"),
+      ) as { valid: string[]; formatViolations: string[] };
+      const accepted = u64Data.valid.map((v) =>
+        callPhiloxNormals(m, {
+          seed: v,
+          streamKernel: 0x19050001,
+          tile: 0,
+          startIndex: "0",
+          count: 2,
+        }),
+      );
+      const allValid = accepted.every((r) => r.kind === "accepted" && r.values.length === 2);
+      const distinct =
+        new Set(accepted.map((r) => Array.from(values(r), ieee754Hex).join())).size ===
+        u64Data.valid.length;
+      const violationsRefused = u64Data.formatViolations.every(
+        (v) =>
+          callPhiloxNormals(m, { seed: v, streamKernel: 0, tile: 0, startIndex: "0", count: 1 })
+            .kind !== "accepted",
+      );
+      checks.push({
+        testId: "u64-boundaries-round-trip",
+        passed: allValid && distinct && violationsRefused,
+        comparisonKind: "bitwise",
+        message: `All ${u64Data.valid.length} canonical u64 boundary seeds (including 2^53 +- 1 and 2^64 - 1) reach the module as BigInt and give ${u64Data.valid.length} distinct streams; ${u64Data.formatViolations.length} non-canonical strings never reach it.`,
+        expected: { allValid: true, distinct: true, violationsRefused: true },
+        actual: { allValid, distinct, violationsRefused },
+      });
+    } catch (err) {
+      checks.push({
+        testId: "u64-boundaries-round-trip",
+        passed: false,
+        comparisonKind: "bitwise",
+        message: `u64 boundary check failed: ${err instanceof Error ? err.message : String(err)}`,
+      });
+    }
   }
 
-  // --- Check 9: Size budget check (< 500 KB policy ceiling and within 10% drift) ---
+  // --- Check 11: Size budget check (< 500 KB policy ceiling and within 10% drift) ---
   try {
     const evalResult = evaluateSizeBudget(manifest.sizeBudget, manifest.wasmBytes);
 
@@ -766,7 +930,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
     });
   }
 
-  // --- Check 10: Provenance registry admission ---
+  // --- Check 12: Provenance registry admission ---
   try {
     const digestAdmitted = isAdmittedWasmDigest(manifest.wasmDigest);
     assertAdmittedWasmDigest(manifest.wasmDigest);
@@ -780,8 +944,14 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
       assertAdmittedCapability(cap.capabilityId);
     }
 
-    // Unadmitted capabilities (like diffusion.brownian-frames which is not exported by WASM) must NOT be admitted
-    const unadmittedRejected = !isAdmittedCapability("diffusion.brownian-frames");
+    // Flipped for the compiled artifact (am-frankensim-repin-and-bind-jvhg). The placeholder
+    // exported none of the three, so diffusion.brownian-frames had to be unadmitted. The compiled
+    // module exports brownian_frames, and the manifest declares it, so it must now be admitted.
+    // A capability no row admits and no export backs, such as brownian_frames_window, which this
+    // artifact does not export, must still be refused.
+    const brownianAdmitted = isAdmittedCapability("diffusion.brownian-frames");
+    const unadmittedRejected =
+      brownianAdmitted && !isAdmittedCapability("diffusion.brownian-frames-window");
 
     const bogusRejected = !isAdmittedWasmDigest(
       "0000000000000000000000000000000000000000000000000000000000000000",
@@ -792,7 +962,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
       passed: digestAdmitted && allDeclaredCapsAdmitted && unadmittedRejected && bogusRejected,
       comparisonKind: "structural",
       message:
-        "Provenance registry correctly admits manifest digests/declared capabilities and rejects unadmitted capabilities and foreign digests.",
+        "Provenance registry admits the manifest digest and every declared capability, diffusion.brownian-frames included now that the module exports brownian_frames, and rejects an undeclared capability and a foreign digest.",
       expected: {
         digestAdmitted: true,
         allDeclaredCapsAdmitted: true,
@@ -850,7 +1020,7 @@ export async function runWasmVerification(options: VerificationOptions = {}): Pr
       const evidencePath = join(failureDir, `${c.testId}.json`);
       const evidence = {
         bundleId: manifest.bundleId,
-        file: "fs_annus_diffusion_bg.wasm",
+        file: wasmFile,
         testId: c.testId,
         message: c.message,
         expected: c.expected,
