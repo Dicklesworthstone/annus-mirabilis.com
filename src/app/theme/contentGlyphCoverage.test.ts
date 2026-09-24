@@ -113,8 +113,10 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(HERE, "../../..");
 const CONTENT_ROOT = join(REPO_ROOT, "content");
 
+// U+2207 NABLA was retired on 2026-09-23 (TopazPrairie): its only use in content was the unread
+// `entries` block of the sr-12 readings record, replaced by a caption target that writes "div".
+// The staleness test below failed until it went, as intended.
 const KNOWN_GAPS: ReadonlySet<number> = new Set([
-  0x2207, // ∇ NABLA
   0x221d, // ∝ PROPORTIONAL TO
   0x22a5, // ⊥ UP TACK
   // ⁿ SUPERSCRIPT LATIN SMALL LETTER N. Named and dated 2026-09-19 (pane31,
