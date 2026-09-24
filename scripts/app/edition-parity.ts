@@ -22,6 +22,9 @@ import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "n
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { planEdition, referencedDigests } from "./export-edition.ts";
+import { editionPageFor, sitemapRoutes } from "./site-routes.ts";
+
+export { sitemapRoutes };
 
 export type ParityOutcome =
   | "same"
@@ -171,27 +174,6 @@ export function siteUrlPath(path: string): string {
   if (path === "index.html") return "/";
   if (path.endsWith("/index.html")) return `/${path.slice(0, -"index.html".length)}`;
   return `/${path}`;
-}
-
-/** Page routes a sitemap lists, as paths ("/papers/brownian-motion/"). */
-export function sitemapRoutes(xml: string, origin: string): string[] {
-  const routes: string[] = [];
-  for (const match of xml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)) {
-    const loc = match[1] ?? "";
-    try {
-      const url = new URL(loc);
-      if (url.origin === new URL(origin).origin) routes.push(url.pathname);
-    } catch {
-      /* Not a URL: not a route. */
-    }
-  }
-  return [...new Set(routes)].sort();
-}
-
-/** The edition's page for a site route: "/x/" is "x/index.html"; "/x" is taken as "/x/". */
-function editionPageFor(route: string): string {
-  const withSlash = route.endsWith("/") ? route : `${route}/`;
-  return withSlash === "/" ? "index.html" : `${withSlash.slice(1)}index.html`;
 }
 
 /** The edition against the live deployment: sitemap routes carried, carried files served identically. */
