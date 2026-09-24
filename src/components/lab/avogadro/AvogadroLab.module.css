@@ -61,3 +61,12 @@
     padding: 0.35rem;
   }
 }
+
+/* Route and date under each method name (am-disc-avogadro-lab-pfi7, criterion 12). */
+.route {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: var(--type-fine);
+  font-weight: 400;
+  color: var(--muted);
+}

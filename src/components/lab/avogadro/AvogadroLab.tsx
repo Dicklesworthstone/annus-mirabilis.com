@@ -306,33 +306,50 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
               </thead>
               <tbody>
                 <tr>
-                  <th scope="row">Radiation constants</th>
+                  <th scope="row">
+                    Radiation constants
+                    <small className={styles.route}>Light paper §2 · 1905</small>
+                  </th>
                   <td>
                     <Reading snapshot={snapshot} quantity="radiationNumber" />
                   </td>
                   <td>
-                    Historical reconstruction; α scaled by {display(accepted.alphaScale)}. No
-                    confidence interval is asserted.
+                    <strong>Independent estimate.</strong> Planck's 1901 constants with the 1905 gas
+                    constant, which was measured without counting molecules; α scaled by{" "}
+                    {display(accepted.alphaScale)}. No confidence interval is asserted.
                   </td>
                 </tr>
                 <tr>
-                  <th scope="row">Brownian displacement</th>
+                  <th scope="row">
+                    Brownian displacement
+                    <small className={styles.route}>
+                      Brownian paper §5 · the 1905 prediction, applied to illustrative data
+                    </small>
+                  </th>
                   <td>
                     <Reading snapshot={snapshot} quantity="brownianNumber" />
                   </td>
                   <td>
-                    Modern consistency check conditional on an independent radius and the admitted
+                    <strong>Consistency check.</strong> With the 2019 SI the gas constant is N
+                    <sub>A</sub>k<sub>B</sub> by definition, so this compares the displacements with
+                    the defined value. Conditional on an independent radius and the admitted
                     observation model.
                   </td>
                 </tr>
                 <tr>
-                  <th scope="row">Viscosity and solute diffusion</th>
+                  <th scope="row">
+                    Viscosity and solute diffusion
+                    <small className={styles.route}>
+                      Dissertation · 1905, coefficient corrected 1911
+                    </small>
+                  </th>
                   <td>
                     <Reading snapshot={snapshot} quantity="molecularNumber" />
                   </td>
                   <td>
-                    Illustrative dilute-sphere inversion with coefficient {accepted.coefficient}.
-                    Not a historical dataset or uncertainty interval.
+                    <strong>Consistency check</strong> on illustrative inputs with the 2019 SI gas
+                    constant: a dilute-sphere inversion with coefficient {accepted.coefficient}. Not
+                    a historical dataset or uncertainty interval.
                   </td>
                 </tr>
                 <tr>
