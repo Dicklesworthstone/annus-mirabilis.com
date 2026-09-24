@@ -232,10 +232,10 @@ describe("each printed paragraph is one paragraph on the German face", () => {
     const note = lq?.blocks.find(
       (b) => b.kind === "footnote" && b.text.startsWith("Diese Voraussetzung läßt sich"),
     );
-    expect(note?.text).toContain("wobei $A_\\nu \\geq 0$");
+    expect(note?.text).toContain("wobei $A_\\nu \\geqq 0$");
     expect(note?.displayEquationIds?.length).toBe(3);
     const body = (lq?.blocks ?? []).filter((b) => b.kind === "paragraph");
-    expect(body.some((b) => b.text.includes("wobei $A_\\nu \\geq 0$"))).toBe(false);
+    expect(body.some((b) => b.text.includes("wobei $A_\\nu \\geqq 0$"))).toBe(false);
     // The retired paragraph id stays an anchor, in the footnote.
     expect(note?.joinedIds?.length).toBe(1);
   });
