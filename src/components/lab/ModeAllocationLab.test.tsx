@@ -38,10 +38,11 @@ describe("ModeAllocationLab: static rendering (no JavaScript)", () => {
     expect(html).toContain("JavaScript is off");
   });
 
-  test("notModeled is present and non-empty, shown as plain lines", () => {
-    expect(html).toContain("What this model leaves out");
-    expect(html).toContain("Any quantum hypothesis");
-    expect(html).toContain("Cavity shape and walls");
+  test("notModeled is present and non-empty, shown as a plain line outside any disclosure", () => {
+    const line = /<p class="fine">Not modeled: ([^<]*)<\/p>/.exec(html.replace(/<!-- -->/g, ""));
+    expect(line?.[1]).toContain("Any quantum hypothesis");
+    expect(line?.[1]).toContain("Cavity shape and walls");
+    expect(html).not.toContain("<summary>What this model leaves out</summary>");
   });
 
   test("every input is a typed text field, not a slider: the accessible equivalent is the default interface", () => {
