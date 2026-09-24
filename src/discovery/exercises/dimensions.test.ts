@@ -83,6 +83,22 @@ describe("a dimension with no common name is given in SI units", () => {
   });
 });
 
+describe("a power has to be one a physical quantity can take", () => {
+  test("D^1e308, which live reported as a quantity in m with a 300-digit exponent, is refused", () => {
+    expect(dimensionOf(tree("D^1e308"), DIMENSIONS)).toEqual({
+      kind: "refused",
+      message:
+        "A quantity with units can only be raised to a small power, such as 2 or 1/2. This one is raised to more than 12.",
+    });
+    expect(dimensionOf(tree("t^(-13)"), DIMENSIONS).kind).toBe("refused");
+  });
+
+  test("small powers, whole or fractional, and any power of a pure number still pass", () => {
+    for (const text of ["D^2", "t^12", "t^(-12)", "D^(1/2)", "(D/D)^1e308"])
+      expect(dimensionOf(tree(text), DIMENSIONS).kind, text).toBe("known");
+  });
+});
+
 describe("the rest of the arithmetic", () => {
   test("a speed squared is named as one, not spelled out as length and time exponents", () => {
     const speeds = { v: dimension(["1", "0", "-1", "0", "0", "0"]) };

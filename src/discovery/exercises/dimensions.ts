@@ -90,6 +90,10 @@ export function describeDimension(d: Dimension): string {
   return `a quantity in ${parts.join("·")}`;
 }
 
+/** The largest power a quantity with units may be raised to before the checker refuses it. */
+export const MAX_POWER = 12n;
+const abs = (n: bigint) => (n < 0n ? -n : n);
+
 /** An exponent written as a plain number, a negated one, or a quotient of two, as a fraction. */
 function exponentOf(expr: Expr): Rational | null {
   if (expr.kind === "number") {
@@ -161,6 +165,13 @@ export function dimensionOf(
             message: `A power must be a pure number, but here it is ${describeDimension(exponentDimension.dimension)}.`,
           };
         if (isDimensionless(left.dimension)) return { kind: "known", dimension: DIMENSIONLESS };
+        // A quantity with units raised to D^1e308 is not a physical power: on live the checker
+        // reported "a quantity in m²⁰⁰⁰…" with a 300-digit exponent. Physical powers here are small.
+        if (exponent && abs(exponent.num) > MAX_POWER * exponent.den)
+          return {
+            kind: "refused",
+            message: `A quantity with units can only be raised to a small power, such as 2 or 1/2. This one is raised to more than ${MAX_POWER}.`,
+          };
         return exponent
           ? { kind: "known", dimension: power(left.dimension, exponent) }
           : { kind: "unknown" };
