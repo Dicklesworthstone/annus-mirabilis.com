@@ -321,3 +321,34 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
     admittedStages: ["stage-02", "stage-07"],
   },
 ];
+
+/**
+ * Later evidence: never on the 1904 shelf (cardRules.ts, card-later-on-shelf), shown beside the
+ * route's check against the world. Cited, not plotted: the edition's digitised table of Millikan's
+ * points is withdrawn (141c8c0b), so no point of his is drawn anywhere on the route. The locator
+ * was compared with Crossref (doi:10.1103/PhysRev.7.355).
+ */
+export const LIGHT_QUANTA_LATER_EVIDENCE: readonly KnowledgeCard[] = [
+  {
+    id: "millikan-1916-photoelectric-h",
+    proposition:
+      "Millikan measures the stopping potential of electrons driven out of sodium by light of several frequencies, and finds it rising in a straight line with the frequency, with the slope the 1905 relation predicts.",
+    status: "later",
+    sources: [
+      {
+        title: "A Direct Photoelectric Determination of Planck's “h”",
+        date: "1916-03",
+        locator: "Phys. Rev. 7, 355",
+      },
+    ],
+    date: {
+      earliest: "1916-03",
+      latest: "1916-03",
+      precision: "month",
+      latestYear: 1916,
+      eventKind: "published",
+    },
+    limits:
+      "Later evidence, not on the 1904 shelf, eleven years after the paper. In the same paper Millikan still judged the hypothesis that produced the equation untenable: a relation can be confirmed without confirming the reason given for it. The edition's digitised table of his points is withdrawn, so none is plotted here.",
+  },
+];

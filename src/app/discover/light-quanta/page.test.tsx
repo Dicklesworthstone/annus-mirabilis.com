@@ -109,7 +109,15 @@ describe("the route carries the discovery skeleton", () => {
       expect(near).toContain("Ehrenfest");
       expect(near).toContain("1911");
     }
-    expect(words).not.toMatch(/\bphotons?\b/i);
+    // The journey's own narration has no photons. The embedded LQ-08 laboratory's list of what it
+    // does not model names "multi-photon" emission and disclaims that its marks depict photons;
+    // those are the instrument's labelled limits, so the laboratory is cut out before the check.
+    const lab = html.indexOf('data-instrument-id="lq-08"', at('id="step-08"'));
+    expect(lab).toBeGreaterThan(-1);
+    const narration = text(html.slice(0, lab) + html.slice(at("data-world-check-id")));
+    expect(narration).not.toMatch(/\bphotons?\b/i);
+    // Positive control: the cut really removed the laboratory, which does contain the word.
+    expect(text(html)).toMatch(/\bphotons?\b/i);
   });
 
   test("the forks and the move sit where the bead puts them", () => {
@@ -121,8 +129,22 @@ describe("the route carries the discovery skeleton", () => {
       "data-move-marker",
       'id="arg-fork-lq-one-lump"',
       'id="step-07"',
+      'id="step-08"',
+      "data-world-check-live",
     ].map(at);
     expect(order).toEqual([...order].sort((a, b) => a - b));
+  });
+
+  test("step 08 checks the §8 figure live from LQ-08, with Millikan later and off the shelf", () => {
+    const start = at('id="step-08"');
+    const step = html.slice(start, html.indexOf('id="in-the-paper"'));
+    expect(step).toContain('data-world-check-quantity="stoppingPotentialMagnitude"');
+    expect(step).toContain('data-instrument-id="lq-08"');
+    expect(step).toContain('id="card-millikan-1916-photoelectric-h"');
+    const shelf = html.slice(at('id="shelf"'), at('id="nagging-fact"'));
+    expect(shelf).not.toContain("millikan");
+    // Cited, not plotted: the withdrawn dataset draws no point on the route.
+    expect(step).not.toContain("millikan-1916-sodium");
   });
 
   test("Fork A keeps Planck's account weaker, not refuted, and names him", () => {

@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { ExercisePart } from "../../../components/discover/ExercisePart.tsx";
+import { LightQuantaWorldCheck } from "../../../components/discover/LightQuantaWorldCheck.tsx";
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { Formula } from "../../../components/edition/Formula.tsx";
-import { LIGHT_QUANTA_SHELF_CARDS } from "../../../content/lightQuantaShelf.ts";
+import {
+  LIGHT_QUANTA_LATER_EVIDENCE,
+  LIGHT_QUANTA_SHELF_CARDS,
+} from "../../../content/lightQuantaShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
 import { Fork } from "../../../discovery/Fork.tsx";
 import { GREATEST_ENERGY_EXERCISE } from "../../../discovery/lightQuanta/electronExercise.ts";
@@ -13,8 +17,13 @@ import {
   MOVE,
   MOVE_HREF,
   NAGGING_FACT,
+  WORLD_CHECK,
 } from "../../../discovery/lightQuanta/journeyI.ts";
 import { GREATEST_ELECTRON_ENERGY } from "../../../discovery/lightQuanta/numericExercises.ts";
+import {
+  HISTORICAL_CHECK_EXAMPLE,
+  PRINTED_STOPPING_CHECK,
+} from "../../../discovery/lightQuanta/worldCheck.ts";
 import { MoveMarker } from "../../../discovery/MoveMarker.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
@@ -284,7 +293,7 @@ export default function LightQuantaRoute() {
       <Fork fork={FORK_ONE_LUMP} />
 
       <section id="step-07">
-        <p className="step-number">07 / Check it against the world</p>
+        <p className="step-number">07 / Demand consequences</p>
         <h2>Three predictions it did not have to get right</h2>
         <p>
           A resemblance found in one thermodynamic calculation earns nothing until it says something
@@ -323,6 +332,28 @@ export default function LightQuantaRoute() {
           <StepDoor href="/lab/lq-08/">Separate how many electrons from how energetic</StepDoor>
           <StepDoor href="/lab/lq-09/">Set a threshold and see what it does not determine</StepDoor>
         </StepDoors>
+      </section>
+
+      <section id="step-08">
+        <p className="step-number">08 / Check it against the world</p>
+        <h2>A number the paper set down in advance</h2>
+        <p>
+          Section 8 does not stop at a rule. It gives a figure for light of one frequency, worked
+          from the paper&rsquo;s own constants, and sets it beside Lenard&rsquo;s results. The
+          laboratory below computes the same quantity from the same rule; change the frequency or
+          the exit cost and read what the rule gives.
+        </p>
+        <LightQuantaWorldCheck
+          example={HISTORICAL_CHECK_EXAMPLE}
+          check={WORLD_CHECK}
+          printedVolts={PRINTED_STOPPING_CHECK.volts}
+          laterEvidence={LIGHT_QUANTA_LATER_EVIDENCE}
+        />
+        <p>
+          The later card tested the straight line itself, in 1916. It is evidence the paper did not
+          have, and it is cited here rather than plotted: this edition&rsquo;s table of
+          Millikan&rsquo;s points is withdrawn.
+        </p>
       </section>
 
       <aside className="notice">

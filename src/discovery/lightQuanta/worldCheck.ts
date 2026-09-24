@@ -11,10 +11,11 @@
  * gram-equivalent, with no electron charge). At the paper's frequency the two differ by about two
  * percent, and the page says which is which.
  */
-import example from "../../generated/lq08-example.json";
+
 import { LQ08_PRESETS, type Lq08Parameters } from "../../experiments/lq08/definition.ts";
 import { evaluateLq08, type PreparedLq08Example } from "../../experiments/lq08/session.ts";
 import { encodeResult } from "../../experiments/results/codec.ts";
+import example from "../../generated/lq08-example.json";
 import { einsteinPrintedStoppingCheck } from "../../physics/reference/photoelectric.ts";
 
 const parameters: Lq08Parameters = { ...LQ08_PRESETS.historicalCheck.parameters };
