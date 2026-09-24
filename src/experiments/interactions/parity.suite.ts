@@ -28,6 +28,14 @@ export type FieldsBoostOwner = Readonly<{
   ) => Readonly<{ e2MinusC2B2: number }>;
 }>;
 
+/** What the radiation-entropy family calls: radiation/entropy.ts's radiationEntropyVolumeChange, or
+ * an owner of the same shape. */
+export type RadiationEntropyOwner = Readonly<{
+  radiationEntropyVolumeChange: (
+    params: Readonly<{ E: number; nu: number; dNu: number; V: number; V0: number }>,
+  ) => Readonly<{ status: string; deltaS?: number; effectiveIndependentCount?: number }>;
+}>;
+
 type EventCoordinates = Readonly<{ t: number; x: number; y: number; z: number }>;
 /** What the clock-event family calls: events.ts's classifySimultaneity, in its units of seconds and
  * light-seconds (c = 1), or an owner of the same shape. */
@@ -167,20 +175,49 @@ export async function familyParityCases(
     }
 
     case "radiation-entropy": {
-      // LQ-04: Subvolume halved V/V0 = 0.5 at fixed energy E and frequency nu
-      // Delta S / (E / (B * nu)) = ln(V/V0) = ln(0.5) = -0.69314718
-      const ratio = 0.5;
-      const deltaSNormalized = Math.log(ratio);
-
+      // LQ-04: a narrow band at 5 × 10^14 Hz in the Wien regime, its volume halved at fixed energy,
+      // computed BY THE OWNER passed in options.owner (radiation/entropy.ts's
+      // radiationEntropyVolumeChange). The case used to compute ln(0.5) inline and compare it with
+      // -ln 2, so a run labelled "radiation.ts" exercised no owner; an absent owner now fails.
+      const expected = { deltaSOverCount: -Math.LN2, sign: -1 };
+      const owner = options.owner as Partial<RadiationEntropyOwner> | null | undefined;
+      if (!owner || typeof owner.radiationEntropyVolumeChange !== "function") {
+        results.push({
+          parityCaseId: "radiation-entropy-lq04-volume-halved",
+          family,
+          ownerSource: options.ownerSource,
+          ownerLabel: options.ownerLabel,
+          passed: false,
+          expected,
+          actual: null,
+          message:
+            "No owner was exercised: pass an owner with radiationEntropyVolumeChange (radiation/entropy.ts).",
+        });
+        break;
+      }
+      const r = owner.radiationEntropyVolumeChange({
+        E: 1e-9,
+        nu: 5e14,
+        dNu: 1e12,
+        V: 0.5e-3,
+        V0: 1e-3,
+      });
+      const deltaS = r.deltaS ?? Number.NaN;
+      const count = r.effectiveIndependentCount ?? Number.NaN;
+      const actual = { status: r.status, deltaSOverCount: deltaS / count, deltaS };
       results.push({
         parityCaseId: "radiation-entropy-lq04-volume-halved",
         family,
         ownerSource: options.ownerSource,
         ownerLabel: options.ownerLabel,
-        passed: Math.abs(deltaSNormalized - -Math.LN2) < 1e-10,
-        expected: -Math.LN2,
-        actual: deltaSNormalized,
-        message: "At half volume ratio, entropy change equals -0.693147 E/(B*nu).",
+        passed:
+          r.status === "value" &&
+          deltaS < 0 &&
+          withinTolerance(deltaS / count, -Math.LN2, { relative: 1e-12 }).ok,
+        expected,
+        actual,
+        message:
+          "Halving the volume at fixed energy: the owner gives ΔS = (E/(βν)) ln(1/2), negative, with ΔS/count = -0.693147.",
       });
       break;
     }
