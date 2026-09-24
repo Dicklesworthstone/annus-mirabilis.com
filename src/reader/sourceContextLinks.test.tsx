@@ -6,7 +6,8 @@
  * each at #<argument id>. English and gloss are empty for all four papers, special-relativity has
  * no German, and no face carries an argument's id, so the links either said "not yet available"
  * or opened at the top of the paper. Asserted in both directions: faces with content are linked,
- * empty ones are not, and a link's fragment is an id the face really has.
+ * empty ones are not, and a link's fragment is an id the face really has. The passage's "Read the
+ * original" action follows the same rule (paperSourceFaces.ts).
  */
 import { describe, expect, test } from "bun:test";
 import { loadGermanSourceFace } from "../content/editions/germanSourceFace.ts";
@@ -24,10 +25,14 @@ async function contextLines(paperId: string) {
       const line = [...passage.querySelectorAll("p.fine")].find((p) =>
         p.textContent?.startsWith("Source context:"),
       );
+      const original = [...passage.querySelectorAll(".passage-actions a")].find(
+        (a) => a.textContent?.trim() === "Read the original",
+      );
       return {
         id: passage.id,
         text: line?.textContent ?? "",
         hrefs: [...(line?.querySelectorAll("a") ?? [])].map((a) => a.getAttribute("href") ?? ""),
+        original: original?.getAttribute("href") ?? null,
       };
     });
   } finally {
@@ -53,6 +58,8 @@ describe("a passage's Source context links only faces that exist", () => {
       expect(
         line.hrefs.some((h) => h.includes("/view/english/") || h.includes("/view/gloss/")),
       ).toBe(false);
+      // "Read the original" goes where the German link goes, not to #<argument id>.
+      expect(line.original).toBe(german ?? "");
     }
     // The introduction has no heading block, so it opens at its first paragraph.
     const intro = lines.find((l) => sectionOf.get(l.id) === "s0");
@@ -66,6 +73,8 @@ describe("a passage's Source context links only faces that exist", () => {
       expect(line.text).toBe("Source context: Facsimile");
       // No German draft, so there is no id to aim at and the link opens the face itself.
       expect(line.hrefs).toEqual(["/papers/special-relativity/view/facsimile/"]);
+      // No German text, so no "Read the original" leading to a "not yet available" page.
+      expect(line.original).toBe(null);
     }
   });
 });

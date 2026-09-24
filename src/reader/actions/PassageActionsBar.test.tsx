@@ -17,6 +17,26 @@ const ACTIONS = validatePassageActions({
 });
 
 describe("PassageActionsBar", () => {
+  test("originalHref aims Read the original, and null leaves it out", () => {
+    const render = (originalHref?: string | null) =>
+      renderToStaticMarkup(
+        <PassageActionsBar
+          paperId="brownian-motion"
+          passageId="arg-bm-observable"
+          passageLabel="Zero average is not no movement"
+          actions={ACTIONS}
+          {...(originalHref !== undefined ? { originalHref } : {})}
+        />,
+      );
+    expect(render("/papers/brownian-motion/view/german/#s4")).toMatch(
+      /<a href="\/papers\/brownian-motion\/view\/german\/#s4"[^>]*>Read the original<\/a>/,
+    );
+    // A paper with no German text: no action leading to a "not yet available" page.
+    expect(render(null)).not.toContain("Read the original");
+    // The other actions are unaffected by the omission.
+    expect(render(null)).toContain("/lab/bm-01/");
+  });
+
   test("each available action is a real link, including the no-script copy href", () => {
     const html = renderToStaticMarkup(
       <PassageActionsBar
