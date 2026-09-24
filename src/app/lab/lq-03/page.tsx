@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SpectrumComparison } from "../../../components/lab/lq03/SpectrumLab.tsx";
 import { LQ03_DEFAULTS } from "../../../experiments/lq03/definition.ts";
 import { evaluateLq03 } from "../../../experiments/lq03/session.ts";
+import labDigests from "../../../generated/lab-source-digests.json";
 
 export const metadata: Metadata = {
   title: "The radiation spectrum and regime comparison",
@@ -11,7 +12,8 @@ export default function SpectrumPage() {
   const example = {
     parameters: LQ03_DEFAULTS,
     evaluation: evaluateLq03(LQ03_DEFAULTS),
-    sourceDigest: "src/physics/reference/radiation.ts",
+    // The host source, by digest (scripts/generate-lab-digests.mjs).
+    sourceDigest: labDigests["lq-03"],
   };
 
   return (

@@ -8,10 +8,15 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import {
   LQ03_CAPTION,
   LQ03_DEFAULTS,
   LQ03_NOT_MODELED,
+  LQ03_OUTPUTS,
   LQ03_QUESTION,
   type Lq03Parameters,
 } from "../../../experiments/lq03/definition.ts";
@@ -23,6 +28,7 @@ import {
   type Lq03Evaluation,
   type PreparedLq03Example,
 } from "../../../experiments/lq03/session.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
@@ -144,6 +150,16 @@ export function SpectrumLab({
     buildLq03Snapshot(`lq03-${id}`, "lq03-init", LQ03_DEFAULTS, 0, 0);
   const snapshot = view.accepted ?? fallback;
   const p = snapshot.parameters as Lq03Parameters;
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation; no example, no earned label.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      LQ03_OUTPUTS,
+      example?.sourceDigest ?? "",
+      snapshot === session.getServerSnapshot().accepted,
+    ).label,
+  );
   const [draft, setDraft] = useState(() => toDraft(p));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
@@ -197,15 +213,21 @@ export function SpectrumLab({
       data-input-revision={view.requested?.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, view, "frequencyEnergyDensity")}
     >
       <header className="lab-heading">
         <div>
           <p className="eyebrow">Radiation spectrum and regime comparison</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <span className="badge">Ideal model, host calculation</span>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          modelNote={modelNoteFromView(view, { notModeled: `${LQ03_NOT_MODELED.join("; ")}.` })}
+        />
+      </div>
 
       <p className="lab-question">{LQ03_QUESTION}</p>
 
