@@ -17,6 +17,7 @@ import {
   evaluateLq05,
   type PreparedLq05Example,
 } from "../../../experiments/lq05/session.ts";
+import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { PowerOfTen, Sci } from "../Sci.tsx";
@@ -72,7 +73,7 @@ export function IndependentConfigurationsLab({
   function apply(next: Lq05Parameters) {
     const outcome = session.apply(next);
     if (outcome.kind === "refused") {
-      setError(outcome.refusal.message);
+      setError(refusalSentence(outcome.refusal));
       return;
     }
     setError("");
@@ -83,14 +84,7 @@ export function IndependentConfigurationsLab({
   function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const parsed = fromLq05Draft(draft);
-    if (!Number.isFinite(parsed.n) || parsed.n < 1) {
-      setError("Point count n must be at least 1.");
-      return;
-    }
-    if (!Number.isFinite(parsed.f) || parsed.f <= 0 || parsed.f > 1) {
-      setError("Subvolume fraction f must be strictly between 0 and 1 (0 < f <= 1).");
-      return;
-    }
+    // The session's validator owns the domain and says what to enter.
     apply(parsed);
   }
 
@@ -249,6 +243,7 @@ export function IndependentConfigurationsLab({
         }}
       >
         <form
+          noValidate
           onSubmit={submit}
           className="input-grid"
           style={{

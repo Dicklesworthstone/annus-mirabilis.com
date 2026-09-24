@@ -3,6 +3,9 @@ import { makeRefusal } from "../results/refusals.ts";
 import type { Lq05Parameters, Lq05View } from "./definition.ts";
 
 const VALID_VIEWS = new Set<Lq05View>(["enumeration", "sampling", "logarithmic"]);
+/** The upper ends of the manifest's model domains (content/experiments/lq-05.yaml). */
+export const LQ05_MAX_POINTS = 60;
+export const LQ05_MAX_TRIALS = 1_000_000;
 
 export function validateLq05Parameters(input: unknown): Computation<Lq05Parameters> {
   const bad = (requirements: string, code?: string): Computation<never> => ({
@@ -25,22 +28,25 @@ export function validateLq05Parameters(input: unknown): Computation<Lq05Paramete
   const obj = input as Partial<Record<keyof Lq05Parameters, unknown>>;
 
   const n = obj.n;
-  if (typeof n !== "number" || !Number.isSafeInteger(n) || n < 1) {
-    return bad("Point count n must be a positive whole integer (n >= 1).");
+  // The manifest's model domain for n is 1 to 60. Above it the exact count's BigInt arithmetic
+  // grows without bound (n = 1000 took 4.3 s; n = 1e6 ran out of memory), so the bound is enforced
+  // here and not only by the form's max attribute, which a permalink bypasses.
+  if (typeof n !== "number" || !Number.isSafeInteger(n) || n < 1 || n > LQ05_MAX_POINTS) {
+    return bad(`Enter a whole number of points from 1 to ${LQ05_MAX_POINTS}.`);
   }
 
   const f = obj.f;
   if (typeof f !== "number" || !Number.isFinite(f)) {
-    return bad("Subvolume fraction f must be a finite number.");
+    return bad("Enter a subvolume fraction f greater than 0 and at most 1.");
   }
   if (f === 0) {
     return bad(
-      "no point can lie in an empty region; the entropy difference is undefined",
+      "Enter a subvolume fraction f greater than 0: no point can lie in an empty region, so the entropy difference is undefined.",
       "empty-subvolume",
     );
   }
   if (f < 0 || f > 1.0000000001) {
-    return bad("Subvolume fraction f must be strictly between 0 and 1 (0 < f <= 1).");
+    return bad("Enter a subvolume fraction f greater than 0 and at most 1.");
   }
 
   const view = obj.view;
@@ -67,8 +73,13 @@ export function validateLq05Parameters(input: unknown): Computation<Lq05Paramete
   }
 
   const trials = obj.trials;
-  if (typeof trials !== "number" || !Number.isSafeInteger(trials) || trials < 1) {
-    return bad("Trial count must be a positive integer (trials >= 1).");
+  if (
+    typeof trials !== "number" ||
+    !Number.isSafeInteger(trials) ||
+    trials < 1 ||
+    trials > LQ05_MAX_TRIALS
+  ) {
+    return bad("Enter a whole number of trials from 1 to 1 000 000.");
   }
 
   return {
