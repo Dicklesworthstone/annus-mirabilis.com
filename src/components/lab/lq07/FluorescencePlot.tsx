@@ -479,8 +479,8 @@ export function FluorescencePlot({
       </div>
 
       {/* 3. Rates and Intensity Linearity Readout */}
-      {rates.status === "not-applicable" && rates.reason && (
-        <p className="fine" data-rates-status="not-applicable">
+      {(rates.status === "not-applicable" || rates.status === "outside-domain") && rates.reason && (
+        <p className="fine" data-rates-status={rates.status}>
           No emission rates: {rates.reason}
         </p>
       )}

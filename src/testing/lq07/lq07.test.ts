@@ -274,3 +274,34 @@ describe("LQ-07 emission follows the budget's verdict", () => {
     );
   });
 });
+
+describe("LQ-07 never publishes a rate it cannot write as a number", () => {
+  // An absorbed power of 1e300 µW passes validation and a shared link can carry it. The owner's
+  // counts overflowed to Infinity and were published as values, and on live 254d3459 applying such
+  // a link replaced the laboratory with "This page could not be displayed".
+  test("a finite power whose counts overflow puts the rates outside the domain, with a reason", () => {
+    const params = { ...LQ07_DEFAULTS, absorbedPowerMicrowatts: 1e300 };
+    expect(validateLq07Parameters(params).kind).toBe("accepted");
+    const evaluation = evaluateLq07(params);
+    expect(evaluation.rates.status).toBe("outside-domain");
+    expect(evaluation.rates.reason).toContain("too large");
+    for (const output of evaluation.outputs) {
+      if (output.status === "value" && typeof output.value === "number")
+        expect({ id: output.quantityId, finite: Number.isFinite(output.value) }).toEqual({
+          id: output.quantityId,
+          finite: true,
+        });
+    }
+    const refused = evaluation.outputs
+      .filter((o) => o.status === "outside-domain")
+      .map((o) => o.quantityId);
+    expect(refused).toContain("absorbedRate");
+    expect(refused).toContain("emittedRate");
+  });
+
+  test("a large power the counts can still hold stays a value", () => {
+    const evaluation = evaluateLq07({ ...LQ07_DEFAULTS, absorbedPowerMicrowatts: 1e30 });
+    expect(evaluation.rates.status).toBe("value");
+    expect(Number.isFinite(evaluation.rates.emittedRatePerSecond)).toBe(true);
+  });
+});

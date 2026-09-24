@@ -96,8 +96,11 @@ export function fixed(value: number, decimals: number): string {
  * 260060000000, which no reader can take in when a status line announces it.
  */
 export function sentenceNumber(value: number, digits = 3): string {
-  // display() refuses a nonfinite value; its refusal is the one this shares.
-  if (!Number.isFinite(value)) return display(value);
+  // Total, because a status line renders it: a throw here takes the whole laboratory down. LQ-07
+  // published an emission rate of Infinity for an absorbed power of 1e300 µW, which its validator
+  // admits, and display() would have thrown on it inside the render.
+  if (Number.isNaN(value)) return "not computed";
+  if (!Number.isFinite(value)) return "too large to compute";
   const size = Math.abs(value);
   if (size === 0 || (size >= 1e-3 && size < 1e4))
     return String(Number(value.toPrecision(digits))).replace(/^-/, "−");

@@ -46,6 +46,9 @@ describe("the lab's number helpers", () => {
     expect(sentenceNumber(9999)).toBe("10000");
     expect(sentenceNumber(10000)).toBe("1 × 10⁴");
     expect(sentenceNumber(0)).toBe("0");
-    expect(() => sentenceNumber(Number.NaN)).toThrow();
+    // Total: a status line renders it, and a throw would take the laboratory down with it.
+    expect(sentenceNumber(Number.NaN)).toBe("not computed");
+    expect(sentenceNumber(Number.POSITIVE_INFINITY)).toBe("too large to compute");
+    expect(sentenceNumber(Number.NEGATIVE_INFINITY)).toBe("too large to compute");
   });
 });

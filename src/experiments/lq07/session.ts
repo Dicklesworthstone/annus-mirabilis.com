@@ -37,13 +37,37 @@ export function evaluateLq07(parameters: Lq07Parameters): Lq07Evaluation {
     channels: parameters.channels,
   });
 
-  const counted = fluorescenceRates({
+  const owned = fluorescenceRates({
     nu1: nu1Hz,
     nu2: nu2Hz,
     absorbedPowerWatts,
     quantumYield: parameters.quantumYield,
     regime: parameters.regime,
   });
+  // A finite absorbed power can still overflow the counts in double precision: 1e300 µW, which the
+  // validator admits and a shared link can carry, gives Infinity quanta a second. Published as a
+  // value, it took the page down ("This page could not be displayed", live 254d3459). Past that
+  // point the model has no number to give, so the rates are outside its domain.
+  const representable = [
+    owned.absorbedRatePerSecond,
+    owned.emittedRatePerSecond,
+    owned.emittedPowerWatts,
+    owned.dissipatedHeatWatts,
+  ].every(Number.isFinite);
+  const counted: FluorescenceRatesResult =
+    owned.status === "value" && !representable
+      ? Object.freeze({
+          ...owned,
+          status: "outside-domain",
+          absorbedRatePerSecond: 0,
+          emittedRatePerSecond: 0,
+          emittedPowerWatts: 0,
+          dissipatedHeatWatts: 0,
+          energyEfficiency: 0,
+          reason:
+            "The absorbed power is too large for these rates to be written as numbers. Choose a smaller absorbed power.",
+        })
+      : owned;
   // The rate owner converts power to quanta and does not judge the transformation. When the
   // budget forbids it, or does not apply, no light of frequency nu2 is emitted in this model, so
   // there is no emitted rate or power to report: counting one would emit more energy per quantum
