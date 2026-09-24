@@ -29,6 +29,11 @@ export const THEME_FOLLOW_SYSTEM = FOLLOW_SYSTEM_VALUE;
 export const KNOWN_THEME_IDS: readonly string[] = THEME_IDS;
 
 /**
+ * NO ROUTE CHOOSES THE THEME. A route default (data-route-theme on <html>, on any element, or in a
+ * <meta>) existed so /discover could open in the retired Slate theme. No route has set one since
+ * D-2026-09-22-one-sun-moon-theme-toggle, and the lookup ran a DOM query before first paint on
+ * every page for nothing, so it is gone: the reader's stored choice, else the device.
+ *
  * NOTHING STORED FOLLOWS THE SYSTEM. The last fallback was "annalen" unconditionally, so a reader
  * whose device was set to dark got the light page on every route that declares no default:
  * measured on out/ 14:47:11 in Chromium and WebKit, /, /papers/ and /lab/bm-01/ stayed light
@@ -58,29 +63,10 @@ export function initTheme(
       resolved = stored;
     }
     if (resolved === undefined) {
-      let routeDefault = document.documentElement.getAttribute("data-route-theme");
-      if (!routeDefault && typeof document !== "undefined") {
-        const el = document.querySelector("[data-route-theme]");
-        if (el) {
-          routeDefault = el.getAttribute("data-route-theme");
-        }
-        if (!routeDefault) {
-          const meta = document.querySelector(
-            'meta[name="data-route-theme"], meta[name="route-theme"]',
-          );
-          if (meta) {
-            routeDefault = meta.getAttribute("content");
-          }
-        }
-      }
-      if (routeDefault !== null && knownThemeIds.indexOf(routeDefault) !== -1) {
-        resolved = routeDefault;
-      } else {
-        resolved =
-          typeof matchMedia === "function" && matchMedia("(prefers-color-scheme: dark)").matches
-            ? "kramgasse-night"
-            : "annalen";
-      }
+      resolved =
+        typeof matchMedia === "function" && matchMedia("(prefers-color-scheme: dark)").matches
+          ? "kramgasse-night"
+          : "annalen";
     }
     document.documentElement.dataset.theme = resolved;
   } catch {

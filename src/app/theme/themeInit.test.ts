@@ -66,83 +66,75 @@ describe("initTheme: stored preference", () => {
   });
 });
 
-describe("initTheme: route default from data-route-theme", () => {
-  test("an explicit route default is used when nothing is stored", () => {
-    document.documentElement.setAttribute("data-route-theme", "kramgasse-night");
-    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
-    expect(document.documentElement.dataset.theme).toBe("kramgasse-night");
-  });
+describe("initTheme: no route chooses the theme (D-2026-09-22-one-sun-moon-theme-toggle)", () => {
+  // Slate's route default is retired. Each form of it that the script used to read is present
+  // here and must change nothing: the device decides when nothing is stored, and a stored choice
+  // wins either way. beforeEach stubs a light device; the dark case stubs its own.
+  const routeForms: readonly [string, () => () => void][] = [
+    [
+      "data-route-theme on <html>",
+      () => {
+        document.documentElement.setAttribute("data-route-theme", "kramgasse-night");
+        return () => document.documentElement.removeAttribute("data-route-theme");
+      },
+    ],
+    [
+      "data-route-theme on an element",
+      () => {
+        const div = document.createElement("div");
+        div.setAttribute("data-route-theme", "kramgasse-night");
+        document.body.appendChild(div);
+        return () => div.remove();
+      },
+    ],
+    [
+      "a data-route-theme meta",
+      () => {
+        const meta = document.createElement("meta");
+        meta.name = "data-route-theme";
+        meta.content = "kramgasse-night";
+        document.head.appendChild(meta);
+        return () => meta.remove();
+      },
+    ],
+  ];
 
-  test("a stored preference wins over the route default", () => {
-    document.documentElement.setAttribute("data-route-theme", "kramgasse-night");
-    localStorage.setItem(THEME_STORAGE_KEY, "annalen");
-    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
-    expect(document.documentElement.dataset.theme).toBe("annalen");
-  });
+  for (const [form, plant] of routeForms) {
+    test(`${form} is ignored when nothing is stored`, () => {
+      const undo = plant();
+      try {
+        initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
+        expect(document.documentElement.dataset.theme).toBe("annalen");
+      } finally {
+        undo();
+      }
+    });
+  }
 
-  test("an invalid route default falls back to annalen", () => {
-    document.documentElement.setAttribute("data-route-theme", "not-a-theme");
-    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
-    expect(document.documentElement.dataset.theme).toBe("annalen");
-  });
-});
-
-describe("initTheme: Slate default via data-route-theme attribute (AGENTS.md constraint)", () => {
-  test("data-route-theme on documentElement selects kramgasse-night when nothing is stored", () => {
-    document.documentElement.setAttribute("data-route-theme", "kramgasse-night");
-    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
-    expect(document.documentElement.dataset.theme).toBe("kramgasse-night");
-  });
-
-  test("data-route-theme on a container element selects kramgasse-night when nothing is stored", () => {
-    const div = document.createElement("div");
-    div.setAttribute("data-route-theme", "kramgasse-night");
-    document.body.appendChild(div);
+  test("on a dark device a route saying annalen changes nothing", () => {
+    stubMatchMedia(true);
+    document.documentElement.setAttribute("data-route-theme", "annalen");
     try {
       initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
       expect(document.documentElement.dataset.theme).toBe("kramgasse-night");
     } finally {
-      div.remove();
+      document.documentElement.removeAttribute("data-route-theme");
     }
   });
 
-  test("meta[name='data-route-theme'] in head selects kramgasse-night when nothing is stored", () => {
-    const meta = document.createElement("meta");
-    meta.name = "data-route-theme";
-    meta.content = "kramgasse-night";
-    document.head.appendChild(meta);
-    try {
-      initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
-      expect(document.documentElement.dataset.theme).toBe("kramgasse-night");
-    } finally {
-      meta.remove();
-    }
-  });
-
-  test("an explicit stored reader preference wins over data-route-theme", () => {
-    document.documentElement.setAttribute("data-route-theme", "kramgasse-night");
-    localStorage.setItem(THEME_STORAGE_KEY, "annalen");
-    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
-    expect(document.documentElement.dataset.theme).toBe("annalen");
-  });
-
-  test("stored kramgasse-night wins over data-route-theme", () => {
-    document.documentElement.setAttribute("data-route-theme", "kramgasse-night");
+  test("a stored choice wins whatever a route says", () => {
+    document.documentElement.setAttribute("data-route-theme", "annalen");
     localStorage.setItem(THEME_STORAGE_KEY, "kramgasse-night");
-    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
-    expect(document.documentElement.dataset.theme).toBe("kramgasse-night");
+    try {
+      initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
+      expect(document.documentElement.dataset.theme).toBe("kramgasse-night");
+    } finally {
+      document.documentElement.removeAttribute("data-route-theme");
+    }
   });
 
-  test("pages without data-route-theme fall back to annalen when nothing is stored", () => {
-    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
-    expect(document.documentElement.dataset.theme).toBe("annalen");
-  });
-
-  test("planted negative: a simulated resolver that ignores data-route-theme yields wrong theme", () => {
-    document.documentElement.setAttribute("data-route-theme", "kramgasse-night");
-    // If a resolver ignores the attribute and only inspects storage:
-    const mockTheme = localStorage.getItem(THEME_STORAGE_KEY) ?? "annalen";
-    expect(mockTheme).toBe("annalen"); // Proves ignoring data-route-theme fails to apply the route's dark theme
+  test("the injected script no longer reads a route attribute", () => {
+    expect(THEME_INIT_SOURCE).not.toContain("data-route-theme");
   });
 });
 
@@ -241,10 +233,17 @@ describe("THEME_INIT_SOURCE: a self-contained, immediately-invoked expression", 
   });
 
   test("executing the derived source produces the same result as calling the function directly", () => {
-    document.documentElement.setAttribute("data-route-theme", "kramgasse-night");
+    // A stored choice that differs from the stubbed light device, so the source has to read
+    // storage through the injected key to reach it. (This used a route default until that was
+    // retired with Slate.)
+    localStorage.setItem(THEME_STORAGE_KEY, "kramgasse-night");
     // eslint-disable-next-line no-new-func
     new Function(THEME_INIT_SOURCE)();
-    expect(document.documentElement.dataset.theme).toBe("kramgasse-night");
+    const fromSource = document.documentElement.dataset.theme;
+    delete document.documentElement.dataset.theme;
+    initTheme(THEME_STORAGE_KEY, THEME_FOLLOW_SYSTEM, KNOWN_THEME_IDS);
+    expect(fromSource).toBe("kramgasse-night");
+    expect(document.documentElement.dataset.theme).toBe(fromSource);
   });
 });
 
