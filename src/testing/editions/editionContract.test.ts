@@ -902,6 +902,24 @@ describe("PLANT (am-06x1): checks 4, 5 and 6 corrupt the DATA, not the flag", ()
     }
   });
 
+  test("check 9 looks for translation units where the English face reads them, and still never passes", () => {
+    const root = copyCorpus();
+    mkdirSync(join(root, "content/papers"), { recursive: true });
+    copyFileSync(
+      join(process.cwd(), `content/papers/${SLUG}.json`),
+      join(root, `content/papers/${SLUG}.json`),
+    );
+    // bilingualLoader.ts reads content/translation-units/<slug>/. With that directory present,
+    // check 9 must not report the English face absent, and it has still compared nothing.
+    mkdirSync(join(root, `content/translation-units/${SLUG}`), { recursive: true });
+    const check9 = assertEditionContract(SLUG, { root, ledgerText: LEDGER }).checks.find(
+      (c) => c.checkNumber === 9,
+    );
+    expect(check9?.outcome).toBe("not-available");
+    expect(check9?.message).toContain(`content/translation-units/${SLUG} exists`);
+    expect(check9?.message).not.toContain("does not exist");
+  });
+
   test("an unreachable corpus reports not-available, which a pass-through never does", () => {
     const root = mkdtempSync(join(tmpdir(), "am-06x1-empty-"));
     const check4 = checkAt(root, 4);
