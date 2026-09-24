@@ -595,3 +595,19 @@ html[data-lens="modern"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[
   stroke-width: 1.5;
   stroke-dasharray: 4 3;
 }
+
+/* On paper a slider cannot move, and its track says nothing the number beside it does not. A
+   printed lab keeps each control's value and drops the track, and the value's box prints as text.
+   Measured under print emulation: 23 controls still printed on LQ-06, LQ-08, LQ-09, ME-01 and
+   SR-11 (slider pairs outside a form) and SR-01 (its prediction choices, which stay). */
+@media print {
+  .lab-slider-pair input[type="range"] {
+    display: none;
+  }
+  .lab-slider-pair input[type="text"] {
+    border: 0;
+    padding: 0;
+    background: none;
+    color: inherit;
+  }
+}
