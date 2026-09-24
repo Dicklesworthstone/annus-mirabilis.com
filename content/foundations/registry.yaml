@@ -236,8 +236,9 @@ entries:
     kind: node
     cluster: linear-geometry
     ownerBead: am-found-linear-geometry-7w15
-    status: planned
-    plannedCallers: []
+    status: authored
+    plannedCallers:
+      - "special-relativity:s7"
   - id: "foundation:conservation-symmetry"
     kind: node
     cluster: linear-geometry

@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "hyperbolic-functions-rapidity",
+  "title": "Hyperbolic functions and rapidity",
+  "question": "Two speeds along one line do not simply add. Is there a number that does?",
+  "summary": "The hyperbolic functions cosh, sinh and tanh are built from e to the x and e to the minus x. Write a speed as v/c = tanh of a number called the rapidity, and the rapidities of boosts along one line add where the speeds do not. Rapidity is a later aid: the 1905 paper composes the speeds directly.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "The hyperbolic cosine and sine are the even and odd halves of the exponential: \\(\\operatorname{cosh}x\\) averages \\(e^x\\) and \\(e^{-x}\\), and \\(\\operatorname{sinh}x\\) takes half their difference. Their ratio is the hyperbolic tangent, which stays between −1 and 1. In place of \\(\\cos^2 + \\sin^2 = 1\\) they satisfy \\(\\operatorname{cosh}^2 x - \\operatorname{sinh}^2 x = 1\\)."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\operatorname{cosh}x = \\frac{e^x + e^{-x}}{2},\\qquad \\operatorname{sinh}x = \\frac{e^x - e^{-x}}{2},\\qquad \\operatorname{tanh}x = \\frac{\\operatorname{sinh}x}{\\operatorname{cosh}x}",
+      "spoken": "cosh x is e to the x plus e to the minus x, over two; sinh x is e to the x minus e to the minus x, over two; and tanh x is sinh x over cosh x."
+    },
+    {
+      "kind": "paragraph",
+      "text": "For a boost at speed v, define the rapidity φ by \\(v/c = \\operatorname{tanh}\\varphi\\). Then the factor γ is \\(\\operatorname{cosh}\\varphi\\), and \\(\\gamma v/c\\) is \\(\\operatorname{sinh}\\varphi\\). Two warnings about letters. Einstein prints γ as β in the relativity and mass-energy papers, and in the light paper β is Wien's constant, so this lesson writes v/c out and never calls it β. And this φ is the modern rapidity, not the φ(v) of §3 of the relativity paper, which is a scale factor that turns out to be 1."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\gamma = \\operatorname{cosh}\\varphi,\\qquad \\frac{\\gamma v}{c} = \\operatorname{sinh}\\varphi,\\qquad \\frac{v}{c} = \\operatorname{tanh}\\varphi",
+      "spoken": "gamma is cosh phi, gamma v over c is sinh phi, and v over c is tanh phi."
+    },
+    {
+      "kind": "paragraph",
+      "text": "§5 of the relativity paper composes two speeds along one line: an object moving at w in a frame that itself moves at v moves at \\(U = (v + w)/(1 + vw/c^2)\\). That is exactly the addition rule for the hyperbolic tangent, so in rapidities the composition is plain addition: \\(\\varphi_U = \\varphi_v + \\varphi_w\\)."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\operatorname{tanh}(\\varphi_1 + \\varphi_2) = \\frac{\\operatorname{tanh}\\varphi_1 + \\operatorname{tanh}\\varphi_2}{1 + \\operatorname{tanh}\\varphi_1\\,\\operatorname{tanh}\\varphi_2}",
+      "spoken": "tanh of phi one plus phi two equals tanh phi one plus tanh phi two, over one plus tanh phi one times tanh phi two."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Rapidity is a later aid. Hyperbolic functions were applied to boosts by Varićak in 1910, and the word rapidity is Robb's, from 1911. The 1905 argument composes the speeds directly, and rapidities add only for boosts along one line: two boosts in different directions combine into a boost and a rotation."
+    }
+  ],
+  "exampleTitle": "Adding 0.6c to 0.6c",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "For \\(v/c = 0.6\\) the rapidity is \\(\\varphi = \\frac12\\ln\\frac{1 + 0.6}{1 - 0.6} = \\frac12\\ln 4 = \\ln 2 = 0.6931\\).",
+        "Check: \\(\\operatorname{cosh}(\\ln 2) = (2 + \\frac12)/2 = 1.25\\), which is γ at 0.6c, and \\(\\operatorname{sinh}(\\ln 2) = (2 - \\frac12)/2 = 0.75\\), which is \\(\\gamma v/c\\).",
+        "Two boosts of 0.6c along one line add their rapidities: \\(\\ln 2 + \\ln 2 = \\ln 4\\).",
+        "Back to a speed: \\(\\operatorname{tanh}(\\ln 4) = (4 - \\frac14)/(4 + \\frac14) = 15/17 = 0.8824\\), so the combined speed is \\(15c/17\\), the same as \\(U = 1.2c/1.36\\) from §5, and less than c.",
+        "\\(e^{-\\ln 2} = 0.5\\) and \\(e^{\\ln 2} = 2\\) are the stretches of the two light lines under the boost at 0.6c: the Doppler factors for light sent forward and back."
+      ]
+    }
+  ],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:exponentials",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:logarithms",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:matrices-linear-maps",
+      "kind": "cross-link"
+    }
+  ],
+  "stoppingPoint": "Hyperbolic functions are combinations of e to the x and e to the minus x. This lesson stops at boosts along one line.",
+  "citations": ["ap-17-891"]
+}

@@ -62,6 +62,11 @@
       {
         "kind": "paragraph",
         "text": "Modern texts often use rapidities, which simply add for boosts along one line, or multiply matrices. Both are later aids, not premises of the 1905 argument, and neither should hide that two boosts in different directions combine into a boost and a rotation, the Thomas–Wigner rotation."
+      },
+      {
+        "kind": "foundation",
+        "id": "hyperbolic-functions-rapidity",
+        "returnCaption": "Return to 0.6c composed with 0.6c, which gives 15c/17 rather than 1.2c."
       }
     ]
   },

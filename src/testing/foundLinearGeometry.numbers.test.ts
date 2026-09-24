@@ -113,6 +113,47 @@ describe("matrices and linear maps", () => {
   });
 });
 
+describe("hyperbolic functions and rapidity", () => {
+  const text = lessonText("hyperbolic-functions-rapidity");
+  const speedRatio = 0.6;
+  const rapidity = Math.atanh(speedRatio);
+
+  test("artanh 0.6 = ln 2 = 0.6931, printed to four places", () => {
+    close(rapidity, Math.LN2);
+    expect(text).toContain(`= \\ln 2 = ${rapidity.toFixed(4)}`);
+  });
+
+  test("cosh and sinh of the rapidity are γ = 1.25 and γv/c = 0.75", () => {
+    close(Math.cosh(rapidity), 1.25);
+    close(Math.sinh(rapidity), 0.75);
+    close(Math.cosh(rapidity) ** 2 - Math.sinh(rapidity) ** 2, 1);
+    expect(text).toContain("= 1.25, which is γ at 0.6c");
+    expect(text).toContain("= 0.75, which is");
+  });
+
+  test("two rapidities of 0.6c add to ln 4, and tanh(ln 4) = 15/17 = 0.8824 is §5's composition", () => {
+    const combined = Math.tanh(2 * rapidity);
+    close(combined, 15 / 17);
+    // The paper's §5 rule, computed independently of any hyperbolic function.
+    close((speedRatio + speedRatio) / (1 + speedRatio * speedRatio), combined);
+    expect(combined).toBeLessThan(1);
+    expect(text).toContain(`= 15/17 = ${combined.toFixed(4)}`);
+  });
+
+  test("e to the ∓ rapidity is 0.5 and 2, the stretches of the light lines", () => {
+    close(Math.exp(-rapidity), 0.5);
+    close(Math.exp(rapidity), 2);
+    expect(text).toContain("= 0.5 and e^{\\ln 2} = 2 are the stretches");
+  });
+
+  test("the later-aid label names its dates, and the φ(v) of §3 is kept apart", () => {
+    expect(text).toMatch(/later aid/);
+    expect(text).toContain("Varićak in 1910");
+    expect(text).toContain("Robb's, from 1911");
+    expect(text).toContain("not the φ(v) of §3");
+  });
+});
+
 describe("the β rule, over every lesson of the cluster that exists", () => {
   const present = CLUSTER.filter((id) => existsSync(path(id)));
 
