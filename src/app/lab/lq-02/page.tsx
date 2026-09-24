@@ -39,7 +39,7 @@ export default function ModeAllocationPage() {
       <section className="reading">
         <h2>The law this instrument calculates</h2>
         <Formula
-          latex={String.raw`U(\nu_c) = \int_0^{\nu_c} \frac{8\pi\nu^2}{c^3}k_BT\,d\nu = \frac{8\pi k_BT}{3c^3}\nu_c^3`}
+          latex={String.raw`\begin{aligned}U(\nu_c) &= \int_0^{\nu_c} \frac{8\pi\nu^2}{c^3}k_BT\,d\nu \\ &= \frac{8\pi k_BT}{3c^3}\nu_c^3\end{aligned}`}
         />
         <p>
           Every resonator oscillation, at every frequency, carries the same mean energy Ē = k

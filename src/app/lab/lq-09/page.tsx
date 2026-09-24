@@ -105,7 +105,7 @@ export default function IonizationPage() {
             <InlineFormula latex={String.raw`\lambda = 1.9\times 10^{-5}\text{ cm}`} />, the quantum
             energy per gram-equivalent is:
             <Formula
-              latex={String.raw`R\beta\nu = 8{,}31\cdot 10^7 \times 4{,}866\cdot 10^{-11} \times 1{,}58\cdot 10^{15} \approx 6{,}4\cdot 10^{12}\text{ Erg}`}
+              latex={String.raw`\begin{aligned}R\beta\nu &= 8{,}31\cdot 10^7 \times 4{,}866\cdot 10^{-11} \\ &\quad \times 1{,}58\cdot 10^{15} \\ &\approx 6{,}4\cdot 10^{12}\text{ Erg}\end{aligned}`}
             />
             Divided by the gram-equivalent charge{" "}
             <InlineFormula latex={String.raw`E = 9{,}6\cdot 10^3\text{ emu}`} />, this corresponds

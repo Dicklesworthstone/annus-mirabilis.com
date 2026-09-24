@@ -61,7 +61,7 @@ export default function RodSimultaneityPage() {
           speed <InlineFormula latex="c + v" />:
         </p>
         <Formula
-          latex={String.raw`t_B - t_A = \frac{r_{AB}}{c - v}, \qquad t'_A - t_B = \frac{r_{AB}}{c + v}`}
+          latex={String.raw`\begin{aligned}t_B - t_A &= \frac{r_{AB}}{c - v}, \qquad t'_A - t_B \\ &= \frac{r_{AB}}{c + v}\end{aligned}`}
         />
         <p>
           The two times differ, <InlineFormula latex="t_B - t_A \neq t'_A - t_B" />. So observers
@@ -111,7 +111,7 @@ export default function RodSimultaneityPage() {
           <InlineFormula latex="E_2" />, the squared interval is the same in every inertial frame:
         </p>
         <Formula
-          latex={String.raw`s^2 = \Delta x^2 + \Delta y^2 + \Delta z^2 - c^2 \Delta t^2 = \Delta x'^2 + \Delta y'^2 + \Delta z'^2 - c^2 \Delta t'^2`}
+          latex={String.raw`\begin{aligned}s^2 &= \Delta x^2 + \Delta y^2 + \Delta z^2 - c^2 \Delta t^2 \\ &= \Delta x'^2 + \Delta y'^2 + \Delta z'^2 - c^2 \Delta t'^2\end{aligned}`}
         />
         <p>
           When <InlineFormula latex="s^2 < 0" /> (timelike) or <InlineFormula latex="s^2 = 0" />{" "}

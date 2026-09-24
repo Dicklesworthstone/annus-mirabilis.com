@@ -119,7 +119,7 @@ export default function CoefficientMatchPage() {
           temperature <InlineFormula latex="T" /> by integrating over the full Wien spectrum:
         </p>
         <Formula
-          latex={String.raw`\langle \epsilon \rangle = \frac{\int_0^\infty \alpha\nu^3 e^{-\beta\nu/T} d\nu}{\int_0^\infty \frac{N}{R\beta\nu}\alpha\nu^3 e^{-\beta\nu/T} d\nu} = 3\frac{R}{N}T = 3 k_B T`}
+          latex={String.raw`\begin{aligned}\langle \epsilon \rangle &= \frac{\int_0^\infty \alpha\nu^3 e^{-\beta\nu/T} d\nu}{\int_0^\infty \frac{N}{R\beta\nu}\alpha\nu^3 e^{-\beta\nu/T} d\nu} \\ &= 3\frac{R}{N}T \\ &= 3 k_B T\end{aligned}`}
         />
         <p>
           This is exactly twice the average translational kinetic energy of a monoatomic gas

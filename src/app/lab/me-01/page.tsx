@@ -66,7 +66,7 @@ export default function TwoLedgersPage() {
           <var>&phi; + 180&deg;</var>). Conservation of energy in the stationary frame requires:
         </p>
         <Formula
-          latex={String.raw`E_0 = E_1 + \frac{1}{2}L + \frac{1}{2}L = E_1 + L \implies E_0 - E_1 = L`}
+          latex={String.raw`\begin{aligned}E_0 &= E_1 + \frac{1}{2}L + \frac{1}{2}L \\ &= E_1 + L \implies E_0 - E_1 \\ &= L\end{aligned}`}
         />
         <p>
           Now consider the same physical event as measured by an observer moving at speed{" "}
@@ -74,17 +74,19 @@ export default function TwoLedgersPage() {
           pulses have energies:
         </p>
         <Formula
-          latex={String.raw`\text{Pulse 1} = \frac{1}{2}L\,\gamma\,(1 - \beta\cos\varphi), \qquad \text{Pulse 2} = \frac{1}{2}L\,\gamma\,(1 + \beta\cos\varphi)`}
+          latex={String.raw`\begin{aligned}\text{Pulse 1} &= \frac{1}{2}L\,\gamma\,(1 - \beta\cos\varphi), \qquad \text{Pulse 2} \\ &= \frac{1}{2}L\,\gamma\,(1 + \beta\cos\varphi)\end{aligned}`}
         />
         <p>
           When the two pulse energies are added together, the angle terms{" "}
           <var>&minus;&beta; cos &phi;</var> and <var>+&beta; cos &phi;</var> cancel identically:
         </p>
         <Formula
-          latex={String.raw`\text{Total moving light} = \frac{1}{2}L\,\gamma\,(1 - \beta\cos\varphi) + \frac{1}{2}L\,\gamma\,(1 + \beta\cos\varphi) = \gamma L`}
+          latex={String.raw`\begin{aligned}&\text{Total moving light} \\ &\quad = \frac{1}{2}L\,\gamma\,(1 - \beta\cos\varphi) \\ &\qquad + \frac{1}{2}L\,\gamma\,(1 + \beta\cos\varphi) \\ &\quad = \gamma L\end{aligned}`}
         />
         <p>Energy conservation in the moving frame therefore gives:</p>
-        <Formula latex={String.raw`H_0 = H_1 + \gamma L \implies H_0 - H_1 = \gamma L`} />
+        <Formula
+          latex={String.raw`\begin{aligned}H_0 &= H_1 + \gamma L \implies H_0 - H_1 \\ &= \gamma L\end{aligned}`}
+        />
 
         <h2>The subtraction move: eliminating the unknown internal energies</h2>
         <p>
@@ -92,7 +94,9 @@ export default function TwoLedgersPage() {
           balance from the moving-system balance completely eliminates the body&apos;s unknown
           internal rest energy:
         </p>
-        <Formula latex={String.raw`(H_0 - E_0) - (H_1 - E_1) = \gamma L - L = L\,(\gamma - 1)`} />
+        <Formula
+          latex={String.raw`\begin{aligned}(H_0 - E_0) - (H_1 - E_1) &= \gamma L - L \\ &= L\,(\gamma - 1)\end{aligned}`}
+        />
 
         <h2>Identifying the kinetic energy drop</h2>
         <p>
@@ -105,7 +109,9 @@ export default function TwoLedgersPage() {
           Under Einstein&apos;s source premise that the constant <var>C</var> does not alter upon
           the emission of light (<var>C = C&apos;</var>), substituting this relation yields:
         </p>
-        <Formula latex={String.raw`(K_0 + C) - (K_1 + C) = K_0 - K_1 = L\,(\gamma - 1)`} />
+        <Formula
+          latex={String.raw`\begin{aligned}(K_0 + C) - (K_1 + C) &= K_0 - K_1 \\ &= L\,(\gamma - 1)\end{aligned}`}
+        />
         <p>
           The body&apos;s energy of motion drops by <var>L(&gamma; &minus; 1)</var> while its speed
           remains unchanged.

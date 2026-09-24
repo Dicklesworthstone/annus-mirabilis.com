@@ -61,7 +61,7 @@ export default function WaveDescriptionPage() {
           scalar fields add linearly:
         </p>
         <Formula
-          latex={String.raw`\psi(\mathbf{r}, t) = \frac{A_1}{r_1}\cos(k r_1 - \omega t + \phi_1) + \frac{A_2}{r_2}\cos(k r_2 - \omega t + \phi_2)`}
+          latex={String.raw`\begin{aligned}\psi(\mathbf{r}, t) &= \frac{A_1}{r_1}\cos(k r_1 - \omega t + \phi_1) \\ &\quad + \frac{A_2}{r_2}\cos(k r_2 - \omega t + \phi_2)\end{aligned}`}
         />
 
         <h2>Time averages versus instantaneous values</h2>

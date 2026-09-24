@@ -54,14 +54,14 @@ export default function CoefficientPage() {
           never writes β for it; the formulas below write it as the modern γ.
         </p>
         <Formula
-          latex={String.raw`K_0-K_1=L(\gamma-1)=L\frac{\gamma^2\beta^2}{\gamma+1},\qquad \beta=\frac{v}{c}`}
+          latex={String.raw`\begin{aligned}K_0-K_1 &= L(\gamma-1) \\ &= L\frac{\gamma^2\beta^2}{\gamma+1},\qquad \beta \\ &= \frac{v}{c}\end{aligned}`}
         />
         <p>
           At small speed the Newtonian energy of motion is ½mv². Matching the second-order term
           identifies a mass change L/c². The quadratic estimate is that second-order piece alone.
         </p>
         <Formula
-          latex={String.raw`\tfrac12 L\beta^2\qquad\text{(quadratic)}\qquad\lim_{v\to 0}\frac{2L(\gamma-1)}{v^2}=\frac{L}{c^2}`}
+          latex={String.raw`\begin{aligned}& \tfrac12 L\beta^2\qquad\text{(quadratic)}\qquad\lim_{v\to 0}\frac{2L(\gamma-1)}{v^2} \\ &\qquad = \frac{L}{c^2}\end{aligned}`}
         />
         <h2>The finite-speed proxy is not the limit</h2>
         <p>

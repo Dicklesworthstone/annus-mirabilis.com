@@ -55,7 +55,7 @@ export default function ElectronDynamicsPage() {
           motion in stationary coordinates become:
         </p>
         <Formula
-          latex={String.raw`\frac{d^2x}{dt^2} = \frac{\varepsilon}{\mu}\frac{1}{\beta^3}X,\qquad \frac{d^2y}{dt^2} = \frac{\varepsilon}{\mu}\frac{1}{\beta}\left(Y - \frac{v}{V}N\right)`}
+          latex={String.raw`\begin{aligned}\frac{d^2x}{dt^2} &= \frac{\varepsilon}{\mu}\frac{1}{\beta^3}X,\qquad \frac{d^2y}{dt^2} \\ &= \frac{\varepsilon}{\mu}\frac{1}{\beta}\left(Y - \frac{v}{V}N\right)\end{aligned}`}
         />
         <p>
           Comparing comoving force components to stationary accelerations gives the longitudinal
@@ -68,13 +68,13 @@ export default function ElectronDynamicsPage() {
           curvature in a transverse electric field:
         </p>
         <Formula
-          latex={String.raw`R_e = \frac{\gamma m v^2}{|q| E} \approx 2.2995\text{ m}\qquad (\text{Newtonian } R_{e,\text{newt}} = \frac{m v^2}{|q| E} \approx 1.8396\text{ m})`}
+          latex={String.raw`\begin{aligned}R_e &= \frac{\gamma m v^2}{|q| E} \\ &\approx 2.2995\text{ m}\qquad (\text{Newtonian } R_{e,\text{newt}} \\ &= \frac{m v^2}{|q| E} \\ &\approx 1.8396\text{ m})\end{aligned}`}
         />
         <p>
           The relativistic kinetic energy required to accelerate the electron from rest to 0.6c is:
         </p>
         <Formula
-          latex={String.raw`W = m c^2 (\gamma - 1) = 0.25 m c^2 \approx 127.75\text{ keV}\implies P = \frac{W}{e} \approx 127.75\text{ kV}`}
+          latex={String.raw`\begin{aligned}W &= m c^2 (\gamma - 1) \\ &= 0.25 m c^2 \\ &\approx 127.75\text{ keV}\implies P \\ &= \frac{W}{e} \\ &\approx 127.75\text{ kV}\end{aligned}`}
         />
         <p>
           Because &gamma; &minus; 1 grows without bound as v &rarr; c, an infinite accelerating

@@ -55,14 +55,16 @@ export default function ConfigurationPage() {
           contribute a clean volume factor <InlineFormula latex="V^{N_p}" />.
         </p>
         <Formula
-          latex={String.raw`B=\int\cdots\int dx_1\dots dz_n=V^{*n}J,\qquad F=-2\kappa T\lg B=-2\kappa Tn\lg V^*-2\kappa T\lg J+\text{const}`}
+          latex={String.raw`\begin{aligned}B &= \int\cdots\int dx_1\dots dz_n \\ &= V^{*n}J,\qquad F \\ &= -2\kappa T\lg B \\ &= -2\kappa Tn\lg V^*-2\kappa T\lg J+\text{const}\end{aligned}`}
         />
         <p>
           In modern notation, <InlineFormula latex={String.raw`2\kappa N = R`} /> gives{" "}
           <InlineFormula latex={String.raw`2\kappa = k_B`} />, the particle count n is written{" "}
           <InlineFormula latex="N_p" />, and the volume V* is V:
         </p>
-        <Formula latex={String.raw`F=-N_p k_B T\ln V - k_B T\ln J + F_0`} />
+        <Formula
+          latex={String.raw`\begin{aligned}& F \\ &\qquad = -N_p k_B T\ln V - k_B T\ln J + F_0\end{aligned}`}
+        />
 
         <h2>Why the complicated molecular factor J drops out</h2>
         <p>

@@ -61,7 +61,7 @@ export default function EntropyWorkbenchPage() {
           exactly the way the entropy of an ideal gas or a dilute solution does:
         </p>
         <Formula
-          latex={String.raw`S - S_0 = \frac{E}{\beta\nu}\ln\frac{v}{v_0}\qquad(\text{printed "lg" is the natural logarithm})`}
+          latex={String.raw`\begin{aligned}S - S_0 &= \frac{E}{\beta\nu}\ln\frac{v}{v_0} \\ &(\text{printed "lg" is the natural logarithm})\end{aligned}`}
         />
         <p>
           Only after this volume law is established does identifying{" "}

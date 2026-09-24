@@ -53,7 +53,7 @@ export default function CameraPage() {
           generated bridge integrals make these averages consistent with the same Brownian path.
         </p>
         <Formula
-          latex={String.raw`Y_i=\frac{1}{T_e}\int_{t_i}^{t_i+T_e}X(s)\,ds+v_{\mathrm{stage}}(t_i+T_e/2)+\varepsilon_i,\quad \varepsilon_i\sim\mathcal N(0,\sigma^2)`}
+          latex={String.raw`\begin{aligned}Y_i &= \frac{1}{T_e}\int_{t_i}^{t_i+T_e}X(s)\,ds \\ &\quad + v_{\mathrm{stage}}(t_i+T_e/2)+\varepsilon_i, \\ \varepsilon_i &\sim\mathcal N(0,\sigma^2)\end{aligned}`}
         />
         <h2>Neighbors are correlated</h2>
         <p>
@@ -61,7 +61,7 @@ export default function CameraPage() {
           variance and adjacent covariance of drift-subtracted increments are:
         </p>
         <Formula
-          latex={String.raw`\gamma_0=2D(\Delta t-T_e/3)+2\sigma^2,\qquad \gamma_1=DT_e/3-\sigma^2`}
+          latex={String.raw`\begin{aligned}\gamma_0 &= 2D(\Delta t-T_e/3)+2\sigma^2,\qquad \gamma_1 \\ &= DT_e/3-\sigma^2\end{aligned}`}
         />
         <p>
           Localization error enters two neighboring displacements with opposite signs. Motion blur
@@ -100,7 +100,7 @@ export default function CameraPage() {
           velocity.
         </p>
         <Formula
-          latex={String.raw`v_{\mathrm{app,ideal}}=\sqrt{2D/\Delta t},\qquad v_{\mathrm{app,camera}}=\frac{\sqrt{2D\Delta t+2\sigma^2}}{\Delta t}`}
+          latex={String.raw`\begin{aligned}v_{\mathrm{app,ideal}} &= \sqrt{2D/\Delta t},\qquad v_{\mathrm{app,camera}} \\ &= \frac{\sqrt{2D\Delta t+2\sigma^2}}{\Delta t}\end{aligned}`}
         />
         <h2>Keep this later model separate from the paper</h2>
         <p>

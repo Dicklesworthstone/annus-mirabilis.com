@@ -48,11 +48,11 @@ export default function DopplerAberrationPage() {
           v = 0.6c (β = 0.6, γ = 1.25).
         </p>
         <Formula
-          latex={String.raw`\nu' = \nu\gamma(1 - \beta\cos\theta) = \nu\sqrt{\frac{1-\beta}{1+\beta}} = 0.5\nu = 250\text{ THz}`}
+          latex={String.raw`\begin{aligned}\nu' &= \nu\gamma(1 - \beta\cos\theta) \\ &= \nu\sqrt{\frac{1-\beta}{1+\beta}} \\ &= 0.5\nu \\ &= 250\text{ THz}\end{aligned}`}
         />
         <p>For a ray at right angles in the stationary system (θ = 90°):</p>
         <Formula
-          latex={String.raw`\nu' = \gamma\nu = 1.25\nu = 625\text{ THz},\qquad \cos\theta' = -\beta = -0.6\implies \theta' \approx 126.87^\circ`}
+          latex={String.raw`\begin{aligned}\nu' &= \gamma\nu \\ &= 1.25\nu \\ &= 625\text{ THz},\qquad \cos\theta' \\ &= -\beta \\ &= -0.6\implies \theta' \\ &\approx 126.87^\circ\end{aligned}`}
         />
         <p>
           The phase φ = k·x − ωt is an invariant scalar that takes the exact same numerical value in

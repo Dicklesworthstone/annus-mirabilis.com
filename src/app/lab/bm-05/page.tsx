@@ -50,14 +50,14 @@ export default function WalkPage() {
           individual squared steps remain.
         </p>
         <Formula
-          latex={String.raw`x_n=\sum_{j=1}^{n}\Delta_j,\qquad \langle\Delta\rangle=0,\qquad \langle x_n^2\rangle=n\langle\Delta^2\rangle`}
+          latex={String.raw`\begin{aligned}x_n &= \sum_{j=1}^{n}\Delta_j,\qquad \langle\Delta\rangle \\ &= 0,\qquad \langle x_n^2\rangle \\ &= n\langle\Delta^2\rangle\end{aligned}`}
         />
         <p>
           With one step every τ seconds, elapsed time is nτ. The coefficient connecting mean square
           with time is therefore fixed by the variance of one step divided by twice its interval.
         </p>
         <Formula
-          latex={String.raw`D=\frac{\langle\Delta^2\rangle}{2\tau},\qquad \langle x^2\rangle=2Dt,\qquad \sqrt{\langle x^2\rangle}\propto\sqrt{t}`}
+          latex={String.raw`\begin{aligned}D &= \frac{\langle\Delta^2\rangle}{2\tau},\qquad \langle x^2\rangle \\ &= 2Dt,\qquad \sqrt{\langle x^2\rangle}\propto\sqrt{t}\end{aligned}`}
         />
         <h2>From a finite jump to a continuous density</h2>
         <p>
@@ -66,7 +66,9 @@ export default function WalkPage() {
           the first-order spatial term vanishes, and the second-order term contains the same
           coefficient.
         </p>
-        <Formula latex={String.raw`p(x,t+\tau)=\int p(x-\Delta,t)\varphi(\Delta)\,d\Delta`} />
+        <Formula
+          latex={String.raw`\begin{aligned}& p(x,t+\tau) \\ &\qquad = \int p(x-\Delta,t)\varphi(\Delta)\,d\Delta\end{aligned}`}
+        />
         <Formula
           latex={String.raw`\frac{\partial p}{\partial t}=D\frac{\partial^2p}{\partial x^2}`}
         />

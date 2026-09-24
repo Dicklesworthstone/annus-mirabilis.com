@@ -37,7 +37,10 @@ describe("SR-11 Moving Mirror Lab View & Route (am-sr-11-moving-mirror-wnz1)", (
     expect(html).toContain("Moving mirror reflection");
     expect(html).toContain("Special relativity · Electrodynamics §8");
     expect(html).toContain("Energy per second");
-    expect(html).toContain("0.4 - 0.1 - 0.3 = 0");
+    // The balance sums to zero. It is set on rows so it fits a phone (one line ran 435px in 288),
+    // so the two equals signs are on separate rows of one formula.
+    expect(html).toContain("= 0.4 - 0.1 - 0.3");
+    expect(html).toContain("= 0\\end{aligned}");
     expect(html).toContain("The energy lost by the electromagnetic radiation");
   });
 

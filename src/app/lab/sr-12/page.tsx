@@ -48,17 +48,17 @@ export default function ChargeCurrentPage() {
           along x at speed v = 0.6c (&gamma; = 1.25).
         </p>
         <Formula
-          latex={String.raw`\rho' = \gamma\left(\rho - \frac{v J_x}{c^2}\right) = 1.25\left(0 - \frac{0.6}{c}\right) = -\frac{0.75}{c} \approx -2.5017\times 10^{-9}\text{ C/m}^3`}
+          latex={String.raw`\begin{aligned}\rho' &= \gamma\left(\rho - \frac{v J_x}{c^2}\right) \\ &= 1.25\left(0 - \frac{0.6}{c}\right) \\ &= -\frac{0.75}{c} \\ &\approx -2.5017\times 10^{-9}\text{ C/m}^3\end{aligned}`}
         />
         <Formula
-          latex={String.raw`J'_x = \gamma\left(J_x - v\rho\right) = 1.25(1 - 0) = 1.25\text{ A/m}^2`}
+          latex={String.raw`\begin{aligned}J'_x &= \gamma\left(J_x - v\rho\right) \\ &= 1.25(1 - 0) \\ &= 1.25\text{ A/m}^2\end{aligned}`}
         />
         <p>
           Both coordinate frames agree exactly on the relativistic four-current invariant
           (c&rho;)&sup2; &minus; |J|&sup2;:
         </p>
         <Formula
-          latex={String.raw`(c\rho)^2 - J_x^2 = 0 - 1 = -1\text{ (A/m}^2)^2,\qquad (c\rho')^2 - (J'_x)^2 = (-0.75)^2 - (1.25)^2 = 0.5625 - 1.5625 = -1\text{ (A/m}^2)^2`}
+          latex={String.raw`\begin{aligned}(c\rho)^2 - J_x^2 &= 0 - 1 \\ &= -1\text{ (A/m}^2)^2,\qquad (c\rho')^2 - (J'_x)^2 \\ &= (-0.75)^2 - (1.25)^2 \\ &= 0.5625 - 1.5625 \\ &= -1\text{ (A/m}^2)^2\end{aligned}`}
         />
         <p>
           For a rectangular current loop of length l<sub>x</sub> = 1 m carrying current I = 1 A at

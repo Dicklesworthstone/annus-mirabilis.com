@@ -51,7 +51,7 @@ export default function TracerPage() {
       <section className="reading">
         <h2>A mean near zero does not mean no motion.</h2>
         <Formula
-          latex={String.raw`\langle x\rangle=0,\qquad\langle x^2\rangle=2Dt,\qquad\lambda_x=\sqrt{2Dt}`}
+          latex={String.raw`\begin{aligned}\langle x\rangle &= 0,\qquad\langle x^2\rangle \\ &= 2Dt,\qquad\lambda_x \\ &= \sqrt{2Dt}\end{aligned}`}
         />
         <p>
           The model’s signed mean is zero; a finite synthetic sample fluctuates around it. The mean
