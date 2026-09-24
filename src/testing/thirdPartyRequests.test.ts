@@ -174,8 +174,16 @@ export function scanSourceText(filePath: string, content: string): ScanViolation
         }
       } else if (forbidden === "https://schema.org") {
         // Exempt in machine-readable content export schemas (src/content/exports/),
-        // forbidden in layout/chrome or client presentation components.
-        if (!filePath.includes("src/content/exports/") && line.includes(forbidden)) {
+        // forbidden in layout/chrome or client presentation components. In built HTML the
+        // scholarly JSON-LD (am-scholarly-metadata-mjrx) is machine-readable too: its @context
+        // is an identifier no browser requests. So exactly two forms are exempt, the
+        // <script type="application/ld+json"> block and the flight payload's escaped copy of
+        // that same document's opening. Any other schema.org string, such as a chrome link,
+        // is still a violation.
+        const outsideJsonLd = line
+          .replace(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi, "")
+          .replaceAll('{\\"@context\\":\\"https://schema.org\\",\\"@graph\\"', "");
+        if (!filePath.includes("src/content/exports/") && outsideJsonLd.includes(forbidden)) {
           violations.push({
             path: filePath,
             line: lineNum,
@@ -202,6 +210,21 @@ export function scanSourceText(filePath: string, content: string): ScanViolation
  * can drive the real walker over a fixture instead of writing into the gitignored out/,
  * which nothing may delete afterwards.
  */
+describe("schema.org in built HTML: JSON-LD is exempt, anything else is not", () => {
+  const page = "out/papers/x/index.html";
+  test("the ld+json block and its flight-payload copy pass", () => {
+    const html =
+      '<section>text</section><script type="application/ld+json">{"@context":"https://schema.org","@graph":[]}</script>' +
+      '<script>self.__next_f.push([1,"{\\"@context\\":\\"https://schema.org\\",\\"@graph\\":[]}"])</script>';
+    expect(scanSourceText(page, html).filter((v) => v.rule.includes("schema.org"))).toEqual([]);
+  });
+  test("a schema.org link in the page chrome is still a violation", () => {
+    const html =
+      '<script type="application/ld+json">{"@context":"https://schema.org"}</script><a href="https://schema.org/Article">x</a>';
+    expect(scanSourceText(page, html).some((v) => v.rule.includes("schema.org"))).toBe(true);
+  });
+});
+
 export function scanBuiltOutput(dir: string): {
   readonly files: number;
   readonly violations: ScanViolation[];
