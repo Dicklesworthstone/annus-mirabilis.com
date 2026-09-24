@@ -1,0 +1,44 @@
+{
+  "kind": "misconception",
+  "id": "misc-me-first",
+  "paper": "mass-energy",
+  "temptingClaims": ["Einstein was the first to connect mass and energy."],
+  "whyTempting": "The paper's conclusion is the version everyone remembers, and it carries his name.",
+  "whereItIsTrue": "The 1905 paper states the relation as a general conclusion about the energy content of a body. Whether that makes it first is a judgment the record here does not make.",
+  "whatIsTrue": {
+    "r0": "The record has earlier and parallel work, by Poincaré in 1900 and Hasenöhrl in 1904 and 1905. The site sets out what each wrote and gives no verdict on priority.",
+    "r1": "Three records sit beside the paper. In 1900 Poincaré published the paper on Lorentz's theory and the principle of reaction which Einstein himself, in 1906, said already contained in the main the formal considerations his centre-of-mass proof needed. In 1904 Hasenöhrl gave radiation enclosed in a moving cavity an apparent mass of \\(\\frac{8}{3}hε_0/c^2\\), and in January 1905 corrected it to \\(\\frac{4}{3}hε_0/c^2\\). In September 1905 this paper concluded that the mass of a body is a measure of its energy content. The historian's margin gives each from what was written, and the site does not rank them.",
+    "r2": "(1) 1900: H. Poincaré, 'La théorie de Lorentz et le principe de réaction', in the Lorentz Festschrift. (2) 1904: F. Hasenöhrl finds that the radiation in a moving cavity acts as an apparent mass, \\(\\frac{8}{3}hε_0/c^2\\), with \\(hε_0\\) the radiation energy in the cavity at rest (p. 363). (3) January 1905: Hasenöhrl corrects the factor to \\(\\frac{4}{3}\\), after M. Abraham sent him by letter a method giving half his value, and traces the difference to a calculation error of his own (pp. 589–590). (4) September 1905: this paper, received on 27 September, concludes that a body giving off the energy \\(L\\) loses the mass \\(L/V^2\\), and draws the general conclusion about energy content. (5) 1906: Einstein derives the rule again from the motion of the centre of gravity, and writes that the formal considerations needed are in the main already in Poincaré's paper (p. 627). Each item is a record of what was written, not a ruling on who deserves credit.",
+    "r3": "Priority claims made later on behalf of any of these authors are not covered here; the historian's margin states only what the texts it cites say, and names what it has not read."
+  },
+  "staticTreatment": {
+    "reason": "A matter of the historical record: see the historian's margin, the notes on Einstein's 1906 paper and on Hasenöhrl."
+  },
+  "anchors": ["s0-p12", "s0-p13"],
+  "resultIds": [],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 18, 639–641 (1905), plate p. 641",
+    "A. Einstein, Ann. Phys. (4) 20, 627–633 (1906), p. 627",
+    "F. Hasenöhrl, Ann. Phys. (4) 15, 344–370 (1904), p. 363; (4) 16, 589–592 (1905), pp. 589–590",
+    "historian's margin: note-me-c-1906-poincare, note-me-d-hasenoehrl"
+  ],
+  "intervention": {
+    "defaultsReviewed": {
+      "model": "Not applicable: no instrument; this entry is a matter of the historical record.",
+      "labels": "Not applicable: no instrument; this entry is a matter of the historical record.",
+      "defaultControls": "Not applicable: no instrument; this entry is a matter of the historical record.",
+      "feedback": "Not applicable: no instrument; this entry is a matter of the historical record."
+    },
+    "reviewRecordId": "pending-review-misc-me-first"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:NavyKite",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}
