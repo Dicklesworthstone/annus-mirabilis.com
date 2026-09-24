@@ -4,16 +4,18 @@ export interface UnreviewedBannerProps {
 }
 
 /**
- * Non-alarming banner rendered on English and Parallel faces when translation units are in draft state.
+ * The banner rendered on the English, parallel and gloss faces while translation units are unreviewed.
  */
 export function UnreviewedBanner({
-  title = "Draft Translation",
-  message = "This English translation is an in-progress draft and has not yet completed full human review. It is provided for study alongside the original German source.",
+  title = "Draft translation, not yet reviewed",
+  message = "This translation has not been reviewed against the German.",
 }: UnreviewedBannerProps) {
+  // Static content, so no role="status": a live region is for announcements, and a screen reader
+  // should meet this once, in reading order. The faces pass the text translationReviewSummary
+  // computes from their units; the defaults claim only what every draft is.
   return (
     <aside
       className="unreviewed-translation-banner"
-      role="status"
       aria-label="Translation review status"
       data-unreviewed-banner="true"
     >

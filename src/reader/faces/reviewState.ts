@@ -153,3 +153,70 @@ export function isPaperTranslationUnreviewed(
     return !badge.isReviewed;
   });
 }
+
+/**
+ * WHAT THE DRAFT BANNER SAYS, COMPUTED FROM THE UNITS, NEVER TYPED.
+ *
+ * The banner read "This English translation is an in-progress draft and has not yet completed
+ * full human review", which implies a review under way; none had happened. It now states what the
+ * units record: who made the translation (their translator fields), how many of them a review has
+ * accepted (evaluateUnitReviewState, the badge rule), and so how many are not. The same tally
+ * names the state most units share, so a face can badge only the units that differ from it.
+ */
+export interface TranslationReviewSummary {
+  readonly total: number;
+  readonly reviewed: number;
+  readonly unreviewed: number;
+  /** The badge label most units carry; a unit shows its own badge only when its label differs. */
+  readonly commonLabel: string | undefined;
+  readonly translators: readonly string[];
+  readonly reviewers: readonly string[];
+  readonly title: string;
+  readonly message: string;
+}
+
+const listed = (names: readonly string[]): string =>
+  names.length <= 1
+    ? (names[0] ?? "")
+    : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+
+export function translationReviewSummary(
+  units: readonly TranslationUnit[],
+  reviewRecords: readonly ReviewRecord[] = [],
+): TranslationReviewSummary {
+  const recordsMap = new Map<string, ReviewRecord>();
+  for (const r of reviewRecords) for (const s of r.scope) recordsMap.set(s.recordId, r);
+  const badges = units.map((u) => evaluateUnitReviewState(u, recordsMap.get(u.id)));
+  const total = units.length;
+  const reviewed = badges.filter((b) => b.isReviewed).length;
+  const unreviewed = total - reviewed;
+  const tally = new Map<string, number>();
+  for (const b of badges) tally.set(b.label, (tally.get(b.label) ?? 0) + 1);
+  let commonLabel: string | undefined;
+  for (const [label, n] of tally)
+    if (commonLabel === undefined || n > (tally.get(commonLabel) ?? 0)) commonLabel = label;
+  const unique = (xs: readonly (string | undefined)[]) => [
+    ...new Set(xs.filter((x): x is string => typeof x === "string" && x.trim() !== "")),
+  ];
+  const translators = unique(units.map((u) => u.translator?.name || u.translator?.id));
+  const reviewers = unique(badges.filter((b) => b.isReviewed).map((b) => b.reviewer));
+  const by = translators.length > 0 ? listed(translators) : "a translator the records do not name";
+  const counted = `${total === 1 ? "sentence or display" : "sentences and displays"}`;
+  const allMachine = badges.every((b) => b.label === "Machine draft");
+
+  let title: string;
+  let message: string;
+  if (reviewed === 0) {
+    title = "Draft translation, not yet reviewed";
+    message = allMachine
+      ? `A draft made from the German by ${by}. No one has reviewed it against the German yet: ${unreviewed} of its ${total} ${counted} are an unreviewed machine draft. It can be read beside the German source and the scan of the printed pages.`
+      : `A draft made from the German by ${by}. No review has accepted any of its ${total} ${counted} yet. It can be read beside the German source and the scan of the printed pages.`;
+  } else if (unreviewed > 0) {
+    title = "Translation partly reviewed";
+    message = `A translation made from the German by ${by}. ${reviewed} of its ${total} ${counted} ${reviewed === 1 ? "has" : "have"} been reviewed against the German${reviewers.length > 0 ? ` by ${listed(reviewers)}` : ""}; the other ${unreviewed} ${unreviewed === 1 ? "is an unreviewed draft" : "are unreviewed drafts"}, and each unit whose state differs from the rest is marked where it stands.`;
+  } else {
+    title = "Reviewed translation";
+    message = `A translation made from the German by ${by}, all ${total} ${counted} reviewed against the German${reviewers.length > 0 ? ` by ${listed(reviewers)}` : ""}.`;
+  }
+  return { total, reviewed, unreviewed, commonLabel, translators, reviewers, title, message };
+}

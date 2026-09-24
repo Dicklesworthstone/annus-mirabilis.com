@@ -16,7 +16,7 @@ import { buildAlignmentIndex } from "./alignment.ts";
 import { FootnotesSection } from "./Footnote.tsx";
 import { GlossSentence } from "./GlossSentence.tsx";
 import type { FaceId } from "./registry.ts";
-import { isPaperTranslationUnreviewed } from "./reviewState.ts";
+import { isPaperTranslationUnreviewed, translationReviewSummary } from "./reviewState.ts";
 import { SourceBlock as SourceBlockComponent } from "./SourceBlock.tsx";
 import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
 
@@ -91,6 +91,7 @@ export function GlossFace({
 
   // Determine if gloss translation is unreviewed
   const hasUnreviewed = isPaperTranslationUnreviewed(translations, reviewRecords);
+  const glossReview = translationReviewSummary(translations, reviewRecords);
 
   return (
     <article
@@ -101,7 +102,9 @@ export function GlossFace({
       data-reasoning-words={initialReasoningWords ? "on" : "off"}
     >
       {/* Optional Unreviewed Translation Banner */}
-      {hasUnreviewed && <UnreviewedBanner />}
+      {hasUnreviewed && (
+        <UnreviewedBanner title={glossReview.title} message={glossReview.message} />
+      )}
 
       {/* Entry link slot (when configured) */}
       {entryLink && (

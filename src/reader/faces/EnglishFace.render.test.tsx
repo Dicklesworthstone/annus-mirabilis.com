@@ -48,8 +48,15 @@ describe("EnglishFace render tests", () => {
     );
 
     expect(html).toContain('data-unreviewed-banner="true"');
-    expect(html).toContain("Draft Translation");
-    expect(html).toContain("This English translation is an in-progress draft");
+    // The banner states what the units record (reviewState.ts translationReviewSummary): who
+    // translated, and how many units a review accepted. This used to pin "This English
+    // translation is an in-progress draft", whose "has not yet completed full human review"
+    // implied a review under way when none had happened.
+    expect(html).toContain("Translation partly reviewed");
+    expect(html).toContain(
+      "3 of its 6 sentences and displays have been reviewed against the German by jemanuel",
+    );
+    expect(html).not.toContain("has not yet completed full human review");
   });
 
   test("renders all translation units in order", () => {

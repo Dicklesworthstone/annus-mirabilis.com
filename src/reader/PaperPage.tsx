@@ -209,6 +209,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           return (
             <EnglishFace
               availability={availability}
+              blocks={edition.blocks}
               paper={edition.paper}
               units={edition.units}
               alignment={edition.alignment}

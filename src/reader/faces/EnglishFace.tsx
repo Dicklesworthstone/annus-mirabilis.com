@@ -3,6 +3,7 @@ import type {
   Alignment,
   EditorialNote,
   Paper,
+  SourceBlock,
   TranslationUnit,
 } from "../../content/schemas/source.ts";
 import { FaceChooser } from "../FaceChooser.tsx";
@@ -12,8 +13,9 @@ import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { renderInlines } from "./inlines.tsx";
 import type { FaceId } from "./registry.ts";
-import { isPaperTranslationUnreviewed } from "./reviewState.ts";
-import { TranslationUnit as TranslationUnitItem, unitsBySourceRef } from "./TranslationUnit.tsx";
+import { isPaperTranslationUnreviewed, translationReviewSummary } from "./reviewState.ts";
+import { TranslationParagraphs } from "./TranslationParagraphs.tsx";
+import { unitsBySourceRef } from "./TranslationUnit.tsx";
 import { MASTHEAD_AUTHOR_ID, MASTHEAD_TITLE_ID, unitTranslating } from "./translationMasthead.ts";
 import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
 import "../reader.css";
@@ -27,6 +29,8 @@ export interface EnglishFaceProps {
   readonly editorialNotes?: readonly EditorialNote[] | undefined;
   readonly reviewRecords?: readonly ReviewRecord[] | undefined;
   readonly sectionId?: string | undefined;
+  /** The German blocks, when the edition has them: they say which units share a paragraph. */
+  readonly blocks?: readonly SourceBlock[] | undefined;
 }
 
 export function EnglishFace({
@@ -37,6 +41,7 @@ export function EnglishFace({
   reviewRecords = [],
   sectionId,
   availability,
+  blocks,
 }: EnglishFaceProps) {
   const isUnreviewed = isPaperTranslationUnreviewed(units, reviewRecords);
   const alignmentIndex = buildAlignmentIndex(alignment, undefined, units);
@@ -46,13 +51,8 @@ export function EnglishFace({
   const titleUnit = unitTranslating(units, MASTHEAD_TITLE_ID);
   const authorUnit = unitTranslating(units, MASTHEAD_AUTHOR_ID);
   const bodyUnits = units.filter((u) => u !== titleUnit && u !== authorUnit);
-
-  const reviewRecordsMap = new Map<string, ReviewRecord>();
-  for (const rec of reviewRecords) {
-    for (const scope of rec.scope) {
-      reviewRecordsMap.set(scope.recordId, rec);
-    }
-  }
+  // Review state is said once, here, from the units themselves (translationReviewSummary).
+  const review = translationReviewSummary(units, reviewRecords);
 
   // Get primary translator info from first unit if available
   const primaryTranslator =
@@ -97,7 +97,7 @@ export function EnglishFace({
         <p className="translator-credit fine">Translated by {primaryTranslator}</p>
       </header>
 
-      {isUnreviewed && <UnreviewedBanner />}
+      {isUnreviewed && <UnreviewedBanner title={review.title} message={review.message} />}
 
       {/* The chooser every face uses, with this face the current tab (FaceChooser.tsx). */}
       <FaceChooser
@@ -108,15 +108,15 @@ export function EnglishFace({
       />
 
       <main className="translation-units-list" data-translation-body>
-        {bodyUnits.map((unit) => (
-          <TranslationUnitItem
-            key={unit.id}
-            unit={unit}
-            reviewRecord={reviewRecordsMap.get(unit.id)}
-            editorialNotes={editorialNotes}
-            footnoteUnits={footnoteUnits}
-          />
-        ))}
+        <TranslationParagraphs
+          units={bodyUnits}
+          alignment={alignment}
+          blocks={blocks}
+          reviewRecords={reviewRecords}
+          editorialNotes={editorialNotes}
+          footnoteUnits={footnoteUnits}
+          commonLabel={review.commonLabel}
+        />
       </main>
 
       <AlignmentController index={alignmentIndex} />

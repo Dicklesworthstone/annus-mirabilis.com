@@ -16,10 +16,11 @@ import { buildAlignmentIndex } from "./alignment.ts";
 import { withoutClaimedDisplays } from "./displayClaims.ts";
 import { FootnotesSection } from "./Footnote.tsx";
 import type { FaceId } from "./registry.ts";
-import { isPaperTranslationUnreviewed } from "./reviewState.ts";
+import { isPaperTranslationUnreviewed, translationReviewSummary } from "./reviewState.ts";
 import { SourceBlock as SourceBlockItem } from "./SourceBlock.tsx";
 import { SourceFaceNotice } from "./SourceFaceNotice.tsx";
-import { TranslationUnit as TranslationUnitItem, unitsBySourceRef } from "./TranslationUnit.tsx";
+import { TranslationParagraphs } from "./TranslationParagraphs.tsx";
+import { unitsBySourceRef } from "./TranslationUnit.tsx";
 import { MASTHEAD_TITLE_ID, unitTranslating } from "./translationMasthead.ts";
 import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
 import "../reader.css";
@@ -63,6 +64,8 @@ export function ParallelFace({
   availability,
 }: ParallelFaceProps) {
   const isUnreviewed = isPaperTranslationUnreviewed(units, reviewRecords);
+  // Review state is said once, in the banner, from the units themselves.
+  const review = translationReviewSummary(units, reviewRecords);
   const isStacked = layout === "stacked";
   const alignmentIndex = buildAlignmentIndex(alignment, blocks, units);
   const footnoteUnits = unitsBySourceRef(units);
@@ -76,13 +79,6 @@ export function ParallelFace({
   // A display its paragraph prints in place is not printed again as its own block.
   const mainBlocks = withoutClaimedDisplays(filteredBlocks.filter((b) => b.kind !== "footnote"));
   const published = paper.dates.find((d) => d.type === "issue-publication");
-
-  const reviewRecordsMap = new Map<string, ReviewRecord>();
-  for (const rec of reviewRecords) {
-    for (const scope of rec.scope) {
-      reviewRecordsMap.set(scope.recordId, rec);
-    }
-  }
 
   return (
     <div
@@ -121,7 +117,7 @@ export function ParallelFace({
         </p>
       </header>
 
-      {isUnreviewed && <UnreviewedBanner />}
+      {isUnreviewed && <UnreviewedBanner title={review.title} message={review.message} />}
 
       {/* The chooser every face uses, with this face the current tab (FaceChooser.tsx). */}
       <FaceChooser
@@ -173,16 +169,17 @@ export function ParallelFace({
         >
           <h2 className="column-heading">English Translation</h2>
           <div className="translation-units-list">
-            {units.map((unit) => (
-              <TranslationUnitItem
-                key={unit.id}
-                unit={unit}
-                reviewRecord={reviewRecordsMap.get(unit.id)}
-                editorialNotes={editorialNotes}
-                anchorPrefix={ENGLISH_ANCHOR_PREFIX}
-                footnoteUnits={footnoteUnits}
-              />
-            ))}
+            {/* Einstein's paragraphs, as the German column sets them (TranslationParagraphs). */}
+            <TranslationParagraphs
+              units={units}
+              alignment={alignment}
+              blocks={blocks}
+              reviewRecords={reviewRecords}
+              editorialNotes={editorialNotes}
+              anchorPrefix={ENGLISH_ANCHOR_PREFIX}
+              footnoteUnits={footnoteUnits}
+              commonLabel={review.commonLabel}
+            />
           </div>
         </section>
       </div>

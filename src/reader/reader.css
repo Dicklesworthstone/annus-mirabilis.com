@@ -2406,6 +2406,17 @@ html:is(
   gap: 1.5rem;
 }
 
+/* The English face sets each source paragraph as one paragraph of its sentences
+   (TranslationParagraphs.tsx), not as separately badged units. */
+.translation-paragraph {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.translation-footnote {
+  font-size: var(--type-small);
+}
+
 /* Footnotes styles (am-vw1o) */
 .reader-footnotes {
   margin-top: 3rem;
