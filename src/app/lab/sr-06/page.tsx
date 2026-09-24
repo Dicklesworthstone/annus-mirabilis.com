@@ -3,6 +3,7 @@ import { Formula } from "../../../components/edition/Formula.tsx";
 import { VelocityCompositionComparison } from "../../../components/lab/sr06/VelocityCompositionLab.tsx";
 import { validateSr06Parameters } from "../../../experiments/sr06/parameters.ts";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr06/session.ts";
+import labDigests from "../../../generated/lab-source-digests.json";
 import "./composition.css";
 
 export const metadata: Metadata = {
@@ -26,7 +27,11 @@ export default function VelocityCompositionPage() {
         </p>
       </header>
       <VelocityCompositionComparison
-        example={{ ...DEFAULT_PREPARED_EXAMPLE, parameters: checked.data }}
+        example={{
+          ...DEFAULT_PREPARED_EXAMPLE,
+          parameters: checked.data,
+          sourceDigest: labDigests["sr-06"],
+        }}
       />
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>

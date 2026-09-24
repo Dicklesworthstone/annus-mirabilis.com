@@ -1,11 +1,15 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { fromSr06Draft, toSr06Draft } from "../../../experiments/sr06/controls.ts";
 import {
   SR06_CAPTION,
-  SR06_MODEL,
   SR06_NOT_MODELED,
+  SR06_OUTPUTS,
   SR06_PRESETS,
   type Sr06Mode,
   type Sr06Parameters,
@@ -70,6 +74,16 @@ export function VelocityCompositionLab({
   );
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr06Parameters;
+  // Earned per snapshot (am-inst-execution-labels-5ywv). The eyebrow used to print "Ideal model,
+  // host calculation" as fixed text over the case the build computed.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      SR06_OUTPUTS,
+      example.sourceDigest,
+      snapshot === session.getServerSnapshot().accepted,
+    ).label,
+  );
   const [draft, setDraft] = useState(() => toSr06Draft(p));
   const [error, setError] = useState("");
   const [note, setNote] = useState("");
@@ -127,11 +141,19 @@ export function VelocityCompositionLab({
   );
 
   return (
-    <section className="laboratory-shell" aria-label={title} data-instrument-id="sr-06">
+    <section
+      className="laboratory-shell"
+      aria-label={title}
+      data-instrument-id="sr-06"
+      {...labelRootAttributes(executionKind, view, "composedSpeedOverC")}
+    >
       <header className="lab-heading">
-        <p className="eyebrow">{SR06_MODEL.label}</p>
+        <p className="eyebrow">An executable model</p>
         <h2>{title}</h2>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome state={executionKind} view={view} />
+      </div>
       <noscript>
         <p className="notice">
           JavaScript is off. The worked case 0.6c with 0.6c composes to 15/17 of light speed, about
