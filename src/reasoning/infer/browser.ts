@@ -59,6 +59,7 @@ export function mountInferenceWorkbench(
     section.dataset.runId = snapshot.runId;
     section.dataset.snapshotVersion = String(snapshot.snapshotVersion);
     section.dataset.inputRevision = String(snapshot.revisions.input);
+    section.dataset.acceptedInputRevision = String(snapshot.revisions.input);
     section.dataset.estimatorRevision = String(snapshot.revisions.estimator);
     const label = section.querySelector<HTMLElement>("[data-infer-label]");
     if (label) label.textContent = "Accepted inference · host calculation";
