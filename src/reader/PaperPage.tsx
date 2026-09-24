@@ -18,9 +18,6 @@ import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
 import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
 import { ReadingBlocks } from "./Blocks.tsx";
-import { ClockFirstEncounter } from "./entrances/ClockFirstEncounter.tsx";
-import { LightQuantaFirstEncounter } from "./entrances/LightQuantaFirstEncounter.tsx";
-import { MassEnergyFirstEncounter } from "./entrances/MassEnergyFirstEncounter.tsx";
 import type { MassEnergyEntranceScenario } from "./entrances/massEnergyExample.ts";
 import { FaceFallback } from "./FaceFallback.tsx";
 import {
@@ -36,6 +33,11 @@ import { GermanDraftFace } from "./faces/GermanDraftFace.tsx";
 import { GermanFace } from "./faces/GermanFace.tsx";
 import { GlossFace } from "./faces/GlossFace.tsx";
 import { ParallelFace } from "./faces/ParallelFace.tsx";
+import {
+  LazyClockFirstEncounter,
+  LazyLightQuantaFirstEncounter,
+  LazyMassEnergyFirstEncounter,
+} from "./lazyIslands.tsx";
 import { MassEnergyDerivation } from "./MassEnergyDerivation.tsx";
 import { MassEnergyLowSpeed } from "./MassEnergyLowSpeed.tsx";
 import { paperEquations } from "./paperEquations.ts";
@@ -328,8 +330,8 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           </nav>
         </aside>
         <div className="reader-body">
-          {lightEntrance && !sectionId && <LightQuantaFirstEncounter record={lightEntrance} />}
-          {clockEntrance && !sectionId && <ClockFirstEncounter record={clockEntrance} />}
+          {lightEntrance && !sectionId && <LazyLightQuantaFirstEncounter record={lightEntrance} />}
+          {clockEntrance && !sectionId && <LazyClockFirstEncounter record={clockEntrance} />}
           {(lightEntrance || clockEntrance) && !sectionId && (
             <noscript>
               <p>
@@ -340,7 +342,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
             </noscript>
           )}
           {entrance && (
-            <MassEnergyFirstEncounter
+            <LazyMassEnergyFirstEncounter
               record={entrance}
               scenarios={entranceExample.scenarios as readonly MassEnergyEntranceScenario[]}
               sourceDigest={entranceExample.sourceDigest}

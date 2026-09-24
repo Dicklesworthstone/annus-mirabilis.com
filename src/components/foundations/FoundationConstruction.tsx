@@ -1,5 +1,6 @@
 "use client";
 
+import { foundationConstructionId } from "./constructionIds.ts";
 import { HeldFixedToggle } from "./HeldFixedToggle.tsx";
 import type { HeadingLevel } from "./headingLevel.ts";
 import { LogarithmProductTable } from "./LogarithmProductTable.tsx";
@@ -22,9 +23,11 @@ export function FoundationConstruction({
   foundationId,
   headingLevel = 3,
 }: FoundationConstructionProps) {
-  const cleanId = foundationId.replace(/^foundation:/, "");
-
-  switch (cleanId) {
+  // Typed by the server-readable list (constructionIds.ts), so each case must be one of its ids
+  // and a construction cannot be added here without being added there.
+  const id = foundationConstructionId(foundationId);
+  if (id === null) return null;
+  switch (id) {
     case "functions-graphs":
       return <TableToPlotBuilder headingLevel={headingLevel} />;
     case "derivatives":
@@ -37,7 +40,5 @@ export function FoundationConstruction({
       return <LogarithmProductTable headingLevel={headingLevel} />;
     case "taylor-expansion":
       return <TaylorBinomialExtension headingLevel={headingLevel} />;
-    default:
-      return null;
   }
 }

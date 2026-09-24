@@ -4,12 +4,12 @@ import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
 import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
 import { ReadingBlocks } from "./Blocks";
-import { BrownianFirstEncounter } from "./entrances/BrownianFirstEncounter";
 import { LazyInlineTracerLab } from "./LazyInlineTracerLab.tsx";
 import { Companion } from "./layout/Companion.tsx";
 import { type CompanionKind, resolveCompanionKind } from "./layout/companionKind.ts";
 import { ReaderLayout } from "./layout/ReaderLayout.tsx";
 import { StickyLabRegion } from "./layout/StickyLabRegion.tsx";
+import { LazyBrownianFirstEncounter } from "./lazyIslands.tsx";
 import "./actions/kindRegistration.ts";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
 import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel.tsx";
@@ -223,7 +223,7 @@ export async function PaperReader({
         <div className="reader-body">
           {paper.id === "brownian-motion" && (!section || section === "s4") && (
             <section className="reader-entrance-section" aria-label="First encounter">
-              <BrownianFirstEncounter />
+              <LazyBrownianFirstEncounter />
             </section>
           )}
           {sections.map((s) => (

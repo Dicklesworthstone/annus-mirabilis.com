@@ -1,5 +1,6 @@
 import { Formula } from "../components/edition/Formula";
-import { FoundationConstruction } from "../components/foundations/FoundationConstruction.tsx";
+import { foundationConstructionId } from "../components/foundations/constructionIds.ts";
+import { LazyFoundationConstruction } from "../components/foundations/LazyFoundationConstruction.tsx";
 import "../components/foundations/foundations.css";
 import { type HeadingLevel, headingTag } from "../components/foundations/headingLevel.ts";
 import type { Block, Foundation } from "../content/schemas/reading";
@@ -169,7 +170,9 @@ export function FoundationBody({
           equations={LESSON_EQUATIONS}
         />
       </section>
-      <FoundationConstruction foundationId={foundation.id} headingLevel={headingLevel} />
+      {foundationConstructionId(foundation.id) && (
+        <LazyFoundationConstruction foundationId={foundation.id} headingLevel={headingLevel} />
+      )}
       <section className="foundation-part foundation-stop callout-limit">
         <Part className="foundation-part-title">Where this lesson stops</Part>
         <p>{foundation.stoppingPoint}</p>
