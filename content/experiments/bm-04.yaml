@@ -536,11 +536,12 @@ predictMode:
       supportedCandidateId: bm-04-predict-force-dependence-unchanged
       controlId: F
       question: "If you double the external force pulling on the particles, does the steady-state diffusion coefficient D double, halve, or stay unchanged?"
+      explanation: "At fixed temperature, viscosity and particle radius, the thermal diffusion coefficient stays unchanged. A stronger force changes directed drift, not the thermal diffusivity. The equilibrium length becomes shorter, but that is not a smaller diffusion coefficient."
       candidates:
         - id: bm-04-predict-force-dependence-double
           label: "D doubles"
           description: "A stronger force causes faster particle transport"
-          separatingAssumption: "Confuses the drift flux u*n with the diffusion coefficient D."
+          separatingAssumption: "This takes faster transport by the force for faster spreading. The force sets the drift, u = μF; the diffusion coefficient D = μk_{B}T does not contain it."
         - id: bm-04-predict-force-dependence-unchanged
           label: "D stays unchanged"
           description: "Diffusion reflects thermal agitation and drag; the force drops out of the relation"
@@ -548,7 +549,7 @@ predictMode:
         - id: bm-04-predict-force-dependence-halves
           label: "D halves"
           description: "A stronger force compresses the distribution, reducing spreading"
-          separatingAssumption: "Confuses the compressed decay length lambda with the diffusivity D."
+          separatingAssumption: "This reads the shorter decay length λ as a smaller diffusivity. A stronger force compresses the profile, λ = k_{B}T/F, while D = μk_{B}T stays the same."
     - promptId: bm-04-predict-kicks-off
       supportedCandidateId: bm-04-predict-kicks-off-pileup
       controlId: m

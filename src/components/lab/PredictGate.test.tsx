@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { act, createElement, type ReactElement } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
+import type { PreparedBm04Example } from "../../experiments/bm04/session.ts";
 import type { PreparedBm05Example } from "../../experiments/bm05/session.ts";
 import type { PreparedBm07Example } from "../../experiments/bm07/session.ts";
 import type { PreparedBm08Example } from "../../experiments/bm08/session.ts";
@@ -26,6 +27,7 @@ import type { PreparedSr10Example } from "../../experiments/sr10/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR11_EXAMPLE } from "../../experiments/sr11/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR12_EXAMPLE } from "../../experiments/sr12/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR13_EXAMPLE } from "../../experiments/sr13/session.ts";
+import rawBm04Example from "../../generated/bm04-example.json";
 import rawBm05Example from "../../generated/bm05-example.json";
 import rawBm07Example from "../../generated/bm07-example.json";
 import rawBm08Example from "../../generated/bm08-example.json";
@@ -49,6 +51,7 @@ import {
 import { ConfigurationLab } from "./bm03/ConfigurationLab.tsx";
 import { CameraLab } from "./CameraLab.tsx";
 import { CoefficientLab } from "./CoefficientLab.tsx";
+import { DriftDiffusionLab } from "./DriftDiffusionLab.tsx";
 import { InferenceLab } from "./InferenceLab.tsx";
 import { CoefficientMatchLab } from "./lq06/CoefficientMatchLab.tsx";
 import { IonizationLab } from "./lq09/IonizationLab.tsx";
@@ -77,9 +80,9 @@ import { WalkLab } from "./WalkLab.tsx";
  */
 /**
  * The gated labs. `result` is text from each lab's result that the server markup must carry.
- * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-05, BM-07 and BM-08 share
- * none (their worker runner is not written); BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
- * in a worktree (dispatch 145). `statusLine`: whether the lab has a status line; LQ-06 and ME-02 have none.
+ * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-04, BM-05, BM-07 and BM-08
+ * share none (their worker runner is not written); BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
+ * in a worktree (dispatch 145). `statusLine`: whether the lab has a status line; BM-04, LQ-06 and ME-02 have none.
  */
 type GatedLab = Readonly<{
   lab: string;
@@ -96,6 +99,16 @@ const LABS: readonly GatedLab[] = [
     result: "One accepted calculation",
     sharesTape: false,
     statusLine: true,
+  },
+  {
+    lab: "bm-04",
+    element: () =>
+      createElement(DriftDiffusionLab, {
+        example: rawBm04Example as unknown as PreparedBm04Example,
+      }),
+    result: "Inspect and export the accepted dataset",
+    sharesTape: false,
+    statusLine: false,
   },
   {
     lab: "bm-05",

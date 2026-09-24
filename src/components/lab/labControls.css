@@ -79,13 +79,6 @@
   margin-bottom: 0.75rem;
 }
 
-.predict-options {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
 .predict-candidate {
   display: flex;
   align-items: center;

@@ -7,7 +7,6 @@ import {
   BM04_CAPTION,
   BM04_OUTPUTS,
   BM04_PRESETS,
-  BM04_PROMPT,
   type Bm04Parameters,
 } from "../../experiments/bm04/definition.ts";
 import { decodeBm04Settings, encodeBm04Settings } from "../../experiments/bm04/permalink.ts";
@@ -17,18 +16,17 @@ import { executionStateKindFromHostLabel } from "../../experiments/labels/execut
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
+import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import {
   DensityProfilePlot,
   FluxBalancePlot,
   ForceCancellationPanel,
 } from "./DriftDiffusionPlots.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
-// The prediction box uses predict.css's classes; without this import its three options ran
-// together as one paragraph, radios mid-sentence (live /lab/bm-04/).
-import "./predict.css";
 
 type ForceComparison = Readonly<{
   parameters: Bm04Parameters;
@@ -36,6 +34,10 @@ type ForceComparison = Readonly<{
   drift: number;
   identity: ReturnType<typeof identity>;
 }>;
+
+// The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate. They
+// replace the lab's use of BM04_PROMPT and add the manifest's second prompt, kicks off.
+const BM04_PROMPTS = PREDICT_PROMPTS["bm-04"] ?? [];
 
 export function DriftDiffusionLab({
   example,
@@ -65,7 +67,8 @@ export function DriftDiffusionLab({
   const [error, setError] = useState("");
   const [linkNote, setLinkNote] = useState("");
   const [sharedUrl, setSharedUrl] = useState("");
-  const [prediction, setPrediction] = useState("");
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("bm-04", BM04_PROMPTS);
   const [comparison, setComparison] = useState<ForceComparison | null>(null);
   const [exportNote, setExportNote] = useState("");
 
@@ -173,9 +176,6 @@ export function DriftDiffusionLab({
   const diffCoeff = scalar(snapshot, "diffusionCoefficient");
   const steadyState = scalar(snapshot, "steadyState");
   const drift = scalar(snapshot, "driftVelocity");
-  const selectedPrediction = BM04_PROMPT.candidates.find(
-    (candidate) => candidate.id === prediction,
-  );
   const isComparison =
     comparison !== null &&
     (Object.keys(comparison.parameters) as (keyof Bm04Parameters)[]).every((key) =>
@@ -239,104 +239,71 @@ export function DriftDiffusionLab({
         </p>
       </noscript>
 
-      <details className="lab-predict bm04-predict">
-        <summary>Predict before calculating</summary>
-        <section className="predict-mode-box" aria-label="Predict before calculating">
-          <p className="predict-question">{BM04_PROMPT.question}</p>
-          <div className="predict-options">
-            {BM04_PROMPT.candidates.map((c) => (
-              <label key={c.id} className="predict-option">
-                <input
-                  type="radio"
-                  name={`${id}-predict`}
-                  value={c.id}
-                  checked={prediction === c.id}
-                  onChange={() => setPrediction(c.id)}
-                />
-                <span className="predict-label">
-                  <strong>{c.label}</strong>: {c.description}
-                </span>
-              </label>
-            ))}
-          </div>
-          <details>
-            <summary>Show the explanation and test the prediction</summary>
-            {selectedPrediction && (
+      <PredictGatePanels gate={gate} />
+      {/* The test with twice the force: it reads the accepted run, so it waits with the result. The
+          explanation it opened with is the manifest prompt's, shown once the reader answers. */}
+      <details className="bm04-compare" {...gate.response}>
+        <summary>Test it: calculate with twice the force</summary>
+        <p>
+          The accepted run has thermal D = {display(diffCoeff, 1e12)} μm²/s and drift velocity{" "}
+          {display(drift, 1e6)} μm/s. With mismatched kicks, the chosen kick strength is a separate
+          model assumption; a transient profile is not an equilibrium measurement.
+        </p>
+        <button
+          type="button"
+          className="secondary"
+          onClick={compareForce}
+          disabled={!ready || view.pending || p.F === 0 || !Number.isFinite(p.F * 2)}
+        >
+          Calculate with twice the accepted force
+        </button>
+        {p.F === 0 && (
+          <p>First apply a nonzero force: doubling zero does not create a comparison.</p>
+        )}
+        {comparison && (
+          <div {...identity(snapshot)} data-baseline-run-id={comparison.identity["data-run-id"]}>
+            {isComparison ? (
+              <div className="table-wrapper">
+                <table className="data-table">
+                  <caption>Two accepted runs; only the applied force changed</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Quantity</th>
+                      <th scope="col">Baseline</th>
+                      <th scope="col">Double force</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th scope="row">Force (fN)</th>
+                      <td>{display(comparison.parameters.F, 1e15)}</td>
+                      <td>{display(p.F, 1e15)}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Thermal D (μm²/s)</th>
+                      <td>{display(comparison.diffusion, 1e12)}</td>
+                      <td>{display(diffCoeff, 1e12)}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Drift velocity (μm/s)</th>
+                      <td>{display(comparison.drift, 1e6)}</td>
+                      <td>{display(drift, 1e6)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            ) : (
               <p>
-                Your prediction: <strong>{selectedPrediction.label}</strong>.
+                The comparison appears when the doubled-force run is accepted. A refusal keeps the
+                baseline unchanged; changing another parameter invalidates this comparison.
               </p>
             )}
-            <p>
-              At fixed temperature, viscosity and particle radius, the thermal diffusion coefficient
-              stays unchanged. A stronger force changes directed drift, not the thermal diffusivity.
-              The equilibrium length becomes shorter, but that is not a smaller diffusion
-              coefficient.
-            </p>
-            <p>
-              The accepted run has thermal D = {display(diffCoeff, 1e12)} μm²/s and drift velocity{" "}
-              {display(drift, 1e6)} μm/s. With mismatched kicks, the chosen kick strength is a
-              separate model assumption; a transient profile is not an equilibrium measurement.
-            </p>
-            <button
-              type="button"
-              className="secondary"
-              onClick={compareForce}
-              disabled={!ready || view.pending || p.F === 0 || !Number.isFinite(p.F * 2)}
-            >
-              Calculate with twice the accepted force
-            </button>
-            {p.F === 0 && (
-              <p>First apply a nonzero force: doubling zero does not create a comparison.</p>
-            )}
-            {comparison && (
-              <div
-                {...identity(snapshot)}
-                data-baseline-run-id={comparison.identity["data-run-id"]}
-              >
-                {isComparison ? (
-                  <div className="table-wrapper">
-                    <table className="data-table">
-                      <caption>Two accepted runs; only the applied force changed</caption>
-                      <thead>
-                        <tr>
-                          <th scope="col">Quantity</th>
-                          <th scope="col">Baseline</th>
-                          <th scope="col">Double force</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <th scope="row">Force (fN)</th>
-                          <td>{display(comparison.parameters.F, 1e15)}</td>
-                          <td>{display(p.F, 1e15)}</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Thermal D (μm²/s)</th>
-                          <td>{display(comparison.diffusion, 1e12)}</td>
-                          <td>{display(diffCoeff, 1e12)}</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Drift velocity (μm/s)</th>
-                          <td>{display(comparison.drift, 1e6)}</td>
-                          <td>{display(drift, 1e6)}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <p>
-                    The comparison appears when the doubled-force run is accepted. A refusal keeps
-                    the baseline unchanged; changing another parameter invalidates this comparison.
-                  </p>
-                )}
-              </div>
-            )}
-            <p>
-              The explanation is available with or without a prediction. These are model
-              consequences, not experimental proof.
-            </p>
-          </details>
-        </section>
+          </div>
+        )}
+        <p>
+          The explanation is available with or without a prediction. These are model consequences,
+          not experimental proof.
+        </p>
       </details>
 
       <div className="lab-columns">
@@ -442,7 +409,7 @@ export function DriftDiffusionLab({
             )}
           </fieldset>
         </form>
-        <div className="lab-results">
+        <div className="lab-results" {...gate.response}>
           {/* A refusal is read before the plots it leaves unchanged; an accepted result is
               summarised after the plots it describes. */}
           {problem ? (

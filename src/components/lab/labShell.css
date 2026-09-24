@@ -514,7 +514,8 @@ html[data-lens="modern"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[
   border: 0;
 }
 
-.bm04-predict {
+/* BM-04's test with twice the force, where its predict block sat. */
+.bm04-compare {
   max-width: 44rem;
   margin-block: 0.5rem 1.25rem;
 }
