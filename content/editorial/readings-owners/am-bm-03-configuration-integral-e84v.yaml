@@ -1,8 +1,21 @@
+# Declares this bead as the owner of the /lab/bm-03/ caption readings; the target mirrors BM03_CAPTION in src/experiments/bm03/definition.ts (rewritten 2026-09-23, TopazPrairie).
+ownerBeadId: am-bm-03-configuration-integral-e84v
 beadId: am-bm-03-configuration-integral-e84v
+paper: brownian-motion
+targetKinds:
+  - instrument-caption
+scope:
+  instrumentIds:
+    - bm-03
 targets:
-  - instrument: bm-03
-    captions:
-      - r0
-      - r1
-      - r2
-      - r3
+  - kind: caption
+    id: bm-03
+    readings:
+      r0: "Counting where independent particles can be, not how they move, gives the pressure they exert. Twice the room gives each particle twice the places to be, and two particles four times the arrangements."
+      r1: "§2 derives osmotic pressure from the molecular-kinetic theory without any picture of how the particles move. The free energy is F = −(RT/N) lg B, where B is an integral over every possible state of the system. For n particles held in a volume V* by a semipermeable wall, moving independently in a homogeneous liquid with no forces on them, §2 shows that the integral splits into a factor J that depends neither on where the particles are nor on V*, times one factor of V* for each particle: B = J V*^{n}. Then F = −(RT/N){lg J + n lg V*}, and the pressure is p = −∂F/∂V* = (RT/N)(n/V*), in modern symbols N_{p}k_{B}T/V. So suspended bodies and dissolved molecules of equal number exert the same osmotic pressure at high dilution. The lab's default is two particles in 2 × 10^{−12} m³, twice the starting volume, at 293.15 K: the free energy falls by 5.61 × 10^{−21} J, and the pressure is 4.05 × 10^{−9} Pa. With 100 particles it is 2.02 × 10^{−7} Pa, fifty times as much. Lock the two particles into one rigid cluster and they have only one placement to make: the free energy falls by half as much, 2.81 × 10^{−21} J, and the pressure is 2.02 × 10^{−9} Pa, that of a single particle."
+      r2: "Start with one particle in a box of volume V. The number of places it can be is proportional to V: twice the volume, twice the places. A second particle that moves independently of the first has its own V places, so the pair has V × V = V² arrangements, and twice the volume gives four times as many. For N_{p} particles the count is V^{N_{p}}, and the rest of the integral, everything about velocities and the liquid's own molecules, is the volume-independent factor J. The free energy uses the logarithm of the count, and the logarithm turns the product into a sum: ln(J V^{N_{p}}) = ln J + N_{p} ln V. So F = −k_{B}T(ln J + N_{p} ln V), writing k_{B} for Einstein's R/N. Pressure is how fast the free energy falls as the volume grows, p = −∂F/∂V. The ln J term does not change with V, so it drops out, and the derivative of N_{p} ln V is N_{p}/V, leaving p = N_{p}k_{B}T/V. Now put in the default. k_{B}T = 1.381 × 10^{−23} × 293.15 = 4.047 × 10^{−21} J, and doubling the volume changes F by −2 × 4.047 × 10^{−21} × ln 2 = −5.61 × 10^{−21} J. The pressure in 2 × 10^{−12} m³ is 2 × 4.047 × 10^{−21}/(2 × 10^{−12}) = 4.05 × 10^{−9} Pa. For a locked cluster the count is V, not V², so the change is −k_{B}T ln 2 = −2.81 × 10^{−21} J and the pressure is k_{B}T/V = 2.02 × 10^{−9} Pa: half, because one unit is placed instead of two. Nothing in the argument used the particles' size or how they move, which is why a suspended grain and a dissolved molecule count the same."
+      r3: "Einstein's printed §2 writes the entropy as S = E/T + 2κ lg ∫e^{−E/2κT} dp_{1} … dp_{l}, with 2κN = R, so his κ is half of the modern k_{B}; B stands for the integral, J for the volume-independent factor, V* for the volume inside the semipermeable wall, n for the number of particles, and lg for the natural logarithm. A footnote says the section presupposes his papers on the foundations of thermodynamics of 1902 and 1903, and that the paper's results can be understood without it. The rigid cluster is a comparison authored for this site: it shows that pressure counts independently placed units, not constituents, the point the light-quanta paper's §5 makes with its exponent n."
+      r3Citations:
+        - "Einstein, A. (1905). Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen. Annalen der Physik 17, 549–560 (§2)."
+        - "Einstein, A. (1902). Kinetische Theorie des Wärmegleichgewichtes und des zweiten Hauptsatzes der Thermodynamik. Annalen der Physik 9, 417–433."
+        - "Einstein, A. (1903). Eine Theorie der Grundlagen der Thermodynamik. Annalen der Physik 11, 170–187."
