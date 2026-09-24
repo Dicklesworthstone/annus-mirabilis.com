@@ -148,31 +148,35 @@ describe("Entrance Bridge Schema & Contract Tests (am-bm-first-encounter-fjvh)",
 
   it("compiles a route naming a planned foundation and reports its status", () => {
     const start = performance.now();
+    // Derived, not named. This fixture hardcoded foundation:quantities-units, which was planned
+    // when it was written and was then authored, so the test went red because a lesson was
+    // written. It now takes whichever registry entry is genuinely planned today.
+    const registry = loadRegistry();
+    const entry = registry.entries.find((e) => e.status === "planned");
+    expect(entry).toBeDefined();
+    if (!entry) return;
     const plannedRecord = {
       ...validEntranceRecord,
       bridge: {
         ...validBridge,
         continueWith: [
-          { route: "more-guidance", targetId: "foundation:quantities-units" },
+          { route: "more-guidance", targetId: entry.id },
           { route: "less-guidance", targetId: "instrument:bm-01" },
         ],
       },
     };
 
     const validated = validateEntranceRecord(plannedRecord);
-    expect(validated.bridge.continueWith?.[0]?.targetId).toBe("foundation:quantities-units");
+    expect(validated.bridge.continueWith?.[0]?.targetId).toBe(entry.id);
 
-    // Prerequisite audit check: foundation:quantities-units is registered with status 'planned'
-    const registry = loadRegistry();
-    const entry = registry.entries.find((e) => e.id === "foundation:quantities-units");
-    expect(entry).toBeDefined();
-    expect(entry?.status).toBe("planned");
+    // Prerequisite audit check: the target is registered with status 'planned'.
+    expect(entry.status).toBe("planned");
 
     logger.log({
       testId: "bridge-route-planned-foundation-reported",
       beadId: BEAD_ID,
       expected: "planned",
-      actual: entry?.status,
+      actual: entry.status,
       outcome: "passed",
       durationMs: performance.now() - start,
       comparisonKind: "bitwise",
