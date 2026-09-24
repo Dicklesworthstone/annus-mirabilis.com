@@ -377,6 +377,48 @@ export function OsmoticPartitionLab({
             </table>
           </div>
 
+          {/* The three counts share a letter and are easy to confuse, so each is named at every
+              reading: the one the reader sets, the one the law uses, and the one it does not. */}
+          <section
+            className="table-scroll"
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: a region that scrolls must be focusable or its off-screen columns cannot be reached by keyboard at all (am-bc6s)
+            tabIndex={0}
+            aria-label="Three symbols that are easy to confuse"
+          >
+            <table>
+              <caption>Three symbols that are easy to confuse</caption>
+              <tbody>
+                <tr>
+                  <th scope="row">
+                    N<sub>p</sub>
+                  </th>
+                  <td>
+                    How many suspended particles are in the chamber: the count you set,{" "}
+                    {accepted.Np.toLocaleString()} here.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">n</th>
+                  <td>
+                    Their number density, N<sub>p</sub> divided by the accessible volume, in
+                    particles per cubic metre. The pressure is Π = nkT.
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">
+                    N<sub>A</sub>
+                  </th>
+                  <td>
+                    Avogadro&apos;s number, the molecules in one mole: 6.022 × 10<sup>23</sup>,
+                    exact in the 2019 SI. Einstein writes it N. It enters when the pressure is
+                    written with the gas constant, R = N<sub>A</sub>k, and this laboratory does not
+                    use it.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
           {!admitted && "maxAdmittedCount" in snapshot.domain && (
             <p className="notice">
               Above φ = {PHI_MAX}, particle interactions and excluded volume are not modeled by the
