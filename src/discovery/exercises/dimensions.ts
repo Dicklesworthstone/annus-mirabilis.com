@@ -40,6 +40,7 @@ const NAMED: Readonly<Record<string, string>> = {
   "2,0,-2,0,0,0": "a speed squared",
   "1,0,-2,0,0,0": "an acceleration",
   "2,0,-1,0,0,0": "an area per unit time, the dimension of a diffusion coefficient",
+  "1,1,-1,0,0,0": "a momentum",
   "1,1,-2,0,0,0": "a force",
   "2,1,-2,0,0,0": "an energy",
   "0,0,0,1,0,0": "a temperature",

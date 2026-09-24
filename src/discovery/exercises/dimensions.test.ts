@@ -62,6 +62,11 @@ describe("a dimension with no common name is given in SI units", () => {
     );
   });
 
+  test("an energy over a speed is named a momentum", async () => {
+    const { describeDimension } = await import("./dimensions.ts");
+    expect(describeDimension(dimension(["1", "1", "-1", "0", "0", "0"]))).toBe("a momentum");
+  });
+
   test("h/nu − P reads as an energy taken from a quantity in kg·m²", () => {
     const energy = {
       h: dimension(["2", "1", "-1", "0", "0", "0"]),
