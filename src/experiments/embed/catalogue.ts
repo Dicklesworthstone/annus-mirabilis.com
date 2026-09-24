@@ -296,6 +296,45 @@ export const EMBED_INSTRUMENTS = [
     steps:
       "Change the frame speed and the field components, and read the residuals of the transformed equations. Compare the symbols printed in §6 with their modern names.",
   },
+  {
+    id: "lq-02",
+    title: "Classical mode-energy allocation",
+    source: "/papers/light-quanta/#s1",
+    overview:
+      "Give every resonator the same mean energy, and see whether the radiation's total energy ever settles.",
+    full: "Each resonator oscillation gets the mean energy (R/N)T whatever its frequency, so the energy up to a highest frequency grows as the cube of that frequency. Widen the range tenfold and the energy grows a thousandfold; remove the upper limit and the laboratory refuses the total, because on this model it has no finite value.",
+    steps:
+      "Set the temperature and the highest frequency, and read the energy up to it and the share lying above the probe frequency. Widen the range tenfold and compare the two energies, then remove the upper limit and read the refusal. The Avogadro readout repeats the calculation of §2 from the constants printed there.",
+  },
+  {
+    id: "bm-02",
+    title: "The osmotic partition",
+    source: "/papers/brownian-motion/view/german/#s1",
+    overview:
+      "See what the osmotic pressure of suspended particles depends on, and what it does not.",
+    full: "In the dilute molecular-kinetic model a suspended particle presses on a partition that lets the liquid through as a dissolved molecule does: the pressure is set by the number of particles per volume and the temperature, and not by their size. The classical expectation for suspended bodies, shown beside it as a labelled alternative, gives no pressure at all.",
+    steps:
+      "Change the count, the volume and the temperature, and read the pressure, the force on the partition and the height of the equivalent water column. Then change the radius at the same count per volume and compare the pressure. A volume fraction above 0.01 leaves the dilute model and is refused rather than extrapolated.",
+  },
+  {
+    id: "sr-05",
+    title: "Moving clocks",
+    source: "/papers/special-relativity/#s4",
+    overview: "Compare what a travelling clock reads with the platform clocks it moves past.",
+    full: "A clock moving at speed v falls behind the platform clocks by 1 − √(1 − v²/c²) seconds each second, which §4 prints to second order as ½(v/c)². A trip out and back, or round a circle, returns the clock to its start, where both clocks are read at one place and no simultaneity convention is needed.",
+    steps:
+      "Choose a worldline and a speed, and read the traveller's own time, the platform time and the lag when they meet again: at 0.6c over 10 s of platform time the traveller reads 8 s. Compare the exact loss per second with the printed approximation at low speed, then read the light clock's tick in each frame.",
+  },
+  {
+    id: "me-03",
+    title: "The system-boundary energy ledger",
+    source: "/papers/mass-energy/#arg-me-scope",
+    overview:
+      "Choose where the boundary goes, and see which system loses mass when a body emits light.",
+    full: "Around the emitting body alone, the energy falls and the mass falls by the energy divided by c². Around the body and its light together, an isolated system, nothing changes. The energy-source cards apply the same rule to cited modern energy transfers, and the four-momentum view is labelled as a later addition.",
+    steps:
+      "Put the boundary around the body, then around the radiation, then around both, and read what crosses it each time. Open an energy-source card and compare its mass change with the body's. The 1906 photon-in-a-box mode is a later argument, shown with its credit to Poincaré (1900).",
+  },
 ] as const;
 
 export type EmbeddableId = (typeof EMBED_INSTRUMENTS)[number]["id"];

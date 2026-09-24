@@ -114,6 +114,8 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
 
   "lq-01":
     "What does a continuous wave description of light explain well, and what exactly does its intensity measure?",
+  "lq-02":
+    "If every resonator gets the same mean energy whatever its frequency, how much energy does the radiation hold, and does the total ever stop growing?",
   "lq-03":
     "What does a measured radiation spectrum look like at a given temperature, in which regime is Wien's law or the classical law an accurate description, and what does a density plot actually measure?",
   "lq-05":
@@ -126,6 +128,8 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
     "Why does increasing light intensity release more electrons without increasing their individual energy, while increasing frequency increases electron energy without requiring higher intensity?",
   "lq-09":
     "How does single-quantum energy conservation set the frequency threshold for gas ionization, and what determines the relation between absorbed light energy and the count of ionized molecules?",
+  "bm-02":
+    "Do suspended particles press on a partition the way dissolved molecules do, and does their size change the pressure at the same number per volume?",
   "bm-03":
     "How does counting where independent particles can be produce the pressure law without solving any motion?",
   "bm-04":
@@ -141,6 +145,8 @@ export const CATALOGUE_QUESTIONS: Readonly<Partial<Record<CatalogueId, string>>>
     "How do the Maxwell-Hertz equations keep their form under the transformation, and what must the electric and magnetic fields do?",
   "sr-04":
     "What map between two inertial frames keeps both postulates, and what does each requirement decide?",
+  "sr-05":
+    "How much less time does a moving clock record than the clocks it passes, and does a clock that goes out and comes back show the difference when they meet again?",
   "me-01":
     "If a body at rest emits two equal pulses in opposite directions, what do two observers' energy ledgers force you to say about the body?",
   "me-02":

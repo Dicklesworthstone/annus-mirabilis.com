@@ -598,6 +598,8 @@ teachingTapes:
 
 realRate:
   natural: false
+# /embed/lab/me-03/ exists since am-lab-manifests-embeds-questions-missing-nree.
+embeddable: true
 predictMode:
   enabled: true
   prompts:

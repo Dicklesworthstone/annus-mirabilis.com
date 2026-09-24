@@ -286,7 +286,7 @@ weavePredicates: []
 historicalOverlays: []
 realRate:
   natural: false
-embeddable: false
+embeddable: true
 predictMode:
   exempt: true
   reason: "SR-05 offers no predict affordance on its page today (measured on live, 2026-09-24). Building one belongs to am-inst-predict-mode-ti7m, which is open; no prompt is recorded here that the page does not ask."

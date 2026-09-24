@@ -268,7 +268,7 @@ weavePredicates: []
 historicalOverlays: []
 realRate:
   natural: false
-embeddable: false
+embeddable: true
 predictMode:
   enabled: true
   prompts:

@@ -9,6 +9,7 @@ import type { PreparedLq07Example } from "../lq07/session.ts";
 import type { MillikanOverlayResult } from "../lq08/millikan.ts";
 import type { EmbeddableId } from "./catalogue.ts";
 import {
+  LazyBoundaryLedgerComparison,
   LazyBrownianLab,
   LazyCameraLab,
   LazyChargeCurrentLab,
@@ -29,7 +30,10 @@ import {
   LazyLightComplexLab,
   LazyLorentzMapLab,
   LazyMagnetConductorLab,
+  LazyModeAllocationLab,
+  LazyMovingClocksLab,
   LazyMovingMirrorLab,
+  LazyOsmoticPartitionLab,
   LazyPhotoelectricLab,
   LazyRodSimultaneityLab,
   LazyShelfOpticsLab,
@@ -264,6 +268,30 @@ export async function renderEmbeddedLaboratory(id: EmbeddableId): Promise<ReactN
             parameters: checked.data,
             sourceDigest: labDigests["sr-07"],
           }}
+        />
+      );
+    }
+    case "lq-02": {
+      const { DEFAULT_LQ02_INPUTS } = await import("../lq02/session.ts");
+      return <LazyModeAllocationLab example={DEFAULT_LQ02_INPUTS} />;
+    }
+    case "bm-02": {
+      const { DEFAULT_BM02_INPUTS } = await import("../bm02/session.ts");
+      return <LazyOsmoticPartitionLab example={DEFAULT_BM02_INPUTS} />;
+    }
+    case "sr-05": {
+      const { validateSr05Parameters } = await import("../sr05/parameters.ts");
+      const { default: example } = await import("../../generated/sr05-example.json");
+      const checked = validateSr05Parameters(example.parameters);
+      if (checked.kind !== "accepted") return preparedExampleFailed("sr-05");
+      return <LazyMovingClocksLab example={{ ...example, parameters: checked.data }} />;
+    }
+    case "me-03": {
+      const { DEFAULT_PREPARED_EXAMPLE } = await import("../me03/session.ts");
+      const { default: labDigests } = await import("../../generated/lab-source-digests.json");
+      return (
+        <LazyBoundaryLedgerComparison
+          example={{ ...DEFAULT_PREPARED_EXAMPLE, sourceDigest: labDigests["me-03"] }}
         />
       );
     }

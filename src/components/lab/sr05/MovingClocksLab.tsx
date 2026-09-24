@@ -117,6 +117,7 @@ export function MovingClocksLab({ example }: MovingClocksLabProps) {
       className="laboratory"
       aria-labelledby={`${instanceId}-title`}
       data-testid="moving-clocks-lab"
+      data-instrument-id="sr-05"
       {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "properTime")}
     >

@@ -225,7 +225,7 @@ weavePredicates: []
 historicalOverlays: []
 realRate:
   natural: false
-embeddable: false
+embeddable: true
 # The page asks two predict questions. The second, whether the total settles at a finite value, has
 # two answers on the page (yes or no), and a manifest prompt needs three candidates, so only the
 # widening question is recorded here, exactly as the page asks it.

@@ -30,11 +30,15 @@ import type { FluorescenceLab } from "../../components/lab/lq07/FluorescenceLab.
 import type { PhotoelectricLab } from "../../components/lab/lq08/PhotoelectricLab.tsx";
 import type { IonizationLab } from "../../components/lab/lq09/IonizationLab.tsx";
 import type { MagnetConductorLab } from "../../components/lab/MagnetConductorLab.tsx";
+import type { ModeAllocationLab } from "../../components/lab/ModeAllocationLab.tsx";
 import type { TwoLedgersLab } from "../../components/lab/me01/TwoLedgersLab.tsx";
+import type { BoundaryLedgerComparison } from "../../components/lab/me03/BoundaryLedgerLab.tsx";
+import type { OsmoticPartitionLab } from "../../components/lab/OsmoticPartitionLab.tsx";
 import type { RodSimultaneityLab } from "../../components/lab/RodSimultaneityLab.tsx";
 import type { ShelfOpticsLab } from "../../components/lab/shelfOptics/ShelfOpticsLab.tsx";
 import type { ClockSyncLab } from "../../components/lab/sr01/ClockSyncLab.tsx";
 import type { LorentzMapLab } from "../../components/lab/sr04/LorentzMapLab.tsx";
+import type { MovingClocksLab } from "../../components/lab/sr05/MovingClocksLab.tsx";
 import type { VelocityCompositionLab } from "../../components/lab/sr06/VelocityCompositionLab.tsx";
 import type { FieldEquationsLab } from "../../components/lab/sr07/FieldEquationsLab.tsx";
 import type { FieldFrameChangeLab } from "../../components/lab/sr08/FieldFrameChangeLab.tsx";
@@ -67,7 +71,9 @@ import "../../components/lab/lq07/fluorescenceLab.css";
 import "../../components/lab/lq08/photoelectricLab.css";
 import "../../components/lab/lq09/ionizationLab.css";
 import "../../components/lab/me01/me01.css";
+import "../../components/lab/me03/me03.css";
 import "../../components/lab/rodSimultaneityLab.css";
+import "../../components/lab/sr05/sr05.css";
 import "../../components/lab/sr08/sr08.css";
 import "../../components/lab/sr11/sr11.css";
 import "../../components/lab/sr12/sr12.css";
@@ -84,6 +90,11 @@ import "../../app/lab/sr-06/composition.css";
 import "../../app/lab/sr-07/equations.css";
 import "../../components/lab/shelfOptics/shelfOptics.css";
 
+const BoundaryLedgerComparisonChunk = lazy(() =>
+  import("../../components/lab/me03/BoundaryLedgerLab.tsx").then((m) => ({
+    default: m.BoundaryLedgerComparison,
+  })),
+);
 const BrownianLabChunk = lazy(() =>
   import("../../components/lab/BrownianLab.tsx").then((m) => ({ default: m.BrownianLab })),
 );
@@ -161,9 +172,24 @@ const MagnetConductorLabChunk = lazy(() =>
     default: m.MagnetConductorLab,
   })),
 );
+const ModeAllocationLabChunk = lazy(() =>
+  import("../../components/lab/ModeAllocationLab.tsx").then((m) => ({
+    default: m.ModeAllocationLab,
+  })),
+);
+const MovingClocksLabChunk = lazy(() =>
+  import("../../components/lab/sr05/MovingClocksLab.tsx").then((m) => ({
+    default: m.MovingClocksLab,
+  })),
+);
 const MovingMirrorLabChunk = lazy(() =>
   import("../../components/lab/sr11/MovingMirrorLab.tsx").then((m) => ({
     default: m.MovingMirrorLab,
+  })),
+);
+const OsmoticPartitionLabChunk = lazy(() =>
+  import("../../components/lab/OsmoticPartitionLab.tsx").then((m) => ({
+    default: m.OsmoticPartitionLab,
   })),
 );
 const PhotoelectricLabChunk = lazy(() =>
@@ -215,6 +241,12 @@ const FieldEquationsLabChunk = lazy(() =>
     default: m.FieldEquationsLab,
   })),
 );
+
+export function LazyBoundaryLedgerComparison(
+  props: ComponentProps<typeof BoundaryLedgerComparison>,
+) {
+  return <BoundaryLedgerComparisonChunk {...props} />;
+}
 
 export function LazyBrownianLab(props: ComponentProps<typeof BrownianLab>) {
   return <BrownianLabChunk {...props} />;
@@ -336,4 +368,13 @@ export function LazyVelocityCompositionLab(props: ComponentProps<typeof Velocity
 
 export function LazyFieldEquationsLab(props: ComponentProps<typeof FieldEquationsLab>) {
   return <FieldEquationsLabChunk {...props} />;
+}
+export function LazyModeAllocationLab(props: ComponentProps<typeof ModeAllocationLab>) {
+  return <ModeAllocationLabChunk {...props} />;
+}
+export function LazyMovingClocksLab(props: ComponentProps<typeof MovingClocksLab>) {
+  return <MovingClocksLabChunk {...props} />;
+}
+export function LazyOsmoticPartitionLab(props: ComponentProps<typeof OsmoticPartitionLab>) {
+  return <OsmoticPartitionLabChunk {...props} />;
 }
