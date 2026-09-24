@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "viscosity-stokes-drag",
+  "title": "Viscosity and Stokes drag",
+  "question": "How hard does a liquid hold back a small sphere drifting through it?",
+  "summary": "A slow sphere in a liquid feels a drag that grows in step with its speed, its radius and the liquid's viscosity: F = 6πηav. The Brownian paper runs this law backwards, to turn a force on a particle into the speed it drifts at.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Stir honey and then water with the same spoon at the same speed. The honey pushes back far harder. Viscosity is the number that measures this. Water at room temperature has a viscosity of about 1 millipascal-second (0.001 Pa·s); honey's is thousands of times larger."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Now move a small sphere slowly through the liquid. The liquid pushes back with a force that grows in step with the speed: twice as fast, twice the drag. It also grows with the sphere's radius and with the viscosity. George Gabriel Stokes worked out the whole law in 1851:"
+    },
+    {
+      "kind": "formula",
+      "latex": "F = 6\\pi\\eta a v",
+      "spoken": "The drag F equals six pi times the viscosity eta, times the radius a, times the speed v."
+    },
+    {
+      "kind": "paragraph",
+      "text": "F is the drag in newtons, η the viscosity, a the sphere's radius and v its speed. The factor 6π comes from the way the liquid flows around a sphere; another shape would have another factor."
+    },
+    {
+      "kind": "paragraph",
+      "text": "§3 of the Brownian paper runs the law backwards. A steady force K on a sphere of radius P, in a liquid whose viscosity the paper writes k, makes the sphere drift at the speed K/(6πkP). There k is the viscosity, not Boltzmann's constant, and P is the radius, not a pressure. For the law itself the paper refers to Kirchhoff's lectures on mechanics."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The law holds only in a regime. The flow must be slow and smooth, so that the liquid's own inertia plays no part; that is true for a micrometre sphere moving a few micrometres a second. The sphere must also be much larger than the liquid's molecules, which are about 0.3 nanometres across, so that the liquid acts as a smooth continuum. In a gas, where a molecule travels about 70 nanometres between collisions, a small particle partly slips through, and the drag is smaller than Stokes's law says."
+    }
+  ],
+  "exampleTitle": "The drag on a half-micrometre sphere in water",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "Take a sphere of radius a = 0.5 μm = 5 × 10⁻⁷ m, moving at v = 1 μm/s = 10⁻⁶ m/s through water, with η = 10⁻³ Pa·s.",
+        "Multiply: 6π × 10⁻³ × 5 × 10⁻⁷ × 10⁻⁶ = 6π × 5 × 10⁻¹⁶, about 9.4 × 10⁻¹⁵ newtons.",
+        "Twice the speed gives twice the drag, 1.9 × 10⁻¹⁴ N. A sphere of twice the radius at the same speed feels twice the drag too.",
+        "Read backwards, as §3 does: a steady force of 9.4 × 10⁻¹⁵ N keeps this sphere drifting at 1 μm/s. The speed per unit force, 1/(6πηa), is what the paper needs next."
+      ]
+    },
+    {
+      "kind": "paragraph",
+      "text": "The flow here is very slow in the sense that matters: the liquid's inertia is less than a millionth of its viscous resistance (the ratio is 1000 kg/m³ × 10⁻⁶ m/s × 5 × 10⁻⁷ m ÷ 10⁻³ Pa·s = 5 × 10⁻⁷), so Stokes's law applies with room to spare."
+    }
+  ],
+  "prerequisites": [
+    "bridge-scientific-notation-units",
+    "bridge-fractions-ratios"
+  ],
+  "stoppingPoint": "This lesson stops at the drag on one slow sphere. Why the same 6πηa also sets how fast a crowd of such spheres spreads by diffusion is the subject of §§3 and 5 of the Brownian paper.",
+  "citations": [
+    "ap-17-549"
+  ]
+}

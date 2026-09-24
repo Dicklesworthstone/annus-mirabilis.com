@@ -30,6 +30,11 @@
         "text": "The displacement law tells us what a given \\(D\\) predicts. A separate model connects \\(D\\) to a tracer’s physical surroundings. Let \\(b\\) be mobility, so a small force \\(F\\) produces mean drift \\(bF\\). Stokes drag for a sphere gives \\(b = 1/(6\\pi\\eta a)\\)."
       },
       {
+        "kind": "foundation",
+        "id": "viscosity-stokes-drag",
+        "returnCaption": "Return to where the sphere's drag sets its mobility."
+      },
+      {
         "kind": "paragraph",
         "text": "Let \\(c\\) be number density. At isothermal balance the force density \\(cF\\) balances the osmotic-pressure gradient. With ideal osmotic pressure \\(cRT/N\\), the drift flux \\(cbF\\) becomes \\(b\\,(RT/N)\\) times the density gradient. Equating it with the opposite diffusive flux gives \\(D = bRT/N\\)."
       },
