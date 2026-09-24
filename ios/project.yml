@@ -93,6 +93,9 @@ targets:
       # The bridge's golden messages: the same file the TypeScript schema tests read.
       - path: ../src/platform/app-bridge/fixtures/messages.json
         buildPhase: resources
+      # The site's export of the reader's data, computed by exportNamespaces (readerData.test.ts).
+      - path: ../src/platform/app-bridge/fixtures/readerDataExport.json
+        buildPhase: resources
     dependencies:
       - target: AnnusMirabilis
     settings:

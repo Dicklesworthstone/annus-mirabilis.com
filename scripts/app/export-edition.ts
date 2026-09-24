@@ -25,6 +25,7 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readerDataManifest } from "../../src/platform/app-bridge/readerData.ts";
 import { BRIDGE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/userScripts.ts";
 
 export const EDITION_SCHEMA_VERSION = "annus-mirabilis-app-edition.v1";
@@ -464,6 +465,8 @@ export function exportEdition(options: {
         bytes: Buffer.byteLength(BRIDGE_USER_SCRIPT_SOURCE),
       },
     ],
+    // The site's registry, so the app lists and exports the reader's data with /your-data/'s labels.
+    readerData: readerDataManifest(),
     files,
   };
 

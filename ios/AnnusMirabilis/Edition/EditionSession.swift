@@ -45,6 +45,7 @@ final class EditionSession {
         self.navigator = EditionNavigator(catalog: catalog)
         let router = BridgeRouter()
         router.store = readerData
+        router.readerData = catalog.readerData
         self.router = router
         self.themeStore = themeStore
         let bridgeSource = catalog.verifiedBridgeScript()

@@ -10,6 +10,7 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
+import { readerDataManifest } from "../../src/platform/app-bridge/readerData.ts";
 import { BRIDGE_USER_SCRIPT_SOURCE } from "../../src/platform/app-bridge/userScripts.ts";
 import {
   AppExportError,
@@ -221,6 +222,8 @@ describe("exportEdition", () => {
     assert.equal(manifest.site.commit, null);
     assert.equal(manifest.site.binding, "unbound");
     assert.equal(manifest.editionDigest, result.editionDigest);
+    // The app labels and exports the reader's data from this, never from its own copy.
+    assert.deepEqual(manifest.readerData, JSON.parse(JSON.stringify(readerDataManifest())));
   });
 
   it("refuses an edition over its budget and names the size", () => {

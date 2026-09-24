@@ -25,6 +25,8 @@ struct EditionManifest: Decodable, Sendable {
     let editionDigest: String
     let files: [File]
     var userScripts: [UserScript]?
+    /// The site's registry of the reader's data; absent from exports made before it was recorded.
+    var readerData: ReaderDataManifest?
 }
 
 enum EditionCatalogError: Error, Equatable {
@@ -43,6 +45,7 @@ struct EditionCatalog: Sendable {
     let editionDigest: String
     /// The bridge script's manifest entry, when the export recorded one.
     let bridgeScript: EditionManifest.UserScript?
+    let readerData: ReaderDataManifest?
     private let files: [String: EditionManifest.File]
 
     init(root: URL, manifest: EditionManifest) throws(EditionCatalogError) {
@@ -53,6 +56,7 @@ struct EditionCatalog: Sendable {
         self.editionDigest = manifest.editionDigest
         self.files = Dictionary(manifest.files.map { ($0.path, $0) }, uniquingKeysWith: { first, _ in first })
         self.bridgeScript = manifest.userScripts?.first { $0.id == "bridge" }
+        self.readerData = manifest.readerData
     }
 
     static func load(from bundle: Bundle = .main) throws(EditionCatalogError) -> EditionCatalog {

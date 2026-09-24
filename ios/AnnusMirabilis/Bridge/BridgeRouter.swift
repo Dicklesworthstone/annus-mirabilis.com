@@ -12,6 +12,10 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
     var onRoute: ((String, String?, String) -> Void)?
     /// Where `storage.read` and `storage.write` keep the reader's data; nil answers unavailable.
     var store: ReaderDataStore?
+    /// The site's registry, for `storage.list` and `storage.export`; nil answers unavailable.
+    var readerData: ReaderDataManifest?
+    /// The export's timestamp; tests fix it.
+    var now: () -> Date = { Date() }
     /// Called for an accepted `share.request`; the schema has already checked the URL is a page of the website.
     var onShare: ((URL) -> Void)?
     /// Called for every accepted `settings.changed` that names the page's theme.
@@ -20,7 +24,8 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
     private var limiter = BridgeRateLimiter()
     private let capabilities: [String]
 
-    init(capabilities: [String] = ["route", "theme", "share", "print", "find"]) {
+    /// The same list, in the same order, as BRIDGE_CAPABILITIES in src/platform/app-bridge/userScripts.ts.
+    init(capabilities: [String] = ["route", "theme", "share", "storage", "print", "find"]) {
         self.capabilities = capabilities
     }
 
@@ -77,6 +82,8 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
             return share(body)
         case "storage.read", "storage.write":
             return storage(message.type, body)
+        case "storage.list", "storage.export":
+            return readerDataReply(message.type, body)
         case "settings.changed":
             if let theme = Self.string(body, "theme") { onTheme?(theme) }
             return Self.okay
@@ -106,6 +113,21 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
         case .missing: return ["status": "missing"]
         case .corrupt: return ["status": "corrupt"]
         }
+    }
+
+    /// The reader's data by the site's own namespaces (App plan §8.7). `storage.list` names the
+    /// registered keys the app holds, in the registry's order; `storage.export` answers with the
+    /// document /your-data/ downloads. A namespace narrows either to the keys that start with it.
+    private func readerDataReply(_ type: String, _ body: [String: JSONValue]) -> [String: Any] {
+        guard let store, let readerData else { return Self.unavailable }
+        guard case .data(let data) = ReaderData.load(from: store, manifest: readerData) else {
+            return ["status": "corrupt"]
+        }
+        let prefix = Self.string(body, "namespace")
+        if type == "storage.list" {
+            return ["status": "ok", "value": data.held(prefix: prefix ?? "").map(\.key)]
+        }
+        return ["status": "ok", "value": data.export(prefix: prefix, at: now()).replyObject()]
     }
 
     private func share(_ body: [String: JSONValue]) -> [String: Any] {

@@ -52,6 +52,12 @@ export const SITE_STORAGE_PREFIX = "am:";
 /** A snapshot longer than this is not mirrored: it would not fit in one bridge message. */
 export const MAX_SNAPSHOT_LENGTH = MAX_MESSAGE_BYTES - 1024;
 
+/**
+ * The one record the mirror writes: every site key and its value, as a JSON object. The app
+ * reads it back from the same place to restore the page, list the reader's data and export it.
+ */
+export const SNAPSHOT_RECORD = { namespace: "localStorage", key: "snapshot" } as const;
+
 /** What the app offers in version 1; the page may branch on these strings. */
 export const BRIDGE_CAPABILITIES: readonly string[] = [
   "route",
@@ -73,6 +79,7 @@ export function installBridge(
   siteOrigin: string,
   storagePrefix: string,
   maxSnapshotLength: number,
+  snapshotRecord: { readonly namespace: string; readonly key: string },
 ): void {
   const w = window as unknown as {
     __AM_APP__?: unknown;
@@ -243,7 +250,7 @@ export function installBridge(
       return;
     }
     mirrored = text;
-    post("storage.write", { namespace: "localStorage", key: "snapshot", value: text });
+    post("storage.write", { ...snapshotRecord, value: text });
   };
   const scheduleMirror = () => {
     if (pending !== undefined) {
@@ -283,7 +290,7 @@ export function installBridge(
     }
   });
   const restore = () => {
-    void request("storage.read", { namespace: "localStorage", key: "snapshot" }).then(
+    void request("storage.read", { ...snapshotRecord }).then(
       (reply) => {
         const result = reply as { status?: string; value?: unknown } | undefined;
         if (result?.status !== "ok" || typeof result.value !== "string" || setItem === undefined) {
@@ -361,6 +368,7 @@ export const BRIDGE_USER_SCRIPT_SOURCE = `(${installBridge.toString()})(${[
   SITE_ORIGIN,
   SITE_STORAGE_PREFIX,
   MAX_SNAPSHOT_LENGTH,
+  SNAPSHOT_RECORD,
 ]
   .map((argument) => JSON.stringify(argument))
   .join(",")});`;

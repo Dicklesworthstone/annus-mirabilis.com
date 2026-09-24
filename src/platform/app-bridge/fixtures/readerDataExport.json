@@ -1,0 +1,454 @@
+[
+  {
+    "name": "everything registered",
+    "registry": [
+      {
+        "key": "am:settings:v1:theme",
+        "kind": "setting",
+        "label": "Reading theme",
+        "exportable": true
+      },
+      {
+        "key": "am:settings:v1:typeScale",
+        "kind": "setting",
+        "label": "Type size",
+        "exportable": true
+      },
+      {
+        "key": "am:discovery-notes:v1:brownian-motion",
+        "kind": "document",
+        "label": "Discovery notes: Brownian motion",
+        "exportable": true
+      },
+      {
+        "key": "am:discovery-notes:v1:mass-energy",
+        "kind": "document",
+        "label": "Discovery notes: Mass and energy",
+        "exportable": true
+      },
+      {
+        "key": "am:notebook:v1",
+        "kind": "document",
+        "label": "Notebook",
+        "exportable": true
+      },
+      {
+        "key": "am:tours:v1",
+        "kind": "document",
+        "label": "Progress on guided reading paths",
+        "exportable": true
+      },
+      {
+        "key": "am:predictions:v1",
+        "kind": "document",
+        "label": "Saved predictions",
+        "exportable": true
+      },
+      {
+        "key": "am:journeys:v1",
+        "kind": "document",
+        "label": "Your choices and progress in Discover",
+        "exportable": true
+      }
+    ],
+    "storage": {
+      "am:settings:v1:theme": "kramgasse-night",
+      "am:settings:v1:typeScale": "125",
+      "am:discovery-notes:v1:brownian-motion": "{\"schemaVersion\":1,\"notes\":[{\"anchor\":\"s4-p2-s1\",\"text\":\"Why λ grows as √t, not t\",\"savedAt\":1790230063000},{\"anchor\":\"eq-s4-1\",\"text\":\"Viscosity k here, not Boltzmann\",\"savedAt\":1790230064500}]}",
+      "am:discovery-notes:v1:mass-energy": "{\"schemaVersion\":1,\"notes\":[{\"anchor\":\"s0-p1-s2\",\"text\":\"L/V² before any lamp\",\"savedAt\":1790230065000}]}",
+      "am:tours:v1": "{\"schemaVersion\":1,\"tours\":{\"mass-energy-first\":{\"step\":3}}}",
+      "am:notebook:v1": "{\"schemaVersion\":1,\"entries\":[",
+      "am:predictions:v1": "null",
+      "am:unregistered:v1": "kept out",
+      "another-site": "kept out"
+    },
+    "exportedAt": "2026-09-24T06:08:00.123Z",
+    "expected": {
+      "exportedAt": "2026-09-24T06:08:00.123Z",
+      "namespaces": [
+        {
+          "key": "am:settings:v1:theme",
+          "label": "Reading theme",
+          "value": "kramgasse-night"
+        },
+        {
+          "key": "am:settings:v1:typeScale",
+          "label": "Type size",
+          "value": "125"
+        },
+        {
+          "key": "am:discovery-notes:v1:brownian-motion",
+          "label": "Discovery notes: Brownian motion",
+          "value": {
+            "schemaVersion": 1,
+            "notes": [
+              {
+                "anchor": "s4-p2-s1",
+                "text": "Why λ grows as √t, not t",
+                "savedAt": 1790230063000
+              },
+              {
+                "anchor": "eq-s4-1",
+                "text": "Viscosity k here, not Boltzmann",
+                "savedAt": 1790230064500
+              }
+            ]
+          }
+        },
+        {
+          "key": "am:discovery-notes:v1:mass-energy",
+          "label": "Discovery notes: Mass and energy",
+          "value": {
+            "schemaVersion": 1,
+            "notes": [
+              {
+                "anchor": "s0-p1-s2",
+                "text": "L/V² before any lamp",
+                "savedAt": 1790230065000
+              }
+            ]
+          }
+        },
+        {
+          "key": "am:notebook:v1",
+          "label": "Notebook",
+          "value": "{\"schemaVersion\":1,\"entries\":["
+        },
+        {
+          "key": "am:tours:v1",
+          "label": "Progress on guided reading paths",
+          "value": {
+            "schemaVersion": 1,
+            "tours": {
+              "mass-energy-first": {
+                "step": 3
+              }
+            }
+          }
+        },
+        {
+          "key": "am:predictions:v1",
+          "label": "Saved predictions",
+          "value": null
+        }
+      ]
+    }
+  },
+  {
+    "name": "a namespace the registry does not let out",
+    "registry": [
+      {
+        "key": "am:settings:v1:theme",
+        "kind": "setting",
+        "label": "Reading theme",
+        "exportable": true
+      },
+      {
+        "key": "am:settings:v1:typeScale",
+        "kind": "setting",
+        "label": "Type size",
+        "exportable": true
+      },
+      {
+        "key": "am:discovery-notes:v1:brownian-motion",
+        "kind": "document",
+        "label": "Discovery notes: Brownian motion",
+        "exportable": true
+      },
+      {
+        "key": "am:discovery-notes:v1:mass-energy",
+        "kind": "document",
+        "label": "Discovery notes: Mass and energy",
+        "exportable": true
+      },
+      {
+        "key": "am:notebook:v1",
+        "kind": "document",
+        "label": "Notebook",
+        "exportable": true
+      },
+      {
+        "key": "am:tours:v1",
+        "kind": "document",
+        "label": "Progress on guided reading paths",
+        "exportable": false
+      },
+      {
+        "key": "am:predictions:v1",
+        "kind": "document",
+        "label": "Saved predictions",
+        "exportable": true
+      },
+      {
+        "key": "am:journeys:v1",
+        "kind": "document",
+        "label": "Your choices and progress in Discover",
+        "exportable": true
+      }
+    ],
+    "storage": {
+      "am:settings:v1:theme": "kramgasse-night",
+      "am:settings:v1:typeScale": "125",
+      "am:discovery-notes:v1:brownian-motion": "{\"schemaVersion\":1,\"notes\":[{\"anchor\":\"s4-p2-s1\",\"text\":\"Why λ grows as √t, not t\",\"savedAt\":1790230063000},{\"anchor\":\"eq-s4-1\",\"text\":\"Viscosity k here, not Boltzmann\",\"savedAt\":1790230064500}]}",
+      "am:discovery-notes:v1:mass-energy": "{\"schemaVersion\":1,\"notes\":[{\"anchor\":\"s0-p1-s2\",\"text\":\"L/V² before any lamp\",\"savedAt\":1790230065000}]}",
+      "am:tours:v1": "{\"schemaVersion\":1,\"tours\":{\"mass-energy-first\":{\"step\":3}}}",
+      "am:notebook:v1": "{\"schemaVersion\":1,\"entries\":[",
+      "am:predictions:v1": "null",
+      "am:unregistered:v1": "kept out",
+      "another-site": "kept out"
+    },
+    "exportedAt": "2026-09-24T06:08:00.123Z",
+    "expected": {
+      "exportedAt": "2026-09-24T06:08:00.123Z",
+      "namespaces": [
+        {
+          "key": "am:settings:v1:theme",
+          "label": "Reading theme",
+          "value": "kramgasse-night"
+        },
+        {
+          "key": "am:settings:v1:typeScale",
+          "label": "Type size",
+          "value": "125"
+        },
+        {
+          "key": "am:discovery-notes:v1:brownian-motion",
+          "label": "Discovery notes: Brownian motion",
+          "value": {
+            "schemaVersion": 1,
+            "notes": [
+              {
+                "anchor": "s4-p2-s1",
+                "text": "Why λ grows as √t, not t",
+                "savedAt": 1790230063000
+              },
+              {
+                "anchor": "eq-s4-1",
+                "text": "Viscosity k here, not Boltzmann",
+                "savedAt": 1790230064500
+              }
+            ]
+          }
+        },
+        {
+          "key": "am:discovery-notes:v1:mass-energy",
+          "label": "Discovery notes: Mass and energy",
+          "value": {
+            "schemaVersion": 1,
+            "notes": [
+              {
+                "anchor": "s0-p1-s2",
+                "text": "L/V² before any lamp",
+                "savedAt": 1790230065000
+              }
+            ]
+          }
+        },
+        {
+          "key": "am:notebook:v1",
+          "label": "Notebook",
+          "value": "{\"schemaVersion\":1,\"entries\":["
+        },
+        {
+          "key": "am:predictions:v1",
+          "label": "Saved predictions",
+          "value": null
+        }
+      ]
+    }
+  },
+  {
+    "name": "one namespace asked for by its key",
+    "registry": [
+      {
+        "key": "am:settings:v1:theme",
+        "kind": "setting",
+        "label": "Reading theme",
+        "exportable": true
+      },
+      {
+        "key": "am:settings:v1:typeScale",
+        "kind": "setting",
+        "label": "Type size",
+        "exportable": true
+      },
+      {
+        "key": "am:discovery-notes:v1:brownian-motion",
+        "kind": "document",
+        "label": "Discovery notes: Brownian motion",
+        "exportable": true
+      },
+      {
+        "key": "am:discovery-notes:v1:mass-energy",
+        "kind": "document",
+        "label": "Discovery notes: Mass and energy",
+        "exportable": true
+      },
+      {
+        "key": "am:notebook:v1",
+        "kind": "document",
+        "label": "Notebook",
+        "exportable": true
+      },
+      {
+        "key": "am:tours:v1",
+        "kind": "document",
+        "label": "Progress on guided reading paths",
+        "exportable": true
+      },
+      {
+        "key": "am:predictions:v1",
+        "kind": "document",
+        "label": "Saved predictions",
+        "exportable": true
+      },
+      {
+        "key": "am:journeys:v1",
+        "kind": "document",
+        "label": "Your choices and progress in Discover",
+        "exportable": true
+      }
+    ],
+    "storage": {
+      "am:settings:v1:theme": "kramgasse-night",
+      "am:settings:v1:typeScale": "125",
+      "am:discovery-notes:v1:brownian-motion": "{\"schemaVersion\":1,\"notes\":[{\"anchor\":\"s4-p2-s1\",\"text\":\"Why λ grows as √t, not t\",\"savedAt\":1790230063000},{\"anchor\":\"eq-s4-1\",\"text\":\"Viscosity k here, not Boltzmann\",\"savedAt\":1790230064500}]}",
+      "am:discovery-notes:v1:mass-energy": "{\"schemaVersion\":1,\"notes\":[{\"anchor\":\"s0-p1-s2\",\"text\":\"L/V² before any lamp\",\"savedAt\":1790230065000}]}",
+      "am:tours:v1": "{\"schemaVersion\":1,\"tours\":{\"mass-energy-first\":{\"step\":3}}}",
+      "am:notebook:v1": "{\"schemaVersion\":1,\"entries\":[",
+      "am:predictions:v1": "null",
+      "am:unregistered:v1": "kept out",
+      "another-site": "kept out"
+    },
+    "prefix": "am:discovery-notes:v1:brownian-motion",
+    "exportedAt": "2026-09-24T06:08:00.123Z",
+    "expected": {
+      "exportedAt": "2026-09-24T06:08:00.123Z",
+      "namespaces": [
+        {
+          "key": "am:discovery-notes:v1:brownian-motion",
+          "label": "Discovery notes: Brownian motion",
+          "value": {
+            "schemaVersion": 1,
+            "notes": [
+              {
+                "anchor": "s4-p2-s1",
+                "text": "Why λ grows as √t, not t",
+                "savedAt": 1790230063000
+              },
+              {
+                "anchor": "eq-s4-1",
+                "text": "Viscosity k here, not Boltzmann",
+                "savedAt": 1790230064500
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "every paper's discovery notes",
+    "registry": [
+      {
+        "key": "am:settings:v1:theme",
+        "kind": "setting",
+        "label": "Reading theme",
+        "exportable": true
+      },
+      {
+        "key": "am:settings:v1:typeScale",
+        "kind": "setting",
+        "label": "Type size",
+        "exportable": true
+      },
+      {
+        "key": "am:discovery-notes:v1:brownian-motion",
+        "kind": "document",
+        "label": "Discovery notes: Brownian motion",
+        "exportable": true
+      },
+      {
+        "key": "am:discovery-notes:v1:mass-energy",
+        "kind": "document",
+        "label": "Discovery notes: Mass and energy",
+        "exportable": true
+      },
+      {
+        "key": "am:notebook:v1",
+        "kind": "document",
+        "label": "Notebook",
+        "exportable": true
+      },
+      {
+        "key": "am:tours:v1",
+        "kind": "document",
+        "label": "Progress on guided reading paths",
+        "exportable": true
+      },
+      {
+        "key": "am:predictions:v1",
+        "kind": "document",
+        "label": "Saved predictions",
+        "exportable": true
+      },
+      {
+        "key": "am:journeys:v1",
+        "kind": "document",
+        "label": "Your choices and progress in Discover",
+        "exportable": true
+      }
+    ],
+    "storage": {
+      "am:settings:v1:theme": "kramgasse-night",
+      "am:settings:v1:typeScale": "125",
+      "am:discovery-notes:v1:brownian-motion": "{\"schemaVersion\":1,\"notes\":[{\"anchor\":\"s4-p2-s1\",\"text\":\"Why λ grows as √t, not t\",\"savedAt\":1790230063000},{\"anchor\":\"eq-s4-1\",\"text\":\"Viscosity k here, not Boltzmann\",\"savedAt\":1790230064500}]}",
+      "am:discovery-notes:v1:mass-energy": "{\"schemaVersion\":1,\"notes\":[{\"anchor\":\"s0-p1-s2\",\"text\":\"L/V² before any lamp\",\"savedAt\":1790230065000}]}",
+      "am:tours:v1": "{\"schemaVersion\":1,\"tours\":{\"mass-energy-first\":{\"step\":3}}}",
+      "am:notebook:v1": "{\"schemaVersion\":1,\"entries\":[",
+      "am:predictions:v1": "null",
+      "am:unregistered:v1": "kept out",
+      "another-site": "kept out"
+    },
+    "prefix": "am:discovery-notes:v1:",
+    "exportedAt": "2026-09-24T06:08:00.123Z",
+    "expected": {
+      "exportedAt": "2026-09-24T06:08:00.123Z",
+      "namespaces": [
+        {
+          "key": "am:discovery-notes:v1:brownian-motion",
+          "label": "Discovery notes: Brownian motion",
+          "value": {
+            "schemaVersion": 1,
+            "notes": [
+              {
+                "anchor": "s4-p2-s1",
+                "text": "Why λ grows as √t, not t",
+                "savedAt": 1790230063000
+              },
+              {
+                "anchor": "eq-s4-1",
+                "text": "Viscosity k here, not Boltzmann",
+                "savedAt": 1790230064500
+              }
+            ]
+          }
+        },
+        {
+          "key": "am:discovery-notes:v1:mass-energy",
+          "label": "Discovery notes: Mass and energy",
+          "value": {
+            "schemaVersion": 1,
+            "notes": [
+              {
+                "anchor": "s0-p1-s2",
+                "text": "L/V² before any lamp",
+                "savedAt": 1790230065000
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+]
