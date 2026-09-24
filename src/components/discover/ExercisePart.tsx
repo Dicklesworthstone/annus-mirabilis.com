@@ -66,7 +66,7 @@ function ExerciseForm({ part }: { part: ExpressionExercisePart }) {
       </noscript>
       <form onSubmit={submit} className="exercise-form enhanced-only" aria-busy={pending}>
         <label htmlFor={`${id}-answer`}>
-          Your answer, using {part.declaredNames.join(", ") || "numbers"}
+          Your answer, using {listed(part.declaredNames) || "numbers"}
         </label>
         <input
           id={`${id}-answer`}
@@ -216,4 +216,10 @@ function CheckedRanges({ domains }: { domains: ExpressionExercisePart["domains"]
 function Readable({ value }: { value: number }) {
   const rounded = Number(value.toPrecision(6)) + 0;
   return <>{plainText(rounded) ?? <Sci value={rounded} />}</>;
+}
+
+/** Names as a person lists them: "D and t", "h, nu and P". */
+function listed(names: readonly string[]): string {
+  if (names.length < 2) return names.join("");
+  return `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
 }

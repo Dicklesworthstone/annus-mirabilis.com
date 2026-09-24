@@ -33,7 +33,7 @@ describe("ExercisePart: static rendering (no JavaScript)", () => {
   });
 
   test("the input has a real label naming the declared variables", () => {
-    expect(html).toContain("Your answer, using D, t");
+    expect(html).toContain("Your answer, using D and t");
   });
 
   test("never displays a score, a cross, or an attempt count", () => {
