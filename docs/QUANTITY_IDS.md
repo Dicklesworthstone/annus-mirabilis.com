@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 291 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 292 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -152,6 +152,7 @@ Total: 291 quantities, 45 rejected spellings, 2 reserved spellings.
 | kolmogorovDistance | Kolmogorov distance | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | lagrangeMultiplier | Lagrange multiplier | 0,0,0,-1,0,0 | not-applicable | scalar | — |
 | latentPosition1d | Latent position (one dimension) | 1,0,0,0,0,0 | not-applicable | scalar | — |
+| lengthMeasuredMoving | Measured length (moving system) | 1,0,0,0,0,0 | moving-system | scalar | — |
 | lengthMeasuredStationary | Measured length (stationary system) | 1,0,0,0,0,0 | stationary-system | scalar | rodLengthMeasured |
 | lengthProper | Proper length | 1,0,0,0,0,0 | object-rest | scalar | rodLengthRest |
 | lightAmplitudeMoving | Light amplitude (moving system) | 1,1,-3,0,-1,0 | moving-system | scalar | lightAmplitude |
