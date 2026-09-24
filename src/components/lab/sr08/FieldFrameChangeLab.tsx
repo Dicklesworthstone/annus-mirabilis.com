@@ -1,6 +1,11 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import {
+  declaredDomains,
+  domainRequirement,
+} from "../../../experiments/controls/declaredDomain.ts";
+import { readTypedNumber } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
@@ -75,6 +80,21 @@ function SnapshotReading({
 // replaces a question this file kept for itself, drawn below the results it asked about.
 const SR08_PROMPTS = PREDICT_PROMPTS["sr-08"] ?? [];
 
+/** The fields a reader types, as text: the boost as a fraction of c, and the two field components. */
+type Sr08Typed = Readonly<{ boost: string; ey: string; bz: string }>;
+function typedFrom(p: Sr08Parameters): Sr08Typed {
+  return {
+    boost: String(Number((p.boost / C_SI).toPrecision(12))),
+    ey: String(p.electricFieldY),
+    bz: String(p.magneticFieldZ),
+  };
+}
+/** A typed boost that overflows once multiplied by c reads as outside the declared range. */
+const BOOST_DOMAIN = declaredDomains("sr-08").boost;
+const BOOST_TOO_LARGE = BOOST_DOMAIN
+  ? domainRequirement(BOOST_DOMAIN, { label: "Boost speed", unit: "c", scale: 1 / C_SI })
+  : "Enter a boost speed below the speed of light.";
+
 export function FieldFrameChangeLab({
   example,
   title = "Electric and magnetic frame change",
@@ -100,6 +120,9 @@ export function FieldFrameChangeLab({
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("sr-08", SR08_PROMPTS);
   const [draft, setDraft] = useState<Sr08Parameters>(() => ({ ...example.parameters }));
+  // The three typed fields keep the reader's text and are read on Apply, so a cleared field is
+  // refused by name rather than becoming 0 (dispatch 165).
+  const [typed, setTyped] = useState<Sr08Typed>(() => typedFrom(example.parameters));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
 
@@ -118,12 +141,24 @@ export function FieldFrameChangeLab({
       return;
     }
     setDraft(parameters);
+    setTyped(typedFrom(parameters));
     setError("");
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const checked = validateSr08Parameters(draft);
+    const boost = readTypedNumber(typed.boost, "the boost speed", (v) => v * C_SI, BOOST_TOO_LARGE);
+    if (boost.kind === "refused") return setError(boost.requirement);
+    const ey = readTypedNumber(typed.ey, "the electric field Ey");
+    if (ey.kind === "refused") return setError(ey.requirement);
+    const bz = readTypedNumber(typed.bz, "the magnetic field Bz");
+    if (bz.kind === "refused") return setError(bz.requirement);
+    const checked = validateSr08Parameters({
+      ...draft,
+      boost: boost.value,
+      electricFieldY: ey.value,
+      magneticFieldZ: bz.value,
+    });
     if (checked.kind !== "accepted") {
       setError(refusalSentence(checked.refusal));
       return;
@@ -272,13 +307,8 @@ export function FieldFrameChangeLab({
                   step="0.05"
                   min="-0.95"
                   max="0.95"
-                  value={draft.boost / C_SI}
-                  onChange={(event) =>
-                    setDraft({
-                      ...draft,
-                      boost: Number(event.currentTarget.value) * C_SI,
-                    })
-                  }
+                  value={typed.boost}
+                  onChange={(event) => setTyped({ ...typed, boost: event.currentTarget.value })}
                 />
               </div>
             </div>
@@ -350,13 +380,8 @@ export function FieldFrameChangeLab({
                     type="number"
                     name="ey"
                     step="0.1"
-                    value={draft.electricFieldY}
-                    onChange={(event) =>
-                      setDraft({
-                        ...draft,
-                        electricFieldY: Number(event.currentTarget.value),
-                      })
-                    }
+                    value={typed.ey}
+                    onChange={(event) => setTyped({ ...typed, ey: event.currentTarget.value })}
                   />
                 </div>
                 <div className="input-field">
@@ -366,13 +391,8 @@ export function FieldFrameChangeLab({
                     type="number"
                     name="bz"
                     step="1e-9"
-                    value={draft.magneticFieldZ}
-                    onChange={(event) =>
-                      setDraft({
-                        ...draft,
-                        magneticFieldZ: Number(event.currentTarget.value),
-                      })
-                    }
+                    value={typed.bz}
+                    onChange={(event) => setTyped({ ...typed, bz: event.currentTarget.value })}
                   />
                 </div>
               </div>

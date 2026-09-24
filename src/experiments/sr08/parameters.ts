@@ -1,4 +1,5 @@
 import { C_SI, type Sr08Input } from "../../physics/reference/fields.ts";
+import { withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { SR08_DEFAULTS, type Sr08Parameters } from "./definition.ts";
 
@@ -56,7 +57,7 @@ function requiredNumber(
   return typeof value === "number" ? value : Number.NaN;
 }
 
-export function validateSr08Parameters(input: unknown): Sr08ParameterCheck {
+function validateSr08Fields(input: unknown): Sr08ParameterCheck {
   if (input === null || typeof input !== "object") {
     return {
       kind: "refused",
@@ -175,3 +176,13 @@ export function sr08InputFromParameters(p: Sr08Parameters): Sr08Input {
 }
 
 export { SR08_DEFAULTS };
+
+/**
+ * The fields above, then every range content/experiments/sr-08.yaml declares (dispatch 134). The
+ * boost is stored in m/s and typed as a fraction of c, so its sentence is written in c.
+ */
+export function validateSr08Parameters(input: unknown): Sr08ParameterCheck {
+  return withinDeclaredDomain("sr-08", validateSr08Fields(input), {
+    boost: { label: "Boost speed", unit: "c", scale: 1 / C_SI },
+  });
+}
