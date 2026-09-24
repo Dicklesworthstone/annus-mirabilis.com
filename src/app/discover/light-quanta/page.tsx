@@ -8,15 +8,18 @@ import {
   LIGHT_QUANTA_SHELF_CARDS,
 } from "../../../content/lightQuantaShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { Doors } from "../../../discovery/Doors.tsx";
 import { Fork } from "../../../discovery/Fork.tsx";
 import { GREATEST_ENERGY_EXERCISE } from "../../../discovery/lightQuanta/electronExercise.ts";
 import {
+  DOORS,
   FIRST_HONEST_QUESTION,
   FORK_ENTROPY_ACCOUNT,
   FORK_ONE_LUMP,
   MOVE,
   MOVE_HREF,
   NAGGING_FACT,
+  SOURCE_JUMPS,
   WORLD_CHECK,
 } from "../../../discovery/lightQuanta/journeyI.ts";
 import { GREATEST_ELECTRON_ENERGY } from "../../../discovery/lightQuanta/numericExercises.ts";
@@ -26,6 +29,7 @@ import {
 } from "../../../discovery/lightQuanta/worldCheck.ts";
 import { MoveMarker } from "../../../discovery/MoveMarker.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
+import { SourceJump } from "../../../discovery/SourceJump.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = {
@@ -381,6 +385,14 @@ export default function LightQuantaRoute() {
           9. Its German text is on this site, not yet reviewed; the English translation is not
           written yet.
         </p>
+        {SOURCE_JUMPS.map((jump) => (
+          <SourceJump key={jump.id} jump={jump} />
+        ))}
+        <p>
+          Two doors lead to the same place, the effective count at the heart of section 6: the
+          paper&rsquo;s own argument, and a counting loop a programmer can write.
+        </p>
+        <Doors doors={DOORS} />
         <div className="actions">
           <a className="button" href="/papers/light-quanta/">
             Read the argument as the paper makes it

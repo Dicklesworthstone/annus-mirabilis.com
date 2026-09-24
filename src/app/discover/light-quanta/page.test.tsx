@@ -6,13 +6,18 @@ import { checkVoice } from "../../../content/checks/voice/index.ts";
 import { LIGHT_QUANTA_SHELF_CARDS } from "../../../content/lightQuantaShelf.ts";
 import { checkMoveSummary } from "../../../discovery/checks/moveSummaryGuard.ts";
 import {
+  DOORS,
   FIRST_HONEST_QUESTION,
   FORK_ENTROPY_ACCOUNT,
   FORK_ONE_LUMP,
   MOVE,
   MOVE_HREF,
   NAGGING_FACT,
+  SOURCE_JUMPS,
 } from "../../../discovery/lightQuanta/journeyI.ts";
+import { LQ05_PRESETS } from "../../../experiments/lq05/definition.ts";
+import { decodeLq05Settings } from "../../../experiments/lq05/permalink.ts";
+import lqEquations from "../../../generated/light-quanta-equations.json";
 import LightQuantaEncounter from "./page";
 
 /** /discover/light-quanta/: the numeric exercise in step 07 (am-disc-exercise-checker-i4h2). */
@@ -227,6 +232,86 @@ describe("the route carries the discovery skeleton", () => {
       ]),
     ].join(" ");
     const errors = checkVoice(words, { context: "prose" }).filter((f) => f.severity === "error");
+    expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
+  });
+});
+
+describe("what Einstein actually wrote, and two doors to the same place", () => {
+  const inPaper = () => {
+    const start = html.indexOf('<section id="in-the-paper"');
+    expect(start).toBeGreaterThan(-1);
+    return html.slice(start);
+  };
+  const argument = (id: string) => {
+    const file = join(process.cwd(), "content", "arguments", "light-quanta", `${id}.json`);
+    return existsSync(file)
+      ? (JSON.parse(readFileSync(file, "utf8")) as { id: string; section: string })
+      : null;
+  };
+
+  test("five jumps, §4 to §9 in the paper's order, each to an argument of that section", () => {
+    const sections = SOURCE_JUMPS.map((j) => j.section);
+    expect(sections).toEqual(["s4", "s5", "s7", "s8", "s9"]);
+    const part = inPaper();
+    let previous = -1;
+    for (const jump of SOURCE_JUMPS) {
+      const href = `/papers/light-quanta/${jump.section}/#${jump.targetAnchor}`;
+      const at = part.indexOf(`href="${href}"`);
+      expect(at, href).toBeGreaterThan(previous);
+      previous = at;
+      // The anchor is an argument record, and it belongs to the section the jump opens.
+      expect(argument(jump.targetAnchor)?.section).toBe(jump.section);
+    }
+  });
+
+  test("both doors arrive at the effective count of §6, the record the move marks", () => {
+    const record = (lqEquations.equations as { id: string; argument: string }[]).find(
+      (e) => e.id === DOORS.frontDoor.arrivesAtEquationId,
+    );
+    expect(record?.argument).toBe(MOVE.chainId);
+    expect(DOORS.frontDoor.arrivesAtEquationId).toBe(MOVE.stepId);
+    expect(DOORS.sideDoors.length).toBe(1);
+    for (const door of DOORS.sideDoors)
+      expect(door.arrivesAtEquationId).toBe(DOORS.frontDoor.arrivesAtEquationId);
+    const part = text(inPaper());
+    expect(part).toContain("Two doors lead to the same place");
+    expect(part).toContain(
+      `All doors arrive at the same result: ${DOORS.frontDoor.arrivesAtLabel}`,
+    );
+  });
+
+  test("the programmer door opens LQ-05 at exactly its registered preset, n = 60, logarithmic", () => {
+    const door = DOORS.sideDoors[0];
+    const href = door?.href ?? "";
+    expect(href.startsWith("/lab/lq-05/?")).toBe(true);
+    const decoded = decodeLq05Settings(href.slice(href.indexOf("?")));
+    if (decoded.kind !== "settings") throw new Error(`the door's link decodes as ${decoded.kind}`);
+    expect(decoded.parameters).toEqual({ ...LQ05_PRESETS["lq-05-n60-log"]?.parameters });
+    expect(decoded.parameters.n).toBe(60);
+    expect(decoded.parameters.view).toBe("logarithmic");
+    expect(inPaper()).toContain(`href="${href.replace(/&/g, "&amp;")}"`);
+  });
+
+  test("the front door opens an argument the paper's §4 page carries", () => {
+    const [path, anchor] = (DOORS.frontDoor.href ?? "").split("#");
+    expect(path).toBe("/papers/light-quanta/s4/");
+    expect(argument(anchor ?? "")?.section).toBe("s4");
+  });
+
+  test("the words keep the paper's letters, name h only in a modern-lens sentence, and pass the lint", () => {
+    const doors = [DOORS.frontDoor, ...DOORS.sideDoors];
+    const words = [
+      ...SOURCE_JUMPS.flatMap((j) => [j.label, j.pointer]),
+      ...doors.flatMap((d) => [d.title, d.summary ?? "", d.arrivesAtLabel ?? ""]),
+    ];
+    for (const sentence of words.join(" ").split(/(?<=\.)\s+/))
+      if (/\bh\b/.test(sentence)) expect(sentence).toContain("modern lens");
+    const lower = words.join(" ").toLowerCase();
+    for (const banned of ["photon", "ultraviolet catastrophe", "proved", "not a wave"])
+      expect(lower).not.toContain(banned);
+    const errors = checkVoice(words.join(" "), { context: "prose" }).filter(
+      (f) => f.severity === "error",
+    );
     expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
   });
 });

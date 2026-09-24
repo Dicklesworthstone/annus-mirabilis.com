@@ -8,7 +8,15 @@
  * paper's own letters (R, N, β, ν, P) and its word "heuristic"; h appears only in labelled
  * modern-lens text. Every card a part names is on the page's shelf (src/content/lightQuantaShelf.ts).
  */
-import type { Fork, JourneyMove, WorldCheck } from "../../content/schemas/journey.ts";
+import type {
+  Doors,
+  Fork,
+  JourneyMove,
+  SourceJump,
+  WorldCheck,
+} from "../../content/schemas/journey.ts";
+import { LQ05_PRESETS } from "../../experiments/lq05/definition.ts";
+import { encodeLq05Settings } from "../../experiments/lq05/permalink.ts";
 import { PRINTED_STOPPING_CHECK } from "./worldCheck.ts";
 
 /** The observation that does not fit (am-disc-journey-i-chain-n1lh). */
@@ -184,4 +192,100 @@ export const WORLD_CHECK: WorldCheck = {
     unit: "",
     constantSetId: PRINTED_STOPPING_CHECK.constantSetId,
   },
+};
+
+/**
+ * What Einstein actually wrote (plan §9.1 item 8): one jump to each part of the paper the route
+ * has used. Each target is an argument anchor on its section's page, checked on live on
+ * 2026-09-24 (s5's arg-lq-statistical-probability did not resolve, so §§5–6 enters at
+ * arg-lq-independent-configurations). Each shows its static pointer: no instrument state is
+ * carried into the reading yet, so no weave predicate is named.
+ */
+export const SOURCE_JUMPS: readonly SourceJump[] = [
+  {
+    id: "jump-lq-s4-dilute-entropy",
+    label: "Read §4: the limiting law for the entropy of dilute radiation",
+    paperId: "light-quanta",
+    section: "s4",
+    targetAnchor: "arg-lq-fixed-band-volume",
+    pointer:
+      "Where Wien's law holds, at low density and high frequency, the paper finds how the entropy of one narrow band of radiation depends on the volume it fills: through the logarithm of the volume ratio, multiplied by E/βν.",
+  },
+  {
+    id: "jump-lq-s5-s6-volume-dependence",
+    label: "Read §§5–6: the same volume dependence for a gas, and what it suggests",
+    paperId: "light-quanta",
+    section: "s5",
+    targetAnchor: "arg-lq-independent-configurations",
+    pointer:
+      "Section 5 works out, by Boltzmann's principle, how the entropy of n independent moving points depends on the volume. Section 6 sets the two results side by side and reads the radiation's multiplier as a number of independent energy quanta, as a heuristic.",
+  },
+  {
+    id: "jump-lq-s7-stokes",
+    label: "Read §7: Stokes's rule for fluorescent light",
+    paperId: "light-quanta",
+    section: "s7",
+    targetAnchor: "arg-lq-fluorescence-budget",
+    pointer:
+      "If each quantum of the exciting light is taken up whole and gives rise to light of its own, the light given off can have no higher a frequency than the light that excites it. The paper states the conditions under which the rule may fail.",
+  },
+  {
+    id: "jump-lq-s8-photoelectric",
+    label: "Read §8: electrons produced by light",
+    paperId: "light-quanta",
+    section: "s8",
+    targetAnchor: "arg-lq-photoelectric-energy",
+    pointer:
+      "An electron takes up one quantum's energy and spends part of it leaving the metal. The greatest energy it leaves with rises in a straight line with the frequency and does not depend on the intensity; the number of electrons does.",
+  },
+  {
+    id: "jump-lq-s9-ionization",
+    label: "Read §9: ionization of gases by ultraviolet light",
+    paperId: "light-quanta",
+    section: "s9",
+    targetAnchor: "arg-lq-ionization-and-counts",
+    pointer:
+      "If one quantum ionizes one molecule, the energy of a quantum of the ionizing light cannot be less than the energy needed to ionize it. The paper compares the bound with Stark's measurement and names what it does not settle.",
+  },
+];
+
+const N60_LOG = LQ05_PRESETS["lq-05-n60-log"];
+
+/**
+ * LQ-05 opened at the preset the programmer door names: 60 points, logarithmic view. Were the
+ * preset renamed, the door would open the laboratory's own worked example instead, and the route
+ * test that asserts n = 60 on the logarithmic view fails.
+ */
+export const LQ05_N60_LOG_HREF = N60_LOG
+  ? `/lab/lq-05/?${encodeLq05Settings(N60_LOG.parameters)}`
+  : "/lab/lq-05/";
+
+/**
+ * The doors (plan §9.5): the paper's argument, and a side door for programmers through the
+ * microstate counter of LQ-05. Both arrive at the effective count of §6, n = (N/R)(E/βν), which is
+ * the exponent of the paper's probability W = (V/V₀)^n; it is the compiled record the move marks.
+ */
+export const DOORS: Doors = {
+  frontDoor: {
+    id: "door-lq-front",
+    title: "The paper's argument from Wien's law, §§1–6",
+    arrivesAtEquationId: "eq-model-lq-effective-count",
+    arrivesAtLabel:
+      "the effective count n = (N/R)(E/βν), the power to which the probability W raises V/V₀",
+    href: "/papers/light-quanta/s4/#arg-lq-fixed-band-volume",
+    summary:
+      "Take Wien's law where it holds, work out how the entropy of dilute radiation depends on its volume, and compare that with a gas of independent molecules.",
+  },
+  sideDoors: [
+    {
+      id: "door-lq-programmer",
+      title: "The microstate counter, for programmers",
+      arrivesAtEquationId: "eq-model-lq-effective-count",
+      arrivesAtLabel:
+        "the effective count n = (N/R)(E/βν), the power to which the probability W raises V/V₀",
+      href: LQ05_N60_LOG_HREF,
+      summary:
+        "Write the loop: the chance that n labelled points all sit in a fraction f of the box is f to the power n. Given that the entropy of dilute radiation changes with volume like (E/βν) ln f, invert it to a count. The same loop shows what happens when the points are not independent. In the modern lens the count is E/hν, with h = Rβ/N.",
+    },
+  ],
 };
