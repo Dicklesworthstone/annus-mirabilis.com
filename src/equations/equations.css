@@ -669,3 +669,96 @@
       box-shadow 0.15s ease;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   THE TERM CHIPS AND THE DECODER (dispatch 144 unit b). The legend under a formula is a row of
+   chips, one per quantity: a dot of its colour, its glyph where the view has it, and its name. A
+   chip is a button, one tab stop per quantity, so the keyboard reaches every term without making a
+   glyph a tab stop; focusing one lights its quantity, pressing it pins. In the explorer the
+   sentence's bound phrases are buttons too. Both are disabled until hydration, which leaves them
+   visible without JavaScript as the legend and the sentence (noScriptControls.ts hides only enabled
+   buttons). Contrast is the chips' own: rest and lit tints as above (termTint.test.ts).
+   --------------------------------------------------------------------------- */
+.term-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin: 0.75rem 0;
+}
+.reading-formula .term-chips-row {
+  justify-content: center;
+  margin: 0.4rem 0 0;
+}
+.term-chips-row .term-chips {
+  gap: 0.4rem 0.5rem;
+  margin: 0;
+}
+.term-chips .term-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0.2rem 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--qc) 40%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--qc) var(--term-rest), transparent);
+  color: var(--qc);
+  font: inherit;
+  cursor: pointer;
+}
+.term-chips .term-chip-dot {
+  flex: none;
+  width: 0.6em;
+  height: 0.6em;
+  border-radius: 50%;
+  background: var(--qc);
+}
+.equation-sentence .term-phrase {
+  display: inline;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0 0.1em;
+  border: 0;
+  border-radius: 0.3em;
+  background: transparent;
+  color: var(--qc);
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+.term-chips .term-chip:disabled,
+.semantic-equation .term-chips .term-chip:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.equation-sentence .term-phrase:disabled,
+.semantic-equation .equation-sentence .term-phrase:disabled {
+  opacity: 1;
+  cursor: text;
+}
+.term-chips .term-chip[data-lit],
+.term-chips .term-chip[aria-pressed="true"],
+.equation-sentence .term-phrase[aria-pressed="true"] {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--qc) var(--term-lit), transparent);
+  border-color: color-mix(in srgb, var(--qc) 80%, transparent);
+  box-shadow: 0 0 0.6em color-mix(in srgb, var(--qc) 35%, transparent);
+}
+.term-chips .term-chip:focus-visible,
+.equation-sentence .term-phrase:focus-visible {
+  outline: 2px solid var(--qc);
+  outline-offset: 2px;
+}
+.term-chips-row .term-chips-clear {
+  font-size: var(--type-fine);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .term-chips .term-chip,
+  .equation-sentence .term-phrase {
+    transition:
+      background-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+}

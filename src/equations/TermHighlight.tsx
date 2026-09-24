@@ -1,5 +1,6 @@
 "use client";
 import {
+  createContext,
   type FocusEvent,
   type HTMLAttributes,
   type KeyboardEvent,
@@ -7,6 +8,7 @@ import {
   type PointerEvent,
   type ReactNode,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -47,6 +49,19 @@ export function quantityAt(root: Element, target: EventTarget | null): string | 
   return element && root.contains(element) ? element.getAttribute("data-quantity-id") : null;
 }
 
+/**
+ * What the chips inside a block need from it: the pinned quantity, a way to pin or clear, and
+ * whether the page has hydrated (a chip is a disabled button until then, so without JavaScript it
+ * reads as a legend and is not hidden as a dead control; noScriptControls.ts).
+ */
+export type TermHighlightState = Readonly<{
+  pinned: string | null;
+  pin: (id: string | null) => void;
+  ready: boolean;
+}>;
+
+export const TermHighlightContext = createContext<TermHighlightState | null>(null);
+
 export type TermHighlightProps = Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
   children: ReactNode;
 };
@@ -55,6 +70,12 @@ export function TermHighlight({ children, ...attributes }: TermHighlightProps) {
   const root = useRef<HTMLDivElement>(null);
   const [pointed, setPointed] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
+  const state = useMemo<TermHighlightState>(
+    () => ({ pinned, pin: setPinned, ready }),
+    [pinned, ready],
+  );
   const active = pointed ?? pinned;
   useEffect(() => {
     if (root.current) lightQuantity(root.current, active);
@@ -84,7 +105,7 @@ export function TermHighlight({ children, ...attributes }: TermHighlightProps) {
         }
       }}
     >
-      {children}
+      <TermHighlightContext.Provider value={state}>{children}</TermHighlightContext.Provider>
     </div>
   );
 }

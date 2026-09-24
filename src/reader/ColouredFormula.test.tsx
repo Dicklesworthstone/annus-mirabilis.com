@@ -91,7 +91,15 @@ describe("the reading shows the named records, coloured, in the formula's place"
       expect(sheet).toMatch(
         new RegExp(`\\[data-term="${term?.replace(/\./g, "\\.")}"\\] \\{ --qc: var\\(--q-\\d\\);`),
       );
-    expect(html).toContain('class="equation-legend"');
+    // The legend is a row of term chips (dispatch 144 unit b): buttons disabled until hydration, so
+    // without JavaScript they stay on the page and read as the legend.
+    expect(html).toContain('class="equation-legend term-chips"');
+    const chips = [...html.matchAll(/<button type="button" class="term-chip"[^>]*>/g)].map(
+      (m) => m[0],
+    );
+    expect(chips.length).toBeGreaterThan(0);
+    expect(chips.every((chip) => chip.includes('disabled=""'))).toBe(true);
+    expect(chips.every((chip) => chip.includes('aria-pressed="false"'))).toBe(true);
     // The legend names each quantity; C is the additive constant of the two frame ledgers.
     expect(html).toContain(">Unchanged additive energy offset</span>");
     // The formula's own LaTeX is not rendered a second time beside its coloured records.

@@ -15,6 +15,7 @@ import { readTermValue, resolveSlot, retainedState } from "./live/values.ts";
 import { NotationNote } from "./NotationNote.tsx";
 import { navigate } from "./navigation.ts";
 import { createSelectionStore } from "./selectionStore.ts";
+import { TermChips } from "./TermChips.tsx";
 import { lightQuantity, quantityAt } from "./TermHighlight.tsx";
 import { withQuantityIds } from "./termQuantities.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
@@ -111,6 +112,15 @@ export function SemanticEquation({
     store.select(
       node ? { nodeId: qualified(node.id), quantityId: node.quantityId, kind: node.kind } : null,
     );
+  }
+  /** A chip or a sentence phrase pins its quantity, through the term that first carries it. */
+  function selectQuantity(quantityId: string) {
+    if (selected?.quantityId === quantityId) {
+      select(null);
+      return;
+    }
+    const node = equation.navigation.find((n) => n.kind === "term" && n.quantityId === quantityId);
+    select(node?.id ?? null);
   }
   function keys(e: KeyboardEvent<HTMLDivElement>) {
     if (
@@ -243,16 +253,27 @@ export function SemanticEquation({
         : ([[undefined, equation.sentence]] as const)
       ).map(([form, sentence]) => (
         <p key={form ?? "one"} className="equation-sentence" data-notation-form={form}>
-          {sentence.map((f) => (
-            <span
-              key={`${f.nodeId ?? "frag"}-${f.text}`}
-              data-selected={String(!!selectedNode(f.nodeId))}
-              className={quantityOfTerm(f.nodeId) ? "equation-quantity" : undefined}
-              data-quantity-id={quantityOfTerm(f.nodeId)}
-            >
-              {f.text}
-            </span>
-          ))}
+          {/* The decoder: each phrase bound to a quantity is a button that lights and pins it,
+              disabled until hydration so that without JavaScript it reads as the sentence. */}
+          {sentence.map((f) => {
+            const quantityId = quantityOfTerm(f.nodeId);
+            return quantityId ? (
+              <button
+                type="button"
+                key={`${f.nodeId ?? "frag"}-${f.text}`}
+                className="equation-quantity term-phrase"
+                data-quantity-id={quantityId}
+                data-selected={String(!!selectedNode(f.nodeId))}
+                aria-pressed={selected?.quantityId === quantityId}
+                disabled={!ready}
+                onClick={() => selectQuantity(quantityId)}
+              >
+                {f.text}
+              </button>
+            ) : (
+              <span key={`${f.nodeId ?? "frag"}-${f.text}`}>{f.text}</span>
+            );
+          })}
         </p>
       ))}
       {/* The keyboard help is shown while the formula has focus (equations.css), and it is the
@@ -262,15 +283,14 @@ export function SemanticEquation({
         parent, and Left/Right move between siblings. Escape clears selection. Tab leaves the
         formula.
       </p>
-      {legend.length > 0 ? (
-        <ul className="equation-legend" aria-label={`Quantities in ${equation.title}`}>
-          {legend.map(([quantityId, name]) => (
-            <li key={quantityId} className="equation-quantity" data-quantity-id={quantityId}>
-              <span className="equation-legend-name">{name}</span>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+      <TermChips
+        label={`Quantities in ${equation.title}`}
+        items={legend.map(([quantityId, name]) => ({ quantityId, name, glyphHtml: "" }))}
+        pressed={selected?.quantityId ?? null}
+        disabled={!ready}
+        onPress={selectQuantity}
+        onClear={() => select(null)}
+      />
       <p className="equation-mathml" role="status" aria-live="polite" aria-atomic="true">
         {note ? `${note.title}. ${note.explanation}` : ""}
       </p>

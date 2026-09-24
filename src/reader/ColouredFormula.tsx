@@ -14,11 +14,11 @@
  * and the legend are exactly as before, and CSS alone marks the term under the pointer.
  */
 import { NotationNote } from "../equations/NotationNote.tsx";
-import { quantityLegend } from "../equations/quantityColourView.ts";
+import { colourStyle, quantityLegend } from "../equations/quantityColourView.ts";
+import { BlockTermChips } from "../equations/TermChips.tsx";
 import { TermHighlight } from "../equations/TermHighlight.tsx";
 import { withQuantityIds } from "../equations/termQuantities.ts";
 import type { CompiledEquation } from "../equations/viewTypes.ts";
-import { QuantityLegendList } from "./QuantityLegendList.tsx";
 import "../equations/equations.css";
 
 export function ColouredFormula({ equations }: { equations: readonly CompiledEquation[] }) {
@@ -32,7 +32,7 @@ export function ColouredFormula({ equations }: { equations: readonly CompiledEqu
     const printedGlyphHtml = equations
       .map((e) => printedOf(e)?.glyphHtml[item.quantityId])
       .find((glyph) => glyph !== undefined);
-    return printedGlyphHtml ? { ...item, printedGlyphHtml } : item;
+    return { ...item, printedGlyphHtml };
   });
   const rowLabel = `Formula: ${equations.map((e) => e.title || e.id).join("; ")}`;
   return (
@@ -98,7 +98,16 @@ export function ColouredFormula({ equations }: { equations: readonly CompiledEqu
             .find((target) => target !== undefined)}
         />
       ) : null}
-      <QuantityLegendList legend={legend} label="Quantities in this formula" />
+      <BlockTermChips
+        label="Quantities in this formula"
+        items={legend.map(({ quantityId, colour, printedGlyphHtml }) => ({
+          quantityId,
+          name: colour.name,
+          glyphHtml: colour.glyphHtml,
+          printedGlyphHtml,
+          style: colourStyle(colour),
+        }))}
+      />
     </TermHighlight>
   );
 }

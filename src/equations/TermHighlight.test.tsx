@@ -4,6 +4,7 @@ import lqEquations from "../generated/light-quanta-equations.json";
 import srEquations from "../generated/special-relativity-equations.json";
 import { ColouredFormula } from "../reader/ColouredFormula.tsx";
 import { installDom, uninstallDom } from "../testing/reactDom.ts";
+import { SemanticEquation } from "./SemanticEquation.tsx";
 import { elementsOfQuantity, lightQuantity, quantityAt } from "./TermHighlight.tsx";
 import { withQuantityIds } from "./termQuantities.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
@@ -47,7 +48,7 @@ describe("each term span carries its exact quantity id", () => {
       [...html.matchAll(/data-term="[^"]*" data-quantity-id="([^"]*)"/g)].map((m) => m[1]),
     );
     const legendIds = [
-      ...html.matchAll(/<li class="equation-quantity" data-quantity-id="([^"]*)"/g),
+      ...html.matchAll(/<button type="button" class="term-chip" data-quantity-id="([^"]*)"/g),
     ].map((m) => m[1]);
     expect(legendIds.length).toBeGreaterThan(0);
     for (const id of legendIds) expect(formulaIds.has(id)).toBe(true);
@@ -116,5 +117,36 @@ describe("lighting a quantity lights that exact id and no other", () => {
     outside.setAttribute("data-quantity-id", "speed");
     document.body.appendChild(outside);
     expect(quantityAt(root, outside)).toBeNull();
+  });
+});
+
+describe("the explorer's chips and decoder read as text without JavaScript", () => {
+  test("each bound phrase is a disabled button with its quantity id, and the sentence reads whole", () => {
+    const html = renderToStaticMarkup(<SemanticEquation equation={lorentz} />);
+    const phrases = [
+      ...html.matchAll(
+        /<button type="button" class="equation-quantity term-phrase"[^>]*>([^<]*)</g,
+      ),
+    ];
+    expect(phrases.length).toBeGreaterThan(0);
+    for (const [tag] of phrases) {
+      expect(tag).toContain('disabled=""');
+      expect(tag).toMatch(/data-quantity-id="[A-Za-z]+"/);
+    }
+    // The sentence's words survive: every fragment's text is in the paragraph, in order.
+    const sentence = lorentz.sentence.map((f) => f.text).join("");
+    const paragraph = /<p class="equation-sentence"[^>]*>([\s\S]*?)<\/p>/.exec(html)?.[1] ?? "";
+    expect(paragraph.replace(/<[^>]+>/g, "")).toBe(sentence.replace(/'/g, "&#x27;"));
+  });
+
+  test("each quantity is a disabled chip carrying its name, one per quantity", () => {
+    const html = renderToStaticMarkup(<SemanticEquation equation={lorentz} />);
+    const chips = [
+      ...html.matchAll(/<button type="button" class="term-chip" data-quantity-id="([^"]*)"[^>]*>/g),
+    ];
+    const quantities = new Set(lorentz.terms.map((t) => t.quantityId));
+    expect(chips.map((m) => m[1]).sort()).toEqual([...quantities].sort());
+    for (const [tag] of chips) expect(tag).toContain('disabled=""');
+    for (const t of lorentz.terms) expect(html).toContain(`>${t.quantity.name}</span>`);
   });
 });
