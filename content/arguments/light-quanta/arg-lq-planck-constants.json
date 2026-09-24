@@ -62,15 +62,54 @@
         "returnCaption": "Return to the hydrogen atom's 1.62 × 10⁻²⁴ gram and the number N."
       },
       {
+        "kind": "paragraph",
+        "text": "Letters as printed: the paper writes Planck's two constants as α and β, and this explanation names them A and B. Here β divides a frequency by a temperature inside an exponential, so it is a constant of the radiation law, Wien's constant; it is not the relativity paper's β. L, written c below, is the speed of light."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Keep temperature and the frequency-density convention identical in the two formulas.",
-          "For small \\(y = B\\nu/T\\), replace \\(\\exp(y) - 1\\) by \\(y\\) to leading order.",
-          "Cancel the common \\(\\nu^2 T\\) factor at positive frequency and temperature.",
-          "Solve \\(A/B = 8\\pi R/(N c^3)\\) for \\(N\\).",
-          "Inspect the provenance of A, B, R, and c before calling the result an inference.",
-          "Separate a statement about resonators exchanging energy from a statement about freely propagating radiation."
+          "Planck's formula, which fitted all the observations then available, gives the spectral density as \\(\\rho_\\nu=\\frac{A\\nu^3}{\\exp(B\\nu/T)-1}\\) (p. 136).",
+          "Name the ratio in the exponent \\(y=B\\nu/T\\). It has no units: B is in seconds times kelvin, ν in inverse seconds, T in kelvin.",
+          "For small y, \\(\\exp(y)=1+y+y^2/2+\\ldots\\), so \\(\\exp(y)-1=y(1+y/2+\\ldots)\\), which approaches y as y becomes small. Small y means low frequency or high temperature, that is, large T/ν: long wavelengths and dense radiation.",
+          "Replace \\(\\exp(B\\nu/T)-1\\) by \\(B\\nu/T\\) and divide: \\(A\\nu^3\\) divided by \\(B\\nu/T\\) is \\(\\frac{A}{B}\\nu^2T\\)."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{A\\nu^3}{\\exp(B\\nu/T)-1}\\approx\\frac{A}{B}\\nu^2T",
+        "spoken": "At low frequency relative to temperature, the spectrum approaches A over B times frequency squared times temperature.",
+        "equations": ["eq-model-lq-planck-low-frequency"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "This has the same form as the classical allocation of §1, \\(\\frac{R}{N}\\frac{8\\pi\\nu^2}{L^3}T\\): both are a constant times \\(\\nu^2T\\). For the two to agree at every low frequency and every temperature, the constants in front must be equal.",
+          "Set them equal, then multiply both sides by N and by B/A to leave N alone."
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\frac{A}{B}=\\frac{8\\pi R}{Nc^3},\\qquad N=\\frac{B}{A}\\frac{8\\pi R}{c^3}",
+        "spoken": "Equating the coefficients gives N equal to B over A times eight pi R over light speed cubed.",
+        "equations": ["eq-model-lq-coefficient-match", "eq-model-lq-avogadro-from-spectrum"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked with the paper's inputs. The page prints β as \\(4{,}866\\cdot10^{-11}\\) and α as \\(6{,}10\\cdot10^{-56}\\). The provenance receipt records the exponent of α as a misprint, and this edition computes with \\(A=6.10\\times10^{-57}\\).",
+          "R and L are not printed as numbers in §2. With the standard values of 1905, \\(R=8.31\\times10^{7}\\) erg per kelvin per gram-molecule and \\(L=3\\times10^{10}\\) cm per second, supplied as inputs: B/A is \\(7.98\\times10^{45}\\), \\(8\\pi R/L^3\\) is \\(7.74\\times10^{-23}\\), and their product is \\(N=6.17\\times10^{23}\\).",
+          "The page prints \\(N=6{,}17\\cdot10^{23}\\), and adds that one atom of hydrogen weighs 1/N gram. Check it: \\(1/(6.17\\times10^{23})=1.62\\times10^{-24}\\) gram, the number the page gives.",
+          "The misprinted exponent cannot be the one used: the same arithmetic with \\(6.10\\times10^{-56}\\) gives \\(6.17\\times10^{22}\\), ten times smaller than the number printed.",
+          "The paper notes that this is the value Planck found, and that it agrees satisfactorily with values found by other routes. Its point is narrower than it may look: Planck's determination of N depends only to a degree on his theory of radiation, because only the long-wavelength form of the spectrum enters.",
+          "The conclusion the paper draws from §§1 and 2: its theoretical foundations serve better the greater the energy density and the wavelength of the radiation, and fail completely for short wavelengths and small densities. §4 works in exactly that region.",
+          "Keep the evidence straight. In today's SI, R is defined as \\(N_Ak_B\\), so putting modern constants into this formula returns the defined \\(N_A\\) and tests nothing about molecules.",
+          "Keep the two claims apart. Planck's resonators belong to the matter that emits and absorbs; the energy elements the paper goes on to propose belong to the radiation itself. Getting from one to the other takes the argument of §§3 to 6."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "bridge-fractions-ratios",
+        "returnCaption": "Return to matching the two spectral coefficients."
       }
     ],
     "margin": [

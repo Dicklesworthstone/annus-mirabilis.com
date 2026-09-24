@@ -3,14 +3,6 @@
   "measuredAt": "2026-09-24",
   "examined": 42,
   "violators": {
-    "arg-lq-classical-allocation": {
-      "paper": "light-quanta",
-      "missing": [
-        "eq-model-lq-classical-density",
-        "eq-model-lq-cutoff-integral+eq-model-lq-cutoff-total"
-      ],
-      "wordGap": 0
-    },
     "arg-lq-entropy-correspondence": {
       "paper": "light-quanta",
       "missing": [
@@ -49,23 +41,10 @@
       "missing": ["eq-model-lq-photoelectric-maximum+eq-model-lq-threshold-frequency"],
       "wordGap": 28
     },
-    "arg-lq-planck-constants": {
-      "paper": "light-quanta",
-      "missing": [
-        "eq-model-lq-planck-low-frequency",
-        "eq-model-lq-coefficient-match+eq-model-lq-avogadro-from-spectrum"
-      ],
-      "wordGap": 35
-    },
     "arg-lq-stopping-and-losses": {
       "paper": "light-quanta",
       "missing": ["eq-model-lq-stopping-energy"],
       "wordGap": 48
-    },
-    "arg-lq-wave-and-transfer": {
-      "paper": "light-quanta",
-      "missing": [],
-      "wordGap": 65
     },
     "arg-lq-wien-integration": {
       "paper": "light-quanta",

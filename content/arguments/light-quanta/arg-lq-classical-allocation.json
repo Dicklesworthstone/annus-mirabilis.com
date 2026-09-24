@@ -58,15 +58,52 @@
         "returnCaption": "Return to the energy density per unit of frequency and its units."
       },
       {
+        "kind": "paragraph",
+        "text": "Symbols first, in the paper's letters. T is the absolute temperature. R is the gas constant and N the number of real molecules in one gram-equivalent, so R/N is the gas constant for a single molecule; this explanation also writes it \\(k_B\\), a later name. L in the paper is the speed of light, written c below. ν is a frequency, and \\(\\rho_\\nu\\,d\\nu\\) is the energy per unit volume carried by the radiation whose frequency lies between ν and ν + dν."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Specify a positive equilibrium temperature and a finite cutoff frequency.",
-          "Multiply mode density \\(8\\pi\\nu^2/c^3\\) by mean mode energy \\(k_B T\\).",
-          "Integrate \\(\\nu^2\\) from zero to the cutoff; its integral is the cutoff cubed divided by three.",
-          "Compare two cutoffs while keeping temperature fixed: a factor two in cutoff gives a factor eight in total.",
-          "Let the cutoff increase without bound. There is no finite limiting total to plot.",
-          "Do not interpret a numerical refusal at infinite cutoff as zero energy."
+          "Start from the kinetic theory of gases. A resonator, an electron bound to a point in space, exchanges energy with the gas molecules by collisions. In equilibrium the mean energy of one of its straight-line vibrations comes out as \\(\\frac{R}{N}T\\), which is \\(k_BT\\) (p. 134).",
+          "Planck had related such a resonator to the radiation around it. A resonator of natural frequency ν in equilibrium with radiation has, per vibration component, the mean energy \\(\\frac{L^3}{8\\pi\\nu^2}\\rho_\\nu\\) (p. 135).",
+          "If the radiation at frequency ν is neither steadily gaining nor steadily losing energy, both conditions hold at once. Set the two mean energies equal: \\(\\frac{R}{N}T=\\frac{L^3}{8\\pi\\nu^2}\\rho_\\nu\\).",
+          "Multiply both sides by \\(8\\pi\\nu^2/L^3\\) to leave the density alone: \\(\\rho_\\nu=\\frac{R}{N}\\frac{8\\pi\\nu^2}{L^3}T\\) (p. 136). In the explanatory letters that is the first formula below."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\rho_\\nu=\\frac{8\\pi\\nu^2}{c^3}k_BT",
+        "spoken": "The classical energy density per unit frequency is eight pi frequency squared times thermal energy, divided by light speed cubed.",
+        "equations": ["eq-model-lq-classical-density"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Check the units. \\(k_BT\\) is an energy. \\(\\nu^2/c^3\\) has units of \\(\\mathrm{s}^{-2}\\) divided by \\(\\mathrm{cm}^3\\mathrm{s}^{-3}\\), which is seconds per cubic centimetre. The product is energy times seconds per volume: energy per unit volume and per unit frequency, which is what a spectral density must be.",
+          "A density becomes an energy only after it is multiplied by a frequency width. The energy per unit volume in all frequencies from 0 up to a cutoff \\(\\nu_c\\) is the integral of \\(\\rho_\\nu\\) over that range.",
+          "Everything except \\(\\nu^2\\) stays constant during the integration, so it comes outside the integral. The integral of \\(\\nu^2\\) from 0 to \\(\\nu_c\\) is \\(\\nu_c^3/3\\), which gives the second formula."
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "U(\\nu_c)=\\int_0^{\\nu_c}\\rho_\\nu\\,d\\nu=\\frac{8\\pi k_BT}{3c^3}\\nu_c^3",
+        "spoken": "The energy density below the cutoff frequency is eight pi times Boltzmann's constant times temperature, divided by three times the speed of light cubed, times the cutoff frequency cubed.",
+        "equations": ["eq-model-lq-cutoff-integral", "eq-model-lq-cutoff-total"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked comparison at one fixed temperature: a cutoff twice as high gives \\(2^3=8\\) times the energy, and a cutoff ten times as high gives \\(10^3=1000\\) times. The total keeps growing as the cutoff grows.",
+          "Remove the cutoff, as the paper does at the end of §1: the integral of \\(\\nu^2\\,d\\nu\\) from 0 to infinity is infinite, so the radiation energy in the space would be infinite.",
+          "The paper draws two conclusions from this relation: it disagrees with experience, and in this picture there can be no definite distribution of energy between the ether and matter.",
+          "Keep names with their dates. A radiation law of this \\(\\nu^2T\\) form had been proposed by Rayleigh in June 1900; Jeans's correction of its coefficient came in 1905, parallel to this paper rather than behind it. The phrase 'ultraviolet catastrophe' for the divergence is Ehrenfest's, from 1911, and the paper does not use it.",
+          "A plotted curve that stops at some frequency shows where the calculation stopped, not a property of light. The resonator laboratory reports the finite part it draws, and refuses to give the unbounded total as a number, rather than showing it as zero."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "integration",
+        "returnCaption": "Return to integrating a spectral density over a stated frequency range."
       }
     ],
     "margin": [

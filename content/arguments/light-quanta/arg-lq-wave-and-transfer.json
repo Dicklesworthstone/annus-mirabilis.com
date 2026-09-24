@@ -45,14 +45,26 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "The introduction sets two descriptions side by side. In the physics of 1905, matter is described by a finite number of atoms and electrons, so the energy of a body sits in a finite number of places. Light, in Maxwell's theory, is a field: its energy is spread continuously through any region the light fills, however small the region is taken. The paper keeps the field for what it describes well and asks about something else."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Name the observable first: an interference pattern, a time-averaged intensity, or energy transferred to matter.",
-          "Keep the successful wave description for the propagation question.",
-          "Distinguish doubling amplitude from doubling intensity: intensity is proportional to amplitude squared in this model.",
-          "Treat localized energy transfer as an additional hypothesis, not as something proved by drawing separate dots.",
-          "Follow the entropy argument before assigning an energy to an element of light."
+          "Name the observable before choosing a description. An interference pattern is a question about how light travels. The energy that an electron carries away from an illuminated metal is a question about how light exchanges energy with matter.",
+          "For travel, keep the wave description. Two waves arriving at one place add, and where a crest meets a trough they cancel. That is interference, and the paper does not withdraw it or any other success of wave optics.",
+          "Work the wave model's own arithmetic. In that model the intensity, the energy delivered per unit area and per unit time, is proportional to the square of the field amplitude. Double the amplitude and the intensity becomes 2 × 2 = 4 times as large; triple it and it becomes 3 × 3 = 9 times as large.",
+          "Notice what optical observations measure: averages over many oscillations. The paper points out that this is why a continuous field can fit them so well while leaving open what happens in a single, brief exchange of energy.",
+          "State the new question precisely. When light is emitted, absorbed, or converted into light of another colour, does its energy behave as if it were spread continuously, or as if it were concentrated in a finite number of separate portions that travel without dividing and are absorbed or produced only whole?",
+          "Mark the status of the proposal. The paper calls its viewpoint heuristic: a way of looking that is to be judged by its consequences for particular phenomena. The introduction states it; it does not prove it.",
+          "See where the consequences are drawn. Sections 1 to 6 build an argument from the entropy of radiation, and sections 7 to 9 apply the resulting picture to fluorescence, to electrons released from solids by light, and to the ionization of gases by ultraviolet light.",
+          "Keep the drawing honest. A picture of separate dots moving through space illustrates the hypothesis; it is not evidence for it. Evidence can come only from comparing the consequences with observations made independently of the picture."
         ]
+      },
+      {
+        "kind": "foundation",
+        "id": "fields-waves",
+        "returnCaption": "Return to what wave propagation explains and what energy transfer still asks."
       }
     ],
     "margin": [
