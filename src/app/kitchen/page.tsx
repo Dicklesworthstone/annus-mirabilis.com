@@ -6,7 +6,11 @@ import {
   KITCHEN_METADATA_KEYS,
   KITCHEN_READER_COLUMNS,
 } from "../../experiments/bm07/kitchen/schema.ts";
-export const metadata: Metadata = { title: "Observe, measure, and question Brownian motion" };
+export const metadata: Metadata = {
+  title: "Observe, measure, and question Brownian motion",
+  description:
+    "Watch a particle wander, measure its spread, and see what else a molecular count would need, starting from a practice file this page supplies. Stopping after watching is a complete result.",
+};
 
 const BLANK_ROW_IDS = [
   "row-1",

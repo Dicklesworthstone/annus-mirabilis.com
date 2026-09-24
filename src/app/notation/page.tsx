@@ -9,7 +9,7 @@ import { loadNotationPageData } from "./notationData.ts";
 export const metadata: Metadata = {
   title: "Notation concordance",
   description:
-    "Scoped symbol meanings, historical mappings, unit-system conversions, and the collisions between them in the 1905 papers.",
+    "The letters Einstein reused across the 1905 papers, what each one means where it appears, and the symbol a modern reader would use: in the relativity paper his β is the modern γ, and in the Brownian paper his k is the viscosity.",
 };
 
 export default function NotationPage() {

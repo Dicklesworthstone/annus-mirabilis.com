@@ -3,7 +3,11 @@ import { firstPagePlate, loadFirstPages } from "../../components/home/firstPages
 import "../../components/home/firstPages.css";
 import "./papersIndex.css";
 import "../../components/home/wideProse.css";
-export const metadata: Metadata = { title: "The four papers" };
+export const metadata: Metadata = {
+  title: "The four papers",
+  description:
+    "The four papers Einstein sent to the Annalen der Physik in 1905, in the order the journal received them, each under its printed German title.",
+};
 const papers = [
   {
     slug: "light-quanta",
