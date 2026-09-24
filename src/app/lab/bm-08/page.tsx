@@ -1,3 +1,4 @@
+import { NotModeledLine } from "../NotModeledLine.tsx";
 import "./camera.css";
 import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
@@ -26,6 +27,7 @@ export default function CameraPage() {
         the same localization variance. The clicks cannot establish that assumption.
       </p>
       <CameraComparison example={{ ...example, parameters: p.data }} />
+      <NotModeledLine instrumentId="bm-08" />
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
         <ul>

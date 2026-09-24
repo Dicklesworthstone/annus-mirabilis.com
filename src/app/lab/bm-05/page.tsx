@@ -1,3 +1,4 @@
+import { NotModeledLine } from "../NotModeledLine.tsx";
 import "./walks.css";
 import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
@@ -22,6 +23,7 @@ export default function WalkPage() {
         </p>
       </header>
       <WalkComparison example={{ ...example, parameters: checked.data }} />
+      <NotModeledLine instrumentId="bm-05" />
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
         <ul>

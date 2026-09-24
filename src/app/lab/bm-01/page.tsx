@@ -3,6 +3,7 @@ import { Formula } from "../../../components/edition/Formula.tsx";
 import { TracerComparison } from "../../../components/lab/TracerLab.tsx";
 import { LAB_CARDS, labShareImages } from "../../../components/share/shareImages.ts";
 import example from "../../../generated/bm01-example.json";
+import { NotModeledLine } from "../NotModeledLine.tsx";
 export const metadata: Metadata = {
   title: LAB_CARDS["bm-01"].title,
   description:
@@ -23,6 +24,7 @@ export default function TracerPage() {
         </p>
       </header>
       <TracerComparison example={example} />
+      <NotModeledLine instrumentId="bm-01" />
       <nav className="lab-onward" aria-label="From this trial">
         <h2>From this trial</h2>
         <ul>

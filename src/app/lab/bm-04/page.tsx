@@ -4,6 +4,7 @@ import { DriftDiffusionLab } from "../../../components/lab/DriftDiffusionLab.tsx
 import { InlineFormula } from "../../../components/lab/InlineFormula.tsx";
 import { validateBm04Parameters } from "../../../experiments/bm04/parameters.ts";
 import example from "../../../generated/bm04-example.json";
+import { NotModeledLine } from "../NotModeledLine.tsx";
 
 export const metadata: Metadata = {
   title: "Drift-diffusion balance and the Stokes-Einstein relation",
@@ -28,6 +29,7 @@ export default function DriftDiffusionLabPage() {
       </header>
 
       <DriftDiffusionLab example={{ ...example, parameters: checked.data }} />
+      <NotModeledLine instrumentId="bm-04" />
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
         <ul>
