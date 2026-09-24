@@ -106,17 +106,17 @@ describe("/sources/", () => {
     const log = html.split('id="corrections"')[1] ?? "";
     const items = log.split("<li ").slice(1);
     expect(items.length).toBe(records.length);
-    const escape = (t: string) =>
+    const escaped = (t: string) =>
       t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/'/g, "&#x27;");
     for (const record of records) {
       const item = items.filter((i) => i.startsWith(`id="${record.id}"`));
       expect({ id: record.id, once: item.length }).toEqual({ id: record.id, once: 1 });
       const body = item[0] ?? "";
-      expect(body).toContain(`Printed: <span lang="de">${escape(record.originalReading)}</span>`);
-      expect(body).toContain(`Proposed: <span lang="de">${escape(record.proposedReading)}</span>`);
+      expect(body).toContain(`Printed: <span lang="de">${escaped(record.originalReading)}</span>`);
+      expect(body).toContain(`Proposed: <span lang="de">${escaped(record.proposedReading)}</span>`);
       if (record.status === "retracted") {
         expect(body).toContain("withdrawn");
-        expect(body).toContain(escape(firstSentence(record.retraction?.reason ?? "")));
+        expect(body).toContain(escaped(firstSentence(record.retraction?.reason ?? "")));
       } else expect(body).not.toContain("Withdrawn on");
     }
   });

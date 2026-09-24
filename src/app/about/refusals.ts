@@ -1,7 +1,7 @@
 import type { PaperDate } from "../../content/provenance/receiptSchema.ts";
 
 /**
- * The five ways /about/ refuses to build, each with a code (as FirstPagesError does for the home
+ * The six ways /about/ refuses to build, each with a code (as FirstPagesError does for the home
  * page). Every date, the attribution line and every revision come from records, so a missing
  * record stops the export instead of the page printing a guess.
  */
@@ -10,7 +10,8 @@ export type AboutErrorCode =
   | "receipt-missing"
   | "receipt-day-date-missing"
   | "receipt-publication-date-missing"
-  | "content-revision-missing";
+  | "content-revision-missing"
+  | "example-anchor-missing";
 
 export class AboutError extends Error {
   readonly code: AboutErrorCode;
@@ -71,4 +72,19 @@ export function requireRevision(revision: string | undefined, slug: string): str
     );
   }
   return revision;
+}
+
+/** The section and argument a citation example names; a paper with neither stops the build. */
+export function requireExampleAnchor(
+  section: string | undefined,
+  argument: string | undefined,
+  paper: string,
+): { section: string; argument: string } {
+  if (!section || !argument) {
+    throw new AboutError(
+      "example-anchor-missing",
+      `The paper ${paper} has no section with an argument for the citation examples to name.`,
+    );
+  }
+  return { section, argument };
 }

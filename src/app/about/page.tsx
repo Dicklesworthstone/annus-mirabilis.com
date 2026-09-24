@@ -11,6 +11,7 @@ import {
   attributionFrom,
   dayDate,
   publicationDate,
+  requireExampleAnchor,
   requireFound,
   requireRevision,
 } from "./refusals.ts";
@@ -121,9 +122,7 @@ function loadExampleAnchors() {
     readFileSync(join(process.cwd(), "content", "papers", `${EXAMPLE_PAPER}.json`), "utf8"),
   ) as { sections: readonly { id: string; title: string; arguments: readonly string[] }[] };
   const section = record.sections[0];
-  const argument = section?.arguments[0];
-  if (!section || !argument) throw new Error(`${EXAMPLE_PAPER} has no section to cite.`);
-  return { section: section.id, argument };
+  return requireExampleAnchor(section?.id, section?.arguments[0], EXAMPLE_PAPER);
 }
 
 /**

@@ -36,7 +36,7 @@ describe("double-quoted scalars", () => {
     );
     // Non-vacuity: the receipts do record readings, and some use characters beyond ASCII.
     expect(readings.length).toBeGreaterThan(0);
-    expect(readings.some((r) => /[^\x00-\x7f]/.test(r))).toBe(true);
+    expect(readings.some((r) => [...r].some((c) => (c.codePointAt(0) ?? 0) > 0x7f))).toBe(true);
     expect(readings.filter((r) => /\\u[0-9a-fA-F]{4}/.test(r))).toEqual([]);
   });
 });

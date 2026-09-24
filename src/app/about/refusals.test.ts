@@ -1,6 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import type { PaperDate } from "../../content/provenance/receiptSchema.ts";
-import { AboutError, attributionFrom, dayDate, publicationDate, requireFound } from "./refusals.ts";
+import {
+  AboutError,
+  attributionFrom,
+  dayDate,
+  publicationDate,
+  requireExampleAnchor,
+  requireFound,
+  requireRevision,
+} from "./refusals.ts";
 
 /** Each of /about/'s refusals, driven with the input that should trigger it and one that should not. */
 function codeOf(run: () => unknown): string | undefined {
@@ -31,6 +39,31 @@ describe("/about/ refusals", () => {
     );
     expect(attributionFrom("## Attribution\n\nText:\n\n```text\nThe line.\n```\n")).toBe(
       "The line.",
+    );
+  });
+
+  test('a paper the content index has no compiled revision for refuses with "content-revision-missing"', () => {
+    const digest = "a".repeat(64);
+    expect(requireRevision(digest, "brownian-motion")).toBe(digest);
+    expect(codeOf(() => requireRevision(undefined, "brownian-motion"))).toBe(
+      "content-revision-missing",
+    );
+    // A truncated or non-hex value is not a revision either.
+    expect(codeOf(() => requireRevision("7533612eb73d", "brownian-motion"))).toBe(
+      "content-revision-missing",
+    );
+  });
+
+  test('a citation example with no section and argument to name refuses with "example-anchor-missing"', () => {
+    expect(requireExampleAnchor("s4", "arg-bm-observable", "brownian-motion")).toEqual({
+      section: "s4",
+      argument: "arg-bm-observable",
+    });
+    expect(codeOf(() => requireExampleAnchor(undefined, undefined, "brownian-motion"))).toBe(
+      "example-anchor-missing",
+    );
+    expect(codeOf(() => requireExampleAnchor("s4", undefined, "brownian-motion"))).toBe(
+      "example-anchor-missing",
     );
   });
 
