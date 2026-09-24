@@ -20,8 +20,11 @@ import {
   type Argument,
   type Citation,
   type Foundation,
+  type FoundationExtension,
+  foundationExtensionIssues,
   type Paper,
   READING_IDS,
+  validateFoundationExtension,
   validateReadingRecord,
 } from "../schemas/reading.ts";
 import { type CheckFamily, listRegisteredChecks, runAllChecks } from "./checks/registry.ts";
@@ -122,6 +125,7 @@ export async function compileContent(
   // =========================================================================
   const startLoad = performance.now();
   const rawRecords = new Map<string, unknown>();
+  const extensions: { path: string; extension: FoundationExtension }[] = [];
   const seenPaths = new Set<string>();
   let flagReviewsText = options?.flagReviewsYaml;
 
@@ -186,6 +190,12 @@ export async function compileContent(
     // Parse JSON/YAML
     try {
       const parsed = parseContentFile(file);
+      // Unlike a reading record, a malformed extension is not passed through: it throws here.
+      if (routeMatch.kind === "foundation-extension")
+        extensions.push({
+          path: file.path,
+          extension: validateFoundationExtension(parsed, file.path),
+        });
       const record = validateRecordContent(parsed, file.path, routeMatch.kind);
       const matchParams = routeMatch.params;
 
@@ -278,6 +288,15 @@ export async function compileContent(
   for (const err of indexErrors) {
     addIssue("error", err.code, err.path, err.message, { family: "structural" });
   }
+  const foundationIds = new Set(
+    [...rawRecords.values()].flatMap((r) =>
+      r && typeof r === "object" && "kind" in r && r.kind === "foundation" && "id" in r
+        ? [String(r.id)]
+        : [],
+    ),
+  );
+  for (const found of foundationExtensionIssues(extensions, foundationIds))
+    addIssue("error", found.code, found.path, found.message, { family: "structural" });
 
   // Create standard review flags for draft content
   for (const r of rawRecords.values()) {

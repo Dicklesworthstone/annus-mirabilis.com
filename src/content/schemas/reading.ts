@@ -418,3 +418,96 @@ export function validateReadingRecord(input: unknown, path: string): ReadingReco
   } else error(path, "Unknown record kind.");
   return input as ReadingRecord;
 }
+
+/**
+ * An extension section: a record under content/foundations/extensions/ that the lesson named by
+ * `targetFoundation` shows as a part of its own, without its record being edited. The body is the
+ * same blocks a lesson's explanation uses, held to the same checks.
+ */
+export type FoundationExtensionSection = Readonly<{
+  schemaVersion: typeof READING_SCHEMA_VERSION;
+  kind: "foundation-extension";
+  id: string;
+  targetFoundation: string;
+  ownerBead: string;
+  title: string;
+  body: readonly Block[];
+  citations: readonly string[];
+  plannedCallers?: readonly string[];
+}>;
+
+/**
+ * Extensions drawn by their own component in the target lesson's construction slot, not from a
+ * body of blocks. Only their shared header is checked here; their other fields belong to the
+ * component that reads them.
+ */
+export const BESPOKE_EXTENSIONS: readonly string[] = ["taylor-expansion-binomial"];
+
+export type FoundationExtension = Readonly<{
+  id: string;
+  targetFoundation: string;
+  /** The section to render from blocks, or null for a bespoke extension. */
+  section: FoundationExtensionSection | null;
+}>;
+
+export function validateFoundationExtension(input: unknown, path: string): FoundationExtension {
+  const o = object(input, path);
+  choice(o.schemaVersion, `${path}.schemaVersion`, [READING_SCHEMA_VERSION]);
+  choice(o.kind, `${path}.kind`, ["foundation-extension"]);
+  id(o.id, `${path}.id`);
+  text(o.title, `${path}.title`);
+  text(o.ownerBead, `${path}.ownerBead`);
+  text(o.targetFoundation, `${path}.targetFoundation`);
+  if (!/^foundation:[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(o.targetFoundation))
+    error(`${path}.targetFoundation`, "Name the lesson as foundation:<its id>.");
+  const header = { id: String(o.id), targetFoundation: o.targetFoundation };
+  if (BESPOKE_EXTENSIONS.includes(header.id)) return { ...header, section: null };
+
+  const required = [
+    "schemaVersion",
+    "kind",
+    "id",
+    "targetFoundation",
+    "ownerBead",
+    "title",
+    "body",
+    "citations",
+  ];
+  for (const k of Object.keys(o))
+    if (![...required, "plannedCallers"].includes(k)) error(`${path}.${k}`, "Unknown field.");
+  for (const k of required) if (!Object.hasOwn(o, k)) error(`${path}.${k}`, "Missing field.");
+  list(o.body, `${path}.body`, block, 1);
+  list(o.citations, `${path}.citations`, id);
+  if (o.plannedCallers !== undefined) list(o.plannedCallers, `${path}.plannedCallers`, text);
+  return { ...header, section: input as FoundationExtensionSection };
+}
+
+/**
+ * The checks that need every record at once: an extension's id is used once, and it extends a
+ * lesson that exists. Both content compilers call this, so neither can accept what the other
+ * refuses.
+ */
+export function foundationExtensionIssues(
+  extensions: readonly Readonly<{ path: string; extension: FoundationExtension }>[],
+  foundationIds: ReadonlySet<string>,
+): Readonly<{ code: string; path: string; message: string }>[] {
+  const issues: { code: string; path: string; message: string }[] = [];
+  const seen = new Set<string>();
+  for (const { path, extension } of extensions) {
+    if (seen.has(extension.id))
+      issues.push({
+        code: "duplicate-id",
+        path,
+        message: `Duplicate extension id: ${extension.id}.`,
+      });
+    seen.add(extension.id);
+    const target = extension.targetFoundation.replace(/^foundation:/, "");
+    if (!foundationIds.has(target))
+      issues.push({
+        code: "extension-target-missing",
+        path,
+        message: `Extension ${extension.id} extends ${extension.targetFoundation}, which is not a lesson record.`,
+      });
+  }
+  return issues;
+}

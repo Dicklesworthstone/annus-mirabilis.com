@@ -15,9 +15,12 @@ import {
   type Block,
   type Citation,
   type Foundation,
+  type FoundationExtension,
+  foundationExtensionIssues,
   type Paper,
   READING_IDS,
   type ReadingRecord,
+  validateFoundationExtension,
   validateReadingRecord,
 } from "../schemas/reading.ts";
 import { type CompileResult, type CompilerOptions, compileContent } from "./compiler.ts";
@@ -87,6 +90,7 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
   const paths = new Set<string>();
   const registeredQuantityIds = new Set<string>();
   const legacySpellings: { path: string; records: RawLegacySpellingRecord[] }[] = [];
+  const extensions: { path: string; extension: FoundationExtension }[] = [];
 
   for (const file of [...files].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))) {
     if (paths.has(file.path)) {
@@ -117,9 +121,21 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
         routeMatch.kind === "frozen-id-snapshot" ||
         routeMatch.kind === "source-manifest" ||
         routeMatch.kind === "source-block" ||
-        routeMatch.kind === "aliases" ||
-        routeMatch.kind === "foundation-extension"
+        routeMatch.kind === "aliases"
       ) {
+        continue;
+      }
+
+      // Extension sections: checked here, and against the lessons they extend after the loop.
+      if (routeMatch.kind === "foundation-extension") {
+        const extension = validateFoundationExtension(parseContentFile(file), file.path);
+        // Reported as the loop reports a duplicate id, rather than as a second throw of
+        // path-identity in this file; foundationExtension.test.ts exercises it.
+        if (extension.id !== routeMatch.params.id) {
+          issue("path-identity", file.path, "Record identity disagrees with its file path.");
+          continue;
+        }
+        extensions.push({ path: file.path, extension });
         continue;
       }
 
@@ -211,6 +227,12 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
       }
     }
   }
+
+  const foundationIds = new Set(
+    [...records.values()].filter((r) => r.kind === "foundation").map((r) => r.id),
+  );
+  for (const found of foundationExtensionIssues(extensions, foundationIds))
+    issue(found.code, found.path, found.message);
 
   // Validate legacy-spellings against registered quantity IDs
   for (const group of legacySpellings) {
