@@ -26,11 +26,23 @@ const replace = (id, change) =>
     const r = JSON.parse(f.text);
     return r.id === id ? { ...f, text: JSON.stringify(change(r)) } : f;
   });
-test("the authored Brownian chapter joins six arguments and exactly the prerequisite lessons it cites", () => {
+test("the authored Brownian chapter joins its argument records and exactly the prerequisite lessons it cites", () => {
   const x = compileReadingContent(files);
   assert.equal(x.ok, true);
   const p = x.papers[0];
-  assert.equal(p.arguments.length, 6);
+  // Every Brownian argument record on disk is compiled, and nothing else is. This used to read
+  // `p.arguments.length === 6`, a census that went red on correct work when the introduction,
+  // section 1 and section 2 gained passages (dispatch 160). Identity with the records holds at
+  // any size; the non-empty check keeps the comparison from passing on two empty lists. The
+  // directory also holds the paper's entrance record, which declares no kind.
+  const onDisk = files
+    .filter((f) => /^arguments\/brownian-motion\/[^/]+\.json$/.test(f.path))
+    .map((f) => JSON.parse(f.text))
+    .filter((r) => r.kind === "argument")
+    .map((r) => r.id)
+    .sort();
+  assert.ok(onDisk.length > 0, "no Brownian argument records were read");
+  assert.deepEqual(p.arguments.map((a) => a.id).sort(), onDisk);
   // The lesson set is a closure, not a number: it was 13 until equation notes cited seven more.
   // Every lesson the chapter cites (argument help, reading foundation blocks, equation notes) is
   // present, and every present lesson is cited or is a prerequisite of one that is.
