@@ -112,7 +112,12 @@ export function ResultCard({
             {card.printed.map((p) =>
               p.kind === "display" ? (
                 <div key={p.anchor} data-printed-anchor={p.anchor}>
-                  {sourceDisplayEquation(p.text, undefined, undefined, `${card.resultId}-${p.anchor}`)}
+                  {sourceDisplayEquation(
+                    p.text,
+                    undefined,
+                    undefined,
+                    `${card.resultId}-${p.anchor}`,
+                  )}
                 </div>
               ) : (
                 <p key={p.anchor} data-printed-anchor={p.anchor}>
@@ -136,7 +141,11 @@ export function ResultCard({
       ) : null}
 
       {modernResolved ? (
-        <section className="result-modern" aria-label="In modern notation" data-result-layer="modern">
+        <section
+          className="result-modern"
+          aria-label="In modern notation"
+          data-result-layer="modern"
+        >
           <h4>In modern notation</h4>
           <ColouredFormula equations={modern} />
         </section>
@@ -211,9 +220,7 @@ export function ResultCard({
             </tbody>
           </table>
           {card.printedCheckComparison ? (
-            <p data-printed-check-comparison="true">
-              Compared: {card.printedCheckComparison}.
-            </p>
+            <p data-printed-check-comparison="true">Compared: {card.printedCheckComparison}.</p>
           ) : null}
         </section>
       )}
@@ -239,8 +246,8 @@ export function ResultCard({
           <h4>Why should I believe this step?</h4>
           <ul>
             <li>
-              Selected route: <strong>{card.support.routeKind}</strong> (
-              {card.support.proofRouteId})
+              Selected route: <strong>{card.support.routeKind}</strong> ({card.support.proofRouteId}
+              )
               {card.support.verificationState.status === "authored-unverified" && (
                 <span className="notice">: one step is not yet machine-checked.</span>
               )}
