@@ -59,6 +59,27 @@
   .clock-entrance fieldset {
     display: none;
   }
+  /* AN ANSWER IS THE ENCOUNTER'S CONTENT, NOT A DRAWER. The site's print policy drops a closed
+     drawer (sitePrint.css), and printed from live that left "What would you say?" and "Read every
+     example without using the controls" as headings over nothing. On paper the four clock answers
+     and the worked counting examples print open, each summary as a bold label; the instruction to
+     open an answer, which paper cannot do, is left out. */
+  :root main .clock-entrance details[data-clock-choice]:not([open]),
+  :root main .counting-entrance details[data-token-worked]:not([open]) {
+    display: block;
+  }
+  .clock-entrance details[data-clock-choice]::details-content,
+  .counting-entrance details[data-token-worked]::details-content {
+    content-visibility: visible;
+    display: block;
+  }
+  .clock-entrance details[data-clock-choice] > summary,
+  .counting-entrance details[data-token-worked] > summary {
+    font-weight: 600;
+  }
+  .clock-entrance p:has(+ details[data-clock-choice]) {
+    display: none;
+  }
 }
 
 /* THE FIRST ENCOUNTERS' CONTROLS ARE SIZED TO WHAT THEY HOLD. Measured on BUILD 24 at 1440: the
