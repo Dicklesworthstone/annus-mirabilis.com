@@ -1,0 +1,21 @@
+# TranslationUnit s0-p11-s1: English machine-draft translation.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+kind: "translation-unit"
+id: "s0-p11-s1"
+paper: "mass-energy"
+sourceRefs:
+  - paper: "mass-energy"
+    id: "s0-p11-s1"
+inlines:
+  - kind: "text"
+    text: "Neglecting quantities of the fourth and higher orders, we can set:"
+translator:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

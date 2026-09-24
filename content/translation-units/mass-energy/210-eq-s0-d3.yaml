@@ -1,0 +1,22 @@
+# TranslationUnit eq-s0-d3: English machine-draft translation.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+kind: "translation-unit"
+id: "eq-s0-d3"
+paper: "mass-energy"
+sourceRefs:
+  - paper: "mass-energy"
+    id: "eq-s0-d3"
+inlines:
+  - kind: "math"
+    latex: "\\begin{aligned} H_0 &= H_1 + \\left[ \\frac{L}{2} \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}} + \\frac{L}{2} \\frac{1 + \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}} \\right] \\\\ &= H_1 + \\frac{L}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}}. \\end{aligned}"
+    equationId: "eq-s0-d3"
+translator:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

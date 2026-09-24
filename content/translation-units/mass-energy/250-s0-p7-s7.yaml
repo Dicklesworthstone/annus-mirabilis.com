@@ -1,0 +1,31 @@
+# TranslationUnit s0-p7-s7: English machine-draft translation.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+kind: "translation-unit"
+id: "s0-p7-s7"
+paper: "mass-energy"
+sourceRefs:
+  - paper: "mass-energy"
+    id: "s0-p7-s7"
+inlines:
+  - kind: "math"
+    latex: "H"
+  - kind: "text"
+    text: " and "
+  - kind: "math"
+    latex: "E"
+  - kind: "text"
+    text: " are energy values of the same body, referred to two coordinate systems moving relative to each other, the body being at rest in one of the two systems (system "
+  - kind: "math"
+    latex: "(x, y, z)"
+  - kind: "text"
+    text: ")."
+translator:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

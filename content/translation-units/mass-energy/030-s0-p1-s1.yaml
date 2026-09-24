@@ -1,0 +1,28 @@
+# TranslationUnit s0-p1-s1: English machine-draft translation.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+kind: "translation-unit"
+id: "s0-p1-s1"
+paper: "mass-energy"
+sourceRefs:
+  - paper: "mass-energy"
+    id: "s0-p1-s1"
+inlines:
+  - kind: "text"
+    text: "The results of an electrodynamic investigation recently published by me in these Annalen"
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s0-fn1"
+  - kind: "text"
+    text: " lead to a very interesting conclusion, which is to be derived here."
+translator:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "a very interesting consequence"
+    rationale: "Folgerung can name the conclusion drawn or the consequence that follows. The German does not choose between them; the same word returns in s0-p12-s2 and is rendered the same way there."
+reviewState: "machine-draft"
+lang: "en"

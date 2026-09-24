@@ -1,0 +1,33 @@
+# TranslationUnit s0-p6-s2: English machine-draft translation.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+kind: "translation-unit"
+id: "s0-p6-s2"
+paper: "mass-energy"
+sourceRefs:
+  - paper: "mass-energy"
+    id: "s0-p6-s2"
+inlines:
+  - kind: "text"
+    text: "Relative to the system "
+  - kind: "math"
+    latex: "(\\xi, \\eta, \\zeta)"
+  - kind: "text"
+    text: ", moving as above with the velocity "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: ", let the energy of the body be "
+  - kind: "math"
+    latex: "H_0"
+  - kind: "text"
+    text: "."
+translator:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

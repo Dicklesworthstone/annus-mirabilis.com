@@ -1,0 +1,45 @@
+# TranslationUnit s0-p7-s8: English machine-draft translation.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+kind: "translation-unit"
+id: "s0-p7-s8"
+paper: "mass-energy"
+sourceRefs:
+  - paper: "mass-energy"
+    id: "s0-p7-s8"
+inlines:
+  - kind: "text"
+    text: "It is therefore clear that the difference "
+  - kind: "math"
+    latex: "H - E"
+  - kind: "text"
+    text: " can differ from the kinetic energy "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " of the body with respect to the other system (system "
+  - kind: "math"
+    latex: "(\\xi, \\eta, \\zeta)"
+  - kind: "text"
+    text: ") only by an additive constant "
+  - kind: "math"
+    latex: "C"
+  - kind: "text"
+    text: ", which depends on the choice of the arbitrary additive constants of the energies "
+  - kind: "math"
+    latex: "H"
+  - kind: "text"
+    text: " and "
+  - kind: "math"
+    latex: "E"
+  - kind: "text"
+    text: "."
+translator:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

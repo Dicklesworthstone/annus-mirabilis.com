@@ -1,0 +1,27 @@
+# TranslationUnit s0-p7-s11: English machine-draft translation.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+kind: "translation-unit"
+id: "s0-p7-s11"
+paper: "mass-energy"
+sourceRefs:
+  - paper: "mass-energy"
+    id: "s0-p7-s11"
+inlines:
+  - kind: "text"
+    text: "The kinetic energy of the body with respect to "
+  - kind: "math"
+    latex: "(\\xi, \\eta, \\zeta)"
+  - kind: "text"
+    text: " decreases as a result of the emission of light, and indeed by an amount that is independent of the qualities of the body."
+translator:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "independent of the properties of the body"
+    rationale: "Qualitäten is kept literally as qualities. The sense is the body’s particular nature or constitution, which properties states more idiomatically; either reading leaves the claim unchanged."
+reviewState: "machine-draft"
+lang: "en"

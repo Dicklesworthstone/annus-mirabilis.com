@@ -1,0 +1,23 @@
+# TranslationUnit s0-p14-s1: English machine-draft translation.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+kind: "translation-unit"
+id: "s0-p14-s1"
+paper: "mass-energy"
+sourceRefs:
+  - paper: "mass-energy"
+    id: "s0-p14-s1"
+inlines:
+  - kind: "text"
+    text: "It is not ruled out that with bodies whose energy content is variable to a high degree (e.g. with the radium salts) a test of the theory will succeed."
+translator:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "the theory can be successfully put to the test"
+    rationale: "gelingen says the test can be carried out, not that the theory passes it. The literal will succeed may be misread as a prediction of confirmation; this alternative avoids that reading but weakens wird (will) to can."
+reviewState: "machine-draft"
+lang: "en"

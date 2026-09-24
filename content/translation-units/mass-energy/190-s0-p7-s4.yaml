@@ -1,0 +1,37 @@
+# TranslationUnit s0-p7-s4: English machine-draft translation.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+kind: "translation-unit"
+id: "s0-p7-s4"
+paper: "mass-energy"
+sourceRefs:
+  - paper: "mass-energy"
+    id: "s0-p7-s4"
+inlines:
+  - kind: "text"
+    text: "If we call "
+  - kind: "math"
+    latex: "E_1"
+  - kind: "text"
+    text: " and "
+  - kind: "math"
+    latex: "H_1"
+  - kind: "text"
+    text: " the energy of the body after the emission of light, measured relative to the system "
+  - kind: "math"
+    latex: "(x, y, z)"
+  - kind: "text"
+    text: " and "
+  - kind: "math"
+    latex: "(\\xi, \\eta, \\zeta)"
+  - kind: "text"
+    text: " respectively, then, using the relation given above, we obtain:"
+translator:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

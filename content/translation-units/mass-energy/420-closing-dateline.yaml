@@ -1,0 +1,21 @@
+# TranslationUnit closing-dateline: English machine-draft translation.
+# Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+kind: "translation-unit"
+id: "closing-dateline"
+paper: "mass-energy"
+sourceRefs:
+  - paper: "mass-energy"
+    id: "closing-dateline"
+inlines:
+  - kind: "text"
+    text: "Bern, September 1905."
+translator:
+  id: "agent:claude-opus-5-5"
+  name: "Claude Opus 5.5 (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"
