@@ -6,6 +6,24 @@ export type Sr12ParameterCheck =
   | { kind: "accepted"; data: Sr12Parameters }
   | { kind: "refused"; refusal: ReturnType<typeof makeRefusal> };
 
+/** What each field is called on the page, with its unit, for the sentence a refusal shows. */
+const SR12_FIELD_NAMES: Readonly<Record<string, string>> = {
+  chargeDensity: "the charge density ρ, in C/m³,",
+  currentDensityX: "the current density Jx, in A/m²,",
+  currentDensityY: "the current density Jy, in A/m²,",
+  currentDensityZ: "the current density Jz, in A/m²,",
+  carrierVelocityX: "the carrier velocity vx, in m/s,",
+  carrierVelocityY: "the carrier velocity vy, in m/s,",
+  carrierVelocityZ: "the carrier velocity vz, in m/s,",
+  sphereRadius: "the sphere radius, in m,",
+  sphereCharge: "the sphere charge, in C,",
+  loopCurrent: "the loop current, in A,",
+  loopLengthX: "the loop length along x, in m,",
+  loopLengthY: "the loop length along y, in m,",
+  pulseWidth: "the pulse width, in m,",
+  pulseAmplitude: "the pulse amplitude",
+};
+
 export function validateSr12Parameters(input: unknown): Sr12ParameterCheck {
   if (input === null || typeof input !== "object") {
     return {
@@ -50,6 +68,24 @@ export function validateSr12Parameters(input: unknown): Sr12ParameterCheck {
     };
   }
 
+  const numericFields = {
+    chargeDensity,
+    currentDensityX,
+    currentDensityY,
+    currentDensityZ,
+    carrierVelocityX,
+    carrierVelocityY,
+    carrierVelocityZ,
+    sphereRadius,
+    sphereCharge,
+    loopCurrent,
+    loopLengthX,
+    loopLengthY,
+    pulseWidth,
+    pulseAmplitude,
+  };
+  const firstNonNumber =
+    Object.entries(numericFields).find(([, v]) => !Number.isFinite(v))?.[0] ?? "chargeDensity";
   if (
     ![
       chargeDensity,
@@ -72,11 +108,10 @@ export function validateSr12Parameters(input: unknown): Sr12ParameterCheck {
       kind: "refused",
       refusal: makeRefusal(
         "invalid-parameter",
-        { parameterIds: ["chargeDensity"] },
+        { parameterIds: [firstNonNumber] },
         {
           details: {
-            requirements:
-              "Enter every charge density, current density and pulse setting as a finite number.",
+            requirements: `Enter ${SR12_FIELD_NAMES[firstNonNumber] ?? "this value"} as a number.`,
           },
         },
       ),

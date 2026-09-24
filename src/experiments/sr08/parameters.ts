@@ -21,6 +21,29 @@ const NUMBER_KEYS = [
   "detectorSpeed",
 ] as const;
 
+/** What each field is called on the page, with its unit, for the sentence a refusal shows. */
+const SR08_FIELD_NAMES: Readonly<Record<string, string>> = {
+  electricFieldX: "the electric field Ex, in V/m,",
+  electricFieldY: "the electric field Ey, in V/m,",
+  electricFieldZ: "the electric field Ez, in V/m,",
+  magneticFieldX: "the magnetic field Bx, in T,",
+  magneticFieldY: "the magnetic field By, in T,",
+  magneticFieldZ: "the magnetic field Bz, in T,",
+  boost: "the boost v/c",
+  testCharge: "the test charge, in C,",
+  chargeVelocityX: "the charge's velocity vx, in m/s,",
+  chargeVelocityY: "the charge's velocity vy, in m/s,",
+  chargeVelocityZ: "the charge's velocity vz, in m/s,",
+  detectorSpeed: "the detector speed, in m/s,",
+};
+/** One field with its unit ("the electric field Ey, in V/m,"), or several by name alone ("the
+ * electric field Ey and the magnetic field Bz"), since unit phrases inside a list do not read. */
+function listNames(names: readonly string[]): string {
+  if (names.length === 1) return names[0] ?? "";
+  const bare = names.map((n) => n.replace(/, in [^,]+,$/, "").replace(/,$/, ""));
+  return `${bare.slice(0, -1).join(", ")} and ${bare[bare.length - 1]}`;
+}
+
 /**
  * A missing or non-number field is not 0. Blank strings, null, and other
  * non-numbers become NaN and are refused below. Explicit numeric 0 is valid.
@@ -56,7 +79,7 @@ export function validateSr08Parameters(input: unknown): Sr08ParameterCheck {
         { parameterIds: invalid },
         {
           details: {
-            requirements: "Enter every field component, speed and charge as a finite number.",
+            requirements: `Enter ${listNames(invalid.map((k) => SR08_FIELD_NAMES[k] ?? k))} as ${invalid.length === 1 ? "a number" : "numbers"}.`,
           },
         },
       ),
