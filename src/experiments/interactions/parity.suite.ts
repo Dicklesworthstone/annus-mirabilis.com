@@ -36,6 +36,21 @@ export type RadiationEntropyOwner = Readonly<{
   ) => Readonly<{ status: string; deltaS?: number; effectiveIndependentCount?: number }>;
 }>;
 
+type LedgerValue = Readonly<{ status: string; value?: number }>;
+/** What the energy-accounting family calls: massEnergy.ts's evaluateBoundaryLedger, or an owner of
+ * the same shape. */
+export type EnergyLedgerOwner = Readonly<{
+  evaluateBoundaryLedger: (
+    boundary: "body-alone" | "radiation" | "combined-isolated-system",
+    disposition: "escapes" | "retained" | "partly-retained",
+    emittedEnergy: number,
+  ) => Readonly<{
+    energyChange: LedgerValue;
+    massChange: LedgerValue;
+    systemEnergyChange: LedgerValue;
+  }>;
+}>;
+
 type EventCoordinates = Readonly<{ t: number; x: number; y: number; z: number }>;
 /** What the clock-event family calls: events.ts's classifySimultaneity, in its units of seconds and
  * light-seconds (c = 1), or an owner of the same shape. */
@@ -279,23 +294,53 @@ export async function familyParityCases(
     }
 
     case "energy-accounting": {
-      // ME-03: Body emits energy L as two opposite pulses
-      const L = 100.0;
+      // ME-03: a body emits L = 100 J as two opposite pulses that escape. Computed BY THE OWNER passed
+      // in options.owner (massEnergy.ts's evaluateBoundaryLedger): the body alone loses L and L/c²;
+      // the combined isolated system changes by nothing. The case used to write -L + L = 0 inline,
+      // so a run labelled "massEnergy.ts" exercised no owner; an absent owner now fails.
+      const L = 100;
       const c = 299792458;
-      const bodyEnergyChange = -L;
-      const radiationEnergyChange = +L;
-      const totalEnergyChange = bodyEnergyChange + radiationEnergyChange;
-      const bodyMassChange = -L / (c * c);
-
+      const expected = {
+        bodyEnergyChange: -L,
+        bodyMassChange: -L / (c * c),
+        systemEnergyChange: 0,
+      };
+      const owner = options.owner as Partial<EnergyLedgerOwner> | null | undefined;
+      if (!owner || typeof owner.evaluateBoundaryLedger !== "function") {
+        results.push({
+          parityCaseId: "energy-accounting-me03-two-pulses-ledger",
+          family,
+          ownerSource: options.ownerSource,
+          ownerLabel: options.ownerLabel,
+          passed: false,
+          expected,
+          actual: null,
+          message:
+            "No owner was exercised: pass an owner with evaluateBoundaryLedger (massEnergy.ts).",
+        });
+        break;
+      }
+      const body = owner.evaluateBoundaryLedger("body-alone", "escapes", L);
+      const whole = owner.evaluateBoundaryLedger("combined-isolated-system", "escapes", L);
+      const num = (r: LedgerValue) => (r.status === "value" ? (r.value ?? Number.NaN) : Number.NaN);
+      const actual = {
+        bodyEnergyChange: num(body.energyChange),
+        bodyMassChange: num(body.massChange),
+        systemEnergyChange: num(whole.systemEnergyChange),
+      };
       results.push({
         parityCaseId: "energy-accounting-me03-two-pulses-ledger",
         family,
         ownerSource: options.ownerSource,
         ownerLabel: options.ownerLabel,
-        passed: totalEnergyChange === 0 && bodyEnergyChange === -L && bodyMassChange < 0,
-        expected: { totalEnergyChange: 0, bodyEnergyChange: -100 },
-        actual: { totalEnergyChange, bodyEnergyChange },
-        message: "Isolated system has delta E = 0; body loses energy L and mass L/c^2.",
+        passed:
+          withinTolerance(actual.bodyEnergyChange, -L, { relative: 1e-12 }).ok &&
+          withinTolerance(actual.bodyMassChange, -L / (c * c), { relative: 1e-12 }).ok &&
+          withinTolerance(actual.systemEnergyChange, 0, { absolute: 1e-12 }).ok,
+        expected,
+        actual,
+        message:
+          "The owner's ledger: the body alone loses L and L/c²; the isolated system's energy is unchanged.",
       });
       break;
     }
