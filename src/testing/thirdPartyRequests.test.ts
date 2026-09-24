@@ -212,13 +212,13 @@ export function scanSourceText(filePath: string, content: string): ScanViolation
  */
 describe("schema.org in built HTML: JSON-LD is exempt, anything else is not", () => {
   const page = "out/papers/x/index.html";
-  test("the ld+json block and its flight-payload copy pass", () => {
+  it("the ld+json block and its flight-payload copy pass", () => {
     const html =
       '<section>text</section><script type="application/ld+json">{"@context":"https://schema.org","@graph":[]}</script>' +
       '<script>self.__next_f.push([1,"{\\"@context\\":\\"https://schema.org\\",\\"@graph\\":[]}"])</script>';
     expect(scanSourceText(page, html).filter((v) => v.rule.includes("schema.org"))).toEqual([]);
   });
-  test("a schema.org link in the page chrome is still a violation", () => {
+  it("a schema.org link in the page chrome is still a violation", () => {
     const html =
       '<script type="application/ld+json">{"@context":"https://schema.org"}</script><a href="https://schema.org/Article">x</a>';
     expect(scanSourceText(page, html).some((v) => v.rule.includes("schema.org"))).toBe(true);
