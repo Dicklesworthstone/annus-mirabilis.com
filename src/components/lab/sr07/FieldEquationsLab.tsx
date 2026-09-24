@@ -27,6 +27,7 @@ import { createSr07Session, type PreparedSr07Example } from "../../../experiment
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { identity, result } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
+import { withScripts } from "../subscripts.tsx";
 
 /**
  * The SI forms write a field component as E_x or B_z, and a reader was shown the underscore. Every
@@ -155,13 +156,13 @@ export function FieldEquationsLab({
         <p className="eyebrow">{SR07_MODEL.label}</p>
         <h2>{title}</h2>
       </header>
-      <p data-detail="0">{SR07_CAPTION.r0}</p>
-      <p data-detail="1">{SR07_CAPTION.r1}</p>
+      <p data-detail="0">{withScripts(SR07_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(SR07_CAPTION.r1)}</p>
       <p data-detail="2" hidden>
-        {SR07_CAPTION.r2}
+        {withScripts(SR07_CAPTION.r2)}
       </p>
       <p data-detail="3" hidden>
-        {SR07_CAPTION.r3}
+        {withScripts(SR07_CAPTION.r3)}
       </p>
       <noscript>
         <p className="notice">
