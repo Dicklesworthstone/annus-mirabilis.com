@@ -21,7 +21,7 @@ import type { PreparedSr10Example } from "../../experiments/sr10/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR11_EXAMPLE } from "../../experiments/sr11/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR12_EXAMPLE } from "../../experiments/sr12/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as SR13_EXAMPLE } from "../../experiments/sr13/session.ts";
-import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
+import { type GeneratedPredictPrompt, PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import rawSr10Example from "../../generated/sr10-example.json";
 import { createStorageContext } from "../../platform/storage/store.ts";
 import { applyReaderPrepaint } from "../../reader/detail/prepaint.ts";
@@ -333,6 +333,36 @@ describe("with JavaScript, a first-time reader answers before the result shows",
       await mounted(element(), async (container) => {
         expect(responses(container).every((s) => s === "shown")).toBe(true);
       });
+    });
+  }
+});
+
+/**
+ * What a gated lab's reader can see of its prompts: the question, the labels, the explanation, and
+ * the assumption of any candidate the model does not support (shown after that choice).
+ */
+function readerCopy(prompt: GeneratedPredictPrompt): string[] {
+  return [
+    prompt.question,
+    ...(prompt.explanation ? [prompt.explanation] : []),
+    ...prompt.candidates.map((c) => c.label),
+    ...prompt.candidates
+      .filter((c) => c.id !== prompt.supportedCandidateId)
+      .map((c) => c.separatingAssumption),
+  ];
+}
+
+describe("a gated lab's prompts judge no choice and speak the paper's vocabulary", () => {
+  // A wrong prediction is a starting point, never a judgement (AGENTS.md, predict mode). Four
+  // assumptions said "incorrectly", "mistakenly", "is confused with" or "Misapplies" until 5fa26651.
+  const judging =
+    /\b(?:wrong(?:ly)?|incorrect(?:ly)?|mistaken(?:ly)?|confus(?:ed|es|ion)|misappl\w*|naive(?:ly)?|foolish)\b/i;
+  for (const [lab] of LABS) {
+    test(`${lab}: no judging word, and no "photon", in anything a reader can see`, () => {
+      const copy = (PREDICT_PROMPTS[lab] ?? []).flatMap(readerCopy);
+      expect(copy.length).toBeGreaterThan(0);
+      expect(copy.filter((t) => judging.test(t))).toEqual([]);
+      expect(copy.filter((t) => /\bphotons?\b/i.test(t))).toEqual([]);
     });
   }
 });
