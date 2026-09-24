@@ -8,6 +8,7 @@ import { FACE_FALLBACK_IDS, faceLinkHref } from "../paperRoutes.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
+import { withoutClaimedDisplays } from "./displayClaims.ts";
 import { FootnotesSection } from "./Footnote.tsx";
 import { FACE_REGISTRY } from "./registry.ts";
 import { SourceBlock } from "./SourceBlock.tsx";
@@ -33,7 +34,8 @@ export function GermanFace({
     : blocks;
 
   const footnoteBlocks = filteredBlocks.filter((b) => b.kind === "footnote");
-  const mainBlocks = filteredBlocks.filter((b) => b.kind !== "footnote");
+  // A display its paragraph prints in place is not printed again as its own block.
+  const mainBlocks = withoutClaimedDisplays(filteredBlocks.filter((b) => b.kind !== "footnote"));
   const alignmentIndex = buildAlignmentIndex(alignment, blocks);
 
   const dateLine = paper.dates.find((d) => d.type === "date-line");
@@ -55,8 +57,8 @@ export function GermanFace({
         <p className="source-author-line">von {paper.authorLine}</p>
         {dateLine?.text && <p className="source-date-line">{dateLine.text}</p>}
         <p className="journal-citation fine">
-          {paper.journal.name} (4) {paper.journal.volume}, {paper.journal.pages.first}–
-          {paper.journal.pages.last} (
+          {paper.journal.name} ({paper.journal.series}) {paper.journal.volume},{" "}
+          {paper.journal.pages.first}–{paper.journal.pages.last} (
           {paper.dates.find((d) => d.type === "issue-publication")?.earliest?.slice(0, 4) || "1905"}
           ).
         </p>

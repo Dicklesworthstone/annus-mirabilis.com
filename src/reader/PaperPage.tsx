@@ -225,6 +225,11 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
               editorialNotes={edition.editorialNotes}
               reviewRecords={edition.reviewRecords}
               sectionId={resolved.section}
+              germanNotice={
+                editionBlocksReviewed(edition.blocks)
+                  ? undefined
+                  : loadGermanSourceFace(resolved.paperId as RouteSlug)?.notice
+              }
             />
           );
         }

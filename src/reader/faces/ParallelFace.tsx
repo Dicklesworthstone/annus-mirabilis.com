@@ -1,3 +1,4 @@
+import type { SourceFaceNotice as SourceFaceNoticeRecord } from "../../content/provenance/sourceFaceNotice.ts";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
 import type {
   Alignment,
@@ -10,10 +11,12 @@ import { FACE_FALLBACK_IDS, faceLinkHref } from "../paperRoutes.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
+import { withoutClaimedDisplays } from "./displayClaims.ts";
 import { FootnotesSection } from "./Footnote.tsx";
 import { FACE_REGISTRY } from "./registry.ts";
 import { isPaperTranslationUnreviewed } from "./reviewState.ts";
 import { SourceBlock as SourceBlockItem } from "./SourceBlock.tsx";
+import { SourceFaceNotice } from "./SourceFaceNotice.tsx";
 import { TranslationUnit as TranslationUnitItem } from "./TranslationUnit.tsx";
 import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
 import "../reader.css";
@@ -27,6 +30,12 @@ export interface ParallelFaceProps {
   readonly reviewRecords?: readonly ReviewRecord[] | undefined;
   readonly sectionId?: string | undefined;
   readonly layout?: "side-by-side" | "stacked" | undefined;
+  /**
+   * The German source's own label, from its provenance receipt (sourceFaceNotice). Passed while the
+   * blocks are an unreviewed draft, so the German column is labelled as the German face is; the
+   * English column carries its own draft banner and badges.
+   */
+  readonly germanNotice?: SourceFaceNoticeRecord | undefined;
 }
 
 export function ParallelFace({
@@ -38,6 +47,7 @@ export function ParallelFace({
   reviewRecords = [],
   sectionId,
   layout = "side-by-side",
+  germanNotice,
 }: ParallelFaceProps) {
   const isUnreviewed = isPaperTranslationUnreviewed(units, reviewRecords);
   const isStacked = layout === "stacked";
@@ -48,7 +58,9 @@ export function ParallelFace({
     : blocks;
 
   const footnoteBlocks = filteredBlocks.filter((b) => b.kind === "footnote");
-  const mainBlocks = filteredBlocks.filter((b) => b.kind !== "footnote");
+  // A display its paragraph prints in place is not printed again as its own block.
+  const mainBlocks = withoutClaimedDisplays(filteredBlocks.filter((b) => b.kind !== "footnote"));
+  const published = paper.dates.find((d) => d.type === "issue-publication");
 
   const reviewRecordsMap = new Map<string, ReviewRecord>();
   for (const rec of reviewRecords) {
@@ -84,6 +96,11 @@ export function ParallelFace({
           <em>{paper.titleGerman}</em>
         </p>
         <p className="parallel-author">By {paper.authorLine}</p>
+        <p className="journal-citation fine">
+          {paper.journal.name} ({paper.journal.series}) {paper.journal.volume},{" "}
+          {paper.journal.pages.first}–{paper.journal.pages.last}
+          {published ? ` (${published.earliest.slice(0, 4)})` : ""}.
+        </p>
       </header>
 
       {isUnreviewed && <UnreviewedBanner />}
@@ -133,6 +150,7 @@ export function ParallelFace({
           lang="de"
         >
           <h2 className="column-heading">Deutscher Originaltext</h2>
+          {germanNotice ? <SourceFaceNotice notice={germanNotice} /> : null}
           <div className="source-blocks-list">
             {mainBlocks.map((block) => (
               <SourceBlockItem

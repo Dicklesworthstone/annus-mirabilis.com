@@ -39,13 +39,30 @@ export function renderInlines(
 
       case "math": {
         try {
+          // A display inline is the equation block printed at this point in its paragraph
+          // (displayClaims.ts): set as a display, carrying the block's id so an anchor, an
+          // alignment edge and the sentence stepper still find it.
+          const display = node.display === true;
           const html = renderToString(node.latex, {
-            displayMode: false,
+            displayMode: display,
             output: "htmlAndMathml",
             throwOnError: false,
             strict: "warn",
             trust: false,
           });
+          if (display) {
+            return (
+              <span
+                key={key}
+                id={node.equationId}
+                data-block-id={node.equationId}
+                data-equation-id={node.equationId}
+                data-kind="equation"
+                data-printed-notation="true"
+                {...{ dangerouslySetInnerHTML: { __html: html } }}
+              />
+            );
+          }
           return (
             <span
               key={key}
