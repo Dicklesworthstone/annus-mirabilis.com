@@ -25,10 +25,19 @@ const GROUPS: readonly { title: string; note: string; ids: readonly string[] }[]
       "bridge-sum-average",
       "bridge-negative-numbers-direction",
       "bridge-fractions-ratios",
+      "bridge-equals-sign-relationship",
+      "bridge-letter-for-quantity",
       "bridge-squaring-square-roots",
       "bridge-scientific-notation-units",
       "bridge-a-graph",
+      "bridge-mathematical-punctuation",
+      "bridge-probability-notation",
     ],
+  },
+  {
+    title: "Units and sizes",
+    note: "What a number means once it carries a unit, and how big the quantities of 1905 are.",
+    ids: ["quantities-units", "ratios-scaling", "orders-of-magnitude", "unit-system-1905"],
   },
   {
     title: "Rates, curves and sums",
@@ -44,6 +53,16 @@ const GROUPS: readonly { title: string; note: string; ids: readonly string[] }[]
     ],
   },
   {
+    title: "Vectors, matrices and changing frame",
+    note: "The geometry of arrows and of changing coordinates that the relativity paper works in.",
+    ids: [
+      "vectors-components",
+      "dot-cross-products",
+      "matrices-linear-maps",
+      "hyperbolic-functions-rapidity",
+    ],
+  },
+  {
     title: "Chance and spread",
     note: "What an average hides, and how a random walk spreads.",
     ids: [
@@ -53,6 +72,7 @@ const GROUPS: readonly { title: string; note: string; ids: readonly string[] }[]
       "random-walks",
       "gaussian-distributions",
       "error-and-inference",
+      "two-measurements-two-unknowns",
     ],
   },
   {
@@ -60,9 +80,14 @@ const GROUPS: readonly { title: string; note: string; ids: readonly string[] }[]
     note: "Ideas a reader of the Annalen in 1905 was expected to know.",
     ids: [
       "work-energy",
+      "conservation-symmetry",
+      "temperature-thermal-energy",
       "entropy-temperature",
+      "entropy-multiplicity",
       "flux-continuity",
       "diffusion-equation",
+      "viscosity-stokes-drag",
+      "free-energy-osmotic-pressure",
       "frames-events",
       "fields-waves",
       "electromagnetism-charges",
