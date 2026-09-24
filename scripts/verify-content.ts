@@ -123,29 +123,12 @@ const provenance = loadProvenanceReceipts({
  * stale-audit-exemption error naming it, so the entry has to be deleted rather than left behind.
  * Same shape as EXPECTED_UNREACHABLE in src/testing/scriptReachability.test.ts.
  */
-const READINGS_OWNERS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
-  [
-    "am-bm-08-measurement-bias-h1ye",
-    "R2/R3 obligations unmet at 2026-09-19; the full-population readings audit reports errors against this owner. Delete this entry when its readings land (am-unwired-audits-uwot).",
-  ],
-  [
-    "am-sr-06-velocity-composition-7ni4",
-    "R2/R3 obligations unmet at 2026-09-19; same audit, same bead.",
-  ],
-  [
-    "am-sr-07-field-equations-xxes",
-    "R2/R3 obligations unmet at 2026-09-19; same audit, same bead.",
-  ],
-]);
+const READINGS_OWNERS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([]);
 
 const INSTRUMENTS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
   [
     "avogadro-lab",
     "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 5 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "bm-02",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 4 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
   ],
   [
     "bm-03",
@@ -176,10 +159,6 @@ const INSTRUMENTS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
     "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
   ],
   [
-    "lq-02",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 4 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
     "lq-03",
     "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 2 findings against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
   ],
@@ -189,10 +168,6 @@ const INSTRUMENTS_NOT_YET_AUDITABLE: ReadonlyMap<string, string> = new Map([
   ],
   [
     "lq-05",
-    "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
-  ],
-  [
-    "lq-06",
     "Unbuilt or incomplete at 2026-09-19; the full-catalogue audit reports 1 finding against it. Delete this entry when the instrument lands (am-unwired-audits-uwot).",
   ],
   [
