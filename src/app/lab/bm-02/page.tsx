@@ -18,10 +18,12 @@ export default function OsmoticPartitionPage() {
           <span>A particle you can see</span> <span>pushes like one you cannot.</span>
         </h1>
         <p className="lead">
-          Einstein's §1 makes a daring equivalence: a visible suspended particle should exert
-          osmotic pressure by the same law as a dissolved molecule, because van 't Hoff's law has no
-          term that knows how big the molecule is. Change the particle count, the volume, or the
-          radius, and see what the law actually depends on.
+          Do suspended particles press on a partition the way dissolved molecules do, and does their
+          size change the pressure at the same number per volume? Einstein's §1 makes a daring
+          equivalence: a visible suspended particle should exert osmotic pressure by the same law as
+          a dissolved molecule, because van 't Hoff's law has no term that knows how big the
+          molecule is. Change the particle count, the volume, or the radius, and see what the law
+          actually depends on.
         </p>
       </header>
 

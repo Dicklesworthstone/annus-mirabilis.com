@@ -26,8 +26,10 @@ export default function MovingClocksPage() {
           <span>Not what a camera sees: what the clock reads.</span>
         </h1>
         <p className="lead">
-          Choose a worldline. Compare the traveling clock's own proper time with the platform clocks
-          it moves past, and read both clocks' faces at the reunion event.
+          How much less time does a moving clock record than the clocks it passes, and does a clock
+          that goes out and comes back show the difference when they meet again? Choose a worldline.
+          Compare the traveling clock's own proper time with the platform clocks it moves past, and
+          read both clocks' faces at the reunion event.
         </p>
       </header>
 

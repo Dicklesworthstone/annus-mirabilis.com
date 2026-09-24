@@ -19,10 +19,11 @@ export default function ModeAllocationPage() {
           <span>and the total never stops growing.</span>
         </h1>
         <p className="lead">
-          §1 gives every linear resonator oscillation the same mean energy, whatever its frequency.
-          Widen the range of resonator frequencies you allow, and see what that classical allocation
-          actually predicts, and why the paper says it rules out any equilibrium between matter and
-          radiation.
+          If every resonator gets the same mean energy whatever its frequency, how much energy does
+          the radiation hold, and does the total ever stop growing? §1 gives every linear resonator
+          oscillation the same mean energy, whatever its frequency. Widen the range of resonator
+          frequencies you allow, and see what that classical allocation actually predicts, and why
+          the paper says it rules out any equilibrium between matter and radiation.
         </p>
       </header>
 

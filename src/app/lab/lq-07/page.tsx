@@ -29,8 +29,9 @@ export default function FluorescencePage() {
         <p className="eyebrow">Light quanta · Paper 1, §7 energy conservation</p>
         <h1>Stokes's rule and the single-quantum energy budget</h1>
         <p className="lead">
-          If each absorbed quantum yields at most one emitted one, fluorescence cannot exceed the
-          frequency of the light exciting it. §7 also says when to expect exceptions.
+          Can fluorescent light have a higher frequency than the light that excites it? Not if each
+          absorbed quantum yields at most one emitted one, and §7 also says when to expect
+          exceptions.
         </p>
       </header>
 

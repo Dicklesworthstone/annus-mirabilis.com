@@ -21,7 +21,8 @@ export default function CameraPage() {
           <span>The particle.</span> <span>The camera.</span> <span>The estimate.</span>
         </h1>
         <p className="lead">
-          A camera averages motion during exposure and adds uncertainty to every position. Discover
+          How do camera noise, exposure blur and drift change what displacement data can tell you? A
+          camera averages motion during exposure and adds uncertainty to every position. Discover
           why those errors change what you can infer, even when the particle follows exactly the
           same path.
         </p>

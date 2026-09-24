@@ -29,9 +29,10 @@ export default function IndependentConfigurationsPage() {
         <p className="eyebrow">Light quanta · Paper 1, §5 heuristic foundation</p>
         <h1>Independent configurations and the gas analogy</h1>
         <p className="lead">
-          How counting independent configurations produces an entropy law depending on volume as n
-          ln(V/V₀), matching Wien-regime radiation and establishing the heuristic light-quantum
-          concept.
+          How does counting independent configurations produce an entropy that depends on volume as
+          n ln(V/V₀), and what changes when the configurations are not independent? Wien-regime
+          radiation follows the same volume law; the counting is a premise of the light-quantum
+          analogy and does not by itself demonstrate light quanta.
         </p>
       </header>
 
