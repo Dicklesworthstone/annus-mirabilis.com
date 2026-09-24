@@ -86,7 +86,7 @@ const SITE: Record<string, string> = {
   [`edition/${STALE}/record.json`]: `{"orphan":"edition/${"d".repeat(64)}/x.md"}`,
   "edition/kitchen/worksheet.txt": "not a digest directory",
   "robots.txt": "User-agent: *",
-  "sitemap.xml": "<urlset/>",
+  "sitemap.xml": `<urlset>${["/", "/papers/"].map((r) => `<url><loc>https://annus-mirabilis.com${r}</loc></url>`).join("")}</urlset>`,
   "opengraph-image": "png bytes",
   "share/brownian-motion.png": "png bytes",
   "offline/chapter-1.html": "an offline chapter",
@@ -335,6 +335,75 @@ describe("exportEdition", () => {
         error.code === "catalog-route-missing" &&
         error.message.includes("/lab/bm-01/") &&
         !error.message.includes("/papers/,"),
+    );
+  });
+
+  it("refuses a route the site lists that has no static page: the app would need a server for it", () => {
+    const sitemap = `<urlset><url><loc>https://annus-mirabilis.com/</loc></url><url><loc>https://annus-mirabilis.com/lab/sr-01/</loc></url></urlset>`;
+    const out = fixture({ ...SITE, "sitemap.xml": sitemap });
+    const dest = mkdtempSync(join(tmpdir(), "app-edition-dest-"));
+    assert.throws(
+      () => exportEdition({ repo: dirname(out), outDir: out, dest, catalog: CATALOG }),
+      (error: unknown) =>
+        error instanceof AppExportError &&
+        error.code === "route-needs-server" &&
+        error.message.includes("1 of 2 route(s)") &&
+        error.message.includes("/lab/sr-01/"),
+    );
+  });
+
+  it("refuses a build with no route list, rather than checking no route at all", () => {
+    for (const sitemap of [
+      undefined,
+      "<urlset/>",
+      "<urlset><url><loc>https://example.com/</loc></url></urlset>",
+    ]) {
+      const files: Record<string, string> = { ...SITE };
+      if (sitemap === undefined) delete files["sitemap.xml"];
+      else files["sitemap.xml"] = sitemap;
+      const out = fixture(files);
+      const dest = mkdtempSync(join(tmpdir(), "app-edition-dest-"));
+      assert.throws(
+        () => exportEdition({ repo: dirname(out), outDir: out, dest, catalog: CATALOG }),
+        (error: unknown) => error instanceof AppExportError && error.code === "no-route-list",
+        String(sitemap),
+      );
+    }
+  });
+
+  it("refuses a page that asks for a file the build lacks and no rule names, naming both", () => {
+    const out = fixture({
+      ...SITE,
+      "papers/index.html": `papers<script src="/_next/static/chunks/gone-0a1b.js"></script>`,
+    });
+    const dest = mkdtempSync(join(tmpdir(), "app-edition-dest-"));
+    assert.throws(
+      () => exportEdition({ repo: dirname(out), outDir: out, dest, catalog: CATALOG }),
+      (error: unknown) =>
+        error instanceof AppExportError &&
+        error.code === "referenced-file-missing" &&
+        error.message.includes("_next/static/chunks/gone-0a1b.js (asked for by papers/index.html)"),
+    );
+  });
+
+  it("accepts a declared omission and a file named with brackets that the page percent-encodes", () => {
+    const out = fixture({
+      ...SITE,
+      "papers/index.html": `papers<a href="/papers/pdfs/ap-17-132.pdf">facsimile</a><script src="/_next/static/chunks/app/%5Bpaper%5D/page-0a1b.js"></script>`,
+      "_next/static/chunks/app/[paper]/page-0a1b.js": "self.page=1",
+    });
+    const dest = mkdtempSync(join(tmpdir(), "app-edition-dest-"));
+    const result = exportEdition({ repo: dirname(out), outDir: out, dest, catalog: CATALOG });
+    const manifest = JSON.parse(readFileSync(join(dest, "edition-manifest.json"), "utf8"));
+    assert.ok(result.fileCount > 0);
+    assert.ok(
+      manifest.files.some(
+        (file: { path: string }) => file.path === "_next/static/chunks/app/[paper]/page-0a1b.js",
+      ),
+    );
+    assert.ok(
+      !manifest.files.some((file: { path: string }) => file.path.endsWith(".pdf")),
+      "the PDF stays excluded",
     );
   });
 
