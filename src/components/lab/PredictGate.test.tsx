@@ -61,6 +61,7 @@ import { FluorescenceLab } from "./lq07/FluorescenceLab.tsx";
 import { PhotoelectricLab } from "./lq08/PhotoelectricLab.tsx";
 import { IonizationLab } from "./lq09/IonizationLab.tsx";
 import { MagnetConductorLab } from "./MagnetConductorLab.tsx";
+import { ModeAllocationLab } from "./ModeAllocationLab.tsx";
 import { TwoLedgersLab } from "./me01/TwoLedgersLab.tsx";
 import { BoundaryLedgerLab } from "./me03/BoundaryLedgerLab.tsx";
 import { OsmoticPartitionLab } from "./OsmoticPartitionLab.tsx";
@@ -88,7 +89,7 @@ import { WaveDescriptionLab } from "./WaveDescriptionLab.tsx";
 /**
  * The gated labs. `result` is text from each lab's result that the server markup must carry.
  * `sharesTape`: whether the lab offers a ?tape= link to carry a prediction. BM-04, BM-05, BM-07, BM-08
- * and LQ-01 share none (their worker runner is not written), and BM-02 has no tape binding; BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
+ * and LQ-01 share none (their worker runner is not written), and BM-02 and LQ-02 have no tape binding; BM-03, LQ-09, ME-01 and SR-01 have none yet, their bindings waiting
  * in a worktree (dispatch 145). `statusLine`: whether the lab has a status line; BM-04, LQ-06 and ME-02 have none.
  */
 type GatedLab = Readonly<{
@@ -155,6 +156,13 @@ const LABS: readonly GatedLab[] = [
         example: rawLq01Example as unknown as PreparedLq01Example,
       }),
     result: "Values at these settings",
+    sharesTape: false,
+    statusLine: true,
+  },
+  {
+    lab: "lq-02",
+    element: () => createElement(ModeAllocationLab, {}),
+    result: "Energy after widening the cutoff tenfold",
     sharesTape: false,
     statusLine: true,
   },

@@ -236,19 +236,20 @@ predictMode:
       supportedCandidateId: about-1000x
       actionId: lq-02-widen-tenfold
       question: "Widening the resonator range from 100 THz to 1000 THz changes the energy by how much?"
+      explanation: "Each resonator holds the same mean energy, (R/N)T, and the number of resonators per unit volume up to a cutoff grows as the cube of that cutoff. So widening the range tenfold multiplies the energy by 1000, and with no upper limit there is no finite total: \"Remove the upper limit\" shows the model refusing one."
       candidates:
         - id: about-10x
           label: "About ×10"
           description: "The energy grows in proportion to the range"
-          separatingAssumption: "The energy per unit frequency is the same at every frequency."
+          separatingAssumption: "Takes the energy per unit frequency to be the same at every frequency. In §1's allocation it grows as ν², because the number of resonators in each frequency band does."
           relation: "E proportional to the cutoff"
         - id: about-1000x
           label: "About ×1000"
           description: "The section 1 density grows as the square of the frequency, so the total grows as its cube"
-          separatingAssumption: "Each resonator holds (R/N)T and the density is (R/N)(8 pi nu^2 / L^3) T."
+          separatingAssumption: "Gives each resonator (R/N)T, as §1 does, with a density (R/N)(8πν²/L³)T that grows as ν², so the total up to a cutoff grows as its cube."
           relation: "E proportional to the cutoff cubed"
         - id: levels-off
           label: "It levels off"
           description: "Higher frequencies add little"
-          separatingAssumption: "The energy per unit frequency falls off at high frequency, as a measured spectrum does."
+          separatingAssumption: "Lets the energy per unit frequency fall off at high frequency, as a measured spectrum does. §1's allocation gives every resonator the same energy, so it never falls off."
           relation: "E tends to a finite limit"

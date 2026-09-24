@@ -12,8 +12,10 @@ import {
   type RadiationResult,
   removeUpperLimit,
 } from "../../experiments/lq02/session";
+import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
 import { display, fixed, sentenceNumber } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 import { withScripts } from "./subscripts.tsx";
@@ -27,6 +29,8 @@ const NOT_MODELED = [
 ] as const;
 
 type Draft = Readonly<{ T: string; nuCutoff: string; probeFrequency: string }>;
+
+const LQ02_PROMPTS = PREDICT_PROMPTS["lq-02"] ?? [];
 
 function toDraft(inputs: Lq02Inputs): Draft {
   return {
@@ -81,8 +85,8 @@ export function ModeAllocationLab({
   const [draft, setDraft] = useState<Draft>(() => toDraft(example));
   const [error, setError] = useState("");
   const [divergence, setDivergence] = useState<RadiationResult<number> | null>(null);
-  const [predictWiden, setPredictWiden] = useState<"10x" | "1000x" | "levels-off" | null>(null);
-  const [predictDiverge, setPredictDiverge] = useState<"yes" | "no" | null>(null);
+  // The controls come first; the energies, their ratio and the refusal to total them wait.
+  const gate = usePredictGate("lq-02", LQ02_PROMPTS);
 
   const snapshot: Lq02Snapshot = computeLq02Snapshot(accepted);
   // One sentence for the status line: the energy the classical allocation holds up to the cutoff,
@@ -209,10 +213,14 @@ export function ModeAllocationLab({
             </p>
           )}
         </form>
-        <AcceptedStatus worked={executionKind === "static-example"} summary={statusSummary} />
+        <AcceptedStatus
+          worked={executionKind === "static-example"}
+          summary={statusSummary}
+          response={gate.response}
+        />
 
         <div className="readouts">
-          <table>
+          <table {...gate.response}>
             <tbody>
               <tr>
                 <th scope="row">Mean energy per resonator oscillation</th>
@@ -241,7 +249,7 @@ export function ModeAllocationLab({
             </tbody>
           </table>
 
-          <p className="model-note">
+          <p className="model-note" {...gate.response}>
             {/* Only a computed energy is stated. The fallback read "holds an unmodeled amount J per
                 cubic meter", with the unit left dangling, whenever the cutoff was refused. */}
             {snapshot.energyUpToCutoff.status === "value" && (
@@ -267,7 +275,7 @@ export function ModeAllocationLab({
           </p>
 
           {divergence && divergence.status === "outside-domain" && (
-            <div className="refusal" role="status">
+            <div className="refusal" role="status" {...gate.response}>
               <p>
                 <strong>Not modeled here:</strong> {divergence.reason}
               </p>
@@ -349,75 +357,8 @@ export function ModeAllocationLab({
           </details>
         </div>
       </div>
-      {/* The prediction sits under the instrument in a closed disclosure, as it does on every other
-          lab. Open above it, it was 423px between a phone's heading and the controls. */}
-      <details className="lab-predict">
-        <summary>Predict before you calculate</summary>
-        <p id={`${id}-predict-widen`}>
-          Widening the resonator range from 100 THz to 1000 THz changes the energy by:
-        </p>
-        <fieldset aria-labelledby={`${id}-predict-widen`} className="actions">
-          <button
-            type="button"
-            className={predictWiden === "10x" ? "primary" : "secondary"}
-            aria-pressed={predictWiden === "10x"}
-            onClick={() => setPredictWiden("10x")}
-          >
-            About ×10
-          </button>
-          <button
-            type="button"
-            className={predictWiden === "1000x" ? "primary" : "secondary"}
-            aria-pressed={predictWiden === "1000x"}
-            onClick={() => setPredictWiden("1000x")}
-          >
-            About ×1000
-          </button>
-          <button
-            type="button"
-            className={predictWiden === "levels-off" ? "primary" : "secondary"}
-            aria-pressed={predictWiden === "levels-off"}
-            onClick={() => setPredictWiden("levels-off")}
-          >
-            It levels off
-          </button>
-        </fieldset>
-        {predictWiden && (
-          <p className="fine">
-            The model: the classical energy density grows as the cube of the cutoff frequency, so
-            widening tenfold multiplies the energy up to the cutoff by 1000. The widen-tenfold
-            action above shows it.
-          </p>
-        )}
-        <p id={`${id}-predict-diverge`} className="fine">
-          Before removing the upper limit: will the total settle at a finite value?
-        </p>
-        <fieldset aria-labelledby={`${id}-predict-diverge`} className="actions">
-          <button
-            type="button"
-            className={predictDiverge === "yes" ? "primary" : "secondary"}
-            aria-pressed={predictDiverge === "yes"}
-            onClick={() => setPredictDiverge("yes")}
-          >
-            Yes, it settles
-          </button>
-          <button
-            type="button"
-            className={predictDiverge === "no" ? "primary" : "secondary"}
-            aria-pressed={predictDiverge === "no"}
-            onClick={() => setPredictDiverge("no")}
-          >
-            No, it grows without bound
-          </button>
-        </fieldset>
-        {predictDiverge && (
-          <p className="fine">
-            The model: every resonator frequency receives the same mean energy, so widening the
-            range without limit grows the total without bound. Press &ldquo;remove the upper
-            limit&rdquo; above and read the refusal: this model&apos;s total has no finite value.
-          </p>
-        )}
-      </details>
+      {/* The prediction sits under the instrument, as it does on every other laboratory. */}
+      <PredictGatePanels gate={gate} />
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}

@@ -56,10 +56,26 @@ describe("ModeAllocationLab: static rendering (no JavaScript)", () => {
     expect(html).toContain("src/experiments/lq02/session.ts");
   });
 
-  test("the predict prompts appear before the reader sees a computed answer bias", () => {
-    expect(html).toContain("Predict before you calculate");
-    expect(html).toContain("About ×1000");
-    expect(html).toContain("No, it grows without bound");
+  test("the controls come first and the energies wait for a prediction or a skip", () => {
+    // Dispatch 156, option (c). The manifest's one prompt is asked, with its three candidates;
+    // its "It levels off" is the finite-total answer the lab's own second question used to ask
+    // about. The table, the note that states ×1000 and the status line wait; the regime note and
+    // the not-modelled line stay. Without JavaScript all of it shows.
+    expect(html).toContain('data-predict-prompt="lq-02-predict-widen"');
+    for (const label of ["About ×10", "About ×1000", "It levels off"])
+      expect(html).toContain(label);
+    const actions = html.indexOf("Widen tenfold");
+    expect(actions).toBeGreaterThan(-1);
+    expect(actions).toBeLessThan(html.indexOf('data-predict-response="awaiting"'));
+    expect(html).toMatch(
+      /<table data-predict-response="awaiting"><tbody><tr><th scope="row">Mean energy/,
+    );
+    expect(html).toMatch(
+      /<p class="model-note" data-predict-response="awaiting">With resonators up to/,
+    );
+    expect(html).toContain('<p class="model-note">§2&#x27;s Avogadro match');
+    expect(html).toMatch(/class="status-line" data-predict-response="awaiting"/);
+    expect(html).not.toContain('data-predict-response="shown"');
   });
 
   test("the model note names both disjoint regime boundaries as owner-supplied data, never as a hard-coded pair in this test's expectations alone", () => {
