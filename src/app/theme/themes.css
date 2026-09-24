@@ -64,8 +64,11 @@
   --link-underline: color-mix(in srgb, var(--ink) 38%, var(--paper));
   --line: var(--rule);
   --panel: var(--paper);
-  --font-serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-  --font-sans: "Plus Jakarta Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-serif:
+    "Newsreader", "Newsreader Fallback", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
+    serif;
+  --font-sans:
+    "Plus Jakarta Sans", "Plus Jakarta Sans Fallback", "Segoe UI", Helvetica, Arial, sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
 }
 
@@ -119,6 +122,31 @@
   font-weight: 100 800;
   font-style: italic;
   font-display: swap;
+}
+
+/* The metric-matched stand-ins; the measurements are in globals.css. */
+@font-face {
+  font-family: "Newsreader Fallback";
+  src: local("Times New Roman");
+  size-adjust: 100.1%;
+  ascent-override: 73.43%;
+  descent-override: 26.47%;
+  line-gap-override: 0%;
+  unicode-range:
+    U+0020-007E, U+00A0-00AC, U+00AE-0131, U+2013-2014, U+2018-201A, U+201C-201E, U+2020-2022,
+    U+2026, U+2212;
+}
+
+@font-face {
+  font-family: "Plus Jakarta Sans Fallback";
+  src: local("Arial");
+  size-adjust: 103.92%;
+  ascent-override: 99.89%;
+  descent-override: 21.36%;
+  line-gap-override: 0%;
+  unicode-range:
+    U+0020-007E, U+00A0-00AC, U+00AE-0131, U+2013-2014, U+2018-201A, U+201C-201E, U+2020-2022,
+    U+2026, U+2212;
 }
 
 body {

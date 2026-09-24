@@ -165,10 +165,15 @@ export const THEME_TOKENS: Readonly<Record<ThemeId, ThemeTokens>> = Object.freez
   }),
 });
 
-/** Font-family tokens: exactly the four families named in AGENTS.md, no others. */
+/**
+ * Font-family tokens: the families named in AGENTS.md. "Newsreader Fallback" and "Plus Jakarta
+ * Sans Fallback" are the local Times New Roman and Arial, resized in globals.css to the web fonts'
+ * metrics and shown only until those arrive.
+ */
 export const FONT_TOKENS = Object.freeze({
-  serif: '"Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif',
-  sans: '"Plus Jakarta Sans", "Segoe UI", Helvetica, Arial, sans-serif',
+  serif:
+    '"Newsreader", "Newsreader Fallback", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif',
+  sans: '"Plus Jakarta Sans", "Plus Jakarta Sans Fallback", "Segoe UI", Helvetica, Arial, sans-serif',
   mono: '"JetBrains Mono", "SF Mono", Menlo, Consolas, monospace',
 });
 
