@@ -203,10 +203,25 @@
 }
 
 .lq06-energy-rail {
+  --lq06-gas: #0c8dc7;
   display: block;
   height: 1.25rem;
   border-radius: 0.2rem;
   background: var(--wash);
+}
+
+/* The gas molecule's bar on the --wash rail. Its sky blue, #0ea5e9, stood at 2.48:1 on the light
+   wash, under the 3:1 a mark needs; the light theme takes a darker value of the same hue (3.32:1
+   there) and the dark theme keeps the original (5.38:1 on its wash). The radiation bar's rose
+   clears 3:1 on both and is unchanged. */
+:root[data-theme="kramgasse-night"] .lq06-energy-rail {
+  --lq06-gas: #0ea5e9;
+}
+/* Without JavaScript the pre-paint script never sets data-theme; this repeats the block above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .lq06-energy-rail {
+    --lq06-gas: #0ea5e9;
+  }
 }
 
 .lq06-energy-bar {

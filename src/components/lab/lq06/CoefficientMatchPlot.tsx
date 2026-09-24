@@ -197,7 +197,7 @@ export function MeanEnergyStripPlot({
                 className="lq06-energy-bar"
                 style={{
                   width: `${((gasWidth / barWidth) * 100).toFixed(1)}%`,
-                  background: "#0ea5e9",
+                  background: "var(--lq06-gas)",
                 }}
               />
             </span>
