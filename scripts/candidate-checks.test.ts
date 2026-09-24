@@ -6,8 +6,10 @@ import {
   allCandidateChecksPassed,
   candidateRoutes,
   type Fetcher,
+  REQUEST_ATTEMPTS,
   runCandidateChecksAgainst,
   scriptChunks,
+  servedAsBuilt,
   summarizeCandidateChecks,
 } from "./candidate-checks.ts";
 
@@ -161,5 +163,63 @@ describe("candidate checks (am-rel-candidate-checks-kc7y)", () => {
     expect(byName(results, "paper-pages-served-as-built")?.status).toBe("failed");
     expect(byName(results, "every-instrument-bundle")?.status).toBe("failed");
     expect(allCandidateChecksPassed(results)).toBe(false);
+  });
+});
+
+describe("a request that gets no HTTP response is asked again; nothing else is", () => {
+  // 7cd223c4 was refused on 2026-09-24 because two of 161 vercel curl requests failed outright
+  // (status 0). Both pages were then served identical to the build. A failed request says nothing
+  // about the bytes; a real status or a byte difference does, and is never retried.
+  const counting = (inner: Fetcher) => {
+    const calls = new Map<string, number>();
+    const fetcher: Fetcher = async (path) => {
+      calls.set(path, (calls.get(path) ?? 0) + 1);
+      return inner(path);
+    };
+    return { calls, fetcher };
+  };
+
+  test("one failed request, then the built bytes: passes, and says it retried", async () => {
+    const { staticDir, fetcher: real } = fixture();
+    let failedOnce = false;
+    const { calls, fetcher } = counting(async (path) => {
+      if (!failedOnce) {
+        failedOnce = true;
+        return { status: 0, body: Buffer.alloc(0) };
+      }
+      return real(path);
+    });
+    const report = await servedAsBuilt(fetcher, staticDir, ["/lab/bm-01/"], 1, 0);
+    expect(report.problems).toEqual([]);
+    expect(report.retried).toEqual(["/lab/bm-01/ (2 requests)"]);
+    expect(calls.get("/lab/bm-01/")).toBe(2);
+  });
+
+  test("every request failing is still a failure, after exactly the allowed attempts", async () => {
+    const { staticDir } = fixture();
+    const { calls, fetcher } = counting(async () => ({ status: 0, body: Buffer.alloc(0) }));
+    const report = await servedAsBuilt(fetcher, staticDir, ["/lab/bm-01/"], 1, 0);
+    expect(report.problems).toEqual(["/lab/bm-01/: HTTP request failed"]);
+    expect(calls.get("/lab/bm-01/")).toBe(REQUEST_ATTEMPTS);
+  });
+
+  test("a real HTTP status is not retried", async () => {
+    const { staticDir } = fixture();
+    const { calls, fetcher } = counting(async () => ({ status: 404, body: Buffer.from("no") }));
+    const report = await servedAsBuilt(fetcher, staticDir, ["/lab/bm-01/"], 1, 0);
+    expect(report.problems).toEqual(["/lab/bm-01/: HTTP 404"]);
+    expect(calls.get("/lab/bm-01/")).toBe(1);
+  });
+
+  test("different bytes are not retried", async () => {
+    const { staticDir } = fixture();
+    const { calls, fetcher } = counting(async () => ({
+      status: 200,
+      body: Buffer.from("changed"),
+    }));
+    const report = await servedAsBuilt(fetcher, staticDir, ["/lab/bm-01/"], 1, 0);
+    expect(report.problems.length).toBe(1);
+    expect(report.problems[0]).toContain("differ from the built");
+    expect(calls.get("/lab/bm-01/")).toBe(1);
   });
 });

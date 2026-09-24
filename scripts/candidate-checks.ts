@@ -128,7 +128,17 @@ export type IdentityReport = Readonly<{
   problems: readonly string[];
   /** Paths served as built plus Vercel's toolbar loader, and nothing else. */
   toolbarAppended?: readonly string[];
+  /** Paths whose first request got no HTTP response at all and were asked again. */
+  retried?: readonly string[];
 }>;
+
+/**
+ * Times a path is asked for when a request gets NO HTTP response (status 0: the vercel curl
+ * process failed, or the connection did). Such a failure says nothing about the served bytes; on
+ * 2026-09-24 it refused 7cd223c4 over /lab/sr-04/ and /lab/sr-08/, both then served identical to
+ * the build. A real HTTP status (404, 500) and a byte difference are never retried.
+ */
+export const REQUEST_ATTEMPTS = 3;
 
 /** Fetches each path and compares its bytes with the uploaded file, a few requests at a time. */
 export async function servedAsBuilt(
@@ -136,9 +146,11 @@ export async function servedAsBuilt(
   staticDir: string,
   paths: readonly string[],
   concurrency = 6,
+  retryDelayMs = 500,
 ): Promise<IdentityReport> {
   const problems: string[] = [];
   const toolbarAppended: string[] = [];
+  const retried: string[] = [];
   let checked = 0;
   let next = 0;
   const worker = async () => {
@@ -149,7 +161,14 @@ export async function servedAsBuilt(
         problems.push(`${path}: no built file at ${file}`);
         continue;
       }
-      const served = await fetcher(path);
+      let served = await fetcher(path);
+      let attempts = 1;
+      while (served.status === 0 && attempts < REQUEST_ATTEMPTS) {
+        await new Promise((r) => setTimeout(r, retryDelayMs * attempts));
+        attempts += 1;
+        served = await fetcher(path);
+      }
+      if (attempts > 1) retried.push(`${path} (${attempts} requests)`);
       checked += 1;
       if (served.status !== 200) {
         problems.push(`${path}: HTTP ${served.status || "request failed"}`);
@@ -167,7 +186,7 @@ export async function servedAsBuilt(
     }
   };
   await Promise.all(Array.from({ length: Math.min(concurrency, paths.length) }, worker));
-  return { checked, problems, toolbarAppended: toolbarAppended.sort() };
+  return { checked, problems, toolbarAppended: toolbarAppended.sort(), retried: retried.sort() };
 }
 
 function identityResult(
@@ -196,10 +215,15 @@ function identityResult(
     toolbar.length > 0
       ? ` Finding: ${toolbar.length} served as built plus Vercel's toolbar loader, a script tag for https://vercel.live that runs only with a __vercel_toolbar cookie and that the CSP refuses (${toolbar.join(", ")}). Turning off the Vercel Toolbar in the project settings removes it.`
       : "";
+  const retried = report.retried ?? [];
+  const retry =
+    retried.length > 0
+      ? ` ${retried.length} got no HTTP response on the first request and were asked again: ${retried.slice(0, 5).join("; ")}.`
+      : "";
   return {
     name,
     status: "passed",
-    detail: `${report.checked - toolbar.length} of ${expected} ${what} served byte-identical to the build.${finding} ${scope}`,
+    detail: `${report.checked - toolbar.length} of ${expected} ${what} served byte-identical to the build.${finding}${retry} ${scope}`,
   };
 }
 
