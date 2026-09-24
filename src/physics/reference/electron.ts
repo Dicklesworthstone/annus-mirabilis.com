@@ -833,21 +833,22 @@ export function integrateBoris(
   const initialKE = mc2 * (g0 - 1);
   let workDone = 0;
 
-  for (let i = 1; i <= steps; i++) {
+  // One Boris momentum push over a time h: half electric kick, magnetic rotation, half kick.
+  const push = (h: number) => {
     // 1. Half electric push
-    const pMinusX = px + 0.5 * charge * eField.x * dt;
-    const pMinusY = py + 0.5 * charge * eField.y * dt;
-    const pMinusZ = pz + 0.5 * charge * eField.z * dt;
+    const pMinusX = px + 0.5 * charge * eField.x * h;
+    const pMinusY = py + 0.5 * charge * eField.y * h;
+    const pMinusZ = pz + 0.5 * charge * eField.z * h;
 
     // Gamma from pMinus
     const pMinusMag = Math.hypot(pMinusX, pMinusY, pMinusZ);
     const gammaMinus = Math.sqrt(1 + (pMinusMag / mc) ** 2);
 
     // 2. Magnetic rotation
-    // t_vec = (q * B * dt) / (2 * gammaMinus * m)
-    const tx = (0.5 * q_m * dt * bField.x) / gammaMinus;
-    const ty = (0.5 * q_m * dt * bField.y) / gammaMinus;
-    const tz = (0.5 * q_m * dt * bField.z) / gammaMinus;
+    // t_vec = (q * B * h) / (2 * gammaMinus * m)
+    const tx = (0.5 * q_m * h * bField.x) / gammaMinus;
+    const ty = (0.5 * q_m * h * bField.y) / gammaMinus;
+    const tz = (0.5 * q_m * h * bField.z) / gammaMinus;
     const tMag2 = tx * tx + ty * ty + tz * tz;
 
     // s_vec = 2 * t_vec / (1 + tMag2)
@@ -866,9 +867,18 @@ export function integrateBoris(
     const pPlusZ = pMinusZ + (pPrimeX * sy - pPrimeY * sx);
 
     // 3. Second half electric push
-    px = pPlusX + 0.5 * charge * eField.x * dt;
-    py = pPlusY + 0.5 * charge * eField.y * dt;
-    pz = pPlusZ + 0.5 * charge * eField.z * dt;
+    px = pPlusX + 0.5 * charge * eField.x * h;
+    py = pPlusY + 0.5 * charge * eField.y * h;
+    pz = pPlusZ + 0.5 * charge * eField.z * h;
+  };
+
+  // Leapfrog staggering: the momentum lives half a step behind the position. Starting both at t = 0
+  // made each position update use the end-of-step velocity, a first-order error that put the
+  // default trajectory's y 0.83% off the exact uniform-field solution after 120 steps.
+  push(-0.5 * dt);
+
+  for (let i = 1; i <= steps; i++) {
+    push(dt);
 
     // Updated gamma and velocity
     const pMag = Math.hypot(px, py, pz);
