@@ -9,10 +9,11 @@
  */
 
 import { randomBytes } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
+import { parseContentJson } from "../src/content/compiler/loaders.ts";
 import { parseYaml } from "../src/content/provenance/yaml.ts";
 import {
   fixtureBrownianPedagogicalReconstruction,
@@ -21,8 +22,30 @@ import {
   fixturePaper1WienEntropy,
   fixturePaper4TwoLedgers,
 } from "../src/equations/derivations/fixtures.ts";
+import { parseDerivationChain } from "../src/equations/derivations/schema.ts";
 import { auditChainTools, type ToolAuditReport } from "../src/equations/derivations/toolAudit.ts";
 import type { DerivationChain } from "../src/equations/derivations/types.ts";
+
+/**
+ * The chains a reader is shown: every missing-step chain record under content/equations/derivations
+ * (scripts/generate-missing-steps.mjs publishes the same files). Until 2026-09-24 this audit read
+ * only the five fixture chains in src/equations/derivations/fixtures.ts, which no page renders, so
+ * "Pending Tool: 0" was a statement about test data: the one shipped chain, chain-bm-variance-of-sum,
+ * has four steps and none carries a tool.
+ */
+export function loadShippedChains(
+  dir: string = join(process.cwd(), "content/equations/derivations"),
+): DerivationChain[] {
+  return readdirSync(dir)
+    .filter((file) => file.endsWith(".yaml"))
+    .sort()
+    .map((file) => {
+      const record = parseContentJson(readFileSync(join(dir, file), "utf8"), file) as {
+        chain?: unknown;
+      };
+      return parseDerivationChain(record.chain);
+    });
+}
 
 export function newToolRunId(now: Date = new Date()): string {
   const stamp = now
@@ -45,18 +68,25 @@ export function runAuditCli(argv: string[] = process.argv.slice(2)): {
       paper: { type: "string" },
       chains: { type: "string" },
       registry: { type: "string" },
+      fixtures: { type: "boolean" },
     },
     strict: false,
     allowPositionals: true,
   });
 
-  const allChains: DerivationChain[] = [
-    fixtureBrownianPedagogicalReconstruction,
-    fixtureBrownianSourceOrder,
-    fixturePaper1WienEntropy,
-    fixturePaper4TwoLedgers,
-    fixtureLorentzMapConstruction,
-  ];
+  // Shipped chains always; the fixtures only on request, so their steps never pad the count a
+  // reader of this report takes for the site's.
+  const shipped = loadShippedChains();
+  const fixtures: DerivationChain[] = values.fixtures
+    ? [
+        fixtureBrownianPedagogicalReconstruction,
+        fixtureBrownianSourceOrder,
+        fixturePaper1WienEntropy,
+        fixturePaper4TwoLedgers,
+        fixtureLorentzMapConstruction,
+      ]
+    : [];
+  const allChains: DerivationChain[] = [...shipped, ...fixtures];
 
   let filteredChains = allChains;
   if (values.paper) {
@@ -120,6 +150,8 @@ export function runAuditCli(argv: string[] = process.argv.slice(2)): {
     JSON.stringify({
       type: "audit-summary",
       toolRunId,
+      shippedChains: shipped.map((c) => c.id),
+      fixtureChains: fixtures.map((c) => c.id),
       totalSteps: report.totalSteps,
       validSteps: report.validSteps,
       pendingSteps: report.pending.length,
@@ -160,6 +192,9 @@ export function runAuditCli(argv: string[] = process.argv.slice(2)): {
 
   // Format table output
   console.log(`\n=== Derivation Tool Audit (${toolRunId}) ===`);
+  console.log(
+    `Chains: ${shipped.length} shipped (${shipped.map((c) => c.id).join(", ")})${fixtures.length > 0 ? ` + ${fixtures.length} fixtures` : ""}; ${filteredChains.length} after filters`,
+  );
   console.log(
     `Total Steps: ${report.totalSteps} | Valid with Tool: ${report.validSteps} | Pending Tool: ${report.pending.length} | Errors: ${report.errors.length}`,
   );
