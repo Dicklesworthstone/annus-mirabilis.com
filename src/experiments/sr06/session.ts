@@ -51,9 +51,14 @@ function flatten(matrix: readonly (readonly number[])[]): Float64Array {
 
 export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
   const c = speedOfLightMetresPerSecond();
-  const alpha = (p.alphaDeg * Math.PI) / 180;
-  const wx = p.movingSpeed * Math.cos(alpha);
-  const wy = p.movingSpeed * Math.sin(alpha);
+  // In two-boosts mode the composed velocity is the doubly boosted frame's: the second boost,
+  // given in the intermediate frame, composed with the first. It used to stay the moving point's,
+  // so the table read U = 0.882c beside the product's gamma 1.5625, which belongs to 0.768c.
+  const twoBoosts = p.mode === "two-boosts";
+  const w = twoBoosts ? p.secondBeta : p.movingSpeed;
+  const alpha = ((twoBoosts ? p.secondAngleDeg : p.alphaDeg) * Math.PI) / 180;
+  const wx = w * Math.cos(alpha);
+  const wy = w * Math.sin(alpha);
   const composed = transformVelocity({ ux: wx, uy: wy, uz: 0 }, -p.frameBeta, 1);
   const outputs: ScientificResult[] = [];
   if (composed.status !== "value") {
@@ -72,8 +77,8 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
     value("composedSpeedOverC", U),
   );
   outputs.push(value("galileanSpeedOverC", galilean));
-  if (p.movingSpeed < 1) {
-    const printed = composePrinted(p.frameBeta, p.movingSpeed, alpha, 1);
+  if (w < 1) {
+    const printed = composePrinted(p.frameBeta, w, alpha, 1);
     outputs.push(
       printed.status === "value"
         ? value("printedSpeedOverC", printed.value)
@@ -82,8 +87,8 @@ export function evaluateSr06(p: Sr06Parameters): ScientificResult[] {
   } else {
     outputs.push(value("printedSpeedOverC", U));
   }
-  if (p.mode === "collinear" && p.movingSpeed < 1) {
-    const s = composedSpeedShortfall(p.frameBeta, p.movingSpeed);
+  if (p.mode === "collinear" && w < 1) {
+    const s = composedSpeedShortfall(p.frameBeta, w);
     outputs.push(
       s.status === "value"
         ? value("shortfall", s.value)

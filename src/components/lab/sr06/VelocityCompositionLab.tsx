@@ -253,7 +253,7 @@ export function VelocityCompositionLab({
                 checked={p.showRapidity}
                 onChange={() => apply({ ...p, showRapidity: !p.showRapidity })}
               />
-              Show rapidity (Minkowski 1908 aid; not the 1905 presentation)
+              Show rapidity (a later aid, named by Robb in 1911; not the 1905 presentation)
             </label>
             <button type="submit">Apply settings</button>
             {p.mode === "angled" ? null : (
