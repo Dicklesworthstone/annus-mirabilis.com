@@ -1,0 +1,70 @@
+# fs-annus-wasm: the composition and transport boundary between FrankenSim and
+# Annus Mirabilis (AGENTS.md "FrankenSim Binding and Honesty").
+#
+# It holds NO copy of a law. The three export modules are compiled BY REFERENCE
+# from a read-only FrankenSim checkout that must sit beside this repository
+# (../../../../frankensim from this directory), at the pinned revision below:
+#
+#   crates/fs-wasm/src/brownian.rs        -> brownian_frames
+#   crates/fs-wasm/src/diffusion1d.rs     -> diffusion1d_frames
+#   crates/fs-wasm/src/philox_normals.rs  -> philox_normals (re-exports fs-rand)
+#
+# and the only generic crates those modules import, by path: fs-math, fs-rand,
+# fs-sparse. This crate adds transport only (the wasm-bindgen layer in
+# src/lib.rs). build.rs refuses to compile it unless every one of those files is
+# byte-identical to the pinned revision (digests in src/pins.rs), on whatever
+# host compiles it. FrankenSim is never modified from this repository; an
+# upstream change is a request to its owner.
+#
+# Its own workspace, so no parent manifest is consulted.
+[package]
+name = "fs-annus-wasm"
+version = "0.0.1"
+edition = "2024"
+publish = false
+license = "MIT OR Apache-2.0"
+description = "Slim wasm32 transport over FrankenSim's brownian_frames, philox_normals and diffusion1d_frames, compiled by reference."
+
+[package.metadata.frankensim]
+revision = "01824653087a69272d5a9c0c6ea2e2789ad05f54"
+sources = [
+    "crates/fs-wasm/src/brownian.rs",
+    "crates/fs-wasm/src/diffusion1d.rs",
+    "crates/fs-wasm/src/philox_normals.rs",
+]
+
+[workspace]
+
+[lib]
+name = "fs_annus_wasm"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+fs-math = { path = "../../../../frankensim/crates/fs-math" }
+fs-rand = { path = "../../../../frankensim/crates/fs-rand" }
+fs-sparse = { path = "../../../../frankensim/crates/fs-sparse" }
+
+# wasm-bindgen enters only the wasm32 graph, pinned to the version FrankenSim's
+# own fs-wasm lockfile resolves at the pinned revision.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "=0.2.126"
+
+# FrankenSim's content-hash owner (no dependencies of its own), used by the pin
+# guard in build.rs and again by tests/pinned_sources.rs. It never enters the
+# wasm32 artifact.
+[build-dependencies]
+fs-blake3 = { path = "../../../../frankensim/crates/fs-blake3" }
+
+[dev-dependencies]
+fs-blake3 = { path = "../../../../frankensim/crates/fs-blake3" }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+debug = false
+
+[lints.rust]
+unsafe_code = "forbid"

@@ -1,0 +1,7 @@
+# Mirrors ~/projects/frankensim/rust-toolchain.toml at the pinned revision
+# 01824653 (nightly-2026-07-06 == rustc 1.99.0-nightly 3659db0d3 2026-07-05).
+# Bump only together with the FrankenSim pin. The wasm32-unknown-unknown target
+# is deliberately not listed, so rustup never installs it on a build host as a
+# side effect; build on a host that already carries it.
+[toolchain]
+channel = "nightly-2026-07-06"
