@@ -687,10 +687,10 @@ export function BrownianFirstEncounter({
         <section>
           <h4>Step 9 · Mean absolute displacement is not a wrong answer</h4>
           <p>
-            Mean absolute displacement is <strong>not</strong> an incorrect calculation. It answers
-            a slightly different question about the average absolute net displacement from the
-            starting point and, in the ideal Gaussian distribution, it scales directly with the
-            square root of time (equal to √(4Dt/π) along one coordinate).
+            It measures spread too: the average distance from the start, ignoring direction. For the
+            ideal Gaussian spread it also grows with the square root of time; along one coordinate
+            it equals √(4Dt/π). The mean square is the one the argument uses because of what step 8
+            showed: for independent steps, mean squares add.
           </p>
         </section>
       </div>
