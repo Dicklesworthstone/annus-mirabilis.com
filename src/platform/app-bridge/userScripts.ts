@@ -20,11 +20,14 @@
  *   the theme changes, so the app's chrome matches the page;
  * - rewrites the app's own origin to https://annus-mirabilis.com in text the
  *   page copies (navigator.clipboard.writeText) or shares (navigator.share),
- *   so a copied link opens for the person it is sent to.
+ *   so a copied link opens for the person it is sent to;
+ * - mirrors the reader's own data (every key under "am:") into the app's store
+ *   and puts it back if WebKit ever comes up empty.
  */
 
 import {
   BRIDGE_VERSION,
+  MAX_MESSAGE_BYTES,
   MESSAGE_HANDLER_NAME,
   NATIVE_EVENT_NAMES,
   SITE_ORIGIN,
@@ -40,8 +43,24 @@ export const SITE_THEME_KEY = "am:settings:v1:theme";
 export const SITE_THEME_FOLLOW_SYSTEM = "follow-system";
 export const SITE_THEME_IDS: readonly string[] = ["annalen", "kramgasse-night"];
 
+/**
+ * Every key the site stores starts with this (src/platform/storage/keys.ts and the
+ * notebook, journeys, predictions and tours stores); the mirror copies exactly those.
+ */
+export const SITE_STORAGE_PREFIX = "am:";
+
+/** A snapshot longer than this is not mirrored: it would not fit in one bridge message. */
+export const MAX_SNAPSHOT_LENGTH = MAX_MESSAGE_BYTES - 1024;
+
 /** What the app offers in version 1; the page may branch on these strings. */
-export const BRIDGE_CAPABILITIES: readonly string[] = ["route", "theme", "share", "print", "find"];
+export const BRIDGE_CAPABILITIES: readonly string[] = [
+  "route",
+  "theme",
+  "share",
+  "storage",
+  "print",
+  "find",
+];
 
 export function installBridge(
   handlerName: string,
@@ -52,6 +71,8 @@ export function installBridge(
   followSystem: string,
   themeIds: readonly string[],
   siteOrigin: string,
+  storagePrefix: string,
+  maxSnapshotLength: number,
 ): void {
   const w = window as unknown as {
     __AM_APP__?: unknown;
@@ -66,6 +87,13 @@ export function installBridge(
       handler.postMessage({ v: version, type, body });
     } catch {
       /* A bridge failure never reaches the page. */
+    }
+  };
+  const request = (type: string, body: Record<string, unknown>): Promise<unknown> => {
+    try {
+      return Promise.resolve(handler.postMessage({ v: version, type, body }));
+    } catch {
+      return Promise.resolve(undefined);
     }
   };
   const dispatch = (name: string, payload: unknown): boolean => {
@@ -174,9 +202,138 @@ export function installBridge(
     reportedTheme = value;
     post("settings.changed", { theme: value.slice(0, 64) });
   };
+  // The reader's own data (notes, predictions, journeys, settings: every key under
+  // the site's prefix) is mirrored into the app's store, so it survives if WebKit
+  // ever clears the page's storage. When WebKit comes up empty and the app's
+  // store has a snapshot, the snapshot is put back and the page loads once more.
+  const siteKeys = (): string[] => {
+    const keys: string[] = [];
+    try {
+      for (let index = 0; index < localStorage.length; index++) {
+        const key = localStorage.key(index);
+        if (key !== null && key.indexOf(storagePrefix) === 0) {
+          keys.push(key);
+        }
+      }
+    } catch {
+      /* Storage blocked: nothing to mirror. */
+    }
+    return keys;
+  };
+  let mirrored: string | null = null;
+  let pending: ReturnType<typeof setTimeout> | undefined;
+  const mirror = () => {
+    if (pending !== undefined) {
+      clearTimeout(pending);
+      pending = undefined;
+    }
+    const data: Record<string, string> = {};
+    try {
+      for (const key of siteKeys()) {
+        const value = localStorage.getItem(key);
+        if (value !== null) {
+          data[key] = value;
+        }
+      }
+    } catch {
+      return;
+    }
+    const text = JSON.stringify(data);
+    if (text === mirrored || text.length > maxSnapshotLength) {
+      return;
+    }
+    mirrored = text;
+    post("storage.write", { namespace: "localStorage", key: "snapshot", value: text });
+  };
+  const scheduleMirror = () => {
+    if (pending !== undefined) {
+      clearTimeout(pending);
+    }
+    pending = setTimeout(mirror, 300);
+  };
+  let setItem: ((key: string, value: string) => void) | undefined;
+  try {
+    const proto = Storage.prototype;
+    setItem = proto.setItem;
+    for (const name of ["setItem", "removeItem", "clear"] as const) {
+      const original = proto[name] as (...args: unknown[]) => unknown;
+      Object.defineProperty(proto, name, {
+        configurable: true,
+        writable: true,
+        value(this: Storage, ...args: unknown[]) {
+          const result = original.apply(this, args);
+          try {
+            if (this === localStorage) {
+              scheduleMirror();
+            }
+          } catch {
+            /* Storage blocked. */
+          }
+          return result;
+        },
+      });
+    }
+  } catch {
+    setItem = undefined;
+  }
+  window.addEventListener("pagehide", mirror);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      mirror();
+    }
+  });
+  const restore = () => {
+    void request("storage.read", { namespace: "localStorage", key: "snapshot" }).then(
+      (reply) => {
+        const result = reply as { status?: string; value?: unknown } | undefined;
+        if (result?.status !== "ok" || typeof result.value !== "string" || setItem === undefined) {
+          return;
+        }
+        let data: Record<string, unknown>;
+        try {
+          data = JSON.parse(result.value) as Record<string, unknown>;
+        } catch {
+          return;
+        }
+        let restored = 0;
+        for (const key of Object.keys(data)) {
+          const value = data[key];
+          if (
+            key.indexOf(storagePrefix) === 0 &&
+            typeof value === "string" &&
+            localStorage.getItem(key) === null
+          ) {
+            setItem.call(localStorage, key, value);
+            restored++;
+          }
+        }
+        mirrored = result.value;
+        if (restored === 0) {
+          return;
+        }
+        try {
+          if (sessionStorage.getItem("am-app:restored") !== null) {
+            return;
+          }
+          sessionStorage.setItem("am-app:restored", "1");
+        } catch {
+          return;
+        }
+        location.reload();
+      },
+      () => {
+        /* No store, no restore; the page reads as it is. */
+      },
+    );
+  };
   const ready = () => {
     reportRoute();
     reportTheme();
+    if (siteKeys().length === 0) {
+      restore();
+    } else {
+      scheduleMirror();
+    }
   };
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", ready, { once: true });
@@ -202,6 +359,8 @@ export const BRIDGE_USER_SCRIPT_SOURCE = `(${installBridge.toString()})(${[
   SITE_THEME_FOLLOW_SYSTEM,
   SITE_THEME_IDS,
   SITE_ORIGIN,
+  SITE_STORAGE_PREFIX,
+  MAX_SNAPSHOT_LENGTH,
 ]
   .map((argument) => JSON.stringify(argument))
   .join(",")});`;
