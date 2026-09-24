@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-cos-square-average",
+  "paper": "foundations",
+  "argument": "fields-waves",
+  "title": "The average of cos squared over a cycle",
+  "spoken": "The average over a cycle of cosine squared of omega t equals one half.",
+  "explanation": "cos² rises and falls between 0 and 1, and over a whole cycle it spends as long above one half as below it, so its average is exactly one half. A detector that responds to the square of the field records half the peak.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "The average is taken over a whole number of cycles.",
+    "A foundation lesson's worked case in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-cos-square-average.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "average",
+      "opId": "eq-model-fd-cos-square-average.op.average",
+      "argument": {
+        "kind": "power",
+        "opId": "eq-model-fd-cos-square-average.op.square",
+        "base": {
+          "kind": "function",
+          "opId": "eq-model-fd-cos-square-average.op.cos",
+          "name": "cos",
+          "argument": {
+            "kind": "product",
+            "opId": "eq-model-fd-cos-square-average.op.phase",
+            "args": [
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-cos-square-average.t.omega",
+                "quantityId": "angularFrequency"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-cos-square-average.t.t",
+                "quantityId": "elapsedTime"
+              }
+            ]
+          }
+        },
+        "exponent": {
+          "num": 2,
+          "den": 1
+        }
+      }
+    },
+    "right": {
+      "kind": "quotient",
+      "opId": "eq-model-fd-cos-square-average.op.half",
+      "numerator": {
+        "kind": "number",
+        "value": "1"
+      },
+      "denominator": {
+        "kind": "number",
+        "value": "2"
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-cos-square-average.op.relation",
+      "title": "What it asserts",
+      "explanation": "Averaged over whole cycles, cos squared is exactly one half.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-cos-square-average.op.average",
+      "title": "Averaged over a cycle",
+      "explanation": "The mean value over whole cycles, which is what a slow detector sees.",
+      "foundation": "bridge-sum-average"
+    },
+    {
+      "nodeId": "eq-model-fd-cos-square-average.op.square",
+      "title": "Squared",
+      "explanation": "The energy a wave delivers goes as the square of its field.",
+      "foundation": "bridge-squaring-square-roots"
+    },
+    {
+      "nodeId": "eq-model-fd-cos-square-average.op.cos",
+      "title": "Cosine",
+      "explanation": "Rises and falls between −1 and +1 once every cycle.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-cos-square-average.op.phase",
+      "title": "How far into the cycle",
+      "explanation": "omega t: the angle the cycle has turned through by time t.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-cos-square-average.op.half",
+      "title": "One half",
+      "explanation": "Half the peak value of cos squared, which is 1.",
+      "foundation": "bridge-fractions-ratios"
+    },
+    {
+      "nodeId": "eq-model-fd-cos-square-average.t.omega",
+      "title": "Angular frequency",
+      "explanation": "omega: how fast the phase turns, in radians per second.",
+      "foundation": "fields-waves"
+    },
+    {
+      "nodeId": "eq-model-fd-cos-square-average.t.t",
+      "title": "Time",
+      "explanation": "The time at which the field is read.",
+      "foundation": "functions-graphs"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "Over a whole cycle, the "
+    },
+    {
+      "text": "average",
+      "nodeId": "eq-model-fd-cos-square-average.op.average"
+    },
+    {
+      "text": " of the "
+    },
+    {
+      "text": "squared",
+      "nodeId": "eq-model-fd-cos-square-average.op.square"
+    },
+    {
+      "text": " cosine is "
+    },
+    {
+      "text": "one half",
+      "nodeId": "eq-model-fd-cos-square-average.op.half"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

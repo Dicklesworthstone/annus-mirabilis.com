@@ -28,7 +28,8 @@
     {
       "kind": "formula",
       "latex": "\\langle \\cos^2(\\omega t) \\rangle = \\frac{1}{2}",
-      "spoken": "The average of cosine squared of omega t, over a whole cycle, is one half."
+      "spoken": "The average of cosine squared of omega t, over a whole cycle, is one half.",
+      "equations": ["eq-model-fd-cos-square-average"]
     },
     {
       "kind": "paragraph",
