@@ -121,7 +121,7 @@ export function BrownianFirstEncounter({
     >
       {/* Header */}
       <header>
-        <span className="eyebrow">First encounter · Zero algebra entrance</span>
+        <span className="eyebrow">First encounter · No algebra required</span>
         <h2>
           {record?.question ?? "Do particles that wander in all directions ever get anywhere?"}
         </h2>
