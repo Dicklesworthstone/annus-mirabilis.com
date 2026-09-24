@@ -4,7 +4,7 @@ import { ShelfOpticsPage } from "../../../components/lab/shelfOptics/ShelfOptics
 export const metadata: Metadata = {
   title: "Michelson–Morley: compare optical path models",
   description:
-    "An interactive reference-model comparison with explicit assumptions, modern calibration and no invented historical measurements.",
+    "The fringe shift a rotated Michelson–Morley interferometer should show, with and without longitudinal contraction, and what a null result can decide. Modern constants; no invented 1887 readings.",
   robots: { index: false },
 };
 
