@@ -1,0 +1,20 @@
+{
+  "id": "note-me-f-two-pulses",
+  "author": {
+    "id": "agent:NavyKite",
+    "kind": "model",
+    "modelId": "claude-opus-5-5"
+  },
+  "reviewState": "draft",
+  "kind": "side-note",
+  "claim": "In the modern formulation, the paper's two pulses, sent out with equal energies \\(L/2\\) in opposite directions (p. 640), have zero total momentum, so as a system they have the invariant mass \\(L/c^2\\), although each pulse alone has none. This is a later formal explanation that resolves a common confusion. The 1905 argument does not use invariant mass, and nothing in it depends on this reading.",
+  "sourceSupport": [
+    {
+      "citationId": "cit-einstein-1905-inertia",
+      "locator": "p. 640",
+      "role": "primary"
+    }
+  ],
+  "affectedIds": ["s0-p7", "s0-p15"],
+  "evidence": "Checked by agent:NavyKite on 2026-09-24. The two pulses were read on the pinned plate of p. 640: 'ebene Lichtwellen von der Energie L/2 ... und gleichzeitig eine gleich große Lichtmenge nach der entgegengesetzten Richtung'. The invariant-mass reading is the four-momentum of later relativity, labelled as such; ME-03's preset me-03-four-momentum-opposite-pulses computes it."
+}

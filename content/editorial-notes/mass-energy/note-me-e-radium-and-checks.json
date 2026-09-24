@@ -1,0 +1,28 @@
+{
+  "id": "note-me-e-radium-and-checks",
+  "author": {
+    "id": "agent:NavyKite",
+    "kind": "model",
+    "modelId": "claude-opus-5-5"
+  },
+  "reviewState": "draft",
+  "kind": "historian-margin",
+  "claim": "The radium remark is a proposal, stated conditionally: it is not ruled out ('Es ist nicht ausgeschlossen'), the paper says, that bodies whose energy content varies to a high degree, such as radium salts, will allow the theory to be tested (p. 641). The paper reports no test. Measured checks came decades later, from nuclear physics; the reports cited here are J. D. Cockcroft and E. T. S. Walton's on the disintegration of elements by fast protons (1932) and K. T. Bainbridge's letter on the equivalence of mass and energy (1933).",
+  "sourceSupport": [
+    {
+      "citationId": "cit-einstein-1905-inertia",
+      "locator": "p. 641",
+      "role": "primary"
+    },
+    {
+      "citationId": "cit-cockcroft-walton-1932",
+      "role": "primary"
+    },
+    {
+      "citationId": "cit-bainbridge-1933",
+      "role": "primary"
+    }
+  ],
+  "affectedIds": ["s0-p14"],
+  "evidence": "Checked by agent:NavyKite on 2026-09-24. The radium sentence was read on the pinned plate of p. 641. Cockcroft and Walton 1932 and Bainbridge 1933: title, journal, volume, pages and date checked against Crossref (10.1098/rspa.1932.0133, issue 831, pp. 229–242, July 1932; 10.1103/PhysRev.44.123.2, 15 July 1933). Bainbridge's letter is the second item on p. 123; the DOI 10.1103/PhysRev.44.123 names a different letter, by G. Polvani. The texts of both reports were NOT read for this record: the Royal Society and the American Physical Society both answered 403 to the request. The record therefore says only that the checks came from nuclear physics and names the two reports; that they were the first measured checks is the plan's statement (§3.9) and awaits a reading of both."
+}

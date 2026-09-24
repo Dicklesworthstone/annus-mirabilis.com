@@ -1,0 +1,20 @@
+{
+  "id": "note-me-a-formula-absent",
+  "author": {
+    "id": "agent:NavyKite",
+    "kind": "model",
+    "modelId": "claude-opus-5-5"
+  },
+  "reviewState": "draft",
+  "kind": "historian-margin",
+  "claim": "The equation \\(E=mc^2\\) does not appear in the paper. Its three pages state a change: a body that gives off the energy \\(L\\) as radiation loses the mass \\(L/V^2\\), with \\(V\\) the speed of light, and the paper prints the conversion \\(L/9\\cdot10^{20}\\) for energy in erg and mass in grams (p. 641). It gives no body a total energy equal to its mass times \\(V^2\\): its energies are fixed only up to arbitrary additive constants (pp. 640–641).",
+  "sourceSupport": [
+    {
+      "citationId": "cit-einstein-1905-inertia",
+      "locator": "pp. 639–641",
+      "role": "primary"
+    }
+  ],
+  "affectedIds": ["s0-p12", "s0-p13"],
+  "evidence": "Checked by agent:NavyKite on 2026-09-24. The pinned plates of pp. 639, 640 and 641 (public/papers/pdfs/ap-18-639.pdf) were read by eye: no equation of the form E = mc² is printed on any of them. The mass statement reads 'verkleinert sich seine Masse um L/V²' and the conversion 'L/9.10²⁰' (p. 641); the arbitrary additive constants are 'der willkürlichen additiven Konstanten der Energien H und E' (pp. 640–641). Bibliographic data checked against Crossref (10.1002/andp.19053231314: Annalen der Physik vol. 323, the fourth series' vol. 18, pp. 639–641). Where the familiar form first appears is not stated here: the plan places it in 1907 and later, and that has not yet been checked against the 1907 texts."
+}
