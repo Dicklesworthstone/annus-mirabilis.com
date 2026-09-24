@@ -3,8 +3,10 @@ import type { SourceAssetRights } from "../../provenance/receiptToSourceAsset.ts
 import type {
   DataCell,
   DatasetColumn,
+  DatasetEvidenceStatus,
   DatasetPublication,
   DatasetRow,
+  DatasetWithdrawal,
   HistoricalDataset,
 } from "../../schemas/experiment.ts";
 
@@ -18,6 +20,14 @@ export interface DigitizationSpotCheckPass {
 export interface DigitizationPipelineInput {
   readonly id: string;
   readonly title: string;
+  /**
+   * What the record claims to be, declared by whoever runs the pipeline and never assumed. Until
+   * 2026-09-24 every record left here stamped "historical-measurement", which is how a pipeline
+   * fixture came to claim Lummer and Pringsheim's 1900 table (am-data-millikan-1916-zh2q).
+   */
+  readonly evidenceStatus: DatasetEvidenceStatus;
+  /** Required with "withdrawn", refused otherwise; the schema checks both when the record loads. */
+  readonly withdrawal?: DatasetWithdrawal;
   readonly publications: readonly DatasetPublication[];
   readonly primaryPublicationId: string;
   readonly digitizer: {
@@ -97,7 +107,8 @@ export function executeDigitizationPipeline(
   const dataset: HistoricalDataset = {
     id: input.id,
     title: input.title,
-    evidenceStatus: "historical-measurement",
+    evidenceStatus: input.evidenceStatus,
+    ...(input.withdrawal ? { withdrawal: input.withdrawal } : {}),
     publications: input.publications,
     primaryPublicationId: input.primaryPublicationId,
     digitizer: {

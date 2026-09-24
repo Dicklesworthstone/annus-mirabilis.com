@@ -1,6 +1,9 @@
 id: fixture-dataset
 title: Fixture Historical Dataset
-evidenceStatus: historical-measurement
+evidenceStatus: withdrawn
+withdrawal:
+  date: '2026-09-24'
+  reason: A pipeline fixture, not a measurement. Its rows were constructed to exercise the digitizer, and the paper it cites, Lummer and Pringsheim's 1900 report on black-body radiation, gives no particle radii or displacements.
 publications:
   - id: pub-1900
     citation: 'Lummer, O. & Pringsheim, E. (1900). Verh. Dtsch. Phys. Ges. 2: 163-180.'

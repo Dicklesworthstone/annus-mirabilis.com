@@ -35,6 +35,12 @@ export function runFixtureDigitization(options?: { targetDir?: string }) {
   const input: DigitizationPipelineInput = {
     id: "fixture-dataset",
     title: "Fixture Historical Dataset",
+    evidenceStatus: "withdrawn",
+    withdrawal: {
+      date: "2026-09-24",
+      reason:
+        "A pipeline fixture, not a measurement. Its rows were constructed to exercise the digitizer, and the paper it cites, Lummer and Pringsheim's 1900 report on black-body radiation, gives no particle radii or displacements.",
+    },
     primaryPublicationId: "pub-1900",
     publications: [
       {
@@ -103,7 +109,8 @@ export function runFixtureDigitization(options?: { targetDir?: string }) {
     ...result.dataset,
     csvDigest: result.csvDigest,
   };
-  const yamlText = yaml.dump(yamlObj, { indent: 2, lineWidth: 120 });
+  // No folding: the edition's strict YAML parser reads plain and quoted scalars, not ">-" blocks.
+  const yamlText = yaml.dump(yamlObj, { indent: 2, lineWidth: -1 });
   const yamlPath = join(contentDir, "fixture-dataset.yaml");
   writeFileSync(yamlPath, yamlText, "utf8");
 

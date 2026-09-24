@@ -34,6 +34,9 @@ export function runTemplateDigitization() {
   const input: DigitizationPipelineInput = {
     id: "template-dataset",
     title: "Template Historical Dataset",
+    // Declare it; nothing assumes it. "historical-measurement" only for values read from the page
+    // image named below, by the named digitizer. A record that fails that is "withdrawn", with a reason.
+    evidenceStatus: "historical-measurement",
     primaryPublicationId: "pub-1",
     publications: [
       {

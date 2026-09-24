@@ -1,10 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { executeDigitizationPipeline } from "../../content/datasets/pipeline/digitize.ts";
+import { validateHistoricalDataset } from "../../content/schemas/experiment.ts";
 
 describe("digitization pipeline harness (am-inst-dataset-overlay-ra9r)", () => {
   const input = {
     id: "perrin-1909-table-1-sample",
     title: "Perrin 1909 Granule Displacements Sample",
+    evidenceStatus: "historical-measurement" as const,
     publications: [
       {
         id: "pub-1",
@@ -86,6 +88,25 @@ describe("digitization pipeline harness (am-inst-dataset-overlay-ra9r)", () => {
     expect(result.csvDigest.length).toBe(64); // SHA-256 hex string length
     expect(result.dataset.rows.length).toBe(3);
     expect(result.loggedEvent.outcome).toBe("passed");
+  });
+
+  test("carries the evidence status it is given and never stamps one (am-data-millikan-1916-zh2q)", () => {
+    // Positive control first: a declared measurement stays one.
+    expect(executeDigitizationPipeline(input).dataset.evidenceStatus).toBe(
+      "historical-measurement",
+    );
+    const withdrawal = { date: "2026-09-24", reason: "Constructed rows withdrawn for this test." };
+    const withdrawn = executeDigitizationPipeline({
+      ...input,
+      evidenceStatus: "withdrawn",
+      withdrawal,
+    }).dataset;
+    expect(withdrawn.evidenceStatus).toBe("withdrawn");
+    expect(withdrawn.withdrawal).toEqual(withdrawal);
+    // The rows are kept: withdrawal is not deletion.
+    expect(withdrawn.rows.length).toBe(input.rawRows.length);
+    // And the emitted record is one the schema accepts.
+    expect(validateHistoricalDataset(withdrawn).evidenceStatus).toBe("withdrawn");
   });
 
   test("spot check failure with discrepancies throws Error", () => {
