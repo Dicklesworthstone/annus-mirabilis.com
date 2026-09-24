@@ -60,10 +60,14 @@ describe("SR-12 manifest and metadata contract", () => {
       "yaml",
     ) as {
       ownerBeadId: string;
-      entries: Array<{ readings: { r0: string; r1: string; r2: string; r3: string } }>;
+      paper: string;
+      targets: Array<{ id: string; readings: { r0: string; r1: string; r2: string; r3: string } }>;
     };
     expect(raw.ownerBeadId).toBe("am-sr-12-charge-current-bgq0");
-    const entry = raw.entries[0];
+    // The record's caption lives under `targets`, which verify-content reads; the old unread
+    // `entries` block was replaced when the caption was rewritten against §9.
+    expect(raw.paper).toBe("special-relativity");
+    const entry = raw.targets.find((t) => t.id === "sr-12");
     expect(entry).toBeDefined();
     expect(entry?.readings.r0.length).toBeGreaterThan(10);
     expect(entry?.readings.r1.length).toBeGreaterThan(10);
