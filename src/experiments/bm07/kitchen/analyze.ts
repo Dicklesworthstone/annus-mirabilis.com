@@ -26,6 +26,10 @@ import { kitchenInputBox } from "./uncertainty.ts";
 
 export type { KitchenAnalysis, KitchenOptions, KitchenTrack } from "./definition.ts";
 export { KITCHEN_OPTIONS, KITCHEN_OUTPUTS } from "./definition.ts";
+
+/** A signed percentage for reader text, with a true minus sign. */
+const signedPercent = (x: number, digits: number) =>
+  `${x < 0 ? "−" : "+"}${Math.abs(100 * x).toFixed(digits)}%`;
 export function kitchenTracks(document: KitchenDocument): readonly KitchenTrack[] {
   const tracks = new Map<string, { key: string; label: string; indices: number[] }>(),
     segments = new Map<string, number>();
@@ -118,8 +122,10 @@ export function analyzeKitchen(
   if (m.calibration_axes === "both") {
     const ratio = Number(m.pixels_per_um_x) / Number(m.pixels_per_um_y);
     if (Math.abs(ratio - 1) > KITCHEN_LIMITS.anisotropy) {
+      // (1 + p²)/2 multiplies a pooled D̂; N̂ scales as its reciprocal. Formatted, never a raw float.
+      const factor = (1 + ratio * ratio) / 2;
       warnings.push(
-        `The axis scales differ. Using one scale for both axes would multiply a pooled diffusivity by ${(1 + ratio * ratio) / 2}. This instrument analyzes one coordinate, not that pooled statistic.`,
+        `The x scale is ${ratio.toFixed(4)} times the y scale. Using one scale for both axes would multiply a pooled diffusivity by ${factor.toFixed(6)}, changing D by ${signedPercent(factor - 1, 3)} and N by ${signedPercent(1 / factor - 1, 2)}. This instrument analyzes one coordinate, not that pooled statistic.`,
       );
       if (
         !m.pixel_aspect_ratio ||
