@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { renderToStaticMarkup } from "react-dom/server";
+import type { SourceBlock } from "../content/schemas/source.ts";
 import { exportMarkup } from "../testing/exportMarkup.ts";
 import {
   FIXTURE_BROWNIAN_ALIGNMENT,
@@ -245,6 +246,60 @@ describe("PaperPage", () => {
     expect(parallelMarkup).toContain('id="tr-bm-s4-p1-u1"');
     expect(parallelMarkup).toContain('data-equation-label="1"');
     expect(parallelMarkup).not.toContain("is not yet available");
+  });
+
+  test("an edition of machine-draft blocks keeps the German draft face, labelled, with plates and chooser; parallel uses the blocks", async () => {
+    // Blocks derived from a machine-draft ledger are still a machine draft. GermanFace carries no
+    // draft label, no plates and no chooser, so the edition takes the German face over only when
+    // every block is reviewed (faceAvailability.ts germanFaceRendersEdition). mass-energy has a
+    // ledger draft, which is what the German face must keep showing.
+    const asDraft = (b: SourceBlock): SourceBlock => ({
+      ...b,
+      status: { ...b.status, transcription: "draft", translation: "draft", review: "draft" },
+    });
+    const edition: BilingualEdition = {
+      paper: FIXTURE_MASS_ENERGY_PAPER,
+      blocks: FIXTURE_MASS_ENERGY_SOURCE_BLOCKS.map(asDraft),
+      units: FIXTURE_MASS_ENERGY_TRANSLATION_UNITS,
+      alignment: FIXTURE_MASS_ENERGY_ALIGNMENT,
+    };
+    const paperId = "mass-energy";
+    const german = renderToStaticMarkup(await PaperPage({ paperId, face: "german" }, { edition }));
+    expect(german).toContain("data-german-draft");
+    expect(german).toContain("data-source-draft-notice");
+    expect(german).toContain("Machine draft, not reviewed");
+    expect(german).toContain('class="source-plate"');
+    expect(german).toContain('class="face-tabs"');
+    expect(german).not.toContain("source-blocks-list");
+    expect(german).not.toContain('id="me-p1"');
+
+    // One unreviewed block among reviewed ones is enough to keep the draft face.
+    const mixed: BilingualEdition = {
+      ...edition,
+      blocks: FIXTURE_MASS_ENERGY_SOURCE_BLOCKS.map((b, i) => (i === 0 ? asDraft(b) : b)),
+    };
+    const mixedGerman = renderToStaticMarkup(
+      await PaperPage({ paperId, face: "german" }, { edition: mixed }),
+    );
+    expect(mixedGerman).toContain("data-german-draft");
+
+    // The control: the same blocks, all reviewed, take the German face over.
+    const reviewed = renderToStaticMarkup(
+      await PaperPage(
+        { paperId, face: "german" },
+        { edition: { ...edition, blocks: FIXTURE_MASS_ENERGY_SOURCE_BLOCKS } },
+      ),
+    );
+    expect(reviewed).toContain("source-blocks-list");
+    expect(reviewed).toContain('id="me-p1"');
+    expect(reviewed).not.toContain("data-german-draft");
+
+    // The draft blocks still serve the parallel face.
+    const parallel = renderToStaticMarkup(
+      await PaperPage({ paperId, face: "parallel" }, { edition }),
+    );
+    expect(parallel).toContain('data-face="parallel"');
+    expect(parallel).toContain('id="me-p1"');
   });
 
   test("face route wiring decision (not live edition): paper with source blocks and gloss units renders GlossFace and fallback notice is absent", async () => {

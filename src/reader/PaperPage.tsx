@@ -24,9 +24,11 @@ import type { MassEnergyEntranceScenario } from "./entrances/massEnergyExample.t
 import { FaceFallback } from "./FaceFallback.tsx";
 import { FirstUseCallout } from "./FirstUseCallout.tsx";
 import {
+  editionBlocksReviewed,
   englishFaceHasContent,
   faceAvailability,
   germanFaceHasContent,
+  germanFaceRendersEdition,
   glossFaceHasContent,
   parallelFaceHasContent,
 } from "./faceAvailability.ts";
@@ -103,17 +105,20 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
       // predicate stops German rendering rather than silently disagreeing with the
       // chooser.
       //
-      // A paper with no compiled bilingual payload may still have a reviewed-or-draft
-      // ledger on disk, so the receipt is read only when the edition has no blocks -
-      // unchanged, and the reason the draft is consulted for German alone: English,
-      // parallel and gloss need translation units that no ledger provides, and would
-      // be claiming more than exists.
+      // A paper may hold a ledger draft on disk beside, or instead of, an edition's source
+      // blocks. The receipt is read unless every edition block is reviewed: blocks derived
+      // from a machine-draft ledger are still a machine draft, and GermanFace carries no
+      // draft label, plates or chooser, so the draft face keeps the German face until the
+      // blocks are reviewed (germanFaceRendersEdition). The draft is consulted for German
+      // alone: English, parallel and gloss need translation units that no ledger provides.
       if (resolved.face === "german") {
-        const editionBlocks = edition?.blocks.length ?? 0;
-        const draft =
-          editionBlocks === 0 ? loadGermanSourceFace(resolved.paperId as RouteSlug) : null;
+        const blocks = edition?.blocks ?? [];
+        const editionBlocks = blocks.length;
+        const draft = editionBlocksReviewed(blocks)
+          ? null
+          : loadGermanSourceFace(resolved.paperId as RouteSlug);
         if (germanFaceHasContent(editionBlocks, draft?.blocks.length ?? 0)) {
-          if (edition && editionBlocks > 0) {
+          if (edition && germanFaceRendersEdition(blocks, draft?.blocks.length ?? 0)) {
             return (
               <GermanFace
                 paper={edition.paper}

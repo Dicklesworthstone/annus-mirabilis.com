@@ -90,3 +90,31 @@ export const parallelFaceHasContent = (blocks: number, units: number): boolean =
   blocks > 0 && units > 0;
 export const glossFaceHasContent = (blocks: number, glossUnits: number): boolean =>
   blocks > 0 && glossUnits > 0;
+
+/**
+ * WHICH GERMAN RENDERER, when a paper has both an edition's source blocks and a ledger draft.
+ *
+ * GermanFace renders SourceBlock records and carries no draft label, no page plates and no face
+ * chooser; GermanDraftFace renders the ledger draft with all three (am-dl4n: "Show it, labelled a
+ * draft"). Source blocks derived from a machine-draft ledger are still a machine draft, so the
+ * edition's blocks take the German face over only once EVERY one of them is reviewed. Until then
+ * the draft face stays and the blocks serve the faces that need them (parallel, gloss). With no
+ * draft to fall back on, the blocks are all there is and render as before.
+ *
+ * A block counts as reviewed only when its transcription is reviewed AND its review is reviewed
+ * or accepted: a proofed transcription or a review in progress is not a reviewed text.
+ */
+export type BlockReviewStatus = Readonly<{
+  status?: Readonly<{ transcription?: string; review?: string }> | undefined;
+}>;
+export const sourceBlockIsReviewed = (block: BlockReviewStatus): boolean =>
+  block.status?.transcription === "reviewed" &&
+  (block.status.review === "reviewed" || block.status.review === "accepted");
+/** True only for a non-empty edition whose every block is reviewed. */
+export const editionBlocksReviewed = (blocks: readonly BlockReviewStatus[]): boolean =>
+  blocks.length > 0 && blocks.every(sourceBlockIsReviewed);
+/** Whether the German face renders the edition's blocks (GermanFace) rather than the draft. */
+export const germanFaceRendersEdition = (
+  blocks: readonly BlockReviewStatus[],
+  draftBlocks: number,
+): boolean => blocks.length > 0 && (draftBlocks === 0 || editionBlocksReviewed(blocks));

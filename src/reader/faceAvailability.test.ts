@@ -9,10 +9,12 @@
 
 import { describe, expect, test } from "bun:test";
 import {
+  editionBlocksReviewed,
   englishFaceHasContent,
   type FaceContentCounts,
   faceAvailability,
   germanFaceHasContent,
+  germanFaceRendersEdition,
   glossFaceHasContent,
   parallelFaceHasContent,
 } from "./faceAvailability.ts";
@@ -116,5 +118,31 @@ describe("FaceChooser's tab order", () => {
     expect([...order.slice(1)].sort()).toEqual([...FACE_FALLBACK_IDS].sort());
     expect(order.indexOf("results")).toBeLessThan(order.indexOf("german"));
     expect(order.indexOf("german")).toBeLessThan(order.indexOf("facsimile"));
+  });
+});
+
+describe("which German renderer: the edition's blocks, or the ledger draft", () => {
+  const block = (transcription: string, review: string) => ({ status: { transcription, review } });
+  const reviewed = block("reviewed", "accepted");
+
+  test("the blocks take the German face over only when every one of them is reviewed", () => {
+    expect(germanFaceRendersEdition([reviewed, block("reviewed", "reviewed")], 25)).toBe(true);
+    // A machine-draft edition keeps the draft face, which carries the label, plates and chooser.
+    expect(germanFaceRendersEdition([block("draft", "draft")], 25)).toBe(false);
+    // The negative a per-paper "any reviewed block" check fails: one draft block is enough.
+    expect(germanFaceRendersEdition([reviewed, block("draft", "draft")], 25)).toBe(false);
+    // Neither half alone is a reviewed text.
+    expect(germanFaceRendersEdition([block("proofed", "accepted")], 25)).toBe(false);
+    expect(germanFaceRendersEdition([block("reviewed", "in-progress")], 25)).toBe(false);
+    expect(germanFaceRendersEdition([{}], 25)).toBe(false);
+  });
+
+  test("with no draft to fall back on the blocks render; with no blocks they never do", () => {
+    expect(germanFaceRendersEdition([block("draft", "draft")], 0)).toBe(true);
+    expect(germanFaceRendersEdition([], 25)).toBe(false);
+    expect(germanFaceRendersEdition([], 0)).toBe(false);
+    // An empty edition is not a reviewed one, so the draft is still consulted for it.
+    expect(editionBlocksReviewed([])).toBe(false);
+    expect(editionBlocksReviewed([reviewed])).toBe(true);
   });
 });

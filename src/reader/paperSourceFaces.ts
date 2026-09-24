@@ -12,7 +12,12 @@
  */
 import { loadGermanSourceFace } from "../content/editions/germanSourceFace.ts";
 import type { RouteSlug } from "../content/ids.ts";
-import { type FaceAvailability, faceAvailability } from "./faceAvailability.ts";
+import {
+  editionBlocksReviewed,
+  type FaceAvailability,
+  faceAvailability,
+  germanFaceRendersEdition,
+} from "./faceAvailability.ts";
 import { loadBilingualEdition } from "./faces/bilingualLoader.ts";
 import type { FaceId } from "./faces/registry.ts";
 
@@ -30,23 +35,23 @@ export interface PaperSourceFaces {
 
 export async function paperSourceFaces(paperId: string): Promise<PaperSourceFaces> {
   const edition = await loadBilingualEdition(paperId).catch(() => null);
-  const editionBlocks = edition?.blocks.length ?? 0;
-  const draft = editionBlocks === 0 ? loadGermanSourceFace(paperId as RouteSlug) : null;
+  const blocks = edition?.blocks ?? [];
+  // The same choice PaperPage makes: the draft stays the German face until every block is reviewed.
+  const draft = editionBlocksReviewed(blocks) ? null : loadGermanSourceFace(paperId as RouteSlug);
+  const rendersEdition = germanFaceRendersEdition(blocks, draft?.blocks.length ?? 0);
   const availability = faceAvailability({
-    blocks: editionBlocks,
+    blocks: blocks.length,
     units: edition?.units.length ?? 0,
     glossUnits: edition?.glossUnits?.length ?? 0,
     germanDraftBlocks: draft?.blocks.length ?? 0,
   });
   // What the German face publishes: the edition's block ids, or the draft's manifest anchors.
   const anchors = new Set<string>(
-    editionBlocks > 0
-      ? (edition?.blocks.map((b) => b.id) ?? [])
-      : Object.values(draft?.anchors.anchorOf ?? {}),
+    rendersEdition ? blocks.map((b) => b.id) : Object.values(draft?.anchors.anchorOf ?? {}),
   );
   return {
     availability,
-    germanIsDraft: editionBlocks === 0,
+    germanIsDraft: !rendersEdition,
     sectionFragment: (section) =>
       anchors.has(section) ? `#${section}` : anchors.has(`${section}-p1`) ? `#${section}-p1` : "",
   };

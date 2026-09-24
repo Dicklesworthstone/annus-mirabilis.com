@@ -1,6 +1,10 @@
 import { loadGermanSourceFace } from "../../content/editions/germanSourceFace.ts";
 import type { RouteSlug } from "../../content/ids.ts";
-import { germanFaceHasContent } from "../../reader/faceAvailability.ts";
+import {
+  editionBlocksReviewed,
+  germanFaceHasContent,
+  germanFaceRendersEdition,
+} from "../../reader/faceAvailability.ts";
 import { loadBilingualEdition } from "../../reader/faces/bilingualLoader.ts";
 import { listReadablePapers, sectionStaticParams } from "../../reader/paperRoutes.ts";
 
@@ -35,15 +39,17 @@ export async function loadFirstUseTargets(): Promise<FirstUseTargets> {
   const german = new Map<string, ReadonlySet<string>>();
   for (const slug of papers) {
     const edition = await loadBilingualEdition(slug);
-    const editionBlocks = edition?.blocks.length ?? 0;
-    const draft = editionBlocks === 0 ? loadGermanSourceFace(slug as RouteSlug) : null;
+    const blocks = edition?.blocks ?? [];
+    const editionBlocks = blocks.length;
+    // PaperPage's choice: the draft stays the German face until every edition block is reviewed.
+    const draft = editionBlocksReviewed(blocks) ? null : loadGermanSourceFace(slug as RouteSlug);
     if (!germanFaceHasContent(editionBlocks, draft?.blocks.length ?? 0)) continue;
     // The draft face publishes the frozen manifest's ids and the retired ids that alias them
     // (manifestAnchors.ts), not its segment ids: a first-use link must name what the page has.
     german.set(
       slug,
-      editionBlocks > 0
-        ? new Set((edition?.blocks ?? []).map((b) => b.id))
+      germanFaceRendersEdition(blocks, draft?.blocks.length ?? 0)
+        ? new Set(blocks.map((b) => b.id))
         : new Set([
             ...Object.values(draft?.anchors.anchorOf ?? {}),
             ...Object.keys(draft?.anchors.aliases ?? {}),
