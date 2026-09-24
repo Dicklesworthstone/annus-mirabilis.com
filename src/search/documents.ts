@@ -282,6 +282,9 @@ export function documentsFromCompiled(
       terms: [foundation.id],
     });
   }
+  // A laboratory's line names its paper the way every other result does, by title, not by the
+  // slug with spaces ("light quanta · host-calculation laboratory").
+  const paperTitles = new Map(papers.map((payload) => [payload.paper.id, payload.paper.title]));
   for (const instrument of instruments) {
     if (instrument.status !== "registered") continue;
     const paper = familyPaper(instrument.id);
@@ -303,7 +306,7 @@ export function documentsFromCompiled(
       title: labName(instrument.id) === instrument.id ? instrument.title : labName(instrument.id),
       text: instrument.question ?? instrument.title,
       terms: [instrument.id, ...(termsByInstrument.get(instrument.id) ?? [])],
-      scopeLabel: `${paper.replaceAll("-", " ")} · host-calculation laboratory`,
+      scopeLabel: `${paperTitles.get(paper) ?? "Across the papers"} · host-calculation laboratory`,
     });
   }
   return documents.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));

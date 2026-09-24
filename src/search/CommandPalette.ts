@@ -227,7 +227,9 @@ export function openCommandPalette(
           element("strong", hit.document.title),
           element(
             "span",
-            `${hit.document.scopeLabel} · ${hit.document.lang}${hit.aliasLabel ? ` · ${hit.aliasLabel}` : ""}`,
+            // The language only where it tells the reader something: every result but a German
+            // passage is English, and " · en" on each line was noise.
+            `${hit.document.scopeLabel}${hit.document.lang === "de" ? " · German" : ""}${hit.aliasLabel ? ` · ${hit.aliasLabel}` : ""}`,
             "fine",
           ),
           element("span", hit.snippet, "search-snippet"),
