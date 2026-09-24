@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { checkVoice } from "../../content/checks/voice/index.ts";
 import { checkEquivalence } from "./equivalence";
 import { evaluate } from "./evaluate";
 import { parse } from "./grammar";
@@ -24,6 +25,24 @@ describe("checkEquivalence: real identities pass", () => {
       expect(outcome.acceptedPointCount).toBeGreaterThanOrEqual(12);
       expect(outcome.label).toContain("not a proof");
     }
+  });
+
+  test("the label counts the points actually used, in words a reader can use", () => {
+    const outcome = checkEquivalence(
+      mustParse("x^2-1"),
+      mustParse("(x-1)*(x+1)"),
+      { x: { min: -10, max: 10 } },
+      TOLERANCE,
+    );
+    if (outcome.status !== "equivalent")
+      throw new Error(`expected equivalent, got ${outcome.status}`);
+    expect(outcome.label).toBe(
+      `Numerically equivalent at ${outcome.acceptedPointCount} sample points in the stated ranges. This is a numerical check, not a proof.`,
+    );
+    // The sampling families are implementation; a reader is never asked to know what they are.
+    expect(outcome.label).not.toMatch(/Halton|Philox|boundary/);
+    const findings = checkVoice(outcome.label, { context: "task-feedback" });
+    expect(findings.filter((f) => f.severity === "error").map((f) => f.rule)).toEqual([]);
   });
 
   test("sqrt(4*D*t) and 2*sqrt(D*t) are equivalent over the Brownian teaching domain", () => {

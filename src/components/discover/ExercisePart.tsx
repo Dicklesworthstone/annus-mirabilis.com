@@ -56,6 +56,7 @@ function ExerciseForm({ part }: { part: ExpressionExercisePart }) {
   return (
     <div className="exercise-part" data-exercise-part={part.id}>
       <p className="exercise-prompt">{part.prompt}</p>
+      <CheckedRanges domains={part.domains} />
       <noscript>
         <p className="notice">
           Checking your answer needs JavaScript. The worked explanation below still works.
@@ -157,6 +158,38 @@ function ProbeNote({ probe }: { probe: DomainProbeOutcome }) {
           <Sci key={i} value={segment.number} />
         ),
       )}
+    </p>
+  );
+}
+
+/** A range end drawn plainly: 100 stays 100, and 1e-14 is drawn as a power of ten. */
+function RangeEnd({ value }: { value: number }) {
+  if (Number.isInteger(value) && Math.abs(value) < 1e6)
+    return <>{String(value).replace("-", "\u2212")}</>;
+  return <Sci value={value} />;
+}
+
+/**
+ * The ranges the checker compares over, stated where the reader answers, because a verdict that
+ * says "in the stated ranges" has to have stated them. Rendered without JavaScript too.
+ */
+function CheckedRanges({ domains }: { domains: ExpressionExercisePart["domains"] }) {
+  const names = Object.keys(domains);
+  if (names.length === 0) return null;
+  return (
+    <p className="exercise-prompt">
+      Answers are compared for{" "}
+      {names.map((name, i) => {
+        const domain = domains[name];
+        if (!domain) return null;
+        return (
+          <span key={name}>
+            {i === 0 ? "" : i === names.length - 1 ? " and " : ", "}
+            {name} from <RangeEnd value={domain.min} /> to <RangeEnd value={domain.max} />
+          </span>
+        );
+      })}
+      .
     </p>
   );
 }

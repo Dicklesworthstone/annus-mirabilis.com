@@ -47,6 +47,14 @@ describe("ExercisePart: static rendering (no JavaScript)", () => {
     expect(html).not.toContain("<script");
   });
 
+  test("states the ranges the checker compares over, since the verdict cites them", () => {
+    const text = html.replace(/<[^>]+>/g, "");
+    expect(text).toContain(
+      // Sci sets the multiplication sign between narrow no-break spaces (U+202F).
+      "Answers are compared for D from 1\u202f×\u202f10\u221214 to 1\u202f×\u202f10\u221210 and t from 0.1 to 100.",
+    );
+  });
+
   test("has exactly one addressable exercise-part root", () => {
     expect(html).toContain('data-exercise-part="demo-part"');
   });

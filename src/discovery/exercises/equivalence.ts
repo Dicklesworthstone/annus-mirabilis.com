@@ -94,7 +94,9 @@ export function checkEquivalence(
     return {
       status: "equivalent",
       acceptedPointCount: allAccepted.size,
-      label: `Numerically equivalent at ${allAccepted.size} distinct points using boundary, Halton and Philox checks in the stated ranges. This is a numerical check, not a proof.`,
+      // Plain words for a reader; how the points are chosen is this module's business. "sample
+      // points", not bare "points", which the voice lint reads as a score in feedback copy.
+      label: `Numerically equivalent at ${allAccepted.size} sample points in the stated ranges. This is a numerical check, not a proof.`,
     };
   } catch (error) {
     return unable(error instanceof Error ? error.message : "The exercise could not be compared.");
