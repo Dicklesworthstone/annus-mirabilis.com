@@ -99,6 +99,17 @@ export function GermanDraftFace({
     papers. A footnote it cannot find carries no page, and the plate keeps the page before it.
   */
   const printedPage = (id: string) => face.printedPages.pages[id];
+  /*
+    THE ANCHORS ARE THE FROZEN MANIFEST'S IDS (manifestAnchors.ts), never the segmenter's: s0-p9 on
+    mass-energy was a retired id naming a later paragraph, and every display was sN-eqK. A block
+    keeps its segment id for keys and pages; what a reader can link to is anchor(id). A retired id
+    appears only as an alias on the block that absorbed it.
+  */
+  const anchor = (id: string) => face.anchors.anchorOf[id] ?? id;
+  const aliasesOf = (id: string) =>
+    Object.entries(face.anchors.aliases)
+      .filter(([, target]) => target === anchor(id))
+      .map(([retired]) => <span key={retired} id={retired} data-alias-of={anchor(id)} />);
   const firstPlaced = body.map((b) => printedPage(b.id)).find((p) => p !== undefined);
   const opening = plate?.pages.includes(firstPlaced ?? -1) ? firstPlaced : plate?.pages[0];
 
@@ -108,7 +119,11 @@ export function GermanDraftFace({
         <p className="eyebrow">
           Read · {paperTitle} · {FACE_REGISTRY.german.label}
         </p>
-        <h1 className="source-paper-title" lang="de" id={mastheadTitle?.id}>
+        <h1
+          className="source-paper-title"
+          lang="de"
+          id={mastheadTitle ? anchor(mastheadTitle.id) : undefined}
+        >
           {mastheadTitle ? renderSourceMarkup(mastheadTitle.text, mastheadTitle.id) : germanTitle}
         </h1>
       </header>
@@ -142,7 +157,7 @@ export function GermanDraftFace({
               MASTHEAD_KINDS.has(block.kind) ? (
                 <p
                   key={block.id}
-                  id={block.id}
+                  id={anchor(block.id)}
                   className="source-masthead"
                   lang="de"
                   data-printed-page={printedPage(block.id)}
@@ -152,29 +167,31 @@ export function GermanDraftFace({
               ) : HEADING_KINDS.has(block.kind) ? (
                 <h2
                   key={block.id}
-                  id={block.id}
+                  id={anchor(block.id)}
                   lang="de"
                   data-printed-page={printedPage(block.id)}
                 >
                   {renderSourceMarkup(block.text, block.id)}
                 </h2>
               ) : block.kind === "equation" ? (
-                sourceDisplayEquation(block.text, block.label, block.id, block.id)
+                sourceDisplayEquation(block.text, block.label, anchor(block.id), block.id)
               ) : (
                 <p
                   key={block.id}
-                  id={block.id}
+                  id={anchor(block.id)}
                   className="source-paragraph"
                   lang="de"
                   data-block-kind={block.kind}
                   data-printed-page={printedPage(block.id)}
                 >
+                  {aliasesOf(block.id)}
                   {renderSourceMarkup(
                     block.text,
                     block.id,
-                    block.displayEquationIds,
-                    // Where a page turned inside this paragraph: the retired id, and its page.
-                    block.joinedIds?.map((id) => ({ id, page: printedPage(id) })),
+                    block.displayEquationIds?.map(anchor),
+                    // Where a page turned inside this paragraph: its page, and no id. The segment
+                    // the ledger broke off was never a manifest unit, so it names nothing.
+                    block.joinedIds?.map((id) => ({ page: printedPage(id) })),
                   )}
                 </p>
               ),
@@ -187,17 +204,18 @@ export function GermanDraftFace({
               {footnotes.map((block) => (
                 <p
                   key={block.id}
-                  id={block.id}
+                  id={anchor(block.id)}
                   className="source-footnote"
                   lang="de"
                   data-printed-page={printedPage(block.id)}
                 >
+                  {aliasesOf(block.id)}
                   {block.footnoteLabel ? <strong>{block.footnoteLabel} </strong> : null}
                   {renderSourceMarkup(
                     block.text,
                     block.id,
-                    block.displayEquationIds,
-                    block.joinedIds?.map((id) => ({ id, page: printedPage(id) })),
+                    block.displayEquationIds?.map(anchor),
+                    block.joinedIds?.map((id) => ({ page: printedPage(id) })),
                   )}
                 </p>
               ))}

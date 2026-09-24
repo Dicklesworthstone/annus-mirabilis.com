@@ -38,9 +38,17 @@ export async function loadFirstUseTargets(): Promise<FirstUseTargets> {
     const editionBlocks = edition?.blocks.length ?? 0;
     const draft = editionBlocks === 0 ? loadGermanSourceFace(slug as RouteSlug) : null;
     if (!germanFaceHasContent(editionBlocks, draft?.blocks.length ?? 0)) continue;
-    const blocks: readonly { id: string }[] =
-      editionBlocks > 0 ? (edition?.blocks ?? []) : (draft?.blocks ?? []);
-    german.set(slug, new Set(blocks.map((b) => b.id)));
+    // The draft face publishes the frozen manifest's ids and the retired ids that alias them
+    // (manifestAnchors.ts), not its segment ids: a first-use link must name what the page has.
+    german.set(
+      slug,
+      editionBlocks > 0
+        ? new Set((edition?.blocks ?? []).map((b) => b.id))
+        : new Set([
+            ...Object.values(draft?.anchors.anchorOf ?? {}),
+            ...Object.keys(draft?.anchors.aliases ?? {}),
+          ]),
+    );
   }
   return { readable: new Set(papers), sections, german };
 }

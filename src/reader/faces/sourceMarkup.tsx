@@ -180,7 +180,7 @@ export function renderSourceMarkup(
   text: string,
   keyPrefix: string,
   displayIds: readonly string[] = [],
-  joins: readonly Readonly<{ id: string; page?: number | undefined }>[] = [],
+  joins: readonly Readonly<{ id?: string | undefined; page?: number | undefined }>[] = [],
 ): ReactNode {
   if (!text.includes("[[") && !text.includes("$")) return text;
 

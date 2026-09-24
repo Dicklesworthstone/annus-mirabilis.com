@@ -38,8 +38,11 @@ export async function paperSourceFaces(paperId: string): Promise<PaperSourceFace
     glossUnits: edition?.glossUnits?.length ?? 0,
     germanDraftBlocks: draft?.blocks.length ?? 0,
   });
+  // What the German face publishes: the edition's block ids, or the draft's manifest anchors.
   const anchors = new Set<string>(
-    (editionBlocks > 0 ? edition?.blocks : draft?.blocks)?.map((b) => b.id) ?? [],
+    editionBlocks > 0
+      ? (edition?.blocks.map((b) => b.id) ?? [])
+      : Object.values(draft?.anchors.anchorOf ?? {}),
   );
   return {
     availability,

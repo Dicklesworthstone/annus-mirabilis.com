@@ -56,6 +56,7 @@ import {
   type ManifestUnit,
 } from "./joinContinuations.ts";
 import { PAPER_BIB_KEYS } from "./ledgerPresence.ts";
+import { aliasPathFor, type ManifestAnchors, manifestAnchors } from "./manifestAnchors.ts";
 import { segmentLedger } from "./segmentLedger.ts";
 
 export type GermanSourceFace = Readonly<{
@@ -66,6 +67,11 @@ export type GermanSourceFace = Readonly<{
   blocks: readonly JoinedBlock[];
   /** The printed page each block starts on, from the ledger's own page anchors (blockPages.ts). */
   printedPages: BlockPages;
+  /**
+   * The frozen manifest id each block and display is published under, and the retired ids that
+   * alias them (manifestAnchors.ts). The blocks keep their segment ids; anchors are these.
+   */
+  anchors: ManifestAnchors;
 }>;
 
 export class GermanSourceFaceError extends Error {
@@ -180,12 +186,14 @@ export function loadGermanSourceFace(
     units,
   ).blocks;
 
+  // A display's page is the one the manifest stores for it, read from the plates.
+  const printedPages = blockStartPages(ledgerText, blocks, storedDisplayPages(blocks, units));
   return {
     slug,
     bibKey,
     notice,
     blocks,
-    // A display's page is the one the manifest stores for it, read from the plates.
-    printedPages: blockStartPages(ledgerText, blocks, storedDisplayPages(blocks, units)),
+    printedPages,
+    anchors: manifestAnchors(slug, blocks, units, printedPages.pages, aliasPathFor(root, slug)),
   };
 }
