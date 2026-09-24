@@ -11,10 +11,10 @@
   "premises": [
     "One electron can receive one quantum of energy hν.",
     "Escape requires positive work Φ, with any additional loss nonnegative.",
-    "Keep frequency, work function, and yield assumptions fixed when comparing power."
+    "Frequency, work function and yield stay fixed when the power changes."
   ],
   "limitations": [
-    "The threshold and linear relation are programmed assumptions and consequences, not independent experimental proof.",
+    "In the laboratory the threshold and the straight line follow from the model’s assumptions; they are not experimental proof.",
     "The work function used in a hypothetical example is not a sourced value for a named metal.",
     "Real collection and emission rates require additional material and apparatus assumptions."
   ],

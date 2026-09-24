@@ -9,7 +9,7 @@
   "recap": "At fixed volume and frequency, the entropy increase per added energy is 1/T. Inverting an admitted spectrum therefore determines an entropy derivative, but not yet its integration constant.",
   "review": "draft",
   "premises": [
-    "Use equilibrium thermodynamics and additive spectral energy and entropy densities.",
+    "Equilibrium thermodynamics holds, and energy and entropy add up over the spectrum.",
     "Vary the energy distribution at fixed volume and fixed total energy."
   ],
   "limitations": [

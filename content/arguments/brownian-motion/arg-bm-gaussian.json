@@ -9,7 +9,7 @@
   "recap": "For an unbounded point source, the Gaussian has mean square 2Dt and coordinate RMS √(2Dt).",
   "review": "draft",
   "premises": [
-    "Constant positive D, an unbounded line, no drift, and a localized initial ensemble."
+    "D is constant and positive, the line is unbounded, nothing pushes the particles one way, and they all start at one point."
   ],
   "limitations": [
     "A finite closed box has a different long-time distribution.",

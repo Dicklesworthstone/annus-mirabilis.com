@@ -10,11 +10,11 @@
   "review": "draft",
   "premises": [
     "Classical equilibrium assigns mean energy k_B T to each radiation mode.",
-    "The number of modes per unit volume per unit frequency grows as frequency squared."
+    "The number of modes per unit volume and per unit frequency grows as the square of the frequency."
   ],
   "limitations": [
-    "The allocation is a classical model, not the measured all-frequency spectrum.",
-    "A finite cutoff is a declared calculation boundary, not an inferred property of light."
+    "The allocation is a classical model, not the spectrum measured across all frequencies.",
+    "A finite cutoff is where the calculation stops, not a property of light."
   ],
   "citations": ["ap-17-132"],
   "readings": {

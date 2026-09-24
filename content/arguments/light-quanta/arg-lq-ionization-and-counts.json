@@ -10,12 +10,12 @@
   "review": "draft",
   "premises": [
     "One quantum supplies the ionization energy in the stated idealization.",
-    "Use absorbed energy, not automatically all incident energy.",
+    "Only the absorbed energy counts, not all the energy that arrives.",
     "A count equality requires one counted ionization per absorbed quantum."
   ],
   "limitations": [
     "A threshold is a necessary energy condition, not a material cross-section or a guaranteed event.",
-    "An unknown absorbed fraction or conversion yield cannot be replaced by 100 percent without saying so.",
+    "An unknown absorbed fraction or yield is never silently taken to be 100 percent.",
     "The energy budget does not predict recombination, collisions, or avalanche multiplication."
   ],
   "citations": ["ap-17-132"],

@@ -9,8 +9,8 @@
   "recap": "Matching a spectral coefficient to classical thermal allocation constrains R/N. Quantized resonator energies and independently propagating light quanta are different claims.",
   "review": "draft",
   "premises": [
-    "Use the same spectral-density coordinate and unit convention on both sides.",
-    "Treat the spectral constants and gas constant as independently specified inputs when interpreting an inference."
+    "Both sides use the same spectral density and the same units.",
+    "The spectral constants and the gas constant are separate inputs to any inference drawn from them."
   ],
   "limitations": [
     "Modern exact SI constants give a consistency check, not a new measurement of N.",

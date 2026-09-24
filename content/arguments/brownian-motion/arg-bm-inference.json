@@ -9,12 +9,12 @@
   "recap": "Displacement constrains diffusivity; independent radius, viscosity, temperature and gas-constant information are needed to infer molecular number.",
   "review": "draft",
   "premises": [
-    "A suitable estimate of the model mean-square coordinate displacement or its time slope.",
-    "Independent values of R, T, η and tracer radius a, under the stated dilute-liquid model."
+    "A measured mean-square displacement along one axis, or how fast it grows with time.",
+    "Separately measured R, T, η and particle radius a, for few small spheres in a liquid."
   ],
   "limitations": [
     "A synthetic run generated from an assumed N is not independent evidence for N.",
-    "Diffusivity alone constrains the product aN when radius is unknown.",
+    "Without the radius, the diffusivity fixes only the product aN.",
     "Measurement noise, drift, exposure and finite sampling require separate treatment."
   ],
   "citations": ["ap-17-549"],

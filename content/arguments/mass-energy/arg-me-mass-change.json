@@ -14,7 +14,7 @@
   ],
   "limitations": [
     "This calculation determines a change, not an absolute internal energy.",
-    "Printed and modern constants must not be mixed."
+    "Einstein’s printed constants and modern values are kept in separate calculations."
   ],
   "citations": ["ap-18-639"],
   "readings": {

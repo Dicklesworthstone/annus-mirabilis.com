@@ -10,7 +10,7 @@
   "review": "draft",
   "premises": [
     "e denotes a positive charge magnitude; the electron charge is −e.",
-    "A retarding potential removes kinetic energy according to the explicitly chosen electrode convention."
+    "A retarding potential removes kinetic energy, with the sign convention of the electrodes stated."
   ],
   "limitations": [
     "No stopping endpoint for emitted electrons is supplied when emission is not allowed.",

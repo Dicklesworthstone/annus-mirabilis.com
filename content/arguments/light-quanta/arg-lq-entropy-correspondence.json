@@ -9,12 +9,12 @@
   "recap": "In the Wien regime, the radiation entropy coefficient has the form associated with independent elements. Reading an energy scale from that match is a heuristic inference, not a proof of every property of light.",
   "review": "draft",
   "premises": [
-    "Use the constrained narrow-band radiation entropy law.",
-    "Use the independent-point entropy law and identify k_B with R/N.",
-    "Interpret matching volume dependence as suggestive of independent energy elements."
+    "Radiation in a narrow band obeys the entropy law derived for dilute (Wien) radiation.",
+    "Independent points obey the entropy law for n points, with k_B identified as R/N.",
+    "A matching dependence on volume is read as suggesting independent energy elements."
   ],
   "limitations": [
-    "E/(hν) is a dimensionless effective coefficient and is never rounded to manufacture an integer count.",
+    "E/(hν) is a pure number that need not be a whole number, and it is never rounded to one.",
     "This does not derive Planck’s law or establish a general theory outside the Wien regime.",
     "Extending the picture to individual emission and absorption processes is a further hypothesis."
   ],

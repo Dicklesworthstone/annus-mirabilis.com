@@ -10,11 +10,11 @@
   "review": "draft",
   "premises": [
     "The transition density is normalized, symmetric and has finite second moment.",
-    "The density is smooth on the step scale; the retained expansion has a controlled coarse-grained range."
+    "The density changes little over one jump, so a short expansion describes it on scales larger than a jump."
   ],
   "limitations": [
-    "A Taylor truncation is an approximation unless justified by a suitable limiting procedure.",
-    "Physical independence breaks down at sufficiently short times; the limit is not a literal collision movie."
+    "Cutting the expansion after the second term is an approximation; it becomes exact only in a limit where the jumps shrink with the time step.",
+    "Over very short times a particle’s motion is not independent from one moment to the next, so the diffusion law is not a picture of individual collisions."
   ],
   "citations": ["ap-17-549"],
   "readings": {

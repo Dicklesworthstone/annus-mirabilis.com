@@ -9,12 +9,12 @@
   "recap": "Combining ideal osmotic pressure with mobility and diffusive balance relates diffusivity to temperature, viscosity and radius.",
   "review": "draft",
   "premises": [
-    "Dilute spherical tracers in a homogeneous Newtonian liquid, Stokes mobility and ideal osmotic pressure.",
-    "R is a separately known molar gas constant; N denotes molecular number per mole."
+    "Few, small, spherical particles in a uniform liquid, with Stokes’s drag and ideal osmotic pressure.",
+    "R, the gas constant, is known separately; N is the number of molecules in a mole."
   ],
   "limitations": [
-    "Slip, inertia, interactions, non-Newtonian response and gas corrections are not included.",
-    "The argument imports constitutive laws; conservation alone does not derive them."
+    "Slip at the particle’s surface, its inertia, interactions between particles, unusual liquids, and gases are all left out.",
+    "Stokes’s law and the osmotic-pressure law are brought in from outside; conservation alone does not give them."
   ],
   "citations": ["ap-17-549"],
   "readings": {
