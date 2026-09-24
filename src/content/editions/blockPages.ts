@@ -19,6 +19,7 @@
  * The page answers "which printed page has the reader reached", for the plate beside the text. It
  * is not a locator for citing the block, and nothing here claims it is.
  */
+import { CONTINUES, type JoinedBlock } from "./joinContinuations.ts";
 import type { ProposedBlock } from "./segmentLedger.ts";
 
 const ANCHOR = /\[\[ANNALEN-PAGE\s+(\d+)\]\]/;
@@ -75,6 +76,19 @@ export function blockStartPages(ledgerText: string, blocks: readonly ProposedBlo
       } else unresolved.push(block.id);
     }
     if (last !== undefined) pages[block.id] = last;
+    // A paragraph joined across a page (joinContinuations.ts): each retired id takes the page its
+    // words start on, found the same way, and the blocks after it follow from where it ends.
+    const joined = (block as JoinedBlock).joinedIds ?? [];
+    const parts = joined.length > 0 ? block.text.split(CONTINUES) : [];
+    joined.forEach((id, i) => {
+      const words = normalise(parts[i + 1] ?? "").slice(0, 40);
+      const at = words.length >= 6 ? text.indexOf(words, cursor) : -1;
+      if (at >= 0) {
+        cursor = at;
+        last = pageAt(at) ?? last;
+      } else unresolved.push(id);
+      if (last !== undefined) pages[id] = last;
+    });
   }
   return { pages, printed: starts.map((s) => s.page), unresolved };
 }

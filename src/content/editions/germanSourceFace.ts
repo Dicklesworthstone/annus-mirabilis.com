@@ -47,15 +47,16 @@ import type { RouteSlug } from "../ids.ts";
 import { parseReceipt } from "../provenance/parseReceipt.ts";
 import { type SourceFaceNotice, sourceFaceNotice } from "../provenance/sourceFaceNotice.ts";
 import { type BlockPages, blockStartPages } from "./blockPages.ts";
+import { type JoinedBlock, joinPageContinuations } from "./joinContinuations.ts";
 import { PAPER_BIB_KEYS } from "./ledgerPresence.ts";
-import { type ProposedBlock, segmentLedger } from "./segmentLedger.ts";
+import { segmentLedger } from "./segmentLedger.ts";
 
 export type GermanSourceFace = Readonly<{
   slug: RouteSlug;
   bibKey: string;
   /** Never optional. Holding the text means holding what qualifies it. */
   notice: SourceFaceNotice;
-  blocks: readonly ProposedBlock[];
+  blocks: readonly JoinedBlock[];
   /** The printed page each block starts on, from the ledger's own page anchors (blockPages.ts). */
   printedPages: BlockPages;
 }>;
@@ -129,12 +130,14 @@ export function loadGermanSourceFace(
   const ledgerText = readFileSync(ledgerPath, "utf8");
   const segmented = segmentLedger({ ledgerText });
   if (segmented.status === "absent") return null;
+  // A paragraph the page broke is one paragraph here; no id moves (joinContinuations.ts).
+  const blocks = joinPageContinuations(segmented.blocks);
 
   return {
     slug,
     bibKey,
     notice,
-    blocks: segmented.blocks,
-    printedPages: blockStartPages(ledgerText, segmented.blocks),
+    blocks,
+    printedPages: blockStartPages(ledgerText, blocks),
   };
 }

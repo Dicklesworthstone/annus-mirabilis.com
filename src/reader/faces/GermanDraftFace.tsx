@@ -169,7 +169,13 @@ export function GermanDraftFace({
                   data-block-kind={block.kind}
                   data-printed-page={printedPage(block.id)}
                 >
-                  {renderSourceMarkup(block.text, block.id, block.displayEquationIds)}
+                  {renderSourceMarkup(
+                    block.text,
+                    block.id,
+                    block.displayEquationIds,
+                    // Where a page turned inside this paragraph: the retired id, and its page.
+                    block.joinedIds?.map((id) => ({ id, page: printedPage(id) })),
+                  )}
                 </p>
               ),
             )}

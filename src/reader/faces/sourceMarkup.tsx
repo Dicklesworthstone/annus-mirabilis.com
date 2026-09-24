@@ -167,6 +167,12 @@ export function sourceDisplayEquation(
  * `displayEquationIds`. When given, it must name every one of them: an id put on the wrong formula
  * is a false anchor, so a count that disagrees with the text throws rather than guessing.
  *
+ * `joins` names, in order, the paragraphs joined into this one where a page turned
+ * (joinContinuations.ts). The n-th `[[CONTINUES]]` in the text is the n-th join: it becomes an
+ * empty anchor carrying the retired id and the printed page the words after it are on, so a link
+ * to the old id lands there and the plate turns there. A marker past the last join is dropped, as
+ * every structural marker is.
+ *
  * Returns a plain string when the text carries neither markup nor mathematics, so most blocks
  * cost nothing and render exactly as before.
  */
@@ -174,6 +180,7 @@ export function renderSourceMarkup(
   text: string,
   keyPrefix: string,
   displayIds: readonly string[] = [],
+  joins: readonly Readonly<{ id: string; page?: number | undefined }>[] = [],
 ): ReactNode {
   if (!text.includes("[[") && !text.includes("$")) return text;
 
@@ -208,6 +215,7 @@ export function renderSourceMarkup(
   const push = (node: ReactNode) => top().children.push(node);
 
   let seq = 0;
+  let joined = 0;
   // Markup between formulas. The tag stack is shared across the formulas, so a [[SPERR]] pair
   // that encloses a formula still wraps it.
   const pushMarkup = (segment: string) => {
@@ -239,6 +247,18 @@ export function renderSourceMarkup(
         continue;
       }
 
+      if (name === "CONTINUES" && !closing && joined < joins.length) {
+        const join = joins[joined++];
+        push(
+          <span
+            key={`${keyPrefix}-m${seq++}`}
+            id={join?.id}
+            data-page-join=""
+            data-printed-page={join?.page}
+          />,
+        );
+        continue;
+      }
       if (STRUCTURAL.has(name)) continue;
 
       // Unrecognised: left visible so the leak check names it. See the docblock.
