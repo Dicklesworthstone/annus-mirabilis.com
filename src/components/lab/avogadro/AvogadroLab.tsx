@@ -400,7 +400,7 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
         </p>
         <p>
           <a href="/papers/brownian-motion/#s5">Read Brownian motion §5</a> ·{" "}
-          <a href="/lab/bm-07">Open the full inference laboratory</a>
+          <a href="/lab/bm-07/">Open the full inference laboratory</a>
         </p>
       </section>
       <section>
@@ -422,10 +422,10 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
         </p>
       </section>
       <p>
-        <a href={`/lab/avogadro-lab?${encodeAvogadroParameters(accepted)}`}>
+        <a href={`/lab/avogadro-lab/?${encodeAvogadroParameters(accepted)}`}>
           Bookmark these accepted settings
         </a>{" "}
-        · <a href="/lab/lq-02">Inspect the historical radiation calculation</a> ·{" "}
+        · <a href="/lab/lq-02/">Inspect the historical radiation calculation</a> ·{" "}
         <a href="/papers/light-quanta/#s2">Read light quanta §2</a>
       </p>
       <details>

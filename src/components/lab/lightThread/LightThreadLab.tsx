@@ -326,7 +326,7 @@ export function LightThreadLab({ sourceDigest = "" }: { sourceDigest?: string } 
             emitted pulse.
           </p>
           <p className="fine">
-            <a href={`/lab/light-thread?${encodeLightThreadParameters(accepted)}`}>
+            <a href={`/lab/light-thread/?${encodeLightThreadParameters(accepted)}`}>
               Bookmark these accepted settings
             </a>
           </p>
@@ -353,7 +353,7 @@ export function LightThreadLab({ sourceDigest = "" }: { sourceDigest?: string } 
             />
             <p>
               <a href="/papers/light-quanta/#s6">Read the light-quanta argument, §6</a> ·{" "}
-              <a href="/lab/lq-06">Compare the entropy coefficients</a>
+              <a href="/lab/lq-06/">Compare the entropy coefficients</a>
             </p>
           </section>
           <section aria-labelledby={`${id}-relativity`}>
@@ -378,7 +378,7 @@ export function LightThreadLab({ sourceDigest = "" }: { sourceDigest?: string } 
             />
             <p>
               <a href="/papers/special-relativity/#s8">Read relativity, §8</a> ·{" "}
-              <a href="/lab/sr-10">Explore the finite light complex</a>
+              <a href="/lab/sr-10/">Explore the finite light complex</a>
             </p>
           </section>
           <section aria-labelledby={`${id}-inertia`}>
@@ -411,8 +411,8 @@ export function LightThreadLab({ sourceDigest = "" }: { sourceDigest?: string } 
             </p>
             <p>
               <a href="/papers/mass-energy/">Read the September paper</a> ·{" "}
-              <a href="/lab/me-01">Follow the two ledgers</a> ·{" "}
-              <a href="/lab/me-02">Inspect the low-speed coefficient</a>
+              <a href="/lab/me-01/">Follow the two ledgers</a> ·{" "}
+              <a href="/lab/me-02/">Inspect the low-speed coefficient</a>
             </p>
           </section>
         </div>

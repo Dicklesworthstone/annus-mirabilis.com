@@ -25,7 +25,7 @@ export default function LightThreadPage() {
           paper’s conclusion into another’s hidden premise.
         </p>
         <p>
-          <a href="/connections">Open the connections between the papers</a>
+          <a href="/connections/">Open the connections between the papers</a>
         </p>
       </header>
       <LightThreadLab sourceDigest={labDigests["light-thread"]} />

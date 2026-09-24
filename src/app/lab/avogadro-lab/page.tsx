@@ -25,7 +25,7 @@ export default function AvogadroPage() {
           settings as historical observations.
         </p>
         <p>
-          <a href="/connections">Return to connections among the papers</a>
+          <a href="/connections/">Return to connections among the papers</a>
         </p>
       </header>
       <AvogadroLab sourceDigest={labDigests["avogadro-lab"]} />

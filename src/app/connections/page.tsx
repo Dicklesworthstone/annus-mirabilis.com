@@ -53,7 +53,7 @@ export default function ConnectionsPage() {
           definitions stay visibly distinct.
         </p>
         <p>
-          <a className="button" href="/lab/avogadro-lab">
+          <a className="button" href="/lab/avogadro-lab/">
             Open the three-method comparison
           </a>
         </p>
@@ -83,7 +83,7 @@ export default function ConnectionsPage() {
           fixed when only the observer changes.
         </p>
         <p>
-          <a className="button" href="/lab/light-thread">
+          <a className="button" href="/lab/light-thread/">
             Open the light-thread laboratory
           </a>
         </p>
