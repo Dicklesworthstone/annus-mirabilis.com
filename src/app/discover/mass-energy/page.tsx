@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
 import { ExercisePart } from "../../../components/discover/ExercisePart.tsx";
+import { MassEnergyWorldCheck } from "../../../components/discover/MassEnergyWorldCheck.tsx";
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { Formula } from "../../../components/edition/Formula.tsx";
-import { MASS_ENERGY_SHELF_CARDS } from "../../../content/massEnergyShelf.ts";
+import {
+  MASS_ENERGY_LATER_EVIDENCE,
+  MASS_ENERGY_SHELF_CARDS,
+} from "../../../content/massEnergyShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { Doors } from "../../../discovery/Doors.tsx";
 import { Fork } from "../../../discovery/Fork.tsx";
 import { MoveMarker } from "../../../discovery/MoveMarker.tsx";
 import {
+  DOORS,
   FIRST_HONEST_QUESTION,
   FORK_POINCARE,
   MOVE,
@@ -14,6 +20,7 @@ import {
   NAGGING_FACT,
   PPE_TASK,
   SOURCE_JUMPS,
+  WORLD_CHECK,
 } from "../../../discovery/massEnergy/journeyIV.ts";
 import { MASS_GIVEN_UP_EXERCISE } from "../../../discovery/massEnergy/massExercise.ts";
 import { SEALED_LAMP_YEAR } from "../../../discovery/massEnergy/numericExercises.ts";
@@ -21,6 +28,8 @@ import { PpeTask } from "../../../discovery/PpeTask.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { SourceJump } from "../../../discovery/SourceJump.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
+import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/me03/session.ts";
+import labDigests from "../../../generated/lab-source-digests.json";
 
 export const metadata: Metadata = {
   title: "A body gives off light. What does it lose?",
@@ -52,6 +61,8 @@ export const metadata: Metadata = {
  */
 
 export default function MassEnergyRoute() {
+  // The example names its host source by digest, as /lab/me-03/ does (scripts/generate-lab-digests.mjs).
+  const ledgerExample = { ...DEFAULT_PREPARED_EXAMPLE, sourceDigest: labDigests["me-03"] };
   return (
     <article className="reading encounter">
       <header>
@@ -64,8 +75,8 @@ export default function MassEnergyRoute() {
         <p className="lead">
           A body at rest gives off two flashes of light. Its energy has gone down, and nothing you
           can see about it has changed. The shortest of the four papers asks what has, and answers
-          with a number. You can reach it yourself in five moves; the only hard one is knowing what
-          to subtract.
+          with a number. You can reach it yourself in five moves, the only hard one being to know
+          what to subtract, and then check the number against the world.
         </p>
         <p className="fine">
           A route you could take, not a transcript of Einstein&rsquo;s private thoughts. Every step
@@ -282,6 +293,28 @@ export default function MassEnergyRoute() {
         </StepDoors>
       </section>
       <Fork fork={FORK_POINCARE} />
+
+      <section id="step-06">
+        <p className="step-number">06 / Check it against the world</p>
+        <h2>Where the paper says to look</h2>
+        <p>
+          The result has two things in it you can set: the energy that leaves, and the boundary
+          around what you are weighing. Let an energy leave the ledger below, move the boundary, and
+          read the mass that goes with it.
+        </p>
+        <MassEnergyWorldCheck
+          example={ledgerExample}
+          check={WORLD_CHECK}
+          laterEvidence={MASS_ENERGY_LATER_EVIDENCE}
+        />
+        <p>
+          The paper says only that a test is not ruled out for bodies whose energy content changes a
+          great deal, and names radium salts. The card above is a later test of another kind: in
+          1932 Cockcroft and Walton set the energy released when lithium nuclei break apart beside
+          the mass lost. It tests the result, and it was on no one&rsquo;s shelf when the paper was
+          written.
+        </p>
+      </section>
       <PpeTask task={PPE_TASK} />
 
       <aside className="notice">
@@ -313,6 +346,7 @@ export default function MassEnergyRoute() {
         {SOURCE_JUMPS.map((jump) => (
           <SourceJump key={jump.id} jump={jump} />
         ))}
+        <Doors doors={DOORS} />
         <div className="actions">
           <a className="button" href="/papers/mass-energy/">
             Read the argument as the paper makes it

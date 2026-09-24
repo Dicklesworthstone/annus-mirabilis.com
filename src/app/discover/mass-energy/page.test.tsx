@@ -2,12 +2,15 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { checkVoice } from "../../../content/checks/voice/index.ts";
 import {
+  BOX_1906_HREF,
+  DOORS,
   FIRST_HONEST_QUESTION,
   FORK_POINCARE,
   MOVE,
   NAGGING_FACT,
   PPE_TASK,
   SOURCE_JUMPS,
+  WORLD_CHECK,
 } from "../../../discovery/massEnergy/journeyIV.ts";
 import MassEnergyEncounter from "./page";
 
@@ -69,8 +72,8 @@ describe("step 05 puts the coefficient to a number", () => {
 
 /**
  * Journey IV's skeleton (plan §9.1, §9.5; dispatch 139): the shelf first, the nagging fact and the
- * first honest question, the chain with its move marked, Poincaré's fork worked honestly, and a
- * predict-perturb-explain task.
+ * first honest question, the chain with its move marked, Poincaré's fork worked honestly, the check
+ * against the world, a predict-perturb-explain task, and the doors.
  */
 describe("the route carries the discovery skeleton", () => {
   const at = (marker: string) => {
@@ -90,8 +93,11 @@ describe("the route carries the discovery skeleton", () => {
       'id="step-04"',
       'id="step-05"',
       'id="arg-fork-poincare-fluid"',
+      'id="step-06"',
+      "data-world-check-live",
       'data-ppe-task-id="me-predict-perturb-explain-joule"',
       'id="in-the-paper"',
+      "data-journey-doors",
     ].map(at);
     expect(order).toEqual([...order].sort((a, b) => a - b));
   });
@@ -113,6 +119,32 @@ describe("the route carries the discovery skeleton", () => {
     expect(fork).toContain('data-outcome-type="papers-route"');
     expect(fork).not.toContain('data-outcome-type="dead-end-on-constraint"');
     expect(html).toContain('href="#card-poincare-1900-fictitious-fluid"');
+  });
+
+  test("the check against the world reads the embedded ledger, beside the printed rule", () => {
+    const start = at('id="step-06"');
+    const step = html.slice(start, html.indexOf('<section id="in-the-paper"'));
+    expect(step).toContain('data-world-check-quantity="massChange"');
+    expect(step).toContain("The boundary ledger, for the check");
+    expect(text(step)).toContain("L/9·10^20, with the energy in erg and the mass in grams");
+    expect(step).toContain('id="card-cockcroft-walton-1932-lithium"');
+    // A later card is never on the 1904 shelf.
+    const shelf = html.slice(at('id="shelf"'), at('id="nagging-fact"'));
+    expect(shelf).not.toContain("cockcroft-walton-1932-lithium");
+  });
+
+  test("three doors arrive at the same result and open where they say", () => {
+    const start = at("data-journey-doors");
+    const doors = html.slice(start, html.indexOf("</section>", start));
+    expect(text(doors)).toContain("All doors arrive at the same result: the mass falls by L/V²");
+    expect(doors).toContain('href="/papers/mass-energy/#arg-me-two-ledgers"');
+    expect(BOX_1906_HREF).toBe("/lab/me-03/?mode=box-1906");
+    expect(doors).toContain(`href="${BOX_1906_HREF}"`);
+    expect(doors).toContain('href="/papers/mass-energy/#entry-mass-energy"');
+    expect(text(doors)).toContain("crediting Poincaré’s fluid of 1900");
+    // The ids are the build's; a door with a link shows the reader its title and summary instead.
+    expect(text(doors)).not.toContain("#door-me");
+    expect(text(doors)).not.toContain("eq-model-me-mass-decrease");
   });
 
   test("the shelf carries electromagnetic mass, Poincaré's fluid and Hasenöhrl's cavity", () => {
@@ -149,6 +181,8 @@ describe("the route carries the discovery skeleton", () => {
         ...b.steps.map((s) => s.text),
       ]),
       ...SOURCE_JUMPS.flatMap((j) => [j.label, j.pointer]),
+      WORLD_CHECK.claim,
+      ...[DOORS.frontDoor, ...DOORS.sideDoors].flatMap((d) => [d.title, d.summary ?? ""]),
     ].join(" ");
     const errors = checkVoice(words, { context: "prose" }).filter((f) => f.severity === "error");
     expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);

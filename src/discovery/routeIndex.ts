@@ -77,13 +77,14 @@ export const ROUTE_INDEX: readonly RouteIndexEntry[] = [
     name: "Mass and energy",
     germanTitle: "Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?",
     blurb:
-      "A body at rest sends out two equal flashes of light in opposite directions, so it stays where it is. Energy has left it and nothing you can see about it has changed, so the route asks what did. Five steps, with a prediction to make before you read the answer. One result is borrowed from the June relativity paper, how the energy of light depends on the frame, and the route names it where it is used.",
+      "A body at rest sends out two equal flashes of light in opposite directions, so it stays where it is. Energy has left it and nothing you can see about it has changed, so the route asks what did. Six steps, with a prediction to make before you read the answer and a number to check against the world. One result is borrowed from the June relativity paper, how the energy of light depends on the frame, and the route names it where it is used.",
     steps: [
       "Start with a body that does nothing",
       "Make a prediction",
       "Describe the same event twice",
       "Subtract",
       "Read the coefficient",
+      "Check it against the world",
     ],
   },
 ];
