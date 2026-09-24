@@ -131,6 +131,12 @@ export default async function Page() {
       lessons: lessons.filter((f) => !grouped.has(f.id)),
     },
   ].filter((g) => g.lessons.length > 0);
+  /** "Rates, curves and sums" -> "lessons-rates-curves-and-sums": the group's heading id. */
+  const groupId = (title: string) =>
+    `lessons-${title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")}`;
 
   return (
     <div className="foundations-index">
@@ -144,10 +150,28 @@ export default async function Page() {
         </p>
         <p className="fine">Written for this edition. Editorial review pending.</p>
       </header>
+      {/* The groups by name, each with its count, so a reader looking for calculus reaches it
+          without scrolling past twenty arithmetic cards: on a 390px phone the page is 9,212px
+          long and the calculus group began at y=3,000. */}
+      <nav className="lesson-group-nav" aria-label="Lesson groups">
+        <ul>
+          {groups.map((group) => (
+            <li key={group.title}>
+              <a href={`#${groupId(group.title)}`}>
+                {group.title}{" "}
+                <span className="lesson-group-count">
+                  {group.lessons.length}
+                  <span className="visually-hidden"> lessons</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
       {groups.map((group) => (
-        <section className="lesson-group" key={group.title}>
+        <section className="lesson-group" key={group.title} aria-labelledby={groupId(group.title)}>
           <header className="lesson-group-head">
-            <h2>{group.title}</h2>
+            <h2 id={groupId(group.title)}>{group.title}</h2>
             {group.note && <p>{group.note}</p>}
           </header>
           <ul className="lesson-list">
