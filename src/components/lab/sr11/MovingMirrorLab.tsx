@@ -5,6 +5,7 @@ import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
@@ -15,6 +16,7 @@ import {
   type Sr11Parameters,
 } from "../../../experiments/sr11/definition.ts";
 import { createSr11Session, type PreparedSr11Example } from "../../../experiments/sr11/session.ts";
+import { SR11_TAPE } from "../../../experiments/sr11/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type {
   AcceptedSnapshot,
@@ -85,6 +87,8 @@ export function MovingMirrorLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(SR11_TAPE, session, session.acceptedParameters());
   const [drafts, setDrafts] = useState<Partial<Record<NumericKey, string>>>({});
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
@@ -288,6 +292,7 @@ export function MovingMirrorLab({
             worked={snapshot === session.getServerSnapshot().accepted}
             summary={statusSummary}
           />
+          <LabTapeLink link={tapeLink} />
         </div>
 
         <div className="lab-results">

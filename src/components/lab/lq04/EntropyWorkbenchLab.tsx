@@ -25,6 +25,8 @@ import {
   createLq04Session,
   type PreparedLq04Example,
 } from "../../../experiments/lq04/session.ts";
+import { LQ04_TAPE } from "../../../experiments/lq04/tape.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 /**
  * LQ-04: the radiation entropy workbench (am-lq-04-entropy-workbench-senj).
@@ -121,6 +123,8 @@ export function EntropyWorkbenchLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(LQ04_TAPE, session, session.acceptedParameters());
 
   const fallback =
     session.getServerSnapshot().accepted ??
@@ -196,6 +200,7 @@ export function EntropyWorkbenchLab({
           view={view}
           modelNote={modelNoteFromView(view, { notModeled: `${LQ04_NOT_MODELED.join("; ")}.` })}
         />
+        <LabTapeLink link={tapeLink} />
       </div>
 
       <p className="lab-question">{LQ04_QUESTION}</p>

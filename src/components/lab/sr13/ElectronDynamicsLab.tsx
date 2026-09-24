@@ -4,6 +4,7 @@ import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
@@ -15,6 +16,7 @@ import {
 } from "../../../experiments/sr13/definition.ts";
 import { validateSr13Parameters } from "../../../experiments/sr13/parameters.ts";
 import { createSr13Session, type PreparedSr13Example } from "../../../experiments/sr13/session.ts";
+import { SR13_TAPE } from "../../../experiments/sr13/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type {
   AcceptedSnapshot,
@@ -71,6 +73,8 @@ export function ElectronDynamicsLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(SR13_TAPE, session, session.acceptedParameters());
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr13Parameters;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
@@ -360,6 +364,7 @@ export function ElectronDynamicsLab({
           worked={snapshot === session.getServerSnapshot().accepted}
           summary={statusSummary}
         />
+        <LabTapeLink link={tapeLink} />
         <div className="lab-results">
           <ElectronDynamicsPlot
             initialSpeed={beta}

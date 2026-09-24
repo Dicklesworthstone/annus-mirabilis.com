@@ -31,6 +31,8 @@ import {
   evaluatePhotonBox,
   type PreparedMe03Example,
 } from "../../../experiments/me03/session.ts";
+import { ME03_TAPE } from "../../../experiments/me03/tape.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
@@ -77,6 +79,8 @@ export function BoundaryLedgerLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(ME03_TAPE, session, session.acceptedParameters(), !sharedSession);
 
   const fallbackParams = example?.parameters ?? ME03_DEFAULTS;
   const accepted = view.accepted;
@@ -629,6 +633,7 @@ export function BoundaryLedgerLab({
             worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
             summary={statusSummary}
           />
+          <LabTapeLink link={tapeLink} />
           {linkNote && (
             <div className="notice">
               <p>{linkNote}</p>

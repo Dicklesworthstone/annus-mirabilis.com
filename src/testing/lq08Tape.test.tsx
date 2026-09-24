@@ -11,7 +11,7 @@ import { createLq08Session } from "../experiments/lq08/session.ts";
 import {
   createLq08ReplayRunner,
   LQ08_TAPE_ENVIRONMENT,
-  lq08TapeFor,
+  lq08TapeFor as lq08TapeOrNull,
   restoreLq08FromUrl,
   restoreLq08Tape,
 } from "../experiments/lq08/tape.ts";
@@ -34,6 +34,13 @@ const SHARED: Lq08Parameters = Object.freeze({
   quantumEfficiency: 0.25,
   collectorPotential: -0.5,
 });
+
+/** The tape for these settings; every settings object in this file can travel in one. */
+const lq08TapeFor = (p: Lq08Parameters): TapeV2 => {
+  const tape = lq08TapeOrNull(p);
+  expect(tape).not.toBeNull();
+  return tape as TapeV2;
+};
 
 const url = (tape: TapeV2) =>
   `https://annus-mirabilis.com/lab/lq-08/?tape=${encodeTapePermalink(tape)}`;

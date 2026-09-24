@@ -4,6 +4,7 @@ import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
@@ -15,6 +16,7 @@ import {
 } from "../../../experiments/sr09/definition.ts";
 import { validateSr09Parameters } from "../../../experiments/sr09/parameters.ts";
 import { createSr09Session, type PreparedSr09Example } from "../../../experiments/sr09/session.ts";
+import { SR09_TAPE } from "../../../experiments/sr09/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type {
   AcceptedSnapshot,
@@ -63,6 +65,8 @@ export function DopplerAberrationLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(SR09_TAPE, session, session.acceptedParameters());
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr09Parameters;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
@@ -257,6 +261,7 @@ export function DopplerAberrationLab({
           worked={snapshot === session.getServerSnapshot().accepted}
           summary={statusSummary}
         />
+        <LabTapeLink link={tapeLink} />
         <div className="lab-results">
           {doppler !== null &&
           thetaK !== null &&

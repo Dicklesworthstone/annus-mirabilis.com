@@ -12,6 +12,7 @@ import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import {
   SR07_CAPTION,
@@ -29,6 +30,7 @@ import {
 } from "../../../experiments/sr07/definition.ts";
 import { decodeSr07Settings, encodeSr07Settings } from "../../../experiments/sr07/permalink.ts";
 import { createSr07Session, type PreparedSr07Example } from "../../../experiments/sr07/session.ts";
+import { SR07_TAPE } from "../../../experiments/sr07/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
@@ -99,6 +101,8 @@ export function FieldEquationsLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(SR07_TAPE, session, session.acceptedParameters());
   const snapshot = view.accepted;
   const p = (snapshot?.parameters ?? example.parameters) as Sr07Parameters;
   const [error, setError] = useState("");
@@ -343,6 +347,7 @@ export function FieldEquationsLab({
             worked={snapshot === undefined || snapshot === session.getServerSnapshot().accepted}
             summary={statusSummary}
           />
+          <LabTapeLink link={tapeLink} />
         </div>
 
         <div className="lab-results">

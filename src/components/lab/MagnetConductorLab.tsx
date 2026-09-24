@@ -5,6 +5,7 @@ import {
   executionStateKindFromHostLabel,
 } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useLabTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import {
   deriveHostExecution,
   type ExecutionStateKind,
@@ -20,6 +21,7 @@ import {
 } from "../../experiments/sr02/definition.ts";
 import { validateSr02Parameters } from "../../experiments/sr02/parameters.ts";
 import { createSr02Session, type PreparedSr02Example } from "../../experiments/sr02/session.ts";
+import { SR02_TAPE } from "../../experiments/sr02/tape.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
@@ -87,6 +89,8 @@ export function MagnetConductorLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(SR02_TAPE, session, session.acceptedParameters());
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr02Parameters;
   // One sentence for the status line: the force on the charge in each description, which agree.
@@ -315,6 +319,7 @@ export function MagnetConductorLab({
           worked={snapshot === session.getServerSnapshot().accepted}
           summary={statusSummary}
         />
+        <LabTapeLink link={tapeLink} />
         <div className="lab-results">
           {apparatus ? (
             <ApparatusPanel

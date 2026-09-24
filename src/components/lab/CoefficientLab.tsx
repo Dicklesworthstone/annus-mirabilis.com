@@ -17,6 +17,8 @@ import {
 import { validateMe02Parameters } from "../../experiments/me02/parameters.ts";
 import { decodeMe02Settings, encodeMe02Settings } from "../../experiments/me02/permalink.ts";
 import { createMe02Session, type PreparedMe02Example } from "../../experiments/me02/session.ts";
+import { ME02_TAPE } from "../../experiments/me02/tape.ts";
+import { LabTapeLink, useLabTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import {
   amendAfterReveal,
   beginPrompt,
@@ -196,6 +198,8 @@ export function CoefficientLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(ME02_TAPE, session, session.acceptedParameters());
   const accepted = view.accepted ?? session.getServerSnapshot().accepted;
   if (!accepted) {
     throw new Error("Missing accepted snapshot for CoefficientLab");
@@ -295,6 +299,7 @@ export function CoefficientLab({
           view={view}
           modelNote={modelNoteFromView(view, { notModeled: `${ME02_NOT_MODELED.join("; ")}.` })}
         />
+        <LabTapeLink link={tapeLink} />
       </div>
       <noscript>
         <p className="notice">

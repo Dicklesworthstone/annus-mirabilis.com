@@ -14,8 +14,8 @@ import {
 } from "../../../experiments/lq08/definition.ts";
 import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
 import { createLq08Session, type PreparedLq08Example } from "../../../experiments/lq08/session.ts";
-import { lq08TapeFor, restoreLq08FromUrl } from "../../../experiments/lq08/tape.ts";
-import { ShareControl } from "../../../experiments/permalink/ShareControl.tsx";
+import { LQ08_TAPE } from "../../../experiments/lq08/tape.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
@@ -273,19 +273,6 @@ export function PhotoelectricLab({
   const [showMillikan, setShowMillikan] = useState<boolean>(true);
   const [drafts, setDrafts] = useState<Partial<Record<FieldKey, string>>>({});
   const [error, setError] = useState("");
-  const [tapeNotice, setTapeNotice] = useState("");
-
-  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
-  useEffect(() => {
-    if (!linked) return;
-    let live = true;
-    void restoreLq08FromUrl(session, window.location.href).then((restored) => {
-      if (live && restored.kind === "not-restored") setTapeNotice(restored.notice);
-    });
-    return () => {
-      live = false;
-    };
-  }, [session, linked]);
 
   const accepted = view.accepted;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
@@ -307,8 +294,8 @@ export function PhotoelectricLab({
       collectorPotential: 0.0,
     }) as Lq08Params;
 
-  // The tape for the accepted settings, rebuilt only when they change.
-  const shareTape = useMemo(() => lq08TapeFor(params), [params]);
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(LQ08_TAPE, session, accepted?.parameters ?? null, linked);
 
   const outputs = accepted?.outputs ?? [];
   const find = (id: string) => outputs.find((o) => o.quantityId === id);
@@ -522,16 +509,11 @@ export function PhotoelectricLab({
               {error}
             </p>
           )}
-          {tapeNotice && (
-            <p role="alert" className="notice error" data-tape-notice="">
-              {tapeNotice} The laboratory shows its default settings.
-            </p>
-          )}
           <AcceptedStatus
             worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
             summary={statusSummary}
           />
-          {linked && <ShareControl tape={shareTape} />}
+          {linked && <LabTapeLink link={tapeLink} />}
         </div>
 
         <div className="lab-results">

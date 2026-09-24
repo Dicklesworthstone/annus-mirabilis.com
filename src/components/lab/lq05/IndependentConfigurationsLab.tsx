@@ -22,6 +22,8 @@ import {
   evaluateLq05,
   type PreparedLq05Example,
 } from "../../../experiments/lq05/session.ts";
+import { LQ05_TAPE } from "../../../experiments/lq05/tape.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
@@ -50,6 +52,8 @@ export function IndependentConfigurationsLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(LQ05_TAPE, session, session.acceptedParameters());
 
   const fallback =
     session.getServerSnapshot().accepted ??
@@ -498,6 +502,7 @@ export function IndependentConfigurationsLab({
           worked={snapshot === session.getServerSnapshot().accepted}
           summary={statusSummary}
         />
+        <LabTapeLink link={tapeLink} />
         {linkNote && (
           <div className="notice" style={{ marginTop: "0.75rem", padding: "0.75rem" }}>
             {linkNote}

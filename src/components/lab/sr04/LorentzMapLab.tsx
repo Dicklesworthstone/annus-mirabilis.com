@@ -5,6 +5,7 @@ import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import {
@@ -25,6 +26,7 @@ import {
   evaluateSr04,
   type PreparedSr04Example,
 } from "../../../experiments/sr04/session.ts";
+import { SR04_TAPE } from "../../../experiments/sr04/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
@@ -114,6 +116,8 @@ export function LorentzMapLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(SR04_TAPE, session, session.acceptedParameters());
 
   const fallback =
     session.getServerSnapshot().accepted ??
@@ -195,6 +199,7 @@ export function LorentzMapLab({
           view={view}
           modelNote={modelNoteFromView(view, { notModeled: `${SR04_NOT_MODELED.join("; ")}.` })}
         />
+        <LabTapeLink link={tapeLink} />
       </div>
 
       <p className="lab-question">{SR04_QUESTION}</p>

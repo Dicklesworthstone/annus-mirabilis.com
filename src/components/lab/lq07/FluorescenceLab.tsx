@@ -23,6 +23,8 @@ import {
   evaluateLq07,
   type PreparedLq07Example,
 } from "../../../experiments/lq07/session.ts";
+import { LQ07_TAPE } from "../../../experiments/lq07/tape.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
@@ -49,6 +51,8 @@ export function FluorescenceLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(LQ07_TAPE, session, session.acceptedParameters());
 
   const fallback =
     session.getServerSnapshot().accepted ??
@@ -644,6 +648,7 @@ export function FluorescenceLab({
           worked={snapshot === session.getServerSnapshot().accepted}
           summary={statusSummary}
         />
+        <LabTapeLink link={tapeLink} />
         {linkNote && (
           <div className="notice" style={{ marginTop: "0.75rem" }}>
             {linkNote}

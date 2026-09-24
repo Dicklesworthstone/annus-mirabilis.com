@@ -28,6 +28,8 @@ import {
   type Lq03Evaluation,
   type PreparedLq03Example,
 } from "../../../experiments/lq03/session.ts";
+import { LQ03_TAPE } from "../../../experiments/lq03/tape.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
@@ -145,6 +147,8 @@ export function SpectrumLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(LQ03_TAPE, session, session.acceptedParameters());
 
   const fallback =
     session.getServerSnapshot().accepted ??
@@ -229,6 +233,7 @@ export function SpectrumLab({
           view={view}
           modelNote={modelNoteFromView(view, { notModeled: `${LQ03_NOT_MODELED.join("; ")}.` })}
         />
+        <LabTapeLink link={tapeLink} />
       </div>
 
       <p className="lab-question">{LQ03_QUESTION}</p>

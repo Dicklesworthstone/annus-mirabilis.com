@@ -5,6 +5,7 @@ import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
@@ -17,6 +18,7 @@ import {
 } from "../../../experiments/sr12/definition.ts";
 import { validateSr12Parameters } from "../../../experiments/sr12/parameters.ts";
 import { createSr12Session, type PreparedSr12Example } from "../../../experiments/sr12/session.ts";
+import { SR12_TAPE } from "../../../experiments/sr12/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
@@ -60,6 +62,8 @@ export function ChargeCurrentLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(SR12_TAPE, session, session.acceptedParameters());
   const [draft, setDraft] = useState<Sr12Parameters>(() => ({ ...example.parameters }));
   const [error, setError] = useState("");
   const [prediction, setPrediction] = useState<string | null>(null);
@@ -472,6 +476,7 @@ export function ChargeCurrentLab({
         worked={snapshot === session.getServerSnapshot().accepted}
         summary={statusSummary}
       />
+      <LabTapeLink link={tapeLink} />
 
       {/* Telemetry Output Table */}
       <section

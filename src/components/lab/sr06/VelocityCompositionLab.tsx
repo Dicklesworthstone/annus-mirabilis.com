@@ -4,6 +4,7 @@ import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { fromSr06Draft, toSr06Draft } from "../../../experiments/sr06/controls.ts";
 import {
@@ -16,6 +17,7 @@ import {
 } from "../../../experiments/sr06/definition.ts";
 import { decodeSr06Settings, encodeSr06Settings } from "../../../experiments/sr06/permalink.ts";
 import { createSr06Session, type PreparedSr06Example } from "../../../experiments/sr06/session.ts";
+import { SR06_TAPE } from "../../../experiments/sr06/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
@@ -74,6 +76,8 @@ export function VelocityCompositionLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(SR06_TAPE, session, session.acceptedParameters());
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr06Parameters;
   // Earned per snapshot (am-inst-execution-labels-5ywv). The eyebrow used to print "Ideal model,
@@ -318,6 +322,7 @@ export function VelocityCompositionLab({
           worked={snapshot === session.getServerSnapshot().accepted}
           summary={statusSummary}
         />
+        <LabTapeLink link={tapeLink} />
         <div>
           <VelocityCompositionPlot snapshot={snapshot} />
           <table className="inference-summary">

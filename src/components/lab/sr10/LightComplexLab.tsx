@@ -4,6 +4,7 @@ import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
@@ -19,6 +20,7 @@ import {
   type PreparedSr10Example,
   sr10Comparison,
 } from "../../../experiments/sr10/session.ts";
+import { SR10_TAPE } from "../../../experiments/sr10/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type {
   AcceptedSnapshot,
@@ -75,6 +77,8 @@ export function LightComplexLab({
     session.getSnapshot,
     session.getServerSnapshot,
   );
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(SR10_TAPE, session, session.acceptedParameters());
   const snapshot = view.accepted;
   const p = (snapshot?.parameters ?? example.parameters) as Sr10Parameters;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
@@ -331,6 +335,7 @@ export function LightComplexLab({
           worked={snapshot === undefined || snapshot === session.getServerSnapshot().accepted}
           summary={statusSummary}
         />
+        <LabTapeLink link={tapeLink} />
         <div className="lab-results">
           {beta !== null &&
           phiK !== null &&

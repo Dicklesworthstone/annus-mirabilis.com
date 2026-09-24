@@ -16,6 +16,8 @@ import {
   type Lq06SubexpressionChoice,
 } from "../../../experiments/lq06/definition.ts";
 import { createLq06Session, type PreparedLq06Example } from "../../../experiments/lq06/session.ts";
+import { LQ06_TAPE } from "../../../experiments/lq06/tape.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
@@ -156,6 +158,8 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
     session.getSnapshot,
     session.getServerSnapshot,
   );
+  // A shared ?tape= link restores through this laboratory's own session (am-inst-permalink-tape-s677).
+  const tapeLink = useLabTapeLink(LQ06_TAPE, session, session.acceptedParameters());
 
   const accepted = snapshot.accepted;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
@@ -269,6 +273,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
           view={snapshot}
           modelNote={modelNoteFromView(snapshot, { notModeled: `${LQ06_NOT_MODELED.join("; ")}.` })}
         />
+        <LabTapeLink link={tapeLink} />
       </div>
 
       <noscript>
