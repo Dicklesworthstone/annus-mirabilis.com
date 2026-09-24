@@ -41,6 +41,7 @@ import {
 } from "./lazyIslands.tsx";
 import { MassEnergyDerivation } from "./MassEnergyDerivation.tsx";
 import { MassEnergyLowSpeed } from "./MassEnergyLowSpeed.tsx";
+import { OutlineSectionTitle } from "./OutlineSectionTitle.tsx";
 import { paperEquations } from "./paperEquations.ts";
 import {
   isFaceFallbackId,
@@ -310,7 +311,8 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: harness data-ready contract; source from a tested pure function. */}
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
       <header className="page-intro">
-        <p className="eyebrow">Read · {paper.title}</p>
+        {/* The whole paper's title is the h1 right below; a section's page names its paper here. */}
+        <p className="eyebrow">{sectionId ? `Read · ${paper.title}` : "Read"}</p>
         <h1>{sectionId ? sections[0]?.title : paper.title}</h1>
         {/* Paper-level lead, so a section view omits it. See PaperReader for the
             reasoning, including why the two disclosures are not treated the same way. */}
@@ -644,23 +646,5 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         </nav>
       </dialog>
     </div>
-  );
-}
-
-/*
-  A section's outline link names its place and its subject, "§4 · dilute radiation and the volume
-  law", in two parts. On a phone the outline shows the place alone, as a row of chips (reader.css):
-  measured on BUILD 24 at 390, the ten full titles stood as ten 48px rows, 480px, between the
-  reading controls and the paper's first sentence. The link's accessible name is the whole title
-  (aria-label), so a reader who hears the chip hears the subject too.
-*/
-function OutlineSectionTitle({ title }: { title: string }) {
-  const cut = title.indexOf(" · ");
-  if (cut === -1) return <span className="outline-section-mark">{title}</span>;
-  return (
-    <>
-      <span className="outline-section-mark">{title.slice(0, cut)}</span>
-      <span className="outline-section-name">{title.slice(cut)}</span>
-    </>
   );
 }

@@ -337,6 +337,80 @@
     font-weight: 700;
   }
 }
+/* ---------------------------------------------------------------------------
+   ON A PHONE THE PAPER OPENS ON ITS QUESTION. Measured on live 1d12f3d7 at 390x844 (TanElk's
+   dispatch 128): the first encounter's question stood at y 983 (Brownian), 1041 (light quanta),
+   1019 (relativity) and 804 (mass-energy), below the first screen, under 176px of reading
+   controls, a 141px outline, a 73px draft notice and their margins. Nothing is removed and every
+   control keeps its 44px target; the spacing tightens, Detail and the modern lens share one row
+   (the "Detail" label stays for assistive technology, as does the outline's heading), and the
+   paper's title steps down to the title size. With the slim bottom bar in layout.css, the question and at least two lines
+   of its paragraph are on the first screen of all four papers, in both engines.
+   --------------------------------------------------------------------------- */
+@media (max-width: 560px) {
+  .reader-root > .page-intro {
+    padding-block: 1rem 0.25rem;
+  }
+  .reader-root > .page-intro > .eyebrow {
+    margin-bottom: 0.25rem;
+  }
+  .reader-root > .page-intro > h1 {
+    font-size: var(--type-title);
+    margin-bottom: 0.5rem;
+  }
+  .reader-root > .page-intro > .lead {
+    margin-block: 0.375rem;
+  }
+  /* The draft notice is its 44px summary line; its padding made it a 73px box. */
+  .reader-root > .page-intro > .callout-note {
+    margin-block: 0.25rem;
+    padding-block: 0;
+  }
+  .reader-root > .page-intro > p:not(.eyebrow, .lead) {
+    margin-block: 0.25rem;
+  }
+  .reader-root > .reader-controls {
+    padding-block: 0.25rem;
+  }
+  .reader-root .reader-options {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .reader-root .reader-options > .reader-option {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .reader-root .reader-options > .reader-option > label,
+  .reader-root .reader-outline h2 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+  .reader-root .reader-options select {
+    margin-top: 0;
+    min-width: 0;
+    font-size: var(--type-fine);
+  }
+  .reader-root .reader-options > .check {
+    flex: none;
+    font-size: var(--type-fine);
+  }
+  .reader-root .reader-outline {
+    margin-top: 0.25rem;
+  }
+  .reader-root :is(.reader-layout, .reader-anatomy) {
+    row-gap: 0.5rem;
+  }
+  .reader-root .reader-body > :first-child {
+    margin-top: 0.75rem;
+  }
+}
 .reader-body {
   min-width: 0;
 }

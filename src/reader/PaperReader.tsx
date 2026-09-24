@@ -17,6 +17,7 @@ import type { CompiledMissingStepLesson } from "../equations/missingStep/compile
 import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel.tsx";
 import { quantityLegend } from "../equations/quantityColourView.ts";
 import missingSteps from "../generated/missing-steps.json";
+import { OutlineSectionTitle } from "./OutlineSectionTitle.tsx";
 import { paperEquations } from "./paperEquations.ts";
 import { originalHref, paperSourceFaces } from "./paperSourceFaces.ts";
 import { PaperStatus } from "./paperStatus.tsx";
@@ -88,7 +89,9 @@ export async function PaperReader({
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: the harness's data-ready contract requires this exact script as the root's first child, synchronous before any face content paints; its source is derived from a tested pure function, never hand-authored HTML. */}
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
       <header className="page-intro">
-        <p className="eyebrow">Read · Brownian motion · Explanation preview</p>
+        <p className="eyebrow">
+          {section ? "Read · Brownian motion · Explanation preview" : "Read · Explanation preview"}
+        </p>
         <h1>{section ? (sections[0]?.title ?? paper.title) : paper.title}</h1>
         {/* THE LEAD IS THE PAPER'S, so a section view does not repeat it. It orients a
             reader who has just arrived at the paper; someone who has navigated to one
@@ -135,8 +138,9 @@ export async function PaperReader({
                       data-reader-anchor={s.id}
                       href={`#${s.id}`}
                       aria-current={section === s.id ? "page" : undefined}
+                      aria-label={s.title}
                     >
-                      {s.title}
+                      <OutlineSectionTitle title={s.title} />
                     </a>
                     {args
                       .filter((a) => a.section === s.id)
@@ -155,7 +159,9 @@ export async function PaperReader({
                   </div>
                 ) : (
                   <div key={s.id}>
-                    <a href={`/papers/${paper.id}/${s.id}/`}>{s.title}</a>
+                    <a href={`/papers/${paper.id}/${s.id}/`} aria-label={s.title}>
+                      <OutlineSectionTitle title={s.title} />
+                    </a>
                   </div>
                 ),
               )}

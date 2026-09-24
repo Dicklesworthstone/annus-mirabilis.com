@@ -208,6 +208,12 @@
   .reader-bottom-sheet {
     display: block;
   }
+  /* THE CLOSED SHEET IS A SLIM BAR: its 44px summary and a hairline, 46px, where its box padding
+     made it 78px over the reading (dispatch 128: its top cut through Brownian's "Step 1" heading
+     one screen down). The home-indicator inset is kept below it. */
+  .reader-bottom-sheet:not([open]) {
+    padding-block: 0 env(safe-area-inset-bottom, 0px);
+  }
   /* FOCUS STOPS ABOVE THE SHEET. The sheet is sticky at the bottom, 78px closed and up to 40vh
      open, and a control scrolled into view by Tab landed behind it: at 390x844 on the Brownian
      reading, 20 of 119 focus stops were covered with the sheet closed and 58 of 111 with it open
