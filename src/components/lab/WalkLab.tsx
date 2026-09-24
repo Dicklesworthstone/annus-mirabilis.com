@@ -6,7 +6,6 @@ import { BM05_FIELDS, fromWalkDraft, toWalkDraft } from "../../experiments/bm05/
 import {
   BM05_CAPTION,
   BM05_OUTPUTS,
-  BM05_PROMPT,
   type Bm05Parameters,
 } from "../../experiments/bm05/definition.ts";
 import { decodeBm05Settings, encodeBm05Settings } from "../../experiments/bm05/permalink.ts";
@@ -18,7 +17,9 @@ import { labelRootAttributes } from "../../experiments/labels/resultAttributes.t
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
+import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
@@ -53,6 +54,10 @@ function Reading({
     </span>
   );
 }
+// The manifest's prompt (scripts/generate-predict-prompts.mjs), one stable array for the gate. It
+// replaces the lab's use of BM05_PROMPT, which bm05Manifest.test still compares with the manifest.
+const BM05_PROMPTS = PREDICT_PROMPTS["bm-05"] ?? [];
+
 export function WalkLab({
   example,
   title = "From random steps to diffusion",
@@ -87,8 +92,9 @@ export function WalkLab({
     [dirty, setDirty] = useState(false),
     [error, setError] = useState(""),
     [note, setNote] = useState(""),
-    [url, setUrl] = useState(""),
-    [prediction, setPrediction] = useState("");
+    [url, setUrl] = useState("");
+  // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
+  const gate = usePredictGate("bm-05", BM05_PROMPTS);
   useEffect(() => {
     setReady(true);
     const shared = decodeBm05Settings(window.location.search);
@@ -200,6 +206,7 @@ export function WalkLab({
         has tails. Keep their step variance equal, and ask what survives after many independent
         steps.
       </p>
+      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <div>
           <form onSubmit={submit} noValidate>
@@ -336,29 +343,6 @@ export function WalkLab({
             Observation buttons use the accepted setup, not unsubmitted draft edits. They return to
             the same trial, not a fresh sample.
           </p>
-          <details>
-            <summary>Make a prediction</summary>
-            <div className="input-field">
-              <label htmlFor={`${id}-prediction`}>{BM05_PROMPT.question}</label>
-              <select
-                id={`${id}-prediction`}
-                value={prediction}
-                onChange={(e) => setPrediction(e.target.value)}
-              >
-                <option value="">Choose a prediction</option>
-                {BM05_PROMPT.candidates.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <p>
-              First inspect four steps. Then keep the step RMS and interval unchanged while
-              comparing the laws at 400 steps. Use both the mean square and the shape gap below; a
-              similar-looking histogram alone does not decide the question.
-            </p>
-          </details>
           <div className="actions">
             <button type="button" className="secondary" disabled={!ready} onClick={newTrial}>
               New independent trial
@@ -385,7 +369,7 @@ export function WalkLab({
             independent trials. Shared links load settings only; they never start a calculation.
           </p>
         </div>
-        <div className="lab-results">
+        <div className="lab-results" {...gate.response}>
           {view.outcome?.outcome === "budget-exhausted" && (
             <div className="notice error">
               <p>

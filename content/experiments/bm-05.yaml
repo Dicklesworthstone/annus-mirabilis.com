@@ -554,6 +554,7 @@ predictMode:
       supportedCandidateId: same-bell-shape
       controlId: kernel
       question: "After many steps, what will changing the step law while keeping its variance do?"
+      explanation: "After enough independent steps, the sum of zero-mean, finite-variance steps approaches a Gaussian whose spread depends only on the number of steps and the per-step variance, not on the step law's shape. To see it, inspect four steps, then compare the laws at 400 steps with the step RMS and interval unchanged, using both the mean square and the shape gap: a similar-looking histogram alone does not decide the question."
       candidates:
         - id: two-separate-piles
           label: "Keep two separate piles"
