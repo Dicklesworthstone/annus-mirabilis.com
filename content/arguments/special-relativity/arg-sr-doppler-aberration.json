@@ -58,14 +58,47 @@
         "returnCaption": "Return to ν′ and φ′, the other observer's frequency and direction."
       },
       {
+        "kind": "paragraph",
+        "text": "Letters: in §7 a source very far away in K sends plane waves whose phase is \\(\\Phi=\\omega\\left(t-\\frac{ax+by+cz}{V}\\right)\\), where ω is the angular frequency, a, b, c the direction cosines of the wave normal, and V the speed of light. In k the phase is written with \\(\\omega'\\), \\(a'\\), \\(b'\\), \\(c'\\) and the moving coordinates ξ, η, ζ, τ. ν is the frequency, φ the angle in K between the line from the source to the observer and the observer's velocity, and \\(\\varphi'\\) the corresponding angle in k."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Give the light’s direction in the original frame by the angle \\(\\varphi\\) between its wave normal and the \\(x\\) axis.",
-          "Write the phase at one event and replace \\(t\\), \\(x\\), \\(y\\) and \\(z\\) using the inverse coordinate map.",
-          "Read off the coefficient of \\(t'\\). It is the new angular frequency, and its ratio to the old one is \\(q = \\gamma(1 - (v/c)\\cos\\varphi)\\).",
-          "Read off the coefficients of \\(x'\\), \\(y'\\) and \\(z'\\): they are the new wave-vector components. Divide by the new wave number for the new direction, \\(\\cos\\varphi' = (\\cos\\varphi - v/c)/(1 - (v/c)\\cos\\varphi)\\).",
-          "Check two cases at \\(0.6c\\), saying which frame each angle belongs to: along the motion \\(q = 0.5\\), and across it in the original frame \\(q = 1.25\\)."
+          "The phase counts wave crests, and every observer counts the same crests at the same event, so the phase at an event is the same number in both systems.",
+          "Write K's coordinates in k's with the inverse map: \\(t=\\beta(\\tau+vξ/V^2)\\), \\(x=\\beta(ξ+v\\tau)\\), y = η, z = ζ.",
+          "Substitute into Φ: \\(\\omega\\left[\\beta\\left(\\tau+\\frac{vξ}{V^2}\\right)-\\frac{a\\beta(ξ+v\\tau)+bη+cζ}{V}\\right]\\).",
+          "Collect the τ terms: \\(\\omega\\beta(1-av/V)\\tau\\). That coefficient is the new angular frequency, \\(\\omega'=\\omega\\beta(1-av/V)\\), as the paper prints it.",
+          "Collect the ξ terms: \\(-\\frac{\\omega\\beta}{V}(a-v/V)ξ\\). Divide by \\(\\omega'\\) to get the new direction cosine: \\(a'=\\frac{a-v/V}{1-av/V}\\). The η and ζ terms give \\(b'=\\frac{b}{\\beta(1-av/V)}\\) and \\(c'=\\frac{c}{\\beta(1-av/V)}\\).",
+          "With a = cos φ and ν = ω/2π, the frequency ratio and the new direction are the two formulas below. The paper calls the first the Doppler principle for arbitrary speeds, and the second the law of aberration in its most general form."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "q=\\frac{\\nu'}{\\nu}=\\gamma\\left(1-\\frac{v}{c}\\cos\\varphi\\right)",
+        "spoken": "The frequency ratio is gamma times one minus v over c times the unprimed direction cosine.",
+        "equations": ["eq-model-sr-doppler-ratio", "eq-model-sr-doppler-factor"]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\cos\\varphi'=\\frac{\\cos\\varphi-v/c}{1-(v/c)\\cos\\varphi}",
+        "spoken": "The aberration direction cosine is cosine phi minus v over c, divided by one minus v over c times cosine phi.",
+        "equations": ["eq-model-sr-aberration"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked at v = 0.6c. Light travelling the same way as the observer, φ = 0: q = 1.25 × (1 − 0.6) = 0.5. The paper's form for φ = 0, \\(\\sqrt{(1-v/V)/(1+v/V)}=\\sqrt{0.4/1.6}\\), gives the same 0.5.",
+          "Light meeting the observer head on, φ = 180 degrees: q = 1.25 × 1.6 = 2.0.",
+          "Light crossing the motion at right angles in K, φ = 90 degrees: q = 1.25, and \\(\\cos\\varphi'=-0.6\\), the paper's \\(-v/V\\), so the light travels at about 126.9 degrees to the moving x axis. Check the new direction: \\(a'\\) = −0.6 and \\(b'=1/1.25\\) = 0.8, and \\(0.36+0.64=1\\), a unit direction as it must be.",
+          "Each angle belongs to one frame. Light that crosses the motion at right angles in one frame does not in general do so in the other.",
+          "The paper also transforms the amplitude: \\(A'^2=A^2\\frac{(1-(v/V)\\cos\\varphi)^2}{1-(v/V)^2}\\), so the amplitude changes by the same factor q as the frequency. It remarks that an observer approaching a source at the speed V would find it infinitely intense; no observer moves at V, so that is a limit, not a frame.",
+          "The Doppler effect of sound is an analogy only: it depends on motion relative to the air, and nothing here depends on motion relative to a medium."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "fields-waves",
+        "returnCaption": "Return to why a change of frequency comes with a change of direction."
       }
     ],
     "margin": [

@@ -54,17 +54,6 @@
     ],
     "steps": [
       {
-        "kind": "steps",
-        "items": [
-          "Fix the setup: the new observer moves at speed \\(v\\) along positive \\(x\\), and the fields are in SI units, so \\(c\\) appears beside the electric terms in the magnetic equations.",
-          "The components along the motion do not change: \\(E'_x = E_x\\) and \\(B'_x = B_x\\).",
-          "Each electric component across the motion picks up a magnetic term: \\(E'_y = \\gamma(E_y - vB_z)\\) and \\(E'_z = \\gamma(E_z + vB_y)\\).",
-          "Each magnetic component across the motion picks up an electric term divided by \\(c^2\\): \\(B'_y = \\gamma(B_y + vE_z/c^2)\\) and \\(B'_z = \\gamma(B_z - vE_y/c^2)\\).",
-          "Before comparing forces, transform the charge’s velocity as well: a charge moving with the observer is at rest in the new frame.",
-          "To go back, use the same equations with \\(-v\\) in place of \\(v\\); they return the original components."
-        ]
-      },
-      {
         "kind": "foundation",
         "id": "vectors-components",
         "returnCaption": "Return to the field components along the motion and across it."
@@ -73,6 +62,50 @@
         "kind": "foundation",
         "id": "unit-system-1905",
         "returnCaption": "Return to the field transformation in SI units, which the paper writes in Gaussian units."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Letters: the paper's result, printed on p. 909 in Gaussian units with V the speed of light and β the modern γ, is \\(X'=X\\), \\(L'=L\\), \\(Y'=\\beta(Y-\\frac{v}{V}N)\\), \\(M'=\\beta(M+\\frac{v}{V}Z)\\), \\(Z'=\\beta(Z+\\frac{v}{V}M)\\), \\(N'=\\beta(N-\\frac{v}{V}Y)\\). X, Y, Z are the electric force and L, M, N the magnetic force; primes mark the moving system k. This explanation writes them \\(E_x\\) to \\(B_z\\) in SI units."
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Change the units term by term. In Gaussian units electric and magnetic fields share one unit; in SI, \\(B\\) is measured so that \\(cB\\) has the units of E. So \\((v/V)N\\) becomes \\(vB_z\\), and \\((v/V)Y\\) inside a magnetic component becomes \\(vE_y/c^2\\).",
+          "The components along the motion do not change: \\(E'_x=E_x\\) and \\(B'_x=B_x\\).",
+          "Each electric component across the motion picks up a magnetic term: \\(E'_y=\\gamma(E_y-vB_z)\\) and \\(E'_z=\\gamma(E_z+vB_y)\\).",
+          "Each magnetic component across the motion picks up an electric term divided by \\(c^2\\): \\(B'_y=\\gamma(B_y+vE_z/c^2)\\) and \\(B'_z=\\gamma(B_z-vE_y/c^2)\\). Together, the six lines below."
+        ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\begin{aligned}E_x'&=E_x,&B_x'&=B_x\\\\E_y'&=\\gamma(E_y-vB_z),&B_y'&=\\gamma(B_y+vE_z/c^2)\\\\E_z'&=\\gamma(E_z+vB_y),&B_z'&=\\gamma(B_z-vE_y/c^2)\\end{aligned}",
+        "spoken": "E x prime equals E x, and B x prime equals B x. E y prime equals gamma times, E y minus v B z. B y prime equals gamma times, B y plus v E z over c squared. E z prime equals gamma times, E z plus v B y. B z prime equals gamma times, B z minus v E y over c squared.",
+        "equations": [
+          "eq-model-sr-field-ex",
+          "eq-model-sr-field-bx",
+          "eq-model-sr-field-ey",
+          "eq-model-sr-field-by",
+          "eq-model-sr-field-ez",
+          "eq-model-sr-field-bz"
+        ]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Worked, in units where c = 1: no electric field and a magnetic field \\(B_z=1\\), seen from a frame moving at 0.6 along x. Then \\(E'_y=-1.25\\times0.6\\times1\\) = −0.75, an electric field along −y, and \\(B'_z=1.25\\).",
+          "Back again, with −v: \\(E''_y=1.25(-0.75+0.6\\times1.25)=0\\) and \\(B''_z=1.25(1.25-0.6\\times0.75)\\) = 1. The original fields return.",
+          "The paper's reading of the first three equations, for a unit point charge. At rest in K, the force on it is (X, Y, Z) by definition. At rest in k, at least at that moment, the force measured in k is \\((X',Y',Z')\\), since the principle of relativity makes the charge a unit charge there too.",
+          "The older way of saying it: a unit charge moving in an electromagnetic field feels, besides the electric force, an electromotive force equal to the cross product of its velocity and the magnetic force divided by the speed of light. The paper states that this holds only if terms with the second and higher powers of v/V are neglected.",
+          "The new way: the force on a moving unit charge equals the electric force at its place after the field has been transformed to a system at rest relative to the charge. The electromotive force becomes an auxiliary idea, needed only because electric and magnetic forces have no existence independent of the state of motion of the coordinate system.",
+          "Worked force: a positive charge q carried along at 0.6c through \\(B_z\\) is at rest in k, so there its whole force is electric, of size 1.25 × q × 0.6 × \\(B_z\\) in these units. In K the same charge feels a magnetic force of size 0.6 × q × \\(B_z\\). The two differ by the factor 1.25, which is how a force across the motion changes between frames, so both describe one push.",
+          "The paper concludes that the asymmetry of the introduction, magnet moving or conductor moving, disappears, and that asking where the electromotive force is seated, as in unipolar machines, becomes pointless.",
+          "Before comparing forces, transform the charge's velocity too: a charge moving with the observer is at rest in the new frame."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "electromagnetism-charges",
+        "returnCaption": "Return to what a new observer calls electric."
       }
     ],
     "margin": [

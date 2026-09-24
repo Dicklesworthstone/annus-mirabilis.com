@@ -8,11 +8,6 @@
       "missing": ["eq-model-sr-charge-density+eq-model-sr-current-density"],
       "wordGap": 55
     },
-    "arg-sr-doppler-aberration": {
-      "paper": "special-relativity",
-      "missing": ["eq-model-sr-doppler-ratio+eq-model-sr-doppler-factor", "eq-model-sr-aberration"],
-      "wordGap": 24
-    },
     "arg-sr-electron-conventions": {
       "paper": "special-relativity",
       "missing": [
@@ -27,18 +22,6 @@
         "eq-model-sr-electron-energy+eq-model-sr-magnetic-radius"
       ],
       "wordGap": 0
-    },
-    "arg-sr-field-components": {
-      "paper": "special-relativity",
-      "missing": [
-        "eq-model-sr-field-ex+eq-model-sr-field-bx+eq-model-sr-field-ey+eq-model-sr-field-by+eq-model-sr-field-ez+eq-model-sr-field-bz"
-      ],
-      "wordGap": 7
-    },
-    "arg-sr-field-derivatives": {
-      "paper": "special-relativity",
-      "missing": ["eq-model-sr-partial-t+eq-model-sr-partial-x"],
-      "wordGap": 21
     },
     "arg-sr-light-complex": {
       "paper": "special-relativity",

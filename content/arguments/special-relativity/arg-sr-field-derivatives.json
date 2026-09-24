@@ -51,16 +51,42 @@
     ],
     "steps": [
       {
+        "kind": "paragraph",
+        "text": "Letters: the paper writes the electric force as (X, Y, Z) and the magnetic force as (L, M, N), in Gaussian units, with V for the speed of light and β for the modern γ; in k they are \\(X'\\) to \\(N'\\). This explanation works in SI units, where the electric field is E, the magnetic field B, and a factor \\(c^2\\) appears that Gaussian units hide. The primed coordinates \\(x'\\) and \\(t'\\) are the paper's ξ and τ."
+      },
+      {
         "kind": "steps",
         "items": [
-          "Write the coordinate map, \\(x' = \\gamma(x - vt)\\) and \\(t' = \\gamma(t - vx/c^2)\\), and its inverse, which swaps primed and unprimed letters and replaces \\(v\\) with \\(-v\\).",
-          "Use the chain rule to rewrite \\(\\partial_t\\) and \\(\\partial_x\\) in the new coordinates. Each becomes a mix of \\(\\partial_{t'}\\) and \\(\\partial_{x'}\\).",
-          "Substitute both rules into both equations of the plane-wave pair.",
-          "Collect terms: \\(E_y\\) and \\(B_z\\) now appear only as \\(E_y - vB_z\\) and \\(B_z - vE_y/c^2\\). Keep every factor of \\(c\\).",
-          "Multiply by \\(\\gamma\\) and name the results \\(E'_y\\) and \\(B'_z\\). The primed pair has the same form as the original.",
-          "Allow one common factor on the new fields. Going there and back makes its values at \\(v\\) and \\(-v\\) multiply to 1; symmetry and the value 1 at rest then make it 1.",
-          "Keep two claims apart: that the equations keep their form, which is algebra, and that the primed combinations are the fields the moving observer measures, which is the principle of relativity."
+          "The paper begins with the Maxwell–Hertz equations for empty space, valid in K. One of them, in its letters, is \\(\\frac{1}{V}\\frac{\\partial X}{\\partial t}=\\frac{\\partial N}{\\partial y}-\\frac{\\partial M}{\\partial z}\\), and there are six in all.",
+          "To write them in k's coordinates, every derivative must be rewritten, since \\(t'\\) and \\(x'\\) each depend on both t and x: \\(t'=\\gamma(t-vx/c^2)\\) and \\(x'=\\gamma(x-vt)\\).",
+          "The chain rule: a change in t changes \\(t'\\) by γ and \\(x'\\) by −γv, so \\(\\partial_t=\\gamma\\partial_{t'}-\\gamma v\\partial_{x'}\\). A change in x changes \\(t'\\) by \\(-\\gamma v/c^2\\) and \\(x'\\) by γ, so \\(\\partial_x=\\gamma\\partial_{x'}-\\gamma(v/c^2)\\partial_{t'}\\). Those are the two rules below."
         ]
+      },
+      {
+        "kind": "formula",
+        "latex": "\\partial_t=\\gamma(\\partial_{t'}-v\\partial_{x'}),\\qquad\\partial_x=\\gamma(\\partial_{x'}-v\\partial_{t'}/c^2)",
+        "spoken": "Partial by partial t equals gamma times, partial by partial t prime minus v partial by partial x prime. Partial by partial x equals gamma times, partial by partial x prime minus v over c squared partial by partial t prime.",
+        "equations": ["eq-model-sr-partial-t", "eq-model-sr-partial-x"]
+      },
+      {
+        "kind": "steps",
+        "items": [
+          "Take the simplest case, a wave along x with an electric component \\(E_y\\) and a magnetic component \\(B_z\\). In SI units and empty space the equations reduce to the pair \\(\\partial_tE_y=-c^2\\partial_xB_z\\) and \\(\\partial_tB_z=-\\partial_xE_y\\).",
+          "Substitute into the first: \\(\\gamma(\\partial_{t'}-v\\partial_{x'})E_y=-c^2\\gamma(\\partial_{x'}-v\\partial_{t'}/c^2)B_z\\). Cancel γ and move the \\(\\partial_{t'}\\) terms to the left and the \\(\\partial_{x'}\\) terms to the right: \\(\\partial_{t'}(E_y-vB_z)=-c^2\\partial_{x'}(B_z-vE_y/c^2)\\).",
+          "Substitute into the second: \\(\\gamma(\\partial_{t'}-v\\partial_{x'})B_z=-\\gamma(\\partial_{x'}-v\\partial_{t'}/c^2)E_y\\). Collect the same way: \\(\\partial_{t'}(B_z-vE_y/c^2)=-\\partial_{x'}(E_y-vB_z)\\).",
+          "The fields now appear only in two combinations. Multiply both by γ and name them: \\(E'_y=\\gamma(E_y-vB_z)\\) and \\(B'_z=\\gamma(B_z-vE_y/c^2)\\). The pair becomes \\(\\partial_{t'}E'_y=-c^2\\partial_{x'}B'_z\\) and \\(\\partial_{t'}B'_z=-\\partial_{x'}E'_y\\), the same form as in K.",
+          "The paper does the same with all six equations and finds the combinations \\(\\beta(N-(v/V)Y)\\) and \\(\\beta(M+(v/V)Z)\\) in place of N and M. The principle of relativity requires that the Maxwell–Hertz equations hold in k too, for the forces the moving system defines by their pushes on electric and magnetic charges.",
+          "So the paper sets each new force equal to the matching combination times one common factor ψ(v), which may depend on v but not on the coordinates. The form of the equations cannot fix that factor.",
+          "Fixing it: transforming to k and back must give the original fields, so the factor's values at v and at −v multiply to 1. By symmetry, reversing v reverses the sign of a component such as \\(Y'\\) without changing its size, so the factor is the same at v and −v; the positive root makes it 1 (p. 909).",
+          "Worked: a wave running along +x has \\(E_y=cB_z\\) in SI. In a frame moving the same way at 0.6c, \\(E'_y=\\gamma(E_y-vB_z)=1.25\\,E_y(1-0.6)=0.5\\,E_y\\): the field halves, as the frequency will in §7.",
+          "Keep two claims apart. That the equations keep their form after the substitution is algebra. That the new combinations are the fields the moving observer measures is the principle of relativity, applied to forces on charges at rest in k.",
+          "Changing from the paper's Gaussian units to SI is a change of units, done term by term, not a renaming of letters."
+        ]
+      },
+      {
+        "kind": "foundation",
+        "id": "partial-derivatives",
+        "returnCaption": "Return to how the field equations look in the moving frame."
       }
     ],
     "margin": [
