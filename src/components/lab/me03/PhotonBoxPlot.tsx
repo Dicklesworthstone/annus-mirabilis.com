@@ -2,6 +2,7 @@ import type { Me03Parameters } from "../../../experiments/me03/definition.ts";
 import type { PhotonInBoxResult } from "../../../experiments/me03/session.ts";
 import type { RepresentationScale } from "../../../visuals/kit/types.ts";
 import "./me03.css";
+import { display } from "../presentation.ts";
 import { Sci, SciSvg } from "../Sci.tsx";
 
 export interface PhotonBoxPlotProps {
@@ -9,6 +10,23 @@ export interface PhotonBoxPlotProps {
   evaluation: PhotonInBoxResult;
   scale: RepresentationScale;
   clipId: string;
+}
+
+/**
+ * The scale facts name quantities by id ("centerOfMassShift"). These are the words a reader gets;
+ * an id without an entry is shown as it is rather than guessed at.
+ */
+const QUANTITY_WORDS: Readonly<Record<string, string>> = {
+  centerOfMassShift: "the centre-of-mass shift",
+  pulseFlightTime: "the pulse's flight time",
+};
+function quantityWords(id: string): string {
+  return QUANTITY_WORDS[id] ?? id;
+}
+function glyphWords(represents: string): string {
+  return represents === "none"
+    ? "its size represents no quantity"
+    : `its size represents ${quantityWords(represents)}`;
 }
 
 export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonBoxPlotProps) {
@@ -265,40 +283,45 @@ export function PhotonBoxPlot({ parameters, evaluation, scale, clipId }: PhotonB
               <tr className="scale-facts-row">
                 <th className="scale-facts-th">Spatial magnification:</th>
                 <td className="scale-facts-td">
-                  {scale.spatialMagnification.factor}× (applies to:{" "}
-                  <code>{scale.spatialMagnification.appliesTo}</code>)
+                  {display(scale.spatialMagnification.factor)} times, applied to{" "}
+                  {quantityWords(scale.spatialMagnification.appliesTo)} only
                 </td>
               </tr>
               <tr className="scale-facts-row">
                 <th className="scale-facts-th">Simulated elapsed time:</th>
                 <td className="scale-facts-td">
-                  {scale.simulatedElapsedTime.value} {scale.simulatedElapsedTime.unit} (
-                  <code>{scale.simulatedElapsedTime.quantityId}</code>)
+                  {display(scale.simulatedElapsedTime.value)} {scale.simulatedElapsedTime.unit},{" "}
+                  {quantityWords(scale.simulatedElapsedTime.quantityId)}
                 </td>
               </tr>
               <tr className="scale-facts-row">
                 <th className="scale-facts-th">Playback multiplier:</th>
-                <td className="scale-facts-td">{scale.playbackMultiplier}×</td>
+                <td className="scale-facts-td">{display(scale.playbackMultiplier)}×</td>
               </tr>
               <tr className="scale-facts-row">
                 <th className="scale-facts-th">Glyph size:</th>
                 <td className="scale-facts-td">
-                  {scale.glyphSize.drawnPx} px (represents:{" "}
-                  <code>{scale.glyphSize.represents}</code>)
+                  {scale.glyphSize.drawnPx} px; {glyphWords(scale.glyphSize.represents)}
                 </td>
               </tr>
               <tr className="scale-facts-row">
                 <th className="scale-facts-th">Quantity normalization:</th>
-                <td className="scale-facts-td">{scale.quantityNormalization.kind}</td>
+                <td className="scale-facts-td">
+                  {scale.quantityNormalization.kind === "none"
+                    ? "none"
+                    : scale.quantityNormalization.kind}
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
         <div className="scale-facts-print" data-testid="scale-facts-print">
-          Scale: ×{scale.spatialMagnification.factor} ({scale.spatialMagnification.appliesTo}) · Δt:{" "}
-          {scale.simulatedElapsedTime.value} {scale.simulatedElapsedTime.unit} ·{" "}
-          {scale.playbackMultiplier}× rate · glyph: {scale.glyphSize.drawnPx}px (
-          {scale.glyphSize.represents}) · norm: {scale.quantityNormalization.kind}
+          Scale: {display(scale.spatialMagnification.factor)} times, on{" "}
+          {quantityWords(scale.spatialMagnification.appliesTo)} · Δt:{" "}
+          {display(scale.simulatedElapsedTime.value)} {scale.simulatedElapsedTime.unit} ·{" "}
+          {display(scale.playbackMultiplier)}× rate · glyph: {scale.glyphSize.drawnPx} px,{" "}
+          {glyphWords(scale.glyphSize.represents)} · normalization:{" "}
+          {scale.quantityNormalization.kind}
         </div>
       </section>
     </div>
