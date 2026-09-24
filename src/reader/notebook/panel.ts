@@ -141,26 +141,21 @@ export function mountNotebookPanel(
       },
     ),
   );
-  controls.append(
-    button("Export notebook JSON", () =>
-      download(
-        exportNotebookJson(store.getSnapshot().document),
-        "annus-reading-notebook.json",
-        "application/json",
-      ),
+  const exportJson = button("Export notebook JSON", () =>
+    download(
+      exportNotebookJson(store.getSnapshot().document),
+      "annus-reading-notebook.json",
+      "application/json",
     ),
-    button("Export readable notebook", () =>
-      download(
-        exportNotebookHtml(store.getSnapshot().document),
-        "annus-reading-notebook.html",
-        "text/html;charset=utf-8",
-      ),
-    ),
-    retry,
-    recovery,
-    load,
-    clear,
   );
+  const exportReadable = button("Export readable notebook", () =>
+    download(
+      exportNotebookHtml(store.getSnapshot().document),
+      "annus-reading-notebook.html",
+      "text/html;charset=utf-8",
+    ),
+  );
+  controls.append(exportJson, exportReadable, retry, recovery, load, clear);
   const importLabel = node("label", "Import an exported notebook JSON file");
   const importFile = node("input");
   importFile.type = "file";
@@ -283,6 +278,13 @@ export function mountNotebookPanel(
     recovery.hidden = state.recoveryRaw === null;
     load.hidden = state.persistence !== "conflict";
     clear.disabled = state.persistence === "conflict";
+    // An empty notebook offers nothing to export: the two export buttons appear with the first
+    // entry. Clear stays while a remembered reading place is left to forget. Import stays always,
+    // because it is how a notebook reaches a new device, which is exactly when this one is empty.
+    const nothingSaved = state.document.entries.length === 0;
+    exportJson.hidden = nothingSaved;
+    exportReadable.hidden = nothingSaved;
+    clear.hidden = nothingSaved && state.document.lastPlace === null;
     if (state.document.entries === renderedEntries) return;
     renderedEntries = state.document.entries;
     clearReplays();
