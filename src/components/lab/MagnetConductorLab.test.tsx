@@ -3,7 +3,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import Sr02Page from "../../app/lab/sr-02/page.tsx";
 import { encodeResult } from "../../experiments/results/codec.ts";
 import { SR02_APPARATUS_CAPTIONS, SR02_DEFAULTS } from "../../experiments/sr02/definition.ts";
+import { validateSr02Parameters } from "../../experiments/sr02/parameters.ts";
 import { DEFAULT_PREPARED_EXAMPLE, snapshotOutputs } from "../../experiments/sr02/session.ts";
+import generated from "../../generated/sr02-example.json";
 import { MagnetConductorLab } from "./MagnetConductorLab.tsx";
 
 describe("MagnetConductorLab: static rendering (no JavaScript)", () => {
@@ -19,8 +21,22 @@ describe("MagnetConductorLab: static rendering (no JavaScript)", () => {
     expect(html).toContain('data-instrument-id="sr-02"');
   });
 
-  test("declares a host execution label", () => {
-    expect(html).toContain('data-execution-label="host"');
+  test("an example without a verified source digest claims neither host nor static", () => {
+    // DEFAULT_PREPARED_EXAMPLE carries "source:sha256:default", which no build produced.
+    expect(html).toContain('data-execution-label="unavailable"');
+    expect(html).not.toContain('data-execution-label="host"');
+    expect(html).not.toContain("Ideal model, host calculation");
+  });
+
+  test("the build's own example is a static worked example, not a host calculation", () => {
+    const checked = validateSr02Parameters(generated.parameters);
+    if (checked.kind !== "accepted") throw new TypeError("the generated SR-02 example is refused");
+    const built = renderToStaticMarkup(
+      <MagnetConductorLab example={{ ...generated, parameters: checked.data }} />,
+    );
+    expect(built).toContain('data-execution-label="static"');
+    expect(built).toContain('<span class="badge">Static worked example</span>');
+    expect(built).not.toContain("Ideal model, host calculation");
   });
 
   test("includes a noscript notice", () => {
