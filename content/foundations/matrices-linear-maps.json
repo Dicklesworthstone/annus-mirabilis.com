@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "matrices-linear-maps",
+  "title": "Matrices and linear maps",
+  "question": "How can a table of four numbers turn one frame's coordinates into another's?",
+  "summary": "A linear map makes each output a sum of the inputs, each multiplied by a fixed number, and a matrix is the table of those multipliers. The change from one frame to another at 0.6c is such a map. Writing it as a matrix is a later aid: the 1905 paper writes it as two equations.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Some rules turn inputs into outputs by multiplying and adding, and nothing else: \\(x' = p\\,x + q\\,t\\) and \\(t' = r\\,x + s\\,t\\), with the same four numbers p, q, r and s for every input. Such a rule is a linear map. Set the four numbers in a table, one row per output, and the table is its matrix. Each row says how much of each input goes into that output."
+    },
+    {
+      "kind": "formula",
+      "latex": "\\begin{aligned} x' &= p\\,x + q\\,t \\\\ t' &= r\\,x + s\\,t \\end{aligned}",
+      "spoken": "x prime equals p x plus q t, and t prime equals r x plus s t."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The change from a frame at rest to one moving at v along x is a linear map: \\(x' = \\gamma(x - vt)\\) and \\(t' = \\gamma(t - vx/c^2)\\), with \\(\\gamma = 1/\\sqrt{1 - v^2/c^2}\\). The relativity paper prints this factor as β; here it is written γ, the modern letter, and the ratio v/c is written out. At v = 0.6c, γ = 1.25 and γv = 0.75c, so the table of multipliers is:"
+    },
+    {
+      "kind": "formula",
+      "latex": "\\left(\\begin{aligned} 1.25 &\\quad -0.75c \\\\ -0.75/c &\\quad 1.25 \\end{aligned}\\right)",
+      "spoken": "A two by two table: first row 1.25 and minus 0.75 c; second row minus 0.75 over c and 1.25."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Two numbers read off the table describe what the map does. The determinant, ps − qr, is the factor by which it scales areas in the plane of x and t; for this map it is \\(1.25^2 - 0.75^2 = 1\\), so areas are kept. The eigenvectors are the directions the map only stretches. For this map they are the two light lines, \\(x = ct\\) and \\(x = -ct\\), stretched by 0.5 and by 2: a flash sent either way still moves at c in the new frame."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The older Galilean rule, \\(x' = x - vt\\) and \\(t' = t\\), is also linear, with the table \\(p = 1\\), \\(q = -v\\), \\(r = 0\\), \\(s = 1\\), and its determinant is also 1. What separates the two is the light lines. The Galilean map sends \\(x = ct\\) to \\(x' = (c - v)t\\): the flash now moves at c − v, not c."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Writing the transformation as a matrix, with determinants and eigenvectors, is a later aid, tied to the geometry Minkowski gave the theory in 1908. §3 of the paper writes the transformation as equations and derives them from light signals and clocks; the table adds a way of reading them, not a premise."
+    }
+  ],
+  "exampleTitle": "Two simultaneous events, seen from 0.6c",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "Two events happen at the same time, 10 light-seconds apart along x: \\(\\Delta x = 10\\) light-seconds and \\(\\Delta t = 0\\).",
+        "The first row gives \\(\\Delta x' = 1.25 \\times 10 + (-0.75c) \\times 0 = 12.5\\) light-seconds.",
+        "The second row gives \\(\\Delta t' = (-0.75/c) \\times 10\\) light-seconds \\(+\\ 1.25 \\times 0\\). Ten light-seconds divided by c is 10 seconds, so \\(\\Delta t' = -7.5\\) s.",
+        "In the moving frame the events are not simultaneous: the one farther along x happened 7.5 seconds earlier."
+      ]
+    }
+  ],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:vectors-components",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:functions-graphs",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:quantities-units",
+      "kind": "proof-edge"
+    }
+  ],
+  "stoppingPoint": "A matrix is a table of multipliers applied to inputs. This lesson stops at two inputs and two outputs.",
+  "citations": ["ap-17-891"]
+}

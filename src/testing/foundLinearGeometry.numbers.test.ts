@@ -60,6 +60,59 @@ describe("vectors and components", () => {
   });
 });
 
+describe("matrices and linear maps", () => {
+  const text = lessonText("matrices-linear-maps");
+  const speedRatio = 0.6; // v/c. Never named speedRatio: Einstein's β is the modern γ.
+  const gamma = 1 / Math.sqrt(1 - speedRatio ** 2);
+  // The boost on (x, t) with c = 1: rows (γ, −γ v/c) and (−γ v/c, γ).
+  const [p, q, r, s] = [gamma, -gamma * speedRatio, -gamma * speedRatio, gamma];
+
+  test("γ = 1.25 and γv/c = 0.75 at 0.6c, printed in the table", () => {
+    close(gamma, 1.25);
+    close(gamma * speedRatio, 0.75);
+    expect(text).toContain(`${gamma.toFixed(2)} &\\quad -${(gamma * speedRatio).toFixed(2)}c`);
+  });
+
+  test("the determinant is 1 for the boost and for the Galilean map", () => {
+    close(p * s - q * r, 1);
+    close(1 * 1 - -speedRatio * 0, 1);
+    expect(text).toContain("1.25^2 - 0.75^2 = 1");
+  });
+
+  test("the light lines are eigenvectors, stretched by 0.5 and 2", () => {
+    for (const [direction, stretch] of [
+      [1, gamma * (1 - speedRatio)],
+      [-1, gamma * (1 + speedRatio)],
+    ] as const) {
+      // Apply the map to the light line x = ±t (c = 1) and check it is only stretched.
+      const x = direction;
+      const t = 1;
+      close(p * x + q * t, stretch * x);
+      close(r * x + s * t, stretch * t);
+    }
+    close(gamma * (1 - speedRatio), 0.5);
+    close(gamma * (1 + speedRatio), 2);
+    expect(text).toContain("stretched by 0.5 and by 2");
+  });
+
+  test("the Galilean map does not keep x = ct: the flash moves at c − v", () => {
+    // x' = x − vt on x = t gives x' = (1 − 0.6)t, not t' = t.
+    close(1 - speedRatio, 0.4);
+    expect(text).toContain("the flash now moves at c − v, not c");
+  });
+
+  test("simultaneous events 10 light-seconds apart: Δx′ = 12.5 light-seconds, Δt′ = −7.5 s", () => {
+    const dx = 10;
+    const dt = 0;
+    const dxPrime = p * dx + q * dt;
+    const dtPrime = r * dx + s * dt;
+    close(dxPrime, 12.5);
+    close(dtPrime, -7.5);
+    expect(text).toContain(`= ${dxPrime.toFixed(1)} light-seconds`);
+    expect(text).toContain(`\\Delta t' = ${dtPrime.toFixed(1)}`);
+  });
+});
+
 describe("the β rule, over every lesson of the cluster that exists", () => {
   const present = CLUSTER.filter((id) => existsSync(path(id)));
 
@@ -70,8 +123,8 @@ describe("the β rule, over every lesson of the cluster that exists", () => {
   test("no lesson writes β for v/c, in words, symbols or LaTeX", () => {
     for (const id of present) {
       const text = lessonText(id);
-      expect(text, id).not.toMatch(/(β|\\beta)\s*=\s*v\s*\/\s*c/);
-      expect(text, id).not.toMatch(/v\s*\/\s*c\s*=\s*(β|\\beta)/);
+      expect(text, id).not.toMatch(/(β|\\speedRatio)\s*=\s*v\s*\/\s*c/);
+      expect(text, id).not.toMatch(/v\s*\/\s*c\s*=\s*(β|\\speedRatio)/);
     }
   });
 });

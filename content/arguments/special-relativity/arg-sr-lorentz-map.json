@@ -52,6 +52,11 @@
       },
       {
         "kind": "foundation",
+        "id": "matrices-linear-maps",
+        "returnCaption": "Return to the map x′ = γ(x − vt), t′ = γ(t − vx/c²), with its factor γ."
+      },
+      {
+        "kind": "foundation",
         "id": "frames-events",
         "returnCaption": "Return to finding the map that respects both light directions."
       }
