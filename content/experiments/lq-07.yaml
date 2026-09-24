@@ -416,11 +416,11 @@ predictMode:
         - id: lq-07-predict-higher-frequency-intensity
           label: "With intense light"
           description: "Higher illumination power supplies more energy per second to pump higher-energy emission."
-          separatingAssumption: "Energy accumulation assumption: assumes energy from multiple quanta pools continuously in the medium."
+          separatingAssumption: "This assumes energy from several quanta can pool in the medium. In each elementary process one quantum is absorbed, so a brighter beam delivers more quanta each second, not more energy in each one."
         - id: lq-07-predict-higher-frequency-materials
           label: "In certain resonant materials"
           description: "Specific resonant media can multiply frequency without requiring multi-quantum absorption."
-          separatingAssumption: "Material multiplier assumption: assumes internal atomic resonance can boost output photon energy."
+          separatingAssumption: "This assumes the material can add energy to the emitted light. Energy is conserved in each process, so the emitted quantum cannot carry more energy than the absorbed one, and ν₂ cannot exceed ν₁."
     - promptId: lq-07-predict-weak-light
       supportedCandidateId: lq-07-predict-weak-light-linear
       controlId: absorbedPowerMicrowatts
@@ -433,8 +433,8 @@ predictMode:
         - id: lq-07-predict-weak-light-threshold
           label: "Stops below a threshold"
           description: "Weak illumination fails to accumulate enough wave energy to excite the atom, so emission ceases entirely."
-          separatingAssumption: "Wave accumulation threshold assumption: excitation requires reaching a minimum continuous energy density."
+          separatingAssumption: "This assumes a molecule must gather a minimum of continuous energy before it can emit, as a wave picture might suggest. Each absorbed quantum acts on its own, so no threshold appears."
         - id: lq-07-predict-weak-light-quadratic
           label: "Drops quadratically"
           description: "Weak illumination reduces the probability of paired photon interactions, dropping emission faster than linear."
-          separatingAssumption: "Cooperative absorption assumption: assumes emission rate depends on two-photon density."
+          separatingAssumption: "This assumes each emission needs two quanta absorbed together, so the rate would fall as the square of the absorbed power. In the paper's hypothesis one quantum is enough."

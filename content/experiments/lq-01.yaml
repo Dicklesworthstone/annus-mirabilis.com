@@ -573,7 +573,7 @@ predictMode:
           label: "It halves"
           description: "Intensity falls in linear proportion to distance"
           relation: "I ∝ r^(-1)"
-          separatingAssumption: "Assumes linear 1/r geometric dilution rather than 1/r^2 spherical area expansion."
+          separatingAssumption: "This lets the intensity fall as 1/r. The light spreads over a sphere whose area grows as r², so at twice the distance the intensity is a quarter."
         - id: quarters
           label: "It drops to a quarter"
           description: "Energy spreads over the spherical area 4*pi*r^2"
