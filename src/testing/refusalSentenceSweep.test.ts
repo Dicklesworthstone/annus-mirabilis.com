@@ -19,6 +19,11 @@ const LAB_DIR = /^(bm|lq|sr|me)\d\d$/;
 const IDENTIFIER = /\b[a-z]{2,}[A-Z][A-Za-z]*\b/;
 const CODE_NOTATION = /<=|>=|\|[a-z]+\||\b\d+(\.\d+)?e[+-]?\d+\b|\[[^\]]*,[^\]]*\]|safe integer/;
 const UNSPECIFIC = /One of the inputs|stated units|representable|These inputs do not meet/;
+// A binary float echoed as text: "0.3333333333333333 s", "31415926.535897933 s" (bm-01, bba73df3).
+const RAW_FLOAT = /\d\.\d{8,}|\d{12,}/;
+// NaN and −10³⁰ reach every refusal a mistyped or cleared field can; 10³⁰, 1/3 and π × 10⁷ reach
+// the sentences that echo another input's value.
+const PROBES = [Number.NaN, -1e30, 1e30, 1 / 3, Math.PI * 1e7];
 
 type Validator = (input: unknown) => {
   kind: string;
@@ -47,7 +52,7 @@ async function sweep(): Promise<{ labs: number; probed: number; bad: string[] }>
     labs += 1;
     for (const [key, value] of Object.entries(defaults)) {
       if (typeof value !== "number") continue;
-      for (const probe of [Number.NaN, -1e30]) {
+      for (const probe of PROBES) {
         const result = validate({ ...defaults, [key]: probe });
         if (result.kind !== "refused" || !result.refusal) continue;
         probed += 1;
@@ -56,6 +61,7 @@ async function sweep(): Promise<{ labs: number; probed: number; bad: string[] }>
           IDENTIFIER.test(sentence) && "identifier",
           CODE_NOTATION.test(sentence) && "code notation",
           UNSPECIFIC.test(sentence) && "unspecific",
+          RAW_FLOAT.test(sentence) && "raw float",
         ].filter(Boolean);
         if (why.length) bad.push(`${dir} ${key}=${probe} [${why.join(", ")}]: ${sentence}`);
       }
@@ -77,6 +83,12 @@ describe("every lab's refusal sentence says what to enter, in words", () => {
     expect(CODE_NOTATION.test('"speed" must satisfy |speed| <= 0.95.')).toBe(true);
     expect(CODE_NOTATION.test("Enter band edges from 10^{11} to 10^{16} Hz.")).toBe(false);
     expect(UNSPECIFIC.test("One of the inputs is not a finite number.")).toBe(true);
+    expect(
+      RAW_FLOAT.test("Enter a recording length from 31415926.535897933 s, the time resolution."),
+    ).toBe(true);
+    expect(RAW_FLOAT.test("…up to the recording length, 0.3333333333333333 s.")).toBe(true);
+    expect(RAW_FLOAT.test("…up to the recording length, 0.333333 s.")).toBe(false);
+    expect(RAW_FLOAT.test("Enter a whole number of tracers from 1 to 3000.")).toBe(false);
   });
 
   test("no lab validator refuses with an id, code notation or an unspecific sentence", async () => {
