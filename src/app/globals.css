@@ -1505,10 +1505,15 @@ samp,
     padding: 0.7rem 0;
     gap: 0.35rem 0.75rem;
   }
+  /* On a phone the panel is a sheet across the whole screen, its contents on the page's text
+     line. It sat inside the 16px gutters with no inner padding, so the edges of its buttons were
+     the edges of the card and the card had no visible side. 100% here is the header's width, so
+     (100% - 100vw) / 2 is the gutter, whatever it is. */
   .site-header details[open] > .reading-settings-body {
-    left: 0;
+    left: calc((100% - 100vw) / 2);
+    right: calc((100% - 100vw) / 2);
     width: auto;
-    padding-inline: 0;
+    padding-inline: calc((100vw - 100%) / 2);
     border-inline: 0;
   }
   /* 2rem above, as .page-intro has on a phone. */
