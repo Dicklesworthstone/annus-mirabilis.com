@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "entropy-multiplicity",
+  "title": "Entropy and the number of ways",
+  "question": "Why is entropy the logarithm of a probability?",
+  "summary": "Entropy measures, on a logarithmic scale, how probable a state is: the entropy difference is Boltzmann's constant times the natural logarithm of the probability W. Two independent systems multiply their probabilities and add their entropies, and only a logarithm does both. §5 of the light-quanta paper uses this rule, which it calls Boltzmann's principle.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Four particles move independently in a box. The chance that all four happen to be in the left half at a given moment is ½ × ½ × ½ × ½ = 1/16. For a hundred particles it is (½)¹⁰⁰, about 8 × 10⁻³¹: possible, but never seen. A state is more probable when more of the ways the particles can be arranged produce it."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Entropy measures this probability on a logarithmic scale. Boltzmann's principle, as §5 of the light-quanta paper states it, makes the entropy of a system a function of the probability W of its state, and that function must be a logarithm:"
+    },
+    {
+      "kind": "formula",
+      "latex": "S - S_0 = k_B \\ln W",
+      "spoken": "S minus S nought equals k B times the natural logarithm of W."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Why a logarithm: two independent systems have a combined probability W = W₁ × W₂, while their entropies add, S = S₁ + S₂. Only a logarithm turns the product into the sum, and that is the argument §5 gives. The constant \\(k_B\\) is R/N, which is how the paper writes it, and the paper prints the natural logarithm as lg."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Apply it to the box. Squeezing n independent particles from a volume v₀ into a part v of it has probability W = (v/v₀)ⁿ, so the entropy changes by S − S₀ = n \\(k_B\\) ln(v/v₀), a decrease, since v/v₀ is less than 1. §5 derives exactly this, and remarks that it needs no assumption about the law by which the molecules move."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The probability here is a frequency: the fraction of moments at which the state is found. §5 insists on this, and criticizes calculations in which the equally probable cases are simply postulated."
+    }
+  ],
+  "exampleTitle": "Squeezing a gas into half its volume",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "Take one gram-molecule of gas, n = N = 6.02 × 10²³ particles, and ask for all of them in the left half: v/v₀ = ½.",
+        "The probability is (½) to the power 6.02 × 10²³, far too small to write out. Its logarithm is N ln ½, about −4.2 × 10²³.",
+        "The entropy change is \\(k_B\\) × N × ln ½ = R ln ½ = 8.314 × (−0.693), about −5.76 joules per kelvin.",
+        "Thermodynamics gives the same number for compressing an ideal gas to half its volume at fixed temperature, R ln ½. Counting ways and measuring heat agree."
+      ]
+    },
+    {
+      "kind": "paragraph",
+      "text": "§6 of the paper finds the same form for dilute radiation, with E/(βν) standing where the gas has Rn/N, and reads it as radiation behaving, in this respect, like independent quanta."
+    }
+  ],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:logarithms",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:probability-independence",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:entropy-temperature",
+      "kind": "cross-link"
+    }
+  ],
+  "stoppingPoint": "This lesson stops at entropy as the logarithm of a probability. What the comparison with radiation shows, and what it does not, is §6 of the light-quanta paper.",
+  "citations": [
+    "ap-17-132"
+  ]
+}

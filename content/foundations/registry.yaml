@@ -193,7 +193,7 @@ entries:
     kind: node
     cluster: transport-thermo
     ownerBead: am-found-transport-thermo-smv3
-    status: planned
+    status: authored
     plannedCallers: []
   - id: "foundation:entropy-temperature"
     kind: node

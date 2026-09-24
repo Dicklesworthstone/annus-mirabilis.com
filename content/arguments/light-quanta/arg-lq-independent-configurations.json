@@ -31,6 +31,11 @@
         "text": "Each independent point has probability f of being inside the chosen fraction. For all n to be inside, multiply n independent probabilities. Taking the logarithm makes the exponent n a coefficient."
       },
       {
+        "kind": "foundation",
+        "id": "entropy-multiplicity",
+        "returnCaption": "Return to why the entropy is the logarithm of the probability."
+      },
+      {
         "kind": "formula",
         "latex": "W=f^n,\\qquad\\Delta S=k_B\\ln W=nk_B\\ln f",
         "spoken": "The probability is f to the n; the entropy difference is Boltzmann's constant times its logarithm, or n times Boltzmann's constant times the logarithm of f.",
