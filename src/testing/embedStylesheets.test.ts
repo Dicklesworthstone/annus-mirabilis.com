@@ -27,15 +27,19 @@ function code(source: string): string {
     );
 }
 
-/** The module specifiers a source file loads: static imports, re-exports and dynamic imports. */
-export function loadedSpecifiers(source: string): string[] {
+/**
+ * The module specifiers a source file loads: static imports, re-exports and, unless `dynamic` is
+ * false, dynamic imports.
+ */
+export function loadedSpecifiers(source: string, dynamic = true): string[] {
   const out: string[] = [];
   const text = code(source);
   for (const m of text.matchAll(
     /(?:^|\n)\s*(import|export)\s+(type\s+)?(?:[^"';]*?\sfrom\s+)?["']([^"']+)["']/g,
   ))
     if (!m[2] && m[3]) out.push(m[3]);
-  for (const m of text.matchAll(/import\(\s*["']([^"']+)["']\s*\)/g)) if (m[1]) out.push(m[1]);
+  if (dynamic)
+    for (const m of text.matchAll(/import\(\s*["']([^"']+)["']\s*\)/g)) if (m[1]) out.push(m[1]);
   return out;
 }
 
@@ -53,7 +57,7 @@ function resolveModule(from: string, spec: string): string | null {
 }
 
 /** The stylesheets reached from an entry through local, non-type imports. */
-function stylesheetsReached(entry: string): Set<string> {
+function stylesheetsReached(entry: string, dynamic = true): Set<string> {
   const css = new Set<string>();
   const seen = new Set<string>();
   const stack = [entry];
@@ -61,7 +65,7 @@ function stylesheetsReached(entry: string): Set<string> {
     const file = stack.pop();
     if (!file || seen.has(file)) continue;
     seen.add(file);
-    for (const spec of loadedSpecifiers(readFileSync(file, "utf8"))) {
+    for (const spec of loadedSpecifiers(readFileSync(file, "utf8"), dynamic)) {
       if (!spec.startsWith(".")) continue;
       if (spec.endsWith(".css")) {
         css.add(relative(ROOT, normalize(join(dirname(file), spec))));
@@ -86,14 +90,18 @@ describe("an embed loads every stylesheet its laboratory's page loads", () => {
       'export { G } from "./g.ts";',
     ].join("\n");
     expect(loadedSpecifiers(source)).toEqual(["./b.tsx", "./c.css", "./g.ts", "./f.tsx"]);
+    expect(loadedSpecifiers(source, false)).toEqual(["./b.tsx", "./c.css", "./g.ts"]);
   });
 
   test("every stylesheet an embeddable laboratory's page reaches, the embed reaches too", () => {
     const catalogue = readFileSync(join(ROOT, "src/experiments/embed/catalogue.ts"), "utf8");
     const ids = [...new Set([...catalogue.matchAll(/\bid: "([a-z0-9-]+)"/g)].map((m) => m[1]))];
+    // Only what the embed loads eagerly counts. A stylesheet reached through a laboratory's lazy
+    // chunk arrives after hydration, and never without JavaScript; lazyEmbeddedLabs.tsx's header
+    // says every one is imported there instead.
     const embed = new Set([
-      ...stylesheetsReached(join(ROOT, "src/experiments/embed/lazyEmbeddedLabs.tsx")),
-      ...stylesheetsReached(join(ROOT, "src/app/embed/lab/[experiment]/page.tsx")),
+      ...stylesheetsReached(join(ROOT, "src/experiments/embed/lazyEmbeddedLabs.tsx"), false),
+      ...stylesheetsReached(join(ROOT, "src/app/embed/lab/[experiment]/page.tsx"), false),
     ]);
     const missing: string[] = [];
     let reaches = 0;
