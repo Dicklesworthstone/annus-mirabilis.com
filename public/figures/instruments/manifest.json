@@ -27,5 +27,367 @@
     "sr-11": "drawing",
     "sr-12": "drawing",
     "sr-13": "drawing"
+  },
+  "tables": {
+    "light-thread": {
+      "head": [
+        [
+          {
+            "t": "Value"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          {
+            "t": "Frequency in the source frame"
+          }
+        ],
+        [
+          {
+            "t": "Pulse energy in the source frame"
+          }
+        ],
+        [
+          {
+            "t": "hν in the source frame"
+          }
+        ],
+        [
+          {
+            "t": "E/(hν) in the source frame"
+          }
+        ]
+      ]
+    },
+    "lq-02": {
+      "head": [],
+      "rows": [
+        [
+          {
+            "t": "Mean energy per resonator oscillation"
+          }
+        ],
+        [
+          {
+            "t": "Energy with resonators up to the cutoff"
+          }
+        ],
+        [
+          {
+            "t": "Share of that energy above the probe frequency"
+          }
+        ],
+        [
+          {
+            "t": "Energy after widening the cutoff tenfold"
+          }
+        ]
+      ]
+    },
+    "lq-04": {
+      "head": [
+        [
+          {
+            "t": "Reference (V₀)"
+          }
+        ],
+        [
+          {
+            "t": "Compared (V)"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          {
+            "t": "Temperature T"
+          }
+        ],
+        [
+          {
+            "t": "x = βν / T"
+          }
+        ],
+        [
+          {
+            "t": "Pointwise deviation e"
+          },
+          {
+            "t": "−x",
+            "s": "sup"
+          }
+        ],
+        [
+          {
+            "t": "Spectral entropy density s"
+          },
+          {
+            "t": "ν",
+            "s": "sub"
+          }
+        ]
+      ]
+    },
+    "lq-06": {
+      "head": [
+        [
+          {
+            "t": "Value"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          {
+            "t": "Radiation energy E"
+          }
+        ],
+        [
+          {
+            "t": "Frequency ν"
+          }
+        ],
+        [
+          {
+            "t": "Volume ratio V/V₀"
+          }
+        ],
+        [
+          {
+            "t": "Number of independent quanta, n"
+          },
+          {
+            "t": "eff",
+            "s": "sub"
+          }
+        ]
+      ]
+    },
+    "shelf-fizeau": {
+      "head": [
+        [
+          {
+            "t": "No drag"
+          }
+        ],
+        [
+          {
+            "t": "Full drag"
+          }
+        ],
+        [
+          {
+            "t": "Fresnel drag"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          {
+            "t": "Signed fringe shift (fringes)"
+          }
+        ],
+        [
+          {
+            "t": "First-order fringe shift (fringes)"
+          }
+        ],
+        [
+          {
+            "t": "Drag coefficient"
+          }
+        ],
+        [
+          {
+            "t": "Travel-time difference (s)"
+          }
+        ]
+      ]
+    },
+    "shelf-maxwell-galilean": {
+      "head": [
+        [
+          {
+            "t": "Galilean substitution"
+          }
+        ],
+        [
+          {
+            "t": "Lorentz substitution"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          {
+            "t": "Residual normalized by k²"
+          }
+        ],
+        [
+          {
+            "t": "Maximum absolute residual (1/m²)"
+          }
+        ],
+        [
+          {
+            "t": "Mixed-derivative coefficient (s/m)"
+          }
+        ]
+      ]
+    },
+    "shelf-michelson-morley": {
+      "head": [
+        [
+          {
+            "t": "Ether without contraction"
+          }
+        ],
+        [
+          {
+            "t": "Ether with longitudinal contraction"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          {
+            "t": "90° rotation shift (fringes)"
+          }
+        ],
+        [
+          {
+            "t": "Leading order in β² (fringes)"
+          }
+        ],
+        [
+          {
+            "t": "Parallel round-trip time (s)"
+          }
+        ],
+        [
+          {
+            "t": "Perpendicular round-trip time (s)"
+          }
+        ]
+      ]
+    },
+    "sr-01": {
+      "head": [
+        [
+          {
+            "t": "Clock's own reading (s)"
+          }
+        ],
+        [
+          {
+            "t": "Coordinate time (s)"
+          }
+        ],
+        [
+          {
+            "t": "Coordinate position (ls)"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          {
+            "t": "emission-a"
+          }
+        ],
+        [
+          {
+            "t": "reflection-b"
+          }
+        ],
+        [
+          {
+            "t": "reception-a"
+          }
+        ]
+      ]
+    },
+    "sr-02": {
+      "head": [],
+      "rows": [
+        [
+          {
+            "t": "B (magnet rest)"
+          }
+        ],
+        [
+          {
+            "t": "E (magnet rest)"
+          }
+        ],
+        [
+          {
+            "t": "E′_y (conductor rest)"
+          }
+        ],
+        [
+          {
+            "t": "Force on q (magnet rest)"
+          }
+        ]
+      ]
+    },
+    "sr-04": {
+      "head": [
+        [
+          {
+            "t": "How far it misses (0 means it holds)"
+          }
+        ]
+      ],
+      "rows": [
+        [
+          {
+            "t": "Right-moving light stays at c"
+          }
+        ],
+        [
+          {
+            "t": "Left-moving light stays at c"
+          }
+        ],
+        [
+          {
+            "t": "Reciprocity: the map back to K is the same map at −v"
+          }
+        ],
+        [
+          {
+            "t": "Isotropy: a(v) = a(−v)"
+          }
+        ]
+      ]
+    },
+    "sr-07": {
+      "head": [],
+      "rows": [
+        [
+          {
+            "t": "X"
+          }
+        ],
+        [
+          {
+            "t": "Y"
+          }
+        ],
+        [
+          {
+            "t": "Z"
+          }
+        ],
+        [
+          {
+            "t": "L"
+          }
+        ]
+      ]
+    }
   }
 }

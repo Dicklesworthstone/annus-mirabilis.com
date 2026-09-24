@@ -13,11 +13,18 @@
  * were unreadable lines of type. Nothing is computed here; the picture is whatever the built page
  * shows for its own worked example.
  *
+ * AN INSTRUMENT THAT ANSWERS WITH A TABLE is not photographed. Its first visible table is read
+ * instead: the names of the columns of values it compares and the first rows' labels, as text, with any
+ * superscript or subscript kept as such (e^{−x} is not "e−x"). No value is copied, so the plate
+ * cannot show a number that has since changed. The catalogue sets those words as a small table
+ * of its own, legible at the plate's size, where a photograph of the same table was grey noise.
+ *
  * WHAT IT WRITES. public/figures/instruments/<id>.webp, 640px wide (the catalogue shows it about
  * 20rem wide, so this is sharp at 2x), converted with ImageMagick, and manifest.json listing the
- * ids pictured in this run with the kind of picture. The catalogue shows a picture only for an id
- * the manifest lists, so a file left from an earlier run, such as a table photographed before
- * tables were refused, is not shown. An id with no usable picture is reported.
+ * ids pictured in this run with the kind of picture, and under "tables" the words read from each
+ * table-answering instrument. The catalogue shows a picture only for an id the manifest lists, so
+ * a file left from an earlier run, such as a table photographed before tables were refused, is not
+ * shown. An id with neither a picture nor a table is reported.
  *
  * WHEN TO RE-RUN. After a build that changes how a laboratory draws its default. The pictures are a
  * record of a build, not a live render, and they go stale the way any screenshot does.
@@ -60,17 +67,25 @@ const context = await browser.newContext({
   userAgent: "OpenAI File Downloader, XaiImageApiFetch/1.0",
 });
 const written: string[] = [];
+const tabled: string[] = [];
 const missing: string[] = [];
+/** One stretch of a label: plain text, or text the page sets as a superscript or a subscript. */
+type Run = { t: string; s?: "sup" | "sub" };
+/** What a table-answering instrument's plate shows: the columns of values it compares, and its rows' labels. */
+type TableWords = { head: Run[][]; rows: Run[][] };
 // The manifest carries over ids this run does not examine (an --only run) and is rewritten for
 // every id it does: pictured, or removed when this run found no usable picture.
 const manifestPath = join(OUT_DIR, "manifest.json");
-const manifest: Record<string, "drawing" | "results"> = existsSync(manifestPath)
-  ? (
-      JSON.parse(readFileSync(manifestPath, "utf8")) as {
-        pictures: Record<string, "drawing" | "results">;
-      }
-    ).pictures
-  : {};
+const previous = existsSync(manifestPath)
+  ? (JSON.parse(readFileSync(manifestPath, "utf8")) as {
+      pictures: Record<string, "drawing" | "results">;
+      tables?: Record<string, TableWords>;
+    })
+  : { pictures: {}, tables: {} };
+const manifest: Record<string, "drawing" | "results"> = previous.pictures;
+const tables: Record<string, TableWords> = previous.tables ?? {};
+/** The first rows are enough to say what a table is about; the plate has room for about four. */
+const ROWS = 4;
 for (const id of ids) {
   const page = await context.newPage();
   await page.goto(`${base}/lab/${id}/`, { waitUntil: "networkidle" });
@@ -101,11 +116,86 @@ for (const id of ids) {
   const found = await handle.evaluate((v) => (v ? v.kind : null));
   const el = found ? (await handle.getProperty("el")).asElement() : null;
   if (!el) {
-    missing.push(id);
     delete manifest[id];
+    const words = await page.evaluate((rowLimit) => {
+      const main = document.querySelector("main");
+      const root =
+        main?.querySelector("[data-instrument-id], .laboratory, .laboratory-shell") ?? main;
+      const intro = main?.querySelector(".page-intro");
+      const table = [...(root?.querySelectorAll("table") ?? [])].find((t) => {
+        const r = t.getBoundingClientRect();
+        return (
+          r.width >= 240 &&
+          getComputedStyle(t).visibility !== "hidden" &&
+          !t.closest("details:not([open])") &&
+          !intro?.contains(t)
+        );
+      });
+      if (!table) return null;
+      // A cell's words as runs. <sup> and <sub> keep their role; a <small> is a cell's second,
+      // quieter line (avogadro-lab's route under its method) and is left out; anything else is
+      // read for its text.
+      const runs = (cell: Element) => {
+        const out: { t: string; s?: "sup" | "sub" }[] = [];
+        const walk = (node: Node) => {
+          for (const child of node.childNodes) {
+            if (child.nodeType === Node.TEXT_NODE) {
+              out.push({ t: child.textContent ?? "" });
+            } else if (child instanceof Element) {
+              const tag = child.tagName.toLowerCase();
+              if (tag === "small") continue;
+              if (tag === "sup" || tag === "sub") out.push({ t: child.textContent ?? "", s: tag });
+              else walk(child);
+            }
+          }
+        };
+        walk(cell);
+        const merged: typeof out = [];
+        for (const run of out) {
+          const last = merged[merged.length - 1];
+          if (last && last.s === run.s) last.t += run.t;
+          else merged.push({ ...run });
+        }
+        return merged
+          .map((run) => ({ ...run, t: run.t.replace(/\s+/g, " ") }))
+          .map((run, i, all) => {
+            let t = run.t;
+            if (i === 0) t = t.trimStart();
+            if (i === all.length - 1) t = t.trimEnd();
+            return { ...run, t };
+          })
+          .filter((run) => run.t.length > 0);
+      };
+      const bodyRows = [...table.querySelectorAll("tbody tr")].slice(0, rowLimit);
+      // A heading names a compared column only when that column holds values: a digit in more
+      // than half of the rows read. "Unit" over Hz, J, J and 1, or "Role in this paper" over
+      // words, is furniture.
+      const holdsValues = (column: number) =>
+        bodyRows.filter((tr) => /\d/.test(tr.children[column]?.textContent ?? "")).length * 2 >
+        bodyRows.length;
+      const headRow = table.querySelector("thead tr");
+      const head = headRow
+        ? [...headRow.children]
+            .map((cell, column) => ({ cell, column }))
+            .filter(({ column }) => column > 0 && holdsValues(column))
+            .map(({ cell }) => runs(cell))
+        : [];
+      const rows = bodyRows
+        .map((tr) => (tr.firstElementChild ? runs(tr.firstElementChild) : []))
+        .filter((label) => label.length > 0);
+      return rows.length > 0 ? { head, rows } : null;
+    }, ROWS);
+    if (words) {
+      tables[id] = words;
+      tabled.push(`${id} table: ${words.head.length} compared columns, ${words.rows.length} rows`);
+    } else {
+      delete tables[id];
+      missing.push(id);
+    }
     await page.close();
     continue;
   }
+  delete tables[id];
   await el.scrollIntoViewIfNeeded();
   const png = join(work, `${id}.png`);
   await el.screenshot({ path: png });
@@ -116,10 +206,14 @@ for (const id of ids) {
   await page.close();
 }
 await browser.close();
-const sorted = Object.fromEntries(Object.entries(manifest).sort(([a], [b]) => a.localeCompare(b)));
-writeFileSync(manifestPath, `${JSON.stringify({ source: base, pictures: sorted }, null, 2)}\n`);
-console.log(
-  `examined ${ids.length} registered ids; wrote ${written.length}; no usable picture for ${missing.length}`,
+const byId = <T>(record: Record<string, T>) =>
+  Object.fromEntries(Object.entries(record).sort(([a], [b]) => a.localeCompare(b)));
+writeFileSync(
+  manifestPath,
+  `${JSON.stringify({ source: base, pictures: byId(manifest), tables: byId(tables) }, null, 2)}\n`,
 );
-for (const line of written) console.log(`  ${line}`);
-if (missing.length) console.log(`  no usable picture: ${missing.join(", ")}`);
+console.log(
+  `examined ${ids.length} registered ids; pictured ${written.length}; read ${tabled.length} tables; neither for ${missing.length}`,
+);
+for (const line of [...written, ...tabled]) console.log(`  ${line}`);
+if (missing.length) console.log(`  neither a picture nor a table: ${missing.join(", ")}`);
