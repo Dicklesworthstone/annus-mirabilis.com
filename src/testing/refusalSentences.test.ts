@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { BM08_DEFAULTS } from "../experiments/bm08/definition.ts";
 import { validateBm08Parameters } from "../experiments/bm08/parameters.ts";
+import { LQ06_DEFAULTS } from "../experiments/lq06/definition.ts";
+import { validateLq06Parameters } from "../experiments/lq06/parameters.ts";
+import { LQ08_DEFAULTS } from "../experiments/lq08/definition.ts";
+import { validateLq08Parameters } from "../experiments/lq08/parameters.ts";
 import { ME02_DEFAULTS } from "../experiments/me02/definition.ts";
 import { validateMe02Parameters } from "../experiments/me02/parameters.ts";
 import { ME03_DEFAULTS } from "../experiments/me03/definition.ts";
@@ -10,6 +14,8 @@ import { SR01_DEFAULTS } from "../experiments/sr01/definition.ts";
 import { validateSr01Parameters } from "../experiments/sr01/parameters.ts";
 import { SR02_DEFAULTS } from "../experiments/sr02/definition.ts";
 import { validateSr02Parameters } from "../experiments/sr02/parameters.ts";
+import { SR04_DEFAULTS } from "../experiments/sr04/definition.ts";
+import { validateSr04Parameters } from "../experiments/sr04/parameters.ts";
 import { SR08_DEFAULTS } from "../experiments/sr08/definition.ts";
 import { validateSr08Parameters } from "../experiments/sr08/parameters.ts";
 import { SR09_DEFAULTS } from "../experiments/sr09/definition.ts";
@@ -100,7 +106,8 @@ describe("a typed value outside a lab's range is refused with a sentence that sa
  * refusal a reader can reach by typing must name the control as the page does and say what to
  * enter. A camel-case identifier in the sentence is the tell.
  */
-const IDENTIFIER = /\b[a-z]+[A-Z][A-Za-z]*\b/;
+// Two lowercase letters before the capital, so a unit such as "eV" is not taken for an id.
+const IDENTIFIER = /\b[a-z]{2,}[A-Z][A-Za-z]*\b/;
 const SR01_CASES: readonly (readonly [string, Record<string, unknown>, string])[] = [
   ["station separation 0", { stationSeparationLs: 0 }, "station separation AB"],
   ["pair separation -3", { pairSeparationLs: -3 }, "moving pair's separation L"],
@@ -114,6 +121,8 @@ const SR01_CASES: readonly (readonly [string, Record<string, unknown>, string])[
 describe("SR-01 refusals name the control as the page does, never a parameter id", () => {
   test("the identifier pattern catches the old sentence (positive control)", () => {
     expect(IDENTIFIER.test("stationSeparationLs must be a finite, positive number.")).toBe(true);
+    expect(IDENTIFIER.test("candidateA and workFunction")).toBe(true);
+    expect(IDENTIFIER.test("Enter the work function Φ, in eV, as a number.")).toBe(false);
   });
   for (const [label, bad, names] of SR01_CASES) {
     test(label, () => {
@@ -202,6 +211,82 @@ describe("BM-08 refusals name one control and say what to enter", () => {
       expect(/^(Enter|Choose)\b/.test(sentence)).toBe(true);
       expect(sentence).toContain(names);
       expect(sentence).not.toMatch(IDENTIFIER);
+    });
+  }
+});
+
+/**
+ * A sweep of every lab validator through refusalSentence found field ids and computer notation in
+ * sr-04 ("Candidate coefficient candidateA must be a finite number with magnitude at most 1e6."),
+ * lq-06 and lq-08 ("Parameter \"workFunction\" must be a finite number.", "must be in [0, 1]",
+ * "a positive safe integer"). Each case below must say what to enter, in words.
+ */
+type AnyCheck = { kind: string; refusal?: Parameters<typeof refusalSentence>[0] };
+const SWEEP_CASES: readonly (readonly [string, () => AnyCheck, string])[] = [
+  [
+    "sr-04 candidate a not a number",
+    () => validateSr04Parameters({ ...SR04_DEFAULTS, candidateA: Number.NaN }),
+    "candidate coefficient a",
+  ],
+  [
+    "sr-04 transverse scale 2e6",
+    () => validateSr04Parameters({ ...SR04_DEFAULTS, candidateTransverseScale: 2e6 }),
+    "transverse scale",
+  ],
+  [
+    "sr-04 observer speed 1e5 m/s",
+    () => validateSr04Parameters({ ...SR04_DEFAULTS, observerSpeed: 1e5 }),
+    "10 000 m/s",
+  ],
+  [
+    "lq-06 molecules 2.5",
+    () => validateLq06Parameters({ ...LQ06_DEFAULTS, gasParticles: 2.5 }),
+    "whole number of molecules",
+  ],
+  [
+    "lq-06 frequency not a number",
+    () => validateLq06Parameters({ ...LQ06_DEFAULTS, frequency: Number.NaN }),
+    "frequency ν",
+  ],
+  [
+    "lq-06 volume ratio 500",
+    () => validateLq06Parameters({ ...LQ06_DEFAULTS, volumeRatio: 500 }),
+    "volume ratio",
+  ],
+  [
+    "lq-08 quantum efficiency 2",
+    () => validateLq08Parameters({ ...LQ08_DEFAULTS, quantumEfficiency: 2 }),
+    "quantum efficiency",
+  ],
+  [
+    "lq-08 collector potential 500 V",
+    () => validateLq08Parameters({ ...LQ08_DEFAULTS, collectorPotential: 500 }),
+    "collector potential",
+  ],
+  [
+    "lq-08 work function not a number",
+    () => validateLq08Parameters({ ...LQ08_DEFAULTS, workFunction: Number.NaN }),
+    "work function Φ",
+  ],
+];
+const INTERVAL_NOTATION = /\[[^\]]*,[^\]]*\]|\d+e[+-]?\d+|safe integer/;
+
+describe("sr-04, lq-06 and lq-08 refusals say what to enter, in words", () => {
+  test("the notation pattern catches the old sentences (positive control)", () => {
+    expect(INTERVAL_NOTATION.test("Quantum efficiency must be in [0, 1].")).toBe(true);
+    expect(INTERVAL_NOTATION.test("magnitude at most 1e6.")).toBe(true);
+    expect(INTERVAL_NOTATION.test("a positive safe integer.")).toBe(true);
+  });
+  for (const [label, run, names] of SWEEP_CASES) {
+    test(label, () => {
+      const checked = run();
+      expect(checked.kind).toBe("refused");
+      if (checked.kind !== "refused" || !checked.refusal) return;
+      const sentence = refusalSentence(checked.refusal);
+      expect(sentence.startsWith("Enter")).toBe(true);
+      expect(sentence).toContain(names);
+      expect(sentence).not.toMatch(IDENTIFIER);
+      expect(sentence).not.toMatch(INTERVAL_NOTATION);
     });
   }
 });
