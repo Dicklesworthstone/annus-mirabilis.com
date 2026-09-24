@@ -18,7 +18,8 @@
     {
       "kind": "formula",
       "latex": "S - S_0 = k_B \\ln W",
-      "spoken": "S minus S nought equals k B times the natural logarithm of W."
+      "spoken": "S minus S nought equals k B times the natural logarithm of W.",
+      "equations": ["eq-model-fd-entropy-boltzmann"]
     },
     {
       "kind": "paragraph",

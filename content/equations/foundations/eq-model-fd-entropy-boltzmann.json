@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-entropy-boltzmann",
+  "paper": "foundations",
+  "argument": "entropy-multiplicity",
+  "title": "Entropy is a logarithm of probability",
+  "spoken": "S minus S nought equals k B times the natural logarithm of W.",
+  "explanation": "Boltzmann's principle as the light paper's section 5 uses it: independent probabilities multiply, entropies add, so the entropy must be a logarithm of the probability.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "W is the probability of the state compared with the reference state.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-entropy-boltzmann.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "sum",
+      "opId": "eq-model-fd-entropy-boltzmann.op.change",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-entropy-boltzmann.t.entropy",
+          "quantityId": "entropy"
+        },
+        {
+          "kind": "negate",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-entropy-boltzmann.t.reference",
+            "quantityId": "entropy",
+            "index": "0"
+          }
+        }
+      ]
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-entropy-boltzmann.op.product",
+      "args": [
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-entropy-boltzmann.t.kb",
+          "quantityId": "boltzmannConstant"
+        },
+        {
+          "kind": "function",
+          "opId": "eq-model-fd-entropy-boltzmann.op.ln",
+          "name": "ln",
+          "argument": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-entropy-boltzmann.t.probability",
+            "quantityId": "configurationProbability"
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-entropy-boltzmann.op.relation",
+      "title": "What it asserts",
+      "explanation": "The change in entropy is fixed by the probability of the state.",
+      "foundation": "entropy-multiplicity"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-boltzmann.op.change",
+      "title": "A change in entropy",
+      "explanation": "S minus S nought: only differences in entropy are defined here.",
+      "foundation": "entropy-multiplicity"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-boltzmann.op.product",
+      "title": "k B times a logarithm",
+      "explanation": "The constant turns the logarithm into joules per kelvin.",
+      "foundation": "entropy-multiplicity"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-boltzmann.op.ln",
+      "title": "Natural logarithm",
+      "explanation": "Only a logarithm turns multiplied probabilities into added entropies. The paper prints it lg.",
+      "foundation": "entropy-multiplicity"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-boltzmann.t.entropy",
+      "title": "Entropy",
+      "explanation": "S, the entropy of the state.",
+      "foundation": "entropy-multiplicity"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-boltzmann.t.reference",
+      "title": "Reference entropy",
+      "explanation": "S nought, the entropy of the state it is compared with.",
+      "foundation": "entropy-multiplicity"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-boltzmann.t.kb",
+      "title": "Boltzmann constant",
+      "explanation": "k B, which the paper writes R over N.",
+      "foundation": "entropy-multiplicity"
+    },
+    {
+      "nodeId": "eq-model-fd-entropy-boltzmann.t.probability",
+      "title": "Probability",
+      "explanation": "W, the probability of the state.",
+      "foundation": "entropy-multiplicity"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The entropy",
+      "nodeId": "eq-model-fd-entropy-boltzmann.t.entropy"
+    },
+    {
+      "text": " minus "
+    },
+    {
+      "text": "its reference value",
+      "nodeId": "eq-model-fd-entropy-boltzmann.t.reference"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "k B",
+      "nodeId": "eq-model-fd-entropy-boltzmann.t.kb"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the logarithm",
+      "nodeId": "eq-model-fd-entropy-boltzmann.op.ln"
+    },
+    {
+      "text": " of "
+    },
+    {
+      "text": "the probability W",
+      "nodeId": "eq-model-fd-entropy-boltzmann.t.probability"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

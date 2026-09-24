@@ -18,7 +18,8 @@
     {
       "kind": "formula",
       "latex": "\\left\\langle \\frac{1}{2} m v_x^2 \\right\\rangle = \\frac{1}{2} k_B T",
-      "spoken": "The average of one half m v x squared equals one half k B T."
+      "spoken": "The average of one half m v x squared equals one half k B T.",
+      "equations": ["eq-model-fd-equipartition"]
     },
     {
       "kind": "paragraph",

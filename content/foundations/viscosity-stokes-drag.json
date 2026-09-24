@@ -18,7 +18,8 @@
     {
       "kind": "formula",
       "latex": "F = 6\\pi\\eta a v",
-      "spoken": "The drag F equals six pi times the viscosity eta, times the radius a, times the speed v."
+      "spoken": "The drag F equals six pi times the viscosity eta, times the radius a, times the speed v.",
+      "equations": ["eq-model-fd-stokes-drag"]
     },
     {
       "kind": "paragraph",

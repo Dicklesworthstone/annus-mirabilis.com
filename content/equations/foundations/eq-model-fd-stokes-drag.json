@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-stokes-drag",
+  "paper": "foundations",
+  "argument": "viscosity-stokes-drag",
+  "title": "Stokes's drag on a slow sphere",
+  "spoken": "F equals six pi eta a v.",
+  "explanation": "A sphere moving slowly through a liquid feels a drag in proportion to the viscosity, its radius and its speed.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A sphere moving slowly enough that the flow around it is smooth, much larger than the molecules of the liquid.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-stokes-drag.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "symbol",
+      "termId": "eq-model-fd-stokes-drag.t.force",
+      "quantityId": "stokesDragForce"
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-stokes-drag.op.product",
+      "args": [
+        {
+          "kind": "number",
+          "value": "6"
+        },
+        {
+          "kind": "constant",
+          "name": "pi"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-stokes-drag.t.eta",
+          "quantityId": "viscosity"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-stokes-drag.t.a",
+          "quantityId": "particleRadius"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-stokes-drag.t.v",
+          "quantityId": "bodySpeed"
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-stokes-drag.op.relation",
+      "title": "What it asserts",
+      "explanation": "The drag grows in proportion to viscosity, radius and speed.",
+      "foundation": "viscosity-stokes-drag"
+    },
+    {
+      "nodeId": "eq-model-fd-stokes-drag.op.product",
+      "title": "Six pi eta a v",
+      "explanation": "Double any one of the viscosity, the radius or the speed, and the drag doubles.",
+      "foundation": "viscosity-stokes-drag"
+    },
+    {
+      "nodeId": "eq-model-fd-stokes-drag.t.force",
+      "title": "Drag force",
+      "explanation": "F, in newtons.",
+      "foundation": "viscosity-stokes-drag"
+    },
+    {
+      "nodeId": "eq-model-fd-stokes-drag.t.eta",
+      "title": "Viscosity",
+      "explanation": "eta, in pascal-seconds. Einstein writes it k.",
+      "foundation": "viscosity-stokes-drag"
+    },
+    {
+      "nodeId": "eq-model-fd-stokes-drag.t.a",
+      "title": "Radius",
+      "explanation": "a, the radius of the sphere. Einstein writes it P.",
+      "foundation": "viscosity-stokes-drag"
+    },
+    {
+      "nodeId": "eq-model-fd-stokes-drag.t.v",
+      "title": "Speed",
+      "explanation": "v, the sphere's speed through the liquid.",
+      "foundation": "viscosity-stokes-drag"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The drag",
+      "nodeId": "eq-model-fd-stokes-drag.t.force"
+    },
+    {
+      "text": " is six pi times "
+    },
+    {
+      "text": "the viscosity",
+      "nodeId": "eq-model-fd-stokes-drag.t.eta"
+    },
+    {
+      "text": ", "
+    },
+    {
+      "text": "the radius",
+      "nodeId": "eq-model-fd-stokes-drag.t.a"
+    },
+    {
+      "text": " and "
+    },
+    {
+      "text": "the speed",
+      "nodeId": "eq-model-fd-stokes-drag.t.v"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-equipartition",
+  "paper": "foundations",
+  "argument": "temperature-thermal-energy",
+  "title": "Each direction of motion carries half k B T",
+  "spoken": "The average of one half m v x squared equals one half k B T.",
+  "explanation": "In equilibrium at temperature T, the average kinetic energy of motion along any one direction is one half k B T, whatever the mass.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A molecule or particle in thermal equilibrium with its surroundings, obeying classical mechanics.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed paper."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-equipartition.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "average",
+      "opId": "eq-model-fd-equipartition.op.mean",
+      "argument": {
+        "kind": "product",
+        "opId": "eq-model-fd-equipartition.op.kinetic",
+        "args": [
+          {
+            "kind": "quotient",
+            "opId": "eq-model-fd-equipartition.op.half",
+            "numerator": {
+              "kind": "number",
+              "value": "1"
+            },
+            "denominator": {
+              "kind": "number",
+              "value": "2"
+            }
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-equipartition.t.mass",
+            "quantityId": "bodyMass"
+          },
+          {
+            "kind": "power",
+            "opId": "eq-model-fd-equipartition.op.square",
+            "base": {
+              "kind": "symbol",
+              "termId": "eq-model-fd-equipartition.t.vx",
+              "quantityId": "velocityComponentX"
+            },
+            "exponent": {
+              "num": 2,
+              "den": 1
+            }
+          }
+        ]
+      }
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-equipartition.op.thermal",
+      "args": [
+        {
+          "kind": "quotient",
+          "opId": "eq-model-fd-equipartition.op.halfRight",
+          "numerator": {
+            "kind": "number",
+            "value": "1"
+          },
+          "denominator": {
+            "kind": "number",
+            "value": "2"
+          }
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-equipartition.t.kb",
+          "quantityId": "boltzmannConstant"
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-equipartition.t.temp",
+          "quantityId": "temperature"
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-equipartition.op.relation",
+      "title": "What it asserts",
+      "explanation": "The average energy of motion along one direction depends only on the temperature.",
+      "foundation": "temperature-thermal-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-equipartition.op.mean",
+      "title": "An average",
+      "explanation": "Averaged over time, or over many molecules.",
+      "foundation": "temperature-thermal-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-equipartition.op.kinetic",
+      "title": "Kinetic energy along x",
+      "explanation": "One half m v x squared: the energy of the motion along x.",
+      "foundation": "temperature-thermal-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-equipartition.op.half",
+      "title": "One half",
+      "explanation": "The half in the kinetic energy.",
+      "foundation": "temperature-thermal-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-equipartition.op.square",
+      "title": "Squared",
+      "explanation": "The velocity along x, squared.",
+      "foundation": "temperature-thermal-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-equipartition.op.thermal",
+      "title": "One half k B T",
+      "explanation": "The thermal energy share for one direction of motion.",
+      "foundation": "temperature-thermal-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-equipartition.op.halfRight",
+      "title": "One half",
+      "explanation": "Half of k B T for each direction.",
+      "foundation": "temperature-thermal-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-equipartition.t.mass",
+      "title": "Mass",
+      "explanation": "m, the mass of the molecule or particle.",
+      "foundation": "temperature-thermal-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-equipartition.t.vx",
+      "title": "Velocity along x",
+      "explanation": "v x, the part of the velocity along one direction.",
+      "foundation": "temperature-thermal-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-equipartition.t.kb",
+      "title": "Boltzmann constant",
+      "explanation": "k B, joules per kelvin.",
+      "foundation": "temperature-thermal-energy"
+    },
+    {
+      "nodeId": "eq-model-fd-equipartition.t.temp",
+      "title": "Temperature",
+      "explanation": "T, in kelvins.",
+      "foundation": "temperature-thermal-energy"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The average",
+      "nodeId": "eq-model-fd-equipartition.op.mean"
+    },
+    {
+      "text": " of "
+    },
+    {
+      "text": "the kinetic energy along x",
+      "nodeId": "eq-model-fd-equipartition.op.kinetic"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "one half k B T",
+      "nodeId": "eq-model-fd-equipartition.op.thermal"
+    },
+    {
+      "text": ", whatever "
+    },
+    {
+      "text": "the mass",
+      "nodeId": "eq-model-fd-equipartition.t.mass"
+    },
+    {
+      "text": " is."
+    }
+  ]
+}
