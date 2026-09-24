@@ -165,7 +165,7 @@ export const WORLD_CHECK: WorldCheck = {
     label: "What Einstein printed on the paper's last page",
     value: "the mass changes by L/9·10^20, with the energy in erg and the mass in grams",
     unit: "",
-    constantSetId: "einstein-1905-printed",
+    constantSetId: "einstein-1905-mass-energy-printed",
   },
 };
 
