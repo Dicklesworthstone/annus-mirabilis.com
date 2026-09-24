@@ -143,7 +143,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ paper:
         </p>
       </header>
 
-      <section className="page-flush sources-section" aria-labelledby="receipt-pages">
+      <section className="reading page-flush sources-section" aria-labelledby="receipt-pages">
         <h2 id="receipt-pages">Pages</h2>
         <table className="receipt-pages">
           <thead>

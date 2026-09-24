@@ -87,7 +87,11 @@
 }
 /* One paper's receipt (/sources/[paper]/): the page map as a compact table, three short columns
    that fit a phone without scrolling. */
+/* Sized to its three short columns. At the global table width of 100% the 31 rows
+   of the relativity receipt ran across 1320px at 1440, their three columns about 400px apart. */
 .receipt-pages {
+  width: auto;
+  min-width: min(100%, 28rem);
   border-collapse: collapse;
   font-family: var(--font-sans);
   font-size: var(--type-small);
