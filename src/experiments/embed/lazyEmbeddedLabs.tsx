@@ -71,13 +71,16 @@ import "../../components/lab/sr11/sr11.css";
 import "../../components/lab/sr12/sr12.css";
 import "../../components/lab/sr13/sr13.css";
 import "../../components/lab/waveDescriptionLab.css";
-// These five laboratories are styled partly by their route's own stylesheet, which an embed
-// does not load, so the embed imports it here.
+// These laboratories are styled partly by a stylesheet only their page loads, which an embed
+// never renders, so the embed imports it here. Without shelfOptics.css (imported by
+// ShelfOpticsPage) the three optics shelves' result tables did not scroll, and the Fizeau embed
+// ran 41px wider than a 320px screen.
 import "../../app/lab/bm-05/walks.css";
 import "../../app/lab/bm-07/inference.css";
 import "../../app/lab/bm-08/camera.css";
 import "../../app/lab/sr-06/composition.css";
 import "../../app/lab/sr-07/equations.css";
+import "../../components/lab/shelfOptics/shelfOptics.css";
 
 const BrownianLabChunk = lazy(() =>
   import("../../components/lab/BrownianLab.tsx").then((m) => ({ default: m.BrownianLab })),
