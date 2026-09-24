@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { type DraftTapeBinding, draftTapeForSettings, loadDraftTapeFromUrl } from "./draftTape.ts";
 import { ShareControl } from "./ShareControl.tsx";
 import {
   type LabTapeBinding,
@@ -10,7 +11,12 @@ import {
 } from "./sessionTape.ts";
 import type { TapeV2 } from "./types.ts";
 
-export type LabTapeLinkState = Readonly<{ notice: string; shareTape: TapeV2 | null }>;
+export type LabTapeLinkState = Readonly<{
+  notice: string;
+  shareTape: TapeV2 | null;
+  /** A link read without fault, said plainly rather than as an error (a worker lab's loaded form). */
+  note?: string | undefined;
+}>;
 
 /**
  * A laboratory's ?tape= link (am-inst-permalink-tape-s677): restores a shared link into the
@@ -54,6 +60,44 @@ export function useLabTapeLink<P extends object>(
 }
 
 /**
+ * A worker laboratory's ?tape= link (draftTape.ts): a shared link's settings go into the form through
+ * `onLoaded`, and no calculation starts until the reader applies them, as the lab's own settings links
+ * already behave. The share control offers the tape for the accepted settings.
+ */
+export function useDraftTapeLink(
+  binding: DraftTapeBinding,
+  acceptedParameters: object | null | undefined,
+  enabled: boolean,
+  onLoaded: (settings: Readonly<Record<string, unknown>>) => void,
+): LabTapeLinkState {
+  const [notice, setNotice] = useState("");
+  const [note, setNote] = useState("");
+  const loadedRef = useRef(onLoaded);
+  loadedRef.current = onLoaded;
+  useEffect(() => {
+    if (!enabled) return;
+    let live = true;
+    void loadDraftTapeFromUrl(binding, window.location.href).then((loaded) => {
+      if (!live) return;
+      if (loaded.kind === "not-restored") setNotice(loaded.notice);
+      else if (loaded.kind === "loaded") {
+        loadedRef.current(loaded.settings);
+        setNote("The shared link's settings are in the form. Apply them to calculate.");
+      }
+    });
+    return () => {
+      live = false;
+    };
+  }, [binding, enabled]);
+  const shareTape = useMemo(
+    () =>
+      enabled && acceptedParameters ? draftTapeForSettings(binding, acceptedParameters) : null,
+    [binding, acceptedParameters, enabled],
+  );
+  return { notice, shareTape, note };
+}
+
+/**
  * The notice for a link that could not be restored, and the share control for the accepted state.
  *
  * The share control is drawn only after hydration. Without JavaScript nothing can be encoded, so
@@ -69,6 +113,11 @@ export function LabTapeLink({ link }: Readonly<{ link: LabTapeLinkState }>) {
       {link.notice && (
         <p role="alert" className="notice error" data-tape-notice="">
           {link.notice} The laboratory shows its default settings.
+        </p>
+      )}
+      {link.note && (
+        <p role="status" className="notice" data-tape-loaded="">
+          {link.note}
         </p>
       )}
       {hydrated && link.shareTape && <ShareControl tape={link.shareTape} />}
