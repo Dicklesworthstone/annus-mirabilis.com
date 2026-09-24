@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import type { Metadata } from "next";
 import {
@@ -7,13 +7,12 @@ import {
   loadFirstPages,
 } from "../../components/home/firstPages.ts";
 import "../../components/home/wideProse.css";
-import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts";
 import type { PaperDate, RightsStatus } from "../../content/provenance/receiptSchema.ts";
 import { receiptToSourceAsset } from "../../content/provenance/receiptToSourceAsset.ts";
 import { citationOf } from "./citation.ts";
 import { correctionLog, LAYER_NAMES } from "./corrections.ts";
-import { receiptHref } from "./receiptPages.ts";
-import { assertServedDigest, requireReceipt, rightsWordsFor } from "./refusals.ts";
+import { checkedReceipts, receiptHref } from "./receiptPages.ts";
+import { requireReceipt, rightsWordsFor, servedScan } from "./refusals.ts";
 import { reuseOf, textLayerWords } from "./reuse.ts";
 import { TRANSCRIPTION_WORDS, transcriptionOf } from "./transcription.ts";
 import "./sources.css";
@@ -105,24 +104,13 @@ function formatBytes(bytes: number): string {
  */
 function loadScans() {
   const shortNames = new Map(loadFirstPages().map((paper) => [paper.key, paper.title]));
-  return loadProvenanceReceipts()
-    .receipts.map(({ key, receipt }) => {
+  return checkedReceipts()
+    .map(({ key, receipt }) => {
       const parsed = requireReceipt(receipt, key);
       const fm = parsed.frontMatter;
       const asset = receiptToSourceAsset(parsed);
       const rights = rightsWordsFor(RIGHTS_WORDS, asset.rights.status, key);
-      const served =
-        asset.publicationDecision === "publish" && fm.scan.path
-          ? join(process.cwd(), fm.scan.path)
-          : undefined;
-      let download: { href: string; bytes: number } | undefined;
-      if (served && existsSync(served)) {
-        assertServedDigest(readFileSync(served), asset.sha256, fm.scan.path, key);
-        download = {
-          href: `/${fm.scan.path.replace(/^public\//, "")}`,
-          bytes: statSync(served).size,
-        };
-      }
+      const download = servedScan(fm, asset, key, process.cwd());
       const published = fm.paper.dates.find((d) => d.type === "issue-publication")?.iso ?? "";
       // The scan's first page, cut from this same PDF (scripts/figures/first_page_plates.py), when
       // a plate has been cut for it at every width the srcSet names.

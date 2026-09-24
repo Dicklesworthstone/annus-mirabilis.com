@@ -1,5 +1,8 @@
 import { createHash } from "node:crypto";
-import type { RightsStatus } from "../../content/provenance/receiptSchema.ts";
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
+import type { ReceiptFrontMatter, RightsStatus } from "../../content/provenance/receiptSchema.ts";
+import type { SourceAsset } from "../../content/provenance/receiptToSourceAsset.ts";
 
 /**
  * The ways /sources/ refuses to build, each with a code (as FirstPagesError does for the home
@@ -9,7 +12,9 @@ export type SourcesErrorCode =
   | "receipt-unparsed"
   | "rights-wording-missing"
   | "served-digest-mismatch"
-  | "receipt-page-unknown";
+  | "served-file-missing"
+  | "receipt-page-unknown"
+  | "receipt-check-failed";
 
 export class SourcesError extends Error {
   readonly code: SourcesErrorCode;
@@ -61,4 +66,56 @@ export function assertServedDigest(
       `${path} no longer matches the digest in its receipt (${key}).`,
     );
   }
+}
+
+/**
+ * A receipt the receipt checker finds an error in stops the build, under the checker's own rule
+ * codes. The pages are compiled from receipts that parse, and a receipt can parse while its digest
+ * is malformed or its dates contradict each other; rendering it would publish the fault as fact.
+ * The checker's flags (a section still pending, say) are not errors and do not stop anything.
+ */
+export function assertReceiptsChecked(
+  receipts: readonly Readonly<{
+    key: string;
+    checkResult: Readonly<{ errors: readonly Readonly<{ rule: string; path: string }>[] }>;
+  }>[],
+): void {
+  const failing = receipts.flatMap(({ key, checkResult }) =>
+    checkResult.errors.map((error) => `${key}: ${error.rule} (${error.path})`),
+  );
+  if (failing.length > 0) {
+    throw new SourcesError(
+      "receipt-check-failed",
+      `The receipt checker found ${failing.length} error(s): ${failing.join("; ")}.`,
+    );
+  }
+}
+
+/** A scan its receipt publishes must be served: a missing file is not a scan without a download. */
+export function requireServedFile(exists: boolean, path: string, key: string): void {
+  if (!exists) {
+    throw new SourcesError(
+      "served-file-missing",
+      `The receipt for ${key} publishes ${path || "(no path)"}, and no such file is served.`,
+    );
+  }
+}
+
+/**
+ * The download /sources/ offers for a scan, under `root`: none for a scan its receipt does not
+ * publish; for one it does, the served file, which must exist and must have the receipt's digest,
+ * or the build stops. The page says the served file was checked, so both refusals keep that true.
+ */
+export function servedScan(
+  fm: ReceiptFrontMatter,
+  asset: Pick<SourceAsset, "publicationDecision" | "sha256">,
+  key: string,
+  root: string,
+): Readonly<{ href: string; bytes: number }> | undefined {
+  if (asset.publicationDecision !== "publish") return undefined;
+  const served = fm.scan.path ? join(root, fm.scan.path) : undefined;
+  requireServedFile(served !== undefined && existsSync(served), fm.scan.path, key);
+  if (!served) return undefined;
+  assertServedDigest(readFileSync(served), asset.sha256, fm.scan.path, key);
+  return { href: `/${fm.scan.path.replace(/^public\//, "")}`, bytes: statSync(served).size };
 }

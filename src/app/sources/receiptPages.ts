@@ -1,7 +1,11 @@
 import { ROUTE_SLUGS, type RouteSlug } from "../../content/ids.ts";
-import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts";
+import {
+  type LoadedProvenanceReceipt,
+  type LoadReceiptsOptions,
+  loadProvenanceReceipts,
+} from "../../content/provenance/loadReceipts.ts";
 import type { ReceiptFrontMatter } from "../../content/provenance/receiptSchema.ts";
-import { SourcesError } from "./refusals.ts";
+import { assertReceiptsChecked, SourcesError } from "./refusals.ts";
 
 /*
  * ONE RECEIPT PAGE PER PAPER ROUTE SLUG (am-design-sources-about-zumd). A paper usually has one
@@ -34,10 +38,25 @@ export function receiptHref(receiptSlug: string): string {
   return page === receiptSlug ? `/sources/${page}/` : `/sources/${page}/#${receiptSlug}`;
 }
 
+/**
+ * The receipts /sources/ and its receipt pages are built from: every receipt, compiled through the
+ * receipt parser and checked by the receipt checker. One with a checker error stops the build under
+ * the checker's rule codes (refusals.ts), so no page is ever made from a receipt the checker rejects.
+ */
+export function checkedReceipts(
+  options: LoadReceiptsOptions = {},
+): readonly LoadedProvenanceReceipt[] {
+  const { receipts } = loadProvenanceReceipts(options);
+  assertReceiptsChecked(receipts);
+  return receipts;
+}
+
 /** Each receipt page's receipts, the paper's own first and then in order of publication. */
-export function receiptsByPage(): ReadonlyMap<RouteSlug, readonly ReceiptFrontMatter[]> {
+export function receiptsByPage(
+  options: LoadReceiptsOptions = {},
+): ReadonlyMap<RouteSlug, readonly ReceiptFrontMatter[]> {
   const pages = new Map<RouteSlug, ReceiptFrontMatter[]>();
-  for (const { receipt } of loadProvenanceReceipts().receipts) {
+  for (const { receipt } of checkedReceipts(options)) {
     if (!receipt) continue;
     const fm = receipt.frontMatter;
     const page = receiptPageSlug(fm.slug);
