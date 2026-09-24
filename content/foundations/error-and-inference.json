@@ -21,7 +21,28 @@
     },
     {
       "kind": "paragraph",
+      "text": "Uncertainty comes in four kinds, and each needs its own statement. Sampling uncertainty is the scatter from one sample to the next. Measurement uncertainty is the error in each reading, such as where the microscope places a particle. Model uncertainty is the chance that the formula itself does not fit these particles. Numerical uncertainty is the error of the computation. A confidence interval is not an interval-arithmetic enclosure, which is guaranteed to contain the exact result of a calculation, and a numerical error bar, which bounds the arithmetic, is not a measurement uncertainty."
+    },
+    {
+      "kind": "paragraph",
       "text": "A 95 per cent confidence interval comes from a method that, used on many samples, catches the true value in 95 of every 100 of them, provided its assumptions hold. It is not a 95 per cent chance that this one interval contains the value. A plot of many repeated intervals, with the misses left in, shows what the promise means."
+    },
+    {
+      "kind": "paragraph",
+      "text": "For a diffusion coefficient the promise has an exact form. With M independent displacements in d coordinates there are q = dM squared displacements, and their sum divided by 2Dt has a known spread from sample to sample: the chi-square distribution with q degrees of freedom. Its 2.5 and 97.5 per cent points give the 95 per cent interval. In a synthetic example with 50 displacements in two coordinates, so q = 100, and an estimate of 0.43 μm²/s, those points are 74.2219 and 129.5612:"
+    },
+    {
+      "kind": "formula",
+      "latex": "\\left[\\frac{100 \\times 0.43}{129.5612},\\ \\frac{100 \\times 0.43}{74.2219}\\right] = [0.3319,\\ 0.5793]\\ \\mu\\mathrm{m}^2/\\mathrm{s}",
+      "spoken": "The interval runs from 43 divided by 129.5612 to 43 divided by 74.2219, that is from 0.3319 to 0.5793 square micrometres per second."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Inverting an estimate adds a bias of its own. The molecular number is found by dividing by the estimated D, and although that estimate is right on average, its reciprocal is not: with q = 100 degrees of freedom the average of the inverted estimate is too large by the factor q/(q − 2) = 1.020408, about two per cent. The interval itself survives inversion, with its ends swapped, as the worked example shows."
+    },
+    {
+      "kind": "paragraph",
+      "text": "Reading positions adds noise of its own. If each position is read with an error of spread σ in each coordinate, each measured step gains 2σ² in its mean square per coordinate, and two neighbouring steps share one reading, so their errors have a covariance of −σ². Neighbouring steps are then no longer independent, and cutting one path into overlapping windows does not make independent samples."
     },
     {
       "kind": "paragraph",
@@ -45,7 +66,32 @@
     }
   ],
   "exampleTitle": "Inverting an interval, and watching its endpoints swap",
-  "prerequisites": ["mean-variance-rms", "probability-independence"],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:distributions",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:mean-variance-rms",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:gaussian-distributions",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:probability-independence",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:bridge-squaring-square-roots",
+      "kind": "proof-edge"
+    },
+    {
+      "foundationId": "foundation:bridge-probability-notation",
+      "kind": "proof-edge"
+    }
+  ],
   "stoppingPoint": "Say what the data can tell apart, which method and model you used, what you held exact, and whether the result recovers a value you put in, estimates it independently, or checks consistency.",
   "citations": ["nist-normal-variance", "bipm-si-definitions"]
 }
