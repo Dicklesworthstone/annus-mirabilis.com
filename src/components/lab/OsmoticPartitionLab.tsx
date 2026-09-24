@@ -465,11 +465,11 @@ export function OsmoticPartitionLab({
           open above it, it came between a phone's heading and the partition. */}
       <details className="lab-predict">
         <summary>Predict before you calculate</summary>
-        <p>
+        <p id={`${id}-predict-question`}>
           At the same number of particles per volume, does a 1000-times-larger particle push harder,
           the same, or less on the partition?
         </p>
-        <div className="actions">
+        <fieldset aria-labelledby={`${id}-predict-question`} className="actions">
           <button
             type="button"
             className={predictAnswer === "harder" ? "primary" : "secondary"}
@@ -494,7 +494,7 @@ export function OsmoticPartitionLab({
           >
             Less
           </button>
-        </div>
+        </fieldset>
         {predictAnswer && (
           <p className="fine">
             The model: the ideal osmotic pressure depends on the number of particles per volume, not

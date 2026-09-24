@@ -198,11 +198,12 @@ export function FluorescenceLab({
           <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
             Predict mode · Energy conservation
           </p>
-          <h3 style={{ margin: "0.25rem 0 0.75rem" }}>
+          <h3 id={`${id}-predict-stokes`} style={{ margin: "0.25rem 0 0.75rem" }}>
             Can fluorescent emission occur at higher frequency than the exciting light (ν₂ &gt; ν₁)
             under single-quantum absorption?
           </h3>
-          <div
+          <fieldset
+            aria-labelledby={`${id}-predict-stokes`}
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(min(200px, 100%), 1fr))",
@@ -246,7 +247,7 @@ export function FluorescenceLab({
                 One quantum in, one quantum&apos;s energy at most out
               </span>
             </button>
-          </div>
+          </fieldset>
           {predictAnswer1 && (
             <div
               style={{
@@ -276,10 +277,11 @@ export function FluorescenceLab({
           <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
             Predict mode · Very weak light
           </p>
-          <h3 style={{ margin: "0.25rem 0 0.75rem" }}>
+          <h3 id={`${id}-predict-weak`} style={{ margin: "0.25rem 0 0.75rem" }}>
             How does the emission rate behave as the incident light becomes extremely weak?
           </h3>
-          <div
+          <fieldset
+            aria-labelledby={`${id}-predict-weak`}
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(min(240px, 100%), 1fr))",
@@ -311,7 +313,7 @@ export function FluorescenceLab({
                 Each absorbed quantum can emit on its own
               </span>
             </button>
-          </div>
+          </fieldset>
           {predictAnswer2 && (
             <div
               style={{
@@ -408,6 +410,7 @@ export function FluorescenceLab({
           {/* 3. Accounting Regime Selector */}
           <div className="input-field" style={{ gridColumn: "1 / -1" }}>
             <span
+              id={`${id}-regime-label`}
               style={{
                 display: "block",
                 fontSize: "0.85rem",
@@ -417,7 +420,10 @@ export function FluorescenceLab({
             >
               Accounting regime:
             </span>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+            <fieldset
+              aria-labelledby={`${id}-regime-label`}
+              style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}
+            >
               <button
                 type="button"
                 className={`button ${p.regime === "standard-stokes" ? "" : "secondary"}`}
@@ -450,7 +456,7 @@ export function FluorescenceLab({
               >
                 Modern thermal (anti-Stokes)
               </button>
-            </div>
+            </fieldset>
           </div>
 
           {/* 4. Regime Specific Parameter */}
@@ -563,6 +569,7 @@ export function FluorescenceLab({
               <ExperimentSettings contents="which channels the absorbed energy may leave by">
                 <div>
                   <span
+                    id={`${id}-channels-label`}
                     style={{
                       display: "block",
                       fontSize: "0.85rem",
@@ -572,7 +579,10 @@ export function FluorescenceLab({
                   >
                     Available channels:
                   </span>
-                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <fieldset
+                    aria-labelledby={`${id}-channels-label`}
+                    style={{ display: "flex", gap: "0.5rem" }}
+                  >
                     <button
                       type="button"
                       className={`button ${p.channels === "light-plus-heat" ? "" : "secondary"}`}
@@ -589,7 +599,7 @@ export function FluorescenceLab({
                     >
                       Light only (E<sub>other</sub> = 0)
                     </button>
-                  </div>
+                  </fieldset>
                 </div>
                 <p className="fine">These apply at once.</p>
               </ExperimentSettings>

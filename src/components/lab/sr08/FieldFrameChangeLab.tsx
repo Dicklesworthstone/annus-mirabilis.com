@@ -467,11 +467,11 @@ export function FieldFrameChangeLab({
 
       <section className="predict-section">
         <h3>Predict: Appearing magnetic field</h3>
-        <p>
+        <p id={`${id}-predict-question`}>
           When a pure electric field in the y direction is described from a frame moving along x at
           0.6c, what magnetic field appears?
         </p>
-        <div className="button-group">
+        <fieldset aria-labelledby={`${id}-predict-question`} className="button-group">
           <button
             type="button"
             className={prediction === "none" ? "selected" : "secondary"}
@@ -496,7 +496,7 @@ export function FieldFrameChangeLab({
           >
             Parallel magnetic field B′x
           </button>
-        </div>
+        </fieldset>
         {prediction ? (
           <div className="predict-feedback" role="status">
             <p>

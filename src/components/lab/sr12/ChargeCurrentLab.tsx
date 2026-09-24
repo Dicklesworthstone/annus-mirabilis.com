@@ -234,8 +234,10 @@ export function ChargeCurrentLab({
             gap: "0.5rem",
           }}
         >
-          <span style={{ fontWeight: 600 }}>Unit-system modernization</span>
-          <div className="button-group">
+          <span id={`${id}-unit-label`} style={{ fontWeight: 600 }}>
+            Unit-system modernization
+          </span>
+          <fieldset aria-labelledby={`${id}-unit-label`} className="button-group">
             <button
               type="button"
               className={p.unitLayer === "si" ? "button" : "button secondary"}
@@ -254,7 +256,7 @@ export function ChargeCurrentLab({
             >
               Gaussian 1905 (§9)
             </button>
-          </div>
+          </fieldset>
         </div>
         <p style={{ margin: 0 }}>
           Einstein’s 1905 paper employs Gaussian (CGS) units where Coulomb’s constant is 1 and
@@ -266,7 +268,8 @@ export function ChargeCurrentLab({
       {/* Controls Form */}
       {/* The presets follow the visualization they set, as the family's "Try" group does; above it
           they were 208px between a phone's heading and the result. */}
-      <nav aria-label="Presets" className="preset-list" style={{ marginBottom: "1rem" }}>
+      {/* A group of toggles, not a navigation landmark: nav is for links to elsewhere. */}
+      <fieldset aria-label="Presets" className="preset-list" style={{ marginBottom: "1rem" }}>
         {presets.map((preset) => (
           <button
             key={preset.id}
@@ -278,7 +281,7 @@ export function ChargeCurrentLab({
             {preset.label}
           </button>
         ))}
-      </nav>
+      </fieldset>
 
       <form
         noValidate
@@ -675,12 +678,12 @@ export function ChargeCurrentLab({
         <h4 className="eyebrow" style={{ margin: 0, fontSize: "var(--type-fine)" }}>
           Predict: is a neutral wire still neutral in a moving frame?
         </h4>
-        <p style={{ margin: 0, fontSize: "0.85rem" }}>
+        <p id={`${id}-predict-question`} style={{ margin: 0, fontSize: "0.85rem" }}>
           A neutral wire in the laboratory carries a current in the +x direction. Described from a
           frame moving in the +x direction at 0.6c, is the wire still electrically neutral?
         </p>
 
-        <div className="button-group">
+        <fieldset aria-labelledby={`${id}-predict-question`} className="button-group">
           {[
             { id: "still-neutral", label: "Still neutral (ρ′ = 0)" },
             { id: "negatively-charged", label: "Negatively charged (ρ′ < 0)" },
@@ -697,7 +700,7 @@ export function ChargeCurrentLab({
               {cand.label}
             </button>
           ))}
-        </div>
+        </fieldset>
 
         {prediction && (
           <div

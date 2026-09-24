@@ -344,8 +344,10 @@ export function ModeAllocationLab({
           lab. Open above it, it was 423px between a phone's heading and the controls. */}
       <details className="lab-predict">
         <summary>Predict before you calculate</summary>
-        <p>Widening the resonator range from 100 THz to 1000 THz changes the energy by:</p>
-        <div className="actions">
+        <p id={`${id}-predict-widen`}>
+          Widening the resonator range from 100 THz to 1000 THz changes the energy by:
+        </p>
+        <fieldset aria-labelledby={`${id}-predict-widen`} className="actions">
           <button
             type="button"
             className={predictWiden === "10x" ? "primary" : "secondary"}
@@ -370,7 +372,7 @@ export function ModeAllocationLab({
           >
             It levels off
           </button>
-        </div>
+        </fieldset>
         {predictWiden && (
           <p className="fine">
             The model: the classical energy density grows as the cube of the cutoff frequency, so
@@ -378,10 +380,10 @@ export function ModeAllocationLab({
             action above shows it.
           </p>
         )}
-        <p className="fine">
+        <p id={`${id}-predict-diverge`} className="fine">
           Before removing the upper limit: will the total settle at a finite value?
         </p>
-        <div className="actions">
+        <fieldset aria-labelledby={`${id}-predict-diverge`} className="actions">
           <button
             type="button"
             className={predictDiverge === "yes" ? "primary" : "secondary"}
@@ -398,7 +400,7 @@ export function ModeAllocationLab({
           >
             No, it grows without bound
           </button>
-        </div>
+        </fieldset>
         {predictDiverge && (
           <p className="fine">
             The model: every resonator frequency receives the same mean energy, so widening the

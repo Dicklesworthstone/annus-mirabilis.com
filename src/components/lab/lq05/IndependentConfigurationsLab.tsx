@@ -199,10 +199,16 @@ export function IndependentConfigurationsLab({
           <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
             Predict mode · Microstate reasoning
           </p>
-          <h3 style={{ fontSize: "1rem", margin: "0.25rem 0 0.5rem" }}>
+          <h3
+            id={`${id}-predict-question`}
+            style={{ fontSize: "1rem", margin: "0.25rem 0 0.5rem" }}
+          >
             With 10 independent points, what is the chance that all sit in the left half (f = 1/2)?
           </h3>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", margin: "0.75rem 0" }}>
+          <fieldset
+            aria-labelledby={`${id}-predict-question`}
+            style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", margin: "0.75rem 0" }}
+          >
             <button
               type="button"
               className={`button ${predictAnswer === "1/2" ? "" : "secondary"}`}
@@ -239,7 +245,7 @@ export function IndependentConfigurationsLab({
                 Each point halves the chance again
               </span>
             </button>
-          </div>
+          </fieldset>
           {predictAnswer && (
             <div
               className="notice"
@@ -408,12 +414,16 @@ export function IndependentConfigurationsLab({
               {/* 3. View selector & Locked toggle */}
               <div className="input-field">
                 <span
+                  id={`${id}-view-label`}
                   className="fine"
                   style={{ fontWeight: 600, display: "block", marginBottom: "0.25rem" }}
                 >
                   Display view:
                 </span>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                <fieldset
+                  aria-labelledby={`${id}-view-label`}
+                  style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}
+                >
                   <button
                     type="button"
                     className={`button ${p.view === "enumeration" ? "" : "secondary"}`}
@@ -441,7 +451,7 @@ export function IndependentConfigurationsLab({
                   >
                     Logarithmic
                   </button>
-                </div>
+                </fieldset>
               </div>
 
               {/* 4. Locked positions checkbox */}

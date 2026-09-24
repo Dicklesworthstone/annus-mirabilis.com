@@ -295,10 +295,10 @@ export function TwoLedgersLab({
               step={0.1}
             />
             <div className="control-row">
-              <span className="field-label">
+              <span id={`${id}-premise-label`} className="field-label">
                 The additive constant <var>C</var>
               </span>
-              <div className="button-group">
+              <fieldset aria-labelledby={`${id}-premise-label`} className="button-group">
                 <button
                   type="button"
                   className={p.premise === "unchanged" ? undefined : "secondary"}
@@ -315,11 +315,13 @@ export function TwoLedgersLab({
                 >
                   Allowed to change
                 </button>
-              </div>
+              </fieldset>
             </div>
             <div className="control-row">
-              <span className="field-label">Internal energies written as</span>
-              <div className="button-group">
+              <span id={`${id}-offsets-label`} className="field-label">
+                Internal energies written as
+              </span>
+              <fieldset aria-labelledby={`${id}-offsets-label`} className="button-group">
                 <button
                   type="button"
                   className={p.offsetDisplay === "symbolic" ? undefined : "secondary"}
@@ -336,11 +338,13 @@ export function TwoLedgersLab({
                 >
                   Numbers that cancel
                 </button>
-              </div>
+              </fieldset>
             </div>
             <div className="control-row">
-              <span className="field-label">Notation</span>
-              <div className="button-group">
+              <span id={`${id}-notation-label`} className="field-label">
+                Notation
+              </span>
+              <fieldset aria-labelledby={`${id}-notation-label`} className="button-group">
                 <button
                   type="button"
                   className={p.notation === "printed" ? undefined : "secondary"}
@@ -357,7 +361,7 @@ export function TwoLedgersLab({
                 >
                   Modern, with γ
                 </button>
-              </div>
+              </fieldset>
             </div>
             <button type="button" className="secondary" onClick={share}>
               Copy a link to these settings
