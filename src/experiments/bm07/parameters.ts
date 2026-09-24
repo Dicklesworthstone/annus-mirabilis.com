@@ -2,6 +2,27 @@ import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import { parseU64 } from "../../physics/reference/philox.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { BM07_DEFAULTS, type Bm07Parameters } from "./definition.ts";
+
+/** What each numeric control is called on the page (InferenceLab), with the unit it is entered in. */
+const BM07_FIELD_NAMES: Partial<Record<keyof Bm07Parameters, string>> = {
+  generatorT: "the generator temperature, in K,",
+  generatorEta: "the generator viscosity, in mPa·s,",
+  generatorRadius: "the generator radius, in μm,",
+  T: "the assumed temperature, in K,",
+  eta: "the assumed viscosity, in mPa·s,",
+  a: "the assumed particle radius, in μm,",
+  dt: "the observation spacing, in seconds,",
+  calibrationScale: "the calibration scale",
+  M: "the number of displacements",
+  d: "the number of observed coordinates",
+  coverageTrials: "the number of hypothetical experiments",
+  coverage: "the target interval coverage, in percent,",
+  inputCoverage: "the coverage of each input interval, in percent,",
+  temperatureError: "the temperature relative bound, in percent,",
+  viscosityError: "the viscosity relative bound, in percent,",
+  radiusError: "the radius relative bound, in percent,",
+};
+
 export function validateBm07Parameters(input: unknown): Computation<Bm07Parameters> {
   const bad = (requirements: string): Computation<never> => ({
     kind: "refused",
@@ -50,46 +71,44 @@ export function validateBm07Parameters(input: unknown): Computation<Bm07Paramete
     return bad(
       "Choose a registered observation set, constant-set id, estimator, interval procedure and radius declaration.",
     );
+  // One sentence per control, named as the page labels it and in the unit it is entered in.
   for (const k of keys as (keyof Bm07Parameters)[])
     if (
       typeof BM07_DEFAULTS[k] === "number" &&
       (typeof p[k] !== "number" || !Number.isFinite(p[k]))
     )
-      return bad("Use finite numbers in the stated units.");
-  if (
-    ![
-      p.generatorT,
-      p.generatorEta,
-      p.generatorRadius,
-      p.T,
-      p.eta,
-      p.a,
-      p.dt,
-      p.calibrationScale,
-    ].every((v) => v > 0)
-  )
-    return bad("Temperatures, viscosities, radii, spacing and calibration scale must be positive.");
-  if (
-    ![1, 2].includes(p.d) ||
-    !Number.isSafeInteger(p.M) ||
-    p.M < 1 ||
-    p.M > 1000 ||
-    !Number.isSafeInteger(p.coverageTrials) ||
-    p.coverageTrials < 0 ||
-    p.coverageTrials > 100
-  )
+      return bad(`Enter ${BM07_FIELD_NAMES[k] ?? "this value"} as a number.`);
+  const positive: readonly [keyof Bm07Parameters, string][] = [
+    ["generatorT", "Enter a generator temperature above 0 K."],
+    ["generatorEta", "Enter a generator viscosity greater than zero, in mPa·s."],
+    ["generatorRadius", "Enter a generator radius greater than zero, in μm."],
+    ["T", "Enter an assumed temperature above 0 K."],
+    ["eta", "Enter an assumed viscosity greater than zero, in mPa·s."],
+    ["a", "Enter an assumed particle radius greater than zero, in μm."],
+    ["dt", "Enter an observation spacing greater than zero, in seconds."],
+    ["calibrationScale", "Enter a calibration scale greater than zero."],
+  ];
+  for (const [k, sentence] of positive) if (!((p[k] as number) > 0)) return bad(sentence);
+  if (![1, 2].includes(p.d)) return bad("Choose one or two observed coordinates.");
+  if (!Number.isSafeInteger(p.M) || p.M < 1 || p.M > 1000)
+    return bad("Enter a whole number of displacements from 1 to 1000.");
+  if (!Number.isSafeInteger(p.coverageTrials) || p.coverageTrials < 0 || p.coverageTrials > 100)
+    return bad("Enter a whole number of hypothetical experiments from 0 to 100.");
+  if (p.coverage <= 0 || p.coverage >= 1)
+    return bad("Enter a target interval coverage above 0 and below 100 percent.");
+  if (p.inputCoverage < 0 || p.inputCoverage >= 1)
     return bad(
-      "Choose 1–1000 displacements, one or two coordinates, and at most 100 hypothetical experiments.",
+      "Enter a coverage for each input interval from 0 up to, but not including, 100 percent; 0 means it has not been declared.",
     );
-  if (
-    p.coverage <= 0 ||
-    p.coverage >= 1 ||
-    p.inputCoverage < 0 ||
-    p.inputCoverage >= 1 ||
-    [p.temperatureError, p.viscosityError, p.radiusError].some((v) => v < 0 || v >= 1)
-  )
-    return bad(
-      "Coverage must be between zero and one; relative input bounds must be nonnegative and below 100%. Zero input coverage means it has not been declared.",
-    );
+  const bounds: readonly [keyof Bm07Parameters, string][] = [
+    ["temperatureError", "temperature"],
+    ["viscosityError", "viscosity"],
+    ["radiusError", "radius"],
+  ];
+  for (const [k, name] of bounds) {
+    const v = p[k] as number;
+    if (v < 0 || v >= 1)
+      return bad(`Enter a ${name} relative bound from 0 up to, but not including, 100 percent.`);
+  }
   return { kind: "accepted", data: Object.freeze({ ...p }) };
 }

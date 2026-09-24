@@ -39,29 +39,30 @@ export function validateBm05Parameters(input: unknown): Computation<Bm05Paramete
       kind: "refused",
       refusal: makeRefusal("unsupported-kernel", { parameterIds: ["kernel"] }),
     };
-  if (
-    [p.stepRms, p.tau, p.walkers, p.runSteps, p.n, p.bias].some(
-      (v) => typeof v !== "number" || !Number.isFinite(v),
-    )
-  )
-    return bad("Use finite numbers in the stated units.");
-  if (
-    p.stepRms <= 0 ||
-    p.tau <= 0 ||
-    !Number.isSafeInteger(p.walkers) ||
-    p.walkers < 1 ||
-    p.walkers > 10000 ||
-    !Number.isSafeInteger(p.runSteps) ||
-    p.runSteps < 1 ||
-    p.runSteps > 10000 ||
-    !Number.isSafeInteger(p.n) ||
-    p.n < 0 ||
-    p.n > p.runSteps ||
-    p.bias < 0 ||
-    p.bias > 1
-  )
+  // One sentence per control, named as the page labels it and in the unit it is entered in.
+  const names = {
+    stepRms: "the step RMS size, in μm,",
+    tau: "the time between steps, in seconds,",
+    walkers: "the number of walkers",
+    runSteps: "the number of recorded steps per walker",
+    n: "the observation step",
+    bias: "the right-step probability",
+  } as const;
+  for (const key of Object.keys(names) as (keyof typeof names)[]) {
+    const v = p[key];
+    if (typeof v !== "number" || !Number.isFinite(v))
+      return bad(`Enter ${names[key]} as a number.`);
+  }
+  if (p.stepRms <= 0) return bad("Enter a step RMS size greater than zero, in μm.");
+  if (p.tau <= 0) return bad("Enter a time between steps greater than zero, in seconds.");
+  if (!Number.isSafeInteger(p.walkers) || p.walkers < 1 || p.walkers > 10000)
+    return bad("Enter a whole number of walkers from 1 to 10 000.");
+  if (!Number.isSafeInteger(p.runSteps) || p.runSteps < 1 || p.runSteps > 10000)
+    return bad("Enter a whole number of recorded steps per walker from 1 to 10 000.");
+  if (!Number.isSafeInteger(p.n) || p.n < 0 || p.n > p.runSteps)
     return bad(
-      "Use positive step RMS and interval, 1–10000 walkers and recorded steps, an integer observation within the recording, and a probability in [0,1].",
+      `Enter an observation step that is a whole number from 0 to the recorded steps, ${p.runSteps}.`,
     );
+  if (p.bias < 0 || p.bias > 1) return bad("Enter a right-step probability from 0 to 1.");
   return { kind: "accepted", data: Object.freeze({ ...p }) };
 }
