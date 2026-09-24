@@ -49,15 +49,24 @@ describe("molecular-dimensions notation concordance", () => {
     });
   });
 
-  test("Honesty: every entry is pending facsimile verification", () => {
+  test("Honesty: no entry claims a human review; each is pending or an agent check that says so", () => {
+    // Until 2026-09-24 every entry was pending and this required it. The glyphs have since been
+    // read by an agent from page images (am-concordance-glyphs-verified-against-plates-13lx), so
+    // the property worth holding is that none is presented as reviewed by a person.
     const file = loadConcordanceForPaper(paper);
+    let agentChecked = 0;
     for (const entry of file.entries) {
+      const { checkedAgainst, by } = entry.verification;
+      const pending = checkedAgainst.toLowerCase().includes("pending");
+      const agentCheck = by.startsWith("agent:") && checkedAgainst.includes("not a human review");
+      if (agentCheck) agentChecked += 1;
       assert.ok(
-        entry.verification.checkedAgainst.toLowerCase().includes("pending"),
-        `${entry.id} must record pending facsimile verification`,
+        pending || agentCheck,
+        `${entry.id} must be pending, or an agent check that says it is not a human review`,
       );
     }
-    logPass("honesty-pending-verification", "All entries marked pending facsimile");
+    assert.ok(agentChecked > 0, "the population of agent checks is not empty");
+    logPass("honesty-no-human-review-claimed", `${agentChecked} agent checks, none a review`);
   });
 
   test("Bindings: k binds viscosity, is danger, and renames to eta — same collision as paper 2", () => {
@@ -87,7 +96,7 @@ describe("molecular-dimensions notation concordance", () => {
     logPass("phi-is-volume-fraction", "phi binds volumeFraction");
   });
 
-  test("Edition: 1906 coefficient of phi is 1; 1911 coefficient is 5/2; neither is k", () => {
+  test("Edition: 1906 coefficient of phi is 1; 1911 prints 2,5 (modern 5/2); neither is k", () => {
     const file = loadConcordanceForPaper(paper);
     const printed1906 = resolveGlyph(paper, "md-1906", "1", emptyManifestIndex, file);
     assert.ok(printed1906.ok, "1906 coefficient must resolve");
@@ -96,12 +105,13 @@ describe("molecular-dimensions notation concordance", () => {
     assert.equal(printed1906.entry.operation.kind, "rename");
     assert.equal(modernSymbolFor(paper, "md-1906", "1", emptyManifestIndex, file), "1");
 
-    const printed1911 = resolveGlyph(paper, "md-1911", "\\frac{5}{2}", emptyManifestIndex, file);
+    // Page 592 prints the decimal 2,5 (k* = k(1 + 2,5 φ)); 5/2 is the modern form.
+    const printed1911 = resolveGlyph(paper, "md-1911", "2{,}5", emptyManifestIndex, file);
     assert.ok(printed1911.ok, "1911 coefficient must resolve");
     assert.ok("quantityId" in printed1911.entry.binding);
     assert.equal(printed1911.entry.binding.quantityId, "suspensionViscosityCoefficient");
     assert.equal(
-      modernSymbolFor(paper, "md-1911", "\\frac{5}{2}", emptyManifestIndex, file),
+      modernSymbolFor(paper, "md-1911", "2{,}5", emptyManifestIndex, file),
       "\\frac{5}{2}",
     );
 
@@ -126,7 +136,7 @@ describe("molecular-dimensions notation concordance", () => {
     assert.ok(k1911.ok);
     assert.ok("quantityId" in k1911.entry.binding);
     assert.equal(k1911.entry.binding.quantityId, "viscosity");
-    logPass("edition-dependent-coefficient", "1906 prints 1, 1911 prints 5/2, k remains viscosity");
+    logPass("edition-dependent-coefficient", "1906 prints 1, 1911 prints 2,5, k remains viscosity");
   });
 
   test("Modern-only [eta] is not substituted for the 1906 printed 1", () => {
