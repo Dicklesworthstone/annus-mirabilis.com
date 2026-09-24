@@ -26,6 +26,20 @@ describe("step 07 tries the electron rule on numbers", () => {
     expect(step.slice(start)).toContain('<option value="eV" selected="">eV</option>');
   });
 
+  test("the formula comes first, in the paper's own letter P, before the numbers", () => {
+    const step = stepSeven();
+    const formula = step.indexOf('data-exercise-part="lq-greatest-energy-formula"');
+    expect(formula).toBeGreaterThan(step.indexOf("How much these three are worth"));
+    expect(formula).toBeLessThan(step.indexOf('data-exercise-part="lq-greatest-electron-energy"'));
+    const part = text(
+      step.slice(formula, step.indexOf('data-exercise-part="lq-greatest-electron-energy"')),
+    );
+    expect(part).toContain("P is the paper’s own letter");
+    expect(part).toContain("typing ν as nu");
+    const errors = checkVoice(part, { context: "prose" }).filter((f) => f.severity === "error");
+    expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
+  });
+
   test("it says the surface is made up and the constant is today's, and passes the voice lint", () => {
     const step = stepSeven();
     const part = text(step.slice(step.indexOf('data-exercise-part="lq-greatest-electron-energy"')));

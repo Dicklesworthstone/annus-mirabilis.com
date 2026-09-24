@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { ExercisePart } from "../../../components/discover/ExercisePart.tsx";
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { LIGHT_QUANTA_SHELF_CARDS } from "../../../content/lightQuantaShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { GREATEST_ENERGY_EXERCISE } from "../../../discovery/lightQuanta/electronExercise.ts";
 import { GREATEST_ELECTRON_ENERGY } from "../../../discovery/lightQuanta/numericExercises.ts";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
@@ -264,10 +266,9 @@ export default function LightQuantaRoute() {
             instruments below say so about themselves.
           </p>
         </details>
-        <p>
-          The rule about the electrons can be tried on numbers. It needs one constant, and here it
-          takes today&rsquo;s value.
-        </p>
+        <p>First write the rule about the electrons as a formula.</p>
+        <ExercisePart part={GREATEST_ENERGY_EXERCISE} />
+        <p>Then try it on numbers. It needs one constant, and here it takes today&rsquo;s value.</p>
         <NumericPart part={GREATEST_ELECTRON_ENERGY} />
         <StepDoors>
           <StepDoor href="/papers/light-quanta/s8/#arg-lq-photoelectric-energy">
