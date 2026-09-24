@@ -131,6 +131,12 @@
   max-width: 40rem;
   margin: 1.75rem 0 0.25rem;
 }
+/* Without JavaScript the field could open nothing, so it is not shown. The pre-paint script sets
+   data-theme whenever JavaScript runs, before the first frame, so the field is laid out from the
+   start and hydration no longer moves the page. */
+:root:not([data-theme]) .search-page-field-wrap {
+  display: none;
+}
 button.search-page-field {
   display: flex;
   align-items: center;

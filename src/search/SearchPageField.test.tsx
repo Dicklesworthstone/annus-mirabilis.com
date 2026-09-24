@@ -1,4 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { act, createElement } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
@@ -18,13 +21,24 @@ describe("SearchPageField", () => {
     await uninstallDom();
   });
 
-  test("the server HTML hides it, so a reader without JavaScript never meets a dead control", () => {
+  test("the server HTML lays it out, so hydration does not push the index down", () => {
     const html = renderToString(createElement(SearchPageField));
     const host = document.createElement("div");
     host.innerHTML = html;
     const wrap = host.querySelector(".search-page-field-wrap");
     expect(wrap).not.toBeNull();
-    expect(wrap?.hasAttribute("hidden")).toBe(true);
+    expect(wrap?.hasAttribute("hidden")).toBe(false);
+  });
+
+  test("a reader without JavaScript never meets it: the stylesheet hides it when no theme is set", () => {
+    // Comment bodies blanked first, so a comment quoting the rule cannot stand in for it.
+    const css = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "search.css"),
+      "utf8",
+    ).replace(/\/\*[\s\S]*?\*\//g, (c) => c.replace(/[^\n]/g, " "));
+    const rule = /:root:not\(\[data-theme\]\)\s+\.search-page-field-wrap\s*\{([^}]*)\}/.exec(css);
+    expect(rule).not.toBeNull();
+    expect(rule?.[1]).toMatch(/(^|;)\s*display:\s*none\s*(;|$)/);
   });
 
   test("once hydrated it is shown, named for what it opens, and opens one palette per press", async () => {

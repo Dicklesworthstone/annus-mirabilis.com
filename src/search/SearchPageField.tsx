@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import "./search.css";
 
 /**
@@ -9,14 +9,14 @@ import "./search.css";
  * palette the header link and Ctrl K open, over the same index, from a control shaped like the
  * thing it is.
  *
- * It renders hidden and appears once the script has run. Without JavaScript there is nothing it
- * could do, and the whole index listed below it is that reader's search.
+ * It is in the server HTML and hidden by CSS only when JavaScript is off (search.css keys on the
+ * data-theme the pre-paint script sets, as the theme toggle does). It used to render `hidden` and
+ * appear on hydration, which pushed the whole index 78px down after the first paint. Without
+ * JavaScript there is nothing it could do, and the index listed below it is that reader's search.
  */
 export function SearchPageField() {
-  const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const opening = useRef(false);
-  useEffect(() => setReady(true), []);
 
   async function open() {
     if (opening.current || document.querySelector("dialog[open]")) return;
@@ -36,7 +36,7 @@ export function SearchPageField() {
   }
 
   return (
-    <div className="search-page-field-wrap" hidden={!ready}>
+    <div className="search-page-field-wrap">
       <button
         type="button"
         className="search-page-field"
