@@ -74,10 +74,27 @@ describe("LQ-05 UI components and route", () => {
     expect(html).not.toContain('data-execution-label="static"');
     expect(html).toContain("<noscript>");
     expect(html).toContain("JavaScript disabled");
-    // The prediction sits in a closed disclosure under the drawing, and the presets are the
-    // family's "Try" group (lq-05 instrument-first).
-    expect(html).toContain("<summary>Predict first</summary>");
-    expect(html).toContain("<legend>Try</legend>");
+    // The drawing comes first, then the prediction, then the family's "Try" presets (dispatch 156,
+    // option c). The drawing and the mode stay in view; the chance the prompt asks about waits.
+    const drawing = html.indexOf("Volume container with subvolume fraction");
+    const panel = html.indexOf('data-predict-gate="awaiting"');
+    const presets = html.indexOf("<legend>Try</legend>");
+    expect(drawing).toBeGreaterThan(-1);
+    expect(drawing < panel && panel < presets).toBe(true);
+    const beforeDrawing = html.slice(html.indexOf('data-testid="lq05-visual-wrap"'), drawing);
+    expect(beforeDrawing).not.toContain("data-predict-response");
+    expect(html).toContain("Independent points</strong>");
+    // Server markup asks, so each part that states W waits: the readout under the drawing, the
+    // binomial chart, the status line and the outputs table.
+    expect(html).toMatch(/<span data-predict-response="awaiting"><span[^>]*>W = f<sup>n<\/sup>/);
+    expect(html).toMatch(
+      /<div data-predict-response="awaiting"[^>]*><h3[^>]*>Binomial distribution P\(k\)/,
+    );
+    expect(html).toMatch(/<p[^>]*data-predict-response="awaiting"[^>]*>/);
+    expect(html).toMatch(
+      /<section data-predict-response="awaiting"[^>]*><h3[^>]*>Calculated microstate and entropy outputs/,
+    );
+    expect(html).not.toContain('data-predict-response="shown"');
     expect(containsHeading(html, "Calculated microstate and entropy outputs")).toBe(true);
     expect(html).toContain("Relative state probability");
     // Boltzmann's constant is typeset, k with a lowered B, where it used to print "k_B".

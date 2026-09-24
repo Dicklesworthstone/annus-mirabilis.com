@@ -53,6 +53,7 @@ import { CameraLab } from "./CameraLab.tsx";
 import { CoefficientLab } from "./CoefficientLab.tsx";
 import { DriftDiffusionLab } from "./DriftDiffusionLab.tsx";
 import { InferenceLab } from "./InferenceLab.tsx";
+import { IndependentConfigurationsLab } from "./lq05/IndependentConfigurationsLab.tsx";
 import { CoefficientMatchLab } from "./lq06/CoefficientMatchLab.tsx";
 import { IonizationLab } from "./lq09/IonizationLab.tsx";
 import { MagnetConductorLab } from "./MagnetConductorLab.tsx";
@@ -132,6 +133,13 @@ const LABS: readonly GatedLab[] = [
       createElement(CameraLab, { example: rawBm08Example as unknown as PreparedBm08Example }),
     result: "Four estimates, different assumptions",
     sharesTape: false,
+    statusLine: true,
+  },
+  {
+    lab: "lq-05",
+    element: () => createElement(IndependentConfigurationsLab, {}),
+    result: "Calculated microstate and entropy outputs",
+    sharesTape: true,
     statusLine: true,
   },
   {

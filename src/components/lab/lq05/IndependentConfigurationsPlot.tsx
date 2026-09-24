@@ -7,12 +7,18 @@ export interface IndependentConfigurationsPlotProps {
   parameters: Lq05Parameters;
   evaluation: Lq05Evaluation;
   clipId?: string;
+  /**
+   * A predict gate's attribute (PredictGate.tsx). The container drawing and the mode stay in view;
+   * the W readout, the binomial chart and the view's figures answer the prompt, so they wait.
+   */
+  response?: Readonly<{ "data-predict-response": "shown" | "awaiting" }>;
 }
 
 export function IndependentConfigurationsPlot({
   parameters,
   evaluation,
   clipId = "lq05-plot-clip",
+  response,
 }: IndependentConfigurationsPlotProps) {
   const { n, f, view, locked } = parameters;
   const { independentProbability, binomial, enumeration, locked: lockedRes, sampling } = evaluation;
@@ -180,7 +186,7 @@ export function IndependentConfigurationsPlot({
               {locked ? "Locked cluster (rigidly coupled)" : "Independent points"}
             </strong>
           </span>
-          <span>
+          <span {...response}>
             {locked ? (
               <span style={{ color: "var(--accent)", fontWeight: 600 }}>
                 W<sub>locked</sub> = f = {fixed(lockedRes.value, 4)}
@@ -201,6 +207,7 @@ export function IndependentConfigurationsPlot({
 
       {/* 2. Binomial Distribution Chart P(k) */}
       <div
+        {...response}
         style={{
           border: "1px solid var(--line)",
           borderRadius: "0.75rem",
@@ -285,6 +292,7 @@ export function IndependentConfigurationsPlot({
       {/* 3. View-specific diagnostics */}
       {view === "enumeration" && enumeration.status === "value" && (
         <div
+          {...response}
           style={{
             padding: "0.75rem",
             background: "var(--wash)",
@@ -312,6 +320,7 @@ export function IndependentConfigurationsPlot({
 
       {view === "sampling" && (
         <div
+          {...response}
           style={{
             padding: "0.75rem",
             background: "var(--wash)",
@@ -331,6 +340,7 @@ export function IndependentConfigurationsPlot({
 
       {view === "logarithmic" && (
         <div
+          {...response}
           style={{
             padding: "0.75rem",
             background: "var(--wash)",

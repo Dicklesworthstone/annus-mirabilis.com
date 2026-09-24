@@ -332,34 +332,36 @@ predictMode:
     - promptId: lq-05-predict-ten-points
       supportedCandidateId: lq-05-predict-ten-points-one-in-a-thousand
       controlId: n
-      question: "With 10 independent points, the chance that all sit in the left half is about: 1/2; 1/20; 1/1 000."
+      question: "Ten independent points move in the box. At a moment picked at random, what is the chance that all ten are in the left half?"
+      explanation: "The points move independently, so each is in the left half with chance 1/2 whatever the others do, and the ten chances multiply: W = (1/2)^{10} = 1/1 024 ≈ 0.000977. The drawing starts at n = 4, where W = 1/16; set n to 10 to see this value."
       candidates:
         - id: lq-05-predict-ten-points-one-in-two
           label: "About one in two"
           description: "The chance for a single point, unchanged by adding points."
-          separatingAssumption: "Single-point assumption: assumes total probability is set by one representative point."
+          separatingAssumption: "Lets one point decide for all ten, so the chance for a single point, 1/2, stands for the group. That holds when the points move together, as in the locked case."
         - id: lq-05-predict-ten-points-one-in-twenty
           label: "About one in twenty"
           description: "The chance falls with n, but only in proportion to it."
-          separatingAssumption: "Linear scaling assumption: assumes probability decreases inversely with particle count."
+          separatingAssumption: "Lets each added point lower the chance in proportion, so ten points give about 1/(2 × 10). Chances for independent points multiply; they do not fall in proportion to the count."
         - id: lq-05-predict-ten-points-one-in-a-thousand
           label: "About one in a thousand"
           description: "Each point independently halves the chance, so ten of them give 1/2^10 = 1/1024."
-          separatingAssumption: "Statistical independence: probabilities of independent events multiply: W = (1/2)^10."
+          separatingAssumption: "Takes each point's position to be independent of the others, as §5 does, so the ten chances of 1/2 multiply: W = (1/2)^{10} = 1/1 024."
     - promptId: lq-05-predict-locked
       supportedCandidateId: lq-05-predict-locked-one-in-two
       controlId: locked
-      question: "If the 10 points are locked together, the chance is: 1/1 024; 1/2; 1/10."
+      question: "Now the ten points are locked together and move as one. What is the chance that all ten are in the left half?"
+      explanation: "Locked together, the ten points have one position between them, which is in the left half with chance f = 1/2 however many points are locked. The exponent n in W = f^{n} counts independent positions, not points. The lock in the experiment settings shows it: W_{locked} = f."
       candidates:
         - id: lq-05-predict-locked-one-in-1024
           label: "One in 1 024"
           description: "Locking changes nothing, so the independent value stands."
-          separatingAssumption: "Assumes particle count alone determines the microstate count regardless of correlation."
+          separatingAssumption: "Counts the points rather than their independent positions, so the ten factors of 1/2 remain after the lock."
         - id: lq-05-predict-locked-one-in-two
           label: "One in two"
           description: "The ten move as one unit, so one uniform position decides."
-          separatingAssumption: "Rigid coupling: the entire cluster behaves as a single degree of freedom with probability f."
+          separatingAssumption: "Treats the locked ten as one body with one position, in the left half with chance f = 1/2 whatever the number of points."
         - id: lq-05-predict-locked-one-in-ten
           label: "One in ten"
-          description: "Locking divides the independent exponent by the number of points."
-          separatingAssumption: "Linear reduction assumption: assumes partial correlation reduces the effective power."
+          description: "Locking leaves a chance of one over the number of points."
+          separatingAssumption: "Takes the lock to leave a chance of one over the number of points, 1/10, so the count of points still sets the answer."

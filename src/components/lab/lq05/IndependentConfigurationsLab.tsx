@@ -27,13 +27,17 @@ import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabT
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
+import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { fixed, identity, readablePowers, sentenceNumber } from "../presentation.ts";
 import { PowerOfTen, Sci } from "../Sci.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { IndependentConfigurationsPlot } from "./IndependentConfigurationsPlot.tsx";
 import "./independentConfigurationsLab.css";
+
+const LQ05_PROMPTS = PREDICT_PROMPTS["lq-05"] ?? [];
 
 export function IndependentConfigurationsLab({
   example,
@@ -80,7 +84,8 @@ export function IndependentConfigurationsLab({
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState("");
   const [linkNote, setLinkNote] = useState("");
-  const [predictAnswer, setPredictAnswer] = useState<string | null>(null);
+  // The drawing and the controls come first; W, the chart and the outputs wait for a prediction.
+  const gate = usePredictGate("lq-05", LQ05_PROMPTS);
 
   const evaluation = evaluateLq05(p);
   // One sentence for the status line: the chance that every point sits in the chosen fraction.
@@ -199,81 +204,13 @@ export function IndependentConfigurationsLab({
       </noscript>
 
       {/* Main Plot & Visualization */}
-      <IndependentConfigurationsPlot parameters={p} evaluation={evaluation} />
+      <IndependentConfigurationsPlot
+        parameters={p}
+        evaluation={evaluation}
+        response={gate.response}
+      />
 
-      <details className="lab-predict lq05-predict">
-        <summary>Predict first</summary>
-        {/* Predict Mode Card */}
-        <section className="lq05-prompt" aria-label="Predict first: microstate reasoning">
-          <p className="eyebrow" style={{ marginBottom: "0.25rem" }}>
-            Predict mode · Microstate reasoning
-          </p>
-          <h3
-            id={`${id}-predict-question`}
-            style={{ fontSize: "1rem", margin: "0.25rem 0 0.5rem" }}
-          >
-            With 10 independent points, what is the chance that all sit in the left half (f = 1/2)?
-          </h3>
-          <fieldset
-            aria-labelledby={`${id}-predict-question`}
-            style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", margin: "0.75rem 0" }}
-          >
-            <button
-              type="button"
-              className={`button ${predictAnswer === "1/2" ? "" : "secondary"}`}
-              aria-pressed={predictAnswer === "1/2"}
-              style={{ textAlign: "left", padding: "0.5rem 0.75rem" }}
-              onClick={() => setPredictAnswer("1/2")}
-            >
-              <strong style={{ display: "block" }}>A. About 1 in 2</strong>
-              <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
-                One point decides for all
-              </span>
-            </button>
-            <button
-              type="button"
-              className={`button ${predictAnswer === "1/20" ? "" : "secondary"}`}
-              aria-pressed={predictAnswer === "1/20"}
-              style={{ textAlign: "left", padding: "0.5rem 0.75rem" }}
-              onClick={() => setPredictAnswer("1/20")}
-            >
-              <strong style={{ display: "block" }}>B. About 1 in 20</strong>
-              <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
-                Linear reduction with n
-              </span>
-            </button>
-            <button
-              type="button"
-              className={`button ${predictAnswer === "1/1000" ? "" : "secondary"}`}
-              aria-pressed={predictAnswer === "1/1000"}
-              style={{ textAlign: "left", padding: "0.5rem 0.75rem" }}
-              onClick={() => setPredictAnswer("1/1000")}
-            >
-              <strong style={{ display: "block" }}>C. About 1 in 1 000</strong>
-              <span className="fine" style={{ display: "block", marginTop: "0.25rem" }}>
-                Each point halves the chance again
-              </span>
-            </button>
-          </fieldset>
-          {predictAnswer && (
-            <div
-              className="notice"
-              style={{
-                marginTop: "0.75rem",
-                padding: "0.75rem",
-                background: "var(--panel)",
-                border: "1px solid var(--line)",
-              }}
-            >
-              <p className="fine" style={{ margin: 0, color: "var(--ink)" }}>
-                The model: the points move independently, so every additional point halves the
-                chance again. Ten independent points need ten independent successes, W = (1/2)¹⁰ =
-                1/1 024 ≈ 0.000977.
-              </p>
-            </div>
-          )}
-        </section>
-      </details>
+      <PredictGatePanels gate={gate} />
 
       <fieldset className="lab-choice lq05-try">
         <legend>Try</legend>
@@ -472,7 +409,7 @@ export function IndependentConfigurationsLab({
                 >
                   <input type="checkbox" checked={p.locked} onChange={toggleLocked} />
                   <span className="fine" style={{ fontWeight: 600 }}>
-                    Locked positions counterexample (W = f rather than f<sup>n</sup>)
+                    Lock the points together, so they move as one
                   </span>
                 </label>
               </div>
@@ -493,8 +430,9 @@ export function IndependentConfigurationsLab({
         <AcceptedStatus
           worked={snapshot === session.getServerSnapshot().accepted}
           summary={statusSummary}
+          response={gate.response}
         />
-        <LabTapeLink link={tapeLink} />
+        <LabTapeLink link={withPredictions(tapeLink, gate)} />
         {linkNote && (
           <div className="notice" style={{ marginTop: "0.75rem", padding: "0.75rem" }}>
             {linkNote}
@@ -504,6 +442,7 @@ export function IndependentConfigurationsLab({
 
       {/* Outputs Table */}
       <section
+        {...gate.response}
         style={{ marginTop: "2rem", borderTop: "1px solid var(--line)", paddingTop: "1.5rem" }}
       >
         <h3 style={{ fontSize: "1rem", margin: "0 0 1rem" }}>
