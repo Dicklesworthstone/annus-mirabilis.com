@@ -25,8 +25,11 @@ describe("OsmoticPartitionLab: static rendering (no JavaScript)", () => {
     expect(html).toContain('data-instrument-id="bm-02"');
   });
 
-  test("declares a host execution label, never claiming a FrankenSim/WASM result it did not compute", () => {
-    expect(html).toContain('data-execution-label="host"');
+  test("labels the build's worked example static, and never claims a host or FrankenSim/WASM result", () => {
+    expect(html).toContain('data-execution-label="static"');
+    expect(html).toContain('<span class="badge">Static worked example</span>');
+    expect(html).not.toContain('data-execution-label="host"');
+    expect(html).not.toContain('data-execution-label="frankensim"');
   });
 
   test("includes a noscript notice so a no-JavaScript reader is never shown an empty box", () => {
