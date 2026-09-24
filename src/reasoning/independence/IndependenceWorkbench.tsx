@@ -1,6 +1,8 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState } from "react";
+import { executionLabelFor } from "../../experiments/labels/executionLabelFor.ts";
+import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import {
   analyzeOccupancyRecord,
   applyOccupancySettings,
@@ -42,6 +44,9 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
   const [sharedHref, setSharedHref] = useState("");
   const [link, setLink] = useState<DecodedOccupancyLink>({ kind: "absent" });
   const { comparison, evidence } = state;
+  // Earned per state (am-inst-execution-labels-5ywv): until a reader action is accepted, this is
+  // the comparison the build computed, a static worked example; after one, a host calculation.
+  const executionKind = state === example ? "static-example" : "host-accepted";
   const { n, quarters } = comparison.settings;
   const dirty = nDraft !== String(n) || qDraft !== String(quarters);
 
@@ -128,12 +133,12 @@ export function IndependenceWorkbench({ example }: { example: OccupancyState }) 
       className="laboratory occupancy-workbench"
       aria-labelledby={`${id}-title`}
       data-occupancy-workbench
-      data-execution-label="host"
+      {...executionLabelAttributes(executionKind)}
       data-owner={comparison.owner}
     >
       <header className="lab-heading">
         <h2 id={`${id}-title`}>Keep the mean. Change the dependence.</h2>
-        <span className="badge">Ideal models · Host calculation</span>
+        <span className="badge">{executionLabelFor(executionKind).text}</span>
       </header>
       <noscript>
         <p className="notice">

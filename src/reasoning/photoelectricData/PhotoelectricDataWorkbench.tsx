@@ -2,6 +2,7 @@
 
 import { type FormEvent, type ReactNode, useEffect, useId, useState } from "react";
 import { Sci } from "../../components/lab/Sci.tsx";
+import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { PhotoelectricPlots } from "./PhotoelectricPlots.tsx";
 import { createVoltageFileReader } from "./record.ts";
 import {
@@ -165,7 +166,9 @@ export function PhotoelectricDataWorkbench({
       aria-labelledby={`${id}-title`}
       data-photoelectric-data
       data-analysis-revision={accepted.revision}
-      data-execution-label="host"
+      // Earned per analysis (am-inst-execution-labels-5ywv): the build's constructed example is a
+      // static worked example until a reader's refit is accepted.
+      {...executionLabelAttributes(accepted === example ? "static-example" : "host-accepted")}
     >
       <h2 id={`${id}-title`}>Analyze a stopping-potential record</h2>
       <noscript>
