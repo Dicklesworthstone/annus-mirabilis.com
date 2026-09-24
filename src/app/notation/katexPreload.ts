@@ -1,3 +1,7 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 /**
  * THE TWO KATEX FACES /notation/'s SYMBOL INDEX NEEDS FIRST, PRELOADED.
  *
@@ -18,4 +22,31 @@ export const KATEX_PRELOAD_FONTS = [
 
 export function katexPreloadHref(file: string): string {
   return `/_next/static/media/${file}`;
+}
+
+/**
+ * THE LEAD'S TWO NEWSREADER FACES, PRELOADED TOO.
+ *
+ * With the KaTeX faces preloaded, the rest of the shift was the lead paragraph, not the symbols:
+ * at 1440 it sets beta, gamma, h and k in <i>, so it needs Newsreader's roman and its italic. The
+ * roman arrived first while the italic letters were drawn slanted from it, narrower, and when the
+ * italic face landed about 300ms after load the lead took a fifth line and the page below moved
+ * 38px (live 2316a43b, Chromium: CLS 0.0975 at 1440, 0.094 at 1366, 0.089 at 1280, 0.084 at
+ * 1920; 0 with the site's faces blocked, unchanged with only KaTeX's blocked). Fetched with the page,
+ * both faces are in hand together.
+ *
+ * Each URL carries ?v= and the first eight hex digits of the file's SHA-256, the rule
+ * fontCache.test.ts holds the stylesheets to, so the preload names exactly the URL the @font-face
+ * requests and the browser reuses it rather than fetching the face twice.
+ */
+export const NEWSREADER_PRELOAD_FONTS = [
+  "newsreader/Newsreader-Variable.ttf",
+  "newsreader/Newsreader-Italic-Variable.ttf",
+] as const;
+
+export function siteFontPreloadHref(file: string, root: string = process.cwd()): string {
+  const digest = createHash("sha256")
+    .update(readFileSync(join(root, "public", "fonts", file)))
+    .digest("hex");
+  return `/fonts/${file}?v=${digest.slice(0, 8)}`;
 }

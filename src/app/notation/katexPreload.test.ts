@@ -1,7 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { KATEX_PRELOAD_FONTS, katexPreloadHref } from "./katexPreload.ts";
+import {
+  KATEX_PRELOAD_FONTS,
+  katexPreloadHref,
+  NEWSREADER_PRELOAD_FONTS,
+  siteFontPreloadHref,
+} from "./katexPreload.ts";
 
 /**
  * The preloaded names must be the names Next gives the installed KaTeX fonts, or the preload
@@ -24,6 +29,27 @@ describe("KaTeX preload names on /notation/", () => {
       const hash = bunHash.xxHash64(bytes).toString(16).padStart(16, "0").slice(0, 8);
       expect(hash).toBe(match?.[2] as string);
       expect(katexPreloadHref(file)).toBe(`/_next/static/media/${file}`);
+    }
+  });
+});
+
+/**
+ * A preload is reused only when its URL is exactly the one the @font-face asks for, query string
+ * included. Otherwise the browser fetches the face a second time and the lead still rewraps after
+ * load. Checked against both stylesheets that declare the faces.
+ */
+describe("Newsreader preload URLs on /notation/", () => {
+  test("each is the URL globals.css and themes.css request, ?v= included", () => {
+    expect(NEWSREADER_PRELOAD_FONTS.length).toBeGreaterThan(0);
+    for (const sheet of ["src/app/globals.css", "src/app/theme/themes.css"]) {
+      const css = readFileSync(join(process.cwd(), sheet), "utf8");
+      const requested = [...css.matchAll(/url\("(\/fonts\/newsreader\/[^"]+)"\)/g)].map(
+        (m) => m[1],
+      );
+      expect(requested.length).toBeGreaterThan(0);
+      for (const file of NEWSREADER_PRELOAD_FONTS) {
+        expect(requested).toContain(siteFontPreloadHref(file));
+      }
     }
   });
 });

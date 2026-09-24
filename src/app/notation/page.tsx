@@ -5,7 +5,12 @@ import "../../components/home/wideProse.css";
 import { CollisionClusterView } from "./CollisionClusterView.tsx";
 import { loadFirstUseTargets, resolveFirstUse } from "./firstUseTargets.ts";
 import { GlyphNav } from "./GlyphNav.tsx";
-import { KATEX_PRELOAD_FONTS, katexPreloadHref } from "./katexPreload.ts";
+import {
+  KATEX_PRELOAD_FONTS,
+  katexPreloadHref,
+  NEWSREADER_PRELOAD_FONTS,
+  siteFontPreloadHref,
+} from "./katexPreload.ts";
 import { NotationPageClient } from "./NotationPageClient.tsx";
 import { loadNotationPageData } from "./notationData.ts";
 
@@ -20,6 +25,11 @@ export default async function NotationPage() {
   // them (katexPreload.ts: CLS at 1440 0.235 -> 0.097).
   for (const file of KATEX_PRELOAD_FONTS) {
     preload(katexPreloadHref(file), { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+  }
+  // The lead's roman and italic Newsreader, together, so its italic letters do not rewrap it a
+  // fifth line after load (katexPreload.ts: CLS 0.0975 at 1440).
+  for (const file of NEWSREADER_PRELOAD_FONTS) {
+    preload(siteFontPreloadHref(file), { as: "font", type: "font/ttf", crossOrigin: "anonymous" });
   }
   const targets = await loadFirstUseTargets();
   const data = loadNotationPageData(undefined, (paper, anchor) =>
