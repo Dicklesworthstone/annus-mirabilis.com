@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "kind": "foundation",
+  "id": "free-energy-osmotic-pressure",
+  "title": "Osmotic pressure and free energy",
+  "question": "Why should grains floating in water push on a wall the way dissolved molecules do?",
+  "summary": "Dissolved molecules held behind a wall that lets water through push on it with the pressure an ideal gas of the same particles would exert: p = (RT/N)ν. §1 of the Brownian paper argues that suspended grains must push in the same way, and §2 checks it by the bookkeeping of free energy.",
+  "review": "draft",
+  "explanation": [
+    {
+      "kind": "paragraph",
+      "text": "Put sugar water on one side of a membrane that lets water through but not sugar, and pure water on the other. Water flows toward the sugar until the sugar side stands higher: the sugar pushes outward on the membrane. That push on each square metre is the osmotic pressure."
+    },
+    {
+      "kind": "paragraph",
+      "text": "For a dilute solution van 't Hoff found in 1887 that the pressure is the one an ideal gas of the same particles would exert in the same volume. With ν particles in each cubic metre at absolute temperature T, R the gas constant and N the number of molecules in a gram-molecule:"
+    },
+    {
+      "kind": "formula",
+      "latex": "p = \\frac{RT}{N}\\,\\nu",
+      "spoken": "The osmotic pressure p equals R T over N, times the number of particles per unit volume, nu."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The paper's §1 asks why a grain floating in water, large enough to see under a microscope, should be any different. Classical thermodynamics expected no force at all from suspended grains: the free energy of the system did not seem to depend on where the wall or the grains were. On the kinetic theory of heat, the paper answers, a dissolved molecule and a suspended grain differ only in size. The grains are jostled into a slow, irregular motion, and a wall that keeps them in must be pushed as a wall that keeps molecules in is pushed. So n grains in a volume V*, ν = n/V* in each unit of volume, press on it with p = (RT/N)ν."
+    },
+    {
+      "kind": "paragraph",
+      "text": "§2 checks this inside the kinetic theory with free energy, F = E − TS: the energy minus the temperature times the entropy. At a fixed temperature a system settles where F can no longer decrease. Moving the wall that confines the grains by a small step changes F, and requiring that change to vanish gives the same pressure, (RT/N)ν."
+    },
+    {
+      "kind": "paragraph",
+      "text": "The law holds for dilute suspensions and solutions, where the particles are far apart and do not act on one another. The paper states it for a large volume per gram-molecule; crowded particles depart from it."
+    }
+  ],
+  "exampleTitle": "A sugar solution and a suspension of grains",
+  "example": [
+    {
+      "kind": "steps",
+      "items": [
+        "Dissolve 0.1 gram-molecule of sugar in each litre: 100 in each cubic metre, so ν = 100 × 6.02 × 10²³ = 6.02 × 10²⁵ molecules per cubic metre.",
+        "At T = 293 K, RT/N = 8.314 × 293 ÷ 6.02 × 10²³ = 4.05 × 10⁻²¹ joules. Multiply by ν: p ≈ 2.4 × 10⁵ Pa, about 2.4 atmospheres, enough to hold up a column of water nearly 25 metres tall.",
+        "Now a suspension of grains, a million in each cubic millimetre: ν = 10¹⁵ per cubic metre. The same law gives p = 4.05 × 10⁻²¹ × 10¹⁵ ≈ 4 × 10⁻⁶ Pa.",
+        "Each grain counts exactly as much as one sugar molecule. The pressure is tiny only because there are fewer grains, by a factor of about 6 × 10¹⁰."
+      ]
+    },
+    {
+      "kind": "paragraph",
+      "text": "The pressure depends on the number of particles and the temperature, not on their size or mass. That is what lets §3 treat a grain like a molecule and weigh its jostling against a force."
+    }
+  ],
+  "prerequisites": [
+    "entropy-temperature",
+    "bridge-scientific-notation-units",
+    "bridge-fractions-ratios"
+  ],
+  "stoppingPoint": "This lesson stops at the pressure of a dilute suspension. How that pressure, balanced against a force on each grain, fixes how fast the grains spread is §3 of the Brownian paper.",
+  "citations": [
+    "ap-17-549"
+  ]
+}
