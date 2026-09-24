@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { LocalPredictions } from "../../components/lab/LocalPredictions.tsx";
 
 /*
  * NO ROUTE THEME. This layout set data-route-theme="kramgasse-night", a leftover of the retired
@@ -10,5 +11,12 @@ import type { ReactNode } from "react";
  * light.
  */
 export default function DiscoverLayout({ children }: { children: ReactNode }) {
-  return children;
+  // A discovery page can hold a gated laboratory, whose gate remembers answers on the site's own
+  // routes (src/experiments/predict/predictPersistence.ts).
+  return (
+    <>
+      <LocalPredictions />
+      {children}
+    </>
+  );
 }

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import "../../components/lab/labShell.css";
 import { EmbedLauncher } from "../../components/embed/EmbedLauncher.tsx";
+import { LocalPredictions } from "../../components/lab/LocalPredictions.tsx";
 
 /**
  * Connect the instruments to the shared reasoning laboratories without changing their state.
@@ -20,6 +21,8 @@ import { EmbedLauncher } from "../../components/embed/EmbedLauncher.tsx";
 export default function LaboratoryLayout({ children }: { children: ReactNode }) {
   return (
     <>
+      {/* The predict gate remembers answers here; an embed's never does (predictPersistence.ts). */}
+      <LocalPredictions />
       <div className="lab-route">{children}</div>
       <EmbedLauncher />
       <nav className="actions no-print" aria-label="Ways to test a model">

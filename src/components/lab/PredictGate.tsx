@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { LabTapeLinkState } from "../../experiments/permalink/LabTapeLink.tsx";
 import type { TapePredictionEvent } from "../../experiments/permalink/types.ts";
-import { resolveEffectivePredictEntry } from "../../experiments/predict/predictEntry.ts";
+import { predictPersistence } from "../../experiments/predict/predictPersistence.ts";
 import {
   amendAfterReveal,
   beginPrompt,
@@ -14,18 +14,7 @@ import {
   skipPrediction,
   submitPrediction,
 } from "../../experiments/predict/predictState.ts";
-import {
-  getEntryOverride,
-  hasVisited,
-  markVisited,
-  type PredictionsDocumentV1,
-  readPredictionsDocument,
-  recordPrediction,
-  recordUnrecordedStatus,
-  writePredictionsDocument,
-} from "../../experiments/predict/predictStorage.ts";
 import type { GeneratedPredictPrompt } from "../../generated/predict-prompts.ts";
-import { createStorageContext } from "../../platform/storage/store.ts";
 import { PredictPanel } from "./PredictPanel.tsx";
 
 /**
@@ -54,12 +43,6 @@ export type PredictGateState = Readonly<{
   amend(promptId: string, choice: PredictionChoice): void;
 }>;
 
-function persist(update: (doc: PredictionsDocumentV1) => PredictionsDocumentV1): void {
-  const ctx = createStorageContext();
-  // A blocked or full store leaves this visit's answer in memory; the result still shows.
-  writePredictionsDocument(ctx, update(readPredictionsDocument(ctx)));
-}
-
 export function usePredictGate(
   labId: string,
   prompts: readonly GeneratedPredictPrompt[],
@@ -68,12 +51,16 @@ export function usePredictGate(
     () => new Map(prompts.map((p) => [p.promptId, beginPrompt(p.promptId)])),
   );
   // Read after mount: the server markup, and the first client render that hydrates it, both ask.
+  // The reader's stored answers come through the persistence port, which an embed leaves at
+  // "remembers nothing" (src/experiments/predict/predictPersistence.ts).
   const [notAsked, setNotAsked] = useState(false);
   useEffect(() => {
-    const ctx = createStorageContext();
-    const doc = readPredictionsDocument(ctx);
-    const entry = resolveEffectivePredictEntry(ctx, getEntryOverride(doc, labId)).choice;
-    if (entry !== "predict-first" || prompts.some((p) => hasVisited(doc, labId, p.promptId)))
+    if (
+      !predictPersistence().asks(
+        labId,
+        prompts.map((p) => p.promptId),
+      )
+    )
       setNotAsked(true);
   }, [labId, prompts]);
 
@@ -107,26 +94,15 @@ export function usePredictGate(
     // compared with it at once rather than after a further change.
     record(promptId, choice) {
       change(promptId, (r) => reveal(submitPrediction(r, choice)));
-      persist((doc) =>
-        recordPrediction(markVisited(doc, labId, promptId), labId, promptId, choice),
-      );
+      predictPersistence().record(labId, promptId, choice);
     },
     keep(promptId) {
       change(promptId, keepToSelf);
-      persist((doc) =>
-        recordUnrecordedStatus(
-          markVisited(doc, labId, promptId),
-          labId,
-          promptId,
-          "predicted-unrecorded",
-        ),
-      );
+      predictPersistence().keep(labId, promptId);
     },
     skip(promptId) {
       change(promptId, skipPrediction);
-      persist((doc) =>
-        recordUnrecordedStatus(markVisited(doc, labId, promptId), labId, promptId, "skipped"),
-      );
+      predictPersistence().skip(labId, promptId);
     },
     amend(promptId, choice) {
       change(promptId, (r) => amendAfterReveal(r, choice));

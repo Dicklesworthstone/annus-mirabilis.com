@@ -14,7 +14,9 @@ import type { PreparedLq01Example } from "../../experiments/lq01/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as ME01_EXAMPLE } from "../../experiments/me01/session.ts";
 import { DEFAULT_PREPARED_EXAMPLE as ME02_EXAMPLE } from "../../experiments/me02/session.ts";
 import { decodeTapePermalink } from "../../experiments/permalink/codec.ts";
+import { LOCAL_PREDICT_PERSISTENCE } from "../../experiments/predict/localPredictPersistence.ts";
 import { writeGlobalPredictEntry } from "../../experiments/predict/predictEntry.ts";
+import { installPredictPersistence } from "../../experiments/predict/predictPersistence.ts";
 import {
   getStoredPrompt,
   markVisited,
@@ -364,6 +366,8 @@ function button(container: HTMLElement, text: string): Element | undefined {
 describe("with JavaScript, a first-time reader answers before the result shows", () => {
   beforeEach(async () => {
     await installDom();
+    // As on the site's own routes, whose layouts render LocalPredictions.
+    installPredictPersistence(LOCAL_PREDICT_PERSISTENCE);
   });
   afterEach(async () => {
     await uninstallDom();
