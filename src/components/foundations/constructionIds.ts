@@ -31,6 +31,7 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "two-measurements-two-unknowns",
   "entropy-multiplicity",
   "work-energy",
+  "entropy-temperature",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];

@@ -476,6 +476,18 @@
   margin: 0.5rem 0 1rem;
 }
 
+/* EntropyTemperatureCheck.tsx: the workbench embedded on request. The component adds the frame
+   only when the reader opens its <details>, so a reader who never opens it never fetches it. */
+.foundation-construction iframe {
+  display: block;
+  width: 100%;
+  height: 36rem;
+  margin-top: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+}
+
 /* Print Media Styles */
 @media print {
   .proportional-controls,

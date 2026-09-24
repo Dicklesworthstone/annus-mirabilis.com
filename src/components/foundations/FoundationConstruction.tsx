@@ -5,6 +5,7 @@ import { ConfigurationCounter } from "./ConfigurationCounter.tsx";
 import { foundationConstructionId } from "./constructionIds.ts";
 import { DescriptionOrWorld } from "./DescriptionOrWorld.tsx";
 import { EnergyLedger } from "./EnergyLedger.tsx";
+import { EntropyTemperatureCheck } from "./EntropyTemperatureCheck.tsx";
 import { HeldFixedToggle } from "./HeldFixedToggle.tsx";
 import type { HeadingLevel } from "./headingLevel.ts";
 import { LogarithmProductTable } from "./LogarithmProductTable.tsx";
@@ -79,5 +80,7 @@ export function FoundationConstruction({
       return <ConfigurationCounter headingLevel={headingLevel} />;
     case "work-energy":
       return <EnergyLedger headingLevel={headingLevel} />;
+    case "entropy-temperature":
+      return <EntropyTemperatureCheck headingLevel={headingLevel} />;
   }
 }
