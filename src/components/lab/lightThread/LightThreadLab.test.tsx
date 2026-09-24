@@ -14,8 +14,8 @@ test("SSR retains every quantity, the model boundaries, and the primary-source e
     "/papers/light-quanta/#s6",
     "/papers/special-relativity/#s8",
     "/papers/mass-energy/",
-    "/lab/me-01",
-    "/lab/me-02",
+    "/lab/me-01/",
+    "/lab/me-02/",
   ]) {
     assert.ok(html.includes(`href="${href}"`), href);
   }
