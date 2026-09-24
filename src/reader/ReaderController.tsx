@@ -270,18 +270,29 @@ export function ReaderController(props: Props) {
         );
       } else if (control.dataset.viewLink && FACES.includes(control.dataset.viewLink as Face)) {
         event.preventDefault();
-        // The passage at the top of the viewport stays where it stood (keepPlace.ts).
-        const place = placeOf(
-          [...root.querySelectorAll("article.reader-passage[data-unit]")],
-          window.innerHeight,
-        );
+        // WHERE THE READER IS AFTER THE SWITCH. When the address names a passage, the new face
+        // opens at it, as arriving by that link does: the face links sit at the top of the page,
+        // so a reader who scrolled up to them has already left the passage, and keeping the
+        // viewport's place kept the page top (measured on live b2077fc1: after Results, the named
+        // passage stood 10,062px down). With no passage named, the passage at the top of the
+        // viewport stays where it stood (keepPlace.ts).
+        const named = urlNamesPassage ? document.getElementById(state.anchor) : null;
+        const place = named
+          ? null
+          : placeOf(
+              [...root.querySelectorAll("article.reader-passage[data-unit]")],
+              window.innerHeight,
+            );
         change(
           { ...state, view: control.dataset.viewLink as Face },
           true,
           "Changed the reading face; the passage and laboratory are preserved.",
         );
-        const delta = place ? scrollToKeep(place, window.innerHeight) : 0;
-        if (delta !== 0) window.scrollBy({ top: delta, behavior: "instant" });
+        if (named) named.scrollIntoView({ block: "start", behavior: "instant" });
+        else {
+          const delta = place ? scrollToKeep(place, window.innerHeight) : 0;
+          if (delta !== 0) window.scrollBy({ top: delta, behavior: "instant" });
+        }
       } else if (
         control.dataset.readerAnchor &&
         registry.anchors.includes(control.dataset.readerAnchor)

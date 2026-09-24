@@ -5,13 +5,13 @@
  * Choosing Results, and then Reading, from the face links changed the view and announced "the
  * passage and laboratory are preserved", but not where the reader was: the new face lays out
  * differently, so the same scroll offset lands somewhere else. Measured on live 01478983 at
- * 1280x800, from /papers/light-quanta/#arg-lq-independent-configurations with that passage at
- * the top: after Results it stood 10,062px below the top of the viewport, and after Reading again
- * 14,354px.
+ * 1280x800, from /papers/light-quanta/#arg-lq-independent-configurations: after Results that
+ * passage stood 10,062px below the top of the viewport, and after Reading again 14,354px.
  *
- * So the controller notes the passage at the top of the viewport before the switch, and after it
- * scrolls so that the same passage stands where it stood. Passages keep their element across
- * faces (each face is a part of the same article), so the element is the identity.
+ * When the address names a passage, the controller opens the new face at it. Otherwise it notes
+ * the passage at the top of the viewport before the switch and, after it, scrolls so that the
+ * same passage stands where it stood; this module is that half. Passages keep their element
+ * across faces (each face is a part of the same article), so the element is the identity.
  */
 
 export type Place = Readonly<{ passage: Element; top: number }>;
