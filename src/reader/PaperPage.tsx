@@ -47,10 +47,10 @@ import {
 } from "./lazyIslands.tsx";
 import { MassEnergyDerivation } from "./MassEnergyDerivation.tsx";
 import { MassEnergyLowSpeed } from "./MassEnergyLowSpeed.tsx";
+import { loadPaperMargins } from "./marginRecords.ts";
 import { OutlineSectionTitle } from "./OutlineSectionTitle.tsx";
 import { PaperMargins } from "./PaperMargins.tsx";
 import { notationReach, notationReachLine, paperEquations } from "./paperEquations.ts";
-import { loadPaperMargins } from "./marginRecords.ts";
 import {
   isFaceFallbackId,
   type PaperRouteRequest,

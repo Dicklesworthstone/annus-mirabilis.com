@@ -7,7 +7,7 @@ import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { exportMarkup } from "../testing/exportMarkup.ts";
-import { loadPaperMargins } from "./marginRecords.ts";
+import { loadPaperMargins, MarginRecordError } from "./marginRecords.ts";
 import { PaperMargins } from "./PaperMargins.tsx";
 import { PaperPage } from "./PaperPage.tsx";
 
@@ -29,15 +29,58 @@ describe("loading a paper's margin records", () => {
     ]);
   });
 
-  for (const [name, message] of [
-    ["dangling-citation", 'cites "cit-demo", which has no bibliography record'],
-    ["bad-math", "Unsupported math command: theta"],
-    ["unregistered-instrument", 'instrument "zz-99" is not registered'],
-    ["yaml-file", "margin records are JSON"],
-  ] as const)
-    test(`refuses ${name}`, () => {
-      expect(() => loadPaperMargins("demo-paper", root(name))).toThrow(message);
-    });
+  test("refuses bad-math", () => {
+    expect(() => loadPaperMargins("demo-paper", root("bad-math"))).toThrow(
+      "Unsupported math command: theta",
+    );
+  });
+
+  // Each of the loader's own refusals, by its code, from a fixture that reaches exactly that site.
+  const refusal = (name: string): MarginRecordError => {
+    try {
+      loadPaperMargins("demo-paper", root(name));
+    } catch (error) {
+      if (error instanceof MarginRecordError) return error;
+      throw error;
+    }
+    throw new Error(`${name}: loaded without a refusal`);
+  };
+
+  test("refuses a file that is not JSON: margin-record-not-json", () => {
+    const e = refusal("yaml-file");
+    expect(e.code).toBe("margin-record-not-json");
+    expect(e.message).toContain("margin records are JSON");
+  });
+
+  test("refuses a misconception filed under the wrong paper: margin-record-paper-mismatch", () => {
+    const e = refusal("paper-mismatch");
+    expect(e.code).toBe("margin-record-paper-mismatch");
+    expect(e.message).toContain("filed under demo-paper, names other-paper");
+  });
+
+  test("refuses an unregistered instrument: margin-instrument-unregistered", () => {
+    const e = refusal("unregistered-instrument");
+    expect(e.code).toBe("margin-instrument-unregistered");
+    expect(e.message).toContain('instrument "zz-99" is not registered');
+  });
+
+  test("refuses a citation with no bibliography record: margin-citation-missing", () => {
+    const e = refusal("dangling-citation");
+    expect(e.code).toBe("margin-citation-missing");
+    expect(e.message).toContain('cites "cit-demo", which has no bibliography record');
+  });
+
+  test("refuses a cited record that is not a citation: margin-citation-wrong-kind", () => {
+    const e = refusal("citation-wrong-kind");
+    expect(e.code).toBe("margin-citation-wrong-kind");
+    expect(e.message).toContain("is not a citation");
+  });
+
+  test("refuses a margin note that cites no source: margin-note-uncited", () => {
+    const e = refusal("note-uncited");
+    expect(e.code).toBe("margin-note-uncited");
+    expect(e.message).toContain("a margin note cites no source");
+  });
 });
 
 describe("the sections on the page", () => {

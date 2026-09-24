@@ -1,0 +1,13 @@
+{
+  "id": "note-demo-a",
+  "kind": "historian-margin",
+  "author": {
+    "id": "agent:fixture",
+    "kind": "model",
+    "modelId": "fixture-model"
+  },
+  "claim": "The paper writes \\(L/V^2\\), not the familiar form.",
+  "sourceSupport": [],
+  "affectedIds": ["s0-p4"],
+  "reviewState": "draft"
+}

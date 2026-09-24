@@ -19,6 +19,16 @@ import { type EditorialNote, validateEditorialNote } from "../content/schemas/so
 import { REGISTERED_IDS } from "../experiments/catalogue.ts";
 import { parseWhatIsTrue } from "./misconceptions/types.ts";
 
+/** A refusal from this loader, with a code a test can name (src/testing/refusals). */
+export class MarginRecordError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "MarginRecordError";
+    this.code = code;
+  }
+}
+
 export type MarginCitation = Readonly<{ id: string; title: string; locator: string; url: string }>;
 
 export type PaperMargins = Readonly<{
@@ -35,7 +45,8 @@ function jsonRecords(dir: string): { path: string; value: unknown }[] {
     .map((name) => {
       const path = join(dir, name);
       if (!name.endsWith(".json"))
-        throw new Error(
+        throw new MarginRecordError(
+          "margin-record-not-json",
           `${path}: margin records are JSON; the content compiler skips other files.`,
         );
       return { path, value: JSON.parse(readFileSync(path, "utf8")) as unknown };
@@ -54,7 +65,10 @@ export function loadPaperMargins(paper: string, root: string = process.cwd()): P
     ({ path, value }) => {
       const record = validateMisconception(value, path);
       if (record.paper !== paper)
-        throw new Error(`${path}: filed under ${paper}, names ${record.paper}.`);
+        throw new MarginRecordError(
+          "margin-record-paper-mismatch",
+          `${path}: filed under ${paper}, names ${record.paper}.`,
+        );
       const readings = parseWhatIsTrue(record.whatIsTrue, record.id);
       const texts = [
         ...record.temptingClaims,
@@ -68,7 +82,11 @@ export function loadPaperMargins(paper: string, root: string = process.cwd()): P
       ];
       for (const text of texts) checkInlineMath(text, path);
       for (const id of record.instrumentIds ?? [])
-        if (!registered.has(id)) throw new Error(`${path}: instrument "${id}" is not registered.`);
+        if (!registered.has(id))
+          throw new MarginRecordError(
+            "margin-instrument-unregistered",
+            `${path}: instrument "${id}" is not registered.`,
+          );
       return record;
     },
   );
@@ -78,9 +96,13 @@ export function loadPaperMargins(paper: string, root: string = process.cwd()): P
     if (citations.has(id)) return;
     const path = join(root, "content", "bibliography", `${id}.json`);
     if (!existsSync(path))
-      throw new Error(`${from}: cites "${id}", which has no bibliography record.`);
+      throw new MarginRecordError(
+        "margin-citation-missing",
+        `${from}: cites "${id}", which has no bibliography record.`,
+      );
     const record = validateReadingRecord(JSON.parse(readFileSync(path, "utf8")), path);
-    if (record.kind !== "citation") throw new Error(`${path}: is not a citation.`);
+    if (record.kind !== "citation")
+      throw new MarginRecordError("margin-citation-wrong-kind", `${path}: is not a citation.`);
     citations.set(id, { id, title: record.title, locator: record.locator, url: record.url });
   };
 
@@ -89,7 +111,10 @@ export function loadPaperMargins(paper: string, root: string = process.cwd()): P
       const record = validateEditorialNote(value, path);
       checkInlineMath(record.claim, path);
       if (record.sourceSupport.length === 0)
-        throw new Error(`${path}: a margin note cites no source.`);
+        throw new MarginRecordError(
+          "margin-note-uncited",
+          `${path}: a margin note cites no source.`,
+        );
       for (const source of record.sourceSupport) cite(source.citationId, path);
       return record;
     },

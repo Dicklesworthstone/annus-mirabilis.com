@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "kind": "paper",
+  "id": "cit-demo",
+  "title": "A demo paper record",
+  "germanTitle": "Ein Beispiel",
+  "description": "A paper record filed where a citation belongs.",
+  "citation": "cit-other",
+  "status": "explanation-preview",
+  "sourceStatus": "in-preparation",
+  "sourceNotice": "A demo notice.",
+  "sections": [
+    {
+      "id": "s0",
+      "title": "Demo",
+      "arguments": ["arg-demo"]
+    }
+  ]
+}

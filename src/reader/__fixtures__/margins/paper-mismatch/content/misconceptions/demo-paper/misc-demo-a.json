@@ -1,0 +1,38 @@
+{
+  "kind": "misconception",
+  "id": "misc-demo-a",
+  "paper": "other-paper",
+  "temptingClaims": ["A claim with \\(E=mc^2\\) in it."],
+  "whyTempting": "A reason.",
+  "whereItIsTrue": "none",
+  "whatIsTrue": {
+    "r0": "Zero.",
+    "r1": "The paper writes \\(L/V^2\\).",
+    "r2": "Two.",
+    "r3": "Three."
+  },
+  "instrumentIds": ["me-02"],
+  "anchors": ["s0-p4"],
+  "resultIds": [],
+  "sources": ["ap-18-639"],
+  "intervention": {
+    "instrumentId": "me-02",
+    "defaultsReviewed": {
+      "model": "m",
+      "labels": "l",
+      "defaultControls": "d",
+      "feedback": "f"
+    },
+    "reviewRecordId": "fixture-pending"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:fixture",
+        "kind": "model",
+        "modelId": "fixture-model"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}
