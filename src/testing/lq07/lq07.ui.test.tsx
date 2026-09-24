@@ -101,6 +101,18 @@ describe("LQ-07 UI components and route", () => {
       /<section data-predict-response="awaiting"[^>]*><h3[^>]*>Calculated energy ledger and transition quantities/,
     );
     expect(html).not.toContain('data-predict-response="shown"');
+    // The drawing's name states the frequencies, and not the verdict that waits.
+    expect(html).toContain(
+      'aria-label="Fluorescence energy budget: incident 850 THz (3.515 eV), emitted 850 THz (3.515 eV)"',
+    );
+    const shown = renderToStaticMarkup(
+      <FluorescencePlot
+        parameters={LQ07_DEFAULTS}
+        evaluation={evaluateLq07(LQ07_DEFAULTS)}
+        response={{ "data-predict-response": "shown" }}
+      />,
+    );
+    expect(shown).toContain("emitted 850 THz (3.515 eV), status allowed");
     expect(containsHeading(html, "Calculated energy ledger and transition quantities")).toBe(true);
     expect(html).toContain("Budget verdict");
     expect(html).toContain("Maximum allowed frequency");

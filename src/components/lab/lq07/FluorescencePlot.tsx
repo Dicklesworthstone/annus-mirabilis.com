@@ -44,6 +44,8 @@ export function FluorescencePlot({
   clipId = "lq07-plot-clip",
   response,
 }: FluorescencePlotProps) {
+  // While the verdict waits, the drawing's name does not state it either.
+  const awaiting = response?.["data-predict-response"] === "awaiting";
   const { nu1, nu2, regime, multiQuantumK } = parameters;
   const { budget, rates } = evaluation;
 
@@ -167,7 +169,7 @@ export function FluorescencePlot({
         <svg
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           role="img"
-          aria-label={`Fluorescence energy budget: incident ${nu1} THz (${fixed(budget.e1Ev, 3)} eV), emitted ${nu2} THz (${fixed(budget.e2Ev, 3)} eV), status ${budget.allowed ? "allowed" : "disallowed"}`}
+          aria-label={`Fluorescence energy budget: incident ${nu1} THz (${fixed(budget.e1Ev, 3)} eV), emitted ${nu2} THz (${fixed(budget.e2Ev, 3)} eV)${awaiting ? "" : `, status ${budget.allowed ? "allowed" : "disallowed"}`}`}
           style={{
             display: "block",
             width: "100%",
