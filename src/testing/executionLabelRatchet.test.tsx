@@ -43,6 +43,7 @@ const DERIVED_ROUTES = [
   "bm-04",
   "bm-05",
   "bm-06",
+  "bm-07",
   "lq-01",
   "lq-03",
   "lq-04",
@@ -58,6 +59,8 @@ const DERIVED_ROUTES = [
   "sr-02",
   "sr-03",
   "sr-04",
+  "sr-05",
+  "sr-06",
   "sr-07",
   "sr-08",
   "sr-09",
@@ -83,6 +86,15 @@ const HOST_AT_BUILD_TIME = [
   "shelf-maxwell-galilean/",
   "shelf-michelson-morley/",
 ];
+
+/**
+ * Routes whose instrument root may render with no label at build time. The kitchen holds no data
+ * until a reader loads their own; none of the four labels describes an empty workbench, and its badge
+ * says "No data loaded". Every other instrument root carries a label: on 2026-09-24 BM-07, SR-05 and
+ * SR-06 carried none, and SR-06's eyebrow printed "Ideal model, host calculation" as fixed text
+ * (ec9d4957, 82ce8f44, b774006a).
+ */
+const UNLABELLED_AT_BUILD_TIME = ["bm-07/kitchen/"];
 
 const COMPONENTS = fileURLToPath(new URL("../components/", import.meta.url));
 const LAB_APP = fileURLToPath(new URL("../app/lab/", import.meta.url));
@@ -176,9 +188,10 @@ describe("execution labels are derived, not written", () => {
     }
   });
 
-  test("no lab route renders a host label at build time except the listed labs' routes", async () => {
+  test("no lab route renders a host label at build time except the listed labs', and every instrument root carries a label", async () => {
     const pages = labPages(LAB_APP);
     const host: string[] = [];
+    const unlabelled: string[] = [];
     let renders = 0;
     for (const rel of pages) {
       const mod = await import(`${LAB_APP}${rel}page.tsx`);
@@ -192,8 +205,10 @@ describe("execution labels are derived, not written", () => {
         });
         const html = await exportMarkup(out instanceof Promise ? await out : out);
         renders += 1;
-        if (html.includes('data-execution-label="host"'))
-          host.push(dynamic ? `${rel}${JSON.stringify(params)}` : rel);
+        const route = dynamic ? `${rel}${JSON.stringify(params)}` : rel;
+        if (html.includes('data-execution-label="host"')) host.push(route);
+        if (html.includes("data-instrument-id=") && !html.includes("data-execution-label="))
+          unlabelled.push(route);
       }
     }
     console.log(
@@ -201,5 +216,9 @@ describe("execution labels are derived, not written", () => {
     );
     expect(pages.length).toBeGreaterThan(40);
     expect(host.sort()).toEqual([...HOST_AT_BUILD_TIME].sort());
+    console.log(
+      `[execution labels] ${unlabelled.length} render an instrument root with no label: ${unlabelled.join(", ")}`,
+    );
+    expect(unlabelled.sort()).toEqual([...UNLABELLED_AT_BUILD_TIME].sort());
   });
 });
