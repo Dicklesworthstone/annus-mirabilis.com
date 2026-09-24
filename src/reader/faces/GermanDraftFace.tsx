@@ -193,7 +193,12 @@ export function GermanDraftFace({
                   data-printed-page={printedPage(block.id)}
                 >
                   {block.footnoteLabel ? <strong>{block.footnoteLabel} </strong> : null}
-                  {renderSourceMarkup(block.text, block.id)}
+                  {renderSourceMarkup(
+                    block.text,
+                    block.id,
+                    block.displayEquationIds,
+                    block.joinedIds?.map((id) => ({ id, page: printedPage(id) })),
+                  )}
                 </p>
               ))}
             </section>

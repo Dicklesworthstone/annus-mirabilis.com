@@ -46,8 +46,15 @@ import { join } from "node:path";
 import type { RouteSlug } from "../ids.ts";
 import { parseReceipt } from "../provenance/parseReceipt.ts";
 import { type SourceFaceNotice, sourceFaceNotice } from "../provenance/sourceFaceNotice.ts";
+import { parseYaml } from "../provenance/yaml.ts";
 import { type BlockPages, blockStartPages } from "./blockPages.ts";
-import { type JoinedBlock, joinPageContinuations } from "./joinContinuations.ts";
+import {
+  foldFootnoteRuns,
+  type JoinedBlock,
+  joinAfterDisplays,
+  joinPageContinuations,
+  type ManifestUnit,
+} from "./joinContinuations.ts";
 import { PAPER_BIB_KEYS } from "./ledgerPresence.ts";
 import { segmentLedger } from "./segmentLedger.ts";
 
@@ -79,6 +86,26 @@ export class GermanSourceFaceError extends Error {
  * already says honestly, and a refusal means "the records disagree with the disk", which
  * nobody should paper over with the same sentence.
  */
+/**
+ * The frozen manifest's units in printed order, id and kind only, or none when the paper has no
+ * manifest; with none, joinAfterDisplays joins nothing.
+ */
+function printedUnits(root: string, slug: RouteSlug): readonly ManifestUnit[] {
+  const path = join(root, "content", "source-blocks", slug, "manifest.yaml");
+  if (!existsSync(path)) return [];
+  const units = (parseYaml(readFileSync(path, "utf8")) as { units?: unknown } | null)?.units;
+  if (!Array.isArray(units)) return [];
+  return units.flatMap((unit): ManifestUnit[] => {
+    const { id, kind, containedIn } = (unit ?? {}) as {
+      id?: unknown;
+      kind?: unknown;
+      containedIn?: unknown;
+    };
+    if (typeof id !== "string" || typeof kind !== "string") return [];
+    return [{ id, kind, ...(typeof containedIn === "string" ? { containedIn } : {}) }];
+  });
+}
+
 export function loadGermanSourceFace(
   slug: RouteSlug,
   root: string = process.cwd(),
@@ -130,8 +157,13 @@ export function loadGermanSourceFace(
   const ledgerText = readFileSync(ledgerPath, "utf8");
   const segmented = segmentLedger({ ledgerText });
   if (segmented.status === "absent") return null;
-  // A paragraph the page broke is one paragraph here; no id moves (joinContinuations.ts).
-  const blocks = joinPageContinuations(segmented.blocks);
+  // A printed paragraph is one paragraph here, and no id moves (joinContinuations.ts): a
+  // footnote's run-on lines go back into the footnote, then paragraphs join where a page broke
+  // them and where the print runs on after a display, which only the plate-read manifest records.
+  const blocks = joinAfterDisplays(
+    joinPageContinuations(foldFootnoteRuns(segmented.blocks, ledgerText)),
+    printedUnits(root, slug),
+  ).blocks;
 
   return {
     slug,

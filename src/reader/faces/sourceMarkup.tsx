@@ -94,7 +94,7 @@ const STANDALONE: Record<string, (arg: string | undefined, key: string) => React
  * Dropping them here is correct for the reader; the asymmetry upstream is reported separately
  * rather than repaired in the edition pipeline during a design pass.
  */
-const STRUCTURAL = new Set(["CONTINUES", "DATELINE", "RECEIVED", "PAGE", "COL"]);
+const STRUCTURAL = new Set(["CONTINUES", "JOINED", "DATELINE", "RECEIVED", "PAGE", "COL"]);
 
 /**
  * A refusal to typeset the ledger. Both codes are build-time data failures, raised while the
@@ -167,11 +167,11 @@ export function sourceDisplayEquation(
  * `displayEquationIds`. When given, it must name every one of them: an id put on the wrong formula
  * is a false anchor, so a count that disagrees with the text throws rather than guessing.
  *
- * `joins` names, in order, the paragraphs joined into this one where a page turned
- * (joinContinuations.ts). The n-th `[[CONTINUES]]` in the text is the n-th join: it becomes an
+ * `joins` names, in order, the paragraphs joined into this one, where a page turned or where the
+ * print runs on after a display equation (joinContinuations.ts). The n-th `[[JOINED]]` in the text is the n-th join: it becomes an
  * empty anchor carrying the retired id and the printed page the words after it are on, so a link
- * to the old id lands there and the plate turns there. A marker past the last join is dropped, as
- * every structural marker is.
+ * to the old id lands there and the plate turns there. The ledger's own `[[CONTINUES]]` is dropped,
+ * as every structural marker is, and so is a `[[JOINED]]` past the last join.
  *
  * Returns a plain string when the text carries neither markup nor mathematics, so most blocks
  * cost nothing and render exactly as before.
@@ -247,7 +247,7 @@ export function renderSourceMarkup(
         continue;
       }
 
-      if (name === "CONTINUES" && !closing && joined < joins.length) {
+      if (name === "JOINED" && !closing && joined < joins.length) {
         const join = joins[joined++];
         push(
           <span
