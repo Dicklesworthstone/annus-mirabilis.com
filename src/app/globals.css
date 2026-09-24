@@ -981,8 +981,11 @@ svg[role="img"] text {
   fill: none;
   stroke-linejoin: round;
 }
+/* The shaded area under a density (BM-06). A fixed #abc5b4 was a light tint of the light theme's
+   plot colour, and on the dark paper it outshone the curve it sits under; a mix of the theme's
+   own plot colour into its paper keeps the light tint near where it was and dims it in the dark. */
 .area {
-  fill: #abc5b4;
+  fill: color-mix(in srgb, var(--plot) 40%, var(--paper));
 }
 .comparison-curve {
   stroke: var(--accent);
