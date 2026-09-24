@@ -5,6 +5,7 @@ import { dayAndMonth, loadFirstPages } from "../../components/home/firstPages.ts
 import "../../components/home/wideProse.css";
 import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts";
 import "./about.css";
+import { PORTRAIT } from "./portrait.ts";
 import { attributionFrom, dayDate, publicationDate, requireFound } from "./refusals.ts";
 
 export const metadata: Metadata = {
@@ -82,8 +83,9 @@ function listed(items: readonly string[]): string {
 export default function AboutPage() {
   const count = loadCount();
   const attribution = loadAttribution();
+  const [small, large] = PORTRAIT.served;
   return (
-    <div>
+    <div className="about-page">
       <header className="page-intro page-flush">
         <p className="eyebrow">About</p>
         <h1>About this edition</h1>
@@ -94,6 +96,27 @@ export default function AboutPage() {
           change an assumption.
         </p>
       </header>
+
+      {/* The credit is the archive's own record (portrait.ts), including where it and the usual
+          attribution disagree. A plain img with a srcSet, as the plates are: images.unoptimized
+          means next/image would emit no srcset of its own. */}
+      <figure className="about-portrait">
+        <img
+          src={small.path}
+          srcSet={`${small.path} ${small.width}w, ${large.path} ${large.width}w`}
+          sizes="(min-width: 1100px) 20rem, 7rem"
+          width={small.width}
+          height={small.height}
+          decoding="async"
+          alt={PORTRAIT.alt}
+        />
+        <figcaption>
+          Einstein at the patent office in Bern, about 1905. {PORTRAIT.archive},{" "}
+          <a href={`https://doi.org/${PORTRAIT.doi}`}>{PORTRAIT.identifier}</a>, public domain. The
+          archive records the photographer as unknown; the picture is also credited to{" "}
+          {PORTRAIT.alsoCreditedTo}.
+        </figcaption>
+      </figure>
 
       <section className="reading page-flush about-section" aria-labelledby="count-note">
         <h2 id="count-note">Four papers, or five</h2>

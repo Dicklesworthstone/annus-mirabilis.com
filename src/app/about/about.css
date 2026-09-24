@@ -13,3 +13,69 @@
   border-left: 2px solid var(--rule);
   font-style: italic;
 }
+
+/* The photograph (portrait.ts). On a phone, a row: the picture at 7rem with its credit beside it,
+   so it does not push the first section a screen down. From 1100px the page is two columns and
+   the photograph stays beside the prose while it is read, in the width the prose leaves empty. */
+.about-portrait {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: end;
+  max-width: 36rem;
+  margin: 0 0 1rem;
+}
+.about-portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* Only seen while it loads. */
+  background: var(--wash);
+  border: 1px solid var(--rule);
+}
+.about-portrait figcaption {
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  line-height: 1.5;
+  color: var(--muted);
+}
+:root[data-theme="kramgasse-night"] .about-portrait img {
+  opacity: 0.9;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .about-portrait img {
+    opacity: 0.9;
+  }
+}
+@media (min-width: 1100px) {
+  .about-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    column-gap: 4rem;
+  }
+  .about-page > * {
+    grid-column: 1;
+  }
+  /* Grid items keep their margins apart where the one-column page let them collapse: 96px
+     between sections instead of 64, and each section 22px taller by its last paragraph's margin.
+     These two rules give back the one-column spacing, measured equal at 1440. */
+  .about-page > .about-section ~ .about-section {
+    margin-top: 0;
+  }
+  .about-page > .about-section > :last-child {
+    margin-bottom: 0;
+  }
+  .about-page > .about-portrait {
+    grid-column: 2;
+    grid-row: 1 / span 6;
+    align-self: start;
+    position: sticky;
+    top: 2rem;
+    display: block;
+    max-width: none;
+    margin: 3rem 0 0;
+  }
+  .about-portrait figcaption {
+    margin-top: 0.75rem;
+  }
+}

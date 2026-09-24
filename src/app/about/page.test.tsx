@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { dayAndMonth, loadFirstPages } from "../../components/home/firstPages.ts";
 import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts";
 import About from "./page";
+import { PORTRAIT } from "./portrait.ts";
 
 /** /about/ against the real receipts and NOTICE.md. */
 const html = renderToStaticMarkup(<About />);
@@ -49,6 +50,26 @@ describe("/about/", () => {
       const route = href.replace(/^\/|\/$/g, "");
       expect(existsSync(join("src", "app", route, "page.tsx"))).toBe(true);
     }
+  });
+
+  test("the photograph is described, served at every width its srcSet names, and credited from the archive's record", () => {
+    const figure = /<figure class="about-portrait">([\s\S]*?)<\/figure>/.exec(html)?.[1] ?? "";
+    expect(figure.length).toBeGreaterThan(0);
+    // A reader who cannot see it is told what it shows.
+    const alt = /alt="([^"]*)"/.exec(figure)?.[1] ?? "";
+    expect(alt.length).toBeGreaterThan(20);
+    const srcSet = /srcSet="([^"]+)"/.exec(figure)?.[1] ?? "";
+    const files = srcSet.split(", ").map((candidate) => candidate.split(" ")[0] ?? "");
+    expect(files.length).toBe(PORTRAIT.served.length);
+    for (const file of files) expect(existsSync(join("public", file))).toBe(true);
+    // The credit names the archive and links its record, and keeps the disagreement over who took
+    // the picture: the archive says unknown, and it is also credited to Lucien Chavan.
+    const caption = figure.replace(/<[^>]+>/g, "").replace(/&#x27;|&rsquo;/g, "’");
+    expect(caption).toContain(PORTRAIT.archive);
+    expect(figure).toContain(`href="https://doi.org/${PORTRAIT.doi}"`);
+    expect(caption).toContain(PORTRAIT.identifier);
+    expect(caption).toContain("photographer as unknown");
+    expect(caption).toContain(PORTRAIT.alsoCreditedTo);
   });
 
   test("no em dash in the page's text", () => {
