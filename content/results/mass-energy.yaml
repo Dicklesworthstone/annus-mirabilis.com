@@ -1,0 +1,265 @@
+# The results of the mass-energy paper, as the results face shows them (am-me-results-cards-c6mf).
+# Checked by src/content/results/resultCards.ts.
+#
+# The as-printed layer is never typed here: each entry names an anchor of the German face (a
+# display, or sentences of a paragraph by their order in it) and the text is read from the face.
+# The anchors were chosen from the plates of pages 639 to 641, read by eye. Everything written here
+# (the one-sentence reading, the decoder, the qualifications, the probe questions) is draft
+# explanatory prose; no review is claimed.
+#
+# Misconceptions and "used later" notes stay empty until the mass-energy misconception ledger
+# (am-me-misconceptions-tr18) and margin records (am-me-margin-entries-kfg5) exist to cite; a
+# card lists none rather than inventing one. Probes name the laboratory, the question, and a preset
+# its manifest registers (content/experiments/me-0N.yaml); the preset's label is read from there.
+paper: mass-energy
+review: draft
+cards:
+  - id: me-light-energy-transformation
+    section: s0
+    arguments: [arg-me-import]
+    printed:
+      - anchor: s0-p4
+        sentences: [1]
+      - anchor: s0-p5
+        sentences: [1, 2, 3]
+    equations: [eq-model-me-light-energy-transform]
+    oneSentence: "Light of energy \\(l\\) travelling at angle \\(\\varphi\\) to the x-axis has the energy \\(l^*\\) in a system moving along x at speed \\(v\\); the paper takes this from §8 of the relativity paper and derives nothing new here."
+    decoder:
+      - symbol: "\\(l\\)"
+        meaning: "The energy of a system of plane light waves, measured in the system (x, y, z)."
+      - symbol: "\\(l^*\\)"
+        meaning: "The energy of the same light, measured in the system (ξ, η, ζ), whose origin moves with speed \\(v\\) along the x-axis."
+      - symbol: "\\(\\varphi\\)"
+        meaning: "The angle between the direction of the rays (the wave normal) and the x-axis."
+      - symbol: "\\(V\\)"
+        meaning: "The speed of light, printed V; today it is written c."
+      - symbol: "\\(\\sqrt{1-(v/V)^2}\\)"
+        meaning: "The square root the paper writes out in full. Later texts write its reciprocal as γ; the paper does not use that letter."
+    qualifications:
+      - kind: premise
+        text: "Imported, not derived: the paper cites its own relativity paper (l. c. § 8) and uses the result as given. Everything after it depends on it."
+    probes:
+      - instrument: me-01
+        question: "How much energy does each pulse carry for an observer moving along x at 0.6 of the speed of light?"
+        preset: me-01-default
+    misconceptions: []
+    usedLater: []
+    meanings:
+      argumentStatus: "An assumption of this paper, admitted from the relativity paper"
+      modelStatus: "Exact within the electrodynamics of the relativity paper"
+      evidentialRole: "A premise, not evidence"
+      historicalStatus: "A 1905 result, introduced in the relativity paper"
+    selectionReason: "It is the one formula the argument imports, and the two energy balances are built from it."
+
+  - id: me-symmetric-emission
+    section: s0
+    arguments: [arg-me-symmetric-emission]
+    printed:
+      - anchor: s0-p7
+        sentences: [1, 2]
+    equations: [eq-model-me-symmetric-sum]
+    oneSentence: "The body at rest sends out light of energy \\(L/2\\) in one direction and an equal amount in the opposite direction, and it stays at rest."
+    decoder:
+      - symbol: "\\(L\\)"
+        meaning: "The total energy of the emitted light, measured in the system (x, y, z) in which the body is at rest."
+      - symbol: "\\(L/2\\)"
+        meaning: "The energy of each of the two equal pulses in that system."
+      - symbol: "\"the opposite direction\""
+        meaning: "The second pulse travels at angle \\(\\varphi\\) plus a half turn to the x-axis, so its cosine has the opposite sign."
+      - symbol: "\"remains at rest\""
+        meaning: "The paper states that the body stays at rest in (x, y, z). With two equal pulses in opposite directions neither direction is favoured, so the emission gives the body no motion; in later language the two pulses carry equal and opposite momentum, which the paper does not mention."
+    qualifications:
+      - kind: premise
+        text: "The body stays at rest because the emission is symmetric. With unequal pulses it would recoil, and the energy accounting would have to follow the change in its motion."
+    probes:
+      - instrument: me-01
+        question: "With the observer at rest, what does each pulse carry and what does the body lose?"
+        preset: me-01-rest-frame
+    misconceptions: []
+    usedLater: []
+    meanings:
+      argumentStatus: "A chosen arrangement of the thought experiment"
+      modelStatus: "Exact within the model"
+      evidentialRole: "A construction, not evidence"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "The symmetric emission is what lets the body's speed stay the same, so only its energy changes."
+
+  - id: me-two-balances
+    section: s0
+    arguments: [arg-me-two-ledgers]
+    printed:
+      - anchor: s0-p7
+        sentences: [3]
+      - anchor: eq-s0-d2
+      - anchor: eq-s0-d3
+    equations: [eq-model-me-rest-ledger, eq-model-me-moving-ledger]
+    oneSentence: "The energy principle holds in both systems: at rest the body's energy falls by \\(L\\), and in the moving system it falls by \\(L/\\sqrt{1-(v/V)^2}\\), whatever the angle of emission."
+    decoder:
+      - symbol: "\\(E_0\\), \\(E_1\\)"
+        meaning: "The body's energy before and after the emission, measured in the system (x, y, z) in which it is at rest."
+      - symbol: "\\(H_0\\), \\(H_1\\)"
+        meaning: "The same body's energy before and after, measured in the moving system (ξ, η, ζ)."
+      - symbol: "the bracket in \\(H_0\\)"
+        meaning: "The two pulses' energies in the moving system, each from the imported formula, with \\(+\\cos\\varphi\\) for one and \\(-\\cos\\varphi\\) for the other."
+      - symbol: "why \\(\\cos\\varphi\\) cancels"
+        meaning: "The two numerators are \\(1-\\frac{v}{V}\\cos\\varphi\\) and \\(1+\\frac{v}{V}\\cos\\varphi\\); they add to 2, so the sum is \\(L\\) divided by the square root for every angle."
+    qualifications:
+      - kind: premise
+        text: "The energy principle is required to hold in both systems, by the principle of relativity; that is what the paper states before writing the two balances."
+    probes:
+      - instrument: me-01
+        question: "Turn the emission axis: does either system's loss change with the angle?"
+        preset: me-01-sixty-degree-tilt
+    misconceptions: []
+    usedLater: []
+    meanings:
+      argumentStatus: "Two applications of the energy principle"
+      modelStatus: "Exact within the model"
+      evidentialRole: "A derivation from the imported formula"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "The two balances are the whole of the paper's input on the body's side: one emission, two descriptions of it."
+
+  - id: me-kinetic-energy-drop
+    section: s0
+    arguments: [arg-me-subtraction, arg-me-constant-premise]
+    printed:
+      - anchor: eq-s0-d4
+      - anchor: s0-p7
+        sentences: [6, 7, 8, 9, 10]
+    equations:
+      - eq-model-me-ledger-subtraction
+      - eq-model-me-offset-before
+      - eq-model-me-offset-after
+      - eq-model-me-exact-drop
+    oneSentence: "Subtracting the two balances leaves \\(L\\{1/\\sqrt{1-(v/V)^2}-1\\}\\), and if the difference \\(H-E\\) is the kinetic energy plus a constant that the emission does not change, the body's kinetic energy in the moving system falls by exactly that much."
+    decoder:
+      - symbol: "\\(H-E\\)"
+        meaning: "The same body's energy in the two systems, taken as a difference; it contains the body's energy of motion in the system in which the body moves."
+      - symbol: "\\(K_0\\), \\(K_1\\)"
+        meaning: "The body's kinetic energy in the moving system (ξ, η, ζ), before and after the emission."
+      - symbol: "\\(C\\)"
+        meaning: "An additive constant: energies are fixed only up to a constant, and \\(C\\) depends on how the constants of \\(H\\) and \\(E\\) were chosen."
+      - symbol: "why the subtraction removes \\(E_0\\) and \\(H_0\\)"
+        meaning: "Neither the body's energy at rest nor in motion is known. Only the changes enter the two balances, and subtracting one balance from the other leaves the change of \\(H-E\\), which needs neither absolute value."
+      - symbol: "why the unchanged constant is a premise"
+        meaning: "Nothing in the two balances says that \\(C\\) is the same before and after; the paper states it, at the end of the sentence that sets \\(H-E = K + C\\), and without it the difference is not a kinetic energy."
+    qualifications:
+      - kind: premise
+        text: "The identification of \\(H-E\\) as kinetic energy plus \\(C\\), with \\(C\\) unchanged by the emission, is a premise the paper states, not a result it derives."
+      - kind: comparison
+        text: "The paper notes that the decrease does not depend on the qualities of the body, and that it depends on the speed as the electron's kinetic energy does in §10 of the relativity paper. That is a comparison, not a premise of the argument."
+    probes:
+      - instrument: me-01
+        question: "Starting from the collinear preset, relax the premise that the constant is unchanged: what can the subtraction still say about the kinetic energy?"
+        preset: me-01-default
+    misconceptions: []
+    usedLater: []
+    meanings:
+      argumentStatus: "A derivation resting on a stated premise"
+      modelStatus: "Exact within the model, given the premise"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "It is where the loss of light energy becomes a loss of the body's energy of motion, and where the argument's one extra premise enters."
+
+  - id: me-low-speed-approximation
+    section: s0
+    arguments: [arg-me-small-speed]
+    printed:
+      - anchor: s0-p11
+        sentences: [1]
+    equations: [eq-model-me-quadratic-drop]
+    oneSentence: "Neglecting quantities of fourth and higher order in the speed, the drop in kinetic energy is \\(\\frac{L}{V^2}\\frac{v^2}{2}\\), the form of a kinetic energy for a mass \\(L/V^2\\)."
+    decoder:
+      - symbol: "\\(\\frac{v^2}{2}\\)"
+        meaning: "Half the square of the speed: a kinetic energy is a mass times this."
+      - symbol: "\\(\\frac{L}{V^2}\\)"
+        meaning: "The coefficient of \\(v^2/2\\), which therefore plays the part of a mass: the mass the body's kinetic energy has lost."
+      - symbol: "fourth and higher order"
+        meaning: "The exact drop, expanded in powers of \\(v/V\\), has terms in \\((v/V)^2\\), \\((v/V)^4\\) and so on; the paper keeps the first and states in words that it drops the rest."
+    qualifications:
+      - kind: approximation
+        text: "The formula holds to second order in \\(v/V\\), as the paper says. At a finite speed the exact drop is larger; the coefficient that is a mass is the limit as the speed goes to zero."
+    probes:
+      - instrument: me-02
+        question: "Compare the exact drop, its second-order form, the finite-speed ratio and the limit: which one is the mass?"
+        preset: me-02-0.6c
+    misconceptions: []
+    usedLater: []
+    meanings:
+      argumentStatus: "An approximation of the exact result"
+      modelStatus: "An approximation, exact in the limit of small speed"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "It is where the drop in energy of motion is read as a drop in mass."
+
+  - id: me-mass-decrease
+    section: s0
+    arguments: [arg-me-mass-change]
+    printed:
+      - anchor: s0-p12
+        sentences: [1, 2]
+      - anchor: s0-p13
+        sentences: [1]
+    equations: [eq-model-me-mass-difference]
+    oneSentence: "A body that gives off the energy \\(L\\) as radiation loses the mass \\(L/V^2\\); the paper then generalizes that the mass of a body is a measure of its energy content, and gives the change as \\(L/9\\cdot10^{20}\\) grams for \\(L\\) in erg."
+    decoder:
+      - symbol: "\\(L/V^2\\)"
+        meaning: "The decrease of the body's mass, from the coefficient of \\(v^2/2\\) in the previous result."
+      - symbol: "\\(9\\cdot10^{20}\\)"
+        meaning: "The square of the speed of light in centimetres per second, \\((3\\cdot10^{10})^2\\): energy in erg divided by it gives mass in grams. The paper prints only the square."
+      - symbol: "\"in demselben Sinne\""
+        meaning: "In the same direction: when the energy decreases, so does the mass, and when it increases, so does the mass."
+    qualifications:
+      - kind: inference
+        text: "That the mass of a body is a measure of its energy content goes beyond the radiation argument: the paper says it is evidently unimportant that the energy leaves as radiation, and generalizes. The argument itself covers energy given off as light."
+      - kind: premise
+        text: "The paper gives a change of mass with a change of energy. It assigns no absolute energy to a body."
+    probes:
+      - instrument: me-02
+        question: "Read the printed factor beside the modern one, each labelled by its constant set."
+        preset: me-02-0.6c
+      - instrument: me-03
+        question: "Draw the system boundary around the body alone, then around the body and the light: which system loses mass?"
+        preset: me-03-sealed-lamp-and-mirror
+    printedCheck: mass-energy-printed-factor
+    misconceptions: []
+    usedLater: []
+    meanings:
+      argumentStatus: "The paper's conclusion, and an inference beyond it"
+      modelStatus: "Exact in the limit of small speed; the conversion uses the printed constant"
+      evidentialRole: "A conclusion, not a measurement"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "It is the paper's answer to its title's question."
+
+  - id: me-closing-remarks
+    section: s0
+    arguments: [arg-me-scope]
+    printed:
+      - anchor: s0-p14
+        sentences: [1]
+      - anchor: s0-p15
+        sentences: [1]
+    equations: []
+    oneSentence: "The paper ends with two conditional remarks: a test may succeed with bodies whose energy content varies greatly, such as radium salts, and if the theory corresponds to the facts, radiation carries inertia from the body that emits it to the body that absorbs it."
+    decoder:
+      - symbol: "\"Es ist nicht ausgeschlossen\""
+        meaning: "It is not excluded: a possibility, not a prediction that the test will succeed."
+      - symbol: "Radiumsalzen"
+        meaning: "Radium salts, which give off energy continually; the paper names them as an example of a body whose energy content varies greatly."
+      - symbol: "\"Wenn die Theorie den Tatsachen entspricht\""
+        meaning: "If the theory corresponds to the facts: the second remark is conditional on the theory being right."
+    qualifications:
+      - kind: conditional
+        text: "Both remarks are conditional. The paper reports no test, and it does not say that radium salts would confirm the theory."
+    probes:
+      - instrument: me-03
+        question: "Read the radium card's boundary note: what would a measurement have to compare?"
+        preset: me-03-card-radium
+    misconceptions: []
+    usedLater: []
+    meanings:
+      argumentStatus: "Two conditional remarks"
+      modelStatus: "Outside the calculation"
+      evidentialRole: "A proposed test, not evidence"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "They say how the paper's conclusion could meet experiment, and on what condition."
