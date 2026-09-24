@@ -52,12 +52,19 @@ import {
   type ReleaseScope,
 } from "./authorization";
 import {
+  allCandidateChecksPassed,
+  runCandidateChecksAgainst,
+  summarizeCandidateChecks,
+  vercelCurlFetcher,
+} from "./candidate-checks";
+import {
   assertCanonicalProjectIdentity,
   assertDeploymentReadyAndAliased,
   CANONICAL_PRODUCTION_PROJECT,
   PROMOTION_REQUIRED_DOMAINS,
   parseDeploymentInspect,
 } from "./deployment-target";
+import type { CandidateCheckResult } from "./deployment-verification";
 import { newToolRunId } from "./runIds";
 
 export const DEPLOYMENT_LOCK_PORT = 48_915;
@@ -82,6 +89,8 @@ export interface ReleaseCandidateRecord {
   readonly determinismDigest?: string | undefined;
   readonly candidateCheckSummary?: string | undefined;
   readonly candidateCheckLogPath?: string | undefined;
+  /** Each candidate check's own result, including the ones that did not run and why. */
+  readonly candidateChecks?: readonly CandidateCheckResult[] | undefined;
   readonly authorizationRef?: string | undefined;
   readonly targetHostnames?: readonly string[] | undefined;
 }
@@ -531,6 +540,23 @@ export function candidateRecordWithoutChecks(fields: {
   };
 }
 
+/**
+ * The record once the candidate checks have run against the deployed candidate. It passes only
+ * when every check in the catalogue ran and passed; a check that could not run is carried with
+ * its reason and keeps candidateChecksPassed false (am-rel-candidate-checks-kc7y).
+ */
+export function candidateRecordWithChecks(
+  record: ReleaseCandidateRecord,
+  results: readonly CandidateCheckResult[],
+): ReleaseCandidateRecord {
+  return {
+    ...record,
+    candidateChecksPassed: allCandidateChecksPassed(results),
+    candidateCheckSummary: summarizeCandidateChecks(results),
+    candidateChecks: results,
+  };
+}
+
 export function validatePromotePreconditions(options: {
   record: ReleaseCandidateRecord;
   currentHeadCommit: string;
@@ -768,6 +794,23 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       targetHostnames,
     });
     saveReleaseCandidateRecord(candidateRecord);
+
+    // What the unpromoted candidate serves, compared with the upload, before any alias moves.
+    const checks = await runCandidateChecksAgainst({
+      fetcher: vercelCurlFetcher(candidateUrl),
+      staticDir: path.join(process.cwd(), ".vercel/output/static"),
+    });
+    saveReleaseCandidateRecord(candidateRecordWithChecks(candidateRecord, checks));
+    for (const check of checks) {
+      console.log(`candidate check ${check.name}: ${check.status}. ${check.detail}`);
+    }
+    if (checks.some((check) => check.status === "failed")) {
+      console.error(
+        `\nVerified production deployment refused: a candidate check failed on ${candidateUrl}; no alias moved. ${summarizeCandidateChecks(checks)}`,
+      );
+      process.exitCode = 1;
+      return;
+    }
 
     if (options.candidateOnly) {
       console.log(
