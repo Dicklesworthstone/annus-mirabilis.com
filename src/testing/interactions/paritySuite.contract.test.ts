@@ -65,6 +65,8 @@ describe("ParitySuite: Contract & Fixture Guard (am-inst-interaction-families-m2
 
     assert.ok(results.length > 0);
     assert.equal(results[0]?.ownerSource, "runtime-fixture");
-    assert.equal(results[0]?.passed, true);
+    // Accepted, not passed: owner {} exercises no events.ts, so the clock-event case fails. It used
+    // to pass here only because the case computed the transform inline and ignored its owner.
+    assert.equal(results[0]?.passed, false);
   });
 });

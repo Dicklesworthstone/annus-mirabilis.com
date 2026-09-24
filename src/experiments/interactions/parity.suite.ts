@@ -28,6 +28,17 @@ export type FieldsBoostOwner = Readonly<{
   ) => Readonly<{ e2MinusC2B2: number }>;
 }>;
 
+type EventCoordinates = Readonly<{ t: number; x: number; y: number; z: number }>;
+/** What the clock-event family calls: events.ts's classifySimultaneity, in its units of seconds and
+ * light-seconds (c = 1), or an owner of the same shape. */
+export type ClockEventOwner = Readonly<{
+  classifySimultaneity: (
+    e1: EventCoordinates,
+    e2: EventCoordinates,
+    beta: number,
+  ) => Readonly<{ status: string; value?: Readonly<{ deltaTPrime: number; deltaXPrime: number }> }>;
+}>;
+
 /** What the probability-diffusion family calls: the diffusion owner's intervalProbability
  * (src/physics/reference/diffusion/distributions.ts), or an owner of the same shape. */
 export type ProbabilityDiffusionOwner = Readonly<{
@@ -111,27 +122,46 @@ export async function familyParityCases(
 
   switch (family) {
     case "clock-event": {
-      // Event transformation under boost v=0.6c (SR-03 pair: delta_x = 10 light-seconds, delta_t = 0)
-      const c = 299792458;
-      const v = 0.6 * c;
-      const gamma = 1 / Math.sqrt(1 - 0.6 * 0.6); // 1.25
-      const deltaX = 10 * c; // 10 light-seconds in meters
-      const deltaT = 0; // simultaneous in rest frame
-
-      // Lorentz transform: delta_t' = gamma * (delta_t - v * delta_x / c^2) = 1.25 * (-0.6 * 10) = -7.5s
-      const deltaTPrime = gamma * (deltaT - (v * deltaX) / (c * c));
-      // delta_x' = gamma * (delta_x - v * delta_t) = 1.25 * 10 ls = 12.5 ls
-      const deltaXPrimeLs = (gamma * (deltaX - v * deltaT)) / c;
-
-      results.push({
+      // The SR-03 pair, two events simultaneous at the rest frame's t = 0 and 10 light-seconds
+      // apart, redescribed at 0.6c BY THE OWNER in options.owner (events.ts's classifySimultaneity):
+      // γ = 1.25, so Δt′ = γ(Δt − vΔx) = −7.5 s and Δx′ = γ(Δx − vΔt) = 12.5 ls. The case used to
+      // compute the transform inline, so a run labelled "events.ts" exercised no owner at all.
+      const expected = { deltaTPrime: -7.5, deltaXPrimeLs: 12.5 };
+      const base = {
         parityCaseId: "clock-event-sr03-simultaneity-boost",
         family,
         ownerSource: options.ownerSource,
         ownerLabel: options.ownerLabel,
-        passed: Math.abs(deltaTPrime - -7.5) < 1e-10 && Math.abs(deltaXPrimeLs - 12.5) < 1e-10,
-        expected: { deltaTPrime: -7.5, deltaXPrimeLs: 12.5 },
-        actual: { deltaTPrime, deltaXPrimeLs },
-        message: "SR-03 pair at 10 ls separation boosted to 0.6c gives dt'=-7.5s and dx'=12.5 ls.",
+        expected,
+      };
+      const owner = options.owner as Partial<ClockEventOwner> | null | undefined;
+      if (!owner || typeof owner.classifySimultaneity !== "function") {
+        results.push({
+          ...base,
+          passed: false,
+          actual: null,
+          message: "No owner was exercised: pass an owner with classifySimultaneity (events.ts).",
+        });
+        break;
+      }
+      const r = owner.classifySimultaneity(
+        { t: 0, x: 0, y: 0, z: 0 },
+        { t: 0, x: 10, y: 0, z: 0 },
+        0.6,
+      );
+      const actual =
+        r.status === "value" && r.value
+          ? { deltaTPrime: r.value.deltaTPrime, deltaXPrimeLs: r.value.deltaXPrime }
+          : null;
+      const close = (a: number, b: number) => withinTolerance(a, b, { relative: 1e-12 }).ok;
+      results.push({
+        ...base,
+        passed:
+          actual !== null &&
+          close(actual.deltaTPrime, expected.deltaTPrime) &&
+          close(actual.deltaXPrimeLs, expected.deltaXPrimeLs),
+        actual,
+        message: "SR-03 pair 10 ls apart, simultaneous at rest, redescribed at 0.6c by the owner.",
       });
       break;
     }
