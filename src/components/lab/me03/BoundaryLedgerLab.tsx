@@ -1,6 +1,10 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
+import { executionLabelAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import { fromMe03Draft, toMe03Draft } from "../../../experiments/me03/controls.ts";
 import {
   ME03_BOX_MODEL,
@@ -8,6 +12,7 @@ import {
   ME03_DEFAULTS,
   ME03_MODEL,
   ME03_NOT_MODELED,
+  ME03_OUTPUTS,
   ME03_PRESETS,
   ME03_PROMPTS,
   type Me03Boundary,
@@ -26,6 +31,7 @@ import {
   evaluatePhotonBox,
   type PreparedMe03Example,
 } from "../../../experiments/me03/session.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { BoundaryLedgerPlot } from "./BoundaryLedgerPlot.tsx";
@@ -53,6 +59,17 @@ export function BoundaryLedgerLab({
 
   const fallbackParams = example?.parameters ?? ME03_DEFAULTS;
   const accepted = view.accepted;
+  // Earned per snapshot (am-inst-execution-labels-5ywv), in both the boundary and the 1906 box mode:
+  // the build-time example is a static worked example, an accepted recalculation a host
+  // calculation; an example without a source digest earns no label at all.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      ME03_OUTPUTS,
+      example?.sourceDigest ?? "",
+      accepted !== undefined && accepted === session.getServerSnapshot().accepted,
+    ).label,
+  );
   const p = (accepted?.parameters ?? fallbackParams) as Me03Parameters;
   const [draft, setDraft] = useState(() => toMe03Draft(p));
   const [error, setError] = useState("");
@@ -205,12 +222,14 @@ export function BoundaryLedgerLab({
       data-input-revision={session.getSnapshot().requested?.revisions.input ?? 0}
       data-accepted-input-revision={session.getSnapshot().accepted?.revisions.input ?? 0}
       data-pending={session.getSnapshot().pending ? "true" : "false"}
-      data-execution-label="host"
+      {...executionLabelAttributes(executionKind)}
       data-refusal-code={refusalCode ?? undefined}
     >
       <div className="lab-header">
         <div>
-          <p className="eyebrow">{isBox ? ME03_BOX_MODEL.label : ME03_MODEL.label}</p>
+          <p className="eyebrow">
+            {isBox ? "1906 photon-in-a-box extension" : "System boundary energy ledger"}
+          </p>
           <h2>{title}</h2>
           {isBox && (
             <div className="box-badges">
@@ -219,6 +238,13 @@ export function BoundaryLedgerLab({
             </div>
           )}
         </div>
+      </div>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          modelNote={modelNoteFromView(view, { notModeled: `${ME03_NOT_MODELED.join("; ")}.` })}
+        />
       </div>
 
       <div className="lab-columns">

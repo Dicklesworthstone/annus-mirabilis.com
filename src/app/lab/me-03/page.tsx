@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import { Formula } from "../../../components/edition/Formula.tsx";
 import { BoundaryLedgerComparison } from "../../../components/lab/me03/BoundaryLedgerLab.tsx";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/me03/session.ts";
+import labDigests from "../../../generated/lab-source-digests.json";
 
 export const metadata: Metadata = {
   title: "The system-boundary energy ledger",
 };
 
 export default function BoundaryLedgerPage() {
-  const example = DEFAULT_PREPARED_EXAMPLE;
+  // The example names its host source by digest (scripts/generate-lab-digests.mjs).
+  const example = { ...DEFAULT_PREPARED_EXAMPLE, sourceDigest: labDigests["me-03"] };
 
   return (
     <>
