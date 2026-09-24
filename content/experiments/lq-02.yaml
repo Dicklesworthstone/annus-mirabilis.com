@@ -1,0 +1,253 @@
+# LQ-02, classical mode-energy allocation (am-lab-manifests-embeds-questions-missing-nree).
+# Written from the laboratory as it runs: the inputs, refusals and owner calls of
+# src/experiments/lq02/session.ts and the controls of src/components/lab/ModeAllocationLab.tsx.
+# The model domains are the ones the lab enforces (every field positive and finite) and no
+# narrower teaching range is claimed for them.
+id: lq-02
+title: "LQ-02: Classical mode-energy allocation"
+explanatoryQuestion: "If every resonator gets the same mean energy whatever its frequency, how much energy does the radiation hold, and does the total ever stop growing?"
+sourceRefs:
+  - paper: light-quanta
+    id: s1
+  - paper: light-quanta
+    id: s2
+argumentIds:
+  - arg-lq-classical-allocation
+  - arg-lq-planck-constants
+schemaVersion: 1
+parameters:
+  - id: T
+    label: "Temperature (K)"
+    accessibleName: "Temperature of the radiation and the resonators, in kelvin"
+    accessibleDescription: "Any positive, finite temperature; the lab refuses zero and below."
+    quantityId: temperature
+    displayUnit: "K"
+    modelDomain:
+      min: 0
+      minInclusive: false
+      reason: "A temperature must be positive"
+    visualRange:
+      min: 500
+      max: 10000
+    default: 1500
+    mapping:
+      kind: log
+    role: independent
+    commandClass: setup-change
+  - id: nuCutoff
+    label: "Highest resonator frequency, the cutoff (Hz)"
+    accessibleName: "Highest resonator frequency allowed, in hertz"
+    accessibleDescription: "The energy is added up from zero to this frequency; widening it tenfold is its own action."
+    quantityId: frequency
+    displayUnit: "Hz"
+    modelDomain:
+      min: 0
+      minInclusive: false
+      reason: "A cutoff frequency must be positive"
+    visualRange:
+      min: 1.0e+11
+      max: 1.0e+16
+    default: 1.0e+14
+    mapping:
+      kind: log
+    role: independent
+    commandClass: setup-change
+  - id: probeFrequency
+    label: "Probe frequency, for the share-above readout (Hz)"
+    accessibleName: "Probe frequency for the share of energy above it, in hertz"
+    accessibleDescription: "A probe above the cutoff has no share above it, and the share is refused."
+    quantityId: frequency
+    displayUnit: "Hz"
+    modelDomain:
+      min: 0
+      minInclusive: false
+      reason: "A probe frequency must be positive"
+    visualRange:
+      min: 1.0e+11
+      max: 1.0e+16
+    default: 1.0e+13
+    mapping:
+      kind: log
+    role: independent
+    commandClass: measurement-change
+outputs:
+  - id: meanResonatorEnergy
+    quantityId: meanResonatorEnergy
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: energyUpToCutoff
+    quantityId: energyDensityBelowCutoff
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: energyUpToProbe
+    quantityId: energyDensityBelowCutoff
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: shareAboveProbe
+    quantityId: energyShareAboveProbe
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: tenfoldWidenedEnergy
+    quantityId: energyDensityBelowCutoff
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: classicalTotal
+    quantityId: energyDensityBelowCutoff
+    allowedStatuses:
+      - outside-domain
+  - id: avogadroFromPlanck
+    quantityId: avogadroNumberEstimate
+    allowedStatuses:
+      - value
+assumptions:
+  - "Every linear resonator oscillation shares the gas's mean energy, (R/N)T, whatever its frequency (the paper's section 1)."
+  - "Planck's equilibrium relation between a resonator and the radiation around it, used without Planck's energy elements."
+  - "Modern SI constants for the energies; the Avogadro readout uses the constants printed in section 2."
+admittedDomain: "Any positive, finite temperature, cutoff and probe frequency. The total over all frequencies is refused: on this model it has no finite value."
+notModeled:
+  - "The mechanism coupling matter and radiation beyond Planck's stated equilibrium condition"
+  - "Cavity shape and walls"
+  - "The approach to equilibrium"
+  - "Any quantum hypothesis"
+  - "Measured spectra (a separate instrument shows those)"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/classical.ts"
+      exportName: "meanResonatorEnergy"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/classical.ts"
+      exportName: "classicalCutoffEnergyDensity"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/classical.ts"
+      exportName: "classicalTotalEnergy"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/avogadro.ts"
+      exportName: "avogadroFromPlanckConstants"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/radiation/spectra.ts"
+      exportName: "regimeRelativeErrors"
+views:
+  - id: allocation-table
+    kind: table
+    consumes:
+      - meanResonatorEnergy
+      - energyUpToCutoff
+      - shareAboveProbe
+      - tenfoldWidenedEnergy
+      - avogadroFromPlanck
+  - id: divergence-refusal
+    kind: text
+    consumes:
+      - classicalTotal
+actions:
+  - actionId: lq-02-type-settings
+    family: radiation-energy-accounting
+    question: "How much energy does the classical allocation hold up to this cutoff, and how much of it lies above the probe?"
+    inputs:
+      - T
+      - nuCutoff
+      - probeFrequency
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - meanResonatorEnergy
+        - energyUpToCutoff
+        - shareAboveProbe
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "The allocation table updates from the accepted snapshot"
+    equivalentAffordance: "Type the temperature, the cutoff and the probe frequency, then read the energy and the share from the table"
+    announcement: "Allocation table updated from the accepted snapshot"
+  - actionId: lq-02-widen-tenfold
+    family: radiation-energy-accounting
+    question: "What does widening the resonator range tenfold do to the energy?"
+    inputs:
+      - nuCutoff
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - energyUpToCutoff
+        - tenfoldWidenedEnergy
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "The widen-tenfold button multiplies the cutoff by ten and the table updates"
+    equivalentAffordance: "Type a cutoff ten times larger and compare the energy with the previous one"
+    announcement: "Cutoff widened tenfold; the allocation table updated"
+  - actionId: lq-02-remove-upper-limit
+    family: radiation-energy-accounting
+    question: "Does the total over all frequencies settle at a finite value?"
+    inputs:
+      - T
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - classicalTotal
+      allowedStatuses:
+        - outside-domain
+    visualAffordance: "Removing the upper limit shows the refusal in place of a number"
+    equivalentAffordance: "Choose remove the upper limit and read the refusal: this model's total has no finite value"
+    announcement: "The total over all frequencies is refused: on this model it diverges"
+# Each case is one checked in src/experiments/lq02/session.test.ts.
+acceptanceCases:
+  - lq-02-golden-1500k-cutoff-1e14
+  - lq-02-tenfold-widening-1000x
+  - lq-02-total-diverges-refused
+  - lq-02-probe-above-cutoff-refused
+  - lq-02-nonpositive-temperature-refused
+defaultScenario: lq-02-golden-1500k-cutoff-1e14
+tapeModel:
+  modelId: lq-02
+  modelVersion: 1
+teachingTapes: []
+presets: []
+# The relationships the lab puts to the test: the cube law under a tenfold widening, the share of
+# the energy above the probe, and the refusal of the total.
+probes:
+  - lq-02-cube-growth-probe
+  - lq-02-share-above-probe
+  - lq-02-divergence-refusal-probe
+weavePredicates: []
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: false
+# The page asks two predict questions. The second, whether the total settles at a finite value, has
+# two answers on the page (yes or no), and a manifest prompt needs three candidates, so only the
+# widening question is recorded here, exactly as the page asks it.
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: lq-02-predict-widen
+      actionId: lq-02-widen-tenfold
+      question: "Widening the resonator range from 100 THz to 1000 THz changes the energy by how much?"
+      candidates:
+        - id: about-10x
+          label: "About ×10"
+          description: "The energy grows in proportion to the range"
+          separatingAssumption: "The energy per unit frequency is the same at every frequency."
+          relation: "E proportional to the cutoff"
+        - id: about-1000x
+          label: "About ×1000"
+          description: "The section 1 density grows as the square of the frequency, so the total grows as its cube"
+          separatingAssumption: "Each resonator holds (R/N)T and the density is (R/N)(8 pi nu^2 / L^3) T."
+          relation: "E proportional to the cutoff cubed"
+        - id: levels-off
+          label: "It levels off"
+          description: "Higher frequencies add little"
+          separatingAssumption: "The energy per unit frequency falls off at high frequency, as a measured spectrum does."
+          relation: "E tends to a finite limit"

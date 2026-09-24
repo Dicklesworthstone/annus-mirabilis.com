@@ -1,0 +1,293 @@
+# BM-02, the osmotic partition (am-lab-manifests-embeds-questions-missing-nree).
+# Written from the laboratory as it runs: the inputs, the dilute-domain check and the owner calls of
+# src/experiments/bm02/session.ts, and the controls of src/components/lab/OsmoticPartitionLab.tsx.
+# The model domains are the ones the lab and its owners enforce; no narrower range is claimed.
+id: bm-02
+title: "BM-02: The osmotic partition"
+explanatoryQuestion: "Do suspended particles press on a partition the way dissolved molecules do, and does their size change the pressure at the same number per volume?"
+sourceRefs:
+  - paper: brownian-motion
+    id: s1
+  - paper: brownian-motion
+    id: s2
+# The reading face explains sections 4 and 5 only; the osmotic argument of sections 1 and 2 has no
+# argument record yet, so none is cited rather than a neighbouring one.
+argumentIds: []
+schemaVersion: 1
+parameters:
+  - id: Np
+    label: "Particles behind the partition"
+    accessibleName: "Number of suspended particles in the accessible volume"
+    accessibleDescription: "A whole number, zero or more. A count whose volume fraction passes 0.01 leaves the dilute model and is refused."
+    quantityId: particleCount
+    displayUnit: "1"
+    modelDomain:
+      min: 0
+      minInclusive: true
+      reason: "A particle count is a whole number, zero or more; the dilute model also needs a volume fraction of at most 0.01"
+    visualRange:
+      min: 0
+      max: 19098
+    default: 1000
+    mapping:
+      kind: step
+    step: 1
+    role: independent
+    commandClass: setup-change
+  - id: V_um3
+    label: "Accessible volume (cubic micrometres)"
+    accessibleName: "Accessible volume, in cubic micrometres"
+    accessibleDescription: "The volume the particles can move in; zero or less is refused."
+    quantityId: volume
+    displayUnit: "um^3"
+    modelDomain:
+      min: 0
+      minInclusive: false
+      reason: "A volume must be positive"
+    visualRange:
+      min: 1.0e+4
+      max: 1.0e+8
+    default: 1000000
+    mapping:
+      kind: log
+    role: independent
+    commandClass: setup-change
+  - id: T
+    label: "Temperature (K)"
+    accessibleName: "Temperature of the liquid, in kelvin"
+    accessibleDescription: "Any positive, finite temperature; zero and below are refused."
+    quantityId: temperature
+    displayUnit: "K"
+    modelDomain:
+      min: 0
+      minInclusive: false
+      reason: "A temperature must be positive"
+    visualRange:
+      min: 273
+      max: 330
+    default: 293.15
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: a_um
+    label: "Particle radius (micrometres)"
+    accessibleName: "Radius of each suspended sphere, in micrometres"
+    accessibleDescription: "It sets the volume fraction; at the same count per volume it does not change the pressure."
+    quantityId: particleRadius
+    displayUnit: "um"
+    modelDomain:
+      min: 0
+      minInclusive: false
+      reason: "A radius must be positive"
+    visualRange:
+      min: 0.0005
+      max: 5
+    default: 0.5
+    mapping:
+      kind: log
+    role: independent
+    commandClass: setup-change
+  - id: A_um2
+    label: "Partition area (square micrometres)"
+    accessibleName: "Area of the partition, in square micrometres"
+    accessibleDescription: "It scales the force on the partition and nothing else."
+    quantityId: partitionArea
+    displayUnit: "um^2"
+    modelDomain:
+      min: 0
+      minInclusive: false
+      reason: "An area must be positive"
+    visualRange:
+      min: 100
+      max: 1.0e+6
+    default: 10000
+    mapping:
+      kind: log
+    role: independent
+    commandClass: setup-change
+outputs:
+  - id: numberDensity
+    quantityId: numberDensity
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: volumeFraction
+    quantityId: volumeFraction
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: osmoticPressure
+    quantityId: osmoticPressure
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: partitionForce
+    quantityId: partitionForce
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: hydrostaticHead
+    quantityId: hydrostaticHead
+    allowedStatuses:
+      - value
+      - outside-domain
+assumptions:
+  - "A dilute suspension: volume fraction at most 0.01, where the ideal law is within about 4 percent for hard spheres."
+  - "An ideal semipermeable partition: the liquid passes, the particles do not."
+  - "Modern SI constants."
+admittedDomain: "A whole particle count, zero or more, with a volume fraction of at most 0.01; positive volume, temperature, radius and partition area. Outside the dilute domain the pressure, force and head are refused, not extrapolated."
+notModeled:
+  - "Particle interactions and excluded volume above the dilute domain"
+  - "Non-ideal activity coefficients"
+  - "Imperfect partitions (any real leak of particles across it)"
+  - "Gravity and sedimentation"
+  - "Electrostatic effects"
+  - "Adsorption at the partition"
+  - "The kinetics and time needed to reach osmotic equilibrium"
+  - "Molecular collisions with the wall: the drawn glyphs are illustrative, not a collision simulation"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/distributions.ts"
+      exportName: "osmoticPressure"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/routeA.ts"
+      exportName: "volumeFraction"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/routeA.ts"
+      exportName: "diluteDomainCheck"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/routeA.ts"
+      exportName: "partitionForce"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/diffusion/routeA.ts"
+      exportName: "hydrostaticHead"
+views:
+  - id: partition-drawing
+    kind: svg
+    consumes:
+      - numberDensity
+      - osmoticPressure
+  - id: partition-table
+    kind: table
+    consumes:
+      - numberDensity
+      - volumeFraction
+      - osmoticPressure
+      - partitionForce
+      - hydrostaticHead
+modes:
+  - id: bm-02:molecular-kinetic
+    label: "Molecular-kinetic (Einstein, sections 1 and 2)"
+    historicalStatus: original-1905
+  - id: bm-02:classical-expectation
+    label: "Classical expectation for suspended bodies"
+    historicalStatus: contemporary-alternative
+    notModeledAdditions:
+      - "the classical expectation gives suspended bodies zero osmotic pressure, as a labelled value, not a refutation"
+actions:
+  - actionId: bm-02-type-settings
+    family: object-inclusion
+    question: "What pressure, force and head do these particles exert on the partition?"
+    inputs:
+      - Np
+      - V_um3
+      - T
+      - a_um
+      - A_um2
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - numberDensity
+        - volumeFraction
+        - osmoticPressure
+        - partitionForce
+        - hydrostaticHead
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "The partition drawing and the table update from the accepted snapshot"
+    equivalentAffordance: "Type the count, volume, temperature, radius and area, then read the pressure, force and head from the table"
+    announcement: "Partition table updated from the accepted snapshot"
+  - actionId: bm-02-switch-model
+    family: premises
+    question: "What does the classical expectation for suspended bodies predict at the same settings?"
+    inputs:
+      - Np
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - osmoticPressure
+      allowedStatuses:
+        - value
+    visualAffordance: "Two pressed buttons choose the model; the table updates"
+    equivalentAffordance: "Choose the classical expectation and read its pressure, then choose the molecular-kinetic model again"
+    announcement: "Model changed; the partition table updated"
+  - actionId: bm-02-compare-sugar
+    family: ratio
+    question: "Does a dissolved molecule press differently from a suspended particle at the same count per volume?"
+    inputs:
+      - Np
+      - V_um3
+      - a_um
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - numberDensity
+        - osmoticPressure
+      allowedStatuses:
+        - value
+    visualAffordance: "The sugar-comparison button loads a 0.01 mol/L solution at molecular radius"
+    equivalentAffordance: "Choose compare with a 0.01 mol/L sugar solution and read the same pressure law at a molecular radius"
+    announcement: "Sugar comparison loaded; the partition table updated"
+# Each case is one checked in src/experiments/bm02/session.test.ts.
+acceptanceCases:
+  - bm-02-default-golden
+  - bm-02-size-independence
+  - bm-02-dilute-boundary-refused
+  - bm-02-nonpositive-inputs-refused
+  - bm-02-classical-expectation-zero
+defaultScenario: bm-02-default-golden
+tapeModel:
+  modelId: bm-02
+  modelVersion: 1
+teachingTapes: []
+presets: []
+probes:
+  - bm-02-size-independence-probe
+  - bm-02-dilute-domain-probe
+weavePredicates: []
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: false
+predictMode:
+  enabled: true
+  prompts:
+    - promptId: bm-02-predict-larger-particle
+      controlId: a_um
+      question: "At the same number of particles per volume, does a 1000-times-larger particle push harder, the same, or less on the partition?"
+      candidates:
+        - id: harder
+          label: "Harder"
+          description: "A bigger particle carries more momentum to the partition"
+          separatingAssumption: "The pressure grows with the particle's size or mass at a fixed count per volume."
+          relation: "Pi increases with a"
+        - id: the-same
+          label: "The same"
+          description: "Only the count per volume matters"
+          separatingAssumption: "In the dilute molecular-kinetic model the pressure is n k_B T, whatever the particle's size."
+          relation: "Pi = n k_B T"
+        - id: less
+          label: "Less"
+          description: "A bigger particle moves too slowly to push"
+          separatingAssumption: "A larger suspended body exerts less pressure, down to none, as the classical expectation holds."
+          relation: "Pi decreases with a"

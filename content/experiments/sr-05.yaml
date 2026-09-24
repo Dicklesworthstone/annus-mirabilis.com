@@ -1,0 +1,292 @@
+# SR-05, moving clocks (am-lab-manifests-embeds-questions-missing-nree).
+# Written from the laboratory as it runs: the parameters, bounds and presets of
+# src/experiments/sr05/definition.ts and parameters.ts, the outputs and owners SR05_OUTPUTS names,
+# and the not-modelled list SR05_NOT_MODELED. The bounds are the ones validateSr05Parameters
+# enforces. The worldline shape (inertial, out and back, circle) is a category, so it is carried by
+# the presets rather than declared as a numeric parameter.
+id: sr-05
+title: "SR-05: Moving clocks"
+explanatoryQuestion: "How much less time does a moving clock record than the clocks it passes, and does a clock that goes out and comes back show the difference when they meet again?"
+sourceRefs:
+  - paper: special-relativity
+    id: s4
+argumentIds:
+  - arg-sr-clock-and-length
+  - arg-sr-transported-clock
+schemaVersion: 1
+parameters:
+  - id: speed
+    label: "Clock speed v/c"
+    accessibleName: "Speed of the moving clock over the speed of light"
+    accessibleDescription: "Signed, from -0.95 to 0.95; no inertial clock reaches light speed."
+    quantityId: frameSpeed
+    displayUnit: "1"
+    modelDomain:
+      min: -0.95
+      max: 0.95
+      minInclusive: true
+      maxInclusive: true
+      reason: "The lab's numerical bound: |v/c| at most 0.95, inside the physical limit |v| < c"
+    visualRange:
+      min: -0.95
+      max: 0.95
+    default: 0.6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: coordinateDuration
+    label: "Platform time (s)"
+    accessibleName: "Coordinate duration on the resting platform, in seconds"
+    accessibleDescription: "From a nanosecond to a billion seconds."
+    quantityId: coordinateTimeStationary
+    displayUnit: "s"
+    modelDomain:
+      min: 1.0e-9
+      max: 1.0e+9
+      minInclusive: true
+      maxInclusive: true
+      reason: "The lab accepts coordinate durations from 10^-9 to 10^9 seconds"
+    visualRange:
+      min: 1
+      max: 100
+    default: 10
+    mapping:
+      kind: log
+    role: independent
+    commandClass: setup-change
+  - id: lightClockArm
+    label: "Light-clock arm (light-seconds)"
+    accessibleName: "Length of the transverse light clock's arm, in light-seconds"
+    accessibleDescription: "From a nanosecond of light travel to 1000 light-seconds."
+    quantityId: lengthProper
+    displayUnit: "ls"
+    modelDomain:
+      min: 1.0e-9
+      max: 1000
+      minInclusive: true
+      maxInclusive: true
+      reason: "The lab accepts arms from 10^-9 to 1000 light-seconds"
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1
+    mapping:
+      kind: log
+    role: independent
+    commandClass: setup-change
+  - id: frameOfDescription
+    label: "Frame of description v/c"
+    accessibleName: "Speed of the frame the clocks are described from, over the speed of light"
+    accessibleDescription: "A change of description, not of the clocks: it never restarts the experiment."
+    quantityId: frameSpeed
+    displayUnit: "1"
+    modelDomain:
+      min: -0.95
+      max: 0.95
+      minInclusive: true
+      maxInclusive: true
+      reason: "The lab's numerical bound: |v/c| at most 0.95"
+    visualRange:
+      min: -0.95
+      max: 0.95
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: observer-change
+outputs:
+  - id: properTime
+    quantityId: properTimeElapsed
+    allowedStatuses:
+      - value
+      - outside-domain
+    primary: true
+  - id: coordinateTime
+    quantityId: coordinateTimeStationary
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: dilationLossExact
+    quantityId: dilationLossExact
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: dilationLossPrintedSecondOrder
+    quantityId: dilationLossPrintedSecondOrder
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: reunionExactLag
+    quantityId: reunionLag
+    allowedStatuses:
+      - value
+      - not-applicable
+      - outside-domain
+  - id: reciprocalDilationFactor
+    quantityId: lorentzFactor
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: lightClockProperTick
+    quantityId: properTimeElapsed
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: lightClockCoordinateTick
+    quantityId: coordinateTimeStationary
+    allowedStatuses:
+      - value
+      - outside-domain
+  - id: equatorFractionalRate
+    quantityId: equatorFractionalRate
+    allowedStatuses:
+      - value
+  - id: dailyLossSpeedBeta
+    quantityId: frameSpeed
+    allowedStatuses:
+      - value
+      - outside-domain
+assumptions:
+  - "Ideal clocks whose rate depends only on their speed, special-relativistic kinematics, and one inertial platform whose synchronized clocks the moving clock is compared with."
+  - "A reunion compares readings at one place; readings at separated places are not compared across frames."
+  - "Modern SI constants."
+admittedDomain: "Signed clock and frame speeds within 0.95c, coordinate durations from 10^-9 to 10^9 s, light-clock arms from 10^-9 to 1000 light-seconds. The equator remark is an illustrative limit of the model, not a prediction for the Earth."
+notModeled:
+  - "Gravitational time dilation"
+  - "Real clock mechanisms under acceleration"
+  - "Rotating-frame (Sagnac) synchronization effects"
+  - "The Earth's actual geoid shape and gravity field"
+  - "Atomic-clock physics (transition frequencies, systematic shifts)"
+  - "Clock noise and measurement uncertainty"
+  - "Desynchronized separated-reading comparisons across frames (needs a stated simultaneity convention; only reunion comparisons are computed here)"
+owner:
+  kind: reference-evaluator
+  kernelFunctions:
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/kinematics.ts"
+      exportName: "dilationLossPerSecond"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/kinematics.ts"
+      exportName: "speedForDailyLoss"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/experiments/sr05/worldline.ts"
+      exportName: "properTimeAlongLegs"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/experiments/sr05/worldline.ts"
+      exportName: "reunionComparison"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/experiments/sr05/worldline.ts"
+      exportName: "lightClockTicks"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/experiments/sr05/worldline.ts"
+      exportName: "reciprocalRates"
+views:
+  - id: clock-readings
+    kind: table
+    consumes:
+      - properTime
+      - coordinateTime
+      - dilationLossExact
+      - dilationLossPrintedSecondOrder
+      - reunionExactLag
+      - reciprocalDilationFactor
+  - id: light-clock
+    kind: svg
+    consumes:
+      - lightClockProperTick
+      - lightClockCoordinateTick
+actions:
+  - actionId: sr-05-choose-worldline
+    family: clock-event
+    question: "What does the travelling clock read when it meets the platform clock again, compared with the platform's time?"
+    inputs:
+      - speed
+      - coordinateDuration
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - properTime
+        - coordinateTime
+        - reunionExactLag
+      allowedStatuses:
+        - value
+        - not-applicable
+        - outside-domain
+    visualAffordance: "A preset button chooses the worldline and speed; the readings update from the accepted snapshot"
+    equivalentAffordance: "Choose a named worldline preset, then read the proper time, the platform time and the reunion lag from the table"
+    announcement: "Clock readings updated from the accepted snapshot"
+  - actionId: sr-05-compare-printed-order
+    family: clock-event
+    question: "How close is the printed second-order loss per second to the exact one at this speed?"
+    inputs:
+      - speed
+    commandClass: setup-change
+    acceptedResult:
+      outputs:
+        - dilationLossExact
+        - dilationLossPrintedSecondOrder
+      allowedStatuses:
+        - value
+        - outside-domain
+    visualAffordance: "The low-speed and one-second-per-day presets set the speed; the two losses sit side by side"
+    equivalentAffordance: "Choose the low-speed preset and compare the exact and printed losses per second in the table"
+    announcement: "Exact and printed losses updated from the accepted snapshot"
+# Each case is one of the presets the lab offers (SR05_PRESETS), checked in src/testing/sr-05.test.ts.
+acceptanceCases:
+  - sr-05-inertial-0.6c
+  - sr-05-out-and-back-0.6c
+  - sr-05-circle-0.6c
+  - sr-05-low-speed-1e-4
+  - sr-05-light-clock-0.6c
+defaultScenario: sr-05-out-and-back-0.6c
+tapeModel:
+  modelId: sr05-moving-clocks-reference-v1
+  modelVersion: 1
+teachingTapes: []
+presets:
+  - presetId: sr-05-inertial-0.6c
+    label: "Inertial clock at 0.6c"
+    parameterValues:
+      speed: 0.6
+      coordinateDuration: 10
+  - presetId: sr-05-out-and-back-0.6c
+    label: "Out and back at 0.6c"
+    parameterValues:
+      speed: 0.6
+      coordinateDuration: 10
+  - presetId: sr-05-circle-0.6c
+    label: "Constant-speed circle at 0.6c"
+    parameterValues:
+      speed: 0.6
+      coordinateDuration: 10
+  - presetId: sr-05-low-speed-1e-4
+    label: "Low speed, beta = 10^-4"
+    parameterValues:
+      speed: 0.0001
+  - presetId: sr-05-daily-second
+    label: "A clock losing one second per day"
+    parameterValues:
+      speed: 0.00481124
+  - presetId: sr-05-light-clock-0.6c
+    label: "Light clock at 0.6c"
+    parameterValues:
+      speed: 0.6
+      lightClockArm: 1
+probes:
+  - sr-05-reunion-lag-probe
+  - sr-05-second-order-probe
+weavePredicates: []
+historicalOverlays: []
+realRate:
+  natural: false
+embeddable: false
+predictMode:
+  exempt: true
+  reason: "SR-05 offers no predict affordance on its page today (measured on live, 2026-09-24). Building one belongs to am-inst-predict-mode-ti7m, which is open; no prompt is recorded here that the page does not ask."
