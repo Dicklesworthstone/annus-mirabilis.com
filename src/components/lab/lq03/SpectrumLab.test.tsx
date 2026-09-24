@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LQ03_DEFAULTS, LQ03_NOT_MODELED } from "../../../experiments/lq03/definition.ts";
 import { evaluateLq03 } from "../../../experiments/lq03/session.ts";
+import labDigests from "../../../generated/lab-source-digests.json";
 import { exponentialParts } from "../../../units/scientific.ts";
 import { SpectrumComparison } from "./SpectrumLab.tsx";
 
@@ -14,17 +15,35 @@ function drawn(value: number, digits: number): string {
 }
 
 describe("SpectrumLab: server-rendered markup shows real numbers without JavaScript (am-lq-03-spectrum-08vz)", () => {
+  test("an example whose digest is not a source digest earns neither the static nor the host label", () => {
+    const html = renderToStaticMarkup(
+      <SpectrumComparison
+        example={{
+          parameters: LQ03_DEFAULTS,
+          evaluation: evaluateLq03(LQ03_DEFAULTS),
+          sourceDigest: "src/physics/reference/radiation.ts",
+        }}
+      />,
+    );
+    expect(html).not.toContain('data-execution-label="static"');
+    expect(html).not.toContain('data-execution-label="host"');
+  });
+
   test("the default example renders real Planck/Wien/classical densities, not an empty box", () => {
+    // The page's example, with the generated source digest. The label is derived
+    // (am-inst-execution-labels-5ywv): a build-time example earns "Static worked example". Until
+    // 75c559e6 the lab hard-coded "host" and "Ideal model, host calculation".
     const example = {
       parameters: LQ03_DEFAULTS,
       evaluation: evaluateLq03(LQ03_DEFAULTS),
-      sourceDigest: "src/physics/reference/radiation.ts",
+      sourceDigest: labDigests["lq-03"],
     };
     const html = renderToStaticMarkup(<SpectrumComparison example={example} />);
 
     expect(html).toContain('data-instrument-id="lq-03"');
-    expect(html).toContain('data-execution-label="host"');
-    expect(html).toContain("Ideal model, host calculation");
+    expect(html).toContain('data-execution-label="static"');
+    expect(html).toContain("Static worked example");
+    expect(html).not.toContain('data-execution-label="host"');
 
     // A real computed number reaches the markup, not a placeholder.
     const planck = evaluateLq03(LQ03_DEFAULTS).planck.frequency;
