@@ -37,9 +37,9 @@ export default function ConnectionsPage() {
         </p>
         <p>
           <a href="/papers/special-relativity/#s8">Relativity §8</a> ·{" "}
-          <a href="/lab/sr-10">Finite light complex</a> ·{" "}
+          <a href="/lab/sr-10/">Finite light complex</a> ·{" "}
           <a href="/papers/mass-energy/">Mass–energy paper</a> ·{" "}
-          <a href="/lab/me-01">Two energy ledgers</a>
+          <a href="/lab/me-01/">Two energy ledgers</a>
         </p>
       </section>
       <section className="reading page-flush" id="molecular-number">
@@ -69,9 +69,9 @@ export default function ConnectionsPage() {
         </p>
         <p>
           <a href="/papers/light-quanta/#s5">Light quanta §5</a> ·{" "}
-          <a href="/lab/lq-05">Independent configurations</a> ·{" "}
+          <a href="/lab/lq-05/">Independent configurations</a> ·{" "}
           <a href="/papers/brownian-motion/view/german/#s2">Brownian motion §2</a> ·{" "}
-          <a href="/lab/bm-03">Configuration integral</a>
+          <a href="/lab/bm-03/">Configuration integral</a>
         </p>
       </section>
       <section className="reading page-flush" id="light-thread">
