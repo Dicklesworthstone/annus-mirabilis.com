@@ -22,7 +22,8 @@ export interface EnrichedConcordanceEntry extends ConcordanceEntry {
   readonly spokenName: string;
   readonly glyphRendered: RenderedMath;
   readonly modernRendered?: RenderedMath | undefined;
-  readonly firstUseUrl: string;
+  /** Null when the entry's paper has no reading page yet, so the first use is named, not linked. */
+  readonly firstUseUrl: string | null;
   readonly searchKeywords: readonly string[];
   /** Where the meaning holds, in the reader's words: "§2, §5 and §8", "introduction", "note 1". */
   readonly whereLabel: string;
@@ -335,6 +336,10 @@ export function buildFirstUseUrl(paperSlug: string, anchor: string): string {
  */
 export function loadNotationPageData(
   injectedConcordances?: readonly PaperConcordance[],
+  /** The papers that have a reading page. When given, a first use in any other paper (the
+   *  dissertation, today) is not linked: /papers/molecular-dimensions does not exist, and 22 links
+   *  on /notation/ pointed at it. */
+  readablePapers?: ReadonlySet<string>,
 ): NotationPageData {
   const rawConcordances = injectedConcordances ?? loadAllConcordances();
   const allEntries: EnrichedConcordanceEntry[] = [];
@@ -375,7 +380,10 @@ export function loadNotationPageData(
         }
       }
 
-      const firstUseUrl = buildFirstUseUrl(entry.paper, entry.sources.anchor);
+      const firstUseUrl =
+        readablePapers && !readablePapers.has(entry.paper)
+          ? null
+          : buildFirstUseUrl(entry.paper, entry.sources.anchor);
       const searchKeywords = extractSearchKeywords(entry, paperTitle);
 
       const enriched: EnrichedConcordanceEntry = {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./notation.css";
 import "../../components/home/wideProse.css";
+import { listReadablePapers } from "../../reader/paperRoutes.ts";
 import { CollisionClusterView } from "./CollisionClusterView.tsx";
 import { NotationEntryCard } from "./NotationEntryCard.tsx";
 import { NotationPageClient } from "./NotationPageClient.tsx";
@@ -12,8 +13,8 @@ export const metadata: Metadata = {
     "The letters Einstein reused across the 1905 papers, what each one means where it appears, and the symbol a modern reader would use: in the relativity paper his β is the modern γ, and in the Brownian paper his k is the viscosity.",
 };
 
-export default function NotationPage() {
-  const data = loadNotationPageData();
+export default async function NotationPage() {
+  const data = loadNotationPageData(undefined, new Set(await listReadablePapers()));
 
   return (
     <div className="notation-page" data-page="notation">

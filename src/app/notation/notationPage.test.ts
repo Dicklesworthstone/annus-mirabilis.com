@@ -5,6 +5,7 @@
 
 import { describe, expect, it } from "bun:test";
 import type { PaperConcordance } from "../../content/schemas/concordance.ts";
+import { listReadablePapers } from "../../reader/paperRoutes.ts";
 import { getLogger, newRunIdentity } from "../../testing/log/logger.ts";
 import {
   describeVerification,
@@ -47,12 +48,31 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
     );
   });
 
-  it("every first-use link resolves to a valid paper reading URL with an anchor", () => {
-    for (const entry of data.allEntries) {
+  it("every first-use link lands on a paper that has a reading page; a first use elsewhere is named, not linked", async () => {
+    // This checked only the URL's shape, so the 22 links to /papers/molecular-dimensions, which
+    // does not exist, passed it. It now checks each linked paper against the real routes.
+    const readable = new Set(await listReadablePapers());
+    const routed = loadNotationPageData(undefined, readable);
+    const linked = routed.allEntries.filter((e) => e.firstUseUrl !== null);
+    expect(linked.length).toBeGreaterThan(0);
+    for (const entry of linked) {
       expect(entry.firstUseUrl).toMatch(/^\/papers\/[a-z-]+(\?view=reading)?#[a-z0-9-]+$/);
+      const slug = /^\/papers\/([a-z-]+)/.exec(entry.firstUseUrl ?? "")?.[1] ?? "";
+      expect(readable.has(slug)).toBe(true);
       expect(entry.sources.anchor.length).toBeGreaterThan(0);
     }
-    logTestPass("first-use-links-valid", "All entries have valid first-use links.");
+    for (const entry of routed.allEntries.filter((e) => e.firstUseUrl === null)) {
+      expect(readable.has(entry.paper)).toBe(false);
+    }
+    // The unlinked path, proved on a paper that does have a page: withhold it from the set and
+    // every one of its entries must lose its link. (Asserting that some entry is unlinked today
+    // would break the day the dissertation gets a page.)
+    const withheld = new Set([...readable].filter((p) => p !== "brownian-motion"));
+    const without = loadNotationPageData(undefined, withheld);
+    const brownian = without.allEntries.filter((e) => e.paper === "brownian-motion");
+    expect(brownian.length).toBeGreaterThan(0);
+    for (const entry of brownian) expect(entry.firstUseUrl).toBeNull();
+    logTestPass("first-use-links-valid", "Every first-use link lands on a readable paper.");
   });
 
   it("every entry anchor is unique across the entire dataset, including case-distinct anchors", () => {

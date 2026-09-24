@@ -111,13 +111,17 @@ export function NotationEntryCard({ entry }: NotationEntryCardProps) {
               <span className="inline-math" {...{ dangerouslySetInnerHTML: { __html: modern } }} />
             </span>
           )}
-          <a
-            href={entry.firstUseUrl}
-            className="first-use-link"
-            data-first-use-anchor={entry.sources.anchor}
-          >
-            {page ? `first used on p. ${page}` : "first use"}
-          </a>
+          {entry.firstUseUrl ? (
+            <a
+              href={entry.firstUseUrl}
+              className="first-use-link"
+              data-first-use-anchor={entry.sources.anchor}
+            >
+              {page ? `first used on p. ${page}` : "first use"}
+            </a>
+          ) : (
+            <span>{page ? `first used on p. ${page}` : "first use"}</span>
+          )}
         </p>
         {entry.alsoPrinted.length > 0 && (
           <p className="notation-entry-also">
