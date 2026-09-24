@@ -1,17 +1,21 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
+import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { createLq01BrowserChannel } from "../../experiments/lq01/browser.ts";
 import { fromLq01Draft, type Lq01Draft, toLq01Draft } from "../../experiments/lq01/controls.ts";
 import {
   LQ01_CAPTION,
-  LQ01_MODEL,
+  LQ01_OUTPUTS,
   LQ01_PRESETS,
   LQ01_PROMPTS,
   type Lq01Parameters,
 } from "../../experiments/lq01/definition.ts";
 import { decodeLq01Settings, encodeLq01Settings } from "../../experiments/lq01/permalink.ts";
 import { createLq01Session, type PreparedLq01Example } from "../../experiments/lq01/session.ts";
+import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { array, identity, result, scalar } from "./presentation.ts";
@@ -204,6 +208,16 @@ export function WaveDescriptionLab({
   const chosen = selectedCandidates[prompt.id];
   const phaseReadout = `${(p.delta / Math.PI).toFixed(2)}π rad, ${(p.delta * (180 / Math.PI)).toFixed(0)}°`;
 
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      LQ01_OUTPUTS,
+      example.sourceDigest,
+      snapshot === session.getServerSnapshot().accepted,
+    ).label,
+  );
   return (
     <section
       className="laboratory lq01"
@@ -214,7 +228,7 @@ export function WaveDescriptionLab({
       data-input-revision={view.requested?.revisions.input ?? 1}
       data-accepted-input-revision={snapshot.revisions.input}
       data-pending={String(view.pending)}
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, view, "centerIntensity")}
       data-source-digest={example.sourceDigest}
       data-result-status={primaryResult.status}
       {...(view.refusal ? { "data-refusal-code": view.refusal.code } : {})}
@@ -222,8 +236,10 @@ export function WaveDescriptionLab({
       <header className="lab-heading">
         <p className="eyebrow">An executable model</p>
         <h2 id={`${id}-title`}>{title}</h2>
-        <span className="badge">{LQ01_MODEL.label}</span>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome state={executionKind} view={view} />
+      </div>
 
       <noscript>
         <p className="notice">
