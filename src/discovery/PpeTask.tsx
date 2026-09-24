@@ -56,18 +56,9 @@ export function PpeTask({ task }: PpeTaskProps) {
               margin: "0.25rem 0 0",
             }}
           >
-            Physical insight challenge
+            Predict, change one thing, then explain
           </h3>
         </div>
-        <span
-          style={{
-            fontFamily: "var(--font-mono, monospace)",
-            fontSize: "0.75rem",
-            color: "var(--muted)",
-          }}
-        >
-          #{promptId}
-        </span>
       </header>
 
       <div

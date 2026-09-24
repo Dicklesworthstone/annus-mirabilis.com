@@ -28,7 +28,7 @@ describe("JourneyPage container component rendering", () => {
       "How can the thermal agitation of invisible molecules produce observable microscopic motion?",
     );
     expect(html).toContain("#card-osmotic-pressure");
-    expect(html).toContain("The consequential move");
+    expect(html).toContain("The move");
     expect(containsHeading(html, "World Checks · Testing the Consequences")).toBe(true);
     expect(html).toContain("Connecting to the 1905 Paper");
     expect(html).toContain("Entry portals · Front &amp; side doors");

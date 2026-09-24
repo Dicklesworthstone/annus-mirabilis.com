@@ -2,9 +2,14 @@ import type { JourneyMove } from "../content/schemas/journey.ts";
 
 export interface MoveMarkerProps {
   readonly move: JourneyMove;
+  /**
+   * Where the marked step opens in the reading face. Given, the marker links there in words; the
+   * chain and step ids are for the build, and a reader cannot use them.
+   */
+  readonly href?: string | undefined;
 }
 
-export function MoveMarker({ move }: MoveMarkerProps) {
+export function MoveMarker({ move, href }: MoveMarkerProps) {
   const { label, chainId, stepId, r0Summary } = move;
 
   const isReviewed = r0Summary.reviewState === "reviewed";
@@ -57,7 +62,7 @@ export function MoveMarker({ move }: MoveMarkerProps) {
               fontWeight: "bold",
             }}
           >
-            The consequential move
+            The move
           </span>
         </div>
         <div
@@ -68,14 +73,18 @@ export function MoveMarker({ move }: MoveMarkerProps) {
             fontSize: "0.75rem",
           }}
         >
-          <span
-            style={{
-              fontFamily: "var(--font-mono, monospace)",
-              color: "var(--muted)",
-            }}
-          >
-            {chainId} · {stepId}
-          </span>
+          {href ? (
+            <a href={href}>Open this step in the derivation</a>
+          ) : (
+            <span
+              style={{
+                fontFamily: "var(--font-mono, monospace)",
+                color: "var(--muted)",
+              }}
+            >
+              {chainId} · {stepId}
+            </span>
+          )}
           <span
             className="badge"
             style={{

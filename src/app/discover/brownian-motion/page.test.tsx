@@ -4,7 +4,7 @@ import { checkVoice } from "../../../content/checks/voice/index.ts";
 import BrownianEncounter from "./page";
 
 /**
- * /discover/brownian-motion/: the explanation part in step 02 (am-disc-exercise-checker-i4h2).
+ * /discover/brownian-motion/: the explanation part in step 04 (am-disc-exercise-checker-i4h2).
  * The page is rendered whole, as the static export renders it, so the test reads what a reader
  * without JavaScript receives.
  */
@@ -24,15 +24,15 @@ function section(id: string): string {
 }
 
 function explanationPart(): string {
-  const markup = section("step-02");
+  const markup = section("step-04");
   const start = markup.indexOf('data-exercise-part="bm-square-root-in-words"');
   expect(start).toBeGreaterThan(-1);
   return markup.slice(start, markup.indexOf("</details>", start));
 }
 
-describe("step 02 asks the reader to put the square-root argument in words", () => {
+describe("step 04 asks the reader to put the square-root argument in words", () => {
   test("after the prediction's argument, with a text box and four criteria behind a disclosure", () => {
-    const step = section("step-02");
+    const step = section("step-04");
     expect(step.indexOf("bm-square-root-in-words")).toBeGreaterThan(
       step.indexOf("Why a randomly kicked particle goes only twice as far"),
     );
@@ -53,12 +53,12 @@ describe("step 02 asks the reader to put the square-root argument in words", () 
       expect(words).toContain(idea);
   });
 
-  test("the expression exercise in step 05 is still there", () => {
-    expect(section("step-05")).toContain('data-exercise-part="bm-displacement-scale-rewrite"');
+  test("the expression exercise in step 07 is still there", () => {
+    expect(section("step-07")).toContain('data-exercise-part="bm-displacement-scale-rewrite"');
   });
 
-  test("step 05 lets the reader arrive at Einstein's number, as the page's lead promises", () => {
-    const step = section("step-05");
+  test("step 07 lets the reader arrive at Einstein's number, as the page's lead promises", () => {
+    const step = section("step-07");
     expect(text(html)).toContain("You can arrive at the same number here");
     const start = step.indexOf('data-exercise-part="bm-einstein-one-second"');
     expect(start).toBeGreaterThan(step.indexOf("bm-displacement-scale-rewrite"));
@@ -74,5 +74,75 @@ describe("step 02 asks the reader to put the square-root argument in words", () 
     expect(words.length).toBeGreaterThan(400);
     const errors = checkVoice(words, { context: "prose" }).filter((f) => f.severity === "error");
     expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
+  });
+});
+
+/**
+ * Journey II's skeleton on the live route (plan §9.1, §9.3; dispatch 136). Until 2026-09-24 the
+ * skeleton components rendered on no served page: their only importer was a retired route.
+ */
+describe("the route carries the discovery skeleton, in the plan's order", () => {
+  const at = (marker: string) => {
+    const i = html.indexOf(marker);
+    expect(i, marker).toBeGreaterThan(-1);
+    return i;
+  };
+
+  test("shelf, nagging fact and first question come before the chain", () => {
+    const order = [
+      'id="shelf"',
+      'id="nagging-fact"',
+      'id="first-question"',
+      'id="step-01"',
+      'id="step-02"',
+      'id="step-03"',
+      'id="step-04"',
+      "data-move-marker",
+      'id="step-05"',
+      'id="step-06"',
+      'id="step-07"',
+      'id="in-the-paper"',
+    ].map(at);
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+    expect(text(section("nagging-fact"))).toContain("what is known about molecules in solution");
+    expect(text(section("first-question"))).toContain("press on a membrane");
+  });
+
+  test("Route A asks the osmotic question and meets drag, with its instruments", () => {
+    const osmotic = section("step-02");
+    expect(osmotic).toContain('href="/lab/bm-02/"');
+    expect(osmotic).toContain('href="/lab/bm-03/"');
+    expect(text(osmotic)).toContain("van ’t Hoff");
+    const drag = section("step-03");
+    expect(drag).toContain('href="/lab/bm-04/"');
+    expect(text(drag)).toContain("the force cancels");
+    expect(text(drag)).toContain("side door");
+  });
+
+  test("the move is marked and opens the chain step the derivation marks", () => {
+    const start = at("data-move-marker");
+    const marker = html.slice(start, html.indexOf("</aside>", start));
+    expect(text(marker)).toContain("The move");
+    expect(marker).toContain(
+      'href="/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps"',
+    );
+    // The chain and step ids are for the build; the marker says where to go in words.
+    expect(text(marker)).not.toContain("bm-variance · bm-variance-cross");
+  });
+
+  test("the shelf holds Nägeli and van ’t Hoff, and nothing later than 1904 unmarked", () => {
+    const shelf = section("shelf");
+    expect(shelf).toContain('data-card-id="naegeli-1879-single-impacts"');
+    expect(shelf).toContain('data-card-id="vant-hoff-1887-osmotic-gas-law"');
+    expect(shelf).not.toContain("perrin-1909");
+  });
+
+  test("the new prose passes the voice lint", () => {
+    for (const id of ["nagging-fact", "first-question", "step-02", "step-03"]) {
+      const errors = checkVoice(text(section(id)), { context: "prose" }).filter(
+        (f) => f.severity === "error",
+      );
+      expect(errors.map((f) => `${id} ${f.rule}: ${f.matchedText}`)).toEqual([]);
+    }
   });
 });

@@ -43,9 +43,11 @@ export const ROUTE_INDEX: readonly RouteIndexEntry[] = [
     germanTitle:
       "Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen",
     blurb:
-      "Particles from inside pollen grains, suspended in still water, never come to rest. The route asks what you would measure to decide whether molecules are shoving them. A particle’s apparent speed depends on how often you look, so the route works with how far it gets in a given time. Five steps, four instruments, and the 1904 shelf of results you may use.",
+      "Particles from inside pollen grains, suspended in still water, never come to rest. The route asks whether a particle you can see presses like a dissolved molecule, and what you would measure to decide whether molecules are shoving it. A particle’s apparent speed depends on how often you look, so the route works with how far it gets in a given time. Seven steps, seven instruments, and the 1904 shelf of results you may use.",
     steps: [
       "Choose a quantity",
+      "Ask whether it presses",
+      "Balance a force against drag",
       "Make a prediction",
       "Ask an interval question",
       "Turn the question around",

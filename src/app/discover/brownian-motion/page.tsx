@@ -9,179 +9,24 @@ import {
 } from "../../../components/discover/ExplanationPart.tsx";
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { Formula } from "../../../components/edition/Formula.tsx";
+import { BROWNIAN_SHELF_CARDS } from "../../../content/brownianShelf.ts";
+import {
+  FIRST_HONEST_QUESTION,
+  MOVE,
+  MOVE_HREF,
+  NAGGING_FACT,
+  PPE_TASK,
+  SOURCE_JUMPS,
+} from "../../../discovery/brownian/journeyII.ts";
 import { EINSTEIN_ONE_SECOND } from "../../../discovery/brownian/numericExercises.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
-import type { KnowledgeCard } from "../../../discovery/cards/types.ts";
+import { MoveMarker } from "../../../discovery/MoveMarker.tsx";
+import { PpeTask } from "../../../discovery/PpeTask.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
+import { SourceJump } from "../../../discovery/SourceJump.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = { title: "A first encounter with Brownian motion" };
-
-const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
-  {
-    id: "brown-1828-microscopical-observations",
-    proposition:
-      "Fragments from within pollen grains, and inorganic particles suspended in water, move irregularly without dying away.",
-    status: "available",
-    sources: [
-      {
-        title: "A brief account of microscopical observations",
-        date: "1828",
-        locator: "Phil. Mag. 4 (1828) 161",
-      },
-    ],
-    date: {
-      earliest: "1828",
-      latest: "1828",
-      precision: "year",
-      latestYear: 1828,
-      eventKind: "published",
-    },
-    priorEvent: {
-      eventKind: "performed",
-      earliest: "1827",
-      latest: "1827",
-      precision: "year",
-    },
-    admittedStages: ["stage-01", "stage-02"],
-  },
-  {
-    id: "stokes-1851-sphere-drag",
-    proposition:
-      "A sphere of radius a moving slowly at speed v through a liquid of viscosity η is held back by a force F = 6πηav.",
-    status: "available",
-    sources: [{ title: "Trans. Camb. Phil. Soc. 9", locator: "p. 8", date: "1851" }],
-    date: {
-      earliest: "1851",
-      latest: "1851",
-      precision: "year",
-      latestYear: 1851,
-      eventKind: "published",
-    },
-    admittedStages: ["stage-03"],
-  },
-  {
-    id: "fick-1855-diffusion-equation",
-    proposition:
-      "Dissolved matter moves down its concentration gradient at a rate proportional to the gradient; with conservation of matter this gives a diffusion equation for the concentration.",
-    status: "available",
-    sources: [{ title: "Ann. Phys. (Pogg.) 94", locator: "p. 59", date: "1855" }],
-    date: {
-      earliest: "1855",
-      latest: "1855",
-      precision: "year",
-      latestYear: 1855,
-      eventKind: "published",
-    },
-    admittedStages: ["stage-03"],
-  },
-  {
-    id: "maxwell-1860-equipartition",
-    proposition:
-      "In a gas in thermal equilibrium every kind of molecule has the same mean kinetic energy of translation, whatever its mass, and that mean is proportional to the absolute temperature.",
-    status: "available",
-    sources: [{ title: "Phil. Mag. 19", locator: "p. 19", date: "1860" }],
-    date: {
-      earliest: "1860",
-      latest: "1879",
-      precision: "range",
-      latestYear: 1879,
-      eventKind: "published",
-    },
-    admittedStages: ["stage-01", "stage-02"],
-  },
-  {
-    id: "gouy-1888-brownian-motion",
-    proposition:
-      "The motion is intrinsic and persistent; faster for smaller particles and in warmer, less viscous liquids.",
-    status: "available",
-    sources: [{ title: "J. Phys. Théor. Appl. (2) 7", locator: "p. 561", date: "1888" }],
-    date: {
-      earliest: "1888",
-      latest: "1888",
-      precision: "year",
-      latestYear: 1888,
-      eventKind: "published",
-    },
-    admittedStages: ["stage-01"],
-  },
-  {
-    id: "exner-1900-particle-speeds",
-    proposition:
-      "Exner timed the particles over short intervals; their apparent speeds came out far below the speeds kinetic theory gives molecules.",
-    status: "available",
-    sources: [{ title: "Ann. Phys. (4) 2", locator: "p. 843", date: "1900" }],
-    date: {
-      earliest: "1900",
-      latest: "1900",
-      precision: "year",
-      latestYear: 1900,
-      eventKind: "published",
-    },
-    admittedStages: ["stage-01"],
-  },
-  {
-    id: "siedentopf-1903-ultramicroscope",
-    proposition:
-      "Siedentopf and Zsigmondy's ultramicroscope lights colloidal particles from the side, so particles smaller than a micron show as bright points on a dark field.",
-    status: "available",
-    sources: [{ title: "Ann. Phys. (4) 10", locator: "p. 1", date: "1903" }],
-    date: {
-      earliest: "1903",
-      latest: "1903",
-      precision: "year",
-      latestYear: 1903,
-      eventKind: "published",
-    },
-    priorEvent: {
-      eventKind: "performed",
-      earliest: "1902",
-      latest: "1902",
-      precision: "year",
-    },
-    admittedStages: ["stage-01"],
-  },
-  {
-    id: "sutherland-1904-dunedin",
-    proposition:
-      "William Sutherland presents a formula for the diffusion of a sphere through a liquid, with a correction for slip at its surface, at Dunedin in January 1904.",
-    status: "available",
-    sources: [
-      {
-        title: "Australasian Association for the Advancement of Science",
-        locator: "Dunedin Meeting",
-        date: "1904",
-      },
-    ],
-    date: {
-      earliest: "1904-01",
-      latest: "1904-01",
-      precision: "month",
-      latestYear: 1904,
-      eventKind: "presented",
-    },
-    relatedCardId: "sutherland-1905-phil-mag",
-    admittedStages: ["stage-03"],
-  },
-  {
-    id: "sutherland-1905-phil-mag",
-    proposition:
-      "Sutherland's diffusion formula, with its slip correction, is published in the Philosophical Magazine.",
-    status: "parallel-work",
-    parallelWorkBasis:
-      "The June 1905 Philosophical Magazine publication falls between Annalen's receipt of Einstein's paper on 11 May 1905 and its publication on 18 July 1905.",
-    sources: [{ title: "Phil. Mag. (6) 9", locator: "p. 781", date: "1905" }],
-    date: {
-      earliest: "1905-06",
-      latest: "1905-06",
-      precision: "month",
-      latestYear: 1905,
-      eventKind: "published",
-    },
-    relatedCardId: "sutherland-1904-dunedin",
-    admittedStages: ["stage-03"],
-  },
-];
 
 const DISPLACEMENT_SCALE_EXERCISE: ExpressionExercisePart = {
   id: "bm-displacement-scale-rewrite",
@@ -236,6 +81,31 @@ export default function BrownianEncounter() {
         </p>
       </header>
       <RouteMap slug="brownian-motion" />
+      <section id="shelf">
+        <h2>The 1904 shelf</h2>
+        <p>
+          What a careful reader of the literature had by the end of 1904, and nothing later unless
+          it is marked as parallel work. The route uses nothing else.
+        </p>
+        <Shelf cards={BROWNIAN_SHELF_CARDS} />
+        <p className="fine">
+          The dates on these cards come from standard bibliographies and period citations. No one
+          here has checked them against the volumes, and the shelf marks each card as awaiting
+          verification.
+        </p>
+      </section>
+      <section id="nagging-fact" aria-labelledby="nagging-fact-title">
+        <p className="eyebrow" id="nagging-fact-title">
+          The nagging fact
+        </p>
+        <p className="lead">{NAGGING_FACT}</p>
+      </section>
+      <section id="first-question" aria-labelledby="first-question-title">
+        <p className="eyebrow" id="first-question-title">
+          The first honest question
+        </p>
+        <p className="lead">{FIRST_HONEST_QUESTION}</p>
+      </section>
       <section id="step-01">
         <p className="step-number">01 / Choose a quantity</p>
         <h2>Averages can hide motion.</h2>
@@ -270,7 +140,90 @@ export default function BrownianEncounter() {
         </StepDoors>
       </section>
       <section id="step-02">
-        <p className="step-number">02 / Make a prediction</p>
+        <p className="step-number">02 / Ask whether it presses</p>
+        <h2>Does a particle you can see push like a molecule?</h2>
+        <p>
+          In 1887 van ’t Hoff showed that a substance dissolved in a dilute solution presses on a
+          membrane that lets only the water through, and that this osmotic pressure follows the gas
+          law. The law counts molecules. Nothing in it says how big a molecule is.
+        </p>
+        <p>
+          So take the nagging fact at its word. If a particle a micron across is only a very large
+          molecule, the same law should hold for it, with the number of particles in place of the
+          number of molecules. The usual view in 1904 said otherwise: a membrane holding back
+          suspended particles should feel no force at all, because their free energy did not seem to
+          depend on where they are. The kinetic theory says it must feel one. Both cannot be right,
+          and the particles’ wandering is where they part.
+        </p>
+        <details>
+          <summary>Why the particle’s size drops out</summary>
+          <p>
+            The paper’s §2 finds the free energy of the suspension without solving any molecule’s
+            motion. All it needs is how the particles share the volume that holds them, and that
+            brings in how many there are, not how big they are. The pressure comes out as the gas
+            law for that many particles:
+          </p>
+          <Formula latex={String.raw`p=\frac{RT}{N}\,\nu`} />
+          <p>
+            Here ν is the number of particles per unit volume, and N is the number of molecules in a
+            gram-molecule: the number this route ends by estimating.
+          </p>
+        </details>
+        <StepDoors>
+          <StepDoor href="/lab/bm-02/">
+            Change the particle count, the volume and the radius, and see what the pressure depends
+            on
+          </StepDoor>
+          <StepDoor href="/lab/bm-03/">
+            See where the volume factor comes from without solving any motion
+          </StepDoor>
+        </StepDoors>
+      </section>
+      <section id="step-03">
+        <p className="step-number">03 / Balance a force against drag</p>
+        <h2>Pull on the particles, and see what holds them back.</h2>
+        <p>
+          Suppose a force pulls every particle the same way, toward the bottom say. In equilibrium
+          the particles crowd together until their osmotic pressure pushes back as hard as the force
+          pulls. That is one account of the crowd.
+        </p>
+        <p>
+          Here is another. Under the force each particle drifts through the water, held back by
+          Stokes’s drag, while the crowding makes the particles diffuse back from more to fewer, as
+          Fick’s law says. In equilibrium the drift one way and the diffusion the other carry equal
+          numbers across each second.
+        </p>
+        <p>
+          Put the two accounts side by side and the force cancels: a stronger force makes a steeper
+          crowd in exactly the proportion that it makes a faster drift. What is left fixes the
+          diffusion coefficient by the temperature, the viscosity of the liquid and the radius of
+          the particle alone.
+        </p>
+        <details>
+          <summary>The coefficient, in the paper’s letters and in today’s</summary>
+          <Formula latex={String.raw`D=\frac{RT}{N}\,\frac{1}{6\pi kP}`} />
+          <p>
+            Einstein writes k for the viscosity and P for the radius. In today’s letters the same
+            relation reads as below, with Boltzmann’s constant k<sub>B</sub> = R/N. The paper’s k is
+            not Boltzmann’s constant.
+          </p>
+          <Formula latex={String.raw`D=\frac{k_BT}{6\pi\eta a}`} />
+        </details>
+        <p>
+          This is a side door into the paper: it reaches D without following any one particle. The
+          next steps follow one particle, and they reach the same D.
+        </p>
+        <StepDoors>
+          <StepDoor href="/lab/bm-04/">
+            Balance the drift against the spreading, and watch the force drop out
+          </StepDoor>
+          <StepDoor href="/papers/brownian-motion/s5/#arg-bm-diffusivity">
+            Go straight to the explanation: what fixes D for a small sphere
+          </StepDoor>
+        </StepDoors>
+      </section>
+      <section id="step-04">
+        <p className="step-number">04 / Make a prediction</p>
         <h2>Four times as long. Four times as far?</h2>
         <p>
           Wait four times as long. Does a particle get no farther, twice as far, or four times as
@@ -302,8 +255,9 @@ export default function BrownianEncounter() {
           </StepDoor>
         </StepDoors>
       </section>
-      <section id="step-03">
-        <p className="step-number">03 / Ask an interval question</p>
+      <MoveMarker move={MOVE} href={MOVE_HREF} />
+      <section id="step-05">
+        <p className="step-number">05 / Ask an interval question</p>
         <h2>A curve’s height is not a probability.</h2>
         <p>
           “How likely is the displacement to lie between −1 and +1 micrometres?” is an interval
@@ -334,8 +288,8 @@ export default function BrownianEncounter() {
           </StepDoor>
         </StepDoors>
       </section>
-      <section id="step-04">
-        <p className="step-number">04 / Turn the question around</p>
+      <section id="step-06">
+        <p className="step-number">06 / Turn the question around</p>
         <h2>What can a finite sample tell you?</h2>
         <p>
           In the next laboratory, the molecular number behind a made-up set of paths is hidden. How
@@ -351,8 +305,8 @@ export default function BrownianEncounter() {
           <StepDoor href="/lab/bm-07/">Estimate the number and repeat the experiment</StepDoor>
         </StepDoors>
       </section>
-      <section id="step-05">
-        <p className="step-number">05 / Try it yourself</p>
+      <section id="step-07">
+        <p className="step-number">07 / Try it yourself</p>
         <h2>From one axis to two</h2>
         <p>
           A microscope sees the plane, not one axis. Work out how far a particle gets in two
@@ -366,14 +320,7 @@ export default function BrownianEncounter() {
           laboratory could go and measure. Type it in the unit you prefer.
         </p>
         <NumericPart part={EINSTEIN_ONE_SECOND} />
-      </section>
-      <section id="shelf">
-        <h2>The 1904 shelf</h2>
-        <Shelf cards={BROWNIAN_SHELF_CARDS} />
-        <p className="fine">
-          The dates on these cards come from standard bibliographies. No one here has checked them
-          against the volumes, and the shelf marks each card as awaiting verification.
-        </p>
+        <PpeTask task={PPE_TASK} />
       </section>
       <aside className="notice">
         <h2>The model is not the evidence.</h2>
@@ -392,6 +339,9 @@ export default function BrownianEncounter() {
           English translation is not written yet. This route is new explanation written for this
           edition, not a translation of the paper.
         </p>
+        {SOURCE_JUMPS.map((jump) => (
+          <SourceJump key={jump.id} jump={jump} />
+        ))}
         <div className="actions">
           <a className="button" href="/papers/brownian-motion/">
             Read the argument and open its missing steps
