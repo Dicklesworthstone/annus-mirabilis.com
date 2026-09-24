@@ -34,9 +34,11 @@ This inventory does not state or imply rights to scans, photographs, historical 
 
 | Package / Asset | Version | License | Source Path | Notes / Reference |
 |---|---|---|---|---|
+| Jetbrains Mono (JetBrainsMono-Italic-Variable.ttf) | variable | OFL-1.1 | `public/fonts/jetbrains-mono/JetBrainsMono-Italic-Variable.ttf` | File: `public/fonts/jetbrains-mono/OFL.txt` |
 | Jetbrains Mono (JetBrainsMono-Variable.ttf) | variable | OFL-1.1 | `public/fonts/jetbrains-mono/JetBrainsMono-Variable.ttf` | File: `public/fonts/jetbrains-mono/OFL.txt` |
 | Newsreader (Newsreader-Italic-Variable.ttf) | variable | OFL-1.1 | `public/fonts/newsreader/Newsreader-Italic-Variable.ttf` | File: `public/fonts/newsreader/OFL.txt` |
 | Newsreader (Newsreader-Variable.ttf) | variable | OFL-1.1 | `public/fonts/newsreader/Newsreader-Variable.ttf` | File: `public/fonts/newsreader/OFL.txt` |
+| Plus Jakarta Sans (PlusJakartaSans-Italic-Variable.ttf) | variable | OFL-1.1 | `public/fonts/plus-jakarta-sans/PlusJakartaSans-Italic-Variable.ttf` | File: `public/fonts/plus-jakarta-sans/OFL.txt` |
 | Plus Jakarta Sans (PlusJakartaSans-Variable.ttf) | variable | OFL-1.1 | `public/fonts/plus-jakarta-sans/PlusJakartaSans-Variable.ttf` | File: `public/fonts/plus-jakarta-sans/OFL.txt` |
 
 ## 3. Compiled WebAssembly Artifacts
