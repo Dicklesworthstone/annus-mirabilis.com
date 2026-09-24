@@ -322,9 +322,7 @@ export function AvogadroLab() {
                   <td>
                     <Reading snapshot={snapshot} quantity="definedNumber" />
                   </td>
-                  <td>
-                    Exactly 6.02214076 × 10²³ mol⁻¹ by definition, not measured by this laboratory.
-                  </td>
+                  <td>Defined exactly in the 2019 SI, not measured: 6.02214076 × 10²³ mol⁻¹.</td>
                 </tr>
               </tbody>
             </table>
@@ -333,9 +331,13 @@ export function AvogadroLab() {
             {announcement}
           </p>
           <p>
-            Do not average these rows. They have different provenance and assumptions. The modern
-            gas constant is defined using N<sub>A</sub> and k<sub>B</sub>; agreement in the
-            illustrative diffusion rows is not independent evidence for either constant.
+            These rows are not combined into one number. Combining them honestly would need two
+            things this page does not have: the covariance between the routes, which all depend on
+            the gas constant, and the two diffusion routes also on Stokes drag and the dilute-sphere
+            model; and an allowance for model discrepancy, how far each idealized model departs from
+            the real radiation, suspension or solution. The modern gas constant is defined using N
+            <sub>A</sub> and k<sub>B</sub>; agreement in the illustrative diffusion rows is not
+            independent evidence for either constant.
           </p>
         </div>
       </div>

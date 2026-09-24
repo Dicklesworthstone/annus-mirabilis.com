@@ -24,6 +24,7 @@ import {
 } from "./definition.ts";
 
 const constants = getConstantSet("modern-si-2019");
+const lightQuantaPrinted = getConstantSet("einstein-1905-light-quanta-printed");
 const R = constantValue(constants, "molarGasConstant").value;
 
 function scalar(
@@ -55,10 +56,9 @@ export function evaluateAvogadro(input: unknown) {
   if (checked.kind !== "accepted") return checked;
   const p = checked.parameters;
   const output: ScientificResult[] = [];
-  // N is inversely proportional to alpha with every other historical input held fixed.
-  // This is a sensitivity comparison of the existing owner's historical reconstruction,
-  // never a claim that the perturbed constant is an observed historical measurement.
-  const radiation = avogadroFromPlanckConstants();
+  // N is inversely proportional to alpha with the printed set's other inputs held fixed: a
+  // sensitivity comparison of the historical reconstruction, never an observed measurement.
+  const radiation = avogadroFromPlanckConstants(lightQuantaPrinted);
   output.push(
     scalar("radiationNumber", "mol^-1", "radiation", {
       status: "value",
