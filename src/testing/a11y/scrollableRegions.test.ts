@@ -1095,9 +1095,11 @@ describe("scrollable regions accessibility ratchet (am-bc6s)", () => {
 
   test("am-afam: a name belonging to a DIFFERENT element in the same file is refused", () => {
     // The fixture is TanElk's plant, kept as a fixture instead of a one-off run.
-    // "Predict before calculating" is a real aria-label in this same file, on a
-    // button that is neither a table-scroll nor a scroll region.
-    const impostor = "Predict before calculating";
+    // "Rod measurement and simultaneity settings" is a real aria-label in this same
+    // file, on the settings form, which is neither a table-scroll nor a scroll region.
+    // It was "Predict before calculating", a summary that predict mode's gate replaces
+    // (dispatch 156); the reachability assertion below is what said to move it.
+    const impostor = "Rod measurement and simultaneity settings";
     const src = rodSource();
 
     // Reachability first: the state being refused is one the OLD check accepted.
