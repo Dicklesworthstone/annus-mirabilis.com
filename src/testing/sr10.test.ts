@@ -77,9 +77,10 @@ describe("SR-10: The Finite Light Complex (Einstein 1905 §8)", () => {
     expect(res.materialVolumeFactor).toBeCloseTo(0.8, 12);
     expect(res.energyFactor).not.toBeCloseTo(res.materialVolumeFactor, 2);
     expect(res.volumeFactor).not.toBeCloseTo(res.materialVolumeFactor, 2);
-    expect(res.countermodelEnergyFactor).toBeCloseTo(0.8, 12);
+    // The bead's rigid-body countermodel: density q^2 = 0.25 in a rod's volume 1/gamma = 0.8.
+    expect(res.countermodelEnergyFactor).toBeCloseTo(0.2, 12);
     expect(res.countermodelVolumeFactor).toBeCloseTo(0.8, 12);
-    expect(res.countermodelEnergyJ).toBeCloseTo(0.8, 12);
+    expect(res.countermodelEnergyJ).toBeCloseTo(0.2, 12);
     expect(res.countermodelVolumeM3).toBeCloseTo(0.8, 12);
   });
 
@@ -99,13 +100,13 @@ describe("SR-10: The Finite Light Complex (Einstein 1905 §8)", () => {
     expect(res.transformedEnergyJ).toBeCloseTo(2.0, 12);
     expect(res.transformedVolumeM3).toBeCloseTo(0.5, 12);
 
-    expect(res.countermodelEnergyFactor).toBeCloseTo(0.8, 12);
+    expect(res.countermodelEnergyFactor).toBeCloseTo(3.2, 12);
     expect(res.countermodelVolumeFactor).toBeCloseTo(0.8, 12);
-    expect(res.countermodelEnergyJ).toBeCloseTo(0.8, 12);
+    expect(res.countermodelEnergyJ).toBeCloseTo(3.2, 12);
     expect(res.energyFactor).not.toBeCloseTo(res.materialVolumeFactor, 2);
   });
 
-  test("unprimed transverse ray (cos phi = 0) is the discriminating case: light factor gamma vs material 1/gamma", () => {
+  test("unprimed transverse ray (cos phi = 0): light factor gamma vs material 1/gamma, and the rigid-body countermodel agrees", () => {
     const res = evaluateSr10({
       beta: 0.6,
       propagationAngleDeg: 90,
@@ -117,14 +118,15 @@ describe("SR-10: The Finite Light Complex (Einstein 1905 §8)", () => {
     expect(res.energyFactor).toBeCloseTo(1.25, 12);
     expect(res.materialVolumeFactor).toBeCloseTo(0.8, 12);
     expect(res.energyFactor / res.materialVolumeFactor).toBeCloseTo(1.25 * 1.25, 12);
-    expect(res.countermodelEnergyFactor).toBeCloseTo(0.8, 12);
-    expect(res.energyFactor).not.toBeCloseTo(res.countermodelEnergyFactor, 2);
+    // q^2/gamma = gamma here, so this ray cannot tell the light complex from the countermodel.
+    expect(res.countermodelEnergyFactor).toBeCloseTo(1.25, 12);
+    expect(res.energyFactor).toBeCloseTo(res.countermodelEnergyFactor, 12);
     expect(res.volumeFactor).toBeCloseTo(0.8, 12);
     expect(res.transformedEnergyJ).toBeCloseTo(1.25, 12);
     expect(res.transformedVolumeM3).toBeCloseTo(0.8, 12);
   });
 
-  test("moving-frame transverse ray (cos phi = beta) is degenerate for energy versus material", () => {
+  test("moving-frame transverse ray (cos phi = beta): energy equals 1/gamma, and the countermodel's 0.512 differs", () => {
     const phiDeg = (Math.acos(0.6) * 180) / Math.PI;
     const res = evaluateSr10({
       beta: 0.6,
@@ -137,7 +139,8 @@ describe("SR-10: The Finite Light Complex (Einstein 1905 §8)", () => {
     expect(res.energyFactor).toBeCloseTo(0.8, 10);
     expect(res.materialVolumeFactor).toBeCloseTo(0.8, 10);
     expect(res.energyFactor).toBeCloseTo(res.materialVolumeFactor, 10);
-    expect(res.countermodelEnergyFactor).toBeCloseTo(res.energyFactor, 10);
+    expect(res.countermodelEnergyFactor).toBeCloseTo(0.512, 10);
+    expect(res.energyFactor).not.toBeCloseTo(res.countermodelEnergyFactor, 2);
     expect(res.volumeFactor).toBeCloseTo(1.25, 10);
   });
 

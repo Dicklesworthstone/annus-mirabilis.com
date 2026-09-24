@@ -24,9 +24,9 @@ describe("am-ref-waves-r53: waves.lightComplex.test.ts", () => {
 
     const cm0 = lightComplexMaterialContractionCountermodel(beta, 0);
     expect(cm0.modelId).toBe("countermodel-material-contraction");
-    expect(cm0.factor).toBeCloseTo(0.8, 12); // Material contraction 1/gamma = 0.8
+    expect(cm0.factor).toBeCloseTo(0.2, 12); // Rigid-body countermodel q^2/gamma = 0.25 x 0.8
     expect(cm0.volumeFactor).toBeCloseTo(0.8, 12);
-    expect(Math.abs(lc0.energyFactor - cm0.factor)).toBeCloseTo(0.3, 12); // Fails countermodel (0.5 vs 0.8)
+    expect(Math.abs(lc0.energyFactor - cm0.factor)).toBeCloseTo(0.3, 12); // Fails countermodel (0.5 vs 0.2)
 
     // Row 2: Opposite ray in K (theta = pi): q = 2.0, q^2 = 4, 1/q = 0.5, total 2.0
     const lcPi = lightComplexFactors(beta, Math.PI);
@@ -36,9 +36,9 @@ describe("am-ref-waves-r53: waves.lightComplex.test.ts", () => {
     expect(lcPi.energyFactor).toBeCloseTo(2.0, 12);
 
     const cmPi = lightComplexMaterialContractionCountermodel(beta, Math.PI);
-    expect(cmPi.factor).toBeCloseTo(0.8, 12); // Material contraction 1/gamma = 0.8
+    expect(cmPi.factor).toBeCloseTo(3.2, 12); // Rigid-body countermodel q^2/gamma = 4 x 0.8
     expect(cmPi.volumeFactor).toBeCloseTo(0.8, 12);
-    expect(Math.abs(lcPi.energyFactor - cmPi.factor)).toBeCloseTo(1.2, 12); // Fails countermodel (2.0 vs 0.8)
+    expect(Math.abs(lcPi.energyFactor - cmPi.factor)).toBeCloseTo(1.2, 12); // Fails countermodel (2.0 vs 3.2)
 
     // Row 3: Ray transverse in moving frame k (cos theta = beta = 0.6): q = 1/gamma = 0.8, q^2 = 0.64, 1/q = 1.25, total 0.8
     const thetaTransversePrime = Math.acos(beta);
@@ -49,10 +49,10 @@ describe("am-ref-waves-r53: waves.lightComplex.test.ts", () => {
     expect(lcTP.energyFactor).toBeCloseTo(0.8, 12);
 
     const cmTP = lightComplexMaterialContractionCountermodel(beta, thetaTransversePrime);
-    expect(cmTP.factor).toBeCloseTo(0.8, 12); // Material contraction 1/gamma = 0.8
+    expect(cmTP.factor).toBeCloseTo(0.512, 12); // Rigid-body countermodel q^2/gamma = 0.64 x 0.8
     expect(cmTP.volumeFactor).toBeCloseTo(0.8, 12);
-    // Degenerate coincidence check: both physical light complex and material contraction give 0.8
-    expect(lcTP.energyFactor).toBeCloseTo(cmTP.factor, 12);
+    // Discriminating case: the light complex gives 0.8, the countermodel 0.512
+    expect(Math.abs(lcTP.energyFactor - cmTP.factor)).toBeCloseTo(0.288, 12);
 
     // Row 4: Ray transverse in stationary frame K (theta = 90 deg = pi/2): q = gamma = 1.25, q^2 = 1.5625, 1/q = 0.8, total 1.25
     const lc90 = lightComplexFactors(beta, Math.PI / 2);
@@ -62,23 +62,23 @@ describe("am-ref-waves-r53: waves.lightComplex.test.ts", () => {
     expect(lc90.energyFactor).toBeCloseTo(1.25, 12);
 
     const cm90 = lightComplexMaterialContractionCountermodel(beta, Math.PI / 2);
-    expect(cm90.factor).toBeCloseTo(0.8, 12); // Material contraction 1/gamma = 0.8
+    expect(cm90.factor).toBeCloseTo(1.25, 12); // Rigid-body countermodel q^2/gamma = 1.5625 x 0.8
     expect(cm90.volumeFactor).toBeCloseTo(0.8, 12);
-    // Discriminating case: physical light factor is gamma = 1.25, material contraction is 1/gamma = 0.8 (ratio gamma^2 = 1.5625)
-    expect(lc90.energyFactor / cm90.factor).toBeCloseTo(1.5625, 12);
+    // Non-discriminating case: q = gamma, so q^2/gamma = gamma = 1.25, the light complex's own factor
+    expect(lc90.energyFactor / cm90.factor).toBeCloseTo(1, 12);
 
     logWaves({
       testId: "light-complex-four-fixture-rows",
       beta,
       resultStatus: "value",
-      expected: 0.8,
+      expected: 1.25,
       actual: cm90.factor,
       tolerance: 1e-12,
       comparisonKind: "absolute",
       outcome: "passed",
       durationMs: performance.now() - t0,
       message:
-        "Four fixture rows pass: countermodel fails at theta=0 (0.8 vs 0.5), theta=pi (0.8 vs 2.0); cos theta=beta degenerately coincides at 0.8; 90 deg discriminates gamma=1.25 vs 1/gamma=0.8.",
+        "Four fixture rows pass: the rigid-body countermodel q^2/gamma fails at theta=0 (0.2 vs 0.5), theta=pi (3.2 vs 2.0) and cos theta=beta (0.512 vs 0.8); at 90 deg it coincides at 1.25.",
     });
   });
 

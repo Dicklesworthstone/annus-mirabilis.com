@@ -9,7 +9,8 @@ describe("SR-10 session store and parameter validation", () => {
     const snap = session.getSnapshot().accepted;
     expect(snap).toBeDefined();
     expect(snap?.parameters).toBeDefined();
-    expect(snap?.outputs.length).toBe(18);
+    // 14: the four rigid-body countermodel values are a labelled comparison, not outputs.
+    expect(snap?.outputs.length).toBe(14);
     expect(session.acceptedParameters().beta).toBe(0.6);
   });
 
@@ -71,7 +72,7 @@ describe("SR-10 session store and parameter validation", () => {
 
   test("snapshot outputs match evaluateSr10", () => {
     const outputs = snapshotOutputs(SR10_DEFAULTS);
-    expect(outputs.length).toBe(18);
+    expect(outputs.length).toBe(14);
     const doppler = outputs.find((o) => o.quantityId === "dopplerFactor");
     expect(doppler?.status).toBe("value");
     if (doppler?.status === "value") {
