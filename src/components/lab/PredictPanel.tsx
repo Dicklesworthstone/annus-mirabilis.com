@@ -214,7 +214,7 @@ export function PredictPanel({
       data-predict-score={adjudication?.status ?? ""}
     >
       <h3>Predict before the numbers</h3>
-      <p>{prompt.question}</p>
+      <p>{withScripts(prompt.question)}</p>
 
       {pending && forms.length > 1 && (
         // The chosen format is drawn as an action button and the others as secondary, from the same
@@ -283,7 +283,7 @@ export function PredictPanel({
               />{" "}
               {describeCandidates
                 ? `${candidate.label}: ${candidate.description}`
-                : candidate.label}
+                : withScripts(candidate.label)}
             </label>
           ))}
         </fieldset>
@@ -569,10 +569,10 @@ export function PredictPanel({
       {adjudication ? (
         <div data-predict-adjudication={adjudication.status}>
           <p>{adjudication.statement}</p>
-          {showAssumption && chosen ? <p>{chosen.separatingAssumption}</p> : null}
+          {showAssumption && chosen ? <p>{withScripts(chosen.separatingAssumption)}</p> : null}
           {record.choice?.form === "candidate" ? (
             <p data-predict-original="">
-              Recorded prediction: {chosen?.label ?? record.choice.candidateId}
+              Recorded prediction: {chosen ? withScripts(chosen.label) : record.choice.candidateId}
             </p>
           ) : null}
           {record.choice?.form === "verbal" ? (

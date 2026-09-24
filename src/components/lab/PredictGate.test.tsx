@@ -158,7 +158,7 @@ function responses(container: HTMLElement): string[] {
   );
 }
 
-/** An explanation as the page shows it: a braced script's letters stand inline in textContent. */
+/** Prompt text as the page shows it: a braced script's letters stand inline in textContent. */
 function shownText(text: string): string {
   return text.replace(/[_^]\{([^{}]*)\}/g, "$1");
 }
@@ -220,7 +220,7 @@ describe("with JavaScript, a first-time reader answers before the result shows",
           container.querySelector("[data-predict-gate]")?.getAttribute("data-predict-gate"),
         ).toBe("awaiting");
         expect(container.querySelector("[data-predict-waiting]")).not.toBeNull();
-        expect(container.textContent).toContain(prompt?.question ?? "missing");
+        expect(container.textContent).toContain(shownText(prompt?.question ?? "missing"));
         expect(
           container.querySelectorAll(`input[name="${prompt?.promptId}-candidate"]`).length,
         ).toBe(prompt?.candidates.length ?? -1);
@@ -231,7 +231,7 @@ describe("with JavaScript, a first-time reader answers before the result shows",
       await mounted(element(), async (container) => {
         const panel = container.querySelector("[data-predict-gate]")?.textContent ?? "";
         for (const c of prompt?.candidates ?? []) {
-          expect(panel).toContain(c.label);
+          expect(panel).toContain(shownText(c.label));
           if (!c.label.includes(c.description)) expect(panel).not.toContain(c.description);
         }
       });
@@ -302,7 +302,7 @@ describe("with JavaScript, a first-time reader answers before the result shows",
         expect(responses(container).every((s) => s === "shown")).toBe(true);
         const verdict = container.querySelector("[data-predict-adjudication]");
         expect(verdict?.getAttribute("data-predict-adjudication")).toBe("not-close");
-        expect(verdict?.textContent).toContain(other?.separatingAssumption ?? "missing");
+        expect(verdict?.textContent).toContain(shownText(other?.separatingAssumption ?? "missing"));
         const panel = container.querySelector("[data-predict-gate]")?.textContent ?? "";
         expect(panel).not.toMatch(/\b(wrong|incorrect|failed|mistake|sorry)\b/i);
       });
