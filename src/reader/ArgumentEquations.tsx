@@ -46,12 +46,7 @@ export function ArgumentEquations({
   return (
     <>
       {lazy && sectionHref ? (
-        <LazyArgumentEquations
-          paperId={paperId}
-          argumentId={argumentId}
-          sectionHref={sectionHref}
-          title={title}
-        >
+        <LazyArgumentEquations argumentId={argumentId} sectionHref={sectionHref} title={title}>
           {labLink}
         </LazyArgumentEquations>
       ) : (

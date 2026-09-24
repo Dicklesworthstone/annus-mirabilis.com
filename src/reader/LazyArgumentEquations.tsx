@@ -25,21 +25,23 @@ type Payload = {
   readonly equations: readonly unknown[];
   readonly foundationTitles?: Readonly<Record<string, string>>;
 };
-const LOADERS: Readonly<Record<string, () => Promise<Payload>>> = {
-  "brownian-motion": () => import("../generated/brownian-equations.json"),
-  "mass-energy": () => import("../generated/mass-energy-equations.json"),
-  "light-quanta": () => import("../generated/light-quanta-equations.json"),
-  "special-relativity": () => import("../generated/special-relativity-equations.json"),
-};
+/*
+  ONE STEP'S EQUATIONS, NOT THE PAPER'S. This loaded the paper's whole payload and filtered it to
+  the step: measured on live, 52 KB compressed to show two cards on special-relativity, from 710 KB
+  of JSON a phone then parsed. build-equations.ts now also writes one payload per argument, and
+  the template import below is how webpack splits them: one lazy chunk per file in that
+  directory, so opening a step fetches that step (4.7 KB gzip for velocity composition).
+*/
+const ARGUMENT_ID = /^arg-[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const loadArgumentEquations = (argumentId: string): Promise<Payload> =>
+  import(`../generated/argument-equations/${argumentId}.json`);
 
 export function LazyArgumentEquations({
-  paperId,
   argumentId,
   sectionHref,
   title,
   children,
 }: {
-  paperId: string;
   argumentId: string;
   /** The section's own page, where these cards are server-rendered: the no-script route. */
   sectionHref: string;
@@ -53,12 +55,11 @@ export function LazyArgumentEquations({
   const [failed, setFailed] = useState(false);
   function load(event: SyntheticEvent<HTMLDetailsElement>) {
     if (!event.currentTarget.open || equations) return;
-    const loader = LOADERS[paperId];
-    if (!loader) {
+    if (!ARGUMENT_ID.test(argumentId)) {
       setFailed(true);
       return;
     }
-    loader()
+    loadArgumentEquations(argumentId)
       .then((payload) => {
         setLessonTitles(payload.foundationTitles ?? {});
         setEquations(

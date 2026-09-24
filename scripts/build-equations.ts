@@ -84,6 +84,31 @@ for (const [paper, file] of [
     )}\n`,
   );
 }
+// One payload per argument, for the reading page's "Explore the equations in this step"
+// (LazyArgumentEquations). Opening it loaded the paper's whole payload to show that one step's
+// cards: measured on live, 52 KB compressed for two cards on special-relativity, whose payload
+// is 710 KB of JSON a phone then parses. The paper payloads above stay as they are, for the
+// section pages and laboratories that render every equation. Files are written, never removed:
+// one left behind by a renamed argument is loaded by no page.
+await mkdir("src/generated/argument-equations", { recursive: true });
+const equationsByArgument = new Map<string, (typeof equations)[number][]>();
+for (const equation of equations) {
+  if (equation.paper === "foundations" || !equation.argument) continue;
+  equationsByArgument.set(equation.argument, [
+    ...(equationsByArgument.get(equation.argument) ?? []),
+    equation,
+  ]);
+}
+for (const [argument, own] of equationsByArgument) {
+  await writeFile(
+    `src/generated/argument-equations/${argument}.json`,
+    `${JSON.stringify(
+      { schemaVersion: 1, rendererDigest, equations: own, foundationTitles: lessonTitles(own) },
+      null,
+      2,
+    )}\n`,
+  );
+}
 // The tracer laboratory's own payload: only the equations bound to a bm-01 output. It is a client
 // component, so whatever it imports ships as first-route JavaScript on /papers/brownian-motion/.
 // Importing the whole Brownian payload put nine derivation-only records (the (A+B)^2 identity,
