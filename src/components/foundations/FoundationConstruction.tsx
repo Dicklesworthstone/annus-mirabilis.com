@@ -17,6 +17,7 @@ import { RepeatedIntervals } from "./RepeatedIntervals.tsx";
 import { RepeatedProportionalTable } from "./RepeatedProportionalTable.tsx";
 import { ScalingTable } from "./ScalingTable.tsx";
 import { SinkingSpheres } from "./SinkingSpheres.tsx";
+import { SpeedSpread } from "./SpeedSpread.tsx";
 import { TableToPlotBuilder } from "./TableToPlotBuilder.tsx";
 import { TaylorBinomialExtension } from "./TaylorBinomialExtension.tsx";
 import { TurnedAxes } from "./TurnedAxes.tsx";
@@ -85,5 +86,7 @@ export function FoundationConstruction({
       return <EntropyTemperatureCheck headingLevel={headingLevel} />;
     case "viscosity-stokes-drag":
       return <SinkingSpheres headingLevel={headingLevel} />;
+    case "temperature-thermal-energy":
+      return <SpeedSpread headingLevel={headingLevel} />;
   }
 }

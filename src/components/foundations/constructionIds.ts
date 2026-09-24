@@ -33,6 +33,7 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "work-energy",
   "entropy-temperature",
   "viscosity-stokes-drag",
+  "temperature-thermal-energy",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];
