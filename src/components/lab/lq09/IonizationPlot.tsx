@@ -118,13 +118,15 @@ export function IonizationThresholdLadderPlot({
           </marker>
         </defs>
 
-        {/* Molecular Ground State (0 eV) */}
+        {/* The molecule's ground state, 0 eV, where the photon's arrow starts: a level of the
+            ladder, so --muted (5.98:1 on either paper) rather than the rule colour, --line, in
+            which it stood at 1.45:1 like a gridline. The threshold above it is the accent. */}
         <line
           x1={padding.left}
           y1={yGround}
           x2={width - padding.right}
           y2={yGround}
-          stroke="var(--line)"
+          stroke="var(--muted)"
           strokeWidth="2"
         />
         <text
