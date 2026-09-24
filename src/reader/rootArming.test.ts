@@ -7,8 +7,9 @@ const originals = {
 
 type Dataset = Record<string, string | undefined>;
 
-function stub(htmlView: string | undefined): { rootDataset: Dataset } {
-  const rootDataset: Dataset = {};
+function stub(htmlView: string | undefined, renderedView?: string): { rootDataset: Dataset } {
+  const rootDataset: Dataset =
+    renderedView === undefined ? {} : { ready: "true", view: renderedView };
   const root = { dataset: rootDataset };
   const currentScript = { parentElement: root };
   const htmlDataset: Dataset = htmlView === undefined ? {} : { view: htmlView };
@@ -24,6 +25,30 @@ afterEach(() => {
 });
 
 describe("armReaderRoot", () => {
+  test("leaves a root the server rendered as another face as it is", () => {
+    // /papers/<paper>/view/results/ and the other face pages mount no shell to ready them again;
+    // armed, they sat at data-ready="false" and data-view="reading" on live 68b45872.
+    for (const face of [
+      "results",
+      "german",
+      "facsimile",
+      "english",
+      "gloss",
+      "parallel",
+      "split",
+    ]) {
+      const { rootDataset } = stub("reading", face);
+      armReaderRoot(KNOWN_FACE_IDS);
+      expect(rootDataset).toEqual({ ready: "true", view: face });
+    }
+  });
+
+  test("still arms a root the server rendered as the reading face", () => {
+    const { rootDataset } = stub("results", "reading");
+    armReaderRoot(KNOWN_FACE_IDS);
+    expect(rootDataset).toEqual({ ready: "false", view: "results" });
+  });
+
   test("sets data-ready to false on the root", () => {
     const { rootDataset } = stub("german");
     armReaderRoot(KNOWN_FACE_IDS);
