@@ -14,12 +14,13 @@ final class ThemeChromeUITests: XCTestCase {
     }
 
     @MainActor
-    private func launch(suite: String = "uitest-\(UUID().uuidString)") -> XCUIApplication {
+    private func launch(suite: String = "uitest-\(UUID().uuidString)", holdLoad: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = [
-            "-AMUITest", "-AMStateSuite", suite, "-AMOpenRoute", "/papers/brownian-motion/",
-        ]
+        app.launchArguments =
+            ["-AMUITest", "-AMStateSuite", suite, "-AMOpenRoute", "/papers/brownian-motion/"]
+            + (holdLoad ? ["-AMHoldLoad"] : [])
         app.launch()
+        if holdLoad { return app }
         let ready = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "value == %@", "/papers/brownian-motion/"),
             object: app.webViews["edition-web-view"])
@@ -133,5 +134,29 @@ final class ThemeChromeUITests: XCTestCase {
         app = launch(suite: suite)
         waitForBand(app, dark: true)
         keep(app, "choice-restored-after-webkit-lost-it")
+    }
+
+    /// A reader who chose dark sees a dark band from the first frame the app draws,
+    /// not a light one until the page has loaded and reported. (The iOS launch screen
+    /// before that is static and follows the device; the app cannot change it.)
+    @MainActor
+    func testADarkChoiceIsPaintedBeforeThePageLoads() throws {
+        XCUIDevice.shared.appearance = .light
+        let suite = "uitest-\(UUID().uuidString)"
+        var app = launch(suite: suite)
+        waitForBand(app, dark: false)
+        let toggle = app.webViews.buttons["Switch to dark theme"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 10))
+        toggle.tap()
+        waitForBand(app, dark: true)
+        app.terminate()
+
+        app = launch(suite: suite, holdLoad: true)
+        let edition = app.webViews["edition-web-view"]
+        XCTAssertTrue(edition.waitForExistence(timeout: 10))
+        let luminance = bandLuminance(app)
+        XCTAssertEqual((edition.value as? String) ?? "", "", "the page must not have loaded yet")
+        XCTAssertLessThan(luminance, 0.05, "the band before the page loads")
+        keep(app, "dark-before-the-page-loads")
     }
 }

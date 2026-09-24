@@ -25,6 +25,7 @@ enum EditionStore {
         var ephemeral = false
         var readerData = ReaderDataStore.standard()
         var launchURL: URL?
+        var holdLoad = false
         #if DEBUG
             if case .success(let launch) = LaunchArguments.parse(arguments) {
                 if let suite = launch.stateSuite, let isolated = UserDefaults(suiteName: suite) {
@@ -34,15 +35,40 @@ enum EditionStore {
                 }
                 exposesRoute = launch.uiTest
                 launchURL = launch.openRoute.flatMap { EditionCatalog.url(route: $0, anchor: launch.openAnchor) }
+                holdLoad = launch.holdLoad
             }
         #endif
         let store = ReaderLocationStore(defaults: defaults)
         let start = startURL(launchURL: launchURL, saved: store.load(), catalog: catalog)
         let session = EditionSession(
             catalog: catalog, store: store, exposesRouteForTests: exposesRoute, ephemeralWebStorage: ephemeral,
-            readerData: readerData)
-        session.load(start)
+            readerData: readerData, themeStore: PageThemeStore(defaults: defaults))
+        if holdLoad {
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(3))
+                session.load(start)
+            }
+        } else {
+            session.load(start)
+        }
         return session
+    }
+
+    /// The scheme of the reader's last chosen theme, for the frame before the session exists.
+    static func savedColorScheme(arguments: [String] = ProcessInfo.processInfo.arguments) -> ColorScheme? {
+        var defaults = UserDefaults.standard
+        #if DEBUG
+            if case .success(let launch) = LaunchArguments.parse(arguments), let suite = launch.stateSuite,
+                let isolated = UserDefaults(suiteName: suite)
+            {
+                defaults = isolated
+            }
+        #endif
+        switch PageThemeStore(defaults: defaults).load() {
+        case "kramgasse-night": return .dark
+        case "annalen": return .light
+        default: return nil
+        }
     }
 
     /// A route given at launch wins, then the page the reader left, if this
@@ -80,6 +106,7 @@ struct RootView: View {
                 EditionUnavailableView()
             } else {
                 Color("LaunchBackground").ignoresSafeArea()
+                    .preferredColorScheme(EditionStore.savedColorScheme())
             }
         }
         .onAppear {

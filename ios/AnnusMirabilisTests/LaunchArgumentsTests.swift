@@ -55,6 +55,12 @@ struct LaunchArgumentsTests {
         #expect(LaunchArguments.parse(["-AMOpenAnchor", anchor]) == .failure(.invalidAnchor(anchor)))
     }
 
+    @Test("-AMHoldLoad holds the first page load, for tests that look before it")
+    func holdLoad() throws {
+        #expect(try LaunchArguments.parse(["-AMHoldLoad"]).get().holdLoad)
+        #expect(!(try LaunchArguments.parse([]).get().holdLoad))
+    }
+
     @Test("a state suite names a separate store, and only a plain name is accepted")
     func stateSuite() throws {
         let parsed = try LaunchArguments.parse(["-AMStateSuite", "uitest-3F2A"]).get()

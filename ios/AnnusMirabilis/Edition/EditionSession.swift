@@ -27,6 +27,7 @@ final class EditionSession {
     @ObservationIgnored private let store: ReaderLocationStore
     @ObservationIgnored private let navigator: EditionNavigator
     @ObservationIgnored private let router: BridgeRouter
+    @ObservationIgnored private let themeStore: PageThemeStore?
     /// DEBUG UI tests only: the route, and the pasteboard, are exposed for assertions.
     let exposesRouteForTests: Bool
     @ObservationIgnored private var observations: [NSKeyValueObservation] = []
@@ -36,7 +37,7 @@ final class EditionSession {
     /// nothing has to be deleted to start clean. A reader's launch never sets it.
     init(
         catalog: EditionCatalog, store: ReaderLocationStore, exposesRouteForTests: Bool = false,
-        ephemeralWebStorage: Bool = false, readerData: ReaderDataStore? = nil
+        ephemeralWebStorage: Bool = false, readerData: ReaderDataStore? = nil, themeStore: PageThemeStore? = nil
     ) {
         self.catalog = catalog
         self.store = store
@@ -45,6 +46,7 @@ final class EditionSession {
         let router = BridgeRouter()
         router.store = readerData
         self.router = router
+        self.themeStore = themeStore
         let bridgeSource = catalog.verifiedBridgeScript()
         self.bridgeInstalled = bridgeSource != nil
         self.webView = EditionSession.makeWebView(
@@ -73,6 +75,8 @@ final class EditionSession {
             webView.observe(\.title, options: [.new]) { [weak self] webView, _ in
                 MainActor.assumeIsolated { self?.title = webView.title.flatMap { $0.isEmpty ? nil : $0 } }
             })
+        // The reader's last theme, painted before the page loads, so a dark choice never starts light.
+        if let saved = themeStore?.load(), saved == "never" { applyTheme(saved) }
     }
 
     /// The page on the website, for sharing and Handoff.
@@ -92,14 +96,17 @@ final class EditionSession {
         store.save(location)
     }
 
-    /// The page's own report of where it is, sent by the bridge script when the
-    /// document is ready and on every anchor change.
     /// The page's theme (App plan §8.7). While the reader has not chosen one, the
     /// page reports "system" and the app sets nothing: the page, the band behind the
     /// status bar and the status bar all follow the device together. Once the reader
     /// chooses, the window follows that choice, which the page then keeps whatever
     /// the device does.
     func didReceiveTheme(_ theme: String) {
+        applyTheme(theme)
+        themeStore?.save(theme)
+    }
+
+    private func applyTheme(_ theme: String) {
         switch theme {
         case "kramgasse-night": pageColorScheme = .dark
         case "annalen": pageColorScheme = .light
@@ -115,6 +122,8 @@ final class EditionSession {
         webView.underPageBackgroundColor = band
     }
 
+    /// The page's own report of where it is, sent by the bridge script when the
+    /// document is ready and on every anchor change.
     func didReceiveRoute(route: String, anchor: String?, title: String) {
         bridgeRoute = route + (anchor.map { "#\($0)" } ?? "")
         if !title.isEmpty { self.title = title }

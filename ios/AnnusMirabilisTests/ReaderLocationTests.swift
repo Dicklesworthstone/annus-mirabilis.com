@@ -125,3 +125,35 @@ struct EditionSessionTests {
     }
 
 }
+
+@Suite("The reader's theme before the page loads")
+@MainActor
+struct PageThemePrepaintTests {
+    @Test("a saved dark choice is painted the moment the session exists, before any page report")
+    func savedDark() throws {
+        let defaults = freshDefaults()
+        PageThemeStore(defaults: defaults).save("kramgasse-night")
+        let session = EditionSession(
+            catalog: try syntheticCatalog(), store: ReaderLocationStore(defaults: defaults),
+            themeStore: PageThemeStore(defaults: defaults))
+        #expect(session.pageColorScheme == .dark)
+        let band = try #require(session.webView.backgroundColor)
+        var white: CGFloat = 0
+        band.getWhite(&white, alpha: nil)
+        #expect(white < 0.2, "the band behind the status bar starts dark, white = \(white)")
+    }
+
+    @Test("with no saved choice nothing is overridden, and a report of 'system' is saved as such")
+    func systemIsRemembered() throws {
+        let defaults = freshDefaults()
+        let themes = PageThemeStore(defaults: defaults)
+        let session = EditionSession(
+            catalog: try syntheticCatalog(), store: ReaderLocationStore(defaults: defaults), themeStore: themes)
+        #expect(session.pageColorScheme == nil)
+        session.didReceiveTheme("kramgasse-night")
+        #expect(themes.load() == "kramgasse-night")
+        session.didReceiveTheme("system")
+        #expect(session.pageColorScheme == nil)
+        #expect(themes.load() == "system")
+    }
+}

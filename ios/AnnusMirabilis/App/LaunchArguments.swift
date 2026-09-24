@@ -17,6 +17,8 @@
         var openAnchor: String?
         var stateSuite: String?
         var uiTest = false
+        /// Delays the first page load by three seconds, so a UI test can see what is painted before it.
+        var holdLoad = false
 
         enum ParseError: Error, Equatable {
             case missingValue(flag: String)
@@ -45,6 +47,8 @@
                     index += 1
                 case "-AMUITest":
                     parsed.uiTest = true
+                case "-AMHoldLoad":
+                    parsed.holdLoad = true
                 default:
                     return .failure(.unknownFlag(flag))
                 }

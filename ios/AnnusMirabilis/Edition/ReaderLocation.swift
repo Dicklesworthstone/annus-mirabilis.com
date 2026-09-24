@@ -74,3 +74,21 @@ struct ReaderLocationStore {
         return location
     }
 }
+
+/// The theme the page last reported ("annalen", "kramgasse-night" or "system"),
+/// so the next launch paints the reader's choice before the page has loaded
+/// (bead am-app-settings-prepaint-tydj). The page's own storage stays the source
+/// of truth; this only spares the reader a light frame when they chose dark.
+struct PageThemeStore {
+    static let key = "annus-mirabilis.app.page-theme.v1"
+
+    let defaults: UserDefaults
+
+    func save(_ theme: String) {
+        defaults.set(theme, forKey: Self.key)
+    }
+
+    func load() -> String? {
+        defaults.string(forKey: Self.key)
+    }
+}
