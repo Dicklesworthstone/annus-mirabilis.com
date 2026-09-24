@@ -43,11 +43,11 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, text?: string, c
  * Keeping the controller DOM-native lets the same implementation run in browser fixtures.
  */
 /**
- * The index holds an argument's synopsis as its own document under the argument's title and link,
- * so one query listed the same line twice, in two groups (live 211e9af4: "coefficient suggests"
- * gave "A coefficient suggests an energy element" twice). A hit whose destination AND title repeat
- * a better-ranked one is dropped; the order of the rest is kept. Destination alone is not enough:
- * an equation links to the argument that holds it, under its own title. /search/ does the same.
+ * A hit whose destination AND title repeat a better-ranked one is dropped; the order of the rest
+ * is kept. Destination alone is not enough: an equation links to the argument that holds it, under
+ * its own title. It is a guard for exact repeats only: an argument and its synopsis share a title
+ * but open different views (?view=reading, ?view=results), so both are listed, told apart by their
+ * second line. (677fe735 claimed this removed that pair; it does not, and should not.)
  */
 export function dropRepeatedHits(hits: readonly SearchHit[]): SearchHit[] {
   const seen = new Set<string>();
