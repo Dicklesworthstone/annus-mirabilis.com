@@ -18,6 +18,7 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "exponentials",
   "logarithms",
   "taylor-expansion",
+  "unit-system-1905",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];

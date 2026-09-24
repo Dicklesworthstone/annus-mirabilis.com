@@ -8,6 +8,7 @@ import { NudgeSensitivityDemo } from "./NudgeSensitivityDemo.tsx";
 import { RepeatedProportionalTable } from "./RepeatedProportionalTable.tsx";
 import { TableToPlotBuilder } from "./TableToPlotBuilder.tsx";
 import { TaylorBinomialExtension } from "./TaylorBinomialExtension.tsx";
+import { UnitConversionCalculator } from "./UnitConversionCalculator.tsx";
 
 export interface FoundationConstructionProps {
   readonly foundationId: string;
@@ -40,5 +41,7 @@ export function FoundationConstruction({
       return <LogarithmProductTable headingLevel={headingLevel} />;
     case "taylor-expansion":
       return <TaylorBinomialExtension headingLevel={headingLevel} />;
+    case "unit-system-1905":
+      return <UnitConversionCalculator headingLevel={headingLevel} />;
   }
 }
