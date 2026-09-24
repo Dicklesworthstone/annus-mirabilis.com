@@ -58,6 +58,8 @@ describe("predictVoice (am-inst-predict-mode-ti7m)", () => {
         "I have one in mind",
         "Prediction recorded. Apply settings to see what the model does. The recorded choice cannot be edited after that.",
         "Nothing was stored. Apply settings to see what the model does.",
+        "Nothing was stored. Compare the one you have in mind with the result.",
+        "The result appears when you choose, say you have one in mind, or skip.",
         "A later guess, marked as after the result was shown",
         "Recorded after the result was shown. The original prediction is unchanged.",
         "Show me the reasoning",
