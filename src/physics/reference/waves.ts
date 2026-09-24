@@ -1271,7 +1271,7 @@ export function evaluateSr11(input: Sr11Input): Sr11EvaluationResult {
   const Am = input.mirrorArea ?? 1.0;
   const frame = input.frame ?? "lab";
   const unitLayer = input.unitLayer ?? "si";
-  const c = 1.0;
+  const c = C_SI; // the powers are published in W, so c is in m/s, not 1
 
   if (!Number.isFinite(beta) || Math.abs(beta) >= 1) {
     const reason = "Mirror speed beta must be in (-1, 1).";

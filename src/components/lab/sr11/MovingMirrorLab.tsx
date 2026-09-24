@@ -15,6 +15,7 @@ import type {
 } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { display, identity, result } from "../presentation.ts";
+import { Sci } from "../Sci.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
@@ -40,7 +41,9 @@ function SnapshotReading({
   if (item.status === "value" && typeof item.value === "number") {
     return (
       <span data-quantity-id={quantityId}>
-        {display(item.value)}
+        {/* The powers are in watts at the speed of light, around 10^8: a power of ten reads, nine
+            digits do not. */}
+        {Math.abs(item.value) >= 1e5 ? <Sci value={item.value} digits={4} /> : display(item.value)}
         {unit ? ` ${unit}` : ""}
       </span>
     );
@@ -352,13 +355,13 @@ export function MovingMirrorLab({
         </div>
       </div>
       {/* The caption follows the instrument it describes; above it, it came between a phone's heading and the result. */}
-      <p data-detail="0">{SR11_CAPTION.r0}</p>
-      <p data-detail="1">{SR11_CAPTION.r1}</p>
+      <p data-detail="0">{withScripts(SR11_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(SR11_CAPTION.r1)}</p>
       <p data-detail="2" hidden>
-        {SR11_CAPTION.r2}
+        {withScripts(SR11_CAPTION.r2)}
       </p>
       <p data-detail="3" hidden>
-        {SR11_CAPTION.r3}
+        {withScripts(SR11_CAPTION.r3)}
       </p>
 
       <ShowTheCode listings={getKernelListingsForInstrument("sr-11")} />

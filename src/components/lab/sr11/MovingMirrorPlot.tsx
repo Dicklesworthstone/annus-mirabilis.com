@@ -1,5 +1,6 @@
 import { fixed } from "../presentation.ts";
 import "./sr11.css";
+import { Sci } from "../Sci.tsx";
 
 export interface MovingMirrorPlotProps {
   beta: number;
@@ -345,7 +346,9 @@ export function MovingMirrorPlot({
                     />
                   ) : null}
                 </span>
-                <span className="sr11-ledger-value">{fixed(inflow, 3)} W</span>
+                <span className="sr11-ledger-value">
+                  <Sci value={inflow} digits={4} /> W
+                </span>
               </div>
               <div className="sr11-ledger-row">
                 <span className="sr11-ledger-label">Out</span>
@@ -361,7 +364,9 @@ export function MovingMirrorPlot({
                     />
                   ) : null}
                 </span>
-                <span className="sr11-ledger-value">{fixed(outflow, 3)} W</span>
+                <span className="sr11-ledger-value">
+                  <Sci value={outflow} digits={4} /> W
+                </span>
               </div>
               <ul className="fine sr11-key">
                 <li>
