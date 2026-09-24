@@ -111,43 +111,8 @@ export const DATA_COLOR_ALLOWLIST: readonly DataColorAllowlistEntry[] = [
   // Physical frequency band to visible/invisible spectrum mapping in FluorescencePlot (getFrequencyBand):
   {
     file: "src/components/lab/lq07/FluorescencePlot.tsx",
-    hex: "#7c3aed",
-    reason: "Ultraviolet (UV) spectral band (> 789 THz, < 380 nm) in getFrequencyBand()",
-  },
-  {
-    file: "src/components/lab/lq07/FluorescencePlot.tsx",
-    hex: "#8b5cf6",
-    reason: "Violet spectral band (680–789 THz) in getFrequencyBand()",
-  },
-  {
-    file: "src/components/lab/lq07/FluorescencePlot.tsx",
-    hex: "#3b82f6",
-    reason: "Blue spectral band (600–680 THz) in getFrequencyBand()",
-  },
-  {
-    file: "src/components/lab/lq07/FluorescencePlot.tsx",
-    hex: "#10b981",
-    reason: "Green spectral band (530–600 THz) in getFrequencyBand()",
-  },
-  {
-    file: "src/components/lab/lq07/FluorescencePlot.tsx",
-    hex: "#eab308",
-    reason: "Yellow spectral band (510–530 THz) in getFrequencyBand()",
-  },
-  {
-    file: "src/components/lab/lq07/FluorescencePlot.tsx",
-    hex: "#f97316",
-    reason: "Orange spectral band (480–510 THz) in getFrequencyBand()",
-  },
-  {
-    file: "src/components/lab/lq07/FluorescencePlot.tsx",
     hex: "#ef4444",
     reason: "Red spectral band (400–480 THz) in getFrequencyBand()",
-  },
-  {
-    file: "src/components/lab/lq07/FluorescencePlot.tsx",
-    hex: "#b91c1c",
-    reason: "Infrared (IR) spectral band (< 400 THz, > 750 nm) in getFrequencyBand()",
   },
   // False-color spectrum legend mapping physical wavelengths (380–750 nm):
   {
@@ -622,8 +587,9 @@ describe("raw hex colors ratchet (am-design-themes-typography-288q)", () => {
 
   test("detector permits allowlisted data colors with physical rationale", () => {
     const fluorFile = "src/components/lab/lq07/FluorescencePlot.tsx";
-    const uvCode = 'return { name: "Ultraviolet (UV)", color: "#7c3aed" };';
-    expect(countUnallowlistedHexColors(uvCode, fluorFile)).toBe(0);
+    // The energy-deficit bar's red, still allowlisted for this file.
+    const allowedCode = '<rect fill="url(#deficit-hatch)" stroke="#ef4444" />';
+    expect(countUnallowlistedHexColors(allowedCode, fluorFile)).toBe(0);
 
     // An unallowlisted hex in FluorescencePlot is caught
     const unallowedInFluor = 'return { name: "Custom", color: "#ff00ff" };';
@@ -631,7 +597,7 @@ describe("raw hex colors ratchet (am-design-themes-typography-288q)", () => {
 
     // The same allowlisted color in a non-allowlisted UI file is caught
     const otherFile = "src/components/lab/PredictPanel.tsx";
-    expect(countUnallowlistedHexColors(uvCode, otherFile)).toBe(1);
+    expect(countUnallowlistedHexColors(allowedCode, otherFile)).toBe(1);
   });
 
   test("data color allowlist contains valid hexes and substantive reasons for every entry", () => {

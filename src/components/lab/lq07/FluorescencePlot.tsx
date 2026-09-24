@@ -9,21 +9,24 @@ export interface FluorescencePlotProps {
   clipId?: string;
 }
 
-function getFrequencyBand(nuTHz: number): { name: string; color: string; wavelengthNm: number } {
+/**
+ * The band a frequency falls in. Its colour is not here: the plot draws a band in
+ * var(--spectral-<band>), set per theme in labShell.css, so a band has one colour across LQ-07,
+ * LQ-08 and LQ-09 and stands out on either paper.
+ */
+function getFrequencyBand(nuTHz: number): { name: string; wavelengthNm: number } {
   // c = 299792.458 km/s => lambda (nm) = 299792.458 / nu (THz)
   const lambdaNm = Math.round(299792.458 / nuTHz);
-  if (nuTHz > 789) {
-    return { name: "Ultraviolet (UV)", color: "#7c3aed", wavelengthNm: lambdaNm };
-  }
+  if (nuTHz > 789) return { name: "Ultraviolet (UV)", wavelengthNm: lambdaNm };
   if (nuTHz >= 400) {
-    if (nuTHz > 680) return { name: "Violet", color: "#8b5cf6", wavelengthNm: lambdaNm };
-    if (nuTHz > 600) return { name: "Blue", color: "#3b82f6", wavelengthNm: lambdaNm };
-    if (nuTHz > 530) return { name: "Green", color: "#10b981", wavelengthNm: lambdaNm };
-    if (nuTHz > 510) return { name: "Yellow", color: "#eab308", wavelengthNm: lambdaNm };
-    if (nuTHz > 480) return { name: "Orange", color: "#f97316", wavelengthNm: lambdaNm };
-    return { name: "Red", color: "#ef4444", wavelengthNm: lambdaNm };
+    if (nuTHz > 680) return { name: "Violet", wavelengthNm: lambdaNm };
+    if (nuTHz > 600) return { name: "Blue", wavelengthNm: lambdaNm };
+    if (nuTHz > 530) return { name: "Green", wavelengthNm: lambdaNm };
+    if (nuTHz > 510) return { name: "Yellow", wavelengthNm: lambdaNm };
+    if (nuTHz > 480) return { name: "Orange", wavelengthNm: lambdaNm };
+    return { name: "Red", wavelengthNm: lambdaNm };
   }
-  return { name: "Infrared (IR)", color: "#b91c1c", wavelengthNm: lambdaNm };
+  return { name: "Infrared (IR)", wavelengthNm: lambdaNm };
 }
 
 /** "Ultraviolet (UV)" read inside a parenthesis: "ultraviolet". */
@@ -39,6 +42,7 @@ export function FluorescencePlot({
 
   const band1 = getFrequencyBand(nu1);
   const band2 = getFrequencyBand(nu2);
+  const bandColour = (band: { name: string }) => `var(--spectral-${plainBand(band.name)})`;
 
   const maxEnergyEv = Math.max(
     5.0,
@@ -214,7 +218,7 @@ export function FluorescencePlot({
               key: "absorbed",
               x: 60,
               height: h1Px,
-              fill: band1.color,
+              fill: bandColour(band1),
               value: `${fixed(budget.e1Ev, 3)} eV`,
               valueFill: "var(--ink)",
               name: "absorbed hν₁",
@@ -223,7 +227,7 @@ export function FluorescencePlot({
               key: "emitted",
               x: 150,
               height: h2Px,
-              fill: band2.color,
+              fill: bandColour(band2),
               value: `${fixed(budget.e2Ev, 3)} eV`,
               valueFill: "var(--ink)",
               name: "emitted hν₂",
@@ -237,7 +241,6 @@ export function FluorescencePlot({
                 height={bar.height}
                 fill={bar.fill}
                 rx="4"
-                opacity="0.9"
               />
               <text
                 x={bar.x}
@@ -262,9 +265,8 @@ export function FluorescencePlot({
                 y={groundY - hOtherPx}
                 width={barWidth}
                 height={Math.max(2, hOtherPx)}
-                fill="#10b981"
+                fill="var(--plot)"
                 rx="4"
-                opacity="0.85"
               />
             ) : (
               <rect
@@ -390,7 +392,7 @@ export function FluorescencePlot({
                 width: "0.875rem",
                 height: "0.875rem",
                 borderRadius: "9999px",
-                background: "#7c3aed",
+                background: "var(--spectral-ultraviolet)",
                 flexShrink: 0,
               }}
             />
@@ -422,7 +424,8 @@ export function FluorescencePlot({
                 width: "0.875rem",
                 height: "0.875rem",
                 borderRadius: "9999px",
-                background: "linear-gradient(to right, #3b82f6, #10b981, #ef4444)",
+                background:
+                  "linear-gradient(to right, var(--spectral-blue), var(--spectral-green), var(--spectral-red))",
                 flexShrink: 0,
               }}
             />
@@ -454,7 +457,7 @@ export function FluorescencePlot({
                 width: "0.875rem",
                 height: "0.875rem",
                 borderRadius: "9999px",
-                background: "#b91c1c",
+                background: "var(--spectral-infrared)",
                 flexShrink: 0,
               }}
             />
