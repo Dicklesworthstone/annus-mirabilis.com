@@ -34,10 +34,15 @@ struct AMTestLogTests {
     @Test("this catalogue test leaves a record for the gate")
     func catalogueRecord() throws {
         let catalog = try #require(try EditionCatalog.load().verifiedNativeCatalog())
+        // The catalogue now loads even when a record or its digest fails; the message holds only when none did.
+        #expect(catalog.problems.isEmpty, "\(catalog.problems)")
         let record = AMTestLog.record(
             suite: "app-catalog", testId: "AMTestLogTests.catalogueRecord", outcome: "passed", browser: false,
             beadId: "am-app-test-harness-da6e", message: "the bundled native catalogue verifies",
-            extra: ["papers": catalog.papers.count, "destinations": catalog.destinations.count])
+            extra: [
+                "papers": catalog.papers.available.count, "destinations": catalog.destinations.count,
+                "problems": catalog.problems.count,
+            ])
         Attachment.record(record, named: "\(AMTestLog.attachmentPrefix)-catalogue.json")
     }
 }

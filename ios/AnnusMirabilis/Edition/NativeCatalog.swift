@@ -60,19 +60,32 @@ struct NativeCatalog: Sendable, Equatable {
 
     /// Every page the catalogue opens, with its anchor when it has one. Unavailable records open none.
     var destinations: [(route: String, anchor: String?)] {
-        papers.available.flatMap { paper in
-            [(paper.route, nil)] + paper.sections.compactMap(\.value).map { ($0.route, $0.anchor) }
+        // Built in steps: one chained expression of these took the type checker past its time limit.
+        var destinations: [(route: String, anchor: String?)] = []
+        for paper in papers.available {
+            destinations.append((paper.route, nil))
+            destinations += paper.sections.compactMap(\.value).map { ($0.route, $0.anchor) }
         }
-            + discover.available.map { ($0.route, nil) }
-            + labs.available.flatMap { group in group.instruments.compactMap(\.value).map { ($0.route, nil) } }
+        destinations += discover.available.map { ($0.route, nil) }
+        for group in labs.available {
+            destinations += group.instruments.compactMap(\.value).map { ($0.route, nil) }
+        }
+        return destinations
     }
 
     /// Every list and record that did not load, each with its reason. The bundled edition must have
     /// none: NativeCatalogTests fails on any (the shipping-payload test).
     var problems: [String] {
-        papers.problems + discover.problems + labs.problems
-            + papers.available.flatMap { $0.sections.compactMap(\.problem) }
-            + labs.available.flatMap { $0.instruments.compactMap(\.problem) }
+        var problems: [String] = papers.problems
+        problems += discover.problems
+        problems += labs.problems
+        for paper in papers.available {
+            problems += paper.sections.compactMap(\.problem)
+        }
+        for group in labs.available {
+            problems += group.instruments.compactMap(\.problem)
+        }
+        return problems
     }
 
     /// The catalogue the export recorded, or nil when it recorded none. Bytes that are missing, fail
