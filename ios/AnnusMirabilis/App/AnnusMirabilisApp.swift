@@ -23,12 +23,14 @@ enum EditionStore {
         var defaults = UserDefaults.standard
         var exposesRoute = false
         var ephemeral = false
+        var readerData = ReaderDataStore.standard()
         var launchURL: URL?
         #if DEBUG
             if case .success(let launch) = LaunchArguments.parse(arguments) {
                 if let suite = launch.stateSuite, let isolated = UserDefaults(suiteName: suite) {
                     defaults = isolated
                     ephemeral = true
+                    readerData = ReaderDataStore.standard(suite: suite)
                 }
                 exposesRoute = launch.uiTest
                 launchURL = launch.openRoute.flatMap { EditionCatalog.url(route: $0, anchor: launch.openAnchor) }
@@ -37,7 +39,8 @@ enum EditionStore {
         let store = ReaderLocationStore(defaults: defaults)
         let start = startURL(launchURL: launchURL, saved: store.load(), catalog: catalog)
         let session = EditionSession(
-            catalog: catalog, store: store, exposesRouteForTests: exposesRoute, ephemeralWebStorage: ephemeral)
+            catalog: catalog, store: store, exposesRouteForTests: exposesRoute, ephemeralWebStorage: ephemeral,
+            readerData: readerData)
         session.load(start)
         return session
     }

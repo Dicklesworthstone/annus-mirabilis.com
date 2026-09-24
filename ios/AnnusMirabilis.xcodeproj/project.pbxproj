@@ -19,6 +19,7 @@
 		6DB67CD89C0EC5C8821AE7D9 /* EditionSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE83B62BCBDFB221F1DBD4DC /* EditionSchemeHandler.swift */; };
 		747D5281B62498025511A9AD /* BridgeProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A8E9C99819609C323B4D836 /* BridgeProtocol.swift */; };
 		88D6CAE32AE3F4D040F7E4F4 /* messages.json in Resources */ = {isa = PBXBuildFile; fileRef = 004295BEA9A687881C2A6F3D /* messages.json */; };
+		90C9E3C5B34D556B520BF278 /* ReaderDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97E075D4E49873A3D12CAE90 /* ReaderDataStore.swift */; };
 		94DD47765329488872C319C0 /* EditionSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950A8BFF301A9FE3344A71AC /* EditionSession.swift */; };
 		975A55E84F3778A714C9664D /* LaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D8563F17B5B6651CA67DE2C /* LaunchUITests.swift */; };
 		9BCC3392AA7207B963B9ED6E /* ThemeChromeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA49FD9D0BADC636CBAEF69F /* ThemeChromeUITests.swift */; };
@@ -66,6 +67,7 @@
 		7CE2A6403E53924FA09D6328 /* AnnusMirabilisApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnusMirabilisApp.swift; sourceTree = "<group>"; };
 		851F4EFBE39CBE28B3D2D5C2 /* BridgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeTests.swift; sourceTree = "<group>"; };
 		950A8BFF301A9FE3344A71AC /* EditionSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionSession.swift; sourceTree = "<group>"; };
+		97E075D4E49873A3D12CAE90 /* ReaderDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderDataStore.swift; sourceTree = "<group>"; };
 		9A47BB6BD84F103AC9B53641 /* EditionWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditionWebView.swift; sourceTree = "<group>"; };
 		9CFA1414C3CFD36A14BE9E0C /* SiteURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiteURL.swift; sourceTree = "<group>"; };
 		B6EF587BE1969B4D2C963ECB /* BridgeRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeRouter.swift; sourceTree = "<group>"; };
@@ -155,6 +157,7 @@
 			children = (
 				3A8E9C99819609C323B4D836 /* BridgeProtocol.swift */,
 				B6EF587BE1969B4D2C963ECB /* BridgeRouter.swift */,
+				97E075D4E49873A3D12CAE90 /* ReaderDataStore.swift */,
 			);
 			path = Bridge;
 			sourceTree = "<group>";
@@ -371,6 +374,7 @@
 				94DD47765329488872C319C0 /* EditionSession.swift in Sources */,
 				B1563B04905CF0DCE72C6D88 /* EditionWebView.swift in Sources */,
 				5D250543230E23CB29ACA214 /* LaunchArguments.swift in Sources */,
+				90C9E3C5B34D556B520BF278 /* ReaderDataStore.swift in Sources */,
 				4F347DAAC224058D5994956C /* ReaderLocation.swift in Sources */,
 				9F9C13D920769AE53A5B9FAA /* SiteURL.swift in Sources */,
 			);

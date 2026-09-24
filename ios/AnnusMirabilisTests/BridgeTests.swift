@@ -120,6 +120,58 @@ struct BridgeHandlerTests {
     }
 }
 
+@Suite("Reader data kept by the app")
+@MainActor
+struct ReaderDataStoreTests {
+    private func store() -> ReaderDataStore {
+        ReaderDataStore(
+            directory: FileManager.default.temporaryDirectory.appendingPathComponent("reader-data-\(UUID().uuidString)")
+        )
+    }
+
+    @Test("reads back what it wrote, and reads missing before any write")
+    func roundTrip() {
+        let data = store()
+        #expect(data.read(namespace: "localStorage", key: "snapshot") == .missing)
+        #expect(data.write(namespace: "localStorage", key: "snapshot", value: #"{"am:notebook:v1":"[1]"}"#))
+        #expect(data.read(namespace: "localStorage", key: "snapshot") == .value(#"{"am:notebook:v1":"[1]"}"#))
+    }
+
+    @Test("a name that tries to leave the directory still lands inside it")
+    func pathSafety() {
+        let data = store()
+        let url = data.fileURL(namespace: "../../..", key: "/etc/passwd")
+        // Compared as paths: the same folder can differ only by a trailing slash as a URL.
+        #expect(url.deletingLastPathComponent().standardizedFileURL.path == data.directory.standardizedFileURL.path)
+        #expect(url.lastPathComponent.count == 64 + ".json".count)
+    }
+
+    @Test("bytes that are not text read as corrupt, not as a value")
+    func corrupt() throws {
+        let data = store()
+        #expect(data.write(namespace: "n", key: "k", value: "x"))
+        try Data([0xFF, 0xFE, 0xFD]).write(to: data.fileURL(namespace: "n", key: "k"))
+        #expect(data.read(namespace: "n", key: "k") == .corrupt)
+    }
+
+    @Test("the router serves storage.read and storage.write, and says unavailable without a store")
+    func router() {
+        let router = BridgeRouter()
+        let read = BridgeMessage(
+            type: "storage.read", body: ["namespace": .string("localStorage"), "key": .string("snapshot")])
+        #expect(router.handle(read)["status"] as? String == "unavailable")
+        router.store = store()
+        #expect(router.handle(read)["status"] as? String == "missing")
+        let write = BridgeMessage(
+            type: "storage.write",
+            body: ["namespace": .string("localStorage"), "key": .string("snapshot"), "value": .string("{}")])
+        #expect(router.handle(write)["status"] as? String == "ok")
+        let reply = router.handle(read)
+        #expect(reply["status"] as? String == "ok")
+        #expect(reply["value"] as? String == "{}")
+    }
+}
+
 @Suite("Bridge script integrity")
 struct BridgeScriptTests {
     private func directory(with script: String) throws -> URL {

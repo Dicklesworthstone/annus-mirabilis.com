@@ -10,6 +10,8 @@ import WebKit
 final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
     /// Called for every accepted `route.changed`: route, anchor, title.
     var onRoute: ((String, String?, String) -> Void)?
+    /// Where `storage.read` and `storage.write` keep the reader's data; nil answers unavailable.
+    var store: ReaderDataStore?
     /// Called for an accepted `share.request`; the schema has already checked the URL is a page of the website.
     var onShare: ((URL) -> Void)?
     /// Called for every accepted `settings.changed` that names the page's theme.
@@ -73,6 +75,8 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
             return ["status": "ok", "value": ["bridgeVersion": BridgeProtocol.version, "capabilities": capabilities]]
         case "share.request":
             return share(body)
+        case "storage.read", "storage.write":
+            return storage(message.type, body)
         case "settings.changed":
             if let theme = Self.string(body, "theme") { onTheme?(theme) }
             return Self.okay
@@ -86,6 +90,21 @@ final class BridgeRouter: NSObject, WKScriptMessageHandlerWithReply {
         #endif
         default:
             return Self.unavailable
+        }
+    }
+
+    private func storage(_ type: String, _ body: [String: JSONValue]) -> [String: Any] {
+        guard let store, let namespace = Self.string(body, "namespace"), let key = Self.string(body, "key") else {
+            return Self.unavailable
+        }
+        if type == "storage.write" {
+            let written = store.write(namespace: namespace, key: key, value: Self.string(body, "value") ?? "")
+            return ["status": written ? "ok" : "quota"]
+        }
+        switch store.read(namespace: namespace, key: key) {
+        case .value(let text): return ["status": "ok", "value": text]
+        case .missing: return ["status": "missing"]
+        case .corrupt: return ["status": "corrupt"]
         }
     }
 

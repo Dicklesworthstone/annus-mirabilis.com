@@ -14,10 +14,10 @@ final class ThemeChromeUITests: XCTestCase {
     }
 
     @MainActor
-    private func launch() -> XCUIApplication {
+    private func launch(suite: String = "uitest-\(UUID().uuidString)") -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = [
-            "-AMUITest", "-AMStateSuite", "uitest-\(UUID().uuidString)", "-AMOpenRoute", "/papers/brownian-motion/",
+            "-AMUITest", "-AMStateSuite", suite, "-AMOpenRoute", "/papers/brownian-motion/",
         ]
         app.launch()
         let ready = XCTNSPredicateExpectation(
@@ -111,5 +111,27 @@ final class ThemeChromeUITests: XCTestCase {
         waitForBand(app, dark: false)
         XCTAssertGreaterThanOrEqual(buttonContrast(app), 4.5, "the page-actions button on the light page")
         keep(app, "follows-device-back-to-light")
+    }
+
+    /// Each UI-test launch gets a fresh, empty WebKit store: exactly the state after
+    /// WebKit has cleared a page's storage. The app's own copy is what brings the
+    /// reader's choice back.
+    @MainActor
+    func testTheReadersChoiceComesBackWhenWebKitHasLostIt() throws {
+        XCUIDevice.shared.appearance = .light
+        let suite = "uitest-\(UUID().uuidString)"
+        var app = launch(suite: suite)
+        waitForBand(app, dark: false)
+        let toggle = app.webViews.buttons["Switch to dark theme"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 10))
+        toggle.tap()
+        waitForBand(app, dark: true)
+        // The mirror is sent 300 ms after the write settles.
+        Thread.sleep(forTimeInterval: 2)
+        app.terminate()
+
+        app = launch(suite: suite)
+        waitForBand(app, dark: true)
+        keep(app, "choice-restored-after-webkit-lost-it")
     }
 }

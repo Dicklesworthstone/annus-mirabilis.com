@@ -36,13 +36,14 @@ final class EditionSession {
     /// nothing has to be deleted to start clean. A reader's launch never sets it.
     init(
         catalog: EditionCatalog, store: ReaderLocationStore, exposesRouteForTests: Bool = false,
-        ephemeralWebStorage: Bool = false
+        ephemeralWebStorage: Bool = false, readerData: ReaderDataStore? = nil
     ) {
         self.catalog = catalog
         self.store = store
         self.exposesRouteForTests = exposesRouteForTests
         self.navigator = EditionNavigator(catalog: catalog)
         let router = BridgeRouter()
+        router.store = readerData
         self.router = router
         let bridgeSource = catalog.verifiedBridgeScript()
         self.bridgeInstalled = bridgeSource != nil
