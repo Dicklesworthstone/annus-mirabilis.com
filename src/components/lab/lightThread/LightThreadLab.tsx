@@ -424,13 +424,15 @@ export function LightThreadLab({ sourceDigest = "" }: { sourceDigest?: string } 
         confirmation.
       </p>
 
+      <p className="fine">
+        Not modeled: finite spectral bandwidth, diffraction, media, gravitational shifts, detector
+        response, and the recoil from unbalanced single-pulse emission.
+      </p>
       <details>
         <summary>Model limits and the code behind the numbers</summary>
         <p>
           The idealization is a unidirectional, monochromatic vacuum pulse between inertial frames.
-          This does not model finite spectral bandwidth, diffraction, media, gravitational shifts,
-          detector response, or the recoil from unbalanced single-pulse emission. The control bounds
-          are numerical admission limits, not claims of physical impossibility.
+          The control bounds are numerical admission limits, not claims of physical impossibility.
         </p>
         <p>
           The frequency and energy factors come from the existing relativistic wave owners. One
