@@ -67,7 +67,11 @@ describe("LQ-07 UI components and route", () => {
   test("FluorescenceLab renders laboratory root with data attributes and noscript fallback", () => {
     const html = renderToStaticMarkup(<FluorescenceLab />);
     expect(html).toContain('data-instrument-id="lq-07"');
-    expect(html).toContain('data-execution-label="host"');
+    // The label is derived (am-inst-execution-labels-5ywv); until 2ecd3001 it was hard-coded "host".
+    // With no example there is no source digest, so neither calculation label is earned here; the
+    // page's example earns "Static worked example" (next test).
+    expect(html).not.toContain('data-execution-label="host"');
+    expect(html).not.toContain('data-execution-label="static"');
     expect(html).toContain("<noscript>");
     expect(html).toContain("JavaScript disabled");
     // Both predictions sit in one closed disclosure under the drawing, and the presets are the
@@ -79,6 +83,12 @@ describe("LQ-07 UI components and route", () => {
     expect(html).toContain("Maximum allowed frequency");
   });
 
+  test("the page's build-time example earns the static label", () => {
+    const html = renderToStaticMarkup(<FluorescencePage />);
+    expect(html).toContain('data-execution-label="static"');
+    expect(html).toContain("Static worked example");
+    expect(html).not.toContain('data-execution-label="host"');
+  });
   test("FluorescencePage route renders without errors and includes article sections", () => {
     const html = renderToStaticMarkup(<FluorescencePage />);
     // Was `toContain("Single-Quantum Energy Budget")`, a FRAGMENT of a heading, which is why
