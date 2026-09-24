@@ -22,8 +22,9 @@ import {
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
-import { fixed, identity } from "../presentation.ts";
+import { fixed, identity, sentenceNumber } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
@@ -157,6 +158,13 @@ export function IonizationLab({ example }: IonizationLabProps) {
   const ionizationStatus = ionizationRateOut?.status ?? "value";
   const ionizedGramMoleculesOut = getOutput("ionizedGramMolecules");
   const ionizedGramMolecules = getOutputValue("ionizedGramMolecules");
+  // One sentence for the status line: a quantum against the ionization energy, then the rate.
+  const quantum = `a quantum of ${fixed(currentParams.frequency / 1e12, 1)} THz light carries ${fixed(quantumEnergyEv, 2)} eV`;
+  const statusSummary = !singleQuantumAllowed
+    ? `${quantum}, less than the ${fixed(currentParams.ionizationEnergyEv, 2)} eV ionization energy, so no single quantum ionizes a molecule.`
+    : ionizationRate === null
+      ? `${quantum}, ${fixed(excessEnergyEv, 2)} eV more than the ${fixed(currentParams.ionizationEnergyEv, 2)} eV ionization energy, so one quantum can ionize one molecule.`
+      : `${quantum}, ${fixed(excessEnergyEv, 2)} eV more than the ${fixed(currentParams.ionizationEnergyEv, 2)} eV ionization energy, so molecules are ionized at ${sentenceNumber(ionizationRate)} per second.`;
 
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [drafts, setDrafts] = useState<Partial<Record<FieldKey, string>>>({});
@@ -342,6 +350,10 @@ export function IonizationLab({ example }: IonizationLabProps) {
               {error}
             </p>
           )}
+          <AcceptedStatus
+            worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
+            summary={statusSummary}
+          />
         </div>
 
         <div className="lab-results">

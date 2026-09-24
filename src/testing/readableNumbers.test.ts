@@ -1,5 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { fixed, numberText, toFixedReadable } from "../components/lab/presentation.ts";
+import {
+  fixed,
+  numberText,
+  sentenceNumber,
+  toFixedReadable,
+} from "../components/lab/presentation.ts";
 
 /**
  * A lab never echoes a number in JavaScript's e-notation. toFixed writes it from 10²¹ up, and
@@ -28,5 +33,19 @@ describe("the lab's number helpers", () => {
     expect(numberText(1e300)).toBe("1 × 10³⁰⁰");
     expect(toFixedReadable(-1e300, 1)).toBe("−1 × 10³⁰⁰");
     expect(numberText(1e-7)).toBe("1 × 10⁻⁷");
+  });
+
+  test("sentenceNumber writes a status line's number as a reader would", () => {
+    // LQ-09's ionization rate, which display() wrote as 260060000000.
+    expect(sentenceNumber(2.6006e11)).toBe("2.6 × 10¹¹");
+    expect(sentenceNumber(-2.5017e-9)).toBe("−2.5 × 10⁻⁹");
+    expect(sentenceNumber(3e20)).toBe("3 × 10²⁰");
+    expect(sentenceNumber(2.48)).toBe("2.48");
+    expect(sentenceNumber(0.2799)).toBe("0.28");
+    expect(sentenceNumber(-12.004)).toBe("−12");
+    expect(sentenceNumber(9999)).toBe("10000");
+    expect(sentenceNumber(10000)).toBe("1 × 10⁴");
+    expect(sentenceNumber(0)).toBe("0");
+    expect(() => sentenceNumber(Number.NaN)).toThrow();
   });
 });

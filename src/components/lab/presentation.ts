@@ -90,6 +90,24 @@ export function fixed(value: number, decimals: number): string {
   return trimmed === "-0" ? "0" : trimmed.replace(/^-/, "−");
 }
 
+/**
+ * A number for a sentence, to `digits` significant figures with trailing zeros dropped: plain from
+ * 0.001 up to 10 000, a power of ten outside it ("2.6 × 10¹¹"). display() writes 2.6006e11 out as
+ * 260060000000, which no reader can take in when a status line announces it.
+ */
+export function sentenceNumber(value: number, digits = 3): string {
+  // display() refuses a nonfinite value; its refusal is the one this shares.
+  if (!Number.isFinite(value)) return display(value);
+  const size = Math.abs(value);
+  if (size === 0 || (size >= 1e-3 && size < 1e4))
+    return String(Number(value.toPrecision(digits))).replace(/^-/, "−");
+  const [mantissa = "", exponent = ""] = value.toExponential(digits - 1).split("e");
+  const trimmed = mantissa.includes(".")
+    ? mantissa.replace(/0+$/, "").replace(/\.$/, "")
+    : mantissa;
+  return readablePowers(`${trimmed}e${exponent}`).replace(/^-/, "−");
+}
+
 /** Presentation rounding and explicit unit conversion only; no physical laws live here. */
 export function display(value: number, factor = 1): string {
   if (!Number.isFinite(value) || !Number.isFinite(factor) || factor <= 0)

@@ -17,6 +17,7 @@ import { createLq08Session, type PreparedLq08Example } from "../../../experiment
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
+import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
@@ -297,6 +298,16 @@ export function PhotoelectricLab({ example, readings = true }: PhotoelectricLabP
   const eRateVal = eRateRes?.status === "value" ? (eRateRes.value as number) : 0;
   const pcVal = pcRes?.status === "value" ? (pcRes.value as number) : null;
   const qRateVal = qRateRes?.status === "value" ? (qRateRes.value as number) : null;
+  // One sentence for the status line, from the accepted outputs: what a quantum carries against
+  // the work function, and what that leaves the fastest electron.
+  const frequencyThz = fixed(params.frequency / 1e12, 1);
+  const quantum = `a quantum of ${frequencyThz} THz light carries ${fixed(qEnergyEv, 2)} eV`;
+  const statusSummary =
+    kMaxEv === null || vsVal === null
+      ? `${quantum}, less than the ${fixed(params.workFunction, 2)} eV work function, so no electron is freed.`
+      : kMaxEv === 0
+        ? `${quantum}, exactly the work function, so an electron is freed with no energy to spare.`
+        : `${quantum}, more than the ${fixed(params.workFunction, 2)} eV work function, so the fastest electrons leave with ${fixed(kMaxEv, 2)} eV and a stopping potential of ${fixed(vsVal, 2)} V holds them back.`;
 
   // Saturation current in microamperes: e * eRate * 1e6
   const iSatMicroAmps = eRateVal * 1.602176634e-19 * 1e6;
@@ -479,6 +490,10 @@ export function PhotoelectricLab({ example, readings = true }: PhotoelectricLabP
               {error}
             </p>
           )}
+          <AcceptedStatus
+            worked={accepted === undefined || accepted === session.getServerSnapshot().accepted}
+            summary={statusSummary}
+          />
         </div>
 
         <div className="lab-results">
