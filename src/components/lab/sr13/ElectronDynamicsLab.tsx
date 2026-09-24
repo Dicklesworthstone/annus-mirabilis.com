@@ -1,11 +1,16 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
+import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
+import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
+import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
 import {
   SR13_CAPTION,
-  SR13_MODEL,
   SR13_NOT_MODELED,
+  SR13_OUTPUTS,
   type Sr13Parameters,
 } from "../../../experiments/sr13/definition.ts";
 import { validateSr13Parameters } from "../../../experiments/sr13/parameters.ts";
@@ -110,13 +115,23 @@ export function ElectronDynamicsLab({
   const path = snapshot.outputs.find((o) => o.quantityId === "trajectoryPositions");
   const trajectory = path?.status === "value" && typeof path.value !== "number" ? path.value : null;
 
+  // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
+  // example, an accepted recalculation a host calculation.
+  const executionKind = executionStateKindFromHostLabel(
+    deriveHostExecution(
+      view,
+      SR13_OUTPUTS,
+      example.sourceDigest,
+      snapshot === session.getServerSnapshot().accepted,
+    ).label,
+  );
   return (
     <section
       className="laboratory"
       aria-labelledby={`${id}-title`}
       data-instrument-id="sr-13"
       {...identity(snapshot)}
-      data-execution-label="host"
+      {...labelRootAttributes(executionKind, view, "longitudinalMass")}
       data-source-digest={example.sourceDigest}
     >
       <header className="lab-heading">
@@ -124,8 +139,14 @@ export function ElectronDynamicsLab({
           <p className="eyebrow">Electron dynamics and force conventions</p>
           <h2 id={`${id}-title`}>{title}</h2>
         </div>
-        <span className="badge">{SR13_MODEL.label}</span>
       </header>
+      <div className="lab-status-row">
+        <ExecutionChrome
+          state={executionKind}
+          view={view}
+          modelNote={modelNoteFromView(view, { notModeled: `${SR13_NOT_MODELED.join("; ")}.` })}
+        />
+      </div>
       <noscript>
         <p className="notice">
           JavaScript is off. This is a complete worked example calculated when the site was built.
