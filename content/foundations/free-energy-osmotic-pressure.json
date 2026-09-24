@@ -56,6 +56,10 @@
       "kind": "proof-edge"
     },
     {
+      "foundationId": "foundation:quantities-units",
+      "kind": "proof-edge"
+    },
+    {
       "foundationId": "foundation:bridge-scientific-notation-units",
       "kind": "cross-link"
     },

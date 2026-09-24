@@ -178,37 +178,50 @@ entries:
     cluster: transport-thermo
     ownerBead: am-found-transport-thermo-smv3
     status: authored
-    plannedCallers: []
+    plannedCallers:
+      - "lab:bm-07:kitchen"
   - id: "foundation:free-energy-osmotic-pressure"
     kind: node
     cluster: transport-thermo
     ownerBead: am-found-transport-thermo-smv3
     status: authored
-    plannedCallers: []
+    plannedCallers:
+      - "light-quanta:s5"
   - id: "foundation:work-energy"
     kind: node
     cluster: transport-thermo
     ownerBead: am-found-transport-thermo-smv3
     status: authored
-    plannedCallers: []
+    plannedCallers:
+      - "mass-energy"
+      - "special-relativity:s10"
   - id: "foundation:temperature-thermal-energy"
     kind: node
     cluster: transport-thermo
     ownerBead: am-found-transport-thermo-smv3
     status: authored
-    plannedCallers: []
+    plannedCallers:
+      - "lab:bm-07:kitchen"
+      - "light-quanta:s1"
+      - "light-quanta:s6"
   - id: "foundation:entropy-multiplicity"
     kind: node
     cluster: transport-thermo
     ownerBead: am-found-transport-thermo-smv3
     status: authored
-    plannedCallers: []
+    plannedCallers:
+      - "light-quanta:s4"
+      - "light-quanta:s5"
+      - "light-quanta:s6"
   - id: "foundation:entropy-temperature"
     kind: node
     cluster: transport-thermo
     ownerBead: am-found-transport-thermo-smv3
     status: authored
-    plannedCallers: []
+    plannedCallers:
+      - "light-quanta:s3"
+      - "light-quanta:s4"
+      - "lab:lq-04"
   - id: "foundation:vectors-components"
     kind: node
     cluster: linear-geometry
