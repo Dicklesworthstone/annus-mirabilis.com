@@ -61,16 +61,21 @@ describe("missing-step reader content", () => {
     expect(html).toContain("The increments A and B are independent.");
     expect(html).toContain("Each increment has mean zero.");
   });
-  test("enumerated alternatives have headed, keyboard-scrollable tables", () => {
+  test("enumerated alternatives have headed, named tables, and nothing that fits is a tab stop", () => {
     const step = example.steps[0];
     if (!step) throw new Error("Expansion absent.");
     const html = renderToStaticMarkup(<MissingStepPanel lesson={example} step={step} />);
     expect(html.match(/<table>/g)?.length).toBe(3);
     expect(html.match(/scope="col"/g)?.length).toBe(18);
+    expect(html.match(/aria-label="[^"]*: outcome table"/g)?.length).toBe(3);
     expect(html).toContain("Always the same direction");
     expect(html).toContain("Always opposite directions");
     expect(html).toContain("not observations or simulated Brownian paths");
-    expect(html).toContain('tabindex="0"');
+    // Until am-14at this line read toContain('tabindex="0"'), and the tables never carried one:
+    // it was met by the Before and After math regions, which fit (254/254 at 320px, 308/308 at
+    // 1280px, 16 of 16 on live) and so were tab stops with nothing to scroll. The tables fit too
+    // (24 of 24). A region that ever overflows gets a named tab stop from formulaOverflow.inline.ts.
+    expect(html).not.toContain('tabindex="0"');
   });
   test("author prose is escaped and never evaluated as HTML", () => {
     const step = example.steps[0];
