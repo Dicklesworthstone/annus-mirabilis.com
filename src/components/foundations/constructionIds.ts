@@ -23,6 +23,7 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "orders-of-magnitude",
   "quantities-units",
   "error-and-inference",
+  "matrices-linear-maps",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];

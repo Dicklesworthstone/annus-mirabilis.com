@@ -1,5 +1,6 @@
 "use client";
 
+import { BoostTable } from "./BoostTable.tsx";
 import { foundationConstructionId } from "./constructionIds.ts";
 import { HeldFixedToggle } from "./HeldFixedToggle.tsx";
 import type { HeadingLevel } from "./headingLevel.ts";
@@ -55,5 +56,7 @@ export function FoundationConstruction({
       return <UnitCancellationTable headingLevel={headingLevel} />;
     case "error-and-inference":
       return <RepeatedIntervals headingLevel={headingLevel} />;
+    case "matrices-linear-maps":
+      return <BoostTable headingLevel={headingLevel} />;
   }
 }
