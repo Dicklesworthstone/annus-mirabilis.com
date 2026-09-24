@@ -580,7 +580,9 @@ export function PredictPanel({
       ) : null}
 
       <p>
-        <a href="#coefficient-argument">Show me the reasoning</a>
+        {/* Absolute, so the embed (which has no #coefficient-argument) opens the laboratory's own
+            section rather than a link that goes nowhere (labFragmentLinks.test.tsx). */}
+        <a href="/lab/me-02/#coefficient-argument">Show me the reasoning</a>
       </p>
     </div>
   );

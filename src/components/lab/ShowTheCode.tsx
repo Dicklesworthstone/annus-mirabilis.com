@@ -128,7 +128,7 @@ export function ShowTheCode({
   return (
     // Closed by default: the listing is one tap away under "Show the code", and open it made the
     // bm-01 lab 13,479px tall, 7,461px of it source code.
-    <details className="show-the-code" data-paper={paper}>
+    <details id={uid} className="show-the-code" data-paper={paper}>
       <summary>Show the code</summary>
       <style>{selectionCss(quantityIds)}</style>
       {listings.map((listing) => {

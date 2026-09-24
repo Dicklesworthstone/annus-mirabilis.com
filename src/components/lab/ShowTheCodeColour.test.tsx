@@ -59,7 +59,8 @@ const rule = (paper: string, quantityId: string) =>
 describe("show-the-code uses the paper's quantity colours, from CSS", () => {
   test("the root names its paper, read from the listing's equation id", () => {
     const html = renderToStaticMarkup(<ShowTheCode listings={[listing]} />);
-    expect(html).toMatch(/<details class="show-the-code"[^>]*data-paper="brownian-motion"/);
+    // Attribute order is not the claim: the root also carries its id, the target of "Show the code".
+    expect(html).toMatch(/<details[^>]*class="show-the-code"[^>]*data-paper="brownian-motion"/);
   });
 
   test("an identifier and a trace row carry their quantity, and no hashed or role hue", () => {

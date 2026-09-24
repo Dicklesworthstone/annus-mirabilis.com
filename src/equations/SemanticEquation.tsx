@@ -252,6 +252,8 @@ export function SemanticEquation({
                   n.kind === "term" ? "secondary eq-chip eq-term" : "secondary eq-chip eq-operation"
                 }
                 key={n.id}
+                // The target of a worked trace row's link (ShowTheCode links each operation to #<id>).
+                id={n.id}
                 data-node-id={n.id}
                 data-quantity-id={n.quantityId ?? undefined}
                 data-selected={String(!!selectedNode(n.id))}
