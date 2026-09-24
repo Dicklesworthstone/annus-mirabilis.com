@@ -1,8 +1,21 @@
+# Declares this bead as the owner of the /lab/me-03/ caption readings; the target mirrors ME03_CAPTION in src/experiments/me03/definition.ts (rewritten 2026-09-23, TopazPrairie).
+ownerBeadId: am-me-03-system-boundary-0arb
 beadId: am-me-03-system-boundary-0arb
+paper: mass-energy
+targetKinds:
+  - instrument-caption
+scope:
+  instrumentIds:
+    - me-03
 targets:
-  - instrument: me-03
-    captions:
-      - r0
-      - r1
-      - r2
-      - r3
+  - kind: caption
+    id: me-03
+    readings:
+      r0: "Energy that leaves a body takes mass with it. Draw the boundary around the body alone and it gets lighter; draw it around the body and the light it gave off, and nothing is lost."
+      r1: "The mass–energy paper concludes that a body giving off energy L loses mass L/V², that it does not matter that the energy leaves as radiation, and that, if the theory is right, radiation carries inertia from the body that emits it to the body that absorbs it. The instrument keeps the accounting honest by making you choose where the boundary goes. With 1 J emitted and the boundary around the body alone, the body's energy falls by 1 J and its mass by 1.11 × 10^{−17} kg. Around the radiation alone, 1 J arrives, and the lab gives it no rest mass in the 1905 account, saying so rather than inventing one. Around the body and its light together, an isolated system, nothing changes. In the four-momentum lens, a modern addition, two opposite pulses of total energy 1 J have an invariant mass of 1.11 × 10^{−17} kg, which is where the body's lost mass went. The energy-source cards apply ΔE/c² to cited modern transfers: a radium-226 alpha decay of 4.871 MeV changes mass by 8.68 × 10^{−30} kg; the Sun's 3.828 × 10^{26} W takes away 4.26 × 10^{9} kg each second; a kilogram of coal burned at 30 MJ, 3.34 × 10^{−10} kg; a candle for an hour, 3.20 × 10^{−12} kg; a 100 W bulb for a year, 3.51 × 10^{−8} kg. In the 1906 photon-in-a-box mode (credit: Poincaré 1900), a pulse crossing a floating box shows that the centre of mass stays put only if the light is given the mass E/c²."
+      r2: "The rule is Δm = ΔE/c², with c² = (2.998 × 10^{8})² = 8.988 × 10^{16} m²/s², so 1 J corresponds to 1/(8.988 × 10^{16}) = 1.11 × 10^{−17} kg. The sign follows the boundary. A body that emits 1 J has 1 J less inside its boundary, so its mass falls by 1.11 × 10^{−17} kg. Move the boundary around the body and its light, and the energy inside does not change, so neither does the mass: the joule left the body but not the system. Now the cards. The radium decay releases 4.871 × 10^{6} × 1.602 × 10^{−19} = 7.80 × 10^{−13} J, which divided by c² is 8.68 × 10^{−30} kg, about 2 parts in 100 000 of the radium atom's mass. The Sun radiates 3.828 × 10^{26} J each second, and dividing by c² gives 4.26 × 10^{9} kg, some four million tonnes a second. The bulb uses 100 W × 31 557 600 s = 3.156 × 10^{9} J in a year, which is 3.51 × 10^{−8} kg, about 35 micrograms. Now the 1906 box argument. A box of mass 1 kg and length 1 m floats free. A pulse of 1 J leaves one end carrying momentum E/c = 1/(2.998 × 10^{8}) = 3.34 × 10^{−9} kg·m/s, so the box recoils the other way at 3.34 × 10^{−9} m/s. The pulse takes l/c = 3.34 × 10^{−9} s to cross, and in that time the box moves back 3.34 × 10^{−9} × 3.34 × 10^{−9} = 1.11 × 10^{−17} m, which is El/(Mc²). When the pulse is absorbed at the far end, the box stops. Nothing outside acted on the box, so the centre of mass of the whole system cannot have moved. The box's backward step is balanced only if the pulse carried a mass m across the length l with ml = M × 1.11 × 10^{−17} m, so m = 1.11 × 10^{−17} kg = E/c². Switch that assignment off and the lab shows the centre of mass moving by 1.11 × 10^{−17} m, which an isolated system cannot do."
+      r3: "The 1905 conclusions are conditional. The paper says it is not excluded that bodies whose energy content varies greatly, radium salts for instance, could test the theory, and that if the theory corresponds to the facts, radiation carries inertia between the emitting and absorbing bodies. It gives no rest mass to free radiation; the invariant mass of a system of light belongs to the later four-momentum language. The box is Einstein's 1906 argument (credit: Poincaré 1900): his paper credits Poincaré's remark of 1900 that electromagnetic energy behaves like a fluid with inertia. The energy-source values are modern and cited on each card; none was measured in 1905, and the mass changes of chemical and everyday transfers are far too small to weigh."
+      r3Citations:
+        - "Einstein, A. (1905). Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig? Annalen der Physik 18, 639–641."
+        - "Einstein, A. (1906). Das Prinzip von der Erhaltung der Schwerpunktsbewegung und die Trägheit der Energie. Annalen der Physik 20, 627–633."
+        - "Poincaré, H. (1900). La théorie de Lorentz et le principe de réaction. Archives néerlandaises des sciences exactes et naturelles 5, 252–278."
