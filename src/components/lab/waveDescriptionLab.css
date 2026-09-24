@@ -2,6 +2,15 @@
    (.lab-columns, .lab-results, .experiment-settings) does the layout; these rules only set
    what is particular to this instrument. */
 
+/* Neutral marks on the wave field (the screen, its label, its unlit centre). The field is
+   --plot-darkfield, dark in both themes, so they cannot take the page's --muted or --line, which
+   are set for the page's paper: in the light theme --muted drew "Screen" at 2.88:1 on the field,
+   and in the dark theme --line drew the screen itself at 1.70:1. This grey is the dark theme's
+   --muted and stands at 6.59:1 on the light theme's field and 6.99:1 on the dark theme's. */
+.lq01 {
+  --lq01-field-ink: #979ea6;
+}
+
 .lq01 .lq01-view {
   margin-block: 0 1.2rem;
 }

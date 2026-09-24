@@ -253,13 +253,14 @@ export function InterferencePlot({
           />
         )}
 
-        {/* Selected Screen Position Marker (Data probe - kept literal rose) */}
+        {/* The selected screen position. The probe takes the accent: the rose it used to draw in
+            read at 3.45:1 on the dark theme's paper, and --accent is checked for text on both. */}
         <line
           x1={selectedX}
           y1={padding.top}
           x2={selectedX}
           y2={height - padding.bottom}
-          stroke="#e11d48"
+          stroke="var(--accent)"
           strokeDasharray="2 2"
           strokeWidth="1.5"
         />
@@ -267,7 +268,7 @@ export function InterferencePlot({
           cx={selectedX}
           cy={selectedY}
           r="4.5"
-          fill="#e11d48"
+          fill="var(--accent)"
           stroke="var(--paper)"
           strokeWidth="1.5"
         />
@@ -277,7 +278,7 @@ export function InterferencePlot({
           textAnchor="middle"
           fontFamily="monospace"
           fontWeight="600"
-          style={{ fill: "#e11d48" }}
+          style={{ fill: "var(--accent)" }}
         >
           {PROBE_LABEL[screenPosition]}: {selectedIntensity.toFixed(2)} (Δr ={" "}
           {pathDifference.toFixed(2)}λ)
@@ -454,13 +455,14 @@ export function WavefrontPlot({ separation, delta, centerIntensity }: WavefrontP
           S₂
         </text>
 
-        {/* Observation Screen on Right */}
+        {/* The screen, its label and its unlit centre take the field's own ink: the field is dark
+            in both themes, and the page's --muted and --line are set for the page's paper. */}
         <line
           x1={width - 50}
           y1="10"
           x2={width - 50}
           y2={height - 10}
-          stroke="var(--line)"
+          stroke="var(--lq01-field-ink)"
           strokeWidth="3"
         />
         <text
@@ -468,7 +470,7 @@ export function WavefrontPlot({ separation, delta, centerIntensity }: WavefrontP
           y="25"
           textAnchor="end"
           fontFamily="monospace"
-          style={{ fill: "var(--muted)" }}
+          style={{ fill: "var(--lq01-field-ink)" }}
         >
           Screen
         </text>
@@ -476,7 +478,7 @@ export function WavefrontPlot({ separation, delta, centerIntensity }: WavefrontP
           cx={width - 50}
           cy={centerY}
           r="5"
-          fill={centerIntensity > 0.1 ? "#38bdf8" : "var(--muted)"}
+          fill={centerIntensity > 0.1 ? "#38bdf8" : "var(--lq01-field-ink)"}
         />
         {/* The field is dark in both themes, so the reading takes the sky of its marker dot. */}
         <text
