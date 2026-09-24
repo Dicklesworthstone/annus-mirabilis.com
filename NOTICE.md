@@ -15,8 +15,8 @@ The historical German texts of Albert Einstein's 1905–1906 papers in *Annalen 
 
 ## Facsimile scans
 
-Facsimile page scans are not the historical text itself. Each facsimile scan reflects digital preservation copies acquired from libraries and archives (such as ETH-Bibliothek Zürich, Wiley-VCH, and Internet Archive).
-- **Terms:** Per-asset terms are recorded in individual provenance receipts under `content/provenance/receipts/` and in `SourceAsset.rights`.
+Facsimile page scans are not the historical text itself. The pinned scans are Internet Archive preservation copies of the bound *Annalen der Physik* volumes; each scan's source, retrieval date and SHA-256 are recorded in its provenance receipt. No publisher PDF is pinned.
+- **Terms:** Per-asset terms are recorded in each scan's provenance receipt, `docs/provenance/<key>.md`, and in `SourceAsset.rights`; the publication basis is docs/DECISIONS.md D-2026-09-24-scan-rights.
 - **Code License Exclusion:** Facsimile scans are NEVER covered by the repository code license.
 
 ---
@@ -67,18 +67,16 @@ All typography assets used in Annus Mirabilis are open-source fonts:
 ## Third-party runtime libraries
 
 Third-party open-source libraries incorporated into or used by Annus Mirabilis are licensed under their respective permissive licenses:
-- `next` (MIT), `react` (MIT), `react-dom` (MIT), `typescript` (Apache-2.0)
-- `katex` (MIT), `three` (MIT), `pdfjs-dist` (Apache-2.0), `lucide-react` (ISC)
-- `zod` (MIT), `fflate` (MIT), `js-yaml` (MIT), `marked` (MIT), `minisearch` (MIT)
-- `tailwindcss` (MIT), `postcss` (MIT), `autoprefixer` (MIT)
-- `@biomejs/biome` (MIT / Apache-2.0), `playwright` (Apache-2.0), `@axe-core/playwright` (MPL-2.0), `ubs` (MIT)
+- Runtime dependencies (package.json `dependencies`): `next` (MIT), `react` (MIT), `react-dom` (MIT), `katex` (MIT), `js-yaml` (MIT)
+- Development tools (package.json `devDependencies`): `typescript` (Apache-2.0), `@biomejs/biome` (MIT OR Apache-2.0), `playwright` (Apache-2.0), `@axe-core/playwright` (MPL-2.0), `@happy-dom/global-registrator` (MIT), and the `@types/*` packages (MIT)
+- Each license above is read from the package's own `package.json` in `node_modules`. The site has no Tailwind, PostCSS or Autoprefixer dependency, and uses no Three.js, pdf.js, Zod or MiniSearch package.
 
 ---
 
 ## Images and figures
 
 - **Authored figures and SVGs:** Copyright (c) 2026 Jeffrey Emanuel and contributors. Licensed under MIT License with OpenAI/Anthropic Rider.
-- **Photographs:** Public-domain historical photographs (such as Lucien Chavan's portrait of Albert Einstein, ca. 1905, held by ETH-Bibliothek Zürich). Per the project owner's decision (2026-09-14), public-domain photographs are credited to their archival source.
+- **Photographs:** Public-domain historical photographs, such as the patent-office portrait of Albert Einstein, about 1905, held by ETH-Bibliothek Zürich, Bildarchiv (Portr_05937, doi:10.3932/ethz-a-000495740). ETH's record gives the photographer as unknown; the portrait is often attributed to Lucien Chavan. Per the project owner's decision (2026-09-14), public-domain photographs are credited to their archival source.
 
 ---
 
