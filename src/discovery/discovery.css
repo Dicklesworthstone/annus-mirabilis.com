@@ -72,6 +72,30 @@
   margin-block: 0.5rem 0.25rem;
 }
 
+/* A numeric answer: the value takes the room, the unit menu keeps its own width. */
+.exercise-number {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+/* Explicit widths. The global input rule says 100%, which as a flex basis starved the value box to
+   23px beside the unit menu; and the form is an inline-block (.enhanced-only), sized by its
+   content, so the box's own width sets the row's: a browser's default of about 20 characters made
+   the row 271px in a 214px column at 320. Twelve characters holds 0.7948 or 7.95e-7 with room. */
+.exercise-number input {
+  flex: 1 1 12ch;
+  width: 12ch;
+  min-width: 0;
+}
+
+.exercise-number select {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 44px;
+  font: inherit;
+}
+
 .exercise-worked {
   margin-top: 1rem;
   border-top: 1px dashed var(--line);

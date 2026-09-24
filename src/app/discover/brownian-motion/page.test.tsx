@@ -57,6 +57,18 @@ describe("step 02 asks the reader to put the square-root argument in words", () 
     expect(section("step-05")).toContain('data-exercise-part="bm-displacement-scale-rewrite"');
   });
 
+  test("step 05 lets the reader arrive at Einstein's number, as the page's lead promises", () => {
+    const step = section("step-05");
+    expect(text(html)).toContain("You can arrive at the same number here");
+    const start = step.indexOf('data-exercise-part="bm-einstein-one-second"');
+    expect(start).toBeGreaterThan(step.indexOf("bm-displacement-scale-rewrite"));
+    const part = text(step.slice(start));
+    expect(part).toContain("particles 0.001 mm across");
+    expect(part).toContain("Einstein printed it as 0.8 micron.");
+    const errors = checkVoice(part, { context: "prose" }).filter((f) => f.severity === "error");
+    expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
+  });
+
   test("every sentence of the part passes the voice lint as prose", () => {
     const words = text(explanationPart());
     expect(words.length).toBeGreaterThan(400);

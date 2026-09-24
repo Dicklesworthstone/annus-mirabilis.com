@@ -7,7 +7,9 @@ import {
   type ExplanationExercisePart,
   ExplanationPart,
 } from "../../../components/discover/ExplanationPart.tsx";
+import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { Formula } from "../../../components/edition/Formula.tsx";
+import { EINSTEIN_ONE_SECOND } from "../../../discovery/brownian/numericExercises.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
 import type { KnowledgeCard } from "../../../discovery/cards/types.ts";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
@@ -359,6 +361,11 @@ export default function BrownianEncounter() {
           laboratory's ranges, not by matching text.
         </p>
         <ExercisePart part={DISPLACEMENT_SCALE_EXERCISE} />
+        <p>
+          Now the number itself. With Einstein’s own inputs the formula gives a distance a
+          laboratory could go and measure. Type it in the unit you prefer.
+        </p>
+        <NumericPart part={EINSTEIN_ONE_SECOND} />
       </section>
       <section id="shelf">
         <h2>The 1904 shelf</h2>
