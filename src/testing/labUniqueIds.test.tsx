@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { readdirSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { exportMarkup } from "./exportMarkup.ts";
+import { idProblems, pageRoutes, withoutNoscript } from "./idProblems.ts";
 
 /**
  * An id names one element on a lab or embed page. SR-12 drew each of its two frames with its own
@@ -14,27 +14,6 @@ import { exportMarkup } from "./exportMarkup.ts";
  * gradients and clip paths use, must resolve to exactly one element.
  */
 const APP = fileURLToPath(new URL("../app/", import.meta.url));
-
-function pages(dir: string, base: string): string[] {
-  return readdirSync(dir).flatMap((name) => {
-    const full = `${dir}${name}`;
-    if (statSync(full).isDirectory()) return pages(`${full}/`, `${base}${name}/`);
-    return name === "page.tsx" ? [base] : [];
-  });
-}
-
-/** Ids that occur more than once, and url(#id) references that do not name exactly one element. */
-export function idProblems(html: string): string[] {
-  const counts = new Map<string, number>();
-  for (const m of html.matchAll(/\sid="([^"]+)"/g))
-    counts.set(m[1] ?? "", (counts.get(m[1] ?? "") ?? 0) + 1);
-  const problems = [...counts].filter(([, n]) => n > 1).map(([id, n]) => `id ${id} ×${n}`);
-  for (const m of html.matchAll(/url\(#([^)"']+)\)/g)) {
-    const n = counts.get(m[1] ?? "") ?? 0;
-    if (n !== 1) problems.push(`url(#${m[1]}) names ${n} elements`);
-  }
-  return [...new Set(problems)];
-}
 
 describe("an id names one element on every lab and embed page", () => {
   test("the check finds the defect as it shipped, and passes one id per element", () => {
@@ -50,7 +29,10 @@ describe("an id names one element on every lab and embed page", () => {
   });
 
   test("no page repeats an id, with or without JavaScript", async () => {
-    const routes = [...pages(`${APP}lab/`, "lab/"), ...pages(`${APP}embed/`, "embed/")].sort();
+    const routes = [
+      ...pageRoutes(`${APP}lab/`, "lab/"),
+      ...pageRoutes(`${APP}embed/`, "embed/"),
+    ].sort();
     const found: string[] = [];
     let renders = 0;
     for (const rel of routes) {
@@ -63,7 +45,7 @@ describe("an id names one element on every lab and embed page", () => {
           params: Promise.resolve(params),
         });
         const noScript = await exportMarkup(out instanceof Promise ? await out : out);
-        const withScript = noScript.replace(/<noscript>[\s\S]*?<\/noscript>/g, "");
+        const withScript = withoutNoscript(noScript);
         renders += 1;
         for (const [reading, html] of [
           ["JavaScript on", withScript],
