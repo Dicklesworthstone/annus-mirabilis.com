@@ -16,7 +16,62 @@ const diagramLabel = {
   fontFamily: "var(--font-sans)",
 } as const;
 
+/** What each endpoint pair's two events are, where they are not the rod's ends. */
+const PAIR_WORDS: Readonly<Record<string, string>> = {
+  "platform-simultaneous": "two marks on the platform",
+  "causal-timelike": "two events of the causal-order example",
+  "causal-lightlike": "two events of the causal-order example",
+  "causal-threshold": "two events of the causal-order example",
+  custom: "the two events you entered",
+};
+
+/**
+ * Whether a pair's two events are the rod's two ends read at one time of the measuring frame. The
+ * platform pair is two marks L₀ apart at t = 0 in K, which are the rod's ends only when the rod
+ * rests in K; the frame-simultaneous pair is built from the rod's ends.
+ */
+export function pairIsRodEnds(endpointPairId: string, rodRestFrame: FrameId): boolean {
+  if (endpointPairId === "frame-simultaneous") return true;
+  if (endpointPairId === "platform-simultaneous") return rodRestFrame === "K";
+  return false;
+}
+
+/**
+ * The verdict under the strips, and the laboratory's status line. SR-03's default pair is two
+ * platform marks 10 ls apart, simultaneous in K, and the verdict called their separation "a distance
+ * in frame K: 10.00 ls" beside a strip drawing the rod at 8.00 ls there, so a reader took 10 ls for
+ * the rod's length. A separation is called the rod's length only when the readings are the rod's
+ * ends; otherwise the verdict names what was read and gives the rod's own length beside it.
+ */
+export function readingsVerdict(args: {
+  endpointPairId: string;
+  rodRestFrame: FrameId;
+  measuringFrame: FrameId;
+  /** The rod's own length in the measuring frame, as the strips draw it. */
+  rodLength: number;
+  measuredLength: number | null;
+  isSimultaneous: boolean;
+}): string {
+  const {
+    endpointPairId,
+    rodRestFrame,
+    measuringFrame,
+    rodLength,
+    measuredLength,
+    isSimultaneous,
+  } = args;
+  const rodEnds = pairIsRodEnds(endpointPairId, rodRestFrame);
+  const rod = `The rod itself, its ends read at one time of frame ${measuringFrame}, is ${rodLength.toFixed(2)} ls long there.`;
+  const separation = measuredLength === null ? "not computed" : `${measuredLength.toFixed(2)} ls`;
+  if (!isSimultaneous)
+    return `They are not simultaneous there, so their separation is not a length measurement.${rodEnds ? "" : ` ${rod}`}`;
+  if (rodEnds)
+    return `They are the rod's two ends, read at one time of frame ${measuringFrame}, so their separation is the rod's length there: ${separation}.`;
+  return `They are ${PAIR_WORDS[endpointPairId] ?? "two chosen events"}, not the rod's ends, and simultaneous in frame ${measuringFrame}, so ${separation} is the distance between them there, not the rod's length. ${rod}`;
+}
+
 export interface RodStripPlotProps {
+  endpointPairId: string;
   rodRestFrame: FrameId;
   measuringFrame: FrameId;
   v: number;
@@ -30,6 +85,7 @@ export interface RodStripPlotProps {
 }
 
 export function RodStripPlot({
+  endpointPairId,
   rodRestFrame,
   measuringFrame,
   v,
@@ -61,7 +117,7 @@ export function RodStripPlot({
       length: atRest ? L0 : contractedL,
       words: atRest ? (
         <>
-          <strong>{L0.toFixed(1)} ls</strong>, the proper length L₀
+          <strong>{L0.toFixed(2)} ls</strong>, the proper length L₀
         </>
       ) : (
         <>
@@ -75,24 +131,27 @@ export function RodStripPlot({
     <div data-view-id="sr-03-strip-view" className="sr03-figure">
       <h3 className="sr03-figure-title">The rod&apos;s length in the two frames</h3>
       <p className="fine sr03-figure-note">
-        The rod is at rest in {FRAME_NAME[rodRestFrame]}, and {FRAME_NAME[measuringFrame]} measures
+        The rod is at rest in {FRAME_NAME[rodRestFrame]}, and {FRAME_NAME[measuringFrame]}, measures
         it, at v = {v.toFixed(2)}c. A length is the distance between the two ends read at{" "}
         <strong>one time of the measuring frame</strong>: coordinate geometry, not what a camera
         sees.
       </p>
       <p className="fine sr03-figure-note">
-        The two end readings are Δx = {dx.toFixed(2)} ls and cΔt = {cdt.toFixed(2)} ls apart in
-        frame {measuringFrame}.{" "}
-        {isSimultaneous ? (
-          <strong className="sr03-verdict">
-            They are simultaneous there, so their separation is a distance in frame {measuringFrame}
-            : {measuredLength !== null ? `${measuredLength.toFixed(2)} ls` : "not computed"}.
-          </strong>
-        ) : (
-          <strong className="sr03-verdict sr03-verdict-refused">
-            They are not simultaneous there, so their separation is not a length measurement.
-          </strong>
-        )}
+        The two readings are Δx = {dx.toFixed(2)} ls and cΔt = {cdt.toFixed(2)} ls apart in frame{" "}
+        {measuringFrame}.{" "}
+        <strong
+          className={isSimultaneous ? "sr03-verdict" : "sr03-verdict sr03-verdict-refused"}
+          data-rod-ends={String(pairIsRodEnds(endpointPairId, rodRestFrame))}
+        >
+          {readingsVerdict({
+            endpointPairId,
+            rodRestFrame,
+            measuringFrame,
+            rodLength: measuringFrame === rodRestFrame ? L0 : contractedL,
+            measuredLength,
+            isSimultaneous,
+          })}
+        </strong>
       </p>
       {strips.map((strip) => (
         <div key={strip.frame} className="sr03-strip">

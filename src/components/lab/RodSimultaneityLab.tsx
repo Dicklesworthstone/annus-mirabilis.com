@@ -25,6 +25,7 @@ import { identity } from "./presentation.ts";
 import {
   MinkowskiDiagramPlot,
   RodStripPlot,
+  readingsVerdict,
   SphereEllipsoidPlot,
 } from "./RodSimultaneityPlots.tsx";
 import { Sci } from "./Sci.tsx";
@@ -43,7 +44,8 @@ const SR03_VALUE_LABELS: Readonly<Record<string, string>> = {
   temporalSeparationKPrime: "Time between the events in k, Δt′",
   simultaneityK: "Their time order in K",
   simultaneityKPrime: "Their time order in k",
-  measuredLength: "Measured length",
+  // Not "Measured length": for the default platform marks it is 10 ls while the rod is 8 ls in K.
+  measuredLength: "Distance between the readings at one time of the measuring frame",
   spacetimeIntervalSquared: "Interval, s² = Δx² − c²Δt²",
   causalOrder: "Kind of separation",
   gammaFactor: "Lorentz factor, γ",
@@ -206,16 +208,20 @@ export function RodSimultaneityLab({
 
   const isNonSimultaneousRefusal =
     measOut?.status === "not-applicable" && measOut.reason.includes("simultaneous");
-  // One sentence for the status line, the verdict the strip figure prints: how far apart the two
-  // readings are in the measuring frame, and whether that separation is a length there. The
-  // readings are the chosen event pair, not necessarily the rod's ends.
+  // One sentence for the status line: the readings' separation and the verdict the strip figure
+  // prints, from the same function, so the two cannot disagree about what was measured.
   const dxShown = p.measuringFrame === "K" ? dxK : dxk;
   const cdtShown = p.measuringFrame === "K" ? dtK : dtk;
-  const statusSummary = `the two readings are ${fixed(dxShown, 2)} ls and cΔt = ${fixed(cdtShown, 2)} ls apart in frame ${p.measuringFrame}; ${
-    isNonSimultaneousRefusal
-      ? "they are not simultaneous there, so their separation is not a length measurement"
-      : `they are simultaneous there, so their separation is a distance in frame ${p.measuringFrame}: ${measuredL === null ? "not computed" : `${fixed(measuredL, 2)} ls`}`
-  }.`;
+  const statusSummary = `the two readings are ${fixed(dxShown, 2)} ls and cΔt = ${fixed(cdtShown, 2)} ls apart in frame ${p.measuringFrame}. ${readingsVerdict(
+    {
+      endpointPairId: p.endpointPairId,
+      rodRestFrame: p.rodRestFrame,
+      measuringFrame: p.measuringFrame,
+      rodLength: p.rodRestFrame === p.measuringFrame ? p.L0 : p.L0 / g,
+      measuredLength: measuredL,
+      isSimultaneous: !isNonSimultaneousRefusal,
+    },
+  )}`;
 
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time example is a static worked
   // example, an accepted recalculation a host calculation.
@@ -287,6 +293,7 @@ export function RodSimultaneityLab({
         }}
       >
         <RodStripPlot
+          endpointPairId={p.endpointPairId}
           rodRestFrame={p.rodRestFrame}
           measuringFrame={p.measuringFrame}
           v={p.v}
