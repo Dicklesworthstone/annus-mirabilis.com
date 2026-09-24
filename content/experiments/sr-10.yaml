@@ -305,6 +305,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: sr-10-predict-volume
+      supportedCandidateId: expands-to-2
       controlId: beta
       question: "When a spherical light complex travels in the same direction as an observer moving at 0.6c (receding along x), what happens to its volume in the moving frame?"
       candidates:

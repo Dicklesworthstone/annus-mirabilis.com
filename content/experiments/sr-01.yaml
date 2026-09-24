@@ -369,6 +369,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: sr-01-predict-moving-pair
+      supportedCandidateId: trailing-clock-ahead
       controlId: pairBeta
       question: "A pair of clocks rides past at a steady speed, and the riders set their clocks with the same light-signal rule. Judged by our clocks, what do theirs show?"
       candidates:

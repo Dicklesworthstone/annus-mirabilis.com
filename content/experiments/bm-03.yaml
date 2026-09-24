@@ -405,6 +405,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: bm-03-predict-volume-factor
+      supportedCandidateId: factor-4
       controlId: Np
       question: "Doubling the volume available to two independent particles multiplies the number of position arrangements by 2, 4, or 8?"
       candidates:

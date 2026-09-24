@@ -545,6 +545,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: lq-01-predict-phase-shift
+      supportedCandidateId: drops-to-zero
       controlId: delta
       question: "Two equal waves meet at the center of the screen. What happens to the intensity there when the phase difference goes from 0 to π?"
       candidates:
@@ -564,6 +565,7 @@ predictMode:
           relation: "⟨I⟩(π) = 0"
           separatingAssumption: "Follows from linear field superposition: equal waves with delta = pi cancel completely at the center."
     - promptId: lq-01-predict-inverse-square
+      supportedCandidateId: quarters
       controlId: r
       question: "The source keeps its power. What happens to the intensity when the distance from it doubles?"
       candidates:

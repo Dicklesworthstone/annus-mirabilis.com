@@ -289,6 +289,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: lq-06-predict-subexpression
+      supportedCandidateId: lq-06-cand-count
       controlId: selectedSubexpression
       question: "In the equation S - S_0 = (R/N) ln[(V/V_0)^(N*E / (R*beta*nu))], what quantity corresponds to the particle count n in S - S_0 = (R/N) n ln(V/V_0)?"
       candidates:

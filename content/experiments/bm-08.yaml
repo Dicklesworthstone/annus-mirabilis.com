@@ -523,6 +523,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: bm-08-predict-camera-noise
+      supportedCandidateId: up-negative
       controlId: sigma
       question: "Add camera noise. Does the naive diffusion estimate go up, down, or stay the same? Does the correlation between neighboring steps become positive, negative, or zero?"
       candidates:

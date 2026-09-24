@@ -354,6 +354,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: sr-11-predict-receding-frequency
+      supportedCandidateId: ratio-0-25
       controlId: beta
       question: "The mirror recedes at 0.6c and light hits it head-on. What fraction of the incident frequency returns?"
       candidates:

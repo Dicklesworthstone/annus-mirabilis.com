@@ -322,6 +322,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: lq-08-predict-double-power
+      supportedCandidateId: energy-unchanged
       controlId: incidentPower
       question: "Make the lamp twice as bright without changing its frequency. What happens to the energy of the fastest electrons?"
       candidates:
@@ -338,6 +339,7 @@ predictMode:
           description: "Crowding more electrons slows individual electrons down through space charge."
           separatingAssumption: "Space-charge assumption: assumes collective electron repulsion degrades individual peak kinetic energy."
     - promptId: lq-08-predict-raise-frequency
+      supportedCandidateId: rate-falls
       controlId: frequency
       question: "Raise the frequency while keeping the lamp's power the same. What happens to the number of quanta arriving each second?"
       candidates:
@@ -354,6 +356,7 @@ predictMode:
           description: "Total power determines the total energy entering the metal per second, so the quantum count is conserved."
           separatingAssumption: "Assumes light delivers continuous energy with constant quantum rate at fixed power."
     - promptId: lq-08-predict-two-metals
+      supportedCandidateId: lines-parallel
       controlId: workFunction
       question: "Two different metals are lit by the same lamp. Plotted against frequency, are their stopping-potential lines parallel, crossing, or identical?"
       candidates:

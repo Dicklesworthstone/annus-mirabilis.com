@@ -531,6 +531,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: bm-01-predict-observation-interval
+      supportedCandidateId: bm-01-predict-observation-interval-twice
       controlId: interval
       question: "If you watch four times as long, does the typical distance from the start become 4 times as large, 2 times as large, or unchanged?"
       candidates:
@@ -547,6 +548,7 @@ predictMode:
           description: "The typical distance is a property of the particle, not of the watching time"
           separatingAssumption: "Assumes displacement is a fixed particle speed rather than a growing spread."
     - promptId: bm-01-predict-viscosity
+      supportedCandidateId: bm-01-predict-viscosity-root-two
       controlId: eta
       question: "In a liquid twice as viscous, after the same time, does the typical distance become half as large, about 0.71 times as large, or unchanged?"
       candidates:

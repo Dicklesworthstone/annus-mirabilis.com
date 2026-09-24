@@ -357,6 +357,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: bm-07-predict-sample-size
+      supportedCandidateId: two-times
       controlId: M
       question: "With four times as many displacement measurements, the interval for D becomes about four times narrower, about two times narrower, or unchanged?"
       candidates:

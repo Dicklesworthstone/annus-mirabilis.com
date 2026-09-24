@@ -233,6 +233,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: lq-02-predict-widen
+      supportedCandidateId: about-1000x
       actionId: lq-02-widen-tenfold
       question: "Widening the resonator range from 100 THz to 1000 THz changes the energy by how much?"
       candidates:

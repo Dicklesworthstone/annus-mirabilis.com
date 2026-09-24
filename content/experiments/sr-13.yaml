@@ -567,6 +567,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: sr-13-predict-transverse-mass
+      supportedCandidateId: answer-depends-on-definition
       controlId: initialSpeed
       question: "At 0.6c, is the electron harder to push sideways by a factor of 1.25 or 1.5625?"
       candidates:

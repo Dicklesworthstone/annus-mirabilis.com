@@ -551,6 +551,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: bm-05-predict-step-shape
+      supportedCandidateId: same-bell-shape
       controlId: kernel
       question: "After many steps, what will changing the step law while keeping its variance do?"
       candidates:

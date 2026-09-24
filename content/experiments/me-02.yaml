@@ -225,6 +225,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: me-02-predict-exact-versus-quadratic
+      supportedCandidateId: larger
       controlId: output-view
       question: "At 0.6c, is the exact energy difference larger or smaller than the quadratic estimate?"
       candidates:
@@ -241,6 +242,7 @@ predictMode:
           description: The two curves coincide at 0.6c.
           separatingAssumption: "The low-speed proxy is treated as exact at every speed."
     - promptId: me-02-predict-toward-low-speed
+      supportedCandidateId: looks-like-lighter-body
       controlId: beta
       question: "As the speed gets smaller and smaller, what happens to the drop in energy of motion?"
       candidates:

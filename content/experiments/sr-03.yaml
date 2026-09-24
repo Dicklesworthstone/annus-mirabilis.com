@@ -414,6 +414,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: sr-03-predict-endpoint-pair
+      supportedCandidateId: earlier-trailing
       controlId: endpointPairId
       question: "At v = 0.6c, two events that mark the ends of a moving 10-ls rod are measured simultaneously in platform frame K (dt = 0, dx = 8 ls). What is their time separation dt' in the rod's rest frame k?"
       candidates:
@@ -433,6 +434,7 @@ predictMode:
           relation: "dt' > 0"
           separatingAssumption: "Reversed sign for Lorentz coordinate boost."
     - promptId: sr-03-predict-causal-order
+      supportedCandidateId: order-preserved
       controlId: v
       question: "If two events have a timelike separation (s^2 < 0, so a subluminal signal could connect them), what happens to their time order when viewed from a frame moving at 0.95c?"
       candidates:

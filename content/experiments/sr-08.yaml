@@ -245,6 +245,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: sr-08-predict-appearing-field
+      supportedCandidateId: perpendicular-magnetic-field
       controlId: boost
       question: "When a pure electric field in the y direction is described from a frame moving along x at 0.6c, what magnetic field appears?"
       candidates:

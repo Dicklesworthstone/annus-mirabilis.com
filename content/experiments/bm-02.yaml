@@ -273,6 +273,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: bm-02-predict-larger-particle
+      supportedCandidateId: the-same
       controlId: a_um
       question: "At the same number of particles per volume, does a 1000-times-larger particle push harder, the same, or less on the partition?"
       candidates:

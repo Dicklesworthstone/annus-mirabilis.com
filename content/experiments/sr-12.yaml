@@ -303,6 +303,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: sr-12-predict-neutral-wire
+      supportedCandidateId: negatively-charged
       controlId: boost
       question: "A neutral wire carries a current in the +x direction. Described from a frame moving in the +x direction, is the wire still neutral?"
       candidates:

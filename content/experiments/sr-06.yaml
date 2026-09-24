@@ -254,6 +254,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: sr-06-predict-collinear
+      supportedCandidateId: relativistic-15-17
       controlId: movingSpeed
       question: "An object moves at 0.6c relative to a frame that moves at 0.6c. What speed does the platform measure?"
       candidates:

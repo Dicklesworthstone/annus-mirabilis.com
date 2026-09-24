@@ -464,6 +464,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: me-01-predict-tilt-axis
+      supportedCandidateId: me-01-candidate-sum-unchanged
       controlId: emissionAngle
       question: "If the body emits the two opposite pulses at an angle φ = 60° rather than along the direction of motion (φ = 0°), what happens to the total energy of the two light pulses measured by the moving observer?"
       candidates:

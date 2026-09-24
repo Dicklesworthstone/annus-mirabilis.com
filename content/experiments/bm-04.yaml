@@ -533,6 +533,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: bm-04-predict-force-dependence
+      supportedCandidateId: bm-04-predict-force-dependence-unchanged
       controlId: F
       question: "If you double the external force pulling on the particles, does the steady-state diffusion coefficient D double, halve, or stay unchanged?"
       candidates:
@@ -549,6 +550,7 @@ predictMode:
           description: "A stronger force compresses the distribution, reducing spreading"
           separatingAssumption: "Confuses the compressed decay length lambda with the diffusivity D."
     - promptId: bm-04-predict-kicks-off
+      supportedCandidateId: bm-04-predict-kicks-off-pileup
       controlId: m
       question: "In a hypothetical world where single molecular collisions cannot move particles (kicks off, m = 0), what happens to particles under a constant downward force?"
       candidates:

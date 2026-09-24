@@ -600,6 +600,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: me-03-predict-sealed-box
+      supportedCandidateId: stays-the-same
       controlId: boundary
       question: "A sealed box holds a battery-powered lamp and a mirror. When the lamp lights up inside, does the box's total mass change?"
       candidates:
@@ -618,6 +619,7 @@ predictMode:
       settledCandidateId: stays-the-same
       explanation: "The energy only moves inside the boundary. Light emitted by the lamp is absorbed by the mirror and walls inside the sealed enclosure, so no energy crosses the outer boundary and the box's total mass is unchanged."
     - promptId: me-03-predict-box-light-mass
+      supportedCandidateId: com-shifts
       controlId: assignLightMass
       question: "When a light pulse traverses a closed box and hits the other side, what happens to the total center of mass of the system if light is assumed to carry no mass?"
       candidates:

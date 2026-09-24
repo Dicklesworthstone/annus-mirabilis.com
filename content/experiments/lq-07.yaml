@@ -405,6 +405,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: lq-07-predict-higher-frequency
+      supportedCandidateId: lq-07-predict-higher-frequency-never
       controlId: nu2
       question: "Can fluorescent emission occur at higher frequency than the exciting light (nu2 > nu1) under single-quantum absorption?"
       candidates:
@@ -421,6 +422,7 @@ predictMode:
           description: "Specific resonant media can multiply frequency without requiring multi-quantum absorption."
           separatingAssumption: "Material multiplier assumption: assumes internal atomic resonance can boost output photon energy."
     - promptId: lq-07-predict-weak-light
+      supportedCandidateId: lq-07-predict-weak-light-linear
       controlId: absorbedPowerMicrowatts
       question: "How does the fluorescence emission rate behave as the incident light becomes extremely weak?"
       candidates:

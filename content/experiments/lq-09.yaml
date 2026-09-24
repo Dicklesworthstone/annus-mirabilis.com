@@ -320,6 +320,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: lq-09-predict-subthreshold
+      supportedCandidateId: lq-09-predict-subthreshold-zero
       controlId: frequency
       question: "If the incident photon energy is below the molecular ionization threshold (h*nu < J_mol), what is the single-quantum ionization rate?"
       candidates:
@@ -336,6 +337,7 @@ predictMode:
           description: "Sub-threshold photons still ionize some fraction of molecules"
           separatingAssumption: "Assumes partial quantum energy transfer can induce ionization."
     - promptId: lq-09-predict-power-count
+      supportedCandidateId: lq-09-predict-power-doubles
       controlId: incidentPower
       question: "Under the paper's assumption that all absorbed light ionizes, what happens to the number of ionized molecules if you double the radiant power?"
       candidates:

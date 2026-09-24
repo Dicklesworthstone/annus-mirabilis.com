@@ -329,6 +329,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: sr-07-predict-n-combination
+      supportedCandidateId: beta-N-minus
       controlId: stepIndex
       question: "Which field combination now appears where N stood?"
       candidates:

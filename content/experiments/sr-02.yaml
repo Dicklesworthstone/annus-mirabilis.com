@@ -257,6 +257,7 @@ predictMode:
   enabled: true
   prompts:
     - promptId: sr-02-predict-which-emf
+      supportedCandidateId: same
       controlId: descriptionFrame
       question: "The magnet moves past the wire at 10 m/s instead of the wire moving past the magnet at 10 m/s. Is the electromotive force along the wire larger, the same, or zero?"
       candidates:
