@@ -1041,3 +1041,58 @@ appIcon: "asset catalog AppIcon, one 1024 px universal image"
 - **Date:** 2026-09-24.
 - **Revisit trigger:** the cause is isolated and a subset renders 0 px different from the original at 11, 17 and 32 px; or a
   real-device measurement shows first-visit font bytes are what keeps a phone reader waiting.
+
+## The reality-check decisions of 2026-09-24 (D1 to D6)
+
+**Decider:** `agent:TanElk` (orchestrator), acting under the owner's explicit delegation of 2026-09-24, verbatim: **"Use your expert judgement on all decisions to make the optimal choice"**. That was given with the instruction to act on the reality check. The owner may overrule any of these by saying so. Evidence: the reality check of 2026-09-24 and beads labelled `reality-check-2026-09-24`.
+
+### D-2026-09-24-review-path (bead am-decision-how-review-happens-sepc)
+
+- **Choice:** mass-energy is reviewed first. It is 3 printed pages and 25 source units.
+  - A review kit is prepared, and the owner is asked for one session. The owner's review is requested here, not assumed or scheduled.
+  - A German-reading physicist is sought for Brownian next.
+  - Non-physicist R2-readability and comprehension sessions, 20 minutes each, are asked of volunteers.
+- **Until a named person reviews a layer,** it stays labelled draft on the site, and no bead records it as reviewed.
+- **Reason:** 1 named human against 54 open slots cannot review four papers. One paper reviewed completely proves the contract (plan §19.3 D).
+
+### D-2026-09-24-english-draft-translation (bead am-decision-english-draft-translation-4ifj)
+
+- **Choice:** agents draft a close, sentence-aligned English translation per plan §4.5 steps 2 and 3, from the hand-corrected draft ledgers, keyed to the frozen manifest ids.
+  - Modality and qualification are preserved, and notation is never translated.
+  - It is published labelled **"Draft translation, not yet reviewed"**, the same way the explanations are labelled today. `reviewState` stays `machine-draft` or `draft` until a named reviewer changes it.
+  - Order: mass-energy, then Brownian §§4-5, then the rest.
+- **Reason:** there is no English at all, and this is a bilingual edition. The frozen ids make re-alignment to a reviewed ledger cheap. The explanations already set the precedent of honest draft labelling. Plan §4.5 step 7's "publish only after review" is kept for the word **reviewed**, never for the draft label.
+
+### D-2026-09-24-text-layer-ledgers (bead am-decision-text-layer-ledgers-7b4a)
+
+- **Choice:** the light-quanta, Brownian and mass-energy ledgers stand as **machine drafts with hand correction**, exactly as their receipts say.
+  - Their receipts' provenance lines ("drafted from the OCR text layer ... corrected against the pinned page images") are true and stay.
+  - D-2026-09-21's sentence "No implementation followed the withdrawn approval" is contradicted by those receipts. This entry records that contradiction instead of hiding it.
+  - Before any of the three is marked reviewed, a fresh line-by-line comparison against the plate images is required, and the review kit includes it.
+  - The ban on reading the text layer stands, unchanged, for all future work.
+- **Reason:** the drafts were hand-corrected against the plates, and redoing them costs days while changing no reader-visible text that a plate comparison would not catch.
+
+### D-2026-09-24-scan-rights (bead am-decision-scan-rights-basis-33bz)
+
+- **Choice:** the pinned scans remain published.
+  - Basis: they are faithful photographic reproductions of journal pages from 1905-1911, whose text is public domain (AGENTS.md "Rights basis"). A faithful reproduction adds no new authorship.
+  - The scans come from the Internet Archive, which publishes them without restrictive terms on the item pages.
+  - The 2026-09-15 rating "terms unknown" is superseded by this entry. It was never contradicted by evidence, so this decision, not a silent edit, is what changes it.
+- **Revisit trigger:** any rights holder's objection, or any item page found carrying restrictive terms. Either one sets that scan to reference-only at once.
+
+### D-2026-09-24-sweeper (bead am-decision-stop-the-sweeper-6pan)
+
+- **Choice:** no process is killed by an agent. The candidates are the owner's to inspect:
+  - PID 46403, a standalone claude session outside tmux;
+  - PID 39461, a background daemon session;
+  - four ntm internal-monitors.
+- Until the source is found, every deploy of HEAD that contains swept work goes through the precheck (gates and build without deploying), and swept reader-visible changes are looked at before they go live.
+- The pre-commit guard is not installed, because a stale reservation would block legitimate commits for every pane.
+
+### D-2026-09-24-explanation-grain (bead am-decision-explanation-grain-8exq)
+
+- **Choice:** the 42 argument passages stay the explanation unit.
+  - Every source paragraph is bound to one or more passages by an explicit binding record.
+  - Every paragraph gets its own one- or two-sentence R0 overview.
+  - Every printed display equation is bound to an equation record or given a declared status.
+- **Reason:** this meets plan §17.7's intent, that no paragraph is unexplained and every one reaches its explanation, at a quarter of the authoring cost of paragraph-level R0 to R3.
