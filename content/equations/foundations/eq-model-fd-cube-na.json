@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-cube-na",
+  "paper": "foundations",
+  "argument": "two-measurements-two-unknowns",
+  "title": "What the viscosity of a solution fixes: the combination a³N",
+  "spoken": "a cubed times N equals three times the quantity eta star over eta minus one, divided by four pi c n.",
+  "explanation": "The thickening of water fixes a³N, a different combination from the Na that diffusion fixes, so the two measurements together can separate a and N.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A dilute solution of spheres, as the dissertation's viscosity law assumes; the lesson takes the relation as given.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed dissertation."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-cube-na.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "product",
+      "opId": "eq-model-fd-cube-na.op.combination",
+      "args": [
+        {
+          "kind": "power",
+          "opId": "eq-model-fd-cube-na.op.cube",
+          "base": {
+            "kind": "symbol",
+            "termId": "eq-model-fd-cube-na.t.a",
+            "quantityId": "particleRadius"
+          },
+          "exponent": {
+            "num": 3,
+            "den": 1
+          }
+        },
+        {
+          "kind": "symbol",
+          "termId": "eq-model-fd-cube-na.t.avogadro",
+          "quantityId": "avogadroConstant"
+        }
+      ]
+    },
+    "right": {
+      "kind": "quotient",
+      "opId": "eq-model-fd-cube-na.op.viscosityRatio",
+      "numerator": {
+        "kind": "product",
+        "opId": "eq-model-fd-cube-na.op.thickening",
+        "args": [
+          {
+            "kind": "number",
+            "value": "3"
+          },
+          {
+            "kind": "group",
+            "opId": "eq-model-fd-cube-na.op.excess",
+            "argument": {
+              "kind": "sum",
+              "opId": "eq-model-fd-cube-na.op.difference",
+              "args": [
+                {
+                  "kind": "quotient",
+                  "opId": "eq-model-fd-cube-na.op.relative",
+                  "numerator": {
+                    "kind": "symbol",
+                    "termId": "eq-model-fd-cube-na.t.solution",
+                    "quantityId": "solutionViscosity"
+                  },
+                  "denominator": {
+                    "kind": "symbol",
+                    "termId": "eq-model-fd-cube-na.t.water",
+                    "quantityId": "viscosity"
+                  }
+                },
+                {
+                  "kind": "negate",
+                  "argument": {
+                    "kind": "number",
+                    "value": "1"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "denominator": {
+        "kind": "product",
+        "opId": "eq-model-fd-cube-na.op.volume",
+        "args": [
+          {
+            "kind": "number",
+            "value": "4"
+          },
+          {
+            "kind": "constant",
+            "name": "pi"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-cube-na.t.coefficient",
+            "quantityId": "viscosityCoefficientPhi"
+          },
+          {
+            "kind": "symbol",
+            "termId": "eq-model-fd-cube-na.t.moles",
+            "quantityId": "molarConcentration"
+          }
+        ]
+      }
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-cube-na.op.relation",
+      "title": "What it asserts",
+      "explanation": "A measured thickening pins down a³N and neither factor alone.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-cube-na.op.combination",
+      "title": "a³ times N",
+      "explanation": "The combination this measurement fixes; diffusion fixes N a instead.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-cube-na.op.cube",
+      "title": "a cubed",
+      "explanation": "A volume: the thickening depends on how much room the particles take up.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-cube-na.op.viscosityRatio",
+      "title": "The measured side",
+      "explanation": "Everything here is read from the viscometer and the amount dissolved.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-cube-na.t.a",
+      "title": "a, the radius",
+      "explanation": "The radius of each dissolved particle, treated as a sphere.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-cube-na.t.avogadro",
+      "title": "N, particles in a mole",
+      "explanation": "The unknown the two measurements are meant to fix.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-cube-na.op.thickening",
+      "title": "Three times the excess",
+      "explanation": "The factor 3 comes from the volume of a sphere, 4/3 π a³.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-cube-na.op.excess",
+      "title": "How much thicker",
+      "explanation": "The bracket is zero for pure water and grows with the dissolved substance.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-cube-na.op.difference",
+      "title": "η*/η minus one",
+      "explanation": "The fractional increase in viscosity.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-cube-na.op.relative",
+      "title": "η* over η",
+      "explanation": "The solution's viscosity as a multiple of the water's.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-cube-na.op.volume",
+      "title": "4π c n",
+      "explanation": "The dissolved amount, weighted by the law's coefficient c and a sphere's 4π.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-cube-na.t.solution",
+      "title": "η*, the solution",
+      "explanation": "The viscosity with the substance dissolved.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-cube-na.t.water",
+      "title": "η, the water",
+      "explanation": "The viscosity of the pure water.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-cube-na.t.coefficient",
+      "title": "c, the law's coefficient",
+      "explanation": "1 as printed in 1906, 5/2 after the 1911 correction.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-cube-na.t.moles",
+      "title": "n, moles per volume",
+      "explanation": "How much substance is dissolved in each unit of volume.",
+      "foundation": "two-measurements-two-unknowns"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "a³N",
+      "nodeId": "eq-model-fd-cube-na.op.combination"
+    },
+    {
+      "text": " is fixed by "
+    },
+    {
+      "text": "how much thicker the solution is than water",
+      "nodeId": "eq-model-fd-cube-na.op.excess"
+    },
+    {
+      "text": ", divided by "
+    },
+    {
+      "text": "the amount dissolved",
+      "nodeId": "eq-model-fd-cube-na.op.volume"
+    },
+    {
+      "text": "."
+    }
+  ]
+}

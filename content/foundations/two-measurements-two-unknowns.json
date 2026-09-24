@@ -28,7 +28,8 @@
     {
       "kind": "formula",
       "latex": "a^3 N = \\frac{3(\\eta^*/\\eta - 1)}{4\\pi c\\, n}",
-      "spoken": "a cubed times N equals three times the quantity eta star over eta minus one, divided by four pi c n."
+      "spoken": "a cubed times N equals three times the quantity eta star over eta minus one, divided by four pi c n.",
+      "equations": ["eq-model-fd-cube-na"]
     },
     {
       "kind": "paragraph",
@@ -37,7 +38,8 @@
     {
       "kind": "formula",
       "latex": "a^2 = \\frac{3(\\eta^*/\\eta - 1)}{4\\pi c\\, n}\\cdot\\frac{6\\pi\\eta D}{RT}",
-      "spoken": "a squared equals three times the quantity eta star over eta minus one, over four pi c n, times six pi eta D over R T."
+      "spoken": "a squared equals three times the quantity eta star over eta minus one, over four pi c n, times six pi eta D over R T.",
+      "equations": ["eq-model-fd-radius-squared"]
     },
     {
       "kind": "paragraph",

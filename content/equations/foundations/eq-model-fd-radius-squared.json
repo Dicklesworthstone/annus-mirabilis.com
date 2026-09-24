@@ -1,0 +1,307 @@
+{
+  "schemaVersion": 1,
+  "kind": "equation",
+  "id": "eq-model-fd-radius-squared",
+  "paper": "foundations",
+  "argument": "two-measurements-two-unknowns",
+  "title": "Where the two curves cross: the radius",
+  "spoken": "a squared equals three times the quantity eta star over eta minus one, over four pi c n, times six pi eta D over R T.",
+  "explanation": "Dividing a³N by Na leaves a² alone, so the two measurements together give the radius, and then either relation gives N.",
+  "review": "draft",
+  "notation": "modern-pedagogical",
+  "unitSystem": "si",
+  "live": false,
+  "assumptions": [
+    "A dilute solution of spheres, as the dissertation's viscosity law assumes; the lesson takes the relation as given.",
+    "A foundation lesson's statement in modern notation; not a transcription of the printed dissertation."
+  ],
+  "tree": {
+    "kind": "relation",
+    "opId": "eq-model-fd-radius-squared.op.relation",
+    "operator": "=",
+    "left": {
+      "kind": "power",
+      "opId": "eq-model-fd-radius-squared.op.square",
+      "base": {
+        "kind": "symbol",
+        "termId": "eq-model-fd-radius-squared.t.a",
+        "quantityId": "particleRadius"
+      },
+      "exponent": {
+        "num": 2,
+        "den": 1
+      }
+    },
+    "right": {
+      "kind": "product",
+      "opId": "eq-model-fd-radius-squared.op.crossing",
+      "args": [
+        {
+          "kind": "quotient",
+          "opId": "eq-model-fd-radius-squared.op.viscosityRatio",
+          "numerator": {
+            "kind": "product",
+            "opId": "eq-model-fd-radius-squared.op.thickening",
+            "args": [
+              {
+                "kind": "number",
+                "value": "3"
+              },
+              {
+                "kind": "group",
+                "opId": "eq-model-fd-radius-squared.op.excess",
+                "argument": {
+                  "kind": "sum",
+                  "opId": "eq-model-fd-radius-squared.op.difference",
+                  "args": [
+                    {
+                      "kind": "quotient",
+                      "opId": "eq-model-fd-radius-squared.op.relative",
+                      "numerator": {
+                        "kind": "symbol",
+                        "termId": "eq-model-fd-radius-squared.t.solution",
+                        "quantityId": "solutionViscosity"
+                      },
+                      "denominator": {
+                        "kind": "symbol",
+                        "termId": "eq-model-fd-radius-squared.t.water",
+                        "quantityId": "viscosity"
+                      }
+                    },
+                    {
+                      "kind": "negate",
+                      "argument": {
+                        "kind": "number",
+                        "value": "1"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "denominator": {
+            "kind": "product",
+            "opId": "eq-model-fd-radius-squared.op.volume",
+            "args": [
+              {
+                "kind": "number",
+                "value": "4"
+              },
+              {
+                "kind": "constant",
+                "name": "pi"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-radius-squared.t.coefficient",
+                "quantityId": "viscosityCoefficientPhi"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-radius-squared.t.moles",
+                "quantityId": "molarConcentration"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "quotient",
+          "opId": "eq-model-fd-radius-squared.op.diffusionRatio",
+          "numerator": {
+            "kind": "product",
+            "opId": "eq-model-fd-radius-squared.op.drag",
+            "args": [
+              {
+                "kind": "number",
+                "value": "6"
+              },
+              {
+                "kind": "constant",
+                "name": "pi"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-radius-squared.t.waterDrag",
+                "quantityId": "viscosity"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-radius-squared.t.d",
+                "quantityId": "diffusionCoefficient"
+              }
+            ]
+          },
+          "denominator": {
+            "kind": "product",
+            "opId": "eq-model-fd-radius-squared.op.thermal",
+            "args": [
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-radius-squared.t.r",
+                "quantityId": "molarGasConstant"
+              },
+              {
+                "kind": "symbol",
+                "termId": "eq-model-fd-radius-squared.t.temp",
+                "quantityId": "temperature"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "notes": [
+    {
+      "nodeId": "eq-model-fd-radius-squared.op.relation",
+      "title": "What it asserts",
+      "explanation": "N cancels between the two relations, leaving the radius.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.op.square",
+      "title": "a squared",
+      "explanation": "a³N divided by N a.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.op.crossing",
+      "title": "The two measurements multiplied",
+      "explanation": "The viscosity side gives a³N; the diffusion side is 1/(N a); their product is a².",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.op.viscosityRatio",
+      "title": "From the viscometer",
+      "explanation": "a³N, from the thickening of the solution.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.op.diffusionRatio",
+      "title": "From the microscope",
+      "explanation": "1/(N a), from the measured diffusion coefficient.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.op.drag",
+      "title": "6π η D",
+      "explanation": "The drag of the water times the diffusion coefficient.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.op.thermal",
+      "title": "R T",
+      "explanation": "The thermal energy of a mole.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.t.a",
+      "title": "a, the radius",
+      "explanation": "The unknown this crossing gives.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.t.waterDrag",
+      "title": "η, the water",
+      "explanation": "The same water viscosity, now in the drag on a diffusing particle.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.t.d",
+      "title": "D, the diffusion coefficient",
+      "explanation": "Read from the particles' spreading.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.t.r",
+      "title": "R, the gas constant",
+      "explanation": "Per mole, as in the gas law.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.t.temp",
+      "title": "T, the temperature",
+      "explanation": "The absolute temperature of the water.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.op.thickening",
+      "title": "Three times the excess",
+      "explanation": "The factor 3 comes from the volume of a sphere, 4/3 π a³.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.op.excess",
+      "title": "How much thicker",
+      "explanation": "The bracket is zero for pure water and grows with the dissolved substance.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.op.difference",
+      "title": "η*/η minus one",
+      "explanation": "The fractional increase in viscosity.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.op.relative",
+      "title": "η* over η",
+      "explanation": "The solution's viscosity as a multiple of the water's.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.op.volume",
+      "title": "4π c n",
+      "explanation": "The dissolved amount, weighted by the law's coefficient c and a sphere's 4π.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.t.solution",
+      "title": "η*, the solution",
+      "explanation": "The viscosity with the substance dissolved.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.t.water",
+      "title": "η, the water",
+      "explanation": "The viscosity of the pure water.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.t.coefficient",
+      "title": "c, the law's coefficient",
+      "explanation": "1 as printed in 1906, 5/2 after the 1911 correction.",
+      "foundation": "two-measurements-two-unknowns"
+    },
+    {
+      "nodeId": "eq-model-fd-radius-squared.t.moles",
+      "title": "n, moles per volume",
+      "explanation": "How much substance is dissolved in each unit of volume.",
+      "foundation": "two-measurements-two-unknowns"
+    }
+  ],
+  "bindings": [],
+  "sentence": [
+    {
+      "text": "The radius squared",
+      "nodeId": "eq-model-fd-radius-squared.op.square"
+    },
+    {
+      "text": " is "
+    },
+    {
+      "text": "the viscosity measurement",
+      "nodeId": "eq-model-fd-radius-squared.op.viscosityRatio"
+    },
+    {
+      "text": " times "
+    },
+    {
+      "text": "the diffusion measurement",
+      "nodeId": "eq-model-fd-radius-squared.op.diffusionRatio"
+    },
+    {
+      "text": "."
+    }
+  ]
+}
