@@ -1,7 +1,9 @@
 import { isModalityClass } from "../../content/schemas/glossConventions.pure.ts";
+import type { Inline } from "../../content/schemas/inlines.ts";
 import type { GlossUnit } from "../../content/schemas/source.ts";
 import { GlossAtoms, GlossPair } from "./GlossPair.tsx";
 import { type GlossAtom, glossStream, type SentenceAtom } from "./glossStream.ts";
+import { renderInlines } from "./inlines.tsx";
 import { speakMath } from "./mathSpeech.ts";
 
 export interface GlossSentenceProps {
@@ -15,6 +17,22 @@ export interface GlossSentenceProps {
   readonly modalityClasses: readonly string[];
   /** The sentence's formulas and footnote marks, in offsets of germanText (glossStream.ts). */
   readonly atoms?: readonly SentenceAtom[] | undefined;
+  /**
+   * The sentence's own inlines (sentenceInlines.ts), printed when it has no gloss unit, so its
+   * formulas are KaTeX. germanText is plain text, where a formula is its TeX source.
+   */
+  readonly germanInlines?: readonly Inline[] | undefined;
+}
+
+/**
+ * Where an unglossed sentence sends the reader: the same sentence on the parallel face's own
+ * route. This was `/papers/<paper>/?view=parallel#<id>`, the paper's landing page, which renders
+ * no face and has no sentence ids. The shape is faceLinkHref's (paperRoutes.ts), written out here
+ * because that module reads the file system and this subtree does not (GlossFace.tsx, am-bwnf);
+ * glossUnglossedSentence.test.tsx holds the two equal.
+ */
+export function parallelSentenceHref(paperSlug: string, sentenceId: string): string {
+  return `/papers/${paperSlug}/view/parallel/#${sentenceId}`;
 }
 
 export interface ReasoningWordItem {
@@ -88,6 +106,7 @@ export function GlossSentence({
   showReasoningWords = false,
   modalityClasses,
   atoms,
+  germanInlines,
 }: GlossSentenceProps) {
   // If no gloss unit is available, render German text with an honest coverage notice and link to parallel face
   if (!glossUnit) {
@@ -105,12 +124,14 @@ export function GlossSentence({
         aria-labelledby={`sentence-german-${sentenceId}`}
       >
         <div className="sentence-german-unadorned" id={`sentence-german-${sentenceId}`} lang="de">
-          {germanText}
+          {germanInlines
+            ? renderInlines(germanInlines, undefined, `gloss-de-${sentenceId}`)
+            : germanText}
         </div>
         <div className="gloss-coverage-notice" role="note" data-coverage-notice="true">
           <p className="notice-message">Gloss not yet available for this section.</p>
           <a
-            href={`/papers/${paperSlug}/?view=parallel#${sentenceId}`}
+            href={parallelSentenceHref(paperSlug, sentenceId)}
             className="parallel-fallback-link"
             data-parallel-fallback="true"
           >

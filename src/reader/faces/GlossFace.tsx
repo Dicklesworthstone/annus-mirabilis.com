@@ -24,6 +24,7 @@ import { speakInlines } from "./mathSpeech.ts";
 import { PageLocators } from "./PageLocators.tsx";
 import type { FaceId } from "./registry.ts";
 import { SourceBlock as SourceBlockComponent } from "./SourceBlock.tsx";
+import { sentenceInlines } from "./sentenceInlines.ts";
 import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
 
 export interface GlossEntryLink {
@@ -115,6 +116,7 @@ export function GlossFace({
       sentenceId={sp.id}
       germanText={block.diplomaticText.slice(sp.span.start, sp.span.end)}
       atoms={sentenceAtoms(block.inlines, sp.span)}
+      germanInlines={sentenceInlines(block.inlines, sp.span)}
       glossUnit={glossMap.get(sp.id)}
       englishTranslation={englishFor(sp.id)}
       paperSlug={paper.slug}
