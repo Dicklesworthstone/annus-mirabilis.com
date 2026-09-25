@@ -1,0 +1,45 @@
+# GlossUnit s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s1"
+sentenceId: "s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "6f0f24b607b4a4ac8c70f5dfc36ed264fe019b7b272466e056ff92c011ab29d5"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "§ 1"
+    english: "§ 1"
+  - german: "Über"
+    english: "on"
+  - german: "eine"
+    english: "a"
+  - german: "die"
+    english: "the"
+  - german: "Theorie"
+    english: "theory"
+  - german: "der"
+    english: "of the"
+  - german: "schwarzen"
+  - german: "Strahlung"
+  - german: "betreffende"
+    english: "concerning"
+    lemma: "betreffen"
+    grammarNote: "participle closing an attributive phrase before its noun: ‘a difficulty concerning the theory of black radiation’"
+    noteClass: "attributive-phrase"
+  - german: "Schwierigkeit"
+    english: "difficulty"
+multiwordUnits:
+  - tokenIndices:
+      - 6
+      - 7
+    english: "black radiation"
+    kind: "fixed-phrase"
+    grammarNote: "term, in Einstein’s quotation marks: the radiation in thermal equilibrium with matter, as in a closed cavity; here in the genitive"
+    noteClass: "term"
