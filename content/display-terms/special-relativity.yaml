@@ -875,7 +875,114 @@ displays:
       - glyph: "N"
         quantityId: magneticFieldStationary
   # Section 7. The plane wave in K and its description in k: the Doppler principle and aberration.
-  # eq-s7-d1, eq-s7-d2, eq-s7-d11 and eq-s7-d12 follow once the colouring can draw them (dispatch 229).
+  # eq-s7-d1: (X_0, Y_0, Z_0) and (L_0, M_0, N_0) are 'the vectors that determine the amplitude of
+  #   the wave train' (s7-p1-s2), so each triple binds one amplitude vector; section 7's A (eq-s7-d11)
+  #   is the amplitude of the electric or magnetic force, lightAmplitudeStationary. a, b, c are the
+  #   wave normal's direction cosines, and capital Phi the phase. Its ten quantities exceed the nine
+  #   colours, so it is a shared view (716a2115): coloured, with the chips' names telling repeats apart.
+  - display: eq-s7-d1
+    latex: "\\begin{aligned} X &= X_0 \\sin \\Phi , &\\quad L &= L_0 \\sin \\Phi , \\\\ Y &= Y_0 \\sin \\Phi , &\\quad M &= M_0 \\sin \\Phi , &\\quad \\Phi &= \\omega \\left( t - \\frac{a x + b y + c z}{V} \\right) . \\\\ Z &= Z_0 \\sin \\Phi , &\\quad N &= N_0 \\sin \\Phi , \\end{aligned}"
+    spoken: "Seven equations, in three rows. First row: X equals X zero times sine capital Phi; and L equals L zero times sine capital Phi. Second row: Y equals Y zero times sine capital Phi; M equals M zero times sine capital Phi; and capital Phi equals omega times the quantity: t minus, a x plus b y plus c z, over V. Third row: Z equals Z zero times sine capital Phi; and N equals N zero times sine capital Phi."
+    terms:
+      - glyph: "X"
+        quantityId: electricFieldStationary
+      - glyph: "X_0"
+        quantityId: electricFieldAmplitudeStationary
+      - glyph: "\\Phi"
+        quantityId: wavePhase
+      - glyph: "L"
+        quantityId: magneticFieldStationary
+      - glyph: "L_0"
+        quantityId: magneticFieldAmplitudeStationary
+      - glyph: "Y"
+        quantityId: electricFieldStationary
+      - glyph: "Y_0"
+        quantityId: electricFieldAmplitudeStationary
+      - glyph: "M"
+        quantityId: magneticFieldStationary
+      - glyph: "M_0"
+        quantityId: magneticFieldAmplitudeStationary
+      - glyph: "\\omega"
+        quantityId: waveAngularFrequencyStationary
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "a"
+        quantityId: directionCosineStationary
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "b"
+        quantityId: directionCosineStationary
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "c"
+        quantityId: directionCosineStationary
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "Z"
+        quantityId: electricFieldStationary
+      - glyph: "Z_0"
+        quantityId: electricFieldAmplitudeStationary
+      - glyph: "N"
+        quantityId: magneticFieldStationary
+      - glyph: "N_0"
+        quantityId: magneticFieldAmplitudeStationary
+  # eq-s7-d2: Phi' binds wavePhase too, a single frame-independent record by design (see its
+  #   description), so the invariance section 7 argues from stays a checkable result.
+  - display: eq-s7-d2
+    latex: "\\begin{aligned} X' &= X_0 \\sin \\Phi' , &\\qquad L' &= L_0 \\sin \\Phi' , \\\\ Y' &= \\beta \\left( Y_0 - \\frac{v}{V} N_0 \\right) \\sin \\Phi' , &\\qquad M' &= \\beta \\left( M_0 + \\frac{v}{V} Z_0 \\right) \\sin \\Phi' , \\\\ Z' &= \\beta \\left( Z_0 + \\frac{v}{V} M_0 \\right) \\sin \\Phi' , &\\qquad N' &= \\beta \\left( N_0 - \\frac{v}{V} Y_0 \\right) \\sin \\Phi' , \\\\ \\Phi' &= \\omega' \\left( \\tau - \\frac{a' \\xi + b' \\eta + c' \\zeta}{V} \\right) , \\end{aligned}"
+    spoken: "Seven equations. First row: X prime equals X zero times sine capital Phi prime; and L prime equals L zero times sine capital Phi prime. Second row: Y prime equals beta times the quantity Y zero minus v over V times N zero, times sine capital Phi prime; and M prime equals beta times the quantity M zero plus v over V times Z zero, times sine capital Phi prime. Third row: Z prime equals beta times the quantity Z zero plus v over V times M zero, times sine capital Phi prime; and N prime equals beta times the quantity N zero minus v over V times Y zero, times sine capital Phi prime. Last row: capital Phi prime equals omega prime times the quantity: tau minus, a prime xi plus b prime eta plus c prime zeta, over V."
+    terms:
+      - glyph: "X'"
+        quantityId: electricFieldMoving
+      - glyph: "X_0"
+        quantityId: electricFieldAmplitudeStationary
+      - glyph: "\\Phi'"
+        quantityId: wavePhase
+      - glyph: "L'"
+        quantityId: magneticFieldMoving
+      - glyph: "L_0"
+        quantityId: magneticFieldAmplitudeStationary
+      - glyph: "Y'"
+        quantityId: electricFieldMoving
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "Y_0"
+        quantityId: electricFieldAmplitudeStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "N_0"
+        quantityId: magneticFieldAmplitudeStationary
+      - glyph: "M'"
+        quantityId: magneticFieldMoving
+      - glyph: "M_0"
+        quantityId: magneticFieldAmplitudeStationary
+      - glyph: "Z_0"
+        quantityId: electricFieldAmplitudeStationary
+      - glyph: "Z'"
+        quantityId: electricFieldMoving
+      - glyph: "N'"
+        quantityId: magneticFieldMoving
+      - glyph: "\\omega'"
+        quantityId: waveAngularFrequencyMoving
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "a'"
+        quantityId: directionCosineMoving
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "b'"
+        quantityId: directionCosineMoving
+      - glyph: "\\eta"
+        quantityId: coordinatePositionMoving
+      - glyph: "c'"
+        quantityId: directionCosineMoving
+      - glyph: "\\zeta"
+        quantityId: coordinatePositionMoving
+  # eq-s7-d11 and eq-s7-d12 follow once the colouring can mark a primed letter under an exponent.
   - display: eq-s7-d3
     latex: "\\omega' = \\omega \\beta \\left( 1 - a \\frac{v}{V} \\right) ,"
     spoken: "omega prime equals omega times beta times the quantity one minus a times v over V."
