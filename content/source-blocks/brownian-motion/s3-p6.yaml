@@ -9,7 +9,7 @@ order: 42
 locators:
   - pdfPageIndex: 7
     printedPage: 555
-diplomaticText: "Haben die suspendierten Teilchen Kugelform (Kugelradius P) und besitzt die Flüssigkeit den Reibungskoeffizienten k, so erteilt die Kraft K dem einzelnen Teilchen die Geschwindigkeit1)und es treten durch die Querschnittseinheit pro Zeiteinheit Teilchen hindurch."
+diplomaticText: "Haben die suspendierten Teilchen Kugelform (Kugelradius P) und besitzt die Flüssigkeit den Reibungskoeffizienten k, so erteilt die Kraft K dem einzelnen Teilchen die Geschwindigkeit1) und es treten durch die Querschnittseinheit pro Zeiteinheit Teilchen hindurch."
 inlines:
   - kind: "text"
     text: "Haben die suspendierten Teilchen Kugelform (Kugelradius "
@@ -33,7 +33,7 @@ inlines:
     display: true
     equationId: "eq-s3-d5"
   - kind: "text"
-    text: "und es treten durch die Querschnittseinheit pro Zeiteinheit"
+    text: " und es treten durch die Querschnittseinheit pro Zeiteinheit"
   - kind: "math"
     latex: "\\frac{\\nu K}{6 \\pi k P}"
     display: true
@@ -44,10 +44,10 @@ sentenceSpans:
   - id: "s3-p6-s1"
     span:
       start: 0
-      end: 261
-      blockRevision: 2
-      textDigest: "75a035f9662334e73d42626e73f4fdff79fcbf2b77e9335b4f56c92d2c4c2b7f"
-revision: 2
+      end: 262
+      blockRevision: 3
+      textDigest: "0d2551214f4b6ff7d979c8da67ca26d21a7038c0dbf00c01f9cd1210d58f490f"
+revision: 3
 status:
   transcription: "draft"
   mathTranscription: "draft"

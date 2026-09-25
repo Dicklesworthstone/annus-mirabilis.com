@@ -9,7 +9,7 @@ order: 35
 locators:
   - pdfPageIndex: 6
     printedPage: 554
-diplomaticText: "Es sei \\nu die Anzahl der suspendierten Teilchen pro Volumeneinheit, so ist im Falle des thermodynamischen Gleichgewichtes \\nu eine solche Funktion von x, daß für eine beliebige virtuelle Verrückung \\delta x der suspendierten Substanz die Variation der freien Energie verschwindet. Man hat also: Es werde angenommen, daß die Flüssigkeit senkrecht zur X-Achse den Querschnitt 1 habe und durch die Ebenen x = 0 und x = l begrenzt sei. Man hat dann:und Die gesuchte Gleichgewichtsbedingung ist also:oder Die letzte Gleichung sagt aus, daß der Kraft K durch osmotische Druckkräfte das Gleichgewicht geleistet wird."
+diplomaticText: "Es sei \\nu die Anzahl der suspendierten Teilchen pro Volumeneinheit, so ist im Falle des thermodynamischen Gleichgewichtes \\nu eine solche Funktion von x, daß für eine beliebige virtuelle Verrückung \\delta x der suspendierten Substanz die Variation der freien Energie verschwindet. Man hat also: Es werde angenommen, daß die Flüssigkeit senkrecht zur X-Achse den Querschnitt 1 habe und durch die Ebenen x = 0 und x = l begrenzt sei. Man hat dann: und Die gesuchte Gleichgewichtsbedingung ist also: oder Die letzte Gleichung sagt aus, daß der Kraft K durch osmotische Druckkräfte das Gleichgewicht geleistet wird."
 inlines:
   - kind: "text"
     text: "Es sei "
@@ -59,7 +59,7 @@ inlines:
     display: true
     equationId: "eq-s3-d2"
   - kind: "text"
-    text: "und"
+    text: " und"
   - kind: "math"
     latex: "\\delta S = \\int_0^l R \\frac{\\nu}{N} \\frac{\\partial \\delta x}{\\partial x} d x = -\\frac{R}{N} \\int_0^l \\frac{\\partial \\nu}{\\partial x} \\delta x d x."
     display: true
@@ -72,7 +72,7 @@ inlines:
     display: true
     equationId: "eq-s3-1"
   - kind: "text"
-    text: "oder"
+    text: " oder"
   - kind: "math"
     latex: "K \\nu - \\frac{\\partial p}{\\partial x} = 0."
     display: true
@@ -89,39 +89,39 @@ sentenceSpans:
     span:
       start: 0
       end: 281
-      blockRevision: 1
-      textDigest: "021831575466f6ffa1a320accb9c7e61f57c8096debc069d854e62744547afe8"
+      blockRevision: 2
+      textDigest: "c735efd8472e28ddb8393774f5b738a2e88b09534e1c135ce918f22b87db9f90"
   - id: "s3-p2-s2"
     span:
       start: 282
       end: 295
-      blockRevision: 1
-      textDigest: "021831575466f6ffa1a320accb9c7e61f57c8096debc069d854e62744547afe8"
+      blockRevision: 2
+      textDigest: "c735efd8472e28ddb8393774f5b738a2e88b09534e1c135ce918f22b87db9f90"
   - id: "s3-p2-s3"
     span:
       start: 296
       end: 432
-      blockRevision: 1
-      textDigest: "021831575466f6ffa1a320accb9c7e61f57c8096debc069d854e62744547afe8"
+      blockRevision: 2
+      textDigest: "c735efd8472e28ddb8393774f5b738a2e88b09534e1c135ce918f22b87db9f90"
   - id: "s3-p2-s4"
     span:
       start: 433
-      end: 449
-      blockRevision: 1
-      textDigest: "021831575466f6ffa1a320accb9c7e61f57c8096debc069d854e62744547afe8"
+      end: 450
+      blockRevision: 2
+      textDigest: "c735efd8472e28ddb8393774f5b738a2e88b09534e1c135ce918f22b87db9f90"
   - id: "s3-p2-s5"
     span:
-      start: 450
-      end: 500
-      blockRevision: 1
-      textDigest: "021831575466f6ffa1a320accb9c7e61f57c8096debc069d854e62744547afe8"
+      start: 451
+      end: 502
+      blockRevision: 2
+      textDigest: "c735efd8472e28ddb8393774f5b738a2e88b09534e1c135ce918f22b87db9f90"
   - id: "s3-p2-s6"
     span:
-      start: 501
-      end: 610
-      blockRevision: 1
-      textDigest: "021831575466f6ffa1a320accb9c7e61f57c8096debc069d854e62744547afe8"
-revision: 1
+      start: 503
+      end: 612
+      blockRevision: 2
+      textDigest: "c735efd8472e28ddb8393774f5b738a2e88b09534e1c135ce918f22b87db9f90"
+revision: 2
 status:
   transcription: "draft"
   mathTranscription: "draft"

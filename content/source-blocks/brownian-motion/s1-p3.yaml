@@ -11,7 +11,7 @@ locators:
     printedPage: 550
   - pdfPageIndex: 3
     printedPage: 551
-diplomaticText: "Vom Standpunkte der molekularkinetischen Wärmetheorie aus kommt man aber zu einer anderen Auffassung. Nach dieser Theorie unterscheidet sich ein gelöstes Molekül von einem suspendierten Körper lediglich durch die Größe, und man sieht nicht ein, warum einer Anzahl suspendierter Körper nicht derselbe osmotische Druck entsprechen sollte, wie der nämlichen Anzahl gelöster Moleküle. Man wird anzunehmen haben, daß die suspendierten Körper infolge der Molekularbewegung der Flüssigkeit eine wenn auch sehr langsame ungeordnete Bewegung in der Flüssigkeit ausführen; werden sie durch die Wand verhindert, das Volumen V^* zu verlassen, so werden sie auf die Wand Kräfte ausüben, ebenso wie gelöste Moleküle. Sind also n suspendierte Körper im Volumen V^*, also n/V^* = \\nu in der Volumeneinheit vorhanden, und sind benachbarte unter ihnen genügend weit voneinander entfernt, so wird ihnen ein osmotischer Druck p entsprechen von der Größe:wobei N die Anzahl der in einem Gramm-Molekül enthaltenen wirklichen Moleküle bedeutet. Im nächsten Paragraph soll gezeigt werden, daß die molekularkinetische Theorie der Wärme wirklich zu dieser erweiterten Auffassung des osmotischen Druckes führt."
+diplomaticText: "Vom Standpunkte der molekularkinetischen Wärmetheorie aus kommt man aber zu einer anderen Auffassung. Nach dieser Theorie unterscheidet sich ein gelöstes Molekül von einem suspendierten Körper lediglich durch die Größe, und man sieht nicht ein, warum einer Anzahl suspendierter Körper nicht derselbe osmotische Druck entsprechen sollte, wie der nämlichen Anzahl gelöster Moleküle. Man wird anzunehmen haben, daß die suspendierten Körper infolge der Molekularbewegung der Flüssigkeit eine wenn auch sehr langsame ungeordnete Bewegung in der Flüssigkeit ausführen; werden sie durch die Wand verhindert, das Volumen V^* zu verlassen, so werden sie auf die Wand Kräfte ausüben, ebenso wie gelöste Moleküle. Sind also n suspendierte Körper im Volumen V^*, also n/V^* = \\nu in der Volumeneinheit vorhanden, und sind benachbarte unter ihnen genügend weit voneinander entfernt, so wird ihnen ein osmotischer Druck p entsprechen von der Größe: wobei N die Anzahl der in einem Gramm-Molekül enthaltenen wirklichen Moleküle bedeutet. Im nächsten Paragraph soll gezeigt werden, daß die molekularkinetische Theorie der Wärme wirklich zu dieser erweiterten Auffassung des osmotischen Druckes führt."
 inlines:
   - kind: "text"
     text: "Vom Standpunkte der molekularkinetischen Wärmetheorie aus kommt man aber zu einer anderen Auffassung."
@@ -55,7 +55,7 @@ inlines:
     display: true
     equationId: "eq-s1-d2"
   - kind: "text"
-    text: "wobei "
+    text: " wobei "
   - kind: "math"
     latex: "N"
   - kind: "text"
@@ -68,33 +68,33 @@ sentenceSpans:
     span:
       start: 0
       end: 101
-      blockRevision: 1
-      textDigest: "f5ff7829df9658f1f9e94450f4dd69c0b2416961f4d1ded56daad77c221e8bec"
+      blockRevision: 2
+      textDigest: "7611ccfa9fba4806fccaac2f9392679723a62793369a57afc348ababa376788c"
   - id: "s1-p3-s2"
     span:
       start: 102
       end: 380
-      blockRevision: 1
-      textDigest: "f5ff7829df9658f1f9e94450f4dd69c0b2416961f4d1ded56daad77c221e8bec"
+      blockRevision: 2
+      textDigest: "7611ccfa9fba4806fccaac2f9392679723a62793369a57afc348ababa376788c"
   - id: "s1-p3-s3"
     span:
       start: 381
       end: 702
-      blockRevision: 1
-      textDigest: "f5ff7829df9658f1f9e94450f4dd69c0b2416961f4d1ded56daad77c221e8bec"
+      blockRevision: 2
+      textDigest: "7611ccfa9fba4806fccaac2f9392679723a62793369a57afc348ababa376788c"
   - id: "s1-p3-s4"
     span:
       start: 703
-      end: 1021
-      blockRevision: 1
-      textDigest: "f5ff7829df9658f1f9e94450f4dd69c0b2416961f4d1ded56daad77c221e8bec"
+      end: 1022
+      blockRevision: 2
+      textDigest: "7611ccfa9fba4806fccaac2f9392679723a62793369a57afc348ababa376788c"
   - id: "s1-p3-s5"
     span:
-      start: 1022
-      end: 1183
-      blockRevision: 1
-      textDigest: "f5ff7829df9658f1f9e94450f4dd69c0b2416961f4d1ded56daad77c221e8bec"
-revision: 1
+      start: 1023
+      end: 1184
+      blockRevision: 2
+      textDigest: "7611ccfa9fba4806fccaac2f9392679723a62793369a57afc348ababa376788c"
+revision: 2
 status:
   transcription: "draft"
   mathTranscription: "draft"

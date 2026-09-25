@@ -9,7 +9,7 @@ order: 70
 locators:
   - pdfPageIndex: 10
     printedPage: 558
-diplomaticText: "An diese Entwicklung läßt sich noch eine wichtige Überlegung anknüpfen. Wir haben angenommen, daß die einzelnen Teilchen alle auf dasselbe Koordinatensystem bezogen seien. Dies ist jedoch nicht nötig, da die Bewegungen der einzelnen Teilchen voneinander unabhängig sind. Wir wollen nun die Bewegung jedes Teilchens auf ein Koordinatensystem beziehen, dessen Ursprung mit der Lage des Schwerpunktes des betreffenden Teilchens zur Zeit t = 0 zusammenfällt, mit dem Unterschiede, daß jetzt f(x, t) d x die Anzahl der Teilchen bedeutet, deren X-Koordinaten von der Zeit t = 0 bis zur Zeit t = t um eine Größe gewachsen ist, welche zwischen x und x + d x liegt. Auch in diesem Falle ändert sich also die Funktion f gemäß Gleichung (1). Ferner muß offenbar für x \\gtrless 0 und t = 0sein. Das Problem, welches mit dem Problem der Diffusion von einem Punkte aus (unter Vernachlässigung der Wechselwirkung der diffundierenden Teilchen) übereinstimmt, ist nun mathematisch vollkommen bestimmt; seine Lösung ist:"
+diplomaticText: "An diese Entwicklung läßt sich noch eine wichtige Überlegung anknüpfen. Wir haben angenommen, daß die einzelnen Teilchen alle auf dasselbe Koordinatensystem bezogen seien. Dies ist jedoch nicht nötig, da die Bewegungen der einzelnen Teilchen voneinander unabhängig sind. Wir wollen nun die Bewegung jedes Teilchens auf ein Koordinatensystem beziehen, dessen Ursprung mit der Lage des Schwerpunktes des betreffenden Teilchens zur Zeit t = 0 zusammenfällt, mit dem Unterschiede, daß jetzt f(x, t) d x die Anzahl der Teilchen bedeutet, deren X-Koordinaten von der Zeit t = 0 bis zur Zeit t = t um eine Größe gewachsen ist, welche zwischen x und x + d x liegt. Auch in diesem Falle ändert sich also die Funktion f gemäß Gleichung (1). Ferner muß offenbar für x \\gtrless 0 und t = 0 sein. Das Problem, welches mit dem Problem der Diffusion von einem Punkte aus (unter Vernachlässigung der Wechselwirkung der diffundierenden Teilchen) übereinstimmt, ist nun mathematisch vollkommen bestimmt; seine Lösung ist:"
 inlines:
   - kind: "text"
     text: "An diese Entwicklung läßt sich noch eine wichtige Überlegung anknüpfen."
@@ -77,7 +77,7 @@ inlines:
     display: true
     equationId: "eq-s4-d10"
   - kind: "text"
-    text: "sein."
+    text: " sein."
   - kind: "space"
   - kind: "text"
     text: "Das Problem, welches mit dem Problem der Diffusion von einem Punkte aus (unter Vernachlässigung der Wechselwirkung der diffundierenden Teilchen) übereinstimmt, ist nun mathematisch vollkommen bestimmt; seine Lösung ist:"
@@ -90,45 +90,45 @@ sentenceSpans:
     span:
       start: 0
       end: 71
-      blockRevision: 1
-      textDigest: "511534ae78a4f9c525144913d7d1220781dc8a3ad3224935607a55719f5133e7"
+      blockRevision: 2
+      textDigest: "4c0444aca1b913a464efb33dbdabb951c3cf66a9d6cd41054dd5f1666b3da53d"
   - id: "s4-p10-s2"
     span:
       start: 72
       end: 171
-      blockRevision: 1
-      textDigest: "511534ae78a4f9c525144913d7d1220781dc8a3ad3224935607a55719f5133e7"
+      blockRevision: 2
+      textDigest: "4c0444aca1b913a464efb33dbdabb951c3cf66a9d6cd41054dd5f1666b3da53d"
   - id: "s4-p10-s3"
     span:
       start: 172
       end: 270
-      blockRevision: 1
-      textDigest: "511534ae78a4f9c525144913d7d1220781dc8a3ad3224935607a55719f5133e7"
+      blockRevision: 2
+      textDigest: "4c0444aca1b913a464efb33dbdabb951c3cf66a9d6cd41054dd5f1666b3da53d"
   - id: "s4-p10-s4"
     span:
       start: 271
       end: 656
-      blockRevision: 1
-      textDigest: "511534ae78a4f9c525144913d7d1220781dc8a3ad3224935607a55719f5133e7"
+      blockRevision: 2
+      textDigest: "4c0444aca1b913a464efb33dbdabb951c3cf66a9d6cd41054dd5f1666b3da53d"
   - id: "s4-p10-s5"
     span:
       start: 657
       end: 730
-      blockRevision: 1
-      textDigest: "511534ae78a4f9c525144913d7d1220781dc8a3ad3224935607a55719f5133e7"
+      blockRevision: 2
+      textDigest: "4c0444aca1b913a464efb33dbdabb951c3cf66a9d6cd41054dd5f1666b3da53d"
   - id: "s4-p10-s6"
     span:
       start: 731
-      end: 782
-      blockRevision: 1
-      textDigest: "511534ae78a4f9c525144913d7d1220781dc8a3ad3224935607a55719f5133e7"
+      end: 783
+      blockRevision: 2
+      textDigest: "4c0444aca1b913a464efb33dbdabb951c3cf66a9d6cd41054dd5f1666b3da53d"
   - id: "s4-p10-s7"
     span:
-      start: 783
-      end: 1002
-      blockRevision: 1
-      textDigest: "511534ae78a4f9c525144913d7d1220781dc8a3ad3224935607a55719f5133e7"
-revision: 1
+      start: 784
+      end: 1003
+      blockRevision: 2
+      textDigest: "4c0444aca1b913a464efb33dbdabb951c3cf66a9d6cd41054dd5f1666b3da53d"
+revision: 2
 status:
   transcription: "draft"
   mathTranscription: "draft"
