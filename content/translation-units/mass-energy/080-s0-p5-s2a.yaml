@@ -1,6 +1,7 @@
 # TranslationUnit s0-p5-s2a: English machine-draft translation.
 # Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, Ann. Phys. (4) 18, 639-641 (1905), ap-18-639.
 # Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+# Review round 1 (TopazPrairie, agent, 2026-09-25): Einstein's paired dashes restored, as printed on p. 639.
 kind: "translation-unit"
 id: "s0-p5-s2a"
 paper: "mass-energy"
@@ -25,17 +26,17 @@ inlines:
   - kind: "math"
     latex: "x"
   - kind: "text"
-    text: "-axis, then the quantity of light in question, measured in the system "
+    text: "-axis, then the quantity of light in question — measured in the system "
   - kind: "math"
     latex: "(\\xi, \\eta, \\zeta)"
   - kind: "text"
-    text: ", possesses the energy:"
+    text: " — possesses the energy:"
 translator:
   id: "agent:claude-opus-5-5"
   name: "Claude Opus 5.5 (agent)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
+revision: 2
 unresolvedAlternatives: []
 reviewState: "machine-draft"
 lang: "en"
