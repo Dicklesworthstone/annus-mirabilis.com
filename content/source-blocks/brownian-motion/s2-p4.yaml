@@ -62,7 +62,8 @@ inlines:
   - kind: "math"
     latex: "V^*"
   - kind: "text"
-    text: ", d. h. von der Lage der semipermeabeln Wand, unabhängig ist. "
+    text: ", d. h. von der Lage der semipermeabeln Wand, unabhängig ist."
+  - kind: "space"
   - kind: "math"
     latex: "J"
   - kind: "text"
@@ -110,33 +111,39 @@ sentenceSpans:
     span:
       start: 0
       end: 365
-      blockRevision: 1
+      blockRevision: 2
       textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
   - id: "s2-p4-s2"
     span:
       start: 366
       end: 533
-      blockRevision: 1
+      blockRevision: 2
       textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
   - id: "s2-p4-s3"
     span:
       start: 534
+      end: 694
+      blockRevision: 2
+      textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
+  - id: "s2-p4-s6"
+    span:
+      start: 695
       end: 840
-      blockRevision: 1
+      blockRevision: 2
       textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
   - id: "s2-p4-s4"
     span:
       start: 841
       end: 1216
-      blockRevision: 1
+      blockRevision: 2
       textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
   - id: "s2-p4-s5"
     span:
       start: 1217
       end: 1229
-      blockRevision: 1
+      blockRevision: 2
       textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
-revision: 1
+revision: 2
 status:
   transcription: "draft"
   mathTranscription: "draft"

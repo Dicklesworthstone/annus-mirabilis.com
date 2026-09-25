@@ -11,7 +11,7 @@ locators:
     printedPage: 557
   - pdfPageIndex: 10
     printedPage: 558
-diplomaticText: "Es sei \\nu = f(x, t) die Anzahl der Teilchen pro Volumeneinheit, wir berechnen die Verteilung der Teilchen zur Zeit t + \\tau aus deren Verteilung zur Zeit t. Aus der Definition der Funktion \\varphi(\\Delta) ergibt sich leicht die Anzahl der Teilchen, welche sich zur Zeit t + \\tau zwischen zwei zur X-Achse senkrechten Ebenen mit den Abszissen x und x + d x befinden. Man erhält:Nun können wir aber, da \\tau sehr klein ist, setzen:Ferner entwickeln wir f(x + \\Delta, t) nach Potenzen von \\Delta:Diese Entwicklung können wir unter dem Integral vornehmen, da zu letzterem nur sehr kleine Werte von \\Delta etwas beitragen. Wir erhalten:Auf der rechten Seite verschwindet wegen \\varphi(x) = \\varphi(-x) das zweite, vierte etc. Glied, während von dem ersten, dritten, fünften etc. Gliede jedes folgende gegen das vorhergehende sehr klein ist. Wir erhalten aus dieser Gleichung, indem wir berücksichtigen, daßund indem wirsetzen und nur das erste und dritte Glied der rechten Seite berücksichtigen:"
+diplomaticText: "Es sei \\nu = f(x, t) die Anzahl der Teilchen pro Volumeneinheit, wir berechnen die Verteilung der Teilchen zur Zeit t + \\tau aus deren Verteilung zur Zeit t. Aus der Definition der Funktion \\varphi(\\Delta) ergibt sich leicht die Anzahl der Teilchen, welche sich zur Zeit t + \\tau zwischen zwei zur X-Achse senkrechten Ebenen mit den Abszissen x und x + d x befinden. Man erhält: Nun können wir aber, da \\tau sehr klein ist, setzen: Ferner entwickeln wir f(x + \\Delta, t) nach Potenzen von \\Delta: Diese Entwicklung können wir unter dem Integral vornehmen, da zu letzterem nur sehr kleine Werte von \\Delta etwas beitragen. Wir erhalten: Auf der rechten Seite verschwindet wegen \\varphi(x) = \\varphi(-x) das zweite, vierte etc. Glied, während von dem ersten, dritten, fünften etc. Gliede jedes folgende gegen das vorhergehende sehr klein ist. Wir erhalten aus dieser Gleichung, indem wir berücksichtigen, daßund indem wirsetzen und nur das erste und dritte Glied der rechten Seite berücksichtigen:"
 inlines:
   - kind: "text"
     text: "Es sei "
@@ -57,6 +57,7 @@ inlines:
     latex: "f(x, t + \\tau) d x = d x \\cdot \\int_{\\Delta = -\\infty}^{\\Delta = +\\infty} f(x + \\Delta) \\varphi(\\Delta) d \\Delta."
     display: true
     equationId: "eq-s4-d4"
+  - kind: "space"
   - kind: "text"
     text: "Nun können wir aber, da "
   - kind: "math"
@@ -67,6 +68,7 @@ inlines:
     latex: "f(x, t + \\tau) = f(x, t) + \\tau \\frac{\\partial f}{\\partial t}."
     display: true
     equationId: "eq-s4-d5"
+  - kind: "space"
   - kind: "text"
     text: "Ferner entwickeln wir "
   - kind: "math"
@@ -81,6 +83,7 @@ inlines:
     latex: "f(x + \\Delta, t) = f(x, t) + \\Delta \\frac{\\partial f(x, t)}{\\partial x} + \\frac{\\Delta^2}{2!} \\frac{\\partial^2 f(x, t)}{\\partial x^2} \\ldots \\text{ in inf.}"
     display: true
     equationId: "eq-s4-d6"
+  - kind: "space"
   - kind: "text"
     text: "Diese Entwicklung können wir unter dem Integral vornehmen, da zu letzterem nur sehr kleine Werte von "
   - kind: "math"
@@ -94,18 +97,13 @@ inlines:
     latex: "\\begin{aligned} f + \\frac{\\partial f}{\\partial t} \\cdot \\tau = f \\cdot \\int_{-\\infty}^{+\\infty} \\varphi(\\Delta) d \\Delta &+ \\frac{\\partial f}{\\partial x} \\int_{-\\infty}^{+\\infty} \\Delta \\varphi(\\Delta) d \\Delta \\\\ &+ \\frac{\\partial^2 f}{\\partial x^2} \\int_{-\\infty}^{+\\infty} \\frac{\\Delta^2}{2} \\varphi(\\Delta) d \\Delta \\ldots \\end{aligned}"
     display: true
     equationId: "eq-s4-d7"
+  - kind: "space"
   - kind: "text"
     text: "Auf der rechten Seite verschwindet wegen "
   - kind: "math"
     latex: "\\varphi(x) = \\varphi(-x)"
   - kind: "text"
-    text: " das zweite, vierte etc."
-  - kind: "space"
-  - kind: "text"
-    text: "Glied, während von dem ersten, dritten, fünften etc."
-  - kind: "space"
-  - kind: "text"
-    text: "Gliede jedes folgende gegen das vorhergehende sehr klein ist."
+    text: " das zweite, vierte etc. Glied, während von dem ersten, dritten, fünften etc. Gliede jedes folgende gegen das vorhergehende sehr klein ist."
   - kind: "space"
   - kind: "text"
     text: "Wir erhalten aus dieser Gleichung, indem wir berücksichtigen, daß"
@@ -130,45 +128,57 @@ sentenceSpans:
     span:
       start: 0
       end: 157
-      blockRevision: 1
-      textDigest: "83fcff8bab82bed5fde57abd6e528d1b4603dc96f5e2ef6b566b37a2c4ccdd86"
+      blockRevision: 2
+      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
   - id: "s4-p6-s2"
     span:
       start: 158
       end: 366
-      blockRevision: 1
-      textDigest: "83fcff8bab82bed5fde57abd6e528d1b4603dc96f5e2ef6b566b37a2c4ccdd86"
+      blockRevision: 2
+      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
   - id: "s4-p6-s3"
     span:
       start: 367
-      end: 618
-      blockRevision: 1
-      textDigest: "83fcff8bab82bed5fde57abd6e528d1b4603dc96f5e2ef6b566b37a2c4ccdd86"
+      end: 378
+      blockRevision: 2
+      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
   - id: "s4-p6-s4"
     span:
-      start: 619
-      end: 721
-      blockRevision: 1
-      textDigest: "83fcff8bab82bed5fde57abd6e528d1b4603dc96f5e2ef6b566b37a2c4ccdd86"
+      start: 379
+      end: 431
+      blockRevision: 2
+      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
   - id: "s4-p6-s5"
     span:
-      start: 722
-      end: 774
-      blockRevision: 1
-      textDigest: "83fcff8bab82bed5fde57abd6e528d1b4603dc96f5e2ef6b566b37a2c4ccdd86"
+      start: 432
+      end: 496
+      blockRevision: 2
+      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
   - id: "s4-p6-s6"
     span:
-      start: 775
-      end: 836
-      blockRevision: 1
-      textDigest: "83fcff8bab82bed5fde57abd6e528d1b4603dc96f5e2ef6b566b37a2c4ccdd86"
+      start: 497
+      end: 621
+      blockRevision: 2
+      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
+  - id: "s4-p6-s8"
+    span:
+      start: 622
+      end: 635
+      blockRevision: 2
+      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
+  - id: "s4-p6-s9"
+    span:
+      start: 636
+      end: 840
+      blockRevision: 2
+      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
   - id: "s4-p6-s7"
     span:
-      start: 837
-      end: 991
-      blockRevision: 1
-      textDigest: "83fcff8bab82bed5fde57abd6e528d1b4603dc96f5e2ef6b566b37a2c4ccdd86"
-revision: 1
+      start: 841
+      end: 995
+      blockRevision: 2
+      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
+revision: 2
 status:
   transcription: "draft"
   mathTranscription: "draft"
