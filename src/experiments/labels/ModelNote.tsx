@@ -13,6 +13,7 @@
 import { Fragment, type ReactElement, type ReactNode } from "react";
 import { QUANTITY_LABELS } from "../../generated/quantity-labels.ts";
 import type { ModelNoteData, ModelNoteOutput } from "./modelNoteData.ts";
+import { OUTPUT_LABELS } from "./outputLabels.ts";
 import "./executionChrome.css";
 
 export type ModelNoteProps = Readonly<{
@@ -38,13 +39,13 @@ function groupOutputs(outputs: readonly ModelNoteOutput[]): OutputGroup[] {
 }
 
 /**
- * An output's name in words: the quantity registry's name (content/quantities, through the
- * generated client-safe map), else its id spelled out ("plotSampleMean" as "Plot sample mean").
- * Outputs that are not registered quantities - plot series, histogram bins, draw counts - have no
- * authored name, and a spelled-out id reads better than camelCase; the id itself follows in code.
+ * An output's name in words: the quantity registry's name when the output id is a registered
+ * quantity (content/quantities, through the generated client-safe map); else the output's own
+ * authored label (outputLabels.ts); else its id spelled out ("plotSampleMean" as "Plot sample
+ * mean"), which still reads better than camelCase. The id itself follows in code.
  */
 export function outputName(id: string): string {
-  const named = QUANTITY_LABELS[id];
+  const named = QUANTITY_LABELS[id] ?? OUTPUT_LABELS[id];
   if (named) return named;
   const words = id
     .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
