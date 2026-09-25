@@ -1,7 +1,9 @@
-# TranslationUnit s1-p3-s2: English machine-draft translation.
+# TranslationUnit s1-p3-s2: English translation, checked by AI agents.
 # Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
-# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+# Final under docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations after two agent
+# review rounds. No person has reviewed it.
 # Review round 1 (TopazPrairie, agent, 2026-09-25): read against the German and the plate; no change.
+# Review round 2 (TanElk, agent, 2026-09-25): read against the German and the plates pp. 132-137; no change.
 kind: "translation-unit"
 id: "s1-p3-s2"
 paper: "light-quanta"
@@ -20,5 +22,20 @@ revision: 1
 unresolvedAlternatives:
   - text: "the mean kinetic energy of a resonator electron"
     rationale: "lebendige Kraft is the period name for kinetic energy, and the sentence sets it equal to a mittlere kinetische Energie. The paper uses both words, so the older one is kept where Einstein writes it."
-reviewState: "machine-draft"
+reviewState: "reviewed"
+agentReview:
+  basis: "D-2026-09-25-agent-reviewed-translations"
+  rounds:
+    - reviewer:
+        id: "agent:TopazPrairie"
+        name: "TopazPrairie"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
+    - reviewer:
+        id: "agent:TanElk"
+        name: "TanElk"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
 lang: "en"

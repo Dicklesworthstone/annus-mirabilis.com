@@ -1,7 +1,9 @@
-# TranslationUnit s0-p3-s1: English machine-draft translation.
+# TranslationUnit s0-p3-s1: English translation, checked by AI agents.
 # Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
-# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+# Final under docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations after two agent
+# review rounds. No person has reviewed it.
 # Review round 1 (TopazPrairie, agent, 2026-09-25): read against the German and the plate; no change.
+# Review round 2 (TanElk, agent, 2026-09-25): read against the German and the plates pp. 132-137; no change.
 kind: "translation-unit"
 id: "s0-p3-s1"
 paper: "light-quanta"
@@ -20,5 +22,20 @@ revision: 1
 unresolvedAlternatives:
   - text: "“black-body radiation”"
     rationale: "schwarze Strahlung is literally black radiation, the term of the paper and of its time. Black-body radiation is the later English name for the same thing; the literal term is kept so that the section 1 heading and s1-p2-s1 read as the German does."
-reviewState: "machine-draft"
+reviewState: "reviewed"
+agentReview:
+  basis: "D-2026-09-25-agent-reviewed-translations"
+  rounds:
+    - reviewer:
+        id: "agent:TopazPrairie"
+        name: "TopazPrairie"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
+    - reviewer:
+        id: "agent:TanElk"
+        name: "TanElk"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
 lang: "en"
