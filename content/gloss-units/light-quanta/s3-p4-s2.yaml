@@ -1,0 +1,52 @@
+# GlossUnit s3-p4-s2: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s3-p4-s2"
+sentenceId: "s3-p4-s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "092c5ae511be28d607f835ceefe48a7cf92d4024a04d6fb03d6a64944ccffc58"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Da"
+  - german: "gleich"
+    english: "equal to"
+  - german: "der"
+    english: "the"
+  - german: "zugeführten"
+    english: "supplied"
+    lemma: "zuführen"
+    grammarNote: "participle used as an adjective: die zugeführte Wärme, ‘the heat supplied’"
+    noteClass: "attributive-phrase"
+  - german: "Wärme"
+    english: "heat"
+  - german: "und"
+    english: "and"
+  - german: "der"
+    english: "the"
+  - german: "Vorgang"
+    english: "process"
+  - german: "umkehrbar"
+    english: "reversible"
+  - german: "ist"
+    english: "is"
+  - german: "so"
+  - german: "gilt"
+    english: "holds"
+    lemma: "gelten"
+  - german: "auch"
+    english: "also"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 10
+    english: "since ... then"
+    kind: "split-construction"
+    grammarNote: "consequence: da ... so, ‘since ... then’: because dE is the heat supplied and the process is reversible, the next equation holds"
+    noteClass: "consequence"

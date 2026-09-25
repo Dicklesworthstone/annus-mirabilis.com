@@ -1,0 +1,43 @@
+# GlossUnit s3-p2-s1: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s3-p2-s1"
+sentenceId: "s3-p2-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "91608e952e0798afea7bb648a01c8be51b6cb02666cf29f596f1b079f1a79274"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Es"
+    english: "there"
+  - german: "liege"
+  - german: "eine"
+    english: "a"
+  - german: "Strahlung"
+    english: "radiation"
+  - german: "vor"
+  - german: "welche"
+    english: "which"
+  - german: "das"
+    english: "the"
+  - german: "Volumen"
+    english: "volume"
+  - german: "einnehme"
+    english: "occupies"
+    lemma: "einnehmen"
+    grammarNote: "Konjunktiv I: einnehme, ‘occupies’, part of the supposed situation"
+    noteClass: "konjunktiv-i"
+multiwordUnits:
+  - tokenIndices:
+      - 1
+      - 4
+    english: "let be given"
+    kind: "separable-verb"
+    grammarNote: "Konjunktiv I of vorliegen, split: liege ... vor, ‘let there be given’: a situation supposed for the argument, not reported"
+    noteClass: "konjunktiv-i"

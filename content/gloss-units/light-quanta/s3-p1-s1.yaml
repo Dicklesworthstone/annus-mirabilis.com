@@ -1,0 +1,77 @@
+# GlossUnit s3-p1-s1: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s3-p1-s1"
+sentenceId: "s3-p1-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "3c07a7346823a85d9d5ee61473a7e4a5f4292d3801e2c1ff5bbac7d7314c6e81"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Die"
+    english: "the"
+  - german: "folgende"
+    english: "following"
+    lemma: "folgend"
+  - german: "Betrachtung"
+    english: "consideration"
+  - german: "ist"
+    english: "is"
+  - german: "in"
+    english: "in"
+  - german: "einer"
+    english: "a"
+  - german: "berühmten"
+    english: "famous"
+  - german: "Arbeit"
+    english: "paper"
+  - german: "des"
+    english: "of"
+  - german: "Hrn"
+    english: "Mr."
+    lemma: "Herr"
+    grammarNote: "abbreviation: Hrn., Herrn, ‘of Mr.’ (genitive)"
+    noteClass: "abbreviation"
+  - german: "W"
+    english: "W."
+    grammarNote: "abbreviation: the initial W., Wilhelm Wien"
+    noteClass: "abbreviation"
+  - german: "Wien"
+    english: "Wien"
+  - german: "enthalten"
+    english: "contained"
+    lemma: "enthalten"
+  - german: "und"
+    english: "and"
+  - german: "soll"
+    english: "is to"
+    lemma: "sollen"
+  - german: "hier"
+    english: "here"
+  - german: "nur"
+    english: "only"
+  - german: "der"
+  - german: "Vollständigkeit"
+  - german: "halber"
+  - german: "Platz"
+  - german: "finden"
+multiwordUnits:
+  - tokenIndices:
+      - 17
+      - 18
+      - 19
+    english: "for the sake of completeness"
+    kind: "fixed-phrase"
+    grammarNote: "genitive with halber: der Vollständigkeit halber, ‘for completeness’ sake’"
+    noteClass: "genitive-construction"
+  - tokenIndices:
+      - 20
+      - 21
+    english: "be given a place"
+    kind: "fixed-phrase"

@@ -1,0 +1,78 @@
+# GlossUnit s3-fn1: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s3-fn1"
+sentenceId: "s3-fn1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "1b775c030e3514fdc811ac125ec0f3de97407d4344327d6159c196f33d3ab9d2"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Diese"
+    english: "this"
+  - german: "Annahme"
+    english: "assumption"
+  - german: "ist"
+    english: "is"
+  - german: "eine"
+    english: "an"
+  - german: "willkürliche"
+    english: "arbitrary one"
+    lemma: "willkürlich"
+    grammarNote: "hedge: eine willkürliche, ‘an arbitrary one’: the assumption is chosen, not derived"
+    noteClass: "hedge"
+  - german: "Man"
+    english: "one"
+  - german: "wird"
+    english: "will"
+  - german: "naturgemäß"
+    english: "naturally"
+  - german: "an"
+  - german: "dieser"
+    english: "this"
+  - german: "einfachsten"
+    english: "simplest"
+    lemma: "einfach"
+  - german: "Annahme"
+    english: "assumption"
+  - german: "so"
+  - german: "lange"
+  - german: "festhalten"
+  - german: "als"
+  - german: "nicht"
+    english: "not"
+  - german: "das"
+    english: "the"
+  - german: "Experiment"
+    english: "experiment"
+  - german: "dazu"
+    english: "to it"
+  - german: "zwingt"
+    english: "forces"
+    lemma: "zwingen"
+  - german: "sie"
+    english: "it"
+  - german: "zu"
+    english: "to"
+  - german: "verlassen"
+    english: "abandon"
+multiwordUnits:
+  - tokenIndices:
+      - 8
+      - 14
+    english: "hold on to"
+    kind: "split-construction"
+  - tokenIndices:
+      - 12
+      - 13
+      - 15
+    english: "for as long as"
+    kind: "split-construction"
+    grammarNote: "condition: so lange ... als, ‘for as long as’: the assumption is kept only until experiment forces it to be given up"
+    noteClass: "condition"

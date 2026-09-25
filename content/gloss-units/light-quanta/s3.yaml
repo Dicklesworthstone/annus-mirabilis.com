@@ -1,0 +1,29 @@
+# GlossUnit s3: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s3"
+sentenceId: "s3"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "927deca4997294010476177b235721de0fb898cad0940931b48763428d1b0e6e"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "§ 3"
+    english: "§ 3"
+  - german: "Über"
+    english: "on"
+  - german: "die"
+    english: "the"
+  - german: "Entropie"
+    english: "entropy"
+  - german: "der"
+    english: "of the"
+  - german: "Strahlung"
+    english: "radiation"
+multiwordUnits: []
