@@ -71,7 +71,11 @@ describe("LQ-02 refuses a non-positive field and states a large temperature read
         submit(cutoff);
       });
       const alert = container.querySelector("[role=alert]");
-      expect(alert?.textContent).toBe("Enter a highest resonator frequency above 0 Hz.");
+      // The declared range in words (validateLq02Parameters, dispatch 184), and the kept sentence.
+      expect(alert?.textContent).toMatch(
+        /^Enter the highest resonator frequency greater than 0 Hz, the range this model describes: /,
+      );
+      expect(alert?.textContent).toContain("still those of the last accepted settings");
       expect(container.textContent).not.toContain("Not modeled here: Cutoff frequency");
       expect(container.textContent).not.toMatch(/\de[+-]\d/);
 

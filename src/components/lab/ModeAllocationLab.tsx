@@ -1,9 +1,11 @@
 "use client";
 
 import { type FormEvent, type ReactNode, useId, useState } from "react";
+import { typedOrNaN } from "../../experiments/controls/typedNumber.ts";
 import { executionLabelFor } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { LQ02_CAPTION } from "../../experiments/lq02/definition.ts";
+import { validateLq02Parameters } from "../../experiments/lq02/parameters.ts";
 import {
   computeLq02Snapshot,
   DEFAULT_LQ02_INPUTS,
@@ -12,9 +14,11 @@ import {
   type RadiationResult,
   removeUpperLimit,
 } from "../../experiments/lq02/session";
+import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { KEPT_RESULT } from "./keptResult.ts";
 import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
 import { display, fixed, sentenceNumber } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
@@ -42,9 +46,11 @@ function toDraft(inputs: Lq02Inputs): Draft {
 
 function fromDraft(draft: Draft): Lq02Inputs {
   return {
-    T: Number(draft.T),
-    nuCutoff: Number(draft.nuCutoff),
-    probeFrequency: Number(draft.probeFrequency),
+    // A blank or partial field reaches the validator as NaN and is refused as not a number, rather
+    // than as a temperature or frequency of zero (dispatch 184).
+    T: typedOrNaN(draft.T),
+    nuCutoff: typedOrNaN(draft.nuCutoff),
+    probeFrequency: typedOrNaN(draft.probeFrequency),
     constantSetId: "modern-si-2019",
   };
 }
@@ -98,30 +104,15 @@ export function ModeAllocationLab({
       : `${cutoffAndTemperature}, the classical allocation's energy is not computed.`;
 
   function apply(next: Lq02Inputs) {
-    if (
-      !Number.isFinite(next.T) ||
-      !Number.isFinite(next.nuCutoff) ||
-      !Number.isFinite(next.probeFrequency)
-    ) {
-      setError("Every field must be a real, finite number. Check for a typo or an empty field.");
-      return;
-    }
     // Each field is a positive quantity. A zero or negative value used to reach the kernel, and the
     // table printed its outside-domain reason in every row: "Not modeled here: Cutoff frequency must
-    // be positive and finite (got -1e+300)."
-    if (next.T <= 0) {
-      setError("Enter a temperature above 0 K.");
+    // be positive and finite (got -1e+300)." One validator now serves the page and the domain sweep.
+    const checked = validateLq02Parameters(next);
+    if (checked.kind !== "accepted") {
+      setError(checked.kind === "refused" ? refusalSentence(checked.refusal) : "");
       return;
     }
-    if (next.nuCutoff <= 0) {
-      setError("Enter a highest resonator frequency above 0 Hz.");
-      return;
-    }
-    if (next.probeFrequency <= 0) {
-      setError("Enter a probe frequency above 0 Hz.");
-      return;
-    }
-    setAccepted(next);
+    setAccepted(checked.data);
     setDivergence(null);
     setError("");
   }
@@ -209,7 +200,7 @@ export function ModeAllocationLab({
           </ExperimentSettings>
           {error && (
             <p className="error" role="alert">
-              {error}
+              {error} {KEPT_RESULT}
             </p>
           )}
         </form>
