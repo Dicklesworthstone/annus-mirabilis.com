@@ -22,6 +22,7 @@ import equationPayload from "../../generated/bm01-equations.json";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { KEPT_RESULT } from "./keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { equationsByListing, ShowTheCode } from "./ShowTheCode.tsx";
@@ -419,14 +420,16 @@ export function TracerLab({
             )}
             {error && (
               <p className="notice error" role="alert">
-                {error}
+                {error} {KEPT_RESULT}
               </p>
             )}
           </div>
           <div className="lab-results">
             {view.refusal && (
               <div className="notice error" data-refusal-code={view.refusal.code}>
-                <p>{view.refusal.message}</p>
+                <p>
+                  {view.refusal.message} {KEPT_RESULT}
+                </p>
                 {view.refusal.rankedRepairs.map((repair) => {
                   const action = repair.action;
                   if (!action) return null;

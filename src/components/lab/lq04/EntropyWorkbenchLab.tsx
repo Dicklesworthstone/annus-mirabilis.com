@@ -43,6 +43,7 @@ import type {
   PublishedResult,
 } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { withScripts } from "../subscripts.tsx";
@@ -317,7 +318,7 @@ export function EntropyWorkbenchLab({
           <button type="submit">Apply</button>
           {error ? (
             <p role="alert" className="error">
-              {withScripts(error)}
+              {withScripts(error)} {KEPT_RESULT}
             </p>
           ) : null}
         </form>

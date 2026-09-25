@@ -38,7 +38,7 @@ const APP = resolve(root, "src/app/lab");
 const UNFINISHED: readonly string[] = [];
 
 /** Labs a refusal leaves without saying the results shown are the last accepted ones. */
-const UNMARKED: readonly string[] = ["bm-01", "lq-04"];
+const UNMARKED: readonly string[] = [];
 
 const VALUES = ["abc", "", "1e300", "-1e300"] as const;
 const KEPT = /last accepted/i;
