@@ -112,13 +112,10 @@ export function GraphDescriptionContainer({
   announcementManager,
   className = "accessible-graph-container",
 }: GraphDescriptionContainerProps): ReactElement {
-  const [isPaused, setIsPaused] = useState<boolean>(() => {
-    if (reducedMotion) return true;
-    if (typeof window !== "undefined" && window.matchMedia) {
-      return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    }
-    return false;
-  });
+  // The reader's reduced-motion preference is read after mount, in the effect below. The server
+  // cannot know it, so reading matchMedia here gave a reduced-motion reader a first client render
+  // of "Resume" over the server's "Pause", a hydration mismatch (dispatch 180).
+  const [isPaused, setIsPaused] = useState<boolean>(() => Boolean(reducedMotion));
   const [isTableOpen, setIsTableOpen] = useState<boolean>(initialTableOpen);
 
   useEffect(() => {
