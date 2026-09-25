@@ -1,0 +1,46 @@
+{
+  "kind": "misconception",
+  "id": "misc-lq-photoelectric-paper",
+  "paper": "light-quanta",
+  "temptingClaims": [
+    "The light-quantum paper is a paper about the photoelectric effect."
+  ],
+  "whyTempting": "The photoelectric law is the paper's best-known prediction, and the one later tested and honoured.",
+  "whereItIsTrue": "§ 8 does treat the photoelectric effect, and it is the application with a quantitative prediction.",
+  "whatIsTrue": {
+    "r0": "The paper's argument is about the entropy of dilute radiation. The photoelectric effect is one of three applications that follow it, beside Stokes's rule for fluorescence and the ionization of gases.",
+    "r1": "The introduction names the phenomena the viewpoint should help to understand: black radiation, photoluminescence, the production of cathode rays by ultraviolet light, and others concerning the generation and transformation of light (p. 133). The argument comes first: in §§ 4–6 the entropy of monochromatic radiation of low density, in the range of Wien's formula, varies with volume as if the radiation consisted of independent energy quanta (p. 143). Three applications follow: § 7 on Stokes's rule, § 8 on the production of cathode rays by light, and § 9 on the ionization of gases by ultraviolet light.",
+    "r2": "(1) The introduction lists several phenomena, the photoelectric effect among them (p. 133). (2) §§ 1–3: the classical difficulty and the entropy of radiation. (3) §§ 4–6: the volume law for dilute radiation, and the conclusion that it behaves as if made of independent quanta (p. 143). (4) §§ 7–9: three applications, fluorescence, cathode rays produced by light, and ionization. (5) So the photoelectric section is one application of the paper's conclusion, not its foundation.",
+    "r3": "The paper's title names its subject, a heuristic viewpoint concerning the generation and transformation of light. Why the photoelectric law became its best-known part belongs to the later history of its testing."
+  },
+  "staticTreatment": {
+    "reason": "A matter of the paper's structure: the introduction, § 6's conclusion and § 8's place among three applications are the evidence."
+  },
+  "anchors": [
+    "s0-p3",
+    "s6-p6",
+    "s8-p1"
+  ],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 133, 143 and 145"
+  ],
+  "intervention": {
+    "defaultsReviewed": {
+      "model": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "labels": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "defaultControls": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "feedback": "Not applicable: no instrument; this entry is a matter of what the paper says."
+    },
+    "reviewRecordId": "pending-review-misc-lq-photoelectric-paper"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:GreenOx",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}

@@ -1,0 +1,46 @@
+{
+  "kind": "misconception",
+  "id": "misc-lq-not-a-wave",
+  "paper": "light-quanta",
+  "temptingClaims": [
+    "Einstein's paper showed that light is not a wave."
+  ],
+  "whyTempting": "The paper is remembered for light quanta, which sound like the opposite of waves, and it argues that the energy of light is distributed discontinuously in space.",
+  "whereItIsTrue": "The paper does propose that, for the generation and transformation of light, the energy behaves as if it were concentrated in quanta. That is a claim about those phenomena, stated as a heuristic viewpoint.",
+  "whatIsTrue": {
+    "r0": "The paper keeps the wave theory. It says the theory has proved itself excellently for purely optical phenomena and will probably never be replaced, and proposes quanta only for the generation and transformation of light.",
+    "r1": "The introduction says the undulatory theory of light, working with continuous functions of space, has proved itself excellently for describing purely optical phenomena and will probably never be replaced by another theory (p. 132). It adds that optical observations refer to averages over time, not to instantaneous values, so it is quite conceivable that a theory of continuous functions leads to contradictions with experience when applied to the generation and transformation of light (pp. 132–133). Only then does it offer its viewpoint: it seems to Einstein that those phenomena are better understood on the assumption that the energy of light is distributed discontinuously in space (p. 133). The claim is restricted, and it is called heuristic in the title.",
+    "r2": "(1) The praise: diffraction, reflection, refraction, dispersion and the rest are fully confirmed by the wave theory, which will probably never be replaced (p. 132). (2) The qualification: those observations concern averages over time. (3) The opening for a new idea: for emission and transformation of light, a theory of continuous functions may meet contradictions (pp. 132–133). (4) The proposal, with its own hedge, “Es scheint mir”: the energy of a light ray consists of a finite number of localized quanta, for those phenomena (p. 133). (5) So the paper adds a viewpoint for one class of phenomena and keeps the wave theory for optics.",
+    "r3": "The paper's own word is heuristic: a viewpoint offered in the hope that it proves useful to other researchers (p. 133). How the wave and quantum descriptions were later reconciled is later physics, which this entry does not treat."
+  },
+  "staticTreatment": {
+    "reason": "A matter of what the paper says about the wave theory; the introduction is the evidence."
+  },
+  "anchors": [
+    "s0-p2",
+    "s0-p3",
+    "s0-p4"
+  ],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 132–133"
+  ],
+  "intervention": {
+    "defaultsReviewed": {
+      "model": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "labels": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "defaultControls": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "feedback": "Not applicable: no instrument; this entry is a matter of what the paper says."
+    },
+    "reviewRecordId": "pending-review-misc-lq-not-a-wave"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:GreenOx",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}

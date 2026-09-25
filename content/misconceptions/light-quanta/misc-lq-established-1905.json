@@ -1,0 +1,50 @@
+{
+  "kind": "misconception",
+  "id": "misc-lq-established-1905",
+  "paper": "light-quanta",
+  "temptingClaims": [
+    "Einstein's photoelectric law was an established experimental fact in 1905."
+  ],
+  "whyTempting": "The law is simple and has long been confirmed, so it is tempting to picture it as a known result that the paper merely explained.",
+  "whereItIsTrue": "The paper's order-of-magnitude check did agree with Lenard's observations, and it found no contradiction with the properties Lenard had observed.",
+  "whatIsTrue": {
+    "r0": "In 1905 the law was a prediction. The paper checks only an order of magnitude, and states what must hold if the formula is correct. The measurement that tested the straight line came in 1916.",
+    "r1": "§ 8 derives \\(Π E = R\\beta\\nu - P'\\) and checks it for \\(P' = 0\\) and \\(\\nu = 1{,}03\\cdot10^{15}\\), the limit of the solar spectrum toward the ultraviolet: \\(Π\\cdot10^7 = 4{,}3\\) volts, which agrees in order of magnitude with Lenard's results (p. 146). It then states a condition: if the derived formula is correct, \\(Π\\) as a function of the frequency must be a straight line whose slope is independent of the substance (p. 146). With Lenard's observed properties, it says, the conception is not in contradiction, as far as Einstein can see (p. 147). LQ-08's historical preset gives 4.26 V with the modern constants. Millikan's 1916 measurements in Physical Review are the later test of the straight line; they are later evidence, not part of the paper.",
+    "r2": "(1) § 8: the energy of a quantum, less the work to leave the body, is the greatest kinetic energy of an emitted electron. (2) The check: with no work function and \\(\\nu = 1.03\\times10^{15}\\ \\mathrm{s^{-1}}\\), the potential is 4.3 V, “of the order” of Lenard's results (p. 146). (3) The prediction: a straight line of potential against frequency, with a slope independent of the metal, stated with “if the derived formula is correct” (p. 146). (4) The caution: no contradiction with Lenard's observations “as far as I see” (p. 147). (5) The test of the line came later, in Millikan's measurements of 1916.",
+    "r3": "The record distinguishes three statements: what the paper checked (an order of magnitude), what it predicted (the straight line), and what later tested it (Millikan, 1916). Only the first two are in the paper."
+  },
+  "instrumentIds": [
+    "lq-08"
+  ],
+  "anchors": [
+    "s8-p5",
+    "s8-p6",
+    "s8-p7"
+  ],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 146–147",
+    "R. A. Millikan, Physical Review (2) 7, 355–388 (1916), bibliography record cit-millikan-1916, as later evidence",
+    "LQ-08 preset lq-08-historical-check: stopping potential 4.2597 V at 1.03e15 Hz and zero work function (stoppingPotentialMagnitude, modern-si-2019 constants)"
+  ],
+  "intervention": {
+    "instrumentId": "lq-08",
+    "defaultsReviewed": {
+      "model": "Not yet reviewed. Described from the manifest: the photoelectric energy balance, with the stopping potential (hν − P)/e for complete transfer of one quantum's energy (stoppingPotentialMagnitude, src/physics/reference/photoelectric.ts)",
+      "labels": "Not yet reviewed. Described from the manifest: frequency, work function, incident power and collector potential as controls; the stopping potential and the emission rate as outputs",
+      "defaultControls": "Not yet reviewed. Described from the manifest: preset lq-08-historical-check; frequency 1.03e15 Hz, work function 0, incident power 0.001 W, quantum efficiency 0.1",
+      "feedback": "Not yet reviewed. Described from the manifest: the stopping potential at the preset, 4.26 V with the modern constants, beside the paper's 4.3 V"
+    },
+    "scenarioId": "lq-08-historical-check",
+    "reviewRecordId": "pending-review-misc-lq-established-1905"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:GreenOx",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}
