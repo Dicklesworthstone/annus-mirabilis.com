@@ -1,0 +1,56 @@
+# GlossUnit s9-p3-s3: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s9-p3-s3"
+sentenceId: "s9-p3-s3"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "ad7ccd9c47562d70aadbf66b5de0e5fbcf9c523a676a62bccc1d8290a8165dad"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Es"
+  - german: "ergibt"
+  - german: "sich"
+  - german: "also"
+    english: "thus"
+    lemma: "also"
+    grammarNote: "consequence: also, ‘thus’ (not English ‘also’)"
+    noteClass: "consequence"
+  - german: "für"
+    english: "for"
+  - german: "die"
+    english: "the"
+  - german: "obere"
+    english: "upper"
+  - german: "Grenze"
+    english: "limit"
+  - german: "welche"
+    english: "which"
+  - german: "nahezu"
+    english: "nearly"
+  - german: "gleich"
+    english: "equal"
+  - german: "der"
+    english: "to the (one)"
+  - german: "eben"
+    english: "just"
+  - german: "gefundenen"
+    english: "found"
+    lemma: "finden"
+  - german: "ist"
+    english: "is"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 1
+      - 2
+    english: "there results"
+    kind: "reflexive"
+    grammarNote: "consequence: es ergibt sich, ‘there results’: the second limit follows from Stark’s voltage"
+    noteClass: "consequence"

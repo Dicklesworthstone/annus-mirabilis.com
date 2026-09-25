@@ -1,0 +1,36 @@
+# GlossUnit s9: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s9"
+sentenceId: "s9"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "e69a41fde62c8fdbbe99e020e133b1b443d9bda2499e527e0676500decb78a74"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "§ 9"
+    english: "§ 9"
+  - german: "Über"
+    english: "on"
+  - german: "die"
+    english: "the"
+  - german: "Ionisierung"
+    english: "ionization"
+  - german: "der"
+    english: "of the"
+  - german: "Gase"
+    english: "gases"
+    lemma: "Gas"
+  - german: "durch"
+    english: "by"
+  - german: "ultraviolettes"
+    english: "ultraviolet"
+  - german: "Licht"
+    english: "light"
+multiwordUnits: []

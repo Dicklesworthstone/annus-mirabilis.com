@@ -1,0 +1,45 @@
+# GlossUnit s9-fn1: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s9-fn1"
+sentenceId: "s9-fn1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "222d44835427c08f83ae74dacf3eb58a01f6ac4d8e1b30f7a8c32357b00ad970"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "J"
+    english: "J."
+  - german: "Stark"
+    english: "Stark"
+  - german: "Die"
+  - german: "Elektrizität"
+  - german: "in"
+  - german: "Gasen"
+  - german: "p."
+    english: "page"
+    lemma: "p."
+    grammarNote: "abbreviation: pagina, page"
+    noteClass: "abbreviation"
+  - german: "57."
+    english: "57"
+  - german: "Leipzig"
+    english: "Leipzig"
+  - german: "1902."
+    english: "1902"
+multiwordUnits:
+  - tokenIndices:
+      - 2
+      - 3
+      - 4
+      - 5
+    english: "The Electricity in Gases"
+    kind: "fixed-phrase"
+    grammarNote: "term: the title of Stark’s book, Die Elektrizität in Gasen"
+    noteClass: "term"
