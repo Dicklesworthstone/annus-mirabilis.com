@@ -324,7 +324,7 @@ $$
 
 Während also die $Y$- und $Z$-Dimension der Kugel (also auch jedes starren Körpers von beliebiger Gestalt) durch die Bewegung nicht modifiziert erscheinen, erscheint die $X$-Dimension im Verhältnis $1 : \sqrt{1 - (v/V)^2}$ verkürzt, also um so stärker, je größer $v$ ist. Für $v = V$ schrumpfen alle bewegten Objekte — vom „ruhenden“ System aus betrachtet — in flächenhafte Gebilde zusammen. Für Überlichtgeschwindigkeiten werden unsere Überlegungen sinnlos; wir werden übrigens in den folgenden Betrachtungen finden, daß die Lichtgeschwindigkeit in unserer Theorie physikalisch die Rolle der unendlich großen Geschwindigkeiten spielt.
 
-Es ist klar, daß die gleichen Resultate von im „ruhenden“ System ruhenden Körpern gelten, welche von einem gleichförmig bewegten System aus betrachtet werden.
+Es ist klar, daß die gleichen Resultate von im „ruhenden“ System ruhenden Körpern gelten, welche von einem gleichförmig bewegten System aus betrachtet werden. —
 
 Wir denken uns ferner eine der Uhren, welche relativ zum ruhenden System ruhend die Zeit $t$, relativ zum bewegten[[CONTINUES]]
 
