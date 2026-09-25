@@ -64,7 +64,7 @@ export async function OfflineChapterLinks({
           Each chapter is one HTML file that opens in any browser without a connection. It holds the
           explanation at every level of detail, the lessons it links to, its source references and
           the numbers worked out when the site was built. It has no notes of yours and no running
-          simulations. It is an explanation, not a reviewed edition of the paper.
+          simulations. It is an explanation, not an edition of the paper.
         </p>
       )}
       <ul className="offline-chapter-list">

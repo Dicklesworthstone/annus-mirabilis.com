@@ -94,8 +94,8 @@ export function LowSpeedExplorer({
         cannot replace either step.
       </p>
       <p className="notice">
-        Modern teaching derivation · editorial and physics review pending. Exact algebra and local
-        Taylor coefficients are checked, not the truth of the physical premises.
+        Modern teaching derivation. Exact algebra and local Taylor coefficients are checked, not the
+        truth of the physical premises.
       </p>
       <p>{proof.certificate.domain}</p>
       <noscript>

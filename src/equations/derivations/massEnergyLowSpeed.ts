@@ -273,7 +273,7 @@ export function buildMassEnergyLowSpeed(source: readonly EquationRecord[]) {
     equationIds: [factor.id, exact.id, approximation.id, proxy.id, mass.id],
     normalizedTree: parseExpression(normalized, prefix, MASS_ENERGY_QUANTITIES),
     scope:
-      "The algebra and local limit are checked. Physical premises, source alignment and editorial review are not certified; no finite-speed error bound is asserted.",
+      "The algebra and local limit are checked. Physical premises and source alignment are not certified; no finite-speed error bound is asserted.",
   };
 }
 export type LowSpeedCertificate = ReturnType<typeof buildMassEnergyLowSpeed>;

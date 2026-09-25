@@ -52,7 +52,7 @@ export default function IndependencePage() {
         <p>
           These are two explicit ideal candidates, not every possible form of correlation. The
           comparison calculates predictions and can analyze a count record you enter. It does not
-          produce historical observations or claim a reviewed edition.
+          produce historical observations.
         </p>
         <p>
           The light-quanta paper’s §5 counts independently placed points. The chance that every one

@@ -676,9 +676,8 @@ export function WalkLab({
             claimed.
           </p>
           <p>
-            These are model calculations, not experimental evidence. The source-aligned critical
-            edition, reviewed historical constants, and full control-tape format remain in
-            preparation.
+            These are model calculations, not experimental evidence. Historical constants and the
+            full control-tape format remain in preparation.
           </p>
           <ShowTheCode
             instrumentId="bm-05"

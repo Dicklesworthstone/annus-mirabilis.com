@@ -290,10 +290,6 @@ export function ClockFirstEncounter({ record }: { record: EntranceRecord }) {
             Continue to the section 1 clock-setting argument →
           </a>
         </p>
-        <p className="fine">
-          The linked reading is a draft explanation. A reviewed sentence-aligned original and
-          translation are still in preparation.
-        </p>
       </section>
     </section>
   );

@@ -550,7 +550,7 @@ export function SemanticEquation({
         <p className="fine">
           Every term&rsquo;s units were checked when this page was built. That checks the units, not
           the model. This equation is written for this edition in modern notation, not transcribed
-          from the paper, and its review is pending.
+          from the paper.
         </p>
       </details>
     </div>

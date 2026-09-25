@@ -82,8 +82,7 @@ export default function WalkPage() {
         <p>
           Agreement between the synthetic walks and their limiting law tests the numerical
           implementation of the assumptions. It does not establish that a real suspension satisfies
-          them. This is a modern explanation of the argument; the reviewed German and aligned
-          English critical edition is still in preparation.
+          them. This is a modern explanation of the argument.
         </p>
         <div className="actions">
           <a className="button" href="/lab/bm-06/">

@@ -54,7 +54,7 @@ export function ArgumentEquations({
           <summary>Explore the equations in this step</summary>
           <p>
             Read each operation, check its units and assumptions, or open the mathematical step
-            behind it. These are modern teaching equations, not a reviewed transcription.
+            behind it. These are modern teaching equations, not the equations as printed.
           </p>
           <EquationScope
             scope={`reader-${argumentId}`}

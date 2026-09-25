@@ -50,9 +50,7 @@ export default async function Page({ params }: { params: Promise<{ concept: stri
         <p className="eyebrow">Foundation lesson</p>
         <h1>{foundation.title}</h1>
         <p className="lead">{foundation.summary}</p>
-        <p className="fine">
-          Written for this edition, not translated from Einstein. Editorial review pending.
-        </p>
+        <p className="fine">Written for this edition, not translated from Einstein.</p>
       </header>
       <div className="foundation-page-text">
         <FoundationBody foundation={foundation} foundations={lessons} headingLevel={2} />

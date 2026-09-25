@@ -87,8 +87,7 @@ export default function KitchenGuide() {
           The quantitative model depends on particle size, shape, wall proximity, viscosity, drift
           and optical resolution. A known-size particle or a dataset with independent calibration
           and physical measurements is a better quantitative starting point than guessing those
-          quantities. The supplied track is synthetic practice, not a reviewed real observation
-          sequence.
+          quantities. The supplied track is synthetic practice, not a real observation sequence.
         </p>
         <div className="actions">
           <a className="button" href="/lab/bm-07/kitchen/">

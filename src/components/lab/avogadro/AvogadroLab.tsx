@@ -442,8 +442,7 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
         </p>
         <p>
           Every number shown comes from the settings this laboratory last accepted, and an invalid
-          entry leaves those numbers as they were. This companion preview does not claim the full
-          catalogue's launch acceptance or source review.
+          entry leaves those numbers as they were.
         </p>
         <p>
           <a href="https://github.com/Dicklesworthstone/annus-mirabilis.com/blob/main/src/physics/reference/radiation/avogadro.ts">

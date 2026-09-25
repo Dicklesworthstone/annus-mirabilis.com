@@ -432,8 +432,7 @@ export default function LightQuantaRoute() {
           The paper runs to seventeen pages and nine numbered sections. The divergence is section 1,
           the entropy of radiation is sections 3 and 4, the gas comparison is section 5, the
           conclusion this route builds towards is section 6, and the three checks are sections 7 to
-          9. Its German text is on this site, not yet reviewed; the English translation is not
-          written yet.
+          9. Its German text and an English translation are on this site.
         </p>
         {SOURCE_JUMPS.map((jump) => (
           <SourceJump key={jump.id} jump={jump} />

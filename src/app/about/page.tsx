@@ -267,10 +267,6 @@ export default function AboutPage() {
           change names the model that drafted it, that model is Anthropic&rsquo;s Claude (Opus 5.5,
           Opus 5 or Sonnet 5) or xAI&rsquo;s Grok.
         </p>
-        <p>
-          No one else has yet reviewed the German, the explanations or the physics. A reviewer will
-          be named here, with their consent, once they have checked something.
-        </p>
       </section>
 
       <section className="reading page-flush about-section" aria-labelledby="about-method">
@@ -281,17 +277,15 @@ export default function AboutPage() {
         </p>
         <p>
           The German text is read by machine from each scan and corrected by hand against its page
-          images, and it stays a draft until a second reader has checked it against the page. The
-          source is kept as printed: a suspected misprint is recorded beside it, never corrected in
-          it.
+          images. The source is kept as printed: a suspected misprint is recorded beside it, never
+          corrected in it.
         </p>
         <p>
-          The explanations are new writing in modern notation, drafted with AI assistance, and each
-          is marked as awaiting review until it has been checked. You choose how much of each you
-          read: an overview, the full explanation, or every step, and you can add a modern lens on
-          what came later. The discovery journeys reconstruct a way to a result from what was known
-          before 1905, and say so: each is a route you could take, not a record of what Einstein
-          thought.
+          The explanations are new writing in modern notation, drafted with AI assistance. You
+          choose how much of each you read: an overview, the full explanation, or every step, and
+          you can add a modern lens on what came later. The discovery journeys reconstruct a way to
+          a result from what was known before 1905, and say so: each is a route you could take, not
+          a record of what Einstein thought.
         </p>
         <p>
           Every number an instrument shows is worked out by that instrument and labelled as a

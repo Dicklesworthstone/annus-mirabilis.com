@@ -148,7 +148,7 @@ export default async function Page() {
           granted. Each asks one question, works one example, and says where it stops, so you can go
           back to the passage you came from.
         </p>
-        <p className="fine">Written for this edition. Editorial review pending.</p>
+        <p className="fine">Written for this edition.</p>
       </header>
       {/* The groups by name, each with its count, so a reader looking for calculus reaches it
           without scrolling past twenty arithmetic cards: on a 390px phone the page is 9,212px

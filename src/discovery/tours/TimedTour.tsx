@@ -91,9 +91,8 @@ function JourneyStage({ step }: { step: Extract<TourStep, { kind: "journey-stage
   return (
     <>
       <p data-move-summary={step.journeyId}>{step.summary}</p>
-      {step.reviewState !== "reviewed" ? (
-        <p className="fine">This summary is a draft: no physics reviewer has checked it yet.</p>
-      ) : null}
+      {/* No "This summary is a draft: no physics reviewer has checked it yet."
+          (D-2026-09-25-no-review-status-banners); the step's reviewState stays in its record. */}
       <div className="guided-tour-actions">
         <a href={step.href}>Follow the longer discovery path</a>
       </div>
@@ -111,8 +110,8 @@ export function TimedTour({ tour }: { tour: Tour }) {
         <h1>{tour.title}</h1>
         <p className="lead">{tour.introduction}</p>
         <p className="notice">
-          A draft path: no one has reviewed it yet. The times are estimates for reading at a steady
-          pace, and you can take as long as you like.
+          The times are estimates for reading at a steady pace, and you can take as long as you
+          like.
         </p>
       </header>
       <ol className="guided-tour-stops">

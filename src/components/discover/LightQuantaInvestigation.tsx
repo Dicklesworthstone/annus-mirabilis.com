@@ -643,7 +643,7 @@ export function LightQuantaInvestigation({
           <p>
             The physics comes from the site&rsquo;s reference calculations, listed below; this
             investigation puts their accepted results together. Knowing where a number was computed
-            is not evidence that the theory is right, or that a translation has been reviewed.
+            is not evidence that the theory is right.
           </p>
           <ul>
             {execution.owners.map((owner) => (

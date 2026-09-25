@@ -114,8 +114,8 @@ export function LinearProofExplorer({
         premise.
       </p>
       <p className="notice">
-        Modern teaching derivation · editorial and physics review pending. No rest energy is
-        assigned to the body, and no mass-energy conclusion is used as an input.
+        Modern teaching derivation. No rest energy is assigned to the body, and no mass-energy
+        conclusion is used as an input.
       </p>
       <noscript>
         <p>

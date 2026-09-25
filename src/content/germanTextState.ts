@@ -39,20 +39,19 @@ function listOf(items: readonly string[]): string {
   return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
 }
 
-/** The home page's sentences on the German text, one clause per state that has papers in it. */
+/**
+ * The home page's sentences on the German text: which papers have it, and which do not yet. They say
+ * what the site contains and nothing of review (D-2026-09-25-no-review-status-banners), so a reviewed
+ * text and a draft are both "set".
+ */
 export function germanTextSentences(papers: readonly PaperGermanState[]): string {
-  const named = (state: GermanTextState) =>
-    papers.filter((p) => p.state === state).map((p) => nameInSentence(p.title));
+  const named = (...states: GermanTextState[]) =>
+    papers.filter((p) => states.includes(p.state)).map((p) => nameInSentence(p.title));
   const sentences: string[] = [];
-  const reviewed = named("reviewed");
-  const drafted = named("draft");
-  if (reviewed.length > 0)
+  const set = named("reviewed", "draft");
+  if (set.length > 0)
     sentences.push(
-      `The German text of the ${listOf(reviewed)} ${reviewed.length === 1 ? "paper" : "papers"} is set and reviewed.`,
-    );
-  if (drafted.length > 0)
-    sentences.push(
-      `The German text is set, as ${drafted.length === 1 ? "an unreviewed draft" : "unreviewed drafts"}, for the ${listOf(drafted)} ${drafted.length === 1 ? "paper" : "papers"}.`,
+      `The German text is set for the ${listOf(set)} ${set.length === 1 ? "paper" : "papers"}.`,
     );
   for (const name of named("in-transcription"))
     sentences.push(
@@ -63,14 +62,11 @@ export function germanTextSentences(papers: readonly PaperGermanState[]): string
   return sentences.join(" ");
 }
 
-/** The first-pages caption's clause: how many of the four have their German text set. */
+/** The first-pages caption's clause: how many of the four have their German text set, no more. */
 export function germanTextCount(papers: readonly PaperGermanState[]): string {
   const set = papers.filter((p) => p.state === "draft" || p.state === "reviewed");
-  const reviewed = papers.filter((p) => p.state === "reviewed").length;
   const count = `${NUMBER_WORDS[set.length] ?? set.length} of the ${NUMBER_WORDS[papers.length] ?? papers.length}`;
   if (set.length === 0)
     return `The German text is set for none of the ${NUMBER_WORDS[papers.length] ?? papers.length} papers yet.`;
-  return reviewed === 0
-    ? `The German text is set for ${count}, as ${set.length === 1 ? "an unreviewed draft" : "unreviewed drafts"}.`
-    : `The German text is set for ${count}, ${reviewed} of them reviewed.`;
+  return `The German text is set for ${count}.`;
 }

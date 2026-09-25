@@ -25,11 +25,7 @@ export default function GuidedToursIndex() {
           stop, or spend as long as you need in a laboratory. No score, timer, account or saved
           answer is required.
         </p>
-        <p className="notice">
-          These paths lead through an edition that is still in preparation, and following one is not
-          a sign that anything on it has been reviewed. Each page a path reaches says what it shows
-          and where it stops.
-        </p>
+        <p className="notice">Each page a path reaches says what it shows and where it stops.</p>
       </header>
       <div className="guided-tour-catalogue">
         {tourIds(process.cwd()).flatMap((id) => {

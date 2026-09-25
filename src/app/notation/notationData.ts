@@ -91,9 +91,10 @@ function formatCheckedLabel(entry: ConcordanceEntry): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(entry.verification.date);
   const month = m ? MONTHS[Number(m[2]) - 1] : undefined;
   const on = m && month ? ` on ${Number(m[3])} ${month} ${m[1]}` : "";
-  // An agent's reading of the page image is not a review, and the label must not read like one.
+  // An agent's reading of the page image is not a review, and the label must not read like one. It
+  // says who read it and no more (D-2026-09-25-no-review-status-banners).
   if (entry.verification.by.startsWith("agent:"))
-    return `Read from the printed page by an agent${on}. No person has reviewed it yet.`;
+    return `Read from the printed page by an agent${on}.`;
   return `Checked against the printed page${on}.`;
 }
 
@@ -199,8 +200,8 @@ export function describeVerification(entries: readonly EnrichedConcordanceEntry[
     byAgent === 0
       ? ""
       : byAgent === checked.length
-        ? " An agent did that checking, reading each page image, and no person has reviewed it yet."
-        : ` ${byAgent} of those checks ${byAgent === 1 ? "was" : "were"} made by an agent reading the page images, and no person has reviewed ${byAgent === 1 ? "it" : "them"} yet.`;
+        ? " An agent did that checking, reading each page image."
+        : ` ${byAgent} of those checks ${byAgent === 1 ? "was" : "were"} made by an agent reading the page images.`;
   return { checkedCount: checked.length, pendingCount, message: message + agentNote };
 }
 

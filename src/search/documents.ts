@@ -178,7 +178,7 @@ export function documentsFromCompiled(
       route,
       anchor: "",
       face: "reading",
-      scopeLabel: `${paper.title} · explanatory preview; source review pending`,
+      scopeLabel: `${paper.title} · explanatory preview`,
     };
     add({
       ...base,
@@ -277,7 +277,7 @@ export function documentsFromCompiled(
       anchor: "",
       face: "",
       title: foundation.title,
-      scopeLabel: "Foundation · authored explanation; review pending",
+      scopeLabel: "Foundation · authored explanation",
       text: [
         foundation.question,
         foundation.summary,

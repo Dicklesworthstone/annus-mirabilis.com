@@ -75,7 +75,7 @@ const PAPER_GROUPS: readonly {
     title: "Before the coordinate map: optical model comparisons",
     href: "/discover/special-relativity/",
     blurb:
-      "Compare arm times, moving-water drag and wave equations. These explanatory previews use modern calibration; reviewed historical datasets and strict 1904 modes remain in preparation.",
+      "Compare arm times, moving-water drag and wave equations. These explanatory previews use modern calibration; historical datasets and strict 1904 modes remain in preparation.",
   },
   {
     prefix: "me-",

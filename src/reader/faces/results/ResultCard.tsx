@@ -204,11 +204,13 @@ export function ResultCard({
                   data-constant-set-id={check.constantSetId}
                 >
                   <td data-printed-value="true">{check.printedValue}</td>
-                  <td data-reproduced-value="true">
+                  {/* A pending transcription stays on the cell as data, without "(source
+                      transcription pending review)" (D-2026-09-25-no-review-status-banners). */}
+                  <td
+                    data-reproduced-value="true"
+                    data-transcription-pending={check.transcriptionPending ? "true" : undefined}
+                  >
                     {check.reproducedText ?? check.reproducedValue}
-                    {check.transcriptionPending && (
-                      <span className="notice"> (source transcription pending review)</span>
-                    )}
                   </td>
                   <td data-check-label={check.label}>
                     {check.label} <span className="fine">(constant set {check.constantSetId})</span>

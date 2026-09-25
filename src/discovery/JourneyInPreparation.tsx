@@ -45,7 +45,7 @@ export function JourneyInPreparation({
             <p>
               Carry a computed radiation state through coefficient matching, compare independent and
               locked configurations, and test one-variable photoelectric predictions. This
-              explanatory workbench does not publish the reviewed historical journey.
+              explanatory workbench is not the historical journey.
             </p>
             <p>
               <a className="button" href="/discover/light-quanta/investigate/">
@@ -67,7 +67,7 @@ export function JourneyInPreparation({
             <p>
               Assemble the light-direction constraints, identify the still-undetermined scale, and
               test which event pairs measure a moving-frame length. This explanatory investigation
-              does not publish the reviewed historical journey.
+              is not the historical journey.
             </p>
             <p>
               <a className="button" href="/discover/special-relativity/investigate/">
@@ -87,8 +87,8 @@ export function JourneyInPreparation({
             <p>
               Assemble a conditional derivation, inspect an unresolved offset, and distinguish a
               derivation from a consistency check that assumes its conclusion. The worked route and
-              the existing laboratory are available now. This explanatory investigation does not
-              publish the full reviewed journey or its historical knowledge shelf.
+              the existing laboratory are available now. This explanatory investigation is not the
+              full journey or its historical knowledge shelf.
             </p>
             <p>
               <a className="button" href="/discover/mass-energy/investigate/">

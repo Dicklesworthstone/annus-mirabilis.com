@@ -142,9 +142,13 @@ export async function FaceFallback(
           <div className="reader-split-panes">
             <section data-split-pane="parallel" data-face-source>
               <h2>Parallel bilingual</h2>
-              <p className="notice">
-                The reviewed German, aligned English, and gloss for this paper are not yet
-                available. The explanation does not stand in for those source layers.
+              {/* It said "The reviewed German, aligned English, and gloss for this paper are not
+                  yet available": false once the parallel face was, and review copy besides
+                  (D-2026-09-25-no-review-status-banners). */}
+              <p>
+                <a href={faceLinkHref(paperId, "parallel", section)}>
+                  Open the parallel German and English →
+                </a>
               </p>
             </section>
             <section data-split-pane="reading" data-face-reading>
@@ -219,9 +223,7 @@ export async function FaceFallback(
               {gaps.untranscribed.length === 1 ? "Printed page " : "Printed pages "}
               {pageRanges(gaps.untranscribed)} {gaps.untranscribed.length === 1 ? "has" : "have"}{" "}
               not been transcribed yet
-              {gaps.drafted.length > 0
-                ? `, and ${pageRanges(gaps.drafted)} have only an unreviewed machine draft that this edition does not show`
-                : ""}
+              {gaps.drafted.length > 0 ? `, and ${pageRanges(gaps.drafted)} are not shown yet` : ""}
               .
               {pdfHref ? (
                 <>

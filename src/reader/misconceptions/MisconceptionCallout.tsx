@@ -97,7 +97,15 @@ export function MisconceptionCallout({
           {misconception.instrumentIds &&
             misconception.instrumentIds.length > 0 &&
             instrumentHref && (
-              <p className="misconception-instrument-link">
+              // The gate's verdict stays on the link as data; its words ("this instrument's default
+              // view is not yet reviewed against this misconception") are review copy and are not
+              // shown (D-2026-09-25-no-review-status-banners).
+              <p
+                className="misconception-instrument-link"
+                data-intervention-status={
+                  interventionStatus.state === "not-yet-reviewed" ? "not-yet-reviewed" : undefined
+                }
+              >
                 <a
                   href={instrumentHref}
                   aria-label={
@@ -106,12 +114,6 @@ export function MisconceptionCallout({
                 >
                   See it in the instrument
                 </a>
-                {interventionStatus.state === "not-yet-reviewed" && (
-                  <span className="notice" data-intervention-status="not-yet-reviewed">
-                    {" "}
-                    (this instrument's default view is not yet reviewed against this misconception)
-                  </span>
-                )}
               </p>
             )}
 

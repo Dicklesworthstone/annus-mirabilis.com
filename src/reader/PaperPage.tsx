@@ -384,11 +384,10 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
       ? {
           href: `/papers/${paper.id}/view/german/`,
           // An edition that has reached only part of the paper does not promise the whole of it.
+          // No "drafted" in the label (D-2026-09-25-no-review-status-banners).
           label: sources.germanIsPartial
-            ? "Read the German source drafted so far →"
-            : sources.germanIsDraft
-              ? "Read the drafted German source for the whole paper →"
-              : "Read the German source for the whole paper →",
+            ? "Read the German source so far →"
+            : "Read the German source for the whole paper →",
         }
       : null;
   // Beside it, the English wherever the paper has English units (paperSourceFaces.ts).
@@ -639,12 +638,12 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                         ))}
                       </ul>
                     </div>
+                    {/* What ?view=german and the other source views show in the passage's place:
+                        the ways to the faces that hold the source. It said "The reviewed German,
+                        aligned English, gloss, facsimile, and split view for this passage are not
+                        yet available", false once they were, and review copy besides
+                        (D-2026-09-25-no-review-status-banners). */}
                     <div data-face-source hidden>
-                      <p className="notice">
-                        The reviewed German, aligned English, gloss, facsimile, and split view for
-                        this passage are not yet available. The explanation does not stand in for
-                        those source layers.
-                      </p>
                       {germanSource && (
                         <p>
                           <a href={germanSource.href}>{germanSource.label}</a>

@@ -50,7 +50,7 @@ export default function LightQuantaInvestigationPage() {
         </p>
         <p className="notice">
           A route you could take, not a transcript of Einstein’s private thoughts. Its numbers are
-          worked examples from stated assumptions. Editorial and physics review remain pending.
+          worked examples from stated assumptions.
         </p>
         <nav className="actions" aria-label="Investigation stages">
           <a href="#light-entropy">Entropy</a>

@@ -286,10 +286,7 @@ export function LightQuantaFirstEncounter({ record }: { record: EntranceRecord }
             Then inspect the section 6 “as if” inference →
           </a>
         </p>
-        <p className="fine">
-          Both links lead to our explanation of those sections, which is a draft. A reviewed German
-          text, and an English translation aligned to it sentence by sentence, are not ready yet.
-        </p>
+        <p className="fine">Both links lead to our explanation of those sections.</p>
       </section>
     </section>
   );

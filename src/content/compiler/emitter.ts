@@ -194,7 +194,7 @@ export async function emitPayloads(options: EmitOptions): Promise<ContentBuildIn
     const md = [
       `# ${foundation.title}`,
       foundation.summary,
-      "Written for this edition, not translated from Einstein. Editorial review pending.",
+      "Written for this edition, not translated from Einstein.",
       `## ${foundation.question}`,
       markdownBlocks(foundation.explanation, titleOf),
       foundation.exampleTitle

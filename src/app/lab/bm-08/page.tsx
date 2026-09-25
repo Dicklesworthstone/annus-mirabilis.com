@@ -105,11 +105,11 @@ export default function CameraPage() {
         />
         <h2>Keep this later model separate from the paper</h2>
         <p>
-          These are original draft explanations of modern camera and inference models, not a
-          transcription of Einstein’s argument. Synthetic camera observations are not experimental
-          evidence for a physical suspension. The interval procedures assume constant drift,
-          constant diffusivity, exact timing and calibration, uniform exposure, and independent
-          Gaussian position errors. No irregular or censored data importer is supplied.
+          These are original explanations of modern camera and inference models, not a transcription
+          of Einstein’s argument. Synthetic camera observations are not experimental evidence for a
+          physical suspension. The interval procedures assume constant drift, constant diffusivity,
+          exact timing and calibration, uniform exposure, and independent Gaussian position errors.
+          No irregular or censored data importer is supplied.
         </p>
         <p>
           <a href="https://doi.org/10.1103/PhysRevE.82.011917">

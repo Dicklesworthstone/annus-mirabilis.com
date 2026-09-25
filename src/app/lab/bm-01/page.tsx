@@ -66,8 +66,8 @@ export default function TracerPage() {
           instantaneous velocity of a tracer. At zero elapsed time it is not defined.
         </p>
         <p>
-          The accepted sample and the model curves are not experimental evidence. The source-aligned
-          critical edition and reviewed historical constants remain in preparation.
+          The accepted sample and the model curves are not experimental evidence. Historical
+          constants remain in preparation.
         </p>
         <div className="actions">
           <a className="button" href="/lab/bm-06/">

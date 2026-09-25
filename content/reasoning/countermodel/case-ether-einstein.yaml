@@ -2,7 +2,7 @@ schemaVersion: 1
 id: case-ether-einstein
 title: When the chosen observations cannot decide
 question: Can these kinematic measurements distinguish a privileged-frame interpretation?
-scope: These are predicted outcomes of specified measurements, not historical datasets. Compare each candidate with the other. Numerical agreement under these observations does not decide whether an ether exists; disagreement elsewhere would require another stated test. The historical source links are references, not reviewed edition text.
+scope: These are predicted outcomes of specified measurements, not historical datasets. Compare each candidate with the other. Numerical agreement under these observations does not decide whether an ether exists; disagreement elsewhere would require another stated test. The historical source links are references, not edition text.
 review: draft
 defaultBeta: 0.6
 sources:

@@ -28,8 +28,8 @@ export default function EmbedIndex() {
         <h2>What an embed keeps, and what it leaves out</h2>
         <p>
           Each embed runs the same laboratory as the edition, starting from the same worked example.
-          It adds no physics of its own, no reviewed historical data and no FrankenSim result.
-          Changing a control recalculates inside that frame only.
+          It adds no physics of its own, no historical data and no FrankenSim result. Changing a
+          control recalculates inside that frame only.
         </p>
         <p>
           The link carries the instrument and the presentation options, and nothing else: no notes,

@@ -37,8 +37,7 @@ export default function SpecialRelativityInvestigationPage() {
           rule itself never changes.
         </p>
         <p className="notice">
-          A route you could take, not a transcript of Einstein’s private thoughts. Editorial and
-          physics review remain pending.
+          A route you could take, not a transcript of Einstein’s private thoughts.
         </p>
         <nav className="actions" aria-label="Relativity investigation stages">
           <a href="#sr-start">Clocks before coordinates</a>

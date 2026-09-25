@@ -4,8 +4,9 @@
  * needs JavaScript. Each section renders only when the paper has records, so a paper without them
  * is unchanged.
  *
- * Every entry is a draft and says so. A callout's instrument link carries the "not yet reviewed"
- * marker because no review record covers any entry yet; the build gate that would refuse an
+ * No entry says it is a draft (D-2026-09-25-no-review-status-banners). A callout's instrument link
+ * carries the gate's "not-yet-reviewed" verdict as data, because no review record covers any entry
+ * yet, and shows no words about it; the build gate that would refuse an
  * unreviewed entry (misconceptions/interventionGate.ts) belongs to the callout bead and is not
  * wired here. The callout shows the Full-explanation reading; following the reader's Detail
  * setting is the callout bead's too.
@@ -38,7 +39,7 @@ export function PaperMargins({ margins }: { margins: Margins }) {
           <h2 id="common-wrong-turns-heading">Common wrong turns</h2>
           <p className="fine">
             Things often said about this paper, what makes each one tempting, and what the paper and
-            later evidence support. Drafts, not yet reviewed.
+            later evidence support.
           </p>
           {misconceptions.map((m) => {
             const instrument = m.intervention.instrumentId ?? m.instrumentIds?.[0];
@@ -63,9 +64,7 @@ export function PaperMargins({ margins }: { margins: Margins }) {
           aria-labelledby="historians-margin-heading"
         >
           <h2 id="historians-margin-heading">Historian’s margin</h2>
-          <p className="fine">
-            What was written, by whom and when, from the sources cited. Drafts, not yet reviewed.
-          </p>
+          <p className="fine">What was written, by whom and when, from the sources cited.</p>
           {notes.map((note) => (
             <article
               key={note.id}

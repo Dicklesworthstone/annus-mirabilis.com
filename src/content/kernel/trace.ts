@@ -11,7 +11,7 @@ import { checkTraceRowCount } from "./traceValidation.ts";
 import type { KernelIssue, WorkedTrace } from "./types.ts";
 
 export const BM01_TRACE_SCENARIO_ID = "diffusion-einstein-1905-printed";
-export const BM01_TRACE_CONSTANT_SET_LABEL = "Declared 1905-plan inputs (source review pending)";
+export const BM01_TRACE_CONSTANT_SET_LABEL = "Declared 1905-plan inputs";
 export const BM01_TRACE_CONSTANT_SET_ID = "scenario-einstein-1905-brownian-printed";
 
 /** Chosen values from the project plan, in SI. Legacy IDs do not certify transcription. */

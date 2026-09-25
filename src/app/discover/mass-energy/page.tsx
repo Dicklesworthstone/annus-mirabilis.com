@@ -374,8 +374,8 @@ export default function MassEnergyRoute() {
         <p>
           The paper is three pages and its title is a question rather than a claim. It sets out the
           two accounts, performs the subtraction, takes the slow-speed limit, and states the
-          conclusion in a single sentence. Its German text is on this site, not yet reviewed; the
-          English translation is not written yet.
+          conclusion in a single sentence. Its German text and an English translation are on this
+          site.
         </p>
         {SOURCE_JUMPS.map((jump) => (
           <SourceJump key={jump.id} jump={jump} />

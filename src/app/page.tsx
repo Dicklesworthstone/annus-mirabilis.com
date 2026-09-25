@@ -167,10 +167,9 @@ export default function Home() {
           {germanNow}
         </p>
         <p>
-          {translationNow} Every drafted passage is marked as a draft where it appears. For a paper
-          with no translation yet, the English, parallel and interlinear faces say it is unavailable
-          instead of showing you a paraphrase and letting you assume it was checked against the
-          German.
+          {translationNow} For a paper with no translation yet, the English, parallel and
+          interlinear faces say it is unavailable instead of showing you a paraphrase and letting
+          you assume it was checked against the German.
         </p>
         <p>
           The page images come from scans listed, each with its source, its terms and its digest, on

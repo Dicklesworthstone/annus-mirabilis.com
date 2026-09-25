@@ -131,7 +131,7 @@ export function FacsimileFace({
         <div className="facsimile-notice text-layer-notice" role="note">
           <p>
             <strong>Third-Party Text Layer Notice:</strong> The library scan contains a machine-read
-            text layer. That text layer is third-party OCR output, not the reviewed edition. The
+            text layer. That text layer is third-party OCR output, not the text of this edition. The
             edition is rendered from diplomatic transcription.
           </p>
         </div>

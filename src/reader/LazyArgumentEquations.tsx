@@ -80,7 +80,7 @@ export function LazyArgumentEquations({
       <summary>Explore the equations in this step</summary>
       <p>
         Read each operation, check its units and assumptions, or open the mathematical step behind
-        it. These are modern teaching equations, not a reviewed transcription.
+        it. These are modern teaching equations, not the equations as printed.
       </p>
       {equations ? (
         <EquationScope scope={`reader-${argumentId}`} lessonTitles={lessonTitles}>

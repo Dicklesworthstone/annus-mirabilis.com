@@ -28,8 +28,8 @@ export function ShelfOpticsPage({ instrumentId }: { instrumentId: ShelfId }) {
           first thing under it. It says what the numbers are before anything interprets them. */}
       <p className="notice">
         These are host reference calculations with modern SI calibration and illustrative settings.
-        They are not historical measurements, a reviewed historical dataset, or publication of the
-        strict 1904 shelf. No FrankenSim WASM calculation is claimed.
+        They are not historical measurements, a historical dataset, or publication of the strict
+        1904 shelf. No FrankenSim WASM calculation is claimed.
       </p>
       <section className="reading" aria-labelledby="shelf-model-scope">
         <h2 id="shelf-model-scope">What is being calculated?</h2>
@@ -118,9 +118,9 @@ export function ShelfOpticsPage({ instrumentId }: { instrumentId: ShelfId }) {
         <h2 id="shelf-evidence-status">Prediction is not a measurement</h2>
         <p>
           No observed points, digitized fringe shifts or experimental confidence bounds have been
-          added to these plots. A reviewed source-specific dataset, with its geometry, wavelength,
-          protocol and uncertainty, is still needed before making a numerical comparison with a
-          historical experiment.
+          added to these plots. A source-specific dataset, with its geometry, wavelength, protocol
+          and uncertainty, is still needed before making a numerical comparison with a historical
+          experiment.
         </p>
         <p>
           The reference implementation is <code>src/physics/reference/shelfOptics.ts</code>. Its

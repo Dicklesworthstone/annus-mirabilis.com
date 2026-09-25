@@ -379,9 +379,9 @@ export default function BrownianEncounter() {
         <h2>Where this enters the paper</h2>
         <p>
           The Brownian-motion paper’s §§4–5 connect irregular displacements to diffusion and then to
-          a measurable displacement scale. The German text is on this site, not yet reviewed; the
-          English translation is not written yet. This route is new explanation written for this
-          edition, not a translation of the paper.
+          a measurable displacement scale. The German text and an English translation are on this
+          site. This route is new explanation written for this edition, not a translation of the
+          paper.
         </p>
         {SOURCE_JUMPS.map((jump) => (
           <SourceJump key={jump.id} jump={jump} />

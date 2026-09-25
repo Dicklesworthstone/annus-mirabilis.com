@@ -30,10 +30,10 @@ export default async function OfflinePage() {
         </p>
         <p>
           A file holds the explanation at every level of detail, its source references and the
-          numbers worked out when the site was built. It is an explanation, not a reviewed edition
-          of the paper: the German text and a translation are separate work, and not in it. Nothing
-          from your notebook is read or included. Links to online sources still need a connection,
-          and the interactive plots are not included.
+          numbers worked out when the site was built. It is an explanation, not an edition of the
+          paper: the German text and the translation are separate work, and not in it. Nothing from
+          your notebook is read or included. Links to online sources still need a connection, and
+          the interactive plots are not included.
         </p>
       </header>
       {papers.length > 0 ? (
@@ -49,7 +49,7 @@ export default async function OfflinePage() {
           <h2>No chapters are offered in this build</h2>
           <p>
             Offline downloads appear only when this build contains eligible chapter files.
-            Unpublished explanation drafts are not exported in a reviewed release profile.
+            Unpublished explanation drafts are not exported in this release profile.
           </p>
         </section>
       )}

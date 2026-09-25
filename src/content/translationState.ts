@@ -56,21 +56,6 @@ export function translationState(root: string): PaperTranslation[] {
     });
 }
 
-const NUMBER_WORDS = [
-  "no",
-  "one",
-  "two",
-  "three",
-  "four",
-  "five",
-  "six",
-  "seven",
-  "eight",
-  "nine",
-  "ten",
-];
-const inWords = (n: number) => NUMBER_WORDS[n] ?? String(n);
-
 /**
  * A paper's short title as it reads mid-sentence: "Mass and energy" becomes "mass and energy", and
  * a proper noun keeps its capital, so "Brownian motion" stays "Brownian motion".
@@ -80,38 +65,28 @@ export function nameInSentence(title: string): string {
 }
 
 /**
- * One sentence on the translation's state, for any page that mentions it. `names` gives each
- * paper's reader-facing name by slug.
+ * One sentence on the translation, for any page that mentions it: which papers it covers, and which
+ * it does not yet. `names` gives each paper's reader-facing name by slug, for every paper. It says
+ * what the site contains and nothing of who drafted or checked it
+ * (D-2026-09-25-no-review-status-banners): the units' records and the receipts keep that.
  */
 export function translationSentence(
   state: readonly PaperTranslation[],
   names: ReadonlyMap<string, string>,
 ): string {
-  if (state.length === 0) return "The English translation has not been started.";
-  const parts = state.map((paper) => {
-    const name = nameInSentence(names.get(paper.slug) ?? paper.slug);
-    const agentChecked = paper.agentChecked ?? 0;
-    const byPerson = paper.reviewed - agentChecked;
-    // Who made it: an AI model made every unit it translated, whatever its review state later.
-    const byModel = paper.byModel ?? paper.machineDrafts;
-    const made =
-      byModel === paper.units
-        ? "all drafted by a machine"
-        : byModel === 0
-          ? "none drafted by a machine"
-          : `${inWords(byModel)} of them drafted by a machine`;
-    let review: string;
-    if (agentChecked === paper.units)
-      review = "all checked against the German by AI agents, none by a person";
-    else if (paper.reviewed === 0) review = "none reviewed yet";
-    else {
-      const parts = [
-        ...(agentChecked > 0 ? [`${inWords(agentChecked)} checked by AI agents`] : []),
-        ...(byPerson > 0 ? [`${inWords(byPerson)} reviewed by a person`] : []),
-      ];
-      review = parts.join(" and ");
-    }
-    return `the ${name} paper: ${paper.units} passages, ${made}, and ${review}`;
-  });
-  return `The English translation has begun with ${parts.join("; and with ")}.`;
+  const translated = state.filter((paper) => paper.units > 0);
+  if (translated.length === 0) return "The English translation has not been started.";
+  const name = (slug: string) => nameInSentence(names.get(slug) ?? slug);
+  const listed = (items: readonly string[]) =>
+    items.length <= 1 ? (items[0] ?? "") : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
+  const papers = (n: number) => (n === 1 ? "paper" : "papers");
+  // In the order `names` gives the papers (the journal's), not the slugs' alphabetical order.
+  const has = new Set(translated.map((paper) => paper.slug));
+  const order = [...names.keys(), ...[...has].filter((slug) => !names.has(slug))];
+  const covered = order.filter((slug) => has.has(slug)).map(name);
+  const missing = order.filter((slug) => !has.has(slug)).map(name);
+  const sentence = `The English translation covers the ${listed(covered)} ${papers(covered.length)}`;
+  return missing.length === 0
+    ? `${sentence}.`
+    : `${sentence}; the ${listed(missing)} ${papers(missing.length)} ${missing.length === 1 ? "has" : "have"} none yet.`;
 }

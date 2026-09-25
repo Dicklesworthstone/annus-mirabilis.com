@@ -56,8 +56,8 @@ export default async function GuidedTourPage({ params }: Props) {
           explanation is available below without submitting an answer.
         </p>
         <p className="notice">
-          This path strings together pages of the edition; it is not a reviewed account of how the
-          paper came about. A laboratory works out what a claim implies, and what it shows is a
+          This path strings together pages of the edition; it is not an account of how the paper
+          came about. A laboratory works out what a claim implies, and what it shows is a
           calculation, not an observation.
         </p>
         <nav className="guided-tour-actions" aria-label="Begin or leave this reading path">

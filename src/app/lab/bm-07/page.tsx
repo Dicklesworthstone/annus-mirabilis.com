@@ -126,9 +126,9 @@ export default function InferencePage() {
           constant. Recovering that number tests inference under the model; it does not measure a
           real suspension. With modern SI constants, the Avogadro constant is defined, so an
           observational inversion would be a consistency check rather than an independent
-          determination. Reviewed historical observations and independent gas-constant measurements
-          are not supplied here. This instrument uses ideal positions; the separate camera
-          laboratory adds an explicitly later measurement model.
+          determination. Historical observations and independent gas-constant measurements are not
+          supplied here. This instrument uses ideal positions; the separate camera laboratory adds
+          an explicitly later measurement model.
         </p>
         <p>
           <a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda358.htm">
