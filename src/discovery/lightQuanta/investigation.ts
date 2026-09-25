@@ -5,12 +5,14 @@ import { LQ04_DEFAULTS, LQ04_OUTPUTS } from "../../experiments/lq04/definition.t
 import { validateLq04Parameters } from "../../experiments/lq04/parameters.ts";
 import { evaluateLq04 } from "../../experiments/lq04/session.ts";
 import { LQ06_DEFAULTS, LQ06_OUTPUTS } from "../../experiments/lq06/definition.ts";
+import { validateLq06Parameters } from "../../experiments/lq06/parameters.ts";
 import { evaluateLq06 } from "../../experiments/lq06/session.ts";
 import { LQ08_DEFAULTS, LQ08_OUTPUTS } from "../../experiments/lq08/definition.ts";
 import { validateLq08Parameters } from "../../experiments/lq08/parameters.ts";
 import { evaluateLq08 } from "../../experiments/lq08/session.ts";
 import { ExperimentRuntimeError } from "../../experiments/refusal.ts";
 import { decodeResult, encodeResult, parseResult } from "../../experiments/results/codec.ts";
+import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
 import {
   type AcceptedSnapshot,
@@ -216,7 +218,7 @@ export function evaluateLightInvestigation(input: unknown): readonly ScientificR
       outputs.push(value(quantityId, entropy[field]));
     }
     // Handoff the actual LQ-04 energy, never LQ-06's rounded default or a stale prior result.
-    const matched = evaluateLq06({
+    const handoff = validateLq06Parameters({
       ...LQ06_DEFAULTS,
       radiationEnergy: entropy.energy,
       frequency: p.frequency,
@@ -225,9 +227,37 @@ export function evaluateLightInvestigation(input: unknown): readonly ScientificR
       temperature: p.referenceTemperature,
       constantSetId: LIGHT_INVESTIGATION_CONSTANTS,
     });
-    outputs.push(
-      ...matched.filter((o) => (MATCH_FIELDS as readonly string[]).includes(o.quantityId)),
-    );
+    if (handoff.kind === "accepted") {
+      const matched = evaluateLq06(handoff.data);
+      outputs.push(
+        ...matched.filter((o) => (MATCH_FIELDS as readonly string[]).includes(o.quantityId)),
+      );
+    } else {
+      // A cold, high-frequency band can hold far less than one quantum's energy (1.5e-24 J at
+      // 1200 K and 1200 THz, about 10^-5 of hν), below the coefficient match's declared range.
+      // The match says so, in LQ-06's own words, instead of counting a fraction of a quantum.
+      for (const quantityId of MATCH_FIELDS) {
+        const c = existing(LIGHT_INVESTIGATION_OUTPUTS, quantityId);
+        outputs.push(
+          decodeResult({
+            quantityId,
+            ownerId: c.ownerId,
+            semanticKind: c.semanticKind,
+            unit: c.unit,
+            status: "outside-domain",
+            condition: "coefficient-match-outside-model-domain",
+            domainKind: "model",
+            reason:
+              handoff.kind === "refused"
+                ? refusalSentence(handoff.refusal)
+                : "The coefficient match cannot take these settings.",
+            boundary: {
+              alternativeModel: "Raise the temperature, which gives the band more energy.",
+            },
+          }),
+        );
+      }
+    }
   }
   const independent = independentPointsProbability(p.pointCount, p.volumeRatio);
   const locked = lockedPositionsProbability(p.pointCount, p.volumeRatio);

@@ -28,7 +28,15 @@ export function evaluateLq06(p: Lq06Parameters): ScientificResult[] {
   const validated = validateLq06Parameters(p);
   if (validated.kind !== "accepted")
     throw new ExperimentRuntimeError("parameters-rejected", "Invalid LQ-06 parameters.", "lq-06");
-  p = validated.data;
+  return lq06Outputs(validated.data);
+}
+
+/**
+ * The calculation alone, for parameters validateLq06Parameters has accepted. Every setting inside
+ * the declared domain gives finite results, so the range guard below is reached only by a caller
+ * that skips that check; lq06.session.test.ts drives it that way.
+ */
+export function lq06Outputs(p: Lq06Parameters): ScientificResult[] {
   const constantSet = getConstantSet(p.constantSetId);
   const kB = thermalConstantSI(constantSet, { read: constantValue, thermal: thermalConstant });
   const eff = effectiveIndependentCount(p.radiationEnergy, p.frequency, constantSet);
@@ -165,11 +173,13 @@ export function createLq06Session(instanceId: string, example?: PreparedLq06Exam
             "invalid-parameter",
             { capabilityId: "lq06.evaluation" },
             {
+              // The reader's sentence, never the error's own text, which is written for developers
+              // ("[experiment] The quantumEnergy calculation is ... (outside-numeric-range)").
               details: {
                 requirements:
-                  error instanceof Error
-                    ? error.message
-                    : "The calculation could not be evaluated.",
+                  error instanceof ExperimentRuntimeError && error.code === "outside-numeric-range"
+                    ? "These settings take the calculation beyond the numbers it can represent."
+                    : "These settings could not be calculated.",
               },
             },
           ),

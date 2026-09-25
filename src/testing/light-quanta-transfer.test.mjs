@@ -225,6 +225,42 @@ test("unavailable inference has no coefficient handoff, even if a prior accepted
   s.apply({ ...defaults, referenceTemperature: 10000 });
   assert.equal(handoff(s.getSnapshot().accepted), null);
 });
+test("a band holding less energy than the coefficient match admits gets no match and no handoff", () => {
+  // 1200 K at 1200 THz: LQ-04 admits the state and gives 1.5e-24 J, about 10^-5 of one hν, far
+  // below LQ-06's declared 1 pJ. The match fields used to count that fraction of a quantum; they
+  // are now outside LQ-06's domain, in LQ-06's words, and the link to LQ-06 is withheld.
+  const s = session();
+  assert.ok(handoff(s.getSnapshot().accepted));
+  assert.equal(
+    s.apply({ ...defaults, frequency: 1.2e15, referenceTemperature: 1200 }).kind,
+    "accepted",
+  );
+  const accepted = s.getSnapshot().accepted;
+  const energy = accepted.outputs.find((o) => o.quantityId === "radiationEnergy");
+  assert.equal(energy.status, "value");
+  assert.ok(energy.value > 0 && energy.value < 1e-12, `energy ${energy.value}`);
+  for (const id of ["effectiveIndependentCount", "quantumEnergy", "quantumEnergyEv"]) {
+    const match = accepted.outputs.find((o) => o.quantityId === id);
+    assert.equal(match.status, "outside-domain", id);
+    assert.match(
+      match.reason,
+      /^Enter the radiation energy E from 0\.001 to 1 × 10⁶ nJ, the range this model describes: /,
+    );
+    assert.doesNotMatch(match.reason, /NaN|Infinity|\[experiment\]|\(outside-/);
+  }
+  assert.equal(handoff(accepted), null);
+  // The negative: a band just inside the range still matches and still hands over.
+  assert.equal(
+    s.apply({ ...defaults, frequency: 1.2e15, referenceTemperature: 3000 }).kind,
+    "accepted",
+  );
+  const inside = s.getSnapshot().accepted;
+  assert.equal(
+    inside.outputs.find((o) => o.quantityId === "effectiveIndependentCount").status,
+    "value",
+  );
+  assert.ok(handoff(inside));
+});
 test("coefficient link preflight refuses bad input and leaves its original example untouched", () => {
   const before = structuredClone(example);
   for (const bad of [
@@ -241,6 +277,10 @@ test("shape-valid but unrepresentable incoming calculations are refused before r
     radiationEnergy: Number.MAX_VALUE,
     frequency: Number.MIN_VALUE,
   };
-  assert.equal(validateLq06Parameters(parameters).kind, "accepted");
+  // These passed the field checks and failed only in the calculation. LQ-06's declared domain
+  // (content/experiments/lq-06.yaml) now refuses them first, by name and range (dispatch 165).
+  const checked = validateLq06Parameters(parameters);
+  assert.equal(checked.kind, "refused");
+  assert.equal(checked.refusal.code, "outside-model-domain");
   assert.equal(prepareLinkedCoefficientExample(example, parameters).kind, "invalid");
 });

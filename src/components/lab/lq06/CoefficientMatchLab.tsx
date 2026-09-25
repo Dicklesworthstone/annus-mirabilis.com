@@ -15,6 +15,7 @@ import {
   type Lq06Parameters,
   type Lq06SubexpressionChoice,
 } from "../../../experiments/lq06/definition.ts";
+import { lq06RangeSentence } from "../../../experiments/lq06/parameters.ts";
 import { createLq06Session, type PreparedLq06Example } from "../../../experiments/lq06/session.ts";
 import { LQ06_TAPE } from "../../../experiments/lq06/tape.ts";
 import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
@@ -196,7 +197,14 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
       setError(`${FIELDS[key].label}: enter a number.`);
       return;
     }
-    if (apply({ [key]: n * FIELDS[key].scale })) {
+    const stored = n * FIELDS[key].scale;
+    if (!Number.isFinite(stored)) {
+      // 1e300 THz is a number, but not one in hertz: say the range rather than "enter a number".
+      setDrafts((d) => ({ ...d, [key]: text }));
+      setError(lq06RangeSentence(key));
+      return;
+    }
+    if (apply({ [key]: stored })) {
       setDrafts((d) => {
         const { [key]: _done, ...rest } = d;
         return rest;
@@ -323,7 +331,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
 
           {error && (
             <p role="alert" className="notice error">
-              {error}
+              {error} The results shown are still those of the last accepted settings.
             </p>
           )}
         </div>

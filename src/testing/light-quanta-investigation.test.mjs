@@ -9,19 +9,19 @@
  * is restated against what was actually observed rather than carried forward.) They are unreachable, and
  * the reason is structural in each case rather than a gap in these tests:
  *
- *   investigation.ts:72  missing-output-contract
- *     `existing()` is module-private and every one of its five call sites passes an id drawn
+ *   investigation.ts:74  missing-output-contract
+ *     `existing()` is module-private and every one of its six call sites passes an id drawn
  *     from the module's own constant arrays (ENTROPY_FIELDS, MATCH_FIELDS, PHOTO_FIELDS) or a
  *     literal. It fires only if the module's tables disagree with each other, which no caller
  *     can arrange. It guards a build-time invariant, not an input.
  *
- *   investigation.ts:317 publication-refused
- *     Its predecessor at :297 is strictly stronger. equivalentPreparedResults requires equal
- *     length and byte-equal non-value fields, so any prepared example that survives :193 is
+ *   investigation.ts:347 publication-refused
+ *     Its predecessor at :327 is strictly stronger. equivalentPreparedResults requires equal
+ *     length and byte-equal non-value fields, so any prepared example that survives :195 is
  *     field-for-field identical to the evaluated outputs bar values within 1e-12 - and publish()
  *     denies on shape, unit, semanticKind and ownerId, none of which can still differ.
  *
- *   investigation.ts:345 publication-refused
+ *   investigation.ts:375 publication-refused
  *     `apply()` builds the publication from the store's own token. setup-change ALWAYS forks a
  *     new runId and increments actionIndex (instanceStore.ts:285, :298), so `non-monotone-step`
  *     cannot fire; issue() sets view.requested, so `no-request` cannot; the outputs carry the
@@ -227,7 +227,7 @@ test("invalid edits cannot advance a request or replace accepted evidence", () =
     const refusal = session.apply({ ...DEFAULTS, ...patch });
     assert.equal(refusal.kind, "refused");
     // apply() catches the typed refusal and returns a message, so the code is asserted through
-    // the message it carries (investigation.ts:125). Without this, an unrelated throw inside
+    // the message it carries (investigation.ts:127). Without this, an unrelated throw inside
     // apply's try block would reach the reader as a rejected edit.
     assert.match(refusal.message, /\(parameters-rejected\)$/, JSON.stringify(patch));
     assert.equal(session.getSnapshot(), before);
@@ -243,7 +243,7 @@ test("accessor properties never execute at the input boundary", () => {
       return DEFAULTS.frequency;
     },
   });
-  refuses(() => validateLightInvestigation(bad), "parameters-rejected", "investigation.ts:125");
+  refuses(() => validateLightInvestigation(bad), "parameters-rejected", "investigation.ts:127");
   assert.equal(reads, 0);
 });
 test("atomic publications and comparison metadata identify every changed field", () => {
@@ -280,7 +280,7 @@ test("prepared examples reject changed models, output values, and invalid digest
     refuses(
       () => createLightInvestigationSession("bad", { ...prepared(), ...patch }),
       "prepared-example-mismatch",
-      "investigation.ts:297",
+      "investigation.ts:327",
     );
   const p = prepared(),
     edited = JSON.parse(p.results[0]);
@@ -289,7 +289,7 @@ test("prepared examples reject changed models, output values, and invalid digest
   refuses(
     () => createLightInvestigationSession("changed", p),
     "prepared-example-mismatch",
-    "investigation.ts:297",
+    "investigation.ts:327",
   );
 });
 test("prepared results preserve admitted server values within cross-engine rounding tolerance", () => {
@@ -306,12 +306,12 @@ test("perturbations refuse at widget limits instead of silently clamping a compa
   refuses(
     () => perturbInvestigation({ ...DEFAULTS, incidentPower: 0.01 }, "double-power"),
     "parameters-rejected",
-    "investigation.ts:125",
+    "investigation.ts:127",
   );
   refuses(
     () => perturbInvestigation(DEFAULTS, "unknown"),
     "unknown-perturbation",
-    "investigation.ts:370",
+    "investigation.ts:400",
   );
 });
 test("generated static example covers the real owner graph and replays deterministically", async () => {

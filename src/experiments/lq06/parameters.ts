@@ -1,4 +1,10 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import {
+  type DomainDisplay,
+  declaredDomains,
+  domainRequirement,
+  withinDeclaredDomain,
+} from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { LQ06_DEFAULTS, type Lq06Parameters } from "./definition.ts";
 
@@ -42,7 +48,7 @@ function dataFields(input: unknown): Record<string, unknown> | null {
   }
 }
 
-export function validateLq06Parameters(input: unknown): Lq06ParameterCheck {
+function validateLq06Fields(input: unknown): Lq06ParameterCheck {
   const fields = dataFields(input);
   if (!fields || Object.keys(fields).length !== Object.keys(LQ06_DEFAULTS).length) {
     return bad("Use complete, known parameter data fields.");
@@ -59,17 +65,10 @@ export function validateLq06Parameters(input: unknown): Lq06ParameterCheck {
       return bad(`Enter ${LQ06_FIELD_NAMES[key]} as a number.`);
     }
   }
-  if (p.radiationEnergy <= 0) return bad("Enter a radiation energy E greater than zero, in nJ.");
-  if (p.frequency <= 0) return bad("Enter a frequency ν greater than zero, in THz.");
-  if (p.gasParticles <= 0 || !Number.isSafeInteger(p.gasParticles)) {
-    return bad("Enter a whole number of molecules n, at least 1.");
-  }
-  if (p.volumeRatio <= 0 || p.volumeRatio > 100) {
-    return bad("Enter a volume ratio V/V₀ greater than 0 and at most 100.");
-  }
-  if (p.temperature <= 0 || p.temperature > 50000) {
-    return bad("Enter a temperature T greater than 0 and at most 50 000 K.");
-  }
+  // The ranges of E, ν, n, V/V₀ and T are the manifest's, checked once by withinDeclaredDomain
+  // below. These fields used to carry their own, wider ranges (V/V₀ up to 100, T up to 50 000 K),
+  // so a value between the two was refused with the declared range after being told the wider one.
+  if (!Number.isInteger(p.gasParticles)) return bad("Enter a whole number of molecules n.");
   if (
     !["none", "E", "nu", "E_over_beta_nu", "N_E_over_R_beta_nu", "V"].includes(
       p.selectedSubexpression,
@@ -91,6 +90,27 @@ export function validateLq06Parameters(input: unknown): Lq06ParameterCheck {
     return bad("Choose the modern SI or printed 1905 light-quanta constant set.");
   }
   return { kind: "accepted", data: Object.freeze(p) };
+}
+
+/** The fields above, then every range content/experiments/lq-06.yaml declares (dispatch 134). */
+const LQ06_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  radiationEnergy: { label: "radiation energy E", unit: "nJ", scale: 1e9 },
+  frequency: { label: "frequency ν", unit: "THz", scale: 1e-12 },
+  gasParticles: { label: "number of molecules n" },
+  volumeRatio: { label: "volume ratio V/V₀" },
+  temperature: { label: "temperature T" },
+};
+
+export function validateLq06Parameters(input: unknown): Lq06ParameterCheck {
+  return withinDeclaredDomain("lq-06", validateLq06Fields(input), LQ06_DOMAIN_DISPLAY);
+}
+
+/** The declared-range sentence for one field, for a typed value too large to convert to its unit. */
+export function lq06RangeSentence(key: keyof typeof LQ06_FIELD_NAMES): string {
+  const domain = declaredDomains("lq-06")[key];
+  return domain
+    ? domainRequirement(domain, LQ06_DOMAIN_DISPLAY[key])
+    : `Enter ${LQ06_FIELD_NAMES[key]} as a smaller number.`;
 }
 
 /** Partial controls and complete presets use the same validation without object spreading first. */

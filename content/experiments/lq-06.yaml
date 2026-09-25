@@ -22,7 +22,7 @@ parameters:
       max: 1e-3
       minInclusive: true
       maxInclusive: true
-      reason: "Admitted radiation energy range within Wien domain"
+      reason: "The radiation energies the lab admits for its calculation with Wien's law"
     visualRange:
       min: 1e-10
       max: 1e-7
@@ -62,7 +62,7 @@ parameters:
       max: 1000000
       minInclusive: true
       maxInclusive: true
-      reason: "Discrete particle ensemble for Boltzmann configuration analogy"
+      reason: "A whole number of gas molecules, compared with the light quanta through Boltzmann's principle"
     visualRange:
       min: 1
       max: 100
@@ -78,11 +78,11 @@ parameters:
     quantityId: volumeRatio
     displayUnit: ""
     modelDomain:
-      min: 0.01
+      min: 0.0001
       max: 10.0
       minInclusive: true
       maxInclusive: true
-      reason: "Volume change domain"
+      reason: "The volume changes the lab compares, from the smallest part of the volume the light-quanta investigation counts, a ten-thousandth, to ten times the first volume"
     visualRange:
       min: 0.1
       max: 2.0
@@ -102,7 +102,7 @@ parameters:
       max: 10000
       minInclusive: true
       maxInclusive: true
-      reason: "Thermal equilibrium temperature"
+      reason: "The temperature of radiation in thermal equilibrium, which sets the mean energy of a quantum"
     visualRange:
       min: 500
       max: 6000

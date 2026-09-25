@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { LQ06_DEFAULTS } from "../experiments/lq06/definition.ts";
 import { decodeLq06Settings, encodeLq06Settings } from "../experiments/lq06/permalink.ts";
-import { createLq06Session, evaluateLq06 } from "../experiments/lq06/session.ts";
+import { createLq06Session, evaluateLq06, lq06Outputs } from "../experiments/lq06/session.ts";
 
 describe("LQ-06 Session Management & Evaluator (am-lq-06-coefficient-match-n8pe)", () => {
   it("initializes session with accepted snapshot and default outputs", () => {
@@ -122,21 +122,22 @@ describe("LQ-06 Session Management & Evaluator (am-lq-06-coefficient-match-n8pe)
  * Refusal sites in session.ts, one case per throw site (am-p465, am-kd9h).
  *
  * THE TWO parameters-rejected SITES ARE TOLD APART, not collected by one assertion. The code
- * appears at session.ts:30 and session.ts:102, and naming the code alone would credit both from
+ * appears at session.ts:30 and session.ts:110, and naming the code alone would credit both from
  * either case. They are distinguishable from outside: :30 is evaluateLq06 refusing settings handed
- * to the evaluator, :102 is createLq06Session refusing the parameters carried by a prepared
+ * to the evaluator, :110 is createLq06Session refusing the parameters carried by a prepared
  * example, and each writes a different message. Both cases below drive their own entry point and
  * assert their own message.
  *
  * TWO OF THE FIVE SITES ARE UNREACHABLE and stay counted rather than covered:
- *   :67  "Missing output contract" - every key in the values record is a literal in this file, and
+ *   :75  "Missing output contract" - every key in the values record is a literal in this file, and
  *        all sixteen are declared in LQ06_OUTPUTS. Measured, not assumed. It guards a future
  *        rename in definition.ts.
- *   :140 the initial publication - its outputs come from evaluateLq06 and its contracts from
+ *   :148 the initial publication - its outputs come from evaluateLq06 and its contracts from
  *        LQ06_OUTPUTS, so they agree by construction, and the store's other refusals need a
  *        previous accepted snapshot that a first publish does not have. Ten accepted parameter
  *        sets across the envelope, including both volumeRatio ends, gasParticles 1 and 1e15, and
- *        a selected subexpression, all published.
+ *        a selected subexpression, all published. (Measured before the declared domain, which
+ *        now stops n at 10⁶ and refuses 1e15 before it reaches the store.)
  * Neither code is named anywhere below, so no assertion here can collect a surplus credit for
  * a site no case drives.
  */
@@ -165,16 +166,20 @@ describe("LQ-06 session refusals (am-p465)", () => {
     expect(err.message).not.toContain("prepared");
   });
 
-  it("refuses the parameters carried by a prepared example (session.ts:102)", () => {
+  it("refuses the parameters carried by a prepared example (session.ts:110)", () => {
     const err = refusalFrom(() => createLq06Session("lq06-refusal-prepared", prepared(invalid)));
     expect(err.code).toBe("parameters-rejected");
     expect(err.message).toContain("The prepared LQ-06 parameters are invalid.");
   });
 
-  it("refuses a calculation that leaves the representable range (session.ts:60)", () => {
-    // A subnormal radiation energy passes the parameter contract and then drives the entropy
-    // volume coefficient to zero. The refusal names the quantity rather than emitting a 0.
-    const err = refusalFrom(() => evaluateLq06({ ...LQ06_DEFAULTS, radiationEnergy: 1e-320 }));
+  it("refuses a calculation that leaves the representable range (session.ts:68)", () => {
+    // A subnormal radiation energy drives the entropy volume coefficient to zero. The declared
+    // domain (from 1e-12 J, content/experiments/lq-06.yaml) now refuses it before any calculation,
+    // so the guard is driven through lq06Outputs, the calculation without the parameter check.
+    // The refusal names the quantity rather than emitting a 0.
+    const unchecked = { ...LQ06_DEFAULTS, radiationEnergy: 1e-320 };
+    expect(refusalFrom(() => evaluateLq06(unchecked)).code).toBe("parameters-rejected");
+    const err = refusalFrom(() => lq06Outputs(unchecked));
     expect(err.code).toBe("outside-numeric-range");
     expect(err.message).toContain(
       "The entropyVolumeCoefficient calculation is outside the representable numeric range.",
@@ -183,9 +188,9 @@ describe("LQ-06 session refusals (am-p465)", () => {
 
   it("does not refuse a subnormal that still computes", () => {
     // The negative a naive "refuse anything small" implementation would fail: 1e-300 is subnormal
-    // territory too, and it has to be accepted, so the site above is a range check and not a
-    // magnitude taboo.
-    const outputs = evaluateLq06({ ...LQ06_DEFAULTS, radiationEnergy: 1e-300 });
+    // territory too, and the guard has to compute it, so the site above is a range check and not a
+    // magnitude taboo. (The declared domain refuses 1e-300 J first; this is the guard alone.)
+    const outputs = lq06Outputs({ ...LQ06_DEFAULTS, radiationEnergy: 1e-300 });
     expect(outputs.length).toBe(17);
     expect(outputs.every((o) => o.status === "value" || o.status === "not-applicable")).toBe(true);
   });
