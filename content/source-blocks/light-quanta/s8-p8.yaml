@@ -1,0 +1,35 @@
+# SourceBlock s8-p8: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8-p8"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s8"
+order: 113
+locators:
+  - pdfPageIndex: 16
+    printedPage: 147
+diplomaticText: "Über die mutmaßlichen Gültigkeitsgrenzen der erwähnten Gesetzmäßigkeiten wären ähnliche Bemerkungen zu machen wie bezüglich der mutmaßlichen Abweichungen von der Stokesschen Regel."
+inlines:
+  - kind: "text"
+    text: "Über die mutmaßlichen Gültigkeitsgrenzen der erwähnten Gesetzmäßigkeiten wären ähnliche Bemerkungen zu machen wie bezüglich der mutmaßlichen Abweichungen von der "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Stokes"
+  - kind: "text"
+    text: "schen Regel."
+sentenceSpans:
+  - id: "s8-p8-s1"
+    span:
+      start: 0
+      end: 180
+      blockRevision: 1
+      textDigest: "356d863509c04e038a1f97f09dde1314d2ec39af7e91586b75386d1e88376494"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

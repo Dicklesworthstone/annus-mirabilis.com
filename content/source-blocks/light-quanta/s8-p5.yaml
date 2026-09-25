@@ -1,0 +1,63 @@
+# SourceBlock s8-p5: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8-p5"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s8"
+order: 108
+locators:
+  - pdfPageIndex: 15
+    printedPage: 146
+diplomaticText: "Um zunächst zu sehen, ob die abgeleitete Beziehung der Größenordnung nach mit der Erfahrung übereinstimmt, setzen wir P' = 0, \\nu = 1{,}03 \\cdot 10^{15} (entsprechend der Grenze des Sonnenspektrums nach dem Ultraviolett hin) und \\beta = 4{,}866 \\cdot 10^{-11}. Wir erhalten \\Pi \\cdot 10^7 = 4{,}3 Volt, welches Resultat der Größenordnung nach mit den Resultaten von Hrn. Lenard übereinstimmt.2)"
+inlines:
+  - kind: "text"
+    text: "Um zunächst zu sehen, ob die abgeleitete Beziehung der Größenordnung nach mit der Erfahrung übereinstimmt, setzen wir "
+  - kind: "math"
+    latex: "P' = 0"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\nu = 1{,}03 \\cdot 10^{15}"
+  - kind: "text"
+    text: " (entsprechend der Grenze des Sonnenspektrums nach dem Ultraviolett hin) und "
+  - kind: "math"
+    latex: "\\beta = 4{,}866 \\cdot 10^{-11}"
+  - kind: "text"
+    text: "."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir erhalten "
+  - kind: "math"
+    latex: "\\Pi \\cdot 10^7 = 4{,}3"
+  - kind: "text"
+    text: " Volt, welches Resultat der Größenordnung nach mit den Resultaten von Hrn. "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Lenard"
+  - kind: "text"
+    text: " übereinstimmt."
+  - kind: "footnote-mark"
+    mark: "2)"
+    footnoteId: "s8-fn3"
+sentenceSpans:
+  - id: "s8-p5-s1"
+    span:
+      start: 0
+      end: 260
+      blockRevision: 1
+      textDigest: "b6a237e7fe7ade76c1c87316d0cc56476d73aa4f69a999f0df344697ca2814cb"
+  - id: "s8-p5-s2"
+    span:
+      start: 261
+      end: 394
+      blockRevision: 1
+      textDigest: "b6a237e7fe7ade76c1c87316d0cc56476d73aa4f69a999f0df344697ca2814cb"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

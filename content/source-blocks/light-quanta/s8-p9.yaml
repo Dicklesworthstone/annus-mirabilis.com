@@ -1,0 +1,42 @@
+# SourceBlock s8-p9: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8-p9"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s8"
+order: 115
+locators:
+  - pdfPageIndex: 16
+    printedPage: 147
+diplomaticText: "Im vorstehenden ist angenommen, daß die Energie wenigstens eines Teiles der Energiequanten des erzeugenden Lichtes je an ein einziges Elektron vollständig abgegeben werde. Macht man diese naheliegende Voraussetzung nicht, so erhält man statt obiger Gleichung die folgende:"
+inlines:
+  - kind: "text"
+    text: "Im vorstehenden ist angenommen, daß die Energie wenigstens eines Teiles der Energiequanten des erzeugenden Lichtes je an ein einziges Elektron vollständig abgegeben werde."
+  - kind: "space"
+  - kind: "text"
+    text: "Macht man diese naheliegende Voraussetzung nicht, so erhält man statt obiger Gleichung die folgende:"
+  - kind: "math"
+    latex: "\\Pi E + P' \\leqq R \\beta \\nu ."
+    display: true
+    equationId: "eq-s8-d4"
+sentenceSpans:
+  - id: "s8-p9-s1"
+    span:
+      start: 0
+      end: 171
+      blockRevision: 1
+      textDigest: "f7e92bb496f53cdaae3500de92d0cdfdf16f5f36acae83d47bc396400771e82a"
+  - id: "s8-p9-s2"
+    span:
+      start: 172
+      end: 272
+      blockRevision: 1
+      textDigest: "f7e92bb496f53cdaae3500de92d0cdfdf16f5f36acae83d47bc396400771e82a"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

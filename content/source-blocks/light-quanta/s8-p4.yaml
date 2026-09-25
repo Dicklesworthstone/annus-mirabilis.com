@@ -1,0 +1,37 @@
+# SourceBlock s8-p4: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8-p4"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s8"
+order: 107
+locators:
+  - pdfPageIndex: 15
+    printedPage: 146
+diplomaticText: "Setzt man E = 9{,}6 \\cdot 10^3, so ist \\Pi \\cdot 10^{-8} das Potential in Volts, welches der Körper bei Bestrahlung im Vakuum annimmt."
+inlines:
+  - kind: "text"
+    text: "Setzt man "
+  - kind: "math"
+    latex: "E = 9{,}6 \\cdot 10^3"
+  - kind: "text"
+    text: ", so ist "
+  - kind: "math"
+    latex: "\\Pi \\cdot 10^{-8}"
+  - kind: "text"
+    text: " das Potential in Volts, welches der Körper bei Bestrahlung im Vakuum annimmt."
+sentenceSpans:
+  - id: "s8-p4-s1"
+    span:
+      start: 0
+      end: 134
+      blockRevision: 1
+      textDigest: "155877b217389d5a746ff78c81d5b34f01869df34e9a02433b87c27fb34c3d2e"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

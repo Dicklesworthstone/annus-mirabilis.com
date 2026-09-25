@@ -1,0 +1,64 @@
+# SourceBlock s8-p3: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8-p3"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s8"
+order: 103
+locators:
+  - pdfPageIndex: 15
+    printedPage: 146
+diplomaticText: "Ist der Körper zum positiven Potential \\Pi geladen und von Leitern vom Potential Null umgeben und ist \\Pi eben imstande, einen Elektrizitätsverlust des Körpers zu verhindern, so muß sein: wobei \\varepsilon die elektrische Masse des Elektrons bedeutet, oder wobei E die Ladung eines Grammäquivalentes eines einwertigen Ions und P' das Potential dieser Menge negativer Elektrizität in bezug auf den Körper bedeutet.1)"
+inlines:
+  - kind: "text"
+    text: "Ist der Körper zum positiven Potential "
+  - kind: "math"
+    latex: "\\Pi"
+  - kind: "text"
+    text: " geladen und von Leitern vom Potential Null umgeben und ist "
+  - kind: "math"
+    latex: "\\Pi"
+  - kind: "text"
+    text: " eben imstande, einen Elektrizitätsverlust des Körpers zu verhindern, so muß sein:"
+  - kind: "math"
+    latex: "\\Pi \\varepsilon = \\frac{R}{N} \\beta \\nu - P ,"
+    display: true
+    equationId: "eq-s8-d2"
+  - kind: "text"
+    text: " wobei "
+  - kind: "math"
+    latex: "\\varepsilon"
+  - kind: "text"
+    text: " die elektrische Masse des Elektrons bedeutet, oder"
+  - kind: "math"
+    latex: "\\Pi E = R \\beta \\nu - P' ,"
+    display: true
+    equationId: "eq-s8-d3"
+  - kind: "text"
+    text: " wobei "
+  - kind: "math"
+    latex: "E"
+  - kind: "text"
+    text: " die Ladung eines Grammäquivalentes eines einwertigen Ions und "
+  - kind: "math"
+    latex: "P'"
+  - kind: "text"
+    text: " das Potential dieser Menge negativer Elektrizität in bezug auf den Körper bedeutet."
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s8-fn2"
+sentenceSpans:
+  - id: "s8-p3-s1"
+    span:
+      start: 0
+      end: 415
+      blockRevision: 1
+      textDigest: "79a7e6ec76886efcf682698e1126a494f3862a55918dec2d9570a285d5f139c1"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

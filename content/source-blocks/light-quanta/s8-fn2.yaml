@@ -1,0 +1,34 @@
+# SourceBlock s8-fn2: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8-fn2"
+kind: "footnote"
+paper: "light-quanta"
+section: "s8"
+order: 106
+locators:
+  - pdfPageIndex: 15
+    printedPage: 146
+originalLabel: "1)"
+diplomaticText: "Nimmt man an, daß das einzelne Elektron durch das Licht aus einem neutralen Molekül unter Aufwand einer gewissen Arbeit losgelöst werden muß, so hat man an der abgeleiteten Beziehung nichts zu ändern; nur ist dann P' als Summe von zwei Summanden aufzufassen."
+inlines:
+  - kind: "text"
+    text: "Nimmt man an, daß das einzelne Elektron durch das Licht aus einem neutralen Molekül unter Aufwand einer gewissen Arbeit losgelöst werden muß, so hat man an der abgeleiteten Beziehung nichts zu ändern; nur ist dann "
+  - kind: "math"
+    latex: "P'"
+  - kind: "text"
+    text: " als Summe von zwei Summanden aufzufassen."
+sentenceSpans:
+  - id: "s8-fn2"
+    span:
+      start: 0
+      end: 258
+      blockRevision: 1
+      textDigest: "9419545bdf8c7ad0ca697cc737ee90f928fa5cc5d62d554473d66b1246888b1b"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

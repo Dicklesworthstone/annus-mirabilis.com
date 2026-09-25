@@ -1,0 +1,47 @@
+# SourceBlock s8-p7: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8-p7"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s8"
+order: 112
+locators:
+  - pdfPageIndex: 16
+    printedPage: 147
+diplomaticText: "Mit den von Hrn. Lenard beobachteten Eigenschaften der lichtelektrischen Wirkung steht unsere Auffassung, soweit ich sehe, nicht im Widerspruch. Wenn jedes Energiequant des erregenden Lichtes unabhängig von allen übrigen seine Energie an Elektronen abgibt, so wird die Geschwindigkeitsverteilung der Elektronen, d. h. die Qualität der erzeugten Kathodenstrahlung von der Intensität des erregenden Lichtes unabhängig sein; andererseits wird die Anzahl der den Körper verlassenden Elektronen der Intensität des erregenden Lichtes unter sonst gleichen Umständen proportional sein.1)"
+inlines:
+  - kind: "text"
+    text: "Mit den von Hrn. "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Lenard"
+  - kind: "text"
+    text: " beobachteten Eigenschaften der lichtelektrischen Wirkung steht unsere Auffassung, soweit ich sehe, nicht im Widerspruch."
+  - kind: "space"
+  - kind: "text"
+    text: "Wenn jedes Energiequant des erregenden Lichtes unabhängig von allen übrigen seine Energie an Elektronen abgibt, so wird die Geschwindigkeitsverteilung der Elektronen, d. h. die Qualität der erzeugten Kathodenstrahlung von der Intensität des erregenden Lichtes unabhängig sein; andererseits wird die Anzahl der den Körper verlassenden Elektronen der Intensität des erregenden Lichtes unter sonst gleichen Umständen proportional sein."
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s8-fn4"
+sentenceSpans:
+  - id: "s8-p7-s1"
+    span:
+      start: 0
+      end: 144
+      blockRevision: 1
+      textDigest: "7221274e383cb8a9f9961fdc5736e637e8a9175a91314f3343424989bb95c391"
+  - id: "s8-p7-s2"
+    span:
+      start: 145
+      end: 579
+      blockRevision: 1
+      textDigest: "7221274e383cb8a9f9961fdc5736e637e8a9175a91314f3343424989bb95c391"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

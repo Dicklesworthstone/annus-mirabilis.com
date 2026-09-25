@@ -1,0 +1,68 @@
+# SourceBlock s8-p10: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8-p10"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s8"
+order: 117
+locators:
+  - pdfPageIndex: 16
+    printedPage: 147
+diplomaticText: "Für die Kathodenlumineszenz, welche den inversen Vorgang zu dem eben betrachteten bildet, erhält man durch eine der durchgeführten analoge Betrachtung: Bei den von Hrn. Lenard untersuchten Substanzen ist P E stets bedeutend größer als R \\beta \\nu, da die Spannung, welche die Kathodenstrahlen durchlaufen haben müssen, um eben sichtbares Licht erzeugen zu können, in einigen Fällen einige Hundert, in anderen Tausende von Volts beträgt.2) Es ist also anzunehmen, daß die kinetische Energie eines Elektrons zur Erzeugung vieler Lichtenergiequanten verwendet wird."
+inlines:
+  - kind: "text"
+    text: "Für die Kathodenlumineszenz, welche den inversen Vorgang zu dem eben betrachteten bildet, erhält man durch eine der durchgeführten analoge Betrachtung:"
+  - kind: "math"
+    latex: "\\Pi E + P' \\geqq R \\beta \\nu ."
+    display: true
+    equationId: "eq-s8-d5"
+  - kind: "space"
+  - kind: "text"
+    text: "Bei den von Hrn. "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Lenard"
+  - kind: "text"
+    text: " untersuchten Substanzen ist "
+  - kind: "math"
+    latex: "P E"
+  - kind: "text"
+    text: " stets bedeutend größer als "
+  - kind: "math"
+    latex: "R \\beta \\nu"
+  - kind: "text"
+    text: ", da die Spannung, welche die Kathodenstrahlen durchlaufen haben müssen, um eben sichtbares Licht erzeugen zu können, in einigen Fällen einige Hundert, in anderen Tausende von Volts beträgt."
+  - kind: "footnote-mark"
+    mark: "2)"
+    footnoteId: "s8-fn5"
+  - kind: "space"
+  - kind: "text"
+    text: "Es ist also anzunehmen, daß die kinetische Energie eines Elektrons zur Erzeugung vieler Lichtenergiequanten verwendet wird."
+sentenceSpans:
+  - id: "s8-p10-s1"
+    span:
+      start: 0
+      end: 151
+      blockRevision: 1
+      textDigest: "bbb8cf4ee0770c2c724deffcee5a8b1ce9b36975951ffae8e4982e6baeb717bb"
+  - id: "s8-p10-s2"
+    span:
+      start: 152
+      end: 438
+      blockRevision: 1
+      textDigest: "bbb8cf4ee0770c2c724deffcee5a8b1ce9b36975951ffae8e4982e6baeb717bb"
+  - id: "s8-p10-s3"
+    span:
+      start: 439
+      end: 562
+      blockRevision: 1
+      textDigest: "bbb8cf4ee0770c2c724deffcee5a8b1ce9b36975951ffae8e4982e6baeb717bb"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

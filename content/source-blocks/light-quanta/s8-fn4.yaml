@@ -1,0 +1,36 @@
+# SourceBlock s8-fn4: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8-fn4"
+kind: "footnote"
+paper: "light-quanta"
+section: "s8"
+order: 111
+locators:
+  - pdfPageIndex: 16
+    printedPage: 147
+originalLabel: "1)"
+diplomaticText: "P. Lenard, l. c. p. 150 und p. 166—168."
+inlines:
+  - kind: "text"
+    text: "P. "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Lenard"
+  - kind: "text"
+    text: ", l. c. p. 150 und p. 166—168."
+sentenceSpans:
+  - id: "s8-fn4"
+    span:
+      start: 0
+      end: 39
+      blockRevision: 1
+      textDigest: "1f64ef230e2cc159ca24110e52f64d55874ee805bc1c3d7f333c20010dffa04d"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

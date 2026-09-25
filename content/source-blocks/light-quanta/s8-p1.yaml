@@ -1,0 +1,38 @@
+# SourceBlock s8-p1: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8-p1"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s8"
+order: 99
+locators:
+  - pdfPageIndex: 14
+    printedPage: 145
+diplomaticText: "Die übliche Auffassung, daß die Energie des Lichtes kontinuierlich über den durchstrahlten Raum verteilt sei, findet bei dem Versuch, die lichtelektrischen Erscheinungen zu erklären, besonders große Schwierigkeiten, welche in einer bahnbrechenden Arbeit von Hrn. Lenard dargelegt sind.1)"
+inlines:
+  - kind: "text"
+    text: "Die übliche Auffassung, daß die Energie des Lichtes kontinuierlich über den durchstrahlten Raum verteilt sei, findet bei dem Versuch, die lichtelektrischen Erscheinungen zu erklären, besonders große Schwierigkeiten, welche in einer bahnbrechenden Arbeit von Hrn. "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Lenard"
+  - kind: "text"
+    text: " dargelegt sind."
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s8-fn1"
+sentenceSpans:
+  - id: "s8-p1-s1"
+    span:
+      start: 0
+      end: 287
+      blockRevision: 1
+      textDigest: "eeb181bfe025744a06a891f99f63739704604d857624e999da7496517b022d79"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

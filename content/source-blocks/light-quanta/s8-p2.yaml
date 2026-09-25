@@ -1,0 +1,106 @@
+# SourceBlock s8-p2: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8-p2"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s8"
+order: 101
+locators:
+  - pdfPageIndex: 14
+    printedPage: 145
+  - pdfPageIndex: 15
+    printedPage: 146
+diplomaticText: "Nach der Auffassung, daß das erregende Licht aus Energiequanten von der Energie (R/N) \\beta \\nu bestehe, läßt sich die Erzeugung von Kathodenstrahlen durch Licht folgendermaßen auffassen. In die oberflächliche Schicht des Körpers dringen Energiequanten ein, und deren Energie verwandelt sich wenigstens zum Teil in kinetische Energie von Elektronen. Die einfachste Vorstellung ist die, daß ein Lichtquant seine ganze Energie an ein einziges Elektron abgibt; wir wollen annehmen, daß dies vorkomme. Es soll jedoch nicht ausgeschlossen sein, daß Elektronen die Energie von Lichtquanten nur teilweise aufnehmen. Ein im Innern des Körpers mit kinetischer Energie versehenes Elektron wird, wenn es die Oberfläche erreicht hat, einen Teil seiner kinetischen Energie eingebüßt haben. Außerdem wird anzunehmen sein, daß jedes Elektron beim Verlassen des Körpers eine (für den Körper charakteristische) Arbeit P zu leisten hat, wenn es den Körper verläßt. Mit der größten Normalgeschwindigkeit werden die unmittelbar an der Oberfläche normal zu dieser erregten Elektronen den Körper verlassen. Die kinetische Energie solcher Elektronen ist"
+inlines:
+  - kind: "text"
+    text: "Nach der Auffassung, daß das erregende Licht aus Energiequanten von der Energie "
+  - kind: "math"
+    latex: "(R/N) \\beta \\nu"
+  - kind: "text"
+    text: " bestehe, läßt sich die Erzeugung von Kathodenstrahlen durch Licht folgendermaßen auffassen."
+  - kind: "space"
+  - kind: "text"
+    text: "In die oberflächliche Schicht des Körpers dringen Energiequanten ein, und deren Energie verwandelt sich wenigstens zum Teil in kinetische Energie von Elektronen."
+  - kind: "space"
+  - kind: "text"
+    text: "Die einfachste Vorstellung ist die, daß ein Lichtquant seine ganze Energie an ein einziges Elektron abgibt; wir wollen annehmen, daß dies vorkomme."
+  - kind: "space"
+  - kind: "text"
+    text: "Es soll jedoch nicht ausgeschlossen sein, daß Elektronen die Energie von Lichtquanten nur teilweise aufnehmen."
+  - kind: "space"
+  - kind: "text"
+    text: "Ein im Innern des Körpers mit kinetischer Energie versehenes Elektron wird, wenn es die Oberfläche erreicht hat, einen Teil seiner kinetischen Energie eingebüßt haben."
+  - kind: "space"
+  - kind: "text"
+    text: "Außerdem wird anzunehmen sein, daß jedes Elektron beim Verlassen des Körpers eine (für den Körper charakteristische) Arbeit "
+  - kind: "math"
+    latex: "P"
+  - kind: "text"
+    text: " zu leisten hat, wenn es den Körper verläßt."
+  - kind: "space"
+  - kind: "text"
+    text: "Mit der größten Normalgeschwindigkeit werden die unmittelbar an der Oberfläche normal zu dieser erregten Elektronen den Körper verlassen."
+  - kind: "space"
+  - kind: "text"
+    text: "Die kinetische Energie solcher Elektronen ist"
+  - kind: "math"
+    latex: "\\frac{R}{N} \\beta \\nu - P ."
+    display: true
+    equationId: "eq-s8-d1"
+sentenceSpans:
+  - id: "s8-p2-s1"
+    span:
+      start: 0
+      end: 187
+      blockRevision: 1
+      textDigest: "18fabf766af48ea9e94e7dd05f601ae4fa7491c2bac5aba407a94ed6c745548c"
+  - id: "s8-p2-s2"
+    span:
+      start: 188
+      end: 349
+      blockRevision: 1
+      textDigest: "18fabf766af48ea9e94e7dd05f601ae4fa7491c2bac5aba407a94ed6c745548c"
+  - id: "s8-p2-s3"
+    span:
+      start: 350
+      end: 497
+      blockRevision: 1
+      textDigest: "18fabf766af48ea9e94e7dd05f601ae4fa7491c2bac5aba407a94ed6c745548c"
+  - id: "s8-p2-s4"
+    span:
+      start: 498
+      end: 608
+      blockRevision: 1
+      textDigest: "18fabf766af48ea9e94e7dd05f601ae4fa7491c2bac5aba407a94ed6c745548c"
+  - id: "s8-p2-s5"
+    span:
+      start: 609
+      end: 776
+      blockRevision: 1
+      textDigest: "18fabf766af48ea9e94e7dd05f601ae4fa7491c2bac5aba407a94ed6c745548c"
+  - id: "s8-p2-s6"
+    span:
+      start: 777
+      end: 946
+      blockRevision: 1
+      textDigest: "18fabf766af48ea9e94e7dd05f601ae4fa7491c2bac5aba407a94ed6c745548c"
+  - id: "s8-p2-s7"
+    span:
+      start: 947
+      end: 1084
+      blockRevision: 1
+      textDigest: "18fabf766af48ea9e94e7dd05f601ae4fa7491c2bac5aba407a94ed6c745548c"
+  - id: "s8-p2-s8"
+    span:
+      start: 1085
+      end: 1130
+      blockRevision: 1
+      textDigest: "18fabf766af48ea9e94e7dd05f601ae4fa7491c2bac5aba407a94ed6c745548c"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

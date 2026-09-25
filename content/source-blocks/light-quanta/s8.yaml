@@ -1,0 +1,29 @@
+# SourceBlock s8: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8"
+kind: "heading"
+paper: "light-quanta"
+section: "s8"
+order: 98
+locators:
+  - pdfPageIndex: 14
+    printedPage: 145
+diplomaticText: "§ 8. Über die Erzeugung von Kathodenstrahlen durch Belichtung fester Körper."
+inlines:
+  - kind: "text"
+    text: "§ 8. Über die Erzeugung von Kathodenstrahlen durch Belichtung fester Körper."
+sentenceSpans:
+  - id: "s8"
+    span:
+      start: 0
+      end: 76
+      blockRevision: 1
+      textDigest: "78992cbfe22aa1774450362539f46cfd6c1d904fe978464c42c6f68f0cd1fea0"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"
