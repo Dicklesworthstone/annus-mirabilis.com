@@ -70,11 +70,13 @@ parameters:
     quantityId: temperature
     displayUnit: "K"
     modelDomain:
-      min: 1e-9
-      minInclusive: false
-      reason: "Positive temperature (src/experiments/bm06/parameters.ts)"
+      min: 273.15
+      max: 373.15
+      minInclusive: true
+      maxInclusive: true
+      reason: "Liquid water at ordinary pressure, from its freezing point to its boiling point"
     visualRange:
-      min: 273
+      min: 273.15
       max: 330
     default: 293.15
     mapping:
@@ -88,9 +90,11 @@ parameters:
     quantityId: viscosity
     displayUnit: "mPa s"
     modelDomain:
-      min: 1e-9
-      minInclusive: false
-      reason: "Positive viscosity (src/experiments/bm06/parameters.ts)"
+      min: 0.0002
+      max: 0.05
+      minInclusive: true
+      maxInclusive: true
+      reason: "Liquids in which a slow sphere feels smooth, Stokes drag"
     visualRange:
       min: 0.0005
       max: 0.02
@@ -106,9 +110,11 @@ parameters:
     quantityId: particleRadius
     displayUnit: "um"
     modelDomain:
-      min: 1e-9
-      minInclusive: false
-      reason: "Positive radius (src/experiments/bm06/parameters.ts)"
+      min: 1e-8
+      max: 1e-5
+      minInclusive: true
+      maxInclusive: true
+      reason: "Particle sizes from ten nanometres to ten micrometres, where Stokes drag holds"
     visualRange:
       min: 1e-7
       max: 5e-6
@@ -126,8 +132,10 @@ parameters:
     displayUnit: "s"
     modelDomain:
       min: 0
+      max: 3600
       minInclusive: true
-      reason: "Nonnegative elapsed time, including exactly zero (src/experiments/bm06/parameters.ts)"
+      maxInclusive: true
+      reason: "From the start, when every tracer is at the origin, to an hour of observation"
     visualRange:
       min: 0
       max: 600
@@ -144,7 +152,7 @@ parameters:
     displayUnit: "um"
     modelDomain:
       enumerated: []
-      reason: "Any finite value not exceeding the upper bound (src/experiments/bm06/parameters.ts)"
+      reason: "Any position not above the upper endpoint; the probability counts the whole distribution, so an endpoint off the picture or the grid is still exact"
     visualRange:
       min: -1e-5
       max: 1e-5
@@ -161,7 +169,7 @@ parameters:
     displayUnit: "um"
     modelDomain:
       enumerated: []
-      reason: "Any finite value not less than the lower bound (src/experiments/bm06/parameters.ts)"
+      reason: "Any position not below the lower endpoint; the probability counts the whole distribution, so an endpoint off the picture or the grid is still exact"
     visualRange:
       min: -1e-5
       max: 1e-5
@@ -178,7 +186,7 @@ parameters:
     displayUnit: ""
     modelDomain:
       enumerated: [0, 1]
-      reason: "Boolean switch (src/experiments/bm06/parameters.ts)"
+      reason: "The explicit grid comparison, off or on"
     visualRange:
       min: 0
       max: 1
@@ -198,7 +206,7 @@ parameters:
       max: 4097
       minInclusive: true
       maxInclusive: true
-      reason: "Runtime bound (src/experiments/bm06/parameters.ts)"
+      reason: "The grid sizes the lab computes quickly enough in a browser"
     visualRange:
       min: 3
       max: 4097
@@ -215,8 +223,10 @@ parameters:
     displayUnit: "um"
     modelDomain:
       min: 1e-9
-      minInclusive: false
-      reason: "Positive cell width (src/experiments/bm06/parameters.ts)"
+      max: 1e-5
+      minInclusive: true
+      maxInclusive: true
+      reason: "The cell widths the grid comparison offers, from a nanometre to ten micrometres"
     visualRange:
       min: 1e-8
       max: 1e-6
@@ -237,7 +247,7 @@ parameters:
       max: 4000000
       minInclusive: true
       maxInclusive: true
-      reason: "Runtime bound (src/experiments/bm06/parameters.ts)"
+      reason: "The number of steps the lab runs quickly enough in a browser"
     visualRange:
       min: 1
       max: 10000

@@ -25,6 +25,7 @@ import { deriveHostExecution } from "../../experiments/provenance/executionState
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { DistributionPlot, GridComparison } from "./DistributionPlot.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { KEPT_RESULT } from "./keptResult.ts";
 import { array, display, identity, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
@@ -176,6 +177,12 @@ export function BrownianLab({
       {...identity(snapshot)}
       data-input-revision={view.requested?.revisions.input ?? snapshot.revisions.input}
       data-accepted-input-revision={snapshot.revisions.input}
+      // The interval endpoints are measurement changes: they re-read the result and leave the
+      // input revision where it was, so the page says when one was accepted (dispatch 184).
+      data-measurement-revision={
+        view.requested?.revisions.measurement ?? snapshot.revisions.measurement
+      }
+      data-accepted-measurement-revision={snapshot.revisions.measurement}
       data-pending={String(view.pending)}
       {...instrumentRootAttributes(view)}
       {...labelRootAttributes(executionKind, view, "probabilityDensity")}
@@ -355,7 +362,7 @@ export function BrownianLab({
           )}
           {error && (
             <p id={`${id}-error`} role="alert" className="notice error">
-              {error}
+              {error} {KEPT_RESULT}
             </p>
           )}
         </form>
