@@ -87,6 +87,20 @@ export function TermHighlight({ children, as, ...attributes }: TermHighlightProp
   useEffect(() => {
     if (root.current) lightQuantity(root.current, active);
   }, [active]);
+  // Escape clears a pin wherever focus is. A click on a term focuses the nearest focusable
+  // ancestor, and on a reading face that is often OUTSIDE this block (an English translation unit
+  // is tabIndex -1), so the block's own keydown handler never saw the Escape and a pin made by
+  // pointer stayed (dispatch 233, measured on live). Listening only while something is pinned.
+  useEffect(() => {
+    if (pinned === null) return;
+    const clear = (e: globalThis.KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setPinned(null);
+      setPointed(null);
+    };
+    document.addEventListener("keydown", clear);
+    return () => document.removeEventListener("keydown", clear);
+  }, [pinned]);
   const at = (target: EventTarget | null) =>
     root.current ? quantityAt(root.current, target) : null;
   return (

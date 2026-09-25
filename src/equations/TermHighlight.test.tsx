@@ -1,11 +1,13 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { act } from "react";
+import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import lqEquations from "../generated/light-quanta-equations.json";
 import srEquations from "../generated/special-relativity-equations.json";
 import { ColouredFormula } from "../reader/ColouredFormula.tsx";
-import { installDom, uninstallDom } from "../testing/reactDom.ts";
+import { createContainer, installDom, removeContainer, uninstallDom } from "../testing/reactDom.ts";
 import { SemanticEquation } from "./SemanticEquation.tsx";
-import { elementsOfQuantity, lightQuantity, quantityAt } from "./TermHighlight.tsx";
+import { elementsOfQuantity, lightQuantity, quantityAt, TermHighlight } from "./TermHighlight.tsx";
 import { withQuantityIds } from "./termQuantities.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
 
@@ -148,5 +150,46 @@ describe("the explorer's chips and decoder read as text without JavaScript", () 
     expect(chips.map((m) => m[1]).sort()).toEqual([...quantities].sort());
     for (const [tag] of chips) expect(tag).toContain('disabled=""');
     for (const t of lorentz.terms) expect(html).toContain(`>${t.quantity.name}</span>`);
+  });
+});
+
+describe("a pin made by pointer clears on Escape wherever focus is (dispatch 233)", () => {
+  // Measured on live: clicking a term on the English face focuses its translation unit, which is
+  // tabIndex -1 and OUTSIDE the block, so the block's own keydown handler never saw the Escape.
+  beforeEach(installDom);
+  afterEach(uninstallDom);
+
+  test("Escape on the document clears the pin; another key does not", async () => {
+    const container = createContainer();
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(
+        <TermHighlight data-testid="block">
+          <span data-quantity-id="speed">v</span>
+        </TermHighlight>,
+      );
+    });
+    const block = container.querySelector("[data-term-highlight]") as HTMLElement;
+    const term = container.querySelector('[data-quantity-id="speed"]') as HTMLElement;
+    // React's handler, called by its props key: dispatched DOM events do not reach React here.
+    const propsKey = Object.keys(block).find((k) => k.startsWith("__reactProps$")) ?? "";
+    const onClick = (block as unknown as Record<string, { onClick?: unknown }>)[propsKey]?.onClick;
+    if (typeof onClick !== "function") throw new Error("the block has no React onClick to call");
+    await act(async () => {
+      (onClick as (e: { target: EventTarget }) => void)({ target: term });
+    });
+    expect(block.getAttribute("data-pinned-quantity-id")).toBe("speed");
+    // A key that is not Escape leaves the pin.
+    await act(async () => {
+      document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "a", bubbles: true }));
+    });
+    expect(block.getAttribute("data-pinned-quantity-id")).toBe("speed");
+    // Escape from outside the block, as from a focused translation unit, clears it.
+    await act(async () => {
+      document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    });
+    expect(block.hasAttribute("data-pinned-quantity-id")).toBe(false);
+    await act(async () => root.unmount());
+    removeContainer(container);
   });
 });
