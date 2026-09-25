@@ -100,9 +100,10 @@ describe("edition pipeline: no ledger", () => {
   test("--require-stage ledger exits non-zero for a paper with no ledger", async () => {
     // The specimen must be a paper with NO ledger, which is what this test is about. It was
     // light-quanta until 2026-09-21, when a skeleton put a file on disk; then special-relativity,
-    // which acquired its own skeleton in 30ab1df0 the same day and now reports
-    // not-applicable-PARTIAL-ledger. Re-pointed rather than widened, because the subject is the
-    // require-stage behaviour and the paper is only the specimen that exhibits it.
+    // which acquired its own skeleton in 30ab1df0 the same day and reported
+    // not-applicable-PARTIAL-ledger until its ledger covered the paper on 2026-09-25.
+    // Re-pointed rather than widened, because the subject is the require-stage behaviour and the
+    // paper is only the specimen that exhibits it.
     //
     // THIS IS THE LAST LEDGERLESS PAPER. molecular-dimensions is the only slug left with no
     // transcript at all, so when it gets one there is no specimen in the real corpus and this
@@ -119,8 +120,37 @@ describe("edition pipeline: no ledger", () => {
 
     // The distinction the paragraph above turns on, asserted rather than described: a paper with
     // a PARTIAL ledger also exits non-zero, and says something different about why.
+    //
+    // The partial specimen ran out on 2026-09-25, when special-relativity's ledger covered its
+    // last page (dispatch 193); no paper in the corpus has a partial ledger now. So it is
+    // CONSTRUCTED, the way editionContract's no-ledger pair is: the ledger-present root below,
+    // judged once as it is and once with its last page reduced to marker and anchor, the skeleton
+    // shape that makes a ledger partial. Only that page differs, so the verdict can only be
+    // answering to it. The first run is asserted too: if the full root also said partial, the
+    // second verdict would prove nothing.
+    const root = ledgerPresentRoot();
+    const full = await runEditionPipeline({
+      slug: "brownian-motion",
+      root,
+      requireStage: "ledger",
+    });
+    expect(full.translationCompleteness).not.toBe("not-applicable-partial-ledger");
+    const ledgerPath = join(root, LEDGER_REL);
+    const lines = readFileSync(ledgerPath, "utf8").split("\n");
+    const anchors = lines.flatMap((line, i) =>
+      /^\[\[ANNALEN-PAGE \d+\]\]$/.test(line) ? [i] : [],
+    );
+    expect(anchors.length, "the constructed root needs two pages to make one bare").toBeGreaterThan(
+      1,
+    );
+    writeFileSync(
+      ledgerPath,
+      `${lines.slice(0, (anchors.at(-1) as number) + 1).join("\n")}\n`,
+      "utf8",
+    );
     const partial = await runEditionPipeline({
-      slug: "special-relativity",
+      slug: "brownian-motion",
+      root,
       requireStage: "ledger",
     });
     expect(partial.exitCode).toBe(1);

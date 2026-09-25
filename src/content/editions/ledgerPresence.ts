@@ -63,9 +63,19 @@ export const PAPER_BIB_KEYS: Readonly<Record<RouteSlug, string>> = Object.freeze
  * rather than a hand-maintained fact. It is still not a claim of review: ap-17-132 is a machine
  * draft, its receipt records ledgerStatus in-progress, and open-german-source-light-quanta is
  * unfilled in docs/OWNERS.md.
+ *
+ * `special-relativity` LEFT on 2026-09-25, for COVERAGE, like light-quanta. ap-17-891-machine-draft
+ * had held 22 of its 31 pages since 2026-09-24. Pages 913 to 921 were then transcribed by eye from
+ * the plates, one commit per page (dispatch 193), and the validator now reports zero skeleton
+ * pages: structural mode exits 0 with 0 errors and 0 unacknowledged warnings. The pawl reported
+ * the change, for the fourth time. Completeness mode (--require-complete) still reports one
+ * error, the receipt's missing transcription.ledgerSha256. That is left unpinned while pages are
+ * still being corrected against their plates. It is a question about the receipt, not about
+ * coverage, which is the only property this list tracks. It is not a claim of review either: the
+ * receipt's ledgerStatus is still not-started, which is also what keeps the draft off the German
+ * face, and open-german-source-special-relativity is unfilled in docs/OWNERS.md.
  */
 export const PAPERS_WAITING_ON_CLOUD_OCR = [
-  "special-relativity",
   "molecular-dimensions",
 ] as const satisfies readonly RouteSlug[];
 
