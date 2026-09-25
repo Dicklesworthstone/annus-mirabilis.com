@@ -18,7 +18,10 @@
  *   a line of it;
  * - no child of the English text, or of a parallel row's English half, overlaps the next;
  * - with JavaScript off, the English face's first disclosure is in the Tab order, and Enter opens it
- *   and closes it.
+ *   and closes it;
+ * - the English face's heading of § 1 (and of part I, where the paper prints parts) is the German
+ *   face's element at its size, weight and top margin. Light quanta's German face set § 1 at 32.8px
+ *   in weight 400 where its English face set 27.4px in weight 600.
  * Box gaps rather than text: a paragraph holding a display formula reports KaTeX's tall glyph boxes
  * among its text rects, which read as a negative gap.
  *
@@ -143,6 +146,23 @@ async function englishLayout(page: Page) {
   });
 }
 
+/** The first section's and first part's heading: element, size, weight and top margin, by id. */
+async function firstHeadings(page: Page) {
+  return page.evaluate(() => {
+    const out: Record<string, string> = {};
+    for (const h of document.querySelectorAll<HTMLElement>("main h1, main h2")) {
+      if (h.closest(".parallel-row, .parallel-half-english, .parallel-half-german")) continue;
+      const id = (h.id || h.querySelector("[id]")?.id || "").replace(/^en-/, "");
+      if (id !== "s1" && id !== "part-1") continue;
+      const cs = getComputedStyle(h);
+      out[id] =
+        `<${h.tagName.toLowerCase()}> ${Math.round(Number.parseFloat(cs.fontSize) * 10) / 10}px ` +
+        `weight ${cs.fontWeight}, ${Math.round(Number.parseFloat(cs.marginTop))}px above`;
+    }
+    return out;
+  });
+}
+
 /**
  * With JavaScript off, the first disclosure's summary takes focus and Enter opens it and closes it
  * again: the line is a native <details>, not a hydrated button. Null when the face has none.
@@ -191,6 +211,7 @@ test("the English faces keep the German rhythm, and alternatives are a quiet lin
   let disclosures = 0;
   let pairs = 0;
   let keyboardChecked = 0;
+  let headingsCompared = 0;
   const browser: Browser = await chromium.launch({ headless: true });
   /** Light quanta's German paragraph gap at each width: the reference where a paper has none. */
   const reference = new Map<number, number | null>();
@@ -226,11 +247,19 @@ test("the English faces keep the German rhythm, and alternatives are a quiet lin
           await page.goto(`${origin}/papers/${paper}/view/german/`, { waitUntil: "load" });
           const own = await paragraphGapEm(page, "[data-german-draft] p, p.source-paragraph");
           const german = { n: own.n, median: own.median ?? reference.get(width) ?? null };
+          const germanHeadings = await firstHeadings(page);
           await page.goto(`${origin}/papers/${paper}/view/english/`, { waitUntil: "load" });
           const english = await paragraphGapEm(
             page,
             "[data-translation-body] > p.translation-paragraph",
           );
+          const englishHeadings = await firstHeadings(page);
+          for (const [id, de] of Object.entries(germanHeadings)) {
+            const en = englishHeadings[id];
+            if (en === undefined) continue; // an untranslated section
+            headingsCompared++;
+            if (en !== de) found.push(`heading ${id}: English ${en}, German ${de}`);
+          }
           const layout = await englishLayout(page);
           await page.goto(`${origin}/papers/${paper}/view/parallel/`, { waitUntil: "load" });
           const parallel = await englishLayout(page);
@@ -320,8 +349,9 @@ test("the English faces keep the German rhythm, and alternatives are a quiet lin
     server?.close();
   }
   console.log(
-    `[english face rhythm] ${gapsMeasured} English paragraph gaps, ${disclosures} disclosures, ${pairs} sibling pairs, ${keyboardChecked} lanes opened a disclosure by keyboard without JavaScript (${freshnessNote})`,
+    `[english face rhythm] ${gapsMeasured} English paragraph gaps, ${disclosures} disclosures, ${pairs} sibling pairs, ${keyboardChecked} lanes opened a disclosure by keyboard without JavaScript, ${headingsCompared} headings compared (${freshnessNote})`,
   );
+  assert.ok(headingsCompared > 0, "no English heading was compared with its German heading");
   assert.ok(gapsMeasured > 0, "no English paragraph gap was measured");
   assert.ok(disclosures > 0, "no alternatives disclosure was examined");
   assert.ok(keyboardChecked > 0, "no disclosure was operated by keyboard without JavaScript");
