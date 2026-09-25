@@ -90,13 +90,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <Suspense fallback={null}>
           <GuidedTourTrail />
         </Suspense>
-        {/* The page hydrates in its own boundary. Without it, a page component that suspended on a
-            late chunk while <main> was hydrating was retried with React's cursor already inside
-            <main>: it found main's first child where it expected <main> and threw React #418,
-            about one load in 300 on live (dispatch 171, src/testing/rootLayoutHydration.test.tsx). */}
-        <main id="main">
-          <Suspense fallback={null}>{children}</Suspense>
-        </main>
+        {/* NO SUSPENSE BOUNDARY AROUND THE PAGE. c3b3116b put one here to stop React #418, about one
+            load in 300. In the static export the page suspends while it prerenders, so React
+            streamed the whole page as a hidden late segment (<div hidden id="S:0">) with an empty
+            fallback in <main>, and a script moved it in. Without JavaScript that script never ran:
+            every page on live had an empty <main> from 2026-09-24 to 2026-09-25. A reader without
+            JavaScript loses the whole book; #418 costs one load in 300 a client re-render. So the
+            page renders inline in <main>, and #418 needs another fix
+            (src/testing/rootLayoutHydration.test.tsx). */}
+        <main id="main">{children}</main>
         <Suspense fallback={null}>
           <GuidedTourTrail compact />
         </Suspense>

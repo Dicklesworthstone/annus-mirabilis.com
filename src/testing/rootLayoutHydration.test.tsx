@@ -1,5 +1,11 @@
 /**
- * THE PAGE HYDRATES IN ITS OWN BOUNDARY, SO A LATE PAGE CHUNK CANNOT UNWIND THE SITE'S SHELL
+ * SUPERSEDED IN PART, 2026-09-25: the real layout no longer has the boundary described below. In
+ * the static export it made React stream every page as a hidden segment, so a reader without
+ * JavaScript saw an empty <main> on every page. The first test now asserts the page renders inline.
+ * The model tests below still show the trade-off: the #418 this boundary fixed is open again, and
+ * its next fix must not hide the page from a reader without JavaScript.
+ *
+ * THE PAGE HYDRATED IN ITS OWN BOUNDARY, SO A LATE PAGE CHUNK COULD NOT UNWIND THE SITE'S SHELL
  * (dispatch 171).
  *
  * Live threw React #418 ("the server rendered HTML didn't match the client") on about one load in
@@ -98,10 +104,12 @@ async function hydrateWithLatePage(boundary: boolean) {
 }
 
 describe("the root layout keeps a late page chunk from unwinding the shell (dispatch 171)", () => {
-  test("RootLayout puts the page inside its own Suspense boundary in <main>", () => {
+  test("RootLayout renders the page inline in <main>, with no Suspense boundary around it", () => {
+    // The boundary c3b3116b added made the static export stream every page as a hidden segment,
+    // so without JavaScript <main> was empty on every page. It is gone, and this holds it gone:
+    // the page is main's direct content, with no <!--$--> marker between them.
     const html = renderToString(RootLayout({ children: <p id="page-probe">page</p> }));
-    // A completed boundary is marked <!--$--> ... <!--/$--> in the server HTML.
-    expect(html).toContain('<main id="main"><!--$--><p id="page-probe">page</p><!--/$--></main>');
+    expect(html).toContain('<main id="main"><p id="page-probe">page</p></main>');
   });
 
   test("with the boundary, a late page leaves no hydration error and the shell is live meanwhile", async () => {
