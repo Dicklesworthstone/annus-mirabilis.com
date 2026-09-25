@@ -12,7 +12,19 @@ locators:
 diplomaticText: "Die Gesetze, nach denen sich die Zustände der physikalischen Systeme ändern, sind unabhängig davon, auf welches von zwei relativ zueinander in gleichförmiger Parallel-Translationsbewegung befindlichen Koordinatensystemen diese Zustandsänderungen bezogen werden (Relativitätsprinzip)."
 inlines:
   - kind: "text"
-    text: "Die Gesetze, nach denen sich die Zustände der physikalischen Systeme ändern, sind unabhängig davon, auf welches von zwei relativ zueinander in gleichförmiger Parallel-Translationsbewegung befindlichen Koordinatensystemen diese Zustandsänderungen bezogen werden (Relativitätsprinzip)."
+    text: "Die Gesetze, nach denen sich die Zustände der physikalischen Systeme ändern, sind unabhängig davon, auf welches von zwei relativ zueinander in gleichförmiger "
+  - kind: "term"
+    text: "Parallel-Translationsbewegung"
+    termId: "term-parallel-translationsbewegung"
+    definition: "Motion of parallel translation: a coordinate system moves as a whole without turning, so its axes keep their directions. Here the motion is also uniform, at a constant speed in a straight line."
+  - kind: "text"
+    text: " befindlichen Koordinatensystemen diese Zustandsänderungen bezogen werden ("
+  - kind: "term"
+    text: "Relativitätsprinzip"
+    termId: "term-relativitaetsprinzip"
+    definition: "The principle of relativity, as Einstein stated it in his paper on the electrodynamics of moving bodies, received on 30 June 1905, and restates here: the laws are the same in either of two such uniformly moving coordinate systems."
+  - kind: "text"
+    text: ")."
 sentenceSpans:
   - id: "s0-p3-s1"
     span:

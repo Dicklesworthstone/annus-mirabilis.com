@@ -12,7 +12,13 @@ locators:
 diplomaticText: "Wenn die Theorie den Tatsachen entspricht, so überträgt die Strahlung Trägheit zwischen den emittierenden und absorbierenden Körpern."
 inlines:
   - kind: "text"
-    text: "Wenn die Theorie den Tatsachen entspricht, so überträgt die Strahlung Trägheit zwischen den emittierenden und absorbierenden Körpern."
+    text: "Wenn die Theorie den Tatsachen entspricht, so überträgt die Strahlung "
+  - kind: "term"
+    text: "Trägheit"
+    termId: "term-traegheit"
+    definition: "Inertia: a body's resistance to a change in its motion, measured by its mass. The closing sentence says that, if the theory corresponds to the facts, radiation carries inertia from the body that emits it to the body that absorbs it."
+  - kind: "text"
+    text: " zwischen den emittierenden und absorbierenden Körpern."
 sentenceSpans:
   - id: "s0-p15-s1"
     span:
