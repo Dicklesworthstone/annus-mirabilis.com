@@ -7,6 +7,9 @@
 # After both rounds (GreenOx, round 2's reviewer, 2026-09-25): an alternative giving the corrected
 # sense, "for v = −V, ν′ = ∞", with err-typo-p912-2 (TanElk's ruling, mail 40166). The English
 # text is unchanged and keeps the printed reading. For a fresh-eye reviewer to confirm.
+# Confirmed (TanElk, agent, 2026-09-25): plate p. 912 (pdftoppm, 110 dpi, SHA-256 checked) prints
+# "für v = −∞, ν = ∞ ist."; by eq-s7-d8 ν′ is unbounded as v → −V, and the page closes on a source
+# approached at V appearing infinitely intense. The alternative and its rationale are right.
 kind: "translation-unit"
 id: "s7-p3-s4"
 paper: "special-relativity"
