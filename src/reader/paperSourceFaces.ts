@@ -93,11 +93,12 @@ export async function paperSourceFaces(paperId: string): Promise<PaperSourceFace
     if (section !== undefined && !firstUnit.has(section)) firstUnit.set(section, unit.id);
   }
   // The first glossed sentence of each section, in the blocks' reading order. A block with no
-  // sentence spans (a masthead line, a footnote) is glossed under its own id.
+  // sentence spans (a footnote) is glossed under its own id. The masthead is passed over: Brownian
+  // files its title under s0, and its introduction's passage landed on the title.
   const glossed = new Set((edition?.glossUnits ?? []).map((g) => g.sentenceId));
   const firstGloss = new Map<string, string>();
   for (const block of blocks) {
-    if (!block.section || firstGloss.has(block.section)) continue;
+    if (!block.section || block.kind === "masthead" || firstGloss.has(block.section)) continue;
     const ids = block.sentenceSpans?.length ? block.sentenceSpans.map((s) => s.id) : [block.id];
     const id = ids.find((x) => glossed.has(x));
     if (id !== undefined) firstGloss.set(block.section, id);
