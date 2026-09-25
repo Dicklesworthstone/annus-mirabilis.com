@@ -2937,3 +2937,16 @@ html:is(
 .translation-paragraph + .unresolved-alternatives {
   margin-top: calc(0.25em - var(--reader-paragraph-gap));
 }
+
+/* THE ENGLISH SECTION HEADING TAKES ITS GERMAN FACE'S STEP (dispatch 210). Measured on the built
+   faces at 1440: light quanta's and Brownian's German faces (the draft face, germanDraftFace.css)
+   set "§ 1." at 32.8px in the body weight, 40px below the text above it; their English faces set
+   the same heading at 27.4px in weight 600, 32px below, which is relativity's German face
+   (.source-heading above), where sections sit a step under the title-sized part headings. So an
+   English face whose paper prints no part heading takes the draft face's heading; relativity's
+   keeps its two levels, and both still match their German faces. */
+[data-translation-body]:not(:has(> .source-part-heading)) > .source-heading {
+  font-size: var(--type-title);
+  font-weight: 400;
+  margin: 2.5rem 0 1.2rem;
+}
