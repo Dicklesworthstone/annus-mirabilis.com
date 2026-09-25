@@ -810,5 +810,25 @@ Wir bestimmen die kinetische Energie des Elektrons. Bewegt sich ein Elektron vom
 --- MACHINE DRAFT TRANSCRIPTION PAGE 30 OF 31 ---
 [[ANNALEN-PAGE 920]]
 
+$X$-Achse unter der Wirkung einer elektrostatischen Kraft $X$, so ist klar, daß die dem elektrostatischen Felde entzogene Energie den Wert $\int \varepsilon X d x$ hat. Da das Elektron langsam beschleunigt sein soll und infolgedessen keine Energie in Form von Strahlung abgeben möge, so muß die dem elektrostatischen Felde entzogene Energie gleich der Bewegungsenergie $W$ des Elektrons gesetzt werden. Man erhält daher, indem man beachtet, daß während des ganzen betrachteten Bewegungsvorganges die erste der Gleichungen (A) gilt:
+$$
+W = \int \varepsilon X d x = \int_0^v \beta^3 v d v = \mu V^2 \left\{ \frac{1}{\sqrt{1 - \left( \frac{v}{V} \right)^2}} - 1 \right\} .
+$$
+
+$W$ wird also für $v = V$ unendlich groß. Überlichtgeschwindigkeiten haben — wie bei unseren früheren Resultaten — keine Existenzmöglichkeit.
+
+Auch dieser Ausdruck für die kinetische Energie muß dem oben angeführten Argument zufolge ebenso für ponderable Massen gelten.
+
+Wir wollen nun die aus dem Gleichungssystem (A) resultierenden, dem Experimente zugänglichen Eigenschaften der Bewegung des Elektrons aufzählen.
+
+1. Aus der zweiten Gleichung des Systems (A) folgt, daß eine elektrische Kraft $Y$ und eine magnetische Kraft $N$ dann gleich stark ablenkend wirken auf ein mit der Geschwindigkeit $v$ bewegtes Elektron, wenn $Y = N \cdot v/V$. Man ersieht also, daß die Ermittelung der Geschwindigkeit des Elektrons aus dem Verhältnis der magnetischen Ablenkbarkeit $A_m$ und der elektrischen Ablenkbarkeit $A_e$ nach unserer Theorie für beliebige Geschwindigkeiten möglich ist durch Anwendung des Gesetzes:
+$$
+\frac{A_m}{A_e} = \frac{v}{V} .
+$$
+
+Diese Beziehung ist der Prüfung durch das Experiment zugänglich, da die Geschwindigkeit des Elektrons auch direkt, z. B. mittels rasch oszillierender elektrischer und magnetischer Felder, gemessen werden kann.
+
+2. Aus der Ableitung für die kinetische Energie des Elektrons folgt, daß zwischen der durchlaufenen Potentialdifferenz[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 31 OF 31 ---
 [[ANNALEN-PAGE 921]]
