@@ -81,6 +81,10 @@ const measure = (html: string) => ({
   banner:
     /data-unreviewed-banner="true">([\s\S]*?)<\/aside>/.exec(html)?.[1]?.replace(/<[^>]+>/g, " ") ??
     "",
+  agentBanner:
+    /data-agent-checked-banner="true">([\s\S]*?)<\/aside>/
+      .exec(html)?.[1]
+      ?.replace(/<[^>]+>/g, " ") ?? "",
 });
 
 // The German blocks PaperPage passes: only kind, containedIn and sentence ids matter to grouping.
@@ -193,9 +197,13 @@ describe("mass-energy's live English face", () => {
     for (const u of edition?.units ?? []) expect(html).toContain(` id="${u.id}"`);
     expect(m.badges).toEqual([]);
     expect(m.status).toBe(1);
+    // Since 2026-09-25 every unit is final under D-2026-09-25-agent-reviewed-translations, so
+    // the face says AI agents translated and checked it, counts every unit, and claims no person.
     const n = edition?.units.length ?? 0;
-    expect(m.banner).toContain(
-      `${n} of its ${n} sentences and displays are an unreviewed machine draft`,
-    );
+    expect(n).toBeGreaterThan(0);
+    expect(m.banner).toBe("");
+    expect(m.agentBanner).toContain("Translated and checked by AI agents");
+    expect(m.agentBanner).toContain(`all ${n} `);
+    expect(m.agentBanner).toContain("No person has reviewed it.");
   });
 });
