@@ -9,8 +9,8 @@ import { printedUnits } from "../content/editions/germanSourceFace.ts";
 import { ledgerPageCoverage } from "../content/editions/ledgerPresence.ts";
 import { loadPaper } from "../content/server.ts";
 import { exportMarkup } from "../testing/exportMarkup.ts";
-import { FaceFallback } from "./FaceFallback.tsx";
 import { ledgerGaps, pageRanges } from "./ledgerGaps.ts";
+import { PaperPage } from "./PaperPage.tsx";
 import { PaperReader } from "./PaperReader.tsx";
 import { UnexplainedPartsLine } from "./UnexplainedParts.tsx";
 import {
@@ -163,10 +163,14 @@ describe("the pages a German face lacks", () => {
   });
 
   test("the relativity German face names the pages its ledger lacks, and no others", async () => {
+    // The German face a reader is SERVED, whichever renderer that is. Until dispatch 192 this
+    // rendered FaceFallback directly, which was the served face only while relativity had no
+    // German. Its unreviewed edition now renders through GermanFace, which must name the same
+    // pages in the same words; a partial edition that dropped them would read as the whole paper.
     const gaps = ledgerGaps("special-relativity", ROOT);
     const untranscribed = gaps?.untranscribed ?? [];
     const html = renderToStaticMarkup(
-      await FaceFallback({ paperId: "special-relativity", face: "german" }),
+      await PaperPage({ paperId: "special-relativity", face: "german" } as never),
     );
     if (untranscribed.length === 0) {
       expect(html).not.toContain("data-untranscribed-pages=");

@@ -1,0 +1,236 @@
+/**
+ * An edition that arrives a section at a time says what it does not cover, and an unreviewed
+ * German column is labelled even when no ledger draft supplies the label (dispatch 192).
+ *
+ * Special relativity's first units covered the masthead and the introduction. Without these, the
+ * English and parallel faces showed them as if they were the paper, and the German column showed
+ * the machine-drafted blocks unlabelled because the paper has no draft face to lend its notice.
+ */
+import { describe, expect, test } from "bun:test";
+import { renderToStaticMarkup } from "react-dom/server";
+import {
+  type SourceBlock,
+  type TranslationUnit,
+  validateSourceBlock,
+  validateTranslationUnit,
+} from "../../content/schemas/source.ts";
+import { spanTextDigest } from "../../content/schemas/spans.ts";
+import { FIXTURE_MASS_ENERGY_PAPER } from "../../testing/fixtures/bilingual/massEnergyGlossFixture.ts";
+import { PaperPage } from "../PaperPage.tsx";
+import { loadBilingualEdition } from "./bilingualLoader.ts";
+import { EnglishFace } from "./EnglishFace.tsx";
+import {
+  editionGermanNotice,
+  missingGermanSections,
+  sectionsLabel,
+  untranslatedSections,
+} from "./editionCoverage.ts";
+import { GermanFace } from "./GermanFace.tsx";
+import { ParallelFace } from "./ParallelFace.tsx";
+
+const status = (review: string) =>
+  ({
+    transcription: review === "reviewed" ? "reviewed" : "draft",
+    mathTranscription: "not-applicable",
+    translation: "draft",
+    review,
+  }) as const;
+const block = (id: string, section: string, text: string, review = "draft"): SourceBlock =>
+  validateSourceBlock({
+    id,
+    kind: "paragraph",
+    paper: "mass-energy",
+    section,
+    order: 1,
+    locators: [{ pdfPageIndex: 1, printedPage: 639 }],
+    diplomaticText: text,
+    inlines: [{ kind: "text", text }],
+    sentenceSpans: [
+      {
+        id: `${id}-s1`,
+        span: {
+          start: 0,
+          end: [...text].length,
+          blockRevision: 1,
+          textDigest: spanTextDigest(text),
+        },
+      },
+    ],
+    revision: 1,
+    status: status(review),
+    lang: "de",
+  });
+const unit = (id: string, source: string, text: string): TranslationUnit =>
+  validateTranslationUnit({
+    id,
+    sourceRefs: [{ paper: "mass-energy", id: source }],
+    inlines: [{ kind: "text", text }],
+    translator: { id: "agent:test", kind: "model", modelId: "test" },
+    revision: 1,
+    reviewState: "machine-draft",
+    lang: "en",
+  });
+
+const SECTIONS = ["s0", "s1", "s2", "s3", "s4"];
+const BLOCKS = [
+  block("s0-p1", "s0", "Daß die Elektrodynamik bekannt ist."),
+  block("s1-p1", "s1", "Es liege ein Koordinatensystem vor."),
+  block("s2-p1", "s2", "Die folgenden Überlegungen."),
+];
+// s0 through a sentence id, s1 through its block id; s2 has German and no English.
+const UNITS = [
+  unit("s0-p1-s1", "s0-p1-s1", "That electrodynamics is known."),
+  unit("s1-p1", "s1-p1", "Let a coordinate system be given."),
+];
+const PAPER = {
+  ...FIXTURE_MASS_ENERGY_PAPER,
+  sections: SECTIONS.map((id) => ({ id, title: id, arguments: [] })),
+};
+
+describe("untranslatedSections", () => {
+  test("names the sections no unit reaches, by sentence or by block, in the paper's order", () => {
+    expect(untranslatedSections(SECTIONS, BLOCKS, UNITS)).toEqual(["s2", "s3", "s4"]);
+  });
+  test("a German block with no English does not count as translated", () => {
+    expect(untranslatedSections(["s2"], BLOCKS, UNITS)).toEqual(["s2"]);
+  });
+  test("a fully translated paper names nothing", () => {
+    expect(untranslatedSections(["s0", "s1"], BLOCKS, UNITS)).toEqual([]);
+  });
+  test("a unit whose source is outside any section (the masthead) reaches none", () => {
+    expect(
+      untranslatedSections(["s0"], BLOCKS, [unit("masthead-title", "masthead-title", "On")]),
+    ).toEqual(["s0"]);
+  });
+});
+
+describe("sectionsLabel", () => {
+  test("the introduction, single sections, pairs, and runs of three or more", () => {
+    expect(sectionsLabel(["s0", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10"])).toBe(
+      "the introduction and §§ 2–10",
+    );
+    expect(sectionsLabel(["s3"])).toBe("§ 3");
+    expect(sectionsLabel(["s2", "s3"])).toBe("§§ 2 and 3");
+    expect(sectionsLabel(["s2", "s4", "s6", "s7", "s8"])).toBe("§§ 2, 4 and 6–8");
+    expect(sectionsLabel(["s0"])).toBe("the introduction");
+    expect(sectionsLabel([])).toBe("");
+  });
+});
+
+describe("editionGermanNotice", () => {
+  test("labels an unreviewed edition, and says nothing of a reviewed or empty one", () => {
+    const notice = editionGermanNotice(BLOCKS);
+    expect(notice?.state).toBe("machine-draft");
+    expect(notice?.label).toBe("Machine draft, not reviewed");
+    // One unreviewed block is enough.
+    const reviewed = block("r", "s0", "Geprüft.", "reviewed");
+    expect(editionGermanNotice([reviewed, BLOCKS[0] as SourceBlock])?.state).toBe("machine-draft");
+    expect(editionGermanNotice([reviewed])).toBeUndefined();
+    expect(editionGermanNotice([])).toBeUndefined();
+  });
+});
+
+describe("the English and parallel faces name what is not yet translated", () => {
+  const untranslated = untranslatedSections(SECTIONS, BLOCKS, UNITS);
+  const english = (sections: readonly string[]) =>
+    renderToStaticMarkup(
+      <EnglishFace paper={PAPER} units={UNITS} blocks={BLOCKS} untranslatedSections={sections} />,
+    );
+  const parallel = (sections: readonly string[], labelled = true) =>
+    renderToStaticMarkup(
+      <ParallelFace
+        paper={PAPER}
+        blocks={BLOCKS}
+        units={UNITS}
+        alignment={{ id: "a", paper: "mass-energy", edges: [] }}
+        germanNotice={labelled ? editionGermanNotice(BLOCKS) : undefined}
+        untranslatedSections={sections}
+      />,
+    );
+
+  test("a partial edition says which sections are missing, on both faces", () => {
+    for (const html of [english(untranslated), parallel(untranslated)]) {
+      expect(html).toContain('data-untranslated-sections="s2 s3 s4"');
+      expect(html).toContain("Not yet translated: §§ 2–4.");
+    }
+  });
+
+  test("a complete edition carries no such notice", () => {
+    for (const html of [english([]), parallel([])]) {
+      expect(html).not.toContain("data-untranslated-sections");
+      expect(html).not.toContain("Not yet translated");
+    }
+  });
+
+  test("the parallel face's German column carries the edition's own draft label", () => {
+    const html = parallel(untranslated);
+    expect(html).toContain("data-source-draft-notice");
+    expect(html).toContain("Machine draft, not reviewed");
+    // And without a notice, none is invented.
+    expect(parallel(untranslated, false)).not.toContain("data-source-draft-notice");
+  });
+});
+
+describe("the German face of an unreviewed, partial edition (a paper with no ledger draft)", () => {
+  const missing = missingGermanSections(SECTIONS, BLOCKS);
+  const german = (full: boolean) =>
+    renderToStaticMarkup(
+      <GermanFace
+        paper={PAPER}
+        blocks={BLOCKS}
+        notice={full ? undefined : editionGermanNotice(BLOCKS)}
+        missingSections={full ? [] : missing}
+        untranscribedPages={full ? [] : [916, 917, 918]}
+        pdfHref="/papers/pdfs/ap-18-639.pdf"
+        explainedBy={{ "s0-p1": [{ id: "arg-one", title: "The first passage" }] }}
+        notExplained={new Set(["s2-p1"])}
+      />,
+    );
+
+  test("names the sections no German block reaches", () => {
+    expect(missing).toEqual(["s3", "s4"]);
+    expect(missingGermanSections(["s0", "s1"], BLOCKS)).toEqual([]);
+  });
+
+  test("carries the draft label, the sections and pages it lacks, and the paragraph links", () => {
+    const html = german(false);
+    expect(html).toContain("data-source-draft-notice");
+    expect(html).toContain("Machine draft, not reviewed");
+    expect(html).toContain('data-missing-sections="s3 s4"');
+    expect(html).toContain("Not yet in it: §§ 3 and 4.");
+    expect(html).toContain('data-untranscribed-pages="916 917 918"');
+    expect(html).toContain("Printed pages 916–918 have not been transcribed yet.");
+    expect(html).toContain('href="/papers/pdfs/ap-18-639.pdf"');
+    expect(html).toContain('data-explained-by="s0-p1"');
+    expect(html).toContain('href="/papers/mass-energy/#arg-one"');
+    expect(html).toContain('data-not-explained="s2-p1"');
+  });
+
+  test("a reviewed, complete edition carries none of those statements, and keeps its links", () => {
+    const html = german(true);
+    expect(html).not.toContain("data-source-draft-notice");
+    expect(html).not.toContain("data-missing-sections");
+    expect(html).not.toContain("data-untranscribed-pages");
+    expect(html).toContain('data-explained-by="s0-p1"');
+  });
+});
+
+describe("live: light quanta, translated a section at a time", () => {
+  test("its English face names exactly the sections no unit reaches, or none once all are", async () => {
+    // A property, so it holds as sections land: the notice follows the edition's own coverage.
+    const edition = await loadBilingualEdition("light-quanta");
+    expect(edition?.units.length ?? 0).toBeGreaterThan(0);
+    if (!edition) return;
+    const expected = untranslatedSections(
+      edition.paper.sections.map((s) => s.id),
+      edition.blocks,
+      edition.units,
+    );
+    const html = renderToStaticMarkup(
+      await PaperPage({ paperId: "light-quanta", face: "english" } as never),
+    );
+    if (expected.length > 0)
+      expect(html).toContain(`data-untranslated-sections="${expected.join(" ")}"`);
+    else expect(html).not.toContain("data-untranslated-sections");
+  });
+});

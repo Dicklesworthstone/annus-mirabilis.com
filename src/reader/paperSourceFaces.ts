@@ -19,12 +19,18 @@ import {
   germanFaceRendersEdition,
 } from "./faceAvailability.ts";
 import { loadBilingualEdition } from "./faces/bilingualLoader.ts";
+import { missingGermanSections } from "./faces/editionCoverage.ts";
 import type { FaceId } from "./faces/registry.ts";
 
 export interface PaperSourceFaces {
   readonly availability: Readonly<Record<FaceId, FaceAvailability>>;
-  /** The German face renders the drafted ledger, not a compiled edition. */
+  /**
+   * The German face shows a draft: the drafted ledger, or an edition not every block of which is
+   * reviewed (special relativity renders its unreviewed edition, having no ledger draft face).
+   */
   readonly germanIsDraft: boolean;
+  /** The German face renders an edition that does not yet reach every section of the paper. */
+  readonly germanIsPartial: boolean;
   /**
    * The ids the German face publishes as anchors: the edition's block ids, or the draft's manifest
    * anchors. Empty when the paper has no German text, so a link to a printed paragraph can wait
@@ -76,7 +82,10 @@ export async function paperSourceFaces(paperId: string): Promise<PaperSourceFace
   }
   return {
     availability,
-    germanIsDraft: !rendersEdition,
+    germanIsDraft: !editionBlocksReviewed(blocks),
+    germanIsPartial:
+      rendersEdition &&
+      missingGermanSections(edition?.paper.sections.map((s) => s.id) ?? [], blocks).length > 0,
     germanAnchors: anchors,
     englishSectionFragment: (section) => {
       const id = firstUnit.get(section);
@@ -93,7 +102,9 @@ export function originalHref(
   sources: PaperSourceFaces,
   section: string,
 ): string | null {
-  return sources.availability.german === "available"
-    ? `/papers/${paperId}/view/german/${sources.sectionFragment(section)}`
+  // Only where the German face has the section: a partial edition's §3 is not there (dispatch 192).
+  const fragment = sources.sectionFragment(section);
+  return sources.availability.german === "available" && fragment !== ""
+    ? `/papers/${paperId}/view/german/${fragment}`
     : null;
 }

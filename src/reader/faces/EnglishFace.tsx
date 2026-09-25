@@ -11,6 +11,7 @@ import type { FaceAvailability } from "../faceAvailability.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
+import { sectionsLabel } from "./editionCoverage.ts";
 import { renderInlines } from "./inlines.tsx";
 import type { FaceId } from "./registry.ts";
 import { isPaperTranslationUnreviewed, translationReviewSummary } from "./reviewState.ts";
@@ -31,6 +32,8 @@ export interface EnglishFaceProps {
   readonly sectionId?: string | undefined;
   /** The German blocks, when the edition has them: they say which units share a paragraph. */
   readonly blocks?: readonly SourceBlock[] | undefined;
+  /** The paper's sections no translation unit reaches yet (editionCoverage.ts), in its order. */
+  readonly untranslatedSections?: readonly string[] | undefined;
 }
 
 export function EnglishFace({
@@ -42,6 +45,7 @@ export function EnglishFace({
   sectionId,
   availability,
   blocks,
+  untranslatedSections = [],
 }: EnglishFaceProps) {
   const isUnreviewed = isPaperTranslationUnreviewed(units, reviewRecords);
   const alignmentIndex = buildAlignmentIndex(alignment, undefined, units);
@@ -104,6 +108,15 @@ export function EnglishFace({
           kind={isUnreviewed ? "unreviewed" : "agent-checked"}
         />
       )}
+
+      {/* What the translation does not reach yet, named, so a partial edition is never read as the
+          whole paper (editionCoverage.ts). */}
+      {untranslatedSections.length > 0 ? (
+        <p className="notice" data-untranslated-sections={untranslatedSections.join(" ")}>
+          This translation does not yet cover the whole paper. Not yet translated:{" "}
+          {sectionsLabel(untranslatedSections)}.
+        </p>
+      ) : null}
 
       {/* The chooser every face uses, with this face the current tab (FaceChooser.tsx). */}
       <FaceChooser

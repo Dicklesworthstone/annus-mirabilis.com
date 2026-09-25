@@ -14,6 +14,7 @@ import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { withoutClaimedDisplays } from "./displayClaims.ts";
+import { sectionsLabel } from "./editionCoverage.ts";
 import { FootnoteItem } from "./Footnote.tsx";
 import { type ParallelRow, parallelRows } from "./parallelRows.ts";
 import type { FaceId } from "./registry.ts";
@@ -45,11 +46,14 @@ export interface ParallelFaceProps {
   readonly sectionId?: string | undefined;
   readonly layout?: "side-by-side" | "stacked" | undefined;
   /**
-   * The German source's own label, from its provenance receipt (sourceFaceNotice). Passed while the
-   * blocks are an unreviewed draft, so the German column is labelled as the German face is; the
+   * The German source's own label, from its provenance receipt (sourceFaceNotice), or from the
+   * blocks' own review status where the paper has no ledger draft (editionCoverage.ts). Passed while
+   * the blocks are an unreviewed draft, so the German column is labelled as the German face is; the
    * English column carries its own draft banner and badges.
    */
-  readonly germanNotice?: SourceFaceNoticeRecord | undefined;
+  readonly germanNotice?: Pick<SourceFaceNoticeRecord, "state" | "label" | "body"> | undefined;
+  /** The paper's sections no translation unit reaches yet (editionCoverage.ts), in its order. */
+  readonly untranslatedSections?: readonly string[] | undefined;
 }
 
 export function ParallelFace({
@@ -62,6 +66,7 @@ export function ParallelFace({
   sectionId,
   layout = "side-by-side",
   germanNotice,
+  untranslatedSections = [],
   availability,
 }: ParallelFaceProps) {
   const isUnreviewed = isPaperTranslationUnreviewed(units, reviewRecords);
@@ -155,6 +160,15 @@ export function ParallelFace({
           kind={isUnreviewed ? "unreviewed" : "agent-checked"}
         />
       )}
+
+      {/* What the translation does not reach yet, named, so a partial edition is never read as the
+          whole paper (editionCoverage.ts). */}
+      {untranslatedSections.length > 0 ? (
+        <p className="notice" data-untranslated-sections={untranslatedSections.join(" ")}>
+          This translation does not yet cover the whole paper. Not yet translated:{" "}
+          {sectionsLabel(untranslatedSections)}.
+        </p>
+      ) : null}
 
       {/* The chooser every face uses, with this face the current tab (FaceChooser.tsx). */}
       <FaceChooser

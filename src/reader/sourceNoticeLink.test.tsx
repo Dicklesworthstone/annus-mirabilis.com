@@ -5,15 +5,16 @@
  * /view/german/ page held the drafted German. The notice now links there exactly when the
  * German face has text, by the dispatch's own predicate.
  *
- * Both directions are asserted: a paper with a draft gets the link in every passage, and a
- * paper whose receipt records no ledger (special-relativity) gets none, so the link cannot
- * be satisfied by printing it unconditionally.
+ * Both directions are asserted: a paper with a draft gets the link in every passage, and
+ * special relativity, which has no ledger draft face, gets it only once its edition gives the
+ * German face text, so the link cannot be satisfied by printing it unconditionally.
  */
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadGermanSourceFace } from "../content/editions/germanSourceFace.ts";
 import { exportMarkup } from "../testing/exportMarkup.ts";
 import { PaperPage } from "./PaperPage.tsx";
+import { paperSourceFaces } from "./paperSourceFaces.ts";
 
 function sourceNotices(markup: string): string[] {
   return [...markup.matchAll(/<div data-face-source="true" hidden="">([\s\S]*?)<\/div>/g)].map(
@@ -37,15 +38,29 @@ describe("a passage's source notice leads to the German that exists", () => {
     }
   });
 
-  test("special-relativity has no German text, so its notices carry no link", async () => {
+  test("special-relativity: a notice links to the German face exactly when that face has text", async () => {
+    // Until dispatch 192 this said special relativity had no German text and asserted no link.
+    // It still has no ledger draft face, but its German now arrives as an unreviewed edition a
+    // section at a time, which the German face renders. What this watches: the link follows the
+    // face, never the paper's name; an unreviewed edition is called drafted; and one that does
+    // not yet reach every section does not promise the whole paper.
     expect(loadGermanSourceFace("special-relativity")?.blocks.length ?? 0).toBe(0);
+    const sources = await paperSourceFaces("special-relativity");
     const notices = sourceNotices(
       await exportMarkup(await PaperPage({ paperId: "special-relativity" })),
     );
     expect(notices.length).toBeGreaterThan(0);
     for (const notice of notices) {
       expect(notice).toContain("not yet available");
-      expect(notice).not.toContain("/view/german/");
+      if (sources.availability.german !== "available") {
+        expect(notice).not.toContain("/view/german/");
+        continue;
+      }
+      expect(notice).toContain(
+        sources.germanIsPartial
+          ? '<a href="/papers/special-relativity/view/german/">Read the German source drafted so far →</a>'
+          : '<a href="/papers/special-relativity/view/german/">Read the drafted German source for the whole paper →</a>',
+      );
     }
   });
 });

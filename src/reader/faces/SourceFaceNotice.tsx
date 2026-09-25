@@ -25,7 +25,9 @@
 
 import type { SourceFaceNotice as Notice } from "../../content/provenance/sourceFaceNotice.ts";
 
-export function SourceFaceNotice({ notice }: { notice: Notice }) {
+// Only the state, label and sentence are rendered, so a label derived from an edition's own block
+// statuses (editionCoverage.ts) renders through the same component as one derived from a receipt.
+export function SourceFaceNotice({ notice }: { notice: Pick<Notice, "state" | "label" | "body"> }) {
   // A reviewed text carries no badge. The receipt decides, not this component.
   if (notice.state !== "machine-draft") return null;
 

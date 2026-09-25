@@ -1,17 +1,21 @@
+import { Fragment } from "react";
 import type {
   Alignment,
   EditorialNote,
   Paper,
   SourceBlock as SourceBlockData,
 } from "../../content/schemas/source.ts";
+import { pageRanges } from "../ledgerGaps.ts";
 import { FACE_FALLBACK_IDS, faceLinkHref } from "../paperRoutes.ts";
 import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { withoutClaimedDisplays } from "./displayClaims.ts";
+import { type GermanColumnNotice, sectionsLabel } from "./editionCoverage.ts";
 import { FootnotesSection } from "./Footnote.tsx";
 import { FACE_REGISTRY } from "./registry.ts";
 import { SourceBlock } from "./SourceBlock.tsx";
+import { SourceFaceNotice } from "./SourceFaceNotice.tsx";
 import "../reader.css";
 
 export interface GermanFaceProps {
@@ -20,6 +24,27 @@ export interface GermanFaceProps {
   readonly alignment?: Alignment | undefined;
   readonly editorialNotes?: readonly EditorialNote[] | undefined;
   readonly sectionId?: string | undefined;
+  /**
+   * The label an unreviewed edition carries (editionCoverage.ts editionGermanNotice). PaperPage
+   * renders an edition here before it is reviewed only for a paper with no ledger draft face, so
+   * the label the draft face would have carried comes with it (dispatch 192).
+   */
+  readonly notice?: GermanColumnNotice | undefined;
+  /** The paper's sections no German block reaches yet, in its order, named above the text. */
+  readonly missingSections?: readonly string[] | undefined;
+  /** Printed pages the ledger has not transcribed (ledgerGaps.ts), named as the notice face names them. */
+  readonly untranscribedPages?: readonly number[] | undefined;
+  /** The pinned facsimile, which has every page, when there is one. */
+  readonly pdfHref?: string | null | undefined;
+  /**
+   * The explanation passages each printed paragraph is bound to (content/bindings), by its id, as
+   * the draft face links them: a way from the German to its explanation that needs no script.
+   */
+  readonly explainedBy?: Readonly<
+    Record<string, readonly Readonly<{ id: string; title: string }>[]>
+  >;
+  /** Paragraphs declared unexplained (content/bindings): the face says so under each. */
+  readonly notExplained?: ReadonlySet<string> | undefined;
 }
 
 export function GermanFace({
@@ -28,6 +53,12 @@ export function GermanFace({
   alignment,
   editorialNotes = [],
   sectionId,
+  notice,
+  missingSections = [],
+  untranscribedPages = [],
+  pdfHref,
+  explainedBy,
+  notExplained,
 }: GermanFaceProps) {
   const filteredBlocks = sectionId
     ? blocks.filter((b) => b.section === sectionId || !b.section)
@@ -41,6 +72,28 @@ export function GermanFace({
   const alignmentIndex = buildAlignmentIndex(alignment, blocks);
 
   const dateLine = paper.dates.find((d) => d.type === "date-line");
+  // "Explained in <passage>", after a bound paragraph, as on the draft face (GermanDraftFace).
+  const explained = (id: string) => {
+    if (notExplained?.has(id))
+      return (
+        <p className="fine source-explained-by" data-not-explained={id}>
+          Not yet explained on this site.
+        </p>
+      );
+    const passages = explainedBy?.[id] ?? [];
+    if (passages.length === 0) return null;
+    return (
+      <p className="fine source-explained-by" data-explained-by={id}>
+        Explained in{" "}
+        {passages.map((passage, i) => (
+          <Fragment key={passage.id}>
+            {i === 0 ? "" : i === passages.length - 1 ? " and " : ", "}
+            <a href={`/papers/${paper.slug}/#${passage.id}`}>{passage.title}</a>
+          </Fragment>
+        ))}
+      </p>
+    );
+  };
 
   return (
     <div
@@ -91,14 +144,35 @@ export function GermanFace({
         ))}
       </nav>
 
+      {/* An edition shown before it is reviewed is labelled, and one that does not yet reach every
+          section or page says what it lacks, so the introduction is never read as the paper. */}
+      {notice ? <SourceFaceNotice notice={notice} /> : null}
+      {missingSections.length > 0 ? (
+        <p className="notice" data-missing-sections={missingSections.join(" ")} lang="en">
+          This German text does not yet cover the whole paper. Not yet in it:{" "}
+          {sectionsLabel(missingSections)}.
+        </p>
+      ) : null}
+      {untranscribedPages.length > 0 ? (
+        <p className="fine" data-untranscribed-pages={untranscribedPages.join(" ")} lang="en">
+          {untranscribedPages.length === 1 ? "Printed page " : "Printed pages "}
+          {pageRanges(untranscribedPages)} {untranscribedPages.length === 1 ? "has" : "have"} not
+          been transcribed yet.
+          {pdfHref ? (
+            <>
+              {" "}
+              Every page is in the <a href={pdfHref}>facsimile</a>.
+            </>
+          ) : null}
+        </p>
+      ) : null}
+
       <main className="source-blocks-list" data-source-body>
         {mainBlocks.map((block) => (
-          <SourceBlock
-            key={block.id}
-            block={block}
-            paperSlug={paper.slug}
-            editorialNotes={editorialNotes}
-          />
+          <Fragment key={block.id}>
+            <SourceBlock block={block} paperSlug={paper.slug} editorialNotes={editorialNotes} />
+            {explained(block.id)}
+          </Fragment>
         ))}
       </main>
 

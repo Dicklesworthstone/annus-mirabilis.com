@@ -36,6 +36,11 @@ import {
 } from "./faceAvailability.ts";
 import { type BilingualEdition, loadBilingualEdition } from "./faces/bilingualLoader.ts";
 import { EnglishFace } from "./faces/EnglishFace.tsx";
+import {
+  editionGermanNotice,
+  missingGermanSections,
+  untranslatedSections,
+} from "./faces/editionCoverage.ts";
 import { GermanDraftFace } from "./faces/GermanDraftFace.tsx";
 import { GermanFace } from "./faces/GermanFace.tsx";
 import { GlossFace } from "./faces/GlossFace.tsx";
@@ -46,6 +51,7 @@ import {
   LazyLightQuantaFirstEncounter,
   LazyMassEnergyFirstEncounter,
 } from "./lazyIslands.tsx";
+import { ledgerGaps } from "./ledgerGaps.ts";
 import { MassEnergyDerivation } from "./MassEnergyDerivation.tsx";
 import { MassEnergyLowSpeed } from "./MassEnergyLowSpeed.tsx";
 import { loadPaperMargins } from "./marginRecords.ts";
@@ -124,6 +130,16 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           : loadGermanSourceFace(resolved.paperId as RouteSlug);
         if (germanFaceHasContent(editionBlocks, draft?.blocks.length ?? 0)) {
           if (edition && germanFaceRendersEdition(blocks, draft?.blocks.length ?? 0)) {
+            // Before it is reviewed, an edition renders here only for a paper with no ledger draft
+            // face (special relativity). It then carries the draft's label, names the sections and
+            // pages it lacks, and links each paragraph to its explanation, as the draft face does:
+            // arriving a section at a time, it must not read as the whole paper (dispatch 192).
+            const paperRecord = await loadPaper(resolved.paperId);
+            const { explainedBy, notExplained } = passageLinks(
+              resolved.paperId,
+              paperRecord.arguments,
+            );
+            const pdf = `papers/pdfs/${edition.paper.bibKey}.pdf`;
             return (
               <GermanFace
                 paper={edition.paper}
@@ -131,6 +147,15 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                 alignment={edition.alignment}
                 editorialNotes={edition.editorialNotes}
                 sectionId={resolved.section}
+                notice={editionGermanNotice(blocks)}
+                missingSections={missingGermanSections(
+                  edition.paper.sections.map((s) => s.id),
+                  blocks,
+                )}
+                untranscribedPages={ledgerGaps(resolved.paperId as RouteSlug)?.untranscribed ?? []}
+                pdfHref={existsSync(join(process.cwd(), "public", pdf)) ? `/${pdf}` : null}
+                explainedBy={explainedBy}
+                notExplained={notExplained}
               />
             );
           }
@@ -170,17 +195,9 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                   }
                 : undefined;
             // Each printed paragraph's explanation passages (content/bindings), by manifest anchor.
-            const titles = new Map(paperRecord.arguments.map((a) => [a.id, a.title]));
-            const bindings = loadParagraphBindings(process.cwd(), resolved.paperId) ?? [];
-            const notExplained = new Set(bindings.filter((b) => b.unexplained).map((b) => b.unit));
-            const explainedBy = Object.fromEntries(
-              bindings.map((b) => [
-                b.unit,
-                b.passages.flatMap((id) => {
-                  const title = titles.get(id);
-                  return title ? [{ id, title }] : [];
-                }),
-              ]),
+            const { explainedBy, notExplained } = passageLinks(
+              resolved.paperId,
+              paperRecord.arguments,
             );
             return (
               <GermanDraftFace
@@ -211,6 +228,13 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           glossUnits: edition.glossUnits?.length ?? 0,
           germanDraftBlocks: germanDraft?.blocks.length ?? 0,
         });
+        // The sections no translation unit reaches yet, named on the English and parallel faces so
+        // an edition that arrives a section at a time is not read as the whole paper.
+        const untranslated = untranslatedSections(
+          edition.paper.sections.map((s) => s.id),
+          edition.blocks,
+          edition.units,
+        );
         if (resolved.face === "english" && englishFaceHasContent(edition.units.length)) {
           return (
             <EnglishFace
@@ -222,6 +246,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
               editorialNotes={edition.editorialNotes}
               reviewRecords={edition.reviewRecords}
               sectionId={resolved.section}
+              untranslatedSections={untranslated}
             />
           );
         }
@@ -245,7 +270,8 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
               editorialNotes={edition.editorialNotes}
               reviewRecords={edition.reviewRecords}
               sectionId={resolved.section}
-              germanNotice={germanDraft?.notice}
+              germanNotice={germanDraft?.notice ?? editionGermanNotice(edition.blocks)}
+              untranslatedSections={untranslated}
             />
           );
         }
@@ -314,12 +340,15 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
   const partHref = (part: string) => originalHref(paper.id, sources, part) ?? pdfHref;
   const sourceContext = (a: { id: string; section: string }) =>
     [
-      sources.availability.german === "available" && {
-        face: "german",
-        label: "German source",
-        name: "German source",
-        href: `/papers/${paper.id}/view/german/${sources.sectionFragment(a.section)}`,
-      },
+      // German only where the German face has this passage's section: an edition that has reached
+      // the introduction must not send a §3 passage to a German face with no §3 in it.
+      sources.availability.german === "available" &&
+        sources.sectionFragment(a.section) !== "" && {
+          face: "german",
+          label: "German source",
+          name: "German source",
+          href: `/papers/${paper.id}/view/german/${sources.sectionFragment(a.section)}`,
+        },
       // English only where this passage's section has English: light quanta is translated a
       // section at a time, and a §5 passage offered "English" opened a face with no §5 in it.
       sources.availability.english === "available" &&
@@ -348,9 +377,12 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
     sources.availability.german === "available"
       ? {
           href: `/papers/${paper.id}/view/german/`,
-          label: sources.germanIsDraft
-            ? "Read the drafted German source for the whole paper →"
-            : "Read the German source for the whole paper →",
+          // An edition that has reached only part of the paper does not promise the whole of it.
+          label: sources.germanIsPartial
+            ? "Read the German source drafted so far →"
+            : sources.germanIsDraft
+              ? "Read the drafted German source for the whole paper →"
+              : "Read the German source for the whole paper →",
         }
       : null;
   const entrance =
@@ -760,4 +792,31 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
       </dialog>
     </div>
   );
+}
+
+/**
+ * Each printed paragraph's explanation passages (content/bindings), by its manifest id, and the
+ * paragraphs declared unexplained: what both German faces print under a paragraph.
+ */
+function passageLinks(
+  paperId: string,
+  passages: readonly Readonly<{ id: string; title: string }>[],
+): {
+  explainedBy: Record<string, { id: string; title: string }[]>;
+  notExplained: Set<string>;
+} {
+  const titles = new Map(passages.map((a) => [a.id, a.title]));
+  const bindings = loadParagraphBindings(process.cwd(), paperId) ?? [];
+  return {
+    notExplained: new Set(bindings.filter((b) => b.unexplained).map((b) => b.unit)),
+    explainedBy: Object.fromEntries(
+      bindings.map((b) => [
+        b.unit,
+        b.passages.flatMap((id) => {
+          const title = titles.get(id);
+          return title ? [{ id, title }] : [];
+        }),
+      ]),
+    ),
+  };
 }

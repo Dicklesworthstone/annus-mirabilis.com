@@ -39,6 +39,20 @@ function translatedSections(paperId: string): Set<string> {
   return sections;
 }
 
+/** The sections of a paper that have German source blocks, read straight from its block files. */
+function germanSections(paperId: string): Set<string> {
+  const dir = join(process.cwd(), "content", "source-blocks", paperId);
+  if (!existsSync(dir)) return new Set();
+  const sections = new Set<string>();
+  for (const f of readdirSync(dir).filter(
+    (x) => x.endsWith(".yaml") && !x.startsWith("manifest") && !x.startsWith("ledger"),
+  )) {
+    const block = parseYaml(readFileSync(join(dir, f), "utf8")) as { section?: string };
+    if (block.section) sections.add(block.section);
+  }
+  return sections;
+}
+
 async function contextLines(paperId: string) {
   await installDom();
   try {
@@ -128,15 +142,41 @@ describe("a passage's Source context links only faces that exist", () => {
     }
   });
 
-  test("special-relativity has no German: its lines offer the facsimile alone", async () => {
+  test("special-relativity: German and English only where its edition has that section; the facsimile always", async () => {
+    // Until dispatch 192 this said special relativity had no German and expected the facsimile
+    // alone. It has no ledger draft face, and its German and English now arrive a section at a
+    // time as an unreviewed edition, which the German face renders. What this watches: a passage
+    // is offered a face exactly when that face holds the passage's section, so a §3 passage is
+    // never sent to a German or English face that holds only the introduction, and "Read the
+    // original" goes where the German link goes, or nowhere.
+    const { arguments: args } = await loadPaper("special-relativity");
+    const sectionOf = new Map(args.map((a) => [a.id, a.section]));
+    const german = germanSections("special-relativity");
+    const translated = translatedSections("special-relativity");
     const lines = await contextLines("special-relativity");
     expect(lines.length).toBeGreaterThan(0);
+    let outside = 0;
     for (const line of lines) {
-      expect(line.text).toBe("Source context: Facsimile");
-      // No German draft, so there is no id to aim at and the link opens the face itself.
-      expect(line.hrefs).toEqual(["/papers/special-relativity/view/facsimile/"]);
-      // No German text, so no "Read the original" leading to a "not yet available" page.
-      expect(line.original).toBe(null);
+      const section = sectionOf.get(line.id) ?? "?";
+      const offered = [
+        german.has(section) ? "German source" : null,
+        translated.has(section) ? "English" : null,
+        "Facsimile",
+      ].filter((f) => f !== null);
+      expect(line.text).toBe(`Source context: ${offered.join(" · ")}`);
+      const germanHref = line.hrefs.find((h) => h.includes("/view/german/"));
+      if (german.has(section)) {
+        // At an element of the passage's own section.
+        expect(germanHref?.split("#")[1]?.startsWith(section)).toBe(true);
+        expect(line.original).toBe(germanHref ?? "");
+      } else {
+        expect(germanHref).toBeUndefined();
+        expect(line.original).toBe(null);
+        outside += 1;
+      }
     }
+    // Non-vacuity while the edition is partial: some passage lies outside it.
+    const sections = new Set(args.map((a) => a.section));
+    if ([...sections].some((s) => !german.has(s))) expect(outside).toBeGreaterThan(0);
   });
 });

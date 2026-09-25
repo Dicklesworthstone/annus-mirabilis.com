@@ -19,6 +19,8 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadGermanSourceFace } from "../../content/editions/germanSourceFace.ts";
 import { PaperPage } from "../PaperPage.tsx";
+import { loadBilingualEdition } from "./bilingualLoader.ts";
+import { missingGermanSections } from "./editionCoverage.ts";
 
 const DRAFT_PAPERS = ["mass-energy", "brownian-motion", "light-quanta"] as const;
 
@@ -123,12 +125,28 @@ describe("the German face a reader is served", () => {
     }
   });
 
-  test("a paper with no ledger still reports absence honestly", async () => {
+  test("the paper with no ledger draft is honest either way: absence, or a labelled part", async () => {
     // The control. Without it every assertion above is satisfied by a page that renders
-    // a draft notice over any paper at all, including the three that have no transcript.
+    // a draft notice over any paper at all.
+    //
+    // Until dispatch 192 this asserted that special relativity reports absence. Its German now
+    // arrives as an unreviewed edition, a section at a time, and it has no ledger draft face, so
+    // the German face renders the edition (PaperPage, GermanFace). What this watches now: with no
+    // edition blocks the face reports absence and carries no draft label; with some, it carries
+    // the label, never reports absence over German it has, and names the sections it lacks.
+    const edition = await loadBilingualEdition("special-relativity");
+    const blocks = edition?.blocks ?? [];
     const html = await germanMarkup("special-relativity");
-    expect(html).toContain("not yet available");
-    expect(html).not.toContain("Machine draft, not reviewed");
+    if (blocks.length === 0) {
+      expect(html).toContain("not yet available");
+      expect(html).not.toContain("Machine draft, not reviewed");
+      return;
+    }
+    expect(html).not.toContain("not yet available");
+    expect(html).toContain("Machine draft, not reviewed");
+    const missing = missingGermanSections(edition?.paper.sections.map((s) => s.id) ?? [], blocks);
+    if (missing.length > 0) expect(html).toContain(`data-missing-sections="${missing.join(" ")}"`);
+    else expect(html).not.toContain("data-missing-sections=");
   });
 
   test("no scan-page furniture reaches the served page", async () => {
