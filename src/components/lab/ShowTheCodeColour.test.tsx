@@ -6,6 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { extractTypeScriptExport } from "../../content/kernel/extractTypeScript.ts";
 import { computeBm01StokesEinsteinTrace } from "../../content/kernel/trace.ts";
 import BROWNIAN from "../../generated/brownian-equations.json";
+import PRINTED from "../../generated/printed-displays.json";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 
 /*
@@ -76,12 +77,19 @@ describe("show-the-code uses the paper's quantity colours, from CSS", () => {
   test("a quantity no Brownian equation shows keeps the ink: the sheet gives it no colour", () => {
     // The example used to be molarGasConstant, until D = RT/(6 pi eta a N) put R in a Brownian
     // equation and the sheet correctly coloured it. The property holds for any quantity, so it is
-    // checked for all of them: the sheet colours exactly the quantities Brownian equations show.
-    const shown = new Set(
-      (BROWNIAN.equations as readonly { terms: readonly { quantityId: string }[] }[]).flatMap((e) =>
-        e.terms.map((t) => t.quantityId),
-      ),
+    // checked for all of them: the sheet colours exactly the quantities Brownian shows, in its
+    // model equations and, since dispatch 224, in its printed displays (content/display-terms/).
+    // A fixed list of "unshown" quantities went stale the day those displays were bound.
+    type Termed = { terms: readonly { quantityId: string }[] };
+    const model = new Set(
+      (BROWNIAN.equations as readonly Termed[]).flatMap((e) => e.terms.map((t) => t.quantityId)),
     );
+    const printed = new Set(
+      (PRINTED.displays as readonly (Termed & { paper: string })[])
+        .filter((d) => d.paper === "brownian-motion")
+        .flatMap((d) => d.terms.map((t) => t.quantityId)),
+    );
+    const shown = new Set([...model, ...printed]);
     const coloured = new Set(
       [
         ...SHEET.matchAll(
@@ -94,6 +102,11 @@ describe("show-the-code uses the paper's quantity colours, from CSS", () => {
     // Identity, not census: gamma belongs to papers 3 and 4 and is never a Brownian quantity.
     expect(shown.has("lorentzFactor")).toBe(false);
     expect(SHEET).not.toMatch(rule("brownian-motion", "lorentzFactor"));
+    // The positive case: the printed nu of §§ 1 to 3 (and f in § 4) is the number density, which
+    // only the printed displays show, and the sheet colours it.
+    expect(printed.has("numberDensity")).toBe(true);
+    expect(model.has("numberDensity")).toBe(false);
+    expect(SHEET).toMatch(rule("brownian-motion", "numberDensity"));
   });
 
   test("a listing that names no paper takes its laboratory's, as bm-05's and bm-06's do", () => {
