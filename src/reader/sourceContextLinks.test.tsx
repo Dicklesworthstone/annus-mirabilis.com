@@ -240,9 +240,11 @@ describe("a passage's Source context links only faces that exist", () => {
           const fragment = gloss[0]?.split("#")[1] ?? "";
           expect(fragment.startsWith("arg-")).toBe(false);
           expect(ids.has(fragment)).toBe(true);
-          // A sentence of the passage's own section, not the masthead above it: Brownian files its
-          // title block under s0, and the introduction's passage landed on #masthead-title.
-          expect(fragment.startsWith(`${section}-`)).toBe(true);
+          // The passage's own section, not the masthead above it: Brownian files its title block
+          // under s0, and the introduction's passage landed on #masthead-title. The section's own
+          // heading (#s1) counts: light quanta's § 1 gloss begins with it (dispatch 216), and the
+          // English link opens that section at the same heading.
+          expect(fragment === section || fragment.startsWith(`${section}-`)).toBe(true);
           offered += 1;
         } else {
           expect(gloss).toEqual([]);
