@@ -26,6 +26,11 @@
       "arguments": ["arg-bm-kinetic-justification"]
     },
     {
+      "id": "s3",
+      "title": "§3 · The diffusion of small suspended spheres",
+      "arguments": ["arg-bm-diffusivity"]
+    },
+    {
       "id": "s4",
       "title": "§4 · From random displacement to diffusion",
       "arguments": [
@@ -38,7 +43,7 @@
     {
       "id": "s5",
       "title": "§5 · From displacement to molecular scale",
-      "arguments": ["arg-bm-diffusivity", "arg-bm-inference"]
+      "arguments": ["arg-bm-inference"]
     }
   ]
 }

@@ -3,7 +3,7 @@
   "kind": "argument",
   "id": "arg-bm-diffusivity",
   "paper": "brownian-motion",
-  "section": "s5",
+  "section": "s3",
   "title": "Why viscosity changes the spread",
   "question": "What fixes D for a small spherical tracer in a liquid?",
   "recap": "Combining ideal osmotic pressure with mobility and diffusive balance relates diffusivity to temperature, viscosity and radius.",
