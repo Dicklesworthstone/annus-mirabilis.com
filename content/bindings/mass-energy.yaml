@@ -41,10 +41,10 @@ paragraphs:
     r0: "Neglecting terms of fourth and higher order, the drop in kinetic energy becomes L divided by V squared, times v squared over 2."
   - unit: s0-p12
     passages: [arg-me-mass-change]
-    r0: "So a body that gives off energy L as radiation loses mass L divided by V squared, and Einstein argues that it does not matter that the energy leaves as radiation."
+    r0: "So a body that gives off energy as radiation loses mass, by an amount set by the energy it gives off, and Einstein argues that it does not matter that the energy leaves as radiation."
   - unit: s0-p13
     passages: [arg-me-mass-change]
-    r0: "The general conclusion: the mass of a body is a measure of its energy content, and a change of energy L changes the mass by L divided by 9 × 10²⁰, with energy in erg and mass in grams."
+    r0: "The general conclusion: the mass of a body is a measure of its energy content. When the energy changes, the mass changes in the same direction, and the paper gives the size of that change in grams for an energy in ergs."
   - unit: s0-p14
     passages: [arg-me-scope]
     r0: "Bodies whose energy content varies strongly, such as radium salts, might allow the theory to be tested."
