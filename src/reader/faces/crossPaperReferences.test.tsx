@@ -17,7 +17,7 @@ import { PAPER_SLUGS } from "../../content/schemas/source.pure.ts";
 import { PaperPage } from "../PaperPage.tsx";
 import { referenceHref } from "./referenceHref.ts";
 
-const ROOT = join(import.meta.dir, "../../..");
+const ROOT = process.cwd();
 
 describe("referenceHref", () => {
   test("a paper, or a paper and section, opens that page", () => {
