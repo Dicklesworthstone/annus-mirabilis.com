@@ -1665,6 +1665,14 @@ html:is(
   width: 100%;
 }
 
+/* A flex item's min-width is auto, so a display wider than the column kept its whole width and
+   widened the page: light quanta's footnote displays eq-s1-d4 and eq-s1-d5, standing alone in the
+   English and parallel faces, by 46 to 74px at 390 on live. With min-width 0 the item shrinks to the
+   column and .equation-body below scrolls inside it; a display that fits is still centred. */
+.equation-container > * {
+  min-width: 0;
+}
+
 /* A div in an equation block (SourceBlock.tsx), and a span in an English paragraph
    (TranslationParagraphs.tsx), where it was inline and so could not scroll: without display: block
    the mass-energy English face widened by 77px at 390 in the static harness. overflow-y as for
