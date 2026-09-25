@@ -1,0 +1,23 @@
+# TranslationUnit s1-p3-s2: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "s1-p3-s2"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "s1-p3-s2"
+inlines:
+  - kind: "text"
+    text: "For the latter the kinetic theory of gases yields the condition that the mean vis viva of a resonator electron must be equal to the mean kinetic energy of the translational motion of a gas molecule."
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "the mean kinetic energy of a resonator electron"
+    rationale: "lebendige Kraft is the period name for kinetic energy, and the sentence sets it equal to a mittlere kinetische Energie. The paper uses both words, so the older one is kept where Einstein writes it."
+reviewState: "machine-draft"
+lang: "en"

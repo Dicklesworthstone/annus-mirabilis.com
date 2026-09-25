@@ -1,0 +1,21 @@
+# TranslationUnit s0-p3-s2: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "s0-p3-s2"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "s0-p3-s2"
+inlines:
+  - kind: "text"
+    text: "According to the assumption to be considered here, in the propagation of a ray of light issuing from a point the energy is not distributed continuously over ever larger spaces, but consists of a finite number of energy quanta localized at points in space, which move without dividing and can be absorbed and generated only as wholes."
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

@@ -1,0 +1,22 @@
+# TranslationUnit eq-s1-d5: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "eq-s1-d5"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "eq-s1-d5"
+inlines:
+  - kind: "math"
+    latex: "f(A_1, A_2 \\ldots \\alpha_1, \\alpha_2 \\ldots) = F_1(A_1) F_2(A_2) \\ldots f_1(\\alpha_1) \\cdot f_2(\\alpha_2) \\ldots ,"
+    equationId: "eq-s1-d5"
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"
