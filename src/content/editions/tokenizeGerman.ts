@@ -156,6 +156,23 @@ export function tokenizeGerman(
       continue;
     }
 
+    // Match a bare number (e.g. the year in "(Eingegangen 27. September 1905.)"). Without this rule
+    // a number not followed by a space or the end became one punctuation token per digit, so the
+    // received date's year had no token, no gloss, and no place on the gloss face.
+    const integer = text.slice(i).match(/^\d+/);
+    if (integer) {
+      tokens.push({
+        kind: "word",
+        text: integer[0],
+        start: i,
+        end: i + integer[0].length,
+        tokenIndex,
+      });
+      tokenIndex += 1;
+      i += integer[0].length;
+      continue;
+    }
+
     // Match word with internal hyphens and apostrophes (e.g. Maxwell-Hertzschen, Doppler'schen)
     const ch = text[i] ?? "";
     if (LETTER.test(ch)) {

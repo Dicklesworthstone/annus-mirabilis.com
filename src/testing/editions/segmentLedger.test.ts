@@ -322,6 +322,47 @@ describe("German word tokenization regression suite", () => {
     });
   });
 
+  test("a printed number with no ordinal period is one word token, never a punctuation token per digit", () => {
+    // The received line of the mass-energy paper, as its source block prints it. The year used to
+    // tokenize as 1, 9, 0, 5 punctuation, so its gloss unit had three tokens and the gloss face
+    // printed "Eingegangen 27. September" with the year gone.
+    const received = tokenizeGerman("(Eingegangen 27. September 1905.)");
+    expect(wordTokens(received).map((w) => w.text)).toEqual([
+      "Eingegangen",
+      "27.",
+      "September",
+      "1905",
+    ]);
+    expect(received.filter((t) => t.kind === "punctuation" && /\d/.test(t.text))).toEqual([]);
+
+    // A year inside a sentence, before a parenthesis: the regression sentence above prints
+    // "am 17. März 1905 (§ 8)" and never asked for its year.
+    const words = wordTokens(tokenizeGerman("am 17. März 1905 (§ 8) bei 1 Sek.")).map(
+      (w) => w.text,
+    );
+    expect(words).toEqual(["am", "17.", "März", "1905", "§ 8", "bei", "1", "Sek."]);
+
+    // The forms that already had a rule keep it.
+    expect(wordTokens(tokenizeGerman("Bern, September 1905.")).map((w) => w.text)).toEqual([
+      "Bern",
+      "September",
+      "1905.",
+    ]);
+    expect(wordTokens(tokenizeGerman("bei 0,001 Sek.")).map((w) => w.text)).toEqual([
+      "bei",
+      "0,001",
+      "Sek.",
+    ]);
+
+    // Digits inside a mathematics atom stay in the atom and are never word tokens.
+    const sentence = "um L/9 \\cdot 10^{20}, wenn";
+    const start = sentence.indexOf("L");
+    const end = sentence.indexOf(",");
+    const withMath = tokenizeGerman(sentence, { mathRegions: [{ start, end }] });
+    expect(wordTokens(withMath).map((w) => w.text)).toEqual(["um", "wenn"]);
+    expect(withMath.find((t) => t.kind === "math")?.text).toBe("L/9 \\cdot 10^{20}");
+  });
+
   test("headings, footnotes, and closings tokenize under identical rules with 0-based indices", () => {
     const headingTokens = wordTokens(tokenizeGerman("§ 1. KINEMATISCHER TEIL"));
     for (const [idx, w] of headingTokens.entries()) {
