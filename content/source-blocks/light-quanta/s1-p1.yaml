@@ -27,8 +27,9 @@ inlines:
   - kind: "footnote-mark"
     mark: "1)"
     footnoteId: "s1-fn1"
+  - kind: "space"
   - kind: "text"
-    text: " Eine Anzahl Elektronen sei ferner an voneinander weit entfernte Punkte des Raumes gekettet durch nach diesen Punkten gerichtete, den Elongationen proportionale Kräfte."
+    text: "Eine Anzahl Elektronen sei ferner an voneinander weit entfernte Punkte des Raumes gekettet durch nach diesen Punkten gerichtete, den Elongationen proportionale Kräfte."
   - kind: "space"
   - kind: "text"
     text: "Auch diese Elektronen sollen mit den freien Molekülen und Elektronen in konservative Wechselwirkung treten, wenn ihnen letztere sehr nahe kommen."
@@ -45,16 +46,22 @@ sentenceSpans:
   - id: "s1-p1-s2"
     span:
       start: 122
-      end: 611
+      end: 443
       blockRevision: 1
       textDigest: "f3e0747f0b47feb9b591dc68702fba7b0deac9806a0f9c4439abd137b3589bbe"
   - id: "s1-p1-s3"
+    span:
+      start: 444
+      end: 611
+      blockRevision: 1
+      textDigest: "f3e0747f0b47feb9b591dc68702fba7b0deac9806a0f9c4439abd137b3589bbe"
+  - id: "s1-p1-s4"
     span:
       start: 612
       end: 757
       blockRevision: 1
       textDigest: "f3e0747f0b47feb9b591dc68702fba7b0deac9806a0f9c4439abd137b3589bbe"
-  - id: "s1-p1-s4"
+  - id: "s1-p1-s5"
     span:
       start: 758
       end: 907
