@@ -229,8 +229,35 @@ export function translationReviewSummary(
       ? `A draft made from the German by ${by}. No one has reviewed it against the German yet: ${unreviewed} of its ${total} ${counted} are an unreviewed machine draft. It can be read beside the German source and the scan of the printed pages.`
       : `A draft made from the German by ${by}. No review has accepted any of its ${total} ${counted} yet. It can be read beside the German source and the scan of the printed pages.`;
   } else if (unreviewed > 0) {
-    title = "Translation partly reviewed";
-    message = `A translation made from the German by ${by}. ${reviewed} of its ${total} ${counted} ${reviewed === 1 ? "has" : "have"} been reviewed against the German${reviewers.length > 0 ? ` by ${listed(reviewers)}` : ""}; the other ${unreviewed} ${unreviewed === 1 ? "is an unreviewed draft" : "are unreviewed drafts"}, and each unit whose state differs from the rest is marked where it stands.`;
+    // Units checked by AI agents are said to be, never folded into "reviewed" with the agents'
+    // names standing where a person's would (D-2026-09-25).
+    const byAgents = badges.filter((b) => b.label === "Checked by AI agents").length;
+    const agents = unique(
+      units.flatMap(
+        (u) => u.agentReview?.rounds.map((r) => r.reviewer.name || r.reviewer.id) ?? [],
+      ),
+    );
+    const byPerson = reviewed - byAgents;
+    const personReviewers = unique(
+      badges
+        .filter((b) => b.isReviewed && b.label !== "Checked by AI agents")
+        .map((b) => b.reviewer),
+    );
+    const parts = [
+      ...(byAgents > 0
+        ? [
+            `${byAgents} of its ${total} ${counted} ${byAgents === 1 ? "has" : "have"} been checked against the German by AI agents, ${listed(agents)}, and by no person`,
+          ]
+        : []),
+      ...(byPerson > 0
+        ? [
+            `${byPerson} of its ${total} ${counted} ${byPerson === 1 ? "has" : "have"} been reviewed against the German${personReviewers.length > 0 ? ` by ${listed(personReviewers)}` : ""}`,
+          ]
+        : []),
+    ];
+    title =
+      byPerson === 0 ? "Translation partly checked by AI agents" : "Translation partly reviewed";
+    message = `A translation made from the German by ${by}. ${parts.join("; ")}; the other ${unreviewed} ${unreviewed === 1 ? "is an unreviewed draft" : "are unreviewed drafts"}, and each unit whose state differs from the rest is marked where it stands.`;
   } else if (total > 0 && badges.every((b) => b.label === "Checked by AI agents")) {
     // Each claim follows the records: "translated by AI" only when every translator is a model,
     // and "the same AI model" only when every reviewer shares its unit's translating model.

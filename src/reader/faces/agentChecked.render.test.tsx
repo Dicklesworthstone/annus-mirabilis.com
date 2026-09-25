@@ -99,6 +99,25 @@ describe("a translation checked by AI agents", () => {
     expect(html).toContain("Translated and checked by AI agents");
   });
 
+  test("partly checked: the agents are named as AI agents, never as plain reviewers", () => {
+    // Two units final under D-2026-09-25, the rest still drafts: the notice names the agents as
+    // agents and says no person checked them.
+    const partial = BY_AGENT.map((u, i) =>
+      i < 2 ? u : { ...u, reviewState: "machine-draft" as const, agentReview: undefined },
+    );
+    const s = translationReviewSummary(partial);
+    expect(s.agentChecked).toBe(false);
+    expect(s.title).toBe("Translation partly checked by AI agents");
+    expect(s.message).toContain(
+      "2 of its 6 sentences and displays have been checked against the German by AI agents, TopazPrairie and TanElk, and by no person",
+    );
+    expect(s.message).not.toContain("reviewed against the German by TopazPrairie");
+    // Beside a person's review, each is said for what it is.
+    const mixed = translationReviewSummary(MIXED);
+    expect(mixed.message).toContain("by AI agents, TopazPrairie and TanElk, and by no person");
+    expect(mixed.message).not.toContain("reviewed against the German by TopazPrairie");
+  });
+
   test("a paper only partly checked keeps the unreviewed banner, never the agent notice", () => {
     expect(translationReviewSummary(MIXED).agentChecked).toBe(false);
     const html = renderToStaticMarkup(
