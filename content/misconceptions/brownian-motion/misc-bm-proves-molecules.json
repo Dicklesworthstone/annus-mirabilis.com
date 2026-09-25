@@ -2,9 +2,7 @@
   "kind": "misconception",
   "id": "misc-bm-proves-molecules",
   "paper": "brownian-motion",
-  "temptingClaims": [
-    "Einstein's paper proved that molecules exist."
-  ],
+  "temptingClaims": ["Einstein's paper proved that molecules exist."],
   "whyTempting": "The paper derives a visible motion from molecular theory and ends with a way to find the number of molecules, so its conclusion reads like a proof.",
   "whereItIsTrue": "The paper makes the motion a test of molecular theory, in both directions: if its predictions hold, an exact determination of the true size of atoms becomes possible, and if they fail, that is a weighty argument against the molecular-kinetic view of heat.",
   "whatIsTrue": {
@@ -16,14 +14,8 @@
   "staticTreatment": {
     "reason": "A matter of what the paper claims: the introduction's conditional, § 5's formula for N and the closing wish are the evidence."
   },
-  "anchors": [
-    "s0-p2",
-    "s5-p3",
-    "s5-p4"
-  ],
-  "sources": [
-    "A. Einstein, Ann. Phys. (4) 17, 549–560 (1905), plates pp. 549, 559 and 560"
-  ],
+  "anchors": ["s0-p2", "s5-p3", "s5-p4"],
+  "sources": ["A. Einstein, Ann. Phys. (4) 17, 549–560 (1905), plates pp. 549, 559 and 560"],
   "intervention": {
     "defaultsReviewed": {
       "model": "Not applicable: no instrument; this entry is a matter of what the paper says.",

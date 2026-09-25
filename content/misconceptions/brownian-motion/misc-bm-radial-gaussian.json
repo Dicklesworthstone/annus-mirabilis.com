@@ -13,13 +13,8 @@
     "r2": "(1) Along the X-axis the displacement has the Gaussian density \\(\\frac{1}{\\sqrt{4\\pi Dt}}e^{-x^2/4Dt}\\), largest at \\(x = 0\\). (2) In space the three coordinates are independent, each with that law, so the density at a point \\((x, y, z)\\) is their product, largest at the start. (3) The distance \\(r\\) gathers every point of a sphere of radius \\(r\\), whose area is \\(4\\pi r^2\\). The density of distances is therefore \\(4\\pi r^2\\,(4\\pi Dt)^{-3/2}\\,e^{-r^2/4Dt}\\), which is zero at \\(r = 0\\). (4) Its mean square is the sum over the three axes, \\(3 \\cdot 2Dt = 6Dt\\), so its root mean square is \\(\\sqrt{3}\\,\\lambda_x\\), the paper's \\(\\lambda_x\\sqrt{3}\\). (5) A bell curve in \\(r\\) would put the most likely distance at zero; the law in space puts it at \\(2\\sqrt{Dt}\\).",
     "r3": "The paper states only the one-axis law and the factor \\(\\sqrt{3}\\) for the total. The density of distances is a step anyone can take from its premises; BM-06 draws it beside the one-axis curve."
   },
-  "instrumentIds": [
-    "bm-06"
-  ],
-  "anchors": [
-    "s4-p11",
-    "s4-p12"
-  ],
+  "instrumentIds": ["bm-06"],
+  "anchors": ["s4-p11", "s4-p12"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 549–560 (1905), plates pp. 558–559",
     "BM-06 preset bm-06-modern-one-second: λx 9.268e-7 m, root-mean-square radius in three dimensions 1.605e-6 m = √3 λx; radialPropagator3d at r = 0 is 0 (moments and radialPropagator3d, modern-si-2019 constants)"

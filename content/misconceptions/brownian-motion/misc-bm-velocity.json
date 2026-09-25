@@ -2,9 +2,7 @@
   "kind": "misconception",
   "id": "misc-bm-velocity",
   "paper": "brownian-motion",
-  "temptingClaims": [
-    "A grain's velocity can be read off its path under the microscope."
-  ],
+  "temptingClaims": ["A grain's velocity can be read off its path under the microscope."],
   "whyTempting": "A path is a record of positions in time, and a velocity is a distance divided by a time, so it seems enough to time a grain between two positions.",
   "whereItIsTrue": "For a motion that is smooth on the scale of the observation, a distance divided by a time does estimate a speed. The motion of a suspended grain is not smooth on any interval the paper considers.",
   "whatIsTrue": {
@@ -13,13 +11,8 @@
     "r2": "(1) § 4: successive intervals carry independent motions, so the mean square of the displacement adds up interval by interval and grows in proportion to the time, \\(\\lambda_x^2 = 2Dt\\). (2) The typical distance is its square root, \\(\\lambda_x = \\sqrt{2Dt}\\). (3) An apparent speed is that distance divided by the time: \\(\\lambda_x/t = \\sqrt{2D}/\\sqrt{t}\\). (4) A quarter of the interval doubles the apparent speed, and a hundredth multiplies it by ten. (5) The number records the observer's choice of interval, not a property of the grain, which is why the paper's observable is the displacement in a stated time.",
     "r3": "The paper never reports a velocity for a suspended grain; its numbers are displacements, 0.8 micron in one second and about 6 microns in one minute (p. 559). BM-01 lets a reader choose the apparent speed as its statistic and change the interval to watch the number move."
   },
-  "instrumentIds": [
-    "bm-01"
-  ],
-  "anchors": [
-    "s4-p3",
-    "s4-p12"
-  ],
+  "instrumentIds": ["bm-01"],
+  "anchors": ["s4-p3", "s4-p12"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 549–560 (1905), plates pp. 556 and 559",
     "BM-01 preset bm-01-velocity-trap: statistic apparent, interval 0.25 s; apparent speed 1.587e-6 m/s against 7.935e-7 m/s at a 1 s interval (apparentSpeed, modern-si-2019 constants)"
