@@ -71,7 +71,8 @@ export type ColourableEquation = Readonly<{
 export type QuantityColourRefusal =
   | "equation-exceeds-palette"
   | "view-exceeds-palette"
-  | "paper-not-colourable";
+  | "paper-not-colourable"
+  | "search-budget-exceeded";
 export class QuantityColourError extends Error {
   readonly code: QuantityColourRefusal;
   constructor(code: QuantityColourRefusal, message: string) {
@@ -101,6 +102,16 @@ export function assignQuantityColours(
    * list of equation ids.
    */
   shownTogether: readonly (readonly string[])[] = [],
+  /**
+   * A hard cap on the search's nodes (calls of the backtracking step), and a counter it adds its
+   * own nodes to. Without a cap the search is exhaustive: proving that no colouring exists visited
+   * 986,410 nodes on mass-energy's records (dispatch 230). With one, running out is a refusal of its
+   * own, never a colouring, and a node count is the same on every run, as time is not.
+   */
+  options: Readonly<{
+    nodeBudget?: number | undefined;
+    stats?: { nodes: number } | undefined;
+  }> = {},
 ): Readonly<Record<string, number>> {
   const ordered = [...equations].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   const order: string[] = [];
@@ -165,7 +176,14 @@ export function assignQuantityColours(
     }
     return best;
   };
+  let nodes = 0;
   const search = (): boolean => {
+    nodes++;
+    if (options.nodeBudget !== undefined && nodes > options.nodeBudget)
+      throw new QuantityColourError(
+        "search-budget-exceeded",
+        `The colour search stopped at its budget of ${options.nodeBudget} nodes without an answer.`,
+      );
     const id = next();
     if (id === undefined) return true;
     const blocked = neighbourSlots(id, hard);
@@ -184,13 +202,27 @@ export function assignQuantityColours(
     }
     return false;
   };
-  if (!search())
+  let found: boolean;
+  try {
+    found = search();
+  } finally {
+    if (options.stats) options.stats.nodes += nodes;
+  }
+  if (!found)
     throw new QuantityColourError(
       "paper-not-colourable",
       `These equations cannot be coloured with ${QUANTITY_PALETTE.length} colours so that no equation repeats one.`,
     );
   return Object.freeze(Object.fromEntries(order.map((id) => [id, colours.get(id) as number])));
 }
+
+/**
+ * The most nodes one search in assignQuantityColoursPreferring may visit. Measured at 9754ba91 on
+ * 2026-09-25 (dispatch 230), every search that found a colouring took at most 73 nodes, across all
+ * five payloads, and each proof that none existed took 986,410 (7 to 20 s). The cap is over a
+ * hundred times the largest success and stops a proof at a fraction of a second.
+ */
+export const PREFERRED_VIEW_NODE_BUDGET = 10_000;
 
 /**
  * PRINTED DISPLAYS JOIN THE MAP (dispatch 224). Einstein's own formulas on the reading faces take
@@ -204,12 +236,28 @@ export function assignQuantityColours(
  * admitted as hard in turn, smallest first, if the paper is still colourable with it; one that is
  * not is returned in `shared`, by id, and its quantities are coloured without that constraint (the
  * pattern channel and the chips' names still tell them apart). Same views, same colours.
+ *
+ * BOUNDED (dispatch 230). Every search here runs under a node budget. A view is also shared when
+ * its search runs out of budget before an answer, or when it alone holds more quantities than the
+ * palette has colours (relativity § 7's plane wave shows ten). A budget that runs out on the
+ * records alone, or on the final colouring, is refused rather than guessed at: both are searches
+ * the admissions have already shown to succeed, so it means the budget is wrong, not the records.
  */
 export function assignQuantityColoursPreferring(
   equations: readonly ColourableEquation[],
   preferred: readonly ColourableEquation[],
   shownTogether: readonly (readonly string[])[] = [],
-): Readonly<{ slots: Readonly<Record<string, number>>; shared: readonly string[] }> {
+  nodeBudget: number = PREFERRED_VIEW_NODE_BUDGET,
+): Readonly<{
+  slots: Readonly<Record<string, number>>;
+  shared: readonly string[];
+  /** Nodes visited by every search, admissions and final colouring together. */
+  nodes: number;
+}> {
+  const stats = { nodes: 0 };
+  const options = { nodeBudget, stats };
+  // The records alone must colour; if they cannot, nothing printed is at fault.
+  assignQuantityColours(equations, shownTogether, options);
   const order = [...preferred].sort(
     (a, b) => new Set(a.quantityIds).size - new Set(b.quantityIds).size || (a.id < b.id ? -1 : 1),
   );
@@ -217,11 +265,12 @@ export function assignQuantityColoursPreferring(
   const shared: string[] = [];
   for (const view of order) {
     try {
-      assignQuantityColours([...equations, ...admitted, view], shownTogether);
+      assignQuantityColours([...equations, ...admitted, view], shownTogether, options);
       admitted.push(view);
     } catch (error) {
-      if (!(error instanceof QuantityColourError) || error.code === "equation-exceeds-palette")
+      if (!(error instanceof QuantityColourError) || error.code === "view-exceeds-palette")
         throw error;
+      // Not colourable with this view, out of budget before an answer, or over the palette alone.
       shared.push(view.id);
     }
   }
@@ -236,7 +285,8 @@ export function assignQuantityColoursPreferring(
       })),
     );
   return {
-    slots: assignQuantityColours([...equations, ...admitted, ...loose], shownTogether),
+    slots: assignQuantityColours([...equations, ...admitted, ...loose], shownTogether, options),
     shared: shared.sort(),
+    nodes: stats.nodes,
   };
 }

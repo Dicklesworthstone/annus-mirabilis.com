@@ -5,15 +5,20 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
+import { loadReadingFiles } from "../../scripts/build-content.ts";
+import { compileReadingContent } from "../content/compiler/compile.ts";
 import payload from "../generated/mass-energy-equations.json";
 import printedPayload from "../generated/printed-displays.json";
 import colourPayload from "../generated/quantity-colours.json";
+import relativityPayload from "../generated/special-relativity-equations.json";
 import { checkPaperDisplays } from "./printed/paperDisplays.ts";
 import {
   assignQuantityColours,
   assignQuantityColoursPreferring,
   type ColourableEquation,
+  PREFERRED_VIEW_NODE_BUDGET,
   QUANTITY_PALETTE,
+  QuantityColourError,
 } from "./quantityColours.ts";
 
 const distinct = (slots: Readonly<Record<string, number>>, ids: readonly string[]) => {
@@ -97,4 +102,94 @@ test("mass-energy cannot give every printed display distinct colours, so one mus
   const { shared } = assignQuantityColoursPreferring(records, views);
   assert.ok(shared.length > 0, "one printed display must share a colour");
   assert.ok(shared.length < views.length, "the rest are admitted");
+});
+
+test("search-budget-exceeded: a search that runs out of nodes is refused, never guessed", () => {
+  const records: ColourableEquation[] = [{ id: "r", argument: "a", quantityIds: ["p", "q", "r"] }];
+  // Three quantities take at least four nodes, one per choice and one to see nothing is left.
+  assert.throws(
+    () => assignQuantityColours(records, [], { nodeBudget: 2 }),
+    (e: unknown) => e instanceof QuantityColourError && e.code === "search-budget-exceeded",
+  );
+  const stats = { nodes: 0 };
+  assert.doesNotThrow(() => assignQuantityColours(records, [], { nodeBudget: 100, stats }));
+  assert.ok(stats.nodes > 2 && stats.nodes <= 100, `${stats.nodes} nodes`);
+});
+
+test("an impossible view is shared after at most one budget, where proving it took a million nodes", () => {
+  // Mass-energy's shape: a clique of nine takes every slot, and gamma (q9) meets v and V, so both
+  // could only take q8's slot. The view sets v and V beside q1 to q7, so it cannot be distinct.
+  // Unbounded, proving that visits 986,434 nodes; the budget stops it with the same answer.
+  const q = Array.from({ length: QUANTITY_PALETTE.length }, (_, i) => `q${i + 1}`);
+  const records: ColourableEquation[] = [
+    { id: "clique", argument: "a", quantityIds: q },
+    { id: "gamma", argument: "a", quantityIds: ["q9", "v", "V"] },
+  ];
+  const view = { id: "view", argument: "p", quantityIds: [...q.slice(0, 7), "v", "V"] };
+  for (const budget of [PREFERRED_VIEW_NODE_BUDGET, 200]) {
+    const { shared, nodes, slots } = assignQuantityColoursPreferring(records, [view], [], budget);
+    assert.deepEqual(shared, ["view"], `budget ${budget}`);
+    // At most one budget for the view, plus the two searches that find colourings at once.
+    assert.ok(nodes <= budget + 2 * 20, `${nodes} nodes at budget ${budget}`);
+    // The records keep their promise; v and V are still coloured.
+    for (const record of records) assert.equal(distinct(slots, record.quantityIds), true);
+    assert.equal(typeof slots.v, "number");
+  }
+});
+
+test("a view over the palette alone is shared and coloured, never refused", () => {
+  // Relativity § 7's plane wave shows ten quantities (GreenBarn, 40375).
+  const records: ColourableEquation[] = [{ id: "r", argument: "a", quantityIds: ["p"] }];
+  const ten = {
+    id: "ten",
+    argument: "c",
+    quantityIds: Array.from({ length: QUANTITY_PALETTE.length + 1 }, (_, i) => `q${i}`),
+  };
+  const { slots, shared } = assignQuantityColoursPreferring(records, [ten]);
+  assert.deepEqual(shared, ["ten"]);
+  for (const id of ten.quantityIds) assert.equal(typeof slots[id], "number", id);
+});
+
+test("relativity's colouring stays bounded: nodes, not milliseconds", async () => {
+  // Built as build-equations.ts builds it: the records, the reading formulas shown together, and
+  // every printed display bound so far. The exhaustive search took 986,410 nodes to prove one view
+  // impossible (mass-energy, 2026-09-25); here every search stops at the budget, so the total is at
+  // most one budget per search: the records, each view, and the final colouring.
+  const result = compileReadingContent(await loadReadingFiles());
+  const togetherIn = (blocks: readonly { kind: string; equations?: readonly string[] }[]) =>
+    blocks.flatMap((b) =>
+      b.kind === "formula" && (b.equations?.length ?? 0) > 1 ? [b.equations ?? []] : [],
+    );
+  const shownTogether = (
+    result.papers.find((p) => p.paper.id === "special-relativity")?.arguments ?? []
+  ).flatMap((a) =>
+    Object.values(a.readings).flatMap((blocks) =>
+      togetherIn(blocks as readonly { kind: string; equations?: readonly string[] }[]),
+    ),
+  );
+  const records = relativityPayload.equations
+    .filter((e) => e.paper === "special-relativity")
+    .map((e) => ({
+      id: e.id,
+      argument: e.argument,
+      quantityIds: e.terms.map((t) => t.quantityId),
+    }));
+  const views = [
+    ...new Map(
+      printedPayload.displays
+        .filter((d) => d.paper === "special-relativity")
+        .map((d) => [d.display, d] as const),
+    ).values(),
+  ].map((d) => ({
+    id: `printed:${d.display}`,
+    argument: `printed:${d.display}`,
+    quantityIds: d.terms.map((t) => t.quantityId),
+  }));
+  assert.ok(records.length > 0 && views.length > 0, "relativity has records and printed views");
+  const { nodes } = assignQuantityColoursPreferring(records, views, shownTogether);
+  assert.ok(nodes > 0);
+  assert.ok(
+    nodes <= PREFERRED_VIEW_NODE_BUDGET * (views.length + 2),
+    `${nodes} nodes for ${views.length} views`,
+  );
 });

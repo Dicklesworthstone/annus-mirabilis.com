@@ -243,7 +243,7 @@ for (const paper of [...new Set(equations.map((e) => e.paper))].sort()) {
       printed.displays.filter((d) => d.paper === paper).map((d) => [d.display, d]),
     ).values(),
   ];
-  const { slots, shared } = assignQuantityColoursPreferring(
+  const { slots, shared, nodes } = assignQuantityColoursPreferring(
     own.map((e) => ({
       id: e.id,
       argument: e.argument,
@@ -256,11 +256,13 @@ for (const paper of [...new Set(equations.map((e) => e.paper))].sort()) {
     })),
     shownTogether,
   );
-  // A printed display the palette cannot make distinct is said, never hidden (quantityColours.ts).
+  // A printed display the palette cannot make distinct is said, never hidden (quantityColours.ts),
+  // and so is the search's cost, bounded by a node budget per search (dispatch 230).
   if (shared.length > 0)
     console.log(
       JSON.stringify({ event: "printed-display-shares-a-colour", paper, displays: shared }),
     );
+  console.log(JSON.stringify({ event: "quantity-colours-assigned", paper, searchNodes: nodes }));
   sharedPrintedViews[paper] = shared;
   // Keyed from the same terms the colouring was computed from, so every coloured id has its record.
   // A quantity only a printed display names is named from the registry and drawn in its letter.
