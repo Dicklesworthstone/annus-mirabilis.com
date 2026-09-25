@@ -2,41 +2,39 @@
   "kind": "misconception",
   "id": "misc-sr-michelson-motive",
   "paper": "special-relativity",
-  "temptingClaims": [
-    "The Michelson–Morley experiment is why Einstein wrote the paper."
-  ],
-  "whyTempting": "Textbooks often open special relativity with that experiment, and the paper's introduction does mention failed attempts to detect the earth's motion.",
-  "whereItIsTrue": "The introduction counts the unsuccessful attempts to detect a motion of the earth relative to the light medium among the grounds for its conjecture (p. 891).",
+  "temptingClaims": ["The Michelson–Morley experiment is why Einstein wrote the paper."],
+  "whyTempting": "Textbooks often begin special relativity with that experiment, and the paper does mention failed attempts to detect the earth's motion through the light medium.",
+  "whereItIsTrue": "The paper counts the unsuccessful attempts to detect a motion of the earth relative to the light medium among the grounds for its conjecture (p. 891).",
   "whatIsTrue": {
-    "r0": "The paper mentions failed attempts to detect the earth's motion through the light medium, in general terms, beside the magnet and the conductor. It names no experiment and no experimenter for them, and it says nothing of how Einstein came to the problem.",
-    "r1": "The introduction rests its conjecture on two kinds of ground: \"examples of a similar kind\" to the magnet and conductor of its first paragraph, \"together with the unsuccessful attempts to detect a motion of the earth relative to the 'light medium'\" (p. 891). From them it conjectures that absolute rest corresponds to no property of the phenomena, and it raises that conjecture to a postulate, the principle of relativity, beside the constancy of the velocity of light (pp. 891–892). The names Michelson and Morley appear nowhere in the paper. Which experiments Einstein had in mind, and what part any of them played in how he came to the problem, are questions about his path that the paper does not answer and this record does not decide.",
-    "r2": "(1) p. 891, first paragraph: a magnet and a conductor in relative motion give the same current whichever of the two is taken to move, while the theory of the time describes the two cases differently. (2) p. 891, second paragraph: \"Examples of a similar kind, together with the unsuccessful attempts to detect a motion of the earth relative to the 'light medium'\" lead to a conjecture about absolute rest. (3) The same sentence limits what had been shown: the laws hold for all such coordinate systems \"as has already been shown for the quantities of the first order\". (4) pp. 891–892: the conjecture becomes a postulate, and the constancy of the velocity of light is added as a second. (5) The paper does not say which attempts it means; neither Michelson nor Morley is named in any of its 31 pages.",
-    "r3": "Accounts of Einstein's own route to the paper, and of what he later said about the part that experiment played, rest on later letters and recollections. This record has not read them and gives no account of them."
+    "r0": "The paper opens with a moving magnet and conductor, and beside them mentions unnamed, unsuccessful attempts to detect the earth's motion through the light medium. It names no experiment and no experimenter for them, and it says nothing of how Einstein came to the problem.",
+    "r1": "The first paragraph describes a magnet and a conductor: the observable current depends only on their relative motion, while the usual view treats the two cases, magnet moving or conductor moving, quite differently (p. 891). The second adds: \"examples of a similar kind, together with the unsuccessful attempts to detect a motion of the earth relative to the 'light medium'\" lead to the conjecture that no properties of the phenomena correspond to absolute rest, and that the same laws hold in all the coordinate systems for which mechanics holds, \"as has already been shown for the quantities of the first order\" (p. 891). The conjecture is then raised to a postulate, beside the constancy of the velocity of light (pp. 891–892). The names Michelson and Morley appear nowhere in the paper. What led Einstein personally to the paper is a separate question from what the paper cites, and SR-02 sets out the asymmetry the paper actually opens with.",
+    "r2": "(1) The paper's first example: a magnet and a conductor, with the same current whichever moves, but two different descriptions in the usual theory (p. 891). (2) Its second sentence of evidence: “Beispiele ähnlicher Art, sowie die mißlungenen Versuche, eine Bewegung der Erde relativ zum ‚Lichtmedium‘ zu konstatieren” (p. 891). (3) No experimenter, apparatus or result is named for those attempts, and the same sentence limits what had been shown to the quantities of the first order. (4) The conclusion drawn is a conjecture, raised to a postulate: the principle of relativity, with the constancy of the velocity of light added as a second (pp. 891–892). (5) So the paper's stated starting point is the asymmetry of description, with the failed attempts beside it, unnamed; neither Michelson nor Morley is named in any of its 31 pages.",
+    "r3": "Einstein's later statements about which experiments he knew, and when, are evidence about his path to the paper, not about the paper's argument. They rest on later letters and recollections, which this record has not read and does not summarize."
   },
-  "staticTreatment": {
-    "reason": "A matter of the paper's text: the introduction, pp. 891–892."
-  },
-  "anchors": [
-    "s0-p1",
-    "s0-p2"
-  ],
+  "instrumentIds": ["sr-02"],
+  "anchors": ["s0-p1", "s0-p2"],
   "resultIds": [],
-  "sources": [
-    "A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plates pp. 891–892"
-  ],
+  "sources": ["A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plates pp. 891–892"],
   "intervention": {
+    "instrumentId": "sr-02",
     "defaultsReviewed": {
-      "model": "Not applicable: no instrument; this entry is a matter of the paper's text.",
-      "labels": "Not applicable: no instrument; this entry is a matter of the paper's text.",
-      "defaultControls": "Not applicable: no instrument; this entry is a matter of the paper's text.",
-      "feedback": "Not applicable: no instrument; this entry is a matter of the paper's text."
+      "model": "Described from the manifest: the magnet-and-conductor induction described in two frames, with the paper's asymmetry of description (src/physics/reference)",
+      "labels": "Described from the manifest: the apparatus mode and the resolution as controls; the field and force each description assigns",
+      "defaultControls": "Described from the manifest: preset sr-02-apparatus-nagging-fact; apparatus mode, resolution withheld",
+      "feedback": "Described from the manifest: the two descriptions give the same current while assigning different fields, before any resolution is shown"
     },
+    "scenarioId": "sr-02-apparatus-nagging-fact",
     "reviewRecordId": "pending-review-misc-sr-michelson-motive"
   },
   "authorship": {
     "draftedBy": [
       {
         "id": "agent:SapphireCastle",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      },
+      {
+        "id": "agent:GreenOx",
         "kind": "model",
         "modelId": "claude-opus-5-5"
       }
