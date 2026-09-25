@@ -176,7 +176,14 @@ export function GermanFace({
         ))}
       </main>
 
-      <FootnotesSection footnotes={footnoteBlocks} heading="Fußnoten" />
+      {/* Anchored: a passage's list of printed paragraphs links a footnote by its own id, and a
+          footnote carries its "Explained in" or "Not yet explained" line as a paragraph does. */}
+      <FootnotesSection
+        footnotes={footnoteBlocks}
+        heading="Fußnoten"
+        anchored
+        after={(footnote) => explained(footnote.id)}
+      />
       <AlignmentController index={alignmentIndex} />
     </div>
   );

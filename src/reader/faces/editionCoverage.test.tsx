@@ -206,6 +206,51 @@ describe("the German face of an unreviewed, partial edition (a paper with no led
     expect(html).toContain('data-not-explained="s2-p1"');
   });
 
+  test("a footnote is published under its own id as well as footnote-<id>, once", () => {
+    // A passage lists its printed paragraphs, footnotes included (content/bindings), and links
+    // each at /view/german/#<id>; the German face gave a footnote only footnote-<id>, so the link
+    // for special relativity's s2-fn1 landed nowhere (dispatch 192).
+    const text = "Zeit bedeutet hier Zeit des ruhenden Systems.";
+    const footnote = validateSourceBlock({
+      id: "s2-fn1",
+      kind: "footnote",
+      paper: "mass-energy",
+      section: "s2",
+      order: 2,
+      locators: [{ pdfPageIndex: 1, printedPage: 639 }],
+      originalLabel: "1)",
+      diplomaticText: text,
+      inlines: [{ kind: "text", text }],
+      sentenceSpans: [
+        {
+          id: "s2-fn1",
+          span: {
+            start: 0,
+            end: [...text].length,
+            blockRevision: 1,
+            textDigest: spanTextDigest(text),
+          },
+        },
+      ],
+      revision: 1,
+      status: status("draft"),
+      lang: "de",
+    });
+    const html = renderToStaticMarkup(<GermanFace paper={PAPER} blocks={[...BLOCKS, footnote]} />);
+    expect(html.split(' id="s2-fn1"').length - 1).toBe(1);
+    expect(html).toContain(' id="footnote-s2-fn1"');
+    // And it carries its line, as a paragraph does: here, declared unexplained.
+    expect(html).not.toContain('data-not-explained="s2-fn1"');
+    const declared = renderToStaticMarkup(
+      <GermanFace
+        paper={PAPER}
+        blocks={[...BLOCKS, footnote]}
+        notExplained={new Set(["s2-fn1"])}
+      />,
+    );
+    expect(declared).toContain('data-not-explained="s2-fn1"');
+  });
+
   test("a reviewed, complete edition carries none of those statements, and keeps its links", () => {
     const html = german(true);
     expect(html).not.toContain("data-source-draft-notice");

@@ -1,11 +1,20 @@
+import type { ReactNode } from "react";
 import type { SourceBlock } from "../../content/schemas/source.ts";
 import { renderInlines } from "./inlines.tsx";
 
 export interface FootnoteItemProps {
   readonly footnote: SourceBlock;
+  /**
+   * Also publish the footnote's own id, which links from outside the page name (a passage's
+   * printed paragraphs, content/bindings). The item keeps footnote-<id> for the marks that point
+   * at it. The German face asks for this; the parallel face, whose rows repeat ids otherwise, does not.
+   */
+  readonly anchored?: boolean | undefined;
+  /** What follows the footnote inside its item: the German face's "Explained in" line. */
+  readonly after?: ReactNode;
 }
 
-export function FootnoteItem({ footnote }: FootnoteItemProps) {
+export function FootnoteItem({ footnote, anchored = false, after }: FootnoteItemProps) {
   const label = footnote.originalLabel || footnote.id;
   return (
     <li
@@ -15,6 +24,7 @@ export function FootnoteItem({ footnote }: FootnoteItemProps) {
       data-footnote-id={footnote.id}
     >
       <div className="footnote-body">
+        {anchored ? <span id={footnote.id} data-footnote-anchor={footnote.id} /> : null}
         {renderInlines(footnote.inlines, undefined, `fn-${footnote.id}`)}
         <a
           href={`#ref-${footnote.id}`}
@@ -26,6 +36,7 @@ export function FootnoteItem({ footnote }: FootnoteItemProps) {
           ↩
         </a>
       </div>
+      {after}
     </li>
   );
 }
@@ -33,9 +44,18 @@ export function FootnoteItem({ footnote }: FootnoteItemProps) {
 export interface FootnotesSectionProps {
   readonly footnotes: readonly SourceBlock[];
   readonly heading?: string | undefined;
+  /** Publish each footnote's own id too (FootnoteItem `anchored`). */
+  readonly anchored?: boolean | undefined;
+  /** Rendered after each footnote, inside its item (FootnoteItem `after`). */
+  readonly after?: ((footnote: SourceBlock) => ReactNode) | undefined;
 }
 
-export function FootnotesSection({ footnotes, heading = "Footnotes" }: FootnotesSectionProps) {
+export function FootnotesSection({
+  footnotes,
+  heading = "Footnotes",
+  anchored = false,
+  after,
+}: FootnotesSectionProps) {
   if (footnotes.length === 0) return null;
 
   return (
@@ -45,7 +65,7 @@ export function FootnotesSection({ footnotes, heading = "Footnotes" }: Footnotes
       </h2>
       <ol className="footnotes-list">
         {footnotes.map((fn) => (
-          <FootnoteItem key={fn.id} footnote={fn} />
+          <FootnoteItem key={fn.id} footnote={fn} anchored={anchored} after={after?.(fn)} />
         ))}
       </ol>
     </section>
