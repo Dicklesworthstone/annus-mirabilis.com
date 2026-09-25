@@ -64,7 +64,6 @@ const UNMARKED: readonly string[] = [
   "lq-02",
   "lq-03",
   "lq-04",
-  "lq-05",
   "lq-07",
   "lq-08",
   "lq-09",

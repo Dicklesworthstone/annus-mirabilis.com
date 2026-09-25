@@ -30,6 +30,7 @@ import { instrumentRootAttributes } from "../../../experiments/store/identityAtt
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { fixed, identity, readablePowers, sentenceNumber } from "../presentation.ts";
 import { PowerOfTen, Sci } from "../Sci.tsx";
@@ -424,7 +425,7 @@ export function IndependentConfigurationsLab({
             role="alert"
             style={{ marginTop: "1rem", padding: "0.75rem" }}
           >
-            {error}
+            {error} {KEPT_RESULT}
           </div>
         )}
         <AcceptedStatus

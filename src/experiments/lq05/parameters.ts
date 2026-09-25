@@ -1,4 +1,5 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import type { Lq05Parameters, Lq05View } from "./definition.ts";
 
@@ -7,7 +8,7 @@ const VALID_VIEWS = new Set<Lq05View>(["enumeration", "sampling", "logarithmic"]
 export const LQ05_MAX_POINTS = 60;
 export const LQ05_MAX_TRIALS = 1_000_000;
 
-export function validateLq05Parameters(input: unknown): Computation<Lq05Parameters> {
+function validateLq05Fields(input: unknown): Computation<Lq05Parameters> {
   const bad = (requirements: string, code?: string): Computation<never> => ({
     kind: "refused",
     refusal: makeRefusal(
@@ -37,17 +38,11 @@ export function validateLq05Parameters(input: unknown): Computation<Lq05Paramete
 
   const f = obj.f;
   if (typeof f !== "number" || !Number.isFinite(f)) {
-    return bad("Enter a subvolume fraction f greater than 0 and at most 1.");
+    return bad("Enter the subvolume fraction f as a number.");
   }
-  if (f === 0) {
-    return bad(
-      "Enter a subvolume fraction f greater than 0: no point can lie in an empty region, so the entropy difference is undefined.",
-      "empty-subvolume",
-    );
-  }
-  if (f < 0 || f > 1.0000000001) {
-    return bad("Enter a subvolume fraction f greater than 0 and at most 1.");
-  }
+  // The range, more than 0.001 and at most 1, is the manifest's and is checked once by
+  // withinDeclaredDomain below. f was silently clamped to [1e-12, 1] here, and below 1e-5 at
+  // n = 60 the chance fⁿ underflowed to a published 0 with expectedTrialsToOne = Infinity.
 
   const view = obj.view;
   if (typeof view !== "string" || !VALID_VIEWS.has(view as Lq05View)) {
@@ -86,11 +81,22 @@ export function validateLq05Parameters(input: unknown): Computation<Lq05Paramete
     kind: "accepted",
     data: Object.freeze({
       n,
-      f: Math.min(1, Math.max(1e-12, f)),
+      f,
       view: view as Lq05View,
       locked,
       seed: seed.trim(),
       trials,
     }),
   };
+}
+
+/** Each declared setting as the form names it. */
+const LQ05_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  n: { label: "number of points n" },
+  f: { label: "subvolume fraction f" },
+};
+
+/** The fields above, then every range content/experiments/lq-05.yaml declares (dispatch 134). */
+export function validateLq05Parameters(input: unknown): Computation<Lq05Parameters> {
+  return withinDeclaredDomain("lq-05", validateLq05Fields(input), LQ05_DOMAIN_DISPLAY);
 }

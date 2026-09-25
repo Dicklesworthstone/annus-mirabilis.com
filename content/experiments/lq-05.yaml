@@ -22,7 +22,7 @@ parameters:
       max: 60
       minInclusive: true
       maxInclusive: true
-      reason: "Small enumeration to macroscopic logarithmic scaling"
+      reason: "From a count small enough to list every arrangement to one where only the logarithm is readable"
     visualRange:
       min: 1
       max: 60
@@ -42,7 +42,7 @@ parameters:
       max: 1.0
       minInclusive: false
       maxInclusive: true
-      reason: "Fraction of reference volume V/V0 in (0, 1]"
+      reason: "A part of the reference volume, more than a thousandth of it and at most the whole; no point can lie in an empty region, where the entropy difference is not defined"
     visualRange:
       min: 0.01
       max: 1.0
