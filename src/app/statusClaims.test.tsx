@@ -6,7 +6,7 @@ import { loadFirstPages } from "../components/home/firstPages.ts";
 import { loadGermanSourceFace } from "../content/editions/germanSourceFace.ts";
 import { germanTextCount, germanTextSentences } from "../content/germanTextState.ts";
 import type { RouteSlug } from "../content/ids.ts";
-import { nameInSentence } from "../content/translationState.ts";
+import { nameInSentence, translationState } from "../content/translationState.ts";
 import About from "./about/page";
 import Home from "./page";
 import Papers from "./papers/page";
@@ -60,10 +60,20 @@ describe("status claims on the top-level pages follow the records", () => {
     }
     const drafted = badges.filter((b) => b.includes("German text in unreviewed draft")).length;
     expect(drafted).toBe([...faceRenders.values()].filter(Boolean).length);
-    const englishDrafts = badges.filter((b) =>
-      b.includes("English translation in unreviewed draft"),
+    // Each translated paper's badge follows its units: a draft is a draft, and a translation
+    // final under D-2026-09-25 is "checked by AI agents", never plain "reviewed".
+    const state = translationState(ROOT);
+    const count = (s: string) => badges.filter((b) => b.includes(s)).length;
+    expect(count("English translation in unreviewed draft")).toBe(
+      state.filter((p) => p.reviewed === 0).length,
     );
-    expect(englishDrafts.length).toBe(translated.size);
+    expect(count("English translation checked by AI agents")).toBe(
+      state.filter((p) => (p.agentChecked ?? 0) === p.units).length,
+    );
+    expect(count("English translation reviewed")).toBe(
+      state.filter((p) => (p.agentChecked ?? 0) === 0 && p.reviewed === p.units).length,
+    );
+    expect(state.length).toBe(translated.size);
     expect(badges.filter((b) => b.includes("English translation not started")).length).toBe(
       4 - translated.size,
     );

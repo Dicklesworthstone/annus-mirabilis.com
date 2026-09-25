@@ -33,7 +33,13 @@ describe("the edition's policy on its sources", () => {
     expect(policy).toContain("The English translation is the edition’s own, made from the German");
     expect(policy).toContain("Published translations are cited only as comparison witnesses");
     expect(policy).toContain("A machine draft is labelled as a draft wherever it appears");
-    expect(policy).toContain("nothing is marked reviewed until a named person has checked it");
+    // D-2026-09-25: agents may bring the English to final, and the page says so plainly.
+    expect(policy).toContain(
+      "An English passage is final once AI agents other than its translator have checked it",
+    );
+    expect(policy).toContain(
+      "nothing is called reviewed by a person until a named person has checked it",
+    );
     expect(policy).not.toContain("—");
   });
 });
@@ -53,6 +59,13 @@ describe("the translation's state is counted from its units", () => {
       );
       expect(paper.reviewed).toBe(
         texts.filter((t) => /^reviewState: "?reviewed"?$/m.test(t)).length,
+      );
+      expect(paper.byModel).toBe(
+        texts.filter((t) => /^translator:\n(?: {2}.*\n)*? {2}kind: "?model"?$/m.test(t)).length,
+      );
+      expect(paper.agentChecked).toBe(
+        texts.filter((t) => /^reviewState: "?reviewed"?$/m.test(t) && /^agentReview:$/m.test(t))
+          .length,
       );
     }
   });
@@ -87,6 +100,24 @@ describe("the translation's state is counted from its units", () => {
       names,
     );
     expect(mixed).toContain("40 of them drafted by a machine");
-    expect(mixed).toContain("three reviewed");
+    expect(mixed).toContain("three reviewed by a person");
+    // Final under D-2026-09-25: still drafted by a machine, checked by agents, and by no person.
+    const checked = translationSentence(
+      [
+        {
+          slug: "mass-energy",
+          units: 43,
+          machineDrafts: 0,
+          reviewed: 43,
+          byModel: 43,
+          agentChecked: 43,
+        },
+      ],
+      names,
+    );
+    expect(checked).toContain(
+      "43 passages, all drafted by a machine, and all checked against the German by AI agents, none by a person",
+    );
+    expect(checked).not.toContain("43 reviewed");
   });
 });

@@ -22,6 +22,11 @@ const GERMAN_WORDS: Readonly<Record<GermanTextState, string>> = {
 
 function englishWords(translation: PaperTranslation | undefined): string {
   if (!translation) return "English translation not started";
+  // Checked by AI agents is said as such, never as "reviewed" (D-2026-09-25).
+  const agentChecked = translation.agentChecked ?? 0;
+  if (agentChecked === translation.units) return "English translation checked by AI agents";
+  if (agentChecked > 0)
+    return `English translation in draft, ${agentChecked} of ${translation.units} passages checked by AI agents`;
   if (translation.reviewed === translation.units) return "English translation reviewed";
   if (translation.reviewed === 0) return "English translation in unreviewed draft";
   return `English translation in draft, ${translation.reviewed} of ${translation.units} passages reviewed`;

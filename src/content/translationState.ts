@@ -15,6 +15,13 @@ export type PaperTranslation = Readonly<{
   units: number;
   machineDrafts: number;
   reviewed: number;
+  /** Units whose translator is an AI model, whatever their review state. */
+  byModel?: number | undefined;
+  /**
+   * Reviewed units whose review is an `agentReview`: final under
+   * D-2026-09-25-agent-reviewed-translations, checked by AI agents and by no person.
+   */
+  agentChecked?: number | undefined;
 }>;
 
 /** One entry per paper with at least one translation unit, in slug order. */
@@ -28,18 +35,24 @@ export function translationState(root: string): PaperTranslation[] {
       let units = 0;
       let machineDrafts = 0;
       let reviewed = 0;
+      let byModel = 0;
+      let agentChecked = 0;
       for (const file of readdirSync(join(dir, slug))) {
         if (!file.endsWith(".yaml")) continue;
         const record = yaml.load(readFileSync(join(dir, slug, file), "utf8")) as {
           kind?: unknown;
           reviewState?: unknown;
+          translator?: { kind?: unknown } | null;
+          agentReview?: unknown;
         } | null;
         if (record?.kind !== "translation-unit") continue;
         units += 1;
         if (record.reviewState === "machine-draft") machineDrafts += 1;
         if (record.reviewState === "reviewed") reviewed += 1;
+        if (record.translator?.kind === "model") byModel += 1;
+        if (record.reviewState === "reviewed" && record.agentReview) agentChecked += 1;
       }
-      return units > 0 ? [{ slug, units, machineDrafts, reviewed }] : [];
+      return units > 0 ? [{ slug, units, machineDrafts, reviewed, byModel, agentChecked }] : [];
     });
 }
 
@@ -77,13 +90,28 @@ export function translationSentence(
   if (state.length === 0) return "The English translation has not been started.";
   const parts = state.map((paper) => {
     const name = nameInSentence(names.get(paper.slug) ?? paper.slug);
-    const drafted =
-      paper.machineDrafts === paper.units
+    const agentChecked = paper.agentChecked ?? 0;
+    const byPerson = paper.reviewed - agentChecked;
+    // Who made it: an AI model made every unit it translated, whatever its review state later.
+    const byModel = paper.byModel ?? paper.machineDrafts;
+    const made =
+      byModel === paper.units
         ? "all drafted by a machine"
-        : `${inWords(paper.machineDrafts)} of them drafted by a machine`;
-    const review =
-      paper.reviewed === 0 ? "none reviewed yet" : `${inWords(paper.reviewed)} reviewed`;
-    return `the ${name} paper: ${paper.units} passages, ${drafted}, and ${review}`;
+        : byModel === 0
+          ? "none drafted by a machine"
+          : `${inWords(byModel)} of them drafted by a machine`;
+    let review: string;
+    if (agentChecked === paper.units)
+      review = "all checked against the German by AI agents, none by a person";
+    else if (paper.reviewed === 0) review = "none reviewed yet";
+    else {
+      const parts = [
+        ...(agentChecked > 0 ? [`${inWords(agentChecked)} checked by AI agents`] : []),
+        ...(byPerson > 0 ? [`${inWords(byPerson)} reviewed by a person`] : []),
+      ];
+      review = parts.join(" and ");
+    }
+    return `the ${name} paper: ${paper.units} passages, ${made}, and ${review}`;
   });
   return `The English translation has begun with ${parts.join("; and with ")}.`;
 }

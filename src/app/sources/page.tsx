@@ -337,8 +337,10 @@ export default function SourcesPage() {
             reading taken from one names it.
           </li>
           <li>
-            A machine draft is labelled as a draft wherever it appears, and nothing is marked
-            reviewed until a named person has checked it against the German. {translationNow}
+            A machine draft is labelled as a draft wherever it appears. An English passage is final
+            once AI agents other than its translator have checked it against the German in at least
+            two independent rounds, and it says so; nothing is called reviewed by a person until a
+            named person has checked it. {translationNow}
           </li>
         </ul>
       </section>
