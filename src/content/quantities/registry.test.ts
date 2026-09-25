@@ -528,6 +528,20 @@ describe("legacy spellings", () => {
     expect(Object.keys(RESERVED_SPELLINGS)).not.toContain("electricDeflectability");
   });
 
+  test("A_m and A_e are registered as named but undefined in the source, quoting p. 920", () => {
+    // Dispatch 236: the paper names both and defines neither, so neither may carry a dimension.
+    for (const id of ["magneticDeflectability", "electricDeflectability"]) {
+      const result = resolveQuantityId(id);
+      if (!result.ok) throw new Error(`${id} is not registered`);
+      expect(result.quantity.dimensionStatus).toBe("undefined-in-source");
+      expect(result.quantity.dimension).toBeUndefined();
+      expect(result.quantity.dimensionNote).toContain("p. 920");
+      expect(result.quantity.dimensionNote).toContain(
+        "der magnetischen Ablenkbarkeit A_m und der elektrischen Ablenkbarkeit A_e",
+      );
+    }
+  });
+
   test('intervalSquared returns legacy-spelling with spacetimeIntervalSquared, message "use spacetimeIntervalSquared"', () => {
     const result = resolveQuantityId("intervalSquared");
     expect(result.ok).toBe(false);
