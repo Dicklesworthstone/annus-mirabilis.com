@@ -402,7 +402,7 @@ Wir werden anzunehmen haben, daß bei der Ionisierung eines Gases durch ultravio
 --- MACHINE DRAFT TRANSCRIPTION PAGE 17 OF 17 ---
 [[ANNALEN-PAGE 148]]
 
-energiequant zur Ionisierung je eines Gasmoleküles verwendet wird. Hieraus folgt zunächst, daß die Ionisierungsarbeit (d. h. die zur Ionisierung theoretisch nötige Arbeit) eines Moleküles nicht größer sein kann als die Energie eines absorbierten wirksamen Lichtenergiequantes. Bezeichnet man mit $J$ die (theoretische) Ionisierungsarbeit pro Grammäquivalent, so muß also sein:
+zur Ionisierung je eines Gasmoleküles verwendet wird. Hieraus folgt zunächst, daß die Ionisierungsarbeit (d. h. die zur Ionisierung theoretisch nötige Arbeit) eines Moleküles nicht größer sein kann als die Energie eines absorbierten wirksamen Lichtenergiequantes. Bezeichnet man mit $J$ die (theoretische) Ionisierungsarbeit pro Grammäquivalent, so muß also sein:
 $$
 R \beta \nu \geqq J .
 $$
