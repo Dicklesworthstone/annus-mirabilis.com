@@ -18,7 +18,6 @@ import { buildAlignmentIndex } from "./alignment.ts";
 import { claimedDisplayIds } from "./displayClaims.ts";
 import { sectionsLabel } from "./editionCoverage.ts";
 import { GlossSentence } from "./GlossSentence.tsx";
-import { glossReviewSummary } from "./glossReview.ts";
 import { sentenceAtoms } from "./glossStream.ts";
 import { renderInlines } from "./inlines.tsx";
 import { speakInlines } from "./mathSpeech.ts";
@@ -26,7 +25,6 @@ import { PageLocators } from "./PageLocators.tsx";
 import type { FaceId } from "./registry.ts";
 import { SourceBlock as SourceBlockComponent } from "./SourceBlock.tsx";
 import { sentenceInlines } from "./sentenceInlines.ts";
-import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
 
 export interface GlossEntryLink {
   readonly href: string;
@@ -44,8 +42,8 @@ export interface GlossFaceProps {
   readonly alignment?: Alignment | undefined;
   readonly editorialNotes?: readonly EditorialNote[] | undefined;
   /**
-   * The translation's review records. The gloss banner does not read them (glossReview.ts): they
-   * name translation units, whose ids are often the sentence ids a gloss unit carries.
+   * The translation's review records. Nothing on this face reads them for the gloss: they name
+   * translation units, whose ids are often the sentence ids a gloss unit carries.
    */
   readonly reviewRecords?: readonly ReviewRecord[] | undefined;
   readonly entryLink?: GlossEntryLink | undefined;
@@ -169,10 +167,6 @@ export function GlossFace({
     return out;
   };
 
-  // The gloss's own state, from its own units (glossReview.ts), not the English translation's.
-  const glossReview = glossReviewSummary(glossUnits);
-  const hasUnreviewed = glossReview.total > 0 && glossReview.counts.reviewed < glossReview.total;
-
   return (
     <article
       className="reader-face gloss-face"
@@ -181,15 +175,8 @@ export function GlossFace({
       data-paper-slug={paper.slug}
       data-reasoning-words={initialReasoningWords ? "on" : "off"}
     >
-      {/* Optional Unreviewed Translation Banner */}
-      {hasUnreviewed && (
-        <UnreviewedBanner
-          title={glossReview.title}
-          message={glossReview.message}
-          label="Gloss review status"
-        />
-      )}
-
+      {/* No review banner (D-2026-09-25-no-review-status-banners): each gloss unit's record keeps
+          who drafted it and its review state. */}
       {/* What the gloss does not reach yet, named once, as the English face names its untranslated
           sections: a gloss that arrives a section at a time is never read as the whole paper, and
           each unglossed sentence carries only a link (GlossSentence.tsx), not a notice of its own. */}

@@ -9,7 +9,7 @@ import {
 import "../../components/home/wideProse.css";
 import type { PaperDate, RightsStatus } from "../../content/provenance/receiptSchema.ts";
 import { receiptToSourceAsset } from "../../content/provenance/receiptToSourceAsset.ts";
-import { translationSentence, translationState } from "../../content/translationState.ts";
+import { translationState } from "../../content/translationState.ts";
 import { citationOf } from "./citation.ts";
 import { correctionLog, LAYER_NAMES } from "./corrections.ts";
 import { checkedReceipts, receiptHref } from "./receiptPages.ts";
@@ -161,16 +161,11 @@ export default function SourcesPage() {
   );
   const libraries = runtimeLibraries(process.cwd());
   const translation = translationState(process.cwd());
-  const translationNow = translationSentence(
-    translation,
-    new Map(loadFirstPages().map((paper) => [paper.slug, paper.title])),
-  );
   // The scans' terms, from their receipts: how many scans each reader-facing wording covers.
   const termsCounts = [...new Set(scans.map((scan) => scan.rights))].map((words) => ({
     words,
     count: scans.filter((scan) => scan.rights === words).length,
   }));
-  const reviewed = scans.filter((scan) => scan.transcription === "reviewed").length;
   const nameOf = new Map(scans.map((scan) => [scan.slug, scan.name]));
   const hrefOf = new Map(scans.map((scan) => [scan.slug, scan.receipt]));
   const corrections = correctionLog(
@@ -336,11 +331,11 @@ export default function SourcesPage() {
             Published translations are cited only as comparison witnesses. None is reused, and a
             reading taken from one names it.
           </li>
+          {/* One plain line on who made the translation, and no review tally
+              (D-2026-09-25-no-review-status-banners). */}
           <li>
-            A machine draft is labelled as a draft wherever it appears. An English passage is final
-            once AI agents other than its translator have checked it against the German in at least
-            two independent rounds, and it says so; nothing is called reviewed by a person until a
-            named person has checked it. {translationNow}
+            AI agents made the English translation from the German, and agents other than its
+            translator checked each passage against the German in two rounds.
           </li>
         </ul>
       </section>
@@ -410,17 +405,6 @@ export default function SourcesPage() {
             </div>
           ))}
         </dl>
-      </section>
-
-      <section className="reading page-flush sources-section" aria-labelledby="sources-state">
-        <h2 id="sources-state">How far the text has got</h2>
-        <p>
-          {reviewed === 0
-            ? "No transcription has yet been reviewed by a second reader."
-            : `${inWords(reviewed)} of the ${inWords(scans.length)} transcriptions have been reviewed by a second reader.`}{" "}
-          A draft is shown as a draft wherever it appears, and the explanations on this site are new
-          writing in modern notation, marked as awaiting review. {translationNow}
-        </p>
       </section>
 
       <section className="reading page-flush sources-section" aria-labelledby="corrections">

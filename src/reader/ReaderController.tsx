@@ -696,9 +696,8 @@ export function ReaderController(props: Props) {
             data-view="german" in place, which hid the explanation and showed one notice per
             passage, "The reviewed German, aligned English, gloss, facsimile, and split view
             for this passage are not yet available." A reader offered it would not choose it,
-            and what it said is in the paper's status disclosure (PaperStatus), which states
-            that the source faces remain in preparation. ?view=german still resolves for
-            links that carry it. */}
+            and the source faces are the tabs below. ?view=german still resolves for links that
+            carry it. */}
         {/* THE FACES THE FACE PAGES OFFER, IN THEIR ORDER (faceTabs.ts). These were four literal
             links, written before any English existed, so once the English of every paper was
             final a reader landing here still could not reach it. The tabs sit in div.face-tabs

@@ -13,7 +13,6 @@ export function transcriptionOf(key: string): Transcription {
 
 export const TRANSCRIPTION_WORDS: Readonly<Record<Transcription, string>> = {
   reviewed: "Transcribed and reviewed against the page images.",
-  draft:
-    "Transcribed in draft: read by machine and corrected by hand against the page images, not yet reviewed by a second reader.",
+  draft: "Read by machine and corrected by hand against the page images.",
   none: "Not yet transcribed.",
 };

@@ -1,9 +1,9 @@
 /**
  * The German source face for a paper whose transcript is a machine draft (am-dl4n).
  *
- * The owner ruled "Show it, labelled a draft". This renders the text; SourceFaceNotice
- * renders the label; and the two are emitted together by construction, which is what
- * requirement 3 asks for.
+ * The owner ruled "Show it, labelled a draft" (am-dl4n), and on 2026-09-25 withdrew the label:
+ * "we don't need messages like this on the site" (D-2026-09-25-no-review-status-banners). This
+ * renders the text alone; the receipt keeps its status.
  *
  * WHY THIS IS NOT GermanFace. GermanFace renders SourceBlock records, and a SourceBlock
  * carries a facsimile locator because it is anchored evidence. The ledger segmenter
@@ -25,7 +25,6 @@ import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
 import { FollowingPlate } from "./FollowingPlate.tsx";
 import { FACE_REGISTRY, type FaceId } from "./registry.ts";
-import { SourceFaceNotice } from "./SourceFaceNotice.tsx";
 import { renderSourceMarkup, sourceDisplayEquation } from "./sourceMarkup.tsx";
 import "../reader.css";
 import "./germanDraftFace.css";
@@ -175,20 +174,13 @@ export function GermanDraftFace({
 
       <div className="source-body">
         {/*
-        ONE COLUMN FOR THE TEXT AND EVERYTHING THAT QUALIFIES IT. The notice, its sticky
-        label, the German and the footnotes share a measure, and the measure is declared once
-        here rather than on each: `ch` resolves against the font of the element that declares
-        it, so the label - set smaller - came out 360px over a 450px column when it carried
-        the same 43ch itself.
+        ONE COLUMN FOR THE TEXT AND EVERYTHING THAT QUALIFIES IT. The German and the footnotes
+        share a measure, and the measure is declared once here rather than on each: `ch`
+        resolves against the font of the element that declares it.
       */}
         <div className="source-column">
-          {/*
-          Emitted before the first word of German, unconditionally. It is not behind a
-          condition in this component: the notice decides for itself whether to render,
-          from the receipt, so a paper that becomes reviewed stops being labelled here
-          without this file changing.
-        */}
-          <SourceFaceNotice notice={face.notice} />
+          {/* No draft label before the German (D-2026-09-25-no-review-status-banners, which
+              supersedes am-dl4n's "Show it, labelled a draft"): the receipt keeps its status. */}
 
           <div data-face-source data-german-draft={face.bibKey}>
             {body.map((block) =>

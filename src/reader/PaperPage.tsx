@@ -37,7 +37,6 @@ import {
 import { type BilingualEdition, loadBilingualEdition } from "./faces/bilingualLoader.ts";
 import { EnglishFace } from "./faces/EnglishFace.tsx";
 import {
-  editionGermanNotice,
   missingGermanSections,
   unglossedSections,
   untranslatedSections,
@@ -67,7 +66,6 @@ import {
 } from "./paperRoutes.ts";
 import { paperSectionIds } from "./paperSections.ts";
 import { englishSourceLink, originalHref, paperSourceFaces } from "./paperSourceFaces.ts";
-import { PaperStatus } from "./paperStatus.tsx";
 import { passageKind } from "./passageKind.ts";
 import { ReaderController } from "./ReaderController.tsx";
 import { ROOT_ARMING_SOURCE } from "./rootArming.inline.ts";
@@ -149,7 +147,6 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                 alignment={edition.alignment}
                 editorialNotes={edition.editorialNotes}
                 sectionId={resolved.section}
-                notice={editionGermanNotice(blocks)}
                 missingSections={missingGermanSections(
                   paperSectionIds(
                     resolved.paperId,
@@ -276,7 +273,6 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
               editorialNotes={edition.editorialNotes}
               reviewRecords={edition.reviewRecords}
               sectionId={resolved.section}
-              germanNotice={germanDraft?.notice ?? editionGermanNotice(edition.blocks)}
               untranslatedSections={untranslated}
             />
           );
@@ -433,10 +429,8 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         {/* The whole paper's title is the h1 right below; a section's page names its paper here. */}
         <p className="eyebrow">{sectionId ? `Read · ${paper.title}` : "Read"}</p>
         <h1>{sectionId ? sections[0]?.title : paper.title}</h1>
-        {/* Paper-level lead, so a section view omits it. See PaperReader for the
-            reasoning, including why the two disclosures are not treated the same way. */}
+        {/* Paper-level lead, so a section view omits it. See PaperReader for the reasoning. */}
         {sectionId ? null : <p className="lead">{paper.description}</p>}
-        <PaperStatus paper={paper} />
         {sectionId ? (
           <a href={`${paperPath(paper.id)}#${sectionId}`}>Read this section in the whole paper →</a>
         ) : null}
@@ -722,12 +716,10 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
       {/* A paper's common wrong turns and historian's margin (dispatch 163), on the whole-paper
           page only, and only where the paper has records. */}
       {sectionId ? null : <PaperMargins margins={loadPaperMargins(paper.id)} />}
-      <section
-        className="reading reading-column"
-        aria-label="References for this explanatory preview"
-      >
-        <h2>References and source status</h2>
-        <p>{paper.sourceNotice}</p>
+      {/* The references, without the record's source-status notice
+          (D-2026-09-25-no-review-status-banners): it said who had not yet reviewed what. */}
+      <section className="reading reading-column" aria-label="References">
+        <h2>References</h2>
         {payload.citations.map((citation) => (
           <p key={citation.id}>
             <a href={citation.url}>{citation.title}</a>

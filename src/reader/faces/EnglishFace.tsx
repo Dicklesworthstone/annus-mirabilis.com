@@ -14,11 +14,9 @@ import { buildAlignmentIndex } from "./alignment.ts";
 import { sectionsLabel } from "./editionCoverage.ts";
 import { renderInlines } from "./inlines.tsx";
 import type { FaceId } from "./registry.ts";
-import { isPaperTranslationUnreviewed, translationReviewSummary } from "./reviewState.ts";
 import { TranslationParagraphs } from "./TranslationParagraphs.tsx";
 import { unitsBySourceRef } from "./TranslationUnit.tsx";
 import { MASTHEAD_AUTHOR_ID, MASTHEAD_TITLE_ID, unitTranslating } from "./translationMasthead.ts";
-import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
 import "../reader.css";
 
 export interface EnglishFaceProps {
@@ -47,7 +45,6 @@ export function EnglishFace({
   blocks,
   untranslatedSections = [],
 }: EnglishFaceProps) {
-  const isUnreviewed = isPaperTranslationUnreviewed(units, reviewRecords);
   const alignmentIndex = buildAlignmentIndex(alignment, undefined, units);
   // A footnote mark links to the unit that translates the footnote, which this face does render.
   const footnoteUnits = unitsBySourceRef(units);
@@ -55,23 +52,9 @@ export function EnglishFace({
   const titleUnit = unitTranslating(units, MASTHEAD_TITLE_ID);
   const authorUnit = unitTranslating(units, MASTHEAD_AUTHOR_ID);
   const bodyUnits = units.filter((u) => u !== titleUnit && u !== authorUnit);
-  // Review state is said once, here, from the units themselves (translationReviewSummary).
-  const review = translationReviewSummary(units, reviewRecords);
-
-  // Every translator the units record, in order of first appearance. A paper translated a part
-  // at a time by more than one agent credits each of them: the first unit's translator alone
-  // would sign the whole face with one name, including sections someone else translated.
-  const translatorNames = [
-    ...new Set(
-      units
-        .map((u) => u.translator?.name?.trim() || u.translator?.id?.trim())
-        .filter((name): name is string => Boolean(name)),
-    ),
-  ];
-  const primaryTranslator =
-    translatorNames.length <= 1
-      ? (translatorNames[0] ?? "Translation team")
-      : `${translatorNames.slice(0, -1).join(", ")} and ${translatorNames.at(-1)}`;
+  // No review banner, review chip or translator credit (D-2026-09-25-no-review-status-banners,
+  // the owner: "we don't need messages like this on the site"). Who translated and checked each
+  // unit stays in its record (translator, agentReview) and in the provenance receipt.
 
   return (
     <div
@@ -109,29 +92,17 @@ export function EnglishFace({
             ? renderInlines(authorUnit.inlines, undefined, `tr-${authorUnit.id}`)
             : `By ${paper.authorLine}`}
         </p>
-        <p className="translator-credit fine">Translated by {primaryTranslator}</p>
       </header>
 
-      {/* The banner and the coverage notice qualify the text, so they share its column: at 1440 they
-          spanned 1,256px above what is now a 666px measure (dispatch 210). */}
-      {isUnreviewed || review.agentChecked || untranslatedSections.length > 0 ? (
+      {/* What the translation does not reach yet, named, so a partial edition is never read as the
+          whole paper (editionCoverage.ts). It qualifies the text, so it shares its column: at 1440
+          it spanned 1,256px above what is now a 666px measure (dispatch 210). */}
+      {untranslatedSections.length > 0 ? (
         <div className="reading-column">
-          {(isUnreviewed || review.agentChecked) && (
-            <UnreviewedBanner
-              title={review.title}
-              message={review.message}
-              kind={isUnreviewed ? "unreviewed" : "agent-checked"}
-            />
-          )}
-
-          {/* What the translation does not reach yet, named, so a partial edition is never read as
-              the whole paper (editionCoverage.ts). */}
-          {untranslatedSections.length > 0 ? (
-            <p className="notice" data-untranslated-sections={untranslatedSections.join(" ")}>
-              This translation does not yet cover the whole paper. Not yet translated:{" "}
-              {sectionsLabel(untranslatedSections)}.
-            </p>
-          ) : null}
+          <p className="notice" data-untranslated-sections={untranslatedSections.join(" ")}>
+            This translation does not yet cover the whole paper. Not yet translated:{" "}
+            {sectionsLabel(untranslatedSections)}.
+          </p>
         </div>
       ) : null}
 
@@ -154,7 +125,6 @@ export function EnglishFace({
           reviewRecords={reviewRecords}
           editorialNotes={editorialNotes}
           footnoteUnits={footnoteUnits}
-          commonLabel={review.commonLabel}
         />
       </main>
 

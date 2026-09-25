@@ -104,11 +104,3 @@
     max-width: 68ch;
   }
 }
-
-/* A paper's status line ("German text set · English translation not started") is information, set
-   at 11px in a box under two 13.2px lines, the smallest words in each entry. It takes the fine
-   size of the lines above it; the box stays, so it still reads as a status. The global .badge is
-   left alone: discovery, lab and overlay components use it too. */
-.paper-entry .badge {
-  font-size: var(--type-fine);
-}

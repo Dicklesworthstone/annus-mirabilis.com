@@ -11,11 +11,10 @@ import { ROOT_ARMING_SOURCE } from "../rootArming.inline.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { withoutClaimedDisplays } from "./displayClaims.ts";
-import { type GermanColumnNotice, sectionsLabel } from "./editionCoverage.ts";
+import { sectionsLabel } from "./editionCoverage.ts";
 import { FootnotesSection } from "./Footnote.tsx";
 import { FACE_REGISTRY } from "./registry.ts";
 import { SourceBlock } from "./SourceBlock.tsx";
-import { SourceFaceNotice } from "./SourceFaceNotice.tsx";
 import "../reader.css";
 
 export interface GermanFaceProps {
@@ -24,12 +23,6 @@ export interface GermanFaceProps {
   readonly alignment?: Alignment | undefined;
   readonly editorialNotes?: readonly EditorialNote[] | undefined;
   readonly sectionId?: string | undefined;
-  /**
-   * The label an unreviewed edition carries (editionCoverage.ts editionGermanNotice). PaperPage
-   * renders an edition here before it is reviewed only for a paper with no ledger draft face, so
-   * the label the draft face would have carried comes with it (dispatch 192).
-   */
-  readonly notice?: GermanColumnNotice | undefined;
   /** The paper's sections no German block reaches yet, in its order, named above the text. */
   readonly missingSections?: readonly string[] | undefined;
   /** Printed pages the ledger has not transcribed (ledgerGaps.ts), named as the notice face names them. */
@@ -53,7 +46,6 @@ export function GermanFace({
   alignment,
   editorialNotes = [],
   sectionId,
-  notice,
   missingSections = [],
   untranscribedPages = [],
   pdfHref,
@@ -149,9 +141,9 @@ export function GermanFace({
           19px, 155 characters a line, where the other papers' German faces read at 666px and
           22.8px (dispatch 210). */}
       <div className="reading-column">
-        {/* An edition shown before it is reviewed is labelled, and one that does not yet reach every
-            section or page says what it lacks, so the introduction is never read as the paper. */}
-        {notice ? <SourceFaceNotice notice={notice} /> : null}
+        {/* An edition that does not yet reach every section or page says what it lacks, so the
+            introduction is never read as the paper. It carries no draft label
+            (D-2026-09-25-no-review-status-banners). */}
         {missingSections.length > 0 ? (
           <p className="notice" data-missing-sections={missingSections.join(" ")} lang="en">
             This German text does not yet cover the whole paper. Not yet in it:{" "}

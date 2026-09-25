@@ -27,7 +27,6 @@ import { firstUseCallouts } from "./firstUse.ts";
 import { OutlineSectionTitle } from "./OutlineSectionTitle.tsx";
 import { notationReach, notationReachLine, paperEquations } from "./paperEquations.ts";
 import { englishSourceLink, originalHref, paperSourceFaces } from "./paperSourceFaces.ts";
-import { PaperStatus } from "./paperStatus.tsx";
 import { passageKind } from "./passageKind.ts";
 import { QuantityLegendList } from "./QuantityLegendList.tsx";
 import { ReaderController } from "./ReaderController";
@@ -154,20 +153,9 @@ export async function PaperReader({
             section has already read it, and on a section page it pushed the argument
             further down while saying nothing about the section.
 
-            THE TWO DISCLOSURES BELOW STAY ON EVERY VIEW, deliberately. They are not
-            furniture: `sourceNotice` says the text on THIS page is newly authored and
-            not the German source, and the fine print says review is pending and none
-            of it is Einstein's wording. Both are claims about the content being
-            rendered here, so they belong where the claim is made. Dropping them on
-            section views would have been the larger vertical saving and the wrong
-            one. */}
+            There is no review-status disclosure under it
+            (D-2026-09-25-no-review-status-banners). */}
         {section ? null : <p className="lead">{paper.description}</p>}
-        <PaperStatus paper={paper}>
-          <p className="fine">
-            New explanatory text authored with AI assistance. Mathematical and editorial review
-            remains pending; none of these passages is presented as Einstein’s wording.
-          </p>
-        </PaperStatus>
         {section && (
           <a href={`/papers/brownian-motion/#${section}`}>Read this section in the whole paper →</a>
         )}

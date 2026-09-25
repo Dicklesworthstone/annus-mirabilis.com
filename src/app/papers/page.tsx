@@ -8,28 +8,20 @@ import type { RouteSlug } from "../../content/ids.ts";
 import { type PaperTranslation, translationState } from "../../content/translationState.ts";
 
 /*
- * Each paper's badge says where its German text and English translation stand, read from the
- * records at build time (dispatch 153). It was typed per paper, and after 43 machine-drafted
- * English passages of mass-energy went live it still said "English translation not started" on all
- * four. A draft is called a draft.
+ * A paper's entry names a layer only when it is missing, read from the records at build time
+ * (dispatch 153): that is navigation. It carries no review badge ("German text in unreviewed draft
+ * · English translation checked by AI agents"), at the owner's word
+ * (D-2026-09-25-no-review-status-banners).
  */
-const GERMAN_WORDS: Readonly<Record<GermanTextState, string>> = {
-  reviewed: "German text reviewed",
-  draft: "German text in unreviewed draft",
-  "in-transcription": "German text in transcription",
-  "not-started": "German text not started",
-};
-
-function englishWords(translation: PaperTranslation | undefined): string {
-  if (!translation) return "English translation not started";
-  // Checked by AI agents is said as such, never as "reviewed" (D-2026-09-25).
-  const agentChecked = translation.agentChecked ?? 0;
-  if (agentChecked === translation.units) return "English translation checked by AI agents";
-  if (agentChecked > 0)
-    return `English translation in draft, ${agentChecked} of ${translation.units} passages checked by AI agents`;
-  if (translation.reviewed === translation.units) return "English translation reviewed";
-  if (translation.reviewed === 0) return "English translation in unreviewed draft";
-  return `English translation in draft, ${translation.reviewed} of ${translation.units} passages reviewed`;
+function missingLayers(
+  german: GermanTextState,
+  translation: PaperTranslation | undefined,
+): string | null {
+  const missing = [
+    ...(german === "not-started" ? ["the German text"] : []),
+    ...(translation === undefined || translation.units === 0 ? ["the English translation"] : []),
+  ];
+  return missing.length === 0 ? null : `Not yet available: ${missing.join(" and ")}.`;
 }
 
 export const metadata: Metadata = {
@@ -91,10 +83,11 @@ const papers = [
 export default function Papers() {
   const plates = loadFirstPages();
   const translations = translationState(process.cwd());
-  const statusOf = (slug: string) =>
-    `${GERMAN_WORDS[germanTextState(slug as RouteSlug)]} · ${englishWords(
+  const missingOf = (slug: string) =>
+    missingLayers(
+      germanTextState(slug as RouteSlug),
       translations.find((t) => t.slug === slug),
-    )}`;
+    );
   return (
     <>
       <header className="page-intro">
@@ -163,7 +156,11 @@ export default function Papers() {
                 <p>{paper.plainScope ?? paper.scope}</p>
                 <p className="fine">Also known as: {paper.title}.</p>
                 <p className="fine">{paper.locator}</p>
-                <p className="badge">{statusOf(paper.slug)}</p>
+                {missingOf(paper.slug) ? (
+                  <p className="notice" data-missing-layers>
+                    {missingOf(paper.slug)}
+                  </p>
+                ) : null}
                 {paper.title === "Light quanta" && (
                   <div className="actions">
                     <a href="/papers/light-quanta/">Read the argument</a>

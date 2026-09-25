@@ -56,8 +56,8 @@ h4 {
 /* --- Drawers -------------------------------------------------------------------------------
    A closed drawer prints as its summary alone: a line saying there is more, on a page that cannot
    open it. So a closed drawer prints nothing, and an open one prints what the reader opened, with
-   its summary as a plain label rather than a disclosure triangle. The one exception is the status
-   note ("Draft explanation, not yet reviewed"), whose summary is the status and always prints. */
+   its summary as a plain label rather than a disclosure triangle. The one exception is a callout
+   note, whose summary is its point and always prints. */
 :root main details:not([open]):not(.callout-note) {
   display: none;
 }

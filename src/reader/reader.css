@@ -895,11 +895,6 @@ html:is(
   grid-template-columns: minmax(0, 1fr);
 }
 
-/* The German source's draft label, over the German column. */
-.parallel-notice {
-  max-width: calc(50% - 1rem);
-}
-
 /* Each half names its language. A screen reader hears the name on every width; the eye needs it
    only where the halves stack, so on a wide screen it is visually hidden and the column heads
    show. Two classes, because `.reader-root p` sets margin-block on every paragraph at (0,1,1). */
@@ -996,31 +991,6 @@ html:is(
   padding-top: 1.5rem;
 }
 
-.review-badge {
-  display: inline-block;
-  font-size: var(--type-micro);
-  padding: 0.1rem 0.4rem;
-  border-radius: 3px;
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-}
-
-.badge-reviewed {
-  background-color: #dcfce7;
-  color: #166534;
-}
-
-.badge-in-progress {
-  background-color: #fef9c3;
-  color: #854d0e;
-}
-
-.badge-draft {
-  background-color: #f3f4f6;
-  color: #4b5563;
-}
-
 /* On a phone each row is its German, then its English, each under its language's name, and a
    hairline closes the pair. The column heads go: the halves name themselves. */
 @media (max-width: 768px) {
@@ -1052,9 +1022,6 @@ html:is(
     font-family: var(--font-sans);
     font-size: var(--type-fine);
     color: var(--muted);
-  }
-  .parallel-notice {
-    max-width: none;
   }
 }
 
@@ -1779,29 +1746,6 @@ html:is(
   line-height: 1.7;
 }
 
-.unresolved-alternatives {
-  margin-top: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  background: var(--wash);
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  font-size: var(--type-fine);
-}
-
-.alternatives-list {
-  margin: 0.5rem 0 0;
-  padding-left: 1.25rem;
-}
-
-.alternative-text {
-  margin: 0.25rem 0;
-}
-
-.alternative-rationale {
-  margin: 0.25rem 0;
-  color: var(--muted);
-}
-
 .unit-editorial-notes {
   margin-top: 0.75rem;
   display: flex;
@@ -2478,8 +2422,7 @@ html:is(
 
 .parallel-author,
 .source-date-line,
-.journal-citation,
-.translator-credit {
+.journal-citation {
   font-size: var(--type-small);
   color: var(--muted);
   margin: 0.25rem 0;
@@ -2897,12 +2840,8 @@ html:is(
    do not collapse, so each paragraph's margin-block (.reader-root p, above) was added to the gap
    on both sides. As a block the paragraphs' margins collapse into one --reader-paragraph-gap, as
    the German face's do, and the reader's "relaxed" spacing now reaches the English face too. A
-   display, footnote or note between paragraphs takes the same gap.
-
-   The "Alternative translations" disclosure was a filled, bordered box a paragraph's gap below its
-   text. It is now a quiet line in the column, a quarter line under the sentence it offers
-   alternatives for, and still a <details>: keyboard-operable and open-able without JavaScript.
-   Held by scripts/e2e/englishFaceRhythm.e2e.test.ts, which also checks that nothing overlaps. */
+   display, footnote or note between paragraphs takes the same gap. Held by
+   scripts/e2e/englishFaceRhythm.e2e.test.ts, which also checks that nothing overlaps. */
 .translation-units-list {
   display: block;
 }
@@ -2910,32 +2849,6 @@ html:is(
 .translation-units-list > .translation-footnote,
 .translation-units-list > .unit-editorial-notes {
   margin-block: var(--reader-paragraph-gap);
-}
-.unresolved-alternatives {
-  margin: 0.25em 0 var(--reader-paragraph-gap);
-  padding: 0;
-  background: none;
-  border: 0;
-  border-radius: 0;
-  color: var(--muted);
-}
-.unresolved-alternatives > summary {
-  width: fit-content;
-  cursor: pointer;
-}
-.unresolved-alternatives[open] {
-  padding-block-end: 0.25em;
-}
-/* Two units of one paragraph may each carry alternatives: the lines stack a quarter line apart. */
-.unresolved-alternatives + .unresolved-alternatives {
-  margin-top: 0.25em;
-}
-.unresolved-alternatives:has(+ .unresolved-alternatives) {
-  margin-bottom: 0;
-}
-/* A paragraph's bottom margin is a whole gap; pull the line up into it rather than beneath it. */
-.translation-paragraph + .unresolved-alternatives {
-  margin-top: calc(0.25em - var(--reader-paragraph-gap));
 }
 
 /* ONE § HEADING IN EVERY PAPER (dispatch 217). A § heading has one style on all four German faces,

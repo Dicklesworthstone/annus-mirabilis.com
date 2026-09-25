@@ -1,4 +1,3 @@
-import type { SourceFaceNotice as SourceFaceNoticeRecord } from "../../content/provenance/sourceFaceNotice.ts";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
 import {
   type Alignment,
@@ -18,13 +17,10 @@ import { sectionsLabel } from "./editionCoverage.ts";
 import { FootnoteItem } from "./Footnote.tsx";
 import { type ParallelRow, parallelRows } from "./parallelRows.ts";
 import type { FaceId } from "./registry.ts";
-import { isPaperTranslationUnreviewed, translationReviewSummary } from "./reviewState.ts";
 import { SourceBlock as SourceBlockItem } from "./SourceBlock.tsx";
-import { SourceFaceNotice } from "./SourceFaceNotice.tsx";
 import { groupTranslationUnits, TranslationParagraphs } from "./TranslationParagraphs.tsx";
 import { unitsBySourceRef } from "./TranslationUnit.tsx";
 import { MASTHEAD_TITLE_ID, unitTranslating } from "./translationMasthead.ts";
-import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
 import "../reader.css";
 
 /**
@@ -45,13 +41,6 @@ export interface ParallelFaceProps {
   readonly reviewRecords?: readonly ReviewRecord[] | undefined;
   readonly sectionId?: string | undefined;
   readonly layout?: "side-by-side" | "stacked" | undefined;
-  /**
-   * The German source's own label, from its provenance receipt (sourceFaceNotice), or from the
-   * blocks' own review status where the paper has no ledger draft (editionCoverage.ts). Passed while
-   * the blocks are an unreviewed draft, so the German column is labelled as the German face is; the
-   * English column carries its own draft banner and badges.
-   */
-  readonly germanNotice?: Pick<SourceFaceNoticeRecord, "state" | "label" | "body"> | undefined;
   /** The paper's sections no translation unit reaches yet (editionCoverage.ts), in its order. */
   readonly untranslatedSections?: readonly string[] | undefined;
 }
@@ -65,13 +54,11 @@ export function ParallelFace({
   reviewRecords = [],
   sectionId,
   layout = "side-by-side",
-  germanNotice,
   untranslatedSections = [],
   availability,
 }: ParallelFaceProps) {
-  const isUnreviewed = isPaperTranslationUnreviewed(units, reviewRecords);
-  // Review state is said once, in the banner, from the units themselves.
-  const review = translationReviewSummary(units, reviewRecords);
+  // Neither column carries a review banner, chip or draft label
+  // (D-2026-09-25-no-review-status-banners); the records keep who made and checked each unit.
   const isStacked = layout === "stacked";
   const alignmentIndex = buildAlignmentIndex(alignment, blocks, units);
   const footnoteUnits = unitsBySourceRef(units);
@@ -111,7 +98,6 @@ export function ParallelFace({
           editorialNotes={editorialNotes}
           anchorPrefix={ENGLISH_ANCHOR_PREFIX}
           footnoteUnits={footnoteUnits}
-          commonLabel={review.commonLabel}
         />
       </div>
     );
@@ -153,14 +139,6 @@ export function ParallelFace({
         </p>
       </header>
 
-      {(isUnreviewed || review.agentChecked) && (
-        <UnreviewedBanner
-          title={review.title}
-          message={review.message}
-          kind={isUnreviewed ? "unreviewed" : "agent-checked"}
-        />
-      )}
-
       {/* What the translation does not reach yet, named, so a partial edition is never read as the
           whole paper (editionCoverage.ts). */}
       {untranslatedSections.length > 0 ? (
@@ -200,11 +178,6 @@ export function ParallelFace({
           </p>
           <p className="column-heading">English Translation</p>
         </div>
-        {germanNotice ? (
-          <div className="parallel-notice" lang="de">
-            <SourceFaceNotice notice={germanNotice} />
-          </div>
-        ) : null}
         {rows.map((row) => (
           <div key={row.key} className="parallel-row" data-parallel-row={row.key}>
             {row.block ? (

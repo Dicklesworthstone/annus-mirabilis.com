@@ -13,9 +13,9 @@
  *   an unclaimed display stand alone, in the order the units come.
  * - Every unit keeps its id on an inline element, so #s0-p6-s1 still lands, and keeps its
  *   "Show the German source" action, which is a real button and so reachable by keyboard.
- * - Review state is said once, by the face's banner (translationReviewSummary). A unit carries a
- *   badge only when its state differs from the one most units share, and no badge is a live
- *   region: it is static content.
+ * - No review state is shown: no banner, no chip, no "Alternative translations" disclosure
+ *   (D-2026-09-25-no-review-status-banners, D-2026-09-25-one-best-translation). Each unit's text is
+ *   the best reading, and its record keeps who made and checked it.
  * - A section or part heading is a heading, as the German face sets it (SourceBlock.tsx: h2
  *   .source-heading, h1 .source-part-heading), not a paragraph at body size (dispatch 210). Its
  *   unit keeps its id on the span inside, so #s1 still lands.
@@ -23,13 +23,12 @@
 import { renderToString } from "katex";
 import { Fragment, type ReactNode } from "react";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
-import {
-  type Alignment,
-  type EditorialNote,
-  type Inline,
-  plainText,
-  type SourceBlock,
-  type TranslationUnit,
+import type {
+  Alignment,
+  EditorialNote,
+  Inline,
+  SourceBlock,
+  TranslationUnit,
 } from "../../content/schemas/source.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
 import { renderInlines } from "./inlines.tsx";
@@ -38,12 +37,6 @@ import { evaluateUnitReviewState } from "./reviewState.ts";
 type GroupKind = "paragraph" | "display" | "footnote" | "other";
 /** Units set together: one source paragraph, display, footnote or other block, by its id (`key`). */
 export type Group = { kind: GroupKind; key: string; units: TranslationUnit[] };
-
-const BADGE_CLASS: Readonly<Record<"reviewed" | "in-progress" | "draft", string>> = {
-  reviewed: "badge-reviewed",
-  "in-progress": "badge-in-progress",
-  draft: "badge-draft",
-};
 
 const isDisplay = (u: TranslationUnit) => u.inlines.length === 1 && u.inlines[0]?.kind === "math";
 
@@ -127,8 +120,6 @@ export interface TranslationParagraphsProps {
   readonly anchorPrefix?: string | undefined;
   /** Footnote block id to the id of the unit that translates it (unitsBySourceRef). */
   readonly footnoteUnits?: ReadonlyMap<string, string> | undefined;
-  /** The review label most of the face's units share; a unit is badged only when it differs. */
-  readonly commonLabel?: string | undefined;
   /**
    * Only these groups, from groupTranslationUnits over the same units: the parallel face sets each
    * source block's English beside that block. Footnote marks and review records still come from
@@ -145,7 +136,6 @@ export function TranslationParagraphs({
   editorialNotes = [],
   anchorPrefix = "",
   footnoteUnits,
-  commonLabel,
   groups,
 }: TranslationParagraphsProps) {
   const records = new Map<string, ReviewRecord>();
@@ -169,19 +159,6 @@ export function TranslationParagraphs({
       Show the German source
     </button>
   );
-  const badgeFor = (u: TranslationUnit): ReactNode => {
-    const badge = evaluateUnitReviewState(u, records.get(u.id));
-    if (commonLabel === undefined || badge.label === commonLabel) return null;
-    return (
-      <span
-        className={`review-badge ${BADGE_CLASS[badge.reviewClass] ?? "badge-draft"}`}
-        data-review-badge={badge.label}
-        title={badge.description}
-      >
-        {badge.label}
-      </span>
-    );
-  };
   const unitAttributes = (u: TranslationUnit) => ({
     id: `${anchorPrefix}${u.id}`,
     "data-translation-unit-id": u.id,
@@ -214,7 +191,6 @@ export function TranslationParagraphs({
               data-printed-notation="true"
               {...{ dangerouslySetInnerHTML: { __html: html } }}
             />
-            {badgeFor(u)}
             {showSource(u)}
           </span>{" "}
         </Fragment>
@@ -224,54 +200,26 @@ export function TranslationParagraphs({
       <Fragment key={u.id}>
         <span {...unitAttributes(u)} className="translation-unit">
           {renderInlines(u.inlines, { idPrefix: anchorPrefix, footnoteTarget }, `tr-${u.id}`)}
-          {badgeFor(u)}
           {showSource(u)}
         </span>{" "}
       </Fragment>
     );
   };
 
-  // What a paragraph's units carry besides their text: alternative readings and editorial notes.
+  // What a paragraph's units carry besides their text: their editorial notes. A recorded
+  // alternative reading is not shown (D-2026-09-25-one-best-translation).
   const apparatus = (group: Group): ReactNode[] =>
     group.units.flatMap((u) => {
       const notes = editorialNotes.filter((n) => n.affectedIds.includes(u.id));
-      const out: ReactNode[] = [];
-      if (u.unresolvedAlternatives.length > 0) {
-        const words = plainText(u.inlines).split(/\s+/).slice(0, 6).join(" ");
-        out.push(
-          <details
-            key={`${u.id}-alternatives`}
-            className="unresolved-alternatives"
-            data-alternatives-count={u.unresolvedAlternatives.length}
-            data-unit-id={u.id}
-          >
-            <summary>
-              Alternative translations ({u.unresolvedAlternatives.length}) for “{words}…”
-            </summary>
-            <ul className="alternatives-list">
-              {u.unresolvedAlternatives.map((alt) => (
-                <li key={`${u.id}-alt-${alt.text}`}>
-                  <p className="alternative-text">
-                    <strong>Option:</strong> {alt.text}
-                  </p>
-                  <p className="alternative-rationale">
-                    <em>Rationale:</em> {alt.rationale}
-                  </p>
-                </li>
+      return notes.length > 0
+        ? [
+            <div key={`${u.id}-notes`} className="unit-editorial-notes">
+              {notes.map((note) => (
+                <EditorialNoteMarker key={note.id} note={note} inline />
               ))}
-            </ul>
-          </details>,
-        );
-      }
-      if (notes.length > 0)
-        out.push(
-          <div key={`${u.id}-notes`} className="unit-editorial-notes">
-            {notes.map((note) => (
-              <EditorialNoteMarker key={note.id} note={note} inline />
-            ))}
-          </div>,
-        );
-      return out;
+            </div>,
+          ]
+        : [];
     });
 
   return (
