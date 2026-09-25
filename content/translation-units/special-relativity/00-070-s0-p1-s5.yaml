@@ -1,7 +1,9 @@
-# TranslationUnit s0-p1-s5: English machine-draft translation.
+# TranslationUnit s0-p1-s5: English translation, checked by AI agents.
 # Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
-# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+# Final under docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations after two agent
+# review rounds. No person has reviewed it.
 # Review round 1 (TopazPrairie, agent, 2026-09-25): read against the German and the plate; no change.
+# Review round 2 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 891-892; no change.
 kind: "translation-unit"
 id: "s0-p1-s5"
 paper: "special-relativity"
@@ -20,5 +22,20 @@ revision: 1
 unresolvedAlternatives:
   - text: "gives rise to electric currents of the same magnitude and the same course as the electric forces do in the first case"
     rationale: "The German closes with \"wie im ersten Falle die elektrischen Kräfte\", naming the forces as the cause of the first case's currents without a verb. \"Those produced by\" supplies the relation the elliptical German implies; the alternative keeps the ellipsis closer."
-reviewState: "machine-draft"
+reviewState: "reviewed"
+agentReview:
+  basis: "D-2026-09-25-agent-reviewed-translations"
+  rounds:
+    - reviewer:
+        id: "agent:TopazPrairie"
+        name: "TopazPrairie"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
+    - reviewer:
+        id: "agent:NavyKite"
+        name: "NavyKite"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
 lang: "en"
