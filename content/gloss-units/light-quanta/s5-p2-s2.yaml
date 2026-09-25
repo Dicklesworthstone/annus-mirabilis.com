@@ -1,0 +1,61 @@
+# GlossUnit s5-p2-s2: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s5-p2-s2"
+sentenceId: "s5-p2-s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "5818472bb5a2e59ac2bc9e259c1db96ef23178bbd87168dff165780a066011a2"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Liegen"
+  - german: "also"
+    english: "therefore"
+    lemma: "also"
+    grammarNote: "consequence: also, ‘therefore’ (not English ‘also’)"
+    noteClass: "consequence"
+  - german: "zwei"
+    english: "two"
+  - german: "nicht"
+    english: "not"
+  - german: "miteinander"
+    english: "with each other"
+  - german: "in"
+  - german: "Wechselwirkung"
+  - german: "stehende"
+  - german: "Systeme"
+    english: "systems"
+    lemma: "System"
+  - german: "und"
+    english: "and"
+  - german: "vor"
+  - german: "so"
+    english: "then"
+  - german: "kann"
+    english: "can"
+  - german: "man"
+    english: "one"
+  - german: "setzen"
+    english: "set"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 10
+    english: "if there are given"
+    kind: "separable-verb"
+    grammarNote: "condition: verb first, liegen ... vor, separable vorliegen, ‘if there are given’"
+    noteClass: "condition"
+  - tokenIndices:
+      - 5
+      - 6
+      - 7
+    english: "interacting"
+    kind: "fixed-phrase"
+    grammarNote: "participle closing an attributive phrase before its noun: ‘two systems not interacting with each other’"
+    noteClass: "attributive-phrase"

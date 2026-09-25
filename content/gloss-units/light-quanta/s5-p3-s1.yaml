@@ -1,0 +1,31 @@
+# GlossUnit s5-p3-s1: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s5-p3-s1"
+sentenceId: "s5-p3-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "bb90bc36a30dab9b37d52e89b8b7f8d0812e4c669a28477f536233313b27997e"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Wir"
+    english: "we"
+  - german: "behandeln"
+    english: "treat"
+  - german: "zunächst"
+    english: "first"
+  - german: "folgenden"
+    english: "the following"
+    lemma: "folgend"
+  - german: "Spezialfall"
+    english: "special case"
+    lemma: "Spezialfall"
+    grammarNote: "compound: Spezial + Fall"
+    noteClass: "compound"
+multiwordUnits: []

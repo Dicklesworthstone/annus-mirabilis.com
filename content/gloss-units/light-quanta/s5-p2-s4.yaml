@@ -1,0 +1,57 @@
+# GlossUnit s5-p2-s4: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s5-p2-s4"
+sentenceId: "s5-p2-s4"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "4a57f9613da080eec59029566a61af859b289375e3375edd1ae54e75655dd51c"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Die"
+    english: "the"
+  - german: "letztere"
+    english: "latter"
+    lemma: "letzterer"
+  - german: "Beziehung"
+    english: "relation"
+  - german: "sagt"
+  - german: "aus"
+  - german: "daß"
+    english: "that"
+    lemma: "dass"
+    grammarNote: "archaic spelling of dass"
+    noteClass: "archaic-spelling"
+  - german: "die"
+    english: "the"
+  - german: "Zustände"
+    english: "states"
+    lemma: "Zustand"
+  - german: "der"
+    english: "of the"
+  - german: "beiden"
+    english: "two"
+  - german: "Systeme"
+    english: "systems"
+    lemma: "System"
+  - german: "voneinander"
+    english: "of each other"
+  - german: "unabhängige"
+    english: "independent"
+  - german: "Ereignisse"
+    english: "events"
+    lemma: "Ereignis"
+  - german: "sind"
+    english: "are"
+multiwordUnits:
+  - tokenIndices:
+      - 3
+      - 4
+    english: "says"
+    kind: "separable-verb"

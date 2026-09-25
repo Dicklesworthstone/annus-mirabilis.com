@@ -1,0 +1,70 @@
+# GlossUnit s5-p3-s2: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s5-p3-s2"
+sentenceId: "s5-p3-s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "e92e8b0a701db3f000af3ed1e63125882d9dd01fa59dde5fceaca552752a28df"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "In"
+    english: "in"
+  - german: "einem"
+    english: "a"
+  - german: "Volumen"
+    english: "volume"
+  - german: "sei"
+  - german: "eine"
+    english: "a"
+  - german: "Anzahl"
+    english: "number"
+  - german: "beweglicher"
+    english: "of movable"
+    lemma: "beweglich"
+    grammarNote: "genitive: eine Anzahl beweglicher Punkte, ‘a number of movable points’"
+    noteClass: "genitive-construction"
+  - german: "Punkte"
+    english: "points"
+    lemma: "Punkt"
+  - german: "z. B."
+    english: "e.g."
+    lemma: "zum Beispiel"
+    grammarNote: "abbreviation: z. B., zum Beispiel, ‘for example’"
+    noteClass: "abbreviation"
+  - german: "Moleküle"
+    english: "molecules"
+    lemma: "Molekül"
+  - german: "vorhanden"
+  - german: "auf"
+  - german: "welche"
+    english: "which"
+  - german: "sich"
+  - german: "unsere"
+    english: "our"
+  - german: "Überlegung"
+    english: "consideration"
+  - german: "beziehen"
+  - german: "soll"
+    english: "is to"
+    lemma: "sollen"
+multiwordUnits:
+  - tokenIndices:
+      - 3
+      - 10
+    english: "let there be present"
+    kind: "split-construction"
+    grammarNote: "Konjunktiv I: sei ... vorhanden, ‘let there be present’: the model is supposed, not described"
+    noteClass: "konjunktiv-i"
+  - tokenIndices:
+      - 11
+      - 13
+      - 16
+    english: "refer to"
+    kind: "reflexive"

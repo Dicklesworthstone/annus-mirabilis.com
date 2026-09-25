@@ -1,0 +1,42 @@
+# GlossUnit s5-fn1: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s5-fn1"
+sentenceId: "s5-fn1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "a0da6bbdb8a5524281475a7a738d0a628814bdc074424e0a01f237ab158cb0b3"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Ist"
+    english: "is"
+    lemma: "sein"
+    grammarNote: "condition: verb first, ist E ..., ‘if E is’"
+    noteClass: "condition"
+  - german: "die"
+    english: "the"
+  - german: "Energie"
+    english: "energy"
+  - german: "des"
+    english: "of the"
+  - german: "Systems"
+    english: "system"
+  - german: "so"
+    english: "then"
+  - german: "erhält"
+    english: "obtains"
+    lemma: "erhalten"
+  - german: "man"
+    english: "one"
+  - german: "also"
+    english: "hence"
+    lemma: "also"
+    grammarNote: "consequence: also, ‘hence’ (not English ‘also’)"
+    noteClass: "consequence"
+multiwordUnits: []

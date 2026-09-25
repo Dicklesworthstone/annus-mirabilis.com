@@ -1,0 +1,35 @@
+# GlossUnit s5-p6-s1: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s5-p6-s1"
+sentenceId: "s5-p6-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "2df0bfbe9c8af454af4622e0c19532db6e17c2a18ba41471aef9df91b787ca5f"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Aus"
+    english: "from"
+  - german: "diesen"
+    english: "these"
+  - german: "Gleichungen"
+    english: "equations"
+    lemma: "Gleichung"
+  - german: "folgt"
+    english: "follows"
+    lemma: "folgen"
+    grammarNote: "consequence: aus diesen Gleichungen folgt, ‘from these equations it follows’"
+    noteClass: "consequence"
+  - german: "und"
+    english: "and"
+  - german: "hieraus"
+    english: "from this"
+  - german: "endlich"
+    english: "finally"
+multiwordUnits: []
