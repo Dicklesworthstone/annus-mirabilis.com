@@ -570,6 +570,14 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   ["scale-facts-table-wrap", 1],
   ["search-dialog", 0],
   ["search-results", 0],
+  // The German of a sentence the gloss face has no gloss unit for (GlossSentence.tsx), printed
+  // with its formulas as KaTeX since f7ab060c. An inline formula cannot wrap, so the sentence
+  // scrolls in its own box rather than widening the page (glossReasoning.css; 5px at 390 on
+  // Brownian's s2-p4-s1 and s2-p4-s4). One JSX element, with no tabIndex in the TSX: like
+  // inline-display, its tab stop is added at runtime by formulaOverflow.inline.ts, only when it
+  // overflows (3 of Brownian's 87 unglossed sentences at 390, 15 at 320), so one that fits
+  // carries none.
+  ["sentence-german-unadorned", 1],
   ["show-the-code", 4],
   /*
     sr-investigation-page is an ANCESTOR, not a scrolling element. It reaches this list because
