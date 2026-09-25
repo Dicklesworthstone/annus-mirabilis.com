@@ -52,7 +52,7 @@ tokens:
   - german: "genügend"
     english: "sufficiently"
     lemma: "genügend"
-    grammarNote: "restriction: the pressure law holds only when neighbouring bodies are far enough apart"
+    grammarNote: "restriction: the pressure law holds only when neighboring bodies are far enough apart"
     noteClass: "restriction"
   - german: "weit"
     english: "far"
@@ -123,5 +123,5 @@ multiwordUnits:
       - 19
     english: "are apart"
     kind: "split-construction"
-    grammarNote: "condition: a second verb-first clause, 'and if neighbouring ones are far enough apart'"
+    grammarNote: "condition: a second verb-first clause, 'and if neighboring ones are far enough apart'"
     noteClass: "condition"

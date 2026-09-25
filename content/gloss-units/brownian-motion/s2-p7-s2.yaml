@@ -1,0 +1,34 @@
+# GlossUnit s2-p7-s2: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s2-p7-s2"
+sentenceId: "s2-p7-s2"
+revision: 1
+sourceRevision: 2
+sourceTextDigest: "616b5b82ab31496765254c61e71df28936e4bd91121791184367cc10696dc4f1"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Durch"
+    english: "by"
+  - german: "Integration"
+    english: "integration"
+  - german: "erhält"
+    english: "obtains"
+  - german: "man"
+    english: "one"
+  - german: "und"
+    english: "and"
+  - german: "daraus"
+    english: "from this"
+    lemma: "daraus"
+    grammarNote: "consequence: daraus, from this, the next equation follows"
+    noteClass: "consequence"
+  - german: "und"
+    english: "and"
+multiwordUnits: []

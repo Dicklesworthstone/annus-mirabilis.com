@@ -1,0 +1,26 @@
+# GlossUnit s2-p4-s5: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s2-p4-s5"
+sentenceId: "s2-p4-s5"
+revision: 1
+sourceRevision: 4
+sourceTextDigest: "5b5394e085e54c88b7c206380f8cb3bcdfa095dabf3be8e6d0f1377746be1d8a"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Es"
+    english: "it"
+  - german: "ist"
+    english: "is"
+  - german: "also"
+    english: "therefore"
+    lemma: "also"
+    grammarNote: "consequence: what follows from the two forms of the integral"
+    noteClass: "consequence"
+multiwordUnits: []
