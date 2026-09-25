@@ -749,7 +749,7 @@ entries:
   # =========================================================================
   - id: lq.Z.radiationElectricField
     paper: light-quanta
-    scope: ["lq-s1-fn1"]
+    scope: ["lq-s1-fn3"]
     glyph:
       unicode: "Z"
       latex: "Z"
@@ -774,7 +774,7 @@ entries:
 
   - id: lq.A_nu.fourierAmplitude
     paper: light-quanta
-    scope: ["lq-s1-fn1"]
+    scope: ["lq-s1-fn3"]
     glyph:
       unicode: "A_ν"
       latex: "A_\\nu"
@@ -798,7 +798,7 @@ entries:
 
   - id: lq.alpha_nu.fourierPhase
     paper: light-quanta
-    scope: ["lq-s1-fn1"]
+    scope: ["lq-s1-fn3"]
     glyph:
       unicode: "α_ν"
       latex: "\\alpha_\\nu"
@@ -818,7 +818,7 @@ entries:
       collidesWithModern: ["wienConstantAlpha"]
       firstUseAnchor: lq-s1-fn3
       firstUseBySection:
-        - sectionId: lq-s1-fn1
+        - sectionId: lq-s1-fn3
           anchor: lq-s1-fn3
     notes: "An angle, distinct from Planck's and Wien's alpha."
     sources:
@@ -832,7 +832,7 @@ entries:
 
   - id: lq.T.longAveragingInterval
     paper: light-quanta
-    scope: ["lq-s1-fn1"]
+    scope: ["lq-s1-fn3"]
     glyph:
       unicode: "T"
       latex: "T"
@@ -852,7 +852,7 @@ entries:
       collidesWithModern: ["temperature"]
       firstUseAnchor: lq-s1-fn3
       firstUseBySection:
-        - sectionId: lq-s1-fn1
+        - sectionId: lq-s1-fn3
           anchor: lq-s1-fn3
     notes: "Despite the printed T, this is never temperature."
     sources:
@@ -866,7 +866,7 @@ entries:
 
   - id: lq.t.elapsedTime
     paper: light-quanta
-    scope: ["lq-s1-fn1"]
+    scope: ["lq-s1-fn3"]
     glyph:
       unicode: "t"
       latex: "t"
@@ -890,7 +890,7 @@ entries:
 
   - id: lq.f.probabilityDensity
     paper: light-quanta
-    scope: ["lq-s1-fn1"]
+    scope: ["lq-s1-fn3"]
     glyph:
       unicode: "f"
       latex: "f"
@@ -914,7 +914,7 @@ entries:
 
   - id: lq.F_nu.probabilityDensity
     paper: light-quanta
-    scope: ["lq-s1-fn1"]
+    scope: ["lq-s1-fn3"]
     glyph:
       unicode: "F₁"
       latex: "F_1"
@@ -939,7 +939,7 @@ entries:
 
   - id: lq.f_nu.probabilityDensity
     paper: light-quanta
-    scope: ["lq-s1-fn1"]
+    scope: ["lq-s1-fn3"]
     glyph:
       unicode: "f₁"
       latex: "f_1"
@@ -964,7 +964,7 @@ entries:
 
   - id: lq.dW.probabilityElement
     paper: light-quanta
-    scope: ["lq-s1-fn1"]
+    scope: ["lq-s1-fn3"]
     glyph:
       unicode: "dW"
       latex: "dW"

@@ -156,13 +156,13 @@ describe("am-not-entries-light-quanta-9cb: light-quanta notation concordance", (
 
   test("Bindings: T in the §1 footnote binds longAveragingInterval, never temperature; alpha_nu binds fourierPhase", () => {
     const file = loadConcordanceForPaper(paper);
-    const tFn = resolveGlyph(paper, "lq-s1-fn1", "T", emptyManifestIndex, file);
+    const tFn = resolveGlyph(paper, "lq-s1-fn3", "T", emptyManifestIndex, file);
     assert.ok(tFn.ok, "T in §1 footnote must resolve");
     assert.ok("quantityId" in tFn.entry.binding);
     assert.equal(tFn.entry.binding.quantityId, "longAveragingInterval");
     assert.notEqual(tFn.entry.binding.quantityId, "temperature");
 
-    const alphaNu = resolveGlyph(paper, "lq-s1-fn1", "\\alpha_\\nu", emptyManifestIndex, file);
+    const alphaNu = resolveGlyph(paper, "lq-s1-fn3", "\\alpha_\\nu", emptyManifestIndex, file);
     assert.ok(alphaNu.ok, "alpha_nu must resolve");
     assert.ok("quantityId" in alphaNu.entry.binding);
     assert.equal(alphaNu.entry.binding.quantityId, "fourierPhase");
