@@ -1,0 +1,43 @@
+{
+  "kind": "misconception",
+  "id": "misc-sr-moving-clock-only",
+  "paper": "special-relativity",
+  "temptingClaims": ["§ 4 says only that a moving clock runs slow."],
+  "whyTempting": "\"Moving clocks run slow\" is the phrase everyone remembers, and § 4 does begin its clock argument with that rate.",
+  "whereItIsTrue": "The first clock result of § 4: a clock carried with k, judged from the resting system K, falls behind by \\(1-\\sqrt{1-(v/V)^2}\\) seconds each second, or \\(\\frac{1}{2}(v/V)^2\\) to fourth order (p. 904).",
+  "whatIsTrue": {
+    "r0": "§ 4 goes further. Of two clocks synchronized at A and B, one carried from A to B no longer agrees with the other when they stand side by side, and a clock taken round a closed curve comes back behind the one that stayed. The paper then concludes that a clock at the equator runs slow, a conclusion that on the real earth needs gravity as well.",
+    "r1": "After the rate, § 4 draws what it calls a peculiar consequence (p. 904). Clocks at A and B run synchronously in K; carry the one at A to B with the velocity \\(v\\), and on arrival it lags behind the clock at B by \\(\\frac{1}{2}tv^2/V^2\\) seconds, to within quantities of fourth and higher order, where \\(t\\) is the travel time. The comparison is made at one place, B. The result holds for any polygonal path, even one that returns to A; and, if one assumes it holds for a curve as well, a clock taken round a closed curve at constant speed comes back behind the one that stayed by \\(\\frac{1}{2}t(v/V)^2\\) seconds (pp. 904–905). From this the paper concludes that a balance-wheel clock at the earth's equator must go more slowly, by a very small amount, than a precisely similar clock at one of the poles (p. 905). That remark stays as printed. On the real rotating earth gravity enters as well, and this reasoning, which has no gravity, does not decide it; SR-05 declines to make that prediction.",
+    "r2": "(1) p. 904: the clock at the origin of k shows \\(\\tau=t\\sqrt{1-(v/V)^2}\\). (2) So per second of K it falls behind by \\(1-\\sqrt{1-(v/V)^2}\\), about \\(\\frac{1}{2}(v/V)^2\\) for small \\(v/V\\). (3) Two clocks at A and B, synchronous in K: move A's clock to B in the time \\(t\\), and it arrives behind by \\(\\frac{1}{2}tv^2/V^2\\). (4) Along a polygonal path back to A, and, on the stated assumption, along a closed curve, the clock that travelled is behind by \\(\\frac{1}{2}t(v/V)^2\\). (5) At \\(v=0.6\\,V\\) for 10 s of K's time, SR-05's circle preset gives the travelling clock 8 s, 2 s behind; the printed second-order formula gives 1.8 s, because 0.6 is not small. (6) The equator remark applies (4) to the earth's rotation. A real clock on the rotating earth also feels the earth's gravity, which this reasoning leaves out.",
+    "r3": "The step from polygonal paths to a curve is introduced with \"if one assumes\", so the closed-curve theorem rests on an assumption the paper states. The equator conclusion is a special-relativistic statement; the site neither corrects it nor extends it to real clocks on the geoid."
+  },
+  "instrumentIds": ["sr-05"],
+  "anchors": ["s4-p5", "s4-p6", "s4-p7", "s4-p8"],
+  "resultIds": [],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plates pp. 904–905",
+    "SR-05 preset sr-05-circle-0.6c: properTime = 8 s, coordinateTime = 10 s, reunionExactLag = 2 s, reunionPrintedApproxLag = 1.8 s at speed 0.6",
+    "SR-05 manifest (content/experiments/sr-05.yaml) notModeled: 'Gravitational time dilation' and 'The Earth's actual geoid shape and gravity field'"
+  ],
+  "intervention": {
+    "instrumentId": "sr-05",
+    "defaultsReviewed": {
+      "model": "Described from the manifest: the proper time along given worldlines and the reunion comparison of a travelling clock with one that stayed (src/experiments/sr05/worldline.ts)",
+      "labels": "Described from the manifest: the travelling clock's reading, the platform time, the exact lag and the paper's second-order lag",
+      "defaultControls": "Described from the manifest: preset sr-05-circle-0.6c; a constant-speed circle at speed 0.6 for 10 s of platform time",
+      "feedback": "Described from the manifest: the reunion reading 8 s against 10 s, the exact lag 2 s beside the printed approximation 1.8 s"
+    },
+    "scenarioId": "sr-05-circle-0.6c",
+    "reviewRecordId": "pending-review-misc-sr-moving-clock-only"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:SapphireCastle",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}

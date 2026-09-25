@@ -1,0 +1,39 @@
+{
+  "kind": "misconception",
+  "id": "misc-sr-ether-refuted",
+  "paper": "special-relativity",
+  "temptingClaims": ["The 1905 paper refuted the ether."],
+  "whyTempting": "The paper sets the light ether aside, and after it the ether is seldom heard of in physics books.",
+  "whereItIsTrue": "The paper does without the ether: it introduces no absolutely resting space and assigns no velocity vector to a point of empty space (p. 892).",
+  "whatIsTrue": {
+    "r0": "The paper says a light ether will prove superfluous, not that it has been shown not to exist. It does not refute Lorentz's theory either: § 9 finds that the electrodynamic foundation of Lorentz's theory is in accordance with the principle of relativity.",
+    "r1": "The introduction says that \"the introduction of a 'light ether' will prove to be superfluous inasmuch as, according to the view to be developed, neither will an 'absolutely resting space' endowed with special properties be introduced, nor will a velocity vector be assigned to a point of empty space in which electromagnetic processes take place\" (p. 892). Superfluous is a judgment about what the theory needs, not a finding about the world. In § 9 the paper transforms the Maxwell–Hertz equations with convection currents and concludes that, on the basis of its kinematical principles, the electrodynamic foundation of Lorentz's theory of the electrodynamics of moving bodies is in accordance with the principle of relativity (pp. 916–917). It does not claim that any experiment has shown the ether absent.",
+    "r2": "(1) p. 892: the two postulates suffice, the paper says, for a simple and consistent electrodynamics of moving bodies based on Maxwell's theory for bodies at rest. (2) The same page: a light ether will prove superfluous, because the theory introduces no absolutely resting space and gives no velocity to points of empty space. (3) That is a statement about what the theory uses. (4) pp. 916–917: with its kinematics, the electrodynamic foundation of Lorentz's theory agrees with the principle of relativity. (5) Nowhere does the paper report an observation that rules out an ether; it builds its electrodynamics without one.",
+    "r3": "Preferring a theory that does without the ether is a choice of economy. It is not the same as refuting a rival that agrees with it over the phenomena treated, and the site does not call Lorentz's theory refuted on the strength of this paper."
+  },
+  "staticTreatment": {
+    "reason": "A matter of the paper's text: the introduction, p. 892, and § 9, pp. 916–917."
+  },
+  "anchors": ["s0-p2", "s9-p1", "s9-p2"],
+  "resultIds": [],
+  "sources": ["A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plates pp. 892 and 916–917"],
+  "intervention": {
+    "defaultsReviewed": {
+      "model": "Not applicable: no instrument; this entry is a matter of the paper's text.",
+      "labels": "Not applicable: no instrument; this entry is a matter of the paper's text.",
+      "defaultControls": "Not applicable: no instrument; this entry is a matter of the paper's text.",
+      "feedback": "Not applicable: no instrument; this entry is a matter of the paper's text."
+    },
+    "reviewRecordId": "pending-review-misc-sr-ether-refuted"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:SapphireCastle",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}

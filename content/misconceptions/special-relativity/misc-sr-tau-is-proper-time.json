@@ -1,0 +1,42 @@
+{
+  "kind": "misconception",
+  "id": "misc-sr-tau-is-proper-time",
+  "paper": "special-relativity",
+  "temptingClaims": ["The paper's \\(\\tau\\) is the proper time, the time a moving clock shows."],
+  "whyTempting": "Modern books write proper time as \\(\\tau\\), and § 4 does use \\(\\tau\\) for the reading of a clock carried with the moving system.",
+  "whereItIsTrue": "For a clock at rest in the moving system k, the \\(\\tau\\) it shows at its own place is what a modern reader calls its proper time, and § 4 takes exactly that case (pp. 903–904).",
+  "whatIsTrue": {
+    "r0": "\\(\\tau\\) is the time coordinate of the moving system k: the time its synchronized clocks give to every point of k. It becomes the reading of one particular clock only at that clock's own place.",
+    "r1": "§ 3 has \"the time \\(\\tau\\) of the moving system\" determined \"for all points of the moving system at which there are clocks at rest relative to it\", by the light-signal method of § 1 (p. 898). It is a coordinate, as \\(t\\) is for the resting system K: every event has a \\(\\tau\\), whether or not a clock stands there. The final transformation \\(\\tau=\\beta\\left(t-\\frac{v}{V^2}x\\right)\\) (p. 902) depends on the place \\(x\\) as well as on \\(t\\), which one clock's reading does not. The modern proper time is the time one clock shows along its own path. The two agree for a clock at rest in k, the case § 4 takes when it asks how fast the clock at the origin of k goes, seen from K (pp. 903–904).",
+    "r2": "(1) p. 898: \\(t\\) for K and \\(\\tau\\) for k are each set, point by point, by synchronizing clocks at rest in that system with light signals, as in § 1. (2) So \\(\\tau\\) belongs to places: events at different places of k can share one \\(\\tau\\), and that sharing is k's simultaneity, not K's. (3) p. 902: \\(\\tau=\\beta\\left(t-\\frac{v}{V^2}x\\right)\\); at one time \\(t\\) of K, points with different \\(x\\) have different \\(\\tau\\). (4) p. 904: for the clock resting at the origin of k, \\(x=vt\\), so \\(\\tau=t\\sqrt{1-(v/V)^2}\\), which is that clock's own elapsed time, its proper time in modern words. (5) A clock moving relative to k shows its own proper time, which is not the \\(\\tau\\) of the places it passes.",
+    "r3": "The modern habit of writing a clock's own elapsed time as \\(\\tau\\) is what makes the letter misleading here. The notation concordance binds this paper's \\(\\tau\\) to the moving system's time coordinate (sr.tau.coordinateTimeMoving), never to elapsed proper time."
+  },
+  "staticTreatment": {
+    "reason": "A matter of notation and definition: the notation concordance's entry for τ (sr.tau.coordinateTimeMoving) and the definition on p. 898."
+  },
+  "anchors": ["s3-p3", "s3-p22", "eq-s3-d25", "s4-p5"],
+  "resultIds": [],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plates pp. 898, 902 and 903–904",
+    "notation concordance: content/notation/special-relativity.yaml, entry sr.tau.coordinateTimeMoving"
+  ],
+  "intervention": {
+    "defaultsReviewed": {
+      "model": "Not applicable: no instrument; this entry is a matter of the paper's text.",
+      "labels": "Not applicable: no instrument; this entry is a matter of the paper's text.",
+      "defaultControls": "Not applicable: no instrument; this entry is a matter of the paper's text.",
+      "feedback": "Not applicable: no instrument; this entry is a matter of the paper's text."
+    },
+    "reviewRecordId": "pending-review-misc-sr-tau-is-proper-time"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:SapphireCastle",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}
