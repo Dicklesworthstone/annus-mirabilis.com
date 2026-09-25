@@ -658,6 +658,27 @@ Endlich erhält man durch Rücktransformieren aufs ruhende System $K$ für das r
 --- MACHINE DRAFT TRANSCRIPTION PAGE 25 OF 31 ---
 [[ANNALEN-PAGE 915]]
 
+$$
+A''' = A'' \frac{1 + \frac{v}{V} \cos \varphi''}{\sqrt{1 - \left( \frac{v}{V} \right)^2}} = A \frac{1 - 2 \frac{v}{V} \cos \varphi + \left( \frac{v}{V} \right)^2}{1 - \left( \frac{v}{V} \right)^2} ,
+$$
+$$
+\cos \varphi''' = \frac{\cos \varphi'' + \frac{v}{V}}{1 + \frac{v}{V} \cos \varphi''} = - \frac{\left( 1 + \left( \frac{v}{V} \right)^2 \right) \cos \varphi - 2 \frac{v}{V}}{1 - 2 \frac{v}{V} \cos \varphi + \left( \frac{v}{V} \right)^2} ,
+$$
+$$
+\nu''' = \nu'' \frac{1 + \frac{v}{V} \cos \varphi''}{\sqrt{1 - \left( \frac{v}{V} \right)^2}} = \nu \frac{1 - 2 \frac{v}{V} \cos \varphi + \left( \frac{v}{V} \right)^2}{\left( 1 - \frac{v}{V} \right)^2} .
+$$
+
+Die auf die Flächeneinheit des Spiegels pro Zeiteinheit auftreffende (im ruhenden System gemessene) Energie ist offenbar $A^2/8\pi (V \cos \varphi - v)$. Die von der Flächeneinheit des Spiegels in der Zeiteinheit sich entfernende Energie ist $A'''^2/8\pi (- V \cos \varphi''' + v)$. Die Differenz dieser beiden Ausdrücke ist nach dem Energieprinzip die vom Lichtdrucke in der Zeiteinheit geleistete Arbeit. Setzt man die letztere gleich dem Produkt $P \cdot v$, wobei $P$ der Lichtdruck ist, so erhält man:
+$$
+P = 2 \frac{A^2}{8\pi} \frac{\left( \cos \varphi - \frac{v}{V} \right)^2}{1 - \left( \frac{v}{V} \right)^2} .
+$$
+In erster Annäherung erhält man in Übereinstimmung mit der Erfahrung und mit anderen Theorien
+$$
+P = 2 \frac{A^2}{8\pi} \cos^2 \varphi .
+$$
+
+Nach der hier benutzten Methode können alle Probleme der Optik bewegter Körper gelöst werden. Das Wesentliche ist, daß die elektrische und magnetische Kraft des Lichtes, welches durch einen bewegten Körper beeinflußt wird, auf ein relativ zu dem Körper ruhendes Koordinatensystem transformiert werden. Dadurch wird jedes Problem der Optik bewegter Körper auf eine Reihe von Problemen der Optik ruhender Körper zurückgeführt.
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 26 OF 31 ---
 [[ANNALEN-PAGE 916]]
 
