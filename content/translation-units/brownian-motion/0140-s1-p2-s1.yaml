@@ -1,0 +1,27 @@
+# TranslationUnit s1-p2-s1: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s1-p2-s1"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s1-p2-s1"
+inlines:
+  - kind: "text"
+    text: "If, on the other hand, instead of the dissolved substance, small suspended bodies are present in the partial volume "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: " of the liquid, bodies that likewise cannot pass through the wall permeable to the solvent, then according to the classical theory of thermodynamics one is not to expect — at least when gravity, which does not interest us here, is neglected — that a force acts on the wall; for on the usual view the “free energy” of the system appears to depend not on the position of the wall and of the suspended bodies, but only on the total masses and the qualities of the suspended substance, of the liquid and of the wall, and on pressure and temperature."
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "seems not to depend"
+    rationale: "\"scheint ... nicht ... abzuhängen\" reports how the usual view appears, not a finding of the paper; \"appears\" keeps that distance, as \"seems\" would."
+reviewState: "machine-draft"
+lang: "en"

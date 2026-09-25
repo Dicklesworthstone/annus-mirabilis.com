@@ -39,3 +39,78 @@ edges:
       sentenceId: "s0-p2-s2"
     target:
       translationUnitId: "s0-p2-s2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s1"
+    target:
+      translationUnitId: "s1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s1-p1"
+      sentenceId: "s1-p1-s1"
+    target:
+      translationUnitId: "s1-p1-s1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s1-p1"
+      sentenceId: "s1-p1-s2"
+    target:
+      translationUnitId: "s1-p1-s2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s1-d1"
+    target:
+      translationUnitId: "eq-s1-d1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s1-p2"
+      sentenceId: "s1-p2-s1"
+    target:
+      translationUnitId: "s1-p2-s1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s1-p2"
+      sentenceId: "s1-p2-s2"
+    target:
+      translationUnitId: "s1-p2-s2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s1-p3"
+      sentenceId: "s1-p3-s1"
+    target:
+      translationUnitId: "s1-p3-s1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s1-p3"
+      sentenceId: "s1-p3-s2"
+    target:
+      translationUnitId: "s1-p3-s2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s1-p3"
+      sentenceId: "s1-p3-s3"
+    target:
+      translationUnitId: "s1-p3-s3"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s1-p3"
+      sentenceId: "s1-p3-s4"
+    target:
+      translationUnitId: "s1-p3-s4a"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s1-d2"
+    target:
+      translationUnitId: "eq-s1-d2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s1-p3"
+      sentenceId: "s1-p3-s4"
+    target:
+      translationUnitId: "s1-p3-s4b"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s1-p3"
+      sentenceId: "s1-p3-s5"
+    target:
+      translationUnitId: "s1-p3-s5"

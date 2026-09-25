@@ -1,0 +1,37 @@
+# TranslationUnit s1-p3-s4a: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s1-p3-s4a"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s1-p3-s4"
+inlines:
+  - kind: "text"
+    text: "If, therefore, "
+  - kind: "math"
+    latex: "n"
+  - kind: "text"
+    text: " suspended bodies are present in the volume "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: ", that is, "
+  - kind: "math"
+    latex: "n/V^* = \\nu"
+  - kind: "text"
+    text: " in unit volume, and if neighboring ones among them are sufficiently far apart, then there will correspond to them an osmotic pressure "
+  - kind: "math"
+    latex: "p"
+  - kind: "text"
+    text: " of magnitude:"
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

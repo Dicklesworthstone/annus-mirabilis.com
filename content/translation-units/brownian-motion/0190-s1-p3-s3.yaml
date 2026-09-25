@@ -1,0 +1,27 @@
+# TranslationUnit s1-p3-s3: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s1-p3-s3"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s1-p3-s3"
+inlines:
+  - kind: "text"
+    text: "One will have to assume that the suspended bodies, as a consequence of the molecular motion of the liquid, carry out an irregular motion in the liquid, even if a very slow one; if they are prevented by the wall from leaving the volume "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: ", they will exert forces on the wall, just as dissolved molecules do."
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "disordered motion"
+    rationale: "\"ungeordnete Bewegung\" is motion without order; \"irregular\" is used here and wherever the paper repeats the word."
+reviewState: "machine-draft"
+lang: "en"
