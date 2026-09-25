@@ -33,6 +33,7 @@ import { withScripts } from "../subscripts.tsx";
 import { ChargeCurrentPlot } from "./ChargeCurrentPlot.tsx";
 import "../labControls.css";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 
 const C_SI = 299792458;
@@ -434,7 +435,7 @@ export function ChargeCurrentLab({
               fontSize: "var(--type-fine)",
             }}
           >
-            {error}
+            {error} {KEPT_RESULT}
           </div>
         )}
 

@@ -43,6 +43,7 @@ import "./me03.css";
 import "../showTheCode.css";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { numberText, sentenceNumber } from "../presentation.ts";
 
@@ -606,7 +607,7 @@ export function BoundaryLedgerLab({
           </ExperimentSettings>
           {error && (
             <p className="notice error" role="alert" data-refusal-code={refusalCode ?? undefined}>
-              {error}
+              {error} {KEPT_RESULT}
             </p>
           )}
           <AcceptedStatus

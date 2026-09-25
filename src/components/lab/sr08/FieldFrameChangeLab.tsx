@@ -35,6 +35,7 @@ import { withScripts } from "../subscripts.tsx";
 import { FieldFrameChangePlot } from "./FieldFrameChangePlot.tsx";
 import "../labControls.css";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 
 const C_SI = 299792458;
@@ -400,7 +401,7 @@ export function FieldFrameChangeLab({
             </ExperimentSettings>
             {error ? (
               <p id={`${id}-error`} className="notice" role="alert">
-                {error}
+                {error} {KEPT_RESULT}
               </p>
             ) : null}
           </fieldset>

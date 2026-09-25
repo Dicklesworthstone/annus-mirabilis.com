@@ -30,6 +30,7 @@ import { withScripts } from "../subscripts.tsx";
 import { CoefficientMatchSideBySidePlot, MeanEnergyStripPlot } from "./CoefficientMatchPlot.tsx";
 import "./coefficientMatchLab.css";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 
 export type CoefficientMatchLabProps = Readonly<{
@@ -331,7 +332,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
 
           {error && (
             <p role="alert" className="notice error">
-              {error} The results shown are still those of the last accepted settings.
+              {error} {KEPT_RESULT}
             </p>
           )}
         </div>

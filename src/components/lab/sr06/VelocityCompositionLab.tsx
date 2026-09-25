@@ -23,6 +23,7 @@ import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { fixed, result } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
@@ -271,7 +272,11 @@ export function VelocityCompositionLab({
               </ExperimentSettings>
             )}
           </fieldset>
-          {error ? <p className="notice error">{error}</p> : null}
+          {error ? (
+            <p className="notice error" role="alert">
+              {error} {KEPT_RESULT}
+            </p>
+          ) : null}
           {note ? <p className="fine">{note}</p> : null}
         </form>
         <AcceptedStatus

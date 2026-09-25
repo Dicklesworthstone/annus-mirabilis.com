@@ -26,6 +26,7 @@ import type {
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
@@ -396,7 +397,7 @@ export function ElectronDynamicsLab({
             </ExperimentSettings>
             {error ? (
               <p className="notice" role="alert">
-                {error}
+                {error} {KEPT_RESULT}
               </p>
             ) : null}
           </fieldset>

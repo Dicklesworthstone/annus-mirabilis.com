@@ -76,19 +76,13 @@ const UNMARKED: readonly string[] = [
   "lq-09",
   "me-01",
   "me-02",
-  "me-03",
   "sr-01",
   "sr-02",
-  "sr-03",
   "sr-04",
-  "sr-06",
   "sr-07",
-  "sr-08",
   "sr-09",
   "sr-10",
   "sr-11",
-  "sr-12",
-  "sr-13",
 ];
 
 const VALUES = ["abc", "", "1e300", "-1e300"] as const;

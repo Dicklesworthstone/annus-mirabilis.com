@@ -25,6 +25,7 @@ import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGat
 import { fixed } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
 import "./rodSimultaneityLab.css";
+import { KEPT_RESULT } from "./keptResult.ts";
 import { identity } from "./presentation.ts";
 import {
   MinkowskiDiagramPlot,
@@ -622,8 +623,8 @@ export function RodSimultaneityLab({
               )}
 
               {error && (
-                <p id={`${id}-error`} className="notice error">
-                  {withScripts(error)}
+                <p id={`${id}-error`} className="notice error" role="alert">
+                  {withScripts(error)} {KEPT_RESULT}
                 </p>
               )}
 
