@@ -1096,3 +1096,34 @@ appIcon: "asset catalog AppIcon, one 1024 px universal image"
   - Every paragraph gets its own one- or two-sentence R0 overview.
   - Every printed display equation is bound to an equation record or given a declared status.
 - **Reason:** this meets plan §17.7's intent, that no paragraph is unexplained and every one reaches its explanation, at a quarter of the authoring cost of paragraph-level R0 to R3.
+
+## D-2026-09-25-agent-reviewed-translations
+
+- **Decider:** the owner (jemanuel), in the orchestrator's session on 2026-09-25, verbatim:
+  "let's just knock out the English translations of all the papers; There is no need for a human
+  review, you are more than capable of doing that well yourself with a few fresh eye review
+  rounds"
+- **Choice:**
+  - Agents translate all four papers into English: light quanta, Brownian motion, special
+    relativity, and mass-energy (which already has a draft).
+  - Each translation reaches its final state through **fresh-eye review rounds by agents other
+    than its translator**, with no human review gate.
+  - A unit is final after **at least two independent review rounds**. Each round is recorded in
+    the paper's provenance receipt with the reviewing agent's name, the date, the units checked, and
+    the corrections made.
+  - The German source text must be complete first. That is why relativity's pp. 913-921 are
+    transcribed by eye from the plates before its §§8-10 are translated.
+- **What it supersedes:** for English translations only, the part of
+  D-2026-09-24-english-draft-translation that kept `reviewState` at draft "until a named reviewer
+  changes it". The ledgers, the explanations, and every other layer keep their existing rules.
+- **Honesty:** a translation reviewed this way never claims a human reviewer.
+  - Its attribution names the agents.
+  - The reader-facing notice says the translation was made and checked by AI agents against the
+    German, in two or more independent review rounds.
+  - The receipts' "Translation credits" name the translator and the reviewers as agents.
+- **Standards unchanged (AGENTS.md "How to Add or Revise a Paper Section", step 2):**
+  - close, sentence-aligned, and preserving modality and qualification;
+  - notation never translated;
+  - equation blocks byte-identical to the German;
+  - existing English translations are never reused, only cited as comparison witnesses.
+
