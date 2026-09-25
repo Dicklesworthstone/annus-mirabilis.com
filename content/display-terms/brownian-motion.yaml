@@ -535,10 +535,8 @@ displays:
         quantityId: observationInterval
   # § 5. k is the viscosity and P the particle's radius (concordance bm.k.viscosity,
   #   bm.P.particleRadius), λ_x the root mean square displacement along the X-axis in the time t.
-  #   eq-s5-d5 (N = t/λ_x^2 · RT/3πkP) is held out: marking λ_x where it takes an exponent changes the
-  #   MathML (compilePrintedDisplay refuses, display-terms-mathml-changed), the limit relativity's A'^2
-  #   meets. It is added once the marker handles a scripted letter with an exponent; its N will bind
-  #   avogadroNumberEstimate, the N the paper determines (bm.N.avogadroNumberEstimate, scope s5-p3).
+  #   In eq-s5-d5 (s5-p3) the paper determines N from an observed λ_x, so that N binds
+  #   avogadroNumberEstimate (bm.N.avogadroNumberEstimate); § 5's other N is the constant.
   - display: eq-s5-d1
     latex: "D = \\frac{R T}{N} \\frac{1}{6 \\pi k P}."
     spoken: "D equals R T over N, times one over six pi k P."
@@ -589,3 +587,21 @@ displays:
     terms:
       - glyph: "\\lambda_x"
         quantityId: rmsDisplacement1d
+  - display: eq-s5-d5
+    latex: "N = \\frac{t}{\\lambda_x^2} \\cdot \\frac{R T}{3 \\pi k P}."
+    spoken: "N equals t over lambda x squared, times R T over three pi k P."
+    terms:
+      - glyph: "N"
+        quantityId: avogadroNumberEstimate
+      - glyph: "t"
+        quantityId: observationInterval
+      - glyph: "\\lambda_x"
+        quantityId: rmsDisplacement1d
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "T"
+        quantityId: temperature
+      - glyph: "k"
+        quantityId: viscosity
+      - glyph: "P"
+        quantityId: particleRadius
