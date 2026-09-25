@@ -1350,4 +1350,132 @@ displays:
         quantityId: lightAmplitudeStationary
       - glyph: "\\varphi"
         quantityId: propagationAngleStationary
-
+  # § 9. The Maxwell-Hertz equations with convection current: u is the velocity of the electricity
+  #   (u_x, u_y, u_z in K; u_ξ, u_η, u_ζ in k), and ϱ, which p. 916 prints as "die 4π-fache Dichte der
+  #   Elektrizität" (4π times its density, Gaussian units), is bound to the charge density of each system.
+  - display: eq-s9-d1
+    latex: "\\begin{aligned} \\frac{1}{V} \\left\\{ u_x \\varrho + \\frac{\\partial X}{\\partial t} \\right\\} &= \\frac{\\partial N}{\\partial y} - \\frac{\\partial M}{\\partial z} , &\\qquad \\frac{1}{V} \\frac{\\partial L}{\\partial t} &= \\frac{\\partial Y}{\\partial z} - \\frac{\\partial Z}{\\partial y} , \\\\ \\frac{1}{V} \\left\\{ u_y \\varrho + \\frac{\\partial Y}{\\partial t} \\right\\} &= \\frac{\\partial L}{\\partial z} - \\frac{\\partial N}{\\partial x} , &\\qquad \\frac{1}{V} \\frac{\\partial M}{\\partial t} &= \\frac{\\partial Z}{\\partial x} - \\frac{\\partial X}{\\partial z} , \\\\ \\frac{1}{V} \\left\\{ u_z \\varrho + \\frac{\\partial Z}{\\partial t} \\right\\} &= \\frac{\\partial M}{\\partial x} - \\frac{\\partial L}{\\partial y} , &\\qquad \\frac{1}{V} \\frac{\\partial N}{\\partial t} &= \\frac{\\partial X}{\\partial y} - \\frac{\\partial Y}{\\partial x} , \\end{aligned}"
+    spoken: "Six equations, in three rows of two. First row: one over V times, in braces, u sub x times rho plus the partial derivative of X with respect to t, equals the partial derivative of N with respect to y minus the partial derivative of M with respect to z; and one over V times the partial derivative of L with respect to t equals the partial derivative of Y with respect to z minus the partial derivative of Z with respect to y. Second row: one over V times, in braces, u sub y times rho plus the partial derivative of Y with respect to t, equals the partial derivative of L with respect to z minus the partial derivative of N with respect to x; and one over V times the partial derivative of M with respect to t equals the partial derivative of Z with respect to x minus the partial derivative of X with respect to z. Third row: one over V times, in braces, u sub z times rho plus the partial derivative of Z with respect to t, equals the partial derivative of M with respect to x minus the partial derivative of L with respect to y; and one over V times the partial derivative of N with respect to t equals the partial derivative of X with respect to y minus the partial derivative of Y with respect to x."
+    terms:
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "u_x"
+        quantityId: chargeVelocityStationary
+      - glyph: "\\varrho"
+        quantityId: chargeDensityStationary
+      - glyph: "X"
+        quantityId: electricFieldStationary
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "N"
+        quantityId: magneticFieldStationary
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "M"
+        quantityId: magneticFieldStationary
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+      - glyph: "L"
+        quantityId: magneticFieldStationary
+      - glyph: "Y"
+        quantityId: electricFieldStationary
+      - glyph: "Z"
+        quantityId: electricFieldStationary
+      - glyph: "u_y"
+        quantityId: chargeVelocityStationary
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "u_z"
+        quantityId: chargeVelocityStationary
+  - display: eq-s9-d2
+    latex: "\\varrho = \\frac{\\partial X}{\\partial x} + \\frac{\\partial Y}{\\partial y} + \\frac{\\partial Z}{\\partial z}"
+    spoken: "rho equals the partial derivative of X with respect to x plus the partial derivative of Y with respect to y plus the partial derivative of Z with respect to z."
+    terms:
+      - glyph: "\\varrho"
+        quantityId: chargeDensityStationary
+      - glyph: "X"
+        quantityId: electricFieldStationary
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "Y"
+        quantityId: electricFieldStationary
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "Z"
+        quantityId: electricFieldStationary
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+  # eq-s9-d3: the right-hand column prints no 1/V before the time derivatives, the print's own error
+  #   (receipt err-typo-p916-1); the spoken form reads what is printed.
+  - display: eq-s9-d3
+    latex: "\\begin{aligned} \\frac{1}{V} \\left\\{ u_\\xi \\varrho' + \\frac{\\partial X'}{\\partial \\tau} \\right\\} &= \\frac{\\partial N'}{\\partial \\eta} - \\frac{\\partial M'}{\\partial \\zeta} , &\\qquad \\frac{\\partial L'}{\\partial \\tau} &= \\frac{\\partial Y'}{\\partial \\zeta} - \\frac{\\partial Z'}{\\partial \\eta} , \\\\ \\frac{1}{V} \\left\\{ u_\\eta \\varrho' + \\frac{\\partial Y'}{\\partial \\tau} \\right\\} &= \\frac{\\partial L'}{\\partial \\zeta} - \\frac{\\partial N'}{\\partial \\xi} , &\\qquad \\frac{\\partial M'}{\\partial \\tau} &= \\frac{\\partial Z'}{\\partial \\xi} - \\frac{\\partial X'}{\\partial \\zeta} , \\\\ \\frac{1}{V} \\left\\{ u_\\zeta \\varrho' + \\frac{\\partial Z'}{\\partial \\tau} \\right\\} &= \\frac{\\partial M'}{\\partial \\xi} - \\frac{\\partial L'}{\\partial \\eta} , &\\qquad \\frac{\\partial N'}{\\partial \\tau} &= \\frac{\\partial X'}{\\partial \\eta} - \\frac{\\partial Y'}{\\partial \\xi} , \\end{aligned}"
+    spoken: "Six equations, in three rows of two. First row: one over V times, in braces, u sub xi times rho prime plus the partial derivative of X prime with respect to tau, equals the partial derivative of N prime with respect to eta minus the partial derivative of M prime with respect to zeta; and the partial derivative of L prime with respect to tau equals the partial derivative of Y prime with respect to zeta minus the partial derivative of Z prime with respect to eta. Second row: one over V times, in braces, u sub eta times rho prime plus the partial derivative of Y prime with respect to tau, equals the partial derivative of L prime with respect to zeta minus the partial derivative of N prime with respect to xi; and the partial derivative of M prime with respect to tau equals the partial derivative of Z prime with respect to xi minus the partial derivative of X prime with respect to zeta. Third row: one over V times, in braces, u sub zeta times rho prime plus the partial derivative of Z prime with respect to tau, equals the partial derivative of M prime with respect to xi minus the partial derivative of L prime with respect to eta; and the partial derivative of N prime with respect to tau equals the partial derivative of X prime with respect to eta minus the partial derivative of Y prime with respect to xi."
+    terms:
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "u_\\xi"
+        quantityId: chargeVelocityMoving
+      - glyph: "\\varrho'"
+        quantityId: chargeDensityMoving
+      - glyph: "X'"
+        quantityId: electricFieldMoving
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "N'"
+        quantityId: magneticFieldMoving
+      - glyph: "\\eta"
+        quantityId: coordinatePositionMoving
+      - glyph: "M'"
+        quantityId: magneticFieldMoving
+      - glyph: "\\zeta"
+        quantityId: coordinatePositionMoving
+      - glyph: "L'"
+        quantityId: magneticFieldMoving
+      - glyph: "Y'"
+        quantityId: electricFieldMoving
+      - glyph: "Z'"
+        quantityId: electricFieldMoving
+      - glyph: "u_\\eta"
+        quantityId: chargeVelocityMoving
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "u_\\zeta"
+        quantityId: chargeVelocityMoving
+  - display: eq-s9-d4
+    latex: "\\begin{aligned} \\frac{u_x - v}{1 - \\frac{u_x v}{V^2}} &= u_\\xi , \\\\ \\frac{u_y}{\\beta \\left( 1 - \\frac{u_x v}{V^2} \\right)} &= u_\\eta , &\\qquad \\varrho' = \\frac{\\partial X'}{\\partial \\xi} + \\frac{\\partial Y'}{\\partial \\eta} + \\frac{\\partial Z'}{\\partial \\zeta} = \\beta \\left( 1 - \\frac{v u_x}{V^2} \\right) \\varrho . \\\\ \\frac{u_z}{\\beta \\left( 1 - \\frac{u_x v}{V^2} \\right)} &= u_\\zeta . \\end{aligned}"
+    spoken: "Four equations. u sub x minus v, divided by one minus u sub x times v over V squared, equals u sub xi. u sub y divided by beta times the quantity one minus u sub x times v over V squared, equals u sub eta; and rho prime equals the partial derivative of X prime with respect to xi plus the partial derivative of Y prime with respect to eta plus the partial derivative of Z prime with respect to zeta, which equals beta times the quantity one minus v times u sub x over V squared, times rho. u sub z divided by beta times the quantity one minus u sub x times v over V squared, equals u sub zeta."
+    terms:
+      - glyph: "u_x"
+        quantityId: chargeVelocityStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "u_\\xi"
+        quantityId: chargeVelocityMoving
+      - glyph: "u_y"
+        quantityId: chargeVelocityStationary
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "u_\\eta"
+        quantityId: chargeVelocityMoving
+      - glyph: "\\varrho'"
+        quantityId: chargeDensityMoving
+      - glyph: "X'"
+        quantityId: electricFieldMoving
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "Y'"
+        quantityId: electricFieldMoving
+      - glyph: "\\eta"
+        quantityId: coordinatePositionMoving
+      - glyph: "Z'"
+        quantityId: electricFieldMoving
+      - glyph: "\\zeta"
+        quantityId: coordinatePositionMoving
+      - glyph: "\\varrho"
+        quantityId: chargeDensityStationary
+      - glyph: "u_z"
+        quantityId: chargeVelocityStationary
+      - glyph: "u_\\zeta"
+        quantityId: chargeVelocityMoving
