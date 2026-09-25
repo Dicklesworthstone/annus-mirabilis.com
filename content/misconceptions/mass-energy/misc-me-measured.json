@@ -13,7 +13,7 @@
   },
   "instrumentIds": ["me-03"],
   "anchors": ["s0-p14"],
-  "resultIds": [],
+  "resultIds": ["me-closing-remarks"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 18, 639–641 (1905), plate p. 641",
     "ME-03 preset me-03-card-radium"

@@ -13,7 +13,7 @@
   },
   "instrumentIds": ["me-02"],
   "anchors": ["s0-p12", "s0-p13"],
-  "resultIds": [],
+  "resultIds": ["me-mass-decrease"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 18, 639–641 (1905), plate p. 641",
     "scenario mass-energy-printed-factor: L = 9·10²⁰ erg gives 1 g"
