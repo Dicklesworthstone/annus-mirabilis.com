@@ -94,6 +94,23 @@ for (const [departure, reception] of [
   test(`draft parsing does not coerce or prefix-parse: ${JSON.stringify([departure, reception])}`, () =>
     assert.equal(parseClockDraft(departure, reception).kind, "refused"));
 }
+test("a round trip the laboratory cannot take is refused here, not handed over as a link", () => {
+  // The example links into SR-01 with half the round trip as the station separation, and SR-01
+  // admits separations above a millionth of a light-second (content/experiments/sr-01.yaml).
+  const short = clockExample({ departure: 0, reception: 1e-6 });
+  assert.equal(short.kind, "refused");
+  assert.match(
+    short.message,
+    /^The laboratory cannot take this round trip\. Enter the station separation AB /,
+  );
+  assert.match(short.message, /The accepted example has not changed\.$/);
+  // The negative: three microseconds gives 1.5e-6 ls, inside the range, and both links validate.
+  const enough = requireClockExample({ departure: 0, reception: 3e-6 });
+  for (const href of [enough.labHref, enough.movingPairHref]) {
+    const decoded = decodeSr01Settings(new URL(href, "https://annus-mirabilis.com").search);
+    assert.equal(validateSr01Parameters(decoded.parameters).kind, "accepted");
+  }
+});
 test("complete decimal and exponent syntax remains supported", () => {
   assert.equal(parseClockDraft("+2.5", " 7.5 ").example.assigned, 5);
   assert.equal(parseClockDraft("0", "1e1").example.assigned, 5);

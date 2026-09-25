@@ -30,6 +30,7 @@ import "../labControls.css";
 import "../showTheCode.css";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
 import { numberText, sentenceNumber } from "../presentation.ts";
 
@@ -428,7 +429,7 @@ export function ClockSyncLab({
 
         {error && (
           <div className="notice error" role="alert" data-refusal-code={refusalCode ?? undefined}>
-            {error}
+            {error} {KEPT_RESULT}
           </div>
         )}
         {sharedUrl && (

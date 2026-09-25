@@ -8,7 +8,9 @@
  * Spec: am-ymr5.
  */
 import { synchronizationRound } from "../../physics/reference/events.ts";
+import { refusalSentence } from "../results/refusalSentence.ts";
 import { SR01_DEFAULTS } from "./definition.ts";
+import { validateSr01Parameters } from "./parameters.ts";
 import { encodeSr01Settings } from "./permalink.ts";
 
 export type ClockReadings = Readonly<{ departure: number; reception: number }>;
@@ -70,6 +72,17 @@ export function clockExample(input: ClockReadings): ClockExampleResult {
     pairBeta: 0,
     frameBeta: 0,
   };
+  // The example links into SR-01, so it is held to SR-01's declared ranges: a round trip under two
+  // microseconds would hand the laboratory a separation below the millionth of a light-second it
+  // admits, and the reader would follow a link the laboratory refuses.
+  for (const handoff of [parameters, { ...parameters, pairBeta: 0.6 }]) {
+    const checked = validateSr01Parameters(handoff);
+    if (checked.kind !== "accepted")
+      return {
+        kind: "refused",
+        message: `The laboratory cannot take this round trip. ${refusalSentence(checked.refusal)} The accepted example has not changed.`,
+      };
+  }
   return {
     kind: "ready",
     example: Object.freeze({

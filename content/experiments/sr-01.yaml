@@ -36,11 +36,11 @@ parameters:
     quantityId: emissionTimeA
     displayUnit: "s"
     modelDomain:
-      min: 0
+      min: -1.0e6
       max: 1.0e6
       minInclusive: true
       maxInclusive: true
-      reason: "Emission time is finite and non-negative, after the run start."
+      reason: "A clock reading, which may fall before zero, as the clock entrance's readings do; the lab keeps it within a million seconds either way"
     visualRange:
       min: 0
       max: 60
@@ -60,7 +60,7 @@ parameters:
       max: 1.0e6
       minInclusive: true
       maxInclusive: true
-      reason: "Any finite offset is admissible; it is a declared clock reading, not a physical constraint."
+      reason: "A declared clock reading, not a physical constraint; the lab keeps it within a million seconds either way"
     visualRange:
       min: -5
       max: 5
@@ -80,7 +80,7 @@ parameters:
       max: 0.95
       minInclusive: true
       maxInclusive: true
-      reason: "No inertial observer at |u| >= c; teaching range stays inside 0.95."
+      reason: "No inertial observer moves at or beyond the speed of light; the teaching range stays inside 0.95c."
     visualRange:
       min: -0.95
       max: 0.95
@@ -100,7 +100,7 @@ parameters:
       max: 0.95
       minInclusive: true
       maxInclusive: true
-      reason: "No inertial observer at |v| >= c; teaching range stays inside 0.95."
+      reason: "No inertial observer moves at or beyond the speed of light; the teaching range stays inside 0.95c."
     visualRange:
       min: -0.95
       max: 0.95
@@ -141,7 +141,7 @@ parameters:
       max: 0.95
       minInclusive: true
       maxInclusive: true
-      reason: "No inertial observer at |v| >= c; teaching range stays inside 0.95."
+      reason: "No inertial observer moves at or beyond the speed of light; the teaching range stays inside 0.95c."
     visualRange:
       min: -0.95
       max: 0.95

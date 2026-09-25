@@ -1,3 +1,4 @@
+import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { SR01_DEFAULTS, type Sr01Parameters } from "./definition.ts";
 
@@ -21,7 +22,7 @@ function refuseBeta(name: keyof Sr01Parameters, value: number): Sr01ParameterChe
         "nonfinite-input",
         { parameterIds: [name] },
         {
-          details: { requirements: `Enter ${speed} as a fraction of c strictly between −1 and 1.` },
+          details: { requirements: `Enter ${speed} as a number, as a fraction of c.` },
         },
       ),
     };
@@ -47,7 +48,8 @@ function refuseBeta(name: keyof Sr01Parameters, value: number): Sr01ParameterChe
 function refuseSeparation(name: keyof Sr01Parameters, value: number): Sr01ParameterCheck | null {
   const what =
     name === "pairSeparationLs" ? "the moving pair's separation L" : "the station separation AB";
-  if (!Number.isFinite(value) || value <= 0) {
+  // The range is the manifest's, checked once by withinDeclaredDomain below.
+  if (!Number.isFinite(value)) {
     return {
       kind: "refused",
       refusal: makeRefusal(
@@ -55,7 +57,7 @@ function refuseSeparation(name: keyof Sr01Parameters, value: number): Sr01Parame
         { parameterIds: [name] },
         {
           details: {
-            requirements: `Enter ${what} as a number greater than zero, in light-seconds.`,
+            requirements: `Enter ${what} as a number, in light-seconds.`,
           },
         },
       ),
@@ -64,7 +66,7 @@ function refuseSeparation(name: keyof Sr01Parameters, value: number): Sr01Parame
   return null;
 }
 
-export function validateSr01Parameters(input: unknown): Sr01ParameterCheck {
+function validateSr01Fields(input: unknown): Sr01ParameterCheck {
   if (input === null || typeof input !== "object") {
     return {
       kind: "refused",
@@ -138,6 +140,22 @@ export function validateSr01Parameters(input: unknown): Sr01ParameterCheck {
       frameBeta,
     }),
   };
+}
+
+/** Each declared setting as the form names it. */
+const SR01_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  stationSeparationLs: { label: "station separation AB" },
+  emissionTimeA: { label: "signal emission time at A" },
+  clockOffsetB: { label: "initial offset of clock B" },
+  rodBeta: { label: "stations' speed in section 2", unit: "c" },
+  pairBeta: { label: "moving clock pair's velocity", unit: "c" },
+  pairSeparationLs: { label: "moving pair's separation L" },
+  frameBeta: { label: "frame of description", unit: "c" },
+};
+
+/** The fields above, then every range content/experiments/sr-01.yaml declares (dispatch 134). */
+export function validateSr01Parameters(input: unknown): Sr01ParameterCheck {
+  return withinDeclaredDomain("sr-01", validateSr01Fields(input), SR01_DOMAIN_DISPLAY);
 }
 
 export { SR01_DEFAULTS };
