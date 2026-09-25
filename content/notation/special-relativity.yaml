@@ -559,6 +559,146 @@ entries:
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
+  - id: sr.tprime.timeThirdSystem
+    paper: special-relativity
+    scope: ["sr-s3-p18"]
+    glyph:
+      unicode: "t′"
+      latex: "t'"
+      variant: primed
+    meaning: "The time t' of the third system K' (p. 901)"
+    binding:
+      quantityId: coordinateTimeStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\bar{t}"
+    collision:
+      severity: danger
+      kind: cross-toggle
+      collidesWith: ["sr.xprime.auxiliaryGalileanCoordinate"]
+      collidesWithModern: ["t'"]
+      firstUseAnchor: sr-s3-p18
+      firstUseBySection:
+        - sectionId: sr-s3
+          anchor: sr-s3-p18
+    notes: "In the paragraph that tests the transformation, K' is a third system moving with -v relative to k, so it rests relative to K, and p. 902 shows the transformation from K to K' is the identity. Not the Galilean auxiliary x' = x - vt that this section's other paragraphs print, and not the moving system's coordinate."
+    sources:
+      facsimilePage: 901
+      anchor: sr-s3-p18
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 901, read by eye from a pdftoppm render of PDF page 11 of public/papers/pdfs/ap-17-891.pdf (sha256 60d21d560f6a3c87e581ac25016306d9bcb748e530fa2751652b84986da5296c) at 110 dpi, not from the text layer. 'Wir führen zu diesem Zwecke noch ein drittes Koordinatensystem K' ein, welches relativ zum System k derart in Paralleltranslationsbewegung parallel zur Ξ-Achse begriffen sei, daß sich dessen Koordinatenursprung mit der Geschwindigkeit −v auf der Ξ-Achse bewege.' 'Wir nennen x', y', z' die Koordinaten, im System K' gemessen'; t' is 'die Zeit t' des Systems K''. The page closes: 'Da die Beziehungen zwischen x', y', z' und x, y, z die Zeit t nicht enthalten, so ruhen die Systeme K und K' gegeneinander.' An agent check, not a human review."
+      by: "agent:SapphireCastle"
+      date: "2026-09-25"
+
+  - id: sr.xprime.coordinateThirdSystem
+    paper: special-relativity
+    scope: ["sr-s3-p18"]
+    glyph:
+      unicode: "x′"
+      latex: "x'"
+      variant: primed
+    meaning: "The coordinate x' measured in the third system K' (p. 901)"
+    binding:
+      quantityId: coordinatePositionStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\bar{x}"
+    collision:
+      severity: danger
+      kind: cross-toggle
+      collidesWith: ["sr.xprime.auxiliaryGalileanCoordinate"]
+      collidesWithModern: ["x'"]
+      firstUseAnchor: sr-s3-p18
+      firstUseBySection:
+        - sectionId: sr-s3
+          anchor: sr-s3-p18
+    notes: "In the paragraph that tests the transformation, K' is a third system moving with -v relative to k, so it rests relative to K, and p. 902 shows the transformation from K to K' is the identity. Not the Galilean auxiliary x' = x - vt that this section's other paragraphs print, and not the moving system's coordinate."
+    sources:
+      facsimilePage: 901
+      anchor: sr-s3-p18
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 901, read by eye from a pdftoppm render of PDF page 11 of public/papers/pdfs/ap-17-891.pdf (sha256 60d21d560f6a3c87e581ac25016306d9bcb748e530fa2751652b84986da5296c) at 110 dpi, not from the text layer. 'Wir führen zu diesem Zwecke noch ein drittes Koordinatensystem K' ein, welches relativ zum System k derart in Paralleltranslationsbewegung parallel zur Ξ-Achse begriffen sei, daß sich dessen Koordinatenursprung mit der Geschwindigkeit −v auf der Ξ-Achse bewege.' 'Wir nennen x', y', z' die Koordinaten, im System K' gemessen'; t' is 'die Zeit t' des Systems K''. The page closes: 'Da die Beziehungen zwischen x', y', z' und x, y, z die Zeit t nicht enthalten, so ruhen die Systeme K und K' gegeneinander.' An agent check, not a human review."
+      by: "agent:SapphireCastle"
+      date: "2026-09-25"
+
+  - id: sr.yprime.coordinateThirdSystem
+    paper: special-relativity
+    scope: ["sr-s3-p18"]
+    glyph:
+      unicode: "y′"
+      latex: "y'"
+      variant: primed
+    meaning: "The coordinate y' measured in the third system K' (p. 901)"
+    binding:
+      quantityId: coordinatePositionStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\bar{y}"
+    collision:
+      severity: danger
+      kind: cross-toggle
+      collidesWith: ["sr.xprime.auxiliaryGalileanCoordinate"]
+      collidesWithModern: ["y'"]
+      firstUseAnchor: sr-s3-p18
+      firstUseBySection:
+        - sectionId: sr-s3
+          anchor: sr-s3-p18
+    notes: "In the paragraph that tests the transformation, K' is a third system moving with -v relative to k, so it rests relative to K, and p. 902 shows the transformation from K to K' is the identity. Not the Galilean auxiliary x' = x - vt that this section's other paragraphs print, and not the moving system's coordinate."
+    sources:
+      facsimilePage: 901
+      anchor: sr-s3-p18
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 901, read by eye from a pdftoppm render of PDF page 11 of public/papers/pdfs/ap-17-891.pdf (sha256 60d21d560f6a3c87e581ac25016306d9bcb748e530fa2751652b84986da5296c) at 110 dpi, not from the text layer. 'Wir führen zu diesem Zwecke noch ein drittes Koordinatensystem K' ein, welches relativ zum System k derart in Paralleltranslationsbewegung parallel zur Ξ-Achse begriffen sei, daß sich dessen Koordinatenursprung mit der Geschwindigkeit −v auf der Ξ-Achse bewege.' 'Wir nennen x', y', z' die Koordinaten, im System K' gemessen'; t' is 'die Zeit t' des Systems K''. The page closes: 'Da die Beziehungen zwischen x', y', z' und x, y, z die Zeit t nicht enthalten, so ruhen die Systeme K und K' gegeneinander.' An agent check, not a human review."
+      by: "agent:SapphireCastle"
+      date: "2026-09-25"
+
+  - id: sr.zprime.coordinateThirdSystem
+    paper: special-relativity
+    scope: ["sr-s3-p18"]
+    glyph:
+      unicode: "z′"
+      latex: "z'"
+      variant: primed
+    meaning: "The coordinate z' measured in the third system K' (p. 901)"
+    binding:
+      quantityId: coordinatePositionStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\bar{z}"
+    collision:
+      severity: danger
+      kind: cross-toggle
+      collidesWith: ["sr.xprime.auxiliaryGalileanCoordinate"]
+      collidesWithModern: ["z'"]
+      firstUseAnchor: sr-s3-p18
+      firstUseBySection:
+        - sectionId: sr-s3
+          anchor: sr-s3-p18
+    notes: "In the paragraph that tests the transformation, K' is a third system moving with -v relative to k, so it rests relative to K, and p. 902 shows the transformation from K to K' is the identity. Not the Galilean auxiliary x' = x - vt that this section's other paragraphs print, and not the moving system's coordinate."
+    sources:
+      facsimilePage: 901
+      anchor: sr-s3-p18
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 901, read by eye from a pdftoppm render of PDF page 11 of public/papers/pdfs/ap-17-891.pdf (sha256 60d21d560f6a3c87e581ac25016306d9bcb748e530fa2751652b84986da5296c) at 110 dpi, not from the text layer. 'Wir führen zu diesem Zwecke noch ein drittes Koordinatensystem K' ein, welches relativ zum System k derart in Paralleltranslationsbewegung parallel zur Ξ-Achse begriffen sei, daß sich dessen Koordinatenursprung mit der Geschwindigkeit −v auf der Ξ-Achse bewege.' 'Wir nennen x', y', z' die Koordinaten, im System K' gemessen'; t' is 'die Zeit t' des Systems K''. The page closes: 'Da die Beziehungen zwischen x', y', z' und x, y, z die Zeit t nicht enthalten, so ruhen die Systeme K und K' gegeneinander.' An agent check, not a human review."
+      by: "agent:SapphireCastle"
+      date: "2026-09-25"
+
   - id: sr.beta.lorentzFactor
     paper: special-relativity
     scope: ["sr-s3", "sr-s4", "sr-s5", "sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
