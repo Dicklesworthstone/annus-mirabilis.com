@@ -601,6 +601,28 @@ Es folgt aus den entwickelten Gleichungen, daß für einen Beobachter, der sich 
 --- MACHINE DRAFT TRANSCRIPTION PAGE 23 OF 31 ---
 [[ANNALEN-PAGE 913]]
 
+[[HEADING s8]]§ 8. Transformation der Energie der Lichtstrahlen. Theorie des auf vollkommene Spiegel ausgeübten Strahlungsdruckes.
+
+Da $A^2/8\pi$ gleich der Lichtenergie pro Volumeneinheit ist, so haben wir nach dem Relativitätsprinzip $A'^2/8\pi$ als die Lichtenergie im bewegten System zu betrachten. Es wäre daher $A'^2/A^2$ das Verhältnis der „bewegt gemessenen“ und „ruhend gemessenen“ Energie eines bestimmten Lichtkomplexes, wenn das Volumen eines Lichtkomplexes in $K$ gemessen und in $k$ gemessen das gleiche wäre. Dies ist jedoch nicht der Fall. Sind $a, b, c$ die Richtungskosinus der Wellennormalen des Lichtes im ruhenden System, so wandert durch die Oberflächenelemente der mit Lichtgeschwindigkeit bewegten Kugelfläche
+$$
+(x - V a t)^2 + (y - V b t)^2 + (z - V c t)^2 = R^2
+$$
+keine Energie hindurch; wir können daher sagen, daß diese Fläche dauernd denselben Lichtkomplex umschließt. Wir fragen nach der Energiemenge, welche diese Fläche im System $k$ betrachtet umschließt, d. h. nach der Energie des Lichtkomplexes relativ zum System $k$.
+
+Die Kugelfläche ist — im bewegten System betrachtet — eine Ellipsoidfläche, welche zur Zeit $\tau = 0$ die Gleichung besitzt:
+$$
+\left( \beta \xi - a \beta \frac{v}{V} \xi \right)^2 + \left( \eta - b \beta \frac{v}{V} \xi \right)^2 + \left( \zeta - c \beta \frac{v}{V} \xi \right)^2 = R^2 .
+$$
+Nennt man $S$ das Volumen der Kugel, $S'$ dasjenige dieses Ellipsoides, so ist, wie eine einfache Rechnung zeigt:
+$$
+\frac{S'}{S} = \frac{\sqrt{1 - \left( \frac{v}{V} \right)^2}}{1 - \frac{v}{V} \cos \varphi} .
+$$
+Nennt man also $E$ die im ruhenden System gemessene, $E'$ die im bewegten System gemessene Lichtenergie, welche von der betrachteten Fläche umschlossen wird, so erhält man:
+$$
+\frac{E'}{E} = \frac{\frac{A'^2}{8\pi} S'}{\frac{A^2}{8\pi} S} = \frac{1 - \frac{v}{V} \cos \varphi}{\sqrt{1 - \left( \frac{v}{V} \right)^2}} ,
+$$
+[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 24 OF 31 ---
 [[ANNALEN-PAGE 914]]
 
