@@ -6,6 +6,7 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadParagraphBindings } from "../content/bindings/paragraphBindings.ts";
 import { printedUnits } from "../content/editions/germanSourceFace.ts";
+import { ledgerPageCoverage } from "../content/editions/ledgerPresence.ts";
 import { loadPaper } from "../content/server.ts";
 import { exportMarkup } from "../testing/exportMarkup.ts";
 import { FaceFallback } from "./FaceFallback.tsx";
@@ -116,11 +117,43 @@ describe("the parts of a paper, and the ones not yet explained", () => {
 });
 
 describe("the pages a German face lacks", () => {
-  test("relativity's ledger has text for pages 891-912 and none for 913-921", () => {
+  // The relativity ledger is being transcribed a page at a time (dispatch 193), so these tests
+  // state what holds at every page count rather than which pages are bare today. An exact list
+  // turned red on the first page transcribed. The synthetic ledger below keeps a bare page's
+  // detection proven after the real ledger has none left.
+  const RELATIVITY_PAGES = Array.from({ length: 31 }, (_, i) => 891 + i);
+
+  test("a page holding only its marker is untranscribed; a page with a line of text is drafted", () => {
+    const ledger = [
+      "--- MACHINE DRAFT TRANSCRIPTION PAGE 1 OF 3 ---",
+      "[[ANNALEN-PAGE 912]]",
+      "",
+      "Es folgt aus den entwickelten Gleichungen.",
+      "",
+      "--- MACHINE DRAFT TRANSCRIPTION PAGE 2 OF 3 ---",
+      "[[ANNALEN-PAGE 913]]",
+      "",
+      "--- MACHINE DRAFT TRANSCRIPTION PAGE 3 OF 3 ---",
+      "[[ANNALEN-PAGE 914]]",
+      "   ",
+      "",
+    ].join("\n");
+    expect(ledgerPageCoverage(ledger)).toEqual([
+      { printedPage: 912, covered: true },
+      { printedPage: 913, covered: false },
+      { printedPage: 914, covered: false },
+    ]);
+  });
+
+  test("relativity's ledger divides pages 891-921 between drafted and untranscribed", () => {
     const gaps = ledgerGaps("special-relativity", ROOT);
-    expect(gaps?.untranscribed).toEqual([913, 914, 915, 916, 917, 918, 919, 920, 921]);
-    expect(gaps?.drafted[0]).toBe(891);
-    expect(gaps?.drafted.at(-1)).toBe(912);
+    expect(gaps).not.toBeNull();
+    const drafted = gaps?.drafted ?? [];
+    const untranscribed = gaps?.untranscribed ?? [];
+    // Every printed page is in exactly one list.
+    expect([...drafted, ...untranscribed].sort((a, b) => a - b)).toEqual(RELATIVITY_PAGES);
+    // Pages 891-912 were drafted by 2026-09-24, and a drafted page never becomes bare again.
+    for (const page of RELATIVITY_PAGES.filter((p) => p <= 912)) expect(drafted).toContain(page);
   });
 
   test("page runs read as ranges", () => {
@@ -129,12 +162,20 @@ describe("the pages a German face lacks", () => {
     expect(pageRanges([899])).toBe("899");
   });
 
-  test("the relativity German face names them, and links the facsimile that has every page", async () => {
+  test("the relativity German face names the pages its ledger lacks, and no others", async () => {
+    const gaps = ledgerGaps("special-relativity", ROOT);
+    const untranscribed = gaps?.untranscribed ?? [];
     const html = renderToStaticMarkup(
       await FaceFallback({ paperId: "special-relativity", face: "german" }),
     );
-    expect(html).toContain('data-untranscribed-pages="913 914 915 916 917 918 919 920 921"');
-    expect(html).toContain("Printed pages 913–921 have not been transcribed yet");
+    if (untranscribed.length === 0) {
+      expect(html).not.toContain("data-untranscribed-pages=");
+      return;
+    }
+    expect(html).toContain(`data-untranscribed-pages="${untranscribed.join(" ")}"`);
+    const noun = untranscribed.length === 1 ? "Printed page" : "Printed pages";
+    const verb = untranscribed.length === 1 ? "has" : "have";
+    expect(html).toContain(`${noun} ${pageRanges(untranscribed)} ${verb} not been transcribed yet`);
     expect(html).toContain('href="/papers/pdfs/ap-17-891.pdf"');
   });
 });
