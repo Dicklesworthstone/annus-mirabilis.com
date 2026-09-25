@@ -302,23 +302,26 @@ owner:
       identifier: frameSpeed
       quantityId: frameSpeed
     - kernelFunction: evaluatePulseEnergies
-      identifier: emissionAngle
+      identifier: emissionAngleRad
       quantityId: emissionAngle
     - kernelFunction: evaluatePulseEnergies
       identifier: lorentzFactor
       quantityId: lorentzFactor
     - kernelFunction: evaluatePulseEnergies
-      identifier: lightComplexEnergyMoving
+      identifier: pulseSumMoving
       quantityId: lightComplexEnergyMoving
+    - kernelFunction: evaluateLedgers
+      identifier: emittedEnergyRestFrame
+      quantityId: emittedEnergyRestFrame
+    - kernelFunction: evaluateLedgers
+      identifier: frameSpeed
+      quantityId: frameSpeed
+    - kernelFunction: evaluateLedgers
+      identifier: lorentzFactor
+      quantityId: lorentzFactor
     - kernelFunction: evaluateSubtraction
-      identifier: kineticEnergyDifference
+      identifier: kineticDifference
       quantityId: kineticEnergyDifference
-    - kernelFunction: evaluateSubtraction
-      identifier: additiveEnergyConstant
-      quantityId: additiveEnergyConstant
-    - kernelFunction: evaluateSubtraction
-      identifier: speedOfLight
-      quantityId: speedOfLight
 views:
   - id: svg-two-ledgers
     kind: svg

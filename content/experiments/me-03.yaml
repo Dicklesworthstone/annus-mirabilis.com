@@ -425,14 +425,20 @@ owner:
       identifier: E
       quantityId: emittedEnergyRestFrame
     - kernelFunction: evaluatePhotonBox
-      identifier: p
+      identifier: pulseMomentum
       quantityId: pulseMomentum
     - kernelFunction: evaluatePhotonBox
-      identifier: v
+      identifier: recoilSpeed
       quantityId: recoilSpeed
     - kernelFunction: evaluatePhotonBox
-      identifier: DeltaX
+      identifier: comShift
       quantityId: centerOfMassShift
+    - kernelFunction: evaluateMe03
+      identifier: emittedEnergy
+      quantityId: emittedEnergyRestFrame
+    - kernelFunction: evaluateMe03
+      identifier: c
+      quantityId: speedOfLight
   traceScenarioId: me-03-box-canonical
   traceRows:
     - label: Pulse momentum

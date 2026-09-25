@@ -16,7 +16,13 @@
     "erfc@src/physics/reference/special/erf.ts": "sha256:45a75bb57d3658953e37bdc7ea1e9f0abbd6296180b6101f231d0631f5cb0922",
     "radialPropagator2d@src/physics/reference/diffusion/distributions.ts": "sha256:58040898d39023e9e0e937741b8bb0885bad8976be85b6817c2b5ff3ef0916b2",
     "radialPropagator3d@src/physics/reference/diffusion/distributions.ts": "sha256:37f9cc144c032a6104ceaa5b2020114d14a16a314620ad493149e5ee1bfdb6e8",
-    "ftcs1d@src/physics/reference/diffusion/ftcs.ts": "sha256:c04f80e8182597a114b7d20f492eb86053f90b4cc9e7cd299f516a6b44eb4755"
+    "ftcs1d@src/physics/reference/diffusion/ftcs.ts": "sha256:c04f80e8182597a114b7d20f492eb86053f90b4cc9e7cd299f516a6b44eb4755",
+    "evaluatePulseEnergies@src/physics/reference/massEnergy.ts": "sha256:eeb7552ef2676c312d9ed38a3601b7b3e1ed2387493ddaf20fd923234c7546de",
+    "evaluateLedgers@src/physics/reference/massEnergy.ts": "sha256:ad34802170ca8f200c091d17119d686c02b7a4beaf02d073f1722ac74965eae4",
+    "evaluateSubtraction@src/physics/reference/massEnergy.ts": "sha256:98436f159f767fc6824c6c3c79b8716f767c1e762857e1836ecef2058d24f207",
+    "evaluateMe02@src/physics/reference/massEnergy.ts": "sha256:53f944320b3803166e6436ebdf1160ba135efb2df9770617dd19a3ec30d1c5fc",
+    "evaluateMe03@src/physics/reference/massEnergy.ts": "sha256:3e9ea1af4a87d89addf26618479bebd064d67ef5ce0091952a426570743deb22",
+    "evaluatePhotonBox@src/physics/reference/massEnergy.ts": "sha256:ec37d2f99b43271a59a00c92d228d4e8112e5bbda87ca7342c0bd29b5650ff8a"
   },
   "closures": {
     "src/physics/reference/diffusion/distributions.ts": "source:sha256:1eb5b457e215116537778a643fdb94b42da696cd79689396720e6c289b7aa5fa",
@@ -24,6 +30,7 @@
     "src/physics/reference/diffusion/walkLaws.ts": "source:sha256:c1f62d1f184d7740b2fca827f33d4a37743ec18cddc69c4a64b555dbe863f0c0",
     "src/physics/reference/diffusion/walks.ts": "source:sha256:b88ca46eb9a68ca67650dc83c01b07d11735d4d5eb0aeb6767605f024e920a73",
     "src/physics/reference/special/erf.ts": "source:sha256:36da87a989cc4d16571414b99849aa31ea544bb30878fd80fb9c19ffa9e11f62",
-    "src/physics/reference/diffusion/ftcs.ts": "source:sha256:b8e011fffdb7e06d0d1defe76bd59f0d452ea964a7a9f7de48353eca9ce9fbba"
+    "src/physics/reference/diffusion/ftcs.ts": "source:sha256:b8e011fffdb7e06d0d1defe76bd59f0d452ea964a7a9f7de48353eca9ce9fbba",
+    "src/physics/reference/massEnergy.ts": "source:sha256:a441f6d58cdc8873bdb34aab7d1934e97d367196cbb75933f73609d03077cb2f"
   }
 }
