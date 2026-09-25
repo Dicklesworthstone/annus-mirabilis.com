@@ -1,0 +1,28 @@
+# GlossUnit s6-p2-s1: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s6-p2-s1"
+sentenceId: "s6-p2-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "fb0498596744fae1737f656b3c187d3781b4e32560733af95d02a67878445295"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Hieraus"
+    english: "from this"
+  - german: "schließen"
+    english: "conclude"
+    lemma: "schließen"
+    grammarNote: "consequence: schließen, ‘conclude’: an inference Einstein draws from comparing the two formulas"
+    noteClass: "consequence"
+  - german: "wir"
+    english: "we"
+  - german: "weiter"
+    english: "further"
+multiwordUnits: []

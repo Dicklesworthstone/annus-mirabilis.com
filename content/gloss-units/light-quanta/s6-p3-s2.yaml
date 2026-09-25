@@ -1,0 +1,59 @@
+# GlossUnit s6-p3-s2: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s6-p3-s2"
+sentenceId: "s6-p3-s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "2e7965b739d9b5a9c33436ef7be241e829ba515c1fd14a862feea484dcbd6ed7"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Letztere"
+    english: "the latter"
+    lemma: "letzterer"
+  - german: "ist"
+    english: "is"
+  - german: "während"
+    english: "while"
+  - german: "man"
+    english: "one"
+  - german: "für"
+    english: "for"
+  - german: "die"
+    english: "the"
+  - german: "mittlere"
+    english: "mean"
+    lemma: "mittler"
+  - german: "Größe"
+    english: "magnitude"
+  - german: "des"
+    english: "of the"
+  - german: "Energiequantums"
+    english: "energy quantum"
+    lemma: "Energiequantum"
+    grammarNote: "compound: Energie + Quantum"
+    noteClass: "compound"
+  - german: "unter"
+  - german: "Zugrundelegung"
+  - german: "der"
+  - german: "Wienschen"
+    english: "Wien’s"
+    lemma: "Wiensch"
+  - german: "Formel"
+    english: "formula"
+  - german: "erhält"
+    english: "obtains"
+    lemma: "erhalten"
+multiwordUnits:
+  - tokenIndices:
+      - 10
+      - 11
+      - 12
+    english: "on the basis of"
+    kind: "fixed-phrase"
