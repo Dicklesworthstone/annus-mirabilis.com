@@ -12,6 +12,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { QUANTITY_LABELS } from "../../generated/quantity-labels.ts";
+import { LIGHT_THREAD_QUANTITIES } from "../../physics/reference/lightThread.ts";
 import { outputName } from "./ModelNote.tsx";
 import { OUTPUT_LABELS } from "./outputLabels.ts";
 
@@ -43,9 +44,6 @@ async function outputContracts(): Promise<Map<string, Set<string>>> {
   return out;
 }
 
-/** The papers whose outputs this table names in full so far; it grows a paper per commit. */
-const COVERED = /^(me|lq|sr|bm)/;
-
 describe("every lab output is named in words", () => {
   test("the enumeration reaches the labs' contracts", async () => {
     const contracts = await outputContracts();
@@ -56,14 +54,26 @@ describe("every lab output is named in words", () => {
     expect(contracts.size).toBeGreaterThan(300);
   });
 
-  test("each output of the covered papers has a registry name or an output label", async () => {
+  test("each output of every lab has a registry name or an output label", async () => {
     const contracts = await outputContracts();
-    const covered = [...contracts].filter(([, labs]) => [...labs].some((lab) => COVERED.test(lab)));
-    expect(covered.length).toBeGreaterThan(0);
-    const unnamed = covered
-      .map(([id]) => id)
-      .filter((id) => QUANTITY_LABELS[id] === undefined && OUTPUT_LABELS[id] === undefined);
+    const unnamed = [...contracts.keys()].filter(
+      (id) => QUANTITY_LABELS[id] === undefined && OUTPUT_LABELS[id] === undefined,
+    );
     expect(unnamed).toEqual([]);
+  });
+
+  test("the light-thread lab's outputs keep the names its own page gives them", async () => {
+    // The lab labels its values in LIGHT_THREAD_QUANTITIES. The table repeats those words rather
+    // than importing them, because the model note ships in every lab page and the import would
+    // bring the light-thread physics with it; this check is what keeps the two from drifting.
+    const contracts = await outputContracts();
+    const ids = [...contracts].filter(([, labs]) => labs.has("lightThread")).map(([id]) => id);
+    expect(ids.length).toBeGreaterThan(0);
+    for (const id of ids) {
+      const own = LIGHT_THREAD_QUANTITIES[id as keyof typeof LIGHT_THREAD_QUANTITIES];
+      expect(own).toBeDefined();
+      expect(OUTPUT_LABELS[id]).toBe(own?.label);
+    }
   });
 
   test("the model note names an output from the registry first, then this table", () => {

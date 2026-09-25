@@ -171,7 +171,7 @@ export const OUTPUT_LABELS: Readonly<Record<string, string>> = Object.freeze({
   residualAmpereY: "Ampère-Maxwell residual, y component",
   residualAmpereZ: "Ampère-Maxwell residual, z component",
   amplitudeFactor: "Amplitude factor γ(1 − β) for a +x wave",
-  frequencyFactor: "Frequency factor",
+  frequencyFactor: "Frequency transformation factor",
   formInvariant: "Whether the equations keep their form in k",
   stepIndexOut: "Step reached in the derivation",
   // SR-08, the force on a charge in both systems.
@@ -400,4 +400,24 @@ export const OUTPUT_LABELS: Readonly<Record<string, string>> = Object.freeze({
     "Hypothetical intervals that ignore the camera and cover the generating value",
   coveragePairCount: "Hypothetical noise-aware pair intervals that cover the generating value",
   coverageEmptyCount: "Hypothetical experiments with an empty pair set",
+
+  // The light thread across the papers (LightThreadLab), in the words the lab itself gives each
+  // value in LIGHT_THREAD_QUANTITIES; outputLabels.test.ts checks the two agree. Its frequency
+  // factor is SR-07's, above.
+  frequencyStationary: "Frequency in the source frame",
+  frequencyMoving: "Frequency in the moving frame",
+  energyStationary: "Pulse energy in the source frame",
+  energyMoving: "Pulse energy in the moving frame",
+  quantumEnergyStationary: "hν in the source frame",
+  quantumEnergyMoving: "hν in the moving frame",
+  quantumRatioStationary: "E/(hν) in the source frame",
+  quantumRatioMoving: "E′/(hν′) in the moving frame",
+  energyFactor: "Energy transformation factor",
+  pulseEnergyEquivalent: "Pulse energy divided by c² (not its rest mass)",
+  pulseInvariantMass: "Invariant mass of a unidirectional light pulse",
+  oppositePulseEnergyMoving: "Opposite equal pulse: moving-frame energy",
+  pairEnergyStationary: "Balanced pair: source-frame energy",
+  pairEnergyMoving: "Balanced pair: moving-frame energy",
+  pairInvariantMass: "Balanced pair: invariant mass",
+  bodyMassLoss: "Body's mass decrease for balanced emission",
 });
