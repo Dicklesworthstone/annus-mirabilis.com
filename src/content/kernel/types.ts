@@ -76,8 +76,11 @@ export type KernelListing = Readonly<{
 
 export const KERNEL_DISPLAY_ROLE_LABELS: Readonly<Record<KernelDisplayRole, string>> = {
   "executing-source": "This function ran, in this build, to produce results of this kind.",
+  // Said as a reader would (dispatch 218). It read "Audited TypeScript reference evaluator: the
+  // owner on this device, or the host fallback for a FrankenSim capability.", which named the
+  // runtime's roles, not the code. The source hash and pin stay on the header line beside it.
   "reference-implementation":
-    "Audited TypeScript reference evaluator: the owner on this device, or the host fallback for a FrankenSim capability.",
+    "The site’s own reference code for this law, in TypeScript. It computes the numbers above when the page runs it, and it is what the page uses wherever a FrankenSim result is not available.",
   pseudocode: "Authored explanatory listing. No build executes this listing.",
   derivation:
     "Authored algebraic listing that shows how the expression was obtained. No build executes this listing.",

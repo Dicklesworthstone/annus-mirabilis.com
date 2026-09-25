@@ -97,6 +97,18 @@ describe("kernel displayRole", () => {
     });
   });
 
+  test("the reference-code caption says what the code is, in a reader's words", () => {
+    // On live it read "Audited TypeScript reference evaluator: the owner on this device, or the host
+    // fallback for a FrankenSim capability." (dispatch 218): the runtime's roles, not the code. It
+    // is shown under 22 listings on six labs, so a return to that vocabulary fails here.
+    const caption = KERNEL_DISPLAY_ROLE_LABELS["reference-implementation"];
+    expect(caption).toContain("reference code");
+    expect(caption).toContain("computes the numbers");
+    for (const internal of [/\bowner\b/i, /\bevaluator\b/i, /host fallback/i]) {
+      expect(caption).not.toMatch(internal);
+    }
+  });
+
   test("rendered label text for each role matches the fixture copy", () => {
     for (const [role, label] of Object.entries(KERNEL_DISPLAY_ROLE_LABELS)) {
       const html = renderToStaticMarkup(
