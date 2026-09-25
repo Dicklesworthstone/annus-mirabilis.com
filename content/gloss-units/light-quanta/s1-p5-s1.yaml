@@ -1,0 +1,77 @@
+# GlossUnit s1-p5-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s1-p5-s1"
+sentenceId: "s1-p5-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "1302ad1e1680efc27d09bfaeb8e53a352a572d05193de7896ec06853c1689397"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Soll"
+    english: "is to"
+    lemma: "sollen"
+    grammarNote: "condition: the verb-first soll, ‘if (the energy) is to’, answered by so muß"
+    noteClass: "condition"
+  - german: "die"
+    english: "the"
+  - german: "Strahlungsenergie"
+    english: "radiation energy"
+    lemma: "Strahlungsenergie"
+    grammarNote: "compound: Strahlung(s) + Energie"
+    noteClass: "compound"
+  - german: "von"
+    english: "of"
+  - german: "der"
+    english: "the"
+  - german: "Frequenz"
+    english: "frequency"
+  - german: "nicht"
+    english: "not"
+  - german: "beständig"
+    english: "continually"
+  - german: "im"
+  - german: "Ganzen"
+  - german: "weder"
+  - german: "vermindert"
+    english: "diminished"
+    lemma: "vermindern"
+  - german: "noch"
+  - german: "vermehrt"
+    english: "increased"
+    lemma: "vermehren"
+  - german: "werden"
+    english: "be"
+  - german: "so"
+    english: "then"
+    lemma: "so"
+    grammarNote: "consequence: so, ‘then’, after the verb-first condition"
+    noteClass: "consequence"
+  - german: "muß"
+  - german: "gelten"
+multiwordUnits:
+  - tokenIndices:
+      - 8
+      - 9
+    english: "on the whole"
+    kind: "fixed-phrase"
+    grammarNote: "im Ganzen, ‘on the whole, in total’ (im = in dem)"
+  - tokenIndices:
+      - 10
+      - 12
+    english: "neither ... nor"
+    kind: "split-construction"
+    grammarNote: "weder ... noch after nicht, ‘neither ... nor’: a doubled negation, read as ‘neither diminished nor increased’"
+  - tokenIndices:
+      - 16
+      - 17
+    english: "must hold"
+    kind: "fixed-phrase"
+    grammarNote: "necessity: muß gelten, ‘must hold’, what the display after it states (muß, archaic spelling of muss)"
+    noteClass: "necessity"
