@@ -1,7 +1,9 @@
-# TranslationUnit s7-p2-s1: English machine-draft translation.
+# TranslationUnit s7-p2-s1: English translation, checked by AI agents.
 # Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
-# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+# Final under docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations after two agent
+# review rounds. No person has reviewed it.
 # Review round 1 (TopazPrairie, agent, 2026-09-25): read against the German and the plate; no change.
+# Review round 2 (TanElk, agent, 2026-09-25): read against the German and the plates pp. 137-145; no change.
 kind: "translation-unit"
 id: "s7-p2-s1"
 paper: "light-quanta"
@@ -20,5 +22,20 @@ revision: 1
 unresolvedAlternatives:
   - text: "the quantity of light generated of the exciting ... must be proportional to the exciting light intensity"
     rationale: "The German prints der erregenden twice: 'die erzeugte Lichtmenge der erregenden unter sonst gleichen Umständen nach unserer Auffassung der erregenden Lichtstärke proportional sein muß' (p. 144, as the plate reads). The first occurrence has no noun of its own; the English gives the sense of the second."
-reviewState: "machine-draft"
+reviewState: "reviewed"
+agentReview:
+  basis: "D-2026-09-25-agent-reviewed-translations"
+  rounds:
+    - reviewer:
+        id: "agent:TopazPrairie"
+        name: "TopazPrairie"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
+    - reviewer:
+        id: "agent:TanElk"
+        name: "TanElk"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
 lang: "en"

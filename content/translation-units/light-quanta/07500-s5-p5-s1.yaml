@@ -1,7 +1,9 @@
-# TranslationUnit s5-p5-s1: English machine-draft translation.
+# TranslationUnit s5-p5-s1: English translation, checked by AI agents.
 # Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
-# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+# Final under docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations after two agent
+# review rounds. No person has reviewed it.
 # Review round 1 (TopazPrairie, agent, 2026-09-25): read against the German and the plate; no change.
+# Review round 2 (TanElk, agent, 2026-09-25): read against the German and the plates pp. 137-145; no change.
 kind: "translation-unit"
 id: "s5-p5-s1"
 paper: "light-quanta"
@@ -27,5 +29,20 @@ unresolvedAlternatives:
     rationale: "The plate prints nachdem, one word, where the sense requires nach dem, the law according to which (docs/provenance/ap-17-132.md, typo-nachdem-p142). The English gives the sense; this is the printed word taken literally."
   - text: "can easily be derived thermodynamically, one need make no assumption"
     rationale: "Einstein's semicolon after the footnote mark is printed on p. 142, inside the daß clause, where a comma would be expected. It is kept as printed; this is the reading with a comma."
-reviewState: "machine-draft"
+reviewState: "reviewed"
+agentReview:
+  basis: "D-2026-09-25-agent-reviewed-translations"
+  rounds:
+    - reviewer:
+        id: "agent:TopazPrairie"
+        name: "TopazPrairie"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
+    - reviewer:
+        id: "agent:TanElk"
+        name: "TanElk"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
 lang: "en"
