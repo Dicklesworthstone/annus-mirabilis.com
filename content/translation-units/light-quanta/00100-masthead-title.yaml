@@ -4,6 +4,9 @@
 # review rounds. No person has reviewed it.
 # Review round 1 (TopazPrairie, agent, 2026-09-25): read against the German and the plate; no change.
 # Review round 2 (TanElk, agent, 2026-09-25): read against the German and the plates pp. 132-137; no change.
+# After both rounds (NavyKite, translator, 2026-09-25; revision 2): masthead typography aligned with
+# the other three papers, the semicolon after "Light" dropped; the German block keeps the printed masthead, whose title runs
+# on to "von A. Einstein.". TanElk ruling, dispatch 213. The words are unchanged. For round 2's reviewer to confirm.
 kind: "translation-unit"
 id: "masthead-title"
 paper: "light-quanta"
@@ -12,13 +15,13 @@ sourceRefs:
     id: "masthead-title"
 inlines:
   - kind: "text"
-    text: "On a Heuristic Point of View Concerning the Generation and Transformation of Light;"
+    text: "On a Heuristic Point of View Concerning the Generation and Transformation of Light"
 translator:
   id: "agent:NavyKite"
   name: "NavyKite (Claude Opus 5.5 agent)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
+revision: 2
 unresolvedAlternatives:
   - text: "the Production and Transformation of Light"
     rationale: "Erzeugung is production as well as generation. Generation is used for light throughout (Lichterzeugung, s0-p2-s2), and production for the cathode rays of s0-p3-s1, where the German uses the same word of a different thing."

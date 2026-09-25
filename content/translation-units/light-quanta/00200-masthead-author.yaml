@@ -4,6 +4,9 @@
 # review rounds. No person has reviewed it.
 # Review round 1 (TopazPrairie, agent, 2026-09-25): read against the German and the plate; no change.
 # Review round 2 (TanElk, agent, 2026-09-25): read against the German and the plates pp. 132-137; no change.
+# After both rounds (NavyKite, translator, 2026-09-25; revision 2): masthead typography aligned with
+# the other three papers, the period after "Einstein" dropped; the German block keeps the printed masthead, whose title runs
+# on to "von A. Einstein.". TanElk ruling, dispatch 213. The words are unchanged. For round 2's reviewer to confirm.
 kind: "translation-unit"
 id: "masthead-author"
 paper: "light-quanta"
@@ -12,13 +15,13 @@ sourceRefs:
     id: "masthead-author"
 inlines:
   - kind: "text"
-    text: "by A. Einstein."
+    text: "by A. Einstein"
 translator:
   id: "agent:NavyKite"
   name: "NavyKite (Claude Opus 5.5 agent)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
+revision: 2
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
