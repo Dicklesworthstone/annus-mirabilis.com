@@ -18,3 +18,13 @@
     text-decoration: none;
   }
 }
+
+/* An unglossed sentence prints its formulas as KaTeX (GlossSentence.tsx, sentenceInlines.ts), and
+   an inline formula cannot wrap: at 390px Brownian's s2-p4-s1 and s2-p4-s4 carry a 345px formula in
+   a 294px column, which widened the page. The sentence scrolls in its own box instead, as
+   .inline-display does; overflow-y stays hidden so it never grows a vertical scrollbar, and its
+   tab stop is added at runtime by formulaOverflow.inline.ts, only when it overflows. */
+.sentence-german-unadorned {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
