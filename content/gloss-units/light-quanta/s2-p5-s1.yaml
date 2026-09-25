@@ -1,0 +1,88 @@
+# GlossUnit s2-p5-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s2-p5-s1"
+sentenceId: "s2-p5-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "712f2238ec6cc20c745dc3e79c5b0b557242afa74f30d35214ad5fd81697167b"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Im"
+  - german: "folgenden"
+  - german: "soll"
+  - german: "die"
+    english: "the"
+  - german: "schwarze"
+  - german: "Strahlung"
+  - german: "im"
+  - german: "Anschluß"
+  - german: "an"
+  - german: "die"
+    english: "the"
+  - german: "Erfahrung"
+    english: "experience"
+  - german: "ohne"
+  - german: "Zugrundelegung"
+  - german: "eines"
+    english: "of any"
+  - german: "Bildes"
+    english: "picture"
+    lemma: "Bild"
+  - german: "über"
+    english: "of"
+  - german: "die"
+    english: "the"
+  - german: "Erzeugung"
+    english: "generation"
+  - german: "und"
+    english: "and"
+  - german: "Ausbreitung"
+    english: "propagation"
+  - german: "der"
+    english: "of the"
+  - german: "Strahlung"
+    english: "radiation"
+  - german: "betrachtet"
+  - german: "werden"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 1
+    english: "in what follows"
+    kind: "fixed-phrase"
+    grammarNote: "im folgenden, ‘in what follows’ (im = in dem)"
+  - tokenIndices:
+      - 2
+      - 22
+      - 23
+    english: "is to be considered"
+    kind: "split-construction"
+    grammarNote: "soll ... betrachtet werden, ‘is to be considered’: what the following sections set out to do"
+  - tokenIndices:
+      - 4
+      - 5
+    english: "black radiation"
+    kind: "fixed-phrase"
+    grammarNote: "term, in Einstein’s quotation marks: the radiation in thermal equilibrium with matter, as in a closed cavity"
+    noteClass: "term"
+  - tokenIndices:
+      - 6
+      - 7
+      - 8
+    english: "in connection with"
+    kind: "fixed-phrase"
+    grammarNote: "im Anschluß an, ‘in connection with, following’ (Anschluß, archaic spelling of Anschluss)"
+  - tokenIndices:
+      - 11
+      - 12
+    english: "without taking as a basis"
+    kind: "fixed-phrase"
+    grammarNote: "restriction: ohne Zugrundelegung eines Bildes, ‘without taking as a basis any picture’: the argument starts from experience, not from a model of how radiation is produced and spreads"
+    noteClass: "restriction"
