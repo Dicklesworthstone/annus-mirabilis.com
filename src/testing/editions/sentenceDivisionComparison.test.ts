@@ -287,6 +287,11 @@ describe("the real corpus: every printed number is pinned", () => {
       // enumerators and six long sentences. Next: 920 ends with an INLINE tag, and 921 prints
       // item "3.", so 921 should add exactly one.
       //
+      // 14 -> 15 when p921 landed, predicted before the run: 920's tag is inline, so no crossing,
+      // and 921 prints item "3.", one more bare enumerator. Enumerated: nine bare enumerators and
+      // six long sentences. p921 is the article's last page, so this ledger adds no more pages;
+      // the value moves again only if its text or the segmenter changes.
+      //
       // WHAT THIS NUMBER CANNOT SEE, so that a later reader does not mistake it for the count of
       // cross-page sentences. A crossing is visible here only when [[CONTINUES]] sits on its own
       // line. When it is written inline, glued to the last word, segmentLedger keeps it attached,
@@ -305,7 +310,7 @@ describe("the real corpus: every printed number is pinned", () => {
       // not.) Left as measured rather than repaired here: the repair
       // is either a ledger-wide rewrite touching four papers or a change to segmentLedger, and
       // both belong to am-span-recording-decision-ero2, not to a transcription pane.
-      unplaceableProposedSentences: 14,
+      unplaceableProposedSentences: 15,
     },
   };
 
