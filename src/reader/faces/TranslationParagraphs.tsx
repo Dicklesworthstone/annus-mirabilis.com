@@ -16,6 +16,9 @@
  * - Review state is said once, by the face's banner (translationReviewSummary). A unit carries a
  *   badge only when its state differs from the one most units share, and no badge is a live
  *   region: it is static content.
+ * - A section or part heading is a heading, as the German face sets it (SourceBlock.tsx: h2
+ *   .source-heading, h1 .source-part-heading), not a paragraph at body size (dispatch 210). Its
+ *   unit keeps its id on the span inside, so #s1 still lands.
  */
 import { renderToString } from "katex";
 import { Fragment, type ReactNode } from "react";
@@ -147,6 +150,7 @@ export function TranslationParagraphs({
 }: TranslationParagraphsProps) {
   const records = new Map<string, ReviewRecord>();
   for (const r of reviewRecords) for (const s of r.scope) records.set(s.recordId, r);
+  const blockKind = new Map(blocks.map((b) => [b.id, b.kind]));
   const marks = new Map<string, string>();
   for (const u of units) footnoteMarks(u.inlines, marks);
   const footnoteTarget = (footnoteId: string) => {
@@ -296,6 +300,21 @@ export function TranslationParagraphs({
               {apparatus(group)}
             </Fragment>
           );
+        const heading = group.kind === "other" ? blockKind.get(group.key) : undefined;
+        if (heading === "heading" || heading === "part-heading") {
+          const Heading = heading === "part-heading" ? "h1" : "h2";
+          return (
+            <Fragment key={key}>
+              <Heading
+                className={heading === "part-heading" ? "source-part-heading" : "source-heading"}
+                data-source-block={group.key}
+              >
+                {group.units.map(renderUnit)}
+              </Heading>
+              {apparatus(group)}
+            </Fragment>
+          );
+        }
         return (
           <Fragment key={key}>
             <p

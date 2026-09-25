@@ -112,21 +112,27 @@ export function EnglishFace({
         <p className="translator-credit fine">Translated by {primaryTranslator}</p>
       </header>
 
-      {(isUnreviewed || review.agentChecked) && (
-        <UnreviewedBanner
-          title={review.title}
-          message={review.message}
-          kind={isUnreviewed ? "unreviewed" : "agent-checked"}
-        />
-      )}
+      {/* The banner and the coverage notice qualify the text, so they share its column: at 1440 they
+          spanned 1,256px above what is now a 666px measure (dispatch 210). */}
+      {isUnreviewed || review.agentChecked || untranslatedSections.length > 0 ? (
+        <div className="reading-column">
+          {(isUnreviewed || review.agentChecked) && (
+            <UnreviewedBanner
+              title={review.title}
+              message={review.message}
+              kind={isUnreviewed ? "unreviewed" : "agent-checked"}
+            />
+          )}
 
-      {/* What the translation does not reach yet, named, so a partial edition is never read as the
-          whole paper (editionCoverage.ts). */}
-      {untranslatedSections.length > 0 ? (
-        <p className="notice" data-untranslated-sections={untranslatedSections.join(" ")}>
-          This translation does not yet cover the whole paper. Not yet translated:{" "}
-          {sectionsLabel(untranslatedSections)}.
-        </p>
+          {/* What the translation does not reach yet, named, so a partial edition is never read as
+              the whole paper (editionCoverage.ts). */}
+          {untranslatedSections.length > 0 ? (
+            <p className="notice" data-untranslated-sections={untranslatedSections.join(" ")}>
+              This translation does not yet cover the whole paper. Not yet translated:{" "}
+              {sectionsLabel(untranslatedSections)}.
+            </p>
+          ) : null}
+        </div>
       ) : null}
 
       {/* The chooser every face uses, with this face the current tab (FaceChooser.tsx). */}
@@ -137,7 +143,10 @@ export function EnglishFace({
         availability={availability}
       />
 
-      <main className="translation-units-list" data-translation-body>
+      {/* The reader's measure and type step, as the German face reads (readingSettings.css
+          .reading-column): at 1440 the English ran 1,256px at 19px, 186 to 200 characters a line,
+          beside a German face at 666px and 22.8px (dispatch 210). */}
+      <main className="translation-units-list reading-column" data-translation-body>
         <TranslationParagraphs
           units={bodyUnits}
           alignment={alignment}
