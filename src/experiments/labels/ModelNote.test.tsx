@@ -259,13 +259,14 @@ describe("ModelNote", () => {
     expect(QUANTITY_LABELS.lorentzFactor).toBe("Lorentz factor");
     expect(outputName("lorentzFactor")).toBe("Lorentz factor");
     expect(outputName("temperature")).toBe(QUANTITY_LABELS.temperature ?? "");
-    // An output that is not a registered quantity has no authored name, so its id is spelled out.
-    expect(QUANTITY_LABELS.plotSampleMean).toBeUndefined();
-    expect(outputName("plotSampleMean")).toBe("Plot sample mean");
-    expect(outputName("deltaSOverKb")).toBe("Delta S over kb");
+    // An id with neither a registry name nor an output label is spelled out. Every real output is
+    // named (outputLabels.test.ts), so these ids are made up to exercise the fallback itself.
+    expect(QUANTITY_LABELS.examplePlotSampleMean).toBeUndefined();
+    expect(outputName("examplePlotSampleMean")).toBe("Example plot sample mean");
+    expect(outputName("exampleDeltaSOverKb")).toBe("Example delta S over kb");
     // Names keep their capital and abbreviations their letters when an id is spelled out.
-    expect(outputName("kineticEnergyNewtonian")).toBe("Kinetic energy Newtonian");
-    expect(outputName("sampleRmsNorm")).toBe("Sample RMS norm");
+    expect(outputName("exampleEnergyNewtonian")).toBe("Example energy Newtonian");
+    expect(outputName("exampleRmsNorm")).toBe("Example RMS norm");
     // Rendered: the name first, then the id in code.
     const html = renderToStaticMarkup(
       createElement(ModelNote, {
