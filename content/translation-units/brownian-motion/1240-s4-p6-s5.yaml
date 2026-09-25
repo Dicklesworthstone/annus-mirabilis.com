@@ -1,7 +1,9 @@
-# TranslationUnit s4-p6-s5: English machine-draft translation.
+# TranslationUnit s4-p6-s5: English translation, checked by AI agents.
 # Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
-# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+# Final under docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations after two agent
+# review rounds. No person has reviewed it.
 # Review round 1 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 556-559; no change.
+# Review round 2 (TopazPrairie, agent, 2026-09-25): read against the German and the plates pp. 556-559; no change.
 kind: "translation-unit"
 id: "s4-p6-s5"
 paper: "brownian-motion"
@@ -26,5 +28,20 @@ translator:
   modelId: "claude-opus-5-5"
 revision: 1
 unresolvedAlternatives: []
-reviewState: "machine-draft"
+reviewState: "reviewed"
+agentReview:
+  basis: "D-2026-09-25-agent-reviewed-translations"
+  rounds:
+    - reviewer:
+        id: "agent:NavyKite"
+        name: "NavyKite"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
+    - reviewer:
+        id: "agent:TopazPrairie"
+        name: "TopazPrairie"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
 lang: "en"

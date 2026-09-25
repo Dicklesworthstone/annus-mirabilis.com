@@ -1,7 +1,9 @@
-# TranslationUnit s4-p3-s1: English machine-draft translation.
+# TranslationUnit s4-p3-s1: English translation, checked by AI agents.
 # Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
-# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+# Final under docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations after two agent
+# review rounds. No person has reviewed it.
 # Review round 1 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 556-559; no change.
+# Review round 2 (TopazPrairie, agent, 2026-09-25): corrected (revision 2): "aufzufassen sind" (p. 556) is "are to be regarded", as "aufzufassen sein" is in s4-p2-s1; "can be regarded" is kept as the alternative.
 kind: "translation-unit"
 id: "s4-p3-s1"
 paper: "brownian-motion"
@@ -18,13 +20,30 @@ inlines:
   - kind: "math"
     latex: "\\tau"
   - kind: "text"
-    text: " can be regarded as mutually independent events."
+    text: " are to be regarded as mutually independent events."
 translator:
   id: "agent:SapphireCastle"
   name: "SapphireCastle (Claude Opus 5.5, agent)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
-unresolvedAlternatives: []
-reviewState: "machine-draft"
+revision: 2
+unresolvedAlternatives:
+  - text: "can be regarded as mutually independent events"
+    rationale: "The draft's reading, which round 1 kept. \"aufzufassen sind\" (sein with zu) can express possibility or necessity; round 2 gives \"are to be regarded\", which keeps the German form and matches the same verb in s4-p2-s1 one paragraph earlier (\"aufzufassen sein\", \"are also to be regarded\")."
+reviewState: "reviewed"
+agentReview:
+  basis: "D-2026-09-25-agent-reviewed-translations"
+  rounds:
+    - reviewer:
+        id: "agent:NavyKite"
+        name: "NavyKite"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
+    - reviewer:
+        id: "agent:TopazPrairie"
+        name: "TopazPrairie"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
 lang: "en"
