@@ -1,4 +1,4 @@
-import { withinDeclaredDomain } from "../controls/declaredDomain.ts";
+import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { optionalNumber } from "../controls/typedNumber.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import {
@@ -228,7 +228,12 @@ function validateMe03Fields(input: unknown): Me03ParameterCheck {
 
 export { ME03_DEFAULTS };
 
+/** The form names the box length ℓ; the manifest's label spells it "ell". */
+const ME03_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  boxLength: { label: "box length ℓ" },
+};
+
 /** The fields above, then every range content/experiments/me-03.yaml declares (dispatch 134). */
 export function validateMe03Parameters(input: unknown): Me03ParameterCheck {
-  return withinDeclaredDomain("me-03", validateMe03Fields(input));
+  return withinDeclaredDomain("me-03", validateMe03Fields(input), ME03_DOMAIN_DISPLAY);
 }

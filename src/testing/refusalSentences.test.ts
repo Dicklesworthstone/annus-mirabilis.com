@@ -86,6 +86,13 @@ const CASES: readonly (readonly [string, () => Check, string, string?])[] = [
     () => validateSr13Parameters({ ...SR13_DEFAULTS, initialSpeed: 1 }),
     "speed of light",
   ],
+  [
+    // The manifest's label spells ℓ "ell"; live showed "Enter the box length ell ..." (dispatch 170).
+    "me-03 box length 1e300",
+    () => validateMe03Parameters({ ...ME03_DEFAULTS, boxLength: 1e300 }),
+    "the box length ℓ greater than",
+    "outside-model-domain",
+  ],
 ];
 
 describe("a typed value outside a lab's range is refused with a sentence that says what to enter", () => {
