@@ -1,0 +1,73 @@
+# GlossUnit s0-p3-s2: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s0-p3-s2"
+sentenceId: "s0-p3-s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "63339737cad4f09c43336109f5e4311f5a22564d69da731cca7086e4b31d324d"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Die"
+    english: "the"
+  - german: "nicht"
+  - german: "genügende"
+  - german: "Berücksichtigung"
+    english: "consideration"
+  - german: "dieses"
+    english: "of this"
+  - german: "Umstandes"
+    english: "circumstance"
+    lemma: "Umstand"
+  - german: "ist"
+    english: "is"
+  - german: "die"
+    english: "the"
+  - german: "Wurzel"
+    english: "root"
+  - german: "der"
+    english: "of the"
+  - german: "Schwierigkeiten"
+    english: "difficulties"
+    lemma: "Schwierigkeit"
+  - german: "mit"
+    english: "with"
+  - german: "denen"
+    english: "which"
+  - german: "die"
+    english: "the"
+  - german: "Elektrodynamik"
+    english: "electrodynamics"
+  - german: "bewegter"
+    english: "of moving"
+    lemma: "bewegt"
+    grammarNote: "genitive plural: bewegter Körper, ‘of moving bodies’"
+    noteClass: "genitive-construction"
+  - german: "Körper"
+    english: "bodies"
+  - german: "gegenwärtig"
+    english: "at present"
+  - german: "zu"
+  - german: "kämpfen"
+  - german: "hat"
+multiwordUnits:
+  - tokenIndices:
+      - 1
+      - 2
+    english: "insufficient"
+    kind: "fixed-phrase"
+    grammarNote: "nicht genügend: ‘not sufficient’"
+  - tokenIndices:
+      - 18
+      - 19
+      - 20
+    english: "has to contend"
+    kind: "fixed-phrase"
+    grammarNote: "necessity: haben zu + infinitive, ‘has to contend’"
+    noteClass: "necessity"

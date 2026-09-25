@@ -1,0 +1,31 @@
+# GlossUnit masthead-title: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "masthead-title"
+sentenceId: "masthead-title"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "bd613c5b45d24af19c55b0e0ce72f649c7db7ac83e37dd241bdcd035fdc64f1c"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Zur"
+    english: "on the"
+    lemma: "zur"
+    grammarNote: "contraction: zur = zu der"
+    noteClass: "abbreviation"
+  - german: "Elektrodynamik"
+    english: "electrodynamics"
+  - german: "bewegter"
+    english: "of moving"
+    lemma: "bewegt"
+    grammarNote: "genitive plural: bewegter Körper, ‘of moving bodies’"
+    noteClass: "genitive-construction"
+  - german: "Körper"
+    english: "bodies"
+multiwordUnits: []
