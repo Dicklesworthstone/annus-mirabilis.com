@@ -1,0 +1,21 @@
+# TranslationUnit s2-p4-s1: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "s2-p4-s1"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "s2-p4-s1"
+inlines:
+  - kind: "text"
+    text: "We therefore arrive at the conclusion: the greater the energy density and the wavelength of a radiation, the more useful do the theoretical foundations we have used prove to be; for small wavelengths and small radiation densities, however, they fail completely."
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"
