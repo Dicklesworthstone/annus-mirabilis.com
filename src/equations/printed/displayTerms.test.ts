@@ -7,11 +7,13 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { renderToString } from "katex";
 import { isRegisteredQuantityId } from "../../content/quantities/registry.ts";
+import type { ConcordanceEntry } from "../../content/schemas/concordance.ts";
 import type { Inline } from "../../content/schemas/inlines.ts";
 import { type BilingualEdition, loadBilingualEdition } from "../../reader/faces/bilingualLoader.ts";
 import {
   type CheckedDisplay,
   compilePrintedDisplay,
+  concordanceBinding,
   DisplayTermsError,
   type DisplayTermsFile,
   FACE_KATEX,
@@ -314,6 +316,39 @@ describe("plants, each red for its own reason", () => {
       displays: [{ display: "d", latex: "x", spoken: "x", terms: [{ glyph: "x" }] }],
     });
     refused({ paper: PAPER, displays: [], notQuantities: [{ glyph: "d", reason: "" }] });
+  });
+});
+
+describe("the concordance's reading of a glyph in a display's scope", () => {
+  const entry = (id: string, scope: string[], latex: string, quantityId: string) =>
+    ({
+      id,
+      scope,
+      glyph: { unicode: latex, latex },
+      binding: { quantityId },
+    }) as unknown as ConcordanceEntry;
+  const T = "char:T";
+  const entries = [
+    entry("lq.T.temperature", ["lq-s1"], "T", "temperature"),
+    entry("lq.T.longAveragingInterval", ["lq-s1-fn3"], "T", "longAveragingInterval"),
+  ];
+  test("an entry scoped to the display's own footnote outranks the section's", () => {
+    assert.equal(
+      concordanceBinding(entries, T, { anchor: "s1-fn3", section: "s1" })?.binds,
+      "longAveragingInterval",
+    );
+    assert.equal(
+      concordanceBinding(entries, T, { anchor: "s1-p5", section: "s1" })?.binds,
+      "temperature",
+    );
+  });
+  test("two readings at the same level are no opinion; a glyph with no entry has none", () => {
+    const clash = [...entries, entry("planted", ["lq-s1"], "T", "period")];
+    assert.equal(concordanceBinding(clash, T, { anchor: "s1-p5", section: "s1" }), undefined);
+    assert.equal(
+      concordanceBinding(entries, "char:Q", { anchor: "s1-p5", section: "s1" }),
+      undefined,
+    );
   });
 });
 

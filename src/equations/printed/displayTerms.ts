@@ -28,7 +28,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToString } from "katex";
-import { scopeMatches } from "../../content/notation/resolve.ts";
+import { normalizeSectionId, scopeMatches } from "../../content/notation/resolve.ts";
 import type { ConcordanceEntry } from "../../content/schemas/concordance.ts";
 import type { Inline } from "../../content/schemas/inlines.ts";
 import { strictParse } from "../../content/schemas/strictParse.ts";
@@ -257,12 +257,19 @@ export type DisplayTermsContext = Readonly<{
   isRegistered: (quantityId: string) => boolean;
 }>;
 
-/** The concordance's binding for a glyph in a scope, where it has exactly one opinion. */
-function concordanceBinding(
+/**
+ * The concordance's binding for a glyph in a display's scope, where it has one opinion. An entry
+ * scoped to the display's own paragraph or footnote outranks one that holds for the whole section:
+ * light quanta's T is the temperature throughout § 1 and the averaging interval in the footnote
+ * that expands the field in a Fourier series. Two different readings at the same level are no
+ * opinion, so the entry stands on its own there.
+ */
+export function concordanceBinding(
   entries: readonly ConcordanceEntry[],
   signature: string,
-  scope: DisplayOccurrence,
+  scope: Pick<DisplayOccurrence, "anchor" | "section">,
 ): { id: string; binds: string } | undefined {
+  const own = normalizeSectionId(scope.anchor);
   const opinions = entries.flatMap((entry) => {
     if (!scopeMatches(entry.scope, scope.anchor, scope.section)) return [];
     let entrySignature: string;
@@ -277,9 +284,13 @@ function concordanceBinding(
       "quantityId" in entry.binding
         ? entry.binding.quantityId
         : `not a quantity (${entry.binding.nonQuantityKind})`;
-    return [{ id: entry.id, binds }];
+    const local = entry.scope.some((s) => normalizeSectionId(s) === own);
+    return [{ id: entry.id, binds, local }];
   });
-  return opinions[0];
+  const tier = opinions.some((o) => o.local) ? opinions.filter((o) => o.local) : opinions;
+  const [first] = tier;
+  if (!first || tier.some((o) => o.binds !== first.binds)) return undefined;
+  return { id: first.id, binds: first.binds };
 }
 
 /**
