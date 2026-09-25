@@ -19,7 +19,7 @@ parameters:
       max: 0.95
       minInclusive: true
       maxInclusive: true
-      reason: "Teaching domain stays within 0.95c."
+      reason: "No inertial observer moves at or beyond the speed of light; the teaching range stays inside 0.95c."
     visualRange:
       min: -0.95
       max: 0.95
@@ -39,7 +39,7 @@ parameters:
       max: 360
       minInclusive: true
       maxInclusive: true
-      reason: "Full circle angle domain."
+      reason: "One turn of the full circle, measured from the axis along which the observer moves"
     visualRange:
       min: 0
       max: 360
@@ -59,7 +59,7 @@ parameters:
       max: 1000
       minInclusive: true
       maxInclusive: true
-      reason: "Positive energy domain."
+      reason: "The energies the lab compares, a thousandth of a joule to a thousand joules"
     visualRange:
       min: 0.1
       max: 10
@@ -79,7 +79,7 @@ parameters:
       max: 1000
       minInclusive: true
       maxInclusive: true
-      reason: "Positive volume domain."
+      reason: "The volumes the lab compares, a litre to a thousand cubic metres"
     visualRange:
       min: 0.1
       max: 10

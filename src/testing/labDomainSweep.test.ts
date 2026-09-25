@@ -44,7 +44,6 @@ const UNFINISHED: readonly string[] = [
   "me-02",
   "sr-01",
   "sr-02",
-  "sr-10",
   "sr-11",
 ];
 const NO_VALIDATOR: readonly string[] = ["bm-02", "lq-02"];
