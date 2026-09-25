@@ -366,12 +366,15 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           // No English unit carries an argument's id; the section's first English sentence does.
           href: `/papers/${paper.id}/view/english/${sources.englishSectionFragment(a.section)}`,
         },
-      sources.availability.gloss === "available" && {
-        face: "gloss",
-        label: "Interlinear gloss",
-        name: "Interlinear gloss",
-        href: `/papers/${paper.id}/view/gloss/#${a.id}`,
-      },
+      // Gloss only where this passage's section is glossed, at its first glossed sentence: the
+      // gloss face's ids are sentence ids, and #<argument id> named nothing on it.
+      sources.availability.gloss === "available" &&
+        sources.glossSectionFragment(a.section) !== "" && {
+          face: "gloss",
+          label: "Interlinear gloss",
+          name: "Interlinear gloss",
+          href: `/papers/${paper.id}/view/gloss/${sources.glossSectionFragment(a.section)}`,
+        },
       // Facsimile is "unknown" here, never "empty" (faceAvailability.ts), so it stays offered.
       sources.availability.facsimile !== "empty" && {
         face: "facsimile",

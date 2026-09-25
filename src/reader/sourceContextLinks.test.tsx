@@ -39,6 +39,22 @@ function translatedSections(paperId: string): Set<string> {
   return sections;
 }
 
+/**
+ * The sections of a paper that have an interlinear gloss, read straight from its gloss-unit files:
+ * the section of each unit's sentence id (masthead-title belongs to no section).
+ */
+function glossedSections(paperId: string): Set<string> {
+  const dir = join(process.cwd(), "content", "gloss-units", paperId);
+  if (!existsSync(dir)) return new Set();
+  const sections = new Set<string>();
+  for (const f of readdirSync(dir).filter((x) => x.endsWith(".yaml"))) {
+    const unit = parseYaml(readFileSync(join(dir, f), "utf8")) as { sentenceId?: string };
+    const m = /^(s\d+)(?:-|$)/.exec(unit.sentenceId ?? "");
+    if (m?.[1]) sections.add(m[1]);
+  }
+  return sections;
+}
+
 /** The sections of a paper that have German source blocks, read straight from its block files. */
 function germanSections(paperId: string): Set<string> {
   const dir = join(process.cwd(), "content", "source-blocks", paperId);
@@ -111,7 +127,10 @@ describe("a passage's Source context links only faces that exist", () => {
         expect(english).toBeUndefined();
         withoutEnglish += 1;
       }
-      expect(line.hrefs.some((h) => h.includes("/view/gloss/"))).toBe(false);
+      // Light quanta has no gloss yet; were it glossed, this would say where.
+      expect(line.hrefs.some((h) => h.includes("/view/gloss/"))).toBe(
+        glossedSections("light-quanta").has(section),
+      );
       // "Read the original" goes where the German link goes, not to #<argument id>.
       expect(line.original).toBe(german ?? "");
     }
@@ -158,6 +177,7 @@ describe("a passage's Source context links only faces that exist", () => {
     const sectionOf = new Map(args.map((a) => [a.id, a.section]));
     const german = germanSections("special-relativity");
     const translated = translatedSections("special-relativity");
+    const glossed = glossedSections("special-relativity");
     const lines = await contextLines("special-relativity");
     expect(lines.length).toBeGreaterThan(0);
     let outside = 0;
@@ -166,6 +186,7 @@ describe("a passage's Source context links only faces that exist", () => {
       const offered = [
         german.has(section) ? "German source" : null,
         translated.has(section) ? "English" : null,
+        glossed.has(section) ? "Interlinear gloss" : null,
         "Facsimile",
       ].filter((f) => f !== null);
       expect(line.text).toBe(`Source context: ${offered.join(" · ")}`);
@@ -183,5 +204,51 @@ describe("a passage's Source context links only faces that exist", () => {
     // Non-vacuity while the edition is partial: some passage lies outside it.
     const sections = new Set(args.map((a) => a.section));
     if ([...sections].some((s) => !german.has(s))) expect(outside).toBeGreaterThan(0);
+  });
+
+  test("every glossed paper: a passage offers the gloss exactly where its section is glossed, at an id the gloss face renders", async () => {
+    // The gloss link was offered on every passage once a paper had one gloss unit, and pointed at
+    // #<argument id>, which the gloss face never renders (its ids are sentence ids): all 8 of
+    // mass-energy's links and all 9 of Brownian's named nothing, and Brownian, glossed only in its
+    // introduction, sent its § 4 passage to a gloss with no § 4 in it (dispatch 209).
+    const dir = join(process.cwd(), "content", "gloss-units");
+    const papers = existsSync(dir)
+      ? readdirSync(dir).filter((p) => readdirSync(join(dir, p)).some((f) => f.endsWith(".yaml")))
+      : [];
+    expect(papers).toContain("mass-energy");
+    let offered = 0;
+    let withheld = 0;
+    for (const paperId of papers) {
+      const { arguments: args } = await loadPaper(paperId);
+      const sectionOf = new Map(args.map((a) => [a.id, a.section]));
+      const glossed = glossedSections(paperId);
+      const face = await exportMarkup(await PaperPage({ paperId, face: "gloss" }));
+      const ids = new Set([...face.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+      for (const line of await contextLines(paperId)) {
+        const section = sectionOf.get(line.id) ?? "?";
+        const gloss = line.hrefs.filter((h) => h.includes("/view/gloss/"));
+        if (glossed.has(section)) {
+          expect(gloss.length).toBe(1);
+          const fragment = gloss[0]?.split("#")[1] ?? "";
+          expect(fragment.startsWith("arg-")).toBe(false);
+          expect(ids.has(fragment)).toBe(true);
+          offered += 1;
+        } else {
+          expect(gloss).toEqual([]);
+          expect(line.text.includes("Interlinear gloss")).toBe(false);
+          withheld += 1;
+        }
+      }
+    }
+    // Non-vacuity: some passage is offered the gloss. And while any glossed paper has a passage
+    // whose section is not glossed, some passage is refused it.
+    expect(offered).toBeGreaterThan(0);
+    const partial = await Promise.all(
+      papers.map(async (p) => {
+        const glossed = glossedSections(p);
+        return (await loadPaper(p)).arguments.some((a) => !glossed.has(a.section));
+      }),
+    );
+    if (partial.some(Boolean)) expect(withheld).toBeGreaterThan(0);
   });
 });

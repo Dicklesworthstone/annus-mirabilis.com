@@ -55,6 +55,12 @@ export interface PaperSourceFaces {
    * are not yet bound to paragraphs, so this is the section's first sentence, not the passage's.
    */
   englishSectionFragment(section: string): string;
+  /**
+   * "#<sentence id>" for the gloss face's first glossed sentence in `section`, in reading order,
+   * or "" when no sentence of the section is glossed. A paper is glossed a section at a time, and
+   * the gloss face's ids are sentence ids, never a passage's argument id.
+   */
+  glossSectionFragment(section: string): string;
 }
 
 export async function paperSourceFaces(paperId: string): Promise<PaperSourceFaces> {
@@ -86,6 +92,16 @@ export async function paperSourceFaces(paperId: string): Promise<PaperSourceFace
     const section = unit.sourceRefs.map((r) => sectionOf.get(r.id)).find((s) => s !== undefined);
     if (section !== undefined && !firstUnit.has(section)) firstUnit.set(section, unit.id);
   }
+  // The first glossed sentence of each section, in the blocks' reading order. A block with no
+  // sentence spans (a masthead line, a footnote) is glossed under its own id.
+  const glossed = new Set((edition?.glossUnits ?? []).map((g) => g.sentenceId));
+  const firstGloss = new Map<string, string>();
+  for (const block of blocks) {
+    if (!block.section || firstGloss.has(block.section)) continue;
+    const ids = block.sentenceSpans?.length ? block.sentenceSpans.map((s) => s.id) : [block.id];
+    const id = ids.find((x) => glossed.has(x));
+    if (id !== undefined) firstGloss.set(block.section, id);
+  }
   const sectionIds = paperSectionIds(paperId, edition?.paper.sections.map((s) => s.id) ?? []);
   return {
     availability,
@@ -96,6 +112,10 @@ export async function paperSourceFaces(paperId: string): Promise<PaperSourceFace
     germanAnchors: anchors,
     englishSectionFragment: (section) => {
       const id = firstUnit.get(section);
+      return id ? `#${id}` : "";
+    },
+    glossSectionFragment: (section) => {
+      const id = firstGloss.get(section);
       return id ? `#${id}` : "";
     },
     sectionFragment: (section) =>
