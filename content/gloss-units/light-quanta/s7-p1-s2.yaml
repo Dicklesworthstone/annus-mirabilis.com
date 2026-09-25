@@ -1,0 +1,41 @@
+# GlossUnit s7-p1-s2: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s7-p1-s2"
+sentenceId: "s7-p1-s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "a96cfc770c247d07f30c75d4bc80084607b00ea740ffe56e3a7849b882cda5c8"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Der"
+    english: "the"
+  - german: "Verwandlungsprozeß"
+    english: "transformation process"
+    lemma: "Verwandlungsprozess"
+    grammarNote: "compound: Verwandlung + Prozeß (archaic spelling of Prozess)"
+    noteClass: "compound"
+  - german: "wird"
+  - german: "dann"
+    english: "then"
+  - german: "folgendermaßen"
+    english: "as follows"
+  - german: "zu"
+  - german: "deuten"
+  - german: "sein"
+multiwordUnits:
+  - tokenIndices:
+      - 2
+      - 5
+      - 6
+      - 7
+    english: "is to be interpreted"
+    kind: "split-construction"
+    grammarNote: "necessity: wird ... zu deuten sein, sein zu + infinitive in the future, ‘is to be interpreted’: the reading that follows from the assumption"
+    noteClass: "necessity"

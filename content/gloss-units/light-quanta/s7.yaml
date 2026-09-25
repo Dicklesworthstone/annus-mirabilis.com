@@ -1,0 +1,28 @@
+# GlossUnit s7: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s7"
+sentenceId: "s7"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "ea66d8148d486aef822129170c4611a8e0f06ca179ec9d1778d2b60dec911cc9"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "§ 7"
+    english: "§ 7"
+  - german: "Über"
+    english: "on"
+  - german: "die"
+    english: "the"
+  - german: "Stokessche"
+    english: "Stokes’s"
+    lemma: "Stokessch"
+  - german: "Regel"
+    english: "rule"
+multiwordUnits: []

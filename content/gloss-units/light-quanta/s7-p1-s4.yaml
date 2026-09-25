@@ -1,0 +1,61 @@
+# GlossUnit s7-p1-s4: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s7-p1-s4"
+sentenceId: "s7-p1-s4"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "b134f7a0f1c560b69fe8278c35878d08ab6473f3fe8d295dd7f073039a5e5f2b"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Unter"
+  - german: "Vermittelung"
+  - german: "von"
+  - german: "was"
+  - german: "für"
+  - german: "Zwischenprozessen"
+    english: "intermediate processes"
+    lemma: "Zwischenprozess"
+    grammarNote: "compound: Zwischen + Prozeß"
+    noteClass: "compound"
+  - german: "dies"
+    english: "this"
+    lemma: "dies"
+    grammarNote: "period usage: dies for dieses before a noun"
+    noteClass: "archaic-spelling"
+  - german: "Endresultat"
+    english: "final result"
+    lemma: "Endresultat"
+    grammarNote: "compound: End + Resultat"
+    noteClass: "compound"
+  - german: "zustande"
+  - german: "kommt"
+  - german: "ist"
+    english: "is"
+  - german: "gleichgültig"
+    english: "immaterial"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 1
+      - 2
+    english: "through"
+    kind: "fixed-phrase"
+    grammarNote: "period spelling: unter Vermittelung von, modern Vermittlung, ‘through the agency of’"
+    noteClass: "archaic-spelling"
+  - tokenIndices:
+      - 3
+      - 4
+    english: "what"
+    kind: "fixed-phrase"
+  - tokenIndices:
+      - 8
+      - 9
+    english: "comes about"
+    kind: "fixed-phrase"
