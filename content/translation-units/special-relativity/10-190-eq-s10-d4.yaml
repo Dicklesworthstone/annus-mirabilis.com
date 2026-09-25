@@ -2,6 +2,9 @@
 # Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
 # Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
 # Review round 1 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 917-921; no change.
+# After round 1 (GreenBarn, translator, 2026-09-25; revision 2): the z row's exponent is beta^3, as
+# p. 919 prints it (err-typo-p919-1; TanElk's ruling, mail 40159), following the German block
+# eq-s10-d4. The physics gives beta^2, which the explanation layer keeps. For round 2's reviewer.
 kind: "translation-unit"
 id: "eq-s10-d4"
 paper: "special-relativity"
@@ -10,14 +13,14 @@ sourceRefs:
     id: "eq-s10-d4"
 inlines:
   - kind: "math"
-    latex: "\\begin{aligned} \\mu \\beta^3 \\frac{d^2 x}{d t^2} &= \\varepsilon X = \\varepsilon X' , \\\\ \\mu \\beta^2 \\frac{d^2 y}{d t^2} &= \\varepsilon \\beta \\left( Y - \\frac{v}{V} N \\right) = \\varepsilon Y' , \\\\ \\mu \\beta^2 \\frac{d^2 z}{d t^2} &= \\varepsilon \\beta \\left( Z + \\frac{v}{V} M \\right) = \\varepsilon Z' \\end{aligned}"
+    latex: "\\begin{aligned} \\mu \\beta^3 \\frac{d^2 x}{d t^2} &= \\varepsilon X = \\varepsilon X' , \\\\ \\mu \\beta^2 \\frac{d^2 y}{d t^2} &= \\varepsilon \\beta \\left( Y - \\frac{v}{V} N \\right) = \\varepsilon Y' , \\\\ \\mu \\beta^3 \\frac{d^2 z}{d t^2} &= \\varepsilon \\beta \\left( Z + \\frac{v}{V} M \\right) = \\varepsilon Z' \\end{aligned}"
     equationId: "eq-s10-d4"
 translator:
   id: "agent:GreenBarn"
   name: "GreenBarn (agent, Claude Opus 5.5)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
+revision: 2
 unresolvedAlternatives: []
 reviewState: "machine-draft"
 lang: "en"

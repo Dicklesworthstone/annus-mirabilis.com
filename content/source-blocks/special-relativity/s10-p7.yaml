@@ -19,7 +19,7 @@ inlines:
   - kind: "text"
     text: "Wir schreiben die Gleichungen (A) in der Form"
   - kind: "math"
-    latex: "\\begin{aligned} \\mu \\beta^3 \\frac{d^2 x}{d t^2} &= \\varepsilon X = \\varepsilon X' , \\\\ \\mu \\beta^2 \\frac{d^2 y}{d t^2} &= \\varepsilon \\beta \\left( Y - \\frac{v}{V} N \\right) = \\varepsilon Y' , \\\\ \\mu \\beta^2 \\frac{d^2 z}{d t^2} &= \\varepsilon \\beta \\left( Z + \\frac{v}{V} M \\right) = \\varepsilon Z' \\end{aligned}"
+    latex: "\\begin{aligned} \\mu \\beta^3 \\frac{d^2 x}{d t^2} &= \\varepsilon X = \\varepsilon X' , \\\\ \\mu \\beta^2 \\frac{d^2 y}{d t^2} &= \\varepsilon \\beta \\left( Y - \\frac{v}{V} N \\right) = \\varepsilon Y' , \\\\ \\mu \\beta^3 \\frac{d^2 z}{d t^2} &= \\varepsilon \\beta \\left( Z + \\frac{v}{V} M \\right) = \\varepsilon Z' \\end{aligned}"
     display: true
     equationId: "eq-s10-d4"
   - kind: "text"
@@ -65,27 +65,27 @@ sentenceSpans:
     span:
       start: 0
       end: 136
-      blockRevision: 1
+      blockRevision: 2
       textDigest: "f3ad7574b4edcb4985bdfdc21a2d6d0123a62294ae88c4251f0b15899bf2b9a4"
   - id: "s10-p7-s2"
     span:
       start: 137
       end: 454
-      blockRevision: 1
+      blockRevision: 2
       textDigest: "f3ad7574b4edcb4985bdfdc21a2d6d0123a62294ae88c4251f0b15899bf2b9a4"
   - id: "s10-p7-s3"
     span:
       start: 455
       end: 554
-      blockRevision: 1
+      blockRevision: 2
       textDigest: "f3ad7574b4edcb4985bdfdc21a2d6d0123a62294ae88c4251f0b15899bf2b9a4"
   - id: "s10-p7-s4"
     span:
       start: 555
       end: 814
-      blockRevision: 1
+      blockRevision: 2
       textDigest: "f3ad7574b4edcb4985bdfdc21a2d6d0123a62294ae88c4251f0b15899bf2b9a4"
-revision: 1
+revision: 2
 status:
   transcription: "draft"
   mathTranscription: "draft"

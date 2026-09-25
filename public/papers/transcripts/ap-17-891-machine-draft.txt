@@ -787,7 +787,7 @@ $$
 \begin{aligned}
 \mu \beta^3 \frac{d^2 x}{d t^2} &= \varepsilon X = \varepsilon X' , \\
 \mu \beta^2 \frac{d^2 y}{d t^2} &= \varepsilon \beta \left( Y - \frac{v}{V} N \right) = \varepsilon Y' , \\
-\mu \beta^2 \frac{d^2 z}{d t^2} &= \varepsilon \beta \left( Z + \frac{v}{V} M \right) = \varepsilon Z'
+\mu \beta^3 \frac{d^2 z}{d t^2} &= \varepsilon \beta \left( Z + \frac{v}{V} M \right) = \varepsilon Z'
 \end{aligned}
 $$
 und bemerken zunächst, daß $\varepsilon X'$, $\varepsilon Y'$, $\varepsilon Z'$ die Komponenten der auf das Elektron wirkenden ponderomotorischen Kraft sind, und zwar in einem in diesem Moment mit dem Elektron mit gleicher Geschwindigkeit wie dieses bewegten System betrachtet. (Diese Kraft könnte beispielsweise mit einer im letzten System ruhenden Federwage gemessen werden.) Wenn wir nun diese Kraft schlechtweg „die auf das Elektron wirkende Kraft“ nennen und die Gleichung
