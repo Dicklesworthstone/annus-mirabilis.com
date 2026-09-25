@@ -441,25 +441,25 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
           single experiment.
         </p>
         <p>
-          Every displayed quantity comes from one instance-scoped accepted snapshot. Invalid drafts
-          preserve that snapshot. This companion preview does not claim the full catalogue's launch
-          acceptance or source review.
+          Every number shown comes from the settings this laboratory last accepted, and an invalid
+          entry leaves those numbers as they were. This companion preview does not claim the full
+          catalogue's launch acceptance or source review.
         </p>
         <p>
           <a href="https://github.com/Dicklesworthstone/annus-mirabilis.com/blob/main/src/physics/reference/radiation/avogadro.ts">
-            Historical radiation owner
+            The molecular number from Planck's radiation constants
           </a>{" "}
           ·{" "}
           <a href="https://github.com/Dicklesworthstone/annus-mirabilis.com/blob/main/src/physics/reference/inference.ts">
-            Brownian inference owner
+            The molecular number from Brownian displacements
           </a>{" "}
           ·{" "}
           <a href="https://github.com/Dicklesworthstone/annus-mirabilis.com/blob/main/src/physics/reference/molecularDimensions.ts">
-            Joint viscosity–diffusion owner
+            Molecular size and number from viscosity and diffusion
           </a>{" "}
           ·{" "}
           <a href="https://github.com/Dicklesworthstone/annus-mirabilis.com/blob/main/src/experiments/avogadro/session.ts">
-            Snapshot composition
+            How the page gathers these results
           </a>
         </p>
       </details>

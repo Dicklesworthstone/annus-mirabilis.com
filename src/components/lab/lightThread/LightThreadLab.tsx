@@ -435,21 +435,21 @@ export function LightThreadLab({ sourceDigest = "" }: { sourceDigest?: string } 
           The control bounds are numerical admission limits, not claims of physical impossibility.
         </p>
         <p>
-          The frequency and energy factors come from the existing relativistic wave owners. One
-          accepted, instance-scoped snapshot supplies every displayed quantity. No FrankenSim/WASM
-          execution is claimed.
+          The frequency and energy factors come from the site's code for relativistic waves. Every
+          number shown comes from the settings this laboratory last accepted. No FrankenSim result
+          is claimed.
         </p>
         <p>
           <a href="https://github.com/Dicklesworthstone/annus-mirabilis.com/blob/main/src/physics/reference/waves.ts">
-            Wave owners
+            Doppler shift and light energy (relativity §§ 7–8)
           </a>{" "}
           ·{" "}
           <a href="https://github.com/Dicklesworthstone/annus-mirabilis.com/blob/main/src/physics/reference/lightThread.ts">
-            Cross-paper calculation
+            The light thread across the papers
           </a>{" "}
           ·{" "}
           <a href="https://github.com/Dicklesworthstone/annus-mirabilis.com/blob/main/src/experiments/lightThread/session.ts">
-            Snapshot publication
+            How the page gathers these results
           </a>
         </p>
       </details>

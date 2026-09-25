@@ -334,16 +334,14 @@ export function ModeAllocationLab({
           </p>
 
           <details>
-            <summary>
-              Show the calculation owner: which real functions computed these numbers
-            </summary>
+            <summary>Show which functions computed these numbers</summary>
             <p>
               src/physics/reference/radiation/classical.ts (classicalCutoffEnergyDensity,
               classicalTotalEnergy, meanResonatorEnergy),
               src/physics/reference/radiation/avogadro.ts (avogadroFromPlanckConstants),
               src/physics/reference/radiation/spectra.ts (regimeRelativeErrors), and
-              src/experiments/lq02/session.ts (composing the snapshot; this component never
-              recomputes any of these).
+              src/experiments/lq02/session.ts (which gathers these results for the page; this
+              component never recomputes any of them).
             </p>
           </details>
         </div>

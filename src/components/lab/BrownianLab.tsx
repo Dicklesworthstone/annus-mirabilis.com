@@ -585,7 +585,7 @@ export function BrownianLab({
         </section>
       </div>
       <details>
-        <summary>Show the calculation owner and source identity</summary>
+        <summary>Show which code computes these numbers, and its fingerprint</summary>
         <p>
           Density, interval probability and displacement come from{" "}
           <code>src/physics/reference/diffusion/distributions.ts</code>. The grid comes from{" "}

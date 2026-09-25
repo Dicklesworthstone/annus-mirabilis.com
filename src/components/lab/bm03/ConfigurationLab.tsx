@@ -558,7 +558,7 @@ export function ConfigurationLab({
       </div>
 
       <details style={{ marginTop: "1.5rem" }}>
-        <summary>Show the calculation owner and source identity</summary>
+        <summary>Show which code computes these numbers</summary>
         <p>
           Configuration volume term, factor ratio and locked cluster pressure are computed by{" "}
           <code>src/physics/reference/diffusion/routeA.ts</code>.

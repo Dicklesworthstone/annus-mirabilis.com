@@ -498,7 +498,7 @@ export function OsmoticPartitionLab({
       </section>
 
       <details>
-        <summary>Show the calculation owner and source identity</summary>
+        <summary>Show which code computes these numbers</summary>
         <p>
           Number density, osmotic pressure, the dilute-domain check, partition force, and
           hydrostatic head are computed by <code>src/physics/reference/diffusion/routeA.ts</code>{" "}

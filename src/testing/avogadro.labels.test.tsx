@@ -30,6 +30,26 @@ describe("Avogadro lab: the modern row and the uncombined rows", () => {
     expect(reason).toContain("Stokes drag");
   });
 
+  test("the code behind the numbers is named by what it computes, not by an internal role", () => {
+    // The four links read "Historical radiation owner", "Brownian inference owner", "Joint
+    // viscosity–diffusion owner" and "Snapshot composition" (dispatch 218).
+    const start = text.indexOf("the code behind the numbers");
+    expect(start).toBeGreaterThan(0);
+    const disclosure = text.slice(
+      start,
+      text.indexOf("How the page gathers these results", start) + 40,
+    );
+    for (const name of [
+      "The molecular number from Planck's radiation constants",
+      "The molecular number from Brownian displacements",
+      "Molecular size and number from viscosity and diffusion",
+      "How the page gathers these results",
+    ]) {
+      expect(disclosure.replaceAll("&#x27;", "'")).toContain(name);
+    }
+    expect(disclosure).not.toMatch(/\bowner\b|\bsnapshot\b|instance-scoped/i);
+  });
+
   test("no estimate is marked closest and no combined statistic is named", () => {
     expect(text).not.toMatch(/closest|best value|weighted mean|Do not average/i);
   });
