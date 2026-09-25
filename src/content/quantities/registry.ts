@@ -165,9 +165,7 @@ export function isRegisteredQuantityId(id: string): boolean {
  * cannot each invent a different name for the same not-yet-authored quantity.
  * `resolveQuantityId` still reports these `unregistered`; this table is documentation
  * (surfaced in docs/QUANTITY_IDS.md), never a silent stand-in binding. */
-export const RESERVED_SPELLINGS: Readonly<Record<string, string>> = Object.freeze({
-  magneticDeflectability:
-    "am-sre-equations-2g3h adds this record, citing paper 3 section 10's printed definition, after the facsimile check of am-edn-inventory-relativity-0u9.",
-  electricDeflectability:
-    "am-sre-equations-2g3h adds this record, citing paper 3 section 10's printed definition, after the facsimile check of am-edn-inventory-relativity-0u9.",
-});
+// magneticDeflectability and electricDeflectability, reserved here for am-sre-equations-2g3h, left
+// this table on 2026-09-25 (dispatch 236): p. 920 names them and prints no definition, so they are
+// registered with dimensionStatus "undefined-in-source" rather than waiting for one.
+export const RESERVED_SPELLINGS: Readonly<Record<string, string>> = Object.freeze({});

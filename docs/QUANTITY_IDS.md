@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 299 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 299 quantities, 45 rejected spellings, 0 reserved spellings.
 
 ## Registered quantities
 
@@ -312,8 +312,7 @@ Total: 299 quantities, 45 rejected spellings, 2 reserved spellings.
 
 Reserved for a not-yet-authored record; `resolveQuantityId` reports these `unregistered`, never a plausible-looking binding.
 
-- `electricDeflectability`: am-sre-equations-2g3h adds this record, citing paper 3 section 10's printed definition, after the facsimile check of am-edn-inventory-relativity-0u9.
-- `magneticDeflectability`: am-sre-equations-2g3h adds this record, citing paper 3 section 10's printed definition, after the facsimile check of am-edn-inventory-relativity-0u9.
+_None._
 
 ## Representation fields
 

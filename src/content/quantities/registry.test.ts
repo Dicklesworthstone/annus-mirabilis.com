@@ -515,10 +515,17 @@ describe("legacy spellings", () => {
     }).toThrow(/representation-field-shadows-id/);
   });
 
-  test("magneticDeflectability returns unregistered, with a documentation note naming the owning bead", () => {
-    const result = resolveQuantityId("magneticDeflectability");
-    expect(result).toEqual({ ok: false, kind: "unregistered" });
-    expect(RESERVED_SPELLINGS.magneticDeflectability).toContain("am-sre-equations-2g3h");
+  test("a reserved spelling is never a registered record, and its note names the bead that adds it", () => {
+    // The table may be empty: its last two entries were registered in dispatch 236. The two
+    // assertions below it are what this test proves today; the loop binds any future entry.
+    for (const [spelling, note] of Object.entries(RESERVED_SPELLINGS)) {
+      expect(resolveQuantityId(spelling)).toEqual({ ok: false, kind: "unregistered" });
+      expect(note).toMatch(/\bam-[a-z0-9-]+\b/);
+    }
+    // Kaufmann's A_m and A_e (p. 920) are no longer reserved: they are registered, with
+    // dimensionStatus "undefined-in-source", once their records land.
+    expect(Object.keys(RESERVED_SPELLINGS)).not.toContain("magneticDeflectability");
+    expect(Object.keys(RESERVED_SPELLINGS)).not.toContain("electricDeflectability");
   });
 
   test('intervalSquared returns legacy-spelling with spacetimeIntervalSquared, message "use spacetimeIntervalSquared"', () => {
