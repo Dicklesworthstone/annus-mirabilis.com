@@ -23,9 +23,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "a “velocity below that of light”"
-    rationale: "„Unterlichtgeschwindigkeit“ is Einstein’s own compound, set in quotation marks; “sub-light velocity” keeps it a coined word in quotes. “Subluminal” is later technical vocabulary and is kept out of the text."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

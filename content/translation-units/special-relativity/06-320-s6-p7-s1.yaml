@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
-unresolvedAlternatives:
-  - text: "The analogous holds for the “magnetomotive forces”."
-    rationale: "The draft's reading, close to \"Analoges gilt\" word for word. Round 1 (NavyKite) gave \"Something analogous holds\", because \"the analogous\" is not idiomatic English as a noun; the meaning is the same."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

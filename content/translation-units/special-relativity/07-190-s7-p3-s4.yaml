@@ -33,9 +33,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "One sees that — contrary to the usual view — for v = −V, ν′ = ∞."
-    rationale: "The corrected sense, offered beside the text. The page prints “v = −∞, ν = ∞”, and the English keeps that as printed. By the equation just above, ν′ grows without bound as v approaches −V, and the contrast with the usual view holds only there, so “−∞” is a misprint for “−V” (err-typo-p912-2) and the unprimed ν a dropped prime (err-typo-p912-1)."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

@@ -31,9 +31,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
-unresolvedAlternatives:
-  - text: "regarded, to be sure, in a system moving at this moment with the electron at the same velocity as it"
-    rationale: "The draft’s reading. “und zwar” specifies the frame in which the force components hold; English “to be sure” also reads as a concession, so round 1 (NavyKite) gave “and indeed”, the paper’s rendering of “und zwar” in section 1."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

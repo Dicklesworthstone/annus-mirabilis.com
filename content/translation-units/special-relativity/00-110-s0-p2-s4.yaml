@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "luminiferous ether"
-    rationale: "Lichtäther is Einstein's compound of Licht and Äther, parallel to his “Lichtmedium” above; “light ether” keeps that parallel, and “luminiferous ether” is the conventional English name for the same thing."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

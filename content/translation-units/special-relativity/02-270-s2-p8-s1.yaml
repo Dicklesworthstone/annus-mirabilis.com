@@ -25,9 +25,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
-unresolvedAlternatives:
-  - text: "we may not attach any absolute meaning"
-    rationale: "The draft's reading. “dürfen ... keine” states a prohibition: no absolute meaning is permitted. “May not” keeps the form of a permission denied, but in English it can also be read as a possibility (perhaps we do not); round 1 (NavyKite) adopted “must not”, which states the prohibition and nothing else."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

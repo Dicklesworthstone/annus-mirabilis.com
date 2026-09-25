@@ -23,9 +23,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
-unresolvedAlternatives:
-  - text: "and so may give off no energy in the form of radiation"
-    rationale: "The draft’s reading. “abgeben möge” is part of the assumption, beside “beschleunigt sein soll”; English “may give off no energy” can also read as a possibility or a permission, so round 1 (NavyKite) gave “is to give off no energy”, and “infolgedessen” as “consequently”."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

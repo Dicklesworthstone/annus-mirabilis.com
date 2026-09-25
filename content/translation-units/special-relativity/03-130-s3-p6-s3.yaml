@@ -27,9 +27,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "the sum total of the readings"
-    rationale: "Inbegriff is the whole of which the readings are the parts; “totality” keeps that sense without suggesting an arithmetic sum."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

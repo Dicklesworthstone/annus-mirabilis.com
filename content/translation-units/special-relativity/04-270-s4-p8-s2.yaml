@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "a balance clock"
-    rationale: "Unruhuhr is a clock regulated by a balance wheel (Unruh), as a watch is, not by a pendulum. The historian’s margin on this sentence treats what the claim does and does not cover."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

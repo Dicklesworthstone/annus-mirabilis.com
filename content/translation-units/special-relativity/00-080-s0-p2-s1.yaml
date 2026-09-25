@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "as has already been proved for the quantities of the first order"
-    rationale: "erwiesen can be read as \"proved\" or as \"shown\"; the paper does not say by whom or how, so the weaker verb is kept in the text."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

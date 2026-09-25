@@ -23,9 +23,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "postulate"
-    rationale: "Voraussetzung is rendered \"presupposition\" throughout, as the paper's own word for what is assumed, not derived. \"Postulate\" is the usual later English term and is kept out of the text so that the paper's register is not modernised."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

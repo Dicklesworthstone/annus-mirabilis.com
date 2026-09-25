@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "gives rise to electric currents of the same magnitude and the same course as the electric forces do in the first case"
-    rationale: "The German closes with \"wie im ersten Falle die elektrischen Kräfte\", naming the forces as the cause of the first case's currents without a verb. \"Those produced by\" supplies the relation the elliptical German implies; the alternative keeps the ellipsis closer."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

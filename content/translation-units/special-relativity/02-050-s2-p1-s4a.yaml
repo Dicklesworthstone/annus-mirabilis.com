@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
-unresolvedAlternatives:
-  - text: "Here"
-    rationale: "The draft's reading. The display is printed with German words, Geschwindigkeit (velocity), Lichtweg (light path) and Zeitdauer (time interval), and a display is kept byte-identical to the German, so the English face shows it in German. Round 1 (NavyKite) glossed all three in brackets before it, in the convention s2-p1-s4b uses for Zeitdauer; without the gloss an English reader meets Lichtweg unexplained."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

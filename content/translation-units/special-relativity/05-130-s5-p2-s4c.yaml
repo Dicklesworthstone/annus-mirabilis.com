@@ -29,9 +29,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
-unresolvedAlternatives:
-  - text: "w with the subscripts y and x, in the display above"
-    rationale: "The display prints Latin subscripts, y over x, on the two components of w in the arctangent, where the preceding display defines them with the Greek ξ and η; the display is kept byte-identical, and the provenance receipt records it as a suspected misprint (err-typo-p905-1)."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

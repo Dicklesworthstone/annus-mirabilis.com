@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "For superluminal velocities"
-    rationale: "Überlichtgeschwindigkeiten are velocities above that of light; “superluminal” is the later technical word and is kept out of the text."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

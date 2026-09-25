@@ -22,9 +22,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "the small hand of my watch"
-    rationale: "Uhr is both “clock” and “watch”. “Clock” is kept throughout, because the paper’s argument is about the same kind of object in every paragraph, from this one to the clocks at A and B."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

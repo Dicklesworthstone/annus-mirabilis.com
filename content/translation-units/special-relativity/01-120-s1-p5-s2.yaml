@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
-unresolvedAlternatives:
-  - text: "of assigning times to events that occur at places remote from the clock"
-    rationale: "zeitlich werten is “to evaluate with respect to time”; the phrase recurs in the next two paragraphs and is rendered the same way each time."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

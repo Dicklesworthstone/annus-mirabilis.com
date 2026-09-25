@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "the “system at rest”"
-    rationale: "„ruhende System“ is literally the system at rest. “Stationary system” is the usual English name; the German word ruhend recurs in ruhende Uhren (“clocks at rest”), which this translation keeps as “at rest”."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"
