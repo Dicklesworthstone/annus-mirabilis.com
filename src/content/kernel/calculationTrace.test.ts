@@ -76,7 +76,8 @@ describe("calculation traces", () => {
     const markup = renderTraceMarkup(trace);
     expect(markup).toContain(trace.constantSetLabel);
     expect(markup.includes("6.1 μm")).toBe(false);
-    expect(trace.constantSetLabel).toBe("Declared 1905-plan inputs (source review pending)");
+    // Declared, not measured; and no review clause (D-2026-09-25-no-review-status-banners).
+    expect(trace.constantSetLabel).toBe("Declared 1905-plan inputs");
     expect(set.gasConstantProvenance).toBe("not-applicable");
     expect(set.entries.every((entry) => entry.evidentialRole === "declared-input")).toBe(true);
     logger.log({

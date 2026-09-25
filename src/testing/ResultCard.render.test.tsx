@@ -121,11 +121,14 @@ describe("ResultCard.render: the Brownian lambda_x fixture, static markup", () =
     expect(html).toContain("misc-fixed-jump-size");
   });
 
-  test("renders the printed check with its label and a pending-transcription notice, never silently reviewed", () => {
+  // The pending transcription is carried as data, never as "(source transcription pending review)"
+  // (D-2026-09-25-no-review-status-banners), and never dropped: the cell still says it is pending.
+  test("renders the printed check with its label, its pending transcription as data and no review words", () => {
     const html = renderToStaticMarkup(<ResultCard card={brownianFixture} />);
     expect(html).toContain("0,8 Mikron");
     expect(html).toContain('data-check-label="as printed"');
-    expect(html).toContain("transcription pending review");
+    expect(html).toContain('data-transcription-pending="true"');
+    expect(html).not.toContain("pending review");
   });
 
   test("renders the support layer: selected route, entry assumptions, empty-empirical sentence, and the unverified-step marker", () => {

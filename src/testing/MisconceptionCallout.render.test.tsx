@@ -166,7 +166,8 @@ describe("MisconceptionCallout: the correction is bound to the wrong turn", () =
     expect(modern).toContain("The squared displacement lambda_x^2 = 2 D t is linear in D");
   });
 
-  test("a not-yet-reviewed intervention renders a visible notice next to the instrument link", () => {
+  // The verdict is carried as data and shows no words (D-2026-09-25-no-review-status-banners).
+  test("a not-yet-reviewed intervention marks the instrument link as data, with no visible notice", () => {
     const markup = renderToStaticMarkup(
       <MisconceptionCallout
         misconception={fixtureHalvingDiffusivity}
@@ -177,7 +178,8 @@ describe("MisconceptionCallout: the correction is bound to the wrong turn", () =
       />,
     );
     expect(markup).toContain('data-intervention-status="not-yet-reviewed"');
-    expect(markup).toContain("not yet reviewed against this misconception");
+    expect(markup).toContain("See it in the instrument");
+    expect(markup).not.toContain("not yet reviewed");
   });
 
   test("a reviewed intervention renders no notice", () => {

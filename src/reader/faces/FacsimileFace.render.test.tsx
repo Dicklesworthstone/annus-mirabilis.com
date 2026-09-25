@@ -74,7 +74,9 @@ describe("FacsimileFace rendering (am-read-facsimile-face-er0)", () => {
 
     // Third-party OCR notice
     expect(html).toContain("Third-Party Text Layer Notice");
-    expect(html).toContain("That text layer is third-party OCR output, not the reviewed edition");
+    expect(html).toContain(
+      "That text layer is third-party OCR output, not the text of this edition",
+    );
 
     // Interactive viewer & noscript fallback link with exact required text
     expect(html).toContain("facsimile-viewer");

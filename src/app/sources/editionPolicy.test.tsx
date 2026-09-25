@@ -92,36 +92,31 @@ describe("the translation's state is counted from its units", () => {
     }
   });
 
-  test("the sentence says what the units say: none, drafts, and reviews", () => {
+  // It says which papers the English covers and which it does not yet, and nothing of who drafted
+  // or checked it (D-2026-09-25-no-review-status-banners): the records keep that.
+  test("the sentence says which papers have English, in the journal's order, and nothing of review", () => {
     expect(translationSentence([], names)).toBe("The English translation has not been started.");
-    const drafted = translationSentence(
-      [{ slug: "mass-energy", units: 43, machineDrafts: 43, reviewed: 0 }],
-      names,
-    );
-    expect(drafted).toContain("43 passages, all drafted by a machine, and none reviewed yet");
-    const mixed = translationSentence(
+    const one = translationSentence(
       [{ slug: "mass-energy", units: 43, machineDrafts: 40, reviewed: 3 }],
       names,
     );
-    expect(mixed).toContain("40 of them drafted by a machine");
-    expect(mixed).toContain("three reviewed by a person");
-    // Final under D-2026-09-25: still drafted by a machine, checked by agents, and by no person.
-    const checked = translationSentence(
-      [
-        {
-          slug: "mass-energy",
-          units: 43,
-          machineDrafts: 0,
-          reviewed: 43,
-          byModel: 43,
-          agentChecked: 43,
-        },
-      ],
+    expect(one).toBe(
+      "The English translation covers the mass and energy paper; the light quanta, Brownian motion and special relativity papers have none yet.",
+    );
+    const all = translationSentence(
+      ["special-relativity", "mass-energy", "light-quanta", "brownian-motion"].map((slug) => ({
+        slug,
+        units: 10,
+        machineDrafts: 0,
+        reviewed: 10,
+        byModel: 10,
+        agentChecked: 10,
+      })),
       names,
     );
-    expect(checked).toContain(
-      "43 passages, all drafted by a machine, and all checked against the German by AI agents, none by a person",
+    expect(all).toBe(
+      "The English translation covers the light quanta, Brownian motion, special relativity and mass and energy papers.",
     );
-    expect(checked).not.toContain("43 reviewed");
+    for (const s of [one, all]) expect(s).not.toMatch(/review|draft|machine|AI agents|person/);
   });
 });

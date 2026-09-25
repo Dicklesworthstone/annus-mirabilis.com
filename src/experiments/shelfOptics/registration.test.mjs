@@ -33,5 +33,7 @@ for (const id of SHELF_IDS) {
 test("the instruments index gives optical comparisons their own argument grouping", () => {
   const code = readFileSync(new URL("../../app/instruments/page.tsx", import.meta.url), "utf8");
   assert.match(code, /^ {4}prefix: "shelf-",$/m);
-  assert.match(code, /reviewed historical datasets and strict 1904 modes remain in preparation/);
+  assert.match(code, /historical datasets and strict 1904 modes remain in preparation/);
+  // No review clause (D-2026-09-25-no-review-status-banners).
+  assert.doesNotMatch(code, /reviewed historical datasets/);
 });

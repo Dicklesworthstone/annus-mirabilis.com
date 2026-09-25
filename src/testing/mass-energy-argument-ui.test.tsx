@@ -153,7 +153,7 @@ describe("mass-energy argument reading and interaction", () => {
     });
   });
 
-  test("front-door link does not publish an unreviewed Journey IV", () => {
+  test("front-door link does not present the investigation as Journey IV", () => {
     const render = (paperId: string) =>
       renderToStaticMarkup(
         <JourneyInPreparation
@@ -165,8 +165,11 @@ describe("mass-energy argument reading and interaction", () => {
     const mass = render("mass-energy");
     expect(mass).toContain('href="/discover/mass-energy/investigate/"');
     expect(mass).toContain("data-journey-in-preparation");
-    expect(mass).toContain("does not");
-    expect(mass).toContain("publish the full reviewed journey");
+    // It says what the investigation is not, in plain words, and nothing of review
+    // (D-2026-09-25-no-review-status-banners).
+    expect(mass).toContain("is not the");
+    expect(mass).toContain("full journey or its historical knowledge shelf");
+    expect(mass).not.toContain("reviewed");
     for (const paper of ["brownian-motion", "light-quanta", "special-relativity"]) {
       expect(render(paper)).not.toContain("/discover/mass-energy/investigate/");
     }

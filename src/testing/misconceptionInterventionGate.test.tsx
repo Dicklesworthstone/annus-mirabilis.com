@@ -169,8 +169,10 @@ describe("interventionStatusForRender: the gate verdict reaches the rendered mar
         instrumentHref="/instruments/bm-06"
       />,
     );
+    // The verdict reaches the markup as data; its words are not shown
+    // (D-2026-09-25-no-review-status-banners).
     expect(markup).toContain('data-intervention-status="not-yet-reviewed"');
-    expect(markup).toContain("not yet reviewed against this misconception");
+    expect(markup).not.toContain("not yet reviewed");
   });
 
   test("end to end: an accepted, covering record renders no marker at all", () => {

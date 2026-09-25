@@ -21,10 +21,13 @@ const equations = {
 
 describe("Connected light investigation: real stores and server-rendered reading", () => {
   const html = renderToStaticMarkup(<LightQuantaInvestigationPage />);
-  test("publishes a separate explanatory workbench, not a reviewed journey", () => {
+  test("publishes a separate explanatory workbench, and says nothing of review", () => {
     expect(html).toContain('data-edition-status="explanatory-preview"');
     expect(html).toContain('data-light-investigation=""');
-    expect(html).toContain("review remain pending");
+    // "A route you could take" stays; "Editorial and physics review remain pending" went
+    // (D-2026-09-25-no-review-status-banners).
+    expect(html).toContain("A route you could take");
+    expect(html).not.toContain("review remain pending");
     expect(html).toContain("Modern SI constants");
     const placeholder = renderToStaticMarkup(
       <JourneyInPreparation {...DISCOVERY_PAPERS["light-quanta"]} />,

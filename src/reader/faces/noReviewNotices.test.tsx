@@ -23,7 +23,7 @@
  * asserted: no page claims a person reviewed anything.
  */
 import { describe, expect, test } from "bun:test";
-import { createElement } from "react";
+import { createElement, type ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import Papers from "../../app/papers/page";
 import { getModalityClasses } from "../../content/schemas/glossConventions.ts";
@@ -63,6 +63,34 @@ const REMOVED: Readonly<Record<string, RegExp>> = {
 /** The honesty rule that stays: nothing says a person reviewed it. */
 const CLAIMS_A_PERSON = /reviewed by (?:a person|[A-Z][a-z]+ [A-Z])|reviewed against the German by/;
 
+/**
+ * Review-status copy in the words a reader meets, anywhere on a page (dispatch 226): the home and
+ * about pages' tallies, a paper page's hidden per-passage line ("The reviewed German, aligned
+ * English, … are not yet available"), "not a reviewed transcription" under the equations, and the
+ * pending-review lines the rest of the site carried. Read from the text, not the markup, so a
+ * data attribute naming a review state (the audit trail) is not copy; hidden text counts, because
+ * ?view= shows it.
+ */
+const REVIEW_COPY =
+  /not yet reviewed|reviews? (?:is |are )?pending|remains? pending|pending review|no (?:person|one)(?: else)? has (?:yet )?reviewed|awaiting review|unreviewed|checked (?:against the German )?by AI agents|none by a person|second reader|draft explanation|machine[- ]draft|reviewed (?:German|transcription|translation|edition|historical|dataset|account|journey|real)|not a reviewed|(?:source|editorial|physics) review|(?:marked|labelled|shown) as a draft/i;
+
+const textOf = (html: string) =>
+  html
+    .replace(/<script\b[\s\S]*?<\/script>/g, " ")
+    .replace(/<style\b[\s\S]*?<\/style>/g, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&#x27;/g, "'")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ");
+/** Each piece of review copy on the page, in a little context. */
+function reviewCopy(html: string): string[] {
+  const text = textOf(html);
+  const re = new RegExp(REVIEW_COPY.source, "gi");
+  return [...text.matchAll(re)].map((m) =>
+    text.slice(Math.max(0, (m.index ?? 0) - 50), (m.index ?? 0) + 40),
+  );
+}
+
 function violations(html: string): string[] {
   const found = Object.entries(REMOVED)
     .filter(([, re]) => re.test(html))
@@ -98,6 +126,7 @@ describe("no reading page carries a review notice", () => {
         });
         rendered++;
         for (const v of violations(html)) wrong.push(`${paper} ${face}: ${v}`);
+        for (const c of reviewCopy(html)) wrong.push(`${paper} ${face}: review copy "${c}"`);
       }
     expect(rendered).toBe(PAPERS.length * Object.keys(FACES).length);
     expect(wrong).toEqual([]);
@@ -117,10 +146,80 @@ describe("no reading page carries a review notice", () => {
         reading: true,
       });
       for (const v of violations(html)) wrong.push(`${paper} paper page: ${v}`);
+      // Including each passage's hidden source block, which ?view=german shows in its place.
+      expect(html).toContain("data-face-source");
+      for (const c of reviewCopy(html)) wrong.push(`${paper} paper page: review copy "${c}"`);
     }
     const index = renderToStaticMarkup(createElement(Papers));
     expect(index).toContain('class="paper-index"');
     for (const v of violations(index)) wrong.push(`/papers/: ${v}`);
+    for (const c of reviewCopy(index)) wrong.push(`/papers/: review copy "${c}"`);
+    expect(wrong).toEqual([]);
+  });
+
+  // Dispatch 226: the home and about pages, and every other page that carried review copy.
+  test("the home and about pages, and every other page that carried review copy", async () => {
+    const root = "../../app";
+    type Loader = () => Promise<unknown>;
+    const page =
+      (path: string, props?: Record<string, unknown>): Loader =>
+      async () => {
+        const Default = (await import(`${root}/${path}`)).default as (p: unknown) => unknown;
+        return Default(props ?? {});
+      };
+    const tours = (await import(`${root}/tours/[tour]/page.tsx`)).generateStaticParams() as {
+      tour: string;
+    }[];
+    const concepts = (
+      (await (await import(`${root}/foundations/[concept]/page.tsx`)).generateStaticParams()) as {
+        concept: string;
+      }[]
+    ).slice(0, 3);
+    const pages: [string, Loader][] = [
+      ["/", page("page.tsx")],
+      ["/about/", page("about/page.tsx")],
+      ["/sources/", page("sources/page.tsx")],
+      ["/instruments/", page("instruments/page.tsx")],
+      ["/tours/", page("tours/page.tsx")],
+      ["/offline/", page("offline/page.tsx")],
+      ["/foundations/", page("foundations/page.tsx")],
+      ["/notation/", page("notation/page.tsx")],
+      ["/embed/", page("embed/page.tsx")],
+      ["/kitchen/", page("kitchen/page.tsx")],
+      ["/discover/light-quanta/", page("discover/light-quanta/page.tsx")],
+      ["/discover/brownian-motion/", page("discover/brownian-motion/page.tsx")],
+      ["/discover/mass-energy/", page("discover/mass-energy/page.tsx")],
+      ["/discover/light-quanta/investigate/", page("discover/light-quanta/investigate/page.tsx")],
+      ["/discover/mass-energy/investigate/", page("discover/mass-energy/investigate/page.tsx")],
+      [
+        "/discover/special-relativity/investigate/",
+        page("discover/special-relativity/investigate/page.tsx"),
+      ],
+      ["/lab/bm-01/", page("lab/bm-01/page.tsx")],
+      ["/lab/bm-05/", page("lab/bm-05/page.tsx")],
+      ["/lab/bm-07/", page("lab/bm-07/page.tsx")],
+      ["/lab/bm-08/", page("lab/bm-08/page.tsx")],
+      ["/lab/countermodels/independence/", page("lab/countermodels/independence/page.tsx")],
+      ...tours.map(({ tour }): [string, Loader] => [
+        `/tours/${tour}/`,
+        page("tours/[tour]/page.tsx", { params: Promise.resolve({ tour }) }),
+      ]),
+      ...concepts.map(({ concept }): [string, Loader] => [
+        `/foundations/${concept}/`,
+        page("foundations/[concept]/page.tsx", { params: Promise.resolve({ concept }) }),
+      ]),
+    ];
+    // Non-vacuity: timed tours are among them (TimedTour said "A draft path: no one has reviewed it
+    // yet"), and every page renders a page's worth of text.
+    expect(tours.length).toBeGreaterThan(1);
+    expect(concepts.length).toBeGreaterThan(0);
+    const wrong: string[] = [];
+    for (const [path, load] of pages) {
+      const html = await exportMarkup((await load()) as ReactElement);
+      expect({ path, rendered: textOf(html).length > 400 }).toEqual({ path, rendered: true });
+      for (const v of violations(html)) wrong.push(`${path}: ${v}`);
+      for (const c of reviewCopy(html)) wrong.push(`${path}: review copy "${c}"`);
+    }
     expect(wrong).toEqual([]);
   });
 });

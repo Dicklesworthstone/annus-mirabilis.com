@@ -18,7 +18,8 @@ test("teaching trace evaluates declared inputs without claiming measured or revi
   assert.ok(
     set.entries.every((e) => e.evidentialRole === "declared-input" && e.uncertainty === undefined),
   );
-  assert.match(trace.constantSetLabel, /source review pending/);
+  // Declared inputs, named as such, with no review clause (D-2026-09-25-no-review-status-banners).
+  assert.match(trace.constantSetLabel, /^Declared 1905-plan inputs$/);
   assert.ok(
     Math.abs(
       trace.rows[4].value / ((8.31 * 290.15) / (6e23 * 6 * Math.PI * 1.35e-3 * 0.5e-6)) - 1,

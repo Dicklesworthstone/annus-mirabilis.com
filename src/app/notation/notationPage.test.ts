@@ -352,14 +352,16 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
     // "Pending" elsewhere in the text is not the controlled prefix.
     expect(describeVerification([entry("Checked; nothing pending")]).checkedCount).toBe(1);
 
-    // An agent reading page images is not a person reviewing them, and the notice says which.
+    // An agent reading page images is not a person reviewing them, and the notice says who did it,
+    // with no review clause (D-2026-09-25-no-review-status-banners).
     const agent = entry("Plate of printed page 639, read by eye", "Mass and energy", "agent:X");
     expect(describeVerification([agent, agent]).message).toEndWith(
-      "An agent did that checking, reading each page image, and no person has reviewed it yet.",
+      "An agent did that checking, reading each page image.",
     );
     expect(describeVerification([agent, checked, pending]).message).toContain(
-      "1 of those checks was made by an agent reading the page images, and no person has reviewed it yet.",
+      "1 of those checks was made by an agent reading the page images.",
     );
+    expect(describeVerification([agent, agent]).message).not.toMatch(/review/);
     expect(describeVerification([checked, checked]).message).not.toContain("agent");
   });
 
@@ -369,7 +371,8 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
       if (!entry.verification.by.startsWith("agent:")) continue;
       agentChecked += 1;
       expect(entry.checkedLabel).toStartWith("Read from the printed page by an agent");
-      expect(entry.checkedLabel).toEndWith("No person has reviewed it yet.");
+      // It names who read it and claims no check or review.
+      expect(entry.checkedLabel).not.toMatch(/review|Checked against/);
     }
     // Non-vacuity: agents read most of the concordance from the plates on 2026-09-24.
     expect(agentChecked).toBeGreaterThan(0);

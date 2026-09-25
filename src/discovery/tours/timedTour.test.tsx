@@ -67,10 +67,11 @@ describe("the fifteen-minute mass-energy tour, static", () => {
     expect(html).not.toContain("data-instrument-id=");
   });
 
-  test("the move step is Journey IV's own summary, labelled a draft while it is one", () => {
+  // No draft label, whatever the summary's review state (D-2026-09-25-no-review-status-banners).
+  test("the move step is Journey IV's own summary, with no draft or review label", () => {
     expect(text).toContain(MOVE.r0Summary.text.replace(/\s+/g, " ").slice(0, 60));
-    if (MOVE.r0Summary.reviewState !== "reviewed")
-      expect(text).toContain("This summary is a draft");
+    expect(text).not.toContain("This summary is a draft");
+    expect(text).not.toMatch(/no (?:physics reviewer|one) has (?:checked|reviewed)/);
   });
 
   test("the tours index lists the tour with its time", async () => {

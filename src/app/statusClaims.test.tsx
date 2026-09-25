@@ -98,13 +98,17 @@ describe("status claims on the top-level pages follow the records", () => {
     const text = textOf(renderToStaticMarkup(<About />));
     if (translated.size > 0) {
       expect(text).not.toContain("no English translation has been made");
-      expect(text).toContain("The English translation has begun");
+      expect(text).toContain("The English translation covers the");
+      // What the site holds, and nothing of review (D-2026-09-25-no-review-status-banners).
+      expect(text).not.toMatch(/checked against the German by AI agents|none by a person/);
     } else {
       expect(text).toContain("The English translation has not been started");
     }
   });
 });
 
+// They say which papers have their German text and which do not yet, and nothing of review
+// (D-2026-09-25-no-review-status-banners): a reviewed text and a draft are both "set".
 describe("the German-text sentences say each state plainly", () => {
   const four = (states: readonly string[]) =>
     ["Light quanta", "Brownian motion", "Special relativity", "Mass and energy"].map(
@@ -114,23 +118,27 @@ describe("the German-text sentences say each state plainly", () => {
       }),
     );
 
-  test("drafts are called drafts, transcription and not-started are named, Brownian keeps its capital", () => {
+  test("set papers are named without review, transcription and not-started are named, Brownian keeps its capital", () => {
     const s = germanTextSentences(four(["draft", "draft", "in-transcription", "draft"]));
     expect(s).toContain(
-      "The German text is set, as unreviewed drafts, for the light quanta, Brownian motion and mass and energy papers.",
+      "The German text is set for the light quanta, Brownian motion and mass and energy papers.",
     );
     expect(s).toContain("The special relativity paper is still being transcribed");
+    // A reviewed text reads exactly as a draft does: set, and no more.
     const t = germanTextSentences(four(["reviewed", "not-started", "draft", "draft"]));
-    expect(t).toContain("The German text of the light quanta paper is set and reviewed.");
+    expect(t).toContain(
+      "The German text is set for the light quanta, special relativity and mass and energy papers.",
+    );
     expect(t).toContain("The German text of the Brownian motion paper has not been started.");
+    for (const sentence of [s, t]) expect(sentence).not.toMatch(/review|draft/);
   });
 
-  test("the caption counts what is set, and says how many are reviewed", () => {
+  test("the caption counts what is set, and says nothing of review", () => {
     expect(germanTextCount(four(["draft", "draft", "in-transcription", "draft"]))).toBe(
-      "The German text is set for three of the four, as unreviewed drafts.",
+      "The German text is set for three of the four.",
     );
     expect(germanTextCount(four(["reviewed", "draft", "draft", "draft"]))).toBe(
-      "The German text is set for four of the four, 1 of them reviewed.",
+      "The German text is set for four of the four.",
     );
   });
 });

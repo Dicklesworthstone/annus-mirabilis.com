@@ -157,13 +157,16 @@ test("section is in authored order and refuses absent or foreign arguments", () 
   input.arguments = [];
   assert.throws(() => build(input), /Missing or mismatched/);
 });
-test("source notices, provenance, German language and missing translation are explicit", () => {
+test("provenance, German language and missing translation are explicit, with no review notice", () => {
   const { html } = build();
+  // The record's source notice ("Source review is pending." in this fixture) is not printed, and
+  // nothing says review (D-2026-09-25-no-review-status-banners).
+  assert.ok(!html.includes("Source review is pending."), "the source notice is not printed");
+  assert.ok(!/review pending|reviewed/.test(html), "no review wording");
   for (const text of [
-    "Source review is pending.",
     'lang="de"',
     "Section 4, page 559",
-    "No reviewed translation",
+    "None: this file holds the explanation, not the translation",
     "a".repeat(64),
     "b".repeat(64),
     "Fixture license notice",
