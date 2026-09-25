@@ -1479,3 +1479,271 @@ displays:
         quantityId: chargeVelocityStationary
       - glyph: "u_\\zeta"
         quantityId: chargeVelocityMoving
+  # § 10. The dynamics of the slowly accelerated electron: μ is its mass and ε its charge; v is the
+  #   speed of the system k in which the electron is momentarily at rest, as the concordance reads v
+  #   through Part II; X', Y', Z' are the field in k. eq-s10-d9 (A_m/A_e, p. 920's magnetic and electric
+  #   deflectabilities) waits for the orchestrator's ruling on registering those two quantities.
+  - display: eq-s10-d1
+    latex: "\\begin{aligned} \\mu \\frac{d^2 x}{d t^2} &= \\varepsilon X \\\\ \\mu \\frac{d^2 y}{d t^2} &= \\varepsilon Y \\\\ \\mu \\frac{d^2 z}{d t^2} &= \\varepsilon Z , \\end{aligned}"
+    spoken: "Three equations. mu times the second derivative of x with respect to t equals epsilon times X; mu times the second derivative of y with respect to t equals epsilon times Y; mu times the second derivative of z with respect to t equals epsilon times Z."
+    terms:
+      - glyph: "\\mu"
+        quantityId: electronMass
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "\\varepsilon"
+        quantityId: electronCharge
+      - glyph: "X"
+        quantityId: electricFieldStationary
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "Y"
+        quantityId: electricFieldStationary
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+      - glyph: "Z"
+        quantityId: electricFieldStationary
+  - display: eq-s10-d2
+    latex: "\\begin{aligned} \\mu \\frac{d^2 \\xi}{d \\tau^2} &= \\varepsilon X' , \\\\ \\mu \\frac{d^2 \\eta}{d \\tau^2} &= \\varepsilon Y' , \\\\ \\mu \\frac{d^2 \\zeta}{d \\tau^2} &= \\varepsilon Z' , \\end{aligned}"
+    spoken: "Three equations. mu times the second derivative of xi with respect to tau equals epsilon times X prime; mu times the second derivative of eta with respect to tau equals epsilon times Y prime; mu times the second derivative of zeta with respect to tau equals epsilon times Z prime."
+    terms:
+      - glyph: "\\mu"
+        quantityId: electronMass
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "\\varepsilon"
+        quantityId: electronCharge
+      - glyph: "X'"
+        quantityId: electricFieldMoving
+      - glyph: "\\eta"
+        quantityId: coordinatePositionMoving
+      - glyph: "Y'"
+        quantityId: electricFieldMoving
+      - glyph: "\\zeta"
+        quantityId: coordinatePositionMoving
+      - glyph: "Z'"
+        quantityId: electricFieldMoving
+  - display: eq-s10-d3
+    latex: "\\begin{aligned} \\tau &= \\beta \\left( t - \\frac{v}{V^2} x \\right) , \\\\ \\xi &= \\beta (x - v t) , &\\qquad X' &= X , \\\\ \\eta &= y , &\\qquad Y' &= \\beta \\left( Y - \\frac{v}{V} N \\right) , \\\\ \\zeta &= z , &\\qquad Z' &= \\beta \\left( Z + \\frac{v}{V} M \\right) . \\end{aligned}"
+    spoken: "Seven equations. tau equals beta times the quantity t minus v over V squared times x. xi equals beta times the quantity x minus v t; and X prime equals X. eta equals y; and Y prime equals beta times the quantity Y minus v over V times N. zeta equals z; and Z prime equals beta times the quantity Z plus v over V times M."
+    terms:
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "X'"
+        quantityId: electricFieldMoving
+      - glyph: "X"
+        quantityId: electricFieldStationary
+      - glyph: "\\eta"
+        quantityId: coordinatePositionMoving
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "Y'"
+        quantityId: electricFieldMoving
+      - glyph: "Y"
+        quantityId: electricFieldStationary
+      - glyph: "N"
+        quantityId: magneticFieldStationary
+      - glyph: "\\zeta"
+        quantityId: coordinatePositionMoving
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+      - glyph: "Z'"
+        quantityId: electricFieldMoving
+      - glyph: "Z"
+        quantityId: electricFieldStationary
+      - glyph: "M"
+        quantityId: magneticFieldStationary
+  - display: eq-A
+    latex: "\\left\\{ \\begin{aligned} \\frac{d^2 x}{d t^2} &= \\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta^3} X , \\\\ \\frac{d^2 y}{d t^2} &= \\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta} \\left( Y - \\frac{v}{V} N \\right) , \\\\ \\frac{d^2 z}{d t^2} &= \\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta} \\left( Z + \\frac{v}{V} M \\right) . \\end{aligned} \\right."
+    spoken: "Equations A: three equations joined by a brace. The second derivative of x with respect to t equals epsilon over mu, times one over beta cubed, times X. The second derivative of y with respect to t equals epsilon over mu, times one over beta, times the quantity Y minus v over V times N. The second derivative of z with respect to t equals epsilon over mu, times one over beta, times the quantity Z plus v over V times M."
+    terms:
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "\\varepsilon"
+        quantityId: electronCharge
+      - glyph: "\\mu"
+        quantityId: electronMass
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "X"
+        quantityId: electricFieldStationary
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "Y"
+        quantityId: electricFieldStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "N"
+        quantityId: magneticFieldStationary
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+      - glyph: "Z"
+        quantityId: electricFieldStationary
+      - glyph: "M"
+        quantityId: magneticFieldStationary
+  # eq-s10-d4: the z row prints μβ³ where the paper's own steps give μβ² (receipt err-typo-p919-1);
+  #   the binding and the spoken form read what is printed.
+  - display: eq-s10-d4
+    latex: "\\begin{aligned} \\mu \\beta^3 \\frac{d^2 x}{d t^2} &= \\varepsilon X = \\varepsilon X' , \\\\ \\mu \\beta^2 \\frac{d^2 y}{d t^2} &= \\varepsilon \\beta \\left( Y - \\frac{v}{V} N \\right) = \\varepsilon Y' , \\\\ \\mu \\beta^3 \\frac{d^2 z}{d t^2} &= \\varepsilon \\beta \\left( Z + \\frac{v}{V} M \\right) = \\varepsilon Z' \\end{aligned}"
+    spoken: "Three equations. mu beta cubed times the second derivative of x with respect to t equals epsilon X, which equals epsilon X prime. mu beta squared times the second derivative of y with respect to t equals epsilon beta times the quantity Y minus v over V times N, which equals epsilon Y prime. mu beta cubed times the second derivative of z with respect to t equals epsilon beta times the quantity Z plus v over V times M, which equals epsilon Z prime."
+    terms:
+      - glyph: "\\mu"
+        quantityId: electronMass
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "\\varepsilon"
+        quantityId: electronCharge
+      - glyph: "X"
+        quantityId: electricFieldStationary
+      - glyph: "X'"
+        quantityId: electricFieldMoving
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "Y"
+        quantityId: electricFieldStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "N"
+        quantityId: magneticFieldStationary
+      - glyph: "Y'"
+        quantityId: electricFieldMoving
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+      - glyph: "Z"
+        quantityId: electricFieldStationary
+      - glyph: "M"
+        quantityId: magneticFieldStationary
+      - glyph: "Z'"
+        quantityId: electricFieldMoving
+  # eq-s10-d5 to eq-s10-d7: the words are Einstein's, printed in the formula (p. 919), and name no
+  #   quantity; each spoken form gives the German word and then its English.
+  - display: eq-s10-d5
+    latex: "\\text{Massenzahl} \\times \\text{Beschleunigungszahl} = \\text{Kraftzahl}"
+    spoken: "Massenzahl, the mass number, times Beschleunigungszahl, the acceleration number, equals Kraftzahl, the force number."
+    terms: []
+  - display: eq-s10-d6
+    latex: "\\text{Longitudinale Masse} = \\frac{\\mu}{\\left( \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} \\right)^3} ,"
+    spoken: "Longitudinale Masse, the longitudinal mass, equals mu divided by the cube of the square root of one minus the square of v over V."
+    terms:
+      - glyph: "\\mu"
+        quantityId: electronMass
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  - display: eq-s10-d7
+    latex: "\\text{Transversale Masse} = \\frac{\\mu}{1 - \\left( \\frac{v}{V} \\right)^2} ."
+    spoken: "Transversale Masse, the transverse mass, equals mu divided by one minus the square of v over V."
+    terms:
+      - glyph: "\\mu"
+        quantityId: electronMass
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  # eq-s10-d8: the middle integral prints no μ (p. 920; receipt err-typo-p920-1), and the spoken form
+  #   reads it so. W is the electron's kinetic energy (sr.W.electronWork).
+  - display: eq-s10-d8
+    latex: "W = \\int \\varepsilon X d x = \\int_0^v \\beta^3 v d v = \\mu V^2 \\left\\{ \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} - 1 \\right\\} ."
+    spoken: "W equals the integral of epsilon X d x, which equals the integral from zero to v of beta cubed v d v, which equals mu V squared times, in braces, one divided by the square root of one minus the square of v over V, minus one."
+    terms:
+      - glyph: "W"
+        quantityId: kineticEnergy
+      - glyph: "\\varepsilon"
+        quantityId: electronCharge
+      - glyph: "X"
+        quantityId: electricFieldStationary
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "\\mu"
+        quantityId: electronMass
+      - glyph: "V"
+        quantityId: speedOfLight
+  # eq-s10-d10: P is the potential difference the electron has passed through ('der durchlaufenen
+  #   Potentialdifferenz', pp. 920-921), acceleratingPotential; § 8's P was the light pressure.
+  - display: eq-s10-d10
+    latex: "P = \\int X d x = \\frac{\\mu}{\\varepsilon} V^2 \\left\\{ \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} - 1 \\right\\} ."
+    spoken: "P equals the integral of X d x, which equals mu over epsilon times V squared times, in braces, one divided by the square root of one minus the square of v over V, minus one."
+    terms:
+      - glyph: "P"
+        quantityId: acceleratingPotential
+      - glyph: "X"
+        quantityId: electricFieldStationary
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "\\mu"
+        quantityId: electronMass
+      - glyph: "\\varepsilon"
+        quantityId: electronCharge
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "v"
+        quantityId: frameSpeed
+  # eq-s10-d11, eq-s10-d12: R is the radius of curvature of the path under the magnetic force N alone
+  #   (p. 921), radiusCurvatureMagnetic; § 8's R was the light sphere's radius.
+  - display: eq-s10-d11
+    latex: "- \\frac{d^2 y}{d t^2} = \\frac{v^2}{R} = \\frac{\\varepsilon}{\\mu} \\frac{v}{V} N \\cdot \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}"
+    spoken: "Minus the second derivative of y with respect to t equals v squared over R, which equals epsilon over mu, times v over V, times N, times the square root of one minus the square of v over V."
+    terms:
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "R"
+        quantityId: radiusCurvatureMagnetic
+      - glyph: "\\varepsilon"
+        quantityId: electronCharge
+      - glyph: "\\mu"
+        quantityId: electronMass
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "N"
+        quantityId: magneticFieldStationary
+  - display: eq-s10-d12
+    latex: "R = V^2 \\frac{\\mu}{\\varepsilon} \\cdot \\frac{\\frac{v}{V}}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} \\cdot \\frac{1}{N} ."
+    spoken: "R equals V squared times mu over epsilon, times v over V divided by the square root of one minus the square of v over V, times one over N."
+    terms:
+      - glyph: "R"
+        quantityId: radiusCurvatureMagnetic
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\mu"
+        quantityId: electronMass
+      - glyph: "\\varepsilon"
+        quantityId: electronCharge
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "N"
+        quantityId: magneticFieldStationary
