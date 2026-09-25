@@ -27,23 +27,8 @@
 
 import type { FaceAvailability } from "./faceAvailability.ts";
 import { FACE_REGISTRY, type FaceId } from "./faces/registry.ts";
-import { type FACE_FALLBACK_IDS, faceLinkHref } from "./paperRoutes.ts";
-
-/*
-  THE SAME ORDER AS THE EXPLANATION'S TABS (ReaderController.tsx): Explanation, Results, German
-  source, Facsimile. This chooser used FACE_FALLBACK_IDS' order, so moving from the explanation to
-  the German face moved Results from second place to third. The language faces sit after German,
-  and split view last.
-*/
-const TAB_ORDER = [
-  "results",
-  "german",
-  "english",
-  "gloss",
-  "parallel",
-  "facsimile",
-  "split",
-] as const satisfies readonly (typeof FACE_FALLBACK_IDS)[number][];
+import { faceTabList } from "./faceTabs.ts";
+import { faceLinkHref } from "./paperRoutes.ts";
 
 export function FaceChooser({
   paperId,
@@ -68,15 +53,9 @@ export function FaceChooser({
 }) {
   const mark = (id: FaceId) =>
     availability?.[id] === "empty" ? <span className="face-state"> · not set yet</span> : null;
-  /*
-    TABS FOR THE FACES THAT HAVE SOMETHING, AND ONE LINE FOR THE ONES THAT DO NOT. Eight equal
-    links, three of them "not set yet", wrapped into three rows on a phone and read as a list of
-    doors. A face reported empty is still a link - its page says what is missing - but it sits
-    in a quiet line after the tabs rather than posing as one, unless it is the face on screen,
-    which is always a tab.
-  */
-  const pending = TAB_ORDER.filter((id) => availability?.[id] === "empty" && id !== current);
-  const tabs = TAB_ORDER.filter((id) => !pending.includes(id));
+  // Which faces, in what order, and which wait in the "Not yet available" line: the list the
+  // explanation page's tabs also use (faceTabs.ts), so the two choosers cannot drift apart.
+  const { tabs, pending } = faceTabList(availability, current);
   return (
     <nav className="reader-controls" aria-label="Reading face">
       <div className="face-tabs">

@@ -33,6 +33,11 @@ export interface PaperSourceFaces {
   /** The German face renders an edition that does not yet reach every section of the paper. */
   readonly germanIsPartial: boolean;
   /**
+   * The English face has units, but not in every section of the paper, so a link to it does not
+   * promise the whole paper (light quanta was translated a section at a time).
+   */
+  readonly englishIsPartial: boolean;
+  /**
    * The ids the German face publishes as anchors: the edition's block ids, or the draft's manifest
    * anchors. Empty when the paper has no German text, so a link to a printed paragraph can wait
    * for its text instead of naming an id no page has.
@@ -81,15 +86,13 @@ export async function paperSourceFaces(paperId: string): Promise<PaperSourceFace
     const section = unit.sourceRefs.map((r) => sectionOf.get(r.id)).find((s) => s !== undefined);
     if (section !== undefined && !firstUnit.has(section)) firstUnit.set(section, unit.id);
   }
+  const sectionIds = paperSectionIds(paperId, edition?.paper.sections.map((s) => s.id) ?? []);
   return {
     availability,
     germanIsDraft: !editionBlocksReviewed(blocks),
-    germanIsPartial:
-      rendersEdition &&
-      missingGermanSections(
-        paperSectionIds(paperId, edition?.paper.sections.map((s) => s.id) ?? []),
-        blocks,
-      ).length > 0,
+    germanIsPartial: rendersEdition && missingGermanSections(sectionIds, blocks).length > 0,
+    englishIsPartial:
+      availability.english === "available" && sectionIds.some((id) => !firstUnit.has(id)),
     germanAnchors: anchors,
     englishSectionFragment: (section) => {
       const id = firstUnit.get(section);
@@ -111,4 +114,23 @@ export function originalHref(
   return sources.availability.german === "available" && fragment !== ""
     ? `/papers/${paperId}/view/german/${fragment}`
     : null;
+}
+
+/**
+ * "Read the English translation of the whole paper →", beside each place that offers the German
+ * for the whole paper; null when the paper has no English units. The English face's banner says
+ * who checked the translation, so this label claims no review. An English that does not yet reach
+ * every section does not promise the whole paper, as the German link does not.
+ */
+export function englishSourceLink(
+  paperId: string,
+  sources: PaperSourceFaces,
+): { readonly href: string; readonly label: string } | null {
+  if (sources.availability.english !== "available") return null;
+  return {
+    href: `/papers/${paperId}/view/english/`,
+    label: sources.englishIsPartial
+      ? "Read the English translation so far →"
+      : "Read the English translation of the whole paper →",
+  };
 }

@@ -26,7 +26,7 @@ import { FirstUseCallout } from "./FirstUseCallout.tsx";
 import { firstUseCallouts } from "./firstUse.ts";
 import { OutlineSectionTitle } from "./OutlineSectionTitle.tsx";
 import { notationReach, notationReachLine, paperEquations } from "./paperEquations.ts";
-import { originalHref, paperSourceFaces } from "./paperSourceFaces.ts";
+import { englishSourceLink, originalHref, paperSourceFaces } from "./paperSourceFaces.ts";
 import { PaperStatus } from "./paperStatus.tsx";
 import { passageKind } from "./passageKind.ts";
 import { QuantityLegendList } from "./QuantityLegendList.tsx";
@@ -71,6 +71,8 @@ export async function PaperReader({
     { paper, foundations } = payload;
   // "Read the original" opens the German face at the passage's section (paperSourceFaces.ts).
   const sources = await paperSourceFaces(paper.id);
+  // The English for the whole paper, offered beside the German wherever it exists.
+  const englishSource = englishSourceLink(paper.id, sources);
   const equationsById = paperEquations(paper.id);
   // Each passage lists the printed paragraphs it explains (content/bindings), with links back.
   const boundParagraphs = loadParagraphBindings(process.cwd(), paper.id) ?? [];
@@ -175,6 +177,7 @@ export async function PaperReader({
         titles={titles}
         questions={questions}
         notationHelp={notationHelp}
+        availability={sources.availability}
       />
       <noscript>
         <p className="notice">
@@ -258,6 +261,11 @@ export async function PaperReader({
                     Read the drafted German source for the whole paper →
                   </a>
                 </p>
+                {englishSource && (
+                  <p>
+                    <a href={englishSource.href}>{englishSource.label}</a>
+                  </p>
+                )}
               </>
             ) : companionKind === "equation" ? (
               <p>
@@ -479,6 +487,11 @@ export async function PaperReader({
                           Read the drafted German source for the whole paper →
                         </a>
                       </p>
+                      {englishSource && (
+                        <p>
+                          <a href={englishSource.href}>{englishSource.label}</a>
+                        </p>
+                      )}
                     </div>
                     <details className="model-limits">
                       <summary>Assumptions and limits: {a.title}</summary>

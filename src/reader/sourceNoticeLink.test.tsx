@@ -8,13 +8,27 @@
  * Both directions are asserted: a paper with a draft gets the link in every passage, and
  * special relativity, which has no ledger draft face, gets it only once its edition gives the
  * German face text, so the link cannot be satisfied by printing it unconditionally.
+ *
+ * Beside it, the English (dispatch 211): the English of all four papers was final while the only
+ * whole-paper link on a paper page led to the German. Each notice now also offers the English
+ * face wherever the paper has English units. Its label claims no review, because the face's own
+ * banner says who checked the translation.
  */
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadGermanSourceFace } from "../content/editions/germanSourceFace.ts";
 import { exportMarkup } from "../testing/exportMarkup.ts";
 import { PaperPage } from "./PaperPage.tsx";
-import { paperSourceFaces } from "./paperSourceFaces.ts";
+import { PaperReader } from "./PaperReader.tsx";
+import { type PaperSourceFaces, paperSourceFaces } from "./paperSourceFaces.ts";
+
+/** The English link a notice must carry, or null where the paper has no English units. */
+function englishLink(paperId: string, sources: PaperSourceFaces): string | null {
+  if (sources.availability.english !== "available") return null;
+  return sources.englishIsPartial
+    ? `<a href="/papers/${paperId}/view/english/">Read the English translation so far →</a>`
+    : `<a href="/papers/${paperId}/view/english/">Read the English translation of the whole paper →</a>`;
+}
 
 function sourceNotices(markup: string): string[] {
   return [...markup.matchAll(/<div data-face-source="true" hidden="">([\s\S]*?)<\/div>/g)].map(
@@ -29,10 +43,18 @@ describe("a passage's source notice leads to the German that exists", () => {
       expect(loadGermanSourceFace(paperId)?.blocks.length ?? 0).toBeGreaterThan(0);
       const notices = sourceNotices(await exportMarkup(await PaperPage({ paperId })));
       expect(notices.length).toBeGreaterThan(0);
+      // The premise of the English link, checked rather than assumed: this paper's English is
+      // final, in every section.
+      const sources = await paperSourceFaces(paperId);
+      expect(sources.availability.english).toBe("available");
+      expect(sources.englishIsPartial).toBe(false);
       for (const notice of notices) {
         expect(notice).toContain("not yet available");
         expect(notice).toContain(
           `<a href="/papers/${paperId}/view/german/">Read the drafted German source for the whole paper →</a>`,
+        );
+        expect(notice).toContain(
+          `<a href="/papers/${paperId}/view/english/">Read the English translation of the whole paper →</a>`,
         );
       }
     }
@@ -50,8 +72,12 @@ describe("a passage's source notice leads to the German that exists", () => {
       await exportMarkup(await PaperPage({ paperId: "special-relativity" })),
     );
     expect(notices.length).toBeGreaterThan(0);
+    const english = englishLink("special-relativity", sources);
     for (const notice of notices) {
       expect(notice).toContain("not yet available");
+      // The English follows its face the same way: present exactly when the face has units.
+      if (english) expect(notice).toContain(english);
+      else expect(notice).not.toContain("/view/english/");
       if (sources.availability.german !== "available") {
         expect(notice).not.toContain("/view/german/");
         continue;
@@ -61,6 +87,34 @@ describe("a passage's source notice leads to the German that exists", () => {
           ? '<a href="/papers/special-relativity/view/german/">Read the German source drafted so far →</a>'
           : '<a href="/papers/special-relativity/view/german/">Read the drafted German source for the whole paper →</a>',
       );
+    }
+  });
+
+  test("brownian-motion: every notice and the original companion offer the German and the English", async () => {
+    // Brownian's paper page is PaperReader, whose two German links are its own, so it is checked
+    // here beside the others: the notice under each passage, and the companion's "original" pane.
+    const sources = await paperSourceFaces("brownian-motion");
+    const english = englishLink("brownian-motion", sources);
+    expect(english).not.toBeNull();
+    const german =
+      '<a href="/papers/brownian-motion/view/german/">Read the drafted German source for the whole paper →</a>';
+    const flat = (markup: string) => markup.replace(/<!--[\s\S]*?-->/g, "").replace(/\s+/g, " ");
+    const notices = sourceNotices(await exportMarkup(await PaperReader()));
+    expect(notices.length).toBeGreaterThan(0);
+    for (const notice of notices) {
+      expect(flat(notice)).toContain(flat(german));
+      expect(notice).toContain(english ?? "");
+    }
+    // Inside the companion pane itself: the whole page also holds every passage's notice, which
+    // carries the same links, so a page-wide match would pass with the pane's links removed.
+    const page = flat(await exportMarkup(await PaperReader({ companion: "original" })));
+    const panes = [...page.matchAll(/data-companion-kind="original"[^>]*>([\s\S]*?)<\/div>/g)].map(
+      (m) => m[1] ?? "",
+    );
+    expect(panes.length).toBeGreaterThan(0);
+    for (const pane of panes) {
+      expect(pane).toContain(flat(german));
+      expect(pane).toContain(english ?? "");
     }
   });
 });

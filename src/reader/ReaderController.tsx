@@ -9,7 +9,9 @@ import {
   setGlobalDetail,
   setUnitOverride,
 } from "./detail/applyElsewhere.ts";
-import { FACE_REGISTRY } from "./faces/registry.ts";
+import type { FaceAvailability } from "./faceAvailability.ts";
+import { FACE_REGISTRY, type FaceId } from "./faces/registry.ts";
+import { faceTabList } from "./faceTabs.ts";
 import { InlineFacsimile } from "./facsimile/InlineFacsimile.tsx";
 import { createPlaceHold, landingPlace, readingPlace } from "./holdPlace.ts";
 import { placeOf, scrollToKeep } from "./keepPlace.ts";
@@ -50,6 +52,12 @@ type Props = {
    * the passages' recaps, where a reader with JavaScript would never meet the cards.
    */
   resultCards?: boolean | undefined;
+  /**
+   * Which faces have something, derived by the face pages' own rule (paperSourceFaces, from
+   * faceAvailability). The tabs come from faceTabList, the list FaceChooser also uses, so this
+   * page offers the faces the face pages offer, in the same order. Absent, every face is a tab.
+   */
+  availability?: Readonly<Partial<Record<FaceId, FaceAvailability>>> | undefined;
 };
 /** The nearest element above `el` whose id the page registers as a place to return to. */
 function enclosingAnchor(el: HTMLElement, anchors: readonly string[]): HTMLElement | null {
@@ -69,6 +77,8 @@ export function ReaderController(props: Props) {
   // lookup, so a paper without it simply has none.
   const notationRef = useRef<HTMLSelectElement>(null);
   const copyFallbackId = useId();
+  // The explanation is the face on screen, so every empty face waits in the pending line.
+  const faceTabs = faceTabList(props.availability, "reading");
   useEffect(() => {
     const { registry, titles, questions } = JSON.parse(navigation) as Props;
     const rootEl = document.querySelector<HTMLElement>("[data-reader-root]");
@@ -689,54 +699,81 @@ export function ReaderController(props: Props) {
             and what it said is in the paper's status disclosure (PaperStatus), which states
             that the source faces remain in preparation. ?view=german still resolves for
             links that carry it. */}
-        <nav className="face-tabs" aria-label="Reading face">
-          {/* Current in the static HTML too: this page IS the explanation, and without
-              JavaScript nothing else would ever mark it. The controller takes over after. */}
-          <a href="?view=reading" data-view-link="reading" aria-current="page">
-            {FACE_REGISTRY.reading.label}
-          </a>
-          {/* The href is the static results page, so without JavaScript the link reaches the
-              results face; with it, data-view-link switches the face in place as before. A paper
-              with result cards drops data-view-link, so the link is followed with JavaScript too:
-              the cards are on that page and nowhere on this one. */}
-          <a
-            href={`/papers/${props.registry.paperId}/view/results/`}
-            {...(props.resultCards ? {} : { "data-view-link": "results" })}
-          >
-            {FACE_REGISTRY.results.label}
-          </a>
-          {/* THE GERMAN SOURCE ROUTE, AND DELIBERATELY WITHOUT data-view-link.
-              Any [data-view-link] whose value is in FACES is intercepted at :238 -
-              preventDefault, then a client-side view switch - so a route href carrying
-              one never navigates while JavaScript is on. This link has to reach
-              /papers/<x>/view/german/, which renders 23,608 characters of German for
-              brownian-motion and 68,268 across the three papers that have it, so it
-              carries no data-view-link and the browser follows it.
+        {/* THE FACES THE FACE PAGES OFFER, IN THEIR ORDER (faceTabs.ts). These were four literal
+            links, written before any English existed, so once the English of every paper was
+            final a reader landing here still could not reach it. The tabs sit in div.face-tabs
+            and the empty faces in the "Not yet available" line under them, both inside the
+            landmark, as FaceChooser has them on the face pages. */}
+        <nav aria-label="Reading face">
+          <div className="face-tabs">
+            {/* Current in the static HTML too: this page IS the explanation, and without
+                JavaScript nothing else would ever mark it. The controller takes over after. */}
+            <a href="?view=reading" data-view-link="reading" aria-current="page">
+              {FACE_REGISTRY.reading.label}
+            </a>
+            {/* EVERY FACE ROUTE BELOW IS A LINK WITHOUT data-view-link, AND DELIBERATELY SO.
+                Written for the German source link, and it holds for each of them: any
+                [data-view-link] whose value is in FACES is intercepted by the root click
+                handler (its `control.dataset.viewLink` branch) -
+                preventDefault, then a client-side view switch - so a route href carrying
+                one never navigates while JavaScript is on. The German link has to reach
+                /papers/<x>/view/german/, which renders 23,608 characters of German for
+                brownian-motion and 68,268 across the three papers that have it, so it
+                carries no data-view-link and the browser follows it.
 
-              It also cannot share "german" with the link below: the controller marks
-              aria-current on every [data-view-link] matching the current view, so two
-              would both claim to be the current page. */}
-          <a href={`/papers/${props.registry.paperId}/view/german/`}>
-            {FACE_REGISTRY.german.label}
-          </a>
-          {/* Same treatment as German source above, and for a measured reason rather
-              than symmetry. This link already pointed at the route, but carrying
-              data-view-link="facsimile" meant :238 intercepted it and switched the
-              in-page view instead: clicked, it landed on ?view=facsimile#... and never
-              left the paper page.
+                Facsimile had the same treatment, and for a measured reason rather than
+                symmetry. Its link already pointed at the route, but carrying
+                data-view-link="facsimile" meant that handler intercepted it and switched the
+                in-page view instead: clicked, it landed on ?view=facsimile#... and never
+                left the paper page. Dropping the attribute removed NO rendered state.
+                Measured on the built page by setting data-view directly, the eight view
+                values collapse to four distinct renderings, and facsimile is byte-identical
+                to german - 12,483 characters, the same six [data-face-source] panels, which
+                ?view=german still reaches. What the route adds is real: light-quanta and
+                mass-energy serve an actual facsimile viewer there (7,802 and 3,976 characters
+                of text), and brownian-motion and special-relativity serve an honest
+                "unavailable" page that says so and carries the chooser.
 
-              Dropping the attribute removes NO rendered state. Measured on the built
-              page by setting data-view directly, the eight view values collapse to four
-              distinct renderings, and facsimile is byte-identical to german - 12,483
-              characters, the same six [data-face-source] panels, which ?view=german still
-              reaches. What the route adds is real: light-quanta and mass-energy
-              serve an actual facsimile viewer there (7,802 and 3,976 characters of text),
-              and brownian-motion and special-relativity serve an honest "unavailable"
-              page that says so and carries the chooser. Better or equal for all four
-              papers, strictly better for two. */}
-          <a href={`/papers/${props.registry.paperId}/view/facsimile/`}>
-            {FACE_REGISTRY.facsimile.label}
-          </a>
+                English, parallel, gloss and split view are routes too, with their own
+                pages, and nothing on this page renders them in place. */}
+            {faceTabs.tabs.map((id) =>
+              id === "results" ? (
+                /* The href is the static results page, so without JavaScript the link reaches
+                   the results face; with it, data-view-link switches the face in place as before.
+                   A paper with result cards drops data-view-link, so the link is followed with
+                   JavaScript too: the cards are on that page and nowhere on this one. */
+                <a
+                  key={id}
+                  href={`/papers/${props.registry.paperId}/view/results/`}
+                  {...(props.resultCards ? {} : { "data-view-link": "results" })}
+                  data-face-state={props.availability?.[id] ?? undefined}
+                >
+                  {FACE_REGISTRY.results.label}
+                </a>
+              ) : (
+                <a
+                  key={id}
+                  href={`/papers/${props.registry.paperId}/view/${id}/`}
+                  data-face-state={props.availability?.[id] ?? undefined}
+                >
+                  {FACE_REGISTRY[id].label}
+                </a>
+              ),
+            )}
+          </div>
+          {faceTabs.pending.length > 0 ? (
+            <p className="face-pending fine">
+              Not yet available:{" "}
+              {faceTabs.pending.map((id, i) => (
+                <span key={id}>
+                  {i > 0 ? " · " : null}
+                  <a href={`/papers/${props.registry.paperId}/view/${id}/`} data-face-state="empty">
+                    {FACE_REGISTRY[id].label}
+                  </a>
+                </span>
+              ))}
+            </p>
+          ) : null}
         </nav>
         <div className="reader-options">
           <div className="reader-option">

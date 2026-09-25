@@ -65,7 +65,7 @@ import {
   resolvePaperRoute,
 } from "./paperRoutes.ts";
 import { paperSectionIds } from "./paperSections.ts";
-import { originalHref, paperSourceFaces } from "./paperSourceFaces.ts";
+import { englishSourceLink, originalHref, paperSourceFaces } from "./paperSourceFaces.ts";
 import { PaperStatus } from "./paperStatus.tsx";
 import { passageKind } from "./passageKind.ts";
 import { ReaderController } from "./ReaderController.tsx";
@@ -392,6 +392,8 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
               : "Read the German source for the whole paper →",
         }
       : null;
+  // Beside it, the English wherever the paper has English units (paperSourceFaces.ts).
+  const englishSource = englishSourceLink(paper.id, sources);
   const entrance =
     paper.id === "mass-energy" ? validateEntranceRecord(entranceExample.record) : null;
   const lightEntrance =
@@ -449,6 +451,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         questions={questions}
         notationHelp={notationHelp}
         resultCards={hasResultCards(process.cwd(), paper.id)}
+        availability={sources.availability}
       />
       <div className="reader-layout">
         <aside className="reader-outline">
@@ -648,6 +651,11 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                       {germanSource && (
                         <p>
                           <a href={germanSource.href}>{germanSource.label}</a>
+                        </p>
+                      )}
+                      {englishSource && (
+                        <p>
+                          <a href={englishSource.href}>{englishSource.label}</a>
                         </p>
                       )}
                     </div>
