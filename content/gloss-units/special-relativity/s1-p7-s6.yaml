@@ -1,0 +1,38 @@
+# GlossUnit s1-p7-s6: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s1-p7-s6"
+sentenceId: "s1-p7-s6"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "5228549571afa5eca4282e6973db6c79a61c2878a39f990d6d1572133184fb24"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Die"
+    english: "the"
+  - german: "beiden"
+    english: "two"
+    lemma: "beide"
+  - german: "Uhren"
+    english: "clocks"
+    lemma: "Uhr"
+  - german: "laufen"
+    english: "run"
+    lemma: "laufen"
+  - german: "definitionsgemäß"
+    english: "by definition"
+    grammarNote: "definitionsgemäß, ‘in accordance with the definition’: synchrony is what the stipulation says, not a fact found"
+    noteClass: "term"
+  - german: "synchron"
+    english: "synchronously"
+  - german: "wenn"
+    english: "if"
+    grammarNote: "the condition is the display that follows: t_B − t_A = t'_A − t_B"
+    noteClass: "condition"
+multiwordUnits: []

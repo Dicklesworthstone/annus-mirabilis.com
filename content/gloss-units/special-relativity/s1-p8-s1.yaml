@@ -1,0 +1,98 @@
+# GlossUnit s1-p8-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s1-p8-s1"
+sentenceId: "s1-p8-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "c7dcd8fcbdbb158bf9f602402fdce4c9b401e37b1dec571db5a3050cf9b3d482"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Wir"
+  - german: "nehmen"
+  - german: "an"
+  - german: "daß"
+    english: "that"
+    lemma: "dass"
+    grammarNote: "archaic spelling of dass"
+    noteClass: "archaic-spelling"
+  - german: "diese"
+    english: "this"
+    lemma: "dieser"
+  - german: "Definition"
+    english: "definition"
+  - german: "des"
+    english: "of"
+  - german: "Synchronismus"
+    english: "synchronism"
+    grammarNote: "genitive: des Synchronismus"
+    noteClass: "genitive-construction"
+  - german: "in"
+  - german: "widerspruchsfreier"
+  - german: "Weise"
+  - german: "möglich"
+    english: "possible"
+  - german: "sei"
+    english: "is"
+    lemma: "sein"
+    grammarNote: "Konjunktiv I: sei, the content of the assumption, ‘(that it) is possible’, supposed and not proved"
+    noteClass: "konjunktiv-i"
+  - german: "und"
+  - german: "zwar"
+  - german: "für"
+    english: "for"
+  - german: "beliebig"
+    english: "arbitrarily"
+  - german: "viele"
+    english: "many"
+    lemma: "viel"
+  - german: "Punkte"
+    english: "points"
+    lemma: "Punkt"
+  - german: "daß"
+    english: "that"
+    lemma: "dass"
+    grammarNote: "archaic spelling of dass"
+    noteClass: "archaic-spelling"
+  - german: "also"
+    english: "therefore"
+    grammarNote: "also, ‘therefore’, not English ‘also’"
+    noteClass: "consequence"
+  - german: "allgemein"
+    english: "in general"
+  - german: "die"
+    english: "the"
+  - german: "Beziehungen"
+    english: "relations"
+    lemma: "Beziehung"
+  - german: "gelten"
+    english: "hold"
+    lemma: "gelten"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 1
+      - 2
+    english: "we assume"
+    kind: "separable-verb"
+    grammarNote: "annehmen, ‘assume’, split: Wir nehmen ... an; what follows is an assumption, as the Konjunktiv I sei marks"
+    noteClass: "condition"
+  - tokenIndices:
+      - 8
+      - 9
+      - 10
+    english: "without contradiction"
+    kind: "fixed-phrase"
+    grammarNote: "in widerspruchsfreier Weise, ‘in a manner free of contradiction’"
+  - tokenIndices:
+      - 13
+      - 14
+    english: "and indeed"
+    kind: "fixed-phrase"
+    grammarNote: "und zwar, ‘and indeed’, ‘namely’"

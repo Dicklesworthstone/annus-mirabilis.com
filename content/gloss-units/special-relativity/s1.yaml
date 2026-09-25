@@ -1,0 +1,27 @@
+# GlossUnit s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s1"
+sentenceId: "s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "4778c9a9da66d7cc1b8d022af99b21746f3c9584a6787e4b57218eeb85a5f8c0"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "§ 1"
+    english: "§ 1"
+  - german: "Definition"
+    english: "definition"
+  - german: "der"
+    english: "of"
+  - german: "Gleichzeitigkeit"
+    english: "simultaneity"
+    grammarNote: "gleichzeitig ‘simultaneous’ + -keit: the property of happening at the same time"
+    noteClass: "compound"
+multiwordUnits: []

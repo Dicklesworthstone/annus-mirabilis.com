@@ -1,0 +1,82 @@
+# GlossUnit s1-p10-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s1-p10-s1"
+sentenceId: "s1-p10-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "541e2bd39c7891e2dc18a5807d51e45d92bd9ce11487372e6b179bcbe5b35f5b"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Wir"
+  - german: "setzen"
+  - german: "noch"
+    english: "further"
+  - german: "der"
+  - german: "Erfahrung"
+  - german: "gemäß"
+  - german: "fest"
+  - german: "daß"
+    english: "that"
+    lemma: "dass"
+    grammarNote: "archaic spelling of dass"
+    noteClass: "archaic-spelling"
+  - german: "die"
+    english: "the"
+  - german: "Größe"
+    english: "quantity"
+    grammarNote: "Größe, ‘magnitude’: the quantity displayed, 2AB/(t'_A − t_A)"
+    noteClass: "formula-phrase"
+  - german: "eine"
+    english: "a"
+  - german: "universelle"
+    english: "universal"
+    lemma: "universell"
+  - german: "Konstante"
+    english: "constant"
+  - german: "die"
+    english: "the"
+  - german: "Lichtgeschwindigkeit"
+    english: "velocity of light"
+    grammarNote: "Licht + Geschwindigkeit ‘velocity’; printed in parentheses"
+    noteClass: "compound"
+  - german: "im"
+    english: "in the"
+    lemma: "im"
+    grammarNote: "contraction: im = in dem"
+    noteClass: "abbreviation"
+  - german: "leeren"
+    english: "empty"
+    lemma: "leer"
+  - german: "Raume"
+    english: "space"
+    lemma: "Raum"
+    grammarNote: "older dative ending -e"
+    noteClass: "archaic-spelling"
+  - german: "sei"
+    english: "is"
+    lemma: "sein"
+    grammarNote: "Konjunktiv I: sei, the content of the stipulation, ‘(that the quantity) is a universal constant’"
+    noteClass: "konjunktiv-i"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 1
+      - 6
+    english: "we stipulate"
+    kind: "separable-verb"
+    grammarNote: "festsetzen, ‘stipulate’, split: Wir setzen ... fest; a definition by convention, here fixed ‘in accordance with experience’"
+    noteClass: "term"
+  - tokenIndices:
+      - 3
+      - 4
+      - 5
+    english: "in accordance with experience"
+    kind: "fixed-phrase"
+    grammarNote: "der Erfahrung gemäß: gemäß follows its dative noun, ‘in accordance with experience’"

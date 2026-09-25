@@ -1,0 +1,43 @@
+# GlossUnit s1-p6-s3: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s1-p6-s3"
+sentenceId: "s1-p6-s3"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "ea0163daa064362c9c41d107915a0382a7d881395bc69ce53642157491db1222"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Zu"
+    english: "to"
+  - german: "einer"
+    english: "a"
+  - german: "weit"
+    english: "far"
+  - german: "praktischeren"
+    english: "more practical"
+    lemma: "praktisch"
+  - german: "Festsetzung"
+    english: "stipulation"
+    lemma: "festsetzen"
+    grammarNote: "Festsetzung, ‘stipulation’, from festsetzen: a definition fixed by convention, the move § 1 turns on"
+    noteClass: "term"
+  - german: "gelangen"
+    english: "arrive"
+    lemma: "gelangen"
+  - german: "wir"
+    english: "we"
+  - german: "durch"
+    english: "through"
+  - german: "folgende"
+    english: "the following"
+    lemma: "folgend"
+  - german: "Betrachtung"
+    english: "consideration"
+multiwordUnits: []
