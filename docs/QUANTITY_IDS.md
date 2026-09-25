@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 294 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 299 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -157,6 +157,8 @@ Total: 294 quantities, 45 rejected spellings, 2 reserved spellings.
 | lengthMeasuredStationary | Measured length (stationary system) | 1,0,0,0,0,0 | stationary-system | scalar | rodLengthMeasured |
 | lengthProper | Proper length | 1,0,0,0,0,0 | object-rest | scalar | rodLengthRest |
 | lightAmplitudeMoving | Light amplitude (moving system) | 1,1,-3,0,-1,0 | moving-system | scalar | lightAmplitude |
+| lightAmplitudeReflectedMoving | Reflected light amplitude (moving system) | 1,1,-3,0,-1,0 | moving-system | scalar | — |
+| lightAmplitudeReflectedStationary | Reflected light amplitude (stationary system) | 1,1,-3,0,-1,0 | stationary-system | scalar | — |
 | lightAmplitudeStationary | Light amplitude (stationary system) | 1,1,-3,0,-1,0 | stationary-system | scalar | lightAmplitude |
 | lightComplexEnergyMoving | Light complex energy (moving system) | 2,1,-2,0,0,0 | moving-system | scalar | lightComplexEnergy |
 | lightComplexEnergyStationary | Light complex energy (stationary system) | 2,1,-2,0,0,0 | stationary-system | scalar | lightComplexEnergy |
@@ -213,6 +215,8 @@ Total: 294 quantities, 45 rejected spellings, 2 reserved spellings.
 | probabilityDensity | Probability density (one-dimensional) | -1,0,0,0,0,0 | not-applicable | scalar | — |
 | probabilityFlux1d | Probability flux (one dimension) | 0,0,-1,0,0,0 | not-applicable | scalar | — |
 | propagationAngleMoving | Propagation angle (moving system) | 0,0,0,0,0,0 | moving-system | scalar | propagationAngle |
+| propagationAngleReflectedMoving | Reflected propagation angle (moving system) | 0,0,0,0,0,0 | moving-system | scalar | — |
+| propagationAngleReflectedStationary | Reflected propagation angle (stationary system) | 0,0,0,0,0,0 | stationary-system | scalar | — |
 | propagationAngleStationary | Propagation angle (stationary system) | 0,0,0,0,0,0 | stationary-system | scalar | propagationAngle |
 | properTimeElapsed | Elapsed proper time | 0,0,1,0,0,0 | object-rest | scalar | properTime |
 | proxyExcessOverLimit | Proxy excess over the limiting coefficient | 0,0,0,0,0,0 | not-applicable | scalar | — |
@@ -293,6 +297,7 @@ Total: 294 quantities, 45 rejected spellings, 2 reserved spellings.
 | waveAngularFrequencyMoving | Wave angular frequency (moving system) | 0,0,-1,0,0,0 | moving-system | scalar | — |
 | waveAngularFrequencyStationary | Wave angular frequency (stationary system) | 0,0,-1,0,0,0 | stationary-system | scalar | — |
 | waveFrequencyMoving | Wave frequency (moving system) | 0,0,-1,0,0,0 | moving-system | scalar | — |
+| waveFrequencyReflectedMoving | Reflected light frequency (moving system) | 0,0,-1,0,0,0 | moving-system | scalar | — |
 | waveFrequencyReflectedStationary | Reflected light frequency (stationary system) | 0,0,-1,0,0,0 | stationary-system | scalar | — |
 | waveFrequencyStationary | Wave frequency (stationary system) | 0,0,-1,0,0,0 | stationary-system | scalar | — |
 | wavePhase | Wave phase | 0,0,0,0,0,0 | frame-independent | scalar | — |

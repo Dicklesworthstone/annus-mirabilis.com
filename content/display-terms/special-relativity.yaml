@@ -391,3 +391,216 @@ displays:
         quantityId: frameSpeed
       - glyph: "V"
         quantityId: speedOfLight
+  # Section 8. The energy of light and the pressure of radiation on a perfect mirror.
+  # eq-s8-d1: R is the light sphere's radius (concordance sr.R.lightSphereRadius), not section 4's
+  #   rigid sphere.
+  - display: eq-s8-d1
+    latex: "(x - V a t)^2 + (y - V b t)^2 + (z - V c t)^2 = R^2"
+    spoken: "The square of x minus V a t, plus the square of y minus V b t, plus the square of z minus V c t, equals R squared."
+    terms:
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "a"
+        quantityId: directionCosineStationary
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "b"
+        quantityId: directionCosineStationary
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+      - glyph: "c"
+        quantityId: directionCosineStationary
+      - glyph: "R"
+        quantityId: lightSphereRadius
+  - display: eq-s8-d2
+    latex: "\\left( \\beta \\xi - a \\beta \\frac{v}{V} \\xi \\right)^2 + \\left( \\eta - b \\beta \\frac{v}{V} \\xi \\right)^2 + \\left( \\zeta - c \\beta \\frac{v}{V} \\xi \\right)^2 = R^2 ."
+    spoken: "The square of the quantity beta xi minus a beta times v over V times xi, plus the square of the quantity eta minus b beta times v over V times xi, plus the square of the quantity zeta minus c beta times v over V times xi, equals R squared."
+    terms:
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "a"
+        quantityId: directionCosineStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\eta"
+        quantityId: coordinatePositionMoving
+      - glyph: "b"
+        quantityId: directionCosineStationary
+      - glyph: "\\zeta"
+        quantityId: coordinatePositionMoving
+      - glyph: "c"
+        quantityId: directionCosineStationary
+      - glyph: "R"
+        quantityId: lightSphereRadius
+  # eq-s8-d3: S is the volume of the sphere in K and S' that of the ellipsoid it is in k (s8-p2-s2):
+  #   the light complex's volume in each system.
+  - display: eq-s8-d3
+    latex: "\\frac{S'}{S} = \\frac{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}{1 - \\frac{v}{V} \\cos \\varphi} ."
+    spoken: "S prime over S equals the square root of one minus the square of v over V, divided by one minus v over V times cosine phi."
+    terms:
+      - glyph: "S'"
+        quantityId: lightComplexVolumeMoving
+      - glyph: "S"
+        quantityId: lightComplexVolumeStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\varphi"
+        quantityId: propagationAngleStationary
+  # eq-s8-d4 follows once the colouring can draw A'^2 (dispatch 229).
+  - display: eq-s8-d5
+    latex: "\\frac{E'}{E} = \\sqrt{\\frac{1 - \\frac{v}{V}}{1 + \\frac{v}{V}}} ."
+    spoken: "E prime over E equals the square root of: one minus v over V, divided by one plus v over V."
+    terms:
+      - glyph: "E'"
+        quantityId: lightComplexEnergyMoving
+      - glyph: "E"
+        quantityId: lightComplexEnergyStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  - display: eq-s8-d6
+    latex: "A' = A \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} ,"
+    spoken: "A prime equals A times: one minus v over V times cosine phi, divided by the square root of one minus the square of v over V."
+    terms:
+      - glyph: "A'"
+        quantityId: lightAmplitudeMoving
+      - glyph: "A"
+        quantityId: lightAmplitudeStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\varphi"
+        quantityId: propagationAngleStationary
+  - display: eq-s8-d7
+    latex: "\\cos \\varphi' = \\frac{\\cos \\varphi - \\frac{v}{V}}{1 - \\frac{v}{V} \\cos \\varphi} ,"
+    spoken: "cosine phi prime equals: cosine phi minus v over V, divided by one minus v over V times cosine phi."
+    terms:
+      - glyph: "\\varphi'"
+        quantityId: propagationAngleMoving
+      - glyph: "\\varphi"
+        quantityId: propagationAngleStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  - display: eq-s8-d8
+    latex: "\\nu' = \\nu \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} ."
+    spoken: "nu prime equals nu times: one minus v over V times cosine phi, divided by the square root of one minus the square of v over V."
+    terms:
+      - glyph: "\\nu'"
+        quantityId: waveFrequencyMoving
+      - glyph: "\\nu"
+        quantityId: waveFrequencyStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\varphi"
+        quantityId: propagationAngleStationary
+  # eq-s8-d9 to eq-s8-d12: the incident light is A, phi, nu in K and A', phi', nu' in k (s8-p7).
+  #   The reflected light is A'', phi'', nu'' in k and A''', phi''', nu''' back in K, each with its
+  #   own reflected record, as nu''' already had (waveFrequencyReflectedStationary), so the
+  #   incident and reflected waves never share a colour.
+  - display: eq-s8-d9
+    latex: "\\begin{aligned} A'' &= A' , \\\\ \\cos \\varphi'' &= - \\cos \\varphi' , \\\\ \\nu'' &= \\nu' . \\end{aligned}"
+    spoken: "Three equations. A double prime equals A prime; cosine phi double prime equals minus cosine phi prime; nu double prime equals nu prime."
+    terms:
+      - glyph: "A''"
+        quantityId: lightAmplitudeReflectedMoving
+      - glyph: "A'"
+        quantityId: lightAmplitudeMoving
+      - glyph: "\\varphi''"
+        quantityId: propagationAngleReflectedMoving
+      - glyph: "\\varphi'"
+        quantityId: propagationAngleMoving
+      - glyph: "\\nu''"
+        quantityId: waveFrequencyReflectedMoving
+      - glyph: "\\nu'"
+        quantityId: waveFrequencyMoving
+  - display: eq-s8-d10
+    latex: "A''' = A'' \\frac{1 + \\frac{v}{V} \\cos \\varphi''}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} = A \\frac{1 - 2 \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2} ,"
+    spoken: "A triple prime equals A double prime times: one plus v over V times cosine phi double prime, divided by the square root of one minus the square of v over V; and this equals A times: one minus two times v over V times cosine phi, plus the square of v over V, divided by one minus the square of v over V."
+    terms:
+      - glyph: "A'''"
+        quantityId: lightAmplitudeReflectedStationary
+      - glyph: "A''"
+        quantityId: lightAmplitudeReflectedMoving
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\varphi''"
+        quantityId: propagationAngleReflectedMoving
+      - glyph: "A"
+        quantityId: lightAmplitudeStationary
+      - glyph: "\\varphi"
+        quantityId: propagationAngleStationary
+  - display: eq-s8-d11
+    latex: "\\cos \\varphi''' = \\frac{\\cos \\varphi'' + \\frac{v}{V}}{1 + \\frac{v}{V} \\cos \\varphi''} = - \\frac{\\left( 1 + \\left( \\frac{v}{V} \\right)^2 \\right) \\cos \\varphi - 2 \\frac{v}{V}}{1 - 2 \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2} ,"
+    spoken: "cosine phi triple prime equals: cosine phi double prime plus v over V, divided by one plus v over V times cosine phi double prime; and this equals minus: the quantity one plus the square of v over V, times cosine phi, minus two times v over V, divided by one minus two times v over V times cosine phi, plus the square of v over V."
+    terms:
+      - glyph: "\\varphi'''"
+        quantityId: propagationAngleReflectedStationary
+      - glyph: "\\varphi''"
+        quantityId: propagationAngleReflectedMoving
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\varphi"
+        quantityId: propagationAngleStationary
+  - display: eq-s8-d12
+    latex: "\\nu''' = \\nu'' \\frac{1 + \\frac{v}{V} \\cos \\varphi''}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} = \\nu \\frac{1 - 2 \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2}{\\left( 1 - \\frac{v}{V} \\right)^2} ."
+    spoken: "nu triple prime equals nu double prime times: one plus v over V times cosine phi double prime, divided by the square root of one minus the square of v over V; and this equals nu times: one minus two times v over V times cosine phi, plus the square of v over V, divided by the square of the quantity one minus v over V."
+    terms:
+      - glyph: "\\nu'''"
+        quantityId: waveFrequencyReflectedStationary
+      - glyph: "\\nu''"
+        quantityId: waveFrequencyReflectedMoving
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\varphi''"
+        quantityId: propagationAngleReflectedMoving
+      - glyph: "\\nu"
+        quantityId: waveFrequencyStationary
+      - glyph: "\\varphi"
+        quantityId: propagationAngleStationary
+  - display: eq-s8-d13
+    latex: "P = 2 \\frac{A^2}{8\\pi} \\frac{\\left( \\cos \\varphi - \\frac{v}{V} \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2} ."
+    spoken: "P equals two times A squared over eight pi, times the square of the quantity cosine phi minus v over V, divided by one minus the square of v over V."
+    terms:
+      - glyph: "P"
+        quantityId: radiationPressureMirror
+      - glyph: "A"
+        quantityId: lightAmplitudeStationary
+      - glyph: "\\varphi"
+        quantityId: propagationAngleStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  - display: eq-s8-d14
+    latex: "P = 2 \\frac{A^2}{8\\pi} \\cos^2 \\varphi ."
+    spoken: "P equals two times A squared over eight pi, times cosine squared phi."
+    terms:
+      - glyph: "P"
+        quantityId: radiationPressureMirror
+      - glyph: "A"
+        quantityId: lightAmplitudeStationary
+      - glyph: "\\varphi"
+        quantityId: propagationAngleStationary
+

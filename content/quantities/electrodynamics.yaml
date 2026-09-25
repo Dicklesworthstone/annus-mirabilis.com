@@ -332,6 +332,70 @@
   frame: stationary-system
   colorRole: time-rate
 
+- id: waveFrequencyReflectedMoving
+  name: Reflected light frequency (moving system)
+  description: >
+    Section 8's printed nu'': the frequency of the light reflected from the mirror, as the moving
+    system k measures it, the mirror being at rest in k. It equals the incident nu' there; the
+    stationary system's measure of the same reflected light is waveFrequencyReflectedStationary.
+  dimensionStatus: declared
+  dimension: [0, 0, -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: time-rate
+
+- id: lightAmplitudeReflectedMoving
+  name: Reflected light amplitude (moving system)
+  description: >
+    Section 8's printed A'': the field amplitude of the light reflected from the mirror, as the
+    moving system k measures it. It equals the incident A' there. Distinct from
+    lightAmplitudeMoving, the incident wave's amplitude in k.
+  dimensionStatus: declared
+  dimension: [1, 1, -3, 0, -1, 0]
+  gaussianDimension: ["-1/2", "1/2", -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: field
+
+- id: lightAmplitudeReflectedStationary
+  name: Reflected light amplitude (stationary system)
+  description: >
+    Section 8's printed A''': the field amplitude of the light reflected from the moving mirror, as
+    the stationary system K measures it. Distinct from lightAmplitudeStationary, the incident
+    wave's amplitude in K; the two enter section 8's energy balance for the light pressure.
+  dimensionStatus: declared
+  dimension: [1, 1, -3, 0, -1, 0]
+  gaussianDimension: ["-1/2", "1/2", -1, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: field
+
+- id: propagationAngleReflectedMoving
+  name: Reflected propagation angle (moving system)
+  description: >
+    Section 8's printed phi'': the angle between the reflected light's wave normal and the direction
+    of motion, in the moving system k, where cos phi'' = -cos phi'. Distinct from
+    propagationAngleMoving, the incident wave's angle in k.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: angle
+  mathematicalKind: scalar
+  frame: moving-system
+  colorRole: space-geometry
+
+- id: propagationAngleReflectedStationary
+  name: Reflected propagation angle (stationary system)
+  description: >
+    Section 8's printed phi''': the angle between the reflected light's wave normal and the
+    direction of motion, in the stationary system K. Distinct from propagationAngleStationary, the
+    incident wave's angle in K.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: angle
+  mathematicalKind: scalar
+  frame: stationary-system
+  colorRole: space-geometry
+
 - id: wavePhase
   name: Wave phase
   description: >
