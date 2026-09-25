@@ -1,4 +1,5 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { BM04_DEFAULTS, type Bm04Parameters } from "./definition.ts";
 
@@ -23,8 +24,8 @@ function refused(parameterIds: readonly string[], requirements: string): Computa
   };
 }
 
-/** Strict full-request validation, also used before accepting URL settings. Never clamps. */
-export function validateBm04Parameters(input: unknown): Computation<Bm04Parameters> {
+/** Strict full-request validation of each field's type, also used before accepting URL settings. */
+function validateBm04Fields(input: unknown): Computation<Bm04Parameters> {
   if (
     !input ||
     typeof input !== "object" ||
@@ -68,20 +69,30 @@ export function validateBm04Parameters(input: unknown): Computation<Bm04Paramete
     }
   }
   const p = record as unknown as Bm04Parameters;
-  if (p.T <= 0) return refused(["T"], "Enter a temperature above 0 K.");
-  if (p.eta <= 0) return refused(["eta"], "Enter a viscosity greater than zero, in mPa·s.");
-  if (p.a <= 0) return refused(["a"], "Enter a particle radius greater than zero, in μm.");
-  if (p.W <= 0) return refused(["W"], "Enter a box width greater than zero, in μm.");
-  if (p.dt <= 0) return refused(["dt"], "Enter a time step greater than zero, in ms.");
-  if (p.m < 0) {
-    return refused(["m"], "Enter a kick strength multiplier of zero or more.");
-  }
-  if (!Number.isFinite(p.F)) {
-    return refused(["F"], "Enter the external force, in fN, as a number.");
-  }
-  if (!Number.isSafeInteger(p.cells) || p.cells < 3 || p.cells > 4097)
-    return refused(["cells"], "Enter a whole number of spatial cells from 3 to 4097.");
-  if (!Number.isSafeInteger(p.steps) || p.steps < 1 || p.steps > 4_000_000)
-    return refused(["steps"], "Enter a whole number of simulation steps from 1 to 4 000 000.");
+  // Ranges are the manifest's (below); only what is not a whole number is refused here, so a
+  // value outside its range gets one sentence, the declared range and its reason.
+  if (!Number.isSafeInteger(p.cells))
+    return refused(["cells"], "Enter the number of spatial cells as a whole number.");
+  if (!Number.isSafeInteger(p.steps))
+    return refused(["steps"], "Enter the number of simulation steps as a whole number.");
   return { kind: "accepted", data: Object.freeze({ ...p }) };
+}
+
+/** The form's units: the record stores SI, the page shows fN, mPa·s, μm and ms. */
+const BM04_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  F: { scale: 1e15 },
+  eta: { scale: 1e3 },
+  a: { scale: 1e6 },
+  W: { scale: 1e6 },
+  dt: { scale: 1e3 },
+  cells: { label: "Number of spatial cells" },
+  steps: { label: "Number of simulation steps" },
+};
+
+/**
+ * The fields above, then every range content/experiments/bm-04.yaml declares
+ * (am-lab-domains-silently-clamped-pzj5). Never clamps.
+ */
+export function validateBm04Parameters(input: unknown): Computation<Bm04Parameters> {
+  return withinDeclaredDomain("bm-04", validateBm04Fields(input), BM04_DOMAIN_DISPLAY);
 }

@@ -21,7 +21,7 @@ parameters:
       max: 1e-13
       minInclusive: true
       maxInclusive: true
-      reason: "Finite force range around typical piconewton/femtonewton hydrodynamic and gravitational forces"
+      reason: "Forces of up to a hundred femtonewtons either way, the scale of gravity and gentle flows on a colloidal particle"
     visualRange:
       min: -20
       max: 20
@@ -41,7 +41,7 @@ parameters:
       max: 10
       minInclusive: true
       maxInclusive: true
-      reason: "Nonnegative multiplier; 0 is the kicks-off Nägeli branch, 1 is the physical Einstein balance"
+      reason: "A multiplier on the molecular kicks: 0 turns them off, as Nägeli's objection would have it, and 1 is Einstein's balance"
     visualRange:
       min: 0
       max: 3
@@ -61,7 +61,7 @@ parameters:
       max: 373.15
       minInclusive: true
       maxInclusive: true
-      reason: "Liquid water temperature range at atmospheric pressure"
+      reason: "Liquid water at ordinary pressure, from its freezing point to its boiling point"
     visualRange:
       min: 273.15
       max: 373.15
@@ -81,7 +81,7 @@ parameters:
       max: 0.05
       minInclusive: true
       maxInclusive: true
-      reason: "Newtonian laminar drag regime"
+      reason: "Liquids in which a slow sphere feels smooth, Stokes drag"
     visualRange:
       min: 0.2
       max: 5
@@ -101,7 +101,7 @@ parameters:
       max: 1e-5
       minInclusive: true
       maxInclusive: true
-      reason: "Colloidal size regime where Stokes drag applies"
+      reason: "Particle sizes from ten nanometres to ten micrometres, where Stokes drag holds"
     visualRange:
       min: 0.1
       max: 5
@@ -122,7 +122,7 @@ parameters:
       max: 1e-4
       minInclusive: true
       maxInclusive: true
-      reason: "Microscope field size"
+      reason: "A microscope's field of view"
     visualRange:
       min: 2
       max: 50
@@ -142,7 +142,7 @@ parameters:
       max: 500
       minInclusive: true
       maxInclusive: true
-      reason: "Finite volume grid resolution budget"
+      reason: "The grid sizes the lab computes quickly enough in a browser"
     visualRange:
       min: 20
       max: 400
@@ -162,7 +162,7 @@ parameters:
       max: 1
       minInclusive: true
       maxInclusive: true
-      reason: "Explicit finite volume stability limits"
+      reason: "The time steps the lab offers; one too long for the grid spacing is refused as unstable"
     visualRange:
       min: 0.1
       max: 20
@@ -182,7 +182,7 @@ parameters:
       max: 10000
       minInclusive: true
       maxInclusive: true
-      reason: "Numerical work budget"
+      reason: "The number of steps the lab runs quickly enough in a browser"
     visualRange:
       min: 10
       max: 1000

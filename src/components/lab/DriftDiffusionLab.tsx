@@ -25,6 +25,7 @@ import {
   ForceCancellationPanel,
 } from "./DriftDiffusionPlots.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { KEPT_RESULT } from "./keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
@@ -384,7 +385,7 @@ export function DriftDiffusionLab({
             </ExperimentSettings>
             {error && (
               <p id={`${id}-error`} className="form-error" role="alert">
-                {error}
+                {error} {KEPT_RESULT}
               </p>
             )}
             {linkNote && <p className="form-note">{linkNote}</p>}
