@@ -1,6 +1,7 @@
 # TranslationUnit eq-s9-d1: English machine-draft translation.
 # Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
 # Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+# Review round 1 (TanElk, agent, 2026-09-25): read against the German and the plates pp. 913-917; no change.
 kind: "translation-unit"
 id: "eq-s9-d1"
 paper: "special-relativity"
