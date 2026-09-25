@@ -27,10 +27,10 @@
   "intervention": {
     "instrumentId": "bm-01",
     "defaultsReviewed": {
-      "model": "Not yet reviewed. Described from the manifest: Stokes–Einstein diffusion of a tracer ensemble, with the typical displacement λx = √(2Dt) (src/physics/reference/diffusion/distributions.ts)",
-      "labels": "Not yet reviewed. Described from the manifest: viscosity, temperature, radius and observation interval as controls; the diffusion coefficient and the RMS displacement as outputs",
-      "defaultControls": "Not yet reviewed. Described from the manifest: preset bm-01-viscosity-comparison; T 290.15 K, η 0.0027 Pa·s, a 5e-7 m, 400 tracers, a 1 s interval, seed 1905",
-      "feedback": "Not yet reviewed. Described from the manifest: the predict prompt bm-01-predict-viscosity offers half, about 0.71 and unchanged; the snapshot shows about 0.71"
+      "model": "Described from the manifest: Stokes–Einstein diffusion of a tracer ensemble, with the typical displacement λx = √(2Dt) (src/physics/reference/diffusion/distributions.ts)",
+      "labels": "Described from the manifest: viscosity, temperature, radius and observation interval as controls; the diffusion coefficient and the RMS displacement as outputs",
+      "defaultControls": "Described from the manifest: preset bm-01-viscosity-comparison; T 290.15 K, η 0.0027 Pa·s, a 5e-7 m, 400 tracers, a 1 s interval, seed 1905",
+      "feedback": "Described from the manifest: the predict prompt bm-01-predict-viscosity offers half, about 0.71 and unchanged; the snapshot shows about 0.71"
     },
     "scenarioId": "bm-01-viscosity-comparison",
     "reviewRecordId": "pending-review-misc-bm-viscosity-halves"

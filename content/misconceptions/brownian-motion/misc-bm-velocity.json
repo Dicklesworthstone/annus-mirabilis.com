@@ -27,10 +27,10 @@
   "intervention": {
     "instrumentId": "bm-01",
     "defaultsReviewed": {
-      "model": "Not yet reviewed. Described from the manifest: Stokes–Einstein diffusion of a tracer ensemble, with the apparent speed √(2D/τ) over an observation interval τ (apparentSpeed, src/physics/reference/diffusion/distributions.ts)",
-      "labels": "Not yet reviewed. Described from the manifest: the observation interval and the statistic as controls; the apparent coordinate speed as an output",
-      "defaultControls": "Not yet reviewed. Described from the manifest: preset bm-01-velocity-trap; T 290.15 K, η 0.00135 Pa·s, a 5e-7 m, 400 tracers, statistic apparent, a 0.25 s interval",
-      "feedback": "Not yet reviewed. Described from the manifest: the apparent speed is shown for the chosen interval, and changing the interval changes it"
+      "model": "Described from the manifest: Stokes–Einstein diffusion of a tracer ensemble, with the apparent speed √(2D/τ) over an observation interval τ (apparentSpeed, src/physics/reference/diffusion/distributions.ts)",
+      "labels": "Described from the manifest: the observation interval and the statistic as controls; the apparent coordinate speed as an output",
+      "defaultControls": "Described from the manifest: preset bm-01-velocity-trap; T 290.15 K, η 0.00135 Pa·s, a 5e-7 m, 400 tracers, statistic apparent, a 0.25 s interval",
+      "feedback": "Described from the manifest: the apparent speed is shown for the chosen interval, and changing the interval changes it"
     },
     "scenarioId": "bm-01-velocity-trap",
     "reviewRecordId": "pending-review-misc-bm-velocity"

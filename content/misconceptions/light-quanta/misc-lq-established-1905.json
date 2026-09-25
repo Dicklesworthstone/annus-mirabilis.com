@@ -29,10 +29,10 @@
   "intervention": {
     "instrumentId": "lq-08",
     "defaultsReviewed": {
-      "model": "Not yet reviewed. Described from the manifest: the photoelectric energy balance, with the stopping potential (hν − P)/e for complete transfer of one quantum's energy (stoppingPotentialMagnitude, src/physics/reference/photoelectric.ts)",
-      "labels": "Not yet reviewed. Described from the manifest: frequency, work function, incident power and collector potential as controls; the stopping potential and the emission rate as outputs",
-      "defaultControls": "Not yet reviewed. Described from the manifest: preset lq-08-historical-check; frequency 1.03e15 Hz, work function 0, incident power 0.001 W, quantum efficiency 0.1",
-      "feedback": "Not yet reviewed. Described from the manifest: the stopping potential at the preset, 4.26 V with the modern constants, beside the paper's 4.3 V"
+      "model": "Described from the manifest: the photoelectric energy balance, with the stopping potential (hν − P)/e for complete transfer of one quantum's energy (stoppingPotentialMagnitude, src/physics/reference/photoelectric.ts)",
+      "labels": "Described from the manifest: frequency, work function, incident power and collector potential as controls; the stopping potential and the emission rate as outputs",
+      "defaultControls": "Described from the manifest: preset lq-08-historical-check; frequency 1.03e15 Hz, work function 0, incident power 0.001 W, quantum efficiency 0.1",
+      "feedback": "Described from the manifest: the stopping potential at the preset, 4.26 V with the modern constants, beside the paper's 4.3 V"
     },
     "scenarioId": "lq-08-historical-check",
     "reviewRecordId": "pending-review-misc-lq-established-1905"

@@ -27,10 +27,10 @@
   "intervention": {
     "instrumentId": "lq-02",
     "defaultsReviewed": {
-      "model": "Not yet reviewed. Described from the manifest: the classical allocation of equal mean energy to every resonator, with the radiation energy up to a chosen cutoff frequency (src/physics/reference/radiation)",
-      "labels": "Not yet reviewed. Described from the manifest: temperature, the highest resonator frequency and a probe frequency as controls; the energy up to the cutoff, the share above the probe, the energy after a tenfold widening, and the total",
-      "defaultControls": "Not yet reviewed. Described from the manifest: T 1500 K, a cutoff of 1.0e14 Hz, a probe at 1.0e13 Hz",
-      "feedback": "Not yet reviewed. Described from the manifest: widening the cutoff tenfold multiplies the energy by a thousand, and the lab refuses to report a total, which has no finite value"
+      "model": "Described from the manifest: the classical allocation of equal mean energy to every resonator, with the radiation energy up to a chosen cutoff frequency (src/physics/reference/radiation)",
+      "labels": "Described from the manifest: temperature, the highest resonator frequency and a probe frequency as controls; the energy up to the cutoff, the share above the probe, the energy after a tenfold widening, and the total",
+      "defaultControls": "Described from the manifest: T 1500 K, a cutoff of 1.0e14 Hz, a probe at 1.0e13 Hz",
+      "feedback": "Described from the manifest: widening the cutoff tenfold multiplies the energy by a thousand, and the lab refuses to report a total, which has no finite value"
     },
     "reviewRecordId": "pending-review-misc-lq-ultraviolet-catastrophe"
   },

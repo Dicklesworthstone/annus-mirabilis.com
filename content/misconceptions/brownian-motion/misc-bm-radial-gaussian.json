@@ -27,10 +27,10 @@
   "intervention": {
     "instrumentId": "bm-06",
     "defaultsReviewed": {
-      "model": "Not yet reviewed. Described from the manifest: free isotropic diffusion from a point, with the one-axis Gaussian and its 2D and 3D radial projections (radialPropagator3d and moments, src/physics/reference/diffusion/distributions.ts)",
-      "labels": "Not yet reviewed. Described from the manifest: temperature, viscosity, radius and elapsed time as controls; the one-axis curve and the radial statistics as outputs",
-      "defaultControls": "Not yet reviewed. Described from the manifest: preset bm-06-modern-one-second; T 293.15 K, η 0.001 Pa·s, a 5e-7 m, t 1 s",
-      "feedback": "Not yet reviewed. Described from the manifest: the radial rings and the table of radial statistics sit beside the one-axis curve"
+      "model": "Described from the manifest: free isotropic diffusion from a point, with the one-axis Gaussian and its 2D and 3D radial projections (radialPropagator3d and moments, src/physics/reference/diffusion/distributions.ts)",
+      "labels": "Described from the manifest: temperature, viscosity, radius and elapsed time as controls; the one-axis curve and the radial statistics as outputs",
+      "defaultControls": "Described from the manifest: preset bm-06-modern-one-second; T 293.15 K, η 0.001 Pa·s, a 5e-7 m, t 1 s",
+      "feedback": "Described from the manifest: the radial rings and the table of radial statistics sit beside the one-axis curve"
     },
     "scenarioId": "bm-06-modern-one-second",
     "reviewRecordId": "pending-review-misc-bm-radial-gaussian"
