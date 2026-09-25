@@ -1,0 +1,67 @@
+# SourceBlock s7-p5: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s7-p5"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s7"
+order: 142
+locators:
+  - pdfPageIndex: 22
+    printedPage: 912
+diplomaticText: "Nennt man \\varphi' den Winkel zwischen Wellennormale (Strahlrichtung) im bewegten System und der Verbindungslinie „Lichtquelle–Beobachter“, so nimmt die Gleichung für a' die Form an: Diese Gleichung drückt das Aberrationsgesetz in seiner allgemeinsten Form aus. Ist \\varphi = \\pi/2, so nimmt die Gleichung die einfache Gestalt an:"
+inlines:
+  - kind: "text"
+    text: "Nennt man "
+  - kind: "math"
+    latex: "\\varphi'"
+  - kind: "text"
+    text: " den Winkel zwischen Wellennormale (Strahlrichtung) im bewegten System und der Verbindungslinie „Lichtquelle–Beobachter“, so nimmt die Gleichung für "
+  - kind: "math"
+    latex: "a'"
+  - kind: "text"
+    text: " die Form an:"
+  - kind: "math"
+    latex: "\\cos \\varphi' = \\frac{\\cos \\varphi - \\frac{v}{V}}{1 - \\frac{v}{V} \\cos \\varphi} ."
+    display: true
+    equationId: "eq-s7-d9"
+  - kind: "space"
+  - kind: "text"
+    text: "Diese Gleichung drückt das Aberrationsgesetz in seiner allgemeinsten Form aus."
+  - kind: "space"
+  - kind: "text"
+    text: "Ist "
+  - kind: "math"
+    latex: "\\varphi = \\pi/2"
+  - kind: "text"
+    text: ", so nimmt die Gleichung die einfache Gestalt an:"
+  - kind: "math"
+    latex: "\\cos \\varphi' = - \\frac{v}{V} ."
+    display: true
+    equationId: "eq-s7-d10"
+sentenceSpans:
+  - id: "s7-p5-s1"
+    span:
+      start: 0
+      end: 182
+      blockRevision: 1
+      textDigest: "4b3060ea58335dbfd649554e6ebdff87323a3f1173e5d917342413d4216b0109"
+  - id: "s7-p5-s2"
+    span:
+      start: 183
+      end: 261
+      blockRevision: 1
+      textDigest: "4b3060ea58335dbfd649554e6ebdff87323a3f1173e5d917342413d4216b0109"
+  - id: "s7-p5-s3"
+    span:
+      start: 262
+      end: 330
+      blockRevision: 1
+      textDigest: "4b3060ea58335dbfd649554e6ebdff87323a3f1173e5d917342413d4216b0109"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

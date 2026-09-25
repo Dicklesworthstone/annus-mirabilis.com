@@ -1,0 +1,66 @@
+# SourceBlock s7-p1: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s7-p1"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s7"
+order: 131
+locators:
+  - pdfPageIndex: 20
+    printedPage: 910
+diplomaticText: "Im Systeme K befinde sich sehr ferne vom Koordinatenursprung eine Quelle elektrodynamischer Wellen, welche in einem den Koordinatenursprung enthaltenden Raumteil mit genügender Annäherung durch die Gleichungen dargestellt sei: Hierbei sind (X_0, Y_0, Z_0) und (L_0, M_0, N_0) die Vektoren, welche die Amplitude des Wellenzuges bestimmen, a, b, c die Richtungskosinus der Wellennormalen."
+inlines:
+  - kind: "text"
+    text: "Im Systeme "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " befinde sich sehr ferne vom Koordinatenursprung eine Quelle elektrodynamischer Wellen, welche in einem den Koordinatenursprung enthaltenden Raumteil mit genügender Annäherung durch die Gleichungen dargestellt sei:"
+  - kind: "math"
+    latex: "\\begin{aligned} X &= X_0 \\sin \\Phi , &\\quad L &= L_0 \\sin \\Phi , \\\\ Y &= Y_0 \\sin \\Phi , &\\quad M &= M_0 \\sin \\Phi , &\\quad \\Phi &= \\omega \\left( t - \\frac{a x + b y + c z}{V} \\right) . \\\\ Z &= Z_0 \\sin \\Phi , &\\quad N &= N_0 \\sin \\Phi , \\end{aligned}"
+    display: true
+    equationId: "eq-s7-d1"
+  - kind: "space"
+  - kind: "text"
+    text: "Hierbei sind "
+  - kind: "math"
+    latex: "(X_0, Y_0, Z_0)"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "(L_0, M_0, N_0)"
+  - kind: "text"
+    text: " die Vektoren, welche die Amplitude des Wellenzuges bestimmen, "
+  - kind: "math"
+    latex: "a"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "b"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "c"
+  - kind: "text"
+    text: " die Richtungskosinus der Wellennormalen."
+sentenceSpans:
+  - id: "s7-p1-s1"
+    span:
+      start: 0
+      end: 226
+      blockRevision: 1
+      textDigest: "eb44a28e8610492b4771e6a580e445ef543065274113e6d7b277135f721cc063"
+  - id: "s7-p1-s2"
+    span:
+      start: 227
+      end: 386
+      blockRevision: 1
+      textDigest: "eb44a28e8610492b4771e6a580e445ef543065274113e6d7b277135f721cc063"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

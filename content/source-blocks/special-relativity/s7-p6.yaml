@@ -1,0 +1,60 @@
+# SourceBlock s7-p6: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s7-p6"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s7"
+order: 145
+locators:
+  - pdfPageIndex: 22
+    printedPage: 912
+diplomaticText: "Wir haben nun noch die Amplitude der Wellen, wie dieselbe im bewegten System erscheint, zu suchen. Nennt man A bez. A' die Amplitude der elektrischen oder magnetischen Kraft im ruhenden bez. im bewegten System gemessen, so erhält man: welche Gleichung für \\varphi = 0 in die einfachere übergeht:"
+inlines:
+  - kind: "text"
+    text: "Wir haben nun noch die Amplitude der Wellen, wie dieselbe im bewegten System erscheint, zu suchen."
+  - kind: "space"
+  - kind: "text"
+    text: "Nennt man "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " bez. "
+  - kind: "math"
+    latex: "A'"
+  - kind: "text"
+    text: " die Amplitude der elektrischen oder magnetischen Kraft im ruhenden bez. im bewegten System gemessen, so erhält man:"
+  - kind: "math"
+    latex: "A'^2 = A^2 \\frac{\\left( 1 - \\frac{v}{V} \\cos \\varphi \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2} ,"
+    display: true
+    equationId: "eq-s7-d11"
+  - kind: "text"
+    text: " welche Gleichung für "
+  - kind: "math"
+    latex: "\\varphi = 0"
+  - kind: "text"
+    text: " in die einfachere übergeht:"
+  - kind: "math"
+    latex: "A'^2 = A^2 \\frac{1 - \\frac{v}{V}}{1 + \\frac{v}{V}} ."
+    display: true
+    equationId: "eq-s7-d12"
+sentenceSpans:
+  - id: "s7-p6-s1"
+    span:
+      start: 0
+      end: 98
+      blockRevision: 1
+      textDigest: "76ab6c2d0521426b87f686ec5837faddbf703d8251e30858c4e30ff18d6fd63b"
+  - id: "s7-p6-s2"
+    span:
+      start: 99
+      end: 295
+      blockRevision: 1
+      textDigest: "76ab6c2d0521426b87f686ec5837faddbf703d8251e30858c4e30ff18d6fd63b"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

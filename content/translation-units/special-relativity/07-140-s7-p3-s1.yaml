@@ -1,0 +1,41 @@
+# TranslationUnit s7-p3-s1: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s7-p3-s1"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s7-p3-s1"
+inlines:
+  - kind: "text"
+    text: "From the equation for "
+  - kind: "math"
+    latex: "\\omega'"
+  - kind: "text"
+    text: " it follows: If an observer moves with the velocity "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " relative to an infinitely distant light source of frequency "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: " in such a way that the line joining “light source–observer” makes the angle "
+  - kind: "math"
+    latex: "\\varphi"
+  - kind: "text"
+    text: " with the velocity of the observer, referred to a coordinate system at rest relative to the light source, then the frequency "
+  - kind: "math"
+    latex: "\\nu'"
+  - kind: "text"
+    text: " of the light perceived by the observer is given by the equation:"
+translator:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

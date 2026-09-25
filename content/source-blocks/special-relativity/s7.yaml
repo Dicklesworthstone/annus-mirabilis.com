@@ -1,0 +1,35 @@
+# SourceBlock s7: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s7"
+kind: "heading"
+paper: "special-relativity"
+section: "s7"
+order: 130
+locators:
+  - pdfPageIndex: 20
+    printedPage: 910
+diplomaticText: "§ 7. Theorie des Doppelerschen Prinzips und der Aberration."
+inlines:
+  - kind: "text"
+    text: "§ 7. Theorie des "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Doppeler"
+  - kind: "text"
+    text: "schen Prinzips und der Aberration."
+sentenceSpans:
+  - id: "s7"
+    span:
+      start: 0
+      end: 59
+      blockRevision: 1
+      textDigest: "63b2608e5c43c7c9daca8325827c5ed2d2d543146b8f9e157feb1d763ff2b88e"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

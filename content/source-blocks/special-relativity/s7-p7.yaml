@@ -1,0 +1,33 @@
+# SourceBlock s7-p7: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s7-p7"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s7"
+order: 148
+locators:
+  - pdfPageIndex: 22
+    printedPage: 912
+diplomaticText: "Es folgt aus den entwickelten Gleichungen, daß für einen Beobachter, der sich mit der Geschwindigkeit V einer Lichtquelle näherte, diese Lichtquelle unendlich intensiv erscheinen müßte."
+inlines:
+  - kind: "text"
+    text: "Es folgt aus den entwickelten Gleichungen, daß für einen Beobachter, der sich mit der Geschwindigkeit "
+  - kind: "math"
+    latex: "V"
+  - kind: "text"
+    text: " einer Lichtquelle näherte, diese Lichtquelle unendlich intensiv erscheinen müßte."
+sentenceSpans:
+  - id: "s7-p7-s1"
+    span:
+      start: 0
+      end: 185
+      blockRevision: 1
+      textDigest: "89b510c4b93ecaf40d1128333e2c6911cd24aa4f7764a417fd5128faa8cb2ede"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

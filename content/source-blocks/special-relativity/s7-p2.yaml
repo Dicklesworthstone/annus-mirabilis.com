@@ -1,0 +1,68 @@
+# SourceBlock s7-p2: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s7-p2"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s7"
+order: 133
+locators:
+  - pdfPageIndex: 20
+    printedPage: 910
+  - pdfPageIndex: 21
+    printedPage: 911
+diplomaticText: "Wir fragen nach der Beschaffenheit dieser Wellen, wenn dieselben von einem in dem bewegten System k ruhenden Beobachter untersucht werden. — Durch Anwendung der in § 6 gefundenen Transformationsgleichungen für die elektrischen und magnetischen Kräfte und der in § 3 gefundenen Transformationsgleichungen für die Koordinaten und die Zeit erhalten wir unmittelbar: wobei gesetzt ist."
+inlines:
+  - kind: "text"
+    text: "Wir fragen nach der Beschaffenheit dieser Wellen, wenn dieselben von einem in dem bewegten System "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " ruhenden Beobachter untersucht werden."
+  - kind: "space"
+  - kind: "text"
+    text: "— Durch Anwendung der in § 6 gefundenen Transformationsgleichungen für die elektrischen und magnetischen Kräfte und der in § 3 gefundenen Transformationsgleichungen für die Koordinaten und die Zeit erhalten wir unmittelbar:"
+  - kind: "math"
+    latex: "\\begin{aligned} X' &= X_0 \\sin \\Phi' , &\\qquad L' &= L_0 \\sin \\Phi' , \\\\ Y' &= \\beta \\left( Y_0 - \\frac{v}{V} N_0 \\right) \\sin \\Phi' , &\\qquad M' &= \\beta \\left( M_0 + \\frac{v}{V} Z_0 \\right) \\sin \\Phi' , \\\\ Z' &= \\beta \\left( Z_0 + \\frac{v}{V} M_0 \\right) \\sin \\Phi' , &\\qquad N' &= \\beta \\left( N_0 - \\frac{v}{V} Y_0 \\right) \\sin \\Phi' , \\\\ \\Phi' &= \\omega' \\left( \\tau - \\frac{a' \\xi + b' \\eta + c' \\zeta}{V} \\right) , \\end{aligned}"
+    display: true
+    equationId: "eq-s7-d2"
+  - kind: "text"
+    text: " wobei"
+  - kind: "math"
+    latex: "\\omega' = \\omega \\beta \\left( 1 - a \\frac{v}{V} \\right) ,"
+    display: true
+    equationId: "eq-s7-d3"
+  - kind: "math"
+    latex: "a' = \\frac{a - \\frac{v}{V}}{1 - a \\frac{v}{V}} ,"
+    display: true
+    equationId: "eq-s7-d4"
+  - kind: "math"
+    latex: "b' = \\frac{b}{\\beta \\left( 1 - a \\frac{v}{V} \\right)} ,"
+    display: true
+    equationId: "eq-s7-d5"
+  - kind: "math"
+    latex: "c' = \\frac{c}{\\beta \\left( 1 - a \\frac{v}{V} \\right)}"
+    display: true
+    equationId: "eq-s7-d6"
+  - kind: "text"
+    text: " gesetzt ist."
+sentenceSpans:
+  - id: "s7-p2-s1"
+    span:
+      start: 0
+      end: 138
+      blockRevision: 1
+      textDigest: "9fb66ac390b2adc476f8082342295b601d35623a8a9b63a8005ff646509ac9a5"
+  - id: "s7-p2-s2"
+    span:
+      start: 139
+      end: 381
+      blockRevision: 1
+      textDigest: "9fb66ac390b2adc476f8082342295b601d35623a8a9b63a8005ff646509ac9a5"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

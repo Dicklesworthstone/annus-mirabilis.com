@@ -1,0 +1,104 @@
+# SourceBlock s7-p3: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s7-p3"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s7"
+order: 139
+locators:
+  - pdfPageIndex: 21
+    printedPage: 911
+  - pdfPageIndex: 22
+    printedPage: 912
+diplomaticText: "Aus der Gleichung für \\omega' folgt: Ist ein Beobachter relativ zu einer unendlich fernen Lichtquelle von der Frequenz \\nu mit der Geschwindigkeit v derart bewegt, daß die Verbindungslinie „Lichtquelle–Beobachter“ mit der auf ein relativ zur Lichtquelle ruhendes Koordinatensystem bezogenen Geschwindigkeit des Beobachters den Winkel \\varphi bildet, so ist die von dem Beobachter wahrgenommene Frequenz \\nu' des Lichtes durch die Gleichung gegeben: Dies ist das Doppelersche Prinzip für beliebige Geschwindigkeiten. Für \\varphi = 0 nimmt die Gleichung die übersichtliche Form an: Man sieht, daß — im Gegensatz zu der üblichen Auffassung — für v = -\\infty, \\nu = \\infty ist."
+inlines:
+  - kind: "text"
+    text: "Aus der Gleichung für "
+  - kind: "math"
+    latex: "\\omega'"
+  - kind: "text"
+    text: " folgt: Ist ein Beobachter relativ zu einer unendlich fernen Lichtquelle von der Frequenz "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: " mit der Geschwindigkeit "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " derart bewegt, daß die Verbindungslinie „Lichtquelle–Beobachter“ mit der auf ein relativ zur Lichtquelle ruhendes Koordinatensystem bezogenen Geschwindigkeit des Beobachters den Winkel "
+  - kind: "math"
+    latex: "\\varphi"
+  - kind: "text"
+    text: " bildet, so ist die von dem Beobachter wahrgenommene Frequenz "
+  - kind: "math"
+    latex: "\\nu'"
+  - kind: "text"
+    text: " des Lichtes durch die Gleichung gegeben:"
+  - kind: "math"
+    latex: "\\nu' = \\nu \\frac{1 - \\cos \\varphi \\frac{v}{V}}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} ."
+    display: true
+    equationId: "eq-s7-d7"
+  - kind: "space"
+  - kind: "text"
+    text: "Dies ist das "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Doppeler"
+  - kind: "text"
+    text: "sche Prinzip für beliebige Geschwindigkeiten."
+  - kind: "space"
+  - kind: "text"
+    text: "Für "
+  - kind: "math"
+    latex: "\\varphi = 0"
+  - kind: "text"
+    text: " nimmt die Gleichung die übersichtliche Form an:"
+  - kind: "math"
+    latex: "\\nu' = \\nu \\sqrt{\\frac{1 - \\frac{v}{V}}{1 + \\frac{v}{V}}} ."
+    display: true
+    equationId: "eq-s7-d8"
+  - kind: "space"
+  - kind: "text"
+    text: "Man sieht, daß — im Gegensatz zu der üblichen Auffassung — für "
+  - kind: "math"
+    latex: "v = -\\infty"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\nu = \\infty"
+  - kind: "text"
+    text: " ist."
+sentenceSpans:
+  - id: "s7-p3-s1"
+    span:
+      start: 0
+      end: 448
+      blockRevision: 1
+      textDigest: "e56faafc3ed6581ab86829d3885493cb4a236989092314cdb4bc8c6812182453"
+  - id: "s7-p3-s2"
+    span:
+      start: 449
+      end: 515
+      blockRevision: 1
+      textDigest: "e56faafc3ed6581ab86829d3885493cb4a236989092314cdb4bc8c6812182453"
+  - id: "s7-p3-s3"
+    span:
+      start: 516
+      end: 579
+      blockRevision: 1
+      textDigest: "e56faafc3ed6581ab86829d3885493cb4a236989092314cdb4bc8c6812182453"
+  - id: "s7-p3-s4"
+    span:
+      start: 580
+      end: 673
+      blockRevision: 1
+      textDigest: "e56faafc3ed6581ab86829d3885493cb4a236989092314cdb4bc8c6812182453"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

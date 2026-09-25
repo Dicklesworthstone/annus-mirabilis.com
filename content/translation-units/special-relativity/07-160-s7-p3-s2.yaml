@@ -1,0 +1,21 @@
+# TranslationUnit s7-p3-s2: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s7-p3-s2"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s7-p3-s2"
+inlines:
+  - kind: "text"
+    text: "This is Doppler’s principle for arbitrary velocities."
+translator:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"
