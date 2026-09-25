@@ -90,7 +90,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <Suspense fallback={null}>
           <GuidedTourTrail />
         </Suspense>
-        <main id="main">{children}</main>
+        {/* The page hydrates in its own boundary. Without it, a page component that suspended on a
+            late chunk while <main> was hydrating was retried with React's cursor already inside
+            <main>: it found main's first child where it expected <main> and threw React #418,
+            about one load in 300 on live (dispatch 171, src/testing/rootLayoutHydration.test.tsx). */}
+        <main id="main">
+          <Suspense fallback={null}>{children}</Suspense>
+        </main>
         <Suspense fallback={null}>
           <GuidedTourTrail compact />
         </Suspense>
