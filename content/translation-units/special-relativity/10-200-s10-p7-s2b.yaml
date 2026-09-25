@@ -1,6 +1,7 @@
 # TranslationUnit s10-p7-s2b: English machine-draft translation.
 # Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
 # Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+# Review round 1 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 917-921; corrected (revision 2): "und zwar ... betrachtet" narrows the statement, and is "and indeed regarded", as "und zwar" is "and indeed" in s1-p8-s1 and s1-p9-s2; the draft's "to be sure" reads as a concession ("admittedly"), which the German does not make. The draft is kept as the alternative.
 kind: "translation-unit"
 id: "s10-p7-s2b"
 paper: "special-relativity"
@@ -21,13 +22,15 @@ inlines:
   - kind: "math"
     latex: "\\varepsilon Z'"
   - kind: "text"
-    text: " are the components of the ponderomotive force acting on the electron, regarded, to be sure, in a system moving at this moment with the electron at the same velocity as it."
+    text: " are the components of the ponderomotive force acting on the electron, and indeed regarded in a system moving at this moment with the electron at the same velocity as it."
 translator:
   id: "agent:GreenBarn"
   name: "GreenBarn (agent, Claude Opus 5.5)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
-unresolvedAlternatives: []
+revision: 2
+unresolvedAlternatives:
+  - text: "regarded, to be sure, in a system moving at this moment with the electron at the same velocity as it"
+    rationale: "The draft's reading. \"und zwar\" specifies the frame in which the force components hold; English \"to be sure\" also reads as a concession, so round 1 (NavyKite) gave \"and indeed\", the paper's rendering of \"und zwar\" in section 1."
 reviewState: "machine-draft"
 lang: "en"

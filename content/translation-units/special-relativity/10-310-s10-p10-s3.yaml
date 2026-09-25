@@ -1,6 +1,7 @@
 # TranslationUnit s10-p10-s3: English machine-draft translation.
 # Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
 # Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+# Review round 1 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 917-921; corrected (revision 2): "und infolgedessen keine Energie in Form von Strahlung abgeben möge" states an assumption, and is "and consequently is to give off no energy in the form of radiation", matching "is to be accelerated" before it; the draft's "and so may give off no energy" can be read as a possibility or a permission. The draft is kept as the alternative.
 kind: "translation-unit"
 id: "s10-p10-s3"
 paper: "special-relativity"
@@ -9,7 +10,7 @@ sourceRefs:
     id: "s10-p10-s3"
 inlines:
   - kind: "text"
-    text: "Since the electron is to be accelerated slowly and so may give off no energy in the form of radiation, the energy withdrawn from the electrostatic field must be set equal to the energy of motion "
+    text: "Since the electron is to be accelerated slowly and consequently is to give off no energy in the form of radiation, the energy withdrawn from the electrostatic field must be set equal to the energy of motion "
   - kind: "math"
     latex: "W"
   - kind: "text"
@@ -19,7 +20,9 @@ translator:
   name: "GreenBarn (agent, Claude Opus 5.5)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
-unresolvedAlternatives: []
+revision: 2
+unresolvedAlternatives:
+  - text: "and so may give off no energy in the form of radiation"
+    rationale: "The draft's reading. \"abgeben möge\" is part of the assumption, beside \"beschleunigt sein soll\"; English \"may give off no energy\" can also read as a possibility or a permission, so round 1 (NavyKite) gave \"is to give off no energy\", and \"infolgedessen\" as \"consequently\"."
 reviewState: "machine-draft"
 lang: "en"
