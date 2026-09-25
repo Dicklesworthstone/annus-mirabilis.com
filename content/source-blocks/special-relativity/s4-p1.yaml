@@ -1,0 +1,109 @@
+# SourceBlock s4-p1: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s4-p1"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s4"
+order: 80
+locators:
+  - pdfPageIndex: 13
+    printedPage: 903
+diplomaticText: "Wir betrachten eine starre Kugel1) vom Radius R, welche relativ zum bewegten System k ruht, und deren Mittelpunkt im Koordinatenursprung von k liegt. Die Gleichung der Oberfläche dieser relativ zum System K mit der Geschwindigkeit v bewegten Kugel ist: Die Gleichung dieser Oberfläche ist in x, y, z ausgedrückt zur Zeit t = 0: Ein starrer Körper, welcher in ruhendem Zustande ausgemessen die Gestalt einer Kugel hat, hat also in bewegtem Zustande — vom ruhenden System aus betrachtet — die Gestalt eines Rotationsellipsoides mit den Achsen"
+inlines:
+  - kind: "text"
+    text: "Wir betrachten eine starre Kugel"
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s4-fn1"
+  - kind: "text"
+    text: " vom Radius "
+  - kind: "math"
+    latex: "R"
+  - kind: "text"
+    text: ", welche relativ zum bewegten System "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " ruht, und deren Mittelpunkt im Koordinatenursprung von "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " liegt."
+  - kind: "space"
+  - kind: "text"
+    text: "Die Gleichung der Oberfläche dieser relativ zum System "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " mit der Geschwindigkeit "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " bewegten Kugel ist:"
+  - kind: "math"
+    latex: "\\xi^2 + \\eta^2 + \\zeta^2 = R^2 ."
+    display: true
+    equationId: "eq-s4-d1"
+  - kind: "space"
+  - kind: "text"
+    text: "Die Gleichung dieser Oberfläche ist in "
+  - kind: "math"
+    latex: "x"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "y"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "z"
+  - kind: "text"
+    text: " ausgedrückt zur Zeit "
+  - kind: "math"
+    latex: "t = 0"
+  - kind: "text"
+    text: ":"
+  - kind: "math"
+    latex: "\\frac{x^2}{\\left( \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} \\right)^2} + y^2 + z^2 = R^2 ."
+    display: true
+    equationId: "eq-s4-d2"
+  - kind: "space"
+  - kind: "text"
+    text: "Ein starrer Körper, welcher in ruhendem Zustande ausgemessen die Gestalt einer Kugel hat, hat also in bewegtem Zustande — vom ruhenden System aus betrachtet — die Gestalt eines Rotationsellipsoides mit den Achsen"
+  - kind: "math"
+    latex: "R \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} , \\quad R , \\quad R ."
+    display: true
+    equationId: "eq-s4-d3"
+sentenceSpans:
+  - id: "s4-p1-s1"
+    span:
+      start: 0
+      end: 149
+      blockRevision: 1
+      textDigest: "93b302ad716de2560111c11aeafbb6961e6d03d283449358d0b3a55943ae89e8"
+  - id: "s4-p1-s2"
+    span:
+      start: 150
+      end: 252
+      blockRevision: 1
+      textDigest: "93b302ad716de2560111c11aeafbb6961e6d03d283449358d0b3a55943ae89e8"
+  - id: "s4-p1-s3"
+    span:
+      start: 253
+      end: 327
+      blockRevision: 1
+      textDigest: "93b302ad716de2560111c11aeafbb6961e6d03d283449358d0b3a55943ae89e8"
+  - id: "s4-p1-s4"
+    span:
+      start: 328
+      end: 540
+      blockRevision: 1
+      textDigest: "93b302ad716de2560111c11aeafbb6961e6d03d283449358d0b3a55943ae89e8"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

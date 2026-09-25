@@ -1,0 +1,74 @@
+# SourceBlock s4-p9: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s4-p9"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s4"
+order: 88
+locators:
+  - pdfPageIndex: 14
+    printedPage: 904
+diplomaticText: "Zwischen die Größen x, t und \\tau, welche sich auf den Ort dieser Uhr beziehen, gelten offenbar die Gleichungen: und Es ist also woraus folgt, daß die Angabe der Uhr (im ruhenden System betrachtet) pro Sekunde um (1 - \\sqrt{1 - (v/V)^2}) Sek. oder — bis auf Größen vierter und höherer Ordnung um \\frac{1}{2} (v/V)^2 Sek. zurückbleibt."
+inlines:
+  - kind: "text"
+    text: "Zwischen die Größen "
+  - kind: "math"
+    latex: "x"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "\\tau"
+  - kind: "text"
+    text: ", welche sich auf den Ort dieser Uhr beziehen, gelten offenbar die Gleichungen:"
+  - kind: "math"
+    latex: "\\tau = \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} \\left( t - \\frac{v}{V^2} x \\right)"
+    display: true
+    equationId: "eq-s4-d4"
+  - kind: "text"
+    text: " und"
+  - kind: "math"
+    latex: "x = v t ."
+    display: true
+    equationId: "eq-s4-d5"
+  - kind: "space"
+  - kind: "text"
+    text: "Es ist also"
+  - kind: "math"
+    latex: "\\tau = t \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} = t - \\left( 1 - \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} \\right) t ,"
+    display: true
+    equationId: "eq-s4-d6"
+  - kind: "text"
+    text: " woraus folgt, daß die Angabe der Uhr (im ruhenden System betrachtet) pro Sekunde um "
+  - kind: "math"
+    latex: "(1 - \\sqrt{1 - (v/V)^2})"
+  - kind: "text"
+    text: " Sek. oder — bis auf Größen vierter und höherer Ordnung um "
+  - kind: "math"
+    latex: "\\frac{1}{2} (v/V)^2"
+  - kind: "text"
+    text: " Sek. zurückbleibt."
+sentenceSpans:
+  - id: "s4-p9-s1"
+    span:
+      start: 0
+      end: 116
+      blockRevision: 1
+      textDigest: "91afe2c3b4e61cc39d5c873250de5914404eb650cc0b4b8621ac34edaf7d5604"
+  - id: "s4-p9-s2"
+    span:
+      start: 117
+      end: 334
+      blockRevision: 1
+      textDigest: "91afe2c3b4e61cc39d5c873250de5914404eb650cc0b4b8621ac34edaf7d5604"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

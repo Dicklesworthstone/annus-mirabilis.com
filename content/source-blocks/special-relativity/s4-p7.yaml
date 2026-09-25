@@ -1,0 +1,45 @@
+# SourceBlock s4-p7: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s4-p7"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s4"
+order: 93
+locators:
+  - pdfPageIndex: 14
+    printedPage: 904
+diplomaticText: "Man sieht sofort, daß dies Resultat auch dann noch gilt, wenn die Uhr in einer beliebigen polygonalen Linie sich von A nach B bewegt, und zwar auch dann, wenn die Punkte A und B zusammenfallen."
+inlines:
+  - kind: "text"
+    text: "Man sieht sofort, daß dies Resultat auch dann noch gilt, wenn die Uhr in einer beliebigen polygonalen Linie sich von "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " nach "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " bewegt, und zwar auch dann, wenn die Punkte "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " zusammenfallen."
+sentenceSpans:
+  - id: "s4-p7-s1"
+    span:
+      start: 0
+      end: 193
+      blockRevision: 1
+      textDigest: "b0b708ff5ce07cd0de5efe94c289f93b01e09899b7b8b7d9a8de6ef0bc7c0961"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

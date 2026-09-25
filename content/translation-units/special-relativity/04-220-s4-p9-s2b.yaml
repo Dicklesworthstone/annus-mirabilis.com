@@ -1,0 +1,29 @@
+# TranslationUnit s4-p9-s2b: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s4-p9-s2b"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s4-p9-s2"
+inlines:
+  - kind: "text"
+    text: "from which it follows that the reading of the clock (viewed in the stationary system) lags behind by "
+  - kind: "math"
+    latex: "(1 - \\sqrt{1 - (v/V)^2})"
+  - kind: "text"
+    text: " sec. per second or — to within quantities of the fourth and higher order, by "
+  - kind: "math"
+    latex: "\\frac{1}{2} (v/V)^2"
+  - kind: "text"
+    text: " sec."
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

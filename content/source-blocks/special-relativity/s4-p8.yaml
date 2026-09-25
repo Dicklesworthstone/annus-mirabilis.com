@@ -1,0 +1,60 @@
+# SourceBlock s4-p8: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s4-p8"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s4"
+order: 94
+locators:
+  - pdfPageIndex: 14
+    printedPage: 904
+  - pdfPageIndex: 15
+    printedPage: 905
+diplomaticText: "Nimmt man an, daß das für eine polygonale Linie bewiesene Resultat auch für eine stetig gekrümmte Kurve gelte, so erhält man den Satz: Befinden sich in A zwei synchron gehende Uhren und bewegt man die eine derselben auf einer geschlossenen Kurve mit konstanter Geschwindigkeit, bis sie wieder nach A zurückkommt, was t Sek. dauern möge, so geht die letztere Uhr bei ihrer Ankunft in A gegenüber der unbewegt gebliebenen um \\frac{1}{2} t (v/V)^2 Sek. nach. Man schließt daraus, daß eine am Erdäquator befindliche Unruhuhr um einen sehr kleinen Betrag langsamer laufen muß als eine genau gleich beschaffene, sonst gleichen Bedingungen unterworfene, an einem Erdpole befindliche Uhr."
+inlines:
+  - kind: "text"
+    text: "Nimmt man an, daß das für eine polygonale Linie bewiesene Resultat auch für eine stetig gekrümmte Kurve gelte, so erhält man den Satz: Befinden sich in "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " zwei synchron gehende Uhren und bewegt man die eine derselben auf einer geschlossenen Kurve mit konstanter Geschwindigkeit, bis sie wieder nach "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " zurückkommt, was "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: " Sek. dauern möge, so geht die letztere Uhr bei ihrer Ankunft in "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " gegenüber der unbewegt gebliebenen um "
+  - kind: "math"
+    latex: "\\frac{1}{2} t (v/V)^2"
+  - kind: "text"
+    text: " Sek. nach."
+  - kind: "space"
+  - kind: "text"
+    text: "Man schließt daraus, daß eine am Erdäquator befindliche Unruhuhr um einen sehr kleinen Betrag langsamer laufen muß als eine genau gleich beschaffene, sonst gleichen Bedingungen unterworfene, an einem Erdpole befindliche Uhr."
+sentenceSpans:
+  - id: "s4-p8-s1"
+    span:
+      start: 0
+      end: 455
+      blockRevision: 1
+      textDigest: "eb205e55553c55108445dfeb5cd3bf326af5930d558fbd7fd932dac37867a46c"
+  - id: "s4-p8-s2"
+    span:
+      start: 456
+      end: 680
+      blockRevision: 1
+      textDigest: "eb205e55553c55108445dfeb5cd3bf326af5930d558fbd7fd932dac37867a46c"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

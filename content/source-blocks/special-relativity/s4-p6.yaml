@@ -1,0 +1,94 @@
+# SourceBlock s4-p6: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s4-p6"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s4"
+order: 92
+locators:
+  - pdfPageIndex: 14
+    printedPage: 904
+diplomaticText: "Hieraus ergibt sich folgende eigentümliche Konsequenz. Sind in den Punkten A und B von K ruhende, im ruhenden System betrachtet, synchron gehende Uhren vorhanden, und bewegt man die Uhr in A mit der Geschwindigkeit v auf der Verbindungslinie nach B, so gehen nach Ankunft dieser Uhr in B die beiden Uhren nicht mehr synchron, sondern die von A nach B bewegte Uhr geht gegenüber der von Anfang an in B befindlichen um \\frac{1}{2} t v^2 / V^2 Sek. (bis auf Größen vierter und höherer Ordnung) nach, wenn t die Zeit ist, welche die Uhr von A nach B braucht."
+inlines:
+  - kind: "text"
+    text: "Hieraus ergibt sich folgende eigentümliche Konsequenz."
+  - kind: "space"
+  - kind: "text"
+    text: "Sind in den Punkten "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " von "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " ruhende, im ruhenden System betrachtet, synchron gehende Uhren vorhanden, und bewegt man die Uhr in "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " mit der Geschwindigkeit "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " auf der Verbindungslinie nach "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: ", so gehen nach Ankunft dieser Uhr in "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " die beiden Uhren nicht mehr synchron, sondern die von "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " nach "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " bewegte Uhr geht gegenüber der von Anfang an in "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " befindlichen um "
+  - kind: "math"
+    latex: "\\frac{1}{2} t v^2 / V^2"
+  - kind: "text"
+    text: " Sek. (bis auf Größen vierter und höherer Ordnung) nach, wenn "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: " die Zeit ist, welche die Uhr von "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " nach "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " braucht."
+sentenceSpans:
+  - id: "s4-p6-s1"
+    span:
+      start: 0
+      end: 54
+      blockRevision: 1
+      textDigest: "a5f9251ca370973ec843d5d0c798839ac4fe3c2191a680a96a9f140849d2729d"
+  - id: "s4-p6-s2"
+    span:
+      start: 55
+      end: 554
+      blockRevision: 1
+      textDigest: "a5f9251ca370973ec843d5d0c798839ac4fe3c2191a680a96a9f140849d2729d"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,26 @@
+# SourceBlock eq-s4-d6: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "eq-s4-d6"
+kind: "equation"
+paper: "special-relativity"
+section: "s4"
+order: 91
+locators:
+  - pdfPageIndex: 14
+    printedPage: 904
+editorialLabel: "ed:s4-d6"
+containedIn: "s4-p9"
+diplomaticText: "\\tau = t \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} = t - \\left( 1 - \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} \\right) t ,"
+inlines:
+  - kind: "math"
+    latex: "\\tau = t \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} = t - \\left( 1 - \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} \\right) t ,"
+    equationId: "eq-s4-d6"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,29 @@
+# SourceBlock s4-p4: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s4-p4"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s4"
+order: 86
+locators:
+  - pdfPageIndex: 13
+    printedPage: 903
+diplomaticText: "Es ist klar, daß die gleichen Resultate von im „ruhenden“ System ruhenden Körpern gelten, welche von einem gleichförmig bewegten System aus betrachtet werden. —"
+inlines:
+  - kind: "text"
+    text: "Es ist klar, daß die gleichen Resultate von im „ruhenden“ System ruhenden Körpern gelten, welche von einem gleichförmig bewegten System aus betrachtet werden. —"
+sentenceSpans:
+  - id: "s4-p4-s1"
+    span:
+      start: 0
+      end: 160
+      blockRevision: 1
+      textDigest: "bbd3500852c5a5d4431ae4cfe7c71aea4034b92624467d41a886708655316cbc"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

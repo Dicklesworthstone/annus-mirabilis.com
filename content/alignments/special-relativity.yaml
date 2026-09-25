@@ -891,6 +891,160 @@ edges:
       blockId: "eq-s3-d26"
     target:
       translationUnitId: "eq-s3-d26"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4"
+    target:
+      translationUnitId: "s4"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p1"
+      sentenceId: "s4-p1-s1"
+    target:
+      translationUnitId: "s4-p1-s1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p1"
+      sentenceId: "s4-p1-s2"
+    target:
+      translationUnitId: "s4-p1-s2"
+  - source:
+      paper: "special-relativity"
+      blockId: "eq-s4-d1"
+    target:
+      translationUnitId: "eq-s4-d1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p1"
+      sentenceId: "s4-p1-s3"
+    target:
+      translationUnitId: "s4-p1-s3"
+  - source:
+      paper: "special-relativity"
+      blockId: "eq-s4-d2"
+    target:
+      translationUnitId: "eq-s4-d2"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p1"
+      sentenceId: "s4-p1-s4"
+    target:
+      translationUnitId: "s4-p1-s4"
+  - source:
+      paper: "special-relativity"
+      blockId: "eq-s4-d3"
+    target:
+      translationUnitId: "eq-s4-d3"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-fn1"
+    target:
+      translationUnitId: "s4-fn1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p3"
+      sentenceId: "s4-p3-s1"
+    target:
+      translationUnitId: "s4-p3-s1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p3"
+      sentenceId: "s4-p3-s2"
+    target:
+      translationUnitId: "s4-p3-s2"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p3"
+      sentenceId: "s4-p3-s3"
+    target:
+      translationUnitId: "s4-p3-s3"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p4"
+      sentenceId: "s4-p4-s1"
+    target:
+      translationUnitId: "s4-p4-s1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p5"
+      sentenceId: "s4-p5-s1"
+    target:
+      translationUnitId: "s4-p5-s1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p5"
+      sentenceId: "s4-p5-s2"
+    target:
+      translationUnitId: "s4-p5-s2"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p9"
+      sentenceId: "s4-p9-s1"
+    target:
+      translationUnitId: "s4-p9-s1a"
+  - source:
+      paper: "special-relativity"
+      blockId: "eq-s4-d4"
+    target:
+      translationUnitId: "eq-s4-d4"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p9"
+      sentenceId: "s4-p9-s1"
+    target:
+      translationUnitId: "s4-p9-s1b"
+  - source:
+      paper: "special-relativity"
+      blockId: "eq-s4-d5"
+    target:
+      translationUnitId: "eq-s4-d5"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p9"
+      sentenceId: "s4-p9-s2"
+    target:
+      translationUnitId: "s4-p9-s2a"
+  - source:
+      paper: "special-relativity"
+      blockId: "eq-s4-d6"
+    target:
+      translationUnitId: "eq-s4-d6"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p9"
+      sentenceId: "s4-p9-s2"
+    target:
+      translationUnitId: "s4-p9-s2b"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p6"
+      sentenceId: "s4-p6-s1"
+    target:
+      translationUnitId: "s4-p6-s1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p6"
+      sentenceId: "s4-p6-s2"
+    target:
+      translationUnitId: "s4-p6-s2"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p7"
+      sentenceId: "s4-p7-s1"
+    target:
+      translationUnitId: "s4-p7-s1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p8"
+      sentenceId: "s4-p8-s1"
+    target:
+      translationUnitId: "s4-p8-s1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s4-p8"
+      sentenceId: "s4-p8-s2"
+    target:
+      translationUnitId: "s4-p8-s2"
   # Part II (part-2, § 6-§ 10, closings): GreenBarn
   - source:
       paper: "special-relativity"

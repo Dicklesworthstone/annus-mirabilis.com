@@ -1,0 +1,56 @@
+# SourceBlock s4-p5: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s4-p5"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s4"
+order: 87
+locators:
+  - pdfPageIndex: 13
+    printedPage: 903
+  - pdfPageIndex: 14
+    printedPage: 904
+diplomaticText: "Wir denken uns ferner eine der Uhren, welche relativ zum ruhenden System ruhend die Zeit t, relativ zum bewegten System ruhend die Zeit \\tau anzugeben befähigt sind, im Koordinatenursprung von k gelegen und so gerichtet, daß sie die Zeit \\tau angibt. Wie schnell geht diese Uhr, vom ruhenden System aus betrachtet?"
+inlines:
+  - kind: "text"
+    text: "Wir denken uns ferner eine der Uhren, welche relativ zum ruhenden System ruhend die Zeit "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: ", relativ zum bewegten System ruhend die Zeit "
+  - kind: "math"
+    latex: "\\tau"
+  - kind: "text"
+    text: " anzugeben befähigt sind, im Koordinatenursprung von "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " gelegen und so gerichtet, daß sie die Zeit "
+  - kind: "math"
+    latex: "\\tau"
+  - kind: "text"
+    text: " angibt."
+  - kind: "space"
+  - kind: "text"
+    text: "Wie schnell geht diese Uhr, vom ruhenden System aus betrachtet?"
+sentenceSpans:
+  - id: "s4-p5-s1"
+    span:
+      start: 0
+      end: 250
+      blockRevision: 1
+      textDigest: "d4204f34046af1928cf1a5c65d41e450c042903ba6903b5b3c7fa368e4dff689"
+  - id: "s4-p5-s2"
+    span:
+      start: 251
+      end: 314
+      blockRevision: 1
+      textDigest: "d4204f34046af1928cf1a5c65d41e450c042903ba6903b5b3c7fa368e4dff689"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

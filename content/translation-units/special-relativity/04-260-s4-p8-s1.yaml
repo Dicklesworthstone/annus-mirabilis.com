@@ -1,0 +1,41 @@
+# TranslationUnit s4-p8-s1: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s4-p8-s1"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s4-p8-s1"
+inlines:
+  - kind: "text"
+    text: "If one assumes that the result proved for a polygonal line also holds for a continuously curved curve, one obtains the theorem: If there are two synchronously running clocks at "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: ", and one of them is moved along a closed curve with constant velocity until it returns to "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: ", which may take "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: " sec., then on its arrival at "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " the latter clock lags behind the one that has remained unmoved by "
+  - kind: "math"
+    latex: "\\frac{1}{2} t (v/V)^2"
+  - kind: "text"
+    text: " sec."
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

@@ -1,0 +1,26 @@
+# SourceBlock eq-s4-d3: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "eq-s4-d3"
+kind: "equation"
+paper: "special-relativity"
+section: "s4"
+order: 84
+locators:
+  - pdfPageIndex: 13
+    printedPage: 903
+editorialLabel: "ed:s4-d3"
+containedIn: "s4-p1"
+diplomaticText: "R \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} , \\quad R , \\quad R ."
+inlines:
+  - kind: "math"
+    latex: "R \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} , \\quad R , \\quad R ."
+    equationId: "eq-s4-d3"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

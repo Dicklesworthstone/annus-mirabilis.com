@@ -1,0 +1,31 @@
+# SourceBlock s4-fn1: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s4-fn1"
+kind: "footnote"
+paper: "special-relativity"
+section: "s4"
+order: 81
+locators:
+  - pdfPageIndex: 13
+    printedPage: 903
+originalLabel: "1)"
+containedIn: "s4-p1"
+diplomaticText: "Das heißt einen Körper, welcher ruhend untersucht Kugelgestalt besitzt."
+inlines:
+  - kind: "text"
+    text: "Das heißt einen Körper, welcher ruhend untersucht Kugelgestalt besitzt."
+sentenceSpans:
+  - id: "s4-fn1"
+    span:
+      start: 0
+      end: 71
+      blockRevision: 1
+      textDigest: "858b817c79b89980b10d3199fe1bb39b8007b4e573a57816426f5478a26c709e"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

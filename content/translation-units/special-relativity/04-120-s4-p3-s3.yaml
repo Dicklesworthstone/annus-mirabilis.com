@@ -1,0 +1,23 @@
+# TranslationUnit s4-p3-s3: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s4-p3-s3"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s4-p3-s3"
+inlines:
+  - kind: "text"
+    text: "For velocities greater than that of light our considerations become meaningless; we shall find, moreover, in the considerations that follow, that in our theory the velocity of light plays physically the part of infinitely great velocities."
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "For superluminal velocities"
+    rationale: "Überlichtgeschwindigkeiten are velocities above that of light; “superluminal” is the later technical word and is kept out of the text."
+reviewState: "machine-draft"
+lang: "en"

@@ -1,0 +1,23 @@
+# TranslationUnit s4-p8-s2: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s4-p8-s2"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s4-p8-s2"
+inlines:
+  - kind: "text"
+    text: "From this one concludes that a balance-wheel clock located at the earth’s equator must go more slowly, by a very small amount, than a precisely similar clock, subject to otherwise identical conditions, located at one of the earth’s poles."
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "a balance clock"
+    rationale: "Unruhuhr is a clock regulated by a balance wheel (Unruh), as a watch is, not by a pendulum. The historian’s margin on this sentence treats what the claim does and does not cover."
+reviewState: "machine-draft"
+lang: "en"
