@@ -4,6 +4,7 @@
 # review rounds. No person has reviewed it.
 # Review round 1 (TopazPrairie, agent, 2026-09-25): read against the German and the plate; no change.
 # Review round 2 (TanElk, agent, 2026-09-25): read against the German and the plates pp. 137-145; no change.
+# Correction after both rounds (TopazPrairie, agent, 2026-09-25, TanElk's mail 40069): "in dem vorigen Paragraphen" (p. 139) is § 3, so "the preceding section", not "paragraph".
 kind: "translation-unit"
 id: "s4-p2-s1b"
 paper: "light-quanta"
@@ -12,13 +13,13 @@ sourceRefs:
     id: "s4-p2-s1"
 inlines:
   - kind: "text"
-    text: "and further, using the relation found in the preceding paragraph:"
+    text: "and further, using the relation found in the preceding section:"
 translator:
   id: "agent:NavyKite"
   name: "NavyKite (Claude Opus 5.5 agent)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
+revision: 2
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
