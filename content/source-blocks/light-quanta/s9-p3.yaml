@@ -1,0 +1,106 @@
+# SourceBlock s9-p3: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s9-p3"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s9"
+order: 123
+locators:
+  - pdfPageIndex: 17
+    printedPage: 148
+diplomaticText: "Eine obere Grenze für die Ionisierungsarbeit gewinnt man auch aus den Ionisierungsspannungen in verdünnten Gasen. Nach J. Stark1) ist die kleinste gemessene Ionisierungsspannung (an Platinanoden) für Luft ca. 10 Volt.2) Es ergibt sich also für J die obere Grenze 9{,}6 \\cdot 10^{12}, welche nahezu gleich der eben gefundenen ist. Es ergibt sich noch eine andere Konsequenz, deren Prüfung durch das Experiment mir von großer Wichtigkeit zu sein scheint. Wenn jedes absorbierte Lichtenergiequant ein Molekül ionisiert, so muß zwischen der absorbierten Lichtmenge L und der Anzahl j der durch dieselbe ionisierten Grammoleküle die Beziehung bestehen: Diese Beziehung muß, wenn unsere Auffassung der Wirklichkeit entspricht, für jedes Gas gelten, welches (bei der betreffenden Frequenz) keine merkliche nicht von Ionisation begleitete Absorption aufweist."
+inlines:
+  - kind: "text"
+    text: "Eine obere Grenze für die Ionisierungsarbeit gewinnt man auch aus den Ionisierungsspannungen in verdünnten Gasen."
+  - kind: "space"
+  - kind: "text"
+    text: "Nach J. "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Stark"
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s9-fn1"
+  - kind: "text"
+    text: " ist die kleinste gemessene Ionisierungsspannung (an Platinanoden) für Luft ca. 10 Volt."
+  - kind: "footnote-mark"
+    mark: "2)"
+    footnoteId: "s9-fn2"
+  - kind: "space"
+  - kind: "text"
+    text: "Es ergibt sich also für "
+  - kind: "math"
+    latex: "J"
+  - kind: "text"
+    text: " die obere Grenze "
+  - kind: "math"
+    latex: "9{,}6 \\cdot 10^{12}"
+  - kind: "text"
+    text: ", welche nahezu gleich der eben gefundenen ist."
+  - kind: "space"
+  - kind: "text"
+    text: "Es ergibt sich noch eine andere Konsequenz, deren Prüfung durch das Experiment mir von großer Wichtigkeit zu sein scheint."
+  - kind: "space"
+  - kind: "text"
+    text: "Wenn jedes absorbierte Lichtenergiequant ein Molekül ionisiert, so muß zwischen der absorbierten Lichtmenge "
+  - kind: "math"
+    latex: "L"
+  - kind: "text"
+    text: " und der Anzahl "
+  - kind: "math"
+    latex: "j"
+  - kind: "text"
+    text: " der durch dieselbe ionisierten Grammoleküle die Beziehung bestehen:"
+  - kind: "math"
+    latex: "j = \\frac{L}{R \\beta \\nu} ."
+    display: true
+    equationId: "eq-s9-d3"
+  - kind: "space"
+  - kind: "text"
+    text: "Diese Beziehung muß, wenn unsere Auffassung der Wirklichkeit entspricht, für jedes Gas gelten, welches (bei der betreffenden Frequenz) keine merkliche nicht von Ionisation begleitete Absorption aufweist."
+sentenceSpans:
+  - id: "s9-p3-s1"
+    span:
+      start: 0
+      end: 113
+      blockRevision: 1
+      textDigest: "8a3afb5dd35e5168baaffcfe212e91670479199b6b88f9e2aa2773a0276351c1"
+  - id: "s9-p3-s2"
+    span:
+      start: 114
+      end: 219
+      blockRevision: 1
+      textDigest: "8a3afb5dd35e5168baaffcfe212e91670479199b6b88f9e2aa2773a0276351c1"
+  - id: "s9-p3-s3"
+    span:
+      start: 220
+      end: 329
+      blockRevision: 1
+      textDigest: "8a3afb5dd35e5168baaffcfe212e91670479199b6b88f9e2aa2773a0276351c1"
+  - id: "s9-p3-s4"
+    span:
+      start: 330
+      end: 452
+      blockRevision: 1
+      textDigest: "8a3afb5dd35e5168baaffcfe212e91670479199b6b88f9e2aa2773a0276351c1"
+  - id: "s9-p3-s5"
+    span:
+      start: 453
+      end: 647
+      blockRevision: 1
+      textDigest: "8a3afb5dd35e5168baaffcfe212e91670479199b6b88f9e2aa2773a0276351c1"
+  - id: "s9-p3-s6"
+    span:
+      start: 648
+      end: 851
+      blockRevision: 1
+      textDigest: "8a3afb5dd35e5168baaffcfe212e91670479199b6b88f9e2aa2773a0276351c1"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

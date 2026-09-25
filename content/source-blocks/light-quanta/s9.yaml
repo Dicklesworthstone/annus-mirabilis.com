@@ -1,0 +1,29 @@
+# SourceBlock s9: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s9"
+kind: "heading"
+paper: "light-quanta"
+section: "s9"
+order: 119
+locators:
+  - pdfPageIndex: 16
+    printedPage: 147
+diplomaticText: "§ 9. Über die Ionisierung der Gase durch ultraviolettes Licht."
+inlines:
+  - kind: "text"
+    text: "§ 9. Über die Ionisierung der Gase durch ultraviolettes Licht."
+sentenceSpans:
+  - id: "s9"
+    span:
+      start: 0
+      end: 62
+      blockRevision: 1
+      textDigest: "e69a41fde62c8fdbbe99e020e133b1b443d9bda2499e527e0676500decb78a74"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

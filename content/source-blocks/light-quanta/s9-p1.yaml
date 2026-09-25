@@ -1,0 +1,80 @@
+# SourceBlock s9-p1: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s9-p1"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s9"
+order: 120
+locators:
+  - pdfPageIndex: 16
+    printedPage: 147
+  - pdfPageIndex: 17
+    printedPage: 148
+diplomaticText: "Wir werden anzunehmen haben, daß bei der Ionisierung eines Gases durch ultraviolettes Licht je ein absorbiertes Lichtenergiequant zur Ionisierung je eines Gasmoleküles verwendet wird. Hieraus folgt zunächst, daß die Ionisierungsarbeit (d. h. die zur Ionisierung theoretisch nötige Arbeit) eines Moleküles nicht größer sein kann als die Energie eines absorbierten wirksamen Lichtenergiequantes. Bezeichnet man mit J die (theoretische) Ionisierungsarbeit pro Grammäquivalent, so muß also sein: Nach Messungen Lenards ist aber die größte wirksame Wellenlänge für Luft ca. 1{,}9 \\cdot 10^{-5} cm, also"
+inlines:
+  - kind: "text"
+    text: "Wir werden anzunehmen haben, daß bei der Ionisierung eines Gases durch ultraviolettes Licht je ein absorbiertes Lichtenergiequant zur Ionisierung je eines Gasmoleküles verwendet wird."
+  - kind: "space"
+  - kind: "text"
+    text: "Hieraus folgt zunächst, daß die Ionisierungsarbeit (d. h. die zur Ionisierung theoretisch nötige Arbeit) eines Moleküles nicht größer sein kann als die Energie eines absorbierten wirksamen Lichtenergiequantes."
+  - kind: "space"
+  - kind: "text"
+    text: "Bezeichnet man mit "
+  - kind: "math"
+    latex: "J"
+  - kind: "text"
+    text: " die (theoretische) Ionisierungsarbeit pro Grammäquivalent, so muß also sein:"
+  - kind: "math"
+    latex: "R \\beta \\nu \\geqq J ."
+    display: true
+    equationId: "eq-s9-d1"
+  - kind: "space"
+  - kind: "text"
+    text: "Nach Messungen "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Lenard"
+  - kind: "text"
+    text: "s ist aber die größte wirksame Wellenlänge für Luft ca. "
+  - kind: "math"
+    latex: "1{,}9 \\cdot 10^{-5}"
+  - kind: "text"
+    text: " cm, also"
+  - kind: "math"
+    latex: "R \\beta \\nu = 6{,}4 \\cdot 10^{12} \\text{ Erg} \\geqq J ."
+    display: true
+    equationId: "eq-s9-d2"
+sentenceSpans:
+  - id: "s9-p1-s1"
+    span:
+      start: 0
+      end: 183
+      blockRevision: 1
+      textDigest: "8483785ff69d6c64936e260f382e1c82bb09ef204cc3f7a8a282d64d2b551d5d"
+  - id: "s9-p1-s2"
+    span:
+      start: 184
+      end: 393
+      blockRevision: 1
+      textDigest: "8483785ff69d6c64936e260f382e1c82bb09ef204cc3f7a8a282d64d2b551d5d"
+  - id: "s9-p1-s3"
+    span:
+      start: 394
+      end: 491
+      blockRevision: 1
+      textDigest: "8483785ff69d6c64936e260f382e1c82bb09ef204cc3f7a8a282d64d2b551d5d"
+  - id: "s9-p1-s4"
+    span:
+      start: 492
+      end: 597
+      blockRevision: 1
+      textDigest: "8483785ff69d6c64936e260f382e1c82bb09ef204cc3f7a8a282d64d2b551d5d"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

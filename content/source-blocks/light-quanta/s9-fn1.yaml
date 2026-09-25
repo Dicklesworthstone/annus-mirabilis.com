@@ -1,0 +1,36 @@
+# SourceBlock s9-fn1: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s9-fn1"
+kind: "footnote"
+paper: "light-quanta"
+section: "s9"
+order: 125
+locators:
+  - pdfPageIndex: 17
+    printedPage: 148
+originalLabel: "1)"
+diplomaticText: "J. Stark, Die Elektrizität in Gasen p. 57. Leipzig 1902."
+inlines:
+  - kind: "text"
+    text: "J. "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Stark"
+  - kind: "text"
+    text: ", Die Elektrizität in Gasen p. 57. Leipzig 1902."
+sentenceSpans:
+  - id: "s9-fn1"
+    span:
+      start: 0
+      end: 56
+      blockRevision: 1
+      textDigest: "222d44835427c08f83ae74dacf3eb58a01f6ac4d8e1b30f7a8c32357b00ad970"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"
