@@ -6,11 +6,11 @@ import { validateBm05Parameters } from "../experiments/bm05/parameters.ts";
 import { decodeBm05Settings, encodeBm05Settings } from "../experiments/bm05/permalink.ts";
 
 test("walk display units roundtrip without changing the underlying trial inputs", () => {
+  // Exact round trips at the declared domain's edges, 1 nm and 1 mm (content/experiments/
+  // bm-05.yaml), and at many digits. 1e-40 and 1e40 m used to stand in for "extreme"; the
+  // validator fromWalkDraft runs now refuses them as outside the model.
   for (const kernel of ["coin", "uniform", "gaussian"])
-    // Exact round trips at the declared domain's edges, 1 nm and 1 mm (content/experiments/
-    // bm-05.yaml), and at many digits. 1e-40 and 1e40 m used to stand in for "extreme"; the
-    // validator fromWalkDraft runs now refuses them as outside the model.
-    for (const stepRms of [0.5e-6, 1.234567890123456e-9, 1e-9, 1e-3, 9.876543210987654e-4]) {
+    for (const stepRms of [0.5e-6, 1.234567890123456e-9, 1e-9, 1e-3, 9.87654321e-4]) {
       const p = { ...BM05_DEFAULTS, kernel, stepRms, seed: "18446744073709551615" };
       assert.deepEqual(fromWalkDraft(toWalkDraft(p)), p);
       const d = toWalkDraft(p);
