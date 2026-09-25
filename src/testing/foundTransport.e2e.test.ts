@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import test from "node:test";
 import { chromium } from "playwright";
 import { ENTROPY_TEMPERATURE_CHECK } from "../foundations/lessonInstruments.ts";
@@ -18,7 +20,8 @@ import {
  * - "From Brownian §1 (or its nearest existing passage in the reference slice), open
  *   foundation:free-energy-osmotic-pressure at 320 px with keyboard only and return to the exact
  *   sentence." Brownian §§1-3 have no routes; the nearest passage that opens this lesson is §5's
- *   arg-bm-diffusivity, on /papers/brownian-motion/s5/.
+ *   arg-bm-diffusivity, on the section page of the section it is filed under (§5 until dispatch
+ *   215, §3 since).
  * - "Open foundation:entropy-temperature standalone with JavaScript enabled and disabled, and
  *   assert the static worked example and the status line." The status line stood in for the
  *   laboratory until lq-04-derived-temperature was registered; it is registered, so the journey
@@ -30,6 +33,15 @@ import {
 const journey = journeyRunner("found-transport-e2e", "am-found-transport-thermo-smv3");
 const LESSON = "free-energy-osmotic-pressure";
 const ANCHOR = "arg-bm-diffusivity";
+// The section the passage is filed under, read from its record: §5 until dispatch 215, §3 since.
+const ANCHOR_SECTION = (
+  JSON.parse(
+    readFileSync(
+      join(process.cwd(), "content", "arguments", "brownian-motion", `${ANCHOR}.json`),
+      "utf8",
+    ),
+  ) as { section: string }
+).section;
 
 test("from Brownian §5, the osmotic lesson opens and closes by keyboard at 320 px, and focus returns to the calling link", async () => {
   const site = await laneTarget();
@@ -51,7 +63,7 @@ test("from Brownian §5, the osmotic lesson opens and closes by keyboard at 320 
     await journey(page, meta, async () => {
       const { link, top, presses } = await focusLessonLink(
         page,
-        `${site.url}/papers/brownian-motion/s5/`,
+        `${site.url}/papers/brownian-motion/${ANCHOR_SECTION}/`,
         ANCHOR,
         LESSON,
       );

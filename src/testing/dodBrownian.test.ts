@@ -20,7 +20,15 @@ test("Brownian DoD Item 1: complete paper text inventory", async () => {
   assert.equal(paper.sourceStatus, "in-preparation");
 
   const sectionIds = (paper.sections || []).map((s: { id: string }) => s.id);
-  assert.deepEqual(sectionIds, ["s0", "s1", "s2", "s4", "s5"]);
+  // A property, not a census: the explanation's sections are printed sections, in printed order,
+  // and include the introduction, §§1-2, §4 and §5. §3 joined them in dispatch 215, when the
+  // passage that derives its diffusion coefficient was filed under it.
+  const printed = ["s0", "s1", "s2", "s3", "s4", "s5"];
+  assert.deepEqual(
+    sectionIds,
+    printed.filter((s) => sectionIds.includes(s)),
+  );
+  for (const required of ["s0", "s1", "s2", "s4", "s5"]) assert.ok(sectionIds.includes(required));
 
   suiteLogger.log({
     testId: "dod-item-1-complete-paper-text",
@@ -28,8 +36,7 @@ test("Brownian DoD Item 1: complete paper text inventory", async () => {
     paper: "brownian-motion",
     outcome: "passed",
     durationMs: Date.now() - startTime,
-    message:
-      "Verified Item 1: the introduction, §§1-2, §4 and §5 authored; §3 is explained from §5, and the closing has no passage of its own.",
+    message: `Verified Item 1: explanation sections ${sectionIds.join(", ")}, in printed order; the closing has no passage of its own.`,
     extra: {
       item: "1. Complete paper text",
       check: "sections-inventory",

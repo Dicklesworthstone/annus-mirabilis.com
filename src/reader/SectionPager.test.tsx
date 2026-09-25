@@ -4,6 +4,7 @@
  * lands on this section inside the whole paper. Rendered from the real compiled papers.
  */
 import { describe, expect, test } from "bun:test";
+import { loadParagraphBindings } from "../content/bindings/paragraphBindings.ts";
 import { loadPaper } from "../content/server.ts";
 import { exportMarkup } from "../testing/exportMarkup.ts";
 import { installDom, uninstallDom } from "../testing/reactDom.ts";
@@ -78,23 +79,32 @@ describe("a section's own page", () => {
     }
   });
 
-  test("Brownian §4, from its own reader: §2 before, §5 next, both in the outline, back to #s4", async () => {
+  test("Brownian §4, from its own reader: the sections either side in the pager, every part in the outline, back to #s4", async () => {
+    // Derived from the passage records, so the test holds however the passages are filed: §3 was
+    // explained from a passage filed under §5 until dispatch 215 filed it under §3.
+    const { arguments: passages } = await loadPaper("brownian-motion");
+    const printed = ["s0", "s1", "s2", "s3", "s4", "s5"];
+    const filed = printed.filter((s) => passages.some((a) => a.section === s));
+    const at = filed.indexOf("s4");
     const page = await parse(await exportMarkup(await PaperReader({ section: "s4" })));
     try {
       expect(page.pager).toEqual([
-        "prev /papers/brownian-motion/s2/",
-        "next /papers/brownian-motion/s5/",
+        `prev /papers/brownian-motion/${filed[at - 1]}/`,
+        `next /papers/brownian-motion/${filed[at + 1]}/`,
       ]);
-      // Every part is in the outline in printed order. §3 is explained by a passage filed under §5,
-      // and its entry opens that passage on the §5 page, never a §3 page that does not exist.
-      expect(page.outline).toEqual([
-        "/papers/brownian-motion/s0/",
-        "/papers/brownian-motion/s1/",
-        "/papers/brownian-motion/s2/",
-        "/papers/brownian-motion/s5/#arg-bm-diffusivity",
-        "#s4",
-        "/papers/brownian-motion/s5/",
-      ]);
+      // Every part is in the outline in printed order: its own section page, "#s4" for this one, or,
+      // for a part no passage is filed under, the passage that explains it on that passage's page,
+      // never a section page that does not exist.
+      const bindings = loadParagraphBindings(process.cwd(), "brownian-motion") ?? [];
+      expect(page.outline).toEqual(
+        printed.map((s) => {
+          if (s === "s4") return "#s4";
+          if (filed.includes(s)) return `/papers/brownian-motion/${s}/`;
+          const id = bindings.find((b) => b.unit.startsWith(`${s}-`))?.passages[0] ?? "?";
+          const home = passages.find((a) => a.id === id)?.section ?? "?";
+          return `/papers/brownian-motion/${home}/#${id}`;
+        }),
+      );
       expect(page.back).toContain("/papers/brownian-motion/#s4");
     } finally {
       await page.done();

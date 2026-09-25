@@ -32,20 +32,27 @@ describe("the parts of a paper, and the ones not yet explained", () => {
     expect(paperParts([{ section: "closing" }, { section: "s2" }, {}])).toEqual(["s2"]);
   });
 
-  test("Brownian: every part has an explanation; §3 is explained from §5", async () => {
+  test("Brownian: every part has an explanation, filed under it or bound to a passage that exists", async () => {
+    // A property, not a census: §3 was explained from a passage filed under §5 until dispatch 215
+    // filed that passage under §3, and either arrangement must leave no part unexplained.
     const { arguments: passages } = await loadPaper("brownian-motion");
     const parts = paperParts(printedUnits(ROOT, "brownian-motion"));
     const filed = new Set(passages.map((a) => a.section));
-    // No passage is filed under §3, yet every §3 paragraph is bound to the §5 passage that derives
-    // the same diffusion coefficient (content/bindings/brownian-motion.yaml).
-    expect(unexplainedParts(parts, filed)).toEqual(["s3"]);
     const elsewhere = explainedElsewhere(
       parts,
       filed,
       loadParagraphBindings(ROOT, "brownian-motion") ?? [],
     );
-    expect([...elsewhere]).toEqual([["s3", ["arg-bm-diffusivity"]]]);
     expect(unexplainedParts(parts, new Set([...filed, ...elsewhere.keys()]))).toEqual([]);
+    const ids = new Set(passages.map((a) => a.id));
+    for (const [part, explaining] of elsewhere) {
+      expect(filed.has(part)).toBe(false);
+      expect(explaining.length).toBeGreaterThan(0);
+      for (const id of explaining) expect(ids.has(id)).toBe(true);
+    }
+    // Non-vacuity: the paper has parts, and most of them have passages of their own.
+    expect(parts.length).toBeGreaterThan(0);
+    expect(filed.size).toBeGreaterThan(0);
   });
 
   test("a part is explained elsewhere only when every paragraph of it is bound", () => {
@@ -100,19 +107,28 @@ describe("the parts of a paper, and the ones not yet explained", () => {
 
   test("the Brownian page lists every part in its outline and says nothing is missing", async () => {
     const html = await exportMarkup(await PaperReader());
-    // The introduction, §1 and §2 have their own passages, and §3 is explained from §5, so the
-    // "Not yet explained" line is gone; the synthetic cases above keep the line's wording tested.
+    // Every part is explained, so the "Not yet explained" line is gone; the synthetic cases above
+    // keep the line's wording tested.
     expect(html).not.toContain("data-unexplained-parts=");
     expect(html).not.toContain("Not yet explained on this site:");
-    for (const part of ["s0", "s1", "s2", "s3"])
+    const { arguments: passages } = await loadPaper("brownian-motion");
+    const filed = new Set(passages.map((a) => a.section));
+    const parts = paperParts(printedUnits(ROOT, "brownian-motion"));
+    for (const part of parts) {
       expect(html).not.toContain(`data-unexplained-part="${part}"`);
-    // §3 is in the outline, pointing at the passage that explains it.
-    // The whole paper carries the passage, so the link stays on the page.
-    const at = html.indexOf('data-explained-elsewhere="s3"');
-    expect(at).toBeGreaterThan(-1);
-    expect(html.slice(at, html.indexOf("</div>", at))).toContain('href="#arg-bm-diffusivity"');
-    // §3 opens its passage, never a section page that does not exist.
-    expect(html).not.toMatch(/href="\/papers\/brownian-motion\/s3\/"/);
+      if (filed.has(part)) continue;
+      // A part with no passage of its own is in the outline, pointing at the passage that explains
+      // it, which the whole paper carries (until dispatch 215, §3 at #arg-bm-diffusivity).
+      const at = html.indexOf(`data-explained-elsewhere="${part}"`);
+      expect(at).toBeGreaterThan(-1);
+      const target = /href="#([^"]+)"/.exec(html.slice(at, html.indexOf("</div>", at)))?.[1];
+      expect(passages.some((a) => a.id === target)).toBe(true);
+    }
+    // A part opens a section page only when that section has passages: never a page that does
+    // not exist.
+    const pages = [...html.matchAll(/href="\/papers\/brownian-motion\/(s\d+)\/"/g)];
+    expect(pages.length).toBeGreaterThan(0);
+    for (const m of pages) expect(filed.has(m[1] ?? "")).toBe(true);
   });
 });
 
