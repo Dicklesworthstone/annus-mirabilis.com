@@ -37,3 +37,17 @@ aliases:
     reason: "Not a printed paragraph. On p. 557 'Auf der rechten Seite verschwindet wegen phi(x) = phi(-x)' is flush, resuming s4-p6 after the integrated display, and the run continues onto p. 558. The 557-558 span therefore belongs to s4-p6. Same page image and magnification as s4-p7."
     date: "2026-09-19"
     editor: "agent:pane30 (BrightIsland), am-edn-inventory-brownian-slg"
+  - retiredId: s3-p8-s3
+    kind: retired
+    replacementIds:
+      - s3-p8
+    reason: "Not a printed sentence. Pages 555-556, read by eye from pdftoppm renders of the pinned scan (the text layer was not read), print three sentences in s3-p8: 'Aus den beiden ... berechnen.', 'Man erhält:' with the display D = RT/N 1/(6 pi k P), and 'Der Diffusionskoeffizient ... ab.', which runs onto p. 556. They carry s3-p8-s1, s3-p8-s2 and s3-p8-s5, whose locator is 555-556. The frozen manifest listed five ids, and s3-p8-s3 names no printed sentence. It has no successor sentence, so it resolves to its paragraph, s3-p8. Ruled by the orchestrator (TanElk, mail 39982)."
+    date: "2026-09-25"
+    editor: "agent:SapphireCastle, am-edn-translation-brownian-rest-h0z (TanElk's ruling, mail 39982)"
+  - retiredId: s3-p8-s4
+    kind: retired
+    replacementIds:
+      - s3-p8
+    reason: "Not a printed sentence. Pages 555-556, read by eye from pdftoppm renders of the pinned scan (the text layer was not read), print three sentences in s3-p8: 'Aus den beiden ... berechnen.', 'Man erhält:' with the display D = RT/N 1/(6 pi k P), and 'Der Diffusionskoeffizient ... ab.', which runs onto p. 556. They carry s3-p8-s1, s3-p8-s2 and s3-p8-s5, whose locator is 555-556. The frozen manifest listed five ids, and s3-p8-s4 names no printed sentence. It has no successor sentence, so it resolves to its paragraph, s3-p8. Ruled by the orchestrator (TanElk, mail 39982)."
+    date: "2026-09-25"
+    editor: "agent:SapphireCastle, am-edn-translation-brownian-rest-h0z (TanElk's ruling, mail 39982)"

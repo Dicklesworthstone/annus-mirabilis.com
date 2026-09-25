@@ -12,7 +12,9 @@ frozenBy: am-edn-inventory-brownian-slg
 # by the stamp above, on the orchestrator's authorisation once ap-17-132 was completely
 # transcribed (22cd5562) with no fourth segmentation exception. Under RULE 1 and
 # am-cm-id-scheme-8bn these ids are permanent: a wrong one is retired through an alias and
-# never reused.
+# never reused. Two were: s3-p8-s3 and s3-p8-s4 were retired on 2026-09-25 (the plate prints three
+# sentences in s3-p8, not five), so 88 sentence ids remain; content/aliases/brownian-motion.yaml
+# records both.
 units:
   - id: masthead-title
     kind: masthead-title
@@ -1359,32 +1361,6 @@ units:
       - page: 555
     destination:
       editionBlockId: de-brownian-motion-s3-p8-s2
-      translationUnits:
-        - planned
-      argumentObligations:
-        - arg:brownian-stokes-diffusion
-
-  - id: s3-p8-s3
-    kind: sentence
-    section: s3
-    containedIn: s3-p8
-    locators:
-      - page: 555
-    destination:
-      editionBlockId: de-brownian-motion-s3-p8-s3
-      translationUnits:
-        - planned
-      argumentObligations:
-        - arg:brownian-stokes-diffusion
-
-  - id: s3-p8-s4
-    kind: sentence
-    section: s3
-    containedIn: s3-p8
-    locators:
-      - page: 555
-    destination:
-      editionBlockId: de-brownian-motion-s3-p8-s4
       translationUnits:
         - planned
       argumentObligations:
