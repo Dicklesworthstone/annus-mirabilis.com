@@ -260,6 +260,7 @@ y' &= \varphi(-v) \eta &&= \varphi(v) \varphi(-v) y , \\
 z' &= \varphi(-v) \zeta &&= \varphi(v) \varphi(-v) z .
 \end{aligned}
 $$
+
 Da die Beziehungen zwischen $x'$, $y'$, $z'$ und $x$, $y$, $z$ die Zeit $t$ nicht enthalten, so ruhen die Systeme $K$ und $K'$ gegeneinander,[[CONTINUES]]
 
 --- MACHINE DRAFT TRANSCRIPTION PAGE 12 OF 31 ---
