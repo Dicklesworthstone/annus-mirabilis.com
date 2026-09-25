@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 299 quantities, 45 rejected spellings, 0 reserved spellings.
+Total: 301 quantities, 45 rejected spellings, 0 reserved spellings.
 
 ## Registered quantities
 
@@ -81,6 +81,7 @@ Total: 299 quantities, 45 rejected spellings, 0 reserved spellings.
 | effectiveIndependentCount | Effective independent count | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | effectiveViscosity | Effective viscosity | -1,1,-1,0,0,0 | not-applicable | scalar | — |
 | elapsedTime | Elapsed time | 0,0,1,0,0,0 | not-applicable | scalar | — |
+| electricDeflectability | Electric deflectability | undefined in source | not-applicable | scalar | — |
 | electricFieldAmplitudeStationary | Electric field amplitude (stationary system) | 1,1,-3,0,-1,0 | stationary-system | vector | — |
 | electricFieldMoving | Electric field (moving system) | 1,1,-3,0,-1,0 | moving-system | vector | electricField |
 | electricFieldStationary | Electric field (stationary system) | 1,1,-3,0,-1,0 | stationary-system | vector | electricField |
@@ -174,6 +175,7 @@ Total: 299 quantities, 45 rejected spellings, 0 reserved spellings.
 | longitudinalForce | Longitudinal force | 1,1,-2,0,0,0 | not-applicable | vector | — |
 | longitudinalMass | Longitudinal mass | 0,1,0,0,0,0 | not-applicable | scalar | longitudinalMassSource, massCoefficientLongitudinal |
 | lorentzFactor | Lorentz factor | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| magneticDeflectability | Magnetic deflectability | undefined in source | not-applicable | scalar | — |
 | magneticDipoleMoment | Magnetic dipole moment | 2,0,0,0,1,0 | not-applicable | vector | — |
 | magneticFieldAmplitudeStationary | Magnetic field amplitude (stationary system) | 0,1,-2,0,-1,0 | stationary-system | vector | — |
 | magneticFieldMoving | Magnetic field (moving system) | 0,1,-2,0,-1,0 | moving-system | vector | magneticField |

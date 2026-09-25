@@ -1,7 +1,7 @@
 # Paper 3 electrodynamics: fields, sources, waves, the moving electron.
 # am-not-quantity-registry-2f7. Dimension order: [length, mass, time, temperature, current, amount].
-# magneticDeflectability and electricDeflectability are RESERVED spellings (see registry.ts's
-# RESERVED_SPELLINGS), not records: am-sre-equations-2g3h adds them after the facsimile check.
+# magneticDeflectability and electricDeflectability, once reserved for am-sre-equations-2g3h, are
+# records with dimensionStatus undefined-in-source: p. 920 names them and defines neither.
 
 - id: electricFieldStationary
   name: Electric field (stationary system)
@@ -717,6 +717,36 @@
   mathematicalKind: scalar
   frame: not-applicable
   colorRole: space-geometry
+
+- id: magneticDeflectability
+  name: Magnetic deflectability
+  description: >
+    Section 10's printed A_m, the electron's magnetic deflectability, named on p. 920 in the law
+    A_m/A_e = v/V by which the electron's speed can be found from the two. Distinct from the
+    radii of curvature of section 10's third result.
+  dimensionStatus: undefined-in-source
+  dimensionNote: >
+    Named, not defined, by Einstein on p. 920 of the 1905 paper (s10-p15): '… aus dem Verhältnis der magnetischen Ablenkbarkeit A_m und der elektrischen Ablenkbarkeit A_e nach unserer Theorie für beliebige Geschwindigkeiten möglich ist durch Anwendung des Gesetzes: A_m/A_e = v/V.'
+    The paper prints no definition of either deflectability; its law fixes only that A_m and
+    A_e share a dimension.
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
+- id: electricDeflectability
+  name: Electric deflectability
+  description: >
+    Section 10's printed A_e, the electron's electric deflectability, named on p. 920 in the law
+    A_m/A_e = v/V by which the electron's speed can be found from the two. Distinct from the
+    radii of curvature of section 10's third result.
+  dimensionStatus: undefined-in-source
+  dimensionNote: >
+    Named, not defined, by Einstein on p. 920 of the 1905 paper (s10-p15): '… aus dem Verhältnis der magnetischen Ablenkbarkeit A_m und der elektrischen Ablenkbarkeit A_e nach unserer Theorie für beliebige Geschwindigkeiten möglich ist durch Anwendung des Gesetzes: A_m/A_e = v/V.'
+    The paper prints no definition of either deflectability; its law fixes only that A_m and
+    A_e share a dimension.
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
 
 - id: magneticDipoleMoment
   name: Magnetic dipole moment
