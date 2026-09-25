@@ -1,0 +1,46 @@
+{
+  "kind": "misconception",
+  "id": "misc-sr-michelson-motive",
+  "paper": "special-relativity",
+  "temptingClaims": [
+    "The Michelson–Morley experiment is why Einstein wrote the paper."
+  ],
+  "whyTempting": "Textbooks often open special relativity with that experiment, and the paper's introduction does mention failed attempts to detect the earth's motion.",
+  "whereItIsTrue": "The introduction counts the unsuccessful attempts to detect a motion of the earth relative to the light medium among the grounds for its conjecture (p. 891).",
+  "whatIsTrue": {
+    "r0": "The paper mentions failed attempts to detect the earth's motion through the light medium, in general terms, beside the magnet and the conductor. It names no experiment and no experimenter for them, and it says nothing of how Einstein came to the problem.",
+    "r1": "The introduction rests its conjecture on two kinds of ground: \"examples of a similar kind\" to the magnet and conductor of its first paragraph, \"together with the unsuccessful attempts to detect a motion of the earth relative to the 'light medium'\" (p. 891). From them it conjectures that absolute rest corresponds to no property of the phenomena, and it raises that conjecture to a postulate, the principle of relativity, beside the constancy of the velocity of light (pp. 891–892). The names Michelson and Morley appear nowhere in the paper. Which experiments Einstein had in mind, and what part any of them played in how he came to the problem, are questions about his path that the paper does not answer and this record does not decide.",
+    "r2": "(1) p. 891, first paragraph: a magnet and a conductor in relative motion give the same current whichever of the two is taken to move, while the theory of the time describes the two cases differently. (2) p. 891, second paragraph: \"Examples of a similar kind, together with the unsuccessful attempts to detect a motion of the earth relative to the 'light medium'\" lead to a conjecture about absolute rest. (3) The same sentence limits what had been shown: the laws hold for all such coordinate systems \"as has already been shown for the quantities of the first order\". (4) pp. 891–892: the conjecture becomes a postulate, and the constancy of the velocity of light is added as a second. (5) The paper does not say which attempts it means; neither Michelson nor Morley is named in any of its 31 pages.",
+    "r3": "Accounts of Einstein's own route to the paper, and of what he later said about the part that experiment played, rest on later letters and recollections. This record has not read them and gives no account of them."
+  },
+  "staticTreatment": {
+    "reason": "A matter of the paper's text: the introduction, pp. 891–892."
+  },
+  "anchors": [
+    "s0-p1",
+    "s0-p2"
+  ],
+  "resultIds": [],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plates pp. 891–892"
+  ],
+  "intervention": {
+    "defaultsReviewed": {
+      "model": "Not applicable: no instrument; this entry is a matter of the paper's text.",
+      "labels": "Not applicable: no instrument; this entry is a matter of the paper's text.",
+      "defaultControls": "Not applicable: no instrument; this entry is a matter of the paper's text.",
+      "feedback": "Not applicable: no instrument; this entry is a matter of the paper's text."
+    },
+    "reviewRecordId": "pending-review-misc-sr-michelson-motive"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:SapphireCastle",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}

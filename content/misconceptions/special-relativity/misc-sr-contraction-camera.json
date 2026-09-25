@@ -1,0 +1,52 @@
+{
+  "kind": "misconception",
+  "id": "misc-sr-contraction-camera",
+  "paper": "special-relativity",
+  "temptingClaims": [
+    "Length contraction is what a camera would see."
+  ],
+  "whyTempting": "§ 4 says the moving body's length along the motion appears shortened, and a photograph is the everyday meaning of how something appears.",
+  "whereItIsTrue": "In the paper's own sense: the positions of the body's points, taken at one time of the resting system K, lie on an ellipsoid shortened along the motion in the ratio \\(1 : \\sqrt{1-(v/V)^2}\\) (p. 903).",
+  "whatIsTrue": {
+    "r0": "§ 4 finds the shape of a moving body from where its points are at one instant of the resting system's time. A camera records light that arrives together, which left different parts of the body at different times. That is a different question, and the paper does not treat it.",
+    "r1": "The paper takes a rigid sphere of radius \\(R\\) at rest in the moving system k and writes its surface in the coordinates of K at the time \\(t=0\\): \\(\\frac{x^2}{\\left(\\sqrt{1-\\left(\\frac{v}{V}\\right)^2}\\right)^2}+y^2+z^2=R^2\\), an ellipsoid of revolution with the axes \\(R\\sqrt{1-(v/V)^2}\\), \\(R\\), \\(R\\) (p. 903). Every point is taken at the same time of K, read from K's clocks synchronized as § 1 prescribes, so the shortening is a statement about simultaneous positions. A photograph gathers the light that reaches the lens at one moment; light from the far side of a moving body left it earlier than light from the near side, so a picture combines positions from different times, and what it shows needs its own calculation. SR-03's moving-sphere preset gives the paper's ellipsoid, axes 0.8, 1 and 1 for \\(R=1\\) at \\(v=0.6\\,V\\), and its manifest lists optical camera appearance among what it does not model.",
+    "r2": "(1) In k, where the sphere rests, its surface is a sphere of radius \\(R\\). (2) The equations of § 3 carry k's coordinates into K's; fix one time of K, \\(t=0\\), and the surface becomes \\(\\frac{x^2}{1-(v/V)^2}+y^2+z^2=R^2\\). (3) Its axes are \\(R\\sqrt{1-(v/V)^2}\\) along the motion and \\(R\\) across it. (4) At \\(v=0.6\\,V\\): \\(\\sqrt{1-0.36}=0.8\\), so the axes are \\(0.8\\,R\\), \\(R\\), \\(R\\). (5) These are positions taken at one time of K. Light reaching an eye or a lens together left the body at different times, so a picture is a different object, which the paper does not compute.",
+    "r3": "What a camera or an eye would record of a fast-moving body was taken up in 1959 in J. Terrell's 'Invisibility of the Lorentz Contraction' and R. Penrose's 'The apparent shape of a relativistically moving sphere', whose titles state their subject. This record has not read them and gives no account of their results."
+  },
+  "instrumentIds": [
+    "sr-03"
+  ],
+  "anchors": [
+    "s4-p1",
+    "s4-p3"
+  ],
+  "resultIds": [],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plate p. 903",
+    "SR-03 preset sr-03-sphere-0.6c: ellipsoidAxisLongitudinal = 0.8, ellipsoidAxisTransverseY = 1, ellipsoidAxisTransverseZ = 1 (R = 1, v = 0.6), from endpoint events simultaneous in K (temporalSeparationK = 0)",
+    "SR-03 manifest (content/experiments/sr-03.yaml) notModeled: 'Optical camera appearance and Terrell rotation.'",
+    "J. Terrell, 'Invisibility of the Lorentz Contraction', Physical Review 116 (4), 1041–1045 (1959), doi:10.1103/PhysRev.116.1041 (checked in Crossref)",
+    "R. Penrose, 'The apparent shape of a relativistically moving sphere', Mathematical Proceedings of the Cambridge Philosophical Society 55 (1), 137–139 (1959), doi:10.1017/S0305004100033776 (checked in Crossref)"
+  ],
+  "intervention": {
+    "instrumentId": "sr-03",
+    "defaultsReviewed": {
+      "model": "Not yet reviewed. Described from the manifest: coordinate measurement of a moving rod and a moving sphere from endpoint events simultaneous in the measuring frame (src/physics/reference/events.ts)",
+      "labels": "Not yet reviewed. Described from the manifest: the measured length, the rest length, the ellipsoid's three axes, and whether the endpoint events are simultaneous in each frame",
+      "defaultControls": "Not yet reviewed. Described from the manifest: preset sr-03-sphere-0.6c; rod at rest in k, v 0.6, rest length 10, measured in K from a frame-simultaneous pair, R 1",
+      "feedback": "Not yet reviewed. Described from the manifest: the longitudinal axis 0.8 beside the transverse axes 1 and 1, from positions taken at one time of K"
+    },
+    "scenarioId": "sr-03-sphere-0.6c",
+    "reviewRecordId": "pending-review-misc-sr-contraction-camera"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:SapphireCastle",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}

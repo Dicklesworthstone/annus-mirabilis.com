@@ -1,0 +1,46 @@
+{
+  "kind": "misconception",
+  "id": "misc-sr-emc2-in-paper",
+  "paper": "special-relativity",
+  "temptingClaims": [
+    "The relativity paper derives E = mc²."
+  ],
+  "whyTempting": "The relation is the most famous consequence of relativity, and this paper is the one that founds the theory.",
+  "whereItIsTrue": "§ 10 does compute an energy that grows without limit as the speed approaches that of light, and the mass-energy relation follows from the same theory.",
+  "whatIsTrue": {
+    "r0": "The June paper computes the kinetic energy of an electron and shows it becomes infinite at the speed of light. The relation between mass and energy content comes three months later, in a separate paper.",
+    "r1": "§ 10 finds the kinetic energy of an electron accelerated from rest, \\(W = \\mu V^2\\left\\{\\frac{1}{\\sqrt{1-(v/V)^2}} - 1\\right\\}\\), and notes that \\(W\\) becomes infinitely great for \\(v = V\\): velocities greater than that of light have no possibility of existence (pp. 919–920). The paper also says this expression must hold for ponderable masses. It nowhere relates a body's mass to its energy content. That relation is the subject of the paper received on 27 September 1905, which concludes that a body giving off the energy \\(L\\) in the form of radiation loses the mass \\(L/V^2\\).",
+    "r2": "(1) § 10: the energy withdrawn from an electrostatic field, set equal to the energy of motion \\(W\\) of a slowly accelerated electron. (2) The result: \\(W = \\mu V^2\\left\\{\\frac{1}{\\sqrt{1-(v/V)^2}} - 1\\right\\}\\) (p. 920). (3) At low speed this is \\(\\frac{1}{2}\\mu v^2\\), and at \\(v = V\\) it is infinite. (4) The paper stops there: no rest energy, and no mass-energy equivalence. (5) The September paper, “Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?”, draws the conclusion about mass and energy.",
+    "r3": "Reading \\(W\\) as the difference between a total energy \\(\\gamma\\mu V^2\\) and a rest energy \\(\\mu V^2\\) is a later interpretation; the paper writes only the difference. The site's mass-energy paper sets out the September argument."
+  },
+  "staticTreatment": {
+    "reason": "A matter of what the paper derives: § 10's kinetic energy of the electron is the evidence, and the September paper on inertia is where the relation appears."
+  },
+  "anchors": [
+    "s10-p10",
+    "s10-p11"
+  ],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plates pp. 919–920",
+    "A. Einstein, Ann. Phys. (4) 18, 639–641 (1905), the site's mass-energy paper"
+  ],
+  "intervention": {
+    "defaultsReviewed": {
+      "model": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "labels": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "defaultControls": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "feedback": "Not applicable: no instrument; this entry is a matter of what the paper says."
+    },
+    "reviewRecordId": "pending-review-misc-sr-emc2-in-paper"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:GreenOx",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}
