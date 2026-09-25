@@ -1,0 +1,773 @@
+# Printed displays of Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen
+# Gesichtspunkt (ap-17-132), in colour. The fields are mass-energy.yaml's; src/equations/printed/displayTerms.ts
+# checks them. A glyph binds in its display's scope, as the notation concordance reads it there:
+#   L is the speed of light in §§ 1-2 and the absorbed light energy in § 9;
+#   T is the temperature, except in § 1's footnote 2) (s1-fn3), where it is the long averaging interval;
+#   S is the radiation entropy in §§ 3, 4 and 6 and a gas's entropy in § 5;
+#   E is the radiation energy in §§ 3, 4 and 6, a system's energy in § 5's footnote, and a
+#   gram-equivalent's charge in § 8;
+#   phi is the entropy per unit volume and frequency in §§ 3-4 and entropy as a function of probability in § 5;
+#   rho, printed with or without its subscript nu, is the energy density per unit frequency;
+#   alpha and beta are the constants of Planck's and Wien's formulas wherever they stand alone.
+# Glyphs that name no quantity anywhere in the paper:
+paper: light-quanta
+notQuantities:
+  - glyph: "\\pi"
+    reason: "the number π"
+  - glyph: "d"
+    reason: "the sign of a differential (d nu, d S, d W)"
+  - glyph: "e"
+    reason: "the base of the natural logarithms, raised to a power"
+  - glyph: "\\delta"
+    reason: "the sign of a variation, in § 3's condition for the entropy's maximum"
+displays:
+  - display: eq-s1-d1
+    latex: "\\overline{E} = \\frac{R}{N} T,"
+    spoken: "E bar equals R over N, times T."
+    terms:
+      - glyph: "\\overline{E}"
+        quantityId: meanResonatorEnergy
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "T"
+        quantityId: temperature
+  - display: eq-s1-d2
+    latex: "\\overline{E}_\\nu = \\frac{L^3}{8 \\pi \\nu^2} \\varrho_\\nu."
+    spoken: "E bar sub nu equals L cubed over eight pi nu squared, times rho sub nu."
+    terms:
+      - glyph: "\\overline{E}_\\nu"
+        quantityId: meanResonatorEnergyAtFrequency
+      - glyph: "L"
+        quantityId: speedOfLight
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "\\varrho_\\nu"
+        quantityId: frequencyEnergyDensity
+  - display: eq-s1-d3
+    latex: "Z = \\sum_{\\nu = 1}^{\\nu = \\infty} A_\\nu \\sin\\left(2 \\pi \\nu \\frac{t}{T} + \\alpha_\\nu\\right) ,"
+    spoken: "Z equals the sum, from nu equals one to nu equals infinity, of A sub nu times the sine of: two pi nu t over T, plus alpha sub nu."
+    terms:
+      - glyph: "Z"
+        quantityId: radiationElectricField
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "A_\\nu"
+        quantityId: fourierAmplitude
+      - glyph: "t"
+        quantityId: elapsedTime
+      - glyph: "T"
+        quantityId: longAveragingInterval
+      - glyph: "\\alpha_\\nu"
+        quantityId: fourierPhase
+  - display: eq-s1-d4
+    latex: "d W = f(A_1 A_2 \\ldots \\alpha_1 \\alpha_2 \\ldots) d A_1 d A_2 \\ldots d \\alpha_1 d \\alpha_2 \\ldots"
+    spoken: "d W equals f of A one, A two, and so on, alpha one, alpha two, and so on, times d A one, d A two, and so on, d alpha one, d alpha two, and so on."
+    terms:
+      - glyph: "W"
+        quantityId: configurationProbability
+      - glyph: "A_1"
+        quantityId: fourierAmplitude
+      - glyph: "A_2"
+        quantityId: fourierAmplitude
+      - glyph: "\\alpha_1"
+        quantityId: fourierPhase
+      - glyph: "\\alpha_2"
+        quantityId: fourierPhase
+    notQuantities:
+      - glyph: "f"
+        reason: "a probability density named as a function, as concordance entries lq.f.probabilityDensity, lq.F_nu and lq.f_nu read it"
+  - display: eq-s1-d5
+    latex: "f(A_1, A_2 \\ldots \\alpha_1, \\alpha_2 \\ldots) = F_1(A_1) F_2(A_2) \\ldots f_1(\\alpha_1) \\cdot f_2(\\alpha_2) \\ldots ,"
+    spoken: "f of A one, A two, and so on, alpha one, alpha two, and so on, equals capital F one of A one, times capital F two of A two, and so on, times f one of alpha one, times f two of alpha two, and so on."
+    terms:
+      - glyph: "A_1"
+        quantityId: fourierAmplitude
+      - glyph: "A_2"
+        quantityId: fourierAmplitude
+      - glyph: "\\alpha_1"
+        quantityId: fourierPhase
+      - glyph: "\\alpha_2"
+        quantityId: fourierPhase
+    notQuantities:
+      - glyph: "f"
+        reason: "a probability density named as a function, as concordance entries lq.f.probabilityDensity, lq.F_nu and lq.f_nu read it"
+      - glyph: "F_1"
+        reason: "a probability density named as a function, as concordance entries lq.f.probabilityDensity, lq.F_nu and lq.f_nu read it"
+      - glyph: "F_2"
+        reason: "a probability density named as a function, as concordance entries lq.f.probabilityDensity, lq.F_nu and lq.f_nu read it"
+      - glyph: "f_1"
+        reason: "a probability density named as a function, as concordance entries lq.f.probabilityDensity, lq.F_nu and lq.f_nu read it"
+      - glyph: "f_2"
+        reason: "a probability density named as a function, as concordance entries lq.f.probabilityDensity, lq.F_nu and lq.f_nu read it"
+  - display: eq-s1-d6
+    latex: "\\frac{R}{N} T = \\overline{E} = \\overline{E}_\\nu = \\frac{L^3}{8 \\pi \\nu^2} \\varrho_\\nu,"
+    spoken: "R over N times T equals E bar, which equals E bar sub nu, which equals L cubed over eight pi nu squared, times rho sub nu."
+    terms:
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "T"
+        quantityId: temperature
+      - glyph: "\\overline{E}"
+        quantityId: meanResonatorEnergy
+      - glyph: "\\overline{E}_\\nu"
+        quantityId: meanResonatorEnergyAtFrequency
+      - glyph: "L"
+        quantityId: speedOfLight
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "\\varrho_\\nu"
+        quantityId: frequencyEnergyDensity
+  - display: eq-s1-d7
+    latex: "\\varrho_\\nu = \\frac{R}{N} \\frac{8 \\pi \\nu^2}{L^3} T."
+    spoken: "rho sub nu equals R over N, times eight pi nu squared over L cubed, times T."
+    terms:
+      - glyph: "\\varrho_\\nu"
+        quantityId: frequencyEnergyDensity
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "L"
+        quantityId: speedOfLight
+      - glyph: "T"
+        quantityId: temperature
+  - display: eq-s1-d8
+    latex: "\\int_0^\\infty \\varrho_\\nu d \\nu = \\frac{R}{N} \\frac{8 \\pi}{L^3} T \\int_0^\\infty \\nu^2 d \\nu = \\infty."
+    spoken: "The integral from zero to infinity of rho sub nu d nu equals R over N, times eight pi over L cubed, times T, times the integral from zero to infinity of nu squared d nu, which is infinite."
+    terms:
+      - glyph: "\\varrho_\\nu"
+        quantityId: frequencyEnergyDensity
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "L"
+        quantityId: speedOfLight
+      - glyph: "T"
+        quantityId: temperature
+  - display: eq-s2-d1
+    latex: "\\varrho_\\nu = \\frac{\\alpha \\nu^3}{e^{\\frac{\\beta \\nu}{T}} - 1},"
+    spoken: "rho sub nu equals alpha nu cubed, divided by: e to the power beta nu over T, minus one."
+    terms:
+      - glyph: "\\varrho_\\nu"
+        quantityId: frequencyEnergyDensity
+      - glyph: "\\alpha"
+        quantityId: wienConstantAlpha
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "T"
+        quantityId: temperature
+  - display: eq-s2-d2
+    latex: "\\alpha = 6{,}10 \\cdot 10^{-56},"
+    spoken: "alpha equals 6.10 times ten to the power minus 56."
+    terms:
+      - glyph: "\\alpha"
+        quantityId: wienConstantAlpha
+  - display: eq-s2-d3
+    latex: "\\beta = 4{,}866 \\cdot 10^{-11}."
+    spoken: "beta equals 4.866 times ten to the power minus 11."
+    terms:
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+  - display: eq-s2-d4
+    latex: "\\varrho_\\nu = \\frac{\\alpha}{\\beta} \\nu^2 T."
+    spoken: "rho sub nu equals alpha over beta, times nu squared, times T."
+    terms:
+      - glyph: "\\varrho_\\nu"
+        quantityId: frequencyEnergyDensity
+      - glyph: "\\alpha"
+        quantityId: wienConstantAlpha
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "T"
+        quantityId: temperature
+  - display: eq-s2-d5
+    latex: "\\frac{R}{N} \\frac{8 \\pi}{L^3} = \\frac{\\alpha}{\\beta}"
+    spoken: "R over N, times eight pi over L cubed, equals alpha over beta."
+    terms:
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "L"
+        quantityId: speedOfLight
+      - glyph: "\\alpha"
+        quantityId: wienConstantAlpha
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+  - display: eq-s2-d6
+    latex: "N = \\frac{\\beta}{\\alpha} \\frac{8 \\pi R}{L^3} = 6{,}17 \\cdot 10^{23},"
+    spoken: "N equals beta over alpha, times eight pi R over L cubed, which equals 6.17 times ten to the power 23."
+    terms:
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\alpha"
+        quantityId: wienConstantAlpha
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "L"
+        quantityId: speedOfLight
+  - display: eq-s3-d1
+    latex: "S = v \\int_0^\\infty \\varphi(\\varrho, \\nu) d \\nu"
+    spoken: "S equals v times the integral from zero to infinity of phi of rho and nu, d nu."
+    terms:
+      - glyph: "S"
+        quantityId: radiationEntropy
+      - glyph: "v"
+        quantityId: volume
+      - glyph: "\\varphi"
+        quantityId: spectralEntropyDensity
+      - glyph: "\\varrho"
+        quantityId: frequencyEnergyDensity
+      - glyph: "\\nu"
+        quantityId: frequency
+  - display: eq-s3-d2
+    latex: "\\delta \\int_0^\\infty \\varphi(\\varrho, \\nu) d \\nu = 0,"
+    spoken: "The variation of the integral from zero to infinity of phi of rho and nu, d nu, is zero."
+    terms:
+      - glyph: "\\varphi"
+        quantityId: spectralEntropyDensity
+      - glyph: "\\varrho"
+        quantityId: frequencyEnergyDensity
+      - glyph: "\\nu"
+        quantityId: frequency
+  - display: eq-s3-d3
+    latex: "\\delta \\int_0^\\infty \\varrho d \\nu = 0."
+    spoken: "The variation of the integral from zero to infinity of rho d nu is zero."
+    terms:
+      - glyph: "\\varrho"
+        quantityId: frequencyEnergyDensity
+      - glyph: "\\nu"
+        quantityId: frequency
+  - display: eq-s3-d4
+    latex: "\\int_0^\\infty \\left( \\frac{\\partial \\varphi}{\\partial \\varrho} - \\lambda \\right) \\delta \\varrho d \\nu = 0,"
+    spoken: "The integral from zero to infinity of: the partial derivative of phi with respect to rho, minus lambda, times delta rho, d nu, is zero."
+    terms:
+      - glyph: "\\varphi"
+        quantityId: spectralEntropyDensity
+      - glyph: "\\varrho"
+        quantityId: frequencyEnergyDensity
+      - glyph: "\\lambda"
+        quantityId: lagrangeMultiplier
+      - glyph: "\\nu"
+        quantityId: frequency
+  - display: eq-s3-d5
+    latex: "d S = \\int_{\\nu = 0}^{\\nu = \\infty} \\frac{\\partial \\varphi}{\\partial \\varrho} d \\varrho d \\nu,"
+    spoken: "d S equals the integral from nu equals zero to nu equals infinity of the partial derivative of phi with respect to rho, d rho, d nu."
+    terms:
+      - glyph: "S"
+        quantityId: radiationEntropy
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "\\varphi"
+        quantityId: spectralEntropyDensity
+      - glyph: "\\varrho"
+        quantityId: frequencyEnergyDensity
+  - display: eq-s3-d6
+    latex: "d S = \\frac{\\partial \\varphi}{\\partial \\varrho} d E."
+    spoken: "d S equals the partial derivative of phi with respect to rho, times d E."
+    terms:
+      - glyph: "S"
+        quantityId: radiationEntropy
+      - glyph: "\\varphi"
+        quantityId: spectralEntropyDensity
+      - glyph: "\\varrho"
+        quantityId: frequencyEnergyDensity
+      - glyph: "E"
+        quantityId: radiationEnergy
+  - display: eq-s3-d7
+    latex: "d S = \\frac{1}{T} d E."
+    spoken: "d S equals one over T, times d E."
+    terms:
+      - glyph: "S"
+        quantityId: radiationEntropy
+      - glyph: "T"
+        quantityId: temperature
+      - glyph: "E"
+        quantityId: radiationEnergy
+  - display: eq-s3-d8
+    latex: "\\frac{\\partial \\varphi}{\\partial \\varrho} = \\frac{1}{T}."
+    spoken: "The partial derivative of phi with respect to rho equals one over T."
+    terms:
+      - glyph: "\\varphi"
+        quantityId: spectralEntropyDensity
+      - glyph: "\\varrho"
+        quantityId: frequencyEnergyDensity
+      - glyph: "T"
+        quantityId: temperature
+  - display: eq-s4-d1
+    latex: "\\varrho = \\alpha \\nu^3 e^{-\\beta \\frac{\\nu}{T}}"
+    spoken: "rho equals alpha nu cubed, times e to the power minus beta nu over T."
+    terms:
+      - glyph: "\\varrho"
+        quantityId: frequencyEnergyDensity
+      - glyph: "\\alpha"
+        quantityId: wienConstantAlpha
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "T"
+        quantityId: temperature
+  - display: eq-s4-d2
+    latex: "\\frac{1}{T} = -\\frac{1}{\\beta \\nu} \\lg \\frac{\\varrho}{\\alpha \\nu^3}"
+    spoken: "One over T equals minus one over beta nu, times the logarithm of rho over alpha nu cubed."
+    terms:
+      - glyph: "T"
+        quantityId: temperature
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "\\varrho"
+        quantityId: frequencyEnergyDensity
+      - glyph: "\\alpha"
+        quantityId: wienConstantAlpha
+  - display: eq-s4-d3
+    latex: "\\varphi(\\varrho, \\nu) = -\\frac{\\varrho}{\\beta \\nu} \\left\\{ \\lg \\frac{\\varrho}{\\alpha \\nu^3} - 1 \\right\\}."
+    spoken: "phi of rho and nu equals minus rho over beta nu, times, in braces, the logarithm of rho over alpha nu cubed, minus one."
+    terms:
+      - glyph: "\\varphi"
+        quantityId: spectralEntropyDensity
+      - glyph: "\\varrho"
+        quantityId: frequencyEnergyDensity
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\alpha"
+        quantityId: wienConstantAlpha
+  - display: eq-s4-d4
+    latex: "S = v \\varphi(\\varrho, \\nu) d \\nu = -\\frac{E}{\\beta \\nu} \\left\\{ \\lg \\frac{E}{v \\alpha \\nu^3 d \\nu} - 1 \\right\\}."
+    spoken: "S equals v times phi of rho and nu, times d nu, which equals minus E over beta nu, times, in braces, the logarithm of E over v alpha nu cubed d nu, minus one."
+    terms:
+      - glyph: "S"
+        quantityId: radiationEntropy
+      - glyph: "v"
+        quantityId: volume
+      - glyph: "\\varphi"
+        quantityId: spectralEntropyDensity
+      - glyph: "\\varrho"
+        quantityId: frequencyEnergyDensity
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "E"
+        quantityId: radiationEnergy
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\alpha"
+        quantityId: wienConstantAlpha
+  - display: eq-s4-d5
+    latex: "S - S_0 = \\frac{E}{\\beta \\nu} \\lg \\left( \\frac{v}{v_0} \\right)."
+    spoken: "S minus S zero equals E over beta nu, times the logarithm of v over v zero."
+    terms:
+      - glyph: "S"
+        quantityId: radiationEntropy
+      - glyph: "S_0"
+        quantityId: radiationEntropy
+      - glyph: "E"
+        quantityId: radiationEnergy
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "v"
+        quantityId: volume
+      - glyph: "v_0"
+        quantityId: volume
+  - display: eq-s5-d1
+    latex: "\\begin{aligned} S_1 &= \\varphi_1(W_1), \\\\ S_2 &= \\varphi_2(W_2). \\end{aligned}"
+    spoken: "S one equals phi one of W one; S two equals phi two of W two."
+    terms:
+      - glyph: "S_1"
+        quantityId: entropy
+      - glyph: "\\varphi_1"
+        quantityId: entropy
+      - glyph: "W_1"
+        quantityId: configurationProbability
+      - glyph: "S_2"
+        quantityId: entropy
+      - glyph: "\\varphi_2"
+        quantityId: entropy
+      - glyph: "W_2"
+        quantityId: configurationProbability
+  - display: eq-s5-d2
+    latex: "S = S_1 + S_2 = \\varphi(W)"
+    spoken: "S equals S one plus S two, which equals phi of W."
+    terms:
+      - glyph: "S"
+        quantityId: entropy
+      - glyph: "S_1"
+        quantityId: entropy
+      - glyph: "S_2"
+        quantityId: entropy
+      - glyph: "\\varphi"
+        quantityId: entropy
+      - glyph: "W"
+        quantityId: configurationProbability
+  - display: eq-s5-d3
+    latex: "W = W_1 \\cdot W_2."
+    spoken: "W equals W one times W two."
+    terms:
+      - glyph: "W"
+        quantityId: configurationProbability
+      - glyph: "W_1"
+        quantityId: configurationProbability
+      - glyph: "W_2"
+        quantityId: configurationProbability
+  - display: eq-s5-d4
+    latex: "\\varphi(W_1 \\cdot W_2) = \\varphi_1(W_1) + \\varphi_2(W_2)"
+    spoken: "phi of W one times W two equals phi one of W one, plus phi two of W two."
+    terms:
+      - glyph: "\\varphi"
+        quantityId: entropy
+      - glyph: "W_1"
+        quantityId: configurationProbability
+      - glyph: "W_2"
+        quantityId: configurationProbability
+      - glyph: "\\varphi_1"
+        quantityId: entropy
+      - glyph: "\\varphi_2"
+        quantityId: entropy
+  - display: eq-s5-d5
+    latex: "\\begin{aligned} \\varphi_1(W_1) &= C \\lg(W_1) + \\text{konst.}, \\\\ \\varphi_2(W_2) &= C \\lg(W_2) + \\text{konst.}, \\\\ \\varphi(W) &= C \\lg(W) + \\text{konst.} \\end{aligned}"
+    spoken: "phi one of W one equals C times the logarithm of W one, plus a constant; phi two of W two equals C times the logarithm of W two, plus a constant; phi of W equals C times the logarithm of W, plus a constant."
+    terms:
+      - glyph: "\\varphi_1"
+        quantityId: entropy
+      - glyph: "W_1"
+        quantityId: configurationProbability
+      - glyph: "C"
+        quantityId: universalEntropyConstant
+      - glyph: "\\varphi_2"
+        quantityId: entropy
+      - glyph: "W_2"
+        quantityId: configurationProbability
+      - glyph: "\\varphi"
+        quantityId: entropy
+      - glyph: "W"
+        quantityId: configurationProbability
+  - display: eq-s5-d6
+    latex: "S - S_0 = \\frac{R}{N} \\lg W."
+    spoken: "S minus S zero equals R over N, times the logarithm of W."
+    terms:
+      - glyph: "S"
+        quantityId: entropy
+      - glyph: "S_0"
+        quantityId: entropy
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "W"
+        quantityId: configurationProbability
+  - display: eq-s5-d7
+    latex: "W = \\left( \\frac{v}{v_0} \\right)^n ;"
+    spoken: "W equals v over v zero, to the power n."
+    terms:
+      - glyph: "W"
+        quantityId: configurationProbability
+      - glyph: "v"
+        quantityId: volume
+      - glyph: "v_0"
+        quantityId: volume
+      - glyph: "n"
+        quantityId: independentPointCount
+  - display: eq-s5-d8
+    latex: "S - S_0 = R \\left( \\frac{n}{N} \\right) \\lg \\left( \\frac{v}{v_0} \\right)."
+    spoken: "S minus S zero equals R times n over N, times the logarithm of v over v zero."
+    terms:
+      - glyph: "S"
+        quantityId: entropy
+      - glyph: "S_0"
+        quantityId: entropy
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "n"
+        quantityId: independentPointCount
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "v"
+        quantityId: volume
+      - glyph: "v_0"
+        quantityId: volume
+  - display: eq-s5-d9
+    latex: "- d(E - T S) = p d v = T d S = R \\frac{n}{N} \\frac{d v}{v} ;"
+    spoken: "Minus d of E minus T S equals p d v, which equals T d S, which equals R times n over N, times d v over v."
+    terms:
+      - glyph: "E"
+        quantityId: systemEnergy
+      - glyph: "T"
+        quantityId: temperature
+      - glyph: "S"
+        quantityId: entropy
+      - glyph: "p"
+        quantityId: pressure
+      - glyph: "v"
+        quantityId: volume
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "n"
+        quantityId: independentPointCount
+      - glyph: "N"
+        quantityId: avogadroConstant
+  - display: eq-s5-d10
+    latex: "p v = R \\frac{n}{N} T."
+    spoken: "p v equals R times n over N, times T."
+    terms:
+      - glyph: "p"
+        quantityId: pressure
+      - glyph: "v"
+        quantityId: volume
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "n"
+        quantityId: independentPointCount
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "T"
+        quantityId: temperature
+  - display: eq-s6-d1
+    latex: "S - S_0 = \\frac{E}{\\beta \\nu} \\lg \\left( \\frac{v}{v_0} \\right)."
+    spoken: "S minus S zero equals E over beta nu, times the logarithm of v over v zero."
+    terms:
+      - glyph: "S"
+        quantityId: radiationEntropy
+      - glyph: "S_0"
+        quantityId: radiationEntropy
+      - glyph: "E"
+        quantityId: radiationEnergy
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "v"
+        quantityId: volume
+      - glyph: "v_0"
+        quantityId: volume
+  - display: eq-s6-d2
+    latex: "S - S_0 = \\frac{R}{N} \\lg \\left[ \\left( \\frac{v}{v_0} \\right)^{\\frac{N}{R} \\frac{E}{\\beta \\nu}} \\right]"
+    spoken: "S minus S zero equals R over N times the logarithm of: v over v zero, to the power N over R times E over beta nu."
+    terms:
+      - glyph: "S"
+        quantityId: radiationEntropy
+      - glyph: "S_0"
+        quantityId: radiationEntropy
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "v"
+        quantityId: volume
+      - glyph: "v_0"
+        quantityId: volume
+      - glyph: "E"
+        quantityId: radiationEnergy
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\nu"
+        quantityId: frequency
+  - display: eq-s6-d3
+    latex: "S - S_0 = \\frac{R}{N} \\lg W ,"
+    spoken: "S minus S zero equals R over N, times the logarithm of W."
+    terms:
+      - glyph: "S"
+        quantityId: radiationEntropy
+      - glyph: "S_0"
+        quantityId: radiationEntropy
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "W"
+        quantityId: configurationProbability
+  - display: eq-s6-d4
+    latex: "W = \\left( \\frac{v}{v_0} \\right)^{\\frac{N}{R} \\frac{E}{\\beta \\nu}}."
+    spoken: "W equals v over v zero, to the power N over R times E over beta nu."
+    terms:
+      - glyph: "W"
+        quantityId: configurationProbability
+      - glyph: "v"
+        quantityId: volume
+      - glyph: "v_0"
+        quantityId: volume
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "E"
+        quantityId: radiationEnergy
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\nu"
+        quantityId: frequency
+  - display: eq-s6-d5
+    latex: "\\frac{\\int_0^\\infty \\alpha \\nu^3 e^{-\\frac{\\beta \\nu}{T}} d \\nu}{\\int_0^\\infty \\frac{N}{R \\beta \\nu} \\alpha \\nu^3 e^{-\\frac{\\beta \\nu}{T}} d \\nu} = 3 \\frac{R}{N} T."
+    spoken: "The integral from zero to infinity of alpha nu cubed, e to the power minus beta nu over T, d nu, divided by the integral from zero to infinity of N over R beta nu, times alpha nu cubed, e to the power minus beta nu over T, d nu, equals three times R over N, times T."
+    terms:
+      - glyph: "\\alpha"
+        quantityId: wienConstantAlpha
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "T"
+        quantityId: temperature
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "R"
+        quantityId: molarGasConstant
+  - display: eq-s7-d1
+    latex: "\\frac{R}{N} \\beta \\nu_2 \\leqq \\frac{R}{N} \\beta \\nu_1"
+    spoken: "R over N times beta nu two is at most R over N times beta nu one."
+    terms:
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\nu_2"
+        quantityId: emittedFrequency
+      - glyph: "\\nu_1"
+        quantityId: incidentFrequency
+  - display: eq-s7-d2
+    latex: "\\nu_2 \\leqq \\nu_1 ."
+    spoken: "nu two is at most nu one."
+    terms:
+      - glyph: "\\nu_2"
+        quantityId: emittedFrequency
+      - glyph: "\\nu_1"
+        quantityId: incidentFrequency
+  - display: eq-s8-d1
+    latex: "\\frac{R}{N} \\beta \\nu - P ."
+    spoken: "R over N times beta nu, minus P."
+    terms:
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "P"
+        quantityId: workFunction
+  - display: eq-s8-d2
+    latex: "\\Pi \\varepsilon = \\frac{R}{N} \\beta \\nu - P ,"
+    spoken: "Capital pi times epsilon equals R over N times beta nu, minus P."
+    terms:
+      - glyph: "\\Pi"
+        quantityId: stoppingPotentialMagnitude
+      - glyph: "\\varepsilon"
+        quantityId: elementaryCharge
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "P"
+        quantityId: workFunction
+  - display: eq-s8-d3
+    latex: "\\Pi E = R \\beta \\nu - P' ,"
+    spoken: "Capital pi times E equals R beta nu, minus P prime."
+    terms:
+      - glyph: "\\Pi"
+        quantityId: stoppingPotentialMagnitude
+      - glyph: "E"
+        quantityId: gramEquivalentCharge
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "P'"
+        quantityId: workFunctionPerGramEquivalent
+  - display: eq-s8-d4
+    latex: "\\Pi E + P' \\leqq R \\beta \\nu ."
+    spoken: "Capital pi times E, plus P prime, is at most R beta nu."
+    terms:
+      - glyph: "\\Pi"
+        quantityId: stoppingPotentialMagnitude
+      - glyph: "E"
+        quantityId: gramEquivalentCharge
+      - glyph: "P'"
+        quantityId: workFunctionPerGramEquivalent
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\nu"
+        quantityId: frequency
+  - display: eq-s8-d5
+    latex: "\\Pi E + P' \\geqq R \\beta \\nu ."
+    spoken: "Capital pi times E, plus P prime, is at least R beta nu."
+    terms:
+      - glyph: "\\Pi"
+        quantityId: stoppingPotentialMagnitude
+      - glyph: "E"
+        quantityId: gramEquivalentCharge
+      - glyph: "P'"
+        quantityId: workFunctionPerGramEquivalent
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\nu"
+        quantityId: frequency
+  - display: eq-s9-d1
+    latex: "R \\beta \\nu \\geqq J ."
+    spoken: "R beta nu is at least J."
+    terms:
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "J"
+        quantityId: ionizationWorkPerGramEquivalent
+  - display: eq-s9-d2
+    latex: "R \\beta \\nu = 6{,}4 \\cdot 10^{12} \\text{ Erg} \\geqq J ."
+    spoken: "R beta nu equals 6.4 times ten to the power 12 erg, which is at least J."
+    terms:
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\nu"
+        quantityId: frequency
+      - glyph: "J"
+        quantityId: ionizationWorkPerGramEquivalent
+  - display: eq-s9-d3
+    latex: "j = \\frac{L}{R \\beta \\nu} ."
+    spoken: "j equals L over R beta nu."
+    terms:
+      - glyph: "j"
+        quantityId: ionizedGramMolecules
+      - glyph: "L"
+        quantityId: absorbedLightEnergy
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "\\beta"
+        quantityId: wienConstantBeta
+      - glyph: "\\nu"
+        quantityId: frequency
