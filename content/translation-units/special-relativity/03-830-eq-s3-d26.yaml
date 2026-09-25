@@ -1,6 +1,7 @@
 # TranslationUnit eq-s3-d26: English machine-draft translation.
 # Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
 # Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+# Review round 1 (SapphireCastle, agent, 2026-09-25): read against the German and the plates pp. 897-902; no change.
 kind: "translation-unit"
 id: "eq-s3-d26"
 paper: "special-relativity"
