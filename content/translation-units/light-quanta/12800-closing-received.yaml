@@ -1,0 +1,21 @@
+# TranslationUnit closing-received: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "closing-received"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "closing-received"
+inlines:
+  - kind: "text"
+    text: "(Received 18 March 1905.)"
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"
