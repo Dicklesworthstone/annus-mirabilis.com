@@ -1,7 +1,9 @@
-# TranslationUnit s10-p7-s4a: English machine-draft translation.
+# TranslationUnit s10-p7-s4a: English translation, checked by AI agents.
 # Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
-# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+# Final under docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations after two agent
+# review rounds. No person has reviewed it.
 # Review round 1 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 917-921; corrected (revision 2): the display eq-s10-d5 is printed with German words, Massenzahl, Beschleunigungszahl and Kraftzahl, and stays byte-identical, so the sentence now glosses it in brackets, "[mass number × acceleration number = force number]", in the convention of s2-p1-s4a. The draft is kept as the alternative.
+# Review round 2 (GreenOx, agent, 2026-09-25): read against the German and the plates pp. 917-921; the recorded alternative's rationale set in typographic quotes and apostrophe, the English unchanged.
 kind: "translation-unit"
 id: "s10-p7-s4a"
 paper: "special-relativity"
@@ -19,6 +21,21 @@ translator:
 revision: 2
 unresolvedAlternatives:
   - text: "and maintain the equation"
-    rationale: "The draft's reading. The display is printed with German words, Massenzahl (mass number), Beschleunigungszahl (acceleration number) and Kraftzahl (force number), and a display is kept byte-identical to the German, so the English face shows it in German. Round 1 (NavyKite) glossed it in brackets, as s2-p1-s4a glosses the words of eq-s2-d1."
-reviewState: "machine-draft"
+    rationale: "The draft’s reading. The display is printed with German words, Massenzahl (mass number), Beschleunigungszahl (acceleration number) and Kraftzahl (force number), and a display is kept byte-identical to the German, so the English face shows it in German. Round 1 (NavyKite) glossed it in brackets, as s2-p1-s4a glosses the words of eq-s2-d1."
+reviewState: "reviewed"
+agentReview:
+  basis: "D-2026-09-25-agent-reviewed-translations"
+  rounds:
+    - reviewer:
+        id: "agent:NavyKite"
+        name: "NavyKite"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
+    - reviewer:
+        id: "agent:GreenOx"
+        name: "GreenOx"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
 lang: "en"
