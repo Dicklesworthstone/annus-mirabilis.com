@@ -27,7 +27,6 @@ import {
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
-import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
 
 type ForceComparison = Readonly<{
@@ -472,7 +471,6 @@ export function DriftDiffusionLab({
           </div>
         </details>
       </section>
-      <ShowTheCode listings={[]} />
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}
       <p data-detail="0">{withScripts(BM04_CAPTION.r0)}</p>

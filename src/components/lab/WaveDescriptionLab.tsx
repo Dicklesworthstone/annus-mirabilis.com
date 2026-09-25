@@ -25,7 +25,6 @@ import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, identity, result, scalar, sentenceNumber } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
-import { ShowTheCode } from "./ShowTheCode.tsx";
 import { SliderField } from "./SliderField.tsx";
 import { withScripts } from "./subscripts.tsx";
 import {
@@ -580,8 +579,6 @@ export function WaveDescriptionLab({
           </ul>
         </div>
       </div>
-
-      <ShowTheCode listings={[]} />
     </section>
   );
 }

@@ -45,7 +45,6 @@ import type {
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
-import { ShowTheCode } from "../ShowTheCode.tsx";
 import { withScripts } from "../subscripts.tsx";
 
 type Draft = Readonly<{
@@ -408,8 +407,6 @@ export function EntropyWorkbenchLab({
               above. No control depends on color, drag gestures, or a canvas.
             </p>
           </details>
-
-          <ShowTheCode listings={[]} />
         </div>
       </div>
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct

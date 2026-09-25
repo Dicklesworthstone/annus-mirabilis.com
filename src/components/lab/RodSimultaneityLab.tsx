@@ -33,7 +33,6 @@ import {
   SphereEllipsoidPlot,
 } from "./RodSimultaneityPlots.tsx";
 import { Sci } from "./Sci.tsx";
-import { ShowTheCode } from "./ShowTheCode.tsx";
 
 export type RodSimultaneityLabProps = Readonly<{
   example: PreparedSr03Example;
@@ -790,8 +789,6 @@ export function RodSimultaneityLab({
           <li>Superluminal observers (|v| &ge; c) or tachyonic coordinate frames.</li>
         </ul>
       </div>
-
-      <ShowTheCode listings={[]} />
     </section>
   );
 }
