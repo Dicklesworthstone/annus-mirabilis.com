@@ -1,0 +1,33 @@
+# SourceBlock s2-p4: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s2-p4"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s2"
+order: 26
+locators:
+  - pdfPageIndex: 6
+    printedPage: 896
+diplomaticText: "Die bei der Operation b) zu findende Länge, welche wir „die Länge des (bewegten) Stabes im ruhenden System“ nennen wollen, werden wir unter Zugrundelegung unserer beiden Prinzipien bestimmen und finden, daß sie von l verschieden ist."
+inlines:
+  - kind: "text"
+    text: "Die bei der Operation b) zu findende Länge, welche wir „die Länge des (bewegten) Stabes im ruhenden System“ nennen wollen, werden wir unter Zugrundelegung unserer beiden Prinzipien bestimmen und finden, daß sie von "
+  - kind: "math"
+    latex: "l"
+  - kind: "text"
+    text: " verschieden ist."
+sentenceSpans:
+  - id: "s2-p4-s1"
+    span:
+      start: 0
+      end: 233
+      blockRevision: 1
+      textDigest: "5d67948c186151df6f92bc0f3073a8a975f15b71b23f24c541702ffe1d7aaba1"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

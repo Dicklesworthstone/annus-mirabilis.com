@@ -1,0 +1,103 @@
+# SourceBlock s2-p7: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s2-p7"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s2"
+order: 29
+locators:
+  - pdfPageIndex: 6
+    printedPage: 896
+  - pdfPageIndex: 7
+    printedPage: 897
+diplomaticText: "Wir denken uns ferner, daß sich bei jeder Uhr ein mit ihr bewegter Beobachter befinde, und daß diese Beobachter auf die beiden Uhren das im § 1 aufgestellte Kriterium für den synchronen Gang zweier Uhren anwenden. Zur Zeit1) t_A gehe ein Lichtstrahl von A aus, werde zur Zeit t_B in B reflektiert und gelange zur Zeit t'_A nach A zurück. Unter Berücksichtigung des Prinzipes von der Konstanz der Lichtgeschwindigkeit finden wir: und wobei r_{AB} die Länge des bewegten Stabes — im ruhenden System gemessen — bedeutet. Mit dem bewegten Stabe bewegte Beobachter würden also die beiden Uhren nicht synchron gehend finden, während im ruhenden System befindliche Beobachter die Uhren als synchron laufend erklären würden."
+inlines:
+  - kind: "text"
+    text: "Wir denken uns ferner, daß sich bei jeder Uhr ein mit ihr bewegter Beobachter befinde, und daß diese Beobachter auf die beiden Uhren das im § 1 aufgestellte Kriterium für den synchronen Gang zweier Uhren anwenden."
+  - kind: "space"
+  - kind: "text"
+    text: "Zur Zeit"
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s2-fn1"
+  - kind: "text"
+    text: " "
+  - kind: "math"
+    latex: "t_A"
+  - kind: "text"
+    text: " gehe ein Lichtstrahl von "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " aus, werde zur Zeit "
+  - kind: "math"
+    latex: "t_B"
+  - kind: "text"
+    text: " in "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " reflektiert und gelange zur Zeit "
+  - kind: "math"
+    latex: "t'_A"
+  - kind: "text"
+    text: " nach "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " zurück."
+  - kind: "space"
+  - kind: "text"
+    text: "Unter Berücksichtigung des Prinzipes von der Konstanz der Lichtgeschwindigkeit finden wir:"
+  - kind: "math"
+    latex: "t_B - t_A = \\frac{r_{AB}}{V - v}"
+    display: true
+    equationId: "eq-s2-d2"
+  - kind: "text"
+    text: " und"
+  - kind: "math"
+    latex: "t'_A - t_B = \\frac{r_{AB}}{V + v} ,"
+    display: true
+    equationId: "eq-s2-d3"
+  - kind: "text"
+    text: " wobei "
+  - kind: "math"
+    latex: "r_{AB}"
+  - kind: "text"
+    text: " die Länge des bewegten Stabes — im ruhenden System gemessen — bedeutet."
+  - kind: "space"
+  - kind: "text"
+    text: "Mit dem bewegten Stabe bewegte Beobachter würden also die beiden Uhren nicht synchron gehend finden, während im ruhenden System befindliche Beobachter die Uhren als synchron laufend erklären würden."
+sentenceSpans:
+  - id: "s2-p7-s1"
+    span:
+      start: 0
+      end: 213
+      blockRevision: 1
+      textDigest: "61931ecd1fda99fb1bf64ce2f8f62ea46612c98f9d27332560a7936726d53dfd"
+  - id: "s2-p7-s2"
+    span:
+      start: 214
+      end: 337
+      blockRevision: 1
+      textDigest: "61931ecd1fda99fb1bf64ce2f8f62ea46612c98f9d27332560a7936726d53dfd"
+  - id: "s2-p7-s3"
+    span:
+      start: 338
+      end: 517
+      blockRevision: 1
+      textDigest: "61931ecd1fda99fb1bf64ce2f8f62ea46612c98f9d27332560a7936726d53dfd"
+  - id: "s2-p7-s4"
+    span:
+      start: 518
+      end: 716
+      blockRevision: 1
+      textDigest: "61931ecd1fda99fb1bf64ce2f8f62ea46612c98f9d27332560a7936726d53dfd"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

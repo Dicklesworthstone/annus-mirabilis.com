@@ -1,0 +1,66 @@
+# SourceBlock s2-p1: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s2-p1"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s2"
+order: 22
+locators:
+  - pdfPageIndex: 5
+    printedPage: 895
+diplomaticText: "Die folgenden Überlegungen stützen sich auf das Relativitätsprinzip und auf das Prinzip der Konstanz der Lichtgeschwindigkeit, welche beiden Prinzipien wir folgendermaßen definieren.\u000a1. Die Gesetze, nach denen sich die Zustände der physikalischen Systeme ändern, sind unabhängig davon, auf welches von zwei relativ zueinander in gleichförmiger Translationsbewegung befindlichen Koordinatensystemen diese Zustandsänderungen bezogen werden.\u000a2. Jeder Lichtstrahl bewegt sich im „ruhenden“ Koordinatensystem mit der bestimmten Geschwindigkeit V, unabhängig davon, ob dieser Lichtstrahl von einem ruhenden oder bewegten Körper emittiert ist. Hierbei ist wobei „Zeitdauer“ im Sinne der Definition des § 1 aufzufassen ist."
+inlines:
+  - kind: "text"
+    text: "Die folgenden Überlegungen stützen sich auf das Relativitätsprinzip und auf das Prinzip der Konstanz der Lichtgeschwindigkeit, welche beiden Prinzipien wir folgendermaßen definieren."
+  - kind: "line-break"
+  - kind: "text"
+    text: "1. Die Gesetze, nach denen sich die Zustände der physikalischen Systeme ändern, sind unabhängig davon, auf welches von zwei relativ zueinander in gleichförmiger Translationsbewegung befindlichen Koordinatensystemen diese Zustandsänderungen bezogen werden."
+  - kind: "line-break"
+  - kind: "text"
+    text: "2. Jeder Lichtstrahl bewegt sich im „ruhenden“ Koordinatensystem mit der bestimmten Geschwindigkeit "
+  - kind: "math"
+    latex: "V"
+  - kind: "text"
+    text: ", unabhängig davon, ob dieser Lichtstrahl von einem ruhenden oder bewegten Körper emittiert ist."
+  - kind: "space"
+  - kind: "text"
+    text: "Hierbei ist"
+  - kind: "math"
+    latex: "\\text{Geschwindigkeit} = \\frac{\\text{Lichtweg}}{\\text{Zeitdauer}} ,"
+    display: true
+    equationId: "eq-s2-d1"
+  - kind: "text"
+    text: " wobei „Zeitdauer“ im Sinne der Definition des § 1 aufzufassen ist."
+sentenceSpans:
+  - id: "s2-p1-s1"
+    span:
+      start: 0
+      end: 182
+      blockRevision: 1
+      textDigest: "37893933872902ad1a3735dc0a77cc98b481ec07a49f70b237e5caf93b9593de"
+  - id: "s2-p1-s2"
+    span:
+      start: 183
+      end: 438
+      blockRevision: 1
+      textDigest: "37893933872902ad1a3735dc0a77cc98b481ec07a49f70b237e5caf93b9593de"
+  - id: "s2-p1-s3"
+    span:
+      start: 439
+      end: 636
+      blockRevision: 1
+      textDigest: "37893933872902ad1a3735dc0a77cc98b481ec07a49f70b237e5caf93b9593de"
+  - id: "s2-p1-s4"
+    span:
+      start: 637
+      end: 715
+      blockRevision: 1
+      textDigest: "37893933872902ad1a3735dc0a77cc98b481ec07a49f70b237e5caf93b9593de"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

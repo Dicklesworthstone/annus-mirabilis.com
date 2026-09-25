@@ -1,0 +1,26 @@
+# SourceBlock eq-s2-d2: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "eq-s2-d2"
+kind: "equation"
+paper: "special-relativity"
+section: "s2"
+order: 31
+locators:
+  - pdfPageIndex: 6
+    printedPage: 896
+editorialLabel: "ed:s2-d2"
+containedIn: "s2-p7"
+diplomaticText: "t_B - t_A = \\frac{r_{AB}}{V - v}"
+inlines:
+  - kind: "math"
+    latex: "t_B - t_A = \\frac{r_{AB}}{V - v}"
+    equationId: "eq-s2-d2"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

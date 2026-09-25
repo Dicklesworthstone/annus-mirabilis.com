@@ -1,0 +1,29 @@
+# SourceBlock s2: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s2"
+kind: "heading"
+paper: "special-relativity"
+section: "s2"
+order: 21
+locators:
+  - pdfPageIndex: 5
+    printedPage: 895
+diplomaticText: "§ 2. Über die Relativität von Längen und Zeiten."
+inlines:
+  - kind: "text"
+    text: "§ 2. Über die Relativität von Längen und Zeiten."
+sentenceSpans:
+  - id: "s2"
+    span:
+      start: 0
+      end: 48
+      blockRevision: 1
+      textDigest: "c16ad0af5aa9059eceacf4d972af19bdacd5ec258db002174661a40a7cce09fc"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

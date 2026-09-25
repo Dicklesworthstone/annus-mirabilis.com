@@ -1,0 +1,37 @@
+# TranslationUnit s2-p5-s1: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s2-p5-s1"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s2-p5-s1"
+inlines:
+  - kind: "text"
+    text: "The kinematics in general use tacitly assumes that the lengths determined by these two operations are exactly equal to each other, or in other words, that a moving rigid body at the epoch "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: " may in geometrical respects be completely replaced by the "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "same"
+  - kind: "text"
+    text: " body when it is "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "at rest"
+  - kind: "text"
+    text: " in a definite position."
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

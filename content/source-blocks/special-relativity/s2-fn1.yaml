@@ -1,0 +1,31 @@
+# SourceBlock s2-fn1: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s2-fn1"
+kind: "footnote"
+paper: "special-relativity"
+section: "s2"
+order: 30
+locators:
+  - pdfPageIndex: 6
+    printedPage: 896
+originalLabel: "1)"
+containedIn: "s2-p7"
+diplomaticText: "„Zeit“ bedeutet hier „Zeit des ruhenden Systems“ und zugleich „Zeigerstellung der bewegten Uhr, welche sich an dem Orte, von dem die Rede ist, befindet“."
+inlines:
+  - kind: "text"
+    text: "„Zeit“ bedeutet hier „Zeit des ruhenden Systems“ und zugleich „Zeigerstellung der bewegten Uhr, welche sich an dem Orte, von dem die Rede ist, befindet“."
+sentenceSpans:
+  - id: "s2-fn1"
+    span:
+      start: 0
+      end: 153
+      blockRevision: 1
+      textDigest: "8b3c227967b645b23113520ae20a1c0ec7ff32d2c0edf941f982bd1144fc2198"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

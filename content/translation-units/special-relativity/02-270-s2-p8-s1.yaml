@@ -1,0 +1,29 @@
+# TranslationUnit s2-p8-s1: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s2-p8-s1"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s2-p8-s1"
+inlines:
+  - kind: "text"
+    text: "We see, then, that we may not attach any "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "absolute"
+  - kind: "text"
+    text: " meaning to the concept of simultaneity, but that two events which are simultaneous when viewed from one coordinate system are no longer to be regarded as simultaneous events when viewed from a system moving relative to that system."
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "we must not attach any absolute meaning"
+    rationale: "“dürfen ... keine” states a prohibition: no absolute meaning is permitted. “May not” keeps the form of a permission denied; “must not” is the same prohibition in a more common English form."
+reviewState: "machine-draft"
+lang: "en"

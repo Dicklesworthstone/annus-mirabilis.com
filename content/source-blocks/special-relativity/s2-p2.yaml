@@ -1,0 +1,106 @@
+# SourceBlock s2-p2: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s2-p2"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s2"
+order: 24
+locators:
+  - pdfPageIndex: 5
+    printedPage: 895
+  - pdfPageIndex: 6
+    printedPage: 896
+diplomaticText: "Es sei ein ruhender starrer Stab gegeben; derselbe besitze, mit einem ebenfalls ruhenden Maßstabe gemessen, die Länge l. Wir denken uns nun die Stabachse in die X-Achse des ruhenden Koordinatensystems gelegt und dem Stabe hierauf eine gleichförmige Paralleltranslationsbewegung (Geschwindigkeit v) längs der X-Achse im Sinne der wachsenden x erteilt. Wir fragen nun nach der Länge des bewegten Stabes, welche wir uns durch folgende zwei Operationen ermittelt denken:\u000aa) Der Beobachter bewegt sich samt dem vorher genannten Maßstabe mit dem auszumessenden Stabe und mißt direkt durch Anlegen des Maßstabes die Länge des Stabes, ebenso, wie wenn sich auszumessender Stab, Beobachter und Maßstab in Ruhe befänden.\u000ab) Der Beobachter ermittelt mittels im ruhenden Systeme aufgestellter, gemäß § 1 synchroner, ruhender Uhren, in welchen Punkten des ruhenden Systems sich Anfang und Ende des auszumessenden Stabes zu einer bestimmten Zeit t befinden.\u000aDie Entfernung dieser beiden Punkte, gemessen mit dem schon benutzten, in diesem Falle ruhenden Maßstabe ist ebenfalls eine Länge, welche man als „Länge des Stabes“ bezeichnen kann."
+inlines:
+  - kind: "text"
+    text: "Es sei ein ruhender starrer Stab gegeben; derselbe besitze, mit einem ebenfalls ruhenden Maßstabe gemessen, die Länge "
+  - kind: "math"
+    latex: "l"
+  - kind: "text"
+    text: "."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir denken uns nun die Stabachse in die "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: "-Achse des ruhenden Koordinatensystems gelegt und dem Stabe hierauf eine gleichförmige Paralleltranslationsbewegung (Geschwindigkeit "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: ") längs der "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: "-Achse im Sinne der wachsenden "
+  - kind: "math"
+    latex: "x"
+  - kind: "text"
+    text: " erteilt."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir fragen nun nach der Länge des "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "bewegten"
+  - kind: "text"
+    text: " Stabes, welche wir uns durch folgende zwei Operationen ermittelt denken:"
+  - kind: "line-break"
+  - kind: "text"
+    text: "a) Der Beobachter bewegt sich samt dem vorher genannten Maßstabe mit dem auszumessenden Stabe und mißt direkt durch Anlegen des Maßstabes die Länge des Stabes, ebenso, wie wenn sich auszumessender Stab, Beobachter und Maßstab in Ruhe befänden."
+  - kind: "line-break"
+  - kind: "text"
+    text: "b) Der Beobachter ermittelt mittels im ruhenden Systeme aufgestellter, gemäß § 1 synchroner, ruhender Uhren, in welchen Punkten des ruhenden Systems sich Anfang und Ende des auszumessenden Stabes zu einer bestimmten Zeit "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: " befinden."
+  - kind: "line-break"
+  - kind: "text"
+    text: "Die Entfernung dieser beiden Punkte, gemessen mit dem schon benutzten, in diesem Falle ruhenden Maßstabe ist ebenfalls eine Länge, welche man als „Länge des Stabes“ bezeichnen kann."
+sentenceSpans:
+  - id: "s2-p2-s1"
+    span:
+      start: 0
+      end: 120
+      blockRevision: 1
+      textDigest: "c1c3be05861b92948ee89a6568adca64d16984e7888186bf773de0d37827c4c0"
+  - id: "s2-p2-s2"
+    span:
+      start: 121
+      end: 350
+      blockRevision: 1
+      textDigest: "c1c3be05861b92948ee89a6568adca64d16984e7888186bf773de0d37827c4c0"
+  - id: "s2-p2-s3"
+    span:
+      start: 351
+      end: 466
+      blockRevision: 1
+      textDigest: "c1c3be05861b92948ee89a6568adca64d16984e7888186bf773de0d37827c4c0"
+  - id: "s2-p2-s4"
+    span:
+      start: 467
+      end: 710
+      blockRevision: 1
+      textDigest: "c1c3be05861b92948ee89a6568adca64d16984e7888186bf773de0d37827c4c0"
+  - id: "s2-p2-s5"
+    span:
+      start: 711
+      end: 943
+      blockRevision: 1
+      textDigest: "c1c3be05861b92948ee89a6568adca64d16984e7888186bf773de0d37827c4c0"
+  - id: "s2-p2-s6"
+    span:
+      start: 944
+      end: 1125
+      blockRevision: 1
+      textDigest: "c1c3be05861b92948ee89a6568adca64d16984e7888186bf773de0d37827c4c0"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

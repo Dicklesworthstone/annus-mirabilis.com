@@ -1,0 +1,45 @@
+# SourceBlock s2-p5: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s2-p5"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s2"
+order: 27
+locators:
+  - pdfPageIndex: 6
+    printedPage: 896
+diplomaticText: "Die allgemein gebrauchte Kinematik nimmt stillschweigend an, daß die durch die beiden erwähnten Operationen bestimmten Längen einander genau gleich seien, oder mit anderen Worten, daß ein bewegter starrer Körper in der Zeitepoche t in geometrischer Beziehung vollständig durch denselben Körper, wenn er in bestimmter Lage ruht, ersetzbar sei."
+inlines:
+  - kind: "text"
+    text: "Die allgemein gebrauchte Kinematik nimmt stillschweigend an, daß die durch die beiden erwähnten Operationen bestimmten Längen einander genau gleich seien, oder mit anderen Worten, daß ein bewegter starrer Körper in der Zeitepoche "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: " in geometrischer Beziehung vollständig durch "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "denselben"
+  - kind: "text"
+    text: " Körper, wenn er in bestimmter Lage "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "ruht"
+  - kind: "text"
+    text: ", ersetzbar sei."
+sentenceSpans:
+  - id: "s2-p5-s1"
+    span:
+      start: 0
+      end: 342
+      blockRevision: 1
+      textDigest: "2da1abe0239e0c621692323577950b15eb36299aac2c57b3d71c92a41fe2c738"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

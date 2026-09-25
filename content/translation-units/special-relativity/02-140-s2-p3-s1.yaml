@@ -1,0 +1,25 @@
+# TranslationUnit s2-p3-s1: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s2-p3-s1"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s2-p3-s1"
+inlines:
+  - kind: "text"
+    text: "According to the principle of relativity, the length to be found by operation a), which we shall call “the length of the rod in the moving system”, must be equal to the length "
+  - kind: "math"
+    latex: "l"
+  - kind: "text"
+    text: " of the stationary rod."
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"
