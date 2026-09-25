@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState, useSyncExternalStore } from "react";
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
@@ -9,7 +10,6 @@ import { fromMe01Draft, type Me01Draft, toMe01Draft } from "../../../experiments
 import {
   ME01_CAPTION,
   ME01_DEFAULTS,
-  ME01_MODEL,
   ME01_NOT_MODELED,
   ME01_OUTPUTS,
   ME01_PRESETS,
@@ -29,6 +29,7 @@ import { deriveHostExecution } from "../../../experiments/provenance/executionSt
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { TwoLedgersPlot } from "./TwoLedgersPlot.tsx";
@@ -411,35 +412,12 @@ export function TwoLedgersLab({
         </div>
       </div>
 
-      {/* Show The Code Section */}
-      <details className="show-the-code">
-        <summary>Show the reference code & kernel bindings</summary>
-        <div className="code-panel">
-          <p>
-            Reference evaluator: <code>{ME01_MODEL.source}</code>
-          </p>
-          {/* A code line does not wrap, so the block scrolls inside its own named region
-              instead of widening the page (+378px on a phone with this section open). */}
-          <section
-            className="show-the-code-scroll"
-            aria-label="ME-01 reference code"
-            // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
-            tabIndex={0}
-          >
-            <pre>
-              <code>{`// evaluatePulseEnergies
-const g = 1 / Math.sqrt(1 - frameSpeed * frameSpeed);
-const p1 = (emittedEnergyRestFrame / 2) * g * (1 - frameSpeed * Math.cos(phi));
-const p2 = (emittedEnergyRestFrame / 2) * g * (1 + frameSpeed * Math.cos(phi));
-const pulseSumMoving = g * emittedEnergyRestFrame; // invariant under phi!
-
-// evaluateSubtraction
-const subtractionDifference = emittedEnergyRestFrame * (g - 1);
-const kineticEnergyDifference = premise === "unchanged" ? subtractionDifference : null;`}</code>
-            </pre>
-          </section>
-        </div>
-      </details>
+      {/* The kernel's own source, extracted at build time with its hash pinned
+          (src/content/kernel). It replaces a block retyped by hand, which was not the kernel's
+          code: it computed the subtraction as emittedEnergyRestFrame * (g - 1), where
+          evaluateSubtraction uses the cancellation-free gammaMinusOne so that the difference does
+          not round to zero at walking speeds, and it did not show evaluateLedgers. */}
+      <ShowTheCode instrumentId="me-01" listings={getKernelListingsForInstrument("me-01")} />
 
       {/* Not Modeled Section - Plain Line List */}
       <footer className="lab-not-modeled">
