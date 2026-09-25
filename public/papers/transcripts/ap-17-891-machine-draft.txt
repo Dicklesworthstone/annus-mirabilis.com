@@ -744,6 +744,40 @@ Ohne die Allgemeinheit der Betrachtung zu beeinflussen, können und wollen wir a
 --- MACHINE DRAFT TRANSCRIPTION PAGE 28 OF 31 ---
 [[ANNALEN-PAGE 918]]
 
+befinde und sich längs der $X$-Achse des Systems $K$ mit der Geschwindigkeit $v$ bewege. Es ist dann einleuchtend, daß das Elektron im genannten Momente ($t = 0$) relativ zu einem längs der $X$-Achse mit der konstanten Geschwindigkeit $v$ parallelbewegten Koordinatensystem $k$ ruht.
+
+Aus der oben gemachten Voraussetzung in Verbindung mit dem Relativitätsprinzip ist klar, daß sich das Elektron in der unmittelbar folgenden Zeit (für kleine Werte von $t$) vom System $k$ aus betrachtet nach den Gleichungen bewegt:
+$$
+\begin{aligned}
+\mu \frac{d^2 \xi}{d \tau^2} &= \varepsilon X' , \\
+\mu \frac{d^2 \eta}{d \tau^2} &= \varepsilon Y' , \\
+\mu \frac{d^2 \zeta}{d \tau^2} &= \varepsilon Z' ,
+\end{aligned}
+$$
+wobei die Zeichen $\xi$, $\eta$, $\zeta$, $\tau$, $X'$, $Y'$, $Z'$ sich auf das System $k$ beziehen. Setzen wir noch fest, daß für $t = x = y = z = 0$ $\tau = \xi = \eta = \zeta = 0$ sein soll, so gelten die Transformationsgleichungen der §§ 3 und 6, so daß gilt:
+$$
+\begin{aligned}
+\tau &= \beta \left( t - \frac{v}{V^2} x \right) , \\
+\xi &= \beta (x - v t) , &\qquad X' &= X , \\
+\eta &= y , &\qquad Y' &= \beta \left( Y - \frac{v}{V} N \right) , \\
+\zeta &= z , &\qquad Z' &= \beta \left( Z + \frac{v}{V} M \right) .
+\end{aligned}
+$$
+
+Mit Hilfe dieser Gleichungen transformieren wir die obigen Bewegungsgleichungen vom System $k$ auf das System $K$ und erhalten:
+$$
+\left\{
+\begin{aligned}
+\frac{d^2 x}{d t^2} &= \frac{\varepsilon}{\mu} \frac{1}{\beta^3} X , \\
+\frac{d^2 y}{d t^2} &= \frac{\varepsilon}{\mu} \frac{1}{\beta} \left( Y - \frac{v}{V} N \right) , \\
+\frac{d^2 z}{d t^2} &= \frac{\varepsilon}{\mu} \frac{1}{\beta} \left( Z + \frac{v}{V} M \right) .
+\end{aligned}
+\right.
+$$
+[[EQ-LABEL (A)]]
+
+Wir fragen nun in Anlehnung an die übliche Betrachtungsweise nach der „longitudinalen“ und „transversalen“ Masse[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 29 OF 31 ---
 [[ANNALEN-PAGE 919]]
 
