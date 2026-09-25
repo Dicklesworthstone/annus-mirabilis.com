@@ -604,7 +604,24 @@ displays:
         quantityId: velocityComponentYMoving
       - glyph: "z"
         quantityId: coordinatePositionStationary
-  # eq-s5-d3 follows once the colouring can draw a subscripted letter under an exponent (w_xi squared; dispatch 228).
+  - display: eq-s5-d3
+    latex: "\\begin{aligned} U^2 &= \\left( \\frac{d x}{d t} \\right)^2 + \\left( \\frac{d y}{d t} \\right)^2 , \\\\ w^2 &= w_\\xi^2 + w_\\eta^2 \\end{aligned}"
+    spoken: "U squared equals the square of d x over d t plus the square of d y over d t; w squared equals w sub xi squared plus w sub eta squared."
+    terms:
+      - glyph: "U"
+        quantityId: velocityComposed
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "w"
+        quantityId: velocityInMovingFrame
+      - glyph: "w_\\xi"
+        quantityId: velocityComponentXMoving
+      - glyph: "w_\\eta"
+        quantityId: velocityComponentYMoving
   # eq-s5-d4: p. 905 prints Latin subscripts, w_y over w_x, where the display above defines the components as
   #   w_xi and w_eta; a suspected misprint (docs/provenance/ap-17-891.md, err-typo-p905-1). The transcription keeps
   #   the printed letters, and they bind the components they stand for.
