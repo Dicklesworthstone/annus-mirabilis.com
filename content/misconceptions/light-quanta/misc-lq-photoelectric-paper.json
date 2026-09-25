@@ -15,6 +15,7 @@
     "reason": "A matter of the paper's structure: the introduction, § 6's conclusion and § 8's place among three applications are the evidence."
   },
   "anchors": ["s0-p3", "s6-p6", "s8-p1"],
+  "resultIds": ["lq-energy-quanta"],
   "sources": ["A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 133, 143 and 145"],
   "intervention": {
     "defaultsReviewed": {

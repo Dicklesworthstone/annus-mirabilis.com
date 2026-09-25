@@ -1,0 +1,140 @@
+# The results of the light-quanta paper, as the results face shows them (dispatch 240).
+# Checked by src/content/results/resultCards.ts, in the form mass-energy.yaml set.
+#
+# The as-printed layer is never typed here: each entry names an anchor of the German face (a
+# display, or sentences of a paragraph by their order in it) and the text is read from the face.
+# Everything written here (the one-sentence reading, the decoder, the qualifications, the probe
+# questions) is explanatory prose in the site's voice.
+#
+# A card's common wrong turns are not listed here: each record in content/misconceptions/light-quanta
+# names the results it concerns in its resultIds, bound to the cards that quote a paragraph the
+# record cites. "Used later" stays empty until the margin records exist to cite. Probes name the
+# laboratory, the question, and a preset its manifest registers (content/experiments/lq-0N.yaml).
+paper: light-quanta
+review: draft
+cards:
+  - id: lq-energy-quanta
+    title: "Radiation that behaves as if it consisted of energy quanta"
+    section: s6
+    arguments: [arg-lq-entropy-correspondence]
+    printed:
+      - anchor: eq-s6-d4
+      - anchor: s6-p6
+        sentences: [1]
+    equations:
+      - eq-model-lq-radiation-entropy-change
+      - eq-model-lq-gas-entropy-change
+      - eq-model-lq-effective-count
+      - eq-model-lq-energy-per-point
+    oneSentence: "Read with Boltzmann's principle, the entropy of monochromatic radiation gives the probability that all its energy is found in a part \\(v\\) of the volume \\(v_0\\), and that probability has the form it has for independent points; so radiation of low density, where Wien's formula holds, behaves in thermal respects as if it consisted of mutually independent energy quanta of magnitude \\(R\\beta\\nu/N\\)."
+    decoder:
+      - symbol: "\\(W\\)"
+        meaning: "The probability that, at an arbitrarily chosen instant, the whole energy \\(E\\) of radiation enclosed in the volume \\(v_0\\) by reflecting walls is found in the part \\(v\\) of it."
+      - symbol: "\\(\\frac{N}{R}\\frac{E}{\\beta\\nu}\\)"
+        meaning: "The exponent of \\(v/v_0\\): the energy \\(E\\) divided by \\(R\\beta\\nu/N\\). For \\(n\\) independent moving points of a gas the same probability is \\((v/v_0)^n\\), which is the comparison the paper makes."
+      - symbol: "\\(R\\beta\\nu/N\\)"
+        meaning: "The magnitude of each energy quantum. \\(R/N\\) is the gas constant per molecule and \\(\\beta\\) the constant of Wien's formula, so the product is what later texts write \\(h\\nu\\); the paper does not use the letter \\(h\\)."
+      - symbol: "\"wie wenn\""
+        meaning: "As if: the sentence states how the radiation behaves in its thermal properties, not what light is made of."
+    qualifications:
+      - kind: premise
+        text: "Only for radiation of low density, within the range of validity of Wien's radiation formula; the sentence itself says so."
+      - kind: inference
+        text: "A heuristic conclusion from one thermal property, the dependence of the entropy on the volume. The paper next asks whether the laws of the generation and transformation of light are also such as they would be if light consisted of these quanta, and takes that question up in §§ 7 to 9."
+    probes:
+      - instrument: lq-06
+        question: "Compare the radiation's entropy-volume law with that of a gas of independent points: how many points does the radiation behave like, and how much energy would each carry?"
+        preset: lq-06-the-move
+    usedLater: []
+    meanings:
+      argumentStatus: "A heuristic conclusion from a comparison"
+      modelStatus: "Stated within the range of validity of Wien's formula"
+      evidentialRole: "An inference, not evidence"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "It is the paper's heuristic point of view, stated as a result, and §§ 7 to 9 apply it."
+
+  - id: lq-stokes-rule
+    title: "Stokes's rule"
+    section: s7
+    arguments: [arg-lq-fluorescence-budget]
+    printed:
+      - anchor: s7-p1
+        sentences: [5, 6]
+    equations: [eq-model-lq-fluorescence-bound]
+    oneSentence: "If each exciting quantum of frequency \\(\\nu_1\\) is absorbed and on its own gives rise to a light quantum of frequency \\(\\nu_2\\), the energy principle requires \\(\\frac{R}{N}\\beta\\nu_2 \\leqq \\frac{R}{N}\\beta\\nu_1\\), that is \\(\\nu_2 \\leqq \\nu_1\\), which is the known rule of Stokes."
+    decoder:
+      - symbol: "\\(\\nu_1\\)"
+        meaning: "The frequency of the exciting light, absorbed by the photoluminescent substance."
+      - symbol: "\\(\\nu_2\\)"
+        meaning: "The frequency of the light the substance produces."
+      - symbol: "\\(\\frac{R}{N}\\beta\\nu\\)"
+        meaning: "The energy of one quantum of light of frequency \\(\\nu\\), taken from § 6 for both the exciting and the produced light."
+    qualifications:
+      - kind: premise
+        text: "The photoluminescent substance is not to be regarded as a permanent source of energy; only then does the energy principle bound the produced quantum."
+      - kind: premise
+        text: "Each exciting quantum acts on its own, at least when the exciting quanta are sparse enough; the absorption may also produce quanta of other frequencies and energy of another kind, such as heat."
+      - kind: conditional
+        text: "The paper names when deviations are conceivable: when so many quanta are being transformed at once that one produced quantum can take its energy from several, and when the exciting or produced light is not of the kind Wien's law describes, for instance light from a body so hot that Wien's law fails at the wavelength in question."
+    probes:
+      - instrument: lq-07
+        question: "Choose the exciting frequency: can the frequency of the emitted light exceed it while each quantum acts on its own?"
+        preset: lq-07-stokes-rule
+      - instrument: lq-07
+        question: "Let two quanta act together: which of the paper's two conceivable deviations is this?"
+        preset: lq-07-deviation-multi
+    usedLater: []
+    meanings:
+      argumentStatus: "A consequence of the quantum picture and the energy principle"
+      modelStatus: "Holds when each exciting quantum acts on its own and the substance supplies no energy"
+      evidentialRole: "Accounts for a rule already known from experiment"
+      historicalStatus: "The rule was known before 1905, and the paper calls it known; its derivation from energy quanta is introduced here"
+    selectionReason: "It is the first law of the generation and transformation of light that the paper derives from the energy quanta."
+
+  - id: lq-photoelectric-energy
+    title: "The energy of the electrons that light sets free"
+    section: s8
+    arguments: [arg-lq-photoelectric-energy, arg-lq-stopping-and-losses]
+    printed:
+      - anchor: s8-p2
+        sentences: [3, 6, 8]
+      - anchor: s8-p3
+        sentences: [1]
+      - anchor: s8-p5
+        sentences: [1, 2]
+      - anchor: s8-p6
+        sentences: [1]
+    equations: [eq-model-lq-photoelectric-maximum, eq-model-lq-stopping-energy]
+    oneSentence: "If a light quantum gives its whole energy to one electron and the electron must do the work \\(P\\) to leave the body, the fastest electrons leave with the kinetic energy \\(\\frac{R}{N}\\beta\\nu - P\\), so the potential \\(\\Pi\\) that just stops them should be a straight line in the frequency with a slope that does not depend on the substance; for ultraviolet light at the edge of the solar spectrum the paper estimates about 4.3 volts, of the order of Lenard's results."
+    decoder:
+      - symbol: "\\(P\\)"
+        meaning: "The work, characteristic of the body, that each electron must do to leave it."
+      - symbol: "\\(\\Pi\\)"
+        meaning: "The positive potential to which the body is charged when it just prevents a loss of electricity: in later language, the stopping potential."
+      - symbol: "\\(\\varepsilon\\)"
+        meaning: "The charge of the electron, which the paper calls its electric mass."
+      - symbol: "\\(E\\) and \\(P'\\)"
+        meaning: "The charge of one gram-equivalent of a monovalent ion, and the potential of that amount of negative electricity with respect to the body: the same relation written per gram-equivalent."
+      - symbol: "4,3 Volt"
+        meaning: "The paper's order-of-magnitude check, with \\(P' = 0\\), \\(\\nu = 1{,}03 \\cdot 10^{15}\\) (the edge of the solar spectrum toward the ultraviolet) and \\(\\beta = 4{,}866 \\cdot 10^{-11}\\)."
+    qualifications:
+      - kind: premise
+        text: "That a light quantum gives its whole energy to a single electron is an assumption: the paper calls it the simplest picture, assumes that it occurs, and does not exclude that electrons take up only part of a quantum's energy."
+      - kind: comparison
+        text: "The 4.3 volts is compared with Lenard's results only in order of magnitude, with the work \\(P'\\) set to zero. It checks the size of the prediction, not the relation."
+      - kind: conditional
+        text: "The straight line, with a slope independent of the substance, is what must hold if the derived formula is right; the paper reports no such measurement."
+    probes:
+      - instrument: lq-08
+        question: "Repeat the paper's order-of-magnitude check: what stopping potential does light at the ultraviolet edge of the solar spectrum give?"
+        preset: lq-08-historical-check
+      - instrument: lq-08
+        question: "Raise the intensity at a fixed frequency: what changes, the number of electrons or the energy of each?"
+        preset: lq-08-intensity-probe
+    usedLater: []
+    meanings:
+      argumentStatus: "A consequence of the quantum picture, with a stated assumption"
+      modelStatus: "For electrons that take a quantum's whole energy and leave from the surface"
+      evidentialRole: "A prediction, with an order-of-magnitude comparison"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "It is the paper's quantitative prediction for the photoelectric effect."

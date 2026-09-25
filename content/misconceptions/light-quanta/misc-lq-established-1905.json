@@ -13,6 +13,7 @@
   },
   "instrumentIds": ["lq-08"],
   "anchors": ["s8-p5", "s8-p6", "s8-p7"],
+  "resultIds": ["lq-photoelectric-energy"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 146–147",
     "R. A. Millikan, Physical Review (2) 7, 355–388 (1916), bibliography record cit-millikan-1916, as later evidence",
