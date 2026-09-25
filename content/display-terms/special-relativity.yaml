@@ -1,0 +1,221 @@
+# Printed displays of Zur Elektrodynamik bewegter Körper (ap-17-891), in colour.
+# One entry per display (src/equations/printed/displayTerms.ts reads and checks this file):
+#   latex          a copy of the display's printed LaTeX, byte for byte as its source block has it;
+#   spoken         the authored spoken form, in the letters Einstein printed;
+#   terms          each printed glyph (one letter with its subscripts and decorations) and the exact
+#                  canonical quantity id it binds here; the notation concordance must agree where it
+#                  has an entry in the display's scope;
+#   notQuantities  glyphs that name no quantity, each with its reason (also allowed once, file-wide).
+# Every letter in a display is bound or declared. Adding an entry needs no code change.
+#
+# Paper 3's letters change meaning by section (content/notation/special-relativity.yaml). Einstein's
+# beta is the modern gamma (lorentzFactor, never speedRatio); tau is the moving system's time
+# coordinate, never a proper time; V is the speed of light; the Galilean auxiliary x' of section 3
+# is not the moving-frame coordinate; and L, N, K, E and P each mean different things in different
+# sections.
+#
+# The entries follow the paper's order: Part I (sections 1 to 5), then Part II (sections 6 to 10).
+paper: special-relativity
+notQuantities:
+  - glyph: "d"
+    reason: "The differential d of d^2x/dt^2 and of the integrals of section 10, an operator."
+  - glyph: "\\pi"
+    reason: "The number pi of the Gaussian energy density A^2/8 pi, section 8."
+displays:
+  # ---- Part I, sections 1 to 5 ----
+
+  # ---- Part II, sections 6 to 10 ----
+
+  # Section 6. The Maxwell-Hertz equations for empty space, transformed by section 3's equations.
+  - display: eq-s6-d1
+    latex: "\\begin{aligned} \\frac{1}{V} \\frac{\\partial X}{\\partial t} &= \\frac{\\partial N}{\\partial y} - \\frac{\\partial M}{\\partial z} , &\\qquad \\frac{1}{V} \\frac{\\partial L}{\\partial t} &= \\frac{\\partial Y}{\\partial z} - \\frac{\\partial Z}{\\partial y} , \\\\ \\frac{1}{V} \\frac{\\partial Y}{\\partial t} &= \\frac{\\partial L}{\\partial z} - \\frac{\\partial N}{\\partial x} , &\\qquad \\frac{1}{V} \\frac{\\partial M}{\\partial t} &= \\frac{\\partial Z}{\\partial x} - \\frac{\\partial X}{\\partial z} , \\\\ \\frac{1}{V} \\frac{\\partial Z}{\\partial t} &= \\frac{\\partial M}{\\partial x} - \\frac{\\partial L}{\\partial y} , &\\qquad \\frac{1}{V} \\frac{\\partial N}{\\partial t} &= \\frac{\\partial X}{\\partial y} - \\frac{\\partial Y}{\\partial x} , \\end{aligned}"
+    spoken: "Six equations, in three rows of two. First row: one over V times the partial derivative of X with respect to t equals the partial derivative of N with respect to y minus the partial derivative of M with respect to z; and one over V times the partial derivative of L with respect to t equals the partial derivative of Y with respect to z minus the partial derivative of Z with respect to y. Second row: one over V times the partial derivative of Y with respect to t equals the partial derivative of L with respect to z minus the partial derivative of N with respect to x; and one over V times the partial derivative of M with respect to t equals the partial derivative of Z with respect to x minus the partial derivative of X with respect to z. Third row: one over V times the partial derivative of Z with respect to t equals the partial derivative of M with respect to x minus the partial derivative of L with respect to y; and one over V times the partial derivative of N with respect to t equals the partial derivative of X with respect to y minus the partial derivative of Y with respect to x."
+    terms:
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "X"
+        quantityId: electricFieldStationary
+      - glyph: "Y"
+        quantityId: electricFieldStationary
+      - glyph: "Z"
+        quantityId: electricFieldStationary
+      - glyph: "L"
+        quantityId: magneticFieldStationary
+      - glyph: "M"
+        quantityId: magneticFieldStationary
+      - glyph: "N"
+        quantityId: magneticFieldStationary
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+  - display: eq-s6-d2
+    latex: "\\begin{aligned} \\frac{1}{V} \\frac{\\partial X}{\\partial \\tau} &= \\frac{\\partial \\beta \\left( N - \\frac{v}{V} Y \\right)}{\\partial \\eta} - \\frac{\\partial \\beta \\left( M + \\frac{v}{V} Z \\right)}{\\partial \\zeta} , \\\\ \\frac{1}{V} \\frac{\\partial \\beta \\left( Y - \\frac{v}{V} N \\right)}{\\partial \\tau} &= \\frac{\\partial L}{\\partial \\zeta} - \\frac{\\partial \\beta \\left( N - \\frac{v}{V} Y \\right)}{\\partial \\xi} , \\\\ \\frac{1}{V} \\frac{\\partial \\beta \\left( Z + \\frac{v}{V} M \\right)}{\\partial \\tau} &= \\frac{\\partial \\beta \\left( M + \\frac{v}{V} Z \\right)}{\\partial \\xi} - \\frac{\\partial L}{\\partial \\eta} , \\\\ \\frac{1}{V} \\frac{\\partial L}{\\partial \\tau} &= \\frac{\\partial \\beta \\left( Y - \\frac{v}{V} N \\right)}{\\partial \\zeta} - \\frac{\\partial \\beta \\left( Z + \\frac{v}{V} M \\right)}{\\partial \\eta} , \\\\ \\frac{1}{V} \\frac{\\partial \\beta \\left( M + \\frac{v}{V} Z \\right)}{\\partial \\tau} &= \\frac{\\partial \\beta \\left( Z + \\frac{v}{V} M \\right)}{\\partial \\xi} - \\frac{\\partial X}{\\partial \\zeta} , \\\\ \\frac{1}{V} \\frac{\\partial \\beta \\left( N - \\frac{v}{V} Y \\right)}{\\partial \\tau} &= \\frac{\\partial X}{\\partial \\eta} - \\frac{\\partial \\beta \\left( Y - \\frac{v}{V} N \\right)}{\\partial \\xi} , \\end{aligned}"
+    spoken: "Six equations. First: one over V times the partial derivative of X with respect to tau equals the partial derivative with respect to eta of beta times the quantity N minus v over V times Y, minus the partial derivative with respect to zeta of beta times the quantity M plus v over V times Z. Second: one over V times the partial derivative with respect to tau of beta times the quantity Y minus v over V times N equals the partial derivative of L with respect to zeta, minus the partial derivative with respect to xi of beta times the quantity N minus v over V times Y. Third: one over V times the partial derivative with respect to tau of beta times the quantity Z plus v over V times M equals the partial derivative with respect to xi of beta times the quantity M plus v over V times Z, minus the partial derivative of L with respect to eta. Fourth: one over V times the partial derivative of L with respect to tau equals the partial derivative with respect to zeta of beta times the quantity Y minus v over V times N, minus the partial derivative with respect to eta of beta times the quantity Z plus v over V times M. Fifth: one over V times the partial derivative with respect to tau of beta times the quantity M plus v over V times Z equals the partial derivative with respect to xi of beta times the quantity Z plus v over V times M, minus the partial derivative of X with respect to zeta. Sixth: one over V times the partial derivative with respect to tau of beta times the quantity N minus v over V times Y equals the partial derivative of X with respect to eta, minus the partial derivative with respect to xi of beta times the quantity Y minus v over V times N."
+    terms:
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "X"
+        quantityId: electricFieldStationary
+      - glyph: "Y"
+        quantityId: electricFieldStationary
+      - glyph: "Z"
+        quantityId: electricFieldStationary
+      - glyph: "L"
+        quantityId: magneticFieldStationary
+      - glyph: "M"
+        quantityId: magneticFieldStationary
+      - glyph: "N"
+        quantityId: magneticFieldStationary
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "\\eta"
+        quantityId: coordinatePositionMoving
+      - glyph: "\\zeta"
+        quantityId: coordinatePositionMoving
+  - display: eq-s6-d3
+    latex: "\\beta = \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} ."
+    spoken: "beta equals one divided by the square root of one minus the square of v over V."
+    terms:
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  - display: eq-s6-d4
+    latex: "\\begin{aligned} \\frac{1}{V} \\frac{\\partial X'}{\\partial \\tau} &= \\frac{\\partial N'}{\\partial \\eta} - \\frac{\\partial M'}{\\partial \\zeta} , &\\qquad \\frac{1}{V} \\frac{\\partial L'}{\\partial \\tau} &= \\frac{\\partial Y'}{\\partial \\zeta} - \\frac{\\partial Z'}{\\partial \\eta} , \\\\ \\frac{1}{V} \\frac{\\partial Y'}{\\partial \\tau} &= \\frac{\\partial L'}{\\partial \\zeta} - \\frac{\\partial N'}{\\partial \\xi} , &\\qquad \\frac{1}{V} \\frac{\\partial M'}{\\partial \\tau} &= \\frac{\\partial Z'}{\\partial \\xi} - \\frac{\\partial X'}{\\partial \\zeta} , \\\\ \\frac{1}{V} \\frac{\\partial Z'}{\\partial \\tau} &= \\frac{\\partial M'}{\\partial \\xi} - \\frac{\\partial L'}{\\partial \\eta} , &\\qquad \\frac{1}{V} \\frac{\\partial N'}{\\partial \\tau} &= \\frac{\\partial X'}{\\partial \\eta} - \\frac{\\partial Y'}{\\partial \\xi} . \\end{aligned}"
+    spoken: "Six equations, in three rows of two. First row: one over V times the partial derivative of X prime with respect to tau equals the partial derivative of N prime with respect to eta minus the partial derivative of M prime with respect to zeta; and one over V times the partial derivative of L prime with respect to tau equals the partial derivative of Y prime with respect to zeta minus the partial derivative of Z prime with respect to eta. Second row: one over V times the partial derivative of Y prime with respect to tau equals the partial derivative of L prime with respect to zeta minus the partial derivative of N prime with respect to xi; and one over V times the partial derivative of M prime with respect to tau equals the partial derivative of Z prime with respect to xi minus the partial derivative of X prime with respect to zeta. Third row: one over V times the partial derivative of Z prime with respect to tau equals the partial derivative of M prime with respect to xi minus the partial derivative of L prime with respect to eta; and one over V times the partial derivative of N prime with respect to tau equals the partial derivative of X prime with respect to eta minus the partial derivative of Y prime with respect to xi."
+    terms:
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "X'"
+        quantityId: electricFieldMoving
+      - glyph: "Y'"
+        quantityId: electricFieldMoving
+      - glyph: "Z'"
+        quantityId: electricFieldMoving
+      - glyph: "L'"
+        quantityId: magneticFieldMoving
+      - glyph: "M'"
+        quantityId: magneticFieldMoving
+      - glyph: "N'"
+        quantityId: magneticFieldMoving
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "\\eta"
+        quantityId: coordinatePositionMoving
+      - glyph: "\\zeta"
+        quantityId: coordinatePositionMoving
+  # eq-s6-d5: psi(v) is the common factor the transformed fields may still carry (concordance
+  #   sr.psi.fieldScaleFactorUnknown), not the phi(v) of section 3.
+  - display: eq-s6-d5
+    latex: "\\begin{aligned} X' &= \\psi(v) X , &\\qquad L' &= \\psi(v) L , \\\\ Y' &= \\psi(v) \\beta \\left( Y - \\frac{v}{V} N \\right) , &\\qquad M' &= \\psi(v) \\beta \\left( M + \\frac{v}{V} Z \\right) , \\\\ Z' &= \\psi(v) \\beta \\left( Z + \\frac{v}{V} M \\right) , &\\qquad N' &= \\psi(v) \\beta \\left( N - \\frac{v}{V} Y \\right) . \\end{aligned}"
+    spoken: "Six equations, in three rows of two. First row: X prime equals psi of v times X; and L prime equals psi of v times L. Second row: Y prime equals psi of v times beta times the quantity Y minus v over V times N; and M prime equals psi of v times beta times the quantity M plus v over V times Z. Third row: Z prime equals psi of v times beta times the quantity Z plus v over V times M; and N prime equals psi of v times beta times the quantity N minus v over V times Y."
+    terms:
+      - glyph: "\\psi"
+        quantityId: fieldScaleFactorUnknown
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "X'"
+        quantityId: electricFieldMoving
+      - glyph: "Y'"
+        quantityId: electricFieldMoving
+      - glyph: "Z'"
+        quantityId: electricFieldMoving
+      - glyph: "L'"
+        quantityId: magneticFieldMoving
+      - glyph: "M'"
+        quantityId: magneticFieldMoving
+      - glyph: "N'"
+        quantityId: magneticFieldMoving
+      - glyph: "X"
+        quantityId: electricFieldStationary
+      - glyph: "Y"
+        quantityId: electricFieldStationary
+      - glyph: "Z"
+        quantityId: electricFieldStationary
+      - glyph: "L"
+        quantityId: magneticFieldStationary
+      - glyph: "M"
+        quantityId: magneticFieldStationary
+      - glyph: "N"
+        quantityId: magneticFieldStationary
+  # eq-s6-d6 to eq-s6-d8: on p. 909 the paper writes the same factor as phi, in phi(v) phi(-v) = 1
+  #   and phi(v) = 1, so the letter binds fieldScaleFactorUnknown like the psi(v) of eq-s6-d5
+  #   (notes of concordance sr.psi.fieldScaleFactorUnknown; the receipt keeps the print's own
+  #   letters). It is not section 3's phi(v), which has its own record, scaleFactorUnknown.
+  - display: eq-s6-d6
+    latex: "\\varphi(v) \\cdot \\varphi(-v) = 1 ."
+    spoken: "phi of v times phi of minus v equals one."
+    terms:
+      - glyph: "\\varphi"
+        quantityId: fieldScaleFactorUnknown
+      - glyph: "v"
+        quantityId: frameSpeed
+  - display: eq-s6-d7
+    latex: "\\varphi(v) = \\varphi(-v) ;"
+    spoken: "phi of v equals phi of minus v."
+    terms:
+      - glyph: "\\varphi"
+        quantityId: fieldScaleFactorUnknown
+      - glyph: "v"
+        quantityId: frameSpeed
+  - display: eq-s6-d8
+    latex: "\\varphi(v) = 1 ,"
+    spoken: "phi of v equals one."
+    terms:
+      - glyph: "\\varphi"
+        quantityId: fieldScaleFactorUnknown
+      - glyph: "v"
+        quantityId: frameSpeed
+  - display: eq-s6-d9
+    latex: "\\begin{aligned} X' &= X , &\\qquad L' &= L , \\\\ Y' &= \\beta \\left( Y - \\frac{v}{V} N \\right) , &\\qquad M' &= \\beta \\left( M + \\frac{v}{V} Z \\right) , \\\\ Z' &= \\beta \\left( Z + \\frac{v}{V} M \\right) , &\\qquad N' &= \\beta \\left( N - \\frac{v}{V} Y \\right) . \\end{aligned}"
+    spoken: "Six equations, in three rows of two. First row: X prime equals X; and L prime equals L. Second row: Y prime equals beta times the quantity Y minus v over V times N; and M prime equals beta times the quantity M plus v over V times Z. Third row: Z prime equals beta times the quantity Z plus v over V times M; and N prime equals beta times the quantity N minus v over V times Y."
+    terms:
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "X'"
+        quantityId: electricFieldMoving
+      - glyph: "Y'"
+        quantityId: electricFieldMoving
+      - glyph: "Z'"
+        quantityId: electricFieldMoving
+      - glyph: "L'"
+        quantityId: magneticFieldMoving
+      - glyph: "M'"
+        quantityId: magneticFieldMoving
+      - glyph: "N'"
+        quantityId: magneticFieldMoving
+      - glyph: "X"
+        quantityId: electricFieldStationary
+      - glyph: "Y"
+        quantityId: electricFieldStationary
+      - glyph: "Z"
+        quantityId: electricFieldStationary
+      - glyph: "L"
+        quantityId: magneticFieldStationary
+      - glyph: "M"
+        quantityId: magneticFieldStationary
+      - glyph: "N"
+        quantityId: magneticFieldStationary
