@@ -117,10 +117,15 @@ export function GlossFace({
     // this took text inlines alone and left a sentence's formulas out of what a screen reader heard.
     return trUnits.map((u) => speakInlines(u.inlines)).join(" ");
   };
-  const glossSentenceFor = (block: SourceBlock, sp: SourceBlock["sentenceSpans"][number]) => (
+  const glossSentenceFor = (
+    block: SourceBlock,
+    sp: SourceBlock["sentenceSpans"][number],
+    elementId?: string | null,
+  ) => (
     <GlossSentence
       key={sp.id}
       sentenceId={sp.id}
+      elementId={elementId}
       germanText={block.diplomaticText.slice(sp.span.start, sp.span.end)}
       atoms={sentenceAtoms(block.inlines, sp.span)}
       germanInlines={sentenceInlines(block.inlines, sp.span)}
@@ -238,8 +243,14 @@ export function GlossFace({
           // A display its paragraph prints is set after the sentence that prints it.
           if (block.kind === "equation")
             return claimedDisplays.has(block.id) ? null : renderEquation(block);
+          const single = block.sentenceSpans?.length === 1 ? block.sentenceSpans[0] : undefined;
+          // A heading keeps its own element, for the outline and its anchor, and a glossed one
+          // prints its gloss sentence under it (dispatch 221): a section heading is German the
+          // reader reads, often the hardest sentence in the section. The gloss carries no id of
+          // its own, since the heading already has the block id. An unglossed heading prints
+          // nothing more, and no fallback link, as it did before.
           if (block.kind === "heading" || block.kind === "part-heading") {
-            return (
+            const heading = (
               <SourceBlockComponent
                 key={block.id}
                 block={block}
@@ -247,9 +258,15 @@ export function GlossFace({
                 editorialNotes={editorialNotes}
               />
             );
+            if (!single || !glossMap.has(single.id)) return heading;
+            return (
+              <Fragment key={block.id}>
+                {heading}
+                {glossSentenceFor(block, single, null)}
+              </Fragment>
+            );
           }
           // A masthead or closing line is glossed as one unit, under its block id.
-          const single = block.sentenceSpans?.length === 1 ? block.sentenceSpans[0] : undefined;
           if (
             (block.kind === "masthead" || block.kind === "closing") &&
             single &&

@@ -22,6 +22,12 @@ export interface GlossSentenceProps {
    * formulas are KaTeX. germanText is plain text, where a formula is its TeX source.
    */
   readonly germanInlines?: readonly Inline[] | undefined;
+  /**
+   * The section element's id. By default the sentence id, which is the fragment a link names. A
+   * heading's gloss passes null: it is printed under the heading element, which already carries the
+   * block id (GlossFace.tsx), and a second element with that id would be a duplicate.
+   */
+  readonly elementId?: string | null | undefined;
 }
 
 /**
@@ -107,7 +113,9 @@ export function GlossSentence({
   modalityClasses,
   atoms,
   germanInlines,
+  elementId,
 }: GlossSentenceProps) {
+  const domId = elementId === null ? undefined : (elementId ?? sentenceId);
   // No gloss unit yet: the German as printed, and one quiet line linking the same sentence on the
   // parallel face. What the gloss does not cover is named once, at the top of the face (GlossFace.tsx
   // unglossedSections); a boxed notice under every such sentence said it 87 times on Brownian motion.
@@ -115,7 +123,7 @@ export function GlossSentence({
     return (
       <section
         className="gloss-sentence gloss-sentence-missing"
-        id={sentenceId}
+        id={domId}
         data-sentence-id={sentenceId}
         data-source-sentence="true"
         // A fragment target, not a scroll region: nothing in the CSS gives a gloss
@@ -170,7 +178,7 @@ export function GlossSentence({
   return (
     <section
       className="gloss-sentence"
-      id={sentenceId}
+      id={domId}
       data-sentence-id={sentenceId}
       data-source-sentence="true"
       // As above: a fragment target, not a scroll region. This sentence already carries
