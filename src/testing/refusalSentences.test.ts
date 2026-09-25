@@ -37,7 +37,12 @@ import { validateSr13Parameters } from "../experiments/sr13/parameters.ts";
  */
 const GENERIC = "These inputs do not meet the calculation's stated requirements.";
 type Check = { kind: string; refusal?: { code: string; message: string; details?: unknown } };
-const CASES: readonly (readonly [string, () => Check, string])[] = [
+/**
+ * The fourth entry is the refusal code, invalid-parameter unless given. A value outside a range the
+ * manifest declares is refused by withinDeclaredDomain as outside-model-domain, with the range in
+ * words (dispatch 165); SR-09's frequency 0 is one since its lab took that check.
+ */
+const CASES: readonly (readonly [string, () => Check, string, string?])[] = [
   [
     "me-02 emitted energy 0",
     () => validateMe02Parameters({ ...ME02_DEFAULTS, emittedEnergy: 0 }),
@@ -57,6 +62,7 @@ const CASES: readonly (readonly [string, () => Check, string])[] = [
     "sr-09 frequency 0",
     () => validateSr09Parameters({ ...SR09_DEFAULTS, frequencyTHz: 0 }),
     "frequency",
+    "outside-model-domain",
   ],
   [
     "sr-10 initial energy -1",
@@ -81,12 +87,12 @@ const CASES: readonly (readonly [string, () => Check, string])[] = [
 ];
 
 describe("a typed value outside a lab's range is refused with a sentence that says what to enter", () => {
-  for (const [label, run, names] of CASES) {
+  for (const [label, run, names, code = "invalid-parameter"] of CASES) {
     test(label, () => {
       const checked = run();
       expect(checked.kind).toBe("refused");
       if (checked.kind !== "refused" || !checked.refusal) return;
-      expect(checked.refusal.code).toBe("invalid-parameter");
+      expect(checked.refusal.code).toBe(code);
       const sentence = refusalSentence(checked.refusal as Parameters<typeof refusalSentence>[0]);
       expect(sentence).not.toBe(GENERIC);
       expect(sentence.startsWith("Enter")).toBe(true);

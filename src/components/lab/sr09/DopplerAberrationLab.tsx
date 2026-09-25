@@ -1,5 +1,6 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { readTypedNumber } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
@@ -25,6 +26,7 @@ import type {
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { display, fixed, identity, result } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
@@ -53,6 +55,16 @@ function SnapshotReading({
   return <span data-quantity-id={quantityId}>{statusMessage(item.status)}</span>;
 }
 
+/** The typed fields, kept as the reader typed them and read on Apply (dispatch 165). */
+type Sr09Typed = { beta: string; propagationAngleDeg: string; frequencyTHz: string };
+function typedFrom(q: Sr09Parameters): Sr09Typed {
+  return {
+    beta: String(q.beta),
+    propagationAngleDeg: String(q.propagationAngleDeg),
+    frequencyTHz: String(q.frequencyTHz),
+  };
+}
+
 // The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate.
 const SR09_PROMPTS = PREDICT_PROMPTS["sr-09"] ?? [];
 
@@ -76,13 +88,19 @@ export function DopplerAberrationLab({
     session,
     session.acceptedParameters(),
     true,
-    (restored) => setDraft({ ...restored }),
+    (restored) => {
+      setDraft({ ...restored });
+      setTyped(typedFrom(restored));
+    },
   );
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("sr-09", SR09_PROMPTS);
   const snapshot = (view.accepted ?? session.getServerSnapshot().accepted) as AcceptedSnapshot;
   const p = snapshot.parameters as Sr09Parameters;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
+  // A number field hands "" for a cleared field or for "abc"; stored as Number(value) that was 0,
+  // applied as β = 0 or θ = 0 without a word. The text is read on Apply instead.
+  const [typed, setTyped] = useState(() => typedFrom(example.parameters));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   useEffect(() => {
@@ -95,11 +113,23 @@ export function DopplerAberrationLab({
       return;
     }
     setDraft(parameters);
+    setTyped(typedFrom(parameters));
     setError("");
   }
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const checked = validateSr09Parameters(draft);
+    const beta = readTypedNumber(typed.beta, "the observer speed β");
+    if (beta.kind === "refused") return setError(beta.requirement);
+    const angle = readTypedNumber(typed.propagationAngleDeg, "the propagation angle θ");
+    if (angle.kind === "refused") return setError(angle.requirement);
+    const frequency = readTypedNumber(typed.frequencyTHz, "the frequency in K");
+    if (frequency.kind === "refused") return setError(frequency.requirement);
+    const checked = validateSr09Parameters({
+      ...draft,
+      beta: beta.value,
+      propagationAngleDeg: angle.value,
+      frequencyTHz: frequency.value,
+    });
     if (checked.kind !== "accepted") {
       setError(refusalSentence(checked.refusal));
       return;
@@ -219,10 +249,8 @@ export function DopplerAberrationLab({
                   step="0.01"
                   min="-0.95"
                   max="0.95"
-                  value={draft.beta}
-                  onChange={(event) =>
-                    setDraft({ ...draft, beta: Number(event.currentTarget.value) })
-                  }
+                  value={typed.beta}
+                  onChange={(event) => setTyped({ ...typed, beta: event.currentTarget.value })}
                 />
               </div>
               <div className="input-field">
@@ -237,9 +265,9 @@ export function DopplerAberrationLab({
                   step="1"
                   min="0"
                   max="360"
-                  value={draft.propagationAngleDeg}
+                  value={typed.propagationAngleDeg}
                   onChange={(event) =>
-                    setDraft({ ...draft, propagationAngleDeg: Number(event.currentTarget.value) })
+                    setTyped({ ...typed, propagationAngleDeg: event.currentTarget.value })
                   }
                 />
               </div>
@@ -255,9 +283,9 @@ export function DopplerAberrationLab({
                     name="frequencyTHz"
                     inputMode="decimal"
                     min="1"
-                    value={draft.frequencyTHz}
+                    value={typed.frequencyTHz}
                     onChange={(event) =>
-                      setDraft({ ...draft, frequencyTHz: Number(event.currentTarget.value) })
+                      setTyped({ ...typed, frequencyTHz: event.currentTarget.value })
                     }
                   />
                 </div>
@@ -266,7 +294,7 @@ export function DopplerAberrationLab({
             </ExperimentSettings>
             {error ? (
               <p className="notice" role="alert">
-                {error}
+                {error} {KEPT_RESULT}
               </p>
             ) : null}
           </fieldset>

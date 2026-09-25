@@ -19,7 +19,7 @@ parameters:
       max: 0.95
       minInclusive: true
       maxInclusive: true
-      reason: "Teaching domain stays within 0.95c."
+      reason: "No inertial observer moves at or beyond the speed of light; the teaching range stays inside 0.95c."
     visualRange:
       min: -0.95
       max: 0.95
@@ -39,7 +39,7 @@ parameters:
       max: 360
       minInclusive: true
       maxInclusive: true
-      reason: "Full circle angle domain."
+      reason: "One turn of the full circle, measured from the axis along which the observer moves"
     visualRange:
       min: 0
       max: 360
@@ -59,7 +59,7 @@ parameters:
       max: 10000
       minInclusive: true
       maxInclusive: true
-      reason: "Visible and near-optical spectrum."
+      reason: "The frequencies the lab draws, from the far infrared to the extreme ultraviolet"
     visualRange:
       min: 100
       max: 1000

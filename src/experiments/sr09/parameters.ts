@@ -1,4 +1,6 @@
 import type { Sr09Input } from "../../physics/reference/waves.ts";
+import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
+import { optionalNumber } from "../controls/typedNumber.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import type { Sr09Parameters } from "./definition.ts";
 
@@ -6,7 +8,7 @@ export type Sr09ParameterCheck =
   | { kind: "accepted"; data: Sr09Parameters }
   | { kind: "refused"; refusal: ReturnType<typeof makeRefusal> };
 
-export function validateSr09Parameters(input: unknown): Sr09ParameterCheck {
+function validateSr09Fields(input: unknown): Sr09ParameterCheck {
   if (input === null || typeof input !== "object") {
     return {
       kind: "refused",
@@ -24,10 +26,11 @@ export function validateSr09Parameters(input: unknown): Sr09ParameterCheck {
     o.detectorMotion === "rest-in-k"
       ? o.detectorMotion
       : "rest-in-k";
-  const detectorSpeed = typeof o.detectorSpeed === "number" ? o.detectorSpeed : 0;
-  const countingWindowCycles =
-    typeof o.countingWindowCycles === "number" ? o.countingWindowCycles : 10;
-  const secondOrderSpeed = typeof o.secondOrderSpeed === "number" ? o.secondOrderSpeed : 0.005;
+  // The default when a setting is absent; a present value that is not a number reaches the checks
+  // below as NaN and is refused by name, rather than swapped for the default (dispatch 165).
+  const detectorSpeed = optionalNumber(o, "detectorSpeed", 0);
+  const countingWindowCycles = optionalNumber(o, "countingWindowCycles", 10);
+  const secondOrderSpeed = optionalNumber(o, "secondOrderSpeed", 0.005);
   const selectedEventId =
     typeof o.selectedEventId === "string" ? o.selectedEventId : "sr-09-event-origin-tick";
   const showCovectorNote = Boolean(o.showCovectorNote);
@@ -65,14 +68,15 @@ export function validateSr09Parameters(input: unknown): Sr09ParameterCheck {
       ),
     };
   }
-  if (!Number.isFinite(frequencyTHz) || frequencyTHz <= 0) {
+  // The range, 1 to 10 000 THz, is the manifest's and is checked once, by withinDeclaredDomain.
+  if (!Number.isFinite(frequencyTHz)) {
     return {
       kind: "refused",
       refusal: makeRefusal(
         "invalid-parameter",
         { parameterIds: ["frequencyTHz"] },
         {
-          details: { requirements: "Enter a frequency greater than zero, in THz." },
+          details: { requirements: "Enter the frequency in K as a number, in THz." },
         },
       ),
     };
@@ -130,6 +134,18 @@ export function validateSr09Parameters(input: unknown): Sr09ParameterCheck {
   });
 
   return { kind: "accepted", data };
+}
+
+/** Each declared setting as the form names it. */
+const SR09_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  beta: { label: "observer speed β" },
+  propagationAngleDeg: { label: "propagation angle θ" },
+  frequencyTHz: { label: "frequency in K" },
+};
+
+/** The fields above, then every range content/experiments/sr-09.yaml declares (dispatch 134). */
+export function validateSr09Parameters(input: unknown): Sr09ParameterCheck {
+  return withinDeclaredDomain("sr-09", validateSr09Fields(input), SR09_DOMAIN_DISPLAY);
 }
 
 export function sr09InputFromParameters(params: Sr09Parameters): Sr09Input {
