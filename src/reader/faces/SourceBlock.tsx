@@ -1,5 +1,6 @@
 import { renderToString } from "katex";
 import type React from "react";
+import { Fragment } from "react";
 import type { Inline } from "../../content/schemas/inlines.ts";
 import { plainText } from "../../content/schemas/inlines.ts";
 import type { EditorialNote, SourceBlock, SpanAnchor } from "../../content/schemas/source.ts";
@@ -181,6 +182,11 @@ export function SourceBlockComponent({
     default: {
       // Check if sentence spans exist for sentence-level alignment
       if (block.sentenceSpans && block.sentenceSpans.length > 0) {
+        // Sentences are joined by a space, except where the print breaks the line between them:
+        // a line-break inline in the data, "\n" in the plain text at the sentence's end (a
+        // numbered relation such as § 1's "1." and "2.", folded into the paragraph that introduces
+        // it). That renders as a break, not as the space.
+        const characters = Array.from(plainText(block.inlines));
         bodyContent = (
           <p
             id={block.id}
@@ -200,6 +206,7 @@ export function SourceBlockComponent({
               Align sentences
             </button>
             {block.sentenceSpans.map((span) => {
+              const breakAfter = characters[span.span.end] === "\n";
               const isActive = activeSentenceId === span.id;
               const isHighlighted = highlightedSentenceIds?.has(span.id) ?? false;
               const spanInlines = getInlinesForSpan(block.inlines, span.span);
@@ -209,28 +216,31 @@ export function SourceBlockComponent({
                   : block.diplomaticText.slice(span.span.start, span.span.end);
 
               return (
-                <span
-                  key={span.id}
-                  id={span.id}
-                  data-sentence-id={span.id}
-                  data-source-sentence="true"
-                  data-aligned-active={isActive ? "true" : undefined}
-                  data-aligned-partner={!isActive && isHighlighted ? "true" : undefined}
-                  className={`source-sentence ${isActive ? "is-active" : ""} ${isHighlighted ? "is-highlighted" : ""}`}
-                  tabIndex={-1}
-                >
-                  {content}{" "}
-                  <button
-                    type="button"
-                    className="show-aligned-action visually-hidden-focusable"
-                    data-action="show-aligned-target"
-                    data-source-id={span.id}
-                    aria-label="Show the English translation of this sentence"
+                <Fragment key={span.id}>
+                  <span
+                    id={span.id}
+                    data-sentence-id={span.id}
+                    data-source-sentence="true"
+                    data-aligned-active={isActive ? "true" : undefined}
+                    data-aligned-partner={!isActive && isHighlighted ? "true" : undefined}
+                    className={`source-sentence ${isActive ? "is-active" : ""} ${isHighlighted ? "is-highlighted" : ""}`}
                     tabIndex={-1}
                   >
-                    Show English translation
-                  </button>
-                </span>
+                    {content}
+                    {breakAfter ? null : " "}
+                    <button
+                      type="button"
+                      className="show-aligned-action visually-hidden-focusable"
+                      data-action="show-aligned-target"
+                      data-source-id={span.id}
+                      aria-label="Show the English translation of this sentence"
+                      tabIndex={-1}
+                    >
+                      Show English translation
+                    </button>
+                  </span>
+                  {breakAfter ? <br data-printed-line-break={span.id} /> : null}
+                </Fragment>
               );
             })}
           </p>
