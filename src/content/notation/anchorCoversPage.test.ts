@@ -6,7 +6,7 @@
 import { describe, expect, test } from "bun:test";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
-import { loadFirstUseTargets } from "../../app/notation/firstUseTargets.ts";
+import { loadFirstUseTargets, resolveFirstUse } from "../../app/notation/firstUseTargets.ts";
 import { aliasTargets, anchorPageFindings, bareAnchor, manifestPages } from "./anchorCoversPage.ts";
 import { loadConcordanceForPaper } from "./loader.ts";
 
@@ -22,6 +22,7 @@ describe("a concordance entry's anchor covers its page", () => {
     const checked: string[] = [];
     const notChecked: string[] = [];
     const findings: string[] = [];
+    const awaiting: string[] = [];
     let total = 0;
     for (const paper of papers) {
       const face = targets.german.get(paper);
@@ -40,13 +41,27 @@ describe("a concordance entry's anchor covers its page", () => {
       );
       total += r.checked;
       checked.push(`${paper} ${r.checked}`);
-      for (const f of r.findings)
+      // A German face built a section at a time (5dd47456) publishes only the sections it has. An
+      // anchor in a section it lacks is awaiting its German, not broken, provided two things hold:
+      // the reader is never sent to it (resolveFirstUse falls back to the section page), and the
+      // anchor still covers its page in the manifest. An anchor in a section the face HAS must be
+      // on the face, as before.
+      const faceSections = new Set([...face].map((a) => /^(s\d+)(-|$)/.exec(a)?.[1]));
+      for (const f of r.findings) {
+        const section = /^(s\d+)-/.exec(bareAnchor(f.anchor))?.[1];
+        const pending = f.reason === "not-on-face" && section && !faceSections.has(section);
+        const href = resolveFirstUse(paper, f.anchor, targets) ?? "";
+        if (pending && !href.includes("/view/german/") && f.covers.includes(f.page)) {
+          awaiting.push(f.anchor);
+          continue;
+        }
         findings.push(
           `${f.entry}: ${f.anchor} ${f.reason} (page ${f.page}; the block covers ${f.covers.join(", ") || "none"})`,
         );
+      }
     }
     console.log(
-      `[anchor covers page] checked ${total} entries with a German-face anchor (${checked.join(", ")}); not checked: ${notChecked.join(", ") || "none"}`,
+      `[anchor covers page] checked ${total} entries with a German-face anchor (${checked.join(", ")}); not checked: ${notChecked.join(", ") || "none"}; awaiting their section's German: ${awaiting.length}`,
     );
     expect(total).toBeGreaterThan(0);
     expect(findings).toEqual([]);
