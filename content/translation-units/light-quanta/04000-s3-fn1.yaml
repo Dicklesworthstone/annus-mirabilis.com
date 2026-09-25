@@ -1,6 +1,7 @@
 # TranslationUnit s3-fn1: English machine-draft translation.
 # Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
 # Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+# Review round 1 (TopazPrairie, agent, 2026-09-25): Einstein's impersonal "Man ... zwingt" (p. 137) kept impersonal: "force one", not "force us".
 kind: "translation-unit"
 id: "s3-fn1"
 paper: "light-quanta"
@@ -9,13 +10,13 @@ sourceRefs:
     id: "s3-fn1"
 inlines:
   - kind: "text"
-    text: "This assumption is an arbitrary one. One will naturally hold on to this simplest assumption for as long as experiment does not force us to abandon it."
+    text: "This assumption is an arbitrary one. One will naturally hold on to this simplest assumption for as long as experiment does not force one to abandon it."
 translator:
   id: "agent:NavyKite"
   name: "NavyKite (Claude Opus 5.5 agent)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
+revision: 2
 unresolvedAlternatives: []
 reviewState: "machine-draft"
 lang: "en"

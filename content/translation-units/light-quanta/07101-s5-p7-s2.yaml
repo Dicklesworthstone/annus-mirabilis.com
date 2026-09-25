@@ -1,6 +1,7 @@
 # TranslationUnit s5-p7-s2: English machine-draft translation.
 # Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
 # Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+# Review round 1 (TopazPrairie, agent, 2026-09-25): Einstein's "beweglichen Punkte" (p. 142) given as "movable" points, as everywhere else in § 5, not "moving".
 kind: "translation-unit"
 id: "s5-p7-s2"
 paper: "light-quanta"
@@ -13,7 +14,7 @@ inlines:
   - kind: "math"
     latex: "n"
   - kind: "text"
-    text: " points moving independently of one another in a given volume "
+    text: " points movable independently of one another in a given volume "
   - kind: "math"
     latex: "v_0"
   - kind: "text"
@@ -27,7 +28,7 @@ translator:
   name: "NavyKite (Claude Opus 5.5 agent)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
+revision: 2
 unresolvedAlternatives: []
 reviewState: "machine-draft"
 lang: "en"

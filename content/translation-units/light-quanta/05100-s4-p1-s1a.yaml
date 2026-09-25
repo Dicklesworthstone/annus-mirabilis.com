@@ -1,6 +1,7 @@
 # TranslationUnit s4-p1-s1a: English machine-draft translation.
 # Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
 # Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+# Review round 1 (TopazPrairie, agent, 2026-09-25): read against the German and the plate; no change.
 kind: "translation-unit"
 id: "s4-p1-s1a"
 paper: "light-quanta"
