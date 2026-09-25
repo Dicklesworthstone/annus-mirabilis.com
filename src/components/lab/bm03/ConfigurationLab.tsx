@@ -23,6 +23,7 @@ import {
 import { executionLabelFor } from "../../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { fixed, identity, numberText, readablePowers, sentenceNumber } from "../presentation.ts";
 import { ConfigurationPlot } from "./ConfigurationPlot.tsx";
 import "./bm03.css";
@@ -363,7 +364,7 @@ export function ConfigurationLab({
           )}
           {error && (
             <p id={`${id}-error`} role="alert" className="notice error">
-              {error}
+              {error} {KEPT_RESULT}
             </p>
           )}
         </form>

@@ -21,7 +21,7 @@ parameters:
       max: 1000000
       minInclusive: true
       maxInclusive: true
-      reason: "Positive integer count of independent particles; explicit factor view up to 12, logarithmic view up to 10^6"
+      reason: "The particle counts the lab draws, each factor shown up to 12 particles and a logarithmic view up to a million"
     visualRange:
       min: 1
       max: 12
@@ -41,7 +41,7 @@ parameters:
       max: 1000
       minInclusive: false
       maxInclusive: true
-      reason: "Positive volume ratio"
+      reason: "The volume ratios the lab compares, above a thousandth and up to a thousand"
     visualRange:
       min: 0.5
       max: 4
@@ -61,7 +61,7 @@ parameters:
       max: 1000000000
       minInclusive: false
       maxInclusive: true
-      reason: "Positive reference volume"
+      reason: "The reference volumes the lab compares, above one cubic micrometre and up to one cubic millimetre"
     visualRange:
       min: 1000
       max: 1000000000
@@ -82,7 +82,7 @@ parameters:
       max: 373.15
       minInclusive: true
       maxInclusive: true
-      reason: "Liquid water temperature range"
+      reason: "Liquid water at ordinary pressure, from its freezing point to its boiling point"
     visualRange:
       min: 273.15
       max: 373.15

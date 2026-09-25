@@ -1,8 +1,9 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import type { Bm03Model, Bm03Notation, Bm03Parameters, Bm03Step } from "./definition.ts";
 
-export function validateBm03Parameters(input: unknown): Computation<Bm03Parameters> {
+function validateBm03Fields(input: unknown): Computation<Bm03Parameters> {
   const bad = (requirements: string): Computation<never> => ({
     kind: "refused",
     refusal: makeRefusal(
@@ -23,23 +24,23 @@ export function validateBm03Parameters(input: unknown): Computation<Bm03Paramete
   const obj = input as Partial<Record<keyof Bm03Parameters, unknown>>;
 
   const Np = obj.Np;
-  if (typeof Np !== "number" || !Number.isSafeInteger(Np) || Np < 1) {
-    return bad("Enter a whole number of particles Np, at least 1.");
+  if (typeof Np !== "number" || !Number.isSafeInteger(Np)) {
+    return bad("Enter the particle count Np as a whole number.");
   }
 
   const volumeRatio = obj.volumeRatio;
-  if (typeof volumeRatio !== "number" || !Number.isFinite(volumeRatio) || volumeRatio <= 0) {
-    return bad("Enter a volume ratio V/V₀ greater than zero.");
+  if (typeof volumeRatio !== "number" || !Number.isFinite(volumeRatio)) {
+    return bad("Enter the volume ratio V/V₀ as a number.");
   }
 
   const V0 = obj.V0;
-  if (typeof V0 !== "number" || !Number.isFinite(V0) || V0 <= 0) {
-    return bad("Enter a reference volume V₀ greater than zero, in μm³.");
+  if (typeof V0 !== "number" || !Number.isFinite(V0)) {
+    return bad("Enter the reference volume V₀ as a number, in μm³.");
   }
 
   const T = obj.T;
-  if (typeof T !== "number" || !Number.isFinite(T) || T <= 0) {
-    return bad("Enter a temperature T above 0 K.");
+  if (typeof T !== "number" || !Number.isFinite(T)) {
+    return bad("Enter the temperature T as a number, in K.");
   }
 
   const model = obj.model as Bm03Model | undefined;
@@ -76,4 +77,21 @@ export function validateBm03Parameters(input: unknown): Computation<Bm03Paramete
       notation,
     }),
   };
+}
+
+/** How the form names each setting, so a range sentence reads as the field the reader typed in. */
+const DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  Np: { label: "Particle count Np", unit: "" },
+  volumeRatio: { label: "Volume ratio V/V₀", unit: "" },
+  V0: { label: "Reference volume V₀", unit: "μm³" },
+  T: { label: "Temperature T", unit: "K" },
+};
+
+/**
+ * The fields above, then every range content/experiments/bm-03.yaml declares (am-lab-domains-
+ * silently-clamped-pzj5). The field checks refuse what is not a number; a number outside its
+ * declared range gets the manifest's range and reason, never a second, contradicting sentence.
+ */
+export function validateBm03Parameters(input: unknown): Computation<Bm03Parameters> {
+  return withinDeclaredDomain("bm-03", validateBm03Fields(input), DISPLAY);
 }
