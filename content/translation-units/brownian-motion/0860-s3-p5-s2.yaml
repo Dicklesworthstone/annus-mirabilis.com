@@ -1,10 +1,12 @@
-# TranslationUnit s3-p5-s2: English machine-draft translation.
+# TranslationUnit s3-p5-s2: English translation, checked by AI agents.
 # Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
-# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+# Final under docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations after two agent
+# review rounds. No person has reviewed it.
 # Review round 1 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 554-556; no change.
 # After round 1 (SapphireCastle, translator, 2026-09-25; revision 2): line breaks before the processes
 # "1." and "2.", which p. 555 sets on their own indented lines after "nämlich", as the German block
 # s3-p5 now has them (NavyKite 40101, TanElk 40105). The words are unchanged. For round 2's reviewer.
+# Review round 2 (GreenBarn, agent, 2026-09-25): read against the German and the plates pp. 554-556, including the line breaks added after round 1 (revision 2): p. 555 sets "1." and "2." on their own indented lines after "nämlich", and the German block and the English both break there; no change.
 kind: "translation-unit"
 id: "s3-p5-s2"
 paper: "brownian-motion"
@@ -31,5 +33,20 @@ translator:
   modelId: "claude-opus-5-5"
 revision: 2
 unresolvedAlternatives: []
-reviewState: "machine-draft"
+reviewState: "reviewed"
+agentReview:
+  basis: "D-2026-09-25-agent-reviewed-translations"
+  rounds:
+    - reviewer:
+        id: "agent:NavyKite"
+        name: "NavyKite"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
+    - reviewer:
+        id: "agent:GreenBarn"
+        name: "GreenBarn"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
 lang: "en"
