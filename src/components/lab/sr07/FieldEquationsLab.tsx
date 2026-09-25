@@ -8,6 +8,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { readTypedNumber } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
@@ -34,6 +35,7 @@ import { SR07_TAPE } from "../../../experiments/sr07/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { fixed, identity, result, sentenceNumber } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { withScripts } from "../subscripts.tsx";
@@ -137,8 +139,11 @@ export function FieldEquationsLab({
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const boostBeta = Number(betaDraft);
-    apply({ ...p, boostBeta });
+    // Number("") is 0: a cleared field, or "abc", which a number field hands over as "", was
+    // applied as a boost of 0 without a word (dispatch 170).
+    const boost = readTypedNumber(betaDraft, "the boost speed β");
+    if (boost.kind === "refused") return setError(boost.requirement);
+    apply({ ...p, boostBeta: boost.value });
   }
 
   if (!snapshot) throw new Error("SR-07 requires an accepted snapshot.");
@@ -330,7 +335,7 @@ export function FieldEquationsLab({
           </form>
           {error ? (
             <p className="notice error" role="alert">
-              {error}
+              {error} {KEPT_RESULT}
             </p>
           ) : null}
           <AcceptedStatus
