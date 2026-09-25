@@ -5,7 +5,7 @@ id: "s8-p6"
 kind: "paragraph"
 paper: "special-relativity"
 section: "s8"
-order: 157
+order: 158
 locators:
   - pdfPageIndex: 24
     printedPage: 914

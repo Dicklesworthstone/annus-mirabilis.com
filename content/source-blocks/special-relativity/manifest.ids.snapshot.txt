@@ -123,6 +123,8 @@ eq-s6-d6
 eq-s6-d7
 eq-s6-d8
 eq-s6-d9
+s6-p9
+s6-p10
 s6-p7
 s6-p8
 s7
@@ -136,7 +138,6 @@ eq-s7-d5
 eq-s7-d6
 s7-p3
 eq-s7-d7
-s7-p4
 eq-s7-d8
 s7-p5
 eq-s7-d9
@@ -198,8 +199,12 @@ eq-s10-d8
 s10-p11
 s10-p12
 s10-p13
+s10-p15
 eq-s10-d9
+s10-p16
+s10-p17
 eq-s10-d10
+s10-p18
 eq-s10-d11
 eq-s10-d12
 s10-p14

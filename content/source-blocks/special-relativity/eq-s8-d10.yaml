@@ -5,7 +5,7 @@ id: "eq-s8-d10"
 kind: "equation"
 paper: "special-relativity"
 section: "s8"
-order: 163
+order: 164
 locators:
   - pdfPageIndex: 25
     printedPage: 915

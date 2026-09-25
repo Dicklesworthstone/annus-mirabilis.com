@@ -10,10 +10,12 @@
 # German text yet, were read from the plates. The r0 lines are explanatory preview prose, not a
 # translation and not Einstein's words; no review is claimed.
 #
-# Two notes for the German source reviewer. s7-p4 begins at "Dies ist das Doppelersche Prinzip",
-# which the plate of p. 911 sets flush after the display rather than indented, so it may be a
-# resumption of s7-p3; the frozen ids are kept. At s7-p4 the page prints "v = -oo", a long-noted
-# misprint for -V; the r0 reports what the page prints and corrects nothing.
+# Two notes for the German source reviewer. "Dies ist das Doppelersche Prinzip", which the plate of
+# p. 911 sets flush after the display, is a resumption of s7-p3: s7-p4 was retired and merged into
+# s7-p3 on 2026-09-25 (content/aliases/special-relativity.yaml), and its binding with it. In that
+# run the page prints "v = -oo", a long-noted misprint for -V; the r0 reports what the page prints
+# and corrects nothing. The same amendment gave the printed paragraphs the inventory had folded
+# together their own units (s6-p9, s6-p10, s10-p15 to s10-p18), each bound below.
 paper: special-relativity
 decision: D-2026-09-24-explanation-grain
 paragraphs:
@@ -195,10 +197,16 @@ paragraphs:
     r0: "Since the two sets of equations for k must say the same thing, the forces measured in k equal combinations of those in K, up to one common factor ψ(v) that may depend on the speed."
   - unit: s6-p5
     passages: [arg-sr-field-derivatives, arg-sr-field-components]
-    r0: "Going to k and back, and symmetry, fix that factor at 1, which gives the transformation of the electric and magnetic forces. Einstein states its meaning two ways: the old way speaks of an electromotive force on a moving charge, to a first approximation, and the new way says the force on it is the electric force in a system in which it is momentarily at rest."
+    r0: "Going to k and back, and symmetry, fix that factor at 1, which gives the transformation of the electric and magnetic forces. To say what it means, Einstein takes a unit charge at rest in one system or the other, and says the first three equations can be put into words in two ways."
   - unit: s6-fn1
     passages: [arg-sr-field-derivatives]
     r0: "A footnote gives the symmetry argument: with only one magnetic component present, reversing the direction of motion must reverse the sign of the transformed electric force without changing its size."
+  - unit: s6-p9
+    passages: [arg-sr-field-components]
+    r0: "The old way of putting it: a unit charge moving in an electromagnetic field feels, besides the electric force, an electromotive force, which to a first approximation in v/V is the vector product of its velocity and the magnetic force divided by the speed of light V."
+  - unit: s6-p10
+    passages: [arg-sr-field-components]
+    r0: "The new way of putting it: the force on a moving unit charge is the electric force at its position, found by transforming the field to a coordinate system in which the charge is at rest."
   - unit: s6-p7
     passages: [arg-sr-field-components]
     r0: "The same holds for magnetomotive forces. The electromotive force is only an auxiliary concept, needed because electric and magnetic forces do not exist independently of the state of motion of the coordinate system."
@@ -213,10 +221,7 @@ paragraphs:
     r0: "Einstein asks what these waves are like for an observer at rest in the moving system. With the transformations of sections 6 and 3 they are again plane waves, with a new frequency and a new direction."
   - unit: s7-p3
     passages: [arg-sr-doppler-aberration]
-    r0: "From the new frequency: an observer moving at speed v relative to a very distant source, at an angle φ to the line joining them, receives light whose frequency depends on v and φ in a way Einstein gives exactly."
-  - unit: s7-p4
-    passages: [arg-sr-doppler-aberration]
-    r0: "This is Doppler's principle for any speed. When the observer moves straight away from the source the formula becomes a simple square-root ratio, and Einstein remarks that, against the usual view, the frequency becomes infinite for an extreme speed of approach; the page prints that speed as v = −∞."
+    r0: "From the new frequency: an observer moving at speed v relative to a very distant source, at an angle φ to the line joining them, receives light whose frequency depends on v and φ in a way Einstein gives exactly, which is Doppler's principle for any speed. When the observer moves straight away from the source the formula becomes a simple square-root ratio, and Einstein remarks that, against the usual view, the frequency becomes infinite for an extreme speed of approach; the page prints that speed as v = −∞."
   - unit: s7-p5
     passages: [arg-sr-doppler-aberration]
     r0: "The new direction gives the law of aberration in its most general form: the angle at which the moving observer receives the light differs from the angle in the source's system, and light arriving at right angles in one system arrives slanted in the other."
@@ -294,7 +299,19 @@ paragraphs:
     r0: "By the argument given earlier, the same expression for kinetic energy holds for ponderable masses."
   - unit: s10-p13
     passages: [arg-sr-electron-work]
-    r0: "Einstein lists three properties of the electron's motion open to experiment: the ratio of how strongly magnetic and electric forces deflect it, which gives its speed; the relation between the potential difference it passes through and the speed it gains; and the radius of its path in a magnetic field."
+    r0: "Einstein turns to the properties of the electron's motion that follow from equations (A) and can be tested by experiment, and lists three."
+  - unit: s10-p15
+    passages: [arg-sr-electron-work]
+    r0: "First, an electric force and a magnetic force deflect a moving electron equally when the electric force is v/V times the magnetic one, so the ratio of its magnetic to its electric deflectability is v/V and gives its speed, at any speed."
+  - unit: s10-p16
+    passages: [arg-sr-electron-work]
+    r0: "That relation can be tested, because the electron's speed can also be measured directly, for example with rapidly oscillating electric and magnetic fields."
+  - unit: s10-p17
+    passages: [arg-sr-electron-work]
+    r0: "Second, the kinetic energy fixes how the potential difference an electron passes through is related to the speed it gains."
+  - unit: s10-p18
+    passages: [arg-sr-electron-work]
+    r0: "Third, when a magnetic force perpendicular to its velocity is the only force deflecting it, the second of equations (A) gives the radius of curvature of the electron's path."
   - unit: s10-p14
     passages: [arg-sr-electron-work]
     r0: "These three relations, he says, completely express the laws by which the electron must move according to the theory."

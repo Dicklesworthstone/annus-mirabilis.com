@@ -1346,7 +1346,6 @@ units:
     section: s6
     locators:
       - page: 909
-      - page: 910
     destination:
       editionBlockId: block-special-relativity-s6-p5
       translationUnits:
@@ -1407,6 +1406,25 @@ units:
       editionBlockId: block-special-relativity-eq-s6-d9
       translationUnits:
         - trans-special-relativity-eq-s6-d9
+  - id: s6-p9
+    kind: paragraph
+    section: s6
+    locators:
+      - page: 909
+      - page: 910
+    destination:
+      editionBlockId: block-special-relativity-s6-p9
+      translationUnits:
+        - trans-special-relativity-s6-p9
+  - id: s6-p10
+    kind: paragraph
+    section: s6
+    locators:
+      - page: 910
+    destination:
+      editionBlockId: block-special-relativity-s6-p10
+      translationUnits:
+        - trans-special-relativity-s6-p10
   - id: s6-p7
     kind: paragraph
     section: s6
@@ -1546,6 +1564,7 @@ units:
     section: s7
     locators:
       - page: 911
+      - page: 912
     destination:
       editionBlockId: block-special-relativity-s7-p3
       translationUnits:
@@ -1561,22 +1580,12 @@ units:
       editionBlockId: block-special-relativity-eq-s7-d7
       translationUnits:
         - trans-special-relativity-eq-s7-d7
-  - id: s7-p4
-    kind: paragraph
-    section: s7
-    locators:
-      - page: 911
-      - page: 912
-    destination:
-      editionBlockId: block-special-relativity-s7-p4
-      translationUnits:
-        - trans-special-relativity-s7-p4
   - id: eq-s7-d8
     kind: display-equation
     section: s7
     locators:
       - page: 912
-    containedIn: s7-p4
+    containedIn: s7-p3
     editorialLabel: ed:s7-d8
     destination:
       editionBlockId: block-special-relativity-eq-s7-d8
@@ -2246,22 +2255,9 @@ units:
     section: s10
     locators:
       - page: 920
-      - page: 921
     references:
       - id: s10-p13-r1
         occurrenceId: s10-p13-r1
-        printedText: (A)
-        kind: internal
-        target:
-          id: eq-A
-      - id: s10-p13-r2
-        occurrenceId: s10-p13-r2
-        printedText: (A)
-        kind: internal
-        target:
-          id: eq-A
-      - id: s10-p13-r3
-        occurrenceId: s10-p13-r3
         printedText: (A)
         kind: internal
         target:
@@ -2270,34 +2266,85 @@ units:
       editionBlockId: block-special-relativity-s10-p13
       translationUnits:
         - trans-special-relativity-s10-p13
+  - id: s10-p15
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 920
+    references:
+      - id: s10-p15-r1
+        occurrenceId: s10-p15-r1
+        printedText: (A)
+        kind: internal
+        target:
+          id: eq-A
+    destination:
+      editionBlockId: block-special-relativity-s10-p15
+      translationUnits:
+        - trans-special-relativity-s10-p15
   - id: eq-s10-d9
     kind: display-equation
     section: s10
     locators:
       - page: 920
-    containedIn: s10-p13
+    containedIn: s10-p15
     editorialLabel: ed:s10-d9
     destination:
       editionBlockId: block-special-relativity-eq-s10-d9
       translationUnits:
         - trans-special-relativity-eq-s10-d9
+  - id: s10-p16
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 920
+    destination:
+      editionBlockId: block-special-relativity-s10-p16
+      translationUnits:
+        - trans-special-relativity-s10-p16
+  - id: s10-p17
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 920
+      - page: 921
+    destination:
+      editionBlockId: block-special-relativity-s10-p17
+      translationUnits:
+        - trans-special-relativity-s10-p17
   - id: eq-s10-d10
     kind: display-equation
     section: s10
     locators:
       - page: 921
-    containedIn: s10-p13
+    containedIn: s10-p17
     editorialLabel: ed:s10-d10
     destination:
       editionBlockId: block-special-relativity-eq-s10-d10
       translationUnits:
         - trans-special-relativity-eq-s10-d10
+  - id: s10-p18
+    kind: paragraph
+    section: s10
+    locators:
+      - page: 921
+    references:
+      - id: s10-p18-r1
+        occurrenceId: s10-p18-r1
+        printedText: (A)
+        kind: internal
+        target:
+          id: eq-A
+    destination:
+      editionBlockId: block-special-relativity-s10-p18
+      translationUnits:
+        - trans-special-relativity-s10-p18
   - id: eq-s10-d11
     kind: display-equation
     section: s10
     locators:
       - page: 921
-    containedIn: s10-p13
+    containedIn: s10-p18
     editorialLabel: ed:s10-d11
     destination:
       editionBlockId: block-special-relativity-eq-s10-d11
@@ -2308,7 +2355,7 @@ units:
     section: s10
     locators:
       - page: 921
-    containedIn: s10-p13
+    containedIn: s10-p18
     editorialLabel: ed:s10-d12
     destination:
       editionBlockId: block-special-relativity-eq-s10-d12
