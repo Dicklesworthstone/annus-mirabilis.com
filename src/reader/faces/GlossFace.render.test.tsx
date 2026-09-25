@@ -63,7 +63,10 @@ describe("GlossFace component rendering and interactions", () => {
 
     // Sentence me-p2-s2 is intentionally unglossed
     expect(html).toContain('data-sentence-id="me-p2-s2"');
-    expect(html).toContain("Gloss not yet available for this section.");
+    // One quiet link, where a boxed notice stood under every unglossed sentence; which sections
+    // have no gloss is said once, at the top of the face (glossUnglossedSentence.test.tsx).
+    expect(html).not.toContain("Gloss not yet available for this section.");
+    expect(html).toContain("Read this sentence in the parallel face");
     // The parallel face's own route. This asserted /papers/mass-energy/?view=parallel#me-p2-s2,
     // the paper's landing page, where no face renders and the sentence id does not exist
     // (glossUnglossedSentence.test.tsx).

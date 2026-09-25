@@ -18,6 +18,7 @@ import { type Inline, plainText } from "../../content/schemas/inlines.ts";
 import { PaperPage } from "../PaperPage.tsx";
 import { faceLinkHref } from "../paperRoutes.ts";
 import { type BilingualEdition, loadBilingualEdition } from "./bilingualLoader.ts";
+import { unglossedSections } from "./editionCoverage.ts";
 import { GlossSentence, parallelSentenceHref } from "./GlossSentence.tsx";
 import { sentenceInlines } from "./sentenceInlines.ts";
 
@@ -51,7 +52,7 @@ function unglossedSentences(html: string): Unglossed[] {
     const id = /\bid="([^"]+)"/.exec(open)?.[1] ?? "";
     const body = m[1] ?? "";
     const from = body.indexOf("sentence-german-unadorned");
-    const to = body.indexOf("gloss-coverage-notice");
+    const to = body.indexOf("gloss-parallel-line");
     const germanHtml = from >= 0 && to > from ? body.slice(body.indexOf(">", from) + 1, to) : "";
     const href = /<a\b[^>]*\bdata-parallel-fallback="true"[^>]*>/.exec(body)?.[0];
     out.push({ id, germanHtml, href: href ? /\bhref="([^"]+)"/.exec(href)?.[1] : undefined });
@@ -217,5 +218,103 @@ describe("an unglossed sentence on a partial gloss face", () => {
     const targets = unglossedSentences(gloss).map((u) => (u.href ?? "").split("#")[1] ?? "");
     expect(targets.length).toBeGreaterThan(0);
     expect(targets.filter((t) => !ids.has(t))).toEqual([]);
+  });
+});
+
+describe("the gloss face names, once, the sections its gloss does not reach yet", () => {
+  const block = (
+    id: string,
+    section: string | undefined,
+    sentences: string[],
+    kind = "paragraph",
+  ) => ({ id, kind, section, sentenceSpans: sentences.map((s) => ({ id: s })) }) as never;
+
+  test("unglossedSections: a unit reaches its sentence's section, a masthead reaches none", () => {
+    const blocks = [
+      // Filed under s0, as Brownian motion's frozen manifest files its masthead.
+      block("masthead-title", "s0", ["masthead-title"], "masthead"),
+      block("s0-p1", "s0", ["s0-p1-s1", "s0-p1-s2"]),
+      block("s1-p1", "s1", ["s1-p1-s1"]),
+      block("s1-fn1", "s1", ["s1-fn1"]),
+      block("s2-p1", "s2", ["s2-p1-s1"]),
+    ];
+    const ids = ["s0", "s1", "s2"];
+    expect(unglossedSections(ids, blocks, [])).toEqual(["s0", "s1", "s2"]);
+    expect(unglossedSections(ids, blocks, [{ sentenceId: "masthead-title" }])).toEqual([
+      "s0",
+      "s1",
+      "s2",
+    ]);
+    expect(unglossedSections(ids, blocks, [{ sentenceId: "s0-p1-s2" }])).toEqual(["s1", "s2"]);
+    // A footnote is glossed under its block id, and that id reaches its section too.
+    expect(
+      unglossedSections(ids, blocks, [{ sentenceId: "s0-p1-s1" }, { sentenceId: "s1-fn1" }]),
+    ).toEqual(["s2"]);
+    // A unit naming nothing in the paper reaches nothing.
+    expect(unglossedSections(ids, blocks, [{ sentenceId: "s9-p1-s1" }])).toEqual([
+      "s0",
+      "s1",
+      "s2",
+    ]);
+  });
+
+  /** The face-level notice of a gloss face's markup: its data attribute and its text. */
+  const notice = (html: string) => {
+    const m = /<p class="notice" data-unglossed-sections="([^"]*)">([\s\S]*?)<\/p>/.exec(html);
+    return m ? { ids: m[1] ?? "", text: visibleText(m[2] ?? "") } : null;
+  };
+
+  test("a partial gloss names the sections it lacks, and nothing else says so", async () => {
+    const live = await loadBilingualEdition(PAPER);
+    if (!live) throw new Error(`no edition for ${PAPER}`);
+    // The masthead and the introduction are glossed (db0c48ed) and stay glossed, so this edition is
+    // partial however far the gloss has gone since: the introduction reached, §§ 1-5 not.
+    const intro = (live.glossUnits ?? []).filter(
+      (g) => g.sentenceId.startsWith("s0-") || g.sentenceId.startsWith("masthead-"),
+    );
+    expect(intro.some((g) => g.sentenceId.startsWith("s0-"))).toBe(true);
+    const html = renderToStaticMarkup(
+      await PaperPage(
+        { paperId: PAPER, face: "gloss" },
+        { edition: { ...live, glossUnits: intro } },
+      ),
+    );
+    const found = notice(html);
+    // The negative TanElk asked for: a notice that names no section fails here.
+    expect(found).not.toBeNull();
+    expect(found?.ids).toBe("s1 s2 s3 s4 s5");
+    expect(found?.text).toBe(
+      "This gloss does not yet cover the whole paper. Not yet glossed: §§ 1–5.",
+    );
+    // Said once, not under each sentence.
+    expect([...html.matchAll(/data-unglossed-sections=/g)].length).toBe(1);
+    expect(html).not.toContain("Gloss not yet available");
+    const unglossed = unglossedSentences(html);
+    expect(unglossed.length).toBeGreaterThan(0);
+    for (const u of unglossed) expect(u.href).toBe(parallelSentenceHref(PAPER, u.id));
+    expect([...html.matchAll(/data-parallel-fallback="true"/g)].length).toBe(unglossed.length);
+  });
+
+  test("with only the masthead glossed, the introduction is named too", async () => {
+    const live = await loadBilingualEdition(PAPER);
+    if (!live) throw new Error(`no edition for ${PAPER}`);
+    const masthead = (live.glossUnits ?? []).filter((g) => g.sentenceId.startsWith("masthead-"));
+    expect(masthead.length).toBeGreaterThan(0);
+    const edition = { ...live, glossUnits: masthead };
+    const html = renderToStaticMarkup(
+      await PaperPage({ paperId: PAPER, face: "gloss" }, { edition }),
+    );
+    expect(notice(html)?.ids).toBe("s0 s1 s2 s3 s4 s5");
+    expect(notice(html)?.text).toBe(
+      "This gloss does not yet cover the whole paper. Not yet glossed: the introduction and §§ 1–5.",
+    );
+  });
+
+  test("a gloss that reaches every section carries no notice", async () => {
+    const html = renderToStaticMarkup(await PaperPage({ paperId: "mass-energy", face: "gloss" }));
+    // Mass-energy's 34 sentences are all glossed; the face is live, so the absence is not vacuous.
+    expect(html).toContain('data-face="gloss"');
+    expect(html).not.toContain("data-unglossed-sections");
+    expect(unglossedSentences(html)).toEqual([]);
   });
 });

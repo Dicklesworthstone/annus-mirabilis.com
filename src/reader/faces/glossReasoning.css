@@ -28,3 +28,11 @@
   overflow-x: auto;
   overflow-y: hidden;
 }
+
+/* An unglossed sentence's one line under its German: a small link to the same sentence on the
+   parallel face, where a boxed notice (.gloss-coverage-notice) stood under every such sentence.
+   The face says once, at its top, which sections have no gloss yet (GlossFace.tsx). */
+.gloss-parallel-line {
+  margin: 0.5rem 0 0;
+  font-size: var(--type-fine);
+}

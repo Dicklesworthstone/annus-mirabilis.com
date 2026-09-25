@@ -39,6 +39,7 @@ import { EnglishFace } from "./faces/EnglishFace.tsx";
 import {
   editionGermanNotice,
   missingGermanSections,
+  unglossedSections,
   untranslatedSections,
 } from "./faces/editionCoverage.ts";
 import { GermanDraftFace } from "./faces/GermanDraftFace.tsx";
@@ -233,15 +234,13 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           germanDraftBlocks: germanDraft?.blocks.length ?? 0,
         });
         // The sections no translation unit reaches yet, named on the English and parallel faces so
-        // an edition that arrives a section at a time is not read as the whole paper.
-        const untranslated = untranslatedSections(
-          paperSectionIds(
-            resolved.paperId,
-            edition.paper.sections.map((s) => s.id),
-          ),
-          edition.blocks,
-          edition.units,
+        // an edition that arrives a section at a time is not read as the whole paper; and the
+        // sections no gloss unit reaches, named on the gloss face for the same reason.
+        const sectionIds = paperSectionIds(
+          resolved.paperId,
+          edition.paper.sections.map((s) => s.id),
         );
+        const untranslated = untranslatedSections(sectionIds, edition.blocks, edition.units);
         if (resolved.face === "english" && englishFaceHasContent(edition.units.length)) {
           return (
             <EnglishFace
@@ -301,6 +300,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
               editorialNotes={edition.editorialNotes}
               reviewRecords={edition.reviewRecords}
               modalityClasses={getModalityClasses()}
+              unglossedSections={unglossedSections(sectionIds, edition.blocks, edition.glossUnits)}
             />
           );
         }

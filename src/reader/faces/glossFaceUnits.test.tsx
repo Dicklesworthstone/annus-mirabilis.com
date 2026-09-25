@@ -143,7 +143,10 @@ describe("the gloss face glosses every alignable unit", () => {
 
   test("masthead, footnote and closing units are glossed like sentences", () => {
     expect([...sentences].sort()).toEqual(GLOSS.map((g) => g.sentenceId).sort());
-    expect(html).not.toContain("data-coverage-notice");
+    // No sentence fell back to the unglossed form. This read "data-coverage-notice", the per-sentence
+    // notice that form carried until dispatch 207; it now carries only the parallel-face link.
+    expect(html).not.toContain("gloss-sentence-missing");
+    expect(html).not.toContain("data-parallel-fallback");
     const fn = html.slice(html.indexOf('id="footnote-t-fn1"'));
     expect(fn.slice(0, fn.indexOf("</li>"))).toContain('data-sentence-id="t-fn1"');
   });

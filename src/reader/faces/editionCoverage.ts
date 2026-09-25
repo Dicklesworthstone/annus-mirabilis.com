@@ -13,7 +13,7 @@
  * shown as if it were reviewed.
  */
 import type { SourceFaceNotice } from "../../content/provenance/sourceFaceNotice.ts";
-import type { SourceBlock, TranslationUnit } from "../../content/schemas/source.ts";
+import type { GlossUnit, SourceBlock, TranslationUnit } from "../../content/schemas/source.ts";
 import { type BlockReviewStatus, editionBlocksReviewed } from "../faceAvailability.ts";
 
 type SectionedBlock = Pick<SourceBlock, "id" | "section" | "sentenceSpans">;
@@ -40,6 +40,33 @@ export function untranslatedSections(
       const section = sectionOf.get(ref.id);
       if (section) reached.add(section);
     }
+  return sectionIds.filter((id) => !reached.has(id));
+}
+
+/**
+ * The paper's sections, in its own order, that no gloss unit reaches (dispatch 207). A gloss unit
+ * reaches a section when its sentenceId names a block in that section or one of that block's
+ * sentences. A masthead reaches none, whatever section it carries: Brownian motion's frozen
+ * manifest files its title and author line under s0, and a glossed title is not a glossed
+ * introduction. The gloss arrives a section at a time like the translation, and its face names
+ * what it does not cover yet from this.
+ */
+export function unglossedSections(
+  sectionIds: readonly string[],
+  blocks: readonly (SectionedBlock & Partial<Pick<SourceBlock, "kind">>)[],
+  glossUnits: readonly Pick<GlossUnit, "sentenceId">[],
+): readonly string[] {
+  const sectionOf = new Map<string, string>();
+  for (const block of blocks) {
+    if (!block.section || block.kind === "masthead") continue;
+    sectionOf.set(block.id, block.section);
+    for (const span of block.sentenceSpans ?? []) sectionOf.set(span.id, block.section);
+  }
+  const reached = new Set<string>();
+  for (const unit of glossUnits) {
+    const section = sectionOf.get(unit.sentenceId);
+    if (section) reached.add(section);
+  }
   return sectionIds.filter((id) => !reached.has(id));
 }
 

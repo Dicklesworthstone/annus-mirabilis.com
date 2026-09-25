@@ -16,6 +16,7 @@ import type { FaceAvailability } from "../faceAvailability.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { claimedDisplayIds } from "./displayClaims.ts";
+import { sectionsLabel } from "./editionCoverage.ts";
 import { GlossSentence } from "./GlossSentence.tsx";
 import { glossReviewSummary } from "./glossReview.ts";
 import { sentenceAtoms } from "./glossStream.ts";
@@ -57,6 +58,11 @@ export interface GlossFaceProps {
    * component in it stay legal. See am-bwnf.
    */
   readonly modalityClasses: readonly string[];
+  /**
+   * The paper's sections, in its order, that no gloss unit reaches yet (editionCoverage.ts
+   * unglossedSections, from the frozen manifest), named once at the top of the face.
+   */
+  readonly unglossedSections?: readonly string[] | undefined;
 }
 
 /**
@@ -76,6 +82,7 @@ export function GlossFace({
   initialReasoningWords = false,
   modalityClasses,
   availability,
+  unglossedSections = [],
 }: GlossFaceProps) {
   // If no source blocks exist for the paper, render an honest fallback
   if (!blocks || blocks.length === 0) {
@@ -177,6 +184,16 @@ export function GlossFace({
           label="Gloss review status"
         />
       )}
+
+      {/* What the gloss does not reach yet, named once, as the English face names its untranslated
+          sections: a gloss that arrives a section at a time is never read as the whole paper, and
+          each unglossed sentence carries only a link (GlossSentence.tsx), not a notice of its own. */}
+      {unglossedSections.length > 0 ? (
+        <p className="notice" data-unglossed-sections={unglossedSections.join(" ")}>
+          This gloss does not yet cover the whole paper. Not yet glossed:{" "}
+          {sectionsLabel(unglossedSections)}.
+        </p>
+      ) : null}
 
       {/* Entry link slot (when configured) */}
       {entryLink && (

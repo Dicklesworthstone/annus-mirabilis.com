@@ -108,7 +108,9 @@ export function GlossSentence({
   atoms,
   germanInlines,
 }: GlossSentenceProps) {
-  // If no gloss unit is available, render German text with an honest coverage notice and link to parallel face
+  // No gloss unit yet: the German as printed, and one quiet line linking the same sentence on the
+  // parallel face. What the gloss does not cover is named once, at the top of the face (GlossFace.tsx
+  // unglossedSections); a boxed notice under every such sentence said it 87 times on Brownian motion.
   if (!glossUnit) {
     return (
       <section
@@ -128,16 +130,15 @@ export function GlossSentence({
             ? renderInlines(germanInlines, undefined, `gloss-de-${sentenceId}`)
             : germanText}
         </div>
-        <div className="gloss-coverage-notice" role="note" data-coverage-notice="true">
-          <p className="notice-message">Gloss not yet available for this section.</p>
+        <p className="gloss-parallel-line">
           <a
             href={parallelSentenceHref(paperSlug, sentenceId)}
             className="parallel-fallback-link"
             data-parallel-fallback="true"
           >
-            Read in parallel face
+            Read this sentence in the parallel face
           </a>
-        </div>
+        </p>
       </section>
     );
   }
