@@ -59,6 +59,7 @@ import "../../equations/equations.css";
 import "../../experiments/labels/executionChrome.css";
 import "../../experiments/permalink/permalink.css";
 import "../../components/lab/showTheCode.css";
+import "../../generated/quantity-colours-by-paper.css";
 import "../../components/lab/predict.css";
 import "../../components/lab/framePair.css";
 import "../../components/lab/bm03/bm03.css";
