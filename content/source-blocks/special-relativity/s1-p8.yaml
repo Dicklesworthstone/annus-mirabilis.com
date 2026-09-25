@@ -1,0 +1,83 @@
+# SourceBlock s1-p8: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1-p8"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s1"
+order: 16
+locators:
+  - pdfPageIndex: 4
+    printedPage: 894
+diplomaticText: "Wir nehmen an, daß diese Definition des Synchronismus in widerspruchsfreier Weise möglich sei, und zwar für beliebig viele Punkte, daß also allgemein die Beziehungen gelten:\u000a1. Wenn die Uhr in B synchron mit der Uhr in A läuft, so läuft die Uhr in A synchron mit der Uhr in B.\u000a2. Wenn die Uhr in A sowohl mit der Uhr in B als auch mit der Uhr in C synchron läuft, so laufen auch die Uhren in B und C synchron relativ zueinander."
+inlines:
+  - kind: "text"
+    text: "Wir nehmen an, daß diese Definition des Synchronismus in widerspruchsfreier Weise möglich sei, und zwar für beliebig viele Punkte, daß also allgemein die Beziehungen gelten:"
+  - kind: "line-break"
+  - kind: "text"
+    text: "1. Wenn die Uhr in "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " synchron mit der Uhr in "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " läuft, so läuft die Uhr in "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " synchron mit der Uhr in "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: "."
+  - kind: "line-break"
+  - kind: "text"
+    text: "2. Wenn die Uhr in "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " sowohl mit der Uhr in "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " als auch mit der Uhr in "
+  - kind: "math"
+    latex: "C"
+  - kind: "text"
+    text: " synchron läuft, so laufen auch die Uhren in "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "C"
+  - kind: "text"
+    text: " synchron relativ zueinander."
+sentenceSpans:
+  - id: "s1-p8-s1"
+    span:
+      start: 0
+      end: 173
+      blockRevision: 1
+      textDigest: "71e82d34b37ffe8c08f12b53fa0872ee41041c41ea0d800cd3e213103332a762"
+  - id: "s1-p8-s2"
+    span:
+      start: 174
+      end: 276
+      blockRevision: 1
+      textDigest: "71e82d34b37ffe8c08f12b53fa0872ee41041c41ea0d800cd3e213103332a762"
+  - id: "s1-p8-s3"
+    span:
+      start: 277
+      end: 428
+      blockRevision: 1
+      textDigest: "71e82d34b37ffe8c08f12b53fa0872ee41041c41ea0d800cd3e213103332a762"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

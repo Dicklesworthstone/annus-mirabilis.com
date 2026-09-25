@@ -1,0 +1,73 @@
+# SourceBlock s1-p3: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1-p3"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s1"
+order: 10
+locators:
+  - pdfPageIndex: 2
+    printedPage: 892
+  - pdfPageIndex: 3
+    printedPage: 893
+diplomaticText: "Wollen wir die Bewegung eines materiellen Punktes beschreiben, so geben wir die Werte seiner Koordinaten in Funktion der Zeit. Es ist nun wohl im Auge zu behalten, daß eine derartige mathematische Beschreibung erst dann einen physikalischen Sinn hat, wenn man sich vorher darüber klar geworden ist, was hier unter „Zeit“ verstanden wird. Wir haben zu berücksichtigen, daß alle unsere Urteile, in welchen die Zeit eine Rolle spielt, immer Urteile über gleichzeitige Ereignisse sind. Wenn ich z. B. sage: „Jener Zug kommt hier um 7 Uhr an,“ so heißt dies etwa: „Das Zeigen des kleinen Zeigers meiner Uhr auf 7 und das Ankommen des Zuges sind gleichzeitige Ereignisse.“1)"
+inlines:
+  - kind: "text"
+    text: "Wollen wir die "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Bewegung"
+  - kind: "text"
+    text: " eines materiellen Punktes beschreiben, so geben wir die Werte seiner Koordinaten in Funktion der Zeit."
+  - kind: "space"
+  - kind: "text"
+    text: "Es ist nun wohl im Auge zu behalten, daß eine derartige mathematische Beschreibung erst dann einen physikalischen Sinn hat, wenn man sich vorher darüber klar geworden ist, was hier unter „Zeit“ verstanden wird."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir haben zu berücksichtigen, daß alle unsere Urteile, in welchen die Zeit eine Rolle spielt, immer Urteile über "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "gleichzeitige Ereignisse"
+  - kind: "text"
+    text: " sind."
+  - kind: "space"
+  - kind: "text"
+    text: "Wenn ich z. B. sage: „Jener Zug kommt hier um 7 Uhr an,“ so heißt dies etwa: „Das Zeigen des kleinen Zeigers meiner Uhr auf 7 und das Ankommen des Zuges sind gleichzeitige Ereignisse.“"
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s1-fn1"
+sentenceSpans:
+  - id: "s1-p3-s1"
+    span:
+      start: 0
+      end: 126
+      blockRevision: 1
+      textDigest: "638f245496939d84fa157015067bd68c8cf9592f7bf98847ecb83b1c875ffaeb"
+  - id: "s1-p3-s2"
+    span:
+      start: 127
+      end: 337
+      blockRevision: 1
+      textDigest: "638f245496939d84fa157015067bd68c8cf9592f7bf98847ecb83b1c875ffaeb"
+  - id: "s1-p3-s3"
+    span:
+      start: 338
+      end: 481
+      blockRevision: 1
+      textDigest: "638f245496939d84fa157015067bd68c8cf9592f7bf98847ecb83b1c875ffaeb"
+  - id: "s1-p3-s4"
+    span:
+      start: 482
+      end: 668
+      blockRevision: 1
+      textDigest: "638f245496939d84fa157015067bd68c8cf9592f7bf98847ecb83b1c875ffaeb"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

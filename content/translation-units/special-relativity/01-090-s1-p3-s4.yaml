@@ -1,0 +1,26 @@
+# TranslationUnit s1-p3-s4: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s1-p3-s4"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s1-p3-s4"
+inlines:
+  - kind: "text"
+    text: "If, for example, I say: “That train arrives here at 7 o’clock,” this means roughly: “The pointing of the small hand of my clock to 7 and the arrival of the train are simultaneous events.”"
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s1-fn1"
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "the small hand of my watch"
+    rationale: "Uhr is both “clock” and “watch”. “Clock” is kept throughout, because the paper’s argument is about the same kind of object in every paragraph, from this one to the clocks at A and B."
+reviewState: "machine-draft"
+lang: "en"

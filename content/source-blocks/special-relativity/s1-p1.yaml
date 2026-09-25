@@ -1,0 +1,44 @@
+# SourceBlock s1-p1: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1-p1"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s1"
+order: 8
+locators:
+  - pdfPageIndex: 2
+    printedPage: 892
+diplomaticText: "Es liege ein Koordinatensystem vor, in welchem die Newtonschen mechanischen Gleichungen gelten. Wir nennen dies Koordinatensystem zur sprachlichen Unterscheidung von später einzuführenden Koordinatensystemen und zur Präzisierung der Vorstellung das „ruhende System“."
+inlines:
+  - kind: "text"
+    text: "Es liege ein Koordinatensystem vor, in welchem die "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Newton"
+  - kind: "text"
+    text: "schen mechanischen Gleichungen gelten."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir nennen dies Koordinatensystem zur sprachlichen Unterscheidung von später einzuführenden Koordinatensystemen und zur Präzisierung der Vorstellung das „ruhende System“."
+sentenceSpans:
+  - id: "s1-p1-s1"
+    span:
+      start: 0
+      end: 95
+      blockRevision: 1
+      textDigest: "960405b3c50b4d7e6199f917d9809ad4abadf3f61a30a85bf14d7a00c2793bda"
+  - id: "s1-p1-s2"
+    span:
+      start: 96
+      end: 266
+      blockRevision: 1
+      textDigest: "960405b3c50b4d7e6199f917d9809ad4abadf3f61a30a85bf14d7a00c2793bda"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

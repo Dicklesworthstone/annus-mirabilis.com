@@ -82,3 +82,184 @@ edges:
       sentenceId: "s0-p3-s2"
     target:
       translationUnitId: "s0-p3-s2"
+  - source:
+      paper: "special-relativity"
+      blockId: "part-1"
+    target:
+      translationUnitId: "part-1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1"
+    target:
+      translationUnitId: "s1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p1"
+      sentenceId: "s1-p1-s1"
+    target:
+      translationUnitId: "s1-p1-s1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p1"
+      sentenceId: "s1-p1-s2"
+    target:
+      translationUnitId: "s1-p1-s2"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p2"
+      sentenceId: "s1-p2-s1"
+    target:
+      translationUnitId: "s1-p2-s1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p3"
+      sentenceId: "s1-p3-s1"
+    target:
+      translationUnitId: "s1-p3-s1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p3"
+      sentenceId: "s1-p3-s2"
+    target:
+      translationUnitId: "s1-p3-s2"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p3"
+      sentenceId: "s1-p3-s3"
+    target:
+      translationUnitId: "s1-p3-s3"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p3"
+      sentenceId: "s1-p3-s4"
+    target:
+      translationUnitId: "s1-p3-s4"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-fn1"
+    target:
+      translationUnitId: "s1-fn1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p5"
+      sentenceId: "s1-p5-s1"
+    target:
+      translationUnitId: "s1-p5-s1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p5"
+      sentenceId: "s1-p5-s2"
+    target:
+      translationUnitId: "s1-p5-s2"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p6"
+      sentenceId: "s1-p6-s1"
+    target:
+      translationUnitId: "s1-p6-s1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p6"
+      sentenceId: "s1-p6-s2"
+    target:
+      translationUnitId: "s1-p6-s2"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p6"
+      sentenceId: "s1-p6-s3"
+    target:
+      translationUnitId: "s1-p6-s3"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p7"
+      sentenceId: "s1-p7-s1"
+    target:
+      translationUnitId: "s1-p7-s1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p7"
+      sentenceId: "s1-p7-s2"
+    target:
+      translationUnitId: "s1-p7-s2"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p7"
+      sentenceId: "s1-p7-s3"
+    target:
+      translationUnitId: "s1-p7-s3"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p7"
+      sentenceId: "s1-p7-s4"
+    target:
+      translationUnitId: "s1-p7-s4"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p7"
+      sentenceId: "s1-p7-s5"
+    target:
+      translationUnitId: "s1-p7-s5"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p7"
+      sentenceId: "s1-p7-s6"
+    target:
+      translationUnitId: "s1-p7-s6"
+  - source:
+      paper: "special-relativity"
+      blockId: "eq-s1-d1"
+    target:
+      translationUnitId: "eq-s1-d1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p8"
+      sentenceId: "s1-p8-s1"
+    target:
+      translationUnitId: "s1-p8-s1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p8"
+      sentenceId: "s1-p8-s2"
+    target:
+      translationUnitId: "s1-p8-s2"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p8"
+      sentenceId: "s1-p8-s3"
+    target:
+      translationUnitId: "s1-p8-s3"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p9"
+      sentenceId: "s1-p9-s1"
+    target:
+      translationUnitId: "s1-p9-s1"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p9"
+      sentenceId: "s1-p9-s2"
+    target:
+      translationUnitId: "s1-p9-s2"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p10"
+      sentenceId: "s1-p10-s1"
+    target:
+      translationUnitId: "s1-p10-s1a"
+  - source:
+      paper: "special-relativity"
+      blockId: "eq-s1-d2"
+    target:
+      translationUnitId: "eq-s1-d2"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p10"
+      sentenceId: "s1-p10-s1"
+    target:
+      translationUnitId: "s1-p10-s1b"
+  - source:
+      paper: "special-relativity"
+      blockId: "s1-p11"
+      sentenceId: "s1-p11-s1"
+    target:
+      translationUnitId: "s1-p11-s1"

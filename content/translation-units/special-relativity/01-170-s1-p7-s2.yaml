@@ -1,0 +1,37 @@
+# TranslationUnit s1-p7-s2: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s1-p7-s2"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s1-p7-s2"
+inlines:
+  - kind: "text"
+    text: "If there is also a clock at the point "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " of space — we wish to add, “a clock of exactly the same constitution as the one located at "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: "” — then an evaluation in time of the events in the immediate vicinity of "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " by an observer located at "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " is also possible."
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

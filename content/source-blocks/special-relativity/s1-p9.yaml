@@ -1,0 +1,38 @@
+# SourceBlock s1-p9: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1-p9"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s1"
+order: 17
+locators:
+  - pdfPageIndex: 4
+    printedPage: 894
+diplomaticText: "Wir haben so unter Zuhilfenahme gewisser (gedachter) physikalischer Erfahrungen festgelegt, was unter synchron laufenden, an verschiedenen Orten befindlichen, ruhenden Uhren zu verstehen ist und damit offenbar eine Definition von „gleichzeitig“ und „Zeit“ gewonnen. Die „Zeit“ eines Ereignisses ist die mit dem Ereignis gleichzeitige Angabe einer am Orte des Ereignisses befindlichen, ruhenden Uhr, welche mit einer bestimmten, ruhenden Uhr, und zwar für alle Zeitbestimmungen mit der nämlichen Uhr, synchron läuft."
+inlines:
+  - kind: "text"
+    text: "Wir haben so unter Zuhilfenahme gewisser (gedachter) physikalischer Erfahrungen festgelegt, was unter synchron laufenden, an verschiedenen Orten befindlichen, ruhenden Uhren zu verstehen ist und damit offenbar eine Definition von „gleichzeitig“ und „Zeit“ gewonnen."
+  - kind: "space"
+  - kind: "text"
+    text: "Die „Zeit“ eines Ereignisses ist die mit dem Ereignis gleichzeitige Angabe einer am Orte des Ereignisses befindlichen, ruhenden Uhr, welche mit einer bestimmten, ruhenden Uhr, und zwar für alle Zeitbestimmungen mit der nämlichen Uhr, synchron läuft."
+sentenceSpans:
+  - id: "s1-p9-s1"
+    span:
+      start: 0
+      end: 265
+      blockRevision: 1
+      textDigest: "b2fea62ee64ba6bc7aae1ee4d8efb0e739ed115a90500377e2a601b982d64b9f"
+  - id: "s1-p9-s2"
+    span:
+      start: 266
+      end: 515
+      blockRevision: 1
+      textDigest: "b2fea62ee64ba6bc7aae1ee4d8efb0e739ed115a90500377e2a601b982d64b9f"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

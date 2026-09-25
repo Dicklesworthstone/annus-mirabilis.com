@@ -1,0 +1,43 @@
+# TranslationUnit s1-p7-s4: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s1-p7-s4"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s1-p7-s4"
+inlines:
+  - kind: "text"
+    text: "The latter time can now be defined by establishing "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "by definition"
+  - kind: "text"
+    text: " that the “time” which light requires to travel from "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " to "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " is equal to the “time” which it requires to travel from "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " to "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: "."
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

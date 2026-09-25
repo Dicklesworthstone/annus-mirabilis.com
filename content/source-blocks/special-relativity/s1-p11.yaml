@@ -1,0 +1,31 @@
+# SourceBlock s1-p11: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1-p11"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s1"
+order: 20
+locators:
+  - pdfPageIndex: 4
+    printedPage: 894
+  - pdfPageIndex: 5
+    printedPage: 895
+diplomaticText: "Wesentlich ist, daß wir die Zeit mittels im ruhenden System ruhender Uhren definiert haben; wir nennen die eben definierte Zeit wegen dieser Zugehörigkeit zum ruhenden System „die Zeit des ruhenden Systems“."
+inlines:
+  - kind: "text"
+    text: "Wesentlich ist, daß wir die Zeit mittels im ruhenden System ruhender Uhren definiert haben; wir nennen die eben definierte Zeit wegen dieser Zugehörigkeit zum ruhenden System „die Zeit des ruhenden Systems“."
+sentenceSpans:
+  - id: "s1-p11-s1"
+    span:
+      start: 0
+      end: 207
+      blockRevision: 1
+      textDigest: "15228b1eb9b5208375b5cddda09d8a24ec571bdbb3796ee976a9516448b5ea8e"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

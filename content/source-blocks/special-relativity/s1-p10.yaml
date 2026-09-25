@@ -1,0 +1,35 @@
+# SourceBlock s1-p10: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1-p10"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s1"
+order: 18
+locators:
+  - pdfPageIndex: 4
+    printedPage: 894
+diplomaticText: "Wir setzen noch der Erfahrung gemäß fest, daß die Größe eine universelle Konstante (die Lichtgeschwindigkeit im leeren Raume) sei."
+inlines:
+  - kind: "text"
+    text: "Wir setzen noch der Erfahrung gemäß fest, daß die Größe"
+  - kind: "math"
+    latex: "\\frac{2 \\overline{AB}}{t'_A - t_A} = V"
+    display: true
+    equationId: "eq-s1-d2"
+  - kind: "text"
+    text: " eine universelle Konstante (die Lichtgeschwindigkeit im leeren Raume) sei."
+sentenceSpans:
+  - id: "s1-p10-s1"
+    span:
+      start: 0
+      end: 130
+      blockRevision: 1
+      textDigest: "541e2bd39c7891e2dc18a5807d51e45d92bd9ce11487372e6b179bcbe5b35f5b"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

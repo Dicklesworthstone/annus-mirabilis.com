@@ -1,0 +1,47 @@
+# SourceBlock s1-p6: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1-p6"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s1"
+order: 13
+locators:
+  - pdfPageIndex: 3
+    printedPage: 893
+diplomaticText: "Wir könnten uns allerdings damit begnügen, die Ereignisse dadurch zeitlich zu werten, daß ein samt der Uhr im Koordinatenursprung befindlicher Beobachter jedem von einem zu wertenden Ereignis Zeugnis gebenden, durch den leeren Raum zu ihm gelangenden Lichtzeichen die entsprechende Uhrzeigerstellung zuordnet. Eine solche Zuordnung bringt aber den Übelstand mit sich, daß sie vom Standpunkte des mit der Uhr versehenen Beobachters nicht unabhängig ist, wie wir durch die Erfahrung wissen. Zu einer weit praktischeren Festsetzung gelangen wir durch folgende Betrachtung."
+inlines:
+  - kind: "text"
+    text: "Wir könnten uns allerdings damit begnügen, die Ereignisse dadurch zeitlich zu werten, daß ein samt der Uhr im Koordinatenursprung befindlicher Beobachter jedem von einem zu wertenden Ereignis Zeugnis gebenden, durch den leeren Raum zu ihm gelangenden Lichtzeichen die entsprechende Uhrzeigerstellung zuordnet."
+  - kind: "space"
+  - kind: "text"
+    text: "Eine solche Zuordnung bringt aber den Übelstand mit sich, daß sie vom Standpunkte des mit der Uhr versehenen Beobachters nicht unabhängig ist, wie wir durch die Erfahrung wissen."
+  - kind: "space"
+  - kind: "text"
+    text: "Zu einer weit praktischeren Festsetzung gelangen wir durch folgende Betrachtung."
+sentenceSpans:
+  - id: "s1-p6-s1"
+    span:
+      start: 0
+      end: 309
+      blockRevision: 1
+      textDigest: "7961a8610e4771a574fff026e2fbdf3675a446e5fee987d85f05195bd88afc69"
+  - id: "s1-p6-s2"
+    span:
+      start: 310
+      end: 488
+      blockRevision: 1
+      textDigest: "7961a8610e4771a574fff026e2fbdf3675a446e5fee987d85f05195bd88afc69"
+  - id: "s1-p6-s3"
+    span:
+      start: 489
+      end: 569
+      blockRevision: 1
+      textDigest: "7961a8610e4771a574fff026e2fbdf3675a446e5fee987d85f05195bd88afc69"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

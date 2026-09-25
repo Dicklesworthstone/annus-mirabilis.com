@@ -1,0 +1,38 @@
+# SourceBlock s1-p5: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1-p5"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s1"
+order: 12
+locators:
+  - pdfPageIndex: 3
+    printedPage: 893
+diplomaticText: "Es könnte scheinen, daß alle die Definition der „Zeit“ betreffenden Schwierigkeiten dadurch überwunden werden könnten, daß ich an Stelle der „Zeit“ die „Stellung des kleinen Zeigers meiner Uhr“ setze. Eine solche Definition genügt in der Tat, wenn es sich darum handelt, eine Zeit zu definieren ausschließlich für den Ort, an welchem sich die Uhr eben befindet; die Definition genügt aber nicht mehr, sobald es sich darum handelt, an verschiedenen Orten stattfindende Ereignisreihen miteinander zeitlich zu verknüpfen, oder — was auf dasselbe hinausläuft — Ereignisse zeitlich zu werten, welche in von der Uhr entfernten Orten stattfinden."
+inlines:
+  - kind: "text"
+    text: "Es könnte scheinen, daß alle die Definition der „Zeit“ betreffenden Schwierigkeiten dadurch überwunden werden könnten, daß ich an Stelle der „Zeit“ die „Stellung des kleinen Zeigers meiner Uhr“ setze."
+  - kind: "space"
+  - kind: "text"
+    text: "Eine solche Definition genügt in der Tat, wenn es sich darum handelt, eine Zeit zu definieren ausschließlich für den Ort, an welchem sich die Uhr eben befindet; die Definition genügt aber nicht mehr, sobald es sich darum handelt, an verschiedenen Orten stattfindende Ereignisreihen miteinander zeitlich zu verknüpfen, oder — was auf dasselbe hinausläuft — Ereignisse zeitlich zu werten, welche in von der Uhr entfernten Orten stattfinden."
+sentenceSpans:
+  - id: "s1-p5-s1"
+    span:
+      start: 0
+      end: 200
+      blockRevision: 1
+      textDigest: "977b9494e1a3ad2c521cd5c044dd132ce671b14dab9d90eb1ba85455cb158d66"
+  - id: "s1-p5-s2"
+    span:
+      start: 201
+      end: 639
+      blockRevision: 1
+      textDigest: "977b9494e1a3ad2c521cd5c044dd132ce671b14dab9d90eb1ba85455cb158d66"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,198 @@
+# SourceBlock s1-p7: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1-p7"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s1"
+order: 14
+locators:
+  - pdfPageIndex: 3
+    printedPage: 893
+  - pdfPageIndex: 4
+    printedPage: 894
+diplomaticText: "Befindet sich im Punkte A des Raumes eine Uhr, so kann ein in A befindlicher Beobachter die Ereignisse in der unmittelbaren Umgebung von A zeitlich werten durch Aufsuchen der mit diesen Ereignissen gleichzeitigen Uhrzeigerstellungen. Befindet sich auch im Punkte B des Raumes eine Uhr — wir wollen hinzufügen, „eine Uhr von genau derselben Beschaffenheit wie die in A befindliche“ — so ist auch eine zeitliche Wertung der Ereignisse in der unmittelbaren Umgebung von B durch einen in B befindlichen Beobachter möglich. Es ist aber ohne weitere Festsetzung nicht möglich, ein Ereignis in A mit einem Ereignis in B zeitlich zu vergleichen; wir haben bisher nur eine „A-Zeit“ und eine „B-Zeit“, aber keine für A und B gemeinsame „Zeit“ definiert. Die letztere Zeit kann nun definiert werden, indem man durch Definition festsetzt, daß die „Zeit“, welche das Licht braucht, um von A nach B zu gelangen, gleich ist der „Zeit“, welche es braucht, um von B nach A zu gelangen. Es gehe nämlich ein Lichtstrahl zur „A-Zeit“ t_A von A nach B ab, werde zur „B-Zeit“ t_B in B gegen A zu reflektiert und gelange zur „A-Zeit“ t'_A nach A zurück. Die beiden Uhren laufen definitionsgemäß synchron, wenn"
+inlines:
+  - kind: "text"
+    text: "Befindet sich im Punkte "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " des Raumes eine Uhr, so kann ein in "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " befindlicher Beobachter die Ereignisse in der unmittelbaren Umgebung von "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " zeitlich werten durch Aufsuchen der mit diesen Ereignissen gleichzeitigen Uhrzeigerstellungen."
+  - kind: "space"
+  - kind: "text"
+    text: "Befindet sich auch im Punkte "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " des Raumes eine Uhr — wir wollen hinzufügen, „eine Uhr von genau derselben Beschaffenheit wie die in "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " befindliche“ — so ist auch eine zeitliche Wertung der Ereignisse in der unmittelbaren Umgebung von "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " durch einen in "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " befindlichen Beobachter möglich."
+  - kind: "space"
+  - kind: "text"
+    text: "Es ist aber ohne weitere Festsetzung nicht möglich, ein Ereignis in "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " mit einem Ereignis in "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " zeitlich zu vergleichen; wir haben bisher nur eine „"
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: "-Zeit“ und eine „"
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: "-Zeit“, aber keine für "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " gemeinsame „Zeit“ definiert."
+  - kind: "space"
+  - kind: "text"
+    text: "Die letztere Zeit kann nun definiert werden, indem man "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "durch Definition"
+  - kind: "text"
+    text: " festsetzt, daß die „Zeit“, welche das Licht braucht, um von "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " nach "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " zu gelangen, gleich ist der „Zeit“, welche es braucht, um von "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " nach "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " zu gelangen."
+  - kind: "space"
+  - kind: "text"
+    text: "Es gehe nämlich ein Lichtstrahl zur „"
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: "-Zeit“ "
+  - kind: "math"
+    latex: "t_A"
+  - kind: "text"
+    text: " von "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " nach "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " ab, werde zur „"
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: "-Zeit“ "
+  - kind: "math"
+    latex: "t_B"
+  - kind: "text"
+    text: " in "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " gegen "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " zu reflektiert und gelange zur „"
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: "-Zeit“ "
+  - kind: "math"
+    latex: "t'_A"
+  - kind: "text"
+    text: " nach "
+  - kind: "math"
+    latex: "A"
+  - kind: "text"
+    text: " zurück."
+  - kind: "space"
+  - kind: "text"
+    text: "Die beiden Uhren laufen definitionsgemäß synchron, wenn"
+  - kind: "math"
+    latex: "t_B - t_A = t'_A - t_B ."
+    display: true
+    equationId: "eq-s1-d1"
+sentenceSpans:
+  - id: "s1-p7-s1"
+    span:
+      start: 0
+      end: 233
+      blockRevision: 1
+      textDigest: "e32b28a73b4bf83ef69a1d2ba0c56564a7639689a8aac0766b35ab8e43f4822a"
+  - id: "s1-p7-s2"
+    span:
+      start: 234
+      end: 518
+      blockRevision: 1
+      textDigest: "e32b28a73b4bf83ef69a1d2ba0c56564a7639689a8aac0766b35ab8e43f4822a"
+  - id: "s1-p7-s3"
+    span:
+      start: 519
+      end: 743
+      blockRevision: 1
+      textDigest: "e32b28a73b4bf83ef69a1d2ba0c56564a7639689a8aac0766b35ab8e43f4822a"
+  - id: "s1-p7-s4"
+    span:
+      start: 744
+      end: 968
+      blockRevision: 1
+      textDigest: "e32b28a73b4bf83ef69a1d2ba0c56564a7639689a8aac0766b35ab8e43f4822a"
+  - id: "s1-p7-s5"
+    span:
+      start: 969
+      end: 1130
+      blockRevision: 1
+      textDigest: "e32b28a73b4bf83ef69a1d2ba0c56564a7639689a8aac0766b35ab8e43f4822a"
+  - id: "s1-p7-s6"
+    span:
+      start: 1131
+      end: 1186
+      blockRevision: 1
+      textDigest: "e32b28a73b4bf83ef69a1d2ba0c56564a7639689a8aac0766b35ab8e43f4822a"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,22 @@
+# TranslationUnit eq-s1-d2: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "eq-s1-d2"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "eq-s1-d2"
+inlines:
+  - kind: "math"
+    latex: "\\frac{2 \\overline{AB}}{t'_A - t_A} = V"
+    equationId: "eq-s1-d2"
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"
