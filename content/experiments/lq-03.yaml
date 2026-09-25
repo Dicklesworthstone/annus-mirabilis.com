@@ -30,7 +30,7 @@ parameters:
       max: 10000
       minInclusive: true
       maxInclusive: true
-      reason: "Teaching range; the owner's stable-evaluation guarantee covers a far wider domain, but the band-integration quadrature is only verified fast within this range (see BATCH_PENDING)"
+      reason: "The temperatures the lab teaches with; the band integration is only checked to be fast within them"
     visualRange:
       min: 500
       max: 10000
@@ -93,7 +93,7 @@ parameters:
       max: 1e16
       minInclusive: true
       maxInclusive: true
-      reason: "Teaching range"
+      reason: "The frequencies the lab plots, from millimetre waves to the extreme ultraviolet"
     visualRange:
       min: 1e11
       max: 1e16

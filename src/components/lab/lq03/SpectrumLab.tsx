@@ -8,6 +8,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { typedOrNaN } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
@@ -34,6 +35,7 @@ import { deriveHostExecution } from "../../../experiments/provenance/executionSt
 import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { fixed, identity } from "../presentation.ts";
 import { Sci, SciFromLn } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
@@ -72,11 +74,13 @@ function toDraft(p: Lq03Parameters): Draft {
 
 function fromDraft(d: Draft): unknown {
   return {
-    T: Number(d.T),
-    nu1: Number(d.nu1),
-    nu2: Number(d.nu2),
-    probeNu: Number(d.probeNu),
-    epsilon: Number(d.epsilon) / 100,
+    // Number("") is 0: a cleared field was read as 0 and refused with a range, or, for ε, as 0%.
+    // A blank or partial field now reaches the validator as NaN and is refused as not a number.
+    T: typedOrNaN(d.T),
+    nu1: typedOrNaN(d.nu1),
+    nu2: typedOrNaN(d.nu2),
+    probeNu: typedOrNaN(d.probeNu),
+    epsilon: typedOrNaN(d.epsilon) / 100,
     coordinate: d.coordinate,
     axisScale: d.axisScale,
     convention: d.convention,
@@ -398,7 +402,7 @@ export function SpectrumLab({
                 </div>
                 <div className="input-field">
                   <label htmlFor={`${id}-epsilon`}>
-                    Regime tolerance &epsilon; <span>(%, 0.1-99)</span>
+                    Regime tolerance &epsilon; <span>(%, 0.1–10)</span>
                   </label>
                   <input
                     id={`${id}-epsilon`}
@@ -415,7 +419,7 @@ export function SpectrumLab({
           </fieldset>
           {error && (
             <p id={`${id}-error`} className="notice" role="alert">
-              {withScripts(error)}
+              {withScripts(error)} {KEPT_RESULT}
             </p>
           )}
         </form>

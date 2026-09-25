@@ -1,5 +1,6 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import { exponentialParts } from "../../units/scientific.ts";
+import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { LQ03_DEFAULTS, type Lq03Parameters } from "./definition.ts";
 
@@ -20,7 +21,7 @@ function hz(value: number): string {
     : `${parts.mantissa} × 10^{${parts.exponent}} Hz`;
 }
 
-export function validateLq03Parameters(input: unknown): Computation<Lq03Parameters> {
+function validateLq03Fields(input: unknown): Computation<Lq03Parameters> {
   const bad = (requirements: string): Computation<never> => ({
     kind: "refused",
     refusal: makeRefusal(
@@ -64,7 +65,7 @@ export function validateLq03Parameters(input: unknown): Computation<Lq03Paramete
     p.nu2 < 1e11 ||
     p.nu2 > 1e16
   )
-    return bad("Enter band edges from 10^{11} to 10^{16} Hz.");
+    return bad("Enter band edges from 10¹¹ to 10¹⁶ Hz.");
   if (p.nu2 <= p.nu1)
     return bad(
       `Enter an upper band edge above the lower one: ${hz(p.nu2)} is not above ${hz(p.nu1)}, so this band is inverted or empty, not a smaller region.`,
@@ -75,12 +76,25 @@ export function validateLq03Parameters(input: unknown): Computation<Lq03Paramete
     typeof p.showClassical !== "boolean"
   )
     return bad("Choose which laws are shown as true or false.");
-  if (!Number.isFinite(p.epsilon) || p.epsilon <= 0 || p.epsilon >= 1)
-    return bad(
-      "Enter a regime tolerance as a fraction above 0 and below 1, for example 0.01 for 1 percent.",
-    );
-  if (!Number.isFinite(p.probeNu) || p.probeNu <= 0)
-    return bad("Enter a probe frequency greater than zero, in Hz.");
+  // The ranges of ε and the probe frequency are the manifest's, checked once by
+  // withinDeclaredDomain below; these checks ask only for a number.
+  if (!Number.isFinite(p.epsilon))
+    return bad("Enter the regime tolerance ε as a number, in percent.");
+  if (!Number.isFinite(p.probeNu)) return bad("Enter the probe frequency as a number, in Hz.");
 
   return { kind: "accepted", data: Object.freeze({ ...p }) };
+}
+
+/** Each declared setting as the form names it; ε is entered in percent. */
+const LQ03_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  T: { label: "temperature" },
+  nu1: { label: "lower band edge" },
+  nu2: { label: "upper band edge" },
+  probeNu: { label: "probe frequency" },
+  epsilon: { label: "regime tolerance ε", unit: "%", scale: 100 },
+};
+
+/** The fields above, then every range content/experiments/lq-03.yaml declares (dispatch 134). */
+export function validateLq03Parameters(input: unknown): Computation<Lq03Parameters> {
+  return withinDeclaredDomain("lq-03", validateLq03Fields(input), LQ03_DOMAIN_DISPLAY);
 }
