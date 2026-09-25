@@ -1,0 +1,37 @@
+# TranslationUnit s5-p6-s2: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "s5-p6-s2"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "s5-p6-s2"
+inlines:
+  - kind: "text"
+    text: "The quantity "
+  - kind: "math"
+    latex: "C"
+  - kind: "text"
+    text: " is therefore a universal constant; as follows from the kinetic theory of gases, it has the value "
+  - kind: "math"
+    latex: "R/N"
+  - kind: "text"
+    text: ", where the constants "
+  - kind: "math"
+    latex: "R"
+  - kind: "text"
+    text: " and "
+  - kind: "math"
+    latex: "N"
+  - kind: "text"
+    text: " are to be given the same meaning as above."
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

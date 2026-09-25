@@ -1,0 +1,29 @@
+# TranslationUnit s5-p2-s1: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "s5-p2-s1"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "s5-p2-s1"
+inlines:
+  - kind: "text"
+    text: "If it makes sense to speak of the probability of a state of a system, and if, further, every increase in entropy can be conceived as a transition to a more probable state, then the entropy "
+  - kind: "math"
+    latex: "S_1"
+  - kind: "text"
+    text: " of a system is a function of the probability "
+  - kind: "math"
+    latex: "W_1"
+  - kind: "text"
+    text: " of its momentary state."
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

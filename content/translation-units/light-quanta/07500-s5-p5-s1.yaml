@@ -1,0 +1,30 @@
+# TranslationUnit s5-p5-s1: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "s5-p5-s1"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "s5-p5-s1"
+inlines:
+  - kind: "text"
+    text: "It is remarkable that in deriving this equation, from which the Boyle-Gay-Lussac law and the law of the same form for osmotic pressure can easily be derived thermodynamically"
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s5-fn1"
+  - kind: "text"
+    text: "; one need make no assumption about the law according to which the molecules move."
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "the law after which the molecules move"
+    rationale: "The plate prints nachdem, one word, where the sense requires nach dem, the law according to which (docs/provenance/ap-17-132.md, typo-nachdem-p142). The English gives the sense; this is the printed word taken literally."
+  - text: "can easily be derived thermodynamically, one need make no assumption"
+    rationale: "Einstein's semicolon after the footnote mark is printed on p. 142, inside the daß clause, where a comma would be expected. It is kept as printed; this is the reading with a comma."
+reviewState: "machine-draft"
+lang: "en"
