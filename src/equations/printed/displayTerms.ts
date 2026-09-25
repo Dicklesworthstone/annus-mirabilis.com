@@ -240,6 +240,8 @@ export type CheckedTerm = Readonly<{
   glyph: string;
   start: number;
   end: number;
+  /** A bare script argument, marked inside a group (printedAtoms.ts). */
+  braced?: boolean | undefined;
 }>;
 
 export type CheckedDisplay = Readonly<{
@@ -411,6 +413,7 @@ export function checkDisplayTerms(
           glyph: term.glyph,
           start: atom.start,
           end: atom.end,
+          braced: atom.bare,
         });
         continue;
       }
@@ -463,7 +466,7 @@ export function checkDisplayTerms(
         copy.flatMap((atom, k) => {
           const index = termOfAtom[k];
           const term = index === undefined ? undefined : terms[index];
-          return term ? [{ ...term, start: atom.start, end: atom.end }] : [];
+          return term ? [{ ...term, start: atom.start, end: atom.end, braced: atom.bare }] : [];
         }),
       );
     }
@@ -539,7 +542,7 @@ export function compilePrintedDisplay(checked: CheckedDisplay): CompiledPrintedD
   const allowed = new Set(checked.terms.map((t) => t.termId));
   const marked = markPrintedLatex(
     checked.latex,
-    checked.terms.map(({ start, end, termId }) => ({ start, end, termId })),
+    checked.terms.map(({ start, end, termId, braced }) => ({ start, end, termId, braced })),
   );
   const html = renderToString(marked, {
     ...FACE_KATEX,

@@ -10,6 +10,7 @@ import { isRegisteredQuantityId } from "../../content/quantities/registry.ts";
 import type { ConcordanceEntry } from "../../content/schemas/concordance.ts";
 import type { Inline } from "../../content/schemas/inlines.ts";
 import { type BilingualEdition, loadBilingualEdition } from "../../reader/faces/bilingualLoader.ts";
+import { printedAtoms } from "../latex/printedAtoms.ts";
 import {
   type CheckedDisplay,
   compilePrintedDisplay,
@@ -374,6 +375,29 @@ describe("the coloured render", () => {
       assert.equal(mathml(compiled.html), mathml(plain), entry.display);
       assert.equal(compiled.html.includes("htmlData"), false, entry.display);
     }
+  });
+
+  test("an atom that is a script's whole argument, the n of (v/v_0)^n, is marked inside a group", () => {
+    const latex = "W = \\left( \\frac{v}{v_0} \\right)^n ;";
+    const atoms = printedAtoms(latex);
+    const n = atoms.find((a) => a.text === "n");
+    assert.equal(n?.bare, true);
+    assert.equal(atoms.find((a) => a.text === "W")?.bare, false);
+    const compiled = compilePrintedDisplay({
+      paper: "light-quanta",
+      display: "planted",
+      latex,
+      spoken: "planted",
+      terms: atoms.map((a, i) => ({
+        termId: `planted.t${i + 1}`,
+        quantityId: "volume",
+        glyph: a.text,
+        start: a.start,
+        end: a.end,
+        braced: a.bare,
+      })),
+    });
+    assert.ok(compiled.html.includes(`data-term="planted.t${atoms.indexOf(n as never) + 1}"`));
   });
 
   test("display-terms-term-dropped: a term KaTeX will not mark fails the build", () => {

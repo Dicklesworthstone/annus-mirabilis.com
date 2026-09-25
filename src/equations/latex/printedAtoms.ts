@@ -44,6 +44,11 @@ export type PrintedAtom = Readonly<{
   text: string;
   /** The canonical signature two spellings of one name share. */
   signature: string;
+  /**
+   * The atom is a script's whole argument without braces, the n of (v/v_0)^n. KaTeX takes a
+   * marked atom there only inside a group, so its mark is braced.
+   */
+  bare: boolean;
 }>;
 
 const GREEK = new Set(
@@ -329,11 +334,13 @@ function readAtoms(latex: string): { list: readonly Item[]; atoms: (PrintedAtom 
       if (!operator) {
         const start = item.start;
         const end = (list[nameEnd - 1] as Item).end;
+        const before = list[i - 1]?.kind;
         atoms.push({
           start,
           end,
           text: latex.slice(start, end),
           signature: signature(list, i, nameEnd),
+          bare: before === "sub" || before === "sup",
           from: i,
           to: nameEnd,
         });
@@ -348,11 +355,12 @@ function readAtoms(latex: string): { list: readonly Item[]; atoms: (PrintedAtom 
 
 /** Every atom of a printed display, in reading order. */
 export function printedAtoms(latex: string): readonly PrintedAtom[] {
-  return readAtoms(latex).atoms.map(({ start, end, text, signature }) => ({
+  return readAtoms(latex).atoms.map(({ start, end, text, signature, bare }) => ({
     start,
     end,
     text,
     signature,
+    bare,
   }));
 }
 
@@ -369,7 +377,13 @@ export function glyphSignature(glyph: string): string {
   return only.signature;
 }
 
-export type PrintedMark = Readonly<{ start: number; end: number; termId: string }>;
+export type PrintedMark = Readonly<{
+  start: number;
+  end: number;
+  termId: string;
+  /** Wrap the mark in a group: the atom is a bare script argument (PrintedAtom.bare). */
+  braced?: boolean | undefined;
+}>;
 
 /**
  * The display's LaTeX with each marked atom wrapped as \htmlData{term=<id>}{...}, every other byte
@@ -386,7 +400,8 @@ export function markPrintedLatex(latex: string, marks: readonly PrintedMark[]): 
         `Marks overlap or fall outside the display at ${mark.start}-${mark.end}.`,
       );
     out += latex.slice(at, mark.start);
-    out += wrapHtmlData("term", mark.termId, latex.slice(mark.start, mark.end));
+    const wrapped = wrapHtmlData("term", mark.termId, latex.slice(mark.start, mark.end));
+    out += mark.braced ? `{${wrapped}}` : wrapped;
     at = mark.end;
   }
   return out + latex.slice(at);
