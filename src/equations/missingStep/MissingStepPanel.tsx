@@ -2,20 +2,35 @@ import { returnCaption } from "../../reader/returnCaption.ts";
 import type { CompiledMissingStep, CompiledMissingStepLesson } from "./compiled.ts";
 import "./missingStep.css";
 
-/** Precompiled mathematics and enumerated arithmetic only. No calculation runs in this view. */
+type HeadingTag = "h2" | "h3" | "h4" | "h5" | "h6";
+const headingTag = (level: number): HeadingTag =>
+  `h${Math.min(Math.max(level, 2), 6)}` as HeadingTag;
+
+/**
+ * Precompiled mathematics and enumerated arithmetic only. No calculation runs in this view.
+ *
+ * `level` is the step title's heading level, and the panel's own sections sit one below it. The
+ * clarification drawer opens the panel as a dialog of its own, where the title is an h2. Inline, in
+ * a passage's worked bridge, it sits under the lesson's h4, so its title is an h5: "Expand the
+ * square" was an h2 there, at the level of the paper's sections (dispatch 215).
+ */
 export function MissingStepPanel({
   lesson,
   step,
+  level = 2,
 }: {
   lesson: CompiledMissingStepLesson;
   step: CompiledMissingStep;
+  level?: number;
 }) {
+  const Title = headingTag(level);
+  const Sub = headingTag(level + 1);
   return (
     <section className="missing-step-panel" data-missing-step={step.id}>
       <p className="eyebrow">{lesson.routeLabel}</p>
-      <h2 tabIndex={-1} data-clarification-heading>
+      <Title tabIndex={-1} data-clarification-heading>
         {step.title}
-      </h2>
+      </Title>
       <p className="fine">{lesson.sourceNotice}</p>
       {step.isMove && (
         <p className="notice">
@@ -37,7 +52,7 @@ export function MissingStepPanel({
           ["After", step.toHtml],
         ].map(([label, html]) => (
           <section key={label}>
-            <h3>{label}</h3>
+            <Sub>{label}</Sub>
             {/*
               No tabIndex: nothing here scrolls. All 16 instances fit, the widest 254/254 at
               320px and 308/308 at 1280px (am-14at, measured on live with the disclosures
@@ -84,7 +99,7 @@ export function MissingStepPanel({
         <summary>Show every step in this transition</summary>
         <p>{step.readings.r2}</p>
       </details>
-      <h3>What this step assumes</h3>
+      <Sub>What this step assumes</Sub>
       {step.premiseTexts.length ? (
         <ul>
           {step.premiseTexts.map((p) => (
@@ -98,7 +113,7 @@ export function MissingStepPanel({
         </p>
       )}
       <p>{lesson.premiseNotice}</p>
-      <h3>Two signed steps: see every possible outcome</h3>
+      <Sub>Two signed steps: see every possible outcome</Sub>
       <p>
         Each step is +1 or −1 in arbitrary step units. Rows have equal probability within each
         selected model. These are exact finite teaching distributions, not observations or simulated
@@ -153,7 +168,7 @@ export function MissingStepPanel({
           </p>
         </details>
       ))}
-      <h3>From two steps to many</h3>
+      <Sub>From two steps to many</Sub>
       <p>{lesson.generalization}</p>
       <p>{lesson.absoluteNote}</p>
       <details className="missing-step-modern">
@@ -194,7 +209,7 @@ export function MissingStepDisclosure({ lesson }: { lesson: CompiledMissingStepL
         {lesson.steps.map((step) => (
           <details key={step.id} id={`static-${step.id}`}>
             <summary>{step.title}</summary>
-            <MissingStepPanel lesson={lesson} step={step} />
+            <MissingStepPanel lesson={lesson} step={step} level={5} />
           </details>
         ))}
       </details>

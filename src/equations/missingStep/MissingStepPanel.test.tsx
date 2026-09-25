@@ -90,3 +90,26 @@ describe("missing-step reader content", () => {
     expect(html).toContain("&lt;script&gt;");
   });
 });
+
+describe("the step panel's headings sit under their container (dispatch 215)", () => {
+  const levels = (html: string) => [...html.matchAll(/<h([1-6])\b/g)].map((m) => Number(m[1]));
+
+  test("in the clarification drawer, a dialog of its own, the step title is an h2 and its sections h3", () => {
+    const step = example.steps[0];
+    if (!step) throw new Error("the lesson has no steps");
+    const found = levels(renderToStaticMarkup(<MissingStepPanel lesson={example} step={step} />));
+    expect(found[0]).toBe(2);
+    expect(new Set(found.slice(1))).toEqual(new Set([3]));
+  });
+
+  test("inline, under the lesson's h4, each step title is an h5 and its sections h6, never an h2", () => {
+    // "Expand the square" rendered as an h2 inside §4's passage, at the level of the paper's
+    // sections, with "Before" and "After" as h3.
+    const found = levels(renderToStaticMarkup(<MissingStepDisclosure lesson={example} />));
+    expect(found[0]).toBe(4);
+    const rest = found.slice(1);
+    expect(rest.length).toBeGreaterThan(example.steps.length);
+    expect(rest.filter((l) => l === 5).length).toBe(example.steps.length);
+    for (const level of rest) expect([5, 6]).toContain(level);
+  });
+});
