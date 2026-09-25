@@ -1,0 +1,30 @@
+# TranslationUnit s8-p5-s2: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "s8-p5-s2"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "s8-p5-s2"
+inlines:
+  - kind: "text"
+    text: "We obtain "
+  - kind: "math"
+    latex: "\\Pi \\cdot 10^7 = 4{,}3"
+  - kind: "text"
+    text: " volts, a result that agrees in order of magnitude with Mr. Lenard’s results."
+  - kind: "footnote-mark"
+    mark: "2)"
+    footnoteId: "s8-fn3"
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "We obtain Pi times ten to the minus eight equal to 4,3 volts"
+    rationale: "The plate prints 10 to the 7 here, four lines after defining Pi times ten to the minus 8 as the potential in volts; the two cannot both hold (docs/provenance/ap-17-132.md, typo-pi-exponent-p146). Notation is never translated, so the printed exponent is kept; this is the reading the page's own definition requires."
+reviewState: "machine-draft"
+lang: "en"

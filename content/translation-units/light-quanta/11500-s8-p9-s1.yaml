@@ -1,0 +1,21 @@
+# TranslationUnit s8-p9-s1: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "s8-p9-s1"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "s8-p9-s1"
+inlines:
+  - kind: "text"
+    text: "In the foregoing it has been assumed that the energy of at least some of the energy quanta of the generating light is given up completely, each to a single electron."
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

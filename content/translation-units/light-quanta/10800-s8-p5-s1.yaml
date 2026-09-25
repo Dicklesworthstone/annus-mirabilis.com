@@ -1,0 +1,33 @@
+# TranslationUnit s8-p5-s1: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "s8-p5-s1"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "s8-p5-s1"
+inlines:
+  - kind: "text"
+    text: "In order to see first whether the relation derived agrees with experience as to order of magnitude, we set "
+  - kind: "math"
+    latex: "P' = 0"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\nu = 1{,}03 \\cdot 10^{15}"
+  - kind: "text"
+    text: " (corresponding to the limit of the solar spectrum toward the ultraviolet) and "
+  - kind: "math"
+    latex: "\\beta = 4{,}866 \\cdot 10^{-11}"
+  - kind: "text"
+    text: "."
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

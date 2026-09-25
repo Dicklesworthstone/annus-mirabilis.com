@@ -1,0 +1,34 @@
+# TranslationUnit s8-p10-s2: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "s8-p10-s2"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "s8-p10-s2"
+inlines:
+  - kind: "text"
+    text: "For the substances investigated by Mr. Lenard, "
+  - kind: "math"
+    latex: "P E"
+  - kind: "text"
+    text: " is always considerably greater than "
+  - kind: "math"
+    latex: "R \\beta \\nu"
+  - kind: "text"
+    text: ", since the voltage that the cathode rays must have traversed in order to be able to produce just visible light amounts in some cases to a few hundred, in others to thousands of volts."
+  - kind: "footnote-mark"
+    mark: "2)"
+    footnoteId: "s8-fn5"
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "Pi E is always considerably greater"
+    rationale: "The plate prints P E where the sentence's own reason, the voltage the cathode rays traverse, names Pi (docs/provenance/ap-17-132.md, typo-pe-for-pi-p147). The printed symbol is kept; this is the reading the argument requires."
+reviewState: "machine-draft"
+lang: "en"
