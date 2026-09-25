@@ -388,3 +388,146 @@ displays:
         quantityId: viscosity
       - glyph: "P"
         quantityId: particleRadius
+  # § 4. Δ is a particle's displacement in the interval τ, φ(Δ) its probability density (the
+  #   transition kernel; the concordance's bm.phi.transitionKernel is written for the expression φ(Δ), so
+  #   it has no opinion on the letter), n the number of particles, f(x, t) their number density, t the
+  #   time and D the coefficient of diffusion. In s4-p11 λ_x is the root mean square displacement along
+  #   the X-axis and the overlined x^2 the mean of the squared displacement.
+  - display: eq-s4-d1
+    latex: "d n = n \\varphi(\\Delta) d \\Delta"
+    spoken: "d n equals n times phi of Delta, d Delta."
+    terms:
+      - glyph: "n"
+        quantityId: particleCount
+      - glyph: "\\varphi"
+        quantityId: transitionKernel
+      - glyph: "\\Delta"
+        quantityId: displacementIncrement
+  - display: eq-s4-d2
+    latex: "\\int_{-\\infty}^{+\\infty} \\varphi(\\Delta) d \\Delta = 1"
+    spoken: "The integral from minus infinity to plus infinity of phi of Delta, d Delta, equals one."
+    terms:
+      - glyph: "\\varphi"
+        quantityId: transitionKernel
+      - glyph: "\\Delta"
+        quantityId: displacementIncrement
+  - display: eq-s4-d3
+    latex: "\\varphi(\\Delta) = \\varphi(-\\Delta)"
+    spoken: "phi of Delta equals phi of minus Delta."
+    terms:
+      - glyph: "\\varphi"
+        quantityId: transitionKernel
+      - glyph: "\\Delta"
+        quantityId: displacementIncrement
+  - display: eq-s4-d4
+    latex: "f(x, t + \\tau) d x = d x \\cdot \\int_{\\Delta = -\\infty}^{\\Delta = +\\infty} f(x + \\Delta) \\varphi(\\Delta) d \\Delta."
+    spoken: "f of x and t plus tau, d x, equals d x times the integral, from Delta equals minus infinity to Delta equals plus infinity, of f of x plus Delta, times phi of Delta, d Delta."
+    terms:
+      - glyph: "f"
+        quantityId: numberDensity
+      - glyph: "t"
+        quantityId: observationInterval
+      - glyph: "\\tau"
+        quantityId: stepInterval
+      - glyph: "\\Delta"
+        quantityId: displacementIncrement
+      - glyph: "\\varphi"
+        quantityId: transitionKernel
+  - display: eq-s4-d5
+    latex: "f(x, t + \\tau) = f(x, t) + \\tau \\frac{\\partial f}{\\partial t}."
+    spoken: "f of x and t plus tau equals f of x and t, plus tau times the partial derivative of f with respect to t."
+    terms:
+      - glyph: "f"
+        quantityId: numberDensity
+      - glyph: "t"
+        quantityId: observationInterval
+      - glyph: "\\tau"
+        quantityId: stepInterval
+  - display: eq-s4-d6
+    latex: "f(x + \\Delta, t) = f(x, t) + \\Delta \\frac{\\partial f(x, t)}{\\partial x} + \\frac{\\Delta^2}{2!} \\frac{\\partial^2 f(x, t)}{\\partial x^2} \\ldots \\text{ in inf.}"
+    spoken: "f of x plus Delta and t equals f of x and t, plus Delta times the partial derivative of f of x and t with respect to x, plus Delta squared over two factorial times the second partial derivative of f of x and t with respect to x, and so on, in infinitum."
+    terms:
+      - glyph: "f"
+        quantityId: numberDensity
+      - glyph: "\\Delta"
+        quantityId: displacementIncrement
+      - glyph: "t"
+        quantityId: observationInterval
+  - display: eq-s4-d7
+    latex: "\\begin{aligned} f + \\frac{\\partial f}{\\partial t} \\cdot \\tau = f \\cdot \\int_{-\\infty}^{+\\infty} \\varphi(\\Delta) d \\Delta &+ \\frac{\\partial f}{\\partial x} \\int_{-\\infty}^{+\\infty} \\Delta \\varphi(\\Delta) d \\Delta \\\\ &+ \\frac{\\partial^2 f}{\\partial x^2} \\int_{-\\infty}^{+\\infty} \\frac{\\Delta^2}{2} \\varphi(\\Delta) d \\Delta \\ldots \\end{aligned}"
+    spoken: "f plus the partial derivative of f with respect to t, times tau, equals f times the integral from minus infinity to plus infinity of phi of Delta, d Delta; plus the partial derivative of f with respect to x, times the integral from minus infinity to plus infinity of Delta times phi of Delta, d Delta; plus the second partial derivative of f with respect to x, times the integral from minus infinity to plus infinity of Delta squared over two, times phi of Delta, d Delta; and so on."
+    terms:
+      - glyph: "f"
+        quantityId: numberDensity
+      - glyph: "t"
+        quantityId: observationInterval
+      - glyph: "\\tau"
+        quantityId: stepInterval
+      - glyph: "\\varphi"
+        quantityId: transitionKernel
+      - glyph: "\\Delta"
+        quantityId: displacementIncrement
+  - display: eq-s4-d8
+    latex: "\\int_{-\\infty}^{+\\infty} \\varphi(\\Delta) d \\Delta = 1,"
+    spoken: "The integral from minus infinity to plus infinity of phi of Delta, d Delta, equals one."
+    terms:
+      - glyph: "\\varphi"
+        quantityId: transitionKernel
+      - glyph: "\\Delta"
+        quantityId: displacementIncrement
+  - display: eq-s4-d9
+    latex: "\\frac{1}{\\tau} \\int_{-\\infty}^{+\\infty} \\frac{\\Delta^2}{2} \\varphi(\\Delta) d \\Delta = D"
+    spoken: "One over tau, times the integral from minus infinity to plus infinity of Delta squared over two, times phi of Delta, d Delta, equals D."
+    terms:
+      - glyph: "\\tau"
+        quantityId: stepInterval
+      - glyph: "\\Delta"
+        quantityId: displacementIncrement
+      - glyph: "\\varphi"
+        quantityId: transitionKernel
+      - glyph: "D"
+        quantityId: diffusionCoefficient
+  - display: eq-s4-1
+    latex: "\\frac{\\partial f}{\\partial t} = D \\frac{\\partial^2 f}{\\partial x^2}."
+    spoken: "The partial derivative of f with respect to t equals D times the second partial derivative of f with respect to x."
+    terms:
+      - glyph: "f"
+        quantityId: numberDensity
+      - glyph: "t"
+        quantityId: observationInterval
+      - glyph: "D"
+        quantityId: diffusionCoefficient
+  - display: eq-s4-d10
+    latex: "f(x, t) = 0 \\quad \\text{und} \\quad \\int_{-\\infty}^{+\\infty} f(x, t) d x = n"
+    spoken: "f of x and t equals zero, and the integral from minus infinity to plus infinity of f of x and t, d x, equals n."
+    terms:
+      - glyph: "f"
+        quantityId: numberDensity
+      - glyph: "t"
+        quantityId: observationInterval
+      - glyph: "n"
+        quantityId: particleCount
+  - display: eq-s4-d11
+    latex: "f(x, t) = \\frac{n}{\\sqrt{4 \\pi D}} \\frac{e^{-\\frac{x^2}{4 D t}}}{\\sqrt{t}}."
+    spoken: "f of x and t equals n over the square root of four pi D, times e to the minus x squared over four D t, divided by the square root of t."
+    terms:
+      - glyph: "f"
+        quantityId: numberDensity
+      - glyph: "t"
+        quantityId: observationInterval
+      - glyph: "n"
+        quantityId: particleCount
+      - glyph: "D"
+        quantityId: diffusionCoefficient
+  - display: eq-s4-d12
+    latex: "\\lambda_x = \\sqrt{\\overline{x^2}} = \\sqrt{2 D t}."
+    spoken: "lambda x equals the square root of the mean of x squared, and this equals the square root of two D t."
+    terms:
+      - glyph: "\\lambda_x"
+        quantityId: rmsDisplacement1d
+      - glyph: "\\overline{x^2}"
+        quantityId: meanSquareDisplacement1d
+      - glyph: "D"
+        quantityId: diffusionCoefficient
+      - glyph: "t"
+        quantityId: observationInterval
