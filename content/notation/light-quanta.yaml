@@ -678,13 +678,13 @@ entries:
       variant: subscripted
     meaning: "Exciting frequency in Stokes fluorescence"
     binding:
-      quantityId: frequency
+      quantityId: incidentFrequency
     operation:
       kind: rename
       target:
         form: symbol
         modernGlyph: "\\nu_1"
-    notes: "Same quantity as nu (cyclic frequency); the subscript records the exciting-beam role."
+    notes: "A cyclic frequency, bound to its own id, incidentFrequency, and not to nu's: Stokes's rule compares the exciting frequency with the emitted one (emittedFrequency), so the two must not read as one quantity. The registry and the model record eq-model-lq-fluorescence-bound bind them apart. Until 2026-09-25 this entry bound frequency."
     sources:
       facsimilePage: 144
       anchor: lq-s7-p1
@@ -703,13 +703,13 @@ entries:
       variant: subscripted
     meaning: "Emitted frequency in Stokes fluorescence"
     binding:
-      quantityId: frequency
+      quantityId: emittedFrequency
     operation:
       kind: rename
       target:
         form: symbol
         modernGlyph: "\\nu_2"
-    notes: "Same quantity as nu (cyclic frequency); the subscript records the emitted-beam role."
+    notes: "A cyclic frequency, bound to its own id, emittedFrequency, and not to nu's: Stokes's rule compares the emitted frequency with the exciting one (incidentFrequency), so the two must not read as one quantity. The registry and the model record eq-model-lq-fluorescence-bound bind them apart. Until 2026-09-25 this entry bound frequency."
     sources:
       facsimilePage: 144
       anchor: lq-s7-p1
