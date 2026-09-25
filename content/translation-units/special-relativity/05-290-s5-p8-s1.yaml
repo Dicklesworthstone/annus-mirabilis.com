@@ -1,7 +1,9 @@
-# TranslationUnit s5-p8-s1: English machine-draft translation.
+# TranslationUnit s5-p8-s1: English translation, checked by AI agents.
 # Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
-# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+# Final under docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations after two agent
+# review rounds. No person has reviewed it.
 # Review round 1 (TanElk, agent, 2026-09-25): read against the German and the plates pp. 905-907; no change.
+# Review round 2 (SapphireCastle, agent, 2026-09-25): read against the German and the plates pp. 905-907; corrected: "die für uns notwendigen Sätze" modifies the theorems, and "that are necessary for us" after "principles" could attach to the principles; it now reads "the theorems, necessary for our purposes, of the kinematics ..." (revision 1 to 2).
 kind: "translation-unit"
 id: "s5-p8-s1"
 paper: "special-relativity"
@@ -10,13 +12,28 @@ sourceRefs:
     id: "s5-p8-s1"
 inlines:
   - kind: "text"
-    text: "We have now derived the theorems of the kinematics corresponding to our two principles that are necessary for us, and we proceed to show their application in electrodynamics."
+    text: "We have now derived the theorems, necessary for our purposes, of the kinematics corresponding to our two principles, and we proceed to show their application in electrodynamics."
 translator:
   id: "agent:GreenOx"
   name: "GreenOx (agent, Claude Opus 5.5)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
+revision: 2
 unresolvedAlternatives: []
-reviewState: "machine-draft"
+reviewState: "reviewed"
+agentReview:
+  basis: "D-2026-09-25-agent-reviewed-translations"
+  rounds:
+    - reviewer:
+        id: "agent:TanElk"
+        name: "TanElk"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
+    - reviewer:
+        id: "agent:SapphireCastle"
+        name: "SapphireCastle"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
 lang: "en"

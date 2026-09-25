@@ -1,7 +1,9 @@
-# TranslationUnit s5-p6-s4a: English machine-draft translation.
+# TranslationUnit s5-p6-s4a: English translation, checked by AI agents.
 # Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
-# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+# Final under docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations after two agent
+# review rounds. No person has reviewed it.
 # Review round 1 (TanElk, agent, 2026-09-25): read against the German and the plates pp. 905-907; no change.
+# Review round 2 (SapphireCastle, agent, 2026-09-25): read against the German and the plates pp. 905-907; corrected: "a third coordinate system k', in parallel motion relative to k, whose origin ..." replaces "... relative to k, namely k'"; the meaning is unchanged (revision 1 to 2). The inline-mathematics order warning (math-order-differs) is accepted, as ruled in 40137.
 kind: "translation-unit"
 id: "s5-p6-s4a"
 paper: "special-relativity"
@@ -18,13 +20,13 @@ inlines:
   - kind: "math"
     latex: "k"
   - kind: "text"
-    text: " figuring in § 3, we introduce a third coordinate system in parallel motion relative to "
-  - kind: "math"
-    latex: "k"
-  - kind: "text"
-    text: ", namely "
+    text: " figuring in § 3, we introduce a third coordinate system "
   - kind: "math"
     latex: "k'"
+  - kind: "text"
+    text: ", in parallel motion relative to "
+  - kind: "math"
+    latex: "k"
   - kind: "text"
     text: ", whose origin moves on the "
   - kind: "math"
@@ -60,7 +62,22 @@ translator:
   name: "GreenOx (agent, Claude Opus 5.5)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
+revision: 2
 unresolvedAlternatives: []
-reviewState: "machine-draft"
+reviewState: "reviewed"
+agentReview:
+  basis: "D-2026-09-25-agent-reviewed-translations"
+  rounds:
+    - reviewer:
+        id: "agent:TanElk"
+        name: "TanElk"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
+    - reviewer:
+        id: "agent:SapphireCastle"
+        name: "SapphireCastle"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
 lang: "en"
