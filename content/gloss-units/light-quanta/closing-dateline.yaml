@@ -1,0 +1,29 @@
+# GlossUnit closing-dateline: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "closing-dateline"
+sentenceId: "closing-dateline"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "8209144ce631803d4c7e3f671b357eff9a6632131187c006669a4554e5063567"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Bern"
+    english: "Bern"
+  - german: "den"
+    english: "the"
+  - german: "17."
+    english: "17th"
+    grammarNote: "ordinal number"
+    noteClass: "ordinal"
+  - german: "März"
+    english: "March"
+  - german: "1905."
+    english: "1905"
+multiwordUnits: []

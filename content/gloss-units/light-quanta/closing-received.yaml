@@ -1,0 +1,28 @@
+# GlossUnit closing-received: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "closing-received"
+sentenceId: "closing-received"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "984e1513cc222908421b2f598ed91ce07529028f4ef199a8adbea23aa4353a36"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Eingegangen"
+    english: "received"
+    lemma: "eingehen"
+  - german: "18."
+    english: "18th"
+    grammarNote: "ordinal number"
+    noteClass: "ordinal"
+  - german: "März"
+    english: "March"
+  - german: "1905"
+    english: "1905"
+multiwordUnits: []
