@@ -1,6 +1,7 @@
 # TranslationUnit s1-p7-s3: English machine-draft translation.
 # Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
 # Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+# Review round 1 (TopazPrairie, agent, 2026-09-25): "zeitlich" given as "with respect to time", set off by commas, where "in time" read as "soon enough" (p. 894).
 kind: "translation-unit"
 id: "s1-p7-s3"
 paper: "special-relativity"
@@ -9,7 +10,7 @@ sourceRefs:
     id: "s1-p7-s3"
 inlines:
   - kind: "text"
-    text: "But without a further stipulation it is not possible to compare in time an event at "
+    text: "But without a further stipulation it is not possible to compare, with respect to time, an event at "
   - kind: "math"
     latex: "A"
   - kind: "text"
@@ -39,7 +40,7 @@ translator:
   name: "GreenOx (agent, Claude Opus 5.5)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
+revision: 2
 unresolvedAlternatives: []
 reviewState: "machine-draft"
 lang: "en"

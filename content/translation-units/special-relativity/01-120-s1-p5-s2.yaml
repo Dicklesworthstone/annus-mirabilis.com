@@ -1,6 +1,7 @@
 # TranslationUnit s1-p5-s2: English machine-draft translation.
 # Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
 # Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+# Review round 1 (TopazPrairie, agent, 2026-09-25): "zeitlich" given as "with respect to time", set off by commas, where "in time" read as "soon enough" and "in time series" as the noun "time series" (p. 893).
 kind: "translation-unit"
 id: "s1-p5-s2"
 paper: "special-relativity"
@@ -9,13 +10,13 @@ sourceRefs:
     id: "s1-p5-s2"
 inlines:
   - kind: "text"
-    text: "Such a definition does indeed suffice when it is a matter of defining a time exclusively for the place at which the clock is located; but the definition no longer suffices as soon as it is a matter of connecting in time series of events that occur at different places, or — what amounts to the same thing — of evaluating in time events that occur at places remote from the clock."
+    text: "Such a definition does indeed suffice when it is a matter of defining a time exclusively for the place at which the clock is located; but the definition no longer suffices as soon as it is a matter of connecting with one another, with respect to time, series of events that occur at different places, or — what amounts to the same thing — of evaluating, with respect to time, events that occur at places remote from the clock."
 translator:
   id: "agent:GreenOx"
   name: "GreenOx (agent, Claude Opus 5.5)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
+revision: 2
 unresolvedAlternatives:
   - text: "of assigning times to events that occur at places remote from the clock"
     rationale: "zeitlich werten is “to evaluate with respect to time”; the phrase recurs in the next two paragraphs and is rendered the same way each time."
