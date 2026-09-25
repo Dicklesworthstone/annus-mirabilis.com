@@ -19,7 +19,7 @@ parameters:
       max: 284802835.1
       minInclusive: true
       maxInclusive: true
-      reason: "No inertial observer at |v| >= c; teaching range stays inside 0.95c."
+      reason: "No inertial observer moves at or beyond the speed of light; the teaching range stays inside 0.95c."
     visualRange:
       min: 0
       max: 179875474.8
@@ -39,7 +39,7 @@ parameters:
       max: 100
       minInclusive: true
       maxInclusive: true
-      reason: "Finite teaching range for the uniform model."
+      reason: "A finite teaching range for the uniform field, from a nanotesla to 100 tesla"
     visualRange:
       min: 0.1
       max: 2

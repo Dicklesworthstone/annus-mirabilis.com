@@ -1,4 +1,5 @@
 import { C_SI } from "../../physics/reference/fields.ts";
+import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { SR02_DEFAULTS, type Sr02Parameters } from "./definition.ts";
 
@@ -6,7 +7,7 @@ export type Sr02ParameterCheck =
   | { kind: "accepted"; data: Sr02Parameters }
   | { kind: "refused"; refusal: ReturnType<typeof makeRefusal> };
 
-export function validateSr02Parameters(input: unknown): Sr02ParameterCheck {
+function validateSr02Fields(input: unknown): Sr02ParameterCheck {
   if (input === null || typeof input !== "object") {
     return {
       kind: "refused",
@@ -21,7 +22,18 @@ export function validateSr02Parameters(input: unknown): Sr02ParameterCheck {
     typeof o.testPointDistance === "number" ? o.testPointDistance : Number.NaN;
   const segmentLength = typeof o.segmentLength === "number" ? o.segmentLength : Number.NaN;
   const testCharge = typeof o.testCharge === "number" ? o.testCharge : Number.NaN;
-  if (!Number.isFinite(speed) || Math.abs(speed) >= C_SI) {
+  // A speed that is not a number is not a speed at or above c: it gets its own sentence.
+  if (!Number.isFinite(speed)) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["speed"] },
+        { details: { requirements: "Enter the relative speed as a number, in m/s." } },
+      ),
+    };
+  }
+  if (Math.abs(speed) >= C_SI) {
     return {
       kind: "refused",
       refusal: makeRefusal(
@@ -64,14 +76,15 @@ export function validateSr02Parameters(input: unknown): Sr02ParameterCheck {
       ),
     };
   }
-  if (!Number.isFinite(segmentLength) || segmentLength <= 0) {
+  // The length's range is the manifest's, checked once by withinDeclaredDomain below.
+  if (!Number.isFinite(segmentLength)) {
     return {
       kind: "refused",
       refusal: makeRefusal(
         "invalid-parameter",
         { parameterIds: ["segmentLength"] },
         {
-          details: { requirements: "Enter a conductor length greater than zero, in metres." },
+          details: { requirements: "Enter the segment length as a number, in metres." },
         },
       ),
     };
@@ -133,3 +146,15 @@ export function sr02InputFromParameters(p: Sr02Parameters) {
 }
 
 export { SR02_DEFAULTS };
+
+/** Each declared setting as the form names it. */
+const SR02_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  speed: { label: "relative speed" },
+  magneticField: { label: "uniform field B" },
+  segmentLength: { label: "segment length" },
+};
+
+/** The fields above, then every range content/experiments/sr-02.yaml declares (dispatch 134). */
+export function validateSr02Parameters(input: unknown): Sr02ParameterCheck {
+  return withinDeclaredDomain("sr-02", validateSr02Fields(input), SR02_DOMAIN_DISPLAY);
+}

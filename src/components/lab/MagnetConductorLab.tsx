@@ -1,5 +1,6 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { readTypedNumber } from "../../experiments/controls/typedNumber.ts";
 import {
   executionLabelFor,
   executionStateKindFromHostLabel,
@@ -27,6 +28,7 @@ import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { KEPT_RESULT } from "./keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { display, identity, result, sentenceNumber } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
@@ -80,6 +82,16 @@ function SnapshotReading({
 // The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate.
 const SR02_PROMPTS = PREDICT_PROMPTS["sr-02"] ?? [];
 
+/** The typed fields, kept as the reader typed them and read on Apply (dispatch 165). */
+type Sr02Typed = { speed: string; magneticField: string; segmentLength: string };
+function typedFrom(q: Sr02Parameters): Sr02Typed {
+  return {
+    speed: String(q.speed),
+    magneticField: String(q.magneticField),
+    segmentLength: String(q.segmentLength),
+  };
+}
+
 export function MagnetConductorLab({
   example,
   title = "Magnet and conductor",
@@ -100,7 +112,10 @@ export function MagnetConductorLab({
     session,
     session.acceptedParameters(),
     true,
-    (restored) => setDraft({ ...restored }),
+    (restored) => {
+      setDraft({ ...restored });
+      setTyped(typedFrom(restored));
+    },
   );
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("sr-02", SR02_PROMPTS);
@@ -119,6 +134,9 @@ export function MagnetConductorLab({
       ? "the two descriptions' forces are not computed at these settings."
       : `with the conductor moving at ${sentenceNumber(p.speed)} m/s, described from the magnet's rest frame the charge feels a magnetic force of ${sentenceNumber(forceMagnet)} N; described from the conductor's rest frame an electric field of ${sentenceNumber(fieldConductor)} V/m gives it ${sentenceNumber(forceConductor)} N.`;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
+  // A number field hands "" for a cleared field or for "abc"; stored as Number(value) that was 0,
+  // applied as a speed of 0 m/s without a word. The text is read on Apply instead.
+  const [typed, setTyped] = useState(() => typedFrom(example.parameters));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   useEffect(() => {
@@ -131,11 +149,23 @@ export function MagnetConductorLab({
       return;
     }
     setDraft(parameters);
+    setTyped(typedFrom(parameters));
     setError("");
   }
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const checked = validateSr02Parameters(draft);
+    const speed = readTypedNumber(typed.speed, "the relative speed");
+    if (speed.kind === "refused") return setError(speed.requirement);
+    const field = readTypedNumber(typed.magneticField, "the uniform field B");
+    if (field.kind === "refused") return setError(field.requirement);
+    const length = readTypedNumber(typed.segmentLength, "the segment length");
+    if (length.kind === "refused") return setError(length.requirement);
+    const checked = validateSr02Parameters({
+      ...draft,
+      speed: speed.value,
+      magneticField: field.value,
+      segmentLength: length.value,
+    });
     if (checked.kind !== "accepted") {
       setError(refusalSentence(checked.refusal));
       return;
@@ -242,10 +272,8 @@ export function MagnetConductorLab({
                   type="number"
                   name="speed"
                   inputMode="decimal"
-                  value={draft.speed}
-                  onChange={(event) =>
-                    setDraft({ ...draft, speed: Number(event.currentTarget.value) })
-                  }
+                  value={typed.speed}
+                  onChange={(event) => setTyped({ ...typed, speed: event.currentTarget.value })}
                 />
               </div>
             </div>
@@ -300,9 +328,9 @@ export function MagnetConductorLab({
                     type="number"
                     name="magneticField"
                     inputMode="decimal"
-                    value={draft.magneticField}
+                    value={typed.magneticField}
                     onChange={(event) =>
-                      setDraft({ ...draft, magneticField: Number(event.currentTarget.value) })
+                      setTyped({ ...typed, magneticField: event.currentTarget.value })
                     }
                   />
                 </div>
@@ -313,9 +341,9 @@ export function MagnetConductorLab({
                     type="number"
                     name="segmentLength"
                     inputMode="decimal"
-                    value={draft.segmentLength}
+                    value={typed.segmentLength}
                     onChange={(event) =>
-                      setDraft({ ...draft, segmentLength: Number(event.currentTarget.value) })
+                      setTyped({ ...typed, segmentLength: event.currentTarget.value })
                     }
                   />
                 </div>
@@ -324,7 +352,7 @@ export function MagnetConductorLab({
             </ExperimentSettings>
             {error ? (
               <p id={`${id}-error`} className="notice" role="alert">
-                {error}
+                {error} {KEPT_RESULT}
               </p>
             ) : null}
           </fieldset>

@@ -40,7 +40,7 @@ type Check = { kind: string; refusal?: { code: string; message: string; details?
 /**
  * The fourth entry is the refusal code, invalid-parameter unless given. A value outside a range the
  * manifest declares is refused by withinDeclaredDomain as outside-model-domain, with the range in
- * words (dispatch 165); SR-09's frequency 0 and SR-10's energy -1 are two since their labs took that check.
+ * words (dispatch 165). A case whose lab has taken that check names the code.
  */
 const CASES: readonly (readonly [string, () => Check, string, string?])[] = [
   [
@@ -52,6 +52,7 @@ const CASES: readonly (readonly [string, () => Check, string, string?])[] = [
     "sr-02 conductor length 0",
     () => validateSr02Parameters({ ...SR02_DEFAULTS, segmentLength: 0 }),
     "length",
+    "outside-model-domain",
   ],
   [
     "sr-08 frame speed c",
