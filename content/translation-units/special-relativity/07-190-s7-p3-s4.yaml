@@ -4,6 +4,9 @@
 # review rounds. No person has reviewed it.
 # Review round 1 (TopazPrairie, agent, 2026-09-25): read against the German and the plates pp. 910-912; no change.
 # Review round 2 (GreenOx, agent, 2026-09-25): read against the German and the plates pp. 910-912; no change.
+# After both rounds (GreenOx, round 2's reviewer, 2026-09-25): an alternative giving the corrected
+# sense, "for v = −V, ν′ = ∞", with err-typo-p912-2 (TanElk's ruling, mail 40166). The English
+# text is unchanged and keeps the printed reading. For a fresh-eye reviewer to confirm.
 kind: "translation-unit"
 id: "s7-p3-s4"
 paper: "special-relativity"
@@ -27,7 +30,9 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives: []
+unresolvedAlternatives:
+  - text: "One sees that — contrary to the usual view — for v = −V, ν′ = ∞."
+    rationale: "The corrected sense, offered beside the text. The page prints “v = −∞, ν = ∞”, and the English keeps that as printed. By the equation just above, ν′ grows without bound as v approaches −V, and the contrast with the usual view holds only there, so “−∞” is a misprint for “−V” (err-typo-p912-2) and the unprimed ν a dropped prime (err-typo-p912-1)."
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"
