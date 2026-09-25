@@ -6,7 +6,7 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { printedCheckFor } from "../../../content/results/printedChecks.ts";
-import { loadResultCards } from "../../../content/results/resultCards.ts";
+import { hasResultCards, loadResultCards } from "../../../content/results/resultCards.ts";
 import { loadPaper } from "../../../content/server.ts";
 import { exportMarkup } from "../../../testing/exportMarkup.ts";
 import { FaceFallback } from "../../FaceFallback.tsx";
@@ -146,8 +146,29 @@ describe("the explanation page's Results tab reaches the cards", () => {
     expect(tab).not.toContain("data-view-link");
   });
 
+  // Which paper has no cards is read from content/results/, not named: this named light quanta
+  // until light quanta's cards were written (dispatch 240).
+  const papers = ["light-quanta", "brownian-motion", "special-relativity", "mass-energy"];
+  const without = papers.find((p) => !hasResultCards(process.cwd(), p));
+
   test("a paper without result cards keeps switching its face in place", async () => {
-    const page = await exportMarkup(await PaperPage({ paperId: "light-quanta" } as never));
-    expect(resultsTab(page, "light-quanta")).toContain('data-view-link="results"');
+    if (without === undefined) {
+      // Every paper has cards, so the in-place case has no instance in the data; say so.
+      expect(papers.every((p) => hasResultCards(process.cwd(), p))).toBe(true);
+      return;
+    }
+    const page = await exportMarkup(await PaperPage({ paperId: without } as never));
+    expect(resultsTab(page, without)).toContain('data-view-link="results"');
+  });
+
+  test("every paper with result cards has a plain Results link", async () => {
+    const withCards = papers.filter((p) => hasResultCards(process.cwd(), p));
+    expect(withCards).toContain(PAPER);
+    for (const paper of withCards) {
+      const page = await exportMarkup(await PaperPage({ paperId: paper } as never));
+      const tab = resultsTab(page, paper);
+      expect(tab).toBeDefined();
+      expect(tab).not.toContain("data-view-link");
+    }
   });
 });
