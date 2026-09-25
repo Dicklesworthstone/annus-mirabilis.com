@@ -1,0 +1,28 @@
+# TranslationUnit s3-p2-s2: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "s3-p2-s2"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "s3-p2-s2"
+inlines:
+  - kind: "text"
+    text: "We assume that the perceptible properties of the radiation in question are completely determined when the radiation density "
+  - kind: "math"
+    latex: "\\varrho(\\nu)"
+  - kind: "text"
+    text: " is given for all frequencies."
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s3-fn1"
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

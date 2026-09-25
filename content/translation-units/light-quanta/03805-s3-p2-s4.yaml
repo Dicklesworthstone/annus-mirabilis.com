@@ -1,0 +1,25 @@
+# TranslationUnit s3-p2-s4: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "s3-p2-s4"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "s3-p2-s4"
+inlines:
+  - kind: "math"
+    latex: "\\varphi"
+  - kind: "text"
+    text: " can be reduced to a function of only one variable by formulating the statement that the entropy of a radiation is not changed by its adiabatic compression between reflecting walls."
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "the statement that by adiabatic compression of a radiation between reflecting walls, whose entropy is not changed"
+    rationale: "The German, with the comma printed on p. 138, runs 'daß durch adiabatische Kompression einer Strahlung zwischen spiegelnden Wänden, deren Entropie nicht geändert wird', an elliptical clause in which deren refers back to the radiation. The English gives the statement the argument uses; this is the construction word for word."
+reviewState: "machine-draft"
+lang: "en"
