@@ -4,9 +4,9 @@ import { Fragment } from "react";
 import type { Inline } from "../../content/schemas/inlines.ts";
 import { plainText } from "../../content/schemas/inlines.ts";
 import type { EditorialNote, SourceBlock, SpanAnchor } from "../../content/schemas/source.ts";
-import { facsimilePageHref } from "../facsimile/pageHref.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
 import { renderInlines } from "./inlines.tsx";
+import { PageLocators } from "./PageLocators.tsx";
 
 export interface SourceBlockProps {
   readonly block: SourceBlock;
@@ -56,18 +56,9 @@ export function SourceBlockComponent({
       block.sentenceSpans.some((sp) => n.affectedIds.includes(sp.id)),
   );
 
-  const locators = block.locators.map((loc) => (
-    <span key={`${block.id}-loc-${loc.printedPage}`} className="block-locator">
-      <a
-        href={facsimilePageHref(paperSlug, loc.printedPage)}
-        data-facsimile-link={loc.printedPage}
-        aria-label={`Facsimile page ${loc.printedPage}`}
-        className="locator-link"
-      >
-        [p. {loc.printedPage}]
-      </a>
-    </span>
-  ));
+  const locators = (
+    <PageLocators paper={paperSlug} pages={block.locators.map((loc) => loc.printedPage)} />
+  );
 
   // Render content based on block kind
   let bodyContent: React.ReactNode = null;

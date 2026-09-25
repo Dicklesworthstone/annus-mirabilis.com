@@ -13,7 +13,6 @@ import type {
 } from "../../content/schemas/source.ts";
 import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
-import { facsimilePageHref } from "../facsimile/pageHref.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { claimedDisplayIds } from "./displayClaims.ts";
@@ -22,6 +21,7 @@ import { glossReviewSummary } from "./glossReview.ts";
 import { sentenceAtoms } from "./glossStream.ts";
 import { renderInlines } from "./inlines.tsx";
 import { speakInlines } from "./mathSpeech.ts";
+import { PageLocators } from "./PageLocators.tsx";
 import type { FaceId } from "./registry.ts";
 import { SourceBlock as SourceBlockComponent } from "./SourceBlock.tsx";
 import { UnreviewedBanner } from "./UnreviewedBanner.tsx";
@@ -249,18 +249,12 @@ export function GlossFace({
           }
 
           if (block.kind === "paragraph") {
-            const locators = block.locators.map((loc) => (
-              <span key={`${block.id}-loc-${loc.printedPage}`} className="block-locator">
-                <a
-                  href={facsimilePageHref(paper.slug, loc.printedPage)}
-                  data-facsimile-link={loc.printedPage}
-                  aria-label={`Facsimile page ${loc.printedPage}`}
-                  className="locator-link"
-                >
-                  [p. {loc.printedPage}]
-                </a>
-              </span>
-            ));
+            const locators = (
+              <PageLocators
+                paper={paper.slug}
+                pages={block.locators.map((loc) => loc.printedPage)}
+              />
+            );
 
             // If sentence spans exist, render each sentence with its gloss, and after it any
             // display the sentence prints.
