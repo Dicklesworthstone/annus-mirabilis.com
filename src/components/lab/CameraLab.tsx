@@ -23,6 +23,7 @@ import { InferenceInterval as Interval, InferenceValue as Value } from "./Infere
 import { KEPT_RESULT } from "./keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
+import { SEED_MAX_READABLE, SeedHelp } from "./SeedHelp.tsx";
 import { withScripts } from "./subscripts.tsx";
 
 // The manifest's prompt (scripts/generate-predict-prompts.mjs), one stable array for the gate.
@@ -119,7 +120,9 @@ export function CameraLab({
         coverageTrials: 0,
       });
     } catch {
-      setError("Enter another unsigned 64-bit physical seed to start a new path.");
+      setError(
+        `Type a physical seed of your own to start a new path: any whole number from 0 to ${SEED_MAX_READABLE}.`,
+      );
     }
   }
   function exportFrames() {
@@ -135,21 +138,32 @@ export function CameraLab({
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
-  const field = (key: keyof CameraDraft, label: string) => (
-    <div className="input-field">
-      <label key={key} htmlFor={`${id}-${key}`}>
-        {label}
-      </label>
-      <input
-        id={`${id}-${key}`}
-        name={key}
-        type="text"
-        inputMode={key.endsWith("Seed") || key === "seed" ? "numeric" : "decimal"}
-        value={draft[key]}
-        onChange={(e) => edit(key, e.target.value)}
-      />
-    </div>
-  );
+  // What the same seed brings back, for each of the three seeds (SeedHelp.tsx).
+  const seedReplays: Partial<Record<keyof CameraDraft, string>> = {
+    seed: "physical path",
+    noiseSeed: "camera noise",
+    clickSeed: "stationary clicks",
+  };
+  const field = (key: keyof CameraDraft, label: string) => {
+    const replays = seedReplays[key];
+    return (
+      <div className="input-field">
+        <label key={key} htmlFor={`${id}-${key}`}>
+          {label}
+        </label>
+        <input
+          id={`${id}-${key}`}
+          name={key}
+          type="text"
+          inputMode={key.endsWith("Seed") || key === "seed" ? "numeric" : "decimal"}
+          aria-describedby={replays ? `${id}-${key}-help` : undefined}
+          value={draft[key]}
+          onChange={(e) => edit(key, e.target.value)}
+        />
+        {replays ? <SeedHelp id={`${id}-${key}-help`} replays={replays} /> : null}
+      </div>
+    );
+  };
   const status = view.pending
     ? "Calculating. Every displayed value still belongs to the accepted camera settings."
     : view.status === "refused"
@@ -254,7 +268,7 @@ export function CameraLab({
                 {field("exposure", "Uniform exposure (s; multiples of 0.25)")}
                 {field("sigma", "Localization standard deviation (μm)")}
                 {field("stageDrift", "Stage drift in x (μm/s)")}
-                {field("noiseSeed", "Camera-noise seed (unsigned 64-bit)")}
+                {field("noiseSeed", "Camera-noise seed")}
               </div>
               <p className="fine">
                 Exposure starts at each frame time and cannot exceed the spacing. Noise, stage
@@ -283,7 +297,7 @@ export function CameraLab({
                   </select>
                 </div>
                 {field("clicks", "Stationary clicks (5–200)")}
-                {field("clickSeed", "Stationary-click seed (unsigned 64-bit)")}
+                {field("clickSeed", "Stationary-click seed")}
                 {field("coverage", "Target interval coverage (%)")}
               </div>
               <p className="fine">
@@ -299,7 +313,7 @@ export function CameraLab({
                 <div className="input-grid">
                   {field("D", "Generating diffusivity (μm²/s)")}
                   {field("flowDrift", "Fluid drift in x (μm/s)")}
-                  {field("seed", "Physical seed (unsigned 64-bit)")}
+                  {field("seed", "Physical seed")}
                 </div>
                 <p className="fine">
                   Fluid drift belongs to the physical path. Stage drift belongs to the measurement.

@@ -207,9 +207,9 @@ describe("bm01.executionLabels: FrankenSim vs Fallback Labels & Model Note (AC5)
       },
       engineSentences: {
         tracerPositions: "Computed with FrankenSim (brownian_frames).",
-        sampleMean: "Host reduction (ensembleMoments).",
-        sampleMeanSquare: "Host reduction (ensembleMoments).",
-        sampleRms: "Host reduction (ensembleMoments).",
+        sampleMean: "Host calculation, summarizing the tracer positions above.",
+        sampleMeanSquare: "Host calculation, summarizing the tracer positions above.",
+        sampleRms: "Host calculation, summarizing the tracer positions above.",
       },
     });
 
@@ -224,7 +224,7 @@ describe("bm01.executionLabels: FrankenSim vs Fallback Labels & Model Note (AC5)
     expect(chromeHtml).toContain('data-execution-state="frankensim-accepted"');
     expect(chromeHtml).toContain("Ideal model, computed with FrankenSim");
     expect(chromeHtml).toContain("Computed with FrankenSim (brownian_frames)");
-    expect(chromeHtml).toContain("Host reduction (ensembleMoments)");
+    expect(chromeHtml).toContain("Host calculation, summarizing the tracer positions above.");
   });
 
   test("Host fallback trial produces host label and host reference engine note", () => {
@@ -268,8 +268,8 @@ describe("bm01.executionLabels: FrankenSim vs Fallback Labels & Model Note (AC5)
         sampleMean: "secondary",
       },
       engineSentences: {
-        tracerPositions: "Host reference calculation (recordTracers).",
-        sampleMean: "Host reduction (ensembleMoments).",
+        tracerPositions: "Host calculation, by the site's own reference code.",
+        sampleMean: "Host calculation, summarizing the tracer positions above.",
       },
     });
 
@@ -283,8 +283,8 @@ describe("bm01.executionLabels: FrankenSim vs Fallback Labels & Model Note (AC5)
     expect(chromeHtml).toContain('data-execution-label="host"');
     expect(chromeHtml).toContain('data-execution-state="host-accepted"');
     expect(chromeHtml).toContain("Ideal model, host calculation");
-    expect(chromeHtml).toContain("Host reference calculation (recordTracers)");
-    expect(chromeHtml).toContain("Host reduction (ensembleMoments)");
+    expect(chromeHtml).toContain("Host calculation, by the site&#x27;s own reference code.");
+    expect(chromeHtml).toContain("Host calculation, summarizing the tracer positions above.");
   });
 
   test("Static worked example produces static label and static-example state", () => {

@@ -35,6 +35,7 @@ import {
 import { KEPT_RESULT } from "./keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
+import { SEED_MAX_READABLE, SeedHelp } from "./SeedHelp.tsx";
 import { withScripts } from "./subscripts.tsx";
 
 const estimatorNames = {
@@ -142,7 +143,7 @@ export function InferenceLab({
       });
     } catch {
       setError(
-        "A random seed is unavailable here. Enter another unsigned 64-bit seed in the generator settings.",
+        `A random seed is unavailable here. Type a seed of your own in the generator settings: any whole number from 0 to ${SEED_MAX_READABLE}.`,
       );
     }
   }
@@ -168,9 +169,11 @@ export function InferenceLab({
         name={key}
         type="text"
         inputMode={key === "seed" || key === "M" ? "numeric" : "decimal"}
+        aria-describedby={key === "seed" ? `${id}-seed-help` : undefined}
         value={draft[key]}
         onChange={(e) => edit(key, e.target.value)}
       />
+      {key === "seed" ? <SeedHelp id={`${id}-seed-help`} replays="synthetic data" /> : null}
     </div>
   );
   const intervalKind =
@@ -376,7 +379,7 @@ export function InferenceLab({
                   would preselect the answer.
                 </p>
                 <div className="input-grid">
-                  {field("seed", "Trial seed (unsigned 64-bit integer)")}
+                  {field("seed", "Trial seed")}
                   {field("generatorT", "Generator temperature (K)")}
                   {field("generatorEta", "Generator viscosity (mPa s)")}
                   {field("generatorRadius", "Generator radius (μm)")}

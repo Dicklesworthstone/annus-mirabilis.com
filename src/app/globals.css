@@ -1578,6 +1578,11 @@ samp,
     min-height: 44px;
     margin-top: 0;
   }
+  /* A field's help line (SeedHelp.tsx) runs under both the label and the control, across the row,
+     rather than in the label's narrow column. */
+  .input-grid .input-field > small {
+    grid-column: 1 / -1;
+  }
   .lab-columns {
     gap: 1rem;
   }

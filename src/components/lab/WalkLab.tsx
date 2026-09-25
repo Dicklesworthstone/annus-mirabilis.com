@@ -24,6 +24,7 @@ import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
+import { SeedHelp } from "./SeedHelp.tsx";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
 import { WalkConvergence, WalkHistogram, WalkPaths } from "./WalkPlots.tsx";
@@ -263,10 +264,11 @@ export function WalkLab({
                     </div>
                   ))}
                   <div className="input-field">
-                    <label htmlFor={`${id}-seed`}>Trial seed (unsigned 64-bit integer)</label>
+                    <label htmlFor={`${id}-seed`}>Trial seed</label>
                     <input
                       id={`${id}-seed`}
                       name="seed"
+                      aria-describedby={`${id}-seed-help`}
                       type="text"
                       inputMode="numeric"
                       value={draft.seed}
@@ -275,6 +277,7 @@ export function WalkLab({
                         setDirty(true);
                       }}
                     />
+                    <SeedHelp id={`${id}-seed-help`} />
                   </div>
                   <div className="input-field">
                     <label htmlFor={`${id}-bias`}>

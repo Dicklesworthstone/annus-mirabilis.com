@@ -23,6 +23,7 @@ import { deriveHostExecution } from "../../experiments/provenance/executionState
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { BrownianLab } from "../lab/BrownianLab.tsx";
 import { display, identity } from "../lab/presentation.ts";
+import { SeedHelp } from "../lab/SeedHelp.tsx";
 import { TracerPaths } from "../lab/TracerPlots.tsx";
 
 const READOUTS: readonly [EvidenceQuantity, string, string, number][] = [
@@ -250,10 +251,11 @@ export function BrownianInvestigation({
                   </div>
                 ))}
                 <div className="input-field">
-                  <label htmlFor={`${id}-seed`}>Trial seed (unsigned 64-bit integer)</label>
+                  <label htmlFor={`${id}-seed`}>Trial seed</label>
                   <input
                     id={`${id}-seed`}
                     name="seed"
+                    aria-describedby={`${id}-seed-help`}
                     type="text"
                     inputMode="numeric"
                     value={draft.seed}
@@ -262,6 +264,7 @@ export function BrownianInvestigation({
                       setDirty(true);
                     }}
                   />
+                  <SeedHelp id={`${id}-seed-help`} />
                 </div>
               </div>
               <p id={`${id}-settings-note`} className="fine">

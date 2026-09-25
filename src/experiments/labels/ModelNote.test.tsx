@@ -2,6 +2,7 @@ import { afterAll, afterEach, beforeEach, describe, expect, test } from "bun:tes
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
+import { QUANTITY_LABELS } from "../../generated/quantity-labels.ts";
 import { getLogger } from "../../testing/log/logger.ts";
 import {
   createContainer,
@@ -10,7 +11,7 @@ import {
   uninstallDom,
 } from "../../testing/reactDom.ts";
 import { createInstanceStore } from "../store/instanceStore.ts";
-import { ModelNote } from "./ModelNote.tsx";
+import { ModelNote, outputName } from "./ModelNote.tsx";
 import { type ModelNoteData, modelNoteFromView } from "./modelNoteData.ts";
 
 const logger = getLogger("execution-labels");
@@ -28,7 +29,7 @@ const composite: ModelNoteData = {
       outputId: "sampleMeanSquare",
       ownerId: "diffusion.ensembleMoments",
       role: "secondary",
-      engineSentence: "Host reduction (ensembleMoments) of the positions computed with FrankenSim.",
+      engineSentence: "Host calculation, summarizing the tracer positions above.",
     },
   ],
   modelVersion: "1.0.0",
@@ -52,7 +53,7 @@ describe("ModelNote", () => {
   test("outputs sharing a role, engine sentence and owner are one item, and every output id appears once", () => {
     // One item per output made bm-01's note 56 items and 3,330px on a phone, each repeating its
     // sentence and owner. Grouping must shorten the note without dropping or duplicating an output.
-    const engine = "Host calculation (diffusion.moments).";
+    const engine = "Host calculation, by the site's own reference code.";
     const data: ModelNoteData = {
       ...composite,
       outputs: [
@@ -89,14 +90,16 @@ describe("ModelNote", () => {
       ],
     };
     const html = renderToStaticMarkup(createElement(ModelNote, { data }));
+    // An output item is the one that says where its outputs were computed.
     const outputItems = [
-      ...html.matchAll(/<li>((?:Primary|Secondary) outputs? [^<]*)<\/li>/gu),
+      ...html.matchAll(/<li>((?:(?!<\/li>)[\s\S])*Computed in [\s\S]*?)<\/li>/gu),
     ].map((m) => m[1] ?? "");
+    const text = (item: string) => item.replace(/<[^>]+>/g, "").replaceAll("&#x27;", "'");
     // Three groups: the three primary moments together; the secondary one, whose role differs; and
     // tracerPositions, whose owner differs.
     expect(outputItems.length).toBe(3);
-    expect(outputItems).toContain(
-      "Primary outputs modelSecondMoment, modelMeanNorm, modelRmsNorm: Host calculation (diffusion.moments). Owner diffusion.moments.",
+    expect(outputItems.map(text)).toContain(
+      "Model second moment (modelSecondMoment), Model mean norm (modelMeanNorm) and Model RMS norm (modelRmsNorm): Host calculation, by the site's own reference code. Computed in diffusion.moments.",
     );
     for (const id of [
       "modelSecondMoment",
@@ -105,26 +108,51 @@ describe("ModelNote", () => {
       "sampleMean",
       "tracerPositions",
     ]) {
-      expect(outputItems.filter((item) => item.includes(`${id}`)).length).toBe(1);
+      expect(outputItems.filter((item) => item.includes(`<code>${id}</code>`)).length).toBe(1);
     }
   });
 
   test("renders owners grouped by role, the exact seed string above 2^53, and the independent-trial sentence", () => {
+    // In plain words since dispatch 212. Each value the note carried is still asserted; the words
+    // around it replaced "Primary output <id>", "Owner <id>", "Model version", "Artifact digest",
+    // "Constant set", "Stream-semantics version", "Accepted input revision" and "Snapshot version".
     const html = renderToStaticMarkup(createElement(ModelNote, { data: composite }));
-    expect(html).toContain("Primary output tracerPositions");
+    expect(html).toContain("Tracer positions (<code>tracerPositions</code>)");
     expect(html).toContain("Computed with FrankenSim (brownian_frames).");
-    expect(html).toContain("Secondary output sampleMeanSquare");
-    expect(html).toContain("Host reduction (ensembleMoments)");
-    expect(html).toContain("Model version 1.0.0.");
-    expect(html).toContain("Artifact digest sha256:7b54a1.");
-    expect(html).toContain("Constant set 1905 reference values (period-1905).");
-    expect(html).toContain("Seed 18446744073709551615.");
-    expect(html).toContain("Stream-semantics version philox-box-muller-v1.");
+    expect(html).toContain("Computed in <code>fs-wasm.brownian_frames</code>.");
+    expect(html).toContain(
+      "Sample mean square (<code>sampleMeanSquare</code>) (secondary results)",
+    );
+    expect(html).toContain("Host calculation, summarizing the tracer positions above.");
+    expect(html).toContain("Computed in <code>diffusion.ensembleMoments</code>.");
+    expect(html).toContain("Version of the model: 1.0.0.");
+    expect(html).toContain("Fingerprint of the exact program that ran: sha256:7b54a1.");
+    expect(html).toContain("Physical constants: 1905 reference values (<code>period-1905</code>).");
+    expect(html).toContain(
+      "Seed 18446744073709551615: with the same settings, the same seed replays the same trial.",
+    );
+    expect(html).toContain(
+      "Random-number stream version philox-box-muller-v1, which a replay with this seed also needs.",
+    );
     expect(html).toContain("18446744073709551615");
     expect(html).not.toContain("18446744073709552000");
     expect(html).toContain("not an independent trial");
-    expect(html).toContain("Accepted input revision 3");
-    expect(html).toContain("Snapshot version 7");
+    expect(html).toContain(
+      "Computed from the settings last applied (settings revision 3, result 7).",
+    );
+    // The store's own vocabulary is gone from what a reader reads.
+    for (const internal of [
+      "Primary output",
+      "Secondary output",
+      "Owner ",
+      "Accepted input revision",
+      "Snapshot version",
+      "Stream-semantics",
+      "Artifact digest",
+      "Constant set",
+    ]) {
+      expect(html).not.toContain(internal);
+    }
     expect(html).toContain("Not modeled:");
     expect(html).toContain("Show the code");
     expect(html).toContain('href="#show-the-code"');
@@ -216,9 +244,47 @@ describe("ModelNote", () => {
     if (!note) throw new Error("expected model-note data after acceptance");
     expect(note.seed).toBe("18446744073709551615");
     expect(note.outputs[0]?.ownerId).toBe("diffusion.ftcs1d");
+    // The default engine sentence is the public label in words; the owner is named once, after it.
+    expect(note.outputs[0]?.engineSentence).toBe(
+      "Host calculation, by the site's own reference code.",
+    );
     const html = renderToStaticMarkup(createElement(ModelNote, { data: note }));
     expect(html).toContain("18446744073709551615");
-    expect(html).toContain("diffusion.ftcs1d");
+    expect(html).toContain("Computed in <code>diffusion.ftcs1d</code>.");
+    expect(html.split("diffusion.ftcs1d").length - 1).toBe(1);
+  });
+
+  test("each output leads with its name in words: the quantity registry's, else its id spelled out", () => {
+    // A registered quantity takes its registry name (content/quantities), never a respelling.
+    expect(QUANTITY_LABELS.lorentzFactor).toBe("Lorentz factor");
+    expect(outputName("lorentzFactor")).toBe("Lorentz factor");
+    expect(outputName("temperature")).toBe(QUANTITY_LABELS.temperature ?? "");
+    // An output that is not a registered quantity has no authored name, so its id is spelled out.
+    expect(QUANTITY_LABELS.plotSampleMean).toBeUndefined();
+    expect(outputName("plotSampleMean")).toBe("Plot sample mean");
+    expect(outputName("deltaSOverKb")).toBe("Delta S over kb");
+    // Names keep their capital and abbreviations their letters when an id is spelled out.
+    expect(outputName("kineticEnergyNewtonian")).toBe("Kinetic energy Newtonian");
+    expect(outputName("sampleRmsNorm")).toBe("Sample RMS norm");
+    // Rendered: the name first, then the id in code.
+    const html = renderToStaticMarkup(
+      createElement(ModelNote, {
+        data: {
+          ...composite,
+          outputs: [
+            {
+              outputId: "lorentzFactor",
+              ownerId: "electron",
+              role: "primary",
+              engineSentence: "Host calculation, by the site's own reference code.",
+            },
+          ],
+        },
+      }),
+    );
+    expect(html).toContain(
+      "Lorentz factor (<code>lorentzFactor</code>): Host calculation, by the site&#x27;s own reference code. Computed in <code>electron</code>.",
+    );
   });
 
   describe("keyboard and screen reader accessibility in DOM (AC 9)", () => {
@@ -255,10 +321,12 @@ describe("ModelNote", () => {
         const list = details.querySelector("ul.model-note-list");
         expect(list).not.toBeNull();
         expect(list?.querySelectorAll("li").length).toBeGreaterThanOrEqual(10);
-        expect(details.textContent).toContain("Primary output tracerPositions");
+        expect(details.textContent).toContain("Tracer positions (tracerPositions)");
         expect(details.textContent).toContain("Computed with FrankenSim");
-        expect(details.textContent).toContain("Secondary output sampleMeanSquare");
-        expect(details.textContent).toContain("Host reduction");
+        expect(details.textContent).toContain(
+          "Sample mean square (sampleMeanSquare) (secondary results)",
+        );
+        expect(details.textContent).toContain("summarizing the tracer positions above");
         expect(details.textContent).toContain("18446744073709551615");
         expect(details.textContent).toContain("Show the code");
 

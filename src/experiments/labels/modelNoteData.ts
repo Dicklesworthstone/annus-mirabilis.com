@@ -68,8 +68,11 @@ export function modelNoteFromView(
       outputId: output.quantityId,
       ownerId: output.ownerId,
       role: options.roles?.[output.quantityId] ?? "primary",
+      // The public execution label verbatim, then what it means. The owner id is not repeated
+      // here: the note names it after the sentence, "Computed in <code>owner</code>".
       engineSentence:
-        options.engineSentences?.[output.quantityId] ?? `Host calculation (${output.ownerId}).`,
+        options.engineSentences?.[output.quantityId] ??
+        "Host calculation, by the site's own reference code.",
     }),
   );
   const seed =

@@ -25,11 +25,14 @@ import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
+import { SeedHelp } from "./SeedHelp.tsx";
 import { equationsByListing, ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
 import { PLOT_KINDS, TracerHistogram, TracerPaths, TracerScaling } from "./TracerPlots.tsx";
 
 const BM01_PROMPTS = PREDICT_PROMPTS["bm-01"] ?? [];
+/** The sample moments' engine sentence: host arithmetic over the tracer positions, whichever engine drew them. */
+const TRACER_SUMMARY_SENTENCE = "Host calculation, summarizing the tracer positions above.";
 
 function SamplingBand({
   snapshot,
@@ -330,10 +333,11 @@ export function TracerLab({
                       </div>
                     ))}
                     <div className="input-field">
-                      <label htmlFor={`${id}-seed`}>Trial seed (unsigned 64-bit integer)</label>
+                      <label htmlFor={`${id}-seed`}>Trial seed</label>
                       <input
                         id={`${id}-seed`}
                         name="seed"
+                        aria-describedby={`${id}-seed-help`}
                         type="text"
                         inputMode="numeric"
                         value={draft.seed}
@@ -342,6 +346,7 @@ export function TracerLab({
                           setDirty(true);
                         }}
                       />
+                      <SeedHelp id={`${id}-seed-help`} />
                     </div>
                     <div className="input-field">
                       <label htmlFor={`${id}-axis`}>Signed coordinate</label>
@@ -470,17 +475,19 @@ export function TracerLab({
                     sampleMeanSquareNorm: "secondary",
                     sampleRmsNorm: "secondary",
                   },
+                  // The execution label in words; the model note names the code after it
+                  // ("Computed in <code>diffusion.ensembleMoments</code>"), so no id is repeated.
                   engineSentences: {
                     tracerPositions: isFrankenSim
                       ? FRANKENSIM_BROWNIAN_ENGINE_SENTENCE
-                      : "Host reference calculation (recordTracers).",
-                    sampleMean: "Host reduction (ensembleMoments).",
-                    sampleMeanAbsolute: "Host reduction (ensembleMoments).",
-                    sampleMeanSquare: "Host reduction (ensembleMoments).",
-                    sampleRms: "Host reduction (ensembleMoments).",
-                    sampleMeanNorm: "Host reduction (ensembleMoments).",
-                    sampleMeanSquareNorm: "Host reduction (ensembleMoments).",
-                    sampleRmsNorm: "Host reduction (ensembleMoments).",
+                      : "Host calculation, by the site's own reference code.",
+                    sampleMean: TRACER_SUMMARY_SENTENCE,
+                    sampleMeanAbsolute: TRACER_SUMMARY_SENTENCE,
+                    sampleMeanSquare: TRACER_SUMMARY_SENTENCE,
+                    sampleRms: TRACER_SUMMARY_SENTENCE,
+                    sampleMeanNorm: TRACER_SUMMARY_SENTENCE,
+                    sampleMeanSquareNorm: TRACER_SUMMARY_SENTENCE,
+                    sampleRmsNorm: TRACER_SUMMARY_SENTENCE,
                   },
                 })}
               />
