@@ -1,6 +1,7 @@
 # TranslationUnit s2-p2-s1: English machine-draft translation.
 # Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
 # Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+# Review round 1 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 551-553; corrected (revision 2): the alternative's rationale said "or" renders "bez." wherever the paper repeats it, but s2-p5-s1 rightly has "respectively" for its two paired uses; the text is unchanged.
 kind: "translation-unit"
 id: "s2-p2-s1"
 paper: "brownian-motion"
@@ -47,9 +48,9 @@ translator:
   name: "SapphireCastle (Claude Opus 5.5, agent)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
+revision: 2
 unresolvedAlternatives:
   - text: "respectively"
-    rationale: "\"bez.\" (beziehungsweise) joins the two cases, dissolved molecules or suspended bodies, which the argument treats alike; \"or\" is used here and wherever the paper repeats it."
+    rationale: "\"bez.\" (beziehungsweise) here joins the two cases, dissolved molecules or suspended bodies, which the argument treats alike, so \"or\" is used, as in s2-p2-s2 and s2-p3-s2. Where \"bez.\" pairs two terms with two others, in s2-p5-s1, the English has \"respectively\"."
 reviewState: "machine-draft"
 lang: "en"
