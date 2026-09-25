@@ -12,6 +12,7 @@
  */
 import { citationTitleClose } from "../content/citationTitle.ts";
 import type { EditorialNoteKind } from "../content/schemas/source.ts";
+import { labName } from "./actions/labNames.ts";
 import { InlineMathText } from "./InlineMathText.tsx";
 import type { PaperMargins as Margins } from "./marginRecords.ts";
 import { MisconceptionCallout } from "./misconceptions/MisconceptionCallout.tsx";
@@ -49,6 +50,7 @@ export function PaperMargins({ margins }: { margins: Margins }) {
                 modernLens={false}
                 interventionStatus={{ state: "not-yet-reviewed" }}
                 instrumentHref={instrument ? `/lab/${instrument}/` : undefined}
+                instrumentName={instrument ? labName(instrument) : undefined}
               />
             );
           })}

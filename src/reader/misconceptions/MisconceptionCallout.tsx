@@ -25,6 +25,7 @@ export function MisconceptionCallout({
   expanded = false,
   interventionStatus,
   instrumentHref,
+  instrumentName,
 }: {
   misconception: Misconception;
   detail: 0 | 1 | 2;
@@ -34,6 +35,13 @@ export function MisconceptionCallout({
   /** Supplied by the caller, which owns instrument-address resolution
    * (src/experiments/catalogue.ts) -- this component never resolves a route itself. */
   instrumentHref?: string | undefined;
+  /**
+   * What the linked instrument is called (reader/actions/labNames.ts), so the link says where it
+   * goes. Two callouts on one page linked to /lab/bm-06/ and /lab/bm-01/ under the one name "See it
+   * in the instrument", which the link-name gate (am-jmma) refuses and a screen reader cannot tell
+   * apart (WCAG 2.4.4). The visible words stay short, as "Try it" does beside a passage.
+   */
+  instrumentName?: string | undefined;
 }) {
   const whatIsTrue = parseWhatIsTrue(misconception.whatIsTrue, misconception.id);
   const { text: whatIsTrueText, margin } = textForDetail(whatIsTrue, detail, modernLens);
@@ -90,7 +98,14 @@ export function MisconceptionCallout({
             misconception.instrumentIds.length > 0 &&
             instrumentHref && (
               <p className="misconception-instrument-link">
-                <a href={instrumentHref}>See it in the instrument</a>
+                <a
+                  href={instrumentHref}
+                  aria-label={
+                    instrumentName ? `See it in the instrument: ${instrumentName}` : undefined
+                  }
+                >
+                  See it in the instrument
+                </a>
                 {interventionStatus.state === "not-yet-reviewed" && (
                   <span className="notice" data-intervention-status="not-yet-reviewed">
                     {" "}
