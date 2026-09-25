@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "the quantity of light generated of the exciting ... must be proportional to the exciting light intensity"
-    rationale: "The German prints der erregenden twice: 'die erzeugte Lichtmenge der erregenden unter sonst gleichen Umständen nach unserer Auffassung der erregenden Lichtstärke proportional sein muß' (p. 144, as the plate reads). The first occurrence has no noun of its own; the English gives the sense of the second."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

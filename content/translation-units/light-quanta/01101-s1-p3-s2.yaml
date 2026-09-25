@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "the mean kinetic energy of a resonator electron"
-    rationale: "lebendige Kraft is the period name for kinetic energy, and the sentence sets it equal to a mittlere kinetische Energie. The paper uses both words, so the older one is kept where Einstein writes it."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "the following designation must therefore hold"
-    rationale: "The plate prints Bezeichnung (designation) where the sense requires Beziehung (relation), recorded in docs/provenance/ap-17-132.md as typo-bezeichnung-p144. The English gives the sense; this is the printed word."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "“black-body radiation”"
-    rationale: "schwarze Strahlung is literally black radiation, the term of the paper and of its time. Black-body radiation is the later English name for the same thing; the literal term is kept so that the section 1 heading and s1-p2-s1 read as the German does."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

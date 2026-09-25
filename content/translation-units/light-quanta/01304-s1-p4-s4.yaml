@@ -47,9 +47,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "whose frequency lies between"
-    rationale: "Einstein names the same quantity Frequenz and Schwingungszahl in one sentence. The distinction is kept as frequency and oscillation number, in case a reader wants to see where each word is used; nothing in the physics turns on it."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

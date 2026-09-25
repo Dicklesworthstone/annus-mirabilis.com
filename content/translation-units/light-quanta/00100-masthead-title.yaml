@@ -24,9 +24,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
-unresolvedAlternatives:
-  - text: "the Production and Transformation of Light"
-    rationale: "Erzeugung is production as well as generation. Generation is used for light throughout (Lichterzeugung, s0-p2-s2), and production for the cathode rays of s0-p3-s1, where the German uses the same word of a different thing."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

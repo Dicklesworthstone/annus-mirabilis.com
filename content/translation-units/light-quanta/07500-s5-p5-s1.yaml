@@ -24,11 +24,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "the law after which the molecules move"
-    rationale: "The plate prints nachdem, one word, where the sense requires nach dem, the law according to which (docs/provenance/ap-17-132.md, typo-nachdem-p142). The English gives the sense; this is the printed word taken literally."
-  - text: "can easily be derived thermodynamically, one need make no assumption"
-    rationale: "Einstein's semicolon after the footnote mark is printed on p. 142, inside the daß clause, where a comma would be expected. It is kept as printed; this is the reading with a comma."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

@@ -21,9 +21,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "the statement that by adiabatic compression of a radiation between reflecting walls, whose entropy is not changed"
-    rationale: "The German, with the comma printed on p. 138, runs 'daß durch adiabatische Kompression einer Strahlung zwischen spiegelnden Wänden, deren Entropie nicht geändert wird', an elliptical clause in which deren refers back to the radiation. The English gives the statement the argument uses; this is the construction word for word."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

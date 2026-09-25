@@ -49,9 +49,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
-unresolvedAlternatives:
-  - text: "the other quantities A or alpha"
-    rationale: "The plate prints x, a misprint for alpha (docs/provenance/ap-17-132.md, typo-x-for-alpha-p135). The translation keeps the printed symbol, since notation is never translated, and the corrected reading is carried by this note."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

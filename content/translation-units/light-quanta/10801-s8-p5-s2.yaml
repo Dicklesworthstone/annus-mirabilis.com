@@ -26,9 +26,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "We obtain Pi times ten to the minus eight equal to 4,3 volts"
-    rationale: "The plate prints 10 to the 7 here, four lines after defining Pi times ten to the minus 8 as the potential in volts; the two cannot both hold (docs/provenance/ap-17-132.md, typo-pi-exponent-p146). Notation is never translated, so the printed exponent is kept; this is the reading the page's own definition requires."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"
