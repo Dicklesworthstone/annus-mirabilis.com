@@ -1,7 +1,7 @@
 /**
- * A translation checked by AI agents under D-2026-09-25 says so, and never claims a person.
- * The unreviewed banner gives way to one naming the agents; a paper only partly checked keeps the
- * partly-reviewed banner, so the agent notice cannot stand for units no agent checked.
+ * A translation checked by AI agents under D-2026-09-25 records it, and never claims a person. The
+ * record's summary still says so exactly (reviewState.ts). The English face shows no notice at all
+ * (D-2026-09-25-no-review-status-banners), whether every unit is checked or only some.
  */
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -85,7 +85,7 @@ describe("a translation checked by AI agents", () => {
     expect(s.message).not.toContain("translated this");
   });
 
-  test("the English face shows the agent notice, not the unreviewed banner", () => {
+  test("the English face shows no review notice, and claims no person", () => {
     const html = renderToStaticMarkup(
       <EnglishFace
         paper={FIXTURE_BROWNIAN_PAPER}
@@ -94,9 +94,10 @@ describe("a translation checked by AI agents", () => {
         reviewRecords={[]}
       />,
     );
-    expect(html).toContain('data-agent-checked-banner="true"');
-    expect(html).not.toContain('data-unreviewed-banner="true"');
-    expect(html).toContain("Translated and checked by AI agents");
+    expect(html).not.toContain("data-agent-checked-banner");
+    expect(html).not.toContain("data-unreviewed-banner");
+    expect(html).not.toContain("AI agents");
+    expect(html).not.toMatch(/reviewed by|No person has reviewed/);
   });
 
   test("partly checked: the agents are named as AI agents, never as plain reviewers", () => {
@@ -118,7 +119,7 @@ describe("a translation checked by AI agents", () => {
     expect(mixed.message).not.toContain("reviewed against the German by TopazPrairie");
   });
 
-  test("a paper only partly checked keeps the unreviewed banner, never the agent notice", () => {
+  test("a paper only partly checked shows no banner either, and no agent notice", () => {
     expect(translationReviewSummary(MIXED).agentChecked).toBe(false);
     const html = renderToStaticMarkup(
       <EnglishFace
@@ -128,7 +129,8 @@ describe("a translation checked by AI agents", () => {
         reviewRecords={[]}
       />,
     );
-    expect(html).toContain('data-unreviewed-banner="true"');
-    expect(html).not.toContain('data-agent-checked-banner="true"');
+    expect(html).not.toContain("data-unreviewed-banner");
+    expect(html).not.toContain("data-agent-checked-banner");
+    expect(html).not.toMatch(/partly (?:checked|reviewed)/);
   });
 });

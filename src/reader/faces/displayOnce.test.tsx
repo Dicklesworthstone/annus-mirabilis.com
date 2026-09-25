@@ -9,7 +9,6 @@
 import { describe, expect, test } from "bun:test";
 import { Window } from "happy-dom";
 import { renderToStaticMarkup } from "react-dom/server";
-import type { SourceFaceNotice } from "../../content/provenance/sourceFaceNotice.ts";
 import {
   type SourceBlock,
   validateAlignment,
@@ -113,14 +112,6 @@ const ALIGNMENT = validateAlignment({
     },
   ],
 });
-const NOTICE: SourceFaceNotice = {
-  state: "machine-draft",
-  label: "Machine draft, not reviewed",
-  body: "This German text is a machine draft with hand correction.",
-  ledgerStatus: "in-progress",
-  reviewers: [],
-};
-
 const tex = (html: string, latex: string) =>
   html.split(
     `<annotation encoding="application/x-tex">${latex.replace(/&/g, "&amp;")}</annotation>`,
@@ -174,27 +165,10 @@ describe("each display is printed once, in place", () => {
 });
 
 describe("the parallel face's labels and citation", () => {
-  test("the German side carries the source's draft notice when one is passed, and only then", () => {
-    const withNotice = renderToStaticMarkup(
-      <ParallelFace
-        paper={FIXTURE_MASS_ENERGY_PAPER}
-        blocks={BLOCKS}
-        units={UNITS}
-        alignment={ALIGNMENT}
-        germanNotice={NOTICE}
-      />,
-    );
-    // Over the German column, marked German, and before the first row of text it qualifies.
-    const { document } = new Window();
-    document.body.innerHTML = withNotice;
-    const notice = document.querySelector(".parallel-notice");
-    expect(notice?.getAttribute("lang")).toBe("de");
-    expect(notice?.innerHTML).toContain("data-source-draft-notice");
-    expect(notice?.textContent).toContain("Machine draft, not reviewed");
-    expect(withNotice.indexOf("data-source-draft-notice")).toBeLessThan(
-      withNotice.indexOf("data-parallel-row="),
-    );
-    const without = renderToStaticMarkup(
+  // The German column carried the source's "Machine draft, not reviewed" label while its blocks were
+  // a draft. D-2026-09-25-no-review-status-banners withdrew it, so no column carries one.
+  test("the German side carries no draft notice, however its blocks stand", () => {
+    const html = renderToStaticMarkup(
       <ParallelFace
         paper={FIXTURE_MASS_ENERGY_PAPER}
         blocks={BLOCKS}
@@ -202,8 +176,11 @@ describe("the parallel face's labels and citation", () => {
         alignment={ALIGNMENT}
       />,
     );
-    expect(without).not.toContain("data-source-draft-notice");
-    expect(without).not.toContain("parallel-notice");
+    // Non-vacuity: the face rendered its rows, so the absences below are about a real page.
+    expect(html).toContain("data-parallel-row=");
+    expect(html).not.toContain("data-source-draft-notice");
+    expect(html).not.toContain("parallel-notice");
+    expect(html).not.toMatch(/Machine draft|not reviewed/);
   });
 
   test("the citation is the paper's own journal record", () => {

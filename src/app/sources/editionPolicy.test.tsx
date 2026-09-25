@@ -28,18 +28,20 @@ describe("the edition's policy on its sources", () => {
   const start = html.indexOf('id="edition-policy"');
   const policy = textOf(html.slice(start, html.indexOf("</section>", start)));
 
-  test("/sources/ states the three rules, plainly", () => {
+  test("/sources/ states its rules plainly, with one line on who made the translation", () => {
     expect(start).toBeGreaterThan(-1);
     expect(policy).toContain("The English translation is the edition’s own, made from the German");
     expect(policy).toContain("Published translations are cited only as comparison witnesses");
-    expect(policy).toContain("A machine draft is labelled as a draft wherever it appears");
-    // D-2026-09-25: agents may bring the English to final, and the page says so plainly.
+    // D-2026-09-25-no-review-status-banners: one plain, factual line on who made the translation,
+    // and no review tally. "A machine draft is labelled as a draft wherever it appears" went too:
+    // no face labels one any more, so it would be false.
     expect(policy).toContain(
-      "An English passage is final once AI agents other than its translator have checked it",
+      "AI agents made the English translation from the German, and agents other than its translator checked each passage against the German in two rounds.",
     );
-    expect(policy).toContain(
-      "nothing is called reviewed by a person until a named person has checked it",
-    );
+    expect(policy).not.toContain("labelled as a draft");
+    expect(policy).not.toContain("wherever it appears");
+    // The honesty rule holds: nothing claims a person's review.
+    expect(policy).not.toMatch(/reviewed by (?:a person|[A-Z])/);
     expect(policy).not.toContain("—");
   });
 });
@@ -70,10 +72,12 @@ describe("the translation's state is counted from its units", () => {
     }
   });
 
-  test("/sources/, /about/ and the home page all carry the counted sentence, and none the stale one", () => {
+  test("/sources/ carries no review tally; /about/ and the home page carry the counted sentence, and none the stale one", () => {
     const sentence = translationSentence(state, names);
+    const sources = textOf(renderToStaticMarkup(<Sources />));
+    expect(sources).not.toContain(sentence);
+    expect(sources).not.toContain("How far the text has got");
     for (const [page, html] of [
-      ["/sources/", renderToStaticMarkup(<Sources />)],
       ["/about/", renderToStaticMarkup(<About />)],
       ["/", renderToStaticMarkup(<Home />)],
     ] as const) {

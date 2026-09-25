@@ -1,6 +1,6 @@
 /**
- * The English face reads as Einstein's paragraphs, with the review state said once
- * (TranslationParagraphs.tsx, reviewState.ts translationReviewSummary).
+ * The English face reads as Einstein's paragraphs, and says nothing about review: no banner and no
+ * chip, whatever the units' states (TranslationParagraphs.tsx; D-2026-09-25-no-review-status-banners).
  *
  * The fixture has the shapes mass-energy has: a two-sentence paragraph with a footnote mark, a
  * sentence that runs through a display (split at it, s1a and s1b), a footnote, and a closing line.
@@ -147,17 +147,18 @@ describe("the English face reads as paragraphs", () => {
     for (const b of buttons) expect(b).not.toContain('tabindex="-1"');
   });
 
-  test("review state is said once, computed, and no static content is a live region", () => {
+  test("no review banner or chip, and no static content is a live region", () => {
     const m = measure(html);
     expect(m.badges).toEqual([]);
+    expect(m.banner).toBe("");
+    expect(m.agentBanner).toBe("");
     expect(m.status).toBe(m.liveRegions);
     expect(m.liveRegions).toBe(1);
-    expect(m.banner).toContain("Draft translation, not yet reviewed");
-    expect(m.banner).toContain("by Test Model (agent)");
-    expect(m.banner).toContain("7 of its 7 sentences and displays are an unreviewed machine draft");
   });
 
-  test("one reviewed unit among drafts carries the one badge, and the banner says so", () => {
+  // Mixed states were the case that earned a chip (the one unit that differs from the rest) and a
+  // "partly reviewed" banner. Now they earn neither, and the reviewer's name stays in the record.
+  test("one reviewed unit among drafts: still no chip, no banner and no reviewer named", () => {
     const reviewedOne = UNITS.map((u) =>
       u.id === "t-p1-s2"
         ? unit(u.id, "t-p1-s2", u.inlines, {
@@ -166,22 +167,19 @@ describe("the English face reads as paragraphs", () => {
           })
         : u,
     );
-    const m = measure(
-      renderToStaticMarkup(
-        <EnglishFace
-          paper={FIXTURE_MASS_ENERGY_PAPER}
-          units={reviewedOne}
-          alignment={ALIGNMENT}
-          blocks={BLOCKS}
-        />,
-      ),
+    const mixed = renderToStaticMarkup(
+      <EnglishFace
+        paper={FIXTURE_MASS_ENERGY_PAPER}
+        units={reviewedOne}
+        alignment={ALIGNMENT}
+        blocks={BLOCKS}
+      />,
     );
-    expect(m.badges).toEqual(["Reviewed"]);
-    expect(m.banner).toContain("Translation partly reviewed");
-    expect(m.banner).toContain(
-      "1 of its 7 sentences and displays has been reviewed against the German by Reviewer A",
-    );
-    expect(m.banner).not.toContain("No one has reviewed it");
+    const m = measure(mixed);
+    expect(m.badges).toEqual([]);
+    expect(m.banner).toBe("");
+    expect(m.agentBanner).toBe("");
+    expect(mixed).not.toContain("Reviewer A");
   });
 });
 
@@ -197,13 +195,12 @@ describe("mass-energy's live English face", () => {
     for (const u of edition?.units ?? []) expect(html).toContain(` id="${u.id}"`);
     expect(m.badges).toEqual([]);
     expect(m.status).toBe(1);
-    // Since 2026-09-25 every unit is final under D-2026-09-25-agent-reviewed-translations, so
-    // the face says AI agents translated and checked it, counts every unit, and claims no person.
-    const n = edition?.units.length ?? 0;
-    expect(n).toBeGreaterThan(0);
+    // Every unit is final under D-2026-09-25-agent-reviewed-translations, and since
+    // D-2026-09-25-no-review-status-banners the face says nothing about it: no banner, and no
+    // claim of a person's review either.
     expect(m.banner).toBe("");
-    expect(m.agentBanner).toContain("Translated and checked by AI agents");
-    expect(m.agentBanner).toContain(`all ${n} `);
-    expect(m.agentBanner).toContain("No person has reviewed it.");
+    expect(m.agentBanner).toBe("");
+    expect(html).not.toContain("AI agents");
+    expect(html).not.toMatch(/reviewed by (?:a person|[A-Z][a-z]+ [A-Z])/);
   });
 });

@@ -35,7 +35,9 @@ describe("the reference lists as rendered", () => {
     let questions = 0;
     for (const paperId of ["light-quanta", "special-relativity", "mass-energy"]) {
       const html = await exportMarkup(await PaperPage({ paperId }));
-      const refs = html.slice(html.indexOf("References and source status"));
+      const at = html.indexOf("<h2>References</h2>");
+      expect({ paperId, references: at > -1 }).toEqual({ paperId, references: true });
+      const refs = html.slice(at);
       questions += (refs.match(/\?<\/a>/g) ?? []).length;
       expect(refs).not.toMatch(/\?<\/a>\./);
     }

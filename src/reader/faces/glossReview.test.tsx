@@ -1,6 +1,7 @@
 /**
- * The gloss face's banner describes the gloss, not the English translation (dispatch 152). Run on
- * mass-energy's compiled edition, whose gloss is the only one written.
+ * The gloss's review summary describes the gloss, not the English translation (dispatch 152), and
+ * the gloss face shows none of it (D-2026-09-25-no-review-status-banners). Run on mass-energy's
+ * compiled edition.
  */
 import { describe, expect, test } from "bun:test";
 import { Window } from "happy-dom";
@@ -49,7 +50,9 @@ const corrected = (units: readonly GlossUnit[]): GlossUnit[] =>
       : unit,
   );
 
-describe("the gloss banner describes the gloss, not the translation", () => {
+// The summary still says what the gloss units record (glossReview.ts). The gloss face renders none
+// of it: no review banner (D-2026-09-25-no-review-status-banners).
+describe("the gloss's review summary describes the gloss, and the face shows no banner", () => {
   test("every unit a machine draft: it names the gloss's maker and counts the draft", () => {
     // Non-vacuity: the claims below are over the real gloss, which must exist.
     expect(gloss.length).toBeGreaterThan(0);
@@ -64,12 +67,13 @@ describe("the gloss banner describes the gloss, not the translation", () => {
       `${gloss.length} of its ${gloss.length} glossed sentences are an unreviewed machine draft.`,
     );
 
-    const banner = renderGloss(gloss).querySelector("[data-unreviewed-banner]");
-    expect(banner?.getAttribute("aria-label")).toBe("Gloss review status");
-    expect(banner?.textContent).toContain(summary.title);
-    expect(banner?.textContent).toContain(summary.message);
-    // The translation's own banner title, which this face used to show, is not what it says.
-    expect(banner?.textContent).not.toContain("translation");
+    const face = renderGloss(gloss);
+    // Non-vacuity: the face rendered, so the absences below are about a real gloss face.
+    expect(face.querySelector('[data-face="gloss"]')).not.toBeNull();
+    expect(face.querySelector("[data-unreviewed-banner]")).toBeNull();
+    expect(face.querySelector('[aria-label="Gloss review status"]')).toBeNull();
+    expect(face.body.textContent).not.toContain(summary.title);
+    expect(face.body.textContent).not.toContain(summary.message);
   });
 
   test("one unit corrected: the count moves and the corrector is named", () => {
@@ -78,8 +82,9 @@ describe("the gloss banner describes the gloss, not the translation", () => {
     expect(summary.message).toContain(
       `${gloss.length - 1} of its ${gloss.length} glossed sentences are an unreviewed machine draft, and 1 has been corrected by A. Fixture Editor but not reviewed.`,
     );
-    const banner = renderGloss(corrected(gloss)).querySelector("[data-unreviewed-banner]");
-    expect(banner?.textContent).toContain(summary.message);
+    const face = renderGloss(corrected(gloss));
+    expect(face.querySelector("[data-unreviewed-banner]")).toBeNull();
+    expect(face.body.textContent).not.toContain("A. Fixture Editor");
   });
 
   test("a review of the English sentence is not a review of its gloss", () => {
@@ -93,11 +98,11 @@ describe("the gloss banner describes the gloss, not the translation", () => {
       date: "2026-09-24",
       scope: [{ recordId: sentence }],
     } as unknown as ReviewRecord;
-    const plain = renderGloss(gloss).querySelector("[data-unreviewed-banner]")?.textContent;
-    const reviewed = renderGloss(gloss, [record]).querySelector(
-      "[data-unreviewed-banner]",
-    )?.textContent;
-    expect(reviewed).toBe(plain);
+    // Neither face carries a banner, and the translation's reviewer is named on neither.
+    for (const face of [renderGloss(gloss), renderGloss(gloss, [record])]) {
+      expect(face.querySelector("[data-unreviewed-banner]")).toBeNull();
+      expect(face.body.textContent).not.toContain("A. Fixture Reviewer");
+    }
   });
 
   test("marked reviewed with no reviewer named, a unit is still an unreviewed draft", () => {

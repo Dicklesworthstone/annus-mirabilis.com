@@ -56,9 +56,11 @@ describe("/sources/", () => {
       const expected = existsSync(join(dir, `${key}-reviewed.txt`))
         ? "Transcribed and reviewed"
         : existsSync(join(dir, `${key}-machine-draft.txt`))
-          ? "Transcribed in draft"
+          ? "Read by machine and corrected by hand against the page images."
           : "Not yet transcribed";
       expect(entry).toContain(expected);
+      // No review clause (D-2026-09-25-no-review-status-banners).
+      expect(entry).not.toContain("not yet reviewed by a second reader");
     }
   });
 

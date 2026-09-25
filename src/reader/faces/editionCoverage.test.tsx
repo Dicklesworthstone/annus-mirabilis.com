@@ -1,10 +1,10 @@
 /**
- * An edition that arrives a section at a time says what it does not cover, and an unreviewed
- * German column is labelled even when no ledger draft supplies the label (dispatch 192).
+ * An edition that arrives a section at a time says what it does not cover (dispatch 192): that is
+ * navigation. It carries no draft label (D-2026-09-25-no-review-status-banners), on the German face
+ * or in the parallel face's German column, however its blocks stand.
  *
  * Special relativity's first units covered the masthead and the introduction. Without these, the
- * English and parallel faces showed them as if they were the paper, and the German column showed
- * the machine-drafted blocks unlabelled because the paper has no draft face to lend its notice.
+ * English and parallel faces showed them as if they were the paper.
  */
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -157,14 +157,13 @@ describe("the English and parallel faces name what is not yet translated", () =>
     renderToStaticMarkup(
       <EnglishFace paper={PAPER} units={UNITS} blocks={BLOCKS} untranslatedSections={sections} />,
     );
-  const parallel = (sections: readonly string[], labelled = true) =>
+  const parallel = (sections: readonly string[]) =>
     renderToStaticMarkup(
       <ParallelFace
         paper={PAPER}
         blocks={BLOCKS}
         units={UNITS}
         alignment={{ id: "a", paper: "mass-energy", edges: [] }}
-        germanNotice={labelled ? editionGermanNotice(BLOCKS) : undefined}
         untranslatedSections={sections}
       />,
     );
@@ -183,12 +182,12 @@ describe("the English and parallel faces name what is not yet translated", () =>
     }
   });
 
-  test("the parallel face's German column carries the edition's own draft label", () => {
+  test("the parallel face's German column carries no draft label, though its blocks are drafts", () => {
+    // Non-vacuity: the blocks are unreviewed, which is what earned the label before.
+    expect(editionGermanNotice(BLOCKS)?.state).toBe("machine-draft");
     const html = parallel(untranslated);
-    expect(html).toContain("data-source-draft-notice");
-    expect(html).toContain("Machine draft, not reviewed");
-    // And without a notice, none is invented.
-    expect(parallel(untranslated, false)).not.toContain("data-source-draft-notice");
+    expect(html).not.toContain("data-source-draft-notice");
+    expect(html).not.toContain("Machine draft, not reviewed");
   });
 });
 
@@ -199,7 +198,6 @@ describe("the German face of an unreviewed, partial edition (a paper with no led
       <GermanFace
         paper={PAPER}
         blocks={BLOCKS}
-        notice={full ? undefined : editionGermanNotice(BLOCKS)}
         missingSections={full ? [] : missing}
         untranscribedPages={full ? [] : [916, 917, 918]}
         pdfHref="/papers/pdfs/ap-18-639.pdf"
@@ -213,10 +211,10 @@ describe("the German face of an unreviewed, partial edition (a paper with no led
     expect(missingGermanSections(["s0", "s1"], BLOCKS)).toEqual([]);
   });
 
-  test("carries the draft label, the sections and pages it lacks, and the paragraph links", () => {
+  test("carries no draft label, and names the sections and pages it lacks, with the paragraph links", () => {
     const html = german(false);
-    expect(html).toContain("data-source-draft-notice");
-    expect(html).toContain("Machine draft, not reviewed");
+    expect(html).not.toContain("data-source-draft-notice");
+    expect(html).not.toContain("Machine draft, not reviewed");
     expect(html).toContain('data-missing-sections="s3 s4"');
     expect(html).toContain("Not yet in it: §§ 3 and 4.");
     expect(html).toContain('data-untranscribed-pages="916 917 918"');

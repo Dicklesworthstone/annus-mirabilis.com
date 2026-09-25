@@ -1,12 +1,11 @@
 /**
- * The English faces keep the German face's paragraph rhythm, and an "Alternative translations"
- * disclosure is a quiet line under its paragraph, in a real browser (dispatch 210).
+ * The English faces keep the German face's paragraph rhythm and headings, and show no "Alternative
+ * translations" disclosure, in a real browser (dispatch 210; dispatch 222).
  *
  * Measured on a local build at 1440 on 2026-09-25: English paragraphs stood 84px apart text to text
  * where the German face's stand 21-35px. The English list was a flex column, so each paragraph's
  * margins (1em each, from .reader-root p) did not collapse and a 1.5rem flex gap came on top: about
- * 3em between paragraph boxes against the German face's 1em. Each disclosure was a full-width grey
- * box 62px tall standing 67px below its paragraph and 68px above the next.
+ * 3em between paragraph boxes against the German face's 1em.
  *
  * The properties, at 390 and 1440 on relativity, light quanta and Brownian:
  * - the English face's median gap between consecutive paragraph boxes, in ems of the paragraph's own
@@ -14,11 +13,10 @@
  *   face where its paragraphs stand as siblings (the draft face), and otherwise light quanta's at
  *   the same width: relativity's German face sets each paragraph in its own block wrapper beside
  *   its "Explained in" line, so it has no paragraph-to-paragraph gap to measure;
- * - every disclosure has no fill and no border, and one that follows a paragraph starts within half
- *   a line of it;
+ * - no "Alternative translations" disclosure, by its class or by its summary's words, on the English
+ *   or the parallel face (D-2026-09-25-one-best-translation). Until 2026-09-25 this checked that each
+ *   was a quiet line operable by keyboard without JavaScript; the owner ruled the disclosure out;
  * - no child of the English text, or of a parallel row's English half, overlaps the next;
- * - with JavaScript off, the English face's first disclosure is in the Tab order, and Enter opens it
- *   and closes it;
  * - the English face's heading of § 1 (and of part I, where the paper prints parts) is the German
  *   face's element at its size and weight, with the same space above it. Light quanta's German face
  *   set § 1 at 32.8px in weight 400 where its English face set 27.4px in weight 600;
@@ -109,29 +107,18 @@ async function paragraphGapEm(page: Page, selector: string) {
   }, selector);
 }
 
-/** The disclosures and the stacking of the English text's children. */
+/** Any alternatives disclosure, and the stacking of the English text's children. */
 async function englishLayout(page: Page) {
   return page.evaluate(() => {
     const problems: string[] = [];
-    const disclosures = [
-      ...document.querySelectorAll<HTMLElement>("details.unresolved-alternatives"),
-    ];
-    for (const d of disclosures) {
-      const cs = getComputedStyle(d);
-      const alpha = cs.backgroundColor.match(/rgba?\(([^)]+)\)/)?.[1]?.split(",")[3];
-      const filled =
-        cs.backgroundColor !== "transparent" && (alpha === undefined || Number(alpha) > 0);
-      if (filled) problems.push(`${d.dataset.unitId}: disclosure filled ${cs.backgroundColor}`);
-      if (Number.parseFloat(cs.borderTopWidth) > 0)
-        problems.push(`${d.dataset.unitId}: disclosure bordered ${cs.borderTopWidth}`);
-      const prev = d.previousElementSibling as HTMLElement | null;
-      if (prev?.classList.contains("translation-paragraph")) {
-        const lh = Number.parseFloat(getComputedStyle(prev).lineHeight);
-        const gap = d.getBoundingClientRect().top - prev.getBoundingClientRect().bottom;
-        if (gap > lh / 2)
-          problems.push(`${d.dataset.unitId}: disclosure ${Math.round(gap)}px below its paragraph`);
-      }
-    }
+    // By class, and by the summary's words, so a renamed class cannot hide one.
+    const disclosures = [...document.querySelectorAll<HTMLElement>("details")].filter(
+      (d) =>
+        d.classList.contains("unresolved-alternatives") ||
+        /Alternative translations/.test(d.querySelector("summary")?.textContent ?? ""),
+    );
+    for (const d of disclosures)
+      problems.push(`an alternatives disclosure is shown (${d.dataset.unitId ?? "no unit id"})`);
     let pairs = 0;
     for (const parent of document.querySelectorAll(
       "[data-translation-body], .parallel-half-english",
@@ -227,34 +214,7 @@ async function keepFace(
   return Object.fromEntries(Object.entries(capture).map(([kind, source]) => [kind, kept(source)]));
 }
 
-/**
- * With JavaScript off, the first disclosure's summary takes focus and Enter opens it and closes it
- * again: the line is a native <details>, not a hydrated button. Null when the face has none.
- */
-async function keyboardWithoutScript(page: Page): Promise<string | null> {
-  const summary = page.locator("details.unresolved-alternatives > summary").first();
-  if ((await summary.count()) === 0) return null;
-  await summary.focus();
-  const state = () =>
-    summary.evaluate((s) => ({
-      focused: document.activeElement === s,
-      open: (s.parentElement as HTMLDetailsElement).open,
-    }));
-  if (!(await state()).focused) return "the alternatives line does not take focus";
-  // focus() reaches an element with tabindex -1 too; Tab order is what a keyboard reader has.
-  await page.keyboard.press("Shift+Tab");
-  await page.keyboard.press("Tab");
-  const before = await state();
-  if (!before.focused) return "the alternatives line is not in the Tab order";
-  if (before.open) return "the alternatives line starts open";
-  await page.keyboard.press("Enter");
-  if (!(await state()).open) return "Enter does not open the alternatives line without JavaScript";
-  await page.keyboard.press("Enter");
-  if ((await state()).open) return "Enter does not close the alternatives line again";
-  return "";
-}
-
-test("the English faces keep the German rhythm, and alternatives are a quiet line (dispatch 210)", {
+test("the English faces keep the German rhythm and headings, and show no alternatives (dispatch 210, 222)", {
   timeout: 300_000,
 }, async () => {
   const remote = process.env.AM_E2E_ORIGIN?.replace(/\/$/, "");
@@ -274,7 +234,6 @@ test("the English faces keep the German rhythm, and alternatives are a quiet lin
   let gapsMeasured = 0;
   let disclosures = 0;
   let pairs = 0;
-  let keyboardChecked = 0;
   let headingsCompared = 0;
   let crossPaperCompared = 0;
   let partsCompared = 0;
@@ -339,17 +298,6 @@ test("the English faces keep the German rhythm, and alternatives are a quiet lin
           const layout = await englishLayout(page);
           await page.goto(`${origin}/papers/${paper}/view/parallel/`, { waitUntil: "load" });
           const parallel = await englishLayout(page);
-          const noScript = await browser.newContext({
-            viewport: { width, height: 900 },
-            javaScriptEnabled: false,
-            ...(remote ? { userAgent: "OpenAI File Downloader, XaiImageApiFetch/1.0" } : {}),
-          });
-          const plain = await noScript.newPage();
-          await plain.goto(`${origin}/papers/${paper}/view/english/`, { waitUntil: "load" });
-          const keyboard = await keyboardWithoutScript(plain);
-          await noScript.close();
-          if (keyboard !== null) keyboardChecked++;
-          if (keyboard) found.push(`no-js: ${keyboard}`);
           gapsMeasured += english.n;
           disclosures += layout.disclosures + parallel.disclosures;
           pairs += layout.pairs + parallel.pairs;
@@ -405,7 +353,7 @@ test("the English faces keep the German rhythm, and alternatives are a quiet lin
           testId: `english-face-rhythm-${lane}`,
           paper,
           expected:
-            "English gap <= German + 0.25em; disclosures unfilled, unbordered, within half a line; no overlap",
+            "English gap <= German + 0.25em; no alternatives disclosure; no overlap; headings as the German",
           actual: summary || found.join("; "),
           comparisonKind: "tolerance",
           tolerance: { absolute: 0.25 },
@@ -494,13 +442,14 @@ test("the English faces keep the German rhythm, and alternatives are a quiet lin
     server?.close();
   }
   console.log(
-    `[english face rhythm] ${gapsMeasured} English paragraph gaps, ${disclosures} disclosures, ${pairs} sibling pairs, ${keyboardChecked} lanes opened a disclosure by keyboard without JavaScript, ${headingsCompared} headings compared, § 1 compared across papers on ${crossPaperCompared} width-and-face pairs, ${partsCompared} part headings against their § 1 (${freshnessNote})`,
+    `[english face rhythm] ${gapsMeasured} English paragraph gaps, ${disclosures} disclosures, ${pairs} sibling pairs, ${headingsCompared} headings compared, § 1 compared across papers on ${crossPaperCompared} width-and-face pairs, ${partsCompared} part headings against their § 1 (${freshnessNote})`,
   );
   assert.ok(headingsCompared > 0, "no English heading was compared with its German heading");
   assert.ok(crossPaperCompared > 0, "§ 1 was never compared across two papers");
   assert.ok(partsCompared > 0, "no part heading was compared with its § 1");
   assert.ok(gapsMeasured > 0, "no English paragraph gap was measured");
-  assert.ok(disclosures > 0, "no alternatives disclosure was examined");
-  assert.ok(keyboardChecked > 0, "no disclosure was operated by keyboard without JavaScript");
+  // The absence of a disclosure is asserted per lane (englishLayout); this says the faces it looked
+  // at were laid out at all.
+  assert.ok(pairs > 0, "no English or parallel face was laid out");
   assert.deepEqual(failures, []);
 });

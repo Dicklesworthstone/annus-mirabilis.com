@@ -10,7 +10,7 @@ import {
 import { EnglishFace } from "./EnglishFace.tsx";
 
 describe("EnglishFace render tests", () => {
-  test("renders full English translation face with metadata and translator credits", () => {
+  test("renders the English face's metadata, and no translator credit line", () => {
     const html = renderToStaticMarkup(
       <EnglishFace
         paper={FIXTURE_BROWNIAN_PAPER}
@@ -26,22 +26,18 @@ describe("EnglishFace render tests", () => {
     expect(html).toContain('lang="en"');
     expect(html).toContain("On the Movement of Small Particles");
     expect(html).toContain("By A. Einstein");
-    // NOT "A. D. Cowper", and this is a rights rule rather than a fixture detail.
-    // AGENTS.md admits Cowper's 1926 Methuen translation only as a comparison witness
-    // cited in a provenance receipt, never as the site's own translation - so a reader
-    // face that renders "Translated by A. D. Cowper" is publishing an attribution the
-    // project has decided it will not make. f8ffe801 corrected the fixture to
-    // fixture-translator and deliberately left this assertion to the reader face's
-    // owner rather than rewriting it silently. Restoring the old name reintroduces the
-    // rights problem, not a passing test.
-    expect(html).toContain("Translated by Fixture Translator");
+    // No "Translated by" line at all (D-2026-09-25-no-review-status-banners): the translator is in
+    // each unit's record and the provenance receipt. The rights rule this line used to hold still
+    // holds: AGENTS.md admits Cowper's 1926 Methuen translation only as a comparison witness, so no
+    // face may attribute the site's translation to "A. D. Cowper".
+    expect(html).not.toContain("Translated by");
+    expect(html).not.toContain("Fixture Translator");
+    expect(html).not.toContain("Cowper");
   });
 
-  test("a paper translated by two agents credits both, in the order their units first appear", () => {
-    // Relativity is translated a part at a time: GreenOx drafts Part I and GreenBarn Part II.
-    // The credit used to read the first unit's translator only, so the whole face was signed
-    // with one name, including sections the other agent translated. The translators are set
-    // here rather than read from the fixture, which already mixes two.
+  test("however many agents translated a paper, the face names none of them", () => {
+    // Relativity was translated a part at a time, by two agents. The face credited them both in a
+    // "Translated by" line; since D-2026-09-25-no-review-status-banners it credits no one.
     const first = { id: "agent:First", name: "First Translator", kind: "model" as const };
     const second = { id: "agent:Second", name: "Second Translator", kind: "model" as const };
     const n = FIXTURE_BROWNIAN_TRANSLATION_UNITS.length;
@@ -58,13 +54,15 @@ describe("EnglishFace render tests", () => {
       ...u,
       translator: i >= n - 2 ? second : first,
     }));
-    expect(render(two)).toContain("Translated by First Translator and Second Translator<");
-    // One translator reads as one name, with no dangling "and".
     const one = FIXTURE_BROWNIAN_TRANSLATION_UNITS.map((u) => ({ ...u, translator: first }));
-    expect(render(one)).toContain("Translated by First Translator<");
+    for (const html of [render(two), render(one)]) {
+      expect(html).not.toContain("Translated by");
+      expect(html).not.toContain("First Translator");
+      expect(html).not.toContain("Second Translator");
+    }
   });
 
-  test("renders unreviewed translation banner when draft units exist", () => {
+  test("draft units and a person's review records show no banner and name no reviewer", () => {
     const html = renderToStaticMarkup(
       <EnglishFace
         paper={FIXTURE_BROWNIAN_PAPER}
@@ -74,15 +72,11 @@ describe("EnglishFace render tests", () => {
       />,
     );
 
-    expect(html).toContain('data-unreviewed-banner="true"');
-    // The banner states what the units record (reviewState.ts translationReviewSummary): who
-    // translated, and how many units a review accepted. This used to pin "This English
-    // translation is an in-progress draft", whose "has not yet completed full human review"
-    // implied a review under way when none had happened.
-    expect(html).toContain("Translation partly reviewed");
-    expect(html).toContain(
-      "3 of its 6 sentences and displays have been reviewed against the German by jemanuel",
-    );
+    // The fixture's review records accept 3 of its 6 units, reviewed by jemanuel. The banner said so
+    // ("Translation partly reviewed"); now the face says nothing about review, which claims nothing.
+    expect(html).not.toContain("data-unreviewed-banner");
+    expect(html).not.toMatch(/partly reviewed|reviewed against the German|not yet reviewed/);
+    expect(html).not.toContain("jemanuel");
     expect(html).not.toContain("has not yet completed full human review");
   });
 

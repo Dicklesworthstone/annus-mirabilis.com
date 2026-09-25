@@ -148,13 +148,14 @@ describe("PaperPage", () => {
     const paperId = "brownian-motion";
     const germanMarkup = renderToStaticMarkup(await PaperPage({ paperId, face: "german" }));
 
-    // The German face serves the transcript, labelled.
+    // The German face serves the transcript. Its "Machine draft, not reviewed" label was
+    // withdrawn by D-2026-09-25-no-review-status-banners, so it is served without one.
     expect(germanMarkup).not.toContain(
       "The German source text for this paper is not yet available",
     );
     expect(germanMarkup).toContain('data-view="german"');
     expect(germanMarkup).toContain('data-face-source="true"');
-    expect(germanMarkup).toContain("Machine draft, not reviewed");
+    expect(germanMarkup).not.toContain("Machine draft, not reviewed");
     expect(germanMarkup).toMatch(/[äöüßÄÖÜ]/);
 
     // The compiled bilingual edition is still absent, so the blocks a reader sees come
@@ -261,11 +262,12 @@ describe("PaperPage", () => {
     expect(parallelMarkup).not.toContain("is not yet available");
   });
 
-  test("an edition of machine-draft blocks keeps the German draft face, labelled, with plates and chooser; parallel uses the blocks", async () => {
+  test("an edition of machine-draft blocks keeps the German draft face, with plates and chooser and no draft label; parallel uses the blocks", async () => {
     // Blocks derived from a machine-draft ledger are still a machine draft. GermanFace carries no
-    // draft label, no plates and no chooser, so the edition takes the German face over only when
-    // every block is reviewed (faceAvailability.ts germanFaceRendersEdition). mass-energy has a
-    // ledger draft, which is what the German face must keep showing.
+    // plates and no chooser, so the edition takes the German face over only when every block is
+    // reviewed (faceAvailability.ts germanFaceRendersEdition). mass-energy has a ledger draft, which
+    // is what the German face must keep showing. Neither face carries a draft label any more
+    // (D-2026-09-25-no-review-status-banners).
     const asDraft = (b: SourceBlock): SourceBlock => ({
       ...b,
       status: { ...b.status, transcription: "draft", translation: "draft", review: "draft" },
@@ -279,8 +281,8 @@ describe("PaperPage", () => {
     const paperId = "mass-energy";
     const german = renderToStaticMarkup(await PaperPage({ paperId, face: "german" }, { edition }));
     expect(german).toContain("data-german-draft");
-    expect(german).toContain("data-source-draft-notice");
-    expect(german).toContain("Machine draft, not reviewed");
+    expect(german).not.toContain("data-source-draft-notice");
+    expect(german).not.toContain("Machine draft, not reviewed");
     expect(german).toContain('class="source-plate"');
     expect(german).toContain('class="face-tabs"');
     expect(german).not.toContain("source-blocks-list");

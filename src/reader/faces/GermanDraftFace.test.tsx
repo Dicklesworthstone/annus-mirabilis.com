@@ -1,18 +1,10 @@
 /**
- * REQUIREMENT 3 AT THE ROUTE: a draft German face cannot be served without its notice.
+ * The German face a reader is served, through PaperPage, because a component can be correct and
+ * never reached.
  *
- * am-dl4n criterion 2. The component-level guard lives in SourceFaceNotice.test.tsx; this
- * one asserts the property where a reader actually meets it, through PaperPage, because a
- * component can be correct and never reached.
- *
- * THE HYBRID FORM MADE THIS GUARD HARDER AND THE ORCHESTRATOR CAUGHT IT. With one element
- * there was one thing to lose. With the full sentence met once and the short label
- * persisting, there are TWO, and a guard that only fails when both vanish would pass a
- * page that kept the label and lost the disclosure - which is the worse of the two
- * failures, because the label alone says "draft" without saying what kind of draft, made
- * how, reviewed by nobody.
- *
- * So each is asserted separately, and each is planted separately.
+ * Until 2026-09-25 this was am-dl4n's requirement 3: a draft German face could not be served
+ * without its notice, label and sentence asserted separately. D-2026-09-25-no-review-status-banners
+ * withdrew the notice, so the same two parts are now each asserted absent.
  */
 
 import { describe, expect, test } from "bun:test";
@@ -40,57 +32,26 @@ describe("the German face a reader is served", () => {
     }
   });
 
-  test("REQUIREMENT 3a: the full disclosure is present, separately from the label", async () => {
+  // am-dl4n's requirement 3 put a "Machine draft, not reviewed" label and its sentence before the
+  // German. The owner withdrew it (D-2026-09-25-no-review-status-banners): "we don't need messages
+  // like this on the site". So the rule is now the other way round, at the route, where a reader
+  // meets it: the receipt still yields the notice, and no German face renders any of it.
+  test("no draft notice reaches a reader: neither the label nor its sentence, on any German face", async () => {
     for (const paperId of DRAFT_PAPERS) {
       const face = loadGermanSourceFace(paperId as never);
       expect(face).not.toBeNull();
       if (!face) continue;
+      // Non-vacuity: the receipt still describes a draft, so the absence below is the rule.
+      expect(face.notice.state).toBe("machine-draft");
+      expect(face.notice.body.length).toBeGreaterThan(0);
       const html = await germanMarkup(paperId);
-      // The sentence the receipt produced, in full.
-      expect(html).toContain(face.notice.body);
-
-      // AND VISIBLE, which is a different claim. My first version asserted only that the
-      // markup CONTAINED the sentence, and planting `hidden` on the aside produced ZERO
-      // failures: the string was still there and no reader could see it. A substring test
-      // standing in for a visibility test, in the guard written to stop exactly that.
-      //
-      // The enclosing element is located and checked, so a disclosure that is present in
-      // the HTML and hidden from the page fails here.
-      const asideAt = html.indexOf("data-source-draft-notice");
-      expect(asideAt).toBeGreaterThan(-1);
-      const openTagStart = html.lastIndexOf("<", asideAt);
-      const openTag = html.slice(openTagStart, html.indexOf(">", asideAt) + 1);
-      expect(openTag).not.toMatch(/\shidden(?=[\s=>])/);
-      expect(openTag).not.toContain('aria-hidden="true"');
-      expect(openTag).not.toMatch(/display:\s*none/);
-      // And the sentence sits inside THAT element, not somewhere else in the document.
-      const asideClose = html.indexOf("</aside>", asideAt);
-      expect(asideClose).toBeGreaterThan(-1);
-      expect(html.slice(asideAt, asideClose)).toContain(face.notice.body);
+      expect(html).not.toContain("data-source-draft-notice");
+      expect(html).not.toContain("data-source-draft-persistent");
+      expect(html).not.toContain(face.notice.label);
+      expect(html).not.toContain(face.notice.body);
+      // The German text is what the column opens with.
+      expect(html.indexOf("data-german-draft")).toBeGreaterThan(-1);
     }
-  });
-
-  test("REQUIREMENT 3b: the persistent label is present, separately from the disclosure", async () => {
-    for (const paperId of DRAFT_PAPERS) {
-      const face = loadGermanSourceFace(paperId as never);
-      expect(face).not.toBeNull();
-      if (!face) continue;
-      const html = await germanMarkup(paperId);
-      expect(html).toContain("data-source-draft-persistent");
-      expect(html).toContain(face.notice.label);
-    }
-  });
-
-  test("the notice precedes the first word of German, not follows it", async () => {
-    // "Does not scroll away from the text it qualifies" begins with being met BEFORE it.
-    // A disclosure printed under the transcript is one a reader reaches after believing
-    // the text.
-    const html = await germanMarkup("mass-energy");
-    const noticeAt = html.indexOf("data-source-draft-notice");
-    const textAt = html.indexOf("data-german-draft");
-    expect(noticeAt).toBeGreaterThan(-1);
-    expect(textAt).toBeGreaterThan(-1);
-    expect(noticeAt).toBeLessThan(textAt);
   });
 
   test("no TeX reaches a reader, and each display equation is printed once, in place", async () => {
@@ -125,15 +86,10 @@ describe("the German face a reader is served", () => {
     }
   });
 
-  test("the paper with no ledger draft is honest either way: absence, or a labelled part", async () => {
-    // The control. Without it every assertion above is satisfied by a page that renders
-    // a draft notice over any paper at all.
-    //
-    // Until dispatch 192 this asserted that special relativity reports absence. Its German now
-    // arrives as an unreviewed edition, a section at a time, and it has no ledger draft face, so
-    // the German face renders the edition (PaperPage, GermanFace). What this watches now: with no
-    // edition blocks the face reports absence and carries no draft label; with some, it carries
-    // the label, never reports absence over German it has, and names the sections it lacks.
+  test("the paper with no ledger draft is honest either way: absence, or its German unlabelled", async () => {
+    // Special relativity has no ledger draft face: its German face renders the edition's blocks
+    // (PaperPage, GermanFace). With no blocks it reports absence; with some, it never reports
+    // absence over German it has, names the sections it lacks, and carries no draft label.
     const edition = await loadBilingualEdition("special-relativity");
     const blocks = edition?.blocks ?? [];
     const html = await germanMarkup("special-relativity");
@@ -143,7 +99,8 @@ describe("the German face a reader is served", () => {
       return;
     }
     expect(html).not.toContain("not yet available");
-    expect(html).toContain("Machine draft, not reviewed");
+    expect(html).not.toContain("Machine draft, not reviewed");
+    expect(html).not.toContain("data-source-draft-notice");
     const missing = missingGermanSections(edition?.paper.sections.map((s) => s.id) ?? [], blocks);
     if (missing.length > 0) expect(html).toContain(`data-missing-sections="${missing.join(" ")}"`);
     else expect(html).not.toContain("data-missing-sections=");
