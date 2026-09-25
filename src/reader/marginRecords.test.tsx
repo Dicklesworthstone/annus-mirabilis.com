@@ -118,8 +118,19 @@ describe("the sections on the page", () => {
   });
 });
 
-test("a whole-paper page with no margin records is unchanged: no section appears", async () => {
-  const page = await exportMarkup(await PaperPage({ paperId: "light-quanta" } as never));
-  expect(page).not.toContain('id="common-wrong-turns"');
-  expect(page).not.toContain('id="historians-margin"');
+test("a whole-paper page shows each margin section exactly when the paper has its records", async () => {
+  // A property over every paper, not one paper named as having none: light quanta was that paper
+  // until dispatch 219 gave it a misconception ledger. A section with no records never appears, and
+  // one with records always does.
+  let withRecords = 0;
+  for (const paper of ["light-quanta", "brownian-motion", "special-relativity", "mass-energy"]) {
+    const margins = loadPaperMargins(paper);
+    const page = await exportMarkup(await PaperPage({ paperId: paper } as never));
+    expect(page.includes('id="common-wrong-turns"')).toBe(margins.misconceptions.length > 0);
+    expect(page.includes('id="historians-margin"')).toBe(margins.notes.length > 0);
+    if (margins.misconceptions.length > 0) withRecords += 1;
+  }
+  // Non-vacuity: some paper has records, so the presence branch is exercised. The absence branch is
+  // held by the synthetic empty-margins render above, whatever the corpus holds.
+  expect(withRecords).toBeGreaterThan(0);
 });
