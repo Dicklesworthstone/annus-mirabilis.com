@@ -44,13 +44,8 @@
   max-width: 100cqi;
 }
 
-/* A section heading of the paper, not of the page. The global h2 is sized for page sections
-   (40px at 1440) and set Einstein's "§ 4. Grenzgesetz für die Entropie der monochromatischen
-   Strahlung bei geringer Strahlungsdichte." across five lines of a 43ch column. */
-[data-german-draft] h2 {
-  font-size: var(--type-title);
-  margin-top: 2.5rem;
-}
+/* A section heading of the paper, not of the page: its style is shared with every other face that
+   sets a § heading, in reader.css ("ONE § HEADING IN EVERY PAPER"). */
 
 /* An anchor jump lands the target below the sticky draft label, not under it. The label is
    about 35px tall at the default type size. */

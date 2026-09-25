@@ -2938,15 +2938,38 @@ html:is(
   margin-top: calc(0.25em - var(--reader-paragraph-gap));
 }
 
-/* THE ENGLISH SECTION HEADING TAKES ITS GERMAN FACE'S STEP (dispatch 210). Measured on the built
-   faces at 1440: light quanta's and Brownian's German faces (the draft face, germanDraftFace.css)
-   set "§ 1." at 32.8px in the body weight, 40px below the text above it; their English faces set
-   the same heading at 27.4px in weight 600, 32px below, which is relativity's German face
-   (.source-heading above), where sections sit a step under the title-sized part headings. So an
-   English face whose paper prints no part heading takes the draft face's heading; relativity's
-   keeps its two levels, and both still match their German faces. */
-[data-translation-body]:not(:has(> .source-part-heading)) > .source-heading {
+/* ONE § HEADING IN EVERY PAPER (dispatch 217). A § heading has one style on all four German faces,
+   and so on the English faces, which follow them. Until this rule the papers had two: the German
+   draft face (light quanta, Brownian, mass-energy) set "§ 1." at 32.8px in weight 400 at 1440, and
+   relativity's German face, built from source blocks, set it at 27.4px in weight 600 under
+   title-sized part headings. So a reader moving from one paper to the next saw the headings change.
+   The step is the draft face's: the title step in the body weight, 2.5rem above. The global h2 is
+   sized for page sections (40px at 1440) and set Einstein's "§ 4. Grenzgesetz für die Entropie der
+   monochromatischen Strahlung bei geringer Strahlungsdichte." across five lines of a 43ch column.
+   Relativity's part headings ("I. Kinematischer Teil") sit one step above, in the same weight, so
+   the outline reads part > section. The parallel and gloss faces lie outside .reading-column and
+   keep their own, smaller step. One rule for all of them, so the faces cannot drift apart again.
+   Held by scripts/e2e/englishFaceRhythm.e2e.test.ts, which compares § 1 across papers. */
+:is([data-german-draft] h2, .reading-column .source-heading) {
   font-size: var(--type-title);
   font-weight: 400;
+  line-height: 1.15;
   margin: 2.5rem 0 1.2rem;
+}
+.reading-column .source-part-heading {
+  font-size: var(--type-display);
+  font-weight: 400;
+  line-height: 1.15;
+}
+/* The same 40px above holds on relativity's German face only if its blocks stack like the draft
+   face's. They did not: GermanFace sets each block in a .source-block-wrapper with 1.5rem margins,
+   inside a flex column with a 1.5rem gap, and a flex item's margins do not collapse, so § 1 stood
+   112px below the text above it where the draft faces give 40px, and its paragraphs 199px apart
+   (at 1440, measured across the "Explained in" line) where theirs stand 72px. As a block, with one
+   paragraph gap per wrapper, the margins collapse as they do on the draft face. */
+.reading-column > .source-blocks-list {
+  display: block;
+}
+.reading-column > .source-blocks-list > .source-block-wrapper {
+  margin-block: var(--reader-paragraph-gap);
 }
