@@ -1,4 +1,5 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import type { Lq07Channels, Lq07Parameters, Lq07Regime } from "./definition.ts";
 
@@ -11,7 +12,7 @@ const VALID_REGIMES = new Set<Lq07Regime>([
 
 const VALID_CHANNELS = new Set<Lq07Channels>(["light-plus-heat", "light-only"]);
 
-export function validateLq07Parameters(input: unknown): Computation<Lq07Parameters> {
+function validateLq07Fields(input: unknown): Computation<Lq07Parameters> {
   const bad = (requirements: string, code?: string): Computation<never> => ({
     kind: "refused",
     refusal: makeRefusal(
@@ -32,13 +33,15 @@ export function validateLq07Parameters(input: unknown): Computation<Lq07Paramete
   const obj = input as Partial<Record<keyof Lq07Parameters, unknown>>;
 
   const nu1 = obj.nu1;
-  if (typeof nu1 !== "number" || !Number.isFinite(nu1) || nu1 <= 0) {
-    return bad("Enter an exciting frequency ν₁ greater than zero, in THz.");
+  // The ranges of ν₁, ν₂, both temperatures and the absorbed power are the manifest's, checked
+  // once by withinDeclaredDomain below; these checks ask only for a number.
+  if (typeof nu1 !== "number" || !Number.isFinite(nu1)) {
+    return bad("Enter the exciting frequency ν₁ as a number, in THz.");
   }
 
   const nu2 = obj.nu2;
-  if (typeof nu2 !== "number" || !Number.isFinite(nu2) || nu2 <= 0) {
-    return bad("Enter an emitted frequency ν₂ greater than zero, in THz.");
+  if (typeof nu2 !== "number" || !Number.isFinite(nu2)) {
+    return bad("Enter the emitted frequency ν₂ as a number, in THz.");
   }
 
   const regime = obj.regime;
@@ -58,30 +61,18 @@ export function validateLq07Parameters(input: unknown): Computation<Lq07Paramete
   }
 
   const sourceTemperatureK = obj.sourceTemperatureK;
-  if (
-    typeof sourceTemperatureK !== "number" ||
-    !Number.isFinite(sourceTemperatureK) ||
-    sourceTemperatureK <= 0
-  ) {
-    return bad("Enter a source temperature above zero, in kelvin.");
+  if (typeof sourceTemperatureK !== "number" || !Number.isFinite(sourceTemperatureK)) {
+    return bad("Enter the source temperature as a number, in kelvin.");
   }
 
   const bodyTemperatureK = obj.bodyTemperatureK;
-  if (
-    typeof bodyTemperatureK !== "number" ||
-    !Number.isFinite(bodyTemperatureK) ||
-    bodyTemperatureK < 0
-  ) {
-    return bad("Enter a body temperature of zero or more, in kelvin.");
+  if (typeof bodyTemperatureK !== "number" || !Number.isFinite(bodyTemperatureK)) {
+    return bad("Enter the body temperature as a number, in kelvin.");
   }
 
   const absorbedPowerMicrowatts = obj.absorbedPowerMicrowatts;
-  if (
-    typeof absorbedPowerMicrowatts !== "number" ||
-    !Number.isFinite(absorbedPowerMicrowatts) ||
-    absorbedPowerMicrowatts <= 0
-  ) {
-    return bad("Enter an absorbed power greater than zero, in microwatts.");
+  if (typeof absorbedPowerMicrowatts !== "number" || !Number.isFinite(absorbedPowerMicrowatts)) {
+    return bad("Enter the absorbed power as a number, in microwatts.");
   }
 
   const quantumYield = obj.quantumYield;
@@ -113,4 +104,18 @@ export function validateLq07Parameters(input: unknown): Computation<Lq07Paramete
       channels: channels as Lq07Channels,
     }),
   };
+}
+
+/** Each declared setting as the form names it. */
+const LQ07_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  nu1: { label: "exciting frequency ν₁" },
+  nu2: { label: "emitted frequency ν₂" },
+  sourceTemperatureK: { label: "source temperature" },
+  bodyTemperatureK: { label: "body temperature" },
+  absorbedPowerMicrowatts: { label: "absorbed power" },
+};
+
+/** The fields above, then every range content/experiments/lq-07.yaml declares (dispatch 134). */
+export function validateLq07Parameters(input: unknown): Computation<Lq07Parameters> {
+  return withinDeclaredDomain("lq-07", validateLq07Fields(input), LQ07_DOMAIN_DISPLAY);
 }

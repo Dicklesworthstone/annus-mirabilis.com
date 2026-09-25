@@ -26,10 +26,12 @@ import {
 import { LQ07_TAPE } from "../../../experiments/lq07/tape.ts";
 import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
+import { refusalSentence } from "../../../experiments/results/refusalSentence.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { fixed, identity, sentenceNumber } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
@@ -108,7 +110,7 @@ export function FluorescenceLab({
   function apply(next: Lq07Parameters) {
     const outcome = session.apply(next);
     if (outcome.kind === "refused") {
-      setError(outcome.refusal.message);
+      setError(refusalSentence(outcome.refusal));
       return;
     }
     setError("");
@@ -118,16 +120,8 @@ export function FluorescenceLab({
 
   function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const parsed = fromLq07Draft(draft);
-    if (!Number.isFinite(parsed.nu1) || parsed.nu1 <= 0) {
-      setError("Exciting frequency ν₁ must be positive.");
-      return;
-    }
-    if (!Number.isFinite(parsed.nu2) || parsed.nu2 <= 0) {
-      setError("Emitted frequency ν₂ must be positive.");
-      return;
-    }
-    apply(parsed);
+    // The validator names each field and its declared range; the form no longer has its own.
+    apply(fromLq07Draft(draft));
   }
 
   function setPreset(presetKey: keyof typeof LQ07_PRESETS) {
@@ -495,7 +489,7 @@ export function FluorescenceLab({
 
         {error && (
           <div className="notice error" role="alert" style={{ marginTop: "1rem" }}>
-            {error}
+            {error} {KEPT_RESULT}
           </div>
         )}
         <AcceptedStatus

@@ -99,7 +99,7 @@ parameters:
       max: 50000
       minInclusive: true
       maxInclusive: true
-      reason: "Source temperature range"
+      reason: "The temperature of the exciting source, from a red-hot body to a hot star"
     visualRange:
       min: 2000
       max: 30000

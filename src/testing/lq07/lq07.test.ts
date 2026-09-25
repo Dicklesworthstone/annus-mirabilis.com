@@ -276,12 +276,16 @@ describe("LQ-07 emission follows the budget's verdict", () => {
 });
 
 describe("LQ-07 never publishes a rate it cannot write as a number", () => {
-  // An absorbed power of 1e300 µW passes validation and a shared link can carry it. The owner's
-  // counts overflowed to Infinity and were published as values, and on live 254d3459 applying such
-  // a link replaced the laboratory with "This page could not be displayed".
+  // An absorbed power of 1e300 µW once passed validation and a shared link could carry it. The
+  // owner's counts overflowed to Infinity and were published as values, and on live 254d3459
+  // applying such a link replaced the laboratory with "This page could not be displayed". Since
+  // dispatch 170 validation refuses it (the declared domain ends at 10^6 µW); the owner's own guard
+  // below still has to hold for any caller that reaches it.
   test("a finite power whose counts overflow puts the rates outside the domain, with a reason", () => {
     const params = { ...LQ07_DEFAULTS, absorbedPowerMicrowatts: 1e300 };
-    expect(validateLq07Parameters(params).kind).toBe("accepted");
+    const checked = validateLq07Parameters(params);
+    expect(checked.kind).toBe("refused");
+    if (checked.kind === "refused") expect(checked.refusal.code).toBe("outside-model-domain");
     const evaluation = evaluateLq07(params);
     expect(evaluation.rates.status).toBe("outside-domain");
     expect(evaluation.rates.reason).toContain("too large");
