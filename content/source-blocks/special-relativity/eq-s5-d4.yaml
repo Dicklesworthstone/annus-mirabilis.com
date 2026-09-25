@@ -1,0 +1,26 @@
+# SourceBlock eq-s5-d4: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "eq-s5-d4"
+kind: "equation"
+paper: "special-relativity"
+section: "s5"
+order: 101
+locators:
+  - pdfPageIndex: 15
+    printedPage: 905
+editorialLabel: "ed:s5-d4"
+containedIn: "s5-p2"
+diplomaticText: "\\alpha = \\operatorname{arctg} \\frac{w_y}{w_x} ;"
+inlines:
+  - kind: "math"
+    latex: "\\alpha = \\operatorname{arctg} \\frac{w_y}{w_x} ;"
+    equationId: "eq-s5-d4"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

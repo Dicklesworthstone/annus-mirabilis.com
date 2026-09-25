@@ -1,0 +1,211 @@
+# SourceBlock s5-p2: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s5-p2"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s5"
+order: 98
+locators:
+  - pdfPageIndex: 15
+    printedPage: 905
+  - pdfPageIndex: 16
+    printedPage: 906
+diplomaticText: "Gesucht ist die Bewegung des Punktes relativ zum System K. Führt man in die Bewegungsgleichungen des Punktes mit Hilfe der in § 3 entwickelten Transformationsgleichungen die Größen x, y, z, t ein, so erhält man: Das Gesetz vom Parallelogramm der Geschwindigkeiten gilt also nach unserer Theorie nur in erster Annäherung. Wir setzen: und \\alpha ist dann als der Winkel zwischen den Geschwindigkeiten v und w anzusehen. Nach einfacher Rechnung ergibt sich: Es ist bemerkenswert, daß v und w in symmetrischer Weise in den Ausdruck für die resultierende Geschwindigkeit eingehen. Hat auch w die Richtung der X-Achse (\\Xi-Achse), so erhalten wir: Aus dieser Gleichung folgt, daß aus der Zusammensetzung zweier Geschwindigkeiten, welche kleiner sind als V, stets eine Geschwindigkeit kleiner als V resultiert. Setzt man nämlich v = V - \\varkappa, w = V - \\lambda, wobei \\varkappa und \\lambda positiv und kleiner als V seien, so ist:"
+inlines:
+  - kind: "text"
+    text: "Gesucht ist die Bewegung des Punktes relativ zum System "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: "."
+  - kind: "space"
+  - kind: "text"
+    text: "Führt man in die Bewegungsgleichungen des Punktes mit Hilfe der in § 3 entwickelten Transformationsgleichungen die Größen "
+  - kind: "math"
+    latex: "x"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "y"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "z"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: " ein, so erhält man:"
+  - kind: "math"
+    latex: "\\begin{aligned} x &= \\frac{w_\\xi + v}{1 + \\frac{v w_\\xi}{V^2}} t , \\\\ y &= \\frac{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}{1 + \\frac{v w_\\xi}{V^2}} w_\\eta t , \\\\ z &= 0 . \\end{aligned}"
+    display: true
+    equationId: "eq-s5-d2"
+  - kind: "space"
+  - kind: "text"
+    text: "Das Gesetz vom Parallelogramm der Geschwindigkeiten gilt also nach unserer Theorie nur in erster Annäherung."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir setzen:"
+  - kind: "math"
+    latex: "\\begin{aligned} U^2 &= \\left( \\frac{d x}{d t} \\right)^2 + \\left( \\frac{d y}{d t} \\right)^2 , \\\\ w^2 &= w_\\xi^2 + w_\\eta^2 \\end{aligned}"
+    display: true
+    equationId: "eq-s5-d3"
+  - kind: "text"
+    text: " und"
+  - kind: "math"
+    latex: "\\alpha = \\operatorname{arctg} \\frac{w_y}{w_x} ;"
+    display: true
+    equationId: "eq-s5-d4"
+  - kind: "text"
+    text: " "
+  - kind: "math"
+    latex: "\\alpha"
+  - kind: "text"
+    text: " ist dann als der Winkel zwischen den Geschwindigkeiten "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "w"
+  - kind: "text"
+    text: " anzusehen."
+  - kind: "space"
+  - kind: "text"
+    text: "Nach einfacher Rechnung ergibt sich:"
+  - kind: "math"
+    latex: "U = \\frac{\\sqrt{(v^2 + w^2 + 2 v w \\cos \\alpha) - \\left( \\frac{v w \\sin \\alpha}{V} \\right)^2}}{1 + \\frac{v w \\cos \\alpha}{V^2}} ."
+    display: true
+    equationId: "eq-s5-d5"
+  - kind: "space"
+  - kind: "text"
+    text: "Es ist bemerkenswert, daß "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "w"
+  - kind: "text"
+    text: " in symmetrischer Weise in den Ausdruck für die resultierende Geschwindigkeit eingehen."
+  - kind: "space"
+  - kind: "text"
+    text: "Hat auch "
+  - kind: "math"
+    latex: "w"
+  - kind: "text"
+    text: " die Richtung der "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: "-Achse ("
+  - kind: "math"
+    latex: "\\Xi"
+  - kind: "text"
+    text: "-Achse), so erhalten wir:"
+  - kind: "math"
+    latex: "U = \\frac{v + w}{1 + \\frac{v w}{V^2}} ."
+    display: true
+    equationId: "eq-s5-d6"
+  - kind: "space"
+  - kind: "text"
+    text: "Aus dieser Gleichung folgt, daß aus der Zusammensetzung zweier Geschwindigkeiten, welche kleiner sind als "
+  - kind: "math"
+    latex: "V"
+  - kind: "text"
+    text: ", stets eine Geschwindigkeit kleiner als "
+  - kind: "math"
+    latex: "V"
+  - kind: "text"
+    text: " resultiert."
+  - kind: "space"
+  - kind: "text"
+    text: "Setzt man nämlich "
+  - kind: "math"
+    latex: "v = V - \\varkappa"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "w = V - \\lambda"
+  - kind: "text"
+    text: ", wobei "
+  - kind: "math"
+    latex: "\\varkappa"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "\\lambda"
+  - kind: "text"
+    text: " positiv und kleiner als "
+  - kind: "math"
+    latex: "V"
+  - kind: "text"
+    text: " seien, so ist:"
+  - kind: "math"
+    latex: "U = V \\frac{2 V - \\varkappa - \\lambda}{2 V - \\varkappa - \\lambda + \\frac{\\varkappa \\lambda}{V}} < V ."
+    display: true
+    equationId: "eq-s5-d7"
+sentenceSpans:
+  - id: "s5-p2-s1"
+    span:
+      start: 0
+      end: 58
+      blockRevision: 1
+      textDigest: "a56fcc9dc3100de9361541defd92246fd3b79b7164319d195074be10c8ddf12f"
+  - id: "s5-p2-s2"
+    span:
+      start: 59
+      end: 211
+      blockRevision: 1
+      textDigest: "a56fcc9dc3100de9361541defd92246fd3b79b7164319d195074be10c8ddf12f"
+  - id: "s5-p2-s3"
+    span:
+      start: 212
+      end: 320
+      blockRevision: 1
+      textDigest: "a56fcc9dc3100de9361541defd92246fd3b79b7164319d195074be10c8ddf12f"
+  - id: "s5-p2-s4"
+    span:
+      start: 321
+      end: 417
+      blockRevision: 1
+      textDigest: "a56fcc9dc3100de9361541defd92246fd3b79b7164319d195074be10c8ddf12f"
+  - id: "s5-p2-s5"
+    span:
+      start: 418
+      end: 454
+      blockRevision: 1
+      textDigest: "a56fcc9dc3100de9361541defd92246fd3b79b7164319d195074be10c8ddf12f"
+  - id: "s5-p2-s6"
+    span:
+      start: 455
+      end: 575
+      blockRevision: 1
+      textDigest: "a56fcc9dc3100de9361541defd92246fd3b79b7164319d195074be10c8ddf12f"
+  - id: "s5-p2-s7"
+    span:
+      start: 576
+      end: 641
+      blockRevision: 1
+      textDigest: "a56fcc9dc3100de9361541defd92246fd3b79b7164319d195074be10c8ddf12f"
+  - id: "s5-p2-s8"
+    span:
+      start: 642
+      end: 803
+      blockRevision: 1
+      textDigest: "a56fcc9dc3100de9361541defd92246fd3b79b7164319d195074be10c8ddf12f"
+  - id: "s5-p2-s9"
+    span:
+      start: 804
+      end: 926
+      blockRevision: 1
+      textDigest: "a56fcc9dc3100de9361541defd92246fd3b79b7164319d195074be10c8ddf12f"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

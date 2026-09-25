@@ -1,0 +1,33 @@
+# TranslationUnit s5-p2-s7: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s5-p2-s7"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s5-p2-s7"
+inlines:
+  - kind: "text"
+    text: "If "
+  - kind: "math"
+    latex: "w"
+  - kind: "text"
+    text: " also has the direction of the "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: "-axis ("
+  - kind: "math"
+    latex: "\\Xi"
+  - kind: "text"
+    text: "-axis), we obtain:"
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

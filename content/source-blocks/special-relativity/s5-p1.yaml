@@ -1,0 +1,59 @@
+# SourceBlock s5-p1: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s5-p1"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s5"
+order: 96
+locators:
+  - pdfPageIndex: 15
+    printedPage: 905
+diplomaticText: "In dem längs der X-Achse des Systems K mit der Geschwindigkeit v bewegten System k bewege sich ein Punkt gemäß den Gleichungen: wobei w_\\xi und w_\\eta Konstanten bedeuten."
+inlines:
+  - kind: "text"
+    text: "In dem längs der "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: "-Achse des Systems "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " mit der Geschwindigkeit "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " bewegten System "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " bewege sich ein Punkt gemäß den Gleichungen:"
+  - kind: "math"
+    latex: "\\begin{aligned} \\xi &= w_\\xi \\tau , \\\\ \\eta &= w_\\eta \\tau , \\\\ \\zeta &= 0 , \\end{aligned}"
+    display: true
+    equationId: "eq-s5-d1"
+  - kind: "text"
+    text: " wobei "
+  - kind: "math"
+    latex: "w_\\xi"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "w_\\eta"
+  - kind: "text"
+    text: " Konstanten bedeuten."
+sentenceSpans:
+  - id: "s5-p1-s1"
+    span:
+      start: 0
+      end: 171
+      blockRevision: 1
+      textDigest: "4f128f7db8e16b6a66a1588548a30b792f938b5db1d110436f77b28d9d9e2fba"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

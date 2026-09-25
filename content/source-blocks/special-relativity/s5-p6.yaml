@@ -1,0 +1,132 @@
+# SourceBlock s5-p6: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s5-p6"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s5"
+order: 105
+locators:
+  - pdfPageIndex: 16
+    printedPage: 906
+  - pdfPageIndex: 17
+    printedPage: 907
+diplomaticText: "Es folgt ferner, daß die Lichtgeschwindigkeit V durch Zusammensetzung mit einer „Unterlichtgeschwindigkeit“ nicht geändert werden kann. Man erhält für diesen Fall: Wir hätten die Formel für U für den Fall, daß v und w gleiche Richtung besitzen, auch durch Zusammensetzen zweier Transformationen gemäß § 3 erhalten können. Führen wir neben den in § 3 figurierenden Systemen K und k noch ein drittes, zu k in Parallelbewegung begriffenes Koordinatensystem k' ein, dessen Anfangspunkt sich auf der \\Xi-Achse mit der Geschwindigkeit w bewegt, so erhalten wir zwischen den Größen x, y, z, t und den entsprechenden Größen von k' Gleichungen, welche sich von den in § 3 gefundenen nur dadurch unterscheiden, daß an Stelle von „v“ die Größe tritt; man sieht daraus, daß solche Paralleltransformationen — wie dies sein muß — eine Gruppe bilden."
+inlines:
+  - kind: "text"
+    text: "Es folgt ferner, daß die Lichtgeschwindigkeit "
+  - kind: "math"
+    latex: "V"
+  - kind: "text"
+    text: " durch Zusammensetzung mit einer „Unterlichtgeschwindigkeit“ nicht geändert werden kann."
+  - kind: "space"
+  - kind: "text"
+    text: "Man erhält für diesen Fall:"
+  - kind: "math"
+    latex: "U = \\frac{V + w}{1 + \\frac{w}{V}} = V ."
+    display: true
+    equationId: "eq-s5-d8"
+  - kind: "space"
+  - kind: "text"
+    text: "Wir hätten die Formel für "
+  - kind: "math"
+    latex: "U"
+  - kind: "text"
+    text: " für den Fall, daß "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "w"
+  - kind: "text"
+    text: " gleiche Richtung besitzen, auch durch Zusammensetzen zweier Transformationen gemäß § 3 erhalten können."
+  - kind: "space"
+  - kind: "text"
+    text: "Führen wir neben den in § 3 figurierenden Systemen "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " noch ein drittes, zu "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " in Parallelbewegung begriffenes Koordinatensystem "
+  - kind: "math"
+    latex: "k'"
+  - kind: "text"
+    text: " ein, dessen Anfangspunkt sich auf der "
+  - kind: "math"
+    latex: "\\Xi"
+  - kind: "text"
+    text: "-Achse mit der Geschwindigkeit "
+  - kind: "math"
+    latex: "w"
+  - kind: "text"
+    text: " bewegt, so erhalten wir zwischen den Größen "
+  - kind: "math"
+    latex: "x"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "y"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "z"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: " und den entsprechenden Größen von "
+  - kind: "math"
+    latex: "k'"
+  - kind: "text"
+    text: " Gleichungen, welche sich von den in § 3 gefundenen nur dadurch unterscheiden, daß an Stelle von „"
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: "“ die Größe"
+  - kind: "math"
+    latex: "\\frac{v + w}{1 + \\frac{v w}{V^2}}"
+    display: true
+    equationId: "eq-s5-d9"
+  - kind: "text"
+    text: " tritt; man sieht daraus, daß solche Paralleltransformationen — wie dies sein muß — eine Gruppe bilden."
+sentenceSpans:
+  - id: "s5-p6-s1"
+    span:
+      start: 0
+      end: 135
+      blockRevision: 1
+      textDigest: "2ce49152d6154d684b9481eb70f7e5f521de167d96bbf470bb109be42a6cd9fc"
+  - id: "s5-p6-s2"
+    span:
+      start: 136
+      end: 163
+      blockRevision: 1
+      textDigest: "2ce49152d6154d684b9481eb70f7e5f521de167d96bbf470bb109be42a6cd9fc"
+  - id: "s5-p6-s3"
+    span:
+      start: 164
+      end: 321
+      blockRevision: 1
+      textDigest: "2ce49152d6154d684b9481eb70f7e5f521de167d96bbf470bb109be42a6cd9fc"
+  - id: "s5-p6-s4"
+    span:
+      start: 322
+      end: 835
+      blockRevision: 1
+      textDigest: "2ce49152d6154d684b9481eb70f7e5f521de167d96bbf470bb109be42a6cd9fc"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

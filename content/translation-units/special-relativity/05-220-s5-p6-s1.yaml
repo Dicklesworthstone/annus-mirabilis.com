@@ -1,0 +1,27 @@
+# TranslationUnit s5-p6-s1: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s5-p6-s1"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s5-p6-s1"
+inlines:
+  - kind: "text"
+    text: "It follows further that the velocity of light "
+  - kind: "math"
+    latex: "V"
+  - kind: "text"
+    text: " cannot be altered by composition with a “sub-light velocity”."
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "a “velocity below that of light”"
+    rationale: "„Unterlichtgeschwindigkeit“ is Einstein’s own compound, set in quotation marks; “sub-light velocity” keeps it a coined word in quotes. “Subluminal” is later technical vocabulary and is kept out of the text."
+reviewState: "machine-draft"
+lang: "en"

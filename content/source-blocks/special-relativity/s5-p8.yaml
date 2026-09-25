@@ -1,0 +1,29 @@
+# SourceBlock s5-p8: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s5-p8"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s5"
+order: 108
+locators:
+  - pdfPageIndex: 17
+    printedPage: 907
+diplomaticText: "Wir haben nun die für uns notwendigen Sätze der unseren zwei Prinzipien entsprechenden Kinematik hergeleitet und gehen dazu über, deren Anwendung in der Elektrodynamik zu zeigen."
+inlines:
+  - kind: "text"
+    text: "Wir haben nun die für uns notwendigen Sätze der unseren zwei Prinzipien entsprechenden Kinematik hergeleitet und gehen dazu über, deren Anwendung in der Elektrodynamik zu zeigen."
+sentenceSpans:
+  - id: "s5-p8-s1"
+    span:
+      start: 0
+      end: 178
+      blockRevision: 1
+      textDigest: "c97b37875402ecef0eb2c9b20053f7b9d157677373cd1c7ab8e40937bbbcc780"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

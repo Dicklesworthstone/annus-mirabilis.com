@@ -1,0 +1,33 @@
+# TranslationUnit s5-p2-s4c: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s5-p2-s4c"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s5-p2-s4"
+inlines:
+  - kind: "math"
+    latex: "\\alpha"
+  - kind: "text"
+    text: " is then to be regarded as the angle between the velocities "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " and "
+  - kind: "math"
+    latex: "w"
+  - kind: "text"
+    text: "."
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "w_y and w_x in the display above"
+    rationale: "The display prints Latin subscripts, w_y over w_x, where the preceding display defines w_ξ and w_η; it is kept byte-identical, and the provenance receipt records it as a suspected misprint (err-typo-p905-1)."
+reviewState: "machine-draft"
+lang: "en"
