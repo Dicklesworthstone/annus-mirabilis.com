@@ -1,7 +1,9 @@
-# TranslationUnit eq-s3-d26: English machine-draft translation.
+# TranslationUnit eq-s3-d26: English translation, checked by AI agents.
 # Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
-# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+# Final under docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations after two agent
+# review rounds. No person has reviewed it.
 # Review round 1 (SapphireCastle, agent, 2026-09-25): read against the German and the plates pp. 897-902; no change.
+# Review round 2 (TanElk, agent, 2026-09-25): read against the German and the plates pp. 897-902; no change.
 kind: "translation-unit"
 id: "eq-s3-d26"
 paper: "special-relativity"
@@ -19,5 +21,20 @@ translator:
   modelId: "claude-opus-5-5"
 revision: 1
 unresolvedAlternatives: []
-reviewState: "machine-draft"
+reviewState: "reviewed"
+agentReview:
+  basis: "D-2026-09-25-agent-reviewed-translations"
+  rounds:
+    - reviewer:
+        id: "agent:SapphireCastle"
+        name: "SapphireCastle"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
+    - reviewer:
+        id: "agent:TanElk"
+        name: "TanElk"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
 lang: "en"
