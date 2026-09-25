@@ -272,6 +272,14 @@ describe("the real corpus: every printed number is pinned", () => {
       // enumerator. Enumerated: six bare enumerators and five long sentences, the fifth the new
       // crossing. Next prediction: 914 ends with an INLINE tag, so 915 adds no crossing.
       //
+      // 11 -> 12 when p917 landed, PREDICTED IN ADVANCE in a01b65e7's commit message. The line
+      // above also held for 915: p914's tag was inline, so 915 moved nothing, and neither did 916,
+      // since 915 ended a paragraph and 916 printed no enumerator. 916 ends in
+      // the display eq-s9-d4 with its tag on its own line, so "Transformiert man diese
+      // Gleichungen ... [d3] wobei [d4] Da - wie aus dem Additionstheorem ... entspricht." joins
+      // across 916/917. Enumerated: six bare enumerators and six long sentences. Next: 917 ends
+      // with an INLINE tag, mid-word, so 918 should add no crossing.
+      //
       // WHAT THIS NUMBER CANNOT SEE, so that a later reader does not mistake it for the count of
       // cross-page sentences. A crossing is visible here only when [[CONTINUES]] sits on its own
       // line. When it is written inline, glued to the last word, segmentLedger keeps it attached,
@@ -290,7 +298,7 @@ describe("the real corpus: every printed number is pinned", () => {
       // not.) Left as measured rather than repaired here: the repair
       // is either a ledger-wide rewrite touching four papers or a change to segmentLedger, and
       // both belong to am-span-recording-decision-ero2, not to a transcription pane.
-      unplaceableProposedSentences: 11,
+      unplaceableProposedSentences: 12,
     },
   };
 
