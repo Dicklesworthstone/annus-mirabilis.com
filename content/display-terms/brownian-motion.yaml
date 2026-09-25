@@ -531,3 +531,58 @@ displays:
         quantityId: diffusionCoefficient
       - glyph: "t"
         quantityId: observationInterval
+  # § 5. k is the viscosity and P the particle's radius (concordance bm.k.viscosity,
+  #   bm.P.particleRadius), λ_x the root mean square displacement along the X-axis in the time t.
+  #   eq-s5-d5 (N = t/λ_x^2 · RT/3πkP) is held out: marking λ_x where it takes an exponent changes the
+  #   MathML (compilePrintedDisplay refuses, display-terms-mathml-changed), the limit relativity's A'^2
+  #   meets. It is added once the marker handles a scripted letter with an exponent.
+  - display: eq-s5-d1
+    latex: "D = \\frac{R T}{N} \\frac{1}{6 \\pi k P}."
+    spoken: "D equals R T over N, times one over six pi k P."
+    terms:
+      - glyph: "D"
+        quantityId: diffusionCoefficient
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "T"
+        quantityId: temperature
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "k"
+        quantityId: viscosity
+      - glyph: "P"
+        quantityId: particleRadius
+  - display: eq-s5-d2
+    latex: "\\lambda_x = \\sqrt{2 D t}."
+    spoken: "lambda x equals the square root of two D t."
+    terms:
+      - glyph: "\\lambda_x"
+        quantityId: rmsDisplacement1d
+      - glyph: "D"
+        quantityId: diffusionCoefficient
+      - glyph: "t"
+        quantityId: observationInterval
+  - display: eq-s5-d3
+    latex: "\\lambda_x = \\sqrt{t} \\cdot \\sqrt{\\frac{R T}{N} \\frac{1}{3 \\pi k P}}."
+    spoken: "lambda x equals the square root of t, times the square root of R T over N times one over three pi k P."
+    terms:
+      - glyph: "\\lambda_x"
+        quantityId: rmsDisplacement1d
+      - glyph: "t"
+        quantityId: observationInterval
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "T"
+        quantityId: temperature
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "k"
+        quantityId: viscosity
+      - glyph: "P"
+        quantityId: particleRadius
+  - display: eq-s5-d4
+    latex: "\\lambda_x = 8 \\cdot 10^{-5} \\, \\text{cm} = 0{,}8 \\, \\text{Mikron}."
+    spoken: "lambda x equals eight times ten to the minus five centimetres, and this equals nought point eight micron."
+    terms:
+      - glyph: "\\lambda_x"
+        quantityId: rmsDisplacement1d
