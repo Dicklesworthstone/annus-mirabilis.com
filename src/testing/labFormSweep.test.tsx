@@ -25,6 +25,12 @@ import { createContainer, installDom, removeContainer, uninstallDom } from "./re
  * into a number field and arrives as "", so both stand for the same reader.)
  *
  * UNFINISHED names the labs not yet fixed, a two-way ratchet like labDomainSweep's.
+ *
+ * A refusal must also say that what is on screen is not what was typed (dispatch 170): the field
+ * keeps the refused text beside the old results, so the alert says the results shown are the last
+ * accepted ones. UNMARKED names the labs whose refusals do not, as a second two-way ratchet. The
+ * mark is looked for in the refusal itself, not anywhere on the page, where a standing sentence
+ * would satisfy it for every refusal at once.
  */
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const APP = resolve(root, "src/app/lab");
@@ -50,7 +56,43 @@ const UNFINISHED: readonly string[] = [
   "sr-11",
 ];
 
+/** Labs a refusal leaves without saying the results shown are the last accepted ones. */
+const UNMARKED: readonly string[] = [
+  "bm-01",
+  "bm-02",
+  "bm-03",
+  "bm-04",
+  "bm-05",
+  "bm-06",
+  "bm-07",
+  "bm-08",
+  "lq-01",
+  "lq-02",
+  "lq-03",
+  "lq-04",
+  "lq-05",
+  "lq-07",
+  "lq-08",
+  "lq-09",
+  "me-01",
+  "me-02",
+  "me-03",
+  "sr-01",
+  "sr-02",
+  "sr-03",
+  "sr-04",
+  "sr-06",
+  "sr-07",
+  "sr-08",
+  "sr-09",
+  "sr-10",
+  "sr-11",
+  "sr-12",
+  "sr-13",
+];
+
 const VALUES = ["abc", "", "1e300", "-1e300"] as const;
+const KEPT = /last accepted/i;
 const RAW =
   /\bNaN\b|\bInfinity\b|\[object |must be a finite number between|\[(?:experiment|[a-z]{2}-\d{2})\] | \((?:[a-z]+-)+[a-z]+\)/g;
 
@@ -132,6 +174,7 @@ async function probe(c: HTMLElement, i: number, value: string) {
     requested: after.requested !== before.requested,
     // Only a refusal that appeared or changed for this value counts.
     refusal: after.alerts !== "" && after.alerts !== before.alerts,
+    marked: KEPT.test(after.alerts),
     raw: [...new Set(after.text.match(RAW) ?? [])].filter((h) => !before.text.includes(h)),
   } as const;
 }
@@ -149,6 +192,9 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
   });
 
   const findings: Record<string, string[]> = {};
+  const unmarked: Record<string, string[]> = {};
+  let refusals = 0;
+  let marked = 0;
   const untyped: string[] = [];
   let typed = 0;
 
@@ -162,6 +208,7 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
       ).split(":")[0] as string;
       const domains = declaredDomains(lab);
       const found: string[] = [];
+      const plain: string[] = [];
       const seen = new Set<string>();
       // Each mode a radio or a toggle button selects can show its own fields (ME-03's 1906 box), so
       // the sweep visits the page as mounted and then each such state, typing each field name once.
@@ -216,6 +263,11 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
             else if (letThrough && !openSide)
               found.push(`${name}=${JSON.stringify(v)}: let through`);
             else if (!letThrough && !r.refusal) found.push(`${name}=${JSON.stringify(v)}: silent`);
+            if (!letThrough && r.refusal) {
+              refusals++;
+              if (r.marked) marked++;
+              else plain.push(`${name}=${JSON.stringify(v)}`);
+            }
           }
         }
       }
@@ -225,8 +277,11 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
       });
       removeContainer(page.container);
       findings[route] = found;
+      unmarked[route] = plain;
       if (UNFINISHED.includes(route)) expect(found.length).toBeGreaterThan(0);
       else expect(found).toEqual([]);
+      if (UNMARKED.includes(route)) expect(plain.length).toBeGreaterThan(0);
+      else expect(plain).toEqual([]);
     }, 120_000);
   }
 
@@ -237,9 +292,18 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
       )
         .filter(([, f]) => f.length)
         .map(([r]) => r)
+        .join(
+          ", ",
+        )}; ${marked} of ${refusals} refusals say the results shown are the last accepted; labs whose refusals do not: ${Object.entries(
+        unmarked,
+      )
+        .filter(([, f]) => f.length)
+        .map(([r]) => r)
         .join(", ")}`,
     );
     expect(typed).toBeGreaterThan(400);
+    // The mark is found somewhere, so a pattern that could never match would not pass as a clean run.
+    expect(marked).toBeGreaterThan(0);
     // SR-05 is driven by buttons alone. Any other lab with nothing to type means the sweep lost it.
     expect(untyped).toEqual(["sr-05"]);
   });
