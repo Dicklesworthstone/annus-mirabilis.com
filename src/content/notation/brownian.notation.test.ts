@@ -129,8 +129,9 @@ describe("am-not-entries-brownian-1rq: Brownian notation concordance", () => {
     // p. 556: tau is very small beside the observable intervals, the step of the walk; the
     // records bind it as stepInterval, never as the interval over which a displacement is watched.
     assert.equal(bound("bm-s4", "\\tau"), "stepInterval");
-    // t is the time over which a displacement is observed (lambda_x = sqrt(2Dt), p. 559).
-    assert.equal(bound("bm-s4", "t"), "observationInterval");
+    // t is the time over which a displacement is observed where lambda_x = sqrt(2Dt) uses it: the
+    // last paragraph of section 4 (p. 558, "in einer beliebigen Zeit t") and section 5 (p. 559).
+    assert.equal(bound("bm-s4-p11", "t"), "observationInterval");
     assert.equal(bound("bm-s5", "t"), "observationInterval");
     // lambda_x is first printed at the head of p. 559, still in section 4, and renames to itself:
     // the records print Einstein's own letter.
