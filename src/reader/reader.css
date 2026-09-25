@@ -2591,6 +2591,14 @@ html:is(
   display: inline;
 }
 
+/* The noted word as the server sends it, before the note's button replaces it (TermAnnotation.tsx).
+   Without JavaScript this is all a reader gets, so it reads as ordinary text: no underline, no
+   help cursor, nothing that promises a control. */
+.term-annotation-text {
+  font: inherit;
+  color: inherit;
+}
+
 .term-annotation-popover {
   position: absolute;
   left: 0;
