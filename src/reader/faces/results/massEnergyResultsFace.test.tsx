@@ -5,9 +5,9 @@
  */
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { printedCheckFor } from "../../../content/results/printedChecks.ts";
 import { loadResultCards } from "../../../content/results/resultCards.ts";
 import { loadPaper } from "../../../content/server.ts";
-import { PRINTED_FACTOR_WORDING } from "../../../physics/reference/massEnergy.ts";
 import { exportMarkup } from "../../../testing/exportMarkup.ts";
 import { FaceFallback } from "../../FaceFallback.tsx";
 import { PaperPage } from "../../PaperPage.tsx";
@@ -84,7 +84,9 @@ describe("mass-energy's results face, static", () => {
     expect(card).toContain('data-constant-set-id="modern-si-2019"');
     expect(card).toContain(">1 g<");
     expect(card).toContain("1.0013851 g");
-    expect(card).toContain(PRINTED_FACTOR_WORDING);
+    // The owner's sentence, as the build-time join returns it (printedChecks.test.ts holds that it
+    // is the owner's wording, word for word).
+    expect(card).toContain(printedCheckFor(process.cwd(), "mass-energy-printed-factor").comparison);
   });
 
   test("a premise and a comparison are labelled as such", () => {
