@@ -24,6 +24,68 @@ notQuantities:
 displays:
   # ---- Part I, sections 1 to 5 ----
 
+  # Sections 1 and 2. The light-signal rule for synchronous clocks, and the relativity of lengths and times.
+  # eq-s1-d1: § 1's definition of synchronous clocks. t_A, t_B and t'_A are readings of the resting system's
+  #   clocks at A and B (concordance sr.tA, sr.tB and sr.tAret, all coordinateTimeStationary).
+  - display: eq-s1-d1
+    latex: "t_B - t_A = t'_A - t_B ."
+    spoken: "t sub B minus t sub A equals t prime sub A minus t sub B."
+    terms:
+      - glyph: "t_B"
+        quantityId: coordinateTimeStationary
+      - glyph: "t_A"
+        quantityId: coordinateTimeStationary
+      - glyph: "t'_A"
+        quantityId: coordinateTimeStationary
+  - display: eq-s1-d2
+    latex: "\\frac{2 \\overline{AB}}{t'_A - t_A} = V"
+    spoken: "Two times the distance A B, divided by t prime sub A minus t sub A, equals V."
+    terms:
+      - glyph: "\\overline{AB}"
+        quantityId: eventSeparationSpatial
+      - glyph: "t'_A"
+        quantityId: coordinateTimeStationary
+      - glyph: "t_A"
+        quantityId: coordinateTimeStationary
+      - glyph: "V"
+        quantityId: speedOfLight
+  # eq-s2-d1: the definition of velocity in words (Geschwindigkeit, Lichtweg, Zeitdauer); it prints no letter to bind.
+  - display: eq-s2-d1
+    latex: "\\text{Geschwindigkeit} = \\frac{\\text{Lichtweg}}{\\text{Zeitdauer}} ,"
+    spoken: "Geschwindigkeit equals Lichtweg divided by Zeitdauer: velocity equals light path divided by time interval."
+    terms: []
+  # eq-s2-d2 and eq-s2-d3: § 2's moving rod, timed with the resting system's clocks at its ends. The
+  #   concordance's t_A, t_B and t'_A entries are scoped to § 1; in § 2 the same letters are again readings of
+  #   those clocks, so they bind the same quantity. r_AB is the rod's length measured in the resting system.
+  - display: eq-s2-d2
+    latex: "t_B - t_A = \\frac{r_{AB}}{V - v}"
+    spoken: "t sub B minus t sub A equals r sub A B divided by V minus v."
+    terms:
+      - glyph: "t_B"
+        quantityId: coordinateTimeStationary
+      - glyph: "t_A"
+        quantityId: coordinateTimeStationary
+      - glyph: "r_{AB}"
+        quantityId: lengthMeasuredStationary
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "v"
+        quantityId: frameSpeed
+  - display: eq-s2-d3
+    latex: "t'_A - t_B = \\frac{r_{AB}}{V + v} ,"
+    spoken: "t prime sub A minus t sub B equals r sub A B divided by V plus v."
+    terms:
+      - glyph: "t'_A"
+        quantityId: coordinateTimeStationary
+      - glyph: "t_B"
+        quantityId: coordinateTimeStationary
+      - glyph: "r_{AB}"
+        quantityId: lengthMeasuredStationary
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "v"
+        quantityId: frameSpeed
+
   # ---- Part II, sections 6 to 10 ----
 
   # Section 6. The Maxwell-Hertz equations for empty space, transformed by section 3's equations.
