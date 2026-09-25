@@ -982,7 +982,6 @@ displays:
         quantityId: directionCosineMoving
       - glyph: "\\zeta"
         quantityId: coordinatePositionMoving
-  # eq-s7-d11 and eq-s7-d12 follow once the colouring can mark a primed letter under an exponent.
   - display: eq-s7-d3
     latex: "\\omega' = \\omega \\beta \\left( 1 - a \\frac{v}{V} \\right) ,"
     spoken: "omega prime equals omega times beta times the quantity one minus a times v over V."
@@ -1091,6 +1090,33 @@ displays:
         quantityId: frameSpeed
       - glyph: "V"
         quantityId: speedOfLight
+  - display: eq-s7-d11
+    latex: "A'^2 = A^2 \\frac{\\left( 1 - \\frac{v}{V} \\cos \\varphi \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2} ,"
+    spoken: "A prime squared equals A squared times: the square of the quantity one minus v over V times cosine phi, divided by one minus the square of v over V."
+    terms:
+      - glyph: "A'"
+        quantityId: lightAmplitudeMoving
+      - glyph: "A"
+        quantityId: lightAmplitudeStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\varphi"
+        quantityId: propagationAngleStationary
+  - display: eq-s7-d12
+    latex: "A'^2 = A^2 \\frac{1 - \\frac{v}{V}}{1 + \\frac{v}{V}} ."
+    spoken: "A prime squared equals A squared times: one minus v over V, divided by one plus v over V."
+    terms:
+      - glyph: "A'"
+        quantityId: lightAmplitudeMoving
+      - glyph: "A"
+        quantityId: lightAmplitudeStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+
   # Section 8. The energy of light and the pressure of radiation on a perfect mirror.
   # eq-s8-d1: R is the light sphere's radius (concordance sr.R.lightSphereRadius), not section 4's
   #   rigid sphere.
@@ -1156,7 +1182,28 @@ displays:
         quantityId: speedOfLight
       - glyph: "\\varphi"
         quantityId: propagationAngleStationary
-  # eq-s8-d4 follows once the colouring can draw A'^2 (dispatch 229).
+  - display: eq-s8-d4
+    latex: "\\frac{E'}{E} = \\frac{\\frac{A'^2}{8\\pi} S'}{\\frac{A^2}{8\\pi} S} = \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} ,"
+    spoken: "E prime over E equals: A prime squared over eight pi, times S prime, divided by A squared over eight pi, times S; and this equals one minus v over V times cosine phi, divided by the square root of one minus the square of v over V."
+    terms:
+      - glyph: "E'"
+        quantityId: lightComplexEnergyMoving
+      - glyph: "E"
+        quantityId: lightComplexEnergyStationary
+      - glyph: "A'"
+        quantityId: lightAmplitudeMoving
+      - glyph: "S'"
+        quantityId: lightComplexVolumeMoving
+      - glyph: "A"
+        quantityId: lightAmplitudeStationary
+      - glyph: "S"
+        quantityId: lightComplexVolumeStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\varphi"
+        quantityId: propagationAngleStationary
   - display: eq-s8-d5
     latex: "\\frac{E'}{E} = \\sqrt{\\frac{1 - \\frac{v}{V}}{1 + \\frac{v}{V}}} ."
     spoken: "E prime over E equals the square root of: one minus v over V, divided by one plus v over V."
