@@ -1,0 +1,119 @@
+# Printed displays of Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig? (ap-18-639), in colour.
+# One entry per display (src/equations/printed/displayTerms.ts reads and checks this file):
+#   latex          a copy of the display's printed LaTeX, byte for byte as its source block has it;
+#   spoken         the authored spoken form, in the letters Einstein printed;
+#   terms          each printed glyph (one letter with its subscripts and decorations) and the exact
+#                  canonical quantity id it binds here; the notation concordance must agree where it
+#                  has an entry in the display's scope;
+#   notQuantities  glyphs that name no quantity, each with its reason (also allowed once, file-wide).
+# Every letter in a display is bound or declared. Adding an entry needs no code change.
+paper: mass-energy
+displays:
+  # eq-s0-d1: ¶ 5, the transformation cited from § 8 of the electrodynamics paper. l is a light
+  #   complex's energy in the system at rest and l^* in the moving one, and φ the angle between the light's direction and the x-axis in the system at rest
+  #   (concordance me.phi.propagationAngleStationary), not yet the emission angle of ¶ 7.
+  - display: eq-s0-d1
+    latex: "l^* = l \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}},"
+    spoken: "l star equals l times: one minus v over V times cosine phi, divided by the square root of one minus the square of v over V."
+    terms:
+      - glyph: "l^*"
+        quantityId: lightComplexEnergyMoving
+      - glyph: "l"
+        quantityId: lightComplexEnergyStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\varphi"
+        quantityId: propagationAngleStationary
+  - display: eq-s0-d2
+    latex: "E_0 = E_1 + \\left[ \\frac{L}{2} + \\frac{L}{2} \\right],"
+    spoken: "E zero equals E one plus, in square brackets, L over two plus L over two."
+    terms:
+      - glyph: "E_0"
+        quantityId: bodyEnergyRestBefore
+      - glyph: "E_1"
+        quantityId: bodyEnergyRestAfter
+      - glyph: "L"
+        quantityId: emittedEnergyRestFrame
+  # eq-s0-d3: From ¶ 7 on, φ is the angle at which the light is emitted (concordance me.phi.emissionAngle).
+  - display: eq-s0-d3
+    latex: "\\begin{aligned} H_0 &= H_1 + \\left[ \\frac{L}{2} \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}} + \\frac{L}{2} \\frac{1 + \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}} \\right] \\\\ &= H_1 + \\frac{L}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}}. \\end{aligned}"
+    spoken: "H zero equals H one plus, in square brackets: L over two times one minus v over V cosine phi, divided by the square root of one minus the square of v over V; plus L over two times one plus v over V cosine phi, divided by the same square root. This equals H one plus L divided by the square root of one minus the square of v over V."
+    terms:
+      - glyph: "H_0"
+        quantityId: bodyEnergyMovingBefore
+      - glyph: "H_1"
+        quantityId: bodyEnergyMovingAfter
+      - glyph: "L"
+        quantityId: emittedEnergyRestFrame
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\varphi"
+        quantityId: emissionAngle
+  - display: eq-s0-d4
+    latex: "(H_0 - E_0) - (H_1 - E_1) = L \\left\\{ \\frac{1}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}} - 1 \\right\\}."
+    spoken: "H zero minus E zero, minus the quantity H one minus E one, equals L times, in braces, one divided by the square root of one minus the square of v over V, minus one."
+    terms:
+      - glyph: "H_0"
+        quantityId: bodyEnergyMovingBefore
+      - glyph: "E_0"
+        quantityId: bodyEnergyRestBefore
+      - glyph: "H_1"
+        quantityId: bodyEnergyMovingAfter
+      - glyph: "E_1"
+        quantityId: bodyEnergyRestAfter
+      - glyph: "L"
+        quantityId: emittedEnergyRestFrame
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  - display: eq-s0-d5
+    latex: "\\begin{aligned} H_0 - E_0 &= K_0 + C, \\\\ H_1 - E_1 &= K_1 + C, \\end{aligned}"
+    spoken: "H zero minus E zero equals K zero plus C, and H one minus E one equals K one plus C."
+    terms:
+      - glyph: "H_0"
+        quantityId: bodyEnergyMovingBefore
+      - glyph: "E_0"
+        quantityId: bodyEnergyRestBefore
+      - glyph: "K_0"
+        quantityId: kineticEnergyBefore
+      - glyph: "C"
+        quantityId: additiveEnergyConstant
+      - glyph: "H_1"
+        quantityId: bodyEnergyMovingAfter
+      - glyph: "E_1"
+        quantityId: bodyEnergyRestAfter
+      - glyph: "K_1"
+        quantityId: kineticEnergyAfter
+  - display: eq-s0-d6
+    latex: "K_0 - K_1 = L \\left\\{ \\frac{1}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}} - 1 \\right\\}."
+    spoken: "K zero minus K one equals L times, in braces, one divided by the square root of one minus the square of v over V, minus one."
+    terms:
+      - glyph: "K_0"
+        quantityId: kineticEnergyBefore
+      - glyph: "K_1"
+        quantityId: kineticEnergyAfter
+      - glyph: "L"
+        quantityId: emittedEnergyRestFrame
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  - display: eq-s0-d7
+    latex: "K_0 - K_1 = \\frac{L}{V^2} \\frac{v^2}{2}."
+    spoken: "K zero minus K one equals L over V squared, times v squared over two."
+    terms:
+      - glyph: "K_0"
+        quantityId: kineticEnergyBefore
+      - glyph: "K_1"
+        quantityId: kineticEnergyAfter
+      - glyph: "L"
+        quantityId: emittedEnergyRestFrame
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "v"
+        quantityId: frameSpeed

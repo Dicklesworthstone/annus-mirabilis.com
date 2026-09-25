@@ -21,6 +21,7 @@ export function TermInspector({
   className,
   nodeId,
   children,
+  inline = false,
 }: {
   name: string;
   glyphHtml?: string | undefined;
@@ -37,6 +38,12 @@ export function TermInspector({
   nodeId?: string | undefined;
   /** Links and actions below the facts: a lesson, or the laboratory input. */
   children?: ReactNode;
+  /**
+   * Phrasing content only, for a formula set inside a paragraph (a printed display on a reading
+   * face, dispatch 224): the same facts in spans, as a labelled group, where a <p> may hold no
+   * section, p or dl.
+   */
+  inline?: boolean | undefined;
 }) {
   const glyph = (html: string, form: "modern" | "printed" | undefined) => (
     <span
@@ -47,9 +54,58 @@ export function TermInspector({
       {...{ dangerouslySetInnerHTML: { __html: html } }}
     />
   );
+  const classes = className ? `term-inspector ${className}` : "term-inspector";
+  if (inline)
+    return (
+      <span
+        className={classes}
+        role="group"
+        aria-label={`About ${name}`}
+        data-inspector-node={nodeId}
+        data-inline=""
+        style={style}
+      >
+        <span className="term-inspector-name">
+          {glyphHtml ? glyph(glyphHtml, printedGlyphHtml ? "modern" : undefined) : null}
+          {printedGlyphHtml ? glyph(printedGlyphHtml, "printed") : null}
+          <strong>{name}</strong>
+        </span>
+        <span className="term-inspector-facts">
+          {facts.roles.length > 0 ? (
+            <span className="term-inspector-fact">
+              <span className="term-inspector-fact-name">In this formula</span>{" "}
+              <span className="term-inspector-fact-value">
+                {facts.roles.map((role, i) => (
+                  <span key={`${role.title}\u0000${role.explanation}`}>
+                    {i > 0 ? " " : null}
+                    {role.title.toLowerCase() !== name.toLowerCase() ? (
+                      <strong>{role.title}. </strong>
+                    ) : null}
+                    {role.explanation}
+                  </span>
+                ))}
+              </span>
+            </span>
+          ) : null}
+          <span className="term-inspector-fact">
+            <span className="term-inspector-fact-name">Unit</span>{" "}
+            <span className="term-inspector-fact-value">{facts.unit}</span>
+          </span>
+          <span className="term-inspector-fact">
+            <span className="term-inspector-fact-name">Dimension</span>{" "}
+            <span className="term-inspector-fact-value">{facts.dimension}</span>
+          </span>
+          <span className="term-inspector-fact">
+            <span className="term-inspector-fact-name">Value</span>{" "}
+            <span className="term-inspector-fact-value">{value}</span>
+          </span>
+        </span>
+        {children}
+      </span>
+    );
   return (
     <section
-      className={className ? `term-inspector ${className}` : "term-inspector"}
+      className={classes}
       aria-label={`About ${name}`}
       data-inspector-node={nodeId}
       style={style}

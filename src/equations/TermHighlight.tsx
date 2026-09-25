@@ -64,10 +64,17 @@ export const TermHighlightContext = createContext<TermHighlightState | null>(nul
 
 export type TermHighlightProps = Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
   children: ReactNode;
+  /**
+   * "span" where the block sits inside a paragraph: a printed display on a reading face is set
+   * inside its <p>, which may hold no div (dispatch 224). The behaviour is the same.
+   */
+  as?: "div" | "span" | undefined;
 };
 
-export function TermHighlight({ children, ...attributes }: TermHighlightProps) {
+export function TermHighlight({ children, as, ...attributes }: TermHighlightProps) {
   const root = useRef<HTMLDivElement>(null);
+  // Typed as a div either way: the handlers and the lighting use only what both elements have.
+  const Root = (as ?? "div") as "div";
   const [pointed, setPointed] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
@@ -84,7 +91,7 @@ export function TermHighlight({ children, ...attributes }: TermHighlightProps) {
     root.current ? quantityAt(root.current, target) : null;
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: delegated listeners only; the lit formula is aria-hidden, and its legend names every quantity in text for every reader.
-    <div
+    <Root
       {...attributes}
       ref={root}
       data-term-highlight=""
@@ -106,6 +113,6 @@ export function TermHighlight({ children, ...attributes }: TermHighlightProps) {
       }}
     >
       <TermHighlightContext.Provider value={state}>{children}</TermHighlightContext.Provider>
-    </div>
+    </Root>
   );
 }

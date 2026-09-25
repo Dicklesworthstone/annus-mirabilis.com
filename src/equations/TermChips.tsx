@@ -33,6 +33,7 @@ export function TermChips({
   disabled,
   onPress,
   onClear,
+  inline = false,
 }: {
   items: readonly TermChipItem[];
   label: string;
@@ -42,13 +43,27 @@ export function TermChips({
   /** Given, a chip calls it; omitted, the block's delegated click listener pins the chip's quantity. */
   onPress?: ((quantityId: string) => void) | undefined;
   onClear?: (() => void) | undefined;
+  /**
+   * Phrasing content only, for a formula set inside a paragraph (a printed display on a reading
+   * face): spans with list roles in place of the div, ul and li a <p> may not hold.
+   */
+  inline?: boolean | undefined;
 }) {
   if (items.length === 0) return null;
+  const Row = inline ? "span" : "div";
+  const List = (inline ? "span" : "ul") as "ul";
+  const Item = (inline ? "span" : "li") as "li";
   return (
-    <div className="term-chips-row">
-      <ul className="equation-legend term-chips" aria-label={label}>
+    <Row className="term-chips-row" data-inline={inline ? "" : undefined}>
+      {/* biome-ignore lint/a11y/useSemanticElements: inline, a <ul> would end the paragraph the formula is printed in. */}
+      <List
+        className="equation-legend term-chips"
+        aria-label={label}
+        role={inline ? "list" : undefined}
+      >
         {items.map((item) => (
-          <li key={`${item.quantityId} ${item.glyphHtml}`}>
+          // biome-ignore lint/a11y/useSemanticElements: as above, an <li> needs the <ul>.
+          <Item key={`${item.quantityId} ${item.glyphHtml}`} role={inline ? "listitem" : undefined}>
             <button
               type="button"
               className="term-chip"
@@ -77,15 +92,15 @@ export function TermChips({
               ) : null}
               <span className="equation-legend-name">{item.name}</span>
             </button>
-          </li>
+          </Item>
         ))}
-      </ul>
+      </List>
       {pressed !== null && onClear ? (
         <button type="button" className="secondary term-chips-clear" onClick={onClear}>
           Clear the highlight
         </button>
       ) : null}
-    </div>
+    </Row>
   );
 }
 
@@ -98,9 +113,12 @@ export function TermChips({
 export function BlockTermChips({
   items,
   label,
+  inline = false,
 }: {
   items: readonly TermChipItem[];
   label: string;
+  /** Phrasing content only (TermChips): for a formula set inside a paragraph. */
+  inline?: boolean | undefined;
 }) {
   const block = useContext(TermHighlightContext);
   const pinned = block?.pinned ?? null;
@@ -113,9 +131,11 @@ export function BlockTermChips({
         pressed={pinned}
         disabled={!block?.ready}
         onClear={block ? () => block.pin(null) : undefined}
+        inline={inline}
       />
       {item?.facts ? (
         <TermInspector
+          inline={inline}
           name={item.name}
           glyphHtml={item.glyphHtml}
           printedGlyphHtml={item.printedGlyphHtml}
@@ -124,9 +144,15 @@ export function BlockTermChips({
           value={<SymbolicValue lab={item.facts.lab} />}
         />
       ) : null}
-      <p className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
-        {item ? announcement(item) : ""}
-      </p>
+      {inline ? (
+        <span className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+          {item ? announcement(item) : ""}
+        </span>
+      ) : (
+        <p className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+          {item ? announcement(item) : ""}
+        </p>
+      )}
     </>
   );
 }
