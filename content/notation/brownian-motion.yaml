@@ -205,7 +205,7 @@ entries:
 
   - id: bm.nu.numberDensity
     paper: brownian-motion
-    scope: ["bm-s1", "bm-s3"]
+    scope: ["bm-s1", "bm-s2-p7", "bm-s3"]
     glyph:
       unicode: "ν"
       latex: "\\nu"
@@ -227,6 +227,8 @@ entries:
       firstUseBySection:
         - sectionId: bm-s1
           anchor: bm-s1-p3
+        - sectionId: bm-s2
+          anchor: bm-s2-p7
         - sectionId: bm-s3
           anchor: bm-s3-p2
     sources:
@@ -234,7 +236,7 @@ entries:
       anchor: bm-s1-p3
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 550 and 554 (public/figures/plates/pages/ap-17-549/550-1280.webp, public/figures/plates/pages/ap-17-549/554-1280.webp): glyph read by eye from the page images, not the text layer. Printed in n/V* = ν in s1-p3, the paragraph beginning 'Vom Standpunkte'. In this type the Greek ν and an italic v look nearly alike; read as ν from its definition n/V* = ν. Its first use in §3 is on p. 554 (s3-p2, 'Es sei ν die Anzahl'). An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 550 and 554 (public/figures/plates/pages/ap-17-549/550-1280.webp, public/figures/plates/pages/ap-17-549/554-1280.webp): glyph read by eye from the page images, not the text layer. Printed in n/V* = ν in s1-p3, the paragraph beginning 'Vom Standpunkte'. In this type the Greek ν and an italic v look nearly alike; read as ν from its definition n/V* = ν. Its first use in §3 is on p. 554 (s3-p2, 'Es sei ν die Anzahl'). An agent check, not a human review. Scope bm-s2-p7 added 2026-09-25 by agent:GreenOx from the plate of printed page 553 (a pdftoppm image of the pinned PDF, read by eye): the paragraph's last display prints p = -dF/dV* = RT/V* n/N = RT/N ν, § 1's ν = n/V* again, so there ν is this number density and not the index of bm.nu.index, which holds for the equations of motion in s2-p1."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
