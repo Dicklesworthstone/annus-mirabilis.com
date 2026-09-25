@@ -7,6 +7,7 @@
 # After both rounds (GreenOx, translator, 2026-09-25; revision 2): a line break before "b)", which
 # opens an indented line of its own on p. 895, as the German block s2-p2 has it (TanElk 40098). The
 # words are unchanged. For round 2's reviewer to confirm.
+# Confirmed (TanElk, agent, 2026-09-25, its round-2 reviewer): the break falls where pp. 895-896 start a new line; the words are unchanged.
 kind: "translation-unit"
 id: "s2-p2-s5"
 paper: "special-relativity"
