@@ -719,6 +719,28 @@ $$
 --- MACHINE DRAFT TRANSCRIPTION PAGE 27 OF 31 ---
 [[ANNALEN-PAGE 917]]
 
+Da — wie aus dem Additionstheorem der Geschwindigkeiten (§ 5) folgt — der Vektor $(u_\xi, u_\eta, u_\zeta)$ nichts anderes ist als die Geschwindigkeit der elektrischen Massen im System $k$ gemessen, so ist damit gezeigt, daß unter Zugrundelegung unserer kinematischen Prinzipien die elektrodynamische Grundlage der [[SPERR]]Lorentz[[/SPERR]]schen Theorie der Elektrodynamik bewegter Körper dem Relativitätsprinzip entspricht.
+
+Es möge noch kurz bemerkt werden, daß aus den entwickelten Gleichungen leicht der folgende wichtige Satz gefolgert werden kann: Bewegt sich ein elektrisch geladener Körper beliebig im Raume und ändert sich hierbei seine Ladung nicht, von einem mit dem Körper bewegten Koordinatensystem aus betrachtet, so bleibt seine Ladung auch — von dem „ruhenden“ System $K$ aus betrachtet — konstant.
+
+[[HEADING s10]]§ 10. Dynamik des (langsam beschleunigten) Elektrons.
+
+In einem elektromagnetischen Felde bewege sich ein punktförmiges, mit einer elektrischen Ladung $\varepsilon$ versehenes Teilchen (im folgenden „Elektron“ genannt), über dessen Bewegungsgesetz wir nur folgendes annehmen:
+
+Ruht das Elektron in einer bestimmten Epoche, so erfolgt in dem nächsten Zeitteilchen die Bewegung des Elektrons nach den Gleichungen
+$$
+\begin{aligned}
+\mu \frac{d^2 x}{d t^2} &= \varepsilon X \\
+\mu \frac{d^2 y}{d t^2} &= \varepsilon Y \\
+\mu \frac{d^2 z}{d t^2} &= \varepsilon Z ,
+\end{aligned}
+$$
+wobei $x$, $y$, $z$ die Koordinaten des Elektrons, $\mu$ die Masse des Elektrons bedeutet, sofern dasselbe langsam bewegt ist.
+
+Es besitze nun zweitens das Elektron in einer gewissen Zeitepoche die Geschwindigkeit $v$. Wir suchen das Gesetz, nach welchem sich das Elektron im unmittelbar darauf folgenden Zeitteilchen bewegt.
+
+Ohne die Allgemeinheit der Betrachtung zu beeinflussen, können und wollen wir annehmen, daß das Elektron in dem Momente, wo wir es ins Auge fassen, sich im Koordinatensprung[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 28 OF 31 ---
 [[ANNALEN-PAGE 918]]
 
