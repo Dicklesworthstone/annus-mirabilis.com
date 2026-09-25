@@ -33,7 +33,6 @@ const UNFINISHED: readonly string[] = [
   "bm-05",
   "bm-06",
   "bm-07",
-  "bm-08",
   "lq-01",
   "lq-03",
   "lq-07",

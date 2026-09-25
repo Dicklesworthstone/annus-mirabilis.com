@@ -156,7 +156,9 @@ test("zero camera error restores appropriate ideal intervals, while fitting drif
   assert.deepEqual(copy(a, "idealPositions"), copy(a, "positions"));
   assert.deepEqual(copy(a, "idealSpeeds"), copy(a, "cameraSpeeds"));
   assert.equal(out(a, "speedCrossover").status, "not-applicable");
-  const b = await run(o, "measurement-change", { stageDrift: 2e-6 });
+  // The largest stage drift the manifest declares (content/experiments/bm-08.yaml, ±1 μm/s). It
+  // was 2 μm/s, which the validator now refuses; 1 μm/s still makes the naive interval inapplicable.
+  const b = await run(o, "measurement-change", { stageDrift: 1e-6 });
   assert.equal(out(b, "naiveInterval").status, "not-applicable");
   assert.equal(out(b, "centeredInterval").status, "value");
   assert.ok(Math.abs(out(b, "centeredD").value - out(a, "centeredD").value) < 1e-25);

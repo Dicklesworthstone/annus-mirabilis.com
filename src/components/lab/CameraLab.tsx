@@ -20,6 +20,7 @@ import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { CameraMomentTable } from "./CameraMomentTable.tsx";
 import { CameraCoverage, CameraPath, CameraSpeed } from "./CameraPlots.tsx";
 import { InferenceInterval as Interval, InferenceValue as Value } from "./InferencePlots.tsx";
+import { KEPT_RESULT } from "./keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
@@ -326,7 +327,7 @@ export function CameraLab({
             )}
             {error && (
               <p className="notice error" role="alert">
-                {error}
+                {error} {KEPT_RESULT}
               </p>
             )}
           </form>

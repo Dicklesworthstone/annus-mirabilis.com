@@ -1,5 +1,6 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import { parseU64 } from "../../physics/reference/philox.ts";
+import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { BM08_DEFAULTS, type Bm08Parameters } from "./definition.ts";
 
@@ -18,7 +19,7 @@ const FIELD_NAMES: Partial<Record<keyof Bm08Parameters, string>> = {
   coverageTrials: "the number of hypothetical trials",
 };
 
-export function validateBm08Parameters(input: unknown): Computation<Bm08Parameters> {
+function validateBm08Fields(input: unknown): Computation<Bm08Parameters> {
   const bad = (requirements: string, parameterId?: keyof Bm08Parameters): Computation<never> => ({
     kind: "refused",
     refusal: makeRefusal(
@@ -71,20 +72,15 @@ export function validateBm08Parameters(input: unknown): Computation<Bm08Paramete
     return bad("Enter a target interval coverage from 50 to 99.9 percent.", "coverage");
   if (!Number.isSafeInteger(p.coverageTrials) || p.coverageTrials < 0 || p.coverageTrials > 100)
     return bad("Enter a whole number of hypothetical trials from 0 to 100.", "coverageTrials");
-  if (p.D < 1e-18 || p.D > 1e-8)
-    return bad("Enter a generating diffusivity from 10⁻⁶ to 10⁴ μm²/s.", "D");
-  if (Math.abs(p.flowDrift) > 0.001)
-    return bad("Enter a fluid drift of at most 1000 μm/s in either direction.", "flowDrift");
-  if (Math.abs(p.stageDrift) > 0.001)
-    return bad("Enter a stage drift of at most 1000 μm/s in either direction.", "stageDrift");
-  if (p.sigma < 0 || p.sigma > 0.001)
-    return bad("Enter a localization standard deviation from 0 to 1000 μm.", "sigma");
+  // D, both drifts, σ and the click count keep to the manifest's ranges, checked once by
+  // withinDeclaredDomain below. These checks named far wider ranges (1000 μm/s, 1000 μm, 10⁴
+  // μm²/s), so a value between the two was refused with a range it had already met.
   if (![1, 2, 3, 4].includes(p.dt)) return bad("Choose a frame spacing of 1, 2, 3 or 4 s.", "dt");
   if (![1, 2].includes(p.d)) return bad("Choose one or two observed coordinates.", "d");
   if (!Number.isSafeInteger(p.M) || p.M < 3 || p.M > 1000)
     return bad("Enter a whole number of displacements from 3 to 1000.", "M");
-  if (!Number.isSafeInteger(p.clicks) || p.clicks < 5 || p.clicks > 200)
-    return bad("Enter a whole number of stationary clicks from 5 to 200.", "clicks");
+  if (!Number.isInteger(p.clicks))
+    return bad("Enter a whole number of stationary clicks.", "clicks");
   if (p.exposure < 0 || p.exposure > p.dt)
     return bad(`Enter an exposure from 0 s up to the frame spacing, ${p.dt} s.`, "exposure");
   const exposureSteps = p.exposure / 0.25;
@@ -112,4 +108,18 @@ export function validateBm08Parameters(input: unknown): Computation<Bm08Paramete
     };
   // The worker checks the replay-grid and recording horizon; a refusal preserves accepted state.
   return { kind: "accepted", data: Object.freeze({ ...p }) };
+}
+
+/** Each declared setting as the form names it, in the form's units. */
+const BM08_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  sigma: { label: "localization standard deviation", unit: "μm", scale: 1e6 },
+  stageDrift: { label: "stage drift in x", unit: "μm/s", scale: 1e6 },
+  flowDrift: { label: "fluid drift in x", unit: "μm/s", scale: 1e6 },
+  D: { label: "generating diffusivity", unit: "μm²/s", scale: 1e12 },
+  clicks: { label: "number of stationary clicks" },
+};
+
+/** The fields above, then every range content/experiments/bm-08.yaml declares (dispatch 134). */
+export function validateBm08Parameters(input: unknown): Computation<Bm08Parameters> {
+  return withinDeclaredDomain("bm-08", validateBm08Fields(input), BM08_DOMAIN_DISPLAY);
 }
