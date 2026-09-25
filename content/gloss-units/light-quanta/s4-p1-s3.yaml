@@ -1,0 +1,76 @@
+# GlossUnit s4-p1-s3: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s4-p1-s3"
+sentenceId: "s4-p1-s3"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "89c031ffe9d4f77325c6ac3daa196ddee8cc975e847104ddaae559f0f40cd9f2"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Wir"
+    english: "we"
+  - german: "legen"
+  - german: "diese"
+    english: "this"
+  - german: "Formel"
+    english: "formula"
+  - german: "unseren"
+    english: "our"
+    lemma: "unser"
+  - german: "Rechnungen"
+    english: "calculations"
+    lemma: "Rechnung"
+  - german: "zugrunde"
+  - german: "behalten"
+  - german: "aber"
+    english: "but"
+  - german: "im"
+  - german: "Sinne"
+  - german: "daß"
+    english: "that"
+    lemma: "dass"
+    grammarNote: "archaic spelling of dass"
+    noteClass: "archaic-spelling"
+  - german: "unsere"
+    english: "our"
+    lemma: "unser"
+  - german: "Resultate"
+    english: "results"
+    lemma: "Resultat"
+  - german: "nur"
+    english: "only"
+    lemma: "nur"
+    grammarNote: "restriction: nur innerhalb gewisser Grenzen, ‘only within certain limits’: the results inherit the domain where Wien’s law holds"
+    noteClass: "restriction"
+  - german: "innerhalb"
+    english: "within"
+  - german: "gewisser"
+    english: "certain"
+    lemma: "gewiss"
+  - german: "Grenzen"
+    english: "limits"
+    lemma: "Grenze"
+  - german: "gelten"
+    english: "hold"
+    lemma: "gelten"
+multiwordUnits:
+  - tokenIndices:
+      - 1
+      - 6
+    english: "take as the basis"
+    kind: "separable-verb"
+    grammarNote: "separable verb zugrunde legen, split: legen ... zugrunde, ‘take as the basis’"
+    noteClass: "separable-verb"
+  - tokenIndices:
+      - 7
+      - 9
+      - 10
+    english: "bear in mind"
+    kind: "fixed-phrase"

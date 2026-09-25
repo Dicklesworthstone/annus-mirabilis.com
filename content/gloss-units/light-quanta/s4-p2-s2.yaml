@@ -1,0 +1,51 @@
+# GlossUnit s4-p2-s2: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s4-p2-s2"
+sentenceId: "s4-p2-s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "aea481fa2bf4a3c4b8bf967d58e27b2d16f8a965acebadc993a276ef228ea76c"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Es"
+    english: "there"
+  - german: "sei"
+  - german: "nun"
+    english: "now"
+  - german: "eine"
+    english: "a"
+  - german: "Strahlung"
+    english: "radiation"
+  - german: "von"
+    english: "of"
+  - german: "der"
+    english: "the"
+  - german: "Energie"
+    english: "energy"
+  - german: "gegeben"
+  - german: "deren"
+    english: "whose"
+  - german: "Frequenz"
+    english: "frequency"
+  - german: "zwischen"
+    english: "between"
+  - german: "und"
+    english: "and"
+  - german: "liegt"
+    english: "lies"
+    lemma: "liegen"
+multiwordUnits:
+  - tokenIndices:
+      - 1
+      - 8
+    english: "let be given"
+    kind: "split-construction"
+    grammarNote: "Konjunktiv I: es sei ... gegeben, ‘let there be given’: a situation supposed for the argument"
+    noteClass: "konjunktiv-i"

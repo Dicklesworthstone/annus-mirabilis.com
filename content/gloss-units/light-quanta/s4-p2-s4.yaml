@@ -1,0 +1,27 @@
+# GlossUnit s4-p2-s4: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s4-p2-s4"
+sentenceId: "s4-p2-s4"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "626941ffc15110002402ef261f553c0030f30f45f68f3271b39a45682de30084"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Die"
+    english: "the"
+  - german: "Entropie"
+    english: "entropy"
+  - german: "dieser"
+    english: "of this"
+  - german: "Strahlung"
+    english: "radiation"
+  - german: "ist"
+    english: "is"
+multiwordUnits: []

@@ -1,0 +1,34 @@
+# GlossUnit s4-p2-s3: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s4-p2-s3"
+sentenceId: "s4-p2-s3"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "a0d0d684e8b7b0b207010cc2ed6903f492ae389b00f5d674ead7a028b48d771b"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Die"
+    english: "the"
+  - german: "Strahlung"
+    english: "radiation"
+  - german: "nehme"
+  - german: "das"
+    english: "the"
+  - german: "Volumen"
+    english: "volume"
+  - german: "ein"
+multiwordUnits:
+  - tokenIndices:
+      - 2
+      - 5
+    english: "let occupy"
+    kind: "separable-verb"
+    grammarNote: "Konjunktiv I of einnehmen, split: nehme ... ein, ‘let (the radiation) occupy’: supposed, not reported"
+    noteClass: "konjunktiv-i"

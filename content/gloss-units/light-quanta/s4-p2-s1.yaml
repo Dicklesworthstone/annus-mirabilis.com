@@ -1,0 +1,66 @@
+# GlossUnit s4-p2-s1: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s4-p2-s1"
+sentenceId: "s4-p2-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "741c2aaf9a254ae6e89cc313992bef503ff9ac6eb3a7f40d4d93eb52583519ac"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Aus"
+    english: "from"
+  - german: "dieser"
+    english: "this"
+  - german: "Formel"
+    english: "formula"
+  - german: "ergibt"
+  - german: "sich"
+  - german: "zunächst"
+    english: "first"
+  - german: "und"
+    english: "and"
+  - german: "weiter"
+    english: "further"
+  - german: "unter"
+  - german: "Benutzung"
+  - german: "der"
+    english: "the"
+  - german: "in"
+    english: "in"
+  - german: "dem"
+    english: "the"
+  - german: "vorigen"
+    english: "preceding"
+    lemma: "vorig"
+  - german: "Paragraphen"
+    english: "section"
+    lemma: "Paragraph"
+    grammarNote: "Paragraph: Einstein’s word for a numbered section, here § 3"
+    noteClass: "term"
+  - german: "gefundenen"
+    english: "found"
+    lemma: "finden"
+    grammarNote: "participle closing an attributive phrase before its noun: ‘the relation found in the preceding section’"
+    noteClass: "attributive-phrase"
+  - german: "Beziehung"
+    english: "relation"
+multiwordUnits:
+  - tokenIndices:
+      - 3
+      - 4
+    english: "there follows"
+    kind: "reflexive"
+    grammarNote: "consequence: ergibt sich, ‘there follows’: a result read off the formula"
+    noteClass: "consequence"
+  - tokenIndices:
+      - 8
+      - 9
+    english: "using"
+    kind: "fixed-phrase"
