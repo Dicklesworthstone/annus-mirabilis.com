@@ -1127,3 +1127,38 @@ appIcon: "asset catalog AppIcon, one 1024 px universal image"
   - equation blocks byte-identical to the German;
   - existing English translations are never reused, only cited as comparison witnesses.
 
+
+## D-2026-09-25-no-review-status-banners
+
+- **Decider:** the owner (jemanuel), in the orchestrator's session on 2026-09-25, verbatim, quoting
+  the English face's banner:
+  "we don't need messages like this on the site, they just detract from the site and the
+  experience and aren't meaningful: `Translated and checked by AI agents … No person has reviewed
+  it.`"
+- **Choice:** the reading faces carry no review-status or provenance banner, and no translator
+  credit line. This covers:
+  - the English face's and the parallel face's "Translated and checked by AI agents" banner, and
+    its "partly checked" branch;
+  - the per-unit review chips;
+  - the "Translated by … (agent)" line under the English title;
+  - the gloss face's "Machine-drafted gloss, not yet reviewed" banner;
+  - the German face's "Machine draft, not reviewed" box.
+
+  The orchestrator reads "messages like this" as this whole category of reader-facing review
+  notices. It is not only the one quoted.
+- **What stays:**
+  - The record itself: each unit's `translator`, `reviewState` and `agentReview`, and the
+    provenance receipts in `docs/provenance/`, with their Translation credits and review rounds.
+    They are the audit trail. They are not reader copy.
+  - Notices that tell a reader what is **missing**, because those are navigation, not provenance.
+    For example: "Not yet glossed: §§ 2–9", a section with no English yet, and an instrument that
+    is unavailable on this device.
+  - The execution labels on instruments ("host calculation" and the rest of the public set). They
+    say what computed a number, which is part of the number's meaning.
+- **What it supersedes:**
+  - D-2026-09-25-agent-reviewed-translations' "Honesty" clause, which said "the reader-facing
+    notice says the translation was made and checked by AI agents";
+  - AGENTS.md's "the face says so";
+  - the German face's draft label.
+
+  The rule that no page claims a human reviewer still holds: removing the banner claims nothing.
