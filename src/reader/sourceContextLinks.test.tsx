@@ -101,6 +101,7 @@ describe("a passage's Source context links only faces that exist", () => {
     const sectionOf = new Map(args.map((a) => [a.id, a.section]));
     const ids = new Set(loadGermanSourceFace("light-quanta")?.blocks.map((b) => b.id));
     const translated = translatedSections("light-quanta");
+    const glossed = glossedSections("light-quanta");
     const sources = await paperSourceFaces("light-quanta");
     const lines = await contextLines("light-quanta");
     expect(lines.length).toBeGreaterThan(0);
@@ -115,22 +116,29 @@ describe("a passage's Source context links only faces that exist", () => {
       expect(ids.has(fragment ?? "")).toBe(true);
       expect(fragment?.startsWith(section)).toBe(true);
       const english = line.hrefs.find((h) => h.includes("/view/english/"));
+      // The line names exactly the faces that hold this section, in the special-relativity case's
+      // order below. It was a fixed string with no gloss in it, written while light quanta had no
+      // gloss, so the introduction's gloss (dispatch 213) turned it red on correct output.
+      const offered = [
+        "German source",
+        translated.has(section) ? "English" : null,
+        glossed.has(section) ? "Interlinear gloss" : null,
+        "Facsimile",
+      ].filter((f) => f !== null);
+      expect(line.text).toBe(`Source context: ${offered.join(" · ")}`);
       if (translated.has(section)) {
-        expect(line.text).toBe("Source context: German source · English · Facsimile");
         // At the section's first English unit, an id the English face renders.
         const englishFragment = sources.englishSectionFragment(section);
         expect(englishFragment).not.toBe("");
         expect(english).toBe(`/papers/light-quanta/view/english/${englishFragment}`);
         withEnglish += 1;
       } else {
-        expect(line.text).toBe("Source context: German source · Facsimile");
         expect(english).toBeUndefined();
         withoutEnglish += 1;
       }
-      // Light quanta has no gloss yet; were it glossed, this would say where.
-      expect(line.hrefs.some((h) => h.includes("/view/gloss/"))).toBe(
-        glossedSections("light-quanta").has(section),
-      );
+      // The gloss is linked exactly where the section is glossed (the introduction since dispatch
+      // 213); the "every glossed paper" case below checks the link's fragment.
+      expect(line.hrefs.some((h) => h.includes("/view/gloss/"))).toBe(glossed.has(section));
       // "Read the original" goes where the German link goes, not to #<argument id>.
       expect(line.original).toBe(german ?? "");
     }
