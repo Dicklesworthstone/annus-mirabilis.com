@@ -1,0 +1,58 @@
+# GlossUnit s1-p1-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s1-p1-s1"
+sentenceId: "s1-p1-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "c4779d65085de8b04697f75b6d71cc6c8d82c9769dfe1e50434e8fc5b769989a"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Wir"
+    english: "we"
+  - german: "stellen"
+  - german: "uns"
+  - german: "zunächst"
+    english: "first"
+  - german: "auf"
+  - german: "den"
+    english: "the"
+  - german: "Standpunkt"
+    english: "standpoint"
+  - german: "der"
+    english: "of the"
+  - german: "Maxwellschen"
+    english: "Maxwell’s"
+    lemma: "Maxwellsch"
+  - german: "Theorie"
+    english: "theory"
+  - german: "und"
+    english: "and"
+  - german: "Elektronentheorie"
+    english: "electron theory"
+    lemma: "Elektronentheorie"
+    grammarNote: "compound: Elektron(en) + Theorie"
+    noteClass: "compound"
+  - german: "und"
+    english: "and"
+  - german: "betrachten"
+    english: "consider"
+  - german: "folgenden"
+    english: "following"
+    lemma: "folgend"
+  - german: "Fall"
+    english: "case"
+multiwordUnits:
+  - tokenIndices:
+      - 1
+      - 2
+      - 4
+    english: "take up"
+    kind: "reflexive"
+    grammarNote: "sich auf einen Standpunkt stellen, ‘to take up a standpoint’"
