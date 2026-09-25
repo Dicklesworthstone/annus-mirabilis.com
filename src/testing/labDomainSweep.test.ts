@@ -27,14 +27,7 @@ import {
  */
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
-const UNFINISHED: readonly string[] = [
-  "bm-03",
-  "bm-04",
-  "bm-05",
-  "bm-06",
-  "bm-07",
-  "sr-11",
-];
+const UNFINISHED: readonly string[] = ["bm-03", "bm-04", "bm-05", "bm-06", "bm-07", "sr-11"];
 const NO_VALIDATOR: readonly string[] = ["bm-02", "lq-02"];
 
 const NUMBERS = [
