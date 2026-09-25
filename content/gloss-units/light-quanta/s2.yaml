@@ -1,0 +1,35 @@
+# GlossUnit s2: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s2"
+sentenceId: "s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "6a7e196986e9278012d370be396064d4737f8fb184b414399f6211552ef6b6bd"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "§ 2"
+    english: "§ 2"
+  - german: "Über"
+    english: "on"
+  - german: "die"
+    english: "the"
+  - german: "Plancksche"
+    english: "Planck’s"
+    lemma: "Plancksch"
+  - german: "Bestimmung"
+    english: "determination"
+  - german: "der"
+    english: "of the"
+  - german: "Elementarquanta"
+    english: "elementary quanta"
+    lemma: "Elementarquantum"
+    grammarNote: "term: Planck’s elementary quanta of matter and electricity (the size of atoms and the elementary charge), which he determined from his radiation formula; not light quanta"
+    noteClass: "term"
+multiwordUnits: []

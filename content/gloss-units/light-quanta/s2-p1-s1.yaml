@@ -1,0 +1,111 @@
+# GlossUnit s2-p1-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s2-p1-s1"
+sentenceId: "s2-p1-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "73b8f3fde85cdcdeab69ed8d85b58a1749e54e0a3987b15f3415f637f3295797"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Wir"
+    english: "we"
+  - german: "wollen"
+    english: "want to"
+    lemma: "wollen"
+  - german: "im"
+  - german: "folgenden"
+  - german: "zeigen"
+    english: "show"
+  - german: "daß"
+    english: "that"
+    lemma: "dass"
+    grammarNote: "archaic spelling of dass"
+    noteClass: "archaic-spelling"
+  - german: "die"
+    english: "the"
+  - german: "von"
+    english: "by"
+  - german: "Hrn"
+    english: "Mr."
+    lemma: "Hrn."
+    grammarNote: "abbreviation: Herrn, the dative of Herr, ‘Mr.’"
+    noteClass: "abbreviation"
+  - german: "Planck"
+    english: "Planck"
+  - german: "gegebene"
+    english: "given"
+    lemma: "geben"
+    grammarNote: "participle closing an attributive phrase before its noun: ‘the determination given by Mr. Planck’"
+    noteClass: "attributive-phrase"
+  - german: "Bestimmung"
+    english: "determination"
+  - german: "der"
+    english: "of the"
+  - german: "Elementarquanta"
+    english: "elementary quanta"
+    lemma: "Elementarquantum"
+    grammarNote: "term: Planck’s elementary quanta of matter and electricity, as in the heading"
+    noteClass: "term"
+  - german: "von"
+  - german: "der"
+    english: "the"
+  - german: "von"
+    english: "by"
+  - german: "ihm"
+    english: "him"
+  - german: "aufgestellten"
+    english: "set up"
+    lemma: "aufstellen"
+    grammarNote: "participle closing an attributive phrase before its noun: ‘the theory set up by him’"
+    noteClass: "attributive-phrase"
+  - german: "Theorie"
+    english: "theory"
+  - german: "der"
+    english: "of the"
+  - german: "schwarzen"
+  - german: "Strahlung"
+  - german: "bis"
+  - german: "zu"
+  - german: "einem"
+  - german: "gewissen"
+  - german: "Grade"
+  - german: "unabhängig"
+  - german: "ist"
+    english: "is"
+multiwordUnits:
+  - tokenIndices:
+      - 2
+      - 3
+    english: "in what follows"
+    kind: "fixed-phrase"
+    grammarNote: "im folgenden, ‘in what follows’ (im = in dem)"
+  - tokenIndices:
+      - 14
+      - 28
+    english: "independent of"
+    kind: "split-construction"
+    grammarNote: "von ... unabhängig, ‘independent of’: the determination does not rest on Planck’s whole theory"
+  - tokenIndices:
+      - 21
+      - 22
+    english: "black radiation"
+    kind: "fixed-phrase"
+    grammarNote: "term, in Einstein’s quotation marks: the radiation in thermal equilibrium with matter, as in a closed cavity"
+    noteClass: "term"
+  - tokenIndices:
+      - 23
+      - 24
+      - 25
+      - 26
+      - 27
+    english: "to a certain extent"
+    kind: "fixed-phrase"
+    grammarNote: "restriction: bis zu einem gewissen Grade, ‘to a certain degree’: the independence is claimed only in part"
+    noteClass: "restriction"
