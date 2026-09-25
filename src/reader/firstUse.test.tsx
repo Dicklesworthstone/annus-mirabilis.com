@@ -24,8 +24,30 @@ async function placed(paper: string) {
 }
 
 describe("where a dangerous letter is first met", () => {
-  test("k at the first passage of section 5 that binds the viscosity; section 3 has no passage", async () => {
-    expect(await placed("brownian-motion")).toEqual({ "arg-bm-diffusivity": ["bm.k.viscosity"] });
+  test("k at the first passage that binds the viscosity in each section the concordance records it first used", async () => {
+    // The concordance records k's first use in §3 and in §5. Until dispatch 215 no passage was
+    // filed under §3, so the only callout sat in §5; with the §3 passage filed under §3, each
+    // section's first binding passage carries one, so a reader who opens §5's page is warned too.
+    const k = loadConcordanceForPaper("brownian-motion").entries.find(
+      (e) => e.id === "bm.k.viscosity",
+    ) as ConcordanceEntry;
+    const sections = (k.collision?.firstUseBySection ?? []).map((f) =>
+      f.sectionId.replace(/^bm-/, ""),
+    );
+    expect(sections).toEqual(["s3", "s5"]);
+    const quantityId = (k.binding as { quantityId: string }).quantityId;
+    const { arguments: passages } = await loadPaper("brownian-motion");
+    const equations = [...paperEquations("brownian-motion").values()];
+    const binds = (id: string) =>
+      equations.some((e) => e.argument === id && e.terms.some((t) => t.quantityId === quantityId));
+    const expected: Record<string, string[]> = {};
+    for (const section of sections) {
+      const first = passages.find((p) => p.section === section && binds(p.id));
+      if (first) expected[first.id] = [...(expected[first.id] ?? []), "bm.k.viscosity"];
+    }
+    // Non-vacuity: some passage binds the viscosity, so some callout is expected.
+    expect(Object.keys(expected).length).toBeGreaterThan(0);
+    expect(await placed("brownian-motion")).toEqual(expected);
   });
 
   test("beta at the first passage of section 3 that binds the Lorentz factor, and only beta", async () => {
