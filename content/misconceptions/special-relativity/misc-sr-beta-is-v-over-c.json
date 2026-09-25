@@ -2,9 +2,7 @@
   "kind": "misconception",
   "id": "misc-sr-beta-is-v-over-c",
   "paper": "special-relativity",
-  "temptingClaims": [
-    "Einstein's β is the ratio v/c."
-  ],
+  "temptingClaims": ["Einstein's β is the ratio v/c."],
   "whyTempting": "Modern texts write β for \\(v/c\\), and the paper writes β in the formulas where speeds appear.",
   "whereItIsTrue": "The paper's β does depend only on the ratio of the speed \\(v\\) to the speed of light \\(V\\).",
   "whatIsTrue": {
@@ -13,13 +11,8 @@
     "r2": "(1) The paper's letters: \\(v\\) for the speed of the moving system, \\(V\\) for the speed of light. (2) Its definition: \\(\\beta = 1/\\sqrt{1-(v/V)^2}\\) (p. 902). (3) At \\(v = 0.6V\\): \\((v/V)^2 = 0.36\\), \\(1 - 0.36 = 0.64\\), \\(\\sqrt{0.64} = 0.8\\), so \\(\\beta = 1/0.8 = 1.25\\). (4) A reader carrying the modern β = 0.6 into the paper's formulas gets every transformed coordinate wrong. (5) The notation concordance marks this collision in red on first use.",
     "r3": "Einstein's letters are kept on the source and translation faces. The explanation faces can switch to modern notation, where his β becomes γ; the switch renames a symbol and changes no argument."
   },
-  "instrumentIds": [
-    "sr-03"
-  ],
-  "anchors": [
-    "s3-p22",
-    "eq-s3-d26"
-  ],
+  "instrumentIds": ["sr-03"],
+  "anchors": ["s3-p22", "eq-s3-d26"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plate p. 902",
     "SR-03 preset sr-03-boost-0.6c: v = 0.6; β = 1/√(1 − 0.36) = 1.25"

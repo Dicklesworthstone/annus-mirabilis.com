@@ -2,9 +2,7 @@
   "kind": "misconception",
   "id": "misc-lq-planck-quanta",
   "paper": "light-quanta",
-  "temptingClaims": [
-    "Planck had already proposed that light consists of quanta."
-  ],
+  "temptingClaims": ["Planck had already proposed that light consists of quanta."],
   "whyTempting": "The paper uses Planck's radiation formula and a section headed with Planck's “elementary quanta”, and the light quantum's energy is written with Planck's constant today.",
   "whereItIsTrue": "Planck's radiation formula and his determination of atomic magnitudes are on the page: § 2 uses them, and calls the formula one that satisfies all experience so far.",
   "whatIsTrue": {
@@ -16,16 +14,8 @@
   "staticTreatment": {
     "reason": "A matter of what the paper attributes to Planck and what it proposes itself; §§ 1–2 and the introduction are the evidence."
   },
-  "anchors": [
-    "s0-p3",
-    "s1-p4",
-    "s2",
-    "s2-p1",
-    "s2-p2"
-  ],
-  "sources": [
-    "A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 133 and 135–136"
-  ],
+  "anchors": ["s0-p3", "s1-p4", "s2", "s2-p1", "s2-p2"],
+  "sources": ["A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 133 and 135–136"],
   "intervention": {
     "defaultsReviewed": {
       "model": "Not applicable: no instrument; this entry is a matter of what the paper says.",

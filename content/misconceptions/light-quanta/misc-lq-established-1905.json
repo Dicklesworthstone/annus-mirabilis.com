@@ -2,9 +2,7 @@
   "kind": "misconception",
   "id": "misc-lq-established-1905",
   "paper": "light-quanta",
-  "temptingClaims": [
-    "Einstein's photoelectric law was an established experimental fact in 1905."
-  ],
+  "temptingClaims": ["Einstein's photoelectric law was an established experimental fact in 1905."],
   "whyTempting": "The law is simple and has long been confirmed, so it is tempting to picture it as a known result that the paper merely explained.",
   "whereItIsTrue": "The paper's order-of-magnitude check did agree with Lenard's observations, and it found no contradiction with the properties Lenard had observed.",
   "whatIsTrue": {
@@ -13,14 +11,8 @@
     "r2": "(1) § 8: the energy of a quantum, less the work to leave the body, is the greatest kinetic energy of an emitted electron. (2) The check: with no work function and \\(\\nu = 1.03\\times10^{15}\\ \\mathrm{s^{-1}}\\), the potential is 4.3 V, “of the order” of Lenard's results (p. 146). (3) The prediction: a straight line of potential against frequency, with a slope independent of the metal, stated with “if the derived formula is correct” (p. 146). (4) The caution: no contradiction with Lenard's observations “as far as I see” (p. 147). (5) The test of the line came later, in Millikan's measurements of 1916.",
     "r3": "The record distinguishes three statements: what the paper checked (an order of magnitude), what it predicted (the straight line), and what later tested it (Millikan, 1916). Only the first two are in the paper."
   },
-  "instrumentIds": [
-    "lq-08"
-  ],
-  "anchors": [
-    "s8-p5",
-    "s8-p6",
-    "s8-p7"
-  ],
+  "instrumentIds": ["lq-08"],
+  "anchors": ["s8-p5", "s8-p6", "s8-p7"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 146–147",
     "R. A. Millikan, Physical Review (2) 7, 355–388 (1916), bibliography record cit-millikan-1916, as later evidence",

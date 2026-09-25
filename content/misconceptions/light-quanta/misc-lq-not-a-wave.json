@@ -2,9 +2,7 @@
   "kind": "misconception",
   "id": "misc-lq-not-a-wave",
   "paper": "light-quanta",
-  "temptingClaims": [
-    "Einstein's paper showed that light is not a wave."
-  ],
+  "temptingClaims": ["Einstein's paper showed that light is not a wave."],
   "whyTempting": "The paper is remembered for light quanta, which sound like the opposite of waves, and it argues that the energy of light is distributed discontinuously in space.",
   "whereItIsTrue": "The paper does propose that, for the generation and transformation of light, the energy behaves as if it were concentrated in quanta. That is a claim about those phenomena, stated as a heuristic viewpoint.",
   "whatIsTrue": {
@@ -16,14 +14,8 @@
   "staticTreatment": {
     "reason": "A matter of what the paper says about the wave theory; the introduction is the evidence."
   },
-  "anchors": [
-    "s0-p2",
-    "s0-p3",
-    "s0-p4"
-  ],
-  "sources": [
-    "A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 132–133"
-  ],
+  "anchors": ["s0-p2", "s0-p3", "s0-p4"],
+  "sources": ["A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 132–133"],
   "intervention": {
     "defaultsReviewed": {
       "model": "Not applicable: no instrument; this entry is a matter of what the paper says.",

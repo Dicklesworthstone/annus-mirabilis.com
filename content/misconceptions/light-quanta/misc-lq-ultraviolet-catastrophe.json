@@ -13,13 +13,8 @@
     "r2": "(1) Classical equilibrium gives each resonator the mean energy \\(\\frac{R}{N}T\\), and the radiation density \\(\\rho_\\nu = \\frac{R}{N}\\frac{8\\pi\\nu^2}{L^3}T\\) (p. 136). (2) The energy up to a cutoff \\(\\nu_c\\) is the integral of \\(\\rho_\\nu\\), in proportion to \\(\\nu_c^3\\). (3) A tenfold cutoff gives a thousandfold energy, and with no cutoff the integral is infinite, as the paper writes: \\(\\int_0^\\infty \\rho_\\nu\\,d\\nu = \\infty\\). (4) The paper's quanta come from a different place: §§ 4–6 compare the entropy of dilute radiation with that of a gas. (5) So § 1 is a difficulty the paper records, not the argument it builds its proposal on.",
     "r3": "The phrase “ultraviolet catastrophe” is a later coinage, and the history of the radiation difficulty before 1905 is more tangled than the phrase suggests. This entry names no coiner or date, because the site's bibliography holds no checked record for them; it keeps to what the paper prints."
   },
-  "instrumentIds": [
-    "lq-02"
-  ],
-  "anchors": [
-    "s1-p5",
-    "s6-p6"
-  ],
+  "instrumentIds": ["lq-02"],
+  "anchors": ["s1-p5", "s6-p6"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 136 and 143",
     "LQ-02: the probes lq-02-cube-growth-probe (a tenfold cutoff multiplies the energy by 1000) and lq-02-divergence-refusal-probe (no finite total)"

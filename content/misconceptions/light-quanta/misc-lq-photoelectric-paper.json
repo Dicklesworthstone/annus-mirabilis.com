@@ -2,9 +2,7 @@
   "kind": "misconception",
   "id": "misc-lq-photoelectric-paper",
   "paper": "light-quanta",
-  "temptingClaims": [
-    "The light-quantum paper is a paper about the photoelectric effect."
-  ],
+  "temptingClaims": ["The light-quantum paper is a paper about the photoelectric effect."],
   "whyTempting": "The photoelectric law is the paper's best-known prediction, and the one later tested and honoured.",
   "whereItIsTrue": "§ 8 does treat the photoelectric effect, and it is the application with a quantitative prediction.",
   "whatIsTrue": {
@@ -16,14 +14,8 @@
   "staticTreatment": {
     "reason": "A matter of the paper's structure: the introduction, § 6's conclusion and § 8's place among three applications are the evidence."
   },
-  "anchors": [
-    "s0-p3",
-    "s6-p6",
-    "s8-p1"
-  ],
-  "sources": [
-    "A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 133, 143 and 145"
-  ],
+  "anchors": ["s0-p3", "s6-p6", "s8-p1"],
+  "sources": ["A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 133, 143 and 145"],
   "intervention": {
     "defaultsReviewed": {
       "model": "Not applicable: no instrument; this entry is a matter of what the paper says.",

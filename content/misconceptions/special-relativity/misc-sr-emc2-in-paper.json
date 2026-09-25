@@ -2,9 +2,7 @@
   "kind": "misconception",
   "id": "misc-sr-emc2-in-paper",
   "paper": "special-relativity",
-  "temptingClaims": [
-    "The relativity paper derives E = mc²."
-  ],
+  "temptingClaims": ["The relativity paper derives E = mc²."],
   "whyTempting": "The relation is the most famous consequence of relativity, and this paper is the one that founds the theory.",
   "whereItIsTrue": "§ 10 does compute an energy that grows without limit as the speed approaches that of light, and the mass-energy relation follows from the same theory.",
   "whatIsTrue": {
@@ -16,10 +14,7 @@
   "staticTreatment": {
     "reason": "A matter of what the paper derives: § 10's kinetic energy of the electron is the evidence, and the September paper on inertia is where the relation appears."
   },
-  "anchors": [
-    "s10-p10",
-    "s10-p11"
-  ],
+  "anchors": ["s10-p10", "s10-p11"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plates pp. 919–920",
     "A. Einstein, Ann. Phys. (4) 18, 639–641 (1905), the site's mass-energy paper"

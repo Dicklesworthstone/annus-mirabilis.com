@@ -13,14 +13,8 @@
     "r2": "(1) § 1: clocks at A and B, identical, each giving the time of events near it. (2) The definition: send light from A to B and back, and set B's clock so that the time out equals the time back, \\(t_B - t_A = t'_A - t_B\\) (p. 894). (3) With emission at 0 and return at 10, the reflection is at 5. (4) § 2: a rod moving along the line, with clocks at its ends synchronous in the stationary system; observers moving with the rod, applying the same rule, find them not synchronous (pp. 896–897). (5) So the paper's instruments are clocks and light signals between two places, not a train and lightning.",
     "r3": "The train-and-embankment picture is a later popular illustration of §§ 1–2. This entry does not cite where it appeared, because the site's bibliography holds no checked record of it."
   },
-  "instrumentIds": [
-    "sr-01"
-  ],
-  "anchors": [
-    "s1-p7",
-    "s2-p2",
-    "s2-p7"
-  ],
+  "instrumentIds": ["sr-01"],
+  "anchors": ["s1-p7", "s2-p2", "s2-p7"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plates pp. 893–897",
     "SR-01 preset sr-01-sync-0-10: stations 5 light-seconds apart, emission at 0; the reflection assigned 5"
