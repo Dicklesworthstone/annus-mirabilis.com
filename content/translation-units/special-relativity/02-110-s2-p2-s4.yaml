@@ -4,6 +4,9 @@
 # review rounds. No person has reviewed it.
 # Review round 1 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 895-897; no change.
 # Review round 2 (TanElk, agent, 2026-09-25): read against the German and the plates pp. 895-897; no change.
+# After both rounds (GreenOx, translator, 2026-09-25; revision 2): a line break before "a)", which
+# opens an indented line of its own on p. 895, as the German block s2-p2 has it (TanElk 40098). The
+# words are unchanged. For round 2's reviewer to confirm.
 kind: "translation-unit"
 id: "s2-p2-s4"
 paper: "special-relativity"
@@ -11,6 +14,7 @@ sourceRefs:
   - paper: "special-relativity"
     id: "s2-p2-s4"
 inlines:
+  - kind: "line-break"
   - kind: "text"
     text: "a) The observer moves, together with the measuring rod just mentioned, with the rod to be measured, and measures the length of the rod directly by applying the measuring rod, just as if the rod to be measured, the observer and the measuring rod were at rest."
 translator:
@@ -18,7 +22,7 @@ translator:
   name: "GreenOx (agent, Claude Opus 5.5)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
+revision: 2
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

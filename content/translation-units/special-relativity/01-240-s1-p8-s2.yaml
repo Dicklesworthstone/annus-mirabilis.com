@@ -4,6 +4,9 @@
 # review rounds. No person has reviewed it.
 # Review round 1 (TopazPrairie, agent, 2026-09-25): read against the German and the plate; no change.
 # Review round 2 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 892-895; no change.
+# After both rounds (GreenOx, translator, 2026-09-25; revision 2): a line break before "1.", which
+# opens an indented line of its own on p. 894, as the German block s1-p8 has it (TanElk 40098). The
+# words are unchanged. For round 2's reviewer to confirm.
 kind: "translation-unit"
 id: "s1-p8-s2"
 paper: "special-relativity"
@@ -11,6 +14,7 @@ sourceRefs:
   - paper: "special-relativity"
     id: "s1-p8-s2"
 inlines:
+  - kind: "line-break"
   - kind: "text"
     text: "1. If the clock at "
   - kind: "math"
@@ -34,7 +38,7 @@ translator:
   name: "GreenOx (agent, Claude Opus 5.5)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
+revision: 2
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
