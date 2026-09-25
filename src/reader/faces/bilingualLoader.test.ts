@@ -20,13 +20,29 @@ import {
   sortBlocksByManifest,
 } from "./bilingualLoader.ts";
 
+/**
+ * A root holding the live condition these tests name: a paper whose frozen manifest has no units
+ * and no layer files beside it. They read the real brownian-motion tree until its source blocks
+ * landed (dispatch 191), which made that paper's edition real and the premise false.
+ */
+function rootWithEmptyManifest(slug: string): string {
+  const root = mkdtempSync(join(tmpdir(), "am-bilingual-empty-"));
+  const dir = join(root, "content/source-blocks", slug);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, "manifest.yaml"), `paper: ${slug}\nunits: []\n`);
+  return root;
+}
+
 describe("bilingualLoader", () => {
   afterEach(() => {
     setBilingualEditionTestOverride(null);
   });
 
-  test("live condition: returns null for brownian-motion because manifest has units: []", async () => {
-    const edition = await loadBilingualEdition("brownian-motion");
+  test("live condition: returns null for a paper whose manifest has units: []", async () => {
+    const edition = await loadBilingualEdition(
+      "brownian-motion",
+      rootWithEmptyManifest("brownian-motion"),
+    );
     expect(edition).toBeNull();
   });
 
@@ -57,16 +73,17 @@ describe("bilingualLoader", () => {
   });
 
   test("resetting test override restores live filesystem resolution", async () => {
+    const root = rootWithEmptyManifest("brownian-motion");
     setBilingualEditionTestOverride(() => ({
       paper: FIXTURE_BROWNIAN_PAPER,
       blocks: FIXTURE_BROWNIAN_SOURCE_BLOCKS,
       units: FIXTURE_BROWNIAN_TRANSLATION_UNITS,
     }));
 
-    expect(await loadBilingualEdition("brownian-motion")).not.toBeNull();
+    expect(await loadBilingualEdition("brownian-motion", root)).not.toBeNull();
 
     setBilingualEditionTestOverride(null);
-    expect(await loadBilingualEdition("brownian-motion")).toBeNull();
+    expect(await loadBilingualEdition("brownian-motion", root)).toBeNull();
   });
 
   test("blocks render in the frozen manifest's printed order, not their filenames' order", async () => {
