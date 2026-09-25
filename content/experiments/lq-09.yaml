@@ -82,7 +82,7 @@ parameters:
       max: 1.0
       minInclusive: true
       maxInclusive: true
-      reason: "Physical absorption efficiency in [0, 1]"
+      reason: "A share of the light that falls on the gas, from none of it to all of it"
     visualRange:
       min: 0.1
       max: 1.0
@@ -122,7 +122,7 @@ parameters:
       max: 1.0
       minInclusive: true
       maxInclusive: true
-      reason: "Fraction of absorbed quanta producing ions in [0, 1]"
+      reason: "A share of the absorbed quanta, from none of them to all of them, that produce ions"
     visualRange:
       min: 0.0
       max: 1.0

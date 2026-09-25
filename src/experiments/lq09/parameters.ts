@@ -96,7 +96,7 @@ const LQ09_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
   ionizationEnergyEv: { label: "ionization energy per molecule J" },
   absorptionEfficiency: { label: "share of the light absorbed" },
   duration: { label: "exposure" },
-  declaredFraction: { label: "share of absorbed quanta that ionize, a" },
+  declaredFraction: { label: "share a of the absorbed quanta that ionize" },
 };
 
 /** The fields above, then every range content/experiments/lq-09.yaml declares (dispatch 134). */
