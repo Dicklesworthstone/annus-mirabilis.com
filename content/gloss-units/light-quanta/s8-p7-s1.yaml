@@ -1,0 +1,73 @@
+# GlossUnit s8-p7-s1: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s8-p7-s1"
+sentenceId: "s8-p7-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "d4b9b36beebe94c572e37a1f6bcfb1ff47164bab905f90b49266266503529cc5"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Mit"
+    english: "with"
+  - german: "den"
+    english: "the"
+  - german: "von"
+    english: "by"
+  - german: "Hrn"
+    english: "Mr."
+    lemma: "Herr"
+    grammarNote: "abbreviation: Hrn., Herrn, ‘Mr.’"
+    noteClass: "abbreviation"
+  - german: "Lenard"
+    english: "Lenard"
+  - german: "beobachteten"
+    english: "observed"
+    lemma: "beobachten"
+    grammarNote: "participle closing an attributive phrase before its noun: ‘the properties observed by Mr. Lenard’"
+    noteClass: "attributive-phrase"
+  - german: "Eigenschaften"
+    english: "properties"
+    lemma: "Eigenschaft"
+  - german: "der"
+    english: "of the"
+  - german: "lichtelektrischen"
+    english: "photoelectric"
+    lemma: "lichtelektrisch"
+    grammarNote: "compound: Licht + elektrisch"
+    noteClass: "compound"
+  - german: "Wirkung"
+    english: "effect"
+  - german: "steht"
+  - german: "unsere"
+    english: "our"
+  - german: "Auffassung"
+    english: "conception"
+  - german: "soweit"
+  - german: "ich"
+  - german: "sehe"
+  - german: "nicht"
+    english: "not"
+  - german: "im"
+  - german: "Widerspruch"
+multiwordUnits:
+  - tokenIndices:
+      - 10
+      - 17
+      - 18
+    english: "stands in contradiction"
+    kind: "fixed-phrase"
+  - tokenIndices:
+      - 13
+      - 14
+      - 15
+    english: "so far as I see"
+    kind: "fixed-phrase"
+    grammarNote: "hedge: soweit ich sehe, ‘so far as I can see’: a guarded claim of consistency, limited to what Einstein has checked"
+    noteClass: "hedge"

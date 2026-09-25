@@ -1,0 +1,61 @@
+# GlossUnit s8-p5-s2: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s8-p5-s2"
+sentenceId: "s8-p5-s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "1a3fe655e669d0b55574f48c73945f351878b7c3b7e122bc82cc2b4809536d1b"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Wir"
+    english: "we"
+  - german: "erhalten"
+    english: "obtain"
+  - german: "Volt"
+    english: "volts"
+    lemma: "Volt"
+    grammarNote: "unit: Volt, printed here without a plural ending"
+    noteClass: "unit"
+  - german: "welches"
+    english: "which"
+    lemma: "welcher"
+  - german: "Resultat"
+    english: "result"
+  - german: "der"
+  - german: "Größenordnung"
+  - german: "nach"
+  - german: "mit"
+    english: "with"
+  - german: "den"
+    english: "the"
+  - german: "Resultaten"
+    english: "results"
+    lemma: "Resultat"
+  - german: "von"
+    english: "of"
+  - german: "Hrn"
+    english: "Mr."
+    lemma: "Herr"
+    grammarNote: "abbreviation: Hrn., Herrn, ‘Mr.’"
+    noteClass: "abbreviation"
+  - german: "Lenard"
+    english: "Lenard"
+  - german: "übereinstimmt"
+    english: "agrees"
+    lemma: "übereinstimmen"
+multiwordUnits:
+  - tokenIndices:
+      - 5
+      - 6
+      - 7
+    english: "in order of magnitude"
+    kind: "fixed-phrase"
+    grammarNote: "restriction: der Größenordnung nach, ‘in order of magnitude’: agreement in size only"
+    noteClass: "restriction"

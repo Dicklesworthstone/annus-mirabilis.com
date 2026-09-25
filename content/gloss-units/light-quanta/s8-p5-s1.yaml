@@ -1,0 +1,88 @@
+# GlossUnit s8-p5-s1: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s8-p5-s1"
+sentenceId: "s8-p5-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "2df9b15f5ac708ed4aed3068122e7a78f7e5eb20bfde54d278d52b24241951f0"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Um"
+  - german: "zunächst"
+    english: "first"
+  - german: "zu"
+  - german: "sehen"
+    english: "see"
+  - german: "ob"
+    english: "whether"
+  - german: "die"
+    english: "the"
+  - german: "abgeleitete"
+    english: "derived"
+    lemma: "ableiten"
+  - german: "Beziehung"
+    english: "relation"
+  - german: "der"
+  - german: "Größenordnung"
+  - german: "nach"
+  - german: "mit"
+    english: "with"
+  - german: "der"
+    english: "the"
+  - german: "Erfahrung"
+    english: "experience"
+  - german: "übereinstimmt"
+    english: "agrees"
+    lemma: "übereinstimmen"
+  - german: "setzen"
+    english: "set"
+  - german: "wir"
+    english: "we"
+  - german: "entsprechend"
+    english: "corresponding"
+    lemma: "entsprechend"
+  - german: "der"
+    english: "to the"
+  - german: "Grenze"
+    english: "limit"
+  - german: "des"
+    english: "of the"
+  - german: "Sonnenspektrums"
+    english: "solar spectrum"
+    lemma: "Sonnenspektrum"
+    grammarNote: "compound: Sonne + Spektrum"
+    noteClass: "compound"
+  - german: "nach"
+  - german: "dem"
+    english: "the"
+  - german: "Ultraviolett"
+    english: "ultraviolet"
+  - german: "hin"
+  - german: "und"
+    english: "and"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 2
+    english: "in order to"
+    kind: "split-construction"
+  - tokenIndices:
+      - 8
+      - 9
+      - 10
+    english: "as to order of magnitude"
+    kind: "fixed-phrase"
+    grammarNote: "restriction: der Größenordnung nach, ‘as to order of magnitude’: only the size is tested, not the exact value"
+    noteClass: "restriction"
+  - tokenIndices:
+      - 22
+      - 25
+    english: "toward"
+    kind: "split-construction"
