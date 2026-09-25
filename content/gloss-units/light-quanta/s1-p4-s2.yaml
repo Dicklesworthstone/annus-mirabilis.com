@@ -1,0 +1,98 @@
+# GlossUnit s1-p4-s2: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s1-p4-s2"
+sentenceId: "s1-p4-s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "e423a5e5b9821ea2697e262a619a10c230e93713c7d27dcd4bdd0a0562916a21"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Hr"
+    english: "Mr."
+    lemma: "Hr."
+    grammarNote: "abbreviation: Herr, ‘Mr.’"
+    noteClass: "abbreviation"
+  - german: "Planck"
+    english: "Planck"
+  - german: "hat"
+  - german: "für"
+    english: "for"
+  - german: "diesen"
+    english: "this"
+  - german: "Fall"
+    english: "case"
+  - german: "die"
+    english: "the"
+  - german: "Bedingung"
+    english: "condition"
+  - german: "des"
+    english: "of the"
+  - german: "dynamischen"
+    english: "dynamic"
+    lemma: "dynamisch"
+  - german: "Gleichgewichtes"
+    english: "equilibrium"
+    lemma: "Gleichgewicht"
+  - german: "abgeleitet"
+  - german: "unter"
+  - german: "der"
+  - german: "Voraussetzung"
+  - german: "daß"
+    english: "that"
+    lemma: "dass"
+    grammarNote: "archaic spelling of dass"
+    noteClass: "archaic-spelling"
+  - german: "die"
+    english: "the"
+  - german: "Strahlung"
+    english: "radiation"
+  - german: "als"
+    english: "as"
+  - german: "ein"
+    english: "a"
+  - german: "denkbar"
+  - german: "ungeordnetster"
+  - german: "Prozeß"
+    english: "process"
+    lemma: "Prozess"
+    grammarNote: "archaic spelling of Prozess"
+    noteClass: "archaic-spelling"
+  - german: "betrachtet"
+  - german: "werden"
+  - german: "kann"
+multiwordUnits:
+  - tokenIndices:
+      - 2
+      - 11
+    english: "has derived"
+    kind: "split-construction"
+    grammarNote: "perfect: hat ... abgeleitet, ‘has derived’"
+  - tokenIndices:
+      - 12
+      - 13
+      - 14
+    english: "on the supposition"
+    kind: "fixed-phrase"
+    grammarNote: "condition: unter der Voraussetzung, daß ..., ‘on the supposition that’: Planck’s result holds under it"
+    noteClass: "condition"
+  - tokenIndices:
+      - 20
+      - 21
+    english: "most disordered conceivable"
+    kind: "fixed-phrase"
+    grammarNote: "denkbar with a superlative, ‘the most disordered conceivable’: the supposition of Planck’s derivation, which the footnote marked 2) states"
+    noteClass: "term"
+  - tokenIndices:
+      - 23
+      - 24
+      - 25
+    english: "can be regarded"
+    kind: "fixed-phrase"
+    grammarNote: "passive with a modal: betrachtet werden kann, ‘can be regarded’"

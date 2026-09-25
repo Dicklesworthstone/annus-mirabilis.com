@@ -1,0 +1,22 @@
+# GlossUnit s1-p4-s3: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s1-p4-s3"
+sentenceId: "s1-p4-s3"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "913b47c2e70b6f76ad72df9f12c773cd4b896ea92965a83ddb405e4ebfda08e5"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Er"
+    english: "he"
+  - german: "fand"
+    english: "found"
+    lemma: "finden"
+multiwordUnits: []
