@@ -385,6 +385,10 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
     // The mass-energy paper has no sections, so its s0 is the whole paper.
     expect(formatScopeToken("mass-energy", "me-s0")).toBe("throughout");
     expect(formatScopeToken("mass-energy", "me-s0-p5")).toBe("paragraph 5");
+    // A paragraph inside a numbered section, as the display bindings scope them (dispatch 224).
+    expect(formatScopeToken("brownian-motion", "bm-s2-p7")).toBe("§2, paragraph 7");
+    expect(formatScopeToken("special-relativity", "sr-s3-p18")).toBe("§3, paragraph 18");
+    expect(formatScopeToken("light-quanta", "lq-s0-p2")).toBe("introduction, paragraph 2");
     expect(formatScopeToken("molecular-dimensions", "md-1911")).toBe("the 1911 correction");
     expect(formatScope("light-quanta", ["lq-s2", "lq-s5", "lq-s8"])).toBe("§2, §5 and §8");
     // An unknown token stays visible rather than vanishing.

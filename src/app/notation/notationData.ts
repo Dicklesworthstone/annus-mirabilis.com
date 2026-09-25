@@ -62,9 +62,11 @@ function joinInProse(items: readonly string[]): string {
 
 /**
  * A scope token as a reader would say it. Tokens are paper-prefixed content ids ("lq-s1-fn1",
- * "me-s0-p5", "md-1911", "all"); papers 1 to 3 number their unnumbered introduction s0, and the
- * mass-energy paper has no sections, so its s0 is the whole paper. An unrecognised token is
- * returned as it is, so a new kind shows up on the page instead of vanishing.
+ * "me-s0-p5", "bm-s2-p7", "md-1911", "all"); papers 1 to 3 number their unnumbered introduction
+ * s0, and the mass-energy paper has no sections, so its s0 is the whole paper. A paragraph inside
+ * a numbered section ("sr-s3-p18") is scoped since the printed displays were bound term by term
+ * (dispatch 224). An unrecognised token is returned as it is, so a new kind shows up on the page
+ * instead of vanishing.
  */
 export function formatScopeToken(paper: string, token: string): string {
   const whole = paper === "mass-energy";
@@ -76,6 +78,8 @@ export function formatScopeToken(paper: string, token: string): string {
   if (/-s0$/.test(token)) return whole ? "throughout" : "introduction";
   m = /-s(\d+)-fn(\d+)$/.exec(token);
   if (m) return `§${m[1]}, note ${m[2]}`;
+  m = /-s(\d+)-p(\d+)$/.exec(token);
+  if (m) return `§${m[1]}, paragraph ${m[2]}`;
   m = /-s(\d+)$/.exec(token);
   if (m) return `§${m[1]}`;
   return token;
