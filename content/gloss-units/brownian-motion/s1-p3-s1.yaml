@@ -1,0 +1,56 @@
+# GlossUnit s1-p3-s1: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s1-p3-s1"
+sentenceId: "s1-p3-s1"
+revision: 1
+sourceRevision: 2
+sourceTextDigest: "12a81bb56261bac014b240e74ee3cfb4fc580ae8ec460035365bd45d831f17e2"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Vom"
+  - german: "Standpunkte"
+    english: "standpoint"
+    lemma: "Standpunkt"
+    grammarNote: "older dative in -e, of Standpunkt"
+    noteClass: "archaic-spelling"
+  - german: "der"
+    english: "of the"
+  - german: "molekularkinetischen"
+    english: "molecular-kinetic"
+    lemma: "molekularkinetisch"
+    grammarNote: "compound: molekular + kinetisch"
+    noteClass: "compound"
+  - german: "Wärmetheorie"
+    english: "theory of heat"
+    lemma: "Wärmetheorie"
+    grammarNote: "compound: Wärme + Theorie"
+    noteClass: "compound"
+  - german: "aus"
+  - german: "kommt"
+    english: "comes"
+  - german: "man"
+    english: "one"
+  - german: "aber"
+    english: "however"
+  - german: "zu"
+    english: "to"
+  - german: "einer"
+    english: "a"
+  - german: "anderen"
+    english: "different"
+  - german: "Auffassung"
+    english: "view"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 5
+    english: "from the"
+    kind: "split-construction"
+    grammarNote: "von ... aus, from the standpoint of"

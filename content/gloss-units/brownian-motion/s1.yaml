@@ -1,0 +1,39 @@
+# GlossUnit s1: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s1"
+sentenceId: "s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "cbfbddcf5c9581f753183756dd2a46c9d6eb1377874642a5a6d8ee6f801413f2"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "§ 1"
+    english: "§ 1"
+    lemma: "§"
+    grammarNote: "the section mark and number, § 1"
+    noteClass: "abbreviation"
+  - german: "Über"
+    english: "on"
+  - german: "den"
+    english: "the"
+  - german: "suspendierten"
+    english: "suspended"
+  - german: "Teilchen"
+    english: "particles"
+  - german: "zuzuschreibenden"
+    english: "to be ascribed"
+    lemma: "zuschreiben"
+    grammarNote: "zu with a participle before its noun, inside the separable verb zuschreiben: the pressure to be ascribed to the particles"
+    noteClass: "attributive-phrase"
+  - german: "osmotischen"
+    english: "osmotic"
+  - german: "Druck"
+    english: "pressure"
+multiwordUnits: []

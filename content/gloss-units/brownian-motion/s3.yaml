@@ -1,0 +1,34 @@
+# GlossUnit s3: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s3"
+sentenceId: "s3"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "4b6895563f09725f82dc228fb87553e5a6b9914d6df089502363a617d5eae3fa"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "§ 3"
+    english: "§ 3"
+    lemma: "§"
+    grammarNote: "the section mark and number, § 3"
+    noteClass: "abbreviation"
+  - german: "Theorie"
+    english: "theory"
+  - german: "der"
+    english: "of the"
+  - german: "Diffusion"
+    english: "diffusion"
+  - german: "kleiner"
+    english: "of small"
+  - german: "suspendierter"
+    english: "suspended"
+  - german: "Kugeln"
+    english: "spheres"
+multiwordUnits: []
