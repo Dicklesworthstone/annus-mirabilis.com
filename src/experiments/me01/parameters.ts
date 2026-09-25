@@ -1,3 +1,4 @@
+import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import {
   ME01_DEFAULTS,
@@ -12,7 +13,7 @@ export type Me01ParameterCheck =
   | { kind: "accepted"; data: Me01Parameters }
   | { kind: "refused"; refusal: ReturnType<typeof makeRefusal> };
 
-export function validateMe01Parameters(input: unknown): Me01ParameterCheck {
+function validateMe01Fields(input: unknown): Me01ParameterCheck {
   if (input === null || typeof input !== "object") {
     return {
       kind: "refused",
@@ -27,7 +28,18 @@ export function validateMe01Parameters(input: unknown): Me01ParameterCheck {
   const o = input as Partial<Record<keyof Me01Parameters, unknown>>;
 
   const beta = typeof o.frameSpeed === "number" ? o.frameSpeed : Number.NaN;
-  if (!Number.isFinite(beta) || Math.abs(beta) >= 1) {
+  // A speed that is not a number is not a speed at or above c: it gets its own sentence.
+  if (!Number.isFinite(beta)) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["frameSpeed"] },
+        { details: { requirements: "Enter the observer speed v/c as a number." } },
+      ),
+    };
+  }
+  if (Math.abs(beta) >= 1) {
     return {
       kind: "refused",
       refusal: makeRefusal(
@@ -104,6 +116,18 @@ export function validateMe01Parameters(input: unknown): Me01ParameterCheck {
       notation,
     }),
   };
+}
+
+/** Each declared setting as the form names it; L is the paper's own unit of energy here. */
+const ME01_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  frameSpeed: { label: "observer speed v/c" },
+  emittedEnergyRestFrame: { label: "emitted energy L", unit: "" },
+  emissionAngle: { label: "emission angle φ" },
+};
+
+/** The fields above, then every range content/experiments/me-01.yaml declares (dispatch 134). */
+export function validateMe01Parameters(input: unknown): Me01ParameterCheck {
+  return withinDeclaredDomain("me-01", validateMe01Fields(input), ME01_DOMAIN_DISPLAY);
 }
 
 export { ME01_DEFAULTS };

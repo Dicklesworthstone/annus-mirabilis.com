@@ -28,6 +28,7 @@ import {
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { TwoLedgersPlot } from "./TwoLedgersPlot.tsx";
@@ -372,7 +373,7 @@ export function TwoLedgersLab({
 
           {error && (
             <p className="notice error" role="alert" data-refusal-code={refusalCode ?? undefined}>
-              {error}
+              {error} {KEPT_RESULT}
             </p>
           )}
           <AcceptedStatus

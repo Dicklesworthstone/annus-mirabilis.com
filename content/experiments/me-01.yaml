@@ -19,7 +19,7 @@ parameters:
       max: 0.95
       minInclusive: true
       maxInclusive: true
-      reason: "No inertial observer at |v| >= c; teaching range stays inside 0.95."
+      reason: "No inertial observer moves at or beyond the speed of light; the teaching range stays inside 0.95c."
     visualRange:
       min: 0
       max: 0.95
