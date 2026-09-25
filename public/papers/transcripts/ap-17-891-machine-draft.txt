@@ -781,6 +781,32 @@ Wir fragen nun in Anlehnung an die übliche Betrachtungsweise nach der „longit
 --- MACHINE DRAFT TRANSCRIPTION PAGE 29 OF 31 ---
 [[ANNALEN-PAGE 919]]
 
+des bewegten Elektrons. Wir schreiben die Gleichungen (A) in der Form
+$$
+\begin{aligned}
+\mu \beta^3 \frac{d^2 x}{d t^2} &= \varepsilon X = \varepsilon X' , \\
+\mu \beta^2 \frac{d^2 y}{d t^2} &= \varepsilon \beta \left( Y - \frac{v}{V} N \right) = \varepsilon Y' , \\
+\mu \beta^2 \frac{d^2 z}{d t^2} &= \varepsilon \beta \left( Z + \frac{v}{V} M \right) = \varepsilon Z'
+\end{aligned}
+$$
+und bemerken zunächst, daß $\varepsilon X'$, $\varepsilon Y'$, $\varepsilon Z'$ die Komponenten der auf das Elektron wirkenden ponderomotorischen Kraft sind, und zwar in einem in diesem Moment mit dem Elektron mit gleicher Geschwindigkeit wie dieses bewegten System betrachtet. (Diese Kraft könnte beispielsweise mit einer im letzten System ruhenden Federwage gemessen werden.) Wenn wir nun diese Kraft schlechtweg „die auf das Elektron wirkende Kraft“ nennen und die Gleichung
+$$
+\text{Massenzahl} \times \text{Beschleunigungszahl} = \text{Kraftzahl}
+$$
+aufrechterhalten, und wenn wir ferner festsetzen, daß die Beschleunigungen im ruhenden System $K$ gemessen werden sollen, so erhalten wir aus obigen Gleichungen:
+$$
+\text{Longitudinale Masse} = \frac{\mu}{\left( \sqrt{1 - \left( \frac{v}{V} \right)^2} \right)^3} ,
+$$
+$$
+\text{Transversale Masse} = \frac{\mu}{1 - \left( \frac{v}{V} \right)^2} .
+$$
+
+Natürlich würde man bei anderer Definition der Kraft und der Beschleunigung andere Zahlen für die Massen erhalten; man ersieht daraus, daß man bei der Vergleichung verschiedener Theorien der Bewegung des Elektrons sehr vorsichtig verfahren muß.
+
+Wir bemerken, daß diese Resultate über die Masse auch für die ponderabeln materiellen Punkte gilt; denn ein ponderabler materieller Punkt kann durch Zufügen einer [[EM]]beliebig kleinen[[/EM]] elektrischen Ladung zu einem Elektron (in unserem Sinne) gemacht werden.
+
+Wir bestimmen die kinetische Energie des Elektrons. Bewegt sich ein Elektron vom Koordinatenursprung des Systems $K$ aus mit der Anfangsgeschwindigkeit 0 beständig auf der[[CONTINUES]]
+
 --- MACHINE DRAFT TRANSCRIPTION PAGE 30 OF 31 ---
 [[ANNALEN-PAGE 920]]
 
