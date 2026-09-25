@@ -5,7 +5,8 @@ sourceRefs:
   - paper: mass-energy
     id: s0
 argumentIds:
-  - arg-me-two-ledgers
+  - arg-me-scope
+  - arg-me-mass-change
 schemaVersion: 1
 parameters:
   - id: boundary
