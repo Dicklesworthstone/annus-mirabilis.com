@@ -1,5 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
@@ -32,6 +39,20 @@ import {
 } from "./brownianInventory.ts";
 
 const ROOT = process.cwd();
+
+/** The committed German source blocks (content/source-blocks/brownian-motion/<id>.yaml). */
+function committedSourceBlocks(): Array<{ id: string; sentenceSpans: Array<{ id: string }> }> {
+  const dir = join(ROOT, "content/source-blocks/brownian-motion");
+  return readdirSync(dir)
+    .filter((f) => f.endsWith(".yaml") && !f.startsWith("manifest") && !f.startsWith("ledger"))
+    .map(
+      (f) =>
+        parseYaml(readFileSync(join(dir, f), "utf8")) as {
+          id: string;
+          sentenceSpans: Array<{ id: string }>;
+        },
+    );
+}
 
 /** The 2026-09-19 boundary-audit retirements, given to the validator as gap evidence. */
 function loadAliasRecords() {
@@ -103,9 +124,19 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
       ),
     );
     const sentenceIds = raw.units.filter((u) => u.kind === "sentence").map((u) => u.id);
-    expect(sentenceIds.length).toBe(90);
+    // Non-vacuity, not a census: the loops below must examine something. This read 90 until
+    // s3-p8-s3 and -s4 were retired on 2026-09-25 (3cbac342), a correct change a frozen number
+    // turned red while nothing these loops protect had changed.
+    expect(sentenceIds.length).toBeGreaterThan(0);
     for (const id of sentenceIds) {
       expect(snapshotIds.has(id)).toBe(true);
+    }
+
+    // Every frozen sentence id is a span of a committed source block, so none points at nothing.
+    const spans = new Set(committedSourceBlocks().flatMap((b) => b.sentenceSpans.map((s) => s.id)));
+    expect(spans.size).toBeGreaterThan(0);
+    for (const id of sentenceIds) {
+      expect(spans.has(id), `manifest sentence ${id} has no span in a source block`).toBe(true);
     }
   });
 
@@ -128,10 +159,11 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     );
     expect(manifest.frozenBy).toBe("am-edn-inventory-brownian-slg");
 
-    // 87 block-level units (92 until the 2026-09-19 boundary audit retired five), plus 90
-    // sentence units: 37 for sections 4-5 and 53 for sections 0-3, all cut on 2026-09-21 against
-    // plate reads of every page rather than the ledger's text shape.
-    expect(manifest.units.length).toBe(177);
+    // A report, not an assertion: 87 block-level units (92 until the 2026-09-19 boundary audit
+    // retired five), plus the sentence units cut on 2026-09-21 against plate reads of every page
+    // (90, of which s3-p8-s3 and -s4 were retired on 2026-09-25, leaving 88). The alias test below
+    // holds the property: the units equal the committed snapshot, one for one.
+    expect(manifest.units.length).toBeGreaterThan(0);
 
     const idSet = new Set<string>();
     for (const unit of manifest.units) {
@@ -180,11 +212,15 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     expect(errors.length).toBe(0);
 
     // Planted negative: strip the alias records and the same gaps are still errors, which proves
-    // the records carry the explanation rather than the rule having been softened.
+    // the records carry the explanation rather than the rule having been softened. Identity, not a
+    // census: the gaps left unexplained are exactly the ids the alias file retires (this counted 5
+    // until s3-p8-s3 and -s4 were retired on 2026-09-25), and there is at least one.
     const unexplained = validateManifest(manifest, {
       manifests: new Map([[manifest.paper, manifest]]),
     }).filter((d) => d.rule === "sequence-gap" && d.severity === "error");
-    expect(unexplained.length).toBe(5);
+    const gapIds = unexplained.map((d) => /missing '([^']+)'/.exec(d.message)?.[1] ?? d.message);
+    expect(gapIds.length).toBeGreaterThan(0);
+    expect([...gapIds].sort()).toEqual(aliasRecords.map((r) => r.retiredId).sort());
 
     const helperDiags = brownianSourceManifestDiagnostics();
     expect(helperDiags.filter((d) => d.severity === "error").length).toBe(0);
@@ -195,8 +231,7 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
       paper: BROWNIAN_PAPER,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message:
-        "Manifest schema and validator pass with 0 errors, 92 units, and absent derived statuses.",
+      message: `Manifest schema and validator pass with 0 errors, ${manifest.units.length} units, and absent derived statuses.`,
       extra: { unitCount: manifest.units.length, check: "schema" },
     });
   });
@@ -553,34 +588,50 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     expect(existsSync(aliasPath)).toBe(true);
     const aliasRaw = parseYaml(readFileSync(aliasPath, "utf8")) as { aliases?: unknown[] };
     const aliasList = aliasRaw.aliases as unknown[];
-    expect(aliasList.length).toBe(5);
     const records = aliasList.map((r) => {
       const v = validateAliasRecord(r);
       if (!v.ok) throw new Error(v.error);
       return v.value;
     });
-    expect(records.map((r) => r.retiredId).sort()).toEqual([
-      "s2-p6",
-      "s3-p3",
-      "s3-p4",
-      "s4-p7",
-      "s4-p8",
-    ]);
-
-    // Each retired id resolves to its surviving paragraph and is absent from the live ids.
+    // Non-vacuity on purpose: with no alias the loops below would pass while proving nothing.
+    expect(records.length).toBeGreaterThan(0);
     const liveIds = manifest.units.map((u) => u.id);
+
+    // Every record, whoever wrote it: the retired id is never live, and it resolves to live ids.
+    for (const record of records) {
+      expect(liveIds).not.toContain(record.retiredId);
+      const resolved = resolveAlias(record.retiredId, records, liveIds);
+      expect(resolved.ok, `${record.retiredId} does not resolve`).toBe(true);
+    }
+
+    // Identity, not census: retirements are permanent, so these are named rather than counted.
+    // Five from the 2026-09-19 boundary audit, and two sentence ids that pages 555-556 do not
+    // print (3cbac342), which resolve to their paragraph for want of a successor sentence.
     const expectedTarget: Record<string, string> = {
       "s2-p6": "s2-p5",
       "s3-p3": "s3-p2",
       "s3-p4": "s3-p2",
       "s4-p7": "s4-p6",
       "s4-p8": "s4-p6",
+      "s3-p8-s3": "s3-p8",
+      "s3-p8-s4": "s3-p8",
     };
     for (const [retired, target] of Object.entries(expectedTarget)) {
-      expect(liveIds).not.toContain(retired);
+      expect(records.map((r) => r.retiredId)).toContain(retired);
       const resolved = resolveAlias(retired, records, liveIds);
       expect(resolved.ok).toBe(true);
       if (resolved.ok) expect(resolved.targetIds).toEqual([target]);
+    }
+
+    // Never rendered: no committed source block, and no sentence span in one, carries a retired id.
+    const retiredIds = new Set(records.map((r) => r.retiredId));
+    const blocks = committedSourceBlocks();
+    expect(blocks.length).toBeGreaterThan(0);
+    for (const block of blocks) {
+      expect(retiredIds.has(block.id), `${block.id} is retired`).toBe(false);
+      for (const span of block.sentenceSpans) {
+        expect(retiredIds.has(span.id), `${span.id} is retired`).toBe(false);
+      }
     }
 
     // Displays that hung off a retired unit now hang off its survivor.
@@ -603,8 +654,7 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     );
     const snapshotText = readFileSync(snapshotPath, "utf8");
     const snapshotIds = parseIdSnapshot(snapshotText);
-
-    expect(snapshotIds.length).toBe(177);
+    expect(snapshotIds.length).toBeGreaterThan(0);
 
     const manifestIds = manifest.units.map((u) => u.id);
     expect(snapshotIds).toEqual(manifestIds);
@@ -622,8 +672,7 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
       paper: BROWNIAN_PAPER,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message:
-        "Snapshot equals manifest units (87 IDs) and the five boundary-audit retirements resolve.",
+      message: `Snapshot equals manifest units (${manifestIds.length} ids) and all ${records.length} retired ids resolve; none is rendered.`,
       extra: { check: "frozen-ids" },
     });
   });

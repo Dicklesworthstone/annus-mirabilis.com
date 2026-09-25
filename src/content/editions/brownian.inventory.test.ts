@@ -3,6 +3,7 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
+import { parseIdSnapshot } from "../frozenIds.ts";
 import {
   BROWNIAN_INVENTORY_BEAD,
   brownianCompilerFlags,
@@ -28,13 +29,23 @@ describe("brownian editorial inventory (am-edn-inventory-brownian-slg)", () => {
     expect(inventory.sourceStatus).toBe("in-preparation");
     const byLayer = Object.fromEntries(inventory.layers.map((l) => [l.layer, l]));
     expect(byLayer["source-units"]?.existence).toBe("authored");
-    // 87 block-level units (92 until the 2026-09-19 boundary audit retired five), plus the 90
-    // sentence units of sections 0-5 cut on 2026-09-21. This layer is every unit in the manifest
-    // - brownianInventory.ts builds it as manifest.units.map(u => u.id), with no filter by kind -
-    // so it counts units at MIXED granularity: a paragraph and each of its sentences both appear.
-    // It is a roster, not a count of distinct text spans, and nothing may use it as a coverage
-    // denominator without collapsing to one granularity first.
-    expect(byLayer["source-units"]?.ids.length).toBe(177);
+    // 87 block-level units (92 until the 2026-09-19 boundary audit retired five), plus the
+    // sentence units of sections 0-5 cut on 2026-09-21 (90, two retired on 2026-09-25). This layer
+    // is every unit in the manifest - brownianInventory.ts builds it as manifest.units.map(u => u.id),
+    // with no filter by kind - so it counts units at MIXED granularity: a paragraph and each of its
+    // sentences both appear. It is a roster, not a count of distinct text spans, and nothing may use
+    // it as a coverage denominator without collapsing to one granularity first.
+    // The property, where a census stood: the roster, built from the manifest's units, is exactly
+    // the committed frozen snapshot, a separate file (the inventory reads it only to decide frozen
+    // status), so the comparison is not the roster checked against its own source.
+    const snapshot = parseIdSnapshot(
+      readFileSync(
+        join(process.cwd(), "content/source-blocks/brownian-motion/manifest.ids.snapshot.txt"),
+        "utf8",
+      ),
+    );
+    expect(snapshot.length).toBeGreaterThan(0);
+    expect(byLayer["source-units"]?.ids).toEqual(snapshot);
     expect(byLayer.translation?.existence).toBe("absent");
     expect(byLayer.arguments?.existence).toBe("authored");
     expect(byLayer.arguments?.reviewClaim).toBe("pending");

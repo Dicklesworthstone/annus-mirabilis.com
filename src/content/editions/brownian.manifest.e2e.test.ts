@@ -64,14 +64,28 @@ describe("brownian source-manifest report CLI (am-edn-inventory-brownian-slg)", 
       units: Array<{ id: string; destination?: unknown; locators: Array<{ page: number }> }>;
     };
 
-    // 87 block-level units (92 until the 2026-09-19 boundary audit retired five), plus the 90
-    // sentence units of sections 0-5 cut on 2026-09-21. This is a roster at mixed granularity: a
-    // paragraph and each of its sentences both appear. The page check below is deliberately a
-    // presence test (>= 1 unit per page), which extra granularity cannot break; anything that
-    // RECONCILES counts against the page map must collapse to block granularity first.
-    assert.equal(manifest.units.length, 177);
+    // A report, not an assertion: 87 block-level units (92 until the 2026-09-19 boundary audit
+    // retired five), plus the sentence units of sections 0-5 cut on 2026-09-21 (90, two retired on
+    // 2026-09-25, leaving 88). This is a roster at mixed granularity: a paragraph and each of its
+    // sentences both appear. The page check below is deliberately a presence test (>= 1 unit per
+    // page), which extra granularity cannot break; anything that RECONCILES counts against the page
+    // map must collapse to block granularity first.
+    assert.ok(manifest.units.length > 0, "the manifest roster must not be empty");
     for (const unit of manifest.units) {
       assert.ok(unit.destination, `Unit ${unit.id} must have a destination`);
+    }
+
+    // The node lane's half of the retirement property (brownian.manifest.test.ts holds the rest):
+    // a retired id is never a live unit, and at least one retirement exists, so this is not vacuous.
+    const aliases = (
+      parseYaml(readFileSync(join(ROOT, "content/aliases/brownian-motion.yaml"), "utf8")) as {
+        aliases?: Array<{ retiredId: string }>;
+      }
+    ).aliases;
+    assert.ok(aliases && aliases.length > 0, "the alias file records at least one retirement");
+    const live = new Set(manifest.units.map((u) => u.id));
+    for (const alias of aliases ?? []) {
+      assert.ok(!live.has(alias.retiredId), `retired id ${alias.retiredId} is still a live unit`);
     }
 
     // Verify per-page counts match SourceAsset.pageMapping
