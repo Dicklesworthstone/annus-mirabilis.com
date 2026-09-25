@@ -1,4 +1,5 @@
 import { constantValue, convert, getConstantSet } from "../../physics/reference/constants.ts";
+import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { ME02_DEFAULTS, type Me02Parameters } from "./definition.ts";
 
@@ -6,7 +7,7 @@ export type Me02ParameterCheck =
   | { kind: "accepted"; data: Me02Parameters }
   | { kind: "refused"; refusal: ReturnType<typeof makeRefusal> };
 
-export function validateMe02Parameters(input: unknown): Me02ParameterCheck {
+function validateMe02Fields(input: unknown): Me02ParameterCheck {
   if (input === null || typeof input !== "object") {
     return {
       kind: "refused",
@@ -20,7 +21,18 @@ export function validateMe02Parameters(input: unknown): Me02ParameterCheck {
   const speedAxis = o.speedAxis;
   const showNaive = o.showNaive === true;
   const notation = o.notation === "modern" ? "modern" : "printed";
-  if (!Number.isFinite(beta) || Math.abs(beta) >= 1) {
+  // A speed that is not a number is not a speed at or above c: it gets its own sentence.
+  if (!Number.isFinite(beta)) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["beta"] },
+        { details: { requirements: "Enter the observer speed v/c as a number." } },
+      ),
+    };
+  }
+  if (Math.abs(beta) >= 1) {
     return {
       kind: "refused",
       refusal: makeRefusal(
@@ -107,3 +119,14 @@ export function me02InputFromParameters(p: Me02Parameters) {
 }
 
 export { ME02_DEFAULTS };
+
+/** Each declared setting as the form names it; L is counted in the unit the reader chose. */
+const ME02_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  beta: { label: "observer speed v/c" },
+  emittedEnergy: { label: "emitted energy L", unit: "" },
+};
+
+/** The fields above, then every range content/experiments/me-02.yaml declares (dispatch 134). */
+export function validateMe02Parameters(input: unknown): Me02ParameterCheck {
+  return withinDeclaredDomain("me-02", validateMe02Fields(input), ME02_DOMAIN_DISPLAY);
+}

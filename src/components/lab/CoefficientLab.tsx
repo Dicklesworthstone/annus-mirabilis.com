@@ -1,8 +1,10 @@
 "use client";
 import { type FormEvent, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { EquationScope } from "../../equations/EquationScope.tsx";
 import { SemanticEquation } from "../../equations/SemanticEquation.tsx";
 import type { CompiledEquation } from "../../equations/viewTypes.ts";
+import { readTypedNumber } from "../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
@@ -25,7 +27,9 @@ import type { ScientificResult } from "../../experiments/results/types.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot, PublishedResult } from "../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { KEPT_RESULT } from "./keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
+import { ShowTheCode } from "./ShowTheCode.tsx";
 import "./coefficientLab.css";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
@@ -176,6 +180,12 @@ function CoefficientBars({ snapshot, clipId }: { snapshot: AcceptedSnapshot; cli
 // the manifest's second prompt, toward low speed.
 const ME02_PROMPTS = PREDICT_PROMPTS["me-02"] ?? [];
 
+/** The typed fields, kept as the reader typed them and read on Apply (dispatch 170). */
+type Me02Typed = { beta: string; emittedEnergy: string };
+function typedFrom(q: Me02Parameters): Me02Typed {
+  return { beta: String(q.beta), emittedEnergy: String(q.emittedEnergy) };
+}
+
 export function CoefficientLab({
   example,
   title = "Inertia from the small-speed coefficient",
@@ -200,7 +210,10 @@ export function CoefficientLab({
     session,
     session.acceptedParameters(),
     true,
-    (restored) => setDraft({ ...restored }),
+    (restored) => {
+      setDraft({ ...restored });
+      setTyped(typedFrom(restored));
+    },
   );
   const accepted = view.accepted ?? session.getServerSnapshot().accepted;
   if (!accepted) {
@@ -209,6 +222,9 @@ export function CoefficientLab({
   const snapshot = accepted;
   const p = snapshot.parameters as Me02Parameters;
   const [draft, setDraft] = useState(() => ({ ...example.parameters }));
+  // A number field hands "" for a cleared field or for "abc"; stored as Number(value) that was 0,
+  // applied as v/c = 0 without a word. The text is read on Apply instead.
+  const [typed, setTyped] = useState(() => typedFrom(example.parameters));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
@@ -222,8 +238,10 @@ export function CoefficientLab({
       setError(`${linked.message} The prepared example is unchanged.`);
     if (linked?.kind === "settings") {
       const outcome = session.apply(linked.parameters);
-      if (outcome.kind === "accepted") setDraft(linked.parameters);
-      else setError(refusalSentence(outcome.refusal));
+      if (outcome.kind === "accepted") {
+        setDraft(linked.parameters);
+        setTyped(typedFrom(linked.parameters));
+      } else setError(refusalSentence(outcome.refusal));
     }
     setReady(true);
   }, [session, restoreSettings]);
@@ -234,11 +252,20 @@ export function CoefficientLab({
       return;
     }
     setDraft(parameters);
+    setTyped(typedFrom(parameters));
     setError("");
   }
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const checked = validateMe02Parameters(draft);
+    const beta = readTypedNumber(typed.beta, "the observer speed v/c");
+    if (beta.kind === "refused") return setError(beta.requirement);
+    const energy = readTypedNumber(typed.emittedEnergy, "the emitted energy L");
+    if (energy.kind === "refused") return setError(energy.requirement);
+    const checked = validateMe02Parameters({
+      ...draft,
+      beta: beta.value,
+      emittedEnergy: energy.value,
+    });
     if (checked.kind !== "accepted") {
       setError(refusalSentence(checked.refusal));
       return;
@@ -356,10 +383,8 @@ export function CoefficientLab({
                   step="0.01"
                   min="-0.95"
                   max="0.95"
-                  value={draft.beta}
-                  onChange={(event) =>
-                    setDraft({ ...draft, beta: Number(event.currentTarget.value) })
-                  }
+                  value={typed.beta}
+                  onChange={(event) => setTyped({ ...typed, beta: event.currentTarget.value })}
                 />
               </div>
               <button type="submit">Apply settings</button>
@@ -374,9 +399,9 @@ export function CoefficientLab({
                       inputMode="decimal"
                       min="0"
                       step="any"
-                      value={draft.emittedEnergy}
+                      value={typed.emittedEnergy}
                       onChange={(event) =>
-                        setDraft({ ...draft, emittedEnergy: Number(event.currentTarget.value) })
+                        setTyped({ ...typed, emittedEnergy: event.currentTarget.value })
                       }
                     />
                   </div>
@@ -417,7 +442,7 @@ export function CoefficientLab({
               </ExperimentSettings>
               {error ? (
                 <p id={`${id}-error`} className="notice" role="alert">
-                  {error}
+                  {error} {KEPT_RESULT}
                 </p>
               ) : null}
             </fieldset>
@@ -566,6 +591,8 @@ export function CoefficientLab({
           </p>
         </section>
       )}
+      {/* The kernel's own source, extracted at build time with its hash pinned (src/content/kernel). */}
+      <ShowTheCode instrumentId="me-02" listings={getKernelListingsForInstrument("me-02")} />
       <p className="fine">Not modeled: {ME02_NOT_MODELED.join("; ")}.</p>
     </section>
   );
