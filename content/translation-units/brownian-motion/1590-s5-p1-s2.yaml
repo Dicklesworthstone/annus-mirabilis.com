@@ -26,6 +26,6 @@ translator:
 revision: 1
 unresolvedAlternatives:
   - text: "average of the displacements"
-    rationale: "\"Mittelwert der Verschiebungen\" is kept as \"mean value\"; § 4 defines this λₓ as the square root of the mean of the squared displacements, and the translation does not restate it."
+    rationale: "\"Mittelwert der Verschiebungen\" is kept as \"mean value\"; § 4 defines this λ for the x-axis as the square root of the mean of the squared displacements, and the translation does not restate it."
 reviewState: "machine-draft"
 lang: "en"
