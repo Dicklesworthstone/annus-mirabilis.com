@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { checkEvidenceLinksFile } from "../../scripts/check-evidence-links.ts";
+import { hasResultCards, loadResultCards } from "../content/results/resultCards.ts";
 import { newRunIdentity, TestLogger } from "./log/logger.ts";
 
 const SUITE = "dod-brownian";
@@ -132,10 +133,23 @@ test("Brownian DoD Item 4: results and misconceptions status", async () => {
   const startTime = Date.now();
 
   const misconceptionsDir = path.join(process.cwd(), "content/misconceptions/brownian-motion");
-  const resultsCardsDir = path.join(process.cwd(), "content/results/brownian-motion");
-
   const misconceptionsExist = fs.existsSync(misconceptionsDir);
-  const resultsCardsExist = fs.existsSync(resultsCardsDir);
+
+  // Read from the data, not pinned. This used to assert that a DIRECTORY content/results/
+  // brownian-motion did not exist, but a paper's cards are one FILE, content/results/<paper>.yaml,
+  // so the assertion could not fail whether the cards existed or not. The positive control is
+  // mass-energy, whose cards the same loader reads: were the path wrong, it would find none.
+  assert.equal(hasResultCards(process.cwd(), "mass-energy"), true);
+  const resultsCardsExist = hasResultCards(process.cwd(), "brownian-motion");
+  const results = loadResultCards(process.cwd(), "brownian-motion");
+  assert.equal(results !== null, resultsCardsExist);
+  // Once the file exists every card resolves (its printed anchors, arguments, probes and ledger
+  // links; loadResultCards refuses the rest), and a file with no card is not a results face.
+  if (results) {
+    assert.deepEqual(results.problems, []);
+    assert.ok(results.cards.length > 0, "A results file holds at least one card");
+  }
+  const cardCount = results?.cards.length ?? 0;
 
   // A property, not a census: the ledger was unauthored until dispatch 219 began it, and once it
   // exists AGENTS.md requires at least five typed entries (the epistemic misconception-minimum).
@@ -144,7 +158,6 @@ test("Brownian DoD Item 4: results and misconceptions status", async () => {
     : 0;
   if (misconceptionsExist)
     assert.ok(misconceptionCount >= 5, "A misconception ledger has at least five entries");
-  assert.equal(resultsCardsExist, false, "Results face cards unauthored");
 
   suiteLogger.log({
     testId: "dod-item-4-results-and-misconceptions",
@@ -152,13 +165,14 @@ test("Brownian DoD Item 4: results and misconceptions status", async () => {
     paper: "brownian-motion",
     outcome: "passed",
     durationMs: Date.now() - startTime,
-    message: `Verified Item 4: misconception ledger ${misconceptionsExist ? `with ${misconceptionCount} entries` : "unauthored"}; results cards unauthored (open beads).`,
+    message: `Verified Item 4: misconception ledger ${misconceptionsExist ? `with ${misconceptionCount} entries` : "unauthored"}; results cards ${resultsCardsExist ? `${cardCount}, each resolved` : "unauthored"}.`,
     extra: {
       item: "4. Results and misconceptions",
       check: "content-records",
       misconceptionsPresent: misconceptionsExist,
       misconceptionCount,
       resultsCardsPresent: resultsCardsExist,
+      resultCardCount: cardCount,
     },
   });
   await suiteLogger.flush();
