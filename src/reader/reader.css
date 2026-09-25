@@ -2890,3 +2890,50 @@ html:is(
 .passage-source-paragraphs li + li {
   margin-top: 0.4rem;
 }
+
+/* THE ENGLISH FACE'S RHYTHM (dispatch 210). Measured on the built faces: English paragraphs
+   stood 3.05em apart at 1440 and 3.26em at 390, where the German face stands 1.05em and 1.26em,
+   because .translation-units-list was a flex column with a 1.5rem gap, and a flex item's margins
+   do not collapse, so each paragraph's margin-block (.reader-root p, above) was added to the gap
+   on both sides. As a block the paragraphs' margins collapse into one --reader-paragraph-gap, as
+   the German face's do, and the reader's "relaxed" spacing now reaches the English face too. A
+   display, footnote or note between paragraphs takes the same gap.
+
+   The "Alternative translations" disclosure was a filled, bordered box a paragraph's gap below its
+   text. It is now a quiet line in the column, a quarter line under the sentence it offers
+   alternatives for, and still a <details>: keyboard-operable and open-able without JavaScript.
+   Held by scripts/e2e/englishFaceRhythm.e2e.test.ts, which also checks that nothing overlaps. */
+.translation-units-list {
+  display: block;
+}
+.translation-units-list > .equation-container,
+.translation-units-list > .translation-footnote,
+.translation-units-list > .unit-editorial-notes {
+  margin-block: var(--reader-paragraph-gap);
+}
+.unresolved-alternatives {
+  margin: 0.25em 0 var(--reader-paragraph-gap);
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  color: var(--muted);
+}
+.unresolved-alternatives > summary {
+  width: fit-content;
+  cursor: pointer;
+}
+.unresolved-alternatives[open] {
+  padding-block-end: 0.25em;
+}
+/* Two units of one paragraph may each carry alternatives: the lines stack a quarter line apart. */
+.unresolved-alternatives + .unresolved-alternatives {
+  margin-top: 0.25em;
+}
+.unresolved-alternatives:has(+ .unresolved-alternatives) {
+  margin-bottom: 0;
+}
+/* A paragraph's bottom margin is a whole gap; pull the line up into it rather than beneath it. */
+.translation-paragraph + .unresolved-alternatives {
+  margin-top: calc(0.25em - var(--reader-paragraph-gap));
+}
