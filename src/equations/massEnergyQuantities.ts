@@ -126,7 +126,9 @@ export const MASS_ENERGY_QUANTITIES: QuantityRegistry = Object.freeze(
       ),
       quantity(
         "speedOfLight",
-        "Speed of light in SI",
+        // The quantity's name, as the registry has it. "In SI" belonged to the value's constant set,
+        // and on Einstein's printed faces it named his V, in Gaussian units (dispatch 233).
+        "Speed of light",
         "c",
         speed,
         "m/s",
