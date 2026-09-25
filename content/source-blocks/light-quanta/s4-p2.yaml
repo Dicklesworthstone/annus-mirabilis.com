@@ -1,0 +1,107 @@
+# SourceBlock s4-p2: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s4-p2"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s4"
+order: 53
+locators:
+  - pdfPageIndex: 8
+    printedPage: 139
+diplomaticText: "Aus dieser Formel ergibt sich zunächst: und weiter unter Benutzung der in dem vorigen Paragraphen gefundenen Beziehung: Es sei nun eine Strahlung von der Energie E gegeben, deren Frequenz zwischen \\nu und \\nu + d \\nu liegt. Die Strahlung nehme das Volumen v ein. Die Entropie dieser Strahlung ist: Beschränken wir uns darauf, die Abhängigkeit der Entropie von dem von der Strahlung eingenommenen Volumen zu untersuchen, und bezeichnen wir die Entropie der Strahlung mit S_0, falls dieselbe das Volumen v_0 besitzt, so erhalten wir:"
+inlines:
+  - kind: "text"
+    text: "Aus dieser Formel ergibt sich zunächst:"
+  - kind: "math"
+    latex: "\\frac{1}{T} = -\\frac{1}{\\beta \\nu} \\lg \\frac{\\varrho}{\\alpha \\nu^3}"
+    display: true
+    equationId: "eq-s4-d2"
+  - kind: "text"
+    text: " und weiter unter Benutzung der in dem vorigen Paragraphen gefundenen Beziehung:"
+  - kind: "math"
+    latex: "\\varphi(\\varrho, \\nu) = -\\frac{\\varrho}{\\beta \\nu} \\left\\{ \\lg \\frac{\\varrho}{\\alpha \\nu^3} - 1 \\right\\}."
+    display: true
+    equationId: "eq-s4-d3"
+  - kind: "space"
+  - kind: "text"
+    text: "Es sei nun eine Strahlung von der Energie "
+  - kind: "math"
+    latex: "E"
+  - kind: "text"
+    text: " gegeben, deren Frequenz zwischen "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "\\nu + d \\nu"
+  - kind: "text"
+    text: " liegt."
+  - kind: "space"
+  - kind: "text"
+    text: "Die Strahlung nehme das Volumen "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " ein."
+  - kind: "space"
+  - kind: "text"
+    text: "Die Entropie dieser Strahlung ist:"
+  - kind: "math"
+    latex: "S = v \\varphi(\\varrho, \\nu) d \\nu = -\\frac{E}{\\beta \\nu} \\left\\{ \\lg \\frac{E}{v \\alpha \\nu^3 d \\nu} - 1 \\right\\}."
+    display: true
+    equationId: "eq-s4-d4"
+  - kind: "space"
+  - kind: "text"
+    text: "Beschränken wir uns darauf, die Abhängigkeit der Entropie von dem von der Strahlung eingenommenen Volumen zu untersuchen, und bezeichnen wir die Entropie der Strahlung mit "
+  - kind: "math"
+    latex: "S_0"
+  - kind: "text"
+    text: ", falls dieselbe das Volumen "
+  - kind: "math"
+    latex: "v_0"
+  - kind: "text"
+    text: " besitzt, so erhalten wir:"
+  - kind: "math"
+    latex: "S - S_0 = \\frac{E}{\\beta \\nu} \\lg \\left( \\frac{v}{v_0} \\right)."
+    display: true
+    equationId: "eq-s4-d5"
+sentenceSpans:
+  - id: "s4-p2-s1"
+    span:
+      start: 0
+      end: 119
+      blockRevision: 1
+      textDigest: "fc33d715b75c7240365cccc2c53ec5df8851ffb1ebd52d6dfc92465c76f872dc"
+  - id: "s4-p2-s2"
+    span:
+      start: 120
+      end: 223
+      blockRevision: 1
+      textDigest: "fc33d715b75c7240365cccc2c53ec5df8851ffb1ebd52d6dfc92465c76f872dc"
+  - id: "s4-p2-s3"
+    span:
+      start: 224
+      end: 262
+      blockRevision: 1
+      textDigest: "fc33d715b75c7240365cccc2c53ec5df8851ffb1ebd52d6dfc92465c76f872dc"
+  - id: "s4-p2-s4"
+    span:
+      start: 263
+      end: 297
+      blockRevision: 1
+      textDigest: "fc33d715b75c7240365cccc2c53ec5df8851ffb1ebd52d6dfc92465c76f872dc"
+  - id: "s4-p2-s5"
+    span:
+      start: 298
+      end: 531
+      blockRevision: 1
+      textDigest: "fc33d715b75c7240365cccc2c53ec5df8851ffb1ebd52d6dfc92465c76f872dc"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

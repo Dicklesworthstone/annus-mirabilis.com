@@ -1,0 +1,29 @@
+# SourceBlock s4: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s4"
+kind: "heading"
+paper: "light-quanta"
+section: "s4"
+order: 50
+locators:
+  - pdfPageIndex: 8
+    printedPage: 139
+diplomaticText: "§ 4. Grenzgesetz für die Entropie der monochromatischen Strahlung bei geringer Strahlungsdichte."
+inlines:
+  - kind: "text"
+    text: "§ 4. Grenzgesetz für die Entropie der monochromatischen Strahlung bei geringer Strahlungsdichte."
+sentenceSpans:
+  - id: "s4"
+    span:
+      start: 0
+      end: 96
+      blockRevision: 1
+      textDigest: "76354114c2574668863d384ca48bf03bcc56aca74b015b25b4fe7c845e4b33f6"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"
