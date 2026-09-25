@@ -1,0 +1,35 @@
+# SourceBlock s2: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s2"
+kind: "heading"
+paper: "light-quanta"
+section: "s2"
+order: 24
+locators:
+  - pdfPageIndex: 5
+    printedPage: 136
+diplomaticText: "§ 2. Über die Plancksche Bestimmung der Elementarquanta."
+inlines:
+  - kind: "text"
+    text: "§ 2. Über die "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Planck"
+  - kind: "text"
+    text: "sche Bestimmung der Elementarquanta."
+sentenceSpans:
+  - id: "s2"
+    span:
+      start: 0
+      end: 56
+      blockRevision: 1
+      textDigest: "6a7e196986e9278012d370be396064d4737f8fb184b414399f6211552ef6b6bd"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

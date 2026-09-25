@@ -1,0 +1,136 @@
+# SourceBlock s2-p2: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s2-p2"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s2"
+order: 26
+locators:
+  - pdfPageIndex: 5
+    printedPage: 136
+  - pdfPageIndex: 6
+    printedPage: 137
+diplomaticText: "Die allen bisherigen Erfahrungen genügende Plancksche Formel1) für \\varrho_\\nu lautet wobei Für große Werte von T/\\nu, d. h. für große Wellenlängen und Strahlungsdichten geht diese Formel in der Grenze in folgende über: Man erkennt, daß diese Formel mit der in § 1 aus der Maxwellschen und der Elektronentheorie entwickelten übereinstimmt. Durch Gleichsetzung der Koeffizienten beider Formeln erhält man: oder d. h. ein Atom Wasserstoff wiegt 1/N Gramm = 1{,}62 \\cdot 10^{-24} g. Dies ist genau der von Hrn. Planck gefundene Wert, welcher mit den auf anderen Wegen gefundenen Werten für diese Größe befriedigend übereinstimmt."
+inlines:
+  - kind: "text"
+    text: "Die allen bisherigen Erfahrungen genügende "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Planck"
+  - kind: "text"
+    text: "sche Formel"
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s2-fn1"
+  - kind: "text"
+    text: " für "
+  - kind: "math"
+    latex: "\\varrho_\\nu"
+  - kind: "text"
+    text: " lautet"
+  - kind: "math"
+    latex: "\\varrho_\\nu = \\frac{\\alpha \\nu^3}{e^{\\frac{\\beta \\nu}{T}} - 1},"
+    display: true
+    equationId: "eq-s2-d1"
+  - kind: "text"
+    text: " wobei"
+  - kind: "math"
+    latex: "\\alpha = 6{,}10 \\cdot 10^{-56},"
+    display: true
+    equationId: "eq-s2-d2"
+  - kind: "math"
+    latex: "\\beta = 4{,}866 \\cdot 10^{-11}."
+    display: true
+    equationId: "eq-s2-d3"
+  - kind: "space"
+  - kind: "text"
+    text: "Für große Werte von "
+  - kind: "math"
+    latex: "T/\\nu"
+  - kind: "text"
+    text: ", d. h. für große Wellenlängen und Strahlungsdichten geht diese Formel in der Grenze in folgende über:"
+  - kind: "math"
+    latex: "\\varrho_\\nu = \\frac{\\alpha}{\\beta} \\nu^2 T."
+    display: true
+    equationId: "eq-s2-d4"
+  - kind: "space"
+  - kind: "text"
+    text: "Man erkennt, daß diese Formel mit der in § 1 aus der "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Maxwell"
+  - kind: "text"
+    text: "schen und der Elektronentheorie entwickelten übereinstimmt."
+  - kind: "space"
+  - kind: "text"
+    text: "Durch Gleichsetzung der Koeffizienten beider Formeln erhält man:"
+  - kind: "math"
+    latex: "\\frac{R}{N} \\frac{8 \\pi}{L^3} = \\frac{\\alpha}{\\beta}"
+    display: true
+    equationId: "eq-s2-d5"
+  - kind: "text"
+    text: " oder"
+  - kind: "math"
+    latex: "N = \\frac{\\beta}{\\alpha} \\frac{8 \\pi R}{L^3} = 6{,}17 \\cdot 10^{23},"
+    display: true
+    equationId: "eq-s2-d6"
+  - kind: "text"
+    text: " d. h. ein Atom Wasserstoff wiegt "
+  - kind: "math"
+    latex: "1/N"
+  - kind: "text"
+    text: " Gramm "
+  - kind: "math"
+    latex: "= 1{,}62 \\cdot 10^{-24}"
+  - kind: "text"
+    text: " g."
+  - kind: "space"
+  - kind: "text"
+    text: "Dies ist genau der von Hrn. "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Planck"
+  - kind: "text"
+    text: " gefundene Wert, welcher mit den auf anderen Wegen gefundenen Werten für diese Größe befriedigend übereinstimmt."
+sentenceSpans:
+  - id: "s2-p2-s1"
+    span:
+      start: 0
+      end: 91
+      blockRevision: 1
+      textDigest: "adb0ae8f7a85fca5a6d280004d48a68a80d9c736d267b29ed9813ce0b5ad8196"
+  - id: "s2-p2-s2"
+    span:
+      start: 92
+      end: 219
+      blockRevision: 1
+      textDigest: "adb0ae8f7a85fca5a6d280004d48a68a80d9c736d267b29ed9813ce0b5ad8196"
+  - id: "s2-p2-s3"
+    span:
+      start: 220
+      end: 339
+      blockRevision: 1
+      textDigest: "adb0ae8f7a85fca5a6d280004d48a68a80d9c736d267b29ed9813ce0b5ad8196"
+  - id: "s2-p2-s4"
+    span:
+      start: 340
+      end: 479
+      blockRevision: 1
+      textDigest: "adb0ae8f7a85fca5a6d280004d48a68a80d9c736d267b29ed9813ce0b5ad8196"
+  - id: "s2-p2-s5"
+    span:
+      start: 480
+      end: 626
+      blockRevision: 1
+      textDigest: "adb0ae8f7a85fca5a6d280004d48a68a80d9c736d267b29ed9813ce0b5ad8196"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

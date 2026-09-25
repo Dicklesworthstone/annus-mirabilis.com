@@ -1,0 +1,29 @@
+# SourceBlock s2-p4: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s2-p4"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s2"
+order: 34
+locators:
+  - pdfPageIndex: 6
+    printedPage: 137
+diplomaticText: "Wir gelangen daher zu dem Schlusse: Je größer die Energiedichte und die Wellenlänge einer Strahlung ist, als um so brauchbarer erweisen sich die von uns benutzten theoretischen Grundlagen; für kleine Wellenlängen und kleine Strahlungsdichten aber versagen dieselben vollständig."
+inlines:
+  - kind: "text"
+    text: "Wir gelangen daher zu dem Schlusse: Je größer die Energiedichte und die Wellenlänge einer Strahlung ist, als um so brauchbarer erweisen sich die von uns benutzten theoretischen Grundlagen; für kleine Wellenlängen und kleine Strahlungsdichten aber versagen dieselben vollständig."
+sentenceSpans:
+  - id: "s2-p4-s1"
+    span:
+      start: 0
+      end: 278
+      blockRevision: 1
+      textDigest: "42afa195a864f7da728c4326cc1d1cb335b8dae97a1f113832b6215a937ae166"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"
