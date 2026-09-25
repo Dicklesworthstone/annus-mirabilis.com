@@ -165,6 +165,10 @@ export function observationGrid(
         "off-replay-grid",
         { parameterIds: ["dt"] },
         {
+          details: {
+            requirements:
+              "Enter an observation spacing that is a whole multiple of the quarter-second recording grid, 0.25 s.",
+          },
           rankedRepairs: [
             {
               label: "Use the nearest available interval on the quarter-second recording grid.",

@@ -1,5 +1,6 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import { parseU64 } from "../../physics/reference/philox.ts";
+import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { BM07_DEFAULTS, type Bm07Parameters } from "./definition.ts";
 
@@ -23,7 +24,7 @@ const BM07_FIELD_NAMES: Partial<Record<keyof Bm07Parameters, string>> = {
   radiusError: "the radius relative bound, in percent,",
 };
 
-export function validateBm07Parameters(input: unknown): Computation<Bm07Parameters> {
+function validateBm07Fields(input: unknown): Computation<Bm07Parameters> {
   const bad = (requirements: string): Computation<never> => ({
     kind: "refused",
     refusal: makeRefusal(
@@ -82,12 +83,10 @@ export function validateBm07Parameters(input: unknown): Computation<Bm07Paramete
     ["generatorT", "Enter a generator temperature above 0 K."],
     ["generatorEta", "Enter a generator viscosity greater than zero, in mPa·s."],
     ["generatorRadius", "Enter a generator radius greater than zero, in μm."],
-    ["T", "Enter an assumed temperature above 0 K."],
-    ["eta", "Enter an assumed viscosity greater than zero, in mPa·s."],
-    ["a", "Enter an assumed particle radius greater than zero, in μm."],
-    ["dt", "Enter an observation spacing greater than zero, in seconds."],
     ["calibrationScale", "Enter a calibration scale greater than zero."],
   ];
+  // The assumed T, η and a, and the spacing dt, keep to the manifest's ranges, checked once by
+  // withinDeclaredDomain below; "greater than zero" let 1e-300 K and 1e300 s through.
   for (const [k, sentence] of positive) if (!((p[k] as number) > 0)) return bad(sentence);
   if (![1, 2].includes(p.d)) return bad("Choose one or two observed coordinates.");
   if (!Number.isSafeInteger(p.M) || p.M < 1 || p.M > 1000)
@@ -111,4 +110,22 @@ export function validateBm07Parameters(input: unknown): Computation<Bm07Paramete
       return bad(`Enter a ${name} relative bound from 0 up to, but not including, 100 percent.`);
   }
   return { kind: "accepted", data: Object.freeze({ ...p }) };
+}
+
+/**
+ * Each declared setting as the form names it, in the form's units. T, η and a are assumptions of
+ * the inference, not properties of the recording, and are refused by name like any other setting.
+ */
+const BM07_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  M: { label: "number of displacements" },
+  dt: { label: "observation spacing" },
+  T: { label: "assumed temperature" },
+  eta: { label: "assumed viscosity", unit: "mPa·s", scale: 1e3 },
+  a: { label: "assumed particle radius", unit: "μm", scale: 1e6 },
+  coverageTrials: { label: "number of hypothetical experiments" },
+};
+
+/** The fields above, then every range content/experiments/bm-07.yaml declares (dispatch 184). */
+export function validateBm07Parameters(input: unknown): Computation<Bm07Parameters> {
+  return withinDeclaredDomain("bm-07", validateBm07Fields(input), BM07_DOMAIN_DISPLAY);
 }

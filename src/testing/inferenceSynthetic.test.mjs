@@ -66,6 +66,11 @@ test("off-grid observation repairs succeed and out-of-recording windows never tr
   const bad = observeInferencePath(r, { M: 50, d: 2, dt: 0.3 });
   assert.equal(bad.kind, "refused");
   assert.equal(bad.refusal.code, "off-replay-grid");
+  // The reader is told the grid, not only that the interval is off it (dispatch 184).
+  assert.match(
+    bad.refusal.details.requirements,
+    /whole multiple of the quarter-second recording grid, 0\.25 s/,
+  );
   assert.equal(
     observeInferencePath(r, { M: 50, d: 2, dt: bad.refusal.rankedRepairs[0].action.value }).kind,
     "accepted",

@@ -75,7 +75,7 @@ parameters:
       max: 16
       minInclusive: true
       maxInclusive: true
-      reason: "Integer multiple of the 0.25 s recording grid"
+      reason: "Whole multiples of the quarter-second recording grid, up to 16 s"
     visualRange:
       min: 0.25
       max: 4

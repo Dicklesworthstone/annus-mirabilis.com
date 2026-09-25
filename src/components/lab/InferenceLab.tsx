@@ -32,6 +32,7 @@ import {
   InferencePath,
   InferenceValue,
 } from "./InferencePlots.tsx";
+import { KEPT_RESULT } from "./keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
@@ -391,7 +392,7 @@ export function InferenceLab({
           )}
           {error && (
             <p className="notice error" role="alert">
-              {error}
+              {error} {KEPT_RESULT}
             </p>
           )}
           <div className="actions">
@@ -458,7 +459,9 @@ export function InferenceLab({
         <div className="lab-results inference-results" {...gate.response}>
           {view.refusal && (
             <div className="notice error">
-              <p>{String(view.refusal.details?.requirements ?? view.refusal.message)}</p>
+              <p>
+                {String(view.refusal.details?.requirements ?? view.refusal.message)} {KEPT_RESULT}
+              </p>
               {view.refusal.rankedRepairs.map((repair) => {
                 const action = repair.action;
                 if (!action) return null;
