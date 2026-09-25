@@ -1,0 +1,41 @@
+# Alignment: German sentence spans and blocks to English translation units.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "alignment"
+id: "align-brownian-motion"
+paper: "brownian-motion"
+edges:
+  - source:
+      paper: "brownian-motion"
+      blockId: "masthead-title"
+    target:
+      translationUnitId: "masthead-title"
+  - source:
+      paper: "brownian-motion"
+      blockId: "masthead-author"
+    target:
+      translationUnitId: "masthead-author"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s0-p1"
+      sentenceId: "s0-p1-s1"
+    target:
+      translationUnitId: "s0-p1-s1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s0-p1"
+      sentenceId: "s0-p1-s2"
+    target:
+      translationUnitId: "s0-p1-s2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s0-p2"
+      sentenceId: "s0-p2-s1"
+    target:
+      translationUnitId: "s0-p2-s1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s0-p2"
+      sentenceId: "s0-p2-s2"
+    target:
+      translationUnitId: "s0-p2-s2"

@@ -1,0 +1,23 @@
+# TranslationUnit s0-p1-s1: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s0-p1-s1"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s0-p1-s1"
+inlines:
+  - kind: "text"
+    text: "In this paper it is to be shown that, according to the molecular-kinetic theory of heat, bodies of microscopically visible size suspended in liquids must, as a consequence of the molecular motion of heat, carry out motions of such magnitude that these motions can easily be detected with the microscope."
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "it will be shown"
+    rationale: "\"soll gezeigt werden\" states the paper's aim (\"is to be shown\"). \"It will be shown\" is also possible English and says nearly the same; the closer form is kept."
+reviewState: "machine-draft"
+lang: "en"

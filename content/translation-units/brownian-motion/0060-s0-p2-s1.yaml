@@ -1,0 +1,23 @@
+# TranslationUnit s0-p2-s1: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s0-p2-s1"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s0-p2-s1"
+inlines:
+  - kind: "text"
+    text: "If the motion to be treated here can actually be observed, together with the regularities to be expected for it, then classical thermodynamics can no longer be regarded as exactly valid even for spaces distinguishable under the microscope, and an exact determination of the true size of atoms is then possible."
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "even for microscopically distinguishable spaces"
+    rationale: "\"schon für mikroskopisch unterscheidbare Räume\" means that the claim fails already at the scale of spaces one can tell apart in a microscope. \"Even for\" carries \"schon\" here."
+reviewState: "machine-draft"
+lang: "en"

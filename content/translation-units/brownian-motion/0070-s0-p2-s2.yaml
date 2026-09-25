@@ -1,0 +1,23 @@
+# TranslationUnit s0-p2-s2: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s0-p2-s2"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s0-p2-s2"
+inlines:
+  - kind: "text"
+    text: "If, conversely, the prediction of this motion should prove incorrect, a weighty argument against the molecular-kinetic conception of heat would thereby be given."
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "would thereby be furnished"
+    rationale: "The German is conditional in both clauses (\"Erwiese sich ... so wäre damit ... gegeben\"), and both stay conditional in English."
+reviewState: "machine-draft"
+lang: "en"

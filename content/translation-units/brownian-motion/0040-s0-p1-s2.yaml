@@ -1,0 +1,23 @@
+# TranslationUnit s0-p1-s2: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s0-p1-s2"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s0-p1-s2"
+inlines:
+  - kind: "text"
+    text: "It is possible that the motions to be treated here are identical with the so-called “Brownian molecular motion”; the information about the latter that is available to me is, however, so imprecise that I could form no judgment on the matter."
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "accessible to me"
+    rationale: "\"die mir erreichbaren Angaben\" is the information within Einstein's reach; \"available to me\" and \"accessible to me\" both render it. The sentence's hedge is kept: identity is possible, and no judgment was formed."
+reviewState: "machine-draft"
+lang: "en"
