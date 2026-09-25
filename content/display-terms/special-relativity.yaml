@@ -486,6 +486,86 @@ displays:
       - glyph: "V"
         quantityId: speedOfLight
 
+  # Section 4. The physical meaning of the equations: a moving rigid sphere, and a moving clock.
+  # eq-s4-d1 to eq-s4-d3: a sphere of radius R at rest in k (xi, eta, zeta its coordinates), written in K's
+  #   coordinates at the time t = 0, is an ellipsoid (p. 903).
+  - display: eq-s4-d1
+    latex: "\\xi^2 + \\eta^2 + \\zeta^2 = R^2 ."
+    spoken: "xi squared plus eta squared plus zeta squared equals R squared."
+    terms:
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "\\eta"
+        quantityId: coordinatePositionMoving
+      - glyph: "\\zeta"
+        quantityId: coordinatePositionMoving
+      - glyph: "R"
+        quantityId: sphereRadius
+  - display: eq-s4-d2
+    latex: "\\frac{x^2}{\\left( \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} \\right)^2} + y^2 + z^2 = R^2 ."
+    spoken: "x squared, divided by the square of the square root of one minus the square of v over V, plus y squared plus z squared, equals R squared."
+    terms:
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+      - glyph: "R"
+        quantityId: sphereRadius
+  - display: eq-s4-d3
+    latex: "R \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} , \\quad R , \\quad R ."
+    spoken: "R times the square root of one minus the square of v over V; R; R."
+    terms:
+      - glyph: "R"
+        quantityId: sphereRadius
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  # eq-s4-d4 to eq-s4-d6: the clock at the origin of k, which shows tau, seen from K (p. 904). Here tau is
+  #   still the moving system's time coordinate; at the clock's own place it is that clock's reading.
+  - display: eq-s4-d4
+    latex: "\\tau = \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} \\left( t - \\frac{v}{V^2} x \\right)"
+    spoken: "tau equals one divided by the square root of one minus the square of v over V, times the quantity t minus v over V squared times x."
+    terms:
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+  - display: eq-s4-d5
+    latex: "x = v t ."
+    spoken: "x equals v t."
+    terms:
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+  - display: eq-s4-d6
+    latex: "\\tau = t \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} = t - \\left( 1 - \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} \\right) t ,"
+    spoken: "tau equals t times the square root of one minus the square of v over V, which equals t minus the quantity one minus the square root of one minus the square of v over V, times t."
+    terms:
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+
   # ---- Part II, sections 6 to 10 ----
 
   # Section 6. The Maxwell-Hertz equations for empty space, transformed by section 3's equations.
