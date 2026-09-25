@@ -1,0 +1,46 @@
+{
+  "kind": "misconception",
+  "id": "misc-bm-proves-molecules",
+  "paper": "brownian-motion",
+  "temptingClaims": [
+    "Einstein's paper proved that molecules exist."
+  ],
+  "whyTempting": "The paper derives a visible motion from molecular theory and ends with a way to find the number of molecules, so its conclusion reads like a proof.",
+  "whereItIsTrue": "The paper makes the motion a test of molecular theory, in both directions: if its predictions hold, an exact determination of the true size of atoms becomes possible, and if they fail, that is a weighty argument against the molecular-kinetic view of heat.",
+  "whatIsTrue": {
+    "r0": "The paper states a test, not a proof. It says what would follow if the predicted motion were observed, and what would follow if it were not.",
+    "r1": "The introduction's second paragraph is conditional throughout. If the motion and its expected laws can actually be observed, classical thermodynamics can no longer be regarded as exactly valid even for spaces distinguishable under the microscope, and an exact determination of the true size of atoms is then possible; if, conversely, the prediction proves incorrect, that would be a weighty argument against the molecular-kinetic conception of heat (p. 549). § 5 turns the relation round to give \\(N\\) from a measured displacement, and the paper closes by wishing that a researcher may soon decide the question (p. 560). Whether the predictions hold is for measurements made after the paper.",
+    "r2": "(1) If the motion is observed with its expected laws: thermodynamics is not exactly valid at microscopic scales, and the size of atoms can be determined. (2) If the prediction fails: a weighty argument against the molecular-kinetic view. (3) § 5: \\(N = \\frac{t}{\\lambda_x^2}\\frac{RT}{3\\pi kP}\\), which needs a displacement \\(\\lambda_x\\) measured in a measured time \\(t\\). (4) The paper supplies no such measurement. Its 0.8 micron for one second runs the other way, from \\(N = 6\\cdot10^{23}\\) taken from the kinetic theory of gases (p. 559). (5) So the paper ties the motion to molecular theory in both directions, and leaves the deciding measurement to others.",
+    "r3": "Measurements that tested the prediction came after the paper. They are later evidence, not part of its argument, and this entry does not cite them."
+  },
+  "staticTreatment": {
+    "reason": "A matter of what the paper claims: the introduction's conditional, § 5's formula for N and the closing wish are the evidence."
+  },
+  "anchors": [
+    "s0-p2",
+    "s5-p3",
+    "s5-p4"
+  ],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 17, 549–560 (1905), plates pp. 549, 559 and 560"
+  ],
+  "intervention": {
+    "defaultsReviewed": {
+      "model": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "labels": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "defaultControls": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "feedback": "Not applicable: no instrument; this entry is a matter of what the paper says."
+    },
+    "reviewRecordId": "pending-review-misc-bm-proves-molecules"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:GreenOx",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}

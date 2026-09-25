@@ -1,0 +1,45 @@
+{
+  "kind": "misconception",
+  "id": "misc-bm-studied-observations",
+  "paper": "brownian-motion",
+  "temptingClaims": [
+    "Einstein set out to explain Brownian motion, which he had studied in detail."
+  ],
+  "whyTempting": "The paper is known as the Brownian-motion paper, and its result was later tested against exactly those observations.",
+  "whereItIsTrue": "The motion the paper predicts is the motion later identified with Brownian motion, and the paper names that possibility in its second sentence.",
+  "whatIsTrue": {
+    "r0": "The paper sets out to show what molecular theory requires. It says only that the motion may be Brownian motion, because the reports within his reach were too imprecise for him to judge.",
+    "r1": "The first sentence states the aim: to show that, according to the molecular-kinetic theory of heat, bodies of microscopically visible size suspended in a liquid must carry out motions large enough to be detected with a microscope. The second sentence says it is possible that these motions are identical with the so-called Brownian molecular motion, but that the information available to him about the latter is so imprecise that he could form no judgment (p. 549). The paper derives the motion from the theory; it does not start from observations and explain them.",
+    "r2": "(1) The aim, in the first sentence: to show what the molecular-kinetic theory of heat requires of suspended bodies. (2) The hedge, in the second: identity with Brownian motion is possible (“Es ist möglich”), and the reports within his reach are too imprecise for a judgment. (3) The paper's numbers are predictions: the mean displacement of § 4, and the worked 0.8 micron of § 5. (4) It closes by wishing that a researcher may soon decide the question it raises (p. 560). At every step the paper claims a prediction, not an explanation of observations it had examined.",
+    "r3": "What Einstein knew of the earlier literature on Brownian motion in 1905 is a question for his correspondence and later recollections, which this entry does not cite. It keeps to what the paper says about its own starting point."
+  },
+  "staticTreatment": {
+    "reason": "A matter of what the paper says about its own starting point; the introduction's first two sentences and the closing wish are the evidence."
+  },
+  "anchors": [
+    "s0-p1",
+    "s5-p4"
+  ],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 17, 549–560 (1905), plates pp. 549 and 560"
+  ],
+  "intervention": {
+    "defaultsReviewed": {
+      "model": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "labels": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "defaultControls": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "feedback": "Not applicable: no instrument; this entry is a matter of what the paper says."
+    },
+    "reviewRecordId": "pending-review-misc-bm-studied-observations"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:GreenOx",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}

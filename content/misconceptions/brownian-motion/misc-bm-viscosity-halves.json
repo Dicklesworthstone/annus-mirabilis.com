@@ -1,0 +1,48 @@
+{
+  "kind": "misconception",
+  "id": "misc-bm-viscosity-halves",
+  "paper": "brownian-motion",
+  "temptingClaims": [
+    "Doubling the viscosity halves the typical displacement."
+  ],
+  "whyTempting": "The viscosity sits in the denominator of the diffusion coefficient, so doubling it halves \\(D\\), and that halving seems to carry straight over to the distance a grain travels.",
+  "whereItIsTrue": "It is true of the diffusion coefficient. § 3 finds \\(D = \\frac{RT}{N}\\frac{1}{6\\pi kP}\\), with Einstein's \\(k\\) the viscosity, so doubling \\(k\\) halves \\(D\\), and with it the mean square of the displacement at a fixed time.",
+  "whatIsTrue": {
+    "r0": "A liquid twice as viscous halves \\(D\\), but the typical distance goes as the square root of \\(D\\), so it falls to about 0.71 of its value, not to half.",
+    "r1": "§ 5 combines the diffusion coefficient of § 3 with the law \\(\\lambda_x = \\sqrt{2Dt}\\) of § 4 to give \\(\\lambda_x = \\sqrt{t}\\,\\sqrt{\\frac{RT}{N}\\frac{1}{3\\pi kP}}\\), and remarks that this equation shows how \\(\\lambda_x\\) must depend on \\(T\\), \\(k\\) and \\(P\\) (p. 559). The viscosity \\(k\\) sits under the square root. Doubling it halves \\(D\\) and the mean square \\(\\lambda_x^2\\) at a fixed time, and divides \\(\\lambda_x\\) itself by \\(\\sqrt{2}\\). BM-01's viscosity comparison shows it: at 290.15 K and a radius of 0.5 μm, \\(\\lambda_x\\) after one second is 0.794 μm in a liquid of viscosity \\(1.35\\times10^{-3}\\) Pa·s and 0.561 μm at twice that viscosity, a ratio of 0.707.",
+    "r2": "(1) § 3: \\(D = \\frac{RT}{N}\\frac{1}{6\\pi kP}\\), where Einstein's \\(k\\) is the viscosity and \\(P\\) the radius of a grain. Doubling \\(k\\) halves \\(D\\). (2) § 4: \\(\\lambda_x = \\sqrt{2Dt}\\), the square root of the mean square of the displacement along one axis. (3) Halve \\(D\\) at the same \\(t\\): the mean square \\(2Dt\\) halves, and its square root is multiplied by \\(\\sqrt{1/2} = 1/\\sqrt{2}\\), about 0.707. (4) With the numbers of BM-01's comparison: \\(D\\) falls from \\(3.148\\times10^{-13}\\) to \\(1.574\\times10^{-13}\\) m²/s, and \\(\\lambda_x\\) at one second from 0.794 μm to 0.561 μm. (5) Halving the distance would take four times the viscosity.",
+    "r3": "Einstein prints the dependence as a formula and gives one worked case, water at 17 °C with \\(k = 1{,}35\\cdot10^{-2}\\) in the units of the time, for which \\(\\lambda_x\\) is 0.8 micron in one second (p. 559). He does not compare two viscosities; the comparison here is made with his law, not taken from his text."
+  },
+  "instrumentIds": [
+    "bm-01"
+  ],
+  "anchors": [
+    "s3-p8",
+    "s5-p1"
+  ],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 17, 549–560 (1905), plates pp. 556 and 559",
+    "BM-01 preset bm-01-viscosity-comparison: η 0.0027 Pa·s against the default 0.00135 Pa·s; λx at 1 s is 5.611e-7 m against 7.935e-7 m, ratio 0.7071 (stokesEinsteinD and rmsDisplacement, modern-si-2019 constants)"
+  ],
+  "intervention": {
+    "instrumentId": "bm-01",
+    "defaultsReviewed": {
+      "model": "Not yet reviewed. Described from the manifest: Stokes–Einstein diffusion of a tracer ensemble, with the typical displacement λx = √(2Dt) (src/physics/reference/diffusion/distributions.ts)",
+      "labels": "Not yet reviewed. Described from the manifest: viscosity, temperature, radius and observation interval as controls; the diffusion coefficient and the RMS displacement as outputs",
+      "defaultControls": "Not yet reviewed. Described from the manifest: preset bm-01-viscosity-comparison; T 290.15 K, η 0.0027 Pa·s, a 5e-7 m, 400 tracers, a 1 s interval, seed 1905",
+      "feedback": "Not yet reviewed. Described from the manifest: the predict prompt bm-01-predict-viscosity offers half, about 0.71 and unchanged; the snapshot shows about 0.71"
+    },
+    "scenarioId": "bm-01-viscosity-comparison",
+    "reviewRecordId": "pending-review-misc-bm-viscosity-halves"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:GreenOx",
+        "kind": "model",
+        "modelId": "claude-opus-5-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}
