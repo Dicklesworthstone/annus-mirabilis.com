@@ -596,6 +596,7 @@ export function BrownianLab({
           identifies the evaluator sources used by this page.
         </p>
         <ShowTheCode
+          instrumentId="bm-06"
           listings={getKernelListingsForInstrument("bm-06")}
           snapshotSourceDigest={example.snapshotFunctionHash}
           producedCurrentSnapshot={true}

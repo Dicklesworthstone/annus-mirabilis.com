@@ -413,7 +413,7 @@ export function MovingMirrorLab({
         {withScripts(SR11_CAPTION.r3)}
       </p>
 
-      <ShowTheCode listings={getKernelListingsForInstrument("sr-11")} />
+      <ShowTheCode instrumentId="sr-11" listings={getKernelListingsForInstrument("sr-11")} />
 
       <p className="fine">Not modeled: {SR11_NOT_MODELED.join("; ")}.</p>
     </section>

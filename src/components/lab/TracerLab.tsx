@@ -703,6 +703,7 @@ export function TracerLab({
             </p>
             <p className="fine digest">Evaluator source digest: {example.sourceDigest}</p>
             <ShowTheCode
+              instrumentId="bm-01"
               listings={getKernelListingsForInstrument("bm-01")}
               snapshotSourceDigest={example.snapshotFunctionHash}
               producedCurrentSnapshot={true}

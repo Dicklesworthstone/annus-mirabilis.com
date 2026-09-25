@@ -677,6 +677,7 @@ export function WalkLab({
             preparation.
           </p>
           <ShowTheCode
+            instrumentId="bm-05"
             listings={getKernelListingsForInstrument("bm-05")}
             snapshotSourceDigest={example.snapshotFunctionHash}
             producedCurrentSnapshot={true}

@@ -2,13 +2,15 @@ import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { QUANTITY_PALETTE } from "./quantityColours.ts";
 import type { CompiledEquation } from "./viewTypes.ts";
 
 /**
  * The explorer and show-the-code colour their quantities from src/generated/quantity-colours-by-
  * paper.css, which they import themselves (am-ywtb). Before, the rules sat inside the reading's
- * sheet, which only a reading formula imported, so on /lab/bm-01/ and /lab/lq-06/ the explorer's
- * chip dots were blank and its glyphs ink.
+ * sheet, which only a reading formula imported, so on /lab/bm-01/ and /lab/me-02/ the explorer's
+ * chip dots were blank and its glyphs ink; and on /lab/bm-05/ and /lab/bm-06/, where show-the-code
+ * is the only coloured view, no equations.css defined the palette the rules name.
  */
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const generated = join(root, "src/generated");
@@ -41,6 +43,28 @@ describe("every quantity an explorer can show has its paper's rule", () => {
     expect(byPaper).toContain("[data-paper=");
     expect(perTerm).toContain("[data-term=");
     expect(perTerm).not.toContain("[data-paper=");
+  });
+});
+
+describe("the sheet carries the palette its rules name", () => {
+  // Without it, a page whose only coloured view is show-the-code (bm-05, bm-06) imports no
+  // equations.css, and var(--q-N) resolves to nothing: the rule matches and colours nothing.
+  const block = (selector: string) => {
+    const at = byPaper.indexOf(`${selector} {`);
+    expect(at, selector).toBeGreaterThan(-1);
+    return byPaper.slice(at, byPaper.indexOf("}", at));
+  };
+  test("every slot, light and dark, with the palette's own values", () => {
+    const light = block(":root");
+    const dark = block(':root[data-theme="kramgasse-night"]');
+    const system = block(":root:not([data-theme])");
+    expect(QUANTITY_PALETTE.length).toBeGreaterThan(0);
+    QUANTITY_PALETTE.forEach((slot, i) => {
+      expect(light).toContain(`--q-${i}: ${slot.light};`);
+      expect(dark).toContain(`--q-${i}: ${slot.dark};`);
+      expect(system).toContain(`--q-${i}: ${slot.dark};`);
+    });
+    expect(byPaper).toContain("@media (prefers-color-scheme: dark) { :root:not([data-theme])");
   });
 });
 

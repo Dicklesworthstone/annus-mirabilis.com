@@ -98,6 +98,12 @@ export type ShowTheCodeProps = Readonly<{
   snapshotSourceDigest?: string | undefined;
   equationCard?: ReactNode;
   uid?: string | undefined;
+  /**
+   * The laboratory showing the code. Its paper is the fallback for listings that name no equation
+   * and no reference (bm-05's walk, bm-06's ensemble), whose identifiers otherwise found no
+   * paper's colours and stayed ink (am-ywtb).
+   */
+  instrumentId?: string | undefined;
 }>;
 
 function slug(text: string): string {
@@ -111,6 +117,7 @@ export function ShowTheCode({
   snapshotSourceDigest,
   equationCard,
   uid = "stc",
+  instrumentId,
 }: ShowTheCodeProps) {
   // No pinned listing, no disclosure. With none, "Show the code" opened onto an empty box on five
   // labs (the 2026-09-24 reality check), a control promising source that is not there.
@@ -121,10 +128,11 @@ export function ShowTheCode({
     paper's colour for its quantity. A quantity no equation on the page shows (the gas constant,
     Avogadro's number) keeps the ink: a colour it does not have would read as a claim.
   */
-  const paper = listings
-    .flatMap((l) => [l.equationId, ...l.independentReferences.map((r) => r.experimentId)])
-    .map(paperOfId)
-    .find(Boolean);
+  const paper =
+    listings
+      .flatMap((l) => [l.equationId, ...l.independentReferences.map((r) => r.experimentId)])
+      .map(paperOfId)
+      .find(Boolean) ?? paperOfId(instrumentId);
   const quantityIds = [
     ...new Set([
       ...listings.flatMap((l) => l.identifierBindings.map((b) => b.quantityId)),

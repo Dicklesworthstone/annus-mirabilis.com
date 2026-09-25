@@ -96,6 +96,15 @@ describe("show-the-code uses the paper's quantity colours, from CSS", () => {
     expect(SHEET).not.toMatch(rule("brownian-motion", "lorentzFactor"));
   });
 
+  test("a listing that names no paper takes its laboratory's, as bm-05's and bm-06's do", () => {
+    const bare = { ...listing, equationId: undefined, independentReferences: [] };
+    const html = renderToStaticMarkup(<ShowTheCode listings={[bare]} instrumentId="bm-05" />);
+    expect(html).toMatch(/<details[^>]*class="show-the-code"[^>]*data-paper="brownian-motion"/);
+    // The listing's own equation still decides when it names one.
+    const own = renderToStaticMarkup(<ShowTheCode listings={[listing]} instrumentId="sr-11" />);
+    expect(own).toMatch(/data-paper="brownian-motion"/);
+  });
+
   test("a listing whose paper cannot be told names none", () => {
     const html = renderToStaticMarkup(
       <ShowTheCode listings={[{ ...listing, equationId: undefined }]} />,
