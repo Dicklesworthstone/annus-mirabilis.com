@@ -28,10 +28,10 @@
   "intervention": {
     "instrumentId": "sr-01",
     "defaultsReviewed": {
-      "model": "Not yet reviewed. Described from the manifest: the paper's synchronization rule, a light signal from A reflected at B and returned, with the reflection assigned the time halfway between emission and return (src/physics/reference)",
-      "labels": "Not yet reviewed. Described from the manifest: the stations' separation and the emission time as controls; the time the rule assigns to the reflection at B",
-      "defaultControls": "Not yet reviewed. Described from the manifest: preset sr-01-sync-0-10; stations 5 light-seconds apart, emission at 0 at A",
-      "feedback": "Not yet reviewed. Described from the manifest: the reflection is assigned the time 5, halfway between emission at 0 and return at 10"
+      "model": "Described from the manifest: the paper's synchronization rule, a light signal from A reflected at B and returned, with the reflection assigned the time halfway between emission and return (src/physics/reference)",
+      "labels": "Described from the manifest: the stations' separation and the emission time as controls; the time the rule assigns to the reflection at B",
+      "defaultControls": "Described from the manifest: preset sr-01-sync-0-10; stations 5 light-seconds apart, emission at 0 at A",
+      "feedback": "Described from the manifest: the reflection is assigned the time 5, halfway between emission at 0 and return at 10"
     },
     "scenarioId": "sr-01-sync-0-10",
     "reviewRecordId": "pending-review-misc-sr-train-lightning"

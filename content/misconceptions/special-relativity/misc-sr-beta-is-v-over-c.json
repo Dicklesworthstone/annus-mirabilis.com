@@ -27,10 +27,10 @@
   "intervention": {
     "instrumentId": "sr-03",
     "defaultsReviewed": {
-      "model": "Not yet reviewed. Described from the manifest: the Lorentz transformation of the paper's § 3, with the factor it names β (src/physics/reference)",
-      "labels": "Not yet reviewed. Described from the manifest: the speed as a control; the factor β and the transformed coordinates as outputs",
-      "defaultControls": "Not yet reviewed. Described from the manifest: preset sr-03-boost-0.6c; v 0.6 of the speed of light, R 1, L0 10",
-      "feedback": "Not yet reviewed. Described from the manifest: the factor β at this speed, 1.25, in the paper's letter"
+      "model": "Described from the manifest: the Lorentz transformation of the paper's § 3, with the factor it names β (src/physics/reference)",
+      "labels": "Described from the manifest: the speed as a control; the factor β and the transformed coordinates as outputs",
+      "defaultControls": "Described from the manifest: preset sr-03-boost-0.6c; v 0.6 of the speed of light, R 1, L0 10",
+      "feedback": "Described from the manifest: the factor β at this speed, 1.25, in the paper's letter"
     },
     "scenarioId": "sr-03-boost-0.6c",
     "reviewRecordId": "pending-review-misc-sr-beta-is-v-over-c"
