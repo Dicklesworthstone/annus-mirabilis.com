@@ -7,6 +7,7 @@
 # After both rounds (NavyKite, translator, 2026-09-25; revision 2): line breaks before the cases "1." and
 # "2.", which p. 145 sets on their own indented lines, as the German block s7-p3 now has them
 # (TanElk 40036). The words are unchanged. For round 2's reviewer to confirm.
+# Confirmed (TanElk, agent, 2026-09-25, its round-2 reviewer): the two breaks fall where p. 145 starts the cases "1." and "2." on their own lines, and the words are unchanged.
 kind: "translation-unit"
 id: "s7-p3-s1"
 paper: "light-quanta"
