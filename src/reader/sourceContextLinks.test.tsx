@@ -115,9 +115,14 @@ describe("a passage's Source context links only faces that exist", () => {
       // "Read the original" goes where the German link goes, not to #<argument id>.
       expect(line.original).toBe(german ?? "");
     }
-    // Non-vacuity, on purpose. Passages outside the translated sections exist while the
-    // translation is partial; and once any section has English, some passage is offered it.
-    expect(withoutEnglish).toBeGreaterThan(0);
+    // Non-vacuity, on purpose, in both directions and only while each direction has members:
+    // while some passage's section is untranslated, some passage is offered no English; once any
+    // section has English, some passage is offered it. Light quanta's translation is now whole,
+    // so the first holds vacuously here; the partial case keeps its guard in editionCoverage.test
+    // (a synthetic partial edition) and in the special-relativity case below.
+    expect(withEnglish + withoutEnglish).toBe(lines.length);
+    const sections = new Set(args.map((a) => a.section));
+    if ([...sections].some((s) => !translated.has(s))) expect(withoutEnglish).toBeGreaterThan(0);
     if (translated.size > 0) expect(withEnglish).toBeGreaterThan(0);
     // The introduction has no heading block, so it opens at its first paragraph.
     const intro = lines.find((l) => sectionOf.get(l.id) === "s0");
