@@ -320,13 +320,16 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         name: "German source",
         href: `/papers/${paper.id}/view/german/${sources.sectionFragment(a.section)}`,
       },
-      sources.availability.english === "available" && {
-        face: "english",
-        label: "English",
-        name: "English translation",
-        // No English unit carries an argument's id; the section's first English sentence does.
-        href: `/papers/${paper.id}/view/english/${sources.englishSectionFragment(a.section)}`,
-      },
+      // English only where this passage's section has English: light quanta is translated a
+      // section at a time, and a §5 passage offered "English" opened a face with no §5 in it.
+      sources.availability.english === "available" &&
+        sources.englishSectionFragment(a.section) !== "" && {
+          face: "english",
+          label: "English",
+          name: "English translation",
+          // No English unit carries an argument's id; the section's first English sentence does.
+          href: `/papers/${paper.id}/view/english/${sources.englishSectionFragment(a.section)}`,
+        },
       sources.availability.gloss === "available" && {
         face: "gloss",
         label: "Interlinear gloss",
