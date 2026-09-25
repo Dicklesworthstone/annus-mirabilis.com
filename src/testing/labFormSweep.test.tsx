@@ -83,12 +83,17 @@ function fields(c: HTMLElement): HTMLInputElement[] {
 }
 function state(c: HTMLElement) {
   const lab = c.querySelector("[data-instrument-id]");
+  // A measurement change (BM-06's interval endpoints) leaves the input revision where it was, so a
+  // lab that re-reads a fixed result says so on its own measurement-revision attributes. Without
+  // them an accepted change of interval read as "silent" (dispatch 184).
+  const measured = (name: string) => lab?.getAttribute(name) ?? "";
   return {
-    accepted:
+    accepted: `${
       lab?.getAttribute("data-accepted-input-revision") ??
       lab?.getAttribute("data-snapshot-version") ??
-      "",
-    requested: lab?.getAttribute("data-input-revision") ?? "",
+      ""
+    }/${measured("data-accepted-measurement-revision")}`,
+    requested: `${lab?.getAttribute("data-input-revision") ?? ""}/${measured("data-measurement-revision")}`,
     alerts: [...c.querySelectorAll('[role="alert"], .notice.error, .error, .form-error')]
       .map((e) => (e.textContent ?? "").trim())
       .filter(Boolean)
