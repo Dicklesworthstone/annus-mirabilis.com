@@ -13,6 +13,12 @@
 # ν a number density of particles (an index only in § 2's equations of motion), and φ the
 # transition kernel of § 4.
 paper: brownian-motion
+# Glyphs that name no quantity in any display of this paper.
+notQuantities:
+  - glyph: "d"
+    reason: "the differential d of an integral or a derivative: an operation, not a quantity"
+  - glyph: "e"
+    reason: "e, the base of the natural logarithm: a number, not a quantity"
 displays:
   # § 1. p is the osmotic pressure, V^* the partial volume, z the gram-molecules of solute, n the
   #   number of suspended particles and ν = n/V^* their number density.
@@ -42,6 +48,198 @@ displays:
         quantityId: temperature
       - glyph: "V^*"
         quantityId: volume
+      - glyph: "n"
+        quantityId: particleCount
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "\\nu"
+        quantityId: numberDensity
+  # § 2. p_1 … p_l are the state variables of the whole system and φ_ν their rates; ν is
+  #   the index over them (concordance bm.nu.index) until s2-p7, where it is § 1's number density again.
+  #   The printed κ (\varkappa) is Boltzmann's constant, as the concordance reads § 2's κ
+  #   (bm.kappa.entropyConstant, which writes it \kappa).
+  - display: eq-s2-d1
+    latex: "\\frac{\\partial p_\\nu}{\\partial t} = \\varphi_\\nu(p_1 \\ldots p_l) \\quad (\\nu = 1, 2 \\ldots l)"
+    spoken: "The partial derivative of p nu with respect to t equals phi nu of p one through p l, for nu equal to one, two, through l."
+    terms:
+      - glyph: "p_\\nu"
+        quantityId: stateVariable
+      - glyph: "t"
+        quantityId: observationInterval
+      - glyph: "\\varphi_\\nu"
+        quantityId: stateVariableRate
+      - glyph: "p_1"
+        quantityId: stateVariable
+      - glyph: "p_l"
+        quantityId: stateVariable
+    notQuantities:
+      - glyph: "\\nu"
+        reason: "the index over the state variables, running from 1 to l (concordance bm.nu.index)"
+      - glyph: "l"
+        reason: "the number of state variables, the index's last value: a count, not a quantity"
+  - display: eq-s2-d2
+    latex: "S = \\frac{\\bar{E}}{T} + 2 \\varkappa \\lg \\int e^{-\\frac{E}{2 \\varkappa T}} d p_1 \\ldots d p_l."
+    spoken: "S equals E bar over T, plus two kappa times the logarithm of the integral of e to the minus E over two kappa T, d p one through d p l."
+    terms:
+      - glyph: "S"
+        quantityId: entropy
+      - glyph: "\\bar{E}"
+        quantityId: systemEnergy
+      - glyph: "\\varkappa"
+        quantityId: boltzmannConstant
+      - glyph: "T"
+        quantityId: temperature
+      - glyph: "E"
+        quantityId: microstateEnergy
+      - glyph: "p_1"
+        quantityId: stateVariable
+      - glyph: "p_l"
+        quantityId: stateVariable
+  - display: eq-s2-d3
+    latex: "F = -\\frac{R}{N} T \\lg \\int e^{-\\frac{E N}{R T}} d p_1 \\ldots d p_l = -\\frac{R T}{N} \\lg B."
+    spoken: "F equals minus R over N, times T, times the logarithm of the integral of e to the minus E N over R T, d p one through d p l; and this equals minus R T over N, times the logarithm of B."
+    terms:
+      - glyph: "F"
+        quantityId: freeEnergy
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "T"
+        quantityId: temperature
+      - glyph: "E"
+        quantityId: microstateEnergy
+      - glyph: "p_1"
+        quantityId: stateVariable
+      - glyph: "p_l"
+        quantityId: stateVariable
+      - glyph: "B"
+        quantityId: configurationIntegral
+  # From s2-p4, x_1, y_1 … z_n are the coordinates of the n particles' centres of gravity, and the
+  #   primed ones the same coordinates in the second system of regions; B and J are the configuration
+  #   integral and its factor, primed where they are taken over the primed regions.
+  - display: eq-s2-d4
+    latex: "d B = d x_1 d y_1 \\ldots d z_n \\cdot J"
+    spoken: "d B equals d x one, d y one, through d z n, times J."
+    terms:
+      - glyph: "B"
+        quantityId: configurationIntegral
+      - glyph: "x_1"
+        quantityId: latentPosition1d
+      - glyph: "y_1"
+        quantityId: latentPosition1d
+      - glyph: "z_n"
+        quantityId: latentPosition1d
+      - glyph: "J"
+        quantityId: configurationIntegralFactor
+  - display: eq-s2-d5
+    latex: "d B' = d x'_1 d y'_1 \\ldots d z'_n \\cdot J',"
+    spoken: "d B prime equals d x prime one, d y prime one, through d z prime n, times J prime."
+    terms:
+      - glyph: "B'"
+        quantityId: configurationIntegral
+      - glyph: "x'_1"
+        quantityId: latentPosition1d
+      - glyph: "y'_1"
+        quantityId: latentPosition1d
+      - glyph: "z'_n"
+        quantityId: latentPosition1d
+      - glyph: "J'"
+        quantityId: configurationIntegralFactor
+  - display: eq-s2-d6
+    latex: "d x_1 d y_1 \\ldots d z_n = d x'_1 d y'_1 \\ldots d z'_n."
+    spoken: "d x one, d y one, through d z n equals d x prime one, d y prime one, through d z prime n."
+    terms:
+      - glyph: "x_1"
+        quantityId: latentPosition1d
+      - glyph: "y_1"
+        quantityId: latentPosition1d
+      - glyph: "z_n"
+        quantityId: latentPosition1d
+      - glyph: "x'_1"
+        quantityId: latentPosition1d
+      - glyph: "y'_1"
+        quantityId: latentPosition1d
+      - glyph: "z'_n"
+        quantityId: latentPosition1d
+  - display: eq-s2-d7
+    latex: "\\frac{d B}{d B'} = \\frac{J}{J'}."
+    spoken: "d B over d B prime equals J over J prime."
+    terms:
+      - glyph: "B"
+        quantityId: configurationIntegral
+      - glyph: "B'"
+        quantityId: configurationIntegral
+      - glyph: "J"
+        quantityId: configurationIntegralFactor
+      - glyph: "J'"
+        quantityId: configurationIntegralFactor
+  - display: eq-s2-d8
+    latex: "\\frac{d B}{B} = \\frac{d B'}{B}."
+    spoken: "d B over B equals d B prime over B."
+    terms:
+      - glyph: "B"
+        quantityId: configurationIntegral
+      - glyph: "B'"
+        quantityId: configurationIntegral
+  - display: eq-s2-d9
+    latex: "J = J'."
+    spoken: "J equals J prime."
+    terms:
+      - glyph: "J"
+        quantityId: configurationIntegralFactor
+      - glyph: "J'"
+        quantityId: configurationIntegralFactor
+  # s2-p7: V^{*n} is V^* to the power n, so the V there is the partial volume V^*.
+  - display: eq-s2-d10
+    latex: "B = \\int J d x_1 \\ldots d z_n = J V^{*n}"
+    spoken: "B equals the integral of J, d x one through d z n, and this equals J times V star to the n."
+    terms:
+      - glyph: "B"
+        quantityId: configurationIntegral
+      - glyph: "J"
+        quantityId: configurationIntegralFactor
+      - glyph: "x_1"
+        quantityId: latentPosition1d
+      - glyph: "z_n"
+        quantityId: latentPosition1d
+      - glyph: "V"
+        quantityId: volume
+      - glyph: "n"
+        quantityId: particleCount
+  - display: eq-s2-d11
+    latex: "F = -\\frac{R T}{N} \\{ \\lg J + n \\lg V^* \\}"
+    spoken: "F equals minus R T over N, times, in braces, the logarithm of J plus n times the logarithm of V star."
+    terms:
+      - glyph: "F"
+        quantityId: freeEnergy
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "T"
+        quantityId: temperature
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "J"
+        quantityId: configurationIntegralFactor
+      - glyph: "n"
+        quantityId: particleCount
+      - glyph: "V^*"
+        quantityId: volume
+  # ν here is § 1's number density n/V^* (concordance bm.nu.numberDensity, scope bm-s2-p7).
+  - display: eq-s2-d12
+    latex: "p = -\\frac{\\partial F}{\\partial V^*} = \\frac{R T}{V^*} \\frac{n}{N} = \\frac{R T}{N} \\nu."
+    spoken: "p equals minus the partial derivative of F with respect to V star; this equals R T over V star, times n over N; and this equals R T over N, times nu."
+    terms:
+      - glyph: "p"
+        quantityId: osmoticPressure
+      - glyph: "F"
+        quantityId: freeEnergy
+      - glyph: "V^*"
+        quantityId: volume
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "T"
+        quantityId: temperature
       - glyph: "n"
         quantityId: particleCount
       - glyph: "N"
