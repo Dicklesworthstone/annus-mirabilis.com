@@ -1,0 +1,137 @@
+# SourceBlock s4-p10: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s4-p10"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s4"
+order: 70
+locators:
+  - pdfPageIndex: 10
+    printedPage: 558
+diplomaticText: "An diese Entwicklung läßt sich noch eine wichtige Überlegung anknüpfen. Wir haben angenommen, daß die einzelnen Teilchen alle auf dasselbe Koordinatensystem bezogen seien. Dies ist jedoch nicht nötig, da die Bewegungen der einzelnen Teilchen voneinander unabhängig sind. Wir wollen nun die Bewegung jedes Teilchens auf ein Koordinatensystem beziehen, dessen Ursprung mit der Lage des Schwerpunktes des betreffenden Teilchens zur Zeit t = 0 zusammenfällt, mit dem Unterschiede, daß jetzt f(x, t) d x die Anzahl der Teilchen bedeutet, deren X-Koordinaten von der Zeit t = 0 bis zur Zeit t = t um eine Größe gewachsen ist, welche zwischen x und x + d x liegt. Auch in diesem Falle ändert sich also die Funktion f gemäß Gleichung (1). Ferner muß offenbar für x \\gtrless 0 und t = 0sein. Das Problem, welches mit dem Problem der Diffusion von einem Punkte aus (unter Vernachlässigung der Wechselwirkung der diffundierenden Teilchen) übereinstimmt, ist nun mathematisch vollkommen bestimmt; seine Lösung ist:"
+inlines:
+  - kind: "text"
+    text: "An diese Entwicklung läßt sich noch eine wichtige Überlegung anknüpfen."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir haben angenommen, daß die einzelnen Teilchen alle auf dasselbe Koordinatensystem bezogen seien."
+  - kind: "space"
+  - kind: "text"
+    text: "Dies ist jedoch nicht nötig, da die Bewegungen der einzelnen Teilchen voneinander unabhängig sind."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir wollen nun die Bewegung jedes Teilchens auf ein Koordinatensystem beziehen, dessen Ursprung mit der Lage des Schwerpunktes des betreffenden Teilchens zur Zeit "
+  - kind: "math"
+    latex: "t = 0"
+  - kind: "text"
+    text: " zusammenfällt, mit dem Unterschiede, daß jetzt "
+  - kind: "math"
+    latex: "f(x, t) d x"
+  - kind: "text"
+    text: " die Anzahl der Teilchen bedeutet, deren "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: "-Koordinaten von der Zeit "
+  - kind: "math"
+    latex: "t = 0"
+  - kind: "text"
+    text: " bis zur Zeit "
+  - kind: "math"
+    latex: "t = t"
+  - kind: "text"
+    text: " um eine Größe "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "gewachsen"
+  - kind: "text"
+    text: " ist, welche zwischen "
+  - kind: "math"
+    latex: "x"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "x + d x"
+  - kind: "text"
+    text: " liegt."
+  - kind: "space"
+  - kind: "text"
+    text: "Auch in diesem Falle ändert sich also die Funktion "
+  - kind: "math"
+    latex: "f"
+  - kind: "text"
+    text: " gemäß Gleichung (1)."
+  - kind: "space"
+  - kind: "text"
+    text: "Ferner muß offenbar für "
+  - kind: "math"
+    latex: "x \\gtrless 0"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "t = 0"
+  - kind: "math"
+    latex: "f(x, t) = 0 \\quad \\text{und} \\quad \\int_{-\\infty}^{+\\infty} f(x, t) d x = n"
+    display: true
+    equationId: "eq-s4-d10"
+  - kind: "text"
+    text: "sein."
+  - kind: "space"
+  - kind: "text"
+    text: "Das Problem, welches mit dem Problem der Diffusion von einem Punkte aus (unter Vernachlässigung der Wechselwirkung der diffundierenden Teilchen) übereinstimmt, ist nun mathematisch vollkommen bestimmt; seine Lösung ist:"
+  - kind: "math"
+    latex: "f(x, t) = \\frac{n}{\\sqrt{4 \\pi D}} \\frac{e^{-\\frac{x^2}{4 D t}}}{\\sqrt{t}}."
+    display: true
+    equationId: "eq-s4-d11"
+sentenceSpans:
+  - id: "s4-p10-s1"
+    span:
+      start: 0
+      end: 71
+      blockRevision: 1
+      textDigest: "511534ae78a4f9c525144913d7d1220781dc8a3ad3224935607a55719f5133e7"
+  - id: "s4-p10-s2"
+    span:
+      start: 72
+      end: 171
+      blockRevision: 1
+      textDigest: "511534ae78a4f9c525144913d7d1220781dc8a3ad3224935607a55719f5133e7"
+  - id: "s4-p10-s3"
+    span:
+      start: 172
+      end: 270
+      blockRevision: 1
+      textDigest: "511534ae78a4f9c525144913d7d1220781dc8a3ad3224935607a55719f5133e7"
+  - id: "s4-p10-s4"
+    span:
+      start: 271
+      end: 656
+      blockRevision: 1
+      textDigest: "511534ae78a4f9c525144913d7d1220781dc8a3ad3224935607a55719f5133e7"
+  - id: "s4-p10-s5"
+    span:
+      start: 657
+      end: 730
+      blockRevision: 1
+      textDigest: "511534ae78a4f9c525144913d7d1220781dc8a3ad3224935607a55719f5133e7"
+  - id: "s4-p10-s6"
+    span:
+      start: 731
+      end: 782
+      blockRevision: 1
+      textDigest: "511534ae78a4f9c525144913d7d1220781dc8a3ad3224935607a55719f5133e7"
+  - id: "s4-p10-s7"
+    span:
+      start: 783
+      end: 1002
+      blockRevision: 1
+      textDigest: "511534ae78a4f9c525144913d7d1220781dc8a3ad3224935607a55719f5133e7"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

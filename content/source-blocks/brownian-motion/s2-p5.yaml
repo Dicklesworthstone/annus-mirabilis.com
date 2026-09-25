@@ -1,0 +1,76 @@
+# SourceBlock s2-p5: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s2-p5"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s2"
+order: 24
+locators:
+  - pdfPageIndex: 5
+    printedPage: 553
+diplomaticText: "Aus der in den zitierten Arbeiten gegebenen molekularen Theorie der Wärme läßt sich aber leicht folgern1), daß d B/B bez. d B'/B gleich ist der Wahrscheinlichkeit dafür, daß sich in einem beliebig herausgegriffenen Zeitpunkte die Teilchenschwerpunkte in den Gebieten (d x_1 \\ldots d z_n) bez. in den Gebieten (d x'_1 \\ldots d z'_n) befinden. Sind nun die Bewegungen der einzelnen Teilchen (mit genügender Annäherung) voneinander unabhängig, ist die Flüssigkeit homogen und wirken auf die Teilchen keine Kräfte, so müssen bei gleicher Größe der Gebiete die den beiden Gebietssystemen zukommenden Wahrscheinlichkeiten einander gleich sein, so daß gilt: Aus dieser und aus der zuletzt gefundenen Gleichung folgt aber"
+inlines:
+  - kind: "text"
+    text: "Aus der in den zitierten Arbeiten gegebenen molekularen Theorie der Wärme läßt sich aber leicht folgern"
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s2-fn2"
+  - kind: "text"
+    text: ", daß "
+  - kind: "math"
+    latex: "d B/B"
+  - kind: "text"
+    text: " bez. "
+  - kind: "math"
+    latex: "d B'/B"
+  - kind: "text"
+    text: " gleich ist der Wahrscheinlichkeit dafür, daß sich in einem beliebig herausgegriffenen Zeitpunkte die Teilchenschwerpunkte in den Gebieten "
+  - kind: "math"
+    latex: "(d x_1 \\ldots d z_n)"
+  - kind: "text"
+    text: " bez. in den Gebieten "
+  - kind: "math"
+    latex: "(d x'_1 \\ldots d z'_n)"
+  - kind: "text"
+    text: " befinden."
+  - kind: "space"
+  - kind: "text"
+    text: "Sind nun die Bewegungen der einzelnen Teilchen (mit genügender Annäherung) voneinander unabhängig, ist die Flüssigkeit homogen und wirken auf die Teilchen keine Kräfte, so müssen bei gleicher Größe der Gebiete die den beiden Gebietssystemen zukommenden Wahrscheinlichkeiten einander gleich sein, so daß gilt:"
+  - kind: "math"
+    latex: "\\frac{d B}{B} = \\frac{d B'}{B}."
+    display: true
+    equationId: "eq-s2-d8"
+  - kind: "space"
+  - kind: "text"
+    text: "Aus dieser und aus der zuletzt gefundenen Gleichung folgt aber"
+  - kind: "math"
+    latex: "J = J'."
+    display: true
+    equationId: "eq-s2-d9"
+sentenceSpans:
+  - id: "s2-p5-s1"
+    span:
+      start: 0
+      end: 341
+      blockRevision: 1
+      textDigest: "24e1163a6ee517472def654b4dcb0ede59d5528201d73fb9626a36f8006364be"
+  - id: "s2-p5-s2"
+    span:
+      start: 342
+      end: 650
+      blockRevision: 1
+      textDigest: "24e1163a6ee517472def654b4dcb0ede59d5528201d73fb9626a36f8006364be"
+  - id: "s2-p5-s3"
+    span:
+      start: 651
+      end: 713
+      blockRevision: 1
+      textDigest: "24e1163a6ee517472def654b4dcb0ede59d5528201d73fb9626a36f8006364be"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

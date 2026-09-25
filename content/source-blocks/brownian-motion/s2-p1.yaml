@@ -1,0 +1,121 @@
+# SourceBlock s2-p1: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s2-p1"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s2"
+order: 13
+locators:
+  - pdfPageIndex: 3
+    printedPage: 551
+diplomaticText: "Sind p_1 p_2 \\ldots p_l Zustandsvariable eines physikalischen Systems, welche den momentanen Zustand desselben vollkommen bestimmen (z. B. die Koordinaten und Geschwindigkeitskomponenten aller Atome des Systems) und ist das vollständige System der Veränderungsgleichungen dieser Zustandsvariabeln von der Formgegeben, wobei \\sum \\frac{\\partial \\varphi_\\nu}{\\partial p_\\nu} = 0, so ist die Entropie des Systems durch den Ausdruck gegeben: Hierbei bedeutet T die absolute Temperatur, \\bar{E} die Energie des Systems, E die Energie als Funktion der p_\\nu. Das Integral ist über alle mit den Bedingungen des Problems vereinbaren Wertekombinationen der p_\\nu zu erstrecken. \\varkappa ist mit der oben erwähnten Konstanten N durch die Relation 2 \\varkappa N = R verbunden. Für die freie Energie F erhalten wir daher:"
+inlines:
+  - kind: "text"
+    text: "Sind "
+  - kind: "math"
+    latex: "p_1 p_2 \\ldots p_l"
+  - kind: "text"
+    text: " Zustandsvariable eines physikalischen Systems, welche den momentanen Zustand desselben vollkommen bestimmen (z. B. die Koordinaten und Geschwindigkeitskomponenten aller Atome des Systems) und ist das vollständige System der Veränderungsgleichungen dieser Zustandsvariabeln von der Form"
+  - kind: "math"
+    latex: "\\frac{\\partial p_\\nu}{\\partial t} = \\varphi_\\nu(p_1 \\ldots p_l) \\quad (\\nu = 1, 2 \\ldots l)"
+    display: true
+    equationId: "eq-s2-d1"
+  - kind: "text"
+    text: "gegeben, wobei "
+  - kind: "math"
+    latex: "\\sum \\frac{\\partial \\varphi_\\nu}{\\partial p_\\nu} = 0"
+  - kind: "text"
+    text: ", so ist die Entropie des Systems durch den Ausdruck gegeben:"
+  - kind: "math"
+    latex: "S = \\frac{\\bar{E}}{T} + 2 \\varkappa \\lg \\int e^{-\\frac{E}{2 \\varkappa T}} d p_1 \\ldots d p_l."
+    display: true
+    equationId: "eq-s2-d2"
+  - kind: "space"
+  - kind: "text"
+    text: "Hierbei bedeutet "
+  - kind: "math"
+    latex: "T"
+  - kind: "text"
+    text: " die absolute Temperatur, "
+  - kind: "math"
+    latex: "\\bar{E}"
+  - kind: "text"
+    text: " die Energie des Systems, "
+  - kind: "math"
+    latex: "E"
+  - kind: "text"
+    text: " die Energie als Funktion der "
+  - kind: "math"
+    latex: "p_\\nu"
+  - kind: "text"
+    text: "."
+  - kind: "space"
+  - kind: "text"
+    text: "Das Integral ist über alle mit den Bedingungen des Problems vereinbaren Wertekombinationen der "
+  - kind: "math"
+    latex: "p_\\nu"
+  - kind: "text"
+    text: " zu erstrecken."
+  - kind: "space"
+  - kind: "math"
+    latex: "\\varkappa"
+  - kind: "text"
+    text: " ist mit der oben erwähnten Konstanten "
+  - kind: "math"
+    latex: "N"
+  - kind: "text"
+    text: " durch die Relation "
+  - kind: "math"
+    latex: "2 \\varkappa N = R"
+  - kind: "text"
+    text: " verbunden."
+  - kind: "space"
+  - kind: "text"
+    text: "Für die freie Energie "
+  - kind: "math"
+    latex: "F"
+  - kind: "text"
+    text: " erhalten wir daher:"
+  - kind: "math"
+    latex: "F = -\\frac{R}{N} T \\lg \\int e^{-\\frac{E N}{R T}} d p_1 \\ldots d p_l = -\\frac{R T}{N} \\lg B."
+    display: true
+    equationId: "eq-s2-d3"
+sentenceSpans:
+  - id: "s2-p1-s1"
+    span:
+      start: 0
+      end: 437
+      blockRevision: 1
+      textDigest: "893063e58ba2b4fb0651be83d8cd65fc0a11a7919d0a2672fee77a200f3fb60f"
+  - id: "s2-p1-s2"
+    span:
+      start: 438
+      end: 552
+      blockRevision: 1
+      textDigest: "893063e58ba2b4fb0651be83d8cd65fc0a11a7919d0a2672fee77a200f3fb60f"
+  - id: "s2-p1-s3"
+    span:
+      start: 553
+      end: 668
+      blockRevision: 1
+      textDigest: "893063e58ba2b4fb0651be83d8cd65fc0a11a7919d0a2672fee77a200f3fb60f"
+  - id: "s2-p1-s4"
+    span:
+      start: 669
+      end: 766
+      blockRevision: 1
+      textDigest: "893063e58ba2b4fb0651be83d8cd65fc0a11a7919d0a2672fee77a200f3fb60f"
+  - id: "s2-p1-s5"
+    span:
+      start: 767
+      end: 810
+      blockRevision: 1
+      textDigest: "893063e58ba2b4fb0651be83d8cd65fc0a11a7919d0a2672fee77a200f3fb60f"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

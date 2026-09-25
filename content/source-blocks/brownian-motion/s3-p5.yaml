@@ -1,0 +1,44 @@
+# SourceBlock s3-p5: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s3-p5"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s3"
+order: 41
+locators:
+  - pdfPageIndex: 6
+    printedPage: 554
+  - pdfPageIndex: 7
+    printedPage: 555
+diplomaticText: "Die Gleichung (1) benutzen wir, um den Diffusionskoeffizienten der suspendierten Substanz zu ermitteln. Wir können den eben betrachteten dynamischen Gleichgewichtszustand als die Superposition zweier in umgekehrtem Sinne verlaufender Prozesse auffassen, nämlich 1. einer Bewegung der suspendierten Substanz unter der Wirkung der auf jedes einzelne suspendierte Teilchen wirkenden Kraft K, 2. eines Diffusionsvorganges, welcher als Folge der ungeordneten Bewegungen der Teilchen infolge der Molekularbewegung der Wärme aufzufassen ist."
+inlines:
+  - kind: "text"
+    text: "Die Gleichung (1) benutzen wir, um den Diffusionskoeffizienten der suspendierten Substanz zu ermitteln."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir können den eben betrachteten dynamischen Gleichgewichtszustand als die Superposition zweier in umgekehrtem Sinne verlaufender Prozesse auffassen, nämlich 1. einer Bewegung der suspendierten Substanz unter der Wirkung der auf jedes einzelne suspendierte Teilchen wirkenden Kraft "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: ", 2. eines Diffusionsvorganges, welcher als Folge der ungeordneten Bewegungen der Teilchen infolge der Molekularbewegung der Wärme aufzufassen ist."
+sentenceSpans:
+  - id: "s3-p5-s1"
+    span:
+      start: 0
+      end: 103
+      blockRevision: 1
+      textDigest: "6d6cb7c8e7e1921eedc39803f44438fbaa3af4504731a5feccf877aa64753987"
+  - id: "s3-p5-s2"
+    span:
+      start: 104
+      end: 534
+      blockRevision: 1
+      textDigest: "6d6cb7c8e7e1921eedc39803f44438fbaa3af4504731a5feccf877aa64753987"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

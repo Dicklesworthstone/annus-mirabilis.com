@@ -1,0 +1,54 @@
+# SourceBlock s2-p3: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s2-p3"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s2"
+order: 18
+locators:
+  - pdfPageIndex: 4
+    printedPage: 552
+diplomaticText: "Wäre nun auch das molekulare Bild bis in alle Einzelheiten festgelegt, so böte doch die Ausrechnung des Integrales B solche Schwierigkeiten, daß an eine exakte Berechnung von F kaum gedacht werden könnte. Wir brauchen jedoch hier nur zu wissen, wie F von der Größe des Volumens V^* abhängt, in welchem alle gelösten Moleküle bez. suspendierten Körper (im folgenden kurz „Teilchen“ genannt) enthalten sind."
+inlines:
+  - kind: "text"
+    text: "Wäre nun auch das molekulare Bild bis in alle Einzelheiten festgelegt, so böte doch die Ausrechnung des Integrales "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " solche Schwierigkeiten, daß an eine exakte Berechnung von "
+  - kind: "math"
+    latex: "F"
+  - kind: "text"
+    text: " kaum gedacht werden könnte."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir brauchen jedoch hier nur zu wissen, wie "
+  - kind: "math"
+    latex: "F"
+  - kind: "text"
+    text: " von der Größe des Volumens "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: " abhängt, in welchem alle gelösten Moleküle bez. suspendierten Körper (im folgenden kurz „Teilchen“ genannt) enthalten sind."
+sentenceSpans:
+  - id: "s2-p3-s1"
+    span:
+      start: 0
+      end: 204
+      blockRevision: 1
+      textDigest: "16e64ecff77b4f0abd196f63a0baa76bda85b727dbac1a5c045bc96fb7ca653f"
+  - id: "s2-p3-s2"
+    span:
+      start: 205
+      end: 405
+      blockRevision: 1
+      textDigest: "16e64ecff77b4f0abd196f63a0baa76bda85b727dbac1a5c045bc96fb7ca653f"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

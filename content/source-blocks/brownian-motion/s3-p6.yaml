@@ -1,0 +1,56 @@
+# SourceBlock s3-p6: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s3-p6"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s3"
+order: 42
+locators:
+  - pdfPageIndex: 7
+    printedPage: 555
+diplomaticText: "Haben die suspendierten Teilchen Kugelform (Kugelradius P) und besitzt die Flüssigkeit den Reibungskoeffizienten k, so erteilt die Kraft K dem einzelnen Teilchen die Geschwindigkeit1)und es treten durch die Querschnittseinheit pro ZeiteinheitTeilchen hindurch."
+inlines:
+  - kind: "text"
+    text: "Haben die suspendierten Teilchen Kugelform (Kugelradius "
+  - kind: "math"
+    latex: "P"
+  - kind: "text"
+    text: ") und besitzt die Flüssigkeit den Reibungskoeffizienten "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: ", so erteilt die Kraft "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " dem einzelnen Teilchen die Geschwindigkeit"
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s3-fn1"
+  - kind: "math"
+    latex: "\\frac{K}{6 \\pi k P},"
+    display: true
+    equationId: "eq-s3-d5"
+  - kind: "text"
+    text: "und es treten durch die Querschnittseinheit pro Zeiteinheit"
+  - kind: "math"
+    latex: "\\frac{\\nu K}{6 \\pi k P}"
+    display: true
+    equationId: "eq-s3-d6"
+  - kind: "text"
+    text: "Teilchen hindurch."
+sentenceSpans:
+  - id: "s3-p6-s1"
+    span:
+      start: 0
+      end: 260
+      blockRevision: 1
+      textDigest: "3ee399183f7285c38ff476fe6c224063d58257904e9f3630c2bf2422cd949df9"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

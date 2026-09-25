@@ -1,0 +1,42 @@
+# SourceBlock s1-p2: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s1-p2"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s1"
+order: 8
+locators:
+  - pdfPageIndex: 2
+    printedPage: 550
+diplomaticText: "Sind hingegen statt der gelösten Substanz in dem Teilvolumen V^* der Flüssigkeit kleine suspendierte Körper vorhanden, welche ebenfalls nicht durch die für das Lösungsmittel durchlässige Wand hindurchtreten können, so hat man nach der klassischen Theorie der Thermodynamik — wenigstens bei Vernachlässigung der uns hier nicht interessierenden Schwerkraft — nicht zu erwarten, daß auf die Wand eine Kraft wirke; denn die „freie Energie“ des Systems scheint nach der üblichen Auffassung nicht von der Lage der Wand und der suspendierten Körper abzuhängen, sondern nur von den Gesamtmassen und Qualitäten der suspendierten Substanz, der Flüssigkeit und der Wand, sowie von Druck und Temperatur. Es kämen allerdings für die Berechnung der freien Energie noch Energie und Entropie der Grenzflächen in Betracht (Kapillarkräfte); hiervon können wir jedoch absehen, indem bei den ins Auge zu fassenden Lagenänderungen der Wand und der suspendierten Körper Änderungen der Größe und Beschaffenheit der Berührungsflächen nicht eintreten mögen."
+inlines:
+  - kind: "text"
+    text: "Sind hingegen statt der gelösten Substanz in dem Teilvolumen "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: " der Flüssigkeit kleine suspendierte Körper vorhanden, welche ebenfalls nicht durch die für das Lösungsmittel durchlässige Wand hindurchtreten können, so hat man nach der klassischen Theorie der Thermodynamik — wenigstens bei Vernachlässigung der uns hier nicht interessierenden Schwerkraft — nicht zu erwarten, daß auf die Wand eine Kraft wirke; denn die „freie Energie“ des Systems scheint nach der üblichen Auffassung nicht von der Lage der Wand und der suspendierten Körper abzuhängen, sondern nur von den Gesamtmassen und Qualitäten der suspendierten Substanz, der Flüssigkeit und der Wand, sowie von Druck und Temperatur."
+  - kind: "space"
+  - kind: "text"
+    text: "Es kämen allerdings für die Berechnung der freien Energie noch Energie und Entropie der Grenzflächen in Betracht (Kapillarkräfte); hiervon können wir jedoch absehen, indem bei den ins Auge zu fassenden Lagenänderungen der Wand und der suspendierten Körper Änderungen der Größe und Beschaffenheit der Berührungsflächen nicht eintreten mögen."
+sentenceSpans:
+  - id: "s1-p2-s1"
+    span:
+      start: 0
+      end: 691
+      blockRevision: 1
+      textDigest: "d5811f8b82ee461854a3f7d6f1392ac20caf97941fc1731cb326a1f731cb7900"
+  - id: "s1-p2-s2"
+    span:
+      start: 692
+      end: 1032
+      blockRevision: 1
+      textDigest: "d5811f8b82ee461854a3f7d6f1392ac20caf97941fc1731cb326a1f731cb7900"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,48 @@
+# SourceBlock s4-p12: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s4-p12"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s4"
+order: 75
+locators:
+  - pdfPageIndex: 11
+    printedPage: 559
+diplomaticText: "Die mittlere Verschiebung ist also proportional der Quadratwurzel aus der Zeit. Man kann leicht zeigen, daß die Wurzel aus dem Mittelwert der Quadrate der Gesamtverschiebungen der Teilchen den Wert \\lambda_x \\sqrt{3} besitzt."
+inlines:
+  - kind: "text"
+    text: "Die mittlere Verschiebung ist also proportional der Quadratwurzel aus der Zeit."
+  - kind: "space"
+  - kind: "text"
+    text: "Man kann leicht zeigen, daß die Wurzel aus dem Mittelwert der Quadrate der "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Gesamtverschiebungen"
+  - kind: "text"
+    text: " der Teilchen den Wert "
+  - kind: "math"
+    latex: "\\lambda_x \\sqrt{3}"
+  - kind: "text"
+    text: " besitzt."
+sentenceSpans:
+  - id: "s4-p12-s1"
+    span:
+      start: 0
+      end: 79
+      blockRevision: 1
+      textDigest: "9a5430d68dfad762a076369683870dee347f31ef7bc924943b157ce0085ad2f4"
+  - id: "s4-p12-s2"
+    span:
+      start: 80
+      end: 225
+      blockRevision: 1
+      textDigest: "9a5430d68dfad762a076369683870dee347f31ef7bc924943b157ce0085ad2f4"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

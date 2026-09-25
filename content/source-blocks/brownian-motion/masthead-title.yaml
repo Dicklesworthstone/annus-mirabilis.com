@@ -1,0 +1,29 @@
+# SourceBlock masthead-title: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "masthead-title"
+kind: "masthead"
+paper: "brownian-motion"
+section: "s0"
+order: 1
+locators:
+  - pdfPageIndex: 1
+    printedPage: 549
+diplomaticText: "Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen;"
+inlines:
+  - kind: "text"
+    text: "Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen;"
+sentenceSpans:
+  - id: "masthead-title"
+    span:
+      start: 0
+      end: 129
+      blockRevision: 1
+      textDigest: "1572ec4bb48cc2393575aead8d4c10bd087e7d4338b24a47cd86242f8b148a8f"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

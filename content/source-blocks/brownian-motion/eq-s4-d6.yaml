@@ -1,0 +1,26 @@
+# SourceBlock eq-s4-d6: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "eq-s4-d6"
+kind: "equation"
+paper: "brownian-motion"
+section: "s4"
+order: 64
+locators:
+  - pdfPageIndex: 9
+    printedPage: 557
+editorialLabel: "ed:s4-d6"
+containedIn: "s4-p6"
+diplomaticText: "f(x + \\Delta, t) = f(x, t) + \\Delta \\frac{\\partial f(x, t)}{\\partial x} + \\frac{\\Delta^2}{2!} \\frac{\\partial^2 f(x, t)}{\\partial x^2} \\ldots \\text{ in inf.}"
+inlines:
+  - kind: "math"
+    latex: "f(x + \\Delta, t) = f(x, t) + \\Delta \\frac{\\partial f(x, t)}{\\partial x} + \\frac{\\Delta^2}{2!} \\frac{\\partial^2 f(x, t)}{\\partial x^2} \\ldots \\text{ in inf.}"
+    equationId: "eq-s4-d6"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

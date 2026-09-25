@@ -1,0 +1,113 @@
+# SourceBlock s4-p4: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s4-p4"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s4"
+order: 56
+locators:
+  - pdfPageIndex: 8
+    printedPage: 556
+diplomaticText: "Seien nun in einer Flüssigkeit im ganzen n suspendierte Teilchen vorhanden. In einem Zeitintervall \\tau werden sich die X-Koordinaten der einzelnen Teilchen um \\Delta vergrößern, wobei \\Delta für jedes Teilchen einen anderen (positiven oder negativen) Wert hat. Es wird für \\Delta ein gewisses Häufigkeitsgesetz gelten; die Anzahl d n der Teilchen, welche in dem Zeitintervall \\tau eine Verschiebung erfahren, welche zwischen \\Delta und \\Delta + d \\Delta liegt, wird durch eine Gleichung von der Formausdrückbar sein, wobeiund \\varphi nur für sehr kleine Werte von \\Delta von Null verschieden ist und die Bedingungerfüllt."
+inlines:
+  - kind: "text"
+    text: "Seien nun in einer Flüssigkeit im ganzen "
+  - kind: "math"
+    latex: "n"
+  - kind: "text"
+    text: " suspendierte Teilchen vorhanden."
+  - kind: "space"
+  - kind: "text"
+    text: "In einem Zeitintervall "
+  - kind: "math"
+    latex: "\\tau"
+  - kind: "text"
+    text: " werden sich die "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: "-Koordinaten der einzelnen Teilchen um "
+  - kind: "math"
+    latex: "\\Delta"
+  - kind: "text"
+    text: " vergrößern, wobei "
+  - kind: "math"
+    latex: "\\Delta"
+  - kind: "text"
+    text: " für jedes Teilchen einen anderen (positiven oder negativen) Wert hat."
+  - kind: "space"
+  - kind: "text"
+    text: "Es wird für "
+  - kind: "math"
+    latex: "\\Delta"
+  - kind: "text"
+    text: " ein gewisses Häufigkeitsgesetz gelten; die Anzahl "
+  - kind: "math"
+    latex: "d n"
+  - kind: "text"
+    text: " der Teilchen, welche in dem Zeitintervall "
+  - kind: "math"
+    latex: "\\tau"
+  - kind: "text"
+    text: " eine Verschiebung erfahren, welche zwischen "
+  - kind: "math"
+    latex: "\\Delta"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "\\Delta + d \\Delta"
+  - kind: "text"
+    text: " liegt, wird durch eine Gleichung von der Form"
+  - kind: "math"
+    latex: "d n = n \\varphi(\\Delta) d \\Delta"
+    display: true
+    equationId: "eq-s4-d1"
+  - kind: "text"
+    text: "ausdrückbar sein, wobei"
+  - kind: "math"
+    latex: "\\int_{-\\infty}^{+\\infty} \\varphi(\\Delta) d \\Delta = 1"
+    display: true
+    equationId: "eq-s4-d2"
+  - kind: "text"
+    text: "und "
+  - kind: "math"
+    latex: "\\varphi"
+  - kind: "text"
+    text: " nur für sehr kleine Werte von "
+  - kind: "math"
+    latex: "\\Delta"
+  - kind: "text"
+    text: " von Null verschieden ist und die Bedingung"
+  - kind: "math"
+    latex: "\\varphi(\\Delta) = \\varphi(-\\Delta)"
+    display: true
+    equationId: "eq-s4-d3"
+  - kind: "text"
+    text: "erfüllt."
+sentenceSpans:
+  - id: "s4-p4-s1"
+    span:
+      start: 0
+      end: 75
+      blockRevision: 1
+      textDigest: "5b581acbe14a095e68c6ddd4931add08205490ff769fd05133d85f9446c03a3d"
+  - id: "s4-p4-s2"
+    span:
+      start: 76
+      end: 261
+      blockRevision: 1
+      textDigest: "5b581acbe14a095e68c6ddd4931add08205490ff769fd05133d85f9446c03a3d"
+  - id: "s4-p4-s3"
+    span:
+      start: 262
+      end: 622
+      blockRevision: 1
+      textDigest: "5b581acbe14a095e68c6ddd4931add08205490ff769fd05133d85f9446c03a3d"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

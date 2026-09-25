@@ -1,0 +1,44 @@
+# SourceBlock s0-p1: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s0-p1"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s0"
+order: 3
+locators:
+  - pdfPageIndex: 1
+    printedPage: 549
+diplomaticText: "In dieser Arbeit soll gezeigt werden, daß nach der molekularkinetischen Theorie der Wärme in Flüssigkeiten suspendierte Körper von mikroskopisch sichtbarer Größe infolge der Molekularbewegung der Wärme Bewegungen von solcher Größe ausführen müssen, daß diese Bewegungen leicht mit dem Mikroskop nachgewiesen werden können. Es ist möglich, daß die hier zu behandelnden Bewegungen mit der sogenannten „Brownschen Molekularbewegung“ identisch sind; die mir erreichbaren Angaben über letztere sind jedoch so ungenau, daß ich mir hierüber kein Urteil bilden konnte."
+inlines:
+  - kind: "text"
+    text: "In dieser Arbeit soll gezeigt werden, daß nach der molekularkinetischen Theorie der Wärme in Flüssigkeiten suspendierte Körper von mikroskopisch sichtbarer Größe infolge der Molekularbewegung der Wärme Bewegungen von solcher Größe ausführen müssen, daß diese Bewegungen leicht mit dem Mikroskop nachgewiesen werden können."
+  - kind: "space"
+  - kind: "text"
+    text: "Es ist möglich, daß die hier zu behandelnden Bewegungen mit der sogenannten „"
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Brown"
+  - kind: "text"
+    text: "schen Molekularbewegung“ identisch sind; die mir erreichbaren Angaben über letztere sind jedoch so ungenau, daß ich mir hierüber kein Urteil bilden konnte."
+sentenceSpans:
+  - id: "s0-p1-s1"
+    span:
+      start: 0
+      end: 322
+      blockRevision: 1
+      textDigest: "1a540c4eb1b0e2e3b253b0aa7a7c8d1f54d36463bc290be77be3a4624cb4acc3"
+  - id: "s0-p1-s2"
+    span:
+      start: 323
+      end: 560
+      blockRevision: 1
+      textDigest: "1a540c4eb1b0e2e3b253b0aa7a7c8d1f54d36463bc290be77be3a4624cb4acc3"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

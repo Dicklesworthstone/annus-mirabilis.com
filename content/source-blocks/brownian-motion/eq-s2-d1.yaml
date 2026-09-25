@@ -1,0 +1,26 @@
+# SourceBlock eq-s2-d1: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "eq-s2-d1"
+kind: "equation"
+paper: "brownian-motion"
+section: "s2"
+order: 14
+locators:
+  - pdfPageIndex: 3
+    printedPage: 551
+editorialLabel: "ed:s2-d1"
+containedIn: "s2-p1"
+diplomaticText: "\\frac{\\partial p_\\nu}{\\partial t} = \\varphi_\\nu(p_1 \\ldots p_l) \\quad (\\nu = 1, 2 \\ldots l)"
+inlines:
+  - kind: "math"
+    latex: "\\frac{\\partial p_\\nu}{\\partial t} = \\varphi_\\nu(p_1 \\ldots p_l) \\quad (\\nu = 1, 2 \\ldots l)"
+    equationId: "eq-s2-d1"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,55 @@
+# SourceBlock s3-p1: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s3-p1"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s3"
+order: 34
+locators:
+  - pdfPageIndex: 6
+    printedPage: 554
+diplomaticText: "In einer Flüssigkeit seien suspendierte Teilchen regellos verteilt. Wir wollen den dynamischen Gleichgewichtszustand derselben untersuchen unter der Voraussetzung, daß auf die einzelnen Teilchen eine Kraft K wirkt, welche vom Orte, nicht aber von der Zeit abhängt. Der Einfachheit halber werde angenommen, daß die Kraft überall die Richtung der X-Achse habe."
+inlines:
+  - kind: "text"
+    text: "In einer Flüssigkeit seien suspendierte Teilchen regellos verteilt."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir wollen den dynamischen Gleichgewichtszustand derselben untersuchen unter der Voraussetzung, daß auf die einzelnen Teilchen eine Kraft "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " wirkt, welche vom Orte, nicht aber von der Zeit abhängt."
+  - kind: "space"
+  - kind: "text"
+    text: "Der Einfachheit halber werde angenommen, daß die Kraft überall die Richtung der "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: "-Achse habe."
+sentenceSpans:
+  - id: "s3-p1-s1"
+    span:
+      start: 0
+      end: 67
+      blockRevision: 1
+      textDigest: "fd772e7d5a3509ac1f4c12610de7563026914895a40b537fc7627ba153e97079"
+  - id: "s3-p1-s2"
+    span:
+      start: 68
+      end: 264
+      blockRevision: 1
+      textDigest: "fd772e7d5a3509ac1f4c12610de7563026914895a40b537fc7627ba153e97079"
+  - id: "s3-p1-s3"
+    span:
+      start: 265
+      end: 358
+      blockRevision: 1
+      textDigest: "fd772e7d5a3509ac1f4c12610de7563026914895a40b537fc7627ba153e97079"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

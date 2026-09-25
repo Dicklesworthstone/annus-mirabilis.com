@@ -1,0 +1,64 @@
+# SourceBlock s1-p1: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s1-p1"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s1"
+order: 6
+locators:
+  - pdfPageIndex: 1
+    printedPage: 549
+  - pdfPageIndex: 2
+    printedPage: 550
+diplomaticText: "Im Teilvolumen V^* einer Flüssigkeit vom Gesamtvolumen V seien z-Gramm-Moleküle eines Nichtelektrolyten gelöst. Ist das Volumen V^* durch eine für das Lösungsmittel, nicht aber für die gelöste Substanz durchlässige Wand vom reinen Lösungsmittel getrennt, so wirkt auf diese Wand der sogenannte osmotische Druck, welcher bei genügend großen Werten von V^*/z der Gleichung genügt:"
+inlines:
+  - kind: "text"
+    text: "Im Teilvolumen "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: " einer Flüssigkeit vom Gesamtvolumen "
+  - kind: "math"
+    latex: "V"
+  - kind: "text"
+    text: " seien "
+  - kind: "math"
+    latex: "z"
+  - kind: "text"
+    text: "-Gramm-Moleküle eines Nichtelektrolyten gelöst."
+  - kind: "space"
+  - kind: "text"
+    text: "Ist das Volumen "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: " durch eine für das Lösungsmittel, nicht aber für die gelöste Substanz durchlässige Wand vom reinen Lösungsmittel getrennt, so wirkt auf diese Wand der sogenannte osmotische Druck, welcher bei genügend großen Werten von "
+  - kind: "math"
+    latex: "V^*/z"
+  - kind: "text"
+    text: " der Gleichung genügt:"
+  - kind: "math"
+    latex: "p V^* = R T z."
+    display: true
+    equationId: "eq-s1-d1"
+sentenceSpans:
+  - id: "s1-p1-s1"
+    span:
+      start: 0
+      end: 111
+      blockRevision: 1
+      textDigest: "082b0596fb238b5452879905fbfbb374d9ae8b88dc7ab94364438cece5f90098"
+  - id: "s1-p1-s2"
+    span:
+      start: 112
+      end: 378
+      blockRevision: 1
+      textDigest: "082b0596fb238b5452879905fbfbb374d9ae8b88dc7ab94364438cece5f90098"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

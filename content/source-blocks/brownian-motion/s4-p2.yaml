@@ -1,0 +1,29 @@
+# SourceBlock s4-p2: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s4-p2"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s4"
+order: 54
+locators:
+  - pdfPageIndex: 8
+    printedPage: 556
+diplomaticText: "Es muß offenbar angenommen werden, daß jedes einzelne Teilchen eine Bewegung ausführe, welche unabhängig ist von der Bewegung aller anderen Teilchen; es werden auch die Bewegungen eines und desselben Teilchens in verschiedenen Zeitintervallen als voneinander unabhängige Vorgänge aufzufassen sein, solange wir diese Zeitintervalle nicht zu klein gewählt denken."
+inlines:
+  - kind: "text"
+    text: "Es muß offenbar angenommen werden, daß jedes einzelne Teilchen eine Bewegung ausführe, welche unabhängig ist von der Bewegung aller anderen Teilchen; es werden auch die Bewegungen eines und desselben Teilchens in verschiedenen Zeitintervallen als voneinander unabhängige Vorgänge aufzufassen sein, solange wir diese Zeitintervalle nicht zu klein gewählt denken."
+sentenceSpans:
+  - id: "s4-p2-s1"
+    span:
+      start: 0
+      end: 361
+      blockRevision: 1
+      textDigest: "1e9800e04f10e47ee795c49ada9b0c18be74cbc5da19b1f19b4ab7447c1677f4"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

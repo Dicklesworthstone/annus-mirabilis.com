@@ -1,0 +1,29 @@
+# SourceBlock s3: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s3"
+kind: "heading"
+paper: "brownian-motion"
+section: "s3"
+order: 33
+locators:
+  - pdfPageIndex: 6
+    printedPage: 554
+diplomaticText: "§ 3. Theorie der Diffusion kleiner suspendierter Kugeln."
+inlines:
+  - kind: "text"
+    text: "§ 3. Theorie der Diffusion kleiner suspendierter Kugeln."
+sentenceSpans:
+  - id: "s3"
+    span:
+      start: 0
+      end: 56
+      blockRevision: 1
+      textDigest: "4b6895563f09725f82dc228fb87553e5a6b9914d6df089502363a617d5eae3fa"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

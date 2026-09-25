@@ -1,0 +1,29 @@
+# SourceBlock s2-p8: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s2-p8"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s2"
+order: 32
+locators:
+  - pdfPageIndex: 5
+    printedPage: 553
+diplomaticText: "Durch diese Betrachtung ist gezeigt, daß die Existenz des osmotischen Druckes eine Konsequenz der molekularkinetischen Theorie der Wärme ist, und daß nach dieser Theorie gelöste Moleküle und suspendierte Körper von gleicher Anzahl sich in bezug auf osmotischen Druck bei großer Verdünnung vollkommen gleich verhalten."
+inlines:
+  - kind: "text"
+    text: "Durch diese Betrachtung ist gezeigt, daß die Existenz des osmotischen Druckes eine Konsequenz der molekularkinetischen Theorie der Wärme ist, und daß nach dieser Theorie gelöste Moleküle und suspendierte Körper von gleicher Anzahl sich in bezug auf osmotischen Druck bei großer Verdünnung vollkommen gleich verhalten."
+sentenceSpans:
+  - id: "s2-p8-s1"
+    span:
+      start: 0
+      end: 317
+      blockRevision: 1
+      textDigest: "e2e7c8de625b5ef7ee638a3f459448b5f839f405fd43f7f53d8709f8f7a5727d"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

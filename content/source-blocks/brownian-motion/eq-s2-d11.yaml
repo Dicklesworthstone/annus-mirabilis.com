@@ -1,0 +1,26 @@
+# SourceBlock eq-s2-d11: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "eq-s2-d11"
+kind: "equation"
+paper: "brownian-motion"
+section: "s2"
+order: 30
+locators:
+  - pdfPageIndex: 5
+    printedPage: 553
+editorialLabel: "ed:s2-d11"
+containedIn: "s2-p7"
+diplomaticText: "F = -\\frac{R T}{N} \\{ \\lg J + n \\lg V^* \\}"
+inlines:
+  - kind: "math"
+    latex: "F = -\\frac{R T}{N} \\{ \\lg J + n \\lg V^* \\}"
+    equationId: "eq-s2-d11"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

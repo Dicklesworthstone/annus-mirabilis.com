@@ -1,0 +1,45 @@
+# SourceBlock s4-p5: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s4-p5"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s4"
+order: 60
+locators:
+  - pdfPageIndex: 9
+    printedPage: 557
+diplomaticText: "Wir untersuchen nun, wie der Diffusionskoeffizient von \\varphi abhängt, wobei wir uns wieder auf den Fall beschränken, daß die Anzahl \\nu der Teilchen pro Volumeneinheit nur von x und t abhängt."
+inlines:
+  - kind: "text"
+    text: "Wir untersuchen nun, wie der Diffusionskoeffizient von "
+  - kind: "math"
+    latex: "\\varphi"
+  - kind: "text"
+    text: " abhängt, wobei wir uns wieder auf den Fall beschränken, daß die Anzahl "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: " der Teilchen pro Volumeneinheit nur von "
+  - kind: "math"
+    latex: "x"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: " abhängt."
+sentenceSpans:
+  - id: "s4-p5-s1"
+    span:
+      start: 0
+      end: 194
+      blockRevision: 1
+      textDigest: "da879f4b78945349e57008cb9ef9ea9511de7da87a6c58f9a3cd01c6a97d4ea2"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

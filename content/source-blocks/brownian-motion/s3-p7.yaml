@@ -1,0 +1,62 @@
+# SourceBlock s3-p7: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s3-p7"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s3"
+order: 46
+locators:
+  - pdfPageIndex: 7
+    printedPage: 555
+diplomaticText: "Bezeichnet ferner D den Diffusionskoeffizienten der suspendierten Substanz und \\mu die Masse eines Teilchens, so treten pro Zeiteinheit infolge der DiffusionoderTeilchen durch die Querschnittseinheit. Da dynamisches Gleichgewicht herrschen soll, so muß sein:"
+inlines:
+  - kind: "text"
+    text: "Bezeichnet ferner "
+  - kind: "math"
+    latex: "D"
+  - kind: "text"
+    text: " den Diffusionskoeffizienten der suspendierten Substanz und "
+  - kind: "math"
+    latex: "\\mu"
+  - kind: "text"
+    text: " die Masse eines Teilchens, so treten pro Zeiteinheit infolge der Diffusion"
+  - kind: "math"
+    latex: "-D \\frac{\\partial (\\mu \\nu)}{\\partial x} \\quad \\text{Gramm}"
+    display: true
+    equationId: "eq-s3-d7"
+  - kind: "text"
+    text: "oder"
+  - kind: "math"
+    latex: "-D \\frac{\\partial \\nu}{\\partial x}"
+    display: true
+    equationId: "eq-s3-d8"
+  - kind: "text"
+    text: "Teilchen durch die Querschnittseinheit."
+  - kind: "space"
+  - kind: "text"
+    text: "Da dynamisches Gleichgewicht herrschen soll, so muß sein:"
+  - kind: "math"
+    latex: "\\frac{\\nu K}{6 \\pi k P} - D \\frac{\\partial \\nu}{\\partial x} = 0."
+    display: true
+    equationId: "eq-2"
+sentenceSpans:
+  - id: "s3-p7-s1"
+    span:
+      start: 0
+      end: 200
+      blockRevision: 1
+      textDigest: "d742e60d4ab81871be26d003ab11c9f76fbd318b73ff4909c1d4d08d25abc146"
+  - id: "s3-p7-s2"
+    span:
+      start: 201
+      end: 258
+      blockRevision: 1
+      textDigest: "d742e60d4ab81871be26d003ab11c9f76fbd318b73ff4909c1d4d08d25abc146"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,67 @@
+# SourceBlock s5-p2: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s5-p2"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s5"
+order: 81
+locators:
+  - pdfPageIndex: 11
+    printedPage: 559
+diplomaticText: "Wir wollen berechnen, wie groß \\lambda_x für eine Sekunde ist, wenn N gemäß den Resultaten der kinetischen Gastheorie 6 \\cdot 10^{23} gesetzt wird; es sei als Flüssigkeit Wasser von 17° C. gewählt (k = 1{,}35 \\cdot 10^{-2}) und der Teilchendurchmesser sei 0,001 mm. Man erhält: Die mittlere Verschiebung in 1 Min. wäre also ca. 6 Mikron."
+inlines:
+  - kind: "text"
+    text: "Wir wollen berechnen, wie groß "
+  - kind: "math"
+    latex: "\\lambda_x"
+  - kind: "text"
+    text: " für eine Sekunde ist, wenn "
+  - kind: "math"
+    latex: "N"
+  - kind: "text"
+    text: " gemäß den Resultaten der kinetischen Gastheorie "
+  - kind: "math"
+    latex: "6 \\cdot 10^{23}"
+  - kind: "text"
+    text: " gesetzt wird; es sei als Flüssigkeit Wasser von 17° C. gewählt ("
+  - kind: "math"
+    latex: "k = 1{,}35 \\cdot 10^{-2}"
+  - kind: "text"
+    text: ") und der Teilchendurchmesser sei 0,001 mm."
+  - kind: "space"
+  - kind: "text"
+    text: "Man erhält:"
+  - kind: "math"
+    latex: "\\lambda_x = 8 \\cdot 10^{-5} \\, \\text{cm} = 0{,}8 \\, \\text{Mikron}."
+    display: true
+    equationId: "eq-s5-d4"
+  - kind: "space"
+  - kind: "text"
+    text: "Die mittlere Verschiebung in 1 Min. wäre also ca. 6 Mikron."
+sentenceSpans:
+  - id: "s5-p2-s1"
+    span:
+      start: 0
+      end: 265
+      blockRevision: 1
+      textDigest: "dd9c5e9861f297206b7cf3530333636eba21b6f7976a9d5ddd68eaf59f33bbf1"
+  - id: "s5-p2-s2"
+    span:
+      start: 266
+      end: 277
+      blockRevision: 1
+      textDigest: "dd9c5e9861f297206b7cf3530333636eba21b6f7976a9d5ddd68eaf59f33bbf1"
+  - id: "s5-p2-s3"
+    span:
+      start: 278
+      end: 337
+      blockRevision: 1
+      textDigest: "dd9c5e9861f297206b7cf3530333636eba21b6f7976a9d5ddd68eaf59f33bbf1"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

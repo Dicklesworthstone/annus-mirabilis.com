@@ -1,0 +1,87 @@
+# SourceBlock s2-p2: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s2-p2"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s2"
+order: 17
+locators:
+  - pdfPageIndex: 4
+    printedPage: 552
+diplomaticText: "Wir denken uns nun eine in dem Volumen V eingeschlossene Flüssigkeit; in dem Teilvolumen V^* von V mögen sich n gelöste Moleküle bez. suspendierte Körper befinden, welche im Volumen V^* durch eine semipermeabele Wand festgehalten seien; es werden hierdurch die Integrationsgrenzen des in den Ausdrücken für S und F auftretenden Integrales B beeinflußt. Das Gesamtvolumen der gelösten Moleküle bez. suspendierten Körper sei klein gegen V^*. Dies System werde im Sinne der erwähnten Theorie durch die Zustandsvariabeln p_1 \\ldots p_l vollständig dargestellt."
+inlines:
+  - kind: "text"
+    text: "Wir denken uns nun eine in dem Volumen "
+  - kind: "math"
+    latex: "V"
+  - kind: "text"
+    text: " eingeschlossene Flüssigkeit; in dem Teilvolumen "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: " von "
+  - kind: "math"
+    latex: "V"
+  - kind: "text"
+    text: " mögen sich "
+  - kind: "math"
+    latex: "n"
+  - kind: "text"
+    text: " gelöste Moleküle bez. suspendierte Körper befinden, welche im Volumen "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: " durch eine semipermeabele Wand festgehalten seien; es werden hierdurch die Integrationsgrenzen des in den Ausdrücken für "
+  - kind: "math"
+    latex: "S"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "F"
+  - kind: "text"
+    text: " auftretenden Integrales "
+  - kind: "math"
+    latex: "B"
+  - kind: "text"
+    text: " beeinflußt."
+  - kind: "space"
+  - kind: "text"
+    text: "Das Gesamtvolumen der gelösten Moleküle bez. suspendierten Körper sei klein gegen "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: "."
+  - kind: "space"
+  - kind: "text"
+    text: "Dies System werde im Sinne der erwähnten Theorie durch die Zustandsvariabeln "
+  - kind: "math"
+    latex: "p_1 \\ldots p_l"
+  - kind: "text"
+    text: " vollständig dargestellt."
+sentenceSpans:
+  - id: "s2-p2-s1"
+    span:
+      start: 0
+      end: 352
+      blockRevision: 1
+      textDigest: "de0a7ce44d4c10318fb880ba9404c522d38c2cb8d876c692926bf4c40ef450c1"
+  - id: "s2-p2-s2"
+    span:
+      start: 353
+      end: 439
+      blockRevision: 1
+      textDigest: "de0a7ce44d4c10318fb880ba9404c522d38c2cb8d876c692926bf4c40ef450c1"
+  - id: "s2-p2-s3"
+    span:
+      start: 440
+      end: 556
+      blockRevision: 1
+      textDigest: "de0a7ce44d4c10318fb880ba9404c522d38c2cb8d876c692926bf4c40ef450c1"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

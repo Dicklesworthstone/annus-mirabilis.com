@@ -1,0 +1,145 @@
+# SourceBlock s2-p4: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s2-p4"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s2"
+order: 19
+locators:
+  - pdfPageIndex: 4
+    printedPage: 552
+  - pdfPageIndex: 5
+    printedPage: 553
+diplomaticText: "Wir nennen x_1, y_1, z_1 die rechtwinkligen Koordinaten des Schwerpunktes des ersten Teilchens, x_2, y_2, z_2 die des zweiten etc., x_n, y_n, z_n die des letzten Teilchens und geben für die Schwerpunkte der Teilchen die unendlich kleinen parallelepipedförmigen Gebiete d x_1 d y_1 d z_1, d x_2 d y_2 d z_2 \\ldots d x_n d y_n d z_n, welche alle in V^* gelegen seien. Gesucht sei der Wert des im Ausdruck für F auftretenden Integrales mit der Beschränkung, daß die Teilchenschwerpunkte in den ihnen soeben zugewiesenen Gebieten liegen. Dies Integral läßt sich jedenfalls auf die Formbringen, wobei J von d x_1 d y_1 etc., sowie von V^*, d. h. von der Lage der semipermeabeln Wand, unabhängig ist. J ist aber auch unabhängig von der speziellen Wahl der Lagen der Schwerpunktsgebiete und von dem Werte von V^*, wie sogleich gezeigt werden soll. Sei nämlich ein zweites System von unendlich kleinen Gebieten für die Teilchenschwerpunkte gegeben und bezeichnet durch d x'_1 d y'_1 d z'_2, d x'_2 d y'_2 d z'_2 \\ldots d x'_n d y'_n d z'_n, welche Gebiete sich von den ursprünglich gegebenen nur durch ihre Lage, nicht aber durch ihre Größe unterscheiden mögen und ebenfalls alle in V^* enthalten seien, so gilt analog:wobei Es ist also:"
+inlines:
+  - kind: "text"
+    text: "Wir nennen "
+  - kind: "math"
+    latex: "x_1, y_1, z_1"
+  - kind: "text"
+    text: " die rechtwinkligen Koordinaten des Schwerpunktes des ersten Teilchens, "
+  - kind: "math"
+    latex: "x_2, y_2, z_2"
+  - kind: "text"
+    text: " die des zweiten etc., "
+  - kind: "math"
+    latex: "x_n, y_n, z_n"
+  - kind: "text"
+    text: " die des letzten Teilchens und geben für die Schwerpunkte der Teilchen die unendlich kleinen parallelepipedförmigen Gebiete "
+  - kind: "math"
+    latex: "d x_1 d y_1 d z_1, d x_2 d y_2 d z_2 \\ldots d x_n d y_n d z_n"
+  - kind: "text"
+    text: ", welche alle in "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: " gelegen seien."
+  - kind: "space"
+  - kind: "text"
+    text: "Gesucht sei der Wert des im Ausdruck für "
+  - kind: "math"
+    latex: "F"
+  - kind: "text"
+    text: " auftretenden Integrales mit der Beschränkung, daß die Teilchenschwerpunkte in den ihnen soeben zugewiesenen Gebieten liegen."
+  - kind: "space"
+  - kind: "text"
+    text: "Dies Integral läßt sich jedenfalls auf die Form"
+  - kind: "math"
+    latex: "d B = d x_1 d y_1 \\ldots d z_n \\cdot J"
+    display: true
+    equationId: "eq-s2-d4"
+  - kind: "text"
+    text: "bringen, wobei "
+  - kind: "math"
+    latex: "J"
+  - kind: "text"
+    text: " von "
+  - kind: "math"
+    latex: "d x_1 d y_1"
+  - kind: "text"
+    text: " etc., sowie von "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: ", d. h. von der Lage der semipermeabeln Wand, unabhängig ist. "
+  - kind: "math"
+    latex: "J"
+  - kind: "text"
+    text: " ist aber auch unabhängig von der speziellen Wahl "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "der Lagen"
+  - kind: "text"
+    text: " der Schwerpunktsgebiete und von dem Werte von "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: ", wie sogleich gezeigt werden soll."
+  - kind: "space"
+  - kind: "text"
+    text: "Sei nämlich ein zweites System von unendlich kleinen Gebieten für die Teilchenschwerpunkte gegeben und bezeichnet durch "
+  - kind: "math"
+    latex: "d x'_1 d y'_1 d z'_2, d x'_2 d y'_2 d z'_2 \\ldots d x'_n d y'_n d z'_n"
+  - kind: "text"
+    text: ", welche Gebiete sich von den ursprünglich gegebenen nur durch ihre Lage, nicht aber durch ihre Größe unterscheiden mögen und ebenfalls alle in "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: " enthalten seien, so gilt analog:"
+  - kind: "math"
+    latex: "d B' = d x'_1 d y'_1 \\ldots d z'_n \\cdot J',"
+    display: true
+    equationId: "eq-s2-d5"
+  - kind: "text"
+    text: "wobei"
+  - kind: "math"
+    latex: "d x_1 d y_1 \\ldots d z_n = d x'_1 d y'_1 \\ldots d z'_n."
+    display: true
+    equationId: "eq-s2-d6"
+  - kind: "space"
+  - kind: "text"
+    text: "Es ist also:"
+  - kind: "math"
+    latex: "\\frac{d B}{d B'} = \\frac{J}{J'}."
+    display: true
+    equationId: "eq-s2-d7"
+sentenceSpans:
+  - id: "s2-p4-s1"
+    span:
+      start: 0
+      end: 365
+      blockRevision: 1
+      textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
+  - id: "s2-p4-s2"
+    span:
+      start: 366
+      end: 533
+      blockRevision: 1
+      textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
+  - id: "s2-p4-s3"
+    span:
+      start: 534
+      end: 840
+      blockRevision: 1
+      textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
+  - id: "s2-p4-s4"
+    span:
+      start: 841
+      end: 1216
+      blockRevision: 1
+      textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
+  - id: "s2-p4-s5"
+    span:
+      start: 1217
+      end: 1229
+      blockRevision: 1
+      textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

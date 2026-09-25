@@ -1,0 +1,130 @@
+# SourceBlock s3-p2: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s3-p2"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s3"
+order: 35
+locators:
+  - pdfPageIndex: 6
+    printedPage: 554
+diplomaticText: "Es sei \\nu die Anzahl der suspendierten Teilchen pro Volumeneinheit, so ist im Falle des thermodynamischen Gleichgewichtes \\nu eine solche Funktion von x, daß für eine beliebige virtuelle Verrückung \\delta x der suspendierten Substanz die Variation der freien Energie verschwindet. Man hat also: Es werde angenommen, daß die Flüssigkeit senkrecht zur X-Achse den Querschnitt 1 habe und durch die Ebenen x = 0 und x = l begrenzt sei. Man hat dann:und Die gesuchte Gleichgewichtsbedingung ist also:oder Die letzte Gleichung sagt aus, daß der Kraft K durch osmotische Druckkräfte das Gleichgewicht geleistet wird."
+inlines:
+  - kind: "text"
+    text: "Es sei "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: " die Anzahl der suspendierten Teilchen pro Volumeneinheit, so ist im Falle des thermodynamischen Gleichgewichtes "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: " eine solche Funktion von "
+  - kind: "math"
+    latex: "x"
+  - kind: "text"
+    text: ", daß für eine beliebige virtuelle Verrückung "
+  - kind: "math"
+    latex: "\\delta x"
+  - kind: "text"
+    text: " der suspendierten Substanz die Variation der freien Energie verschwindet."
+  - kind: "space"
+  - kind: "text"
+    text: "Man hat also:"
+  - kind: "math"
+    latex: "\\delta F = \\delta E - T \\delta S = 0."
+    display: true
+    equationId: "eq-s3-d1"
+  - kind: "space"
+  - kind: "text"
+    text: "Es werde angenommen, daß die Flüssigkeit senkrecht zur "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: "-Achse den Querschnitt 1 habe und durch die Ebenen "
+  - kind: "math"
+    latex: "x = 0"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "x = l"
+  - kind: "text"
+    text: " begrenzt sei."
+  - kind: "space"
+  - kind: "text"
+    text: "Man hat dann:"
+  - kind: "math"
+    latex: "\\delta E = -\\int_0^l K \\nu \\delta x d x"
+    display: true
+    equationId: "eq-s3-d2"
+  - kind: "text"
+    text: "und"
+  - kind: "math"
+    latex: "\\delta S = \\int_0^l R \\frac{\\nu}{N} \\frac{\\partial \\delta x}{\\partial x} d x = -\\frac{R}{N} \\int_0^l \\frac{\\partial \\nu}{\\partial x} \\delta x d x."
+    display: true
+    equationId: "eq-s3-d3"
+  - kind: "space"
+  - kind: "text"
+    text: "Die gesuchte Gleichgewichtsbedingung ist also:"
+  - kind: "math"
+    latex: "-K \\nu + \\frac{R T}{N} \\frac{\\partial \\nu}{\\partial x} = 0"
+    display: true
+    equationId: "eq-s3-1"
+  - kind: "text"
+    text: "oder"
+  - kind: "math"
+    latex: "K \\nu - \\frac{\\partial p}{\\partial x} = 0."
+    display: true
+    equationId: "eq-s3-d4"
+  - kind: "space"
+  - kind: "text"
+    text: "Die letzte Gleichung sagt aus, daß der Kraft "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " durch osmotische Druckkräfte das Gleichgewicht geleistet wird."
+sentenceSpans:
+  - id: "s3-p2-s1"
+    span:
+      start: 0
+      end: 281
+      blockRevision: 1
+      textDigest: "021831575466f6ffa1a320accb9c7e61f57c8096debc069d854e62744547afe8"
+  - id: "s3-p2-s2"
+    span:
+      start: 282
+      end: 295
+      blockRevision: 1
+      textDigest: "021831575466f6ffa1a320accb9c7e61f57c8096debc069d854e62744547afe8"
+  - id: "s3-p2-s3"
+    span:
+      start: 296
+      end: 432
+      blockRevision: 1
+      textDigest: "021831575466f6ffa1a320accb9c7e61f57c8096debc069d854e62744547afe8"
+  - id: "s3-p2-s4"
+    span:
+      start: 433
+      end: 449
+      blockRevision: 1
+      textDigest: "021831575466f6ffa1a320accb9c7e61f57c8096debc069d854e62744547afe8"
+  - id: "s3-p2-s5"
+    span:
+      start: 450
+      end: 500
+      blockRevision: 1
+      textDigest: "021831575466f6ffa1a320accb9c7e61f57c8096debc069d854e62744547afe8"
+  - id: "s3-p2-s6"
+    span:
+      start: 501
+      end: 610
+      blockRevision: 1
+      textDigest: "021831575466f6ffa1a320accb9c7e61f57c8096debc069d854e62744547afe8"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,53 @@
+# SourceBlock s3-p8: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s3-p8"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s3"
+order: 50
+locators:
+  - pdfPageIndex: 7
+    printedPage: 555
+  - pdfPageIndex: 8
+    printedPage: 556
+diplomaticText: "Aus den beiden für das dynamische Gleichgewicht gefundenen Bedingungen (1) und (2) kann man den Diffusionskoeffizienten berechnen. Man erhält: Der Diffusionskoeffizient der suspendierten Substanz hängt also außer von universellen Konstanten und der absoluten Temperatur nur vom Reibungskoeffizienten der Flüssigkeit und von der Größe der suspendierten Teilchen ab."
+inlines:
+  - kind: "text"
+    text: "Aus den beiden für das dynamische Gleichgewicht gefundenen Bedingungen (1) und (2) kann man den Diffusionskoeffizienten berechnen."
+  - kind: "space"
+  - kind: "text"
+    text: "Man erhält:"
+  - kind: "math"
+    latex: "D = \\frac{R T}{N} \\frac{1}{6 \\pi k P}."
+    display: true
+    equationId: "eq-s3-d9"
+  - kind: "space"
+  - kind: "text"
+    text: "Der Diffusionskoeffizient der suspendierten Substanz hängt also außer von universellen Konstanten und der absoluten Temperatur nur vom Reibungskoeffizienten der Flüssigkeit und von der Größe der suspendierten Teilchen ab."
+sentenceSpans:
+  - id: "s3-p8-s1"
+    span:
+      start: 0
+      end: 130
+      blockRevision: 1
+      textDigest: "d551b71706908834c1c39791ce075c6067634eeaa0c2f2eae5474613f6f6f240"
+  - id: "s3-p8-s2"
+    span:
+      start: 131
+      end: 142
+      blockRevision: 1
+      textDigest: "d551b71706908834c1c39791ce075c6067634eeaa0c2f2eae5474613f6f6f240"
+  - id: "s3-p8-s5"
+    span:
+      start: 143
+      end: 364
+      blockRevision: 1
+      textDigest: "d551b71706908834c1c39791ce075c6067634eeaa0c2f2eae5474613f6f6f240"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

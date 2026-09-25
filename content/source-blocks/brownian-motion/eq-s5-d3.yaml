@@ -1,0 +1,26 @@
+# SourceBlock eq-s5-d3: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "eq-s5-d3"
+kind: "equation"
+paper: "brownian-motion"
+section: "s5"
+order: 80
+locators:
+  - pdfPageIndex: 11
+    printedPage: 559
+editorialLabel: "ed:s5-d3"
+containedIn: "s5-p1"
+diplomaticText: "\\lambda_x = \\sqrt{t} \\cdot \\sqrt{\\frac{R T}{N} \\frac{1}{3 \\pi k P}}."
+inlines:
+  - kind: "math"
+    latex: "\\lambda_x = \\sqrt{t} \\cdot \\sqrt{\\frac{R T}{N} \\frac{1}{3 \\pi k P}}."
+    equationId: "eq-s5-d3"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

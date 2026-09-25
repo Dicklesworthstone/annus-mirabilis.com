@@ -1,0 +1,26 @@
+# SourceBlock eq-s4-d9: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "eq-s4-d9"
+kind: "equation"
+paper: "brownian-motion"
+section: "s4"
+order: 67
+locators:
+  - pdfPageIndex: 10
+    printedPage: 558
+editorialLabel: "ed:s4-d9"
+containedIn: "s4-p6"
+diplomaticText: "\\frac{1}{\\tau} \\int_{-\\infty}^{+\\infty} \\frac{\\Delta^2}{2} \\varphi(\\Delta) d \\Delta = D"
+inlines:
+  - kind: "math"
+    latex: "\\frac{1}{\\tau} \\int_{-\\infty}^{+\\infty} \\frac{\\Delta^2}{2} \\varphi(\\Delta) d \\Delta = D"
+    equationId: "eq-s4-d9"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

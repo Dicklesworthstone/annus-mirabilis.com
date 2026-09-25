@@ -1,0 +1,66 @@
+# SourceBlock s2-p7: German source text from public/papers/transcripts/ap-17-549-machine-draft.txt.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-24-english-draft-translation); not reviewed.
+id: "s2-p7"
+kind: "paragraph"
+paper: "brownian-motion"
+section: "s2"
+order: 28
+locators:
+  - pdfPageIndex: 5
+    printedPage: 553
+diplomaticText: "Es ist somit erwiesen, daß J weder von V^* noch von x_1, y_1 \\ldots z_n abhängig ist. Durch Integration erhält manund darausund"
+inlines:
+  - kind: "text"
+    text: "Es ist somit erwiesen, daß "
+  - kind: "math"
+    latex: "J"
+  - kind: "text"
+    text: " weder von "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: " noch von "
+  - kind: "math"
+    latex: "x_1, y_1 \\ldots z_n"
+  - kind: "text"
+    text: " abhängig ist."
+  - kind: "space"
+  - kind: "text"
+    text: "Durch Integration erhält man"
+  - kind: "math"
+    latex: "B = \\int J d x_1 \\ldots d z_n = J V^{*n}"
+    display: true
+    equationId: "eq-s2-d10"
+  - kind: "text"
+    text: "und daraus"
+  - kind: "math"
+    latex: "F = -\\frac{R T}{N} \\{ \\lg J + n \\lg V^* \\}"
+    display: true
+    equationId: "eq-s2-d11"
+  - kind: "text"
+    text: "und"
+  - kind: "math"
+    latex: "p = -\\frac{\\partial F}{\\partial V^*} = \\frac{R T}{V^*} \\frac{n}{N} = \\frac{R T}{N} \\nu."
+    display: true
+    equationId: "eq-s2-d12"
+sentenceSpans:
+  - id: "s2-p7-s1"
+    span:
+      start: 0
+      end: 85
+      blockRevision: 1
+      textDigest: "3d8c98c03540b3b020aab74bcb043748b2e88b8d68ec2a145dcf2356d440a2d9"
+  - id: "s2-p7-s2"
+    span:
+      start: 86
+      end: 127
+      blockRevision: 1
+      textDigest: "3d8c98c03540b3b020aab74bcb043748b2e88b8d68ec2a145dcf2356d440a2d9"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"
