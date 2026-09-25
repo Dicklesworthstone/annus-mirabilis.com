@@ -137,7 +137,13 @@ test("Brownian DoD Item 4: results and misconceptions status", async () => {
   const misconceptionsExist = fs.existsSync(misconceptionsDir);
   const resultsCardsExist = fs.existsSync(resultsCardsDir);
 
-  assert.equal(misconceptionsExist, false, "Misconceptions ledger unauthored");
+  // A property, not a census: the ledger was unauthored until dispatch 219 began it, and once it
+  // exists AGENTS.md requires at least five typed entries (the epistemic misconception-minimum).
+  const misconceptionCount = misconceptionsExist
+    ? fs.readdirSync(misconceptionsDir).filter((f) => f.endsWith(".json")).length
+    : 0;
+  if (misconceptionsExist)
+    assert.ok(misconceptionCount >= 5, "A misconception ledger has at least five entries");
   assert.equal(resultsCardsExist, false, "Results face cards unauthored");
 
   suiteLogger.log({
@@ -146,11 +152,12 @@ test("Brownian DoD Item 4: results and misconceptions status", async () => {
     paper: "brownian-motion",
     outcome: "passed",
     durationMs: Date.now() - startTime,
-    message: "Verified Item 4: results cards and misconception ledger unauthored (open beads).",
+    message: `Verified Item 4: misconception ledger ${misconceptionsExist ? `with ${misconceptionCount} entries` : "unauthored"}; results cards unauthored (open beads).`,
     extra: {
       item: "4. Results and misconceptions",
       check: "content-records",
       misconceptionsPresent: misconceptionsExist,
+      misconceptionCount,
       resultsCardsPresent: resultsCardsExist,
     },
   });
