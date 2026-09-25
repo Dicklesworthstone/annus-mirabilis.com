@@ -29,6 +29,9 @@ const checked = (u: TranslationUnit): TranslationUnit => ({
   },
 });
 const ALL = FIXTURE_BROWNIAN_TRANSLATION_UNITS.map(checked);
+// The fixture's translator is a person; these are the same units as translated by an AI model.
+const TRANSLATOR = agent("Translator");
+const BY_AGENT = ALL.map((u) => ({ ...u, translator: TRANSLATOR }));
 const MIXED = FIXTURE_BROWNIAN_TRANSLATION_UNITS.map((u, i) => (i === 0 ? checked(u) : u));
 
 describe("a translation checked by AI agents", () => {
@@ -41,18 +44,52 @@ describe("a translation checked by AI agents", () => {
   });
 
   test("the summary names the translator and the reviewing agents, and claims no person", () => {
-    const s = translationReviewSummary(ALL);
+    const s = translationReviewSummary(BY_AGENT);
     expect(s.agentChecked).toBe(true);
     expect(s.title).toBe("Translated and checked by AI agents");
+    expect(s.message).toContain("Translator translated this from the German.");
     expect(s.message).toContain("TopazPrairie and TanElk");
-    expect(s.message).toContain("No person has reviewed it.");
+    expect(s.message).toContain("one review round each. No person has reviewed it.");
+  });
+
+  test("reviewers of the translating model are called sessions of the same model", () => {
+    expect(translationReviewSummary(BY_AGENT).message).toContain(
+      "TopazPrairie and TanElk, further sessions of the same AI model, checked all",
+    );
+  });
+
+  test("a reviewer of another model makes them other AI agents, not the same model", () => {
+    const other = BY_AGENT.map((u) => ({
+      ...u,
+      agentReview: {
+        basis: AGENT_REVIEW_BASIS,
+        rounds: [
+          { reviewer: agent("TopazPrairie"), date: "2026-09-25" },
+          { reviewer: { ...agent("TanElk"), modelId: "another-model" }, date: "2026-09-25" },
+        ],
+      },
+    }));
+    const m = translationReviewSummary(other).message;
+    expect(m).toContain("TopazPrairie and TanElk, other AI agents, checked all");
+    expect(m).not.toContain("same AI model");
+  });
+
+  test("a person's translation checked by agents is never said to be translated by AI", () => {
+    const s = translationReviewSummary(ALL);
+    expect(s.agentChecked).toBe(true);
+    expect(s.title).toBe("Checked by AI agents");
+    // The fixture mixes a person and a model as translators, so not every translator is AI.
+    expect(s.message).toContain("A translation made from the German by Fixture Translator");
+    expect(s.message).toContain("TopazPrairie and TanElk, AI agents, checked all");
+    expect(s.message).not.toContain("same AI model");
+    expect(s.message).not.toContain("translated this");
   });
 
   test("the English face shows the agent notice, not the unreviewed banner", () => {
     const html = renderToStaticMarkup(
       <EnglishFace
         paper={FIXTURE_BROWNIAN_PAPER}
-        units={ALL}
+        units={BY_AGENT}
         alignment={FIXTURE_BROWNIAN_ALIGNMENT}
         reviewRecords={[]}
       />,

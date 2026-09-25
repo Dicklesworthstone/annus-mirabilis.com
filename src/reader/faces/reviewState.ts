@@ -232,8 +232,33 @@ export function translationReviewSummary(
     title = "Translation partly reviewed";
     message = `A translation made from the German by ${by}. ${reviewed} of its ${total} ${counted} ${reviewed === 1 ? "has" : "have"} been reviewed against the German${reviewers.length > 0 ? ` by ${listed(reviewers)}` : ""}; the other ${unreviewed} ${unreviewed === 1 ? "is an unreviewed draft" : "are unreviewed drafts"}, and each unit whose state differs from the rest is marked where it stands.`;
   } else if (total > 0 && badges.every((b) => b.label === "Checked by AI agents")) {
-    title = "Translated and checked by AI agents";
-    message = `An AI agent, ${by}, translated this from the German. Other AI agents, ${listed(reviewers)}, then checked all ${total} ${counted} against the German and the printed pages, in independent review rounds. No person has reviewed it.`;
+    // Each claim follows the records: "translated by AI" only when every translator is a model,
+    // and "the same AI model" only when every reviewer shares its unit's translating model.
+    // "Fresh eyes" then means a separate session, not a different model, and the reader is told.
+    const translatedByAgents = units.every((u) => u.translator?.kind === "model");
+    const agents = unique(
+      units.flatMap(
+        (u) => u.agentReview?.rounds.map((r) => r.reviewer.name || r.reviewer.id) ?? [],
+      ),
+    );
+    const sameModel =
+      translatedByAgents &&
+      units.every(
+        (u) =>
+          typeof u.translator?.modelId === "string" &&
+          (u.agentReview?.rounds ?? []).every((r) => r.reviewer.modelId === u.translator.modelId),
+      );
+    const one = agents.length === 1;
+    const who = sameModel
+      ? `${one ? "a further session" : "further sessions"} of the same AI model`
+      : translatedByAgents
+        ? `${one ? "another AI agent" : "other AI agents"}`
+        : `${one ? "an AI agent" : "AI agents"}`;
+    title = translatedByAgents ? "Translated and checked by AI agents" : "Checked by AI agents";
+    const made = translatedByAgents
+      ? `${by} translated this from the German.`
+      : `A translation made from the German by ${by}.`;
+    message = `${made} Then ${listed(agents)}, ${who}, checked all ${total} ${counted} against the German and the printed pages, one review round each. No person has reviewed it.`;
   } else {
     title = "Reviewed translation";
     message = `A translation made from the German by ${by}, all ${total} ${counted} reviewed against the German${reviewers.length > 0 ? ` by ${listed(reviewers)}` : ""}.`;
