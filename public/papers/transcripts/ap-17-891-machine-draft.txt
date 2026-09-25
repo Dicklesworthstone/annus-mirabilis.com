@@ -13,7 +13,7 @@ Beispiele ähnlicher Art, sowie die mißlungenen Versuche, eine Bewegung der Erd
 
 Voraussetzung einführen, daß sich das Licht im leeren Raume stets mit einer bestimmten, vom Bewegungszustande des emittierenden Körpers unabhängigen Geschwindigkeit $V$ fortpflanze. Diese beiden Voraussetzungen genügen, um zu einer einfachen und widerspruchsfreien Elektrodynamik bewegter Körper zu gelangen unter Zugrundelegung der [[SPERR]]Maxwell[[/SPERR]]schen Theorie für ruhende Körper. Die Einführung eines „Lichtäthers“ wird sich insofern als überflüssig erweisen, als nach der zu entwickelnden Auffassung weder ein mit besonderen Eigenschaften ausgestatteter „absolut ruhender Raum“ eingeführt, noch einem Punkte des leeren Raumes, in welchem elektromagnetische Prozesse stattfinden, ein Geschwindigkeitsvektor zugeordnet wird.
 
-Die zu entwickelnde Theorie stützt sich — wie jede andere Elektrodynamik — auf die Kinematik der starren Körper, da die Aussagen einer jeden Theorie Beziehungen zwischen starren Körpern (Koordinatensystemen), Uhren und elektromagnetischen Prozessen betreffen. Die nicht genügende Berücksichtigung dieses Umstandes ist die Wurzel der Schwierigkeiten, mit denen die Elektrodynamik bewegter Körper gegenwärtig zu kämpfen hat.
+Die zu entwickelnde Theorie stützt sich — wie jede andere Elektrodynamik — auf die Kinematik des starren Körpers, da die Aussagen einer jeden Theorie Beziehungen zwischen starren Körpern (Koordinatensystemen), Uhren und elektromagnetischen Prozessen betreffen. Die nicht genügende Berücksichtigung dieses Umstandes ist die Wurzel der Schwierigkeiten, mit denen die Elektrodynamik bewegter Körper gegenwärtig zu kämpfen hat.
 
 [[PART-HEADING part-1]]I. Kinematischer Teil.
 
@@ -603,7 +603,7 @@ Es folgt aus den entwickelten Gleichungen, daß für einen Beobachter, der sich 
 
 [[HEADING s8]]§ 8. Transformation der Energie der Lichtstrahlen. Theorie des auf vollkommene Spiegel ausgeübten Strahlungsdruckes.
 
-Da $A^2/8\pi$ gleich der Lichtenergie pro Volumeneinheit ist, so haben wir nach dem Relativitätsprinzip $A'^2/8\pi$ als die Lichtenergie im bewegten System zu betrachten. Es wäre daher $A'^2/A^2$ das Verhältnis der „bewegt gemessenen“ und „ruhend gemessenen“ Energie eines bestimmten Lichtkomplexes, wenn das Volumen eines Lichtkomplexes in $K$ gemessen und in $k$ gemessen das gleiche wäre. Dies ist jedoch nicht der Fall. Sind $a, b, c$ die Richtungskosinus der Wellennormalen des Lichtes im ruhenden System, so wandert durch die Oberflächenelemente der mit Lichtgeschwindigkeit bewegten Kugelfläche
+Da $A^2/8\pi$ gleich der Lichtenergie pro Volumeneinheit ist, so haben wir nach dem Relativitätsprinzip $A'^2/8\pi$ als die Lichtenergie im bewegten System zu betrachten. Es wäre daher $A'^2/A^2$ das Verhältnis der „bewegt gemessenen“ und „ruhend gemessenen“ Energie eines bestimmten Lichtkomplexes, wenn das Volumen eines Lichtkomplexes in $K$ gemessen und in $k$ gemessen das gleiche wäre. Dies ist jedoch nicht der Fall. Sind $a$, $b$, $c$ die Richtungskosinus der Wellennormalen des Lichtes im ruhenden System, so wandert durch die Oberflächenelemente der mit Lichtgeschwindigkeit bewegten Kugelfläche
 $$
 (x - V a t)^2 + (y - V b t)^2 + (z - V c t)^2 = R^2
 $$
@@ -625,6 +625,35 @@ $$
 
 --- MACHINE DRAFT TRANSCRIPTION PAGE 24 OF 31 ---
 [[ANNALEN-PAGE 914]]
+
+welche Formel für $\varphi = 0$ in die einfachere übergeht:
+$$
+\frac{E'}{E} = \sqrt{\frac{1 - \frac{v}{V}}{1 + \frac{v}{V}}} .
+$$
+
+Es ist bemerkenswert, daß die Energie und die Frequenz eines Lichtkomplexes sich nach demselben Gesetze mit dem Bewegungszustande des Beobachters ändern.
+
+Es sei nun die Koordinatenebene $\xi = 0$ eine vollkommen spiegelnde Fläche, an welcher die im letzten Paragraph betrachteten ebenen Wellen reflektiert werden. Wir fragen nach dem auf die spiegelnde Fläche ausgeübten Lichtdruck und nach der Richtung, Frequenz und Intensität des Lichtes nach der Reflexion.
+
+Das einfallende Licht sei durch die Größen $A$, $\cos \varphi$, $\nu$ (auf das System $K$ bezogen) definiert. Von $k$ aus betrachtet sind die entsprechenden Größen:
+$$
+A' = A \frac{1 - \frac{v}{V} \cos \varphi}{\sqrt{1 - \left( \frac{v}{V} \right)^2}} ,
+$$
+$$
+\cos \varphi' = \frac{\cos \varphi - \frac{v}{V}}{1 - \frac{v}{V} \cos \varphi} ,
+$$
+$$
+\nu' = \nu \frac{1 - \frac{v}{V} \cos \varphi}{\sqrt{1 - \left( \frac{v}{V} \right)^2}} .
+$$
+Für das reflektierte Licht erhalten wir, wenn wir den Vorgang auf das System $k$ beziehen:
+$$
+\begin{aligned}
+A'' &= A' , \\
+\cos \varphi'' &= - \cos \varphi' , \\
+\nu'' &= \nu' .
+\end{aligned}
+$$
+Endlich erhält man durch Rücktransformieren aufs ruhende System $K$ für das reflektierte Licht:[[CONTINUES]]
 
 --- MACHINE DRAFT TRANSCRIPTION PAGE 25 OF 31 ---
 [[ANNALEN-PAGE 915]]
