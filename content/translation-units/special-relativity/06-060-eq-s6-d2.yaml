@@ -1,0 +1,22 @@
+# TranslationUnit eq-s6-d2: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "eq-s6-d2"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "eq-s6-d2"
+inlines:
+  - kind: "math"
+    latex: "\\begin{aligned} \\frac{1}{V} \\frac{\\partial X}{\\partial \\tau} &= \\frac{\\partial \\beta \\left( N - \\frac{v}{V} Y \\right)}{\\partial \\eta} - \\frac{\\partial \\beta \\left( M + \\frac{v}{V} Z \\right)}{\\partial \\zeta} , \\\\ \\frac{1}{V} \\frac{\\partial \\beta \\left( Y - \\frac{v}{V} N \\right)}{\\partial \\tau} &= \\frac{\\partial L}{\\partial \\zeta} - \\frac{\\partial \\beta \\left( N - \\frac{v}{V} Y \\right)}{\\partial \\xi} , \\\\ \\frac{1}{V} \\frac{\\partial \\beta \\left( Z + \\frac{v}{V} M \\right)}{\\partial \\tau} &= \\frac{\\partial \\beta \\left( M + \\frac{v}{V} Z \\right)}{\\partial \\xi} - \\frac{\\partial L}{\\partial \\eta} , \\\\ \\frac{1}{V} \\frac{\\partial L}{\\partial \\tau} &= \\frac{\\partial \\beta \\left( Y - \\frac{v}{V} N \\right)}{\\partial \\zeta} - \\frac{\\partial \\beta \\left( Z + \\frac{v}{V} M \\right)}{\\partial \\eta} , \\\\ \\frac{1}{V} \\frac{\\partial \\beta \\left( M + \\frac{v}{V} Z \\right)}{\\partial \\tau} &= \\frac{\\partial \\beta \\left( Z + \\frac{v}{V} M \\right)}{\\partial \\xi} - \\frac{\\partial X}{\\partial \\zeta} , \\\\ \\frac{1}{V} \\frac{\\partial \\beta \\left( N - \\frac{v}{V} Y \\right)}{\\partial \\tau} &= \\frac{\\partial X}{\\partial \\eta} - \\frac{\\partial \\beta \\left( Y - \\frac{v}{V} N \\right)}{\\partial \\xi} , \\end{aligned}"
+    equationId: "eq-s6-d2"
+translator:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

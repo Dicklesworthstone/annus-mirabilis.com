@@ -1,0 +1,29 @@
+# SourceBlock s6-p10: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s6-p10"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s6"
+order: 127
+locators:
+  - pdfPageIndex: 20
+    printedPage: 910
+diplomaticText: "2. Ist ein punktförmiger elektrischer Einheitspol in einem elektromagnetischen Felde bewegt, so ist die auf ihn wirkende Kraft gleich der an dem Orte des Einheitspoles vorhandenen elektrischen Kraft, welche man durch Transformation des Feldes auf ein relativ zum elektrischen Einheitspol ruhendes Koordinatensystem erhält. (Neue Ausdrucksweise.)"
+inlines:
+  - kind: "text"
+    text: "2. Ist ein punktförmiger elektrischer Einheitspol in einem elektromagnetischen Felde bewegt, so ist die auf ihn wirkende Kraft gleich der an dem Orte des Einheitspoles vorhandenen elektrischen Kraft, welche man durch Transformation des Feldes auf ein relativ zum elektrischen Einheitspol ruhendes Koordinatensystem erhält. (Neue Ausdrucksweise.)"
+sentenceSpans:
+  - id: "s6-p10-s1"
+    span:
+      start: 0
+      end: 345
+      blockRevision: 1
+      textDigest: "703887f8dedf53addb609cc4e07b58015d18ba5d92973f35e9bf482a8c8afaa3"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

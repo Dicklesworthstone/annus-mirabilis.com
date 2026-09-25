@@ -1,0 +1,63 @@
+# SourceBlock s6-p3: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s6-p3"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s6"
+order: 116
+locators:
+  - pdfPageIndex: 18
+    printedPage: 908
+diplomaticText: "Das Relativitätsprinzip fordert nun, daß die Maxwell-Hertzschen Gleichungen für den leeren Raum auch im System k gelten, wenn sie im System K gelten, d. h. daß für die im bewegten System k durch ihre ponderomotorischen Wirkungen auf elektrische bez. magnetische Massen definierten Vektoren der elektrischen und magnetischen Kraft ((X', Y' Z') und (L', M', N')) des bewegten Systems k die Gleichungen gelten:"
+inlines:
+  - kind: "text"
+    text: "Das Relativitätsprinzip fordert nun, daß die "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Maxwell-Hertz"
+  - kind: "text"
+    text: "schen Gleichungen für den leeren Raum auch im System "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " gelten, wenn sie im System "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " gelten, d. h. daß für die im bewegten System "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " durch ihre ponderomotorischen Wirkungen auf elektrische bez. magnetische Massen definierten Vektoren der elektrischen und magnetischen Kraft ("
+  - kind: "math"
+    latex: "(X', Y' Z')"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "(L', M', N')"
+  - kind: "text"
+    text: ") des bewegten Systems "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " die Gleichungen gelten:"
+  - kind: "math"
+    latex: "\\begin{aligned} \\frac{1}{V} \\frac{\\partial X'}{\\partial \\tau} &= \\frac{\\partial N'}{\\partial \\eta} - \\frac{\\partial M'}{\\partial \\zeta} , &\\qquad \\frac{1}{V} \\frac{\\partial L'}{\\partial \\tau} &= \\frac{\\partial Y'}{\\partial \\zeta} - \\frac{\\partial Z'}{\\partial \\eta} , \\\\ \\frac{1}{V} \\frac{\\partial Y'}{\\partial \\tau} &= \\frac{\\partial L'}{\\partial \\zeta} - \\frac{\\partial N'}{\\partial \\xi} , &\\qquad \\frac{1}{V} \\frac{\\partial M'}{\\partial \\tau} &= \\frac{\\partial Z'}{\\partial \\xi} - \\frac{\\partial X'}{\\partial \\zeta} , \\\\ \\frac{1}{V} \\frac{\\partial Z'}{\\partial \\tau} &= \\frac{\\partial M'}{\\partial \\xi} - \\frac{\\partial L'}{\\partial \\eta} , &\\qquad \\frac{1}{V} \\frac{\\partial N'}{\\partial \\tau} &= \\frac{\\partial X'}{\\partial \\eta} - \\frac{\\partial Y'}{\\partial \\xi} . \\end{aligned}"
+    display: true
+    equationId: "eq-s6-d4"
+sentenceSpans:
+  - id: "s6-p3-s1"
+    span:
+      start: 0
+      end: 407
+      blockRevision: 1
+      textDigest: "f634bcf2df535667df0310170661bf425eb7f08b0c91047e3c590108cdee4486"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

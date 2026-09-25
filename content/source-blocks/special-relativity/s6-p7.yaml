@@ -1,0 +1,38 @@
+# SourceBlock s6-p7: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s6-p7"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s6"
+order: 128
+locators:
+  - pdfPageIndex: 20
+    printedPage: 910
+diplomaticText: "Analoges gilt über die „magnetomotorischen Kräfte“. Man sieht, daß in der entwickelten Theorie die elektromotorische Kraft nur die Rolle eines Hilfsbegriffes spielt, welcher seine Einführung dem Umstande verdankt, daß die elektrischen und magnetischen Kräfte keine von dem Bewegungszustande des Koordinatensystems unabhängige Existenz besitzen."
+inlines:
+  - kind: "text"
+    text: "Analoges gilt über die „magnetomotorischen Kräfte“."
+  - kind: "space"
+  - kind: "text"
+    text: "Man sieht, daß in der entwickelten Theorie die elektromotorische Kraft nur die Rolle eines Hilfsbegriffes spielt, welcher seine Einführung dem Umstande verdankt, daß die elektrischen und magnetischen Kräfte keine von dem Bewegungszustande des Koordinatensystems unabhängige Existenz besitzen."
+sentenceSpans:
+  - id: "s6-p7-s1"
+    span:
+      start: 0
+      end: 51
+      blockRevision: 1
+      textDigest: "e029084fdb89b86b6fdb670a0fd282e2bfa8194139b4ab9bb3a2c86804649e99"
+  - id: "s6-p7-s2"
+    span:
+      start: 52
+      end: 344
+      blockRevision: 1
+      textDigest: "e029084fdb89b86b6fdb670a0fd282e2bfa8194139b4ab9bb3a2c86804649e99"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,89 @@
+# SourceBlock s6-p4: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s6-p4"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s6"
+order: 118
+locators:
+  - pdfPageIndex: 18
+    printedPage: 908
+diplomaticText: "Offenbar müssen nun die beiden für das System k gefundenen Gleichungssysteme genau dasselbe ausdrücken, da beide Gleichungssysteme den Maxwell-Hertzschen Gleichungen für das System K äquivalent sind. Da die Gleichungen beider Systeme ferner bis auf die die Vektoren darstellenden Symbole übereinstimmen, so folgt, daß die in den Gleichungssystemen an entsprechenden Stellen auftretenden Funktionen bis auf einen für alle Funktionen des einen Gleichungssystems gemeinsamen, von \\xi, \\eta, \\zeta und \\tau unabhängigen, eventuell von v abhängigen Faktor \\psi(v) übereinstimmen müssen. Es gelten also die Beziehungen:"
+inlines:
+  - kind: "text"
+    text: "Offenbar müssen nun die beiden für das System "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " gefundenen Gleichungssysteme genau dasselbe ausdrücken, da beide Gleichungssysteme den "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Maxwell-Hertz"
+  - kind: "text"
+    text: "schen Gleichungen für das System "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " äquivalent sind."
+  - kind: "space"
+  - kind: "text"
+    text: "Da die Gleichungen beider Systeme ferner bis auf die die Vektoren darstellenden Symbole übereinstimmen, so folgt, daß die in den Gleichungssystemen an entsprechenden Stellen auftretenden Funktionen bis auf einen für alle Funktionen des einen Gleichungssystems gemeinsamen, von "
+  - kind: "math"
+    latex: "\\xi"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\eta"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\zeta"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "\\tau"
+  - kind: "text"
+    text: " unabhängigen, eventuell von "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " abhängigen Faktor "
+  - kind: "math"
+    latex: "\\psi(v)"
+  - kind: "text"
+    text: " übereinstimmen müssen."
+  - kind: "space"
+  - kind: "text"
+    text: "Es gelten also die Beziehungen:"
+  - kind: "math"
+    latex: "\\begin{aligned} X' &= \\psi(v) X , &\\qquad L' &= \\psi(v) L , \\\\ Y' &= \\psi(v) \\beta \\left( Y - \\frac{v}{V} N \\right) , &\\qquad M' &= \\psi(v) \\beta \\left( M + \\frac{v}{V} Z \\right) , \\\\ Z' &= \\psi(v) \\beta \\left( Z + \\frac{v}{V} M \\right) , &\\qquad N' &= \\psi(v) \\beta \\left( N - \\frac{v}{V} Y \\right) . \\end{aligned}"
+    display: true
+    equationId: "eq-s6-d5"
+sentenceSpans:
+  - id: "s6-p4-s1"
+    span:
+      start: 0
+      end: 199
+      blockRevision: 1
+      textDigest: "de93495556da6a8b1e997aa565715f0f7c8277b85c2a42f1b1c56a0e29ad90f5"
+  - id: "s6-p4-s2"
+    span:
+      start: 200
+      end: 581
+      blockRevision: 1
+      textDigest: "de93495556da6a8b1e997aa565715f0f7c8277b85c2a42f1b1c56a0e29ad90f5"
+  - id: "s6-p4-s3"
+    span:
+      start: 582
+      end: 613
+      blockRevision: 1
+      textDigest: "de93495556da6a8b1e997aa565715f0f7c8277b85c2a42f1b1c56a0e29ad90f5"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

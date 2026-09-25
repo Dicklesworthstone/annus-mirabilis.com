@@ -1,0 +1,28 @@
+# SourceBlock part-2: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "part-2"
+kind: "part-heading"
+paper: "special-relativity"
+order: 109
+locators:
+  - pdfPageIndex: 17
+    printedPage: 907
+diplomaticText: "II. Eektrodynamischer Teil."
+inlines:
+  - kind: "text"
+    text: "II. Eektrodynamischer Teil."
+sentenceSpans:
+  - id: "part-2"
+    span:
+      start: 0
+      end: 27
+      blockRevision: 1
+      textDigest: "bc9d6b4b73c6d8d186c4784e7a7614cee49067d6142b63eeb4c68bac4ffe81b6"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,28 @@
+# SourceBlock eq-s6-d2: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "eq-s6-d2"
+kind: "equation"
+paper: "special-relativity"
+section: "s6"
+order: 114
+locators:
+  - pdfPageIndex: 17
+    printedPage: 907
+  - pdfPageIndex: 18
+    printedPage: 908
+editorialLabel: "ed:s6-d2"
+containedIn: "s6-p2"
+diplomaticText: "\\begin{aligned} \\frac{1}{V} \\frac{\\partial X}{\\partial \\tau} &= \\frac{\\partial \\beta \\left( N - \\frac{v}{V} Y \\right)}{\\partial \\eta} - \\frac{\\partial \\beta \\left( M + \\frac{v}{V} Z \\right)}{\\partial \\zeta} , \\\\ \\frac{1}{V} \\frac{\\partial \\beta \\left( Y - \\frac{v}{V} N \\right)}{\\partial \\tau} &= \\frac{\\partial L}{\\partial \\zeta} - \\frac{\\partial \\beta \\left( N - \\frac{v}{V} Y \\right)}{\\partial \\xi} , \\\\ \\frac{1}{V} \\frac{\\partial \\beta \\left( Z + \\frac{v}{V} M \\right)}{\\partial \\tau} &= \\frac{\\partial \\beta \\left( M + \\frac{v}{V} Z \\right)}{\\partial \\xi} - \\frac{\\partial L}{\\partial \\eta} , \\\\ \\frac{1}{V} \\frac{\\partial L}{\\partial \\tau} &= \\frac{\\partial \\beta \\left( Y - \\frac{v}{V} N \\right)}{\\partial \\zeta} - \\frac{\\partial \\beta \\left( Z + \\frac{v}{V} M \\right)}{\\partial \\eta} , \\\\ \\frac{1}{V} \\frac{\\partial \\beta \\left( M + \\frac{v}{V} Z \\right)}{\\partial \\tau} &= \\frac{\\partial \\beta \\left( Z + \\frac{v}{V} M \\right)}{\\partial \\xi} - \\frac{\\partial X}{\\partial \\zeta} , \\\\ \\frac{1}{V} \\frac{\\partial \\beta \\left( N - \\frac{v}{V} Y \\right)}{\\partial \\tau} &= \\frac{\\partial X}{\\partial \\eta} - \\frac{\\partial \\beta \\left( Y - \\frac{v}{V} N \\right)}{\\partial \\xi} , \\end{aligned}"
+inlines:
+  - kind: "math"
+    latex: "\\begin{aligned} \\frac{1}{V} \\frac{\\partial X}{\\partial \\tau} &= \\frac{\\partial \\beta \\left( N - \\frac{v}{V} Y \\right)}{\\partial \\eta} - \\frac{\\partial \\beta \\left( M + \\frac{v}{V} Z \\right)}{\\partial \\zeta} , \\\\ \\frac{1}{V} \\frac{\\partial \\beta \\left( Y - \\frac{v}{V} N \\right)}{\\partial \\tau} &= \\frac{\\partial L}{\\partial \\zeta} - \\frac{\\partial \\beta \\left( N - \\frac{v}{V} Y \\right)}{\\partial \\xi} , \\\\ \\frac{1}{V} \\frac{\\partial \\beta \\left( Z + \\frac{v}{V} M \\right)}{\\partial \\tau} &= \\frac{\\partial \\beta \\left( M + \\frac{v}{V} Z \\right)}{\\partial \\xi} - \\frac{\\partial L}{\\partial \\eta} , \\\\ \\frac{1}{V} \\frac{\\partial L}{\\partial \\tau} &= \\frac{\\partial \\beta \\left( Y - \\frac{v}{V} N \\right)}{\\partial \\zeta} - \\frac{\\partial \\beta \\left( Z + \\frac{v}{V} M \\right)}{\\partial \\eta} , \\\\ \\frac{1}{V} \\frac{\\partial \\beta \\left( M + \\frac{v}{V} Z \\right)}{\\partial \\tau} &= \\frac{\\partial \\beta \\left( Z + \\frac{v}{V} M \\right)}{\\partial \\xi} - \\frac{\\partial X}{\\partial \\zeta} , \\\\ \\frac{1}{V} \\frac{\\partial \\beta \\left( N - \\frac{v}{V} Y \\right)}{\\partial \\tau} &= \\frac{\\partial X}{\\partial \\eta} - \\frac{\\partial \\beta \\left( Y - \\frac{v}{V} N \\right)}{\\partial \\xi} , \\end{aligned}"
+    equationId: "eq-s6-d2"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,22 @@
+# TranslationUnit eq-s6-d4: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "eq-s6-d4"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "eq-s6-d4"
+inlines:
+  - kind: "math"
+    latex: "\\begin{aligned} \\frac{1}{V} \\frac{\\partial X'}{\\partial \\tau} &= \\frac{\\partial N'}{\\partial \\eta} - \\frac{\\partial M'}{\\partial \\zeta} , &\\qquad \\frac{1}{V} \\frac{\\partial L'}{\\partial \\tau} &= \\frac{\\partial Y'}{\\partial \\zeta} - \\frac{\\partial Z'}{\\partial \\eta} , \\\\ \\frac{1}{V} \\frac{\\partial Y'}{\\partial \\tau} &= \\frac{\\partial L'}{\\partial \\zeta} - \\frac{\\partial N'}{\\partial \\xi} , &\\qquad \\frac{1}{V} \\frac{\\partial M'}{\\partial \\tau} &= \\frac{\\partial Z'}{\\partial \\xi} - \\frac{\\partial X'}{\\partial \\zeta} , \\\\ \\frac{1}{V} \\frac{\\partial Z'}{\\partial \\tau} &= \\frac{\\partial M'}{\\partial \\xi} - \\frac{\\partial L'}{\\partial \\eta} , &\\qquad \\frac{1}{V} \\frac{\\partial N'}{\\partial \\tau} &= \\frac{\\partial X'}{\\partial \\eta} - \\frac{\\partial Y'}{\\partial \\xi} . \\end{aligned}"
+    equationId: "eq-s6-d4"
+translator:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

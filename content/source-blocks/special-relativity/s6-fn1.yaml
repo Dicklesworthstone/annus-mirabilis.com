@@ -1,0 +1,46 @@
+# SourceBlock s6-fn1: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s6-fn1"
+kind: "footnote"
+paper: "special-relativity"
+section: "s6"
+order: 121
+locators:
+  - pdfPageIndex: 19
+    printedPage: 909
+originalLabel: "1)"
+diplomaticText: "Ist z. B. X = Y = Z = L = M = 0 und N \\neq 0, so ist aus Symmetriegründen klar, daß bei Zeichenwechsel von v ohne Änderung des numerischen Wertes auch Y' sein Vorzeichen ändern muß, ohne seinen numerischen Wert zu ändern."
+inlines:
+  - kind: "text"
+    text: "Ist z. B. "
+  - kind: "math"
+    latex: "X = Y = Z = L = M = 0"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "N \\neq 0"
+  - kind: "text"
+    text: ", so ist aus Symmetriegründen klar, daß bei Zeichenwechsel von "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " ohne Änderung des numerischen Wertes auch "
+  - kind: "math"
+    latex: "Y'"
+  - kind: "text"
+    text: " sein Vorzeichen ändern muß, ohne seinen numerischen Wert zu ändern."
+sentenceSpans:
+  - id: "s6-fn1"
+    span:
+      start: 0
+      end: 221
+      blockRevision: 1
+      textDigest: "ade942ed3606497cee64bdc70b0d640bb023db4fbdc41ba60cc601b87d58438e"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

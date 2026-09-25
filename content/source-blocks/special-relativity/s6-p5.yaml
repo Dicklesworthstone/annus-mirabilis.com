@@ -1,0 +1,139 @@
+# SourceBlock s6-p5: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s6-p5"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s6"
+order: 120
+locators:
+  - pdfPageIndex: 19
+    printedPage: 909
+diplomaticText: "Bildet man nun die Umkehrung dieses Gleichungssystems, erstens durch Auflösen der soeben erhaltenen Gleichungen, zweitens durch Anwendung der Gleichungen auf die inverse Transformation (von k auf K), welche durch die Geschwindigkeit -v charakterisiert ist, so folgt, indem man berücksichtigt, daß die beiden so erhaltenen Gleichungssysteme identisch sein müssen: Ferner folgt aus Symmetriegründen1) es ist also und unsere Gleichungen nehmen die Form an: Zur Interpretation dieser Gleichungen bemerken wir folgendes. Es liegt eine punktförmige Elektrizitätsmenge vor, welche im ruhenden System K gemessen von der Größe „eins“ sei, d. h. im ruhenden System ruhend auf eine gleiche Elektrizitätsmenge im Abstand 1 cm die Kraft 1 Dyn ausübe. Nach dem Relativitätsprinzip ist diese elektrische Masse auch im bewegten System gemessen von der Größe „eins“. Ruht diese Elektrizitätsmenge relativ zum ruhenden System, so ist definitionsgemäß der Vektor (X, Y, Z) gleich der auf sie wirkenden Kraft. Ruht die Elektrizitätsmenge gegenüber dem bewegten System (wenigstens in dem betreffenden Augenblick), so ist die auf sie wirkende, in dem bewegten System gemessene Kraft gleich dem Vektor (X', Y', Z'). Die ersten drei der obigen Gleichungen lassen sich mithin auf folgende zwei Weisen in Worte kleiden:"
+inlines:
+  - kind: "text"
+    text: "Bildet man nun die Umkehrung dieses Gleichungssystems, erstens durch Auflösen der soeben erhaltenen Gleichungen, zweitens durch Anwendung der Gleichungen auf die inverse Transformation (von "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " auf "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: "), welche durch die Geschwindigkeit "
+  - kind: "math"
+    latex: "-v"
+  - kind: "text"
+    text: " charakterisiert ist, so folgt, indem man berücksichtigt, daß die beiden so erhaltenen Gleichungssysteme identisch sein müssen:"
+  - kind: "math"
+    latex: "\\varphi(v) \\cdot \\varphi(-v) = 1 ."
+    display: true
+    equationId: "eq-s6-d6"
+  - kind: "space"
+  - kind: "text"
+    text: "Ferner folgt aus Symmetriegründen"
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s6-fn1"
+  - kind: "math"
+    latex: "\\varphi(v) = \\varphi(-v) ;"
+    display: true
+    equationId: "eq-s6-d7"
+  - kind: "text"
+    text: " es ist also"
+  - kind: "math"
+    latex: "\\varphi(v) = 1 ,"
+    display: true
+    equationId: "eq-s6-d8"
+  - kind: "text"
+    text: " und unsere Gleichungen nehmen die Form an:"
+  - kind: "math"
+    latex: "\\begin{aligned} X' &= X , &\\qquad L' &= L , \\\\ Y' &= \\beta \\left( Y - \\frac{v}{V} N \\right) , &\\qquad M' &= \\beta \\left( M + \\frac{v}{V} Z \\right) , \\\\ Z' &= \\beta \\left( Z + \\frac{v}{V} M \\right) , &\\qquad N' &= \\beta \\left( N - \\frac{v}{V} Y \\right) . \\end{aligned}"
+    display: true
+    equationId: "eq-s6-d9"
+  - kind: "space"
+  - kind: "text"
+    text: "Zur Interpretation dieser Gleichungen bemerken wir folgendes."
+  - kind: "space"
+  - kind: "text"
+    text: "Es liegt eine punktförmige Elektrizitätsmenge vor, welche im ruhenden System "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " gemessen von der Größe „eins“ sei, d. h. im ruhenden System ruhend auf eine gleiche Elektrizitätsmenge im Abstand 1 cm die Kraft 1 Dyn ausübe."
+  - kind: "space"
+  - kind: "text"
+    text: "Nach dem Relativitätsprinzip ist diese elektrische Masse auch im bewegten System gemessen von der Größe „eins“."
+  - kind: "space"
+  - kind: "text"
+    text: "Ruht diese Elektrizitätsmenge relativ zum ruhenden System, so ist definitionsgemäß der Vektor "
+  - kind: "math"
+    latex: "(X, Y, Z)"
+  - kind: "text"
+    text: " gleich der auf sie wirkenden Kraft."
+  - kind: "space"
+  - kind: "text"
+    text: "Ruht die Elektrizitätsmenge gegenüber dem bewegten System (wenigstens in dem betreffenden Augenblick), so ist die auf sie wirkende, in dem bewegten System gemessene Kraft gleich dem Vektor "
+  - kind: "math"
+    latex: "(X', Y', Z')"
+  - kind: "text"
+    text: "."
+  - kind: "space"
+  - kind: "text"
+    text: "Die ersten drei der obigen Gleichungen lassen sich mithin auf folgende zwei Weisen in Worte kleiden:"
+sentenceSpans:
+  - id: "s6-p5-s1"
+    span:
+      start: 0
+      end: 362
+      blockRevision: 1
+      textDigest: "1df9d43fe809529304196c885651d3ac58b9f110472413c76316394e57aa70fb"
+  - id: "s6-p5-s2"
+    span:
+      start: 363
+      end: 453
+      blockRevision: 1
+      textDigest: "1df9d43fe809529304196c885651d3ac58b9f110472413c76316394e57aa70fb"
+  - id: "s6-p5-s3"
+    span:
+      start: 454
+      end: 515
+      blockRevision: 1
+      textDigest: "1df9d43fe809529304196c885651d3ac58b9f110472413c76316394e57aa70fb"
+  - id: "s6-p5-s4"
+    span:
+      start: 516
+      end: 737
+      blockRevision: 1
+      textDigest: "1df9d43fe809529304196c885651d3ac58b9f110472413c76316394e57aa70fb"
+  - id: "s6-p5-s5"
+    span:
+      start: 738
+      end: 849
+      blockRevision: 1
+      textDigest: "1df9d43fe809529304196c885651d3ac58b9f110472413c76316394e57aa70fb"
+  - id: "s6-p5-s6"
+    span:
+      start: 850
+      end: 989
+      blockRevision: 1
+      textDigest: "1df9d43fe809529304196c885651d3ac58b9f110472413c76316394e57aa70fb"
+  - id: "s6-p5-s7"
+    span:
+      start: 990
+      end: 1192
+      blockRevision: 1
+      textDigest: "1df9d43fe809529304196c885651d3ac58b9f110472413c76316394e57aa70fb"
+  - id: "s6-p5-s8"
+    span:
+      start: 1193
+      end: 1293
+      blockRevision: 1
+      textDigest: "1df9d43fe809529304196c885651d3ac58b9f110472413c76316394e57aa70fb"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

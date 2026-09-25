@@ -1,0 +1,45 @@
+# TranslationUnit s6-p4-s2: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s6-p4-s2"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s6-p4-s2"
+inlines:
+  - kind: "text"
+    text: "Since, further, the equations of the two systems agree except for the symbols representing the vectors, it follows that the functions occurring at corresponding places in the systems of equations must agree up to a factor "
+  - kind: "math"
+    latex: "\\psi(v)"
+  - kind: "text"
+    text: " that is common to all the functions of the one system of equations, independent of "
+  - kind: "math"
+    latex: "\\xi"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\eta"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\zeta"
+  - kind: "text"
+    text: " and "
+  - kind: "math"
+    latex: "\\tau"
+  - kind: "text"
+    text: ", and possibly dependent on "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: "."
+translator:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"
