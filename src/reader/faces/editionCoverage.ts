@@ -21,16 +21,18 @@ type SectionedBlock = Pick<SourceBlock, "id" | "section" | "sentenceSpans">;
 /**
  * The paper's sections, in its own order, that no translation unit reaches. A unit reaches a
  * section when one of its source references names a block in that section or one of that block's
- * sentences. The masthead and part headings carry no section and reach none.
+ * sentences. A masthead reaches none, whatever section it carries, as in unglossedSections below:
+ * Brownian motion's frozen manifest files its title and author line under s0, and a translated
+ * title is not a translated introduction (dispatch 221). Part headings carry no section.
  */
 export function untranslatedSections(
   sectionIds: readonly string[],
-  blocks: readonly SectionedBlock[],
+  blocks: readonly (SectionedBlock & Partial<Pick<SourceBlock, "kind">>)[],
   units: readonly Pick<TranslationUnit, "sourceRefs">[],
 ): readonly string[] {
   const sectionOf = new Map<string, string>();
   for (const block of blocks) {
-    if (!block.section) continue;
+    if (!block.section || block.kind === "masthead") continue;
     sectionOf.set(block.id, block.section);
     for (const span of block.sentenceSpans ?? []) sectionOf.set(span.id, block.section);
   }

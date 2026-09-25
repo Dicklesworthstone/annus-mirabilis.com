@@ -103,6 +103,26 @@ describe("untranslatedSections", () => {
       untranslatedSections(["s0"], BLOCKS, [unit("masthead-title", "masthead-title", "On")]),
     ).toEqual(["s0"]);
   });
+  test("a masthead filed under s0 does not make a translated title a translated introduction", () => {
+    // Brownian motion's frozen manifest files its title and author line under s0, as a masthead
+    // block with section "s0". unglossedSections already excludes a masthead (749e4740); this
+    // counted a masthead unit as reaching s0, so a partial translation with only its title in
+    // English would not have named the introduction as untranslated (dispatch 221, 40225).
+    const masthead = {
+      ...block("masthead-title", "s0", "Über die Bewegung"),
+      kind: "masthead",
+    } as SourceBlock;
+    const title = [unit("masthead-title", "masthead-title", "On the Motion")];
+    expect(untranslatedSections(["s0", "s1"], [masthead, ...BLOCKS], title)).toEqual(["s0", "s1"]);
+    // The introduction's own English still reaches s0, with the masthead present.
+    expect(
+      untranslatedSections(
+        ["s0"],
+        [masthead, ...BLOCKS],
+        [...title, unit("s0-p1-s1", "s0-p1-s1", "That")],
+      ),
+    ).toEqual([]);
+  });
 });
 
 describe("sectionsLabel", () => {
