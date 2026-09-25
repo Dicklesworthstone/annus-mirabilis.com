@@ -3,7 +3,7 @@
 [[TITLE]]Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen;[[/TITLE]]
 [[AUTHOR]]von A. Einstein.[[/AUTHOR]]
 
-In dieser Arbeit soll gezeigt werden, daß nach der molekularkinetischen Theorie der Wärme in Flüssigkeiten suspendierte Körper von mikroskopisch sichtbarer Größe infolge der Molekularbewegung der Wärme Bewegungen von solcher Größe ausführen müssen, daß diese Bewegungen leicht mit dem Mikroskop nachgewiesen werden können. Es ist möglich, daß die hier zu behandelnden Bewegungen mit der sogenannten „Brownschen Molekularbewegung“ identisch sind; die mir erreichbaren Angaben über letztere sind jedoch so ungenau, daß ich mir hierüber kein Urteil bilden konnte.
+In dieser Arbeit soll gezeigt werden, daß nach der molekularkinetischen Theorie der Wärme in Flüssigkeiten suspendierte Körper von mikroskopisch sichtbarer Größe infolge der Molekularbewegung der Wärme Bewegungen von solcher Größe ausführen müssen, daß diese Bewegungen leicht mit dem Mikroskop nachgewiesen werden können. Es ist möglich, daß die hier zu behandelnden Bewegungen mit der sogenannten „[[SPERR]]Brown[[/SPERR]]schen Molekularbewegung“ identisch sind; die mir erreichbaren Angaben über letztere sind jedoch so ungenau, daß ich mir hierüber kein Urteil bilden konnte.
 
 Wenn sich die hier zu behandelnde Bewegung samt den für sie zu erwartenden Gesetzmäßigkeiten wirklich beobachten läßt, so ist die klassische Thermodynamik schon für mikroskopisch unterscheidbare Räume nicht mehr als genau gültig anzusehen und es ist dann eine exakte Bestimmung der wahren Atomgröße möglich. Erwiese sich umgekehrt die Voraussage dieser Bewegung als unzutreffend, so wäre damit ein schwerwiegendes Argument gegen die molekularkinetische Auffassung der Wärme gegeben.
 
@@ -54,11 +54,11 @@ Wir denken uns nun eine in dem Volumen $V$ eingeschlossene Flüssigkeit; in dem 
 
 Wäre nun auch das molekulare Bild bis in alle Einzelheiten festgelegt, so böte doch die Ausrechnung des Integrales $B$ solche Schwierigkeiten, daß an eine exakte Berechnung von $F$ kaum gedacht werden könnte. Wir brauchen jedoch hier nur zu wissen, wie $F$ von der Größe des Volumens $V^*$ abhängt, in welchem alle gelösten Moleküle bez. suspendierten Körper (im folgenden kurz „Teilchen“ genannt) enthalten sind.
 
-Wir nennen $x_1, y_1, z_1$ die rechtwinkligen Koordinaten des Schwerpunktes des ersten Teilchens, $x_2, y_2, z_2$ die des zweiten etc., $x_n, y_n, z_n$ die des letzten Teilchens und geben für die Schwerpunkte der Teilchen die unendlich kleinen parallelepipedförmigen Gebiete $d x_1 d y_1 d z_1, d x_2 d y_2 d z_2 \ldots d x_n d y_n d z_n$, welche alle in $V^*$ gelegen seien. Gesucht sei der Wert des im Ausdruck für $B$ auftretenden Integrales mit der Beschränkung, daß die Teilchenschwerpunkte in den ihnen soeben zugewiesenen Gebieten liegen. Dies Integral läßt sich jedenfalls auf die Form
+Wir nennen $x_1, y_1, z_1$ die rechtwinkligen Koordinaten des Schwerpunktes des ersten Teilchens, $x_2, y_2, z_2$ die des zweiten etc., $x_n, y_n, z_n$ die des letzten Teilchens und geben für die Schwerpunkte der Teilchen die unendlich kleinen parallelepipedförmigen Gebiete $d x_1 d y_1 d z_1, d x_2 d y_2 d z_2 \ldots d x_n d y_n d z_n$, welche alle in $V^*$ gelegen seien. Gesucht sei der Wert des im Ausdruck für $F$ auftretenden Integrales mit der Beschränkung, daß die Teilchenschwerpunkte in den ihnen soeben zugewiesenen Gebieten liegen. Dies Integral läßt sich jedenfalls auf die Form
 $$
 d B = d x_1 d y_1 \ldots d z_n \cdot J
 $$
-bringen, wobei $J$ von $d x_1 d y_1$ etc., sowie von $V^*$, d. h. von der Lage der semipermeabeln Wand, unabhängig ist. $J$ ist aber auch unabhängig von der speziellen Wahl [[EM]]der Lagen[[/EM]] der Schwerpunktsgebiete und von dem Werte von $V^*$, wie sogleich gezeigt werden soll. Sei nämlich ein zweites System von unendlich kleinen Gebieten für die Teilchenschwerpunkte gegeben und bezeichnet durch $d x'_1 d y'_1 d z'_1, d x'_2 d y'_2 d z'_2 \ldots d x'_n d y'_n d z'_n$, welche Gebiete sich von den ursprünglich gegebenen nur durch ihre Lage, nicht aber durch ihre Größe unterscheiden mögen und ebenfalls alle in $V^*$ enthalten seien, so gilt analog:
+bringen, wobei $J$ von $d x_1 d y_1$ etc., sowie von $V^*$, d. h. von der Lage der semipermeabeln Wand, unabhängig ist. $J$ ist aber auch unabhängig von der speziellen Wahl [[EM]]der Lagen[[/EM]] der Schwerpunktsgebiete und von dem Werte von $V^*$, wie sogleich gezeigt werden soll. Sei nämlich ein zweites System von unendlich kleinen Gebieten für die Teilchenschwerpunkte gegeben und bezeichnet durch $d x'_1 d y'_1 d z'_2, d x'_2 d y'_2 d z'_2 \ldots d x'_n d y'_n d z'_n$, welche Gebiete sich von den ursprünglich gegebenen nur durch ihre Lage, nicht aber durch ihre Größe unterscheiden mögen und ebenfalls alle in $V^*$ enthalten seien, so gilt analog:
 $$
 d B' = d x'_1 d y'_1 \ldots d z'_n \cdot J',
 $$
@@ -216,14 +216,14 @@ $$
 
 Ferner entwickeln wir $f(x + \Delta, t)$ nach Potenzen von $\Delta$:
 $$
-f(x + \Delta, t) = f(x, t) + \Delta \frac{\partial f(x, t)}{\partial x} + \frac{\Delta^2}{2!} \frac{\partial^2 f(x, t)}{\partial x^2} + \cdots \text{ in inf.}
+f(x + \Delta, t) = f(x, t) + \Delta \frac{\partial f(x, t)}{\partial x} + \frac{\Delta^2}{2!} \frac{\partial^2 f(x, t)}{\partial x^2} \ldots \text{ in inf.}
 $$
 
 Diese Entwicklung können wir unter dem Integral vornehmen, da zu letzterem nur sehr kleine Werte von $\Delta$ etwas beitragen. Wir erhalten:
 $$
 \begin{aligned}
 f + \frac{\partial f}{\partial t} \cdot \tau = f \cdot \int_{-\infty}^{+\infty} \varphi(\Delta) d \Delta &+ \frac{\partial f}{\partial x} \int_{-\infty}^{+\infty} \Delta \varphi(\Delta) d \Delta \\
-&+ \frac{\partial^2 f}{\partial x^2} \int_{-\infty}^{+\infty} \frac{\Delta^2}{2} \varphi(\Delta) d \Delta \cdots
+&+ \frac{\partial^2 f}{\partial x^2} \int_{-\infty}^{+\infty} \frac{\Delta^2}{2} \varphi(\Delta) d \Delta \ldots
 \end{aligned}
 $$
 
@@ -241,7 +241,7 @@ $$
 $$
 setzen und nur das erste und dritte Glied der rechten Seite berücksichtigen:
 $$
-\frac{\partial f}{\partial t} = D \frac{\partial^2 f}{\partial x^2}
+\frac{\partial f}{\partial t} = D \frac{\partial^2 f}{\partial x^2}.
 $$
 [[EQ-LABEL (1)]]
 
@@ -253,7 +253,7 @@ f(x, t) = 0 \quad \text{und} \quad \int_{-\infty}^{+\infty} f(x, t) d x = n
 $$
 sein. Das Problem, welches mit dem Problem der Diffusion von einem Punkte aus (unter Vernachlässigung der Wechselwirkung der diffundierenden Teilchen) übereinstimmt, ist nun mathematisch vollkommen bestimmt; seine Lösung ist:
 $$
-f(x, t) = \frac{n}{\sqrt{4 \pi D}} \frac{e^{-\frac{x^2}{4 D t}}}{\sqrt{t}}
+f(x, t) = \frac{n}{\sqrt{4 \pi D}} \frac{e^{-\frac{x^2}{4 D t}}}{\sqrt{t}}.
 $$
 
 Die Häufigkeitsverteilung der in einer beliebigen Zeit $t$ erfolgten Lagenänderungen ist also dieselbe wie die der zufälligen[[CONTINUES]]
@@ -261,7 +261,7 @@ Die Häufigkeitsverteilung der in einer beliebigen Zeit $t$ erfolgten Lagenände
 --- MACHINE DRAFT TRANSCRIPTION PAGE 11 OF 12 ---
 [[ANNALEN-PAGE 559]]
 
-fälligen Fehler, was zu vermuten war. Von Bedeutung aber ist, wie die Konstante im Exponenten mit dem Diffusionskoeffizienten zusammenhängt. Wir berechnen nun mit Hilfe dieser Gleichung die Verrückung $\lambda_x$ in Richtung der $X$-Achse, welche ein Teilchen im Mittel erfährt, oder — genauer ausgedrückt — die Wurzel aus dem arithmetischen Mittel der Quadrate der Verrückungen in Richtung der $X$-Achse; es ist:
+Fehler, was zu vermuten war. Von Bedeutung aber ist, wie die Konstante im Exponenten mit dem Diffusionskoeffizienten zusammenhängt. Wir berechnen nun mit Hilfe dieser Gleichung die Verrückung $\lambda_x$ in Richtung der $X$-Achse, welche ein Teilchen im Mittel erfährt, oder — genauer ausgedrückt — die Wurzel aus dem arithmetischen Mittel der Quadrate der Verrückungen in Richtung der $X$-Achse; es ist:
 $$
 \lambda_x = \sqrt{\overline{x^2}} = \sqrt{2 D t}.
 $$
