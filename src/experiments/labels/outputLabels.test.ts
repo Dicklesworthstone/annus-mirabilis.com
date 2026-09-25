@@ -44,7 +44,7 @@ async function outputContracts(): Promise<Map<string, Set<string>>> {
 }
 
 /** The papers whose outputs this table names in full so far; it grows a paper per commit. */
-const COVERED = /^(me|lq|sr)/;
+const COVERED = /^(me|lq|sr|bm0[1-6])/;
 
 describe("every lab output is named in words", () => {
   test("the enumeration reaches the labs' contracts", async () => {

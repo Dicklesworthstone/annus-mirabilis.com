@@ -99,7 +99,7 @@ describe("ModelNote", () => {
     // tracerPositions, whose owner differs.
     expect(outputItems.length).toBe(3);
     expect(outputItems.map(text)).toContain(
-      "Model second moment (modelSecondMoment), Model mean norm (modelMeanNorm) and Model RMS norm (modelRmsNorm): Host calculation, by the site's own reference code. Computed in diffusion.moments.",
+      "Model total mean square (modelSecondMoment), Model mean distance (modelMeanNorm) and Model RMS distance (modelRmsNorm): Host calculation, by the site's own reference code. Computed in diffusion.moments.",
     );
     for (const id of [
       "modelSecondMoment",
@@ -117,7 +117,9 @@ describe("ModelNote", () => {
     // around it replaced "Primary output <id>", "Owner <id>", "Model version", "Artifact digest",
     // "Constant set", "Stream-semantics version", "Accepted input revision" and "Snapshot version".
     const html = renderToStaticMarkup(createElement(ModelNote, { data: composite }));
-    expect(html).toContain("Tracer positions (<code>tracerPositions</code>)");
+    expect(html).toContain(
+      "Tracer positions at the end of the interval (<code>tracerPositions</code>)",
+    );
     expect(html).toContain("Computed with FrankenSim (brownian_frames).");
     expect(html).toContain("Computed in <code>fs-wasm.brownian_frames</code>.");
     expect(html).toContain(
@@ -322,7 +324,9 @@ describe("ModelNote", () => {
         const list = details.querySelector("ul.model-note-list");
         expect(list).not.toBeNull();
         expect(list?.querySelectorAll("li").length).toBeGreaterThanOrEqual(10);
-        expect(details.textContent).toContain("Tracer positions (tracerPositions)");
+        expect(details.textContent).toContain(
+          "Tracer positions at the end of the interval (tracerPositions)",
+        );
         expect(details.textContent).toContain("Computed with FrankenSim");
         expect(details.textContent).toContain(
           "Sample mean square (sampleMeanSquare) (secondary results)",
