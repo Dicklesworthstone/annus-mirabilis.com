@@ -1,0 +1,36 @@
+# SourceBlock s1-fn1: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1-fn1"
+kind: "footnote"
+paper: "light-quanta"
+section: "s1"
+order: 9
+locators:
+  - pdfPageIndex: 2
+    printedPage: 133
+originalLabel: "1)"
+diplomaticText: "Diese Annahme ist gleichbedeutend mit der Voraussetzung, daß die mittleren kinetischen Energien von Gasmolekülen und Elektronen bei Temperaturgleichgewicht einander gleich seien. Mit Hilfe letzterer Voraussetzung hat Hr. Drude bekanntlich das Verhältnis von thermischem und elektrischem Leitungsvermögen der Metalle auf theoretischem Wege abgeleitet."
+inlines:
+  - kind: "text"
+    text: "Diese Annahme ist gleichbedeutend mit der Voraussetzung, daß die mittleren kinetischen Energien von Gasmolekülen und Elektronen bei Temperaturgleichgewicht einander gleich seien. Mit Hilfe letzterer Voraussetzung hat Hr. "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Drude"
+  - kind: "text"
+    text: " bekanntlich das Verhältnis von thermischem und elektrischem Leitungsvermögen der Metalle auf theoretischem Wege abgeleitet."
+sentenceSpans:
+  - id: "s1-fn1"
+    span:
+      start: 0
+      end: 350
+      blockRevision: 1
+      textDigest: "431a6dbcadea24087d8a5e1b2617faf67d42cf16a415dbb1c149a1c1aca0b40a"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

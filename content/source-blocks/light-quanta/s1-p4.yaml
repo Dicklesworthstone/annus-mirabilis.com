@@ -1,0 +1,102 @@
+# SourceBlock s1-p4: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1-p4"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s1"
+order: 13
+locators:
+  - pdfPageIndex: 4
+    printedPage: 135
+diplomaticText: "Eine ähnliche Überlegung machen wir jetzt bezüglich der Wechselwirkung der Resonatoren und der im Raume vorhandenen Strahlung. Hr. Planck hat für diesen Fall die Bedingung des dynamischen Gleichgewichtes abgeleitet1) unter der Voraussetzung, daß die Strahlung als ein denkbar ungeordnetster Prozeß2) betrachtet werden kann. Er fand: \\overline{E}_\\nu ist hierbei die mittlere Energie eines Resonators von der Eigenfrequenz \\nu (pro Schwingungskomponente), L die Lichtgeschwindigkeit, \\nu die Frequenz und \\varrho_\\nu d \\nu die Energie pro Volumeinheit desjenigen Teiles der Strahlung, dessen Schwingungszahl zwischen \\nu und \\nu + d \\nu liegt."
+inlines:
+  - kind: "text"
+    text: "Eine ähnliche Überlegung machen wir jetzt bezüglich der Wechselwirkung der Resonatoren und der im Raume vorhandenen Strahlung."
+  - kind: "space"
+  - kind: "text"
+    text: "Hr. "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Planck"
+  - kind: "text"
+    text: " hat für diesen Fall die Bedingung des dynamischen Gleichgewichtes abgeleitet"
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s1-fn2"
+  - kind: "text"
+    text: " unter der Voraussetzung, daß die Strahlung als ein denkbar ungeordnetster Prozeß"
+  - kind: "footnote-mark"
+    mark: "2)"
+    footnoteId: "s1-fn3"
+  - kind: "text"
+    text: " betrachtet werden kann."
+  - kind: "space"
+  - kind: "text"
+    text: "Er fand:"
+  - kind: "math"
+    latex: "\\overline{E}_\\nu = \\frac{L^3}{8 \\pi \\nu^2} \\varrho_\\nu."
+    display: true
+    equationId: "eq-s1-d2"
+  - kind: "space"
+  - kind: "math"
+    latex: "\\overline{E}_\\nu"
+  - kind: "text"
+    text: " ist hierbei die mittlere Energie eines Resonators von der Eigenfrequenz "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: " (pro Schwingungskomponente), "
+  - kind: "math"
+    latex: "L"
+  - kind: "text"
+    text: " die Lichtgeschwindigkeit, "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: " die Frequenz und "
+  - kind: "math"
+    latex: "\\varrho_\\nu d \\nu"
+  - kind: "text"
+    text: " die Energie pro Volumeinheit desjenigen Teiles der Strahlung, dessen Schwingungszahl zwischen "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "\\nu + d \\nu"
+  - kind: "text"
+    text: " liegt."
+sentenceSpans:
+  - id: "s1-p4-s1"
+    span:
+      start: 0
+      end: 126
+      blockRevision: 1
+      textDigest: "8f2420aadb1f7f6b80d4666daf077db01a5f9eaa2a2248f5b21ee88aae3a304f"
+  - id: "s1-p4-s2"
+    span:
+      start: 127
+      end: 323
+      blockRevision: 1
+      textDigest: "8f2420aadb1f7f6b80d4666daf077db01a5f9eaa2a2248f5b21ee88aae3a304f"
+  - id: "s1-p4-s3"
+    span:
+      start: 324
+      end: 332
+      blockRevision: 1
+      textDigest: "8f2420aadb1f7f6b80d4666daf077db01a5f9eaa2a2248f5b21ee88aae3a304f"
+  - id: "s1-p4-s4"
+    span:
+      start: 333
+      end: 642
+      blockRevision: 1
+      textDigest: "8f2420aadb1f7f6b80d4666daf077db01a5f9eaa2a2248f5b21ee88aae3a304f"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,29 @@
+# SourceBlock s1: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1"
+kind: "heading"
+paper: "light-quanta"
+section: "s1"
+order: 7
+locators:
+  - pdfPageIndex: 2
+    printedPage: 133
+diplomaticText: "§ 1. Über eine die Theorie der „schwarzen Strahlung“ betreffende Schwierigkeit."
+inlines:
+  - kind: "text"
+    text: "§ 1. Über eine die Theorie der „schwarzen Strahlung“ betreffende Schwierigkeit."
+sentenceSpans:
+  - id: "s1"
+    span:
+      start: 0
+      end: 79
+      blockRevision: 1
+      textDigest: "6f0f24b607b4a4ac8c70f5dfc36ed264fe019b7b272466e056ff92c011ab29d5"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

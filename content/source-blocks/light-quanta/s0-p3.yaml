@@ -1,0 +1,38 @@
+# SourceBlock s0-p3: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s0-p3"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s0"
+order: 5
+locators:
+  - pdfPageIndex: 2
+    printedPage: 133
+diplomaticText: "Es scheint mir nun in der Tat, daß die Beobachtungen über die „schwarze Strahlung“, Photolumineszenz, die Erzeugung von Kathodenstrahlen durch ultraviolettes Licht und andere die Erzeugung bez. Verwandlung des Lichtes betreffende Erscheinungsgruppen besser verständlich erscheinen unter der Annahme, daß die Energie des Lichtes diskontinuierlich im Raume verteilt sei. Nach der hier ins Auge zu fassenden Annahme ist bei Ausbreitung eines von einem Punkte ausgehenden Lichtstrahles die Energie nicht kontinuierlich auf größer und größer werdende Räume verteilt, sondern es besteht dieselbe aus einer endlichen Zahl von in Raumpunkten lokalisierten Energiequanten, welche sich bewegen, ohne sich zu teilen und nur als Ganze absorbiert und erzeugt werden können."
+inlines:
+  - kind: "text"
+    text: "Es scheint mir nun in der Tat, daß die Beobachtungen über die „schwarze Strahlung“, Photolumineszenz, die Erzeugung von Kathodenstrahlen durch ultraviolettes Licht und andere die Erzeugung bez. Verwandlung des Lichtes betreffende Erscheinungsgruppen besser verständlich erscheinen unter der Annahme, daß die Energie des Lichtes diskontinuierlich im Raume verteilt sei."
+  - kind: "space"
+  - kind: "text"
+    text: "Nach der hier ins Auge zu fassenden Annahme ist bei Ausbreitung eines von einem Punkte ausgehenden Lichtstrahles die Energie nicht kontinuierlich auf größer und größer werdende Räume verteilt, sondern es besteht dieselbe aus einer endlichen Zahl von in Raumpunkten lokalisierten Energiequanten, welche sich bewegen, ohne sich zu teilen und nur als Ganze absorbiert und erzeugt werden können."
+sentenceSpans:
+  - id: "s0-p3-s1"
+    span:
+      start: 0
+      end: 368
+      blockRevision: 1
+      textDigest: "d18c5b92ab4676f89fcfd24998ecba3ad46fa625ca2db5b393d1cdc38933e92f"
+  - id: "s0-p3-s2"
+    span:
+      start: 369
+      end: 760
+      blockRevision: 1
+      textDigest: "d18c5b92ab4676f89fcfd24998ecba3ad46fa625ca2db5b393d1cdc38933e92f"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

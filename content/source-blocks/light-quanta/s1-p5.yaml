@@ -1,0 +1,63 @@
+# SourceBlock s1-p5: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1-p5"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s1"
+order: 20
+locators:
+  - pdfPageIndex: 5
+    printedPage: 136
+diplomaticText: "Soll die Strahlungsenergie von der Frequenz \\nu nicht beständig im Ganzen weder vermindert noch vermehrt werden, so muß gelten: Diese als Bedingung des dynamischen Gleichgewichtes gefundene Beziehung entbehrt nicht nur der Übereinstimmung mit der Erfahrung, sondern sie besagt auch, daß in unserem Bilde von einer bestimmten Energieverteilung zwischen Äther und Materie nicht die Rede sein kann. Je weiter nämlich der Schwingungszahlenbereich der Resonatoren gewählt wird, desto größer wird die Strahlungsenergie des Raumes, und wir erhalten in der Grenze"
+inlines:
+  - kind: "text"
+    text: "Soll die Strahlungsenergie von der Frequenz "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: " nicht beständig im Ganzen weder vermindert noch vermehrt werden, so muß gelten:"
+  - kind: "math"
+    latex: "\\frac{R}{N} T = \\overline{E} = \\overline{E}_\\nu = \\frac{L^3}{8 \\pi \\nu^2} \\varrho_\\nu,"
+    display: true
+    equationId: "eq-s1-d6"
+  - kind: "math"
+    latex: "\\varrho_\\nu = \\frac{R}{N} \\frac{8 \\pi \\nu^2}{L^3} T."
+    display: true
+    equationId: "eq-s1-d7"
+  - kind: "space"
+  - kind: "text"
+    text: "Diese als Bedingung des dynamischen Gleichgewichtes gefundene Beziehung entbehrt nicht nur der Übereinstimmung mit der Erfahrung, sondern sie besagt auch, daß in unserem Bilde von einer bestimmten Energieverteilung zwischen Äther und Materie nicht die Rede sein kann."
+  - kind: "space"
+  - kind: "text"
+    text: "Je weiter nämlich der Schwingungszahlenbereich der Resonatoren gewählt wird, desto größer wird die Strahlungsenergie des Raumes, und wir erhalten in der Grenze"
+  - kind: "math"
+    latex: "\\int_0^\\infty \\varrho_\\nu d \\nu = \\frac{R}{N} \\frac{8 \\pi}{L^3} T \\int_0^\\infty \\nu^2 d \\nu = \\infty."
+    display: true
+    equationId: "eq-s1-d8"
+sentenceSpans:
+  - id: "s1-p5-s1"
+    span:
+      start: 0
+      end: 127
+      blockRevision: 1
+      textDigest: "7a2bf803d74294298ba5840615086e39c2f49429daa698152dc19f18680626ad"
+  - id: "s1-p5-s2"
+    span:
+      start: 128
+      end: 395
+      blockRevision: 1
+      textDigest: "7a2bf803d74294298ba5840615086e39c2f49429daa698152dc19f18680626ad"
+  - id: "s1-p5-s3"
+    span:
+      start: 396
+      end: 555
+      blockRevision: 1
+      textDigest: "7a2bf803d74294298ba5840615086e39c2f49429daa698152dc19f18680626ad"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,74 @@
+# SourceBlock s0-p1: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s0-p1"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s0"
+order: 3
+locators:
+  - pdfPageIndex: 1
+    printedPage: 132
+diplomaticText: "Zwischen den theoretischen Vorstellungen, welche sich die Physiker über die Gase und andere ponderable Körper gebildet haben, und der Maxwellschen Theorie der elektromagnetischen Prozesse im sogenannten leeren Raume besteht ein tiefgreifender formaler Unterschied. Während wir uns nämlich den Zustand eines Körpers durch die Lagen und Geschwindigkeiten einer zwar sehr großen, jedoch endlichen Anzahl von Atomen und Elektronen für vollkommen bestimmt ansehen, bedienen wir uns zur Bestimmung des elektromagnetischen Zustandes eines Raumes kontinuierlicher räumlicher Funktionen, so daß also eine endliche Anzahl von Größen nicht als genügend anzusehen ist zur vollständigen Festlegung des elektromagnetischen Zustandes eines Raumes. Nach der Maxwellschen Theorie ist bei allen rein elektromagnetischen Erscheinungen, also auch beim Licht, die Energie als kontinuierliche Raumfunktion aufzufassen, während die Energie eines ponderabeln Körpers nach der gegenwärtigen Auffassung der Physiker als eine über die Atome und Elektronen erstreckte Summe darzustellen ist. Die Energie eines ponderabeln Körpers kann nicht in beliebig viele, beliebig kleine Teile zerfallen, während sich die Energie eines von einer punktförmigen Lichtquelle ausgesandten Lichtstrahles nach der Maxwellschen Theorie (oder allgemeiner nach jeder Undulationstheorie) des Lichtes auf ein stets wachsendes Volumen sich kontinuierlich verteilt."
+inlines:
+  - kind: "text"
+    text: "Zwischen den theoretischen Vorstellungen, welche sich die Physiker über die Gase und andere ponderable Körper gebildet haben, und der "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Maxwell"
+  - kind: "text"
+    text: "schen Theorie der elektromagnetischen Prozesse im sogenannten leeren Raume besteht ein tiefgreifender formaler Unterschied."
+  - kind: "space"
+  - kind: "text"
+    text: "Während wir uns nämlich den Zustand eines Körpers durch die Lagen und Geschwindigkeiten einer zwar sehr großen, jedoch endlichen Anzahl von Atomen und Elektronen für vollkommen bestimmt ansehen, bedienen wir uns zur Bestimmung des elektromagnetischen Zustandes eines Raumes kontinuierlicher räumlicher Funktionen, so daß also eine endliche Anzahl von Größen nicht als genügend anzusehen ist zur vollständigen Festlegung des elektromagnetischen Zustandes eines Raumes."
+  - kind: "space"
+  - kind: "text"
+    text: "Nach der "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Maxwell"
+  - kind: "text"
+    text: "schen Theorie ist bei allen rein elektromagnetischen Erscheinungen, also auch beim Licht, die Energie als kontinuierliche Raumfunktion aufzufassen, während die Energie eines ponderabeln Körpers nach der gegenwärtigen Auffassung der Physiker als eine über die Atome und Elektronen erstreckte Summe darzustellen ist."
+  - kind: "space"
+  - kind: "text"
+    text: "Die Energie eines ponderabeln Körpers kann nicht in beliebig viele, beliebig kleine Teile zerfallen, während sich die Energie eines von einer punktförmigen Lichtquelle ausgesandten Lichtstrahles nach der "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Maxwell"
+  - kind: "text"
+    text: "schen Theorie (oder allgemeiner nach jeder Undulationstheorie) des Lichtes auf ein stets wachsendes Volumen sich kontinuierlich verteilt."
+sentenceSpans:
+  - id: "s0-p1-s1"
+    span:
+      start: 0
+      end: 264
+      blockRevision: 1
+      textDigest: "63574ce639d3b34199ad17294837ce0118a79d43616aac2da22cf7a9f4c745f8"
+  - id: "s0-p1-s2"
+    span:
+      start: 265
+      end: 732
+      blockRevision: 1
+      textDigest: "63574ce639d3b34199ad17294837ce0118a79d43616aac2da22cf7a9f4c745f8"
+  - id: "s0-p1-s3"
+    span:
+      start: 733
+      end: 1063
+      blockRevision: 1
+      textDigest: "63574ce639d3b34199ad17294837ce0118a79d43616aac2da22cf7a9f4c745f8"
+  - id: "s0-p1-s4"
+    span:
+      start: 1064
+      end: 1412
+      blockRevision: 1
+      textDigest: "63574ce639d3b34199ad17294837ce0118a79d43616aac2da22cf7a9f4c745f8"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

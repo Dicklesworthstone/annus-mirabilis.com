@@ -1,0 +1,26 @@
+# SourceBlock eq-s1-d4: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "eq-s1-d4"
+kind: "equation"
+paper: "light-quanta"
+section: "s1"
+order: 18
+locators:
+  - pdfPageIndex: 4
+    printedPage: 135
+editorialLabel: "ed:s1-d4"
+containedIn: "s1-fn3"
+diplomaticText: "d W = f(A_1 A_2 \\ldots \\alpha_1 \\alpha_2 \\ldots) d A_1 d A_2 \\ldots d \\alpha_1 d \\alpha_2 \\ldots"
+inlines:
+  - kind: "math"
+    latex: "d W = f(A_1 A_2 \\ldots \\alpha_1 \\alpha_2 \\ldots) d A_1 d A_2 \\ldots d \\alpha_1 d \\alpha_2 \\ldots"
+    equationId: "eq-s1-d4"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

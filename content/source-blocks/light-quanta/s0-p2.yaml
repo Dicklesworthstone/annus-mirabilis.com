@@ -1,0 +1,40 @@
+# SourceBlock s0-p2: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s0-p2"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s0"
+order: 4
+locators:
+  - pdfPageIndex: 1
+    printedPage: 132
+  - pdfPageIndex: 2
+    printedPage: 133
+diplomaticText: "Die mit kontinuierlichen Raumfunktionen operierende Undulationstheorie des Lichtes hat sich zur Darstellung der rein optischen Phänomene vortrefflich bewährt und wird wohl nie durch eine andere Theorie ersetzt werden. Es ist jedoch im Auge zu behalten, daß sich die optischen Beobachtungen auf zeitliche Mittelwerte, nicht aber auf Momentanwerte beziehen, und es ist trotz der vollständigen Bestätigung der Theorie der Beugung, Reflexion, Brechung, Dispersion etc. durch das Experiment wohl denkbar, daß die mit kontinuierlichen Raumfunktionen operierende Theorie des Lichtes zu Widersprüchen mit der Erfahrung führt, wenn man sie auf die Erscheinungen der Lichterzeugung und Lichtverwandlung anwendet."
+inlines:
+  - kind: "text"
+    text: "Die mit kontinuierlichen Raumfunktionen operierende Undulationstheorie des Lichtes hat sich zur Darstellung der rein optischen Phänomene vortrefflich bewährt und wird wohl nie durch eine andere Theorie ersetzt werden."
+  - kind: "space"
+  - kind: "text"
+    text: "Es ist jedoch im Auge zu behalten, daß sich die optischen Beobachtungen auf zeitliche Mittelwerte, nicht aber auf Momentanwerte beziehen, und es ist trotz der vollständigen Bestätigung der Theorie der Beugung, Reflexion, Brechung, Dispersion etc. durch das Experiment wohl denkbar, daß die mit kontinuierlichen Raumfunktionen operierende Theorie des Lichtes zu Widersprüchen mit der Erfahrung führt, wenn man sie auf die Erscheinungen der Lichterzeugung und Lichtverwandlung anwendet."
+sentenceSpans:
+  - id: "s0-p2-s1"
+    span:
+      start: 0
+      end: 217
+      blockRevision: 1
+      textDigest: "4b87e7c2bdc502fbe00096b94243ecf77b94a25d6ce2e852bc9ebbb2fe60ed6f"
+  - id: "s0-p2-s2"
+    span:
+      start: 218
+      end: 702
+      blockRevision: 1
+      textDigest: "4b87e7c2bdc502fbe00096b94243ecf77b94a25d6ce2e852bc9ebbb2fe60ed6f"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

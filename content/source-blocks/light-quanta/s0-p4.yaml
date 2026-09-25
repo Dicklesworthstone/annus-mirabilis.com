@@ -1,0 +1,29 @@
+# SourceBlock s0-p4: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s0-p4"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s0"
+order: 6
+locators:
+  - pdfPageIndex: 2
+    printedPage: 133
+diplomaticText: "Im folgenden will ich den Gedankengang mitteilen und die Tatsachen anführen, welche mich auf diesen Weg geführt haben, in der Hoffnung, daß der darzulegende Gesichtspunkt sich einigen Forschern bei ihren Untersuchungen als brauchbar erweisen möge."
+inlines:
+  - kind: "text"
+    text: "Im folgenden will ich den Gedankengang mitteilen und die Tatsachen anführen, welche mich auf diesen Weg geführt haben, in der Hoffnung, daß der darzulegende Gesichtspunkt sich einigen Forschern bei ihren Untersuchungen als brauchbar erweisen möge."
+sentenceSpans:
+  - id: "s0-p4-s1"
+    span:
+      start: 0
+      end: 247
+      blockRevision: 1
+      textDigest: "183679918e2954f6e174028b8b73683b78df1ee78b48e7becadaa8c1423cbe30"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

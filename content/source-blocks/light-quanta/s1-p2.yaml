@@ -1,0 +1,35 @@
+# SourceBlock s1-p2: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1-p2"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s1"
+order: 10
+locators:
+  - pdfPageIndex: 3
+    printedPage: 134
+diplomaticText: "Nach der gegenwärtigen Ansicht über die Entstehung des Lichtes müßte die Strahlung im betrachteten Raume, welche unter Zugrundelegung der Maxwellschen Theorie für den Fall des dynamischen Gleichgewichtes gefunden wird, mit der „schwarzen Strahlung“ identisch sein — wenigstens wenn Resonatoren aller in Betracht zu ziehenden Frequenzen als vorhanden angesehen werden."
+inlines:
+  - kind: "text"
+    text: "Nach der gegenwärtigen Ansicht über die Entstehung des Lichtes müßte die Strahlung im betrachteten Raume, welche unter Zugrundelegung der "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Maxwell"
+  - kind: "text"
+    text: "schen Theorie für den Fall des dynamischen Gleichgewichtes gefunden wird, mit der „schwarzen Strahlung“ identisch sein — wenigstens wenn Resonatoren aller in Betracht zu ziehenden Frequenzen als vorhanden angesehen werden."
+sentenceSpans:
+  - id: "s1-p2-s1"
+    span:
+      start: 0
+      end: 367
+      blockRevision: 1
+      textDigest: "ee3bbef94cfdb33cf2803445155e0d2514d859e112e26d6ef4790df65df16d6a"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

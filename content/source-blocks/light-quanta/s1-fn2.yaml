@@ -1,0 +1,36 @@
+# SourceBlock s1-fn2: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1-fn2"
+kind: "footnote"
+paper: "light-quanta"
+section: "s1"
+order: 15
+locators:
+  - pdfPageIndex: 4
+    printedPage: 135
+originalLabel: "1)"
+diplomaticText: "M. Planck, Ann. d. Phys. 1. p. 99. 1900."
+inlines:
+  - kind: "text"
+    text: "M. "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Planck"
+  - kind: "text"
+    text: ", Ann. d. Phys. 1. p. 99. 1900."
+sentenceSpans:
+  - id: "s1-fn2"
+    span:
+      start: 0
+      end: 40
+      blockRevision: 1
+      textDigest: "8f44c133c0226226117d9b259bbba0062dda151a83c743a31b9ccabfc7752290"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,114 @@
+# SourceBlock s1-p3: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1-p3"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s1"
+order: 11
+locators:
+  - pdfPageIndex: 3
+    printedPage: 134
+  - pdfPageIndex: 4
+    printedPage: 135
+diplomaticText: "Wir sehen vorläufig von der von den Resonatoren emittierten und absorbierten Strahlung ab und fragen nach der der Wechselwirkung (den Zusammenstößen) von Molekülen und Elektronen entsprechenden Bedingung für das dynamische Gleichgewicht. Die kinetische Gastheorie liefert für letzteres die Bedingung, daß die mittlere lebendige Kraft eines Resonatorelektrons gleich der mittleren kinetischen Energie der fortschreitenden Bewegung eines Gasmoleküles sein muß. Zerlegen wir die Bewegung des Resonatorelektrons in drei aufeinander senkrechte Schwingungsbewegungen, so finden wir für den Mittelwert \\overline{E} der Energie einer solchen geradlinigen Schwingungsbewegung wobei R die absolute Gaskonstante, N die Anzahl der „wirklichen Moleküle“ in einem Grammäquivalent und T die absolute Temperatur bedeutet. Die Energie \\overline{E} ist nämlich wegen der Gleichheit der zeitlichen Mittelwerte von kinetischer und potentieller Energie des Resonators 2/3 mal so groß wie die lebendige Kraft eines freien, einatomigen Gasmoleküles. Würde nun durch irgend eine Ursache — in unserem Falle durch Strahlungsvorgänge — bewirkt, daß die Energie eines Resonators einen größeren oder kleineren zeitlichen Mittelwert als \\overline{E} besitzt, so würden die Zusammenstöße mit den freien Elektronen und Molekülen zu einer im Mittel von Null verschiedenen Energieabgabe an das Gas bez. Energieaufnahme von dem Gas führen. Es ist also in dem von uns betrachteten Falle dynamisches Gleichgewicht nur dann möglich, wenn jeder Resonator die mittlere Energie \\overline{E} besitzt."
+inlines:
+  - kind: "text"
+    text: "Wir sehen vorläufig von der von den Resonatoren emittierten und absorbierten Strahlung ab und fragen nach der der Wechselwirkung (den Zusammenstößen) von Molekülen und Elektronen entsprechenden Bedingung für das dynamische Gleichgewicht."
+  - kind: "space"
+  - kind: "text"
+    text: "Die kinetische Gastheorie liefert für letzteres die Bedingung, daß die mittlere lebendige Kraft eines Resonatorelektrons gleich der mittleren kinetischen Energie der fortschreitenden Bewegung eines Gasmoleküles sein muß."
+  - kind: "space"
+  - kind: "text"
+    text: "Zerlegen wir die Bewegung des Resonatorelektrons in drei aufeinander senkrechte Schwingungsbewegungen, so finden wir für den Mittelwert "
+  - kind: "math"
+    latex: "\\overline{E}"
+  - kind: "text"
+    text: " der Energie einer solchen geradlinigen Schwingungsbewegung"
+  - kind: "math"
+    latex: "\\overline{E} = \\frac{R}{N} T,"
+    display: true
+    equationId: "eq-s1-d1"
+  - kind: "text"
+    text: " wobei "
+  - kind: "math"
+    latex: "R"
+  - kind: "text"
+    text: " die absolute Gaskonstante, "
+  - kind: "math"
+    latex: "N"
+  - kind: "text"
+    text: " die Anzahl der „wirklichen Moleküle“ in einem Grammäquivalent und "
+  - kind: "math"
+    latex: "T"
+  - kind: "text"
+    text: " die absolute Temperatur bedeutet."
+  - kind: "space"
+  - kind: "text"
+    text: "Die Energie "
+  - kind: "math"
+    latex: "\\overline{E}"
+  - kind: "text"
+    text: " ist nämlich wegen der Gleichheit der zeitlichen Mittelwerte von kinetischer und potentieller Energie des Resonators "
+  - kind: "math"
+    latex: "2/3"
+  - kind: "text"
+    text: " mal so groß wie die lebendige Kraft eines freien, einatomigen Gasmoleküles."
+  - kind: "space"
+  - kind: "text"
+    text: "Würde nun durch irgend eine Ursache — in unserem Falle durch Strahlungsvorgänge — bewirkt, daß die Energie eines Resonators einen größeren oder kleineren zeitlichen Mittelwert als "
+  - kind: "math"
+    latex: "\\overline{E}"
+  - kind: "text"
+    text: " besitzt, so würden die Zusammenstöße mit den freien Elektronen und Molekülen zu einer im Mittel von Null verschiedenen Energieabgabe an das Gas bez. Energieaufnahme von dem Gas führen."
+  - kind: "space"
+  - kind: "text"
+    text: "Es ist also in dem von uns betrachteten Falle dynamisches Gleichgewicht nur dann möglich, wenn jeder Resonator die mittlere Energie "
+  - kind: "math"
+    latex: "\\overline{E}"
+  - kind: "text"
+    text: " besitzt."
+sentenceSpans:
+  - id: "s1-p3-s1"
+    span:
+      start: 0
+      end: 237
+      blockRevision: 1
+      textDigest: "084b22cf65fde2cce9fa4c2c7b3fce28e48ba69df2bad5c6baa80a69392f520d"
+  - id: "s1-p3-s2"
+    span:
+      start: 238
+      end: 458
+      blockRevision: 1
+      textDigest: "084b22cf65fde2cce9fa4c2c7b3fce28e48ba69df2bad5c6baa80a69392f520d"
+  - id: "s1-p3-s3"
+    span:
+      start: 459
+      end: 805
+      blockRevision: 1
+      textDigest: "084b22cf65fde2cce9fa4c2c7b3fce28e48ba69df2bad5c6baa80a69392f520d"
+  - id: "s1-p3-s4"
+    span:
+      start: 806
+      end: 1026
+      blockRevision: 1
+      textDigest: "084b22cf65fde2cce9fa4c2c7b3fce28e48ba69df2bad5c6baa80a69392f520d"
+  - id: "s1-p3-s5"
+    span:
+      start: 1027
+      end: 1404
+      blockRevision: 1
+      textDigest: "084b22cf65fde2cce9fa4c2c7b3fce28e48ba69df2bad5c6baa80a69392f520d"
+  - id: "s1-p3-s6"
+    span:
+      start: 1405
+      end: 1558
+      blockRevision: 1
+      textDigest: "084b22cf65fde2cce9fa4c2c7b3fce28e48ba69df2bad5c6baa80a69392f520d"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

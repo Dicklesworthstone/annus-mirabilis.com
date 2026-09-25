@@ -1,0 +1,69 @@
+# SourceBlock s1-p1: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s1-p1"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s1"
+order: 8
+locators:
+  - pdfPageIndex: 2
+    printedPage: 133
+  - pdfPageIndex: 3
+    printedPage: 134
+diplomaticText: "Wir stellen uns zunächst auf den Standpunkt der Maxwellschen Theorie und Elektronentheorie und betrachten folgenden Fall. In einem von vollkommen reflektierenden Wänden eingeschlossenen Raumes befinde sich eine Anzahl Gasmoleküle und Elektronen, welche freibeweglich sind und aufeinander konservative Kräfte ausüben, wenn sie einander sehr nahe kommen, d. h. miteinander wie Gasmoleküle nach der kinetischen Gastheorie zusammenstoßen können.1) Eine Anzahl Elektronen sei ferner an voneinander weit entfernte Punkte des Raumes gekettet durch nach diesen Punkten gerichtete, den Elongationen proportionale Kräfte. Auch diese Elektronen sollen mit den freien Molekülen und Elektronen in konservative Wechselwirkung treten, wenn ihnen letztere sehr nahe kommen. Wir nennen die an Raumpunkte geketteten Elektronen „Resonatoren“; sie senden elektromagnetische Wellen bestimmter Periode aus und absorbieren solche."
+inlines:
+  - kind: "text"
+    text: "Wir stellen uns zunächst auf den Standpunkt der "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Maxwell"
+  - kind: "text"
+    text: "schen Theorie und Elektronentheorie und betrachten folgenden Fall."
+  - kind: "space"
+  - kind: "text"
+    text: "In einem von vollkommen reflektierenden Wänden eingeschlossenen Raumes befinde sich eine Anzahl Gasmoleküle und Elektronen, welche freibeweglich sind und aufeinander konservative Kräfte ausüben, wenn sie einander sehr nahe kommen, d. h. miteinander wie Gasmoleküle nach der kinetischen Gastheorie zusammenstoßen können."
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s1-fn1"
+  - kind: "text"
+    text: " Eine Anzahl Elektronen sei ferner an voneinander weit entfernte Punkte des Raumes gekettet durch nach diesen Punkten gerichtete, den Elongationen proportionale Kräfte."
+  - kind: "space"
+  - kind: "text"
+    text: "Auch diese Elektronen sollen mit den freien Molekülen und Elektronen in konservative Wechselwirkung treten, wenn ihnen letztere sehr nahe kommen."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir nennen die an Raumpunkte geketteten Elektronen „Resonatoren“; sie senden elektromagnetische Wellen bestimmter Periode aus und absorbieren solche."
+sentenceSpans:
+  - id: "s1-p1-s1"
+    span:
+      start: 0
+      end: 121
+      blockRevision: 1
+      textDigest: "f3e0747f0b47feb9b591dc68702fba7b0deac9806a0f9c4439abd137b3589bbe"
+  - id: "s1-p1-s2"
+    span:
+      start: 122
+      end: 611
+      blockRevision: 1
+      textDigest: "f3e0747f0b47feb9b591dc68702fba7b0deac9806a0f9c4439abd137b3589bbe"
+  - id: "s1-p1-s3"
+    span:
+      start: 612
+      end: 757
+      blockRevision: 1
+      textDigest: "f3e0747f0b47feb9b591dc68702fba7b0deac9806a0f9c4439abd137b3589bbe"
+  - id: "s1-p1-s4"
+    span:
+      start: 758
+      end: 907
+      blockRevision: 1
+      textDigest: "f3e0747f0b47feb9b591dc68702fba7b0deac9806a0f9c4439abd137b3589bbe"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"
