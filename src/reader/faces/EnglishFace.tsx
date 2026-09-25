@@ -58,9 +58,20 @@ export function EnglishFace({
   // Review state is said once, here, from the units themselves (translationReviewSummary).
   const review = translationReviewSummary(units, reviewRecords);
 
-  // Get primary translator info from first unit if available
+  // Every translator the units record, in order of first appearance. A paper translated a part
+  // at a time by more than one agent credits each of them: the first unit's translator alone
+  // would sign the whole face with one name, including sections someone else translated.
+  const translatorNames = [
+    ...new Set(
+      units
+        .map((u) => u.translator?.name?.trim() || u.translator?.id?.trim())
+        .filter((name): name is string => Boolean(name)),
+    ),
+  ];
   const primaryTranslator =
-    units[0]?.translator?.name || units[0]?.translator?.id || "Translation team";
+    translatorNames.length <= 1
+      ? (translatorNames[0] ?? "Translation team")
+      : `${translatorNames.slice(0, -1).join(", ")} and ${translatorNames.at(-1)}`;
 
   return (
     <div

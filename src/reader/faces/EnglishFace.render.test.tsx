@@ -37,6 +37,33 @@ describe("EnglishFace render tests", () => {
     expect(html).toContain("Translated by Fixture Translator");
   });
 
+  test("a paper translated by two agents credits both, in the order their units first appear", () => {
+    // Relativity is translated a part at a time: GreenOx drafts Part I and GreenBarn Part II.
+    // The credit used to read the first unit's translator only, so the whole face was signed
+    // with one name, including sections the other agent translated. The translators are set
+    // here rather than read from the fixture, which already mixes two.
+    const first = { id: "agent:First", name: "First Translator", kind: "model" as const };
+    const second = { id: "agent:Second", name: "Second Translator", kind: "model" as const };
+    const n = FIXTURE_BROWNIAN_TRANSLATION_UNITS.length;
+    const render = (units: typeof FIXTURE_BROWNIAN_TRANSLATION_UNITS) =>
+      renderToStaticMarkup(
+        <EnglishFace
+          paper={FIXTURE_BROWNIAN_PAPER}
+          units={units}
+          alignment={FIXTURE_BROWNIAN_ALIGNMENT}
+          reviewRecords={FIXTURE_REVIEW_RECORDS}
+        />,
+      );
+    const two = FIXTURE_BROWNIAN_TRANSLATION_UNITS.map((u, i) => ({
+      ...u,
+      translator: i >= n - 2 ? second : first,
+    }));
+    expect(render(two)).toContain("Translated by First Translator and Second Translator<");
+    // One translator reads as one name, with no dangling "and".
+    const one = FIXTURE_BROWNIAN_TRANSLATION_UNITS.map((u) => ({ ...u, translator: first }));
+    expect(render(one)).toContain("Translated by First Translator<");
+  });
+
   test("renders unreviewed translation banner when draft units exist", () => {
     const html = renderToStaticMarkup(
       <EnglishFace
