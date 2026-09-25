@@ -10,8 +10,10 @@
 #   notQuantities  glyphs that name no quantity, each with its reason (also allowed once, file-wide).
 # Every letter in a display is bound or declared. Adding an entry needs no code change.
 # Paper 2's own letters: k is the viscosity (never Boltzmann's constant), P the particle radius,
-# ν a number density of particles (an index only in § 2's equations of motion), and φ the
-# transition kernel of § 4.
+# ν a number density of particles (an index only in § 2's equations of motion), φ the
+# transition kernel of § 4, and t plain time in §§ 2 and 4 (§ 4's clock reading of f(x, t)) but the
+# span in which the displacements occur from s4-p11 on (content/notation: bm.t.time,
+# bm.t.fieldTimeCoordinate, bm.t.elapsedTime).
 paper: brownian-motion
 # Glyphs that name no quantity in any display of this paper.
 notQuantities:
@@ -71,7 +73,7 @@ displays:
       - glyph: "p_\\nu"
         quantityId: stateVariable
       - glyph: "t"
-        quantityId: observationInterval
+        quantityId: elapsedTime
       - glyph: "\\varphi_\\nu"
         quantityId: stateVariableRate
       - glyph: "p_1"
@@ -426,7 +428,7 @@ displays:
       - glyph: "f"
         quantityId: numberDensity
       - glyph: "t"
-        quantityId: observationInterval
+        quantityId: fieldTimeCoordinate
       - glyph: "\\tau"
         quantityId: stepInterval
       - glyph: "\\Delta"
@@ -440,7 +442,7 @@ displays:
       - glyph: "f"
         quantityId: numberDensity
       - glyph: "t"
-        quantityId: observationInterval
+        quantityId: fieldTimeCoordinate
       - glyph: "\\tau"
         quantityId: stepInterval
   - display: eq-s4-d6
@@ -452,7 +454,7 @@ displays:
       - glyph: "\\Delta"
         quantityId: displacementIncrement
       - glyph: "t"
-        quantityId: observationInterval
+        quantityId: fieldTimeCoordinate
   - display: eq-s4-d7
     latex: "\\begin{aligned} f + \\frac{\\partial f}{\\partial t} \\cdot \\tau = f \\cdot \\int_{-\\infty}^{+\\infty} \\varphi(\\Delta) d \\Delta &+ \\frac{\\partial f}{\\partial x} \\int_{-\\infty}^{+\\infty} \\Delta \\varphi(\\Delta) d \\Delta \\\\ &+ \\frac{\\partial^2 f}{\\partial x^2} \\int_{-\\infty}^{+\\infty} \\frac{\\Delta^2}{2} \\varphi(\\Delta) d \\Delta \\ldots \\end{aligned}"
     spoken: "f plus the partial derivative of f with respect to t, times tau, equals f times the integral from minus infinity to plus infinity of phi of Delta, d Delta; plus the partial derivative of f with respect to x, times the integral from minus infinity to plus infinity of Delta times phi of Delta, d Delta; plus the second partial derivative of f with respect to x, times the integral from minus infinity to plus infinity of Delta squared over two, times phi of Delta, d Delta; and so on."
@@ -460,7 +462,7 @@ displays:
       - glyph: "f"
         quantityId: numberDensity
       - glyph: "t"
-        quantityId: observationInterval
+        quantityId: fieldTimeCoordinate
       - glyph: "\\tau"
         quantityId: stepInterval
       - glyph: "\\varphi"
@@ -494,7 +496,7 @@ displays:
       - glyph: "f"
         quantityId: numberDensity
       - glyph: "t"
-        quantityId: observationInterval
+        quantityId: fieldTimeCoordinate
       - glyph: "D"
         quantityId: diffusionCoefficient
   - display: eq-s4-d10
@@ -504,7 +506,7 @@ displays:
       - glyph: "f"
         quantityId: numberDensity
       - glyph: "t"
-        quantityId: observationInterval
+        quantityId: fieldTimeCoordinate
       - glyph: "n"
         quantityId: particleCount
   - display: eq-s4-d11
@@ -514,7 +516,7 @@ displays:
       - glyph: "f"
         quantityId: numberDensity
       - glyph: "t"
-        quantityId: observationInterval
+        quantityId: fieldTimeCoordinate
       - glyph: "n"
         quantityId: particleCount
       - glyph: "D"
@@ -535,7 +537,8 @@ displays:
   #   bm.P.particleRadius), λ_x the root mean square displacement along the X-axis in the time t.
   #   eq-s5-d5 (N = t/λ_x^2 · RT/3πkP) is held out: marking λ_x where it takes an exponent changes the
   #   MathML (compilePrintedDisplay refuses, display-terms-mathml-changed), the limit relativity's A'^2
-  #   meets. It is added once the marker handles a scripted letter with an exponent.
+  #   meets. It is added once the marker handles a scripted letter with an exponent; its N will bind
+  #   avogadroNumberEstimate, the N the paper determines (bm.N.avogadroNumberEstimate, scope s5-p3).
   - display: eq-s5-d1
     latex: "D = \\frac{R T}{N} \\frac{1}{6 \\pi k P}."
     spoken: "D equals R T over N, times one over six pi k P."
