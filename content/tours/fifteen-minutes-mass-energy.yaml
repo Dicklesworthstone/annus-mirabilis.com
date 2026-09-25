@@ -1,0 +1,118 @@
+# The mass-energy paper in fifteen minutes, without equations (am-tour-15min-mass-energy-nqz1).
+# Checked by src/content/tours/tours.ts. Draft: no review is claimed, and the reader test that the
+# target claim prepares is a human gate (am-me-review-reader-l6iy), not run here.
+#
+# Nothing a reader reads here is Einstein's text or a copy of the site's readings: reading steps
+# name paragraph anchors and show each paragraph's R0 overview (content/bindings/mass-energy.yaml),
+# the first encounter is the entrance record, and the journey step shows Journey IV's own move
+# summary by reference. The instrument steps cite each manifest's predict prompt, its candidate
+# ids, and the preset or tape whose settings answer it; their questions, choices and responses are
+# this tour's plain-words rendering of that prompt.
+#
+# Where the bead and the manifests disagree, the manifests win, because the candidate ids are the
+# contract: ME-01's prompt me-01-predict-tilt-axis registers me-01-candidate-sum-unchanged,
+# -sum-decreases and -sum-increases, and no tape named the-two-pulses exists, so step 3 cites the
+# registered preset me-01-sixty-degree-tilt, which sets the prompt's control (the emission angle).
+id: fifteen-minutes-mass-energy
+title: "The mass-energy paper in fifteen minutes"
+paper: mass-energy
+budget: fifteen-minutes
+requiresEquations: false
+review: draft
+introduction: "Einstein's three-page paper of 1905, read without equations: what it claims, how its reasoning works, and the test it proposed."
+completion: "You can now say what the paper claimed: a body that gives off energy becomes less massive by an amount set by that energy, whatever form the energy leaves in, so the mass of a body is a measure of its energy content."
+targetClaim: "A body that gives off energy becomes less massive by an amount set by that energy, whatever form the energy leaves in, so the mass of a body is a measure of its energy content."
+steps:
+  - id: first-encounter
+    kind: first-encounter
+    record: entrance-mass-energy
+    anchor: entry-mass-energy
+    minutes: 3
+    purpose: "Two people write before-and-after accounts of the same flash of light. Comparing the accounts removes what neither of them knows about the body's insides."
+
+  - id: opening
+    kind: reading
+    anchors: [s0-p1]
+    minutes: 1
+    purpose: "The paper's title asks its question: does the inertia of a body depend on its energy content?"
+
+  - id: two-flashes
+    kind: instrument
+    instrument: me-01
+    promptId: me-01-predict-tilt-axis
+    preset: me-01-sixty-degree-tilt
+    minutes: 2
+    purpose: "Light carries energy, and how much depends on who measures it. Predict what happens to the total."
+    tourPrediction:
+      promptId: me-01-predict-tilt-axis
+      question: "A body at rest sends out two equal flashes of light in opposite directions, and someone moving past measures the total energy of the two flashes. If the pair is sent out at a slant to the traveler's motion instead of along it, what happens to that total?"
+      choices:
+        - candidateId: me-01-candidate-sum-unchanged
+          text: "It stays the same."
+          response: "The total is the same whichever way the pair is sent. Each flash's measured energy does change with the direction, but what one flash gains the other loses. The traveler's total is larger than the body's own measurement, by an amount that grows with the traveler's speed: it is the traveler's measurement of the same flashes, not extra energy made from nothing, and the next step uses it."
+        - candidateId: me-01-candidate-sum-decreases
+          text: "It gets smaller."
+          response: "Following one flash alone, its measured energy can fall as the direction changes. Its partner's rises by exactly as much, so the total stays the same."
+        - candidateId: me-01-candidate-sum-increases
+          text: "It gets larger."
+          response: "Slanting the pair adds no energy to it. The two flashes change by equal and opposite amounts, so their total stays the same."
+
+  - id: toward-low-speed
+    kind: instrument
+    instrument: me-02
+    promptId: me-02-predict-toward-low-speed
+    tape: toward-low-speed
+    minutes: 2
+    purpose: "The traveler sees the body moving. After the flashes, at the same speed, the body carries less energy of motion. Predict what that drop looks like at slow speeds."
+    tourPrediction:
+      promptId: me-02-predict-toward-low-speed
+      question: "Compare the body's energy of motion before and after it sends out the flashes, at the same speed. As the speed gets smaller and smaller, what does that drop look like?"
+      choices:
+        - candidateId: looks-like-lighter-body
+          text: "Like the energy of motion of a body that lost a little mass."
+          response: "After the flashes, at the same speed, the body carries less energy of motion, just as a lighter body would. The mass it has lost is set by the energy it gave off, and it is the same at every slow speed."
+        - candidateId: drops-to-nothing-faster
+          text: "It falls away faster than the speed does, so there is nothing left to compare."
+          response: "The drop does shrink as the speed shrinks, as every energy of motion does. Set beside the energy of motion itself, though, it does not vanish: it settles on one fixed amount of lost mass."
+        - candidateId: stays-a-fixed-fraction
+          text: "It stays the same fraction of the energy that was given off."
+          response: "That fraction is not fixed; it shrinks with the speed. What stays fixed is the mass the drop corresponds to, which is why the comparison is with a lighter body rather than with the energy given off."
+
+  - id: sealed-box
+    kind: instrument
+    instrument: me-03
+    promptId: me-03-predict-sealed-box
+    preset: me-03-sealed-lamp-and-mirror
+    minutes: 2
+    purpose: "Where you draw the line around a system decides what loses mass. Predict the sealed box."
+    tourPrediction:
+      promptId: me-03-predict-sealed-box
+      question: "A sealed box holds a battery-powered lamp and a mirror. When the lamp lights up inside, does the box's total mass change?"
+      choices:
+        - candidateId: decreases
+          text: "It decreases."
+          response: "The light never leaves the box. Energy moves from the lamp to whatever absorbs the light inside, and the total mass stays the same."
+        - candidateId: stays-the-same
+          text: "It stays the same."
+          response: "Energy that only moves around inside a sealed system leaves its total mass unchanged. The lamp alone would lose mass, and whatever absorbs the light inside would gain the same amount."
+        - candidateId: increases
+          text: "It increases."
+          response: "Nothing enters the box from outside, so its total mass stays the same."
+
+  - id: conclusion
+    kind: reading
+    anchors: [s0-p12, s0-p13]
+    minutes: 1
+    purpose: "The paper's conclusion, and the general claim it draws from it."
+
+  - id: proposed-test
+    kind: reading
+    anchors: [s0-p14, s0-p15]
+    minutes: 1
+    purpose: "How the paper proposes the claim could be tested, with its condition kept."
+
+  - id: the-move
+    kind: journey-stage
+    moveSummaryOf: mass-energy
+    minutes: 0.5
+    purpose: "The one step that turns the accounts into a statement about mass."
