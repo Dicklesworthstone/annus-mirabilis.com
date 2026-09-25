@@ -17,6 +17,8 @@ inlines:
     text: "Energieinhalt"
     termId: "term-energieinhalt"
     definition: "A body's energy content: all the energy it holds, in whatever form. The title asks whether inertia depends on it, and this sentence answers that mass is a measure of it, changing by L/V² when the energy changes by L."
+    lang: "de"
+    definitionLang: "en"
   - kind: "text"
     text: "; ändert sich die Energie um "
   - kind: "math"

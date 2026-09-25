@@ -37,7 +37,7 @@ export type FootnoteMarkInline = Readonly<{
   footnoteId: string;
 }>;
 
-export type TermInline = Readonly<{
+type TermInlineFields = Readonly<{
   kind: "term";
   text: string;
   termId: string;
@@ -199,7 +199,7 @@ export function validateInline(node: unknown, path = "inline"): Inline {
         kind: "term",
         text: o.text,
         termId: o.termId,
-        ...(typeof o.definition === "string" ? { definition: o.definition } : {}),
+        ...definitionOf(o, path),
         ...(lang ? { lang } : {}),
         ...(dir ? { dir } : {}),
       };
@@ -230,4 +230,25 @@ export function validateInline(node: unknown, path = "inline"): Inline {
     default:
       throw new Error(`${path}: Unknown inline kind "${kind}".`);
   }
+}
+
+/*
+ * Kept at the end of the file so that no refusal site above moves: the ratchets cite them by line.
+ * `definitionLang` is the language of the definition when it differs from the term's: an English
+ * note on a German word is `lang: de` with `definitionLang: en`, so a screen reader reads each in
+ * its own voice.
+ */
+export type TermInline = TermInlineFields & Readonly<{ definitionLang?: string | undefined }>;
+
+/** A term's definition and, when given, the definition's own language. */
+function definitionOf(
+  o: Record<string, unknown>,
+  path: string,
+): { definition?: string; definitionLang?: string } {
+  return {
+    ...(typeof o.definition === "string" ? { definition: o.definition } : {}),
+    ...(o.definitionLang !== undefined
+      ? { definitionLang: validateLanguageTag(o.definitionLang, `${path}.definitionLang`) }
+      : {}),
+  };
 }

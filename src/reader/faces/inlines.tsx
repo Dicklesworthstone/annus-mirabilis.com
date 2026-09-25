@@ -125,6 +125,7 @@ export function renderInlines(
             termId={node.termId}
             text={node.text}
             definition={node.definition}
+            definitionLang={node.definitionLang}
             lang={node.lang}
             dir={node.dir}
           />

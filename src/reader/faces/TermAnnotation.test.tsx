@@ -182,6 +182,29 @@ describe("TermAnnotation unit and face integration", () => {
     expect(container.querySelector('[data-term-popover="term-verschiebung"]')).not.toBeNull();
   });
 
+  test("an English note on a German word is read in English, and the word in German", async () => {
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(
+        <TermAnnotation
+          termId="term-traegheit"
+          text="Trägheit"
+          definition="Inertia: a body's resistance to a change in its motion, measured by its mass, as this note explains."
+          lang="de"
+          definitionLang="en"
+        />,
+      );
+    });
+    const trigger = container.querySelector<HTMLElement>('[data-term-id="term-traegheit"]');
+    expect(trigger?.getAttribute("lang")).toBe("de");
+    await act(async () => {
+      trigger?.click();
+    });
+    const definition = container.querySelector<HTMLElement>(".term-annotation-definition");
+    expect(definition).not.toBeNull();
+    expect(definition?.getAttribute("lang")).toBe("en");
+  });
+
   test("all three faces render term annotations with authored definitions", () => {
     // 1. GermanFace
     const germanHtml = renderToStaticMarkup(

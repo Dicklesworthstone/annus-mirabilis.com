@@ -52,6 +52,8 @@ inlines:
     text: "Lichtmenge"
     termId: "term-lichtmenge"
     definition: "A quantity of light: here a train of plane light waves carrying a definite energy l. It is a wave in Maxwell's theory, not a light quantum of Einstein's March 1905 paper, which this argument does not use."
+    lang: "de"
+    definitionLang: "en"
   - kind: "text"
     text: " — im System "
   - kind: "math"

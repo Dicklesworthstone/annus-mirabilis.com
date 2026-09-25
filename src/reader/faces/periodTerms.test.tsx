@@ -15,7 +15,14 @@ import { PaperPage } from "../PaperPage.tsx";
 
 const ROOT = process.cwd();
 
-type Term = { block: string; text: string; termId: string; definition: unknown };
+type Term = {
+  block: string;
+  text: string;
+  termId: string;
+  definition: unknown;
+  lang: unknown;
+  definitionLang: unknown;
+};
 
 function termsIn(value: unknown, block: string, out: Term[]): void {
   if (Array.isArray(value)) {
@@ -23,7 +30,14 @@ function termsIn(value: unknown, block: string, out: Term[]): void {
   } else if (value && typeof value === "object") {
     const o = value as Record<string, unknown>;
     if (o.kind === "term" && typeof o.text === "string" && typeof o.termId === "string")
-      out.push({ block, text: o.text, termId: o.termId, definition: o.definition });
+      out.push({
+        block,
+        text: o.text,
+        termId: o.termId,
+        definition: o.definition,
+        lang: o.lang,
+        definitionLang: o.definitionLang,
+      });
     for (const v of Object.values(o)) termsIn(v, block, out);
   }
 }
@@ -80,6 +94,15 @@ describe("period-term notes", () => {
         printed: true,
       });
     }
+  });
+
+  test("mass-energy's notes are English on German words, and say so for a screen reader", () => {
+    for (const { term } of terms.filter(({ term }) => term.block.startsWith("mass-energy/")))
+      expect({ id: term.termId, lang: term.lang, definitionLang: term.definitionLang }).toEqual({
+        id: term.termId,
+        lang: "de",
+        definitionLang: "en",
+      });
   });
 
   test("the parallel face shows each note on its word, as a control a reader can open", async () => {

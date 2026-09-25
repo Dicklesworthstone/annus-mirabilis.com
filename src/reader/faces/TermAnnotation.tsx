@@ -9,6 +9,8 @@ export interface TermAnnotationProps {
   readonly termId: string;
   readonly text: string;
   readonly definition?: string | undefined;
+  /** The definition's language when it differs from the term's; otherwise the term's is used. */
+  readonly definitionLang?: string | undefined;
   readonly lang?: string | undefined;
   readonly dir?: "ltr" | "rtl" | undefined;
 }
@@ -18,7 +20,14 @@ export interface TermAnnotationProps {
  * Period words carry authored, occurrence-specific definitions longer than 80 characters.
  * Annotations open on activation with keyboard and touch, never as tooltip-only content.
  */
-export function TermAnnotation({ termId, text, definition, lang, dir }: TermAnnotationProps) {
+export function TermAnnotation({
+  termId,
+  text,
+  definition,
+  definitionLang,
+  lang,
+  dir,
+}: TermAnnotationProps) {
   const [isOpen, setIsOpen] = useState(false);
   const popoverId = useId();
   const trigger = useRef<HTMLButtonElement>(null);
@@ -104,7 +113,7 @@ export function TermAnnotation({ termId, text, definition, lang, dir }: TermAnno
             className="term-annotation-close"
             data-term-close={termId}
           />
-          <span className="term-annotation-definition" lang={lang} dir={dir}>
+          <span className="term-annotation-definition" lang={definitionLang ?? lang} dir={dir}>
             {definition}
           </span>
         </span>
