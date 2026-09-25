@@ -19,11 +19,11 @@ parameters:
     quantityId: incidentPower
     displayUnit: "mW"
     modelDomain:
-      min: 0.00001
+      min: 0
       max: 0.1
       minInclusive: true
       maxInclusive: true
-      reason: "Linear photoelectric regime before non-linear or space-charge saturation"
+      reason: "From no light at all, where no electron leaves, to the edge of the linear photoelectric regime, before non-linear or space-charge saturation"
     visualRange:
       min: 0.0001
       max: 0.01
@@ -59,11 +59,11 @@ parameters:
     quantityId: workFunction
     displayUnit: "eV"
     modelDomain:
-      min: 1.0
+      min: 0
       max: 6.5
       minInclusive: true
       maxInclusive: true
-      reason: "Elemental metals work function range (e.g. Cs 2.14 eV to Pt 5.65 eV)"
+      reason: "Elemental metals work function range (e.g. Cs 2.14 eV to Pt 5.65 eV), and 0 for Einstein's §8 check, which neglects the escape work"
     visualRange:
       min: 1.5
       max: 5.5

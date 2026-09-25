@@ -13,6 +13,7 @@ import {
   LQ08_PRESETS,
 } from "../../../experiments/lq08/definition.ts";
 import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
+import { lq08RangeSentence } from "../../../experiments/lq08/parameters.ts";
 import { createLq08Session, type PreparedLq08Example } from "../../../experiments/lq08/session.ts";
 import { LQ08_TAPE } from "../../../experiments/lq08/tape.ts";
 import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
@@ -22,6 +23,7 @@ import type { PublishedResult } from "../../../experiments/store/instanceStore.t
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
@@ -243,7 +245,14 @@ export function PhotoelectricLab({
       setError(`${FIELDS[key].label}: enter a number.`);
       return;
     }
-    if (apply({ [key]: n * FIELDS[key].scale })) {
+    const stored = n * FIELDS[key].scale;
+    if (!Number.isFinite(stored)) {
+      // 1e300 THz is a number, but not one in hertz: say the range rather than "enter a number".
+      setDrafts((d) => ({ ...d, [key]: text }));
+      setError(lq08RangeSentence(key));
+      return;
+    }
+    if (apply({ [key]: stored })) {
       setDrafts((d) => {
         const { [key]: _done, ...rest } = d;
         return rest;
@@ -376,7 +385,7 @@ export function PhotoelectricLab({
 
           {error && (
             <p role="alert" className="notice error">
-              {error}
+              {error} {KEPT_RESULT}
             </p>
           )}
           <AcceptedStatus

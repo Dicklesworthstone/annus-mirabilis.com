@@ -1,4 +1,10 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import {
+  type DomainDisplay,
+  declaredDomains,
+  domainRequirement,
+  withinDeclaredDomain,
+} from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { LQ08_DEFAULTS, type Lq08Parameters } from "./definition.ts";
 
@@ -11,7 +17,7 @@ const LQ08_FIELD_NAMES: Partial<Record<keyof Lq08Parameters, string>> = {
   collectorPotential: "the collector potential, in volts,",
 };
 
-export function validateLq08Parameters(input: unknown): Computation<Lq08Parameters> {
+function validateLq08Fields(input: unknown): Computation<Lq08Parameters> {
   const bad = (requirements: string): Computation<never> => ({
     kind: "refused",
     refusal: makeRefusal(
@@ -50,21 +56,31 @@ export function validateLq08Parameters(input: unknown): Computation<Lq08Paramete
     }
   }
 
-  if (p.incidentPower < 0) {
-    return bad("Enter a lamp power of zero or more, in mW.");
-  }
-  if (p.frequency <= 0) {
-    return bad("Enter a frequency ν greater than zero, in THz.");
-  }
-  if (p.workFunction < 0) {
-    return bad("Enter a work function Φ of zero or more, in eV.");
-  }
-  if (p.quantumEfficiency < 0 || p.quantumEfficiency > 1) {
-    return bad("Enter a quantum efficiency from 0 to 1.");
-  }
-  if (p.collectorPotential < -100 || p.collectorPotential > 100) {
-    return bad("Enter a collector potential from −100 to 100 V.");
-  }
+  // Every range is the manifest's, checked once by withinDeclaredDomain below. These checks named
+  // other ranges (a collector potential to ±100 V where the manifest declares ±10 V), so a value
+  // between the two was refused with a range it had already met.
 
   return { kind: "accepted", data: Object.freeze({ ...p }) };
+}
+
+/** Each declared setting as the form names it, in the form's units. */
+const LQ08_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  incidentPower: { label: "lamp power", unit: "mW", scale: 1e3 },
+  frequency: { label: "frequency ν", unit: "THz", scale: 1e-12 },
+  workFunction: { label: "work function Φ" },
+  quantumEfficiency: { label: "quantum efficiency" },
+  collectorPotential: { label: "collector potential" },
+};
+
+/** The fields above, then every range content/experiments/lq-08.yaml declares (dispatch 134). */
+export function validateLq08Parameters(input: unknown): Computation<Lq08Parameters> {
+  return withinDeclaredDomain("lq-08", validateLq08Fields(input), LQ08_DOMAIN_DISPLAY);
+}
+
+/** The declared-range sentence for one field, for a typed value too large to convert to its unit. */
+export function lq08RangeSentence(key: keyof typeof LQ08_FIELD_NAMES): string {
+  const domain = declaredDomains("lq-08")[key];
+  return domain
+    ? domainRequirement(domain, LQ08_DOMAIN_DISPLAY[key])
+    : `Enter ${LQ08_FIELD_NAMES[key] ?? "this value"} as a smaller number.`;
 }
