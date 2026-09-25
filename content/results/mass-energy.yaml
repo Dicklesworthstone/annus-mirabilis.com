@@ -149,7 +149,7 @@ cards:
       - kind: premise
         text: "The identification of \\(H-E\\) as kinetic energy plus \\(C\\), with \\(C\\) unchanged by the emission, is a premise the paper states, not a result it derives."
       - kind: comparison
-        text: "The paper notes that the decrease does not depend on the qualities of the body, and that it depends on the speed as the electron's kinetic energy does in §10 of the relativity paper. That is a comparison, not a premise of the argument."
+        text: "The paper notes that the decrease does not depend on the properties of the body, and that it depends on the speed as the electron's kinetic energy does in §10 of the relativity paper. That is a comparison, not a premise of the argument."
     probes:
       - instrument: me-01
         question: "Starting from the collinear preset, relax the premise that the constant is unchanged: what can the subtraction still say about the kinetic energy?"
