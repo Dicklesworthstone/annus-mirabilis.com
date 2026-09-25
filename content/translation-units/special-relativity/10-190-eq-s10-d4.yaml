@@ -1,10 +1,12 @@
-# TranslationUnit eq-s10-d4: English machine-draft translation.
+# TranslationUnit eq-s10-d4: English translation, checked by AI agents.
 # Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
-# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+# Final under docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations after two agent
+# review rounds. No person has reviewed it.
 # Review round 1 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 917-921; no change.
 # After round 1 (GreenBarn, translator, 2026-09-25; revision 2): the z row's exponent is beta^3, as
 # p. 919 prints it (err-typo-p919-1; TanElk's ruling, mail 40159), following the German block
 # eq-s10-d4. The physics gives beta^2, which the explanation layer keeps. For round 2's reviewer.
+# Review round 2 (GreenOx, agent, 2026-09-25): read against the German block at revision 2 and plate p. 919 (1200 dpi); the display is byte-identical to the block, with the z row's β³ as printed (err-typo-p919-1); no change.
 kind: "translation-unit"
 id: "eq-s10-d4"
 paper: "special-relativity"
@@ -22,5 +24,20 @@ translator:
   modelId: "claude-opus-5-5"
 revision: 2
 unresolvedAlternatives: []
-reviewState: "machine-draft"
+reviewState: "reviewed"
+agentReview:
+  basis: "D-2026-09-25-agent-reviewed-translations"
+  rounds:
+    - reviewer:
+        id: "agent:NavyKite"
+        name: "NavyKite"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
+    - reviewer:
+        id: "agent:GreenOx"
+        name: "GreenOx"
+        kind: "model"
+        modelId: "claude-opus-5-5"
+      date: "2026-09-25"
 lang: "en"
