@@ -1,5 +1,6 @@
 /**
- * Mass-energy's printed displays in colour on every reading face (dispatch 224), server-rendered.
+ * Printed displays in colour on every reading face (dispatch 224), server-rendered, for each paper
+ * whose record binds every display: mass-energy, the reference slice, and light quanta.
  * Before this, each face drew them as plain KaTeX: no term carried a quantity and no chip was drawn.
  * Each face now draws every display with its terms marked, the explanation's colours, and chips
  * that are disabled buttons until the page hydrates, and it puts no block element inside a <p>.
@@ -9,11 +10,10 @@ import { exportMarkup } from "../../testing/exportMarkup.ts";
 import { PaperPage } from "../PaperPage.tsx";
 import { loadBilingualEdition } from "./bilingualLoader.ts";
 
-const PAPER = "mass-energy";
 const FACES = ["german", "english", "parallel", "gloss"] as const;
 
-const page = async (face?: (typeof FACES)[number]) =>
-  exportMarkup(await PaperPage(face ? { paperId: PAPER, face } : { paperId: PAPER }));
+const page = async (paper: string, face?: (typeof FACES)[number]) =>
+  exportMarkup(await PaperPage(face ? { paperId: paper, face } : { paperId: paper }));
 
 /** Every chip's quantity and its colour style, as the markup carries them. */
 function chipStyles(html: string): Map<string, Set<string>> {
@@ -91,42 +91,64 @@ function liveRegionsInDisplays(html: string): number {
   return found;
 }
 
-describe("mass-energy's printed displays on the reading faces", async () => {
-  const edition = await loadBilingualEdition(PAPER);
-  const displays = (edition?.blocks ?? []).filter((b) => b.kind === "equation").map((b) => b.id);
-  const explanation = chipStyles(await page());
-
-  test("the paper prints displays, and the explanation colours its quantities", () => {
-    expect(displays.length).toBeGreaterThan(0);
-    expect(explanation.size).toBeGreaterThan(0);
+/** Displays drawn on the page, and how many of them sit outside a coloured block. */
+function displaysOutsideBlocks(html: string): { drawn: number; outside: number } {
+  let drawn = 0;
+  let outside = 0;
+  walk(html, (_, attributes, open) => {
+    if (!/\bclass="katex-display"/.test(attributes)) return;
+    drawn++;
+    if (!open.some((o) => o.display)) outside++;
   });
+  return { drawn, outside };
+}
 
-  for (const face of FACES)
-    test(`${face}: every display is coloured, in the explanation's colours, with live-less chips`, async () => {
-      const html = await page(face);
-      for (const display of displays) expect(html).toContain(`data-display-terms="${display}"`);
-      const terms = html.match(/data-term="[^"]+" data-quantity-id="[^"]+"/g) ?? [];
-      expect(terms.length).toBeGreaterThanOrEqual(displays.length);
-      // One colour per quantity: the face's chip for a quantity is the explanation's.
-      const styles = chipStyles(html);
-      expect(styles.size).toBeGreaterThan(0);
-      for (const [quantity, style] of styles) {
-        expect(style.size).toBe(1);
-        const theirs = explanation.get(quantity);
-        if (theirs) expect([...style]).toEqual([...theirs]);
-      }
-      // Without JavaScript every chip is a disabled button, which the noscript rule leaves showing.
-      for (const [button] of html.matchAll(/<button[^>]*class="term-chip"[^>]*>/g))
-        expect(button).toContain('disabled=""');
-      // No live region per display: a face holds many (BlockTermChips announce).
-      expect(liveRegionsInDisplays(html)).toBe(0);
-      // Each block is named by its authored spoken form.
-      expect(html).toMatch(
-        /class="printed-display-terms"[^>]*aria-label="K zero minus K one equals/,
-      );
-      expect(blocksInParagraphs(html)).toEqual([]);
+// Each paper's record binds every display it prints; a sample spoken form shows the block's name.
+const PAPERS = [
+  { paper: "mass-energy", spoken: "K zero minus K one equals" },
+  { paper: "light-quanta", spoken: "nu two is at most nu one" },
+] as const;
+
+for (const { paper, spoken } of PAPERS)
+  describe(`${paper}'s printed displays on the reading faces`, async () => {
+    const edition = await loadBilingualEdition(paper);
+    const displays = (edition?.blocks ?? []).filter((b) => b.kind === "equation").map((b) => b.id);
+    const explanation = chipStyles(await page(paper));
+
+    test("the paper prints displays, and the explanation colours its quantities", () => {
+      expect(displays.length).toBeGreaterThan(0);
+      expect(explanation.size).toBeGreaterThan(0);
     });
 
+    for (const face of FACES)
+      test(`${face}: every display is coloured, in the explanation's colours, with live-less chips`, async () => {
+        const html = await page(paper, face);
+        // The German and English faces print every display; the gloss face the glossed ones.
+        if (face !== "gloss")
+          for (const display of displays) expect(html).toContain(`data-display-terms="${display}"`);
+        const { drawn, outside } = displaysOutsideBlocks(html);
+        expect(drawn).toBeGreaterThan(0);
+        expect(outside).toBe(0);
+        // One colour per quantity: the face's chip for a quantity is the explanation's.
+        const styles = chipStyles(html);
+        expect(styles.size).toBeGreaterThan(0);
+        for (const [quantity, style] of styles) {
+          expect(style.size).toBe(1);
+          const theirs = explanation.get(quantity);
+          if (theirs) expect([...style]).toEqual([...theirs]);
+        }
+        // Without JavaScript every chip is a disabled button, which the noscript rule leaves showing.
+        for (const [button] of html.matchAll(/<button[^>]*class="term-chip"[^>]*>/g))
+          expect(button).toContain('disabled=""');
+        // No live region per display: a face holds many (BlockTermChips announce).
+        expect(liveRegionsInDisplays(html)).toBe(0);
+        // Each block is named by its authored spoken form.
+        expect(html).toContain(`aria-label="${spoken}`);
+        expect(blocksInParagraphs(html)).toEqual([]);
+      });
+  });
+
+describe("the markup checkers", () => {
   test("the two checkers find what they look for when it is there", () => {
     expect(blocksInParagraphs("<p>a <div>b</div></p>")).toEqual(["div"]);
     expect(blocksInParagraphs("<p>a <span>b</span></p><div></div>")).toEqual([]);
@@ -135,5 +157,11 @@ describe("mass-energy's printed displays on the reading faces", async () => {
     expect(liveRegionsInDisplays(`<span data-display-terms="d"></span><p role="status"></p>`)).toBe(
       0,
     );
+    const inside = '<span data-display-terms="d"><span class="katex-display"></span></span>';
+    expect(displaysOutsideBlocks(inside)).toEqual({ drawn: 1, outside: 0 });
+    expect(displaysOutsideBlocks('<p><span class="katex-display"></span></p>')).toEqual({
+      drawn: 1,
+      outside: 1,
+    });
   });
 });

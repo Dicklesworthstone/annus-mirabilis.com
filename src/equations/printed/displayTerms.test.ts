@@ -4,6 +4,8 @@
  * result is the plant's and not the data's.
  */
 import assert from "node:assert/strict";
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
 import { describe, test } from "node:test";
 import { renderToString } from "katex";
 import { isRegisteredQuantityId } from "../../content/quantities/registry.ts";
@@ -122,6 +124,56 @@ describe("mass-energy's printed displays, as recorded", () => {
         copy.terms.map((t) => [t.termId, t.quantityId]),
         own?.terms.map((t) => [t.termId, t.quantityId]),
       );
+  });
+});
+
+describe("every paper with a display-terms record", () => {
+  const papers = readdirSync(join(ROOT, "content", "display-terms"))
+    .filter((f) => f.endsWith(".yaml"))
+    .map((f) => f.slice(0, -".yaml".length));
+  test("the records exist, and include the reference slice", () => {
+    assert.ok(papers.includes(PAPER));
+    assert.ok(papers.length > 1);
+  });
+  // Papers whose every display block has an entry. The others are bound section by section.
+  const complete = ["mass-energy", "light-quanta"];
+  for (const paper of papers)
+    test(`${paper}: checks clean, and each entry copies its block byte for byte`, async () => {
+      const own = await loadBilingualEdition(paper, ROOT);
+      const record = loadDisplayTerms(ROOT, paper);
+      const result = await checkPaperDisplays(ROOT, paper);
+      assert.ok(own && record && result);
+      assert.deepEqual(result.problems, []);
+      assert.ok(record.displays.length > 0);
+      const blocks = own.blocks.filter((b) => b.kind === "equation");
+      for (const entry of record.displays) {
+        const math = blocks
+          .find((b) => b.id === entry.display)
+          ?.inlines.find((i) => i.kind === "math");
+        assert.ok(math && math.kind === "math", entry.display);
+        assert.equal(entry.latex, math.latex, entry.display);
+      }
+      if (complete.includes(paper))
+        assert.deepEqual(
+          [...new Set(record.displays.map((d) => d.display))].sort(),
+          blocks.map((b) => b.id).sort(),
+        );
+    });
+
+  test("light quanta reads each glyph in its display's scope", async () => {
+    const result = await checkPaperDisplays(ROOT, "light-quanta");
+    const bound = (display: string, glyph: string) =>
+      result?.displays.find((d) => d.display === display)?.terms.find((t) => t.glyph === glyph)
+        ?.quantityId;
+    // T: the averaging interval in the Fourier footnote, the temperature in § 1's text.
+    assert.equal(bound("eq-s1-d3", "T"), "longAveragingInterval");
+    assert.equal(bound("eq-s1-d1", "T"), "temperature");
+    // L: the speed of light in § 1, the absorbed light energy in § 9.
+    assert.equal(bound("eq-s1-d2", "L"), "speedOfLight");
+    assert.equal(bound("eq-s9-d3", "L"), "absorbedLightEnergy");
+    // Stokes's rule compares two frequencies, and they are two quantities.
+    assert.equal(bound("eq-s7-d2", "\\nu_1"), "incidentFrequency");
+    assert.equal(bound("eq-s7-d2", "\\nu_2"), "emittedFrequency");
   });
 });
 
