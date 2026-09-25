@@ -1,0 +1,37 @@
+# SourceBlock s3-p21: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p21"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s3"
+order: 68
+locators:
+  - pdfPageIndex: 11
+    printedPage: 901
+diplomaticText: "In den entwickelten Transformationsgleichungen tritt noch eine unbekannte Funktion \\varphi von v auf, welche wir nun bestimmen wollen."
+inlines:
+  - kind: "text"
+    text: "In den entwickelten Transformationsgleichungen tritt noch eine unbekannte Funktion "
+  - kind: "math"
+    latex: "\\varphi"
+  - kind: "text"
+    text: " von "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " auf, welche wir nun bestimmen wollen."
+sentenceSpans:
+  - id: "s3-p21-s1"
+    span:
+      start: 0
+      end: 134
+      blockRevision: 1
+      textDigest: "2400acf28c4f18daa341ab6c88dd3a99433fa7416a39532c42547bf9ddc71e4f"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

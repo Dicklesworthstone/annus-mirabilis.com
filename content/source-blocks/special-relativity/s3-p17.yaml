@@ -1,0 +1,42 @@
+# SourceBlock s3-p17: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p17"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s3"
+order: 67
+locators:
+  - pdfPageIndex: 11
+    printedPage: 901
+diplomaticText: "Die betrachtete Welle ist also auch im bewegten System betrachtet eine Kugelwelle von der Ausbreitungsgeschwindigkeit V. Hiermit ist gezeigt, daß unsere beiden Grundprinzipien miteinander vereinbar sind."
+inlines:
+  - kind: "text"
+    text: "Die betrachtete Welle ist also auch im bewegten System betrachtet eine Kugelwelle von der Ausbreitungsgeschwindigkeit "
+  - kind: "math"
+    latex: "V"
+  - kind: "text"
+    text: "."
+  - kind: "space"
+  - kind: "text"
+    text: "Hiermit ist gezeigt, daß unsere beiden Grundprinzipien miteinander vereinbar sind."
+sentenceSpans:
+  - id: "s3-p17-s1"
+    span:
+      start: 0
+      end: 120
+      blockRevision: 1
+      textDigest: "f97969550530ddd4d53dada3e8611573856fa75ce04e617685eeb61095b84d57"
+  - id: "s3-p17-s2"
+    span:
+      start: 121
+      end: 203
+      blockRevision: 1
+      textDigest: "f97969550530ddd4d53dada3e8611573856fa75ce04e617685eeb61095b84d57"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

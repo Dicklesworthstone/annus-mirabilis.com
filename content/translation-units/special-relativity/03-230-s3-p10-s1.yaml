@@ -1,0 +1,35 @@
+# TranslationUnit s3-p10-s1: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s3-p10-s1"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s3-p10-s1"
+inlines:
+  - kind: "text"
+    text: "An analogous consideration — applied to the "
+  - kind: "math"
+    latex: "H"
+  - kind: "text"
+    text: "- and "
+  - kind: "math"
+    latex: "Z"
+  - kind: "text"
+    text: "-axes — gives, if it is borne in mind that light always propagates along these axes, viewed from the stationary system, with the velocity "
+  - kind: "math"
+    latex: "\\sqrt{V^2 - v^2}"
+  - kind: "text"
+    text: ":"
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "the H- and Z-axes"
+    rationale: "H is printed as the capital Greek eta, the moving system's η-axis (the provenance receipt records the reading, retracted typo-h-for-y-axis-p899); it is kept as printed, with Z (capital zeta)."
+reviewState: "machine-draft"
+lang: "en"

@@ -1,0 +1,37 @@
+# TranslationUnit s3-p2-s1: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s3-p2-s1"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s3-p2-s1"
+inlines:
+  - kind: "text"
+    text: "Now to the origin of one of the two systems ("
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: ") let a (constant) velocity "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " be imparted in the direction of increasing "
+  - kind: "math"
+    latex: "x"
+  - kind: "text"
+    text: " of the other, stationary system ("
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: "), a velocity which is to be communicated also to the coordinate axes, the measuring rod in question and the clocks."
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

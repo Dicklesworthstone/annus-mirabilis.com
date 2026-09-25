@@ -1,0 +1,37 @@
+# TranslationUnit s3-p18-s2: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s3-p18-s2"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s3-p18-s2"
+inlines:
+  - kind: "text"
+    text: "At the time "
+  - kind: "math"
+    latex: "t = 0"
+  - kind: "text"
+    text: " let all three origins of coordinates coincide, and for "
+  - kind: "math"
+    latex: "t = x = y = z = 0"
+  - kind: "text"
+    text: " let the time "
+  - kind: "math"
+    latex: "t'"
+  - kind: "text"
+    text: " of the system "
+  - kind: "math"
+    latex: "K'"
+  - kind: "text"
+    text: " be zero."
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

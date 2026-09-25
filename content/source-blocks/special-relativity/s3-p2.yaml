@@ -1,0 +1,74 @@
+# SourceBlock s3-p2: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p2"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s3"
+order: 36
+locators:
+  - pdfPageIndex: 7
+    printedPage: 897
+diplomaticText: "Es werde nun dem Anfangspunkte des einen der beiden Systeme (k) eine (konstante) Geschwindigkeit v in Richtung der wachsenden x des anderen, ruhenden Systems (K) erteilt, welche sich auch den Koordinatenachsen, dem betreffenden Maßstabe sowie den Uhren mitteilen möge. Jeder Zeit t des ruhenden Systems K entspricht dann eine bestimmte Lage der Achsen des bewegten Systems und wir sind aus Symmetriegründen befugt anzunehmen, daß die Bewegung von k so beschaffen sein kann, daß die Achsen des bewegten Systems zur Zeit t (es ist mit „t“ immer eine Zeit des ruhenden Systems bezeichnet) den Achsen des ruhenden Systems parallel seien."
+inlines:
+  - kind: "text"
+    text: "Es werde nun dem Anfangspunkte des einen der beiden Systeme ("
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: ") eine (konstante) Geschwindigkeit "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " in Richtung der wachsenden "
+  - kind: "math"
+    latex: "x"
+  - kind: "text"
+    text: " des anderen, ruhenden Systems ("
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: ") erteilt, welche sich auch den Koordinatenachsen, dem betreffenden Maßstabe sowie den Uhren mitteilen möge."
+  - kind: "space"
+  - kind: "text"
+    text: "Jeder Zeit "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: " des ruhenden Systems "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " entspricht dann eine bestimmte Lage der Achsen des bewegten Systems und wir sind aus Symmetriegründen befugt anzunehmen, daß die Bewegung von "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " so beschaffen sein kann, daß die Achsen des bewegten Systems zur Zeit "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: " (es ist mit „"
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: "“ immer eine Zeit des ruhenden Systems bezeichnet) den Achsen des ruhenden Systems parallel seien."
+sentenceSpans:
+  - id: "s3-p2-s1"
+    span:
+      start: 0
+      end: 268
+      blockRevision: 1
+      textDigest: "69739f236fec9507fea8bed925e834bab2e173c2d36ada2b4b22e303c7882a79"
+  - id: "s3-p2-s2"
+    span:
+      start: 269
+      end: 633
+      blockRevision: 1
+      textDigest: "69739f236fec9507fea8bed925e834bab2e173c2d36ada2b4b22e303c7882a79"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

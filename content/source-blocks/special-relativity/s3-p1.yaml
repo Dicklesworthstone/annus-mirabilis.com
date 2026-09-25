@@ -1,0 +1,59 @@
+# SourceBlock s3-p1: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p1"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s3"
+order: 35
+locators:
+  - pdfPageIndex: 7
+    printedPage: 897
+diplomaticText: "Seien im „ruhenden“ Raume zwei Koordinatensysteme, d. h. zwei Systeme von je drei von einem Punkte ausgehenden, aufeinander senkrechten starren materiellen Linien, gegeben. Die X-Achsen beider Systeme mögen zusammenfallen, ihre Y- und Z-Achsen bezüglich parallel sein. Jedem Systeme sei ein starrer Maßstab und eine Anzahl Uhren beigegeben, und es seien beide Maßstäbe sowie alle Uhren beider Systeme einander genau gleich."
+inlines:
+  - kind: "text"
+    text: "Seien im „ruhenden“ Raume zwei Koordinatensysteme, d. h. zwei Systeme von je drei von einem Punkte ausgehenden, aufeinander senkrechten starren materiellen Linien, gegeben."
+  - kind: "space"
+  - kind: "text"
+    text: "Die "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: "-Achsen beider Systeme mögen zusammenfallen, ihre "
+  - kind: "math"
+    latex: "Y"
+  - kind: "text"
+    text: "- und "
+  - kind: "math"
+    latex: "Z"
+  - kind: "text"
+    text: "-Achsen bezüglich parallel sein."
+  - kind: "space"
+  - kind: "text"
+    text: "Jedem Systeme sei ein starrer Maßstab und eine Anzahl Uhren beigegeben, und es seien beide Maßstäbe sowie alle Uhren beider Systeme einander genau gleich."
+sentenceSpans:
+  - id: "s3-p1-s1"
+    span:
+      start: 0
+      end: 172
+      blockRevision: 1
+      textDigest: "3bedbdec80bb8fa9eaa13685b790a0b4ff09e6d413cdfaea03ab0919e71aefb0"
+  - id: "s3-p1-s2"
+    span:
+      start: 173
+      end: 268
+      blockRevision: 1
+      textDigest: "3bedbdec80bb8fa9eaa13685b790a0b4ff09e6d413cdfaea03ab0919e71aefb0"
+  - id: "s3-p1-s3"
+    span:
+      start: 269
+      end: 423
+      blockRevision: 1
+      textDigest: "3bedbdec80bb8fa9eaa13685b790a0b4ff09e6d413cdfaea03ab0919e71aefb0"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

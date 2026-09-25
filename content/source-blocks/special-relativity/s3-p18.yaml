@@ -1,0 +1,103 @@
+# SourceBlock s3-p18: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p18"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s3"
+order: 69
+locators:
+  - pdfPageIndex: 11
+    printedPage: 901
+diplomaticText: "Wir führen zu diesem Zwecke noch ein drittes Koordinatensystem K' ein, welches relativ zum System k derart in Paralleltranslationsbewegung parallel zur \\Xi-Achse begriffen sei, daß sich dessen Koordinatenursprung mit der Geschwindigkeit -v auf der \\Xi-Achse bewege. Zur Zeit t = 0 mögen alle drei Koordinatenanfangspunkte zusammenfallen und es sei für t = x = y = z = 0 die Zeit t' des Systems K' gleich Null. Wir nennen x', y', z' die Koordinaten, im System K' gemessen, und erhalten durch zweimalige Anwendung unserer Transformationsgleichungen:"
+inlines:
+  - kind: "text"
+    text: "Wir führen zu diesem Zwecke noch ein drittes Koordinatensystem "
+  - kind: "math"
+    latex: "K'"
+  - kind: "text"
+    text: " ein, welches relativ zum System "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " derart in Paralleltranslationsbewegung parallel zur "
+  - kind: "math"
+    latex: "\\Xi"
+  - kind: "text"
+    text: "-Achse begriffen sei, daß sich dessen Koordinatenursprung mit der Geschwindigkeit "
+  - kind: "math"
+    latex: "-v"
+  - kind: "text"
+    text: " auf der "
+  - kind: "math"
+    latex: "\\Xi"
+  - kind: "text"
+    text: "-Achse bewege."
+  - kind: "space"
+  - kind: "text"
+    text: "Zur Zeit "
+  - kind: "math"
+    latex: "t = 0"
+  - kind: "text"
+    text: " mögen alle drei Koordinatenanfangspunkte zusammenfallen und es sei für "
+  - kind: "math"
+    latex: "t = x = y = z = 0"
+  - kind: "text"
+    text: " die Zeit "
+  - kind: "math"
+    latex: "t'"
+  - kind: "text"
+    text: " des Systems "
+  - kind: "math"
+    latex: "K'"
+  - kind: "text"
+    text: " gleich Null."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir nennen "
+  - kind: "math"
+    latex: "x'"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "y'"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "z'"
+  - kind: "text"
+    text: " die Koordinaten, im System "
+  - kind: "math"
+    latex: "K'"
+  - kind: "text"
+    text: " gemessen, und erhalten durch zweimalige Anwendung unserer Transformationsgleichungen:"
+  - kind: "math"
+    latex: "\\begin{aligned} t' &= \\varphi(-v) \\beta(-v) \\left\\{ \\tau + \\frac{v}{V^2} \\xi \\right\\} &&= \\varphi(v) \\varphi(-v) t , \\\\ x' &= \\varphi(-v) \\beta(-v) \\{ \\xi + v \\tau \\} &&= \\varphi(v) \\varphi(-v) x , \\\\ y' &= \\varphi(-v) \\eta &&= \\varphi(v) \\varphi(-v) y , \\\\ z' &= \\varphi(-v) \\zeta &&= \\varphi(v) \\varphi(-v) z . \\end{aligned}"
+    display: true
+    equationId: "eq-s3-d19"
+sentenceSpans:
+  - id: "s3-p18-s1"
+    span:
+      start: 0
+      end: 265
+      blockRevision: 1
+      textDigest: "3525ee3df597a4938fe633fe4305aa25f82bf6877b6cfffdc63a64a02ce84fad"
+  - id: "s3-p18-s2"
+    span:
+      start: 266
+      end: 409
+      blockRevision: 1
+      textDigest: "3525ee3df597a4938fe633fe4305aa25f82bf6877b6cfffdc63a64a02ce84fad"
+  - id: "s3-p18-s3"
+    span:
+      start: 410
+      end: 547
+      blockRevision: 1
+      textDigest: "3525ee3df597a4938fe633fe4305aa25f82bf6877b6cfffdc63a64a02ce84fad"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

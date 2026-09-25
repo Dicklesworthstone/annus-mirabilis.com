@@ -1,0 +1,29 @@
+# SourceBlock s3: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3"
+kind: "heading"
+paper: "special-relativity"
+section: "s3"
+order: 34
+locators:
+  - pdfPageIndex: 7
+    printedPage: 897
+diplomaticText: "§ 3. Theorie der Koordinaten- und Zeittransformation von dem ruhenden auf ein relativ zu diesem in gleichförmiger Translationsbewegung befindliches System."
+inlines:
+  - kind: "text"
+    text: "§ 3. Theorie der Koordinaten- und Zeittransformation von dem ruhenden auf ein relativ zu diesem in gleichförmiger Translationsbewegung befindliches System."
+sentenceSpans:
+  - id: "s3"
+    span:
+      start: 0
+      end: 155
+      blockRevision: 1
+      textDigest: "1c95e4d74538ecaaf84e21df73afe8e1c3b640c17ae0f2998e843d98aad73633"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

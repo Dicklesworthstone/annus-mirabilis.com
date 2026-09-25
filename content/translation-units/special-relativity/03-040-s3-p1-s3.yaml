@@ -1,0 +1,21 @@
+# TranslationUnit s3-p1-s3: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s3-p1-s3"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s3-p1-s3"
+inlines:
+  - kind: "text"
+    text: "Let each system be provided with a rigid measuring rod and a number of clocks, and let the two measuring rods, and all the clocks of the two systems, be exactly alike."
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

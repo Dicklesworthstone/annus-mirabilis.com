@@ -1,0 +1,147 @@
+# SourceBlock s3-p12: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p12"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s3"
+order: 50
+locators:
+  - pdfPageIndex: 9
+    printedPage: 899
+  - pdfPageIndex: 10
+    printedPage: 900
+diplomaticText: "Mit Hilfe dieses Resultates ist es leicht, die Größen \\xi, \\eta, \\zeta zu ermitteln, indem man durch Gleichungen ausdrückt, daß sich das Licht (wie das Prinzip der Konstanz der Lichtgeschwindigkeit in Verbindung mit dem Relativitätsprinzip verlangt) auch im bewegten System gemessen mit der Geschwindigkeit V fortpflanzt. Für einen zur Zeit \\tau = 0 in Richtung der wachsenden \\xi ausgesandten Lichtstrahl gilt: oder Nun bewegt sich aber der Lichtstrahl relativ zum Anfangspunkt von k im ruhenden System gemessen mit der Geschwindigkeit V-v, so daß gilt: Setzen wir diesen Wert von t in die Gleichung für \\xi ein, so erhalten wir: Auf analoge Weise finden wir durch Betrachtung von längs den beiden anderen Achsen bewegte Lichtstrahlen: wobei also und"
+inlines:
+  - kind: "text"
+    text: "Mit Hilfe dieses Resultates ist es leicht, die Größen "
+  - kind: "math"
+    latex: "\\xi"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\eta"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\zeta"
+  - kind: "text"
+    text: " zu ermitteln, indem man durch Gleichungen ausdrückt, daß sich das Licht (wie das Prinzip der Konstanz der Lichtgeschwindigkeit in Verbindung mit dem Relativitätsprinzip verlangt) auch im bewegten System gemessen mit der Geschwindigkeit "
+  - kind: "math"
+    latex: "V"
+  - kind: "text"
+    text: " fortpflanzt."
+  - kind: "space"
+  - kind: "text"
+    text: "Für einen zur Zeit "
+  - kind: "math"
+    latex: "\\tau = 0"
+  - kind: "text"
+    text: " in Richtung der wachsenden "
+  - kind: "math"
+    latex: "\\xi"
+  - kind: "text"
+    text: " ausgesandten Lichtstrahl gilt:"
+  - kind: "math"
+    latex: "\\xi = V \\tau ,"
+    display: true
+    equationId: "eq-s3-d7"
+  - kind: "text"
+    text: " oder"
+  - kind: "math"
+    latex: "\\xi = a V \\left( t - \\frac{v}{V^2 - v^2} x' \\right) ."
+    display: true
+    equationId: "eq-s3-d8"
+  - kind: "space"
+  - kind: "text"
+    text: "Nun bewegt sich aber der Lichtstrahl relativ zum Anfangspunkt von "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " im ruhenden System gemessen mit der Geschwindigkeit "
+  - kind: "math"
+    latex: "V-v"
+  - kind: "text"
+    text: ", so daß gilt:"
+  - kind: "math"
+    latex: "\\frac{x'}{V-v} = t ."
+    display: true
+    equationId: "eq-s3-d9"
+  - kind: "space"
+  - kind: "text"
+    text: "Setzen wir diesen Wert von "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: " in die Gleichung für "
+  - kind: "math"
+    latex: "\\xi"
+  - kind: "text"
+    text: " ein, so erhalten wir:"
+  - kind: "math"
+    latex: "\\xi = a \\frac{V^2}{V^2 - v^2} x' ."
+    display: true
+    equationId: "eq-s3-d10"
+  - kind: "space"
+  - kind: "text"
+    text: "Auf analoge Weise finden wir durch Betrachtung von längs den beiden anderen Achsen bewegte Lichtstrahlen:"
+  - kind: "math"
+    latex: "\\eta = V \\tau = a V \\left( t - \\frac{v}{V^2 - v^2} x' \\right) ,"
+    display: true
+    equationId: "eq-s3-d11"
+  - kind: "text"
+    text: " wobei"
+  - kind: "math"
+    latex: "\\frac{y}{\\sqrt{V^2 - v^2}} = t ; \\quad x' = 0 ;"
+    display: true
+    equationId: "eq-s3-d12"
+  - kind: "text"
+    text: " also"
+  - kind: "math"
+    latex: "\\eta = a \\frac{V}{\\sqrt{V^2 - v^2}} y"
+    display: true
+    equationId: "eq-s3-d13"
+  - kind: "text"
+    text: " und"
+  - kind: "math"
+    latex: "\\zeta = a \\frac{V}{\\sqrt{V^2 - v^2}} z ."
+    display: true
+    equationId: "eq-s3-d14"
+sentenceSpans:
+  - id: "s3-p12-s1"
+    span:
+      start: 0
+      end: 321
+      blockRevision: 1
+      textDigest: "27de90352d086f3e57dc47659186fba9adf4628d6d1e38bde7c951a1b789341e"
+  - id: "s3-p12-s2"
+    span:
+      start: 322
+      end: 416
+      blockRevision: 1
+      textDigest: "27de90352d086f3e57dc47659186fba9adf4628d6d1e38bde7c951a1b789341e"
+  - id: "s3-p12-s3"
+    span:
+      start: 417
+      end: 554
+      blockRevision: 1
+      textDigest: "27de90352d086f3e57dc47659186fba9adf4628d6d1e38bde7c951a1b789341e"
+  - id: "s3-p12-s4"
+    span:
+      start: 555
+      end: 630
+      blockRevision: 1
+      textDigest: "27de90352d086f3e57dc47659186fba9adf4628d6d1e38bde7c951a1b789341e"
+  - id: "s3-p12-s5"
+    span:
+      start: 631
+      end: 751
+      blockRevision: 1
+      textDigest: "27de90352d086f3e57dc47659186fba9adf4628d6d1e38bde7c951a1b789341e"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

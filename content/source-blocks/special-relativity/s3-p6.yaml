@@ -1,0 +1,95 @@
+# SourceBlock s3-p6: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p6"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s3"
+order: 40
+locators:
+  - pdfPageIndex: 8
+    printedPage: 898
+diplomaticText: "Setzen wir x' = x - v t, so ist klar, daß einem im System k ruhenden Punkte ein bestimmtes, von der Zeit unabhängiges Wertsystem x', y, z zukommt. Wir bestimmen zuerst \\tau als Funktion von x', y, z und t. Zu diesem Zwecke haben wir in Gleichungen auszudrücken, daß \\tau nichts anderes ist als der Inbegriff der Angaben von im System k ruhenden Uhren, welche nach der im § 1 gegebenen Regel synchron gemacht worden sind."
+inlines:
+  - kind: "text"
+    text: "Setzen wir "
+  - kind: "math"
+    latex: "x' = x - v t"
+  - kind: "text"
+    text: ", so ist klar, daß einem im System "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " ruhenden Punkte ein bestimmtes, von der Zeit unabhängiges Wertsystem "
+  - kind: "math"
+    latex: "x'"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "y"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "z"
+  - kind: "text"
+    text: " zukommt."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir bestimmen zuerst "
+  - kind: "math"
+    latex: "\\tau"
+  - kind: "text"
+    text: " als Funktion von "
+  - kind: "math"
+    latex: "x'"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "y"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "z"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: "."
+  - kind: "space"
+  - kind: "text"
+    text: "Zu diesem Zwecke haben wir in Gleichungen auszudrücken, daß "
+  - kind: "math"
+    latex: "\\tau"
+  - kind: "text"
+    text: " nichts anderes ist als der Inbegriff der Angaben von im System "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " ruhenden Uhren, welche nach der im § 1 gegebenen Regel synchron gemacht worden sind."
+sentenceSpans:
+  - id: "s3-p6-s1"
+    span:
+      start: 0
+      end: 146
+      blockRevision: 1
+      textDigest: "55dcd859f370861543482b1ced67d8a0381edb03536ebc3616014c42edcad696"
+  - id: "s3-p6-s2"
+    span:
+      start: 147
+      end: 205
+      blockRevision: 1
+      textDigest: "55dcd859f370861543482b1ced67d8a0381edb03536ebc3616014c42edcad696"
+  - id: "s3-p6-s3"
+    span:
+      start: 206
+      end: 420
+      blockRevision: 1
+      textDigest: "55dcd859f370861543482b1ced67d8a0381edb03536ebc3616014c42edcad696"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

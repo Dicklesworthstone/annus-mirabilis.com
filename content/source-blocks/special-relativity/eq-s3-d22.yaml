@@ -1,0 +1,26 @@
+# SourceBlock eq-s3-d22: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "eq-s3-d22"
+kind: "equation"
+paper: "special-relativity"
+section: "s3"
+order: 74
+locators:
+  - pdfPageIndex: 12
+    printedPage: 902
+editorialLabel: "ed:s3-d22"
+containedIn: "s3-p22"
+diplomaticText: "x_2 = v t, \\quad y_2 = 0, \\quad z_2 = 0 ."
+inlines:
+  - kind: "math"
+    latex: "x_2 = v t, \\quad y_2 = 0, \\quad z_2 = 0 ."
+    equationId: "eq-s3-d22"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,80 @@
+# SourceBlock s3-p3: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p3"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s3"
+order: 37
+locators:
+  - pdfPageIndex: 7
+    printedPage: 897
+  - pdfPageIndex: 8
+    printedPage: 898
+diplomaticText: "Wir denken uns nun den Raum sowohl vom ruhenden System K aus mittels des ruhenden Maßstabes als auch vom bewegten System k mittels des mit ihm bewegten Maßstabes ausgemessen und so die Koordinaten x, y, z bez. \\xi, \\eta, \\zeta ermittelt. Es werde ferner mittels der im ruhenden System befindlichen ruhenden Uhren durch Lichtsignale in der in § 1 angegebenen Weise die Zeit t des ruhenden Systems für alle Punkte des letzteren bestimmt, in denen sich Uhren befinden; ebenso werde die Zeit \\tau des bewegten Systems für alle Punkte des bewegten Systems, in welchen sich relativ zu letzterem ruhende Uhren befinden, bestimmt durch Anwendung der in § 1 genannten Methode der Lichtsignale zwischen den Punkten, in denen sich die letzteren Uhren befinden."
+inlines:
+  - kind: "text"
+    text: "Wir denken uns nun den Raum sowohl vom ruhenden System "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " aus mittels des ruhenden Maßstabes als auch vom bewegten System "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " mittels des mit ihm bewegten Maßstabes ausgemessen und so die Koordinaten "
+  - kind: "math"
+    latex: "x"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "y"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "z"
+  - kind: "text"
+    text: " bez. "
+  - kind: "math"
+    latex: "\\xi"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\eta"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\zeta"
+  - kind: "text"
+    text: " ermittelt."
+  - kind: "space"
+  - kind: "text"
+    text: "Es werde ferner mittels der im ruhenden System befindlichen ruhenden Uhren durch Lichtsignale in der in § 1 angegebenen Weise die Zeit "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: " des ruhenden Systems für alle Punkte des letzteren bestimmt, in denen sich Uhren befinden; ebenso werde die Zeit "
+  - kind: "math"
+    latex: "\\tau"
+  - kind: "text"
+    text: " des bewegten Systems für alle Punkte des bewegten Systems, in welchen sich relativ zu letzterem ruhende Uhren befinden, bestimmt durch Anwendung der in § 1 genannten Methode der Lichtsignale zwischen den Punkten, in denen sich die letzteren Uhren befinden."
+sentenceSpans:
+  - id: "s3-p3-s1"
+    span:
+      start: 0
+      end: 237
+      blockRevision: 1
+      textDigest: "1264c6b80e8485a8ca12205a2bd3c26331436685fbd45c52d8db5211ba2f6305"
+  - id: "s3-p3-s2"
+    span:
+      start: 238
+      end: 749
+      blockRevision: 1
+      textDigest: "1264c6b80e8485a8ca12205a2bd3c26331436685fbd45c52d8db5211ba2f6305"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

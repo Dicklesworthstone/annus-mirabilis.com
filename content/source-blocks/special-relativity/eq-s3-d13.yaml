@@ -1,0 +1,26 @@
+# SourceBlock eq-s3-d13: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "eq-s3-d13"
+kind: "equation"
+paper: "special-relativity"
+section: "s3"
+order: 58
+locators:
+  - pdfPageIndex: 10
+    printedPage: 900
+editorialLabel: "ed:s3-d13"
+containedIn: "s3-p12"
+diplomaticText: "\\eta = a \\frac{V}{\\sqrt{V^2 - v^2}} y"
+inlines:
+  - kind: "math"
+    latex: "\\eta = a \\frac{V}{\\sqrt{V^2 - v^2}} y"
+    equationId: "eq-s3-d13"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

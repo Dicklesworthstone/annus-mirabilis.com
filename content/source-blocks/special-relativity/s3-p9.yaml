@@ -1,0 +1,41 @@
+# SourceBlock s3-p9: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p9"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s3"
+order: 46
+locators:
+  - pdfPageIndex: 9
+    printedPage: 899
+diplomaticText: "Es ist zu bemerken, daß wir statt des Koordinatenursprunges jeden anderen Punkt als Ausgangspunkt des Lichtstrahles hätten wählen können und es gilt deshalb die eben erhaltene Gleichung für alle Werte von x', y, z."
+inlines:
+  - kind: "text"
+    text: "Es ist zu bemerken, daß wir statt des Koordinatenursprunges jeden anderen Punkt als Ausgangspunkt des Lichtstrahles hätten wählen können und es gilt deshalb die eben erhaltene Gleichung für alle Werte von "
+  - kind: "math"
+    latex: "x'"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "y"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "z"
+  - kind: "text"
+    text: "."
+sentenceSpans:
+  - id: "s3-p9-s1"
+    span:
+      start: 0
+      end: 214
+      blockRevision: 1
+      textDigest: "3a42a2de70d5615be37ee486f4a6b434cb01000ab9ab64adba8564c9bbda7b0b"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

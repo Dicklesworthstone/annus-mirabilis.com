@@ -1,0 +1,92 @@
+# SourceBlock s3-p7: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p7"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s3"
+order: 41
+locators:
+  - pdfPageIndex: 8
+    printedPage: 898
+  - pdfPageIndex: 9
+    printedPage: 899
+diplomaticText: "Vom Anfangspunkt des Systems k aus werde ein Lichtstrahl zur Zeit \\tau_0 längs der X-Achse nach x' gesandt und von dort zur Zeit \\tau_1 nach dem Koordinatenursprung reflektiert, wo er zur Zeit \\tau_2 anlange; so muß dann sein: oder, indem man die Argumente der Funktion \\tau beifügt und das Prinzip der Konstanz der Lichtgeschwindigkeit im ruhenden Systeme anwendet: Hieraus folgt, wenn man x' unendlich klein wählt: oder"
+inlines:
+  - kind: "text"
+    text: "Vom Anfangspunkt des Systems "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " aus werde ein Lichtstrahl zur Zeit "
+  - kind: "math"
+    latex: "\\tau_0"
+  - kind: "text"
+    text: " längs der "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: "-Achse nach "
+  - kind: "math"
+    latex: "x'"
+  - kind: "text"
+    text: " gesandt und von dort zur Zeit "
+  - kind: "math"
+    latex: "\\tau_1"
+  - kind: "text"
+    text: " nach dem Koordinatenursprung reflektiert, wo er zur Zeit "
+  - kind: "math"
+    latex: "\\tau_2"
+  - kind: "text"
+    text: " anlange; so muß dann sein:"
+  - kind: "math"
+    latex: "\\frac{1}{2}(\\tau_0 + \\tau_2) = \\tau_1"
+    display: true
+    equationId: "eq-s3-d1"
+  - kind: "text"
+    text: " oder, indem man die Argumente der Funktion "
+  - kind: "math"
+    latex: "\\tau"
+  - kind: "text"
+    text: " beifügt und das Prinzip der Konstanz der Lichtgeschwindigkeit im ruhenden Systeme anwendet:"
+  - kind: "math"
+    latex: "\\begin{aligned} &\\frac{1}{2}\\left[ \\tau(0,0,0,t) + \\tau\\left( 0,0,0,\\left\\{ t + \\frac{x'}{V-v} + \\frac{x'}{V+v} \\right\\} \\right) \\right] \\\\ &= \\tau\\left( x',0,0,t + \\frac{x'}{V-v} \\right). \\end{aligned}"
+    display: true
+    equationId: "eq-s3-d2"
+  - kind: "space"
+  - kind: "text"
+    text: "Hieraus folgt, wenn man "
+  - kind: "math"
+    latex: "x'"
+  - kind: "text"
+    text: " unendlich klein wählt:"
+  - kind: "math"
+    latex: "\\frac{1}{2}\\left( \\frac{1}{V-v} + \\frac{1}{V+v} \\right) \\frac{\\partial \\tau}{\\partial t} = \\frac{\\partial \\tau}{\\partial x'} + \\frac{1}{V-v} \\frac{\\partial \\tau}{\\partial t} ,"
+    display: true
+    equationId: "eq-s3-d3"
+  - kind: "text"
+    text: " oder"
+  - kind: "math"
+    latex: "\\frac{\\partial \\tau}{\\partial x'} + \\frac{v}{V^2 - v^2} \\frac{\\partial \\tau}{\\partial t} = 0 ."
+    display: true
+    equationId: "eq-s3-d4"
+sentenceSpans:
+  - id: "s3-p7-s1"
+    span:
+      start: 0
+      end: 366
+      blockRevision: 1
+      textDigest: "062f809b4341d785330cc61625f7613e9800fe28a90c9c989c076dba14813a54"
+  - id: "s3-p7-s2"
+    span:
+      start: 367
+      end: 421
+      blockRevision: 1
+      textDigest: "062f809b4341d785330cc61625f7613e9800fe28a90c9c989c076dba14813a54"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

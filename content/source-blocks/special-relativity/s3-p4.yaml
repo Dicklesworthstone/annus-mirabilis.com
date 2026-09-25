@@ -1,0 +1,65 @@
+# SourceBlock s3-p4: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p4"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s3"
+order: 38
+locators:
+  - pdfPageIndex: 8
+    printedPage: 898
+diplomaticText: "Zu jedem Wertsystem x, y, z, t, welches Ort und Zeit eines Ereignisses im ruhenden System vollkommen bestimmt, gehört ein jenes Ereignis relativ zum System k festlegendes Wertsystem \\xi, \\eta, \\zeta, \\tau, und es ist nun die Aufgabe zu lösen, das diese Größen verknüpfende Gleichungssystem zu finden."
+inlines:
+  - kind: "text"
+    text: "Zu jedem Wertsystem "
+  - kind: "math"
+    latex: "x"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "y"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "z"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: ", welches Ort und Zeit eines Ereignisses im ruhenden System vollkommen bestimmt, gehört ein jenes Ereignis relativ zum System "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " festlegendes Wertsystem "
+  - kind: "math"
+    latex: "\\xi"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\eta"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\zeta"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\tau"
+  - kind: "text"
+    text: ", und es ist nun die Aufgabe zu lösen, das diese Größen verknüpfende Gleichungssystem zu finden."
+sentenceSpans:
+  - id: "s3-p4-s1"
+    span:
+      start: 0
+      end: 300
+      blockRevision: 1
+      textDigest: "979e1cdf0391130382242352eda83c883ffea17a35860da7047e3a579fa6e80a"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

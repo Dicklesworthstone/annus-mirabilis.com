@@ -1,0 +1,66 @@
+# SourceBlock s3-p14: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p14"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s3"
+order: 55
+locators:
+  - pdfPageIndex: 10
+    printedPage: 900
+diplomaticText: "Setzen wir für x' seinen Wert ein, so erhalten wir: wobei und \\varphi eine vorläufig unbekannte Funktion von v ist. Macht man über die Anfangslage des bewegten Systems und über den Nullpunkt von \\tau keinerlei Voraussetzung, so ist auf den rechten Seiten dieser Gleichungen je eine additive Konstante zuzufügen."
+inlines:
+  - kind: "text"
+    text: "Setzen wir für "
+  - kind: "math"
+    latex: "x'"
+  - kind: "text"
+    text: " seinen Wert ein, so erhalten wir:"
+  - kind: "math"
+    latex: "\\begin{aligned} \\tau &= \\varphi(v) \\beta \\left( t - \\frac{v}{V^2} x \\right) , \\\\ \\xi &= \\varphi(v) \\beta (x - v t), \\\\ \\eta &= \\varphi(v) y, \\\\ \\zeta &= \\varphi(v) z, \\end{aligned}"
+    display: true
+    equationId: "eq-s3-d15"
+  - kind: "text"
+    text: " wobei"
+  - kind: "math"
+    latex: "\\beta = \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
+    display: true
+    equationId: "eq-s3-d16"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "\\varphi"
+  - kind: "text"
+    text: " eine vorläufig unbekannte Funktion von "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " ist."
+  - kind: "space"
+  - kind: "text"
+    text: "Macht man über die Anfangslage des bewegten Systems und über den Nullpunkt von "
+  - kind: "math"
+    latex: "\\tau"
+  - kind: "text"
+    text: " keinerlei Voraussetzung, so ist auf den rechten Seiten dieser Gleichungen je eine additive Konstante zuzufügen."
+sentenceSpans:
+  - id: "s3-p14-s1"
+    span:
+      start: 0
+      end: 115
+      blockRevision: 1
+      textDigest: "34c94772add1fbd6ae46ff0ee8ede29ab286d8c16c810036cec4e6c015b5008c"
+  - id: "s3-p14-s2"
+    span:
+      start: 116
+      end: 311
+      blockRevision: 1
+      textDigest: "34c94772add1fbd6ae46ff0ee8ede29ab286d8c16c810036cec4e6c015b5008c"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,22 @@
+# TranslationUnit eq-s3-d18: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "eq-s3-d18"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "eq-s3-d18"
+inlines:
+  - kind: "math"
+    latex: "\\xi^2 + \\eta^2 + \\zeta^2 = V^2 \\tau^2 ."
+    equationId: "eq-s3-d18"
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

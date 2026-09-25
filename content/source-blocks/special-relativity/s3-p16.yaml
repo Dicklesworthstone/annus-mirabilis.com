@@ -1,0 +1,58 @@
+# SourceBlock s3-p16: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p16"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s3"
+order: 63
+locators:
+  - pdfPageIndex: 11
+    printedPage: 901
+diplomaticText: "Zur Zeit t = \\tau = 0 werde von dem zu dieser Zeit gemeinsamen Koordinatenursprung beider Systeme aus eine Kugelwelle ausgesandt, welche sich im System K mit der Geschwindigkeit V ausbreitet. Ist (x, y, z) ein eben von dieser Welle ergriffener Punkt, so ist also"
+inlines:
+  - kind: "text"
+    text: "Zur Zeit "
+  - kind: "math"
+    latex: "t = \\tau = 0"
+  - kind: "text"
+    text: " werde von dem zu dieser Zeit gemeinsamen Koordinatenursprung beider Systeme aus eine Kugelwelle ausgesandt, welche sich im System "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " mit der Geschwindigkeit "
+  - kind: "math"
+    latex: "V"
+  - kind: "text"
+    text: " ausbreitet."
+  - kind: "space"
+  - kind: "text"
+    text: "Ist "
+  - kind: "math"
+    latex: "(x, y, z)"
+  - kind: "text"
+    text: " ein eben von dieser Welle ergriffener Punkt, so ist also"
+  - kind: "math"
+    latex: "x^2 + y^2 + z^2 = V^2 t^2 ."
+    display: true
+    equationId: "eq-s3-d17"
+sentenceSpans:
+  - id: "s3-p16-s1"
+    span:
+      start: 0
+      end: 191
+      blockRevision: 1
+      textDigest: "f58e1bad779d3eda2b410352992aba6e007bf08655db0c5dafb9c3a89c3e84cb"
+  - id: "s3-p16-s2"
+    span:
+      start: 192
+      end: 262
+      blockRevision: 1
+      textDigest: "f58e1bad779d3eda2b410352992aba6e007bf08655db0c5dafb9c3a89c3e84cb"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

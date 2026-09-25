@@ -1,0 +1,90 @@
+# SourceBlock s3-p10: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p10"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s3"
+order: 47
+locators:
+  - pdfPageIndex: 9
+    printedPage: 899
+diplomaticText: "Eine analoge Überlegung — auf die H- und Z-Achse angewandt — liefert, wenn man beachtet, daß sich das Licht längs dieser Achsen vom ruhenden System aus betrachtet stets mit der Geschwindigkeit \\sqrt{V^2 - v^2} fortpflanzt: Aus diesen Gleichungen folgt, da \\tau eine lineare Funktion ist: wobei a eine vorläufig unbekannte Funktion \\varphi(v) ist und der Kürze halber angenommen ist, daß im Anfangspunkte von k für \\tau = 0 t = 0 sei."
+inlines:
+  - kind: "text"
+    text: "Eine analoge Überlegung — auf die "
+  - kind: "math"
+    latex: "H"
+  - kind: "text"
+    text: "- und "
+  - kind: "math"
+    latex: "Z"
+  - kind: "text"
+    text: "-Achse angewandt — liefert, wenn man beachtet, daß sich das Licht längs dieser Achsen vom ruhenden System aus betrachtet stets mit der Geschwindigkeit "
+  - kind: "math"
+    latex: "\\sqrt{V^2 - v^2}"
+  - kind: "text"
+    text: " fortpflanzt:"
+  - kind: "math"
+    latex: "\\begin{aligned} \\frac{\\partial \\tau}{\\partial y} &= 0 \\\\ \\frac{\\partial \\tau}{\\partial z} &= 0 . \\end{aligned}"
+    display: true
+    equationId: "eq-s3-d5"
+  - kind: "space"
+  - kind: "text"
+    text: "Aus diesen Gleichungen folgt, da "
+  - kind: "math"
+    latex: "\\tau"
+  - kind: "text"
+    text: " eine "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "lineare"
+  - kind: "text"
+    text: " Funktion ist:"
+  - kind: "math"
+    latex: "\\tau = a\\left( t - \\frac{v}{V^2 - v^2} x' \\right) ,"
+    display: true
+    equationId: "eq-s3-d6"
+  - kind: "text"
+    text: " wobei "
+  - kind: "math"
+    latex: "a"
+  - kind: "text"
+    text: " eine vorläufig unbekannte Funktion "
+  - kind: "math"
+    latex: "\\varphi(v)"
+  - kind: "text"
+    text: " ist und der Kürze halber angenommen ist, daß im Anfangspunkte von "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " für "
+  - kind: "math"
+    latex: "\\tau = 0"
+  - kind: "text"
+    text: " "
+  - kind: "math"
+    latex: "t = 0"
+  - kind: "text"
+    text: " sei."
+sentenceSpans:
+  - id: "s3-p10-s1"
+    span:
+      start: 0
+      end: 222
+      blockRevision: 1
+      textDigest: "357b97f592af619b1dcf5f8d5e1433624c69b761346aa5a3b2a6c78cd3763322"
+  - id: "s3-p10-s2"
+    span:
+      start: 223
+      end: 433
+      blockRevision: 1
+      textDigest: "357b97f592af619b1dcf5f8d5e1433624c69b761346aa5a3b2a6c78cd3763322"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

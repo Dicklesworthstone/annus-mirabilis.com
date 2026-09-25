@@ -1,0 +1,266 @@
+# SourceBlock s3-p22: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p22"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s3"
+order: 71
+locators:
+  - pdfPageIndex: 11
+    printedPage: 901
+  - pdfPageIndex: 12
+    printedPage: 902
+diplomaticText: "Da die Beziehungen zwischen x', y', z' und x, y, z die Zeit t nicht enthalten, so ruhen die Systeme K und K' gegeneinander, und es ist klar, daß die Transformation von K auf K' die identische Transformation sein muß. Es ist also: Wir fragen nun nach der Bedeutung von \\varphi(v). Wir fassen das Stück der H-Achse des Systems k ins Auge, das zwischen \\xi = 0, \\eta = 0, \\zeta = 0 und \\xi = 0, \\eta = l, \\zeta = 0 gelegen ist. Dieses Stück der H-Achse ist ein relativ zum System K mit der Geschwindigkeit v senkrecht zu seiner Achse bewegter Stab, dessen Enden in K die Koordinaten besitzen: und Die Länge des Stabes, in K gemessen, ist also l/\\varphi(v); damit ist die Bedeutung der Funktion \\varphi gegeben. Aus Symmetriegründen ist nun einleuchtend, daß die im ruhenden System gemessene Länge eines bestimmten Stabes, welcher senkrecht zu seiner Achse bewegt ist, nur von der Geschwindigkeit, nicht aber von der Richtung und dem Sinne der Bewegung abhängig sein kann. Es ändert sich also die im ruhenden System gemessene Länge des bewegten Stabes nicht, wenn v mit -v vertauscht wird. Hieraus folgt: oder Aus dieser und der vorhin gefundenen Relation folgt, daß \\varphi(v) = 1 sein muß, so daß die gefundenen Transformationsgleichungen übergehen in: wobei"
+inlines:
+  - kind: "text"
+    text: "Da die Beziehungen zwischen "
+  - kind: "math"
+    latex: "x'"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "y'"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "z'"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "x"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "y"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "z"
+  - kind: "text"
+    text: " die Zeit "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: " nicht enthalten, so ruhen die Systeme "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "K'"
+  - kind: "text"
+    text: " gegeneinander, und es ist klar, daß die Transformation von "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " auf "
+  - kind: "math"
+    latex: "K'"
+  - kind: "text"
+    text: " die identische Transformation sein muß."
+  - kind: "space"
+  - kind: "text"
+    text: "Es ist also:"
+  - kind: "math"
+    latex: "\\varphi(v) \\varphi(-v) = 1 ."
+    display: true
+    equationId: "eq-s3-d20"
+  - kind: "space"
+  - kind: "text"
+    text: "Wir fragen nun nach der Bedeutung von "
+  - kind: "math"
+    latex: "\\varphi(v)"
+  - kind: "text"
+    text: "."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir fassen das Stück der "
+  - kind: "math"
+    latex: "H"
+  - kind: "text"
+    text: "-Achse des Systems "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " ins Auge, das zwischen "
+  - kind: "math"
+    latex: "\\xi = 0"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\eta = 0"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\zeta = 0"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "\\xi = 0"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\eta = l"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\zeta = 0"
+  - kind: "text"
+    text: " gelegen ist."
+  - kind: "space"
+  - kind: "text"
+    text: "Dieses Stück der "
+  - kind: "math"
+    latex: "H"
+  - kind: "text"
+    text: "-Achse ist ein relativ zum System "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " mit der Geschwindigkeit "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " senkrecht zu seiner Achse bewegter Stab, dessen Enden in "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " die Koordinaten besitzen:"
+  - kind: "math"
+    latex: "x_1 = v t, \\quad y_1 = \\frac{l}{\\varphi(v)}, \\quad z_1 = 0"
+    display: true
+    equationId: "eq-s3-d21"
+  - kind: "text"
+    text: " und"
+  - kind: "math"
+    latex: "x_2 = v t, \\quad y_2 = 0, \\quad z_2 = 0 ."
+    display: true
+    equationId: "eq-s3-d22"
+  - kind: "space"
+  - kind: "text"
+    text: "Die Länge des Stabes, in "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " gemessen, ist also "
+  - kind: "math"
+    latex: "l/\\varphi(v)"
+  - kind: "text"
+    text: "; damit ist die Bedeutung der Funktion "
+  - kind: "math"
+    latex: "\\varphi"
+  - kind: "text"
+    text: " gegeben."
+  - kind: "space"
+  - kind: "text"
+    text: "Aus Symmetriegründen ist nun einleuchtend, daß die im ruhenden System gemessene Länge eines bestimmten Stabes, welcher senkrecht zu seiner Achse bewegt ist, nur von der Geschwindigkeit, nicht aber von der Richtung und dem Sinne der Bewegung abhängig sein kann."
+  - kind: "space"
+  - kind: "text"
+    text: "Es ändert sich also die im ruhenden System gemessene Länge des bewegten Stabes nicht, wenn "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " mit "
+  - kind: "math"
+    latex: "-v"
+  - kind: "text"
+    text: " vertauscht wird."
+  - kind: "space"
+  - kind: "text"
+    text: "Hieraus folgt:"
+  - kind: "math"
+    latex: "\\frac{l}{\\varphi(v)} = \\frac{l}{\\varphi(-v)} ,"
+    display: true
+    equationId: "eq-s3-d23"
+  - kind: "text"
+    text: " oder"
+  - kind: "math"
+    latex: "\\varphi(v) = \\varphi(-v) ."
+    display: true
+    equationId: "eq-s3-d24"
+  - kind: "space"
+  - kind: "text"
+    text: "Aus dieser und der vorhin gefundenen Relation folgt, daß "
+  - kind: "math"
+    latex: "\\varphi(v) = 1"
+  - kind: "text"
+    text: " sein muß, so daß die gefundenen Transformationsgleichungen übergehen in:"
+  - kind: "math"
+    latex: "\\begin{aligned} \\tau &= \\beta\\left( t - \\frac{v}{V^2} x \\right), \\\\ \\xi &= \\beta(x - v t), \\\\ \\eta &= y, \\\\ \\zeta &= z, \\end{aligned}"
+    display: true
+    equationId: "eq-s3-d25"
+  - kind: "text"
+    text: " wobei"
+  - kind: "math"
+    latex: "\\beta = \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} ,"
+    display: true
+    equationId: "eq-s3-d26"
+sentenceSpans:
+  - id: "s3-p22-s1"
+    span:
+      start: 0
+      end: 216
+      blockRevision: 1
+      textDigest: "f3eedcc4265d488c80ee72c91bdfae3f0d6124be3e517c8063e85e588a15743f"
+  - id: "s3-p22-s2"
+    span:
+      start: 217
+      end: 229
+      blockRevision: 1
+      textDigest: "f3eedcc4265d488c80ee72c91bdfae3f0d6124be3e517c8063e85e588a15743f"
+  - id: "s3-p22-s3"
+    span:
+      start: 230
+      end: 279
+      blockRevision: 1
+      textDigest: "f3eedcc4265d488c80ee72c91bdfae3f0d6124be3e517c8063e85e588a15743f"
+  - id: "s3-p22-s4"
+    span:
+      start: 280
+      end: 424
+      blockRevision: 1
+      textDigest: "f3eedcc4265d488c80ee72c91bdfae3f0d6124be3e517c8063e85e588a15743f"
+  - id: "s3-p22-s5"
+    span:
+      start: 425
+      end: 593
+      blockRevision: 1
+      textDigest: "f3eedcc4265d488c80ee72c91bdfae3f0d6124be3e517c8063e85e588a15743f"
+  - id: "s3-p22-s6"
+    span:
+      start: 594
+      end: 707
+      blockRevision: 1
+      textDigest: "f3eedcc4265d488c80ee72c91bdfae3f0d6124be3e517c8063e85e588a15743f"
+  - id: "s3-p22-s7"
+    span:
+      start: 708
+      end: 968
+      blockRevision: 1
+      textDigest: "f3eedcc4265d488c80ee72c91bdfae3f0d6124be3e517c8063e85e588a15743f"
+  - id: "s3-p22-s8"
+    span:
+      start: 969
+      end: 1085
+      blockRevision: 1
+      textDigest: "f3eedcc4265d488c80ee72c91bdfae3f0d6124be3e517c8063e85e588a15743f"
+  - id: "s3-p22-s9"
+    span:
+      start: 1086
+      end: 1105
+      blockRevision: 1
+      textDigest: "f3eedcc4265d488c80ee72c91bdfae3f0d6124be3e517c8063e85e588a15743f"
+  - id: "s3-p22-s10"
+    span:
+      start: 1106
+      end: 1256
+      blockRevision: 1
+      textDigest: "f3eedcc4265d488c80ee72c91bdfae3f0d6124be3e517c8063e85e588a15743f"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"
