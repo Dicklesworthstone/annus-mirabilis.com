@@ -69,3 +69,11 @@
   reason: "Printed connective 'wobei' standing alone on page 911, between the transformed wave display and the four definitions of omega-prime, a-prime, b-prime and c-prime that 'gesetzt ist.' closes. Source text. Note the contrast with the page 908 entry, which acknowledges the SAME WORD under a different code: there 'wobei' was the paragraph's last text line and the rule reported it as a short PARAGRAPH, here it is followed by 'gesetzt ist.' in the same paragraph and the rule reports a short LINE. Same printed word, same reason to keep it, two codes, decided by what follows it rather than by anything about the word."
   editor: "agent:LilacValley"
   date: "2026-09-22"
+
+- ledgerKey: ap-17-891
+  code: short-line
+  ledgerPage: 26
+  lineFingerprint: ad6f70890a12d8f2
+  reason: "Printed connective 'wobei' standing alone between displays on page 916, section 9. THIS ENTRY ACKNOWLEDGES TWO LINES: 'wobei' after the Maxwell-Hertz equations with convection current (before rho = dX/dx + dY/dy + dZ/dz), and 'wobei' after the transformed system (before the u_xi, u_eta, rho', u_zeta group). The fingerprint hashes the line text alone, so both match this one entry. Both stand flush on their own line in the plate (read at 300 and 600 dpi), are source text, and introduce a display that LEDGER_FORMAT requires to open its own line."
+  editor: "agent:GreenBarn"
+  date: "2026-09-25"
