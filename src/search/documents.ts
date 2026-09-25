@@ -1,5 +1,6 @@
 import { parseInstrumentId } from "../content/ids.ts";
 import { inlineMathPlain } from "../content/inlineMath.ts";
+import type { Inline } from "../content/schemas/inlines.ts";
 import { labName } from "../reader/actions/labNames.ts";
 import {
   normalizeSearchText,
@@ -483,6 +484,119 @@ export function germanSourceDocuments(
         text,
         terms: [],
         scopeLabel: `${paper.title} · German source, ${face.label.toLowerCase()}`,
+      }),
+    );
+  }
+  return documents;
+}
+
+/**
+ * The language faces a reader can search, each indexed from its own face's loader by the builder
+ * named here. The build asserts every language face of the registry is classified, so a face added
+ * later is either indexed or excluded on purpose, never silently left out: until dispatch 214 the
+ * English face was left out, and a search for "principle of relativity" found the explanations and
+ * never the translation.
+ */
+export const SEARCH_LANGUAGE_FACES = Object.freeze({
+  german: "each heading, paragraph and footnote of the German face (germanSourceDocuments)",
+  english: "each heading, paragraph and footnote of the English face (englishTranslationDocuments)",
+});
+export function assertSearchFaceCoverage(faces: readonly string[]): void {
+  for (const face of faces) {
+    if (!Object.hasOwn(SEARCH_LANGUAGE_FACES, face))
+      throw new TypeError(
+        `Unclassified language face for search: ${face}. Add its builder or an explicit exclusion.`,
+      );
+  }
+}
+
+/** The shape of a content inline this module reads, without importing the content schemas. */
+/**
+ * A face's inlines in the markup germanSourcePlain reads: the words a reader sees, including a
+ * term's and a reference's own words; inline mathematics as $...$; a display formula as $$...$$
+ * (which it drops); emphasis unwrapped; and a footnote mark or citation left out.
+ */
+export function searchInlineText(inlines: readonly Inline[]): string {
+  return inlines
+    .map((node) => {
+      switch (node.kind) {
+        case "text":
+        case "term":
+        case "reference":
+          return node.text;
+        case "space":
+        case "line-break":
+          return " ";
+        case "emphasis":
+          return searchInlineText(node.inlines);
+        case "math":
+          return node.display ? ` $$${node.latex}$$ ` : `$${node.latex}$`;
+        default:
+          return "";
+      }
+    })
+    .join("");
+}
+
+/** One heading, paragraph or footnote of a paper's English face, as that face groups its units. */
+export type SearchEnglishParagraph = Readonly<{
+  /** The source block the English renders, which names the paragraph. */
+  key: string;
+  kind: "heading" | "paragraph" | "footnote";
+  section: string;
+  /** The id of the paragraph's first unit, which the English face renders as an element id. */
+  anchor: string;
+  text: string;
+}>;
+
+/**
+ * The English a reader can open, so an English phrase finds the translation that says it: the index
+ * held the explanations and the German, and "principle of relativity", "light quanta" or "Brownian"
+ * never reached the translation itself. One document per heading, paragraph and footnote of the
+ * English face, grouped as that face sets them and landing on the first unit it renders there.
+ * Titles count as the German documents do ("§ 3, paragraph 2"), and the scope line carries the
+ * face's label and its review state, so a hit never reads as a person's review.
+ */
+export function englishTranslationDocuments(
+  paper: Readonly<{ id: string; title: string }>,
+  face: Readonly<{ label: string; paragraphs: readonly SearchEnglishParagraph[] }>,
+  profile: SearchProfile,
+): readonly SearchDocument[] {
+  searchProfile(profile);
+  if (profile !== "scaffold") return [];
+  const sectioned = face.paragraphs.some((p) => p.kind === "heading");
+  const ordinals = new Map<string, number>();
+  const documents: SearchDocument[] = [];
+  for (const paragraph of face.paragraphs) {
+    const section = paragraph.section;
+    const number = section.slice(1);
+    const where = section === "s0" ? (sectioned ? "Introduction" : "") : `§ ${number}`;
+    const text = germanSourcePlain(paragraph.text);
+    if (!text) continue;
+    let title: string;
+    if (paragraph.kind === "heading") title = text;
+    else if (paragraph.kind === "footnote") {
+      const footnote = /-fn(\d+)$/u.exec(paragraph.key)?.[1] ?? "";
+      title = where ? `${where}, footnote ${footnote}` : `Footnote ${footnote}`;
+    } else {
+      const ordinal = (ordinals.get(section) ?? 0) + 1;
+      ordinals.set(section, ordinal);
+      title = where ? `${where}, paragraph ${ordinal}` : `Paragraph ${ordinal}`;
+    }
+    documents.push(
+      validateSearchDocument({
+        id: `english:${paper.id}:${paragraph.key}`,
+        type: "sentence-en",
+        paper: paper.id,
+        section,
+        lang: "en",
+        route: `/papers/${paper.id}/view/english/`,
+        anchor: paragraph.anchor,
+        face: "",
+        title,
+        text,
+        terms: [],
+        scopeLabel: `${paper.title} · ${face.label}`,
       }),
     );
   }
