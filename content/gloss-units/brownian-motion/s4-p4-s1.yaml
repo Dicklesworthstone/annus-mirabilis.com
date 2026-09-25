@@ -1,0 +1,46 @@
+# GlossUnit s4-p4-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s4-p4-s1"
+sentenceId: "s4-p4-s1"
+revision: 1
+sourceRevision: 2
+sourceTextDigest: "af177073225f6ee13f26b00b332e3525d4dfb440fba93002251816d176545ead"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Seien"
+  - german: "nun"
+    english: "now"
+  - german: "in"
+    english: "in"
+  - german: "einer"
+    english: "a"
+  - german: "Flüssigkeit"
+    english: "liquid"
+  - german: "im"
+  - german: "ganzen"
+  - german: "suspendierte"
+    english: "suspended"
+  - german: "Teilchen"
+    english: "particles"
+  - german: "vorhanden"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 9
+    english: "let there be"
+    kind: "split-construction"
+    grammarNote: "Konjunktiv I of vorhanden sein, verb first: a supposition, 'let there be present'"
+    noteClass: "konjunktiv-i"
+  - tokenIndices:
+      - 5
+      - 6
+    english: "in all"
+    kind: "fixed-phrase"
+    grammarNote: "im ganzen, in all, in total"

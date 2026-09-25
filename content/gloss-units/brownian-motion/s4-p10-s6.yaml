@@ -1,0 +1,32 @@
+# GlossUnit s4-p10-s6: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s4-p10-s6"
+sentenceId: "s4-p10-s6"
+revision: 1
+sourceRevision: 2
+sourceTextDigest: "2c07b01781f8fa3de90aa80ad1483ac3418176d63b097513f528873081af6e70"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Ferner"
+    english: "further"
+  - german: "muß"
+    english: "must"
+    lemma: "müssen"
+    grammarNote: "necessity: asserted as required (spelled muß)"
+    noteClass: "necessity"
+  - german: "offenbar"
+    english: "evidently"
+  - german: "für"
+    english: "for"
+  - german: "und"
+    english: "and"
+  - german: "sein"
+    english: "be"
+multiwordUnits: []

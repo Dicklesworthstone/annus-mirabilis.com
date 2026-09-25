@@ -1,0 +1,24 @@
+# GlossUnit s4-p6-s8: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s4-p6-s8"
+sentenceId: "s4-p6-s8"
+revision: 1
+sourceRevision: 3
+sourceTextDigest: "4b0f82ae7f7f09cbe10528debfccf174ec82eb070abfe046320399c93eb11764"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Wir"
+    english: "we"
+  - german: "erhalten"
+    english: "obtain"
+    lemma: "erhalten"
+    grammarNote: "formula phrase of a derivation"
+    noteClass: "formula-phrase"
+multiwordUnits: []

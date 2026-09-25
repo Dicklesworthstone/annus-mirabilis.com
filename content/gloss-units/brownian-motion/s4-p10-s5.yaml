@@ -1,0 +1,51 @@
+# GlossUnit s4-p10-s5: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s4-p10-s5"
+sentenceId: "s4-p10-s5"
+revision: 1
+sourceRevision: 2
+sourceTextDigest: "10a767ba98ecf8174d7d451fc328e5d7e8baed0441cced360b1325cbba58bc11"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Auch"
+    english: "also"
+  - german: "in"
+    english: "in"
+  - german: "diesem"
+    english: "this"
+  - german: "Falle"
+    english: "case"
+    lemma: "Fall"
+    grammarNote: "older dative in -e, of Fall"
+    noteClass: "archaic-spelling"
+  - german: "ändert"
+  - german: "sich"
+  - german: "also"
+    english: "therefore"
+    lemma: "also"
+    grammarNote: "consequence: marks a step that follows"
+    noteClass: "consequence"
+  - german: "die"
+    english: "the"
+  - german: "Funktion"
+    english: "function"
+  - german: "gemäß"
+    english: "according to"
+  - german: "Gleichung"
+    english: "equation"
+  - german: "1"
+    english: "(1)"
+multiwordUnits:
+  - tokenIndices:
+      - 4
+      - 5
+    english: "changes"
+    kind: "reflexive"
+    grammarNote: "reflexive: sich ändern"

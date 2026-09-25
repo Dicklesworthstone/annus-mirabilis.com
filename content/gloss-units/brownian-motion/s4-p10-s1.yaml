@@ -1,0 +1,41 @@
+# GlossUnit s4-p10-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s4-p10-s1"
+sentenceId: "s4-p10-s1"
+revision: 1
+sourceRevision: 2
+sourceTextDigest: "e41e5bbe655a7eb25875010c15f7661d5f88147bc74fef617bd5302920671fff"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "An"
+    english: "to"
+  - german: "diese"
+    english: "this"
+  - german: "Entwicklung"
+    english: "development"
+  - german: "läßt"
+  - german: "sich"
+  - german: "noch"
+    english: "further"
+  - german: "eine"
+    english: "an"
+  - german: "wichtige"
+    english: "important"
+  - german: "Überlegung"
+    english: "consideration"
+  - german: "anknüpfen"
+multiwordUnits:
+  - tokenIndices:
+      - 3
+      - 4
+      - 9
+    english: "can be attached"
+    kind: "reflexive"
+    grammarNote: "sich lassen with an infinitive: läßt sich ... anknüpfen, 'can be attached' (läßt, archaic spelling of lässt)"
