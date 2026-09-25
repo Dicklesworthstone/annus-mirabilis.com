@@ -24,7 +24,7 @@ import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
-import { ShowTheCode } from "./ShowTheCode.tsx";
+import { equationsByListing, ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
 import { PLOT_KINDS, TracerHistogram, TracerPaths, TracerScaling } from "./TracerPlots.tsx";
 
@@ -651,7 +651,11 @@ export function TracerLab({
         <p data-detail="3" hidden>
           {withScripts(BM01_CAPTION.r3)}
         </p>
-        <section className="live-equation-group" aria-label="Equations for this accepted trial">
+        <section
+          id={`${id}-model`}
+          className="live-equation-group"
+          aria-label="Equations for this accepted trial"
+        >
           <h3>Inspect the model behind this trial</h3>
           <p>
             These equations describe the same accepted trial as the plots and table. Select a symbol
@@ -705,6 +709,11 @@ export function TracerLab({
             <ShowTheCode
               instrumentId="bm-01"
               listings={getKernelListingsForInstrument("bm-01")}
+              equations={equationsByListing(
+                getKernelListingsForInstrument("bm-01"),
+                equationPayload.equations as readonly CompiledEquation[],
+              )}
+              explorerHref={`#${id}-model`}
               snapshotSourceDigest={example.snapshotFunctionHash}
               producedCurrentSnapshot={true}
               snapshotFunctionName={example.snapshotFunctionName}

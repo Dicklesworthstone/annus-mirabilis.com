@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import {
   highlightKernelSource,
   selectionCss,
@@ -8,6 +7,8 @@ import { roleForQuantity } from "../../content/kernel/trace.ts";
 import type { WorkedTrace } from "../../content/kernel/types.ts";
 import { KERNEL_DISPLAY_ROLE_LABELS, type KernelListing } from "../../content/kernel/types.ts";
 import { paperOfId } from "../../equations/paperOfId.ts";
+import { withQuantityIds } from "../../equations/termQuantities.ts";
+import type { CompiledEquation } from "../../equations/viewTypes.ts";
 import { display, readablePowers, unitText } from "./presentation.ts";
 import "../../generated/quantity-colours-by-paper.css";
 import "./showTheCode.css";
@@ -96,8 +97,19 @@ export type ShowTheCodeProps = Readonly<{
   producedCurrentSnapshot?: boolean | undefined;
   snapshotFunctionName?: string | undefined;
   snapshotSourceDigest?: string | undefined;
-  equationCard?: ReactNode;
   uid?: string | undefined;
+  /**
+   * The equations each listed function computes, by export name (dispatch 178). A listing with
+   * equations gets a Mathematics section showing them; one without gets no Mathematics heading
+   * and no tab, where a heading over an empty placeholder used to stand on every laboratory.
+   */
+  equations?: Readonly<Record<string, readonly CompiledEquation[]>> | undefined;
+  /**
+   * Where the laboratory's own explorer of those equations is, for the link under each one. The
+   * explorer is not repeated here: the laboratory already renders it once with its live values,
+   * and a second copy is the duplicated equation card am-w7rx removed.
+   */
+  explorerHref?: string | undefined;
   /**
    * The laboratory showing the code. Its paper is the fallback for listings that name no equation
    * and no reference (bm-05's walk, bm-06's ensemble), whose identifiers otherwise found no
@@ -105,6 +117,72 @@ export type ShowTheCodeProps = Readonly<{
    */
   instrumentId?: string | undefined;
 }>;
+
+/**
+ * The equations each listing names by its own equationId, from the laboratory's compiled records.
+ * A listing that names none, or names one the laboratory does not have, gets none: no guessing.
+ */
+export function equationsByListing(
+  listings: readonly KernelListing[],
+  compiled: readonly CompiledEquation[],
+): Readonly<Record<string, readonly CompiledEquation[]>> {
+  return Object.fromEntries(
+    listings.map((l) => [l.exportName, compiled.filter((e) => e.id === l.equationId)]),
+  );
+}
+
+/**
+ * One equation beside the code that computes it: drawn in its quantities' colours (the per-paper
+ * sheet this module imports), read by a screen reader from its MathML, and linked to the
+ * laboratory's explorer, where its chips, inspector and live values are. data-equation-card and
+ * data-equation-ref keep the tour and print rules that hide equation cards, and the one-explorer
+ * guard of am-w7rx (TracerLabEquations.test.tsx), working.
+ */
+function CodeMaths({
+  equation,
+  explorerHref,
+}: {
+  equation: CompiledEquation;
+  explorerHref: string | undefined;
+}) {
+  return (
+    <div
+      className="show-the-code-maths"
+      data-equation-card=""
+      data-equation-ref={equation.id}
+      data-paper={equation.paper}
+    >
+      <p className="show-the-code-maths-title">{equation.title}</p>
+      <section
+        className="reading-formula-row"
+        aria-label={`Formula: ${equation.title}`}
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable (WCAG 2.1.1); a wide relation scrolls inside its own line.
+        tabIndex={0}
+      >
+        <div className="reading-formula-relation">
+          <div
+            className="equation-visual"
+            aria-hidden="true"
+            {...{
+              dangerouslySetInnerHTML: { __html: withQuantityIds(equation.html, equation.terms) },
+            }}
+          />
+          <div
+            className="equation-mathml"
+            {...{ dangerouslySetInnerHTML: { __html: equation.mathml } }}
+          />
+        </div>
+      </section>
+      {explorerHref ? (
+        <p>
+          <a href={explorerHref}>
+            Explore {equation.title} term by term, with this laboratory’s values
+          </a>
+        </p>
+      ) : null}
+    </div>
+  );
+}
 
 function slug(text: string): string {
   return text.replace(/[^A-Za-z0-9_-]+/g, "-");
@@ -115,7 +193,8 @@ export function ShowTheCode({
   producedCurrentSnapshot = false,
   snapshotFunctionName,
   snapshotSourceDigest,
-  equationCard,
+  equations,
+  explorerHref,
   uid = "stc",
   instrumentId,
 }: ShowTheCodeProps) {
@@ -149,6 +228,7 @@ export function ShowTheCode({
       <style>{selectionCss(quantityIds)}</style>
       {listings.map((listing) => {
         const id = `${uid}-${slug(listing.exportName)}`;
+        const maths = equations?.[listing.exportName] ?? [];
         const roleLabel = KERNEL_DISPLAY_ROLE_LABELS[listing.displayRole];
         const tokens = listing.source
           ? tokenizeKernelSource(listing.source, listing.identifierBindings)
@@ -185,9 +265,11 @@ export function ShowTheCode({
               <a href={`#${id}-words`} aria-label={`In words: ${listing.exportName}`}>
                 In words
               </a>
-              <a href={`#${id}-mathematics`} aria-label={`Mathematics: ${listing.exportName}`}>
-                Mathematics
-              </a>
+              {maths.length > 0 ? (
+                <a href={`#${id}-mathematics`} aria-label={`Mathematics: ${listing.exportName}`}>
+                  Mathematics
+                </a>
+              ) : null}
               <a
                 href={`#${id}-implementation`}
                 aria-label={`Implementation: ${listing.exportName}`}
@@ -199,17 +281,18 @@ export function ShowTheCode({
               <h3>In words</h3>
               <p>{listing.words}</p>
             </section>
-            <section
-              id={`${id}-mathematics`}
-              className="show-the-code-panel"
-              data-tab="mathematics"
-            >
-              <h3>Mathematics</h3>
-              {equationCard ??
-                (listing.equationId ? (
-                  <div data-equation-card="" data-equation-ref={listing.equationId} />
-                ) : null)}
-            </section>
+            {maths.length > 0 ? (
+              <section
+                id={`${id}-mathematics`}
+                className="show-the-code-panel"
+                data-tab="mathematics"
+              >
+                <h3>Mathematics</h3>
+                {maths.map((equation) => (
+                  <CodeMaths key={equation.id} equation={equation} explorerHref={explorerHref} />
+                ))}
+              </section>
+            ) : null}
             <section
               id={`${id}-implementation`}
               className="show-the-code-panel"

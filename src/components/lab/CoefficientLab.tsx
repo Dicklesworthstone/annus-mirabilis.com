@@ -592,7 +592,18 @@ export function CoefficientLab({
         </section>
       )}
       {/* The kernel's own source, extracted at build time with its hash pinned (src/content/kernel). */}
-      <ShowTheCode instrumentId="me-02" listings={getKernelListingsForInstrument("me-02")} />
+      {/* The one kernel computes every bound result, so its Mathematics shows them, linked to the
+          explorer above; a lab with no bound equations shows no Mathematics heading at all. */}
+      <ShowTheCode
+        instrumentId="me-02"
+        listings={getKernelListingsForInstrument("me-02")}
+        equations={{ evaluateMe02: boundEquations }}
+        explorerHref={
+          boundEquations.length > 0
+            ? `#${restoreSettings ? "coefficient-equations" : `${id}-equations`}`
+            : undefined
+        }
+      />
       <p className="fine">Not modeled: {ME02_NOT_MODELED.join("; ")}.</p>
     </section>
   );

@@ -108,13 +108,17 @@ describe("PaperReader link accessible names (am-jmma)", () => {
     const labByName = groupLinksByName(extractLinks(renderToStaticMarkup(TracerPage())));
     const bm01Listings = getKernelListingsForInstrument("bm-01");
     expect(bm01Listings.length).toBeGreaterThan(0);
+    // Non-vacuous: some bm-01 listings name an equation, so some Mathematics tabs are checked.
+    expect(bm01Listings.some((l) => l.equationId)).toBe(true);
     for (const listing of bm01Listings) {
       const wordsName = `In words: ${listing.exportName}`;
       const mathName = `Mathematics: ${listing.exportName}`;
       const implName = `Implementation: ${listing.exportName}`;
 
       expect(labByName.get(wordsName)?.size).toBe(1);
-      expect(labByName.get(mathName)?.size).toBe(1);
+      // A Mathematics tab exists only where the function computes an equation (dispatch 178);
+      // a listing that names none has no tab, where it used to have a heading over nothing.
+      expect(labByName.get(mathName)?.size).toBe(listing.equationId ? 1 : undefined);
       expect(labByName.get(implName)?.size).toBe(1);
     }
 

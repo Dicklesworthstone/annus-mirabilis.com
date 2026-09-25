@@ -5,8 +5,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { extractTypeScriptExport } from "../../content/kernel/extractTypeScript.ts";
 import { computeBm01StokesEinsteinTrace } from "../../content/kernel/trace.ts";
 import { KERNEL_BEAD_ID, KERNEL_DISPLAY_ROLE_LABELS } from "../../content/kernel/types.ts";
+import type { CompiledEquation } from "../../equations/viewTypes.ts";
+import bm01Equations from "../../generated/bm01-equations.json";
 import { getLogger } from "../../testing/log/logger.ts";
-import { ShowTheCode } from "./ShowTheCode.tsx";
+import { equationsByListing, ShowTheCode } from "./ShowTheCode.tsx";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../../..");
 const logger = getLogger("show-the-code");
@@ -46,9 +48,27 @@ const baseListing = {
   trace: computeBm01StokesEinsteinTrace(),
 };
 
+const compiled = bm01Equations.equations as unknown as CompiledEquation[];
+const diffusivity = compiled.find((e) => e.id === "eq-model-bm-diffusivity");
+if (!diffusivity)
+  throw new Error("eq-model-bm-diffusivity is missing from the generated equations");
+const withMaths = { evaluateStokesEinstein: [diffusivity] };
+
+/**
+ * A Mathematics heading with no equation under it (dispatch 178: it stood on every laboratory).
+ * True when some Mathematics panel holds no equation block.
+ */
+function emptyMathematics(html: string): boolean {
+  return [...html.matchAll(/data-tab="mathematics">([\s\S]*?)<\/section><section/g)].some(
+    (m) => !(m[1] ?? "").includes('class="show-the-code-maths"'),
+  );
+}
+
 describe("ShowTheCode", () => {
   test("renders three static sections without JavaScript and escapes planted script", () => {
-    const html = renderToStaticMarkup(<ShowTheCode listings={[baseListing]} />);
+    const html = renderToStaticMarkup(
+      <ShowTheCode listings={[baseListing]} equations={withMaths} explorerHref="#lab-model" />,
+    );
     expect(html).toContain("In words");
     expect(html).toContain("Mathematics");
     expect(html).toContain("Implementation");
@@ -62,7 +82,11 @@ describe("ShowTheCode", () => {
     expect(html).toContain(KERNEL_DISPLAY_ROLE_LABELS["reference-implementation"]);
     expect(html).toContain('data-equation-ref="eq-model-bm-diffusivity"');
     expect(html).not.toContain('data-equation-id="eq-model-bm-diffusivity"');
-    expect(html).not.toContain("\\frac");
+    // No raw LaTeX a reader could see. The Mathematics panel now carries the compiled MathML, whose
+    // <annotation encoding="application/x-tex"> holds the TeX for assistive tools and is never
+    // displayed; everything else is checked as before.
+    expect(html).toContain('annotation encoding="application/x-tex"');
+    expect(html.replace(/<annotation\b[^>]*>[\s\S]*?<\/annotation>/g, "")).not.toContain("\\frac");
     logger.log({
       testId: "show-the-code-static",
       beadId: KERNEL_BEAD_ID,
@@ -212,5 +236,53 @@ describe("no pinned listing, no disclosure", () => {
     const html = renderToStaticMarkup(<MovingMirrorLab example={DEFAULT_PREPARED_EXAMPLE} />);
     expect(html).not.toContain('class="show-the-code"');
     // ShowTheCodeColour.test.tsx holds the other side: BM-01, with pinned listings, still draws it.
+  });
+});
+
+describe("the Mathematics section shows the equations a function computes, or nothing (dispatch 178)", () => {
+  test("with equations: a tab and a heading over each equation, coloured and linked to the lab's explorer", () => {
+    const html = renderToStaticMarkup(
+      <ShowTheCode listings={[baseListing]} equations={withMaths} explorerHref="#lab-model" />,
+    );
+    expect(html).toContain('href="#stc-evaluateStokesEinstein-mathematics"');
+    expect(html).toContain("<h3>Mathematics</h3>");
+    expect(html).toMatch(/class="show-the-code-maths"[^>]*data-paper="brownian-motion"/);
+    // The formula's terms carry their quantity ids, so the per-paper sheet colours them.
+    expect(html).toMatch(
+      /data-term="eq-model-bm-diffusivity\.t\.[^"]+" data-quantity-id="viscosity"/,
+    );
+    expect(html).toContain('href="#lab-model"');
+    expect(html).toContain(`Explore ${diffusivity.title} term by term`);
+    // Not a second explorer: the lab renders that once (am-w7rx).
+    expect(html).not.toContain('class="semantic-equation"');
+    expect(emptyMathematics(html)).toBe(false);
+  });
+
+  test("without equations: no Mathematics tab, heading or section", () => {
+    const html = renderToStaticMarkup(<ShowTheCode listings={[baseListing]} />);
+    expect(html).not.toContain("Mathematics");
+    expect(html).not.toContain('data-tab="mathematics"');
+    expect(html).not.toContain("-mathematics");
+    expect(html).toContain('data-tab="words"');
+    expect(html).toContain('data-tab="implementation"');
+    expect(emptyMathematics(html)).toBe(false);
+  });
+
+  test("a listing gets only the equation it names, by exact id, and none when it names none", () => {
+    const listings = [
+      baseListing,
+      { ...baseListing, exportName: "unnamed", equationId: undefined },
+      { ...baseListing, exportName: "prefix", equationId: "eq-model-bm-diff" },
+    ];
+    const byListing = equationsByListing(listings, compiled);
+    expect(byListing.evaluateStokesEinstein?.map((e) => e.id)).toEqual(["eq-model-bm-diffusivity"]);
+    expect(byListing.unnamed).toEqual([]);
+    expect(byListing.prefix).toEqual([]);
+  });
+
+  test("negative: the detector catches a Mathematics heading with nothing under it", () => {
+    const planted =
+      '<section id="x-mathematics" class="show-the-code-panel" data-tab="mathematics"><h3>Mathematics</h3></section><section';
+    expect(emptyMathematics(planted)).toBe(true);
   });
 });

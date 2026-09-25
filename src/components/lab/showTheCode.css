@@ -140,3 +140,14 @@
 .show-the-code .kernel-ident {
   color: var(--qc, inherit);
 }
+
+/* MATHEMATICS (dispatch 178): each equation the listed function computes, drawn in its
+   quantities' colours from quantity-colours-by-paper.css and linked to the laboratory's own
+   explorer. A listing with no equation has no Mathematics heading at all. */
+.show-the-code .show-the-code-maths {
+  margin: 0.75rem 0 1.25rem;
+}
+.show-the-code .show-the-code-maths-title {
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+}
