@@ -24,7 +24,7 @@ describe("SR-11 past the number range", () => {
     await uninstallDom();
   });
 
-  test("u = 1e300 is accepted, the overflowing outputs say so, and nothing reads NaN, Infinity or e+", async () => {
+  test("u = 1e300 is refused with the declared range, the trial is kept, and nothing reads NaN, Infinity or e+", async () => {
     const container = createContainer();
     const root = createRoot(container);
     try {
@@ -50,9 +50,12 @@ describe("SR-11 past the number range", () => {
       });
 
       expect(lab?.getAttribute("data-pending")).toBe("false");
-      expect(Number(lab?.getAttribute("data-accepted-input-revision"))).toBeGreaterThan(before);
+      // Since dispatch 184 the declared domain (up to 10^6 J/m³) refuses it before any calculation.
+      expect(Number(lab?.getAttribute("data-accepted-input-revision"))).toBe(before);
       const text = container.textContent ?? "";
-      expect(text).toContain("runs past the largest number it can represent");
+      expect(text).toContain("Enter the incident energy density u from");
+      expect(text).toContain("the range this model describes");
+      expect(text).toContain("still those of the last accepted settings");
       expect(text).not.toMatch(/NaN|Infinity|\d(?:\.\d+)?e[+-]\d/);
     } finally {
       await act(async () => {

@@ -25,6 +25,7 @@ import type {
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
@@ -293,7 +294,7 @@ export function MovingMirrorLab({
           </fieldset>
           {error ? (
             <p className="notice error" role="alert">
-              {withScripts(error)}
+              {withScripts(error)} {KEPT_RESULT}
             </p>
           ) : null}
           <AcceptedStatus
