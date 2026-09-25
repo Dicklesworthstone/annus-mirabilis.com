@@ -1,0 +1,41 @@
+# TranslationUnit s4-p4-s3a: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s4-p4-s3a"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s4-p4-s3"
+inlines:
+  - kind: "text"
+    text: "A certain frequency law will hold for "
+  - kind: "math"
+    latex: "\\Delta"
+  - kind: "text"
+    text: "; the number "
+  - kind: "math"
+    latex: "d n"
+  - kind: "text"
+    text: " of particles that in the time interval "
+  - kind: "math"
+    latex: "\\tau"
+  - kind: "text"
+    text: " undergo a displacement lying between "
+  - kind: "math"
+    latex: "\\Delta"
+  - kind: "text"
+    text: " and "
+  - kind: "math"
+    latex: "\\Delta + d \\Delta"
+  - kind: "text"
+    text: " will be expressible by an equation of the form"
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

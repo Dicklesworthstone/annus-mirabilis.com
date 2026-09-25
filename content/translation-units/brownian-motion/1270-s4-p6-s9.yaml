@@ -1,0 +1,27 @@
+# TranslationUnit s4-p6-s9: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s4-p6-s9"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s4-p6-s9"
+inlines:
+  - kind: "text"
+    text: "On the right-hand side, because "
+  - kind: "math"
+    latex: "\\varphi(x) = \\varphi(-x)"
+  - kind: "text"
+    text: ", the second, fourth, etc. terms vanish, while of the first, third, fifth, etc. terms each successive one is very small compared with the one before."
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "φ(Δ) = φ(−Δ)"
+    rationale: "The argument printed here is x, where p. 556 defines φ over Δ; the translation keeps the printed x, and the provenance receipt records the suspected slip."
+reviewState: "machine-draft"
+lang: "en"

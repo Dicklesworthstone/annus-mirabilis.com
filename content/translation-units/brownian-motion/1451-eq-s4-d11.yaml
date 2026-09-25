@@ -1,0 +1,22 @@
+# TranslationUnit eq-s4-d11: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "eq-s4-d11"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "eq-s4-d11"
+inlines:
+  - kind: "math"
+    latex: "f(x, t) = \\frac{n}{\\sqrt{4 \\pi D}} \\frac{e^{-\\frac{x^2}{4 D t}}}{\\sqrt{t}}."
+    equationId: "eq-s4-d11"
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"
