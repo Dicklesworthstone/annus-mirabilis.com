@@ -18,7 +18,7 @@ Im folgenden will ich den Gedankengang mitteilen und die Tatsachen anführen, we
 
 [[HEADING s1]]§ 1. Über eine die Theorie der „schwarzen Strahlung“ betreffende Schwierigkeit.
 
-Wir stellen uns zunächst auf den Standpunkt der [[SPERR]]Maxwell[[/SPERR]]schen Theorie und Elektronentheorie und betrachten folgenden Fall. In einem von vollkommen reflektierenden Wänden eingeschlossenen Raume befinde sich eine Anzahl Gasmoleküle und Elektronen, welche freibeweglich sind und aufeinander konservative Kräfte ausüben, wenn sie einander sehr nahe kommen, d. h. miteinander wie Gasmoleküle nach der kinetischen Gastheorie zusammenstoßen können.[[FN-MARK 1)]] Eine Anzahl[[CONTINUES]]
+Wir stellen uns zunächst auf den Standpunkt der [[SPERR]]Maxwell[[/SPERR]]schen Theorie und Elektronentheorie und betrachten folgenden Fall. In einem von vollkommen reflektierenden Wänden eingeschlossenen Raumes befinde sich eine Anzahl Gasmoleküle und Elektronen, welche freibeweglich sind und aufeinander konservative Kräfte ausüben, wenn sie einander sehr nahe kommen, d. h. miteinander wie Gasmoleküle nach der kinetischen Gastheorie zusammenstoßen können.[[FN-MARK 1)]] Eine Anzahl[[CONTINUES]]
 
 [[FN 1)]] Diese Annahme ist gleichbedeutend mit der Voraussetzung, daß die mittleren kinetischen Energien von Gasmolekülen und Elektronen bei Temperaturgleichgewicht einander gleich seien. Mit Hilfe letzterer Voraussetzung hat Hr. [[SPERR]]Drude[[/SPERR]] bekanntlich das Verhältnis von thermischem und elektrischem Leitungsvermögen der Metalle auf theoretischem Wege abgeleitet.
 
@@ -38,13 +38,13 @@ wobei $R$ die absolute Gaskonstante, $N$ die Anzahl der „wirklichen Moleküle�
 --- MACHINE DRAFT TRANSCRIPTION PAGE 4 OF 17 ---
 [[ANNALEN-PAGE 135]]
 
-tronen und Molekülen zu einer im Mittel von Null verschiedenen Energieabgabe an das Gas bez. Energieaufnahme von dem Gas führen. Es ist also in dem von uns betrachteten Falle dynamisches Gleichgewicht nur dann möglich, wenn jeder Resonator die mittlere Energie $\overline{E}$ besitzt.
+und Molekülen zu einer im Mittel von Null verschiedenen Energieabgabe an das Gas bez. Energieaufnahme von dem Gas führen. Es ist also in dem von uns betrachteten Falle dynamisches Gleichgewicht nur dann möglich, wenn jeder Resonator die mittlere Energie $\overline{E}$ besitzt.
 
 Eine ähnliche Überlegung machen wir jetzt bezüglich der Wechselwirkung der Resonatoren und der im Raume vorhandenen Strahlung. Hr. [[SPERR]]Planck[[/SPERR]] hat für diesen Fall die Bedingung des dynamischen Gleichgewichtes abgeleitet[[FN-MARK 1)]] unter der Voraussetzung, daß die Strahlung als ein denkbar ungeordnetster Prozeß[[FN-MARK 2)]] betrachtet werden kann. Er fand:
 $$
 \overline{E}_\nu = \frac{L^3}{8 \pi \nu^2} \varrho_\nu.
 $$
-$\overline{E}_\nu$ ist hierbei die mittlere Energie eines Resonators von der Eigenfrequenz $\nu$ (pro Schwingungskomponente), $L$ die Lichtgeschwindigkeit, $\nu$ die Frequenz und $\varrho_\nu d \nu$ die Energie pro Volumeneinheit desjenigen Teiles der Strahlung, dessen Schwingungszahl zwischen $\nu$ und $\nu + d \nu$ liegt.
+$\overline{E}_\nu$ ist hierbei die mittlere Energie eines Resonators von der Eigenfrequenz $\nu$ (pro Schwingungskomponente), $L$ die Lichtgeschwindigkeit, $\nu$ die Frequenz und $\varrho_\nu d \nu$ die Energie pro Volumeinheit desjenigen Teiles der Strahlung, dessen Schwingungszahl zwischen $\nu$ und $\nu + d \nu$ liegt.
 
 [[FN 1)]] M. [[SPERR]]Planck[[/SPERR]], Ann. d. Phys. 1. p. 99. 1900.
 [[FN 2)]] Diese Voraussetzung läßt sich folgendermaßen formulieren. Wir entwickeln die $Z$-Komponente der elektrischen Kraft $(Z)$ in einem beliebigen Punkte des betreffenden Raumes zwischen den Zeitgrenzen $t = 0$ und $t = T$ (wobei $T$ eine relativ zu allen in Betracht zu ziehenden Schwingungsdauern sehr große Zeit bedeute) in eine [[SPERR]]Fourier[[/SPERR]]sche Reihe
