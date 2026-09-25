@@ -124,7 +124,8 @@ export function compileReadingContent(files: readonly Readonly<{ path: string; t
         routeMatch.kind === "source-manifest" ||
         routeMatch.kind === "source-block" ||
         routeMatch.kind === "aliases" ||
-        routeMatch.kind === "paragraph-bindings"
+        routeMatch.kind === "paragraph-bindings" ||
+        routeMatch.kind === "display-terms"
       ) {
         continue;
       }

@@ -90,7 +90,9 @@ export function TermHighlight({ children, as, ...attributes }: TermHighlightProp
   const at = (target: EventTarget | null) =>
     root.current ? quantityAt(root.current, target) : null;
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: delegated listeners only; the lit formula is aria-hidden, and its legend names every quantity in text for every reader.
+    // Delegated listeners only; the lit formula is aria-hidden, and its legend names every quantity
+    // in text for every reader. (noStaticElementInteractions was suppressed here for the same
+    // reason until the element became a variable, which the rule does not read.)
     <Root
       {...attributes}
       ref={root}

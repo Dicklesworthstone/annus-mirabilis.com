@@ -54,6 +54,8 @@ import {
   findInlineMathRegions,
 } from "../../content/editions/segmentSentences.ts";
 import { LEDGER_KATEX_SETTINGS, parseLedgerMath } from "../../content/ledger/ledgerMathSettings.ts";
+import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
+import { PrintedDisplayTerms } from "./PrintedDisplayTerms.tsx";
 import "./sourceMarkup.css";
 
 /** `[[SPERR]]`, `[[/SPERR]]`, `[[FN-MARK 1)]]`, `[[EQ-LABEL (1)]]`. */
@@ -147,15 +149,31 @@ export function sourceDisplayEquation(
   id: string | undefined,
   key: string,
 ): ReactNode {
-  return (
-    <span key={key} id={id} className="source-equation" data-block-kind="equation">
+  const plain = typesetLedgerMath(latex, true, id ?? key);
+  // In colour where content/display-terms binds its glyphs and the ledger prints them alike
+  // (PrintedDisplayTerms.tsx). The ledger's own parse check above still runs first.
+  const printed = printedDisplay(id, latex);
+  const element = (
+    <span
+      key={printed ? undefined : key}
+      id={id}
+      className="source-equation"
+      data-block-kind="equation"
+    >
       <span
         className="source-equation-math"
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX output under the ledger's policy: no trust, no macros, parse checked first.
-        dangerouslySetInnerHTML={{ __html: typesetLedgerMath(latex, true, id ?? key) }}
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX output under the ledger's policy: no trust, no macros, parse checked first; or the same formula coloured by build-equations.ts, whose trust admits only its own term ids.
+        dangerouslySetInnerHTML={{ __html: printed?.html ?? plain }}
       />
       {label ? <span className="source-equation-label">{label}</span> : null}
     </span>
+  );
+  return printed ? (
+    <PrintedDisplayTerms key={key} display={printed} inline>
+      {element}
+    </PrintedDisplayTerms>
+  ) : (
+    element
   );
 }
 

@@ -57,6 +57,7 @@ export function TermInspector({
   const classes = className ? `term-inspector ${className}` : "term-inspector";
   if (inline)
     return (
+      // biome-ignore lint/a11y/useSemanticElements: inline, a <fieldset> would end the paragraph the formula is printed in, and it groups form controls, not facts.
       <span
         className={classes}
         role="group"

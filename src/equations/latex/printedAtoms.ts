@@ -157,7 +157,7 @@ const BIG_OPERATORS = new Set(
 /** What a superscript may hold and still be part of the name: l^*, x^\prime, A^{\prime\prime}. */
 const DECORATIONS = new Set(["*", "'", "\\ast", "\\star", "\\prime", "\\dagger"]);
 
-export type PrintedAtomErrorKind = "latex-unreadable" | "glyph-not-one-atom";
+export type PrintedAtomErrorKind = "latex-unreadable" | "glyph-not-one-atom" | "marks-overlap";
 
 export class PrintedAtomError extends Error {
   readonly kind: PrintedAtomErrorKind;
@@ -261,7 +261,10 @@ function readAtoms(latex: string): { list: readonly Item[]; atoms: (PrintedAtom 
       const c = close.get(k) ?? list.length - 1;
       return { end: c + 1, inner: { from: k + 1, to: c } };
     }
-    return { end: Math.min(k + 1, list.length), inner: { from: k, to: Math.min(k + 1, list.length) } };
+    return {
+      end: Math.min(k + 1, list.length),
+      inner: { from: k, to: Math.min(k + 1, list.length) },
+    };
   };
   const decorated = (span: Span) =>
     span.to > span.from &&
@@ -378,7 +381,7 @@ export function markPrintedLatex(latex: string, marks: readonly PrintedMark[]): 
   for (const mark of ordered) {
     if (mark.start < at || mark.end <= mark.start || mark.end > latex.length)
       throw new PrintedAtomError(
-        "latex-unreadable",
+        "marks-overlap",
         `Marks overlap or fall outside the display at ${mark.start}-${mark.end}.`,
       );
     out += latex.slice(at, mark.start);

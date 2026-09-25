@@ -1,6 +1,8 @@
 import { renderToString } from "katex";
 import React from "react";
 import type { Inline } from "../../content/schemas/inlines.ts";
+import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
+import { PrintedDisplayTerms } from "./PrintedDisplayTerms.tsx";
 import { referenceHref } from "./referenceHref.ts";
 import { TermAnnotation } from "./TermAnnotation.tsx";
 
@@ -56,17 +58,21 @@ export function renderInlines(
           // (displayClaims.ts): set as a display, carrying the block's id so an anchor, an
           // alignment edge and the sentence stepper still find it.
           const display = node.display === true;
-          const html = renderToString(node.latex, {
-            displayMode: display,
-            output: "htmlAndMathml",
-            throwOnError: false,
-            strict: "warn",
-            trust: false,
-          });
+          // In colour where content/display-terms binds its glyphs (PrintedDisplayTerms.tsx).
+          const printed = display ? printedDisplay(node.equationId, node.latex) : undefined;
+          const html =
+            printed?.html ??
+            renderToString(node.latex, {
+              displayMode: display,
+              output: "htmlAndMathml",
+              throwOnError: false,
+              strict: "warn",
+              trust: false,
+            });
           if (display) {
-            return (
+            const element = (
               <span
-                key={key}
+                key={printed ? undefined : key}
                 // A block of its own line (reader.css .inline-display): an inline span cannot
                 // scroll, so a formula wider than a phone column widened the page instead.
                 className="inline-display"
@@ -77,6 +83,13 @@ export function renderInlines(
                 data-printed-notation="true"
                 {...{ dangerouslySetInnerHTML: { __html: html } }}
               />
+            );
+            return printed ? (
+              <PrintedDisplayTerms key={key} display={printed} inline>
+                {element}
+              </PrintedDisplayTerms>
+            ) : (
+              element
             );
           }
           return (

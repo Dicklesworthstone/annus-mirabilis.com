@@ -4,9 +4,11 @@ import { Fragment } from "react";
 import type { Inline } from "../../content/schemas/inlines.ts";
 import { plainText } from "../../content/schemas/inlines.ts";
 import type { EditorialNote, SourceBlock, SpanAnchor } from "../../content/schemas/source.ts";
+import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
 import { renderInlines } from "./inlines.tsx";
 import { PageLocators } from "./PageLocators.tsx";
+import { PrintedDisplayTerms } from "./PrintedDisplayTerms.tsx";
 
 export interface SourceBlockProps {
   readonly block: SourceBlock;
@@ -114,18 +116,29 @@ export function SourceBlockComponent({
         mathInline && "equationId" in mathInline && typeof mathInline.equationId === "string"
           ? mathInline.equationId
           : undefined;
+      // In colour where content/display-terms binds its glyphs (PrintedDisplayTerms.tsx).
+      const printed = printedDisplay(equationId, rawLatex);
       let renderedMath: string;
       try {
-        renderedMath = renderToString(rawLatex, {
-          displayMode: true,
-          output: "htmlAndMathml",
-          throwOnError: false,
-          strict: "warn",
-          trust: false,
-        });
+        renderedMath =
+          printed?.html ??
+          renderToString(rawLatex, {
+            displayMode: true,
+            output: "htmlAndMathml",
+            throwOnError: false,
+            strict: "warn",
+            trust: false,
+          });
       } catch {
         renderedMath = `<code class="math-fallback">${rawLatex}</code>`;
       }
+      const body = (
+        <div
+          className="equation-body"
+          data-printed-notation="true"
+          {...{ dangerouslySetInnerHTML: { __html: renderedMath } }}
+        />
+      );
 
       bodyContent = (
         <div
@@ -138,11 +151,13 @@ export function SourceBlockComponent({
         >
           {locators}
           <div className="equation-container">
-            <div
-              className="equation-body"
-              data-printed-notation="true"
-              {...{ dangerouslySetInnerHTML: { __html: renderedMath } }}
-            />
+            {printed ? (
+              <PrintedDisplayTerms display={printed} inline={false}>
+                {body}
+              </PrintedDisplayTerms>
+            ) : (
+              body
+            )}
             {block.originalLabel && (
               <span className="equation-label" data-equation-label={block.originalLabel}>
                 ({block.originalLabel})

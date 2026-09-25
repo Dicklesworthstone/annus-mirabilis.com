@@ -30,8 +30,10 @@ import type {
   SourceBlock,
   TranslationUnit,
 } from "../../content/schemas/source.ts";
+import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
 import { renderInlines } from "./inlines.tsx";
+import { PrintedDisplayTerms } from "./PrintedDisplayTerms.tsx";
 import { evaluateUnitReviewState } from "./reviewState.ts";
 
 type GroupKind = "paragraph" | "display" | "footnote" | "other";
@@ -171,13 +173,24 @@ export function TranslationParagraphs({
   const renderUnit = (u: TranslationUnit): ReactNode => {
     if (isDisplay(u)) {
       const math = u.inlines[0] as { latex: string; equationId?: string };
-      const html = renderToString(math.latex, {
-        displayMode: true,
-        output: "htmlAndMathml",
-        throwOnError: false,
-        strict: "warn",
-        trust: false,
-      });
+      // In colour where content/display-terms binds its glyphs (PrintedDisplayTerms.tsx).
+      const printed = printedDisplay(math.equationId, math.latex);
+      const html =
+        printed?.html ??
+        renderToString(math.latex, {
+          displayMode: true,
+          output: "htmlAndMathml",
+          throwOnError: false,
+          strict: "warn",
+          trust: false,
+        });
+      const body = (
+        <span
+          className="equation-body"
+          data-printed-notation="true"
+          {...{ dangerouslySetInnerHTML: { __html: html } }}
+        />
+      );
       return (
         <Fragment key={u.id}>
           <span
@@ -186,11 +199,13 @@ export function TranslationParagraphs({
             data-kind="equation"
             data-equation-id={math.equationId}
           >
-            <span
-              className="equation-body"
-              data-printed-notation="true"
-              {...{ dangerouslySetInnerHTML: { __html: html } }}
-            />
+            {printed ? (
+              <PrintedDisplayTerms display={printed} inline>
+                {body}
+              </PrintedDisplayTerms>
+            ) : (
+              body
+            )}
             {showSource(u)}
           </span>{" "}
         </Fragment>

@@ -37,6 +37,7 @@ export type ContentRouteKind =
   | "editorial-note"
   | "aliases"
   | "paragraph-bindings"
+  | "display-terms"
   | "flag-reviews"
   | "readings-owner"
   | "editorial-rules"
@@ -290,6 +291,17 @@ export const CONTENT_ROUTES: readonly ContentRoute[] = [
     pattern: /^(?:content\/)?bindings\/([a-z0-9-]+)\.(yaml|yml)$/,
     kind: "paragraph-bindings",
     schema: "ParagraphBindings",
+    format: "yaml",
+    extractParams: (m) => ({ paper: m[1] ?? "", id: m[1] ?? "", format: m[2] ?? "" }),
+  },
+
+  // 19b. Printed display terms: each printed display's glyphs to exact quantity ids, for the colour
+  // on the reading faces (src/equations/printed/displayTerms.ts checks them when
+  // scripts/build-equations.ts compiles them; the record compiler skips them).
+  {
+    pattern: /^(?:content\/)?display-terms\/([a-z0-9-]+)\.(yaml|yml)$/,
+    kind: "display-terms",
+    schema: "DisplayTerms",
     format: "yaml",
     extractParams: (m) => ({ paper: m[1] ?? "", id: m[1] ?? "", format: m[2] ?? "" }),
   },

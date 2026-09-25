@@ -55,14 +55,13 @@ export function TermChips({
   const Item = (inline ? "span" : "li") as "li";
   return (
     <Row className="term-chips-row" data-inline={inline ? "" : undefined}>
-      {/* biome-ignore lint/a11y/useSemanticElements: inline, a <ul> would end the paragraph the formula is printed in. */}
+      {/* Inline, the list roles stand in for a <ul> and <li>, which would end the paragraph. */}
       <List
         className="equation-legend term-chips"
         aria-label={label}
         role={inline ? "list" : undefined}
       >
         {items.map((item) => (
-          // biome-ignore lint/a11y/useSemanticElements: as above, an <li> needs the <ul>.
           <Item key={`${item.quantityId} ${item.glyphHtml}`} role={inline ? "listitem" : undefined}>
             <button
               type="button"
@@ -114,11 +113,19 @@ export function BlockTermChips({
   items,
   label,
   inline = false,
+  announce = true,
 }: {
   items: readonly TermChipItem[];
   label: string;
   /** Phrasing content only (TermChips): for a formula set inside a paragraph. */
   inline?: boolean | undefined;
+  /**
+   * False where a page holds many such blocks (a reading face's printed displays, dispatch 224):
+   * one live region each would put seven on mass-energy's English face and fifty-two on light
+   * quanta's German face. The pressed chip still says so itself, as a toggle button does, and the
+   * inspector follows the chips in reading order.
+   */
+  announce?: boolean | undefined;
 }) {
   const block = useContext(TermHighlightContext);
   const pinned = block?.pinned ?? null;
@@ -144,7 +151,7 @@ export function BlockTermChips({
           value={<SymbolicValue lab={item.facts.lab} />}
         />
       ) : null}
-      {inline ? (
+      {!announce ? null : inline ? (
         <span className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
           {item ? announcement(item) : ""}
         </span>

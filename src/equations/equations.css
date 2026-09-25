@@ -628,7 +628,8 @@
 .reading-formula .equation-legend [data-quantity-id] {
   cursor: pointer;
 }
-.equation-visual .katex [data-quantity-id] {
+.equation-visual .katex [data-quantity-id],
+.printed-display-terms .katex [data-quantity-id] {
   border-radius: 0.25em;
   background: color-mix(in srgb, var(--qc) var(--term-rest), transparent);
   -webkit-box-decoration-break: clone;
@@ -645,7 +646,9 @@
 }
 .equation-visual .katex [data-quantity-id]:hover,
 .equation-visual .katex [data-quantity-id][data-lit],
-.equation-visual .katex [data-quantity-id][data-selected="true"] {
+.equation-visual .katex [data-quantity-id][data-selected="true"],
+.printed-display-terms .katex [data-quantity-id]:hover,
+.printed-display-terms .katex [data-quantity-id][data-lit] {
   color: var(--ink);
   background: color-mix(in srgb, var(--qc) var(--term-lit), transparent);
   box-shadow:
@@ -663,7 +666,8 @@
 @media (prefers-reduced-motion: no-preference) {
   .equation-legend [data-quantity-id],
   .equation-sentence [data-quantity-id],
-  .equation-visual .katex [data-quantity-id] {
+  .equation-visual .katex [data-quantity-id],
+  .printed-display-terms .katex [data-quantity-id] {
     transition:
       background-color 0.15s ease,
       box-shadow 0.15s ease;
@@ -811,4 +815,41 @@
 }
 .term-inspector p {
   margin: 0.6rem 0 0;
+}
+
+/* ---------------------------------------------------------------------------
+   PRINTED DISPLAYS (dispatch 224; the owner asked that "all the equations" be coloured and
+   interactive). Einstein's formulas on the German, English, parallel and gloss faces take the
+   explanation's colours, tints and chips above. Most are set inside their paragraph's <p>, so
+   the block and its chips and inspector are spans there (TermChips and TermInspector, inline);
+   these rules give those spans the layout the div, li, p and dl have above.
+   --------------------------------------------------------------------------- */
+.printed-display-terms {
+  display: block;
+}
+.printed-display-terms .term-chips-row {
+  justify-content: center;
+  margin: 0.25rem 0 0.75rem;
+}
+.equation-legend > [role="listitem"] {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.term-inspector[data-inline] {
+  display: block;
+}
+.term-inspector .term-inspector-fact {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.75rem;
+}
+.term-inspector .term-inspector-fact-name {
+  min-width: 7.5rem;
+  font-weight: 600;
+}
+.term-inspector .term-inspector-fact-value {
+  flex: 1 1 14rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }

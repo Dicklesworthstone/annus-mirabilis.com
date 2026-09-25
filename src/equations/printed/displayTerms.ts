@@ -70,7 +70,11 @@ export type DisplayTermsCode =
   | "display-terms-unregistered-quantity"
   | "display-terms-concordance-conflict"
   | "display-terms-unbound-glyph"
-  | "display-terms-unused-glyph";
+  | "display-terms-unused-glyph"
+  | "display-terms-term-dropped"
+  | "display-terms-mathml-changed"
+  | "display-terms-invalid"
+  | "display-terms-key-collision";
 
 export type DisplayTermsProblem = Readonly<{
   code: DisplayTermsCode;
@@ -90,52 +94,51 @@ export class DisplayTermsError extends Error {
 
 export const DISPLAY_TERMS_DIR = join("content", "display-terms");
 
+/** A malformed file: every shape check in parseDisplayTerms refuses through here. */
+function malformed(message: string): never {
+  throw new DisplayTermsError("display-terms-shape", message);
+}
+
 const isRecord = (x: unknown): x is Record<string, unknown> =>
   typeof x === "object" && x !== null && !Array.isArray(x);
 
 function onlyKeys(o: Record<string, unknown>, allowed: readonly string[], where: string): void {
   for (const key of Object.keys(o))
-    if (!allowed.includes(key))
-      throw new DisplayTermsError("display-terms-shape", `${where}: unknown field "${key}".`);
+    if (!allowed.includes(key)) malformed(`${where}: unknown field "${key}".`);
 }
 
 function text(o: Record<string, unknown>, key: string, where: string): string {
   const value = o[key];
-  if (typeof value !== "string")
-    throw new DisplayTermsError("display-terms-shape", `${where}: "${key}" must be a string.`);
+  if (typeof value !== "string") malformed(`${where}: "${key}" must be a string.`);
   return value;
 }
 
 function notQuantities(value: unknown, where: string): readonly NotAQuantity[] {
   if (value === undefined) return [];
-  if (!Array.isArray(value))
-    throw new DisplayTermsError("display-terms-shape", `${where}: notQuantities must be a list.`);
+  if (!Array.isArray(value)) malformed(`${where}: notQuantities must be a list.`);
   return value.map((item, i) => {
     const at = `${where} notQuantities[${i}]`;
-    if (!isRecord(item)) throw new DisplayTermsError("display-terms-shape", `${at}: not a map.`);
+    if (!isRecord(item)) malformed(`${at}: not a map.`);
     onlyKeys(item, ["glyph", "reason"], at);
     const reason = text(item, "reason", at).trim();
-    if (!reason)
-      throw new DisplayTermsError("display-terms-shape", `${at}: a declaration needs a reason.`);
+    if (!reason) malformed(`${at}: a declaration needs a reason.`);
     return { glyph: text(item, "glyph", at), reason };
   });
 }
 
 /** A parsed file, or a thrown DisplayTermsError naming the first malformed field. */
 export function parseDisplayTerms(raw: unknown, where: string): DisplayTermsFile {
-  if (!isRecord(raw)) throw new DisplayTermsError("display-terms-shape", `${where}: not a map.`);
+  if (!isRecord(raw)) malformed(`${where}: not a map.`);
   onlyKeys(raw, ["paper", "notQuantities", "displays"], where);
-  if (!Array.isArray(raw.displays))
-    throw new DisplayTermsError("display-terms-shape", `${where}: displays must be a list.`);
+  if (!Array.isArray(raw.displays)) malformed(`${where}: displays must be a list.`);
   return {
     paper: text(raw, "paper", where),
     notQuantities: notQuantities(raw.notQuantities, where),
     displays: raw.displays.map((entry, i) => {
       const at = `${where} displays[${i}]`;
-      if (!isRecord(entry)) throw new DisplayTermsError("display-terms-shape", `${at}: not a map.`);
+      if (!isRecord(entry)) malformed(`${at}: not a map.`);
       onlyKeys(entry, ["display", "latex", "spoken", "terms", "notQuantities"], at);
-      if (!Array.isArray(entry.terms))
-        throw new DisplayTermsError("display-terms-shape", `${at}: terms must be a list.`);
+      if (!Array.isArray(entry.terms)) malformed(`${at}: terms must be a list.`);
       const display = text(entry, "display", at);
       return {
         display,
@@ -143,7 +146,7 @@ export function parseDisplayTerms(raw: unknown, where: string): DisplayTermsFile
         spoken: text(entry, "spoken", at),
         terms: entry.terms.map((term, j) => {
           const t = `${at} (${display}) terms[${j}]`;
-          if (!isRecord(term)) throw new DisplayTermsError("display-terms-shape", `${t}: not a map.`);
+          if (!isRecord(term)) malformed(`${t}: not a map.`);
           onlyKeys(term, ["glyph", "quantityId"], t);
           return { glyph: text(term, "glyph", t), quantityId: text(term, "quantityId", t) };
         }),
@@ -173,7 +176,9 @@ export type DisplayOccurrence = Readonly<{
 
 type Holder = Readonly<{
   id: string;
+  kind?: string | undefined;
   inlines: readonly Inline[];
+  diplomaticText?: string | undefined;
   section?: string | undefined;
   containedIn?: string | undefined;
 }>;
@@ -200,14 +205,22 @@ export function displayOccurrences(
 ): ReadonlyMap<string, readonly DisplayOccurrence[]> {
   const out = new Map<string, DisplayOccurrence[]>();
   const add = (id: string, o: DisplayOccurrence) => out.set(id, [...(out.get(id) ?? []), o]);
-  for (const block of blocks)
+  for (const block of blocks) {
+    const scope = { anchor: block.containedIn ?? block.id, section: block.section ?? "" };
     for (const math of mathInlines(block.inlines))
-      add(math.equationId, {
-        where: block.id,
-        latex: math.latex,
-        anchor: block.containedIn ?? block.id,
-        section: block.section ?? "",
+      add(math.equationId, { where: block.id, latex: math.latex, ...scope });
+    // An equation block's diplomatic text is what the gloss face draws (SourceBlock.tsx).
+    if (
+      block.kind === "equation" &&
+      typeof block.diplomaticText === "string" &&
+      block.diplomaticText
+    )
+      add(block.id, {
+        where: `${block.id} (diplomaticText)`,
+        latex: block.diplomaticText,
+        ...scope,
       });
+  }
   for (const unit of units)
     for (const math of mathInlines(unit.inlines)) {
       const german = out.get(math.equationId)?.[0];
@@ -366,7 +379,11 @@ export function checkDisplayTerms(
     try {
       atoms = printedAtoms(entry.latex);
     } catch (error) {
-      problem("display-terms-glyph", display, error instanceof Error ? error.message : String(error));
+      problem(
+        "display-terms-glyph",
+        display,
+        error instanceof Error ? error.message : String(error),
+      );
     }
     const used = new Set<string>();
     const terms: CheckedTerm[] = [];
@@ -527,7 +544,7 @@ export function compilePrintedDisplay(checked: CheckedDisplay): CompiledPrintedD
   for (const id of allowed)
     if (!html.includes(`data-term="${id}"`))
       throw new DisplayTermsError(
-        "display-terms-glyph",
+        "display-terms-term-dropped",
         `${checked.paper} ${checked.display}: the render dropped ${id}.`,
       );
   const plain = renderToString(checked.latex, FACE_KATEX);
@@ -540,7 +557,7 @@ export function compilePrintedDisplay(checked: CheckedDisplay): CompiledPrintedD
     mathmlStructure(html) !== mathmlStructure(plain)
   )
     throw new DisplayTermsError(
-      "display-terms-glyph",
+      "display-terms-mathml-changed",
       `${checked.paper} ${checked.display}: marking changed the MathML, or the render is not a display.`,
     );
   const drawn =

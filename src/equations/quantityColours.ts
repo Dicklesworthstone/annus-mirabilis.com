@@ -191,3 +191,52 @@ export function assignQuantityColours(
     );
   return Object.freeze(Object.fromEntries(order.map((id) => [id, colours.get(id) as number])));
 }
+
+/**
+ * PRINTED DISPLAYS JOIN THE MAP (dispatch 224). Einstein's own formulas on the reading faces take
+ * the paper's one colour per quantity, so each is a view whose quantities should differ. They
+ * cannot always all differ: mass-energy's explanation already holds a clique of nine (H_0, E_0,
+ * H_1, E_1, K_0, K_1, L, gamma and C), every slot, and the printed displays set v and V beside all
+ * seven energies, which leaves them gamma's slot and C's; both meet gamma in the Lorentz-factor
+ * record, so one of them has no slot. Some view must then repeat a colour.
+ *
+ * The records' views stay hard, as assignQuantityColours has them. Each preferred view is then
+ * admitted as hard in turn, smallest first, if the paper is still colourable with it; one that is
+ * not is returned in `shared`, by id, and its quantities are coloured without that constraint (the
+ * pattern channel and the chips' names still tell them apart). Same views, same colours.
+ */
+export function assignQuantityColoursPreferring(
+  equations: readonly ColourableEquation[],
+  preferred: readonly ColourableEquation[],
+  shownTogether: readonly (readonly string[])[] = [],
+): Readonly<{ slots: Readonly<Record<string, number>>; shared: readonly string[] }> {
+  const order = [...preferred].sort(
+    (a, b) => new Set(a.quantityIds).size - new Set(b.quantityIds).size || (a.id < b.id ? -1 : 1),
+  );
+  const admitted: ColourableEquation[] = [];
+  const shared: string[] = [];
+  for (const view of order) {
+    try {
+      assignQuantityColours([...equations, ...admitted, view], shownTogether);
+      admitted.push(view);
+    } catch (error) {
+      if (!(error instanceof QuantityColourError) || error.code === "equation-exceeds-palette")
+        throw error;
+      shared.push(view.id);
+    }
+  }
+  // A shared view's quantities are still coloured, each on its own, near its view's others.
+  const loose = order
+    .filter((view) => shared.includes(view.id))
+    .flatMap((view) =>
+      [...new Set(view.quantityIds)].map((id) => ({
+        id: `${view.id}#${id}`,
+        argument: view.argument,
+        quantityIds: [id],
+      })),
+    );
+  return {
+    slots: assignQuantityColours([...equations, ...admitted, ...loose], shownTogether),
+    shared: shared.sort(),
+  };
+}
