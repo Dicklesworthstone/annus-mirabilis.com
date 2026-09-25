@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "viscosity"
-    rationale: "\"Reibungskoeffizient\" is Einstein's name for what is now called the viscosity; the translation keeps his term, and the symbol stays k, as printed."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

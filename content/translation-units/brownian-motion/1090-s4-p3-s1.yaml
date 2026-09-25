@@ -27,9 +27,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
-unresolvedAlternatives:
-  - text: "can be regarded as mutually independent events"
-    rationale: "The draft's reading, which round 1 kept. \"aufzufassen sind\" (sein with zu) can express possibility or necessity; round 2 gives \"are to be regarded\", which keeps the German form and matches the same verb in s4-p2-s1 one paragraph earlier (\"aufzufassen sein\", \"are also to be regarded\")."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

@@ -23,9 +23,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "φ(Δ) = φ(−Δ)"
-    rationale: "The argument printed here is x, where p. 556 defines φ over Δ; the translation keeps the printed x, and the provenance receipt records the suspected slip."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

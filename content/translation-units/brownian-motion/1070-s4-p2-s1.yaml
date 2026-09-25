@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "as long as the time intervals are not taken too small"
-    rationale: "\"solange wir diese Zeitintervalle nicht zu klein gewählt denken\" states a condition on how the intervals are chosen; the independence is claimed only under it."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

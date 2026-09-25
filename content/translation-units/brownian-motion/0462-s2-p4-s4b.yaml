@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "d z′₁"
-    rationale: "The first group is printed d z′₂ (p. 552). The notation is kept as printed, and the provenance receipt records the probable slip."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

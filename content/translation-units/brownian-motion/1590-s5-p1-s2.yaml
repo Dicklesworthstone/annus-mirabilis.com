@@ -27,9 +27,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "average of the displacements"
-    rationale: "\"Mittelwert der Verschiebungen\" is kept as \"mean value\"; § 4 defines this λ for the x-axis as the square root of the mean of the squared displacements, and the translation does not restate it."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

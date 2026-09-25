@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "it will be shown"
-    rationale: "\"soll gezeigt werden\" states the paper's aim (\"is to be shown\"). \"It will be shown\" is also possible English and says nearly the same; the closer form is kept."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

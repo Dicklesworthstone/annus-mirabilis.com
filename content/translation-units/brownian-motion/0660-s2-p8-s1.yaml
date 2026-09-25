@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "are completely alike in their behaviour"
-    rationale: "\"vollkommen gleich verhalten\" is rendered \"behave in exactly the same way\"; the scope \"at great dilution\" is kept."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

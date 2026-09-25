@@ -35,9 +35,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "0.001 mm"
-    rationale: "The paper prints its numbers with a decimal comma. They are kept as printed here, as in the displays, so that every figure reads exactly as Einstein gave it; 0,001 mm is 0.001 mm."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

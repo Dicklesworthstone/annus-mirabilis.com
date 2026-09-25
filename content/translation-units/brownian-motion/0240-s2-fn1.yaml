@@ -4,6 +4,8 @@
 # review rounds. No person has reviewed it.
 # Review round 1 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 551-553; no change.
 # Review round 2 (GreenBarn, agent, 2026-09-25): read against the German and the plates pp. 551-553; no change.
+# After both rounds (GreenBarn, 2026-09-25): alternative promoted to the text,
+# D-2026-09-25-one-best-translation; "entbehrlich" says the reader can do without them, which "can be dispensed with" says in plain English; the scope is unchanged. For a fresh-eye reviewer to confirm.
 kind: "translation-unit"
 id: "s2-fn1"
 paper: "brownian-motion"
@@ -12,16 +14,14 @@ sourceRefs:
     id: "s2-fn1"
 inlines:
   - kind: "text"
-    text: "In this section the author’s papers on the foundations of thermodynamics are presupposed as known (cf. Ann. d. Phys. 9. p. 417. 1902; 11. p. 170. 1903). For an understanding of the results of the present paper, a knowledge of those papers and of this section of the present paper is dispensable."
+    text: "In this section the author’s papers on the foundations of thermodynamics are presupposed as known (cf. Ann. d. Phys. 9. p. 417. 1902; 11. p. 170. 1903). For an understanding of the results of the present paper, a knowledge of those papers and of this section of the present paper can be dispensed with."
 translator:
   id: "agent:SapphireCastle"
   name: "SapphireCastle (Claude Opus 5.5, agent)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
-unresolvedAlternatives:
-  - text: "can be dispensed with"
-    rationale: "\"entbehrlich\" says the reader can do without them; the footnote makes the section optional for the results, and the English keeps that scope."
+revision: 2
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

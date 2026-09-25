@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "In the next paragraph"
-    rationale: "Einstein's \"Paragraph\" names a numbered section (§), so \"section\" is used; \"paragraph\" would point an English reader at the wrong unit."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

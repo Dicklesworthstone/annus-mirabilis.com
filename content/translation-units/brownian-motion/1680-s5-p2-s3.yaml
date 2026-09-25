@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "approximately 6 microns"
-    rationale: "\"wäre\" keeps the result conditional on the values assumed above, and \"ca.\" keeps it approximate; both are carried over."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

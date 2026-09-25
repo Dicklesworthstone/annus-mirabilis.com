@@ -23,9 +23,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "seems not to depend"
-    rationale: "\"scheint ... nicht ... abzuhängen\" reports how the usual view appears, not a finding of the paper; \"appears\" keeps that distance, as \"seems\" would."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

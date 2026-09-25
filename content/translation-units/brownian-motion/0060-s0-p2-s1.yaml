@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "even for microscopically distinguishable spaces"
-    rationale: "\"schon für mikroskopisch unterscheidbare Räume\" means that the claim fails already at the scale of spaces one can tell apart in a microscope. \"Even for\" carries \"schon\" here."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

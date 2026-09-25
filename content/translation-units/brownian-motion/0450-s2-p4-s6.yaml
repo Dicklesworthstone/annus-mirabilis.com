@@ -33,9 +33,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "as will be shown at once"
-    rationale: "\"wie sogleich gezeigt werden soll\" announces the proof that follows at once; \"is now to be shown\" keeps the announcement."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

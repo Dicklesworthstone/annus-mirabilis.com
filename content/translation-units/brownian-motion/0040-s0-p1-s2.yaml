@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "accessible to me"
-    rationale: "\"die mir erreichbaren Angaben\" is the information within Einstein's reach; \"available to me\" and \"accessible to me\" both render it. The sentence's hedge is kept: identity is possible, and no judgment was formed."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

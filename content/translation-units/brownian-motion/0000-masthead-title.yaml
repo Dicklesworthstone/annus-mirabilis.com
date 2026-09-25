@@ -4,6 +4,8 @@
 # review rounds. No person has reviewed it.
 # Review round 1 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 549-551; no change.
 # Review round 2 (TopazPrairie, agent, 2026-09-25): read against the German and the plates pp. 549-551; no change.
+# After both rounds (GreenBarn, 2026-09-25): alternative promoted to the text,
+# D-2026-09-25-one-best-translation; the requirement still attaches to the motion, as the German's participle phrase does, and the title reads plainly instead of breaking in two. For a fresh-eye reviewer to confirm.
 kind: "translation-unit"
 id: "masthead-title"
 paper: "brownian-motion"
@@ -12,16 +14,14 @@ sourceRefs:
     id: "masthead-title"
 inlines:
   - kind: "text"
-    text: "On the Motion, Required by the Molecular-Kinetic Theory of Heat, of Particles Suspended in Liquids at Rest"
+    text: "On the Motion of Particles Suspended in Liquids at Rest, as Required by the Molecular-Kinetic Theory of Heat"
 translator:
   id: "agent:SapphireCastle"
   name: "SapphireCastle (Claude Opus 5.5, agent)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
-unresolvedAlternatives:
-  - text: "On the Motion of Particles Suspended in Liquids at Rest, as Required by the Molecular-Kinetic Theory of Heat"
-    rationale: "The German sets the participle phrase \"von der molekularkinetischen Theorie der Wärme geforderte\" before \"Bewegung\", so the requirement attaches to the motion. English keeps that attachment by setting the phrase off after \"Motion\". The title has no word for \"small\", and none is added. The masthead's final semicolon, which joins the title to the byline in print, is not carried into an English heading."
+revision: 2
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

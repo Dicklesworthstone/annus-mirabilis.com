@@ -51,9 +51,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
-unresolvedAlternatives:
-  - text: "respectively"
-    rationale: "\"bez.\" (beziehungsweise) here joins the two cases, dissolved molecules or suspended bodies, which the argument treats alike, so \"or\" is used, as in s2-p2-s2 and s2-p3-s2. Where \"bez.\" pairs two terms with two others, in s2-p5-s1, the English has \"respectively\"."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

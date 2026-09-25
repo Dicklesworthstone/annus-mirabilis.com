@@ -4,6 +4,8 @@
 # review rounds. No person has reviewed it.
 # Review round 1 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 549-551; no change.
 # Review round 2 (TopazPrairie, agent, 2026-09-25): read against the German and the plates pp. 549-551; no change.
+# After both rounds (GreenBarn, 2026-09-25): alternative promoted to the text,
+# D-2026-09-25-one-best-translation; "furnished" is the English for an argument that "wäre damit gegeben"; both clauses stay conditional. For a fresh-eye reviewer to confirm.
 kind: "translation-unit"
 id: "s0-p2-s2"
 paper: "brownian-motion"
@@ -12,16 +14,14 @@ sourceRefs:
     id: "s0-p2-s2"
 inlines:
   - kind: "text"
-    text: "If, conversely, the prediction of this motion should prove incorrect, a weighty argument against the molecular-kinetic conception of heat would thereby be given."
+    text: "If, conversely, the prediction of this motion should prove incorrect, a weighty argument against the molecular-kinetic conception of heat would thereby be furnished."
 translator:
   id: "agent:SapphireCastle"
   name: "SapphireCastle (Claude Opus 5.5, agent)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
-unresolvedAlternatives:
-  - text: "would thereby be furnished"
-    rationale: "The German is conditional in both clauses (\"Erwiese sich ... so wäre damit ... gegeben\"), and both stay conditional in English."
+revision: 2
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

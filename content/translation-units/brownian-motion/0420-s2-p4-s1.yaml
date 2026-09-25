@@ -39,9 +39,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "center of mass"
-    rationale: "\"Schwerpunkt\" is rendered literally as \"center of gravity\", the term of the period; for a particle in a liquid the two coincide."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"
