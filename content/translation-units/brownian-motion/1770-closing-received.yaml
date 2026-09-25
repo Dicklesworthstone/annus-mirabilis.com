@@ -1,6 +1,7 @@
 # TranslationUnit closing-received: English machine-draft translation.
 # Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
 # Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+# Review round 1 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 559-560; no change.
 kind: "translation-unit"
 id: "closing-received"
 paper: "brownian-motion"
