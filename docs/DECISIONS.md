@@ -1162,3 +1162,25 @@ appIcon: "asset catalog AppIcon, one 1024 px universal image"
   - the German face's draft label.
 
   The rule that no page claims a human reviewer still holds: removing the banner claims nothing.
+
+## D-2026-09-25-one-best-translation
+
+- **Decider:** the owner (jemanuel), in the orchestrator's session on 2026-09-25, verbatim:
+  "also not sure we need these alternative translations... we should just always use the BEST
+  translation overall"
+- **Choice:**
+  - The English and parallel faces show no "Alternative translations" disclosure.
+  - Each translation unit's text is the best English reading. Where a recorded alternative is the
+    better English, it becomes the text: a revision bump, and a comment line naming the choice and
+    the reason.
+  - Where the text is kept, the alternative is dropped. Once the unit is resolved,
+    `unresolvedAlternatives` is empty, and git history keeps what was considered.
+- **The one exception, printed misprints:** where an alternative gives the corrected sense of a
+  misprint (s7-p3-s4's "for v = −V", err-typo-p912-2), the English keeps the printed reading, as
+  AGENTS.md requires of the source layers. The correction lives in the explanation layer (2cfa2136)
+  and the receipt's typo record. It is not an alternative translation.
+- **Review:** a promotion changes a final unit's text, so an agent other than the one making it
+  confirms it, as every post-final change today has been confirmed.
+- **What it supersedes:** AGENTS.md "How to Add or Revise a Paper Section", step 2's "Unresolved
+  readings stay visible in internal review and, where intellectually important, in a public
+  editorial note". Readings are resolved now, not published as alternatives.
