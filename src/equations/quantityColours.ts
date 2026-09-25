@@ -90,7 +90,8 @@ export class QuantityColourError extends Error {
  * eight-colouring exists, because E_0 and K_1, for one, never meet. So the search takes the most
  * constrained quantity next (DSATUR: most distinct neighbour colours, then most neighbours, then
  * first appearance) and backtracks when a choice leaves someone without a colour. Within a
- * choice it prefers a slot no quantity in the same argument holds, then one no quantity in the
+ * choice it prefers the slot the fewest quantities in the same argument hold (so a printed view that
+ * must repeat a colour repeats it as little as it can, dispatch 233), then one no quantity in the
  * paper holds yet, then the lowest slot, so the slots nearest an accent are used last. Same
  * records, same colours.
  */
@@ -187,11 +188,19 @@ export function assignQuantityColours(
     const id = next();
     if (id === undefined) return true;
     const blocked = neighbourSlots(id, hard);
-    const crowded = neighbourSlots(id, soft);
+    // How many of its argument's quantities hold each slot. A count, not a yes or no: relativity's
+    // plane waves share their free quantities, every slot was held by one of them, and the flag let
+    // three free quantities fall to the same lowest slot, four quantities in one colour where one
+    // pair was all ten needed (dispatch 233).
+    const crowd = new Map<number, number>();
+    for (const q of soft.get(id) ?? []) {
+      const slot = colours.get(q);
+      if (slot !== undefined) crowd.set(slot, (crowd.get(slot) ?? 0) + 1);
+    }
     const inPaper = new Set(colours.values());
     const candidates = QUANTITY_PALETTE.filter((c) => !blocked.has(c.slot)).sort(
       (a, b) =>
-        Number(crowded.has(a.slot)) - Number(crowded.has(b.slot)) ||
+        (crowd.get(a.slot) ?? 0) - (crowd.get(b.slot) ?? 0) ||
         Number(inPaper.has(a.slot)) - Number(inPaper.has(b.slot)) ||
         a.slot - b.slot,
     );

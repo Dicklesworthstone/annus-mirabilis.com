@@ -137,6 +137,27 @@ test("an impossible view is shared after at most one budget, where proving it to
   }
 });
 
+test("shared views that must repeat a colour repeat it as little as the palette allows", () => {
+  // Relativity § 7's plane waves: a ten-quantity view and a twelve-quantity one share three free
+  // quantities (the amplitudes and the phase), and a clique of nine holds every slot. When the
+  // preference was a yes-or-no "some neighbour holds this slot", every slot said yes, and all three
+  // free quantities fell to the lowest slot: four quantities in one colour (dispatch 233).
+  const q = Array.from({ length: QUANTITY_PALETTE.length }, (_, i) => `q${i + 1}`);
+  const records: ColourableEquation[] = [{ id: "clique", argument: "a", quantityIds: q }];
+  const ten = { id: "ten", argument: "p10", quantityIds: [...q.slice(0, 7), "f1", "f2", "f3"] };
+  const twelve = { id: "twelve", argument: "p12", quantityIds: [...q, "f1", "f2", "f3"] };
+  const { slots, shared } = assignQuantityColoursPreferring(records, [ten, twelve]);
+  assert.deepEqual(shared, ["ten", "twelve"]);
+  const mostOnOneSlot = (ids: readonly string[]) => {
+    const count = new Map<number, number>();
+    for (const id of ids) count.set(slots[id] as number, (count.get(slots[id] as number) ?? 0) + 1);
+    return Math.max(...count.values());
+  };
+  assert.equal(mostOnOneSlot(ten.quantityIds), 2);
+  assert.equal(mostOnOneSlot(twelve.quantityIds), 2);
+  assert.equal(new Set(["f1", "f2", "f3"].map((f) => slots[f])).size, 3);
+});
+
 test("a view over the palette alone is shared and coloured, never refused", () => {
   // Relativity § 7's plane wave shows ten quantities (GreenBarn, 40375).
   const records: ColourableEquation[] = [{ id: "r", argument: "a", quantityIds: ["p"] }];
