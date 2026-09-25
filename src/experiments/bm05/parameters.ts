@@ -1,8 +1,10 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import { parseU64 } from "../../physics/reference/philox.ts";
+import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { BM05_DEFAULTS, type Bm05Parameters } from "./definition.ts";
-export function validateBm05Parameters(input: unknown): Computation<Bm05Parameters> {
+
+function validateBm05Fields(input: unknown): Computation<Bm05Parameters> {
   const bad = (requirements: string): Computation<never> => ({
     kind: "refused",
     refusal: makeRefusal(
@@ -53,8 +55,6 @@ export function validateBm05Parameters(input: unknown): Computation<Bm05Paramete
     if (typeof v !== "number" || !Number.isFinite(v))
       return bad(`Enter ${names[key]} as a number.`);
   }
-  if (p.stepRms <= 0) return bad("Enter a step RMS size greater than zero, in μm.");
-  if (p.tau <= 0) return bad("Enter a time between steps greater than zero, in seconds.");
   if (!Number.isSafeInteger(p.walkers) || p.walkers < 1 || p.walkers > 10000)
     return bad("Enter a whole number of walkers from 1 to 10 000.");
   if (!Number.isSafeInteger(p.runSteps) || p.runSteps < 1 || p.runSteps > 10000)
@@ -65,4 +65,20 @@ export function validateBm05Parameters(input: unknown): Computation<Bm05Paramete
     );
   if (p.bias < 0 || p.bias > 1) return bad("Enter a right-step probability from 0 to 1.");
   return { kind: "accepted", data: Object.freeze({ ...p }) };
+}
+
+/** The page's names and units; the record stores the step size in metres, the form in μm. */
+const BM05_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  stepRms: { label: "Step RMS size", scale: 1e6, unit: "μm" },
+  tau: { label: "Time between steps", unit: "s" },
+};
+
+/**
+ * The fields above, then every range content/experiments/bm-05.yaml declares
+ * (am-lab-domains-silently-clamped-pzj5). The field checks already hold the counts and the
+ * probability to their declared ranges; the step size and the interval were only "greater than
+ * zero" and are now held to theirs.
+ */
+export function validateBm05Parameters(input: unknown): Computation<Bm05Parameters> {
+  return withinDeclaredDomain("bm-05", validateBm05Fields(input), BM05_DOMAIN_DISPLAY);
 }

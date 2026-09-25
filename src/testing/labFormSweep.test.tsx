@@ -35,19 +35,10 @@ import { createContainer, installDom, removeContainer, uninstallDom } from "./re
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const APP = resolve(root, "src/app/lab");
 
-const UNFINISHED: readonly string[] = ["bm-02", "bm-05", "bm-06", "bm-07", "sr-11"];
+const UNFINISHED: readonly string[] = ["bm-02", "bm-06", "bm-07", "sr-11"];
 
 /** Labs a refusal leaves without saying the results shown are the last accepted ones. */
-const UNMARKED: readonly string[] = [
-  "bm-01",
-  "bm-02",
-  "bm-05",
-  "bm-06",
-  "bm-07",
-  "lq-02",
-  "lq-04",
-  "sr-11",
-];
+const UNMARKED: readonly string[] = ["bm-01", "bm-02", "bm-06", "bm-07", "lq-02", "lq-04", "sr-11"];
 
 const VALUES = ["abc", "", "1e300", "-1e300"] as const;
 const KEPT = /last accepted/i;

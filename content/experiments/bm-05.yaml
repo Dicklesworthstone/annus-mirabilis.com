@@ -92,7 +92,7 @@ parameters:
       max: 1e-3
       minInclusive: true
       maxInclusive: true
-      reason: "Positive, finite step scale (src/experiments/bm05/parameters.ts)"
+      reason: "The step sizes the lab draws, a nanometre up to a millimetre (src/experiments/bm05/parameters.ts)"
     visualRange:
       min: 1e-8
       max: 5e-6
@@ -113,7 +113,7 @@ parameters:
       max: 1e4
       minInclusive: true
       maxInclusive: true
-      reason: "Positive, finite step interval (src/experiments/bm05/parameters.ts)"
+      reason: "The intervals between steps the lab offers, a microsecond up to ten thousand seconds (src/experiments/bm05/parameters.ts)"
     visualRange:
       min: 0.001
       max: 10
@@ -154,7 +154,7 @@ parameters:
       max: 10000
       minInclusive: true
       maxInclusive: true
-      reason: "Runtime work-budget bound (src/experiments/bm05/parameters.ts)"
+      reason: "What the lab runs quickly enough in a browser (src/experiments/bm05/parameters.ts)"
     visualRange:
       min: 1
       max: 10000
@@ -175,7 +175,7 @@ parameters:
       max: 10000
       minInclusive: true
       maxInclusive: true
-      reason: "Runtime work-budget bound (src/experiments/bm05/parameters.ts)"
+      reason: "What the lab runs quickly enough in a browser (src/experiments/bm05/parameters.ts)"
     visualRange:
       min: 1
       max: 400

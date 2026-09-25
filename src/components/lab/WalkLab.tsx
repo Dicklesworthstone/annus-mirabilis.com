@@ -21,6 +21,7 @@ import { instrumentRootAttributes } from "../../experiments/store/identityAttrib
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { KEPT_RESULT } from "./keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
@@ -318,7 +319,7 @@ export function WalkLab({
           )}
           {error && (
             <p className="notice error" role="alert">
-              {error}
+              {error} {KEPT_RESULT}
             </p>
           )}
           <div className="actions">
