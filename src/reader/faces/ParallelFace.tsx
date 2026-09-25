@@ -77,8 +77,10 @@ export function ParallelFace({
     : blocks;
 
   const footnoteBlocks = filteredBlocks.filter((b) => b.kind === "footnote");
-  // A display its paragraph prints in place is not printed again as its own block.
-  const mainBlocks = withoutClaimedDisplays(filteredBlocks.filter((b) => b.kind !== "footnote"));
+  // A display its paragraph or footnote prints in place is not printed again as its own block.
+  // The claims are counted before the footnotes are set aside: light quanta's s1-fn3 prints three
+  // displays, which were otherwise also printed as rows of their own, repeating their ids.
+  const mainBlocks = withoutClaimedDisplays(filteredBlocks).filter((b) => b.kind !== "footnote");
   const published = paper.dates.find((d) => d.type === "issue-publication");
   // One row per German block, holding that block's English (parallelRows.ts).
   // A display the German prints as its own block keeps its English beside it, not in the paragraph.

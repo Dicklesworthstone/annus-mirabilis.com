@@ -57,6 +57,12 @@ export function parallelRows(
       continue;
     }
     const host = byId.get(group.key)?.containedIn;
+    // A display a footnote prints goes with that footnote's English, in the footnote's row.
+    const footnoteHost = host === undefined ? undefined : footnoteRowFor.get(host);
+    if (footnoteHost !== undefined && rowFor.get(group.key) === undefined) {
+      footnoteHost.english.push(group);
+      continue;
+    }
     let row = rowFor.get(group.key) ?? (host === undefined ? undefined : rowFor.get(host));
     if (row === undefined) {
       row = { key: group.key, block: null, english: [] };

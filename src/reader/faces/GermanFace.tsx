@@ -35,7 +35,9 @@ export function GermanFace({
 
   const footnoteBlocks = filteredBlocks.filter((b) => b.kind === "footnote");
   // A display its paragraph prints in place is not printed again as its own block.
-  const mainBlocks = withoutClaimedDisplays(filteredBlocks.filter((b) => b.kind !== "footnote"));
+  // Claims are counted before the footnotes are set aside, so a display a footnote prints is not
+  // printed again as its own block (light quanta's s1-fn3 prints three).
+  const mainBlocks = withoutClaimedDisplays(filteredBlocks).filter((b) => b.kind !== "footnote");
   const alignmentIndex = buildAlignmentIndex(alignment, blocks);
 
   const dateLine = paper.dates.find((d) => d.type === "date-line");
