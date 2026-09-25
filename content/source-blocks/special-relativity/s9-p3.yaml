@@ -1,0 +1,33 @@
+# SourceBlock s9-p3: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s9-p3"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s9"
+order: 177
+locators:
+  - pdfPageIndex: 27
+    printedPage: 917
+diplomaticText: "Es möge noch kurz bemerkt werden, daß aus den entwickelten Gleichungen leicht der folgende wichtige Satz gefolgert werden kann: Bewegt sich ein elektrisch geladener Körper beliebig im Raume und ändert sich hierbei seine Ladung nicht, von einem mit dem Körper bewegten Koordinatensystem aus betrachtet, so bleibt seine Ladung auch — von dem „ruhenden“ System K aus betrachtet — konstant."
+inlines:
+  - kind: "text"
+    text: "Es möge noch kurz bemerkt werden, daß aus den entwickelten Gleichungen leicht der folgende wichtige Satz gefolgert werden kann: Bewegt sich ein elektrisch geladener Körper beliebig im Raume und ändert sich hierbei seine Ladung nicht, von einem mit dem Körper bewegten Koordinatensystem aus betrachtet, so bleibt seine Ladung auch — von dem „ruhenden“ System "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " aus betrachtet — konstant."
+sentenceSpans:
+  - id: "s9-p3-s1"
+    span:
+      start: 0
+      end: 386
+      blockRevision: 1
+      textDigest: "877b32cd56299ae3a0b50cd04ccd0f904511d1e1ebe878fb706df92d8ce57e43"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,22 @@
+# TranslationUnit eq-s9-d1: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "eq-s9-d1"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "eq-s9-d1"
+inlines:
+  - kind: "math"
+    latex: "\\begin{aligned} \\frac{1}{V} \\left\\{ u_x \\varrho + \\frac{\\partial X}{\\partial t} \\right\\} &= \\frac{\\partial N}{\\partial y} - \\frac{\\partial M}{\\partial z} , &\\qquad \\frac{1}{V} \\frac{\\partial L}{\\partial t} &= \\frac{\\partial Y}{\\partial z} - \\frac{\\partial Z}{\\partial y} , \\\\ \\frac{1}{V} \\left\\{ u_y \\varrho + \\frac{\\partial Y}{\\partial t} \\right\\} &= \\frac{\\partial L}{\\partial z} - \\frac{\\partial N}{\\partial x} , &\\qquad \\frac{1}{V} \\frac{\\partial M}{\\partial t} &= \\frac{\\partial Z}{\\partial x} - \\frac{\\partial X}{\\partial z} , \\\\ \\frac{1}{V} \\left\\{ u_z \\varrho + \\frac{\\partial Z}{\\partial t} \\right\\} &= \\frac{\\partial M}{\\partial x} - \\frac{\\partial L}{\\partial y} , &\\qquad \\frac{1}{V} \\frac{\\partial N}{\\partial t} &= \\frac{\\partial X}{\\partial y} - \\frac{\\partial Y}{\\partial x} , \\end{aligned}"
+    equationId: "eq-s9-d1"
+translator:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

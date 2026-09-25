@@ -1,0 +1,29 @@
+# SourceBlock s8-p5: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8-p5"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s8"
+order: 156
+locators:
+  - pdfPageIndex: 24
+    printedPage: 914
+diplomaticText: "Es ist bemerkenswert, daß die Energie und die Frequenz eines Lichtkomplexes sich nach demselben Gesetze mit dem Bewegungszustande des Beobachters ändern."
+inlines:
+  - kind: "text"
+    text: "Es ist bemerkenswert, daß die Energie und die Frequenz eines Lichtkomplexes sich nach demselben Gesetze mit dem Bewegungszustande des Beobachters ändern."
+sentenceSpans:
+  - id: "s8-p5-s1"
+    span:
+      start: 0
+      end: 153
+      blockRevision: 1
+      textDigest: "fcaa77d81de5ffb91c9f4cd1ad7b5009e5b98ab2e14824e416b2834dff3a3ca5"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

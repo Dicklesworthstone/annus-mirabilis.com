@@ -1,0 +1,26 @@
+# SourceBlock eq-s8-d14: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "eq-s8-d14"
+kind: "equation"
+paper: "special-relativity"
+section: "s8"
+order: 168
+locators:
+  - pdfPageIndex: 25
+    printedPage: 915
+editorialLabel: "ed:s8-d14"
+containedIn: "s8-p10"
+diplomaticText: "P = 2 \\frac{A^2}{8\\pi} \\cos^2 \\varphi ."
+inlines:
+  - kind: "math"
+    latex: "P = 2 \\frac{A^2}{8\\pi} \\cos^2 \\varphi ."
+    equationId: "eq-s8-d14"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

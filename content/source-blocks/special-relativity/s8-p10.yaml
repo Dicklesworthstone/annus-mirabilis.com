@@ -1,0 +1,89 @@
+# SourceBlock s8-p10: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8-p10"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s8"
+order: 166
+locators:
+  - pdfPageIndex: 25
+    printedPage: 915
+diplomaticText: "Die auf die Flächeneinheit des Spiegels pro Zeiteinheit auftreffende (im ruhenden System gemessene) Energie ist offenbar A^2/8\\pi (V \\cos \\varphi - v). Die von der Flächeneinheit des Spiegels in der Zeiteinheit sich entfernende Energie ist A'''^2/8\\pi (- V \\cos \\varphi''' + v). Die Differenz dieser beiden Ausdrücke ist nach dem Energieprinzip die vom Lichtdrucke in der Zeiteinheit geleistete Arbeit. Setzt man die letztere gleich dem Produkt P \\cdot v, wobei P der Lichtdruck ist, so erhält man: In erster Annäherung erhält man in Übereinstimmung mit der Erfahrung und mit anderen Theorien"
+inlines:
+  - kind: "text"
+    text: "Die auf die Flächeneinheit des Spiegels pro Zeiteinheit auftreffende (im ruhenden System gemessene) Energie ist offenbar "
+  - kind: "math"
+    latex: "A^2/8\\pi (V \\cos \\varphi - v)"
+  - kind: "text"
+    text: "."
+  - kind: "space"
+  - kind: "text"
+    text: "Die von der Flächeneinheit des Spiegels in der Zeiteinheit sich entfernende Energie ist "
+  - kind: "math"
+    latex: "A'''^2/8\\pi (- V \\cos \\varphi''' + v)"
+  - kind: "text"
+    text: "."
+  - kind: "space"
+  - kind: "text"
+    text: "Die Differenz dieser beiden Ausdrücke ist nach dem Energieprinzip die vom Lichtdrucke in der Zeiteinheit geleistete Arbeit."
+  - kind: "space"
+  - kind: "text"
+    text: "Setzt man die letztere gleich dem Produkt "
+  - kind: "math"
+    latex: "P \\cdot v"
+  - kind: "text"
+    text: ", wobei "
+  - kind: "math"
+    latex: "P"
+  - kind: "text"
+    text: " der Lichtdruck ist, so erhält man:"
+  - kind: "math"
+    latex: "P = 2 \\frac{A^2}{8\\pi} \\frac{\\left( \\cos \\varphi - \\frac{v}{V} \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2} ."
+    display: true
+    equationId: "eq-s8-d13"
+  - kind: "space"
+  - kind: "text"
+    text: "In erster Annäherung erhält man in Übereinstimmung mit der Erfahrung und mit anderen Theorien"
+  - kind: "math"
+    latex: "P = 2 \\frac{A^2}{8\\pi} \\cos^2 \\varphi ."
+    display: true
+    equationId: "eq-s8-d14"
+sentenceSpans:
+  - id: "s8-p10-s1"
+    span:
+      start: 0
+      end: 151
+      blockRevision: 1
+      textDigest: "b821431aedf02712051351b8e6224358fcdcfd2b8078035d60a21016f179f2f7"
+  - id: "s8-p10-s2"
+    span:
+      start: 152
+      end: 278
+      blockRevision: 1
+      textDigest: "b821431aedf02712051351b8e6224358fcdcfd2b8078035d60a21016f179f2f7"
+  - id: "s8-p10-s3"
+    span:
+      start: 279
+      end: 402
+      blockRevision: 1
+      textDigest: "b821431aedf02712051351b8e6224358fcdcfd2b8078035d60a21016f179f2f7"
+  - id: "s8-p10-s4"
+    span:
+      start: 403
+      end: 498
+      blockRevision: 1
+      textDigest: "b821431aedf02712051351b8e6224358fcdcfd2b8078035d60a21016f179f2f7"
+  - id: "s8-p10-s5"
+    span:
+      start: 499
+      end: 592
+      blockRevision: 1
+      textDigest: "b821431aedf02712051351b8e6224358fcdcfd2b8078035d60a21016f179f2f7"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

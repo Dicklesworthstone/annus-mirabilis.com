@@ -1,0 +1,111 @@
+# SourceBlock s8-p1: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8-p1"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s8"
+order: 149
+locators:
+  - pdfPageIndex: 23
+    printedPage: 913
+diplomaticText: "Da A^2/8\\pi gleich der Lichtenergie pro Volumeneinheit ist, so haben wir nach dem Relativitätsprinzip A'^2/8\\pi als die Lichtenergie im bewegten System zu betrachten. Es wäre daher A'^2/A^2 das Verhältnis der „bewegt gemessenen“ und „ruhend gemessenen“ Energie eines bestimmten Lichtkomplexes, wenn das Volumen eines Lichtkomplexes in K gemessen und in k gemessen das gleiche wäre. Dies ist jedoch nicht der Fall. Sind a, b, c die Richtungskosinus der Wellennormalen des Lichtes im ruhenden System, so wandert durch die Oberflächenelemente der mit Lichtgeschwindigkeit bewegten Kugelfläche keine Energie hindurch; wir können daher sagen, daß diese Fläche dauernd denselben Lichtkomplex umschließt. Wir fragen nach der Energiemenge, welche diese Fläche im System k betrachtet umschließt, d. h. nach der Energie des Lichtkomplexes relativ zum System k."
+inlines:
+  - kind: "text"
+    text: "Da "
+  - kind: "math"
+    latex: "A^2/8\\pi"
+  - kind: "text"
+    text: " gleich der Lichtenergie pro Volumeneinheit ist, so haben wir nach dem Relativitätsprinzip "
+  - kind: "math"
+    latex: "A'^2/8\\pi"
+  - kind: "text"
+    text: " als die Lichtenergie im bewegten System zu betrachten."
+  - kind: "space"
+  - kind: "text"
+    text: "Es wäre daher "
+  - kind: "math"
+    latex: "A'^2/A^2"
+  - kind: "text"
+    text: " das Verhältnis der „bewegt gemessenen“ und „ruhend gemessenen“ Energie eines bestimmten Lichtkomplexes, wenn das Volumen eines Lichtkomplexes in "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " gemessen und in "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " gemessen das gleiche wäre."
+  - kind: "space"
+  - kind: "text"
+    text: "Dies ist jedoch nicht der Fall."
+  - kind: "space"
+  - kind: "text"
+    text: "Sind "
+  - kind: "math"
+    latex: "a"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "b"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "c"
+  - kind: "text"
+    text: " die Richtungskosinus der Wellennormalen des Lichtes im ruhenden System, so wandert durch die Oberflächenelemente der mit Lichtgeschwindigkeit bewegten Kugelfläche"
+  - kind: "math"
+    latex: "(x - V a t)^2 + (y - V b t)^2 + (z - V c t)^2 = R^2"
+    display: true
+    equationId: "eq-s8-d1"
+  - kind: "text"
+    text: " keine Energie hindurch; wir können daher sagen, daß diese Fläche dauernd denselben Lichtkomplex umschließt."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir fragen nach der Energiemenge, welche diese Fläche im System "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " betrachtet umschließt, d. h. nach der Energie des Lichtkomplexes relativ zum System "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: "."
+sentenceSpans:
+  - id: "s8-p1-s1"
+    span:
+      start: 0
+      end: 166
+      blockRevision: 1
+      textDigest: "13dbb9a8a3a09bfe321510ca869ce6bce5d5ba7a99380ff4166d62f5cf4ba662"
+  - id: "s8-p1-s2"
+    span:
+      start: 167
+      end: 381
+      blockRevision: 1
+      textDigest: "13dbb9a8a3a09bfe321510ca869ce6bce5d5ba7a99380ff4166d62f5cf4ba662"
+  - id: "s8-p1-s3"
+    span:
+      start: 382
+      end: 413
+      blockRevision: 1
+      textDigest: "13dbb9a8a3a09bfe321510ca869ce6bce5d5ba7a99380ff4166d62f5cf4ba662"
+  - id: "s8-p1-s4"
+    span:
+      start: 414
+      end: 697
+      blockRevision: 1
+      textDigest: "13dbb9a8a3a09bfe321510ca869ce6bce5d5ba7a99380ff4166d62f5cf4ba662"
+  - id: "s8-p1-s5"
+    span:
+      start: 698
+      end: 850
+      blockRevision: 1
+      textDigest: "13dbb9a8a3a09bfe321510ca869ce6bce5d5ba7a99380ff4166d62f5cf4ba662"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

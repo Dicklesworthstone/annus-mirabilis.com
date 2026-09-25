@@ -1,0 +1,22 @@
+# TranslationUnit eq-s9-d4: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "eq-s9-d4"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "eq-s9-d4"
+inlines:
+  - kind: "math"
+    latex: "\\begin{aligned} \\frac{u_x - v}{1 - \\frac{u_x v}{V^2}} &= u_\\xi , \\\\ \\frac{u_y}{\\beta \\left( 1 - \\frac{u_x v}{V^2} \\right)} &= u_\\eta , &\\qquad \\varrho' = \\frac{\\partial X'}{\\partial \\xi} + \\frac{\\partial Y'}{\\partial \\eta} + \\frac{\\partial Z'}{\\partial \\zeta} = \\beta \\left( 1 - \\frac{v u_x}{V^2} \\right) \\varrho . \\\\ \\frac{u_z}{\\beta \\left( 1 - \\frac{u_x v}{V^2} \\right)} &= u_\\zeta . \\end{aligned}"
+    equationId: "eq-s9-d4"
+translator:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

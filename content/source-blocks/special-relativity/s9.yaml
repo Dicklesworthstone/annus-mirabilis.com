@@ -1,0 +1,35 @@
+# SourceBlock s9: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s9"
+kind: "heading"
+paper: "special-relativity"
+section: "s9"
+order: 170
+locators:
+  - pdfPageIndex: 26
+    printedPage: 916
+diplomaticText: "§ 9. Transformation der Maxwell-Hertzschen Gleichungen mit Berücksichtigung der Konvektionsströme."
+inlines:
+  - kind: "text"
+    text: "§ 9. Transformation der "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Maxwell-Hertz"
+  - kind: "text"
+    text: "schen Gleichungen mit Berücksichtigung der Konvektionsströme."
+sentenceSpans:
+  - id: "s9"
+    span:
+      start: 0
+      end: 98
+      blockRevision: 1
+      textDigest: "35fd89a9e1099222fdc25fb72d1dee52c8a0338bf376b4a0e878ccf6cbca2e1a"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

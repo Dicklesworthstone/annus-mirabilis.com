@@ -1,0 +1,33 @@
+# TranslationUnit s8-p1-s4a: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s8-p1-s4a"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s8-p1-s4"
+inlines:
+  - kind: "text"
+    text: "If "
+  - kind: "math"
+    latex: "a"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "b"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "c"
+  - kind: "text"
+    text: " are the direction cosines of the wave normal of the light in the stationary system, then through the surface elements of the spherical surface moving with the velocity of light"
+translator:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

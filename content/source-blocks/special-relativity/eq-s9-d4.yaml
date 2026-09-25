@@ -1,0 +1,26 @@
+# SourceBlock eq-s9-d4: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "eq-s9-d4"
+kind: "equation"
+paper: "special-relativity"
+section: "s9"
+order: 176
+locators:
+  - pdfPageIndex: 26
+    printedPage: 916
+editorialLabel: "ed:s9-d4"
+containedIn: "s9-p2"
+diplomaticText: "\\begin{aligned} \\frac{u_x - v}{1 - \\frac{u_x v}{V^2}} &= u_\\xi , \\\\ \\frac{u_y}{\\beta \\left( 1 - \\frac{u_x v}{V^2} \\right)} &= u_\\eta , &\\qquad \\varrho' = \\frac{\\partial X'}{\\partial \\xi} + \\frac{\\partial Y'}{\\partial \\eta} + \\frac{\\partial Z'}{\\partial \\zeta} = \\beta \\left( 1 - \\frac{v u_x}{V^2} \\right) \\varrho . \\\\ \\frac{u_z}{\\beta \\left( 1 - \\frac{u_x v}{V^2} \\right)} &= u_\\zeta . \\end{aligned}"
+inlines:
+  - kind: "math"
+    latex: "\\begin{aligned} \\frac{u_x - v}{1 - \\frac{u_x v}{V^2}} &= u_\\xi , \\\\ \\frac{u_y}{\\beta \\left( 1 - \\frac{u_x v}{V^2} \\right)} &= u_\\eta , &\\qquad \\varrho' = \\frac{\\partial X'}{\\partial \\xi} + \\frac{\\partial Y'}{\\partial \\eta} + \\frac{\\partial Z'}{\\partial \\zeta} = \\beta \\left( 1 - \\frac{v u_x}{V^2} \\right) \\varrho . \\\\ \\frac{u_z}{\\beta \\left( 1 - \\frac{u_x v}{V^2} \\right)} &= u_\\zeta . \\end{aligned}"
+    equationId: "eq-s9-d4"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

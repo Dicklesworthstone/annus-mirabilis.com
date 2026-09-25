@@ -1,0 +1,26 @@
+# SourceBlock eq-s8-d2: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "eq-s8-d2"
+kind: "equation"
+paper: "special-relativity"
+section: "s8"
+order: 152
+locators:
+  - pdfPageIndex: 23
+    printedPage: 913
+editorialLabel: "ed:s8-d2"
+containedIn: "s8-p2"
+diplomaticText: "\\left( \\beta \\xi - a \\beta \\frac{v}{V} \\xi \\right)^2 + \\left( \\eta - b \\beta \\frac{v}{V} \\xi \\right)^2 + \\left( \\zeta - c \\beta \\frac{v}{V} \\xi \\right)^2 = R^2 ."
+inlines:
+  - kind: "math"
+    latex: "\\left( \\beta \\xi - a \\beta \\frac{v}{V} \\xi \\right)^2 + \\left( \\eta - b \\beta \\frac{v}{V} \\xi \\right)^2 + \\left( \\zeta - c \\beta \\frac{v}{V} \\xi \\right)^2 = R^2 ."
+    equationId: "eq-s8-d2"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

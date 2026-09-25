@@ -1,0 +1,42 @@
+# SourceBlock s8-p6: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8-p6"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s8"
+order: 157
+locators:
+  - pdfPageIndex: 24
+    printedPage: 914
+diplomaticText: "Es sei nun die Koordinatenebene \\xi = 0 eine vollkommen spiegelnde Fläche, an welcher die im letzten Paragraph betrachteten ebenen Wellen reflektiert werden. Wir fragen nach dem auf die spiegelnde Fläche ausgeübten Lichtdruck und nach der Richtung, Frequenz und Intensität des Lichtes nach der Reflexion."
+inlines:
+  - kind: "text"
+    text: "Es sei nun die Koordinatenebene "
+  - kind: "math"
+    latex: "\\xi = 0"
+  - kind: "text"
+    text: " eine vollkommen spiegelnde Fläche, an welcher die im letzten Paragraph betrachteten ebenen Wellen reflektiert werden."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir fragen nach dem auf die spiegelnde Fläche ausgeübten Lichtdruck und nach der Richtung, Frequenz und Intensität des Lichtes nach der Reflexion."
+sentenceSpans:
+  - id: "s8-p6-s1"
+    span:
+      start: 0
+      end: 157
+      blockRevision: 1
+      textDigest: "cba7ea6e40e1cdae3dc2fa9bead3a0193a8eed70c35598483e403d381d713826"
+  - id: "s8-p6-s2"
+    span:
+      start: 158
+      end: 304
+      blockRevision: 1
+      textDigest: "cba7ea6e40e1cdae3dc2fa9bead3a0193a8eed70c35598483e403d381d713826"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

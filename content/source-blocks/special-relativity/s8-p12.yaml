@@ -1,0 +1,47 @@
+# SourceBlock s8-p12: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s8-p12"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s8"
+order: 169
+locators:
+  - pdfPageIndex: 25
+    printedPage: 915
+diplomaticText: "Nach der hier benutzten Methode können alle Probleme der Optik bewegter Körper gelöst werden. Das Wesentliche ist, daß die elektrische und magnetische Kraft des Lichtes, welches durch einen bewegten Körper beeinflußt wird, auf ein relativ zu dem Körper ruhendes Koordinatensystem transformiert werden. Dadurch wird jedes Problem der Optik bewegter Körper auf eine Reihe von Problemen der Optik ruhender Körper zurückgeführt."
+inlines:
+  - kind: "text"
+    text: "Nach der hier benutzten Methode können alle Probleme der Optik bewegter Körper gelöst werden."
+  - kind: "space"
+  - kind: "text"
+    text: "Das Wesentliche ist, daß die elektrische und magnetische Kraft des Lichtes, welches durch einen bewegten Körper beeinflußt wird, auf ein relativ zu dem Körper ruhendes Koordinatensystem transformiert werden."
+  - kind: "space"
+  - kind: "text"
+    text: "Dadurch wird jedes Problem der Optik bewegter Körper auf eine Reihe von Problemen der Optik ruhender Körper zurückgeführt."
+sentenceSpans:
+  - id: "s8-p12-s1"
+    span:
+      start: 0
+      end: 93
+      blockRevision: 1
+      textDigest: "50832023f8c9e811f8309365da2a81f33b710a6cdcf69d2d1d308d5ce35758ac"
+  - id: "s8-p12-s2"
+    span:
+      start: 94
+      end: 301
+      blockRevision: 1
+      textDigest: "50832023f8c9e811f8309365da2a81f33b710a6cdcf69d2d1d308d5ce35758ac"
+  - id: "s8-p12-s3"
+    span:
+      start: 302
+      end: 424
+      blockRevision: 1
+      textDigest: "50832023f8c9e811f8309365da2a81f33b710a6cdcf69d2d1d308d5ce35758ac"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"
