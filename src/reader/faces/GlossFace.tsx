@@ -18,6 +18,7 @@ import { buildAlignmentIndex } from "./alignment.ts";
 import { claimedDisplayIds } from "./displayClaims.ts";
 import { GlossSentence } from "./GlossSentence.tsx";
 import { glossReviewSummary } from "./glossReview.ts";
+import { sentenceAtoms } from "./glossStream.ts";
 import { renderInlines } from "./inlines.tsx";
 import { speakInlines } from "./mathSpeech.ts";
 import type { FaceId } from "./registry.ts";
@@ -112,6 +113,7 @@ export function GlossFace({
       key={sp.id}
       sentenceId={sp.id}
       germanText={block.diplomaticText.slice(sp.span.start, sp.span.end)}
+      atoms={sentenceAtoms(block.inlines, sp.span)}
       glossUnit={glossMap.get(sp.id)}
       englishTranslation={englishFor(sp.id)}
       paperSlug={paper.slug}

@@ -1,6 +1,9 @@
 import { renderToString } from "katex";
+import { Fragment, type ReactNode } from "react";
 import { isModalityClass } from "../../content/schemas/glossConventions.pure.ts";
 import type { GlossToken, MultiwordUnit } from "../../content/schemas/source.ts";
+import type { GlossAtom } from "./glossStream.ts";
+import { renderInlines } from "./inlines.tsx";
 
 export interface GlossPairProps {
   readonly token: GlossToken;
@@ -10,6 +13,48 @@ export interface GlossPairProps {
   readonly showReasoningWords?: boolean | undefined;
   /** The modality vocabulary the server resolved for this edition. */
   readonly modalityClasses: readonly string[];
+  /** Formulas and punctuation printed against the word, before and after it (glossStream.ts). */
+  readonly leading?: readonly GlossAtom[] | undefined;
+  readonly trailing?: readonly GlossAtom[] | undefined;
+}
+
+/**
+ * Atoms as the paper prints them: a formula typeset by the same renderer as every other face,
+ * punctuation as text. They are never glossed.
+ */
+export function renderGlossAtoms(atoms: readonly GlossAtom[], keyPrefix: string): ReactNode {
+  return atoms.map((atom) => (
+    <Fragment key={`${keyPrefix}-${atom.start}`}>
+      {atom.kind === "math"
+        ? renderInlines([atom.node], undefined, `${keyPrefix}-${atom.start}`)
+        : atom.text}
+    </Fragment>
+  ));
+}
+
+/**
+ * A formula or punctuation standing on its own in the German line, with an empty line beneath
+ * where a word would have its gloss.
+ */
+export function GlossAtoms({
+  atoms,
+  keyPrefix,
+}: {
+  atoms: readonly GlossAtom[];
+  keyPrefix: string;
+}) {
+  return (
+    <span className="gloss-atom" data-gloss-atom={atoms.map((a) => a.kind).join(" ")}>
+      <span className="gloss-pair-inner">
+        <span className="gloss-german" lang="de" dir="ltr">
+          {renderGlossAtoms(atoms, keyPrefix)}
+        </span>
+        <span className="gloss-english" aria-hidden="true">
+          {"\u00A0"}
+        </span>
+      </span>
+    </span>
+  );
 }
 
 const MODALITY_LABELS: Record<string, string> = {
@@ -33,12 +78,13 @@ export function GlossPair({
   isMultiwordFirst = true,
   showReasoningWords = false,
   modalityClasses,
+  leading = [],
+  trailing = [],
 }: GlossPairProps) {
+  // A formula phrase ("setzen wir", "man erhält") is German words, not a formula: the note class
+  // used to be enough to typeset "setzen" through KaTeX as italic mathematics.
   const isMath =
-    token.german.startsWith("$") ||
-    token.german.startsWith("\\") ||
-    token.german.includes("=") ||
-    token.noteClass === "formula-phrase";
+    token.german.startsWith("$") || token.german.startsWith("\\") || token.german.includes("=");
 
   const activeNoteClass = token.noteClass || multiwordUnit?.noteClass;
   const activeGrammarNote = token.grammarNote || multiwordUnit?.grammarNote;
@@ -89,6 +135,7 @@ export function GlossPair({
           lang="de"
           dir="ltr"
         >
+          {renderGlossAtoms(leading, `lead-${tokenIndex}`)}
           {renderedMath ? (
             <span
               className="inline-math"
@@ -97,6 +144,7 @@ export function GlossPair({
           ) : (
             token.german
           )}
+          {renderGlossAtoms(trailing, `trail-${tokenIndex}`)}
         </span>
 
         <span className="gloss-english" lang="en" dir="ltr">

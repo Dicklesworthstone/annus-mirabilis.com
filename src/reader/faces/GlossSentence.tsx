@@ -1,6 +1,8 @@
 import { isModalityClass } from "../../content/schemas/glossConventions.pure.ts";
 import type { GlossUnit } from "../../content/schemas/source.ts";
-import { GlossPair } from "./GlossPair.tsx";
+import { GlossAtoms, GlossPair } from "./GlossPair.tsx";
+import { type GlossAtom, glossStream, type SentenceAtom } from "./glossStream.ts";
+import { speakMath } from "./mathSpeech.ts";
 
 export interface GlossSentenceProps {
   readonly sentenceId: string;
@@ -11,6 +13,8 @@ export interface GlossSentenceProps {
   readonly showReasoningWords?: boolean | undefined;
   /** The modality vocabulary the server resolved for this edition. */
   readonly modalityClasses: readonly string[];
+  /** The sentence's formulas and footnote marks, in offsets of germanText (glossStream.ts). */
+  readonly atoms?: readonly SentenceAtom[] | undefined;
 }
 
 export interface ReasoningWordItem {
@@ -83,6 +87,7 @@ export function GlossSentence({
   paperSlug = "mass-energy",
   showReasoningWords = false,
   modalityClasses,
+  atoms,
 }: GlossSentenceProps) {
   // If no gloss unit is available, render German text with an honest coverage notice and link to parallel face
   if (!glossUnit) {
@@ -120,7 +125,24 @@ export function GlossSentence({
     ? extractReasoningWords(glossUnit, modalityClasses)
     : [];
 
-  const fullGerman = glossUnit.tokens.map((t) => t.german).join(" ");
+  // The German line as printed: words with their glosses, and the formulas and punctuation
+  // between them. It is used only when its words are exactly the unit's tokens; otherwise the
+  // unit and the German disagree, and the line falls back to the unit's words, marked
+  // data-gloss-stream="word-only" so a test can see it.
+  const stream = glossStream(germanText, atoms);
+  const printed =
+    stream.words.length === glossUnit.tokens.length &&
+    stream.words.every((w, i) => w === glossUnit.tokens[i]?.german);
+  const fullGerman = printed
+    ? stream.clusters
+        .map((c) => {
+          const said = (a: GlossAtom) => (a.kind === "math" ? speakMath(a.node.latex) : a.text);
+          return c.kind === "word"
+            ? `${c.leading.map(said).join("")}${glossUnit.tokens[c.tokenIndex]?.german ?? ""}${c.trailing.map(said).join("")}`
+            : c.atoms.map(said).join("");
+        })
+        .join(" ")
+    : glossUnit.tokens.map((t) => t.german).join(" ");
   const fullGlosses = glossUnit.tokens.map((t) => t.english || t.german).join(" ");
 
   return (
@@ -186,23 +208,60 @@ export function GlossSentence({
       </nav>
 
       {/* Interlinear word pairs layout */}
-      <div className="gloss-pairs-container" data-pairs-container="true">
-        {Array.from(glossUnit.tokens.entries()).map(([idx, token]) => {
-          const multiword = glossUnit.multiwordUnits?.find((mw) => mw.tokenIndices.includes(idx));
-          const isMultiwordFirst = multiword ? multiword.tokenIndices[0] === idx : true;
+      <div
+        className="gloss-pairs-container"
+        data-pairs-container="true"
+        data-gloss-stream={printed ? "printed" : "word-only"}
+      >
+        {printed
+          ? stream.clusters.map((cluster) => {
+              if (cluster.kind === "atoms") {
+                return (
+                  <GlossAtoms
+                    key={`${sentenceId}-atoms-${cluster.start}`}
+                    atoms={cluster.atoms}
+                    keyPrefix={`${sentenceId}-a${cluster.start}`}
+                  />
+                );
+              }
+              const idx = cluster.tokenIndex;
+              const token = glossUnit.tokens[idx];
+              if (!token) return null;
+              const multiword = glossUnit.multiwordUnits?.find((mw) =>
+                mw.tokenIndices.includes(idx),
+              );
+              return (
+                <GlossPair
+                  key={`${sentenceId}-tok-${idx}-${token.german}`}
+                  token={token}
+                  tokenIndex={idx}
+                  multiwordUnit={multiword}
+                  isMultiwordFirst={multiword ? multiword.tokenIndices[0] === idx : true}
+                  showReasoningWords={showReasoningWords}
+                  modalityClasses={modalityClasses}
+                  leading={cluster.leading}
+                  trailing={cluster.trailing}
+                />
+              );
+            })
+          : Array.from(glossUnit.tokens.entries()).map(([idx, token]) => {
+              const multiword = glossUnit.multiwordUnits?.find((mw) =>
+                mw.tokenIndices.includes(idx),
+              );
+              const isMultiwordFirst = multiword ? multiword.tokenIndices[0] === idx : true;
 
-          return (
-            <GlossPair
-              key={`${sentenceId}-tok-${idx}-${token.german}`}
-              token={token}
-              tokenIndex={idx}
-              multiwordUnit={multiword}
-              isMultiwordFirst={isMultiwordFirst}
-              showReasoningWords={showReasoningWords}
-              modalityClasses={modalityClasses}
-            />
-          );
-        })}
+              return (
+                <GlossPair
+                  key={`${sentenceId}-tok-${idx}-${token.german}`}
+                  token={token}
+                  tokenIndex={idx}
+                  multiwordUnit={multiword}
+                  isMultiwordFirst={isMultiwordFirst}
+                  showReasoningWords={showReasoningWords}
+                  modalityClasses={modalityClasses}
+                />
+              );
+            })}
       </div>
 
       {/* In-place ordered list of reasoning words when toggle is on */}
