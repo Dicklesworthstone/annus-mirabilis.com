@@ -1,4 +1,10 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import {
+  type DomainDisplay,
+  declaredDomains,
+  domainRequirement,
+  withinDeclaredDomain,
+} from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { LQ09_DEFAULTS, type Lq09Parameters } from "./definition.ts";
 
@@ -12,7 +18,7 @@ const LQ09_FIELD_NAMES: Partial<Record<keyof Lq09Parameters, string>> = {
   declaredFraction: "the share of absorbed quanta that ionize, a,",
 };
 
-export function validateLq09Parameters(input: unknown): Computation<Lq09Parameters> {
+function validateLq09Fields(input: unknown): Computation<Lq09Parameters> {
   const bad = (requirements: string): Computation<never> => ({
     kind: "refused",
     refusal: makeRefusal(
@@ -60,24 +66,9 @@ export function validateLq09Parameters(input: unknown): Computation<Lq09Paramete
     }
   }
 
-  if (p.frequency <= 0) {
-    return bad("Enter a frequency ν greater than zero, in THz.");
-  }
-  if (p.ionizationEnergyEv < 0) {
-    return bad("Enter an ionization energy per molecule J of zero or more, in eV.");
-  }
-  if (p.incidentPower < 0) {
-    return bad("Enter a light power of zero or more, in μW.");
-  }
-  if (p.absorptionEfficiency < 0 || p.absorptionEfficiency > 1) {
-    return bad("Enter a share of the light absorbed from 0 to 1.");
-  }
-  if (p.duration < 0) {
-    return bad("Enter an exposure of zero seconds or more.");
-  }
-  if (p.declaredFraction < 0 || p.declaredFraction > 1) {
-    return bad("Enter a share of absorbed quanta that ionize, a, from 0 to 1.");
-  }
+  // Every range is the manifest's, checked once by withinDeclaredDomain below. These checks named
+  // wider ones (any power or exposure of zero or more), so a value between the two was refused
+  // with a range it had already met.
 
   const validModes = ["all-absorbed-ionizes", "declared-fraction", "unknown"];
   if (!validModes.includes(p.absorptionMode)) {
@@ -96,4 +87,27 @@ export function validateLq09Parameters(input: unknown): Computation<Lq09Paramete
   }
 
   return { kind: "accepted", data: Object.freeze({ ...p }) };
+}
+
+/** Each declared setting as the form names it, in the form's units. */
+const LQ09_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  frequency: { label: "frequency ν", unit: "THz", scale: 1e-12 },
+  incidentPower: { label: "light power", unit: "μW", scale: 1e6 },
+  ionizationEnergyEv: { label: "ionization energy per molecule J" },
+  absorptionEfficiency: { label: "share of the light absorbed" },
+  duration: { label: "exposure" },
+  declaredFraction: { label: "share of absorbed quanta that ionize, a" },
+};
+
+/** The fields above, then every range content/experiments/lq-09.yaml declares (dispatch 134). */
+export function validateLq09Parameters(input: unknown): Computation<Lq09Parameters> {
+  return withinDeclaredDomain("lq-09", validateLq09Fields(input), LQ09_DOMAIN_DISPLAY);
+}
+
+/** The declared-range sentence for one field, for a typed value too large to convert to its unit. */
+export function lq09RangeSentence(key: keyof typeof LQ09_FIELD_NAMES): string {
+  const domain = declaredDomains("lq-09")[key];
+  return domain
+    ? domainRequirement(domain, LQ09_DOMAIN_DISPLAY[key])
+    : `Enter ${LQ09_FIELD_NAMES[key] ?? "this value"} as a smaller number.`;
 }

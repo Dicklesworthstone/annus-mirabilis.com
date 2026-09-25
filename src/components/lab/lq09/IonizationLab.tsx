@@ -14,6 +14,7 @@ import {
   type Lq09AbsorptionMode,
   type Lq09Parameters,
 } from "../../../experiments/lq09/definition.ts";
+import { lq09RangeSentence } from "../../../experiments/lq09/parameters.ts";
 import {
   createLq09Session,
   einsteinPrintedIonizationChecks,
@@ -24,6 +25,7 @@ import { instrumentRootAttributes } from "../../../experiments/store/identityAtt
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { fixed, identity, sentenceNumber } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
@@ -162,7 +164,14 @@ export function IonizationLab({ example }: IonizationLabProps) {
       setError(`${FIELDS[key].label}: enter a number.`);
       return;
     }
-    if (apply({ [key]: n * FIELDS[key].scale })) {
+    const stored = n * FIELDS[key].scale;
+    if (!Number.isFinite(stored)) {
+      // 1e300 THz is a number, but not one in hertz: say the range rather than "enter a number".
+      setDrafts((d) => ({ ...d, [key]: text }));
+      setError(lq09RangeSentence(key));
+      return;
+    }
+    if (apply({ [key]: stored })) {
       setDrafts((d) => {
         const { [key]: _done, ...rest } = d;
         return rest;
@@ -294,7 +303,7 @@ export function IonizationLab({ example }: IonizationLabProps) {
 
           {error && (
             <p role="alert" className="notice error">
-              {error}
+              {error} {KEPT_RESULT}
             </p>
           )}
           <AcceptedStatus

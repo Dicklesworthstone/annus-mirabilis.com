@@ -22,7 +22,7 @@ parameters:
       max: 5e15
       minInclusive: true
       maxInclusive: true
-      reason: "Ultraviolet to extreme ultraviolet optical frequency range"
+      reason: "From the infrared, where no quantum is large enough to ionize a molecule, to the extreme ultraviolet"
     visualRange:
       min: 1e15
       max: 4e15
