@@ -1498,8 +1498,7 @@ displays:
         quantityId: chargeVelocityMoving
   # § 10. The dynamics of the slowly accelerated electron: μ is its mass and ε its charge; v is the
   #   speed of the system k in which the electron is momentarily at rest, as the concordance reads v
-  #   through Part II; X', Y', Z' are the field in k. eq-s10-d9 (A_m/A_e, p. 920's magnetic and electric
-  #   deflectabilities) waits for the orchestrator's ruling on registering those two quantities.
+  #   through Part II; X', Y', Z' are the field in k.
   - display: eq-s10-d1
     latex: "\\begin{aligned} \\mu \\frac{d^2 x}{d t^2} &= \\varepsilon X \\\\ \\mu \\frac{d^2 y}{d t^2} &= \\varepsilon Y \\\\ \\mu \\frac{d^2 z}{d t^2} &= \\varepsilon Z , \\end{aligned}"
     spoken: "Three equations. mu times the second derivative of x with respect to t equals epsilon times X; mu times the second derivative of y with respect to t equals epsilon times Y; mu times the second derivative of z with respect to t equals epsilon times Z."
@@ -1704,6 +1703,21 @@ displays:
         quantityId: lorentzFactor
       - glyph: "\\mu"
         quantityId: electronMass
+      - glyph: "V"
+        quantityId: speedOfLight
+  # eq-s10-d9: A_m and A_e are the magnetic and electric deflectability, which p. 920 names and
+  #   never defines, so their records carry dimensionStatus undefined-in-source; the ratio is an
+  #   expression over the two, never a quantity of its own.
+  - display: eq-s10-d9
+    latex: "\\frac{A_m}{A_e} = \\frac{v}{V} ."
+    spoken: "A sub m over A sub e equals v over V."
+    terms:
+      - glyph: "A_m"
+        quantityId: magneticDeflectability
+      - glyph: "A_e"
+        quantityId: electricDeflectability
+      - glyph: "v"
+        quantityId: frameSpeed
       - glyph: "V"
         quantityId: speedOfLight
   # eq-s10-d10: P is the potential difference the electron has passed through ('der durchlaufenen
