@@ -1,0 +1,32 @@
+# GlossUnit s3-p6-s2: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s3-p6-s2"
+sentenceId: "s3-p6-s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "c3e7c18c9c30267daae70fd72eeaac5bd3b912bfdfde72b9427fd0c25ee78285"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Wir"
+    english: "we"
+  - german: "bestimmen"
+    english: "determine"
+    lemma: "bestimmen"
+  - german: "zuerst"
+    english: "first"
+  - german: "als"
+    english: "as"
+  - german: "Funktion"
+    english: "function"
+  - german: "von"
+    english: "of"
+  - german: "und"
+    english: "and"
+multiwordUnits: []
