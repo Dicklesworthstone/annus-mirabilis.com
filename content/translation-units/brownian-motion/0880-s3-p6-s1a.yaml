@@ -1,0 +1,36 @@
+# TranslationUnit s3-p6-s1a: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s3-p6-s1a"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s3-p6-s1"
+inlines:
+  - kind: "text"
+    text: "If the suspended particles are spherical (sphere radius "
+  - kind: "math"
+    latex: "P"
+  - kind: "text"
+    text: ") and the liquid has the coefficient of friction "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: ", the force "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " imparts to the individual particle the velocity"
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s3-fn1"
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"
