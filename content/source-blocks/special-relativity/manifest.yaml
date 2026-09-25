@@ -645,7 +645,7 @@ units:
     section: s3
     locators:
       - page: 900
-    containedIn: s3-p14
+    containedIn: s3-p12
     editorialLabel: ed:s3-d11
     destination:
       editionBlockId: block-special-relativity-eq-s3-d11
@@ -656,7 +656,7 @@ units:
     section: s3
     locators:
       - page: 900
-    containedIn: s3-p14
+    containedIn: s3-p12
     editorialLabel: ed:s3-d12
     destination:
       editionBlockId: block-special-relativity-eq-s3-d12
@@ -667,7 +667,7 @@ units:
     section: s3
     locators:
       - page: 900
-    containedIn: s3-p14
+    containedIn: s3-p12
     editorialLabel: ed:s3-d13
     destination:
       editionBlockId: block-special-relativity-eq-s3-d13
@@ -678,7 +678,7 @@ units:
     section: s3
     locators:
       - page: 900
-    containedIn: s3-p14
+    containedIn: s3-p12
     editorialLabel: ed:s3-d14
     destination:
       editionBlockId: block-special-relativity-eq-s3-d14
