@@ -5,7 +5,8 @@ sourceRefs:
   - paper: mass-energy
     id: s0
 argumentIds:
-  - arg-me-coefficient
+  - arg-me-small-speed
+  - arg-me-mass-change
 schemaVersion: 1
 parameters:
   - id: beta
