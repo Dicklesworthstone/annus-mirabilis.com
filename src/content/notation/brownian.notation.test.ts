@@ -133,6 +133,10 @@ describe("am-not-entries-brownian-1rq: Brownian notation concordance", () => {
     // last paragraph of section 4 (p. 558, "in einer beliebigen Zeit t") and section 5 (p. 559).
     assert.equal(bound("bm-s4-p11", "t"), "observationInterval");
     assert.equal(bound("bm-s5", "t"), "observationInterval");
+    // Elsewhere t is plain time (dispatch 231): the variable of section 2's equations of motion
+    // (p. 551), and section 4's clock reading of f(x, t) ("zur Zeit t", pp. 557-558).
+    assert.equal(bound("bm-s2", "t"), "elapsedTime");
+    assert.equal(bound("bm-s4", "t"), "fieldTimeCoordinate");
     // lambda_x is first printed at the head of p. 559, still in section 4, and renames to itself:
     // the records print Einstein's own letter.
     for (const section of ["bm-s4", "bm-s5"]) {
@@ -157,6 +161,18 @@ describe("am-not-entries-brownian-1rq: Brownian notation concordance", () => {
     assert.ok("quantityId" in nRes.entry.binding);
     assert.equal(nRes.entry.binding.quantityId, "avogadroConstant");
     assert.equal(modernSymbolFor(paper, "bm-s1", "N", emptyManifestIndex, file), "N_A");
+
+    // The paper's last formula determines N from an observed displacement (p. 560, "zur
+    // Bestimmung von N"): there N is an inference output, while section 5's other N stays the
+    // constant (AGENTS.md; dispatch 231).
+    const nOf = (anchor: string) => {
+      const res = resolveGlyph(paper, anchor, "N", emptyManifestIndex, file);
+      assert.ok(res.ok, `N in ${anchor} must resolve`);
+      assert.ok("quantityId" in res.entry.binding);
+      return res.entry.binding.quantityId;
+    };
+    assert.equal(nOf("bm-s5-p3"), "avogadroNumberEstimate");
+    assert.equal(nOf("bm-s5"), "avogadroConstant");
   });
 
   test("Bindings: \\kappa at §2 resolves to scaled boltzmannConstant with scale 1/2, and modernGroupsFor returns 2\\kappa -> k_B", () => {
