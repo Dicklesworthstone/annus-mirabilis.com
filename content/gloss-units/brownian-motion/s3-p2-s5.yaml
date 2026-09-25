@@ -1,0 +1,38 @@
+# GlossUnit s3-p2-s5: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s3-p2-s5"
+sentenceId: "s3-p2-s5"
+revision: 1
+sourceRevision: 2
+sourceTextDigest: "0e66e859cb9fb9de644f05904762e888047ee1b1316a82cad9e68fc2c750d7ec"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Die"
+    english: "the"
+  - german: "gesuchte"
+    english: "sought"
+    lemma: "suchen"
+    grammarNote: "participle closing an attributive phrase before its noun"
+    noteClass: "attributive-phrase"
+  - german: "Gleichgewichtsbedingung"
+    english: "equilibrium condition"
+    lemma: "Gleichgewichtsbedingung"
+    grammarNote: "compound: Gleichgewicht + Bedingung"
+    noteClass: "compound"
+  - german: "ist"
+    english: "is"
+  - german: "also"
+    english: "therefore"
+    lemma: "also"
+    grammarNote: "consequence: the condition follows from the two integrals just written"
+    noteClass: "consequence"
+  - german: "oder"
+    english: "or"
+multiwordUnits: []

@@ -1,0 +1,51 @@
+# GlossUnit s3-p5-s1: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s3-p5-s1"
+sentenceId: "s3-p5-s1"
+revision: 1
+sourceRevision: 2
+sourceTextDigest: "467b51bc66f88b537fb77648638f296d12d1e4e255951fbc70915882d9b122aa"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Die"
+    english: "the"
+  - german: "Gleichung"
+    english: "equation"
+  - german: "1"
+    english: "1"
+  - german: "benutzen"
+    english: "use"
+  - german: "wir"
+    english: "we"
+  - german: "um"
+  - german: "den"
+    english: "the"
+  - german: "Diffusionskoeffizienten"
+    english: "diffusion coefficient"
+    lemma: "Diffusionskoeffizient"
+    grammarNote: "compound: Diffusion + Koeffizient"
+    noteClass: "compound"
+  - german: "der"
+    english: "of the"
+  - german: "suspendierten"
+    english: "suspended"
+  - german: "Substanz"
+    english: "substance"
+  - german: "zu"
+  - german: "ermitteln"
+    english: "determine"
+multiwordUnits:
+  - tokenIndices:
+      - 5
+      - 11
+      - 12
+    english: "in order to determine"
+    kind: "fixed-phrase"
+    grammarNote: "um ... zu with an infinitive, in order to"

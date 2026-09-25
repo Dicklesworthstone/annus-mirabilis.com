@@ -1,0 +1,64 @@
+# GlossUnit s3-p1-s3: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s3-p1-s3"
+sentenceId: "s3-p1-s3"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "c72c93a30282f2c2db15226ff361d7ab67bc081a6ac4d8449949b00414313794"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Der"
+    english: "the"
+  - german: "Einfachheit"
+    english: "simplicity"
+  - german: "halber"
+    english: "for the sake of"
+  - german: "werde"
+  - german: "angenommen"
+    english: "assumed"
+  - german: "daß"
+    english: "that"
+    lemma: "dass"
+    grammarNote: "archaic spelling of dass"
+    noteClass: "archaic-spelling"
+  - german: "die"
+    english: "the"
+  - german: "Kraft"
+    english: "force"
+  - german: "überall"
+    english: "everywhere"
+  - german: "die"
+    english: "the"
+  - german: "Richtung"
+    english: "direction"
+  - german: "der"
+    english: "of the"
+  - german: "Achse"
+    english: "axis"
+  - german: "habe"
+    english: "has"
+    lemma: "haben"
+    grammarNote: "Konjunktiv I: inside the stipulation, 'that the force has the direction of the X-axis'"
+    noteClass: "konjunktiv-i"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 1
+      - 2
+    english: "for the sake of simplicity"
+    kind: "fixed-phrase"
+    grammarNote: "der Einfachheit halber: halber follows the genitive it governs"
+  - tokenIndices:
+      - 3
+      - 4
+    english: "let it be assumed"
+    kind: "fixed-phrase"
+    grammarNote: "Konjunktiv I of the passive: a stipulation, 'let it be assumed'"
+    noteClass: "konjunktiv-i"

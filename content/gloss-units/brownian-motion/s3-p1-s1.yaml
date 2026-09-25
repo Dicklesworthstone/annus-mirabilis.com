@@ -1,0 +1,36 @@
+# GlossUnit s3-p1-s1: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s3-p1-s1"
+sentenceId: "s3-p1-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "8bfac94c58962de0e4e63fa89d04e351d503cd3dad0ee3fdf6dcc5e838b2cd94"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "In"
+    english: "in"
+  - german: "einer"
+    english: "a"
+  - german: "Flüssigkeit"
+    english: "liquid"
+  - german: "seien"
+    english: "let ... be"
+    lemma: "sein"
+    grammarNote: "Konjunktiv I: a supposition, 'let suspended particles be distributed'"
+    noteClass: "konjunktiv-i"
+  - german: "suspendierte"
+    english: "suspended"
+  - german: "Teilchen"
+    english: "particles"
+  - german: "regellos"
+    english: "irregularly"
+  - german: "verteilt"
+    english: "distributed"
+multiwordUnits: []

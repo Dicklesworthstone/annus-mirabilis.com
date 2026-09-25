@@ -1,0 +1,65 @@
+# GlossUnit s3-p2-s6: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s3-p2-s6"
+sentenceId: "s3-p2-s6"
+revision: 1
+sourceRevision: 2
+sourceTextDigest: "a960c2589913377ffb6f4ed07c213f129d3590dd9af16a7ecd69743e3b62d508"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Die"
+    english: "the"
+  - german: "letzte"
+    english: "last"
+  - german: "Gleichung"
+    english: "equation"
+  - german: "sagt"
+  - german: "aus"
+  - german: "daß"
+    english: "that"
+    lemma: "dass"
+    grammarNote: "archaic spelling of dass"
+    noteClass: "archaic-spelling"
+  - german: "der"
+    english: "the"
+  - german: "Kraft"
+    english: "force"
+  - german: "durch"
+    english: "by"
+  - german: "osmotische"
+    english: "osmotic"
+  - german: "Druckkräfte"
+    english: "pressure forces"
+    lemma: "Druckkraft"
+    grammarNote: "compound: Druck + Kraft"
+    noteClass: "compound"
+  - german: "das"
+    english: "the"
+  - german: "Gleichgewicht"
+    english: "equilibrium"
+  - german: "geleistet"
+    english: "held"
+  - german: "wird"
+    english: "is"
+multiwordUnits:
+  - tokenIndices:
+      - 3
+      - 4
+    english: "states"
+    kind: "separable-verb"
+    grammarNote: "aussagen, split: sagt ... aus"
+  - tokenIndices:
+      - 11
+      - 12
+      - 13
+      - 14
+    english: "is held in equilibrium"
+    kind: "fixed-phrase"
+    grammarNote: "das Gleichgewicht leisten, to hold in equilibrium, with the dative der Kraft; here in the passive"

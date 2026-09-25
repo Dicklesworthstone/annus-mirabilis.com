@@ -1,0 +1,39 @@
+# GlossUnit s3-p7-s2: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s3-p7-s2"
+sentenceId: "s3-p7-s2"
+revision: 1
+sourceRevision: 2
+sourceTextDigest: "2dbcf6bc5c468e23da8e8a62bdfbcdafccbc4faef6f5dfe34377b031e514da29"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Da"
+    english: "since"
+  - german: "dynamisches"
+    english: "dynamic"
+  - german: "Gleichgewicht"
+    english: "equilibrium"
+  - german: "herrschen"
+    english: "prevail"
+  - german: "soll"
+    english: "is to"
+  - german: "so"
+    english: "so"
+    lemma: "so"
+    grammarNote: "consequence: so opens the main clause that follows from the da-clause"
+    noteClass: "consequence"
+  - german: "muß"
+    english: "must"
+    lemma: "müssen"
+    grammarNote: "necessity: muß (archaic spelling of muss), equilibrium requires the two flows to balance"
+    noteClass: "necessity"
+  - german: "sein"
+    english: "be"
+multiwordUnits: []
