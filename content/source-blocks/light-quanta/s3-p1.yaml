@@ -1,0 +1,35 @@
+# SourceBlock s3-p1: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p1"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s3"
+order: 37
+locators:
+  - pdfPageIndex: 6
+    printedPage: 137
+diplomaticText: "Die folgende Betrachtung ist in einer berühmten Arbeit des Hrn. W. Wien enthalten und soll hier nur der Vollständigkeit halber Platz finden."
+inlines:
+  - kind: "text"
+    text: "Die folgende Betrachtung ist in einer berühmten Arbeit des Hrn. W. "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Wien"
+  - kind: "text"
+    text: " enthalten und soll hier nur der Vollständigkeit halber Platz finden."
+sentenceSpans:
+  - id: "s3-p1-s1"
+    span:
+      start: 0
+      end: 140
+      blockRevision: 1
+      textDigest: "3c07a7346823a85d9d5ee61473a7e4a5f4292d3801e2c1ff5bbac7d7314c6e81"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

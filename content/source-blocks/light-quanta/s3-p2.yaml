@@ -1,0 +1,104 @@
+# SourceBlock s3-p2: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p2"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s3"
+order: 38
+locators:
+  - pdfPageIndex: 6
+    printedPage: 137
+  - pdfPageIndex: 7
+    printedPage: 138
+diplomaticText: "Es liege eine Strahlung vor, welche das Volumen v einnehme. Wir nehmen an, daß die wahrnehmbaren Eigenschaften der vorliegenden Strahlung vollkommen bestimmt seien, wenn die Strahlungsdichte \\varrho(\\nu) für alle Frequenzen gegeben ist.1) Da Strahlungen von verschiedenen Frequenzen als ohne Arbeitsleistung und ohne Wärmezufuhr voneinander trennbar anzusehen sind, so ist die Entropie der Strahlung in der Form darstellbar, wobei \\varphi eine Funktion der Variabeln \\varrho und \\nu bedeutet. Es kann \\varphi auf eine Funktion von nur einer Variabeln reduziert werden durch Formulierung der Aussage, daß durch adiabatische Kompression einer Strahlung zwischen spiegelnden Wänden, deren Entropie nicht geändert wird. Wir wollen jedoch hierauf nicht eintreten, sondern sogleich untersuchen, wie die Funktion \\varphi aus dem Strahlungsgesetz des schwarzen Körpers ermittelt werden kann."
+inlines:
+  - kind: "text"
+    text: "Es liege eine Strahlung vor, welche das Volumen "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " einnehme."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir nehmen an, daß die wahrnehmbaren Eigenschaften der vorliegenden Strahlung vollkommen bestimmt seien, wenn die Strahlungsdichte "
+  - kind: "math"
+    latex: "\\varrho(\\nu)"
+  - kind: "text"
+    text: " für alle Frequenzen gegeben ist."
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s3-fn1"
+  - kind: "space"
+  - kind: "text"
+    text: "Da Strahlungen von verschiedenen Frequenzen als ohne Arbeitsleistung und ohne Wärmezufuhr voneinander trennbar anzusehen sind, so ist die Entropie der Strahlung in der Form"
+  - kind: "math"
+    latex: "S = v \\int_0^\\infty \\varphi(\\varrho, \\nu) d \\nu"
+    display: true
+    equationId: "eq-s3-d1"
+  - kind: "text"
+    text: " darstellbar, wobei "
+  - kind: "math"
+    latex: "\\varphi"
+  - kind: "text"
+    text: " eine Funktion der Variabeln "
+  - kind: "math"
+    latex: "\\varrho"
+  - kind: "text"
+    text: " und "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: " bedeutet."
+  - kind: "space"
+  - kind: "text"
+    text: "Es kann "
+  - kind: "math"
+    latex: "\\varphi"
+  - kind: "text"
+    text: " auf eine Funktion von nur einer Variabeln reduziert werden durch Formulierung der Aussage, daß durch adiabatische Kompression einer Strahlung zwischen spiegelnden Wänden, deren Entropie nicht geändert wird."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir wollen jedoch hierauf nicht eintreten, sondern sogleich untersuchen, wie die Funktion "
+  - kind: "math"
+    latex: "\\varphi"
+  - kind: "text"
+    text: " aus dem Strahlungsgesetz des schwarzen Körpers ermittelt werden kann."
+sentenceSpans:
+  - id: "s3-p2-s1"
+    span:
+      start: 0
+      end: 59
+      blockRevision: 1
+      textDigest: "5f29c6fdb3439bbe8585946d3705f000d43c7cfe09e3cb5020e4188b95a69fd4"
+  - id: "s3-p2-s2"
+    span:
+      start: 60
+      end: 238
+      blockRevision: 1
+      textDigest: "5f29c6fdb3439bbe8585946d3705f000d43c7cfe09e3cb5020e4188b95a69fd4"
+  - id: "s3-p2-s3"
+    span:
+      start: 239
+      end: 492
+      blockRevision: 1
+      textDigest: "5f29c6fdb3439bbe8585946d3705f000d43c7cfe09e3cb5020e4188b95a69fd4"
+  - id: "s3-p2-s4"
+    span:
+      start: 493
+      end: 715
+      blockRevision: 1
+      textDigest: "5f29c6fdb3439bbe8585946d3705f000d43c7cfe09e3cb5020e4188b95a69fd4"
+  - id: "s3-p2-s5"
+    span:
+      start: 716
+      end: 883
+      blockRevision: 1
+      textDigest: "5f29c6fdb3439bbe8585946d3705f000d43c7cfe09e3cb5020e4188b95a69fd4"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

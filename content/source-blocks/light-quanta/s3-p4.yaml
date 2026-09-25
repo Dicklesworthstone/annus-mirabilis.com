@@ -1,0 +1,121 @@
+# SourceBlock s3-p4: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p4"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s3"
+order: 45
+locators:
+  - pdfPageIndex: 7
+    printedPage: 138
+  - pdfPageIndex: 8
+    printedPage: 139
+diplomaticText: "Für die Temperaturzunahme einer schwarzen Strahlung vom Volumen v = 1 um d T gilt die Gleichung: oder, da \\partial \\varphi / \\partial \\varrho von \\nu unabhängig ist: Da d E gleich der zugeführten Wärme und der Vorgang umkehrbar ist, so gilt auch: Durch Vergleich erhält man: Dies ist das Gesetz der schwarzen Strahlung. Man kann also aus der Funktion \\varphi das Gesetz der schwarzen Strahlung und umgekehrt aus letzterem die Funktion \\varphi durch Integration bestimmen mit Rücksicht darauf, daß \\varphi für \\varrho = 0 verschwindet."
+inlines:
+  - kind: "text"
+    text: "Für die Temperaturzunahme einer schwarzen Strahlung vom Volumen "
+  - kind: "math"
+    latex: "v = 1"
+  - kind: "text"
+    text: " um "
+  - kind: "math"
+    latex: "d T"
+  - kind: "text"
+    text: " gilt die Gleichung:"
+  - kind: "math"
+    latex: "d S = \\int_{\\nu = 0}^{\\nu = \\infty} \\frac{\\partial \\varphi}{\\partial \\varrho} d \\varrho d \\nu,"
+    display: true
+    equationId: "eq-s3-d5"
+  - kind: "text"
+    text: " oder, da "
+  - kind: "math"
+    latex: "\\partial \\varphi / \\partial \\varrho"
+  - kind: "text"
+    text: " von "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: " unabhängig ist:"
+  - kind: "math"
+    latex: "d S = \\frac{\\partial \\varphi}{\\partial \\varrho} d E."
+    display: true
+    equationId: "eq-s3-d6"
+  - kind: "space"
+  - kind: "text"
+    text: "Da "
+  - kind: "math"
+    latex: "d E"
+  - kind: "text"
+    text: " gleich der zugeführten Wärme und der Vorgang umkehrbar ist, so gilt auch:"
+  - kind: "math"
+    latex: "d S = \\frac{1}{T} d E."
+    display: true
+    equationId: "eq-s3-d7"
+  - kind: "space"
+  - kind: "text"
+    text: "Durch Vergleich erhält man:"
+  - kind: "math"
+    latex: "\\frac{\\partial \\varphi}{\\partial \\varrho} = \\frac{1}{T}."
+    display: true
+    equationId: "eq-s3-d8"
+  - kind: "space"
+  - kind: "text"
+    text: "Dies ist das Gesetz der schwarzen Strahlung."
+  - kind: "space"
+  - kind: "text"
+    text: "Man kann also aus der Funktion "
+  - kind: "math"
+    latex: "\\varphi"
+  - kind: "text"
+    text: " das Gesetz der schwarzen Strahlung und umgekehrt aus letzterem die Funktion "
+  - kind: "math"
+    latex: "\\varphi"
+  - kind: "text"
+    text: " durch Integration bestimmen mit Rücksicht darauf, daß "
+  - kind: "math"
+    latex: "\\varphi"
+  - kind: "text"
+    text: " für "
+  - kind: "math"
+    latex: "\\varrho = 0"
+  - kind: "text"
+    text: " verschwindet."
+sentenceSpans:
+  - id: "s3-p4-s1"
+    span:
+      start: 0
+      end: 165
+      blockRevision: 1
+      textDigest: "cc88aacaab2fc57f9ae50ecfbc8526210cc9adf6998d1aa12e5e06df1da98865"
+  - id: "s3-p4-s2"
+    span:
+      start: 166
+      end: 246
+      blockRevision: 1
+      textDigest: "cc88aacaab2fc57f9ae50ecfbc8526210cc9adf6998d1aa12e5e06df1da98865"
+  - id: "s3-p4-s3"
+    span:
+      start: 247
+      end: 274
+      blockRevision: 1
+      textDigest: "cc88aacaab2fc57f9ae50ecfbc8526210cc9adf6998d1aa12e5e06df1da98865"
+  - id: "s3-p4-s4"
+    span:
+      start: 275
+      end: 319
+      blockRevision: 1
+      textDigest: "cc88aacaab2fc57f9ae50ecfbc8526210cc9adf6998d1aa12e5e06df1da98865"
+  - id: "s3-p4-s5"
+    span:
+      start: 320
+      end: 534
+      blockRevision: 1
+      textDigest: "cc88aacaab2fc57f9ae50ecfbc8526210cc9adf6998d1aa12e5e06df1da98865"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

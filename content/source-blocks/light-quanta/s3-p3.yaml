@@ -1,0 +1,93 @@
+# SourceBlock s3-p3: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-p3"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s3"
+order: 41
+locators:
+  - pdfPageIndex: 7
+    printedPage: 138
+diplomaticText: "Bei der „schwarzen Strahlung“ ist \\varrho eine solche Funktion von \\nu, daß die Entropie bei gegebener Energie ein Maximum ist, d. h. daß wenn Hieraus folgt, daß für jede Wahl des \\delta \\varrho als Funktion von \\nu wobei \\lambda von \\nu unabhängig ist. Bei der schwarzen Strahlung ist also \\partial \\varphi / \\partial \\varrho von \\nu unabhängig."
+inlines:
+  - kind: "text"
+    text: "Bei der „schwarzen Strahlung“ ist "
+  - kind: "math"
+    latex: "\\varrho"
+  - kind: "text"
+    text: " eine solche Funktion von "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: ", daß die Entropie bei gegebener Energie ein Maximum ist, d. h. daß"
+  - kind: "math"
+    latex: "\\delta \\int_0^\\infty \\varphi(\\varrho, \\nu) d \\nu = 0,"
+    display: true
+    equationId: "eq-s3-d2"
+  - kind: "text"
+    text: " wenn"
+  - kind: "math"
+    latex: "\\delta \\int_0^\\infty \\varrho d \\nu = 0."
+    display: true
+    equationId: "eq-s3-d3"
+  - kind: "space"
+  - kind: "text"
+    text: "Hieraus folgt, daß für jede Wahl des "
+  - kind: "math"
+    latex: "\\delta \\varrho"
+  - kind: "text"
+    text: " als Funktion von "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "math"
+    latex: "\\int_0^\\infty \\left( \\frac{\\partial \\varphi}{\\partial \\varrho} - \\lambda \\right) \\delta \\varrho d \\nu = 0,"
+    display: true
+    equationId: "eq-s3-d4"
+  - kind: "text"
+    text: " wobei "
+  - kind: "math"
+    latex: "\\lambda"
+  - kind: "text"
+    text: " von "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: " unabhängig ist."
+  - kind: "space"
+  - kind: "text"
+    text: "Bei der schwarzen Strahlung ist also "
+  - kind: "math"
+    latex: "\\partial \\varphi / \\partial \\varrho"
+  - kind: "text"
+    text: " von "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: " unabhängig."
+sentenceSpans:
+  - id: "s3-p3-s1"
+    span:
+      start: 0
+      end: 142
+      blockRevision: 1
+      textDigest: "53b8de660a3fc0cfe4f668d352d6144d1e4ef3214e43ec4e0a634097e90c7b1a"
+  - id: "s3-p3-s2"
+    span:
+      start: 143
+      end: 253
+      blockRevision: 1
+      textDigest: "53b8de660a3fc0cfe4f668d352d6144d1e4ef3214e43ec4e0a634097e90c7b1a"
+  - id: "s3-p3-s3"
+    span:
+      start: 254
+      end: 346
+      blockRevision: 1
+      textDigest: "53b8de660a3fc0cfe4f668d352d6144d1e4ef3214e43ec4e0a634097e90c7b1a"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

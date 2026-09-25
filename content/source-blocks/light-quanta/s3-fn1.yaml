@@ -1,0 +1,30 @@
+# SourceBlock s3-fn1: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3-fn1"
+kind: "footnote"
+paper: "light-quanta"
+section: "s3"
+order: 40
+locators:
+  - pdfPageIndex: 6
+    printedPage: 137
+originalLabel: "1)"
+diplomaticText: "Diese Annahme ist eine willkürliche. Man wird naturgemäß an dieser einfachsten Annahme so lange festhalten, als nicht das Experiment dazu zwingt, sie zu verlassen."
+inlines:
+  - kind: "text"
+    text: "Diese Annahme ist eine willkürliche. Man wird naturgemäß an dieser einfachsten Annahme so lange festhalten, als nicht das Experiment dazu zwingt, sie zu verlassen."
+sentenceSpans:
+  - id: "s3-fn1"
+    span:
+      start: 0
+      end: 163
+      blockRevision: 1
+      textDigest: "1b775c030e3514fdc811ac125ec0f3de97407d4344327d6159c196f33d3ab9d2"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

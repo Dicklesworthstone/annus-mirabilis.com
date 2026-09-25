@@ -1,0 +1,29 @@
+# SourceBlock s3: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s3"
+kind: "heading"
+paper: "light-quanta"
+section: "s3"
+order: 36
+locators:
+  - pdfPageIndex: 6
+    printedPage: 137
+diplomaticText: "§ 3. Über die Entropie der Strahlung."
+inlines:
+  - kind: "text"
+    text: "§ 3. Über die Entropie der Strahlung."
+sentenceSpans:
+  - id: "s3"
+    span:
+      start: 0
+      end: 37
+      blockRevision: 1
+      textDigest: "927deca4997294010476177b235721de0fb898cad0940931b48763428d1b0e6e"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"
