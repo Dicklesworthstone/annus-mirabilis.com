@@ -47,3 +47,13 @@ export function optionalNumber(
   if (value === undefined) return fallback;
   return typeof value === "number" ? value : Number.NaN;
 }
+
+/**
+ * A typed field read for a validator that names each setting itself: the number, or NaN for a
+ * blank field. Number("") is 0, which is how a cleared field used to be applied as a setting
+ * (SR-04, SR-07; dispatch 170).
+ */
+export function typedOrNaN(text: string): number {
+  const trimmed = text.trim();
+  return trimmed === "" ? Number.NaN : Number(trimmed);
+}

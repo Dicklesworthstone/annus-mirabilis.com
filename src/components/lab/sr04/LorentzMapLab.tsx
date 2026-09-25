@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { typedOrNaN } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
@@ -29,6 +30,7 @@ import {
 import { SR04_TAPE } from "../../../experiments/sr04/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { KEPT_RESULT } from "../keptResult.ts";
 import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { withScripts } from "../subscripts.tsx";
@@ -75,13 +77,14 @@ function toDraft(p: Sr04Parameters): Draft {
 
 function fromDraft(d: Draft): unknown {
   return {
-    vOverC: Number(d.vOverC),
-    observerSpeed: Number(d.observerSpeed),
-    objectSpeed: Number(d.objectSpeed),
-    candidateA: Number(d.candidateA),
-    candidateB: Number(d.candidateB),
-    candidateD: Number(d.candidateD),
-    candidateTransverseScale: Number(d.candidateTransverseScale),
+    // A blank field reaches the validator as NaN and is refused by name, not applied as 0.
+    vOverC: typedOrNaN(d.vOverC),
+    observerSpeed: typedOrNaN(d.observerSpeed),
+    objectSpeed: typedOrNaN(d.objectSpeed),
+    candidateA: typedOrNaN(d.candidateA),
+    candidateB: typedOrNaN(d.candidateB),
+    candidateD: typedOrNaN(d.candidateD),
+    candidateTransverseScale: typedOrNaN(d.candidateTransverseScale),
     testCandidate: d.testCandidate,
     showLaterAids: d.showLaterAids,
     enabledConstraints: joinConstraints(d.enabledConstraints),
@@ -369,7 +372,7 @@ export function LorentzMapLab({
 
         {error && (
           <p id={`${id}-error`} className="notice" role="alert">
-            {error}
+            {error} {KEPT_RESULT}
           </p>
         )}
 
