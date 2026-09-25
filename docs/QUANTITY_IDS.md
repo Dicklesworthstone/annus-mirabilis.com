@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 292 quantities, 45 rejected spellings, 2 reserved spellings.
+Total: 294 quantities, 45 rejected spellings, 2 reserved spellings.
 
 ## Registered quantities
 
@@ -81,6 +81,7 @@ Total: 292 quantities, 45 rejected spellings, 2 reserved spellings.
 | effectiveIndependentCount | Effective independent count | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | effectiveViscosity | Effective viscosity | -1,1,-1,0,0,0 | not-applicable | scalar | — |
 | elapsedTime | Elapsed time | 0,0,1,0,0,0 | not-applicable | scalar | — |
+| electricFieldAmplitudeStationary | Electric field amplitude (stationary system) | 1,1,-3,0,-1,0 | stationary-system | vector | — |
 | electricFieldMoving | Electric field (moving system) | 1,1,-3,0,-1,0 | moving-system | vector | electricField |
 | electricFieldStationary | Electric field (stationary system) | 1,1,-3,0,-1,0 | stationary-system | vector | electricField |
 | electromotiveForceConductorFrame | Electromotive force (conductor rest) | 2,1,-3,0,-1,0 | moving-system | scalar | — |
@@ -172,6 +173,7 @@ Total: 292 quantities, 45 rejected spellings, 2 reserved spellings.
 | longitudinalMass | Longitudinal mass | 0,1,0,0,0,0 | not-applicable | scalar | longitudinalMassSource, massCoefficientLongitudinal |
 | lorentzFactor | Lorentz factor | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | magneticDipoleMoment | Magnetic dipole moment | 2,0,0,0,1,0 | not-applicable | vector | — |
+| magneticFieldAmplitudeStationary | Magnetic field amplitude (stationary system) | 0,1,-2,0,-1,0 | stationary-system | vector | — |
 | magneticFieldMoving | Magnetic field (moving system) | 0,1,-2,0,-1,0 | moving-system | vector | magneticField |
 | magneticFieldStationary | Magnetic field (stationary system) | 0,1,-2,0,-1,0 | stationary-system | vector | magneticField |
 | massChangeSigned | Signed mass change | 0,1,0,0,0,0 | not-applicable | scalar | — |

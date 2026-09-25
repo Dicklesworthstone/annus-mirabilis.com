@@ -281,3 +281,113 @@ displays:
         quantityId: magneticFieldStationary
       - glyph: "N"
         quantityId: magneticFieldStationary
+  # Section 7. The plane wave in K and its description in k: the Doppler principle and aberration.
+  # eq-s7-d1, eq-s7-d2, eq-s7-d11 and eq-s7-d12 follow once the colouring can draw them (dispatch 229).
+  - display: eq-s7-d3
+    latex: "\\omega' = \\omega \\beta \\left( 1 - a \\frac{v}{V} \\right) ,"
+    spoken: "omega prime equals omega times beta times the quantity one minus a times v over V."
+    terms:
+      - glyph: "\\omega'"
+        quantityId: waveAngularFrequencyMoving
+      - glyph: "\\omega"
+        quantityId: waveAngularFrequencyStationary
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "a"
+        quantityId: directionCosineStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  - display: eq-s7-d4
+    latex: "a' = \\frac{a - \\frac{v}{V}}{1 - a \\frac{v}{V}} ,"
+    spoken: "a prime equals: a minus v over V, divided by one minus a times v over V."
+    terms:
+      - glyph: "a'"
+        quantityId: directionCosineMoving
+      - glyph: "a"
+        quantityId: directionCosineStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  - display: eq-s7-d5
+    latex: "b' = \\frac{b}{\\beta \\left( 1 - a \\frac{v}{V} \\right)} ,"
+    spoken: "b prime equals b divided by beta times the quantity one minus a times v over V."
+    terms:
+      - glyph: "b'"
+        quantityId: directionCosineMoving
+      - glyph: "b"
+        quantityId: directionCosineStationary
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "a"
+        quantityId: directionCosineStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  - display: eq-s7-d6
+    latex: "c' = \\frac{c}{\\beta \\left( 1 - a \\frac{v}{V} \\right)}"
+    spoken: "c prime equals c divided by beta times the quantity one minus a times v over V."
+    terms:
+      - glyph: "c'"
+        quantityId: directionCosineMoving
+      - glyph: "c"
+        quantityId: directionCosineStationary
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "a"
+        quantityId: directionCosineStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  - display: eq-s7-d7
+    latex: "\\nu' = \\nu \\frac{1 - \\cos \\varphi \\frac{v}{V}}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} ."
+    spoken: "nu prime equals nu times: one minus cosine phi times v over V, divided by the square root of one minus the square of v over V."
+    terms:
+      - glyph: "\\nu'"
+        quantityId: waveFrequencyMoving
+      - glyph: "\\nu"
+        quantityId: waveFrequencyStationary
+      - glyph: "\\varphi"
+        quantityId: propagationAngleStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  - display: eq-s7-d8
+    latex: "\\nu' = \\nu \\sqrt{\\frac{1 - \\frac{v}{V}}{1 + \\frac{v}{V}}} ."
+    spoken: "nu prime equals nu times the square root of: one minus v over V, divided by one plus v over V."
+    terms:
+      - glyph: "\\nu'"
+        quantityId: waveFrequencyMoving
+      - glyph: "\\nu"
+        quantityId: waveFrequencyStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  - display: eq-s7-d9
+    latex: "\\cos \\varphi' = \\frac{\\cos \\varphi - \\frac{v}{V}}{1 - \\frac{v}{V} \\cos \\varphi} ."
+    spoken: "cosine phi prime equals: cosine phi minus v over V, divided by one minus v over V times cosine phi."
+    terms:
+      - glyph: "\\varphi'"
+        quantityId: propagationAngleMoving
+      - glyph: "\\varphi"
+        quantityId: propagationAngleStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  - display: eq-s7-d10
+    latex: "\\cos \\varphi' = - \\frac{v}{V} ."
+    spoken: "cosine phi prime equals minus v over V."
+    terms:
+      - glyph: "\\varphi'"
+        quantityId: propagationAngleMoving
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
