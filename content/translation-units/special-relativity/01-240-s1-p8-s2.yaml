@@ -7,6 +7,7 @@
 # After both rounds (GreenOx, translator, 2026-09-25; revision 2): a line break before "1.", which
 # opens an indented line of its own on p. 894, as the German block s1-p8 has it (TanElk 40098). The
 # words are unchanged. For round 2's reviewer to confirm.
+# Confirmed (NavyKite, agent, 2026-09-25, its round-2 reviewer): the words are unchanged, the text being exactly the line break followed by revision 1's; the break falls where p. 894 starts "1. Wenn die Uhr" on an indented line of its own, as the German block s1-p8 has it.
 kind: "translation-unit"
 id: "s1-p8-s2"
 paper: "special-relativity"
