@@ -566,6 +566,119 @@ displays:
       - glyph: "V"
         quantityId: speedOfLight
 
+  # Section 5. The addition theorem of velocities.
+  # eq-s5-d1: a point moving uniformly in k; w_xi and w_eta are its velocity components along k's axes.
+  - display: eq-s5-d1
+    latex: "\\begin{aligned} \\xi &= w_\\xi \\tau , \\\\ \\eta &= w_\\eta \\tau , \\\\ \\zeta &= 0 , \\end{aligned}"
+    spoken: "xi equals w sub xi times tau; eta equals w sub eta times tau; zeta equals zero."
+    terms:
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "w_\\xi"
+        quantityId: velocityComponentXMoving
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "\\eta"
+        quantityId: coordinatePositionMoving
+      - glyph: "w_\\eta"
+        quantityId: velocityComponentYMoving
+      - glyph: "\\zeta"
+        quantityId: coordinatePositionMoving
+  - display: eq-s5-d2
+    latex: "\\begin{aligned} x &= \\frac{w_\\xi + v}{1 + \\frac{v w_\\xi}{V^2}} t , \\\\ y &= \\frac{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}{1 + \\frac{v w_\\xi}{V^2}} w_\\eta t , \\\\ z &= 0 . \\end{aligned}"
+    spoken: "x equals w sub xi plus v, divided by one plus v times w sub xi over V squared, times t; y equals the square root of one minus the square of v over V, divided by one plus v times w sub xi over V squared, times w sub eta times t; z equals zero."
+    terms:
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "w_\\xi"
+        quantityId: velocityComponentXMoving
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "w_\\eta"
+        quantityId: velocityComponentYMoving
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+  # eq-s5-d3 follows once the colouring can draw a subscripted letter under an exponent (w_xi squared; dispatch 228).
+  # eq-s5-d4: p. 905 prints Latin subscripts, w_y over w_x, where the display above defines the components as
+  #   w_xi and w_eta; a suspected misprint (docs/provenance/ap-17-891.md, err-typo-p905-1). The transcription keeps
+  #   the printed letters, and they bind the components they stand for.
+  - display: eq-s5-d4
+    latex: "\\alpha = \\operatorname{arctg} \\frac{w_y}{w_x} ;"
+    spoken: "alpha equals the arc tangent of w sub y over w sub x."
+    terms:
+      - glyph: "\\alpha"
+        quantityId: velocityDirectionAngle
+      - glyph: "w_y"
+        quantityId: velocityComponentYMoving
+      - glyph: "w_x"
+        quantityId: velocityComponentXMoving
+  - display: eq-s5-d5
+    latex: "U = \\frac{\\sqrt{(v^2 + w^2 + 2 v w \\cos \\alpha) - \\left( \\frac{v w \\sin \\alpha}{V} \\right)^2}}{1 + \\frac{v w \\cos \\alpha}{V^2}} ."
+    spoken: "U equals the square root of: v squared plus w squared plus two v w cosine alpha, minus the square of v w sine alpha over V; all divided by one plus v w cosine alpha over V squared."
+    terms:
+      - glyph: "U"
+        quantityId: velocityComposed
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "w"
+        quantityId: velocityInMovingFrame
+      - glyph: "\\alpha"
+        quantityId: velocityDirectionAngle
+      - glyph: "V"
+        quantityId: speedOfLight
+  - display: eq-s5-d6
+    latex: "U = \\frac{v + w}{1 + \\frac{v w}{V^2}} ."
+    spoken: "U equals v plus w, divided by one plus v w over V squared."
+    terms:
+      - glyph: "U"
+        quantityId: velocityComposed
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "w"
+        quantityId: velocityInMovingFrame
+      - glyph: "V"
+        quantityId: speedOfLight
+  # eq-s5-d7: with v = V - kappa and w = V - lambda, kappa and lambda the amounts by which each speed falls short
+  #   of V (speedDeficitFromLight serves both letters).
+  - display: eq-s5-d7
+    latex: "U = V \\frac{2 V - \\varkappa - \\lambda}{2 V - \\varkappa - \\lambda + \\frac{\\varkappa \\lambda}{V}} < V ."
+    spoken: "U equals V times: two V minus kappa minus lambda, divided by two V minus kappa minus lambda plus kappa lambda over V; and this is less than V."
+    terms:
+      - glyph: "U"
+        quantityId: velocityComposed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\varkappa"
+        quantityId: speedDeficitFromLight
+      - glyph: "\\lambda"
+        quantityId: speedDeficitFromLight
+  - display: eq-s5-d8
+    latex: "U = \\frac{V + w}{1 + \\frac{w}{V}} = V ."
+    spoken: "U equals V plus w, divided by one plus w over V, which equals V."
+    terms:
+      - glyph: "U"
+        quantityId: velocityComposed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "w"
+        quantityId: velocityInMovingFrame
+  - display: eq-s5-d9
+    latex: "\\frac{v + w}{1 + \\frac{v w}{V^2}}"
+    spoken: "v plus w, divided by one plus v w over V squared."
+    terms:
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "w"
+        quantityId: velocityInMovingFrame
+      - glyph: "V"
+        quantityId: speedOfLight
+
   # ---- Part II, sections 6 to 10 ----
 
   # Section 6. The Maxwell-Hertz equations for empty space, transformed by section 3's equations.
