@@ -19,6 +19,12 @@ notQuantities:
     reason: "the differential d of an integral or a derivative: an operation, not a quantity"
   - glyph: "e"
     reason: "e, the base of the natural logarithm: a number, not a quantity"
+  - glyph: "x"
+    reason: "the coordinate along the X-axis, which the concordance reads as a coordinate label, not a quantity (bm.x.coordinate)"
+  - glyph: "\\delta"
+    reason: "the variation δ of a virtual displacement, an operator (concordance bm.delta.variationOperator)"
+  - glyph: "\\pi"
+    reason: "the number π"
 displays:
   # § 1. p is the osmotic pressure, V^* the partial volume, z the gram-molecules of solute, n the
   #   number of suspended particles and ν = n/V^* their number density.
@@ -246,3 +252,139 @@ displays:
         quantityId: avogadroConstant
       - glyph: "\\nu"
         quantityId: numberDensity
+  # § 3. K is the force on each particle, ν their number density, l the length of the column, and
+  #   E the energy of the system, whose variation δE is the work of K. From s3-p6, k is the viscosity
+  #   (concordance bm.k.viscosity), never Boltzmann's constant, P the particle's radius, μ its mass and
+  #   D the coefficient of diffusion.
+  - display: eq-s3-d1
+    latex: "\\delta F = \\delta E - T \\delta S = 0."
+    spoken: "delta F equals delta E minus T delta S, and this equals zero."
+    terms:
+      - glyph: "F"
+        quantityId: freeEnergy
+      - glyph: "E"
+        quantityId: systemEnergy
+      - glyph: "T"
+        quantityId: temperature
+      - glyph: "S"
+        quantityId: entropy
+  - display: eq-s3-d2
+    latex: "\\delta E = -\\int_0^l K \\nu \\delta x d x"
+    spoken: "delta E equals minus the integral from zero to l of K nu delta x, d x."
+    terms:
+      - glyph: "E"
+        quantityId: systemEnergy
+      - glyph: "l"
+        quantityId: columnLength
+      - glyph: "K"
+        quantityId: externalForcePerParticle
+      - glyph: "\\nu"
+        quantityId: numberDensity
+  - display: eq-s3-d3
+    latex: "\\delta S = \\int_0^l R \\frac{\\nu}{N} \\frac{\\partial \\delta x}{\\partial x} d x = -\\frac{R}{N} \\int_0^l \\frac{\\partial \\nu}{\\partial x} \\delta x d x."
+    spoken: "delta S equals the integral from zero to l of R times nu over N times the partial derivative of delta x with respect to x, d x; and this equals minus R over N times the integral from zero to l of the partial derivative of nu with respect to x, times delta x, d x."
+    terms:
+      - glyph: "S"
+        quantityId: entropy
+      - glyph: "l"
+        quantityId: columnLength
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "\\nu"
+        quantityId: numberDensity
+      - glyph: "N"
+        quantityId: avogadroConstant
+  - display: eq-s3-1
+    latex: "-K \\nu + \\frac{R T}{N} \\frac{\\partial \\nu}{\\partial x} = 0"
+    spoken: "Minus K nu, plus R T over N times the partial derivative of nu with respect to x, equals zero."
+    terms:
+      - glyph: "K"
+        quantityId: externalForcePerParticle
+      - glyph: "\\nu"
+        quantityId: numberDensity
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "T"
+        quantityId: temperature
+      - glyph: "N"
+        quantityId: avogadroConstant
+  - display: eq-s3-d4
+    latex: "K \\nu - \\frac{\\partial p}{\\partial x} = 0."
+    spoken: "K nu minus the partial derivative of p with respect to x equals zero."
+    terms:
+      - glyph: "K"
+        quantityId: externalForcePerParticle
+      - glyph: "\\nu"
+        quantityId: numberDensity
+      - glyph: "p"
+        quantityId: osmoticPressure
+  - display: eq-s3-d5
+    latex: "\\frac{K}{6 \\pi k P},"
+    spoken: "K over six pi k P."
+    terms:
+      - glyph: "K"
+        quantityId: externalForcePerParticle
+      - glyph: "k"
+        quantityId: viscosity
+      - glyph: "P"
+        quantityId: particleRadius
+  - display: eq-s3-d6
+    latex: "\\frac{\\nu K}{6 \\pi k P}"
+    spoken: "nu K over six pi k P."
+    terms:
+      - glyph: "\\nu"
+        quantityId: numberDensity
+      - glyph: "K"
+        quantityId: externalForcePerParticle
+      - glyph: "k"
+        quantityId: viscosity
+      - glyph: "P"
+        quantityId: particleRadius
+  - display: eq-s3-d7
+    latex: "-D \\frac{\\partial (\\mu \\nu)}{\\partial x} \\quad \\text{Gramm}"
+    spoken: "Minus D times the partial derivative of mu nu with respect to x, in grams."
+    terms:
+      - glyph: "D"
+        quantityId: diffusionCoefficient
+      - glyph: "\\mu"
+        quantityId: particleMass
+      - glyph: "\\nu"
+        quantityId: numberDensity
+  - display: eq-s3-d8
+    latex: "-D \\frac{\\partial \\nu}{\\partial x}"
+    spoken: "Minus D times the partial derivative of nu with respect to x."
+    terms:
+      - glyph: "D"
+        quantityId: diffusionCoefficient
+      - glyph: "\\nu"
+        quantityId: numberDensity
+  - display: eq-2
+    latex: "\\frac{\\nu K}{6 \\pi k P} - D \\frac{\\partial \\nu}{\\partial x} = 0."
+    spoken: "nu K over six pi k P, minus D times the partial derivative of nu with respect to x, equals zero."
+    terms:
+      - glyph: "\\nu"
+        quantityId: numberDensity
+      - glyph: "K"
+        quantityId: externalForcePerParticle
+      - glyph: "k"
+        quantityId: viscosity
+      - glyph: "P"
+        quantityId: particleRadius
+      - glyph: "D"
+        quantityId: diffusionCoefficient
+  - display: eq-s3-d9
+    latex: "D = \\frac{R T}{N} \\frac{1}{6 \\pi k P}."
+    spoken: "D equals R T over N, times one over six pi k P."
+    terms:
+      - glyph: "D"
+        quantityId: diffusionCoefficient
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "T"
+        quantityId: temperature
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "k"
+        quantityId: viscosity
+      - glyph: "P"
+        quantityId: particleRadius
