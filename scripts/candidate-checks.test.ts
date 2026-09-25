@@ -29,7 +29,7 @@ function fixture() {
   put("papers/mass-energy/index.html", "<main>reading</main>");
   put(
     "papers/mass-energy/view/german/index.html",
-    '<p id="s0-p1">Die Resultate</p><div id="eq-s0-d1">l*</div>',
+    '<main id="main"><p id="s0-p1">Die Resultate</p><div id="eq-s0-d1">l*</div></main>',
   );
   put("lab/bm-01/index.html", '<script src="/_next/static/chunks/lab.js" async=""></script>');
   put("_next/static/chunks/lab.js", "console.log(1)");
@@ -112,13 +112,35 @@ describe("candidate checks (am-rel-candidate-checks-kc7y)", () => {
 
   test("a frozen id with no anchor fails the no-JavaScript check", async () => {
     const { staticDir, root, fetcher, put } = fixture();
-    put("papers/mass-energy/view/german/index.html", '<p id="s0-p1">Die Resultate</p>');
+    put(
+      "papers/mass-energy/view/german/index.html",
+      '<main id="main"><p id="s0-p1">Die Resultate</p></main>',
+    );
     const check = byName(
       await runCandidateChecksAgainst({ fetcher, staticDir, root }),
       "no-javascript-source-text",
     );
     expect(check?.status).toBe("failed");
-    expect(check?.detail).toContain("1 of 2 frozen ids anchored; missing eq-s0-d1");
+    expect(check?.detail).toContain(
+      '1 of 2 frozen ids anchored inside <main id="main">; missing eq-s0-d1',
+    );
+  });
+
+  test("the page streamed as a hidden segment, with <main> empty, fails the no-JavaScript check", async () => {
+    // The shape live served from c3b3116b: an empty fallback in <main>, and every anchor in a
+    // hidden late segment after it that only a script moves in.
+    const { staticDir, root, fetcher, put } = fixture();
+    put(
+      "papers/mass-energy/view/german/index.html",
+      '<main id="main"><!--$?--><template id="B:0"></template><!--/$--></main>' +
+        '<div hidden id="S:0"><p id="s0-p1">Die Resultate</p><div id="eq-s0-d1">l*</div></div>',
+    );
+    const check = byName(
+      await runCandidateChecksAgainst({ fetcher, staticDir, root }),
+      "no-javascript-source-text",
+    );
+    expect(check?.status).toBe("failed");
+    expect(check?.detail).toContain('0 of 2 frozen ids anchored inside <main id="main">');
   });
 
   // Vercel's toolbar loader as production served it on 2026-09-24, appended to the webpack chunk.

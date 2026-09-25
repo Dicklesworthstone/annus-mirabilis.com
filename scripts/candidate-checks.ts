@@ -339,18 +339,24 @@ async function noJavaScriptSourceText(
     return { name, status: "failed", detail: report.problems.join("; ") };
   }
   const html = readFileSync(localFile(staticDir, path), "utf8");
-  const missing = ids.filter((id) => !html.includes(`id="${id}"`));
+  // Inside <main>, not merely somewhere in the file. From 2026-09-24 to 2026-09-25 every anchor
+  // was in the HTML, but in a hidden late Suspense segment after </main>, and this check passed
+  // while a reader without JavaScript saw an empty page.
+  const open = html.indexOf('<main id="main">');
+  const close = open < 0 ? -1 : html.indexOf("</main>", open);
+  const main = open < 0 ? "" : html.slice(open, close < 0 ? undefined : close);
+  const missing = ids.filter((id) => !main.includes(`id="${id}"`));
   if (ids.length === 0 || missing.length > 0) {
     return {
       name,
       status: "failed",
-      detail: `${path}: ${ids.length - missing.length} of ${ids.length} frozen ids anchored; missing ${missing.slice(0, 8).join(", ")}`,
+      detail: `${path}: ${ids.length - missing.length} of ${ids.length} frozen ids anchored inside <main id="main">; missing ${missing.slice(0, 8).join(", ")}`,
     };
   }
   return {
     name,
     status: "passed",
-    detail: `${path} served as built, with all ${ids.length} of ${ids.length} frozen manifest ids anchored in the HTML (no JavaScript executed).`,
+    detail: `${path} served as built, with all ${ids.length} of ${ids.length} frozen manifest ids anchored inside <main id="main"> (no JavaScript executed).`,
   };
 }
 
