@@ -12,13 +12,19 @@ export default function Home() {
     translationState(process.cwd()),
     new Map(papers.map((paper) => [paper.slug, paper.title])),
   );
-  // Read from the German faces' own loader, so relativity's line changes when its face does.
+  // Read from what the German faces render (germanTextState), so a paper's line changes when its
+  // face does. Relativity's said "still being transcribed" after all 31 pages were set.
   const germanNow = germanTextSentences(
     papers.map((paper) => ({
       title: paper.title,
       state: germanTextState(paper.slug as RouteSlug),
     })),
   );
+  // The mass-energy caption says its pages are set only when its German face renders them all.
+  const massEnergy = papers.find((paper) => paper.slug === "mass-energy");
+  const massEnergySet = ["draft", "reviewed"].includes(germanTextState("mass-energy"));
+  const PAGE_WORDS = ["no", "one", "two", "three", "four", "five"];
+  const massEnergyPages = PAGE_WORDS[massEnergy?.pages ?? 0] ?? String(massEnergy?.pages);
   return (
     <>
       <section className="hero hero-with-plates">
@@ -156,7 +162,10 @@ export default function Home() {
         </p>
         <p className="fine">
           Ann. Phys. (4) 18, 639&ndash;641 (1905), p. 641, received 27 September. Transcribed here
-          from the pinned facsimile; all three pages are set.
+          from the pinned facsimile;{" "}
+          {massEnergySet
+            ? `all ${massEnergyPages} pages are set.`
+            : "its German text is not yet set in full."}
         </p>
       </section>
 

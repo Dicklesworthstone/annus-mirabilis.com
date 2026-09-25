@@ -1,8 +1,13 @@
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { loadGermanSourceFace } from "./editions/germanSourceFace.ts";
-import { PAPER_BIB_KEYS } from "./editions/ledgerPresence.ts";
+import { loadGermanSourceFace, printedUnits } from "./editions/germanSourceFace.ts";
+import {
+  ledgerPageCoverage,
+  ledgerRelativePath,
+  PAPER_BIB_KEYS,
+} from "./editions/ledgerPresence.ts";
 import type { RouteSlug } from "./ids.ts";
+import { parseYaml } from "./provenance/yaml.ts";
 import { nameInSentence } from "./translationState.ts";
 
 /*
@@ -11,16 +16,60 @@ import { nameInSentence } from "./translationState.ts";
  * sentence ("set for three of the four", "German text set"); relativity's ledger was being drafted
  * page by page while those sentences stood still. Now they read it.
  *
- *   reviewed          the German face renders a ledger a named reviewer has checked;
- *   draft             the German face renders a machine draft with hand correction;
- *   in-transcription  a ledger file exists, but the receipt keeps it off the German face;
- *   not-started       no ledger file exists.
+ *   reviewed          the German face renders a whole text a named reviewer has checked;
+ *   draft             the German face renders a whole text, a machine draft with hand correction;
+ *   in-transcription  a ledger or some blocks exist, but the German face does not yet have them all;
+ *   not-started       nothing exists.
+ *
+ * It asks what the German face renders, by PaperPage's own rule: the ledger draft face, unless
+ * every source block is reviewed; otherwise the edition's source blocks (GermanFace). Relativity
+ * has no ledger draft face and renders its blocks, and this said "still being transcribed" of all
+ * 31 pages because it asked only the ledger loader.
  */
 export type GermanTextState = "reviewed" | "draft" | "in-transcription" | "not-started";
 
+type BlockRecord = Readonly<{
+  section?: string;
+  status?: Readonly<{ transcription?: string; review?: string }>;
+}>;
+
+/** The paper's source-block records (content/source-blocks/<slug>/*.yaml), the manifest aside. */
+function sourceBlocks(root: string, slug: RouteSlug): readonly BlockRecord[] {
+  const dir = join(root, "content", "source-blocks", slug);
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((file) => file.endsWith(".yaml") && file !== "manifest.yaml")
+    .map((file) => (parseYaml(readFileSync(join(dir, file), "utf8")) ?? {}) as BlockRecord);
+}
+
+/** faceAvailability.ts sourceBlockIsReviewed, restated so content does not import the reader. */
+const blockReviewed = (b: BlockRecord) =>
+  b.status?.transcription === "reviewed" &&
+  (b.status.review === "reviewed" || b.status.review === "accepted");
+
 export function germanTextState(slug: RouteSlug, root: string = process.cwd()): GermanTextState {
+  const blocks = sourceBlocks(root, slug);
+  const allReviewed = blocks.length > 0 && blocks.every(blockReviewed);
   const face = loadGermanSourceFace(slug, root);
-  if (face) return face.notice.state === "reviewed" ? "reviewed" : "draft";
+  if (face && !allReviewed) return face.notice.state === "reviewed" ? "reviewed" : "draft";
+  if (blocks.length > 0) {
+    // Set only when the blocks reach every printed section and the ledger no printed page is
+    // missing from, as the German face's own notices would otherwise say.
+    const present = new Set(blocks.map((b) => b.section));
+    const sections = [
+      ...new Set(printedUnits(root, slug).flatMap((u) => (u.section ? [u.section] : []))),
+    ].filter((s) => /^s\d+$/.test(s));
+    const ledger = join(root, ledgerRelativePath(slug, root));
+    const untranscribed = existsSync(ledger)
+      ? ledgerPageCoverage(readFileSync(ledger, "utf8")).filter(
+          // As ledgerGaps counts them for the German face's notice: numbered pages only.
+          (p) => !p.covered && p.printedPage !== undefined,
+        ).length
+      : 0;
+    if (sections.every((s) => present.has(s)) && untranscribed === 0)
+      return allReviewed ? "reviewed" : "draft";
+    return "in-transcription";
+  }
   const key = PAPER_BIB_KEYS[slug];
   const dir = join(root, "public", "papers", "transcripts");
   return existsSync(join(dir, `${key}-machine-draft.txt`)) ||

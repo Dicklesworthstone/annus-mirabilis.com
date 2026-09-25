@@ -303,7 +303,7 @@ export default function AboutPage() {
         <p>
           Einstein&rsquo;s German text is in the public domain. Each scan carries its host&rsquo;s
           terms, listed on <a href="/sources/">Sources</a>. Everything written for this edition, the
-          explanations, the code and in time the translation, is under the{" "}
+          explanations, the code and the translation, is under the{" "}
           <a href={`${REPOSITORY}/blob/main/LICENSE`}>
             MIT License with the OpenAI/Anthropic Rider
           </a>
@@ -361,8 +361,12 @@ export default function AboutPage() {
           </li>
           <li>
             <strong>An instrument:</strong> its address, such as annus-mirabilis.com/lab/bm-01/,
-            with the edition revision and the settings you used. A link cannot yet carry the
-            settings, and an equation cannot yet be linked on its own.
+            with the edition revision. Where the instrument offers a share link, that link carries
+            the settings you used.
+          </li>
+          <li>
+            <strong>A printed equation:</strong> its paper&rsquo;s German face with the
+            equation&rsquo;s anchor, such as /papers/mass-energy/view/german/#eq-s0-d1.
           </li>
         </ul>
         <p>

@@ -1,12 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadFirstPages } from "../components/home/firstPages.ts";
-import { loadGermanSourceFace } from "../content/editions/germanSourceFace.ts";
 import { germanTextCount, germanTextSentences } from "../content/germanTextState.ts";
-import type { RouteSlug } from "../content/ids.ts";
 import { nameInSentence } from "../content/translationState.ts";
+import { PaperPage } from "../reader/PaperPage.tsx";
+import { exportMarkup } from "../testing/exportMarkup.ts";
 import About from "./about/page";
 import Home from "./page";
 import Papers from "./papers/page";
@@ -28,10 +28,22 @@ const textOf = (html: string) =>
     .replace(/&amp;/g, "&")
     .replace(/\s+/g, " ");
 
-/** Whether each paper's German face renders, from the loader the German face itself uses. */
-const faceRenders = new Map(
-  papers.map((p) => [p.slug, loadGermanSourceFace(p.slug as RouteSlug, ROOT) !== null]),
-);
+/**
+ * Whether each paper's German face renders its whole text, read from the face itself: German prose,
+ * and none of the notices it prints when something is missing (sections it does not reach,
+ * printed pages not yet transcribed, or no text at all). This used to ask the ledger loader, which
+ * relativity does not use: its face renders its source blocks, all 31 pages of them, while the home
+ * page said it was "still being transcribed".
+ */
+const germanFaceSet = new Map<string, boolean>();
+for (const p of papers) {
+  const html = await exportMarkup(await PaperPage({ paperId: p.slug, face: "german" } as never));
+  const hasText = /data-german-draft|data-source-body/.test(html) && /[äöüßÄÖÜ]/.test(html);
+  const lacks = /data-missing-sections=|data-untranscribed-pages=|is not yet available/.test(html);
+  germanFaceSet.set(p.slug, hasText && !lacks);
+}
+/** Whether the German face renders anything at all. */
+const faceRenders = germanFaceSet;
 /** Which papers have translation units on disk. */
 const unitsDir = join(ROOT, "content", "translation-units");
 const translated = new Set(
@@ -78,20 +90,70 @@ describe("status claims on the top-level pages follow the records", () => {
     );
   });
 
-  test("the home page names every paper whose German face does not render as still being transcribed, and no other", () => {
+  test("the home page calls a paper's German set exactly when its German face renders it whole", () => {
     const text = textOf(renderToStaticMarkup(<Home />));
+    const setSentence = /The German text is set for the ([^.]+?) papers?\./.exec(text)?.[1] ?? "";
     for (const paper of papers) {
-      const transcribing = text.includes(
-        `The ${nameInSentence(paper.title)} paper is still being transcribed`,
-      );
-      expect({ paper: paper.slug, transcribing }).toEqual({
+      const name = nameInSentence(paper.title);
+      const transcribing = text.includes(`The ${name} paper is still being transcribed`);
+      const named = setSentence.includes(name);
+      const set = germanFaceSet.get(paper.slug) ?? false;
+      expect({ paper: paper.slug, named, transcribing }).toEqual({
         paper: paper.slug,
-        transcribing: !faceRenders.get(paper.slug),
+        named: set,
+        transcribing: !set,
       });
     }
-    const set = [...faceRenders.values()].filter(Boolean).length;
+    // Non-vacuity: at least one face was measured whole, so "named" was a real test.
+    expect([...germanFaceSet.values()].some(Boolean)).toBe(true);
+  });
+
+  test("the first-pages caption counts the German faces that render their text whole", () => {
+    const text = textOf(renderToStaticMarkup(<Home />));
+    const set = [...germanFaceSet.values()].filter(Boolean).length;
     const words = ["none", "one", "two", "three", "four"];
-    expect(text).toContain(`The German text is set for ${words[set]} of the four`);
+    expect(text).toContain(`The German text is set for ${words[set]} of the four.`);
+  });
+
+  test("the mass-energy caption says its pages are set only when its German face renders them", () => {
+    const text = textOf(renderToStaticMarkup(<Home />));
+    const pages = papers.find((p) => p.slug === "mass-energy")?.pages ?? 0;
+    const words = ["no", "one", "two", "three", "four", "five"];
+    const claimed = text.includes(`all ${words[pages]} pages are set`);
+    expect(claimed).toBe(germanFaceSet.get("mass-energy") ?? false);
+  });
+
+  test("/about/: the license names the translation as it exists", () => {
+    const text = textOf(renderToStaticMarkup(<About />));
+    // The translation exists (its unit files, read directly), so it is not "in time".
+    expect(translated.size).toBeGreaterThan(0);
+    expect(text).not.toContain("in time the translation");
+    expect(text).toContain("the code and the translation");
+  });
+
+  test("/about/: an instrument's share link carries its settings, as the lab code does", () => {
+    const text = textOf(renderToStaticMarkup(<About />));
+    // Read from the lab code itself: the laboratories that restore a shared ?tape= link.
+    const labDir = join(ROOT, "src", "components", "lab");
+    const labFiles = readdirSync(labDir, { recursive: true }).filter(
+      (f): f is string => typeof f === "string" && /\.tsx$/.test(f) && !/\.test\./.test(f),
+    );
+    const restoring = labFiles.filter((f) =>
+      readFileSync(join(labDir, f), "utf8").includes("?tape="),
+    ).length;
+    expect(restoring).toBeGreaterThan(0);
+    expect(text).not.toContain("cannot yet carry the settings");
+    expect(text).toContain("that link carries the settings");
+  });
+
+  test("/about/: a printed equation can be linked, and the example anchor lands on its German face", async () => {
+    const text = textOf(renderToStaticMarkup(<About />));
+    expect(text).not.toContain("cannot yet be linked");
+    const example = /\/papers\/([a-z-]+)\/view\/german\/#(eq-[a-z0-9-]+)/.exec(text);
+    expect(example).not.toBeNull();
+    const [, paperId, anchor] = example ?? [];
+    const face = await exportMarkup(await PaperPage({ paperId, face: "german" } as never));
+    expect(face).toContain(` id="${anchor}"`);
   });
 
   test("/about/ gives the translation's state from the units, not 'None yet'", () => {
