@@ -22,12 +22,12 @@ export const SEARCH_COVERAGE = Object.freeze({
   foundation: "foundation explanation and worked example",
 });
 export function assertSearchCoverage(kinds: readonly string[]): void {
-  for (const kind of kinds) {
-    if (!Object.hasOwn(SEARCH_COVERAGE, kind))
-      throw new TypeError(
-        `Unclassified compiled search payload kind: ${kind}. Add its builder or an explicit exclusion.`,
-      );
-  }
+  assertClassified(SEARCH_COVERAGE, kinds, "compiled search payload kind");
+}
+/** The one refusal for both classification tables: a value with no builder and no exclusion. */
+function assertClassified(table: object, values: readonly string[], what: string): void {
+  const missing = values.find((value) => !Object.hasOwn(table, value));
+  if (missing !== undefined) throw new TypeError(`Unclassified ${what}: ${missing}. ${ADD}`);
 }
 
 type Block = Readonly<
@@ -502,13 +502,9 @@ export const SEARCH_LANGUAGE_FACES = Object.freeze({
   english: "each heading, paragraph and footnote of the English face (englishTranslationDocuments)",
 });
 export function assertSearchFaceCoverage(faces: readonly string[]): void {
-  for (const face of faces) {
-    if (!Object.hasOwn(SEARCH_LANGUAGE_FACES, face))
-      throw new TypeError(
-        `Unclassified language face for search: ${face}. Add its builder or an explicit exclusion.`,
-      );
-  }
+  assertClassified(SEARCH_LANGUAGE_FACES, faces, "language face for search");
 }
+const ADD = "Add its builder or an explicit exclusion.";
 
 /** The shape of a content inline this module reads, without importing the content schemas. */
 /**
