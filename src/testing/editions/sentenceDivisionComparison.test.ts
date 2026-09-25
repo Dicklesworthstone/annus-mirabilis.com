@@ -265,6 +265,13 @@ describe("the real corpus: every printed number is pinned", () => {
       // four long sentences, the long count unchanged from 909. Predicted +1, observed +1,
       // from the named cause.
       //
+      // 10 -> 11 when p914 landed (dispatch 193). Seen as a failure first, then checked against the
+      // rule, which accounts for it: 913 ends in the display
+      // eq-s8-d4 with its tag on its own line, so "Nennt man also E ... so erhält man: [d4] welche
+      // Formel für phi = 0 in die einfachere übergeht: [d5]" joins across 913/914. 914 prints no
+      // enumerator. Enumerated: six bare enumerators and five long sentences, the fifth the new
+      // crossing. Next prediction: 914 ends with an INLINE tag, so 915 adds no crossing.
+      //
       // WHAT THIS NUMBER CANNOT SEE, so that a later reader does not mistake it for the count of
       // cross-page sentences. A crossing is visible here only when [[CONTINUES]] sits on its own
       // line. When it is written inline, glued to the last word, segmentLedger keeps it attached,
@@ -283,7 +290,7 @@ describe("the real corpus: every printed number is pinned", () => {
       // not.) Left as measured rather than repaired here: the repair
       // is either a ledger-wide rewrite touching four papers or a change to segmentLedger, and
       // both belong to am-span-recording-decision-ero2, not to a transcription pane.
-      unplaceableProposedSentences: 10,
+      unplaceableProposedSentences: 11,
     },
   };
 
