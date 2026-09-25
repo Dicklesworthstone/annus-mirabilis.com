@@ -9,7 +9,7 @@ order: 13
 locators:
   - pdfPageIndex: 3
     printedPage: 551
-diplomaticText: "Sind p_1 p_2 \\ldots p_l Zustandsvariable eines physikalischen Systems, welche den momentanen Zustand desselben vollkommen bestimmen (z. B. die Koordinaten und Geschwindigkeitskomponenten aller Atome des Systems) und ist das vollständige System der Veränderungsgleichungen dieser Zustandsvariabeln von der Formgegeben, wobei \\sum \\frac{\\partial \\varphi_\\nu}{\\partial p_\\nu} = 0, so ist die Entropie des Systems durch den Ausdruck gegeben: Hierbei bedeutet T die absolute Temperatur, \\bar{E} die Energie des Systems, E die Energie als Funktion der p_\\nu. Das Integral ist über alle mit den Bedingungen des Problems vereinbaren Wertekombinationen der p_\\nu zu erstrecken. \\varkappa ist mit der oben erwähnten Konstanten N durch die Relation 2 \\varkappa N = R verbunden. Für die freie Energie F erhalten wir daher:"
+diplomaticText: "Sind p_1 p_2 \\ldots p_l Zustandsvariable eines physikalischen Systems, welche den momentanen Zustand desselben vollkommen bestimmen (z. B. die Koordinaten und Geschwindigkeitskomponenten aller Atome des Systems) und ist das vollständige System der Veränderungsgleichungen dieser Zustandsvariabeln von der Form gegeben, wobei \\sum \\frac{\\partial \\varphi_\\nu}{\\partial p_\\nu} = 0, so ist die Entropie des Systems durch den Ausdruck gegeben: Hierbei bedeutet T die absolute Temperatur, \\bar{E} die Energie des Systems, E die Energie als Funktion der p_\\nu. Das Integral ist über alle mit den Bedingungen des Problems vereinbaren Wertekombinationen der p_\\nu zu erstrecken. \\varkappa ist mit der oben erwähnten Konstanten N durch die Relation 2 \\varkappa N = R verbunden. Für die freie Energie F erhalten wir daher:"
 inlines:
   - kind: "text"
     text: "Sind "
@@ -22,7 +22,7 @@ inlines:
     display: true
     equationId: "eq-s2-d1"
   - kind: "text"
-    text: "gegeben, wobei "
+    text: " gegeben, wobei "
   - kind: "math"
     latex: "\\sum \\frac{\\partial \\varphi_\\nu}{\\partial p_\\nu} = 0"
   - kind: "text"
@@ -85,34 +85,34 @@ sentenceSpans:
   - id: "s2-p1-s1"
     span:
       start: 0
-      end: 437
-      blockRevision: 1
-      textDigest: "893063e58ba2b4fb0651be83d8cd65fc0a11a7919d0a2672fee77a200f3fb60f"
+      end: 438
+      blockRevision: 2
+      textDigest: "a74fe3070f25660dacbff66393e841ec205f22ad402cf7633850296a622606ad"
   - id: "s2-p1-s2"
     span:
-      start: 438
-      end: 552
-      blockRevision: 1
-      textDigest: "893063e58ba2b4fb0651be83d8cd65fc0a11a7919d0a2672fee77a200f3fb60f"
+      start: 439
+      end: 553
+      blockRevision: 2
+      textDigest: "a74fe3070f25660dacbff66393e841ec205f22ad402cf7633850296a622606ad"
   - id: "s2-p1-s3"
     span:
-      start: 553
-      end: 668
-      blockRevision: 1
-      textDigest: "893063e58ba2b4fb0651be83d8cd65fc0a11a7919d0a2672fee77a200f3fb60f"
+      start: 554
+      end: 669
+      blockRevision: 2
+      textDigest: "a74fe3070f25660dacbff66393e841ec205f22ad402cf7633850296a622606ad"
   - id: "s2-p1-s4"
     span:
-      start: 669
-      end: 766
-      blockRevision: 1
-      textDigest: "893063e58ba2b4fb0651be83d8cd65fc0a11a7919d0a2672fee77a200f3fb60f"
+      start: 670
+      end: 767
+      blockRevision: 2
+      textDigest: "a74fe3070f25660dacbff66393e841ec205f22ad402cf7633850296a622606ad"
   - id: "s2-p1-s5"
     span:
-      start: 767
-      end: 810
-      blockRevision: 1
-      textDigest: "893063e58ba2b4fb0651be83d8cd65fc0a11a7919d0a2672fee77a200f3fb60f"
-revision: 1
+      start: 768
+      end: 811
+      blockRevision: 2
+      textDigest: "a74fe3070f25660dacbff66393e841ec205f22ad402cf7633850296a622606ad"
+revision: 2
 status:
   transcription: "draft"
   mathTranscription: "draft"

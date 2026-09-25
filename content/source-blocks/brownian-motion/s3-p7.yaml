@@ -9,7 +9,7 @@ order: 46
 locators:
   - pdfPageIndex: 7
     printedPage: 555
-diplomaticText: "Bezeichnet ferner D den Diffusionskoeffizienten der suspendierten Substanz und \\mu die Masse eines Teilchens, so treten pro Zeiteinheit infolge der DiffusionoderTeilchen durch die Querschnittseinheit. Da dynamisches Gleichgewicht herrschen soll, so muß sein:"
+diplomaticText: "Bezeichnet ferner D den Diffusionskoeffizienten der suspendierten Substanz und \\mu die Masse eines Teilchens, so treten pro Zeiteinheit infolge der Diffusion oder Teilchen durch die Querschnittseinheit. Da dynamisches Gleichgewicht herrschen soll, so muß sein:"
 inlines:
   - kind: "text"
     text: "Bezeichnet ferner "
@@ -26,13 +26,13 @@ inlines:
     display: true
     equationId: "eq-s3-d7"
   - kind: "text"
-    text: "oder"
+    text: " oder"
   - kind: "math"
     latex: "-D \\frac{\\partial \\nu}{\\partial x}"
     display: true
     equationId: "eq-s3-d8"
   - kind: "text"
-    text: "Teilchen durch die Querschnittseinheit."
+    text: " Teilchen durch die Querschnittseinheit."
   - kind: "space"
   - kind: "text"
     text: "Da dynamisches Gleichgewicht herrschen soll, so muß sein:"
@@ -44,16 +44,16 @@ sentenceSpans:
   - id: "s3-p7-s1"
     span:
       start: 0
-      end: 200
-      blockRevision: 1
-      textDigest: "d742e60d4ab81871be26d003ab11c9f76fbd318b73ff4909c1d4d08d25abc146"
+      end: 202
+      blockRevision: 2
+      textDigest: "0c13446543d680eeedc9d9952bc621daafc264415c70b5e113f3fc732e6e2d8b"
   - id: "s3-p7-s2"
     span:
-      start: 201
-      end: 258
-      blockRevision: 1
-      textDigest: "d742e60d4ab81871be26d003ab11c9f76fbd318b73ff4909c1d4d08d25abc146"
-revision: 1
+      start: 203
+      end: 260
+      blockRevision: 2
+      textDigest: "0c13446543d680eeedc9d9952bc621daafc264415c70b5e113f3fc732e6e2d8b"
+revision: 2
 status:
   transcription: "draft"
   mathTranscription: "draft"

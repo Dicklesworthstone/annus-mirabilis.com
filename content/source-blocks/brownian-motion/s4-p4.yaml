@@ -9,7 +9,7 @@ order: 56
 locators:
   - pdfPageIndex: 8
     printedPage: 556
-diplomaticText: "Seien nun in einer Flüssigkeit im ganzen n suspendierte Teilchen vorhanden. In einem Zeitintervall \\tau werden sich die X-Koordinaten der einzelnen Teilchen um \\Delta vergrößern, wobei \\Delta für jedes Teilchen einen anderen (positiven oder negativen) Wert hat. Es wird für \\Delta ein gewisses Häufigkeitsgesetz gelten; die Anzahl d n der Teilchen, welche in dem Zeitintervall \\tau eine Verschiebung erfahren, welche zwischen \\Delta und \\Delta + d \\Delta liegt, wird durch eine Gleichung von der Formausdrückbar sein, wobeiund \\varphi nur für sehr kleine Werte von \\Delta von Null verschieden ist und die Bedingungerfüllt."
+diplomaticText: "Seien nun in einer Flüssigkeit im ganzen n suspendierte Teilchen vorhanden. In einem Zeitintervall \\tau werden sich die X-Koordinaten der einzelnen Teilchen um \\Delta vergrößern, wobei \\Delta für jedes Teilchen einen anderen (positiven oder negativen) Wert hat. Es wird für \\Delta ein gewisses Häufigkeitsgesetz gelten; die Anzahl d n der Teilchen, welche in dem Zeitintervall \\tau eine Verschiebung erfahren, welche zwischen \\Delta und \\Delta + d \\Delta liegt, wird durch eine Gleichung von der Form ausdrückbar sein, wobei und \\varphi nur für sehr kleine Werte von \\Delta von Null verschieden ist und die Bedingung erfüllt."
 inlines:
   - kind: "text"
     text: "Seien nun in einer Flüssigkeit im ganzen "
@@ -64,13 +64,13 @@ inlines:
     display: true
     equationId: "eq-s4-d1"
   - kind: "text"
-    text: "ausdrückbar sein, wobei"
+    text: " ausdrückbar sein, wobei"
   - kind: "math"
     latex: "\\int_{-\\infty}^{+\\infty} \\varphi(\\Delta) d \\Delta = 1"
     display: true
     equationId: "eq-s4-d2"
   - kind: "text"
-    text: "und "
+    text: " und "
   - kind: "math"
     latex: "\\varphi"
   - kind: "text"
@@ -84,27 +84,27 @@ inlines:
     display: true
     equationId: "eq-s4-d3"
   - kind: "text"
-    text: "erfüllt."
+    text: " erfüllt."
 sentenceSpans:
   - id: "s4-p4-s1"
     span:
       start: 0
       end: 75
-      blockRevision: 1
-      textDigest: "5b581acbe14a095e68c6ddd4931add08205490ff769fd05133d85f9446c03a3d"
+      blockRevision: 2
+      textDigest: "f471aa25675d80b7966c77680125b7ced8ac12c57e26a298a09560183c429299"
   - id: "s4-p4-s2"
     span:
       start: 76
       end: 261
-      blockRevision: 1
-      textDigest: "5b581acbe14a095e68c6ddd4931add08205490ff769fd05133d85f9446c03a3d"
+      blockRevision: 2
+      textDigest: "f471aa25675d80b7966c77680125b7ced8ac12c57e26a298a09560183c429299"
   - id: "s4-p4-s3"
     span:
       start: 262
-      end: 622
-      blockRevision: 1
-      textDigest: "5b581acbe14a095e68c6ddd4931add08205490ff769fd05133d85f9446c03a3d"
-revision: 1
+      end: 625
+      blockRevision: 2
+      textDigest: "f471aa25675d80b7966c77680125b7ced8ac12c57e26a298a09560183c429299"
+revision: 2
 status:
   transcription: "draft"
   mathTranscription: "draft"

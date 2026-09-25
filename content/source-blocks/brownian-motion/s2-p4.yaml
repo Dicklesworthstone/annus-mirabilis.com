@@ -11,7 +11,7 @@ locators:
     printedPage: 552
   - pdfPageIndex: 5
     printedPage: 553
-diplomaticText: "Wir nennen x_1, y_1, z_1 die rechtwinkligen Koordinaten des Schwerpunktes des ersten Teilchens, x_2, y_2, z_2 die des zweiten etc., x_n, y_n, z_n die des letzten Teilchens und geben für die Schwerpunkte der Teilchen die unendlich kleinen parallelepipedförmigen Gebiete d x_1 d y_1 d z_1, d x_2 d y_2 d z_2 \\ldots d x_n d y_n d z_n, welche alle in V^* gelegen seien. Gesucht sei der Wert des im Ausdruck für F auftretenden Integrales mit der Beschränkung, daß die Teilchenschwerpunkte in den ihnen soeben zugewiesenen Gebieten liegen. Dies Integral läßt sich jedenfalls auf die Formbringen, wobei J von d x_1 d y_1 etc., sowie von V^*, d. h. von der Lage der semipermeabeln Wand, unabhängig ist. J ist aber auch unabhängig von der speziellen Wahl der Lagen der Schwerpunktsgebiete und von dem Werte von V^*, wie sogleich gezeigt werden soll. Sei nämlich ein zweites System von unendlich kleinen Gebieten für die Teilchenschwerpunkte gegeben und bezeichnet durch d x'_1 d y'_1 d z'_2, d x'_2 d y'_2 d z'_2 \\ldots d x'_n d y'_n d z'_n, welche Gebiete sich von den ursprünglich gegebenen nur durch ihre Lage, nicht aber durch ihre Größe unterscheiden mögen und ebenfalls alle in V^* enthalten seien, so gilt analog:wobei Es ist also:"
+diplomaticText: "Wir nennen x_1, y_1, z_1 die rechtwinkligen Koordinaten des Schwerpunktes des ersten Teilchens, x_2, y_2, z_2 die des zweiten etc., x_n, y_n, z_n die des letzten Teilchens und geben für die Schwerpunkte der Teilchen die unendlich kleinen parallelepipedförmigen Gebiete d x_1 d y_1 d z_1, d x_2 d y_2 d z_2 \\ldots d x_n d y_n d z_n, welche alle in V^* gelegen seien. Gesucht sei der Wert des im Ausdruck für F auftretenden Integrales mit der Beschränkung, daß die Teilchenschwerpunkte in den ihnen soeben zugewiesenen Gebieten liegen. Dies Integral läßt sich jedenfalls auf die Form bringen, wobei J von d x_1 d y_1 etc., sowie von V^*, d. h. von der Lage der semipermeabeln Wand, unabhängig ist. J ist aber auch unabhängig von der speziellen Wahl der Lagen der Schwerpunktsgebiete und von dem Werte von V^*, wie sogleich gezeigt werden soll. Sei nämlich ein zweites System von unendlich kleinen Gebieten für die Teilchenschwerpunkte gegeben und bezeichnet durch d x'_1 d y'_1 d z'_2, d x'_2 d y'_2 d z'_2 \\ldots d x'_n d y'_n d z'_n, welche Gebiete sich von den ursprünglich gegebenen nur durch ihre Lage, nicht aber durch ihre Größe unterscheiden mögen und ebenfalls alle in V^* enthalten seien, so gilt analog:wobei Es ist also:"
 inlines:
   - kind: "text"
     text: "Wir nennen "
@@ -50,7 +50,7 @@ inlines:
     display: true
     equationId: "eq-s2-d4"
   - kind: "text"
-    text: "bringen, wobei "
+    text: " bringen, wobei "
   - kind: "math"
     latex: "J"
   - kind: "text"
@@ -111,39 +111,39 @@ sentenceSpans:
     span:
       start: 0
       end: 365
-      blockRevision: 2
-      textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
+      blockRevision: 3
+      textDigest: "1cdc24d434d19ac716019ee6373f1dde12157e60ae78b4d4edb07be0d07547cc"
   - id: "s2-p4-s2"
     span:
       start: 366
       end: 533
-      blockRevision: 2
-      textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
+      blockRevision: 3
+      textDigest: "1cdc24d434d19ac716019ee6373f1dde12157e60ae78b4d4edb07be0d07547cc"
   - id: "s2-p4-s3"
     span:
       start: 534
-      end: 694
-      blockRevision: 2
-      textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
+      end: 695
+      blockRevision: 3
+      textDigest: "1cdc24d434d19ac716019ee6373f1dde12157e60ae78b4d4edb07be0d07547cc"
   - id: "s2-p4-s6"
     span:
-      start: 695
-      end: 840
-      blockRevision: 2
-      textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
+      start: 696
+      end: 841
+      blockRevision: 3
+      textDigest: "1cdc24d434d19ac716019ee6373f1dde12157e60ae78b4d4edb07be0d07547cc"
   - id: "s2-p4-s4"
     span:
-      start: 841
-      end: 1216
-      blockRevision: 2
-      textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
+      start: 842
+      end: 1217
+      blockRevision: 3
+      textDigest: "1cdc24d434d19ac716019ee6373f1dde12157e60ae78b4d4edb07be0d07547cc"
   - id: "s2-p4-s5"
     span:
-      start: 1217
-      end: 1229
-      blockRevision: 2
-      textDigest: "e7c943c04ac3dbb589a17a757ffeba241fcbbdcb58a6f86b9978e276439bdee0"
-revision: 2
+      start: 1218
+      end: 1230
+      blockRevision: 3
+      textDigest: "1cdc24d434d19ac716019ee6373f1dde12157e60ae78b4d4edb07be0d07547cc"
+revision: 3
 status:
   transcription: "draft"
   mathTranscription: "draft"

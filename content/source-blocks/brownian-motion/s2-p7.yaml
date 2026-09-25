@@ -9,7 +9,7 @@ order: 28
 locators:
   - pdfPageIndex: 5
     printedPage: 553
-diplomaticText: "Es ist somit erwiesen, daß J weder von V^* noch von x_1, y_1 \\ldots z_n abhängig ist. Durch Integration erhält manund darausund"
+diplomaticText: "Es ist somit erwiesen, daß J weder von V^* noch von x_1, y_1 \\ldots z_n abhängig ist. Durch Integration erhält man und daraus und"
 inlines:
   - kind: "text"
     text: "Es ist somit erwiesen, daß "
@@ -33,13 +33,13 @@ inlines:
     display: true
     equationId: "eq-s2-d10"
   - kind: "text"
-    text: "und daraus"
+    text: " und daraus"
   - kind: "math"
     latex: "F = -\\frac{R T}{N} \\{ \\lg J + n \\lg V^* \\}"
     display: true
     equationId: "eq-s2-d11"
   - kind: "text"
-    text: "und"
+    text: " und"
   - kind: "math"
     latex: "p = -\\frac{\\partial F}{\\partial V^*} = \\frac{R T}{V^*} \\frac{n}{N} = \\frac{R T}{N} \\nu."
     display: true
@@ -49,15 +49,15 @@ sentenceSpans:
     span:
       start: 0
       end: 85
-      blockRevision: 1
-      textDigest: "3d8c98c03540b3b020aab74bcb043748b2e88b8d68ec2a145dcf2356d440a2d9"
+      blockRevision: 2
+      textDigest: "fef2509a5eb4e65bc2edf1ec5da30fb92a3df8f5aa4245c4a5a64109a54df610"
   - id: "s2-p7-s2"
     span:
       start: 86
-      end: 127
-      blockRevision: 1
-      textDigest: "3d8c98c03540b3b020aab74bcb043748b2e88b8d68ec2a145dcf2356d440a2d9"
-revision: 1
+      end: 129
+      blockRevision: 2
+      textDigest: "fef2509a5eb4e65bc2edf1ec5da30fb92a3df8f5aa4245c4a5a64109a54df610"
+revision: 2
 status:
   transcription: "draft"
   mathTranscription: "draft"

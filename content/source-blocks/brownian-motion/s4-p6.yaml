@@ -11,7 +11,7 @@ locators:
     printedPage: 557
   - pdfPageIndex: 10
     printedPage: 558
-diplomaticText: "Es sei \\nu = f(x, t) die Anzahl der Teilchen pro Volumeneinheit, wir berechnen die Verteilung der Teilchen zur Zeit t + \\tau aus deren Verteilung zur Zeit t. Aus der Definition der Funktion \\varphi(\\Delta) ergibt sich leicht die Anzahl der Teilchen, welche sich zur Zeit t + \\tau zwischen zwei zur X-Achse senkrechten Ebenen mit den Abszissen x und x + d x befinden. Man erhält: Nun können wir aber, da \\tau sehr klein ist, setzen: Ferner entwickeln wir f(x + \\Delta, t) nach Potenzen von \\Delta: Diese Entwicklung können wir unter dem Integral vornehmen, da zu letzterem nur sehr kleine Werte von \\Delta etwas beitragen. Wir erhalten: Auf der rechten Seite verschwindet wegen \\varphi(x) = \\varphi(-x) das zweite, vierte etc. Glied, während von dem ersten, dritten, fünften etc. Gliede jedes folgende gegen das vorhergehende sehr klein ist. Wir erhalten aus dieser Gleichung, indem wir berücksichtigen, daßund indem wirsetzen und nur das erste und dritte Glied der rechten Seite berücksichtigen:"
+diplomaticText: "Es sei \\nu = f(x, t) die Anzahl der Teilchen pro Volumeneinheit, wir berechnen die Verteilung der Teilchen zur Zeit t + \\tau aus deren Verteilung zur Zeit t. Aus der Definition der Funktion \\varphi(\\Delta) ergibt sich leicht die Anzahl der Teilchen, welche sich zur Zeit t + \\tau zwischen zwei zur X-Achse senkrechten Ebenen mit den Abszissen x und x + d x befinden. Man erhält: Nun können wir aber, da \\tau sehr klein ist, setzen: Ferner entwickeln wir f(x + \\Delta, t) nach Potenzen von \\Delta: Diese Entwicklung können wir unter dem Integral vornehmen, da zu letzterem nur sehr kleine Werte von \\Delta etwas beitragen. Wir erhalten: Auf der rechten Seite verschwindet wegen \\varphi(x) = \\varphi(-x) das zweite, vierte etc. Glied, während von dem ersten, dritten, fünften etc. Gliede jedes folgende gegen das vorhergehende sehr klein ist. Wir erhalten aus dieser Gleichung, indem wir berücksichtigen, daß und indem wir setzen und nur das erste und dritte Glied der rechten Seite berücksichtigen:"
 inlines:
   - kind: "text"
     text: "Es sei "
@@ -112,13 +112,13 @@ inlines:
     display: true
     equationId: "eq-s4-d8"
   - kind: "text"
-    text: "und indem wir"
+    text: " und indem wir"
   - kind: "math"
     latex: "\\frac{1}{\\tau} \\int_{-\\infty}^{+\\infty} \\frac{\\Delta^2}{2} \\varphi(\\Delta) d \\Delta = D"
     display: true
     equationId: "eq-s4-d9"
   - kind: "text"
-    text: "setzen und nur das erste und dritte Glied der rechten Seite berücksichtigen:"
+    text: " setzen und nur das erste und dritte Glied der rechten Seite berücksichtigen:"
   - kind: "math"
     latex: "\\frac{\\partial f}{\\partial t} = D \\frac{\\partial^2 f}{\\partial x^2}."
     display: true
@@ -128,57 +128,57 @@ sentenceSpans:
     span:
       start: 0
       end: 157
-      blockRevision: 2
-      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
+      blockRevision: 3
+      textDigest: "8eb5017776d30bbf4b96e13cc218b19816db430d5729c9900d6afa11901d332e"
   - id: "s4-p6-s2"
     span:
       start: 158
       end: 366
-      blockRevision: 2
-      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
+      blockRevision: 3
+      textDigest: "8eb5017776d30bbf4b96e13cc218b19816db430d5729c9900d6afa11901d332e"
   - id: "s4-p6-s3"
     span:
       start: 367
       end: 378
-      blockRevision: 2
-      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
+      blockRevision: 3
+      textDigest: "8eb5017776d30bbf4b96e13cc218b19816db430d5729c9900d6afa11901d332e"
   - id: "s4-p6-s4"
     span:
       start: 379
       end: 431
-      blockRevision: 2
-      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
+      blockRevision: 3
+      textDigest: "8eb5017776d30bbf4b96e13cc218b19816db430d5729c9900d6afa11901d332e"
   - id: "s4-p6-s5"
     span:
       start: 432
       end: 496
-      blockRevision: 2
-      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
+      blockRevision: 3
+      textDigest: "8eb5017776d30bbf4b96e13cc218b19816db430d5729c9900d6afa11901d332e"
   - id: "s4-p6-s6"
     span:
       start: 497
       end: 621
-      blockRevision: 2
-      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
+      blockRevision: 3
+      textDigest: "8eb5017776d30bbf4b96e13cc218b19816db430d5729c9900d6afa11901d332e"
   - id: "s4-p6-s8"
     span:
       start: 622
       end: 635
-      blockRevision: 2
-      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
+      blockRevision: 3
+      textDigest: "8eb5017776d30bbf4b96e13cc218b19816db430d5729c9900d6afa11901d332e"
   - id: "s4-p6-s9"
     span:
       start: 636
       end: 840
-      blockRevision: 2
-      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
+      blockRevision: 3
+      textDigest: "8eb5017776d30bbf4b96e13cc218b19816db430d5729c9900d6afa11901d332e"
   - id: "s4-p6-s7"
     span:
       start: 841
-      end: 995
-      blockRevision: 2
-      textDigest: "64a6d425da6b7b10081738f0275692dae2cd795f15b1c51d7ea790bf9d717984"
-revision: 2
+      end: 997
+      blockRevision: 3
+      textDigest: "8eb5017776d30bbf4b96e13cc218b19816db430d5729c9900d6afa11901d332e"
+revision: 3
 status:
   transcription: "draft"
   mathTranscription: "draft"
