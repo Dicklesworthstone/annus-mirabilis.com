@@ -1,0 +1,23 @@
+# TranslationUnit s0-p2-s1: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s0-p2-s1"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s0-p2-s1"
+inlines:
+  - kind: "text"
+    text: "Examples of a similar kind, together with the unsuccessful attempts to detect a motion of the earth relative to the “light medium”, lead to the conjecture that the concept of absolute rest corresponds to no properties of the phenomena, not only in mechanics but also in electrodynamics, but rather that for all coordinate systems for which the equations of mechanics hold, the same electrodynamic and optical laws also hold, as has already been shown for the quantities of the first order."
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "as has already been proved for the quantities of the first order"
+    rationale: "erwiesen can be read as \"proved\" or as \"shown\"; the paper does not say by whom or how, so the weaker verb is kept in the text."
+reviewState: "machine-draft"
+lang: "en"

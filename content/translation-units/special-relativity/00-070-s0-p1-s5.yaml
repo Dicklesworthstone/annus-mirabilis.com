@@ -1,0 +1,23 @@
+# TranslationUnit s0-p1-s5: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s0-p1-s5"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s0-p1-s5"
+inlines:
+  - kind: "text"
+    text: "But if the magnet is at rest and the conductor moves, no electric field arises in the surroundings of the magnet, but instead there arises in the conductor an electromotive force, to which no energy corresponds in itself, but which — assuming equality of the relative motion in the two cases considered — gives rise to electric currents of the same magnitude and the same course as those produced by the electric forces in the first case."
+translator:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "gives rise to electric currents of the same magnitude and the same course as the electric forces do in the first case"
+    rationale: "The German closes with \"wie im ersten Falle die elektrischen Kräfte\", naming the forces as the cause of the first case's currents without a verb. \"Those produced by\" supplies the relation the elliptical German implies; the alternative keeps the ellipsis closer."
+reviewState: "machine-draft"
+lang: "en"

@@ -1,0 +1,71 @@
+# SourceBlock s0-p1: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s0-p1"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s0"
+order: 3
+locators:
+  - pdfPageIndex: 1
+    printedPage: 891
+diplomaticText: "Daß die Elektrodynamik Maxwells — wie dieselbe gegenwärtig aufgefaßt zu werden pflegt — in ihrer Anwendung auf bewegte Körper zu Asymmetrien führt, welche den Phänomenen nicht anzuhaften scheinen, ist bekannt. Man denke z. B. an die elektrodynamische Wechselwirkung zwischen einem Magneten und einem Leiter. Das beobachtbare Phänomen hängt hier nur ab von der Relativbewegung von Leiter und Magnet, während nach der üblichen Auffassung die beiden Fälle, daß der eine oder der andere dieser Körper der bewegte sei, streng voneinander zu trennen sind. Bewegt sich nämlich der Magnet und ruht der Leiter, so entsteht in der Umgebung des Magneten ein elektrisches Feld von gewissem Energiewerte, welches an den Orten, wo sich Teile des Leiters befinden, einen Strom erzeugt. Ruht aber der Magnet und bewegt sich der Leiter, so entsteht in der Umgebung des Magneten kein elektrisches Feld, dagegen im Leiter eine elektromotorische Kraft, welcher an sich keine Energie entspricht, die aber — Gleichheit der Relativbewegung bei den beiden ins Auge gefaßten Fällen vorausgesetzt — zu elektrischen Strömen von derselben Größe und demselben Verlaufe Veranlassung gibt, wie im ersten Falle die elektrischen Kräfte."
+inlines:
+  - kind: "text"
+    text: "Daß die Elektrodynamik "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Maxwell"
+  - kind: "text"
+    text: "s — wie dieselbe gegenwärtig aufgefaßt zu werden pflegt — in ihrer Anwendung auf bewegte Körper zu Asymmetrien führt, welche den Phänomenen nicht anzuhaften scheinen, ist bekannt."
+  - kind: "space"
+  - kind: "text"
+    text: "Man denke z. B. an die elektrodynamische Wechselwirkung zwischen einem Magneten und einem Leiter."
+  - kind: "space"
+  - kind: "text"
+    text: "Das beobachtbare Phänomen hängt hier nur ab von der Relativbewegung von Leiter und Magnet, während nach der üblichen Auffassung die beiden Fälle, daß der eine oder der andere dieser Körper der bewegte sei, streng voneinander zu trennen sind."
+  - kind: "space"
+  - kind: "text"
+    text: "Bewegt sich nämlich der Magnet und ruht der Leiter, so entsteht in der Umgebung des Magneten ein elektrisches Feld von gewissem Energiewerte, welches an den Orten, wo sich Teile des Leiters befinden, einen Strom erzeugt."
+  - kind: "space"
+  - kind: "text"
+    text: "Ruht aber der Magnet und bewegt sich der Leiter, so entsteht in der Umgebung des Magneten kein elektrisches Feld, dagegen im Leiter eine elektromotorische Kraft, welcher an sich keine Energie entspricht, die aber — Gleichheit der Relativbewegung bei den beiden ins Auge gefaßten Fällen vorausgesetzt — zu elektrischen Strömen von derselben Größe und demselben Verlaufe Veranlassung gibt, wie im ersten Falle die elektrischen Kräfte."
+sentenceSpans:
+  - id: "s0-p1-s1"
+    span:
+      start: 0
+      end: 209
+      blockRevision: 1
+      textDigest: "377c76ba06d566e0c4f90424296ba04b0f48a908fa55bfd275c40ac76a5c6fc9"
+  - id: "s0-p1-s2"
+    span:
+      start: 210
+      end: 307
+      blockRevision: 1
+      textDigest: "377c76ba06d566e0c4f90424296ba04b0f48a908fa55bfd275c40ac76a5c6fc9"
+  - id: "s0-p1-s3"
+    span:
+      start: 308
+      end: 549
+      blockRevision: 1
+      textDigest: "377c76ba06d566e0c4f90424296ba04b0f48a908fa55bfd275c40ac76a5c6fc9"
+  - id: "s0-p1-s4"
+    span:
+      start: 550
+      end: 770
+      blockRevision: 1
+      textDigest: "377c76ba06d566e0c4f90424296ba04b0f48a908fa55bfd275c40ac76a5c6fc9"
+  - id: "s0-p1-s5"
+    span:
+      start: 771
+      end: 1203
+      blockRevision: 1
+      textDigest: "377c76ba06d566e0c4f90424296ba04b0f48a908fa55bfd275c40ac76a5c6fc9"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

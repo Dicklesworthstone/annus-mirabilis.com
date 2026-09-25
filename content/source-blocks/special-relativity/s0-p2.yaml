@@ -1,0 +1,68 @@
+# SourceBlock s0-p2: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s0-p2"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s0"
+order: 4
+locators:
+  - pdfPageIndex: 1
+    printedPage: 891
+  - pdfPageIndex: 2
+    printedPage: 892
+diplomaticText: "Beispiele ähnlicher Art, sowie die mißlungenen Versuche, eine Bewegung der Erde relativ zum „Lichtmedium“ zu konstatieren, führen zu der Vermutung, daß dem Begriffe der absoluten Ruhe nicht nur in der Mechanik, sondern auch in der Elektrodynamik keine Eigenschaften der Erscheinungen entsprechen, sondern daß vielmehr für alle Koordinatensysteme, für welche die mechanischen Gleichungen gelten, auch die gleichen elektrodynamischen und optischen Gesetze gelten, wie dies für die Größen erster Ordnung bereits erwiesen ist. Wir wollen diese Vermutung (deren Inhalt im folgenden „Prinzip der Relativität“ genannt werden wird) zur Voraussetzung erheben und außerdem die mit ihm nur scheinbar unverträgliche Voraussetzung einführen, daß sich das Licht im leeren Raume stets mit einer bestimmten, vom Bewegungszustande des emittierenden Körpers unabhängigen Geschwindigkeit V fortpflanze. Diese beiden Voraussetzungen genügen, um zu einer einfachen und widerspruchsfreien Elektrodynamik bewegter Körper zu gelangen unter Zugrundelegung der Maxwellschen Theorie für ruhende Körper. Die Einführung eines „Lichtäthers“ wird sich insofern als überflüssig erweisen, als nach der zu entwickelnden Auffassung weder ein mit besonderen Eigenschaften ausgestatteter „absolut ruhender Raum“ eingeführt, noch einem Punkte des leeren Raumes, in welchem elektromagnetische Prozesse stattfinden, ein Geschwindigkeitsvektor zugeordnet wird."
+inlines:
+  - kind: "text"
+    text: "Beispiele ähnlicher Art, sowie die mißlungenen Versuche, eine Bewegung der Erde relativ zum „Lichtmedium“ zu konstatieren, führen zu der Vermutung, daß dem Begriffe der absoluten Ruhe nicht nur in der Mechanik, sondern auch in der Elektrodynamik keine Eigenschaften der Erscheinungen entsprechen, sondern daß vielmehr für alle Koordinatensysteme, für welche die mechanischen Gleichungen gelten, auch die gleichen elektrodynamischen und optischen Gesetze gelten, wie dies für die Größen erster Ordnung bereits erwiesen ist."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir wollen diese Vermutung (deren Inhalt im folgenden „Prinzip der Relativität“ genannt werden wird) zur Voraussetzung erheben und außerdem die mit ihm nur scheinbar unverträgliche Voraussetzung einführen, daß sich das Licht im leeren Raume stets mit einer bestimmten, vom Bewegungszustande des emittierenden Körpers unabhängigen Geschwindigkeit "
+  - kind: "math"
+    latex: "V"
+  - kind: "text"
+    text: " fortpflanze."
+  - kind: "space"
+  - kind: "text"
+    text: "Diese beiden Voraussetzungen genügen, um zu einer einfachen und widerspruchsfreien Elektrodynamik bewegter Körper zu gelangen unter Zugrundelegung der "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Maxwell"
+  - kind: "text"
+    text: "schen Theorie für ruhende Körper."
+  - kind: "space"
+  - kind: "text"
+    text: "Die Einführung eines „Lichtäthers“ wird sich insofern als überflüssig erweisen, als nach der zu entwickelnden Auffassung weder ein mit besonderen Eigenschaften ausgestatteter „absolut ruhender Raum“ eingeführt, noch einem Punkte des leeren Raumes, in welchem elektromagnetische Prozesse stattfinden, ein Geschwindigkeitsvektor zugeordnet wird."
+sentenceSpans:
+  - id: "s0-p2-s1"
+    span:
+      start: 0
+      end: 522
+      blockRevision: 1
+      textDigest: "2ff87a105155f28c4fc1d96d5205cfee5be5c847ed4ada988513d2511ba31717"
+  - id: "s0-p2-s2"
+    span:
+      start: 523
+      end: 883
+      blockRevision: 1
+      textDigest: "2ff87a105155f28c4fc1d96d5205cfee5be5c847ed4ada988513d2511ba31717"
+  - id: "s0-p2-s3"
+    span:
+      start: 884
+      end: 1075
+      blockRevision: 1
+      textDigest: "2ff87a105155f28c4fc1d96d5205cfee5be5c847ed4ada988513d2511ba31717"
+  - id: "s0-p2-s4"
+    span:
+      start: 1076
+      end: 1419
+      blockRevision: 1
+      textDigest: "2ff87a105155f28c4fc1d96d5205cfee5be5c847ed4ada988513d2511ba31717"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

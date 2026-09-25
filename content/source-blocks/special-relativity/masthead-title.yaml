@@ -1,0 +1,28 @@
+# SourceBlock masthead-title: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "masthead-title"
+kind: "masthead"
+paper: "special-relativity"
+order: 1
+locators:
+  - pdfPageIndex: 1
+    printedPage: 891
+diplomaticText: "Zur Elektrodynamik bewegter Körper;"
+inlines:
+  - kind: "text"
+    text: "Zur Elektrodynamik bewegter Körper;"
+sentenceSpans:
+  - id: "masthead-title"
+    span:
+      start: 0
+      end: 35
+      blockRevision: 1
+      textDigest: "bd613c5b45d24af19c55b0e0ce72f649c7db7ac83e37dd241bdcd035fdc64f1c"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"
