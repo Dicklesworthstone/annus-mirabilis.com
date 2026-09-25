@@ -21,6 +21,7 @@ import {
 import { loadBilingualEdition } from "./faces/bilingualLoader.ts";
 import { missingGermanSections } from "./faces/editionCoverage.ts";
 import type { FaceId } from "./faces/registry.ts";
+import { paperSectionIds } from "./paperSections.ts";
 
 export interface PaperSourceFaces {
   readonly availability: Readonly<Record<FaceId, FaceAvailability>>;
@@ -85,7 +86,10 @@ export async function paperSourceFaces(paperId: string): Promise<PaperSourceFace
     germanIsDraft: !editionBlocksReviewed(blocks),
     germanIsPartial:
       rendersEdition &&
-      missingGermanSections(edition?.paper.sections.map((s) => s.id) ?? [], blocks).length > 0,
+      missingGermanSections(
+        paperSectionIds(paperId, edition?.paper.sections.map((s) => s.id) ?? []),
+        blocks,
+      ).length > 0,
     germanAnchors: anchors,
     englishSectionFragment: (section) => {
       const id = firstUnit.get(section);

@@ -64,6 +64,7 @@ import {
   paperPath,
   resolvePaperRoute,
 } from "./paperRoutes.ts";
+import { paperSectionIds } from "./paperSections.ts";
 import { originalHref, paperSourceFaces } from "./paperSourceFaces.ts";
 import { PaperStatus } from "./paperStatus.tsx";
 import { passageKind } from "./passageKind.ts";
@@ -149,7 +150,10 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                 sectionId={resolved.section}
                 notice={editionGermanNotice(blocks)}
                 missingSections={missingGermanSections(
-                  edition.paper.sections.map((s) => s.id),
+                  paperSectionIds(
+                    resolved.paperId,
+                    edition.paper.sections.map((s) => s.id),
+                  ),
                   blocks,
                 )}
                 untranscribedPages={ledgerGaps(resolved.paperId as RouteSlug)?.untranscribed ?? []}
@@ -231,7 +235,10 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         // The sections no translation unit reaches yet, named on the English and parallel faces so
         // an edition that arrives a section at a time is not read as the whole paper.
         const untranslated = untranslatedSections(
-          edition.paper.sections.map((s) => s.id),
+          paperSectionIds(
+            resolved.paperId,
+            edition.paper.sections.map((s) => s.id),
+          ),
           edition.blocks,
           edition.units,
         );

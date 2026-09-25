@@ -17,6 +17,7 @@ import {
 import { spanTextDigest } from "../../content/schemas/spans.ts";
 import { FIXTURE_MASS_ENERGY_PAPER } from "../../testing/fixtures/bilingual/massEnergyGlossFixture.ts";
 import { PaperPage } from "../PaperPage.tsx";
+import { paperSectionIds } from "../paperSections.ts";
 import { loadBilingualEdition } from "./bilingualLoader.ts";
 import { EnglishFace } from "./EnglishFace.tsx";
 import {
@@ -260,22 +261,56 @@ describe("the German face of an unreviewed, partial edition (a paper with no led
   });
 });
 
-describe("live: light quanta, translated a section at a time", () => {
-  test("its English face names exactly the sections no unit reaches, or none once all are", async () => {
-    // A property, so it holds as sections land: the notice follows the edition's own coverage.
-    const edition = await loadBilingualEdition("light-quanta");
-    expect(edition?.units.length ?? 0).toBeGreaterThan(0);
-    if (!edition) return;
-    const expected = untranslatedSections(
-      edition.paper.sections.map((s) => s.id),
-      edition.blocks,
-      edition.units,
+describe("a paper's sections come from its manifest, not its explanation record", () => {
+  test("every printed section, in order, closings aside; the explanation's list only as fallback", () => {
+    // Brownian motion's explanation record has no § 3; its manifest has every printed section.
+    expect(paperSectionIds("brownian-motion", ["s0", "s1", "s2", "s4", "s5"])).toEqual([
+      "s0",
+      "s1",
+      "s2",
+      "s3",
+      "s4",
+      "s5",
+    ]);
+    expect(paperSectionIds("special-relativity", [])).toEqual(
+      Array.from({ length: 11 }, (_, i) => `s${i}`),
     );
-    const html = renderToStaticMarkup(
-      await PaperPage({ paperId: "light-quanta", face: "english" } as never),
-    );
-    if (expected.length > 0)
-      expect(html).toContain(`data-untranslated-sections="${expected.join(" ")}"`);
-    else expect(html).not.toContain("data-untranslated-sections");
+    // Mass-energy's manifest carries no sections: the fallback stands.
+    expect(paperSectionIds("mass-energy", ["s0"])).toEqual(["s0"]);
+  });
+
+  test("Brownian with only its introduction translated names §§ 1-5, § 3 included", () => {
+    // SapphireCastle's case (mail 40054): the notice read "§§ 1, 2, 4 and 5".
+    const sections = paperSectionIds("brownian-motion", ["s0", "s1", "s2", "s4", "s5"]);
+    const intro = BLOCKS.filter((b) => b.section === "s0");
+    const units = UNITS.filter((u) => u.id.startsWith("s0-"));
+    expect(untranslatedSections(sections, intro, units)).toEqual(["s1", "s2", "s3", "s4", "s5"]);
+    expect(sectionsLabel(untranslatedSections(sections, intro, units))).toBe("§§ 1–5");
+  });
+});
+
+describe("live: each paper translated a section at a time", () => {
+  test("its English face names exactly the printed sections no unit reaches, or none once all are", async () => {
+    // A property, so it holds as sections land: the notice follows the edition's own coverage
+    // and the manifest's sections.
+    let papers = 0;
+    for (const paperId of ["light-quanta", "brownian-motion", "special-relativity"]) {
+      const edition = await loadBilingualEdition(paperId);
+      if (!edition || edition.units.length === 0) continue;
+      papers += 1;
+      const expected = untranslatedSections(
+        paperSectionIds(
+          paperId,
+          edition.paper.sections.map((s) => s.id),
+        ),
+        edition.blocks,
+        edition.units,
+      );
+      const html = renderToStaticMarkup(await PaperPage({ paperId, face: "english" } as never));
+      if (expected.length > 0)
+        expect(html).toContain(`data-untranslated-sections="${expected.join(" ")}"`);
+      else expect(html).not.toContain("data-untranslated-sections");
+    }
+    expect(papers).toBeGreaterThan(0);
   });
 });
