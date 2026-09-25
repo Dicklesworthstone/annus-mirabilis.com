@@ -221,7 +221,7 @@ paragraphs:
     r0: "Einstein asks what these waves are like for an observer at rest in the moving system. With the transformations of sections 6 and 3 they are again plane waves, with a new frequency and a new direction."
   - unit: s7-p3
     passages: [arg-sr-doppler-aberration]
-    r0: "From the new frequency: an observer moving at speed v relative to a very distant source, at an angle φ to the line joining them, receives light whose frequency depends on v and φ in a way Einstein gives exactly, which is Doppler's principle for any speed. When the observer moves straight away from the source the formula becomes a simple square-root ratio, and Einstein remarks that, against the usual view, the frequency becomes infinite for an extreme speed of approach; the page prints that speed as v = −∞."
+    r0: "From the new frequency: an observer moving at speed v relative to a very distant source, at an angle φ to the line joining them, receives light whose frequency depends on v and φ in a way Einstein gives exactly, which is Doppler's principle for any speed. When the observer moves straight away from the source the formula becomes a simple square-root ratio, and Einstein remarks that, against the usual view, the frequency becomes infinite as the observer's speed of approach reaches the speed of light, v = −V. The page misprints that speed as v = −∞."
   - unit: s7-p5
     passages: [arg-sr-doppler-aberration]
     r0: "The new direction gives the law of aberration in its most general form: the angle at which the moving observer receives the light differs from the angle in the source's system, and light arriving at right angles in one system arrives slanted in the other."
