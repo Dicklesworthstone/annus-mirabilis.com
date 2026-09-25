@@ -2,7 +2,7 @@
 # Einstein, Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?, ap-18-639.
 id: "closing-received"
 sentenceId: "closing-received"
-revision: 1
+revision: 2
 sourceRevision: 1
 sourceTextDigest: "30625c646ab1e18f0768e88da3fb4db954ac692b8e68407d4b8c15bfed9e9dc8"
 lang: "en"
@@ -23,4 +23,6 @@ tokens:
     noteClass: "ordinal"
   - german: "September"
     english: "September"
+  - german: "1905"
+    english: "1905"
 multiwordUnits: []
