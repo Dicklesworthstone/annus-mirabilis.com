@@ -706,3 +706,55 @@ describe("Exact Rational Dimension Validator and Semantic Kind Checker", () => {
     }
   });
 });
+
+describe("a quantity the source names without defining it (dispatch 236)", () => {
+  // Zero vectors on purpose: without the undefined-in-source branch in unitSystems.ts, A_m/A_e
+  // would check as a dimensionless ratio equal to v/V and pass, which is exactly the silent result
+  // the status exists to prevent. The control below proves the refusal comes from the status.
+  const ZERO = ["0", "0", "0", "0", "0", "0"];
+  const SPEED = ["1", "0", "-1", "0", "0", "0"];
+  const NAMED: QuantityRegistryMap = {
+    magneticDeflectability: {
+      id: "magneticDeflectability",
+      dimension: ZERO,
+      dimensionStatus: "undefined-in-source",
+    },
+    electricDeflectability: {
+      id: "electricDeflectability",
+      dimension: ZERO,
+      dimensionStatus: "undefined-in-source",
+    },
+    frameSpeed: { id: "frameSpeed", dimension: SPEED },
+    speedOfLight: { id: "speedOfLight", dimension: SPEED },
+    stateVariable: { id: "stateVariable", dimension: ZERO, dimensionStatus: "state-dependent" },
+  };
+  const law = rel(
+    quot(sym("magneticDeflectability"), sym("electricDeflectability")),
+    quot(sym("frameSpeed"), sym("speedOfLight")),
+  );
+
+  it("A_m/A_e = v/V reports an unsupported check naming the reason, never consistent", () => {
+    const res = checkDimensions(law, NAMED);
+    expect(res.status).toBe("unsupported-check");
+    if (res.status !== "unsupported-check") throw new Error("expected unsupported-check");
+    expect(res.reason).toContain("magneticDeflectability");
+    expect(res.reason).toContain("named in the source without a definition");
+  });
+
+  it("control: the same law with the status removed checks consistent", () => {
+    const declared: QuantityRegistryMap = {
+      ...NAMED,
+      magneticDeflectability: { id: "magneticDeflectability", dimension: ZERO },
+      electricDeflectability: { id: "electricDeflectability", dimension: ZERO },
+    };
+    expect(checkDimensions(law, declared).status).toBe("consistent");
+  });
+
+  it("state-dependent keeps its own reason", () => {
+    const res = checkDimensions(sym("stateVariable"), NAMED);
+    expect(res.status).toBe("unsupported-check");
+    if (res.status !== "unsupported-check") throw new Error("expected unsupported-check");
+    expect(res.reason).toContain("state-dependent");
+    expect(res.reason).not.toContain("named in the source");
+  });
+});

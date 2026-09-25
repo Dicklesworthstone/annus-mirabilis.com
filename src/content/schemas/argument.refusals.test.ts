@@ -2008,3 +2008,75 @@ test("argument.refusals: validateObstacleResponses rejects essentialForPrint fie
     validateObstacleResponses({ ...validObstacleResponses, essentialForPrint: true });
   }, "essential-for-print-rejected");
 });
+
+// ============================================================================
+// dimensionStatus "undefined-in-source" (dispatch 236): a quantity the source names but never
+// defines, such as the 1905 paper's A_m and A_e (p. 920), declares no dimension and says why.
+// ============================================================================
+
+const sourceUndefined = {
+  ...validQuantity,
+  id: "magneticDeflectability",
+  dimensionStatus: "undefined-in-source" as const,
+  dimension: undefined,
+  dimensionNote: "Named on p. 920; the paper fixes only that A_m and A_e share a dimension.",
+};
+
+test("argument.refusals: an undefined-in-source quantity validates with a note and no dimension", () => {
+  const q = validateQuantity(sourceUndefined);
+  assert.equal(q.dimensionStatus, "undefined-in-source");
+  assert.equal(q.dimension, undefined);
+  assert.equal(q.dimensionNote, sourceUndefined.dimensionNote);
+});
+
+test("argument.refusals: validateQuantity rejects undefined-in-source without a dimensionNote", () => {
+  for (const dimensionNote of [undefined, "", "   "]) {
+    assertArgumentRefusal(
+      () => validateQuantity({ ...sourceUndefined, dimensionNote }),
+      "undefined-in-source-missing-dimension-note",
+    );
+  }
+});
+
+test("argument.refusals: validateQuantity rejects undefined-in-source declaring a dimension in any unit system", () => {
+  const vector = [0, 1, 0, 0, 0, 0];
+  for (const key of ["dimension", "gaussianDimension", "emuDimension"]) {
+    assertArgumentRefusal(
+      () => validateQuantity({ ...sourceUndefined, [key]: vector }),
+      "undefined-in-source-dimension-declared",
+    );
+  }
+});
+
+test("argument.refusals: validateQuantity rejects undefined-in-source as a constant", () => {
+  assertArgumentRefusal(
+    () => validateQuantity({ ...sourceUndefined, isConstant: true }),
+    "undefined-in-source-cannot-be-constant",
+  );
+});
+
+test("argument.refusals: the new status leaves declared and state-dependent as they were", () => {
+  // A declared quantity still needs its vector: the new branch must not open a way around it.
+  assertArgumentRefusal(
+    () => validateQuantity({ ...validQuantity, dimension: undefined }),
+    "missing-dimension",
+  );
+  // A state-dependent quantity still refuses a missing note under its own code, not the new one.
+  assertArgumentRefusal(
+    () =>
+      validateQuantity({
+        ...validQuantity,
+        dimensionStatus: "state-dependent",
+        dimension: undefined,
+        dimensionNote: "",
+      }),
+    "missing-dimension-note",
+  );
+  const stateDependent = validateQuantity({
+    ...validQuantity,
+    dimensionStatus: "state-dependent",
+    dimension: undefined,
+    dimensionNote: "Temperature dependent",
+  });
+  assert.equal(stateDependent.dimensionNote, "Temperature dependent");
+});

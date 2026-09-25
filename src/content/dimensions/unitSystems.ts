@@ -20,7 +20,12 @@ export interface QuantityDescriptor {
   readonly dimension: readonly string[];
   readonly gaussianDimension?: readonly string[];
   readonly emuDimension?: readonly string[];
-  readonly dimensionStatus?: "exact" | "declared" | "state-dependent" | "unsupported";
+  readonly dimensionStatus?:
+    | "exact"
+    | "declared"
+    | "state-dependent"
+    | "undefined-in-source"
+    | "unsupported";
   readonly semanticKind?: string;
   readonly dimensionlessKind?:
     | "angle"
@@ -62,6 +67,16 @@ export function resolveQuantityDimension(
       ok: false,
       status: "unsupported-check",
       reason: `Quantity '${q.id}' has state-dependent dimensions and requires manual physical review.`,
+    };
+  }
+
+  // A quantity the source names without defining (argument.ts, sourceUndefinedDimensionNote):
+  // there is no dimension to check, and a zero or guessed vector would pass silently.
+  if (q.dimensionStatus === "undefined-in-source") {
+    return {
+      ok: false,
+      status: "unsupported-check",
+      reason: `Quantity '${q.id}' is named in the source without a definition, so its dimension is unknown; the check waits for a sourced definition.`,
     };
   }
 

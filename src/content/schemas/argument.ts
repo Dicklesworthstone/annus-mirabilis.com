@@ -1232,7 +1232,7 @@ export function validateQuantity(
   }
 
   let dimension: RationalDimension | undefined;
-  let dimensionNote: string | undefined;
+  let dimensionNote: string | undefined = sourceUndefinedDimensionNote(o, dimensionStatus, path);
   const isConstant = typeof o.isConstant === "boolean" ? o.isConstant : undefined;
 
   if (dimensionStatus === "state-dependent") {
@@ -1261,7 +1261,7 @@ export function validateQuantity(
         `${path}.isConstant`,
       );
     }
-  } else {
+  } else if (dimensionStatus !== "undefined-in-source") {
     // Declared dimension
     if (o.dimension === undefined) {
       throw new ArgumentSchemaError(
@@ -2998,4 +2998,52 @@ export function checkProofRouteAcyclicity(nodes: readonly ArgumentNode[]): void 
       dfs(node.id);
     }
   }
+}
+
+/**
+ * A quantity the source NAMES but never DEFINES (dispatch 236). Einstein's A_m and A_e, the
+ * magnetic and electric deflectability of p. 920 of the 1905 electrodynamics paper, are named and
+ * tied by the law A_m/A_e = v/V, which fixes only that the two share a dimension, not what it is.
+ * Such a record declares no dimension in any unit system (a guessed one would be checked as if it
+ * were known), says in its dimensionNote where it is named and what the source does fix, and is
+ * never a constant. The dimension checker reports it as an unsupported check
+ * (dimensions/unitSystems.ts), never as consistent.
+ *
+ * Returns the note for this status and undefined for every other. It sits here, below every other
+ * throw site in this file, because tests cite those sites by line and an insertion inside
+ * validateQuantity would move them all.
+ */
+function sourceUndefinedDimensionNote(
+  o: Record<string, unknown>,
+  dimensionStatus: DimensionStatus,
+  path: string,
+): string | undefined {
+  if (dimensionStatus !== "undefined-in-source") return undefined;
+  for (const key of ["dimension", "gaussianDimension", "emuDimension"] as const) {
+    if (o[key] !== undefined) {
+      throw new ArgumentSchemaError(
+        "undefined-in-source-dimension-declared",
+        `A quantity whose dimension the source leaves undefined must not declare ${key}.`,
+        "Quantity",
+        `${path}.${key}`,
+      );
+    }
+  }
+  if (typeof o.dimensionNote !== "string" || !o.dimensionNote.trim()) {
+    throw new ArgumentSchemaError(
+      "undefined-in-source-missing-dimension-note",
+      "A quantity whose dimension the source leaves undefined requires a dimensionNote saying where it is named and what the source fixes.",
+      "Quantity",
+      `${path}.dimensionNote`,
+    );
+  }
+  if (o.isConstant === true) {
+    throw new ArgumentSchemaError(
+      "undefined-in-source-cannot-be-constant",
+      "A quantity whose dimension the source leaves undefined cannot have isConstant: true.",
+      "Quantity",
+      `${path}.isConstant`,
+    );
+  }
+  return o.dimensionNote;
 }

@@ -142,7 +142,7 @@ export const DIMENSIONLESS_KINDS = [
 ] as const;
 export type DimensionlessKind = (typeof DIMENSIONLESS_KINDS)[number];
 
-export const DIMENSION_STATUSES = ["declared", "state-dependent"] as const;
+export const DIMENSION_STATUSES = ["declared", "state-dependent", "undefined-in-source"] as const;
 export type DimensionStatus = (typeof DIMENSION_STATUSES)[number];
 
 export const COLOR_ROLES = [
