@@ -7,14 +7,24 @@
   },
   "reviewState": "draft",
   "kind": "historian-margin",
-  "claim": "The equation \\(E=mc^2\\) does not appear in the paper. Its three pages state a change: a body that gives off the energy \\(L\\) as radiation loses the mass \\(L/V^2\\), with \\(V\\) the speed of light, and the paper prints the conversion \\(L/9\\cdot10^{20}\\) for energy in erg and mass in grams (p. 641). It gives no body a total energy equal to its mass times \\(V^2\\): its energies are fixed only up to arbitrary additive constants (pp. 640–641).",
+  "claim": "The equation \\(E=mc^2\\) does not appear in the paper. Its three pages state a change: a body that gives off the energy \\(L\\) as radiation loses the mass \\(L/V^2\\), with \\(V\\) the speed of light, and the paper prints the conversion \\(L/9\\cdot10^{20}\\) for energy in erg and mass in grams (p. 641). It gives no body a total energy equal to its mass times \\(V^2\\): its energies are fixed only up to arbitrary additive constants (pp. 640–641). Einstein's own later papers take the next steps. In 1906 he wrote that the contradiction he was examining disappears if every energy \\(E\\) is given the inertia \\(E/V^2\\) (p. 629). In 1907 he wrote the energy of a mass point of mass \\(\\mu\\) moving with speed \\(v\\) as \\(\\mu V^2/\\sqrt{1-(v/V)^2}\\), and concluded that a system of mass points in uniform motion can be replaced, as regards its energy, by a single mass point of mass \\(\\mu=E_0/V^2\\), where \\(E_0\\) is the system's energy at rest (pp. 383–384). The familiar string \\(E=mc^2\\) uses letters these papers do not.",
   "sourceSupport": [
     {
       "citationId": "cit-einstein-1905-inertia",
       "locator": "pp. 639–641",
       "role": "primary"
+    },
+    {
+      "citationId": "cit-einstein-1906-center-of-mass",
+      "locator": "p. 629",
+      "role": "primary"
+    },
+    {
+      "citationId": "cit-einstein-1907-inertia",
+      "locator": "pp. 383–384",
+      "role": "primary"
     }
   ],
   "affectedIds": ["s0-p12", "s0-p13"],
-  "evidence": "Checked by agent:NavyKite on 2026-09-24. The pinned plates of pp. 639, 640 and 641 (public/papers/pdfs/ap-18-639.pdf) were read by eye: no equation of the form E = mc² is printed on any of them. The mass statement reads 'verkleinert sich seine Masse um L/V²' and the conversion 'L/9.10²⁰' (p. 641); the arbitrary additive constants are 'der willkürlichen additiven Konstanten der Energien H und E' (pp. 640–641). Bibliographic data checked against Crossref (10.1002/andp.19053231314: Annalen der Physik vol. 323, the fourth series' vol. 18, pp. 639–641). Where the familiar form first appears is not stated here: the plan places it in 1907 and later, and that has not yet been checked against the 1907 texts."
+  "evidence": "Checked by agent:NavyKite on 2026-09-24. The pinned plates of pp. 639, 640 and 641 (public/papers/pdfs/ap-18-639.pdf) were read by eye: no equation of the form E = mc² is printed on any of them. The mass statement reads 'verkleinert sich seine Masse um L/V²' and the conversion 'L/9.10²⁰' (p. 641); the arbitrary additive constants are 'der willkürlichen additiven Konstanten der Energien H und E' (pp. 640–641). Bibliographic data checked against Crossref (10.1002/andp.19053231314: Annalen der Physik vol. 323, the fourth series' vol. 18, pp. 639–641). Einstein 1906, p. 629, read by eye on the Internet Archive scan annalenderphysi115unkngoog (leaf n692): 'Setzt man jedoch voraus, daß jeglicher Energie E die Trägheit E/V² zukomme, so verschwindet der Widerspruch mit den Elementen der Mechanik.' Einstein 1907, pp. 383–384, read by eye on the Internet Archive scan annalenderphysi50unkngoog (leaves n400 and n401): the energy of a moving mass point, ε = μV² · 1/√(1 − (v/V)²), and the replacement of a system of uniformly moving mass points by 'einen einzigen Massenpunkt von der Masse μ = E0/V²'; dated Bern, Mai 1907, received 14 May 1907; p. 371, read the same way, restates the 1905 rule as ΔE going with ΔE/V². Bibliographic data checked against Crossref (10.1002/andp.19073280713: vol. 328, the fourth series' vol. 23, pp. 371–384). The record does not say where E = mc² was first printed by anyone, which has not been checked, and the 1907 review in the Jahrbuch der Radioaktivität und Elektronik was not read."
 }
