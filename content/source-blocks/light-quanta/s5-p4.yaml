@@ -1,0 +1,77 @@
+# SourceBlock s5-p4: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s5-p4"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s5"
+order: 70
+locators:
+  - pdfPageIndex: 10
+    printedPage: 141
+diplomaticText: "Dem betrachteten System, welches z. B. ein ideales Gas oder eine verdünnte Lösung sein kann, kommt eine gewisse Entropie S_0 zu. Wir denken uns einen Teil des Volumens v_0 von der Größe v und alle n beweglichen Punkte in das Volumen v versetzt, ohne daß an dem System sonst etwas geändert wird. Diesem Zustand kommt offenbar ein anderer Wert der Entropie (S) zu, und wir wollen nun die Entropiedifferenz mit Hilfe des Boltzmannschen Prinzips bestimmen."
+inlines:
+  - kind: "text"
+    text: "Dem betrachteten System, welches z. B. ein ideales Gas oder eine verdünnte Lösung sein kann, kommt eine gewisse Entropie "
+  - kind: "math"
+    latex: "S_0"
+  - kind: "text"
+    text: " zu."
+  - kind: "space"
+  - kind: "text"
+    text: "Wir denken uns einen Teil des Volumens "
+  - kind: "math"
+    latex: "v_0"
+  - kind: "text"
+    text: " von der Größe "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " und alle "
+  - kind: "math"
+    latex: "n"
+  - kind: "text"
+    text: " beweglichen Punkte in das Volumen "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " versetzt, ohne daß an dem System sonst etwas geändert wird."
+  - kind: "space"
+  - kind: "text"
+    text: "Diesem Zustand kommt offenbar ein anderer Wert der Entropie "
+  - kind: "math"
+    latex: "(S)"
+  - kind: "text"
+    text: " zu, und wir wollen nun die Entropiedifferenz mit Hilfe des "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Boltzmann"
+  - kind: "text"
+    text: "schen Prinzips bestimmen."
+sentenceSpans:
+  - id: "s5-p4-s1"
+    span:
+      start: 0
+      end: 128
+      blockRevision: 1
+      textDigest: "e0ee6c550b3d5ea799617cd3684938f8b6f20af035851c691d6c9b69704f6cc2"
+  - id: "s5-p4-s2"
+    span:
+      start: 129
+      end: 294
+      blockRevision: 1
+      textDigest: "e0ee6c550b3d5ea799617cd3684938f8b6f20af035851c691d6c9b69704f6cc2"
+  - id: "s5-p4-s3"
+    span:
+      start: 295
+      end: 452
+      blockRevision: 1
+      textDigest: "e0ee6c550b3d5ea799617cd3684938f8b6f20af035851c691d6c9b69704f6cc2"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

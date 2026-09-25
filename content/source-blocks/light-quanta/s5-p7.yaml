@@ -1,0 +1,50 @@
+# SourceBlock s5-p7: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s5-p7"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s5"
+order: 71
+locators:
+  - pdfPageIndex: 11
+    printedPage: 142
+diplomaticText: "Wir fragen: Wie groß ist die Wahrscheinlichkeit des letzterwähnten Zustandes relativ zum ursprünglichen? Oder: Wie groß ist die Wahrscheinlichkeit dafür, daß sich in einem zufällig herausgegriffenen Zeitmoment alle n in einem gegebenen Volumen v_0 unabhängig voneinander beweglichen Punkte (zufällig) in dem Volumen v befinden?"
+inlines:
+  - kind: "text"
+    text: "Wir fragen: Wie groß ist die Wahrscheinlichkeit des letzterwähnten Zustandes relativ zum ursprünglichen?"
+  - kind: "space"
+  - kind: "text"
+    text: "Oder: Wie groß ist die Wahrscheinlichkeit dafür, daß sich in einem zufällig herausgegriffenen Zeitmoment alle "
+  - kind: "math"
+    latex: "n"
+  - kind: "text"
+    text: " in einem gegebenen Volumen "
+  - kind: "math"
+    latex: "v_0"
+  - kind: "text"
+    text: " unabhängig voneinander beweglichen Punkte (zufällig) in dem Volumen "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " befinden?"
+sentenceSpans:
+  - id: "s5-p7-s1"
+    span:
+      start: 0
+      end: 104
+      blockRevision: 1
+      textDigest: "3b606020be0956f532571cb8242b774c6c5e17419e25fb33df61c22aa8bd963a"
+  - id: "s5-p7-s2"
+    span:
+      start: 105
+      end: 327
+      blockRevision: 1
+      textDigest: "3b606020be0956f532571cb8242b774c6c5e17419e25fb33df61c22aa8bd963a"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

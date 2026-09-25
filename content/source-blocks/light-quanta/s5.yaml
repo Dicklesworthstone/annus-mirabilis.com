@@ -1,0 +1,29 @@
+# SourceBlock s5: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s5"
+kind: "heading"
+paper: "light-quanta"
+section: "s5"
+order: 59
+locators:
+  - pdfPageIndex: 9
+    printedPage: 140
+diplomaticText: "§ 5. Molekulartheoretische Untersuchung der Abhängigkeit der Entropie von Gasen und verdünnten Lösungen vom Volumen."
+inlines:
+  - kind: "text"
+    text: "§ 5. Molekulartheoretische Untersuchung der Abhängigkeit der Entropie von Gasen und verdünnten Lösungen vom Volumen."
+sentenceSpans:
+  - id: "s5"
+    span:
+      start: 0
+      end: 116
+      blockRevision: 1
+      textDigest: "1cad7b5d59c9f6bd0f8a52afae57d7e6e5f8ea72f8add7568327381eab03f3aa"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,62 @@
+# SourceBlock s5-p1: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s5-p1"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s5"
+order: 60
+locators:
+  - pdfPageIndex: 9
+    printedPage: 140
+diplomaticText: "Bei Berechnung der Entropie auf molekulartheoretischem Wege wird häufig das Wort „Wahrscheinlichkeit“ in einer Bedeutung angewendet, die sich nicht mit der Definition der Wahrscheinlichkeit deckt, wie sie in der Wahrscheinlichkeitsrechnung gegeben wird. Insbesondere werden die „Fälle gleicher Wahrscheinlichkeit“ häufig hypothetisch festgesetzt in Fällen, wo die angewendeten theoretischen Bilder bestimmt genug sind, um statt jener hypothetischen Festsetzung eine Deduktion zu geben. Ich will in einer besonderen Arbeit zeigen, daß man bei Betrachtungen über thermische Vorgänge mit der sogenannten „statistischen Wahrscheinlichkeit“ vollkommen auskommt und hoffe dadurch eine logische Schwierigkeit zu beseitigen, welche der Durchführung des Boltzmannschen Prinzips noch im Wege steht. Hier aber soll nur dessen allgemeine Formulierung und dessen Anwendung auf ganz spezielle Fälle gegeben werden."
+inlines:
+  - kind: "text"
+    text: "Bei Berechnung der Entropie auf molekulartheoretischem Wege wird häufig das Wort „Wahrscheinlichkeit“ in einer Bedeutung angewendet, die sich nicht mit der Definition der Wahrscheinlichkeit deckt, wie sie in der Wahrscheinlichkeitsrechnung gegeben wird."
+  - kind: "space"
+  - kind: "text"
+    text: "Insbesondere werden die „Fälle gleicher Wahrscheinlichkeit“ häufig hypothetisch festgesetzt in Fällen, wo die angewendeten theoretischen Bilder bestimmt genug sind, um statt jener hypothetischen Festsetzung eine Deduktion zu geben."
+  - kind: "space"
+  - kind: "text"
+    text: "Ich will in einer besonderen Arbeit zeigen, daß man bei Betrachtungen über thermische Vorgänge mit der sogenannten „statistischen Wahrscheinlichkeit“ vollkommen auskommt und hoffe dadurch eine logische Schwierigkeit zu beseitigen, welche der Durchführung des "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Boltzmann"
+  - kind: "text"
+    text: "schen Prinzips noch im Wege steht."
+  - kind: "space"
+  - kind: "text"
+    text: "Hier aber soll nur dessen allgemeine Formulierung und dessen Anwendung auf ganz spezielle Fälle gegeben werden."
+sentenceSpans:
+  - id: "s5-p1-s1"
+    span:
+      start: 0
+      end: 253
+      blockRevision: 1
+      textDigest: "7c44602041351ec1c4dee360e34e83d630ac82a5ff63afe63d41c4f98826ff1d"
+  - id: "s5-p1-s2"
+    span:
+      start: 254
+      end: 485
+      blockRevision: 1
+      textDigest: "7c44602041351ec1c4dee360e34e83d630ac82a5ff63afe63d41c4f98826ff1d"
+  - id: "s5-p1-s3"
+    span:
+      start: 486
+      end: 788
+      blockRevision: 1
+      textDigest: "7c44602041351ec1c4dee360e34e83d630ac82a5ff63afe63d41c4f98826ff1d"
+  - id: "s5-p1-s4"
+    span:
+      start: 789
+      end: 900
+      blockRevision: 1
+      textDigest: "7c44602041351ec1c4dee360e34e83d630ac82a5ff63afe63d41c4f98826ff1d"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

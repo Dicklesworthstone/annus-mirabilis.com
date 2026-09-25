@@ -1,0 +1,73 @@
+# SourceBlock s5-p3: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s5-p3"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s5"
+order: 69
+locators:
+  - pdfPageIndex: 10
+    printedPage: 141
+diplomaticText: "Wir behandeln zunächst folgenden Spezialfall. In einem Volumen v_0 sei eine Anzahl (n) beweglicher Punkte (z. B. Moleküle) vorhanden, auf welche sich unsere Überlegung beziehen soll. Außer diesen können in dem Raume noch beliebig viele andere bewegliche Punkte irgendwelcher Art vorhanden sein. Über das Gesetz, nach dem sich die betrachteten Punkte in dem Raume bewegen, sei nichts vorausgesetzt, als daß in bezug auf diese Bewegung kein Raumteil (und keine Richtung) von den anderen ausgezeichnet sei. Die Anzahl der betrachteten (ersterwähnten) beweglichen Punkte sei ferner so klein, daß von einer Wirkung der Punkte aufeinander abgesehen werden kann."
+inlines:
+  - kind: "text"
+    text: "Wir behandeln zunächst folgenden Spezialfall."
+  - kind: "space"
+  - kind: "text"
+    text: "In einem Volumen "
+  - kind: "math"
+    latex: "v_0"
+  - kind: "text"
+    text: " sei eine Anzahl "
+  - kind: "math"
+    latex: "(n)"
+  - kind: "text"
+    text: " beweglicher Punkte (z. B. Moleküle) vorhanden, auf welche sich unsere Überlegung beziehen soll."
+  - kind: "space"
+  - kind: "text"
+    text: "Außer diesen können in dem Raume noch beliebig viele andere bewegliche Punkte irgendwelcher Art vorhanden sein."
+  - kind: "space"
+  - kind: "text"
+    text: "Über das Gesetz, nach dem sich die betrachteten Punkte in dem Raume bewegen, sei nichts vorausgesetzt, als daß in bezug auf diese Bewegung kein Raumteil (und keine Richtung) von den anderen ausgezeichnet sei."
+  - kind: "space"
+  - kind: "text"
+    text: "Die Anzahl der betrachteten (ersterwähnten) beweglichen Punkte sei ferner so klein, daß von einer Wirkung der Punkte aufeinander abgesehen werden kann."
+sentenceSpans:
+  - id: "s5-p3-s1"
+    span:
+      start: 0
+      end: 45
+      blockRevision: 1
+      textDigest: "77cfb7c4f5f41eef683f3ebdba8b39bde306a2e68882bc028dc313a0f4b38408"
+  - id: "s5-p3-s2"
+    span:
+      start: 46
+      end: 182
+      blockRevision: 1
+      textDigest: "77cfb7c4f5f41eef683f3ebdba8b39bde306a2e68882bc028dc313a0f4b38408"
+  - id: "s5-p3-s3"
+    span:
+      start: 183
+      end: 294
+      blockRevision: 1
+      textDigest: "77cfb7c4f5f41eef683f3ebdba8b39bde306a2e68882bc028dc313a0f4b38408"
+  - id: "s5-p3-s4"
+    span:
+      start: 295
+      end: 503
+      blockRevision: 1
+      textDigest: "77cfb7c4f5f41eef683f3ebdba8b39bde306a2e68882bc028dc313a0f4b38408"
+  - id: "s5-p3-s5"
+    span:
+      start: 504
+      end: 655
+      blockRevision: 1
+      textDigest: "77cfb7c4f5f41eef683f3ebdba8b39bde306a2e68882bc028dc313a0f4b38408"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"
