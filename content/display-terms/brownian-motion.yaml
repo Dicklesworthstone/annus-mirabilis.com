@@ -1,0 +1,50 @@
+# Printed displays of Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von
+# in ruhenden Flüssigkeiten suspendierten Teilchen (ap-17-549), in colour.
+# One entry per display (src/equations/printed/displayTerms.ts reads and checks this file):
+#   latex          a copy of the display's printed LaTeX, byte for byte as its source block has it;
+#   spoken         the authored spoken form, in the letters Einstein printed;
+#   terms          each printed glyph (one letter with its subscripts and decorations) and the exact
+#                  canonical quantity id it binds here; the notation concordance
+#                  (content/notation/brownian-motion.yaml) must agree where it has an entry in the
+#                  display's scope;
+#   notQuantities  glyphs that name no quantity, each with its reason (also allowed once, file-wide).
+# Every letter in a display is bound or declared. Adding an entry needs no code change.
+# Paper 2's own letters: k is the viscosity (never Boltzmann's constant), P the particle radius,
+# ν a number density of particles (an index only in § 2's equations of motion), and φ the
+# transition kernel of § 4.
+paper: brownian-motion
+displays:
+  # § 1. p is the osmotic pressure, V^* the partial volume, z the gram-molecules of solute, n the
+  #   number of suspended particles and ν = n/V^* their number density.
+  - display: eq-s1-d1
+    latex: "p V^* = R T z."
+    spoken: "p times V star equals R T z."
+    terms:
+      - glyph: "p"
+        quantityId: osmoticPressure
+      - glyph: "V^*"
+        quantityId: volume
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "T"
+        quantityId: temperature
+      - glyph: "z"
+        quantityId: soluteAmount
+  - display: eq-s1-d2
+    latex: "p = \\frac{R T}{V^*} \\frac{n}{N} = \\frac{R T}{N} \\cdot \\nu,"
+    spoken: "p equals R T over V star, times n over N; and this equals R T over N, times nu."
+    terms:
+      - glyph: "p"
+        quantityId: osmoticPressure
+      - glyph: "R"
+        quantityId: molarGasConstant
+      - glyph: "T"
+        quantityId: temperature
+      - glyph: "V^*"
+        quantityId: volume
+      - glyph: "n"
+        quantityId: particleCount
+      - glyph: "N"
+        quantityId: avogadroConstant
+      - glyph: "\\nu"
+        quantityId: numberDensity
