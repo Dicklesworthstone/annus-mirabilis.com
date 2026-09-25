@@ -2,6 +2,7 @@
 
 import { type FormEvent, type ReactNode, useId, useState } from "react";
 import { BM02_CAPTION } from "../../experiments/bm02/definition.ts";
+import { validateBm02Parameters } from "../../experiments/bm02/parameters.ts";
 import {
   type Bm02Inputs,
   computeBm02Snapshot,
@@ -10,11 +11,14 @@ import {
   PHI_MAX,
   SUGAR_0P01M_INPUTS,
 } from "../../experiments/bm02/session";
+import { typedOrNaN } from "../../experiments/controls/typedNumber.ts";
 import { executionLabelFor } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
+import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { KEPT_RESULT } from "./keptResult.ts";
 import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
 import { sentenceNumber } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
@@ -51,11 +55,13 @@ function toDraft(inputs: Bm02Inputs): Draft {
 
 function fromDraft(draft: Draft, model: OsmoticModel): Bm02Inputs {
   return {
-    Np: Number(draft.Np),
-    V_um3: Number(draft.V_um3),
-    T: Number(draft.T),
-    a_um: Number(draft.a_um),
-    A_um2: Number(draft.A_um2),
+    // Number("") is 0: a cleared count was 0 particles, accepted without a word. A blank or
+    // partial field now reaches the validator as NaN and is refused by name (dispatch 184).
+    Np: typedOrNaN(draft.Np),
+    V_um3: typedOrNaN(draft.V_um3),
+    T: typedOrNaN(draft.T),
+    a_um: typedOrNaN(draft.a_um),
+    A_um2: typedOrNaN(draft.A_um2),
     model,
     constantSetId: "modern-si-2019",
   };
@@ -190,23 +196,13 @@ export function OsmoticPartitionLab({
   const admitted = "admitted" in snapshot.domain ? snapshot.domain.admitted : false;
 
   function apply(next: Bm02Inputs) {
-    if (
-      !Number.isFinite(next.Np) ||
-      !Number.isFinite(next.V_um3) ||
-      !Number.isFinite(next.T) ||
-      !Number.isFinite(next.a_um) ||
-      !Number.isFinite(next.A_um2)
-    ) {
-      setError("Every field must be a real number. Check for a typo or an empty field.");
+    // One rule for the page and the domain sweep: every field by name, then the declared ranges.
+    const checked = validateBm02Parameters(next);
+    if (checked.kind !== "accepted") {
+      setError(checked.kind === "refused" ? refusalSentence(checked.refusal) : "");
       return;
     }
-    if (!Number.isInteger(next.Np) || next.Np < 0) {
-      setError(
-        `Particle count must be a whole number, zero or more. The nearest admissible values are ${Math.max(0, Math.floor(next.Np))} and ${Math.ceil(Math.max(0, next.Np))}.`,
-      );
-      return;
-    }
-    setAccepted(next);
+    setAccepted(checked.data);
     setError("");
   }
 
@@ -378,7 +374,7 @@ export function OsmoticPartitionLab({
           </fieldset>
           {error && (
             <p id={`${id}-error`} role="alert" className="notice error">
-              {error}
+              {error} {KEPT_RESULT}
             </p>
           )}
         </form>
