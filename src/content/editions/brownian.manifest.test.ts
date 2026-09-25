@@ -829,14 +829,25 @@ describe("brownian source manifest (am-edn-inventory-brownian-slg)", () => {
     const { manifest } = loadManifest();
     const unitMap = new Map(manifest.units.map((u) => [u.id, u]));
 
-    // All 36 units of §§4-5 exist
-    const s4Units = manifest.units.filter((u) => u.section === "s4");
-    // heading, 10 paragraphs, 13 displays (12 unnumbered + 1 numbered), 27 sentences
-    expect(s4Units.length).toBe(51);
-
-    const s5Units = manifest.units.filter((u) => u.section === "s5");
-    // heading, 4 paragraphs, 5 displays, 10 sentences
-    expect(s5Units.length).toBe(20);
+    // §§4-5 are inventoried: each has its heading and paragraphs, every paragraph has sentences, and
+    // every sentence and display hangs off a paragraph of its own section. A report, not a census:
+    // §4 had 51 units (heading, 10 paragraphs, 13 displays, 27 sentences) until s4-p6-s8 and -s9 were
+    // minted on 2026-09-25 (4bc062f1), which made it 53 while nothing here changed; §5 has 20.
+    for (const section of ["s4", "s5"]) {
+      const units = manifest.units.filter((u) => u.section === section);
+      expect(unitMap.get(section)?.kind, `${section} has its heading`).toBe("heading");
+      const paragraphs = units.filter((u) => u.kind === "paragraph").map((u) => u.id);
+      expect(paragraphs.length, `${section} has paragraphs`).toBeGreaterThan(0);
+      for (const p of paragraphs) {
+        expect(
+          units.some((u) => u.kind === "sentence" && u.containedIn === p),
+          `${p} has at least one sentence unit`,
+        ).toBe(true);
+      }
+      for (const u of units.filter((x) => x.kind === "sentence" || x.kind === "display-equation")) {
+        expect(paragraphs, `${u.id} hangs off a paragraph of ${section}`).toContain(u.containedIn);
+      }
+    }
 
     // Introduction conditional statements are segmented into separate sentence IDs
     expect(unitMap.has("s0-p1")).toBe(true);

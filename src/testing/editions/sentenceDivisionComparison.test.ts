@@ -189,12 +189,19 @@ describe("the real corpus: every printed number is pinned", () => {
       }>
     >
   > = {
+    // Re-derived 2026-09-25 from a run after 4bc062f1 minted s2-p4-s6, s4-p6-s8 and s4-p6-s9 (the
+    // plate prints more sentences than the frozen cut listed). agreeing 6 -> 5, differing 6 -> 7,
+    // and the direction is the manifest improving, not drifting: p. 552 went from agreeing (9 = 9)
+    // to differing (manifest 10, proposal 9), because the segmenter does not cut before a sentence
+    // that opens with math ("J ist aber auch ..."), and the manifest now counts that sentence.
+    // p. 557 still differs (manifest 8 -> 10, the plate's count; the proposal's 12 includes two cuts
+    // at "etc."). The heuristic's two weaknesses are now visible here instead of hidden in the ids.
     "brownian-motion": {
       ledgerPages: 12,
       comparable: 12,
       notAvailable: 0,
-      agreeing: 6,
-      differing: 6,
+      agreeing: 5,
+      differing: 7,
       unplaceableManifestUnits: 0,
       unplaceableProposedSentences: 0,
     },
