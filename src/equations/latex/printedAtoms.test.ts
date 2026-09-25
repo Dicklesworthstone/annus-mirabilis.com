@@ -4,7 +4,11 @@
  * of \varphi, the E inside E_0, or a word inside \text{...}.
  */
 import assert from "node:assert/strict";
+import { readdirSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
+import { parseYaml } from "../../content/provenance/yaml.ts";
 import {
   glyphSignature,
   markPrintedLatex,
@@ -99,4 +103,43 @@ test("marks-overlap: overlapping marks are refused", () => {
       ]),
     (e: unknown) => e instanceof PrintedAtomError && e.kind === "marks-overlap",
   );
+});
+
+test("every Greek variant a paper prints in a display is a glyph, so it is bound and coloured", () => {
+  // \varkappa was not in GREEK, so relativity's U = V(2V - ϰ - λ)/... (eq-s5-d7) and Brownian's
+  // eq-s2-d2 printed a ϰ that no binding could name and no check asked for: an unknown command is
+  // read around silently. Kept to the \var... spellings, the class this came from.
+  assert.deepEqual(texts("2 V - \\varkappa - \\lambda"), ["V", "\\varkappa", "\\lambda"]);
+  assert.equal(glyphSignature("\\varkappa") === glyphSignature("\\kappa"), false);
+  const root = join(
+    dirname(fileURLToPath(import.meta.url)),
+    "..",
+    "..",
+    "..",
+    "content",
+    "source-blocks",
+  );
+  const unread: string[] = [];
+  let displays = 0;
+  for (const paper of readdirSync(root)) {
+    const dir = join(root, paper);
+    for (const file of readdirSync(dir).filter((f) => f.startsWith("eq-") && f.endsWith(".yaml"))) {
+      displays += 1;
+      const latex = (
+        parseYaml(readFileSync(join(dir, file), "utf8")) as { diplomaticText?: string }
+      ).diplomaticText;
+      if (typeof latex !== "string") continue;
+      // Read means inside some atom: as its base (\varphi), or as its script label (the \varrho
+      // of E_{\varrho}), where the atom's text is the whole name, not the command alone.
+      const atoms = printedAtoms(latex);
+      for (const match of latex.matchAll(/\\var[a-zA-Z]+/g)) {
+        const at = match.index ?? 0;
+        if (!atoms.some((a) => a.start <= at && at + match[0].length <= a.end))
+          unread.push(`${paper}/${file}: ${match[0]}`);
+      }
+    }
+  }
+  // Non-vacuity, on purpose: the scan read the papers' displays.
+  assert.ok(displays > 100, `read ${displays} display blocks`);
+  assert.deepEqual(unread, []);
 });

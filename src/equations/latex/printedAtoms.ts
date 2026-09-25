@@ -60,6 +60,7 @@ const GREEK = new Set(
     "vartheta",
     "iota",
     "kappa",
+    "varkappa",
     "lambda",
     "mu",
     "nu",
