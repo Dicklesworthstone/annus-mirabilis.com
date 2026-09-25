@@ -1,0 +1,21 @@
+# TranslationUnit s7-p3-s1: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "s7-p3-s1"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "s7-p3-s1"
+inlines:
+  - kind: "text"
+    text: "According to the conception of the phenomena set forth here, deviations from Stokes’s rule are conceivable in the following cases: 1. when the number of energy quanta per unit volume simultaneously undergoing transformation is so large that an energy quantum of the generated light can receive its energy from several generating energy quanta; 2. when the generating (or generated) light does not have the energetic character belonging to a “black radiation” within the range of validity of Wien’s law, that is, when, e.g., the exciting light is produced by a body of so high a temperature that Wien’s law no longer holds for the wavelength in question."
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

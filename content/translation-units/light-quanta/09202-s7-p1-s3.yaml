@@ -1,0 +1,37 @@
+# TranslationUnit s7-p1-s3: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "s7-p1-s3"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "s7-p1-s3"
+inlines:
+  - kind: "text"
+    text: "Each generating energy quantum of frequency "
+  - kind: "math"
+    latex: "\\nu_1"
+  - kind: "text"
+    text: " is absorbed and — at least when the distribution density of the generating energy quanta is sufficiently small — by itself alone gives rise to the production of a light quantum of frequency "
+  - kind: "math"
+    latex: "\\nu_2"
+  - kind: "text"
+    text: "; possibly, in the absorption of the generating light quantum, light quanta of frequencies "
+  - kind: "math"
+    latex: "\\nu_3"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\nu_4"
+  - kind: "text"
+    text: ", etc., as well as energy of other kinds (e.g., heat) may also arise at the same time."
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

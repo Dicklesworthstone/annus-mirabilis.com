@@ -947,3 +947,90 @@ edges:
       sentenceId: "s6-p4-s2"
     target:
       translationUnitId: "s6-p4-s2"
+  - source:
+      paper: "light-quanta"
+      blockId: "s7"
+    target:
+      translationUnitId: "s7"
+  - source:
+      paper: "light-quanta"
+      blockId: "s7-p1"
+      sentenceId: "s7-p1-s1"
+    target:
+      translationUnitId: "s7-p1-s1"
+  - source:
+      paper: "light-quanta"
+      blockId: "s7-p1"
+      sentenceId: "s7-p1-s2"
+    target:
+      translationUnitId: "s7-p1-s2"
+  - source:
+      paper: "light-quanta"
+      blockId: "s7-p1"
+      sentenceId: "s7-p1-s3"
+    target:
+      translationUnitId: "s7-p1-s3"
+  - source:
+      paper: "light-quanta"
+      blockId: "s7-p1"
+      sentenceId: "s7-p1-s4"
+    target:
+      translationUnitId: "s7-p1-s4"
+  - source:
+      paper: "light-quanta"
+      blockId: "s7-p1"
+      sentenceId: "s7-p1-s5"
+    target:
+      translationUnitId: "s7-p1-s5a"
+  - source:
+      paper: "light-quanta"
+      blockId: "eq-s7-d1"
+    target:
+      translationUnitId: "eq-s7-d1"
+  - source:
+      paper: "light-quanta"
+      blockId: "s7-p1"
+      sentenceId: "s7-p1-s5"
+    target:
+      translationUnitId: "s7-p1-s5b"
+  - source:
+      paper: "light-quanta"
+      blockId: "eq-s7-d2"
+    target:
+      translationUnitId: "eq-s7-d2"
+  - source:
+      paper: "light-quanta"
+      blockId: "s7-p1"
+      sentenceId: "s7-p1-s6"
+    target:
+      translationUnitId: "s7-p1-s6"
+  - source:
+      paper: "light-quanta"
+      blockId: "s7-p2"
+      sentenceId: "s7-p2-s1"
+    target:
+      translationUnitId: "s7-p2-s1"
+  - source:
+      paper: "light-quanta"
+      blockId: "s7-p2"
+      sentenceId: "s7-p2-s2"
+    target:
+      translationUnitId: "s7-p2-s2"
+  - source:
+      paper: "light-quanta"
+      blockId: "s7-p3"
+      sentenceId: "s7-p3-s1"
+    target:
+      translationUnitId: "s7-p3-s1"
+  - source:
+      paper: "light-quanta"
+      blockId: "s7-p4"
+      sentenceId: "s7-p4-s1"
+    target:
+      translationUnitId: "s7-p4-s1"
+  - source:
+      paper: "light-quanta"
+      blockId: "s7-p4"
+      sentenceId: "s7-p4-s2"
+    target:
+      translationUnitId: "s7-p4-s2"

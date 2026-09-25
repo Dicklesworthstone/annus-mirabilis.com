@@ -1,0 +1,23 @@
+# TranslationUnit s7-p1-s5a: English machine-draft translation.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+kind: "translation-unit"
+id: "s7-p1-s5a"
+paper: "light-quanta"
+sourceRefs:
+  - paper: "light-quanta"
+    id: "s7-p1-s5"
+inlines:
+  - kind: "text"
+    text: "If the photoluminescent substance is not to be regarded as a permanent source of energy, then by the energy principle the energy of a generated energy quantum cannot be greater than that of a generating light quantum; the following relation must therefore hold:"
+translator:
+  id: "agent:NavyKite"
+  name: "NavyKite (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "the following designation must therefore hold"
+    rationale: "The plate prints Bezeichnung (designation) where the sense requires Beziehung (relation), recorded in docs/provenance/ap-17-132.md as typo-bezeichnung-p144. The English gives the sense; this is the printed word."
+reviewState: "machine-draft"
+lang: "en"
