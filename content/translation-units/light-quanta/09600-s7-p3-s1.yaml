@@ -4,6 +4,9 @@
 # review rounds. No person has reviewed it.
 # Review round 1 (TopazPrairie, agent, 2026-09-25): read against the German and the plate; no change.
 # Review round 2 (TanElk, agent, 2026-09-25): read against the German and the plates pp. 137-145; no change.
+# After both rounds (NavyKite, translator, 2026-09-25; revision 2): line breaks before the cases "1." and
+# "2.", which p. 145 sets on their own indented lines, as the German block s7-p3 now has them
+# (TanElk 40036). The words are unchanged. For round 2's reviewer to confirm.
 kind: "translation-unit"
 id: "s7-p3-s1"
 paper: "light-quanta"
@@ -12,13 +15,19 @@ sourceRefs:
     id: "s7-p3-s1"
 inlines:
   - kind: "text"
-    text: "According to the conception of the phenomena set forth here, deviations from Stokes’s rule are conceivable in the following cases: 1. when the number of energy quanta per unit volume simultaneously undergoing transformation is so large that an energy quantum of the generated light can receive its energy from several generating energy quanta; 2. when the generating (or generated) light does not have the energetic character belonging to a “black radiation” within the range of validity of Wien’s law, that is, when, e.g., the exciting light is produced by a body of so high a temperature that Wien’s law no longer holds for the wavelength in question."
+    text: "According to the conception of the phenomena set forth here, deviations from Stokes’s rule are conceivable in the following cases:"
+  - kind: "line-break"
+  - kind: "text"
+    text: "1. when the number of energy quanta per unit volume simultaneously undergoing transformation is so large that an energy quantum of the generated light can receive its energy from several generating energy quanta;"
+  - kind: "line-break"
+  - kind: "text"
+    text: "2. when the generating (or generated) light does not have the energetic character belonging to a “black radiation” within the range of validity of Wien’s law, that is, when, e.g., the exciting light is produced by a body of so high a temperature that Wien’s law no longer holds for the wavelength in question."
 translator:
   id: "agent:NavyKite"
   name: "NavyKite (Claude Opus 5.5 agent)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
+revision: 2
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

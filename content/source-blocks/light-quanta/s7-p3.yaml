@@ -9,7 +9,7 @@ order: 96
 locators:
   - pdfPageIndex: 14
     printedPage: 145
-diplomaticText: "Abweichungen von der Stokesschen Regel sind nach der dargelegten Auffassung der Phänomene in folgenden Fällen denkbar: 1. wenn die Anzahl der gleichzeitig in Umwandlung begriffenen Energiequanten pro Volumeneinheit so groß ist, daß ein Energiequant des erzeugten Lichtes seine Energie von mehreren erzeugenden Energiequanten erhalten kann; 2. wenn das erzeugende (oder erzeugte) Licht nicht von derjenigen energetischen Beschaffenheit ist, die einer „schwarzen Strahlung“ aus dem Gültigkeitsbereich des Wienschen Gesetzes zukommt, wenn also z. B. das erregende Licht von einem Körper so hoher Temperatur erzeugt ist, daß für die in Betracht kommende Wellenlänge das Wiensche Gesetz nicht mehr gilt."
+diplomaticText: "Abweichungen von der Stokesschen Regel sind nach der dargelegten Auffassung der Phänomene in folgenden Fällen denkbar:\u000a1. wenn die Anzahl der gleichzeitig in Umwandlung begriffenen Energiequanten pro Volumeneinheit so groß ist, daß ein Energiequant des erzeugten Lichtes seine Energie von mehreren erzeugenden Energiequanten erhalten kann;\u000a2. wenn das erzeugende (oder erzeugte) Licht nicht von derjenigen energetischen Beschaffenheit ist, die einer „schwarzen Strahlung“ aus dem Gültigkeitsbereich des Wienschen Gesetzes zukommt, wenn also z. B. das erregende Licht von einem Körper so hoher Temperatur erzeugt ist, daß für die in Betracht kommende Wellenlänge das Wiensche Gesetz nicht mehr gilt."
 inlines:
   - kind: "text"
     text: "Abweichungen von der "
@@ -18,7 +18,13 @@ inlines:
       - kind: "text"
         text: "Stokes"
   - kind: "text"
-    text: "schen Regel sind nach der dargelegten Auffassung der Phänomene in folgenden Fällen denkbar: 1. wenn die Anzahl der gleichzeitig in Umwandlung begriffenen Energiequanten pro Volumeneinheit so groß ist, daß ein Energiequant des erzeugten Lichtes seine Energie von mehreren erzeugenden Energiequanten erhalten kann; 2. wenn das erzeugende (oder erzeugte) Licht nicht von derjenigen energetischen Beschaffenheit ist, die einer „schwarzen Strahlung“ aus dem Gültigkeitsbereich des "
+    text: "schen Regel sind nach der dargelegten Auffassung der Phänomene in folgenden Fällen denkbar:"
+  - kind: "line-break"
+  - kind: "text"
+    text: "1. wenn die Anzahl der gleichzeitig in Umwandlung begriffenen Energiequanten pro Volumeneinheit so groß ist, daß ein Energiequant des erzeugten Lichtes seine Energie von mehreren erzeugenden Energiequanten erhalten kann;"
+  - kind: "line-break"
+  - kind: "text"
+    text: "2. wenn das erzeugende (oder erzeugte) Licht nicht von derjenigen energetischen Beschaffenheit ist, die einer „schwarzen Strahlung“ aus dem Gültigkeitsbereich des "
   - kind: "emphasis"
     inlines:
       - kind: "text"
@@ -36,9 +42,9 @@ sentenceSpans:
     span:
       start: 0
       end: 698
-      blockRevision: 1
-      textDigest: "3db024423d48cb5727f502c8ec7d93744971139d6c0384340e193a38cdb7e44e"
-revision: 1
+      blockRevision: 2
+      textDigest: "8fcd074c4b0c88053486026e8db376bb44477b4758166b637ba4675ac0d9865b"
+revision: 2
 status:
   transcription: "draft"
   mathTranscription: "not-applicable"
