@@ -1,0 +1,42 @@
+# GlossUnit s5-p1-s4: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s5-p1-s4"
+sentenceId: "s5-p1-s4"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "3b597cc0f93fb1ad9130936cbff5066cfffeec9a1f56072a38767d441b75dfc8"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Diese"
+    english: "this"
+  - german: "Gleichung"
+    english: "equation"
+  - german: "läßt"
+  - german: "erkennen"
+  - german: "wie"
+    english: "how"
+  - german: "von"
+    english: "on"
+  - german: "und"
+    english: "and"
+  - german: "abhängen"
+    english: "depend"
+  - german: "muß"
+    english: "must"
+    lemma: "müssen"
+    grammarNote: "necessity: muß (archaic spelling of muss), how lambda sub x must depend on T, k and P"
+    noteClass: "necessity"
+multiwordUnits:
+  - tokenIndices:
+      - 2
+      - 3
+    english: "shows"
+    kind: "fixed-phrase"
+    grammarNote: "erkennen lassen, to let one recognize, to show (läßt, archaic spelling of lässt)"

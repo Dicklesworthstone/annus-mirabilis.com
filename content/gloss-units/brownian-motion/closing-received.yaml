@@ -1,0 +1,28 @@
+# GlossUnit closing-received: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "closing-received"
+sentenceId: "closing-received"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "f7c80a95ec4a4b5e22d00cafb802eec1778761d653d43ea537dc475a7e65ba04"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Eingegangen"
+    english: "received"
+  - german: "11."
+    english: "11th"
+    lemma: "11."
+    grammarNote: "ordinal number"
+    noteClass: "ordinal"
+  - german: "Mai"
+    english: "May"
+  - german: "1905"
+    english: "1905"
+multiwordUnits: []

@@ -1,0 +1,23 @@
+# GlossUnit closing-dateline: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "closing-dateline"
+sentenceId: "closing-dateline"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "7e8a035c3a918016e0f6bf7bd168579dfbbacb037188058da45dae3818cff1b0"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Bern"
+    english: "Bern"
+  - german: "Mai"
+    english: "May"
+  - german: "1905."
+    english: "1905"
+multiwordUnits: []

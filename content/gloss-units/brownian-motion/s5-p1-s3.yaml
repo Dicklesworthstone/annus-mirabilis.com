@@ -1,0 +1,27 @@
+# GlossUnit s5-p1-s3: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s5-p1-s3"
+sentenceId: "s5-p1-s3"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "2e49a3d378f333a3940d24336fd0f072c447bff57ac298da05b36f83110e4007"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Durch"
+    english: "by"
+  - german: "Eliminieren"
+    english: "eliminating"
+  - german: "von"
+    english: "of"
+  - german: "erhalten"
+    english: "obtain"
+  - german: "wir"
+    english: "we"
+multiwordUnits: []
