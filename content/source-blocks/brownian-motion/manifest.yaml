@@ -14,7 +14,9 @@ frozenBy: am-edn-inventory-brownian-slg
 # am-cm-id-scheme-8bn these ids are permanent: a wrong one is retired through an alias and
 # never reused. Two were: s3-p8-s3 and s3-p8-s4 were retired on 2026-09-25 (the plate prints three
 # sentences in s3-p8, not five), so 88 sentence ids remain; content/aliases/brownian-motion.yaml
-# records both.
+# records both. Three were minted on 2026-09-25 where the plate prints more sentences than the
+# frozen cut listed (s2-p4-s6, s4-p6-s8, s4-p6-s9), each placed in print order under the next free
+# number so that frozen ids keep their sentences; 91 sentence ids stand.
 units:
   - id: masthead-title
     kind: masthead-title
@@ -605,6 +607,21 @@ units:
         - planned
       argumentObligations:
         - arg:brownian-statistical-mechanics
+
+  - id: s2-p4-s6
+    kind: sentence
+    section: s2
+    containedIn: s2-p4
+    locators:
+      - page: 552
+    destination:
+      editionBlockId: de-brownian-motion-s2-p4-s6
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-statistical-mechanics
+      notes:
+        - "Minted 2026-09-25 (Option B, mail 40022). Page 552 prints 'J ist aber auch unabhängig von der speziellen Wahl der Lagen ... wie sogleich gezeigt werden soll.' as its own sentence after 'Dies Integral ... unabhängig ist.'; the frozen s2-p4-s3 held both. Frozen s2-p4-s4 (pp. 552-553) and -s5 (p. 553) keep their sentences, so this one takes the next free number."
 
   - id: s2-p4-s4
     kind: sentence
@@ -1686,6 +1703,36 @@ units:
         - planned
       argumentObligations:
         - arg:brownian-random-walk-diffusion
+
+  - id: s4-p6-s8
+    kind: sentence
+    section: s4
+    containedIn: s4-p6
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-s4-p6-s8
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+      notes:
+        - "Minted 2026-09-25 (Option B, mail 40022). Page 557 prints 'Wir erhalten:' before the series display eq-s4-d7 as its own sentence. The plate prints nine sentences in s4-p6 against seven frozen ids; frozen s4-p6-s7 (pp. 557-558) is the ninth, so this one takes the next free number."
+
+  - id: s4-p6-s9
+    kind: sentence
+    section: s4
+    containedIn: s4-p6
+    locators:
+      - page: 557
+    destination:
+      editionBlockId: de-brownian-motion-s4-p6-s9
+      translationUnits:
+        - planned
+      argumentObligations:
+        - arg:brownian-random-walk-diffusion
+      notes:
+        - "Minted 2026-09-25 (Option B, mail 40022). Page 557 prints 'Auf der rechten Seite verschwindet wegen φ(x) = φ(-x) das zweite, vierte etc. Glied, ... sehr klein ist.' as one sentence; its 'etc.' is not a sentence end."
 
   - id: s4-p6-s7
     kind: sentence

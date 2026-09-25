@@ -1,11 +1,13 @@
 # Brownian motion source-id snapshot (am-edn-inventory-brownian-slg)
-# THIS FILE PINS 175 IDS AND ALL 175 ARE FROZEN. The 87 block-level ids were frozen on
+# THIS FILE PINS 178 IDS AND ALL 178 ARE FROZEN. The 87 block-level ids were frozen on
 # 2026-09-19; the 90 sentence ids of sections 0-5 were cut on 2026-09-21 from plate reads of all
 # twelve pages and frozen the same day, once ap-17-132 was completely transcribed with no fourth
 # segmentation exception. Under RULE 1 and am-cm-id-scheme-8bn every id here is permanent: one that
 # later proves wrong is retired through an alias in content/aliases/brownian-motion.yaml and never
 # reused. Ids appear in manifest order, so a sentence sits beside its paragraph. Two sentence ids
-# were retired on 2026-09-25 (s3-p8-s3, s3-p8-s4), leaving 88 of the 90; see the alias file.
+# were retired on 2026-09-25 (s3-p8-s3, s3-p8-s4), leaving 88 of the 90; see the alias file. Three
+# were minted the same day where the plate prints more sentences (s2-p4-s6, s4-p6-s8, s4-p6-s9),
+# in print order under the next free number, so 91 sentence ids stand.
 masthead-title
 masthead-author
 s0-p1
@@ -51,6 +53,7 @@ s2-p4
 s2-p4-s1
 s2-p4-s2
 s2-p4-s3
+s2-p4-s6
 s2-p4-s4
 s2-p4-s5
 eq-s2-d4
@@ -136,6 +139,8 @@ s4-p6-s3
 s4-p6-s4
 s4-p6-s5
 s4-p6-s6
+s4-p6-s8
+s4-p6-s9
 s4-p6-s7
 eq-s4-d4
 eq-s4-d5
