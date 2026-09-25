@@ -1,0 +1,43 @@
+# GlossUnit s8: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s8"
+sentenceId: "s8"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "78992cbfe22aa1774450362539f46cfd6c1d904fe978464c42c6f68f0cd1fea0"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "§ 8"
+    english: "§ 8"
+  - german: "Über"
+    english: "on"
+  - german: "die"
+    english: "the"
+  - german: "Erzeugung"
+    english: "production"
+  - german: "von"
+    english: "of"
+  - german: "Kathodenstrahlen"
+    english: "cathode rays"
+    lemma: "Kathodenstrahl"
+    grammarNote: "compound: Kathode + Strahlen"
+    noteClass: "compound"
+  - german: "durch"
+    english: "by"
+  - german: "Belichtung"
+    english: "illumination"
+  - german: "fester"
+    english: "of solid"
+    lemma: "fest"
+    grammarNote: "genitive: Belichtung fester Körper, ‘illumination of solid bodies’"
+    noteClass: "genitive-construction"
+  - german: "Körper"
+    english: "bodies"
+multiwordUnits: []

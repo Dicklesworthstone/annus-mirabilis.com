@@ -1,0 +1,34 @@
+# GlossUnit s8-p2-s8: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s8-p2-s8"
+sentenceId: "s8-p2-s8"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "003897899cbcebfc17bcb406b1d7aebeffd384566d2d9fb8a51f490afaf54551"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Die"
+    english: "the"
+  - german: "kinetische"
+    english: "kinetic"
+    lemma: "kinetisch"
+  - german: "Energie"
+    english: "energy"
+  - german: "solcher"
+    english: "of such"
+    lemma: "solcher"
+    grammarNote: "genitive: solcher Elektronen, ‘of such electrons’"
+    noteClass: "genitive-construction"
+  - german: "Elektronen"
+    english: "electrons"
+    lemma: "Elektron"
+  - german: "ist"
+    english: "is"
+multiwordUnits: []

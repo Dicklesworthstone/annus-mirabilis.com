@@ -1,0 +1,60 @@
+# GlossUnit s8-p2-s4: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s8-p2-s4"
+sentenceId: "s8-p2-s4"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "68fa82d932deba21b2a7018aaf4806cc908767085b80f88892674dc06f985fc2"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Es"
+    english: "it"
+  - german: "soll"
+    english: "is to"
+    lemma: "sollen"
+  - german: "jedoch"
+    english: "however"
+  - german: "nicht"
+  - german: "ausgeschlossen"
+  - german: "sein"
+  - german: "daß"
+    english: "that"
+    lemma: "dass"
+    grammarNote: "archaic spelling of dass"
+    noteClass: "archaic-spelling"
+  - german: "Elektronen"
+    english: "electrons"
+    lemma: "Elektron"
+  - german: "die"
+    english: "the"
+  - german: "Energie"
+    english: "energy"
+  - german: "von"
+    english: "of"
+  - german: "Lichtquanten"
+    english: "light quanta"
+    lemma: "Lichtquant"
+    grammarNote: "compound: Licht + Quanten"
+    noteClass: "compound"
+  - german: "nur"
+    english: "only"
+  - german: "teilweise"
+    english: "partly"
+  - german: "aufnehmen"
+    english: "take up"
+multiwordUnits:
+  - tokenIndices:
+      - 3
+      - 4
+      - 5
+    english: "not be excluded"
+    kind: "fixed-phrase"
+    grammarNote: "hedge: es soll nicht ausgeschlossen sein, ‘it is not to be excluded’: a second possibility kept open beside the simplest picture"
+    noteClass: "hedge"

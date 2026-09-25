@@ -1,0 +1,79 @@
+# GlossUnit s8-p2-s2: word-level gloss of the German sentence, machine draft.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, ap-17-132.
+id: "s8-p2-s2"
+sentenceId: "s8-p2-s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "4e0792dc24d37c85d286089269ef876219b1f1e021b90d4c408292f407d8faa0"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (Claude Opus 5.5 agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "In"
+    english: "into"
+  - german: "die"
+    english: "the"
+  - german: "oberflächliche"
+    english: "surface"
+    lemma: "oberflächlich"
+  - german: "Schicht"
+    english: "layer"
+  - german: "des"
+    english: "of the"
+  - german: "Körpers"
+    english: "body"
+    lemma: "Körper"
+  - german: "dringen"
+  - german: "Energiequanten"
+    english: "energy quanta"
+    lemma: "Energiequantum"
+    grammarNote: "compound: Energie + Quanten"
+    noteClass: "compound"
+  - german: "ein"
+  - german: "und"
+    english: "and"
+  - german: "deren"
+    english: "their"
+  - german: "Energie"
+    english: "energy"
+  - german: "verwandelt"
+  - german: "sich"
+  - german: "wenigstens"
+    english: "at least"
+    lemma: "wenigstens"
+    grammarNote: "restriction: wenigstens zum Teil, ‘at least in part’"
+    noteClass: "restriction"
+  - german: "zum"
+  - german: "Teil"
+  - german: "in"
+    english: "into"
+  - german: "kinetische"
+    english: "kinetic"
+  - german: "Energie"
+    english: "energy"
+  - german: "von"
+    english: "of"
+  - german: "Elektronen"
+    english: "electrons"
+    lemma: "Elektron"
+multiwordUnits:
+  - tokenIndices:
+      - 6
+      - 8
+    english: "penetrate"
+    kind: "separable-verb"
+  - tokenIndices:
+      - 12
+      - 13
+    english: "is transformed"
+    kind: "reflexive"
+  - tokenIndices:
+      - 15
+      - 16
+    english: "in part"
+    kind: "fixed-phrase"
