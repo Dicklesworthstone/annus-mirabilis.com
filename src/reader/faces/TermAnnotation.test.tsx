@@ -34,17 +34,39 @@ describe("TermAnnotation unit and face integration", () => {
     await uninstallDom();
   });
 
-  test("static markup renders accessible trigger attributes and tooltip fallback", () => {
-    const termDef =
-      "Die räumliche Ortsveränderung eines suspendierten mikroskopischen Teilchens infolge unregelmäßiger molekularer Stöße der umgebenden Flüssigkeitsmoleküle.";
+  test("without JavaScript the word is plain text, so the no-script rule cannot hide it", () => {
+    // The layout hides every enabled button when scripts do not run
+    // (components/chrome/noScriptControls.ts). The server markup is what a reader without
+    // JavaScript gets, so it must carry the word as text and no button at all.
     const html = renderToStaticMarkup(
       <TermAnnotation
         termId="term-verschiebung"
         text="Verschiebung"
-        definition={termDef}
+        definition="Die räumliche Ortsveränderung eines suspendierten mikroskopischen Teilchens infolge unregelmäßiger molekularer Stöße der umgebenden Flüssigkeitsmoleküle."
         lang="de"
       />,
     );
+    expect(html).toContain('data-term-text="term-verschiebung"');
+    expect(html).toContain('lang="de"');
+    expect(html).toContain(">Verschiebung<");
+    expect(html).not.toContain("<button");
+  });
+
+  test("once hydrated, the trigger is a native button with its accessible attributes", async () => {
+    const termDef =
+      "Die räumliche Ortsveränderung eines suspendierten mikroskopischen Teilchens infolge unregelmäßiger molekularer Stöße der umgebenden Flüssigkeitsmoleküle.";
+    const root = createRoot(container);
+    await act(async () => {
+      root.render(
+        <TermAnnotation
+          termId="term-verschiebung"
+          text="Verschiebung"
+          definition={termDef}
+          lang="de"
+        />,
+      );
+    });
+    const html = container.innerHTML;
 
     expect(html).toContain('data-term-id="term-verschiebung"');
     expect(html).toContain('data-term-expanded="false"');
@@ -215,7 +237,7 @@ describe("TermAnnotation unit and face integration", () => {
         editorialNotes={FIXTURE_EDITORIAL_NOTES}
       />,
     );
-    expect(germanHtml).toContain('data-term-id="term-verschiebung"');
+    expect(germanHtml).toContain('data-term-text="term-verschiebung"');
     expect(germanHtml).toContain("Verschiebung");
 
     // 2. EnglishFace
@@ -228,7 +250,7 @@ describe("TermAnnotation unit and face integration", () => {
         reviewRecords={FIXTURE_REVIEW_RECORDS}
       />,
     );
-    expect(englishHtml).toContain('data-term-id="term-verschiebung"');
+    expect(englishHtml).toContain('data-term-text="term-verschiebung"');
     expect(englishHtml).toContain("displacement");
 
     // 3. ParallelFace
@@ -242,7 +264,7 @@ describe("TermAnnotation unit and face integration", () => {
         reviewRecords={FIXTURE_REVIEW_RECORDS}
       />,
     );
-    expect(parallelHtml).toContain('data-term-id="term-verschiebung"');
+    expect(parallelHtml).toContain('data-term-text="term-verschiebung"');
     expect(parallelHtml).toContain("Verschiebung");
     expect(parallelHtml).toContain("displacement");
   });

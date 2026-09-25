@@ -105,14 +105,18 @@ describe("period-term notes", () => {
       });
   });
 
-  test("the parallel face shows each note on its word, as a control a reader can open", async () => {
+  test("the parallel face prints each noted word as text, which no-script readers keep", async () => {
+    // The server markup is what a reader without JavaScript gets. The word is plain text there
+    // (the note's button replaces it after hydration), so the layout's no-script rule, which hides
+    // enabled buttons, cannot take the German word with it.
     const html = renderToStaticMarkup(
       await PaperPage({ paperId: "mass-energy", face: "parallel" } as never),
     );
     for (const { term } of terms.filter(({ term }) => term.block.startsWith("mass-energy/"))) {
       expect(html).toMatch(
-        new RegExp(`<button[^>]*data-term-id="${term.termId}"[^>]*>\\s*<abbr[^>]*>${term.text}<`),
+        new RegExp(`<span[^>]*data-term-text="${term.termId}"[^>]*>${term.text}</span>`),
       );
+      expect(html).not.toMatch(new RegExp(`<button[^>]*data-term-id="${term.termId}"`));
     }
   });
 });

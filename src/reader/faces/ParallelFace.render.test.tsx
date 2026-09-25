@@ -30,7 +30,7 @@ describe("ParallelFace render tests", () => {
     expect(germanHtml).toContain('data-printed-notation="true"');
     expect(germanHtml).toContain('id="footnote-bm-s5-fn1"');
     expect(germanHtml).toContain("Fußnoten");
-    expect(germanHtml).toContain('data-term-id="term-verschiebung"');
+    expect(germanHtml).toContain('data-term-text="term-verschiebung"');
     expect(germanHtml).toContain("Verschiebung");
     expect(germanHtml).toContain("Bern, Mai 1905.");
 
@@ -48,7 +48,7 @@ describe("ParallelFace render tests", () => {
     expect(englishHtml).toContain('id="tr-bm-s4-eq1"');
     expect(englishHtml).toContain('data-equation-id="eq-diffusion-1d"');
     expect(englishHtml).toContain('data-printed-notation="true"');
-    expect(englishHtml).toContain('data-term-id="term-verschiebung"');
+    expect(englishHtml).toContain('data-term-text="term-verschiebung"');
     expect(englishHtml).toContain("displacement");
 
     // 3. ParallelFace renders anchors, printed equation numbers, footnotes, term annotations, and date-line
@@ -68,7 +68,7 @@ describe("ParallelFace render tests", () => {
     expect(parallelHtml).toContain("(1)");
     expect(parallelHtml).toContain('id="footnote-bm-s5-fn1"');
     expect(parallelHtml).toContain("Fußnoten");
-    expect(parallelHtml).toContain('data-term-id="term-verschiebung"');
+    expect(parallelHtml).toContain('data-term-text="term-verschiebung"');
     expect(parallelHtml).toContain("Verschiebung");
     expect(parallelHtml).toContain("displacement");
     expect(parallelHtml).toContain("Bern, Mai 1905.");

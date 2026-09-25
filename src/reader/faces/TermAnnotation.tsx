@@ -29,6 +29,13 @@ export function TermAnnotation({
   dir,
 }: TermAnnotationProps) {
   const [isOpen, setIsOpen] = useState(false);
+  // The trigger is a button only JavaScript can work, and the layout hides every enabled button
+  // when scripts do not run (components/chrome/noScriptControls.ts). A button carrying a German
+  // word would take the word with it: on 2026-09-25 "Relativitätsprinzip" and "Qualitäten" were
+  // missing from mass-energy's German column without JavaScript. So the server renders the word as
+  // plain text, and the button replaces it once the page has hydrated.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
   const popoverId = useId();
   const trigger = useRef<HTMLButtonElement>(null);
   const popover = useRef<HTMLSpanElement>(null);
@@ -72,6 +79,15 @@ export function TermAnnotation({
     },
     [handleToggle, isOpen],
   );
+
+  if (!hydrated)
+    return (
+      <span className="term-annotation-wrapper" data-term-wrapper={termId}>
+        <span className="term-annotation-text" data-term-text={termId} lang={lang} dir={dir}>
+          {text}
+        </span>
+      </span>
+    );
 
   return (
     <span className="term-annotation-wrapper" data-term-wrapper={termId}>
