@@ -1,0 +1,39 @@
+# TranslationUnit s5-p2-s1: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s5-p2-s1"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s5-p2-s1"
+inlines:
+  - kind: "text"
+    text: "We shall calculate how large "
+  - kind: "math"
+    latex: "\\lambda_x"
+  - kind: "text"
+    text: " is for one second if "
+  - kind: "math"
+    latex: "N"
+  - kind: "text"
+    text: " is set equal to "
+  - kind: "math"
+    latex: "6 \\cdot 10^{23}"
+  - kind: "text"
+    text: " in accordance with the results of the kinetic theory of gases; let the liquid chosen be water at 17° C ("
+  - kind: "math"
+    latex: "k = 1{,}35 \\cdot 10^{-2}"
+  - kind: "text"
+    text: "), and let the diameter of the particles be 0,001 mm."
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "0.001 mm"
+    rationale: "The paper prints its numbers with a decimal comma. They are kept as printed here, as in the displays, so that every figure reads exactly as Einstein gave it; 0,001 mm is 0.001 mm."
+reviewState: "machine-draft"
+lang: "en"

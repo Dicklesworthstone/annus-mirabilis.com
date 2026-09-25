@@ -1,0 +1,31 @@
+# TranslationUnit s5-p1-s2: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s5-p1-s2"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s5-p1-s2"
+inlines:
+  - kind: "text"
+    text: "Further, in § 4 we found, for the mean value of the displacements of the particles in the direction of the "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: "-axis in the time "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: ":"
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "average of the displacements"
+    rationale: "\"Mittelwert der Verschiebungen\" is kept as \"mean value\"; § 4 defines this λₓ as the square root of the mean of the squared displacements, and the translation does not restate it."
+reviewState: "machine-draft"
+lang: "en"

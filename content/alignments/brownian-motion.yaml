@@ -554,3 +554,103 @@ edges:
       sentenceId: "s3-p8-s5"
     target:
       translationUnitId: "s3-p8-s5"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s5"
+    target:
+      translationUnitId: "s5"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s5-p1"
+      sentenceId: "s5-p1-s1"
+    target:
+      translationUnitId: "s5-p1-s1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s5-d1"
+    target:
+      translationUnitId: "eq-s5-d1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s5-p1"
+      sentenceId: "s5-p1-s2"
+    target:
+      translationUnitId: "s5-p1-s2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s5-d2"
+    target:
+      translationUnitId: "eq-s5-d2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s5-p1"
+      sentenceId: "s5-p1-s3"
+    target:
+      translationUnitId: "s5-p1-s3"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s5-d3"
+    target:
+      translationUnitId: "eq-s5-d3"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s5-p1"
+      sentenceId: "s5-p1-s4"
+    target:
+      translationUnitId: "s5-p1-s4"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s5-p2"
+      sentenceId: "s5-p2-s1"
+    target:
+      translationUnitId: "s5-p2-s1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s5-p2"
+      sentenceId: "s5-p2-s2"
+    target:
+      translationUnitId: "s5-p2-s2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s5-d4"
+    target:
+      translationUnitId: "eq-s5-d4"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s5-p2"
+      sentenceId: "s5-p2-s3"
+    target:
+      translationUnitId: "s5-p2-s3"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s5-p3"
+      sentenceId: "s5-p3-s1"
+    target:
+      translationUnitId: "s5-p3-s1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s5-p3"
+      sentenceId: "s5-p3-s2"
+    target:
+      translationUnitId: "s5-p3-s2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s5-d5"
+    target:
+      translationUnitId: "eq-s5-d5"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s5-p4"
+      sentenceId: "s5-p4-s1"
+    target:
+      translationUnitId: "s5-p4-s1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "closing-dateline"
+    target:
+      translationUnitId: "closing-dateline"
+  - source:
+      paper: "brownian-motion"
+      blockId: "closing-received"
+    target:
+      translationUnitId: "closing-received"

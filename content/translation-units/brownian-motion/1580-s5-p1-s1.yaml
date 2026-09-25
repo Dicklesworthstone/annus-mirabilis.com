@@ -1,0 +1,29 @@
+# TranslationUnit s5-p1-s1: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s5-p1-s1"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s5-p1-s1"
+inlines:
+  - kind: "text"
+    text: "In § 3 we found, for the diffusion coefficient "
+  - kind: "math"
+    latex: "D"
+  - kind: "text"
+    text: " of a substance suspended in a liquid in the form of small spheres of radius "
+  - kind: "math"
+    latex: "P"
+  - kind: "text"
+    text: ", the value:"
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"
