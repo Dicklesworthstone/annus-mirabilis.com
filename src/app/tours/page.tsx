@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireTour, tourIds } from "../../content/tours/tours.ts";
 import { GUIDED_TOURS } from "../../discovery/tours/catalogue.ts";
 import "../../discovery/tours/tours.css";
 
@@ -31,6 +32,26 @@ export default function GuidedToursIndex() {
         </p>
       </header>
       <div className="guided-tour-catalogue">
+        {tourIds(process.cwd()).flatMap((id) => {
+          const tour = requireTour(process.cwd(), id, process.env.AM_RELEASE_PROFILE ?? "scaffold");
+          return tour
+            ? [
+                <section key={tour.id} aria-labelledby={`timed-${tour.id}`}>
+                  <h2 id={`timed-${tour.id}`}>
+                    <a href={`/tours/${tour.id}/`}>{tour.title}</a>
+                  </h2>
+                  <p>{tour.introduction}</p>
+                  <p>
+                    {tour.steps.length} steps · About {tour.totalMinutes} minutes · No equations
+                  </p>
+                  <div className="guided-tour-actions">
+                    <a href={`/tours/${tour.id}/`}>Take this path</a>
+                    <a href={`/papers/${tour.paper}/`}>Read the paper without a guide</a>
+                  </div>
+                </section>,
+              ]
+            : [];
+        })}
         {GUIDED_TOURS.map((tour) => (
           <section key={tour.id} aria-labelledby={`guided-${tour.id}`}>
             <h2 id={`guided-${tour.id}`}>

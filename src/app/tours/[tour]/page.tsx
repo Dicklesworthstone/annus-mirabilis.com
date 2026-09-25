@@ -1,16 +1,32 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { requireTour, tourIds } from "../../../content/tours/tours.ts";
 import { GUIDED_TOURS, getGuidedTour } from "../../../discovery/tours/catalogue.ts";
 import { tourDestination, tourPosition } from "../../../discovery/tours/navigation.ts";
+import { TimedTour } from "../../../discovery/tours/TimedTour.tsx";
 import "../../../discovery/tours/tours.css";
 
 type Props = { params: Promise<{ tour: string }> };
 export const dynamicParams = false;
+/** The release profile decides whether a draft move summary may be shown (tours.ts). */
+const PROFILE = process.env.AM_RELEASE_PROFILE ?? "scaffold";
 export function generateStaticParams() {
-  return GUIDED_TOURS.map((tour) => ({ tour: tour.id }));
+  return [
+    ...GUIDED_TOURS.map((tour) => ({ tour: tour.id })),
+    // Timed tours without equations, from content/tours (am-tour-15min-mass-energy-nqz1).
+    ...tourIds(process.cwd()).map((tour) => ({ tour })),
+  ];
 }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const tour = getGuidedTour((await params).tour);
+  const id = (await params).tour;
+  const timed = requireTour(process.cwd(), id, PROFILE);
+  if (timed)
+    return {
+      title: timed.title,
+      description: timed.introduction,
+      alternates: { canonical: `/tours/${timed.id}/` },
+    };
+  const tour = getGuidedTour(id);
   return tour
     ? {
         title: tour.title,
@@ -22,7 +38,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 /** The whole path is server rendered. Opening a stop never gates the explanations here. */
 export default async function GuidedTourPage({ params }: Props) {
-  const tour = getGuidedTour((await params).tour);
+  const id = (await params).tour;
+  // A timed tour renders every step in place; a tour with a problem fails the page (tours.ts).
+  const timed = requireTour(process.cwd(), id, PROFILE);
+  if (timed) return <TimedTour tour={timed} />;
+  const tour = getGuidedTour(id);
   if (!tour) notFound();
   const first = tour.stops[0];
   return (

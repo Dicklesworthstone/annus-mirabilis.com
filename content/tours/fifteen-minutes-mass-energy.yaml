@@ -24,6 +24,7 @@ completion: "You can now say what the paper claimed: a body that gives off energ
 targetClaim: "A body that gives off energy becomes less massive by an amount set by that energy, whatever form the energy leaves in, so the mass of a body is a measure of its energy content."
 steps:
   - id: first-encounter
+    title: "Two accounts of the same flash"
     kind: first-encounter
     record: entrance-mass-energy
     anchor: entry-mass-energy
@@ -31,12 +32,14 @@ steps:
     purpose: "Two people write before-and-after accounts of the same flash of light. Comparing the accounts removes what neither of them knows about the body's insides."
 
   - id: opening
+    title: "The paper's question"
     kind: reading
     anchors: [s0-p1]
     minutes: 1
     purpose: "The paper's title asks its question: does the inertia of a body depend on its energy content?"
 
   - id: two-flashes
+    title: "The total energy of two flashes"
     kind: instrument
     instrument: me-01
     promptId: me-01-predict-tilt-axis
@@ -58,6 +61,7 @@ steps:
           response: "Slanting the pair adds no energy to it. The two flashes change by equal and opposite amounts, so their total stays the same."
 
   - id: toward-low-speed
+    title: "Energy of motion at slow speeds"
     kind: instrument
     instrument: me-02
     promptId: me-02-predict-toward-low-speed
@@ -79,6 +83,7 @@ steps:
           response: "That fraction is not fixed; it shrinks with the speed. What stays fixed is the mass the drop corresponds to, which is why the comparison is with a lighter body rather than with the energy given off."
 
   - id: sealed-box
+    title: "A sealed box"
     kind: instrument
     instrument: me-03
     promptId: me-03-predict-sealed-box
@@ -100,18 +105,21 @@ steps:
           response: "Nothing enters the box from outside, so its total mass stays the same."
 
   - id: conclusion
+    title: "The paper's conclusion"
     kind: reading
     anchors: [s0-p12, s0-p13]
     minutes: 1
     purpose: "The paper's conclusion, and the general claim it draws from it."
 
   - id: proposed-test
+    title: "The test the paper proposed"
     kind: reading
     anchors: [s0-p14, s0-p15]
     minutes: 1
     purpose: "How the paper proposes the claim could be tested, with its condition kept."
 
   - id: the-move
+    title: "The one step that matters"
     kind: journey-stage
     moveSummaryOf: mass-energy
     minutes: 0.5

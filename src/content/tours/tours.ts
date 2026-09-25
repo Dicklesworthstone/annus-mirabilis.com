@@ -20,7 +20,7 @@
  * - `tour-over-budget`: the steps add up to more than the budget;
  * - `tour-anchor-unresolved`: an anchor, record, laboratory, preset or tape that does not exist.
  */
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { MOVE as MASS_ENERGY_MOVE } from "../../discovery/massEnergy/journeyIV.ts";
 import { REGISTERED_IDS } from "../../experiments/catalogue.ts";
@@ -50,11 +50,15 @@ const MOVES: Readonly<
 export type TourChoice = Readonly<{ candidateId: string; text: string; response: string }>;
 
 export type TourStep = Readonly<
-  { id: string; minutes: number; purpose: string } & (
+  { id: string; title: string; minutes: number; purpose: string } & (
     | { kind: "first-encounter"; anchor: string; recordId: string; question: string }
     | {
         kind: "reading";
-        paragraphs: readonly Readonly<{ anchor: string; r0: string }>[];
+        paragraphs: readonly Readonly<{
+          anchor: string;
+          r0: string;
+          passages: readonly string[];
+        }>[];
       }
     | {
         kind: "instrument";
@@ -160,10 +164,18 @@ export function checkTour(
     problems.push(`tour-step-math: ${id} must declare requiresEquations: false`);
 
   const bindings =
-    readYaml<{ paragraphs?: { unit?: unknown; r0?: unknown }[] }>(
+    readYaml<{ paragraphs?: { unit?: unknown; r0?: unknown; passages?: unknown }[] }>(
       join(root, "content", "bindings", `${paper}.yaml`),
     )?.paragraphs ?? [];
   const r0Of = new Map(bindings.map((b) => [str(b.unit), str(b.r0)]));
+  const passagesOf = new Map(
+    bindings.map((b) => [
+      str(b.unit),
+      list(b.passages)
+        .map((x) => str(x))
+        .filter(Boolean),
+    ]),
+  );
 
   const shown: { where: string; text: string }[] = [];
   const show = (where: string, text: string) => shown.push({ where, text });
@@ -181,6 +193,9 @@ export function checkTour(
     if (seen.has(stepId)) problems.push(`tour-anchor-unresolved: ${at} is used twice`);
     seen.add(stepId);
     const minutes = typeof s.minutes === "number" ? s.minutes : 0;
+    const title = str(s.title);
+    if (!title) problems.push(`tour-anchor-unresolved: ${at} has no title`);
+    show(`${at} title`, title);
     const purpose = str(s.purpose);
     show(`${at} purpose`, purpose);
     const kind = str(s.kind);
@@ -201,6 +216,7 @@ export function checkTour(
       lowerBound = LOWER_BOUND_MINUTES["first-encounter"];
       steps.push({
         id: stepId,
+        title,
         minutes,
         purpose,
         kind,
@@ -215,12 +231,12 @@ export function checkTour(
         if (!r0)
           problems.push(`tour-anchor-unresolved: ${at} names ${anchor}, which has no R0 overview`);
         show(`${at} ${anchor} R0`, r0);
-        return { anchor, r0 };
+        return { anchor, r0, passages: passagesOf.get(anchor) ?? [] };
       });
       if (paragraphs.length === 0)
         problems.push(`tour-anchor-unresolved: ${at} names no paragraph`);
       lowerBound = readingMinutes([purpose, ...paragraphs.map((p) => p.r0)].join(" "));
-      steps.push({ id: stepId, minutes, purpose, kind, paragraphs });
+      steps.push({ id: stepId, title, minutes, purpose, kind, paragraphs });
     } else if (kind === "instrument") {
       const instrumentId = str(s.instrument);
       if (!(REGISTERED_IDS as readonly string[]).includes(instrumentId))
@@ -312,6 +328,7 @@ export function checkTour(
       lowerBound = LOWER_BOUND_MINUTES.instrument;
       steps.push({
         id: stepId,
+        title,
         minutes,
         purpose,
         kind,
@@ -339,6 +356,7 @@ export function checkTour(
       lowerBound = readingMinutes([purpose, summary].join(" "));
       steps.push({
         id: stepId,
+        title,
         minutes,
         purpose,
         kind,
@@ -383,4 +401,36 @@ export function checkTour(
     },
     problems,
   };
+}
+
+/** A tour the site will not publish: every problem, by its rule. */
+export class TourError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "TourError";
+    this.code = code;
+  }
+}
+
+/** The ids of the tour records in content/tours. */
+export function tourIds(root: string): readonly string[] {
+  const dir = join(root, "content", "tours");
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((n) => n.endsWith(".yaml"))
+    .map((n) => n.replace(/\.yaml$/, ""))
+    .sort();
+}
+
+/** A tour the page can show, or null when there is no such record; a tour with a problem is refused. */
+export function requireTour(root: string, id: string, profile = "scaffold"): Tour | null {
+  const loaded = loadTour(root, id, profile);
+  if (!loaded) return null;
+  if (loaded.problems.length > 0)
+    throw new TourError(
+      "tour-invalid",
+      `Tour ${id} does not resolve:\n${loaded.problems.join("\n")}`,
+    );
+  return loaded.tour;
 }
