@@ -1,0 +1,87 @@
+# GlossUnit s2-fn1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s2-fn1"
+sentenceId: "s2-fn1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "8b3c227967b645b23113520ae20a1c0ec7ff32d2c0edf941f982bd1144fc2198"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Zeit"
+    english: "time"
+    grammarNote: "in quotation marks: ‘time’ in the sense this footnote fixes"
+    noteClass: "term"
+  - german: "bedeutet"
+    english: "means"
+    lemma: "bedeuten"
+  - german: "hier"
+    english: "here"
+  - german: "Zeit"
+    english: "time"
+  - german: "des"
+    english: "of the"
+  - german: "ruhenden"
+    english: "stationary"
+    lemma: "ruhen"
+  - german: "Systems"
+    english: "system"
+    lemma: "System"
+    grammarNote: "genitive: des ruhenden Systems"
+    noteClass: "genitive-construction"
+  - german: "und"
+    english: "and"
+  - german: "zugleich"
+    english: "at the same time"
+  - german: "Zeigerstellung"
+    english: "position of the hands"
+    grammarNote: "Zeiger ‘hand’ + Stellung ‘position’"
+    noteClass: "compound"
+  - german: "der"
+    english: "of the"
+  - german: "bewegten"
+    english: "moving"
+    lemma: "bewegt"
+  - german: "Uhr"
+    english: "clock"
+  - german: "welche"
+    english: "which"
+    lemma: "welcher"
+  - german: "sich"
+  - german: "an"
+    english: "at"
+  - german: "dem"
+    english: "the"
+  - german: "Orte"
+    english: "place"
+    lemma: "Ort"
+    grammarNote: "older dative ending -e"
+    noteClass: "archaic-spelling"
+  - german: "von"
+  - german: "dem"
+  - german: "die"
+  - german: "Rede"
+  - german: "ist"
+  - german: "befindet"
+multiwordUnits:
+  - tokenIndices:
+      - 14
+      - 23
+    english: "is located"
+    kind: "reflexive"
+    grammarNote: "sich befinden, split: sich ... befindet"
+  - tokenIndices:
+      - 18
+      - 19
+      - 20
+      - 21
+      - 22
+    english: "under discussion"
+    kind: "fixed-phrase"
+    grammarNote: "von dem die Rede ist, ‘of which there is talk’"
