@@ -17,7 +17,12 @@ inlines:
     mark: "2)"
     footnoteId: "s0-fn2"
   - kind: "text"
-    text: " I derived, among other things, the following result (l. c. § 8):"
+    text: " I derived, among other things, the following result ("
+  - kind: "reference"
+    text: "l. c. § 8"
+    targetId: "special-relativity/s8"
+  - kind: "text"
+    text: "):"
 translator:
   id: "agent:claude-opus-5-5"
   name: "Claude Opus 5.5 (agent)"

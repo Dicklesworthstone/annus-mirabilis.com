@@ -16,7 +16,12 @@ inlines:
   - kind: "math"
     latex: "K_0 - K_1"
   - kind: "text"
-    text: ", moreover, depends on the velocity in the same way as the kinetic energy of the electron (l. c. § 10)."
+    text: ", moreover, depends on the velocity in the same way as the kinetic energy of the electron ("
+  - kind: "reference"
+    text: "l. c. § 10"
+    targetId: "special-relativity/s10"
+  - kind: "text"
+    text: ")."
 translator:
   id: "agent:claude-opus-5-5"
   name: "Claude Opus 5.5 (agent)"

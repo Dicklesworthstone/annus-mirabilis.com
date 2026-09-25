@@ -17,7 +17,12 @@ inlines:
     mark: "2)"
     footnoteId: "s0-fn2"
   - kind: "text"
-    text: " leitete ich unter anderem das nachfolgende Resultat ab (l. c. § 8):"
+    text: " leitete ich unter anderem das nachfolgende Resultat ab ("
+  - kind: "reference"
+    text: "l. c. § 8"
+    targetId: "special-relativity/s8"
+  - kind: "text"
+    text: "):"
 sentenceSpans:
   - id: "s0-p4-s1"
     span:

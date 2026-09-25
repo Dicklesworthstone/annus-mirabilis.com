@@ -17,7 +17,12 @@ inlines:
       - kind: "text"
         text: "A. Einstein"
   - kind: "text"
-    text: ", Ann. d. Phys. 17. p. 891. 1905."
+    text: ", "
+  - kind: "reference"
+    text: "Ann. d. Phys. 17. p. 891. 1905"
+    targetId: "special-relativity"
+  - kind: "text"
+    text: "."
 sentenceSpans:
   - id: "s0-fn1"
     span:

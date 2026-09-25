@@ -155,7 +155,12 @@ inlines:
   - kind: "math"
     latex: "K_0 - K_1"
   - kind: "text"
-    text: " hängt ferner von der Geschwindigkeit ebenso ab wie die kinetische Energie des Elektrons (l. c. § 10)."
+    text: " hängt ferner von der Geschwindigkeit ebenso ab wie die kinetische Energie des Elektrons ("
+  - kind: "reference"
+    text: "l. c. § 10"
+    targetId: "special-relativity/s10"
+  - kind: "text"
+    text: ")."
 sentenceSpans:
   - id: "s0-p7-s1"
     span:

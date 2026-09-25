@@ -12,7 +12,12 @@ sourceRefs:
     id: "s0-fn1"
 inlines:
   - kind: "text"
-    text: "A. Einstein, Ann. d. Phys. 17. p. 891. 1905."
+    text: "A. Einstein, "
+  - kind: "reference"
+    text: "Ann. d. Phys. 17. p. 891. 1905"
+    targetId: "special-relativity"
+  - kind: "text"
+    text: "."
 translator:
   id: "agent:claude-opus-5-5"
   name: "Claude Opus 5.5 (agent)"

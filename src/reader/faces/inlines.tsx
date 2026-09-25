@@ -1,6 +1,7 @@
 import { renderToString } from "katex";
 import React from "react";
 import type { Inline } from "../../content/schemas/inlines.ts";
+import { referenceHref } from "./referenceHref.ts";
 import { TermAnnotation } from "./TermAnnotation.tsx";
 
 export interface RenderInlinesOptions {
@@ -133,7 +134,7 @@ export function renderInlines(
         return (
           <a
             key={key}
-            href={`#${node.targetId}`}
+            href={referenceHref(node.targetId)}
             data-target-id={node.targetId}
             lang={node.lang}
             dir={node.dir}
