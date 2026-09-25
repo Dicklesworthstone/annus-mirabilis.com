@@ -58,8 +58,13 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     expect(manifest.idsFrozenAt).toBe("2026-09-19T00:00:00Z");
     expect(manifest.frozenBy).toBe(RELATIVITY_BEAD);
 
-    expect(manifest.units.length).toBe(208); // 220 originally; 16 retired, 4 added. The last three, s5-p4/p5/p7,
-    // came from the 2026-09-19 true-300% re-read of the twelve pages the 2.5x re-map never reached.
+    // A count is for reporting, not for asserting (AGENTS.md). This read 208 until the 2026-09-25
+    // amendment (dispatch 193) retired s7-p4 and gave six printed paragraphs their own units, and
+    // it would break again on the next plate reading. What holds at any size is asserted below and
+    // in the snapshot test: ids are unique and grammatical, and the snapshot names exactly these
+    // units. The history: 220 originally; the 2026-09-19 audits retired 16 and added 4; the
+    // 2026-09-25 amendment retired 1 and added 6, which makes 213.
+    expect(manifest.units.length).toBeGreaterThan(0);
 
     const idSet = new Set<string>();
     for (const unit of manifest.units) {
@@ -538,13 +543,15 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     expect(aliasRaw.frozenBy).toBe(RELATIVITY_BEAD);
     expect(Array.isArray(aliasRaw.aliases)).toBe(true);
 
-    // Sixteen retirements: twelve from the 2026-09-19 boundary audit, one (s3-p19) from the
-    // one-to-one denominator pass, and three (s5-p4, s5-p5, s5-p7) from the true-300% re-read of
-    // the twelve pages the 2.5x re-map never covered. Four printed paragraphs that had no unit
-    // took new ids at their section ends instead (s3-p20, s3-p21, s3-p22, s4-p9).
+    // Retirements are permanent, so they are asserted by identity rather than counted: twelve
+    // from the 2026-09-19 boundary audit, one (s3-p19) from the one-to-one denominator pass, three
+    // (s5-p4, s5-p5, s5-p7) from the true-300% re-read, and s7-p4 from the 2026-09-25 amendment
+    // (dispatch 193). Printed paragraphs that had no unit took new ids instead (s3-p20, s3-p21,
+    // s3-p22 and s4-p9 at section ends; s6-p9, s6-p10 and s10-p15 to s10-p18 at their printed
+    // positions). A later retirement adds a record without breaking this.
     const records = loadAliasRecords();
-    expect(records.length).toBe(16);
-    expect(records.map((r) => r.retiredId).sort()).toEqual([
+    const retiredIds = records.map((r) => r.retiredId);
+    for (const id of [
       "s1-p4",
       "s3-p11",
       "s3-p13",
@@ -556,12 +563,14 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
       "s5-p5",
       "s5-p7",
       "s6-p6",
+      "s7-p4",
       "s8-p11",
       "s8-p3",
       "s8-p4",
       "s8-p8",
       "s8-p9",
-    ]);
+    ])
+      expect(retiredIds).toContain(id);
 
     const liveIds = manifest.units.map((u) => u.id);
     const expectedTarget: Record<string, string> = {
@@ -573,6 +582,7 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
       "s4-p2": "s4-p1",
       "s5-p3": "s5-p2",
       "s6-p6": "s6-p5",
+      "s7-p4": "s7-p3",
       "s8-p3": "s8-p2",
       "s8-p4": "s8-p2",
       "s8-p8": "s8-p7",
@@ -585,7 +595,18 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
       expect(resolved.ok).toBe(true);
       if (resolved.ok) expect(resolved.targetIds).toEqual([target]);
     }
-    for (const added of ["s3-p20", "s3-p21", "s3-p22", "s4-p9"]) {
+    for (const added of [
+      "s3-p20",
+      "s3-p21",
+      "s3-p22",
+      "s4-p9",
+      "s6-p9",
+      "s6-p10",
+      "s10-p15",
+      "s10-p16",
+      "s10-p17",
+      "s10-p18",
+    ]) {
       expect(liveIds).toContain(added);
     }
 
@@ -598,9 +619,13 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     expect(pagesOf("s3-p18")).toEqual([901]);
     expect(pagesOf("s3-p22")).toEqual([901, 902]);
     expect(pagesOf("s5-p2")).toEqual([905, 906]);
-    expect(pagesOf("s6-p5")).toEqual([909, 910]);
+    expect(pagesOf("s6-p5")).toEqual([909]);
+    expect(pagesOf("s6-p9")).toEqual([909, 910]);
+    expect(pagesOf("s7-p3")).toEqual([911, 912]);
     expect(pagesOf("s8-p2")).toEqual([913, 914]);
     expect(pagesOf("s8-p7")).toEqual([914, 915]);
+    expect(pagesOf("s10-p13")).toEqual([920]);
+    expect(pagesOf("s10-p17")).toEqual([920, 921]);
 
     // No display, footnote or other unit still hangs off a retired id.
     const live = new Set(liveIds);
@@ -613,7 +638,10 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     const unexplained = validateManifest(manifest, {
       manifests: new Map([[manifest.paper, manifest]]),
     }).filter((d) => d.rule === "sequence-gap" && d.severity === "error");
-    expect(unexplained.length).toBe(16);
+    // Each retirement leaves exactly one numbering gap, so without the records the gap errors
+    // number the retirements, at any size; and there is at least one, so this cannot pass empty.
+    expect(unexplained.length).toBe(records.length);
+    expect(unexplained.length).toBeGreaterThan(0);
 
     // Snapshot file
     const snapshotPath = join(
@@ -658,8 +686,8 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
 
     expect(report.paper).toBe(PAPER_SLUG);
     expect(report.status).toBe("in-preparation");
-    expect(report.totalUnits).toBe(208);
-    expect(report.inScopeCount).toBe(208);
+    expect(report.totalUnits).toBe(manifest.units.length);
+    expect(report.inScopeCount).toBe(manifest.units.length);
     expect(report.notInScopeCount).toBe(0);
 
     expect(report.layers.ledger.state).toBe("absent");
