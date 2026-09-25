@@ -1,0 +1,52 @@
+# SourceBlock s6-p3: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s6-p3"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s6"
+order: 88
+locators:
+  - pdfPageIndex: 12
+    printedPage: 143
+diplomaticText: "Wir wollen noch die mittlere Größe der Energiequanten der „schwarzen Strahlung“ mit der mittleren lebendigen Kraft der Schwerpunktsbewegung eines Moleküls bei der nämlichen Temperatur vergleichen. Letztere ist \\frac{3}{2} (R/N) T, während man für die mittlere Größe des Energiequantums unter Zugrundelegung der Wienschen Formel erhält:"
+inlines:
+  - kind: "text"
+    text: "Wir wollen noch die mittlere Größe der Energiequanten der „schwarzen Strahlung“ mit der mittleren lebendigen Kraft der Schwerpunktsbewegung eines Moleküls bei der nämlichen Temperatur vergleichen."
+  - kind: "space"
+  - kind: "text"
+    text: "Letztere ist "
+  - kind: "math"
+    latex: "\\frac{3}{2} (R/N) T"
+  - kind: "text"
+    text: ", während man für die mittlere Größe des Energiequantums unter Zugrundelegung der "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Wien"
+  - kind: "text"
+    text: "schen Formel erhält:"
+  - kind: "math"
+    latex: "\\frac{\\int_0^\\infty \\alpha \\nu^3 e^{-\\frac{\\beta \\nu}{T}} d \\nu}{\\int_0^\\infty \\frac{N}{R \\beta \\nu} \\alpha \\nu^3 e^{-\\frac{\\beta \\nu}{T}} d \\nu} = 3 \\frac{R}{N} T."
+    display: true
+    equationId: "eq-s6-d5"
+sentenceSpans:
+  - id: "s6-p3-s1"
+    span:
+      start: 0
+      end: 196
+      blockRevision: 1
+      textDigest: "5ff9f2f3495109717298d71d02bdf2f2e7ef20d6e0e19c93d75a7e0c14cd407a"
+  - id: "s6-p3-s2"
+    span:
+      start: 197
+      end: 335
+      blockRevision: 1
+      textDigest: "5ff9f2f3495109717298d71d02bdf2f2e7ef20d6e0e19c93d75a7e0c14cd407a"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

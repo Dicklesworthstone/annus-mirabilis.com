@@ -1,0 +1,35 @@
+# SourceBlock s6: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s6"
+kind: "heading"
+paper: "light-quanta"
+section: "s6"
+order: 79
+locators:
+  - pdfPageIndex: 11
+    printedPage: 142
+diplomaticText: "§ 6. Interpretation des Ausdruckes für die Abhängigkeit der Entropie der monochromatischen Strahlung vom Volumen nach dem Boltzmannschen Prinzip."
+inlines:
+  - kind: "text"
+    text: "§ 6. Interpretation des Ausdruckes für die Abhängigkeit der Entropie der monochromatischen Strahlung vom Volumen nach dem "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Boltzmann"
+  - kind: "text"
+    text: "schen Prinzip."
+sentenceSpans:
+  - id: "s6"
+    span:
+      start: 0
+      end: 145
+      blockRevision: 1
+      textDigest: "b6adc3cf65038d0fa120b5ccb5c3cba8c458d2c8a7e71febf4ea1c889fa76e2e"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

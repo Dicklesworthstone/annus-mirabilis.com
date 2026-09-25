@@ -1,0 +1,62 @@
+# SourceBlock s6-p1: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s6-p1"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s6"
+order: 80
+locators:
+  - pdfPageIndex: 11
+    printedPage: 142
+  - pdfPageIndex: 12
+    printedPage: 143
+diplomaticText: "Wir haben in § 4 für die Abhängigkeit der Entropie der monochromatischen Strahlung vom Volumen den Ausdruck gefunden: Schreibt man diese Formel in der Gestalt: und vergleicht man sie mit der allgemeinen, das Boltzmannsche Prinzip ausdrückenden Formel so gelangt man zu folgendem Schluß:"
+inlines:
+  - kind: "text"
+    text: "Wir haben in § 4 für die Abhängigkeit der Entropie der monochromatischen Strahlung vom Volumen den Ausdruck gefunden:"
+  - kind: "math"
+    latex: "S - S_0 = \\frac{E}{\\beta \\nu} \\lg \\left( \\frac{v}{v_0} \\right)."
+    display: true
+    equationId: "eq-s6-d1"
+  - kind: "space"
+  - kind: "text"
+    text: "Schreibt man diese Formel in der Gestalt:"
+  - kind: "math"
+    latex: "S - S_0 = \\frac{R}{N} \\lg \\left[ \\left( \\frac{v}{v_0} \\right)^{\\frac{N}{R} \\frac{E}{\\beta \\nu}} \\right]"
+    display: true
+    equationId: "eq-s6-d2"
+  - kind: "text"
+    text: " und vergleicht man sie mit der allgemeinen, das "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Boltzmann"
+  - kind: "text"
+    text: "sche Prinzip ausdrückenden Formel"
+  - kind: "math"
+    latex: "S - S_0 = \\frac{R}{N} \\lg W ,"
+    display: true
+    equationId: "eq-s6-d3"
+  - kind: "text"
+    text: " so gelangt man zu folgendem Schluß:"
+sentenceSpans:
+  - id: "s6-p1-s1"
+    span:
+      start: 0
+      end: 117
+      blockRevision: 1
+      textDigest: "461b5498cc53ae6dcfeb0273691710be88be66e4e06c91c985e144f784c484e6"
+  - id: "s6-p1-s2"
+    span:
+      start: 118
+      end: 286
+      blockRevision: 1
+      textDigest: "461b5498cc53ae6dcfeb0273691710be88be66e4e06c91c985e144f784c484e6"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,44 @@
+# SourceBlock s6-p4: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s6-p4"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s6"
+order: 90
+locators:
+  - pdfPageIndex: 12
+    printedPage: 143
+  - pdfPageIndex: 13
+    printedPage: 144
+diplomaticText: "Wenn sich nun monochromatische Strahlung (von hinreichend kleiner Dichte) bezüglich der Abhängigkeit der Entropie vom Volumen wie ein diskontinuierliches Medium verhält, welches aus Energiequanten von der Größe R \\beta \\nu / N besteht, so liegt es nahe, zu untersuchen, ob auch die Gesetze der Erzeugung und Verwandlung des Lichtes so beschaffen sind, wie wenn das Licht aus derartigen Energiequanten bestünde. Mit dieser Frage wollen wir uns im folgenden beschäftigen."
+inlines:
+  - kind: "text"
+    text: "Wenn sich nun monochromatische Strahlung (von hinreichend kleiner Dichte) bezüglich der Abhängigkeit der Entropie vom Volumen wie ein diskontinuierliches Medium verhält, welches aus Energiequanten von der Größe "
+  - kind: "math"
+    latex: "R \\beta \\nu / N"
+  - kind: "text"
+    text: " besteht, so liegt es nahe, zu untersuchen, ob auch die Gesetze der Erzeugung und Verwandlung des Lichtes so beschaffen sind, wie wenn das Licht aus derartigen Energiequanten bestünde."
+  - kind: "space"
+  - kind: "text"
+    text: "Mit dieser Frage wollen wir uns im folgenden beschäftigen."
+sentenceSpans:
+  - id: "s6-p4-s1"
+    span:
+      start: 0
+      end: 410
+      blockRevision: 1
+      textDigest: "c4e5c31f6af6576b563be23789fbd2ae42118bb7e0c0c51736f0497905a59e02"
+  - id: "s6-p4-s2"
+    span:
+      start: 411
+      end: 469
+      blockRevision: 1
+      textDigest: "c4e5c31f6af6576b563be23789fbd2ae42118bb7e0c0c51736f0497905a59e02"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

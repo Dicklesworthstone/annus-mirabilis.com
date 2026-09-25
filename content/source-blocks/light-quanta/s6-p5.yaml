@@ -1,0 +1,53 @@
+# SourceBlock s6-p5: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s6-p5"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s6"
+order: 84
+locators:
+  - pdfPageIndex: 12
+    printedPage: 143
+diplomaticText: "Ist monochromatische Strahlung von der Frequenz \\nu und der Energie E in das Volumen v_0 (durch spiegelnde Wände) eingeschlossen, so ist die Wahrscheinlichkeit dafür, daß sich in einem beliebig herausgegriffenen Zeitmoment die ganze Strahlungsenergie in dem Teilvolumen v des Volumens v_0 befindet:"
+inlines:
+  - kind: "text"
+    text: "Ist monochromatische Strahlung von der Frequenz "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: " und der Energie "
+  - kind: "math"
+    latex: "E"
+  - kind: "text"
+    text: " in das Volumen "
+  - kind: "math"
+    latex: "v_0"
+  - kind: "text"
+    text: " (durch spiegelnde Wände) eingeschlossen, so ist die Wahrscheinlichkeit dafür, daß sich in einem beliebig herausgegriffenen Zeitmoment die ganze Strahlungsenergie in dem Teilvolumen "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " des Volumens "
+  - kind: "math"
+    latex: "v_0"
+  - kind: "text"
+    text: " befindet:"
+  - kind: "math"
+    latex: "W = \\left( \\frac{v}{v_0} \\right)^{\\frac{N}{R} \\frac{E}{\\beta \\nu}}."
+    display: true
+    equationId: "eq-s6-d4"
+sentenceSpans:
+  - id: "s6-p5-s1"
+    span:
+      start: 0
+      end: 298
+      blockRevision: 1
+      textDigest: "c09c351b808544e0c3db3a92f3dd3d3e76ba1713f61512215166168b4ad8386b"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"
