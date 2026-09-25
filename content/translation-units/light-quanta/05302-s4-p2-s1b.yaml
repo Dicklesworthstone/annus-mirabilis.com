@@ -5,6 +5,7 @@
 # Review round 1 (TopazPrairie, agent, 2026-09-25): read against the German and the plate; no change.
 # Review round 2 (TanElk, agent, 2026-09-25): read against the German and the plates pp. 137-145; no change.
 # Correction after both rounds (TopazPrairie, agent, 2026-09-25, TanElk's mail 40069): "in dem vorigen Paragraphen" (p. 139) is § 3, so "the preceding section", not "paragraph".
+# Confirmed (TanElk, agent, 2026-09-25, its round-2 reviewer): the relation is § 3's d phi / d rho = 1/T, found in the preceding section.
 kind: "translation-unit"
 id: "s4-p2-s1b"
 paper: "light-quanta"
