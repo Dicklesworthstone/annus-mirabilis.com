@@ -86,6 +86,406 @@ displays:
       - glyph: "v"
         quantityId: frameSpeed
 
+  # Section 3. The transformation of coordinates and times from the resting system K to the system k in uniform translation.
+  # eq-s3-d1 to eq-s3-d14: tau is k's time coordinate and xi, eta, zeta its coordinates; x' is the Galilean
+  #   auxiliary x - vt (sr.xprime.auxiliaryGalileanCoordinate), not a moving-frame coordinate. tau_0, tau_1, tau_2 are
+  #   the readings of k's clock at the origin when the ray leaves, is reflected, and returns.
+  - display: eq-s3-d1
+    latex: "\\frac{1}{2}(\\tau_0 + \\tau_2) = \\tau_1"
+    spoken: "One half of the quantity tau sub zero plus tau sub two equals tau sub one."
+    terms:
+      - glyph: "\\tau_0"
+        quantityId: coordinateTimeMoving
+      - glyph: "\\tau_2"
+        quantityId: coordinateTimeMoving
+      - glyph: "\\tau_1"
+        quantityId: coordinateTimeMoving
+  - display: eq-s3-d2
+    latex: "\\begin{aligned} &\\frac{1}{2}\\left[ \\tau(0,0,0,t) + \\tau\\left( 0,0,0,\\left\\{ t + \\frac{x'}{V-v} + \\frac{x'}{V+v} \\right\\} \\right) \\right] \\\\ &= \\tau\\left( x',0,0,t + \\frac{x'}{V-v} \\right). \\end{aligned}"
+    spoken: "One half of: tau of zero, zero, zero, t, plus tau of zero, zero, zero, and t plus x prime over V minus v plus x prime over V plus v; equals tau of x prime, zero, zero, and t plus x prime over V minus v."
+    terms:
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "x'"
+        quantityId: auxiliaryGalileanCoordinate
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "v"
+        quantityId: frameSpeed
+  - display: eq-s3-d3
+    latex: "\\frac{1}{2}\\left( \\frac{1}{V-v} + \\frac{1}{V+v} \\right) \\frac{\\partial \\tau}{\\partial t} = \\frac{\\partial \\tau}{\\partial x'} + \\frac{1}{V-v} \\frac{\\partial \\tau}{\\partial t} ,"
+    spoken: "One half of the quantity one over V minus v plus one over V plus v, times the partial derivative of tau with respect to t, equals the partial derivative of tau with respect to x prime plus one over V minus v times the partial derivative of tau with respect to t."
+    terms:
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "x'"
+        quantityId: auxiliaryGalileanCoordinate
+  - display: eq-s3-d4
+    latex: "\\frac{\\partial \\tau}{\\partial x'} + \\frac{v}{V^2 - v^2} \\frac{\\partial \\tau}{\\partial t} = 0 ."
+    spoken: "The partial derivative of tau with respect to x prime, plus v over V squared minus v squared times the partial derivative of tau with respect to t, equals zero."
+    terms:
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "x'"
+        quantityId: auxiliaryGalileanCoordinate
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+  - display: eq-s3-d5
+    latex: "\\begin{aligned} \\frac{\\partial \\tau}{\\partial y} &= 0 \\\\ \\frac{\\partial \\tau}{\\partial z} &= 0 . \\end{aligned}"
+    spoken: "The partial derivative of tau with respect to y equals zero, and the partial derivative of tau with respect to z equals zero."
+    terms:
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+  - display: eq-s3-d6
+    latex: "\\tau = a\\left( t - \\frac{v}{V^2 - v^2} x' \\right) ,"
+    spoken: "tau equals a times the quantity t minus v over V squared minus v squared times x prime."
+    terms:
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "a"
+        quantityId: transformationCoefficientA
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "x'"
+        quantityId: auxiliaryGalileanCoordinate
+  - display: eq-s3-d7
+    latex: "\\xi = V \\tau ,"
+    spoken: "xi equals V tau."
+    terms:
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+  - display: eq-s3-d8
+    latex: "\\xi = a V \\left( t - \\frac{v}{V^2 - v^2} x' \\right) ."
+    spoken: "xi equals a V times the quantity t minus v over V squared minus v squared times x prime."
+    terms:
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "a"
+        quantityId: transformationCoefficientA
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "x'"
+        quantityId: auxiliaryGalileanCoordinate
+  - display: eq-s3-d9
+    latex: "\\frac{x'}{V-v} = t ."
+    spoken: "x prime over V minus v equals t."
+    terms:
+      - glyph: "x'"
+        quantityId: auxiliaryGalileanCoordinate
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+  - display: eq-s3-d10
+    latex: "\\xi = a \\frac{V^2}{V^2 - v^2} x' ."
+    spoken: "xi equals a times V squared over V squared minus v squared, times x prime."
+    terms:
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "a"
+        quantityId: transformationCoefficientA
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "x'"
+        quantityId: auxiliaryGalileanCoordinate
+  - display: eq-s3-d11
+    latex: "\\eta = V \\tau = a V \\left( t - \\frac{v}{V^2 - v^2} x' \\right) ,"
+    spoken: "eta equals V tau, which equals a V times the quantity t minus v over V squared minus v squared times x prime."
+    terms:
+      - glyph: "\\eta"
+        quantityId: coordinatePositionMoving
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "a"
+        quantityId: transformationCoefficientA
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "x'"
+        quantityId: auxiliaryGalileanCoordinate
+  - display: eq-s3-d12
+    latex: "\\frac{y}{\\sqrt{V^2 - v^2}} = t ; \\quad x' = 0 ;"
+    spoken: "y over the square root of V squared minus v squared equals t; and x prime equals zero."
+    terms:
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "x'"
+        quantityId: auxiliaryGalileanCoordinate
+  - display: eq-s3-d13
+    latex: "\\eta = a \\frac{V}{\\sqrt{V^2 - v^2}} y"
+    spoken: "eta equals a times V over the square root of V squared minus v squared, times y."
+    terms:
+      - glyph: "\\eta"
+        quantityId: coordinatePositionMoving
+      - glyph: "a"
+        quantityId: transformationCoefficientA
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+  - display: eq-s3-d14
+    latex: "\\zeta = a \\frac{V}{\\sqrt{V^2 - v^2}} z ."
+    spoken: "zeta equals a times V over the square root of V squared minus v squared, times z."
+    terms:
+      - glyph: "\\zeta"
+        quantityId: coordinatePositionMoving
+      - glyph: "a"
+        quantityId: transformationCoefficientA
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+  # eq-s3-d15 and eq-s3-d16: the transformation with the function phi(v) not yet determined. Einstein's beta
+  #   is the modern gamma (lorentzFactor, sr.beta.lorentzFactor), never v over V.
+  - display: eq-s3-d15
+    latex: "\\begin{aligned} \\tau &= \\varphi(v) \\beta \\left( t - \\frac{v}{V^2} x \\right) , \\\\ \\xi &= \\varphi(v) \\beta (x - v t), \\\\ \\eta &= \\varphi(v) y, \\\\ \\zeta &= \\varphi(v) z, \\end{aligned}"
+    spoken: "tau equals phi of v times beta times the quantity t minus v over V squared times x; xi equals phi of v times beta times the quantity x minus v t; eta equals phi of v times y; zeta equals phi of v times z."
+    terms:
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "\\varphi"
+        quantityId: scaleFactorUnknown
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "\\eta"
+        quantityId: coordinatePositionMoving
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "\\zeta"
+        quantityId: coordinatePositionMoving
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+  - display: eq-s3-d16
+    latex: "\\beta = \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
+    spoken: "beta equals one divided by the square root of one minus the square of v over V."
+    terms:
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+  # eq-s3-d17 and eq-s3-d18: a spherical wave sent from the common origin at t = tau = 0, in K and in k.
+  - display: eq-s3-d17
+    latex: "x^2 + y^2 + z^2 = V^2 t^2 ."
+    spoken: "x squared plus y squared plus z squared equals V squared t squared."
+    terms:
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+  - display: eq-s3-d18
+    latex: "\\xi^2 + \\eta^2 + \\zeta^2 = V^2 \\tau^2 ."
+    spoken: "xi squared plus eta squared plus zeta squared equals V squared tau squared."
+    terms:
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "\\eta"
+        quantityId: coordinatePositionMoving
+      - glyph: "\\zeta"
+        quantityId: coordinatePositionMoving
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+  # eq-s3-d19: t', x', y', z' are the time and coordinates of a third system K', moving with -v relative to k and
+  #   so resting relative to K (p. 901); the transformation from K to K' is the identity (p. 902). They bind the
+  #   resting system's quantities, as the s3-p18 concordance entries (sr.tprime.timeThirdSystem and the three
+  #   coordinate entries) read them, and are not the Galilean auxiliary x' of this section's other paragraphs.
+  - display: eq-s3-d19
+    latex: "\\begin{aligned} t' &= \\varphi(-v) \\beta(-v) \\left\\{ \\tau + \\frac{v}{V^2} \\xi \\right\\} &&= \\varphi(v) \\varphi(-v) t , \\\\ x' &= \\varphi(-v) \\beta(-v) \\{ \\xi + v \\tau \\} &&= \\varphi(v) \\varphi(-v) x , \\\\ y' &= \\varphi(-v) \\eta &&= \\varphi(v) \\varphi(-v) y , \\\\ z' &= \\varphi(-v) \\zeta &&= \\varphi(v) \\varphi(-v) z . \\end{aligned}"
+    spoken: "t prime equals phi of minus v times beta of minus v times, in braces, tau plus v over V squared times xi; which equals phi of v times phi of minus v times t. x prime equals phi of minus v times beta of minus v times, in braces, xi plus v tau; which equals phi of v times phi of minus v times x. y prime equals phi of minus v times eta; which equals phi of v times phi of minus v times y. z prime equals phi of minus v times zeta; which equals phi of v times phi of minus v times z."
+    terms:
+      - glyph: "t'"
+        quantityId: coordinateTimeStationary
+      - glyph: "\\varphi"
+        quantityId: scaleFactorUnknown
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "x'"
+        quantityId: coordinatePositionStationary
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "y'"
+        quantityId: coordinatePositionStationary
+      - glyph: "\\eta"
+        quantityId: coordinatePositionMoving
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "z'"
+        quantityId: coordinatePositionStationary
+      - glyph: "\\zeta"
+        quantityId: coordinatePositionMoving
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+  - display: eq-s3-d20
+    latex: "\\varphi(v) \\varphi(-v) = 1 ."
+    spoken: "phi of v times phi of minus v equals one."
+    terms:
+      - glyph: "\\varphi"
+        quantityId: scaleFactorUnknown
+      - glyph: "v"
+        quantityId: frameSpeed
+  # eq-s3-d21 to eq-s3-d24: the ends of a rod of rest length l along k's H-axis, in K's coordinates at time t (p. 902).
+  - display: eq-s3-d21
+    latex: "x_1 = v t, \\quad y_1 = \\frac{l}{\\varphi(v)}, \\quad z_1 = 0"
+    spoken: "x sub one equals v t; y sub one equals l over phi of v; z sub one equals zero."
+    terms:
+      - glyph: "x_1"
+        quantityId: coordinatePositionStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "y_1"
+        quantityId: coordinatePositionStationary
+      - glyph: "l"
+        quantityId: lengthProper
+      - glyph: "\\varphi"
+        quantityId: scaleFactorUnknown
+      - glyph: "z_1"
+        quantityId: coordinatePositionStationary
+  - display: eq-s3-d22
+    latex: "x_2 = v t, \\quad y_2 = 0, \\quad z_2 = 0 ."
+    spoken: "x sub two equals v t; y sub two equals zero; z sub two equals zero."
+    terms:
+      - glyph: "x_2"
+        quantityId: coordinatePositionStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "y_2"
+        quantityId: coordinatePositionStationary
+      - glyph: "z_2"
+        quantityId: coordinatePositionStationary
+  - display: eq-s3-d23
+    latex: "\\frac{l}{\\varphi(v)} = \\frac{l}{\\varphi(-v)} ,"
+    spoken: "l over phi of v equals l over phi of minus v."
+    terms:
+      - glyph: "l"
+        quantityId: lengthProper
+      - glyph: "\\varphi"
+        quantityId: scaleFactorUnknown
+      - glyph: "v"
+        quantityId: frameSpeed
+  - display: eq-s3-d24
+    latex: "\\varphi(v) = \\varphi(-v) ."
+    spoken: "phi of v equals phi of minus v."
+    terms:
+      - glyph: "\\varphi"
+        quantityId: scaleFactorUnknown
+      - glyph: "v"
+        quantityId: frameSpeed
+  # eq-s3-d25 and eq-s3-d26: the transformation with phi(v) = 1, and beta defined again (p. 902).
+  - display: eq-s3-d25
+    latex: "\\begin{aligned} \\tau &= \\beta\\left( t - \\frac{v}{V^2} x \\right), \\\\ \\xi &= \\beta(x - v t), \\\\ \\eta &= y, \\\\ \\zeta &= z, \\end{aligned}"
+    spoken: "tau equals beta times the quantity t minus v over V squared times x; xi equals beta times the quantity x minus v t; eta equals y; zeta equals z."
+    terms:
+      - glyph: "\\tau"
+        quantityId: coordinateTimeMoving
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "t"
+        quantityId: coordinateTimeStationary
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+      - glyph: "x"
+        quantityId: coordinatePositionStationary
+      - glyph: "\\xi"
+        quantityId: coordinatePositionMoving
+      - glyph: "\\eta"
+        quantityId: coordinatePositionMoving
+      - glyph: "y"
+        quantityId: coordinatePositionStationary
+      - glyph: "\\zeta"
+        quantityId: coordinatePositionMoving
+      - glyph: "z"
+        quantityId: coordinatePositionStationary
+  - display: eq-s3-d26
+    latex: "\\beta = \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} ,"
+    spoken: "beta equals one divided by the square root of one minus the square of v over V."
+    terms:
+      - glyph: "\\beta"
+        quantityId: lorentzFactor
+      - glyph: "v"
+        quantityId: frameSpeed
+      - glyph: "V"
+        quantityId: speedOfLight
+
   # ---- Part II, sections 6 to 10 ----
 
   # Section 6. The Maxwell-Hertz equations for empty space, transformed by section 3's equations.
