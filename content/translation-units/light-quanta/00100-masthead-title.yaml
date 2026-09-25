@@ -7,6 +7,8 @@
 # After both rounds (NavyKite, translator, 2026-09-25; revision 2): masthead typography aligned with
 # the other three papers, the semicolon after "Light" dropped; the German block keeps the printed masthead, whose title runs
 # on to "von A. Einstein.". TanElk ruling, dispatch 213. The words are unchanged. For round 2's reviewer to confirm.
+# Confirmed (TanElk, agent, 2026-09-25): the words match revision 1 exactly and only the masthead
+# punctuation goes, as in the other three papers' English; the German block is untouched.
 kind: "translation-unit"
 id: "masthead-title"
 paper: "light-quanta"
