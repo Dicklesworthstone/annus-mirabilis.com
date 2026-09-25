@@ -1,0 +1,66 @@
+# SourceBlock s10-p15: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s10-p15"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s10"
+order: 202
+locators:
+  - pdfPageIndex: 30
+    printedPage: 920
+diplomaticText: "1. Aus der zweiten Gleichung des Systems (A) folgt, daß eine elektrische Kraft Y und eine magnetische Kraft N dann gleich stark ablenkend wirken auf ein mit der Geschwindigkeit v bewegtes Elektron, wenn Y = N \\cdot v/V. Man ersieht also, daß die Ermittelung der Geschwindigkeit des Elektrons aus dem Verhältnis der magnetischen Ablenkbarkeit A_m und der elektrischen Ablenkbarkeit A_e nach unserer Theorie für beliebige Geschwindigkeiten möglich ist durch Anwendung des Gesetzes:"
+inlines:
+  - kind: "text"
+    text: "1. Aus der zweiten Gleichung des Systems (A) folgt, daß eine elektrische Kraft "
+  - kind: "math"
+    latex: "Y"
+  - kind: "text"
+    text: " und eine magnetische Kraft "
+  - kind: "math"
+    latex: "N"
+  - kind: "text"
+    text: " dann gleich stark ablenkend wirken auf ein mit der Geschwindigkeit "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " bewegtes Elektron, wenn "
+  - kind: "math"
+    latex: "Y = N \\cdot v/V"
+  - kind: "text"
+    text: "."
+  - kind: "space"
+  - kind: "text"
+    text: "Man ersieht also, daß die Ermittelung der Geschwindigkeit des Elektrons aus dem Verhältnis der magnetischen Ablenkbarkeit "
+  - kind: "math"
+    latex: "A_m"
+  - kind: "text"
+    text: " und der elektrischen Ablenkbarkeit "
+  - kind: "math"
+    latex: "A_e"
+  - kind: "text"
+    text: " nach unserer Theorie für beliebige Geschwindigkeiten möglich ist durch Anwendung des Gesetzes:"
+  - kind: "math"
+    latex: "\\frac{A_m}{A_e} = \\frac{v}{V} ."
+    display: true
+    equationId: "eq-s10-d9"
+sentenceSpans:
+  - id: "s10-p15-s1"
+    span:
+      start: 0
+      end: 219
+      blockRevision: 1
+      textDigest: "40afc1d94d62d9c75381df3e6b271b4160d207e3e282d762538ae2bd54137a1a"
+  - id: "s10-p15-s2"
+    span:
+      start: 220
+      end: 479
+      blockRevision: 1
+      textDigest: "40afc1d94d62d9c75381df3e6b271b4160d207e3e282d762538ae2bd54137a1a"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

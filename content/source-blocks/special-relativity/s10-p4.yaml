@@ -1,0 +1,68 @@
+# SourceBlock s10-p4: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s10-p4"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s10"
+order: 184
+locators:
+  - pdfPageIndex: 27
+    printedPage: 917
+  - pdfPageIndex: 28
+    printedPage: 918
+diplomaticText: "Ohne die Allgemeinheit der Betrachtung zu beeinflussen, können und wollen wir annehmen, daß das Elektron in dem Momente, wo wir es ins Auge fassen, sich im Koordinatensprung befinde und sich längs der X-Achse des Systems K mit der Geschwindigkeit v bewege. Es ist dann einleuchtend, daß das Elektron im genannten Momente (t = 0) relativ zu einem längs der X-Achse mit der konstanten Geschwindigkeit v parallelbewegten Koordinatensystem k ruht."
+inlines:
+  - kind: "text"
+    text: "Ohne die Allgemeinheit der Betrachtung zu beeinflussen, können und wollen wir annehmen, daß das Elektron in dem Momente, wo wir es ins Auge fassen, sich im Koordinatensprung befinde und sich längs der "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: "-Achse des Systems "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " mit der Geschwindigkeit "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " bewege."
+  - kind: "space"
+  - kind: "text"
+    text: "Es ist dann einleuchtend, daß das Elektron im genannten Momente ("
+  - kind: "math"
+    latex: "t = 0"
+  - kind: "text"
+    text: ") relativ zu einem längs der "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: "-Achse mit der konstanten Geschwindigkeit "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " parallelbewegten Koordinatensystem "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " ruht."
+sentenceSpans:
+  - id: "s10-p4-s1"
+    span:
+      start: 0
+      end: 256
+      blockRevision: 1
+      textDigest: "473ec2f364f85201e8bdee3556a74b203f7e60248ff4896cf17913f6c03e7bfe"
+  - id: "s10-p4-s2"
+    span:
+      start: 257
+      end: 443
+      blockRevision: 1
+      textDigest: "473ec2f364f85201e8bdee3556a74b203f7e60248ff4896cf17913f6c03e7bfe"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

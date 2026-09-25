@@ -1,0 +1,32 @@
+# SourceBlock closing-dateline: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "closing-dateline"
+kind: "closing"
+paper: "special-relativity"
+order: 212
+locators:
+  - pdfPageIndex: 31
+    printedPage: 921
+diplomaticText: "Bern, Juni 1905."
+inlines:
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Bern"
+  - kind: "text"
+    text: ", Juni 1905."
+sentenceSpans:
+  - id: "closing-dateline"
+    span:
+      start: 0
+      end: 16
+      blockRevision: 1
+      textDigest: "407b3188a2ce93c14db7b0692d347a66a92128f374820ff55f57dae7a3014c96"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

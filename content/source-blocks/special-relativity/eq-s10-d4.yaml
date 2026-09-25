@@ -1,0 +1,26 @@
+# SourceBlock eq-s10-d4: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "eq-s10-d4"
+kind: "equation"
+paper: "special-relativity"
+section: "s10"
+order: 191
+locators:
+  - pdfPageIndex: 29
+    printedPage: 919
+editorialLabel: "ed:s10-d4"
+containedIn: "s10-p7"
+diplomaticText: "\\begin{aligned} \\mu \\beta^3 \\frac{d^2 x}{d t^2} &= \\varepsilon X = \\varepsilon X' , \\\\ \\mu \\beta^2 \\frac{d^2 y}{d t^2} &= \\varepsilon \\beta \\left( Y - \\frac{v}{V} N \\right) = \\varepsilon Y' , \\\\ \\mu \\beta^2 \\frac{d^2 z}{d t^2} &= \\varepsilon \\beta \\left( Z + \\frac{v}{V} M \\right) = \\varepsilon Z' \\end{aligned}"
+inlines:
+  - kind: "math"
+    latex: "\\begin{aligned} \\mu \\beta^3 \\frac{d^2 x}{d t^2} &= \\varepsilon X = \\varepsilon X' , \\\\ \\mu \\beta^2 \\frac{d^2 y}{d t^2} &= \\varepsilon \\beta \\left( Y - \\frac{v}{V} N \\right) = \\varepsilon Y' , \\\\ \\mu \\beta^2 \\frac{d^2 z}{d t^2} &= \\varepsilon \\beta \\left( Z + \\frac{v}{V} M \\right) = \\varepsilon Z' \\end{aligned}"
+    equationId: "eq-s10-d4"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

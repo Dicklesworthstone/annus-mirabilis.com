@@ -1,0 +1,96 @@
+# SourceBlock s10-p5: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s10-p5"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s10"
+order: 185
+locators:
+  - pdfPageIndex: 28
+    printedPage: 918
+diplomaticText: "Aus der oben gemachten Voraussetzung in Verbindung mit dem Relativitätsprinzip ist klar, daß sich das Elektron in der unmittelbar folgenden Zeit (für kleine Werte von t) vom System k aus betrachtet nach den Gleichungen bewegt: wobei die Zeichen \\xi, \\eta, \\zeta, \\tau, X', Y', Z' sich auf das System k beziehen. Setzen wir noch fest, daß für t = x = y = z = 0 \\tau = \\xi = \\eta = \\zeta = 0 sein soll, so gelten die Transformationsgleichungen der §§ 3 und 6, so daß gilt:"
+inlines:
+  - kind: "text"
+    text: "Aus der oben gemachten Voraussetzung in Verbindung mit dem Relativitätsprinzip ist klar, daß sich das Elektron in der unmittelbar folgenden Zeit (für kleine Werte von "
+  - kind: "math"
+    latex: "t"
+  - kind: "text"
+    text: ") vom System "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " aus betrachtet nach den Gleichungen bewegt:"
+  - kind: "math"
+    latex: "\\begin{aligned} \\mu \\frac{d^2 \\xi}{d \\tau^2} &= \\varepsilon X' , \\\\ \\mu \\frac{d^2 \\eta}{d \\tau^2} &= \\varepsilon Y' , \\\\ \\mu \\frac{d^2 \\zeta}{d \\tau^2} &= \\varepsilon Z' , \\end{aligned}"
+    display: true
+    equationId: "eq-s10-d2"
+  - kind: "text"
+    text: " wobei die Zeichen "
+  - kind: "math"
+    latex: "\\xi"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\eta"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\zeta"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\tau"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "X'"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "Y'"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "Z'"
+  - kind: "text"
+    text: " sich auf das System "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " beziehen."
+  - kind: "space"
+  - kind: "text"
+    text: "Setzen wir noch fest, daß für "
+  - kind: "math"
+    latex: "t = x = y = z = 0"
+  - kind: "text"
+    text: " "
+  - kind: "math"
+    latex: "\\tau = \\xi = \\eta = \\zeta = 0"
+  - kind: "text"
+    text: " sein soll, so gelten die Transformationsgleichungen der §§ 3 und 6, so daß gilt:"
+  - kind: "math"
+    latex: "\\begin{aligned} \\tau &= \\beta \\left( t - \\frac{v}{V^2} x \\right) , \\\\ \\xi &= \\beta (x - v t) , &\\qquad X' &= X , \\\\ \\eta &= y , &\\qquad Y' &= \\beta \\left( Y - \\frac{v}{V} N \\right) , \\\\ \\zeta &= z , &\\qquad Z' &= \\beta \\left( Z + \\frac{v}{V} M \\right) . \\end{aligned}"
+    display: true
+    equationId: "eq-s10-d3"
+sentenceSpans:
+  - id: "s10-p5-s1"
+    span:
+      start: 0
+      end: 311
+      blockRevision: 1
+      textDigest: "83dd80d198bbfae4f6a5fae34441381491f4b28296b5cabafc2d0ae38e9d6a47"
+  - id: "s10-p5-s2"
+    span:
+      start: 312
+      end: 470
+      blockRevision: 1
+      textDigest: "83dd80d198bbfae4f6a5fae34441381491f4b28296b5cabafc2d0ae38e9d6a47"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

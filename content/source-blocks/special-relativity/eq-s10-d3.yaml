@@ -1,0 +1,26 @@
+# SourceBlock eq-s10-d3: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "eq-s10-d3"
+kind: "equation"
+paper: "special-relativity"
+section: "s10"
+order: 187
+locators:
+  - pdfPageIndex: 28
+    printedPage: 918
+editorialLabel: "ed:s10-d3"
+containedIn: "s10-p5"
+diplomaticText: "\\begin{aligned} \\tau &= \\beta \\left( t - \\frac{v}{V^2} x \\right) , \\\\ \\xi &= \\beta (x - v t) , &\\qquad X' &= X , \\\\ \\eta &= y , &\\qquad Y' &= \\beta \\left( Y - \\frac{v}{V} N \\right) , \\\\ \\zeta &= z , &\\qquad Z' &= \\beta \\left( Z + \\frac{v}{V} M \\right) . \\end{aligned}"
+inlines:
+  - kind: "math"
+    latex: "\\begin{aligned} \\tau &= \\beta \\left( t - \\frac{v}{V^2} x \\right) , \\\\ \\xi &= \\beta (x - v t) , &\\qquad X' &= X , \\\\ \\eta &= y , &\\qquad Y' &= \\beta \\left( Y - \\frac{v}{V} N \\right) , \\\\ \\zeta &= z , &\\qquad Z' &= \\beta \\left( Z + \\frac{v}{V} M \\right) . \\end{aligned}"
+    equationId: "eq-s10-d3"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,26 @@
+# SourceBlock eq-s10-d2: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "eq-s10-d2"
+kind: "equation"
+paper: "special-relativity"
+section: "s10"
+order: 186
+locators:
+  - pdfPageIndex: 28
+    printedPage: 918
+editorialLabel: "ed:s10-d2"
+containedIn: "s10-p5"
+diplomaticText: "\\begin{aligned} \\mu \\frac{d^2 \\xi}{d \\tau^2} &= \\varepsilon X' , \\\\ \\mu \\frac{d^2 \\eta}{d \\tau^2} &= \\varepsilon Y' , \\\\ \\mu \\frac{d^2 \\zeta}{d \\tau^2} &= \\varepsilon Z' , \\end{aligned}"
+inlines:
+  - kind: "math"
+    latex: "\\begin{aligned} \\mu \\frac{d^2 \\xi}{d \\tau^2} &= \\varepsilon X' , \\\\ \\mu \\frac{d^2 \\eta}{d \\tau^2} &= \\varepsilon Y' , \\\\ \\mu \\frac{d^2 \\zeta}{d \\tau^2} &= \\varepsilon Z' , \\end{aligned}"
+    equationId: "eq-s10-d2"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

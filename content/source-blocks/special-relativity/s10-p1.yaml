@@ -1,0 +1,33 @@
+# SourceBlock s10-p1: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s10-p1"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s10"
+order: 180
+locators:
+  - pdfPageIndex: 27
+    printedPage: 917
+diplomaticText: "In einem elektromagnetischen Felde bewege sich ein punktförmiges, mit einer elektrischen Ladung \\varepsilon versehenes Teilchen (im folgenden „Elektron“ genannt), über dessen Bewegungsgesetz wir nur folgendes annehmen:"
+inlines:
+  - kind: "text"
+    text: "In einem elektromagnetischen Felde bewege sich ein punktförmiges, mit einer elektrischen Ladung "
+  - kind: "math"
+    latex: "\\varepsilon"
+  - kind: "text"
+    text: " versehenes Teilchen (im folgenden „Elektron“ genannt), über dessen Bewegungsgesetz wir nur folgendes annehmen:"
+sentenceSpans:
+  - id: "s10-p1-s1"
+    span:
+      start: 0
+      end: 218
+      blockRevision: 1
+      textDigest: "b5c0a7fcc6dbb8ed20a9210b5e28224a4d91f238ad3686c0f75678c994def21f"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

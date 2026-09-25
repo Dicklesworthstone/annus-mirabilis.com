@@ -1,0 +1,28 @@
+# SourceBlock closing-received: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "closing-received"
+kind: "closing"
+paper: "special-relativity"
+order: 213
+locators:
+  - pdfPageIndex: 31
+    printedPage: 921
+diplomaticText: "(Eingegangen 30. Juni 1905.)"
+inlines:
+  - kind: "text"
+    text: "(Eingegangen 30. Juni 1905.)"
+sentenceSpans:
+  - id: "closing-received"
+    span:
+      start: 0
+      end: 28
+      blockRevision: 1
+      textDigest: "706ced2c62858d398b24f1a02988fd83c27392d47ef1b3a5ef66911d66bd4304"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

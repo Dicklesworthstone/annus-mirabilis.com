@@ -1,0 +1,41 @@
+# SourceBlock s10-p6: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s10-p6"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s10"
+order: 188
+locators:
+  - pdfPageIndex: 28
+    printedPage: 918
+diplomaticText: "Mit Hilfe dieser Gleichungen transformieren wir die obigen Bewegungsgleichungen vom System k auf das System K und erhalten:"
+inlines:
+  - kind: "text"
+    text: "Mit Hilfe dieser Gleichungen transformieren wir die obigen Bewegungsgleichungen vom System "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " auf das System "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " und erhalten:"
+  - kind: "math"
+    latex: "\\left\\{ \\begin{aligned} \\frac{d^2 x}{d t^2} &= \\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta^3} X , \\\\ \\frac{d^2 y}{d t^2} &= \\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta} \\left( Y - \\frac{v}{V} N \\right) , \\\\ \\frac{d^2 z}{d t^2} &= \\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta} \\left( Z + \\frac{v}{V} M \\right) . \\end{aligned} \\right."
+    display: true
+    equationId: "eq-A"
+sentenceSpans:
+  - id: "s10-p6-s1"
+    span:
+      start: 0
+      end: 123
+      blockRevision: 1
+      textDigest: "00a5587073597f8feb1ea79c53ec808e02123b94ad559b7b9952514e597117bc"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

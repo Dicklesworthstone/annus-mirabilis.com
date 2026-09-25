@@ -1,0 +1,22 @@
+# TranslationUnit eq-s10-d4: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "eq-s10-d4"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "eq-s10-d4"
+inlines:
+  - kind: "math"
+    latex: "\\begin{aligned} \\mu \\beta^3 \\frac{d^2 x}{d t^2} &= \\varepsilon X = \\varepsilon X' , \\\\ \\mu \\beta^2 \\frac{d^2 y}{d t^2} &= \\varepsilon \\beta \\left( Y - \\frac{v}{V} N \\right) = \\varepsilon Y' , \\\\ \\mu \\beta^2 \\frac{d^2 z}{d t^2} &= \\varepsilon \\beta \\left( Z + \\frac{v}{V} M \\right) = \\varepsilon Z' \\end{aligned}"
+    equationId: "eq-s10-d4"
+translator:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

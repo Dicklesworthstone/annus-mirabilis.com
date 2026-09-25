@@ -1,0 +1,29 @@
+# SourceBlock s10-p8: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s10-p8"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s10"
+order: 195
+locators:
+  - pdfPageIndex: 29
+    printedPage: 919
+diplomaticText: "Natürlich würde man bei anderer Definition der Kraft und der Beschleunigung andere Zahlen für die Massen erhalten; man ersieht daraus, daß man bei der Vergleichung verschiedener Theorien der Bewegung des Elektrons sehr vorsichtig verfahren muß."
+inlines:
+  - kind: "text"
+    text: "Natürlich würde man bei anderer Definition der Kraft und der Beschleunigung andere Zahlen für die Massen erhalten; man ersieht daraus, daß man bei der Vergleichung verschiedener Theorien der Bewegung des Elektrons sehr vorsichtig verfahren muß."
+sentenceSpans:
+  - id: "s10-p8-s1"
+    span:
+      start: 0
+      end: 244
+      blockRevision: 1
+      textDigest: "ac2cac0a6f03a365ba3f74c24686426a172c09cfc6884a6afb3456a3751b881f"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

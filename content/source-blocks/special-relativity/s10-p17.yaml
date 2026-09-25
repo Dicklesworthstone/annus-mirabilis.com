@@ -1,0 +1,39 @@
+# SourceBlock s10-p17: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s10-p17"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s10"
+order: 205
+locators:
+  - pdfPageIndex: 30
+    printedPage: 920
+  - pdfPageIndex: 31
+    printedPage: 921
+diplomaticText: "2. Aus der Ableitung für die kinetische Energie des Elektrons folgt, daß zwischen der durchlaufenen Potentialdifferenz und der erlangten Geschwindigkeit v des Elektrons die Beziehung gelten muß:"
+inlines:
+  - kind: "text"
+    text: "2. Aus der Ableitung für die kinetische Energie des Elektrons folgt, daß zwischen der durchlaufenen Potentialdifferenz und der erlangten Geschwindigkeit "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: " des Elektrons die Beziehung gelten muß:"
+  - kind: "math"
+    latex: "P = \\int X d x = \\frac{\\mu}{\\varepsilon} V^2 \\left\\{ \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} - 1 \\right\\} ."
+    display: true
+    equationId: "eq-s10-d10"
+sentenceSpans:
+  - id: "s10-p17-s1"
+    span:
+      start: 0
+      end: 194
+      blockRevision: 1
+      textDigest: "09b86735bb8834861bd1cc5054bb85bcb761a2d156c08314739b50a4826c0b0f"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

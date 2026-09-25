@@ -1,0 +1,29 @@
+# SourceBlock s10-p13: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s10-p13"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s10"
+order: 201
+locators:
+  - pdfPageIndex: 30
+    printedPage: 920
+diplomaticText: "Wir wollen nun die aus dem Gleichungssystem (A) resultierenden, dem Experimente zugänglichen Eigenschaften der Bewegung des Elektrons aufzählen."
+inlines:
+  - kind: "text"
+    text: "Wir wollen nun die aus dem Gleichungssystem (A) resultierenden, dem Experimente zugänglichen Eigenschaften der Bewegung des Elektrons aufzählen."
+sentenceSpans:
+  - id: "s10-p13-s1"
+    span:
+      start: 0
+      end: 144
+      blockRevision: 1
+      textDigest: "aebed0515c149dd80f8d7806a3bfba2cea2a8e3f289717dec035a13b1a577cca"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

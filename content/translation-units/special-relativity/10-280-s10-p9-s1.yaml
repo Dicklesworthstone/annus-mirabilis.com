@@ -1,0 +1,27 @@
+# TranslationUnit s10-p9-s1: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s10-p9-s1"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s10-p9-s1"
+inlines:
+  - kind: "text"
+    text: "We remark that these results about the mass also hold for ponderable material points; for a ponderable material point can be made into an electron (in our sense) by adding an "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "arbitrarily small"
+  - kind: "text"
+    text: " electric charge."
+translator:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

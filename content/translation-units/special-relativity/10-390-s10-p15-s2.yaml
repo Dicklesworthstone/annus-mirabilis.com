@@ -1,0 +1,29 @@
+# TranslationUnit s10-p15-s2: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s10-p15-s2"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s10-p15-s2"
+inlines:
+  - kind: "text"
+    text: "One sees, therefore, that according to our theory the velocity of the electron can be determined, for arbitrary velocities, from the ratio of the magnetic deflectability "
+  - kind: "math"
+    latex: "A_m"
+  - kind: "text"
+    text: " to the electric deflectability "
+  - kind: "math"
+    latex: "A_e"
+  - kind: "text"
+    text: ", by applying the law:"
+translator:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

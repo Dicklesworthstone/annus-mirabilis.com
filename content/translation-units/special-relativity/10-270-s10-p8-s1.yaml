@@ -1,0 +1,21 @@
+# TranslationUnit s10-p8-s1: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s10-p8-s1"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s10-p8-s1"
+inlines:
+  - kind: "text"
+    text: "Naturally, with a different definition of force and acceleration one would obtain other numbers for the masses; one sees from this that one must proceed very cautiously in comparing different theories of the motion of the electron."
+translator:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

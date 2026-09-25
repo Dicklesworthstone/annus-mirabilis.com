@@ -1,0 +1,26 @@
+# SourceBlock eq-s10-d5: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "eq-s10-d5"
+kind: "equation"
+paper: "special-relativity"
+section: "s10"
+order: 192
+locators:
+  - pdfPageIndex: 29
+    printedPage: 919
+editorialLabel: "ed:s10-d5"
+containedIn: "s10-p7"
+diplomaticText: "\\text{Massenzahl} \\times \\text{Beschleunigungszahl} = \\text{Kraftzahl}"
+inlines:
+  - kind: "math"
+    latex: "\\text{Massenzahl} \\times \\text{Beschleunigungszahl} = \\text{Kraftzahl}"
+    equationId: "eq-s10-d5"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

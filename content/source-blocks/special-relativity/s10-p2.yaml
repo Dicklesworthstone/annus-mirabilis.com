@@ -1,0 +1,51 @@
+# SourceBlock s10-p2: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s10-p2"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s10"
+order: 181
+locators:
+  - pdfPageIndex: 27
+    printedPage: 917
+diplomaticText: "Ruht das Elektron in einer bestimmten Epoche, so erfolgt in dem nächsten Zeitteilchen die Bewegung des Elektrons nach den Gleichungen wobei x, y, z die Koordinaten des Elektrons, \\mu die Masse des Elektrons bedeutet, sofern dasselbe langsam bewegt ist."
+inlines:
+  - kind: "text"
+    text: "Ruht das Elektron in einer bestimmten Epoche, so erfolgt in dem nächsten Zeitteilchen die Bewegung des Elektrons nach den Gleichungen"
+  - kind: "math"
+    latex: "\\begin{aligned} \\mu \\frac{d^2 x}{d t^2} &= \\varepsilon X \\\\ \\mu \\frac{d^2 y}{d t^2} &= \\varepsilon Y \\\\ \\mu \\frac{d^2 z}{d t^2} &= \\varepsilon Z , \\end{aligned}"
+    display: true
+    equationId: "eq-s10-d1"
+  - kind: "text"
+    text: " wobei "
+  - kind: "math"
+    latex: "x"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "y"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "z"
+  - kind: "text"
+    text: " die Koordinaten des Elektrons, "
+  - kind: "math"
+    latex: "\\mu"
+  - kind: "text"
+    text: " die Masse des Elektrons bedeutet, sofern dasselbe langsam bewegt ist."
+sentenceSpans:
+  - id: "s10-p2-s1"
+    span:
+      start: 0
+      end: 252
+      blockRevision: 1
+      textDigest: "15950d1d61229ae491fb0f669c5789d698f22170fbfc4b5a180fe4486a7ea662"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

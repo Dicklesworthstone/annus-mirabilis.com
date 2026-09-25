@@ -1,0 +1,35 @@
+# SourceBlock s10-p9: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s10-p9"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s10"
+order: 196
+locators:
+  - pdfPageIndex: 29
+    printedPage: 919
+diplomaticText: "Wir bemerken, daß diese Resultate über die Masse auch für die ponderabeln materiellen Punkte gilt; denn ein ponderabler materieller Punkt kann durch Zufügen einer beliebig kleinen elektrischen Ladung zu einem Elektron (in unserem Sinne) gemacht werden."
+inlines:
+  - kind: "text"
+    text: "Wir bemerken, daß diese Resultate über die Masse auch für die ponderabeln materiellen Punkte gilt; denn ein ponderabler materieller Punkt kann durch Zufügen einer "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "beliebig kleinen"
+  - kind: "text"
+    text: " elektrischen Ladung zu einem Elektron (in unserem Sinne) gemacht werden."
+sentenceSpans:
+  - id: "s10-p9-s1"
+    span:
+      start: 0
+      end: 252
+      blockRevision: 1
+      textDigest: "e8868abb21c01b1a6ff46e271bc65279abb2006b4250f58ed46eac2da380d6c3"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

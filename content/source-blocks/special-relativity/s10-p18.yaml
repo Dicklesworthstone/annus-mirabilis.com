@@ -1,0 +1,56 @@
+# SourceBlock s10-p18: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s10-p18"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s10"
+order: 207
+locators:
+  - pdfPageIndex: 31
+    printedPage: 921
+diplomaticText: "3. Wir berechnen den Krümmungsradius R der Bahn, wenn eine senkrecht zur Geschwindigkeit des Elektrons wirkende magnetische Kraft N (als einzige ablenkende Kraft) vorhanden ist. Aus der zweiten der Gleichungen (A) erhalten wir: oder"
+inlines:
+  - kind: "text"
+    text: "3. Wir berechnen den Krümmungsradius "
+  - kind: "math"
+    latex: "R"
+  - kind: "text"
+    text: " der Bahn, wenn eine senkrecht zur Geschwindigkeit des Elektrons wirkende magnetische Kraft "
+  - kind: "math"
+    latex: "N"
+  - kind: "text"
+    text: " (als einzige ablenkende Kraft) vorhanden ist."
+  - kind: "space"
+  - kind: "text"
+    text: "Aus der zweiten der Gleichungen (A) erhalten wir:"
+  - kind: "math"
+    latex: "- \\frac{d^2 y}{d t^2} = \\frac{v^2}{R} = \\frac{\\varepsilon}{\\mu} \\frac{v}{V} N \\cdot \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}"
+    display: true
+    equationId: "eq-s10-d11"
+  - kind: "text"
+    text: " oder"
+  - kind: "math"
+    latex: "R = V^2 \\frac{\\mu}{\\varepsilon} \\cdot \\frac{\\frac{v}{V}}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} \\cdot \\frac{1}{N} ."
+    display: true
+    equationId: "eq-s10-d12"
+sentenceSpans:
+  - id: "s10-p18-s1"
+    span:
+      start: 0
+      end: 177
+      blockRevision: 1
+      textDigest: "4bb8c3d0a992639177dc1251fb535885513cb48c6e974bf00327f91ce9928e2a"
+  - id: "s10-p18-s2"
+    span:
+      start: 178
+      end: 232
+      blockRevision: 1
+      textDigest: "4bb8c3d0a992639177dc1251fb535885513cb48c6e974bf00327f91ce9928e2a"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

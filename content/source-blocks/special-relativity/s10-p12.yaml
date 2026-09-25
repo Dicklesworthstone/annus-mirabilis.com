@@ -1,0 +1,29 @@
+# SourceBlock s10-p12: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s10-p12"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s10"
+order: 200
+locators:
+  - pdfPageIndex: 30
+    printedPage: 920
+diplomaticText: "Auch dieser Ausdruck für die kinetische Energie muß dem oben angeführten Argument zufolge ebenso für ponderable Massen gelten."
+inlines:
+  - kind: "text"
+    text: "Auch dieser Ausdruck für die kinetische Energie muß dem oben angeführten Argument zufolge ebenso für ponderable Massen gelten."
+sentenceSpans:
+  - id: "s10-p12-s1"
+    span:
+      start: 0
+      end: 126
+      blockRevision: 1
+      textDigest: "699eba806d32c852413bb191946a2decc2d86ef393a28787e225a1659d6bfa13"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

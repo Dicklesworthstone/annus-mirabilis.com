@@ -1,0 +1,37 @@
+# TranslationUnit s10-p4-s2: English machine-draft translation.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); review rounds pending.
+kind: "translation-unit"
+id: "s10-p4-s2"
+paper: "special-relativity"
+sourceRefs:
+  - paper: "special-relativity"
+    id: "s10-p4-s2"
+inlines:
+  - kind: "text"
+    text: "It is then evident that at the moment in question ("
+  - kind: "math"
+    latex: "t = 0"
+  - kind: "text"
+    text: ") the electron is at rest relative to a coordinate system "
+  - kind: "math"
+    latex: "k"
+  - kind: "text"
+    text: " moving parallel to itself along the "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: "-axis with the constant velocity "
+  - kind: "math"
+    latex: "v"
+  - kind: "text"
+    text: "."
+translator:
+  id: "agent:GreenBarn"
+  name: "GreenBarn (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

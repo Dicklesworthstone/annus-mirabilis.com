@@ -1,0 +1,26 @@
+# SourceBlock eq-s10-d9: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "eq-s10-d9"
+kind: "equation"
+paper: "special-relativity"
+section: "s10"
+order: 203
+locators:
+  - pdfPageIndex: 30
+    printedPage: 920
+editorialLabel: "ed:s10-d9"
+containedIn: "s10-p15"
+diplomaticText: "\\frac{A_m}{A_e} = \\frac{v}{V} ."
+inlines:
+  - kind: "math"
+    latex: "\\frac{A_m}{A_e} = \\frac{v}{V} ."
+    equationId: "eq-s10-d9"
+sentenceSpans: []
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

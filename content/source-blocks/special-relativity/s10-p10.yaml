@@ -1,0 +1,82 @@
+# SourceBlock s10-p10: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s10-p10"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s10"
+order: 197
+locators:
+  - pdfPageIndex: 29
+    printedPage: 919
+  - pdfPageIndex: 30
+    printedPage: 920
+diplomaticText: "Wir bestimmen die kinetische Energie des Elektrons. Bewegt sich ein Elektron vom Koordinatenursprung des Systems K aus mit der Anfangsgeschwindigkeit 0 beständig auf der X-Achse unter der Wirkung einer elektrostatischen Kraft X, so ist klar, daß die dem elektrostatischen Felde entzogene Energie den Wert \\int \\varepsilon X d x hat. Da das Elektron langsam beschleunigt sein soll und infolgedessen keine Energie in Form von Strahlung abgeben möge, so muß die dem elektrostatischen Felde entzogene Energie gleich der Bewegungsenergie W des Elektrons gesetzt werden. Man erhält daher, indem man beachtet, daß während des ganzen betrachteten Bewegungsvorganges die erste der Gleichungen (A) gilt:"
+inlines:
+  - kind: "text"
+    text: "Wir bestimmen die kinetische Energie des Elektrons."
+  - kind: "space"
+  - kind: "text"
+    text: "Bewegt sich ein Elektron vom Koordinatenursprung des Systems "
+  - kind: "math"
+    latex: "K"
+  - kind: "text"
+    text: " aus mit der Anfangsgeschwindigkeit 0 beständig auf der "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: "-Achse unter der Wirkung einer elektrostatischen Kraft "
+  - kind: "math"
+    latex: "X"
+  - kind: "text"
+    text: ", so ist klar, daß die dem elektrostatischen Felde entzogene Energie den Wert "
+  - kind: "math"
+    latex: "\\int \\varepsilon X d x"
+  - kind: "text"
+    text: " hat."
+  - kind: "space"
+  - kind: "text"
+    text: "Da das Elektron langsam beschleunigt sein soll und infolgedessen keine Energie in Form von Strahlung abgeben möge, so muß die dem elektrostatischen Felde entzogene Energie gleich der Bewegungsenergie "
+  - kind: "math"
+    latex: "W"
+  - kind: "text"
+    text: " des Elektrons gesetzt werden."
+  - kind: "space"
+  - kind: "text"
+    text: "Man erhält daher, indem man beachtet, daß während des ganzen betrachteten Bewegungsvorganges die erste der Gleichungen (A) gilt:"
+  - kind: "math"
+    latex: "W = \\int \\varepsilon X d x = \\int_0^v \\beta^3 v d v = \\mu V^2 \\left\\{ \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} - 1 \\right\\} ."
+    display: true
+    equationId: "eq-s10-d8"
+sentenceSpans:
+  - id: "s10-p10-s1"
+    span:
+      start: 0
+      end: 51
+      blockRevision: 1
+      textDigest: "3dfd64d7a411f043fd2dab7e890bf8f9cc623d0667e753bc5ad06dc272f7b4e1"
+  - id: "s10-p10-s2"
+    span:
+      start: 52
+      end: 332
+      blockRevision: 1
+      textDigest: "3dfd64d7a411f043fd2dab7e890bf8f9cc623d0667e753bc5ad06dc272f7b4e1"
+  - id: "s10-p10-s3"
+    span:
+      start: 333
+      end: 564
+      blockRevision: 1
+      textDigest: "3dfd64d7a411f043fd2dab7e890bf8f9cc623d0667e753bc5ad06dc272f7b4e1"
+  - id: "s10-p10-s4"
+    span:
+      start: 565
+      end: 693
+      blockRevision: 1
+      textDigest: "3dfd64d7a411f043fd2dab7e890bf8f9cc623d0667e753bc5ad06dc272f7b4e1"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

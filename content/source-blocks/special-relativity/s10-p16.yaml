@@ -1,0 +1,29 @@
+# SourceBlock s10-p16: German source text from public/papers/transcripts/ap-17-891-machine-draft.txt.
+# Einstein, Zur Elektrodynamik bewegter Körper, Ann. Phys. (4) 17, 891-921 (1905), ap-17-891.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s10-p16"
+kind: "paragraph"
+paper: "special-relativity"
+section: "s10"
+order: 204
+locators:
+  - pdfPageIndex: 30
+    printedPage: 920
+diplomaticText: "Diese Beziehung ist der Prüfung durch das Experiment zugänglich, da die Geschwindigkeit des Elektrons auch direkt, z. B. mittels rasch oszillierender elektrischer und magnetischer Felder, gemessen werden kann."
+inlines:
+  - kind: "text"
+    text: "Diese Beziehung ist der Prüfung durch das Experiment zugänglich, da die Geschwindigkeit des Elektrons auch direkt, z. B. mittels rasch oszillierender elektrischer und magnetischer Felder, gemessen werden kann."
+sentenceSpans:
+  - id: "s10-p16-s1"
+    span:
+      start: 0
+      end: 209
+      blockRevision: 1
+      textDigest: "08a7b120ddb391f192ba55c208e8bd2494ef4edb876411d577faafc6898a27c9"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"
