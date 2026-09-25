@@ -154,7 +154,8 @@ test("a refused time step keeps the accepted snapshot", async (t) => {
   scheduler.request(store.issue("setup-change"));
   await waitFor(store, (s) => s.status === "accepted");
   const accepted = store.getSnapshot().accepted;
-  scheduler.request(store.issue("setup-change", { dt: 100 }));
+  // 0.1 s: inside the declared range, about 8.6 times the stability limit at the defaults.
+  scheduler.request(store.issue("setup-change", { dt: 0.1 }));
   const refused = await waitFor(store, (s) => s.status === "refused");
   assert.equal(refused.accepted, accepted);
   assert.equal(refused.refusal.code, "drift-diffusion-unstable");

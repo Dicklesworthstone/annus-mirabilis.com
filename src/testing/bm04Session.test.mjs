@@ -88,7 +88,10 @@ test("parameter edits publish correctly labeled results; invalid edits do not pu
 test("sharing uses accepted settings rather than refused or still-requested values", async () => {
   const { app } = session();
   const accepted = app.acceptedParameters();
-  app.apply({ ...BM04_DEFAULTS, dt: 100 }); // Unstable dt
+  // 0.1 s: inside the declared 0.01-1000 ms range, and about 8.6 times the explicit scheme's
+  // stability limit dx^2/(2D) = 0.0117 s at the defaults, so the worker, not the range check,
+  // refuses it. (100 s is now refused by the declared range before it reaches the worker.)
+  app.apply({ ...BM04_DEFAULTS, dt: 0.1 }); // Unstable dt
   await settled(app);
   assert.equal(app.getSnapshot().status, "refused");
   assert.deepEqual(app.acceptedParameters(), accepted);
