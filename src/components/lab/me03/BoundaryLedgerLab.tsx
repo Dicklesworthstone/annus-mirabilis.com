@@ -1,16 +1,15 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../../experiments/labels/modelNoteData.ts";
 import { executionLabelAttributes } from "../../../experiments/labels/resultAttributes.ts";
 import { fromMe03Draft, toMe03Draft } from "../../../experiments/me03/controls.ts";
 import {
-  ME03_BOX_MODEL,
   ME03_CAPTION,
   ME03_DEFAULTS,
-  ME03_MODEL,
   ME03_NOT_MODELED,
   ME03_OUTPUTS,
   ME03_PRESETS,
@@ -35,6 +34,7 @@ import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabT
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { BoundaryLedgerPlot } from "./BoundaryLedgerPlot.tsx";
 import { PhotonBoxPlot } from "./PhotonBoxPlot.tsx";
@@ -741,43 +741,12 @@ export function BoundaryLedgerLab({
         </div>
       </div>
 
-      {/* Show The Code Section */}
-      <details className="show-the-code">
-        <summary>Show the reference code & kernel bindings</summary>
-        <div className="code-panel">
-          <p>
-            Reference evaluator: <code>{isBox ? ME03_BOX_MODEL.source : ME03_MODEL.source}</code>
-          </p>
-          {/* A code line does not wrap, so the block scrolls inside its own named region
-              instead of widening the page (+378px on a phone with this section open). */}
-          <section
-            className="show-the-code-scroll"
-            aria-label="ME-03 reference code"
-            // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable
-            tabIndex={0}
-          >
-            <pre>
-              <code>
-                {isBox
-                  ? `// evaluatePhotonBox (Einstein 1906 / Poincaré 1900)
-const dt = ell / c;
-const pPulse = E / c;
-const vRecoil = -pPulse / M;
-const boxDeltaX = vRecoil * dt; // -E * ell / (M * c^2)
-const mLight = assignLightMass ? E / (c * c) : 0;
-const comShift = (M * boxDeltaX + mLight * ell) / (M + mLight);`
-                  : `// evaluateBoundaryLedger
-const bodyDeltaM = -emittedEnergy / (c * c);
-const sysDeltaM = disposition === "retained" ? inputEnergy / (c * c) : 0;
-
-// evaluateFourMomentum
-const mSquared = (totalEnergy / c)^2 - p^2;
-const invariantMass = Math.sqrt(Math.max(0, mSquared));`}
-              </code>
-            </pre>
-          </section>
-        </div>
-      </details>
+      {/* The kernel's own source, extracted at build time with its hash pinned
+          (src/content/kernel). It replaces a block retyped by hand, which was not the kernel's
+          code: it gave a signed recoil velocity, -E/(M c), where evaluatePhotonBox reports the
+          speed E/(M c), and it computed the centre-of-mass shift as a weighted average where the
+          kernel writes 0 or the displacement (the same values, by a different formula). */}
+      <ShowTheCode instrumentId="me-03" listings={getKernelListingsForInstrument("me-03")} />
 
       {/* Not Modeled Section */}
       <footer className="lab-not-modeled">
