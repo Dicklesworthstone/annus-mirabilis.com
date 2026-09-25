@@ -73,6 +73,27 @@ function props(el: Element): Record<string, ((...a: unknown[]) => void) | undefi
 }
 const pause = () => new Promise((r) => setTimeout(r, 5));
 
+/**
+ * Waits until the lab's accepted and requested revisions hold still, so a probe measures what ITS
+ * value changed. A worker lab's first snapshot, or the run a mode switch starts, can land after one
+ * 5 ms pause; the next probe then read that late arrival as its own value being accepted. On
+ * 2026-09-25 this made lq-01 report `power="abc": let through` in 1 of 3 runs, and it refused the
+ * b9f2ad77 deploy. Bounded at 200 pauses; it returns as soon as four in a row see no change.
+ */
+async function settle(c: HTMLElement): Promise<void> {
+  let last = "";
+  let still = 0;
+  for (let i = 0; i < 200 && still < 4; i++) {
+    await act(async () => {
+      await pause();
+    });
+    const s = state(c);
+    const now = `${s.accepted}|${s.requested}`;
+    still = now === last ? still + 1 : 0;
+    last = now;
+  }
+}
+
 function fields(c: HTMLElement): HTMLInputElement[] {
   return [...c.querySelectorAll("input")].filter((i) => {
     const t = (i.getAttribute("type") ?? "text").toLowerCase();
@@ -108,6 +129,7 @@ async function mount(route: string) {
     await pause();
   });
   for (const d of container.querySelectorAll("details")) (d as HTMLDetailsElement).open = true;
+  await settle(container);
   return { container, reactRoot };
 }
 
@@ -195,6 +217,7 @@ describe("typing a value that is not a setting gets a refusal on every lab page"
           await pause();
         });
         for (const d of c.querySelectorAll("details")) (d as HTMLDetailsElement).open = true;
+        await settle(c);
       };
       for (let mode = -1; mode < modes.length; mode++) {
         await enter(page.container, mode);
