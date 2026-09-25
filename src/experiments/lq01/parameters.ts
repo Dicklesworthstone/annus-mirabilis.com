@@ -1,4 +1,5 @@
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
+import { type DomainDisplay, withinDeclaredDomain } from "../controls/declaredDomain.ts";
 import { makeRefusal } from "../results/refusals.ts";
 import { LQ01_DEFAULTS, type Lq01Parameters } from "./definition.ts";
 
@@ -24,7 +25,7 @@ function refused(parameterIds: readonly string[], requirements: string): Computa
 }
 
 /** Strict full-request validation, also used before accepting URL settings. Never clamps. */
-export function validateLq01Parameters(input: unknown): Computation<Lq01Parameters> {
+function validateLq01Fields(input: unknown): Computation<Lq01Parameters> {
   if (
     !input ||
     typeof input !== "object" ||
@@ -102,4 +103,22 @@ export function validateLq01Parameters(input: unknown): Computation<Lq01Paramete
     );
   }
   return { kind: "accepted", data: Object.freeze({ ...p }) };
+}
+
+/** Each declared setting as the form names it (src/experiments/lq01/controls.ts LQ01_FIELDS). */
+const LQ01_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
+  A1: { label: "wave 1 amplitude" },
+  A2: { label: "wave 2 amplitude" },
+  delta: { label: "relative phase" },
+  wavelength: { label: "wavelength" },
+  separation: { label: "source separation", unit: "wavelengths" },
+  screenDistance: { label: "screen distance", unit: "wavelengths" },
+  t: { label: "time phase" },
+  P: { label: "source power" },
+  r: { label: "observation radius" },
+};
+
+/** The fields above, then every range content/experiments/lq-01.yaml declares (dispatch 134). */
+export function validateLq01Parameters(input: unknown): Computation<Lq01Parameters> {
+  return withinDeclaredDomain("lq-01", validateLq01Fields(input), LQ01_DOMAIN_DISPLAY);
 }

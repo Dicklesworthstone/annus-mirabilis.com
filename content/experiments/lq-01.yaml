@@ -61,7 +61,7 @@ parameters:
       max: 6.283185307179586
       minInclusive: true
       maxInclusive: true
-      reason: "Phase difference over a full 2*pi cycle"
+      reason: "One full cycle of phase difference, from 0 to 2π radians"
     visualRange:
       min: 0
       max: 6.283185307179586
@@ -159,7 +159,7 @@ parameters:
       max: 6.283185307179586
       minInclusive: true
       maxInclusive: true
-      reason: "Time phase parameter for instantaneous snapshot"
+      reason: "One full cycle of the wave's time phase, for the instantaneous snapshot"
     visualRange:
       min: 0
       max: 6.283185307179586

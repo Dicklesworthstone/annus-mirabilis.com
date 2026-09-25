@@ -22,6 +22,7 @@ import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts"
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { KEPT_RESULT } from "./keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, identity, result, scalar, sentenceNumber } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
@@ -462,7 +463,7 @@ export function WaveDescriptionLab({
 
             {error && (
               <p id={`${id}-error`} role="alert" className="notice error">
-                {error}
+                {error} {KEPT_RESULT}
               </p>
             )}
             {linkNote && <p className="notice">{linkNote}</p>}
