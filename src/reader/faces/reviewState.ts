@@ -83,6 +83,21 @@ export function evaluateUnitReviewState(
     };
   }
 
+  // Checked by AI agents under D-2026-09-25: reviewed, and said to be by agents, never by a person.
+  if (unit.reviewState === "reviewed" && unit.agentReview) {
+    const names = unit.agentReview.rounds.map((r) => r.reviewer.name || r.reviewer.id);
+    const rounds = unit.agentReview.rounds.length;
+    return {
+      label: "Checked by AI agents",
+      reviewClass: "reviewed",
+      isReviewed: true,
+      isStale: false,
+      description: `Checked against the German by ${listed(names)}, AI agents, in ${rounds} independent review rounds. No person has reviewed it.`,
+      reviewer: listed(names),
+      date: unit.agentReview.rounds[rounds - 1]?.date,
+    };
+  }
+
   // If no review record is provided, evaluate based on unit's own reviewState
   if (unit.reviewState === "reviewed") {
     // If unit has an editor attribution
@@ -173,6 +188,8 @@ export interface TranslationReviewSummary {
   readonly reviewers: readonly string[];
   readonly title: string;
   readonly message: string;
+  /** Every unit is reviewed, and every review was by AI agents (D-2026-09-25): the face says so. */
+  readonly agentChecked: boolean;
 }
 
 const listed = (names: readonly string[]): string =>
@@ -214,9 +231,24 @@ export function translationReviewSummary(
   } else if (unreviewed > 0) {
     title = "Translation partly reviewed";
     message = `A translation made from the German by ${by}. ${reviewed} of its ${total} ${counted} ${reviewed === 1 ? "has" : "have"} been reviewed against the German${reviewers.length > 0 ? ` by ${listed(reviewers)}` : ""}; the other ${unreviewed} ${unreviewed === 1 ? "is an unreviewed draft" : "are unreviewed drafts"}, and each unit whose state differs from the rest is marked where it stands.`;
+  } else if (total > 0 && badges.every((b) => b.label === "Checked by AI agents")) {
+    title = "Translated and checked by AI agents";
+    message = `An AI agent, ${by}, translated this from the German. Other AI agents, ${listed(reviewers)}, then checked all ${total} ${counted} against the German and the printed pages, in independent review rounds. No person has reviewed it.`;
   } else {
     title = "Reviewed translation";
     message = `A translation made from the German by ${by}, all ${total} ${counted} reviewed against the German${reviewers.length > 0 ? ` by ${listed(reviewers)}` : ""}.`;
   }
-  return { total, reviewed, unreviewed, commonLabel, translators, reviewers, title, message };
+  const agentChecked =
+    total > 0 && unreviewed === 0 && badges.every((b) => b.label === "Checked by AI agents");
+  return {
+    total,
+    reviewed,
+    unreviewed,
+    commonLabel,
+    translators,
+    reviewers,
+    title,
+    message,
+    agentChecked,
+  };
 }

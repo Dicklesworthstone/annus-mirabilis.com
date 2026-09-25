@@ -146,7 +146,13 @@ export function ParallelFace({
         </p>
       </header>
 
-      {isUnreviewed && <UnreviewedBanner title={review.title} message={review.message} />}
+      {(isUnreviewed || review.agentChecked) && (
+        <UnreviewedBanner
+          title={review.title}
+          message={review.message}
+          kind={isUnreviewed ? "unreviewed" : "agent-checked"}
+        />
+      )}
 
       {/* The chooser every face uses, with this face the current tab (FaceChooser.tsx). */}
       <FaceChooser

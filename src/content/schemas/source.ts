@@ -944,7 +944,7 @@ export type UnresolvedAlternative = Readonly<{
   rationale: string;
 }>;
 
-export type TranslationUnit = Readonly<{
+type TranslationUnitFields = Readonly<{
   id: string;
   sourceRefs: readonly Readonly<{ paper: string; id: string }>[];
   inlines: readonly Inline[];
@@ -1040,8 +1040,8 @@ export function validateTranslationUnit(raw: unknown, path = "TranslationUnit"):
 
   const translator = validateAuthorshipEntry(o.translator, "translator", `${path}.translator`);
   let editor: AuthorshipEntry | undefined;
-
-  if (reviewState === "corrected" || reviewState === "reviewed") {
+  const agentReview = agentReviewOf(o.agentReview, reviewState, translator.id, path);
+  if ((reviewState === "corrected" || reviewState === "reviewed") && !agentReview) {
     if (!o.editor) {
       throw new SchemaValidationError(
         "missing-editor",
@@ -1062,7 +1062,7 @@ export function validateTranslationUnit(raw: unknown, path = "TranslationUnit"):
     ? (o.unresolvedAlternatives as UnresolvedAlternative[])
     : [];
 
-  return {
+  return withAgentReview(agentReview, {
     id: o.id,
     sourceRefs: o.sourceRefs as { paper: string; id: string }[],
     inlines,
@@ -1073,7 +1073,7 @@ export function validateTranslationUnit(raw: unknown, path = "TranslationUnit"):
     reviewState: reviewState as TranslationUnit["reviewState"],
     lang,
     ...(dir ? { dir } : {}),
-  };
+  });
 }
 
 // 5. ALIGNMENT
@@ -1832,4 +1832,125 @@ export function validateTranslationEdition(
     units,
     missingUnitsNotice: typeof o.missingUnitsNotice === "string" ? o.missingUnitsNotice : undefined,
   };
+}
+
+// AGENT REVIEW (D-2026-09-25). Kept at the end of the file so that no refusal site above it
+// moves: the refusal ratchets cite those sites by line.
+/**
+ * The owner's ruling that agents bring English translations to final through fresh-eye review
+ * rounds, with no human review gate (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations).
+ * It covers translation units only; every other layer keeps its human-review rule.
+ */
+export const AGENT_REVIEW_BASIS = "D-2026-09-25-agent-reviewed-translations";
+
+/** The fewest independent agent rounds a unit needs before it counts as checked. */
+export const AGENT_REVIEW_MIN_ROUNDS = 2;
+
+export type AgentReviewRound = Readonly<{ reviewer: AuthorshipEntry; date: string }>;
+export type AgentReview = Readonly<{ basis: string; rounds: readonly AgentReviewRound[] }>;
+
+/**
+ * A unit's agent review, refused unless it states the ruling as its basis and holds at least two
+ * rounds by distinct agents, none of them the unit's translator: a round by the translator is not
+ * a fresh eye, and one round is not the "few" the ruling asks for.
+ */
+export function validateAgentReview(
+  raw: unknown,
+  translatorId: string,
+  path = "TranslationUnit.agentReview",
+): AgentReview {
+  if (!raw || typeof raw !== "object")
+    throw new SchemaValidationError(
+      "invalid-agent-review",
+      "agentReview must be an object.",
+      "TranslationUnit",
+      path,
+    );
+  const o = raw as Record<string, unknown>;
+  if (o.basis !== AGENT_REVIEW_BASIS)
+    throw new SchemaValidationError(
+      "agent-review-basis",
+      `agentReview.basis must be "${AGENT_REVIEW_BASIS}".`,
+      "TranslationUnit",
+      `${path}.basis`,
+    );
+  const rounds = Array.isArray(o.rounds) ? o.rounds : [];
+  if (rounds.length < AGENT_REVIEW_MIN_ROUNDS)
+    throw new SchemaValidationError(
+      "agent-review-rounds",
+      `agentReview needs at least ${AGENT_REVIEW_MIN_ROUNDS} review rounds; it has ${rounds.length}.`,
+      "TranslationUnit",
+      `${path}.rounds`,
+    );
+  const seen = new Set<string>();
+  const parsed = rounds.map((round, i) => {
+    const at = `${path}.rounds[${i}]`;
+    const r = (round ?? {}) as Record<string, unknown>;
+    const reviewer = validateAuthorshipEntry(r.reviewer, "author", `${at}.reviewer`);
+    if (reviewer.kind !== "model")
+      throw new SchemaValidationError(
+        "agent-review-not-agent",
+        `Round ${i + 1}'s reviewer must be an AI agent.`,
+        "TranslationUnit",
+        `${at}.reviewer`,
+      );
+    if (reviewer.id === translatorId)
+      throw new SchemaValidationError(
+        "agent-review-by-translator",
+        `Round ${i + 1} is by the unit's translator.`,
+        "TranslationUnit",
+        `${at}.reviewer`,
+      );
+    if (seen.has(reviewer.id))
+      throw new SchemaValidationError(
+        "agent-review-repeat-reviewer",
+        `${reviewer.id} reviews more than one round.`,
+        "TranslationUnit",
+        `${at}.reviewer`,
+      );
+    seen.add(reviewer.id);
+    if (typeof r.date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(r.date))
+      throw new SchemaValidationError(
+        "agent-review-date",
+        `Round ${i + 1} needs a date as YYYY-MM-DD.`,
+        "TranslationUnit",
+        `${at}.date`,
+      );
+    return Object.freeze({ reviewer, date: r.date });
+  });
+  return Object.freeze({ basis: AGENT_REVIEW_BASIS, rounds: Object.freeze(parsed) });
+}
+
+export type TranslationUnit = TranslationUnitFields & AgentReviewed;
+
+/** The optional field a translation unit carries when agents, not a person, checked it. */
+export type AgentReviewed = Readonly<{ agentReview?: AgentReview | undefined }>;
+
+/**
+ * An agent review is the record of a FINAL translation, so it is only accepted on a unit marked
+ * reviewed, and never beside a human editor: the two would claim different things about who
+ * checked the English.
+ */
+function agentReviewOf(
+  raw: unknown,
+  reviewState: unknown,
+  translatorId: string,
+  path: string,
+): AgentReview | undefined {
+  if (raw === undefined) return undefined;
+  if (reviewState !== "reviewed")
+    throw new SchemaValidationError(
+      "agent-review-state",
+      `An agent review is recorded only on a unit marked reviewed, not "${String(reviewState)}".`,
+      "TranslationUnit",
+      `${path}.agentReview`,
+    );
+  return validateAgentReview(raw, translatorId, `${path}.agentReview`);
+}
+
+function withAgentReview<T extends object>(
+  agentReview: AgentReview | undefined,
+  unit: T,
+): T & AgentReviewed {
+  return agentReview ? { ...unit, agentReview } : unit;
 }
