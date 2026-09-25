@@ -185,12 +185,12 @@ $$
 \xi = a V \left( t - \frac{v}{V^2 - v^2} x' \right) .
 $$
 
-Nun bewegt sich aber der Lichtstrahl relativ zum Anfangspunkte[[CONTINUES]]
+Nun bewegt sich aber der Lichtstrahl relativ zum Anfangspunkt[[CONTINUES]]
 
 --- MACHINE DRAFT TRANSCRIPTION PAGE 10 OF 31 ---
 [[ANNALEN-PAGE 900]]
 
-punkt von $k$ im ruhenden System gemessen mit der Geschwindigkeit $V-v$, so daß gilt:
+von $k$ im ruhenden System gemessen mit der Geschwindigkeit $V-v$, so daß gilt:
 $$
 \frac{x'}{V-v} = t .
 $$
