@@ -134,7 +134,7 @@ darstellbar, wobei $\varphi$ eine Funktion der Variabeln $\varrho$ und $\nu$[[CO
 
 bedeutet. Es kann $\varphi$ auf eine Funktion von nur einer Variabeln reduziert werden durch Formulierung der Aussage, daß durch adiabatische Kompression einer Strahlung zwischen spiegelnden Wänden, deren Entropie nicht geändert wird. Wir wollen jedoch hierauf nicht eintreten, sondern sogleich untersuchen, wie die Funktion $\varphi$ aus dem Strahlungsgesetz des schwarzen Körpers ermittelt werden kann.
 
-Bei der „schwarzen Strahlung“ ist $\varphi$ eine solche Funktion von $\nu$, daß die Entropie bei gegebener Energie ein Maximum ist, d. h. daß
+Bei der „schwarzen Strahlung“ ist $\varrho$ eine solche Funktion von $\nu$, daß die Entropie bei gegebener Energie ein Maximum ist, d. h. daß
 $$
 \delta \int_0^\infty \varphi(\varrho, \nu) d \nu = 0,
 $$
