@@ -144,46 +144,52 @@ export function GermanFace({
         ))}
       </nav>
 
-      {/* An edition shown before it is reviewed is labelled, and one that does not yet reach every
-          section or page says what it lacks, so the introduction is never read as the paper. */}
-      {notice ? <SourceFaceNotice notice={notice} /> : null}
-      {missingSections.length > 0 ? (
-        <p className="notice" data-missing-sections={missingSections.join(" ")} lang="en">
-          This German text does not yet cover the whole paper. Not yet in it:{" "}
-          {sectionsLabel(missingSections)}.
-        </p>
-      ) : null}
-      {untranscribedPages.length > 0 ? (
-        <p className="fine" data-untranscribed-pages={untranscribedPages.join(" ")} lang="en">
-          {untranscribedPages.length === 1 ? "Printed page " : "Printed pages "}
-          {pageRanges(untranscribedPages)} {untranscribedPages.length === 1 ? "has" : "have"} not
-          been transcribed yet.
-          {pdfHref ? (
-            <>
-              {" "}
-              Every page is in the <a href={pdfHref}>facsimile</a>.
-            </>
-          ) : null}
-        </p>
-      ) : null}
+      {/* The text and everything that qualifies it share the reader's measure and type step, as
+          the German draft face's .source-column does: relativity's German face ran 1,256px at
+          19px, 155 characters a line, where the other papers' German faces read at 666px and
+          22.8px (dispatch 210). */}
+      <div className="reading-column">
+        {/* An edition shown before it is reviewed is labelled, and one that does not yet reach every
+            section or page says what it lacks, so the introduction is never read as the paper. */}
+        {notice ? <SourceFaceNotice notice={notice} /> : null}
+        {missingSections.length > 0 ? (
+          <p className="notice" data-missing-sections={missingSections.join(" ")} lang="en">
+            This German text does not yet cover the whole paper. Not yet in it:{" "}
+            {sectionsLabel(missingSections)}.
+          </p>
+        ) : null}
+        {untranscribedPages.length > 0 ? (
+          <p className="fine" data-untranscribed-pages={untranscribedPages.join(" ")} lang="en">
+            {untranscribedPages.length === 1 ? "Printed page " : "Printed pages "}
+            {pageRanges(untranscribedPages)} {untranscribedPages.length === 1 ? "has" : "have"} not
+            been transcribed yet.
+            {pdfHref ? (
+              <>
+                {" "}
+                Every page is in the <a href={pdfHref}>facsimile</a>.
+              </>
+            ) : null}
+          </p>
+        ) : null}
 
-      <main className="source-blocks-list" data-source-body>
-        {mainBlocks.map((block) => (
-          <Fragment key={block.id}>
-            <SourceBlock block={block} paperSlug={paper.slug} editorialNotes={editorialNotes} />
-            {explained(block.id)}
-          </Fragment>
-        ))}
-      </main>
+        <main className="source-blocks-list" data-source-body>
+          {mainBlocks.map((block) => (
+            <Fragment key={block.id}>
+              <SourceBlock block={block} paperSlug={paper.slug} editorialNotes={editorialNotes} />
+              {explained(block.id)}
+            </Fragment>
+          ))}
+        </main>
 
-      {/* Anchored: a passage's list of printed paragraphs links a footnote by its own id, and a
-          footnote carries its "Explained in" or "Not yet explained" line as a paragraph does. */}
-      <FootnotesSection
-        footnotes={footnoteBlocks}
-        heading="Fußnoten"
-        anchored
-        after={(footnote) => explained(footnote.id)}
-      />
+        {/* Anchored: a passage's list of printed paragraphs links a footnote by its own id, and a
+            footnote carries its "Explained in" or "Not yet explained" line as a paragraph does. */}
+        <FootnotesSection
+          footnotes={footnoteBlocks}
+          heading="Fußnoten"
+          anchored
+          after={(footnote) => explained(footnote.id)}
+        />
+      </div>
       <AlignmentController index={alignmentIndex} />
     </div>
   );
