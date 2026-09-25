@@ -41,8 +41,11 @@ function parseArgs(argv: readonly string[]): {
   };
 }
 
-function formatDimension(q: Quantity): string {
+export function formatDimension(q: Quantity): string {
   if (q.dimensionStatus === "state-dependent") return "symbolic";
+  // Named by the source, never defined there (dispatch 236): no dimension to print, and the row
+  // says why rather than showing the same dash as a record that merely lacks one.
+  if (q.dimensionStatus === "undefined-in-source") return "undefined in source";
   if (!q.dimension) return "—";
   return dimensionText(dimension(q.dimension.map((slot) => `${slot.num}/${slot.den}`)));
 }

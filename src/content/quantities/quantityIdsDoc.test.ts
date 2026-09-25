@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { generateMarkdown } from "../../../scripts/generate-quantity-ids.ts";
+import { formatDimension, generateMarkdown } from "../../../scripts/generate-quantity-ids.ts";
 import { getQuantityRegistry } from "./registry.ts";
 import { getLegacySpellings } from "./resolveQuantityId.ts";
 
@@ -37,4 +37,20 @@ describe("quantityIdsDoc (am-not-quantity-registry-2f7 Test Plan)", () => {
       expect(committedDoc).toContain(`| ${id} |`);
     }
   });
+});
+
+test("a quantity the source names without defining says so in the dimension column (dispatch 236)", () => {
+  const base = { id: "x", name: "x", description: "x", mathematicalKind: "scalar" } as const;
+  // Each status prints its own word, so the document never shows a bare dash for a reason.
+  const label = (q: Record<string, unknown>) =>
+    formatDimension({ ...base, densityKind: "not-applicable", ...q } as never);
+  expect(label({ dimensionStatus: "undefined-in-source" })).toBe("undefined in source");
+  expect(label({ dimensionStatus: "state-dependent" })).toBe("symbolic");
+  expect(label({ dimensionStatus: "declared" })).toBe("—");
+  expect(
+    label({
+      dimensionStatus: "declared",
+      dimension: [1, 0, -1, 0, 0, 0].map((num) => ({ num, den: 1 })),
+    }),
+  ).not.toBe("—");
 });
