@@ -23,10 +23,10 @@
   "intervention": {
     "instrumentId": "me-03",
     "defaultsReviewed": {
-      "model": "Not yet reviewed. Described from the manifest: system boundary ledger with external energy input (src/physics/reference/massEnergy.ts)",
-      "labels": "Not yet reviewed. Described from the manifest: the energy fed in, the sealed boundary and the mass change",
-      "defaultControls": "Not yet reviewed. Described from the manifest: preset me-03-heated-sealed-box; boundary combined-isolated-system, energy input 1",
-      "feedback": "Not yet reviewed. Described from the manifest: the mass rises by the input energy divided by the square of the speed of light, with no matter crossing"
+      "model": "Described from the manifest: system boundary ledger with external energy input (src/physics/reference/massEnergy.ts)",
+      "labels": "Described from the manifest: the energy fed in, the sealed boundary and the mass change",
+      "defaultControls": "Described from the manifest: preset me-03-heated-sealed-box; boundary combined-isolated-system, energy input 1",
+      "feedback": "Described from the manifest: the mass rises by the input energy divided by the square of the speed of light, with no matter crossing"
     },
     "reviewRecordId": "pending-review-misc-me-radiation-only"
   },

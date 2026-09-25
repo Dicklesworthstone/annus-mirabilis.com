@@ -21,10 +21,10 @@
   "intervention": {
     "instrumentId": "me-03",
     "defaultsReviewed": {
-      "model": "Not yet reviewed. Described from the manifest: system boundary ledger: the mass change of whatever the boundary encloses, from the energy that crosses it (src/physics/reference/massEnergy.ts)",
-      "labels": "Not yet reviewed. Described from the manifest: the boundary choice, the radiation's disposition and the net mass change",
-      "defaultControls": "Not yet reviewed. Described from the manifest: preset me-03-sealed-lamp-and-mirror; boundary combined-isolated-system, radiation retained",
-      "feedback": "Not yet reviewed. Described from the manifest: a net mass change of exactly zero for the sealed system"
+      "model": "Described from the manifest: system boundary ledger: the mass change of whatever the boundary encloses, from the energy that crosses it (src/physics/reference/massEnergy.ts)",
+      "labels": "Described from the manifest: the boundary choice, the radiation's disposition and the net mass change",
+      "defaultControls": "Described from the manifest: preset me-03-sealed-lamp-and-mirror; boundary combined-isolated-system, radiation retained",
+      "feedback": "Described from the manifest: a net mass change of exactly zero for the sealed system"
     },
     "reviewRecordId": "pending-review-misc-me-mass-converts"
   },

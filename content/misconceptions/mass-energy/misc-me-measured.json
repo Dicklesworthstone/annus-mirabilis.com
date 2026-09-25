@@ -21,10 +21,10 @@
   "intervention": {
     "instrumentId": "me-03",
     "defaultsReviewed": {
-      "model": "Not yet reviewed. Described from the manifest: energy-source card: the mass change is the card's energy divided by the square of the speed of light (src/physics/reference/massEnergy.ts)",
-      "labels": "Not yet reviewed. Described from the manifest: the card's label, its energy figure with its citation, and its boundary notes",
-      "defaultControls": "Not yet reviewed. Described from the manifest: preset me-03-card-radium; boundary body-alone, radiation escapes",
-      "feedback": "Not yet reviewed. Described from the manifest: shows the mass change beside the boundary note that keeps matter crossing the boundary apart from the mass-energy effect"
+      "model": "Described from the manifest: energy-source card: the mass change is the card's energy divided by the square of the speed of light (src/physics/reference/massEnergy.ts)",
+      "labels": "Described from the manifest: the card's label, its energy figure with its citation, and its boundary notes",
+      "defaultControls": "Described from the manifest: preset me-03-card-radium; boundary body-alone, radiation escapes",
+      "feedback": "Described from the manifest: shows the mass change beside the boundary note that keeps matter crossing the boundary apart from the mass-energy effect"
     },
     "reviewRecordId": "pending-review-misc-me-measured"
   },

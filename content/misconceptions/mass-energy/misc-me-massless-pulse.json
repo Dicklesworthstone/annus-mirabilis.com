@@ -21,10 +21,10 @@
   "intervention": {
     "instrumentId": "me-03",
     "defaultsReviewed": {
-      "model": "Not yet reviewed. Described from the manifest: modern four-momentum mode: the invariant mass of a system of pulses (src/physics/reference/massEnergy.ts)",
-      "labels": "Not yet reviewed. Described from the manifest: each pulse's energy and momentum, and the system's invariant mass",
-      "defaultControls": "Not yet reviewed. Described from the manifest: preset me-03-four-momentum-opposite-pulses; mode four-momentum, two opposite pulses, emitted energy 1",
-      "feedback": "Not yet reviewed. Described from the manifest: an invariant mass of L/c^2 for the pair and zero for either pulse"
+      "model": "Described from the manifest: modern four-momentum mode: the invariant mass of a system of pulses (src/physics/reference/massEnergy.ts)",
+      "labels": "Described from the manifest: each pulse's energy and momentum, and the system's invariant mass",
+      "defaultControls": "Described from the manifest: preset me-03-four-momentum-opposite-pulses; mode four-momentum, two opposite pulses, emitted energy 1",
+      "feedback": "Described from the manifest: an invariant mass of L/c^2 for the pair and zero for either pulse"
     },
     "reviewRecordId": "pending-review-misc-me-massless-pulse"
   },

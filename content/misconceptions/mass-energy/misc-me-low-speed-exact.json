@@ -21,10 +21,10 @@
   "intervention": {
     "instrumentId": "me-02",
     "defaultsReviewed": {
-      "model": "Not yet reviewed. Described from the manifest: the exact kinetic-energy difference, its quadratic approximation and the limiting mass coefficient (src/physics/reference/massEnergy.ts)",
-      "labels": "Not yet reviewed. Described from the manifest: the three outputs at the chosen speed, in the paper's letters",
-      "defaultControls": "Not yet reviewed. Described from the manifest: preset me-02-0.6c; beta 0.6, emitted energy 1",
-      "feedback": "Not yet reviewed. Described from the manifest: the finite-speed proxy, 1.3889 times the limiting coefficient at this speed, is shown beside the limit"
+      "model": "Described from the manifest: the exact kinetic-energy difference, its quadratic approximation and the limiting mass coefficient (src/physics/reference/massEnergy.ts)",
+      "labels": "Described from the manifest: the three outputs at the chosen speed, in the paper's letters",
+      "defaultControls": "Described from the manifest: preset me-02-0.6c; beta 0.6, emitted energy 1",
+      "feedback": "Described from the manifest: the finite-speed proxy, 1.3889 times the limiting coefficient at this speed, is shown beside the limit"
     },
     "scenarioId": "me-02-0.6c",
     "reviewRecordId": "pending-review-misc-me-low-speed-exact"
