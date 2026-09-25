@@ -1,0 +1,25 @@
+# TranslationUnit s2-p1-s1b: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s2-p1-s1b"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s2-p1-s1"
+inlines:
+  - kind: "text"
+    text: "where "
+  - kind: "math"
+    latex: "\\sum \\frac{\\partial \\varphi_\\nu}{\\partial p_\\nu} = 0"
+  - kind: "text"
+    text: ", then the entropy of the system is given by the expression:"
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

@@ -1,0 +1,37 @@
+# TranslationUnit s2-p4-s6: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s2-p4-s6"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s2-p4-s6"
+inlines:
+  - kind: "text"
+    text: "But "
+  - kind: "math"
+    latex: "J"
+  - kind: "text"
+    text: " is also independent of the particular choice of "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "the positions"
+  - kind: "text"
+    text: " of the regions for the centers of gravity, and of the value of "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: ", as is now to be shown."
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "as will be shown at once"
+    rationale: "\"wie sogleich gezeigt werden soll\" announces the proof that follows at once; \"is now to be shown\" keeps the announcement."
+reviewState: "machine-draft"
+lang: "en"

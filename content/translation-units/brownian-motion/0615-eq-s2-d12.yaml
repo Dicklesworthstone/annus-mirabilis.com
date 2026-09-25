@@ -1,0 +1,22 @@
+# TranslationUnit eq-s2-d12: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "eq-s2-d12"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "eq-s2-d12"
+inlines:
+  - kind: "math"
+    latex: "p = -\\frac{\\partial F}{\\partial V^*} = \\frac{R T}{V^*} \\frac{n}{N} = \\frac{R T}{N} \\nu."
+    equationId: "eq-s2-d12"
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

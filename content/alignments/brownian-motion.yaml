@@ -114,3 +114,240 @@ edges:
       sentenceId: "s1-p3-s5"
     target:
       translationUnitId: "s1-p3-s5"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2"
+    target:
+      translationUnitId: "s2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-fn1"
+    target:
+      translationUnitId: "s2-fn1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p1"
+      sentenceId: "s2-p1-s1"
+    target:
+      translationUnitId: "s2-p1-s1a"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s2-d1"
+    target:
+      translationUnitId: "eq-s2-d1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p1"
+      sentenceId: "s2-p1-s1"
+    target:
+      translationUnitId: "s2-p1-s1b"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s2-d2"
+    target:
+      translationUnitId: "eq-s2-d2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p1"
+      sentenceId: "s2-p1-s2"
+    target:
+      translationUnitId: "s2-p1-s2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p1"
+      sentenceId: "s2-p1-s3"
+    target:
+      translationUnitId: "s2-p1-s3"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p1"
+      sentenceId: "s2-p1-s4"
+    target:
+      translationUnitId: "s2-p1-s4"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p1"
+      sentenceId: "s2-p1-s5"
+    target:
+      translationUnitId: "s2-p1-s5"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s2-d3"
+    target:
+      translationUnitId: "eq-s2-d3"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p2"
+      sentenceId: "s2-p2-s1"
+    target:
+      translationUnitId: "s2-p2-s1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p2"
+      sentenceId: "s2-p2-s2"
+    target:
+      translationUnitId: "s2-p2-s2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p2"
+      sentenceId: "s2-p2-s3"
+    target:
+      translationUnitId: "s2-p2-s3"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p3"
+      sentenceId: "s2-p3-s1"
+    target:
+      translationUnitId: "s2-p3-s1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p3"
+      sentenceId: "s2-p3-s2"
+    target:
+      translationUnitId: "s2-p3-s2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p4"
+      sentenceId: "s2-p4-s1"
+    target:
+      translationUnitId: "s2-p4-s1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p4"
+      sentenceId: "s2-p4-s2"
+    target:
+      translationUnitId: "s2-p4-s2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p4"
+      sentenceId: "s2-p4-s3"
+    target:
+      translationUnitId: "s2-p4-s3a"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s2-d4"
+    target:
+      translationUnitId: "eq-s2-d4"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p4"
+      sentenceId: "s2-p4-s3"
+    target:
+      translationUnitId: "s2-p4-s3b"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p4"
+      sentenceId: "s2-p4-s6"
+    target:
+      translationUnitId: "s2-p4-s6"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p4"
+      sentenceId: "s2-p4-s4"
+    target:
+      translationUnitId: "s2-p4-s4a"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s2-d5"
+    target:
+      translationUnitId: "eq-s2-d5"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p4"
+      sentenceId: "s2-p4-s4"
+    target:
+      translationUnitId: "s2-p4-s4b"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s2-d6"
+    target:
+      translationUnitId: "eq-s2-d6"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p4"
+      sentenceId: "s2-p4-s5"
+    target:
+      translationUnitId: "s2-p4-s5"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s2-d7"
+    target:
+      translationUnitId: "eq-s2-d7"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p5"
+      sentenceId: "s2-p5-s1"
+    target:
+      translationUnitId: "s2-p5-s1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p5"
+      sentenceId: "s2-p5-s2"
+    target:
+      translationUnitId: "s2-p5-s2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s2-d8"
+    target:
+      translationUnitId: "eq-s2-d8"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p5"
+      sentenceId: "s2-p5-s3"
+    target:
+      translationUnitId: "s2-p5-s3"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s2-d9"
+    target:
+      translationUnitId: "eq-s2-d9"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-fn2"
+    target:
+      translationUnitId: "s2-fn2"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p7"
+      sentenceId: "s2-p7-s1"
+    target:
+      translationUnitId: "s2-p7-s1"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p7"
+      sentenceId: "s2-p7-s2"
+    target:
+      translationUnitId: "s2-p7-s2a"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s2-d10"
+    target:
+      translationUnitId: "eq-s2-d10"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p7"
+      sentenceId: "s2-p7-s2"
+    target:
+      translationUnitId: "s2-p7-s2b"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s2-d11"
+    target:
+      translationUnitId: "eq-s2-d11"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p7"
+      sentenceId: "s2-p7-s2"
+    target:
+      translationUnitId: "s2-p7-s2c"
+  - source:
+      paper: "brownian-motion"
+      blockId: "eq-s2-d12"
+    target:
+      translationUnitId: "eq-s2-d12"
+  - source:
+      paper: "brownian-motion"
+      blockId: "s2-p8"
+      sentenceId: "s2-p8-s1"
+    target:
+      translationUnitId: "s2-p8-s1"

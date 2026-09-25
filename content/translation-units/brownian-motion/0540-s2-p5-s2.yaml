@@ -1,0 +1,21 @@
+# TranslationUnit s2-p5-s2: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s2-p5-s2"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s2-p5-s2"
+inlines:
+  - kind: "text"
+    text: "Now if the motions of the individual particles are independent of one another (to a sufficient approximation), if the liquid is homogeneous, and if no forces act on the particles, then for regions of equal size the probabilities belonging to the two systems of regions must be equal to each other, so that:"
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

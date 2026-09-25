@@ -1,0 +1,42 @@
+# TranslationUnit s2-p5-s1: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s2-p5-s1"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s2-p5-s1"
+inlines:
+  - kind: "text"
+    text: "From the molecular theory of heat given in the papers cited, however, it can easily be inferred"
+  - kind: "footnote-mark"
+    mark: "1)"
+    footnoteId: "s2-fn2"
+  - kind: "text"
+    text: " that "
+  - kind: "math"
+    latex: "d B/B"
+  - kind: "text"
+    text: " (respectively "
+  - kind: "math"
+    latex: "d B'/B"
+  - kind: "text"
+    text: ") is equal to the probability that at an arbitrarily chosen instant the centers of gravity of the particles lie in the regions "
+  - kind: "math"
+    latex: "(d x_1 \\ldots d z_n)"
+  - kind: "text"
+    text: " (respectively in the regions "
+  - kind: "math"
+    latex: "(d x'_1 \\ldots d z'_n)"
+  - kind: "text"
+    text: ")."
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives: []
+reviewState: "machine-draft"
+lang: "en"

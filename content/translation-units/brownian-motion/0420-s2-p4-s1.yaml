@@ -1,0 +1,43 @@
+# TranslationUnit s2-p4-s1: English machine-draft translation.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
+kind: "translation-unit"
+id: "s2-p4-s1"
+paper: "brownian-motion"
+sourceRefs:
+  - paper: "brownian-motion"
+    id: "s2-p4-s1"
+inlines:
+  - kind: "text"
+    text: "We call "
+  - kind: "math"
+    latex: "x_1, y_1, z_1"
+  - kind: "text"
+    text: " the rectangular coordinates of the center of gravity of the first particle, "
+  - kind: "math"
+    latex: "x_2, y_2, z_2"
+  - kind: "text"
+    text: " those of the second, etc., "
+  - kind: "math"
+    latex: "x_n, y_n, z_n"
+  - kind: "text"
+    text: " those of the last particle, and we assign to the centers of gravity of the particles the infinitely small parallelepiped-shaped regions "
+  - kind: "math"
+    latex: "d x_1 d y_1 d z_1, d x_2 d y_2 d z_2 \\ldots d x_n d y_n d z_n"
+  - kind: "text"
+    text: ", all of which are to lie in "
+  - kind: "math"
+    latex: "V^*"
+  - kind: "text"
+    text: "."
+translator:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (Claude Opus 5.5, agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+revision: 1
+unresolvedAlternatives:
+  - text: "center of mass"
+    rationale: "\"Schwerpunkt\" is rendered literally as \"center of gravity\", the term of the period; for a particle in a liquid the two coincide."
+reviewState: "machine-draft"
+lang: "en"
