@@ -2,6 +2,9 @@
 # Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, Ann. Phys. (4) 17, 549-560 (1905), ap-17-549.
 # Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not yet reviewed.
 # Review round 1 (NavyKite, agent, 2026-09-25): read against the German and the plates pp. 554-556; no change.
+# After round 1 (SapphireCastle, translator, 2026-09-25; revision 2): line breaks before the processes
+# "1." and "2.", which p. 555 sets on their own indented lines after "nämlich", as the German block
+# s3-p5 now has them (NavyKite 40101, TanElk 40105). The words are unchanged. For round 2's reviewer.
 kind: "translation-unit"
 id: "s3-p5-s2"
 paper: "brownian-motion"
@@ -10,17 +13,23 @@ sourceRefs:
     id: "s3-p5-s2"
 inlines:
   - kind: "text"
-    text: "We can regard the state of dynamic equilibrium just considered as the superposition of two processes running in opposite directions, namely 1. a motion of the suspended substance under the action of the force "
+    text: "We can regard the state of dynamic equilibrium just considered as the superposition of two processes running in opposite directions, namely"
+  - kind: "line-break"
+  - kind: "text"
+    text: "1. a motion of the suspended substance under the action of the force "
   - kind: "math"
     latex: "K"
   - kind: "text"
-    text: " acting on each individual suspended particle, 2. a process of diffusion, which is to be regarded as a consequence of the irregular motions of the particles due to the molecular motion of heat."
+    text: " acting on each individual suspended particle,"
+  - kind: "line-break"
+  - kind: "text"
+    text: "2. a process of diffusion, which is to be regarded as a consequence of the irregular motions of the particles due to the molecular motion of heat."
 translator:
   id: "agent:SapphireCastle"
   name: "SapphireCastle (Claude Opus 5.5, agent)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
+revision: 2
 unresolvedAlternatives: []
 reviewState: "machine-draft"
 lang: "en"
