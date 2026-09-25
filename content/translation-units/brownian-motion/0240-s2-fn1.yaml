@@ -6,6 +6,7 @@
 # Review round 2 (GreenBarn, agent, 2026-09-25): read against the German and the plates pp. 551-553; no change.
 # After both rounds (GreenBarn, 2026-09-25): alternative promoted to the text,
 # D-2026-09-25-one-best-translation; "entbehrlich" says the reader can do without them, which "can be dispensed with" says in plain English; the scope is unchanged. For a fresh-eye reviewer to confirm.
+# Confirmed (GreenOx, agent, 2026-09-25, fresh eye): read against the German and plate p. 551; "entbehrlich" is what can be done without, and "can be dispensed with" keeps its subject (those papers and this section) and its scope (the results).
 kind: "translation-unit"
 id: "s2-fn1"
 paper: "brownian-motion"
