@@ -13,6 +13,7 @@ import type {
 } from "../../content/schemas/source.ts";
 import { FaceChooser } from "../FaceChooser.tsx";
 import type { FaceAvailability } from "../faceAvailability.ts";
+import { facsimilePageHref } from "../facsimile/pageHref.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { claimedDisplayIds } from "./displayClaims.ts";
@@ -251,7 +252,7 @@ export function GlossFace({
             const locators = block.locators.map((loc) => (
               <span key={`${block.id}-loc-${loc.printedPage}`} className="block-locator">
                 <a
-                  href={`/papers/${paper.slug}/?view=facsimile#page-${loc.printedPage}`}
+                  href={facsimilePageHref(paper.slug, loc.printedPage)}
                   data-facsimile-link={loc.printedPage}
                   aria-label={`Facsimile page ${loc.printedPage}`}
                   className="locator-link"

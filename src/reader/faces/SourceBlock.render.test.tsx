@@ -35,7 +35,7 @@ describe("SourceBlock render tests", () => {
     const html = renderToStaticMarkup(<SourceBlock block={block} paperSlug="brownian-motion" />);
 
     expect(html).toContain('data-facsimile-link="556"');
-    expect(html).toContain('href="/papers/brownian-motion/?view=facsimile#page-556"');
+    expect(html).toContain('href="/papers/brownian-motion/view/facsimile/#facsimile-page-556"');
     expect(html).toContain("[p. 556]");
   });
 

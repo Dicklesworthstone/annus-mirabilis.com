@@ -1,3 +1,5 @@
+import { facsimilePageId } from "./pageHref.ts";
+
 /** Source-page navigation is projected from pinned records and the source inventory.
  * It never infers a transcription, translation, or editorial review from a PDF pin.
  */
@@ -319,7 +321,7 @@ export function facsimileSectionPages(
   return document.pages.filter((page) => selected.has(page.pdfPage));
 }
 export function facsimilePageAnchor(page: FacsimilePage): string {
-  return `facsimile-page-${page.printedPage}`;
+  return facsimilePageId(page.printedPage);
 }
 /** The plate of one printed page, or null when this document has no plates. */
 export function facsimilePlate(

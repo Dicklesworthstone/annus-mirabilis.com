@@ -4,6 +4,7 @@ import { Fragment } from "react";
 import type { Inline } from "../../content/schemas/inlines.ts";
 import { plainText } from "../../content/schemas/inlines.ts";
 import type { EditorialNote, SourceBlock, SpanAnchor } from "../../content/schemas/source.ts";
+import { facsimilePageHref } from "../facsimile/pageHref.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
 import { renderInlines } from "./inlines.tsx";
 
@@ -58,7 +59,7 @@ export function SourceBlockComponent({
   const locators = block.locators.map((loc) => (
     <span key={`${block.id}-loc-${loc.printedPage}`} className="block-locator">
       <a
-        href={`/papers/${paperSlug}/?view=facsimile#page-${loc.printedPage}`}
+        href={facsimilePageHref(paperSlug, loc.printedPage)}
         data-facsimile-link={loc.printedPage}
         aria-label={`Facsimile page ${loc.printedPage}`}
         className="locator-link"
