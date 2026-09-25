@@ -20,6 +20,7 @@ import { join } from "node:path";
 import { REGISTERED_IDS } from "../../experiments/catalogue.ts";
 import { type GermanSourceFace, loadGermanSourceFace } from "../editions/germanSourceFace.ts";
 import type { RouteSlug } from "../ids.ts";
+import { loadConcordanceForPaper } from "../notation/loader.ts";
 import { parseYaml } from "../provenance/yaml.ts";
 
 /** How a card labels a statement that is not the result itself. */
@@ -99,6 +100,12 @@ export type ResultContext = Readonly<{
   /** The paper's misconception ledger: each record's id to the result ids it names. */
   ledger: ReadonlyMap<string, readonly string[]>;
   registries: ResultRegistries;
+  /**
+   * Whether the paper prints β, read from its notation concordance: light quanta prints Wien's β
+   * and relativity its Lorentz factor, while mass-energy writes the radical out and its concordance
+   * says β does not appear. Absent, β is refused, as it was for every paper.
+   */
+  printsBeta?: boolean | undefined;
 }>;
 
 const ID = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
@@ -106,11 +113,17 @@ const ID = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 /**
  * An as-printed layer never carries a glyph the paper does not print. The plan's compact forms
  * (β for the explicit radical, "+ …" for the words about neglected orders) are restatements, so
- * finding one in printed text means the edition, or the anchor, is wrong.
+ * finding one in printed text means the edition, or the anchor, is wrong. β is such a form only
+ * in a paper that does not print it (printsBeta, from the concordance): light quanta's R β ν / N
+ * is Einstein's own (dispatch 240).
  */
-export function printedFormProblems(text: string): string[] {
+export function printedFormProblems(
+  text: string,
+  options: Readonly<{ printsBeta?: boolean | undefined }> = {},
+): string[] {
   const problems: string[] = [];
-  if (/\\beta\b|β/.test(text)) problems.push("carries β, which the paper does not print");
+  if (!options.printsBeta && /\\beta\b|β/.test(text))
+    problems.push("carries β, which the paper does not print");
   if (/\\[lc]?dots\b|…|\.\.\./.test(text)) problems.push("carries an ellipsis");
   return problems;
 }
@@ -207,7 +220,7 @@ export function checkResultCards(
     const printed = list(c.printed).flatMap((p, k) => {
       const excerpt = resolvePrinted(context.face, p, `${at} printed[${k}]`, problems);
       if (!excerpt) return [];
-      for (const problem of printedFormProblems(excerpt.text))
+      for (const problem of printedFormProblems(excerpt.text, { printsBeta: context.printsBeta }))
         problems.push(`${at} printed ${excerpt.anchor} ${problem}`);
       return [excerpt];
     });
@@ -418,7 +431,17 @@ export function resultContext(
     face,
     ledger: misconceptionLedger(root, paper),
     registries,
+    printsBeta: printsBeta(root, paper),
   };
+}
+
+/** Whether the paper's notation concordance has an entry printed as β. */
+function printsBeta(root: string, paper: string): boolean {
+  const dir = join(root, "content", "notation");
+  if (!existsSync(join(dir, `${paper}.yaml`))) return false;
+  return loadConcordanceForPaper(paper, dir).entries.some(
+    (e) => /\\beta\b/.test(e.glyph.latex) || e.glyph.unicode.includes("β"),
+  );
 }
 
 /** Whether a paper has result cards, so its results face is a page of its own. */
