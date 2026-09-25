@@ -49,6 +49,13 @@ export type PrintedAtom = Readonly<{
    * marked atom there only inside a group, so its mark is braced.
    */
   bare: boolean;
+  /**
+   * Where the atom's mark ends: its end, except when a name that runs past its base (E_0, A',
+   * \lambda_x) takes an exponent. KaTeX sets E_0^2 as one base with a subscript and a superscript,
+   * and a mark around E_0 would make it E_0 raised as a whole, which is different MathML; so the
+   * mark covers the base alone and leaves the scripts to the exponent (dispatch 230, GreenBarn).
+   */
+  markEnd: number;
 }>;
 
 const GREEK = new Set(
@@ -335,12 +342,14 @@ function readAtoms(latex: string): { list: readonly Item[]; atoms: (PrintedAtom 
         const start = item.start;
         const end = (list[nameEnd - 1] as Item).end;
         const before = list[i - 1]?.kind;
+        const raised = list[nameEnd]?.kind === "sup" && nameEnd > baseEnd;
         atoms.push({
           start,
           end,
           text: latex.slice(start, end),
           signature: signature(list, i, nameEnd),
           bare: before === "sub" || before === "sup",
+          markEnd: raised ? (list[baseEnd - 1] as Item).end : end,
           from: i,
           to: nameEnd,
         });
@@ -355,12 +364,13 @@ function readAtoms(latex: string): { list: readonly Item[]; atoms: (PrintedAtom 
 
 /** Every atom of a printed display, in reading order. */
 export function printedAtoms(latex: string): readonly PrintedAtom[] {
-  return readAtoms(latex).atoms.map(({ start, end, text, signature, bare }) => ({
+  return readAtoms(latex).atoms.map(({ start, end, text, signature, bare, markEnd }) => ({
     start,
     end,
     text,
     signature,
     bare,
+    markEnd,
   }));
 }
 

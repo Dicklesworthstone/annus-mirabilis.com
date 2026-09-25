@@ -412,7 +412,7 @@ export function checkDisplayTerms(
           quantityId: term.quantityId,
           glyph: term.glyph,
           start: atom.start,
-          end: atom.end,
+          end: atom.markEnd,
           braced: atom.bare,
         });
         continue;
@@ -466,7 +466,7 @@ export function checkDisplayTerms(
         copy.flatMap((atom, k) => {
           const index = termOfAtom[k];
           const term = index === undefined ? undefined : terms[index];
-          return term ? [{ ...term, start: atom.start, end: atom.end, braced: atom.bare }] : [];
+          return term ? [{ ...term, start: atom.start, end: atom.markEnd, braced: atom.bare }] : [];
         }),
       );
     }

@@ -4,13 +4,14 @@
  * result is the plant's and not the data's.
  */
 import assert from "node:assert/strict";
-import { readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, test } from "node:test";
 import { renderToString } from "katex";
 import { isRegisteredQuantityId } from "../../content/quantities/registry.ts";
 import type { ConcordanceEntry } from "../../content/schemas/concordance.ts";
 import type { Inline } from "../../content/schemas/inlines.ts";
+import { strictParse } from "../../content/schemas/strictParse.ts";
 import { type BilingualEdition, loadBilingualEdition } from "../../reader/faces/bilingualLoader.ts";
 import { printedAtoms } from "../latex/printedAtoms.ts";
 import {
@@ -450,6 +451,55 @@ describe("the coloured render", () => {
       })),
     });
     assert.ok(compiled.html.includes(`data-term="planted.t${atoms.indexOf(n as never) + 1}"`));
+  });
+
+  test("a scripted name that takes an exponent is marked on its base, so the MathML holds", () => {
+    // KaTeX sets E_0^2 as one base with both scripts; a mark around E_0 raised it as a whole, a
+    // different MathML, and compilePrintedDisplay refused it. The five displays held for this
+    // (GreenBarn, 40375; Brownian's eq-s5-d5) compile from their own source blocks, every atom
+    // marked.
+    const held: [string, string][] = [
+      ["special-relativity", "eq-s7-d11"],
+      ["special-relativity", "eq-s7-d12"],
+      ["special-relativity", "eq-s8-d4"],
+      ["special-relativity", "eq-s5-d3"],
+      ["brownian-motion", "eq-s5-d5"],
+    ];
+    for (const [paper, display] of held) {
+      const block = strictParse(
+        readFileSync(join(ROOT, "content", "source-blocks", paper, `${display}.yaml`), "utf8"),
+        "yaml",
+      ) as { inlines: { latex: string }[] };
+      const latex = block.inlines[0]?.latex ?? "";
+      const atoms = printedAtoms(latex);
+      assert.ok(
+        atoms.some((a) => a.markEnd < a.end),
+        `${display} has a raised scripted name`,
+      );
+      const compiled = compilePrintedDisplay({
+        paper,
+        display,
+        latex,
+        spoken: "planted",
+        terms: atoms.map((a, i) => ({
+          termId: `planted.t${i + 1}`,
+          quantityId: "volume",
+          glyph: a.text,
+          start: a.start,
+          end: a.markEnd,
+          braced: a.bare,
+        })),
+      });
+      assert.equal(compiled.terms.length, atoms.length, display);
+    }
+    // Only a raised name that runs past its base is shortened; a bare letter keeps its whole mark.
+    const marks = Object.fromEntries(
+      printedAtoms("A'^2 + E_0 + x^2 + \\lambda_x^2").map((a) => [a.text, a.end - a.markEnd]),
+    );
+    assert.equal(marks["A'"], 1);
+    assert.equal(marks.E_0, 0);
+    assert.equal(marks.x, 0);
+    assert.equal(marks["\\lambda_x"], 2);
   });
 
   test("display-terms-term-dropped: a term KaTeX will not mark fails the build", () => {
