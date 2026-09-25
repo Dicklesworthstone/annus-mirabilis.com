@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "the theory can be successfully put to the test"
-    rationale: "gelingen says the test can be carried out, not that the theory passes it. The literal will succeed may be misread as a prediction of confirmation; this alternative avoids that reading but weakens wird (will) to can."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

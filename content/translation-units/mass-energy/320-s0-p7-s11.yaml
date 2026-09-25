@@ -4,6 +4,8 @@
 # D-2026-09-25-agent-reviewed-translations after two agent review rounds. No person has reviewed it.
 # Review round 1 (TopazPrairie, agent, 2026-09-25): read against the German and the plate; no change.
 # Review round 2 (TanElk, agent, 2026-09-25): read against the German and the plate; no change.
+# After both rounds (GreenBarn, 2026-09-25): alternative promoted to the text,
+# D-2026-09-25-one-best-translation; "Qualitäten des Körpers" is the body's nature or constitution, which "properties" says in plain English; the claim is unchanged. For a fresh-eye reviewer to confirm.
 kind: "translation-unit"
 id: "s0-p7-s11"
 paper: "mass-energy"
@@ -16,16 +18,14 @@ inlines:
   - kind: "math"
     latex: "(\\xi, \\eta, \\zeta)"
   - kind: "text"
-    text: " decreases as a result of the emission of light, and indeed by an amount that is independent of the qualities of the body."
+    text: " decreases as a result of the emission of light, and indeed by an amount that is independent of the properties of the body."
 translator:
   id: "agent:claude-opus-5-5"
   name: "Claude Opus 5.5 (agent)"
   kind: "model"
   modelId: "claude-opus-5-5"
-revision: 1
-unresolvedAlternatives:
-  - text: "independent of the properties of the body"
-    rationale: "Qualitäten is kept literally as qualities. The sense is the body’s particular nature or constitution, which properties states more idiomatically; either reading leaves the claim unchanged."
+revision: 2
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"

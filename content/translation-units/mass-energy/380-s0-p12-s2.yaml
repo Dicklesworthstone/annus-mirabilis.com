@@ -19,9 +19,7 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 1
-unresolvedAlternatives:
-  - text: "that the energy withdrawn from the body happens to turn into energy of radiation"
-    rationale: "gerade can mean precisely or specifically, or it can mark the radiative form as incidental (happens to). Both readings say the form of the energy does not matter to the argument; they differ in emphasis only."
+unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
   basis: "D-2026-09-25-agent-reviewed-translations"
