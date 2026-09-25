@@ -20,7 +20,7 @@ import {
   FIXTURE_MASS_ENERGY_SOURCE_BLOCKS,
   FIXTURE_MASS_ENERGY_TRANSLATION_UNITS,
 } from "../testing/fixtures/bilingual/massEnergyGlossFixture.ts";
-import type { BilingualEdition } from "./faces/bilingualLoader.ts";
+import { type BilingualEdition, loadBilingualEdition } from "./faces/bilingualLoader.ts";
 import { PaperPage } from "./PaperPage.tsx";
 import { listReadablePapers } from "./paperRoutes.ts";
 
@@ -162,16 +162,29 @@ describe("PaperPage", () => {
     expect(germanMarkup).not.toContain("source-blocks-list");
     expect(germanMarkup).not.toContain('id="bm-s4-p1"');
 
-    // Same honest fallback holds on English, parallel, and gloss faces
-    const englishMarkup = renderToStaticMarkup(await PaperPage({ paperId, face: "english" }));
+    // Same honest fallback holds on English, parallel, and gloss faces when the edition has no
+    // units for them. Brownian's own English began arriving a section at a time on 2026-09-25, so
+    // the live paper can no longer stand for "no English"; the control is the live edition with its
+    // translation and gloss units taken away, which is the condition these three assertions name.
+    const live = await loadBilingualEdition(paperId);
+    expect(live?.blocks.length ?? 0).toBeGreaterThan(0);
+    const noTranslation = { ...(live as BilingualEdition), units: [], glossUnits: [] };
+
+    const englishMarkup = renderToStaticMarkup(
+      await PaperPage({ paperId, face: "english" }, { edition: noTranslation }),
+    );
     expect(englishMarkup).toContain("The English translation for this paper is not yet available");
 
-    const parallelMarkup = renderToStaticMarkup(await PaperPage({ paperId, face: "parallel" }));
+    const parallelMarkup = renderToStaticMarkup(
+      await PaperPage({ paperId, face: "parallel" }, { edition: noTranslation }),
+    );
     expect(parallelMarkup).toContain(
       "The parallel German and English text for this paper is not yet available",
     );
 
-    const glossMarkup = renderToStaticMarkup(await PaperPage({ paperId, face: "gloss" }));
+    const glossMarkup = renderToStaticMarkup(
+      await PaperPage({ paperId, face: "gloss" }, { edition: noTranslation }),
+    );
     expect(glossMarkup).toContain("The interlinear gloss for this paper is not yet available");
   });
 
