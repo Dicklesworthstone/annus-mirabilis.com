@@ -101,9 +101,15 @@ describe("a heading's gloss on the gloss face", () => {
   });
 
   test("an unglossed heading prints only its heading: no gloss sentence and no fallback link", async () => {
-    // Light quanta's § 2 heading has no unit in this edition (only s1's synthetic one is added).
-    const { edition } = await withHeadingGloss("light-quanta", "s1");
-    expect(edition.glossUnits?.some((u) => u.sentenceId === "s2")).toBe(false);
+    // Light quanta's § 2 heading, with any unit it has removed, so the case stays unglossed however
+    // much of the paper is glossed later. It named the live § 2 heading as unglossed until § 2's
+    // own heading was glossed (dispatch 221), which is the brittleness this avoids.
+    const { edition: withS1 } = await withHeadingGloss("light-quanta", "s1");
+    const edition = {
+      ...withS1,
+      glossUnits: (withS1.glossUnits ?? []).filter((u) => u.sentenceId !== "s2"),
+    };
+    expect(edition.glossUnits.some((u) => u.sentenceId === "s2")).toBe(false);
     const html = await glossFace("light-quanta", edition);
     const at = around(html, "h2", "s2");
     expect(at.open).toBeGreaterThan(-1);
