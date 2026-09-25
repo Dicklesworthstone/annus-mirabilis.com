@@ -1,0 +1,50 @@
+# SourceBlock s7-p4: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s7-p4"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s7"
+order: 97
+locators:
+  - pdfPageIndex: 14
+    printedPage: 145
+diplomaticText: "Die letztgenannte Möglichkeit verdient besonderes Interesse. Nach der entwickelten Auffassung ist es nämlich nicht ausgeschlossen, daß eine „nicht Wiensche Strahlung“ auch in großer Verdünnung sich in energetischer Beziehung anders verhält als eine „schwarze Strahlung“ aus dem Gültigkeitsbereich des Wienschen Gesetzes."
+inlines:
+  - kind: "text"
+    text: "Die letztgenannte Möglichkeit verdient besonderes Interesse."
+  - kind: "space"
+  - kind: "text"
+    text: "Nach der entwickelten Auffassung ist es nämlich nicht ausgeschlossen, daß eine „nicht "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Wien"
+  - kind: "text"
+    text: "sche Strahlung“ auch in großer Verdünnung sich in energetischer Beziehung anders verhält als eine „schwarze Strahlung“ aus dem Gültigkeitsbereich des "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Wien"
+  - kind: "text"
+    text: "schen Gesetzes."
+sentenceSpans:
+  - id: "s7-p4-s1"
+    span:
+      start: 0
+      end: 60
+      blockRevision: 1
+      textDigest: "236ab962b328081584abf258704f1515cce25163cb464f2d13e766e30f94b3ea"
+  - id: "s7-p4-s2"
+    span:
+      start: 61
+      end: 320
+      blockRevision: 1
+      textDigest: "236ab962b328081584abf258704f1515cce25163cb464f2d13e766e30f94b3ea"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

@@ -1,0 +1,35 @@
+# SourceBlock s7: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s7"
+kind: "heading"
+paper: "light-quanta"
+section: "s7"
+order: 91
+locators:
+  - pdfPageIndex: 13
+    printedPage: 144
+diplomaticText: "§ 7. Über die Stokessche Regel."
+inlines:
+  - kind: "text"
+    text: "§ 7. Über die "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Stokes"
+  - kind: "text"
+    text: "sche Regel."
+sentenceSpans:
+  - id: "s7"
+    span:
+      start: 0
+      end: 31
+      blockRevision: 1
+      textDigest: "ea66d8148d486aef822129170c4611a8e0f06ca179ec9d1778d2b60dec911cc9"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

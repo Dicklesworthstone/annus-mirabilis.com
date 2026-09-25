@@ -1,0 +1,114 @@
+# SourceBlock s7-p1: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s7-p1"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s7"
+order: 92
+locators:
+  - pdfPageIndex: 13
+    printedPage: 144
+diplomaticText: "Es werde monochromatisches Licht durch Photolumineszenz in Licht anderer Frequenz verwandelt und gemäß dem eben erlangten Resultat angenommen, daß sowohl das erzeugende wie das erzeugte Licht aus Energiequanten von der Größe (R/N) \\beta \\nu bestehe, wobei \\nu die betreffende Frequenz bedeutet. Der Verwandlungsprozeß wird dann folgendermaßen zu deuten sein. Jedes erzeugende Energiequant von der Frequenz \\nu_1 wird absorbiert und gibt — wenigstens bei genügend kleiner Verteilungsdichte der erzeugenden Energiequanten — für sich allein Anlaß zur Entstehung eines Lichtquants von der Frequenz \\nu_2; eventuell können bei der Absorption des erzeugenden Lichtquants auch gleichzeitig Lichtquanten von den Frequenzen \\nu_3, \\nu_4 etc. sowie Energie anderer Art (z. B. Wärme) entstehen. Unter Vermittelung von was für Zwischenprozessen dies Endresultat zustande kommt, ist gleichgültig. Wenn die photolumineszierende Substanz nicht als eine beständige Quelle von Energie anzusehen ist, so kann nach dem Energieprinzip die Energie eines erzeugten Energiequants nicht größer sein als die eines erzeugenden Lichtquants; es muß also die Bezeichnung gelten: oder Dies ist die bekannte Stokessche Regel."
+inlines:
+  - kind: "text"
+    text: "Es werde monochromatisches Licht durch Photolumineszenz in Licht anderer Frequenz verwandelt und gemäß dem eben erlangten Resultat angenommen, daß sowohl das erzeugende wie das erzeugte Licht aus Energiequanten von der Größe "
+  - kind: "math"
+    latex: "(R/N) \\beta \\nu"
+  - kind: "text"
+    text: " bestehe, wobei "
+  - kind: "math"
+    latex: "\\nu"
+  - kind: "text"
+    text: " die betreffende Frequenz bedeutet."
+  - kind: "space"
+  - kind: "text"
+    text: "Der Verwandlungsprozeß wird dann folgendermaßen zu deuten sein."
+  - kind: "space"
+  - kind: "text"
+    text: "Jedes erzeugende Energiequant von der Frequenz "
+  - kind: "math"
+    latex: "\\nu_1"
+  - kind: "text"
+    text: " wird absorbiert und gibt — wenigstens bei genügend kleiner Verteilungsdichte der erzeugenden Energiequanten — für sich allein Anlaß zur Entstehung eines Lichtquants von der Frequenz "
+  - kind: "math"
+    latex: "\\nu_2"
+  - kind: "text"
+    text: "; eventuell können bei der Absorption des erzeugenden Lichtquants auch gleichzeitig Lichtquanten von den Frequenzen "
+  - kind: "math"
+    latex: "\\nu_3"
+  - kind: "text"
+    text: ", "
+  - kind: "math"
+    latex: "\\nu_4"
+  - kind: "text"
+    text: " etc. sowie Energie anderer Art (z. B. Wärme) entstehen."
+  - kind: "space"
+  - kind: "text"
+    text: "Unter Vermittelung von was für Zwischenprozessen dies Endresultat zustande kommt, ist gleichgültig."
+  - kind: "space"
+  - kind: "text"
+    text: "Wenn die photolumineszierende Substanz nicht als eine beständige Quelle von Energie anzusehen ist, so kann nach dem Energieprinzip die Energie eines erzeugten Energiequants nicht größer sein als die eines erzeugenden Lichtquants; es muß also die Bezeichnung gelten:"
+  - kind: "math"
+    latex: "\\frac{R}{N} \\beta \\nu_2 \\leqq \\frac{R}{N} \\beta \\nu_1"
+    display: true
+    equationId: "eq-s7-d1"
+  - kind: "text"
+    text: " oder"
+  - kind: "math"
+    latex: "\\nu_2 \\leqq \\nu_1 ."
+    display: true
+    equationId: "eq-s7-d2"
+  - kind: "space"
+  - kind: "text"
+    text: "Dies ist die bekannte "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Stokes"
+  - kind: "text"
+    text: "sche Regel."
+sentenceSpans:
+  - id: "s7-p1-s1"
+    span:
+      start: 0
+      end: 294
+      blockRevision: 1
+      textDigest: "d7e0a48499ed48d97d822d579bf395a1346479010850c2fe681e1c2ff400946a"
+  - id: "s7-p1-s2"
+    span:
+      start: 295
+      end: 358
+      blockRevision: 1
+      textDigest: "d7e0a48499ed48d97d822d579bf395a1346479010850c2fe681e1c2ff400946a"
+  - id: "s7-p1-s3"
+    span:
+      start: 359
+      end: 783
+      blockRevision: 1
+      textDigest: "d7e0a48499ed48d97d822d579bf395a1346479010850c2fe681e1c2ff400946a"
+  - id: "s7-p1-s4"
+    span:
+      start: 784
+      end: 883
+      blockRevision: 1
+      textDigest: "d7e0a48499ed48d97d822d579bf395a1346479010850c2fe681e1c2ff400946a"
+  - id: "s7-p1-s5"
+    span:
+      start: 884
+      end: 1154
+      blockRevision: 1
+      textDigest: "d7e0a48499ed48d97d822d579bf395a1346479010850c2fe681e1c2ff400946a"
+  - id: "s7-p1-s6"
+    span:
+      start: 1155
+      end: 1194
+      blockRevision: 1
+      textDigest: "d7e0a48499ed48d97d822d579bf395a1346479010850c2fe681e1c2ff400946a"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "draft"
+  translation: "draft"
+  review: "draft"
+lang: "de"

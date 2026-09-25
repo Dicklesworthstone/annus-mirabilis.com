@@ -1,0 +1,47 @@
+# SourceBlock s7-p3: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s7-p3"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s7"
+order: 96
+locators:
+  - pdfPageIndex: 14
+    printedPage: 145
+diplomaticText: "Abweichungen von der Stokesschen Regel sind nach der dargelegten Auffassung der Phänomene in folgenden Fällen denkbar: 1. wenn die Anzahl der gleichzeitig in Umwandlung begriffenen Energiequanten pro Volumeneinheit so groß ist, daß ein Energiequant des erzeugten Lichtes seine Energie von mehreren erzeugenden Energiequanten erhalten kann; 2. wenn das erzeugende (oder erzeugte) Licht nicht von derjenigen energetischen Beschaffenheit ist, die einer „schwarzen Strahlung“ aus dem Gültigkeitsbereich des Wienschen Gesetzes zukommt, wenn also z. B. das erregende Licht von einem Körper so hoher Temperatur erzeugt ist, daß für die in Betracht kommende Wellenlänge das Wiensche Gesetz nicht mehr gilt."
+inlines:
+  - kind: "text"
+    text: "Abweichungen von der "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Stokes"
+  - kind: "text"
+    text: "schen Regel sind nach der dargelegten Auffassung der Phänomene in folgenden Fällen denkbar: 1. wenn die Anzahl der gleichzeitig in Umwandlung begriffenen Energiequanten pro Volumeneinheit so groß ist, daß ein Energiequant des erzeugten Lichtes seine Energie von mehreren erzeugenden Energiequanten erhalten kann; 2. wenn das erzeugende (oder erzeugte) Licht nicht von derjenigen energetischen Beschaffenheit ist, die einer „schwarzen Strahlung“ aus dem Gültigkeitsbereich des "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Wien"
+  - kind: "text"
+    text: "schen Gesetzes zukommt, wenn also z. B. das erregende Licht von einem Körper so hoher Temperatur erzeugt ist, daß für die in Betracht kommende Wellenlänge das "
+  - kind: "emphasis"
+    inlines:
+      - kind: "text"
+        text: "Wien"
+  - kind: "text"
+    text: "sche Gesetz nicht mehr gilt."
+sentenceSpans:
+  - id: "s7-p3-s1"
+    span:
+      start: 0
+      end: 698
+      blockRevision: 1
+      textDigest: "3db024423d48cb5727f502c8ec7d93744971139d6c0384340e193a38cdb7e44e"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"

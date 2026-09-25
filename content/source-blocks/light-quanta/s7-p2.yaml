@@ -1,0 +1,38 @@
+# SourceBlock s7-p2: German source text from public/papers/transcripts/ap-17-132-machine-draft.txt.
+# Einstein, Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt, Ann. Phys. (4) 17, 132-148 (1905), ap-17-132.
+# Machine draft (docs/DECISIONS.md D-2026-09-25-agent-reviewed-translations); not reviewed.
+id: "s7-p2"
+kind: "paragraph"
+paper: "light-quanta"
+section: "s7"
+order: 95
+locators:
+  - pdfPageIndex: 13
+    printedPage: 144
+diplomaticText: "Besonders hervorzuheben ist, daß bei schwacher Belichtung die erzeugte Lichtmenge der erregenden unter sonst gleichen Umständen nach unserer Auffassung der erregenden Lichtstärke proportional sein muß, da jedes erregende Energiequant einen Elementarprozeß von der oben angedeuteten Art verursachen wird, unabhängig von der Wirkung der anderen erregenden Energiequanten. Insbesondere wird es keine untere Grenze für die Intensität des erregenden Lichtes geben, unterhalb welcher das Licht unfähig wäre, lichterregend zu wirken."
+inlines:
+  - kind: "text"
+    text: "Besonders hervorzuheben ist, daß bei schwacher Belichtung die erzeugte Lichtmenge der erregenden unter sonst gleichen Umständen nach unserer Auffassung der erregenden Lichtstärke proportional sein muß, da jedes erregende Energiequant einen Elementarprozeß von der oben angedeuteten Art verursachen wird, unabhängig von der Wirkung der anderen erregenden Energiequanten."
+  - kind: "space"
+  - kind: "text"
+    text: "Insbesondere wird es keine untere Grenze für die Intensität des erregenden Lichtes geben, unterhalb welcher das Licht unfähig wäre, lichterregend zu wirken."
+sentenceSpans:
+  - id: "s7-p2-s1"
+    span:
+      start: 0
+      end: 369
+      blockRevision: 1
+      textDigest: "9b649848599370678125e1e3bdbd3a5e081c7b176f84ce00124c50bf745efe40"
+  - id: "s7-p2-s2"
+    span:
+      start: 370
+      end: 526
+      blockRevision: 1
+      textDigest: "9b649848599370678125e1e3bdbd3a5e081c7b176f84ce00124c50bf745efe40"
+revision: 1
+status:
+  transcription: "draft"
+  mathTranscription: "not-applicable"
+  translation: "draft"
+  review: "draft"
+lang: "de"
