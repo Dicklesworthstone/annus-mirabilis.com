@@ -251,14 +251,22 @@ export function ShowTheCode({
             <p className="kernel-header">
               {listing.exportName}
               {listing.filePath ? ` · ${listing.filePath}` : ""}
-              {listing.revision ? ` · revision ${listing.revision}` : ""}
+              {/* "workspace" is what the extractor records for this site's own TypeScript, read
+                  from the source tree the page was built from (extract-kernel-source.ts); it named
+                  a git notion, not a revision a reader could look up. A pinned revision, such as
+                  a FrankenSim commit, is still named as one. */}
+              {listing.revision === "workspace"
+                ? " · this site’s source, as built"
+                : listing.revision
+                  ? ` · source at revision ${listing.revision}`
+                  : ""}
               {listing.sourceHash ? ` · ${listing.sourceHash}` : ""}
             </p>
             <p className="kernel-header">
               {digestMismatch
-                ? "Listing refused: Source hash does not match current snapshot."
+                ? "Listing refused: this source does not match the code that produced the numbers shown."
                 : claimsSnapshot
-                  ? "This is the function that produced the current snapshot."
+                  ? "This is the function that produced the numbers shown now."
                   : "This function computes the listed outputs when it runs."}
             </p>
             <nav className="show-the-code-tabs" aria-label={`Show the code: ${listing.exportName}`}>
@@ -306,10 +314,11 @@ export function ShowTheCode({
                   role="alert"
                 >
                   <p>
-                    <strong>Source listing refused:</strong> The displayed kernel source hash (
-                    <code>{listing.sourceHash}</code>) does not match the digest of the source that
-                    produced the current snapshot (<code>{snapshotSourceDigest}</code>). A stale or
-                    mismatched listing is refused to prevent displaying inaccurate code.
+                    <strong>Source listing refused:</strong> The fingerprint of this listing (
+                    <code>{listing.sourceHash}</code>) does not match the fingerprint of the code
+                    that produced the numbers shown (<code>{snapshotSourceDigest}</code>). A listing
+                    that may be out of date is refused, so the page never shows code that did not
+                    run.
                   </p>
                 </div>
               ) : (

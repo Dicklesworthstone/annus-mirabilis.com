@@ -29,7 +29,7 @@ describe("ShowTheCode against the values production supplies", () => {
   test("the recorded snapshot hash renders the function's implementation, not a refusal", () => {
     const html = render(bm06Example.snapshotFunctionHash);
     expect(html).not.toContain('data-refusal-code="stale-kernel-listing"');
-    expect(html).toContain("This is the function that produced the current snapshot");
+    expect(html).toContain("This is the function that produced the numbers shown now");
     expect(html).toContain("gaussianPropagator");
   });
 

@@ -116,7 +116,7 @@ describe("getKernelListingsForInstrument", () => {
       expect(html).toContain('<code data-language="ts">');
       expect(html).toContain('class="kernel-trace"');
       expect(html).toContain('data-quantity-id="diffusionCoefficient"');
-      expect(html).toContain("This is the function that produced the current snapshot.");
+      expect(html).toContain("This is the function that produced the numbers shown now.");
     });
   });
 });

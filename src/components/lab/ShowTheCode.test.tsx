@@ -95,6 +95,20 @@ describe("ShowTheCode", () => {
     });
   });
 
+  test("the header says where the listing comes from in words, and names a pinned revision as one", () => {
+    // Every TypeScript listing on the site carries revision "workspace", which the extractor records
+    // for the source tree the page was built from; the header printed "revision workspace" (dispatch
+    // 218). It now says what that is. A real pinned revision is still printed as a revision.
+    const header = (revision: string) =>
+      renderToStaticMarkup(<ShowTheCode listings={[{ ...baseListing, revision }]} />)
+        .replace(/<!--.*?-->/g, "")
+        .match(/<p class="kernel-header">([^<]*)<\/p>/)?.[1] ?? "";
+    expect(header("workspace")).toContain(" · this site’s source, as built · ");
+    expect(header("workspace")).not.toContain("revision");
+    expect(header("workspace")).toContain(baseListing.sourceHash);
+    expect(header("5bbbfae6f7de")).toContain(" · source at revision 5bbbfae6f7de · ");
+  });
+
   test("header claims the current snapshot only when provenance names the function", () => {
     const claimed = renderToStaticMarkup(
       <ShowTheCode
@@ -110,8 +124,8 @@ describe("ShowTheCode", () => {
         snapshotFunctionName="someoneElse"
       />,
     );
-    expect(claimed).toContain("This is the function that produced the current snapshot.");
-    expect(denied).not.toContain("This is the function that produced the current snapshot.");
+    expect(claimed).toContain("This is the function that produced the numbers shown now.");
+    expect(denied).not.toContain("This is the function that produced the numbers shown now.");
     expect(denied).toContain("This function computes the listed outputs when it runs.");
     logger.log({
       testId: "show-the-code-snapshot-header",
@@ -174,7 +188,7 @@ describe("ShowTheCode", () => {
         snapshotSourceDigest={baseListing.sourceHash}
       />,
     );
-    expect(html).toContain("This is the function that produced the current snapshot.");
+    expect(html).toContain("This is the function that produced the numbers shown now.");
     expect(html).not.toContain("data-refusal-code");
     expect(html).toContain("evaluateStokesEinstein");
     expect(html).toContain("data-quantity-id");
@@ -189,11 +203,13 @@ describe("ShowTheCode", () => {
         snapshotSourceDigest="sha256:0000000000000000000000000000000000000000000000000000000000000000"
       />,
     );
-    expect(html).toContain("Listing refused: Source hash does not match current snapshot.");
+    expect(html).toContain(
+      "Listing refused: this source does not match the code that produced the numbers shown.",
+    );
     expect(html).toContain('data-refusal-code="stale-kernel-listing"');
     expect(html).toContain("Source listing refused:");
     expect(html).toContain(
-      "does not match the digest of the source that produced the current snapshot",
+      "does not match the fingerprint of the code that produced the numbers shown",
     );
     // Code tokens and trace should NOT be displayed when refused
     expect(html).not.toContain("<code data-language");
