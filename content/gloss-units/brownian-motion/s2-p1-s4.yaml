@@ -1,0 +1,40 @@
+# GlossUnit s2-p1-s4: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s2-p1-s4"
+sentenceId: "s2-p1-s4"
+revision: 1
+sourceRevision: 2
+sourceTextDigest: "43dd6924efeccdee06a6ff3c14305bbd2cd6a14d987a838140b812bdda9fc23b"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "ist"
+    english: "is"
+  - german: "mit"
+    english: "with"
+  - german: "der"
+    english: "the"
+  - german: "oben"
+    english: "above"
+  - german: "erwähnten"
+    english: "mentioned"
+    lemma: "erwähnen"
+    grammarNote: "participle closing an attributive phrase before its noun"
+    noteClass: "attributive-phrase"
+  - german: "Konstanten"
+    english: "constant"
+  - german: "durch"
+    english: "by"
+  - german: "die"
+    english: "the"
+  - german: "Relation"
+    english: "relation"
+  - german: "verbunden"
+    english: "connected"
+multiwordUnits: []

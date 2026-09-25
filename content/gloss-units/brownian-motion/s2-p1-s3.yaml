@@ -1,0 +1,59 @@
+# GlossUnit s2-p1-s3: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s2-p1-s3"
+sentenceId: "s2-p1-s3"
+revision: 1
+sourceRevision: 2
+sourceTextDigest: "4a4d101d80ebae5be24844ab6d490cbe284da3c292d395dc7647a7af7a01a7b1"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Das"
+    english: "the"
+  - german: "Integral"
+    english: "integral"
+  - german: "ist"
+  - german: "über"
+    english: "over"
+  - german: "alle"
+    english: "all"
+  - german: "mit"
+    english: "with"
+  - german: "den"
+    english: "the"
+  - german: "Bedingungen"
+    english: "conditions"
+  - german: "des"
+    english: "of the"
+  - german: "Problems"
+    english: "problem"
+  - german: "vereinbaren"
+    english: "compatible"
+    lemma: "vereinbar"
+    grammarNote: "adjective closing an attributive phrase before its noun: combinations of values compatible with the conditions of the problem"
+    noteClass: "attributive-phrase"
+  - german: "Wertekombinationen"
+    english: "combinations of values"
+    lemma: "Wertekombination"
+    grammarNote: "compound: Werte + Kombination"
+    noteClass: "compound"
+  - german: "der"
+    english: "of the"
+  - german: "zu"
+  - german: "erstrecken"
+    english: "extend"
+multiwordUnits:
+  - tokenIndices:
+      - 2
+      - 13
+      - 14
+    english: "is to be extended"
+    kind: "fixed-phrase"
+    grammarNote: "necessity: sein with zu and an infinitive, 'is to be extended'"
+    noteClass: "necessity"

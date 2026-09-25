@@ -1,0 +1,34 @@
+# GlossUnit s2-p1-s5: word-level gloss of the German sentence, machine draft.
+# Einstein, Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen, ap-17-549.
+id: "s2-p1-s5"
+sentenceId: "s2-p1-s5"
+revision: 1
+sourceRevision: 2
+sourceTextDigest: "548b4d699738ed2465741d87407f9fd56bd6f0856bad37f8ea9e6fce49fc102c"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:SapphireCastle"
+  name: "SapphireCastle (agent)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Für"
+    english: "for"
+  - german: "die"
+    english: "the"
+  - german: "freie"
+    english: "free"
+  - german: "Energie"
+    english: "energy"
+  - german: "erhalten"
+    english: "obtain"
+  - german: "wir"
+    english: "we"
+  - german: "daher"
+    english: "therefore"
+    lemma: "daher"
+    grammarNote: "consequence: the free energy follows from the entropy just given"
+    noteClass: "consequence"
+multiwordUnits: []
