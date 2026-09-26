@@ -3,12 +3,18 @@
  * German, English, parallel and gloss faces, which share the inlines. Each span of inline
  * mathematics carries its paper (the colour rules key on it) and the coloured render, and each
  * coloured glyph carries its quantity id. The denominator is printed per face.
+ *
+ * The gloss prints one section per page (glossSections.ts), and its paper page prints only the
+ * first, so the gloss is read from every section's page. Light quanta's introduction prints no
+ * formula: its paper gloss page alone would count none.
  */
 import { describe, expect, test } from "bun:test";
 import type { ReactElement } from "react";
 import { ENFORCED_INLINE_PAPERS } from "../../equations/printed/paperInlines.ts";
 import { exportMarkup } from "../../testing/exportMarkup.ts";
 import { PaperPage } from "../PaperPage.tsx";
+import { loadBilingualEdition } from "./bilingualLoader.ts";
+import { blocksBySection } from "./glossSections.ts";
 import { renderInlines } from "./inlines.tsx";
 
 const FACES = ["german", "english", "parallel", "gloss"] as const;
@@ -18,7 +24,15 @@ describe("inline formulas on the reading faces", () => {
     expect(ENFORCED_INLINE_PAPERS.length).toBeGreaterThan(0);
     for (const paper of ENFORCED_INLINE_PAPERS)
       for (const face of FACES) {
-        const html = await exportMarkup(await PaperPage({ paperId: paper, face }));
+        const edition = await loadBilingualEdition(paper);
+        const sections = face === "gloss" ? [...blocksBySection(edition?.blocks ?? []).keys()] : [];
+        const pages =
+          face === "gloss"
+            ? await Promise.all(
+                sections.map((section) => PaperPage({ paperId: paper, section, face })),
+              )
+            : [await PaperPage({ paperId: paper, face })];
+        const html = (await Promise.all(pages.map((page) => exportMarkup(page)))).join("\n");
         const spans = [...html.matchAll(/<span class="inline-math"([^>]*)>/g)].map(
           (m) => m[1] ?? "",
         );
