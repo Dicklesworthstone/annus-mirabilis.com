@@ -19,7 +19,10 @@ import {
   MASS_ENERGY_LATER_EVIDENCE,
   MASS_ENERGY_SHELF_CARDS,
 } from "../src/content/massEnergyShelf.ts";
-import { SPECIAL_RELATIVITY_SHELF_CARDS } from "../src/content/specialRelativityShelf.ts";
+import {
+  SPECIAL_RELATIVITY_LATER_EVIDENCE,
+  SPECIAL_RELATIVITY_SHELF_CARDS,
+} from "../src/content/specialRelativityShelf.ts";
 import { KnowledgeCardView } from "../src/discovery/cards/KnowledgeCard.tsx";
 import {
   checkShelfPublication,
@@ -30,7 +33,10 @@ import {
 export const JOURNEY_CARDS: readonly JourneyCards[] = [
   { journey: "light-quanta", cards: [...LIGHT_QUANTA_SHELF_CARDS, ...LIGHT_QUANTA_LATER_EVIDENCE] },
   { journey: "brownian-motion", cards: [...BROWNIAN_SHELF_CARDS, ...BROWNIAN_LATER_EVIDENCE] },
-  { journey: "special-relativity", cards: SPECIAL_RELATIVITY_SHELF_CARDS },
+  {
+    journey: "special-relativity",
+    cards: [...SPECIAL_RELATIVITY_SHELF_CARDS, ...SPECIAL_RELATIVITY_LATER_EVIDENCE],
+  },
   { journey: "mass-energy", cards: [...MASS_ENERGY_SHELF_CARDS, ...MASS_ENERGY_LATER_EVIDENCE] },
 ];
 
