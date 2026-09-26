@@ -23,7 +23,23 @@ describe("relativity's result cards", () => {
       "sr-transformation-equations",
       "sr-moving-rigid-body",
       "sr-moving-clock",
+      "sr-velocity-addition",
+      "sr-field-transformation",
+      "sr-doppler-aberration",
     ]);
+  });
+
+  test("a misprint is quoted as printed, and the correction stays on the card's own side", () => {
+    // § 7 prints "für v = −∞, ν = ∞" (err-typo-p912-1 and -2 in docs/provenance/ap-17-891.md).
+    // The quotation must be the plate's reading; only the decoder offers v = −V.
+    const doppler = cards.find((c) => c.id === "sr-doppler-aberration");
+    const quoted = doppler?.printed.find((p) => p.anchor === "s7-p3" && p.ordinals.includes(4));
+    expect(quoted?.text).toContain("$v = -\\infty$");
+    expect(quoted?.text).toContain("$\\nu = \\infty$");
+    expect(quoted?.text).not.toContain("-V");
+    const note = doppler?.decoder.find((d) => d.symbol.includes("-\\infty"));
+    expect(note?.meaning).toContain("\\(v=-V\\)");
+    expect(note?.meaning).toContain("Every face keeps the printed reading");
   });
 
   test("every as-printed excerpt is the German face's own text at its anchor", () => {

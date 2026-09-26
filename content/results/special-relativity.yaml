@@ -9,7 +9,10 @@
 # the printed side: β is the modern γ, τ is the moving system's time coordinate (not a proper
 # time), and V is the speed of light (content/notation/special-relativity.yaml). Everything
 # written here (the one-sentence reading, the decoder, the qualifications, the probe questions) is
-# draft explanatory prose.
+# draft explanatory prose. Historical statements come from the historian's-margin readings of
+# the laboratories (content/editorial/readings-owners/am-sr-*.yaml), which cite their sources, and
+# a misprint is explained from its record in docs/provenance/ap-17-891.md while the printed reading
+# stays on the quoted side.
 #
 # A card's common wrong turns are not listed here: each record in
 # content/misconceptions/special-relativity names the results it concerns in its resultIds, bound
@@ -58,7 +61,7 @@ cards:
       argumentStatus: "A consequence of the definition of synchronous clocks and the two principles"
       modelStatus: "Exact within the paper's kinematics"
       evidentialRole: "A derivation, not evidence"
-      historicalStatus: "Introduced in this paper"
+      historicalStatus: "Introduced in this paper. In 1900 Poincaré had described observers moving through the ether who set their clocks by light signals and so obtain Lorentz's local time, to first order"
     selectionReason: "It is the conclusion § 2 draws in its own words: the concept of simultaneity has no absolute meaning."
 
   - id: sr-principles-compatible
@@ -136,7 +139,7 @@ cards:
       argumentStatus: "The derivation of § 3, completed by a symmetry argument"
       modelStatus: "Exact within the paper's kinematics"
       evidentialRole: "A derivation, not evidence"
-      historicalStatus: "Introduced in this paper"
+      historicalStatus: "Lorentz had published equivalent coordinate equations in 1904, as a change of variables with a local time, and Poincaré named them the Lorentz transformation in June 1905; this paper derives them from its two principles and cites neither"
     selectionReason: "Every later section of the paper applies these equations: to rods and clocks, to velocities, to the fields and to light."
 
   - id: sr-moving-rigid-body
@@ -175,7 +178,7 @@ cards:
       argumentStatus: "A consequence of the transformation equations"
       modelStatus: "Exact within the paper's kinematics, for a body the paper calls rigid"
       evidentialRole: "A derivation, not evidence"
-      historicalStatus: "Introduced in this paper"
+      historicalStatus: "FitzGerald in 1889 and Lorentz in 1892 had proposed that bodies moving through the ether contract along their motion, as a physical effect; here the same factor follows from the definition of simultaneity and the two principles, and the paper cites no one for it"
     selectionReason: "It is the first physical consequence § 4 draws from the transformation: lengths along the motion depend on the system that measures them."
 
   - id: sr-moving-clock
@@ -207,7 +210,7 @@ cards:
       - kind: premise
         text: "The theorem for a closed curve assumes that the result proved for a polygonal line also holds for a continuously curved one, and the paper says it assumes this."
       - kind: inference
-        text: "The equator remark applies the closed-curve theorem to the earth's rotation. On the real rotating earth gravity enters as well, which this model does not include; the card keeps the remark as printed and makes no prediction for real clocks."
+        text: "The equator remark applies the closed-curve theorem to the earth's rotation, and it holds in this paper's kinematics alone. On the real earth the difference in gravitational potential cancels it, and clocks at sea level keep the same rate everywhere, which the later general theory of relativity explains. The card keeps the remark as printed."
     probes:
       - instrument: sr-05
         question: "A clock goes out and back at 0.6 of the speed of light: how far behind the clock that stayed is it at the reunion?"
@@ -222,3 +225,154 @@ cards:
       evidentialRole: "A derivation, not evidence"
       historicalStatus: "Introduced in this paper"
     selectionReason: "It is the consequence § 4 calls peculiar: two clocks that were synchronous no longer are after one of them has moved."
+
+  - id: sr-velocity-addition
+    title: "The addition theorem of velocities"
+    section: s5
+    arguments: [arg-sr-velocity-composition]
+    printed:
+      - anchor: s5-p2
+        sentences: [3]
+      - anchor: eq-s5-d5
+      - anchor: s5-p2
+        sentences: [7]
+      - anchor: eq-s5-d6
+      - anchor: s5-p2
+        sentences: [8]
+      - anchor: s5-p6
+        sentences: [1]
+      - anchor: eq-s5-d8
+    equations: [eq-model-sr-velocity-x, eq-model-sr-velocity-y]
+    oneSentence: "A point that moves with the velocity \\(w\\) in the system k, while k moves with \\(v\\) relative to K, has in K a velocity \\(U\\) that for two velocities along one line is \\(U=(v+w)/(1+vw/V^2)\\), so that two velocities smaller than \\(V\\) always compose to one smaller than \\(V\\), and the velocity of light composed with a smaller one stays \\(V\\)."
+    decoder:
+      - symbol: "\\(U\\)"
+        meaning: "The velocity of the point relative to the stationary system K."
+      - symbol: "\\(w\\), \\(\\alpha\\)"
+        meaning: "The velocity of the point relative to the moving system k, and the angle between the velocities \\(v\\) and \\(w\\)."
+      - symbol: "\\(\\varkappa\\), \\(\\lambda\\)"
+        meaning: "The amounts by which \\(v\\) and \\(w\\) fall short of \\(V\\), in \\(v=V-\\varkappa\\) and \\(w=V-\\lambda\\), both positive and smaller than \\(V\\). They are speeds; \\(\\lambda\\) is not a wavelength here."
+      - symbol: "\"nur in erster Annäherung\""
+        meaning: "Only to a first approximation: when \\(v\\) and \\(w\\) are small compared with \\(V\\), the terms divided by \\(V^2\\) are small, and \\(U\\) is close to what the parallelogram of velocities gives."
+      - symbol: "the modern layer"
+        meaning: "The theorem finds the velocity in K from the velocity in k, with a plus sign. The modern equations run the other way, from K to k, with a minus sign, and write \\(c\\) for \\(V\\)."
+    qualifications:
+      - kind: premise
+        text: "The theorem applies the transformation equations of § 3 to a point moving uniformly in k."
+      - kind: conditional
+        text: "The bound is proved for two velocities each smaller than \\(V\\); § 4 says that for velocities greater than that of light the paper's considerations become meaningless."
+      - kind: comparison
+        text: "Laue showed in 1907 that the formula for velocities along one line gives Fresnel's drag coefficient \\(1-1/n^2\\), which Fizeau had measured in flowing water in 1851. That is a later use of the theorem, not part of the paper."
+    probes:
+      - instrument: sr-06
+        question: "Compose 0.6 of the speed of light with 0.6 along one line: what is \\(U\\), and what would the parallelogram of velocities give?"
+        preset: sr-06-collinear-0.6-0.6
+      - instrument: sr-06
+        question: "Compose 0.99 of the speed of light with 0.99: how close to \\(V\\) does \\(U\\) come?"
+        preset: sr-06-near-light-0.99
+      - instrument: sr-06
+        question: "A ray of light crosses k at right angles to the motion: what speed does it have in K?"
+        preset: sr-06-null-ray
+    usedLater: []
+    meanings:
+      argumentStatus: "A consequence of the transformation equations"
+      modelStatus: "Exact within the paper's kinematics"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "It is the theorem § 5 is named for, and it shows that velocities smaller than light's never compose to one that reaches it."
+
+  - id: sr-field-transformation
+    title: "The electric and magnetic forces in the moving system"
+    section: s6
+    arguments: [arg-sr-field-derivatives, arg-sr-field-components]
+    printed:
+      - anchor: eq-s6-d9
+      - anchor: s6-p9
+        sentences: [1]
+      - anchor: s6-p10
+        sentences: [1]
+      - anchor: s6-p7
+        sentences: [2]
+      - anchor: s6-p8
+        sentences: [1, 2]
+    equations: [eq-model-sr-field-ex, eq-model-sr-field-ey, eq-model-sr-field-ez, eq-model-sr-field-bx, eq-model-sr-field-by, eq-model-sr-field-bz]
+    oneSentence: "Carried into the moving system by the equations of § 3, the Maxwell-Hertz equations for empty space keep their form when the electric and magnetic forces in that system are the printed combinations, in which the components along the motion are unchanged and those across it mix electric with magnetic, so that, as the paper concludes, the two forces have no existence independent of the state of motion of the coordinate system."
+    decoder:
+      - symbol: "\\(X, Y, Z\\) and \\(L, M, N\\)"
+        meaning: "The components of the electric and of the magnetic force in K; primed, the same components in k. Here \\(L\\) and \\(N\\) are magnetic components, not the \\(L\\) or the \\(N\\) of the other papers."
+      - symbol: "\\(\\beta\\)"
+        meaning: "\\(1/\\sqrt{1-(v/V)^2}\\), the factor written \\(\\gamma\\) today, as in § 3."
+      - symbol: "\\(Y-\\frac{v}{V}N\\)"
+        meaning: "The paper uses Gaussian units, in which electric and magnetic forces have the same dimension. In SI the same combination is \\(E_y-vB_z\\), and the modern layer writes the SI form."
+      - symbol: "\"Alte\" and \"Neue Ausdrucksweise\""
+        meaning: "The old and the new manner of expression. In the old, a charge moving in a field feels an electromotive force besides the electric force; in the new, the force on it is the electric force in a system in which it is at rest."
+    qualifications:
+      - kind: premise
+        text: "The derivation assumes the Maxwell-Hertz equations for empty space, not a theory of matter, and the principle of relativity, which requires them to hold in the same form in k."
+      - kind: premise
+        text: "That the transformed quantities are the forces a charge at rest in k would feel is a further step. § 6 takes it by measuring force on a unit charge, and by taking, from the principle of relativity, that a charge of one unit in K is one unit in k; that the equations keep their form does not by itself prove it."
+      - kind: approximation
+        text: "The old manner of expression is printed with terms in the second and higher powers of \\(v/V\\) neglected. The transformation of the forces is exact."
+    probes:
+      - instrument: sr-08
+        question: "A field that is purely electric in K, seen from k moving at 0.6 of the speed of light: what electric and magnetic forces does k measure?"
+        preset: sr-08-pure-electric-0.6c
+      - instrument: sr-08
+        question: "A field that is purely magnetic in K, seen from k moving at 10 m/s: what electric force does a charge at rest in k feel?"
+        preset: sr-08-pure-magnetic-low-speed
+    usedLater: []
+    meanings:
+      argumentStatus: "A consequence of the principle of relativity applied to the Maxwell-Hertz equations, with the forces in k defined by their action on a charge at rest there"
+      modelStatus: "Exact within the electrodynamics of empty space"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "Lorentz's 1904 theory had already transformed the free-space fields, as mathematical aids in an ether at rest; here they are the forces measured in the moving system"
+    selectionReason: "It removes the asymmetry of magnet and conductor with which the introduction opens, as § 6 says in its own words."
+
+  - id: sr-doppler-aberration
+    title: "Doppler's principle and aberration for any velocity"
+    section: s7
+    arguments: [arg-sr-doppler-aberration]
+    printed:
+      - anchor: s7-p3
+        sentences: [1]
+      - anchor: eq-s7-d7
+      - anchor: s7-p3
+        sentences: [2, 3]
+      - anchor: eq-s7-d8
+      - anchor: s7-p3
+        sentences: [4]
+      - anchor: eq-s7-d9
+      - anchor: s7-p5
+        sentences: [2]
+    equations: [eq-model-sr-doppler-ratio, eq-model-sr-doppler-factor, eq-model-sr-aberration]
+    oneSentence: "An observer who moves with the velocity \\(v\\) relative to a very distant source of frequency \\(\\nu\\), at the angle \\(\\varphi\\) between the line from source to observer and the observer's velocity, perceives the frequency \\(\\nu'=\\nu(1-\\cos\\varphi\\,\\frac{v}{V})/\\sqrt{1-(v/V)^2}\\) and finds the ray at the angle \\(\\varphi'\\) given by \\(\\cos\\varphi'=(\\cos\\varphi-\\frac{v}{V})/(1-\\frac{v}{V}\\cos\\varphi)\\): Doppler's principle and the law of aberration for arbitrary velocities."
+    decoder:
+      - symbol: "\\(\\nu\\), \\(\\nu'\\)"
+        meaning: "The frequency of the light in the system of the source, and the frequency the moving observer perceives."
+      - symbol: "\\(\\varphi\\)"
+        meaning: "The angle between the line from source to observer and the observer's velocity, measured in the system at rest relative to the source. At \\(\\varphi=0\\) the observer moves away from the source along that line."
+      - symbol: "\\(\\varphi'\\)"
+        meaning: "The angle between the ray and the same line, as the moving observer measures it."
+      - symbol: "\\(v=-\\infty\\), \\(\\nu=\\infty\\)"
+        meaning: "As printed. The equation above it grows without bound as \\(v\\) approaches \\(-V\\), an observer approaching the source at nearly the speed of light, and has no real value beyond; the older relation \\(\\nu'=\\nu(1-v/V)\\) grows without bound only as \\(v\\) goes to \\(-\\infty\\), which is the usual view the sentence sets itself against. So the sentence reads as \\(v=-V\\), and its \\(\\nu\\) most likely as the perceived \\(\\nu'\\). Every face keeps the printed reading; the correction is offered here only."
+    qualifications:
+      - kind: premise
+        text: "The source is so distant that near the observer its light is represented, to a sufficient approximation, by a plane wave, as § 7 sets it up; the frequency and the direction follow from transforming that wave's phase and fields."
+      - kind: comparison
+        text: "Stellar aberration had been observed since Bradley's report of 1729, and Ives and Stilwell measured the second-order Doppler shift in canal rays in 1938, reading it within Lorentz's theory. Both are measurements of the world, separate from this calculation."
+    probes:
+      - instrument: sr-09
+        question: "Approach the source along the line of sight at 0.6 of the speed of light: by what factor does the perceived frequency grow?"
+        preset: sr-09-approaching-0.6
+      - instrument: sr-09
+        question: "A ray at 90 degrees to the motion in the source's system: what frequency and what angle does the observer find?"
+        preset: sr-09-transverse-0.6
+      - instrument: sr-09
+        question: "At the earth's speed in its orbit, how far is a star at right angles to the motion displaced?"
+        preset: sr-09-earth-orbit-aberration
+    usedLater: []
+    meanings:
+      argumentStatus: "A consequence of the transformation of a plane wave's phase and fields"
+      modelStatus: "Exact within the paper's electrodynamics, for a plane wave from a very distant source"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "Doppler's principle and aberration were known before, and the paper names the first after Doppler; their forms for arbitrary velocities are derived in this paper"
+    selectionReason: "It is the first consequence § 7 draws for light, and it names it in its own words: Doppler's principle for arbitrary velocities, and the law of aberration in its most general form."
