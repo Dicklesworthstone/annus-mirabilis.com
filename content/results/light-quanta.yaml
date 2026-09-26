@@ -86,6 +86,125 @@ cards:
       historicalStatus: "Planck's formula and constants are earlier work the paper cites; the comparison is this paper's"
     selectionReason: "It is the paper's one number drawn from radiation theory, and it separates the value of Planck's constants from Planck's derivation."
 
+  - id: lq-entropy-temperature
+    title: "The entropy of radiation and its temperature"
+    section: s3
+    arguments: [arg-lq-entropy-temperature]
+    printed:
+      - anchor: s3-p4
+        sentences: [3, 4, 5]
+    equations: [eq-model-lq-entropy-temperature]
+    oneSentence: "Comparing two expressions for the entropy gained when black radiation of unit volume is warmed gives \\(\\partial\\varphi/\\partial\\varrho = 1/T\\), which the paper calls the law of black radiation: from the entropy function \\(\\varphi\\) one can find the radiation law, and from the radiation law, by integration, the function \\(\\varphi\\)."
+    decoder:
+      - symbol: "\\(\\varphi(\\varrho, \\nu)\\)"
+        meaning: "The entropy per unit volume and unit frequency of radiation whose energy density at the frequency \\(\\nu\\) is \\(\\varrho\\)."
+      - symbol: "\\(\\varrho\\)"
+        meaning: "The energy density per unit frequency, printed in §§ 3 and 4 without its subscript \\(\\nu\\)."
+      - symbol: "\\(\\varphi\\) vanishes for \\(\\varrho = 0\\)"
+        meaning: "The condition that fixes the constant of integration when \\(\\varphi\\) is found from the radiation law."
+    qualifications:
+      - kind: premise
+        text: "The warming is reversible and \\(dE\\) is the heat supplied; that is what allows \\(dS = dE/T\\)."
+      - kind: premise
+        text: "That \\(\\partial\\varphi/\\partial\\varrho\\) does not depend on \\(\\nu\\) comes from the section's condition that the entropy be a maximum at fixed energy."
+    probes:
+      - instrument: lq-04
+        question: "Take the derivative of the entropy density with respect to the energy density: does it come out as 1/T?"
+        preset: lq-04-derived-temperature
+    usedLater: []
+    meanings:
+      argumentStatus: "A thermodynamic relation, used as a tool"
+      modelStatus: "Exact for radiation in equilibrium"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "Follows from thermodynamics available before 1905; the paper states it in this form"
+    selectionReason: "It is the tool the next section uses to turn Wien's law into an entropy."
+
+  - id: lq-radiation-entropy-volume
+    title: "How the entropy of monochromatic radiation depends on its volume"
+    section: s4
+    arguments: [arg-lq-fixed-band-volume, arg-lq-wien-integration]
+    printed:
+      - anchor: s4-p1
+        sentences: [3, 4]
+      - anchor: s4-p2
+        sentences: [4]
+    equations:
+      - eq-model-lq-wien-spectrum
+      - eq-model-lq-wien-entropy-density
+      - eq-model-lq-volume-entropy
+    oneSentence: "Taking as its basis Wien's law, which experiment confirms for large \\(\\nu/T\\), the paper finds that the entropy of radiation of energy \\(E\\) between \\(\\nu\\) and \\(\\nu + d\\nu\\) depends on the volume it occupies as \\(S - S_0 = \\frac{E}{\\beta\\nu}\\lg\\left(\\frac{v}{v_0}\\right)\\), a result valid only within certain limits."
+    decoder:
+      - symbol: "\\(E\\)"
+        meaning: "The energy of radiation whose frequency lies between \\(\\nu\\) and \\(\\nu + d\\nu\\)."
+      - symbol: "\\(v\\), \\(v_0\\), \\(S_0\\)"
+        meaning: "The volume the radiation occupies, a reference volume, and the radiation's entropy when it occupies \\(v_0\\)."
+      - symbol: "\\(\\beta\\)"
+        meaning: "The constant of Wien's law, \\(\\varrho = \\alpha\\nu^3 e^{-\\beta\\nu/T}\\)."
+      - symbol: "\\(\\lg\\)"
+        meaning: "The natural logarithm, as the paper prints it."
+    qualifications:
+      - kind: premise
+        text: "The calculation rests on Wien's law, which the paper says is not exactly valid; its results hold only within certain limits, where Wien's law is confirmed, for large \\(\\nu/T\\)."
+      - kind: premise
+        text: "The energy and the frequency band are held fixed; only the volume changes."
+    probes:
+      - instrument: lq-04
+        question: "Halve the volume the radiation occupies at fixed energy: how much does its entropy change?"
+        preset: lq-04-halve-volume
+      - instrument: lq-04
+        question: "Try a dense state, outside the range of Wien's law: why does the laboratory refuse the comparison?"
+        preset: lq-04-dense-refusal
+    usedLater: []
+    meanings:
+      argumentStatus: "A derivation from Wien's law"
+      modelStatus: "Within the range of validity of Wien's law"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "It is the property of radiation that § 6 compares with a gas."
+
+  - id: lq-boltzmann-principle
+    title: "Boltzmann's principle and the entropy of independent points"
+    section: s5
+    arguments: [arg-lq-statistical-probability, arg-lq-independent-configurations]
+    printed:
+      - anchor: s5-p6
+        sentences: [2]
+      - anchor: s5-p8
+        sentences: [1]
+    equations:
+      - eq-model-lq-configuration-probability
+      - eq-model-lq-configuration-entropy
+      - eq-model-lq-gas-entropy-change
+    oneSentence: "Entropy and probability are related by \\(S - S_0 = \\frac{R}{N}\\lg W\\), and for \\(n\\) points moving independently in a volume \\(v_0\\) the probability that at a chosen instant all of them are in the part \\(v\\) is \\((v/v_0)^n\\), so their entropy depends on the volume as \\(S - S_0 = R\\left(\\frac{n}{N}\\right)\\lg\\left(\\frac{v}{v_0}\\right)\\)."
+    decoder:
+      - symbol: "\\(W\\)"
+        meaning: "The relative probability of a state of entropy \\(S\\), compared with the initial state of entropy \\(S_0\\)."
+      - symbol: "\\(n\\)"
+        meaning: "The number of points moving independently of one another in the volume \\(v_0\\)."
+      - symbol: "\"statistische Wahrscheinlichkeit\""
+        meaning: "Statistical probability: the probability of finding a configuration at an arbitrarily chosen instant."
+      - symbol: "\\(R/N\\)"
+        meaning: "The universal constant \\(C\\) in \\(S = C\\lg W + \\text{konst.}\\), whose value the paper takes from the kinetic theory of gases."
+    qualifications:
+      - kind: premise
+        text: "The value \\(R/N\\) of the constant \\(C\\) comes from the kinetic theory of gases, as the paper says."
+      - kind: premise
+        text: "The points move independently of one another; the probability is a product of one factor per point only because of that."
+    probes:
+      - instrument: lq-05
+        question: "With two independent points and half the volume, how often are both found in the left half?"
+        preset: lq-05-first-encounter
+      - instrument: lq-05
+        question: "Lock the points' positions together: does the probability still come out as a power of the volume ratio?"
+        preset: lq-05-locked-positions
+    usedLater: []
+    meanings:
+      argumentStatus: "Boltzmann's principle, applied to independent points"
+      modelStatus: "Exact for points that move independently"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "Boltzmann's principle is earlier work; the paper states it in this form and applies it"
+    selectionReason: "It gives the gas side of the comparison § 6 makes."
+
   - id: lq-energy-quanta
     title: "Radiation that behaves as if it consisted of energy quanta"
     section: s6
