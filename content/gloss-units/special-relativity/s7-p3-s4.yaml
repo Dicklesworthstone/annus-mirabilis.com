@@ -1,0 +1,54 @@
+# GlossUnit s7-p3-s4: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s7-p3-s4"
+sentenceId: "s7-p3-s4"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "df718da7342bef2c5ce13e5fe513123545d6a9c2d443eeff35ef905b28bcc291"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Man"
+  - german: "sieht"
+  - german: "daß"
+    english: "that"
+    lemma: "dass"
+    grammarNote: "archaic spelling of dass"
+    noteClass: "archaic-spelling"
+  - german: "im"
+  - german: "Gegensatz"
+  - german: "zu"
+  - german: "der"
+    english: "the"
+  - german: "üblichen"
+    english: "usual"
+    lemma: "üblich"
+  - german: "Auffassung"
+    english: "view"
+  - german: "für"
+    english: "for"
+  - german: "ist"
+    english: "is"
+    lemma: "sein"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 1
+    english: "one sees"
+    kind: "fixed-phrase"
+    grammarNote: "man sieht: what the display shows"
+    noteClass: "consequence"
+  - tokenIndices:
+      - 3
+      - 4
+      - 5
+    english: "contrary to"
+    kind: "fixed-phrase"
+    grammarNote: "im Gegensatz zu, ‘in contrast to’: the result differs from the usual view, printed between dashes"
+    noteClass: "restriction"

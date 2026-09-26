@@ -1,0 +1,39 @@
+# GlossUnit s7: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s7"
+sentenceId: "s7"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "63b2608e5c43c7c9daca8325827c5ed2d2d543146b8f9e157feb1d763ff2b88e"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "§ 7"
+    english: "§ 7"
+  - german: "Theorie"
+    english: "theory"
+  - german: "des"
+    english: "of the"
+  - german: "Doppelerschen"
+    english: "Doppler's"
+    lemma: "Dopplersch"
+    grammarNote: "printed Doppelerschen, a misprint for Dopplerschen (receipt err-typo-p910-1): Christian Doppler's"
+    noteClass: "term"
+  - german: "Prinzips"
+    english: "principle"
+    lemma: "Prinzip"
+    grammarNote: "genitive: des ... Prinzips"
+    noteClass: "genitive-construction"
+  - german: "und"
+    english: "and"
+  - german: "der"
+    english: "of"
+  - german: "Aberration"
+    english: "aberration"
+multiwordUnits: []

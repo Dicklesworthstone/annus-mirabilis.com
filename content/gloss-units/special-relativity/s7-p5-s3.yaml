@@ -1,0 +1,45 @@
+# GlossUnit s7-p5-s3: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s7-p5-s3"
+sentenceId: "s7-p5-s3"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "4d674031ac756ad1516917d06c418f4dbf75c37700b77c655642532f583d5462"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Ist"
+    english: "if ... is"
+    lemma: "sein"
+    grammarNote: "verb-first clause: ‘if φ = π/2’"
+    noteClass: "condition"
+  - german: "so"
+    english: "then"
+    grammarNote: "so opens the main clause answering the condition"
+    noteClass: "consequence"
+  - german: "nimmt"
+  - german: "die"
+    english: "the"
+  - german: "Gleichung"
+    english: "equation"
+  - german: "die"
+    english: "the"
+  - german: "einfache"
+    english: "simple"
+    lemma: "einfach"
+  - german: "Gestalt"
+    english: "form"
+  - german: "an"
+multiwordUnits:
+  - tokenIndices:
+      - 2
+      - 8
+    english: "takes"
+    kind: "separable-verb"
+    grammarNote: "annehmen: nimmt ... die Gestalt an"

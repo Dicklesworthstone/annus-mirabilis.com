@@ -1,0 +1,46 @@
+# GlossUnit s7-p5-s2: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s7-p5-s2"
+sentenceId: "s7-p5-s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "ce300310ec8b44cc30b5a33ca5c87d8b3bde4cfed525ef9a3c5cc5f67621c3a0"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Diese"
+    english: "this"
+    lemma: "dieser"
+  - german: "Gleichung"
+    english: "equation"
+  - german: "drückt"
+  - german: "das"
+    english: "the"
+  - german: "Aberrationsgesetz"
+    english: "law of aberration"
+    grammarNote: "Aberration + Gesetz"
+    noteClass: "compound"
+  - german: "in"
+    english: "in"
+  - german: "seiner"
+    english: "its"
+    lemma: "sein"
+  - german: "allgemeinsten"
+    english: "most general"
+    lemma: "allgemein"
+  - german: "Form"
+    english: "form"
+  - german: "aus"
+multiwordUnits:
+  - tokenIndices:
+      - 2
+      - 9
+    english: "expresses"
+    kind: "separable-verb"
+    grammarNote: "ausdrücken, ‘to express’, split: drückt ... aus"
