@@ -301,3 +301,100 @@ export const SPECIAL_RELATIVITY_SHELF_CARDS: readonly KnowledgeCard[] = [
     admittedStages: ["stage-03"],
   },
 ];
+
+/**
+ * Later evidence: never on the 1904 shelf (cardRules.ts, card-later-on-shelf), shown beside the
+ * route's check against the world (dispatch 260). De Sitter's card is what decided the question the
+ * source-speed fork leaves open on the shelf's evidence; Ives and Stilwell's is the measurement the
+ * check against the world names. Both are cited, not plotted: the edition holds no table of either.
+ * Each was read on the page, in scans that answered without a login, and in a catalog record.
+ */
+export const SPECIAL_RELATIVITY_LATER_EVIDENCE: readonly KnowledgeCard[] = [
+  {
+    id: "de-sitter-1913-double-stars",
+    proposition:
+      "De Sitter argues from spectroscopic double stars that if light from a source moving at speed u travelled at c + u, as in Ritz's theory, their observed motions would follow not Newton's law but a law depending on their distance from the Earth. Their observed velocities are represented by Keplerian orbits, in many cases confirmed by visual or eclipse observations, and he concludes that the velocity of light is independent of the motion of the source.",
+    status: "later",
+    sources: [
+      {
+        title: "A proof of the constancy of the velocity of light",
+        date: "1913",
+        locator: "Proc. R. Acad. Amsterdam 15, 1297",
+      },
+    ],
+    date: {
+      earliest: "1913",
+      latest: "1913",
+      precision: "year",
+      latestYear: 1913,
+      eventKind: "published",
+    },
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:NavyKite",
+        checkedOn: "2026-09-26",
+        url: "https://dwc.knaw.nl/toegangen/digital-library-knaw/?pagetype=publDetail&pId=PU00013063",
+        read: "catalog-record",
+        matched:
+          "KNAW Digital Library, publication PU00013063: A proof of the constancy of the velocity of light, Sitter, Willem de, Proceedings, volume 15 (1913), pp. 1297-1298.",
+      },
+      {
+        source: 0,
+        checkedBy: "agent:NavyKite",
+        checkedOn: "2026-09-26",
+        url: "https://dwc.knaw.nl/DL/publications/PU00013063.pdf",
+        read: "page-image",
+        matched:
+          'p. 1297: "Astronomy. — "A proof of the constancy of the velocity of light". By Prof. W. de Sitter. (Communicated in the meeting of February 22, 1913)"; "In the theory of Ritz light emitted by a source moving with velocity u is propagated through space in the direction of the motion of the source with the velocity c + u, c being the velocity of light emitted by a motionless source. In other theories (Lorentz, Einstein) the velocity of light is always c, independent of the motion of the source." p. 1298: "the observed velocities of spectroscopic doubles, i. e. the equation (2), are as a matter of fact satisfactorily represented by a Keplerian motion. Moreover in many cases the orbit derived from the radial velocities is confirmed by visual observations (as for δ Equulei, ζ Herculis, etc.) or by eclipse-observations (as in Algol-variables). We can thus not avoid the conclusion α = 0, i. e. the velocity of light is independent of the motion of the source. Ritz\'s theory would force us to assume that the motion of the double stars is governed not by Newton\'s law, but by a much more complicated law, depending on the star\'s distance from the earth".',
+      },
+    ],
+    limits:
+      "Later evidence, not on the 1904 shelf, eight years after the paper. It is an argument from observed orbits rather than a new measurement, and it answers Ritz's emission theory, which it names and which is itself later than the shelf. The edition has not transcribed its figures.",
+  },
+  {
+    id: "ives-stilwell-1938-moving-atomic-clock",
+    proposition:
+      "Ives and Stilwell study the light given off by moving hydrogen canal rays, and report that the experiment establishes the rate of a moving clock: its frequency in motion is its frequency at rest multiplied by √(1 − v²/c²), v being its speed. They present the result as evidence for the theory of Larmor and Lorentz, in which this change of rate is an essential element.",
+    status: "later",
+    sources: [
+      {
+        title: "An Experimental Study of the Rate of a Moving Atomic Clock",
+        date: "1938-07",
+        locator: "J. Opt. Soc. Am. 28, 215",
+      },
+    ],
+    date: {
+      earliest: "1938-07",
+      latest: "1938-07",
+      precision: "month",
+      latestYear: 1938,
+      eventKind: "published",
+    },
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:NavyKite",
+        checkedOn: "2026-09-26",
+        url: "https://api.crossref.org/works/10.1364/JOSA.28.000215",
+        read: "catalog-record",
+        matched:
+          "An Experimental Study of the Rate of a Moving Atomic Clock, Ives and Stilwell, Journal of the Optical Society of America, volume 28, issue 7, first page 215, 1 July 1938. The publisher's record (opg.optica.org, josa-28-7-215) gives pp. 215-226 and no abstract.",
+      },
+      {
+        source: 0,
+        checkedBy: "agent:NavyKite",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/sim_optical-society-of-america-journal_1938-07_28_7",
+        read: "page-image",
+        matched:
+          'Journal of the Optical Society of America, Volume 28, July 1938, Number 7. p. 215: "An Experimental Study of the Rate of a Moving Atomic Clock. Herbert E. Ives and G. R. Stilwell, Bell Telephone Laboratories (Received April 12, 1938)"; "various consequences of the alteration of the rate of a clock in motion, which is an essential element in the theory of Larmor and Lorentz"; "For hydrogen canal rays". p. 226, Significance of results: "The present experiment establishes this rate as according to the relation ν = ν₀(1 − V²/c²)^½, where ν₀ the frequency of the clock when stationary in the ether, ν its frequency when in motion"; "The present experiment, giving a positive instead of a null result may hence be claimed to give more decisive evidence for the Larmor-Lorentz theory than is given by the experiments which have yielded null results."',
+        differs: [
+          "The paper writes V for the speed of the moving clock and c for the speed of light; the card writes v, so that its V is not read as the 1905 paper's letter for the speed of light.",
+        ],
+      },
+    ],
+    limits:
+      "Later evidence, not on the 1904 shelf, thirty-three years after the paper. The authors read it within the theory of Larmor and Lorentz, which predicts the same rate as the 1905 kinematics, so it cannot separate the two accounts: it shows a moving clock's rate falling as both predict. The edition has not transcribed their measurements, and none is plotted here.",
+  },
+];
