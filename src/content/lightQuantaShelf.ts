@@ -165,15 +165,15 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "planck-1901-energy-elements",
     proposition:
-      "A radiation formula covering the whole spectrum, obtained by letting the resonators exchange energy in finite elements, together with numerical values for the constants.",
+      "A new radiation formula, which Planck writes seems to contradict none of the facts so far established, obtained by setting a system of resonators' entropy proportional to the logarithm of the probability of its energy, and counting that probability by treating the resonators' total energy as a whole number of finite equal parts, energy elements; with numerical values for the constants h and k.",
     status: "available",
     limits:
-      "This concerns the energy of MATERIAL RESONATORS exchanging with the field. It is not the claim that free radiation itself consists of independent quanta, and reading it as though it were is the anachronism this route must avoid. The two are different propositions and the second is what the 1905 paper argues for.",
+      "This concerns the energy of MATERIAL RESONATORS, divided into elements so that the ways of distributing it can be counted. It is not the claim that free radiation itself consists of independent quanta, and reading it as though it were is the anachronism this route must avoid. The two are different propositions and the second is what the 1905 paper argues for. Planck adds that setting the entropy by the probability comes down to a definition of that probability.",
     sources: [
       {
-        title: "Über das Gesetz der Energieverteilung im Normalspectrum",
+        title: "Ueber das Gesetz der Energieverteilung im Normalspectrum",
         date: "1901",
-        locator: "Ann. Phys. (4) 4, 553",
+        locator: "M. Planck, Ann. Phys. (4) 4, 553",
       },
     ],
     date: {
@@ -183,7 +183,28 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
       latestYear: 1901,
       eventKind: "published",
     },
+    priorEvent: {
+      eventKind: "presented",
+      earliest: "1900-10-19",
+      latest: "1900-12-14",
+      precision: "range",
+    },
     admittedStages: ["stage-03", "stage-06"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/sim_annalen-der-physik_1901_4_3",
+        read: "page-image",
+        matched:
+          'Leaf 130 is p. 553: "9. Ueber das Gesetz der Energieverteilung im Normalspectrum; von Max Planck. (In anderer Form mitgeteilt in der Deutschen Physikalischen Gesellschaft, Sitzung vom 19. October und vom 14. December 1900 ...)", foot "Annalen der Physik. IV. Folge. 4."; Wien\'s law, derived "aus molecularkinetischen Betrachtungen", has "keine allgemeine Gültigkeit". p. 555: a new expression for the entropy and a new radiation formula "welche mit keiner der bisher festgestellten Thatsachen in Widerspruch zu stehen scheint". p. 556, § 2: S_N = k log W + const (3), which "kommt ... im Grunde auf eine Definition der genannten Wahrscheinlichkeit W hinaus"; § 3: U_N must be taken "als eine discrete, aus einer ganzen Zahl von endlichen gleichen Teilen zusammengesetzte Grösse ... Nennen wir einen solchen Teil ein Energieelement ε", U_N = P.ε (4). p. 563 (leaf 140), § 12: h = 6,55.10^-27 erg.sec (15) and k = 1,346.10^-16 erg/grad (16); "(Eingegangen 7. Januar 1901.)". Crossref (10.1002/andp.19013090310) gives no. 3, pp. 553-563.',
+        differs: [
+          "The card said the formula was obtained \"by letting the resonators exchange energy in finite elements\". The elements are Planck's way of counting the distributions of the resonators' total energy, not an exchange mechanism; the proposition and limits now say so, with his own hedge on the definition of W.",
+          'The card said the formula covers "the whole spectrum"; Planck writes that it seems to contradict none of the facts so far established. The title is printed "Ueber"; the author, the two 1900 presentations and the constants h and k are now on the card.',
+        ],
+      },
+    ],
   },
   {
     id: "stokes-1852-refrangibility",

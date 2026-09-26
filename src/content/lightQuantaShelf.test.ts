@@ -16,6 +16,7 @@ const CHECKED = [
   "stokes-1852-refrangibility",
   "rayleigh-1900-radiation-law",
   "thomson-1899-photoelectric-carrier",
+  "planck-1901-energy-elements",
 ];
 
 describe("the light-quanta shelf's source checks", () => {
