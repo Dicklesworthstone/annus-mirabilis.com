@@ -132,3 +132,32 @@
 .journey-door > p {
   margin: 0.4rem 0 0;
 }
+
+/* A check against the world: the journey's result, one quiet field with an ink rule, as the move
+   has. Its parts are columns of text, not boxes. */
+.journey-world-check {
+  margin: 2rem 0;
+  padding: 1.1rem 1.25rem;
+  border-left: 2px solid var(--ink);
+  background: var(--wash);
+}
+.journey-world-check p {
+  margin: 0.4rem 0 0;
+}
+.journey-world-check > .eyebrow {
+  margin: 0;
+}
+.journey-world-check > .journey-world-check-kind {
+  margin: 0.1rem 0 0;
+  font-style: italic;
+}
+.journey-world-check-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+.journey-world-check .journey-world-check-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
