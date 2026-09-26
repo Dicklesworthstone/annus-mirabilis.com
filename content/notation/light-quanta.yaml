@@ -1951,3 +1951,13 @@ modernOnlySymbols:
     scope: ["all"]
     introducedBy: "group rename R/N"
     label: "Boltzmann's constant, never printed in this paper"
+  - id: lq.modern.rho_nu
+    glyph:
+      unicode: "ρ_ν"
+      latex: "\\rho_\\nu"
+      variant: subscripted
+    binding:
+      quantityId: frequencyEnergyDensity
+    scope: ["lq-s1", "lq-s2", "lq-s3", "lq-s4", "lq-s6"]
+    introducedBy: "modern typesetting of the printed rho, whose tail curls left"
+    label: "The frequency density ρ_ν, in the form of rho modern texts set; the plate prints the rho whose tail curls left"
