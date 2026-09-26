@@ -1,0 +1,55 @@
+# GlossUnit s3-p20-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s3-p20-s1"
+sentenceId: "s3-p20-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "5ffadc919ae1147b6ca607a646a894f803114a487a6773f53596f693f9976b10"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Diese"
+    english: "this"
+    lemma: "dieser"
+  - german: "Gleichung"
+    english: "equation"
+  - german: "transformieren"
+    english: "transform"
+    lemma: "transformieren"
+  - german: "wir"
+    english: "we"
+  - german: "mit"
+  - german: "Hilfe"
+  - german: "unserer"
+    english: "of our"
+    lemma: "unser"
+  - german: "Transformationsgleichungen"
+    english: "transformation equations"
+    lemma: "Transformationsgleichung"
+    grammarNote: "Transformation + Gleichungen"
+    noteClass: "compound"
+  - german: "und"
+    english: "and"
+  - german: "erhalten"
+    english: "obtain"
+    lemma: "erhalten"
+  - german: "nach"
+    english: "after"
+  - german: "einfacher"
+    english: "simple"
+    lemma: "einfach"
+  - german: "Rechnung"
+    english: "calculation"
+multiwordUnits:
+  - tokenIndices:
+      - 4
+      - 5
+    english: "with the help"
+    kind: "fixed-phrase"
+    grammarNote: "mit Hilfe + genitive: ‘with the help of’"

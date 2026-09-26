@@ -1,0 +1,52 @@
+# GlossUnit s3-p12-s4: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s3-p12-s4"
+sentenceId: "s3-p12-s4"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "70c0721846d44996f0fbbd1bf1778e47154880fde423248f344ee22de9f4089b"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Setzen"
+  - german: "wir"
+    english: "we"
+  - german: "diesen"
+    english: "this"
+    lemma: "dieser"
+  - german: "Wert"
+    english: "value"
+  - german: "von"
+    english: "of"
+  - german: "in"
+    english: "into"
+  - german: "die"
+    english: "the"
+  - german: "Gleichung"
+    english: "equation"
+  - german: "für"
+    english: "for"
+  - german: "ein"
+  - german: "so"
+    english: "then"
+    grammarNote: "so opens the main clause answering the condition"
+    noteClass: "consequence"
+  - german: "erhalten"
+    english: "obtain"
+    lemma: "erhalten"
+  - german: "wir"
+    english: "we"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 9
+    english: "if ... substitute"
+    kind: "separable-verb"
+    grammarNote: "einsetzen, ‘to substitute’, verb-first and split: Setzen wir ... ein, ‘if we substitute’"
+    noteClass: "condition"
