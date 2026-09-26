@@ -182,9 +182,17 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "gouy-1888-brownian-motion",
     proposition:
-      "The motion is intrinsic and persistent; faster for smaller particles and in warmer, less viscous liquids.",
+      "The motion is intrinsic and persistent: no accidental effect of currents, vibrations or differences of temperature, it goes on at constant temperature and indefinitely while the particles stay suspended. It is livelier the smaller the particles, increases with temperature, and varies with the liquid.",
     status: "available",
-    sources: [{ title: "J. Phys. Théor. Appl. (2) 7", locator: "p. 561", date: "1888" }],
+    limits:
+      "Gouy does not speak of viscosity; of the liquids, he says pure water seems to show the motion most strongly. He reads it as showing not the molecules' own motions but something closely tied to them, and as direct, visible evidence for the kinetic hypotheses about heat. In a note he doubts that uncoordinated molecular motions produce it directly, since they should move only far smaller particles.",
+    sources: [
+      {
+        title: "Note sur le mouvement brownien",
+        date: "1888",
+        locator: "Gouy, J. Phys. Théor. Appl. (2) 7, 561",
+      },
+    ],
     date: {
       earliest: "1888",
       latest: "1888",
@@ -193,6 +201,21 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     admittedStages: ["stage-01"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://hal.science/jpa-00238904/document",
+        read: "page-image",
+        matched:
+          'The open-archive scan (HAL jpa-00238904, EDP Sciences, doi 10.1051/jphystap:018880070056101), read as page images made with pdftoppm. p. 561: "Note sur le mouvement brownien; par M. Gouy"; gamboge or Indian ink in water, sealed with paraffin "pour éviter l\'évaporation et les courants". p. 562: displacements "essentiellement irréguliers", in all directions, "comme si elle était soumise à une suite d\'impulsions absolument fortuites"; "Le mouvement est d\'autant plus vif que les particules sont plus petites"; "Il augmente manifestement avec la température, et varie suivant la nature du liquide; l\'eau pure paraît le montrer avec le plus d\'intensité". p. 563: "non d\'effets accidentels dus aux courants, aux vibrations ou aux différences de température", "à température constante", "il se montre toujours ... et persiste indéfiniment"; not "assurément les mouvements des molécules, mais quelque chose qui y tient de fort près", "une preuve directe et visible" of the current hypotheses on heat; the note doubts a direct effect of "mouvements non coordonnés". The HAL record gives pp. 561-564, 1888.',
+        differs: [
+          'The card said the motion is faster "in warmer, less viscous liquids". Gouy states the rise with temperature and a dependence on the liquid, with pure water showing it most, and says nothing of viscosity. Corrected.',
+          "The source named only the journal volume; the title and author are now on it.",
+        ],
+      },
+    ],
   },
   {
     id: "exner-1900-particle-speeds",

@@ -22,6 +22,7 @@ const CHECKED = [
   "siedentopf-1903-ultramicroscope",
   "vant-hoff-1887-osmotic-gas-law",
   "naegeli-1879-single-impacts",
+  "gouy-1888-brownian-motion",
 ];
 
 describe("the Brownian shelf's source checks", () => {
