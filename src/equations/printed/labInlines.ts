@@ -304,32 +304,62 @@ export function labFormula(
   const cached = formulas.get(key);
   if (cached) return cached;
   const scope = labScope(lab);
-  let result: LabFormula;
-  if (!scope || scope.sections.length === 0) result = { kind: "unscoped" };
-  else {
-    const context = labContext(lab, scope.paper, printed);
-    let best: ResolvedInline | null = null;
-    for (const section of scope.sections) {
-      const resolved = resolveInlineTerms(
-        latex,
-        { paper: scope.paper, where: `lab ${lab}`, anchor: section, section },
-        context,
-      );
-      if (!best || resolved.problems.length < best.problems.length) best = resolved;
-    }
-    result =
-      best && best.problems.length === 0
-        ? {
-            kind: "resolved",
-            compiled: displayMode
-              ? compileInlineFormula(best, display)
-              : compileInlineFormula(best),
-            section: best.scope.section,
-          }
-        : { kind: "refused", paper: scope.paper, problems: best?.problems ?? [] };
-  }
+  const result =
+    !scope || scope.sections.length === 0
+      ? ({ kind: "unscoped" } as const)
+      : resolveInSections(
+          { paper: scope.paper, sections: scope.sections, where: `lab ${lab}` },
+          latex,
+          displayMode,
+          labContext(lab, scope.paper, printed),
+        );
   formulas.set(key, result);
   return result;
+}
+
+/**
+ * A formula read in the given sections of a paper, in the paper's notation and its listed signs
+ * alone (dispatch 274, for GreenBarn's explanation displays, 273): no lab's letters reach it. Tried
+ * in each section, keeping the reading with fewest refusals, the first named on a tie.
+ */
+export function scopedFormula(
+  scope: Readonly<{ paper: string; sections: readonly string[]; where: string }>,
+  latex: string,
+  displayMode: boolean,
+): LabFormula {
+  const key = `\u0001${scope.paper}\u0000${scope.sections.join(" ")}\u0000${scope.where}\u0000${displayMode ? "d" : "i"}\u0000${latex}`;
+  const cached = formulas.get(key);
+  if (cached) return cached;
+  const result =
+    scope.sections.length === 0
+      ? ({ kind: "unscoped" } as const)
+      : resolveInSections(scope, latex, displayMode, labContext("", scope.paper, true));
+  formulas.set(key, result);
+  return result;
+}
+
+function resolveInSections(
+  scope: Readonly<{ paper: string; sections: readonly string[]; where: string }>,
+  latex: string,
+  displayMode: boolean,
+  context: InlineTermsContext,
+): LabFormula {
+  let best: ResolvedInline | null = null;
+  for (const section of scope.sections) {
+    const resolved = resolveInlineTerms(
+      latex,
+      { paper: scope.paper, where: scope.where, anchor: section, section },
+      context,
+    );
+    if (!best || resolved.problems.length < best.problems.length) best = resolved;
+  }
+  return best && best.problems.length === 0
+    ? {
+        kind: "resolved",
+        compiled: displayMode ? compileInlineFormula(best, display) : compileInlineFormula(best),
+        section: best.scope.section,
+      }
+    : { kind: "refused", paper: scope.paper, problems: best?.problems ?? [] };
 }
 
 /** A coloured lab formula as the build's colour slots take it: its quantities, by glyph. */
