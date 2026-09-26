@@ -317,7 +317,6 @@ export function CoefficientLab({
           view={view}
           modelNote={modelNoteFromView(view, { notModeled: `${ME02_NOT_MODELED.join("; ")}.` })}
         />
-        <LabTapeLink link={withPredictions(tapeLink, gate)} />
       </div>
       <noscript>
         <p className="notice">
@@ -326,14 +325,6 @@ export function CoefficientLab({
           changing the settings requires JavaScript.
         </p>
       </noscript>
-      <p data-detail="0">{withScripts(ME02_CAPTION.r0)}</p>
-      <p data-detail="1">{withScripts(ME02_CAPTION.r1)}</p>
-      <p data-detail="2" hidden>
-        {withScripts(ME02_CAPTION.r2)}
-      </p>
-      <p data-detail="3" hidden>
-        {withScripts(ME02_CAPTION.r3)}
-      </p>
       {/* Absolute, so the embed (which has no #coefficient-argument) opens the laboratory's own
           section rather than a link that goes nowhere (labFragmentLinks.test.tsx). */}
       <PredictGatePanels gate={gate} reasoningHref="/lab/me-02/#coefficient-argument" />
@@ -555,6 +546,20 @@ export function CoefficientLab({
           </div>
         </div>
       </div>
+      {/* The permalink to these settings, after the instrument it links to (dispatch 263): in the
+          status row it made that line 267px tall at 1440. */}
+      <LabTapeLink link={withPredictions(tapeLink, gate)} />
+      {/* The caption's readings follow the instrument (dispatch 263). Above the predict gate they
+          pushed the instrument more than 1000px down at 1440; every sentence is still here. */}
+      <p data-detail="0">{withScripts(ME02_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(ME02_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(ME02_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(ME02_CAPTION.r3)}
+      </p>
+
       {boundEquations.length > 0 && (
         <section
           id={restoreSettings ? "coefficient-equations" : `${id}-equations`}
