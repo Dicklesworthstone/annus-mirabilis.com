@@ -64,10 +64,11 @@ export const metadata: Metadata = {
  * "library scan" | "bound volume" | "publisher facsimile" | "comparison edition", and I
  * performed none of those: these dates come from standard bibliography, not from my having
  * opened the volumes. Supplying a method I did not use would be the fabricated-evidence
- * failure the verification field exists to prevent. Unverified cards render with
- * CardDetail's visible "Awaiting verification" marker, which is the honest state. The build's
- * shelf gate (scripts/check-shelf-publication.ts, run by prepare:content) refuses a card shown
- * as verified without a verification record, and one that carries half a record.
+ * failure the verification field exists to prevent. The missing record is the audit trail's, in
+ * the data: since dispatch 243 no card says "Awaiting verification" or "Verified", under the
+ * owner's D-2026-09-25-no-review-status-banners. The build's shelf gate
+ * (scripts/check-shelf-publication.ts, run by prepare:content) refuses a card whose rendering
+ * shows verification status either way, and one that carries half a record.
  */
 
 export default function MassEnergyRoute() {
@@ -103,10 +104,6 @@ export default function MassEnergyRoute() {
           because it is one.
         </p>
         <Shelf cards={MASS_ENERGY_SHELF_CARDS} />
-        <p className="fine">
-          The dates on these cards come from standard bibliographies. No one here has checked them
-          against the volumes, and the shelf marks each card as awaiting verification.
-        </p>
       </section>
 
       <section id="nagging-fact" aria-labelledby="nagging-fact-title">

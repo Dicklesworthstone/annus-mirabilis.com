@@ -50,7 +50,8 @@ describe("the check against the world reads the tracer ensemble's accepted snaps
     expect(html).toContain("about 0.8 µm in one second, about 6 µm in one minute");
     expect(html).toContain('data-card-id="perrin-1909-molecular-reality"');
     expect(html).toContain("Later evidence, not on the 1904 shelf");
-    expect(html).toContain("Awaiting verification");
+    // The card carries no verification status (dispatch 243, D-2026-09-25-no-review-status-banners).
+    expect(html).not.toContain("Awaiting verification");
   });
 
   test("the embedded ensemble is the real instrument, with its radius control", () => {

@@ -100,7 +100,8 @@ describe("the check against the world reads the boundary ledger's accepted snaps
     expect(html).toContain("L/9·10²⁰, with the energy in erg and the mass in grams");
     expect(html).toContain('data-card-id="cockcroft-walton-1932-lithium"');
     expect(html).toContain("Later evidence, not on the 1904 shelf");
-    expect(html).toContain("Awaiting verification");
+    // The card carries no verification status (dispatch 243, D-2026-09-25-no-review-status-banners).
+    expect(html).not.toContain("Awaiting verification");
   });
 
   test("the embedded ledger is the real instrument, and no build-side id reaches the reader", () => {

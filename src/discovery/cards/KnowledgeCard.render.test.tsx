@@ -334,7 +334,7 @@ describe("am-disc-knowledge-cards-iw8j: KnowledgeCard and CardDetail rendering",
     expect(html).toContain("The June 1905 Philosophical Magazine publication falls between");
   });
 
-  test("unverified card renders Awaiting verification with open queue questions", () => {
+  test("an unverified card shows no verification status and none of the open queue questions", () => {
     const unverifiedCard: KnowledgeCard = {
       id: "unverified-card",
       proposition: "Unverified premise.",
@@ -363,19 +363,22 @@ describe("am-disc-knowledge-cards-iw8j: KnowledgeCard and CardDetail rendering",
     const html = renderToStaticMarkup(
       <CardDetail card={unverifiedCard} openQueueItems={openQueue} />,
     );
-    expect(html).toContain("Awaiting verification");
-    expect(html).toContain("[q-archive-lookup]");
-    expect(html).toContain("Check original page number in 1900 volume.");
-    expect(html).toContain("Archive volume 1900");
+    // The queue is the audit trail's (D-2026-09-25-no-review-status-banners, dispatch 243).
+    expect(html).toContain("Some source");
+    expect(html).not.toContain("Awaiting verification");
+    expect(html).not.toContain("verification pending");
+    expect(html).not.toContain("[q-archive-lookup]");
+    expect(html).not.toContain("Check original page number in 1900 volume.");
+    expect(html).not.toContain("Archive volume 1900");
   });
 
-  test("verified card renders verification summary with method and locator", () => {
+  test("a verified card shows its locator and printed citation, and never says it is verified or by whom", () => {
     const html = renderToStaticMarkup(<CardDetail card={sampleCard} />);
-    expect(html).toContain("Verified against original source");
-    expect(html).toContain("Dr. Historian");
-    expect(html).toContain("bound volume");
     expect(html).toContain("ETH Library Shelfmark 1855-POGG-94-59");
     expect(html).toContain("A. Fick, Poggendorffs Annalen 94 (1855) 59-86");
+    expect(html).not.toContain("Verified against original source");
+    expect(html).not.toContain("Dr. Historian");
+    expect(html).not.toContain("bound volume");
   });
 
   test("a card with no recorded citation says so, instead of saying the paper cites nothing", () => {

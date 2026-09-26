@@ -99,11 +99,6 @@ export default function BrownianEncounter() {
           it is marked as parallel work. The route uses nothing else.
         </p>
         <Shelf cards={BROWNIAN_SHELF_CARDS} />
-        <p className="fine">
-          The dates on these cards come from standard bibliographies and period citations. No one
-          here has checked them against the volumes, and the shelf marks each card as awaiting
-          verification.
-        </p>
       </section>
       <section id="nagging-fact" aria-labelledby="nagging-fact-title">
         <p className="eyebrow" id="nagging-fact-title">

@@ -287,10 +287,6 @@ export default function SpecialRelativityRoute() {
           is on the shelf as a live alternative rather than as a foil.
         </p>
         <Shelf cards={SPECIAL_RELATIVITY_SHELF_CARDS} />
-        <p className="fine">
-          The dates on these cards come from standard bibliographies. No one here has checked them
-          against the volumes, and the shelf marks each card as awaiting verification.
-        </p>
       </section>
 
       <aside className="notice">

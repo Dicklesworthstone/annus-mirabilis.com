@@ -12,6 +12,7 @@ import type {
 export type CardDetailProps = Readonly<{
   card: KnowledgeCard;
   backlinks?: CardBacklinks | undefined;
+  /** Accepted and not shown: open verification questions are the audit trail's, not reader copy. */
   openQueueItems?: readonly VerificationQueueItem[] | undefined;
   /** The card `card.relatedCardId` names, when the caller holds it, so the link can say what it is. */
   relatedCard?: KnowledgeCard | undefined;
@@ -80,12 +81,13 @@ export function stepsLine(stages: readonly string[]): string {
 export function CardDetail({
   card,
   backlinks,
-  openQueueItems,
   relatedCard,
   anchored = true,
   className = "",
 }: CardDetailProps): JSX.Element {
   const verified = isCardVerified(card);
+  const locator = card.verification?.evidenceLocator || card.evidenceLocator;
+  const citation = card.verification?.printedCitation;
   const dateLine = formatEventDateLine(card.date);
   /*
    * Nested in a KnowledgeCardView, the card's own <details> is the frame, so the detail is set
@@ -473,133 +475,27 @@ export function CardDetail({
         </div>
       )}
 
-      {/* Verification State / Awaiting Verification Summary */}
-      <div
-        style={{
-          paddingTop: "1rem",
-          borderTop: "1px solid var(--line)",
-          fontSize: "0.75rem",
-        }}
-      >
-        {verified ? (
-          <div
-            style={{
-              padding: "0.75rem",
-              borderRadius: "0.25rem",
-              border: "1px solid var(--line)",
-              background: "var(--wash)",
-              color: "var(--ink)",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.375rem",
-                fontWeight: "bold",
-                marginBottom: "0.25rem",
-              }}
-            >
-              <svg
-                style={{ width: "1rem", height: "1rem" }}
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
-              </svg>
-              <span>Verified against original source</span>
-            </div>
-            <p style={{ margin: 0, color: "var(--ink)" }}>
-              Verified by{" "}
-              <span style={{ fontWeight: 500 }}>
-                {card.verification?.verifiedBy || card.verifier}
-              </span>{" "}
-              ({card.verification?.verifierKind || "human"}) on{" "}
-              {card.verification?.date || card.dateVerified} via{" "}
-              <span style={{ fontStyle: "italic" }}>
-                {card.verification?.method || "library scan"}
-              </span>
-              .
-            </p>
-            {/*
-              The locator WRAPS instead of truncating. It carried an inline
-              overflow/text-overflow/white-space triple, which at 320px showed about 40% of the
-              citation behind an ellipsis with no way to reach the rest - not scrollable, clipped.
-              A truncated DOI is not a citation. See .evidence-locator in globals.css for the
-              measurement.
-            */}
-            {(card.verification?.evidenceLocator || card.evidenceLocator) && (
-              <p className="evidence-locator">
-                Locator: {card.verification?.evidenceLocator || card.evidenceLocator}
-              </p>
-            )}
-            {card.verification?.printedCitation && (
-              <p style={{ margin: "0.25rem 0 0", color: "var(--muted)" }}>
-                Citation: {card.verification.printedCitation}
-              </p>
-            )}
-          </div>
-        ) : (
-          <div
-            style={{
-              padding: "0.75rem",
-              borderRadius: "0.25rem",
-              border: "1px solid var(--line)",
-              background: "var(--wash)",
-              color: "var(--ink)",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.375rem",
-                fontWeight: "bold",
-                marginBottom: "0.25rem",
-              }}
-            >
-              <svg
-                style={{ width: "1rem", height: "1rem" }}
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z" />
-              </svg>
-              <span>Awaiting verification</span>
-            </div>
-            {openQueueItems && openQueueItems.length > 0 ? (
-              <div style={{ marginTop: "0.5rem" }}>
-                <p style={{ margin: 0, fontWeight: 600 }}>Open source verification questions:</p>
-                <ul
-                  style={{
-                    margin: "0.25rem 0 0",
-                    paddingLeft: "1.25rem",
-                    listStyleType: "disc",
-                    color: "var(--muted)",
-                  }}
-                >
-                  {openQueueItems.map((q) => (
-                    <li key={q.id}>
-                      <span style={{ fontFamily: "var(--font-mono)", color: "var(--ink)" }}>
-                        [{q.id}]{" "}
-                      </span>
-                      {q.question} (consult:{" "}
-                      <span style={{ fontStyle: "italic" }}>{q.sourceToConsult}</span>)
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : (
-              <p style={{ margin: "0.25rem 0 0", color: "var(--muted)" }}>
-                Source verification pending library scan inspection.
-              </p>
-            )}
-          </div>
-        )}
-      </div>
+      {/* A verified card's locator and printed citation, as sources. The box that stood here said
+          "Awaiting verification" and "Source verification pending library scan inspection." on
+          every shelf card, with the open verification questions listed under it, or "Verified
+          against original source" and who verified it: the review-status copy the owner's
+          D-2026-09-25-no-review-status-banners removed (dispatch 243). The verification record
+          stays in the card's data, where publicationGate reads it. */}
+      {verified && (locator || citation) && (
+        <div className="fine">
+          {/*
+            The locator WRAPS instead of truncating. It carried an inline
+            overflow/text-overflow/white-space triple, which at 320px showed about 40% of the
+            citation behind an ellipsis with no way to reach the rest - not scrollable, clipped.
+            A truncated DOI is not a citation. See .evidence-locator in globals.css for the
+            measurement.
+          */}
+          {locator && <p className="evidence-locator">Locator: {locator}</p>}
+          {citation && (
+            <p style={{ margin: "0.25rem 0 0", color: "var(--muted)" }}>Citation: {citation}</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

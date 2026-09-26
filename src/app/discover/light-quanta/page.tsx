@@ -102,12 +102,9 @@ export default function LightQuantaRoute() {
         </p>
         <Shelf cards={LIGHT_QUANTA_SHELF_CARDS} />
         <p className="fine">
-          Each card&rsquo;s journal reference has been compared with the publisher&rsquo;s record of
-          volume, page and year. No one here has yet read the pages themselves, so the shelf marks
-          each card as awaiting verification. Two results the argument is often told with are not
-          here: Jeans&rsquo;s constant for Rayleigh&rsquo;s law is from July 1905, after the paper
-          was received, and the name &ldquo;ultraviolet catastrophe&rdquo; is Ehrenfest&rsquo;s,
-          from 1911.
+          Two results the argument is often told with are not here: Jeans&rsquo;s constant for
+          Rayleigh&rsquo;s law is from July 1905, after the paper was received, and the name
+          &ldquo;ultraviolet catastrophe&rdquo; is Ehrenfest&rsquo;s, from 1911.
         </p>
       </section>
 

@@ -16,9 +16,9 @@
  *
  * NO VERIFICATION RECORDS, on the same grounds as the mass-energy shelf: VerificationMethod is
  * "library scan" | "bound volume" | "publisher facsimile" | "comparison edition" and I performed
- * none of them. The cards therefore render with CardDetail's "Awaiting verification" marker and
- * publicationGate refuses them in production until a human verifies them, which is the correct
- * refusal.
+ * none of them. publicationGate therefore refuses them in production until a human verifies
+ * them, which is the correct refusal. The cards show no verification status (dispatch 243,
+ * D-2026-09-25-no-review-status-banners); the missing record is the audit trail's.
  *
  * WHAT WAS CHECKED, AND AGAINST WHAT (GreenBarn, 2026-09-24, dispatch 142). Each journal locator
  * below was compared with the publisher's metadata in Crossref: volume, first page and year agree

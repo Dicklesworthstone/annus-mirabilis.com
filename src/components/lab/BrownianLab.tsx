@@ -578,10 +578,7 @@ export function BrownianLab({
           {BM06_MODEL.assumptions.map((note) => (
             <p key={note}>{note}</p>
           ))}
-          <p>
-            No FrankenSim artifact is used here. A verified historical transcription and the full
-            critical edition are still in preparation.
-          </p>
+          <p>No FrankenSim artifact is used here.</p>
         </section>
       </div>
       <details>

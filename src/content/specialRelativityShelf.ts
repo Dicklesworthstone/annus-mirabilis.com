@@ -20,9 +20,9 @@
  * light medium, in general, and says nothing about which experiment moved its author.
  *
  * NO VERIFICATION RECORDS, on the same grounds as the other two shelves: these dates are from
- * standard bibliography and not from anyone here opening the volumes, so the cards render with
- * CardDetail's "Awaiting verification" marker and publicationGate refuses them in production
- * until a human verifies them.
+ * standard bibliography and not from anyone here opening the volumes, so publicationGate refuses
+ * them in production until a human verifies them. The cards show no verification status
+ * (dispatch 243, D-2026-09-25-no-review-status-banners).
  */
 
 import type { KnowledgeCard } from "../discovery/cards/types.ts";
