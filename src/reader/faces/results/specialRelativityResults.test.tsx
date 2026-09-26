@@ -16,6 +16,15 @@ const records = loadResultCards(process.cwd(), PAPER)?.cards ?? [];
 const html = await exportMarkup(await FaceFallback({ paperId: PAPER, face: "results" }));
 const german = renderToStaticMarkup(await PaperPage({ paperId: PAPER, face: "german" } as never));
 
+/** Text as React writes it into markup, so a label such as "cos phi <= 0.6" can be found there. */
+const markup = (text: string) =>
+  text
+    .replace(/&/g, "&amp;")
+    .replace(/'/g, "&#x27;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
 /** The markup of one card, from its opening tag to the next card or the end of the cards. */
 function cardHtml(id: string): string {
   const start = html.indexOf(`id="result-${id}"`);
@@ -78,7 +87,7 @@ describe("relativity's results face, static", () => {
       const card = cardHtml(p.id);
       if (!card.includes(`href="/lab/${p.instrumentId}/"`))
         wrong.push(`${p.id}: no link to ${p.instrumentId}`);
-      if (p.preset && !card.includes(`Choose the preset “${p.preset.label}”`))
+      if (p.preset && !card.includes(`Choose the preset “${markup(p.preset.label)}”`))
         wrong.push(`${p.id}: preset ${p.preset.id} not named`);
     }
     expect(wrong).toEqual([]);

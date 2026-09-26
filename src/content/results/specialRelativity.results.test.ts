@@ -27,6 +27,8 @@ describe("relativity's result cards", () => {
       "sr-velocity-addition",
       "sr-field-transformation",
       "sr-doppler-aberration",
+      "sr-light-complex-energy",
+      "sr-moving-mirror",
     ]);
   });
 
