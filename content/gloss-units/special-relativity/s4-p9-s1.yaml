@@ -1,0 +1,62 @@
+# GlossUnit s4-p9-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s4-p9-s1"
+sentenceId: "s4-p9-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "727793aad6fbe0d093bb4f07f6030fcc11b3267bc2219fed4fe1664287bea74f"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Zwischen"
+    english: "between"
+  - german: "die"
+    english: "the"
+  - german: "Größen"
+    english: "quantities"
+    lemma: "Größe"
+  - german: "und"
+    english: "and"
+  - german: "welche"
+    english: "which"
+    lemma: "welcher"
+  - german: "sich"
+  - german: "auf"
+  - german: "den"
+    english: "the"
+  - german: "Ort"
+    english: "place"
+  - german: "dieser"
+    english: "of this"
+    lemma: "dieser"
+  - german: "Uhr"
+    english: "clock"
+  - german: "beziehen"
+  - german: "gelten"
+    english: "hold"
+    lemma: "gelten"
+  - german: "offenbar"
+    english: "evidently"
+    grammarNote: "offenbar, ‘evidently’: the two equations are stated without derivation"
+    noteClass: "consequence"
+  - german: "die"
+    english: "the"
+  - german: "Gleichungen"
+    english: "equations"
+    lemma: "Gleichung"
+  - german: "und"
+    english: "and"
+multiwordUnits:
+  - tokenIndices:
+      - 5
+      - 6
+      - 11
+    english: "refer to"
+    kind: "reflexive"
+    grammarNote: "sich beziehen auf, ‘to refer to’"

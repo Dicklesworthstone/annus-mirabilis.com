@@ -1,0 +1,109 @@
+# GlossUnit s4-p7-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s4-p7-s1"
+sentenceId: "s4-p7-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "b0b708ff5ce07cd0de5efe94c289f93b01e09899b7b8b7d9a8de6ef0bc7c0961"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Man"
+  - german: "sieht"
+  - german: "sofort"
+  - german: "daß"
+    english: "that"
+    lemma: "dass"
+    grammarNote: "archaic spelling of dass"
+    noteClass: "archaic-spelling"
+  - german: "dies"
+    english: "this"
+    lemma: "dieser"
+  - german: "Resultat"
+    english: "result"
+  - german: "auch"
+  - german: "dann"
+  - german: "noch"
+  - german: "gilt"
+    english: "holds"
+    lemma: "gelten"
+  - german: "wenn"
+    english: "if"
+    noteClass: "condition"
+  - german: "die"
+    english: "the"
+  - german: "Uhr"
+    english: "clock"
+  - german: "in"
+    english: "along"
+  - german: "einer"
+    english: "a"
+  - german: "beliebigen"
+    english: "any"
+    lemma: "beliebig"
+  - german: "polygonalen"
+    english: "polygonal"
+    lemma: "polygonal"
+  - german: "Linie"
+    english: "line"
+  - german: "sich"
+  - german: "von"
+    english: "from"
+  - german: "nach"
+    english: "to"
+  - german: "bewegt"
+  - german: "und"
+  - german: "zwar"
+  - german: "auch"
+    english: "even"
+  - german: "dann"
+    english: "then"
+  - german: "wenn"
+    english: "if"
+    noteClass: "condition"
+  - german: "die"
+    english: "the"
+  - german: "Punkte"
+    english: "points"
+    lemma: "Punkt"
+  - german: "und"
+    english: "and"
+  - german: "zusammenfallen"
+    english: "coincide"
+    lemma: "zusammenfallen"
+    grammarNote: "zusammenfallen, ‘to coincide’: the closed path"
+    noteClass: "separable-verb"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 1
+      - 2
+    english: "one sees at once"
+    kind: "fixed-phrase"
+    grammarNote: "man sieht sofort, ‘one sees immediately’: the extension to polygonal lines is presented as evident"
+    noteClass: "consequence"
+  - tokenIndices:
+      - 6
+      - 7
+      - 8
+    english: "still ... then"
+    kind: "fixed-phrase"
+    grammarNote: "auch dann noch, ‘even then still’"
+  - tokenIndices:
+      - 18
+      - 21
+    english: "moves"
+    kind: "reflexive"
+    grammarNote: "sich bewegen, split: sich ... bewegt"
+  - tokenIndices:
+      - 22
+      - 23
+    english: "and indeed"
+    kind: "fixed-phrase"
+    grammarNote: "und zwar, ‘and indeed’"
