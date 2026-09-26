@@ -29,6 +29,7 @@ describe("relativity's result cards", () => {
       "sr-doppler-aberration",
       "sr-light-complex-energy",
       "sr-moving-mirror",
+      "sr-convection-current",
     ]);
   });
 
@@ -91,5 +92,7 @@ describe("relativity's result cards", () => {
     expect(wrongTurns["sr-transformation-equations"]).toContain("misc-sr-beta-is-v-over-c");
     expect(wrongTurns["sr-moving-rigid-body"]).toContain("misc-sr-contraction-camera");
     expect(wrongTurns["sr-moving-clock"]).toContain("misc-sr-moving-clock-only");
+    // § 9 quotes s9-p2, where Lorentz's equations are shown to conform to the principle.
+    expect(wrongTurns["sr-convection-current"]).toContain("misc-sr-ether-refuted");
   });
 });
