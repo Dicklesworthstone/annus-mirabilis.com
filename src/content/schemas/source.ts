@@ -20,6 +20,7 @@ import type { SourceAsset, SourceAssetRights } from "../provenance/receiptToSour
 import { type AuthorshipEntry, validateAuthorshipEntry } from "./authorship.ts";
 import { type PaperDate, validateChronology, validatePaperDate } from "./dates.ts";
 import { type Inline, plainText, validateInline } from "./inlines.ts";
+import { type PageTurn, validatePageTurns } from "./pageTurns.ts";
 import { checkConstraints, loadRightsVocabulary, requiredFieldsFor } from "./rightsVocabulary.ts";
 
 export { type Inline, plainText, validateInline } from "./inlines.ts";
@@ -658,6 +659,8 @@ export type SourceBlock = Readonly<{
   section?: string | undefined;
   order: number;
   locators: readonly BlockLocator[];
+  /** Where the text crosses onto each later page of the locators (pageTurns.ts). */
+  pageTurns?: readonly PageTurn[] | undefined;
   originalLabel?: string | undefined;
   editorialLabel?: string | undefined;
   diplomaticText: string;
@@ -913,6 +916,8 @@ export function validateSourceBlock(raw: unknown, path = "SourceBlock"): SourceB
     }
   }
 
+  const pageTurns = validatePageTurns(o.pageTurns, locators, text, `${path}.pageTurns`);
+
   return {
     id: o.id,
     kind: o.kind as SourceBlockKind,
@@ -920,6 +925,7 @@ export function validateSourceBlock(raw: unknown, path = "SourceBlock"): SourceB
     section: (o.section as string) || undefined,
     order: typeof o.order === "number" ? o.order : 0,
     locators,
+    ...(pageTurns.length > 0 ? { pageTurns } : {}),
     originalLabel: (o.originalLabel as string) || undefined,
     editorialLabel: (o.editorialLabel as string) || undefined,
     diplomaticText: (o.diplomaticText as string) || text,

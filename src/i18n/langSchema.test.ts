@@ -23,7 +23,7 @@ test("langSchema: validates BCP 47 language tag grammar", () => {
   }
 });
 
-test("langSchema: TranslationUnit without lang or with invalid lang fails (source.ts:996) (source.ts:1008)", () => {
+test("langSchema: TranslationUnit without lang or with invalid lang fails (source.ts:1002) (source.ts:1014)", () => {
   const validTu = {
     id: "tr-01",
     sourceRefs: [{ paper: "brownian-motion", id: "s1-p1" }],
