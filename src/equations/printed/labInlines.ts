@@ -23,7 +23,7 @@ import { join } from "node:path";
 import { renderToString } from "katex";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import { parseYaml } from "../../content/provenance/yaml.ts";
-import { isRegisteredQuantityId } from "../../content/quantities/registry.ts";
+import { QUANTITY_LABELS } from "../../generated/quantity-labels.ts";
 import {
   type CompiledInline,
   compileInlineFormula,
@@ -32,6 +32,15 @@ import {
   resolveInlineTerms,
 } from "./inlineTerms.ts";
 import { modernInlineEntries } from "./modernScope.ts";
+
+/**
+ * Whether a quantity id is registered, read from the registry's generated id map rather than the
+ * registry itself: a lab page imports this file, and webpack cannot bundle the registry's directory
+ * URL (content/quantities/ through import.meta.url), so importing it failed `next build` (NavyKite,
+ * mail 41229). The map is generated from the registry by prepare:content, before every build.
+ */
+const isRegisteredForPage = (quantityId: string): boolean =>
+  Object.hasOwn(QUANTITY_LABELS, quantityId);
 
 /** Manifest paper names that are not route slugs. */
 const PAPER_SLUGS: Readonly<Record<string, string>> = { relativity: "special-relativity" };
@@ -89,7 +98,7 @@ export function labFormula(lab: string, latex: string, displayMode: boolean): La
     // modernScope.ts, whose precedence refuses a printed and a modern reading that disagree.
     const context = {
       concordance: modernInlineEntries(scope.paper, loadConcordanceForPaper(scope.paper)),
-      isRegistered: isRegisteredQuantityId,
+      isRegistered: isRegisteredForPage,
       exceptions: [],
     };
     let best: ResolvedInline | null = null;
