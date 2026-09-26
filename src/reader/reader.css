@@ -2757,9 +2757,28 @@ html:is(
   /* Screen-reader live region */
 }
 
+/* The noted word is a <button> (TermAnnotation.tsx, MisprintAnnotation.tsx), and globals.css sets
+   every button as a 44px dark block in the interface sans that turns the accent on hover. In
+   running German text that drew each period word as a filled box and made its line 10 to 80px
+   taller: measured on all 30 period words of the four German faces at 1440 and 390. The word now
+   reads as the text around it, with a dotted underline that turns solid while hovered or open.
+   A <button> stays inline-block whatever its display, so a long hyphenated word cannot break at
+   its hyphen as the plain word could (4 of the 25 blocks set one more line). */
 .term-annotation {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
   text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
   cursor: help;
+}
+.term-annotation:is(:hover, [aria-expanded="true"]):not(:disabled) {
+  background: none;
+  color: inherit;
+  text-decoration-style: solid;
 }
 
 .term-annotation-wrapper {
