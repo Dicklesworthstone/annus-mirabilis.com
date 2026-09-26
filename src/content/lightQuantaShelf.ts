@@ -308,25 +308,40 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "rubens-1901-long-wave-radiation",
     proposition:
-      "Measured at long wavelengths, black-body radiation departs from Wien's law and grows in proportion to the temperature.",
+      "Measured in the residual rays of fluorspar, rock salt and quartz, at long infra-red wavelengths, black-body radiation departs strongly from Wien's law. Rubens and Kurlbaum conclude that a suitable formula must make it grow in proportion to the temperature at very long wavelengths and very high temperatures, as the formulas of Rayleigh, of Lummer and Jahnke, and of Planck do.",
     status: "available",
     limits:
-      "An empirical result at wavelengths of tens of micrometres. Rubens and Kurlbaum reported it to the Berlin Academy in October 1900, before this printed version, and Lummer and Pringsheim found departures from Wien's law the same year.",
+      "An empirical result, stated as what the observations seem to show. Of the three formulas they judge Rayleigh's unsuitable, since it fails at short wavelengths, and prefer Planck's for its simplicity. Part of the material had already appeared in the Berlin Academy's reports for 1900 (vol. 41, p. 929), before this printed version, and Lummer and Pringsheim had found departures from Wien's formula at large values of wavelength times temperature.",
     sources: [
       {
         title: "Anwendung der Methode der Reststrahlen zur Prüfung des Strahlungsgesetzes",
-        date: "1901",
-        locator: "Ann. Phys. (4) 4, 649",
+        date: "1901-04",
+        locator: "H. Rubens and F. Kurlbaum, Ann. Phys. (4) 4, 649",
       },
     ],
     date: {
-      earliest: "1901",
-      latest: "1901",
-      precision: "year",
+      earliest: "1901-04",
+      latest: "1901-04",
+      precision: "month",
       latestYear: 1901,
       eventKind: "published",
     },
     admittedStages: ["stage-03", "stage-04"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/sim_annalen-der-physik_1901_4_4",
+        read: "page-image",
+        matched:
+          'Leaf 0, the cover: "Vierte Folge. Band 4. Heft 4", issued in April 1901 (the day is faint, read as the 9th). Leaf 2 is p. 649: "1. Anwendung der Methode der Reststrahlen zur Prüfung des Strahlungsgesetzes; von H. Rubens und F. Kurlbaum", part of the material already in the Berlin Academy\'s reports (Sitzungsber. 41, p. 929-941, 1900); Wien\'s formula, from "thermodynamischer und molecularkinetischer Betrachtungen", is no longer theoretically founded after Lummer, Pringsheim and Jahnke. p. 650: Lummer and Pringsheim find departures from it at large λT. p. 665: the observations on fluorspar and rock salt show no essential departure from Planck\'s formula, the quartz residual rays (8.85 μ) small ones. p. 666: "Jedenfalls scheint uns aus den vorliegenden Beobachtungen hervorzugehen, dass nur solche Formeln geeignet sind, ... bei welchen der Wert von E für sehr grosse Wellenlängen und sehr hohe Temperaturen proportional mit T wächst, wie dies in den Formeln von Lord Rayleigh, Lummer-Jahnke (für μ = 4) und Planck der Fall ist"; Rayleigh\'s fails at short wavelengths; Planck\'s preferred "ihrer grösseren Einfachheit wegen"; "(Eingegangen 10. Februar 1901.)".',
+        differs: [
+          'The card said the radiation "grows in proportion to the temperature" at long wavelengths, as a finding. Rubens and Kurlbaum state it as what a suitable formula must do at very long wavelengths and very high temperatures, as their observations "seem" to show. Corrected, with the three formulas they name.',
+          "The limits dated the Berlin report to October 1900; the paper's own footnote gives Sitzungsberichte 41, p. 929-941, 1900, with no month, so the limits now cite it that way. The authors are added, and the issue month, April 1901, replaces the year.",
+        ],
+      },
+    ],
   },
   {
     id: "boltzmann-1896-gas-volume-entropy",
