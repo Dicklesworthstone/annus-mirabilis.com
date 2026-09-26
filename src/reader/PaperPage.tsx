@@ -603,6 +603,11 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                             foundations={foundations}
                             contextLabel={`${a.title}, reading steps`}
                             equations={equationsById}
+                            scope={{
+                              paper: paper.id,
+                              section: a.section,
+                              where: `${a.id} ${reading}`,
+                            }}
                           />
                         </div>
                       ))}
@@ -632,6 +637,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                             embed
                             contextLabel={`${a.title}, reading steps`}
                             equations={equationsById}
+                            scope={{ paper: paper.id, section: a.section, where: `${a.id} steps` }}
                           />
                         ) : (
                           <p
@@ -676,7 +682,11 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                         <summary>
                           <h4>Modern qualifications</h4>
                         </summary>
-                        <ReadingBlocks blocks={a.readings.margin} foundations={foundations} />
+                        <ReadingBlocks
+                          blocks={a.readings.margin}
+                          foundations={foundations}
+                          scope={{ paper: paper.id, section: a.section, where: `${a.id} margin` }}
+                        />
                       </details>
                     </div>
                     <div data-face-results hidden>

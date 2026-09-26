@@ -1,26 +1,40 @@
 import { hasInlineMath, splitInlineMath } from "../content/inlineMath.ts";
 import { renderInlineLatex } from "../equations/render/inlineKatex.ts";
+import { type ExplanationScope, explanationInline } from "./explanationInlines.ts";
 
 /**
  * A paragraph's or a step's text with its `\( … \)` mathematics typeset. The words stay React
  * text, escaped as ever; only KaTeX's own output (strict, no trusted commands) is set as HTML.
  * Text with no inline mathematics renders exactly as it did.
+ *
+ * With a `scope` (an explanation passage's paper, section and name), each formula is resolved
+ * against the notation concordance (explanationInlines.ts) and, where every atom resolves, drawn
+ * with its terms marked and the paper named on its span, so quantity-colours-by-paper.css colours
+ * it (dispatch 273). The strict plain render still runs first, so malformed mathematics still fails.
  */
-export function InlineMathText({ text }: { text: string }) {
+export function InlineMathText({
+  text,
+  scope,
+}: {
+  text: string;
+  scope?: ExplanationScope | undefined;
+}) {
   if (!hasInlineMath(text)) return text;
   return (
     <>
-      {splitInlineMath(text).map((segment) =>
-        segment.kind === "text" ? (
-          segment.value
-        ) : (
+      {splitInlineMath(text).map((segment) => {
+        if (segment.kind === "text") return segment.value;
+        const plain = renderInlineLatex(segment.value);
+        const marked = scope ? explanationInline(segment.value, scope) : undefined;
+        return (
           <span
             key={segment.start}
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: static KaTeX output of a validated record, rendered with trust: false; the surrounding words stay escaped React text.
-            dangerouslySetInnerHTML={{ __html: renderInlineLatex(segment.value) }}
+            data-paper={marked?.coloured ? scope?.paper : undefined}
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: static KaTeX output of a validated record, rendered with trust: false (the marked render trusts only its own data-term attributes); the surrounding words stay escaped React text.
+            dangerouslySetInnerHTML={{ __html: marked?.html ?? plain }}
           />
-        ),
-      )}
+        );
+      })}
     </>
   );
 }

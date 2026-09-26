@@ -7,6 +7,7 @@ import type { Block, Foundation } from "../content/schemas/reading";
 import type { CompiledEquation } from "../equations/viewTypes.ts";
 import foundationPayload from "../generated/foundation-equations.json";
 import { ColouredFormula } from "./ColouredFormula.tsx";
+import type { ExplanationScope } from "./explanationInlines.ts";
 import { InlineMathText } from "./InlineMathText.tsx";
 export function FoundationLink({
   id,
@@ -36,6 +37,7 @@ export function ReadingBlocks({
   embed = false,
   contextLabel,
   equations,
+  scope,
 }: {
   blocks: readonly Block[];
   foundations: readonly Foundation[];
@@ -43,6 +45,8 @@ export function ReadingBlocks({
   contextLabel?: string | undefined;
   /** The paper's compiled equations by id, so a formula that names records shows them coloured. */
   equations?: ReadonlyMap<string, CompiledEquation> | undefined;
+  /** An explanation passage's scope, so its inline formulas are coloured (dispatch 273). */
+  scope?: ExplanationScope | undefined;
 }) {
   return (
     <>
@@ -50,7 +54,7 @@ export function ReadingBlocks({
         if (block.kind === "paragraph")
           return (
             <p key={`p-${block.text}`}>
-              <InlineMathText text={block.text} />
+              <InlineMathText text={block.text} scope={scope} />
             </p>
           );
         if (block.kind === "formula") {
@@ -72,7 +76,7 @@ export function ReadingBlocks({
             <ol className="derivation-steps" key={`steps-${block.items.join("|")}`}>
               {block.items.map((item) => (
                 <li key={item}>
-                  <InlineMathText text={item} />
+                  <InlineMathText text={item} scope={scope} />
                 </li>
               ))}
             </ol>
