@@ -1,9 +1,10 @@
 "use client";
 
 import type React from "react";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { makeDismissible } from "../../a11y/modal/dismiss.ts";
 import { ModalCloseButton } from "../../a11y/modal/ModalCloseButton.tsx";
+import { keepNoteInView } from "./keepNoteInView.ts";
 
 export interface TermAnnotationProps {
   readonly termId: string;
@@ -45,6 +46,11 @@ export function TermAnnotation({
     trigger counts as inside, so its own toggle keeps working; Escape closes too, and focus goes
     back to the term after the X or Escape, not after a tap elsewhere.
   */
+  // A note beside a word near the right edge of a phone's column opened off the screen; it is
+  // placed inside the viewport before it paints (keepNoteInView.ts).
+  useLayoutEffect(() => {
+    if (isOpen && popover.current) keepNoteInView(popover.current);
+  }, [isOpen]);
   useEffect(() => {
     const panel = popover.current;
     if (!isOpen || !panel) return;
