@@ -1,0 +1,30 @@
+# GlossUnit s10-p11-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s10-p11-s1"
+sentenceId: "s10-p11-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "bf1f71981142c3b1af6cb63a9f966a4a232936422e3165cb448aea21f9b0649c"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "wird"
+    english: "becomes"
+    lemma: "werden"
+  - german: "also"
+    english: "thus"
+    grammarNote: "also, ‘thus’: read off from the expression for W"
+    noteClass: "consequence"
+  - german: "für"
+    english: "for"
+  - german: "unendlich"
+    english: "infinitely"
+  - german: "groß"
+    english: "great"
+multiwordUnits: []

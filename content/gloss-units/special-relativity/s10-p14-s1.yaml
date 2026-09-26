@@ -1,0 +1,75 @@
+# GlossUnit s10-p14-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s10-p14-s1"
+sentenceId: "s10-p14-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "dea9b7855d01d49354d3010cf2f5bf66e2318f6fc5241278977e0f200cddcfc4"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Diese"
+    english: "these"
+    lemma: "dieser"
+  - german: "drei"
+    english: "three"
+  - german: "Beziehungen"
+    english: "relations"
+    lemma: "Beziehung"
+  - german: "sind"
+    english: "are"
+    lemma: "sein"
+  - german: "ein"
+    english: "a"
+  - german: "vollständiger"
+    english: "complete"
+    lemma: "vollständig"
+  - german: "Ausdruck"
+    english: "expression"
+  - german: "für"
+    english: "of"
+  - german: "die"
+    english: "the"
+  - german: "Gesetze"
+    english: "laws"
+    lemma: "Gesetz"
+  - german: "nach"
+    english: "according to"
+  - german: "denen"
+    english: "which"
+    lemma: "der"
+  - german: "sich"
+  - german: "gemäß"
+  - german: "vorliegender"
+  - german: "Theorie"
+  - german: "das"
+    english: "the"
+  - german: "Elektron"
+    english: "electron"
+  - german: "bewegen"
+  - german: "muß"
+    english: "must"
+    lemma: "müssen"
+    grammarNote: "muß, ‘must’: what the theory requires of the electron; archaic spelling of muss"
+    noteClass: "necessity"
+multiwordUnits:
+  - tokenIndices:
+      - 12
+      - 18
+    english: "move"
+    kind: "reflexive"
+    grammarNote: "sich bewegen, split: sich ... bewegen"
+  - tokenIndices:
+      - 13
+      - 14
+      - 15
+    english: "by the present theory"
+    kind: "fixed-phrase"
+    grammarNote: "gemäß vorliegender Theorie: the laws are this theory's, to be tested by experiment"
+    noteClass: "restriction"

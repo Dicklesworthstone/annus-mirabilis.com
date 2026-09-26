@@ -1,0 +1,49 @@
+# GlossUnit s10-p3-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s10-p3-s1"
+sentenceId: "s10-p3-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "f1ee5c42370df932a713ff6dff203b8c9d95369d0f03fb95e262f4b9af1a67db"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Es"
+  - german: "besitze"
+  - german: "nun"
+    english: "now"
+  - german: "zweitens"
+    english: "secondly"
+  - german: "das"
+    english: "the"
+  - german: "Elektron"
+    english: "electron"
+  - german: "in"
+    english: "at"
+  - german: "einer"
+    english: "a"
+  - german: "gewissen"
+    english: "certain"
+    lemma: "gewiss"
+  - german: "Zeitepoche"
+    english: "epoch of time"
+    grammarNote: "Zeit + Epoche"
+    noteClass: "compound"
+  - german: "die"
+    english: "the"
+  - german: "Geschwindigkeit"
+    english: "velocity"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 1
+    english: "let ... have"
+    kind: "fixed-phrase"
+    grammarNote: "Konjunktiv I of besitzen: es besitze, ‘let (the electron) have’, the second supposition"
+    noteClass: "konjunktiv-i"

@@ -1,0 +1,35 @@
+# GlossUnit s10: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s10"
+sentenceId: "s10"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "481c43841a0861ccf263d5886f329f9d07af43cee772d8feb174919eb3320926"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "§ 10"
+    english: "§ 10"
+  - german: "Dynamik"
+    english: "dynamics"
+  - german: "des"
+    english: "of the"
+  - german: "langsam"
+    english: "slowly"
+    grammarNote: "printed in parentheses: the dynamics is for slow acceleration, so that no energy leaves as radiation (s10-p10-s3)"
+    noteClass: "restriction"
+  - german: "beschleunigten"
+    english: "accelerated"
+    lemma: "beschleunigen"
+  - german: "Elektrons"
+    english: "electron"
+    lemma: "Elektron"
+    grammarNote: "genitive: des ... Elektrons"
+    noteClass: "genitive-construction"
+multiwordUnits: []

@@ -1,0 +1,75 @@
+# GlossUnit s10-p7-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s10-p7-s1"
+sentenceId: "s10-p7-s1"
+revision: 1
+sourceRevision: 2
+sourceTextDigest: "29e09e483d850c7195d0289ec76db180c62126e405b3eb066592c19027ce6eb9"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Wir"
+    english: "we"
+  - german: "fragen"
+  - german: "nun"
+    english: "now"
+  - german: "in"
+  - german: "Anlehnung"
+  - german: "an"
+  - german: "die"
+    english: "the"
+  - german: "übliche"
+    english: "usual"
+    lemma: "üblich"
+  - german: "Betrachtungsweise"
+    english: "way of considering"
+    grammarNote: "Betrachtung + Weise ‘way’"
+    noteClass: "compound"
+  - german: "nach"
+  - german: "der"
+    english: "the"
+  - german: "longitudinalen"
+    english: "longitudinal"
+    lemma: "longitudinal"
+    grammarNote: "printed in quotation marks: „longitudinalen“, a mass named in the usual way, whose value depends on how force and acceleration are defined (s10-p8-s1)"
+    noteClass: "term"
+  - german: "und"
+    english: "and"
+  - german: "transversalen"
+    english: "transverse"
+    lemma: "transversal"
+    grammarNote: "printed in quotation marks: „transversalen“"
+    noteClass: "term"
+  - german: "Masse"
+    english: "mass"
+  - german: "des"
+    english: "of the"
+  - german: "bewegten"
+    english: "moving"
+    lemma: "bewegt"
+  - german: "Elektrons"
+    english: "electron"
+    lemma: "Elektron"
+    grammarNote: "genitive: des bewegten Elektrons"
+    noteClass: "genitive-construction"
+multiwordUnits:
+  - tokenIndices:
+      - 1
+      - 9
+    english: "ask for"
+    kind: "split-construction"
+    grammarNote: "fragen nach, ‘to ask about’"
+  - tokenIndices:
+      - 3
+      - 4
+      - 5
+    english: "following"
+    kind: "fixed-phrase"
+    grammarNote: "in Anlehnung an, ‘leaning on’: the masses are defined after the usual manner, a convention s10-p8-s1 qualifies"
+    noteClass: "hedge"

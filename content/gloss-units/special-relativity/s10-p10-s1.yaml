@@ -1,0 +1,34 @@
+# GlossUnit s10-p10-s1: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s10-p10-s1"
+sentenceId: "s10-p10-s1"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "4c0b4b61929d81edec40fe57290e21e2cf55bd35f5e431311474d7fe79909903"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Wir"
+    english: "we"
+  - german: "bestimmen"
+    english: "determine"
+    lemma: "bestimmen"
+  - german: "die"
+    english: "the"
+  - german: "kinetische"
+    english: "kinetic"
+    lemma: "kinetisch"
+  - german: "Energie"
+    english: "energy"
+  - german: "des"
+    english: "of the"
+  - german: "Elektrons"
+    english: "electron"
+    lemma: "Elektron"
+multiwordUnits: []

@@ -1,0 +1,62 @@
+# GlossUnit s10-p3-s2: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s10-p3-s2"
+sentenceId: "s10-p3-s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "0073dd398d9e9c391c163e7525f76c91553dc03fc825bb8e19bfafb3eef4a2b8"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Wir"
+    english: "we"
+  - german: "suchen"
+    english: "seek"
+    lemma: "suchen"
+  - german: "das"
+    english: "the"
+  - german: "Gesetz"
+    english: "law"
+  - german: "nach"
+    english: "according to"
+  - german: "welchem"
+    english: "which"
+    lemma: "welcher"
+  - german: "sich"
+  - german: "das"
+    english: "the"
+  - german: "Elektron"
+    english: "electron"
+  - german: "im"
+    english: "in the"
+    lemma: "im"
+    grammarNote: "contraction: im = in dem"
+    noteClass: "abbreviation"
+  - german: "unmittelbar"
+    english: "immediately"
+  - german: "darauf"
+  - german: "folgenden"
+  - german: "Zeitteilchen"
+    english: "instant of time"
+    grammarNote: "Zeit + Teilchen: a small element of time"
+    noteClass: "compound"
+  - german: "bewegt"
+multiwordUnits:
+  - tokenIndices:
+      - 6
+      - 14
+    english: "moves"
+    kind: "reflexive"
+    grammarNote: "sich bewegen, split: sich ... bewegt"
+  - tokenIndices:
+      - 11
+      - 12
+    english: "following"
+    kind: "fixed-phrase"
+    grammarNote: "darauf folgend, ‘following thereupon’"
