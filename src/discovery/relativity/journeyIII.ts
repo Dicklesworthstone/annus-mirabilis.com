@@ -12,8 +12,8 @@
  * Fizeau's p. 355, the three null results are Lorentz's p. 825, and the second presupposition is
  * the paper's own sentence s0-p2-s2.
  */
-import type { Fork, WorldCheck } from "../../content/schemas/journey.ts";
-import { SR05_MODEL } from "../../experiments/sr05/definition.ts";
+import type { Fork, PpeTask, WorldCheck } from "../../content/schemas/journey.ts";
+import { SR05_MODEL, SR05_PRESETS } from "../../experiments/sr05/definition.ts";
 import { CLOCK_CHECK_READING } from "./worldCheck.ts";
 
 /**
@@ -211,4 +211,21 @@ export const WORLD_CHECK: WorldCheck = {
     unit: "",
     constantSetId: SR05_MODEL.constantSetId,
   },
+};
+
+/** A preset's label as the laboratory's button prints it, so the task names only real buttons. */
+const button = (id: string) => `“${SR05_PRESETS[id]?.label ?? id}”`;
+
+/**
+ * Predict, perturb, explain (am-disc-ppe-teachback-wnp7's ppe-<paper slug>-<sections>). The
+ * perturbation is made in the laboratory already on this page at step 08, through its own preset
+ * buttons, so nothing is re-embedded. Its explanation part is PPE_EXPLANATION
+ * (journeyExercises.ts).
+ */
+export const PPE_TASK: PpeTask = {
+  promptId: "ppe-special-relativity-s4",
+  task: "Predict first. One clock goes out and back at 0.6 of the speed of light while the resting clocks advance 10 s; another circles at the same speed for the same 10 s. When each returns to the clock that stayed, which reads less, or do they read the same?",
+  perturbPrompt: `In the laboratory at step 08, press ${button("sr-05-out-and-back-0.6c")} and read the moving clock; then press ${button("sr-05-circle-0.6c")} and read it again. Last, press ${button("sr-05-low-speed-1e-4")} and set the exact loss per second beside the printed second-order form.`,
+  explainPrompt:
+    "Explain why the two paths give the same reading, and say what the laboratory computes rather than measures.",
 };

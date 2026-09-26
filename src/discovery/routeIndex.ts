@@ -62,7 +62,7 @@ export const ROUTE_INDEX: readonly RouteIndexEntry[] = [
     name: "Special relativity",
     germanTitle: "Zur Elektrodynamik bewegter Körper",
     blurb:
-      "A magnet, a coil, and a needle that moves. Move the magnet or move the coil and the needle shows the same current, but the electrodynamics of 1904 explains the two cases in two different ways. Following that through means giving up the idea that “at the same time” needs no definition. Eight steps, eight instruments, and Lorentz’s theory, which gives the same formulas, on the shelf beside it.",
+      "A magnet, a coil, and a needle that moves. Move the magnet or move the coil and the needle shows the same current, but the electrodynamics of 1904 explains the two cases in two different ways. Following that through means giving up the idea that “at the same time” needs no definition. Nine steps, eight instruments, two forks where the route could have gone another way, four pieces to work by hand, and Lorentz’s theory, which gives the same formulas, on the shelf beside it.",
     steps: [
       "Start where the paper starts",
       "Decide whether that bothers you",
@@ -72,6 +72,7 @@ export const ROUTE_INDEX: readonly RouteIndexEntry[] = [
       "Read off the consequences",
       "Meet the serious rival",
       "Check it against the world",
+      "Try it yourself",
     ],
   },
   {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ExercisePart } from "../../../components/discover/ExercisePart.tsx";
+import { ExplanationPart } from "../../../components/discover/ExplanationPart.tsx";
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { RelativityWorldCheck } from "../../../components/discover/RelativityWorldCheck.tsx";
 import {
@@ -8,11 +9,20 @@ import {
 } from "../../../content/specialRelativityShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
 import { Fork } from "../../../discovery/Fork.tsx";
+import { PpeTask } from "../../../discovery/PpeTask.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { MOVING_CLOCK_EXERCISE } from "../../../discovery/relativity/clockExercise.ts";
 import {
+  CLOCK_SPEED_EXERCISE,
+  COMPOSITION_EXERCISE,
+  LIGHT_CLOCK_PATH,
+  PPE_EXPLANATION,
+  SIMULTANEITY_EXPLANATION,
+} from "../../../discovery/relativity/journeyExercises.ts";
+import {
   FORK_SOURCE_SPEED,
   FORK_UNDETECTED_ETHER,
+  PPE_TASK,
   WORLD_CHECK,
 } from "../../../discovery/relativity/journeyIII.ts";
 import { MOVING_ROD } from "../../../discovery/relativity/numericExercises.ts";
@@ -304,6 +314,30 @@ export default function SpecialRelativityRoute() {
           check={WORLD_CHECK}
           laterEvidence={SPECIAL_RELATIVITY_LATER_EVIDENCE}
         />
+      </section>
+
+      <section id="step-09">
+        <p className="step-number">09 / Try it yourself</p>
+        <h2>Four pieces of the argument to work by hand</h2>
+        <p>
+          The first three put the paper&rsquo;s relations to work, in the modern c where the paper
+          writes V. The checker evaluates what you write at many values and compares numbers, not
+          text, so any correct way of writing an answer is accepted.
+        </p>
+        <p>First, how two speeds combine, as section 5 finds.</p>
+        <ExercisePart part={COMPOSITION_EXERCISE} />
+        <p>Next, a clock&rsquo;s speed from what it reads and what the resting clocks read.</p>
+        <ExercisePart part={CLOCK_SPEED_EXERCISE} />
+        <p>Then the light clock, a later picture of the same factor.</p>
+        <NumericPart part={LIGHT_CLOCK_PATH} />
+        <p>One to put in your own words, from step 04.</p>
+        <ExplanationPart part={SIMULTANEITY_EXPLANATION} />
+        <p>
+          Last, a prediction to make before you change anything, in the laboratory at{" "}
+          <a href="#step-08">step 08</a>.
+        </p>
+        <PpeTask task={PPE_TASK} />
+        <ExplanationPart part={PPE_EXPLANATION} />
       </section>
 
       <section id="shelf">
