@@ -514,13 +514,13 @@ export const LIGHT_QUANTA_LATER_EVIDENCE: readonly KnowledgeCard[] = [
   {
     id: "millikan-1916-photoelectric-h",
     proposition:
-      "Millikan measures the stopping potential of electrons driven out of sodium by light of several frequencies, and finds it rising in a straight line with the frequency, with the slope the 1905 relation predicts.",
+      "Millikan measures the stopping potential of electrons driven out of sodium, and of lithium, by light of several frequencies, and finds it rising in a straight line with the frequency, with the slope the 1905 relation predicts; from it he finds h = 6.57 × 10⁻²⁷ erg seconds, to about half a per cent, and states that Einstein's equation appears in every case to predict exactly the observed results.",
     status: "later",
     sources: [
       {
         title: "A Direct Photoelectric Determination of Planck's “h”",
         date: "1916-03",
-        locator: "Phys. Rev. 7, 355",
+        locator: "R. A. Millikan, Phys. Rev. (2) 7, 355",
       },
     ],
     date: {
@@ -532,5 +532,19 @@ export const LIGHT_QUANTA_LATER_EVIDENCE: readonly KnowledgeCard[] = [
     },
     limits:
       "Later evidence, not on the 1904 shelf, eleven years after the paper. In the same paper Millikan still judged the hypothesis that produced the equation untenable: a relation can be confirmed without confirming the reason given for it. The edition's digitised table of his points is withdrawn, so none is plotted here.",
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/sim_physical-review_1916-03_7_3",
+        read: "page-image",
+        matched:
+          'The issue\'s first page (leaf 2) is headed "Second Series. March, 1916. Vol. VII., No. 3". Leaf 70 is p. 355: "A Direct Photoelectric Determination of Planck\'s \\"h.\\" By R. A. Millikan"; Einstein\'s 1905 hypothesis "bold, not to say the reckless". p. 380: the sodium long-wave-length limit. p. 381: lithium better suited to the test; the observations "seem to leave no room whatever for doubt that the agreement demanded by Einstein\'s equation ... actually exists". p. 383: "Yet the semi-corpuscular theory by which Einstein arrived at his equation seems at present to be wholly untenable." p. 388, Summary: "Einstein\'s photoelectric equation has been subjected to very searching tests and it appears in every case to predict exactly the observed results"; "h = 6.57 × 10^-27", "with a precision of about .5 per cent". Crossref (10.1103/PhysRev.7.355) gives pp. 355-388.',
+        differs: [
+          "Supported. The proposition names lithium as well as sodium and gives his value of h with its precision; his judgement of the theory, p. 383, was already in the limits and is now quoted in the check. The author and series are added to the locator.",
+        ],
+      },
+    ],
   },
 ];

@@ -23,6 +23,7 @@ const CHECKED = [
   "hertz-1887-ultraviolet-spark",
   "boltzmann-1896-gas-volume-entropy",
   "boltzmann-1877-entropy-probability",
+  "millikan-1916-photoelectric-h",
 ];
 
 /**
