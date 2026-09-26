@@ -1,6 +1,6 @@
 import { BM05_CLASSES, type Bm05Parameters } from "../../experiments/bm05/definition.ts";
 import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts";
-import type { WalkRecording } from "../../physics/reference/diffusion/walks.ts";
+import type { WalkNormalSource, WalkRecording } from "../../physics/reference/diffusion/walks.ts";
 import { createBm05Recording, measureBm05 } from "../operations/bm05.ts";
 import {
   BM05_PROTOCOL,
@@ -10,9 +10,16 @@ import {
   type LabResponse,
   labHello,
 } from "../protocol/bm05.ts";
+/**
+ * `normals` draws a Gaussian walk's steps: this reference's Philox stream by default, or
+ * FrankenSim's compiled philox_normals when the worker has loaded the pinned module. One host
+ * keeps one source for its lifetime, and a recording keeps the source it was drawn with, so a run
+ * and its replays never change engines.
+ */
 export function createBm05Host(
   send: (message: LabResponse | LabHello) => void,
   sourceDigest: string,
+  normals?: WalkNormalSource,
 ) {
   let active: LabRequest | null = null,
     stopped = false,
@@ -46,7 +53,7 @@ export function createBm05Host(
         (Object.keys(BM05_CLASSES) as (keyof Bm05Parameters)[]).every(
           (k) => BM05_CLASSES[k] !== "input" || Object.is(p[k], activeCache.parameters[k]),
         );
-      const options = { cancelled: () => cancelled || stopped };
+      const options = { cancelled: () => cancelled || stopped, ...(normals ? { normals } : {}) };
       const recording =
         reused && activeCache !== null
           ? { kind: "accepted" as const, data: activeCache.recording }

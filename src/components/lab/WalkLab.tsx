@@ -11,12 +11,14 @@ import {
 import { BM05_DRAFT_TAPE } from "../../experiments/bm05/draftTape.ts";
 import { decodeBm05Settings } from "../../experiments/bm05/permalink.ts";
 import { createBm05Session, type PreparedBm05Example } from "../../experiments/bm05/session.ts";
+import { walkExecutionKind } from "../../experiments/bm05/walkExecution.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { LabTapeLink, useDraftTapeLink } from "../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
+import { FRANKENSIM_NORMALS_ENGINE_SENTENCE } from "../../experiments/provenance/pinnedFrankenSim.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
@@ -87,10 +89,16 @@ export function WalkLab({
     p = snapshot.parameters as Bm05Parameters;
   // Earned per snapshot (am-inst-execution-labels-5ywv): the build-time worked example every reader
   // first sees is a static worked example; only an accepted recalculation is a host calculation.
-  const executionKind = executionStateKindFromHostLabel(
+  const hostKind = executionStateKindFromHostLabel(
     deriveHostExecution(view, BM05_OUTPUTS, example.sourceDigest, snapshot === serverAccepted)
       .label,
   );
+  // FrankenSim only when this snapshot's walk was drawn by it (walkExecution.ts): the module being
+  // loaded earns nothing, and a coin or uniform walk draws no normals.
+  const drawnByFrankenSim =
+    hostKind === "host-accepted" &&
+    walkExecutionKind(snapshot.outputs, false) === "frankensim-accepted";
+  const executionKind = drawnByFrankenSim ? "frankensim-accepted" : hostKind;
   const [draft, setDraft] = useState(() => toWalkDraft(example.parameters)),
     [ready, setReady] = useState(false),
     [dirty, setDirty] = useState(false),
@@ -671,9 +679,10 @@ export function WalkLab({
           <p>
             The work ceiling is five million walker-steps and the private-recording ceiling is eight
             MiB. The uniform finite-step shape calculation is bounded to 400 observed steps. Its
-            numerical result is not an interval-arithmetic enclosure. Gaussian draws use the host
-            calculation; cross-engine bitwise parity and FrankenSim WASM conformance are not
-            claimed.
+            numerical result is not an interval-arithmetic enclosure.{" "}
+            {drawnByFrankenSim
+              ? `${FRANKENSIM_NORMALS_ENGINE_SENTENCE} The site's code sums the steps and computes every statistic; its normals agree with the host's within 64 ulps, not bitwise.`
+              : "Gaussian draws use the host calculation; cross-engine bitwise parity and FrankenSim WASM conformance are not claimed."}
           </p>
           <p>
             These are model calculations, not experimental evidence. Historical constants and the

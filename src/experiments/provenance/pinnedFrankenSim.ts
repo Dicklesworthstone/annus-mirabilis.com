@@ -42,3 +42,6 @@ export const FRANKENSIM_BROWNIAN_ENGINE_SENTENCE = `Computed with FrankenSim (br
 
 /** The same identity for BM-06's grid when the pinned module stepped it (diffusion1d_frames). */
 export const FRANKENSIM_DIFFUSION_ENGINE_SENTENCE = `Stepped with FrankenSim (diffusion1d_frames), ${PINNED_ARTIFACT.transportVersion} over FrankenSim ${PINNED_ARTIFACT.frankensimRevision.slice(0, 8)}, module sha256 ${PINNED_ARTIFACT.wasmDigest.slice(0, 16)}.`;
+
+/** The same identity for BM-05's Gaussian walk when the pinned module drew its normals. */
+export const FRANKENSIM_NORMALS_ENGINE_SENTENCE = `Normals drawn with FrankenSim (philox_normals), ${PINNED_ARTIFACT.transportVersion} over FrankenSim ${PINNED_ARTIFACT.frankensimRevision.slice(0, 8)}, module sha256 ${PINNED_ARTIFACT.wasmDigest.slice(0, 16)}.`;
