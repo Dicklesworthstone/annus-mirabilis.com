@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { renderToString } from "katex";
 import type { Metadata } from "next";
 import {
   FIRST_PAGE_PLATE_WIDTHS,
@@ -11,7 +12,7 @@ import type { PaperDate, RightsStatus } from "../../content/provenance/receiptSc
 import { receiptToSourceAsset } from "../../content/provenance/receiptToSourceAsset.ts";
 import { translationState } from "../../content/translationState.ts";
 import { citationOf } from "./citation.ts";
-import { correctionLog, LAYER_NAMES } from "./corrections.ts";
+import { correctionLog, LAYER_NAMES, readingParts } from "./corrections.ts";
 import { checkedReceipts, receiptHref } from "./receiptPages.ts";
 import { requireReceipt, rightsWordsFor, servedScan } from "./refusals.ts";
 import { reuseOf, textLayerWords } from "./reuse.ts";
@@ -433,10 +434,10 @@ export default function SourcesPage() {
                   {c.withdrawn ? " \u00b7 withdrawn" : ""}
                 </p>
                 <p>
-                  Printed: <span lang="de">{c.printed}</span>
+                  Printed: <Reading text={c.printed} />
                 </p>
                 <p>
-                  Proposed: <span lang="de">{c.proposed}</span>
+                  Proposed: <Reading text={c.proposed} />
                 </p>
                 {c.withdrawn ? (
                   <p>
@@ -472,5 +473,35 @@ export default function SourcesPage() {
         )}
       </section>
     </div>
+  );
+}
+
+/** A record's reading in German, its inline formulas set by KaTeX (readingParts, dispatch 270). */
+function Reading({ text }: Readonly<{ text: string }>) {
+  return (
+    <span lang="de">
+      {readingParts(text).map((part, i) =>
+        part.kind === "text" ? (
+          part.value
+        ) : (
+          <span
+            // biome-ignore lint/suspicious/noArrayIndexKey: the parts of one reading never reorder
+            key={i}
+            className="inline-math"
+            {...{
+              dangerouslySetInnerHTML: {
+                __html: renderToString(part.value, {
+                  displayMode: false,
+                  output: "htmlAndMathml",
+                  throwOnError: false,
+                  strict: "warn",
+                  trust: false,
+                }),
+              },
+            }}
+          />
+        ),
+      )}
+    </span>
   );
 }

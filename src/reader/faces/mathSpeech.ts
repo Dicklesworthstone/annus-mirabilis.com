@@ -243,6 +243,8 @@ export function speakInlines(
           return spoken ?? speakMath(node.latex, node.display === true);
         }
         if (node.kind === "emphasis") return walk(node.inlines);
+        // A misprint inside a formula is said as its formula, as printed (dispatch 270).
+        if (node.kind === "misprint" && "math" in node) return walk([node.math]);
         if ("text" in node && typeof node.text === "string") return node.text;
         return "";
       })

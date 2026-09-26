@@ -5,6 +5,7 @@ import type { Inline } from "../../content/schemas/inlines.ts";
 import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
 import { DisplayMisprintNote } from "./DisplayMisprintNote.tsx";
 import { MisprintAnnotation } from "./MisprintAnnotation.tsx";
+import { speakMath } from "./mathSpeech.ts";
 import { PrintedDisplayTerms } from "./PrintedDisplayTerms.tsx";
 import { referenceHref } from "./referenceHref.ts";
 import { TermAnnotation } from "./TermAnnotation.tsx";
@@ -166,6 +167,28 @@ export function renderInlines(
         // Marked only against a live source-layer record (misprints.ts). A marker naming a
         // retracted record, or one no receipt holds, prints the word and nothing else.
         const note = misprintNotes().get(node.recordId);
+        if ("math" in node) {
+          // A misprint inside an inline formula (dispatch 270). The formula it holds is set by
+          // the math case above, as every inline formula is; so is the formula meant, in the note.
+          const printed = renderInlines([node.math], options, `${key}-printed`);
+          if (!note?.formula) return <React.Fragment key={key}>{printed}</React.Fragment>;
+          const meant = renderInlines(
+            [{ kind: "math", latex: note.formula.reading }],
+            options,
+            `${key}-meant`,
+          );
+          return (
+            <MisprintAnnotation
+              key={key}
+              recordId={node.recordId}
+              printed={speakMath(note.formula.printed, false)}
+              reading={speakMath(note.formula.reading, false)}
+              reason={note.reason}
+              href={`/sources/#${node.recordId}`}
+              formula={{ printed, meant }}
+            />
+          );
+        }
         if (!note)
           return (
             <span key={key} lang={node.lang} dir={node.dir}>

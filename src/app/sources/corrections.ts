@@ -67,3 +67,21 @@ export function correctionLog(
     a.id.localeCompare(b.id);
   return { source: log.source.sort(order), translation: log.translation.sort(order) };
 }
+
+/**
+ * A reading as the log sets it: words, and each inline formula the record writes between dollar
+ * signs as the block prints it ("für $v = -\infty$, $\nu = \infty$ ist.", dispatch 270), so the
+ * page shows the formula set, never its TeX. A reading with no dollar sign is one text part.
+ */
+export function readingParts(
+  reading: string,
+): readonly Readonly<{ kind: "text" | "math"; value: string }>[] {
+  return reading
+    .split(/(\$[^$]*\$)/)
+    .filter((part) => part.length > 0)
+    .map((part) =>
+      part.length > 1 && part.startsWith("$") && part.endsWith("$")
+        ? { kind: "math", value: part.slice(1, -1) }
+        : { kind: "text", value: part },
+    );
+}

@@ -62,11 +62,13 @@ function firstWordFrom(inlines: readonly Inline[], at: number): string | null {
       }
       // A misprint marker prints its word, as plainText counts it (inlines.ts); leaving it out put
       // the expected word the marker's length too far on (s1-p1, s10-p4; dispatch 264).
+      // A misprint inside a formula (dispatch 270) is mathematics, measured as its formula.
+      const formula = node.kind === "misprint" && "math" in node ? node.math : null;
       const text =
         node.kind === "text" ||
         node.kind === "term" ||
         node.kind === "reference" ||
-        node.kind === "misprint"
+        (node.kind === "misprint" && !("math" in node))
           ? node.text
           : node.kind === "space"
             ? " ".repeat(node.count ?? 1)
@@ -76,17 +78,19 @@ function firstWordFrom(inlines: readonly Inline[], at: number): string | null {
       const width =
         text !== null
           ? Array.from(text).length
-          : node.kind === "math"
-            ? node.display
-              ? 0
-              : Array.from(node.latex).length
-            : node.kind === "footnote-mark"
-              ? Array.from(node.mark).length
-              : node.kind === "citation-ref"
-                ? node.locator
-                  ? Array.from(` (${node.locator})`).length
-                  : 0
-                : 0;
+          : formula
+            ? Array.from(formula.latex).length
+            : node.kind === "math"
+              ? node.display
+                ? 0
+                : Array.from(node.latex).length
+              : node.kind === "footnote-mark"
+                ? Array.from(node.mark).length
+                : node.kind === "citation-ref"
+                  ? node.locator
+                    ? Array.from(` (${node.locator})`).length
+                    : 0
+                  : 0;
       const end = offset + width;
       if (text !== null && end > at)
         words += Array.from(text)

@@ -40,6 +40,10 @@ export function sentenceAtoms(inlines: readonly Inline[], span: Offsets): readon
       if (length === 0 || start < span.start || end > span.end) continue;
       if (node.kind === "math" && node.display !== true) {
         atoms.push({ kind: "math", start: start - span.start, end: end - span.start, node });
+      } else if (node.kind === "misprint" && "math" in node) {
+        // A misprint inside a formula is its formula, as printed (dispatch 270).
+        const math = node.math;
+        atoms.push({ kind: "math", start: start - span.start, end: end - span.start, node: math });
       } else if (node.kind === "footnote-mark") {
         atoms.push({
           kind: "footnote-mark",

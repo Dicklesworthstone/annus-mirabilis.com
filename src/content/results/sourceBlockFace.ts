@@ -71,8 +71,10 @@ export function inlinesMarkup(inlines: readonly Inline[], span?: Span): string {
       const end = offset + length;
       offset = end;
       if (length === 0) continue;
-      if (node.kind === "math") {
-        if (inside(start, end)) out += `$${node.latex}$`;
+      if (node.kind === "math" || (node.kind === "misprint" && "math" in node)) {
+        // A misprint inside a formula is its formula, as printed (dispatch 270).
+        const latex = node.kind === "math" ? node.latex : node.math.latex;
+        if (inside(start, end)) out += `$${latex}$`;
       } else if (node.kind === "footnote-mark") {
         if (inside(start, end)) out += `[[FN-MARK ${node.mark}]]`;
       } else {

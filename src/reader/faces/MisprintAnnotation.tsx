@@ -18,6 +18,12 @@ export interface MisprintAnnotationProps {
   readonly href: string;
   readonly lang?: string | undefined;
   readonly dir?: "ltr" | "rtl" | undefined;
+  /**
+   * A misprint inside an inline formula (dispatch 270): the printed formula and the formula meant,
+   * each set on the server as the faces set any inline formula (inlines.tsx). `printed` and
+   * `reading` are then their spoken forms, for the label.
+   */
+  readonly formula?: Readonly<{ printed: React.ReactNode; meant: React.ReactNode }> | undefined;
 }
 
 /**
@@ -38,6 +44,7 @@ export function MisprintAnnotation({
   href,
   lang,
   dir,
+  formula,
 }: MisprintAnnotationProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -85,10 +92,11 @@ export function MisprintAnnotation({
     [toggle, isOpen],
   );
 
+  const shown = formula ? formula.printed : printed;
   if (!hydrated)
     return (
       <a href={href} data-misprint={recordId} lang={lang} dir={dir}>
-        {printed}
+        {shown}
       </a>
     );
 
@@ -107,7 +115,7 @@ export function MisprintAnnotation({
         onClick={toggle}
         onKeyDown={onKeyDown}
       >
-        {printed}
+        {shown}
       </button>
       {isOpen && (
         <span
@@ -123,13 +131,19 @@ export function MisprintAnnotation({
             label="Close misprint note"
             className="term-annotation-close"
           />
-          <span className="term-annotation-definition" lang="en">
-            So printed. Read:{" "}
-            <i lang={lang} dir={dir}>
-              {reading}
-            </i>
-            . {reason}
-          </span>
+          {formula ? (
+            <span className="term-annotation-definition" lang="en">
+              So printed: {formula.printed}. Read {formula.meant}. {reason}
+            </span>
+          ) : (
+            <span className="term-annotation-definition" lang="en">
+              So printed. Read:{" "}
+              <i lang={lang} dir={dir}>
+                {reading}
+              </i>
+              . {reason}
+            </span>
+          )}
           <a href={href} lang="en">
             The record in the correction log
           </a>

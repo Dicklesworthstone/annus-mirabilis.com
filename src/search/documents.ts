@@ -519,8 +519,10 @@ export function searchInlineText(inlines: readonly Inline[]): string {
         case "text":
         case "term":
         case "reference":
-        case "misprint":
           return node.text;
+        case "misprint":
+          // A misprint inside a formula is its formula, as printed (dispatch 270).
+          return "math" in node ? `$${node.math.latex}$` : node.text;
         case "space":
         case "line-break":
           return " ";

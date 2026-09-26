@@ -27,6 +27,12 @@ export type MisprintNote = Readonly<{
   proposed: string;
   /** The printed display the misprint stands in, when the receipt names one (dispatch 266). */
   displayId?: string | undefined;
+  /**
+   * For a misprint inside an inline formula (dispatch 270), the whole formula as printed and the
+   * whole formula meant, in LaTeX: the record writes the formula between dollar signs, as its block
+   * prints it, and the correction lies inside them (misprintMarkers.test.ts).
+   */
+  formula?: Readonly<{ printed: string; reading: string }> | undefined;
 }>;
 
 const GREEK: Readonly<Record<string, string>> = {
@@ -108,6 +114,37 @@ export function differingWords(printed: string, reading: string): [number, numbe
   return [start, printed.length - tail + grow, reading.length - tail + grow];
 }
 
+/**
+ * The inline formula a correction stands in, printed and meant: the $...$ segment of the original
+ * reading that holds the changed characters, and the same place in the proposed reading, which
+ * shares everything before and after it. Undefined when the correction is in running text.
+ */
+export function correctedFormula(
+  printed: string,
+  reading: string,
+): Readonly<{ printed: string; reading: string }> | undefined {
+  let head = 0;
+  while (head < printed.length && head < reading.length && printed[head] === reading[head]) head++;
+  let tail = 0;
+  while (
+    tail < printed.length - head &&
+    tail < reading.length - head &&
+    printed.at(-1 - tail) === reading.at(-1 - tail)
+  )
+    tail++;
+  const end = printed.length - tail;
+  for (const m of printed.matchAll(/\$([^$]*)\$/g)) {
+    const from = m.index;
+    const to = from + m[0].length;
+    if (head < from || end > to || !(head < to && end >= from)) continue;
+    const after = printed.length - to;
+    const meant = reading.slice(from, reading.length - after);
+    if (!meant.startsWith("$") || !meant.endsWith("$") || meant.length < 2) return undefined;
+    return { printed: m[1] ?? "", reading: meant.slice(1, -1) };
+  }
+  return undefined;
+}
+
 function firstSentence(text: string): string {
   const match = /^.*?[.!?](?=\s|$)/su.exec(text.trim());
   return (match?.[0] ?? text).trim();
@@ -128,6 +165,7 @@ export function misprintNotes(dir = "docs/provenance"): ReadonlyMap<string, Misp
     for (const r of typographicalErrors ?? []) {
       if (r.layer !== "source" || r.status === "retracted") continue;
       const [start, printedEnd, readingEnd] = differingWords(r.originalReading, r.proposedReading);
+      const formula = correctedFormula(r.originalReading, r.proposedReading);
       out.set(r.id, {
         recordId: r.id,
         slug,
@@ -136,6 +174,7 @@ export function misprintNotes(dir = "docs/provenance"): ReadonlyMap<string, Misp
         reason: readable(firstSentence(r.reasoning)),
         proposed: readable(r.proposedReading),
         ...(r.locator.displayId ? { displayId: r.locator.displayId } : {}),
+        ...(formula ? { formula } : {}),
       });
     }
   }

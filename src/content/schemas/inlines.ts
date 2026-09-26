@@ -107,7 +107,7 @@ export function plainText(inlinesOrText: readonly Inline[] | string): string {
       case "term":
       case "reference":
       case "misprint":
-        res += node.text || "";
+        res += "math" in node ? node.math.latex : node.text || "";
         break;
       case "citation-ref":
         // Citation references don't add semantic body words, or add locator
@@ -228,6 +228,7 @@ export function validateInline(node: unknown, path = "inline"): Inline {
     case "line-break":
       return { kind: "line-break" };
     case "misprint":
+      if (o.math !== undefined) return misprintFormula(o, path);
       if (
         typeof o.text !== "string" ||
         o.text.length === 0 ||
@@ -276,19 +277,60 @@ function definitionOf(
  * record that explains it (docs/provenance/<key>.md, typographicalErrors; dispatch 262). `text` is
  * the printed word, so marking a block changes no character of its German text. The reading meant
  * and the reason come from the record (src/content/provenance/misprints.ts), never from here.
+ *
+ * A misprint inside an inline formula holds that formula instead (MisprintFormulaInline, dispatch
+ * 270), so the printed LaTeX is kept byte for byte and the block's plain text is unchanged.
  */
-export type MisprintInline = Readonly<{
+export type MisprintInline =
+  | Readonly<{
+      kind: "misprint";
+      text: string;
+      recordId: string;
+      lang?: string | undefined;
+      dir?: "ltr" | "rtl" | undefined;
+    }>
+  | MisprintFormulaInline;
+
+/**
+ * A misprint in an inline formula: `{kind: "misprint", recordId, math: {kind: "math", latex}}`. The
+ * formula is an ordinary inline math node, as printed, nested whole; the misprint adds no text of
+ * its own. A display's misprint is noted under the display (DisplayMisprintNote.tsx) instead.
+ */
+export type MisprintFormulaInline = Readonly<{
   kind: "misprint";
-  text: string;
+  math: MathInline;
   recordId: string;
-  lang?: string | undefined;
-  dir?: "ltr" | "rtl" | undefined;
 }>;
+
+function misprintFormula(o: Record<string, unknown>, path: string): MisprintFormulaInline {
+  const inner = o.math as { kind?: unknown; display?: unknown } | null;
+  if (
+    typeof inner !== "object" ||
+    inner === null ||
+    inner.kind !== "math" ||
+    inner.display === true ||
+    o.text !== undefined
+  )
+    throw new MisprintInlineError(
+      "misprint-formula-not-inline",
+      `${path}: a misprint in mathematics holds one inline formula, as printed, and no text of its own.`,
+    );
+  if (typeof o.recordId !== "string" || !/^[a-z0-9][a-z0-9-]*$/.test(o.recordId))
+    throw new MisprintInlineError(
+      "misprint-formula-without-record",
+      `${path}: a misprint needs its formula as printed and the id of its receipt record.`,
+    );
+  const math = validateInline(inner, `${path}.math`);
+  return { kind: "misprint", math: math as MathInline, recordId: o.recordId };
+}
 
 /** A misprint inline that cannot be marked: its printed word or its record id is missing. */
 export class MisprintInlineError extends Error {
   constructor(
-    readonly code: "misprint-without-record",
+    readonly code:
+      | "misprint-without-record"
+      | "misprint-formula-not-inline"
+      | "misprint-formula-without-record",
     message: string,
   ) {
     super(message);
