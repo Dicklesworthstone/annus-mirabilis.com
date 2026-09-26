@@ -847,10 +847,18 @@
    explanation's formulas already reached every term (68 of 68, 189 of 189) and are not touched. */
 .printed-display-terms .katex .vlist,
 .printed-display-terms .katex .vlist > span,
-.printed-display-terms .katex .pstrut {
+.printed-display-terms .katex .pstrut,
+.inline-math[data-inline-terms] .katex .vlist,
+.inline-math[data-inline-terms] .katex .vlist > span,
+.inline-math[data-inline-terms] .katex .pstrut {
   pointer-events: none;
 }
-.printed-display-terms .katex [data-quantity-id] {
+/* The same in a coloured inline formula (dispatch 272): measured on a build of 17b69152, a pointer
+   at the centre of each coloured glyph reached it for 74 of mass-energy's 74, 153 of light quanta's
+   153 and 164 of Brownian's 165, whose one miss was p_ν under the fraction bar of § 2's
+   ∑ ∂φ_ν/∂p_ν = 0. */
+.printed-display-terms .katex [data-quantity-id],
+.inline-math[data-inline-terms] .katex [data-quantity-id] {
   pointer-events: auto;
 }
 .equation-legend > [role="listitem"] {
