@@ -60,8 +60,13 @@ function firstWordFrom(inlines: readonly Inline[], at: number): string | null {
         walk(node.inlines);
         continue;
       }
+      // A misprint marker prints its word, as plainText counts it (inlines.ts); leaving it out put
+      // the expected word the marker's length too far on (s1-p1, s10-p4; dispatch 264).
       const text =
-        node.kind === "text" || node.kind === "term" || node.kind === "reference"
+        node.kind === "text" ||
+        node.kind === "term" ||
+        node.kind === "reference" ||
+        node.kind === "misprint"
           ? node.text
           : node.kind === "space"
             ? " ".repeat(node.count ?? 1)
