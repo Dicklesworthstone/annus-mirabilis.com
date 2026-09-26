@@ -39,15 +39,28 @@ describe("canonical and hreflang policy", () => {
     expect(english.alternates?.canonical).toBe(absoluteUrl(faceFallbackPath(paperId, "english")));
   });
 
-  test("results, gloss, parallel, split, and facsimile fallbacks canonicalise to the paper route", async () => {
+  test("results, parallel, split, and facsimile fallbacks canonicalise to the paper route", async () => {
     const papers = await listReadablePapers();
     const paperId = papers[0];
     if (paperId === undefined) throw new Error("no compiled papers");
-    for (const face of ["results", "gloss", "parallel", "split", "facsimile"] as const) {
+    for (const face of ["results", "parallel", "split", "facsimile"] as const) {
       const meta = await paperMetadata({ paperId, face });
       expect(meta.alternates?.canonical).toBe(absoluteUrl(paperPath(paperId)));
       expect(meta.alternates?.languages).toBeUndefined();
     }
+  });
+
+  test("a gloss page is canonical to itself: the paper's gloss contents, and each section's gloss", async () => {
+    // Dispatch 254: a section's gloss page prints that section alone, and the paper's gloss face is
+    // its contents and first section, so neither is the document page it used to name.
+    const paperId = "special-relativity";
+    const paper = await paperMetadata({ paperId, face: "gloss" });
+    expect(paper.alternates?.canonical).toBe(absoluteUrl(faceFallbackPath(paperId, "gloss")));
+    const section = await paperMetadata({ paperId, face: "gloss", section: "s3" });
+    expect(section.alternates?.canonical).toBe(
+      absoluteUrl(faceFallbackPath(paperId, "gloss", "s3")),
+    );
+    expect(section.alternates?.canonical).not.toBe(absoluteUrl(paperPath(paperId, "s3")));
   });
 
   test("the sitemap lists papers, sections, and the German and English faces, not other fallbacks", async () => {

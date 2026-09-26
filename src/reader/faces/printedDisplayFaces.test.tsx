@@ -13,8 +13,16 @@ import { loadBilingualEdition } from "./bilingualLoader.ts";
 
 const FACES = ["german", "english", "parallel", "gloss"] as const;
 
-const page = async (paper: string, face?: (typeof FACES)[number]) =>
-  exportMarkup(await PaperPage(face ? { paperId: paper, face } : { paperId: paper }));
+const page = async (paper: string, face?: (typeof FACES)[number]) => {
+  if (face !== "gloss")
+    return exportMarkup(await PaperPage(face ? { paperId: paper, face } : { paperId: paper }));
+  // The gloss prints one section per page (dispatch 254): every section's page, joined.
+  const sections = (await loadBilingualEdition(paper))?.paper.sections ?? [];
+  const pages: string[] = [];
+  for (const { id } of sections)
+    pages.push(await exportMarkup(await PaperPage({ paperId: paper, face, section: id })));
+  return pages.join("\n");
+};
 
 /** Every chip's quantity and its colour style, as the markup carries them: a link or a button. */
 function chipStyles(html: string): Map<string, Set<string>> {

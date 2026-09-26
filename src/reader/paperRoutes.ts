@@ -176,8 +176,10 @@ export async function paperMetadata(request: PaperRouteRequest): Promise<Metadat
           en: absoluteUrl(fallbackPath("english")),
         }
       : undefined;
+  // A gloss page is its own page (dispatch 254): a section's gloss prints that section alone, and
+  // the paper's gloss face is its contents and first section, so neither is the document page.
   const canonical =
-    resolved.face === "german" || resolved.face === "english"
+    resolved.face === "german" || resolved.face === "english" || resolved.face === "gloss"
       ? absoluteUrl(path)
       : absoluteUrl(documentPath);
   const exportLinks =

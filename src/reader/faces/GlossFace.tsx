@@ -18,6 +18,12 @@ import { buildAlignmentIndex } from "./alignment.ts";
 import { claimedDisplayIds } from "./displayClaims.ts";
 import { sectionsLabel } from "./editionCoverage.ts";
 import { GlossSentence } from "./GlossSentence.tsx";
+import {
+  blocksBySection,
+  glossedSentencesIn,
+  paperGlossPath,
+  sectionGlossPath,
+} from "./glossSections.ts";
 import { sentenceAtoms } from "./glossStream.ts";
 import { renderInlines } from "./inlines.tsx";
 import { speakInlines } from "./mathSpeech.ts";
@@ -61,6 +67,12 @@ export interface GlossFaceProps {
    * unglossedSections, from the frozen manifest), named once at the top of the face.
    */
   readonly unglossedSections?: readonly string[] | undefined;
+  /**
+   * The section this page glosses (dispatch 254): /papers/<p>/<section>/view/gloss/ prints that
+   * section alone, with the sections before and after it linked. Absent, the face is the paper's
+   * gloss contents, every section as a real link, followed by its first section in full.
+   */
+  readonly section?: string | undefined;
 }
 
 /**
@@ -81,6 +93,7 @@ export function GlossFace({
   modalityClasses,
   availability,
   unglossedSections = [],
+  section,
 }: GlossFaceProps) {
   // If no source blocks exist for the paper, render an honest fallback
   if (!blocks || blocks.length === 0) {
@@ -101,8 +114,17 @@ export function GlossFace({
   const glossMap = new Map<string, GlossUnit>(glossUnits.map((g) => [g.sentenceId, g]));
   const translationMap = new Map<string, TranslationUnit>(translations.map((t) => [t.id, t]));
 
+  // One section per page (glossSections.ts): the named section, or on the paper's gloss face its
+  // first. Only the blocks of that section are printed, its footnotes with them.
+  const bySection = blocksBySection(blocks);
+  const sectionOrder = (paper.sections ?? []).map((s) => s.id).filter((id) => bySection.has(id));
+  const shownSection = section && bySection.has(section) ? section : sectionOrder[0];
+  const pageBlocks = shownSection ? (bySection.get(shownSection) ?? []) : blocks;
+  const glossed = new Set(glossUnits.map((g) => g.sentenceId));
+  const titleOf = (id: string) => (paper.sections ?? []).find((s) => s.id === id)?.title ?? id;
+
   // Footnote blocks to render in the bottom footnotes section
-  const footnoteBlocks = blocks.filter((b) => b.kind === "footnote");
+  const footnoteBlocks = pageBlocks.filter((b) => b.kind === "footnote");
 
   // The aligned English of a sentence, as the gloss line under it reads it.
   const englishFor = (sentenceId: string): string | undefined => {
@@ -222,9 +244,32 @@ export function GlossFace({
       {/* The chooser every face uses, with this face the current tab (FaceChooser.tsx). */}
       <FaceChooser paperId={paper.slug} current="gloss" availability={availability} />
 
+      {/* The gloss a section at a time (dispatch 254): real links, so it works without JavaScript. */}
+      {section === undefined ? (
+        <nav aria-labelledby="gloss-sections-heading">
+          <h2 id="gloss-sections-heading">The gloss, section by section</h2>
+          <ol>
+            {sectionOrder.map((id) => (
+              <li key={id}>
+                <a href={sectionGlossPath(paper.slug, id)}>{titleOf(id)}</a> (
+                {glossedSentencesIn(bySection.get(id) ?? [], glossed)} glossed sentences)
+              </li>
+            ))}
+          </ol>
+          {shownSection ? <p>The first section follows in full.</p> : null}
+        </nav>
+      ) : (
+        <GlossNeighbours
+          paper={paper.slug}
+          order={sectionOrder}
+          current={shownSection}
+          titleOf={titleOf}
+        />
+      )}
+
       {/* Main Blocks Stream */}
       <main className="gloss-face-content">
-        {blocks.map((block) => {
+        {pageBlocks.map((block) => {
           // Footnotes are collected into their own glossed list below.
           if (block.kind === "footnote") return null;
           // A display its paragraph prints is set after the sentence that prints it.
@@ -353,5 +398,37 @@ export function GlossFace({
 
       {alignmentIndex && <AlignmentController index={alignmentIndex} />}
     </article>
+  );
+}
+
+/** A section's gloss page: the sections before and after it, and the paper's gloss contents. */
+function GlossNeighbours({
+  paper,
+  order,
+  current,
+  titleOf,
+}: {
+  paper: string;
+  order: readonly string[];
+  current: string | undefined;
+  titleOf: (id: string) => string;
+}) {
+  const at = current === undefined ? -1 : order.indexOf(current);
+  const previous = at > 0 ? order[at - 1] : undefined;
+  const next = at >= 0 && at < order.length - 1 ? order[at + 1] : undefined;
+  return (
+    <nav aria-label="Other sections of the gloss">
+      {previous ? (
+        <a href={sectionGlossPath(paper, previous)} rel="prev">
+          Previous: {titleOf(previous)}
+        </a>
+      ) : null}{" "}
+      {next ? (
+        <a href={sectionGlossPath(paper, next)} rel="next">
+          Next: {titleOf(next)}
+        </a>
+      ) : null}{" "}
+      <a href={paperGlossPath(paper)}>Every section of the gloss</a>
+    </nav>
   );
 }

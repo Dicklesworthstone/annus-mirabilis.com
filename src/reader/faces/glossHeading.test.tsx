@@ -50,8 +50,15 @@ async function withHeadingGloss(
   return { edition: { ...live, glossUnits: [...others, unit] }, words };
 }
 
-async function glossFace(paper: string, edition: BilingualEdition): Promise<string> {
-  return renderToStaticMarkup(await PaperPage({ paperId: paper, face: "gloss" }, { edition }));
+/** A section's gloss page: the gloss prints one section per page (dispatch 254). */
+async function glossFace(
+  paper: string,
+  edition: BilingualEdition,
+  section: string,
+): Promise<string> {
+  return renderToStaticMarkup(
+    await PaperPage({ paperId: paper, face: "gloss", section }, { edition }),
+  );
 }
 
 /** Every id on the page that occurs more than once. */
@@ -72,7 +79,7 @@ describe("a heading's gloss on the gloss face", () => {
   test("light quanta § 1: the heading keeps its <h2>, and its gloss follows it, before the first paragraph", async () => {
     const { edition, words } = await withHeadingGloss("light-quanta", "s1");
     expect(words.length).toBeGreaterThan(0);
-    const html = await glossFace("light-quanta", edition);
+    const html = await glossFace("light-quanta", edition, "s1");
     const at = around(html, "h2", "s1");
     expect(at.open).toBeGreaterThan(-1);
     // The gloss sentence is after the heading element and before § 1's first sentence.
@@ -90,7 +97,8 @@ describe("a heading's gloss on the gloss face", () => {
   test("relativity part-1: a part heading keeps its <h1>, and its gloss follows it", async () => {
     const { edition, words } = await withHeadingGloss("special-relativity", "part-1");
     expect(words.length).toBeGreaterThan(0);
-    const html = await glossFace("special-relativity", edition);
+    // A part heading is printed with the section it heads (glossSections.ts): part-1 with § 1.
+    const html = await glossFace("special-relativity", edition, "s1");
     const at = around(html, "h1", "part-1");
     expect(at.open).toBeGreaterThan(-1);
     expect(at.section).toBeGreaterThan(at.close);
@@ -110,7 +118,7 @@ describe("a heading's gloss on the gloss face", () => {
       glossUnits: (withS1.glossUnits ?? []).filter((u) => u.sentenceId !== "s2"),
     };
     expect(edition.glossUnits.some((u) => u.sentenceId === "s2")).toBe(false);
-    const html = await glossFace("light-quanta", edition);
+    const html = await glossFace("light-quanta", edition, "s2");
     const at = around(html, "h2", "s2");
     expect(at.open).toBeGreaterThan(-1);
     expect(at.section).toBe(-1);

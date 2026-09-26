@@ -75,6 +75,18 @@ async function partialEdition(): Promise<BilingualEdition> {
   return { ...live, glossUnits: one };
 }
 
+/** Every section's gloss page, joined: the gloss prints one section per page (dispatch 254). */
+async function wholeGloss(edition: BilingualEdition): Promise<string> {
+  const pages: string[] = [];
+  for (const { id } of edition.paper.sections ?? [])
+    pages.push(
+      renderToStaticMarkup(
+        await PaperPage({ paperId: PAPER, face: "gloss", section: id }, { edition }),
+      ),
+    );
+  return pages.join("\n");
+}
+
 describe("sentenceInlines cuts a block at a sentence span's own offsets", () => {
   /** The sentence's plain text, footnote marks removed: marks become a private-use placeholder, the text is cut, the placeholders go. */
   function expectedText(inlines: readonly Inline[], span: { start: number; end: number }): string {
@@ -149,9 +161,7 @@ describe("sentenceInlines cuts a block at a sentence span's own offsets", () => 
 
 describe("an unglossed sentence on a partial gloss face", () => {
   test("prints its formulas as KaTeX: no backslash, caret or braced subscript in what a reader sees", async () => {
-    const html = renderToStaticMarkup(
-      await PaperPage({ paperId: PAPER, face: "gloss" }, { edition: await partialEdition() }),
-    );
+    const html = await wholeGloss(await partialEdition());
     const unglossed = unglossedSentences(html);
     const leaking = unglossed.filter((u) => TEX.test(visibleText(u.germanHtml)));
     expect(leaking.map((u) => u.id)).toEqual([]);
@@ -289,10 +299,19 @@ describe("the gloss face names, once, the sections its gloss does not reach yet"
     // Said once, not under each sentence.
     expect([...html.matchAll(/data-unglossed-sections=/g)].length).toBe(1);
     expect(html).not.toContain("Gloss not yet available");
-    const unglossed = unglossedSentences(html);
+    // § 1's own gloss page (dispatch 254): its sentences are unglossed, each with only its link.
+    const s1 = renderToStaticMarkup(
+      await PaperPage(
+        { paperId: PAPER, face: "gloss", section: "s1" },
+        { edition: { ...live, glossUnits: intro } },
+      ),
+    );
+    expect([...s1.matchAll(/data-unglossed-sections=/g)].length).toBe(1);
+    expect(s1).not.toContain("Gloss not yet available");
+    const unglossed = unglossedSentences(s1);
     expect(unglossed.length).toBeGreaterThan(0);
     for (const u of unglossed) expect(u.href).toBe(parallelSentenceHref(PAPER, u.id));
-    expect([...html.matchAll(/data-parallel-fallback="true"/g)].length).toBe(unglossed.length);
+    expect([...s1.matchAll(/data-parallel-fallback="true"/g)].length).toBe(unglossed.length);
   });
 
   test("with only the masthead glossed, the introduction is named too", async () => {

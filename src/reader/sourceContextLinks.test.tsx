@@ -18,6 +18,7 @@ import { parseYaml } from "../content/provenance/yaml.ts";
 import { loadPaper } from "../content/server.ts";
 import { exportMarkup } from "../testing/exportMarkup.ts";
 import { installDom, uninstallDom } from "../testing/reactDom.ts";
+import { sectionGlossPath } from "./faces/glossSections.ts";
 import { PaperPage } from "./PaperPage.tsx";
 import { paperSourceFaces } from "./paperSourceFaces.ts";
 
@@ -230,16 +231,26 @@ describe("a passage's Source context links only faces that exist", () => {
       const { arguments: args } = await loadPaper(paperId);
       const sectionOf = new Map(args.map((a) => [a.id, a.section]));
       const glossed = glossedSections(paperId);
-      const face = await exportMarkup(await PaperPage({ paperId, face: "gloss" }));
-      const ids = new Set([...face.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+      // The gloss prints one section per page (dispatch 254), so each link's fragment is looked
+      // for on the section page it names.
+      const idsOn = new Map<string, Set<string | undefined>>();
+      const idsOf = async (section: string) => {
+        const known = idsOn.get(section);
+        if (known) return known;
+        const face = await exportMarkup(await PaperPage({ paperId, face: "gloss", section }));
+        const ids = new Set([...face.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+        idsOn.set(section, ids);
+        return ids;
+      };
       for (const line of await contextLines(paperId)) {
         const section = sectionOf.get(line.id) ?? "?";
         const gloss = line.hrefs.filter((h) => h.includes("/view/gloss/"));
         if (glossed.has(section)) {
           expect(gloss.length).toBe(1);
-          const fragment = gloss[0]?.split("#")[1] ?? "";
+          const [path, fragment = ""] = gloss[0]?.split("#") ?? [];
+          expect(path).toBe(sectionGlossPath(paperId, section));
           expect(fragment.startsWith("arg-")).toBe(false);
-          expect(ids.has(fragment)).toBe(true);
+          expect((await idsOf(section)).has(fragment)).toBe(true);
           // The passage's own section, not the masthead above it: Brownian files its title block
           // under s0, and the introduction's passage landed on #masthead-title. The section's own
           // heading (#s1) counts: light quanta's § 1 gloss begins with it (dispatch 216), and the

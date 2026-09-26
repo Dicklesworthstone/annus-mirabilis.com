@@ -44,6 +44,7 @@ import {
 import { GermanDraftFace } from "./faces/GermanDraftFace.tsx";
 import { GermanFace } from "./faces/GermanFace.tsx";
 import { GlossFace } from "./faces/GlossFace.tsx";
+import { sectionGlossPath } from "./faces/glossSections.ts";
 import { ParallelFace } from "./faces/ParallelFace.tsx";
 import { firstUseCallouts } from "./firstUse.ts";
 import {
@@ -297,6 +298,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
               reviewRecords={edition.reviewRecords}
               modalityClasses={getModalityClasses()}
               unglossedSections={unglossedSections(sectionIds, edition.blocks, edition.glossUnits)}
+              section={resolved.section}
             />
           );
         }
@@ -363,13 +365,14 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           href: `/papers/${paper.id}/view/english/${sources.englishSectionFragment(a.section)}`,
         },
       // Gloss only where this passage's section is glossed, at its first glossed sentence: the
-      // gloss face's ids are sentence ids, and #<argument id> named nothing on it.
+      // gloss face's ids are sentence ids, and #<argument id> named nothing on it. The sentence is
+      // on its section's gloss page, which prints that section alone (dispatch 254).
       sources.availability.gloss === "available" &&
         sources.glossSectionFragment(a.section) !== "" && {
           face: "gloss",
           label: "Interlinear gloss",
           name: "Interlinear gloss",
-          href: `/papers/${paper.id}/view/gloss/${sources.glossSectionFragment(a.section)}`,
+          href: `${sectionGlossPath(paper.id, a.section)}${sources.glossSectionFragment(a.section)}`,
         },
       // Facsimile is "unknown" here, never "empty" (faceAvailability.ts), so it stays offered.
       sources.availability.facsimile !== "empty" && {
