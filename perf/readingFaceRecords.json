@@ -1,5 +1,5 @@
 {
-  "about": "Reading faces over the 250,000-byte gzipped budget, each held to its measured size (scripts/perf/readingFaces.ts, row reading-face-html of scripts/run-perf-budgets.ts). A recorded face fails when it grows past its size; an unrecorded face fails over 250,000. The budget is not raised. First measured on a build of 54c8cbf4 on 2026-09-26; relativity's German, English and parallel faces and light quanta's parallel face re-measured on a build of 9f3c915d the same day, gzip level 9, the random build id blanked (dispatch 254).",
+  "about": "Reading faces over the 250,000-byte gzipped budget, each held to its measured size (scripts/perf/readingFaces.ts, row reading-face-html of scripts/run-perf-budgets.ts). A recorded face fails when it grows past its size; an unrecorded face fails over 250,000. The budget is not raised. First measured on a build of 54c8cbf4 on 2026-09-26; relativity's German, English and parallel faces and light quanta's parallel face re-measured on a build of 9f3c915d the same day, gzip level 9, the random build id blanked (dispatch 254); light quanta's parallel face re-measured on a build of f27080a9 the same day, after its inline formulas were drawn in colour (dispatch 272).",
   "faces": [
     {
       "face": "out/papers/special-relativity/view/german/index.html",
@@ -23,8 +23,8 @@
     },
     {
       "face": "out/papers/light-quanta/view/parallel/index.html",
-      "gzipBytes": 253448,
-      "reason": "The German and English faces of light quanta side by side, each whole, with 52 coloured printed displays and their chips; the flight data carries the tree twice. It measured 245,579 on the build of 54c8cbf4 and 253,448 on the build of 9f3c915d, over the budget by the page-turn marks, printed footnote marks, misprint markers and period-word notes of dispatches 255, 258, 262 and 264. Whole-paper by TanElk's ruling (mail 40857)."
+      "gzipBytes": 267090,
+      "reason": "The German and English faces of light quanta side by side, each whole, with 52 coloured printed displays and their chips; the flight data carries the tree twice. It measured 245,579 on the build of 54c8cbf4 and 253,448 on the build of 9f3c915d, over the budget by the page-turn marks, printed footnote marks, misprint markers and period-word notes of dispatches 255, 258, 262 and 264. It measured 254,861 on the build of 4b368f1b and 267,090 on the build of f27080a9, once its 262 inline formulas were drawn in the paper's colours (59b4deaf, dispatch 272, the owner's request): about 5,000 bytes are the inspector's facts for the 35 quantities they name, about 4,500 the quantity ids on each coloured glyph, and the rest KaTeX's span around each marked glyph. Whole-paper by TanElk's ruling (mail 40857)."
     }
   ]
 }
