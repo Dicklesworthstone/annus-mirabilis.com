@@ -15,6 +15,7 @@
     "reason": "A matter of what the paper attributes to Planck and what it proposes itself; §§ 1–2 and the introduction are the evidence."
   },
   "anchors": ["s0-p3", "s1-p4", "s2", "s2-p1", "s2-p2"],
+  "resultIds": ["lq-planck-constants"],
   "sources": ["A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 133 and 135–136"],
   "intervention": {
     "defaultsReviewed": {

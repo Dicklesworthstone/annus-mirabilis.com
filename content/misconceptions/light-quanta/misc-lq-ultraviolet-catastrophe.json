@@ -15,7 +15,7 @@
   },
   "instrumentIds": ["lq-02"],
   "anchors": ["s1-p5", "s6-p6"],
-  "resultIds": ["lq-energy-quanta"],
+  "resultIds": ["lq-classical-difficulty", "lq-energy-quanta"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 136 and 143",
     "LQ-02: the probes lq-02-cube-growth-probe (a tenfold cutoff multiplies the energy by 1000) and lq-02-divergence-refusal-probe (no finite total)"

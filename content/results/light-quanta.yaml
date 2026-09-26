@@ -13,6 +13,79 @@
 paper: light-quanta
 review: draft
 cards:
+  - id: lq-classical-difficulty
+    title: "The equilibrium the classical picture requires, and its infinite total"
+    section: s1
+    arguments: [arg-lq-classical-allocation, arg-lq-equilibrium-assumptions]
+    printed:
+      - anchor: s1-p5
+        sentences: [1, 2]
+    equations: [eq-model-lq-classical-density, eq-model-lq-cutoff-integral, eq-model-lq-cutoff-total]
+    oneSentence: "If each resonator has the mean energy \\(\\frac{R}{N}T\\) that the kinetic theory of gases requires and the mean energy Planck derived for equilibrium with the radiation, the radiation must have the density \\(\\varrho_\\nu = \\frac{R}{N}\\frac{8\\pi\\nu^2}{L^3}T\\); the paper says this disagrees with experience, and that summed over all frequencies it gives an infinite energy, so the picture allows no definite distribution of energy between ether and matter."
+    decoder:
+      - symbol: "\\(\\overline{E}\\)"
+        meaning: "The mean energy of one linear oscillation of a resonator electron, which the kinetic theory of gases sets equal to \\(\\frac{R}{N}T\\) in equilibrium with the gas."
+      - symbol: "\\(\\overline{E}_\\nu\\)"
+        meaning: "The mean energy of a resonator of eigenfrequency \\(\\nu\\), per component of oscillation, in Planck's condition for equilibrium with the radiation."
+      - symbol: "\\(\\varrho_\\nu\\)"
+        meaning: "The energy density of the radiation per unit frequency: \\(\\varrho_\\nu\\,d\\nu\\) is the energy per unit volume of the part of the radiation between \\(\\nu\\) and \\(\\nu + d\\nu\\)."
+      - symbol: "\\(L\\)"
+        meaning: "The speed of light, printed L in §§ 1 and 2 of this paper."
+      - symbol: "\\(\\infty\\)"
+        meaning: "The total over all frequencies: the wider the range of the resonators' frequencies is taken, the greater the radiation energy of the space, without limit."
+    qualifications:
+      - kind: premise
+        text: "Two conditions of equilibrium are combined: the resonators with the molecules and electrons of the gas, from the kinetic theory, and the resonators with the radiation, which Planck derived on the assumption that radiation is a process as disordered as can be."
+      - kind: comparison
+        text: "§ 2 shows that the same relation is the limit of Planck's formula for long wavelengths and large radiation densities, where it does agree with experience."
+    probes:
+      - instrument: lq-02
+        question: "Give every resonator the same mean energy whatever its frequency: how much energy does the radiation hold as the range of frequencies widens?"
+    usedLater: []
+    meanings:
+      argumentStatus: "A consequence of two conditions of equilibrium, stated as a difficulty"
+      modelStatus: "Within the picture of resonators, gas molecules and radiation that the section sets up"
+      evidentialRole: "A theoretical difficulty, which the paper says disagrees with experience"
+      historicalStatus: "Its ingredients, the kinetic theory and Planck's resonator condition, were published before 1905; the paper states the difficulty"
+    selectionReason: "It is the difficulty the paper starts from: in the picture of its day, no definite distribution of energy between ether and matter."
+
+  - id: lq-planck-constants
+    title: "Planck's constants and the number of molecules"
+    section: s2
+    arguments: [arg-lq-planck-constants]
+    printed:
+      - anchor: s2-p2
+        sentences: [2, 3, 4]
+    equations:
+      - eq-model-lq-planck-low-frequency
+      - eq-model-lq-coefficient-match
+      - eq-model-lq-avogadro-from-spectrum
+    oneSentence: "For large wavelengths and radiation densities Planck's formula becomes \\(\\varrho_\\nu = \\frac{\\alpha}{\\beta}\\nu^2 T\\), the relation of § 1, and equating the coefficients gives \\(N = 6{,}17 \\cdot 10^{23}\\), exactly Planck's value; so Planck's determination of the elementary quanta is, to a certain degree, independent of his theory of black radiation."
+    decoder:
+      - symbol: "\\(\\alpha\\), \\(\\beta\\)"
+        meaning: "The two constants of Planck's formula as the paper prints them, \\(\\alpha = 6{,}10 \\cdot 10^{-56}\\) and \\(\\beta = 4{,}866 \\cdot 10^{-11}\\)."
+      - symbol: "large \\(T/\\nu\\)"
+        meaning: "Large wavelengths and radiation densities, where \\(e^{\\beta\\nu/T} - 1\\) is close to \\(\\beta\\nu/T\\) and Planck's formula takes the form of § 1."
+      - symbol: "\\(N\\)"
+        meaning: "The number of real molecules in a gram-equivalent. Its reciprocal is the mass of a hydrogen atom in grams, which the paper gives as \\(1{,}62 \\cdot 10^{-24}\\) g."
+    qualifications:
+      - kind: approximation
+        text: "The two formulas agree only in the limit of large \\(T/\\nu\\); at high frequencies they part."
+      - kind: comparison
+        text: "The value is compared with Planck's, which it matches exactly, and with values found in other ways, which it matches satisfactorily; it is a consistency check, not a new measurement."
+      - kind: inference
+        text: "What the paper concludes is limited: Planck's determination of the elementary quanta is independent of his theory of black radiation \"bis zu einem gewissen Grade\", to a certain degree."
+    probes:
+      - instrument: lq-03
+        question: "At long wavelengths, where do Planck's formula and the relation of § 1 agree, and where do they part?"
+    usedLater: []
+    meanings:
+      argumentStatus: "A comparison of two formulas in a limit"
+      modelStatus: "Exact in the limit of large T/ν"
+      evidentialRole: "A consistency check against Planck's constants"
+      historicalStatus: "Planck's formula and constants are earlier work the paper cites; the comparison is this paper's"
+    selectionReason: "It is the paper's one number drawn from radiation theory, and it separates the value of Planck's constants from Planck's derivation."
+
   - id: lq-energy-quanta
     title: "Radiation that behaves as if it consisted of energy quanta"
     section: s6
@@ -138,3 +211,45 @@ cards:
       evidentialRole: "A prediction, with an order-of-magnitude comparison"
       historicalStatus: "Introduced in this paper"
     selectionReason: "It is the paper's quantitative prediction for the photoelectric effect."
+
+  - id: lq-ionization
+    title: "Ionisation of gases by ultraviolet light"
+    section: s9
+    arguments: [arg-lq-ionization-and-counts]
+    printed:
+      - anchor: s9-p1
+        sentences: [1, 3, 4]
+      - anchor: s9-p3
+        sentences: [2, 4, 5]
+    equations: [eq-model-lq-ionization-threshold, eq-model-lq-ion-count-bound]
+    oneSentence: "If each absorbed light quantum ionises one gas molecule, the work of ionisation per gram-equivalent can be no greater than \\(R\\beta\\nu\\), which for Lenard's longest effective wavelength in air is \\(6{,}4 \\cdot 10^{12}\\) erg, nearly the upper limit found from Stark's ionisation voltage; and the number \\(j\\) of gram-molecules that the absorbed light \\(L\\) ionises must be \\(L/(R\\beta\\nu)\\)."
+    decoder:
+      - symbol: "\\(J\\)"
+        meaning: "The theoretical work of ionisation per gram-equivalent."
+      - symbol: "\\(R\\beta\\nu\\)"
+        meaning: "The energy of a gram-equivalent's worth of quanta: \\(N\\) quanta of \\(R\\beta\\nu/N\\) each."
+      - symbol: "\\(j\\)"
+        meaning: "The number of gram-molecules ionised by the absorbed light."
+      - symbol: "\\(L\\)"
+        meaning: "The amount of light absorbed. In § 9, L is this energy, not the speed of light it names in §§ 1 and 2."
+    qualifications:
+      - kind: premise
+        text: "That each absorbed quantum ionises one molecule is an assumption the paper states at the start of the section."
+      - kind: comparison
+        text: "The two figures come from different measurements, Lenard's longest effective wavelength and Stark's smallest ionisation voltage; the paper finds \\(6{,}4 \\cdot 10^{12}\\) and \\(9{,}6 \\cdot 10^{12}\\) nearly equal."
+      - kind: conditional
+        text: "The relation \\(j = L/(R\\beta\\nu)\\) must hold, if the paper's view corresponds to reality, for any gas that shows no appreciable absorption without ionisation at that frequency; the paper calls its test very important and reports none."
+    probes:
+      - instrument: lq-09
+        question: "Is one quantum of the ultraviolet light enough to pay for one ionisation?"
+        preset: lq-09-threshold
+      - instrument: lq-09
+        question: "Repeat the paper's check with Lenard's wavelength: how does the energy of the quanta compare with the work of ionisation?"
+        preset: lq-09-historical-checks
+    usedLater: []
+    meanings:
+      argumentStatus: "A consequence of the quantum picture, with a stated assumption"
+      modelStatus: "For a gas that absorbs light at the frequency only by being ionised"
+      evidentialRole: "A bound compared with two measurements, and a proposed test"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "It is the paper's last application of the energy quanta, and it ends with the test the paper thought important."
