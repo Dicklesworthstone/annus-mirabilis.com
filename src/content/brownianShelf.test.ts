@@ -20,6 +20,7 @@ const CHECKED = [
   "fick-1855-diffusion-equation",
   "exner-1900-particle-speeds",
   "siedentopf-1903-ultramicroscope",
+  "vant-hoff-1887-osmotic-gas-law",
 ];
 
 describe("the Brownian shelf's source checks", () => {

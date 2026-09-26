@@ -378,12 +378,12 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "vant-hoff-1887-osmotic-gas-law",
     proposition:
-      "A substance dissolved in a dilute solution presses on a membrane that lets only the solvent through, and that osmotic pressure obeys the gas law: p V = R T z for z gram-molecules in the volume V.",
+      "A substance dissolved in a solution presses on a wall that lets only the solvent through, and that osmotic pressure obeys the gas laws of Boyle, Gay-Lussac and Avogadro: van 't Hoff writes PV = RT, with one value of R for every gas and every dissolved substance when each is counted in molecular weights.",
     status: "available",
     sources: [
       {
         title: "Die Rolle des osmotischen Druckes in der Analogie zwischen Lösungen und Gasen",
-        locator: "Z. physik. Chem. 1 (1887) 481",
+        locator: "J. H. van 't Hoff, Z. physik. Chem. 1 (1887) 481",
         date: "1887",
       },
     ],
@@ -395,8 +395,23 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     limits:
-      "Stated for dilute solutions of dissolved molecules. Whether it holds for particles large enough to see is the question the route asks, not something the law says.",
+      "Only when the solution is dilute enough that the dissolved particles' interaction and volume can be neglected, the restriction that holds for gases too. In water most salts and the strong acids and bases give a larger pressure, i times the expected value, which he ascribes, on Arrhenius's suggestion, to splitting into ions. Whether the law holds for particles large enough to see is the question the route asks, not something the law says.",
     admittedStages: ["stage-02", "stage-03"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/sim_zeitschrift_physikalische_chemie_1887_1",
+        read: "page-image",
+        matched:
+          'Leaf 486 is p. 481: "Die Rolle des osmotischen Druckes in der Analogie zwischen Lösungen und Gasen. Von J. H. van\'t Hoff in Amsterdam", foot "Zeitschrift f. physik. Chemie. I.", with a wall permeable to water but not to the dissolved sugar. p. 491 (leaf 496), section V: PV = RT "auch für Lösungen gültig" for the osmotic pressure, "mit derselben Beschränkung, die auch bei Gasen zu berücksichtigen ist, dass nämlich die Verdünnung genügend gross sei"; with kilogram-molecules R is the same for all gases, PV = 845 T, and this holds "auf sämtliche Lösungen" with P the osmotic pressure. p. 492: AR = 2, so APV = 2T in calories; section VI takes Pfeffer\'s sugar measurements as the first direct confirmation. p. 501 (leaf 506): most salts and strong acids and bases in water deviate, following Arrhenius\'s suggestion of "eine Spaltung in Jonen"; the general form becomes APV = 2iT.',
+        differs: [
+          "The card wrote the law as \"p V = R T z for z gram-molecules\", which is Einstein's notation in 1905. Van 't Hoff prints PV = RT, per kilogram-molecule in his units, and APV = 2T; the card now gives his form and says the gas constant is the same for dissolved substances and gases.",
+          "The card's limits named dilution but not the exception he states for electrolytes, the factor i; it is now there.",
+        ],
+      },
+    ],
   },
 ];
 
