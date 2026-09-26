@@ -79,7 +79,11 @@ async function face(slug: string, which: "german" | "parallel" | "english") {
 }
 
 /** The note stands under its display: right after it, or last in the display's own block. */
-function underItsDisplay(note: Element, displayId: string): boolean {
+type Placed = Readonly<{
+  previousElementSibling: { id: string; querySelector(selector: string): unknown } | null;
+  parentElement: { id: string } | null;
+}>;
+function underItsDisplay(note: Placed, displayId: string): boolean {
   const before = note.previousElementSibling;
   if (before?.id === displayId || before?.querySelector(`[id="${displayId}"]`)) return true;
   return note.parentElement?.id === displayId;
