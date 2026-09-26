@@ -26,8 +26,11 @@ inlines:
         text: "Lenard"
   - kind: "text"
     text: " untersuchten Substanzen ist "
-  - kind: "math"
-    latex: "P E"
+  - kind: "misprint"
+    recordId: "typo-pe-for-pi-p147"
+    math:
+      kind: "math"
+      latex: "P E"
   - kind: "text"
     text: " stets bedeutend größer als "
   - kind: "math"

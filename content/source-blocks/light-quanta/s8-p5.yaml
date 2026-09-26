@@ -28,8 +28,11 @@ inlines:
   - kind: "space"
   - kind: "text"
     text: "Wir erhalten "
-  - kind: "math"
-    latex: "\\Pi \\cdot 10^7 = 4{,}3"
+  - kind: "misprint"
+    recordId: "typo-pi-exponent-p146"
+    math:
+      kind: "math"
+      latex: "\\Pi \\cdot 10^7 = 4{,}3"
   - kind: "text"
     text: " Volt, welches Resultat der Größenordnung nach mit den Resultaten von Hrn. "
   - kind: "emphasis"

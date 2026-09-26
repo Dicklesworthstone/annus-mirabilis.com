@@ -98,8 +98,11 @@ inlines:
     latex: "A"
   - kind: "text"
     text: " bez. "
-  - kind: "math"
-    latex: "x"
+  - kind: "misprint"
+    recordId: "typo-x-for-alpha-p135"
+    math:
+      kind: "math"
+      latex: "x"
   - kind: "text"
     text: " besitzen, unabhängig ist. Mit je größerer Annäherung die Bedingung erfüllt ist, daß die einzelnen Paare von Größen "
   - kind: "math"
