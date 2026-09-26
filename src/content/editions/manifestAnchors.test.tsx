@@ -7,6 +7,7 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
+import { loadBilingualEdition } from "../../reader/faces/bilingualLoader.ts";
 import { PaperPage } from "../../reader/PaperPage.tsx";
 import { loadConcordanceForPaper } from "../notation/loader.ts";
 import { parseYaml } from "../provenance/yaml.ts";
@@ -41,7 +42,14 @@ async function faceIds(paper: string) {
 describe("the German face's anchors are the frozen manifest's ids", () => {
   for (const paper of PAPERS)
     test(`${paper}: every content anchor is a manifest id, or a declared alias to its block`, async () => {
-      const manifest = new Set(printedUnits(ROOT, paper).map((u) => u.id));
+      // A frozen sentence id is an anchor too: since dispatch 255 every German face renders its
+      // source blocks, whose sentence spans carry their manifest's sentence ids (relativity's
+      // always did), where the ledger draft's face had none.
+      const edition = await loadBilingualEdition(paper);
+      const manifest = new Set([
+        ...printedUnits(ROOT, paper).map((u) => u.id),
+        ...(edition?.blocks ?? []).flatMap((b) => b.sentenceSpans.map((span) => span.id)),
+      ]);
       const retired = retiredIds(paper);
       const ids = await faceIds(paper);
       // Not vacuous: the face has its paragraphs, displays and footnotes.

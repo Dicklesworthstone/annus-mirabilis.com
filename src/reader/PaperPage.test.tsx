@@ -158,9 +158,9 @@ describe("PaperPage", () => {
     expect(germanMarkup).not.toContain("Machine draft, not reviewed");
     expect(germanMarkup).toMatch(/[äöüßÄÖÜ]/);
 
-    // The compiled bilingual edition is still absent, so the blocks a reader sees come
-    // from the ledger rather than from source-block records.
-    expect(germanMarkup).not.toContain("source-blocks-list");
+    // Since dispatch 255 the blocks a reader sees are the source-block records, not the ledger
+    // draft's (germanFaceRendersEdition; mail 40854), and the draft's segment ids are gone.
+    expect(germanMarkup).toContain("source-blocks-list");
     expect(germanMarkup).not.toContain('id="bm-s4-p1"');
 
     // Same honest fallback holds on English, parallel, and gloss faces when the edition has no
@@ -262,12 +262,12 @@ describe("PaperPage", () => {
     expect(parallelMarkup).not.toContain("is not yet available");
   });
 
-  test("an edition of machine-draft blocks keeps the German draft face, with plates and chooser and no draft label; parallel uses the blocks", async () => {
-    // Blocks derived from a machine-draft ledger are still a machine draft. GermanFace carries no
-    // plates and no chooser, so the edition takes the German face over only when every block is
-    // reviewed (faceAvailability.ts germanFaceRendersEdition). mass-energy has a ledger draft, which
-    // is what the German face must keep showing. Neither face carries a draft label any more
-    // (D-2026-09-25-no-review-status-banners).
+  test("an edition of machine-draft blocks renders its German face from the blocks, with plates and chooser and no draft label; parallel uses the blocks", async () => {
+    // Until dispatch 255 blocks derived from a machine-draft ledger kept the ledger draft's face,
+    // for its plates and chooser, and the edition took the German face over only when every block
+    // was reviewed. GermanFace now carries both, and the draft face had no sentence spans or page
+    // turns, so the blocks render whenever there are any (germanFaceRendersEdition; mail 40854).
+    // Neither face carries a draft label (D-2026-09-25-no-review-status-banners).
     const asDraft = (b: SourceBlock): SourceBlock => ({
       ...b,
       status: { ...b.status, transcription: "draft", translation: "draft", review: "draft" },
@@ -280,15 +280,14 @@ describe("PaperPage", () => {
     };
     const paperId = "mass-energy";
     const german = renderToStaticMarkup(await PaperPage({ paperId, face: "german" }, { edition }));
-    expect(german).toContain("data-german-draft");
+    expect(german).not.toContain("data-german-draft");
     expect(german).not.toContain("data-source-draft-notice");
     expect(german).not.toContain("Machine draft, not reviewed");
     expect(german).toContain('class="source-plate"');
     expect(german).toContain('class="face-tabs"');
-    expect(german).not.toContain("source-blocks-list");
-    expect(german).not.toContain('id="me-p1"');
+    expect(german).toContain("source-blocks-list");
 
-    // One unreviewed block among reviewed ones is enough to keep the draft face.
+    // Nor does one unreviewed block among reviewed ones bring the draft face back.
     const mixed: BilingualEdition = {
       ...edition,
       blocks: FIXTURE_MASS_ENERGY_SOURCE_BLOCKS.map((b, i) => (i === 0 ? asDraft(b) : b)),
@@ -296,7 +295,8 @@ describe("PaperPage", () => {
     const mixedGerman = renderToStaticMarkup(
       await PaperPage({ paperId, face: "german" }, { edition: mixed }),
     );
-    expect(mixedGerman).toContain("data-german-draft");
+    expect(mixedGerman).not.toContain("data-german-draft");
+    expect(mixedGerman).toContain("source-blocks-list");
 
     // The control: the same blocks, all reviewed, take the German face over.
     const reviewed = renderToStaticMarkup(

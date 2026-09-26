@@ -125,16 +125,14 @@ describe("which German renderer: the edition's blocks, or the ledger draft", () 
   const block = (transcription: string, review: string) => ({ status: { transcription, review } });
   const reviewed = block("reviewed", "accepted");
 
-  test("the blocks take the German face over only when every one of them is reviewed", () => {
+  test("the blocks take the German face whenever there are any, reviewed or not (dispatch 255)", () => {
+    // Until dispatch 255 a machine-draft edition kept the draft face, for its draft label, plates
+    // and chooser. The label went with D-2026-09-25-no-review-status-banners, and GermanFace now
+    // carries the plates and the chooser, so review no longer chooses the renderer (mail 40854).
     expect(germanFaceRendersEdition([reviewed, block("reviewed", "reviewed")], 25)).toBe(true);
-    // A machine-draft edition keeps the draft face, which carries the label, plates and chooser.
-    expect(germanFaceRendersEdition([block("draft", "draft")], 25)).toBe(false);
-    // The negative a per-paper "any reviewed block" check fails: one draft block is enough.
-    expect(germanFaceRendersEdition([reviewed, block("draft", "draft")], 25)).toBe(false);
-    // Neither half alone is a reviewed text.
-    expect(germanFaceRendersEdition([block("proofed", "accepted")], 25)).toBe(false);
-    expect(germanFaceRendersEdition([block("reviewed", "in-progress")], 25)).toBe(false);
-    expect(germanFaceRendersEdition([{}], 25)).toBe(false);
+    expect(germanFaceRendersEdition([block("draft", "draft")], 25)).toBe(true);
+    expect(germanFaceRendersEdition([reviewed, block("draft", "draft")], 25)).toBe(true);
+    expect(germanFaceRendersEdition([{}], 25)).toBe(true);
   });
 
   test("with no draft to fall back on the blocks render; with no blocks they never do", () => {

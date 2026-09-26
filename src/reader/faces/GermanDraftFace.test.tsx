@@ -49,8 +49,9 @@ describe("the German face a reader is served", () => {
       expect(html).not.toContain("data-source-draft-persistent");
       expect(html).not.toContain(face.notice.label);
       expect(html).not.toContain(face.notice.body);
-      // The German text is what the column opens with.
-      expect(html.indexOf("data-german-draft")).toBeGreaterThan(-1);
+      // The German text is what the column opens with: since dispatch 255 the source blocks'
+      // (GermanFace), where it was the ledger draft's.
+      expect(html.indexOf("data-source-body")).toBeGreaterThan(-1);
     }
   });
 
@@ -63,7 +64,8 @@ describe("the German face a reader is served", () => {
       expect(face).not.toBeNull();
       if (!face) continue;
       const html = await germanMarkup(paperId);
-      const draft = html.slice(html.indexOf("data-german-draft"));
+      // The German text: since dispatch 255 the source blocks' (GermanFace), not the draft's.
+      const draft = html.slice(html.indexOf("data-source-body"));
       // KaTeX keeps each formula's TeX in a MathML <annotation> for assistive technology. That
       // is the formula's source for a screen reader, not text on the page, so it goes first.
       const visible = draft
@@ -75,13 +77,16 @@ describe("the German face a reader is served", () => {
       // Not vacuous: the two absences above mean something only because formulas are there.
       // One typeset display per equation block, and each equation's id on exactly one element,
       // so an anchor to it lands on the formula and nowhere else.
-      const equationIds = face.blocks.filter((b) => b.kind === "equation").map((b) => b.id);
+      const edition = await loadBilingualEdition(paperId);
+      const equationIds = (edition?.blocks ?? [])
+        .filter((b) => b.kind === "equation")
+        .map((b) => b.id);
       expect(equationIds.length).toBeGreaterThan(0);
       expect(draft.match(/class="katex-display"/g)?.length).toBe(equationIds.length);
       for (const id of equationIds) {
-        // Published under its frozen manifest id (manifestAnchors.ts), not its segment id.
-        const anchor = face.anchors.anchorOf[id] ?? id;
-        expect(html.split(`id="${anchor}"`).length - 1).toBe(1);
+        // Published under its frozen manifest id, which the source blocks carry. The id attribute
+        // itself: the same string also stands inside data-block-id="…" and data-equation-id="…".
+        expect(html.match(new RegExp(`(?<![-\\w])id="${id}"`, "g"))?.length).toBe(1);
       }
     }
   });
