@@ -50,13 +50,21 @@ describe("inline formulas on the reading faces", () => {
       }
   });
 
-  test("a paper not yet enforced is drawn as before, plain", async () => {
-    const html = await exportMarkup(
-      await PaperPage({ paperId: "special-relativity", face: "german" }),
-    );
-    const spans = [...html.matchAll(/<span class="inline-math"([^>]*)>/g)].map((m) => m[1] ?? "");
-    expect(spans.length).toBeGreaterThan(0);
-    expect(spans.filter((a) => a.includes("data-paper="))).toEqual([]);
+  test("a paper the build does not colour is drawn as before, plain", () => {
+    // Relativity was the example until it was enforced (dispatch 277); every paper with a reading
+    // face now is. The companion dissertation is not, and the build compiles none of its inline
+    // formulas, so one of them is drawn plain, with no paper for a colour rule to key on.
+    expect(ENFORCED_INLINE_PAPERS).not.toContain("molecular-dimensions");
+    const [plain] = renderInlines([{ kind: "math", latex: "k" }], {
+      terms: { paper: "molecular-dimensions", holder: "s1-p1" },
+    }) as ReactElement<Record<string, unknown>>[];
+    expect(plain?.props.className).toBe("inline-math");
+    expect(Object.keys(plain?.props ?? {})).not.toContain("data-paper");
+    // The positive control: a formula the build compiled for relativity's § 3 is drawn in colour.
+    const [coloured] = renderInlines([{ kind: "math", latex: "v" }], {
+      terms: { paper: "special-relativity", holder: "s3-p2" },
+    }) as ReactElement<Record<string, unknown>>[];
+    expect(coloured?.props["data-paper"]).toBe("special-relativity");
   });
 
   test("a plain inline formula carries no colour props at all, not even undefined ones", () => {

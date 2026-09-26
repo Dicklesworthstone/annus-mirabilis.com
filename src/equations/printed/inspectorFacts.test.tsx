@@ -181,13 +181,15 @@ describe("every printed term opens an inspector (dispatch 250)", () => {
     expect(frame?.notation?.every((n) => n.modernHtml === undefined)).toBe(true);
 
     // § 10's deflectabilities: the registry says the paper leaves their dimension open, and no
-    // table gives them a unit, so the dimension line says so and there is no unit row.
+    // table gives them a unit, so the dimension line says so and there is no unit row. The
+    // concordance reads the printed A_e in § 10 (p. 920, dispatch 277), so a "Here" row says what
+    // the letter means there.
     const deflect = at("special-relativity", "eq-s10-d9");
     expect(deflect?.facts.electricDeflectability?.dimension).toBe(DIMENSION_OPEN_IN_SOURCE);
     expect(deflect?.facts.electricDeflectability?.unit).toBeUndefined();
     expect(
       rowsOf(inspectorHtml(deflect as PrintedDisplayPayload, "electricDeflectability")),
-    ).toEqual(["What it is", "Dimension", "Value"]);
+    ).toEqual(["What it is", "Here", "Dimension", "Value"]);
 
     // A state variable's dimension is that of whichever coordinate it is.
     const state = DISPLAYS.flatMap((d) =>

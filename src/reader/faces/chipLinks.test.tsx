@@ -91,7 +91,12 @@ describe("a printed display's term chips without JavaScript", () => {
     expect(rows.length).toBeGreaterThan(0);
     const notation = await exportMarkup(await NotationPage());
     expect(notation).toContain("In the printed equations, without an entry of their own");
-    expect(notation).toContain('id="quantity-special-relativity-electricDeflectability"');
+    // Every such row the chips link to is on the page. (§ 10's deflectabilities were the example
+    // until dispatch 277 gave A_m and A_e concordance entries.)
+    const missing = [...new Set(rows)].filter(
+      (href) => !notation.includes(`id="${href.slice("/notation/#".length)}"`),
+    );
+    expect(missing).toEqual([]);
   });
 });
 

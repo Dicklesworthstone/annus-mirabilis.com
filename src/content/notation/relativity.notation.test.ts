@@ -188,7 +188,9 @@ describe("am-not-entries-relativity-f6e: special-relativity notation concordance
 
   test("Bindings: kappa at §5 binds speedDeficitFromLight", () => {
     const file = loadConcordanceForPaper(paper);
-    const res = resolveGlyph(paper, "sr-s5", "\\kappa", emptyManifestIndex, file);
+    // The plate of p. 906 prints the curled kappa (U+03F0), which the edition and the display
+    // eq-s5-d7 write \varkappa: the entry is found by the letter the paper prints.
+    const res = resolveGlyph(paper, "sr-s5", "\\varkappa", emptyManifestIndex, file);
     assert.ok(res.ok, "kappa in §5 must resolve");
     assert.ok("quantityId" in res.entry.binding);
     assert.equal(res.entry.binding.quantityId, "speedDeficitFromLight");
