@@ -100,8 +100,11 @@ inlines:
   - kind: "space"
   - kind: "text"
     text: "Auf der rechten Seite verschwindet wegen "
-  - kind: "math"
-    latex: "\\varphi(x) = \\varphi(-x)"
+  - kind: "misprint"
+    recordId: "typo-phi-argument-p557"
+    math:
+      kind: "math"
+      latex: "\\varphi(x) = \\varphi(-x)"
   - kind: "text"
     text: " das zweite, vierte etc. Glied, während von dem ersten, dritten, fünften etc. Gliede jedes folgende gegen das vorhergehende sehr klein ist."
   - kind: "space"

@@ -81,8 +81,11 @@ inlines:
   - kind: "space"
   - kind: "text"
     text: "Sei nämlich ein zweites System von unendlich kleinen Gebieten für die Teilchenschwerpunkte gegeben und bezeichnet durch "
-  - kind: "math"
-    latex: "d x'_1 d y'_1 d z'_2, d x'_2 d y'_2 d z'_2 \\ldots d x'_n d y'_n d z'_n"
+  - kind: "misprint"
+    recordId: "typo-dz-prime-subscript-p552"
+    math:
+      kind: "math"
+      latex: "d x'_1 d y'_1 d z'_2, d x'_2 d y'_2 d z'_2 \\ldots d x'_n d y'_n d z'_n"
   - kind: "text"
     text: ", welche Gebiete sich von den ursprünglich gegebenen nur durch ihre Lage, nicht aber durch ihre Größe unterscheiden mögen und ebenfalls alle in "
   - kind: "math"
