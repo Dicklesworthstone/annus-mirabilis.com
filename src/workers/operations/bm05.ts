@@ -29,6 +29,7 @@ import {
   WALK_KERNELS,
 } from "../../physics/reference/diffusion/walkLaws.ts";
 import {
+  HOST_WALK_DRAW_OWNER,
   observeWalks,
   recordWalks,
   type WalkExecutionOptions,
@@ -94,6 +95,15 @@ function notApplicable(id: string, reason: string): ScientificResult {
   };
 }
 const rename = (id: string, r: ScientificResult): ScientificResult => ({ ...r, quantityId: id });
+/**
+ * An output read straight from the draws: its registered owner when this reference drew them, and
+ * the drawing engine's owner when another did (protocol/bm05.ts admits only
+ * fs-wasm.philox_normals, and only for a Gaussian walk).
+ */
+function drawn(recording: WalkRecording, id: string, v: number | Float64Array): ScientificResult {
+  const r = number(id, v);
+  return recording.drawOwner === HOST_WALK_DRAW_OWNER ? r : { ...r, ownerId: recording.drawOwner };
+}
 export async function createBm05Recording(
   input: unknown,
   options: WalkExecutionOptions = {},
@@ -182,7 +192,7 @@ export async function measureBm05(
       number("elapsedTime", model.elapsedTime),
       number("samplingTerm", sampling),
       number("walkerCount", p.walkers),
-      number("walkPositions", samples),
+      drawn(recording, "walkPositions", samples),
     ];
     if (p.n === 0)
       for (const id of [
@@ -304,7 +314,7 @@ export async function measureBm05(
       for (let i = 0; i < Math.min(20, p.walkers); i++)
         traces[i * WALK_TRACE_POINTS + j] = recording.traceValues[i * (p.runSteps + 1) + step] ?? 0;
     }
-    outputs.push(number("traceTimes", times), number("traceDisplacements", traces));
+    outputs.push(number("traceTimes", times), drawn(recording, "traceDisplacements", traces));
     const indices = walkComparisonSteps(p),
       msd = new Float64Array(indices.length),
       theory = new Float64Array(indices.length),
@@ -379,9 +389,9 @@ export async function measureBm05(
       number("fixedRatioCoefficients", ratios),
     );
     outputs.push(
-      number("recordingDraws", recording.draws),
+      drawn(recording, "recordingDraws", recording.draws),
       number("requestDraws", (reused ? 0 : recording.draws) + replayed),
-      number("replayedDraws", replayed),
+      drawn(recording, "replayedDraws", replayed),
       number("reusedRecording", reused ? 1 : 0),
       number(
         "retainedBytes",

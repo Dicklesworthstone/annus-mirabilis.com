@@ -25,6 +25,10 @@ export type WalkSetup = Readonly<{
  */
 export type WalkRecording = Readonly<{
   setup: WalkSetup;
+  /** The engine that drew this walk's normals. A replay draws through it too, never another. */
+  normals: WalkNormalSource;
+  /** Who drew the steps: this reference, or the owner the normal source named on its draws. */
+  drawOwner: string;
   checkpoints: Map<number, Float64Array>;
   traceValues: Float64Array;
   protectedSteps: ReadonlySet<number>;
@@ -37,7 +41,35 @@ export type WalkExecutionOptions = Readonly<{
   chunkWork?: number;
   cancelled?: () => boolean;
   yieldControl?: () => Promise<void>;
+  /** Who draws a Gaussian walk's normals; this reference's Philox stream unless given. */
+  normals?: WalkNormalSource | undefined;
 }>;
+/** One walker's run of standard normals, named by whoever drew it. */
+export type WalkDraws = Readonly<{ values: Float64Array; ownerId: string; normalVersion: string }>;
+/**
+ * The standard normals of a walker's stream, `count` of them from step `startStep`: kernel
+ * BM05_ALLOCATION.streamKernelId, tile bm05Tile(walker), two draws per normal. The owner travels
+ * with the draws, so a source that hands back this reference's draws cannot name another engine.
+ */
+export type WalkNormalSource = Readonly<{
+  normals(seed: string, walker: number, startStep: number, count: number): Computation<WalkDraws>;
+}>;
+/** The draws' owner when this reference draws them, as BM-05's contracts register it. */
+export const HOST_WALK_DRAW_OWNER = "diffusion.recordWalks";
+export const HOST_WALK_NORMALS: WalkNormalSource = Object.freeze({
+  normals(seed: string, walker: number, startStep: number, count: number): Computation<WalkDraws> {
+    const rng = createPhiloxStream(
+      { seed, kernel: BM05_ALLOCATION.streamKernelId, tile: bm05Tile(walker) },
+      BigInt(startStep * WALK_KERNELS.gaussian.drawsPerStep),
+    );
+    const values = new Float64Array(count);
+    for (let i = 0; i < count; i++) values[i] = rng.nextNormal();
+    return {
+      kind: "accepted",
+      data: { values, ownerId: HOST_WALK_DRAW_OWNER, normalVersion: HOST_NORMAL_VERSION },
+    };
+  },
+});
 const invalid = (requirements: string): Computation<never> => ({
   kind: "refused",
   refusal: makeRefusal(
@@ -118,16 +150,48 @@ function execution(options: WalkExecutionOptions) {
       options.yieldControl ?? (() => new Promise<void>((resolve) => setTimeout(resolve, 0))),
   };
 }
-function sampler(p: WalkSetup, walker: number, startStep = 0) {
+type Sampler = Readonly<{ next: () => number; ownerId: string; normalVersion: string }>;
+/**
+ * A walker's steps from `startStep`. A coin or uniform step reads this reference's stream; a
+ * Gaussian step reads `count` normals from the given source, in one run.
+ */
+function sampler(
+  p: WalkSetup,
+  walker: number,
+  startStep: number,
+  count: number,
+  source: WalkNormalSource,
+): Computation<Sampler> {
+  const amplitude = p.stepRms,
+    halfWidth = Math.sqrt(3) * amplitude;
+  if (p.kernel === "gaussian") {
+    const drawn = source.normals(p.seed, walker, startStep, count);
+    if (drawn.kind !== "accepted") return drawn;
+    if (drawn.data.values.length !== count)
+      return failed("A normal source returned a different number of draws than asked for.");
+    const z = drawn.data.values;
+    let i = 0;
+    return {
+      kind: "accepted",
+      data: {
+        next: () => (z[i++] ?? Number.NaN) * amplitude,
+        ownerId: drawn.data.ownerId,
+        normalVersion: drawn.data.normalVersion,
+      },
+    };
+  }
   const rng = createPhiloxStream(
     { seed: p.seed, kernel: BM05_ALLOCATION.streamKernelId, tile: bm05Tile(walker) },
     BigInt(startStep * WALK_KERNELS[p.kernel].drawsPerStep),
   );
-  const amplitude = p.stepRms,
-    halfWidth = Math.sqrt(3) * amplitude;
-  if (p.kernel === "coin") return () => (rng.nextU64() >> 63n ? amplitude : -amplitude);
-  if (p.kernel === "uniform") return () => (2 * rng.nextF64() - 1) * halfWidth;
-  return () => rng.nextNormal() * amplitude;
+  const next =
+    p.kernel === "coin"
+      ? () => (rng.nextU64() >> 63n ? amplitude : -amplitude)
+      : () => (2 * rng.nextF64() - 1) * halfWidth;
+  return {
+    kind: "accepted",
+    data: { next, ownerId: HOST_WALK_DRAW_OWNER, normalVersion: HOST_NORMAL_VERSION },
+  };
 }
 export async function recordWalks(
   input: WalkSetup,
@@ -157,9 +221,19 @@ export async function recordWalks(
       .map((n) => [n, new Float64Array(p.walkers)]),
   );
   const traceValues = new Float64Array(Math.min(WALK_TRACE_COUNT, p.walkers) * (p.runSteps + 1));
+  const source = options.normals ?? HOST_WALK_NORMALS;
+  let drawOwner: string | null = null;
+  let normalVersion = HOST_NORMAL_VERSION;
   let work = 0;
   for (let walker = 0; walker < p.walkers; walker++) {
-    const next = sampler(p, walker);
+    const drawn = sampler(p, walker, 0, p.runSteps, source);
+    if (drawn.kind !== "accepted") return drawn;
+    // One walk, one producer: every walker's draws must name the same owner.
+    if (drawOwner !== null && drawn.data.ownerId !== drawOwner)
+      return failed("The walkers' draws name different producers; no partial trial was accepted.");
+    drawOwner = drawn.data.ownerId;
+    normalVersion = drawn.data.normalVersion;
+    const next = drawn.data.next;
     let x = 0;
     for (let n = 1; n <= p.runSteps; n++) {
       if (work % config.chunk === 0) {
@@ -183,11 +257,13 @@ export async function recordWalks(
     kind: "accepted",
     data: Object.freeze({
       setup: p,
+      normals: source,
+      drawOwner: drawOwner ?? HOST_WALK_DRAW_OWNER,
       checkpoints,
       traceValues,
       protectedSteps,
       allocationId: BM05_ALLOCATION.allocationId,
-      normalVersion: HOST_NORMAL_VERSION,
+      normalVersion,
       draws: work * WALK_KERNELS[p.kernel].drawsPerStep,
       retainedBytes:
         traceValues.byteLength +
@@ -232,7 +308,12 @@ export async function observeWalks(
     if (startX === undefined)
       return failed("A base checkpoint has fewer walker positions than expected.");
     let x = startX;
-    const next = sampler(p, walker, start);
+    // The replay draws through the recording's own engine, so it continues the same walk.
+    const drawn = sampler(p, walker, start, n - start, recording.normals);
+    if (drawn.kind !== "accepted") return drawn;
+    if (drawn.data.ownerId !== recording.drawOwner)
+      return failed("A replay's draws name a different producer than the recording's.");
+    const next = drawn.data.next;
     for (let step = start; step < n; step++) {
       if (work % config.chunk === 0) {
         if (options.cancelled?.()) return cancelled();
