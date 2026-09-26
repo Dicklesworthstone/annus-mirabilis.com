@@ -34,5 +34,11 @@
     "date": "2026-09-23",
     "verdict": "Superseded. The 2026-09-21 rebase autostash on a256e02c, 53 files: 26 byte-for-byte in HEAD, and 1448 of the 1515 non-trivial lines it added to the other 26 code files are verbatim in HEAD (the 27th is .beads/issues.jsonl, a generated export). The residue is prose HEAD has since rewritten, test names re-cited to new line numbers, and one lint workaround; no unlanded work.",
     "reviewedUnder": "am-8wv8"
+  },
+  {
+    "sha": "fad9de4f8b90377a3ee0a83a80fe45ea673a1ce5",
+    "date": "2026-09-26",
+    "verdict": "Superseded, never to apply. NavyKite's wt-254 verification-build stub: 2 lines in src/equations/printed/labInlines.ts replacing the registry import of isRegisteredQuantityId with an always-true function so a worktree bundle would build. The underlying defect (the registry's directory URL cannot be bundled) was fixed properly in 0bd55e6b, which reads registered ids from the generated map. No unlanded work.",
+    "reviewedUnder": "am-frankensim-repin-and-bind-jvhg"
   }
 ]
