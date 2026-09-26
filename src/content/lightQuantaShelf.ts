@@ -81,21 +81,43 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "equipartition-mean-resonator-energy",
     proposition:
-      "In thermal equilibrium the average energy of a vibrating degree of freedom is fixed by the temperature alone, independent of what is vibrating.",
+      "In thermal equilibrium the average kinetic energy belonging to each variable of a mechanical system is the same for every variable, whatever the system is made of, and two parts at the same temperature have the same average kinetic energy per variable.",
     status: "available",
     limits:
-      "A result of kinetic theory, developed over two decades rather than announced on one date. Dated here to the later of its two principal statements.",
+      "Maxwell states it for kinetic energy, and proves it on one assumption he names: that the system, left to itself, passes sooner or later through every state its energy allows. He gives cases where that fails. That a simple vibration also carries, on average, as much potential energy as kinetic, so that its whole energy is fixed by the temperature, is a further step of mechanics this card does not source. Maxwell credits the theorem to Boltzmann (Wiener Berichte 58, 1868). The card is dated by the 1890 reprint read here; the paper was first printed in the Cambridge Philosophical Society's Transactions, vol. XII, which was not read.",
     sources: [
-      { title: "Maxwell and Boltzmann on the partition of energy", date: "1860-1877", locator: "" },
+      {
+        title:
+          "On Boltzmann's Theorem on the average distribution of energy in a system of material points",
+        date: "1890",
+        locator:
+          "J. C. Maxwell, Scientific Papers, vol. II (Cambridge, 1890), p. 713; from Trans. Camb. Phil. Soc. 12",
+      },
     ],
     date: {
-      earliest: "1860",
-      latest: "1877",
-      precision: "range",
-      latestYear: 1877,
+      earliest: "1890",
+      latest: "1890",
+      precision: "year",
+      latestYear: 1890,
       eventKind: "published",
     },
     admittedStages: ["stage-03"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/scientificpapers02maxwuoft",
+        read: "page-image",
+        matched:
+          'Leaf 739 is p. 713: "[From the Cambridge Philosophical Society\'s Transactions, Vol. XII.] XCIV. On Boltzmann\'s Theorem on the average distribution of energy in a system of material points", naming Boltzmann\'s 1868 Sitzungsberichte paper. p. 714 (leaf 740): the only assumption is that the system passes through every phase consistent with the equation of energy, and "there are cases in which this does not take place". p. 726 (leaf 752): "the average kinetic energy corresponding to any one of the variables is the same for every one of the variables of the system". p. 727 (leaf 753): parts at the same temperature have the same average kinetic energy per variable. The catalog record gives Cambridge University Press, 1890; this scan lacks the title page\'s recto.',
+        differs: [
+          'The card\'s source was "Maxwell and Boltzmann on the partition of energy" with an empty locator, which names no publication. It now cites the paper read.',
+          "The proposition said the average ENERGY of a vibrating degree of freedom is fixed by temperature. Maxwell states it for kinetic energy per variable; the potential-energy step is now named in the limits as unsourced.",
+          "The date was 1860 to 1877. The reprint read is 1890; the original in Trans. Camb. Phil. Soc. 12 was not seen, so the card is dated by the reprint. Both are before 1905.",
+        ],
+      },
+    ],
   },
   {
     id: "boltzmann-1877-entropy-probability",
