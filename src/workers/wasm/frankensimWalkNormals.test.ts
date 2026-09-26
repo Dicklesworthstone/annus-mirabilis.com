@@ -95,7 +95,9 @@ function output(outputs: readonly Output[], id: string): Output {
   return o;
 }
 async function walk(p: Bm05Parameters, normals?: NormalSource) {
-  const options = normals ? { ...quiet, normals } : quiet;
+  // The source's type is walks.ts's WalkNormalSource; this file declares a looser one of its own so
+  // that it loaded before that type existed.
+  const options = (normals ? { ...quiet, normals } : quiet) as never;
   const recorded = await createBm05Recording(p, options);
   if (recorded.kind !== "accepted") throw new Error(`recording ${recorded.kind}`);
   const measured = await measureBm05(recorded.data, p, false, options);
@@ -193,7 +195,7 @@ describe("the label follows the draws", () => {
   test("a replay at an unrecorded step draws through the recording's own engine", async () => {
     const { adapter: a } = requireBinding();
     const source = a.frankensimWalkNormals(counted);
-    const options = { ...quiet, normals: source };
+    const options = { ...quiet, normals: source } as never;
     const recorded = await createBm05Recording(GAUSS, options);
     if (recorded.kind !== "accepted") throw new Error("recording");
     const before = moduleCalls;
