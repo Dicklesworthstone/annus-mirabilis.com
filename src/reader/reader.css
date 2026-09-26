@@ -1148,6 +1148,15 @@ html:is(
   flex-direction: column;
 }
 
+/* A gloss word is a flex item, whose smallest width is its content's: a formula wider than the
+   line made its word as wide, and the page 75px wider at 320 (40462). Held to the line, the word
+   lets the formula scroll inside it (.inline-math). */
+.gloss-pair,
+.gloss-atom,
+.gloss-pair-inner {
+  max-width: 100%;
+}
+
 .gloss-german {
   font-size: var(--type-body);
   font-family: var(--font-serif, serif);
@@ -2278,8 +2287,27 @@ html:is(
   border-bottom: 1px dotted var(--line);
 }
 
+/* AN INLINE FORMULA SCROLLS INSIDE ITS LINE (40462), as a display does (ce73734f). Brownian's
+   d x_1 d y_1 d z_1, ... d x_n d y_n d z_n has no break in it, is 309 to 345px wide, and widened
+   the English, parallel and gloss faces at 320 by 59, 21 and 75px.
+   - inline-flex, not inline-block: an inline-block that scrolls sits on its bottom edge, and lifted
+     every formula up to 12px off the line; an inline-flex takes its baseline from the formula.
+   - The padding gives KaTeX's glyph boxes room, since they reach up to about 4px past the
+     formula's own box: without it the clip cut primes and accents, and 244 small formulas such as
+     t_A scrolled by 1 to 5px, each a tab stop. The negative margins take the padding back out of
+     the line, so nothing moves.
+   - The cap allows for those margins: a box that sizes to the formula (a gloss word) gives it
+     100% of its own width, and a plain 100% left every gloss formula 0.3em short and scrolling.
+   On a build of ea854107 at 320, 8 of 2,856 formulas scroll, all Brownian's, and none moves off
+   the baseline (Chromium; WebKit agreed when the rule was injected into 716580b2). */
 .inline-math {
-  display: inline-block;
+  display: inline-flex;
+  box-sizing: border-box;
+  max-width: calc(100% + 0.3em);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.35em 0.15em;
+  margin: -0.35em -0.15em;
 }
 
 .cue-reasoning-marked {
