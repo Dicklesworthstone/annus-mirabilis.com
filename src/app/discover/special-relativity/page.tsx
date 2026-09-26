@@ -1,10 +1,19 @@
 import type { Metadata } from "next";
 import { ExercisePart } from "../../../components/discover/ExercisePart.tsx";
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
-import { SPECIAL_RELATIVITY_SHELF_CARDS } from "../../../content/specialRelativityShelf.ts";
+import {
+  SPECIAL_RELATIVITY_LATER_EVIDENCE,
+  SPECIAL_RELATIVITY_SHELF_CARDS,
+} from "../../../content/specialRelativityShelf.ts";
+import { KnowledgeCardView } from "../../../discovery/cards/KnowledgeCard.tsx";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { Fork } from "../../../discovery/Fork.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { MOVING_CLOCK_EXERCISE } from "../../../discovery/relativity/clockExercise.ts";
+import {
+  FORK_SOURCE_SPEED,
+  FORK_UNDETECTED_ETHER,
+} from "../../../discovery/relativity/journeyIII.ts";
 import { MOVING_ROD } from "../../../discovery/relativity/numericExercises.ts";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
@@ -114,6 +123,8 @@ export default function SpecialRelativityRoute() {
         </StepDoors>
       </section>
 
+      <Fork fork={FORK_UNDETECTED_ETHER} />
+
       <section id="step-03">
         <p className="step-number">03 / Make a prediction</p>
         <h2>Can you keep both of these at once?</h2>
@@ -140,6 +151,8 @@ export default function SpecialRelativityRoute() {
           </p>
         </details>
       </section>
+
+      <Fork fork={FORK_SOURCE_SPEED} />
 
       <section id="step-04">
         <p className="step-number">04 / Find the assumption</p>
@@ -278,6 +291,12 @@ export default function SpecialRelativityRoute() {
             Watch electric and magnetic fields change into each other
           </StepDoor>
         </StepDoors>
+        <section aria-labelledby="later-evidence-title">
+          <h3 id="later-evidence-title">Later evidence, not on the 1904 shelf</h3>
+          {SPECIAL_RELATIVITY_LATER_EVIDENCE.map((card) => (
+            <KnowledgeCardView key={card.id} card={card} />
+          ))}
+        </section>
       </section>
 
       <section id="shelf">
