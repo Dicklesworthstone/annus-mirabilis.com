@@ -831,6 +831,20 @@
   justify-content: center;
   margin: 0.25rem 0 0.75rem;
 }
+/* KaTeX stacks a fraction's numerator and denominator (and any stacked layout) in layered spans,
+   and in a printed display the layer over a denominator took the pointer: measured on live at
+   60839015, a pointer at the centre of a term's glyph reached the term for 32 of mass-energy's 54
+   visible terms, 234 of light quanta's 324, 195 of Brownian's 257 and 564 of relativity's 1,175.
+   The layers are transparent to the pointer and the terms are not, which reached all of them. The
+   explanation's formulas already reached every term (68 of 68, 189 of 189) and are not touched. */
+.printed-display-terms .katex .vlist,
+.printed-display-terms .katex .vlist > span,
+.printed-display-terms .katex .pstrut {
+  pointer-events: none;
+}
+.printed-display-terms .katex [data-quantity-id] {
+  pointer-events: auto;
+}
 .equation-legend > [role="listitem"] {
   display: inline-flex;
   align-items: baseline;
