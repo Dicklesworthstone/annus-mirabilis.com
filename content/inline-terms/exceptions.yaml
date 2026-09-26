@@ -1,0 +1,28 @@
+# Signs in the reading faces' inline formulas that name no quantity (dispatch 272), read by
+# src/equations/printed/paperInlines.ts (loadInlineExceptions) and passed to the inline resolver
+# (inlineTerms.ts). A sign listed here stays in the neutral ink; every other glyph of an inline
+# formula is bound through the paper's notation concordance, or the build refuses it by name.
+#
+# An exception applies only where the concordance has no reading of the glyph in that scope, so it
+# can never hide a quantity. Each says why. Scope is a list of sections or paragraph anchors, as in
+# the concordance, or "all" for every place the paper prints the sign.
+
+exceptions:
+  # Light quanta. π, d and δ have the reasons content/display-terms/light-quanta.yaml gives them
+  # for the printed displays, so the paper's inline formulas and its displays agree.
+  - paper: light-quanta
+    glyph: "\\pi"
+    scope: ["all"]
+    reason: "The number π, a constant of geometry and no quantity of the paper."
+  - paper: light-quanta
+    glyph: "d"
+    scope: ["all"]
+    reason: "The sign of a differential, as in d ν, d T, d E and d W: it takes a small change of what follows it."
+  - paper: light-quanta
+    glyph: "\\delta"
+    scope: ["all"]
+    reason: "The sign of a variation, in § 3's condition for the entropy's maximum (δ ρ)."
+  - paper: light-quanta
+    glyph: "x"
+    scope: ["lq-s1-fn3"]
+    reason: "A misprint for α, recorded as typo-x-for-alpha-p135 in docs/provenance/ap-17-132.md: the footnote defines no x, and its sentence ranges over the amplitudes A and the phases α only. The x is kept as printed and names no quantity."

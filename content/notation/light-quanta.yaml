@@ -17,7 +17,7 @@ entries:
   # =========================================================================
   - id: lq.R.molarGasConstant
     paper: light-quanta
-    scope: ["lq-s1", "lq-s2", "lq-s5", "lq-s6", "lq-s8", "lq-s9"]
+    scope: ["lq-s1", "lq-s2", "lq-s5", "lq-s6", "lq-s7", "lq-s8", "lq-s9"]
     glyph:
       unicode: "R"
       latex: "R"
@@ -36,13 +36,13 @@ entries:
       anchor: lq-s1-p3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 134 (public/figures/plates/pages/ap-17-132/134-1280.webp): glyph read by eye from the page image, not the text layer. Italic R, named 'die absolute Gaskonstante', first printed on page 134 (§1) beside the first display of R over N. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 134 (public/figures/plates/pages/ap-17-132/134-1280.webp): glyph read by eye from the page image, not the text layer. Italic R, named 'die absolute Gaskonstante', first printed on page 134 (§1) beside the first display of R over N. §7 prints it on page 144 in the size of an energy quantum, '(R/N) β ν' (checked 2026-09-26 by agent:NavyKite on the same plates). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
   - id: lq.N.avogadroConstant
     paper: light-quanta
-    scope: ["lq-s1", "lq-s2", "lq-s5", "lq-s6", "lq-s8", "lq-s9"]
+    scope: ["lq-s1", "lq-s2", "lq-s5", "lq-s6", "lq-s7", "lq-s8", "lq-s9"]
     glyph:
       unicode: "N"
       latex: "N"
@@ -70,7 +70,7 @@ entries:
       anchor: lq-s1-p3
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 134 (public/figures/plates/pages/ap-17-132/134-1280.webp): glyph read by eye from the page image, not the text layer. Italic N, first printed on page 134 (§1) as 'die Anzahl der wirklichen Moleküle in einem Grammäquivalent'; its value 6,17 · 10²³ is printed in §2 on page 137. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 134 (public/figures/plates/pages/ap-17-132/134-1280.webp): glyph read by eye from the page image, not the text layer. Italic N, first printed on page 134 (§1) as 'die Anzahl der wirklichen Moleküle in einem Grammäquivalent'; its value 6,17 · 10²³ is printed in §2 on page 137. §7 prints it on page 144 in the size of an energy quantum, '(R/N) β ν' (checked 2026-09-26 by agent:NavyKite on the same plates). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -155,7 +155,7 @@ entries:
 
   - id: lq.beta.wienConstant
     paper: light-quanta
-    scope: ["lq-s2", "lq-s6", "lq-s8", "lq-s9"]
+    scope: ["lq-s2", "lq-s6", "lq-s7", "lq-s8", "lq-s9"]
     glyph:
       unicode: "β"
       latex: "\\beta"
@@ -180,6 +180,8 @@ entries:
           anchor: lq-s2-p2
         - sectionId: lq-s6
           anchor: lq-s6-p1
+        - sectionId: lq-s7
+          anchor: lq-s7-p1
         - sectionId: lq-s8
           anchor: lq-s8-p2
         - sectionId: lq-s9
@@ -190,7 +192,7 @@ entries:
       anchor: lq-s2-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 136 (public/figures/plates/pages/ap-17-132/136-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 134 does not carry β. β is first printed on page 136 (§2), in the exponent of Planck's formula and as β = 4,866 · 10⁻¹¹. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 136 (public/figures/plates/pages/ap-17-132/136-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 134 does not carry β. β is first printed on page 136 (§2), in the exponent of Planck's formula and as β = 4,866 · 10⁻¹¹. §7 prints it on page 144, '(R/N) β ν' and the Stokes inequality below it (checked 2026-09-26 by agent:NavyKite). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
@@ -274,7 +276,7 @@ entries:
     scope: ["lq-s1", "lq-s2", "lq-s3", "lq-s4", "lq-s6"]
     glyph:
       unicode: "ρ_ν"
-      latex: "\\rho_\\nu"
+      latex: "\\varrho_\\nu"
       variant: plain
     meaning: "Energy per volume per frequency interval, not radiance"
     binding:
@@ -284,15 +286,90 @@ entries:
       target:
         form: symbol
         modernGlyph: "u_\\nu"
-    notes: "Energy density per unit frequency, never per unit wavelength. In §§3 and 4 the paper also prints ρ without the subscript (pages 137 to 139); that form has no entry of its own."
+    notes: "Energy density per unit frequency, never per unit wavelength. In §§3 and 4 the paper also prints ρ without the subscript (pages 137 to 139): lq.rho.frequencyEnergyDensity."
     sources:
       facsimilePage: 135
       anchor: lq-s1-p4
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 133 carries no mathematics. Greek rho with subscript ν is first printed on page 135 (§1), 'ρ_ν dν die Energie pro Volumeneinheit'. The plate's rho has a tail that curls to the left, the letterform LaTeX writes varrho; the letter is rho either way. §§3–4 print the same letter without the subscript (pages 137 to 139). An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 133 carries no mathematics. Greek rho with subscript ν is first printed on page 135 (§1), 'ρ_ν dν die Energie pro Volumeneinheit'. The plate's rho has a tail that curls to the left, the letterform LaTeX writes varrho; the letter is rho either way. §§3–4 print the same letter without the subscript (pages 137 to 139). The glyph's LaTeX is that letterform, \\varrho_\\nu, as the source blocks transcribe it; until 2026-09-26 it read \\rho_\\nu, which no printed formula matches (agent:NavyKite, dispatch 272). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
+
+  - id: lq.rho.frequencyEnergyDensity
+    paper: light-quanta
+    scope: ["lq-s3", "lq-s4"]
+    glyph:
+      unicode: "ρ"
+      latex: "\\varrho"
+      variant: plain
+    meaning: "Radiation density at each frequency: energy per volume per frequency interval, printed without its subscript"
+    binding:
+      quantityId: frequencyEnergyDensity
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "u_\\nu"
+    notes: "The same quantity as ρ with subscript ν in §§1 and 2, energy density per unit frequency. §§3 and 4 write it as ρ(ν), a function of the frequency, and as ρ alone."
+    sources:
+      facsimilePage: 137
+      anchor: lq-s3-p2
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 137 (public/figures/plates/pages/ap-17-132/137-1280.webp): glyph read by eye from the page image, not the text layer. Greek rho with a tail curling left, the letterform LaTeX writes varrho, is first printed without a subscript in §3 on page 137, 'wenn die Strahlungsdichte ρ(ν) für alle Frequenzen gegeben ist'; §3 prints it again on page 138 (δρ, ∂φ/∂ρ) and page 139 (ρ = 0), and §4 prints it on page 139 in Wien's law ρ = αν³e^(-βν/T). An agent check, not a human review; human review pending."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: lq.Ebar.meanResonatorEnergy
+    paper: light-quanta
+    scope: ["lq-s1"]
+    glyph:
+      unicode: "Ē"
+      latex: "\\overline{E}"
+      variant: plain
+    meaning: "Mean energy of one rectilinear oscillation of a resonator electron, from the kinetic theory of gases"
+    binding:
+      quantityId: meanResonatorEnergy
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\overline{E}"
+    notes: "The mean energy the kinetic theory of gases assigns to each of a resonator electron's three perpendicular oscillations, (R/N)T. Not the radiation energy E of §§3, 4 and 6."
+    sources:
+      facsimilePage: 134
+      anchor: lq-s1-p3
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 134 (public/figures/plates/pages/ap-17-132/134-1280.webp): glyph read by eye from the page image, not the text layer. Italic E with a bar over it is first printed in §1 on page 134, 'so finden wir für den Mittelwert Ē der Energie einer solchen geradlinigen Schwingungsbewegung', and in the display Ē = (R/N)T below it; the paragraph prints it twice more on page 134 and once on page 135. An agent check, not a human review; human review pending."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: lq.Ebar_nu.meanResonatorEnergyAtFrequency
+    paper: light-quanta
+    scope: ["lq-s1"]
+    glyph:
+      unicode: "Ē_ν"
+      latex: "\\overline{E}_\\nu"
+      variant: subscripted
+    meaning: "Mean energy of a resonator of eigenfrequency ν, per component of oscillation, in Planck's condition"
+    binding:
+      quantityId: meanResonatorEnergyAtFrequency
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\overline{E}_\\nu"
+    notes: "Planck's mean resonator energy at one frequency, set equal in §1 to the kinetic theory's Ē."
+    sources:
+      facsimilePage: 135
+      anchor: lq-s1-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. Italic E with a bar and subscript ν is first printed in §1 on page 135, in Planck's condition Ē_ν = (L³/8πν²) ρ_ν and in the sentence below it, 'Ē_ν ist hierbei die mittlere Energie eines Resonators von der Eigenfrequenz ν (pro Schwingungskomponente)'. An agent check, not a human review; human review pending."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
 
   - id: lq.phi.spectralEntropyDensity
     paper: light-quanta
@@ -586,6 +663,106 @@ entries:
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
+  - id: lq.S1.entropy
+    paper: light-quanta
+    scope: ["lq-s5"]
+    glyph:
+      unicode: "S₁"
+      latex: "S_1"
+      variant: subscripted
+    meaning: "Entropy of the first of two systems that do not interact"
+    binding:
+      quantityId: entropy
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "S_1"
+    notes: "§5 also names the two systems themselves by these letters ('Systeme S₁ und S₂'). Their sum is the entropy S of the two systems taken as one."
+    sources:
+      facsimilePage: 140
+      anchor: lq-s5-p2
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 140 (public/figures/plates/pages/ap-17-132/140-1280.webp): glyph read by eye from the page image, not the text layer. Italic S with subscript 1 is first printed in §5 on page 140, 'so ist die Entropie S₁ eines Systems eine Funktion der Wahrscheinlichkeit W₁ seines momentanen Zustandes'. An agent check, not a human review; human review pending."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: lq.S2.entropy
+    paper: light-quanta
+    scope: ["lq-s5"]
+    glyph:
+      unicode: "S₂"
+      latex: "S_2"
+      variant: subscripted
+    meaning: "Entropy of the second of two systems that do not interact"
+    binding:
+      quantityId: entropy
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "S_2"
+    notes: "§5 also names the two systems themselves by these letters ('Systeme S₁ und S₂'). Their sum is the entropy S of the two systems taken as one."
+    sources:
+      facsimilePage: 140
+      anchor: lq-s5-p2
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 140 (public/figures/plates/pages/ap-17-132/140-1280.webp): glyph read by eye from the page image, not the text layer. Italic S with subscript 2 is first printed in §5 on page 140, 'Liegen also zwei nicht miteinander in Wechselwirkung stehende Systeme S₁ und S₂ vor', where the letters name the systems by their entropies, and in the displays S₂ = φ₂(W₂) and S = S₁ + S₂ = φ(W). An agent check, not a human review; human review pending."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: lq.W1.configurationProbability
+    paper: light-quanta
+    scope: ["lq-s5"]
+    glyph:
+      unicode: "W₁"
+      latex: "W_1"
+      variant: subscripted
+    meaning: "Probability of the momentary state of the first of two systems"
+    binding:
+      quantityId: configurationProbability
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "W_1"
+    notes: "The two systems' probabilities multiply to the probability W of the two taken as one, W = W₁ · W₂, because their states are independent events."
+    sources:
+      facsimilePage: 140
+      anchor: lq-s5-p2
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 140 (public/figures/plates/pages/ap-17-132/140-1280.webp): glyph read by eye from the page image, not the text layer. Italic W with subscript 1 is first printed in §5 on page 140, 'eine Funktion der Wahrscheinlichkeit W₁ seines momentanen Zustandes'. An agent check, not a human review; human review pending."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: lq.W2.configurationProbability
+    paper: light-quanta
+    scope: ["lq-s5"]
+    glyph:
+      unicode: "W₂"
+      latex: "W_2"
+      variant: subscripted
+    meaning: "Probability of the momentary state of the second of two systems"
+    binding:
+      quantityId: configurationProbability
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "W_2"
+    notes: "The two systems' probabilities multiply to the probability W of the two taken as one, W = W₁ · W₂, because their states are independent events."
+    sources:
+      facsimilePage: 140
+      anchor: lq-s5-p2
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 140 (public/figures/plates/pages/ap-17-132/140-1280.webp): glyph read by eye from the page image, not the text layer. Italic W with subscript 2 is first printed in §5 on page 140, in the displays S₂ = φ₂(W₂) and W = W₁ · W₂. An agent check, not a human review; human review pending."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
   - id: lq.T.temperature
     paper: light-quanta
     scope: ["lq-s1", "lq-s2", "lq-s3", "lq-s4", "lq-s5", "lq-s6", "lq-s7", "lq-s8", "lq-s9"]
@@ -720,6 +897,56 @@ entries:
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
+  - id: lq.nu3.emittedFrequency
+    paper: light-quanta
+    scope: ["lq-s7"]
+    glyph:
+      unicode: "ν₃"
+      latex: "\\nu_3"
+      variant: subscripted
+    meaning: "Frequency of a further light quantum that the absorption of one exciting quantum may also produce"
+    binding:
+      quantityId: emittedFrequency
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\nu_3"
+    notes: "A frequency of light produced in photoluminescence, as ν₂ is: besides the quantum of frequency ν₂, the absorption may also produce quanta of frequencies ν₃, ν₄ and so on."
+    sources:
+      facsimilePage: 144
+      anchor: lq-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 144 (public/figures/plates/pages/ap-17-132/144-1280.webp): glyph read by eye from the page image, not the text layer. ν with subscript 3 is printed in §7 on page 144, 'eventuell können bei der Absorption des erzeugenden Lichtquants auch gleichzeitig Lichtquanten von den Frequenzen ν₃, ν₄ etc. … entstehen'. An agent check, not a human review; human review pending."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: lq.nu4.emittedFrequency
+    paper: light-quanta
+    scope: ["lq-s7"]
+    glyph:
+      unicode: "ν₄"
+      latex: "\\nu_4"
+      variant: subscripted
+    meaning: "Frequency of a further light quantum that the absorption of one exciting quantum may also produce"
+    binding:
+      quantityId: emittedFrequency
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\nu_4"
+    notes: "A frequency of light produced in photoluminescence, as ν₂ is: besides the quantum of frequency ν₂, the absorption may also produce quanta of frequencies ν₃, ν₄ and so on."
+    sources:
+      facsimilePage: 144
+      anchor: lq-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 144 (public/figures/plates/pages/ap-17-132/144-1280.webp): glyph read by eye from the page image, not the text layer. ν with subscript 4 is printed in §7 on page 144, 'eventuell können bei der Absorption des erzeugenden Lichtquants auch gleichzeitig Lichtquanten von den Frequenzen ν₃, ν₄ etc. … entstehen'. An agent check, not a human review; human review pending."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
   - id: lq.lg.logarithm
     paper: light-quanta
     scope: ["lq-s2", "lq-s3", "lq-s4", "lq-s5", "lq-s6", "lq-s8", "lq-s9"]
@@ -830,6 +1057,99 @@ entries:
       checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 132 carries no mathematics. α with subscript ν is printed in the footnote marked 2) of §1 on page 135 (the Fourier-series footnote), in the Fourier series; the footnote also prints the members α₁, α₂. An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
+
+  - id: lq.A.fourierAmplitude
+    paper: light-quanta
+    scope: ["lq-s1-fn3"]
+    glyph:
+      unicode: "A"
+      latex: "A"
+      variant: plain
+    meaning: "The Fourier amplitudes A_ν named together, without their index"
+    binding:
+      quantityId: fourierAmplitude
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "A"
+    notes: "The footnote's A, printed bare, names any one of the amplitudes A₁, A₂, …: 'einer der Größen A bez. α'."
+    sources:
+      facsimilePage: 135
+      anchor: lq-s1-fn3
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. Italic A without a subscript is printed twice in the footnote marked 2) of §1 on page 135, 'eines bestimmten Wertes einer der Größen A bez. α von den Werten, welche die anderen Größen A bez. x besitzen'. An agent check, not a human review; human review pending."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: lq.alpha.fourierPhase
+    paper: light-quanta
+    scope: ["lq-s1-fn3"]
+    glyph:
+      unicode: "α"
+      latex: "\\alpha"
+      variant: plain
+    meaning: "The Fourier phases α_ν named together, without their index"
+    binding:
+      quantityId: fourierPhase
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\alpha"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.alpha.wienConstant"]
+      collidesWithModern: ["wienConstantAlpha"]
+      firstUseAnchor: lq-s1-fn3
+      firstUseBySection:
+        - sectionId: lq-s1-fn3
+          anchor: lq-s1-fn3
+    notes: "An angle, one of the phases α₁, α₂, … of the footnote's Fourier series; not Wien's constant α of §2."
+    sources:
+      facsimilePage: 135
+      anchor: lq-s1-fn3
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. α without a subscript is printed once in the footnote marked 2) of §1 on page 135, 'einer der Größen A bez. α'. The same sentence's second 'A bez.' is followed by an italic x, a different sort from this α on the same line: the misprint typo-x-for-alpha-p135 in docs/provenance/ap-17-132.md. An agent check, not a human review; human review pending."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: lq.W.fourierValueProbability
+    paper: light-quanta
+    scope: ["lq-s1-fn3"]
+    glyph:
+      unicode: "W"
+      latex: "W"
+      variant: plain
+    meaning: "Statistical probability of a combination of values of the Fourier amplitudes and phases"
+    binding:
+      quantityId: fourierValueProbability
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "W"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["lq.W.configurationProbability"]
+      collidesWithModern: ["configurationProbability"]
+      firstUseAnchor: lq-s1-fn3
+      firstUseBySection:
+        - sectionId: lq-s1-fn3
+          anchor: lq-s1-fn3
+    notes: "The footnote writes its element d W, the d being the sign of a differential. Not §5's W, the probability of a volume configuration."
+    sources:
+      facsimilePage: 135
+      anchor: lq-s1-fn3
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 135 (public/figures/plates/pages/ap-17-132/135-1280.webp): glyph read by eye from the page image, not the text layer. Italic W is printed in the footnote marked 2) of §1 on page 135, '(statistische) Wahrscheinlichkeiten d W von der Form', and in the display d W = f(A₁ A₂ … α₁ α₂ …) dA₁ dA₂ … dα₁ dα₂ …. An agent check, not a human review; human review pending."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
 
   - id: lq.T.longAveragingInterval
     paper: light-quanta
@@ -980,7 +1300,7 @@ entries:
       variant: plain
     meaning: "Probability element in the §1 footnote"
     binding:
-      quantityId: configurationProbability
+      quantityId: fourierValueProbability
     operation:
       kind: rename
       target:

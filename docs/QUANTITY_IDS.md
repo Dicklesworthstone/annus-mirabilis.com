@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 303 quantities, 45 rejected spellings, 0 reserved spellings.
+Total: 304 quantities, 45 rejected spellings, 0 reserved spellings.
 
 ## Registered quantities
 
@@ -118,6 +118,7 @@ Total: 303 quantities, 45 rejected spellings, 0 reserved spellings.
 | finiteSpeedMassProxy | Finite-speed mass proxy | 0,1,0,0,0,0 | not-applicable | scalar | — |
 | fourierAmplitude | Fourier amplitude | 1,1,-3,0,-1,0 | not-applicable | scalar | — |
 | fourierPhase | Fourier phase | 0,0,0,0,0,0 | not-applicable | scalar | — |
+| fourierValueProbability | Probability of the Fourier values | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | frameSpeed | Frame speed | 1,0,-1,0,0,0 | not-applicable | scalar | observerSpeed |
 | freeEnergy | Free energy | 2,1,-2,0,0,0 | not-applicable | scalar | — |
 | frequency | Frequency | 0,0,-1,0,0,0 | not-applicable | scalar | — |

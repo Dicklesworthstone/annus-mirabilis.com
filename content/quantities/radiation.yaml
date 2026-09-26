@@ -556,6 +556,20 @@
   frame: not-applicable
   colorRole: field
 
+- id: fourierValueProbability
+  name: Probability of the Fourier values
+  description: >
+    Paper 1 section 1 footnote's W, the statistical probability that the Fourier amplitudes
+    A_nu and phases alpha_nu of the radiation's electric force take a given combination of
+    values; the footnote writes its element d W. Distinct from configurationProbability,
+    section 5's probability of a volume configuration.
+  dimensionStatus: declared
+  dimension: [0, 0, 0, 0, 0, 0]
+  dimensionlessKind: probability
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: statistical
+
 - id: longAveragingInterval
   name: Long averaging interval
   description: >

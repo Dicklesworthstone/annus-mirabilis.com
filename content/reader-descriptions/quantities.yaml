@@ -44,6 +44,7 @@ quantities:
   fieldTimeCoordinate: "The time at which the distribution of the particles is read, counted from the instant when every particle is at its starting point."
   fourierAmplitude: "The strength of one frequency component, when a varying electric force is split into regular oscillations of many frequencies."
   fourierPhase: "Where in its cycle one frequency component starts, when a varying electric force is split into regular oscillations of many frequencies."
+  fourierValueProbability: "How probable it is that the strengths and starting points of all the frequency components of the radiation's electric force take one given set of values."
   frameSpeed: "The speed at which one coordinate system moves relative to the other, along their common x-axis."
   freeEnergy: "The free energy of a system, its energy minus its temperature times its entropy: the most work it can do at a fixed temperature."
   frequency: "How many oscillations occur each second."
