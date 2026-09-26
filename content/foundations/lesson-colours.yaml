@@ -1,0 +1,205 @@
+# Lesson formulas read against their lessons (dispatch 275).
+#
+# A lesson's inline formula is coloured only where it is listed under `coloured`: its paper and
+# section are a backlink of the lesson (an argument passage that names it), every atom resolves there
+# (src/equations/printed/inlineTerms.ts over modernScope.ts), and each binding was read against the
+# lesson and found to mean that quantity. Resolving is not the same as being right: a lesson is a
+# general tool, so its x in cosh x resolves to the relativity paper's coordinate and is not it.
+# Those are listed under `plain`, each with its reason, and stay in the ink. Every other lesson
+# formula stays in the ink with a reason the page states (src/components/foundations/lessonFormulas.ts).
+#
+# The colour is the lessons' own palette (data-paper="foundations"), so a quantity is one colour on
+# a lesson page, in its equation records and its prose alike.
+#
+# Reviewed by TopazPrairie (agent) on 2026-09-26, binding by binding; not a human review.
+coloured:
+  - lesson: conservation-symmetry
+    latex: "L/2"
+    paper: mass-energy
+    section: s0
+    reads: "L=emittedEnergyRestFrame"
+  - lesson: conservation-symmetry
+    latex: "L/2 + L/2 = L"
+    paper: mass-energy
+    section: s0
+    reads: "L=emittedEnergyRestFrame, L=emittedEnergyRestFrame, L=emittedEnergyRestFrame"
+  - lesson: conservation-symmetry
+    latex: "\\frac{L}{2}\\gamma\\left(1 - \\frac{v}{c}\\right) = 0.5L \\times 1.25 \\times 0.4 = 0.25L"
+    paper: mass-energy
+    section: s0
+    reads: "L=emittedEnergyRestFrame, \\gamma=lorentzFactor, v=frameSpeed, c=speedOfLight, L=emittedEnergyRestFrame, L=emittedEnergyRestFrame"
+  - lesson: conservation-symmetry
+    latex: "0.5L \\times 1.25 \\times 1.6 = L"
+    paper: mass-energy
+    section: s0
+    reads: "L=emittedEnergyRestFrame, L=emittedEnergyRestFrame"
+  - lesson: conservation-symmetry
+    latex: "1.25L = \\gamma L"
+    paper: mass-energy
+    section: s0
+    reads: "L=emittedEnergyRestFrame, \\gamma=lorentzFactor, L=emittedEnergyRestFrame"
+  - lesson: entropy-multiplicity
+    latex: "k_B"
+    paper: brownian-motion
+    section: s2
+    reads: "k_B=boltzmannConstant"
+  - lesson: entropy-multiplicity
+    latex: "k_B"
+    paper: brownian-motion
+    section: s2
+    reads: "k_B=boltzmannConstant"
+  - lesson: entropy-multiplicity
+    latex: "k_B"
+    paper: brownian-motion
+    section: s2
+    reads: "k_B=boltzmannConstant"
+  - lesson: hyperbolic-functions-rapidity
+    latex: "\\gamma v/c"
+    paper: special-relativity
+    section: s5
+    reads: "\\gamma=lorentzFactor, v=frameSpeed, c=speedOfLight"
+  - lesson: hyperbolic-functions-rapidity
+    latex: "U = (v + w)/(1 + vw/c^2)"
+    paper: special-relativity
+    section: s5
+    reads: "U=velocityComposed, v=frameSpeed, w=velocityInMovingFrame, v=frameSpeed, w=velocityInMovingFrame, c=speedOfLight"
+  - lesson: hyperbolic-functions-rapidity
+    latex: "v/c = 0.6"
+    paper: special-relativity
+    section: s5
+    reads: "v=frameSpeed, c=speedOfLight"
+  - lesson: hyperbolic-functions-rapidity
+    latex: "\\gamma v/c"
+    paper: special-relativity
+    section: s5
+    reads: "\\gamma=lorentzFactor, v=frameSpeed, c=speedOfLight"
+  - lesson: hyperbolic-functions-rapidity
+    latex: "15c/17"
+    paper: special-relativity
+    section: s5
+    reads: "c=speedOfLight"
+  - lesson: hyperbolic-functions-rapidity
+    latex: "U = 1.2c/1.36"
+    paper: special-relativity
+    section: s5
+    reads: "U=velocityComposed, c=speedOfLight"
+  - lesson: matrices-linear-maps
+    latex: "t' = \\gamma(t - vx/c^2)"
+    paper: special-relativity
+    section: s3
+    reads: "t'=coordinateTimeMoving, \\gamma=lorentzFactor, t=coordinateTimeStationary, v=frameSpeed, x=coordinatePositionStationary, c=speedOfLight"
+  - lesson: matrices-linear-maps
+    latex: "\\gamma = 1/\\sqrt{1 - v^2/c^2}"
+    paper: special-relativity
+    section: s3
+    reads: "\\gamma=lorentzFactor, v=frameSpeed, c=speedOfLight"
+  - lesson: matrices-linear-maps
+    latex: "x = ct"
+    paper: special-relativity
+    section: s3
+    reads: "x=coordinatePositionStationary, c=speedOfLight, t=coordinateTimeStationary"
+  - lesson: matrices-linear-maps
+    latex: "x = -ct"
+    paper: special-relativity
+    section: s3
+    reads: "x=coordinatePositionStationary, c=speedOfLight, t=coordinateTimeStationary"
+  - lesson: matrices-linear-maps
+    latex: "t' = t"
+    paper: special-relativity
+    section: s3
+    reads: "t'=coordinateTimeMoving, t=coordinateTimeStationary"
+  - lesson: matrices-linear-maps
+    latex: "x = ct"
+    paper: special-relativity
+    section: s3
+    reads: "x=coordinatePositionStationary, c=speedOfLight, t=coordinateTimeStationary"
+  - lesson: quantities-units
+    latex: "\\rho_\\nu"
+    paper: light-quanta
+    section: s1
+    reads: "\\rho_\\nu=frequencyEnergyDensity"
+  - lesson: quantities-units
+    latex: "k_BT"
+    paper: light-quanta
+    section: s1
+    reads: "k_B=boltzmannConstant, T=temperature"
+  - lesson: temperature-thermal-energy
+    latex: "k_B"
+    paper: light-quanta
+    section: s1
+    reads: "k_B=boltzmannConstant"
+  - lesson: temperature-thermal-energy
+    latex: "k_BT"
+    paper: light-quanta
+    section: s1
+    reads: "k_B=boltzmannConstant, T=temperature"
+  - lesson: temperature-thermal-energy
+    latex: "k_BT"
+    paper: light-quanta
+    section: s1
+    reads: "k_B=boltzmannConstant, T=temperature"
+  - lesson: temperature-thermal-energy
+    latex: "\\frac{1}{2} k_BT"
+    paper: light-quanta
+    section: s1
+    reads: "k_B=boltzmannConstant, T=temperature"
+  - lesson: two-measurements-two-unknowns
+    latex: "a^3 N"
+    paper: brownian-motion
+    section: s5
+    reads: "a=particleRadius, N=avogadroConstant"
+  - lesson: two-measurements-two-unknowns
+    latex: "a^2"
+    paper: brownian-motion
+    section: s5
+    reads: "a=particleRadius"
+  - lesson: unit-system-1905
+    latex: "\\gamma(E_y - vB_z)"
+    paper: special-relativity
+    section: s6
+    reads: "\\gamma=lorentzFactor, E_y=electricFieldStationary, v=frameSpeed, B_z=magneticFieldStationary"
+  - lesson: vectors-components
+    latex: "(0.6c, 0)"
+    paper: special-relativity
+    section: s6
+    reads: "c=speedOfLight"
+  - lesson: vectors-components
+    latex: "(0.6c, 0)"
+    paper: special-relativity
+    section: s6
+    reads: "c=speedOfLight"
+  - lesson: vectors-components
+    latex: "0.6c \\times 0.8 = 0.48c"
+    paper: special-relativity
+    section: s6
+    reads: "c=speedOfLight, c=speedOfLight"
+  - lesson: vectors-components
+    latex: "-0.6c \\times 0.6 = -0.36c"
+    paper: special-relativity
+    section: s6
+    reads: "c=speedOfLight, c=speedOfLight"
+plain:
+  - lesson: hyperbolic-functions-rapidity
+    latex: "\\operatorname{cosh}x"
+    reason: "x here is any number the function is taken of, not the relativity paper's coordinate x."
+  - lesson: hyperbolic-functions-rapidity
+    latex: "\\operatorname{sinh}x"
+    reason: "x here is any number the function is taken of, not the relativity paper's coordinate x."
+  - lesson: hyperbolic-functions-rapidity
+    latex: "\\operatorname{cosh}^2 x - \\operatorname{sinh}^2 x = 1"
+    reason: "x here is any number the identity holds for, not the relativity paper's coordinate x."
+  - lesson: hyperbolic-functions-rapidity
+    latex: "v/c = \\operatorname{tanh}\\varphi"
+    reason: "φ is the rapidity, which the relativity paper does not print; its φ is a propagation angle, so the formula stays in the ink rather than colour the rapidity as an angle."
+  - lesson: hyperbolic-functions-rapidity
+    latex: "\\operatorname{cosh}\\varphi"
+    reason: "φ is the rapidity, which the relativity paper does not print; its φ is a propagation angle, so the formula stays in the ink rather than colour the rapidity as an angle."
+  - lesson: hyperbolic-functions-rapidity
+    latex: "\\operatorname{sinh}\\varphi"
+    reason: "φ is the rapidity, which the relativity paper does not print; its φ is a propagation angle, so the formula stays in the ink rather than colour the rapidity as an angle."
+  - lesson: hyperbolic-functions-rapidity
+    latex: "\\varphi = \\frac12\\ln\\frac{1 + 0.6}{1 - 0.6} = \\frac12\\ln 4 = \\ln 2 = 0.6931"
+    reason: "φ is the rapidity, which the relativity paper does not print; its φ is a propagation angle, so the formula stays in the ink rather than colour the rapidity as an angle."
+  - lesson: matrices-linear-maps
+    latex: "q = -v"
+    reason: "q is an entry of the transformation's table (p, q, r, s), not the relativity paper's Doppler factor."

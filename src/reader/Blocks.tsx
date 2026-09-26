@@ -1,6 +1,7 @@
 import { Formula } from "../components/edition/Formula";
 import { foundationConstructionId } from "../components/foundations/constructionIds.ts";
 import { LazyFoundationConstruction } from "../components/foundations/LazyFoundationConstruction.tsx";
+import { LessonMathText } from "../components/foundations/LessonMathText.tsx";
 import "../components/foundations/foundations.css";
 import { type HeadingLevel, headingTag } from "../components/foundations/headingLevel.ts";
 import type { Block, Foundation } from "../content/schemas/reading";
@@ -38,6 +39,7 @@ export function ReadingBlocks({
   contextLabel,
   equations,
   scope,
+  lesson,
 }: {
   blocks: readonly Block[];
   foundations: readonly Foundation[];
@@ -47,6 +49,11 @@ export function ReadingBlocks({
   equations?: ReadonlyMap<string, CompiledEquation> | undefined;
   /** An explanation passage's scope, so its inline formulas are coloured (dispatch 273). */
   scope?: ExplanationScope | undefined;
+  /**
+   * The lesson these blocks belong to: its inline formulas are then decided by lessonFormulas.ts
+   * (dispatch 275), coloured where the lesson means a paper's quantity and otherwise saying why.
+   */
+  lesson?: string | undefined;
 }) {
   return (
     <>
@@ -54,7 +61,11 @@ export function ReadingBlocks({
         if (block.kind === "paragraph")
           return (
             <p key={`p-${block.text}`}>
-              <InlineMathText text={block.text} scope={scope} />
+              {lesson ? (
+                <LessonMathText text={block.text} lesson={lesson} />
+              ) : (
+                <InlineMathText text={block.text} scope={scope} />
+              )}
             </p>
           );
         if (block.kind === "formula") {
@@ -66,7 +77,17 @@ export function ReadingBlocks({
           const coloured = named.length > 0 && named.length === block.equations?.length;
           return (
             <div key={`formula-${block.latex}`}>
-              {coloured ? <ColouredFormula equations={named} /> : <Formula latex={block.latex} />}
+              {coloured ? (
+                <ColouredFormula equations={named} />
+              ) : lesson ? (
+                // A lesson's formula block with no equation record binds no symbol to a quantity,
+                // so it is drawn in the ink and says so (dispatch 275).
+                <div data-formula-plain="a formula block that names no equation record, so none of its symbols is bound to a quantity">
+                  <Formula latex={block.latex} />
+                </div>
+              ) : (
+                <Formula latex={block.latex} />
+              )}
               <p className="spoken-math">{block.spoken}</p>
             </div>
           );
@@ -76,7 +97,11 @@ export function ReadingBlocks({
             <ol className="derivation-steps" key={`steps-${block.items.join("|")}`}>
               {block.items.map((item) => (
                 <li key={item}>
-                  <InlineMathText text={item} scope={scope} />
+                  {lesson ? (
+                    <LessonMathText text={item} lesson={lesson} />
+                  ) : (
+                    <InlineMathText text={item} scope={scope} />
+                  )}
                 </li>
               ))}
             </ol>
@@ -153,6 +178,7 @@ export function FoundationBody({
           blocks={foundation.explanation}
           foundations={foundations}
           equations={LESSON_EQUATIONS}
+          lesson={foundation.id}
         />
       </section>
       <section className="foundation-part">
@@ -172,6 +198,7 @@ export function FoundationBody({
           blocks={foundation.example}
           foundations={foundations}
           equations={LESSON_EQUATIONS}
+          lesson={foundation.id}
         />
       </section>
       {foundationConstructionId(foundation.id) && (
@@ -195,6 +222,7 @@ export function FoundationBody({
             blocks={section.body}
             foundations={foundations}
             equations={LESSON_EQUATIONS}
+            lesson={foundation.id}
           />
         </section>
       ))}
