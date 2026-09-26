@@ -117,7 +117,7 @@ export function EnglishFace({
       {/* The reader's measure and type step, as the German face reads (readingSettings.css
           .reading-column): at 1440 the English ran 1,256px at 19px, 186 to 200 characters a line,
           beside a German face at 666px and 22.8px (dispatch 210). */}
-      <main className="translation-units-list reading-column" data-translation-body>
+      <div className="translation-units-list reading-column" data-translation-body>
         <TranslationParagraphs
           units={bodyUnits}
           alignment={alignment}
@@ -126,7 +126,7 @@ export function EnglishFace({
           editorialNotes={editorialNotes}
           footnoteUnits={footnoteUnits}
         />
-      </main>
+      </div>
 
       <AlignmentController index={alignmentIndex} />
     </div>

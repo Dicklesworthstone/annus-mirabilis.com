@@ -212,7 +212,7 @@ export function GermanFace({
             </p>
           ) : null}
 
-          <main className="source-blocks-list" data-source-body data-face-source="true">
+          <div className="source-blocks-list" data-source-body data-face-source="true">
             {mainBlocks.map((block) => (
               <Fragment key={block.id}>
                 {aliasesOf(block)}
@@ -220,7 +220,7 @@ export function GermanFace({
                 {explained(block.id)}
               </Fragment>
             ))}
-          </main>
+          </div>
 
           {/* Anchored: a passage's list of printed paragraphs links a footnote by its own id, and a
             footnote carries its "Explained in" or "Not yet explained" line as a paragraph does. */}

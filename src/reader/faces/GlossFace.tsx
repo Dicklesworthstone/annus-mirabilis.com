@@ -268,7 +268,7 @@ export function GlossFace({
       )}
 
       {/* Main Blocks Stream */}
-      <main className="gloss-face-content">
+      <div className="gloss-face-content">
         {pageBlocks.map((block) => {
           // Footnotes are collected into their own glossed list below.
           if (block.kind === "footnote") return null;
@@ -361,7 +361,7 @@ export function GlossFace({
             />
           );
         })}
-      </main>
+      </div>
 
       {/* Footnotes, each glossed as one unit under its block id. No backlink: this face renders
           no footnote marks, so a link back to one would name an id the page lacks. */}
