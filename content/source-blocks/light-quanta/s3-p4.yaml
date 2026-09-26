@@ -119,3 +119,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 139
+    startsWith: "aus der Funktion"

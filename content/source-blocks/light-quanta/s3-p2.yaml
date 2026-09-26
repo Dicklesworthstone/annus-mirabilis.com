@@ -102,3 +102,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 138
+    startsWith: "bedeutet. Es kann"

@@ -42,3 +42,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 144
+    startsWith: "Erzeugung und Verwandlung des Lichtes so"

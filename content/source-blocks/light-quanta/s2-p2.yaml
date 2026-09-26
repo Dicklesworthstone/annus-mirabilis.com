@@ -134,3 +134,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 137
+    startsWith: "Man erkennt, daß diese Formel"

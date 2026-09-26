@@ -38,3 +38,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 133
+    startsWith: "Experiment wohl denkbar"

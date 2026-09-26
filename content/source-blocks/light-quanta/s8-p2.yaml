@@ -104,3 +104,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 146
+    startsWith: "versehenes Elektron wird"

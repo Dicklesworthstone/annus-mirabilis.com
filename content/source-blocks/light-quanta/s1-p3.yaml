@@ -112,3 +112,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 135
+    startsWith: "und Molekülen zu einer"

@@ -94,3 +94,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 141
+    startsWith: "Die letztere Beziehung"

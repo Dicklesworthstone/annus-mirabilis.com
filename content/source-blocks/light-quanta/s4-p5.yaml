@@ -44,3 +44,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 140
+    startsWith: "soeben gefundene Gleichung"
