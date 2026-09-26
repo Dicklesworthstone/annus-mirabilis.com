@@ -207,7 +207,7 @@ export function FacsimilePanel({
         </p>
       )}
       <details className="facsimile-reader-provenance">
-        <summary>Source identity and limits of verification</summary>
+        <summary>Source identity</summary>
         <dl>
           <dt>Source record</dt>
           <dd>{document.key}</dd>
@@ -252,8 +252,7 @@ export function FacsimilePanel({
         </dl>
         <p>
           This build checked the served file against this digest and checked the recorded page-map
-          arithmetic. Matching bytes are not a review of a transcription, translation, or historical
-          claim. The source inventory is navigation metadata, not the original text.
+          arithmetic. The source inventory is navigation metadata, not the original text.
         </p>
       </details>
       <h2>What is on each printed page</h2>
