@@ -35,7 +35,15 @@ inlines:
     text: "Auch diese Elektronen sollen mit den freien Molekülen und Elektronen in konservative Wechselwirkung treten, wenn ihnen letztere sehr nahe kommen."
   - kind: "space"
   - kind: "text"
-    text: "Wir nennen die an Raumpunkte geketteten Elektronen „Resonatoren“; sie senden elektromagnetische Wellen bestimmter Periode aus und absorbieren solche."
+    text: "Wir nennen die an Raumpunkte geketteten Elektronen „"
+  - kind: "term"
+    text: "Resonatoren"
+    termId: "term-resonatoren"
+    definition: "Resonators: Einstein defines them in this sentence as electrons bound to fixed points in space by forces proportional to their displacement, which emit and absorb electromagnetic waves of a definite period. They are the kind of emitter Planck's radiation theory used, not the hollow cavities or tuned circuits the word suggests today."
+    lang: "de"
+    definitionLang: "en"
+  - kind: "text"
+    text: "“; sie senden elektromagnetische Wellen bestimmter Periode aus und absorbieren solche."
 sentenceSpans:
   - id: "s1-p1-s1"
     span:

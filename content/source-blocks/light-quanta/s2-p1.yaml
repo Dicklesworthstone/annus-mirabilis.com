@@ -18,7 +18,15 @@ inlines:
       - kind: "text"
         text: "Planck"
   - kind: "text"
-    text: " gegebene Bestimmung der Elementarquanta von der von ihm aufgestellten Theorie der „schwarzen Strahlung“ bis zu einem gewissen Grade unabhängig ist."
+    text: " gegebene Bestimmung der "
+  - kind: "term"
+    text: "Elementarquanta"
+    termId: "term-elementarquanta"
+    definition: "Elementary quanta: the smallest quantities of matter and electricity, such as the mass of one atom, which Planck had obtained from the constants of his radiation formula. In this section Einstein recovers the hydrogen atom's mass, 1/N gram, from the long-wave limit of that formula. The word concerns atoms and charge, not the light quanta of this paper."
+    lang: "de"
+    definitionLang: "en"
+  - kind: "text"
+    text: " von der von ihm aufgestellten Theorie der „schwarzen Strahlung“ bis zu einem gewissen Grade unabhängig ist."
 sentenceSpans:
   - id: "s2-p1-s1"
     span:

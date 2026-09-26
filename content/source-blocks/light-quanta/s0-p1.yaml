@@ -12,7 +12,15 @@ locators:
 diplomaticText: "Zwischen den theoretischen Vorstellungen, welche sich die Physiker über die Gase und andere ponderable Körper gebildet haben, und der Maxwellschen Theorie der elektromagnetischen Prozesse im sogenannten leeren Raume besteht ein tiefgreifender formaler Unterschied. Während wir uns nämlich den Zustand eines Körpers durch die Lagen und Geschwindigkeiten einer zwar sehr großen, jedoch endlichen Anzahl von Atomen und Elektronen für vollkommen bestimmt ansehen, bedienen wir uns zur Bestimmung des elektromagnetischen Zustandes eines Raumes kontinuierlicher räumlicher Funktionen, so daß also eine endliche Anzahl von Größen nicht als genügend anzusehen ist zur vollständigen Festlegung des elektromagnetischen Zustandes eines Raumes. Nach der Maxwellschen Theorie ist bei allen rein elektromagnetischen Erscheinungen, also auch beim Licht, die Energie als kontinuierliche Raumfunktion aufzufassen, während die Energie eines ponderabeln Körpers nach der gegenwärtigen Auffassung der Physiker als eine über die Atome und Elektronen erstreckte Summe darzustellen ist. Die Energie eines ponderabeln Körpers kann nicht in beliebig viele, beliebig kleine Teile zerfallen, während sich die Energie eines von einer punktförmigen Lichtquelle ausgesandten Lichtstrahles nach der Maxwellschen Theorie (oder allgemeiner nach jeder Undulationstheorie) des Lichtes auf ein stets wachsendes Volumen sich kontinuierlich verteilt."
 inlines:
   - kind: "text"
-    text: "Zwischen den theoretischen Vorstellungen, welche sich die Physiker über die Gase und andere ponderable Körper gebildet haben, und der "
+    text: "Zwischen den theoretischen Vorstellungen, welche sich die Physiker über die Gase und andere "
+  - kind: "term"
+    text: "ponderable"
+    termId: "term-ponderabel"
+    definition: "Ponderable: having weight. The word sets ordinary matter, gases, liquids and solids, whose state is fixed by a finite number of atoms and electrons, apart from the electromagnetic field of Maxwell's theory in so-called empty space, which needs continuous functions of position."
+    lang: "de"
+    definitionLang: "en"
+  - kind: "text"
+    text: " Körper gebildet haben, und der "
   - kind: "emphasis"
     inlines:
       - kind: "text"
@@ -39,7 +47,15 @@ inlines:
       - kind: "text"
         text: "Maxwell"
   - kind: "text"
-    text: "schen Theorie (oder allgemeiner nach jeder Undulationstheorie) des Lichtes auf ein stets wachsendes Volumen sich kontinuierlich verteilt."
+    text: "schen Theorie (oder allgemeiner nach jeder "
+  - kind: "term"
+    text: "Undulationstheorie"
+    termId: "term-undulationstheorie"
+    definition: "Undulation theory: a wave theory of light, in which light is a wave spreading continuously through space. Einstein counts Maxwell's electromagnetic theory as one, and says that every such theory spreads the energy of a ray from a point source over an ever growing volume."
+    lang: "de"
+    definitionLang: "en"
+  - kind: "text"
+    text: ") des Lichtes auf ein stets wachsendes Volumen sich kontinuierlich verteilt."
 sentenceSpans:
   - id: "s0-p1-s1"
     span:
