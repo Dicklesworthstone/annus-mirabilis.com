@@ -23,7 +23,12 @@ inlines:
     mark: "1)"
     footnoteId: "s5-fn1"
   - kind: "text"
-    text: "; keine Voraussetzung über das Gesetz zu machen braucht, nachdem sich die Moleküle bewegen."
+    text: "; keine Voraussetzung über das Gesetz zu machen braucht, "
+  - kind: "misprint"
+    text: "nachdem"
+    recordId: "typo-nachdem-p142"
+  - kind: "text"
+    text: " sich die Moleküle bewegen."
 sentenceSpans:
   - id: "s5-p5-s1"
     span:

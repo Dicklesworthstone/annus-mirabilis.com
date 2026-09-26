@@ -56,7 +56,12 @@ inlines:
     text: "Unter Vermittelung von was für Zwischenprozessen dies Endresultat zustande kommt, ist gleichgültig."
   - kind: "space"
   - kind: "text"
-    text: "Wenn die photolumineszierende Substanz nicht als eine beständige Quelle von Energie anzusehen ist, so kann nach dem Energieprinzip die Energie eines erzeugten Energiequants nicht größer sein als die eines erzeugenden Lichtquants; es muß also die Bezeichnung gelten:"
+    text: "Wenn die photolumineszierende Substanz nicht als eine beständige Quelle von Energie anzusehen ist, so kann nach dem Energieprinzip die Energie eines erzeugten Energiequants nicht größer sein als die eines erzeugenden Lichtquants; es muß also die "
+  - kind: "misprint"
+    text: "Bezeichnung"
+    recordId: "typo-bezeichnung-p144"
+  - kind: "text"
+    text: " gelten:"
   - kind: "math"
     latex: "\\frac{R}{N} \\beta \\nu_2 \\leqq \\frac{R}{N} \\beta \\nu_1"
     display: true
