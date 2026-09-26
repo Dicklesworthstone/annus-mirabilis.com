@@ -19,6 +19,7 @@ const CHECKED = [
   "sutherland-1905-phil-mag",
   "fick-1855-diffusion-equation",
   "exner-1900-particle-speeds",
+  "siedentopf-1903-ultramicroscope",
 ];
 
 describe("the Brownian shelf's source checks", () => {

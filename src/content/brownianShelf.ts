@@ -235,23 +235,41 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "siedentopf-1903-ultramicroscope",
     proposition:
-      "Siedentopf and Zsigmondy's ultramicroscope lights colloidal particles from the side, so particles smaller than a micron show as bright points on a dark field.",
+      "Siedentopf and Zsigmondy light small particles with a beam at right angles to the microscope's line of sight, so that no illuminating ray enters the objective; particles far smaller than half a wavelength of light, below what a microscope can resolve, then show one by one as bright diffraction discs on a dark field.",
     status: "available",
-    sources: [{ title: "Ann. Phys. (4) 10", locator: "p. 1", date: "1903" }],
+    limits:
+      "Their subject is gold particles in ruby glass; they report having begun on colloidal solutions and turbid media. A particle is seen, not imaged: its size is estimated separately, not read off the picture.",
+    sources: [
+      {
+        title:
+          "Über Sichtbarmachung und Größenbestimmung ultramikroskopischer Teilchen, mit besonderer Anwendung auf Goldrubingläser",
+        date: "1902-12-30",
+        locator: "H. Siedentopf and R. Zsigmondy, Ann. Phys. (4) 10, 1",
+      },
+    ],
     date: {
-      earliest: "1903",
-      latest: "1903",
-      precision: "year",
-      latestYear: 1903,
+      earliest: "1902-12-30",
+      latest: "1902-12-30",
+      precision: "day",
+      latestYear: 1902,
       eventKind: "published",
     },
-    priorEvent: {
-      eventKind: "performed",
-      earliest: "1902",
-      latest: "1902",
-      precision: "year",
-    },
     admittedStages: ["stage-01"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/sim_annalen-der-physik_1903_10_1",
+        read: "page-image",
+        matched:
+          'Leaf 0, the Heft cover: "1903. No. 1 ... Vierte Folge. Band 10. Heft 1", "(Ausgegeben am 30. December 1902.)"; the volume\'s contents (leaf 8) list "1. H. Siedentopf und R. Zsigmondy ... 1" under the Erstes Heft, "Ausgegeben am 30. Dezember 1902". Leaf 12 is p. 1: "Über Sichtbarmachung und Größenbestimmung ultramikroskopischer Teilchen, mit besonderer Anwendung auf Goldrubingläser; von H. Siedentopf und R. Zsigmondy", after "1 1/2 jährigen Verbesserungen". p. 2: single gold particles made visible, the method extended "auf das Studium kolloidaler Lösungen und trüber Medien". p. 3: diffraction discs of particles "weit kleiner ... als etwa eine halbe Wellenlänge sichtbaren Lichtes", visibility "unter Verzichtleistung auf ähnliche Abbildung"; arc or sunlight. p. 4: the axis of the illuminating cone "senkrecht" to that of the observed cone, so no illuminating ray reaches the objective, "eine Weiterbildung der sogenannten Dunkelfeldbeleuchtung".',
+        differs: [
+          "The card dated the paper 1903 with latestYear 1903. Band 10 Heft 1 was issued on 30 December 1902, which is why Crossref (10.1002/andp.19023150102) gives 1902; the card is now dated to the issue day.",
+          'The card said "colloidal particles ... smaller than a micron". The paper\'s subject is gold in ruby glass, with colloidal solutions begun, and its measure is half a wavelength of light. Its prior event, "performed 1902", had no date in the paper and is removed.',
+        ],
+      },
+    ],
   },
   {
     id: "sutherland-1904-dunedin",
