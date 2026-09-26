@@ -415,6 +415,67 @@
 }
 
 /*
+ * SpeedSpread.tsx, the temperature lesson's bell curve (dispatch 280). A 300-unit drawing capped
+ * at 25rem: in Chromium its numbers measured about 17px at 1440 and 12px in a 320px column. Each
+ * number has its own tick under the axis. The shaded middle is a light fill with no edge, and the
+ * tails' heavy outline stops at the axis, so the axis is the only line along it. The key under the
+ * drawing gives both regions' swatches in words.
+ */
+.vector-axes-figure.speed-spread-figure {
+  max-width: 25rem;
+}
+
+.speed-spread-middle {
+  fill: var(--muted);
+  fill-opacity: 0.18;
+  stroke: none;
+}
+
+.speed-spread-tail {
+  fill: var(--muted);
+  fill-opacity: 0.35;
+  stroke: none;
+}
+
+.speed-spread-tail-edge {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.speed-spread-axis,
+.speed-spread-tick {
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.speed-spread-key {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.speed-spread-key li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.6rem;
+  align-items: start;
+}
+
+.speed-spread-swatch {
+  width: 1.75rem;
+  height: 1.125rem;
+  margin-top: 0.3em;
+}
+
+.speed-spread-swatch .speed-spread-tail-edge {
+  stroke-width: 2;
+}
+
+/*
  * ConfigurationCounter.tsx: one card per arrangement. The kept part of the box is shaded, the cell
  * walls are thin rules, and a card with every particle inside carries a heavy outline and the words
  * "all inside", so the shading never carries the difference alone.

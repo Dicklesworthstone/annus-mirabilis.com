@@ -2,38 +2,29 @@
 
 import { useId, useState } from "react";
 import {
-  bell,
   FAST_PERCENT,
   PARTICLES,
   type Particle,
   SLOW_PERCENT,
   SPREAD_RATIO,
-  TICKS,
 } from "../../foundations/speedSpread.ts";
 import { type HeadingLevel, headingTag } from "./headingLevel.ts";
-
-/**
- * The drawing: the curve over three widths either side. 250 units wide, so that in a 230px phone
- * column the axis labels still come out at about 12px; at 320 units they measured 9.5px.
- */
-const W = 250;
-const CENTRE = W / 2;
-const UNIT = 38;
-const BASE = 128;
-const HEIGHT = 100;
-const x = (u: number) => CENTRE + u * UNIT;
-const y = (u: number) => BASE - HEIGHT * bell(u);
-
-/** The curve, or the region under it between two widths, as an SVG path. */
-function path(from: number, to: number, closed: boolean): string {
-  const points: string[] = [];
-  for (let u = from; u <= to + 1e-9; u += 0.05)
-    points.push(`${x(u).toFixed(1)},${y(u).toFixed(1)}`);
-  const line = `M${points.join(" L")}`;
-  return closed ? `${line} L${x(to).toFixed(1)},${BASE} L${x(from).toFixed(1)},${BASE} Z` : line;
-}
-
-const label = (value: number) => (value < 0 ? `−${-value}` : String(value));
+import {
+  axisTicks,
+  BASE,
+  CENTRE,
+  curvePath,
+  DRAWN_WIDTHS,
+  FIGURE_HEIGHT,
+  FIGURE_WIDTH,
+  multiple,
+  NUMBER_Y,
+  regionPath,
+  TICK_LENGTH,
+  TITLE_Y,
+  tailOutline,
+  x,
+} from "./speedSpreadLayout.ts";
 
 /**
  * The temperature lesson's construction: the spread of speeds along one axis, which temperature
@@ -46,7 +37,8 @@ export function SpeedSpread({ headingLevel = 3 }: { readonly headingLevel?: Head
     Sub = headingTag(headingLevel, 1);
   const [id, setId] = useState<Particle["id"]>("nitrogen");
   const particle = PARTICLES.find((p) => p.id === id) as Particle;
-  const tick = (u: number) => label(Number((u * particle.spread).toPrecision(3)));
+  const ticks = axisTicks(particle.spread);
+  const at = (u: number) => multiple(u, particle.spread);
 
   return (
     <section
@@ -92,33 +84,68 @@ export function SpeedSpread({ headingLevel = 3 }: { readonly headingLevel?: Head
       </div>
 
       <svg
-        className="vector-axes-figure"
-        viewBox={`0 0 ${W} 172`}
+        className="vector-axes-figure speed-spread-figure"
+        viewBox={`0 0 ${FIGURE_WIDTH} ${FIGURE_HEIGHT}`}
         role="img"
-        aria-label={`A bell curve of speed along one axis, centred on zero, with its width marked at ${tick(1)} ${particle.unit}. The middle, under half a width either way, is shaded; the two ends beyond two widths are outlined.`}
+        aria-label={`A bell curve of speed along one axis, centred on zero, with its width marked at ${at(1)} ${particle.unit}. The middle, under half a width either way, is shaded; the two ends beyond two widths are outlined.`}
       >
-        <path className="products-area" d={path(-0.5, 0.5, true)} />
-        <path className="curves-overlap" d={path(-3, -2, true)} />
-        <path className="curves-overlap" d={path(2, 3, true)} />
-        <path className="curves-band-second" d={path(-3, 3, false)} />
-        <line className="vector-axis-original" x1={x(-3)} y1={BASE} x2={x(3)} y2={BASE} />
-        {TICKS.map((u) => (
-          <text key={u} x={x(u)} y={BASE + 18} textAnchor="middle">
-            {tick(u)}
+        <path className="speed-spread-middle" d={regionPath(-0.5, 0.5)} />
+        <path className="speed-spread-tail" d={regionPath(-DRAWN_WIDTHS, -2)} />
+        <path className="speed-spread-tail" d={regionPath(2, DRAWN_WIDTHS)} />
+        <path className="curves-band-second" d={curvePath(-DRAWN_WIDTHS, DRAWN_WIDTHS)} />
+        <path className="speed-spread-tail-edge" d={tailOutline(-1)} />
+        <path className="speed-spread-tail-edge" d={tailOutline(1)} />
+        <line
+          className="speed-spread-axis"
+          x1={x(-DRAWN_WIDTHS)}
+          y1={BASE}
+          x2={x(DRAWN_WIDTHS)}
+          y2={BASE}
+        />
+        {ticks.map((t) => (
+          <line
+            key={t.u}
+            className="speed-spread-tick"
+            data-tick={t.u}
+            x1={t.x}
+            y1={BASE}
+            x2={t.x}
+            y2={BASE + TICK_LENGTH}
+          />
+        ))}
+        {ticks.map((t) => (
+          <text key={t.u} x={t.x} y={NUMBER_Y} textAnchor="middle">
+            {t.label}
           </text>
         ))}
-        <text x={CENTRE} y={BASE + 38} textAnchor="middle">
+        <text x={CENTRE} y={TITLE_Y} textAnchor="middle">
           speed along one axis, {particle.unit}
         </text>
       </svg>
 
-      <p>
-        Shaded in the middle, under half a width either way: the particles that have, at that
-        moment, less than a quarter of the average energy of motion along the axis, about{" "}
-        {SLOW_PERCENT} per cent of them. Outlined at the two ends, beyond two widths: those with
-        more than four times the average, about {FAST_PERCENT} per cent. Collisions move each
-        particle about the whole curve.
-      </p>
+      <ul className="speed-spread-key">
+        <li>
+          <svg className="speed-spread-swatch" viewBox="0 0 28 18" aria-hidden="true">
+            <rect className="speed-spread-middle" x="1" y="1" width="26" height="16" />
+          </svg>
+          <span>
+            Shaded in the middle, within half a width either way ({at(-0.5)} to {at(0.5)}{" "}
+            {particle.unit}): the particles that have, at that moment, less than a quarter of the
+            average energy of motion along the axis, about {SLOW_PERCENT} per cent of them.
+          </span>
+        </li>
+        <li>
+          <svg className="speed-spread-swatch" viewBox="0 0 28 18" aria-hidden="true">
+            <rect className="speed-spread-tail" x="1.5" y="1.5" width="25" height="15" />
+            <rect className="speed-spread-tail-edge" x="1.5" y="1.5" width="25" height="15" />
+          </svg>
+          <span>
+            Outlined at the two ends, beyond two widths (past {at(-2)} or {at(2)} {particle.unit}):
+            those with more than four times the average, about {FAST_PERCENT} per cent.
+          </span>
+        </li>
+      </ul>
+      <p>Collisions move each particle about the whole curve.</p>
 
       <div className="construction-text-equivalent">
         <Sub>What it shows, in words</Sub>
