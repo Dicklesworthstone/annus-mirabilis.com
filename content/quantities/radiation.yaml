@@ -271,6 +271,15 @@
   frame: not-applicable
   colorRole: field
 
+- id: planckChargeQuotientEstimate
+  name: Estimate of h/e from a photoelectric slope
+  description: The slope of photoelectric intercept (or stopping) potential against frequency, as a measurement reports it, in volt-seconds; an estimate of h/e, bound apart from the exact constant planckChargeQuotient, as an inference output binds its own estimate quantity.
+  dimensionStatus: declared
+  dimension: [2, 1, -2, 0, -1, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: quanta
+
 - id: thresholdFrequency
   name: Threshold frequency
   description: The minimum frequency at which the photoelectric effect occurs for a given metal.

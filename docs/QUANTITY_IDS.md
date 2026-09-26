@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 302 quantities, 45 rejected spellings, 0 reserved spellings.
+Total: 303 quantities, 45 rejected spellings, 0 reserved spellings.
 
 ## Registered quantities
 
@@ -212,6 +212,7 @@ Total: 302 quantities, 45 rejected spellings, 0 reserved spellings.
 | photocurrent | Photocurrent | 0,0,0,0,1,0 | not-applicable | scalar | — |
 | photoelectricInterceptPotential | Photoelectric intercept potential | 2,1,-3,0,-1,0 | not-applicable | scalar | — |
 | planckChargeQuotient | Planck constant over elementary charge (h/e) | 2,1,-2,0,-1,0 | not-applicable | scalar | — |
+| planckChargeQuotientEstimate | Estimate of h/e from a photoelectric slope | 2,1,-2,0,-1,0 | not-applicable | scalar | — |
 | planckConstant | Planck's constant | 2,1,-1,0,0,0 | not-applicable | scalar | — |
 | positionCoordinate1d | Position coordinate (field, one dimension) | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | pressure | Gas pressure | -1,1,-2,0,0,0 | not-applicable | scalar | — |

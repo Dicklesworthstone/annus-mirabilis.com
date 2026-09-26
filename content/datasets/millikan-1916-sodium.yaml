@@ -1,15 +1,25 @@
+# HistoricalDataset millikan-1916-sodium, revision 2 (dispatch 249, agent:GreenOx, 2026-09-26).
+# Read visually from Internet Archive sim_physical-review_1916-03_7_3 (SHA-256 162bab3b...fdec5da); the
+# receipt with the page map, calibration and point centres is
+# docs/provenance/datasets/millikan-1916-sodium.md.
+#
+# Revision 1 was withdrawn on 2026-09-24 (am-data-millikan-1916-zh2q, TanElk dispatch 135, TopazPrairie).
+# A standing record cannot carry a withdrawal (src/content/schemas/experiment.ts), so it is kept here,
+# verbatim, as history:
+#   withdrawal:
+#     date: "2026-09-24"
+#     reason: "The six rows this laboratory used to plot could not be traced to Millikan's printed table. No image of the page was recorded, and the row for 312.6 nm gives a frequency 2.7 percent away from the speed of light divided by that wavelength while its voltage still sits on the fitted line, which is what a voltage computed from the frequency does and a reading from the page would not. They are withdrawn until his table is read from a scan of the journal."
+#   Its rows (wavelength nm, frequency Hz, "stopping potential" V): 546.1 5.489e14 0.475; 435.8 6.879e14
+#   1.049; 404.7 7.408e14 1.267; 365.0 8.214e14 1.600; 312.6 9.329e14 2.060; 253.5 1.183e15 3.092.
 id: millikan-1916-sodium
-title: "Millikan (1916) Direct Photoelectric Determination of Planck's h (Sodium)"
-evidenceStatus: withdrawn
-withdrawal:
-  date: "2026-09-24"
-  reason: "The six rows this laboratory used to plot could not be traced to Millikan's printed table. No image of the page was recorded, and the row for 312.6 nm gives a frequency 2.7 percent away from the speed of light divided by that wavelength while its voltage still sits on the fitted line, which is what a voltage computed from the frequency does and a reading from the page would not. They are withdrawn until his table is read from a scan of the journal."
+title: "Millikan (1916), A Direct Photoelectric Determination of Planck's \"h\": sodium, Fig. 6"
+evidenceStatus: historical-measurement
 publications:
   - id: millikan-1916-phys-rev
     citation: cit-millikan-1916
     locator:
-      kind: table
-      number: 4
+      kind: figure
+      number: 6
     publicationDate:
       type: issue-publication
       text: "March 1916"
@@ -17,104 +27,123 @@ publications:
       latest: "1916-03-31"
       precision: month
       source: "Physical Review, Ser. 2, Vol. 7, No. 3, pp. 355-388"
-      verifiedAt: "2026-09-16"
+      verifiedAt: "2026-09-26"
 primaryPublicationId: millikan-1916-phys-rev
 digitizer:
-  name: "Editorial Team"
-  method: "Transcribed from Physical Review Vol 7 Table IV and Figure 3"
-  date: "2026-09-16"
-  sourcePageImage: "millikan-1916-p373.png"
-  digitizationRevision: 1
+  name: "agent:GreenOx"
+  method: "Read visually from Fig. 6, p. 373, rendered at 600 dpi with pdftoppm from the Internet Archive scan (never OCR, never the text layer). Axes calibrated on the printed labels (0.5e13 Hz and 1/30 V per ruled line); each circled point's centre located by eye and converted through the two nearest ruled lines. The 2,535 row is the value p. 382 prints. Wavelengths are Table I's headings (p. 372)."
+  date: "2026-09-26"
+  sourcePageImage: "public/figures/datasets/millikan-1916-sodium/p373-fig6-600dpi.webp"
+  digitizationRevision: 2
 columns:
-  - name: "Spectral Line Wavelength"
+  - name: "Mercury line, as headed in Table I"
     quantityId: wavelength
-    unit: "nm"
+    unit: "Å"
     role: controlled
-  - name: "Frequency"
+  - name: "Frequency, as plotted in Fig. 6"
     quantityId: frequency
     unit: "Hz"
     role: controlled
-  - name: "Stopping Potential"
-    quantityId: stoppingPotentialMagnitude
+  - name: "Intercept on the potential axis, as plotted in Fig. 6 (signed, uncorrected for contact E.M.F.)"
+    quantityId: photoelectricInterceptPotential
     unit: "V"
     role: observed
 rows:
   - cells:
       - kind: number
-        value: 546.1
-        originalToken: "546.1"
+        value: 5461
+        originalToken: "5,461"
       - kind: number
-        value: 5.489e14
-        originalToken: "5.489"
+        value: 5.474e14
       - kind: number
-        value: 0.475
-        originalToken: "0.475"
+        value: -2.050
   - cells:
       - kind: number
-        value: 435.8
-        originalToken: "435.8"
+        value: 4339
+        originalToken: "4,339"
       - kind: number
-        value: 6.879e14
-        originalToken: "6.879"
+        value: 6.925e14
       - kind: number
-        value: 1.049
-        originalToken: "1.049"
+        value: -1.492
   - cells:
       - kind: number
-        value: 404.7
-        originalToken: "404.7"
+        value: 4047
+        originalToken: "4,047"
       - kind: number
-        value: 7.408e14
-        originalToken: "7.408"
+        value: 7.412e14
       - kind: number
-        value: 1.267
-        originalToken: "1.267"
+        value: -1.300
   - cells:
       - kind: number
-        value: 365.0
-        originalToken: "365.0"
+        value: 3650
+        originalToken: "3,650"
       - kind: number
-        value: 8.214e14
-        originalToken: "8.214"
+        value: 8.212e14
       - kind: number
-        value: 1.600
-        originalToken: "1.600"
+        value: -0.919
   - cells:
       - kind: number
-        value: 312.6
-        originalToken: "312.6"
+        value: 3126
+        originalToken: "3,126"
       - kind: number
-        value: 9.329e14
-        originalToken: "9.329"
+        value: 9.614e14
       - kind: number
-        value: 2.060
-        originalToken: "2.060"
+        value: -0.380
   - cells:
       - kind: number
-        value: 253.5
-        originalToken: "253.5"
+        value: 2535
+        originalToken: "2,535"
       - kind: number
-        value: 1.183e15
-        originalToken: "11.83"
+        value: 1.182e15
+        originalToken: "118.2 × 10¹³"
       - kind: number
-        value: 3.092
-        originalToken: "3.092"
+        value: 0.52
+        originalToken: ".52"
 uncertainty:
-  type: instrumental-precision
-  value: 0.01
-  description: "Voltmeter reading precision and contact-potential calibration uncertainty (~0.01 V)"
-notes: "Millikan's precision measurement of stopping potentials for freshly cut sodium in vacuum across mercury arc lines, yielding an experimental value of h/e. WITHDRAWN 2026-09-24 (am-data-millikan-1916-zh2q), rows kept for review. Evidence: a least-squares line of V against nu through all six rows leaves residuals of at most 0.214 mV, against a stated precision of 0.01 V; its slope gives h = 6.612e-34 J s, nearer the modern value than Millikan's published one; the 312.6 nm row lists nu = 9.329e14 Hz where c/lambda = 9.590e14 Hz (2.72 percent), and its voltage fits the line at the listed frequency, not the true one; the other five rows agree with c/lambda to 0.033 percent. The digitizer is named only as 'Editorial Team', and the cited page image millikan-1916-p373.png does not exist in the repository. The method line claims a transcription from Table IV and Figure 3 that nothing on file supports. Replace these rows only with values read visually from a pinned scan of Phys. Rev. 7 (1916), never OCR'd, with the page image committed and a named digitizer."
+  type: stated-and-reading
+  value: 0.02
+  description: "Millikan puts the maximum error in locating any intercept at about two hundredths of a volt (p. 372) and says no potential departs from the line by more than .01 volt (p. 374). Reading the printed figure adds about ±0.007 V and ±0.10e13 Hz for each point. The 2,535 row is printed (p. 382), so it carries no reading error."
+notes: "Millikan prints no table of sodium stopping potentials, and no Table IV. The sodium points appear only in Fig. 6 (p. 373), as the intercepts of the photocurrent-potential curves on the potential axis plotted against frequency. They are signed, and they are uncorrected for the contact E.M.F. between the sodium and the copper-oxide collector, which he gives as 2.51 volts at the time (p. 383). Rows 1-5 are read from the figure; row 6 (2,535) is the value p. 382 prints, 'ν = 118.2 × 10¹³' and 'observed V₀ ... .52 volt', which the figure reading (118.17, +0.517) agrees with. Table I's fifth heading, 3,126, is printed 3,125 in the text (pp. 372, 374, 382) and 3,120 on p. 375, and its fourth, 3,650, is printed 3,651 on p. 374. Every read frequency agrees with c/λ to within 0.36 percent. His slope: 4.124 × 10⁻¹⁵ volt-frequencies from Fig. 6 (p. 374), 4.128 × 10⁻¹⁵ with Table II, giving h = 6.569 × 10⁻²⁷ erg s with e = 4.774 × 10⁻¹⁰ (p. 375). A line through these five read points before 2,535, the five he says fixed the slope, has slope 4.103 × 10⁻¹⁵ on c/λ frequencies, with residuals up to 0.025 V. Revision 1 (2026-09-16, 'Editorial Team') was withdrawn on 2026-09-24 because its rows could not be traced to the page; this revision replaces it."
 rights:
   status: public-domain-text
-  statement: "Published in Physical Review in 1916; public domain."
-  source: "https://doi.org/10.1103/PhysRev.7.355"
-  recordedAt: "2026-09-16"
+  statement: "Published in Physical Review in the United States in 1916; public domain. Page images from the Internet Archive scan sim_physical-review_1916-03_7_3, under the Internet Archive Terms of Service (see the receipt)."
+  source: "https://archive.org/details/sim_physical-review_1916-03_7_3"
+  recordedAt: "2026-09-26"
   reuseTerms: source-terms
 allowedInferenceModelIds:
   - fitPhotoelectricSlope
 calibrationIds: []
 sharedInputIds: []
+fits:
+  - id: millikan-1916-fig6-five-lines
+    label: "The line Millikan drew through Fig. 6"
+    fitObjective: "A straight line of intercept potential against frequency whose slope, Millikan writes, 'was fixed primarily by a consideration of the five points corresponding to lines 5,461, 4,339, 4,047, 3,651 and 3,125' (p. 374)."
+    analysisDate:
+      type: issue-publication
+      text: "March 1916"
+      earliest: "1916-03-01"
+      latest: "1916-03-31"
+      precision: month
+      source: "Physical Review, Ser. 2, Vol. 7, No. 3, p. 374"
+      verifiedAt: "2026-09-26"
+    rowsUsed: [0, 1, 2, 3, 4]
+    rowsExcluded:
+      - rowIndex: 5
+        reason: "Line 2,535 is not among the five points Millikan says fixed the slope (p. 374); its potential needed the correction of section 3b (p. 372)."
+    parameters:
+      - name: "Slope from Fig. 6, as printed"
+        quantityId: planckChargeQuotientEstimate
+        value: 4.124e-15
+        unit: "V s"
+        source: imported
+        sourceCitation: "Physical Review 7, p. 374: 'The value of this slope in volt-frequencies is 4.124 × 10⁻¹⁵.'"
+      - name: "Slope with Table II's nine determinations, as printed"
+        quantityId: planckChargeQuotientEstimate
+        value: 4.128e-15
+        unit: "V s"
+        source: imported
+        sourceCitation: "Physical Review 7, p. 375: 'the mean of 4.124 and 4.131, namely 4.128 × 10⁻¹⁵'"
 addressesResults:
   - resultId: result-lq-08-linear-stopping
     relation: tested-a-prediction
-    statement: "Millikan's sodium measurements confirmed the exact linearity of stopping potential with frequency and yielded h/e."
+    statement: "Millikan's sodium intercepts lie on one straight line in frequency, no point off it by more than about a hundredth of a volt by his account (p. 374), and its slope gives h/e; he took h = 6.569 × 10⁻²⁷ erg s."
