@@ -21,6 +21,7 @@ const CHECKED = [
   "wien-1896-radiation-law",
   "lenard-1902-photoelectric",
   "hertz-1887-ultraviolet-spark",
+  "boltzmann-1896-gas-volume-entropy",
 ];
 
 describe("the light-quanta shelf's source checks", () => {

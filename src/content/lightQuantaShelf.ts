@@ -378,15 +378,15 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "boltzmann-1896-gas-volume-entropy",
     proposition:
-      "At a fixed temperature the entropy of an ideal gas changes with its volume as the logarithm of the volume, multiplied by the number of molecules and a constant: R log(V/V₀) per gram-molecule.",
+      "Boltzmann writes the entropy of a mass k of a gas of molecular weight μ as (Rk/μ) times the logarithm of T^(3(1+β)/2) divided by the density, plus a constant. At a fixed temperature it therefore changes with the volume as (Rk/μ) log V, which is R log(V/V₀) per gram-molecule.",
     status: "available",
     limits:
-      "For an ideal gas of independent molecules at low density. The molecular form needs N, the number of molecules in a gram-molecule, whose value was uncertain in 1904. The page of this edition where the form is stated is not yet recorded.",
+      "For the gas of Part I, whose molecules are small compared with their mean free path; β depends only on the temperature and is taken as constant. The printed form counts gram-molecules through k/μ; writing it per molecule needs N, the number of molecules in a gram-molecule, whose value was uncertain in 1904. The form is stated on p. 58.",
     sources: [
       {
         title: "Vorlesungen über Gastheorie, I. Theil",
         date: "1896",
-        locator: "Leipzig: J. A. Barth",
+        locator: "L. Boltzmann, Leipzig: J. A. Barth; the entropy, p. 58",
       },
     ],
     date: {
@@ -397,6 +397,21 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     admittedStages: ["stage-05", "stage-06"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/vorlesungenber01bolt",
+        read: "page-image",
+        matched:
+          'Leaf 6, the title page: "Vorlesungen über Gastheorie von Dr. Ludwig Boltzmann ... I. Theil: Theorie der Gase mit einatomigen Molekülen, deren Dimensionen gegen die mittlere Weglänge verschwinden. Leipzig, Verlag von Johann Ambrosius Barth (Arthur Meiner), 1896"; the preface (leaf 9) is signed "Wien, im September 1895". Leaf 69 is p. 58: ∫dQ/T = (Rk/μ) l[T^(3/2(1+β)) ρ^-1] + const, "Dies ist also die sogenannte Entropie des Gases", and eq. 58 for a mixture, R Σ (k/μ) l[T^(3/2(1+β)) ρ^-1] + const. The catalog record gives T.1, 1896.',
+        differs: [
+          'The card said the entropy changes with the volume "multiplied by the number of molecules and a constant". The printed form multiplies by R and the number of gram-molecules, k/μ; the volume enters through the density ρ. The proposition now gives his form and derives the volume dependence from it.',
+          "The limits said the page was not yet recorded; it is p. 58. They said the book treats an ideal gas at low density; its title restricts Part I to molecules whose size vanishes against the mean free path, and the formula carries β.",
+        ],
+      },
+    ],
   },
   {
     id: "hertz-1887-ultraviolet-spark",
