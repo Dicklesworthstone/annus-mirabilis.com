@@ -31,7 +31,8 @@ describe("JourneyPage container component rendering", () => {
     expect(html).toContain("The move");
     expect(containsHeading(html, "World Checks · Testing the Consequences")).toBe(true);
     expect(html).toContain("Connecting to the 1905 Paper");
-    expect(html).toContain("Entry portals · Front &amp; side doors");
+    // The doors, in the reader's words since dispatch 276 (Doors.test.tsx).
+    expect(html).toContain("All doors arrive at the same result");
   });
 
   test("renders partial journey with declared pending elements banner", () => {
