@@ -828,6 +828,171 @@ entries:
       by: "pane31 (agent reading; not the human German source review)"
       date: "2026-09-19"
 
+  # Coordinates (dispatch 272). The paper names its two systems by their coordinates,
+  # (x, y, z) and (xi, eta, zeta), and speaks of the x-Achse; each letter binds the coordinate
+  # quantity paper 3 binds it to (sr.x.coordinatePositionStationary and the others), so one
+  # glyph in one role reads the same across papers. Read from the plate of p. 639.
+  - id: me.x.coordinatePositionStationary
+    paper: mass-energy
+    scope:
+      - me-s0
+    glyph:
+      unicode: "x"
+      latex: "x"
+      variant: plain
+    meaning: "First of the three coordinates that name the stationary system (x, y, z), and the axis along which the moving system travels (the x-Achse)"
+    binding:
+      quantityId: coordinatePositionStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "x"
+    notes: "A coordinate of the stationary system (x, y, z). The paper uses the three letters together to name the system, as in the Koordinatensystem (x, y, z), and paper 3 binds the same letters to the same coordinates."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p5
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 639 of the pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19; public/figures/plates/pages/ap-18-639/639-1280.webp): glyph read by eye from the page image, not the text layer. Italic x in 'Koordinatensystem (x, y, z)' in the fifth paragraph, and the x-Achse. An agent check, not a human review."
+      by: agent:NavyKite
+      date: "2026-09-26"
+  - id: me.y.coordinatePositionStationary
+    paper: mass-energy
+    scope:
+      - me-s0
+    glyph:
+      unicode: "y"
+      latex: "y"
+      variant: plain
+    meaning: "Second of the three coordinates that name the stationary system (x, y, z)"
+    binding:
+      quantityId: coordinatePositionStationary
+      index: y
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "y"
+    notes: "A coordinate of the stationary system (x, y, z). The paper uses the three letters together to name the system, as in the Koordinatensystem (x, y, z), and paper 3 binds the same letters to the same coordinates."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p5
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 639 of the pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19; public/figures/plates/pages/ap-18-639/639-1280.webp): glyph read by eye from the page image, not the text layer. Italic y in 'Koordinatensystem (x, y, z)' in the fifth paragraph. An agent check, not a human review."
+      by: agent:NavyKite
+      date: "2026-09-26"
+  - id: me.z.coordinatePositionStationary
+    paper: mass-energy
+    scope:
+      - me-s0
+    glyph:
+      unicode: "z"
+      latex: "z"
+      variant: plain
+    meaning: "Third of the three coordinates that name the stationary system (x, y, z)"
+    binding:
+      quantityId: coordinatePositionStationary
+      index: z
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "z"
+    notes: "A coordinate of the stationary system (x, y, z). The paper uses the three letters together to name the system, as in the Koordinatensystem (x, y, z), and paper 3 binds the same letters to the same coordinates."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p5
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 639 of the pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19; public/figures/plates/pages/ap-18-639/639-1280.webp): glyph read by eye from the page image, not the text layer. Italic z in 'Koordinatensystem (x, y, z)' in the fifth paragraph. An agent check, not a human review."
+      by: agent:NavyKite
+      date: "2026-09-26"
+  - id: me.xi.coordinatePositionMoving
+    paper: mass-energy
+    scope:
+      - me-s0
+    glyph:
+      unicode: "ξ"
+      latex: "\\xi"
+      variant: plain
+    meaning: "First of the three coordinates that name the moving system (ξ, η, ζ), along the x-axis of the stationary one"
+    binding:
+      quantityId: coordinatePositionMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "x'"
+    notes: "A coordinate of the moving system (ξ, η, ζ). The paper uses the three letters together to name the system, as in the Koordinatensystem (ξ, η, ζ), and paper 3 binds the same letters to the same coordinates."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p5
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 639 of the pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19; public/figures/plates/pages/ap-18-639/639-1280.webp): glyph read by eye from the page image, not the text layer. Greek ξ in 'Koordinatensystem (ξ, η, ζ)' in the fifth paragraph. An agent check, not a human review."
+      by: agent:NavyKite
+      date: "2026-09-26"
+  - id: me.eta.coordinatePositionMoving
+    paper: mass-energy
+    scope:
+      - me-s0
+    glyph:
+      unicode: "η"
+      latex: "\\eta"
+      variant: plain
+    meaning: "Second of the three coordinates that name the moving system (ξ, η, ζ)"
+    binding:
+      quantityId: coordinatePositionMoving
+      index: y
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "y'"
+    notes: "A coordinate of the moving system (ξ, η, ζ). The paper uses the three letters together to name the system, as in the Koordinatensystem (ξ, η, ζ), and paper 3 binds the same letters to the same coordinates."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p5
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 639 of the pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19; public/figures/plates/pages/ap-18-639/639-1280.webp): glyph read by eye from the page image, not the text layer. Greek η in 'Koordinatensystem (ξ, η, ζ)' in the fifth paragraph. An agent check, not a human review."
+      by: agent:NavyKite
+      date: "2026-09-26"
+  - id: me.zeta.coordinatePositionMoving
+    paper: mass-energy
+    scope:
+      - me-s0
+    glyph:
+      unicode: "ζ"
+      latex: "\\zeta"
+      variant: plain
+    meaning: "Third of the three coordinates that name the moving system (ξ, η, ζ)"
+    binding:
+      quantityId: coordinatePositionMoving
+      index: z
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "z'"
+    notes: "A coordinate of the moving system (ξ, η, ζ). The paper uses the three letters together to name the system, as in the Koordinatensystem (ξ, η, ζ), and paper 3 binds the same letters to the same coordinates."
+    sources:
+      facsimilePage: 639
+      anchor: me-s0-p5
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 639 of the pinned facsimile ap-18-639 (sha256 c4770702edca3047c324a92cc0a008e27355c236b3e5e0a87d75eea630ab5f19; public/figures/plates/pages/ap-18-639/639-1280.webp): glyph read by eye from the page image, not the text layer. Greek ζ in 'Koordinatensystem (ξ, η, ζ)' in the fifth paragraph. An agent check, not a human review."
+      by: agent:NavyKite
+      date: "2026-09-26"
+
 modernOnlySymbols:
   - id: me.m_inv.invariantMassSystem
     glyph:
