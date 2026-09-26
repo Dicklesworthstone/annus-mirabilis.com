@@ -9,10 +9,12 @@
  * quantities (data-quantity-id) or say it has none to colour. On the built pages of b16bc66b, 65
  * KaTeX formulas were drawn there and 6 were coloured, and those 6 were an embedded laboratory's.
  *
- * It imports only the pages, so it reads what they render whatever draws it.
+ * It imports the pages, so it reads what they render whatever draws it; the last test also holds
+ * the rendered formulas to src/discovery/journeyFormulaList.ts, the list the build's palette reads.
  */
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
+import { DISCOVER_FORMULAS } from "../../discovery/journeyFormulaList.ts";
 import BrownianInvestigation from "./brownian-motion/investigate/page.tsx";
 import BrownianJourney from "./brownian-motion/page.tsx";
 import LightQuantaInvestigation from "./light-quanta/investigate/page.tsx";
@@ -82,5 +84,33 @@ describe("every formula on the Discover pages is drawn in its paper's colours, o
     expect(html.lastIndexOf('data-paper="special-relativity"', at)).toBeGreaterThan(
       html.lastIndexOf("<details", at) - 1,
     );
+  });
+
+  test("the pages draw exactly the formulas the build's palette reads, no more and no fewer", () => {
+    // A quantity gets its paper's colour only when a view in scripts/build-equations.ts names it,
+    // and the build reads the Discover formulas from journeyFormulaList.ts. A formula drawn on a
+    // page and missing from the list would keep a quantity out of the palette; an entry no page
+    // draws would put one in for nothing.
+    const attribute = (value: string) =>
+      value
+        .replace(/&#x27;/g, "'")
+        .replace(/&quot;/g, '"')
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&amp;/g, "&");
+    const drawn = new Set(
+      census.flatMap(({ own }) =>
+        own.flatMap(({ tag }) => {
+          const latex = /data-latex="([^"]*)"/.exec(tag)?.[1];
+          const anchor = /data-journey-formula="([^"]*)"/.exec(tag)?.[1];
+          return latex && anchor ? [`${anchor}\u0000${attribute(latex)}`] : [];
+        }),
+      ),
+    );
+    const listed = new Set(DISCOVER_FORMULAS.map((f) => `${f.scope.anchor}\u0000${f.latex}`));
+    // Non-vacuity: both sides hold the pages' formulas.
+    expect(drawn.size).toBeGreaterThan(30);
+    expect([...drawn].filter((k) => !listed.has(k))).toEqual([]);
+    expect([...listed].filter((k) => !drawn.has(k))).toEqual([]);
   });
 });
