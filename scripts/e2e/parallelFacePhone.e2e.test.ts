@@ -38,11 +38,13 @@
  * artifacts/test-logs/parallel-face-phone/.
  */
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { createServer, type Server } from "node:http";
+import { tmpdir } from "node:os";
 import { extname, join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { gzipSync } from "node:zlib";
 import { type Browser, type BrowserContext, chromium, type Page } from "playwright";
 import { newRunIdentity, TestLogger } from "../../src/testing/log/logger.ts";
 import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
@@ -428,24 +430,33 @@ async function siteUnderTest() {
   return { origin, remote: undefined, server, note };
 }
 
-/** A failing lane keeps the five evidence kinds; returns the retained paths. */
+/**
+ * A failing lane keeps the five evidence kinds; returns the retained paths. Only a failing lane
+ * writes anything: a passing one leaves its JSON line and nothing else (TanElk 40506, when this
+ * suite's runs had filled 3.3 GB). The captures are made in a temporary directory, from which
+ * retainE2EEvidence copies them into the run's evidence directory; they were made in
+ * artifacts/e2e-scratch/ until then, which kept every failing lane twice. The trace carries DOM
+ * snapshots and no screenshot film strip, since the lane's screenshot is kept beside it, and the DOM
+ * snapshot is gzipped: relativity's parallel page is 10 MB of HTML, so a run failing on all eight
+ * lanes kept 42 MB, most of it four DOM files.
+ */
 async function keepLaneEvidence(
   page: Page,
   context: BrowserContext,
   logs: { consoleLines: string[]; network: string[] },
-  meta: { scratch: string; logRunId: string; testId: string; lane: string; message: string },
+  meta: { logRunId: string; testId: string; lane: string; message: string },
 ): Promise<Record<string, string>> {
-  const base = join(meta.scratch, meta.lane);
+  const base = join(mkdtempSync(join(tmpdir(), `am-${SUITE}-`)), meta.lane);
   const capture = {
     screenshot: `${base}.png`,
     trace: `${base}.trace.zip`,
-    dom: `${base}.dom.html`,
+    dom: `${base}.dom.html.gz`,
     console: `${base}.console.log`,
     network: `${base}.network.log`,
   };
   await page.screenshot({ path: capture.screenshot, fullPage: false }).catch(() => {});
   await context.tracing.stop({ path: capture.trace }).catch(() => {});
-  writeFileSync(capture.dom, await page.content().catch(() => ""));
+  writeFileSync(capture.dom, gzipSync(await page.content().catch(() => "")));
   writeFileSync(capture.console, logs.consoleLines.join("\n"));
   writeFileSync(capture.network, logs.network.join("\n"));
   const retained = await retainE2EEvidence(
@@ -472,8 +483,6 @@ test("the parallel face on a phone reads as pairs, with one key, room for page l
   const freshnessNote = site.note;
   const logRunId = newRunIdentity();
   const logger = new TestLogger(SUITE, logRunId);
-  const scratch = join(REPO_ROOT, "artifacts", "e2e-scratch", SUITE, logRunId);
-  mkdirSync(scratch, { recursive: true });
   const failures: string[] = [];
   const totals = { halves: 0, pairs: 0, breaks: 0, locators: 0, wideDisplays: 0, terms: 0 };
   const browser: Browser = await chromium.launch({ headless: true });
@@ -487,7 +496,7 @@ test("the parallel face on a phone reads as pairs, with one key, room for page l
           javaScriptEnabled: js,
           ...(remote ? { userAgent: "OpenAI File Downloader, XaiImageApiFetch/1.0" } : {}),
         });
-        await context.tracing.start({ screenshots: true, snapshots: true });
+        await context.tracing.start({ snapshots: true });
         const page = await context.newPage();
         const consoleLines: string[] = [];
         const network: string[] = [];
@@ -518,7 +527,6 @@ test("the parallel face on a phone reads as pairs, with one key, room for page l
             context,
             { consoleLines, network },
             {
-              scratch,
               logRunId,
               testId: `parallel-face-phone-${lane}`,
               lane,
@@ -582,8 +590,6 @@ test("a paragraph's sentences run on at 320 on the parallel, English and German 
   const { origin, remote, server } = site;
   const logRunId = newRunIdentity();
   const logger = new TestLogger(SUITE, logRunId);
-  const scratch = join(REPO_ROOT, "artifacts", "e2e-scratch", SUITE, logRunId);
-  mkdirSync(scratch, { recursive: true });
   const failures: string[] = [];
   let pairs = 0;
   let judged = 0;
@@ -597,7 +603,7 @@ test("a paragraph's sentences run on at 320 on the parallel, English and German 
           viewport: { width: FLOW_WIDTH, height: 844 },
           ...(remote ? { userAgent: "OpenAI File Downloader, XaiImageApiFetch/1.0" } : {}),
         });
-        await context.tracing.start({ screenshots: true, snapshots: true });
+        await context.tracing.start({ snapshots: true });
         const page = await context.newPage();
         const consoleLines: string[] = [];
         const network: string[] = [];
@@ -627,7 +633,7 @@ test("a paragraph's sentences run on at 320 on the parallel, English and German 
             page,
             context,
             { consoleLines, network },
-            { scratch, logRunId, testId, lane, message: found.join("; ") },
+            { logRunId, testId, lane, message: found.join("; ") },
           );
           failures.push(`${lane}: ${found.join("; ")}`);
         } else {
