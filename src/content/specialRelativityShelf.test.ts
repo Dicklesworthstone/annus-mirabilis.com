@@ -1,10 +1,16 @@
 /**
- * The relativity shelf's cards carry the evidence of their source checks (dispatch 251): every
- * source was read, on the page or in a catalog record, and the card says what the source says.
+ * The relativity shelf's cards, and its later evidence (dispatch 260), carry the evidence of their
+ * source checks (dispatch 251): every source was read, on the page or in a catalog record, and the
+ * card says what the source says.
  */
 import { describe, expect, test } from "bun:test";
 import { sourceCheckProblems, uncheckedSources } from "../discovery/cards/sourceChecks.ts";
-import { SPECIAL_RELATIVITY_SHELF_CARDS as CARDS } from "./specialRelativityShelf.ts";
+import {
+  SPECIAL_RELATIVITY_LATER_EVIDENCE,
+  SPECIAL_RELATIVITY_SHELF_CARDS,
+} from "./specialRelativityShelf.ts";
+
+const CARDS = [...SPECIAL_RELATIVITY_SHELF_CARDS, ...SPECIAL_RELATIVITY_LATER_EVIDENCE];
 
 describe("the relativity shelf's source checks", () => {
   test("every card has a well-formed check for each of its sources", () => {
@@ -37,5 +43,18 @@ describe("the relativity shelf's source checks", () => {
       latest: "1729",
       precision: "range",
     });
+  });
+
+  test("the later cards say what their pages say, and no more", () => {
+    const card = (id: string) => CARDS.find((c) => c.id === id);
+    // p. 1297 names the theory it answers: Ritz's, with light from a moving source at c + u.
+    expect(card("de-sitter-1913-double-stars")?.proposition).toContain("Ritz");
+    // p. 226 reads the result within the theory of Larmor and Lorentz, which predicts the same
+    // rate: the card may not present it as deciding between that theory and the paper's.
+    const ives = card("ives-stilwell-1938-moving-atomic-clock");
+    expect(ives?.proposition).toContain("Larmor and Lorentz");
+    expect(ives?.limits).toContain("cannot separate");
+    // Cited, not plotted: the edition holds no table of their measurements.
+    expect(ives?.limits).toContain("none is plotted");
   });
 });

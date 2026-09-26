@@ -1,9 +1,16 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { checkVoice } from "../../../content/checks/voice/index.ts";
+import {
+  FORK_SOURCE_SPEED,
+  FORK_UNDETECTED_ETHER,
+} from "../../../discovery/relativity/journeyIII.ts";
 import RelativityEncounter from "./page";
 
-/** /discover/special-relativity/: the numeric exercise in step 06 (am-disc-exercise-checker-i4h2). */
+/**
+ * /discover/special-relativity/: the numeric exercise in step 06 (am-disc-exercise-checker-i4h2),
+ * and the forks, check against the world, exercises and doors of dispatch 260.
+ */
 const html = renderToStaticMarkup(<RelativityEncounter />);
 const text = (markup: string) =>
   markup
@@ -47,6 +54,81 @@ describe("step 06 tries the moving rod on numbers", () => {
     expect(part).toContain("by the factor √(1 − v²/c²)");
     expect(part).toContain("which the paper writes V");
     const errors = checkVoice(part, { context: "prose" }).filter((f) => f.severity === "error");
+    expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
+  });
+});
+
+describe("the forks on the 1904 table", () => {
+  const at = (marker: string) => {
+    const i = html.indexOf(marker);
+    expect(i, marker).toBeGreaterThan(-1);
+    return i;
+  };
+  const forkAt = (id: string) => {
+    const start = at(`id="${id}"`);
+    return html.slice(start, html.indexOf("</section>", start));
+  };
+
+  test("the server render carries two forks or more, each a Fork element", () => {
+    const forks = [...html.matchAll(/data-fork-id="([^"]+)"/g)].map((m) => m[1]);
+    expect(forks.length).toBeGreaterThanOrEqual(2);
+    expect(forks).toEqual([FORK_UNDETECTED_ETHER.id, FORK_SOURCE_SPEED.id]);
+  });
+
+  test("the ether fork follows the null results, and the source fork the two statements", () => {
+    const order = [
+      'id="step-02"',
+      `id="${FORK_UNDETECTED_ETHER.id}"`,
+      'id="step-03"',
+      `id="${FORK_SOURCE_SPEED.id}"`,
+      'id="step-04"',
+    ].map(at);
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+  });
+
+  test("the ether at rest fails against Michelson and Morley's card, linked", () => {
+    const fork = forkAt(FORK_UNDETECTED_ETHER.id);
+    expect(fork).toContain('data-outcome-type="dead-end-on-constraint"');
+    expect(fork).toContain('href="#card-michelson-morley-1887-no-drift"');
+    expect(fork).toContain('data-outcome-type="empirically-equivalent-not-refuted"');
+    expect(fork).toContain('href="#card-lorentz-1904-corresponding-states"');
+    expect(fork).toContain('data-outcome-type="papers-route"');
+  });
+
+  test("the emission view stays open on the shelf, and de Sitter's 1913 card is later evidence", () => {
+    const fork = forkAt(FORK_SOURCE_SPEED.id);
+    expect(fork).toContain('data-outcome-type="undecided-on-available-evidence"');
+    expect(fork).not.toContain('data-outcome-type="dead-end-on-constraint"');
+    expect(fork).toContain('href="#card-de-sitter-1913-double-stars"');
+    const shelf = html.slice(at('id="shelf"'));
+    const shelfEnd = shelf.indexOf("</section>");
+    expect(shelf.slice(0, shelfEnd)).not.toContain("de-sitter");
+    expect(html).toContain('id="card-de-sitter-1913-double-stars"');
+  });
+
+  test("every in-page link lands on an element of the page", () => {
+    const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+    const targets = [...html.matchAll(/href="#([^"]+)"/g)].map((m) => m[1] ?? "");
+    expect(targets.length).toBeGreaterThan(3);
+    expect(targets.filter((target) => !ids.has(target))).toEqual([]);
+  });
+
+  test("the forks' words pass the voice lint", () => {
+    const words = [FORK_UNDETECTED_ETHER, FORK_SOURCE_SPEED]
+      .flatMap((f) => [
+        f.question,
+        ...f.branches.flatMap((b) => [
+          b.label,
+          b.hypothesis,
+          b.worksWhen,
+          b.outcome.plainLanguage,
+          b.outcome.scopeNote ?? "",
+          b.outcome.insufficiency ?? "",
+          ...b.steps.map((s) => s.text),
+        ]),
+      ])
+      .join(" ");
+    const errors = checkVoice(words, { context: "prose" }).filter((f) => f.severity === "error");
     expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
   });
 });
