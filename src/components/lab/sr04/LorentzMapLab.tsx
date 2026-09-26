@@ -208,7 +208,6 @@ export function LorentzMapLab({
           view={view}
           modelNote={modelNoteFromView(view, { notModeled: `${SR04_NOT_MODELED.join("; ")}.` })}
         />
-        <LabTapeLink link={tapeLink} />
       </div>
 
       <p className="lab-question">{SR04_QUESTION}</p>
@@ -498,6 +497,9 @@ export function LorentzMapLab({
           </details>
         </div>
       </div>
+      {/* The permalink to these settings, after the instrument it links to (dispatch 263). In
+          the status row it made that line 267px tall at 1440. */}
+      <LabTapeLink link={tapeLink} />
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}
