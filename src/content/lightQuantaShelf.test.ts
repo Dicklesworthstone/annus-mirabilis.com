@@ -1,9 +1,10 @@
 /**
  * The light-quanta shelf's sources were read (dispatch 252). Each card records, in its own
  * `sourceChecks`, the scan or catalog record that was read, the day, and what matched; nothing
- * renders it. The checks land card by card, so the cards checked so far are named by id: a named
- * card that loses a check turns this red, and the list becomes the whole shelf when the last card
- * is read.
+ * renders it. Every card on the shelf, and the later evidence beside it, carries a check for each
+ * of its sources, so a card added without one turns this red. The cards read are also named by id,
+ * so the shelf cannot pass by losing one, and a card whose source could not be read is named in
+ * NOT_READ and must say so in its check.
  */
 import { describe, expect, test } from "bun:test";
 import { sourceCheckProblems, uncheckedSources } from "../discovery/cards/sourceChecks.ts";
@@ -25,6 +26,7 @@ const CHECKED = [
   "boltzmann-1877-entropy-probability",
   "millikan-1916-photoelectric-h",
   "maxwell-1873-electromagnetic-light",
+  "fresnel-1826-diffraction",
 ];
 
 /**
@@ -40,11 +42,8 @@ describe("the light-quanta shelf's source checks", () => {
     for (const card of CARDS) expect(sourceCheckProblems(card)).toEqual([]);
   });
 
-  test("a card that records checks has checked every one of its sources", () => {
-    const withChecks = CARDS.filter((card) => (card.sourceChecks ?? []).length > 0);
-    // Not vacuous: at least the named cards below carry checks.
-    expect(withChecks.length).toBeGreaterThan(0);
-    for (const card of withChecks) expect([card.id, uncheckedSources(card)]).toEqual([card.id, []]);
+  test("every card has checked every one of its sources", () => {
+    for (const card of CARDS) expect([card.id, uncheckedSources(card)]).toEqual([card.id, []]);
   });
 
   test("a card whose source was not read says so in its check", () => {

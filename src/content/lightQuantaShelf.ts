@@ -39,13 +39,15 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "fresnel-1826-diffraction",
     proposition:
-      "Treating light as a wave predicts where diffraction and interference fringes fall, and the predictions match measurement.",
+      "Treating light as a wave, Fresnel calculates where the dark and bright diffraction fringes beside the shadow of an opaque body fall, from the concourse of the elementary waves of Huygens's principle, and finds his measurements agree with the calculation, and agree better than with the formula of his own first hypothesis.",
     status: "available",
+    limits:
+      "The memoir was crowned by the Academy in 1819 and deposited at the Institut on 29 July 1818; the volume that prints it is tome V, dated 1826. The agreement is for the fringes outside the shadow and for the ratios of their widths, measured with a micrometer to within the vagueness of the fringes, which Fresnel says limits the precision.",
     sources: [
       {
         title: "Mémoire sur la diffraction de la lumière",
         date: "1826",
-        locator: "Mém. Acad. Sci. 5, 339",
+        locator: "A. Fresnel, Mém. Acad. Sci. 5, 339",
       },
     ],
     date: {
@@ -55,7 +57,27 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
       latestYear: 1826,
       eventKind: "published",
     },
+    priorEvent: {
+      eventKind: "presented",
+      earliest: "1818-07-29",
+      latest: "1818-07-29",
+      precision: "day",
+    },
     admittedStages: ["stage-01"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://www.biodiversitylibrary.org/item/55242",
+        read: "page-image",
+        matched:
+          'BHL\'s record gives Mémoires de l\'Académie (royale) des sciences de l\'Institut, T.5 (1826); its OpenURL resolves p. 339 to page 16375936, which reads "Mémoire sur la diffraction de la lumière; par M. A. Fresnel", with the footnote: crowned by the Academy in 1819, "manuscrit déposé à l\'Institut le 29 juillet 1818", published with changes of wording "sans apporter aucune modification à la théorie et aux expériences". p. 409 (page foot "Tome V."): the positions of the maxima and minima found from the table of the integrals. p. 427: a table of observed distances of the darkest points against calculation, and "les rapports de largeur des franges sont plus fidèlement représentés par les distances répondant aux minima de l\'intégrale déduite du principe d\'Huygens, que par les formules calculées d\'après la première hypothèse"; the precision is limited "en raison du vague des franges". p. 429: the formation and the position of the exterior fringes explained "d\'une manière satisfaisante" by the concourse of an infinity of elementary waves.',
+        differs: [
+          "Supported. The proposition now says which fringes, what was compared, and that the calculation from Huygens's principle beat his first hypothesis; the author, the 1818 deposit and 1819 prize are added.",
+        ],
+      },
+    ],
   },
   {
     id: "maxwell-1873-electromagnetic-light",
