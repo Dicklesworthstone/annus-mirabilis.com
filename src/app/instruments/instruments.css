@@ -71,9 +71,10 @@
   padding-bottom: 0.35rem;
 }
 
-/* An instrument that answers with a table, shown by its own words: the columns it compares as a
-   heading, its first rows' labels in the reading serif, and a dotted rule where each value stands.
-   A photograph of the same table at this size was grey noise; these words can be read. */
+/* An instrument that answers with a table, shown by its own table: the columns it compares as a
+   heading, its first rows' labels in the reading serif, and beside each the value its laboratory
+   prints at its default settings. A photograph of the same table at this size was grey noise; these
+   words and numbers can be read. */
 .instrument-plate-words {
   display: flex;
   align-items: center;
@@ -93,11 +94,11 @@
 }
 
 .plate-columns-1 .plate-table {
-  grid-template-columns: minmax(0, 1fr) 3rem;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
 }
 
 .plate-columns-2 .plate-table {
-  grid-template-columns: minmax(0, 1.3fr) repeat(2, minmax(0, 0.7fr));
+  grid-template-columns: minmax(0, 1.1fr) repeat(2, minmax(0, 0.8fr));
 }
 
 .plate-columns-3 .plate-table {
@@ -134,10 +135,14 @@
   overflow: hidden;
 }
 
+/* A value as its laboratory prints it, whole: a number that ran out of room wraps inside its own
+   cell, between any two characters if it must, and is never cut short. */
 .plate-table-value {
-  height: 0;
-  margin-bottom: 0.3em;
-  border-bottom: 1px dotted var(--muted);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
 }
 
 .instrument-question {
@@ -192,8 +197,8 @@
   /* A table's own words cannot be read at 6rem: squeezed there, the plate was a grey box with a
      bar in it, which read as a picture that failed to load (TanElk, dispatch 129, live 1d12f3d7 at
      390). On a phone the entry is the question and, below it at full width, the same words as on a
-     desktop: the rows it answers with and the columns it compares, at the fine size, values still
-     dotted rules. Rows with a picture keep their 6rem plate. */
+     desktop: the rows it answers with, the columns it compares and the values, at the fine size.
+     Rows with a picture keep their 6rem plate. */
   .instrument-specimen a:has(.instrument-plate-words) {
     grid-template-columns: minmax(0, 1fr);
     gap: 0.5rem;

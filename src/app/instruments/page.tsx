@@ -108,12 +108,18 @@ function unaffiliated(): readonly CatalogueId[] {
  */
 const MANIFEST = join(process.cwd(), "public/figures/instruments/manifest.json");
 
-/** One stretch of a label as the laboratory sets it: plain, superscript or subscript. */
+/** One stretch of a label or value as the laboratory sets it: plain, superscript or subscript. */
 type Run = { readonly t: string; readonly s?: "sup" | "sub" };
-/** The words the generator read from a table-answering instrument: compared columns, row labels. */
-type TableWords = {
-  readonly head: readonly (readonly Run[])[];
-  readonly rows: readonly (readonly Run[])[];
+/**
+ * A table instrument's plate as its laboratory's own page gives it: the names of its columns of
+ * values, when the table names them, and its first rows, each a label and a value per column.
+ */
+type Plate = {
+  readonly columns: readonly (readonly Run[])[];
+  readonly rows: readonly {
+    readonly label: readonly Run[];
+    readonly values: readonly (readonly Run[])[];
+  }[];
 };
 
 function isLabel(value: unknown): value is readonly Run[] {
@@ -131,25 +137,47 @@ function isLabel(value: unknown): value is readonly Run[] {
 }
 
 const manifest = existsSync(MANIFEST)
-  ? (JSON.parse(readFileSync(MANIFEST, "utf8")) as {
-      pictures: Record<string, string>;
-      tables?: Record<string, { head?: unknown; rows?: unknown }>;
-    })
+  ? (JSON.parse(readFileSync(MANIFEST, "utf8")) as { pictures: Record<string, string> })
   : null;
 const pictured: ReadonlySet<string> | null = manifest
   ? new Set(Object.keys(manifest.pictures))
   : null;
 
 /**
- * The words for a table instrument's plate, when the generator read them. A label that is not a
- * list of runs is dropped rather than shown half-formed, and an entry left with no rows is none.
+ * The plates scripts/generate-instrument-table-plates.ts reads from each table instrument's own
+ * laboratory page, rendered with its default settings, in prepare:lab before every build (dispatch
+ * 246). Every value on a plate is a cell of that page's first table of values: the number the
+ * laboratory prints for its static worked case, from the owner it labels. None is typed here, and
+ * each build reads them again.
  */
-function tableWords(id: CatalogueId): TableWords | undefined {
-  const entry = manifest?.tables?.[id];
-  if (!entry) return undefined;
-  const rows = Array.isArray(entry.rows) ? entry.rows.filter(isLabel) : [];
-  const head = Array.isArray(entry.head) ? entry.head.filter(isLabel) : [];
-  return rows.length > 0 ? { head, rows } : undefined;
+const PLATES = join(process.cwd(), "src/generated/instrument-table-plates.json");
+const plates = existsSync(PLATES)
+  ? ((JSON.parse(readFileSync(PLATES, "utf8")) as { plates?: Record<string, unknown> }).plates ??
+    {})
+  : {};
+
+/**
+ * A table instrument's plate, when the generator read one. A label or column name that is not a
+ * list of runs is dropped rather than shown half-formed, and so is a row with an empty value: an
+ * empty cell beside a label is the widget-that-failed-to-load this plate replaced.
+ */
+function tablePlate(id: CatalogueId): Plate | undefined {
+  const entry = plates[id] as { columns?: unknown; rows?: unknown } | undefined;
+  if (!entry || !Array.isArray(entry.rows)) return undefined;
+  const rows = entry.rows.flatMap((row: { label?: unknown; values?: unknown }) =>
+    isLabel(row?.label) &&
+    Array.isArray(row.values) &&
+    row.values.length > 0 &&
+    row.values.every(isLabel)
+      ? [{ label: row.label, values: row.values as readonly (readonly Run[])[] }]
+      : [],
+  );
+  const width = rows[0]?.values.length ?? 0;
+  const aligned = rows.filter((row) => row.values.length === width);
+  const columns = Array.isArray(entry.columns) ? entry.columns.filter(isLabel) : [];
+  return aligned.length > 0
+    ? { columns: columns.length === width ? columns : [], rows: aligned }
+    : undefined;
 }
 
 function specimenPicture(id: CatalogueId): string | undefined {
@@ -209,44 +237,56 @@ function fitsThree(names: readonly (readonly Run[])[]): boolean {
   );
 }
 
+/** The runs as plain text, for keys and for measuring a column name. */
+function plain(runs: readonly Run[]): string {
+  return runs.map((run) => run.t).join("");
+}
+
 /**
- * A table instrument's plate: its own words set as a small table. A table that compares two or
- * three named columns of values (no drag, full drag, Fresnel drag) shows them as the heading, when
- * the names fit; any other shows its rows alone. A value is a dotted rule, never a number: the
- * words were read from the live laboratory by the generator, and a number copied here would go
- * stale while its page moved on. The plate stays hidden from assistive technology, because the
- * question beside it is the link's name.
+ * A table instrument's plate: its laboratory's own table, small. Each row is a label and its value
+ * at the laboratory's default settings, as the laboratory prints it. A table that compares two or
+ * three named columns of values (no drag, full drag, Fresnel drag) shows them all under their names
+ * when the names fit; any other shows its first column of values, under its name when the name says
+ * something ("Value" does not). So a reader never meets two columns of numbers without their names.
+ * The plate stays hidden from assistive technology, because the question beside it is the link's
+ * name.
  */
-function TablePlate({ words }: { words: TableWords }) {
-  const n = words.head.length;
-  const compared = n === 2 || (n === 3 && fitsThree(words.head)) ? words.head : [];
-  const cells = VALUE_CELLS.slice(0, Math.max(compared.length, 1));
+function TablePlate({ plate }: { plate: Plate }) {
+  const width = plate.rows[0]?.values.length ?? 0;
+  const all = width === 2 || (width === 3 && fitsThree(plate.columns));
+  const shown = all ? VALUE_CELLS.slice(0, width).map((_, i) => i) : [0];
+  const names = shown.map((i) => plate.columns[i]).filter((name) => name !== undefined);
+  const named =
+    names.length === shown.length &&
+    (names.length > 1 || (names[0] !== undefined && !/^value$/i.test(plain(names[0]))));
   // A label may take two lines, so a plate with a heading has room for three rows and one without
   // for four.
-  const rows = words.rows.slice(0, compared.length > 0 ? 3 : 4);
+  const rows = plate.rows.slice(0, named ? 3 : 4);
   return (
     <span
-      className={`instrument-plate instrument-plate-words ${COLUMNS_CLASS[cells.length - 1]}`}
+      className={`instrument-plate instrument-plate-words ${COLUMNS_CLASS[shown.length - 1]}`}
       aria-hidden="true"
     >
       <span className="plate-table">
-        {compared.length > 0 ? (
+        {named ? (
           <span className="plate-table-head">
             <span />
-            {compared.map((name) => (
-              <span key={name.map((run) => run.t).join("")}>
+            {names.map((name) => (
+              <span key={plain(name)}>
                 <Label runs={name} />
               </span>
             ))}
           </span>
         ) : null}
         {rows.map((row) => (
-          <span className="plate-table-row" key={row.map((run) => run.t).join("")}>
+          <span className="plate-table-row" key={plain(row.label)}>
             <span className="plate-table-label">
-              <Label runs={row} />
+              <Label runs={row.label} />
             </span>
-            {cells.map((cell) => (
-              <span className="plate-table-value" key={cell} />
+            {shown.map((i) => (
+              <span className="plate-table-value" key={VALUE_CELLS[i]}>
+                <Label runs={row.values[i] ?? []} />
+              </span>
             ))}
           </span>
         ))}
@@ -260,7 +300,7 @@ function InstrumentList({ ids }: { ids: readonly CatalogueId[] }) {
     <ul className="instrument-specimens">
       {ids.map((id) => {
         const picture = specimenPicture(id);
-        const words = picture ? undefined : tableWords(id);
+        const plate = picture ? undefined : tablePlate(id);
         return (
           <li key={id} className="instrument-specimen">
             <a href={`/lab/${id}/`}>
@@ -275,8 +315,8 @@ function InstrumentList({ ids }: { ids: readonly CatalogueId[] }) {
                     decoding="async"
                   />
                 </span>
-              ) : words ? (
-                <TablePlate words={words} />
+              ) : plate ? (
+                <TablePlate plate={plate} />
               ) : (
                 // Neither a photograph nor words read by the generator (an instrument added since
                 // its last run): the plate is a drawn table in the same frame, so the entries keep
