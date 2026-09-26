@@ -15,7 +15,7 @@ entries:
   # =========================================================================
   - id: bm.V.totalVolume
     paper: brownian-motion
-    scope: ["bm-s1"]
+    scope: ["bm-s1", "bm-s2"]
     glyph:
       unicode: "V"
       latex: "V"
@@ -33,7 +33,7 @@ entries:
       anchor: bm-s1-p1
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 549 (public/figures/plates/pages/ap-17-549/549-1280.webp): glyph read by eye from the page image, not the text layer. An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 549 (public/figures/plates/pages/ap-17-549/549-1280.webp): glyph read by eye from the page image, not the text layer. §2 prints it again on p. 552 in s2-p2, 'eine in dem Volumen V eingeschlossene Flüssigkeit' (checked 2026-09-26 by agent:NavyKite). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -170,7 +170,7 @@ entries:
 
   - id: bm.n.particleCount
     paper: brownian-motion
-    scope: ["bm-s1", "bm-s2"]
+    scope: ["bm-s1", "bm-s2", "bm-s4"]
     glyph:
       unicode: "n"
       latex: "n"
@@ -194,18 +194,20 @@ entries:
           anchor: bm-s1-p3
         - sectionId: bm-s2
           anchor: bm-s2-p2
+        - sectionId: bm-s4
+          anchor: bm-s4-p4
     sources:
       facsimilePage: 550
       anchor: bm-s1-p3
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 550 and 552 (public/figures/plates/pages/ap-17-549/550-1280.webp, public/figures/plates/pages/ap-17-549/552-1280.webp): glyph read by eye from the page images, not the text layer. Printed as 'n suspendierte Körper im Volumen V*' in s1-p3, the paragraph beginning 'Vom Standpunkte'. Its first use in §2 is on p. 552 (s2-p2, 'mögen sich n gelöste Moleküle'). An agent check, not a human review."
+      checkedAgainst: "Plates of printed pages 550 and 552 (public/figures/plates/pages/ap-17-549/550-1280.webp, public/figures/plates/pages/ap-17-549/552-1280.webp): glyph read by eye from the page images, not the text layer. Printed as 'n suspendierte Körper im Volumen V*' in s1-p3, the paragraph beginning 'Vom Standpunkte'. Its first use in §2 is on p. 552 (s2-p2, 'mögen sich n gelöste Moleküle'). §4 prints it on p. 556 in s4-p4, 'Seien nun in einer Flüssigkeit im ganzen n suspendierte Teilchen vorhanden', and in 'die Anzahl dn der Teilchen' (checked 2026-09-26 by agent:NavyKite). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
   - id: bm.nu.numberDensity
     paper: brownian-motion
-    scope: ["bm-s1", "bm-s2-p7", "bm-s3"]
+    scope: ["bm-s1", "bm-s2-p7", "bm-s3", "bm-s4"]
     glyph:
       unicode: "ν"
       latex: "\\nu"
@@ -231,12 +233,14 @@ entries:
           anchor: bm-s2-p7
         - sectionId: bm-s3
           anchor: bm-s3-p2
+        - sectionId: bm-s4
+          anchor: bm-s4-p5
     sources:
       facsimilePage: 550
       anchor: bm-s1-p3
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 550 and 554 (public/figures/plates/pages/ap-17-549/550-1280.webp, public/figures/plates/pages/ap-17-549/554-1280.webp): glyph read by eye from the page images, not the text layer. Printed in n/V* = ν in s1-p3, the paragraph beginning 'Vom Standpunkte'. In this type the Greek ν and an italic v look nearly alike; read as ν from its definition n/V* = ν. Its first use in §3 is on p. 554 (s3-p2, 'Es sei ν die Anzahl'). An agent check, not a human review. Scope bm-s2-p7 added 2026-09-25 by agent:GreenOx from the plate of printed page 553 (a pdftoppm image of the pinned PDF, read by eye): the paragraph's last display prints p = -dF/dV* = RT/V* n/N = RT/N ν, § 1's ν = n/V* again, so there ν is this number density and not the index of bm.nu.index, which holds for the equations of motion in s2-p1."
+      checkedAgainst: "Plates of printed pages 550 and 554 (public/figures/plates/pages/ap-17-549/550-1280.webp, public/figures/plates/pages/ap-17-549/554-1280.webp): glyph read by eye from the page images, not the text layer. Printed in n/V* = ν in s1-p3, the paragraph beginning 'Vom Standpunkte'. In this type the Greek ν and an italic v look nearly alike; read as ν from its definition n/V* = ν. Its first use in §3 is on p. 554 (s3-p2, 'Es sei ν die Anzahl'). An agent check, not a human review. Scope bm-s2-p7 added 2026-09-25 by agent:GreenOx from the plate of printed page 553 (a pdftoppm image of the pinned PDF, read by eye): the paragraph's last display prints p = -dF/dV* = RT/V* n/N = RT/N ν, § 1's ν = n/V* again, so there ν is this number density and not the index of bm.nu.index, which holds for the equations of motion in s2-p1. §4 prints it on p. 557, 'die Anzahl ν der Teilchen pro Volumeneinheit' in s4-p5 and 'Es sei ν = f(x, t) die Anzahl der Teilchen pro Volumeneinheit' in s4-p6 (checked 2026-09-26 by agent:NavyKite)."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -344,6 +348,81 @@ entries:
       checkedAgainst: "Plate of printed page 551 (public/figures/plates/pages/ap-17-549/551-1280.webp): glyph read by eye from the page image, not the text layer. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
+
+  - id: bm.p1.stateVariable
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "p₁"
+      latex: "p_1"
+      variant: subscripted
+    meaning: "The first of the state variables p₁ … p_l that fix the system's momentary state"
+    binding:
+      quantityId: stateVariable
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "p_1"
+    notes: "One of the state variables §2 names p₁ p₂ … p_l, such as the coordinates and velocity components of all the system's atoms; p_ν stands for any of them."
+    sources:
+      facsimilePage: 551
+      anchor: bm-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 551 (public/figures/plates/pages/ap-17-549/551-1280.webp): glyph read by eye from the page image, not the text layer. Italic p with subscript 1 is first printed in §2 on p. 551, 'Sind p₁ p₂ … p_l Zustandsvariable eines physikalischen Systems'; §2 prints the list again on p. 552 in s2-p2 ('durch die Zustandsvariabeln p₁ … p_l'). An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.p2.stateVariable
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "p₂"
+      latex: "p_2"
+      variant: subscripted
+    meaning: "The second of the state variables p₁ … p_l that fix the system's momentary state"
+    binding:
+      quantityId: stateVariable
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "p_2"
+    notes: "One of the state variables §2 names p₁ p₂ … p_l, such as the coordinates and velocity components of all the system's atoms; p_ν stands for any of them."
+    sources:
+      facsimilePage: 551
+      anchor: bm-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 551 (public/figures/plates/pages/ap-17-549/551-1280.webp): glyph read by eye from the page image, not the text layer. Italic p with subscript 2 is first printed in §2 on p. 551, 'Sind p₁ p₂ … p_l Zustandsvariable eines physikalischen Systems'; §2 prints the list again on p. 552 in s2-p2 ('durch die Zustandsvariabeln p₁ … p_l'). An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.pl.stateVariable
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "p_l"
+      latex: "p_l"
+      variant: subscripted
+    meaning: "The last, the l-th of the state variables p₁ … p_l that fix the system's momentary state"
+    binding:
+      quantityId: stateVariable
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "p_l"
+    notes: "One of the state variables §2 names p₁ p₂ … p_l, such as the coordinates and velocity components of all the system's atoms; p_ν stands for any of them."
+    sources:
+      facsimilePage: 551
+      anchor: bm-s2-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 551 (public/figures/plates/pages/ap-17-549/551-1280.webp): glyph read by eye from the page image, not the text layer. Italic p with subscript l is first printed in §2 on p. 551, 'Sind p₁ p₂ … p_l Zustandsvariable eines physikalischen Systems'; §2 prints the list again on p. 552 in s2-p2 ('durch die Zustandsvariabeln p₁ … p_l'). An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
 
   - id: bm.nu.index
     paper: brownian-motion
@@ -479,7 +558,7 @@ entries:
     scope: ["bm-s2"]
     glyph:
       unicode: "κ"
-      latex: "\\kappa"
+      latex: "\\varkappa"
       variant: plain
     meaning: "Statistical constant with 2κN = R: half of Boltzmann's constant"
     binding:
@@ -512,7 +591,7 @@ entries:
       anchor: bm-s2-p1
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 551 (public/figures/plates/pages/ap-17-549/551-1280.webp): glyph read by eye from the page image, not the text layer. Printed in the curly form of kappa (Unicode U+03F0, varkappa); the letter is Greek kappa as recorded. First printed in S = Ē/T + 2κ lg ∫… and '2κN = R', both in s2-p1. An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 551 (public/figures/plates/pages/ap-17-549/551-1280.webp): glyph read by eye from the page image, not the text layer. Printed in the curly form of kappa (Unicode U+03F0, varkappa); the letter is Greek kappa as recorded. First printed in S = Ē/T + 2κ lg ∫… and '2κN = R', both in s2-p1. The glyph's LaTeX is that letterform, \\varkappa, as the source blocks and displays transcribe it; until 2026-09-26 it read \\kappa, which no printed formula matches (agent:NavyKite, dispatch 272). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -521,7 +600,7 @@ entries:
     scope: ["bm-s2"]
     glyph:
       unicode: "2κ"
-      latex: "2\\kappa"
+      latex: "2\\varkappa"
       variant: plain
     meaning: "The product 2κ, which is Boltzmann's constant"
     binding:
@@ -533,14 +612,14 @@ entries:
         pattern:
           kind: multiply
           factor: 2
-          terms: ["\\kappa"]
+          terms: ["\\varkappa"]
         modernGlyph: "k_B"
     sources:
       facsimilePage: 551
       anchor: bm-s2-p1
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 551 (public/figures/plates/pages/ap-17-549/551-1280.webp): glyph read by eye from the page image, not the text layer. Printed with the curly form of kappa (U+03F0). First printed in s2-p1, in S = Ē/T + 2κ lg ∫… and '2κN = R'. An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 551 (public/figures/plates/pages/ap-17-549/551-1280.webp): glyph read by eye from the page image, not the text layer. Printed with the curly form of kappa (U+03F0). First printed in s2-p1, in S = Ē/T + 2κ lg ∫… and '2κN = R'. Its LaTeX and pattern are that letterform, 2\\varkappa, since 2026-09-26 (agent:NavyKite, dispatch 272). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -629,6 +708,32 @@ entries:
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
+  - id: bm.Bprime.configurationIntegral
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "B′"
+      latex: "B'"
+      variant: primed
+    meaning: "The configuration integral taken over the second system of regions for the particles' centres"
+    binding:
+      quantityId: configurationIntegral
+      dimensionStatus: state-dependent
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "B'"
+    notes: "B taken over the primed regions dx′₁ … dz′_n, which differ from the first only in their position; dB/B and dB′/B are the probabilities of the two placements."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic B with a prime is first printed on p. 552 at the end of s2-p4, in dB′ = dx′₁ dy′₁ … dz′_n · J′; p. 553 prints it in s2-p5, 'daß dB/B bez. dB′/B gleich ist der Wahrscheinlichkeit'. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
   - id: bm.J.integralFactor
     paper: brownian-motion
     scope: ["bm-s2"]
@@ -653,6 +758,456 @@ entries:
       checkedAgainst: "Plate of printed page 552 (public/figures/plates/pages/ap-17-549/552-1280.webp): glyph read by eye from the page image, not the text layer. Printed in dB = dx₁ dy₁ … dz_n . J in s2-p4, the paragraph beginning 'Wir nennen x₁, y₁, z₁'. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
+
+  - id: bm.x1.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "x₁"
+      latex: "x_1"
+      variant: subscripted
+    meaning: "The x-coordinate of the centre of gravity of the first particle, in the first system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "x_1"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic x and subscript 1 is first printed on p. 552 in s2-p4, 'Wir nennen x₁, y₁, z₁ die rechtwinkligen Koordinaten des Schwerpunktes des ersten Teilchens, x₂, y₂, z₂ die des zweiten etc., x_n, y_n, z_n die des letzten Teilchens'; p. 553 prints them again in s2-p5 and s2-p7. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.y1.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "y₁"
+      latex: "y_1"
+      variant: subscripted
+    meaning: "The y-coordinate of the centre of gravity of the first particle, in the first system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "y_1"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic y and subscript 1 is first printed on p. 552 in s2-p4, 'Wir nennen x₁, y₁, z₁ die rechtwinkligen Koordinaten des Schwerpunktes des ersten Teilchens, x₂, y₂, z₂ die des zweiten etc., x_n, y_n, z_n die des letzten Teilchens'; p. 553 prints them again in s2-p5 and s2-p7. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.z1.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "z₁"
+      latex: "z_1"
+      variant: subscripted
+    meaning: "The z-coordinate of the centre of gravity of the first particle, in the first system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "z_1"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic z and subscript 1 is first printed on p. 552 in s2-p4, 'Wir nennen x₁, y₁, z₁ die rechtwinkligen Koordinaten des Schwerpunktes des ersten Teilchens, x₂, y₂, z₂ die des zweiten etc., x_n, y_n, z_n die des letzten Teilchens'; p. 553 prints them again in s2-p5 and s2-p7. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.x2.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "x₂"
+      latex: "x_2"
+      variant: subscripted
+    meaning: "The x-coordinate of the centre of gravity of the second particle, in the first system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "x_2"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic x and subscript 2 is first printed on p. 552 in s2-p4, 'Wir nennen x₁, y₁, z₁ die rechtwinkligen Koordinaten des Schwerpunktes des ersten Teilchens, x₂, y₂, z₂ die des zweiten etc., x_n, y_n, z_n die des letzten Teilchens'; p. 553 prints them again in s2-p5 and s2-p7. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.y2.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "y₂"
+      latex: "y_2"
+      variant: subscripted
+    meaning: "The y-coordinate of the centre of gravity of the second particle, in the first system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "y_2"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic y and subscript 2 is first printed on p. 552 in s2-p4, 'Wir nennen x₁, y₁, z₁ die rechtwinkligen Koordinaten des Schwerpunktes des ersten Teilchens, x₂, y₂, z₂ die des zweiten etc., x_n, y_n, z_n die des letzten Teilchens'; p. 553 prints them again in s2-p5 and s2-p7. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.z2.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "z₂"
+      latex: "z_2"
+      variant: subscripted
+    meaning: "The z-coordinate of the centre of gravity of the second particle, in the first system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "z_2"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic z and subscript 2 is first printed on p. 552 in s2-p4, 'Wir nennen x₁, y₁, z₁ die rechtwinkligen Koordinaten des Schwerpunktes des ersten Teilchens, x₂, y₂, z₂ die des zweiten etc., x_n, y_n, z_n die des letzten Teilchens'; p. 553 prints them again in s2-p5 and s2-p7. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.xn.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "x_n"
+      latex: "x_n"
+      variant: subscripted
+    meaning: "The x-coordinate of the centre of gravity of the last particle, in the first system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "x_n"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic x and subscript n is first printed on p. 552 in s2-p4, 'Wir nennen x₁, y₁, z₁ die rechtwinkligen Koordinaten des Schwerpunktes des ersten Teilchens, x₂, y₂, z₂ die des zweiten etc., x_n, y_n, z_n die des letzten Teilchens'; p. 553 prints them again in s2-p5 and s2-p7. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.yn.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "y_n"
+      latex: "y_n"
+      variant: subscripted
+    meaning: "The y-coordinate of the centre of gravity of the last particle, in the first system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "y_n"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic y and subscript n is first printed on p. 552 in s2-p4, 'Wir nennen x₁, y₁, z₁ die rechtwinkligen Koordinaten des Schwerpunktes des ersten Teilchens, x₂, y₂, z₂ die des zweiten etc., x_n, y_n, z_n die des letzten Teilchens'; p. 553 prints them again in s2-p5 and s2-p7. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.zn.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "z_n"
+      latex: "z_n"
+      variant: subscripted
+    meaning: "The z-coordinate of the centre of gravity of the last particle, in the first system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "z_n"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic z and subscript n is first printed on p. 552 in s2-p4, 'Wir nennen x₁, y₁, z₁ die rechtwinkligen Koordinaten des Schwerpunktes des ersten Teilchens, x₂, y₂, z₂ die des zweiten etc., x_n, y_n, z_n die des letzten Teilchens'; p. 553 prints them again in s2-p5 and s2-p7. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.xprime1.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "x′₁"
+      latex: "x'_1"
+      variant: primed
+    meaning: "The x-coordinate of the centre of gravity of the first particle, in the second system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "x'_1"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic x with a prime and subscript 1 is first printed on p. 552 in s2-p4, 'und bezeichnet durch dx′₁ dy′₁ dz′₂, dx′₂ dy′₂ dz′₂ … dx′_n dy′_n dz′_n'; p. 553 prints (dx′₁ … dz′_n) in s2-p5. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.yprime1.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "y′₁"
+      latex: "y'_1"
+      variant: primed
+    meaning: "The y-coordinate of the centre of gravity of the first particle, in the second system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "y'_1"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic y with a prime and subscript 1 is first printed on p. 552 in s2-p4, 'und bezeichnet durch dx′₁ dy′₁ dz′₂, dx′₂ dy′₂ dz′₂ … dx′_n dy′_n dz′_n'; p. 553 prints (dx′₁ … dz′_n) in s2-p5. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.zprime1.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "z′₁"
+      latex: "z'_1"
+      variant: primed
+    meaning: "The z-coordinate of the centre of gravity of the first particle, in the second system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "z'_1"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic z with a prime and subscript 1 is first printed on p. 552 in s2-p4, 'und bezeichnet durch dx′₁ dy′₁ dz′₂, dx′₂ dy′₂ dz′₂ … dx′_n dy′_n dz′_n'; p. 553 prints (dx′₁ … dz′_n) in s2-p5. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.xprime2.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "x′₂"
+      latex: "x'_2"
+      variant: primed
+    meaning: "The x-coordinate of the centre of gravity of the second particle, in the second system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "x'_2"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic x with a prime and subscript 2 is first printed on p. 552 in s2-p4, 'und bezeichnet durch dx′₁ dy′₁ dz′₂, dx′₂ dy′₂ dz′₂ … dx′_n dy′_n dz′_n'; p. 553 prints (dx′₁ … dz′_n) in s2-p5. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.yprime2.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "y′₂"
+      latex: "y'_2"
+      variant: primed
+    meaning: "The y-coordinate of the centre of gravity of the second particle, in the second system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "y'_2"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic y with a prime and subscript 2 is first printed on p. 552 in s2-p4, 'und bezeichnet durch dx′₁ dy′₁ dz′₂, dx′₂ dy′₂ dz′₂ … dx′_n dy′_n dz′_n'; p. 553 prints (dx′₁ … dz′_n) in s2-p5. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.zprime2.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "z′₂"
+      latex: "z'_2"
+      variant: primed
+    meaning: "The z-coordinate of the centre of gravity of the second particle, in the second system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "z'_2"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic z with a prime and subscript 2 is first printed on p. 552 in s2-p4, 'und bezeichnet durch dx′₁ dy′₁ dz′₂, dx′₂ dy′₂ dz′₂ … dx′_n dy′_n dz′_n'; p. 553 prints (dx′₁ … dz′_n) in s2-p5. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.xprimen.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "x′_n"
+      latex: "x'_n"
+      variant: primed
+    meaning: "The x-coordinate of the centre of gravity of the last particle, in the second system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "x'_n"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic x with a prime and subscript n is first printed on p. 552 in s2-p4, 'und bezeichnet durch dx′₁ dy′₁ dz′₂, dx′₂ dy′₂ dz′₂ … dx′_n dy′_n dz′_n'; p. 553 prints (dx′₁ … dz′_n) in s2-p5. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.yprimen.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "y′_n"
+      latex: "y'_n"
+      variant: primed
+    meaning: "The y-coordinate of the centre of gravity of the last particle, in the second system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "y'_n"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic y with a prime and subscript n is first printed on p. 552 in s2-p4, 'und bezeichnet durch dx′₁ dy′₁ dz′₂, dx′₂ dy′₂ dz′₂ … dx′_n dy′_n dz′_n'; p. 553 prints (dx′₁ … dz′_n) in s2-p5. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
+
+  - id: bm.zprimen.latentPosition1d
+    paper: brownian-motion
+    scope: ["bm-s2"]
+    glyph:
+      unicode: "z′_n"
+      latex: "z'_n"
+      variant: primed
+    meaning: "The z-coordinate of the centre of gravity of the last particle, in the second system of regions"
+    binding:
+      quantityId: latentPosition1d
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "z'_n"
+    notes: "One of the rectangular coordinates §2 gives each particle's centre of gravity; the primed coordinates place the same particles in a second system of regions of the same size."
+    sources:
+      facsimilePage: 552
+      anchor: bm-s2-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 552 and 553 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp): glyph read by eye from the page images, not the text layer. Italic z with a prime and subscript n is first printed on p. 552 in s2-p4, 'und bezeichnet durch dx′₁ dy′₁ dz′₂, dx′₂ dy′₂ dz′₂ … dx′_n dy′_n dz′_n'; p. 553 prints (dx′₁ … dz′_n) in s2-p5. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
 
   - id: bm.delta.variationOperator
     paper: brownian-motion
@@ -737,6 +1292,31 @@ entries:
       checkedAgainst: "Plates of printed pages 552, 553 and 554 (public/figures/plates/pages/ap-17-549/552-1280.webp, public/figures/plates/pages/ap-17-549/553-1280.webp, public/figures/plates/pages/ap-17-549/554-1280.webp): glyph read by eye from the page images, not the text layer. Bare x, the coordinate along the X-axis, is first printed on p. 554 in s3-p2 ('eine solche Funktion von x', δx). Pages 552-553 print only the subscripted particle coordinates x₁ … x_n of §2. An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
+
+  - id: bm.X.axisLabel
+    paper: brownian-motion
+    scope: ["bm-s3", "bm-s4", "bm-s5"]
+    glyph:
+      unicode: "X"
+      latex: "X"
+      variant: plain
+    meaning: "The name of the axis along which the force acts and the displacements are counted"
+    binding:
+      nonQuantityKind: coordinate-system-label
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "X"
+    notes: "Printed only in 'X-Achse' and 'X-Koordinaten': it names the axis, whose coordinate is x."
+    sources:
+      facsimilePage: 554
+      anchor: bm-s3-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 554, 556 and 557 (public/figures/plates/pages/ap-17-549/554-1280.webp, public/figures/plates/pages/ap-17-549/556-1280.webp, public/figures/plates/pages/ap-17-549/557-1280.webp): glyph read by eye from the page images, not the text layer. Italic X is first printed on p. 554 in s3-p1, 'daß die Kraft überall die Richtung der X-Achse habe', and again in s3-p2 ('senkrecht zur X-Achse'); §4 prints 'die X-Koordinaten der einzelnen Teilchen' on p. 556 and 'zur X-Achse senkrechten Ebenen' on p. 557, and §5 'in Richtung der X-Achse' on p. 559. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-26"
 
   - id: bm.l.columnLength
     paper: brownian-motion
@@ -1020,8 +1600,8 @@ entries:
     paper: brownian-motion
     scope: ["bm-s4"]
     glyph:
-      unicode: "φ(Δ)"
-      latex: "\\varphi(\\Delta)"
+      unicode: "φ"
+      latex: "\\varphi"
       variant: plain
     meaning: "Probability density of a displacement, per unit length"
     binding:
@@ -1045,7 +1625,7 @@ entries:
       anchor: bm-s4-p4
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 556 (public/figures/plates/pages/ap-17-549/556-1280.webp): glyph read by eye from the page image, not the text layer. Printed in dn = nφ(Δ)dΔ in s4-p4, the paragraph beginning 'Seien nun'. An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 556 (public/figures/plates/pages/ap-17-549/556-1280.webp): glyph read by eye from the page image, not the text layer. Printed in dn = nφ(Δ)dΔ in s4-p4, the paragraph beginning 'Seien nun'. §4 prints the letter alone too, on p. 556 ('und φ nur für sehr kleine Werte von Δ') and p. 557 ('wie der Diffusionskoeffizient von φ abhängt', φ(x) = φ(-x)). Its glyph was the expression φ(Δ) until 2026-09-26, which matched no single printed letter; it is now the letter, printed with its argument or without (agent:NavyKite, dispatch 272). An agent check, not a human review."
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
@@ -1279,3 +1859,18 @@ entries:
       checkedAgainst: "Pending facsimile scan (ap-17-549)"
       by: "Editorial Staff"
       date: "2026-09-17"
+
+modernOnlySymbols:
+  - id: bm.modern.kappa
+    glyph:
+      unicode: "κ"
+      latex: "\\kappa"
+      variant: plain
+    binding:
+      quantityId: boltzmannConstant
+      scale:
+        num: 1
+        den: 2
+    scope: ["bm-s2"]
+    introducedBy: "modern typesetting of the printed curly kappa"
+    label: "The constant κ of 2κN = R, in the form of kappa modern texts set; the plate prints the curly kappa"

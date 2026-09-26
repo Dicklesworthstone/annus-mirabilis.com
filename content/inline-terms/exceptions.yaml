@@ -26,3 +26,9 @@ exceptions:
     glyph: "x"
     scope: ["lq-s1-fn3"]
     reason: "A misprint for α, recorded as typo-x-for-alpha-p135 in docs/provenance/ap-17-132.md: the footnote defines no x, and its sentence ranges over the amplitudes A and the phases α only. The x is kept as printed and names no quantity."
+
+  # Brownian motion. d has the reason content/display-terms/brownian-motion.yaml gives the displays.
+  - paper: brownian-motion
+    glyph: "d"
+    scope: ["all"]
+    reason: "The differential d of an integral or a derivative, as in d x₁, d n and d Δ: an operation, not a quantity."
