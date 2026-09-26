@@ -1,0 +1,57 @@
+# GlossUnit s3-p22-s4: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s3-p22-s4"
+sentenceId: "s3-p22-s4"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "90c79cdfd4898c2cc8dfec6b50d35cf9fa53adbaa609a5f2e8fc68df3bfd9164"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Wir"
+    english: "we"
+  - german: "fassen"
+  - german: "das"
+    english: "the"
+  - german: "Stück"
+    english: "portion"
+  - german: "der"
+    english: "of the"
+  - german: "Achse"
+    english: "axis"
+    grammarNote: "printed H-Achse: capital eta, the axis of η in k"
+    noteClass: "compound"
+  - german: "des"
+    english: "of the"
+  - german: "Systems"
+    english: "system"
+    lemma: "System"
+  - german: "ins"
+  - german: "Auge"
+  - german: "das"
+    english: "which"
+    lemma: "der"
+  - german: "zwischen"
+    english: "between"
+  - german: "und"
+    english: "and"
+  - german: "gelegen"
+    english: "situated"
+    lemma: "gelegen"
+  - german: "ist"
+    english: "is"
+    lemma: "sein"
+multiwordUnits:
+  - tokenIndices:
+      - 1
+      - 8
+      - 9
+    english: "consider"
+    kind: "fixed-phrase"
+    grammarNote: "ins Auge fassen, ‘to fix the eye on’, ‘to consider’"

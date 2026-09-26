@@ -1,0 +1,29 @@
+# GlossUnit s3-p22-s2: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s3-p22-s2"
+sentenceId: "s3-p22-s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "5b5394e085e54c88b7c206380f8cb3bcdfa095dabf3be8e6d0f1377746be1d8a"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Es"
+  - german: "ist"
+  - german: "also"
+    english: "therefore"
+    grammarNote: "also, ‘therefore’, not English ‘also’"
+    noteClass: "consequence"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 1
+    english: "we have"
+    kind: "fixed-phrase"
+    grammarNote: "es ist, ‘it is’, introducing the display: ‘we have’"
