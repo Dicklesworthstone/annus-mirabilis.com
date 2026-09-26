@@ -303,7 +303,9 @@ cards:
       - kind: premise
         text: "The theorem for a closed curve assumes that the result proved for a polygonal line also holds for a continuously curved one, and the paper says it assumes this."
       - kind: inference
-        text: "The equator remark applies the closed-curve theorem to the earth's rotation, and it holds in this paper's kinematics alone. On the real earth the difference in gravitational potential cancels it, and clocks at sea level keep the same rate everywhere, which the later general theory of relativity explains. The card keeps the remark as printed."
+        text: "The equator remark applies the closed-curve theorem to the earth's rotation, and it holds in this paper's kinematics alone. The card keeps the remark as printed."
+      - kind: comparison
+        text: "On the real earth the difference in gravitational potential cancels the effect, and clocks at sea level keep the same rate everywhere, which the later general theory of relativity explains."
     probes:
       - instrument: sr-05
         question: "A clock goes out and back at 0.6 of the speed of light: how far behind the clock that stayed is it at the reunion?"
