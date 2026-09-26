@@ -1,13 +1,17 @@
 import { describe, expect, test } from "bun:test";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { checkVoice } from "../../../content/checks/voice/index.ts";
 import {
+  DOORS,
   FORK_SOURCE_SPEED,
   FORK_UNDETECTED_ETHER,
   PPE_TASK,
   WORLD_CHECK,
 } from "../../../discovery/relativity/journeyIII.ts";
 import { SR05_PRESETS } from "../../../experiments/sr05/definition.ts";
+import srEquations from "../../../generated/special-relativity-equations.json";
 import RelativityEncounter from "./page";
 
 /**
@@ -214,6 +218,51 @@ describe("step 09: pieces to work by hand, then predict, perturb and explain", (
     const errors = checkVoice(words.join(" "), { context: "prose" }).filter(
       (f) => f.severity === "error",
     );
+    expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
+  });
+});
+
+describe("two doors to the same transformation", () => {
+  const inPaper = () => html.slice(html.indexOf('<section id="in-the-paper"'));
+
+  test("both doors arrive at § 3's map, a compiled record of the argument that builds it", () => {
+    const doors = [DOORS.frontDoor, ...DOORS.sideDoors];
+    expect(doors.length).toBeGreaterThanOrEqual(2);
+    const record = srEquations.equations.find((e) => e.id === DOORS.frontDoor.arrivesAtEquationId);
+    expect(record?.argument).toBe("arg-sr-lorentz-map");
+    for (const door of doors) {
+      expect(door.arrivesAtEquationId).toBe(DOORS.frontDoor.arrivesAtEquationId);
+      expect(door.arrivesAtLabel).toBe(DOORS.frontDoor.arrivesAtLabel);
+    }
+  });
+
+  test("the front door opens § 3's argument, and the side door a laboratory that exists", () => {
+    expect(DOORS.frontDoor.href).toBe("/papers/special-relativity/s3/#arg-sr-lorentz-map");
+    const side = DOORS.sideDoors[0];
+    expect(side?.href).toBe("/lab/sr-04/");
+    expect(existsSync(join(process.cwd(), "src/app/lab/sr-04/page.tsx"))).toBe(true);
+    // The coefficient picture is a later way of writing the map, and the door says so.
+    expect(side?.summary).toContain("later");
+  });
+
+  test("the page renders both doors and says they arrive at the same equation", () => {
+    const section = inPaper();
+    expect(section).toContain('data-door-type="front-door"');
+    expect(section).toContain('data-door-type="side-door"');
+    expect(text(section)).toContain("arrive at the same equation");
+  });
+
+  test("the route no longer says the German text is missing, and links it", () => {
+    expect(text(html)).not.toContain("is not finished");
+    expect(inPaper()).toContain('href="/papers/special-relativity/view/german/"');
+  });
+
+  test("the doors' words pass the voice lint", () => {
+    const words = [DOORS.frontDoor, ...DOORS.sideDoors]
+      .flatMap((d) => [d.title, d.summary ?? "", d.arrivesAtLabel ?? ""])
+      .concat(text(inPaper()))
+      .join(" ");
+    const errors = checkVoice(words, { context: "prose" }).filter((f) => f.severity === "error");
     expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
   });
 });
