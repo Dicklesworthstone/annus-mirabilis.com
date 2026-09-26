@@ -30,7 +30,7 @@ cards:
       - anchor: s0-p2
         sentences: [1, 2, 3, 4]
     equations: []
-    oneSentence: "The paper raises two presuppositions: that the same electrodynamic and optical laws hold in every coordinate system in which the equations of mechanics hold, which it calls the principle of relativity, and that light in empty space always travels with a definite velocity \\(V\\), independent of the state of motion of the emitting body; together, it says, they suffice for a simple and consistent electrodynamics of moving bodies, in which a light ether proves superfluous."
+    oneSentence: "The paper raises two presuppositions: that the same electrodynamic and optical laws hold in every coordinate system in which the equations of mechanics hold, which it calls the principle of relativity, and that light in empty space always travels with a definite velocity \\(V\\), independent of the state of motion of the emitting body; together, it says, they suffice for a simple and consistent electrodynamics of moving bodies, in which, it says, a light ether will prove superfluous, insofar as no absolutely resting space is introduced and no point of empty space is given a velocity."
     decoder:
       - symbol: "\"Prinzip der Relativität\""
         meaning: "The principle of relativity: the conjecture, raised to a presupposition, that absolute rest corresponds to no property of the phenomena, in electrodynamics as in mechanics."
