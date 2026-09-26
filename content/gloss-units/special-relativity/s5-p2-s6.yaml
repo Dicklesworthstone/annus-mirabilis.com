@@ -1,0 +1,61 @@
+# GlossUnit s5-p2-s6: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s5-p2-s6"
+sentenceId: "s5-p2-s6"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "61bbb80957d9343d70e45ed17d0e20183e9eb88b9982cbe2fb185a14a95e0dbb"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Es"
+    english: "it"
+  - german: "ist"
+    english: "is"
+    lemma: "sein"
+  - german: "bemerkenswert"
+    english: "noteworthy"
+  - german: "daß"
+    english: "that"
+    lemma: "dass"
+    grammarNote: "archaic spelling of dass"
+    noteClass: "archaic-spelling"
+  - german: "und"
+    english: "and"
+  - german: "in"
+  - german: "symmetrischer"
+  - german: "Weise"
+  - german: "in"
+    english: "into"
+  - german: "den"
+    english: "the"
+  - german: "Ausdruck"
+    english: "expression"
+  - german: "für"
+    english: "for"
+  - german: "die"
+    english: "the"
+  - german: "resultierende"
+    english: "resultant"
+    lemma: "resultieren"
+  - german: "Geschwindigkeit"
+    english: "velocity"
+  - german: "eingehen"
+    english: "enter"
+    lemma: "eingehen"
+    grammarNote: "eingehen in, ‘to enter into’, unsplit at the end of the daß clause"
+    noteClass: "separable-verb"
+multiwordUnits:
+  - tokenIndices:
+      - 5
+      - 6
+      - 7
+    english: "symmetrically"
+    kind: "fixed-phrase"
+    grammarNote: "in symmetrischer Weise, ‘in a symmetrical manner’"

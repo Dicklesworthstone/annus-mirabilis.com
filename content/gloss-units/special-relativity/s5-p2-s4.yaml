@@ -1,0 +1,52 @@
+# GlossUnit s5-p2-s4: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s5-p2-s4"
+sentenceId: "s5-p2-s4"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "84d6a60a18745b1149263ce5040299736f72ba365ab5d24b5c2f3833cc5f9f56"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Wir"
+    english: "we"
+  - german: "setzen"
+    english: "put"
+    lemma: "setzen"
+    grammarNote: "setzen, ‘to put’, ‘to set’: introducing the notation of the display"
+    noteClass: "term"
+  - german: "und"
+    english: "and"
+  - german: "ist"
+  - german: "dann"
+    english: "then"
+  - german: "als"
+  - german: "der"
+    english: "the"
+  - german: "Winkel"
+    english: "angle"
+  - german: "zwischen"
+    english: "between"
+  - german: "den"
+    english: "the"
+  - german: "Geschwindigkeiten"
+    english: "velocities"
+    lemma: "Geschwindigkeit"
+  - german: "und"
+    english: "and"
+  - german: "anzusehen"
+multiwordUnits:
+  - tokenIndices:
+      - 3
+      - 5
+      - 12
+    english: "is to be regarded as"
+    kind: "fixed-phrase"
+    grammarNote: "sein + zu + infinitive: ist ... als ... anzusehen, ‘is to be regarded as’; ansehen with zu inside it: an-zu-sehen"
+    noteClass: "necessity"

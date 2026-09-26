@@ -1,0 +1,33 @@
+# GlossUnit s5-p2-s5: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s5-p2-s5"
+sentenceId: "s5-p2-s5"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "9c456d81fd4c36c40f33a4a30391eac4c165f645a01f906ec27e2d0c4b3656fa"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Nach"
+    english: "after"
+  - german: "einfacher"
+    english: "simple"
+    lemma: "einfach"
+  - german: "Rechnung"
+    english: "calculation"
+  - german: "ergibt"
+  - german: "sich"
+multiwordUnits:
+  - tokenIndices:
+      - 3
+      - 4
+    english: "results"
+    kind: "reflexive"
+    grammarNote: "sich ergeben, ‘to result’: introduces the display"
+    noteClass: "consequence"
