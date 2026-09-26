@@ -228,12 +228,14 @@ export function InferenceLab({
           JavaScript.
         </p>
       </noscript>
+      <PredictGatePanels gate={gate} />
+      {/* After the prediction, still directly above the data it describes (dispatch 268). Above the
+          prediction it put the instrument 624px down at 1440. */}
       <p>
         These positions were generated with a hidden molecular number. First ask what the
         observations identify. Then declare the missing information, estimate the number, and test
         what a confidence interval does across hypothetical repeats.
       </p>
-      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <div>
           <form className="inference-controls" onSubmit={submit} noValidate>
