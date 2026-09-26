@@ -24,3 +24,61 @@
 .move-marker > p.fine {
   margin-top: 0.75rem;
 }
+
+/* A fork: the question and what its branches vary, then the branches side by side. The fork draws
+   no box of its own. */
+.journey-fork {
+  margin: 2.5rem 0;
+}
+.journey-fork > .eyebrow {
+  margin: 0 0 0.35rem;
+}
+.journey-fork > h3 {
+  margin: 0 0 0.35rem;
+}
+.journey-fork > .fine {
+  margin: 0 0 1.25rem;
+}
+.journey-branches {
+  display: grid;
+  /* A floor with a ceiling: auto-fit never shrinks a track below its floor, so a bare 18rem laid a
+     288px track in a 206px column at 320 (am-a3f1). */
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+  gap: 1.5rem;
+}
+
+/* A branch, the fork's one container: a rule on its leading edge, as an aside callout has. */
+.journey-branch {
+  padding: 0.25rem 0 0.25rem 1rem;
+  border-left: 2px solid var(--rule);
+}
+.journey-branch > h4 {
+  margin: 0 0 0.25rem;
+}
+.journey-branch > p {
+  margin: 0.5rem 0 0;
+}
+.journey-branch > .journey-branch-kind {
+  font-style: italic;
+}
+.journey-branch dl {
+  margin: 0.75rem 0 0;
+}
+.journey-branch dt {
+  font-family: var(--font-sans);
+  font-size: var(--type-micro);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--muted);
+}
+.journey-branch dd {
+  margin: 0.15rem 0 0.6rem;
+}
+.journey-branch details {
+  margin-top: 0.5rem;
+}
+.journey-branch ol {
+  margin: 0.4rem 0 0;
+  padding-left: 1.25rem;
+}
