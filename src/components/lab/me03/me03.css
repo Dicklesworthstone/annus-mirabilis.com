@@ -326,3 +326,11 @@
   margin-top: 0.75rem;
   font-size: var(--type-fine);
 }
+
+/* ME-03's shell on its own page starts closer to the hero (dispatch 268). With 1.5rem above its
+   eyebrow its prediction began at 603px at 1440, 3px past the 600px the other labs meet. Scoped to
+   this instrument, because the rule above reaches every .laboratory-shell on a page that loads this
+   file, embeds included. */
+.lab-route .laboratory-shell[data-instrument-id^="me-03"] {
+  padding-top: 1rem;
+}
