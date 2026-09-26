@@ -27,11 +27,13 @@ export default function CameraPage() {
           same path.
         </p>
       </header>
+      <CameraComparison example={{ ...example, parameters: p.data }} />
+      {/* The model's assumption sits with its "Not modeled" line, after the instrument (dispatch
+          268). Between the hero and the lab it put the instrument 661px down at 1440. */}
       <p className="notice">
         Noise-calibration assumption: stationary-feature clicks and the moving particle must have
         the same localization variance. The clicks cannot establish that assumption.
       </p>
-      <CameraComparison example={{ ...example, parameters: p.data }} />
       <NotModeledLine instrumentId="bm-08" />
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
