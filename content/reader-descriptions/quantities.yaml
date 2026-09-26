@@ -10,6 +10,7 @@
 # the printed letter means in one passage comes from the notation concordance, beside this line.
 # The symbol itself is shown above it, so these lines name no Greek letters.
 quantities:
+  acceleratingPotential: "The potential difference, the voltage, through which an electron has been accelerated from rest."
   auxiliaryGalileanCoordinate: "A helper coordinate, x minus v t: a point's distance from the moving system's origin, measured with the stationary system's rods and clocks. It is not the moving system's own coordinate."
   avogadroConstant: "The number of molecules in one gram-molecule, today's mole, of any substance."
   boltzmannConstant: "The gas constant per molecule: the gas constant divided by the number of molecules in a gram-molecule."
@@ -88,6 +89,7 @@ quantities:
   radiationEnergy: "The total energy of the radiation in a region, not per unit volume."
   radiationEntropy: "The total entropy of the radiation in a region, not per unit volume."
   radiationPressureMirror: "The pressure light exerts on a perfectly reflecting mirror."
+  radiusCurvatureMagnetic: "The radius of the circle into which an electron's path bends, when a magnetic force at right angles to its motion is the only force deflecting it."
   rmsDisplacement1d: "The square root of the mean square displacement along one axis: a typical distance a particle has moved."
   scaleFactorUnknown: "A function of the speed, left open at first in the transformation and later shown to equal 1."
   soluteAmount: "The amount of dissolved substance, counted in gram-molecules."
@@ -115,6 +117,7 @@ quantities:
   waveAngularFrequencyStationary: "How fast a light wave's phase turns, in radians per second, as measured in the stationary system K."
   waveFrequencyMoving: "The frequency of a light wave, oscillations per second, as measured in the moving system k."
   waveFrequencyReflectedMoving: "The frequency of the light reflected by the mirror, as measured in the moving system k, in which the mirror is at rest."
+  waveFrequencyReflectedStationary: "The frequency of the light reflected by the moving mirror, as measured in the stationary system K."
   waveFrequencyStationary: "The frequency of a light wave, oscillations per second, as measured in the stationary system K."
   wavePhase: "How far through its cycle a plane wave is, at a given place and time. Both systems agree on its value at an event."
   wienConstantAlpha: "The constant in front of Wien's radiation law."
