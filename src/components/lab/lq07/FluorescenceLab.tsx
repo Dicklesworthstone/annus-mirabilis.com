@@ -172,8 +172,9 @@ export function FluorescenceLab({
             fluorescent body to emit, and where multi-quantum and thermal cases depart from it.
           </p>
         </div>
-      </header>
-      <div className="lab-status-row">
+        {/* The execution line sits in the heading's right column, as labShell.css places it
+            (dispatch 268). As a row of its own under the heading it put the plot at 625-629px at
+            1440. */}
         <ExecutionChrome
           state={executionKind}
           view={view}
@@ -181,7 +182,7 @@ export function FluorescenceLab({
             notModeled: `${LQ07_MODEL.notModeled.join("; ")}.`,
           })}
         />
-      </div>
+      </header>
 
       <noscript>
         <p className="notice">
