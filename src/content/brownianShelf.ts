@@ -355,12 +355,12 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "naegeli-1879-single-impacts",
     proposition:
-      "Nägeli estimates the speed a single molecular impact can give a visible particle, finds it far too small to see, and concludes that the agitation of the liquid's molecules cannot be what moves the particles.",
+      "Nägeli estimates the speed one molecular impact can give a starch grain 3 micrometres across, finds it far too small to see even under the microscope, reckons that about a million molecules would have to strike at once in one direction to make a single visible jerk, and concludes that the motions of the liquid's molecules cannot be what makes the particles dance.",
     status: "available",
     sources: [
       {
-        title: "Über die Bewegungen kleinster Körperchen",
-        locator: "Sitzungsber. math.-phys. Cl. Akad. Wiss. München 1879, p. 389",
+        title: "Ueber die Bewegungen kleinster Körperchen",
+        locator: "C. v. Nägeli, Sitzungsber. math.-phys. Cl. Akad. Wiss. München 9 (1879), p. 389",
         date: "1879",
       },
     ],
@@ -371,9 +371,30 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       latestYear: 1879,
       eventKind: "published",
     },
+    priorEvent: {
+      eventKind: "presented",
+      earliest: "1879-06-07",
+      latest: "1879-06-07",
+      precision: "day",
+    },
     limits:
-      "The estimate is for one impact at a time. It does not ask what the imbalance of very many impacts in a short interval does, which is where the route turns.",
+      "He could not calculate the effect of a water molecule, whose speed was unknown, so he used a water-vapour molecule in air as an upper bound. He did consider the very many impacts, more than a trillion a second, and held that, coming from every side, they cancel completely; he does not estimate how large their chance imbalance over a short interval would be, which is where the route turns. For the cause he points instead to attracting and repelling forces between molecules, perhaps electric, and calls that only a possibility.",
     admittedStages: ["stage-02"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/sitzungsbericht153klasgoog",
+        read: "page-image",
+        matched:
+          'Leaf 400 is p. 389: "Sitzung vom 7. Juni 1879 (Nachtrag). Herr Professor v. Nägeli legt eine Abhandlung vor: \'Ueber die Bewegungen kleinster Körperchen.\'"; page feet read "[1879. 3. Math.-phys. Cl.]"; the catalog record calls the volume 9. p. 414, "II. Bewegungen im Wasser": the dance of the smallest bodies, "Brown\'sche \'Molecularbewegung\'". p. 416: an exact calculation of the speed water molecules give a small body "ist zwar nicht ausführbar", their speed being unknown. p. 417: a water-gas molecule in air would give a starch grain of 0.003 mm a speed of 0.000002 mm a second, 0.001 mm even magnified 500 times; "eine Million von Wassermolecülen" would have to strike it "im nämlichen Moment in der gleichen Richtung" for one jerk. p. 418: more than a trillion impacts a second, "aber sie kommen von allen möglichen Seiten und heben sich ... in ihrer Wirkung vollständig auf"; so "andere moleculare Ursachen" must be sought, attracting and repelling forces, electric attraction "weiter nichts als eine Möglichkeit". Exner 1900, p. 844, cites it as "Münchener Ber. p. 389-453. 1879".',
+        differs: [
+          'The limits said the estimate "is for one impact at a time" and "does not ask what the imbalance of very many impacts ... does". Nägeli does take up the many impacts (p. 418) and holds that they cancel completely; what he does not estimate is the size of their chance imbalance. Corrected.',
+          'The title is printed "Ueber"; the author, volume and the session of 7 June 1879 are now on the card, and its method (a water-vapour molecule in air as an upper bound) and its alternative cause are in the limits.',
+        ],
+      },
+    ],
   },
   {
     id: "vant-hoff-1887-osmotic-gas-law",
