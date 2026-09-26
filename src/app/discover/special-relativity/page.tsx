@@ -8,6 +8,7 @@ import {
   SPECIAL_RELATIVITY_SHELF_CARDS,
 } from "../../../content/specialRelativityShelf.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { Doors } from "../../../discovery/Doors.tsx";
 import { Fork } from "../../../discovery/Fork.tsx";
 import { PpeTask } from "../../../discovery/PpeTask.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
@@ -20,6 +21,7 @@ import {
   SIMULTANEITY_EXPLANATION,
 } from "../../../discovery/relativity/journeyExercises.ts";
 import {
+  DOORS,
   FORK_SOURCE_SPEED,
   FORK_UNDETECTED_ETHER,
   PPE_TASK,
@@ -40,11 +42,15 @@ export const metadata: Metadata = {
  *
  * A reconstruction, not a biography.
  *
- * THIS ROUTE CARRIES THE ARGUMENT BUT CANNOT CARRY THE SOURCE, and says so rather than working
- * around it. Measured 2026-09-22: the German face of this paper renders 1,060 characters and the
- * not-yet-available notice, because the ledger stands at 22 of 31 pages. The other three routes
- * can send a reader to a set German text; this one cannot, and step 9 tells the reader that
- * instead of linking them to a stub.
+ * THE ROUTE ENDS AT THE SOURCE, as the other three do. Until 2026-09-25 it could not: the ledger
+ * stood at 22 of 31 pages, the German face showed a notice, and this page said so rather than link
+ * a stub. The ledger has covered all 31 pages since 421d73f3, so the closing section links the
+ * German face (dispatch 260).
+ *
+ * THE SKELETON'S STEPS 5, 7 AND 9 AND A SIDE DOOR (dispatch 260) come from
+ * src/discovery/relativity/: two forks on the 1904 table, a check of § 4's moving clock against
+ * SR-05's accepted snapshot with Ives and Stilwell's 1938 measurement stated in words, four pieces
+ * to work by hand with a predict-perturb-explain task, and two doors to § 3's map.
  *
  * NO ADMITTED IMPORT. Every card is pre-1905, as with light-quanta.
  *
@@ -352,15 +358,14 @@ export default function SpecialRelativityRoute() {
       <aside className="notice">
         <h2>What this route cannot show you</h2>
         <p>
-          The other three routes end at the paper&rsquo;s German text. This one cannot yet: the
-          transcription of the relativity paper is not finished, and until it is, the German face
-          shows a notice rather than part of a text. The route carries the argument and the
-          instruments on their own.
+          No instrument here is an experiment. Every number on the laboratories linked above is
+          calculated by this site from the model just described. A simulator built to obey a
+          transformation law cannot be evidence that the world obeys it; the measurement at step 08
+          is, and it came later.
         </p>
         <p>
-          Nor is any instrument here an experiment. Every number on the laboratories linked above is
-          calculated by this site from the model just described. A simulator built to obey a
-          transformation law cannot be evidence that the world obeys it.
+          Nor does the route choose between the paper&rsquo;s account and Lorentz&rsquo;s. Every
+          measurement on the shelf, and the later one at step 08, comes out the same on both.
         </p>
       </aside>
 
@@ -371,8 +376,16 @@ export default function SpecialRelativityRoute() {
           paragraph, the clock-setting procedure is section 1, simultaneity is section 2, the
           construction is section 3, clocks and rods are section 4, velocity addition is section 5,
           and the electrodynamic half from section 6 onwards carries the field transformations,
-          Doppler and aberration, and the dynamics of the electron.
+          Doppler and aberration, and the dynamics of the electron. Its{" "}
+          <a href="/papers/special-relativity/view/german/">German text</a> and an English
+          translation are on this site.
         </p>
+        <p>
+          Two doors lead to the same place, the map of section 3: the paper&rsquo;s own construction
+          from the clock-setting rule, and the map built one requirement at a time in a laboratory,
+          a programmer&rsquo;s way in. Both arrive at the same equation.
+        </p>
+        <Doors doors={DOORS} />
         <div className="actions">
           <a className="button" href="/papers/special-relativity/">
             Read the argument as this edition explains it

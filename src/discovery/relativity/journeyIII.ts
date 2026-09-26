@@ -12,7 +12,7 @@
  * Fizeau's p. 355, the three null results are Lorentz's p. 825, and the second presupposition is
  * the paper's own sentence s0-p2-s2.
  */
-import type { Fork, PpeTask, WorldCheck } from "../../content/schemas/journey.ts";
+import type { Doors, Fork, PpeTask, WorldCheck } from "../../content/schemas/journey.ts";
 import { SR05_MODEL, SR05_PRESETS } from "../../experiments/sr05/definition.ts";
 import { CLOCK_CHECK_READING } from "./worldCheck.ts";
 
@@ -228,4 +228,37 @@ export const PPE_TASK: PpeTask = {
   perturbPrompt: `In the laboratory at step 08, press ${button("sr-05-out-and-back-0.6c")} and read the moving clock; then press ${button("sr-05-circle-0.6c")} and read it again. Last, press ${button("sr-05-low-speed-1e-4")} and set the exact loss per second beside the printed second-order form.`,
   explainPrompt:
     "Explain why the two paths give the same reading, and say what the laboratory computes rather than measures.",
+};
+
+const MAP_LABEL =
+  "the map of § 3: x′ = γ(x − vt) and t′ = γ(t − vx/c²), with γ = 1/√(1 − v²/c²), which the paper writes ξ = β(x − vt) and τ = β(t − vx/V²)";
+
+/**
+ * The doors (plan §9.4): the paper's construction and a side door for programmers through SR-04,
+ * which builds the same map one requirement at a time. Both arrive at the compiled record of the
+ * moving system's time, eq-model-sr-map-time, in the argument that builds the map
+ * (arg-sr-lorentz-map). SR-04's own reading says that § 3 reaches the same map by another path,
+ * and that its coefficient picture is a later aid.
+ */
+export const DOORS: Doors = {
+  frontDoor: {
+    id: "door-sr-front",
+    title: "The paper's construction from the clock-setting rule, § 3",
+    arrivesAtEquationId: "eq-model-sr-map-time",
+    arrivesAtLabel: MAP_LABEL,
+    href: "/papers/special-relativity/s3/#arg-sr-lorentz-map",
+    summary:
+      "Set the moving system's clocks by the rule of § 1, ask what time τ an event must have for light to take equal times out and back, and solve. An unknown factor φ(v) is left, and the paper fixes it at 1 with a third system moving back at −v, and a rod set across the motion whose measured length cannot depend on the direction of travel.",
+  },
+  sideDoors: [
+    {
+      id: "door-sr-requirements",
+      title: "The map from its requirements, for programmers",
+      arrivesAtEquationId: "eq-model-sr-map-time",
+      arrivesAtLabel: MAP_LABEL,
+      href: "/lab/sr-04/",
+      summary:
+        "Start from a candidate map x′ = a(x − vt), t′ = bt + dx with unknown coefficients, and add requirements one at a time: light at c in both directions, a map back of the same kind, no preferred direction in space, and nothing changed at v = 0. One map survives. Writing it as a table of coefficients is a later way of seeing it; the paper solves equations.",
+    },
+  ],
 };
