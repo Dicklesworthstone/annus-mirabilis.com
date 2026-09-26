@@ -120,6 +120,88 @@ describe("a printed misprint on the German face", () => {
     }
   });
 
+  describe("a misprint inside an inline formula (dispatch 270)", () => {
+    // Relativity s6-p3 prints (X', Y' Z') with the comma after Y' dropped (err-typo-p908-1).
+    const PATH = "content/source-blocks/special-relativity/s6-p3.yaml";
+    const ID = "err-typo-p908-1";
+
+    test("keeps the printed LaTeX and the block's text, and without JavaScript links the set formula to its record", () => {
+      const b = block(PATH);
+      const marker = b.inlines.find((n) => n.kind === "misprint" && n.recordId === ID) as
+        | { math?: { latex?: string } }
+        | undefined;
+      expect(marker?.math?.latex).toBe("(X', Y' Z')");
+      expect(plainText(b.inlines)).toBe(b.diplomaticText);
+      const html = renderToStaticMarkup(renderInlines(b.inlines));
+      const link = html.split(`data-misprint="${ID}"`)[1]?.split("</a>")[0] ?? "";
+      expect(html).toContain(`href="/sources/#${ID}"`);
+      // The formula is set by KaTeX inside the link, as any inline formula is, never as TeX text.
+      expect(link).toContain('class="inline-math"');
+      expect(link).toContain("katex");
+      expect(html).not.toContain("<button");
+    });
+
+    test("opens its note: the formula as printed, and the formula meant", async () => {
+      await installDom();
+      const container = createContainer();
+      try {
+        const note = misprintNotes().get(ID);
+        expect(note?.formula).toEqual({ printed: "(X', Y' Z')", reading: "(X', Y', Z')" });
+        const root = createRoot(container);
+        await act(async () => {
+          root.render(<p>{renderInlines(block(PATH).inlines)}</p>);
+        });
+        const trigger = container.querySelector<HTMLButtonElement>(
+          `[data-misprint-trigger="${ID}"]`,
+        );
+        expect(trigger?.querySelector(".katex")).not.toBeNull();
+        expect(trigger?.getAttribute("aria-label")).toContain("so printed; read");
+        await act(async () => {
+          trigger?.click();
+        });
+        const opened = container.querySelector(`[data-misprint-note="${ID}"]`);
+        expect(opened?.textContent).toContain("So printed: ");
+        expect(opened?.textContent).toContain("The comma between the second and third components");
+        const formulas = [...(opened?.querySelectorAll(".katex") ?? [])];
+        expect(formulas.length).toBe(2);
+        const tex = formulas.map((f) => f.querySelector("annotation")?.textContent);
+        expect(tex).toEqual(["(X', Y' Z')", "(X', Y', Z')"]);
+        await act(async () => root.unmount());
+      } finally {
+        removeContainer(container);
+        await uninstallDom();
+      }
+    });
+
+    test("validateInline refuses a misprint whose formula is a display, is missing, or comes with text", () => {
+      const valid = {
+        kind: "misprint",
+        recordId: ID,
+        math: { kind: "math", latex: "(X', Y' Z')" },
+      };
+      expect(validateInline(valid, "ok")).toEqual(valid as Inline);
+      const codeOf = (bad: unknown) => {
+        try {
+          validateInline(bad, "bad");
+        } catch (error) {
+          return (error as { code?: unknown }).code;
+        }
+        return "accepted";
+      };
+      for (const bad of [
+        { kind: "misprint", recordId: ID, math: { kind: "math", latex: "x", display: true } },
+        { kind: "misprint", recordId: ID, math: { kind: "text", text: "x" } },
+        { kind: "misprint", recordId: ID, math: "x" },
+        { kind: "misprint", recordId: ID, text: "x", math: { kind: "math", latex: "x" } },
+      ])
+        expect(codeOf(bad), JSON.stringify(bad)).toBe("misprint-formula-not-inline");
+      for (const recordId of [undefined, "Err Typo"])
+        expect(codeOf({ kind: "misprint", recordId, math: { kind: "math", latex: "x" } })).toBe(
+          "misprint-formula-without-record",
+        );
+    });
+  });
+
   test("a retracted record, or an id no receipt holds, renders the word and no marker", () => {
     // err-typo-p899-1 is retracted: the printed H is capital Eta, and correct.
     expect(misprintNotes().has("err-typo-p899-1")).toBe(false);

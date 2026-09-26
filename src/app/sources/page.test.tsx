@@ -114,8 +114,22 @@ describe("/sources/", () => {
       const item = items.filter((i) => i.startsWith(`id="${record.id}"`));
       expect({ id: record.id, once: item.length }).toEqual({ id: record.id, once: 1 });
       const body = item[0] ?? "";
-      expect(body).toContain(`Printed: <span lang="de">${escaped(record.originalReading)}</span>`);
-      expect(body).toContain(`Proposed: <span lang="de">${escaped(record.proposedReading)}</span>`);
+      // A reading's words are served as written; its $...$ formulas are set, never shown as TeX
+      // (readingParts, dispatch 270).
+      for (const [label, reading] of [
+        ["Printed", record.originalReading],
+        ["Proposed", record.proposedReading],
+      ] as const) {
+        const line = body.split(`${label}: <span lang="de">`)[1]?.split("</p>")[0] ?? "";
+        expect(line.length, `${record.id} ${label}`).toBeGreaterThan(0);
+        for (const part of reading.split(/(\$[^$]*\$)/).filter((p) => p.length > 0)) {
+          if (/^\$[^$]*\$$/.test(part)) expect(line, record.id).toContain('class="inline-math"');
+          else expect(line, record.id).toContain(escaped(part));
+        }
+        if (reading.includes("$"))
+          expect(line.replace(/<[^>]+>/g, ""), record.id).not.toContain("$");
+        else expect(body).toContain(`${label}: <span lang="de">${escaped(reading)}</span>`);
+      }
       if (record.status === "retracted") {
         expect(body).toContain("withdrawn");
         expect(body).toContain(escaped(firstSentence(record.retraction?.reason ?? "")));
@@ -149,8 +163,12 @@ describe("/sources/", () => {
   });
 
   test("no em dash in the page's own text; a printed reading keeps the dash it was printed with", () => {
-    // Quoted German is the source's, not this page's copy.
-    const own = html.replace(/<span lang="de">[^<]*<\/span>/g, "").replace(/<[^>]+>/g, "");
+    // Quoted German is the source's, not this page's copy. A reading that holds a set formula
+    // carries markup inside its span, so a log line is taken out whole (dispatch 270).
+    const own = html
+      .replace(/(Printed|Proposed): <span lang="de">[\s\S]*?<\/p>/g, "")
+      .replace(/<span lang="de">[^<]*<\/span>/g, "")
+      .replace(/<[^>]+>/g, "");
     expect(own).not.toContain("—");
   });
 });
