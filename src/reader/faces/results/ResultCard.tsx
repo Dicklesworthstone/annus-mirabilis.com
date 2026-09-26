@@ -349,7 +349,13 @@ export function ResultCard({
           <ul>
             {card.usedBy.map((u) => (
               <li key={u.relatedResultId ?? u.text}>
-                {u.relatedResultId ? <a href={`#result-${u.relatedResultId}`}>{u.text}</a> : u.text}
+                {u.href ? (
+                  <a href={u.href}>{u.text}</a>
+                ) : u.relatedResultId ? (
+                  <a href={`#result-${u.relatedResultId}`}>{u.text}</a>
+                ) : (
+                  u.text
+                )}
                 {u.date ? ` (${u.date})` : ""}
               </li>
             ))}
