@@ -24,7 +24,9 @@
 .source-column {
   max-width: min(var(--reader-measure), 100%);
 }
-[data-german-draft] p {
+/* The source blocks' German face (GermanFace) reads as the draft face did: every German face
+   renders its source blocks since dispatch 255. */
+:is([data-german-draft], .face-german [data-source-body], .face-german .reader-footnotes) p {
   hyphens: auto;
 }
 
@@ -51,6 +53,9 @@
    about 35px tall at the default type size. */
 [data-german-draft] [id],
 .source-footnotes [id] {
+  scroll-margin-top: 3rem;
+}
+.face-german [data-source-body] [id] {
   scroll-margin-top: 3rem;
 }
 
@@ -119,7 +124,12 @@
    scrolled sideways at 320px (the browser lane's phoneOverflow e2e: 327 vs 320). At 1.05em, a
    value already in the scale's vocabulary, the 28 German pages at 320 and 390 have none that
    scroll sideways, where one did. Display formulas keep KaTeX's size and scroll in their line. */
-:is([data-german-draft], .source-footnotes) .katex:not(.katex-display > .katex) {
+:is(
+  [data-german-draft],
+  .source-footnotes,
+  .face-german [data-source-body],
+  .face-german .reader-footnotes
+) .katex:not(.katex-display > .katex) {
   font-size: 1.05em;
 }
 

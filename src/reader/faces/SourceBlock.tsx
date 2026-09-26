@@ -271,7 +271,13 @@ export function SourceBlockComponent({
   }
 
   return (
-    <div className="source-block-wrapper" data-block-wrapper={block.id}>
+    <div
+      className="source-block-wrapper"
+      data-block-wrapper={block.id}
+      // The page the block starts on, which the plate beside the German face turns to
+      // (FollowingPlate); a page turn inside the block carries its own.
+      data-printed-page={block.locators[0]?.printedPage}
+    >
       {bodyContent}
       {matchingNotes.length > 0 && (
         <div className="block-editorial-notes">

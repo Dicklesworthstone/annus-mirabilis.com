@@ -10,6 +10,7 @@ import { citationTitleClose } from "../content/citationTitle.ts";
 import { loadGermanSourceFace, printedUnits } from "../content/editions/germanSourceFace.ts";
 import { validateEntranceRecord } from "../content/entrances/entranceRecord.ts";
 import type { RouteSlug } from "../content/ids.ts";
+import { aliasTargets } from "../content/notation/anchorCoversPage.ts";
 import { loadConcordanceForPaper } from "../content/notation/loader.ts";
 import { hasResultCards } from "../content/results/resultCards.ts";
 import { getModalityClasses } from "../content/schemas/glossConventions.ts";
@@ -118,29 +119,72 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
       // chooser.
       //
       // A paper may hold a ledger draft on disk beside, or instead of, an edition's source
-      // blocks. The receipt is read unless every edition block is reviewed: blocks derived
-      // from a machine-draft ledger are still a machine draft, and GermanFace carries no
-      // draft label, plates or chooser, so the draft face keeps the German face until the
-      // blocks are reviewed (germanFaceRendersEdition). The draft is consulted for German
-      // alone: English, parallel and gloss need translation units that no ledger provides.
+      // blocks. Since dispatch 255 the blocks render the German face whenever there are any,
+      // reviewed or not (germanFaceRendersEdition), so the draft is read only for a paper with
+      // none. The draft is consulted for German alone: English, parallel and gloss need
+      // translation units that no ledger provides.
       if (resolved.face === "german") {
         const blocks = edition?.blocks ?? [];
         const editionBlocks = blocks.length;
-        const draft = editionBlocksReviewed(blocks)
-          ? null
-          : loadGermanSourceFace(resolved.paperId as RouteSlug);
+        // The draft is read only for a paper without source blocks (germanFaceRendersEdition).
+        const draft =
+          editionBlocks > 0 || editionBlocksReviewed(blocks)
+            ? null
+            : loadGermanSourceFace(resolved.paperId as RouteSlug);
         if (germanFaceHasContent(editionBlocks, draft?.blocks.length ?? 0)) {
           if (edition && germanFaceRendersEdition(blocks, draft?.blocks.length ?? 0)) {
-            // Before it is reviewed, an edition renders here only for a paper with no ledger draft
-            // face (special relativity). It then carries the draft's label, names the sections and
-            // pages it lacks, and links each paragraph to its explanation, as the draft face does:
-            // arriving a section at a time, it must not read as the whole paper (dispatch 192).
+            // The edition names the sections and pages it lacks, and links each paragraph to its
+            // explanation, as the draft face does: arriving a section at a time, it must not read
+            // as the whole paper (dispatch 192).
             const paperRecord = await loadPaper(resolved.paperId);
             const { explainedBy, notExplained } = passageLinks(
               resolved.paperId,
               paperRecord.arguments,
             );
             const pdf = `papers/pdfs/${edition.paper.bibKey}.pdf`;
+            // The printed pages beside the text, as the draft face set them: a page is offered only
+            // when both of its plates (640 and 1280px wide) are in public/, and the volume comes
+            // from the key's own grammar, ap-<volume>-<first page>.
+            const printedKey = /^ap-(\d+)-(\d+)$/.exec(edition.paper.bibKey);
+            const plateDir = `/figures/plates/pages/${edition.paper.bibKey}`;
+            const platePages = printedKey
+              ? [...new Set(blocks.flatMap((b) => b.locators.map((l) => l.printedPage)))]
+                  .sort((a, b) => a - b)
+                  .filter((page) =>
+                    [`${page}.webp`, `${page}-1280.webp`].every((file) =>
+                      existsSync(join(process.cwd(), "public", plateDir, file)),
+                    ),
+                  )
+              : [];
+            const plate =
+              printedKey && platePages.length > 0
+                ? {
+                    dir: plateDir,
+                    pages: platePages,
+                    volume: printedKey[1] as string,
+                    scanHref: `/${pdf}`,
+                  }
+                : undefined;
+            // Retired manifest ids, each to the published id that absorbed it (content/aliases),
+            // where the face publishes that id: a block or a sentence. A reference occurrence
+            // (s2-p2-s1-r3) is no anchor, so an alias to it would lead nowhere.
+            const published = new Set(
+              blocks.flatMap((b) => [b.id, ...b.sentenceSpans.map((span) => span.id)]),
+            );
+            const aliases = Object.fromEntries(
+              [...aliasTargets(process.cwd(), resolved.paperId)].flatMap(([retired, targets]) => {
+                const target = targets[0];
+                return target && published.has(target) && !published.has(retired)
+                  ? [[retired, target]]
+                  : [];
+              }),
+            );
+            const availability = faceAvailability({
+              blocks: editionBlocks,
+              units: edition.units.length,
+              glossUnits: edition.glossUnits?.length ?? 0,
+              germanDraftBlocks: 0,
+            });
             return (
               <GermanFace
                 paper={edition.paper}
@@ -159,6 +203,9 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                 pdfHref={existsSync(join(process.cwd(), "public", pdf)) ? `/${pdf}` : null}
                 explainedBy={explainedBy}
                 notExplained={notExplained}
+                plate={plate}
+                aliases={aliases}
+                availability={availability}
               />
             );
           }

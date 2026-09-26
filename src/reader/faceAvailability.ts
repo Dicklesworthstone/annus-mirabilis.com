@@ -94,12 +94,13 @@ export const glossFaceHasContent = (blocks: number, glossUnits: number): boolean
 /**
  * WHICH GERMAN RENDERER, when a paper has both an edition's source blocks and a ledger draft.
  *
- * GermanFace renders SourceBlock records and carries no draft label, no page plates and no face
- * chooser; GermanDraftFace renders the ledger draft with all three (am-dl4n: "Show it, labelled a
- * draft"). Source blocks derived from a machine-draft ledger are still a machine draft, so the
- * edition's blocks take the German face over only once EVERY one of them is reviewed. Until then
- * the draft face stays and the blocks serve the faces that need them (parallel, gloss). With no
- * draft to fall back on, the blocks are all there is and render as before.
+ * The edition's blocks, whenever there are any (dispatch 255, TanElk's mail 40854). Until then a
+ * machine-draft edition kept the ledger draft's face (GermanDraftFace), for its draft label, page
+ * plates and face chooser (am-dl4n), and only a fully reviewed edition took the German face over.
+ * The label went with D-2026-09-25-no-review-status-banners, and GermanFace now carries the plates
+ * and the chooser; what the draft face lacked is what decides it: no sentence spans, so a sentence
+ * anchor such as Brownian's s0-p1-s1 landed nowhere, and no page turns. The draft face remains for
+ * a paper with a ledger and no source blocks.
  *
  * A block counts as reviewed only when its transcription is reviewed AND its review is reviewed
  * or accepted: a proofed transcription or a review in progress is not a reviewed text.
@@ -116,5 +117,5 @@ export const editionBlocksReviewed = (blocks: readonly BlockReviewStatus[]): boo
 /** Whether the German face renders the edition's blocks (GermanFace) rather than the draft. */
 export const germanFaceRendersEdition = (
   blocks: readonly BlockReviewStatus[],
-  draftBlocks: number,
-): boolean => blocks.length > 0 && (draftBlocks === 0 || editionBlocksReviewed(blocks));
+  _draftBlocks: number,
+): boolean => blocks.length > 0;
