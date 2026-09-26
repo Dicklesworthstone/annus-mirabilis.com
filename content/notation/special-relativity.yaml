@@ -1477,7 +1477,11 @@ entries:
       firstUseBySection:
         - sectionId: sr-s7
           anchor: sr-s7-p1
-    notes: "Corrected 2026-09-24 from the plate: the paper prints the direction cosines of the wave normal as a, b, c (pp. 910 and 913), not l, m, n. In §3 the letter a is a different quantity, the undetermined coefficient of the transformation."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "Corrected 2026-09-24 from the plate: the paper
+    #   prints the direction cosines of the wave normal as a, b, c (pp. 910 and 913), not l, m, n. In
+    #   §3 the letter a is a different quantity, the undetermined coefficient of the transformation."
+    notes: "The paper prints the direction cosines of the wave normal as a, b, c (pp. 910 and 913), not l, m, n. In §3 the letter a is a different quantity, the undetermined coefficient of the transformation."
     sources:
       facsimilePage: 910
       anchor: sr-s7-p1
@@ -1503,7 +1507,10 @@ entries:
       target:
         form: symbol
         modernGlyph: "n_y"
-    notes: "Corrected 2026-09-24 from the plate: printed b (pp. 910 and 913), not m."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "Corrected 2026-09-24 from the plate: printed b (pp.
+    #   910 and 913), not m."
+    notes: "Printed b (pp. 910 and 913), not m."
     sources:
       facsimilePage: 910
       anchor: sr-s7-p1
@@ -1529,7 +1536,10 @@ entries:
       target:
         form: symbol
         modernGlyph: "n_z"
-    notes: "Corrected 2026-09-24 from the plate: printed c (pp. 910 and 913), not n."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "Corrected 2026-09-24 from the plate: printed c (pp.
+    #   910 and 913), not n."
+    notes: "Printed c (pp. 910 and 913), not n."
     sources:
       facsimilePage: 910
       anchor: sr-s7-p1

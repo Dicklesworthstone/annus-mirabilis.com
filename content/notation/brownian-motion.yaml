@@ -287,7 +287,12 @@ entries:
       latex: "N"
       variant: plain
     meaning: "The number of molecules per gram-molecule as determined from an observed displacement λ_x: N = t/λ_x² · RT/3πkP"
-    notes: "The paper's last formula runs the relation backwards to determine N, so its N is an inference output, not the constant of §§ 1-5 (AGENTS.md: an inference output binds its own estimate quantity). Dispatch 231 (TanElk's ruling on GreenOx's question in mail 40381)."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "The paper's last formula runs the relation backwards
+    #   to determine N, so its N is an inference output, not the constant of §§ 1-5 (AGENTS.md: an
+    #   inference output binds its own estimate quantity). Dispatch 231 (TanElk's ruling on GreenOx's
+    #   question in mail 40381)."
+    notes: "The paper's last formula runs the relation backwards to determine N, so this N is an estimate the paper infers from an observed displacement, not the constant of §§ 1-5."
     binding:
       quantityId: avogadroNumberEstimate
     operation:
@@ -956,7 +961,12 @@ entries:
       latex: "\\tau"
       variant: plain
     meaning: "The walk's short step: a time interval very small beside the intervals one can observe, yet long enough that a particle's motions in successive intervals are independent"
-    notes: "Rebound on 2026-09-24 from observationInterval to stepInterval (agent:SapphireCastle, approved on am-read-perspective-toggle-abd): page 556 introduces τ as very small beside the observable time intervals, which is the walk's step, the quantity the records bind for τ. The id is kept so /notation/ anchors hold."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "Rebound on 2026-09-24 from observationInterval to
+    #   stepInterval (agent:SapphireCastle, approved on am-read-perspective-toggle-abd): page 556
+    #   introduces τ as very small beside the observable time intervals, which is the walk's step, the
+    #   quantity the records bind for τ. The id is kept so /notation/ anchors hold."
+    notes: "Page 556 introduces τ as very small beside the time intervals one can observe: the step of the walk."
     binding:
       quantityId: stepInterval
     operation:
@@ -1072,7 +1082,11 @@ entries:
       latex: "t"
       variant: plain
     meaning: "Time, the variable of the equations of motion of the state variables p_ν"
-    notes: "Plain time (dispatch 231). The registry has no generic clock-reading record, so this binds elapsedTime, its generic time record; fieldTimeCoordinate is written for § 4's density f(x, t) and is not reused here."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "Plain time (dispatch 231). The registry has no
+    #   generic clock-reading record, so this binds elapsedTime, its generic time record;
+    #   fieldTimeCoordinate is written for § 4's density f(x, t) and is not reused here."
+    notes: "Plain time in § 2. In § 4 the same letter is the clock reading of the density f(x, t), and in § 5 the time over which a displacement is observed."
     binding:
       quantityId: elapsedTime
     operation:
@@ -1097,7 +1111,12 @@ entries:
       latex: "t"
       variant: plain
     meaning: "The clock reading at which the number density f(x, t) is taken; t = 0 when every particle sits at its own origin"
-    notes: "Plain time in § 4 (dispatch 231), as the explanation's model records for the diffusion equation bind it. In s4-p11 the same letter is the span of the displacements, bm.t.elapsedTime, whose paragraph scope outranks this section's."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "Plain time in § 4 (dispatch 231), as the
+    #   explanation's model records for the diffusion equation bind it. In s4-p11 the same letter is
+    #   the span of the displacements, bm.t.elapsedTime, whose paragraph scope outranks this
+    #   section's."
+    notes: "Plain time in § 4, the time in the diffusion equation. In §4, paragraph 11, the same letter is the time over which the displacements occur, listed separately."
     binding:
       quantityId: fieldTimeCoordinate
     operation:
@@ -1122,7 +1141,17 @@ entries:
       latex: "t"
       variant: plain
     meaning: "Elapsed observation time"
-    notes: "Bound on 2026-09-24 to observationInterval, in place of elapsedTime, which no Brownian record binds (agent:SapphireCastle, approved on am-read-perspective-toggle-abd). The records bind observationInterval for the time over which a displacement is observed, as λ_x = √(2Dt) uses t at the end of §4 and in §5 (p. 559). The id is kept so /notation/ anchors hold. Scope narrowed on 2026-09-25 by agent:GreenOx from all to s4-p11 and § 5, dispatch 231 (TanElk: t is plain time in §§ 2 and 4, the elapsed observation time in § 5's λ_x = √(2Dt)): § 2's t is bm.t.time and § 4's clock reading is bm.t.fieldTimeCoordinate, while s4-p11 already uses t as the span in which the displacements occur, the same λ_x = √(2Dt)."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "Bound on 2026-09-24 to observationInterval, in place
+    #   of elapsedTime, which no Brownian record binds (agent:SapphireCastle, approved on
+    #   am-read-perspective-toggle-abd). The records bind observationInterval for the time over which
+    #   a displacement is observed, as λ_x = √(2Dt) uses t at the end of §4 and in §5 (p. 559). The id
+    #   is kept so /notation/ anchors hold. Scope narrowed on 2026-09-25 by agent:GreenOx from all to
+    #   s4-p11 and § 5, dispatch 231 (TanElk: t is plain time in §§ 2 and 4, the elapsed observation
+    #   time in § 5's λ_x = √(2Dt)): § 2's t is bm.t.time and § 4's clock reading is
+    #   bm.t.fieldTimeCoordinate, while s4-p11 already uses t as the span in which the displacements
+    #   occur, the same λ_x = √(2Dt)."
+    notes: "The time over which a displacement is observed, as λ_x = √(2Dt) uses t at the end of §4 and in §5 (p. 559). In § 2 and the rest of § 4 the same letter is plain time."
     binding:
       quantityId: observationInterval
     operation:
@@ -1150,7 +1179,13 @@ entries:
       latex: "\\lambda_x"
       variant: plain
     meaning: "Mean square root displacement (RMS displacement scale) along x-axis"
-    notes: "Scoped to §4 as well on 2026-09-24 (agent:SapphireCastle, approved on am-read-perspective-toggle-abd): λ_x is first printed at the head of p. 559, the end of §4, before §5 prints it again. Its target is Einstein's own λ_x, the letter this edition's formulas print for it; written out, it is the square root of the mean squared displacement, √⟨x²⟩."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "Scoped to §4 as well on 2026-09-24
+    #   (agent:SapphireCastle, approved on am-read-perspective-toggle-abd): λ_x is first printed at
+    #   the head of p. 559, the end of §4, before §5 prints it again. Its target is Einstein's own
+    #   λ_x, the letter this edition's formulas print for it; written out, it is the square root of
+    #   the mean squared displacement, √⟨x²⟩."
+    notes: "λ_x is first printed at the head of p. 559, the end of §4, before §5 prints it again. The modern view keeps Einstein's own λ_x, the letter this edition's formulas print; written out, it is the square root of the mean squared displacement, √⟨x²⟩."
     binding:
       quantityId: rmsDisplacement1d
     operation:
@@ -1175,7 +1210,11 @@ entries:
       latex: "1{,}35 . 10^{-2}"
       variant: plain
     meaning: "Viscosity of water at 17 °C, printed as a bare number; in CGS units it is in poise, and SI uses Pa·s"
-    notes: "Corrected 2026-09-24 from the plate: page 559 prints 1,35 . 10⁻², with a decimal comma and a dot for the product, where this entry had 1.35 × 10⁻². The page prints no unit."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "Corrected 2026-09-24 from the plate: page 559 prints
+    #   1,35 . 10⁻², with a decimal comma and a dot for the product, where this entry had 1.35 × 10⁻².
+    #   The page prints no unit."
+    notes: "Page 559 prints 1,35 . 10⁻², with a decimal comma and a dot for the product. The page prints no unit."
     binding:
       quantityId: viscosity
     operation:

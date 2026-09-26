@@ -234,7 +234,10 @@ entries:
           anchor: lq-s1-p1
         - sectionId: lq-s2
           anchor: lq-s2-p2
-    notes: "This page never carries or corrects a printed value. A suspected misprint in the exponent of α is recorded with the scan's provenance, not here."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "This page never carries or corrects a printed value.
+    #   A suspected misprint in the exponent of α is recorded with the scan's provenance, not here."
+    notes: "This page never carries or corrects a printed value."
     sources:
       facsimilePage: 136
       anchor: lq-s2-p2
@@ -684,7 +687,13 @@ entries:
       target:
         form: symbol
         modernGlyph: "\\nu_1"
-    notes: "A cyclic frequency, bound to its own id, incidentFrequency, and not to nu's: Stokes's rule compares the exciting frequency with the emitted one (emittedFrequency), so the two must not read as one quantity. The registry and the model record eq-model-lq-fluorescence-bound bind them apart. Until 2026-09-25 this entry bound frequency."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "A cyclic frequency, bound to its own id,
+    #   incidentFrequency, and not to nu's: Stokes's rule compares the exciting frequency with the
+    #   emitted one (emittedFrequency), so the two must not read as one quantity. The registry and the
+    #   model record eq-model-lq-fluorescence-bound bind them apart. Until 2026-09-25 this entry bound
+    #   frequency."
+    notes: "A cyclic frequency, the exciting frequency in Stokes's rule. The rule compares it with the emitted frequency, so the two must not read as one quantity."
     sources:
       facsimilePage: 144
       anchor: lq-s7-p1
@@ -709,7 +718,13 @@ entries:
       target:
         form: symbol
         modernGlyph: "\\nu_2"
-    notes: "A cyclic frequency, bound to its own id, emittedFrequency, and not to nu's: Stokes's rule compares the emitted frequency with the exciting one (incidentFrequency), so the two must not read as one quantity. The registry and the model record eq-model-lq-fluorescence-bound bind them apart. Until 2026-09-25 this entry bound frequency."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "A cyclic frequency, bound to its own id,
+    #   emittedFrequency, and not to nu's: Stokes's rule compares the emitted frequency with the
+    #   exciting one (incidentFrequency), so the two must not read as one quantity. The registry and
+    #   the model record eq-model-lq-fluorescence-bound bind them apart. Until 2026-09-25 this entry
+    #   bound frequency."
+    notes: "A cyclic frequency, the emitted frequency in Stokes's rule. The rule compares it with the exciting frequency, so the two must not read as one quantity."
     sources:
       facsimilePage: 144
       anchor: lq-s7-p1
@@ -927,7 +942,11 @@ entries:
       target:
         form: symbol
         modernGlyph: "F_\\nu"
-    notes: "Corrected 2026-09-24 from the plate: the footnote prints F₁(A₁) F₂(A₂) ..., with numeral subscripts (page 135); it never prints F with the subscript ν."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "Corrected 2026-09-24 from the plate: the footnote
+    #   prints F₁(A₁) F₂(A₂) ..., with numeral subscripts (page 135); it never prints F with the
+    #   subscript ν."
+    notes: "The footnote prints F₁(A₁) F₂(A₂) ..., with numeral subscripts (page 135); it never prints F with the subscript ν."
     sources:
       facsimilePage: 135
       anchor: lq-s1-fn3
@@ -952,7 +971,11 @@ entries:
       target:
         form: symbol
         modernGlyph: "f_\\nu"
-    notes: "Corrected 2026-09-24 from the plate: the footnote prints f₁(α₁) · f₂(α₂) ..., with numeral subscripts (page 135); it never prints f with the subscript ν."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "Corrected 2026-09-24 from the plate: the footnote
+    #   prints f₁(α₁) · f₂(α₂) ..., with numeral subscripts (page 135); it never prints f with the
+    #   subscript ν."
+    notes: "The footnote prints f₁(α₁) · f₂(α₂) ..., with numeral subscripts (page 135); it never prints f with the subscript ν."
     sources:
       facsimilePage: 135
       anchor: lq-s1-fn3
@@ -1306,7 +1329,10 @@ entries:
       firstUseBySection:
         - sectionId: lq-s8
           anchor: lq-s8-p3
-    notes: "The modern symbol shown here is not yet confirmed by a reviewer. Distinct from P and from p."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "The modern symbol shown here is not yet confirmed by
+    #   a reviewer. Distinct from P and from p."
+    notes: "Distinct from P and from p."
     sources:
       facsimilePage: 146
       anchor: lq-s8-p3
@@ -1454,7 +1480,11 @@ entries:
       toSystem: si
       factor: 1.0e-7
       exact: true
-    notes: "1 erg = 10⁻⁷ J. This page never corrects a printed number. Corrected 2026-09-24 from the plate: the paper prints this unit once, capitalized, as Erg (page 148, §9)."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "1 erg = 10⁻⁷ J. This page never corrects a printed
+    #   number. Corrected 2026-09-24 from the plate: the paper prints this unit once, capitalized, as
+    #   Erg (page 148, §9)."
+    notes: "1 erg = 10⁻⁷ J. This page never corrects a printed number. The paper prints this unit once, capitalized, as Erg (page 148, §9)."
     sources:
       facsimilePage: 148
       anchor: lq-s9-p1

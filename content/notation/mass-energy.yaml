@@ -292,7 +292,12 @@ entries:
       firstUseBySection:
         - sectionId: me-s0
           anchor: me-s0-p5
-    notes: "Checked against the printed pages: the factor is printed as an explicit radical every time, six times (p. 639 once, p. 640 four times, p. 641 once). β is not printed anywhere in this paper, although the relativity paper uses β for the same factor. Modern notation writes the whole radical as γ."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "Checked against the printed pages: the factor is
+    #   printed as an explicit radical every time, six times (p. 639 once, p. 640 four times, p. 641
+    #   once). β is not printed anywhere in this paper, although the relativity paper uses β for the
+    #   same factor. Modern notation writes the whole radical as γ."
+    notes: "The factor is printed as an explicit radical every time, six times (p. 639 once, p. 640 four times, p. 641 once). β is not printed anywhere in this paper, although the relativity paper uses β for the same factor. Modern notation writes the whole radical as γ."
     sources:
       facsimilePage: 639
       anchor: me-s0-p5

@@ -171,7 +171,12 @@ entries:
       firstUseBySection:
         - sectionId: md-1911
           anchor: md-1911-p1
-    notes: "Ann. Phys. (4) 34, 591-592. Not k. N scales as the square root of this coefficient. This value is not silently back-ported onto the 1906 printing. Corrected 2026-09-24 from the plate: the 1911 correction prints this coefficient as the decimal 2,5, in k* = k(1 + 2,5 φ) on page 592, not as the fraction 5/2."
+    # Moved from the note, which readers see, by dispatch 246
+    #   (D-2026-09-25-no-review-status-banners): "Ann. Phys. (4) 34, 591-592. Not k. N scales as the
+    #   square root of this coefficient. This value is not silently back-ported onto the 1906
+    #   printing. Corrected 2026-09-24 from the plate: the 1911 correction prints this coefficient as
+    #   the decimal 2,5, in k* = k(1 + 2,5 φ) on page 592, not as the fraction 5/2."
+    notes: "Ann. Phys. (4) 34, 591-592. Not k. N scales as the square root of this coefficient. This value is not silently back-ported onto the 1906 printing. The 1911 correction prints this coefficient as the decimal 2,5, in k* = k(1 + 2,5 φ) on page 592, not as the fraction 5/2."
     sources:
       facsimilePage: 592
       anchor: md-1911-p1
