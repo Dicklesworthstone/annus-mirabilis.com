@@ -10,9 +10,12 @@
  * laboratory under src/app/lab at 1440x900 and 390x844. For each it records:
  * - the instrument's top: the first plot, scene or table (an svg, canvas or table at least 120 by
  *   60 CSS px) inside `[data-instrument-id]`, in page coordinates. Predict mode hides the response
- *   plot until the reader predicts (0 by 0 on SR-01, ME-01, BM-03 and BM-04 when probed), so the prediction or control
- *   fieldset that stands in for it counts too: it is the instrument's first working surface.
- *   Anything inside a closed <details> or a [hidden] ancestor does not;
+ *   plot until the reader predicts (0 by 0 on SR-01, ME-01, BM-03 and BM-04 when probed), so the
+ *   prediction panel (.predict-panel, "Predict before the numbers") and any control fieldset that
+ *   stand in for it count too: they are the instrument's first working surface. Anything inside
+ *   a closed <details> or a [hidden] ancestor does not. `plotTop` is also recorded, the same measure
+ *   without the prediction panel (fc9d34f5's definition), so a before and an after compare like
+ *   with like;
  * - how many bordered boxes inside <main> end above that top;
  * - whether a currency notice is visible in the default state, and in which state;
  * - whether the execution label or the model note is drawn as a box.
@@ -99,16 +102,21 @@ function measure() {
   const instrument = document.querySelector("[data-instrument-id]");
   // The highest candidate on the page, not the first in document order: in a two-column lab the
   // plot in the right column can sit above the prediction in the left one (LQ-08: 765 against 917).
-  let first = null;
-  if (instrument) {
-    for (const el of instrument.querySelectorAll("svg, canvas, table, fieldset")) {
+  const highest = (selector) => {
+    let found = null;
+    if (!instrument) return found;
+    for (const el of instrument.querySelectorAll(selector)) {
       if (el.closest("details:not([open]), [hidden]")) continue;
       const r = el.getBoundingClientRect();
       if (r.width < 120 || r.height < 60 || !visible(el)) continue;
-      if (first === null || r.top < first.getBoundingClientRect().top) first = el;
+      if (found === null || r.top < found.getBoundingClientRect().top) found = el;
     }
-  }
+    return found;
+  };
+  const plot = highest("svg, canvas, table, fieldset");
+  const first = highest("svg, canvas, table, fieldset, .predict-panel");
   const top = first ? Math.round(pageTop(first)) : null;
+  const plotTop = plot ? Math.round(pageTop(plot)) : null;
   const main = document.querySelector("main") ?? document.body;
   let boxesAbove = 0;
   if (top !== null) {
@@ -126,8 +134,11 @@ function measure() {
     .map((el) => el.className);
   return {
     instrumentId: instrument?.getAttribute("data-instrument-id") ?? null,
-    firstKind: first ? first.tagName.toLowerCase() : null,
+    firstKind: first
+      ? `${first.tagName.toLowerCase()}${first.classList.contains("predict-panel") ? ".predict-panel" : ""}`
+      : null,
     top,
+    plotTop,
     boxesAbove,
     notices,
     chromeBoxed,
@@ -206,16 +217,20 @@ for (const r of rows)
   console.log(
     r.error
       ? `${r.lab} | ${r.viewport} | error`
-      : `${r.lab} | ${r.viewport} | ${r.top ?? "none"} | ${r.boxesAbove} | ${r.notices.join("+") || "-"} | ${r.chromeBoxed.length}`,
+      : `${r.lab} | ${r.viewport} | ${r.top ?? "none"} (plot ${r.plotTop ?? "none"}) | ${r.boxesAbove} | ${r.notices.join("+") || "-"} | ${r.chromeBoxed.length}`,
   );
 for (const viewport of VIEWPORTS) {
   const v = withTop.filter((r) => r.viewport === viewport.name);
   const tops = v.map((r) => r.top).sort((a, b) => a - b);
+  const plotTops = v
+    .map((r) => r.plotTop)
+    .filter((t) => t !== null)
+    .sort((a, b) => a - b);
   const notice = measured.filter(
     (r) => r.viewport === viewport.name && r.notices.includes("accepted"),
   ).length;
   console.log(
-    `[lab chrome] ${viewport.name}: ${labs.length} labs / ${v.length} instruments measured; top median ${tops[Math.floor(tops.length / 2)] ?? "-"}px, max ${tops.at(-1) ?? "-"}px; ${v.filter((r) => r.top <= TOP_LIMIT_1440).length} within ${TOP_LIMIT_1440}px; accepted notice visible on ${notice}`,
+    `[lab chrome] ${viewport.name}: ${labs.length} labs / ${v.length} instruments measured; top median ${tops[Math.floor(tops.length / 2)] ?? "-"}px, max ${tops.at(-1) ?? "-"}px; ${v.filter((r) => r.top <= TOP_LIMIT_1440).length} within ${TOP_LIMIT_1440}px; without the prediction panel median ${plotTops[Math.floor(plotTops.length / 2)] ?? "-"}px; accepted notice visible on ${notice}`,
   );
 }
 if (failures.length) {
