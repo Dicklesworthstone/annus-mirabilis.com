@@ -19,6 +19,11 @@ export default function LightThreadPage() {
           What is its quantum energy? What does another observer measure? What changes when a body
           emits light?
         </p>
+      </header>
+      <LightThreadLab sourceDigest={labDigests["light-thread"]} />
+      {/* After the instrument, not in the hero (dispatch 268): in the hero they put it 607px down
+          at 1440. Every sentence is kept. */}
+      <div className="reading">
         <p>
           The light-quanta paper does not establish relativity. The September mass–energy argument
           does not require quanta. This laboratory connects their consequences without turning one
@@ -27,8 +32,7 @@ export default function LightThreadPage() {
         <p>
           <a href="/connections/">Open the connections between the papers</a>
         </p>
-      </header>
-      <LightThreadLab sourceDigest={labDigests["light-thread"]} />
+      </div>
     </>
   );
 }
