@@ -1,0 +1,26 @@
+/*
+ * A DISCOVERY JOURNEY'S SKELETON, set as a book (dispatch 276): the move, the forks and their
+ * branches, the shelf. One level of container at most, in the site's callout construction (a quiet
+ * field or a rule on the leading edge, globals.css CALLOUTS), labels in the reader's words, and no
+ * accent: on a journey the accent is left for the reader's place and the links they follow.
+ */
+
+/* The move: the one non-obvious step, a note with an ink rule, as a limit callout is. */
+.move-marker {
+  margin: 2.5rem 0;
+  padding: 1.1rem 1.25rem;
+  border-left: 2px solid var(--ink);
+  background: var(--wash);
+}
+.move-marker > .eyebrow {
+  margin: 0 0 0.35rem;
+}
+.move-marker > h3 {
+  margin: 0 0 0.5rem;
+}
+.move-marker > p:not(.eyebrow) {
+  margin: 0;
+}
+.move-marker > p.fine {
+  margin-top: 0.75rem;
+}
