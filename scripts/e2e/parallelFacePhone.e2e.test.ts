@@ -872,3 +872,267 @@ test("inline formulas stay inside their line at 320 on the English, parallel and
   assert.ok(compared > 0, "no inline formula was compared on the baseline");
   assert.deepEqual(failures, []);
 });
+
+/** The Results face: the phone width, and the desktop width where its measure shows. */
+const RESULTS_LANES = [
+  { width: 390, js: true, theme: "light" },
+  { width: 1440, js: false, theme: "dark" },
+] as const;
+/** The German faces set 62 to 63 characters a line at 1440 and the English 71 to 74. */
+const RESULTS_MAX_CPL = 76;
+/** On a phone a card's text keeps this share of the screen; it was 262 of 390px (67%). */
+const RESULTS_MIN_TEXT_SHARE = 0.8;
+/** A link a reader presses, in CSS pixels (WCAG 2.2 target size). */
+const RESULTS_MIN_TARGET = 24;
+
+/**
+ * The Results face reads like the reading faces (dispatch 244). Measured on live 0c6777c7: an 860px
+ * box centred in the frame, so at 1440 the cards stood 246px right of the page column and set their
+ * prose 74 to 81 characters a line (up to 133); on a phone the face's own padding sat inside the
+ * gutter and left the text 262 of 390px; each card drew six to eight rules, one per layer, under
+ * bold labels the size of its prose, with its title the prose's size too; no printed equation was
+ * coloured, on any card; one card named two different links "Text on page 555 of the German
+ * source"; and the wrong turns were 13px-tall links. So, per page:
+ * - no sideways scroll, and every display wider than its box scrolls inside it;
+ * - the cards start at the page column, within 2px;
+ * - at 1440 the cards' prose runs at most 76 characters a line; on a phone a card's text keeps 80%
+ *   of the screen's width;
+ * - the title is larger than the sentence under it, cards stand at one even gap of at least 24px,
+ *   and a card draws one full-width rule, under its header;
+ * - the printed layers are coloured somewhere: a paper whose cards quote displays colours at least
+ *   one (how many is reported; two of the 200 printed displays have no bindings);
+ * - one link name, one destination, over every link on the face (am-jmma);
+ * - every "used later" and wrong-turn link is at least 24px tall.
+ */
+async function readResultsFace(page: Page) {
+  return page.evaluate(
+    ({ maxCpl, minShare, minTarget }) => {
+      const problems: string[] = [];
+      const face = document.querySelector(".results-face");
+      const cards = [...document.querySelectorAll<HTMLElement>(".result-card")];
+      if (!face || cards.length === 0)
+        return {
+          problems: ["no result cards"],
+          cards: 0,
+          printed: 0,
+          coloured: 0,
+          links: 0,
+          summary: "",
+        };
+      const overflow = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+      if (overflow > 0) problems.push(`the page scrolls ${overflow}px sideways`);
+      for (const d of face.querySelectorAll<HTMLElement>(
+        ".katex-display, .equation-body, .source-equation",
+      )) {
+        const r = d.getBoundingClientRect();
+        if (r.width === 0 || (d.scrollWidth <= d.clientWidth + 1 && r.right <= innerWidth + 0.5))
+          continue;
+        let box: HTMLElement | null = d;
+        while (box && !/auto|scroll/.test(getComputedStyle(box).overflowX)) box = box.parentElement;
+        if (!box || box.getBoundingClientRect().right > innerWidth + 0.5)
+          problems.push(`${d.closest("[id]")?.id ?? "?"}: a display runs off the screen`);
+      }
+      // The page column: the page title's left edge.
+      const column = document.querySelector("main h1")?.getBoundingClientRect().left ?? 0;
+      const left = (cards[0] as HTMLElement).getBoundingClientRect().left;
+      if (Math.abs(left - column) > 2)
+        problems.push(`the cards start ${Math.round(left - column)}px from the page column`);
+      // Characters per line of the cards' prose, from each paragraph's plain text and line boxes.
+      const cpl: number[] = [];
+      for (const para of face.querySelectorAll<HTMLElement>(
+        ".result-card p, .result-card li, .result-card dd",
+      )) {
+        const text = (para.textContent ?? "").replace(/\s+/g, " ").trim();
+        if (text.length < 120 || para.querySelector(".katex-display, .source-equation")) continue;
+        const range = document.createRange();
+        range.selectNodeContents(para);
+        const bottoms = [...range.getClientRects()]
+          .filter((r) => r.width >= 2)
+          .map((r) => r.bottom)
+          .sort((a, b) => a - b);
+        let lines = bottoms.length ? 1 : 0;
+        for (let i = 1; i < bottoms.length; i++)
+          if ((bottoms[i] ?? 0) - (bottoms[i - 1] ?? 0) > 8) lines++;
+        if (lines > 1) cpl.push(text.length / lines);
+      }
+      cpl.sort((a, b) => a - b);
+      const median = cpl.length ? (cpl[cpl.length >> 1] ?? 0) : 0;
+      if (innerWidth >= 1000 && median > maxCpl)
+        problems.push(
+          `card prose runs ${Math.round(median)} characters a line (median of ${cpl.length})`,
+        );
+      const first = cards[0] as HTMLElement;
+      const cs = getComputedStyle(first);
+      const textWidth =
+        first.clientWidth - Number.parseFloat(cs.paddingLeft) - Number.parseFloat(cs.paddingRight);
+      if (innerWidth < 600 && textWidth < minShare * innerWidth)
+        problems.push(`a card's text is ${Math.round(textWidth)}px of a ${innerWidth}px screen`);
+      // Rhythm: the title a step above its sentence, one even gap, one rule per card.
+      const gaps: number[] = [];
+      cards.forEach((card, i) => {
+        const id = card.id;
+        const title = card.querySelector("h3");
+        const sentence = card.querySelector('[data-result-layer="one-sentence"]');
+        if (title && sentence) {
+          const t = Number.parseFloat(getComputedStyle(title).fontSize);
+          const s = Number.parseFloat(getComputedStyle(sentence).fontSize);
+          if (!(t > s)) problems.push(`${id}: the title is ${t}px beside its sentence's ${s}px`);
+        }
+        if (i > 0)
+          gaps.push(
+            card.getBoundingClientRect().top -
+              (cards[i - 1] as HTMLElement).getBoundingClientRect().bottom,
+          );
+        const width = card.getBoundingClientRect().width;
+        let rules = 0;
+        // A fraction's bar is a bottom border too, as wide as the card on a phone: not a rule.
+        for (const el of card.querySelectorAll("*")) {
+          if (el.closest(".katex")) continue;
+          const e = getComputedStyle(el);
+          const top = e.borderTopStyle !== "none" && Number.parseFloat(e.borderTopWidth) > 0;
+          const bottom =
+            e.borderBottomStyle !== "none" && Number.parseFloat(e.borderBottomWidth) > 0;
+          const sides = [e.borderLeftStyle, e.borderRightStyle].some((b) => b !== "none");
+          if ((top || bottom) && !sides && el.getBoundingClientRect().width >= 0.8 * width) rules++;
+        }
+        if (rules > 1) problems.push(`${id}: ${rules} full-width rules in one card`);
+      });
+      if (gaps.length > 0) {
+        const lo = Math.min(...gaps);
+        const hi = Math.max(...gaps);
+        if (lo < 24 || hi - lo > 1)
+          problems.push(`cards stand ${Math.round(lo)} to ${Math.round(hi)}px apart`);
+      }
+      // Printed layers in colour.
+      const printed = [...face.querySelectorAll(".result-printed .source-equation")];
+      const coloured = printed.filter((d) => d.querySelector("[data-quantity-id]")).length;
+      if (printed.length > 0 && coloured === 0)
+        problems.push(`none of ${printed.length} printed displays is coloured`);
+      // One name, one destination.
+      const byName = new Map<string, Set<string>>();
+      const links = [...face.querySelectorAll<HTMLAnchorElement>("a[href]")];
+      for (const a of links) {
+        const name = (a.getAttribute("aria-label") ?? a.textContent ?? "")
+          .replace(/\s+/g, " ")
+          .trim();
+        const set = byName.get(name) ?? new Set<string>();
+        set.add(a.getAttribute("href") ?? "");
+        byName.set(name, set);
+      }
+      for (const [name, hrefs] of byName)
+        if (hrefs.size > 1) problems.push(`"${name}" names ${hrefs.size} destinations`);
+      // Targets.
+      for (const a of face.querySelectorAll<HTMLElement>(
+        ".result-used-by a, .result-misconceptions a",
+      )) {
+        const h = a.getBoundingClientRect().height;
+        if (h > 0 && h < minTarget)
+          problems.push(`a link is ${Math.round(h)}px tall: ${(a.textContent ?? "").slice(0, 40)}`);
+      }
+      return {
+        problems,
+        cards: cards.length,
+        printed: printed.length,
+        coloured,
+        links: links.length,
+        summary: `${cards.length} cards; prose ${Math.round(median)} cpl (${cpl.length}); text ${Math.round(textWidth)}px; gaps ${gaps.length ? Math.round(Math.min(...gaps)) : "-"}px; ${coloured} of ${printed.length} printed displays coloured; ${links.length} links; overflow ${overflow}px`,
+      };
+    },
+    { maxCpl: RESULTS_MAX_CPL, minShare: RESULTS_MIN_TEXT_SHARE, minTarget: RESULTS_MIN_TARGET },
+  );
+}
+
+test("the Results face reads at the reading measure, in a clear card rhythm, with coloured printed equations (dispatch 244)", {
+  timeout: 300_000,
+}, async () => {
+  const site = await siteUnderTest();
+  const { origin, remote, server } = site;
+  const logRunId = newRunIdentity();
+  const logger = new TestLogger(SUITE, logRunId);
+  const failures: string[] = [];
+  let cards = 0;
+  let printed = 0;
+  let coloured = 0;
+  let links = 0;
+  const browser: Browser = await chromium.launch({ headless: true });
+  try {
+    for (const paper of PAPERS)
+      for (const { width, js, theme } of RESULTS_LANES) {
+        const lane = `${paper}-results-${width}-${theme}-js-${js ? "on" : "off"}`;
+        const testId = `results-face-${lane}`;
+        const context = await browser.newContext({
+          viewport: { width, height: 900 },
+          colorScheme: theme,
+          javaScriptEnabled: js,
+          ...(remote ? { userAgent: "OpenAI File Downloader, XaiImageApiFetch/1.0" } : {}),
+        });
+        await context.tracing.start({ snapshots: true });
+        const page = await context.newPage();
+        const consoleLines: string[] = [];
+        const network: string[] = [];
+        page.on("console", (m) => consoleLines.push(`${m.type()}: ${m.text()}`));
+        page.on("pageerror", (e) => consoleLines.push(`pageerror: ${String(e)}`));
+        page.on("response", (r) => network.push(`${r.status()} ${r.url()}`));
+        const start = performance.now();
+        const found: string[] = [];
+        let summary = "";
+        try {
+          const response = await page.goto(`${origin}/papers/${paper}/view/results/`, {
+            waitUntil: "load",
+          });
+          if (!response?.ok()) throw new Error(`HTTP ${response?.status()}`);
+          await page.evaluate(() => document.fonts.ready);
+          const reading = await readResultsFace(page);
+          cards += reading.cards;
+          printed += reading.printed;
+          coloured += reading.coloured;
+          links += reading.links;
+          summary = reading.summary;
+          found.push(...reading.problems);
+        } catch (error) {
+          found.push(`could not measure: ${String(error)}`);
+        }
+        let evidence: Record<string, string> | undefined;
+        if (found.length > 0) {
+          evidence = await keepLaneEvidence(
+            page,
+            context,
+            { consoleLines, network },
+            { logRunId, testId, lane, message: found.slice(0, 20).join("; ") },
+          );
+          failures.push(
+            `${lane}: ${found.slice(0, 8).join("; ")}${found.length > 8 ? ` (+${found.length - 8} more)` : ""}`,
+          );
+        } else {
+          await context.tracing.stop();
+        }
+        logger.log({
+          testId,
+          paper,
+          expected: `cards at the page column; prose <= ${RESULTS_MAX_CPL} cpl at 1440, text >= ${RESULTS_MIN_TEXT_SHARE * 100}% of a phone; title above its sentence; even gaps >= 24px; one rule a card; printed displays coloured; one name, one destination; list links >= ${RESULTS_MIN_TARGET}px`,
+          actual: summary || found.join("; "),
+          comparisonKind: "tolerance",
+          tolerance: { absolute: 2 },
+          outcome: found.length === 0 ? "passed" : "failed",
+          durationMs: Math.round(performance.now() - start),
+          browser: "chromium",
+          viewport: `${width}x900`,
+          reducedMotion: false,
+          jsEnabled: js,
+          message: found.length === 0 ? `${lane}: ${summary}` : found.slice(0, 20).join("; "),
+          ...(evidence ? { evidence } : {}),
+        });
+        await context.close();
+      }
+  } finally {
+    await browser.close();
+    logger.flushSync();
+    server?.close();
+  }
+  console.log(
+    `[results face] ${cards} cards, ${coloured} of ${printed} printed displays coloured, ${links} links (${site.note})`,
+  );
+  assert.ok(cards > 0, "no result card was measured");
+  assert.ok(links > 0, "no link on a Results face was checked");
+  assert.deepEqual(failures, []);
+});
