@@ -1,0 +1,39 @@
+# GlossUnit s8-p7-s2: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s8-p7-s2"
+sentenceId: "s8-p7-s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "c7eb0dc9ec6ffa726be0cf4f996627ba4b58fdcc4c0cf05a43d0bcbf34f60a7b"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Von"
+  - german: "aus"
+  - german: "betrachtet"
+    english: "regarded"
+    lemma: "betrachten"
+  - german: "sind"
+    english: "are"
+    lemma: "sein"
+  - german: "die"
+    english: "the"
+  - german: "entsprechenden"
+    english: "corresponding"
+    lemma: "entsprechend"
+  - german: "Größen"
+    english: "quantities"
+    lemma: "Größe"
+multiwordUnits:
+  - tokenIndices:
+      - 0
+      - 1
+    english: "from"
+    kind: "split-construction"
+    grammarNote: "von ... aus, ‘from’: von k aus"
