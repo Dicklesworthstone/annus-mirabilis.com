@@ -10,7 +10,9 @@
 
 import type { PrintedDisplayPayload } from "../../equations/printed/paperDisplays.ts";
 import printedPayload from "../../generated/printed-displays.json";
-import { PAPER_METADATA } from "./notationData.ts";
+import { QUANTITY_LABELS } from "../../generated/quantity-labels.ts";
+import { notationFormula } from "./colouredGlyphs.ts";
+import { hasColour, PAPER_METADATA } from "./notationData.ts";
 
 const QUANTITY_ROW = "/notation/#";
 
@@ -20,15 +22,19 @@ export type UnlistedQuantity = Readonly<{
   paperTitle: string;
   name: string;
   description: string | undefined;
-  /** Each distinct printed letter, drawn at build time (the legend's glyph). */
+  /**
+   * Each distinct printed letter, drawn at build time from the legend's glyph in the row's
+   * quantity, so it takes the paper's colour for it (colouredGlyphs.ts, dispatch 275).
+   */
   glyphs: readonly string[];
 }>;
 
 /** The chips' quantity rows, one per paper and quantity, in paper and display order. */
 export function unlistedQuantities(
   displays: readonly Pick<PrintedDisplayPayload, "paper" | "legend">[],
+  isRegistered: (quantityId: string) => boolean = (id) => Object.hasOwn(QUANTITY_LABELS, id),
 ): readonly UnlistedQuantity[] {
-  const rows = new Map<string, UnlistedQuantity & { glyphs: string[] }>();
+  const rows = new Map<string, UnlistedQuantity & { glyphs: string[]; latex: string[] }>();
   for (const d of displays)
     for (const line of d.legend) {
       if (!line.href.startsWith(`${QUANTITY_ROW}quantity-`)) continue;
@@ -40,11 +46,27 @@ export function unlistedQuantities(
         name: line.row?.name ?? line.quantityId,
         description: line.row?.description,
         glyphs: [],
+        latex: [],
       };
-      if (!row.glyphs.includes(line.glyphHtml)) row.glyphs.push(line.glyphHtml);
+      if (!row.latex.includes(line.glyph)) {
+        row.latex.push(line.glyph);
+        row.glyphs.push(
+          notationFormula(
+            {
+              id: anchor,
+              paper: d.paper,
+              anchor: "s0",
+              latex: line.glyph,
+              quantityId: line.quantityId,
+            },
+            isRegistered,
+            hasColour,
+          ).html,
+        );
+      }
       rows.set(anchor, row);
     }
-  return [...rows.values()];
+  return [...rows.values()].map(({ latex: _latex, ...row }) => row);
 }
 
 export function UnlistedQuantities() {
@@ -63,7 +85,7 @@ export function UnlistedQuantities() {
       </p>
       <ul>
         {rows.map((row) => (
-          <li key={row.anchor} id={row.anchor}>
+          <li key={row.anchor} id={row.anchor} data-paper={row.paper}>
             {row.glyphs.map((html, i) => (
               <span key={html}>
                 {i > 0 ? ", " : null}

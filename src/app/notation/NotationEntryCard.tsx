@@ -96,6 +96,7 @@ export function NotationEntryCard({ entry }: NotationEntryCardProps) {
         role="img"
         className="notation-entry-glyph"
         aria-label={entry.spokenName}
+        data-formula-plain={entry.glyphRendered.plain}
         {...{ dangerouslySetInnerHTML: { __html: entry.glyphRendered.html } }}
       />
       <div className="notation-entry-body">
@@ -109,7 +110,11 @@ export function NotationEntryCard({ entry }: NotationEntryCardProps) {
           {modern && (
             <span>
               today{" "}
-              <span className="inline-math" {...{ dangerouslySetInnerHTML: { __html: modern } }} />
+              <span
+                className="inline-math"
+                data-formula-plain={entry.modernRendered?.plain}
+                {...{ dangerouslySetInnerHTML: { __html: modern } }}
+              />
             </span>
           )}
           {entry.firstUseUrl ? (

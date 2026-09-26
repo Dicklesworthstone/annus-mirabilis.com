@@ -13,7 +13,12 @@ export function GlyphNav({ glyphs }: { glyphs: NotationPageData["uniqueGlyphs"] 
       </h2>
       <ul className="glyph-nav-list">
         {glyphs.map((g) => (
-          <li key={g.key} className="glyph-nav-item">
+          <li
+            key={g.key}
+            className="glyph-nav-item"
+            data-paper={g.paper}
+            data-formula-plain={g.plain}
+          >
             <a
               href={g.href}
               aria-label={g.name}

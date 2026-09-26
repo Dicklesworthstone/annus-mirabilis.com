@@ -41,6 +41,8 @@ export function CollisionClusterView({ clusters }: CollisionClusterViewProps) {
             <p className="collision-card-top">
               <span
                 className="collision-glyph"
+                data-paper={cluster.glyphRendered.paper}
+                data-formula-plain={cluster.glyphRendered.plain}
                 {...{ dangerouslySetInnerHTML: { __html: cluster.glyphRendered.html } }}
               />
               {cluster.severity === "danger" && (

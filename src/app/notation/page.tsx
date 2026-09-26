@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { preload } from "react-dom";
 import "./notation.css";
 import "../../components/home/wideProse.css";
+// Each formula is drawn in its paper's colours (colouredGlyphs.ts, dispatch 275): the rule that
+// turns a marked term its colour, and each paper's colour for each of its quantities.
+import "../../equations/equations.css";
+import "../../generated/quantity-colours-by-paper.css";
 import { CollisionClusterView } from "./CollisionClusterView.tsx";
 import { loadFirstUseTargets, resolveFirstUse } from "./firstUseTargets.ts";
 import { GlyphNav } from "./GlyphNav.tsx";

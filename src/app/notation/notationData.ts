@@ -10,11 +10,35 @@ import type {
   ModernOnlySymbol,
   PaperConcordance,
 } from "../../content/schemas/concordance.ts";
+import quantityColours from "../../generated/quantity-colours.json";
+import { QUANTITY_LABELS } from "../../generated/quantity-labels.ts";
+import { entryOwner, notationFormula } from "./colouredGlyphs.ts";
 
 export interface RenderedMath {
   readonly html: string;
   readonly latex: string;
+  /** The quantity it is drawn in, in its paper's colours (colouredGlyphs.ts, dispatch 275). */
+  readonly quantityId?: string | undefined;
+  /** The paper whose colours it takes, where the page does not already say (the index). */
+  readonly paper?: string | undefined;
+  /** Why it is left in the ink: a declared non-quantity, or one glyph with several meanings. */
+  readonly plain?: string | undefined;
 }
+
+/** A registered quantity id, from the client-safe list the registry generates. */
+const registered = (quantityId: string) => Object.hasOwn(QUANTITY_LABELS, quantityId);
+
+/** Whether a paper's palette gives a quantity a colour slot (scripts/build-equations.ts). */
+export const hasColour = (paper: string, quantityId: string) =>
+  Boolean(
+    (quantityColours.papers as Record<string, Record<string, unknown> | undefined>)[paper]?.[
+      quantityId
+    ],
+  );
+
+/** A glyph printed with several meanings cannot take one of their colours. */
+const severalMeanings = (count: number) =>
+  `one glyph with ${count} meanings, so no single quantity's colour`;
 
 export interface EnrichedConcordanceEntry extends ConcordanceEntry {
   readonly paperTitle: string;
@@ -113,6 +137,10 @@ export interface NotationPageData {
     count: number;
     html: string;
     href: string;
+    /** Its paper, when the glyph stands for one entry and takes that entry's colour. */
+    paper?: string | undefined;
+    /** Why it is left in the ink, when it is. */
+    plain?: string | undefined;
     /**
      * The link's accessible name. Its only content is KaTeX, whose visual half is aria-hidden, and
      * neither Chromium nor WebKit names a link from the MathML half: on live /notation/ all 121
@@ -310,6 +338,8 @@ export function loadNotationPageData(
    *  page, else the paper; null for a paper with no page). Without it the old paper-reading URL
    *  is built, which the page itself no longer uses. */
   resolveFirstUse?: (paper: string, anchor: string) => string | null,
+  /** A registered quantity id: the generated list by default; the test passes the registry. */
+  isRegistered: (quantityId: string) => boolean = registered,
 ): NotationPageData {
   const rawConcordances = injectedConcordances ?? loadAllConcordances();
   const allEntries: EnrichedConcordanceEntry[] = [];
@@ -336,7 +366,11 @@ export function loadNotationPageData(
 
       const paperTitle = meta.title;
       const spokenName = generateSpokenName(entry, paperTitle);
-      const glyphRendered = renderStaticKatex(entry.glyph.latex || entry.glyph.unicode);
+      const glyphRendered = notationFormula(
+        entryOwner(entry, entry.glyph.latex || entry.glyph.unicode),
+        isRegistered,
+        hasColour,
+      );
 
       let modernRendered: RenderedMath | undefined;
       if (entry.operation.kind === "rename") {
@@ -346,7 +380,7 @@ export function loadNotationPageData(
             typeof target.modernGlyph === "string"
               ? target.modernGlyph
               : target.modernGlyph.latex || target.modernGlyph.unicode;
-          modernRendered = renderStaticKatex(mLatex);
+          modernRendered = notationFormula(entryOwner(entry, mLatex), isRegistered, hasColour);
         }
       }
 
@@ -395,7 +429,18 @@ export function loadNotationPageData(
       entries: paperEntries,
       modernOnlySymbols: (pc.modernOnlySymbols ?? []).map((symbol) => ({
         ...symbol,
-        glyphRendered: renderStaticKatex(symbol.glyph.latex || symbol.glyph.unicode),
+        glyphRendered: notationFormula(
+          {
+            id: symbol.id,
+            paper: pc.paper,
+            anchor: symbol.scope[0] ?? "s0",
+            latex: symbol.glyph.latex || symbol.glyph.unicode,
+            quantityId: (symbol.binding as { quantityId?: string }).quantityId,
+            declared: (symbol.binding as { nonQuantityKind?: string }).nonQuantityKind,
+          },
+          isRegistered,
+          hasColour,
+        ),
         whereLabel: formatScope(pc.paper, symbol.scope),
       })),
     });
@@ -459,7 +504,11 @@ export function loadNotationPageData(
 
     collisionClusters.push({
       glyphKey: gKey,
-      glyphRendered: renderStaticKatex(gKey),
+      // A glyph of one entry takes that entry's colour; one with several meanings cannot.
+      glyphRendered:
+        entries.length === 1
+          ? { ...sample.glyphRendered, paper: sample.paper }
+          : { ...renderStaticKatex(gKey), plain: severalMeanings(entries.length) },
       severity: hasDanger ? "danger" : "caution",
       entries,
       description: desc,
@@ -479,8 +528,11 @@ export function loadNotationPageData(
       key,
       display: list[0]?.glyph.unicode || key,
       count: list.length,
-      html: renderStaticKatex(key).html,
+      html: list.length === 1 && list[0] ? list[0].glyphRendered.html : renderStaticKatex(key).html,
       href: `#${list[0]?.id ?? ""}`,
+      paper: list.length === 1 && list[0] ? list[0].paper : undefined,
+      plain:
+        list.length === 1 && list[0] ? list[0].glyphRendered.plain : severalMeanings(list.length),
       name: glyphLinkName(list[0]?.glyph.unicode || key, list.length),
       meanings: list.map((entry) => ({
         paperTitle: entry.paperTitle,

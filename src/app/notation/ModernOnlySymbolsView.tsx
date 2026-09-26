@@ -38,6 +38,7 @@ export function ModernOnlySymbolsView({
           <article key={sym.id} className="notation-entry" id={sym.id}>
             <span
               className="notation-entry-glyph"
+              data-formula-plain={sym.glyphRendered.plain}
               {...{ dangerouslySetInnerHTML: { __html: sym.glyphRendered.html } }}
             />
             <div className="notation-entry-body">

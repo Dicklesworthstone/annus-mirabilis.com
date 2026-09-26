@@ -225,6 +225,8 @@ export function NotationPageClient({ initialData }: NotationPageClientProps) {
               <section
                 key={paper.paperSlug}
                 className="paper-section"
+                // Its formulas take this paper's colours (quantity-colours-by-paper.css).
+                data-paper={paper.paperSlug}
                 id={`paper-${paper.paperSlug}`}
                 aria-labelledby={`heading-paper-${paper.paperSlug}`}
               >
