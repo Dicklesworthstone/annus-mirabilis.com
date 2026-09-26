@@ -33,6 +33,16 @@ const ledger: Ledger[] = readdirSync(dir)
 const bindings = ledger.flatMap((m) => (m.resultIds ?? []).map((r) => ({ m: m.id, r })));
 const quotes = new Map(cards.map((c) => [c.id, new Set(c.printed.map((p) => p.anchor))]));
 
+/** Text as React escapes it in markup: a manifest label may hold an apostrophe (Exner's). */
+function escaped(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+
 /** The markup of one card, from its opening tag to the next card or the end of the cards. */
 function cardHtml(id: string): string {
   const start = html.indexOf(`id="result-${id}"`);
@@ -137,7 +147,7 @@ describe("Brownian motion's results face, static", () => {
       const card = cardHtml(p.id);
       if (!card.includes(`href="/lab/${p.instrumentId}/"`))
         wrong.push(`${p.id}: no link to ${p.instrumentId}`);
-      if (p.preset && !card.includes(`Choose the preset “${p.preset.label}”`))
+      if (p.preset && !card.includes(`Choose the preset “${escaped(p.preset.label)}”`))
         wrong.push(`${p.id}: preset ${p.preset.id} not named`);
     }
     expect(wrong).toEqual([]);
