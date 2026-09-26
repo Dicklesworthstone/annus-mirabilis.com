@@ -234,15 +234,6 @@ export function FieldFrameChangeLab({
         </p>
       </noscript>
 
-      <p data-detail="0">{withScripts(SR08_CAPTION.r0)}</p>
-      <p data-detail="1">{withScripts(SR08_CAPTION.r1)}</p>
-      <p data-detail="2" hidden>
-        {withScripts(SR08_CAPTION.r2)}
-      </p>
-      <p data-detail="3" hidden>
-        {withScripts(SR08_CAPTION.r3)}
-      </p>
-
       <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <form
@@ -525,6 +516,17 @@ export function FieldFrameChangeLab({
           </div>
         </div>
       </div>
+
+      {/* The caption's readings follow the instrument (dispatch 263). Above the predict gate they
+          pushed the instrument more than 1000px down at 1440; every sentence is still here. */}
+      <p data-detail="0">{withScripts(SR08_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(SR08_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(SR08_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(SR08_CAPTION.r3)}
+      </p>
 
       <p className="fine">Not modeled: {SR08_NOT_MODELED.join("; ")}.</p>
     </section>
