@@ -74,9 +74,25 @@ function contract(
   semanticKind: string,
   ownerId: string,
   statuses: OutputContract["statuses"] = ["value"],
+  admittedOwnerIds?: readonly string[],
 ): OutputContract {
-  return Object.freeze({ unit, semanticKind, ownerId, statuses: Object.freeze([...statuses]) });
+  return Object.freeze({
+    unit,
+    semanticKind,
+    ownerId,
+    statuses: Object.freeze([...statuses]),
+    ...(admittedOwnerIds ? { admittedOwnerIds: Object.freeze([...admittedOwnerIds]) } : {}),
+  });
 }
+/**
+ * The two registered steppers of the optional grid: the host reference and FrankenSim's compiled
+ * diffusion1d_frames (am-frankensim-repin-and-bind-jvhg). The field and its diffusion number come
+ * from one stepping, so gridDensity and stabilityRatio admit both and name the same one
+ * (protocol/bm06.ts checks). The comparison outputs are the host's reading of that field, whoever
+ * stepped it, and keep their own owner.
+ */
+export const BM06_HOST_GRID_OWNER = "diffusion.ftcs1d";
+export const BM06_FRANKENSIM_GRID_OWNER = "fs-wasm.diffusion1d_frames";
 export const BM06_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
   diffusionCoefficient: contract("m2/s", "latent-diffusivity", "diffusion.stokesEinsteinD"),
   rmsDisplacement1d: contract("m", "latent-coordinate-rms", "diffusion.rmsDisplacement"),
@@ -89,10 +105,13 @@ export const BM06_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   ]),
   comparisonTimes: contract("s", "declared-comparison-times", "bm06.evaluate"),
   comparisonRms: contract("m", "latent-coordinate-rms", "diffusion.rmsDisplacement"),
-  gridDensity: contract("1/m", "finite-box-cell-density", "diffusion.ftcs1d", [
-    "value",
-    "not-applicable",
-  ]),
+  gridDensity: contract(
+    "1/m",
+    "finite-box-cell-density",
+    BM06_HOST_GRID_OWNER,
+    ["value", "not-applicable"],
+    [BM06_FRANKENSIM_GRID_OWNER],
+  ),
   cellMasses: contract("1", "finite-box-cell-probability", "diffusion.ftcsAnalyticComparison", [
     "value",
     "not-applicable",
@@ -113,10 +132,13 @@ export const BM06_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
     "value",
     "not-applicable",
   ]),
-  stabilityRatio: contract("1", "explicit-diffusion-number", "diffusion.ftcs1d", [
-    "value",
-    "not-applicable",
-  ]),
+  stabilityRatio: contract(
+    "1",
+    "explicit-diffusion-number",
+    BM06_HOST_GRID_OWNER,
+    ["value", "not-applicable"],
+    [BM06_FRANKENSIM_GRID_OWNER],
+  ),
   gridTimeStep: contract("s", "numerical-time-step", "bm06.evaluate", ["value", "not-applicable"]),
   activeDiffusionCoefficient: contract("m2/s", "active-latent-diffusivity", "bm06.evaluate", [
     "value",

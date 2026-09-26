@@ -5,7 +5,7 @@ import {
   decodeRefusal,
   decodeResultBatch,
 } from "../../experiments/results/codec.ts";
-import type { RequestToken } from "../../experiments/store/instanceStore.ts";
+import { ownerAdmitted, type RequestToken } from "../../experiments/store/instanceStore.ts";
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import type { Bm06Evaluation } from "../operations/bm06.ts";
 
@@ -194,7 +194,7 @@ export function decodeLabResponse(
         const c = BM06_OUTPUTS[output.quantityId];
         if (!c) fail(`Response declares an unregistered quantity id: ${output.quantityId}.`);
         if (
-          output.ownerId !== c.ownerId ||
+          !ownerAdmitted(c, output.ownerId) ||
           output.semanticKind !== c.semanticKind ||
           output.unit !== c.unit
         )
@@ -233,6 +233,13 @@ export function decodeLabResponse(
         )
           fail("Grid output does not match the requested mode.");
       }
+      // The field and its diffusion number come from one stepping, so they name one stepper.
+      const gridOwners = new Set(
+        outputs
+          .filter((o) => (BM06_OUTPUTS[o.quantityId]?.admittedOwnerIds?.length ?? 0) > 0)
+          .map((o) => o.ownerId),
+      );
+      if (gridOwners.size > 1) fail("Grid outputs from one stepping name different steppers.");
     } else if (r?.kind === "refused") {
       record(r, ["kind", "refusal"]);
       decodeRefusal(r.refusal);

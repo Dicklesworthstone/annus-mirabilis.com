@@ -1,4 +1,4 @@
-import type { ExperimentView, OutputContract } from "../store/instanceStore.ts";
+import { type ExperimentView, type OutputContract, ownerAdmitted } from "../store/instanceStore.ts";
 export type ExecutionState = Readonly<{
   label: "static" | "host" | "unavailable";
   text: string;
@@ -84,7 +84,7 @@ export function deriveHostExecution(
       const contract = contracts[o.quantityId];
       return (
         contract === undefined ||
-        o.ownerId !== contract.ownerId ||
+        !ownerAdmitted(contract, o.ownerId) ||
         o.unit !== contract.unit ||
         o.semanticKind !== contract.semanticKind
       );
