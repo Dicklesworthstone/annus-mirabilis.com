@@ -48,6 +48,8 @@ export const ENFORCED_INLINE_PAPERS: readonly string[] = [
   "mass-energy",
   "light-quanta",
   "brownian-motion",
+  // Dispatch 277: every glyph read from the plates of pp. 893 to 921, its points and axes listed.
+  "special-relativity",
 ];
 
 export type InlineExceptionsCode =

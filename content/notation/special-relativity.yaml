@@ -245,7 +245,7 @@ entries:
 
   - id: sr.tA.coordinateTimeStationary
     paper: special-relativity
-    scope: ["sr-s1"]
+    scope: ["sr-s1", "sr-s2"]
     glyph:
       unicode: "t_A"
       latex: "t_A"
@@ -264,13 +264,13 @@ entries:
       anchor: sr-s1-p7
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 894 (public/figures/plates/pages/ap-17-891/894-1280.webp): glyph read by eye from the page image, not the text layer. First printed on p. 894; facsimilePage corrected on 2026-09-24 from 893. Italic t with subscript A, 'zur A-Zeit t_A', and in the display t_B − t_A = t′_A − t_B. An agent check, not a human review. Human review pending."
+      checkedAgainst: "Plate of printed page 894 (public/figures/plates/pages/ap-17-891/894-1280.webp): glyph read by eye from the page image, not the text layer. First printed on p. 894; facsimilePage corrected on 2026-09-24 from 893. Italic t with subscript A, 'zur A-Zeit t_A', and in the display t_B − t_A = t′_A − t_B. An agent check, not a human review. Human review pending. Scope extended to § 2 on 2026-09-26 by agent:TopazPrairie, from the plate of printed page 896 (public/figures/plates/pages/ap-17-891/896-1280.webp), read by eye: 'Zur Zeit t_A gehe ein Lichtstrahl von A aus, werde zur Zeit t_B in B reflektiert und gelange zur Zeit t′_A nach A zurück', the ends A and B of the moving rod, with a footnote on 'Zeit' reading 'Zeit bedeutet hier Zeit des ruhenden Systems'. The same readings of the stationary clocks, now at the rod's ends."
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
   - id: sr.tB.coordinateTimeStationary
     paper: special-relativity
-    scope: ["sr-s1"]
+    scope: ["sr-s1", "sr-s2"]
     glyph:
       unicode: "t_B"
       latex: "t_B"
@@ -289,13 +289,13 @@ entries:
       anchor: sr-s1-p7
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 894 (public/figures/plates/pages/ap-17-891/894-1280.webp): glyph read by eye from the page image, not the text layer. First printed on p. 894; facsimilePage corrected on 2026-09-24 from 893. Italic t with subscript B, 'zur B-Zeit t_B', and in the display t_B − t_A = t′_A − t_B. An agent check, not a human review. Human review pending."
+      checkedAgainst: "Plate of printed page 894 (public/figures/plates/pages/ap-17-891/894-1280.webp): glyph read by eye from the page image, not the text layer. First printed on p. 894; facsimilePage corrected on 2026-09-24 from 893. Italic t with subscript B, 'zur B-Zeit t_B', and in the display t_B − t_A = t′_A − t_B. An agent check, not a human review. Human review pending. Scope extended to § 2 on 2026-09-26 by agent:TopazPrairie, from the plate of printed page 896 (public/figures/plates/pages/ap-17-891/896-1280.webp), read by eye: 'Zur Zeit t_A gehe ein Lichtstrahl von A aus, werde zur Zeit t_B in B reflektiert und gelange zur Zeit t′_A nach A zurück', the ends A and B of the moving rod, with a footnote on 'Zeit' reading 'Zeit bedeutet hier Zeit des ruhenden Systems'. The same readings of the stationary clocks, now at the rod's ends."
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
   - id: sr.tAret.returnTimeAtA
     paper: special-relativity
-    scope: ["sr-s1"]
+    scope: ["sr-s1", "sr-s2"]
     glyph:
       unicode: "t′_A"
       latex: "t'_A"
@@ -324,7 +324,7 @@ entries:
       anchor: sr-s1-p7
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 894 (public/figures/plates/pages/ap-17-891/894-1280.webp): glyph read by eye from the page image, not the text layer. First printed on p. 894; facsimilePage corrected on 2026-09-24 from 893. Italic t with a prime and subscript A, the A-time at which the reflected ray arrives back at A. An agent check, not a human review. Human review pending."
+      checkedAgainst: "Plate of printed page 894 (public/figures/plates/pages/ap-17-891/894-1280.webp): glyph read by eye from the page image, not the text layer. First printed on p. 894; facsimilePage corrected on 2026-09-24 from 893. Italic t with a prime and subscript A, the A-time at which the reflected ray arrives back at A. An agent check, not a human review. Human review pending. Scope extended to § 2 on 2026-09-26 by agent:TopazPrairie, from the plate of printed page 896 (public/figures/plates/pages/ap-17-891/896-1280.webp), read by eye: 'Zur Zeit t_A gehe ein Lichtstrahl von A aus, werde zur Zeit t_B in B reflektiert und gelange zur Zeit t′_A nach A zurück', the ends A and B of the moving rod, with a footnote on 'Zeit' reading 'Zeit bedeutet hier Zeit des ruhenden Systems'. The same readings of the stationary clocks, now at the rod's ends."
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
@@ -525,6 +525,87 @@ entries:
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
+
+  - id: sr.tau0.coordinateTimeMoving
+    paper: special-relativity
+    scope: ["sr-s3"]
+    glyph:
+      unicode: "τ_0"
+      latex: "\\tau_0"
+      variant: subscripted
+    meaning: "Time in k at which the light ray leaves the origin of k"
+    binding:
+      quantityId: coordinateTimeMoving
+      index: "0"
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "t'_0"
+    notes: "One of three readings of the moving system's time τ at the three events of the light signal; the index keeps it from competing with τ itself."
+    sources:
+      facsimilePage: 898
+      anchor: sr-s3-p7
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 898 (public/figures/plates/pages/ap-17-891/898-1280.webp): glyph read by eye from the page image, not the text layer. Greek τ with subscript 0, 'werde ein Lichtstrahl zur Zeit τ₀ längs der X-Achse nach x′ gesandt' (§3), the time of the ray's departure from the origin of k, on the clocks of k. An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.tau1.coordinateTimeMoving
+    paper: special-relativity
+    scope: ["sr-s3"]
+    glyph:
+      unicode: "τ_1"
+      latex: "\\tau_1"
+      variant: subscripted
+    meaning: "Time in k at which the ray is reflected at x′"
+    binding:
+      quantityId: coordinateTimeMoving
+      index: "1"
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "t'_1"
+    notes: "One of three readings of the moving system's time τ at the three events of the light signal; the index keeps it from competing with τ itself."
+    sources:
+      facsimilePage: 898
+      anchor: sr-s3-p7
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 898 (public/figures/plates/pages/ap-17-891/898-1280.webp): glyph read by eye from the page image, not the text layer. Greek τ with subscript 1, 'und von dort zur Zeit τ₁ nach dem Koordinatenursprung reflektiert' (§3), the time of its reflection at x′, on the clocks of k. An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.tau2.coordinateTimeMoving
+    paper: special-relativity
+    scope: ["sr-s3"]
+    glyph:
+      unicode: "τ_2"
+      latex: "\\tau_2"
+      variant: subscripted
+    meaning: "Time in k at which the ray arrives back at the origin of k"
+    binding:
+      quantityId: coordinateTimeMoving
+      index: "2"
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "t'_2"
+    notes: "One of three readings of the moving system's time τ at the three events of the light signal; the index keeps it from competing with τ itself."
+    sources:
+      facsimilePage: 898
+      anchor: sr-s3-p7
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 898 (public/figures/plates/pages/ap-17-891/898-1280.webp): glyph read by eye from the page image, not the text layer. Greek τ with subscript 2, 'wo er zur Zeit τ₂ anlange' (§3), the time of its return to the origin, on the clocks of k; the display is ½(τ₀ + τ₂) = τ₁. An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
   - id: sr.xprime.auxiliaryGalileanCoordinate
     paper: special-relativity
     scope: ["sr-s3"]
@@ -596,7 +677,7 @@ entries:
 
   - id: sr.xprime.coordinateThirdSystem
     paper: special-relativity
-    scope: ["sr-s3-p18"]
+    scope: ["sr-s3-p18", "sr-s3-p22"]
     glyph:
       unicode: "x′"
       latex: "x'"
@@ -625,13 +706,13 @@ entries:
       anchor: sr-s3-p18
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 901, read by eye from a pdftoppm render of PDF page 11 of public/papers/pdfs/ap-17-891.pdf (sha256 60d21d560f6a3c87e581ac25016306d9bcb748e530fa2751652b84986da5296c) at 110 dpi, not from the text layer. 'Wir führen zu diesem Zwecke noch ein drittes Koordinatensystem K' ein, welches relativ zum System k derart in Paralleltranslationsbewegung parallel zur Ξ-Achse begriffen sei, daß sich dessen Koordinatenursprung mit der Geschwindigkeit −v auf der Ξ-Achse bewege.' 'Wir nennen x', y', z' die Koordinaten, im System K' gemessen'; t' is 'die Zeit t' des Systems K''. The page closes: 'Da die Beziehungen zwischen x', y', z' und x, y, z die Zeit t nicht enthalten, so ruhen die Systeme K und K' gegeneinander.' An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 901, read by eye from a pdftoppm render of PDF page 11 of public/papers/pdfs/ap-17-891.pdf (sha256 60d21d560f6a3c87e581ac25016306d9bcb748e530fa2751652b84986da5296c) at 110 dpi, not from the text layer. 'Wir führen zu diesem Zwecke noch ein drittes Koordinatensystem K' ein, welches relativ zum System k derart in Paralleltranslationsbewegung parallel zur Ξ-Achse begriffen sei, daß sich dessen Koordinatenursprung mit der Geschwindigkeit −v auf der Ξ-Achse bewege.' 'Wir nennen x', y', z' die Koordinaten, im System K' gemessen'; t' is 'die Zeit t' des Systems K''. The page closes: 'Da die Beziehungen zwischen x', y', z' und x, y, z die Zeit t nicht enthalten, so ruhen die Systeme K und K' gegeneinander.' An agent check, not a human review. Scope extended to sr-s3-p22 on 2026-09-26 by agent:TopazPrairie: that paragraph closes p. 901 and opens p. 902 (public/figures/plates/pages/ap-17-891/902-1280.webp), read by eye, 'und es ist klar, daß die Transformation von K auf K′ die identische Transformation sein muß'. Its x′, y′, z′ are the coordinates of K′ named on p. 901, not the Galilean x′ = x − vt."
       by: "agent:SapphireCastle"
       date: "2026-09-25"
 
   - id: sr.yprime.coordinateThirdSystem
     paper: special-relativity
-    scope: ["sr-s3-p18"]
+    scope: ["sr-s3-p18", "sr-s3-p22"]
     glyph:
       unicode: "y′"
       latex: "y'"
@@ -660,13 +741,13 @@ entries:
       anchor: sr-s3-p18
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 901, read by eye from a pdftoppm render of PDF page 11 of public/papers/pdfs/ap-17-891.pdf (sha256 60d21d560f6a3c87e581ac25016306d9bcb748e530fa2751652b84986da5296c) at 110 dpi, not from the text layer. 'Wir führen zu diesem Zwecke noch ein drittes Koordinatensystem K' ein, welches relativ zum System k derart in Paralleltranslationsbewegung parallel zur Ξ-Achse begriffen sei, daß sich dessen Koordinatenursprung mit der Geschwindigkeit −v auf der Ξ-Achse bewege.' 'Wir nennen x', y', z' die Koordinaten, im System K' gemessen'; t' is 'die Zeit t' des Systems K''. The page closes: 'Da die Beziehungen zwischen x', y', z' und x, y, z die Zeit t nicht enthalten, so ruhen die Systeme K und K' gegeneinander.' An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 901, read by eye from a pdftoppm render of PDF page 11 of public/papers/pdfs/ap-17-891.pdf (sha256 60d21d560f6a3c87e581ac25016306d9bcb748e530fa2751652b84986da5296c) at 110 dpi, not from the text layer. 'Wir führen zu diesem Zwecke noch ein drittes Koordinatensystem K' ein, welches relativ zum System k derart in Paralleltranslationsbewegung parallel zur Ξ-Achse begriffen sei, daß sich dessen Koordinatenursprung mit der Geschwindigkeit −v auf der Ξ-Achse bewege.' 'Wir nennen x', y', z' die Koordinaten, im System K' gemessen'; t' is 'die Zeit t' des Systems K''. The page closes: 'Da die Beziehungen zwischen x', y', z' und x, y, z die Zeit t nicht enthalten, so ruhen die Systeme K und K' gegeneinander.' An agent check, not a human review. Scope extended to sr-s3-p22 on 2026-09-26 by agent:TopazPrairie: that paragraph closes p. 901 and opens p. 902 (public/figures/plates/pages/ap-17-891/902-1280.webp), read by eye, 'und es ist klar, daß die Transformation von K auf K′ die identische Transformation sein muß'. Its x′, y′, z′ are the coordinates of K′ named on p. 901, not the Galilean x′ = x − vt."
       by: "agent:SapphireCastle"
       date: "2026-09-25"
 
   - id: sr.zprime.coordinateThirdSystem
     paper: special-relativity
-    scope: ["sr-s3-p18"]
+    scope: ["sr-s3-p18", "sr-s3-p22"]
     glyph:
       unicode: "z′"
       latex: "z'"
@@ -695,10 +776,35 @@ entries:
       anchor: sr-s3-p18
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 901, read by eye from a pdftoppm render of PDF page 11 of public/papers/pdfs/ap-17-891.pdf (sha256 60d21d560f6a3c87e581ac25016306d9bcb748e530fa2751652b84986da5296c) at 110 dpi, not from the text layer. 'Wir führen zu diesem Zwecke noch ein drittes Koordinatensystem K' ein, welches relativ zum System k derart in Paralleltranslationsbewegung parallel zur Ξ-Achse begriffen sei, daß sich dessen Koordinatenursprung mit der Geschwindigkeit −v auf der Ξ-Achse bewege.' 'Wir nennen x', y', z' die Koordinaten, im System K' gemessen'; t' is 'die Zeit t' des Systems K''. The page closes: 'Da die Beziehungen zwischen x', y', z' und x, y, z die Zeit t nicht enthalten, so ruhen die Systeme K und K' gegeneinander.' An agent check, not a human review."
+      checkedAgainst: "Plate of printed page 901, read by eye from a pdftoppm render of PDF page 11 of public/papers/pdfs/ap-17-891.pdf (sha256 60d21d560f6a3c87e581ac25016306d9bcb748e530fa2751652b84986da5296c) at 110 dpi, not from the text layer. 'Wir führen zu diesem Zwecke noch ein drittes Koordinatensystem K' ein, welches relativ zum System k derart in Paralleltranslationsbewegung parallel zur Ξ-Achse begriffen sei, daß sich dessen Koordinatenursprung mit der Geschwindigkeit −v auf der Ξ-Achse bewege.' 'Wir nennen x', y', z' die Koordinaten, im System K' gemessen'; t' is 'die Zeit t' des Systems K''. The page closes: 'Da die Beziehungen zwischen x', y', z' und x, y, z die Zeit t nicht enthalten, so ruhen die Systeme K und K' gegeneinander.' An agent check, not a human review. Scope extended to sr-s3-p22 on 2026-09-26 by agent:TopazPrairie: that paragraph closes p. 901 and opens p. 902 (public/figures/plates/pages/ap-17-891/902-1280.webp), read by eye, 'und es ist klar, daß die Transformation von K auf K′ die identische Transformation sein muß'. Its x′, y′, z′ are the coordinates of K′ named on p. 901, not the Galilean x′ = x − vt."
       by: "agent:SapphireCastle"
       date: "2026-09-25"
 
+
+  - id: sr.Kprime.thirdSystem
+    paper: special-relativity
+    scope: ["sr-s3"]
+    glyph:
+      unicode: "K′"
+      latex: "K'"
+      variant: primed
+    meaning: "A third coordinate system K′, moving with −v relative to k, so at rest relative to K"
+    binding:
+      nonQuantityKind: coordinate-system-label
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\bar{S}"
+    notes: "A system label, not a quantity. Not the moving system k, and not the primed field components of §§6 to 10."
+    sources:
+      facsimilePage: 901
+      anchor: sr-s3-p18
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 901 and 902 (public/figures/plates/pages/ap-17-891/901-1280.webp, public/figures/plates/pages/ap-17-891/902-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital K with a prime, 'Wir führen zu diesem Zwecke noch ein drittes Koordinatensystem K′ ein, welches relativ zum System k derart in Paralleltranslationsbewegung parallel zur Ξ-Achse begriffen sei, daß sich dessen Koordinatenursprung mit der Geschwindigkeit −v auf der Ξ-Achse bewege' (p. 901); p. 902: 'daß die Transformation von K auf K′ die identische Transformation sein muß'. An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
   - id: sr.beta.lorentzFactor
     paper: special-relativity
     scope: ["sr-s3", "sr-s4", "sr-s5", "sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
@@ -848,6 +954,56 @@ entries:
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
+
+  - id: sr.wxi.velocityComponentXMoving
+    paper: special-relativity
+    scope: ["sr-s5"]
+    glyph:
+      unicode: "w_ξ"
+      latex: "w_\\xi"
+      variant: subscripted
+    meaning: "Constant velocity of a point along ξ, measured in k"
+    binding:
+      quantityId: velocityComponentXMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "u_x'"
+    sources:
+      facsimilePage: 905
+      anchor: sr-s5-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 905 (public/figures/plates/pages/ap-17-891/905-1280.webp): glyph read by eye from the page image, not the text layer. Italic w with subscript ξ, in ξ = w_ξ τ, 'wobei w_ξ und w_η Konstanten bedeuten' (§5). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.weta.velocityComponentYMoving
+    paper: special-relativity
+    scope: ["sr-s5"]
+    glyph:
+      unicode: "w_η"
+      latex: "w_\\eta"
+      variant: subscripted
+    meaning: "Constant velocity of a point along η, measured in k"
+    binding:
+      quantityId: velocityComponentYMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "u_y'"
+    sources:
+      facsimilePage: 905
+      anchor: sr-s5-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 905 (public/figures/plates/pages/ap-17-891/905-1280.webp): glyph read by eye from the page image, not the text layer. Italic w with subscript η, in η = w_η τ, 'wobei w_ξ und w_η Konstanten bedeuten' (§5). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
   - id: sr.U.velocityComposed
     paper: special-relativity
     scope: ["sr-s5"]
@@ -902,7 +1058,7 @@ entries:
     scope: ["sr-s5"]
     glyph:
       unicode: "κ"
-      latex: "\\kappa"
+      latex: "\\varkappa"
       variant: plain
     meaning: "Speed by which v falls short of V, in v = V − κ"
     binding:
@@ -918,7 +1074,7 @@ entries:
       anchor: sr-s5-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 906 (public/figures/plates/pages/ap-17-891/906-1280.webp): glyph read by eye from the page image, not the text layer. Greek kappa in v = V − κ, 'wobei κ und λ positiv und kleiner als V seien'. The printed letterform is the curled kappa (Unicode U+03F0) rather than the straight κ; the letter is kappa either way. An agent check, not a human review. Human review pending."
+      checkedAgainst: "Plate of printed page 906 (public/figures/plates/pages/ap-17-891/906-1280.webp): glyph read by eye from the page image, not the text layer. Greek kappa in v = V − κ, 'wobei κ und λ positiv und kleiner als V seien'. The printed letterform is the curled kappa (Unicode U+03F0) rather than the straight κ; the letter is kappa either way. An agent check, not a human review. Human review pending. On 2026-09-26 agent:TopazPrairie set the entry's LaTeX to \\varkappa, the curled form the plate prints and the edition and the display eq-s5-d7 write, so the letter in v = V − κ is read by this entry; the unicode field keeps κ, the letter's name."
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
@@ -950,6 +1106,31 @@ entries:
   # =========================================================================
   # Electrodynamics (§§6–10)
   # =========================================================================
+
+  - id: sr.kprime.thirdSystem
+    paper: special-relativity
+    scope: ["sr-s5"]
+    glyph:
+      unicode: "k′"
+      latex: "k'"
+      variant: primed
+    meaning: "A third coordinate system k′, moving parallel to k along the Ξ-axis with the velocity w"
+    binding:
+      nonQuantityKind: coordinate-system-label
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "S''"
+    notes: "A system label, not a quantity. Not the moving system k of §3."
+    sources:
+      facsimilePage: 906
+      anchor: sr-s5-p6
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 906 (public/figures/plates/pages/ap-17-891/906-1280.webp): glyph read by eye from the page image, not the text layer. Italic lowercase k with a prime, 'Führen wir neben den in § 3 figurierenden Systemen K und k noch ein drittes, zu k in Parallelbewegung begriffenes Koordinatensystem k′ ein, dessen Anfangspunkt sich auf der Ξ-Achse mit der Geschwindigkeit w bewegt' (§5). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
   - id: sr.X.electricFieldStationary
     paper: special-relativity
     scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
@@ -1132,7 +1313,7 @@ entries:
 
   - id: sr.Yprime.electricFieldMoving
     paper: special-relativity
-    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9"]
+    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
     glyph:
       unicode: "Y′"
       latex: "Y'"
@@ -1153,13 +1334,13 @@ entries:
       anchor: sr-s6-p3
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 908 and 909 (public/figures/plates/pages/ap-17-891/908-1280.webp, public/figures/plates/pages/ap-17-891/909-1280.webp): glyph read by eye from the page image, not the text layer. First printed on p. 908; facsimilePage corrected on 2026-09-24 from 907. Italic capital Y with a prime, in ((X′, Y′, Z′) und (L′, M′, N′)), the forces of the moving system k; p. 909 prints Y′ = β(Y − (v/V)N). An agent check, not a human review. Human review pending."
+      checkedAgainst: "Plates of printed pages 908 and 909 (public/figures/plates/pages/ap-17-891/908-1280.webp, public/figures/plates/pages/ap-17-891/909-1280.webp): glyph read by eye from the page image, not the text layer. First printed on p. 908; facsimilePage corrected on 2026-09-24 from 907. Italic capital Y with a prime, in ((X′, Y′, Z′) und (L′, M′, N′)), the forces of the moving system k; p. 909 prints Y′ = β(Y − (v/V)N). An agent check, not a human review. Human review pending. Scope extended to § 10 on 2026-09-26 by agent:TopazPrairie, from the plates of printed pages 918 and 919 (public/figures/plates/pages/ap-17-891/918-1280.webp, public/figures/plates/pages/ap-17-891/919-1280.webp), read by eye: 'wobei die Zeichen ξ, η, ζ, τ, X′, Y′, Z′ sich auf das System k beziehen'; p. 919 names εX′, εY′, εZ′ the components of the force on the electron in the system moving with it."
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
   - id: sr.Xprime.electricFieldMoving
     paper: special-relativity
-    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9"]
+    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
     glyph:
       unicode: "X′"
       latex: "X'"
@@ -1180,13 +1361,13 @@ entries:
       anchor: sr-s6-p3
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 908 and 909 (public/figures/plates/pages/ap-17-891/908-1280.webp, public/figures/plates/pages/ap-17-891/909-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital X with a prime. First printed on p. 908, where (X′, Y′, Z′) is the electric force of the moving system k; facsimilePage corrected on 2026-09-24 from 909. p. 909 prints it in X′ = X. An agent check, not a human review. Human review pending."
+      checkedAgainst: "Plates of printed pages 908 and 909 (public/figures/plates/pages/ap-17-891/908-1280.webp, public/figures/plates/pages/ap-17-891/909-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital X with a prime. First printed on p. 908, where (X′, Y′, Z′) is the electric force of the moving system k; facsimilePage corrected on 2026-09-24 from 909. p. 909 prints it in X′ = X. An agent check, not a human review. Human review pending. Scope extended to § 10 on 2026-09-26 by agent:TopazPrairie, from the plates of printed pages 918 and 919 (public/figures/plates/pages/ap-17-891/918-1280.webp, public/figures/plates/pages/ap-17-891/919-1280.webp), read by eye: 'wobei die Zeichen ξ, η, ζ, τ, X′, Y′, Z′ sich auf das System k beziehen'; p. 919 names εX′, εY′, εZ′ the components of the force on the electron in the system moving with it."
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
   - id: sr.Zprime.electricFieldMoving
     paper: special-relativity
-    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9"]
+    scope: ["sr-s6", "sr-s7", "sr-s8", "sr-s9", "sr-s10"]
     glyph:
       unicode: "Z′"
       latex: "Z'"
@@ -1207,7 +1388,7 @@ entries:
       anchor: sr-s6-p3
     verification:
       printed: true
-      checkedAgainst: "Plates of printed pages 908 and 909 (public/figures/plates/pages/ap-17-891/908-1280.webp, public/figures/plates/pages/ap-17-891/909-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital Z with a prime. First printed on p. 908, in (X′, Y′, Z′); facsimilePage corrected on 2026-09-24 from 909. p. 909 prints Z′ = β(Z + (v/V)M). An agent check, not a human review. Human review pending."
+      checkedAgainst: "Plates of printed pages 908 and 909 (public/figures/plates/pages/ap-17-891/908-1280.webp, public/figures/plates/pages/ap-17-891/909-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital Z with a prime. First printed on p. 908, in (X′, Y′, Z′); facsimilePage corrected on 2026-09-24 from 909. p. 909 prints Z′ = β(Z + (v/V)M). An agent check, not a human review. Human review pending. Scope extended to § 10 on 2026-09-26 by agent:TopazPrairie, from the plates of printed pages 918 and 919 (public/figures/plates/pages/ap-17-891/918-1280.webp, public/figures/plates/pages/ap-17-891/919-1280.webp), read by eye: 'wobei die Zeichen ξ, η, ζ, τ, X′, Y′, Z′ sich auf das System k beziehen'; p. 919 names εX′, εY′, εZ′ the components of the force on the electron in the system moving with it."
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
@@ -1609,6 +1790,212 @@ entries:
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
+
+  - id: sr.X0.electricFieldAmplitudeStationary
+    paper: special-relativity
+    scope: ["sr-s7"]
+    glyph:
+      unicode: "X_0"
+      latex: "X_0"
+      variant: subscripted
+    meaning: "x-component of the amplitude of the electric force of the wave train in K"
+    binding:
+      quantityId: electricFieldAmplitudeStationary
+      index: x
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "E_{0x}"
+    sources:
+      facsimilePage: 910
+      anchor: sr-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 910 (public/figures/plates/pages/ap-17-891/910-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital X with subscript 0, in X = X₀ sin Φ, 'Hierbei sind (X₀, Y₀, Z₀) und (L₀, M₀, N₀) die Vektoren, welche die Amplitude des Wellenzuges bestimmen' (§7). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.Y0.electricFieldAmplitudeStationary
+    paper: special-relativity
+    scope: ["sr-s7"]
+    glyph:
+      unicode: "Y_0"
+      latex: "Y_0"
+      variant: subscripted
+    meaning: "y-component of the amplitude of the electric force of the wave train in K"
+    binding:
+      quantityId: electricFieldAmplitudeStationary
+      index: y
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "E_{0y}"
+    sources:
+      facsimilePage: 910
+      anchor: sr-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 910 (public/figures/plates/pages/ap-17-891/910-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital Y with subscript 0, in Y = Y₀ sin Φ, 'Hierbei sind (X₀, Y₀, Z₀) und (L₀, M₀, N₀) die Vektoren, welche die Amplitude des Wellenzuges bestimmen' (§7). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.Z0.electricFieldAmplitudeStationary
+    paper: special-relativity
+    scope: ["sr-s7"]
+    glyph:
+      unicode: "Z_0"
+      latex: "Z_0"
+      variant: subscripted
+    meaning: "z-component of the amplitude of the electric force of the wave train in K"
+    binding:
+      quantityId: electricFieldAmplitudeStationary
+      index: z
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "E_{0z}"
+    sources:
+      facsimilePage: 910
+      anchor: sr-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 910 (public/figures/plates/pages/ap-17-891/910-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital Z with subscript 0, in Z = Z₀ sin Φ, 'Hierbei sind (X₀, Y₀, Z₀) und (L₀, M₀, N₀) die Vektoren, welche die Amplitude des Wellenzuges bestimmen' (§7). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.L0.magneticFieldAmplitudeStationary
+    paper: special-relativity
+    scope: ["sr-s7"]
+    glyph:
+      unicode: "L_0"
+      latex: "L_0"
+      variant: subscripted
+    meaning: "x-component of the amplitude of the magnetic force of the wave train in K"
+    binding:
+      quantityId: magneticFieldAmplitudeStationary
+      index: x
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "B_{0x}"
+    sources:
+      facsimilePage: 910
+      anchor: sr-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 910 (public/figures/plates/pages/ap-17-891/910-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital L with subscript 0, in L = L₀ sin Φ, 'Hierbei sind (X₀, Y₀, Z₀) und (L₀, M₀, N₀) die Vektoren, welche die Amplitude des Wellenzuges bestimmen' (§7). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.M0.magneticFieldAmplitudeStationary
+    paper: special-relativity
+    scope: ["sr-s7"]
+    glyph:
+      unicode: "M_0"
+      latex: "M_0"
+      variant: subscripted
+    meaning: "y-component of the amplitude of the magnetic force of the wave train in K"
+    binding:
+      quantityId: magneticFieldAmplitudeStationary
+      index: y
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "B_{0y}"
+    sources:
+      facsimilePage: 910
+      anchor: sr-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 910 (public/figures/plates/pages/ap-17-891/910-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital M with subscript 0, in M = M₀ sin Φ, 'Hierbei sind (X₀, Y₀, Z₀) und (L₀, M₀, N₀) die Vektoren, welche die Amplitude des Wellenzuges bestimmen' (§7). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.N0.magneticFieldAmplitudeStationary
+    paper: special-relativity
+    scope: ["sr-s7"]
+    glyph:
+      unicode: "N_0"
+      latex: "N_0"
+      variant: subscripted
+    meaning: "z-component of the amplitude of the magnetic force of the wave train in K"
+    binding:
+      quantityId: magneticFieldAmplitudeStationary
+      index: z
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "B_{0z}"
+    sources:
+      facsimilePage: 910
+      anchor: sr-s7-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 910 (public/figures/plates/pages/ap-17-891/910-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital N with subscript 0, in N = N₀ sin Φ, 'Hierbei sind (X₀, Y₀, Z₀) und (L₀, M₀, N₀) die Vektoren, welche die Amplitude des Wellenzuges bestimmen' (§7). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.omegaprime.waveAngularFrequencyMoving
+    paper: special-relativity
+    scope: ["sr-s7"]
+    glyph:
+      unicode: "ω′"
+      latex: "\\omega'"
+      variant: primed
+    meaning: "Angular frequency of the wave in k"
+    binding:
+      quantityId: waveAngularFrequencyMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\omega'"
+    sources:
+      facsimilePage: 911
+      anchor: sr-s7-p3
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 911 (public/figures/plates/pages/ap-17-891/911-1280.webp): glyph read by eye from the page image, not the text layer. Greek ω with a prime, in Φ′ = ω′(τ − (a′ξ + b′η + c′ζ)/V) and ω′ = ωβ(1 − a·v/V), and 'Aus der Gleichung für ω′ folgt' (§7). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.aprime.directionCosineMoving
+    paper: special-relativity
+    scope: ["sr-s7"]
+    glyph:
+      unicode: "a′"
+      latex: "a'"
+      variant: primed
+    meaning: "Direction cosine of the wave normal in k, along ξ"
+    binding:
+      quantityId: directionCosineMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "n'_x"
+    sources:
+      facsimilePage: 912
+      anchor: sr-s7-p5
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 911 and 912 (public/figures/plates/pages/ap-17-891/911-1280.webp, public/figures/plates/pages/ap-17-891/912-1280.webp): glyph read by eye from the page image, not the text layer. Italic a with a prime, in Φ′ = ω′(τ − (a′ξ + b′η + c′ζ)/V) and a′ = (a − v/V)/(1 − a·v/V) on p. 911; p. 912: 'so nimmt die Gleichung für a′ die Form an'. An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
   - id: sr.A.lightAmplitudeStationary
     paper: special-relativity
     scope: ["sr-s7", "sr-s8"]
@@ -1778,6 +2165,106 @@ entries:
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
+
+  - id: sr.S.lightComplexVolumeStationary
+    paper: special-relativity
+    scope: ["sr-s8"]
+    glyph:
+      unicode: "S"
+      latex: "S"
+      variant: plain
+    meaning: "Volume of the sphere enclosing the light complex, measured in K"
+    binding:
+      quantityId: lightComplexVolumeStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "V_{\\mathrm{packet}}"
+    sources:
+      facsimilePage: 913
+      anchor: sr-s8-p2
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 913 (public/figures/plates/pages/ap-17-891/913-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital S, 'Nennt man S das Volumen der Kugel, S′ dasjenige dieses Ellipsoides' (§8). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.Sprime.lightComplexVolumeMoving
+    paper: special-relativity
+    scope: ["sr-s8"]
+    glyph:
+      unicode: "S′"
+      latex: "S'"
+      variant: primed
+    meaning: "Volume of the same light complex measured in k, an ellipsoid"
+    binding:
+      quantityId: lightComplexVolumeMoving
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "V_{\\mathrm{packet}}'"
+    sources:
+      facsimilePage: 913
+      anchor: sr-s8-p2
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 913 (public/figures/plates/pages/ap-17-891/913-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital S with a prime, 'S′ dasjenige dieses Ellipsoides', and S′/S = √(1 − (v/V)²)/(1 − (v/V) cos φ) (§8). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.Atriple.lightAmplitudeReflectedStationary
+    paper: special-relativity
+    scope: ["sr-s8"]
+    glyph:
+      unicode: "A′′′"
+      latex: "A'''"
+      variant: primed
+    meaning: "Amplitude of the light reflected from the moving mirror, measured in K"
+    binding:
+      quantityId: lightAmplitudeReflectedStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "A'''"
+    sources:
+      facsimilePage: 915
+      anchor: sr-s8-p10
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 915 (public/figures/plates/pages/ap-17-891/915-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital A with three primes, in A′′′ = A″(1 + (v/V) cos φ″)/√(1 − (v/V)²), and 'Die von der Flächeneinheit des Spiegels in der Zeiteinheit sich entfernende Energie ist A′′′²/8π (− V cos φ′′′ + v)' (§8), measured in the stationary system like the incident A²/8π (V cos φ − v). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.varphitriple.propagationAngleReflectedStationary
+    paper: special-relativity
+    scope: ["sr-s8"]
+    glyph:
+      unicode: "φ′′′"
+      latex: "\\varphi'''"
+      variant: primed
+    meaning: "Angle of the reflected light's wave normal, measured in K"
+    binding:
+      quantityId: propagationAngleReflectedStationary
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\varphi'''"
+    sources:
+      facsimilePage: 915
+      anchor: sr-s8-p10
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 915 (public/figures/plates/pages/ap-17-891/915-1280.webp): glyph read by eye from the page image, not the text layer. Greek φ with three primes, in cos φ′′′ = (cos φ″ + v/V)/(1 + (v/V) cos φ″), and in the energy leaving the mirror, A′′′²/8π (− V cos φ′′′ + v) (§8). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
   - id: sr.rho.chargeDensityStationary
     paper: special-relativity
     scope: ["sr-s9"]
@@ -1858,6 +2345,136 @@ entries:
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
 
+
+  - id: sr.ux.chargeVelocityStationary
+    paper: special-relativity
+    scope: ["sr-s9"]
+    glyph:
+      unicode: "u_x"
+      latex: "u_x"
+      variant: subscripted
+    meaning: "x-component of the velocity of electricity in K"
+    binding:
+      quantityId: chargeVelocityStationary
+      index: x
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "u_x"
+    sources:
+      facsimilePage: 916
+      anchor: sr-s9-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 916 (public/figures/plates/pages/ap-17-891/916-1280.webp): glyph read by eye from the page image, not the text layer. Italic u with subscript x, in the Maxwell–Hertz equations with convection current, 'und (u_x, u_y, u_z) den Geschwindigkeitsvektor der Elektrizität bedeutet' (§9). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.uy.chargeVelocityStationary
+    paper: special-relativity
+    scope: ["sr-s9"]
+    glyph:
+      unicode: "u_y"
+      latex: "u_y"
+      variant: subscripted
+    meaning: "y-component of the velocity of electricity in K"
+    binding:
+      quantityId: chargeVelocityStationary
+      index: y
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "u_y"
+    sources:
+      facsimilePage: 916
+      anchor: sr-s9-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 916 (public/figures/plates/pages/ap-17-891/916-1280.webp): glyph read by eye from the page image, not the text layer. Italic u with subscript y, in the Maxwell–Hertz equations with convection current, 'und (u_x, u_y, u_z) den Geschwindigkeitsvektor der Elektrizität bedeutet' (§9). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.uz.chargeVelocityStationary
+    paper: special-relativity
+    scope: ["sr-s9"]
+    glyph:
+      unicode: "u_z"
+      latex: "u_z"
+      variant: subscripted
+    meaning: "z-component of the velocity of electricity in K"
+    binding:
+      quantityId: chargeVelocityStationary
+      index: z
+    frameOrReference: stationary-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "u_z"
+    sources:
+      facsimilePage: 916
+      anchor: sr-s9-p1
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 916 (public/figures/plates/pages/ap-17-891/916-1280.webp): glyph read by eye from the page image, not the text layer. Italic u with subscript z, in the Maxwell–Hertz equations with convection current, 'und (u_x, u_y, u_z) den Geschwindigkeitsvektor der Elektrizität bedeutet' (§9). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.ueta.chargeVelocityMoving
+    paper: special-relativity
+    scope: ["sr-s9"]
+    glyph:
+      unicode: "u_η"
+      latex: "u_\\eta"
+      variant: subscripted
+    meaning: "η-component of the velocity of electricity in k"
+    binding:
+      quantityId: chargeVelocityMoving
+      index: y
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "u'_y"
+    sources:
+      facsimilePage: 916
+      anchor: sr-s9-p2
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 916 and 917 (public/figures/plates/pages/ap-17-891/916-1280.webp, public/figures/plates/pages/ap-17-891/917-1280.webp): glyph read by eye from the page image, not the text layer. Italic u with subscript η, u_x·… = u_η in the transformation to k; p. 917 calls (u_ξ, u_η, u_ζ) the velocity of the electric masses measured in k (§9). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.uzeta.chargeVelocityMoving
+    paper: special-relativity
+    scope: ["sr-s9"]
+    glyph:
+      unicode: "u_ζ"
+      latex: "u_\\zeta"
+      variant: subscripted
+    meaning: "ζ-component of the velocity of electricity in k"
+    binding:
+      quantityId: chargeVelocityMoving
+      index: z
+    frameOrReference: moving-system
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "u'_z"
+    sources:
+      facsimilePage: 916
+      anchor: sr-s9-p2
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 916 and 917 (public/figures/plates/pages/ap-17-891/916-1280.webp, public/figures/plates/pages/ap-17-891/917-1280.webp): glyph read by eye from the page image, not the text layer. Italic u with subscript ζ, u_x·… = u_ζ in the transformation to k; p. 917 calls (u_ξ, u_η, u_ζ) the velocity of the electric masses measured in k (§9). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
   - id: sr.varepsilon.electronCharge
     paper: special-relativity
     scope: ["sr-s10"]
@@ -1980,6 +2597,106 @@ entries:
       checkedAgainst: "Plate of printed page 920 (public/figures/plates/pages/ap-17-891/920-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital W, 'der Bewegungsenergie W des Elektrons', in W = ∫εX dx = μV²{1/√(1 − (v/V)²) − 1} (§10). An agent check, not a human review. Human review pending."
       by: "agent:ConcordanceCheck-special-relativity"
       date: "2026-09-24"
+
+  - id: sr.Am.magneticDeflectability
+    paper: special-relativity
+    scope: ["sr-s10"]
+    glyph:
+      unicode: "A_m"
+      latex: "A_m"
+      variant: subscripted
+    meaning: "The electron's magnetic deflectability"
+    binding:
+      quantityId: magneticDeflectability
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "A_m"
+    notes: "A deflectability, not the light amplitude A of §§7 and 8."
+    sources:
+      facsimilePage: 920
+      anchor: sr-s10-p15
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 920 (public/figures/plates/pages/ap-17-891/920-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital A with subscript m, 'aus dem Verhältnis der magnetischen Ablenkbarkeit A_m und der elektrischen Ablenkbarkeit A_e', and A_m/A_e = v/V (§10). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.Ae.electricDeflectability
+    paper: special-relativity
+    scope: ["sr-s10"]
+    glyph:
+      unicode: "A_e"
+      latex: "A_e"
+      variant: subscripted
+    meaning: "The electron's electric deflectability"
+    binding:
+      quantityId: electricDeflectability
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "A_e"
+    notes: "A deflectability, not the light amplitude A of §§7 and 8."
+    sources:
+      facsimilePage: 920
+      anchor: sr-s10-p15
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 920 (public/figures/plates/pages/ap-17-891/920-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital A with subscript e, 'der elektrischen Ablenkbarkeit A_e', and A_m/A_e = v/V (§10). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.R.radiusCurvatureMagnetic
+    paper: special-relativity
+    scope: ["sr-s10"]
+    glyph:
+      unicode: "R"
+      latex: "R"
+      variant: plain
+    meaning: "Radius of curvature of the electron's path under a magnetic force N perpendicular to its velocity"
+    binding:
+      quantityId: radiusCurvatureMagnetic
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "r_B"
+    notes: "Not the radius of the rigid sphere of §4 or of the light sphere of §8."
+    sources:
+      facsimilePage: 921
+      anchor: sr-s10-p18
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 921 (public/figures/plates/pages/ap-17-891/921-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital R, 'Wir berechnen den Krümmungsradius R der Bahn, wenn eine senkrecht zur Geschwindigkeit des Elektrons wirkende magnetische Kraft N (als einzige ablenkende Kraft) vorhanden ist', and R = V²(μ/ε)·(v/V)/√(1 − (v/V)²)·1/N (§10). An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
+
+  - id: sr.X.axisLabelS10p4
+    paper: special-relativity
+    scope: ["sr-s10-p4"]
+    glyph:
+      unicode: "X"
+      latex: "X"
+      variant: plain
+    meaning: "The X-axis of K, the line the electron moves along: a name, not the electric force X"
+    binding:
+      nonQuantityKind: coordinate-system-label
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "x"
+    notes: "In this paragraph X names the axis of K. Elsewhere in §§6 to 10 it is the x-component of the electric force."
+    sources:
+      facsimilePage: 918
+      anchor: sr-s10-p4
+    verification:
+      printed: true
+      checkedAgainst: "Plates of printed pages 917 and 918 (public/figures/plates/pages/ap-17-891/917-1280.webp, public/figures/plates/pages/ap-17-891/918-1280.webp): glyph read by eye from the page image, not the text layer. Italic capital X, 'und sich längs der X-Achse des Systems K mit der Geschwindigkeit v bewege' and 'relativ zu einem längs der X-Achse mit der konstanten Geschwindigkeit v parallelbewegten Koordinatensystem k ruht' (§10). The paragraph begins on p. 917, 'Ohne die Allgemeinheit der Betrachtung zu beeinflussen, können und wollen wir annehmen, daß das Elektron ... sich im Koordinatenursprung befinde', and in it the letter only names the axis; the force X is printed in the section's first display on p. 917, μ d²x/dt² = εX. An agent check, not a human review."
+      by: "agent:TopazPrairie"
+      date: "2026-09-26"
 
 modernOnlySymbols:
   - id: sr.chi.rapidity
