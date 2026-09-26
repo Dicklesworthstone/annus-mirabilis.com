@@ -25,6 +25,11 @@ export function FootnoteItem({ footnote, anchored = false, after }: FootnoteItem
     >
       <div className="footnote-body">
         {anchored ? <span id={footnote.id} data-footnote-anchor={footnote.id} /> : null}
+        {/* The mark the page prints, "1)", as the text's reference carries it and the English face
+            labels its footnotes; the list does not number them (reader.css .footnotes-list). */}
+        {footnote.originalLabel ? (
+          <span className="footnote-ref">{footnote.originalLabel} </span>
+        ) : null}
         {renderInlines(footnote.inlines, undefined, `fn-${footnote.id}`)}
         <a
           href={`#ref-${footnote.id}`}

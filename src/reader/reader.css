@@ -2696,7 +2696,10 @@ html:is(
 }
 
 .footnotes-list {
-  padding-left: 1.5rem;
+  /* Each item opens with the mark its page prints (Footnote.tsx), which restarts on every page:
+     the list's own numbers would stand beside it and disagree ("3." for a footnote printed "2)"). */
+  list-style: none;
+  padding-left: 0;
 }
 
 .footnote-item {
