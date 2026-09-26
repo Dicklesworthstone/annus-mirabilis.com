@@ -11,7 +11,12 @@ import { LIGHT_QUANTA_LATER_EVIDENCE, LIGHT_QUANTA_SHELF_CARDS } from "./lightQu
 
 const CARDS = [...LIGHT_QUANTA_SHELF_CARDS, ...LIGHT_QUANTA_LATER_EVIDENCE];
 
-const CHECKED = ["equipartition-mean-resonator-energy"];
+const CHECKED = [
+  "equipartition-mean-resonator-energy",
+  "stokes-1852-refrangibility",
+  "rayleigh-1900-radiation-law",
+  "thomson-1899-photoelectric-carrier",
+];
 
 describe("the light-quanta shelf's source checks", () => {
   test("every check on every card is well formed", () => {

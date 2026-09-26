@@ -188,8 +188,10 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "stokes-1852-refrangibility",
     proposition:
-      "Light re-emitted by a fluorescing substance is of lower frequency than the light that excited it.",
+      "Light given out by a fluorescing substance spreads over various refrangibilities, none higher than that of the light exciting it: when dispersion changes the refrangibility of light, it always lowers it.",
     status: "available",
+    limits:
+      "Stokes writes of refrangibility, which the wave theory ties to the period of vibration; lower refrangibility means a longer period, so the rule is often restated as a lower frequency. He calls it a law that appears to be universal, having met no exception among a great many media, and offers only conjectures toward a dynamical explanation, not having satisfied himself of one. The word fluorescence is his, proposed in this paper.",
     sources: [
       {
         title: "On the Change of Refrangibility of Light",
@@ -205,6 +207,21 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     admittedStages: ["stage-07"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/philosophicaltra1421roya",
+        read: "page-image",
+        matched:
+          'Leaf 502 is p. 463: "XXX. On the Change of Refrangibility of Light. By G. G. Stokes, M.A., F.R.S.", "Received May 11,-Read May 27, 1852", foot "MDCCCLII". p. 499, Art. 80: a law "which appears to be universal, namely, that when the refrangibility of light is changed by dispersion it is always lowered", with no exception among "a great many media". p. 556, Art. 240 (Conclusion): dispersed light "of various refrangibilities", and the incident refrangibility "a superior limit". p. 465, Art. 4: to the period of vibration "corresponds its refrangibility". p. 550, Art. 229: "I have not hitherto been able altogether to satisfy myself respecting a dynamical explanation of this law", then conjectures. p. 479, footnote: "call the appearance fluorescence". The volume is v. 142 in the catalog; it is not printed on the title page read.',
+        differs: [
+          'The card said "lower frequency". Stokes writes refrangibility throughout; the frequency reading is now in the limits as a restatement.',
+          'The card dropped "appears to be universal" and that the emitted light spreads over various refrangibilities up to a limit. Both are now on the card.',
+        ],
+      },
+    ],
   },
   {
     id: "lenard-1902-photoelectric",
@@ -232,10 +249,10 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "rayleigh-1900-radiation-law",
     proposition:
-      "Giving each mode of vibration of the radiation its equal share of energy predicts, at long wavelengths, an intensity proportional to the temperature and to the inverse fourth power of the wavelength.",
+      "Giving each mode of vibration of the radiation an equal share of energy, proportional to the temperature, makes the energy between two nearby wavelengths proportional to the temperature and to the inverse fourth power of the wavelength. Rayleigh suggests this may be the proper form when the wavelength times the temperature is great.",
     status: "available",
     limits:
-      "Rayleigh offered it for long waves only, with a factor of his own to keep it finite at short ones; that printed form is not yet transcribed here. The constant usually quoted with it comes from Jeans in July 1905, after the light-quanta paper was received, and is not on this shelf.",
+      "A suggestion, not a law for the whole spectrum: Rayleigh writes that the equal-shares doctrine fails in general, for a reason not yet explained, and may apply to the graver modes. For a complete expression he multiplies by the exponential factor of Wien's law, a law he calls little more than a conjecture on the theoretical side, and says he cannot tell whether the result fits observation as well as Wien's. He gives no value for the coefficient. The constant usually quoted with it comes from Jeans in July 1905, after the light-quanta paper was received, and is not on this shelf.",
     sources: [
       {
         title: "Remarks upon the Law of Complete Radiation",
@@ -251,6 +268,21 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     admittedStages: ["stage-03"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/londonedinburgh549190lond",
+        read: "page-image",
+        matched:
+          'Leaves 554-555 are pp. 539-540: "LIII. Remarks upon the Law of Complete Radiation. By Lord Rayleigh, F.R.S.", in the June 1900 number (Number CCCI) of vol. XLIX, fifth series. p. 539 gives Wien\'s law as (2), c1 λ^-5 e^(-c2/λθ) dλ, "little more than a conjecture" from the theoretical side. p. 540: the doctrine "fails in general" but "may apply to the graver modes"; since "the energy in each mode is proportional to θ", the distribution is θk² dk (3) or θλ^-4 dλ (4), "the proper form when λθ is great"; "If we introduce the exponential factor" gives (6), c1 θ λ^-4 e^(-c2/λθ) dλ; "Whether (6) represents the facts of observation as well as (2) I am not in a position to say." The limits\' sentence on Jeans concerns a later source and was not checked here.',
+        differs: [
+          'The limits said Rayleigh added "a factor of his own to keep it finite at short ones". The factor is Wien\'s exponential, introduced without a stated reason, and nothing on either page speaks of finiteness. Corrected.',
+          'The proposition dropped Rayleigh\'s hedges ("suggestion", "may apply to the graver modes", "when λθ is great"). They are now on the card.',
+        ],
+      },
+    ],
   },
   {
     id: "rubens-1901-long-wave-radiation",
@@ -322,10 +354,10 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "thomson-1899-photoelectric-carrier",
     proposition:
-      "The negative charges released from a metal by ultraviolet light have the same ratio of charge to mass as the particles of cathode rays.",
+      "When a negatively charged metal plate in a gas at low pressure is lit by ultraviolet light, the negative electricity it loses is carried by particles whose ratio of charge to mass Thomson measures as of the same order as for cathode rays, and states to be the same.",
     status: "available",
     limits:
-      "Identifies what comes out of the metal. It says nothing about how much energy each carries.",
+      'His measured mean is larger than either cathode-ray value he quotes, though of the same order; "the same" is his reading of that agreement. He says his statements about the masses hold only when the gas pressure is very small, and he speaks of the carriers as ions produced by the ultraviolet light. It identifies the carriers, and says nothing about how much energy each carries: the method takes them to start from rest.',
     sources: [
       {
         title: "On the Masses of the Ions in Gases at Low Pressures",
@@ -341,6 +373,21 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     admittedStages: ["stage-02", "stage-07"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/londonedinburg5481899lond",
+        read: "page-image",
+        matched:
+          'Leaf 592 is p. 547: "LVIII. On the Masses of the Ions in Gases at Low Pressures. By J. J. Thomson", signature lines "Phil. Mag. S. 5. Vol. 48. No. 295. Dec. 1899"; the paper runs to p. 567. p. 548: negative electricity "carried by charged particles (i.e. when a negatively electrified metal plate in a gas at low pressure is illuminated by ultra-violet light)", and m/e "is the same as for the cathode rays". p. 549: the orbits are solved "if x, y, dx/dt, dy/dt all vanish when t = 0", particles starting from the plate. p. 554: mean e/m 7.3 x 10^6 against his cathode-ray 5 x 10^6 and Lenard\'s 6.4 x 10^6, "of the same order", and about 10^4 for hydrogen ions in electrolysis. p. 564: the statements on the masses "are only true when the pressure of the gas is very small".',
+        differs: [
+          'The card said "released from a metal" with "the same" ratio. Thomson\'s measured result is "of the same order" and "the same" is his stated conclusion; the setting (a charged plate in gas at low pressure) is now on the card.',
+          'The limits said the card "identifies what comes out of the metal". Thomson speaks of "the ions produced by ultra-violet light" (p. 554); the limits now say that, and keep the pressure condition he states.',
+        ],
+      },
+    ],
   },
 ];
 
