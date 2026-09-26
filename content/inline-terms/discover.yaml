@@ -11,11 +11,6 @@ readings:
   # Light quanta, the investigation (/discover/light-quanta/investigate/).
   - paper: light-quanta
     anchor: discover-light-quanta-investigate
-    glyph: "\\beta"
-    quantityId: wienConstantBeta
-    reason: "The entropy formula is § 4's, and § 4 prints β as Wien's constant, as §§ 2, 6 and 8 do (eq-s4-d1 to eq-s4-d5). The concordance's entry lq.beta.wienConstant does not yet list § 4."
-  - paper: light-quanta
-    anchor: discover-light-quanta-investigate
     glyph: "W_{\\mathrm{independent}}"
     quantityId: configurationProbability
     reason: "The probability that all n points, each moving independently, are found in the part V of the volume V_0: § 5's configuration probability, (V/V_0)^n."
@@ -105,6 +100,11 @@ readings:
     reason: "The body's mass in ΔM, whose signed change the last step states; the Δ before it is an operator and is listed below."
 
   # Brownian motion, the journey (/discover/brownian-motion/).
+  - paper: brownian-motion
+    anchor: discover-brownian-motion
+    glyph: "t"
+    quantityId: observationInterval
+    reason: "In ⟨x²⟩ = 2Dt and λ_x = √(2Dt), the time the particle has been watched, as the laboratory on the same page colours it; the concordance reads § 4's t as the time coordinate of the field f(x, t)."
   - paper: brownian-motion
     anchor: discover-brownian-motion
     glyph: "x"
