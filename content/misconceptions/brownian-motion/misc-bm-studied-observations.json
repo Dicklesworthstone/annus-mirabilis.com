@@ -17,6 +17,7 @@
     "reason": "A matter of what the paper says about its own starting point; the introduction's first two sentences and the closing wish are the evidence."
   },
   "anchors": ["s0-p1", "s5-p4"],
+  "resultIds": ["bm-molecular-number"],
   "sources": ["A. Einstein, Ann. Phys. (4) 17, 549–560 (1905), plates pp. 549 and 560"],
   "intervention": {
     "defaultsReviewed": {

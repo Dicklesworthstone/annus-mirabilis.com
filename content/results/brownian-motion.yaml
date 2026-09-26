@@ -141,3 +141,125 @@ cards:
       evidentialRole: "A derivation, not evidence"
       historicalStatus: "The diffusion equation was known, as the paper says; deriving it from the particles' irregular jumps is introduced in this paper"
     selectionReason: "It turns the irregular motion of single particles into a law for how many of them spread, and its solution is where §5's numbers come from."
+
+  - id: bm-displacement-law
+    title: "The displacement grows as the square root of the time"
+    section: s4
+    arguments: [arg-bm-gaussian, arg-bm-observable]
+    printed:
+      - anchor: s4-p11
+        sentences: [1, 2, 3]
+      - anchor: s4-p12
+        sentences: [1, 2]
+    equations: [eq-model-bm-rms-from-mean-square]
+    oneSentence: "The displacements in a time \\(t\\) are distributed like random errors, and the root of the mean square displacement along one axis is \\(\\lambda_x = \\sqrt{2Dt}\\), so it grows as the square root of the time, not in proportion to it; for the total displacement in space the same root is \\(\\lambda_x\\sqrt{3}\\)."
+    decoder:
+      - symbol: "\\(\\lambda_x\\)"
+        meaning: "The root of the mean of the squares of the displacements along \\(x\\). The paper first calls it the displacement a particle undergoes on average, then says more precisely what it is."
+      - symbol: "\\(\\overline{x^2}\\)"
+        meaning: "The mean of the squared displacements along \\(x\\). Squaring counts moves in both directions without letting them cancel."
+      - symbol: "\\(\\sqrt{t}\\)"
+        meaning: "Four times the time gives twice the displacement. A speed read off as displacement over time therefore depends on the interval chosen."
+      - symbol: "\\(\\lambda_x\\sqrt{3}\\)"
+        meaning: "The same root for the total displacement in space: the three axes each contribute a mean square of \\(2Dt\\)."
+    qualifications:
+      - kind: approximation
+        text: "The law is for times long beside the short interval \\(\\tau\\) of §4. Over shorter times the motion is not a series of independent jumps, and \\(\\sqrt{2Dt}\\) does not describe it."
+    probes:
+      - instrument: bm-01
+        question: "Shorten the observation interval: what happens to the apparent speed, and which statistic stays fixed?"
+        preset: bm-01-velocity-trap
+      - instrument: bm-06
+        question: "After one second, take the interval from minus to plus \\(\\lambda_x\\): what share of the tracers lies inside it?"
+        preset: bm-06-modern-one-second
+    usedLater: []
+    meanings:
+      argumentStatus: "A consequence of the solution from a point"
+      modelStatus: "Exact within the diffusion model"
+      evidentialRole: "A prediction that observation can test"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "It is the quantity the paper offers to observation: a length one can measure under the microscope between two times."
+
+  - id: bm-predicted-displacement
+    title: "How far a particle moves in a second"
+    section: s5
+    arguments: [arg-bm-diffusivity, arg-bm-inference]
+    printed:
+      - anchor: s5-p1
+        sentences: [1]
+      - anchor: s5-p2
+        sentences: [1]
+    equations: [eq-model-bm-rms, eq-model-bm-diffusivity-molar]
+    oneSentence: "Putting §3's diffusion coefficient into §4's law gives \\(\\lambda_x = \\sqrt{t}\\sqrt{\\frac{RT}{N}\\frac{1}{3\\pi kP}}\\), and with \\(N = 6\\cdot10^{23}\\), water at 17 °C and particles 0.001 mm across, the paper finds 0.8 micron in one second and about 6 microns in one minute."
+    decoder:
+      - symbol: "\\(3\\pi kP\\)"
+        meaning: "Half of Stokes's \\(6\\pi kP\\): the 2 in \\(\\sqrt{2Dt}\\) cancels a factor 2 of the drag."
+      - symbol: "\\(k = 1{,}35\\cdot10^{-2}\\)"
+        meaning: "The viscosity of water at 17 °C, printed as a bare number in centimetre-gram-second units (poise). In SI units it is \\(1.35\\times10^{-3}\\) Pa·s."
+      - symbol: "0,001 mm"
+        meaning: "The particles' diameter. The radius \\(P\\) in the formula is half of it."
+      - symbol: "\\(N = 6\\cdot10^{23}\\)"
+        meaning: "The number of molecules in a gram-molecule as the kinetic theory of gases gave it, taken here as an input."
+      - symbol: "Mikron"
+        meaning: "The micron, a thousandth of a millimeter; today the micrometer."
+    qualifications:
+      - kind: premise
+        text: "The numbers rest on a value of \\(N\\) taken from the kinetic theory of gases. The calculation shows what size of motion to look for; it measures nothing."
+      - kind: approximation
+        text: "The printed values are rounded, and the second is marked \"ca.\", about."
+      - kind: conditional
+        text: "The paper writes \"wäre\", would be: it states what the theory predicts and reports no observation."
+    probes:
+      - instrument: bm-01
+        question: "The laboratory opens on the paper's case, water at 17 °C and a particle of radius 0.5 micron: read \\(\\lambda_x\\) after one second and after sixty, and compare them with the printed 0.8 and 6 microns."
+      - instrument: bm-01
+        question: "Take the printed 0.001 mm as the radius instead of the diameter: how far does \\(\\lambda_x\\) move from 0.8 micron?"
+        preset: bm-01-radius-probe
+      - instrument: bm-01
+        question: "Double the viscosity: does \\(\\lambda_x\\) halve?"
+        preset: bm-01-viscosity-comparison
+    usedLater: []
+    meanings:
+      argumentStatus: "A worked example of the combined law"
+      modelStatus: "Exact within the model; the inputs are the paper's round values"
+      evidentialRole: "A prediction of the size of the motion, not a measurement"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "It tells an observer what to look for: less than a micron in a second."
+
+  - id: bm-molecular-number
+    title: "Determining N from the displacement"
+    section: s5
+    arguments: [arg-bm-inference]
+    printed:
+      - anchor: s5-p3
+        sentences: [1, 2]
+      - anchor: s5-p4
+        sentences: [1]
+    equations: [eq-model-bm-avogadro-inference]
+    oneSentence: "Turned around, the same relation gives \\(N = \\frac{t}{\\lambda_x^2}\\cdot\\frac{RT}{3\\pi kP}\\), so a measured displacement, with the temperature, the viscosity and the particles' radius, would determine the number of molecules in a gram-molecule; the paper ends by hoping that a researcher will soon decide the question it has raised."
+    decoder:
+      - symbol: "\\(N\\)"
+        meaning: "Here the number to be found, an estimate of Avogadro's constant \\(N_A\\) from observed displacements, and no longer an input as in the previous example."
+      - symbol: "\\(\\frac{t}{\\lambda_x^2}\\)"
+        meaning: "What the observations supply: the time divided by the mean square displacement along one axis, which is \\(\\frac{1}{2D}\\)."
+      - symbol: "\\(\\frac{RT}{3\\pi kP}\\)"
+        meaning: "What the inference needs besides the displacement: the temperature, the viscosity and the radius, each known by other means."
+      - symbol: "\"Möge es bald einem Forscher gelingen\""
+        meaning: "May a researcher soon succeed: the paper leaves the test to observation and reports none."
+    qualifications:
+      - kind: conditional
+        text: "The paper proposes this determination and reports no measurement. It closes by hoping that a researcher will soon decide the question it has raised."
+    probes:
+      - instrument: bm-07
+        question: "Leave the radius undeclared: which values of \\(N\\) fit the same displacements?"
+        preset: bm-07-identifiability
+      - instrument: bm-07
+        question: "Load Perrin's 1909 observations, later evidence the paper could not use: what value of \\(N\\) do they give, and how sure is it?"
+        preset: bm-07-perrin-1909
+    usedLater: []
+    meanings:
+      argumentStatus: "The previous result turned around, proposed as a measurement"
+      modelStatus: "Exact within the model, given independent values of the temperature, the viscosity and the radius"
+      evidentialRole: "A proposed test, not evidence"
+      historicalStatus: "Proposed in this paper; carried out later, among others by Perrin in 1909"
+    selectionReason: "It is the method that §5's heading promises: a new way to determine the true size of atoms."

@@ -13,6 +13,7 @@
   },
   "instrumentIds": ["bm-01"],
   "anchors": ["s4-p3", "s4-p12"],
+  "resultIds": ["bm-displacement-law"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 549–560 (1905), plates pp. 556 and 559",
     "BM-01 preset bm-01-velocity-trap: statistic apparent, interval 0.25 s; apparent speed 1.587e-6 m/s against 7.935e-7 m/s at a 1 s interval (apparentSpeed, modern-si-2019 constants)"

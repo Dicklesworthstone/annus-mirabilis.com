@@ -15,6 +15,7 @@
   },
   "instrumentIds": ["bm-06"],
   "anchors": ["s4-p11", "s4-p12"],
+  "resultIds": ["bm-displacement-law"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 549–560 (1905), plates pp. 558–559",
     "BM-06 preset bm-06-modern-one-second: λx 9.268e-7 m, root-mean-square radius in three dimensions 1.605e-6 m = √3 λx; radialPropagator3d at r = 0 is 0 (moments and radialPropagator3d, modern-si-2019 constants)"

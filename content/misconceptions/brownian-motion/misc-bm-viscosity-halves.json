@@ -13,7 +13,7 @@
   },
   "instrumentIds": ["bm-01"],
   "anchors": ["s3-p8", "s5-p1"],
-  "resultIds": ["bm-diffusion-coefficient"],
+  "resultIds": ["bm-diffusion-coefficient", "bm-predicted-displacement"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 549–560 (1905), plates pp. 556 and 559",
     "BM-01 preset bm-01-viscosity-comparison: η 0.0027 Pa·s against the default 0.00135 Pa·s; λx at 1 s is 5.611e-7 m against 7.935e-7 m, ratio 0.7071 (stokesEinsteinD and rmsDisplacement, modern-si-2019 constants)"
