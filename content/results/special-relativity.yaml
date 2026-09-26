@@ -467,7 +467,7 @@ cards:
       - kind: premise
         text: "The light is a plane wave in empty space, and the complex is the part of it inside the moving sphere; because no energy crosses that surface, the same light is compared in both systems."
       - kind: comparison
-        text: "The volume does not change as a rigid body's does. The factor \\(\\sqrt{1-(v/V)^2}/(1-\\frac{v}{V}\\cos\\varphi)\\) depends on the direction of the light: with \\(\\varphi=0\\) and \\(v\\) at 0.6 of the speed of light it is 2, where a rigid body at rest in K is shortened to 0.8 of its length along the motion."
+        text: "The volume's factor \\(\\sqrt{1-(v/V)^2}/(1-\\frac{v}{V}\\cos\\varphi)\\) depends on the direction of the light: with \\(\\varphi=0\\) and \\(v\\) at 0.6 of the speed of light it is 2, where a rigid body at rest in K is shortened to 0.8 of its length along the motion."
       - kind: comparison
         text: "§ 8 remarks that the energy and the frequency of a light complex change by the same law, and does not connect this with the light quanta of the March paper; reading a complex's energy as \\(h\\nu\\) in every system came later."
     probes:
@@ -518,7 +518,7 @@ cards:
       - kind: inference
         text: "The pressure comes from the energy principle: the difference between the energy arriving on the mirror and the energy leaving it is the work done by the pressure of the light."
       - kind: conditional
-        text: "The light reaches the mirror only while \\(V\\cos\\varphi\\) exceeds \\(v\\). Where it only just fails to catch the mirror, a number from the formula is not a reflection."
+        text: "The light reaches the mirror only while \\(V\\cos\\varphi\\) exceeds \\(v\\)."
       - kind: approximation
         text: "The form \\(2\\frac{A^2}{8\\pi}\\cos^2\\varphi\\) neglects the terms in \\(v/V\\). The formula before it is exact within the model."
       - kind: comparison
@@ -616,7 +616,7 @@ cards:
         meaning: "Mass number times acceleration number equals force number: the equation the paper keeps, with force and acceleration defined as it has just stated."
     qualifications:
       - kind: premise
-        text: "The masses are ratios of force to acceleration under the paper's definitions: the force measured in the system moving with the electron at that moment, the acceleration measured in K."
+        text: "The force is the one measured in the system moving with the electron at that moment, and the acceleration is measured in K."
       - kind: comparison
         text: "With force and acceleration both measured in K, the transverse ratio is \\(\\mu\\beta\\), today's convention, while the longitudinal ratio is \\(\\mu\\beta^3\\) under both. The paper says as much: other definitions give other numbers, and theories of the motion of the electron must be compared with great care."
       - kind: inference
