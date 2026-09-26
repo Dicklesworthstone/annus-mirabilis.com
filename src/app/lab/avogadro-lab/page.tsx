@@ -19,6 +19,11 @@ export default function AvogadroPage() {
           Radiation, visible particle motion, and the viscosity of a solution ask different
           questions. Compare what each needs before it can supply a number.
         </p>
+      </header>
+      <AvogadroLab sourceDigest={labDigests["avogadro-lab"]} />
+      {/* After the instrument, not in the hero (dispatch 268): in the hero they put it 653px down
+          at 1440. Every sentence is kept. */}
+      <div className="reading">
         <p>
           The dissertation is a companion to the four papers, not a fifth paper in the edition. This
           preview makes the mathematical comparison interactive without presenting illustrative
@@ -27,8 +32,7 @@ export default function AvogadroPage() {
         <p>
           <a href="/connections/">Return to connections among the papers</a>
         </p>
-      </header>
-      <AvogadroLab sourceDigest={labDigests["avogadro-lab"]} />
+      </div>
     </>
   );
 }
