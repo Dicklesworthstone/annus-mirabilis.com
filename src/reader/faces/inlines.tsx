@@ -26,9 +26,10 @@ export interface RenderInlinesOptions {
   /**
    * Set a recorded misprint's note under each display this renders (DisplayMisprintNote,
    * dispatch 266). Only the German source column asks for it: the English face renders the
-   * reading meant, so it has nothing to note.
+   * reading meant, so it has nothing to note. The value is the paper's slug: display ids repeat
+   * across papers, and a note belongs to its own paper's receipt.
    */
-  readonly misprintNotes?: boolean | undefined;
+  readonly misprintNotes?: string | undefined;
 }
 
 /**
@@ -103,7 +104,7 @@ export function renderInlines(
             return options?.misprintNotes ? (
               <React.Fragment key={key}>
                 {set}
-                <DisplayMisprintNote displayId={node.equationId} />
+                <DisplayMisprintNote paper={options.misprintNotes} displayId={node.equationId} />
               </React.Fragment>
             ) : (
               set

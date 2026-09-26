@@ -167,7 +167,7 @@ export function SourceBlockComponent({
               </span>
             )}
           </div>
-          <DisplayMisprintNote displayId={block.id} />
+          <DisplayMisprintNote paper={block.paper} displayId={block.id} />
         </div>
       );
       break;
@@ -184,7 +184,7 @@ export function SourceBlockComponent({
         >
           {locators}
           <div className="footnote-content">
-            {renderInlines(block.inlines, { misprintNotes: true }, `src-${block.id}`)}
+            {renderInlines(block.inlines, { misprintNotes: block.paper }, `src-${block.id}`)}
           </div>
         </aside>
       );
@@ -244,14 +244,18 @@ export function SourceBlockComponent({
                         <Fragment key={`text-${piece.from}`}>
                           {renderInlines(
                             piece.inlines,
-                            { misprintNotes: true },
+                            { misprintNotes: block.paper },
                             `src-span-${span.id}-${piece.from}`,
                           )}
                         </Fragment>
                       ),
                   )
                 : spanInlines.length > 0
-                  ? renderInlines(spanInlines, { misprintNotes: true }, `src-span-${span.id}`)
+                  ? renderInlines(
+                      spanInlines,
+                      { misprintNotes: block.paper },
+                      `src-span-${span.id}`,
+                    )
                   : block.diplomaticText.slice(span.span.start, span.span.end);
 
               return (

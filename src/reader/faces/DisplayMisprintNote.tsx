@@ -12,9 +12,12 @@ import { notesForDisplay } from "../../content/provenance/misprints.ts";
  * paragraph is set inside that paragraph (inlines.tsx), where a block element may not stand;
  * reader.css sets it on a line of its own.
  */
-export function DisplayMisprintNote({ displayId }: Readonly<{ displayId: string | undefined }>) {
+export function DisplayMisprintNote({
+  paper,
+  displayId,
+}: Readonly<{ paper: string; displayId: string | undefined }>) {
   if (!displayId) return null;
-  const notes = notesForDisplay(displayId);
+  const notes = notesForDisplay(paper, displayId);
   if (notes.length === 0) return null;
   return (
     <>

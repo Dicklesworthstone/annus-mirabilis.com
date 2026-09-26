@@ -143,7 +143,11 @@ export function misprintNotes(dir = "docs/provenance"): ReadonlyMap<string, Misp
   return out;
 }
 
-/** The live records that name this printed display, in receipt order. */
-export function notesForDisplay(displayId: string): readonly MisprintNote[] {
-  return [...misprintNotes().values()].filter((n) => n.displayId === displayId);
+/**
+ * The live records of this paper's receipt that name this printed display, in receipt order.
+ * Display ids are per paper (eq-s9-d3 is a display of relativity and of light quanta), so a record
+ * is matched by its receipt's slug as well as its display.
+ */
+export function notesForDisplay(paper: string, displayId: string): readonly MisprintNote[] {
+  return [...misprintNotes().values()].filter((n) => n.slug === paper && n.displayId === displayId);
 }
