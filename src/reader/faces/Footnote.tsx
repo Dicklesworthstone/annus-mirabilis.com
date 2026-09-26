@@ -30,7 +30,7 @@ export function FootnoteItem({ footnote, anchored = false, after }: FootnoteItem
         {footnote.originalLabel ? (
           <span className="footnote-ref">{footnote.originalLabel} </span>
         ) : null}
-        {renderInlines(footnote.inlines, undefined, `fn-${footnote.id}`)}
+        {renderInlines(footnote.inlines, { misprintNotes: true }, `fn-${footnote.id}`)}
         <a
           href={`#ref-${footnote.id}`}
           className="footnote-backlink"

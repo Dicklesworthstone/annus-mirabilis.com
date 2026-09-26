@@ -2819,6 +2819,15 @@ html:is(
   margin-bottom: 0.5rem;
 }
 
+/* A recorded misprint's note under the printed display that carries it (DisplayMisprintNote.tsx,
+   dispatch 266). A span, because a claimed display is set inside its paragraph; this puts it on a
+   line of its own, in the fine type, under the display it speaks of. */
+.display-misprint-note {
+  display: block;
+  margin: 0.25rem 0 0.75rem;
+  font-size: var(--type-fine);
+}
+
 .term-annotation-close {
   display: inline-block;
   padding: 0.2rem 0.5rem;

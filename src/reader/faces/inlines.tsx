@@ -3,6 +3,7 @@ import React from "react";
 import { misprintNotes } from "../../content/provenance/misprints.ts";
 import type { Inline } from "../../content/schemas/inlines.ts";
 import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
+import { DisplayMisprintNote } from "./DisplayMisprintNote.tsx";
 import { MisprintAnnotation } from "./MisprintAnnotation.tsx";
 import { PrintedDisplayTerms } from "./PrintedDisplayTerms.tsx";
 import { referenceHref } from "./referenceHref.ts";
@@ -22,6 +23,12 @@ export interface RenderInlinesOptions {
    * the mark with no link, because a link to an id the page lacks is a link to nothing.
    */
   readonly footnoteTarget?: ((footnoteId: string) => string | undefined) | undefined;
+  /**
+   * Set a recorded misprint's note under each display this renders (DisplayMisprintNote,
+   * dispatch 266). Only the German source column asks for it: the English face renders the
+   * reading meant, so it has nothing to note.
+   */
+  readonly misprintNotes?: boolean | undefined;
 }
 
 /**
@@ -86,12 +93,20 @@ export function renderInlines(
                 {...{ dangerouslySetInnerHTML: { __html: html } }}
               />
             );
-            return printed ? (
+            const set = printed ? (
               <PrintedDisplayTerms key={key} display={printed} inline>
                 {element}
               </PrintedDisplayTerms>
             ) : (
               element
+            );
+            return options?.misprintNotes ? (
+              <React.Fragment key={key}>
+                {set}
+                <DisplayMisprintNote displayId={node.equationId} />
+              </React.Fragment>
+            ) : (
+              set
             );
           }
           return (

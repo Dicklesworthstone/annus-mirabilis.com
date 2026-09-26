@@ -5,6 +5,7 @@ import type { Inline } from "../../content/schemas/inlines.ts";
 import { plainText } from "../../content/schemas/inlines.ts";
 import type { EditorialNote, SourceBlock, SpanAnchor } from "../../content/schemas/source.ts";
 import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
+import { DisplayMisprintNote } from "./DisplayMisprintNote.tsx";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
 import { renderInlines } from "./inlines.tsx";
 import { PageLocators } from "./PageLocators.tsx";
@@ -166,6 +167,7 @@ export function SourceBlockComponent({
               </span>
             )}
           </div>
+          <DisplayMisprintNote displayId={block.id} />
         </div>
       );
       break;
@@ -182,7 +184,7 @@ export function SourceBlockComponent({
         >
           {locators}
           <div className="footnote-content">
-            {renderInlines(block.inlines, undefined, `src-${block.id}`)}
+            {renderInlines(block.inlines, { misprintNotes: true }, `src-${block.id}`)}
           </div>
         </aside>
       );
@@ -242,14 +244,14 @@ export function SourceBlockComponent({
                         <Fragment key={`text-${piece.from}`}>
                           {renderInlines(
                             piece.inlines,
-                            undefined,
+                            { misprintNotes: true },
                             `src-span-${span.id}-${piece.from}`,
                           )}
                         </Fragment>
                       ),
                   )
                 : spanInlines.length > 0
-                  ? renderInlines(spanInlines, undefined, `src-span-${span.id}`)
+                  ? renderInlines(spanInlines, { misprintNotes: true }, `src-span-${span.id}`)
                   : block.diplomaticText.slice(span.span.start, span.span.end);
 
               return (

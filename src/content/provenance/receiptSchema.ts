@@ -257,7 +257,13 @@ export type TypographicalErrorRetraction = Readonly<{
 
 export type TypographicalError = Readonly<{
   id: string;
-  locator: Readonly<{ pdfPageIndex: number; printedPage: number; line?: number | undefined }>;
+  locator: Readonly<{
+    pdfPageIndex: number;
+    printedPage: number;
+    line?: number | undefined;
+    /** The printed display the misprint stands in, by its source-block id (dispatch 266). */
+    displayId?: string | undefined;
+  }>;
   originalReading: string;
   proposedReading: string;
   reasoning: string;
