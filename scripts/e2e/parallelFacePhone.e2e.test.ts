@@ -668,3 +668,207 @@ test("a paragraph's sentences run on at 320 on the parallel, English and German 
   assert.ok(judged > 0, "no page had enough sentence pairs to judge");
   assert.deepEqual(failures, []);
 });
+
+/** Inline formulas at the narrowest width, on each face that sets them in running text. */
+const INLINE_WIDTH = 320;
+const INLINE_FACES = ["english", "parallel", "gloss"] as const;
+/** A formula that scrolls hides at least half a character, or its scroll box is noise and a tab stop. */
+const INLINE_MIN_SCROLL_EM = 0.5;
+
+/**
+ * Inline formulas stay inside their line (40462). Brownian § 2 ¶ 4 prints
+ * d x_1 d y_1 d z_1, d x_2 d y_2 d z_2 … d x_n d y_n d z_n, one formula with no break in it, 309 to
+ * 345px wide; at 320 it widened the English face by 59px, the parallel face by 21px and the gloss
+ * face by 75px (phoneOverflow, 42 route and width pairs). Each formula is now a scroll box held to
+ * its line, which is easy to get wrong in three ways, each measured on the way here:
+ * - an inline-block scroll box sits on its bottom edge, not its baseline, and lifted formulas up to
+ *   12px off the line;
+ * - a scroll box around every formula made 30-plus small ones such as t_A scroll by 1 to 5px, each
+ *   a tab stop, because KaTeX's glyph boxes reach a little past the formula's own box;
+ * - the same overhang, clipped vertically, cut into primes and accents.
+ * So, per page: no sideways scroll; no formula scrolls by less than half a character; no glyph box
+ * reaches outside its formula's clip; and no formula moves off the text baseline, compared with the
+ * same formula with its scroll box (overflow, padding, margins) switched off in place.
+ */
+async function readInlineFormulas(page: Page) {
+  return page.evaluate((minScrollEm) => {
+    const problems: string[] = [];
+    const formulas = [...document.querySelectorAll<HTMLElement>(".inline-math")].filter(
+      (m) => m.getBoundingClientRect().width > 0,
+    );
+    const where = (m: Element) => m.closest("[id]")?.id ?? "?";
+    // A zero-size inline-block after a formula sits on its line's baseline; a glyph inside the
+    // formula sits a fixed distance from KaTeX's own baseline. Their difference is the offset.
+    const markers = formulas.map((m) => {
+      const mark = document.createElement("span");
+      mark.style.cssText = "display:inline-block;width:0;height:0;";
+      m.after(mark);
+      return mark;
+    });
+    const offsets = () =>
+      formulas.map((m, i) => {
+        const glyph = m.querySelector(
+          ".katex-html .katex-base .mord, .katex-html .katex-base .mopen",
+        );
+        const baseline = (markers[i] as HTMLElement).getBoundingClientRect().bottom;
+        const box = m.getBoundingClientRect();
+        const sameLine = baseline >= box.top - 1 && baseline <= box.bottom + 1;
+        return glyph && sameLine ? glyph.getBoundingClientRect().top - baseline : null;
+      });
+    let scrolling = 0;
+    let clipped = 0;
+    for (const m of formulas) {
+      const cs = getComputedStyle(m);
+      const box = m.getBoundingClientRect();
+      const em = Number.parseFloat(cs.fontSize);
+      if (box.right > innerWidth + 0.5) problems.push(`${where(m)}: a formula runs off the screen`);
+      const range = m.scrollWidth - m.clientWidth;
+      if (/auto|scroll/.test(cs.overflowX) && range > 0) {
+        scrolling++;
+        if (range < minScrollEm * em)
+          problems.push(`${where(m)}: a formula scrolls by ${range}px, less than half a character`);
+      }
+      if (/hidden|auto|scroll|clip/.test(cs.overflowY)) {
+        for (const d of m.querySelectorAll(".katex-html *")) {
+          const r = d.getBoundingClientRect();
+          if (r.width === 0 || r.height === 0) continue;
+          if (r.top < box.top - 0.5 || r.bottom > box.bottom + 0.5) {
+            clipped++;
+            problems.push(`${where(m)}: a glyph box reaches outside its formula's clip`);
+            break;
+          }
+        }
+      }
+    }
+    const before = offsets();
+    // The same formulas with the scroll box switched off in place: overflow, and the padding and
+    // margins that give the glyphs room, go; the display stays. Switching the display too (to
+    // inline) let a long formula break across lines, and its first glyph then stood a line away
+    // from the marker after it, which read as a 26 to 34px shift where nothing had moved.
+    const saved = formulas.map((m) => m.getAttribute("style"));
+    for (const m of formulas) m.style.cssText += ";overflow:visible;padding:0;margin:0;";
+    const after = offsets();
+    formulas.forEach((m, i) => {
+      const s = saved[i];
+      if (s === null || s === undefined) m.removeAttribute("style");
+      else m.setAttribute("style", s);
+    });
+    let compared = 0;
+    let worst = 0;
+    before.forEach((b, i) => {
+      const a = after[i];
+      if (b === null || a === null || b === undefined || a === undefined) return;
+      compared++;
+      const shift = Math.abs(b - a);
+      worst = Math.max(worst, shift);
+      if (shift > 0.5)
+        problems.push(
+          `${where(formulas[i] as Element)}: a formula sits ${shift.toFixed(1)}px off the baseline`,
+        );
+    });
+    for (const mark of markers) mark.remove();
+    const overflow = document.documentElement.scrollWidth - document.documentElement.clientWidth;
+    if (overflow > 0) problems.push(`the page scrolls ${overflow}px sideways`);
+    return {
+      problems,
+      formulas: formulas.length,
+      scrolling,
+      clipped,
+      compared,
+      summary: `${formulas.length} formulas, ${scrolling} scrolling, ${compared} compared on the baseline (worst ${worst.toFixed(2)}px), overflow ${overflow}px`,
+    };
+  }, INLINE_MIN_SCROLL_EM);
+}
+
+test("inline formulas stay inside their line at 320 on the English, parallel and gloss faces (40462)", {
+  timeout: 300_000,
+}, async () => {
+  const site = await siteUnderTest();
+  const { origin, remote, server } = site;
+  const logRunId = newRunIdentity();
+  const logger = new TestLogger(SUITE, logRunId);
+  const failures: string[] = [];
+  let formulas = 0;
+  let compared = 0;
+  let scrolling = 0;
+  const browser: Browser = await chromium.launch({ headless: true });
+  try {
+    for (const paper of PAPERS)
+      for (const face of INLINE_FACES) {
+        const lane = `${paper}-${face}-${INLINE_WIDTH}`;
+        const testId = `inline-formulas-${lane}`;
+        const context = await browser.newContext({
+          viewport: { width: INLINE_WIDTH, height: 844 },
+          ...(remote ? { userAgent: "OpenAI File Downloader, XaiImageApiFetch/1.0" } : {}),
+        });
+        await context.tracing.start({ snapshots: true });
+        const page = await context.newPage();
+        const consoleLines: string[] = [];
+        const network: string[] = [];
+        page.on("console", (m) => consoleLines.push(`${m.type()}: ${m.text()}`));
+        page.on("pageerror", (e) => consoleLines.push(`pageerror: ${String(e)}`));
+        page.on("response", (r) => network.push(`${r.status()} ${r.url()}`));
+        const start = performance.now();
+        const found: string[] = [];
+        let summary = "";
+        try {
+          const response = await page.goto(`${origin}/papers/${paper}/view/${face}/`, {
+            waitUntil: "load",
+          });
+          if (!response?.ok()) throw new Error(`HTTP ${response?.status()}`);
+          await page.evaluate(() => document.fonts.ready);
+          const reading = await readInlineFormulas(page);
+          formulas += reading.formulas;
+          compared += reading.compared;
+          scrolling += reading.scrolling;
+          summary = reading.summary;
+          found.push(...reading.problems);
+        } catch (error) {
+          found.push(`could not measure: ${String(error)}`);
+        }
+        let evidence: Record<string, string> | undefined;
+        if (found.length > 0) {
+          evidence = await keepLaneEvidence(
+            page,
+            context,
+            { consoleLines, network },
+            { logRunId, testId, lane, message: found.slice(0, 20).join("; ") },
+          );
+          failures.push(
+            `${lane}: ${found.slice(0, 8).join("; ")}${found.length > 8 ? ` (+${found.length - 8} more)` : ""}`,
+          );
+        } else {
+          await context.tracing.stop();
+        }
+        logger.log({
+          testId,
+          paper,
+          expected: `no sideways scroll; no formula scrolling by less than ${INLINE_MIN_SCROLL_EM}em; no glyph clipped; no formula off the baseline by more than 0.5px`,
+          actual: summary || found.join("; "),
+          comparisonKind: "tolerance",
+          tolerance: { absolute: 0.5 },
+          outcome: found.length === 0 ? "passed" : "failed",
+          durationMs: Math.round(performance.now() - start),
+          browser: "chromium",
+          viewport: `${INLINE_WIDTH}x844`,
+          reducedMotion: false,
+          jsEnabled: true,
+          message: found.length === 0 ? `${lane}: ${summary}` : found.slice(0, 20).join("; "),
+          ...(evidence ? { evidence } : {}),
+        });
+        await context.close();
+      }
+  } finally {
+    await browser.close();
+    logger.flushSync();
+    server?.close();
+  }
+  // Reported, not asserted: whether any formula is wide enough to scroll is a fact about the
+  // content, and a line break added to the Brownian formula would rightly leave none.
+  console.log(
+    `[inline formulas] ${formulas} formulas, ${scrolling} scrolling, ${compared} compared on the baseline at ${INLINE_WIDTH} (${site.note})`,
+  );
+  assert.ok(formulas > 0, "no inline formula was measured");
+  assert.ok(compared > 0, "no inline formula was compared on the baseline");
+  assert.deepEqual(failures, []);
+});
