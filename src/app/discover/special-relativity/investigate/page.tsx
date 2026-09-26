@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { JourneyFormula, journeyScope } from "../../../../discovery/JourneyFormula.tsx";
+import { JourneyFormula } from "../../../../discovery/JourneyFormula.tsx";
+import { PAGE_FORMULAS, relativityCardScope } from "../../../../discovery/journeyFormulaList.ts";
 import { RelativityEventTable } from "../../../../discovery/RelativityEventTable.tsx";
 import { SpecialRelativityInvestigation } from "../../../../discovery/SpecialRelativityInvestigation.tsx";
 import {
@@ -22,17 +23,7 @@ export default function SpecialRelativityInvestigationPage() {
   const equations = Object.fromEntries(
     RELATIVITY_CARDS.map((card) => [
       card.id,
-      <JourneyFormula
-        key={card.id}
-        latex={card.formula}
-        // Clock synchronization is § 1's; the transformation is worked out in § 3.
-        scope={journeyScope(
-          "special-relativity",
-          card.id === "clocks" ? "s1" : "s3",
-          card.id,
-          "investigate",
-        )}
-      />,
+      <JourneyFormula key={card.id} latex={card.formula} scope={relativityCardScope(card.id)} />,
     ]),
   ) as Parameters<typeof SpecialRelativityInvestigation>[0]["equations"];
   return (
@@ -74,10 +65,7 @@ export default function SpecialRelativityInvestigationPage() {
         </StepDoors>
         <details>
           <summary>What the ordinary map preserves, and what it does not</summary>
-          <JourneyFormula
-            latex={String.raw`\begin{gathered}x'=x-vt,\quad t'=t;\\ x=\pm ct\ \Longrightarrow\ x'=(\pm c-v)t'\end{gathered}`}
-            scope={journeyScope("special-relativity", "s3", "galilean-map", "investigate")}
-          />
+          <JourneyFormula {...PAGE_FORMULAS.sriGalilean} />
           <p>
             The Galilean map retains absolute time and describes familiar low-speed motions. It does
             not jointly retain absolute time and the same coordinate light speed in both directions.

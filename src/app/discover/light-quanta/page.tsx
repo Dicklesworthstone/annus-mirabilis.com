@@ -10,7 +10,8 @@ import {
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
 import { Doors } from "../../../discovery/Doors.tsx";
 import { Fork } from "../../../discovery/Fork.tsx";
-import { JourneyFormula, journeyScope } from "../../../discovery/JourneyFormula.tsx";
+import { JourneyFormula } from "../../../discovery/JourneyFormula.tsx";
+import { PAGE_FORMULAS } from "../../../discovery/journeyFormulaList.ts";
 import { GREATEST_ENERGY_EXERCISE } from "../../../discovery/lightQuanta/electronExercise.ts";
 import {
   H_FROM_STOPPING_LINE,
@@ -274,10 +275,7 @@ export default function LightQuantaRoute() {
           thermodynamic question goes, <em>as if</em> it consisted of mutually independent energy
           quanta each of size
         </p>
-        <JourneyFormula
-          latex={String.raw`\frac{R\,\beta\,\nu}{N}`}
-          scope={journeyScope("light-quanta", "s6", "step-06")}
-        />
+        <JourneyFormula {...PAGE_FORMULAS.lqQuantumSize} />
         <p>
           <span lang="de">R</span> is the gas constant and <span lang="de">N</span> the number of
           molecules in a gram-molecule; <em>β</em> here is Wien&rsquo;s constant. The relativity

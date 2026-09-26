@@ -46,6 +46,7 @@ import {
   compileInlineFormula,
   type InlineException,
   type InlineTermsContext,
+  type ResolvedInline,
   resolveInlineTerms,
 } from "../equations/printed/inlineTerms.ts";
 import { modernInlineEntries } from "../equations/printed/modernScope.ts";
@@ -282,6 +283,27 @@ const display = ((tex: string, options: object) =>
   renderToString(tex, { ...options, displayMode: true })) as typeof renderToString;
 
 /**
+ * A formula's atoms resolved in its scope: read in the paragraph it quotes, or else its section,
+ * over its page's context. Never throws; refusals are returned.
+ */
+export function resolveJourneyFormula(
+  latex: string,
+  scope: JourneyScope,
+  context: InlineTermsContext = journeyContext(scope.paper, scope.anchor),
+): ResolvedInline {
+  return resolveInlineTerms(
+    latex,
+    {
+      paper: scope.paper,
+      where: scope.where,
+      anchor: scope.paragraph ?? scope.section,
+      section: scope.section,
+    },
+    context,
+  );
+}
+
+/**
  * The formula drawn with its terms marked, in display or inline mode. Throws
  * journey-formula-refused, naming the page, the step and each glyph, when any atom does not
  * resolve in its scope.
@@ -292,20 +314,32 @@ export function journeyFormula(
   displayMode: boolean,
   context: InlineTermsContext = journeyContext(scope.paper, scope.anchor),
 ): CompiledInline {
-  const resolved = resolveInlineTerms(
-    latex,
-    {
-      paper: scope.paper,
-      where: scope.where,
-      anchor: scope.paragraph ?? scope.section,
-      section: scope.section,
-    },
-    context,
-  );
+  const resolved = resolveJourneyFormula(latex, scope, context);
   if (resolved.problems.length > 0)
     throw new JourneyFormulaError(
       "journey-formula-refused",
       resolved.problems.map((p) => p.message).join("\n"),
     );
   return displayMode ? compileInlineFormula(resolved, display) : compileInlineFormula(resolved);
+}
+
+/**
+ * The scope of a formula on a journey or its investigation, in its step's section, or in the
+ * paragraph it quotes when a paragraph is named ("s2-p7").
+ */
+export function journeyScope(
+  paper: string,
+  section: string,
+  step: string,
+  page: "journey" | "investigate" = "journey",
+  paragraph?: string,
+): JourneyScope {
+  const investigate = page === "investigate";
+  return {
+    paper,
+    section,
+    ...(paragraph ? { paragraph } : {}),
+    anchor: investigate ? `discover-${paper}-investigate` : `discover-${paper}`,
+    where: `discover/${paper}${investigate ? "/investigate" : ""} ${step}`,
+  };
 }

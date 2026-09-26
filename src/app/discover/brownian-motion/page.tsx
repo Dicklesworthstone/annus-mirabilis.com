@@ -24,7 +24,8 @@ import {
 import { EINSTEIN_ONE_SECOND } from "../../../discovery/brownian/numericExercises.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
 import { Fork } from "../../../discovery/Fork.tsx";
-import { JourneyFormula, journeyScope } from "../../../discovery/JourneyFormula.tsx";
+import { JourneyFormula } from "../../../discovery/JourneyFormula.tsx";
+import { PAGE_FORMULAS } from "../../../discovery/journeyFormulaList.ts";
 import { MoveMarker } from "../../../discovery/MoveMarker.tsx";
 import { PpeTask } from "../../../discovery/PpeTask.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
@@ -169,10 +170,7 @@ export default function BrownianEncounter() {
             brings in how many there are, not how big they are. The pressure comes out as the gas
             law for that many particles:
           </p>
-          <JourneyFormula
-            latex={String.raw`p=\frac{RT}{N}\,\nu`}
-            scope={journeyScope("brownian-motion", "s2", "step-02", "journey", "s2-p7")}
-          />
+          <JourneyFormula {...PAGE_FORMULAS.bmOsmoticPressure} />
           <p>
             Here ν is the number of particles per unit volume, and N is the number of molecules in a
             gram-molecule: the number this route ends by estimating.
@@ -216,19 +214,13 @@ export default function BrownianEncounter() {
         </p>
         <details>
           <summary>The coefficient, in the paper’s letters and in today’s</summary>
-          <JourneyFormula
-            latex={String.raw`D=\frac{RT}{N}\,\frac{1}{6\pi kP}`}
-            scope={journeyScope("brownian-motion", "s3", "step-03")}
-          />
+          <JourneyFormula {...PAGE_FORMULAS.bmDiffusionPrinted} />
           <p>
             Einstein writes k for the viscosity and P for the radius. In today’s letters the same
             relation reads as below, with Boltzmann’s constant k<sub>B</sub> = R/N. The paper’s k is
             not Boltzmann’s constant.
           </p>
-          <JourneyFormula
-            latex={String.raw`D=\frac{k_BT}{6\pi\eta a}`}
-            scope={journeyScope("brownian-motion", "s3", "step-03")}
-          />
+          <JourneyFormula {...PAGE_FORMULAS.bmDiffusionModern} />
         </details>
         <p>
           This is a side door into the paper: it reaches D without following any one particle. The
@@ -259,10 +251,7 @@ export default function BrownianEncounter() {
             its square root gives twice the RMS displacement. The square grows linearly with time;
             its square root does not.
           </p>
-          <JourneyFormula
-            latex={String.raw`\langle x^2\rangle=2Dt \qquad \lambda_x=\sqrt{2Dt}`}
-            scope={journeyScope("brownian-motion", "s4", "step-04")}
-          />
+          <JourneyFormula {...PAGE_FORMULAS.bmMeanSquare} />
           <p>
             The laboratory’s one-second, ten-second and one-minute comparison is calculated from one
             diffusion coefficient. It is not three independent measurements.

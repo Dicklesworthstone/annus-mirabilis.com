@@ -1,5 +1,8 @@
 import { TermHighlight } from "../equations/TermHighlight.tsx";
 import { type JourneyScope, journeyFormula } from "./journeyFormulas.ts";
+
+export { journeyScope } from "./journeyFormulas.ts";
+
 import "../equations/equations.css";
 import "../generated/quantity-colours-by-paper.css";
 
@@ -34,25 +37,4 @@ export function JourneyFormula({
       {formula}
     </TermHighlight>
   );
-}
-
-/**
- * The scope of a formula on a journey or its investigation, in its step's section, or in the
- * paragraph it quotes when a paragraph is named ("s2-p7").
- */
-export function journeyScope(
-  paper: string,
-  section: string,
-  step: string,
-  page: "journey" | "investigate" = "journey",
-  paragraph?: string,
-): JourneyScope {
-  const investigate = page === "investigate";
-  return {
-    paper,
-    section,
-    ...(paragraph ? { paragraph } : {}),
-    anchor: investigate ? `discover-${paper}-investigate` : `discover-${paper}`,
-    where: `discover/${paper}${investigate ? "/investigate" : ""} ${step}`,
-  };
 }

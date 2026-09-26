@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { TwoLedgersComparison } from "../../../../components/lab/me01/TwoLedgersLab.tsx";
-import { JourneyFormula, journeyScope } from "../../../../discovery/JourneyFormula.tsx";
+import { JourneyFormula } from "../../../../discovery/JourneyFormula.tsx";
+import { massEnergyStepScope } from "../../../../discovery/journeyFormulaList.ts";
 import { MassEnergyArgumentWorkbench } from "../../../../discovery/MassEnergyArgumentWorkbench.tsx";
 import {
   ARGUMENT_STEPS,
@@ -31,7 +32,7 @@ export default function MassEnergyArgumentPage() {
         key={card.id}
         latex={card.latex}
         tabIndex={0}
-        scope={journeyScope("mass-energy", "s0", card.id, "investigate")}
+        scope={massEnergyStepScope(card.id)}
       />,
     ]),
   );
@@ -102,11 +103,7 @@ export default function MassEnergyArgumentPage() {
               return (
                 <li key={id}>
                   <h3>{step.title}</h3>
-                  <JourneyFormula
-                    latex={step.latex}
-                    tabIndex={0}
-                    scope={journeyScope("mass-energy", "s0", id, "investigate")}
-                  />
+                  <JourneyFormula latex={step.latex} tabIndex={0} scope={massEnergyStepScope(id)} />
                   <p>{step.explanation}</p>
                 </li>
               );
