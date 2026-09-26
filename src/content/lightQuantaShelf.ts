@@ -400,14 +400,16 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
   },
   {
     id: "hertz-1887-ultraviolet-spark",
-    proposition: "Ultraviolet light falling on a spark gap makes the spark pass more easily.",
+    proposition:
+      "Ultraviolet light falling on a spark gap makes the spark pass more easily: it lengthens the distance across which the discharge of an induction coil will jump. Hertz found it first with the light of a second spark, and then with the electric arc and other sources.",
     status: "available",
-    limits: "A phenomenon, reported without a mechanism.",
+    limits:
+      "A phenomenon, reported without a mechanism: Hertz confines himself to the facts established, without attempting a theory of how they come about.",
     sources: [
       {
         title: "Ueber einen Einfluss des ultravioletten Lichtes auf die electrische Entladung",
         date: "1887",
-        locator: "Ann. Phys. (Wied.) 31, 983",
+        locator: "H. Hertz, Ann. Phys. (Wied.) 31, 983",
       },
     ],
     date: {
@@ -418,6 +420,20 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     admittedStages: ["stage-02"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/sim_annalen-der-physik_1887_31_8",
+        read: "page-image",
+        matched:
+          'Leaf 0, the cover: "Annalen der Physik und Chemie. Neue Folge. Band XXXI. Heft 4", "1887. No. 8a", "Geschlossen am 1. Juni 1887". Leaf 252 is p. 983: "XIV. Ueber einen Einfluss des ultravioletten Lichtes auf die electrische Entladung; von H. Hertz": in his resonance experiments two sparks, A and B, and the greatest length of spark B smaller when a case screened it from A. p. 999: of all sources the electric arc is by far the most effective, and the only one to rival the spark; from sunlight no unambiguous effect. p. 1000: "Nach den Resultaten unserer Versuche hat das ultraviolette Licht die Fähigkeit, die Schlagweite der Entladungen eines Inductoriums und verwandter Entladungen zu vergrössern", and "Ich beschränke mich deshalb gegenwärtig darauf, die festgestellten Thatsachen mitzutheilen, ohne eine Theorie ... zu versuchen"; "Karlsruhe, im Mai 1887". Crossref (10.1002/andp.18872670827) gives pp. 983-1000.',
+        differs: [
+          'Supported. The proposition now says what "more easily" means in the paper (a longer striking distance for the discharge of an induction coil), the limits quote his refusal of a theory, and the author is added to the locator.',
+        ],
+      },
+    ],
   },
   {
     id: "thomson-1899-photoelectric-carrier",
