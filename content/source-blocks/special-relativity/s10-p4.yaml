@@ -14,7 +14,12 @@ locators:
 diplomaticText: "Ohne die Allgemeinheit der Betrachtung zu beeinflussen, können und wollen wir annehmen, daß das Elektron in dem Momente, wo wir es ins Auge fassen, sich im Koordinatensprung befinde und sich längs der X-Achse des Systems K mit der Geschwindigkeit v bewege. Es ist dann einleuchtend, daß das Elektron im genannten Momente (t = 0) relativ zu einem längs der X-Achse mit der konstanten Geschwindigkeit v parallelbewegten Koordinatensystem k ruht."
 inlines:
   - kind: "text"
-    text: "Ohne die Allgemeinheit der Betrachtung zu beeinflussen, können und wollen wir annehmen, daß das Elektron in dem Momente, wo wir es ins Auge fassen, sich im Koordinatensprung befinde und sich längs der "
+    text: "Ohne die Allgemeinheit der Betrachtung zu beeinflussen, können und wollen wir annehmen, daß das Elektron in dem Momente, wo wir es ins Auge fassen, sich im "
+  - kind: "misprint"
+    text: "Koordinatensprung"
+    recordId: "err-typo-p917-1"
+  - kind: "text"
+    text: " befinde und sich längs der "
   - kind: "math"
     latex: "X"
   - kind: "text"

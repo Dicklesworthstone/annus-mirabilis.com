@@ -12,7 +12,12 @@ locators:
 diplomaticText: "Zwischen die Größen x, t und \\tau, welche sich auf den Ort dieser Uhr beziehen, gelten offenbar die Gleichungen: und Es ist also woraus folgt, daß die Angabe der Uhr (im ruhenden System betrachtet) pro Sekunde um (1 - \\sqrt{1 - (v/V)^2}) Sek. oder — bis auf Größen vierter und höherer Ordnung um \\frac{1}{2} (v/V)^2 Sek. zurückbleibt."
 inlines:
   - kind: "text"
-    text: "Zwischen die Größen "
+    text: "Zwischen "
+  - kind: "misprint"
+    text: "die"
+    recordId: "err-typo-p904-1"
+  - kind: "text"
+    text: " Größen "
   - kind: "math"
     latex: "x"
   - kind: "text"
