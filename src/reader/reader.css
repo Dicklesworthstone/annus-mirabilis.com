@@ -2811,6 +2811,11 @@ html:is(
   border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   font-size: var(--type-fine);
+  /* The note sits inside the word's own line, so a word in a heading's emphasis or tight tracking
+     passed both on: relativity's "Doppeler" note was set in italic and its "Eektrodynamischer"
+     note at -1.77px letter-spacing, of 38 notes on the four German faces (dispatch 267). */
+  font-style: normal;
+  letter-spacing: normal;
   line-height: 1.4;
 }
 
