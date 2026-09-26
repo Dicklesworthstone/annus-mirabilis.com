@@ -58,10 +58,16 @@ function glyphText(value: unknown): string | undefined {
 
 /** A rename entry that binds a quantity and declares both glyphs is a readable collision candidate. */
 function readingOf(paper: string, entry: ConcordanceEntry): Reading | undefined {
-  if (entry.operation.kind !== "rename") return undefined;
+  if (entry.operation.kind === "unitConversion") return undefined;
   if (!("quantityId" in entry.binding)) return undefined;
   const printedGlyph = glyphText(entry.glyph);
-  const modernGlyph = glyphText(entry.operation.target.modernGlyph);
+  // A modernization is no new name: the modern perspective leaves the printed letter
+  // (notation.ts, "Non-rename operations ... leave the symbol unconverted"). It still collides.
+  // Light quanta's β became one in dispatch 259, and it must never render as relativity's γ.
+  const modernGlyph =
+    entry.operation.kind === "rename"
+      ? glyphText(entry.operation.target.modernGlyph)
+      : printedGlyph;
   const scope = entry.scope?.[0];
   if (!printedGlyph || !modernGlyph || !scope) return undefined;
   return {
