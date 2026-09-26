@@ -1,43 +1,38 @@
 /**
- * /instruments/: an instrument that answers with a table is shown by its own words.
+ * /instruments/: an instrument that answers with a table shows its laboratory's own table, values
+ * and all.
  *
- * Before: eleven of the catalogue's 37 registered instruments (lq-02, lq-04, lq-06, sr-01, sr-02,
- * sr-04, sr-07, the three shelf comparisons and light-thread) had a grey ruled box captioned
- * "Answers in a table", the same box for all eleven, so a reader learned nothing about any of
- * them from its plate. The generator (scripts/generate-instrument-thumbnails.ts) now reads each
- * one's first table on the live laboratory: its row labels and the names of the columns of values
- * it compares, with superscripts and subscripts kept. The page sets those words as a small table.
+ * Before dispatch 129, eleven of the catalogue's registered instruments (lq-02, lq-04, lq-06, sr-01,
+ * sr-02, sr-04, sr-07, the three shelf comparisons and light-thread) had the same grey box
+ * captioned "Answers in a table". Dispatch 129 gave each its row labels, beside an empty dotted
+ * rule where each value stood. Live at 1440 on 2026-09-25 that read "Mean energy per resonator
+ * oscillation ……", a widget that had failed to load (TanElk, dispatch 246). Now each row carries
+ * the value its laboratory prints at its default settings. scripts/generate-instrument-table-plates.ts
+ * reads it from the laboratory's own page in prepare:lab, so none is typed anywhere.
  *
- * Checked against the real manifest and the real page, so a lab whose table changes changes the
- * expectation with it. Nothing here counts the eleven: the properties hold at any size, and each
- * is guarded against passing over an empty population.
+ * These checks read the real page and, for the values, the real laboratory pages, so a laboratory
+ * whose table changes changes the expectation with it. Nothing here counts the eleven. Each
+ * property holds at any size and is guarded against passing over an empty population.
  */
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { CATALOGUE_IDS, CATALOGUE_STATUS } from "../../experiments/catalogue.ts";
+import { exportMarkup } from "../../testing/exportMarkup.ts";
 import { installDom, uninstallDom } from "../../testing/reactDom.ts";
 import InstrumentsIndex from "./page";
 
-type Run = { t: string; s?: "sup" | "sub" };
 const manifest = JSON.parse(readFileSync("public/figures/instruments/manifest.json", "utf8")) as {
   pictures: Record<string, string>;
-  tables?: Record<string, { head: Run[][]; rows: Run[][] }>;
 };
-const tables = manifest.tables ?? {};
-
-const text = (label: Run[]) => label.map((run) => run.t).join("");
-/** The label as the page must mark it up: a superscript as <sup>, a subscript as <sub>. */
-const markup = (label: Run[]) =>
-  label.map((run) => (run.s ? `<${run.s}>${run.t}</${run.s}>` : run.t)).join("");
 
 type Entry = {
   id: string;
-  kind: "picture" | "words" | "drawn";
+  kind: "picture" | "table" | "drawn";
   heads: string[];
-  labels: string[];
-  labelMarkup: string[];
-  plateText: string;
+  rows: { label: string; values: string[]; valueMarkup: string[] }[];
   hidden: boolean;
 };
 
@@ -52,18 +47,22 @@ async function readCatalogue(): Promise<Entry[]> {
       const kind = plate?.querySelector("img")
         ? "picture"
         : plate?.classList.contains("instrument-plate-words")
-          ? "words"
+          ? "table"
           : "drawn";
-      const labels = [...(plate?.querySelectorAll(".plate-table-label") ?? [])];
       return {
         id: /^\/lab\/([^/]+)\/$/.exec(href)?.[1] ?? href,
         kind,
         heads: [...(plate?.querySelectorAll(".plate-table-head > span") ?? [])]
           .map((span) => span.textContent ?? "")
           .filter((name) => name.length > 0),
-        labels: labels.map((label) => label.textContent ?? ""),
-        labelMarkup: labels.map((label) => label.innerHTML),
-        plateText: plate?.textContent ?? "",
+        rows: [...(plate?.querySelectorAll(".plate-table-row") ?? [])].map((row) => {
+          const values = [...row.querySelectorAll(".plate-table-value")];
+          return {
+            label: row.querySelector(".plate-table-label")?.textContent ?? "",
+            values: values.map((value) => value.textContent ?? ""),
+            valueMarkup: values.map((value) => value.innerHTML),
+          };
+        }),
         hidden: plate?.getAttribute("aria-hidden") === "true",
       };
     });
@@ -72,66 +71,88 @@ async function readCatalogue(): Promise<Entry[]> {
   }
 }
 
+/** A laboratory page's text as a browser without JavaScript receives it, whitespace removed. */
+async function laboratoryText(id: string): Promise<string> {
+  const route = (await import(join(process.cwd(), "src/app/lab", id, "page.tsx"))) as {
+    default: (props: unknown) => ReactElement | Promise<ReactElement>;
+  };
+  const html = await exportMarkup(
+    await route.default({ params: Promise.resolve({}), searchParams: Promise.resolve({}) }),
+  );
+  await installDom();
+  try {
+    const page = new DOMParser().parseFromString(html, "text/html");
+    for (const hidden of page.querySelectorAll("script, style")) hidden.remove();
+    return (page.body.textContent ?? "").replace(/\s+/g, "");
+  } finally {
+    await uninstallDom();
+  }
+}
+
 const entries = await readCatalogue();
 const registered = CATALOGUE_IDS.filter((id) => CATALOGUE_STATUS[id] === "registered");
-const words = entries.filter((entry) => entry.kind === "words");
+const tables = entries.filter((entry) => entry.kind === "table");
 
-describe("/instruments/ shows a table instrument by its own words", () => {
-  test("every registered instrument is listed once, and every one the generator read is a words plate", () => {
+describe("/instruments/ shows a table instrument by its laboratory's own table", () => {
+  test("every registered instrument is listed once, and every one without a picture is a table plate", () => {
     expect(entries.map((entry) => entry.id).sort()).toEqual([...registered].sort());
-    const read = registered.filter((id) => tables[id] && !manifest.pictures[id]);
-    // Non-vacuity: with no tables in the manifest every check below would iterate nothing.
-    expect(read.length).toBeGreaterThan(0);
-    expect(words.map((entry) => entry.id).sort()).toEqual(read.sort());
-    // The grey box is left only for an instrument the generator has neither pictured nor read.
-    for (const entry of entries.filter((e) => e.kind === "drawn")) {
-      expect(manifest.pictures[entry.id]).toBeUndefined();
-      expect(tables[entry.id]).toBeUndefined();
-    }
+    // Non-vacuity: with no table plates every check below would iterate nothing.
+    expect(tables.length).toBeGreaterThan(0);
+    // The drawn box is what the generator falls back to when it cannot read a laboratory. None of
+    // the catalogue's laboratories needs it, so one appearing is a laboratory the generator lost.
+    const drawn = entries.filter((entry) => entry.kind === "drawn").map((entry) => entry.id);
+    expect(drawn).toEqual([]);
+    for (const entry of tables) expect(manifest.pictures[entry.id]).toBeUndefined();
   });
 
-  test("a plate's rows are the laboratory's first row labels, in order, and nothing else is copied", () => {
-    for (const entry of words) {
-      const table = tables[entry.id];
-      expect(table).toBeDefined();
-      const shown = (table?.rows ?? []).slice(0, entry.heads.length > 0 ? 3 : 4);
-      expect(entry.labels).toEqual(shown.map(text));
-      // No value reaches the plate: its whole text is the heading names and the labels. A number
-      // copied from the laboratory would go stale while the laboratory moved on.
-      expect(entry.plateText).toBe([...entry.heads, ...entry.labels].join(""));
+  test("no value on a plate is empty, and a plate is not read out beside its question", () => {
+    const cells = tables.flatMap((entry) => entry.rows.flatMap((row) => row.values));
+    expect(cells.length).toBeGreaterThan(0);
+    for (const entry of tables) {
+      expect(entry.rows.length).toBeGreaterThan(0);
+      for (const row of entry.rows) {
+        expect(row.label.trim(), entry.id).not.toBe("");
+        expect(row.values.length, `${entry.id}: ${row.label}`).toBeGreaterThan(0);
+        for (const value of row.values)
+          expect(value.trim(), `${entry.id}: ${row.label}`).not.toBe("");
+      }
       // The question beside the plate is the link's name; the plate is not read out twice.
       expect(entry.hidden).toBe(true);
     }
   });
 
-  test("a superscript or subscript in a label is set as one, never flattened into the line", () => {
-    const marked = words.flatMap((entry) => {
-      const table = tables[entry.id];
-      return (table?.rows ?? [])
-        .slice(0, entry.labels.length)
-        .map((label, i) => ({ label, shown: entry.labelMarkup[i] ?? "" }))
-        .filter(({ label }) => label.some((run) => run.s));
-    });
-    // Non-vacuity: e^{-x} on lq-04 and n_eff on lq-06 are why this test exists.
-    expect(marked.length).toBeGreaterThan(0);
-    for (const { label, shown } of marked) expect(shown).toBe(markup(label));
+  test("every label and value on a plate is one its laboratory prints at its default settings", async () => {
+    // Each one is found in the laboratory page's own text, rendered as its route renders it: a
+    // number typed onto the plate, or one read from the wrong laboratory, is not.
+    for (const entry of tables) {
+      const text = await laboratoryText(entry.id);
+      for (const row of entry.rows) {
+        expect(text, `${entry.id}: ${row.label}`).toContain(row.label.replace(/\s+/g, ""));
+        for (const value of row.values)
+          expect(text, `${entry.id}: ${row.label} = ${value}`).toContain(value.replace(/\s+/g, ""));
+      }
+    }
   });
 
-  test("the heading names two or three columns of values, and only when the names fit", () => {
-    const shown = words.filter((entry) => entry.heads.length > 0);
-    const withheld = words.filter((entry) => entry.heads.length === 0);
-    // Both branches are exercised by the real catalogue, or this test proves one of them only.
-    expect(shown.length).toBeGreaterThan(0);
-    expect(withheld.length).toBeGreaterThan(0);
-    for (const entry of words) {
-      const head = tables[entry.id]?.head ?? [];
-      const fitsThree = head.every((name) =>
-        text(name)
-          .split(/\s+/)
-          .every((word) => word.length <= 8),
-      );
-      const expected = head.length === 2 || (head.length === 3 && fitsThree) ? head.map(text) : [];
-      expect(entry.heads).toEqual(expected);
+  test("an exponent in a value is set as a superscript, never flattened into the line", () => {
+    const marked = tables.flatMap((entry) =>
+      entry.rows.flatMap((row) => row.valueMarkup.filter((markup) => markup.includes("<sup>"))),
+    );
+    // Non-vacuity: lq-02's 10⁻²⁰ J and lq-06's 10¹⁰ quanta are set with <sup> by their laboratories.
+    expect(marked.length).toBeGreaterThan(0);
+    for (const markup of marked) expect(markup).toMatch(/\d<sup>[−-]?\d+<\/sup>/);
+  });
+
+  test("a reader never meets two columns of numbers without their names", () => {
+    const compared = tables.filter((entry) => (entry.rows[0]?.values.length ?? 0) > 1);
+    // Both shapes occur in the real catalogue: shelf-fizeau compares three drags, lq-02 has one column.
+    expect(compared.length).toBeGreaterThan(0);
+    expect(tables.length - compared.length).toBeGreaterThan(0);
+    for (const entry of tables) {
+      const width = entry.rows[0]?.values.length ?? 0;
+      for (const row of entry.rows) expect(row.values.length, entry.id).toBe(width);
+      if (width > 1) expect(entry.heads.length, entry.id).toBe(width);
+      expect(width, entry.id).toBeLessThanOrEqual(3);
     }
   });
 });
