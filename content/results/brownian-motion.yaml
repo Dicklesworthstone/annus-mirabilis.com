@@ -1,0 +1,143 @@
+# The results of the Brownian-motion paper, as the results face shows them (dispatch 239).
+# Checked by src/content/results/resultCards.ts, as mass-energy's are.
+#
+# The as-printed layer is never typed here: each entry names an anchor of the German face (a
+# display, or sentences of a paragraph by their order in it) and the text is read from the face.
+# Several of this face's sentences carry their displays inline, so a sentence is cited rather than
+# the display it contains, and the formula appears once. Everything written here (the one-sentence
+# reading, the decoder, the qualifications, the probe questions) is draft explanatory prose; no
+# review is claimed. The decoder's modern symbols are the notation concordance's
+# (content/notation/brownian-motion.yaml); Einstein's glyphs stay in the printed layer.
+#
+# A card's common wrong turns are not listed here: each record in
+# content/misconceptions/brownian-motion names the results it concerns in its resultIds, and the
+# card reads them from there. "Used later" notes stay empty until the margin records exist to
+# cite; a card lists none rather than inventing one. Probes name the laboratory, the question,
+# and a preset its manifest registers (content/experiments/bm-0N.yaml), or no preset where the
+# laboratory's default is the case the card asks about. No card names a printed check: the only
+# scenario a card's printed check can reproduce today is mass-energy's
+# (src/content/results/printedChecks.ts).
+paper: brownian-motion
+review: draft
+cards:
+  - id: bm-osmotic-pressure
+    title: "The osmotic pressure of suspended particles"
+    section: s1
+    arguments: [arg-bm-osmotic-suspended, arg-bm-kinetic-justification]
+    printed:
+      - anchor: s1-p3
+        sentences: [2, 3, 4]
+      - anchor: s2-p8
+        sentences: [1]
+    equations: []
+    oneSentence: "By the molecular-kinetic theory of heat, \\(n\\) suspended particles held in a volume \\(V^*\\) press on the wall that holds them with the osmotic pressure \\(p = \\frac{RT}{V^*}\\frac{n}{N}\\), as the same number of dissolved molecules would, provided the particles are far enough apart; classical thermodynamics expects no such force."
+    decoder:
+      - symbol: "\\(p\\)"
+        meaning: "The osmotic pressure on the wall that keeps the particles in \\(V^*\\); modern texts write \\(\\Pi\\)."
+      - symbol: "\\(n\\), \\(V^*\\)"
+        meaning: "The number of suspended particles, and the part of the liquid's volume they are confined to."
+      - symbol: "\\(\\nu\\)"
+        meaning: "The number of particles per unit volume, \\(n/V^*\\). In this paper \\(\\nu\\) is a number density, not a frequency; modern texts write \\(n\\)."
+      - symbol: "\\(N\\)"
+        meaning: "The number of actual molecules in one gram-molecule, today Avogadro's constant \\(N_A\\)."
+      - symbol: "\\(R/N\\)"
+        meaning: "The gas constant per molecule, today Boltzmann's constant \\(k_B\\). The paper writes the ratio and has no single letter for it."
+      - symbol: "\"genügend weit voneinander entfernt\""
+        meaning: "Far enough apart from one another: the law is for dilute suspensions, in which the particles do not act on one another."
+    qualifications:
+      - kind: comparison
+        text: "Classical thermodynamics, as the paper reports it, expects no force on the wall, because the free energy seems not to depend on where the wall and the bodies are. The pressure is the molecular-kinetic theory's prediction, and the paper sets the two expectations side by side."
+    probes:
+      - instrument: bm-02
+        question: "Switch between the molecular-kinetic mode and the classical expectation: what does each say the partition feels, and does the particles' size change it at the same number per volume?"
+      - instrument: bm-03
+        question: "Count the positions 1000 particles can take in two volumes: does the free energy give the same pressure as the partition?"
+        preset: bm-03-pressure-matches-bm-02
+    usedLater: []
+    meanings:
+      argumentStatus: "§1 states a consequence of the molecular-kinetic theory, and §2 derives it from that theory"
+      modelStatus: "Exact for independent particles at great dilution; an idealization beyond it"
+      evidentialRole: "A prediction, not a measurement"
+      historicalStatus: "The law for dissolved substances was known; its extension to suspended bodies is introduced in this paper"
+    selectionReason: "The rest of the paper stands on it: once suspended particles have an osmotic pressure, §3 can balance it against a force to find how fast they diffuse."
+
+  - id: bm-diffusion-coefficient
+    title: "The diffusion coefficient of suspended spheres"
+    section: s3
+    arguments: [arg-bm-diffusivity]
+    printed:
+      - anchor: s3-p7
+        sentences: [2]
+      - anchor: s3-p8
+        sentences: [2, 3]
+    equations: [eq-model-bm-diffusivity-molar, eq-model-bm-diffusivity]
+    oneSentence: "Balancing the drift of spheres of radius \\(P\\), pulled by a force through a liquid of viscosity \\(k\\), against their diffusion gives \\(D = \\frac{RT}{N}\\frac{1}{6\\pi kP}\\): apart from universal constants and the absolute temperature, the diffusion coefficient depends only on the liquid's viscosity and the particles' size, and the force does not appear in it."
+    decoder:
+      - symbol: "\\(D\\)"
+        meaning: "The diffusion coefficient: diffusion carries particles across unit area in unit time at a rate \\(D\\) times the fall of their number per unit volume along \\(x\\)."
+      - symbol: "\\(k\\)"
+        meaning: "The viscosity of the liquid, which the paper calls its coefficient of friction. It is not Boltzmann's constant; modern texts write \\(\\eta\\)."
+      - symbol: "\\(P\\)"
+        meaning: "The radius of a spherical particle; modern texts write \\(a\\)."
+      - symbol: "\\(6\\pi kP\\)"
+        meaning: "Stokes's drag on a slowly moving sphere: a force \\(K\\) gives the sphere the speed \\(K/6\\pi kP\\). The paper cites Kirchhoff's lectures on mechanics for it."
+      - symbol: "\\(K\\)"
+        meaning: "A force on each particle, introduced to set up the balance. It cancels, so the result holds without it."
+      - symbol: "\\(\\frac{RT}{N}\\)"
+        meaning: "The gas constant per molecule times the temperature, today \\(k_B T\\)."
+    qualifications:
+      - kind: conditional
+        text: "The formula is for spherical particles: the paper gives the drag for spheres of radius \\(P\\), and particles of another shape meet another drag."
+    probes:
+      - instrument: bm-04
+        question: "In the balance of drift against diffusion, change the applied force: does the diffusion coefficient change?"
+        preset: bm-04-einstein-balance
+    usedLater: []
+    meanings:
+      argumentStatus: "A derivation from the osmotic law and Stokes's law"
+      modelStatus: "Exact within the model of dilute, independent spheres obeying Stokes's law"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "It joins the paper's two halves: the osmotic pressure of §§1 to 3 and the irregular motion of §4 meet in \\(D\\)."
+
+  - id: bm-diffusion-equation
+    title: "The diffusion equation, and its solution from a point"
+    section: s4
+    arguments: [arg-bm-diffusion-equation, arg-bm-gaussian]
+    printed:
+      - anchor: s4-p6
+        sentences: [7]
+      - anchor: s4-p9
+        sentences: [1]
+      - anchor: s4-p10
+        sentences: [7]
+    equations: [eq-model-bm-jump-moment, eq-model-bm-diffusion-equation]
+    oneSentence: "If each particle's jumps in successive short intervals \\(\\tau\\) are independent and symmetric, the number of particles per unit length \\(f(x,t)\\) obeys the diffusion equation \\(\\frac{\\partial f}{\\partial t} = D\\frac{\\partial^2 f}{\\partial x^2}\\), with \\(D\\) half the mean square jump per unit time; for particles that all start from one point its solution is the curve of random errors, widening with time."
+    decoder:
+      - symbol: "\\(\\tau\\)"
+        meaning: "A time interval very short beside the intervals one can observe, yet long enough that a particle's motions in two successive intervals are independent."
+      - symbol: "\\(\\Delta\\), \\(\\varphi(\\Delta)\\)"
+        meaning: "A particle's jump along \\(x\\) in the time \\(\\tau\\), and the probability density of that jump, which is the same for \\(\\Delta\\) and \\(-\\Delta\\)."
+      - symbol: "\\(f(x,t)\\)"
+        meaning: "The number of particles per unit length at \\(x\\) and time \\(t\\). For the solution each particle is measured from its own starting point."
+      - symbol: "\\(\\frac{1}{\\tau}\\int\\frac{\\Delta^2}{2}\\varphi(\\Delta)\\,d\\Delta = D\\)"
+        meaning: "The paper's definition of \\(D\\) from the jumps. Of the whole distribution of jumps, only this moment survives in the equation."
+      - symbol: "\\(\\frac{n}{\\sqrt{4\\pi D}}\\frac{e^{-x^2/4Dt}}{\\sqrt{t}}\\)"
+        meaning: "The bell curve of random errors. Its width grows as \\(\\sqrt{t}\\), and the area under it stays \\(n\\), the number of particles."
+    qualifications:
+      - kind: premise
+        text: "The paper takes \\(\\varphi\\) to be the same for \\(\\Delta\\) and \\(-\\Delta\\), and different from zero only for very small \\(\\Delta\\). Jumps biased in one direction would add a drift that the equation does not contain."
+    probes:
+      - instrument: bm-05
+        question: "Add up many coin-flip steps: which feature of the step sets how fast the bell curve widens?"
+        preset: bm-05-coin-to-bell
+      - instrument: bm-06
+        question: "Start every tracer at one point and let time run: how does the width of the distribution grow?"
+        preset: bm-06-point-distribution
+    usedLater: []
+    meanings:
+      argumentStatus: "A derivation from stated assumptions about the jumps"
+      modelStatus: "An approximation, exact in the limit of small jumps and short intervals"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "The diffusion equation was known, as the paper says; deriving it from the particles' irregular jumps is introduced in this paper"
+    selectionReason: "It turns the irregular motion of single particles into a law for how many of them spread, and its solution is where §5's numbers come from."
