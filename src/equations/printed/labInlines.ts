@@ -31,6 +31,7 @@ import {
   type ResolvedInline,
   resolveInlineTerms,
 } from "./inlineTerms.ts";
+import { modernInlineEntries } from "./modernScope.ts";
 
 /** Manifest paper names that are not route slugs. */
 const PAPER_SLUGS: Readonly<Record<string, string>> = { relativity: "special-relativity" };
@@ -84,8 +85,10 @@ export function labFormula(lab: string, latex: string, displayMode: boolean): La
   let result: LabFormula;
   if (!scope || scope.sections.length === 0) result = { kind: "unscoped" };
   else {
+    // The printed readings, and the modern ones a lab writes in (c, k_B, a rename's letter):
+    // modernScope.ts, whose precedence refuses a printed and a modern reading that disagree.
     const context = {
-      concordance: loadConcordanceForPaper(scope.paper).entries,
+      concordance: modernInlineEntries(scope.paper, loadConcordanceForPaper(scope.paper)),
       isRegistered: isRegisteredQuantityId,
       exceptions: [],
     };
