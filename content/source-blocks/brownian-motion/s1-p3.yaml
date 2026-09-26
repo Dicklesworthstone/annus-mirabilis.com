@@ -101,3 +101,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 551
+    startsWith: "wobei N die Anzahl"

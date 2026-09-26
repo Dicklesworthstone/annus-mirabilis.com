@@ -51,3 +51,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 556
+    startsWith: "außer von universellen"

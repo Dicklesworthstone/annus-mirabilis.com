@@ -48,3 +48,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 555
+    startsWith: "die Superposition zweier"

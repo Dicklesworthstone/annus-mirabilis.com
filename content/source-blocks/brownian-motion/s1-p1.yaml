@@ -62,3 +62,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 550
+    startsWith: "getrennt, so wirkt"

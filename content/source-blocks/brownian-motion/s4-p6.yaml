@@ -185,3 +185,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 558
+    startsWith: "und indem wir"

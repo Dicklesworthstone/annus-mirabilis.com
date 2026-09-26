@@ -150,3 +150,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 553
+    startsWith: "wobei Es ist also"

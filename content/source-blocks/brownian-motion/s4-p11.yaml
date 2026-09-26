@@ -67,3 +67,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 559
+    startsWith: "Fehler, was zu vermuten"
