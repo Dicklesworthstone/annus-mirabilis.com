@@ -542,7 +542,7 @@ cards:
         sentences: [5]
       - anchor: eq-s8-d14
     equations: [eq-model-sr-mirror-frequency]
-    oneSentence: "Light of frequency \\(\\nu\\) and energy per unit volume \\(A^2/8\\pi\\), falling at the angle \\(\\varphi\\) on a perfect mirror that moves with the velocity \\(v\\) along its normal, comes back with the frequency \\(\\nu\\,(1-2\\frac{v}{V}\\cos\\varphi+(v/V)^2)/(1-(v/V)^2)\\) and presses on the mirror with \\(P=2\\frac{A^2}{8\\pi}(\\cos\\varphi-\\frac{v}{V})^2/(1-(v/V)^2)\\), which to a first approximation is \\(2\\frac{A^2}{8\\pi}\\cos^2\\varphi\\), the pressure on a mirror at rest."
+    oneSentence: "Light of frequency \\(\\nu\\) and energy per unit volume \\(A^2/8\\pi\\), falling at the angle \\(\\varphi\\) on a perfect mirror that moves with the velocity \\(v\\) along its normal, comes back with the frequency \\(\\nu\\,(1-2\\frac{v}{V}\\cos\\varphi+(v/V)^2)/(1-(v/V)^2)\\) by the paper's own steps, and presses on the mirror with \\(P=2\\frac{A^2}{8\\pi}(\\cos\\varphi-\\frac{v}{V})^2/(1-(v/V)^2)\\), which to a first approximation is \\(2\\frac{A^2}{8\\pi}\\cos^2\\varphi\\), the pressure on a mirror at rest, obtained, the paper says, \"in agreement with experience and with other theories\"."
     decoder:
       - symbol: "\\(A\\), \\(\\varphi\\), \\(\\nu\\)"
         meaning: "The amplitude, the angle of incidence and the frequency of the incident light, measured in K. The mirror is the plane \\(\\xi=0\\) of k, so its normal is the direction of motion, and \\(\\varphi\\) is the angle between the wave normal and that direction."
