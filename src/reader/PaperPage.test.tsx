@@ -161,6 +161,8 @@ describe("PaperPage", () => {
     // Since dispatch 255 the blocks a reader sees are the source-block records, not the ledger
     // draft's (germanFaceRendersEdition; mail 40854), and the draft's segment ids are gone.
     expect(germanMarkup).toContain("source-blocks-list");
+    // The face renders inside the root layout's one <main id="main">, so it opens no <main> of its own.
+    expect(germanMarkup).not.toMatch(/<main\b/);
     expect(germanMarkup).not.toContain('id="bm-s4-p1"');
 
     // Same honest fallback holds on English, parallel, and gloss faces when the edition has no

@@ -76,9 +76,13 @@ describe("the English face reads at the reader's measure", () => {
   test("its text, banner and coverage notice sit in the reading column", () => {
     for (const paper of PAPERS) {
       const html = pages.get(paper)?.english ?? "";
+      // A div, not a <main>: the root layout renders the page's one <main id="main">, and a second
+      // one nested in it is a second main landmark. The no-JavaScript candidate check cut the German
+      // face at the inner </main> and lost its footnotes (deploy of b1d0037a).
       expect(html).toMatch(
-        /<main class="translation-units-list reading-column" data-translation-body/,
+        /<div class="translation-units-list reading-column" data-translation-body/,
       );
+      expect(html).not.toMatch(/<main\b/);
       const banner = html.indexOf("unreviewed-translation-banner");
       if (banner !== -1) {
         const open = [...html.slice(0, banner).matchAll(/<div\b[^>]*>/g)].map((m) => m[0]);
