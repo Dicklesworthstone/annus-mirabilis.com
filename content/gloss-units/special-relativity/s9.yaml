@@ -1,0 +1,46 @@
+# GlossUnit s9: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s9"
+sentenceId: "s9"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "35fd89a9e1099222fdc25fb72d1dee52c8a0338bf376b4a0e878ccf6cbca2e1a"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "§ 9"
+    english: "§ 9"
+  - german: "Transformation"
+    english: "transformation"
+  - german: "der"
+    english: "of the"
+  - german: "Maxwell-Hertzschen"
+    english: "Maxwell-Hertz"
+    lemma: "Maxwell-Hertzsch"
+    grammarNote: "adjective from the two names"
+    noteClass: "compound"
+  - german: "Gleichungen"
+    english: "equations"
+    lemma: "Gleichung"
+  - german: "mit"
+  - german: "Berücksichtigung"
+  - german: "der"
+    english: "of"
+  - german: "Konvektionsströme"
+    english: "convection currents"
+    lemma: "Konvektionsstrom"
+    grammarNote: "Konvektion + Ströme ‘currents’"
+    noteClass: "compound"
+multiwordUnits:
+  - tokenIndices:
+      - 5
+      - 6
+    english: "with consideration"
+    kind: "fixed-phrase"
+    grammarNote: "mit Berücksichtigung + genitive: ‘taking into account’"
