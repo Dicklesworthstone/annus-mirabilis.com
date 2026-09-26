@@ -165,9 +165,10 @@ export function CardDetail({
       )}
 
       {/* Proposition Limits if present */}
+      {/* A line of the card, not a callout inside it (dispatch 276): the card is the container. */}
       {card.limits && (
         <div
-          className="notice"
+          className={anchored ? "notice" : undefined}
           style={{
             marginBottom: "1rem",
             fontSize: "0.875rem",

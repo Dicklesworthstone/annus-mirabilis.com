@@ -52,13 +52,9 @@ export function Shelf({
   return (
     <section
       className={className || undefined}
-      style={{
-        margin: "2rem 0",
-        padding: "1.5rem",
-        borderRadius: "0.75rem",
-        border: "1px solid var(--line)",
-        background: "var(--wash)",
-      }}
+      // No box of its own (dispatch 276): each card is the shelf's one container. A filled,
+      // bordered section around bordered cards, with a callout inside a card, was three deep.
+      style={{ margin: "2rem 0" }}
       aria-label={title || undefined}
     >
       <header style={{ marginBottom: "1.5rem" }}>

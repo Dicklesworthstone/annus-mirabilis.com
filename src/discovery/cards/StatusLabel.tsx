@@ -42,10 +42,9 @@ export function StatusLabel({
     return (
       <span
         className={badgeClass}
-        style={{
-          ...baseBadgeStyle,
-          borderColor: "var(--accent)",
-        }}
+        // Its icon and its words set it apart, as each status's do; the accent ring added nothing a
+        // reader needs, and was the only red on the shelf (dispatch 276).
+        style={baseBadgeStyle}
         data-status="admitted-import"
       >
         {/* Inward / Import arrow shape */}
