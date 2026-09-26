@@ -102,12 +102,36 @@ export function computingLab(
   return undefined;
 }
 
+/** The dimension line where the registry says the paper gives the quantity none (dispatch 250). */
+export const DIMENSION_OPEN_IN_SOURCE = "the paper leaves its dimension open";
+/** The dimension line for a quantity whose dimension is that of whichever coordinate it is. */
+export const DIMENSION_STATE_DEPENDENT = "none fixed: it depends on the coordinates chosen";
+
+/** One reading of a printed letter in its passage, from the notation concordance (dispatch 250). */
+export type TermNotation = Readonly<{
+  meaning: string;
+  /** The modern symbol, drawn at build time, where the concordance renames the printed one. */
+  modernHtml?: string | undefined;
+  /** Where the first use opens (firstUseTargets.ts); absent where no page carries it. */
+  firstUseHref?: string | undefined;
+  /** The printed page of the first use. */
+  firstUsePage?: number | undefined;
+}>;
+
 export type TermFacts = Readonly<{
   roles: readonly TermRole[];
-  unit: string;
+  /** Absent only where no record gives the quantity a display unit (a registry fallback). */
+  unit?: string | undefined;
   dimension: string;
   /** Set where a named record binds the quantity to a laboratory: that laboratory's id. */
   lab?: string | undefined;
+  /**
+   * Set only where no model record linked to the display names the quantity (dispatch 250): what
+   * the quantity is, in a reader's words (content/reader-descriptions/quantities.yaml).
+   */
+  about?: string | undefined;
+  /** Set with `about`: what each printed letter for the quantity means in this passage. */
+  notation?: readonly TermNotation[] | undefined;
 }>;
 
 /** Everything the inspector says about one quantity across the records of one formula. */

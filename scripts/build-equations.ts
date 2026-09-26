@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { renderToString } from "katex";
+import { loadFirstUseTargets, resolveFirstUse } from "../src/app/notation/firstUseTargets.ts";
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
 import { loadConcordanceForPaper } from "../src/content/notation/loader.ts";
 import { getQuantity } from "../src/content/quantities/registry.ts";
@@ -74,10 +75,14 @@ const equations = [
 // PRINTED DISPLAYS IN COLOUR (dispatch 224): Einstein's own formulas on the reading faces, with
 // the bindings content/display-terms/<paper>.yaml gives their glyphs. Any problem stops the build by
 // name, as a bad equation record does.
+// Where no model record is linked, the inspector falls back to the registry and the concordance
+// (dispatch 250); a concordance first use links to the page that carries it, as /notation/ does.
+const firstUseTargets = await loadFirstUseTargets();
 const printed = await printedDisplays(
   process.cwd(),
   result.papers.map((p) => p.paper.id),
   equations,
+  { firstUse: (paper, anchor) => resolveFirstUse(paper, anchor, firstUseTargets) },
 );
 assertPublishable(printed);
 const sourcePaths = [
@@ -85,6 +90,10 @@ const sourcePaths = [
   "src/equations/latex/printedAtoms.ts",
   "src/equations/printed/displayTerms.ts",
   "src/equations/printed/paperDisplays.ts",
+  "src/equations/printed/fallbackFacts.ts",
+  "src/equations/termFacts.ts",
+  "src/content/quantities/readerDescriptions.ts",
+  "content/reader-descriptions/quantities.yaml",
   ...result.papers.map((p) => `content/display-terms/${p.paper.id}.yaml`).filter(existsSync),
   "src/equations/latex.ts",
   "src/equations/latex/render.ts",

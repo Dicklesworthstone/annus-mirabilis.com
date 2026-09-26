@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import type { TermFacts } from "./termFacts.ts";
+import type { TermFacts, TermNotation } from "./termFacts.ts";
 
 /**
  * THE TERM INSPECTOR (dispatch 144 unit c): one pinned quantity, set out as a short list. Its
@@ -88,10 +88,26 @@ export function TermInspector({
               </span>
             </span>
           ) : null}
-          <span className="term-inspector-fact">
-            <span className="term-inspector-fact-name">Unit</span>{" "}
-            <span className="term-inspector-fact-value">{facts.unit}</span>
-          </span>
+          {facts.about ? (
+            <span className="term-inspector-fact">
+              <span className="term-inspector-fact-name">What it is</span>{" "}
+              <span className="term-inspector-fact-value">{facts.about}</span>
+            </span>
+          ) : null}
+          {(facts.notation ?? []).map((line) => (
+            <span className="term-inspector-fact" key={line.meaning}>
+              <span className="term-inspector-fact-name">Here</span>{" "}
+              <span className="term-inspector-fact-value">
+                <NotationLine line={line} />
+              </span>
+            </span>
+          ))}
+          {facts.unit !== undefined ? (
+            <span className="term-inspector-fact">
+              <span className="term-inspector-fact-name">Unit</span>{" "}
+              <span className="term-inspector-fact-value">{facts.unit}</span>
+            </span>
+          ) : null}
           <span className="term-inspector-fact">
             <span className="term-inspector-fact-name">Dimension</span>{" "}
             <span className="term-inspector-fact-value">{facts.dimension}</span>
@@ -135,10 +151,26 @@ export function TermInspector({
             </dd>
           </div>
         ) : null}
-        <div>
-          <dt>Unit</dt>
-          <dd>{facts.unit}</dd>
-        </div>
+        {facts.about ? (
+          <div>
+            <dt>What it is</dt>
+            <dd>{facts.about}</dd>
+          </div>
+        ) : null}
+        {(facts.notation ?? []).map((line) => (
+          <div key={line.meaning}>
+            <dt>Here</dt>
+            <dd>
+              <NotationLine line={line} />
+            </dd>
+          </div>
+        ))}
+        {facts.unit !== undefined ? (
+          <div>
+            <dt>Unit</dt>
+            <dd>{facts.unit}</dd>
+          </div>
+        ) : null}
         <div>
           <dt>Dimension</dt>
           <dd>{facts.dimension}</dd>
@@ -150,6 +182,34 @@ export function TermInspector({
       </dl>
       {children}
     </section>
+  );
+}
+
+/**
+ * What the printed letter means in this passage, from the notation concordance (dispatch 250), in
+ * the notation page's words: the meaning, the modern symbol where it differs ("today c"), and the
+ * first use, linked where a page carries it. Phrasing content only, for the inline inspector too.
+ */
+function NotationLine({ line }: { line: TermNotation }) {
+  // A concordance meaning is a phrase; one that already ends a sentence is not given a second stop.
+  const meaning = line.meaning.replace(/[.\s]+$/, "");
+  const page = line.firstUsePage === undefined ? "" : ` on p. ${line.firstUsePage}`;
+  const firstUse = line.firstUseHref ? (
+    <a href={line.firstUseHref}>First used{page}</a>
+  ) : page ? (
+    <>First used{page}</>
+  ) : null;
+  return (
+    <>
+      {meaning}.
+      {line.modernHtml ? (
+        <>
+          {" "}
+          Today <span {...{ dangerouslySetInnerHTML: { __html: line.modernHtml } }} />.
+        </>
+      ) : null}
+      {firstUse ? <> {firstUse}.</> : null}
+    </>
   );
 }
 
