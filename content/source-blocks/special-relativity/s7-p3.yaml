@@ -62,12 +62,18 @@ inlines:
   - kind: "space"
   - kind: "text"
     text: "Man sieht, daß — im Gegensatz zu der üblichen Auffassung — für "
-  - kind: "math"
-    latex: "v = -\\infty"
+  - kind: "misprint"
+    recordId: "err-typo-p912-2"
+    math:
+      kind: "math"
+      latex: "v = -\\infty"
   - kind: "text"
     text: ", "
-  - kind: "math"
-    latex: "\\nu = \\infty"
+  - kind: "misprint"
+    recordId: "err-typo-p912-1"
+    math:
+      kind: "math"
+      latex: "\\nu = \\infty"
   - kind: "text"
     text: " ist."
 sentenceSpans:

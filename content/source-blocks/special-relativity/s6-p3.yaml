@@ -31,8 +31,11 @@ inlines:
     latex: "k"
   - kind: "text"
     text: " durch ihre ponderomotorischen Wirkungen auf elektrische bez. magnetische Massen definierten Vektoren der elektrischen und magnetischen Kraft ("
-  - kind: "math"
-    latex: "(X', Y' Z')"
+  - kind: "misprint"
+    recordId: "err-typo-p908-1"
+    math:
+      kind: "math"
+      latex: "(X', Y' Z')"
   - kind: "text"
     text: " und "
   - kind: "math"
