@@ -83,6 +83,7 @@ export function NotationEntryCard({ entry }: NotationEntryCardProps) {
   const frame = entry.frameOrReference ? FRAME_LABELS[entry.frameOrReference] : undefined;
   const page = entry.sources.facsimilePage;
   const meaningId = `${entry.id}-meaning`;
+  const change = changeNote(entry);
 
   return (
     <article
@@ -135,12 +136,16 @@ export function NotationEntryCard({ entry }: NotationEntryCardProps) {
             ))}
           </p>
         )}
-        <details className="notation-entry-more">
-          <summary>Notes and checking</summary>
-          {entry.notes && <p>{entry.notes}</p>}
-          {changeNote(entry)}
-          <p className="fine">{entry.checkedLabel}</p>
-        </details>
+        {/* Who read an entry from the plates, and when, stays in its `verification` record; the
+            reader gets the notes only (D-2026-09-25-no-review-status-banners). An entry with no
+            notes and no change of units or argument has nothing to disclose, so no disclosure. */}
+        {(entry.notes || change) && (
+          <details className="notation-entry-more">
+            <summary>Notes</summary>
+            {entry.notes && <p>{entry.notes}</p>}
+            {change}
+          </details>
+        )}
       </div>
     </article>
   );

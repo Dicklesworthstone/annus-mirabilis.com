@@ -53,8 +53,7 @@
   :root .paper-catalogue article p:where(:not([class]), .german-title),
   :root .paper-entry-body > p:where(:not([class]), .german-title),
   :root .reading.page-flush p:not(.fine),
-  :root main > .page-intro > p:not([class]),
-  :root .notation-status {
+  :root main > .page-intro > p:not([class]) {
     font-size: var(--type-body-wide);
     max-width: max(666px, 54ch);
   }

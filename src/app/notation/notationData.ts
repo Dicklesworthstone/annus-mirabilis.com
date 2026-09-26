@@ -29,8 +29,6 @@ export interface EnrichedConcordanceEntry extends ConcordanceEntry {
   readonly whereLabel: string;
   /** One label per `scope` token, in the same order, for the section filter's options. */
   readonly whereLabelParts: readonly string[];
-  /** "Checked against the printed page on 19 September 2026.", or that it has not been. */
-  readonly checkedLabel: string;
   /** The other entries printed with the same symbol: the collisions, readable. */
   readonly alsoPrinted: readonly {
     readonly id: string;
@@ -39,21 +37,6 @@ export interface EnrichedConcordanceEntry extends ConcordanceEntry {
     readonly whereLabel: string;
   }[];
 }
-
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
 
 function joinInProse(items: readonly string[]): string {
   if (items.length <= 1) return items.join("");
@@ -87,19 +70,6 @@ export function formatScopeToken(paper: string, token: string): string {
 
 export function formatScope(paper: string, scope: readonly string[]): string {
   return joinInProse([...new Set(scope.map((token) => formatScopeToken(paper, token)))]);
-}
-
-function formatCheckedLabel(entry: ConcordanceEntry): string {
-  if (PENDING_SCAN.test(entry.verification.checkedAgainst))
-    return "Not yet checked against the printed page; taken from a transcription.";
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(entry.verification.date);
-  const month = m ? MONTHS[Number(m[2]) - 1] : undefined;
-  const on = m && month ? ` on ${Number(m[3])} ${month} ${m[1]}` : "";
-  // An agent's reading of the page image is not a review, and the label must not read like one. It
-  // says who read it and no more (D-2026-09-25-no-review-status-banners).
-  if (entry.verification.by.startsWith("agent:"))
-    return `Read from the printed page by an agent${on}.`;
-  return `Checked against the printed page${on}.`;
 }
 
 export interface CollisionCluster {
@@ -158,55 +128,6 @@ export interface NotationPageData {
      */
     meanings: readonly { paperTitle: string; meaning: string; modernGlyph: string | null }[];
   }[];
-  /**
-   * How far the entries have been checked against the printed pages, computed from each entry's
-   * `verification.checkedAgainst`, so the sentence cannot outlive the records it describes.
-   */
-  readonly honestyNotice: {
-    readonly isPendingFacsimile: boolean;
-    readonly checkedCount: number;
-    readonly pendingCount: number;
-    readonly message: string;
-  };
-}
-
-/** The controlled wording every not-yet-checked entry carries in `verification.checkedAgainst`. */
-const PENDING_SCAN = /^Pending facsimile scan\b/;
-
-/**
- * The status sentence under the page's lead: how many entries have been checked symbol by symbol
- * against the printed pages, for which papers, and how many still come from transcriptions only.
- */
-export function describeVerification(entries: readonly EnrichedConcordanceEntry[]): {
-  checkedCount: number;
-  pendingCount: number;
-  message: string;
-} {
-  const checked = entries.filter((e) => !PENDING_SCAN.test(e.verification.checkedAgainst));
-  const pendingCount = entries.length - checked.length;
-  const papers = [...new Set(checked.map((e) => e.paperTitle))];
-  const where = papers.length === 1 ? `, all of them in ${papers[0]}` : "";
-  const pending = `${pendingCount === 1 ? "entry was" : "entries were"} taken from transcriptions of the papers and ${pendingCount === 1 ? "has" : "have"} not yet been checked against the scans`;
-  const one = entries.length === 1;
-  const message =
-    checked.length === 0
-      ? one
-        ? "The one entry has not yet been checked against the printed pages; it was taken from a transcription of the paper."
-        : `None of the ${entries.length} entries has yet been checked against the printed pages. All of them were taken from transcriptions of the papers.`
-      : pendingCount === 0
-        ? one
-          ? "The one entry has been checked symbol by symbol against the printed pages."
-          : `All ${entries.length} entries have been checked symbol by symbol against the printed pages.`
-        : `${checked.length} of ${entries.length} entries ${checked.length === 1 ? "has" : "have"} been checked symbol by symbol against the printed pages${where}. The other ${pendingCount} ${pending}.`;
-  // Say who did the checking: an agent reading page images is not a person reviewing them.
-  const byAgent = checked.filter((e) => e.verification.by.startsWith("agent:")).length;
-  const agentNote =
-    byAgent === 0
-      ? ""
-      : byAgent === checked.length
-        ? " An agent did that checking, reading each page image."
-        : ` ${byAgent} of those checks ${byAgent === 1 ? "was" : "were"} made by an agent reading the page images.`;
-  return { checkedCount: checked.length, pendingCount, message: message + agentNote };
 }
 
 const PAPER_METADATA: Record<string, { title: string; number: number; locator: string }> = {
@@ -445,7 +366,6 @@ export function loadNotationPageData(
         searchKeywords,
         whereLabel: formatScope(entry.paper, entry.scope),
         whereLabelParts: entry.scope.map((token) => formatScopeToken(entry.paper, token)),
-        checkedLabel: formatCheckedLabel(entry),
         alsoPrinted: [],
       };
 
@@ -578,9 +498,5 @@ export function loadNotationPageData(
     allEntries: entries,
     collisionClusters,
     uniqueGlyphs,
-    honestyNotice: (() => {
-      const verification = describeVerification(entries);
-      return { isPendingFacsimile: verification.pendingCount > 0, ...verification };
-    })(),
   };
 }

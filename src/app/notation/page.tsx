@@ -50,7 +50,6 @@ export default async function NotationPage() {
           means in the sections where it appears, the symbol a modern reader would use where that
           differs, and the first place the paper uses it.
         </p>
-        <p className="callout-note notation-status">{data.honestyNotice.message}</p>
       </header>
 
       <GlyphNav glyphs={data.uniqueGlyphs} />

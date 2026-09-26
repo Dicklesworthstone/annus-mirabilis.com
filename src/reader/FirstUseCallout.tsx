@@ -1,7 +1,7 @@
 /**
  * The red first-use callout for a letter that is easily misread (firstUse.ts): Einstein's beta is
  * the modern gamma, paper 2's k is the viscosity. Its words are the concordance entry's own notes,
- * the ones /notation shows under "Notes and checking", so the two cannot say different things.
+ * the ones /notation shows under "Notes", so the two cannot say different things.
  * Static and server-rendered; it reads the same with JavaScript off and in either notation.
  */
 import type { ConcordanceEntry } from "../content/schemas/concordance.ts";
