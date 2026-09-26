@@ -101,12 +101,32 @@ describe("am-not-entries-light-quanta-9cb: light-quanta notation concordance", (
 
   test("Bindings: rho_nu binds frequencyEnergyDensity, never wavelengthEnergyDensity", () => {
     const file = loadConcordanceForPaper(paper);
-    const res = resolveGlyph(paper, "lq-s1", "\\rho_\\nu", emptyManifestIndex, file);
+    // The plate's rho is the letterform LaTeX writes varrho, and the source blocks transcribe it so;
+    // an entry spelled \\rho_\\nu matched no printed formula (dispatch 272).
+    const res = resolveGlyph(paper, "lq-s1", "\\varrho_\\nu", emptyManifestIndex, file);
     assert.ok(res.ok, "rho_nu must resolve");
     assert.ok("quantityId" in res.entry.binding);
     assert.equal(res.entry.binding.quantityId, "frequencyEnergyDensity");
     assert.notEqual(res.entry.binding.quantityId, "wavelengthEnergyDensity");
-    logPass("rho-nu-frequency-density", "rho_nu binds frequencyEnergyDensity");
+    // §§3 and 4 print the same density without its subscript.
+    const bare = resolveGlyph(paper, "lq-s3", "\\varrho", emptyManifestIndex, file);
+    assert.ok(bare.ok, "rho without its subscript must resolve in §3");
+    assert.ok("quantityId" in bare.entry.binding);
+    assert.equal(bare.entry.binding.quantityId, "frequencyEnergyDensity");
+    logPass("rho-nu-frequency-density", "rho_nu and rho bind frequencyEnergyDensity");
+  });
+
+  test("Bindings: alpha in §1's Fourier footnote is a phase, and in §2 Wien's constant", () => {
+    const file = loadConcordanceForPaper(paper);
+    const phase = resolveGlyph(paper, "lq-s1-fn3", "\\alpha", emptyManifestIndex, file);
+    assert.ok(phase.ok, "alpha must resolve in the footnote");
+    assert.ok("quantityId" in phase.entry.binding);
+    assert.equal(phase.entry.binding.quantityId, "fourierPhase");
+    const wien = resolveGlyph(paper, "lq-s2", "\\alpha", emptyManifestIndex, file);
+    assert.ok(wien.ok, "alpha must resolve in §2");
+    assert.ok("quantityId" in wien.entry.binding);
+    assert.equal(wien.entry.binding.quantityId, "wienConstantAlpha");
+    logPass("alpha-two-scopes", "alpha binds fourierPhase in s1-fn3 and wienConstantAlpha in s2");
   });
 
   test("Bindings: S at §4 binds radiationEntropy, and at §5 binds entropy", () => {
