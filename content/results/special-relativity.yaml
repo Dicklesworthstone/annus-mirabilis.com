@@ -22,6 +22,59 @@
 paper: special-relativity
 review: draft
 cards:
+  - id: sr-synchronous-clocks
+    title: "Synchronous clocks and the time of a distant event"
+    section: s1
+    arguments: [arg-sr-synchronization]
+    printed:
+      - anchor: s1-p7
+        sentences: [4, 5, 6]
+      - anchor: eq-s1-d1
+      - anchor: s1-p9
+        sentences: [2]
+      - anchor: s1-p10
+        sentences: [1]
+      - anchor: eq-s1-d2
+      - anchor: s1-p11
+        sentences: [1]
+    equations: [eq-model-sr-sync-equal-legs, eq-model-sr-sync-midpoint]
+    oneSentence: "Two clocks at rest at A and B run synchronously, by definition, when a ray of light that leaves A at \\(t_A\\), is reflected at B at \\(t_B\\) and returns to A at \\(t'_A\\) takes as long out as back, \\(t_B-t_A=t'_A-t_B\\); the time of an event is then the reading of such a clock at its place, and the quantity \\(2\\overline{AB}/(t'_A-t_A)\\) is set, in accordance with experience, to be a universal constant, the speed of light in empty space."
+    decoder:
+      - symbol: "\\(t_A\\), \\(t_B\\), \\(t'_A\\)"
+        meaning: "The departure of the ray from A, read on A's clock; its reflection at B, read on B's clock; and its return to A, read on A's clock."
+      - symbol: "\\(\\overline{AB}\\)"
+        meaning: "The distance between A and B."
+      - symbol: "\\(V\\)"
+        meaning: "The speed of light in empty space, printed V; today it is written c."
+      - symbol: "\"durch Definition\""
+        meaning: "By definition, letter-spaced in the print: that light takes as long from A to B as from B to A is stipulated, and nothing in the procedure measures it."
+      - symbol: "\"die Zeit des ruhenden Systems\""
+        meaning: "The time of the stationary system: the paper stresses that the time so defined belongs to clocks at rest in that system."
+    qualifications:
+      - kind: premise
+        text: "The paper assumes that the definition can be applied without contradiction to any number of points: if the clock at B is synchronous with the clock at A, then A's is synchronous with B's, and two clocks synchronous with a third are synchronous with each other."
+      - kind: premise
+        text: "Two different things are laid down. The equality of the two travel times is a definition; that the round-trip quantity is a universal constant is stipulated in accordance with experience."
+      - kind: comparison
+        text: "Whether the equal-times rule is a free choice was argued later, beginning with Reichenbach in 1928, and the question is still debated. The paper calls it a definition."
+    probes:
+      - instrument: sr-01
+        question: "A signal leaves A at 0 s and returns at 10 s: what must B's clock read at the moment of reflection?"
+        preset: sr-01-sync-0-10
+      - instrument: sr-01
+        question: "Light goes 10 light-seconds out and back: what does \\(2\\overline{AB}/(t'_A-t_A)\\) come to?"
+        preset: sr-01-round-trip-10ls
+      - instrument: sr-01
+        question: "Clocks at B and at C are each synchronous with the clock at A: are they synchronous with each other?"
+        preset: sr-01-three-stations
+    usedLater: []
+    meanings:
+      argumentStatus: "A definition, with an assumption that it is consistent and a stipulation from experience"
+      modelStatus: "A definition for clocks at rest in one system"
+      evidentialRole: "A definition, not evidence; the constancy of the round-trip speed is taken from experience"
+      historicalStatus: "In 1900 Poincaré had described observers moving through the ether who set their clocks by exchanging light signals and so obtain Lorentz's local time, to first order; here the procedure defines the time of the stationary system"
+    selectionReason: "Every later section rests on it: it defines the time of a distant event, and with it what simultaneous means."
+
   - id: sr-relativity-of-simultaneity
     title: "The relativity of simultaneity"
     section: s2

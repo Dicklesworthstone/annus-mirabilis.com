@@ -15,7 +15,7 @@
   },
   "instrumentIds": ["sr-01"],
   "anchors": ["s1-p7", "s2-p2", "s2-p7"],
-  "resultIds": ["sr-relativity-of-simultaneity"],
+  "resultIds": ["sr-synchronous-clocks", "sr-relativity-of-simultaneity"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plates pp. 893–897",
     "SR-01 preset sr-01-sync-0-10: stations 5 light-seconds apart, emission at 0; the reflection assigned 5"
