@@ -25,11 +25,18 @@ import {
   displayOccurrences,
   loadDisplayTerms,
 } from "./displayTerms.ts";
-import { fallbackTermFacts, notationFor } from "./fallbackFacts.ts";
+import { fallbackTermFacts, notationFor, notationLink } from "./fallbackFacts.ts";
 
-/** A compiled display with what the inspector says about each of its quantities. */
-export type PrintedDisplayPayload = CompiledPrintedDisplay &
-  Readonly<{ facts: Readonly<Record<string, TermFacts>> }>;
+/**
+ * A compiled display with what the inspector says about each of its quantities, and where each
+ * legend line's chip links before JavaScript runs (notationHref, dispatch 254).
+ */
+export type PrintedDisplayPayload = Omit<CompiledPrintedDisplay, "legend"> &
+  Readonly<{
+    legend: readonly (CompiledPrintedDisplay["legend"][number] &
+      Readonly<{ href: string; hrefMeaning?: string }>)[];
+    facts: Readonly<Record<string, TermFacts>>;
+  }>;
 
 /** The model equation records content/bindings/<paper>.yaml binds each display to. */
 export function boundEquations(
@@ -135,7 +142,11 @@ export async function printedDisplays(
           notation: notationFor(concordance, glyphs, quantityId, scope, options.firstUse),
         });
       }
-      displays.push({ ...compiled, facts });
+      const legend = compiled.legend.map((l) => {
+        const link = notationLink(concordance, l.glyph, l.quantityId, scope, paper);
+        return { ...l, href: link.href, ...(link.meaning ? { hrefMeaning: link.meaning } : {}) };
+      });
+      displays.push({ ...compiled, legend, facts });
     }
   }
   return { displays, problems };

@@ -24,6 +24,15 @@ export type TermChipItem = Readonly<{
   style?: CSSProperties | undefined;
   /** What the inspector says once this quantity is pinned (unit c). Absent, no inspector opens. */
   facts?: TermFacts | undefined;
+  /**
+   * Where the chip links until JavaScript has run (dispatch 254): a real link to the quantity's
+   * entry on /notation/, since a reader without JavaScript can follow a link and not a button.
+   * After mount it is the button that pins the inspector. Absent, the chip is a disabled button
+   * until then, as before.
+   */
+  href?: string | undefined;
+  /** The link's accessible name, where the name alone would name several destinations. */
+  hrefLabel?: string | undefined;
 }>;
 
 export function TermChips({
@@ -63,34 +72,29 @@ export function TermChips({
       >
         {items.map((item) => (
           <Item key={`${item.quantityId} ${item.glyphHtml}`} role={inline ? "listitem" : undefined}>
-            <button
-              type="button"
-              className="term-chip"
-              data-quantity-id={item.quantityId}
-              style={item.style}
-              aria-pressed={pressed === item.quantityId}
-              disabled={disabled}
-              onClick={onPress ? () => onPress(item.quantityId) : undefined}
-            >
-              <span className="term-chip-dot" aria-hidden="true" />
-              {item.glyphHtml ? (
-                <span
-                  className="equation-legend-glyph"
-                  aria-hidden="true"
-                  data-notation-form={item.printedGlyphHtml ? "modern" : undefined}
-                  {...{ dangerouslySetInnerHTML: { __html: item.glyphHtml } }}
-                />
-              ) : null}
-              {item.printedGlyphHtml ? (
-                <span
-                  className="equation-legend-glyph"
-                  aria-hidden="true"
-                  data-notation-form="printed"
-                  {...{ dangerouslySetInnerHTML: { __html: item.printedGlyphHtml } }}
-                />
-              ) : null}
-              <span className="equation-legend-name">{item.name}</span>
-            </button>
+            {disabled && item.href ? (
+              <a
+                className="term-chip"
+                href={item.href}
+                aria-label={item.hrefLabel}
+                data-quantity-id={item.quantityId}
+                style={item.style}
+              >
+                <ChipContent item={item} />
+              </a>
+            ) : (
+              <button
+                type="button"
+                className="term-chip"
+                data-quantity-id={item.quantityId}
+                style={item.style}
+                aria-pressed={pressed === item.quantityId}
+                disabled={disabled}
+                onClick={onPress ? () => onPress(item.quantityId) : undefined}
+              >
+                <ChipContent item={item} />
+              </button>
+            )}
           </Item>
         ))}
       </List>
@@ -100,6 +104,32 @@ export function TermChips({
         </button>
       ) : null}
     </Row>
+  );
+}
+
+/** A chip's dot, glyph (printed, and modern under the notation toggle) and name. */
+function ChipContent({ item }: { item: TermChipItem }) {
+  return (
+    <>
+      <span className="term-chip-dot" aria-hidden="true" />
+      {item.glyphHtml ? (
+        <span
+          className="equation-legend-glyph"
+          aria-hidden="true"
+          data-notation-form={item.printedGlyphHtml ? "modern" : undefined}
+          {...{ dangerouslySetInnerHTML: { __html: item.glyphHtml } }}
+        />
+      ) : null}
+      {item.printedGlyphHtml ? (
+        <span
+          className="equation-legend-glyph"
+          aria-hidden="true"
+          data-notation-form="printed"
+          {...{ dangerouslySetInnerHTML: { __html: item.printedGlyphHtml } }}
+        />
+      ) : null}
+      <span className="equation-legend-name">{item.name}</span>
+    </>
   );
 }
 

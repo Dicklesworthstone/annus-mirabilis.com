@@ -711,6 +711,10 @@
   font: inherit;
   cursor: pointer;
 }
+/* Before JavaScript runs, a printed display's chip is a link to /notation/ (dispatch 254). */
+.term-chips a.term-chip {
+  text-decoration: none;
+}
 .term-chips .term-chip-dot {
   flex: none;
   width: 0.6em;

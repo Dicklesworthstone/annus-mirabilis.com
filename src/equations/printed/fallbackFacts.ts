@@ -126,6 +126,52 @@ export function notationFor(
   return out;
 }
 
+/** The /notation/ anchor of a paper's quantity with no concordance entry in that paper (dispatch 254). */
+export function quantityAnchor(paper: string, quantityId: string): string {
+  return `quantity-${paper}-${quantityId}`;
+}
+
+/**
+ * Where a term chip links before JavaScript runs (dispatch 254), a real link to /notation/:
+ *   1. the concordance entry for its printed letter in the display's own scope;
+ *   2. else the paper's first entry for the quantity, which is the quantity's entry, printed in
+ *      another passage;
+ *   3. else the quantity's own row, which /notation/ lists for the quantities with no entry.
+ * Only entries the edition prints count, as /notation/ shows only those (notationData.ts).
+ *
+ * With the href comes the entry's meaning, which the link's accessible name carries after the
+ * quantity's name: one quantity printed with several letters (t and t_A, X' and Y') links to
+ * several entries, and a link name must name one destination (am-jmma).
+ */
+export function notationLink(
+  entries: readonly ConcordanceEntry[],
+  glyph: string,
+  quantityId: string,
+  scope: Pick<DisplayOccurrence, "anchor" | "section"> | undefined,
+  paper: string,
+): Readonly<{ href: string; meaning?: string }> {
+  const printed = entries.filter((e) => e.verification?.printed !== false);
+  const opinion = scope ? concordanceBinding(printed, glyphSignature(glyph), scope) : undefined;
+  const entry =
+    opinion && opinion.binds === quantityId
+      ? printed.find((e) => e.id === opinion.id)
+      : printed.find((e) => "quantityId" in e.binding && e.binding.quantityId === quantityId);
+  if (!entry) return { href: `/notation/#${quantityAnchor(paper, quantityId)}` };
+  // Where entries for other letters share this meaning (l, m and n are each a direction cosine of
+  // the wave normal), the printed letter tells the destinations apart.
+  const sameMeaning = printed.some(
+    (e) =>
+      e.id !== entry.id &&
+      e.meaning === entry.meaning &&
+      "quantityId" in e.binding &&
+      e.binding.quantityId === quantityId,
+  );
+  return {
+    href: `/notation/#${entry.id}`,
+    meaning: sameMeaning ? `${entry.meaning}, printed ${entry.glyph.unicode}` : entry.meaning,
+  };
+}
+
 /** The inspector's facts for a printed term that no linked model record names. */
 export function fallbackTermFacts(
   input: Readonly<{

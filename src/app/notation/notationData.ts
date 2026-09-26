@@ -130,7 +130,7 @@ export interface NotationPageData {
   }[];
 }
 
-const PAPER_METADATA: Record<string, { title: string; number: number; locator: string }> = {
+export const PAPER_METADATA: Record<string, { title: string; number: number; locator: string }> = {
   "light-quanta": {
     title: "Light quanta",
     number: 1,

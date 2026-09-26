@@ -13,6 +13,7 @@ import {
 } from "./katexPreload.ts";
 import { NotationPageClient } from "./NotationPageClient.tsx";
 import { loadNotationPageData } from "./notationData.ts";
+import { UnlistedQuantities } from "./UnlistedQuantities.tsx";
 
 export const metadata: Metadata = {
   title: "Notation concordance",
@@ -67,6 +68,10 @@ export default async function NotationPage() {
 
       {/* Interactive Client Component */}
       <NotationPageClient initialData={data} />
+
+      {/* The quantities a printed display's term chip links to when they have no entry above
+          (dispatch 254): the chips are real links without JavaScript, so each needs a place. */}
+      <UnlistedQuantities />
     </div>
   );
 }

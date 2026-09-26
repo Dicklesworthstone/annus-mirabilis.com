@@ -3,7 +3,8 @@
  * whose record binds every display: mass-energy, the reference slice, and light quanta.
  * Before this, each face drew them as plain KaTeX: no term carried a quantity and no chip was drawn.
  * Each face now draws every display with its terms marked, the explanation's colours, and chips
- * that are disabled buttons until the page hydrates, and it puts no block element inside a <p>.
+ * that are real links to /notation/ until the page hydrates (dispatch 254; they were disabled
+ * buttons before), and it puts no block element inside a <p>.
  */
 import { describe, expect, test } from "bun:test";
 import { exportMarkup } from "../../testing/exportMarkup.ts";
@@ -15,12 +16,12 @@ const FACES = ["german", "english", "parallel", "gloss"] as const;
 const page = async (paper: string, face?: (typeof FACES)[number]) =>
   exportMarkup(await PaperPage(face ? { paperId: paper, face } : { paperId: paper }));
 
-/** Every chip's quantity and its colour style, as the markup carries them. */
+/** Every chip's quantity and its colour style, as the markup carries them: a link or a button. */
 function chipStyles(html: string): Map<string, Set<string>> {
   const out = new Map<string, Set<string>>();
-  for (const [button] of html.matchAll(/<button[^>]*class="term-chip"[^>]*>/g)) {
-    const quantity = /data-quantity-id="([^"]+)"/.exec(button)?.[1];
-    const style = /style="([^"]*)"/.exec(button)?.[1] ?? "";
+  for (const [chip] of html.matchAll(/<(?:button|a)[^>]*class="term-chip"[^>]*>/g)) {
+    const quantity = /data-quantity-id="([^"]+)"/.exec(chip)?.[1];
+    const style = /style="([^"]*)"/.exec(chip)?.[1] ?? "";
     if (quantity) out.set(quantity, new Set([...(out.get(quantity) ?? []), style]));
   }
   return out;
@@ -137,9 +138,12 @@ for (const { paper, spoken } of PAPERS)
           const theirs = explanation.get(quantity);
           if (theirs) expect([...style]).toEqual([...theirs]);
         }
-        // Without JavaScript every chip is a disabled button, which the noscript rule leaves showing.
-        for (const [button] of html.matchAll(/<button[^>]*class="term-chip"[^>]*>/g))
-          expect(button).toContain('disabled=""');
+        // Without JavaScript every chip is a real link to /notation/ (dispatch 254), and none is a
+        // button, which only hydration could make work.
+        expect(html).not.toMatch(/<button[^>]*class="term-chip"/);
+        const links = [...html.matchAll(/<a[^>]*class="term-chip"[^>]*>/g)].map(([a]) => a);
+        expect(links.length).toBeGreaterThan(0);
+        for (const link of links) expect(link).toMatch(/ href="\/notation\/#[^"]+"/);
         // No live region per display: a face holds many (BlockTermChips announce).
         expect(liveRegionsInDisplays(html)).toBe(0);
         // Each block is named by its authored spoken form.

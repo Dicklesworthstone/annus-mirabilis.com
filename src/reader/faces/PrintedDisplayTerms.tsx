@@ -42,6 +42,9 @@ export function PrintedDisplayTerms({
             glyphHtml: line.glyphHtml,
             style: colourStyle(colour),
             facts: display.facts[line.quantityId],
+            href: line.href,
+            // The chip's name, then what the letter means at the entry it opens (am-jmma).
+            ...(line.hrefMeaning ? { hrefLabel: `${colour.name}: ${line.hrefMeaning}` } : {}),
           },
         ]
       : [];
