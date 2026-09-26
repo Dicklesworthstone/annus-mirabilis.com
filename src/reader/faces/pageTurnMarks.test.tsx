@@ -147,9 +147,11 @@ async function face(paper: string, name: "german" | "english" | "parallel") {
  * the sentence), controls and visually hidden labels, and the marks themselves.
  */
 function textBeside(container: Element, mark: Element, direction: "after" | "before"): string {
+  // The edition's own lines beside a display are not the printed words a turn falls between: the
+  // legend, and a recorded misprint's note under its display (DisplayMisprintNote, dispatch 266).
   const skip = (el: Element) =>
     el.closest(
-      ".katex, .inline-display, .equation-container, .printed-display-terms, .equation-legend, button, .block-locator, .page-turn, sup, [aria-hidden='true'], .visually-hidden, .visually-hidden-focusable, .sr-only",
+      ".katex, .inline-display, .equation-container, .printed-display-terms, .equation-legend, .display-misprint-note, button, .block-locator, .page-turn, sup, [aria-hidden='true'], .visually-hidden, .visually-hidden-focusable, .sr-only",
     );
   const texts: string[] = [];
   const walker = container.ownerDocument.createTreeWalker(container, 1 | 4 /* ELEMENT | TEXT */);
