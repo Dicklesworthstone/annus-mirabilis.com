@@ -99,10 +99,12 @@ describe("am-not-entries-brownian-1rq: Brownian notation concordance", () => {
     assert.equal(modern, "n");
   });
 
-  test("Bindings: \\varphi(\\Delta) binds transitionKernel with L^-1 dimension", () => {
+  test("Bindings: \\varphi in §4 binds transitionKernel with L^-1 dimension", () => {
     const file = loadConcordanceForPaper(paper);
-    const res = resolveGlyph(paper, "bm-s4", "\\varphi(\\Delta)", emptyManifestIndex, file);
-    assert.ok(res.ok, "\\varphi(\\Delta) in §4 must resolve");
+    // The entry is the letter, which §4 prints with its argument, φ(Δ), and without it (dispatch
+    // 272); an entry spelled as the expression \varphi(\Delta) matched no printed letter.
+    const res = resolveGlyph(paper, "bm-s4", "\\varphi", emptyManifestIndex, file);
+    assert.ok(res.ok, "\\varphi in §4 must resolve");
     const entry = res.entry;
     assert.ok("quantityId" in entry.binding);
     assert.equal(entry.binding.quantityId, "transitionKernel");
@@ -175,10 +177,13 @@ describe("am-not-entries-brownian-1rq: Brownian notation concordance", () => {
     assert.equal(nOf("bm-s5"), "avogadroConstant");
   });
 
-  test("Bindings: \\kappa at §2 resolves to scaled boltzmannConstant with scale 1/2, and modernGroupsFor returns 2\\kappa -> k_B", () => {
+  test("Bindings: \\varkappa at §2 resolves to scaled boltzmannConstant with scale 1/2, and modernGroupsFor returns 2\\varkappa -> k_B", () => {
     const file = loadConcordanceForPaper(paper);
-    const kappaRes = resolveGlyph(paper, "bm-s2", "\\kappa", emptyManifestIndex, file);
-    assert.ok(kappaRes.ok, "\\kappa in §2 must resolve");
+    // The plate prints the curly kappa, the letterform LaTeX writes \varkappa, and the source
+    // blocks and displays transcribe it so; an entry spelled \kappa matched no printed formula
+    // (dispatch 272).
+    const kappaRes = resolveGlyph(paper, "bm-s2", "\\varkappa", emptyManifestIndex, file);
+    assert.ok(kappaRes.ok, "\\varkappa in §2 must resolve");
     const entry = kappaRes.entry;
     assert.ok("quantityId" in entry.binding);
     assert.equal(entry.binding.quantityId, "boltzmannConstant");
@@ -186,7 +191,7 @@ describe("am-not-entries-brownian-1rq: Brownian notation concordance", () => {
     assert.equal(entry.collision?.severity, "caution");
 
     const groups = modernGroupsFor(paper, "bm-s2", file);
-    assert.ok(groups.some((g) => g.printedGroup === "2\\kappa" && g.modernGroup === "k_B"));
+    assert.ok(groups.some((g) => g.printedGroup === "2\\varkappa" && g.modernGroup === "k_B"));
   });
 
   test("Bindings: lg at §2 resolves to operator rename \\ln and carries ISO note", () => {

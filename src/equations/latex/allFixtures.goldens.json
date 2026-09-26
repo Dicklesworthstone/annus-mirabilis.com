@@ -148,10 +148,10 @@
       "latex": "\\htmlData{op=eq-me-1.op.relation}{\\htmlData{op=eq-me-1.op.kineticDiff}{\\htmlData{term=eq-me-1.t.k0}{\\htmlClass{am-role-input}{K_0}} - \\htmlData{term=eq-me-1.t.k1}{\\htmlClass{am-role-input}{K_1}}} = \\htmlData{op=eq-me-1.op.rightProd}{\\htmlData{term=eq-me-1.t.l}{\\htmlClass{am-role-input}{E_{\\text{emit}}}}\\,\\htmlData{op=eq-me-1.op.bracket}{\\left(\\frac{1}{\\htmlData{op=eq-me-1.op.radicand}{\\sqrt{1 - \\left(\\left(\\frac{\\htmlData{term=eq-me-1.t.v}{\\htmlClass{am-role-input}{v}}}{\\htmlData{term=eq-me-1.t.vUpper}{\\htmlClass{am-role-input}{c}}}\\right)\\right)^{2}}}} - 1\\right)}}}"
     },
     "13.eq-bm-s2-1.printed.plain": {
-      "latex": "2\\,\\frac{1}{2}\\left(\\kappa\\right)\\,N = R"
+      "latex": "2\\,\\frac{1}{2}\\left(\\varkappa\\right)\\,N = R"
     },
     "13.eq-bm-s2-1.printed.colorized": {
-      "latex": "2\\,\\htmlData{term=eq-bm-s2-1.t.kappa}{\\htmlClass{am-role-input}{\\frac{1}{2}\\left(\\kappa\\right)}}\\,\\htmlData{term=eq-bm-s2-1.t.n}{\\htmlClass{am-role-input}{N}} = \\htmlData{term=eq-bm-s2-1.t.r}{\\htmlClass{am-role-input}{R}}"
+      "latex": "2\\,\\htmlData{term=eq-bm-s2-1.t.kappa}{\\htmlClass{am-role-input}{\\frac{1}{2}\\left(\\varkappa\\right)}}\\,\\htmlData{term=eq-bm-s2-1.t.n}{\\htmlClass{am-role-input}{N}} = \\htmlData{term=eq-bm-s2-1.t.r}{\\htmlClass{am-role-input}{R}}"
     },
     "13.eq-bm-s2-1.modern.plain": {
       "latex": "2\\,\\frac{1}{2}\\left(\\tfrac{1}{2}k_B\\right)\\,N_A = R"

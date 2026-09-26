@@ -201,7 +201,7 @@ describe("printedForm", () => {
       expect(all.filter((e) => letterIn(e.glyph.latex)).length).toBeGreaterThan(0);
       // A product of a number and a letter, bound to Boltzmann's constant, is not a value.
       const twoKappa = bm.find((e) => e.id === "bm.2kappa.groupBoltzmann") as ConcordanceEntry;
-      expect(twoKappa.glyph.latex).toBe("2\\kappa");
+      expect(twoKappa.glyph.latex).toBe("2\\varkappa");
       expect(printsValue(twoKappa)).toBe(false);
     });
 
