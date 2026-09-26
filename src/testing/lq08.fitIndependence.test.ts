@@ -2,10 +2,11 @@ import { describe, expect, it } from "bun:test";
 import type { DatasetPlotVerdict } from "../content/datasets/plotVerdict.ts";
 import {
   evaluateMillikanOverlay,
-  fitStoppingPoints,
+  fitInterceptPoints,
   getOwnerTheoreticalLine,
-  type MeasuredStoppingPoint,
+  type MeasuredInterceptPoint,
   type MillikanOverlayResult,
+  type MillikanSlopeFit,
 } from "../experiments/lq08/millikan.ts";
 import { stoppingLine } from "../physics/reference/photoelectric.ts";
 
@@ -26,10 +27,13 @@ const CONSTRUCTED: DatasetPlotVerdict = Object.freeze({
     [9.0e14, 1.95],
   ].map(([x, y], rowIndex) => Object.freeze({ rowIndex, x: x as number, y: y as number })),
 });
-const CONSTRUCTED_POINTS: readonly MeasuredStoppingPoint[] =
+const CONSTRUCTED_POINTS: readonly MeasuredInterceptPoint[] =
   CONSTRUCTED.kind === "plottable"
-    ? CONSTRUCTED.points.map((p) => ({ frequencyHz: p.x, stoppingPotentialVolts: p.y }))
+    ? CONSTRUCTED.points.map((p) => ({ frequencyHz: p.x, interceptVolts: p.y, usedForSlope: true }))
     : [];
+/** Every constructed row fixes the slope; no slope is printed for constructed rows. */
+const ALL_ROWS: MillikanSlopeFit = { rowsUsed: [0, 1, 2, 3, 4], printedSlopes: [] };
+const LABEL = "later evidence, published 1916";
 
 function plotted(result: MillikanOverlayResult) {
   if (result.kind !== "plottable") throw new TypeError(`overlay withheld: ${result.reason}`);
@@ -52,7 +56,7 @@ describe("LQ-08 Millikan Fit Independence & Epistemic Separation (am-lq-08-photo
     expect(theoreticalLine.slope).toBe(refStoppingLine.slope);
     expect(Object.is(theoreticalLine.slope, refStoppingLine.slope)).toBe(true);
 
-    const overlay = plotted(evaluateMillikanOverlay(CONSTRUCTED, workFunctionEv));
+    const overlay = plotted(evaluateMillikanOverlay(CONSTRUCTED, ALL_ROWS, LABEL));
     expect(overlay.modelLineSource).toBe("owner");
     expect(overlay.modelLineSlopeVs).toBe(theoreticalLine.slope);
     expect(overlay.modelLineSlopeVs).toBe(refStoppingLine.slope);
@@ -63,16 +67,16 @@ describe("LQ-08 Millikan Fit Independence & Epistemic Separation (am-lq-08-photo
   });
 
   it("shifting experimental dataset by 20% changes fitted slope while leaving model line slope invariant", () => {
-    const baselineFit = fitStoppingPoints(CONSTRUCTED_POINTS);
+    const baselineFit = fitInterceptPoints(CONSTRUCTED_POINTS);
     const baselineTheory = getOwnerTheoreticalLine(2.2);
 
-    // Shift dataset stopping potentials by +20%
-    const shiftedPoints: readonly MeasuredStoppingPoint[] = CONSTRUCTED_POINTS.map((p) => ({
+    // Shift dataset potentials by +20%
+    const shiftedPoints: readonly MeasuredInterceptPoint[] = CONSTRUCTED_POINTS.map((p) => ({
       ...p,
-      stoppingPotentialVolts: p.stoppingPotentialVolts * 1.2,
+      interceptVolts: p.interceptVolts * 1.2,
     }));
 
-    const shiftedFit = fitStoppingPoints(shiftedPoints);
+    const shiftedFit = fitInterceptPoints(shiftedPoints);
 
     // Fitted slope must change by ~20%
     expect(shiftedFit.slope).toBeCloseTo(baselineFit.slope * 1.2, 5);
@@ -107,7 +111,7 @@ describe("LQ-08 Millikan Fit Independence & Epistemic Separation (am-lq-08-photo
       }
     }
 
-    const validOverlay = plotted(evaluateMillikanOverlay(CONSTRUCTED, 2.2));
+    const validOverlay = plotted(evaluateMillikanOverlay(CONSTRUCTED, ALL_ROWS, LABEL));
     expect(() => assertModelLineIndependence(validOverlay)).not.toThrow();
 
     // Sourcing from fit must throw
@@ -130,11 +134,11 @@ describe("LQ-08 Millikan Fit Independence & Epistemic Separation (am-lq-08-photo
   });
 
   it("the overlay carries the verdict's citation and points in row order, with a standard error", () => {
-    const overlay = plotted(evaluateMillikanOverlay(CONSTRUCTED, 2.2));
+    const overlay = plotted(evaluateMillikanOverlay(CONSTRUCTED, ALL_ROWS, LABEL));
     expect(overlay.citation).toBe("Constructed for this test");
     expect(overlay.points).toEqual(CONSTRUCTED_POINTS);
     expect(overlay.fittedSlopeStdErr).toBeGreaterThan(0);
-    const fit = fitStoppingPoints(CONSTRUCTED_POINTS);
+    const fit = fitInterceptPoints(CONSTRUCTED_POINTS);
     expect(fit.sampleCount).toBe(CONSTRUCTED_POINTS.length);
     expect(overlay.fittedSlopeVs).toBe(fit.slope);
   });

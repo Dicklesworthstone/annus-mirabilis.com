@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { renderToStaticMarkup } from "react-dom/server";
+import { MillikanFigure6Panel } from "../../components/lab/lq08/MillikanFigure6Panel.tsx";
 import { StoppingPotentialPlot } from "../../components/lab/lq08/PhotoelectricPlot.tsx";
 import { datasetPlotVerdict } from "../../content/datasets/plotVerdict.ts";
 import {
@@ -10,7 +11,7 @@ import {
   validateHistoricalDataset,
 } from "../../content/schemas/experiment.ts";
 import { strictParse } from "../../content/schemas/strictParse.ts";
-import { evaluateMillikanOverlay, STOPPING_LINE_AXES } from "../../experiments/lq08/millikan.ts";
+import { evaluateMillikanOverlay, type MillikanSlopeFit } from "../../experiments/lq08/millikan.ts";
 import { projectReception } from "../../reader/faces/results/resultsProjection.ts";
 import { createLinearProjector } from "../../visuals/kit/coordinates.ts";
 import { DatasetEvidenceReveal } from "../../visuals/overlays/DatasetEvidenceReveal.tsx";
@@ -89,19 +90,34 @@ const STANDING = record("historical-measurement");
 const WITHDRAWN = record("withdrawn");
 const VOLTAGE_TOKENS = ROWS.map((r) => r[3]);
 
-const verdictOf = (dataset: HistoricalDataset) =>
-  datasetPlotVerdict(dataset, STOPPING_LINE_AXES.x, STOPPING_LINE_AXES.y, "Constructed citation");
+/** The fixture's own columns: frequency and a potential, read as the verdict reads any record. */
+const AXES = {
+  x: { quantityId: "frequency", unit: "Hz" },
+  y: { quantityId: "stoppingPotentialMagnitude", unit: "V" },
+} as const;
+const ALL_ROWS: MillikanSlopeFit = { rowsUsed: [0, 1, 2, 3], printedSlopes: [] };
+const LABEL = "later evidence, published 1916";
 
-const plotOf = (dataset: HistoricalDataset) =>
-  renderToStaticMarkup(
-    <StoppingPotentialPlot
-      currentFrequency={6e14}
-      currentWorkFunction={2}
-      currentStoppingPotential={0.48}
-      millikanOverlay={true}
-      millikanData={evaluateMillikanOverlay(verdictOf(dataset))}
-    />,
+const verdictOf = (dataset: HistoricalDataset) =>
+  datasetPlotVerdict(dataset, AXES.x, AXES.y, "Constructed citation");
+const overlayOf = (dataset: HistoricalDataset) =>
+  evaluateMillikanOverlay(verdictOf(dataset), ALL_ROWS, LABEL);
+
+/** What LQ-08 draws for a record: the model's stopping plot, and the panel when there are points. */
+const plotOf = (dataset: HistoricalDataset) => {
+  const overlay = overlayOf(dataset);
+  return renderToStaticMarkup(
+    <>
+      <StoppingPotentialPlot
+        currentFrequency={6e14}
+        currentWorkFunction={2}
+        currentStoppingPotential={0.48}
+        millikanData={overlay}
+      />
+      {overlay.kind === "plottable" && <MillikanFigure6Panel data={overlay} />}
+    </>,
   );
+};
 
 describe("a withdrawn dataset is never shown", () => {
   test("the verdict for a withdrawn record carries its reason and none of its values", () => {
@@ -116,26 +132,26 @@ describe("a withdrawn dataset is never shown", () => {
     expect(withdrawn.reason).toBe(WITHDRAWAL.reason);
     expect(withdrawn.citation).toBe("Constructed citation");
     // What a server page hands a client component: no row survives serialization.
-    const serialized = JSON.stringify(evaluateMillikanOverlay(withdrawn));
+    const serialized = JSON.stringify(evaluateMillikanOverlay(withdrawn, ALL_ROWS, LABEL));
     for (const [nu, , v] of ROWS) {
       expect(serialized).not.toContain(String(nu));
       expect(serialized).not.toContain(String(v));
     }
   });
 
-  test("the stopping-potential plot draws a standing record's points and none of a withdrawn one", () => {
+  test("LQ-08 draws a standing record's points in its panel and none of a withdrawn one", () => {
     const standing = plotOf(STANDING);
-    expect(standing).toContain('data-testid="millikan-dataset"');
-    expect(standing.match(/<circle[^>]*r="4"/g)?.length).toBe(ROWS.length);
+    expect(standing).toContain('data-testid="millikan-fig6-panel"');
+    expect(standing.match(/<circle[^>]*data-intercept-volts=/g)?.length).toBe(ROWS.length);
 
     const withdrawn = plotOf(WITHDRAWN);
-    expect(withdrawn).not.toContain('data-testid="millikan-dataset"');
-    expect(withdrawn.match(/<circle[^>]*r="4"/g)).toBeNull();
+    expect(withdrawn).not.toContain('data-testid="millikan-fig6-panel"');
+    expect(withdrawn.match(/<circle[^>]*data-intercept-volts=/g)).toBeNull();
     expect(withdrawn).toContain('data-testid="millikan-withheld"');
     expect(withdrawn).toContain("not shown yet");
     expect(withdrawn).toContain(WITHDRAWAL.reason);
     expect(withdrawn).toContain("Constructed citation");
-    expect(withdrawn).not.toContain("Slope fitted to them");
+    expect(withdrawn).not.toContain("fitted here to his points");
   });
 
   test("the generic overlay, table and evidence reveal show a note in place of a withdrawn record", () => {
@@ -179,21 +195,21 @@ describe("a withdrawn dataset is never shown", () => {
   test("a standing record with fewer than three usable rows is withheld, since no line fits", () => {
     const two = datasetPlotVerdict(
       { ...STANDING, rows: STANDING.rows.slice(0, 2) },
-      STOPPING_LINE_AXES.x,
-      STOPPING_LINE_AXES.y,
+      AXES.x,
+      AXES.y,
       "Constructed citation",
     );
     expect(two.kind).toBe("plottable");
-    const overlay = evaluateMillikanOverlay(two);
+    const overlay = evaluateMillikanOverlay(two, ALL_ROWS, LABEL);
     expect(overlay.kind).toBe("withheld");
-    if (overlay.kind === "withheld") expect(overlay.reason).toContain("Only 2 of its rows");
+    if (overlay.kind === "withheld") expect(overlay.reason).toContain("Only 2 of the points");
   });
 
   test("a record without the columns a plot reads is withheld, not drawn from the wrong ones", () => {
     const verdict = datasetPlotVerdict(
       STANDING,
       { quantityId: "wavelength", unit: "nm" },
-      STOPPING_LINE_AXES.y,
+      AXES.y,
       "Constructed citation",
     );
     expect(verdict.kind).toBe("withheld");

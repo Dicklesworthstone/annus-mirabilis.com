@@ -238,9 +238,10 @@ export type StoppingPlotProps = Readonly<{
   currentFrequency: number; // Hz
   currentWorkFunction: number; // eV
   currentStoppingPotential: number | null; // V
-  /** Whether the reader has the recorded points turned on. A withheld result is noted either way. */
-  millikanOverlay: boolean;
-  /** Built on the server from the record's plot verdict; only a "plottable" result draws points. */
+  /**
+   * Built on the server from the record's plot verdict. Only a withheld result is noted here; a
+   * plottable one is drawn on its own scale by MillikanFigure6Panel, never on this model's axis.
+   */
   millikanData?: MillikanOverlayResult | undefined;
   response?: PredictResponse;
 }>;
@@ -249,7 +250,6 @@ export function StoppingPotentialPlot({
   currentFrequency,
   currentWorkFunction,
   currentStoppingPotential,
-  millikanOverlay,
   millikanData,
   response,
 }: StoppingPlotProps) {
@@ -442,28 +442,6 @@ export function StoppingPotentialPlot({
           </g>
         )}
 
-        {/* Millikan 1916 Data Points Overlay */}
-        {millikanOverlay && millikanData?.kind === "plottable" && (
-          <g data-testid="millikan-dataset" {...response}>
-            {millikanData.points.map((pt) => {
-              const cx = scaleX(pt.frequencyHz);
-              const cy = scaleY(pt.stoppingPotentialVolts);
-              return (
-                <g key={pt.frequencyHz}>
-                  <circle
-                    cx={cx}
-                    cy={cy}
-                    r="4"
-                    fill="var(--accent)"
-                    stroke="var(--panel)"
-                    strokeWidth="1"
-                  />
-                </g>
-              );
-            })}
-          </g>
-        )}
-
         {/* Current Operating Point */}
         {currentStoppingPotential !== null &&
           currentFrequency >= minNu &&
@@ -490,25 +468,6 @@ export function StoppingPotentialPlot({
           </p>
           <p className="fine" style={{ margin: 0 }}>
             {millikanData.citation}
-          </p>
-        </div>
-      )}
-      {millikanOverlay && millikanData?.kind === "plottable" && (
-        <div {...response} style={MEASURED_NOTE_STYLE}>
-          <p style={{ fontWeight: 600, margin: "0 0 0.25rem" }}>
-            Millikan’s 1916 sodium measurements, later evidence
-          </p>
-          <p
-            className="fine"
-            style={{
-              margin: 0,
-              fontFamily: "var(--font-mono, monospace)",
-              fontSize: "var(--type-fine)",
-            }}
-          >
-            Slope fitted to them: <Sci value={millikanData.fittedSlopeVs} digits={4} /> V&middot;s
-            &plusmn; <Sci value={millikanData.fittedSlopeStdErr} digits={2} />; the model&apos;s
-            h/e: <Sci value={millikanData.modelLineSlopeVs} digits={4} /> V&middot;s
           </p>
         </div>
       )}

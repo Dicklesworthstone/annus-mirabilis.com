@@ -29,6 +29,7 @@ import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
+import { MillikanFigure6Panel } from "./MillikanFigure6Panel.tsx";
 import {
   CurrentVoltagePlot,
   EnergyLadderPlot,
@@ -378,7 +379,7 @@ export function PhotoelectricLab({
                   checked={showMillikan}
                   onChange={(e) => setShowMillikan(e.target.checked)}
                 />
-                Show Millikan’s 1916 sodium measurements on the stopping-potential plot
+                Show Millikan’s 1916 sodium measurements beside the stopping-potential plot
               </label>
             )}
           </ExperimentSettings>
@@ -410,10 +411,12 @@ export function PhotoelectricLab({
               currentFrequency={params.frequency}
               currentWorkFunction={params.workFunction}
               currentStoppingPotential={vsVal}
-              millikanOverlay={showMillikan}
               millikanData={millikan}
               response={gate.response}
             />
+            {millikan?.kind === "plottable" && showMillikan && (
+              <MillikanFigure6Panel data={millikan} />
+            )}
             <CurrentVoltagePlot
               collectorPotential={params.collectorPotential}
               stoppingPotential={vsVal}
