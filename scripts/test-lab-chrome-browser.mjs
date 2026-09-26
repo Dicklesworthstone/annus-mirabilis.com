@@ -97,15 +97,15 @@ function measure() {
   };
   const pageTop = (el) => el.getBoundingClientRect().top + window.scrollY;
   const instrument = document.querySelector("[data-instrument-id]");
+  // The highest candidate on the page, not the first in document order: in a two-column lab the
+  // plot in the right column can sit above the prediction in the left one (LQ-08: 765 against 917).
   let first = null;
   if (instrument) {
     for (const el of instrument.querySelectorAll("svg, canvas, table, fieldset")) {
       if (el.closest("details:not([open]), [hidden]")) continue;
       const r = el.getBoundingClientRect();
-      if (r.width >= 120 && r.height >= 60 && visible(el)) {
-        first = el;
-        break;
-      }
+      if (r.width < 120 || r.height < 60 || !visible(el)) continue;
+      if (first === null || r.top < first.getBoundingClientRect().top) first = el;
     }
   }
   const top = first ? Math.round(pageTop(first)) : null;
