@@ -65,6 +65,8 @@ export type UsedByEntry = Readonly<{
   date?: string | undefined;
   citation?: SourceRef | undefined;
   relatedResultId?: string | undefined;
+  /** Where the use is, on another paper's page: a card of its results face (dispatch 253). */
+  href?: string | undefined;
 }>;
 
 /**

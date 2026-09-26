@@ -6,6 +6,7 @@
  * preset label from the laboratory's manifest. Nothing here is authored a second time, and a card
  * with a problem fails the page rather than rendering half-resolved.
  */
+import { type Connection, loadConnections } from "../../../content/connections/connections.ts";
 import { printedCheckFor, ResultCardsError } from "../../../content/results/printedChecks.ts";
 import { loadResultCards, type ResultCardRecord } from "../../../content/results/resultCards.ts";
 import { loadPaper } from "../../../content/server.ts";
@@ -44,6 +45,8 @@ export function toCard(
   passages: ReadonlyMap<string, Readonly<{ limitations: readonly string[] }>>,
   /** Each misconception's first tempting claim, from the paper's ledger (loadPaperMargins). */
   claims?: ReadonlyMap<string, string>,
+  /** The connections among the papers, for the card's later uses (dispatch 253). */
+  connections?: readonly Connection[],
 ): ResultCard {
   const printedCheck = record.printedCheck ? projectedCheck(root, record.printedCheck) : null;
   return {
@@ -82,9 +85,21 @@ export function toCard(
           })),
         }
       : {}),
-    // Margin records are cited by id once their registry exists; resultCards.ts refuses any
-    // id until then, so there is nothing to project yet.
-    usedBy: [],
+    // A later use, from the connection that records it (resultCards.ts has checked that its use
+    // starts at this card): its words, and a link to the card in the later paper that uses it.
+    // Margin records are cited by id once their registry exists; none can be listed until then.
+    // Without the connections record there is no recorded use to project.
+    usedBy: (connections ? record.usedLater : []).flatMap((id) => {
+      const use = connections?.find((k) => k.id === id)?.uses;
+      return use
+        ? [
+            {
+              text: use.text,
+              href: `/papers/${use.to.paper}/view/results/#result-${use.to.result}`,
+            },
+          ]
+        : [];
+    }),
     meanings: record.meanings,
     sources: record.printed.map((p) => ({ paper: record.paper, anchor: p.anchor })),
     selectionReason: record.selectionReason,
@@ -116,5 +131,6 @@ export async function resultCardsFor(
   const claims = new Map(
     loadPaperMargins(paperId, root).misconceptions.map((m) => [m.id, m.temptingClaims[0] ?? m.id]),
   );
-  return loaded.cards.map((record) => toCard(root, record, passages, claims));
+  const connections = loadConnections(root);
+  return loaded.cards.map((record) => toCard(root, record, passages, claims, connections));
 }
