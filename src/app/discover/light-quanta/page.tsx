@@ -290,11 +290,12 @@ export default function LightQuantaRoute() {
             way. That is an invitation to test, and the last step takes it.
           </p>
           <p>
-            One thing is borrowed, and it needs stating exactly. Planck had already let his
-            resonators exchange energy in finite elements, and his constants are used here. That is
-            a statement about the material oscillators trading energy with the field. It is not the
-            statement that free radiation is itself made of independent quanta, which is what this
-            step arrives at, and the two should not be run together.
+            One thing is borrowed, and it needs stating exactly. To count the ways a total energy
+            could be distributed among his resonators, Planck had already treated that energy as a
+            whole number of finite, equal elements, and his constants are used here. That is a way
+            of counting the energy of material oscillators. It is not the statement that free
+            radiation is itself made of independent quanta, which is what this step arrives at, and
+            the two should not be run together.
           </p>
         </details>
         <StepDoors>
