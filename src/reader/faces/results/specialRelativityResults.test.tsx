@@ -49,7 +49,11 @@ describe("relativity's results face, static", () => {
       for (const p of r.printed) {
         if (!card.includes(`data-printed-anchor="${p.anchor}"`))
           wrong.push(`${r.id}: ${p.anchor} not quoted`);
-        if (!card.includes(`href="/papers/${PAPER}/view/german/#${p.anchor}"`))
+        // The paragraph, or the one sentence of it the card quotes: quotationAnchors.test.tsx says
+        // which (dispatch 255).
+        if (
+          !new RegExp(`href="/papers/${PAPER}/view/german/#${p.anchor}(-s\\d+[a-z]?)?"`).test(card)
+        )
           wrong.push(`${r.id}: no link to ${p.anchor}`);
         if (!german.includes(`id="${p.anchor}"`))
           wrong.push(`${r.id}: the German face has no ${p.anchor}`);

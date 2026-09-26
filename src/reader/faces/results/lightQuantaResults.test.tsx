@@ -134,8 +134,12 @@ describe("light quanta's results face, as its route renders it", () => {
     for (const c of cards) {
       const card = cardHtml(c.id);
       if (!card.includes('<blockquote lang="de">')) wrong.push(`${c.id}: no German quotation`);
+      // The paragraph, or the one sentence of it the card quotes: quotationAnchors.test.tsx says
+      // which (dispatch 255).
       for (const p of c.printed)
-        if (!card.includes(`href="/papers/${PAPER}/view/german/#${p.anchor}"`))
+        if (
+          !new RegExp(`href="/papers/${PAPER}/view/german/#${p.anchor}(-s\\d+[a-z]?)?"`).test(card)
+        )
           wrong.push(`${c.id}: no link to ${p.anchor}`);
     }
     expect(wrong).toEqual([]);
