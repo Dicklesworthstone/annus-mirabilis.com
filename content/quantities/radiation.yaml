@@ -260,6 +260,17 @@
   frame: not-applicable
   colorRole: field
 
+- id: photoelectricInterceptPotential
+  name: Photoelectric intercept potential
+  description: The potential applied to an illuminated surface at which its photocurrent-potential curve meets the potential axis, signed and uncorrected for the contact E.M.F. between surface and collector, as Millikan's 1916 Fig. 6 plots it against frequency; not the stoppingPotentialMagnitude, which it equals only after that correction.
+  dimensionStatus: declared
+  dimension: [2, 1, -3, 0, -1, 0]
+  gaussianDimension: [1/2, 1/2, -1, 0, 0, 0]
+  emuDimension: [3/2, 1/2, -2, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: field
+
 - id: thresholdFrequency
   name: Threshold frequency
   description: The minimum frequency at which the photoelectric effect occurs for a given metal.
