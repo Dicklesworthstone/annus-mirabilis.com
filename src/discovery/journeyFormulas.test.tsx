@@ -42,6 +42,16 @@ describe("the bindings a naive reading gets wrong", () => {
     ]);
   });
 
+  test("Brownian's ⟨x²⟩ = 2Dt reads t as the laboratory on the same page does", () => {
+    // The embedded BM-01 explorer colours the t of λ_x = √(2Dt) as the observation interval; the
+    // journey's own formula, a few lines above it, read § 4's t as the field's time coordinate,
+    // so one letter took two colours on one page.
+    const scope = journeyScope("brownian-motion", "s4", "step-04");
+    const bound = terms("\\langle x^2\\rangle=2Dt \\qquad \\lambda_x=\\sqrt{2Dt}", scope);
+    expect(bound).toContain("t=observationInterval");
+    expect(bound).not.toContain("t=fieldTimeCoordinate");
+  });
+
   test("a page's reading reaches no other page: the journey reads § 3's a as printed", () => {
     const journey = journeyContext("special-relativity", "discover-special-relativity");
     const resolved = resolveInlineTerms(
