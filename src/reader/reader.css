@@ -2775,10 +2775,24 @@ html:is(
   text-underline-offset: 0.2em;
   cursor: help;
 }
+/* A misprint (MisprintAnnotation.tsx, dispatch 262) is the 1905 compositor's error, not a word the
+   edition glosses, and it had the period word's dotted underline in the text's own ink, so a reader
+   could not tell the two notes apart: measured on live b16bc66b, all 8 misprints and 30 period
+   words of the four German faces drew the same underline. A misprint's is a thin wavy line in the
+   muted ink, and stays wavy while hovered or open (dispatch 267). */
+[data-misprint] > .term-annotation {
+  text-decoration: underline wavy var(--muted);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
 .term-annotation:is(:hover, [aria-expanded="true"]):not(:disabled) {
   background: none;
   color: inherit;
   text-decoration-style: solid;
+}
+[data-misprint] > .term-annotation:is(:hover, [aria-expanded="true"]):not(:disabled) {
+  text-decoration-style: wavy;
+  text-decoration-color: currentColor;
 }
 
 .term-annotation-wrapper {
