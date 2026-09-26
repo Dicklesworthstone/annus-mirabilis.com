@@ -1,0 +1,32 @@
+# light-quanta eq-s1-d3: what the display says, at every level (dispatch 279).
+# Written from the German of s1-fn3, the page's footnote 2) (p. 135) and its plate; the steps were checked by hand.
+display: eq-s1-d3
+paper: light-quanta
+inWords:
+  - text: "The Z-component of the electric force at one point"
+    quantityId: radiationElectricField
+  - text: " is a sum, over "
+  - text: "the frequency numbers ν = 1, 2, 3 and so on"
+    quantityId: frequency
+  - text: ", of "
+  - text: "an amplitude"
+    quantityId: fourierAmplitude
+  - text: " times the sine of two π ν times "
+  - text: "the time"
+    quantityId: elapsedTime
+  - text: " divided by "
+  - text: "the long interval of the expansion"
+    quantityId: longAveragingInterval
+  - text: ", plus "
+  - text: "a phase"
+    quantityId: fourierPhase
+  - text: "."
+r0: "The footnote's first step in defining radiation as disordered as possible: over a long time, one component of the electric force at a point is written as a Fourier series, a sum of sine waves, each with its own amplitude and phase."
+r1: "Planck's relation assumes radiation 'as disordered as possible', and this footnote says what that means. Take the $Z$-component of the electric force at an arbitrary point of the space and expand it, between the times $t = 0$ and $t = T$, in a Fourier series. $T$ is a time very long compared with every period of oscillation that matters. Each term is a sine wave that runs through $\\nu$ whole periods in the time $T$, so its frequency is $\\nu$ divided by $T$. Its amplitude $A_\\nu$ is never negative, and its phase $\\alpha_\\nu$ lies between $0$ and $2 \\pi$. The series is only the description; the footnote's condition comes in the next two displays, about how the amplitudes and phases are distributed when the expansion is repeated."
+r2:
+  - latex: "A_\\nu \\sin\\left(2 \\pi \\nu \\frac{t}{T} + \\alpha_\\nu\\right)"
+    why: "One term of the series: a sine wave of amplitude $A_\\nu$ and phase $\\alpha_\\nu$. As $t$ runs from $0$ to $T$, the angle $2 \\pi \\nu \\frac{t}{T}$ runs from $0$ to $2 \\pi \\nu$, so the wave completes $\\nu$ whole periods in the interval."
+  - latex: "A_\\nu \\geqq 0, \\quad 0 \\leqq \\alpha_\\nu \\leqq 2 \\pi"
+    why: "The ranges the paper sets. A negative amplitude would be the same wave as a positive one with its phase turned by $\\pi$, so the amplitudes can be taken non-negative and the phases over one full turn."
+  - latex: "Z = \\sum_{\\nu = 1}^{\\nu = \\infty} A_\\nu \\sin\\left(2 \\pi \\nu \\frac{t}{T} + \\alpha_\\nu\\right)"
+    why: "Adding the terms for $\\nu = 1$, $2$, $3$ and so on without end gives the field at that point over the whole interval, as the paper writes it."

@@ -1,0 +1,33 @@
+# light-quanta eq-s1-d7: what the display says, at every level (dispatch 279).
+# Written from the German of s1-p5 (p. 136) and its plate; the steps were checked by hand.
+display: eq-s1-d7
+paper: light-quanta
+inWords:
+  - text: "The radiation's energy per unit volume and unit frequency"
+    quantityId: frequencyEnergyDensity
+  - text: " equals "
+  - text: "the gas constant"
+    quantityId: molarGasConstant
+  - text: " over "
+  - text: "the number of molecules in a gram-equivalent"
+    quantityId: avogadroConstant
+  - text: ", times eight π times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: " squared over "
+  - text: "the speed of light"
+    quantityId: speedOfLight
+  - text: " cubed, times "
+  - text: "the temperature"
+    quantityId: temperature
+  - text: "."
+r0: "The equilibrium condition fixes the radiation's density: it grows as the square of the frequency and in proportion to the temperature. Einstein says at once that this disagrees with experience."
+r1: "Solve the chain of equalities for the density and $\\varrho_\\nu$ grows with the square of the frequency and in proportion to the absolute temperature, with nothing to check the growth at high frequencies. Doubling the frequency multiplies the density by four; doubling the temperature doubles it. The paper says of this relation, found as the condition of dynamic equilibrium, that it 'not only lacks agreement with experience' but also means there can be no definite distribution of energy between ether and matter, which the next display shows."
+r2:
+  - latex: "\\frac{R}{N} T = \\frac{L^3}{8 \\pi \\nu^2} \\varrho_\\nu"
+    why: "Keep the two ends of the chain of equalities: the gas's side and the radiation's side."
+  - latex: "\\frac{8 \\pi \\nu^2}{L^3} \\cdot \\frac{R}{N} T = \\varrho_\\nu"
+    why: "Multiply both sides by $\\frac{8 \\pi \\nu^2}{L^3}$, which cancels the factor standing before $\\varrho_\\nu$."
+  - latex: "\\varrho_\\nu = \\frac{R}{N} \\frac{8 \\pi \\nu^2}{L^3} T"
+    why: "Turn the equation round and order the factors as the paper does: the printed line."
+r3: "Einstein gives the relation no name. Rayleigh had given a density growing as the square of the frequency times the temperature for long waves in June 1900 (Philosophical Magazine (5) 49, 539-540), and Jeans corrected its coefficient in July 1905 (Philosophical Magazine (6) 10, 91-98), after this paper was received."

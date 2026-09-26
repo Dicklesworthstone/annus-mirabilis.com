@@ -1,0 +1,26 @@
+# light-quanta eq-s1-d1: what the display says, at every level (dispatch 279).
+# Written from the German of s1-p3 (p. 134) and its plate; the steps were checked by hand.
+display: eq-s1-d1
+paper: light-quanta
+inWords:
+  - text: "The mean energy of one straight-line vibration of a resonator"
+    quantityId: meanResonatorEnergy
+  - text: " equals "
+  - text: "the absolute gas constant"
+    quantityId: molarGasConstant
+  - text: " divided by "
+  - text: "the number of real molecules in a gram-equivalent"
+    quantityId: avogadroConstant
+  - text: ", times "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: "."
+r0: "Collisions with the gas require each straight-line vibration of a resonator to have, on average, an energy proportional to the absolute temperature and the same at every frequency. It is two thirds of the mean kinetic energy of a free monatomic gas molecule."
+r1: "Section 1 sets the radiation aside for the moment and asks what the collisions between the resonators and the gas require for dynamic equilibrium. Kinetic gas theory, the paper says, requires the mean vis viva (kinetic energy) of a resonator's electron to equal the mean kinetic energy of a gas molecule's motion of translation. Split the electron's motion into three mutually perpendicular straight-line vibrations. Along one line kinetic and potential energy have equal time averages, so the mean energy $\\overline{E}$ of one such vibration is $2/3$ of the vis viva of a free monatomic gas molecule, which is $\\frac{R}{N} T$. Here $R$ is the absolute gas constant, $N$ the number of 'real molecules' in a gram-equivalent and $T$ the absolute temperature. If radiation made a resonator's mean energy larger or smaller than $\\overline{E}$, the collisions would on average pass energy to the gas or take it from the gas, so equilibrium needs every resonator to have exactly $\\overline{E}$. It grows in proportion to the temperature and does not depend on the resonator's frequency."
+r2:
+  - latex: "\\frac{3}{2} \\frac{R}{N} T"
+    why: "Kinetic gas theory, which the paper invokes, gives a gas molecule's mean kinetic energy of translation as three halves of $\\frac{R}{N} T$. The paper does not print this value; it states only that the resonator electron's mean kinetic energy must equal the molecule's."
+  - latex: "\\frac{1}{3} \\cdot \\frac{3}{2} \\frac{R}{N} T = \\frac{1}{2} \\frac{R}{N} T"
+    why: "The paper splits the electron's motion into three mutually perpendicular straight-line vibrations. They share the kinetic energy equally, so each vibration has a third of it."
+  - latex: "\\overline{E} = 2 \\cdot \\frac{1}{2} \\frac{R}{N} T = \\frac{R}{N} T"
+    why: "A vibration also stores potential energy, and its time average equals that of the kinetic energy, so one vibration's mean energy is twice its mean kinetic energy. This is the paper's '2/3 of the vis viva of a free monatomic molecule': $\\frac{2}{3} \\cdot \\frac{3}{2} \\frac{R}{N} T = \\frac{R}{N} T$."

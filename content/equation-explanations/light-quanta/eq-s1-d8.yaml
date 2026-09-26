@@ -1,0 +1,37 @@
+# light-quanta eq-s1-d8: what the display says, at every level (dispatch 279).
+# Written from the German of s1-p5 (p. 136) and its plate; the steps were checked by hand.
+display: eq-s1-d8
+paper: light-quanta
+inWords:
+  - text: "The radiation's energy per unit volume and unit frequency"
+    quantityId: frequencyEnergyDensity
+  - text: ", added up over every "
+  - text: "frequency"
+    quantityId: frequency
+  - text: " from zero upward, equals "
+  - text: "the gas constant"
+    quantityId: molarGasConstant
+  - text: " over "
+  - text: "the number of molecules in a gram-equivalent"
+    quantityId: avogadroConstant
+  - text: ", times eight π over "
+  - text: "the speed of light"
+    quantityId: speedOfLight
+  - text: " cubed, times "
+  - text: "the temperature"
+    quantityId: temperature
+  - text: ", times the frequency squared added up over every frequency; and that is infinite."
+r0: "Add up the density over all frequencies and the radiation's total energy comes out infinite: the wider the range of resonator frequencies, the more energy the space holds, without limit. On this picture ether and matter can never settle into a definite share of the energy."
+r1: "This is the paper's second objection to the equilibrium density. The radiation's energy per unit volume is the density $\\varrho_\\nu$ added up over all frequencies. With the density of the preceding line, everything except $\\nu^2$ is the same at every frequency and comes out in front, leaving $\\int_0^\\infty \\nu^2 d \\nu$. Up to any highest frequency that integral is a third of the highest frequency cubed, so it grows without bound as the range widens: allowing frequencies ten times higher multiplies the energy a thousandfold. Over all frequencies the total is infinite. The paper concludes that in this picture 'there can be no question of a definite distribution of energy between ether and matter'."
+r2:
+  - latex: "\\int_0^\\infty \\varrho_\\nu d \\nu"
+    why: "$\\varrho_\\nu d \\nu$ is the energy per unit volume between $\\nu$ and $\\nu + d \\nu$. Adding these pieces over every frequency gives the radiation's whole energy per unit volume."
+  - latex: "\\int_0^\\infty \\frac{R}{N} \\frac{8 \\pi \\nu^2}{L^3} T d \\nu"
+    why: "Put in the density that the equilibrium condition gave (the preceding display)."
+  - latex: "\\frac{R}{N} \\frac{8 \\pi}{L^3} T \\int_0^\\infty \\nu^2 d \\nu"
+    why: "$R$, $N$, $L$ and $T$ are the same at every frequency, so they come out of the integral; only $\\nu^2$ stays inside."
+  - latex: "\\frac{1}{3} \\nu^3"
+    why: "Up to a highest frequency $\\nu$, the integral of the frequency squared is a third of $\\nu^3$, since $\\nu^3$ grows by $3 \\nu^2 d \\nu$ over each small range. It grows without limit as the highest frequency is raised."
+  - latex: "\\frac{R}{N} \\frac{8 \\pi}{L^3} T \\int_0^\\infty \\nu^2 d \\nu = \\infty"
+    why: "With no highest frequency the integral has no finite value, so neither has the energy: the printed conclusion."
+r3: "Einstein gives this divergence no name. The name it later carried in textbooks, the 'ultraviolet catastrophe', is Ehrenfest's, from 1911 (P. Ehrenfest, Annalen der Physik 36, 91-118). The paper's own words are that the relation lacks agreement with experience and allows no definite distribution of energy between ether and matter."

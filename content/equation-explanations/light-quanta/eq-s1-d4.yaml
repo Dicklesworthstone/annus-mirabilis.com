@@ -1,0 +1,23 @@
+# light-quanta eq-s1-d4: what the display says, at every level (dispatch 279).
+# Written from the German of s1-fn3, the page's footnote 2) (p. 135) and its plate; the steps were checked by hand.
+display: eq-s1-d4
+paper: light-quanta
+inWords:
+  - text: "The probability"
+    quantityId: fourierValueProbability
+  - text: " that a repeated expansion gives values within given small ranges equals a density of all "
+  - text: "the amplitudes"
+    quantityId: fourierAmplitude
+  - text: " and all "
+  - text: "the phases"
+    quantityId: fourierPhase
+  - text: ", times the product of the widths of all the ranges."
+r0: "Repeat the expansion from randomly chosen starting moments and the amplitudes and phases come out differently each time. The footnote gives each combination of values a statistical probability, a density times the product of small ranges."
+r1: "Imagine the expansion carried out at the same point again and again, each time from a starting moment chosen at random. The amplitudes $A_\\nu$ and phases $\\alpha_\\nu$ come out with different values each time, and the footnote supposes that there are statistical probabilities $d W$ for how often the various combinations of values occur. It writes them in the usual form for quantities that vary continuously: the probability of finding every amplitude $A_\\nu$ within its own small range $d A_\\nu$ and every phase $\\alpha_\\nu$ within its range $d \\alpha_\\nu$, all at once, is a function f of all the values times the product of all the small ranges. Nothing is yet assumed about the form of f; the next display states the condition on it."
+r2:
+  - latex: "A_\\nu, \\; \\alpha_\\nu \\quad (\\nu = 1, 2, 3 \\ldots)"
+    why: "Each repetition of the expansion yields one value for every amplitude and every phase. The paper lists them one by one, as A and α with the subscripts 1, 2 and so on."
+  - latex: "d A_\\nu, \\; d \\alpha_\\nu"
+    why: "Ask for the chance that every value falls within its own small range at once. For quantities that vary continuously, that chance is proportional to the product of the widths of all the ranges."
+  - latex: "d W = f \\prod_\\nu d A_\\nu \\, d \\alpha_\\nu"
+    why: "The factor of proportionality, f, depends on where all the values lie: it is the probability density. The paper writes the same product out term by term, and sets the arguments of f without commas."

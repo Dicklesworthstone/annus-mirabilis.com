@@ -1,0 +1,27 @@
+# light-quanta eq-s1-d2: what the display says, at every level (dispatch 279).
+# Written from the German of s1-p4 (p. 135) and its plate; the steps were checked by hand.
+display: eq-s1-d2
+paper: light-quanta
+inWords:
+  - text: "The mean energy of a resonator of natural frequency ν, per component of its vibration"
+    quantityId: meanResonatorEnergyAtFrequency
+  - text: " equals "
+  - text: "the speed of light"
+    quantityId: speedOfLight
+  - text: " cubed, divided by eight π times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: " squared, times "
+  - text: "the radiation's energy per unit volume and unit frequency at that frequency"
+    quantityId: frequencyEnergyDensity
+  - text: "."
+r0: "Planck's condition for a resonator in equilibrium with the radiation around it: the resonator's mean energy at its natural frequency is fixed by the radiation's energy density at that frequency. Einstein quotes it from Planck, who derived it for radiation as disordered as possible."
+r1: "Section 1 now makes the same kind of argument for the resonators and the radiation in the space. Planck had derived the condition of dynamic equilibrium for this case, assuming the radiation can be treated as 'the most disordered process conceivable', a phrase the footnote on this page defines. The paper quotes his result and does not derive it. $\\overline{E}_\\nu$ is the mean energy of a resonator of natural frequency $\\nu$, per component of its vibration; $L$ is the speed of light; and $\\varrho_\\nu d \\nu$ is the energy per unit volume of the part of the radiation whose frequency lies between $\\nu$ and $\\nu + d \\nu$. Read the other way round, the density at a frequency is $\\frac{8 \\pi \\nu^2}{L^3}$ times the resonator's mean energy there, so at a fixed density a resonator of twice the frequency holds a quarter of the energy."
+r2:
+  - latex: "\\overline{E}_\\nu = \\frac{L^3}{8 \\pi \\nu^2} \\varrho_\\nu"
+    why: "Planck's relation as the paper quotes it (M. Planck, Ann. d. Phys. 1, p. 99, 1900, the paper's footnote 1). It rests on Planck's assumption that the radiation is as disordered as possible; the paper takes it over without derivation."
+  - latex: "\\varrho_\\nu = \\frac{8 \\pi \\nu^2}{L^3} \\overline{E}_\\nu"
+    why: "Multiply both sides by $\\frac{8 \\pi \\nu^2}{L^3}$: the same relation, solved for the density. This is the form section 1 uses next."
+  - latex: "\\varrho_\\nu d \\nu"
+    why: "$\\varrho_\\nu$ is a density per unit frequency. Multiplied by a small range of frequency $d \\nu$ it gives the energy per unit volume of the radiation in that range, which is how the paper defines it."
+r3: "Planck derived the relation in 'Ueber irreversible Strahlungsvorgänge' (Annalen der Physik 1, 69-122, 1900), which Einstein cites at p. 99. Planck's derivation used his condition of natural radiation; Einstein restates that condition in the footnote on this page in terms of Fourier amplitudes and phases, and uses the relation without Planck's energy elements."

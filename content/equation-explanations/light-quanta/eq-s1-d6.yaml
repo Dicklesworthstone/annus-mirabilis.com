@@ -1,0 +1,40 @@
+# light-quanta eq-s1-d6: what the display says, at every level (dispatch 279).
+# Written from the German of s1-p5 (p. 136) and its plate; the steps were checked by hand.
+display: eq-s1-d6
+paper: light-quanta
+inWords:
+  - text: "The gas constant"
+    quantityId: molarGasConstant
+  - text: " over "
+  - text: "the number of molecules in a gram-equivalent"
+    quantityId: avogadroConstant
+  - text: ", times "
+  - text: "the temperature"
+    quantityId: temperature
+  - text: ", is "
+  - text: "the mean energy the gas gives a resonator's vibration"
+    quantityId: meanResonatorEnergy
+  - text: ", which must equal "
+  - text: "the mean energy the radiation holds a resonator of frequency ν at"
+    quantityId: meanResonatorEnergyAtFrequency
+  - text: ", which is "
+  - text: "the speed of light"
+    quantityId: speedOfLight
+  - text: " cubed over eight π times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: " squared, times "
+  - text: "the radiation's energy per unit volume and unit frequency"
+    quantityId: frequencyEnergyDensity
+  - text: "."
+r0: "For the radiation at each frequency to neither lose nor gain energy on balance, a resonator must have the same mean energy from the gas's side as from the radiation's side. The paper sets section 1's two conditions equal."
+r1: "Section 1 now joins its two conditions. The collisions with the gas require each resonator vibration to have the mean energy $\\overline{E} = \\frac{R}{N} T$, and Planck's relation ties the mean energy $\\overline{E}_\\nu$ of a resonator of frequency $\\nu$ to the radiation's density $\\varrho_\\nu$. If the radiation energy of frequency $\\nu$ is not to be continually diminished or increased as a whole, both must hold for the resonators of that frequency at once, so the two mean energies are one and the same. The chain of equalities says exactly that, and its two ends already contain the density, which the next line solves for."
+r2:
+  - latex: "\\frac{R}{N} T = \\overline{E}"
+    why: "From the gas: the collisions give every resonator vibration, whatever its frequency, the mean energy $\\overline{E}$ (the first display of section 1)."
+  - latex: "\\overline{E}_\\nu = \\frac{L^3}{8 \\pi \\nu^2} \\varrho_\\nu"
+    why: "From the radiation: Planck's relation for a resonator of frequency $\\nu$ (the second display)."
+  - latex: "\\overline{E} = \\overline{E}_\\nu"
+    why: "A resonator of frequency $\\nu$ is subject to both at once. If the energy the gas gives it differed from the energy the radiation holds it at, energy would pass steadily between the gas and the radiation of that frequency, which the paper's condition of equilibrium excludes."
+  - latex: "\\frac{R}{N} T = \\overline{E} = \\overline{E}_\\nu = \\frac{L^3}{8 \\pi \\nu^2} \\varrho_\\nu"
+    why: "The three equalities written as one chain: the printed line."
