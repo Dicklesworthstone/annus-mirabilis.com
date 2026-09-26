@@ -26,6 +26,12 @@
  * Each property is checked over every pair, label or glyph on the page, not a median, and each
  * reports its denominator; a lane that measured none of a population fails.
  *
+ * A second test reads the narrowest width. At 320, until dispatch 237, a scaffold rule set every
+ * sentence as a block, so each began a new line and a paragraph read as a list, on the parallel,
+ * English and German faces alike: measured on a build of 716580b2, 0 of 168 sentence pairs on
+ * relativity's parallel face shared a line, against 135 of 168 at 390. Each page with at least
+ * ten pairs must have half of them sharing a line.
+ *
  * By default this serves the built site (out/, which must be fresh); with AM_E2E_ORIGIN set to a
  * deployed origin it reads that site instead. A failing lane keeps a screenshot, trace, DOM
  * snapshot, console and network log, and every lane writes one JSON line to
@@ -37,7 +43,7 @@ import { createServer, type Server } from "node:http";
 import { extname, join, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { type Browser, chromium, type Page } from "playwright";
+import { type Browser, type BrowserContext, chromium, type Page } from "playwright";
 import { newRunIdentity, TestLogger } from "../../src/testing/log/logger.ts";
 import { assertOutFreshness } from "../../src/testing/outFreshness.ts";
 import { retainE2EEvidence } from "./evidence.ts";
@@ -352,18 +358,118 @@ async function readParallelFace(page: Page): Promise<PhoneReading> {
   );
 }
 
+/**
+ * Consecutive sentences of one paragraph, and how many share a line: the next sentence's first
+ * word on the line where the previous one's last word stands. Read from the rects of each
+ * sentence's plain text only, because an element's box (a formula's strut, the visually hidden
+ * "Show the German source" button, 1px wide and 44px tall) reaches past its line and made
+ * sentences set as blocks read as sharing one. A pair is not counted where either sentence holds
+ * an in-flow block, a display printed inside it, which stands on its own line by design.
+ */
+async function readSentenceFlow(page: Page) {
+  return page.evaluate(() => {
+    const textRects = (el: Element) => {
+      const out: DOMRect[] = [];
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        if (!(n.textContent ?? "").trim()) continue;
+        if (n.parentElement?.closest(".katex, button, sup, [class*='visually-hidden']")) continue;
+        const range = document.createRange();
+        range.selectNodeContents(n);
+        out.push(...[...range.getClientRects()].filter((r) => r.width >= 2 && r.height > 0.5));
+      }
+      return out;
+    };
+    // In-flow boxes only: an absolutely positioned element computes as display: block without
+    // taking a line of its own.
+    const holdsBlock = (el: Element) =>
+      [...el.querySelectorAll("*")].some((x) => {
+        const cs = getComputedStyle(x);
+        return (
+          !/^(inline|none|contents)/.test(cs.display) &&
+          !/absolute|fixed/.test(cs.position) &&
+          x.getBoundingClientRect().height > 0 &&
+          !x.closest(".katex")
+        );
+      });
+    let pairs = 0;
+    let shared = 0;
+    let skipped = 0;
+    for (const para of document.querySelectorAll("p")) {
+      const sentences = [...para.querySelectorAll(".source-sentence, .translation-unit")].filter(
+        (s) => s.closest("p") === para && s.getBoundingClientRect().height > 0,
+      );
+      for (let i = 0; i + 1 < sentences.length; i++) {
+        const [a, b] = [sentences[i] as Element, sentences[i + 1] as Element];
+        if (holdsBlock(a) || holdsBlock(b)) {
+          skipped++;
+          continue;
+        }
+        const before = textRects(a);
+        const after = textRects(b);
+        if (before.length === 0 || after.length === 0) continue;
+        pairs++;
+        const last = before.reduce((m, r) => (r.bottom > m.bottom ? r : m));
+        const first = after.reduce((m, r) => (r.top < m.top ? r : m));
+        if (first.top < last.bottom - 2) shared++;
+      }
+    }
+    return { pairs, shared, skipped };
+  });
+}
+
+/** The site under test: a deployed origin, or out/ served locally. */
+async function siteUnderTest() {
+  const remote = process.env.AM_E2E_ORIGIN?.replace(/\/$/, "");
+  if (remote) return { origin: remote, remote, server: null, note: `deployed site ${remote}` };
+  const note = `out/ ${assertOutFreshness("out", REPO_ROOT).reason ?? "fresh"}`;
+  assert.ok(existsSync(join(OUT_DIR, "papers")), "out/ has no /papers/");
+  const { server, origin } = await startStaticServer(OUT_DIR);
+  return { origin, remote: undefined, server, note };
+}
+
+/** A failing lane keeps the five evidence kinds; returns the retained paths. */
+async function keepLaneEvidence(
+  page: Page,
+  context: BrowserContext,
+  logs: { consoleLines: string[]; network: string[] },
+  meta: { scratch: string; logRunId: string; testId: string; lane: string; message: string },
+): Promise<Record<string, string>> {
+  const base = join(meta.scratch, meta.lane);
+  const capture = {
+    screenshot: `${base}.png`,
+    trace: `${base}.trace.zip`,
+    dom: `${base}.dom.html`,
+    console: `${base}.console.log`,
+    network: `${base}.network.log`,
+  };
+  await page.screenshot({ path: capture.screenshot, fullPage: false }).catch(() => {});
+  await context.tracing.stop({ path: capture.trace }).catch(() => {});
+  writeFileSync(capture.dom, await page.content().catch(() => ""));
+  writeFileSync(capture.console, logs.consoleLines.join("\n"));
+  writeFileSync(capture.network, logs.network.join("\n"));
+  const retained = await retainE2EEvidence(
+    {
+      suite: SUITE,
+      logRunId: meta.logRunId,
+      testId: meta.testId,
+      lane: meta.lane,
+      outcome: "failed",
+      message: meta.message,
+    },
+    capture,
+  );
+  const kept = (source: string) =>
+    retained.copied.find((copy) => copy.endsWith(source.slice(source.lastIndexOf("/")))) ?? source;
+  return Object.fromEntries(Object.entries(capture).map(([kind, source]) => [kind, kept(source)]));
+}
+
 test("the parallel face on a phone reads as pairs, with one key, room for page labels, and legible terms (dispatch 237)", {
   timeout: 300_000,
 }, async () => {
-  const remote = process.env.AM_E2E_ORIGIN?.replace(/\/$/, "");
-  let freshnessNote = `deployed site ${remote}`;
-  let server: Server | null = null;
-  let origin = remote ?? "";
-  if (!remote) {
-    freshnessNote = `out/ ${assertOutFreshness("out", REPO_ROOT).reason ?? "fresh"}`;
-    assert.ok(existsSync(join(OUT_DIR, "papers")), "out/ has no /papers/");
-    ({ server, origin } = await startStaticServer(OUT_DIR));
-  }
+  const site = await siteUnderTest();
+  const { origin, remote, server } = site;
+  const freshnessNote = site.note;
   const logRunId = newRunIdentity();
   const logger = new TestLogger(SUITE, logRunId);
   const scratch = join(REPO_ROOT, "artifacts", "e2e-scratch", SUITE, logRunId);
@@ -407,35 +513,17 @@ test("the parallel face on a phone reads as pairs, with one key, room for page l
         }
         let evidence: Record<string, string> | undefined;
         if (found.length > 0) {
-          const base = join(scratch, lane);
-          const capture = {
-            screenshot: `${base}.png`,
-            trace: `${base}.trace.zip`,
-            dom: `${base}.dom.html`,
-            console: `${base}.console.log`,
-            network: `${base}.network.log`,
-          };
-          await page.screenshot({ path: capture.screenshot, fullPage: false }).catch(() => {});
-          await context.tracing.stop({ path: capture.trace }).catch(() => {});
-          writeFileSync(capture.dom, await page.content().catch(() => ""));
-          writeFileSync(capture.console, consoleLines.join("\n"));
-          writeFileSync(capture.network, network.join("\n"));
-          const retained = await retainE2EEvidence(
+          evidence = await keepLaneEvidence(
+            page,
+            context,
+            { consoleLines, network },
             {
-              suite: SUITE,
+              scratch,
               logRunId,
               testId: `parallel-face-phone-${lane}`,
               lane,
-              outcome: "failed",
               message: found.slice(0, 20).join("; "),
             },
-            capture,
-          );
-          const kept = (source: string) =>
-            retained.copied.find((copy) => copy.endsWith(source.slice(source.lastIndexOf("/")))) ??
-            source;
-          evidence = Object.fromEntries(
-            Object.entries(capture).map(([kind, source]) => [kind, kept(source)]),
           );
           failures.push(
             `${lane}: ${found.slice(0, 12).join("; ")}${found.length > 12 ? ` (+${found.length - 12} more)` : ""}`,
@@ -476,5 +564,101 @@ test("the parallel face on a phone reads as pairs, with one key, room for page l
   assert.ok(totals.locators > 0, "no page label was measured");
   assert.ok(totals.wideDisplays > 0, "no display wider than its box was found to check");
   assert.ok(totals.terms > 0, "no coloured term was measured");
+  assert.deepEqual(failures, []);
+});
+
+/** Sentence flow at the narrowest width, on each face that sets sentences as their own elements. */
+const FLOW_WIDTH = 320;
+const FLOW_FACES = ["parallel", "english", "german"] as const;
+/** A page is judged on at least this many pairs; the German draft faces carry no sentence spans. */
+const FLOW_MIN_PAIRS = 10;
+/** Share of a page's pairs on one line. Set as blocks, 0; running on, 74-84% at 320, 80-88% at 390. */
+const FLOW_MIN_SHARE = 0.5;
+
+test("a paragraph's sentences run on at 320 on the parallel, English and German faces (dispatch 237)", {
+  timeout: 300_000,
+}, async () => {
+  const site = await siteUnderTest();
+  const { origin, remote, server } = site;
+  const logRunId = newRunIdentity();
+  const logger = new TestLogger(SUITE, logRunId);
+  const scratch = join(REPO_ROOT, "artifacts", "e2e-scratch", SUITE, logRunId);
+  mkdirSync(scratch, { recursive: true });
+  const failures: string[] = [];
+  let pairs = 0;
+  let judged = 0;
+  const browser: Browser = await chromium.launch({ headless: true });
+  try {
+    for (const paper of PAPERS)
+      for (const face of FLOW_FACES) {
+        const lane = `${paper}-${face}-${FLOW_WIDTH}`;
+        const testId = `sentence-flow-${lane}`;
+        const context = await browser.newContext({
+          viewport: { width: FLOW_WIDTH, height: 844 },
+          ...(remote ? { userAgent: "OpenAI File Downloader, XaiImageApiFetch/1.0" } : {}),
+        });
+        await context.tracing.start({ screenshots: true, snapshots: true });
+        const page = await context.newPage();
+        const consoleLines: string[] = [];
+        const network: string[] = [];
+        page.on("console", (m) => consoleLines.push(`${m.type()}: ${m.text()}`));
+        page.on("pageerror", (e) => consoleLines.push(`pageerror: ${String(e)}`));
+        page.on("response", (r) => network.push(`${r.status()} ${r.url()}`));
+        const start = performance.now();
+        const found: string[] = [];
+        let summary = "";
+        try {
+          await page.goto(`${origin}/papers/${paper}/view/${face}/`, { waitUntil: "load" });
+          await page.evaluate(() => document.fonts.ready);
+          const flow = await readSentenceFlow(page);
+          pairs += flow.pairs;
+          const share = flow.pairs === 0 ? null : flow.shared / flow.pairs;
+          summary = `${flow.shared} of ${flow.pairs} sentence pairs share a line (${flow.skipped} beside a display, not counted)`;
+          if (flow.pairs >= FLOW_MIN_PAIRS) {
+            judged++;
+            if ((share ?? 0) < FLOW_MIN_SHARE) found.push(`sentences stand apart: ${summary}`);
+          } else summary += `; fewer than ${FLOW_MIN_PAIRS}, not judged`;
+        } catch (error) {
+          found.push(`could not measure: ${String(error)}`);
+        }
+        let evidence: Record<string, string> | undefined;
+        if (found.length > 0) {
+          evidence = await keepLaneEvidence(
+            page,
+            context,
+            { consoleLines, network },
+            { scratch, logRunId, testId, lane, message: found.join("; ") },
+          );
+          failures.push(`${lane}: ${found.join("; ")}`);
+        } else {
+          await context.tracing.stop();
+        }
+        logger.log({
+          testId,
+          paper,
+          expected: `at least ${FLOW_MIN_SHARE * 100}% of a paragraph's consecutive sentences share a line`,
+          actual: summary || found.join("; "),
+          comparisonKind: "tolerance",
+          tolerance: { absolute: 1 - FLOW_MIN_SHARE },
+          outcome: found.length === 0 ? "passed" : "failed",
+          durationMs: Math.round(performance.now() - start),
+          browser: "chromium",
+          viewport: `${FLOW_WIDTH}x844`,
+          reducedMotion: false,
+          jsEnabled: true,
+          message: found.length === 0 ? `${lane}: ${summary}` : found.join("; "),
+          ...(evidence ? { evidence } : {}),
+        });
+        await context.close();
+      }
+  } finally {
+    await browser.close();
+    logger.flushSync();
+    server?.close();
+  }
+  console.log(
+    `[sentence flow] ${pairs} sentence pairs, ${judged} pages judged at ${FLOW_WIDTH} (${site.note})`,
+  );
+  assert.ok(judged > 0, "no page had enough sentence pairs to judge");
   assert.deepEqual(failures, []);
 });
