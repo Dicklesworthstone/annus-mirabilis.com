@@ -75,12 +75,29 @@ describe("the modern scope for inline formulas", () => {
     });
   });
 
-  test("a modern reading holds only in its rename's scope, and a same-section clash is refused", () => {
-    // Einstein's C is renamed k_B in § 5 only; there it meets Boltzmann's k_B and is refused.
+  test("where the concordance renames a glyph for a section, the registry's letter steps aside", () => {
+    // Brownian prints ν for the number density, renamed n in § 3; the registry's n is the number of
+    // steps of a walk (§ 4). Before, the registry's n was read in § 3 too and met the rename at one
+    // level, so n there was refused. The concordance is the authority for its sections.
+    expect(resolve("brownian-motion", "n", "s3")).toEqual({
+      terms: ["n numberDensity"],
+      problems: [],
+    });
+    // Where the concordance says nothing of n (§ 5), the registry's n still holds.
+    expect(resolve("brownian-motion", "n", "s5").terms).toEqual(["n walkStepCount"]);
+  });
+
+  test("two concordance readings that disagree in one section are still refused", () => {
+    // Light quanta § 5: R/N renamed k_B (Boltzmann's constant) and C renamed k_B.
     expect(resolve("light-quanta", "k_B", "s2").terms).toEqual(["k_B boltzmannConstant"]);
     expect(resolve("light-quanta", "k_B", "s5").problems).toEqual([
       "inline-terms-ambiguous-glyph k_B",
     ]);
+    // Brownian §§ 1 and 4: n is the particle count, and ν renamed n is the number density.
+    for (const section of ["s1", "s4"])
+      expect(resolve("brownian-motion", "n", section).problems).toEqual([
+        "inline-terms-ambiguous-glyph n",
+      ]);
   });
 
   test("relativity's printed c (a direction cosine in § 7) is never read as the speed of light", () => {

@@ -13,11 +13,13 @@
  *   the concordance renames V to c, and only in the sections where it does;
  * - each modern-only symbol the concordance lists (modernOnlySymbols), in its own scope;
  * - each one-letter glyph of the paper's teaching registry: the letters the model records draw
- *   their formulas with, which the explanations write too. A registry letter holds in every section
- *   EXCEPT those where a printed entry already reads that glyph: the printed concordance is the
- *   authority on its own letters (NavyKite and GreenOx, 41223 and 41227). Brownian prints x as a
- *   coordinate label for the whole paper, so the registry's x (positionCoordinate1d) is dropped
- *   there, where it used to make every ⟨x²⟩ in four labs ambiguous.
+ *   their formulas with, which the explanations write too. A registry letter is the FALLBACK: it
+ *   holds only in sections where the concordance says nothing of that glyph, printed, modern-only
+ *   or as a rename's target. The concordance is the authority on its own letters (NavyKite and
+ *   GreenOx, 41223 and 41227). Brownian prints x as a coordinate label for the whole paper, so the
+ *   registry's x (positionCoordinate1d) is dropped there, where it used to make every ⟨x²⟩ in four
+ *   labs ambiguous. And where the concordance names a modern letter for a section (light quanta's
+ *   C written k_B in § 5), the registry's reading of that letter (Boltzmann's k_B) steps aside.
  *
  * A modern RENAME reading is NOT outranked. It comes from the concordance's own entry for its section,
  * and where it disagrees with a printed reading there the resolver refuses the formula as ambiguous:
@@ -54,15 +56,16 @@ function signatureOf(latex: string): string | undefined {
 }
 
 /**
- * Where a registry letter may be read: everywhere, less the sections a printed entry of the same
- * glyph reads. Undefined where a printed entry reads it paper-wide.
+ * Where a registry letter may be read: everywhere, less the sections a concordance reading of the
+ * same glyph covers (printed, modern-only, or a rename's modern target). Undefined where one covers
+ * it paper-wide.
  */
 function registryScope(
   latex: string,
-  printed: readonly ConcordanceEntry[],
+  concordance: readonly ConcordanceEntry[],
 ): readonly string[] | undefined {
   const signature = signatureOf(latex);
-  const same = printed.filter((e) => signature && signatureOf(e.glyph.latex) === signature);
+  const same = concordance.filter((e) => signature && signatureOf(e.glyph.latex) === signature);
   if (same.some((e) => e.scope.includes("all"))) return undefined;
   const covered = new Set(same.flatMap((e) => e.scope.map(normalizeSectionId)));
   return covered.size === 0 ? ["all"] : SECTIONS.filter((s) => !covered.has(s));
@@ -136,7 +139,8 @@ export function modernInlineEntries(
   }
   for (const [quantityId, quantity] of Object.entries(teachingProfile(paper)?.quantities ?? {})) {
     if (!LETTER.test(quantity.glyph)) continue;
-    const scope = registryScope(quantity.glyph, concordance.entries);
+    // `out` holds, so far, only the concordance's own readings: printed, renamed, modern-only.
+    const scope = registryScope(quantity.glyph, out);
     if (!scope) continue;
     out.push(
       reading(
