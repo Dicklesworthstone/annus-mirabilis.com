@@ -12,7 +12,9 @@
  * Fizeau's p. 355, the three null results are Lorentz's p. 825, and the second presupposition is
  * the paper's own sentence s0-p2-s2.
  */
-import type { Fork } from "../../content/schemas/journey.ts";
+import type { Fork, WorldCheck } from "../../content/schemas/journey.ts";
+import { SR05_MODEL } from "../../experiments/sr05/definition.ts";
+import { CLOCK_CHECK_READING } from "./worldCheck.ts";
 
 /**
  * Fork A, after the null results of step 02: what to do with an ether nobody has detected. The
@@ -178,4 +180,35 @@ export const FORK_SOURCE_SPEED: Fork = {
       },
     },
   ],
+};
+
+const { properTime, coordinateTime, speed } = CLOCK_CHECK_READING;
+const reading = (x: number) => String(Number(x.toPrecision(3)));
+/** The owner's reading at the check's preset (worldCheck.ts), in words. */
+const CHECK_READING =
+  properTime === undefined || coordinateTime === undefined
+    ? "not computed at the check's setting"
+    : `${reading(properTime)} s on the moving clock for ${reading(coordinateTime)} s of the resting clocks, at ${reading(speed)} of the speed of light`;
+
+/**
+ * Check it against the world (plan §9.1 item 7). The prediction is SR-05's own properTime, read from
+ * the accepted snapshot of the laboratory embedded beside it; the static reference is the same
+ * owner's reading at the check's preset, computed at build time (worldCheck.ts). The later
+ * measurement, Ives and Stilwell's of 1938, is a card beside the check and is stated in words: the
+ * edition holds no dataset of theirs, so no number of theirs is set against this one.
+ */
+export const WORLD_CHECK: WorldCheck = {
+  id: "sr-world-check-moving-clock",
+  claim:
+    "Section 4 of the paper draws a consequence that could be measured. A clock moving at speed v, judged from the resting system, reads t√(1 − v²/V²) when the resting clocks read t, V being the paper's letter for the speed of light, so it falls behind by 1 − √(1 − v²/V²) of a second in every second; the paper writes that to second order as ½(v/V)². Choose a worldline in the laboratory below and read what the relation gives.",
+  instrumentId: "sr-05",
+  quantityId: "properTime",
+  expected: CHECK_READING,
+  comparisonKind: "printed-prediction",
+  staticWorkedExample: {
+    label: "What § 4's relation gives at the laboratory's first setting",
+    value: CHECK_READING,
+    unit: "",
+    constantSetId: SR05_MODEL.constantSetId,
+  },
 };

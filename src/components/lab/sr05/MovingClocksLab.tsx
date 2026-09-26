@@ -20,6 +20,12 @@ import "./sr05.css";
 
 export type MovingClocksLabProps = Readonly<{
   example?: PreparedSr05Example | undefined;
+  /**
+   * A session owned by the component that embeds the lab, so that something beside it reads the
+   * same accepted snapshot (the relativity journey's check against the world). Omitted, the lab
+   * owns its own, as on /lab/sr-05/.
+   */
+  session?: ReturnType<typeof createSr05Session> | undefined;
 }>;
 
 function numberOf(
@@ -62,9 +68,12 @@ const WORLDLINE_WORDS: Readonly<Record<string, string>> = {
   circle: "a circle at constant speed",
 };
 
-export function MovingClocksLab({ example }: MovingClocksLabProps) {
+export function MovingClocksLab({ example, session: sharedSession }: MovingClocksLabProps) {
   const instanceId = useId();
-  const session = useMemo(() => createSr05Session(instanceId, example), [instanceId, example]);
+  const session = useMemo(
+    () => sharedSession ?? createSr05Session(instanceId, example),
+    [sharedSession, instanceId, example],
+  );
   const view = useSyncExternalStore(
     session.subscribe,
     session.getSnapshot,

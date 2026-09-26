@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { ExercisePart } from "../../../components/discover/ExercisePart.tsx";
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
+import { RelativityWorldCheck } from "../../../components/discover/RelativityWorldCheck.tsx";
 import {
   SPECIAL_RELATIVITY_LATER_EVIDENCE,
   SPECIAL_RELATIVITY_SHELF_CARDS,
 } from "../../../content/specialRelativityShelf.ts";
-import { KnowledgeCardView } from "../../../discovery/cards/KnowledgeCard.tsx";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
 import { Fork } from "../../../discovery/Fork.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
@@ -13,8 +13,10 @@ import { MOVING_CLOCK_EXERCISE } from "../../../discovery/relativity/clockExerci
 import {
   FORK_SOURCE_SPEED,
   FORK_UNDETECTED_ETHER,
+  WORLD_CHECK,
 } from "../../../discovery/relativity/journeyIII.ts";
 import { MOVING_ROD } from "../../../discovery/relativity/numericExercises.ts";
+import { MOVING_CLOCK_CHECK_EXAMPLE } from "../../../discovery/relativity/worldCheck.ts";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = {
@@ -291,12 +293,17 @@ export default function SpecialRelativityRoute() {
             Watch electric and magnetic fields change into each other
           </StepDoor>
         </StepDoors>
-        <section aria-labelledby="later-evidence-title">
-          <h3 id="later-evidence-title">Later evidence, not on the 1904 shelf</h3>
-          {SPECIAL_RELATIVITY_LATER_EVIDENCE.map((card) => (
-            <KnowledgeCardView key={card.id} card={card} />
-          ))}
-        </section>
+        <p>
+          Those were measured before the paper, and the new kinematics gives them. Section 4 adds a
+          consequence nobody had measured: a clock that moves runs slow, by a factor the paper
+          writes down. The laboratory below computes it; the measurement came thirty-three years
+          later.
+        </p>
+        <RelativityWorldCheck
+          example={MOVING_CLOCK_CHECK_EXAMPLE}
+          check={WORLD_CHECK}
+          laterEvidence={SPECIAL_RELATIVITY_LATER_EVIDENCE}
+        />
       </section>
 
       <section id="shelf">
