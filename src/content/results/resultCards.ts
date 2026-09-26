@@ -208,6 +208,28 @@ export function sentenceWords(markup: string): string {
   ).replace(/[^\p{L}\p{N}]/gu, "");
 }
 
+/**
+ * The consecutive sentences of a paragraph whose words, together, are `words`: one where the ledger
+ * draft and the source blocks split alike, several where the draft's one sentence runs on past a
+ * display at which the blocks end one (Brownian s5-p1). Undefined where there is no such run.
+ */
+function publishedRun(
+  words: string,
+  sentences: readonly Readonly<{ id: string; words: string }>[],
+): readonly Readonly<{ id: string }>[] | undefined {
+  if (words === "") return undefined;
+  for (let i = 0; i < sentences.length; i++) {
+    if (sentences[i]?.words === "") continue;
+    let joined = "";
+    for (let j = i; j < sentences.length; j++) {
+      joined += sentences[j]?.words ?? "";
+      if (joined === words) return sentences.slice(i, j + 1);
+      if (!words.startsWith(joined)) break;
+    }
+  }
+  return undefined;
+}
+
 function resolvePrinted(
   face: PrintedFace,
   sentencePages: ResultContext["sentencePages"],
@@ -242,11 +264,23 @@ function resolvePrinted(
     return null;
   }
   // Each sentence's own pages where its block records its page turns; else the block's page.
-  const ranges = picked.flatMap((s) => {
-    const r = s ? sentencePages?.get(s.id) : undefined;
+  // Each quoted sentence's pages are those of the sentences the German face publishes for it: the
+  // run of the quoted paragraph's sentences whose words are its words (publishedRun). The ledger
+  // draft's own ids name other sentences (its s1-p4-s2 stands in the block published as s1-p3), so
+  // they are never looked up. A face with no published sentences given is its own (sourceBlockFace).
+  const runs = picked.map((s) =>
+    !s
+      ? undefined
+      : published
+        ? publishedRun(sentenceWords(s.text), published.get(anchor) ?? [])
+        : [{ id: s.id }],
+  );
+  const runIds = runs.flatMap((run) => (run ?? []).map((r) => r.id));
+  const ranges = runIds.flatMap((id) => {
+    const r = sentencePages?.get(id);
     return r ? [r] : [];
   });
-  const known = ranges.length === picked.length;
+  const known = runs.every((run) => run !== undefined) && ranges.length === runIds.length;
   // The sentence the German face publishes for each quoted one: the one sentence of the quoted
   // paragraph with the same words. Where the two splits differ there is none, and the quotation
   // is linked by its paragraph.
