@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
+import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { OsmoticPartitionLab } from "../../../components/lab/OsmoticPartitionLab.tsx";
 import { DEFAULT_BM02_INPUTS } from "../../../experiments/bm02/session.ts";
 
@@ -44,7 +44,7 @@ export default function OsmoticPartitionPage() {
           term that knows how big the molecule is.
         </p>
         <h2>The law this instrument calculates</h2>
-        <Formula latex={String.raw`\Pi = n k_B T,\qquad n = \frac{N_p}{V}`} />
+        <LabFormula lab="bm-02" latex={String.raw`\Pi = n k_B T,\qquad n = \frac{N_p}{V}`} />
         <p>
           The osmotic pressure depends on the number of particles per unit volume and the
           temperature. It does not depend on the particle radius, as long as the suspension stays

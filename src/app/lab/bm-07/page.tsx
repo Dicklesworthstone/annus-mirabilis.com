@@ -1,7 +1,7 @@
 import "./inference.css";
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
 import { InferenceComparison } from "../../../components/lab/InferenceLab.tsx";
+import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { validateBm07Parameters } from "../../../experiments/bm07/parameters.ts";
 import example from "../../../generated/bm07-example.json";
 export const metadata: Metadata = {
@@ -45,7 +45,8 @@ export default function InferencePage() {
           drift, average their squared lengths and divide by twice the number of coordinates and the
           time interval. The result estimates the diffusion coefficient.
         </p>
-        <Formula
+        <LabFormula
+          lab="bm-07"
           latex={String.raw`\begin{gathered}\widehat D=\frac{1}{2dM\Delta t}\sum_{i=1}^{M}\lVert\Delta\mathbf r_i\rVert^2, \\ q=dM\end{gathered}`}
         />
         <p>
@@ -61,7 +62,8 @@ export default function InferencePage() {
           conditional interval. More independent observations generally tighten uncertainty;
           changing the assumptions changes what the interval means.
         </p>
-        <Formula
+        <LabFormula
+          lab="bm-07"
           latex={String.raw`\left[\frac{q\widehat D_{\mathrm{unbiased}}}{\chi^2_{q,1-\alpha/2}},\ \frac{q\widehat D_{\mathrm{unbiased}}}{\chi^2_{q,\alpha/2}}\right]`}
         />
         <p>
@@ -70,7 +72,8 @@ export default function InferencePage() {
           interval. The repeated-trial plots retain the misses as well as the successes.
         </p>
         <h2>Why an independent radius matters</h2>
-        <Formula
+        <LabFormula
+          lab="bm-07"
           latex={String.raw`N a=\frac{RT}{6\pi\eta D},\qquad \widehat N=\frac{RT}{6\pi\eta a\widehat D}`}
         />
         <p>

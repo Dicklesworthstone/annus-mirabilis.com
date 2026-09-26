@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
 import { BrownianComparison } from "../../../components/lab/BrownianLab.tsx";
+import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import example from "../../../generated/bm06-example.json";
 export const metadata: Metadata = {
   title: "The spreading laboratory",
@@ -41,7 +41,8 @@ export default function BrownianLabPage() {
       </nav>
       <section className="reading" id="model">
         <h2>The relationship behind the instrument</h2>
-        <Formula
+        <LabFormula
+          lab="bm-06"
           latex={String.raw`\begin{gathered}D = \frac{k_B T}{6\pi\eta a}, \\ \langle x^2\rangle = 2Dt, \\ \lambda_x = \sqrt{2Dt}\end{gathered}`}
         />
         <p>
@@ -56,7 +57,8 @@ export default function BrownianLabPage() {
           unbounded model, the curve gives a probability density; an interval gets its probability
           from the area under that curve.
         </p>
-        <Formula
+        <LabFormula
+          lab="bm-06"
           latex={String.raw`\begin{gathered}p(x,t)=\frac{1}{\sqrt{4\pi Dt}}\exp\!\left(-\frac{x^2}{4Dt}\right) \\ (D>0,\ t>0)\end{gathered}`}
         />
         <p>
@@ -69,7 +71,7 @@ export default function BrownianLabPage() {
           number must not exceed one half. A refused timestep is a limitation of this algorithm, not
           a prohibition on diffusion.
         </p>
-        <Formula latex={String.raw`r=\frac{D\,\Delta t}{(\Delta x)^2}\leq\frac12`} />
+        <LabFormula lab="bm-06" latex={String.raw`r=\frac{D\,\Delta t}{(\Delta x)^2}\leq\frac12`} />
         <p>
           The numerical box reflects probability at its walls. Once the spread reaches them,
           comparing it with an unbounded Gaussian is also comparing two boundary models.

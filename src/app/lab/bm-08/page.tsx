@@ -1,8 +1,8 @@
 import { NotModeledLine } from "../NotModeledLine.tsx";
 import "./camera.css";
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
 import { CameraComparison } from "../../../components/lab/CameraLab.tsx";
+import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { validateBm08Parameters } from "../../../experiments/bm08/parameters.ts";
 import example from "../../../generated/bm08-example.json";
 export const metadata: Metadata = {
@@ -55,7 +55,8 @@ export default function CameraPage() {
           localization error. At zero exposure it uses the instantaneous frame-start position. The
           generated bridge integrals make these averages consistent with the same Brownian path.
         </p>
-        <Formula
+        <LabFormula
+          lab="bm-08"
           latex={String.raw`\begin{gathered}\begin{aligned}Y_i &= \frac{1}{T_e}\int_{t_i}^{t_i+T_e}X(s)\,ds \\ &\quad + v_{\mathrm{stage}}(t_i+T_e/2)+\varepsilon_i,\end{aligned} \\ \varepsilon_i\sim\mathcal N(0,\sigma^2)\end{gathered}`}
         />
         <h2>Neighbors are correlated</h2>
@@ -63,7 +64,8 @@ export default function CameraPage() {
           For uniform, non-overlapping exposures and equally spaced frames, the per-coordinate
           variance and adjacent covariance of drift-subtracted increments are:
         </p>
-        <Formula
+        <LabFormula
+          lab="bm-08"
           latex={String.raw`\begin{gathered}\gamma_0=2D(\Delta t-T_e/3)+2\sigma^2, \\ \gamma_1=DT_e/3-\sigma^2\end{gathered}`}
         />
         <p>
@@ -77,7 +79,8 @@ export default function CameraPage() {
           localization and blur terms. The covariance point estimate can still be negative in a
           finite sample; clipping it would conceal a diagnostic.
         </p>
-        <Formula
+        <LabFormula
+          lab="bm-08"
           latex={String.raw`\widehat D_{\mathrm{CVE}}=\frac{\widehat\gamma_0/2+\widehat\gamma_1}{\Delta t}`}
         />
         <p>
@@ -87,7 +90,7 @@ export default function CameraPage() {
           of freedom for K pairs. A chi-square interval for their variance can therefore be inverted
           using the known exposure and localization variance.
         </p>
-        <Formula latex={String.raw`D=\frac{V-2\sigma^2}{2(\Delta t-T_e/3)}`} />
+        <LabFormula lab="bm-08" latex={String.raw`D=\frac{V-2\sigma^2}{2(\Delta t-T_e/3)}`} />
         <p>
           When localization variance comes from independent stationary-feature clicks, half the
           allowed error probability goes to its variance interval and half to the pair-variance
@@ -102,7 +105,8 @@ export default function CameraPage() {
           noise-only crossover interval σ²/D. This does not reveal a finite instantaneous Brownian
           velocity.
         </p>
-        <Formula
+        <LabFormula
+          lab="bm-08"
           latex={String.raw`\begin{gathered}v_{\mathrm{app,ideal}}=\sqrt{2D/\Delta t}, \\ v_{\mathrm{app,camera}}=\frac{\sqrt{2D\Delta t+2\sigma^2}}{\Delta t}\end{gathered}`}
         />
         <h2>Keep this later model separate from the paper</h2>

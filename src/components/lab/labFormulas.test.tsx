@@ -19,10 +19,25 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Window } from "happy-dom";
 import type { ReactElement } from "react";
-import { labFormula } from "../../equations/printed/labInlines.ts";
+import { labFormula, labScope } from "../../equations/printed/labInlines.ts";
 import { exportMarkup } from "../../testing/exportMarkup.ts";
 
-const LABS = ["lq-01", "lq-02", "lq-04", "lq-06", "lq-08", "lq-09"] as const;
+const LABS = [
+  "lq-01",
+  "lq-02",
+  "lq-04",
+  "lq-06",
+  "lq-08",
+  "lq-09",
+  "bm-01",
+  "bm-02",
+  "bm-03",
+  "bm-04",
+  "bm-05",
+  "bm-06",
+  "bm-07",
+  "bm-08",
+] as const;
 
 /** How many LabFormula and LabInlineFormula sites the lab's page source holds. */
 function sourceSites(lab: string): number {
@@ -50,7 +65,7 @@ describe("a lab's formulas are coloured in its paper's notation, or name their g
       const coloured = formulas.filter(
         (f) =>
           f.classList.contains("printed-display-terms") &&
-          f.getAttribute("data-paper") === "light-quanta" &&
+          f.getAttribute("data-paper") === labScope(lab)?.paper &&
           f.querySelector("[data-quantity-id]") !== null,
       );
       const bare = formulas.filter((f) => f.getAttribute("data-lab-formula-bound") === "none");
@@ -70,7 +85,7 @@ describe("a lab's formulas are coloured in its paper's notation, or name their g
       );
     });
 
-  test("light quanta's labs colour some formulas: the resolver reaches them", async () => {
+  test("the converted labs colour some formulas: the resolver reaches them", async () => {
     let coloured = 0;
     for (const lab of LABS) {
       const document = await page(lab);

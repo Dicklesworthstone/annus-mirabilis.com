@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
+import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { TracerComparison } from "../../../components/lab/TracerLab.tsx";
 import { LAB_CARDS, labShareImages } from "../../../components/share/shareImages.ts";
 import example from "../../../generated/bm01-example.json";
@@ -50,7 +50,8 @@ export default function TracerPage() {
       </nav>
       <section className="reading">
         <h2>A mean near zero does not mean no motion.</h2>
-        <Formula
+        <LabFormula
+          lab="bm-01"
           latex={String.raw`\begin{gathered}\langle x\rangle=0, \\ \langle x^2\rangle=2Dt, \\ \lambda_x=\sqrt{2Dt}\end{gathered}`}
         />
         <p>
@@ -59,7 +60,7 @@ export default function TracerPage() {
           twice the model RMS displacement, not four times the RMS.
         </p>
         <h2>The apparent-speed trap</h2>
-        <Formula latex={String.raw`\frac{\lambda_x}{\tau}=\sqrt{\frac{2D}{\tau}}`} />
+        <LabFormula lab="bm-01" latex={String.raw`\frac{\lambda_x}{\tau}=\sqrt{\frac{2D}{\tau}}`} />
         <p>
           Dividing the typical displacement by the observation interval produces a quantity that
           grows as the interval shrinks. It is an interval-dependent apparent speed, not an

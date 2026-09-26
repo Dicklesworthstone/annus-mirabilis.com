@@ -1,7 +1,7 @@
 import { NotModeledLine } from "../NotModeledLine.tsx";
 import "./walks.css";
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
+import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { WalkComparison } from "../../../components/lab/WalkLab.tsx";
 import { validateBm05Parameters } from "../../../experiments/bm05/parameters.ts";
 import example from "../../../generated/bm05-example.json";
@@ -49,14 +49,16 @@ export default function WalkPage() {
           has zero mean. Independence makes the cross terms in the square average to zero; the n
           individual squared steps remain.
         </p>
-        <Formula
+        <LabFormula
+          lab="bm-05"
           latex={String.raw`\begin{gathered}x_n=\sum_{j=1}^{n}\Delta_j, \\ \langle\Delta\rangle=0, \\ \langle x_n^2\rangle=n\langle\Delta^2\rangle\end{gathered}`}
         />
         <p>
           With one step every τ seconds, elapsed time is nτ. The coefficient connecting mean square
           with time is therefore fixed by the variance of one step divided by twice its interval.
         </p>
-        <Formula
+        <LabFormula
+          lab="bm-05"
           latex={String.raw`\begin{gathered}D=\frac{\langle\Delta^2\rangle}{2\tau}, \\ \langle x^2\rangle=2Dt, \\ \sqrt{\langle x^2\rangle}\propto\sqrt{t}\end{gathered}`}
         />
         <h2>From a finite jump to a continuous density</h2>
@@ -66,10 +68,12 @@ export default function WalkPage() {
           the first-order spatial term vanishes, and the second-order term contains the same
           coefficient.
         </p>
-        <Formula
+        <LabFormula
+          lab="bm-05"
           latex={String.raw`\begin{aligned}& p(x,t+\tau) \\ &\qquad = \int p(x-\Delta,t)\varphi(\Delta)\,d\Delta\end{aligned}`}
         />
-        <Formula
+        <LabFormula
+          lab="bm-05"
           latex={String.raw`\frac{\partial p}{\partial t}=D\frac{\partial^2p}{\partial x^2}`}
         />
         <p>

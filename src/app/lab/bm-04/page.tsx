@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
 import { DriftDiffusionLab } from "../../../components/lab/DriftDiffusionLab.tsx";
-import { InlineFormula } from "../../../components/lab/InlineFormula.tsx";
+import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
 import { validateBm04Parameters } from "../../../experiments/bm04/parameters.ts";
 import example from "../../../generated/bm04-example.json";
 import { NotModeledLine } from "../NotModeledLine.tsx";
@@ -57,7 +56,8 @@ export default function DriftDiffusionLabPage() {
             <strong>Thermodynamic Force Balance:</strong> A virtual displacement shows that in
             equilibrium, a persistent external force <var>K</var> acting on suspended particles must
             be balanced by an opposing osmotic pressure gradient:
-            <InlineFormula
+            <LabInlineFormula
+              lab="bm-04"
               latex={String.raw`K\,\nu = \frac{RT}{N}\frac{\partial\nu}{\partial x}`}
             />
             Here <var>ν</var> is the number density of suspended particles, <var>R</var> is the
@@ -69,7 +69,8 @@ export default function DriftDiffusionLabPage() {
             acquires a steady Stokes drift velocity <var>v = K / (6π k P)</var> (where <var>k</var>{" "}
             is fluid viscosity and <var>P</var> is particle radius). Meanwhile, random thermal
             diffusion produces a counter-flux <var>-D ∂ν/∂x</var>. Equating the two fluxes gives:
-            <Formula
+            <LabFormula
+              lab="bm-04"
               latex={String.raw`J_{\text{net}} = \nu\,\frac{K}{6\pi k P} - D\frac{\partial\nu}{\partial x} = 0`}
             />
           </li>
@@ -79,7 +80,10 @@ export default function DriftDiffusionLabPage() {
           Substituting the spatial concentration gradient from the first stage into the second stage
           yields Einstein’s celebrated relation for the diffusion coefficient:
         </p>
-        <Formula latex={String.raw`D = \frac{RT}{N}\frac{1}{6\pi k P} = \mu k_B T`} />
+        <LabFormula
+          lab="bm-04"
+          latex={String.raw`D = \frac{RT}{N}\frac{1}{6\pi k P} = \mu k_B T`}
+        />
 
         <h3>Why the applied force drops out</h3>
         <p>
