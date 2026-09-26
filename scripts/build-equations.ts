@@ -13,6 +13,11 @@ import { renderLowSpeedProof } from "../src/equations/derivations/renderLowSpeed
 import { notationNoteTarget } from "../src/equations/notationNoteTarget.ts";
 import { assertPublishable, printedDisplays } from "../src/equations/printed/paperDisplays.ts";
 import {
+  assertInlinesPublishable,
+  checkPaperInlines,
+  ENFORCED_INLINE_PAPERS,
+} from "../src/equations/printed/paperInlines.ts";
+import {
   assignQuantityColoursPreferring,
   QUANTITY_PALETTE,
 } from "../src/equations/quantityColours.ts";
@@ -85,7 +90,32 @@ const printed = await printedDisplays(
   { firstUse: (paper, anchor) => resolveFirstUse(paper, anchor, firstUseTargets) },
 );
 assertPublishable(printed);
+// INLINE FORMULAS IN COLOUR (dispatch 272): every formula set in a sentence, each glyph bound by
+// the notation concordance of its scope (inlineTerms.ts, paperInlines.ts). A refusal in an enforced
+// paper stops the build by name; in any other paper the formula stays plain and the refusals are
+// named here, never passed over in silence.
+const inlinePapers = await Promise.all(
+  result.papers.map((p) => checkPaperInlines(process.cwd(), p.paper.id)),
+);
+for (const p of inlinePapers) {
+  console.log(JSON.stringify({ event: "inline-formulas", paper: p.paper, ...p.census }));
+  if (p.problems.length > 0 && !ENFORCED_INLINE_PAPERS.includes(p.paper))
+    console.log(
+      JSON.stringify({
+        event: "inline-formulas-left-plain",
+        paper: p.paper,
+        refusals: p.problems.length,
+        glyphs: [...new Set(p.problems.map((problem) => `${problem.glyph} (${problem.where})`))],
+      }),
+    );
+}
+assertInlinesPublishable(inlinePapers);
 const sourcePaths = [
+  "src/equations/printed/inlineTerms.ts",
+  "src/equations/printed/paperInlines.ts",
+  ...(existsSync("content/inline-terms/exceptions.yaml")
+    ? ["content/inline-terms/exceptions.yaml"]
+    : []),
   "src/equations/render.ts",
   "src/equations/latex/printedAtoms.ts",
   "src/equations/printed/displayTerms.ts",
@@ -252,19 +282,61 @@ for (const paper of [...new Set(equations.map((e) => e.paper))].sort()) {
       printed.displays.filter((d) => d.paper === paper).map((d) => [d.display, d]),
     ).values(),
   ];
-  const { slots, shared, nodes } = assignQuantityColoursPreferring(
-    own.map((e) => ({
-      id: e.id,
-      argument: e.argument,
-      quantityIds: e.terms.map((t) => t.quantityId),
-    })),
-    printedOwn.map((d) => ({
-      id: `printed:${d.display}`,
-      argument: `printed:${d.display}`,
-      quantityIds: d.terms.map((t) => t.quantityId),
-    })),
+  // Each inline formula is a view as a display is: its quantities differ from one another. Views
+  // with the same quantities are one view, and a quantity only an inline formula names still gets
+  // its colour (dispatch 272).
+  const inlineOwn = Object.values(
+    inlinePapers.find((p) => p.paper === paper)?.formulas ?? {},
+  ).filter((f) => f.terms.length > 0);
+  const inlineViews = [
+    ...new Map(
+      inlineOwn.map((f) => {
+        const ids = [...new Set(f.terms.map((t) => t.quantityId))].sort();
+        return [ids.join(" "), ids] as const;
+      }),
+    ),
+  ].map(([key, quantityIds]) => ({ id: `inline:${key}`, argument: `inline:${key}`, quantityIds }));
+  const ownViews = own.map((e) => ({
+    id: e.id,
+    argument: e.argument,
+    quantityIds: e.terms.map((t) => t.quantityId),
+  }));
+  const displayViews = printedOwn.map((d) => ({
+    id: `printed:${d.display}`,
+    argument: `printed:${d.display}`,
+    quantityIds: d.terms.map((t) => t.quantityId),
+  }));
+  // The displays are coloured first, exactly as before inline formulas were: a small inline view
+  // admitted ahead of a display could otherwise take the colour that kept the display distinct.
+  // The inline views are then admitted around the displays that were.
+  const first = assignQuantityColoursPreferring(ownViews, displayViews, shownTogether);
+  // A display the first pass could not make distinct keeps its quantities coloured, each on its
+  // own, as the first pass does (quantityColours.ts): loose views of one quantity.
+  const looseDisplays = displayViews
+    .filter((v) => first.shared.includes(v.id))
+    .flatMap((v) =>
+      [...new Set(v.quantityIds)].map((id) => ({
+        id: `${v.id}#${id}`,
+        argument: v.argument,
+        quantityIds: [id],
+      })),
+    );
+  const second = assignQuantityColoursPreferring(
+    [...ownViews, ...displayViews.filter((v) => !first.shared.includes(v.id)), ...looseDisplays],
+    inlineViews,
     shownTogether,
   );
+  const { slots } = second;
+  const shared = first.shared;
+  const nodes = first.nodes + second.nodes;
+  if (second.shared.length > 0)
+    console.log(
+      JSON.stringify({
+        event: "inline-formula-shares-a-colour",
+        paper,
+        views: second.shared.length,
+      }),
+    );
   // A printed display the palette cannot make distinct is said, never hidden (quantityColours.ts),
   // and so is the search's cost, bounded by a node budget per search (dispatch 230).
   if (shared.length > 0)
@@ -276,6 +348,11 @@ for (const paper of [...new Set(equations.map((e) => e.paper))].sort()) {
   // Keyed from the same terms the colouring was computed from, so every coloured id has its record.
   // A quantity only a printed display names is named from the registry and drawn in its letter.
   const quantities = new Map<string, { name: string; glyph: string }>([
+    ...inlineOwn.flatMap((f) =>
+      f.terms.map(
+        (t) => [t.quantityId, { name: getQuantity(t.quantityId).name, glyph: t.glyph }] as const,
+      ),
+    ),
     ...printedOwn.flatMap((d) =>
       d.legend.map(
         (l) => [l.quantityId, { name: getQuantity(l.quantityId).name, glyph: l.glyph }] as const,
@@ -374,6 +451,20 @@ await writeFile(
     null,
     2,
   )}\n`,
+);
+await writeFile(
+  "src/generated/printed-inlines.json",
+  `${JSON.stringify({
+    schemaVersion: 1,
+    rendererDigest,
+    // Only a paper whose every inline formula resolves is drawn in colour: one half-coloured would
+    // read as though its plain formulas meant something different. The census covers all four.
+    papers: Object.fromEntries(
+      inlinePapers
+        .filter((p) => ENFORCED_INLINE_PAPERS.includes(p.paper))
+        .map((p) => [p.paper, { holders: p.holders, formulas: p.formulas }]),
+    ),
+  })}\n`,
 );
 await writeFile(
   "src/generated/quantity-colours.json",

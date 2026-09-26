@@ -2,7 +2,7 @@ import { renderToString } from "katex";
 import type { ReviewRecord } from "../../content/schemas/review.ts";
 import type { EditorialNote, TranslationUnit } from "../../content/schemas/source.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
-import { renderInlines } from "./inlines.tsx";
+import { renderInlines, unitTerms } from "./inlines.tsx";
 import { evaluateUnitReviewState } from "./reviewState.ts";
 
 export interface TranslationUnitProps {
@@ -111,6 +111,7 @@ export function TranslationUnitComponent({
             unit.inlines,
             {
               idPrefix: anchorPrefix,
+              terms: unitTerms(unit),
               footnoteTarget: (footnoteId) => {
                 const target = footnoteUnits?.get(footnoteId);
                 return target ? `${anchorPrefix}${target}` : undefined;

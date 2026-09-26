@@ -109,7 +109,8 @@ export type CompiledInline = Readonly<{
   latex: string;
   /** KaTeX HTML and MathML, each bound atom wrapped with data-term and data-quantity-id. */
   html: string;
-  terms: readonly Readonly<{ termId: string; quantityId: string }>[];
+  /** Each bound atom, with its glyph as printed (for a legend or the inspector). */
+  terms: readonly Readonly<{ termId: string; quantityId: string; glyph: string }>[];
 }>;
 
 /** The KaTeX options every face renders an inline formula with (inlines.tsx). */
@@ -131,16 +132,6 @@ export class InlineTermsError extends Error {
     this.name = "InlineTermsError";
     this.code = code;
   }
-}
-
-/** A short, stable name for a formula within its block: FNV-1a over its LaTeX. */
-function formulaKey(latex: string): string {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < latex.length; i++) {
-    h ^= latex.charCodeAt(i);
-    h = Math.imul(h, 0x01000193) >>> 0;
-  }
-  return h.toString(36);
 }
 
 function signatureOrUndefined(glyph: string): string | undefined {
@@ -200,7 +191,6 @@ export function resolveInlineTerms(
     (e) => e.paper === scope.paper && scopeMatches(e.scope, scope.anchor, scope.section),
   );
   const excepted = new Set(exceptions.flatMap((e) => signatureOrUndefined(e.glyph) ?? []));
-  const key = formulaKey(latex);
   const terms: InlineTerm[] = [];
   let declared = 0;
   let listed = 0;
@@ -243,7 +233,10 @@ export function resolveInlineTerms(
       continue;
     }
     terms.push({
-      termId: `${scope.paper}.${scope.where}.m${key}.t${terms.length + 1}`,
+      // Short on purpose: it is printed once per coloured atom on faces held to a byte budget, and
+      // it only has to be unique within its formula, which is what the compile check reads.
+      // Colour and lighting key on data-quantity-id.
+      termId: `i${terms.length + 1}`,
       quantityId: first.quantityId,
       glyph: atom.text,
       start: atom.start,
@@ -327,6 +320,10 @@ export function compileInlineFormula(
     plain.slice(0, plainVisual.start) +
     html.slice(markedVisual.start, markedVisual.end) +
     plain.slice(plainVisual.end);
-  const terms = resolved.terms.map(({ termId, quantityId }) => ({ termId, quantityId }));
+  const terms = resolved.terms.map(({ termId, quantityId, glyph }) => ({
+    termId,
+    quantityId,
+    glyph,
+  }));
   return { ...base, html: withQuantityIds(drawn, terms), terms };
 }

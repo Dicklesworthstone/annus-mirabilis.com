@@ -387,7 +387,13 @@ export function GlossFace({
                   {sp && glossMap.has(sp.id) ? (
                     glossSentenceFor(fn, sp)
                   ) : (
-                    <span lang="de">{renderInlines(fn.inlines, undefined, `fn-${fn.id}`)}</span>
+                    <span lang="de">
+                      {renderInlines(
+                        fn.inlines,
+                        { terms: { paper: paper.slug, holder: fn.id } },
+                        `fn-${fn.id}`,
+                      )}
+                    </span>
                   )}
                 </li>
               );

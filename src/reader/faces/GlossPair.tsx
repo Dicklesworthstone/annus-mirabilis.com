@@ -3,7 +3,7 @@ import { Fragment, type ReactNode } from "react";
 import { isModalityClass } from "../../content/schemas/glossConventions.pure.ts";
 import type { GlossToken, MultiwordUnit } from "../../content/schemas/source.ts";
 import type { GlossAtom } from "./glossStream.ts";
-import { renderInlines } from "./inlines.tsx";
+import { type RenderInlinesOptions, renderInlines } from "./inlines.tsx";
 
 export interface GlossPairProps {
   readonly token: GlossToken;
@@ -16,17 +16,23 @@ export interface GlossPairProps {
   /** Formulas and punctuation printed against the word, before and after it (glossStream.ts). */
   readonly leading?: readonly GlossAtom[] | undefined;
   readonly trailing?: readonly GlossAtom[] | undefined;
+  /** The sentence the formulas are printed in, for their colour (inlines.tsx, dispatch 272). */
+  readonly terms?: RenderInlinesOptions["terms"];
 }
 
 /**
  * Atoms as the paper prints them: a formula typeset by the same renderer as every other face,
  * punctuation as text. They are never glossed.
  */
-export function renderGlossAtoms(atoms: readonly GlossAtom[], keyPrefix: string): ReactNode {
+export function renderGlossAtoms(
+  atoms: readonly GlossAtom[],
+  keyPrefix: string,
+  terms?: RenderInlinesOptions["terms"],
+): ReactNode {
   return atoms.map((atom) => (
     <Fragment key={`${keyPrefix}-${atom.start}`}>
       {atom.kind === "math"
-        ? renderInlines([atom.node], undefined, `${keyPrefix}-${atom.start}`)
+        ? renderInlines([atom.node], terms ? { terms } : undefined, `${keyPrefix}-${atom.start}`)
         : atom.text}
     </Fragment>
   ));
@@ -39,15 +45,17 @@ export function renderGlossAtoms(atoms: readonly GlossAtom[], keyPrefix: string)
 export function GlossAtoms({
   atoms,
   keyPrefix,
+  terms,
 }: {
   atoms: readonly GlossAtom[];
   keyPrefix: string;
+  terms?: RenderInlinesOptions["terms"];
 }) {
   return (
     <span className="gloss-atom" data-gloss-atom={atoms.map((a) => a.kind).join(" ")}>
       <span className="gloss-pair-inner">
         <span className="gloss-german" lang="de" dir="ltr">
-          {renderGlossAtoms(atoms, keyPrefix)}
+          {renderGlossAtoms(atoms, keyPrefix, terms)}
         </span>
         <span className="gloss-english" aria-hidden="true">
           {"\u00A0"}
@@ -80,6 +88,7 @@ export function GlossPair({
   modalityClasses,
   leading = [],
   trailing = [],
+  terms,
 }: GlossPairProps) {
   // A formula phrase ("setzen wir", "man erhält") is German words, not a formula: the note class
   // used to be enough to typeset "setzen" through KaTeX as italic mathematics.
@@ -135,7 +144,7 @@ export function GlossPair({
           lang="de"
           dir="ltr"
         >
-          {renderGlossAtoms(leading, `lead-${tokenIndex}`)}
+          {renderGlossAtoms(leading, `lead-${tokenIndex}`, terms)}
           {renderedMath ? (
             <span
               className="inline-math"
@@ -144,7 +153,7 @@ export function GlossPair({
           ) : (
             token.german
           )}
-          {renderGlossAtoms(trailing, `trail-${tokenIndex}`)}
+          {renderGlossAtoms(trailing, `trail-${tokenIndex}`, terms)}
         </span>
 
         <span className="gloss-english" lang="en" dir="ltr">

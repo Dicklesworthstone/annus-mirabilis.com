@@ -32,7 +32,7 @@ import type {
 } from "../../content/schemas/source.ts";
 import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
-import { renderInlines } from "./inlines.tsx";
+import { renderInlines, unitTerms } from "./inlines.tsx";
 import { PageTurnMark } from "./PageTurnMark.tsx";
 import { PrintedDisplayTerms } from "./PrintedDisplayTerms.tsx";
 import { unitsWithTurns } from "./pageTurnPlaces.ts";
@@ -231,7 +231,11 @@ export function TranslationParagraphs({
       <Fragment key={u.id}>
         <span {...unitAttributes(u)} className="translation-unit">
           {pageMarks(u)}
-          {renderInlines(u.inlines, { idPrefix: anchorPrefix, footnoteTarget }, `tr-${u.id}`)}
+          {renderInlines(
+            u.inlines,
+            { idPrefix: anchorPrefix, footnoteTarget, terms: unitTerms(u) },
+            `tr-${u.id}`,
+          )}
           {showSource(u)}
         </span>{" "}
       </Fragment>

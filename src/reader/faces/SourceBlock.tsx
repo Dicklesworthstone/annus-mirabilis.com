@@ -73,7 +73,11 @@ export function SourceBlockComponent({
       bodyContent = (
         <h1 id={block.id} className="source-part-heading" data-block-id={block.id} lang={lang}>
           {locators}
-          {renderInlines(block.inlines, undefined, `src-${block.id}`)}
+          {renderInlines(
+            block.inlines,
+            { terms: { paper: block.paper, holder: block.id } },
+            `src-${block.id}`,
+          )}
         </h1>
       );
       break;
@@ -82,7 +86,11 @@ export function SourceBlockComponent({
       bodyContent = (
         <h2 id={block.id} className="source-heading" data-block-id={block.id} lang={lang}>
           {locators}
-          {renderInlines(block.inlines, undefined, `src-${block.id}`)}
+          {renderInlines(
+            block.inlines,
+            { terms: { paper: block.paper, holder: block.id } },
+            `src-${block.id}`,
+          )}
         </h2>
       );
       break;
@@ -92,7 +100,11 @@ export function SourceBlockComponent({
         <header id={block.id} className="source-masthead" data-block-id={block.id} lang={lang}>
           {locators}
           <div className="masthead-content">
-            {renderInlines(block.inlines, undefined, `src-${block.id}`)}
+            {renderInlines(
+              block.inlines,
+              { terms: { paper: block.paper, holder: block.id } },
+              `src-${block.id}`,
+            )}
           </div>
         </header>
       );
@@ -103,7 +115,11 @@ export function SourceBlockComponent({
         <div id={block.id} className="source-closing" data-block-id={block.id} lang={lang}>
           {locators}
           <div className="closing-content">
-            {renderInlines(block.inlines, undefined, `src-${block.id}`)}
+            {renderInlines(
+              block.inlines,
+              { terms: { paper: block.paper, holder: block.id } },
+              `src-${block.id}`,
+            )}
           </div>
         </div>
       );
@@ -184,7 +200,11 @@ export function SourceBlockComponent({
         >
           {locators}
           <div className="footnote-content">
-            {renderInlines(block.inlines, { misprintNotes: block.paper }, `src-${block.id}`)}
+            {renderInlines(
+              block.inlines,
+              { misprintNotes: block.paper, terms: { paper: block.paper, holder: block.id } },
+              `src-${block.id}`,
+            )}
           </div>
         </aside>
       );
@@ -244,7 +264,10 @@ export function SourceBlockComponent({
                         <Fragment key={`text-${piece.from}`}>
                           {renderInlines(
                             piece.inlines,
-                            { misprintNotes: block.paper },
+                            {
+                              misprintNotes: block.paper,
+                              terms: { paper: block.paper, holder: block.id },
+                            },
                             `src-span-${span.id}-${piece.from}`,
                           )}
                         </Fragment>
@@ -253,7 +276,10 @@ export function SourceBlockComponent({
                 : spanInlines.length > 0
                   ? renderInlines(
                       spanInlines,
-                      { misprintNotes: block.paper },
+                      {
+                        misprintNotes: block.paper,
+                        terms: { paper: block.paper, holder: block.id },
+                      },
                       `src-span-${span.id}`,
                     )
                   : block.diplomaticText.slice(span.span.start, span.span.end);
@@ -298,7 +324,11 @@ export function SourceBlockComponent({
             lang={lang}
           >
             {locators}
-            {renderInlines(block.inlines, undefined, `src-${block.id}`)}
+            {renderInlines(
+              block.inlines,
+              { terms: { paper: block.paper, holder: block.id } },
+              `src-${block.id}`,
+            )}
           </p>
         );
       }

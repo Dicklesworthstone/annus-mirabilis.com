@@ -3,6 +3,7 @@ import React from "react";
 import { misprintNotes } from "../../content/provenance/misprints.ts";
 import type { Inline } from "../../content/schemas/inlines.ts";
 import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
+import { printedInline } from "../../equations/printed/printedInlines.ts";
 import { DisplayMisprintNote } from "./DisplayMisprintNote.tsx";
 import { MisprintAnnotation } from "./MisprintAnnotation.tsx";
 import { speakMath } from "./mathSpeech.ts";
@@ -31,6 +32,20 @@ export interface RenderInlinesOptions {
    * across papers, and a note belongs to its own paper's receipt.
    */
   readonly misprintNotes?: string | undefined;
+  /**
+   * The paper and the block, sentence or unit these inlines belong to. Given, an inline formula the
+   * build compiled for that holder is drawn in colour (printedInlines.ts, dispatch 272), each bound
+   * glyph carrying its quantity id; any other is drawn plain.
+   */
+  readonly terms?: Readonly<{ paper: string; holder: string }> | undefined;
+}
+
+/** The holder a translation unit's formulas were compiled for: the unit itself, in its paper. */
+export function unitTerms(
+  unit: Readonly<{ id: string; sourceRefs: readonly Readonly<{ paper: string }>[] }>,
+): RenderInlinesOptions["terms"] {
+  const paper = unit.sourceRefs[0]?.paper;
+  return paper ? { paper, holder: unit.id } : undefined;
 }
 
 /**
@@ -111,13 +126,17 @@ export function renderInlines(
               set
             );
           }
+          // In colour where the build bound its glyphs through the concordance (inlineTerms.ts).
+          const coloured = printedInline(options?.terms?.paper, options?.terms?.holder, node.latex);
           return (
             <span
               key={key}
               className="inline-math"
               data-equation-id={node.equationId}
               data-inline-id={node.inlineId}
-              {...{ dangerouslySetInnerHTML: { __html: html } }}
+              data-paper={coloured ? options?.terms?.paper : undefined}
+              data-inline-terms={coloured && coloured.terms.length > 0 ? "" : undefined}
+              {...{ dangerouslySetInnerHTML: { __html: coloured?.html ?? html } }}
             />
           );
         } catch {

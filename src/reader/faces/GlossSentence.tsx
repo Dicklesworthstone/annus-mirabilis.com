@@ -135,7 +135,11 @@ export function GlossSentence({
       >
         <div className="sentence-german-unadorned" id={`sentence-german-${sentenceId}`} lang="de">
           {germanInlines
-            ? renderInlines(germanInlines, undefined, `gloss-de-${sentenceId}`)
+            ? renderInlines(
+                germanInlines,
+                { terms: { paper: paperSlug, holder: sentenceId } },
+                `gloss-de-${sentenceId}`,
+              )
             : germanText}
         </div>
         <p className="gloss-parallel-line">
@@ -251,6 +255,7 @@ export function GlossSentence({
                     key={`${sentenceId}-atoms-${cluster.start}`}
                     atoms={cluster.atoms}
                     keyPrefix={`${sentenceId}-a${cluster.start}`}
+                    terms={{ paper: paperSlug, holder: sentenceId }}
                   />
                 );
               }
@@ -271,6 +276,7 @@ export function GlossSentence({
                   modalityClasses={modalityClasses}
                   leading={cluster.leading}
                   trailing={cluster.trailing}
+                  terms={{ paper: paperSlug, holder: sentenceId }}
                 />
               );
             })
