@@ -44,7 +44,11 @@ export const INLINE_EXCEPTIONS_PATH = join("content", "inline-terms", "exception
  * these are drawn in colour (scripts/build-equations.ts), so a paper turns over whole. A paper joins
  * when its concordance reads every glyph its formulas print.
  */
-export const ENFORCED_INLINE_PAPERS: readonly string[] = ["mass-energy", "light-quanta"];
+export const ENFORCED_INLINE_PAPERS: readonly string[] = [
+  "mass-energy",
+  "light-quanta",
+  "brownian-motion",
+];
 
 export type InlineExceptionsCode =
   | "inline-exceptions-not-a-list"
