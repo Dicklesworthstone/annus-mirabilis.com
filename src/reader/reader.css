@@ -972,8 +972,12 @@ html:is(
   outline: 1px dashed var(--accent, #d97706);
 }
 
+/* Room between a page label and the words its line wraps around it (dispatch 237). Without it a
+   word could end flush against the label: on a build of af83aecc at 390 the least room was 0px on
+   every paper's parallel face and on relativity's German face. */
 .block-locator {
   float: right;
+  margin-left: 1em;
   font-size: var(--type-micro);
   color: var(--muted);
   user-select: none;
@@ -991,37 +995,42 @@ html:is(
   padding-top: 1.5rem;
 }
 
-/* On a phone each row is its German, then its English, each under its language's name, and a
-   hairline closes the pair. The column heads go: the halves name themselves. */
+/* On a phone each row is its German, then its English, and a hairline closes the pair (dispatch
+   237). The languages are named once, by the column heads standing above the first pair as a key
+   (below, after .column-heading), and the English half carries the key's thin rule down the page.
+   Each half keeps its visually hidden name and its lang for a screen reader. Until 237 every half
+   showed its name: measured on a build of af83aecc at 390, 230 labels on relativity's parallel face.
+
+   The pair reads as one unit because its halves share one paragraph gap. A grid item is a block
+   formatting context, so the German's last margin and the English's first could not collapse, and
+   with the labels and the halves' padding they stood 79px apart at 390, against 108px between
+   pairs. As plain blocks the two margins collapse into one paragraph gap.
+
+   The hairline between pairs is a block of its own (::after), with a paragraph gap above and below
+   it, so each gap collapses with the content's margin on its side and comes out at least one
+   paragraph gap: one gap within a pair, two and a rule between pairs. A border on the row gave
+   that only where the content brought its own margin, and an English display or footnote brings
+   none, so after one the next pair stood 18px below, the rule and nothing else. */
 @media (max-width: 768px) {
-  .parallel-heads {
-    display: none;
-  }
   .parallel-row {
-    grid-template-columns: minmax(0, 1fr);
-    border-bottom: 1px solid var(--line);
-    margin-bottom: 1.25rem;
+    display: block;
   }
-  .parallel-half-german,
-  .parallel-half-english {
-    grid-column: 1;
+  .parallel-row::after {
+    content: "";
+    display: block;
+    margin-block: var(--reader-paragraph-gap);
+    border-top: 1px solid var(--line);
+  }
+  .parallel-half {
+    padding-bottom: 0;
   }
   .parallel-half-german {
     border-right: none;
     padding-right: 0;
-    padding-bottom: 1rem;
   }
-  .parallel-half .parallel-half-label {
-    position: static;
-    width: auto;
-    height: auto;
-    margin: 0 0 0.35rem;
-    overflow: visible;
-    clip-path: none;
-    white-space: normal;
-    font-family: var(--font-sans);
-    font-size: var(--type-fine);
-    color: var(--muted);
+  .parallel-half-english {
+    border-left: 2px solid var(--line);
+    padding-left: 0.75rem;
   }
 }
 
@@ -1600,6 +1609,32 @@ html:is(
 
 .masthead-content {
   font-style: italic;
+}
+
+/* The parallel face's pairs on a phone (dispatch 237; the rest of the rules are with the rows). A
+   block takes the paragraph gap, as the German face's blocks do, where it had 1.5rem. The
+   masthead's divider and the part heading's underline close a block on the German face; in a pair
+   the hairline after it does that, and each stood between a German heading and its English. A
+   heading keeps its space above the pair, and its English follows it at the paragraph gap: the
+   English heading's own 2rem top margin had stood the pair 32px apart. After the rules above,
+   which the descending-specificity lint wants first. */
+@media (max-width: 768px) {
+  .parallel-half .source-block-wrapper {
+    margin-block: var(--reader-paragraph-gap);
+  }
+  .parallel-half .source-masthead {
+    margin-block: var(--reader-paragraph-gap);
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+  .parallel-half .source-part-heading {
+    margin-bottom: var(--reader-paragraph-gap);
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+  .parallel-half-english > :is(.source-heading, .source-part-heading) {
+    margin-top: var(--reader-paragraph-gap);
+  }
 }
 
 .source-closing {
@@ -2446,6 +2481,30 @@ html:is(
 /* The parallel face's column heads are paragraphs, and `.reader-root p` sets margin-block at (0,1,1). */
 .parallel-heads .column-heading {
   margin-block: 0 1rem;
+}
+
+/* On a phone the heads are the key to the pairs below (dispatch 237): German over English, the
+   English marked with the rule its halves carry, and a hairline under the key like the one under
+   each pair. After the rule above, which sets the same margin at the same specificity. */
+@media (max-width: 768px) {
+  .parallel-heads {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0.25rem;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.5rem;
+  }
+  .parallel-heads .column-heading {
+    margin: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+    font-family: var(--font-sans);
+    font-size: var(--type-fine);
+    color: var(--muted);
+  }
+  .parallel-heads .column-heading + .column-heading {
+    border-left: 2px solid var(--line);
+    padding-left: 0.75rem;
+  }
 }
 
 .source-blocks-list,
