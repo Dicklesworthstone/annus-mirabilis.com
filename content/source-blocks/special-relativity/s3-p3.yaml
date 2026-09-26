@@ -78,3 +78,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 898
+    startsWith: "bewegten System k mittels des mit ihm bewegten"

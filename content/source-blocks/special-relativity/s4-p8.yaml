@@ -58,3 +58,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 905
+    startsWith: "gebliebenen um"

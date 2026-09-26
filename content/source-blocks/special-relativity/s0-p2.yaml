@@ -66,3 +66,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 892
+    startsWith: "Voraussetzung einführen, daß sich das Licht"

@@ -70,3 +70,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 917
+    startsWith: "Da — wie aus dem Additionstheorem"

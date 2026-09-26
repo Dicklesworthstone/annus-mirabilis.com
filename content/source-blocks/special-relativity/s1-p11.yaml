@@ -29,3 +29,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 895
+    startsWith: "ruhender Uhren definiert haben"

@@ -145,3 +145,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 900
+    startsWith: "von k im ruhenden System gemessen"

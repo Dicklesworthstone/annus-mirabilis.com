@@ -71,3 +71,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 893
+    startsWith: "Wir haben zu berücksichtigen"

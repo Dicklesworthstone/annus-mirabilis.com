@@ -264,3 +264,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 902
+    startsWith: "und es ist klar, daß die Transformation"

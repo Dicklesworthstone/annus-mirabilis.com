@@ -209,3 +209,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 906
+    startsWith: "\\alpha ist dann als der Winkel"

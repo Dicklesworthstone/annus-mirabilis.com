@@ -33,3 +33,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 901
+    startsWith: "System der Fall ist"

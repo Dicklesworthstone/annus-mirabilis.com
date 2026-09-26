@@ -54,3 +54,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 904
+    startsWith: "System ruhend die Zeit \\tau anzugeben"

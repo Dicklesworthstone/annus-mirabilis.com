@@ -90,3 +90,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 899
+    startsWith: "Hieraus folgt, wenn man"

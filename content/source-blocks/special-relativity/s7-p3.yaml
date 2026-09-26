@@ -102,3 +102,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 912
+    startsWith: "Für \\varphi = 0 nimmt die Gleichung"

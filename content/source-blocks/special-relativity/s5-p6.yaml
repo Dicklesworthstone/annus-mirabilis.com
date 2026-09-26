@@ -130,3 +130,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 907
+    startsWith: "tritt; man sieht daraus"
