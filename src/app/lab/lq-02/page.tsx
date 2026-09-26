@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { ModeAllocationLab } from "../../../components/lab/ModeAllocationLab.tsx";
 import { DEFAULT_LQ02_INPUTS } from "../../../experiments/lq02/session.ts";
 
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export default function ModeAllocationPage() {
   return (
     <>
+      <LabInlineTerms lab="lq-02" />
       <header className="page-intro">
         <p className="eyebrow">Light quanta · Sections 1–2</p>
         <h1>

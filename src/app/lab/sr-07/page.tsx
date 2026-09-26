@@ -5,6 +5,7 @@ import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr07/session.ts";
 import labDigests from "../../../generated/lab-source-digests.json";
 import "./equations.css";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 
 export const metadata: Metadata = {
   title: "Transform the field equations",
@@ -18,6 +19,7 @@ export default function FieldEquationsPage() {
     throw new Error("The prepared field-equation settings are invalid.");
   return (
     <>
+      <LabInlineTerms lab="sr-07" />
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Electrodynamics §6</p>
         <h1>

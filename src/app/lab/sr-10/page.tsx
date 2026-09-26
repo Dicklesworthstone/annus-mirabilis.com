@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { LightComplexLab } from "../../../components/lab/sr10/LightComplexLab.tsx";
 import { validateSr10Parameters } from "../../../experiments/sr10/parameters.ts";
 import example from "../../../generated/sr10-example.json";
@@ -17,6 +18,7 @@ export default function LightComplexPage() {
 
   return (
     <>
+      <LabInlineTerms lab="sr-10" />
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Electrodynamics §8</p>
         <h1>

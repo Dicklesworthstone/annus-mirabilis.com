@@ -6,8 +6,11 @@ import "../../generated/quantity-colours-by-paper.css";
 
 /**
  * A laboratory's formula in its paper's colours (dispatch 274): each term the notation concordance
- * binds in the lab's scope is marked with its quantity, coloured as on the reading faces, and lit
- * with every other mark of the same quantity on pointing, focus or a press (TermHighlight).
+ * binds in the lab's scope is marked with its quantity and coloured as on the reading faces, and
+ * lit as there. A formula in a sentence is the page's to light (LabInlineTerms, the faces' inline
+ * island): pointing at a glyph lights every copy of its quantity on the page, a press pins it with
+ * the inspector after the formula. A display lights its own terms (TermHighlight), as a printed
+ * display does on the faces, and is lit with the page.
  *
  * Its own component, not an option of Formula or InlineFormula: those also render on the reading
  * and Discover pages, and a client island imported there ships there whether or not it renders.
@@ -46,26 +49,40 @@ function LabMath({
   const result = labFormula(lab, latex, displayMode, printed === true);
   const Element = displayMode ? "div" : "span";
   const className = displayMode ? "formula" : "formula-inline";
-  if (result.kind === "resolved" && result.compiled.terms.length > 0)
+  if (result.kind === "resolved" && result.compiled.terms.length > 0) {
+    const drawn = (
+      <Element
+        className={className}
+        tabIndex={tabIndex}
+        data-latex={latex}
+        {...{ dangerouslySetInnerHTML: { __html: result.compiled.html } }}
+      />
+    );
+    // A formula in a sentence takes the faces' inline markup, which the page's island finds, with
+    // the same tints and none of .printed-display-terms' display: block, which broke each coloured
+    // inline formula onto a line of its own.
+    if (!displayMode)
+      return (
+        <span
+          className="inline-math"
+          data-inline-terms=""
+          data-paper={result.compiled.paper}
+          data-lab-formula={lab}
+        >
+          {drawn}
+        </span>
+      );
     return (
       <TermHighlight
-        as={displayMode ? "div" : "span"}
-        // A display takes the printed displays' block; a formula in a sentence takes the faces'
-        // inline markup, the same tints without .printed-display-terms' display: block, which
-        // broke each coloured inline formula onto a line of its own.
-        className={displayMode ? "printed-display-terms" : "inline-math"}
-        data-inline-terms={displayMode ? undefined : ""}
+        as="div"
+        className="printed-display-terms"
         data-paper={result.compiled.paper}
         data-lab-formula={lab}
       >
-        <Element
-          className={className}
-          tabIndex={tabIndex}
-          data-latex={latex}
-          {...{ dangerouslySetInnerHTML: { __html: result.compiled.html } }}
-        />
+        {drawn}
       </TermHighlight>
     );
+  }
   const refused =
     result.kind === "refused"
       ? [...new Set(result.problems.map((p) => p.glyph))].join(" ")

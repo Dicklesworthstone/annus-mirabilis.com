@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DriftDiffusionLab } from "../../../components/lab/DriftDiffusionLab.tsx";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { validateBm04Parameters } from "../../../experiments/bm04/parameters.ts";
 import example from "../../../generated/bm04-example.json";
 import { NotModeledLine } from "../NotModeledLine.tsx";
@@ -18,6 +19,7 @@ export default function DriftDiffusionLabPage() {
   }
   return (
     <>
+      <LabInlineTerms lab="bm-04" />
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · Route A §3</p>
         <h1>

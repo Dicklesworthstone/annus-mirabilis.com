@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { WaveDescriptionLab } from "../../../components/lab/WaveDescriptionLab.tsx";
 import { validateLq01Parameters } from "../../../experiments/lq01/parameters.ts";
 import example from "../../../generated/lq01-example.json";
@@ -18,6 +19,7 @@ export default function WaveDescriptionPage() {
 
   return (
     <>
+      <LabInlineTerms lab="lq-01" />
       <header className="page-intro">
         <p className="eyebrow">Light quanta · Introduction</p>
         <h1>

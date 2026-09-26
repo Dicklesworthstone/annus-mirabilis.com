@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { PhotoelectricComparison } from "../../../components/lab/lq08/PhotoelectricLab.tsx";
 import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
 import example from "../../../generated/lq08-example.json";
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 export default function PhotoelectricPage() {
   return (
     <>
+      <LabInlineTerms lab="lq-08" />
       <header className="page-intro">
         <p className="eyebrow">Light quanta · Section 8</p>
         <h1>

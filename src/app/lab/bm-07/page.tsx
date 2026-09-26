@@ -2,6 +2,7 @@ import "./inference.css";
 import type { Metadata } from "next";
 import { InferenceComparison } from "../../../components/lab/InferenceLab.tsx";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { validateBm07Parameters } from "../../../experiments/bm07/parameters.ts";
 import example from "../../../generated/bm07-example.json";
 export const metadata: Metadata = {
@@ -14,6 +15,7 @@ export default function InferencePage() {
   if (checked.kind !== "accepted") throw new Error("The prepared inference settings are invalid.");
   return (
     <>
+      <LabInlineTerms lab="bm-07" />
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · Learning from a finite sample</p>
         <h1>

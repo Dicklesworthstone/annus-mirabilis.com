@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { BoundaryLedgerComparison } from "../../../components/lab/me03/BoundaryLedgerLab.tsx";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/me03/session.ts";
 import labDigests from "../../../generated/lab-source-digests.json";
@@ -16,6 +17,7 @@ export default function BoundaryLedgerPage() {
 
   return (
     <>
+      <LabInlineTerms lab="me-03" />
       <header className="page-intro">
         <p className="eyebrow">Mass–Energy · System boundaries & empirical checks</p>
         <h1>

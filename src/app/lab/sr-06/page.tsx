@@ -5,6 +5,7 @@ import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr06/session.ts";
 import labDigests from "../../../generated/lab-source-digests.json";
 import "./composition.css";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 
 export const metadata: Metadata = {
   title: "Velocity composition",
@@ -18,6 +19,7 @@ export default function VelocityCompositionPage() {
     throw new Error("The prepared composition settings are invalid.");
   return (
     <>
+      <LabInlineTerms lab="sr-06" />
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Kinematics §5</p>
         <h1>

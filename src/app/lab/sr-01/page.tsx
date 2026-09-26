@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { ClockSyncComparison } from "../../../components/lab/sr01/ClockSyncLab.tsx";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr01/session.ts";
 import labDigests from "../../../generated/lab-source-digests.json";
@@ -16,6 +17,7 @@ export default function ClockSyncPage() {
 
   return (
     <>
+      <LabInlineTerms lab="sr-01" />
       <header className="page-intro">
         <p className="eyebrow">Special relativity &middot; Clock synchronization</p>
         <h1>

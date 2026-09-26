@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { MagnetConductorComparison } from "../../../components/lab/MagnetConductorLab.tsx";
 import { validateSr02Parameters } from "../../../experiments/sr02/parameters.ts";
 import example from "../../../generated/sr02-example.json";
@@ -17,6 +18,7 @@ export default function MagnetConductorPage() {
   }
   return (
     <>
+      <LabInlineTerms lab="sr-02" />
       <header className="page-intro">
         <p className="eyebrow">Special relativity · The opening asymmetry</p>
         <h1>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { ChargeCurrentLab } from "../../../components/lab/sr12/ChargeCurrentLab.tsx";
 import { validateSr12Parameters } from "../../../experiments/sr12/parameters.ts";
 import example from "../../../generated/sr12-example.json";
@@ -18,6 +19,7 @@ export default function ChargeCurrentPage() {
 
   return (
     <>
+      <LabInlineTerms lab="sr-12" />
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Electrodynamics §9</p>
         <h1>

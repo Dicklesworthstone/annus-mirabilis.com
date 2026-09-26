@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { FieldFrameChangeLab } from "../../../components/lab/sr08/FieldFrameChangeLab.tsx";
 import { validateSr08Parameters } from "../../../experiments/sr08/parameters.ts";
 import example from "../../../generated/sr08-example.json";
@@ -18,6 +19,7 @@ export default function FieldFrameChangePage() {
 
   return (
     <>
+      <LabInlineTerms lab="sr-08" />
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Electrodynamics §6</p>
         <h1>

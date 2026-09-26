@@ -3,6 +3,7 @@ import "./camera.css";
 import type { Metadata } from "next";
 import { CameraComparison } from "../../../components/lab/CameraLab.tsx";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { validateBm08Parameters } from "../../../experiments/bm08/parameters.ts";
 import example from "../../../generated/bm08-example.json";
 export const metadata: Metadata = {
@@ -15,6 +16,7 @@ export default function CameraPage() {
   if (p.kind !== "accepted") throw new Error("Invalid prepared camera settings.");
   return (
     <>
+      <LabInlineTerms lab="bm-08" />
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · A later measurement model</p>
         <h1>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { EntropyWorkbenchComparison } from "../../../components/lab/lq04/EntropyWorkbenchLab.tsx";
 import example from "../../../generated/lq04-example.json";
 
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export default function EntropyWorkbenchPage() {
   return (
     <>
+      <LabInlineTerms lab="lq-04" />
       <header className="page-intro">
         <p className="eyebrow">Light quanta · Sections 3-4</p>
         <h1>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { CoefficientMatchEntry } from "../../../components/lab/lq06/CoefficientMatchEntry.tsx";
 import type { PreparedLq06Example } from "../../../experiments/lq06/session.ts";
 import example from "../../../generated/lq06-example.json";
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 export default function CoefficientMatchPage() {
   return (
     <>
+      <LabInlineTerms lab="lq-06" />
       <header className="page-intro">
         <p className="eyebrow">Light quanta · Section 6</p>
         <h1>

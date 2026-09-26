@@ -12,6 +12,8 @@ import { buildMassEnergyLowSpeed } from "../src/equations/derivations/massEnergy
 import { renderLowSpeedProof } from "../src/equations/derivations/renderLowSpeed.ts";
 import { notationNoteTarget } from "../src/equations/notationNoteTarget.ts";
 import { explanationFormulas } from "../src/equations/printed/explanationFormulas.ts";
+import { labFormulaSites } from "../src/equations/printed/labFormulaSites.ts";
+import { labInlineViews } from "../src/equations/printed/labInlines.ts";
 import { assertPublishable, printedDisplays } from "../src/equations/printed/paperDisplays.ts";
 import {
   assertInlinesPublishable,
@@ -113,6 +115,20 @@ for (const e of explanationPapers)
       paper: e.paper,
       formulas: e.formulas.length,
       quantities: Object.keys(e.quantities).length,
+    }),
+  );
+// A laboratory's formulas (dispatch 274), read from the lab pages' JSX (labFormulaSites.ts) and
+// resolved as the pages resolve them (labInlines.ts), so their quantities get colour slots with the
+// faces' inline formulas, two quantities of one lab formula differ, and each lab's island has its
+// quantities' facts.
+const labViews = labInlineViews(labFormulaSites(process.cwd()));
+for (const l of Object.values(labViews.papers))
+  console.log(
+    JSON.stringify({
+      event: "lab-formulas",
+      paper: l.paper,
+      formulas: l.formulas.length,
+      quantities: Object.keys(l.quantities).length,
     }),
   );
 for (const p of inlinePapers) {
@@ -306,6 +322,7 @@ for (const paper of [...new Set(equations.map((e) => e.paper))].sort()) {
   const inlineOwn = [
     ...Object.values(inlinePapers.find((p) => p.paper === paper)?.formulas ?? {}),
     ...(explanationPapers.find((e) => e.paper === paper)?.formulas ?? []),
+    ...(labViews.papers[paper]?.formulas ?? []),
   ].filter((f) => f.terms.length > 0);
   const inlineViews = [
     ...new Map(
@@ -507,6 +524,36 @@ await writeFile(
           quantities: inlineQuantityFacts(process.cwd(), e, {
             firstUse: (paper, anchor) => resolveFirstUse(paper, anchor, firstUseTargets),
           }),
+        },
+      ]),
+    ),
+  })}\n`,
+);
+// The inspector's facts for each quantity a lab's formulas bind, lab by lab (LabInlineTerms).
+const labFacts = Object.fromEntries(
+  Object.values(labViews.papers).map((l) => [
+    l.paper,
+    inlineQuantityFacts(process.cwd(), l, {
+      firstUse: (paper, anchor) => resolveFirstUse(paper, anchor, firstUseTargets),
+    }),
+  ]),
+);
+await writeFile(
+  "src/generated/lab-inlines.json",
+  `${JSON.stringify({
+    schemaVersion: 1,
+    rendererDigest,
+    labs: Object.fromEntries(
+      Object.entries(labViews.labs).map(([lab, l]) => [
+        lab,
+        {
+          paper: l.paper,
+          quantities: Object.fromEntries(
+            l.quantityIds.flatMap((id) => {
+              const facts = labFacts[l.paper]?.[id];
+              return facts ? [[id, facts]] : [];
+            }),
+          ),
         },
       ]),
     ),

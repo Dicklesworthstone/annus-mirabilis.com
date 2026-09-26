@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { ElectronDynamicsLab } from "../../../components/lab/sr13/ElectronDynamicsLab.tsx";
 import { validateSr13Parameters } from "../../../experiments/sr13/parameters.ts";
 import example from "../../../generated/sr13-example.json";
@@ -18,6 +19,7 @@ export default function ElectronDynamicsPage() {
 
   return (
     <>
+      <LabInlineTerms lab="sr-13" />
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Electrodynamics §10</p>
         <h1>

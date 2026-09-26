@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ConfigurationComparison } from "../../../components/lab/bm03/ConfigurationLab.tsx";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { BM03_DEFAULTS } from "../../../experiments/bm03/definition.ts";
 import { evaluateBm03 } from "../../../experiments/bm03/session.ts";
 
@@ -19,6 +20,7 @@ export default function ConfigurationPage() {
 
   return (
     <>
+      <LabInlineTerms lab="bm-03" />
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · The statistical mechanics derivation</p>
         <h1>

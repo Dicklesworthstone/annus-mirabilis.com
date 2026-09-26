@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { IonizationComparison } from "../../../components/lab/lq09/IonizationLab.tsx";
 import example from "../../../generated/lq09-example.json";
 
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export default function IonizationPage() {
   return (
     <>
+      <LabInlineTerms lab="lq-09" />
       <header className="page-intro">
         <p className="eyebrow">Light quanta · Section 9</p>
         <h1>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { MovingMirrorLab } from "../../../components/lab/sr11/MovingMirrorLab.tsx";
 import { validateSr11Parameters } from "../../../experiments/sr11/parameters.ts";
 import example from "../../../generated/sr11-example.json";
@@ -18,6 +19,7 @@ export default function MovingMirrorPage() {
 
   return (
     <>
+      <LabInlineTerms lab="sr-11" />
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Electrodynamics §8</p>
         <h1>

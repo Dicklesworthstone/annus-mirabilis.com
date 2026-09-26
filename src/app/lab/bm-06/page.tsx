@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BrownianComparison } from "../../../components/lab/BrownianLab.tsx";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import example from "../../../generated/bm06-example.json";
 export const metadata: Metadata = {
   title: "The spreading laboratory",
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 export default function BrownianLabPage() {
   return (
     <>
+      <LabInlineTerms lab="bm-06" />
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · Laboratory preview</p>
         <h1>

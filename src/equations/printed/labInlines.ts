@@ -48,6 +48,7 @@ import {
   type ResolvedInline,
   resolveInlineTerms,
 } from "./inlineTerms.ts";
+import type { LabFormulaSite } from "./labFormulaSites.ts";
 import { modernInlineEntries } from "./modernScope.ts";
 
 /**
@@ -65,7 +66,7 @@ const PAPER_SLUGS: Readonly<Record<string, string>> = { relativity: "special-rel
 export type LabScope = Readonly<{ paper: string; sections: readonly string[] }>;
 
 export type LabFormula =
-  | Readonly<{ kind: "resolved"; compiled: CompiledInline }>
+  | Readonly<{ kind: "resolved"; compiled: CompiledInline; section: string }>
   | Readonly<{ kind: "refused"; paper: string; problems: readonly InlineTermsProblem[] }>
   | Readonly<{ kind: "unscoped" }>;
 
@@ -286,9 +287,80 @@ export function labFormula(
             compiled: displayMode
               ? compileInlineFormula(best, display)
               : compileInlineFormula(best),
+            section: best.scope.section,
           }
         : { kind: "refused", paper: scope.paper, problems: best?.problems ?? [] };
   }
   formulas.set(key, result);
   return result;
+}
+
+/** A coloured lab formula as the build's colour slots take it: its quantities, by glyph. */
+export type LabInlineView = Readonly<{
+  lab: string;
+  latex: string;
+  terms: readonly Readonly<{ quantityId: string; glyph: string }>[];
+}>;
+
+/** Each paper's coloured lab formulas and quantities, and each lab's quantities. */
+export type LabInlineViews = Readonly<{
+  papers: Readonly<
+    Record<
+      string,
+      Readonly<{
+        paper: string;
+        formulas: readonly LabInlineView[];
+        /** Each bound quantity, with its glyphs and the scope of its first use, as the facts expect. */
+        quantities: Readonly<
+          Record<
+            string,
+            Readonly<{
+              glyphs: readonly string[];
+              scope: Readonly<{ anchor: string; section: string }>;
+            }>
+          >
+        >;
+      }>
+    >
+  >;
+  labs: Readonly<Record<string, Readonly<{ paper: string; quantityIds: readonly string[] }>>>;
+}>;
+
+/**
+ * The labs' coloured formulas, resolved exactly as the pages resolve them (labFormula), for
+ * build-equations.ts: their quantities join each paper's inline views, so two quantities of one lab
+ * formula take different colours as on the faces, and each lab's island gets its quantities' facts.
+ */
+export function labInlineViews(sites: readonly LabFormulaSite[]): LabInlineViews {
+  const papers: Record<
+    string,
+    {
+      paper: string;
+      formulas: LabInlineView[];
+      quantities: Record<string, { glyphs: string[]; scope: { anchor: string; section: string } }>;
+    }
+  > = {};
+  const labs: Record<string, { paper: string; quantityIds: string[] }> = {};
+  for (const site of sites) {
+    const result = labFormula(site.lab, site.latex, site.display, site.printed);
+    if (result.kind !== "resolved" || result.compiled.terms.length === 0) continue;
+    const paper = result.compiled.paper;
+    const terms = result.compiled.terms.map(({ quantityId, glyph }) => ({ quantityId, glyph }));
+    const own = papers[paper] ?? { paper, formulas: [], quantities: {} };
+    papers[paper] = own;
+    own.formulas.push({ lab: site.lab, latex: site.latex, terms });
+    const lab = labs[site.lab] ?? { paper, quantityIds: [] };
+    labs[site.lab] = lab;
+    for (const { quantityId, glyph } of terms) {
+      const use = own.quantities[quantityId];
+      if (!use)
+        own.quantities[quantityId] = {
+          glyphs: [glyph],
+          scope: { anchor: result.section, section: result.section },
+        };
+      else if (!use.glyphs.includes(glyph)) use.glyphs.push(glyph);
+      if (!lab.quantityIds.includes(quantityId)) lab.quantityIds.push(quantityId);
+    }
+  }
+  return { papers, labs };
 }

@@ -2,6 +2,7 @@ import { NotModeledLine } from "../NotModeledLine.tsx";
 import "./walks.css";
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { WalkComparison } from "../../../components/lab/WalkLab.tsx";
 import { validateBm05Parameters } from "../../../experiments/bm05/parameters.ts";
 import example from "../../../generated/bm05-example.json";
@@ -15,6 +16,7 @@ export default function WalkPage() {
   if (checked.kind !== "accepted") throw new Error("The prepared walk parameters are invalid.");
   return (
     <>
+      <LabInlineTerms lab="bm-05" />
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · The distribution argument</p>
         <h1>

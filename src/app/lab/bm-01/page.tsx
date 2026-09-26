@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { TracerComparison } from "../../../components/lab/TracerLab.tsx";
 import { LAB_CARDS, labShareImages } from "../../../components/share/shareImages.ts";
 import example from "../../../generated/bm01-example.json";
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 export default function TracerPage() {
   return (
     <>
+      <LabInlineTerms lab="bm-01" />
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · Synthetic experiment</p>
         <h1>Where does a wandering particle end up?</h1>

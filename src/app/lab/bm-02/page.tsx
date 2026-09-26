@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { OsmoticPartitionLab } from "../../../components/lab/OsmoticPartitionLab.tsx";
 import { DEFAULT_BM02_INPUTS } from "../../../experiments/bm02/session.ts";
 
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export default function OsmoticPartitionPage() {
   return (
     <>
+      <LabInlineTerms lab="bm-02" />
       <header className="page-intro">
         <p className="eyebrow">Brownian motion · Section 1</p>
         <h1>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { RodSimultaneityLab } from "../../../components/lab/RodSimultaneityLab.tsx";
 import { validateSr03Parameters } from "../../../experiments/sr03/parameters.ts";
 import example from "../../../generated/sr03-example.json";
@@ -18,6 +19,7 @@ export default function RodSimultaneityPage() {
 
   return (
     <>
+      <LabInlineTerms lab="sr-03" />
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Kinematics §2 &amp; §4</p>
         <h1>

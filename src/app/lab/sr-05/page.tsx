@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { MovingClocksLab } from "../../../components/lab/sr05/MovingClocksLab.tsx";
 import type { PreparedSr05Example } from "../../../experiments/sr05/session.ts";
 import generatedExample from "../../../generated/sr05-example.json";
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 export default function MovingClocksPage() {
   return (
     <>
+      <LabInlineTerms lab="sr-05" />
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Section 4</p>
         <h1>

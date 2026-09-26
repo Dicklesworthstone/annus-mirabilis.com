@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
+import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { DopplerAberrationLab } from "../../../components/lab/sr09/DopplerAberrationLab.tsx";
 import { validateSr09Parameters } from "../../../experiments/sr09/parameters.ts";
 import example from "../../../generated/sr09-example.json";
@@ -17,6 +18,7 @@ export default function DopplerAberrationPage() {
 
   return (
     <>
+      <LabInlineTerms lab="sr-09" />
       <header className="page-intro">
         <p className="eyebrow">Special relativity · Electrodynamics §7</p>
         <h1>
