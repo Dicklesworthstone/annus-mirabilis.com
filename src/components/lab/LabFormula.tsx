@@ -50,7 +50,11 @@ function LabMath({
     return (
       <TermHighlight
         as={displayMode ? "div" : "span"}
-        className="printed-display-terms"
+        // A display takes the printed displays' block; a formula in a sentence takes the faces'
+        // inline markup, the same tints without .printed-display-terms' display: block, which
+        // broke each coloured inline formula onto a line of its own.
+        className={displayMode ? "printed-display-terms" : "inline-math"}
+        data-inline-terms={displayMode ? undefined : ""}
         data-paper={result.compiled.paper}
         data-lab-formula={lab}
       >

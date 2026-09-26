@@ -91,10 +91,26 @@ describe("a lab's formulas are coloured in its paper's notation, or name their g
       const formulas = [...document.querySelectorAll(`[data-lab-formula="${lab}"]`)];
       const coloured = formulas.filter(
         (f) =>
-          f.classList.contains("printed-display-terms") &&
+          (f.classList.contains("printed-display-terms") ||
+            (f.classList.contains("inline-math") && f.hasAttribute("data-inline-terms"))) &&
           f.getAttribute("data-paper") === labScope(lab)?.paper &&
           f.querySelector("[data-quantity-id]") !== null,
       );
+      // A formula in a sentence stays in its line: .printed-display-terms is display: block
+      // (equations.css), so it belongs to a display alone, and an inline formula takes the faces'
+      // inline markup instead.
+      expect(
+        coloured
+          .filter((f) => f.tagName.toLowerCase() === "span")
+          .filter((f) => f.classList.contains("printed-display-terms"))
+          .map((f) => f.querySelector("[data-latex]")?.getAttribute("data-latex")),
+      ).toEqual([]);
+      expect(
+        coloured
+          .filter((f) => f.tagName.toLowerCase() === "div")
+          .filter((f) => !f.classList.contains("printed-display-terms"))
+          .map((f) => f.querySelector("[data-latex]")?.getAttribute("data-latex")),
+      ).toEqual([]);
       const bare = formulas.filter((f) => f.getAttribute("data-lab-formula-bound") === "none");
       const refused = formulas.filter((f) => (f.getAttribute("data-inline-refused") ?? "") !== "");
       const silent = formulas.filter(
@@ -117,7 +133,7 @@ describe("a lab's formulas are coloured in its paper's notation, or name their g
     for (const lab of LABS) {
       const document = await page(lab);
       coloured += document.querySelectorAll(
-        `.printed-display-terms[data-lab-formula="${lab}"] [data-quantity-id]`,
+        `[data-lab-formula="${lab}"][data-paper] [data-quantity-id]`,
       ).length;
     }
     expect(coloured).toBeGreaterThan(0);
