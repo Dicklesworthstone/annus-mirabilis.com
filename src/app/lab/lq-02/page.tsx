@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
+import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { ModeAllocationLab } from "../../../components/lab/ModeAllocationLab.tsx";
 import { DEFAULT_LQ02_INPUTS } from "../../../experiments/lq02/session.ts";
 
@@ -39,7 +39,8 @@ export default function ModeAllocationPage() {
 
       <section className="reading">
         <h2>The law this instrument calculates</h2>
-        <Formula
+        <LabFormula
+          lab="lq-02"
           latex={String.raw`\begin{aligned}U(\nu_c) &= \int_0^{\nu_c} \frac{8\pi\nu^2}{c^3}k_BT\,d\nu \\ &= \frac{8\pi k_BT}{3c^3}\nu_c^3\end{aligned}`}
         />
         <p>

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
-import { InlineFormula } from "../../../components/lab/InlineFormula.tsx";
+import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
 import { WaveDescriptionLab } from "../../../components/lab/WaveDescriptionLab.tsx";
 import { validateLq01Parameters } from "../../../experiments/lq01/parameters.ts";
 import example from "../../../generated/lq01-example.json";
@@ -60,7 +59,8 @@ export default function WaveDescriptionPage() {
           continuous wave picture. When two coherent monochromatic waves superpose at a point, their
           scalar fields add linearly:
         </p>
-        <Formula
+        <LabFormula
+          lab="lq-01"
           latex={String.raw`\begin{aligned}\psi(\mathbf{r}, t) &= \frac{A_1}{r_1}\cos(k r_1 - \omega t + \phi_1) \\ &\quad + \frac{A_2}{r_2}\cos(k r_2 - \omega t + \phi_2)\end{aligned}`}
         />
 
@@ -68,33 +68,38 @@ export default function WaveDescriptionPage() {
         <p>
           Optical detectors (the eye, photographic plates, chemical actinometers) cannot resolve
           oscillations at optical frequencies (
-          <InlineFormula latex={String.raw`\nu \sim 10^{14}\text{--}10^{15}\text{ Hz}`} />
+          <LabInlineFormula
+            lab="lq-01"
+            latex={String.raw`\nu \sim 10^{14}\text{--}10^{15}\text{ Hz}`}
+          />
           ). They record exclusively the <em>time-averaged intensity</em> over millions of optical
           periods:
         </p>
-        <Formula
+        <LabFormula
+          lab="lq-01"
           latex={String.raw`\langle I \rangle = \frac{\kappa}{2}\left[ a_1^2 + a_2^2 + 2 a_1 a_2 \cos\delta \right]`}
         />
         <p>
-          For two equal-amplitude coherent waves in phase (<InlineFormula latex="\delta = 0" />
+          For two equal-amplitude coherent waves in phase (
+          <LabInlineFormula lab="lq-01" latex="\delta = 0" />
           ), the time-averaged intensity at constructive interference is 4 times that of a single
-          wave. When shifted by half a wave (<InlineFormula latex="\delta = \pi" />
+          wave. When shifted by half a wave (<LabInlineFormula lab="lq-01" latex="\delta = \pi" />
           ), the intensity drops to identically zero.
         </p>
 
         <h2>Geometric energy spreading</h2>
         <p>
           On the wave theory, energy emitted by an isotropic point source of power{" "}
-          <InlineFormula latex="P" /> spreads continuously over expanding spherical wavefronts of
-          surface area <InlineFormula latex="4\pi r^2" />. The radiant intensity at distance{" "}
-          <InlineFormula latex="r" /> is:
+          <LabInlineFormula lab="lq-01" latex="P" /> spreads continuously over expanding spherical
+          wavefronts of surface area <LabInlineFormula lab="lq-01" latex="4\pi r^2" />. The radiant
+          intensity at distance <LabInlineFormula lab="lq-01" latex="r" /> is:
         </p>
-        <Formula latex={String.raw`I(r) = \frac{P}{4\pi r^2}`} />
+        <LabFormula lab="lq-01" latex={String.raw`I(r) = \frac{P}{4\pi r^2}`} />
         <p>
           The total energy flux integrated over any enclosing spherical surface is strictly
           conserved:
         </p>
-        <Formula latex={String.raw`\oint_{\text{sphere}} I(r)\, dA = P`} />
+        <LabFormula lab="lq-01" latex={String.raw`\oint_{\text{sphere}} I(r)\, dA = P`} />
         <p>
           It is precisely this continuous dilution of energy throughout an expanding volume that
           Einstein challenges when analyzing the <em>generation and transformation of light</em> in
