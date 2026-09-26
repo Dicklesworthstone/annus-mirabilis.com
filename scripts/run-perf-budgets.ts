@@ -2,7 +2,7 @@ import { execSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import * as os from "node:os";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { brotliCompressSync, gzipSync, constants as zlibConstants } from "node:zlib";
 import { loadCommittedProfiles } from "../src/testing/perfProfiles.ts";
@@ -20,6 +20,12 @@ import {
 import { evaluateInstrumentFeedback } from "./perf/instrumentFeedback.ts";
 import { evaluateInteractionLatency } from "./perf/interactionLatency.ts";
 import { evaluateLayoutShift } from "./perf/layoutShift.ts";
+import {
+  loadReadingFaceRecords,
+  measureBuiltReadingFaces,
+  READING_FACE_RECORDS_PATH,
+  readingFaceVerdict,
+} from "./perf/readingFaces.ts";
 import {
   type MetricReportEntry,
   type PerfReport,
@@ -452,17 +458,15 @@ export async function runPerformanceBudgets(
   // returned fresh under `bun test` and stale under a direct invocation, so the gate's verdict
   // depended on its runner, which is a worse failure than the one it was meant to prevent. out/
   // freshness is already enforced separately in the node lane (src/testing/outFreshness.ts).
+  //
+  // EVERY FACE, SINCE DISPATCH 254. Measuring only out/papers/<paper>/index.html left every /view/
+  // face unmeasured: on live 2026-09-26 relativity's German face was 305,480 bytes gzipped and its
+  // gloss 789,888, while this row passed. scripts/perf/readingFaces.ts now lists the default page,
+  // every out/papers/<paper>/view/<face>/, and each section's gloss page. A face over the budget
+  // that perf/readingFaceRecords.json records, with its size and reason, fails when it grows past
+  // that size; any other face over 250,000 fails. The budget itself is unchanged.
   const readingFaceDir = resolve(root, "out/papers");
-  const builtReadingFaces = existsSync(readingFaceDir)
-    ? readdirSync(readingFaceDir, { withFileTypes: true })
-        .filter((entry) => entry.isDirectory())
-        .map((entry) => join(readingFaceDir, entry.name, "index.html"))
-        .filter((facePath) => existsSync(facePath))
-        .map((facePath) => ({
-          name: relative(root, facePath),
-          html: readFileSync(facePath, "utf8"),
-        }))
-    : [];
+  const measuredFaces = measureBuiltReadingFaces(root);
 
   if (opts.plantViolationRow === 2) {
     const planted = measureReadingFace(randomBytes(300_000).toString("base64"));
@@ -474,7 +478,7 @@ export async function runPerformanceBudgets(
       "bytes",
       `Planted violation: ${planted.gzipBytes} bytes gzipped (raw ${planted.rawBytes})`,
     );
-  } else if (builtReadingFaces.length === 0) {
+  } else if (measuredFaces.length === 0) {
     // No build, so nothing to measure. This must NOT read as a pass: a budget row
     // that reports success without opening a page is the defect this row had.
     recordMetric(
@@ -486,36 +490,20 @@ export async function runPerformanceBudgets(
       `No built reading face found under ${relative(root, readingFaceDir)}; run the production build before this gate. Measuring nothing is not passing.`,
     );
   } else {
-    const measured = builtReadingFaces
-      .map((face) => ({ name: face.name, m: measureReadingFace(face.html) }))
-      .sort((a, b) => b.m.gzipBytes - a.m.gzipBytes);
-    const largest = measured[0];
-    if (!largest) {
-      // Unreachable while builtReadingFaces is non-empty, and the guard exists only so the
-      // index access narrows. It reports rather than throws for the same reason the branch
-      // above does: a gate that crashes tells the runner nothing about the budget, and this
-      // row's whole history is about not letting an unmeasured state read as a verdict.
-      recordMetric(
-        "reading-face-html",
-        false,
-        READING_FACE_BUDGET_BYTES,
-        0,
-        "bytes",
-        `Measurement produced no rows for ${builtReadingFaces.length} built reading face(s) under ` +
-          `${relative(root, readingFaceDir)}. Measuring nothing is not passing.`,
-      );
-    } else {
-      recordMetric(
-        "reading-face-html",
-        !largest.m.overBudget,
-        largest.m.budgetBytes,
-        largest.m.gzipBytes,
-        "bytes",
-        `Largest built reading face ${largest.name}: ${largest.m.gzipBytes} bytes gzipped ` +
-          `(raw ${largest.m.rawBytes}) across ${measured.length} built paper page(s); ` +
-          `next largest ${measured[1]?.name ?? "none"} at ${measured[1]?.m.gzipBytes ?? 0}.`,
-      );
-    }
+    const verdict = readingFaceVerdict(measuredFaces, loadReadingFaceRecords(root));
+    // The row's value is a face the budget holds: on a pass, the largest face not recorded (so
+    // "within budget" is literally true of it), and on a failure, the worst failing face.
+    const shown = verdict.ok ? verdict.heldToBudget : verdict.worstFailure;
+    recordMetric(
+      "reading-face-html",
+      verdict.ok,
+      READING_FACE_BUDGET_BYTES,
+      shown?.gzipBytes ?? 0,
+      "bytes",
+      verdict.ok
+        ? `${verdict.measured} built reading faces, each within ${READING_FACE_BUDGET_BYTES} bytes gzipped or its recorded size (${READING_FACE_RECORDS_PATH}); the largest held to the budget is ${shown?.name ?? "none"} at ${shown?.gzipBytes ?? 0}, and the largest recorded ${verdict.largest?.name ?? "none"} at ${verdict.largest?.gzipBytes ?? 0}.`
+        : `${verdict.failures.length} of ${verdict.measured} built reading faces fail: ${verdict.failures.join("; ")}`,
+    );
   }
 
   // -------------------------------------------------------------------------
