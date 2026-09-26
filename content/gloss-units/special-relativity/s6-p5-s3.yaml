@@ -1,0 +1,38 @@
+# GlossUnit s6-p5-s3: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s6-p5-s3"
+sentenceId: "s6-p5-s3"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "8e6d2113f33f739f49d1a6736e8ddedf37d612210f213f73f19d8ee9fff2b2a0"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Zur"
+    english: "for the"
+    lemma: "zur"
+    grammarNote: "contraction: zur = zu der"
+    noteClass: "abbreviation"
+  - german: "Interpretation"
+    english: "interpretation"
+  - german: "dieser"
+    english: "of these"
+    lemma: "dieser"
+  - german: "Gleichungen"
+    english: "equations"
+    lemma: "Gleichung"
+  - german: "bemerken"
+    english: "remark"
+    lemma: "bemerken"
+  - german: "wir"
+    english: "we"
+  - german: "folgendes"
+    english: "the following"
+    lemma: "folgend"
+multiwordUnits: []

@@ -1,0 +1,28 @@
+# GlossUnit part-2: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "part-2"
+sentenceId: "part-2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "bc9d6b4b73c6d8d186c4784e7a7614cee49067d6142b63eeb4c68bac4ffe81b6"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "II"
+    english: "II"
+    grammarNote: "Roman numeral: the second of the paper's two parts"
+    noteClass: "ordinal"
+  - german: "Eektrodynamischer"
+    english: "electrodynamical"
+    lemma: "elektrodynamisch"
+    grammarNote: "printed Eektrodynamischer, a misprint for Elektrodynamischer (receipt err-typo-p907-1); the gloss gives the word meant"
+    noteClass: "term"
+  - german: "Teil"
+    english: "part"
+multiwordUnits: []

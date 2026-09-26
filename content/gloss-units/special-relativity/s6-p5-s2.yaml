@@ -1,0 +1,62 @@
+# GlossUnit s6-p5-s2: word-level gloss of the German sentence, machine draft, not reviewed.
+# Einstein, Zur Elektrodynamik bewegter Körper, ap-17-891.
+id: "s6-p5-s2"
+sentenceId: "s6-p5-s2"
+revision: 1
+sourceRevision: 1
+sourceTextDigest: "9293481c47d693913eea713f3fd8e37e1d72595c644bfbec9638e8a74c548ab1"
+lang: "en"
+sourceLang: "de"
+attribution:
+  id: "agent:GreenOx"
+  name: "GreenOx (agent, Claude Opus 5.5)"
+  kind: "model"
+  modelId: "claude-opus-5-5"
+reviewState: "machine-draft"
+tokens:
+  - german: "Ferner"
+    english: "further"
+  - german: "folgt"
+    english: "follows"
+    lemma: "folgen"
+    grammarNote: "folgt aus Symmetriegründen: the step rests on symmetry, as the footnote explains"
+    noteClass: "consequence"
+  - german: "aus"
+    english: "from"
+  - german: "Symmetriegründen"
+    english: "reasons of symmetry"
+    lemma: "Symmetriegrund"
+    grammarNote: "Symmetrie + Gründe"
+    noteClass: "compound"
+  - german: "es"
+  - german: "ist"
+  - german: "also"
+    english: "therefore"
+    grammarNote: "also, ‘therefore’, not English ‘also’"
+    noteClass: "consequence"
+  - german: "und"
+    english: "and"
+  - german: "unsere"
+    english: "our"
+  - german: "Gleichungen"
+    english: "equations"
+    lemma: "Gleichung"
+  - german: "nehmen"
+  - german: "die"
+    english: "the"
+  - german: "Form"
+    english: "form"
+  - german: "an"
+multiwordUnits:
+  - tokenIndices:
+      - 4
+      - 5
+    english: "we have"
+    kind: "fixed-phrase"
+    grammarNote: "es ist, introducing the display: ‘we have’"
+  - tokenIndices:
+      - 10
+      - 13
+    english: "take"
+    kind: "separable-verb"
+    grammarNote: "annehmen, here ‘to take on’: nehmen die Form an, ‘take the form’"
