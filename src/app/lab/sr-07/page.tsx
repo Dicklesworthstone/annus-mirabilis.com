@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
 import { FieldEquationsComparison } from "../../../components/lab/sr07/FieldEquationsLab.tsx";
 import { validateSr07Parameters } from "../../../experiments/sr07/parameters.ts";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr07/session.ts";
 import labDigests from "../../../generated/lab-source-digests.json";
 import "./equations.css";
+import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 
 export const metadata: Metadata = {
   title: "Transform the field equations",
@@ -51,7 +51,8 @@ export default function FieldEquationsPage() {
           L, M, N are magnetic-field components. Einstein&apos;s β is the modern γ. V is the speed
           of light in this paper, not L.
         </p>
-        <Formula
+        <LabFormula
+          lab="sr-07"
           latex={String.raw`\frac{1}{V}\frac{\partial X}{\partial t}=\frac{\partial N}{\partial y}-\frac{\partial M}{\partial z}`}
         />
         <p>

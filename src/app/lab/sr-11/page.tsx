@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
+import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { MovingMirrorLab } from "../../../components/lab/sr11/MovingMirrorLab.tsx";
 import { validateSr11Parameters } from "../../../experiments/sr11/parameters.ts";
 import example from "../../../generated/sr11-example.json";
@@ -50,26 +50,32 @@ export default function MovingMirrorPage() {
           surface normal (φ = 0°).
         </p>
         <p>The reflected wave frequency undergoes a double Doppler transformation:</p>
-        <Formula
+        <LabFormula
+          lab="sr-11"
           latex={String.raw`\begin{aligned}\frac{\nu'''}{\nu} &= \frac{1 - 2\beta\cos\varphi + \beta^2}{1 - \beta^2} \\ &= \frac{1 - 2(0.6)(1) + 0.36}{1 - 0.36} \\ &= \frac{0.16}{0.64} \\ &= 0.25\end{aligned}`}
         />
         <p>The radiation pressure on the mirror is:</p>
-        <Formula
+        <LabFormula
+          lab="sr-11"
           latex={String.raw`\begin{aligned}P &= 2u\,\frac{(\cos\varphi - \beta)^2}{1 - \beta^2} \\ &= 2u\,\frac{(1 - 0.6)^2}{1 - 0.36} \\ &= 2u\,\frac{0.16}{0.64} \\ &= 0.5\,u\end{aligned}`}
         />
         <p>
           Energy balance per unit time in the laboratory system <em>K</em>:
         </p>
-        <Formula
+        <LabFormula
+          lab="sr-11"
           latex={String.raw`\begin{aligned}P_{\text{incident}} &= u\,c\,A_{\text{m}}(1 - \beta) \\ &= 0.4\,u\,c\,A_{\text{m}}\end{aligned}`}
         />
-        <Formula
+        <LabFormula
+          lab="sr-11"
           latex={String.raw`\begin{aligned}P_{\text{reflected}} &= u\left(\frac{\nu'''}{\nu}\right)^2 c\,A_{\text{m}}(1 + \beta) \\ &= u(0.0625)c\,A_{\text{m}}(1.6) \\ &= 0.1\,u\,c\,A_{\text{m}}\end{aligned}`}
         />
-        <Formula
+        <LabFormula
+          lab="sr-11"
           latex={String.raw`\begin{aligned}\dot{W}_{\text{mechanical}} &= P\cdot v\cdot A_{\text{m}} \\ &= (0.5\,u)(0.6\,c)(A_{\text{m}}) \\ &= 0.3\,u\,c\,A_{\text{m}}\end{aligned}`}
         />
-        <Formula
+        <LabFormula
+          lab="sr-11"
           latex={String.raw`\begin{aligned}&P_{\text{incident}} - P_{\text{reflected}} - \dot{W}_{\text{mechanical}} \\ &\quad = 0.4 - 0.1 - 0.3 \\ &\quad = 0\end{aligned}`}
         />
         <p>

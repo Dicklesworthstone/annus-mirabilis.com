@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
-import { InlineFormula } from "../../../components/lab/InlineFormula.tsx";
+import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
 import { LightComplexLab } from "../../../components/lab/sr10/LightComplexLab.tsx";
 import { validateSr10Parameters } from "../../../experiments/sr10/parameters.ts";
 import example from "../../../generated/sr10-example.json";
@@ -52,15 +51,17 @@ export default function LightComplexPage() {
           Because the moving observer&apos;s simultaneous spatial plane cuts across a moving wave
           front, the volume of the complex in k transforms as:
         </p>
-        <Formula
+        <LabFormula
+          lab="sr-10"
           latex={String.raw`\begin{gathered}\frac{V'}{V} = \frac{1}{q} = \frac{\sqrt{1 - \beta^2}}{1 - \beta\cos\varphi} = \frac{1}{0.5} = 2.0 \\ \implies V' = 2.0\text{ m}^3\end{gathered}`}
         />
         <p>
           Meanwhile, the energy density transforms with the square of the amplitude ratio,{" "}
-          <InlineFormula latex={String.raw`u'/u = q^2 = 0.25`} />. The total energy in the moving
-          frame is:
+          <LabInlineFormula lab="sr-10" latex={String.raw`u'/u = q^2 = 0.25`} />. The total energy
+          in the moving frame is:
         </p>
-        <Formula
+        <LabFormula
+          lab="sr-10"
           latex={String.raw`\begin{aligned}E' &= u'V' \\ &= (u q^2)(V / q) \\ &= u V q \\ &= E q \\ &= 0.5\text{ J}\end{aligned}`}
         />
         <p>
@@ -76,7 +77,8 @@ export default function LightComplexPage() {
           complex vary with the state of motion of the observer in accordance with the same
           law.&rdquo;
         </p>
-        <Formula
+        <LabFormula
+          lab="sr-10"
           latex={String.raw`\frac{E'}{E} = \frac{\nu'}{\nu} = \gamma(1 - \beta\cos\varphi)`}
         />
         <div className="actions">

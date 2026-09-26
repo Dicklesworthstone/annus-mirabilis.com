@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
+import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { FieldFrameChangeLab } from "../../../components/lab/sr08/FieldFrameChangeLab.tsx";
 import { validateSr08Parameters } from "../../../experiments/sr08/parameters.ts";
 import example from "../../../generated/sr08-example.json";
@@ -46,11 +46,13 @@ export default function FieldFrameChangePage() {
           = 0, viewed from a coordinate system k boosted along the x-axis at speed v = 0.6c (γ =
           1.25).
         </p>
-        <Formula
+        <LabFormula
+          lab="sr-08"
           latex={String.raw`\begin{aligned}E'_y &= \gamma(E_y - v B_z) \\ &= 1.25\text{ V/m}, \\ B'_z &= -\gamma\frac{v}{c^2}E_y = -\frac{0.75}{c} \\ &\approx -2.5017\times 10^{-9}\text{ T}\end{aligned}`}
         />
         <p>Both frames agree exactly on the Lorentz field invariants:</p>
-        <Formula
+        <LabFormula
+          lab="sr-08"
           latex={String.raw`\begin{gathered}E^2 - c^2 B^2 = 1.0\text{ (V/m)}^2, \\ \mathbf{E}\cdot\mathbf{B} = 0\end{gathered}`}
         />
         <p>

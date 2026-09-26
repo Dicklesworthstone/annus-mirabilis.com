@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
 import { VelocityCompositionComparison } from "../../../components/lab/sr06/VelocityCompositionLab.tsx";
 import { validateSr06Parameters } from "../../../experiments/sr06/parameters.ts";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr06/session.ts";
 import labDigests from "../../../generated/lab-source-digests.json";
 import "./composition.css";
+import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 
 export const metadata: Metadata = {
   title: "Velocity composition",
@@ -49,7 +49,7 @@ export default function VelocityCompositionPage() {
           Two collinear motions of 0.6c compose to exactly 15/17 of light speed, about 0.882353c,
           not 1.2c. The Galilean sum exceeds light speed; the relativistic composition does not.
         </p>
-        <Formula latex={String.raw`U=\frac{v+w}{1+vw/c^{2}}=\frac{15}{17}c`} />
+        <LabFormula lab="sr-06" latex={String.raw`U=\frac{v+w}{1+vw/c^{2}}=\frac{15}{17}c`} />
         <p>
           At a right angle the printed formula gives about 0.768375c. Two successive perpendicular
           boosts of 0.6c give the same speed and a spatial rotation of about 12.6804 degrees. That

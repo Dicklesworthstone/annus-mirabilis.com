@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
+import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { ElectronDynamicsLab } from "../../../components/lab/sr13/ElectronDynamicsLab.tsx";
 import { validateSr13Parameters } from "../../../experiments/sr13/parameters.ts";
 import example from "../../../generated/sr13-example.json";
@@ -54,7 +54,8 @@ export default function ElectronDynamicsPage() {
           the field times charge in the comoving frame (the source convention), the equations of
           motion in stationary coordinates become:
         </p>
-        <Formula
+        <LabFormula
+          lab="sr-13"
           latex={String.raw`\begin{gathered}\frac{d^2x}{dt^2} = \frac{\varepsilon}{\mu}\frac{1}{\beta^3}X, \\ \frac{d^2y}{dt^2} = \frac{\varepsilon}{\mu}\frac{1}{\beta}\left(Y - \frac{v}{V}N\right)\end{gathered}`}
         />
         <p>
@@ -67,13 +68,15 @@ export default function ElectronDynamicsPage() {
           Crucially, both definitions predict the exact same physical trajectory and radius of
           curvature in a transverse electric field:
         </p>
-        <Formula
+        <LabFormula
+          lab="sr-13"
           latex={String.raw`\begin{gathered}R_e = \frac{\gamma m v^2}{|q| E} \approx 2.2995\text{ m} \\ (\text{Newtonian } R_{e,\text{newt}} = \frac{m v^2}{|q| E} \\ \approx 1.8396\text{ m})\end{gathered}`}
         />
         <p>
           The relativistic kinetic energy required to accelerate the electron from rest to 0.6c is:
         </p>
-        <Formula
+        <LabFormula
+          lab="sr-13"
           latex={String.raw`\begin{gathered}\begin{aligned}W &= m c^2 (\gamma - 1) = 0.25 m c^2 \\ &\approx 127.75\text{ keV}\end{aligned} \\ \implies P = \frac{W}{e} \approx 127.75\text{ kV}\end{gathered}`}
         />
         <p>

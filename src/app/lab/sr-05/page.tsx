@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
-import { InlineFormula } from "../../../components/lab/InlineFormula.tsx";
+import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
 import { MovingClocksLab } from "../../../components/lab/sr05/MovingClocksLab.tsx";
 import type { PreparedSr05Example } from "../../../experiments/sr05/session.ts";
 import generatedExample from "../../../generated/sr05-example.json";
@@ -55,13 +54,13 @@ export default function MovingClocksPage() {
           simultaneous-coordinate readings and reunion comparisons, never the optical appearance of
           a receding or approaching clock.
         </p>
-        <Formula latex={String.raw`1-\sqrt{1-v^2/V^2}\approx\tfrac12\,v^2/V^2`} />
+        <LabFormula lab="sr-05" latex={String.raw`1-\sqrt{1-v^2/V^2}\approx\tfrac12\,v^2/V^2`} />
         <p>
           Section 4 states the loss per second of coordinate time to magnitudes of fourth and higher
-          order as <InlineFormula latex={String.raw`\tfrac12\,v^2/V^2`} />. The lab above shows this
-          printed approximation beside the exact, numerically stable form{" "}
-          <InlineFormula latex={String.raw`\beta^2/(1+\sqrt{1-\beta^2})`} />; the two agree to many
-          digits at everyday speeds and separate visibly as speed grows.
+          order as <LabInlineFormula lab="sr-05" latex={String.raw`\tfrac12\,v^2/V^2`} />. The lab
+          above shows this printed approximation beside the exact, numerically stable form{" "}
+          <LabInlineFormula lab="sr-05" latex={String.raw`\beta^2/(1+\sqrt{1-\beta^2})`} />; the two
+          agree to many digits at everyday speeds and separate visibly as speed grows.
         </p>
         <h2>The reunion is the honest comparison</h2>
         <p>
@@ -81,9 +80,9 @@ export default function MovingClocksPage() {
         <p className="fine">
           Ideal model, host calculation. Every worldline offered here keeps a constant speed along
           each piece of its path, so its proper time is each piece&rsquo;s coordinate time
-          multiplied by <InlineFormula latex={String.raw`\sqrt{1-v^2/c^2}`} /> and added up, which
-          is exact. A path whose speed changes continuously would need the general integral, which
-          this instrument does not offer.
+          multiplied by <LabInlineFormula lab="sr-05" latex={String.raw`\sqrt{1-v^2/c^2}`} /> and
+          added up, which is exact. A path whose speed changes continuously would need the general
+          integral, which this instrument does not offer.
         </p>
       </section>
     </>

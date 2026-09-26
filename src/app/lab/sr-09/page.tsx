@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
+import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { DopplerAberrationLab } from "../../../components/lab/sr09/DopplerAberrationLab.tsx";
 import { validateSr09Parameters } from "../../../experiments/sr09/parameters.ts";
 import example from "../../../generated/sr09-example.json";
@@ -47,11 +47,13 @@ export default function DopplerAberrationPage() {
           x-axis in the stationary system K, viewed by an observer moving along the x-axis at speed
           v = 0.6c (β = 0.6, γ = 1.25).
         </p>
-        <Formula
+        <LabFormula
+          lab="sr-09"
           latex={String.raw`\begin{aligned}\nu' &= \nu\gamma(1 - \beta\cos\theta) \\ &= \nu\sqrt{\frac{1-\beta}{1+\beta}} \\ &= 0.5\nu \\ &= 250\text{ THz}\end{aligned}`}
         />
         <p>For a ray at right angles in the stationary system (θ = 90°):</p>
-        <Formula
+        <LabFormula
+          lab="sr-09"
           latex={String.raw`\begin{gathered}\nu' = \gamma\nu = 1.25\nu = 625\text{ THz}, \\ \cos\theta' = -\beta = -0.6 \\ \implies \theta' \approx 126.87^\circ\end{gathered}`}
         />
         <p>

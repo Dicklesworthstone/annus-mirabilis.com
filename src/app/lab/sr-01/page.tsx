@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
-import { InlineFormula } from "../../../components/lab/InlineFormula.tsx";
+import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
 import { ClockSyncComparison } from "../../../components/lab/sr01/ClockSyncLab.tsx";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr01/session.ts";
 import labDigests from "../../../generated/lab-source-digests.json";
@@ -46,24 +45,27 @@ export default function ClockSyncPage() {
         <p className="eyebrow">Open the derivation</p>
         <h2>Einstein&apos;s criterion</h2>
         <p>
-          A signal leaves clock A at time <InlineFormula latex="t_A" />, reflects at the distant
-          clock B, and returns to A at <InlineFormula latex="t'_A" />. The paper does not measure
-          B&apos;s reading at reflection; it <em>assigns</em> it by definition as the midpoint:
+          A signal leaves clock A at time <LabInlineFormula lab="sr-01" latex="t_A" />, reflects at
+          the distant clock B, and returns to A at <LabInlineFormula lab="sr-01" latex="t'_A" />.
+          The paper does not measure B&apos;s reading at reflection; it <em>assigns</em> it by
+          definition as the midpoint:
         </p>
-        <Formula latex="t_B = \tfrac{1}{2}\left(t_A + t'_A\right)" />
+        <LabFormula lab="sr-01" latex="t_B = \tfrac{1}{2}\left(t_A + t'_A\right)" />
         <p>
-          The round-trip speed <InlineFormula latex="2\cdot\mathrm{AB} / (t'_A - t_A)" /> then
-          equals <var>c</var> in the frame where the procedure is applied. The procedure was built
-          to give that result; it does not measure the speed of light.
+          The round-trip speed{" "}
+          <LabInlineFormula lab="sr-01" latex="2\cdot\mathrm{AB} / (t'_A - t_A)" /> then equals{" "}
+          <var>c</var> in the frame where the procedure is applied. The procedure was built to give
+          that result; it does not measure the speed of light.
         </p>
 
         <h2>Section 2: the moving rod</h2>
         <p>
           Running the same procedure on the two ends of a moving rod gives two different leg times
-          in the stationary frame: an outbound leg <InlineFormula latex="r_{AB} / (c - u)" /> and a
-          return leg <InlineFormula latex="r_{AB} / (c + u)" />, because the receiving end has moved
-          during the light&apos;s travel. For observers moving with the rod, the criterion that held
-          for the stationary observer fails.
+          in the stationary frame: an outbound leg{" "}
+          <LabInlineFormula lab="sr-01" latex="r_{AB} / (c - u)" /> and a return leg{" "}
+          <LabInlineFormula lab="sr-01" latex="r_{AB} / (c + u)" />, because the receiving end has
+          moved during the light&apos;s travel. For observers moving with the rod, the criterion
+          that held for the stationary observer fails.
         </p>
 
         <h2>Clocks that move disagree, once you compare them</h2>

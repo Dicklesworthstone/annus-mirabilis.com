@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
+import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { MagnetConductorComparison } from "../../../components/lab/MagnetConductorLab.tsx";
 import { validateSr02Parameters } from "../../../experiments/sr02/parameters.ts";
 import example from "../../../generated/sr02-example.json";
@@ -46,7 +46,8 @@ export default function MagnetConductorPage() {
           0. They are simultaneous in both frames, the length is unchanged, and the ratio of the two
           electromotive forces is exactly γ.
         </p>
-        <Formula
+        <LabFormula
+          lab="sr-02"
           latex={String.raw`\begin{gathered}\mathcal{E}=vB\ell, \\ \mathcal{E}'=\gamma vB\ell, \\ \mathbf{E}'_\perp=\gamma(\mathbf{v}\times\mathbf{B})_\perp\end{gathered}`}
         />
         <p>

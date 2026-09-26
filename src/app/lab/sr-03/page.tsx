@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
-import { InlineFormula } from "../../../components/lab/InlineFormula.tsx";
+import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
 import { RodSimultaneityLab } from "../../../components/lab/RodSimultaneityLab.tsx";
 import { validateSr03Parameters } from "../../../experiments/sr03/parameters.ts";
 import example from "../../../generated/sr03-example.json";
@@ -48,28 +47,33 @@ export default function RodSimultaneityPage() {
         <h2>§2: the relativity of simultaneity</h2>
         <p>
           In §2 of <em>Zur Elektrodynamik bewegter Körper</em>, Einstein investigates a rigid rod of
-          length <InlineFormula latex="r_{AB}" /> moving with velocity <InlineFormula latex="v" />{" "}
-          relative to a stationary frame <InlineFormula latex="K" />. Clocks mounted at the two ends{" "}
-          <InlineFormula latex="A" /> and <InlineFormula latex="B" /> are synchronized by light
-          signals emitted from <InlineFormula latex="A" /> at time <InlineFormula latex="t_A" />,
-          reflected at <InlineFormula latex="B" /> at time <InlineFormula latex="t_B" />, and
-          returning to <InlineFormula latex="A" /> at <InlineFormula latex="t'_A" />.
+          length <LabInlineFormula lab="sr-03" latex="r_{AB}" /> moving with velocity{" "}
+          <LabInlineFormula lab="sr-03" latex="v" /> relative to a stationary frame{" "}
+          <LabInlineFormula lab="sr-03" latex="K" />. Clocks mounted at the two ends{" "}
+          <LabInlineFormula lab="sr-03" latex="A" /> and <LabInlineFormula lab="sr-03" latex="B" />{" "}
+          are synchronized by light signals emitted from <LabInlineFormula lab="sr-03" latex="A" />{" "}
+          at time <LabInlineFormula lab="sr-03" latex="t_A" />, reflected at{" "}
+          <LabInlineFormula lab="sr-03" latex="B" /> at time{" "}
+          <LabInlineFormula lab="sr-03" latex="t_B" />, and returning to{" "}
+          <LabInlineFormula lab="sr-03" latex="A" /> at{" "}
+          <LabInlineFormula lab="sr-03" latex="t'_A" />.
         </p>
         <p>
-          From the perspective of stationary observers in <InlineFormula latex="K" />, light travels
-          forward with speed <InlineFormula latex="c - v" /> relative to the rod, and backward with
-          speed <InlineFormula latex="c + v" />:
+          From the perspective of stationary observers in <LabInlineFormula lab="sr-03" latex="K" />
+          , light travels forward with speed <LabInlineFormula lab="sr-03" latex="c - v" /> relative
+          to the rod, and backward with speed <LabInlineFormula lab="sr-03" latex="c + v" />:
         </p>
-        <Formula
+        <LabFormula
+          lab="sr-03"
           latex={String.raw`\begin{gathered}t_B - t_A = \frac{r_{AB}}{c - v}, \\ t'_A - t_B = \frac{r_{AB}}{c + v}\end{gathered}`}
         />
         <p>
-          The two times differ, <InlineFormula latex="t_B - t_A \neq t'_A - t_B" />. So observers
-          riding with the rod, applying the test of §1, find the two clocks out of step, while
-          observers at rest in <InlineFormula latex="K" /> declare them synchronous. Einstein draws
-          the conclusion at the end of §2: simultaneity has no absolute meaning. Two events that are
-          simultaneous as seen from one system of coordinates are not simultaneous as seen from a
-          system moving relative to it.
+          The two times differ, <LabInlineFormula lab="sr-03" latex="t_B - t_A \neq t'_A - t_B" />.
+          So observers riding with the rod, applying the test of §1, find the two clocks out of
+          step, while observers at rest in <LabInlineFormula lab="sr-03" latex="K" /> declare them
+          synchronous. Einstein draws the conclusion at the end of §2: simultaneity has no absolute
+          meaning. Two events that are simultaneous as seen from one system of coordinates are not
+          simultaneous as seen from a system moving relative to it.
         </p>
 
         <h2>§4: physical meaning of moving rods and spheres</h2>
@@ -77,22 +81,30 @@ export default function RodSimultaneityPage() {
           In §4, Einstein uses the transformation he derived in §3 to find the dimensions of a
           moving body, measured at one time of the observer’s frame:
         </p>
-        <Formula latex={String.raw`x' = \gamma (x - v t) = \frac{x - v t}{\sqrt{1 - v^2/c^2}}`} />
+        <LabFormula
+          lab="sr-03"
+          latex={String.raw`x' = \gamma (x - v t) = \frac{x - v t}{\sqrt{1 - v^2/c^2}}`}
+        />
         <p>
           Taking positions of both ends at <strong>one time of the stationary frame</strong> (
-          <InlineFormula latex="\Delta t = 0" />) yields a measured coordinate length:
+          <LabInlineFormula lab="sr-03" latex="\Delta t = 0" />) yields a measured coordinate
+          length:
         </p>
-        <Formula
+        <LabFormula
+          lab="sr-03"
           latex={String.raw`\Delta x = \Delta x' \sqrt{1 - \frac{v^2}{c^2}} = \frac{L_0}{\gamma}`}
         />
         <p>
-          Similarly, a rigid sphere of radius <InlineFormula latex="R" /> at rest in{" "}
-          <InlineFormula latex="k" />, centred at its origin, has the surface{" "}
-          <InlineFormula latex="\xi^2 + \eta^2 + \zeta^2 = R^2" />. Measured at{" "}
-          <InlineFormula latex="t = 0" /> from the stationary system, it is an ellipsoid of
-          revolution with semi-axes:
+          Similarly, a rigid sphere of radius <LabInlineFormula lab="sr-03" latex="R" /> at rest in{" "}
+          <LabInlineFormula lab="sr-03" latex="k" />, centred at its origin, has the surface{" "}
+          <LabInlineFormula lab="sr-03" latex="\xi^2 + \eta^2 + \zeta^2 = R^2" />. Measured at{" "}
+          <LabInlineFormula lab="sr-03" latex="t = 0" /> from the stationary system, it is an
+          ellipsoid of revolution with semi-axes:
         </p>
-        <Formula latex={String.raw`R \sqrt{1 - \frac{v^2}{c^2}}, \qquad R, \qquad R`} />
+        <LabFormula
+          lab="sr-03"
+          latex={String.raw`R \sqrt{1 - \frac{v^2}{c^2}}, \qquad R, \qquad R`}
+        />
 
         <h2>Coordinate measurement versus visual appearance</h2>
         <p>
@@ -107,18 +119,21 @@ export default function RodSimultaneityPage() {
         <h2>Invariant spacetime intervals and causal order</h2>
         <p>
           This is a later way of stating the same facts, from Minkowski&rsquo;s lecture of 1908
-          rather than the paper. Between any two events <InlineFormula latex="E_1" /> and{" "}
-          <InlineFormula latex="E_2" />, the squared interval is the same in every inertial frame:
+          rather than the paper. Between any two events <LabInlineFormula lab="sr-03" latex="E_1" />{" "}
+          and <LabInlineFormula lab="sr-03" latex="E_2" />, the squared interval is the same in
+          every inertial frame:
         </p>
-        <Formula
+        <LabFormula
+          lab="sr-03"
           latex={String.raw`\begin{aligned}s^2 &= \Delta x^2 + \Delta y^2 + \Delta z^2 - c^2 \Delta t^2 \\ &= \Delta x'^2 + \Delta y'^2 + \Delta z'^2 - c^2 \Delta t'^2\end{aligned}`}
         />
         <p>
-          When <InlineFormula latex="s^2 < 0" /> (timelike) or <InlineFormula latex="s^2 = 0" />{" "}
-          (lightlike), a subluminal or light signal can causally connect the events, and their
-          chronological order is invariant across all inertial frames. When{" "}
-          <InlineFormula latex="s^2 > 0" /> (spacelike), no signal can connect them, and observers
-          in different states of relative motion disagree on which event occurred first.
+          When <LabInlineFormula lab="sr-03" latex="s^2 < 0" /> (timelike) or{" "}
+          <LabInlineFormula lab="sr-03" latex="s^2 = 0" /> (lightlike), a subluminal or light signal
+          can causally connect the events, and their chronological order is invariant across all
+          inertial frames. When <LabInlineFormula lab="sr-03" latex="s^2 > 0" /> (spacelike), no
+          signal can connect them, and observers in different states of relative motion disagree on
+          which event occurred first.
         </p>
 
         <div className="actions">
