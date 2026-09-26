@@ -1,0 +1,38 @@
+# The connections among the four papers (dispatch 253): one record, read by the Connections page's
+# map (src/app/connections/ConnectionMap.tsx) and by the result cards, so the two cannot disagree.
+# Loaded and checked by src/content/connections/connections.ts.
+#
+# Ordered from evidence to resemblance, the distinction the page exists to draw: a premise one paper
+# takes from another, separate routes to one number, a shared piece of mathematics, and a link made
+# by later physics. `papers` lists the paper slugs a connection joins, in received order.
+#
+# Only a connection of kind `borrows` records a use, under `uses`: the result card whose result
+# crosses (`from`), the card in the later paper that uses it (`to`), and the words a reader sees
+# under "Where this is used later" on the `from` card. The use itself must be in the content: here
+# the mass-energy paper's s0-p4 says it derived the transformation "(l. c. § 8)", and its card
+# me-light-energy-transformation quotes that sentence and the display.
+connections:
+  - id: energy-transformation
+    kind: borrows
+    label: "Uses a result"
+    what: "The September paper takes the light-energy transformation from relativity §8."
+    papers: [special-relativity, mass-energy]
+    uses:
+      from: { paper: special-relativity, result: sr-light-complex-energy }
+      to: { paper: mass-energy, result: me-light-energy-transformation }
+      text: "The mass-energy paper of September 1905 starts from this transformation, citing § 8 of this paper."
+  - id: molecular-number
+    kind: same-number
+    label: "Separate routes to one number"
+    what: "Radiation constants and Brownian displacement each give a molecular number."
+    papers: [light-quanta, brownian-motion]
+  - id: counting
+    kind: same-maths
+    label: "Shares a mathematical pattern"
+    what: "Counting independent configurations: light-quanta §5 and Brownian motion §2."
+    papers: [light-quanta, brownian-motion]
+  - id: light-thread
+    kind: later
+    label: "Later modern synthesis"
+    what: "Light as the instrument across three papers, a link drawn after 1905."
+    papers: [light-quanta, special-relativity, mass-energy]
