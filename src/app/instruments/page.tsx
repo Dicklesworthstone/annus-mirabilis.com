@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Fragment } from "react";
 import { CATALOGUE_IDS, CATALOGUE_STATUS, type CatalogueId } from "../../experiments/catalogue.ts";
 import { labName } from "../../reader/actions/labNames.ts";
+import { previewValue } from "./previewPrecision.ts";
 import "./instruments.css";
 
 export const metadata: Metadata = {
@@ -244,9 +245,10 @@ function plain(runs: readonly Run[]): string {
 
 /**
  * A table instrument's plate: its laboratory's own table, small. Each row is a label and its value
- * at the laboratory's default settings, as the laboratory prints it. A table that compares two or
- * three named columns of values (no drag, full drag, Fresnel drag) shows them all under their names
- * when the names fit; any other shows its first column of values, under its name when the name says
+ * at the laboratory's default settings, as the laboratory prints it, except that a longer decimal
+ * is shown at four significant figures (previewPrecision.ts). A table that compares two or three
+ * named columns of values (no drag, full drag, Fresnel drag) shows them all under their names when
+ * the names fit; any other shows its first column of values, under its name when the name says
  * something ("Value" does not). So a reader never meets two columns of numbers without their names.
  * The plate stays hidden from assistive technology, because the question beside it is the link's
  * name.
@@ -285,7 +287,7 @@ function TablePlate({ plate }: { plate: Plate }) {
             </span>
             {shown.map((i) => (
               <span className="plate-table-value" key={VALUE_CELLS[i]}>
-                <Label runs={row.values[i] ?? []} />
+                <Label runs={previewValue(row.values[i] ?? [])} />
               </span>
             ))}
           </span>

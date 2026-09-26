@@ -71,8 +71,13 @@ async function readCatalogue(): Promise<Entry[]> {
   }
 }
 
-/** A laboratory page's text as a browser without JavaScript receives it, whitespace removed. */
-async function laboratoryText(id: string): Promise<string> {
+/**
+ * A laboratory page's text as a browser without JavaScript receives it: `compact` with whitespace
+ * removed, for finding a label, and the numbers it prints, read with every tag as a space. The two
+ * differ because textContent joins adjacent cells with nothing between them: lq-04's two
+ * "9.598486" cells read as "9.5984869.598486", whose first number is 9.5984869.
+ */
+async function laboratoryText(id: string): Promise<{ compact: string; numbers: number[] }> {
   const route = (await import(join(process.cwd(), "src/app/lab", id, "page.tsx"))) as {
     default: (props: unknown) => ReactElement | Promise<ReactElement>;
   };
@@ -83,7 +88,11 @@ async function laboratoryText(id: string): Promise<string> {
   try {
     const page = new DOMParser().parseFromString(html, "text/html");
     for (const hidden of page.querySelectorAll("script, style")) hidden.remove();
-    return (page.body.textContent ?? "").replace(/\s+/g, "");
+    const spaced = page.body.innerHTML.replace(/<[^>]+>/g, " ");
+    return {
+      compact: (page.body.textContent ?? "").replace(/\s+/g, ""),
+      numbers: [...spaced.matchAll(/\d+(?:\.\d+)?/g)].map((m) => Number(m[0])),
+    };
   } finally {
     await uninstallDom();
   }
@@ -122,16 +131,53 @@ describe("/instruments/ shows a table instrument by its laboratory's own table",
   });
 
   test("every label and value on a plate is one its laboratory prints at its default settings", async () => {
-    // Each one is found in the laboratory page's own text, rendered as its route renders it: a
-    // number typed onto the plate, or one read from the wrong laboratory, is not.
+    // Each label is found in the laboratory page's own text, rendered as its route renders it. A
+    // value may show a long decimal at four significant figures (mail 40667), so a value is checked
+    // in two parts: its shape (units, exponents, words) is the laboratory's own, and every number in
+    // it is a number the laboratory prints, rounded no further than the digits it shows. A number
+    // typed onto the plate, or one read from the wrong laboratory, passes neither.
+    const NUMBER = /\d+(?:\.\d+)?/g;
     for (const entry of tables) {
-      const text = await laboratoryText(entry.id);
+      const { compact: text, numbers: printed } = await laboratoryText(entry.id);
+      const shape = text.replace(NUMBER, "#");
       for (const row of entry.rows) {
         expect(text, `${entry.id}: ${row.label}`).toContain(row.label.replace(/\s+/g, ""));
-        for (const value of row.values)
-          expect(text, `${entry.id}: ${row.label} = ${value}`).toContain(value.replace(/\s+/g, ""));
+        row.values.forEach((value, i) => {
+          const compact = value.replace(/\s+/g, "");
+          expect(shape, `${entry.id}: ${row.label} = ${value}`).toContain(
+            compact.replace(NUMBER, "#"),
+          );
+          // Numbers read with tags as spaces, so an exponent is not glued to its base ("1010").
+          const spaced = (row.valueMarkup[i] ?? "").replace(/<[^>]+>/g, " ");
+          for (const shown of spaced.match(NUMBER) ?? []) {
+            const half = 0.5 * 10 ** -(shown.split(".")[1]?.length ?? 0);
+            const found = printed.some((p) => Math.abs(p - Number(shown)) <= half * (1 + 1e-9));
+            expect(found, `${entry.id}: ${row.label} shows ${shown}`).toBe(true);
+          }
+        });
       }
     }
+  });
+
+  test("a plate shows no number to more than four significant figures, and stores them all", () => {
+    // Mail 40667: "2.070974 × 10⁻²⁰ J" is seven significant figures on a preview. A zero printed to
+    // a resolution ("0.000000") makes no precision claim and is left as printed.
+    const DECIMAL = /\d+\.\d+/g;
+    const shown = tables.flatMap((entry) =>
+      entry.rows.flatMap((row) => row.values.flatMap((value) => value.match(DECIMAL) ?? [])),
+    );
+    expect(shown.length).toBeGreaterThan(0);
+    for (const token of shown) {
+      if (Number(token) === 0) continue;
+      expect(token.replace(".", "").replace(/^0+/, "").length, token).toBeLessThanOrEqual(4);
+    }
+    // The stored plates keep the laboratory's full precision: some stored decimal is longer than any
+    // plate shows. Without one, the rounding above would be vacuous.
+    const stored = readFileSync("src/generated/instrument-table-plates.json", "utf8");
+    const long = (stored.match(DECIMAL) ?? []).filter(
+      (token) => Number(token) !== 0 && token.replace(".", "").replace(/^0+/, "").length > 4,
+    );
+    expect(long.length).toBeGreaterThan(0);
   });
 
   test("an exponent in a value is set as a superscript, never flattened into the line", () => {
