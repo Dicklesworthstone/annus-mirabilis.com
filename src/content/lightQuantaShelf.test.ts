@@ -19,6 +19,7 @@ const CHECKED = [
   "planck-1901-energy-elements",
   "rubens-1901-long-wave-radiation",
   "wien-1896-radiation-law",
+  "lenard-1902-photoelectric",
 ];
 
 describe("the light-quanta shelf's source checks", () => {

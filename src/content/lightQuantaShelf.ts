@@ -264,25 +264,40 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "lenard-1902-photoelectric",
     proposition:
-      "The energy of the electrons that ultraviolet light drives out of a metal does not depend on how bright the light is, while the number driven out grows with the brightness.",
+      "The initial speeds of the cathode rays that ultraviolet light drives out of a body do not depend on how intense the light is: varying the intensity of an arc lamp 70 to 1, and on aluminium 1000 to 1, left the retarding potential that stops them unchanged. Lenard takes the amount of electricity driven out as his measure of the light's intensity.",
     status: "available",
     limits:
-      "Lenard found the greatest energy depending on the kind of light, not on its intensity. He did not establish that it rises in proportion to the frequency: that is the 1905 paper's prediction, tested by Millikan in 1916.",
+      "Lenard found the speeds depending on the kind of light instead: the zinc arc gave far fewer high speeds than the carbon arc, though on aluminium the kind of light made almost no difference. He did not establish that the greatest energy rises in proportion to the frequency: that is the 1905 paper's prediction, tested by Millikan in 1916. He calls the carriers quanta of negative electricity.",
     sources: [
       {
-        title: "Über die lichtelektrische Wirkung",
-        date: "1902",
-        locator: "Ann. Phys. (4) 8, 149",
+        title: "Ueber die lichtelektrische Wirkung",
+        date: "1902-04-29",
+        locator: "P. Lenard, Ann. Phys. (4) 8, 149",
       },
     ],
     date: {
-      earliest: "1902",
-      latest: "1902",
-      precision: "year",
+      earliest: "1902-04-29",
+      latest: "1902-04-29",
+      precision: "day",
       latestYear: 1902,
       eventKind: "published",
     },
     admittedStages: ["stage-02", "stage-07"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/sim_annalen-der-physik_1902_8_1",
+        read: "page-image",
+        matched:
+          'Leaf 0, the cover: "1902. No. 5 ... Vierte Folge. Band 8. Heft 1", "(Ausgegeben am 29. April 1902.)". Leaf 158 is p. 149: "9. Ueber die lichtelektrische Wirkung; von P. Lenard", on ultraviolet light producing cathode rays from bodies, "negative Elektricitätsquanten". p. 166: "25. Die Anfangsgeschwindigkeiten sind unabhängig von der Lichtintensität", tested by the null point of the retarding potential. p. 167, Table X: the total effect is taken "als Maass für die mittlere Lichtintensität"; the carbon-arc intensity varied about 70:1 changed the null point by less than 1 per cent. p. 168: on aluminium plates the intensity varied about 1000:1 "ohne dass merkliche Aenderung des Nullpunktes eintrat"; "26. Dass verschiedene Lichtarten verschiedene Anfangsgeschwindigkeiten ergeben", the zinc arc giving large initial speeds "in sehr viel geringerem Maasse" than the carbon arc; the footnote: on aluminium the null point moved only about 0.02 volt between the two. p. 171, footnote: the forces are proportional to "der Zahl dieser Quanten, d. i. der Momentanintensität des Lichtes". p. 198: "Kiel, Mitte März 1902", "(Eingegangen 17. März 1902.)".',
+        differs: [
+          'The card said "electrons" driven out of "a metal", and that the number "grows with the brightness". Lenard speaks of cathode rays and quanta of negative electricity from carbon and aluminium, and takes the amount emitted as his measure of the intensity rather than testing it against one. Corrected, with his two intensity ranges.',
+          'The limits\' "kind of light" now carries his exception for aluminium; the title is printed "Ueber", and the issue day replaces the year.',
+        ],
+      },
+    ],
   },
   {
     id: "rayleigh-1900-radiation-law",
