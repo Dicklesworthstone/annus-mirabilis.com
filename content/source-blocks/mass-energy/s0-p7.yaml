@@ -257,3 +257,6 @@ status:
   translation: "draft"
   review: "draft"
 lang: "de"
+pageTurns:
+  - printedPage: 641
+    startsWith: "Konstanten der Energien"
