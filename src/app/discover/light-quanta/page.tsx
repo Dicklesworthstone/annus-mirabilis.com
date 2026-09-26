@@ -3,7 +3,6 @@ import { ExercisePart } from "../../../components/discover/ExercisePart.tsx";
 import { ExplanationPart } from "../../../components/discover/ExplanationPart.tsx";
 import { LightQuantaWorldCheck } from "../../../components/discover/LightQuantaWorldCheck.tsx";
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
-import { Formula } from "../../../components/edition/Formula.tsx";
 import {
   LIGHT_QUANTA_LATER_EVIDENCE,
   LIGHT_QUANTA_SHELF_CARDS,
@@ -11,6 +10,7 @@ import {
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
 import { Doors } from "../../../discovery/Doors.tsx";
 import { Fork } from "../../../discovery/Fork.tsx";
+import { JourneyFormula, journeyScope } from "../../../discovery/JourneyFormula.tsx";
 import { GREATEST_ENERGY_EXERCISE } from "../../../discovery/lightQuanta/electronExercise.ts";
 import {
   H_FROM_STOPPING_LINE,
@@ -274,7 +274,10 @@ export default function LightQuantaRoute() {
           thermodynamic question goes, <em>as if</em> it consisted of mutually independent energy
           quanta each of size
         </p>
-        <Formula latex={String.raw`\frac{R\,\beta\,\nu}{N}`} />
+        <JourneyFormula
+          latex={String.raw`\frac{R\,\beta\,\nu}{N}`}
+          scope={journeyScope("light-quanta", "s6", "step-06")}
+        />
         <p>
           <span lang="de">R</span> is the gas constant and <span lang="de">N</span> the number of
           molecules in a gram-molecule; <em>β</em> here is Wien&rsquo;s constant. The relativity

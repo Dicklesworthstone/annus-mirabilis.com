@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../../components/edition/Formula.tsx";
 import { TwoLedgersComparison } from "../../../../components/lab/me01/TwoLedgersLab.tsx";
+import { JourneyFormula, journeyScope } from "../../../../discovery/JourneyFormula.tsx";
 import { MassEnergyArgumentWorkbench } from "../../../../discovery/MassEnergyArgumentWorkbench.tsx";
 import {
   ARGUMENT_STEPS,
@@ -27,7 +27,12 @@ export default function MassEnergyArgumentPage() {
   const equations = Object.fromEntries(
     ARGUMENT_STEPS.map((card) => [
       card.id,
-      <Formula key={card.id} latex={card.latex} tabIndex={0} />,
+      <JourneyFormula
+        key={card.id}
+        latex={card.latex}
+        tabIndex={0}
+        scope={journeyScope("mass-energy", "s0", card.id, "investigate")}
+      />,
     ]),
   );
   return (
@@ -97,7 +102,11 @@ export default function MassEnergyArgumentPage() {
               return (
                 <li key={id}>
                   <h3>{step.title}</h3>
-                  <Formula latex={step.latex} tabIndex={0} />
+                  <JourneyFormula
+                    latex={step.latex}
+                    tabIndex={0}
+                    scope={journeyScope("mass-energy", "s0", id, "investigate")}
+                  />
                   <p>{step.explanation}</p>
                 </li>
               );

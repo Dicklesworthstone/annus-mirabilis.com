@@ -3,7 +3,6 @@ import { ExercisePart } from "../../../components/discover/ExercisePart.tsx";
 import { ExplanationPart } from "../../../components/discover/ExplanationPart.tsx";
 import { MassEnergyWorldCheck } from "../../../components/discover/MassEnergyWorldCheck.tsx";
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
-import { Formula } from "../../../components/edition/Formula.tsx";
 import {
   MASS_ENERGY_LATER_EVIDENCE,
   MASS_ENERGY_SHELF_CARDS,
@@ -11,6 +10,7 @@ import {
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
 import { Doors } from "../../../discovery/Doors.tsx";
 import { Fork } from "../../../discovery/Fork.tsx";
+import { JourneyFormula, journeyScope } from "../../../discovery/JourneyFormula.tsx";
 import { MoveMarker } from "../../../discovery/MoveMarker.tsx";
 import {
   DOORS,
@@ -263,7 +263,10 @@ export default function MassEnergyRoute() {
           prints the result on its last page, in the notation it was set in, where <em>L</em> is the
           energy given off and <em>V</em> is the speed of light:
         </p>
-        <Formula latex={String.raw`K_0 - K_1 = \frac{L}{V^2}\,\frac{v^2}{2}`} />
+        <JourneyFormula
+          latex={String.raw`K_0 - K_1 = \frac{L}{V^2}\,\frac{v^2}{2}`}
+          scope={journeyScope("mass-energy", "s0", "step-05")}
+        />
         <p>
           Now put that beside the energy of motion you already had on the shelf, one half of the
           mass times the speed squared. The two expressions have the same shape, and in the place

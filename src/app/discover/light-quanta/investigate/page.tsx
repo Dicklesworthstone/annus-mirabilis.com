@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { LightQuantaInvestigation } from "../../../../components/discover/LightQuantaInvestigation.tsx";
-import { Formula } from "../../../../components/edition/Formula.tsx";
+import { JourneyFormula, journeyScope } from "../../../../discovery/JourneyFormula.tsx";
 import type { PreparedLightInvestigation } from "../../../../discovery/lightQuanta/investigation.ts";
 import example from "../../../../generated/light-quanta-investigation.json";
 import "../../../../discovery/investigationPage.css";
@@ -17,20 +17,28 @@ export const metadata: Metadata = {
 /** Deliberately separate from publication of the reviewed historical Journey I record. */
 export default function LightQuantaInvestigationPage() {
   const equations = {
-    entropy: <Formula latex={String.raw`S-S_0=\frac{E}{\beta\nu}\ln\frac{V}{V_0}`} />,
+    entropy: (
+      <JourneyFormula
+        latex={String.raw`S-S_0=\frac{E}{\beta\nu}\ln\frac{V}{V_0}`}
+        scope={journeyScope("light-quanta", "s4", "entropy", "investigate")}
+      />
+    ),
     counting: (
-      <Formula
+      <JourneyFormula
         latex={String.raw`W_{\mathrm{independent}}=f^n,\quad W_{\mathrm{locked}}=f,\quad f=\frac{V}{V_0}`}
+        scope={journeyScope("light-quanta", "s5", "counting", "investigate")}
       />
     ),
     match: (
-      <Formula
+      <JourneyFormula
         latex={String.raw`\begin{gathered}\frac{E}{\beta\nu}=n_{\mathrm{eff}}\frac{R}{N},\\ n_{\mathrm{eff}}=\frac{NE}{R\beta\nu},\qquad \epsilon=\frac{R\beta\nu}{N}\end{gathered}`}
+        scope={journeyScope("light-quanta", "s6", "match", "investigate")}
       />
     ),
     emission: (
-      <Formula
+      <JourneyFormula
         latex={String.raw`\begin{gathered}K_{\max}=\frac{R\beta\nu}{N}-P,\\ \Pi=\frac{K_{\max}}{e}\quad(K_{\max}\geq 0)\end{gathered}`}
+        scope={journeyScope("light-quanta", "s8", "emission", "investigate")}
       />
     ),
   };

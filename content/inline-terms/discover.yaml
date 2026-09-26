@@ -1,0 +1,146 @@
+# The Discover pages' own readings and exceptions (dispatch 276), read by
+# src/discovery/journeyFormulas.ts beside each paper's notation concordance and its modern scope.
+#
+# A READING binds a letter a Discover page writes to the registered quantity it names on that page,
+# where the paper's notation does not. It is scoped to the page's anchor, so it reaches no reading
+# face and no other page, and there it outranks a section's printed entries.
+# An EXCEPTION names a sign that is no quantity; it stays in the neutral ink.
+# Each entry says why. Nothing here gives a colour to a letter by its shape.
+
+readings:
+  # Light quanta, the investigation (/discover/light-quanta/investigate/).
+  - paper: light-quanta
+    anchor: discover-light-quanta-investigate
+    glyph: "\\beta"
+    quantityId: wienConstantBeta
+    reason: "The entropy formula is § 4's, and § 4 prints β as Wien's constant, as §§ 2, 6 and 8 do (eq-s4-d1 to eq-s4-d5). The concordance's entry lq.beta.wienConstant does not yet list § 4."
+  - paper: light-quanta
+    anchor: discover-light-quanta-investigate
+    glyph: "W_{\\mathrm{independent}}"
+    quantityId: configurationProbability
+    reason: "The probability that all n points, each moving independently, are found in the part V of the volume V_0: § 5's configuration probability, (V/V_0)^n."
+  - paper: light-quanta
+    anchor: discover-light-quanta-investigate
+    glyph: "W_{\\mathrm{locked}}"
+    quantityId: configurationProbability
+    reason: "The same configuration probability for points that move together as one, the case the investigation sets beside § 5's independent points; it is V/V_0 whatever their number."
+  - paper: light-quanta
+    anchor: discover-light-quanta-investigate
+    glyph: "\\epsilon"
+    quantityId: quantumEnergy
+    reason: "The size of each energy quantum, Rβν/N, the quantity § 6 concludes low-density radiation behaves as if it were made of."
+  - paper: light-quanta
+    anchor: discover-light-quanta-investigate
+    glyph: "K_{\\max}"
+    quantityId: maxKineticEnergy
+    reason: "The largest kinetic energy an electron can carry out of the body, which § 8 writes as (R/N)βν − P."
+
+  # Special relativity, the investigation (/discover/special-relativity/investigate/). The route is
+  # the modern ansatz, a labelled modern layer: its a(v), b(v), d(v) and k(v) are the ansatz's
+  # coefficients, not § 3's printed a, and its x' is the moving frame's coordinate, not § 3's
+  # Galilean auxiliary x' = x - vt, which the investigation never uses.
+  - paper: special-relativity
+    anchor: discover-special-relativity-investigate
+    glyph: "a"
+    quantityId: ansatzSpatialScale
+    reason: "The ansatz's spatial scale a(v) in x' = a(v)(x - vt), found in the end to be the Lorentz factor."
+  - paper: special-relativity
+    anchor: discover-special-relativity-investigate
+    glyph: "b"
+    quantityId: ansatzTimeScale
+    reason: "The ansatz's time scale b(v) in t' = b(v)t + d(v)x, which light's two directions make equal to a(v)."
+  - paper: special-relativity
+    anchor: discover-special-relativity-investigate
+    glyph: "d"
+    quantityId: ansatzTimeSpaceCoefficient
+    reason: "The ansatz's coefficient d(v), so that d(v)x is a time, which light's two directions fix as -a(v)v/c^2."
+  - paper: special-relativity
+    anchor: discover-special-relativity-investigate
+    glyph: "k"
+    quantityId: ansatzTransverseScale
+    reason: "The ansatz's transverse scale k(v) in y' = k(v)y and z' = k(v)z, which symmetry fixes as 1."
+  - paper: special-relativity
+    anchor: discover-special-relativity-investigate
+    glyph: "x'"
+    quantityId: coordinatePositionMoving
+    reason: "The position coordinate in the moving frame, in the Galilean trial and in the ansatz alike; the investigation writes no Galilean auxiliary coordinate."
+
+  # Mass and energy, the investigation (/discover/mass-energy/investigate/). Its letters are the
+  # paper's argument in modern notation, with the light energies l and l^* of relativity § 8 that
+  # the paper imports.
+  - paper: mass-energy
+    anchor: discover-mass-energy-investigate
+    glyph: "l"
+    quantityId: lightComplexEnergyStationary
+    reason: "The energy of one of the two light complexes in the frame where the body is at rest, the l of the transformation the paper imports from relativity § 8."
+  - paper: mass-energy
+    anchor: discover-mass-energy-investigate
+    glyph: "l^*"
+    quantityId: lightComplexEnergyMoving
+    reason: "The energy of the same light complex in the frame in which the body moves, the l^* of that transformation."
+  - paper: mass-energy
+    anchor: discover-mass-energy-investigate
+    glyph: "C_0"
+    quantityId: additiveEnergyConstant
+    reason: "The additive offset in H_0 - E_0 = K_0 + C_0 before the emission: the paper relates the difference of the body's energies in the two frames to its kinetic energy only up to such a constant."
+  - paper: mass-energy
+    anchor: discover-mass-energy-investigate
+    glyph: "C_1"
+    quantityId: additiveEnergyConstant
+    reason: "The same offset after the emission. Einstein states it is unchanged by the emission, and the argument admits C_0 = C_1 as that premise."
+  - paper: mass-energy
+    anchor: discover-mass-energy-investigate
+    glyph: "M_0"
+    quantityId: bodyMassBefore
+    reason: "The body's mass before it emits the light, read off the low-speed kinetic energy as its coefficient of v^2/2."
+  - paper: mass-energy
+    anchor: discover-mass-energy-investigate
+    glyph: "M_1"
+    quantityId: bodyMassAfter
+    reason: "The body's mass after it has emitted the light, read off in the same way."
+  - paper: mass-energy
+    anchor: discover-mass-energy-investigate
+    glyph: "M"
+    quantityId: bodyMass
+    reason: "The body's mass in ΔM, whose signed change the last step states; the Δ before it is an operator and is listed below."
+
+  # Brownian motion, the journey (/discover/brownian-motion/).
+  - paper: brownian-motion
+    anchor: discover-brownian-motion
+    glyph: "x"
+    quantityId: displacement1d
+    reason: "In ⟨x²⟩ = 2Dt, the particle's displacement along one axis since the start, whose mean square § 4 finds; the concordance reads x there both as a coordinate label and as a position."
+
+exceptions:
+  - paper: brownian-motion
+    glyph: "\\pi"
+    scope: [discover-brownian-motion]
+    reason: "The number π in Stokes's 6π, a constant of geometry and no quantity of the paper."
+  - paper: mass-energy
+    glyph: "\\Delta"
+    scope: [discover-mass-energy-investigate]
+    reason: "The Δ of ΔM, an operator taking the change of what follows it, not a quantity."
+  - paper: mass-energy
+    glyph: "O"
+    scope: [discover-mass-energy-investigate]
+    reason: "The order symbol in O((v/c)^4), which names the size of the terms left out, not a quantity."
+  - paper: mass-energy
+    glyph: "i"
+    scope: [discover-mass-energy-investigate]
+    reason: "The index i in (i = 0, 1), which counts the two states and names no quantity."
+  - paper: mass-energy
+    glyph: "H_i"
+    scope: [discover-mass-energy-investigate]
+    reason: "H_i stands for H_0 and H_1 at once in the pair's common form, so no one quantity is named; H_0 and H_1 are coloured where they stand alone."
+  - paper: mass-energy
+    glyph: "E_i"
+    scope: [discover-mass-energy-investigate]
+    reason: "E_i stands for E_0 and E_1 at once in the pair's common form, so no one quantity is named; E_0 and E_1 are coloured where they stand alone."
+  - paper: mass-energy
+    glyph: "K_i"
+    scope: [discover-mass-energy-investigate]
+    reason: "K_i stands for K_0 and K_1 at once in the pair's common form, so no one quantity is named; K_0 and K_1 are coloured where they stand alone."
+  - paper: mass-energy
+    glyph: "C_i"
+    scope: [discover-mass-energy-investigate]
+    reason: "C_i stands for C_0 and C_1 at once in the pair's common form, so no one quantity is named; C_0 and C_1 are coloured where they stand alone."
