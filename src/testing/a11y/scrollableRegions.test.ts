@@ -551,6 +551,14 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   // linear-formula-scroll, its tab stop is added at runtime by formulaOverflow.inline.ts, and only
   // when it overflows.
   ["inline-display", 1],
+  // A formula inside a line of text (inlines.tsx, GlossPair.tsx, NotationEntryCard.tsx), made an
+  // inline-flex box that scrolls in its line by 300f81ec, so Brownian's s2-p4-s1 formula (309 to
+  // 345px) no longer widens the English, parallel and gloss faces at 320. Three JSX elements, with
+  // no tabIndex in the TSX: like inline-display, the tab stop and name come at runtime from
+  // formulaOverflow.inline.ts, only when the formula overflows. Measured on live Brownian at 320
+  // with 300f81ec's rule injected (Chromium and WebKit alike): 8 of 536 formulas scroll across the
+  // three faces, 8 of 8 get tabindex="0" and a name, and 0 that fit get a tab stop.
+  ["inline-math", 3],
   ["inference-workbench", 0],
   ["kitchen-guide", 1],
   ["kitchen-lab", 1],
