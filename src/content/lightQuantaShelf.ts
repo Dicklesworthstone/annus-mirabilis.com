@@ -60,13 +60,15 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "maxwell-1873-electromagnetic-light",
     proposition:
-      "Light is an electromagnetic wave, and the optical behaviour of light follows from the field equations.",
+      "Maxwell argues that light is an electromagnetic disturbance, propagated through the same medium as other electromagnetic actions: the velocity of such a disturbance, found from electrical measurements, agrees with the measured velocity of light, and the disturbance lies in the plane of the wave, as the one constituting light does.",
     status: "available",
+    limits:
+      "An argument he offers as a test, not a derivation of all of optics: neither velocity was known well enough to say which was the greater, and his theory is, in his words, certainly not contradicted by them. Its prediction that a transparent medium's dielectric capacity equals the square of its index of refraction misses for paraffin by more than errors of observation, which he takes to show that theories of the structure of bodies must be much improved before optical properties can be deduced from electrical ones.",
     sources: [
       {
         title: "A Treatise on Electricity and Magnetism",
         date: "1873",
-        locator: "Oxford: Clarendon Press",
+        locator: "J. C. Maxwell, Oxford: Clarendon Press, vol. II, ch. XX, arts. 781-790",
       },
     ],
     date: {
@@ -77,6 +79,21 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     admittedStages: ["stage-01"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/electricandmagne02maxwrich",
+        read: "page-image",
+        matched:
+          'The catalog record gives A treatise on electricity and magnetism, vol. 2, 1873; leaf 7 is the Clarendon Press imprint ("London, Macmillan and Co., Publishers to the University of Oxford"); page feet read "VOL. II.". Leaf 414: "Chapter XX. Electromagnetic Theory of Light", art. 781: if the velocity of electromagnetic disturbances is the same as that of light, "we shall have strong reasons for believing that light is an electromagnetic phenomenon". p. 387, arts. 786-787: "On the theory that light is an electromagnetic disturbance, propagated in the same medium through which other electromagnetic actions are transmitted, V must be the velocity of light"; the table of light velocities (Fizeau 314000000, Foucault 298360000 m/s) against ratios of the units (Weber 310740000, Maxwell 288000000, Thomson 282000000). p. 388: neither known well enough "to assert that the one is greater or less than the other"; the theory "is certainly not contradicted by the comparison"; art. 788: the dielectric capacity "should be equal to the square of its index of refraction"; art. 789: paraffin, K = 1.975, √K = 1.405 against 1.422. p. 389: the difference "is greater than can be accounted for by errors of observation, and shews that our theories of the structure of bodies must be much improved before we can deduce their optical from their electrical properties"; art. 790: the magnetic disturbance is in the plane of the wave, which "agrees with what we know of that disturbance which constitutes light".',
+        differs: [
+          'The card said light "is an electromagnetic wave, and the optical behaviour of light follows from the field equations". Maxwell argues the first from the agreement of the velocities and says outright that optical properties cannot yet be deduced from electrical ones. The proposition now states his argument, and the limits his hedges and the paraffin discrepancy.',
+          "The title page's year was not read on this scan (its leaf 5 is blank); the date rests on the catalog record and the imprint.",
+        ],
+      },
+    ],
   },
   {
     id: "equipartition-mean-resonator-energy",

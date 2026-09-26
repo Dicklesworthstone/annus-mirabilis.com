@@ -24,6 +24,7 @@ const CHECKED = [
   "boltzmann-1896-gas-volume-entropy",
   "boltzmann-1877-entropy-probability",
   "millikan-1916-photoelectric-h",
+  "maxwell-1873-electromagnetic-light",
 ];
 
 /**
