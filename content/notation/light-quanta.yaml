@@ -163,19 +163,12 @@ entries:
     meaning: "Wien's constant in the exponential; in modern terms, Planck's constant over Boltzmann's"
     binding:
       quantityId: wienConstantBeta
+    # Filed as a modernization, not a rename, by TanElk's ruling (dispatch 259). As a rename to the
+    # expression h/k_B it would have drawn § 2's N = (β/α)·8πR/L³ as N = R/k_B.
     operation:
-      kind: rename
-      target:
-        form: expression
-        modernTree:
-          kind: divide
-          left:
-            kind: term
-            terms: ["planckConstant"]
-          right:
-            kind: term
-            terms: ["boltzmannConstant"]
-        modernGlyph: "h/k_B"
+      kind: modernization
+      modernLensRef: "lq-planck-constants-identification"
+      argumentChangeDescription: "Reading β as h/k, Planck's constant over Boltzmann's, is Planck's identification of Wien's constant. It changes the argument, and it is not a new name for the letter. § 2 finds N = (β/α)·8πR/L³ by comparing coefficients. With β = h/k and α = 8πh/c³ written in, that becomes N = R/k, a molecular number drawn from a constant that already contains it. The modern notation keeps a letter."
     collision:
       severity: danger
       kind: cross-toggle
@@ -191,7 +184,7 @@ entries:
           anchor: lq-s8-p2
         - sectionId: lq-s9
           anchor: lq-s9-p1
-    notes: "The third meaning of β. In paper 3 it is the factor a modern reader writes γ. It is not v/c: read as v/c, every later formula looks plausible and is wrong. Modern notation replaces the whole expression, not just the letter."
+    notes: "The third meaning of β. In paper 3 it is the factor a modern reader writes γ. It is not v/c: read as v/c, every later formula looks plausible and is wrong."
     sources:
       facsimilePage: 136
       anchor: lq-s2-p2
@@ -211,20 +204,11 @@ entries:
     meaning: "Wien's prefactor constant in the radiation law"
     binding:
       quantityId: wienConstantAlpha
+    # Filed as a modernization, not a rename, by TanElk's ruling (dispatch 259), as β is.
     operation:
-      kind: rename
-      target:
-        form: expression
-        modernTree:
-          kind: divide
-          left:
-            kind: multiply
-            terms: ["8", "pi", "planckConstant"]
-          right:
-            kind: power
-            terms: ["speedOfLight"]
-            factor: 3
-        modernGlyph: "8\\pi h/c^{3}"
+      kind: modernization
+      modernLensRef: "lq-planck-constants-identification"
+      argumentChangeDescription: "Reading α as 8πh/c³ is Planck's identification of Wien's prefactor. It changes the argument, and it is not a new name for the letter. With it and β = h/k written in, § 2's N = (β/α)·8πR/L³ becomes N = R/k, a molecular number drawn from a constant that already contains it. The modern notation keeps a letter."
     collision:
       severity: caution
       kind: within-paper

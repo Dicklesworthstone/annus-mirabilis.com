@@ -783,11 +783,12 @@ entries:
     meaning: "Decrease in inertial mass of a body emitting radiation energy L"
     binding:
       quantityId: inertialMassDecrease
+    # Filed as a modernization, not a rename, by TanElk's ruling (dispatch 259). As a rename to
+    # \frac{L}{c^2} it would have drawn eq-model-me-mass-decrease as L/c² = L/c².
     operation:
-      kind: rename
-      target:
-        form: symbol
-        modernGlyph: "\\frac{L}{c^2}"
+      kind: modernization
+      modernLensRef: "me-mass-decrease-named"
+      argumentChangeDescription: "The paper names the decrease only by its value, L/V². The explanation gives it a letter of its own. Written in that letter's place, L/c² would turn the paper's conclusion into the identity L/c² = L/c², so the modern notation keeps the letter."
     notes: "The central result: if a body gives off energy L in radiation, its mass decreases by L/V^2 (in modern notation, Delta m = L/c^2)."
     sources:
       facsimilePage: 641

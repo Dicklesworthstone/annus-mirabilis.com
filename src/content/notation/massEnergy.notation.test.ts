@@ -311,10 +311,10 @@ describe("am-not-entries-mass-energy-wq2: mass-energy notation concordance", () 
     assert.ok(res.ok, "L/V^2 must resolve");
     assert.ok("quantityId" in res.entry.binding);
     assert.equal(res.entry.binding.quantityId, "inertialMassDecrease");
-    assert.equal(
-      modernSymbolFor(paper, "me-s0", "L/V^2", emptyManifestIndex, file),
-      "\\frac{L}{c^2}",
-    );
+    // Filed as a modernization (dispatch 259): as a rename to L/c² it would draw the record of the
+    // mass decrease as L/c² = L/c². So the modern notation has no symbol for it.
+    assert.equal(res.entry.operation.kind, "modernization");
+    assert.equal(modernSymbolFor(paper, "me-s0", "L/V^2", emptyManifestIndex, file), undefined);
     logPass("L_over_V2-inertial-mass-decrease", "L/V^2 binds inertialMassDecrease");
   });
 

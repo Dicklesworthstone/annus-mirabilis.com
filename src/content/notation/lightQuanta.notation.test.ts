@@ -86,11 +86,10 @@ describe("am-not-entries-light-quanta-9cb: light-quanta notation concordance", (
     assert.equal(res.entry.collision?.severity, "danger");
     assert.ok(res.entry.collision?.collidesWith?.includes("lorentzFactor"));
     assert.ok(res.entry.collision?.collidesWith?.includes("speedRatio"));
-    assert.equal(res.entry.operation.kind, "rename");
-    if (res.entry.operation.kind === "rename") {
-      assert.equal(res.entry.operation.target.form, "expression");
-    }
-    assert.equal(modernSymbolFor(paper, "lq-s2", "\\beta", emptyManifestIndex, file), "h/k_B");
+    // β = h/k_B is Planck's identification, filed as a modernization (dispatch 259): as a rename it
+    // would draw § 2's N = (β/α)·8πR/L³ as N = R/k_B. So the modern notation has no symbol for it.
+    assert.equal(res.entry.operation.kind, "modernization");
+    assert.equal(modernSymbolFor(paper, "lq-s2", "\\beta", emptyManifestIndex, file), undefined);
     // Page 136: s2-p1 prints no symbol; beta is first printed in s2-p2, in Planck's formula.
     assert.equal(firstUseInSection(paper, "lq-s2", "\\beta", file), "lq-s2-p2");
     logPass("beta-is-wien-constant", "beta binds wienConstantBeta, not lorentzFactor", {

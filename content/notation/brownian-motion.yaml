@@ -1006,7 +1006,7 @@ entries:
       kind: rename
       target:
         form: symbol
-        modernGlyph: "\\Delta x"
+        modernGlyph: "\\Delta"
     sources:
       facsimilePage: 556
       anchor: bm-s4-p4
@@ -1030,7 +1030,7 @@ entries:
       kind: rename
       target:
         form: symbol
-        modernGlyph: "\\phi(\\Delta x)"
+        modernGlyph: "\\varphi"
     collision:
       severity: caution
       kind: within-paper
