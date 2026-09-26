@@ -134,8 +134,14 @@ export function renderInlines(
               className="inline-math"
               data-equation-id={node.equationId}
               data-inline-id={node.inlineId}
-              data-paper={coloured ? options?.terms?.paper : undefined}
-              data-inline-terms={coloured && coloured.terms.length > 0 ? "" : undefined}
+              // Only a coloured formula carries these: an undefined prop is still written into
+              // React's flight data as "$undefined", on every plain formula of every face.
+              {...(coloured && options?.terms
+                ? {
+                    "data-paper": options.terms.paper,
+                    ...(coloured.terms.length > 0 ? { "data-inline-terms": "" } : {}),
+                  }
+                : {})}
               {...{ dangerouslySetInnerHTML: { __html: coloured?.html ?? html } }}
             />
           );
