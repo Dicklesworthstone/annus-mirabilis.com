@@ -18,6 +18,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToString } from "katex";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
+import { misprintNotes } from "../../content/provenance/misprints.ts";
 import { loadReaderDescriptions } from "../../content/quantities/readerDescriptions.ts";
 import { getQuantityRegistry, isRegisteredQuantityId } from "../../content/quantities/registry.ts";
 import type { ConcordanceEntry } from "../../content/schemas/concordance.ts";
@@ -43,7 +44,7 @@ export const INLINE_EXCEPTIONS_PATH = join("content", "inline-terms", "exception
  * these are drawn in colour (scripts/build-equations.ts), so a paper turns over whole. A paper joins
  * when its concordance reads every glyph its formulas print.
  */
-export const ENFORCED_INLINE_PAPERS: readonly string[] = ["mass-energy"];
+export const ENFORCED_INLINE_PAPERS: readonly string[] = ["mass-energy", "light-quanta"];
 
 export type InlineExceptionsCode =
   | "inline-exceptions-not-a-list"
@@ -128,10 +129,19 @@ type Holder = Readonly<{
   sourceRefs?: readonly Readonly<{ id: string }>[] | undefined;
 }>;
 
-/** The LaTeX of every inline (not display) formula in these inlines, in reading order. */
+/**
+ * The LaTeX of every inline (not display) formula in these inlines, in reading order. A misprint
+ * inside a formula (dispatch 270) prints the formula as set and, in its note, the formula meant
+ * (inlines.tsx): both are counted and compiled in the holder's scope, since both are inline
+ * formulas on the face.
+ */
 export function inlineFormulas(inlines: readonly Inline[]): string[] {
   return inlines.flatMap((inline) => {
     if (inline.kind === "math") return inline.display === true ? [] : [inline.latex];
+    if (inline.kind === "misprint" && "math" in inline) {
+      const meant = misprintNotes().get(inline.recordId)?.formula?.reading;
+      return [inline.math.latex, ...(meant === undefined ? [] : [meant])];
+    }
     const nested = (inline as { inlines?: readonly Inline[] }).inlines;
     return Array.isArray(nested) ? inlineFormulas(nested) : [];
   });
