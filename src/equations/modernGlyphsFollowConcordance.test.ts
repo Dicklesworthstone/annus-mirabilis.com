@@ -14,14 +14,16 @@
  * Unlike the toggle, it does not refuse electromagnetic quantities: a letter is a letter in any
  * unit system.
  *
- * It FAILS on one thing: the single in-scope entry is a rename to a LETTER, and the record prints a
- * different letter. It REPORTS the rest by name and count, because none of them is a letter to
- * compare:
- * - a target that is an expression. Wien's α as 8πh/c³ is Planck's identification, not a rename;
- *   drawn in a symbol's place, an expression can change the formula around it. Such targets are
- *   for the concordance's owners to rule on, not for this test to force;
+ * It FAILS on two things, both about the single in-scope entry being a rename:
+ * - the rename is to a LETTER, and the record prints a different letter;
+ * - the rename is to an EXPRESSION (dispatch 259). Drawn in a symbol's place, an expression changes
+ *   the formula around it. Wien's α and β as 8πh/c³ and h/k_B would turn § 2's N = (β/α)·8πR/L³
+ *   into N = R/k_B, and the mass decrease as L/c² would print L/c² = L/c². An identification like
+ *   that is a modernization, which the schema has a kind for, and which this test passes.
+ * It REPORTS the rest by name and count, because none of them is a letter to compare:
+ * - an entry that is not a rename (a modernization or a unit conversion);
  * - a quantity the concordance maps elsewhere in the paper but not in this section. Settling that
- *   needs the plate for each case;
+ *   needs the plate for each case, and meanwhile the symbol prints its printed glyph;
  * - more than one candidate entry, or no entry for the quantity at all.
  */
 import { describe, expect, test } from "bun:test";
@@ -150,19 +152,27 @@ function paperFindings(paper: string) {
 
 describe("modern letters follow the notation concordance", () => {
   for (const paper of PAPERS) {
-    test(`${paper}: no record prints a letter the concordance renames to another`, () => {
+    test(`${paper}: no record prints a letter the concordance renames to another, and no rename is to an expression`, () => {
       const { records, findings } = paperFindings(paper);
       const count = (o: Outcome) => findings.filter((f) => f.outcome === o).length;
       const compared = count("agrees") + count("letter-differs");
       // The denominator, printed: a sweep that compared nothing would pass the assertion below.
       console.log(
-        `[modern letters] ${paper}: ${records} records / ${compared} letters compared, ${count("agrees")} agree; reported: ${count("expression-target")} expression targets, ${count("out-of-scope")} out of scope, ${count("ambiguous")} ambiguous, ${count("not-mapped")} unmapped, ${count("not-a-rename")} not renames`,
+        `[modern letters] ${paper}: ${records} records / ${compared} letters compared, ${count("agrees")} agree, ${count("expression-target")} renamed to an expression; reported: ${count("out-of-scope")} out of scope, ${count("ambiguous")} ambiguous, ${count("not-mapped")} unmapped, ${count("not-a-rename")} not renames`,
       );
       expect(compared).toBeGreaterThan(0);
       const differs = findings
         .filter((f) => f.outcome === "letter-differs")
         .map((f) => `${f.record} ${f.key}: prints ${f.prints}, the concordance ${f.concordance}`);
       expect(differs).toEqual([]);
+      // A rename to an expression fails too: file an identification as a modernization.
+      const expressions = findings
+        .filter((f) => f.outcome === "expression-target")
+        .map(
+          (f) =>
+            `${f.record} ${f.key}: prints ${f.prints}, renamed to the expression ${f.concordance}`,
+        );
+      expect(expressions).toEqual([]);
     });
   }
 
