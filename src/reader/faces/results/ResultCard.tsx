@@ -79,7 +79,15 @@ export function ResultCard({
     return e ? [e] : [];
   });
   const modernResolved = modern.length > 0 && modern.length === card.printedEquationIds.length;
-  const pages = [...new Set((card.printed ?? []).flatMap((p) => (p.page ? [p.page] : [])))];
+  // Every page an excerpt stands on, a quotation that runs across a page turn included.
+  const pages = [
+    ...new Set(
+      (card.printed ?? []).flatMap((p) => [
+        ...(p.page ? [p.page] : []),
+        ...(p.lastPage ? [p.lastPage] : []),
+      ]),
+    ),
+  ].sort((a, b) => a - b);
   return (
     <article
       className="result-card"
@@ -129,8 +137,9 @@ export function ResultCard({
               <span key={p.anchor}>
                 {i > 0 ? " · " : ""}
                 <a href={p.germanHref}>
-                  {p.kind === "display" ? "Display" : "Text"} on page {p.page ?? "?"} of the German
-                  source
+                  {p.kind === "display" ? "Display" : "Text"}{" "}
+                  {p.lastPage ? `on pages ${p.page}–${p.lastPage}` : `on page ${p.page ?? "?"}`} of
+                  the German source
                 </a>
               </span>
             ))}

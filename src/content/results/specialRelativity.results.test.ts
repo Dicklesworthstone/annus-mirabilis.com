@@ -147,4 +147,22 @@ describe("relativity's result cards", () => {
     // § 10 quotes s10-p10 and s10-p11, the kinetic energy, which is not E = mc².
     expect(wrongTurns["sr-electron-kinetic-energy"]).toContain("misc-sr-emc2-in-paper");
   });
+
+  test("a quotation carries the pages its sentences are printed on, not its paragraph's first", () => {
+    // The page turns are read from the plates (content/source-blocks, dispatch 247):
+    // p. 906 opens "α ist dann als der Winkel", p. 892 "Voraussetzung einführen", and p. 905
+    // "bewegt gebliebenen um", the end of the divided word "un-|bewegt".
+    const excerpt = (card: string, anchor: string, first: number) =>
+      cards
+        .find((c) => c.id === card)
+        ?.printed.find((p) => p.anchor === anchor && p.ordinals[0] === first);
+    const pages = (e: ReturnType<typeof excerpt>) => [e?.page, e?.lastPage];
+    // s5-p2 starts on p. 905; its eighth sentence stands on p. 906.
+    expect(pages(excerpt("sr-velocity-addition", "s5-p2", 3))).toEqual([905, undefined]);
+    expect(pages(excerpt("sr-velocity-addition", "s5-p2", 8))).toEqual([906, undefined]);
+    // All four sentences of s0-p2 run from p. 891 onto p. 892.
+    expect(pages(excerpt("sr-two-postulates", "s0-p2", 1))).toEqual([891, 892]);
+    // The equator sentence is on p. 905.
+    expect(pages(excerpt("sr-moving-clock", "s4-p8", 1))).toEqual([904, 905]);
+  });
 });

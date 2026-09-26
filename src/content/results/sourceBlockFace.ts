@@ -20,6 +20,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseYaml } from "../provenance/yaml.ts";
 import { type Inline, plainText } from "../schemas/inlines.ts";
+import { spanPages, validatePageTurns } from "../schemas/pageTurns.ts";
 
 type Span = Readonly<{ start: number; end: number }>;
 
@@ -30,6 +31,7 @@ type SourceBlockRecord = Readonly<{
   inlines?: readonly Inline[];
   sentenceSpans?: readonly Readonly<{ id: string; span: Span }>[];
   locators?: readonly Readonly<{ printedPage?: number }>[];
+  pageTurns?: unknown;
 }>;
 
 /** A face block as resultCards.ts reads it: its id, kind and text, and its sentences in order. */
@@ -94,10 +96,10 @@ export function markupPlainText(markup: string): string {
     .replace(/\$/g, "");
 }
 
-/** The paper's source blocks as a face, or null when it has none. */
-export function sourceBlockFace(root: string, paper: string): SourceBlockFace | null {
+/** The paper's source-block records, in file-name order; the files beside them are skipped. */
+function sourceBlockRecords(root: string, paper: string): SourceBlockRecord[] {
   const dir = join(root, "content", "source-blocks", paper);
-  if (!existsSync(dir)) return null;
+  if (!existsSync(dir)) return [];
   const records: SourceBlockRecord[] = [];
   for (const name of readdirSync(dir).sort()) {
     if (!/\.(ya?ml|json)$/.test(name) || name.startsWith("manifest")) continue;
@@ -115,6 +117,43 @@ export function sourceBlockFace(root: string, paper: string): SourceBlockFace | 
       continue;
     records.push(data as SourceBlockRecord);
   }
+  return records;
+}
+
+/**
+ * The printed pages of each sentence in a block that records where its text turns the page
+ * (schemas/pageTurns.ts, dispatch 247): its first page, and its last when it runs across a turn.
+ * Blocks without turns are left out, so a reader falls back to the page the block starts on, as
+ * before; a paper's cards change only when its data says where its pages turn. A turn that does
+ * not validate throws here, as it fails the corpus test: a wrong page must not reach a card.
+ */
+export function sentencePages(
+  root: string,
+  paper: string,
+): ReadonlyMap<string, Readonly<{ first: number; last: number }>> {
+  const out = new Map<string, Readonly<{ first: number; last: number }>>();
+  for (const r of sourceBlockRecords(root, paper)) {
+    if (r.pageTurns === undefined) continue;
+    const locators = (r.locators ?? []).flatMap((l) =>
+      typeof l.printedPage === "number" ? [{ printedPage: l.printedPage }] : [],
+    );
+    const turns = validatePageTurns(
+      r.pageTurns,
+      locators,
+      plainText(r.inlines ?? []),
+      `${paper}/${r.id}.pageTurns`,
+    );
+    for (const s of r.sentenceSpans ?? []) {
+      const pages = spanPages(locators, turns, s.span);
+      if (pages) out.set(s.id, pages);
+    }
+  }
+  return out;
+}
+
+/** The paper's source blocks as a face, or null when it has none. */
+export function sourceBlockFace(root: string, paper: string): SourceBlockFace | null {
+  const records = sourceBlockRecords(root, paper);
   if (records.length === 0) return null;
   const pages: Record<string, number> = {};
   const anchorOf: Record<string, string> = {};

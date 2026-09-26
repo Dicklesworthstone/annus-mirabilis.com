@@ -22,7 +22,7 @@ import { loadGermanSourceFace } from "../editions/germanSourceFace.ts";
 import type { RouteSlug } from "../ids.ts";
 import { loadConcordanceForPaper } from "../notation/loader.ts";
 import { parseYaml } from "../provenance/yaml.ts";
-import { type FaceBlock, sourceBlockFace } from "./sourceBlockFace.ts";
+import { type FaceBlock, sentencePages, sourceBlockFace } from "./sourceBlockFace.ts";
 
 /** How a card labels a statement that is not the result itself. */
 export const QUALIFICATION_KINDS = [
@@ -42,7 +42,10 @@ export type PrintedExcerpt = Readonly<{
   ordinals: readonly number[];
   /** Ledger markup exactly as the face holds it: LaTeX for a display, marked text for sentences. */
   text: string;
+  /** The page the excerpt starts on. */
   page: number | undefined;
+  /** The page it ends on, when its sentences run across a page turn (dispatch 247). */
+  lastPage?: number | undefined;
 }>;
 
 export type ResultCardRecord = Readonly<{
@@ -109,6 +112,11 @@ export type ResultContext = Readonly<{
   /** Preset id to its laboratory and label, from content/experiments/<id>.yaml. */
   presets: ReadonlyMap<string, Readonly<{ instrumentId: string; label: string }>>;
   face: PrintedFace;
+  /**
+   * The printed pages of each sentence whose block records its page turns (sourceBlockFace.ts):
+   * a sentence after a turn is on the next page, not the page its paragraph starts on.
+   */
+  sentencePages?: ReadonlyMap<string, Readonly<{ first: number; last: number }>> | undefined;
   /** The paper's misconception ledger: each record's id to the result ids it names. */
   ledger: ReadonlyMap<string, readonly string[]>;
   registries: ResultRegistries;
@@ -164,6 +172,7 @@ function blockAt(face: PrintedFace, anchor: string) {
 
 function resolvePrinted(
   face: PrintedFace,
+  sentencePages: ResultContext["sentencePages"],
   raw: unknown,
   where: string,
   problems: string[],
@@ -193,12 +202,21 @@ function resolvePrinted(
     );
     return null;
   }
+  // Each sentence's own pages where its block records its page turns; else the block's page.
+  const ranges = picked.flatMap((s) => {
+    const r = s ? sentencePages?.get(s.id) : undefined;
+    return r ? [r] : [];
+  });
+  const known = ranges.length === picked.length;
+  const first = known ? Math.min(...ranges.map((r) => r.first)) : page;
+  const last = known ? Math.max(...ranges.map((r) => r.last)) : page;
   return {
     anchor,
     kind: "sentences",
     ordinals,
     text: picked.map((s) => s?.text ?? "").join(" "),
-    page,
+    page: first,
+    ...(last !== undefined && first !== undefined && last > first ? { lastPage: last } : {}),
   };
 }
 
@@ -230,7 +248,13 @@ export function checkResultCards(
       if (!context.arguments.has(a)) problems.push(`${at}: ${a} is not a ${context.paper} passage`);
 
     const printed = list(c.printed).flatMap((p, k) => {
-      const excerpt = resolvePrinted(context.face, p, `${at} printed[${k}]`, problems);
+      const excerpt = resolvePrinted(
+        context.face,
+        context.sentencePages,
+        p,
+        `${at} printed[${k}]`,
+        problems,
+      );
       if (!excerpt) return [];
       for (const problem of printedFormProblems(excerpt.text, { printsBeta: context.printsBeta }))
         problems.push(`${at} printed ${excerpt.anchor} ${problem}`);
@@ -444,6 +468,7 @@ export function resultContext(
     scenarios: scenarioOwners(root),
     presets: presetRegistry(root),
     face,
+    sentencePages: sentencePages(root, paper),
     ledger: misconceptionLedger(root, paper),
     registries,
     printsBeta: printsBeta(root, paper),

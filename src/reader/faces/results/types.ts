@@ -38,7 +38,10 @@ export type PrintedLayerEntry = Readonly<{
   kind: "display" | "sentences";
   /** Ledger markup: LaTeX for a display, marked text for sentences. */
   text: string;
+  /** The page the excerpt starts on. */
   page: number | undefined;
+  /** The page it ends on, when its sentences run across a page turn. */
+  lastPage?: number | undefined;
   /** The anchor on the German face, where the text stands in its paragraph. */
   germanHref: string;
 }>;

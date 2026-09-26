@@ -93,4 +93,27 @@ describe("relativity's results face, static", () => {
     expect(wrong).toEqual([]);
     expect(html).not.toContain("?preset=");
   });
+
+  test("each quotation names the pages its words are printed on, across a page turn too", () => {
+    // Read from the plates (dispatch 247): s5-p2 turns onto p. 906 at its fourth sentence, and
+    // s0-p2 runs from p. 891 onto p. 892.
+    // React separates a label's text nodes with empty comments; a reader sees one line.
+    const labels = (id: string) =>
+      [
+        ...cardHtml(id)
+          .replace(/<!-- -->/g, "")
+          .matchAll(/(Text|Display) on pages? [^<]*? of\s+the German source/g),
+      ].map((m) => m[0].replace(/\s+/g, " "));
+    expect(labels("sr-velocity-addition")).toEqual([
+      "Text on page 905 of the German source",
+      "Display on page 906 of the German source",
+      "Text on page 906 of the German source",
+      "Display on page 906 of the German source",
+      "Text on page 906 of the German source",
+      "Text on page 906 of the German source",
+      "Display on page 906 of the German source",
+    ]);
+    expect(labels("sr-two-postulates")).toEqual(["Text on pages 891–892 of the German source"]);
+    expect(cardHtml("sr-two-postulates")).toContain("Pages 891, 892");
+  });
 });

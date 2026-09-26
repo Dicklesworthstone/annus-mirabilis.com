@@ -56,6 +56,7 @@ export function toCard(
       kind: p.kind,
       text: p.text,
       page: p.page,
+      ...(p.lastPage !== undefined ? { lastPage: p.lastPage } : {}),
       germanHref: `/papers/${record.paper}/view/german/#${p.anchor}`,
     })),
     qualifications: record.qualifications,
