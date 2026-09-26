@@ -3,11 +3,11 @@
  * display's term chip is a real link to /notation/ (notationLink, src/equations/printed/
  * fallbackFacts.ts). Most chips land on a concordance entry above. A quantity with no entry in its
  * paper lands on its row here: the letters as printed, its name, and what it is. The rows are the
- * chips' own targets, read from the payload the faces render, so every such link has a place.
+ * chips' own targets, read from the payload the faces render, so every such link has a place. The
+ * name and description come in that payload (printedDisplays, at build time): this page must not
+ * import the quantity registry, whose `new URL(dir, import.meta.url)` webpack cannot bundle.
  */
 
-import { loadReaderDescriptions } from "../../content/quantities/readerDescriptions.ts";
-import { getQuantity, isRegisteredQuantityId } from "../../content/quantities/registry.ts";
 import type { PrintedDisplayPayload } from "../../equations/printed/paperDisplays.ts";
 import printedPayload from "../../generated/printed-displays.json";
 import { PAPER_METADATA } from "./notationData.ts";
@@ -27,7 +27,6 @@ export type UnlistedQuantity = Readonly<{
 /** The chips' quantity rows, one per paper and quantity, in paper and display order. */
 export function unlistedQuantities(
   displays: readonly Pick<PrintedDisplayPayload, "paper" | "legend">[],
-  describe: (quantityId: string) => string | undefined,
 ): readonly UnlistedQuantity[] {
   const rows = new Map<string, UnlistedQuantity & { glyphs: string[] }>();
   for (const d of displays)
@@ -38,8 +37,8 @@ export function unlistedQuantities(
         anchor,
         paper: d.paper,
         paperTitle: PAPER_METADATA[d.paper]?.title ?? d.paper,
-        name: getQuantity(line.quantityId).name,
-        description: describe(line.quantityId),
+        name: line.row?.name ?? line.quantityId,
+        description: line.row?.description,
         glyphs: [],
       };
       if (!row.glyphs.includes(line.glyphHtml)) row.glyphs.push(line.glyphHtml);
@@ -49,10 +48,8 @@ export function unlistedQuantities(
 }
 
 export function UnlistedQuantities() {
-  const descriptions = loadReaderDescriptions(process.cwd(), isRegisteredQuantityId);
   const rows = unlistedQuantities(
     (printedPayload as unknown as { displays: readonly PrintedDisplayPayload[] }).displays,
-    (id) => descriptions.get(id),
   );
   if (rows.length === 0) return null;
   return (

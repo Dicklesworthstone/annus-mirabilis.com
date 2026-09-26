@@ -34,7 +34,16 @@ import { fallbackTermFacts, notationFor, notationLink } from "./fallbackFacts.ts
 export type PrintedDisplayPayload = Omit<CompiledPrintedDisplay, "legend"> &
   Readonly<{
     legend: readonly (CompiledPrintedDisplay["legend"][number] &
-      Readonly<{ href: string; hrefMeaning?: string }>)[];
+      Readonly<{
+        href: string;
+        hrefMeaning?: string;
+        /**
+         * Where the chip links to the quantity's own row on /notation/ (no concordance entry): what
+         * that row prints, its name and reader description, resolved here at build time, since the
+         * page may not read the registry (webpack cannot bundle its directory URL).
+         */
+        row?: Readonly<{ name: string; description?: string }>;
+      }>)[];
     facts: Readonly<Record<string, TermFacts>>;
   }>;
 
@@ -144,7 +153,19 @@ export async function printedDisplays(
       }
       const legend = compiled.legend.map((l) => {
         const link = notationLink(concordance, l.glyph, l.quantityId, scope, paper);
-        return { ...l, href: link.href, ...(link.meaning ? { hrefMeaning: link.meaning } : {}) };
+        const description = descriptions.get(l.quantityId);
+        const row = link.meaning
+          ? undefined
+          : {
+              name: registry.get(l.quantityId)?.name ?? l.quantityId,
+              ...(description ? { description } : {}),
+            };
+        return {
+          ...l,
+          href: link.href,
+          ...(link.meaning ? { hrefMeaning: link.meaning } : {}),
+          ...(row ? { row } : {}),
+        };
       });
       displays.push({ ...compiled, legend, facts });
     }
