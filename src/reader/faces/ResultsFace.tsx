@@ -5,6 +5,7 @@
  * pending task is not something a reader can use.
  */
 import type { CompiledEquation } from "../../equations/viewTypes.ts";
+import { InlineTerms } from "./InlineTerms.tsx";
 import { ResultCard } from "./results/ResultCard.tsx";
 import type { ResultCard as ResultCardData } from "./results/types.ts";
 
@@ -28,6 +29,8 @@ export function ResultsFace({
 
   return (
     <div className="results-face" data-paper={paper}>
+      {/* The quoted inline formulas as targets, on a paper drawn in colour (dispatch 272). */}
+      <InlineTerms paper={paper} />
       {heading ? <h2>{heading}</h2> : null}
       {sections.length > 1 && (
         <nav className="results-face-filter" aria-label="Filter results by section">

@@ -55,6 +55,7 @@ import {
 } from "../../content/editions/segmentSentences.ts";
 import { LEDGER_KATEX_SETTINGS, parseLedgerMath } from "../../content/ledger/ledgerMathSettings.ts";
 import { printedDisplay, printedDisplayInPaper } from "../../equations/printed/printedDisplays.ts";
+import { printedInline } from "../../equations/printed/printedInlines.ts";
 import { PrintedDisplayTerms } from "./PrintedDisplayTerms.tsx";
 import "./sourceMarkup.css";
 
@@ -315,11 +316,24 @@ export function renderSourceMarkup(
         ),
       );
     } else {
+      // Checked under the ledger's policy whether or not it is drawn in colour.
+      const plain = typesetLedgerMath(region.latex, false, key);
+      // A card's quotation of a paper drawn in colour (dispatch 272): the German face's own coloured
+      // render, found by the paper, the anchor quoted and the exact LaTeX (printedInlines.ts). Only
+      // a coloured formula carries the faces' class and data, so the lighting island finds it.
+      const coloured = quoted ? printedInline(quoted.paper, quoted.near, region.latex) : undefined;
       push(
         <span
           key={key}
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX output under the ledger's policy: no trust, no macros, parse checked first.
-          dangerouslySetInnerHTML={{ __html: typesetLedgerMath(region.latex, false, key) }}
+          {...(coloured && quoted
+            ? {
+                className: "inline-math",
+                "data-paper": quoted.paper,
+                ...(coloured.terms.length > 0 ? { "data-inline-terms": "" } : {}),
+              }
+            : {})}
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX output under the ledger's policy (no trust, no macros, parse checked first), or the build's coloured render of the same formula (inlineTerms.ts), whose MathML is checked equal to the plain render's.
+          dangerouslySetInnerHTML={{ __html: coloured?.html ?? plain }}
         />,
       );
     }
