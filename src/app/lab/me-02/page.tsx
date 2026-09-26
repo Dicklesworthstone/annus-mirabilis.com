@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
 import { CoefficientComparison } from "../../../components/lab/CoefficientLab.tsx";
+import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import type { CompiledEquation } from "../../../equations/viewTypes.ts";
 import { validateMe02Parameters } from "../../../experiments/me02/parameters.ts";
 import massEnergyEquations from "../../../generated/mass-energy-equations.json";
@@ -53,14 +53,16 @@ export default function CoefficientPage() {
           the Lorentz factor as an explicit radical, 1/√(1 − v²/V²), every time it appears, and
           never writes β for it; the formulas below write it as the modern γ.
         </p>
-        <Formula
+        <LabFormula
+          lab="me-02"
           latex={String.raw`\begin{gathered}K_0-K_1=L(\gamma-1)=L\frac{\gamma^2\beta^2}{\gamma+1}, \\ \beta=\frac{v}{c}\end{gathered}`}
         />
         <p>
           At small speed the Newtonian energy of motion is ½mv². Matching the second-order term
           identifies a mass change L/c². The quadratic estimate is that second-order piece alone.
         </p>
-        <Formula
+        <LabFormula
+          lab="me-02"
           latex={String.raw`\begin{gathered}\tfrac12 L\beta^2\quad \text{(quadratic)} \\ \lim_{v\to 0}\frac{2L(\gamma-1)}{v^2}=\frac{L}{c^2}\end{gathered}`}
         />
         <h2>The finite-speed proxy is not the limit</h2>

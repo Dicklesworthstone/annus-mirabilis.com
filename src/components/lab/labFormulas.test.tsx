@@ -49,6 +49,9 @@ const LABS = [
   "sr-11",
   "sr-12",
   "sr-13",
+  "me-01",
+  "me-02",
+  "me-03",
 ] as const;
 
 /** How many LabFormula and LabInlineFormula sites the lab's page source holds. */

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Formula } from "../../../components/edition/Formula.tsx";
+import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { TwoLedgersComparison } from "../../../components/lab/me01/TwoLedgersLab.tsx";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/me01/session.ts";
 import labDigests from "../../../generated/lab-source-digests.json";
@@ -50,14 +50,15 @@ export default function TwoLedgersPage() {
           <var>&phi;</var> to the direction of relative motion, an observer moving past at speed{" "}
           <var>v</var> measures its energy <var>l*</var> as:
         </p>
-        <Formula
+        <LabFormula
+          lab="me-01"
           latex={String.raw`l^* = l \frac{1 - \frac{v}{V}\cos\varphi}{\sqrt{1 - \left(\frac{v}{V}\right)^2}}`}
         />
         <p>
           In modern notation with &beta; = v/c and the Lorentz factor &gamma; = 1/&radic;(1 &minus;
           &beta;²):
         </p>
-        <Formula latex={String.raw`l^* = l\,\gamma\,(1 - \beta\cos\varphi)`} />
+        <LabFormula lab="me-01" latex={String.raw`l^* = l\,\gamma\,(1 - \beta\cos\varphi)`} />
 
         <h2>The two accounting sheets: rest frame and moving frame</h2>
         <p>
@@ -65,7 +66,8 @@ export default function TwoLedgersPage() {
           pulses of energy <var>L/2</var> in opposite directions (<var>&phi;</var> and{" "}
           <var>&phi; + 180&deg;</var>). Conservation of energy in the stationary frame requires:
         </p>
-        <Formula
+        <LabFormula
+          lab="me-01"
           latex={String.raw`\begin{gathered}E_0 = E_1 + \frac{1}{2}L + \frac{1}{2}L = E_1 + L \\ \implies E_0 - E_1 = L\end{gathered}`}
         />
         <p>
@@ -73,18 +75,21 @@ export default function TwoLedgersPage() {
           <var>v</var>. The initial energy of the body in this frame is <var>H₀</var>. The two
           pulses have energies:
         </p>
-        <Formula
+        <LabFormula
+          lab="me-01"
           latex={String.raw`\begin{gathered}\text{Pulse 1} = \frac{1}{2}L\,\gamma\,(1 - \beta\cos\varphi), \\ \text{Pulse 2} = \frac{1}{2}L\,\gamma\,(1 + \beta\cos\varphi)\end{gathered}`}
         />
         <p>
           When the two pulse energies are added together, the angle terms{" "}
           <var>&minus;&beta; cos &phi;</var> and <var>+&beta; cos &phi;</var> cancel identically:
         </p>
-        <Formula
+        <LabFormula
+          lab="me-01"
           latex={String.raw`\begin{aligned}&\text{Total moving light} \\ &\quad = \frac{1}{2}L\,\gamma\,(1 - \beta\cos\varphi) \\ &\qquad + \frac{1}{2}L\,\gamma\,(1 + \beta\cos\varphi) \\ &\quad = \gamma L\end{aligned}`}
         />
         <p>Energy conservation in the moving frame therefore gives:</p>
-        <Formula
+        <LabFormula
+          lab="me-01"
           latex={String.raw`\begin{gathered}H_0 = H_1 + \gamma L \\ \implies H_0 - H_1 = \gamma L\end{gathered}`}
         />
 
@@ -94,7 +99,8 @@ export default function TwoLedgersPage() {
           balance from the moving-system balance completely eliminates the body&apos;s unknown
           internal rest energy:
         </p>
-        <Formula
+        <LabFormula
+          lab="me-01"
           latex={String.raw`\begin{aligned}&(H_0 - E_0) - (H_1 - E_1) \\ &\qquad = \gamma L - L \\ &\qquad = L\,(\gamma - 1)\end{aligned}`}
         />
 
@@ -104,12 +110,13 @@ export default function TwoLedgersPage() {
           system differs from its kinetic energy <var>K</var> only by an additive constant{" "}
           <var>C</var>:
         </p>
-        <Formula latex="H - E = K + C" />
+        <LabFormula lab="me-01" latex="H - E = K + C" />
         <p>
           Under Einstein&apos;s source premise that the constant <var>C</var> does not alter upon
           the emission of light (<var>C = C&apos;</var>), substituting this relation yields:
         </p>
-        <Formula
+        <LabFormula
+          lab="me-01"
           latex={String.raw`\begin{aligned}(K_0 + C) - (K_1 + C) &= K_0 - K_1 \\ &= L\,(\gamma - 1)\end{aligned}`}
         />
         <p>
