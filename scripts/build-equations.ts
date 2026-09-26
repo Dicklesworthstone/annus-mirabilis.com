@@ -11,6 +11,7 @@ import { buildMassEnergyElimination } from "../src/equations/derivations/massEne
 import { buildMassEnergyLowSpeed } from "../src/equations/derivations/massEnergyLowSpeed.ts";
 import { renderLowSpeedProof } from "../src/equations/derivations/renderLowSpeed.ts";
 import { notationNoteTarget } from "../src/equations/notationNoteTarget.ts";
+import { explanationFormulas } from "../src/equations/printed/explanationFormulas.ts";
 import { assertPublishable, printedDisplays } from "../src/equations/printed/paperDisplays.ts";
 import {
   assertInlinesPublishable,
@@ -23,6 +24,7 @@ import {
   QUANTITY_PALETTE,
 } from "../src/equations/quantityColours.ts";
 import { compileEquation, compileEquationWithNotation } from "../src/equations/render.ts";
+import { COLOURED_EXPLANATION_PAPERS } from "../src/reader/explanationInlines.ts";
 import { NOTATION_TOGGLE_PAPERS } from "../src/reader/navigation/state.ts";
 import { paperSourceFaces } from "../src/reader/paperSourceFaces.ts";
 import { partLabel } from "../src/reader/unexplainedParts.ts";
@@ -98,6 +100,21 @@ assertPublishable(printed);
 const inlinePapers = await Promise.all(
   result.papers.map((p) => checkPaperInlines(process.cwd(), p.paper.id)),
 );
+// An explanation page's inline formulas (dispatch 273), for each paper whose explanations are drawn
+// in colour (src/reader/explanationInlines.ts). Computed here as the page computes them, so their
+// quantities get colour slots with the faces' inline formulas and the inspector has their facts.
+const explanationPapers = COLOURED_EXPLANATION_PAPERS.map((paper) =>
+  explanationFormulas(process.cwd(), paper),
+);
+for (const e of explanationPapers)
+  console.log(
+    JSON.stringify({
+      event: "explanation-formulas",
+      paper: e.paper,
+      formulas: e.formulas.length,
+      quantities: Object.keys(e.quantities).length,
+    }),
+  );
 for (const p of inlinePapers) {
   console.log(JSON.stringify({ event: "inline-formulas", paper: p.paper, ...p.census }));
   if (p.problems.length > 0 && !ENFORCED_INLINE_PAPERS.includes(p.paper))
@@ -286,9 +303,10 @@ for (const paper of [...new Set(equations.map((e) => e.paper))].sort()) {
   // Each inline formula is a view as a display is: its quantities differ from one another. Views
   // with the same quantities are one view, and a quantity only an inline formula names still gets
   // its colour (dispatch 272).
-  const inlineOwn = Object.values(
-    inlinePapers.find((p) => p.paper === paper)?.formulas ?? {},
-  ).filter((f) => f.terms.length > 0);
+  const inlineOwn = [
+    ...Object.values(inlinePapers.find((p) => p.paper === paper)?.formulas ?? {}),
+    ...(explanationPapers.find((e) => e.paper === paper)?.formulas ?? []),
+  ].filter((f) => f.terms.length > 0);
   const inlineViews = [
     ...new Map(
       inlineOwn.map((f) => {
@@ -473,6 +491,24 @@ await writeFile(
             }),
           },
         ]),
+    ),
+  })}\n`,
+);
+await writeFile(
+  "src/generated/explanation-inlines.json",
+  `${JSON.stringify({
+    schemaVersion: 1,
+    rendererDigest,
+    // The inspector's facts for each quantity an explanation formula binds (ExplanationInlineTerms).
+    papers: Object.fromEntries(
+      explanationPapers.map((e) => [
+        e.paper,
+        {
+          quantities: inlineQuantityFacts(process.cwd(), e, {
+            firstUse: (paper, anchor) => resolveFirstUse(paper, anchor, firstUseTargets),
+          }),
+        },
+      ]),
     ),
   })}\n`,
 );

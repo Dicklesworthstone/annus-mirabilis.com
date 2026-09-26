@@ -23,6 +23,7 @@ import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { passageActionsFromArgument } from "./actions/fromArgument.ts";
 import { PassageActionsBar } from "./actions/PassageActionsBar.tsx";
 import { ReadingBlocks } from "./Blocks.tsx";
+import { ExplanationInlineTerms } from "./ExplanationInlineTerms.tsx";
 import type { MassEnergyEntranceScenario } from "./entrances/massEnergyExample.ts";
 import { FaceFallback } from "./FaceFallback.tsx";
 import { FirstUseCallout } from "./FirstUseCallout.tsx";
@@ -775,6 +776,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
       {/* A paper's common wrong turns and historian's margin (dispatch 163), on the whole-paper
           page only, and only where the paper has records. */}
       {sectionId ? null : <PaperMargins margins={loadPaperMargins(paper.id)} />}
+      <ExplanationInlineTerms paper={paper.id} />
       {/* The references, without the record's source-status notice
           (D-2026-09-25-no-review-status-banners): it said who had not yet reviewed what. */}
       <section className="reading reading-column" aria-label="References">

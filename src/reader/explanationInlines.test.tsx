@@ -32,10 +32,13 @@ describe("an explanation's inline formulas", () => {
     );
   });
 
-  test("InlineMathText with a scope names the paper on a coloured formula's span, and without one is unchanged", () => {
+  test("InlineMathText with a scope marks a coloured formula's span, and without one is unchanged", () => {
     const text = "the ratio \\(v/c\\) and \\(\\mu\\)";
     const scoped = renderToStaticMarkup(<InlineMathText text={text} scope={SCOPE} />);
-    expect(scoped).toContain('<span data-paper="mass-energy">');
+    // Marked as the faces' inline formulas are, so the page's island finds it (InlineTermLighting).
+    expect(scoped).toContain(
+      '<span class="inline-math" data-inline-terms="" data-paper="mass-energy">',
+    );
     expect(scoped.match(/data-paper=/g)?.length).toBe(1);
     expect(scoped).toContain('data-quantity-id="speedOfLight"');
     const plain = renderToStaticMarkup(<InlineMathText text={text} />);
