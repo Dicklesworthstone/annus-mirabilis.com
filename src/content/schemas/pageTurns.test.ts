@@ -3,7 +3,12 @@
  * refusal is exercised by the case that must trip it, and each case says which rule it breaks.
  */
 import { describe, expect, test } from "bun:test";
-import { PageTurnValidationError, spanPages, validatePageTurns } from "./pageTurns.ts";
+import {
+  PageTurnValidationError,
+  spanPages,
+  unbackedDisplaysOnlyTurns,
+  validatePageTurns,
+} from "./pageTurns.ts";
 import { validateSourceBlock } from "./source.ts";
 import { spanTextDigest } from "./spans.ts";
 
@@ -51,6 +56,22 @@ describe("validatePageTurns", () => {
     expect(turns.map((t) => t.printedPage)).toEqual([901, 902]);
   });
 
+  test("a page holding only the block's displays turns at the end of its text", () => {
+    // s8-p7's shape: its text ends on p. 914, and only its displays stand on p. 915.
+    expect(validatePageTurns([{ printedPage: 906, displaysOnly: true }], TWO, TEXT)).toEqual([
+      { printedPage: 906, displaysOnly: true, at: Array.from(TEXT).length },
+    ]);
+    const after = validatePageTurns(
+      [
+        { printedPage: 901, startsWith: "Gesetz gilt" },
+        { printedPage: 902, displaysOnly: true },
+      ],
+      THREE,
+      TEXT,
+    );
+    expect(after.map((t) => t.at)).toEqual([TEXT.indexOf("Gesetz gilt"), Array.from(TEXT).length]);
+  });
+
   test("each broken rule is refused with its own code", () => {
     const cases: [string, unknown, typeof TWO?, string?][] = [
       ["invalid-page-turns", { printedPage: 906, startsWith: "also" }],
@@ -81,6 +102,20 @@ describe("validatePageTurns", () => {
         ],
         THREE,
       ],
+      ["invalid-displays-only-turn", [{ printedPage: 906, displaysOnly: false }]],
+      [
+        "invalid-displays-only-turn",
+        [{ printedPage: 906, displaysOnly: true, startsWith: "also nur" }],
+      ],
+      // The text ended on p. 901, so it cannot turn again onto p. 902.
+      [
+        "page-turn-after-displays-only",
+        [
+          { printedPage: 901, displaysOnly: true },
+          { printedPage: 902, startsWith: "bemerkenswert." },
+        ],
+        THREE,
+      ],
     ];
     const seen = cases.map(([, raw, locators, text]) => refusal(raw, locators, text));
     expect(seen).toEqual(cases.map(([code]) => code));
@@ -104,6 +139,14 @@ describe("spanPages", () => {
       last: 906,
     });
     expect(spanPages(TWO, turns, span("Es ist bemerkenswert."))).toEqual({ first: 906, last: 906 });
+  });
+
+  test("no sentence reaches a page that holds only displays", () => {
+    const displays = validatePageTurns([{ printedPage: 906, displaysOnly: true }], TWO, TEXT);
+    expect(spanPages(TWO, displays, span("Es ist bemerkenswert."))).toEqual({
+      first: 905,
+      last: 905,
+    });
   });
 
   test("without turns, every span of a multi-page block gets its first page, as before", () => {
@@ -149,5 +192,27 @@ describe("validateSourceBlock carries the turns", () => {
     expect(() =>
       validateSourceBlock(block([{ printedPage: 906, startsWith: "Gesetz gilt nie" }])),
     ).toThrow(PageTurnValidationError);
+  });
+});
+
+describe("unbackedDisplaysOnlyTurns", () => {
+  const paragraph = {
+    id: "s8-p7",
+    locators: [{ printedPage: 914 }, { printedPage: 915 }],
+    pageTurns: [{ printedPage: 915, displaysOnly: true }],
+  };
+  const display = (page: number, containedIn = "s8-p7") => ({
+    id: `eq-${page}`,
+    containedIn,
+    locators: [{ printedPage: page }],
+  });
+
+  test("a display the block contains, printed on the page, backs the turn", () => {
+    expect(unbackedDisplaysOnlyTurns([paragraph, display(914), display(915)])).toEqual([]);
+  });
+
+  test("no contained display on that page leaves it unbacked, and so does another block's display", () => {
+    expect(unbackedDisplaysOnlyTurns([paragraph, display(914)])).toHaveLength(1);
+    expect(unbackedDisplaysOnlyTurns([paragraph, display(915, "s8-p10")])).toHaveLength(1);
   });
 });
