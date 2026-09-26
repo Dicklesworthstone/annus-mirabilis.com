@@ -13,7 +13,7 @@
   },
   "instrumentIds": ["sr-02"],
   "anchors": ["s0-p1", "s0-p2"],
-  "resultIds": [],
+  "resultIds": ["sr-two-postulates"],
   "sources": ["A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plates pp. 891–892"],
   "intervention": {
     "instrumentId": "sr-02",

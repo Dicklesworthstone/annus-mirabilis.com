@@ -18,6 +18,7 @@ describe("relativity's result cards", () => {
     expect(loaded?.problems).toEqual([]);
     // Identity, not a census: these are the results the cards cover so far, in the paper's order.
     expect(cards.map((c) => c.id)).toEqual([
+      "sr-two-postulates",
       "sr-synchronous-clocks",
       "sr-relativity-of-simultaneity",
       "sr-principles-compatible",
@@ -133,6 +134,9 @@ describe("relativity's result cards", () => {
 
   test("the misconceptions that quote a card's paragraphs are its wrong turns", () => {
     const wrongTurns = Object.fromEntries(cards.map((c) => [c.id, c.misconceptionIds]));
+    // The introduction quotes s0-p2: the light medium and the ether it calls superfluous.
+    expect(wrongTurns["sr-two-postulates"]).toContain("misc-sr-michelson-motive");
+    expect(wrongTurns["sr-two-postulates"]).toContain("misc-sr-ether-refuted");
     expect(wrongTurns["sr-synchronous-clocks"]).toContain("misc-sr-train-lightning");
     expect(wrongTurns["sr-relativity-of-simultaneity"]).toContain("misc-sr-train-lightning");
     expect(wrongTurns["sr-transformation-equations"]).toContain("misc-sr-beta-is-v-over-c");

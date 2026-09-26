@@ -22,6 +22,46 @@
 paper: special-relativity
 review: draft
 cards:
+  - id: sr-two-postulates
+    title: "The principle of relativity and the constancy of the velocity of light"
+    section: s0
+    arguments: [arg-sr-magnet-conductor]
+    printed:
+      - anchor: s0-p2
+        sentences: [1, 2, 3, 4]
+    equations: []
+    oneSentence: "The paper raises two presuppositions: that the same electrodynamic and optical laws hold in every coordinate system in which the equations of mechanics hold, which it calls the principle of relativity, and that light in empty space always travels with a definite velocity \\(V\\), independent of the state of motion of the emitting body; together, it says, they suffice for a simple and consistent electrodynamics of moving bodies, in which a light ether proves superfluous."
+    decoder:
+      - symbol: "\"Prinzip der Relativität\""
+        meaning: "The principle of relativity: the conjecture, raised to a presupposition, that absolute rest corresponds to no property of the phenomena, in electrodynamics as in mechanics."
+      - symbol: "\\(V\\)"
+        meaning: "The velocity of light in empty space, printed V; today it is written c."
+      - symbol: "\"nur scheinbar unverträglich\""
+        meaning: "Only apparently incompatible: light keeping one velocity seems to contradict the principle of relativity, and § 3 shows that the two agree."
+      - symbol: "\"Lichtmedium\", \"Lichtäther\""
+        meaning: "The light medium, or light ether: the unsuccessful attempts the paper mentions tried to detect the earth's motion relative to it. The paper introduces no absolutely resting space and assigns no velocity to a point of empty space."
+    qualifications:
+      - kind: premise
+        text: "Both are presuppositions, and the paper does not derive them. Together with Maxwell's theory for bodies at rest, it says, they suffice for its electrodynamics of moving bodies."
+      - kind: premise
+        text: "The paper cites the magnet and the conductor, and the unsuccessful attempts to detect the earth's motion through the light medium, as what suggests the principle, not as a proof of it."
+      - kind: comparison
+        text: "Lorentz's theory predicts the same currents at the speeds of real apparatus, so the introduction objects to an asymmetry in the explanation, not to a failed prediction."
+    probes:
+      - instrument: sr-02
+        question: "Move the magnet past the resting conductor, then the conductor past the resting magnet at the same relative speed: is the current the same, and how does each description account for it?"
+        preset: sr-02-apparatus-nagging-fact
+      - instrument: sr-02
+        question: "Now show the resolution: how does one description, depending only on the relative motion, cover both cases?"
+        preset: sr-02-apparatus
+    usedLater: []
+    meanings:
+      argumentStatus: "Two presuppositions, from which the paper derives the rest"
+      modelStatus: "The theory's starting points, not results of it"
+      evidentialRole: "A conjecture raised to a presupposition, suggested by examples such as the magnet and the conductor and by the failed attempts to detect the earth's motion through the light medium"
+      historicalStatus: "The magnet-and-conductor case was a textbook example, discussed in Föppl's 1894 introduction to Maxwell's theory; the two presuppositions are introduced in this paper"
+    selectionReason: "Every section of the paper rests on these two presuppositions, and § 3 returns to show that they agree."
+
   - id: sr-synchronous-clocks
     title: "Synchronous clocks and the time of a distant event"
     section: s1
