@@ -3,9 +3,10 @@
  * against the world is compared with.
  *
  * Outside the page for the reason massEnergyShelf.ts records: a Next page module may export only
- * the route contract. Every card here is unverified and says so on the page ("Awaiting
- * verification"): the dates and locators come from standard bibliographies and period citations,
- * and nobody has checked them against the volumes.
+ * the route contract. No card carries a verification record, which is a reviewer's to make, and the
+ * page shows no verification status (D-2026-09-25-no-review-status-banners). What was checked is
+ * in each card's `sourceChecks` (dispatch 252): the scan or catalog record read, the day, and what
+ * matched or differed. Nothing renders it.
  */
 import type { KnowledgeCard } from "../discovery/cards/types.ts";
 
@@ -13,36 +14,62 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "brown-1828-microscopical-observations",
     proposition:
-      "Fragments from within pollen grains, and inorganic particles suspended in water, move irregularly without dying away.",
+      "Particles contained in the pollen of plants, and still smaller particles from every mineral Brown could powder finely enough to stay suspended in water, are seen in motion in the water; he found the motion in plants dried for a century as well as in living ones.",
     status: "available",
+    limits:
+      "Brown ruled out currents in the fluid and its evaporation, said the motion belonged to the particle itself, and declined to hazard any conjecture about the molecules. What he reports persisting is the motion in dead and century-old material; he does not say how long one particle keeps moving, and does not call the motion irregular.",
     sources: [
       {
-        title: "A brief account of microscopical observations",
-        date: "1828",
-        locator: "Phil. Mag. 4 (1828) 161",
+        title:
+          "A brief Account of Microscopical Observations made in the Months of June, July, and August, 1827, on the Particles contained in the Pollen of Plants; and on the general Existence of active Molecules in Organic and Inorganic Bodies",
+        date: "1828-09",
+        locator: "Phil. Mag. (new series) 4 (1828) 161",
       },
     ],
     date: {
-      earliest: "1828",
-      latest: "1828",
-      precision: "year",
+      earliest: "1828-09",
+      latest: "1828-09",
+      precision: "month",
       latestYear: 1828,
       eventKind: "published",
     },
     priorEvent: {
       eventKind: "performed",
-      earliest: "1827",
-      latest: "1827",
-      precision: "year",
+      earliest: "1827-06",
+      latest: "1827-08",
+      precision: "range",
     },
     admittedStages: ["stage-01", "stage-02"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/philosophicalmax04lond",
+        read: "page-image",
+        matched:
+          'Leaf 180 is p. 161, headed "SEPTEMBER 1828": "XXVII. A brief Account of Microscopical Observations made in the Months of June, July, and August, 1827, ... By Robert Brown", foot "New Series. Vol. 4. No. 21. Sept. 1828."; an editor\'s note says the paper "has just been printed for private distribution". p. 163: the motions "arose neither from currents in the fluid, nor from its gradual evaporation, but belonged to the particle itself". p. 165: the motion "still observable" in Mosses and Equiseta "dried upwards of one hundred years". p. 167: "in every mineral which I could reduce to a powder, sufficiently fine to be temporarily suspended in water, I found these molecules". p. 169: "nor shall I hazard any conjectures whatever respecting these molecules".',
+        differs: [
+          'The card said the particles "move irregularly without dying away". Brown never calls the motion irregular, and the persistence he reports is across dead and century-old material, not the duration of one particle\'s motion. Corrected, with his exclusion of currents and evaporation in the limits.',
+          'The locator lacked "new series", the title was abbreviated, and the date was a year where the number gives September 1828. The June to August 1827 observations are now the prior event\'s range.',
+        ],
+      },
+    ],
   },
   {
     id: "stokes-1851-sphere-drag",
     proposition:
-      "A sphere of radius a moving slowly at speed v through a liquid of viscosity η is held back by a force F = 6πηav.",
+      "A sphere of radius a moving slowly and uniformly at speed v through a fluid of viscosity η is held back by a force F = 6πηav.",
     status: "available",
-    sources: [{ title: "Trans. Camb. Phil. Soc. 9", locator: "p. 8", date: "1851" }],
+    limits:
+      "The letters are later ones: Stokes prints the resistance as 6πμ′ρaV, where μ′, his index of friction, is the viscosity divided by the density ρ. He gives it only for motion so slow that the square of the velocity can be neglected, for a fluid that does not slide past the surface of the solid, and says the fluid may be liquid or gas.",
+    sources: [
+      {
+        title: "On the Effect of the Internal Friction of Fluids on the Motion of Pendulums",
+        date: "1851",
+        locator: "Trans. Camb. Phil. Soc. 9, part II, p. [8]; the sphere, eq. (126), p. [51]",
+      },
+    ],
     date: {
       earliest: "1851",
       latest: "1851",
@@ -50,7 +77,28 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       latestYear: 1851,
       eventKind: "published",
     },
+    priorEvent: {
+      eventKind: "presented",
+      earliest: "1850-12-09",
+      latest: "1850-12-09",
+      precision: "day",
+    },
     admittedStages: ["stage-03"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/transactionsofca09camb",
+        read: "page-image",
+        matched:
+          'Leaf 206 is the title page of "Volume IX. Part II", Cambridge, "M.DCCC.LI." (1851); the whole volume\'s title page is dated 1856. Leaf 215 is p. [8]: "X. On the Effect of the Internal Friction of Fluids on the Motion of Pendulums. By G. G. Stokes", "[Read December 9, 1850.]". p. [17]: the tangential pressure "μ dv/dz"; "Let μ = μ′ρ. The constant μ′ may conveniently be called the index of friction of the fluid, whether liquid or gas"; and Art. 3 argues that fluid in contact with a solid does not flow past it with a finite velocity. p. [51], Art. 42: "−F = 6πμ′ρaV, (126) and −F is the resistance required", for motion "so slow that the square of the velocity may be neglected".',
+        differs: [
+          'The locator gave only "p. 8", the first page; the result is eq. (126) on p. [51] of Part II, whose pages are bracketed. The title was missing.',
+          'The card said "liquid"; Stokes says fluid, liquid or gas. It wrote F = 6πηav as though printed; the limits now give his notation and his condition on the velocity.',
+        ],
+      },
+    ],
   },
   {
     id: "fick-1855-diffusion-equation",
@@ -70,17 +118,47 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "maxwell-1860-equipartition",
     proposition:
-      "In a gas in thermal equilibrium every kind of molecule has the same mean kinetic energy of translation, whatever its mass, and that mean is proportional to the absolute temperature.",
+      "For a model gas of perfectly elastic spheres, particles of different masses moving in one vessel come after many impacts to the same mean vis viva, mass times mean square velocity. Explaining the pressure of a gas by assuming the square of the velocity proportional to the absolute temperature, Maxwell concludes that equal volumes of gases at one pressure and temperature hold equal numbers of particles.",
     status: "available",
-    sources: [{ title: "Phil. Mag. 19", locator: "p. 19", date: "1860" }],
+    limits:
+      "Shown for hard, perfectly elastic spheres, which Maxwell offers as a physical analogy to be tested against real gases. The link to the absolute temperature is an assumption that accounts for the pressure, not something the paper derives.",
+    sources: [
+      {
+        title:
+          "Illustrations of the Dynamical Theory of Gases. Part I. On the Motions and Collisions of Perfectly Elastic Spheres",
+        date: "1860-01",
+        locator: "Phil. Mag. (4) 19, 19",
+      },
+    ],
     date: {
-      earliest: "1860",
-      latest: "1879",
-      precision: "range",
-      latestYear: 1879,
+      earliest: "1860-01",
+      latest: "1860-01",
+      precision: "month",
+      latestYear: 1860,
       eventKind: "published",
     },
+    priorEvent: {
+      eventKind: "presented",
+      earliest: "1859-09-21",
+      latest: "1859-09-21",
+      precision: "day",
+    },
     admittedStages: ["stage-01", "stage-02"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/londonedinburghp19maga",
+        read: "page-image",
+        matched:
+          'Leaf 14 is p. 1, headed "[FOURTH SERIES.] JANUARY 1860", foot "Phil. Mag. S. 4. Vol. 19. No. 124. Jan. 1860.". Leaf 32 is p. 19: "V. Illustrations of the Dynamical Theory of Gases.-Part I. On the Motions and Collisions of Perfectly Elastic Spheres. By J. C. Maxwell", footnote "read at the Meeting of the British Association at Aberdeen, September 21, 1859". p. 20: "small, hard, and perfectly elastic spheres"; if their properties "are found to correspond to those of gases, an important physical analogy will be established". p. 25, Prop. VI: "after many impacts Pp² = Qq² = Rr², &c." for particles of masses P, Q, R. p. 30: the pressure "can be explained by the assumption that the square of the velocity is proportional directly to the absolute temperature", and N, the number of particles in unit volume, "is the same for all gases at the same pressure and temperature".',
+        differs: [
+          "The card stated both results as facts about a gas in thermal equilibrium. Maxwell proves the first for a model of elastic spheres and takes the second as an assumption; the card now says so.",
+          "The date ran from 1860 to 1879 with latestYear 1879; the one source is the January 1860 number, read at Aberdeen on 21 September 1859. Nothing in it supports 1879.",
+        ],
+      },
+    ],
   },
   {
     id: "gouy-1888-brownian-motion",
@@ -136,33 +214,60 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "sutherland-1904-dunedin",
     proposition:
-      "William Sutherland presents a formula for the diffusion of a sphere through a liquid, with a correction for slip at its surface, at Dunedin in January 1904.",
+      "William Sutherland's paper on the measurement of large molecular masses, communicated at the Dunedin meeting of the Australasian Association for the Advancement of Science in January 1904, uses Stokes's formula for the resistance on a sphere to make a dissolved molecule's coefficient of diffusion inversely proportional to its radius and to the viscosity of the liquid.",
     status: "available",
+    limits:
+      "No correction for slip: that first appears in his June 1905 paper in the Philosophical Magazine. The paper itself finds the diffusion data better represented by the inverse square root of the molecular volume than by the cube root its formula gives. Its text is known from the Association's Report, printed in Wellington in 1905; the sources say the paper was communicated, not who read it.",
     sources: [
       {
-        title: "Australasian Association for the Advancement of Science",
-        locator: "Dunedin Meeting",
-        date: "1904",
+        title: "The Measurement of Large Molecular Masses",
+        date: "1905",
+        locator:
+          "Report of the Tenth Meeting of the Australasian Association for the Advancement of Science, Dunedin, 1904 (Wellington, 1905), p. 117",
       },
     ],
     date: {
-      earliest: "1904-01",
-      latest: "1904-01",
-      precision: "month",
+      earliest: "1904-01-12",
+      latest: "1904-01-12",
+      precision: "day",
       latestYear: 1904,
       eventKind: "presented",
     },
     relatedCardId: "sutherland-1905-phil-mag",
     admittedStages: ["stage-03"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/ReportTenthMeet00Thom",
+        read: "page-image",
+        matched:
+          'Leaf 4, title page: "Report of the Tenth Meeting of the Australasian Association for the Advancement of Science, held at Dunedin, 1904. Edited by Geo. M. Thomson"; leaf 5, its verso: "John Mackay, Government Printer, Wellington. 1905." Contents p. iv (leaf 7), Section A, under "Tuesday, 12th January, 1904": "16. The Measurement of Large Molecular Masses. By William Sutherland, M.A. ... 117", with no asterisk, so printed in full. p. 119: "F = 6πVηa (4)", "RT dc/dx = 6πVηaN (5)", "D = RT/6πηa (6)", the coefficient of diffusion "inversely proportional to the molecular radius, and also inversely proportional to the viscosity of the medium". No slip term on pp. 117-121. p. 121: the data "could be better represented if the diffusion coefficient were taken to vary inversely as the square root of the molecular volume, rather than as the theoretical cube root".',
+        differs: [
+          "The card said the Dunedin formula carried a correction for slip at the surface. The paper printed from that meeting has none; the 1905 Phil. Mag. paper introduces it (p. 781 there says the Dunedin formula made diffusion vary inversely as the radius and the viscosity).",
+          'The source named only the Association and "Dunedin Meeting". It now names the paper and the Report, printed in 1905, and the card is dated to the session it is listed under, 12 January 1904.',
+        ],
+      },
+    ],
   },
   {
     id: "sutherland-1905-phil-mag",
     proposition:
-      "Sutherland's diffusion formula, with its slip correction, is published in the Philosophical Magazine.",
+      "Sutherland publishes in the Philosophical Magazine a formula for the coefficient of diffusion of a molecule treated as a sphere, now corrected for slip at its surface through a coefficient of sliding friction; with no slip it reduces to the gas constant times the temperature divided by six pi times the viscosity, the radius and the number of molecules in a gram-molecule.",
     status: "parallel-work",
     parallelWorkBasis:
       "The June 1905 Philosophical Magazine publication falls between Annalen's receipt of Einstein's paper on 11 May 1905 and its publication on 18 July 1905.",
-    sources: [{ title: "Phil. Mag. (6) 9", locator: "p. 781", date: "1905" }],
+    limits:
+      "The slip correction is new here: the paper opens by recalling that the Dunedin formula of 1904 made diffusion vary inversely as the radius and the viscosity, and adds the correction after looking more closely at the dynamics.",
+    sources: [
+      {
+        title:
+          "A Dynamical Theory of Diffusion for Non-Electrolytes and the Molecular Mass of Albumin",
+        date: "1905-06",
+        locator: "Phil. Mag. (6) 9, 781; the formula, eq. (3), p. 782",
+      },
+    ],
     date: {
       earliest: "1905-06",
       latest: "1905-06",
@@ -172,6 +277,20 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
     },
     relatedCardId: "sutherland-1904-dunedin",
     admittedStages: ["stage-03"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/londonedinburgh691905lond",
+        read: "page-image",
+        matched:
+          'Leaf 828 is p. 781: "LXXV. A Dynamical Theory of Diffusion for Non-Electrolytes and the Molecular Mass of Albumin. By William Sutherland", which opens "IN a paper communicated to the Australian Association for the Advancement of Science at Dunedin, 1904, on the Measurement of Large Molecular Masses", whose formula "made the velocity of diffusion of a substance through a liquid vary inversely as the radius a of its molecule and inversely as the viscosity of the liquid", then "After looking a little more closely into the dynamical conditions of the problem"; foot "Phil. Mag. S. 6. Vol. 9. No. 54. June 1905.". p. 782 (leaf 829): RT dc/dx = 6πVηaN (1 + 2η/βa)/(1 + 3η/βa), and with C the number of molecules in a gramme-molecule D = RT/(6πηaC) x (1 + 3η/βa)/(1 + 2η/βa), β the coefficient of sliding friction; "If β = ∞, that is, if there is no slipping", aD is the same for all molecules. Crossref (10.1080/14786440509463331) gives June 1905, pp. 781-785.',
+        differs: [
+          'The card spoke of "Sutherland\'s diffusion formula, with its slip correction" as though it existed before; the slip correction is introduced in this paper. The proposition now says what is published here. The printed name is "Australian", not "Australasian", Association.',
+        ],
+      },
+    ],
   },
   {
     id: "naegeli-1879-single-impacts",
