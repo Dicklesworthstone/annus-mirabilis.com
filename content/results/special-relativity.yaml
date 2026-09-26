@@ -585,3 +585,145 @@ cards:
       evidentialRole: "A derivation, not evidence"
       historicalStatus: "The equations are the basis of Lorentz's theory; that they conform to the principle of relativity under these kinematics is shown in this paper, and the four-current is the later language of Poincaré and Minkowski"
     selectionReason: "It is § 9's conclusion in the paper's own words: on its kinematic principles, the electrodynamic basis of Lorentz's theory of the electrodynamics of moving bodies conforms to the principle of relativity."
+
+  - id: sr-electron-masses
+    title: "The longitudinal and transverse masses of the electron"
+    section: s10
+    arguments: [arg-sr-electron-conventions]
+    printed:
+      - anchor: s10-p7
+        sentences: [1, 2, 3]
+      - anchor: eq-s10-d4
+      - anchor: s10-p7
+        sentences: [4]
+      - anchor: eq-s10-d5
+      - anchor: eq-s10-d6
+      - anchor: eq-s10-d7
+      - anchor: s10-p8
+        sentences: [1]
+    equations: [eq-model-sr-longitudinal-mass, eq-model-sr-transverse-mass-printed, eq-model-sr-transverse-mass-laboratory]
+    oneSentence: "Calling the force on the electron the force measured in a system that moves with it at that moment, and measuring its acceleration in K, the paper finds the longitudinal mass \\(\\mu/(\\sqrt{1-(v/V)^2})^3\\) and the transverse mass \\(\\mu/(1-(v/V)^2)\\), and warns that other definitions of force and acceleration give other numbers for the masses."
+    decoder:
+      - symbol: "\\(\\mu\\), \\(\\varepsilon\\)"
+        meaning: "The electron's mass, as long as it moves slowly, and its charge."
+      - symbol: "\\(\\beta\\)"
+        meaning: "\\(1/\\sqrt{1-(v/V)^2}\\), the factor written \\(\\gamma\\) today. The longitudinal mass is \\(\\mu\\beta^3\\) and the transverse mass \\(\\mu\\beta^2\\)."
+      - symbol: "\\(\\mu\\beta^3\\) in the third row of (A)"
+        meaning: "As printed. The paper's own steps give \\(\\mu\\beta^2\\) for the \\(z\\) row, as for the \\(y\\) row: both directions are across the motion, and the transverse mass two displays below is \\(\\mu\\beta^2\\). Every face keeps the printed \\(\\beta^3\\), and the modern layer has \\(\\gamma^2\\)."
+      - symbol: "\\(\\varepsilon X'\\), \\(\\varepsilon Y'\\), \\(\\varepsilon Z'\\)"
+        meaning: "The force on the electron measured in the system that moves with it at that moment, which a spring balance at rest in that system could measure, as § 10 says."
+      - symbol: "\"Massenzahl × Beschleunigungszahl = Kraftzahl\""
+        meaning: "Mass number times acceleration number equals force number: the equation the paper keeps, with force and acceleration defined as it has just stated."
+    qualifications:
+      - kind: premise
+        text: "The masses are ratios of force to acceleration under the paper's definitions: the force measured in the system moving with the electron at that moment, the acceleration measured in K."
+      - kind: comparison
+        text: "With force and acceleration both measured in K, the transverse ratio is \\(\\mu\\beta\\), today's convention, while the longitudinal ratio is \\(\\mu\\beta^3\\) under both. The paper says as much: other definitions give other numbers, and theories of the motion of the electron must be compared with great care."
+      - kind: inference
+        text: "§ 10 extends the masses to ponderable material points, since one becomes an electron in the paper's sense when an arbitrarily small charge is added to it."
+    probes:
+      - instrument: sr-13
+        question: "An electron at 0.6 of the speed of light: what ratio of force to acceleration does each convention give, along the motion and across it?"
+        preset: sr-13-convention-0.6
+    usedLater: []
+    meanings:
+      argumentStatus: "A consequence of the equations of motion (A), with force and acceleration defined as the paper states"
+      modelStatus: "Exact within the paper's dynamics of a charged point; the numbers depend on the definition of force"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "Longitudinal and transverse mass were the usual terms of the theory of the electron, as the paper's question says; these values follow from its kinematics"
+    selectionReason: "It is the question § 10 asks in the usual terms, with the paper's own warning beside it: the numbers depend on how force and acceleration are defined."
+
+  - id: sr-electron-kinetic-energy
+    title: "The kinetic energy of the electron"
+    section: s10
+    arguments: [arg-sr-electron-work]
+    printed:
+      - anchor: s10-p10
+        sentences: [1, 2, 3, 4]
+      - anchor: eq-s10-d8
+      - anchor: s10-p11
+        sentences: [1, 2]
+      - anchor: s10-p12
+        sentences: [1]
+    equations: [eq-model-sr-electron-work-integral, eq-model-sr-electron-work-result]
+    oneSentence: "An electron accelerated slowly from rest along the X-axis by an electrostatic force takes from the field the energy \\(W=\\mu V^2\\{1/\\sqrt{1-(v/V)^2}-1\\}\\), which grows without bound as \\(v\\) approaches \\(V\\), so that, as with the paper's earlier results, speeds greater than that of light have no possibility of existence; the same expression must hold for ponderable masses."
+    decoder:
+      - symbol: "\\(W\\)"
+        meaning: "The kinetic energy of the electron, set equal to the energy taken from the electrostatic field."
+      - symbol: "\\(\\int_0^v\\beta^3 v\\,dv\\), as printed"
+        meaning: "The middle member lacks the factor \\(\\mu\\), which the first equation of (A) carries; with it, the three members are equal. The result on the right is correct as printed, and every face keeps the printed middle member."
+      - symbol: "\\(\\mu V^2\\)"
+        meaning: "The electron's mass times the square of the speed of light. The paper does not read it as an energy the electron has at rest; the relation between a body's energy and its inertia is the subject of the paper of September 1905."
+    qualifications:
+      - kind: premise
+        text: "The electron starts from rest at the origin of K and moves along the X-axis under an electrostatic force. It is accelerated slowly, so that it gives up no energy as radiation, and the energy taken from the field is then its kinetic energy."
+      - kind: premise
+        text: "The first equation of (A), with the longitudinal mass, holds throughout the motion."
+      - kind: approximation
+        text: "For small \\(v/V\\) the expression becomes \\(\\frac{1}{2}\\mu v^2\\), the kinetic energy of Newton's mechanics."
+      - kind: inference
+        text: "It holds for ponderable masses by the argument the paper gives for the masses: a small charge makes a ponderable point an electron in its sense."
+    probes:
+      - instrument: sr-13
+        question: "An electron brought from rest to 0.95 of the speed of light: how much kinetic energy has it taken from the field, and how far is that from \\(\\frac{1}{2}\\mu v^2\\)?"
+        preset: sr-13-energy-0.95
+    usedLater: []
+    meanings:
+      argumentStatus: "A consequence of the longitudinal equation of motion and the energy principle"
+      modelStatus: "Exact within the paper's dynamics, for slow acceleration without radiation"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "Introduced in this paper; the relation between a body's energy and its inertia is taken up in the mass-energy paper of September 1905"
+    selectionReason: "It is the energy § 10 derives, with the limit the paper draws from it: the energy grows without bound as the speed approaches that of light."
+
+  - id: sr-electron-laws
+    title: "Three relations for experiment on the electron"
+    section: s10
+    arguments: [arg-sr-electron-work]
+    printed:
+      - anchor: s10-p13
+        sentences: [1]
+      - anchor: s10-p15
+        sentences: [1, 2]
+      - anchor: eq-s10-d9
+      - anchor: s10-p16
+        sentences: [1]
+      - anchor: s10-p17
+        sentences: [1]
+      - anchor: eq-s10-d10
+      - anchor: s10-p18
+        sentences: [1]
+      - anchor: eq-s10-d12
+      - anchor: s10-p14
+        sentences: [1]
+    equations: [eq-model-sr-electron-energy, eq-model-sr-magnetic-radius]
+    oneSentence: "From the equations of motion (A) the paper draws three relations open to experiment: the ratio of an electron's magnetic to its electric deflectability is \\(v/V\\) at any speed, the potential difference it has passed through fixes its speed by \\(P=\\frac{\\mu}{\\varepsilon}V^2\\{1/\\sqrt{1-(v/V)^2}-1\\}\\), and a magnetic force \\(N\\) at right angles to its motion bends its path with the radius \\(R=V^2\\frac{\\mu}{\\varepsilon}\\frac{v/V}{\\sqrt{1-(v/V)^2}}\\frac{1}{N}\\); these three, it says, express completely the laws by which the electron must move on its theory."
+    decoder:
+      - symbol: "\\(A_m\\), \\(A_e\\)"
+        meaning: "The magnetic and the electric deflectability of the electron. An electric force \\(Y\\) and a magnetic force \\(N\\) deflect it equally when \\(Y=N\\,v/V\\)."
+      - symbol: "\\(P\\)"
+        meaning: "Here the potential difference the electron has passed through from rest. In § 8 the same letter is the pressure of light."
+      - symbol: "\\(R\\), \\(N\\)"
+        meaning: "The radius of curvature of the path, and a magnetic force at right angles to the electron's velocity, the only deflecting force. \\(N\\) is a magnetic component here, not a number of molecules."
+      - symbol: "\\(\\frac{\\mu}{\\varepsilon}V^2\\)"
+        meaning: "In the paper's Gaussian units. In SI, with the size of the charge \\(|q|\\) and of the voltage \\(U\\), the second relation reads \\(|q|U=mc^2(\\gamma-1)\\) and the third \\(R=\\gamma mv/(|q|B)\\), the modern layer's forms."
+    qualifications:
+      - kind: premise
+        text: "The first and third relations follow from the second equation of (A); the second follows from the kinetic energy derived before it."
+      - kind: premise
+        text: "The electron has passed through the potential difference from rest, slowly enough to radiate nothing, as the kinetic energy requires."
+      - kind: comparison
+        text: "The paper names the test: the speed of an electron can also be measured directly, for example with rapidly oscillating electric and magnetic fields. Kaufmann's deflection measurements of fast electrons, made from 1901 to 1906, seemed at first to favour Abraham's rival theory, while Bucherer's of 1908 favoured the Lorentz-Einstein formulas, and the question stayed open for some years. Those are measurements of the world, separate from this calculation."
+    probes:
+      - instrument: sr-13
+        question: "An electron at 0.6 of the speed of light in a magnetic field of 0.01 tesla at right angles to its motion: what is the radius of its path?"
+        preset: sr-13-magnetic-radius-0.01t
+      - instrument: sr-13
+        question: "The same electron in an electric field of 100,000 volts per metre across its motion: what is the radius of its path now?"
+        preset: sr-13-electric-radius-1e5
+    usedLater: []
+    meanings:
+      argumentStatus: "Consequences of the equations of motion (A) and the kinetic energy, stated by the paper as open to experiment"
+      modelStatus: "Exact within the paper's dynamics of a charged point in given fields"
+      evidentialRole: "Predictions for experiment; the paper names the tests and reports no data"
+      historicalStatus: "Kaufmann's measurements of 1901 to 1906 and Bucherer's of 1908 tested such relations, and the question between the theories of the electron stayed open for some years"
+    selectionReason: "They are where the paper's physics ends: as it says, the three relations express completely the laws by which, on its theory, the electron must move."
