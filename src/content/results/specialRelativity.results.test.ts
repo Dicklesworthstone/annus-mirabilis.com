@@ -30,6 +30,9 @@ describe("relativity's result cards", () => {
       "sr-light-complex-energy",
       "sr-moving-mirror",
       "sr-convection-current",
+      "sr-electron-masses",
+      "sr-electron-kinetic-energy",
+      "sr-electron-laws",
     ]);
   });
 
@@ -44,6 +47,49 @@ describe("relativity's result cards", () => {
     const note = doppler?.decoder.find((d) => d.symbol.includes("-\\infty"));
     expect(note?.meaning).toContain("\\(v=-V\\)");
     expect(note?.meaning).toContain("Every face keeps the printed reading");
+  });
+
+  test("Part II's misprints are quoted as printed, and each card's decoder keeps the printed reading", () => {
+    // docs/provenance/ap-17-891.md: err-typo-p915-1 (the nu''' display over (1 - v/V)^2),
+    // err-typo-p916-1 (no 1/V before dL'/dtau), err-typo-p919-1 (mu beta^3 in the z row of (A))
+    // and err-typo-p920-1 (no mu in the middle member of W). Each string below is the plate's
+    // reading, and the corrected reading would not contain it.
+    const cases = [
+      {
+        card: "sr-moving-mirror",
+        anchor: "eq-s8-d12",
+        printed: "{\\left( 1 - \\frac{v}{V} \\right)^2}",
+      },
+      {
+        card: "sr-convection-current",
+        anchor: "eq-s9-d3",
+        printed: "&\\qquad \\frac{\\partial L'}{\\partial \\tau}",
+      },
+      {
+        card: "sr-electron-masses",
+        anchor: "eq-s10-d4",
+        printed: "\\mu \\beta^3 \\frac{d^2 z}{d t^2}",
+      },
+      {
+        card: "sr-electron-kinetic-energy",
+        anchor: "eq-s10-d8",
+        printed: "= \\int_0^v \\beta^3 v d v",
+      },
+    ];
+    const wrong: string[] = [];
+    for (const k of cases) {
+      const card = cards.find((c) => c.id === k.card);
+      const quoted = card?.printed.find((p) => p.anchor === k.anchor);
+      if (!quoted?.text.includes(k.printed))
+        wrong.push(`${k.card}: ${k.anchor} is not quoted as printed`);
+      if (!card?.decoder.some((d) => /every face keeps the printed/i.test(d.meaning)))
+        wrong.push(`${k.card}: no decoder note keeps the printed reading`);
+    }
+    expect(wrong).toEqual([]);
+    // § 10's printed beta^3 stays on the quoted side; the modern side is the paper's own gamma^2.
+    expect(cards.find((c) => c.id === "sr-electron-masses")?.equations).toContain(
+      "eq-model-sr-transverse-mass-printed",
+    );
   });
 
   test("every as-printed excerpt is the German face's own text at its anchor", () => {
@@ -94,5 +140,7 @@ describe("relativity's result cards", () => {
     expect(wrongTurns["sr-moving-clock"]).toContain("misc-sr-moving-clock-only");
     // § 9 quotes s9-p2, where Lorentz's equations are shown to conform to the principle.
     expect(wrongTurns["sr-convection-current"]).toContain("misc-sr-ether-refuted");
+    // § 10 quotes s10-p10 and s10-p11, the kinetic energy, which is not E = mc².
+    expect(wrongTurns["sr-electron-kinetic-energy"]).toContain("misc-sr-emc2-in-paper");
   });
 });
