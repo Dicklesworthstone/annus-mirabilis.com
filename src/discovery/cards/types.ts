@@ -54,6 +54,34 @@ export type PremiseVerification = Readonly<{
   reviewRecordId?: string | undefined;
 }>;
 
+/** What was read to check a card's source: a scan's page image, or a catalog or DOI record. */
+export type SourceCheckRead = "page-image" | "catalog-record";
+
+export const SOURCE_CHECK_READS: readonly SourceCheckRead[] = ["page-image", "catalog-record"];
+
+/**
+ * The evidence that one of a card's sources was checked (dispatches 251 and 252): the URL read,
+ * when, and what matched. It is evidence, not a verification record: isCardVerified ignores it,
+ * so the publication gate still asks for `verification`, which AGENTS.md reserves for a named
+ * reviewer, and only an agent may record one. It lives in the data and is never rendered.
+ * Validated by sourceChecks.ts.
+ */
+export type SourceCheck = Readonly<{
+  /** The card's source this check concerns: its index in `sources`. */
+  source: number;
+  /** The agent who read it, for example "agent:SapphireCastle". */
+  checkedBy: string;
+  /** The day it was read, YYYY-MM-DD. */
+  checkedOn: string;
+  /** The https URL that was read. */
+  url: string;
+  read: SourceCheckRead;
+  /** What matched, in words: title, author, journal, volume, first page, year, and the claim. */
+  matched: string;
+  /** What did not match, each with what the card now says. */
+  differs?: readonly string[] | undefined;
+}>;
+
 export type AdmittedImport = Readonly<{
   declaringJourney: string;
   sourceKey?: string | undefined;
@@ -95,6 +123,8 @@ export type KnowledgeCard = Readonly<{
   verifier?: string | undefined;
   dateVerified?: string | undefined;
   evidenceLocator?: string | undefined;
+  /** Where each source was checked, and what matched (sourceChecks.ts). Never rendered. */
+  sourceChecks?: readonly SourceCheck[] | undefined;
   authorship?: AuthorshipBlock | undefined;
   reviewState?: string | undefined;
   lang?: string | undefined;
