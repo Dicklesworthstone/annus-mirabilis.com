@@ -48,7 +48,9 @@ describe("pendingState: the engine label persists across pending requests", () =
       }),
     );
     expect(acceptedHtml).toContain(executionLabelFor("host-accepted").text);
-    expect(acceptedHtml).toContain('data-currency-state="accepted"');
+    // The accepted state shows no currency notice; only running, refused and stale are news
+    // (dispatch 259).
+    expect(acceptedHtml).not.toContain("data-currency-state");
 
     store.issue("continue");
     const pending = store.getSnapshot();

@@ -119,7 +119,8 @@ describe("BM-08 Measurement Bias Lab View & Route (am-bm-08-measurement-bias-h1y
     // On-grid initial state: neither refusal surface is present
     expect(html).not.toContain('data-refusal-code="off-replay-grid"');
     expect(html).not.toContain('data-currency-state="refused"');
-    expect(html).toContain('data-currency-state="accepted"');
+    // An accepted state is not news, so no currency notice at all (dispatch 259).
+    expect(html).not.toContain('class="execution-currency"');
     expect(html).toContain("Static worked example");
   });
 });

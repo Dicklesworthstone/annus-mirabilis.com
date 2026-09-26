@@ -2,16 +2,34 @@
    Meaning never depends on color alone: each currency state has a unique
    heading, sentence, data-currency-state value, and border style. */
 
+/* One quiet line above the instrument (dispatch 259): the execution label, then "Model note", in
+   the interface sans at the fine size, with no box around either. Live on 2026-09-26 they were
+   three bordered boxes in a row, with a "Current" chip between them, and read as debug output. A
+   currency notice appears only when it carries news (running, refused or stale), and then on a
+   line of its own, still boxed, because then it is the thing to read. */
 .execution-chrome {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.45rem;
-  max-width: 22rem;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.6rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  line-height: 1.5;
 }
 
 .execution-label {
   margin: 0;
+}
+
+/* Unboxed wherever it appears: two labs render the label on its own (RodSimultaneityLab,
+   BrownianLab). Two classes, so it outranks .badge whatever the stylesheet order. */
+.execution-label.badge {
+  border: 0;
+  padding: 0;
+}
+
+.execution-chrome > .execution-label {
+  font-size: inherit;
 }
 
 .execution-currency {
@@ -53,19 +71,29 @@
   margin: 0.15rem 0 0;
 }
 
+.execution-chrome > .execution-currency {
+  order: 1;
+  flex-basis: 100%;
+}
+
+/* The global details rule draws a rule above and below, with padding and margins; here the note is
+   one item in the line. The summary keeps its native marker and its 44px target (globals.css,
+   "the MARKER STAYS"). */
 .model-note {
-  width: 100%;
   min-width: 0;
   font-size: var(--type-fine);
   line-height: 1.5;
-  border: 1px solid var(--line, #c7c5b9);
-  padding: 0.35rem 0.55rem;
-  background: var(--panel, #fffdf7);
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.model-note[open] {
+  flex-basis: 100%;
 }
 
 .model-note > summary {
   cursor: pointer;
-  font-weight: 600;
 }
 
 .model-note-list {

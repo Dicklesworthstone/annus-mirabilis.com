@@ -607,3 +607,16 @@ html[data-lens="modern"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[
     color: inherit;
   }
 }
+
+/* The laboratory's thesis with less air (dispatch 259). The eyebrow, the title and the question
+   stay; only the space around them shrinks, so the instrument starts on the first screen.
+   .page-intro's 3rem above and below is the reading pages' rhythm. On live LQ-08 on 2026-09-26 it
+   put the instrument's panel 520px down at 1440, and at 390 the first screen held no instrument. */
+.lab-route .page-intro {
+  padding-block: 1.25rem 0.75rem;
+}
+
+.lab-route .laboratory {
+  margin-top: 0.5rem;
+  padding-top: 1.25rem;
+}
