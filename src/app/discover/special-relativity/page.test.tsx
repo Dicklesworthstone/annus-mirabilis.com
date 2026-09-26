@@ -4,6 +4,7 @@ import { checkVoice } from "../../../content/checks/voice/index.ts";
 import {
   FORK_SOURCE_SPEED,
   FORK_UNDETECTED_ETHER,
+  WORLD_CHECK,
 } from "../../../discovery/relativity/journeyIII.ts";
 import RelativityEncounter from "./page";
 
@@ -128,6 +129,39 @@ describe("the forks on the 1904 table", () => {
         ]),
       ])
       .join(" ");
+    const errors = checkVoice(words, { context: "prose" }).filter((f) => f.severity === "error");
+    expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
+  });
+});
+
+describe("step 08 checks a moving clock against the world", () => {
+  const at = (marker: string) => {
+    const i = html.indexOf(marker);
+    expect(i, marker).toBeGreaterThan(-1);
+    return i;
+  };
+
+  test("live from SR-05's snapshot, with Ives and Stilwell later and off the shelf", () => {
+    const step = html.slice(at('id="step-08"'), at('id="shelf"'));
+    expect(step).toContain('data-world-check-id="sr-world-check-moving-clock"');
+    expect(step).toContain('data-instrument-id="sr-05"');
+    expect(step).toContain('data-world-check-quantity="properTime"');
+    expect(step).toContain('id="card-ives-stilwell-1938-moving-atomic-clock"');
+    // Every later card renders once, beside the check, and none sits on the shelf.
+    for (const id of ["ives-stilwell-1938-moving-atomic-clock", "de-sitter-1913-double-stars"])
+      expect(html.match(new RegExp(`id="card-${id}"`, "g"))?.length).toBe(1);
+    const shelf = html.slice(at('id="shelf"'));
+    const onShelf = shelf.slice(0, shelf.indexOf("</section>"));
+    // Anchored on the card ids: a bare "ives" matches ordinary words on the shelf.
+    expect(onShelf).not.toMatch(/card-ives-stilwell|card-de-sitter/);
+    expect(onShelf).toContain('id="card-lorentz-1904-corresponding-states"');
+  });
+
+  test("the check's words pass the voice lint", () => {
+    const step = html.slice(at('id="step-08"'), at('data-instrument-id="sr-05"'));
+    const said = /data-world-check-later-measurement[^>]*>([\s\S]*?)<\/p>/.exec(html)?.[1] ?? "";
+    expect(said.length).toBeGreaterThan(0);
+    const words = [WORLD_CHECK.claim, text(step), text(said)].join(" ");
     const errors = checkVoice(words, { context: "prose" }).filter((f) => f.severity === "error");
     expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
   });
