@@ -1035,16 +1035,17 @@ html:is(
 }
 
 /* 320 px narrow touch viewport. No side padding of its own: main carries the page gutter (16px
-   either side under 560px, globals.css), and the 0.25rem this rule added sat inside it. */
+   either side under 560px, globals.css), and the 0.25rem this rule added sat inside it.
+
+   A paragraph's sentences stay inline here as at every other width. Until dispatch 237 this rule
+   also set each sentence (.source-sentence, .translation-unit) as a block, so at 320 every
+   sentence began a new line and a paragraph read as a list, on the parallel, English and German
+   faces: on a build of 716580b2, 0 of 168 sentence pairs on relativity's parallel face shared a
+   line, against 135 of 168 at 390. Removing it changed no page's width at 320. */
 @media (max-width: 320px) {
   .parallel-half {
     overflow-wrap: break-word;
     word-break: break-word;
-  }
-  .source-sentence,
-  .translation-unit {
-    display: block;
-    max-width: 100%;
   }
 }
 
