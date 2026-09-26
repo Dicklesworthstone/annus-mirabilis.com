@@ -251,7 +251,6 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
           view={snapshot}
           modelNote={modelNoteFromView(snapshot, { notModeled: `${LQ06_NOT_MODELED.join("; ")}.` })}
         />
-        <LabTapeLink link={withPredictions(tapeLink, gate)} />
       </div>
 
       <noscript>
@@ -364,6 +363,9 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
           </div>
         </div>
       </div>
+      {/* The permalink to these settings, after the instrument it links to (dispatch 263). In
+          the status row it made that line 267px tall at 1440. */}
+      <LabTapeLink link={withPredictions(tapeLink, gate)} />
 
       {/* The derivation card states the answer to the lab's question, so the three roles are a
           closed disclosure: in the HTML for every reader, open only when asked for. */}
