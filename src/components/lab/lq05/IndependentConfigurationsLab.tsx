@@ -186,8 +186,9 @@ export function IndependentConfigurationsLab({
             what changes when the positions are locked together.
           </p>
         </div>
-      </header>
-      <div className="lab-status-row">
+        {/* The execution line sits in the heading's right column, as labShell.css places it
+            (dispatch 268). As a row of its own under the heading it put the plot at 625-629px at
+            1440. */}
         <ExecutionChrome
           state={executionKind}
           view={view}
@@ -195,7 +196,7 @@ export function IndependentConfigurationsLab({
             notModeled: `${LQ05_MODEL.notModeled.join("; ")}.`,
           })}
         />
-      </div>
+      </header>
 
       <noscript>
         <p className="notice">
