@@ -4,8 +4,10 @@ import { checkVoice } from "../../../content/checks/voice/index.ts";
 import {
   FORK_SOURCE_SPEED,
   FORK_UNDETECTED_ETHER,
+  PPE_TASK,
   WORLD_CHECK,
 } from "../../../discovery/relativity/journeyIII.ts";
+import { SR05_PRESETS } from "../../../experiments/sr05/definition.ts";
 import RelativityEncounter from "./page";
 
 /**
@@ -163,6 +165,55 @@ describe("step 08 checks a moving clock against the world", () => {
     expect(said.length).toBeGreaterThan(0);
     const words = [WORLD_CHECK.claim, text(step), text(said)].join(" ");
     const errors = checkVoice(words, { context: "prose" }).filter((f) => f.severity === "error");
+    expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
+  });
+});
+
+describe("step 09: pieces to work by hand, then predict, perturb and explain", () => {
+  const stepNine = () => {
+    const start = html.indexOf('<section id="step-09"');
+    expect(start).toBeGreaterThan(html.indexOf('<section id="step-08"'));
+    expect(html.indexOf('<section id="shelf"')).toBeGreaterThan(start);
+    return html.slice(start, html.indexOf('<section id="shelf"'));
+  };
+
+  test("two expressions, a number, an explanation, the task, and its explanation, in that order", () => {
+    const step = stepNine();
+    const order = [
+      'data-exercise-part="sr-composed-speed"',
+      'data-exercise-part="sr-clock-speed-from-readings"',
+      'data-exercise-part="sr-light-clock-path"',
+      'data-exercise-part="sr-neither-observer-wrong"',
+      `data-ppe-task-id="${PPE_TASK.promptId}"`,
+      'data-exercise-part="sr-ppe-two-paths-one-reading"',
+    ].map((marker) => {
+      const i = step.indexOf(marker);
+      expect(i, marker).toBeGreaterThan(-1);
+      return i;
+    });
+    expect(order).toEqual([...order].sort((a, b) => a - b));
+    expect(PPE_TASK.promptId).toBe("ppe-special-relativity-s4");
+  });
+
+  test("the task names only buttons the laboratory at step 08 renders, and links there", () => {
+    const eight = html.slice(
+      html.indexOf('<section id="step-08"'),
+      html.indexOf('<section id="step-09"'),
+    );
+    for (const id of ["sr-05-out-and-back-0.6c", "sr-05-circle-0.6c", "sr-05-low-speed-1e-4"]) {
+      expect(eight).toContain(`data-preset-id="${id}"`);
+      expect(PPE_TASK.perturbPrompt).toContain(`“${SR05_PRESETS[id]?.label}”`);
+    }
+    // A renamed preset would print its id instead of a label a reader can find.
+    expect(PPE_TASK.perturbPrompt).not.toContain("sr-05-");
+    expect(stepNine()).toContain('href="#step-08"');
+  });
+
+  test("the task's words pass the voice lint", () => {
+    const words = [PPE_TASK.task, PPE_TASK.perturbPrompt, PPE_TASK.explainPrompt, text(stepNine())];
+    const errors = checkVoice(words.join(" "), { context: "prose" }).filter(
+      (f) => f.severity === "error",
+    );
     expect(errors.map((f) => `${f.rule}: ${f.matchedText}`)).toEqual([]);
   });
 });
