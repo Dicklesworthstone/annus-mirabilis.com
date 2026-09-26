@@ -519,7 +519,7 @@ cards:
       - instrument: sr-10
         question: "The same speed, with the light travelling against the motion of k: does the energy grow or shrink, and by the same factor as the frequency?"
         preset: sr-10-opposite-0.6
-    usedLater: []
+    usedLater: [energy-transformation]
     meanings:
       argumentStatus: "A consequence of the transformed amplitude of § 7 and of the volume of a surface that moves with the light"
       modelStatus: "Exact within the paper's electrodynamics, for a plane wave in empty space"
