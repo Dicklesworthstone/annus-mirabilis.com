@@ -82,3 +82,17 @@
   margin: 0.4rem 0 0;
   padding-left: 1.25rem;
 }
+
+/* Where the paper makes the step: a note in the margin, a rule on its leading edge as an aside
+   callout has, and a link into the passage. */
+.source-jump {
+  margin: 1.25rem 0;
+  padding: 0.1rem 0 0.1rem 1rem;
+  border-left: 2px solid var(--rule);
+}
+.source-jump > p {
+  margin: 0.4rem 0 0;
+}
+.source-jump > .eyebrow {
+  margin: 0;
+}
