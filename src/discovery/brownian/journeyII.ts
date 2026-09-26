@@ -156,12 +156,12 @@ export const FORK_EXNER: Fork = {
       label: "Measure its speed",
       proponent: { name: "Felix Exner, 1900", cardId: "exner-1900-particle-speeds" },
       hypothesis:
-        "Time the particle over a short interval and divide the distance by the time. If molecules shove the particles, their energy of motion should match the molecules' at the same temperature, and the speed tells you whether it does.",
+        "Trace the particle's path under the microscope for half a minute to a minute and divide the distance by the time. If molecules shove the particles, their energy of motion should match the molecules' at the same temperature, and the speed tells you whether it does.",
       worksWhen:
         "For a particle drifting at a steady speed, where every interval gives the same answer. And as a stated quantity: a speed over a named interval is something you can measure and report.",
       steps: [
         {
-          text: "Measure the displacement over an interval τ and divide by τ. Exner did this with care and found speeds far below those kinetic theory gives molecules.",
+          text: "Measure the displacement over an interval τ and divide by τ. Exner did this with care, each value a mean of about ten tracings of half a minute to a minute. Given the kinetic energy of the liquid's molecules, his particles implied molecules moving about 30 cm a second at 20 °C, where G. Jäger had calculated 270 metres a second.",
         },
         {
           text: "Now change τ. For a particle kicked at random the displacement grows only as the square root of τ, so the displacement divided by τ grows as the interval shrinks: a quarter of the interval, twice the speed.",
