@@ -3,6 +3,10 @@ import {
   BM06_HOST_GRID_OWNER,
   BM06_OUTPUTS,
 } from "../../experiments/bm06/definition.ts";
+import {
+  declaredDomains,
+  insideDeclaredDomain,
+} from "../../experiments/controls/declaredDomain.ts";
 import { decodeResult } from "../../experiments/results/codec.ts";
 import {
   type ExecutionOutcomeId,
@@ -42,6 +46,9 @@ export type EvaluationControl = Readonly<{
 import { validateBm06Parameters } from "../../experiments/bm06/parameters.ts";
 
 export { validateBm06Parameters } from "../../experiments/bm06/parameters.ts";
+
+/** The cell widths BM-06's manifest admits (content/experiments/bm-06.yaml), for its repairs. */
+const dxDomain = declaredDomains("bm-06").dx;
 
 /** One stepping of the optional grid: `steps` explicit steps of width `dt` from the centred spike. */
 export type GridRun = Readonly<{ n: number; D: number; dx: number; dt: number; steps: number }>;
@@ -252,8 +259,13 @@ export async function evaluateBm06(
               kind: "refused",
               refusal: {
                 ...stepped.refusal,
+                // A repair is offered only if applying it is accepted (am-xry2): a step count
+                // this grid can run within the work budget, and a cell width inside the declared
+                // range. Offering one that is itself refused sends the reader to the next error.
                 rankedRepairs: [
-                  ...(Number.isSafeInteger(requiredSteps) && requiredSteps <= 4_000_000
+                  ...(Number.isSafeInteger(requiredSteps) &&
+                  requiredSteps <= 4_000_000 &&
+                  p.n * requiredSteps <= BM06_BUDGET.workUnits
                     ? [
                         {
                           label: `Use ${requiredSteps} time steps for this elapsed time.`,
@@ -261,7 +273,13 @@ export async function evaluateBm06(
                         },
                       ]
                     : []),
-                  ...stepped.refusal.rankedRepairs.filter((r) => r.action?.parameterId === "dx"),
+                  ...stepped.refusal.rankedRepairs.filter(
+                    (r) =>
+                      r.action?.parameterId === "dx" &&
+                      typeof r.action.value === "number" &&
+                      dxDomain !== undefined &&
+                      insideDeclaredDomain(dxDomain, r.action.value),
+                  ),
                 ],
               },
             };

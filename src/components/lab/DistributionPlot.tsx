@@ -256,6 +256,10 @@ export function GridComparison({ snapshot }: { snapshot: AcceptedSnapshot }) {
             </tbody>
           </table>
         </div>
+        <p className="fine">
+          A cell far enough from the start that its unbounded probability is below 2.2 × 10⁻³⁰⁸, the
+          smallest ordinary number the calculation can hold, shows 0.
+        </p>
       </details>
     </section>
   );

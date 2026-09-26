@@ -285,7 +285,32 @@ export type FtcsComparison = Readonly<{
   gridModel: "zero-flux finite box";
   analyticModel: "unbounded point-source Gaussian";
 }>;
-/** Cell probability, not density at the center, is the quantity comparable with field[i]*dx. */
+/** 2^-1022, the smallest normal binary64 number. */
+const SMALLEST_NORMAL = 2.2250738585072014e-308;
+/**
+ * An upper bound on the unbounded Gaussian's probability for a cell that does not contain the
+ * start: with z the nearer edge's distance in units of 2 sqrt(D t), the probability is at most
+ * erfc(z) / 2, and erfc(z) <= exp(-z^2) for z >= 0. A cell containing the start, or a run at
+ * t = 0 or D = 0, has no such bound here (Infinity).
+ */
+function farTailBound(lowerEdge: number, upperEdge: number, t: number, D: number): number {
+  const nearer = lowerEdge > 0 ? lowerEdge : upperEdge < 0 ? -upperEdge : 0;
+  if (!(nearer > 0) || !(t > 0) || !(D > 0)) return Number.POSITIVE_INFINITY;
+  const z = nearer / (2 * Math.sqrt(D) * Math.sqrt(t));
+  return 0.5 * Math.exp(-z * z);
+}
+/**
+ * Cell probability, not density at the center, is the quantity comparable with field[i]*dx.
+ *
+ * A cell far out on a coarse grid has an unbounded-Gaussian probability too small for binary64:
+ * intervalProbability then reports it as not representable, rather than as a physical zero. For
+ * such a cell the comparison records 0, but only when farTailBound proves the exact value is below
+ * 2^-1022, the smallest normal number. The recorded 0 is then wrong by less than that, which
+ * none of the sums and differences below can register beside the central cells. Any other
+ * unrepresentable cell still refuses. Until am-xry2 every such cell refused the whole
+ * comparison, so the page's own "Use a coarser spatial grid." (0.927 um, 101 cells, 1 s) ended in
+ * invariant-violation.
+ */
 export function ftcsAnalyticComparison({
   field,
   dx,
@@ -334,17 +359,16 @@ export function ftcsAnalyticComparison({
   let massInBox = 0;
   let compensation = 0;
   for (let i = 0; i < field.length; i++) {
-    const probability = intervalProbability(
-      (i - startCell - 0.5) * dx,
-      (i - startCell + 0.5) * dx,
-      t,
-      D,
-    ).result;
-    if (probability.status !== "value" || typeof probability.value !== "number")
+    const lowerEdge = (i - startCell - 0.5) * dx;
+    const upperEdge = (i - startCell + 0.5) * dx;
+    const probability = intervalProbability(lowerEdge, upperEdge, t, D).result;
+    if (probability.status === "value" && typeof probability.value === "number")
+      probabilities[i] = probability.value;
+    else if (farTailBound(lowerEdge, upperEdge, t, D) < SMALLEST_NORMAL) probabilities[i] = 0;
+    else
       return numerical(
         `Cell ${i}'s analytic probability is not representable; no fabricated zero was substituted.`,
       );
-    probabilities[i] = probability.value;
     const cellDensity = field[i];
     if (cellDensity === undefined) return numerical("A cell density is missing from the field.");
     const cellMass = cellDensity * dx;
@@ -355,7 +379,7 @@ export function ftcsAnalyticComparison({
     if (storedMass === undefined || storedProb === undefined)
       return numerical("A cell mass or probability is outside bounds.");
     maxDifference = Math.max(maxDifference, Math.abs(storedMass - storedProb));
-    const corrected = probability.value - compensation;
+    const corrected = storedProb - compensation;
     const next = massInBox + corrected;
     compensation = next - massInBox - corrected;
     massInBox = next;
