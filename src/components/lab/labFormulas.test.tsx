@@ -13,13 +13,25 @@
  * A formula that is none of these is plain in silence, and fails here.
  *
  * The labs are those converted so far, named here so a lab that loses its formulas fails.
+ *
+ * Resolving is not being right, so the second part checks the lab's own letters
+ * (content/inline-terms/labs.yaml): each binding found wrong when the coloured terms were read
+ * against their pages (relativity's labs writing β for v/V, light quanta's W for the escape work)
+ * is pinned here by lab and glyph, so the wrong colour cannot come back.
  */
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Window } from "happy-dom";
 import type { ReactElement } from "react";
-import { labFormula, labScope } from "../../equations/printed/labInlines.ts";
+import {
+  LAB_INLINES_PATH,
+  LabInlineTermsError,
+  labFormula,
+  labScope,
+  loadLabInlineTerms,
+  parseLabInlineTerms,
+} from "../../equations/printed/labInlines.ts";
 import { exportMarkup } from "../../testing/exportMarkup.ts";
 
 const LABS = [
@@ -118,5 +130,115 @@ describe("a lab's formulas are coloured in its paper's notation, or name their g
     expect(result.problems.some((p) => p.where === "lab lq-08" && p.glyph.includes("\\Xi"))).toBe(
       true,
     );
+  });
+});
+
+/** The quantity each term of a resolved formula is bound to, by glyph; or the refused glyphs. */
+function bindings(lab: string, latex: string, printed = false) {
+  const result = labFormula(lab, latex, false, printed);
+  if (result.kind === "resolved")
+    return Object.fromEntries(result.compiled.terms.map((t) => [t.glyph, t.quantityId]));
+  return { refused: result.kind === "refused" ? result.problems.map((p) => p.glyph) : [] };
+}
+
+describe("a lab's own letters, read against its page (content/inline-terms/labs.yaml)", () => {
+  test("a reading replaces the paper's readings of the letter in its lab", () => {
+    // Each was coloured wrong before: W as the configuration probability, E as a radiation
+    // energy, n as the count where the lab's modern formula means the density.
+    expect(bindings("lq-08", String.raw`W = \Phi`)).toEqual({
+      W: "workFunction",
+      "\\Phi": "workFunction",
+    });
+    expect(bindings("lq-09", String.raw`E = 9{,}6\cdot 10^3\text{ emu}`)).toEqual({
+      E: "gramEquivalentCharge",
+    });
+    expect(bindings("bm-03", String.raw`\Pi = n k_B T`)).toMatchObject({ n: "numberDensity" });
+  });
+
+  test("an unread letter is refused and named, never coloured as the paper's reading", () => {
+    // The paper's β is the factor the moderns call γ; these labs write β for v/V.
+    expect(bindings("sr-05", String.raw`\beta^2/(1+\sqrt{1-\beta^2})`)).toEqual({
+      refused: ["\\beta", "\\beta"],
+    });
+    expect(
+      bindings("sr-10", String.raw`\frac{E'}{E} = \frac{\nu'}{\nu} = \gamma(1 - \beta\cos\varphi)`),
+    ).toEqual({ refused: ["\\beta"] });
+    expect(bindings("lq-09", String.raw`V \approx 6{,}6\text{ Volts}`)).toEqual({ refused: ["V"] });
+  });
+
+  test("an exception leaves a point in neutral ink, with nothing to colour", () => {
+    for (const glyph of ["A", "B"]) {
+      const result = labFormula("sr-03", glyph, false);
+      expect(result.kind).toBe("resolved");
+      if (result.kind === "resolved") expect(result.compiled.terms).toEqual([]);
+    }
+  });
+
+  test("a formula quoted as printed reads the paper's notation alone", () => {
+    expect(bindings("bm-03", String.raw`\Pi = n k_B T`, true)).toMatchObject({
+      n: "particleCount",
+    });
+    expect(bindings("sr-05", String.raw`\beta`, true)).toEqual({ "\\beta": "lorentzFactor" });
+  });
+
+  test("a lab's letters reach no other lab", () => {
+    // sr-03 reads § 4 too, where the paper's β is the Lorentz factor; lq-06 reads W in § 5.
+    expect(bindings("sr-03", String.raw`\beta`)).toEqual({ "\\beta": "lorentzFactor" });
+    expect(bindings("lq-06", "W")).toEqual({ W: "configurationProbability" });
+  });
+
+  test("every entry names a letter its lab's page writes, so none is dead", async () => {
+    const file = loadLabInlineTerms();
+    const entries = [...file.readings, ...file.unread, ...file.exceptions];
+    expect(entries.length).toBeGreaterThan(0);
+    const written = new Map<string, readonly string[]>();
+    const dead: string[] = [];
+    for (const entry of entries) {
+      if (!written.has(entry.lab))
+        written.set(
+          entry.lab,
+          [...(await page(entry.lab)).querySelectorAll(`[data-lab-formula="${entry.lab}"]`)].map(
+            (f) =>
+              f.querySelector("[data-latex]")?.getAttribute("data-latex") ??
+              f.getAttribute("data-latex") ??
+              "",
+          ),
+        );
+      // The glyph as a whole name: not inside a longer command or word.
+      const escaped = entry.glyph.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&");
+      const atom = new RegExp(`(^|[^A-Za-z\\\\])${escaped}($|[^A-Za-z])`);
+      if (!written.get(entry.lab)?.some((latex) => atom.test(latex)))
+        dead.push(`${entry.lab} ${entry.glyph}`);
+    }
+    expect(dead).toEqual([]);
+  });
+
+  test("the file's entries are checked (lab-inline-terms-invalid)", () => {
+    const refusal = (raw: unknown) => {
+      try {
+        parseLabInlineTerms(raw, LAB_INLINES_PATH, (id) => id === "workFunction");
+      } catch (error) {
+        expect(error).toBeInstanceOf(LabInlineTermsError);
+        return (error as LabInlineTermsError).code;
+      }
+      return "accepted";
+    };
+    const reason = "A reason long enough to be a sentence about the lab.";
+    expect(refusal({ readings: { lab: "lq-08" } })).toBe("lab-inline-terms-invalid");
+    expect(refusal({ unread: [{ lab: "lab-8", glyph: "W", reason }] })).toBe(
+      "lab-inline-terms-invalid",
+    );
+    expect(refusal({ exceptions: [{ lab: "sr-03", glyph: "AB", reason }] })).toBe(
+      "lab-inline-terms-invalid",
+    );
+    expect(
+      refusal({ readings: [{ lab: "lq-08", glyph: "W", quantityId: "workFunktion", reason }] }),
+    ).toBe("lab-inline-terms-invalid");
+    expect(refusal({ unread: [{ lab: "sr-05", glyph: "\\beta", reason: "v/V" }] })).toBe(
+      "lab-inline-terms-invalid",
+    );
+    expect(
+      refusal({ readings: [{ lab: "lq-08", glyph: "W", quantityId: "workFunction", reason }] }),
+    ).toBe("accepted");
   });
 });

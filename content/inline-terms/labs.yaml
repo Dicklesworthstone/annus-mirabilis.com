@@ -1,0 +1,49 @@
+# The laboratories' own readings (dispatch 274), read by src/equations/printed/labInlines.ts beside
+# each lab's paper notation concordance and its modern scope.
+#
+# A lab's formula is read in its paper and the sections its manifest names. Where a lab writes a
+# letter in a sense the paper's notation does not give it there, one entry holds, for that lab only,
+# and says why:
+# - a READING binds the letter to the registered quantity it names in the lab, in place of the
+#   paper's readings of that letter;
+# - an UNREAD entry withdraws the paper's readings of the letter in the lab, where the letter means
+#   something else and no registered quantity coloured in that paper names it. The letter is then
+#   refused and named on the formula (data-inline-refused), because a wrong colour is worse than
+#   none;
+# - an EXCEPTION names a sign that is no quantity (a point, a frame), which stays in neutral ink.
+# A formula a lab quotes as the paper prints it (LabFormula with `printed`) is read in the paper's
+# notation alone, so none of these reach it.
+# Each entry was read against the lab page that writes the letter, not inferred from its shape.
+
+readings:
+  - lab: lq-08
+    glyph: "W"
+    quantityId: workFunction
+    reason: "The lab writes W = Φ for the work an electron spends escaping the surface, § 8's P in modern letters. The modern scope reads W paper-wide as the configuration probability of § 5, its registry letter."
+  - lab: lq-09
+    glyph: "E"
+    quantityId: gramEquivalentCharge
+    reason: "The lab writes E = 9,6 · 10³ emu for the charge of a gram-equivalent, which it divides the quantum energy per gram-equivalent Rβν by, as § 8 prints E (lq.E.gramEquivalentCharge). No printed entry reads E in § 9, and the modern scope's registry letter makes it a radiation energy."
+  - lab: bm-03
+    glyph: "n"
+    quantityId: numberDensity
+    reason: "In the lab's modern formulas, Π = n k_B T and p = N_p k_B T / V = n k_B T, n is the particles per unit volume, and the lab says it writes the count as N_p. The printed n of §§ 1 and 2 is the count, which the quoted display of § 2 keeps."
+
+unread:
+  - lab: sr-05
+    glyph: "\\beta"
+    reason: "The lab writes β²/(1 + √(1 − β²)) with β = v/V, the modern speed ratio, while the paper prints β, defined on p. 900, as the factor 1/√(1 − (v/V)²), the modern γ (sr.beta.lorentzFactor). The paper's colours have no slot for the speed ratio."
+  - lab: sr-10
+    glyph: "\\beta"
+    reason: "The lab writes γ(1 − β cos φ) and √(1 − β²) with β = v/V, the modern speed ratio, while the paper prints β, defined on p. 900, as the factor 1/√(1 − (v/V)²), the modern γ (sr.beta.lorentzFactor). The paper's colours have no slot for the speed ratio."
+  - lab: lq-09
+    glyph: "V"
+    reason: "The lab writes V ≈ 6,6 Volts for the potential difference that the quantum energy per gram-equivalent, Rβν, corresponds to once divided by E. The modern scope reads V as a volume, and no quantity coloured in light quanta is that potential."
+
+exceptions:
+  - lab: sr-03
+    glyph: "A"
+    reason: "A names the end of the moving rod where the first clock sits and the light signal starts, a point and not a quantity, as in § 2."
+  - lab: sr-03
+    glyph: "B"
+    reason: "B names the rod's other end, where the second clock sits and the signal is reflected, a point and not a quantity. The modern scope's registry letter makes it a magnetic field."

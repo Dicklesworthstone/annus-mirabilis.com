@@ -56,6 +56,7 @@ export default function ConfigurationPage() {
         </p>
         <LabFormula
           lab="bm-03"
+          printed
           latex={String.raw`\begin{aligned}B &= \int\cdots\int dx_1\dots dz_n \\ &= V^{*n}J, \\ F &= -2\kappa T\lg B \\ &= -2\kappa Tn\lg V^* \\ &\quad -2\kappa T\lg J+\text{const}\end{aligned}`}
         />
         <p>

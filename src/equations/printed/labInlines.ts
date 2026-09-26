@@ -9,24 +9,41 @@
  * glyph a section defines is read in that section and never borrowed from a neighbour silently:
  * the resolver itself still refuses a glyph with two readings at one level.
  *
+ * THE LAB'S OWN LETTERS. Resolving is not being right: a lab writes some letters in a sense its
+ * paper's notation does not give them there (relativity's labs write β for v/V, where the paper
+ * prints β as the factor the moderns call γ). content/inline-terms/labs.yaml holds what is true in
+ * one lab only, each entry read against the page that writes it and carrying its reason:
+ * - a READING binds the letter to a registered quantity, in place of the paper's readings of it;
+ * - an UNREAD entry withdraws the paper's readings of the letter, where it means something the
+ *   paper's colours have no slot for, so the letter is refused and named rather than coloured
+ *   wrong;
+ * - an EXCEPTION names a sign that is no quantity (a point), left in neutral ink.
+ * A formula the lab quotes as the paper prints it (`printed`) is read in the paper's notation alone.
+ *
  * RESULT. Resolved: the formula drawn with its terms marked (compileInlineFormula), in inline or
  * display mode. Refused: the resolver's problems, each naming the lab and the glyph. The component
  * then prints the formula as before and lists the glyphs on it (data-inline-refused), so a formula
- * is coloured or named, never plain in silence. No exceptions are passed yet: NavyKite owns the
- * exceptions file (content/inline-terms/exceptions.yaml), and until it lands every sign the
- * concordance does not carry, the number pi included, is a named refusal.
+ * is coloured or named, never plain in silence. The paper-wide exceptions file
+ * (content/inline-terms/exceptions.yaml) is NavyKite's and is not read yet, so a sign no concordance
+ * carries, the number pi included, is a named refusal unless a lab's own exception names it.
  *
- * Server-only: it reads the manifest and the concordance from disk, once per lab and formula.
+ * Server-only: it reads the manifest, the concordance and labs.yaml from disk, once per lab and
+ * formula.
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToString } from "katex";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import { parseYaml } from "../../content/provenance/yaml.ts";
+import type { ConcordanceEntry } from "../../content/schemas/concordance.ts";
+import { strictParse } from "../../content/schemas/strictParse.ts";
 import { QUANTITY_LABELS } from "../../generated/quantity-labels.ts";
+import { glyphSignature } from "../latex/printedAtoms.ts";
 import {
   type CompiledInline,
   compileInlineFormula,
+  type InlineException,
+  type InlineTermsContext,
   type InlineTermsProblem,
   type ResolvedInline,
   resolveInlineTerms,
@@ -82,25 +99,177 @@ export function labScope(lab: string, root = process.cwd()): LabScope | null {
   return scope;
 }
 
+export const LAB_INLINES_PATH = join("content", "inline-terms", "labs.yaml");
+
+/** A letter one lab reads as a registered quantity of its own. */
+export type LabReading = Readonly<{
+  lab: string;
+  glyph: string;
+  quantityId: string;
+  reason: string;
+}>;
+/** A letter one lab withdraws from its paper's readings (unread) or names as no quantity. */
+export type LabLetter = Readonly<{ lab: string; glyph: string; reason: string }>;
+export type LabInlineTerms = Readonly<{
+  readings: readonly LabReading[];
+  unread: readonly LabLetter[];
+  exceptions: readonly LabLetter[];
+}>;
+
+export class LabInlineTermsError extends Error {
+  readonly code: "lab-inline-terms-invalid";
+  constructor(code: "lab-inline-terms-invalid", message: string) {
+    super(`${code}: ${message}`);
+    this.name = "LabInlineTermsError";
+    this.code = code;
+  }
+}
+
+function invalid(message: string): never {
+  throw new LabInlineTermsError("lab-inline-terms-invalid", message);
+}
+
+function signatureOf(glyph: string): string | undefined {
+  try {
+    return glyphSignature(glyph);
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * labs.yaml's three lists, each entry checked: a lab id, one printed name, a registered quantity
+ * for a reading, and a reason of a sentence.
+ */
+export function parseLabInlineTerms(
+  raw: unknown,
+  where: string,
+  isRegistered: (quantityId: string) => boolean,
+): LabInlineTerms {
+  const record = (raw ?? {}) as Record<string, unknown>;
+  const list = (name: "readings" | "unread" | "exceptions") => {
+    const items = record[name] ?? [];
+    if (!Array.isArray(items)) invalid(`${where}: ${name} must be a list.`);
+    return items.map((item, i) => {
+      const at = `${where} ${name}[${i}]`;
+      const e = (item ?? {}) as Record<string, unknown>;
+      const lab = typeof e.lab === "string" ? e.lab : "";
+      if (!/^(lq|bm|sr|me)-\d{2}$/.test(lab)) invalid(`${at}: "${lab}" is not a lab id.`);
+      const glyph = typeof e.glyph === "string" ? e.glyph : "";
+      if (signatureOf(glyph) === undefined) invalid(`${at}: "${glyph}" is not one printed name.`);
+      if (typeof e.reason !== "string" || e.reason.trim().length < 20)
+        invalid(`${at}: an entry needs a reason of a sentence.`);
+      const quantityId = typeof e.quantityId === "string" ? e.quantityId : "";
+      if (name === "readings" && !isRegistered(quantityId))
+        invalid(`${at}: "${quantityId}" is not a registered quantity id (content/quantities/).`);
+      return { lab, glyph, quantityId, reason: (e.reason as string).trim() };
+    });
+  };
+  return {
+    readings: list("readings"),
+    unread: list("unread").map(({ lab, glyph, reason }) => ({ lab, glyph, reason })),
+    exceptions: list("exceptions").map(({ lab, glyph, reason }) => ({ lab, glyph, reason })),
+  };
+}
+
+let labFile: LabInlineTerms | null = null;
+
+/** content/inline-terms/labs.yaml, read and checked once per process. */
+export function loadLabInlineTerms(root = process.cwd()): LabInlineTerms {
+  if (labFile && root === process.cwd()) return labFile;
+  const path = join(root, LAB_INLINES_PATH);
+  const file = parseLabInlineTerms(
+    existsSync(path) ? strictParse(readFileSync(path, "utf8"), "yaml", LAB_INLINES_PATH) : {},
+    LAB_INLINES_PATH,
+    isRegisteredForPage,
+  );
+  if (root === process.cwd()) labFile = file;
+  return file;
+}
+
+/** A lab's reading as a concordance entry, for that lab's context only. */
+function asEntry(paper: string, reading: LabReading, index: number): ConcordanceEntry {
+  return {
+    id: `lab.${reading.lab}.${index}`,
+    paper,
+    scope: ["all"],
+    glyph: { unicode: reading.glyph, latex: reading.glyph },
+    meaning: reading.reason,
+    binding: { quantityId: reading.quantityId },
+    operation: { kind: "rename", target: { form: "symbol", modernGlyph: reading.glyph } },
+    sources: { anchor: `lab-${reading.lab}` },
+    verification: {
+      printed: false,
+      checkedAgainst: LAB_INLINES_PATH,
+      by: "labInlines.ts",
+      date: "",
+    },
+  };
+}
+
+/**
+ * One lab's context: its paper's printed and modern readings; unless the formula is quoted as
+ * printed, with each letter the lab reads or withdraws taken out, its readings put in, and its
+ * exceptions.
+ */
+export function labContext(
+  lab: string,
+  paper: string,
+  printed: boolean,
+  file: LabInlineTerms = loadLabInlineTerms(),
+): InlineTermsContext {
+  // The printed readings, and the modern ones a lab writes in (c, k_B, a rename's letter):
+  // modernScope.ts, whose precedence refuses a printed and a modern reading that disagree.
+  const paperEntries = modernInlineEntries(paper, loadConcordanceForPaper(paper));
+  if (printed)
+    return { concordance: paperEntries, isRegistered: isRegisteredForPage, exceptions: [] };
+  const own = file.readings.filter((r) => r.lab === lab);
+  const excepted = file.exceptions.filter((e) => e.lab === lab);
+  // The resolver consults an exception only where no reading holds, so an exception withdraws the
+  // paper's readings of its letter too, as a reading and an unread entry do.
+  const withdrawn = new Set(
+    [...own, ...file.unread.filter((u) => u.lab === lab), ...excepted].map((r) =>
+      signatureOf(r.glyph),
+    ),
+  );
+  const exceptions: InlineException[] = excepted.map((e) => ({
+    paper,
+    glyph: e.glyph,
+    scope: ["all"],
+    reason: e.reason,
+  }));
+  return {
+    concordance: [
+      ...paperEntries.filter((entry) => !withdrawn.has(signatureOf(entry.glyph.latex))),
+      ...own.map((r, i) => asEntry(paper, r, i)),
+    ],
+    isRegistered: isRegisteredForPage,
+    exceptions,
+  };
+}
+
 const display = ((tex: string, options: object) =>
   renderToString(tex, { ...options, displayMode: true })) as typeof renderToString;
 
-/** A lab's formula, resolved in its lab's scope and compiled, or the refusals that name its gaps. */
-export function labFormula(lab: string, latex: string, displayMode: boolean): LabFormula {
-  const key = `${lab}\u0000${displayMode ? "d" : "i"}\u0000${latex}`;
+/**
+ * A lab's formula, resolved in its lab's scope and compiled, or the refusals that name its gaps.
+ * `printed`: the lab quotes the formula as the paper prints it, so it is read in the paper's
+ * notation alone, without the lab's own letters.
+ */
+export function labFormula(
+  lab: string,
+  latex: string,
+  displayMode: boolean,
+  printed = false,
+): LabFormula {
+  const key = `${lab}\u0000${displayMode ? "d" : "i"}${printed ? "p" : ""}\u0000${latex}`;
   const cached = formulas.get(key);
   if (cached) return cached;
   const scope = labScope(lab);
   let result: LabFormula;
   if (!scope || scope.sections.length === 0) result = { kind: "unscoped" };
   else {
-    // The printed readings, and the modern ones a lab writes in (c, k_B, a rename's letter):
-    // modernScope.ts, whose precedence refuses a printed and a modern reading that disagree.
-    const context = {
-      concordance: modernInlineEntries(scope.paper, loadConcordanceForPaper(scope.paper)),
-      isRegistered: isRegisteredForPage,
-      exceptions: [],
-    };
+    const context = labContext(lab, scope.paper, printed);
     let best: ResolvedInline | null = null;
     for (const section of scope.sections) {
       const resolved = resolveInlineTerms(
