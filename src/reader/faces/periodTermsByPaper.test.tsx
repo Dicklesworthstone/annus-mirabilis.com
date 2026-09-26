@@ -33,6 +33,15 @@ const PAPERS: Record<string, readonly string[]> = {
     "s7-p1 Photolumineszenz",
     "s8-p2 Kathodenstrahlen",
   ],
+  "brownian-motion": [
+    "s0-p1 Molekularbewegung",
+    "s0-p1 molekularkinetischen Theorie der Wärme",
+    "s1-p1 Gramm-Moleküle",
+    "s1-p2 freie Energie",
+    "s2-p2 semipermeabele Wand",
+    "s3-p6 Reibungskoeffizienten",
+    "s4-p4 Häufigkeitsgesetz",
+  ],
 };
 
 type Block = {
