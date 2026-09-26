@@ -28,7 +28,7 @@ const DISPLAYS = (printedPayload as unknown as { displays: readonly PrintedDispl
   .displays;
 
 const CHIP_LINK = /<a class="term-chip" href="([^"]+)"([^>]*)>([\s\S]*?)<\/a>/g;
-const unescape = (s: string) =>
+const decodeEntities = (s: string) =>
   s
     .replace(/&#x27;/g, "'")
     .replace(/&quot;/g, '"')
@@ -37,7 +37,9 @@ const unescape = (s: string) =>
 describe("a printed display's term chips without JavaScript", () => {
   test("every chip on every face is a link to an id /notation/ has, one destination per link name", async () => {
     const notation = await exportMarkup(await NotationPage());
-    const ids = new Set([...notation.matchAll(/\sid="([^"]+)"/g)].map((m) => unescape(m[1] ?? "")));
+    const ids = new Set(
+      [...notation.matchAll(/\sid="([^"]+)"/g)].map((m) => decodeEntities(m[1] ?? "")),
+    );
     let links = 0;
     const targets = new Set<string>();
     const wrong: string[] = [];
@@ -47,10 +49,10 @@ describe("a printed display's term chips without JavaScript", () => {
         const names = new Map<string, Set<string>>();
         for (const m of html.matchAll(CHIP_LINK)) {
           links++;
-          const href = unescape(m[1] ?? "");
+          const href = decodeEntities(m[1] ?? "");
           const label = /aria-label="([^"]*)"/.exec(m[2] ?? "")?.[1];
           const name = /<span class="equation-legend-name">([^<]*)<\/span>/.exec(m[3] ?? "")?.[1];
-          const accessible = unescape(label ?? name ?? "");
+          const accessible = decodeEntities(label ?? name ?? "");
           if (!href.startsWith("/notation/#"))
             wrong.push(`${paper}/${face}: ${href} is not /notation/`);
           const id = href.slice("/notation/#".length);
