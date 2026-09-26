@@ -2666,7 +2666,11 @@ html:is(
 
 /* Where the page has a margin, the number stands in it, level with its line, as print sets it: on
    the German and English faces from 75em. The right is the plate's, so the left margin. The
-   parallel face keeps it inline: its English column has the German beside it, not a margin. */
+   parallel face keeps it inline: its English column has the German beside it, not a margin.
+   Out of the flow, the number starts at the top of its line, so its baseline stood 13px above the
+   text's at 1440 on all 92 marks of the German and English faces. 1em lowers it onto the text's
+   baseline: within 0.25px in Chromium and WebKit. (1lh plus 0.3em did as well, but 1lh would grow
+   the line-height vocabulary the type-scale ratchet holds.) */
 @media (min-width: 75em) {
   .face-english .translation-paragraph {
     position: relative;
@@ -2674,6 +2678,7 @@ html:is(
   :is(.face-german .source-block-wrapper, .face-english .translation-paragraph) .page-turn-number {
     position: absolute;
     left: -3rem;
+    margin-top: 1em;
     line-height: 1.5;
     vertical-align: baseline;
   }
