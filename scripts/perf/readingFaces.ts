@@ -92,6 +92,18 @@ export type ReadingFaceVerdict = Readonly<{
   measured: number;
 }>;
 
+/**
+ * How far a recorded face may measure above its recorded size before it fails. Two builds of the
+ * same content differ by a few hundred bytes gzipped: chunk hashes and the flight data's chunk paths
+ * change whenever any source file does. On 2026-09-26 relativity's English face measured 315,661
+ * bytes on a build of f104a9a8 against the 315,487 recorded from 54c8cbf4, and the only change
+ * between them was a renamed helper in a test file, which ships nothing. At an allowance of zero,
+ * that noise refused the deploy of cd1a54af. 2,048 bytes admits it, and still fails the 10 kB plant
+ * below, and any real growth, which is how a face gets heavier: a section of text, or a set of
+ * displays.
+ */
+export const RECORDED_FACE_ALLOWANCE_BYTES = 2048;
+
 export function readingFaceVerdict(
   measured: readonly MeasuredFace[],
   records: readonly ReadingFaceRecord[],
@@ -103,11 +115,12 @@ export function readingFaceVerdict(
   for (const face of measured) {
     const record = recorded.get(face.name);
     if (record) {
-      if (face.gzipBytes > record.gzipBytes) failing.push(face);
-      if (face.gzipBytes > record.gzipBytes)
+      if (face.gzipBytes > record.gzipBytes + RECORDED_FACE_ALLOWANCE_BYTES) {
+        failing.push(face);
         failures.push(
-          `${face.name}: ${face.gzipBytes} bytes gzipped, grown past its recorded ${record.gzipBytes} (${READING_FACE_RECORDS_PATH})`,
+          `${face.name}: ${face.gzipBytes} bytes gzipped, grown past its recorded ${record.gzipBytes} by more than ${RECORDED_FACE_ALLOWANCE_BYTES} (${READING_FACE_RECORDS_PATH})`,
         );
+      }
     } else if (face.gzipBytes > budgetBytes) {
       failing.push(face);
       failures.push(

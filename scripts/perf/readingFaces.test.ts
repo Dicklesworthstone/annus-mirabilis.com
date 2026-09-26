@@ -13,6 +13,7 @@ import {
   loadReadingFaceRecords,
   type MeasuredFace,
   measureBuiltReadingFaces,
+  RECORDED_FACE_ALLOWANCE_BYTES,
   readingFaceVerdict,
   withoutBuildId,
 } from "./readingFaces.ts";
@@ -89,9 +90,24 @@ describe("the verdict", () => {
     const v = readingFaceVerdict([face(GERMAN, 315_000)], records);
     expect(v.ok).toBe(false);
     expect(v.failures).toEqual([
-      `${GERMAN}: 315000 bytes gzipped, grown past its recorded 305000 (perf/readingFaceRecords.json)`,
+      `${GERMAN}: 315000 bytes gzipped, grown past its recorded 305000 by more than ${RECORDED_FACE_ALLOWANCE_BYTES} (perf/readingFaceRecords.json)`,
     ]);
     expect(v.worstFailure?.name).toBe(GERMAN);
+  });
+
+  test("a recorded face passes within the allowance for build noise, and fails one byte beyond it", () => {
+    // The noise that refused cd1a54af's deploy: relativity's English face measured 174 bytes over
+    // its record on a build whose only change was a test file.
+    expect(readingFaceVerdict([face(GERMAN, 305_000 + 174)], records).ok).toBe(true);
+    expect(
+      readingFaceVerdict([face(GERMAN, 305_000 + RECORDED_FACE_ALLOWANCE_BYTES)], records).ok,
+    ).toBe(true);
+    const over = readingFaceVerdict(
+      [face(GERMAN, 305_000 + RECORDED_FACE_ALLOWANCE_BYTES + 1)],
+      records,
+    );
+    expect(over.ok).toBe(false);
+    expect(over.worstFailure?.name).toBe(GERMAN);
   });
 
   test("a face over the budget that is not recorded goes red; a record never covers another face", () => {
