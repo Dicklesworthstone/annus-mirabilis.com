@@ -140,6 +140,20 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     admittedStages: ["stage-05", "stage-06"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/sim_annalen-der-physik_1901_4_3",
+        read: "page-image",
+        matched:
+          "The article's text was not read: no open scan of the Sitzungsberichte's Band 76, II. Abtheilung, was found. archive.org holds Band 76's I. Abtheilung (sitzungsberichte76kais) and III. Abtheilung (sitzungsbericht295klasgoog, \"LXXVI. Band. III. Abtheilung. Jahrgang 1877\", Wien 1878), and BHL's volume 76 (item 35385) is the I. Abtheilung. What was read is a period citation: Planck's 1901 paper, Ann. Phys. (4) 4, p. 556 (leaf 133), footnote to his S_N = k log W + const: \"L. Boltzmann, Sitzungsber. d. k. Akad. d. Wissensch. zu Wien (II) 76. p. 428. 1877\", which agrees with the card's volume, part and year and points to p. 428 within the article.",
+        differs: [
+          "Not checked against the article: the proposition and the full printed title stand as they were, unverified, until someone with access to Band 76, II. Abtheilung reads pp. 373-435.",
+        ],
+      },
+    ],
   },
   {
     id: "wien-1896-radiation-law",

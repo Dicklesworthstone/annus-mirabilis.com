@@ -22,7 +22,15 @@ const CHECKED = [
   "lenard-1902-photoelectric",
   "hertz-1887-ultraviolet-spark",
   "boltzmann-1896-gas-volume-entropy",
+  "boltzmann-1877-entropy-probability",
 ];
+
+/**
+ * Cards whose source could not be read: their check records only a period citation, and says so
+ * in its first words. Named by identity so that such a card is never mistaken for a checked one;
+ * a card leaves this list when someone reads the article and records it.
+ */
+const NOT_READ = ["boltzmann-1877-entropy-probability"];
 
 describe("the light-quanta shelf's source checks", () => {
   test("every check on every card is well formed", () => {
@@ -35,6 +43,15 @@ describe("the light-quanta shelf's source checks", () => {
     // Not vacuous: at least the named cards below carry checks.
     expect(withChecks.length).toBeGreaterThan(0);
     for (const card of withChecks) expect([card.id, uncheckedSources(card)]).toEqual([card.id, []]);
+  });
+
+  test("a card whose source was not read says so in its check", () => {
+    for (const id of NOT_READ) {
+      const checks = CARDS.find((c) => c.id === id)?.sourceChecks ?? [];
+      expect(checks.length).toBeGreaterThan(0);
+      for (const check of checks)
+        expect(check.matched.startsWith("The article's text was not read")).toBe(true);
+    }
   });
 
   test("each card named as checked is on the shelf and carries its checks", () => {
