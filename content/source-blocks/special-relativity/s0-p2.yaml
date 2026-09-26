@@ -33,7 +33,15 @@ inlines:
     text: "schen Theorie für ruhende Körper."
   - kind: "space"
   - kind: "text"
-    text: "Die Einführung eines „Lichtäthers“ wird sich insofern als überflüssig erweisen, als nach der zu entwickelnden Auffassung weder ein mit besonderen Eigenschaften ausgestatteter „absolut ruhender Raum“ eingeführt, noch einem Punkte des leeren Raumes, in welchem elektromagnetische Prozesse stattfinden, ein Geschwindigkeitsvektor zugeordnet wird."
+    text: "Die Einführung eines „"
+  - kind: "term"
+    text: "Lichtäthers"
+    termId: "term-lichtaether"
+    definition: "Light ether: the medium in which, on the theories of the time, light waves travel, and whose state of rest would fix a rest in space. Einstein does not say that it does not exist; he says that introducing it will prove superfluous, since his theory assigns no absolutely resting space and no velocity to any point of empty space."
+    lang: "de"
+    definitionLang: "en"
+  - kind: "text"
+    text: "“ wird sich insofern als überflüssig erweisen, als nach der zu entwickelnden Auffassung weder ein mit besonderen Eigenschaften ausgestatteter „absolut ruhender Raum“ eingeführt, noch einem Punkte des leeren Raumes, in welchem elektromagnetische Prozesse stattfinden, ein Geschwindigkeitsvektor zugeordnet wird."
 sentenceSpans:
   - id: "s0-p2-s1"
     span:

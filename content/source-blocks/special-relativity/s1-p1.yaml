@@ -21,7 +21,15 @@ inlines:
     text: "schen mechanischen Gleichungen gelten."
   - kind: "space"
   - kind: "text"
-    text: "Wir nennen dies Koordinatensystem zur sprachlichen Unterscheidung von später einzuführenden Koordinatensystemen und zur Präzisierung der Vorstellung das „ruhende System“."
+    text: "Wir nennen dies Koordinatensystem zur sprachlichen Unterscheidung von später einzuführenden Koordinatensystemen und zur Präzisierung der Vorstellung das „"
+  - kind: "term"
+    text: "ruhende System"
+    termId: "term-ruhendes-system"
+    definition: "The stationary system: a coordinate system in which Newton's equations of mechanics hold, called stationary only to tell it apart from the systems introduced later and to fix ideas. It is not the rest frame of an ether or an absolute rest; the principle of relativity of the next section makes any system in uniform translation relative to it just as good."
+    lang: "de"
+    definitionLang: "en"
+  - kind: "text"
+    text: "“."
 sentenceSpans:
   - id: "s1-p1-s1"
     span:

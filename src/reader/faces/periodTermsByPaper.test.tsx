@@ -8,9 +8,10 @@
  *   occurrence with a 60-character definition is refused as too short;
  * - wrapping the word left the German unchanged: the block's inlines still read as its
  *   diplomaticText, and still hash to the digest its sentence spans recorded before the wrapping;
- * - the parallel face prints the word as text, which readers without JavaScript keep. The German
- *   face of these three papers still renders the ledger draft, which has no inlines; it will show
- *   the words once it renders from the source blocks (dispatch 255, step 0), and joins this list.
+ * - the parallel face prints the word as text, which readers without JavaScript keep, and so does
+ *   the German face where it renders from the source blocks (relativity's). The German faces of
+ *   light quanta and Brownian motion still render the ledger draft, which has no inlines; they join
+ *   GERMAN_FACE_FROM_BLOCKS once they render from the blocks (dispatch 255, step 0).
  */
 import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
@@ -42,7 +43,20 @@ const PAPERS: Record<string, readonly string[]> = {
     "s3-p6 Reibungskoeffizienten",
     "s4-p4 Häufigkeitsgesetz",
   ],
+  "special-relativity": [
+    "s0-p1 elektromotorische Kraft",
+    "s0-p2 Lichtäthers",
+    "s0-p3 starren Körpers",
+    "s1-p1 ruhende System",
+    "s1-p6 Beobachter",
+    "s1-p7 synchron",
+    "s10-p7 ponderomotorischen Kraft",
+    "s8-p1 Lichtkomplexes",
+  ],
 };
+
+/** Papers whose German face already renders from the source blocks, so it carries the notes. */
+const GERMAN_FACE_FROM_BLOCKS = new Set(["special-relativity"]);
 
 type Block = {
   id: string;
@@ -119,8 +133,10 @@ for (const [paper, named] of Object.entries(PAPERS)) {
       }
     });
 
-    test("the parallel face prints each word as text for no-script readers", async () => {
-      for (const face of ["parallel"]) {
+    test("the faces that render the blocks print each word as text for no-script readers", async () => {
+      for (const face of GERMAN_FACE_FROM_BLOCKS.has(paper)
+        ? ["german", "parallel"]
+        : ["parallel"]) {
         const html = renderToStaticMarkup(await PaperPage({ paperId: paper, face } as never));
         for (const t of terms) {
           expect({

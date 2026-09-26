@@ -30,7 +30,15 @@ inlines:
     text: "Bewegt sich nämlich der Magnet und ruht der Leiter, so entsteht in der Umgebung des Magneten ein elektrisches Feld von gewissem Energiewerte, welches an den Orten, wo sich Teile des Leiters befinden, einen Strom erzeugt."
   - kind: "space"
   - kind: "text"
-    text: "Ruht aber der Magnet und bewegt sich der Leiter, so entsteht in der Umgebung des Magneten kein elektrisches Feld, dagegen im Leiter eine elektromotorische Kraft, welcher an sich keine Energie entspricht, die aber — Gleichheit der Relativbewegung bei den beiden ins Auge gefaßten Fällen vorausgesetzt — zu elektrischen Strömen von derselben Größe und demselben Verlaufe Veranlassung gibt, wie im ersten Falle die elektrischen Kräfte."
+    text: "Ruht aber der Magnet und bewegt sich der Leiter, so entsteht in der Umgebung des Magneten kein elektrisches Feld, dagegen im Leiter eine "
+  - kind: "term"
+    text: "elektromotorische Kraft"
+    termId: "term-elektromotorische-kraft"
+    definition: "Electromotive force: the force per unit charge that drives a current in a conductor, here the one acting in a conductor that moves past a magnet at rest. On the view then usual no electric field exists there, only this force, to which no energy corresponds in itself; the paper's point is that it gives the same currents as the electric field does when the magnet moves instead."
+    lang: "de"
+    definitionLang: "en"
+  - kind: "text"
+    text: ", welcher an sich keine Energie entspricht, die aber — Gleichheit der Relativbewegung bei den beiden ins Auge gefaßten Fällen vorausgesetzt — zu elektrischen Strömen von derselben Größe und demselben Verlaufe Veranlassung gibt, wie im ersten Falle die elektrischen Kräfte."
 sentenceSpans:
   - id: "s0-p1-s1"
     span:
