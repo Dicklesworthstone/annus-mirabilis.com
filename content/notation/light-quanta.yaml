@@ -155,7 +155,7 @@ entries:
 
   - id: lq.beta.wienConstant
     paper: light-quanta
-    scope: ["lq-s2", "lq-s6", "lq-s7", "lq-s8", "lq-s9"]
+    scope: ["lq-s2", "lq-s4", "lq-s6", "lq-s7", "lq-s8", "lq-s9"]
     glyph:
       unicode: "β"
       latex: "\\beta"
@@ -178,6 +178,8 @@ entries:
       firstUseBySection:
         - sectionId: lq-s2
           anchor: lq-s2-p2
+        - sectionId: lq-s4
+          anchor: lq-s4-p1
         - sectionId: lq-s6
           anchor: lq-s6-p1
         - sectionId: lq-s7
@@ -192,7 +194,7 @@ entries:
       anchor: lq-s2-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 136 (public/figures/plates/pages/ap-17-132/136-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 134 does not carry β. β is first printed on page 136 (§2), in the exponent of Planck's formula and as β = 4,866 · 10⁻¹¹. §7 prints it on page 144, '(R/N) β ν' and the Stokes inequality below it (checked 2026-09-26 by agent:NavyKite). An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 136 (public/figures/plates/pages/ap-17-132/136-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 134 does not carry β. β is first printed on page 136 (§2), in the exponent of Planck's formula and as β = 4,866 · 10⁻¹¹. §4 prints it on page 139 in Wien's law ρ = αν³e^(-βν/T), which §4's first paragraph introduces, and in the displays that follow; §7 prints it on page 144, '(R/N) β ν' and the Stokes inequality below it (both checked 2026-09-26 by agent:NavyKite). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
