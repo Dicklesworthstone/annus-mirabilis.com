@@ -620,3 +620,11 @@ html[data-lens="modern"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[
   margin-top: 0.5rem;
   padding-top: 1.25rem;
 }
+
+/* A laboratory's title may use the page's full width (dispatch 268). At .page-intro's 920px, four
+   titles set one authored phrase on two lines, making the title three lines and 160px tall at 1440
+   (sr-05, bm-08, lq-04 and lq-06). The type size is unchanged, and the lead and the other paragraphs
+   keep their 64ch measure (globals.css, .page-intro > p), so only the title gets the width. */
+.lab-route .page-intro {
+  max-width: none;
+}
