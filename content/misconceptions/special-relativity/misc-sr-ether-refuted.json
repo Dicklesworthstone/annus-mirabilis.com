@@ -15,7 +15,7 @@
     "reason": "A matter of the paper's text: the introduction, p. 892, and § 9, pp. 916–917."
   },
   "anchors": ["s0-p2", "s9-p1", "s9-p2"],
-  "resultIds": [],
+  "resultIds": ["sr-convection-current"],
   "sources": ["A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plates pp. 892 and 916–917"],
   "intervention": {
     "defaultsReviewed": {

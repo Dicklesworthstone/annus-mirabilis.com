@@ -537,3 +537,51 @@ cards:
       evidentialRole: "A derivation, not evidence"
       historicalStatus: "The first approximation was Maxwell's pressure on a mirror at rest; the exact formula for a moving mirror is derived in this paper"
     selectionReason: "It is the problem § 8 sets itself, and it is solved by the method the section's last paragraph offers for every problem in the optics of moving bodies: transform the light to a system in which the body is at rest."
+
+  - id: sr-convection-current
+    title: "The Maxwell-Hertz equations with convection current keep their form"
+    section: s9
+    arguments: [arg-sr-charge-current]
+    printed:
+      - anchor: s9-p2
+        sentences: [1]
+      - anchor: eq-s9-d3
+      - anchor: eq-s9-d4
+      - anchor: s9-p2
+        sentences: [2]
+      - anchor: s9-p3
+        sentences: [1]
+    equations: [eq-model-sr-charge-density, eq-model-sr-current-density]
+    oneSentence: "Carried into the moving system by the transformations of § 3 and § 6, the Maxwell-Hertz equations with convection current, which § 9 states for K, keep their form, with the charge density \\(\\varrho'=\\beta(1-\\frac{v u_x}{V^2})\\varrho\\) and the velocity of the electricity transformed by the addition theorem of § 5; so the electrodynamic basis of Lorentz's theory of moving bodies conforms to the principle of relativity, and a body whose charge is constant in a system moving with it has a constant charge in K as well."
+    decoder:
+      - symbol: "\\(\\varrho\\), \\(\\varrho'\\)"
+        meaning: "\\(4\\pi\\) times the density of electricity, as § 9 defines it, in K and in k."
+      - symbol: "\\(u_x, u_y, u_z\\) and \\(u_\\xi, u_\\eta, u_\\zeta\\)"
+        meaning: "The velocity of the electricity in K and in k. § 9 notes that the second is the first transformed by the addition theorem of § 5, so it is the velocity measured in k."
+      - symbol: "\\(\\beta\\)"
+        meaning: "\\(1/\\sqrt{1-(v/V)^2}\\), the factor written \\(\\gamma\\) today, as in § 3."
+      - symbol: "\\(u\\varrho\\)"
+        meaning: "The convection current: electricity carried along by moving charges, in the equations beside the rate of change of the electric force. In SI the charge density transforms as \\(\\rho'=\\gamma(\\rho-vJ_x/c^2)\\), the modern layer's form."
+      - symbol: "\\(\\frac{\\partial L'}{\\partial\\tau}\\), \\(\\frac{\\partial M'}{\\partial\\tau}\\), \\(\\frac{\\partial N'}{\\partial\\tau}\\), as printed"
+        meaning: "The three magnetic equations of k are printed without the factor \\(1/V\\) before the time derivative, which the same equations in K carry, as do those of § 6. They contain no convection term and transform as in § 6, so the factor belongs there. Every face keeps the printed reading."
+    qualifications:
+      - kind: premise
+        text: "The electric masses are bound unchangeably to small rigid bodies (ions, electrons); on that supposition the equations are, as § 9 says, the basis of Lorentz's electrodynamics and optics of moving bodies."
+      - kind: inference
+        text: "What § 9 shows is that the transformed equations have the same form, with charge density and velocity transformed as stated, and it draws from them the constancy of a body's charge. It does not write a four-current or an invariant, and it does not discuss the continuity equation."
+      - kind: comparison
+        text: "Joining charge and current density into one four-vector, with \\((c\\rho)^2-|J|^2\\) unchanged, is the later language of Poincaré and Minkowski. That a wire carrying a current appears charged to a moving observer is a modern consequence the paper does not discuss."
+    probes:
+      - instrument: sr-12
+        question: "Charge moving at half the speed of light, seen from a system moving at 0.6 of it: what charge density and current does that system measure?"
+        preset: sr-12-convection-0.5c
+      - instrument: sr-12
+        question: "A uniformly charged sphere seen from a system moving at 0.6 of the speed of light: does its charge density change, and does its total charge?"
+        preset: sr-12-moving-sphere-0.6c
+    usedLater: []
+    meanings:
+      argumentStatus: "A consequence of the transformations of §§ 3, 5 and 6 applied to the Maxwell-Hertz equations with convection current"
+      modelStatus: "Exact within Lorentz's electrodynamics of charges bound to small rigid bodies"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "The equations are the basis of Lorentz's theory; that they conform to the principle of relativity under these kinematics is shown in this paper, and the four-current is the later language of Poincaré and Minkowski"
+    selectionReason: "It is § 9's conclusion in the paper's own words: on its kinematic principles, the electrodynamic basis of Lorentz's theory of the electrodynamics of moving bodies conforms to the principle of relativity."
