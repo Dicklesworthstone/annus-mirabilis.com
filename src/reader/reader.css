@@ -987,12 +987,13 @@ html:is(
    PageTurnMark.tsx). A thin rule stands before the first word printed on the new page, and the page
    number beside it, a link to that page of the facsimile. The rule and the number are generated
    content, so a copy, a find in page or a search reads the words alone. In the English text the
-   mark opens the sentence whose German holds the turn. It sits at the line's size and raises no
-   line: the number is set like a superscript with no line height of its own. */
+   mark opens the sentence whose German holds the turn. It raises no line: the rule is set in the
+   line's own face (in the interface sans, whose ascent and descent are not the serif's, it made
+   every marked line 3 to 4px taller), and the number like a superscript with no line height of
+   its own. */
 .page-turn-rule::before {
   content: "|";
   padding-inline: 0.05em 0.15em;
-  font-family: var(--font-sans);
   color: var(--muted);
 }
 .page-turn-number {
