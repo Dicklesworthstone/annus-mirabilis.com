@@ -12,18 +12,26 @@
  * - a rename's MODERN glyph, where it is one letter, with the rename's own scope and binding: c where
  *   the concordance renames V to c, and only in the sections where it does;
  * - each modern-only symbol the concordance lists (modernOnlySymbols), in its own scope;
- * - each one-letter glyph of the paper's teaching registry, paper-wide: the letters the model
- *   records draw their formulas with, which the explanations write too.
+ * - each one-letter glyph of the paper's teaching registry: the letters the model records draw
+ *   their formulas with, which the explanations write too. A registry letter holds in every section
+ *   EXCEPT those where a printed entry already reads that glyph: the printed concordance is the
+ *   authority on its own letters (NavyKite and GreenOx, 41223 and 41227). Brownian prints x as a
+ *   coordinate label for the whole paper, so the registry's x (positionCoordinate1d) is dropped
+ *   there, where it used to make every ⟨x²⟩ in four labs ambiguous.
  *
- * Nothing is taken on trust. Where two readings of one glyph disagree at the same level, the resolver
- * refuses the formula as ambiguous, as it does between printed entries: light quanta's printed L is
- * the speed of light in §§ 1 and 2, and its registry's L the absorbed light energy.
+ * A modern RENAME reading is NOT outranked. It comes from the concordance's own entry for its section,
+ * and where it disagrees with a printed reading there the resolver refuses the formula as ambiguous:
+ * relativity's printed c is a direction cosine in § 7, and its modern c (from V) the speed of light.
+ * An explanation writing c there could mean either, and a wrong colour is worse than a refusal.
  */
+
+import { normalizeSectionId } from "../../content/notation/resolve.ts";
 import type {
   ConcordanceEntry,
   Glyph,
   PaperConcordance,
 } from "../../content/schemas/concordance.ts";
+import { glyphSignature } from "../latex/printedAtoms.ts";
 import { teachingProfile } from "../teachingProfiles.ts";
 
 /**
@@ -32,6 +40,33 @@ import { teachingProfile } from "../teachingProfiles.ts";
  */
 const LETTER =
   /^(?:\\math[a-z]+\{[A-Za-z]\}|\\[A-Za-z]+|[A-Za-z])'*(?:_(?:\{[A-Za-z0-9]+\}|\{\\mathrm\{[A-Za-z]+\}\}|\\[A-Za-z]+|[A-Za-z0-9]))?'*$/;
+
+/** Every section a paper can have, named one by one so a registry letter can leave some out. */
+const SECTIONS: readonly string[] = Array.from({ length: 13 }, (_, i) => `s${i}`);
+
+function signatureOf(latex: string): string | undefined {
+  try {
+    return glyphSignature(latex);
+  } catch {
+    // An expression (L/V^2) says nothing about one atom.
+    return undefined;
+  }
+}
+
+/**
+ * Where a registry letter may be read: everywhere, less the sections a printed entry of the same
+ * glyph reads. Undefined where a printed entry reads it paper-wide.
+ */
+function registryScope(
+  latex: string,
+  printed: readonly ConcordanceEntry[],
+): readonly string[] | undefined {
+  const signature = signatureOf(latex);
+  const same = printed.filter((e) => signature && signatureOf(e.glyph.latex) === signature);
+  if (same.some((e) => e.scope.includes("all"))) return undefined;
+  const covered = new Set(same.flatMap((e) => e.scope.map(normalizeSectionId)));
+  return covered.size === 0 ? ["all"] : SECTIONS.filter((s) => !covered.has(s));
+}
 
 function latexOf(glyph: Glyph | string | undefined): string | undefined {
   if (glyph === undefined) return undefined;
@@ -101,11 +136,13 @@ export function modernInlineEntries(
   }
   for (const [quantityId, quantity] of Object.entries(teachingProfile(paper)?.quantities ?? {})) {
     if (!LETTER.test(quantity.glyph)) continue;
+    const scope = registryScope(quantity.glyph, concordance.entries);
+    if (!scope) continue;
     out.push(
       reading(
         paper,
         `registry.${quantityId}`,
-        ["all"],
+        scope,
         quantity.glyph,
         { quantityId },
         quantity.name,

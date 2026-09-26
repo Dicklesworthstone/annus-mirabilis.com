@@ -61,10 +61,18 @@ describe("the modern scope for inline formulas", () => {
     });
   });
 
-  test("a section's own reading outranks the paper-wide registry, which fills in elsewhere", () => {
+  test("a printed reading outranks the registry in its sections, and the registry fills in elsewhere", () => {
     // Light quanta prints L for the speed of light in §§ 1-2; the registry's L is the absorbed energy.
     expect(resolve("light-quanta", "L", "s2").terms).toEqual(["L speedOfLight"]);
     expect(resolve("light-quanta", "L", "s6").terms).toEqual(["L absorbedLightEnergy"]);
+  });
+
+  test("a glyph the paper prints paper-wide keeps its printed reading: Brownian's x is a coordinate label", () => {
+    // Before, the registry's x (positionCoordinate1d) met it at the same level and ⟨x²⟩ was refused.
+    expect(resolve("brownian-motion", "\\langle x^2\\rangle", "s4")).toEqual({
+      terms: [],
+      problems: [],
+    });
   });
 
   test("a modern reading holds only in its rename's scope, and a same-section clash is refused", () => {
