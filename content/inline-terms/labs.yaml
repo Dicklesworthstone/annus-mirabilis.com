@@ -132,11 +132,196 @@ readings:
     glyph: "\\mu"
     quantityId: mobility
     reason: "The lab writes D = (R T / N) · 1 / (6 π k P) = μ k_B T, so μ = 1 / (6 π k P), the particle's mobility, the velocity a unit force gives it; the paper's μ is the particle's mass, which this is not."
-
-unread:
+  - lab: bm-03
+    glyph: "F_0"
+    quantityId: freeEnergy
+    reason: "In F = −N_p k_B T ln V − k_B T ln J + F_0, F_0 is the part of the free energy that depends on neither V nor J, a free energy as F is."
+  - lab: bm-03
+    glyph: "p_{\\text{locked}}"
+    quantityId: osmoticPressure
+    reason: "The lab writes p_locked = k_B T / V for the osmotic pressure of particles locked into one cluster, the pressure of one independent unit."
+  - lab: bm-04
+    glyph: "J_{\\text{net}}"
+    quantityId: particleFlux
+    reason: "J_net is the net particle flux, the Stokes drift flux ν K / (6 π k P) less the diffusion counter-flux D ∂ν/∂x, which the lab sets to zero at equilibrium: the total flux of the paper's equation (2)."
+  - lab: bm-05
+    glyph: "x_n"
+    quantityId: displacement1d
+    reason: "The lab writes a walker's position after n steps as the sum of its displacements, x_n = Σ Δ_j, from a start at zero: the cumulative displacement."
+  - lab: bm-05
+    glyph: "\\Delta_j"
+    quantityId: displacementIncrement
+    reason: "Δ_j is the j-th step of the walk, the displacement in one interval, § 4's Δ for a single step."
+  - lab: bm-06
+    glyph: "r"
+    quantityId: stabilityRatio
+    reason: "The lab writes r = D Δt / (Δx)² ≤ 1/2 for the explicit scheme's diffusion number, the stability ratio of the FTCS grid."
+  - lab: bm-08
+    glyph: "Y_i"
+    quantityId: measuredPosition1d
+    reason: "Y_i is the position the camera records for frame i: the latent position averaged over the exposure, plus stage drift and localization error."
+  - lab: bm-08
+    glyph: "X"
+    quantityId: latentPosition1d
+    reason: "X(s) is the particle's latent position at time s, which the exposure averages; the lab calls it the latent position."
+  - lab: bm-08
+    glyph: "T_e"
+    quantityId: exposureTime
+    reason: "T_e is the camera's exposure duration, beginning at each frame time."
+  - lab: bm-08
+    glyph: "\\sigma"
+    quantityId: localizationErrorStd
+    reason: "σ is the standard deviation of the Gaussian localization error the camera model adds, ε_i ∼ N(0, σ²)."
+  - lab: bm-08
+    glyph: "V"
+    quantityId: displacementVariance1d
+    reason: "In D = (V − 2σ²) / (2(Δt − T_e/3)), V is the per-coordinate variance of the independent pair displacements, a displacement variance."
+  - lab: bm-08
+    glyph: "\\gamma_0"
+    quantityId: displacementVariance1d
+    reason: "γ_0 = 2D(Δt − T_e/3) + 2σ² is the per-coordinate variance of the drift-subtracted increments, as the lab says."
+  - lab: lq-01
+    glyph: "P"
+    quantityId: sourcePower
+    reason: "P is the power of an isotropic point source, spread over spherical wavefronts; the total a source gives out."
+  - lab: lq-01
+    glyph: "\\delta"
+    quantityId: wavePhase
+    reason: "In ⟨I⟩ = (κ/2)[a_1² + a_2² + 2 a_1 a_2 cos δ], δ is the phase difference between the two waves (δ = 0 in phase, δ = π half a wave), a phase, not § 3's sign of a variation."
+  - lab: lq-01
+    glyph: "a_1"
+    quantityId: waveAmplitude
+    reason: "a_1 is the amplitude of the first wave at the point where the two superpose."
+  - lab: lq-01
+    glyph: "a_2"
+    quantityId: waveAmplitude
+    reason: "a_2 is the amplitude of the second wave at that point."
+  - lab: lq-02
+    glyph: "\\nu_c"
+    quantityId: frequency
+    reason: "ν_c is the cutoff frequency up to which the Rayleigh–Jeans density is integrated, a frequency as V_0 is a volume."
+  - lab: lq-08
+    glyph: "\\dot{N}"
+    quantityId: quantumRate
+    reason: "The lab writes Ṅ = P_light / (h ν) for the number of quanta more intense light brings each second, the incident quantum rate."
+  - lab: lq-08
+    glyph: "P_{\\text{light}}"
+    quantityId: incidentPower
+    reason: "P_light is the power of the light falling on the surface, the incident radiant power."
+  - lab: lq-09
+    glyph: "a"
+    quantityId: quantumEfficiency
+    reason: "The lab writes N_ion = a L / (h ν) with a ∈ [0, 1], the fraction of absorbed quanta that ionize a molecule: a quantum efficiency."
   - lab: lq-09
     glyph: "V"
-    reason: "The lab writes V ≈ 6,6 Volts for the potential difference that the quantum energy per gram-equivalent, Rβν, corresponds to once divided by E. The modern scope reads V as a volume, and no quantity coloured in light quanta is that potential."
+    quantityId: acceleratingPotential
+    reason: "The lab writes V ≈ 6,6 Volts for the potential difference whose work on the gram-equivalent charge equals the quantum energy per gram-equivalent: the potential through which a charge would have to be accelerated to carry that energy."
+  - lab: me-01
+    glyph: "l"
+    quantityId: lightComplexEnergyStationary
+    reason: "The lab writes l for the energy of the emitted light in the stationary system, as the concordance reads the paper's l in § 0's paragraph 5 (me.l.lightComplexEnergyStationary)."
+  - lab: me-01
+    glyph: "l^*"
+    quantityId: lightComplexEnergyMoving
+    reason: "The lab writes l* for the same light's energy in the moving system, as the concordance reads the paper's l* there (me.lstar.lightComplexEnergyMoving)."
+  - lab: me-01
+    glyph: "K"
+    quantityId: kineticEnergy
+    reason: "In H − E = K + C, K is the body's kinetic energy relative to the moving system, as the concordance reads the paper's K (me.K.kineticEnergy)."
+  - lab: me-03
+    glyph: "m"
+    quantityId: invariantMassSystem
+    reason: "The lab writes m for a mass in the modern sense, the invariant mass: the body's in Δm = −L/c², a system's in m²c² = P^μ P_μ."
+  - lab: me-03
+    glyph: "m_{\\text{isolated}}"
+    quantityId: invariantMassSystem
+    reason: "m_isolated is the mass of the isolated system, body and radiation sealed together, which stays unchanged."
+  - lab: me-03
+    glyph: "m_{\\text{two pulses}}"
+    quantityId: invariantMassSystem
+    reason: "m_two pulses = L/c² is the invariant mass of two equal and opposite light pulses, as the lab says."
+  - lab: sr-01
+    glyph: "r_{AB}"
+    quantityId: lengthMeasuredStationary
+    reason: "r_AB is the moving rod's length measured in the stationary system, as sr-03 and the concordance read it in § 2."
+  - lab: sr-01
+    glyph: "u"
+    quantityId: frameSpeed
+    reason: "In r_AB / (c − u) and r_AB / (c + u), u is the moving rod's speed in the stationary frame, the paper's v in § 2."
+  - lab: sr-02
+    glyph: "\\mathcal{E}"
+    quantityId: electromotiveForceMagnetFrame
+    reason: "The lab's script E, equal to v B ℓ, is the electromotive force along the segment in the magnet's rest frame."
+  - lab: sr-02
+    glyph: "\\mathcal{E}'"
+    quantityId: electromotiveForceConductorFrame
+    reason: "The lab's primed script E, equal to γ v B ℓ, is the electromotive force along the same segment in the conductor's rest frame."
+  - lab: sr-02
+    glyph: "\\ell"
+    quantityId: lengthProper
+    reason: "ℓ is the segment's length, across the motion, so the lab notes it is unchanged in both frames: the conductor segment's own length."
+  - lab: sr-02
+    glyph: "\\mathbf{E}'_\\perp"
+    quantityId: electricFieldMoving
+    reason: "E'_⊥ = γ(v × B)_⊥ is the electric field the conductor's frame measures across the motion."
+  - lab: sr-02
+    glyph: "\\mathbf{v}"
+    quantityId: frameSpeed
+    reason: "v is the velocity of the conductor relative to the magnet, the boost along x."
+  - lab: sr-02
+    glyph: "\\mathbf{B}"
+    quantityId: magneticFieldStationary
+    reason: "B is the magnet's field in its rest frame."
+  - lab: sr-03
+    glyph: "s"
+    quantityId: spacetimeIntervalSquared
+    reason: "The lab writes the interval only squared, s² = Δx² + Δy² + Δz² − c²Δt², positive for a spacelike separation, the registry's sign convention."
+  - lab: sr-08
+    glyph: "E"
+    quantityId: electricFieldStationary
+    reason: "In the invariant E² − c² B², E is the electric field's magnitude, the same in both frames' combination."
+  - lab: sr-08
+    glyph: "\\mathbf{E}"
+    quantityId: electricFieldStationary
+    reason: "In E · B = 0, E is the electric field vector."
+  - lab: sr-08
+    glyph: "\\mathbf{B}"
+    quantityId: magneticFieldStationary
+    reason: "In E · B = 0, B is the magnetic field vector."
+  - lab: sr-11
+    glyph: "\\nu'''"
+    quantityId: waveFrequencyReflectedStationary
+    reason: "ν''' is the frequency of the light reflected from the moving mirror, as the stationary system measures it, § 7's ν'''."
+  - lab: sr-11
+    glyph: "c"
+    quantityId: speedOfLight
+    reason: "The lab writes c for the speed of light in u c A_m (1 − β); the paper's § 7 also prints c as a direction cosine, which the lab never writes."
+  - lab: sr-11
+    glyph: "P_{\\text{incident}}"
+    quantityId: incidentPower
+    reason: "P_incident is the radiant power the incident light delivers to the moving mirror."
+  - lab: sr-13
+    glyph: "R_e"
+    quantityId: radiusCurvatureElectric
+    reason: "R_e is the radius of curvature of the electron's path in the transverse electric field, § 10's R."
+  - lab: sr-13
+    glyph: "R_{e,\\text{newt}}"
+    quantityId: radiusCurvatureElectric
+    reason: "R_e,newt is the same radius computed with Newtonian mechanics, for comparison."
+  - lab: sr-13
+    glyph: "E"
+    quantityId: electricFieldStationary
+    reason: "In R_e = γ m v² / (|q| E), E is the transverse electric field that deflects the electron."
+  - lab: sr-13
+    glyph: "P"
+    quantityId: acceleratingPotential
+    reason: "The lab writes P = W / e ≈ 127,75 kV for the potential difference that accelerates the electron from rest to 0.6c."
+  - lab: sr-13
+    glyph: "q"
+    quantityId: electronCharge
+    reason: "In R_e = γ m v² / (|q| E), q is the electron's charge, as e is in P = W / e; the paper's q elsewhere is a Doppler factor, which the lab never writes."
+
+unread: []
 
 exceptions:
   - lab: sr-03
@@ -163,3 +348,18 @@ exceptions:
   - lab: lq-06
     glyph: "e"
     reason: "e is the base of the exponential in Wien's α ν³ e^(−βν/T), a number and no quantity; the modern scope's registry letter makes it the elementary charge."
+  - lab: bm-05
+    glyph: "j"
+    reason: "j counts the steps in the sum Σ_{j=1}^{n} Δ_j, an index and no quantity."
+  - lab: lq-04
+    glyph: "\\Delta"
+    reason: "Δ marks the change of the entropy in ΔS = k_B (E / h ν) ln(V / V_0), a sign of difference; the entropy after it is coloured."
+  - lab: me-03
+    glyph: "\\Delta"
+    reason: "Δ marks a change, of the body's mass in Δm = −L/c² and of the isolated system's energy and mass, a sign; the quantity after it is coloured."
+  - lab: bm-06
+    glyph: "\\Delta"
+    reason: "Δ marks the grid's steps in r = D Δt / (Δx)², a sign of difference; the paper's Δ, the displacement in one interval, is not written here."
+  - lab: bm-08
+    glyph: "\\Delta"
+    reason: "Δ marks the frame interval Δt, a sign of difference; the paper's Δ, the displacement in one interval, is not written here."

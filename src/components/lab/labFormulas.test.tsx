@@ -24,9 +24,11 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Window } from "happy-dom";
 import type { ReactElement } from "react";
+import { resolveInlineTerms } from "../../equations/printed/inlineTerms.ts";
 import {
   LAB_INLINES_PATH,
   LabInlineTermsError,
+  labContext,
   labFormula,
   labScope,
   loadLabInlineTerms,
@@ -215,12 +217,44 @@ describe("a lab's own letters, read against its page (content/inline-terms/labs.
     const wien = bindings("lq-06", String.raw`\alpha\nu^3 e^{-\beta\nu/T}`);
     expect(wien).toMatchObject({ "\\alpha": "wienConstantAlpha" });
     expect("e" in wien).toBe(false);
+    // sr-13's q is the electron's charge, not the paper's Doppler factor:
+    expect(bindings("sr-13", String.raw`R_e = \frac{\gamma m v^2}{|q| E}`)).toMatchObject({
+      q: "electronCharge",
+      E: "electricFieldStationary",
+    });
+    // bm-06's Δ marks a grid step, not the paper's displacement Δ:
+    const grid = bindings("bm-06", String.raw`r=\frac{D\,\Delta t}{(\Delta x)^2}\leq\frac12`);
+    expect(grid).toMatchObject({ r: "stabilityRatio" });
+    expect("\\Delta" in grid).toBe(false);
+    // lq-09's V is a potential difference in volts, not the modern scope's volume:
+    expect(bindings("lq-09", String.raw`V \approx 6{,}6\text{ Volts}`)).toEqual({
+      V: "acceleratingPotential",
+    });
   });
 
   test("an unread letter is refused and named, never coloured as the paper's reading", () => {
-    // lq-09's V is a potential difference in volts; the modern scope reads V as a volume, and no
-    // quantity coloured in light quanta is that potential.
-    expect(bindings("lq-09", String.raw`V \approx 6{,}6\text{ Volts}`)).toEqual({ refused: ["V"] });
+    // No lab withdraws a letter today (lq-09's V, the last, now reads as a potential), so the
+    // mechanism is held by a file that does: sr-05's β withdrawn is refused, and without the
+    // entry the same β reads as the paper's Lorentz factor.
+    const scope = { paper: "special-relativity", where: "test", anchor: "s4", section: "s4" };
+    const withdrawn = labContext("sr-05", "special-relativity", false, {
+      readings: [],
+      unread: [
+        { lab: "sr-05", glyph: "\\beta", reason: "A test entry withdrawing the paper's β." },
+      ],
+      exceptions: [],
+    });
+    expect(resolveInlineTerms("\\beta", scope, withdrawn).problems.map((p) => p.glyph)).toEqual([
+      "\\beta",
+    ]);
+    const kept = labContext("sr-05", "special-relativity", false, {
+      readings: [],
+      unread: [],
+      exceptions: [],
+    });
+    expect(resolveInlineTerms("\\beta", scope, kept).terms.map((t) => t.quantityId)).toEqual([
+      "lorentzFactor",
+    ]);
   });
 
   test("the paper's listed signs hold in its labs, so a differential leaves the formula coloured", () => {
@@ -272,9 +306,11 @@ describe("a lab's own letters, read against its page (content/inline-terms/labs.
               "",
           ),
         );
-      // The glyph as a whole name: not inside a longer command or word.
+      // The glyph as a whole name: not inside a longer command or word. A command (\ell) may
+      // follow a letter directly (v B\ell), so only a letter glyph needs a boundary before it.
       const escaped = entry.glyph.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&");
-      const atom = new RegExp(`(^|[^A-Za-z\\\\])${escaped}($|[^A-Za-z])`);
+      const before = entry.glyph.startsWith("\\") ? "(^|[^\\\\])" : "(^|[^A-Za-z\\\\])";
+      const atom = new RegExp(`${before}${escaped}($|[^A-Za-z])`);
       if (!written.get(entry.lab)?.some((latex) => atom.test(latex)))
         dead.push(`${entry.lab} ${entry.glyph}`);
     }
