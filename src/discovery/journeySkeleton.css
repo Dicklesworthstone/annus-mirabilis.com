@@ -96,3 +96,39 @@
 .source-jump > .eyebrow {
   margin: 0;
 }
+
+/* The ways in: the paper's route and the side routes to the same result. The section draws no box;
+   each door is the one container, with a rule on its leading edge, the paper's own in ink. */
+.journey-doors {
+  margin: 2.5rem 0;
+}
+.journey-doors > .eyebrow {
+  margin: 0 0 0.35rem;
+}
+.journey-doors > h3 {
+  margin: 0 0 0.35rem;
+}
+.journey-doors > .fine {
+  margin: 0 0 1.25rem;
+}
+.journey-door-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+  gap: 1.5rem;
+}
+.journey-door {
+  padding: 0.1rem 0 0.1rem 1rem;
+  border-left: 2px solid var(--rule);
+}
+.journey-door[data-door-type="front-door"] {
+  border-left-color: var(--ink);
+}
+.journey-door > .eyebrow {
+  margin: 0;
+}
+.journey-door > h4 {
+  margin: 0.3rem 0 0;
+}
+.journey-door > p {
+  margin: 0.4rem 0 0;
+}
