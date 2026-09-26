@@ -6,6 +6,7 @@ import { loadFirstUseTargets, resolveFirstUse } from "../src/app/notation/firstU
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
 import { loadConcordanceForPaper } from "../src/content/notation/loader.ts";
 import { getQuantity } from "../src/content/quantities/registry.ts";
+import { discoverInlineViews } from "../src/discovery/journeyFormulaList.ts";
 import { citedLessonTitles } from "../src/equations/citedLessonTitles.ts";
 import { buildMassEnergyElimination } from "../src/equations/derivations/massEnergyElimination.ts";
 import { buildMassEnergyLowSpeed } from "../src/equations/derivations/massEnergyLowSpeed.ts";
@@ -122,6 +123,7 @@ for (const e of explanationPapers)
 // faces' inline formulas, two quantities of one lab formula differ, and each lab's island has its
 // quantities' facts.
 const labViews = labInlineViews(labFormulaSites(process.cwd()));
+const discoverViews = discoverInlineViews();
 for (const l of Object.values(labViews.papers))
   console.log(
     JSON.stringify({
@@ -323,6 +325,8 @@ for (const paper of [...new Set(equations.map((e) => e.paper))].sort()) {
     ...Object.values(inlinePapers.find((p) => p.paper === paper)?.formulas ?? {}),
     ...(explanationPapers.find((e) => e.paper === paper)?.formulas ?? []),
     ...(labViews.papers[paper]?.formulas ?? []),
+    // The Discover pages' formulas (dispatch 276), read from the list the pages draw from.
+    ...discoverViews.filter((f) => f.paper === paper),
   ].filter((f) => f.terms.length > 0);
   const inlineViews = [
     ...new Map(

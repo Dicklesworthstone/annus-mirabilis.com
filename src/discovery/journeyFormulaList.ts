@@ -108,12 +108,18 @@ export const DISCOVER_FORMULAS: readonly DiscoverFormula[] = [
  */
 export function discoverInlineViews(): readonly Readonly<{
   paper: string;
-  terms: readonly Readonly<{ quantityId: string }>[];
+  /** Each bound atom: its quantity, and its glyph as printed, which the palette's legend draws. */
+  terms: readonly Readonly<{ quantityId: string; glyph: string }>[];
 }>[] {
   return DISCOVER_FORMULAS.flatMap(({ latex, scope }) => {
     const resolved = resolveJourneyFormula(latex, scope);
     return resolved.problems.length > 0
       ? []
-      : [{ paper: scope.paper, terms: resolved.terms.map((t) => ({ quantityId: t.quantityId })) }];
+      : [
+          {
+            paper: scope.paper,
+            terms: resolved.terms.map((t) => ({ quantityId: t.quantityId, glyph: t.glyph })),
+          },
+        ];
   });
 }
