@@ -34,10 +34,13 @@ const quotedWords = (markup: string) =>
     .replace(/\[\[[^\]]*\]\]/g, "")
     .replace(/[^\p{L}\p{N}]/gu, "");
 
-/** Letters and digits a rendered sentence shows as text, outside its formulas, marks and labels. */
+/**
+ * Letters and digits a rendered sentence shows as text, outside its formulas, marks and labels, and
+ * outside the editor's English note under a display that prints a misprint (dispatch 266).
+ */
 function renderedWords(el: Element): string {
   const skip =
-    ".katex, .inline-display, .equation-container, .printed-display-terms, .page-turn, sup, button, [aria-hidden='true'], .visually-hidden, .visually-hidden-focusable, .sr-only";
+    ".katex, .inline-display, .equation-container, .printed-display-terms, .page-turn, sup, button, [aria-hidden='true'], .visually-hidden, .visually-hidden-focusable, .sr-only, .display-misprint-note";
   let out = "";
   const walk = (node: Node) => {
     if (node.nodeType === 3) out += node.textContent ?? "";

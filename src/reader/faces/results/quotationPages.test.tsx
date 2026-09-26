@@ -31,8 +31,10 @@ const quotedWords = (markup: string) =>
     .replace(/\[\[[^\]]*\]\]/g, "")
     .replace(/[^\p{L}\p{N}]/gu, "");
 
+// Not the paper's words: formulas and their terms, controls and labels, and the editor's English
+// note under a display that prints a misprint (.display-misprint-note, dispatch 266).
 const SKIP =
-  ".katex, .inline-display, .equation-container, .printed-display-terms, .equation-legend, button, .block-locator, sup, [aria-hidden='true'], .visually-hidden, .visually-hidden-focusable, .sr-only";
+  ".katex, .inline-display, .equation-container, .printed-display-terms, .equation-legend, button, .block-locator, sup, [aria-hidden='true'], .visually-hidden, .visually-hidden-focusable, .sr-only, .display-misprint-note";
 
 /** A rendered block's letters, each with the printed page it stands on. */
 function printedLetters(block: Element): { letters: string; pages: number[] } | null {
