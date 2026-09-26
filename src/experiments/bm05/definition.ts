@@ -81,8 +81,22 @@ const c = (
   semanticKind: string,
   ownerId: string,
   statuses: OutputContract["statuses"] = ["value"],
+  admittedOwnerIds?: readonly string[],
 ): OutputContract =>
-  Object.freeze({ unit, semanticKind, ownerId, statuses: Object.freeze([...statuses]) });
+  Object.freeze({
+    unit,
+    semanticKind,
+    ownerId,
+    statuses: Object.freeze([...statuses]),
+    ...(admittedOwnerIds ? { admittedOwnerIds: Object.freeze([...admittedOwnerIds]) } : {}),
+  });
+/**
+ * FrankenSim's compiled philox_normals, when it draws a Gaussian walk's steps
+ * (am-frankensim-repin-and-bind-jvhg, dispatch 269). The outputs read straight from the draws
+ * (the recorded positions and traces, and both draw counts) admit it beside their host owner and
+ * name one producer between them (protocol/bm05.ts checks). Only a Gaussian walk draws normals.
+ */
+export const BM05_FRANKENSIM_DRAW_OWNER = "fs-wasm.philox_normals";
 const law = (unit: string, owner: string, statuses: OutputContract["statuses"] = ["value"]) =>
   c(unit, "declared-step-model", `diffusion.${owner}`, statuses);
 export const BM05_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.freeze({
@@ -112,9 +126,21 @@ export const BM05_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   walkerCount: c("1", "sample-count", "bm05.measure"),
   agreementBound: c("1", "shape-plus-sampling-bound", "bm05.measure", ["value", "not-applicable"]),
   withinBound: c("1", "sample-within-declared-bound", "bm05.measure", ["value", "not-applicable"]),
-  walkPositions: c("m", "synthetic-walk-endpoints", "diffusion.recordWalks"),
+  walkPositions: c(
+    "m",
+    "synthetic-walk-endpoints",
+    "diffusion.recordWalks",
+    ["value"],
+    [BM05_FRANKENSIM_DRAW_OWNER],
+  ),
   traceTimes: c("s", "sampled-trace-times", "bm05.measure"),
-  traceDisplacements: c("m", "sampled-walk-traces", "diffusion.recordWalks"),
+  traceDisplacements: c(
+    "m",
+    "sampled-walk-traces",
+    "diffusion.recordWalks",
+    ["value"],
+    [BM05_FRANKENSIM_DRAW_OWNER],
+  ),
   histogramEdges: c("m", "step-aligned-bin-edges", "bm05.measure"),
   histogramCounts: c("1", "all-walker-bin-counts", "diffusion.displacementHistogram"),
   histogramFrequencies: c("1", "all-walker-bin-proportions", "diffusion.displacementHistogram"),
@@ -143,9 +169,21 @@ export const BM05_OUTPUTS: Readonly<Record<string, OutputContract>> = Object.fre
   comparisonModelMsd: c("m2", "model-second-moment-history", "bm05.measure"),
   comparisonDistance: c("1", "sample-distance-history", "bm05.measure"),
   comparisonShape: c("1", "shape-term-history", "bm05.measure"),
-  recordingDraws: c("1", "logical-realization-draws", "diffusion.recordWalks"),
+  recordingDraws: c(
+    "1",
+    "logical-realization-draws",
+    "diffusion.recordWalks",
+    ["value"],
+    [BM05_FRANKENSIM_DRAW_OWNER],
+  ),
   requestDraws: c("1", "executed-random-draws-this-request", "bm05.measure"),
-  replayedDraws: c("1", "deterministic-replay-draws", "diffusion.observeWalks"),
+  replayedDraws: c(
+    "1",
+    "deterministic-replay-draws",
+    "diffusion.observeWalks",
+    ["value"],
+    [BM05_FRANKENSIM_DRAW_OWNER],
+  ),
   reusedRecording: c("1", "recording-reuse-indicator", "bm05.measure"),
   retainedBytes: c("1", "private-recording-bytes", "bm05.measure"),
   biasedDiffusion: law("m2/s", "kernelDiffusivity", ["value", "outside-domain"]),

@@ -10,7 +10,7 @@ import {
   decodeRefusal,
   decodeResultBatch,
 } from "../../experiments/results/codec.ts";
-import type { RequestToken } from "../../experiments/store/instanceStore.ts";
+import { ownerAdmitted, type RequestToken } from "../../experiments/store/instanceStore.ts";
 import type { Computation } from "../../physics/reference/diffusion/ftcs.ts";
 import type { Bm05Evaluation } from "../operations/bm05.ts";
 
@@ -199,7 +199,7 @@ export function decodeLabResponse(
           continue;
         }
         if (
-          output.ownerId !== c.ownerId ||
+          !ownerAdmitted(c, output.ownerId) ||
           output.semanticKind !== c.semanticKind ||
           output.unit !== c.unit
         )
@@ -238,6 +238,17 @@ export function decodeLabResponse(
         )
           fail("Biased diffusion status is inconsistent.");
       }
+      // The outputs read from the draws name one producer between them, and FrankenSim draws
+      // normals, so it can have drawn only a Gaussian walk.
+      const drawn = outputs.filter(
+        (o) => (BM05_OUTPUTS[o.quantityId]?.admittedOwnerIds?.length ?? 0) > 0,
+      );
+      const moduleOwner = BM05_OUTPUTS.walkPositions?.admittedOwnerIds?.[0];
+      const byModule = drawn.filter((o) => o.ownerId === moduleOwner).length;
+      if (byModule > 0 && byModule !== drawn.length)
+        fail("Outputs read from one set of draws name different producers.");
+      if (byModule > 0 && (token.parameters as Bm05Parameters).kernel !== "gaussian")
+        fail("FrankenSim draws normals, so it cannot have drawn a coin or uniform walk.");
     } else if (r?.kind === "refused") {
       record(r, ["kind", "refusal"]);
       decodeRefusal(r.refusal);
