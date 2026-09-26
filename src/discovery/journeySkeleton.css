@@ -161,3 +161,27 @@
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
+
+/* The reader's own try: predict, change one thing, explain. One container, a rule on its leading
+   edge, and the three asks as an ordered list. */
+.journey-ppe {
+  margin: 2rem 0;
+  padding: 0.1rem 0 0.1rem 1rem;
+  border-left: 2px solid var(--rule);
+}
+.journey-ppe > h3 {
+  margin: 0;
+}
+.journey-ppe > ol {
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+}
+.journey-ppe li + li {
+  margin-top: 0.9rem;
+}
+.journey-ppe li > p {
+  margin: 0.2rem 0 0;
+}
+.journey-ppe li > .eyebrow {
+  margin: 0;
+}
