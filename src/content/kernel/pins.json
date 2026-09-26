@@ -9,7 +9,7 @@
     "kernelDiffusivity@src/physics/reference/diffusion/walkLaws.ts": "sha256:b2b39a0e609f3ac519ba4b95fd99332d0170518a6bcf48b5e48b444c378eac0b",
     "randomWalkMoments@src/physics/reference/diffusion/walkLaws.ts": "sha256:6783075a2530f6028f515501e415352b59fe2d77d084d759a97af6995880ecb9",
     "coinWalkDistribution@src/physics/reference/diffusion/walkLaws.ts": "sha256:feae1213b1fc80d262edcbab8d8110da13a122b91baa5378607cf805ebc98855",
-    "recordWalks@src/physics/reference/diffusion/walks.ts": "sha256:d8d45c494c5a564337a3ad369543562ad3d53b207e4cb39113cf70f28a54f64c",
+    "recordWalks@src/physics/reference/diffusion/walks.ts": "sha256:c55b65639c29f9cba89e6713e2322bd3daa465a91b6f30590ee520916ba71abd",
     "gaussianPropagator@src/physics/reference/diffusion/distributions.ts": "sha256:08378ddf8b6720db47f4949e26c3bb6de95c5ab5ba5851fe4b52b651ef62f55a",
     "intervalProbability@src/physics/reference/diffusion/distributions.ts": "sha256:fdf333ecee819e1097ee25fb89e2caea663dd27fc5f8818d3a28cd8a15ff9a56",
     "erf@src/physics/reference/special/erf.ts": "sha256:58ba0038d43059073d60c1af94ee48c8052c076685e393ce5eeab85362edda77",
@@ -28,7 +28,7 @@
     "src/physics/reference/diffusion/distributions.ts": "source:sha256:1eb5b457e215116537778a643fdb94b42da696cd79689396720e6c289b7aa5fa",
     "src/physics/reference/diffusion/tracers.ts": "source:sha256:f23c96896d92f817216b28ee7c2bf1b153aec36057b3e055e0493f5abe069cf4",
     "src/physics/reference/diffusion/walkLaws.ts": "source:sha256:74f22e496cce90c6c80d808e3ffb90322469cef3582923d744ac37ab2760546a",
-    "src/physics/reference/diffusion/walks.ts": "source:sha256:71c841d98cea5e14091c5d38599394b58531c765d5d1d8d35ce9038146a73e9c",
+    "src/physics/reference/diffusion/walks.ts": "source:sha256:8f0ba3c9a1c2e938fc21f0a5b0378c8260814ee1092bbd1538c4a80826f0a10b",
     "src/physics/reference/special/erf.ts": "source:sha256:36da87a989cc4d16571414b99849aa31ea544bb30878fd80fb9c19ffa9e11f62",
     "src/physics/reference/diffusion/ftcs.ts": "source:sha256:78631b3a586b67a5df64acf5f6cdab373612148d057eaa29eb93e689dac56ffb",
     "src/physics/reference/massEnergy.ts": "source:sha256:a441f6d58cdc8873bdb34aab7d1934e97d367196cbb75933f73609d03077cb2f"
