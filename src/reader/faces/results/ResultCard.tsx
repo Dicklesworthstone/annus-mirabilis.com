@@ -16,7 +16,7 @@ import type { CompiledEquation } from "../../../equations/viewTypes.ts";
 import { ColouredFormula } from "../../ColouredFormula.tsx";
 import { InlineMathText } from "../../InlineMathText.tsx";
 import { renderSourceMarkup, sourceDisplayEquation } from "../sourceMarkup.tsx";
-import type { Qualification, ResultCard as ResultCardData } from "./types.ts";
+import type { PrintedLayerEntry, Qualification, ResultCard as ResultCardData } from "./types.ts";
 
 const QUALIFICATION_LABEL: Readonly<Record<Qualification["kind"], string>> = {
   premise: "Premise",
@@ -40,6 +40,30 @@ function EquationPlaceholder({ equationId, primary }: { equationId: string; prim
       </span>
     </p>
   );
+}
+
+/** Where an anchor stands, in words: s3-p7 is "§ 3, paragraph 7"; the unnumbered opening is s0. */
+function place(anchor: string): string {
+  const paragraph = anchor.match(/^s(\d+)-p(\d+)/);
+  if (paragraph) {
+    const [, section, n] = paragraph;
+    return section === "0" ? `paragraph ${n}` : `§ ${section}, paragraph ${n}`;
+  }
+  const display = anchor.match(/^eq-s(\d+)-d(\d+)$/);
+  if (display) return `§ ${display[1]}, display ${display[2]}`;
+  return anchor;
+}
+
+/**
+ * A quotation's link to where it stands on the German face, named for its page and its passage.
+ * Named for the page alone, two quotations from one page, on one card or on two, led to links all
+ * called "Text on page 555 of the German source" with different destinations (am-jmma: one name,
+ * one destination).
+ */
+function sourceLinkName(p: PrintedLayerEntry): string {
+  return `${p.kind === "display" ? "Display" : "Text"} ${
+    p.lastPage ? `on pages ${p.page}–${p.lastPage}` : `on page ${p.page ?? "?"}`
+  } of the German source, ${place(p.anchor)}`;
 }
 
 /** "ME-01" for me-01: the name a laboratory page carries. */
@@ -79,6 +103,8 @@ export function ResultCard({
     return e ? [e] : [];
   });
   const modernResolved = modern.length > 0 && modern.length === card.printedEquationIds.length;
+  /** The card's name in plain words, for link names: its title, its TeX delimiters dropped. */
+  const cardName = (card.title ?? card.oneSentence).replace(/\\[()]/g, "");
   // Every page an excerpt stands on, a quotation that runs across a page turn included.
   const pages = [
     ...new Set(
@@ -123,11 +149,15 @@ export function ResultCard({
                     undefined,
                     undefined,
                     `${card.resultId}-${p.anchor}`,
+                    { paper: card.paper, near: p.anchor },
                   )}
                 </div>
               ) : (
                 <p key={p.anchor} data-printed-anchor={p.anchor}>
-                  {renderSourceMarkup(p.text, `${card.resultId}-${p.anchor}`)}
+                  {renderSourceMarkup(p.text, `${card.resultId}-${p.anchor}`, [], [], {
+                    paper: card.paper,
+                    near: p.anchor,
+                  })}
                 </p>
               ),
             )}
@@ -136,11 +166,7 @@ export function ResultCard({
             {card.printed.map((p, i) => (
               <span key={p.anchor}>
                 {i > 0 ? " · " : ""}
-                <a href={p.germanHref}>
-                  {p.kind === "display" ? "Display" : "Text"}{" "}
-                  {p.lastPage ? `on pages ${p.page}–${p.lastPage}` : `on page ${p.page ?? "?"}`} of
-                  the German source
-                </a>
+                <a href={p.germanHref}>{sourceLinkName(p)}</a>
               </span>
             ))}
           </p>
@@ -283,7 +309,7 @@ export function ResultCard({
         </section>
       ) : null}
 
-      {card.limitations.map((limitation) => (
+      {card.limitations.map((limitation, i) => (
         <p
           key={limitation.argumentId}
           className="result-limitation"
@@ -291,7 +317,16 @@ export function ResultCard({
         >
           <strong>Where this stops: </strong>
           {limitation.text}{" "}
-          <a href={`/papers/${card.paper}/#${limitation.argumentId}`}>Read the argument</a>
+          {/* Every card's link read "Read the argument", for 7 to 16 different arguments a page
+              (am-jmma). The name says whose argument, and which of a card's several. */}
+          <a
+            href={`/papers/${card.paper}/#${limitation.argumentId}`}
+            aria-label={`Read the argument behind “${cardName}”${
+              card.limitations.length > 1 ? `, ${i + 1} of ${card.limitations.length}` : ""
+            }`}
+          >
+            Read the argument
+          </a>
         </p>
       ))}
 
@@ -314,13 +349,7 @@ export function ResultCard({
           <ul>
             {card.usedBy.map((u) => (
               <li key={u.relatedResultId ?? u.text}>
-                {u.href ? (
-                  <a href={u.href}>{u.text}</a>
-                ) : u.relatedResultId ? (
-                  <a href={`#result-${u.relatedResultId}`}>{u.text}</a>
-                ) : (
-                  u.text
-                )}
+                {u.relatedResultId ? <a href={`#result-${u.relatedResultId}`}>{u.text}</a> : u.text}
                 {u.date ? ` (${u.date})` : ""}
               </li>
             ))}

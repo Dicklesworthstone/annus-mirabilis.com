@@ -54,7 +54,7 @@ import {
   findInlineMathRegions,
 } from "../../content/editions/segmentSentences.ts";
 import { LEDGER_KATEX_SETTINGS, parseLedgerMath } from "../../content/ledger/ledgerMathSettings.ts";
-import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
+import { printedDisplay, printedDisplayInPaper } from "../../equations/printed/printedDisplays.ts";
 import { PrintedDisplayTerms } from "./PrintedDisplayTerms.tsx";
 import "./sourceMarkup.css";
 
@@ -134,6 +134,12 @@ function typesetLedgerMath(latex: string, displayMode: boolean, where: string): 
 }
 
 /**
+ * Text quoted from the German face elsewhere (a result card, dispatch 244): the paper it is from,
+ * and the anchor it was quoted from, which settles a display the paper prints twice.
+ */
+export type Quotation = Readonly<{ paper: string; near?: string | undefined }>;
+
+/**
  * A display formula, set on its own line with its printed number at the right, as the compositor
  * set it. `id` is the equation block's id from the segmenter, so an anchor to that equation lands
  * on the formula rather than on the paragraph around it.
@@ -148,11 +154,17 @@ export function sourceDisplayEquation(
   label: string | undefined,
   id: string | undefined,
   key: string,
+  quoted?: Quotation,
 ): ReactNode {
   const plain = typesetLedgerMath(latex, true, id ?? key);
   // In colour where content/display-terms binds its glyphs and the ledger prints them alike
-  // (PrintedDisplayTerms.tsx). The ledger's own parse check above still runs first.
-  const printed = printedDisplay(id, latex);
+  // (PrintedDisplayTerms.tsx). The ledger's own parse check above still runs first. A quotation
+  // (a result card's) has no id to find its colours by, and sets none: it is found by its paper
+  // and LaTeX (printedDisplayInPaper), and the id stays with the German face.
+  const printed =
+    id === undefined && quoted
+      ? printedDisplayInPaper(quoted.paper, latex, quoted.near)
+      : printedDisplay(id, latex);
   const element = (
     <span
       key={printed ? undefined : key}
@@ -199,6 +211,7 @@ export function renderSourceMarkup(
   keyPrefix: string,
   displayIds: readonly string[] = [],
   joins: readonly Readonly<{ id?: string | undefined; page?: number | undefined }>[] = [],
+  quoted?: Quotation,
 ): ReactNode {
   if (!text.includes("[[") && !text.includes("$")) return text;
 
@@ -292,7 +305,15 @@ export function renderSourceMarkup(
     const key = `${keyPrefix}-m${seq++}`;
     if (region.display) {
       // The region's printed number, if any, was captured with it by the segmenter's grammar.
-      push(sourceDisplayEquation(region.latex.trim(), region.label, displayIds[region.index], key));
+      push(
+        sourceDisplayEquation(
+          region.latex.trim(),
+          region.label,
+          displayIds[region.index],
+          key,
+          quoted,
+        ),
+      );
     } else {
       push(
         <span

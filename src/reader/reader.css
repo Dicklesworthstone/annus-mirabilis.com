@@ -2318,11 +2318,17 @@ html:is(
   opacity: 0.5;
 }
 
-/* Results Face & Cards styles (am-read-results-face-uzh, am-vw1o) */
+/* Results Face & Cards styles (am-read-results-face-uzh, am-vw1o)
+
+   THE CARDS READ AT THE READING FACES' MEASURE (dispatch 244). On live 0c6777c7 the face was an
+   860px box centred in the frame: at 1440 its cards stood 246px right of the page column and set
+   their prose 74 to 81 characters a line, and up to 133, where the German faces set 62 or 63. The
+   face now starts at the column and holds a card's text to the reader's measure, the card's
+   padding and border added outside it. On a phone its own 1rem padding sat inside the page gutter
+   and left the text 262px of a 390px screen; it has none now. */
 .results-face {
-  max-width: 860px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  margin: 2rem 0;
+  max-width: min(calc(var(--reader-measure) + 3rem + 2px), 100%);
 }
 
 .results-face-filter {
@@ -2357,6 +2363,38 @@ html:is(
   padding: 1.5rem;
 }
 
+/* A card is a header, then its layers. The title is a step above the prose (it was the body's
+   19px, the size of the sentence under it), and one hairline closes the header. */
+.result-card > header {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+.result-card h3 {
+  font-size: var(--type-lead);
+  line-height: 1.3;
+  margin: 0 0 0.5rem;
+}
+.result-card > header [data-result-layer="one-sentence"] {
+  margin: 0;
+}
+
+/* Each layer is named by a quiet label, as the eyebrow names the page, not by a bold heading the
+   size of the prose under its own rule: a card drew six to eight such rules. */
+.result-card h4 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+@media (max-width: 560px) {
+  .result-card {
+    padding: 1rem;
+  }
+}
+
 .result-equation-headline {
   font-size: var(--type-body);
   margin: 1rem 0;
@@ -2379,10 +2417,56 @@ html:is(
 .result-probes,
 .result-support,
 .result-reception,
-.result-used-by {
-  margin: 1.5rem 0;
-  border-top: 1px solid var(--line);
-  padding-top: 1rem;
+.result-used-by,
+.result-misconceptions {
+  margin: 1.5rem 0 0;
+}
+
+/* The decoder: a symbol, then what it means. The meaning was indented 40px under its symbol (the
+   default dd), a ninth of a phone's line; now it starts under the symbol, and from a tablet's
+   width the two stand side by side. */
+.result-decoder dl {
+  margin: 0;
+}
+.result-decoder dl > div {
+  margin: 0 0 0.75rem;
+}
+.result-decoder dd {
+  margin: 0;
+}
+@media (min-width: 561px) {
+  .result-decoder dl {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.5rem 1rem;
+    align-items: baseline;
+  }
+  .result-decoder dl > div {
+    display: contents;
+  }
+}
+
+/* The printed equation and its modern form are one pair: the modern stands just under it. */
+.result-printed + .result-modern {
+  margin-top: 1rem;
+}
+
+/* "Where this is used later" and the common wrong turns are quiet lines, each link tall enough to
+   press (24px; the wrong turns measured 13px on live 0c6777c7). */
+.result-used-by ul,
+.result-misconceptions ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.result-used-by li {
+  font-size: var(--type-fine);
+  color: var(--muted);
+}
+.result-used-by a,
+.result-misconceptions a {
+  display: inline-block;
+  padding-block: 0.3rem;
 }
 
 .result-limitation {
@@ -2392,7 +2476,6 @@ html:is(
 }
 
 .result-misconceptions {
-  margin-top: 1rem;
   font-size: var(--type-fine);
   color: var(--muted);
 }
