@@ -429,3 +429,111 @@ cards:
       evidentialRole: "A derivation, not evidence"
       historicalStatus: "Doppler's principle and aberration were known before, and the paper names the first after Doppler; their forms for arbitrary velocities are derived in this paper"
     selectionReason: "It is the first consequence § 7 draws for light, and it names it in its own words: Doppler's principle for arbitrary velocities, and the law of aberration in its most general form."
+
+  - id: sr-light-complex-energy
+    title: "The energy of a light complex in the moving system"
+    section: s8
+    arguments: [arg-sr-light-complex]
+    printed:
+      - anchor: s8-p1
+        sentences: [2, 3]
+      - anchor: s8-p2
+        sentences: [2]
+      - anchor: eq-s8-d3
+      - anchor: s8-p2
+        sentences: [3]
+      - anchor: eq-s8-d4
+      - anchor: eq-s8-d5
+      - anchor: s8-p5
+        sentences: [1]
+    equations: [eq-model-sr-light-energy, eq-model-sr-light-volume, eq-model-sr-light-density]
+    oneSentence: "Measured in the moving system k, the light enclosed by a sphere that moves with it at the speed of light has its energy per unit volume multiplied by \\(q^2\\) and its volume divided by \\(q\\), where \\(q=(1-\\frac{v}{V}\\cos\\varphi)/\\sqrt{1-(v/V)^2}\\), so its energy changes by the factor \\(q\\), the same factor by which its frequency changes."
+    decoder:
+      - symbol: "\"Lichtkomplex\""
+        meaning: "A light complex: the part of a plane wave inside a spherical surface whose centre moves with the speed of light along the wave normal. No energy crosses that surface, so it encloses the same light at every moment."
+      - symbol: "\\(A^2/8\\pi\\), \\(A'^2/8\\pi\\)"
+        meaning: "The energy of the light per unit volume, in the paper's Gaussian units, measured in K and in k. \\(A\\) and \\(A'\\) are the amplitudes of its electric or magnetic force, transformed in § 7."
+      - symbol: "\\(S\\), \\(S'\\)"
+        meaning: "The volume the surface encloses, measured in K, where it is a sphere, and in k at the time \\(\\tau=0\\), where it is an ellipsoid."
+      - symbol: "\\(E\\), \\(E'\\)"
+        meaning: "The light energy the surface encloses, measured in K and in k."
+      - symbol: "\\(\\varphi\\)"
+        meaning: "The angle between the wave normal of the light and the direction in which k moves, measured in K. At \\(\\varphi=0\\) the light travels the way k moves."
+      - symbol: "\\(q\\)"
+        meaning: "The modern layer's name for the factor by which the light's frequency changes, § 7's Doppler factor for this direction of the light."
+    qualifications:
+      - kind: premise
+        text: "That \\(A'^2/8\\pi\\) is the light energy per unit volume in k is taken from the principle of relativity, as the first sentence of § 8 says."
+      - kind: premise
+        text: "The light is a plane wave in empty space, and the complex is the part of it inside the moving sphere; because no energy crosses that surface, the same light is compared in both systems."
+      - kind: comparison
+        text: "The volume does not change as a rigid body's does. The factor \\(\\sqrt{1-(v/V)^2}/(1-\\frac{v}{V}\\cos\\varphi)\\) depends on the direction of the light: with \\(\\varphi=0\\) and \\(v\\) at 0.6 of the speed of light it is 2, where a rigid body at rest in K is shortened to 0.8 of its length along the motion."
+      - kind: comparison
+        text: "§ 8 remarks that the energy and the frequency of a light complex change by the same law, and does not connect this with the light quanta of the March paper; reading a complex's energy as \\(h\\nu\\) in every system came later."
+    probes:
+      - instrument: sr-10
+        question: "k moves at 0.6 of the speed of light in the direction the light travels: by what factors do the complex's energy, volume and energy per unit volume change?"
+        preset: sr-10-longitudinal-0.6
+      - instrument: sr-10
+        question: "The same speed, with the light travelling against the motion of k: does the energy grow or shrink, and by the same factor as the frequency?"
+        preset: sr-10-opposite-0.6
+    usedLater: []
+    meanings:
+      argumentStatus: "A consequence of the transformed amplitude of § 7 and of the volume of a surface that moves with the light"
+      modelStatus: "Exact within the paper's electrodynamics, for a plane wave in empty space"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "Introduced in this paper; the remark that energy and frequency transform alike is Einstein's, and the paper does not connect it with light quanta"
+    selectionReason: "It is § 8's first result, and the paper calls it remarkable that the energy and the frequency of a light complex change by the same law. The mass-energy paper of September 1905 starts from it, citing § 8."
+
+  - id: sr-moving-mirror
+    title: "Light reflected by a moving mirror, and its pressure"
+    section: s8
+    arguments: [arg-sr-moving-mirror]
+    printed:
+      - anchor: s8-p6
+        sentences: [1, 2]
+      - anchor: eq-s8-d12
+      - anchor: s8-p10
+        sentences: [3, 4]
+      - anchor: eq-s8-d13
+      - anchor: s8-p10
+        sentences: [5]
+      - anchor: eq-s8-d14
+    equations: [eq-model-sr-mirror-frequency]
+    oneSentence: "Light of frequency \\(\\nu\\) and energy per unit volume \\(A^2/8\\pi\\), falling at the angle \\(\\varphi\\) on a perfect mirror that moves with the velocity \\(v\\) along its normal, comes back with the frequency \\(\\nu\\,(1-2\\frac{v}{V}\\cos\\varphi+(v/V)^2)/(1-(v/V)^2)\\) and presses on the mirror with \\(P=2\\frac{A^2}{8\\pi}(\\cos\\varphi-\\frac{v}{V})^2/(1-(v/V)^2)\\), which to a first approximation is \\(2\\frac{A^2}{8\\pi}\\cos^2\\varphi\\), the pressure on a mirror at rest."
+    decoder:
+      - symbol: "\\(A\\), \\(\\varphi\\), \\(\\nu\\)"
+        meaning: "The amplitude, the angle of incidence and the frequency of the incident light, measured in K. The mirror is the plane \\(\\xi=0\\) of k, so its normal is the direction of motion, and \\(\\varphi\\) is the angle between the wave normal and that direction."
+      - symbol: "\\(A'''\\), \\(\\varphi'''\\), \\(\\nu'''\\)"
+        meaning: "The same quantities for the reflected light, measured in K. The double-primed quantities describe it in k, where the mirror is at rest and reflects it as a mirror at rest does."
+      - symbol: "\\((1-\\frac{v}{V})^2\\) in the \\(\\nu'''\\) display"
+        meaning: "As printed. The paper's own steps give \\(1-(v/V)^2\\), the denominator of the \\(A'''\\) display above it; with the printed square, a mirror moving along the line of the light would return it with its frequency unchanged. Every face keeps the printed reading, and the modern layer has \\(1-(v/V)^2\\)."
+      - symbol: "\\(P\\)"
+        meaning: "The pressure of the light on the mirror, force per unit area. It is found from the work it does: the energy arriving on unit area of the mirror in unit time, minus the energy leaving it, equals \\(P\\cdot v\\)."
+      - symbol: "\\(2\\frac{A^2}{8\\pi}\\)"
+        meaning: "Twice the energy per unit volume. With the energy per unit volume written \\(u\\), in any system of units the pressure is \\(2u(\\cos\\varphi-v/c)^2/(1-v^2/c^2)\\)."
+    qualifications:
+      - kind: premise
+        text: "The mirror is ideal: perfectly reflecting, its motion prescribed, with no recoil, absorption or thickness."
+      - kind: inference
+        text: "The pressure comes from the energy principle: the difference between the energy arriving on the mirror and the energy leaving it is the work done by the pressure of the light."
+      - kind: conditional
+        text: "The light reaches the mirror only while \\(V\\cos\\varphi\\) exceeds \\(v\\). Where it only just fails to catch the mirror, a number from the formula is not a reflection."
+      - kind: approximation
+        text: "The form \\(2\\frac{A^2}{8\\pi}\\cos^2\\varphi\\) neglects the terms in \\(v/V\\). The formula before it is exact within the model."
+      - kind: comparison
+        text: "The first approximation is the pressure Maxwell's theory gave for a mirror at rest, which Bartoli had also argued for from thermodynamics; Lebedev, and independently Nichols and Hull, measured light pressure in 1901. Those are measurements of the world, separate from this calculation."
+    probes:
+      - instrument: sr-11
+        question: "A mirror receding at 0.6 of the speed of light, the light falling along its normal: what frequency comes back, and what pressure does the light exert?"
+        preset: sr-11-normal-0.6
+      - instrument: sr-11
+        question: "The mirror receding at 0.6 of the speed of light and the light falling at the angle whose cosine is 0.6: does the light reach the mirror at all?"
+        preset: sr-11-interception-limit-0.6
+    usedLater: []
+    meanings:
+      argumentStatus: "A consequence of transforming the light to the mirror's rest system, reflecting it there, transforming it back, and applying the energy principle"
+      modelStatus: "Exact within the paper's electrodynamics, for a plane wave and an ideal mirror; the \\(\\cos^2\\varphi\\) form is a first approximation"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "The first approximation was Maxwell's pressure on a mirror at rest; the exact formula for a moving mirror is derived in this paper"
+    selectionReason: "It is the problem § 8 sets itself, and it is solved by the method the section's last paragraph offers for every problem in the optics of moving bodies: transform the light to a system in which the body is at rest."
