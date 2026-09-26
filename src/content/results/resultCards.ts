@@ -23,7 +23,12 @@ import { loadGermanSourceFace } from "../editions/germanSourceFace.ts";
 import type { RouteSlug } from "../ids.ts";
 import { loadConcordanceForPaper } from "../notation/loader.ts";
 import { parseYaml } from "../provenance/yaml.ts";
-import { type FaceBlock, sentencePages, sourceBlockFace } from "./sourceBlockFace.ts";
+import {
+  type FaceBlock,
+  markupPlainText,
+  sentencePages,
+  sourceBlockFace,
+} from "./sourceBlockFace.ts";
 
 /** How a card labels a statement that is not the result itself. */
 export const QUALIFICATION_KINDS = [
@@ -41,6 +46,11 @@ export type PrintedExcerpt = Readonly<{
   kind: "display" | "sentences";
   /** 1-based sentence positions within the block; empty for a display. */
   ordinals: readonly number[];
+  /**
+   * The ids the German face publishes those sentences under, in order (dispatch 255). Absent for a
+   * display, and where a quoted sentence is not one sentence on the face.
+   */
+  sentenceIds?: readonly string[] | undefined;
   /** Ledger markup exactly as the face holds it: LaTeX for a display, marked text for sentences. */
   text: string;
   /** The page the excerpt starts on. */
@@ -118,6 +128,13 @@ export type ResultContext = Readonly<{
    * a sentence after a turn is on the next page, not the page its paragraph starts on.
    */
   sentencePages?: ReadonlyMap<string, Readonly<{ first: number; last: number }>> | undefined;
+  /**
+   * The sentences the German face publishes, by the id of the paragraph that holds them, each with
+   * its words (sentenceWords): what a quotation's link names (dispatch 255).
+   */
+  publishedSentences?:
+    | ReadonlyMap<string, readonly Readonly<{ id: string; words: string }>[]>
+    | undefined;
   /** The paper's misconception ledger: each record's id to the result ids it names. */
   ledger: ReadonlyMap<string, readonly string[]>;
   registries: ResultRegistries;
@@ -176,9 +193,25 @@ function blockAt(face: PrintedFace, anchor: string) {
   return face.blocks.find((b) => (face.anchors.anchorOf[b.id] ?? b.id) === anchor);
 }
 
+/**
+ * A sentence's words: the letters and digits of its ledger markup outside its formulas and tokens.
+ * The ledger draft (loadGermanSourceFace) and the source blocks the German face renders split some
+ * paragraphs into sentences differently and write some formulas differently, and the draft's own
+ * sentence ids are not published, so the words say which published sentence a quotation is.
+ */
+export function sentenceWords(markup: string): string {
+  return markupPlainText(
+    markup
+      .replace(/\$\$[\s\S]*?\$\$/g, " ")
+      .replace(/\$[^$]*\$/g, " ")
+      .replace(/\[\[[^\]]*\]\]/g, ""),
+  ).replace(/[^\p{L}\p{N}]/gu, "");
+}
+
 function resolvePrinted(
   face: PrintedFace,
   sentencePages: ResultContext["sentencePages"],
+  published: ResultContext["publishedSentences"],
   raw: unknown,
   where: string,
   problems: string[],
@@ -214,12 +247,21 @@ function resolvePrinted(
     return r ? [r] : [];
   });
   const known = ranges.length === picked.length;
+  // The sentence the German face publishes for each quoted one: the one sentence of the quoted
+  // paragraph with the same words. Where the two splits differ there is none, and the quotation
+  // is linked by its paragraph.
+  const sentenceIds = picked.flatMap((s) => {
+    const words = s ? sentenceWords(s.text) : "";
+    const same = (published?.get(anchor) ?? []).filter((p) => words !== "" && p.words === words);
+    return same.length === 1 && same[0] ? [same[0].id] : [];
+  });
   const first = known ? Math.min(...ranges.map((r) => r.first)) : page;
   const last = known ? Math.max(...ranges.map((r) => r.last)) : page;
   return {
     anchor,
     kind: "sentences",
     ordinals,
+    ...(sentenceIds.length === picked.length ? { sentenceIds } : {}),
     text: picked.map((s) => s?.text ?? "").join(" "),
     page: first,
     ...(last !== undefined && first !== undefined && last > first ? { lastPage: last } : {}),
@@ -257,6 +299,7 @@ export function checkResultCards(
       const excerpt = resolvePrinted(
         context.face,
         context.sentencePages,
+        context.publishedSentences,
         p,
         `${at} printed[${k}]`,
         problems,
@@ -490,10 +533,24 @@ export function resultContext(
     connections: loadConnections(root),
     face,
     sentencePages: sentencePages(root, paper),
+    publishedSentences: publishedSentences(root, paper),
     ledger: misconceptionLedger(root, paper),
     registries,
     printsBeta: printsBeta(root, paper),
   };
+}
+
+/** The sentences the German face publishes (it renders the source blocks), by paragraph id. */
+function publishedSentences(
+  root: string,
+  paper: string,
+): ReadonlyMap<string, readonly Readonly<{ id: string; words: string }>[]> {
+  return new Map(
+    (sourceBlockFace(root, paper)?.blocks ?? []).map((b) => [
+      b.id,
+      (b.sentences ?? []).map((s) => ({ id: s.id, words: sentenceWords(s.text) })),
+    ]),
+  );
 }
 
 /** Whether the paper's notation concordance has an entry printed as β. */

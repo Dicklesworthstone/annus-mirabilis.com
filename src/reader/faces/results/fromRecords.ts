@@ -60,7 +60,11 @@ export function toCard(
       text: p.text,
       page: p.page,
       ...(p.lastPage !== undefined ? { lastPage: p.lastPage } : {}),
-      germanHref: `/papers/${record.paper}/view/german/#${p.anchor}`,
+      // A quotation of one sentence lands on that sentence, which every German face anchors since
+      // dispatch 255; a longer one, on its paragraph.
+      germanHref: `/papers/${record.paper}/view/german/#${
+        p.sentenceIds?.length === 1 ? p.sentenceIds[0] : p.anchor
+      }`,
     })),
     qualifications: record.qualifications,
     printedEquationIds: record.equations,
