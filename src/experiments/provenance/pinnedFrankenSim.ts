@@ -39,3 +39,6 @@ export const PINNED_WASM_URL = `/wasm/${PINNED_ARTIFACT.bundleId}/${PINNED_ARTIF
  * before the module was used.
  */
 export const FRANKENSIM_BROWNIAN_ENGINE_SENTENCE = `Computed with FrankenSim (brownian_frames), ${PINNED_ARTIFACT.transportVersion} over FrankenSim ${PINNED_ARTIFACT.frankensimRevision.slice(0, 8)}, module sha256 ${PINNED_ARTIFACT.wasmDigest.slice(0, 16)}.`;
+
+/** The same identity for BM-06's grid when the pinned module stepped it (diffusion1d_frames). */
+export const FRANKENSIM_DIFFUSION_ENGINE_SENTENCE = `Stepped with FrankenSim (diffusion1d_frames), ${PINNED_ARTIFACT.transportVersion} over FrankenSim ${PINNED_ARTIFACT.frankensimRevision.slice(0, 8)}, module sha256 ${PINNED_ARTIFACT.wasmDigest.slice(0, 16)}.`;

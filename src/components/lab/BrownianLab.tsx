@@ -15,16 +15,20 @@ import {
   BM06_RADIAL_EXPLANATIONS,
   type Bm06Parameters,
 } from "../../experiments/bm06/definition.ts";
+import { gridExecutionKind } from "../../experiments/bm06/gridExecution.ts";
 import { decodeBm06Settings, encodeBm06Settings } from "../../experiments/bm06/permalink.ts";
 import { createBm06Session, type PreparedBm06Example } from "../../experiments/bm06/session.ts";
 import { ExecutionChrome } from "../../experiments/labels/ExecutionChrome.tsx";
+import { ExecutionLabel } from "../../experiments/labels/ExecutionLabel.tsx";
 import { executionStateKindFromHostLabel } from "../../experiments/labels/executionLabelFor.ts";
 import { modelNoteFromView } from "../../experiments/labels/modelNoteData.ts";
 import { labelRootAttributes } from "../../experiments/labels/resultAttributes.ts";
 import { deriveHostExecution } from "../../experiments/provenance/executionState.ts";
+import { FRANKENSIM_DIFFUSION_ENGINE_SENTENCE } from "../../experiments/provenance/pinnedFrankenSim.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
 import { DistributionPlot, GridComparison } from "./DistributionPlot.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
+import { gridRefusalSentences } from "./gridRefusalWords.ts";
 import { KEPT_RESULT } from "./keptResult.ts";
 import { array, display, identity, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
@@ -78,6 +82,10 @@ export function BrownianLab({
     deriveHostExecution(view, BM06_OUTPUTS, example.sourceDigest, snapshot === serverAccepted)
       .label,
   );
+  // The grid's own label, earned by whoever this snapshot names as its stepper: the instrument
+  // label above describes the analytic density, which is always a host calculation.
+  const gridKind = gridExecutionKind(snapshot.outputs, snapshot === serverAccepted);
+  const gridByFrankenSim = gridKind === "frankensim-accepted";
   const p = snapshot.parameters as Bm06Parameters;
   const [draft, setDraft] = useState(() => toDraft(example.parameters));
   const [ready, setReady] = useState(false),
@@ -371,6 +379,9 @@ export function BrownianLab({
             <div className="notice error" data-refusal-code={view.refusal.code}>
               <h3>Requested calculation not accepted</h3>
               <p>{view.refusal.message}</p>
+              {gridRefusalSentences(view.refusal).map((sentence) => (
+                <p key={sentence}>{sentence}</p>
+              ))}
               {view.requested && (
                 <p>
                   Requested: {String(view.requested.parameters.steps)} time steps,{" "}
@@ -467,7 +478,13 @@ export function BrownianLab({
         </div>
       </div>
       {p.gridEnabled && (
-        <div className="grid-result" {...identity(snapshot)}>
+        <div
+          className="grid-result"
+          {...identity(snapshot)}
+          data-grid-execution={gridKind ?? undefined}
+        >
+          {gridKind && <ExecutionLabel state={gridKind} />}
+          {gridByFrankenSim && <p className="fine">{FRANKENSIM_DIFFUSION_ENGINE_SENTENCE}</p>}
           <p>
             Accepted grid: {String(p.n)} cells of width {display(p.dx, 1e6)} μm;{" "}
             {snapshot.stepIndex} steps. Time step: {display(scalar(snapshot, "gridTimeStep"))} s.
@@ -578,16 +595,29 @@ export function BrownianLab({
           {BM06_MODEL.assumptions.map((note) => (
             <p key={note}>{note}</p>
           ))}
-          <p>No FrankenSim artifact is used here.</p>
+          <p>
+            {gridByFrankenSim
+              ? "FrankenSim stepped the numerical grid. Every other number here is a host calculation."
+              : "No FrankenSim artifact is used here."}
+          </p>
         </section>
       </div>
       <details>
         <summary>Show which code computes these numbers, and its fingerprint</summary>
         <p>
           Density, interval probability and displacement come from{" "}
-          <code>src/physics/reference/diffusion/distributions.ts</code>. The grid comes from{" "}
-          <code>src/physics/reference/diffusion/ftcs.ts</code>. One worker operation assembles all
-          views.
+          <code>src/physics/reference/diffusion/distributions.ts</code>.{" "}
+          {gridByFrankenSim ? (
+            <>
+              FrankenSim's compiled <code>diffusion1d_frames</code> stepped this grid; the site's
+              own stepper, <code>src/physics/reference/diffusion/ftcs.ts</code>, is its fallback.
+            </>
+          ) : (
+            <>
+              The grid comes from <code>src/physics/reference/diffusion/ftcs.ts</code>.
+            </>
+          )}{" "}
+          One worker operation assembles all views.
         </p>
         <p className="digest">
           <code>{example.sourceDigest}</code>

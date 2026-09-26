@@ -1,4 +1,8 @@
-import { BM06_BUDGET, BM06_OUTPUTS } from "../../experiments/bm06/definition.ts";
+import {
+  BM06_BUDGET,
+  BM06_HOST_GRID_OWNER,
+  BM06_OUTPUTS,
+} from "../../experiments/bm06/definition.ts";
 import { decodeResult } from "../../experiments/results/codec.ts";
 import {
   type ExecutionOutcomeId,
@@ -6,6 +10,7 @@ import {
 } from "../../experiments/results/outcomes.ts";
 import { makeRefusal } from "../../experiments/results/refusals.ts";
 import type { ScientificResult } from "../../experiments/results/types.ts";
+import { ownerAdmitted } from "../../experiments/store/instanceStore.ts";
 import { getConstantSet } from "../../physics/reference/constants.ts";
 import {
   gaussianPropagator,
@@ -38,6 +43,65 @@ import { validateBm06Parameters } from "../../experiments/bm06/parameters.ts";
 
 export { validateBm06Parameters } from "../../experiments/bm06/parameters.ts";
 
+/** One stepping of the optional grid: `steps` explicit steps of width `dt` from the centred spike. */
+export type GridRun = Readonly<{ n: number; D: number; dx: number; dt: number; steps: number }>;
+/**
+ * The stepped field and its diffusion number, with the owner that actually produced them. The
+ * owner travels with the result, not with the stepper, so a stepper that hands a request to the
+ * host reference cannot publish the host's field under FrankenSim's name.
+ */
+export type GridField = Readonly<{ field: Float64Array; stabilityRatio: number; ownerId: string }>;
+export type GridControl = Readonly<{
+  cancelled: () => boolean;
+  yieldControl: () => Promise<void>;
+  chunkSteps: number;
+}>;
+/**
+ * Who steps the grid. The host reference by default; FrankenSim's compiled diffusion1d_frames
+ * when the worker has loaded the pinned module (src/workers/wasm/frankensimFtcsGrid.ts). One host
+ * keeps one stepper for its lifetime, so a run never switches engines part-way.
+ */
+export type Bm06GridStepper = Readonly<{
+  step(run: GridRun, control: GridControl): Promise<Computation<GridField>>;
+}>;
+function cancelledOutcome(): Computation<never> {
+  return {
+    kind: "outcome",
+    outcome: { outcome: "cancelled", ...executionOutcomeRegistry.cancelled },
+  };
+}
+export const HOST_GRID_STEPPER: Bm06GridStepper = Object.freeze({
+  async step(run: GridRun, control: GridControl): Promise<Computation<GridField>> {
+    // The dimensional owner supplies the stability refusal and its ranked repairs.
+    const initial = ftcs1d({
+      n: run.n,
+      frames: 1,
+      stepsPerFrame: 1,
+      D: run.D,
+      dx: run.dx,
+      dt: run.dt,
+      profile: 0,
+    });
+    if (initial.kind !== "accepted") return initial;
+    let field = initial.data.values;
+    let stepIndex = 0;
+    while (stepIndex < run.steps) {
+      if (control.cancelled()) return cancelledOutcome();
+      const count = Math.min(control.chunkSteps, run.steps - stepIndex);
+      const advanced = ftcsAdvance(field, initial.data.stabilityRatio, count);
+      if (advanced.kind !== "accepted") return advanced;
+      field = advanced.data;
+      stepIndex += count;
+      // Yield to real worker messages; no skipped simulation steps or time-based chunk sizes.
+      await control.yieldControl();
+    }
+    return {
+      kind: "accepted",
+      data: { field, stabilityRatio: initial.data.stabilityRatio, ownerId: BM06_HOST_GRID_OWNER },
+    };
+  },
+});
+
 const gridKeys = [
   "gridDensity",
   "cellMasses",
@@ -56,14 +120,18 @@ function refused(parameterIds: readonly string[], requirements: string): Computa
     refusal: makeRefusal("invalid-parameter", { parameterIds }, { details: { requirements } }),
   };
 }
-function value(quantityId: string, value: number | Float64Array): ScientificResult {
+function value(
+  quantityId: string,
+  value: number | Float64Array,
+  ownerId?: string,
+): ScientificResult {
   const c = BM06_OUTPUTS[quantityId];
   if (!c) throw new TypeError(`Undeclared output ${quantityId}`);
   return decodeResult({
     quantityId,
     unit: c.unit,
     semanticKind: c.semanticKind,
-    ownerId: c.ownerId,
+    ownerId: ownerId ?? c.ownerId,
     status: "value",
     value,
   });
@@ -92,6 +160,7 @@ function rename(result: ScientificResult, quantityId: string): ScientificResult 
 export async function evaluateBm06(
   input: unknown,
   control: EvaluationControl = {},
+  stepper: Bm06GridStepper = HOST_GRID_STEPPER,
 ): Promise<Computation<Bm06Evaluation>> {
   const validated = validateBm06Parameters(input);
   if (validated.kind !== "accepted") return validated;
@@ -163,11 +232,16 @@ export async function evaluateBm06(
     let stepIndex = 0;
     if (p.gridEnabled) {
       const dt = p.t === 0 ? (0.25 * p.dx * p.dx) / D : p.t / p.steps;
-      // The dimensional owner supplies the stability refusal and its ranked repairs.
-      const initial = ftcs1d({ n: p.n, frames: 1, stepsPerFrame: 1, D, dx: p.dx, dt, profile: 0 });
-      if (initial.kind !== "accepted") {
-        if (initial.kind === "refused" && initial.refusal.code === "ftcs-unstable") {
-          const stepRepair = initial.refusal.rankedRepairs.find(
+      const totalSteps = p.t === 0 ? 0 : p.steps;
+      const stepped = await stepper.step(
+        { n: p.n, D, dx: p.dx, dt, steps: totalSteps },
+        { cancelled, yieldControl, chunkSteps },
+      );
+      if (stepped.kind !== "accepted") {
+        // Whichever engine refused, the reader is offered a number of time steps, which is what
+        // this form sets, rather than a time step it has no field for.
+        if (stepped.kind === "refused" && stepped.refusal.code === "ftcs-unstable") {
+          const stepRepair = stepped.refusal.rankedRepairs.find(
             (r) => r.action?.parameterId === "dt",
           )?.action;
           if (stepRepair && typeof stepRepair.value === "number") {
@@ -177,7 +251,7 @@ export async function evaluateBm06(
             return {
               kind: "refused",
               refusal: {
-                ...initial.refusal,
+                ...stepped.refusal,
                 rankedRepairs: [
                   ...(Number.isSafeInteger(requiredSteps) && requiredSteps <= 4_000_000
                     ? [
@@ -187,26 +261,19 @@ export async function evaluateBm06(
                         },
                       ]
                     : []),
-                  ...initial.refusal.rankedRepairs.filter((r) => r.action?.parameterId === "dx"),
+                  ...stepped.refusal.rankedRepairs.filter((r) => r.action?.parameterId === "dx"),
                 ],
               },
             };
           }
         }
-        return initial;
+        return stepped;
       }
-      let field = initial.data.values;
-      const totalSteps = p.t === 0 ? 0 : p.steps;
-      while (stepIndex < totalSteps) {
-        if (cancelled()) return outcome("cancelled");
-        const count = Math.min(chunkSteps, totalSteps - stepIndex);
-        const advanced = ftcsAdvance(field, initial.data.stabilityRatio, count);
-        if (advanced.kind !== "accepted") return advanced;
-        field = advanced.data;
-        stepIndex += count;
-        // Yield to real worker messages; no skipped simulation steps or time-based chunk sizes.
-        await yieldControl();
-      }
+      const { field, stabilityRatio, ownerId: gridOwner } = stepped.data;
+      const gridContract = BM06_OUTPUTS.gridDensity;
+      if (field.length !== p.n || !gridContract || !ownerAdmitted(gridContract, gridOwner))
+        return outcome("invariant-violation");
+      stepIndex = totalSteps;
       if (cancelled()) return outcome("cancelled");
       const comparison = ftcsAnalyticComparison({
         field,
@@ -217,12 +284,12 @@ export async function evaluateBm06(
       });
       if (comparison.kind !== "accepted") return comparison;
       outputs.push(
-        value("gridDensity", field),
+        value("gridDensity", field, gridOwner),
         value("cellMasses", comparison.data.cellMasses),
         value("cellProbabilities", comparison.data.cellProbabilities),
         comparison.data.maxCellMassDifference,
         value("wallContact", Number(comparison.data.wallContact)),
-        value("stabilityRatio", p.t === 0 ? 0 : initial.data.stabilityRatio),
+        value("stabilityRatio", p.t === 0 ? 0 : stabilityRatio, gridOwner),
         value("gridTimeStep", p.t === 0 ? 0 : dt),
       );
     } else

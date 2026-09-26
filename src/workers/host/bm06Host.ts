@@ -1,6 +1,11 @@
 import type { Bm06Parameters } from "../../experiments/bm06/definition.ts";
 import { executionOutcomeRegistry } from "../../experiments/results/outcomes.ts";
-import { type Bm06Evaluation, evaluateBm06 } from "../operations/bm06.ts";
+import {
+  type Bm06Evaluation,
+  type Bm06GridStepper,
+  evaluateBm06,
+  HOST_GRID_STEPPER,
+} from "../operations/bm06.ts";
 import { remeasureBm06 } from "../operations/bm06Measurement.ts";
 import {
   BM06_PROTOCOL,
@@ -11,10 +16,16 @@ import {
   labHello,
 } from "../protocol/bm06.ts";
 
-/** One host service per dedicated worker, with one bounded cached realization. */
+/**
+ * One host service per dedicated worker, with one bounded cached realization. `stepper` steps the
+ * optional grid: the host reference by default, or FrankenSim's compiled diffusion1d_frames when
+ * the worker has loaded the pinned module. One host keeps one stepper for its lifetime, so a run
+ * never switches engines part-way.
+ */
 export function createBm06Host(
   send: (message: LabResponse | LabHello) => void,
   sourceDigest: string,
+  stepper: Bm06GridStepper = HOST_GRID_STEPPER,
 ) {
   let active: LabRequest | null = null;
   let stopped = false,
@@ -46,7 +57,8 @@ export function createBm06Host(
           ? remeasureBm06(cache.parameters, cache.data, parameters)
           : null;
       result =
-        reused ?? (await evaluateBm06(parameters, { cancelled: () => cancelled || stopped }));
+        reused ??
+        (await evaluateBm06(parameters, { cancelled: () => cancelled || stopped }, stepper));
       if (result.kind === "accepted" && !cancelled && !stopped)
         cache = { runId: message.token.runId, parameters, data: result.data };
     } catch {
