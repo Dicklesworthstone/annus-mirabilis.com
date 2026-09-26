@@ -176,21 +176,51 @@ describe("a lab's own letters, read against its page (content/inline-terms/labs.
     });
   });
 
-  test("an unread letter is refused and named, never coloured as the paper's reading", () => {
-    // The paper's β is the factor the moderns call γ; these labs write β for v/V.
+  test("β for v/V is the speed ratio in the labs that write it so, never the paper's β", () => {
+    // The paper's β is the factor the moderns call γ; these labs write β for v/V. Each is pinned,
+    // because the resolver alone would colour every one of them as the Lorentz factor.
     expect(bindings("sr-05", String.raw`\beta^2/(1+\sqrt{1-\beta^2})`)).toEqual({
-      refused: ["\\beta", "\\beta"],
+      "\\beta": "speedRatio",
     });
     expect(
       bindings("sr-10", String.raw`\frac{E'}{E} = \frac{\nu'}{\nu} = \gamma(1 - \beta\cos\varphi)`),
-    ).toEqual({ refused: ["\\beta"] });
+    ).toMatchObject({ "\\beta": "speedRatio", "\\gamma": "lorentzFactor" });
+    expect(
+      bindings("sr-11", String.raw`P = 2u\,\frac{(\cos\varphi - \beta)^2}{1 - \beta^2}`),
+    ).toMatchObject({ "\\beta": "speedRatio" });
+    expect(
+      bindings(
+        "sr-09",
+        String.raw`\begin{aligned}\nu' &= \nu\gamma(1 - \beta\cos\theta) \\ &= \nu\sqrt{\frac{1-\beta}{1+\beta}} \\ &= 0.5\nu \\ &= 250\text{ THz}\end{aligned}`,
+      ),
+    ).toMatchObject({ "\\beta": "speedRatio", "\\theta": "propagationAngleStationary" });
+  });
+
+  test("a letter a lab writes in another sense than its paper's takes the lab's sense", () => {
+    // Each was coloured in the paper's (or the registry's) sense once its formula first resolved.
+    // bm-04's μ is the mobility, not the paper's particle mass:
+    expect(
+      bindings("bm-04", String.raw`D = \frac{RT}{N}\frac{1}{6\pi k P} = \mu k_B T`),
+    ).toMatchObject({
+      "\\mu": "mobility",
+    });
+    // sr-10's V is the light complex's volume, not the paper's speed of light:
+    expect(
+      bindings(
+        "sr-10",
+        String.raw`\begin{aligned}E' &= u'V' \\ &= (u q^2)(V / q) \\ &= u V q \\ &= E q \\ &= 0.5\text{ J}\end{aligned}`,
+      ),
+    ).toMatchObject({ V: "lightComplexVolumeStationary", "V'": "lightComplexVolumeMoving" });
+    // lq-06's e is the exponential's base, a sign, not the elementary charge:
+    const wien = bindings("lq-06", String.raw`\alpha\nu^3 e^{-\beta\nu/T}`);
+    expect(wien).toMatchObject({ "\\alpha": "wienConstantAlpha" });
+    expect("e" in wien).toBe(false);
+  });
+
+  test("an unread letter is refused and named, never coloured as the paper's reading", () => {
+    // lq-09's V is a potential difference in volts; the modern scope reads V as a volume, and no
+    // quantity coloured in light quanta is that potential.
     expect(bindings("lq-09", String.raw`V \approx 6{,}6\text{ Volts}`)).toEqual({ refused: ["V"] });
-    // sr-11's u has a reading, so without its unread β this formula would be coloured, β wrong.
-    const mirror = bindings(
-      "sr-11",
-      String.raw`P = 2u\,\frac{(\cos\varphi - \beta)^2}{1 - \beta^2}`,
-    );
-    expect("refused" in mirror && mirror.refused.includes("\\beta")).toBe(true);
   });
 
   test("the paper's listed signs hold in its labs, so a differential leaves the formula coloured", () => {

@@ -27,7 +27,8 @@ describe("ScopedFormula", () => {
     expect(formula.hasAttribute("data-inline-terms")).toBe(true);
     expect(formula.getAttribute("data-paper")).toBe("special-relativity");
     expect(formula.getAttribute("data-scoped-formula")).toBe("test");
-    // The paper's β, the Lorentz factor: sr-05 and sr-10's unread β (labs.yaml) does not reach it.
+    // The paper's β, the Lorentz factor: sr-05's reading of β as the speed ratio (labs.yaml)
+    // does not reach it.
     expect(formula.querySelector("[data-quantity-id]")?.getAttribute("data-quantity-id")).toBe(
       "lorentzFactor",
     );

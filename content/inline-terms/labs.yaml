@@ -80,20 +80,63 @@ readings:
     glyph: "u"
     quantityId: lightEnergyDensityStationary
     reason: "The lab writes u for the energy density of the incident light in the stationary system, from which the pressure on the moving mirror and the incident and reflected powers are computed."
-
-unread:
   - lab: sr-05
     glyph: "\\beta"
-    reason: "The lab writes β²/(1 + √(1 − β²)) with β = v/V, the modern speed ratio, while the paper prints β, defined on p. 900, as the factor 1/√(1 − (v/V)²), the modern γ (sr.beta.lorentzFactor). The paper's colours have no slot for the speed ratio."
+    quantityId: speedRatio
+    reason: "The lab writes β²/(1 + √(1 − β²)) with β = v/V, the modern speed ratio. The paper prints β, defined on p. 900, as the factor 1/√(1 − (v/V)²), the modern γ (sr.beta.lorentzFactor), which this is not."
+  - lab: sr-09
+    glyph: "\\beta"
+    quantityId: speedRatio
+    reason: "The lab's worked case sets β = 0.6 beside γ = 1.25 and writes ν' = ν γ (1 − β cos θ) and cos θ' = −β, so β is v/V, the modern speed ratio, not the paper's β, the factor the moderns call γ (sr.beta.lorentzFactor)."
+  - lab: sr-09
+    glyph: "\\theta"
+    quantityId: propagationAngleStationary
+    reason: "The lab's θ is the angle between the ray and the x-axis in the stationary system K, the angle the paper's § 7 writes φ, in ν' = ν γ (1 − β cos θ)."
+  - lab: sr-09
+    glyph: "\\theta'"
+    quantityId: propagationAngleMoving
+    reason: "The lab's θ' is the same ray's angle in the moving system, cos θ' = −β for a ray at right angles in K: the aberrated angle the paper writes φ'."
   - lab: sr-10
     glyph: "\\beta"
-    reason: "The lab writes γ(1 − β cos φ) and √(1 − β²) with β = v/V, the modern speed ratio, while the paper prints β, defined on p. 900, as the factor 1/√(1 − (v/V)²), the modern γ (sr.beta.lorentzFactor). The paper's colours have no slot for the speed ratio."
+    quantityId: speedRatio
+    reason: "The lab writes γ(1 − β cos φ) and √(1 − β²) with β = v/V, the modern speed ratio, not the paper's β, the factor the moderns call γ (sr.beta.lorentzFactor)."
+  - lab: sr-10
+    glyph: "V"
+    quantityId: lightComplexVolumeStationary
+    reason: "The lab writes V for the volume of the light complex in the stationary system, V'/V = 1/q and E' = u'V', where the paper's V is the speed of light; the lab writes the speed of light nowhere as V."
+  - lab: sr-10
+    glyph: "V'"
+    quantityId: lightComplexVolumeMoving
+    reason: "The lab writes V' for the volume of the same light complex measured in the moving system, V' = 2,0 m³ in its worked case."
+  - lab: sr-11
+    glyph: "\\beta"
+    quantityId: speedRatio
+    reason: "The lab writes 2u (cos φ − β)² / (1 − β²) and u c A_m (1 − β) with β = v/V, the modern speed ratio, not the paper's β, the factor the moderns call γ (sr.beta.lorentzFactor)."
+  - lab: sr-12
+    glyph: "J'_x"
+    quantityId: currentDensityMoving
+    reason: "The lab writes J'_x = γ (J_x − v ρ) for the current density's x-component in the moving system, beside J_x in the stationary one, which the concordance binds to currentDensityStationary."
+  - lab: bm-03
+    glyph: "V_0"
+    quantityId: volume
+    reason: "In V/V_0 and (V/V_0)^{N_p} the lab's V_0 is a reference volume the number of arrangements is counted against, a volume as V is."
+  - lab: lq-08
+    glyph: "E_q"
+    quantityId: quantumEnergy
+    reason: "The lab writes E_q = h ν for the energy a single light quantum carries into the surface, the quantum's energy of § 8."
+  - lab: lq-06
+    glyph: "\\alpha"
+    quantityId: wienConstantAlpha
+    reason: "The lab's mean quantum energy integrates α ν³ e^(−βν/T), Wien's law, whose α is Wien's first constant, as § 1 of the paper prints the law."
+  - lab: bm-04
+    glyph: "\\mu"
+    quantityId: mobility
+    reason: "The lab writes D = (R T / N) · 1 / (6 π k P) = μ k_B T, so μ = 1 / (6 π k P), the particle's mobility, the velocity a unit force gives it; the paper's μ is the particle's mass, which this is not."
+
+unread:
   - lab: lq-09
     glyph: "V"
     reason: "The lab writes V ≈ 6,6 Volts for the potential difference that the quantum energy per gram-equivalent, Rβν, corresponds to once divided by E. The modern scope reads V as a volume, and no quantity coloured in light quanta is that potential."
-  - lab: sr-11
-    glyph: "\\beta"
-    reason: "The lab writes 2u (cos φ − β)² / (1 − β²) and u c A_m (1 − β) with β = v/V, the modern speed ratio, while the paper prints β, defined on p. 900, as the factor 1/√(1 − (v/V)²), the modern γ (sr.beta.lorentzFactor). The paper's colours have no slot for the speed ratio."
 
 exceptions:
   - lab: sr-03
@@ -105,3 +148,18 @@ exceptions:
   - lab: sr-03
     glyph: "\\Delta"
     reason: "Δ marks the difference between two events' coordinates, as in s² = Δx² + Δy² + Δz² − c²Δt²: a sign of difference, not a quantity; the coordinate after it is coloured."
+  - lab: bm-04
+    glyph: "\\pi"
+    reason: "The number π in Stokes's drag 6 π k P, a constant of geometry and no quantity."
+  - lab: bm-06
+    glyph: "\\pi"
+    reason: "The number π in Stokes's drag 6 π η a and in the Gaussian's 1/√(4 π D t), a constant of geometry and no quantity."
+  - lab: sr-03
+    glyph: "E_1"
+    reason: "E_1 names one of two events between which the lab measures the squared interval, a point of spacetime and not a quantity."
+  - lab: sr-03
+    glyph: "E_2"
+    reason: "E_2 names the other event of the pair, a point of spacetime and not a quantity."
+  - lab: lq-06
+    glyph: "e"
+    reason: "e is the base of the exponential in Wien's α ν³ e^(−βν/T), a number and no quantity; the modern scope's registry letter makes it the elementary charge."

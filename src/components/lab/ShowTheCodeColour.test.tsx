@@ -6,7 +6,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { extractTypeScriptExport } from "../../content/kernel/extractTypeScript.ts";
 import { computeBm01StokesEinsteinTrace } from "../../content/kernel/trace.ts";
 import BROWNIAN from "../../generated/brownian-equations.json";
+import EXPLANATION_INLINES from "../../generated/explanation-inlines.json";
+import LAB_INLINES from "../../generated/lab-inlines.json";
 import PRINTED from "../../generated/printed-displays.json";
+import PRINTED_INLINES from "../../generated/printed-inlines.json";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 
 /*
@@ -78,8 +81,11 @@ describe("show-the-code uses the paper's quantity colours, from CSS", () => {
     // The example used to be molarGasConstant, until D = RT/(6 pi eta a N) put R in a Brownian
     // equation and the sheet correctly coloured it. The property holds for any quantity, so it is
     // checked for all of them: the sheet colours exactly the quantities Brownian shows, in its
-    // model equations and, since dispatch 224, in its printed displays (content/display-terms/).
-    // A fixed list of "unshown" quantities went stale the day those displays were bound.
+    // model equations and, since dispatch 224, in its printed displays (content/display-terms/);
+    // since dispatches 272 to 274, in the inline formulas the build colours with them (its
+    // inlineOwn): the faces', the explanations' and the labs'. A fixed list of "unshown"
+    // quantities went stale the day those displays were bound, and this set did the day a lab's
+    // formula first named a quantity no display does (bm-04's mobility, dispatch 274).
     type Termed = { terms: readonly { quantityId: string }[] };
     const model = new Set(
       (BROWNIAN.equations as readonly Termed[]).flatMap((e) => e.terms.map((t) => t.quantityId)),
@@ -89,7 +95,23 @@ describe("show-the-code uses the paper's quantity colours, from CSS", () => {
         .filter((d) => d.paper === "brownian-motion")
         .flatMap((d) => d.terms.map((t) => t.quantityId)),
     );
-    const shown = new Set([...model, ...printed]);
+    type Quantities = { quantities: Readonly<Record<string, unknown>> };
+    const papersOf = (payload: unknown) =>
+      (payload as { papers: Readonly<Record<string, Quantities>> }).papers;
+    const inline = new Set([
+      ...Object.keys(papersOf(PRINTED_INLINES)["brownian-motion"]?.quantities ?? {}),
+      ...Object.keys(papersOf(EXPLANATION_INLINES)["brownian-motion"]?.quantities ?? {}),
+      ...Object.values(
+        (
+          LAB_INLINES as unknown as {
+            labs: Readonly<Record<string, Quantities & { paper: string }>>;
+          }
+        ).labs,
+      )
+        .filter((l) => l.paper === "brownian-motion")
+        .flatMap((l) => Object.keys(l.quantities)),
+    ]);
+    const shown = new Set([...model, ...printed, ...inline]);
     const coloured = new Set(
       [
         ...SHEET.matchAll(
