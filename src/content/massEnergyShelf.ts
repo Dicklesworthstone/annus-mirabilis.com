@@ -191,7 +191,7 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
         url: "https://api.crossref.org/works/10.1002/andp.19013111102",
         read: "catalog-record",
         matched:
-          "Untersuchungen über die Druckkräfte des Lichtes, Peter Lebedew, Annalen der Physik 311 (series 4, volume 6), pp. 433-458, 1901. The article's text was not read: archive.org's scan of the issue (sim_annalen-der-physik_1901_6_2) has a blank leaf for p. 433, its next issue serves no files, HathiTrust's catalog refused the request, and the publisher's page answered with a challenge. The proposition is not yet checked against the text.",
+          "Untersuchungen über die Druckkräfte des Lichtes, Peter Lebedew, Annalen der Physik 311 (series 4, volume 6), pp. 433-458, 1901. The article's text was not read: archive.org's scan of the issue (sim_annalen-der-physik_1901_6_2) has a blank leaf for p. 433, its next issue serves no files, HathiTrust's catalog refused the request, the publisher's page answered with a challenge, the Biodiversity Heritage Library answered with a challenge, Gallica returned a web page instead of its catalog, and no other archive.org scan of the volume was found. The proposition is not yet checked against the text.",
       },
     ],
     admittedStages: ["stage-02"],
@@ -273,7 +273,16 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
         url: "https://api.crossref.org/works/10.1080/14786448108627008",
         read: "catalog-record",
         matched:
-          "XXXIII. On the electric and magnetic effects produced by the motion of electrified bodies, J. J. Thomson, The London, Edinburgh, and Dublin Philosophical Magazine and Journal of Science, volume 11, pp. 229-249, April 1881. The article's text was not read: no archive.org scan of the fifth series' volume 11 was found. The proposition is not yet checked against the text.",
+          "XXXIII. On the electric and magnetic effects produced by the motion of electrified bodies, J. J. Thomson, The London, Edinburgh, and Dublin Philosophical Magazine and Journal of Science, volume 11, pp. 229-249, April 1881.",
+      },
+      {
+        source: 0,
+        checkedBy: "agent:GreenBarn",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/londonedinburg5111881lond/page/n247",
+        read: "page-image",
+        matched:
+          'Smithsonian Libraries scan of the fifth series, vol. 11 (1881). p. 229 (leaf n242): The London, Edinburgh, and Dublin Philosophical Magazine and Journal of Science, [Fifth Series.], April 1881, "XXXIII. On the Electric and Magnetic Effects produced by the Motion of Electrified Bodies. By J. J. Thomson, B.A., Fellow of Trinity College, Cambridge"; footer "Phil. Mag. S. 5. Vol. 11. No. 68. April 1881." p. 234 (leaf n247): T, "the kinetic energy due to the electrification", is 2μe²p²/15a, so that the whole kinetic energy is (m/2 + (2/15)μe²/a)p², "or the effect of the electrification is the same as if the mass of the sphere were increased by (4/15)μe²/a".',
       },
     ],
     limits:
@@ -393,7 +402,7 @@ export const MASS_ENERGY_LATER_EVIDENCE: readonly KnowledgeCard[] = [
         url: "https://api.crossref.org/works/10.1098/rspa.1932.0133",
         read: "catalog-record",
         matched:
-          "Experiments with high velocity positive ions. II. The disintegration of elements by high velocity protons, John Douglas Cockcroft and E. T. S. Walton, Proceedings of the Royal Society of London A, volume 137, pp. 229-242, 1 July 1932. The article's text was not read: no scan with open terms was found, and the publisher's copy was not reachable. The proposition is not yet checked against the text.",
+          "Experiments with high velocity positive ions. II. The disintegration of elements by high velocity protons, John Douglas Cockcroft and E. T. S. Walton, Proceedings of the Royal Society of London A, volume 137, pp. 229-242, 1 July 1932. The article's text was not read: royalsocietypublishing.org answered both the landing page and the PDF with a 403 challenge page, and archive.org's copy of vol. 137 (bwb_T5-BCA-090_137) is a restricted lending item. The proposition is not yet checked against the text. Bainbridge's letter of 1933 (Phys. Rev. 44, 123, read on the page) describes these experiments as the capture of a proton by lithium 7 and its disintegration into two alpha particles of range 8.4 cm.",
       },
     ],
     limits:
@@ -402,7 +411,7 @@ export const MASS_ENERGY_LATER_EVIDENCE: readonly KnowledgeCard[] = [
   {
     id: "bainbridge-1933-mass-spectrograph",
     proposition:
-      "Bainbridge measures the masses of the nuclei in the lithium disintegration with a mass spectrograph, and sets the mass that disappears beside the energy the alpha particles carry away.",
+      "Bainbridge sets his mass-spectrograph value for the mass of lithium 7, with Aston's values for helium and hydrogen, beside the energy released when Cockcroft and Walton's protons split lithium 7 into two alpha particles, and finds the mass that disappears equal to the energy's equivalent within the probable error of the measurements.",
     status: "later",
     sources: [
       {
@@ -426,7 +435,19 @@ export const MASS_ENERGY_LATER_EVIDENCE: readonly KnowledgeCard[] = [
         url: "https://api.crossref.org/works/10.1103/physrev.44.123.2",
         read: "catalog-record",
         matched:
-          "The Equivalence of Mass and Energy, Kenneth T. Bainbridge, Physical Review volume 44, p. 123, 15 July 1933. The article's text was not read: no scan with open terms was found. The proposition is not yet checked against the text.",
+          "The Equivalence of Mass and Energy, Kenneth T. Bainbridge, Physical Review volume 44, p. 123, 15 July 1933.",
+      },
+      {
+        source: 0,
+        checkedBy: "agent:GreenBarn",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/sim_physical-review_1933-07-15_44_2/page/n60",
+        read: "page-image",
+        matched:
+          'The Physical Review, vol. 44, no. 2, 15 July 1933, Letters to the Editor, p. 123 (leaf n60): "The Equivalence of Mass and Energy", Kenneth T. Bainbridge, Bartol Research Foundation of the Franklin Institute, June 1933. "An experimental test of the relationship ΔE = C²Δm is possible ... when the results of recent mass-spectrograph measurements of the masses of the lithium isotopes are considered in conjunction with the disintegration experiments of Cockcroft and Walton"; for Li7 + p → 2α the gain in energy, 16.97 × 10⁶ e-volts, is equivalent to 0.0182 mass units, and with Aston\'s values for helium and hydrogen and his own value 7.0146 ± 0.0006 for Li7 the mass change is 0.0181 ± 0.0006: "Within the probable error of the measurements the equivalence of mass and energy is satisfied." His footnote 2 cites Cockcroft and Walton, Proc. Roy. Soc. A137, 229.',
+        differs: [
+          "The card said Bainbridge measures the masses of the nuclei in the disintegration. He gives his own mass-spectrograph value for lithium 7 and takes Aston's for helium and hydrogen; the card now says so.",
+        ],
       },
     ],
     limits:

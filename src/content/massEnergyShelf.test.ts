@@ -21,13 +21,12 @@ describe("the mass-energy shelf's source checks", () => {
     const catalogOnly = CARDS.filter(
       (c) => !(c.sourceChecks ?? []).some((k) => k.read === "page-image"),
     );
-    // Identity, not census: the four sources no scan with open terms could be found for, on
-    // 2026-09-26. Reading one on the page moves it out of this list.
+    // Identity, not census: the sources no scan with open terms could be read for, as of
+    // 2026-09-26 (dispatch 256 read Thomson 1881 and Bainbridge 1933 on the page). Reading one on
+    // the page moves it out of this list.
     expect(catalogOnly.map((c) => c.id)).toEqual([
       "lebedev-1901-radiation-pressure-measured",
-      "thomson-1881-electromagnetic-mass",
       "cockcroft-walton-1932-lithium",
-      "bainbridge-1933-mass-spectrograph",
     ]);
     const silent = catalogOnly.filter(
       (c) => !(c.sourceChecks ?? []).every((k) => k.matched.includes("text was not read")),
