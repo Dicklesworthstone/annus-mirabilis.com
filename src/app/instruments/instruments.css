@@ -15,7 +15,11 @@
   padding: 0;
   margin: 1.25rem 0 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(17rem, 100%), 1fr));
+  /* 18.5rem, not 17rem: at 17rem the band near 1280 fitted four plates of 286px, and a table plate's
+     labels ran to three lines and were cut ("Reciprocity: the map back to K is the same map at -v",
+     sr-04), with four plates overflowing. 18.5rem gives that band three plates; other widths keep
+     their count (measured at 1024-1600, 800 and 390, mail 40667). */
+  grid-template-columns: repeat(auto-fill, minmax(min(18.5rem, 100%), 1fr));
   gap: 1.75rem 1.5rem;
 }
 
@@ -78,7 +82,7 @@
 .instrument-plate-words {
   display: flex;
   align-items: center;
-  padding: 0.85rem 1rem;
+  padding: 0.7rem 0.85rem;
   font-family: var(--font-serif);
   font-size: var(--type-fine);
   line-height: 1.3;
@@ -89,7 +93,7 @@
   display: grid;
   width: 100%;
   column-gap: 0.6rem;
-  row-gap: 0.5rem;
+  row-gap: 0.4rem;
   align-items: end;
 }
 
