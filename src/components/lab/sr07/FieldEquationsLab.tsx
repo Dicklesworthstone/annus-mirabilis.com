@@ -195,14 +195,6 @@ export function FieldEquationsLab({
           modelNote={modelNoteFromView(view, { notModeled: `${SR07_NOT_MODELED.join("; ")}.` })}
         />
       </div>
-      <p data-detail="0">{withScripts(SR07_CAPTION.r0)}</p>
-      <p data-detail="1">{withScripts(SR07_CAPTION.r1)}</p>
-      <p data-detail="2" hidden>
-        {withScripts(SR07_CAPTION.r2)}
-      </p>
-      <p data-detail="3" hidden>
-        {withScripts(SR07_CAPTION.r3)}
-      </p>
       <noscript>
         <p className="notice">
           JavaScript is off. The first Maxwell-Hertz equation in printed Gaussian form is (1/V)
@@ -402,6 +394,16 @@ export function FieldEquationsLab({
           </p>
         </div>
       </div>
+      {/* The caption's readings follow the instrument (dispatch 263). Above the predict gate
+          they pushed the instrument down the first screen at 1440; every sentence is still here. */}
+      <p data-detail="0">{withScripts(SR07_CAPTION.r0)}</p>
+      <p data-detail="1">{withScripts(SR07_CAPTION.r1)}</p>
+      <p data-detail="2" hidden>
+        {withScripts(SR07_CAPTION.r2)}
+      </p>
+      <p data-detail="3" hidden>
+        {withScripts(SR07_CAPTION.r3)}
+      </p>
       <table className="inference-summary sr07-components">
         <caption>Printed symbols in paper 3, section 6</caption>
         <thead>
