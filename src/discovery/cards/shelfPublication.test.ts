@@ -31,35 +31,37 @@ const base: KnowledgeCard = {
 const journey = (card: KnowledgeCard) => [{ journey: "test-journey", cards: [card] }];
 
 describe("the shelf publication gate the build runs", () => {
-  test("every card the four journeys render is shown honestly", () => {
+  test("no card the four journeys render shows verification status", () => {
     const result = checkShelfPublication(JOURNEY_CARDS, render);
     const cards = JOURNEY_CARDS.reduce((n, j) => n + j.cards.length, 0);
     // Non-empty on purpose: over no cards the gate would pass and have looked at nothing.
     expect(cards).toBeGreaterThan(0);
     expect(result.checked).toBe(cards);
-    expect(result.verified + result.awaiting).toBe(cards);
+    expect(result.verified + result.unverified).toBe(cards);
     expect(result.problems).toEqual([]);
   });
 
-  test("a verifier's name and a locator with no verification date is refused, and shown as awaiting", () => {
+  test("a verifier's name and a locator with no verification date is refused, and shown with no status", () => {
     // Before this gate, isCardVerified took the card's publication date for a verification date,
     // so this card passed as verified and CardDetail printed "Verified by ... on undefined".
     const claim: KnowledgeCard = { ...base, verifier: "agent:Somebody", evidenceLocator: "p. 1" };
     expect(isCardVerified(claim)).toBe(false);
     const result = checkShelfPublication(journey(claim), render);
     expect(result.problems.map((p) => p.rule)).toEqual(["claims-unrecorded-verification"]);
-    expect(render(claim)).toContain(AWAITING_MARKER);
+    expect(render(claim)).not.toContain(AWAITING_MARKER);
+    expect(render(claim)).not.toContain(VERIFIED_MARKER);
   });
 
-  test("an unverified card shown as verified is refused", () => {
-    const result = checkShelfPublication(journey(base), () => `<p>${VERIFIED_MARKER}</p>`);
-    expect(result.problems.map((p) => p.rule)).toEqual([
-      "unverified-shown-as-verified",
-      "unverified-without-marker",
-    ]);
+  test("a rendering that says either marker is refused, the label the shelf used to print included", () => {
+    for (const marker of [AWAITING_MARKER, VERIFIED_MARKER]) {
+      const result = checkShelfPublication(journey(base), () => `<p>${marker}</p>`);
+      expect(result.problems.map((p) => p.rule)).toEqual(["shows-verification-status"]);
+    }
+    // The real rendering of the same card passes, so each refusal above is the marker's.
+    expect(checkShelfPublication(journey(base), render).problems).toEqual([]);
   });
 
-  test("a verified card is shown as verified, and one that is not is refused", () => {
+  test("a verified card shows its locator as a source and never says it is verified", () => {
     const verified: KnowledgeCard = {
       ...base,
       verification: {
@@ -73,7 +75,7 @@ describe("the shelf publication gate the build runs", () => {
     const real = checkShelfPublication(journey(verified), render);
     expect(real.verified).toBe(1);
     expect(real.problems).toEqual([]);
-    const hidden = checkShelfPublication(journey(verified), () => `<p>${AWAITING_MARKER}</p>`);
-    expect(hidden.problems.map((p) => p.rule)).toEqual(["verified-shown-as-awaiting"]);
+    const shown = checkShelfPublication(journey(verified), () => `<p>${VERIFIED_MARKER}</p>`);
+    expect(shown.problems.map((p) => p.rule)).toEqual(["shows-verification-status"]);
   });
 });

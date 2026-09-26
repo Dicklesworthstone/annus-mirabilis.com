@@ -1,8 +1,9 @@
 /**
  * The build's shelf publication gate (package.json prepare:content; see
  * src/discovery/cards/shelfPublication.ts for the rules). Renders every card each discovery
- * journey shows, through the component the journeys use, and refuses the build when a card is
- * shown as verified without passing checkPublicationGate, or carries half a verification record.
+ * journey shows, through the component the journeys use, and refuses the build when a card's
+ * rendering shows verification status (either way), or the card carries half a verification
+ * record.
  *
  * Exit 1 on any problem, and on an empty population: a gate that checked no cards has not found
  * them honest.
@@ -39,7 +40,7 @@ if (import.meta.main) {
   );
   console.log(
     `[shelf publication] ${result.checked} cards on ${JOURNEY_CARDS.length} journeys: ` +
-      `${result.verified} verified, ${result.awaiting} shown as awaiting verification, ` +
+      `${result.verified} with a complete verification record, ${result.unverified} without, ` +
       `${result.problems.length} problems`,
   );
   for (const p of result.problems)
