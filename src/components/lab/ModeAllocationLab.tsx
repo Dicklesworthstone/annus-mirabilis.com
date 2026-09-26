@@ -158,6 +158,11 @@ export function ModeAllocationLab({
         </p>
       </noscript>
 
+      {/* The prediction comes first, as on 17 of the 22 laboratories that have both a gate and
+          .lab-columns (counted 2026-09-26, dispatch 263). This used to say it sat under the
+          instrument "as it does on every other laboratory"; it did so on 5. Below the controls it
+          put the prediction 1038px down at 1440. */}
+      <PredictGatePanels gate={gate} />
       <div className="lab-columns">
         <form onSubmit={submit} aria-label="Mode-allocation settings" className="controls">
           <div className="actions">
@@ -346,8 +351,6 @@ export function ModeAllocationLab({
           </details>
         </div>
       </div>
-      {/* The prediction sits under the instrument, as it does on every other laboratory. */}
-      <PredictGatePanels gate={gate} />
 
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}
