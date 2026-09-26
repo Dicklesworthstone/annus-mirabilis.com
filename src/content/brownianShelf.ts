@@ -105,7 +105,11 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
     proposition:
       "Dissolved matter moves down its concentration gradient at a rate proportional to the gradient; with conservation of matter this gives a diffusion equation for the concentration.",
     status: "available",
-    sources: [{ title: "Ann. Phys. (Pogg.) 94", locator: "p. 59", date: "1855" }],
+    limits:
+      "Fick could not derive the law from the general laws of motion. He proposes it by analogy with Fourier's law for the flow of heat, as a conjecture he says his experiments put beyond doubt, and writes it for a salt solution in a vessel, with a constant that depends on the substances.",
+    sources: [
+      { title: "Ueber Diffusion", locator: "A. Fick, Ann. Phys. (Pogg.) 94, 59", date: "1855" },
+    ],
     date: {
       earliest: "1855",
       latest: "1855",
@@ -114,6 +118,21 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     admittedStages: ["stage-03"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/bub_gb_wR4AAAAAMAAJ",
+        read: "page-image",
+        matched:
+          'Leaf 7 is the title page: "Annalen der Physik und Chemie. Vierte Reihe ... von J. C. Poggendorff. Vierter Band", "Leipzig, 1855"; leaf 5 reads "Band XCIV". Leaf 83 is p. 59: "IV. Ueber Diffusion; von Dr. Adolf Fick, Prosector in Zürich." p. 65 (leaf 89): efforts to derive the law from the general laws of motion "haben indessen keinen Erfolg gehabt"; instead a "Vermuthung", that diffusion goes by the law Fourier set up for heat, which "experimentell ausser allen Zweifel zu stellen gelungen ist". p. 66 (leaf 90): the salt crossing a layer is -Q.k.(dy/dx).dt, k "eine von der Natur der Substanzen abhängige Constante", and "Genau nach dem Muster der Fourier\'schen Entwickelung" the differential equations (1) and (2), printed as ∂y/∂t = -k ∂²y/∂x² for a vessel of constant section. Crossref (10.1002/andp.18551700105) gives pp. 59-86.',
+        differs: [
+          "The source named only the journal volume; the article's title and author are now on it.",
+          "The card gave no hedge. Fick offers the law as a conjecture by analogy with Fourier's, not a derivation; the limits now say so.",
+        ],
+      },
+    ],
   },
   {
     id: "maxwell-1860-equipartition",
@@ -178,17 +197,40 @@ export const BROWNIAN_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "exner-1900-particle-speeds",
     proposition:
-      "Exner timed the particles over short intervals; their apparent speeds came out far below the speeds kinetic theory gives molecules.",
+      "Exner traced the paths of gamboge particles in water for half a minute to a minute and measured their apparent speeds: lower for larger particles, higher at higher temperature. Giving the particles the same kinetic energy as the liquid's molecules, those speeds imply a molecular speed of about 30 cm a second at 20 °C, nowhere near the 270 metres a second that G. Jäger had calculated for 0 °C.",
     status: "available",
-    sources: [{ title: "Ann. Phys. (4) 2", locator: "p. 843", date: "1900" }],
+    limits:
+      "He says the values are not very accurate and probably too small, because the smallest excursions could not be traced, and that the simple assumption of particles behaving like the liquid's molecules does not suffice. He still leaves open that these visible motions may one day give measures of the liquid's inner motion.",
+    sources: [
+      {
+        title: "Notiz zu Brown's Molecularbewegung",
+        date: "1900-08-09",
+        locator: "F. M. Exner, Ann. Phys. (4) 2, 843",
+      },
+    ],
     date: {
-      earliest: "1900",
-      latest: "1900",
-      precision: "year",
+      earliest: "1900-08-09",
+      latest: "1900-08-09",
+      precision: "day",
       latestYear: 1900,
       eventKind: "published",
     },
     admittedStages: ["stage-01"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/sim_annalen-der-physik_1900_2_4",
+        read: "page-image",
+        matched:
+          'Leaf 0 is the Heft cover: "1900. No. 8 ... Vierte Folge. Band 2. Heft 4", "(Ausgegeben am 9. August 1900.)". Leaf 202 is p. 843: "10. Notiz zu Brown\'s Molecularbewegung; von Felix M. Exner. (Aus dem physiologischen Institut der Wiener Universität.)". p. 844: gamboge in water, paths traced with an Abbe drawing apparatus and measured. p. 845: "Natürlich sind die Werte nicht sehr genau", the measurements "im allgemeinen zu klein"; speeds fall with particle size (0.0038, 0.0033, 0.0027 mm/s at 23 °C for s = 0.0004, 0.0009, 0.0013 mm); each value the mean of about 10 measurements lasting "1/2-1 Min.". p. 846: speeds from 0.0032 mm/s at 20 °C to 0.0051 at 71 °C; the square of the speed against temperature cuts the axis near -20 °C, not at absolute zero; with equal kinetic energies the liquid molecules\' speed at 20 °C comes out "circa 30 cm". p. 847: this does not agree "auch nicht annähernd" with G. Jäger\'s calculation (270 m at 0 °C); the assumption fits only material points; "(Eingegangen 25. Juni 1900.)".',
+        differs: [
+          'The card said Exner "timed the particles over short intervals". Each of his values is a mean over tracings of half a minute to a minute (p. 845).',
+          "The card compared the particles' speeds directly with molecular speeds. Exner's comparison runs through equal kinetic energies: the particles' speeds imply a molecular speed of about 30 cm/s, against the 270 m/s Jäger calculated. The card now says that, with his own hedges.",
+        ],
+      },
+    ],
   },
   {
     id: "siedentopf-1903-ultramicroscope",

@@ -17,6 +17,8 @@ const CHECKED = [
   "maxwell-1860-equipartition",
   "sutherland-1904-dunedin",
   "sutherland-1905-phil-mag",
+  "fick-1855-diffusion-equation",
+  "exner-1900-particle-speeds",
 ];
 
 describe("the Brownian shelf's source checks", () => {
