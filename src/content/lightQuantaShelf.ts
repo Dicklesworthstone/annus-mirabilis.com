@@ -144,13 +144,15 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
   {
     id: "wien-1896-radiation-law",
     proposition:
-      "An empirical law for how black-body radiation distributes its energy across frequency, accurate where frequency divided by temperature is large.",
+      "A law for how black-body radiation distributes its energy over wavelength, in which the energy at wavelength λ and absolute temperature θ goes as λ^-5 e^(-c/λθ), derived from hypotheses about the emitting molecules: Maxwell's law of the distribution of their velocities, after Michelson, together with results Boltzmann and Wien had reached by thermodynamics.",
     status: "available",
+    limits:
+      "Wien says a law of the distribution cannot be found without hypotheses, and that his leave uncertainty in its theoretical foundation while allowing a wide comparison with experience. Paschen found the same form, with a free exponent, independently from his measurements. That it holds where frequency divided by temperature is large, and fails at long wavelengths, was found only in 1900 and 1901, as the Rubens and Kurlbaum card records.",
     sources: [
       {
-        title: "Über die Energieverteilung im Emissionsspectrum eines schwarzen Körpers",
+        title: "Ueber die Energievertheilung im Emissionsspectrum eines schwarzen Körpers",
         date: "1896",
-        locator: "Ann. Phys. 58, 662",
+        locator: "W. Wien, Ann. Phys. (Wied.) 58, 662",
       },
     ],
     date: {
@@ -161,6 +163,21 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     admittedStages: ["stage-04"],
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://archive.org/details/sim_annalen-der-physik_1896_58_4",
+        read: "page-image",
+        matched:
+          'Leaf 0, the cover: "Annalen der Physik und Chemie. Neue Folge. Band 58. Heft 4", "1896. No. 8", "Geschlossen am 15. Juli 1896". Leaf 75 is p. 662: "2. Ueber die Energievertheilung im Emissionsspectrum eines schwarzen Körpers; von Willy Wien"; "Es ist daher eine Bestimmung der Energievertheilung ohne Hypothesen nicht möglich". p. 663: Michelson\'s assumptions, beginning with Maxwell\'s velocity distribution for solid bodies; Wien uses Michelson\'s idea and reduces the hypotheses "durch Heranziehung der von Boltzmann und mir auf rein thermodynamischem Wege gewonnenen Ergebnisse"; the remaining hypotheses "lassen immer noch Unsicherheit in der theoretischen Begründung zurück", but let the results be compared "unmittelbar und in sehr ausgedehntem Maasse mit der Erfahrung". p. 668: φ_λ = C e^(-c/λθ)/λ^5. p. 669: Paschen, independently, found φ_λ = C λ^-α e^(-c/λθ) as the form best fitting his observations; "Charlottenburg, Juni 1896". Crossref (10.1002/andp.18962940803) gives pp. 662-669.',
+        differs: [
+          'The card called it "an empirical law". Wien derives it from hypotheses about the emitting molecules and says so; it was Paschen\'s parallel form that came from measurement. Corrected.',
+          'The card said the law is "accurate where frequency divided by temperature is large". That is what measurements of 1900 and 1901 showed, not what the 1896 paper says; it is now in the limits, pointing to the Rubens and Kurlbaum card. The title is printed "Ueber ... Energievertheilung", and the law is written over wavelength.',
+        ],
+      },
+    ],
   },
   {
     id: "planck-1901-energy-elements",
