@@ -18,10 +18,11 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { REGISTERED_IDS } from "../../experiments/catalogue.ts";
-import { type GermanSourceFace, loadGermanSourceFace } from "../editions/germanSourceFace.ts";
+import { loadGermanSourceFace } from "../editions/germanSourceFace.ts";
 import type { RouteSlug } from "../ids.ts";
 import { loadConcordanceForPaper } from "../notation/loader.ts";
 import { parseYaml } from "../provenance/yaml.ts";
+import { type FaceBlock, sourceBlockFace } from "./sourceBlockFace.ts";
 
 /** How a card labels a statement that is not the result itself. */
 export const QUALIFICATION_KINDS = [
@@ -86,6 +87,17 @@ export const EMPTY_REGISTRIES: ResultRegistries = Object.freeze({
   marginRecords: new Set<string>(),
 });
 
+/**
+ * What a card's as-printed layer is read from: the German face's blocks, the page each starts on,
+ * and the anchor each is published under. The ledger face (germanSourceFace.ts) is one; a paper
+ * with no ledger draft is read from its source blocks (sourceBlockFace.ts), as its German face is.
+ */
+export type PrintedFace = Readonly<{
+  blocks: readonly FaceBlock[];
+  printedPages: Readonly<{ pages: Readonly<Record<string, number>> }>;
+  anchors: Readonly<{ anchorOf: Readonly<Record<string, string>> }>;
+}>;
+
 /** What the cards of one paper are checked against, read from the repository. */
 export type ResultContext = Readonly<{
   paper: string;
@@ -96,7 +108,7 @@ export type ResultContext = Readonly<{
   scenarios: ReadonlyMap<string, string>;
   /** Preset id to its laboratory and label, from content/experiments/<id>.yaml. */
   presets: ReadonlyMap<string, Readonly<{ instrumentId: string; label: string }>>;
-  face: GermanSourceFace;
+  face: PrintedFace;
   /** The paper's misconception ledger: each record's id to the result ids it names. */
   ledger: ReadonlyMap<string, readonly string[]>;
   registries: ResultRegistries;
@@ -146,12 +158,12 @@ const str = (x: unknown): string => (typeof x === "string" ? x.trim() : "");
 const list = (x: unknown): readonly unknown[] => (Array.isArray(x) ? x : []);
 const strings = (x: unknown): string[] => list(x).filter((s): s is string => typeof s === "string");
 
-function blockAt(face: GermanSourceFace, anchor: string) {
+function blockAt(face: PrintedFace, anchor: string) {
   return face.blocks.find((b) => (face.anchors.anchorOf[b.id] ?? b.id) === anchor);
 }
 
 function resolvePrinted(
-  face: GermanSourceFace,
+  face: PrintedFace,
   raw: unknown,
   where: string,
   problems: string[],
@@ -408,13 +420,16 @@ function misconceptionLedger(root: string, paper: string): ReadonlyMap<string, r
   return out;
 }
 
-/** The context a paper's cards are checked against, or null when it has no German face. */
+/**
+ * The context a paper's cards are checked against, or null when it has no German face. The face is
+ * the ledger's, or, for a paper with no ledger draft (relativity), its source blocks'.
+ */
 export function resultContext(
   root: string,
   paper: string,
   registries: ResultRegistries = EMPTY_REGISTRIES,
 ): ResultContext | null {
-  const face = loadGermanSourceFace(paper as RouteSlug, root);
+  const face = loadGermanSourceFace(paper as RouteSlug, root) ?? sourceBlockFace(root, paper);
   if (!face) return null;
   const record = JSON.parse(
     readFileSync(join(root, "content", "papers", `${paper}.json`), "utf8"),
