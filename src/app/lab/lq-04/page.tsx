@@ -44,17 +44,17 @@ export default function EntropyWorkbenchPage() {
           Einstein attributes the entropy argument to Wien and uses it to fix the temperature
           dependence of the spectral entropy density{" "}
           <LabInlineFormula lab="lq-04" latex={String.raw`\varphi`} />. Maximizing{" "}
-          <LabInlineFormula lab="lq-04" latex={String.raw`S = v\int\varphi(\rho,\nu)\,d\nu`} /> at
-          fixed energy, together with <LabInlineFormula lab="lq-04" latex="dS = dE/T" />, gives:
+          <LabInlineFormula lab="lq-04" latex={String.raw`S = v\int\varphi(\varrho,\nu)\,d\nu`} />{" "}
+          at fixed energy, together with <LabInlineFormula lab="lq-04" latex="dS = dE/T" />, gives:
         </p>
         <LabFormula
           lab="lq-04"
-          latex={String.raw`\frac{\partial\varphi}{\partial\rho} = \frac{1}{T}`}
+          latex={String.raw`\frac{\partial\varphi}{\partial\varrho} = \frac{1}{T}`}
         />
         <p>
           Section 3 closes with the condition that fixes the integration constant: the entropy
           density <LabInlineFormula lab="lq-04" latex={String.raw`\varphi`} /> vanishes when the
-          radiation density <LabInlineFormula lab="lq-04" latex={String.raw`\rho`} /> is zero.
+          radiation density <LabInlineFormula lab="lq-04" latex={String.raw`\varrho`} /> is zero.
         </p>
 
         <h2>The dilute, narrow-band limit (§4)</h2>

@@ -298,6 +298,9 @@ const quantityColours: Record<
   Record<string, { slot: number; name: string; glyphHtml: string }>
 > = {};
 const sharedPrintedViews: Record<string, readonly string[]> = {};
+// The inline views the palette could not make distinct, by paper ("inline:<sorted quantity ids>"),
+// so a lab formula that shares a colour is named in lab-inlines.json, never hidden.
+const sharedInlineViews: Record<string, readonly string[]> = {};
 for (const paper of [...new Set(equations.map((e) => e.paper))].sort()) {
   const own = equations.filter((e) => e.paper === paper);
   // A reading formula that names several records shows them side by side: one view, one palette.
@@ -385,6 +388,7 @@ for (const paper of [...new Set(equations.map((e) => e.paper))].sort()) {
     );
   console.log(JSON.stringify({ event: "quantity-colours-assigned", paper, searchNodes: nodes }));
   sharedPrintedViews[paper] = shared;
+  sharedInlineViews[paper] = second.shared;
   // Keyed from the same terms the colouring was computed from, so every coloured id has its record.
   // A quantity only a printed display names is named from the registry and drawn in its letter.
   const quantities = new Map<string, { name: string; glyph: string }>([
@@ -547,6 +551,7 @@ await writeFile(
   `${JSON.stringify({
     schemaVersion: 1,
     rendererDigest,
+    sharedInlineViews,
     labs: Object.fromEntries(
       Object.entries(labViews.labs).map(([lab, l]) => [
         lab,

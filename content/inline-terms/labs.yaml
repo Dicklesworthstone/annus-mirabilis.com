@@ -28,6 +28,58 @@ readings:
     glyph: "n"
     quantityId: numberDensity
     reason: "In the lab's modern formulas, Π = n k_B T and p = N_p k_B T / V = n k_B T, n is the particles per unit volume, and the lab says it writes the count as N_p. The printed n of §§ 1 and 2 is the count, which the quoted display of § 2 keeps."
+  - lab: bm-02
+    glyph: "n"
+    quantityId: numberDensity
+    reason: "The lab writes Π = n k_B T with n = N_p / V, the particles per unit volume, and the count as N_p; the printed n of §§ 1 and 2 is the count."
+  - lab: bm-02
+    glyph: "N_p"
+    quantityId: particleCount
+    reason: "The lab writes n = N_p / V: N_p is the number of suspended particles in the volume, the count §§ 1 and 2 print as n; the lab keeps n for the density."
+  - lab: bm-03
+    glyph: "N_p"
+    quantityId: particleCount
+    reason: "The lab says it writes the particle count n as N_p, as in F = −N_p k_B T ln V and (V/V_0)^{N_p}: the number of suspended particles §§ 1 and 2 print as n."
+  - lab: lq-06
+    glyph: "S_0"
+    quantityId: radiationEntropy
+    reason: "In S − S_0, S_0 is the entropy of the radiation when it fills the reference volume V_0, an entropy of the same radiation; the lab binds V and V_0 alike to the volume."
+  - lab: lq-06
+    glyph: "n_{\\text{eff}}"
+    quantityId: effectiveIndependentCount
+    reason: "The lab's n_eff = N E / (R β ν) = E / (h ν), the number of independent points the entropy of the radiation behaves as though it had, which § 6 reads off the exponent."
+  - lab: lq-06
+    glyph: "\\epsilon"
+    quantityId: quantumEnergy
+    reason: "The lab writes ε = E / n_eff = R β ν / N = h ν, the size of each energy quantum § 6 concludes low-density radiation behaves as if it were made of."
+  - lab: lq-08
+    glyph: "V_s"
+    quantityId: stoppingPotentialMagnitude
+    reason: "The lab writes e V_s = h ν − Φ for the modern stopping voltage, the potential § 8 prints as Π, the one that just stops the fastest electrons."
+  - lab: lq-09
+    glyph: "J_{\\text{mol}}"
+    quantityId: ionizationEnergyPerMolecule
+    reason: "The lab defines J_mol as the energy a molecule needs to split into ions, with J the same work per gram-equivalent, so h ν ≥ J_mol is R β ν ≥ J per molecule."
+  - lab: lq-09
+    glyph: "N_{\\text{ion}}"
+    quantityId: ionCount
+    reason: "The lab names N_ion the number of ionized molecules, N_ion = L / (h ν), the count § 9's j gram-molecules make in particles."
+  - lab: lq-09
+    glyph: "\\lambda"
+    quantityId: wavelength
+    reason: "The lab writes λ ≤ 1,9 · 10⁻⁵ cm for the wavelength of the light that ionizes air, the wavelength of the incident light."
+  - lab: lq-09
+    glyph: "\\lambda_0"
+    quantityId: wavelength
+    reason: "The lab writes λ_0 = c / ν_0 for the longest wavelength that can still ionize, a wavelength as V_0 is a volume, bound as the lab binds λ."
+  - lab: sr-10
+    glyph: "u"
+    quantityId: lightEnergyDensityStationary
+    reason: "The lab writes u for the energy density of the light complex in the stationary system, with u' = u q² the density measured in the moving one."
+  - lab: sr-11
+    glyph: "u"
+    quantityId: lightEnergyDensityStationary
+    reason: "The lab writes u for the energy density of the incident light in the stationary system, from which the pressure on the moving mirror and the incident and reflected powers are computed."
 
 unread:
   - lab: sr-05
@@ -39,6 +91,9 @@ unread:
   - lab: lq-09
     glyph: "V"
     reason: "The lab writes V ≈ 6,6 Volts for the potential difference that the quantum energy per gram-equivalent, Rβν, corresponds to once divided by E. The modern scope reads V as a volume, and no quantity coloured in light quanta is that potential."
+  - lab: sr-11
+    glyph: "\\beta"
+    reason: "The lab writes 2u (cos φ − β)² / (1 − β²) and u c A_m (1 − β) with β = v/V, the modern speed ratio, while the paper prints β, defined on p. 900, as the factor 1/√(1 − (v/V)²), the modern γ (sr.beta.lorentzFactor). The paper's colours have no slot for the speed ratio."
 
 exceptions:
   - lab: sr-03
@@ -47,3 +102,6 @@ exceptions:
   - lab: sr-03
     glyph: "B"
     reason: "B names the rod's other end, where the second clock sits and the signal is reflected, a point and not a quantity. The modern scope's registry letter makes it a magnetic field."
+  - lab: sr-03
+    glyph: "\\Delta"
+    reason: "Δ marks the difference between two events' coordinates, as in s² = Δx² + Δy² + Δz² − c²Δt²: a sign of difference, not a quantity; the coordinate after it is coloured."

@@ -169,6 +169,11 @@ describe("a lab's own letters, read against its page (content/inline-terms/labs.
       E: "gramEquivalentCharge",
     });
     expect(bindings("bm-03", String.raw`\Pi = n k_B T`)).toMatchObject({ n: "numberDensity" });
+    // bm-02 writes n = N_p / V in the formula itself; the printed n of §§ 1 and 2 is the count.
+    expect(bindings("bm-02", String.raw`\Pi = n k_B T,\qquad n = \frac{N_p}{V}`)).toMatchObject({
+      n: "numberDensity",
+      N_p: "particleCount",
+    });
   });
 
   test("an unread letter is refused and named, never coloured as the paper's reading", () => {
@@ -180,6 +185,23 @@ describe("a lab's own letters, read against its page (content/inline-terms/labs.
       bindings("sr-10", String.raw`\frac{E'}{E} = \frac{\nu'}{\nu} = \gamma(1 - \beta\cos\varphi)`),
     ).toEqual({ refused: ["\\beta"] });
     expect(bindings("lq-09", String.raw`V \approx 6{,}6\text{ Volts}`)).toEqual({ refused: ["V"] });
+    // sr-11's u has a reading, so without its unread β this formula would be coloured, β wrong.
+    const mirror = bindings(
+      "sr-11",
+      String.raw`P = 2u\,\frac{(\cos\varphi - \beta)^2}{1 - \beta^2}`,
+    );
+    expect("refused" in mirror && mirror.refused.includes("\\beta")).toBe(true);
+  });
+
+  test("the paper's listed signs hold in its labs, so a differential leaves the formula coloured", () => {
+    // d is light quanta's listed sign (content/inline-terms/exceptions.yaml); without it this
+    // formula is refused on d alone.
+    expect(bindings("lq-08", String.raw`\frac{dV_s}{d\nu} = \frac{h}{e}`)).toEqual({
+      V_s: "stoppingPotentialMagnitude",
+      "\\nu": "frequency",
+      h: "planckConstant",
+      e: "elementaryCharge",
+    });
   });
 
   test("an exception leaves a point in neutral ink, with nothing to colour", () => {

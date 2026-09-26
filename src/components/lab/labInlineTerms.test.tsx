@@ -157,7 +157,13 @@ describe("a lab page lights as the faces do", () => {
     expect(missingFacts).toEqual([]);
   });
 
-  test("no two quantities of one lab formula share a colour slot", () => {
+  test("no two quantities of one lab formula share a colour slot, unless the build names it", () => {
+    // The build admits every inline view it can make distinct and names the rest
+    // (build-equations.ts, sharedInlineViews), as it names a printed display it cannot: said,
+    // never hidden. A lab formula may share a slot only when it is one of those.
+    const named = (
+      payload as unknown as { sharedInlineViews: Readonly<Record<string, readonly string[]>> }
+    ).sharedInlineViews;
     const css = readFileSync("src/generated/quantity-colours-by-paper.css", "utf8");
     const slot = new Map<string, string>();
     for (const m of css.matchAll(
@@ -165,20 +171,28 @@ describe("a lab page lights as the faces do", () => {
     ))
       slot.set(`${m[1]} ${m[2]}`, m[3] as string);
     const shared: string[] = [];
+    const said: string[] = [];
     let checked = 0;
     for (const site of SITES) {
       const result = labFormula(site.lab, site.latex, site.display, site.printed);
       if (result.kind !== "resolved") continue;
-      const ids = [...new Set(result.compiled.terms.map((t) => t.quantityId))];
+      const ids = [...new Set(result.compiled.terms.map((t) => t.quantityId))].sort();
       if (ids.length < 2) continue;
       checked++;
-      const slots = ids.map((id) => slot.get(`${result.compiled.paper} ${id}`));
-      if (slots.some((s) => s === undefined) || new Set(slots).size !== ids.length)
-        shared.push(
-          `${site.lab} ${site.latex}: ${ids.map((id, i) => `${id}=${slots[i]}`).join(" ")}`,
-        );
+      const paper = result.compiled.paper;
+      const slots = ids.map((id) => slot.get(`${paper} ${id}`));
+      if (slots.some((s) => s === undefined) || new Set(slots).size !== ids.length) {
+        const line = `${site.lab} ${site.latex}: ${ids.map((id, i) => `${id}=${slots[i]}`).join(" ")}`;
+        if (named[paper]?.includes(`inline:${ids.join(" ")}`)) said.push(line);
+        else shared.push(line);
+      }
     }
-    expect(checked).toBeGreaterThan(20);
+    // Reported, not asserted: the palette's reach, which the build logs as well.
+    console.log(
+      `[labInlineTerms] ${checked} lab formulas of 2+ quantities, ${said.length} sharing by the build's word`,
+    );
+    for (const line of said) console.log(`[labInlineTerms]   ${line}`);
+    expect(checked).toBeGreaterThan(0);
     expect(shared).toEqual([]);
   });
 

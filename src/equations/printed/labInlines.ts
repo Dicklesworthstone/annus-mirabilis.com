@@ -23,9 +23,9 @@
  * RESULT. Resolved: the formula drawn with its terms marked (compileInlineFormula), in inline or
  * display mode. Refused: the resolver's problems, each naming the lab and the glyph. The component
  * then prints the formula as before and lists the glyphs on it (data-inline-refused), so a formula
- * is coloured or named, never plain in silence. The paper-wide exceptions file
- * (content/inline-terms/exceptions.yaml) is NavyKite's and is not read yet, so a sign no concordance
- * carries, the number pi included, is a named refusal unless a lab's own exception names it.
+ * is coloured or named, never plain in silence. The papers' listed signs
+ * (content/inline-terms/exceptions.yaml, NavyKite's: π, d, δ) hold in their labs as on the faces; a
+ * sign neither that file nor a lab's own exception names is a named refusal.
  *
  * Server-only: it reads the manifest, the concordance and labs.yaml from disk, once per lab and
  * formula.
@@ -208,10 +208,43 @@ function asEntry(paper: string, reading: LabReading, index: number): Concordance
   };
 }
 
+const PAPER_EXCEPTIONS_PATH = join("content", "inline-terms", "exceptions.yaml");
+let paperExceptions: readonly InlineException[] | null = null;
+
 /**
- * One lab's context: its paper's printed and modern readings; unless the formula is quoted as
- * printed, with each letter the lab reads or withdraws taken out, its readings put in, and its
- * exceptions.
+ * The papers' listed signs (content/inline-terms/exceptions.yaml, NavyKite's): π, d and the like,
+ * which name no quantity, each with its scope, so a lab's formula reads them as the faces do. Read
+ * here rather than through paperInlines.ts, whose registry import a page cannot bundle. Every
+ * prepare:content checks the file entry by entry (build-equations.ts, checkPaperInlines) and stops
+ * on a malformed one, before any page is built; an entry missing a field is not taken here.
+ */
+function loadPaperExceptions(root = process.cwd()): readonly InlineException[] {
+  if (paperExceptions && root === process.cwd()) return paperExceptions;
+  const path = join(root, PAPER_EXCEPTIONS_PATH);
+  const raw = existsSync(path)
+    ? (strictParse(readFileSync(path, "utf8"), "yaml", PAPER_EXCEPTIONS_PATH) as {
+        exceptions?: unknown;
+      } | null)
+    : null;
+  const list = Array.isArray(raw?.exceptions) ? (raw.exceptions as unknown[]) : [];
+  const exceptions = list.flatMap((item) => {
+    const e = (item ?? {}) as Record<string, unknown>;
+    return typeof e.paper === "string" &&
+      typeof e.glyph === "string" &&
+      typeof e.reason === "string" &&
+      Array.isArray(e.scope) &&
+      e.scope.every((s) => typeof s === "string")
+      ? [{ paper: e.paper, glyph: e.glyph, scope: e.scope as string[], reason: e.reason }]
+      : [];
+  });
+  if (root === process.cwd()) paperExceptions = exceptions;
+  return exceptions;
+}
+
+/**
+ * One lab's context: its paper's printed and modern readings and its listed signs; unless the
+ * formula is quoted as printed, with each letter the lab reads or withdraws taken out, its readings
+ * put in, and its own exceptions.
  */
 export function labContext(
   lab: string,
@@ -222,8 +255,14 @@ export function labContext(
   // The printed readings, and the modern ones a lab writes in (c, k_B, a rename's letter):
   // modernScope.ts, whose precedence refuses a printed and a modern reading that disagree.
   const paperEntries = modernInlineEntries(paper, loadConcordanceForPaper(paper));
+  // Scoped by section or anchor as in the file; the resolver matches the scope.
+  const paperSigns = loadPaperExceptions().filter((e) => e.paper === paper);
   if (printed)
-    return { concordance: paperEntries, isRegistered: isRegisteredForPage, exceptions: [] };
+    return {
+      concordance: paperEntries,
+      isRegistered: isRegisteredForPage,
+      exceptions: paperSigns,
+    };
   const own = file.readings.filter((r) => r.lab === lab);
   const excepted = file.exceptions.filter((e) => e.lab === lab);
   // The resolver consults an exception only where no reading holds, so an exception withdraws the
@@ -233,12 +272,10 @@ export function labContext(
       signatureOf(r.glyph),
     ),
   );
-  const exceptions: InlineException[] = excepted.map((e) => ({
-    paper,
-    glyph: e.glyph,
-    scope: ["all"],
-    reason: e.reason,
-  }));
+  const exceptions: InlineException[] = [
+    ...paperSigns,
+    ...excepted.map((e) => ({ paper, glyph: e.glyph, scope: ["all"], reason: e.reason })),
+  ];
   return {
     concordance: [
       ...paperEntries.filter((entry) => !withdrawn.has(signatureOf(entry.glyph.latex))),
