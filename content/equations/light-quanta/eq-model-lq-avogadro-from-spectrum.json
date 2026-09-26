@@ -5,7 +5,7 @@
   "paper": "light-quanta",
   "argument": "arg-lq-planck-constants",
   "title": "Avogadro's number from the spectrum",
-  "spoken": "N equals B over A times eight pi R over the speed of light cubed.",
+  "spoken": "N A equals B over A times eight pi R over the speed of light cubed.",
   "explanation": "Solving the coefficient match for N gives Avogadro's number from the constants of the radiation law. The paper's value, from Planck's printed constants, is 6.17 times ten to the 23 per gram-molecule.",
   "review": "draft",
   "notation": "modern-pedagogical",

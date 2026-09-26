@@ -113,7 +113,7 @@ export const LIGHT_QUANTA_QUANTITIES: QuantityRegistry = Object.freeze(
       quantity(
         "stoppingPotentialMagnitude",
         "Stopping potential",
-        "V_s",
+        "V_{\\mathrm{s}}",
         potential,
         "V",
         "stopping-potential-magnitude",
@@ -123,7 +123,7 @@ export const LIGHT_QUANTA_QUANTITIES: QuantityRegistry = Object.freeze(
       quantity(
         "frequencyEnergyDensity",
         "Spectral energy density",
-        "\\rho_\\nu",
+        "u_\\nu",
         spectralDensity,
         "J s m^-3",
         "frequency-basis-spectral-energy-density",
@@ -203,7 +203,7 @@ export const LIGHT_QUANTA_QUANTITIES: QuantityRegistry = Object.freeze(
       quantity(
         "avogadroConstant",
         "Avogadro's number",
-        "N",
+        "N_A",
         perAmount,
         "1/mol",
         "avogadro-constant",
@@ -223,7 +223,7 @@ export const LIGHT_QUANTA_QUANTITIES: QuantityRegistry = Object.freeze(
       quantity(
         "incidentFrequency",
         "Frequency of the absorbed light",
-        "\\nu_{\\mathrm{in}}",
+        "\\nu_1",
         rate,
         "Hz",
         "fluorescence-incident-frequency",
@@ -233,7 +233,7 @@ export const LIGHT_QUANTA_QUANTITIES: QuantityRegistry = Object.freeze(
       quantity(
         "emittedFrequency",
         "Frequency of the emitted light",
-        "\\nu_{\\mathrm{out}}",
+        "\\nu_2",
         rate,
         "Hz",
         "fluorescence-emitted-frequency",
@@ -253,7 +253,7 @@ export const LIGHT_QUANTA_QUANTITIES: QuantityRegistry = Object.freeze(
       quantity(
         "absorbedLightEnergy",
         "Light energy absorbed",
-        "E_{\\mathrm{abs}}",
+        "L",
         energy,
         "J",
         "absorbed-light-energy",

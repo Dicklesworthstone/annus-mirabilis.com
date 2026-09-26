@@ -120,7 +120,9 @@ entries:
 
   - id: lq.R_beta_N.planckConstant
     paper: light-quanta
-    scope: ["lq-s2", "lq-s6", "lq-s8", "lq-s9"]
+    # lq-s7 added by dispatch 256: § 7 prints the group on p. 144, "Energiequanten von der Größe
+    # (R/N)βν" and (R/N)βν₂ ≦ (R/N)βν₁, read from the plate (public/figures/plates/pages/ap-17-132/144-1280.webp).
+    scope: ["lq-s2", "lq-s6", "lq-s7", "lq-s8", "lq-s9"]
     glyph:
       unicode: "Rβ/N"
       latex: "R\\beta/N"

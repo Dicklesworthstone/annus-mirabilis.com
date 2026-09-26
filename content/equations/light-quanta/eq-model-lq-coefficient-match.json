@@ -5,7 +5,7 @@
   "paper": "light-quanta",
   "argument": "arg-lq-planck-constants",
   "title": "Two coefficients that must agree",
-  "spoken": "A over B equals eight pi R over N times the speed of light cubed.",
+  "spoken": "A over B equals eight pi R over N A times the speed of light cubed.",
   "explanation": "The low-frequency limit of Planck's law and the classical allocation of energy both grow as the frequency squared times the temperature, so their coefficients can be set equal.",
   "review": "draft",
   "notation": "modern-pedagogical",
