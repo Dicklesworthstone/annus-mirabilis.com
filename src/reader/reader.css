@@ -983,6 +983,36 @@ html:is(
   user-select: none;
 }
 
+/* PRINTED PAGE TURNS, marked in the text as a critical edition marks them (dispatch 255,
+   PageTurnMark.tsx). A thin rule stands before the first word printed on the new page, and the page
+   number beside it, a link to that page of the facsimile. The rule and the number are generated
+   content, so a copy, a find in page or a search reads the words alone. In the English text the
+   mark opens the sentence whose German holds the turn. It sits at the line's size and raises no
+   line: the number is set like a superscript with no line height of its own. */
+.page-turn-rule::before {
+  content: "|";
+  padding-inline: 0.05em 0.15em;
+  font-family: var(--font-sans);
+  color: var(--muted);
+}
+.page-turn-number {
+  margin-inline-end: 0.25em;
+  font-family: var(--font-sans);
+  font-size: var(--type-micro);
+  line-height: 0;
+  vertical-align: super;
+  color: var(--muted);
+  text-decoration: none;
+}
+.page-turn-number::before {
+  content: attr(data-page);
+}
+.page-turn-number:hover,
+.page-turn-number:focus-visible {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
 .footnote-ref {
   font-size: 0.75em;
   vertical-align: super;
@@ -2631,6 +2661,21 @@ html:is(
 .translation-paragraph {
   margin: 0;
   line-height: 1.7;
+}
+
+/* Where the page has a margin, the number stands in it, level with its line, as print sets it: on
+   the German and English faces from 75em. The right is the plate's, so the left margin. The
+   parallel face keeps it inline: its English column has the German beside it, not a margin. */
+@media (min-width: 75em) {
+  .face-english .translation-paragraph {
+    position: relative;
+  }
+  :is(.face-german .source-block-wrapper, .face-english .translation-paragraph) .page-turn-number {
+    position: absolute;
+    left: -3rem;
+    line-height: 1.5;
+    vertical-align: baseline;
+  }
 }
 
 .translation-footnote {

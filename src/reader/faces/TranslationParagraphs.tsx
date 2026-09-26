@@ -33,7 +33,9 @@ import type {
 import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
 import { renderInlines } from "./inlines.tsx";
+import { PageTurnMark } from "./PageTurnMark.tsx";
 import { PrintedDisplayTerms } from "./PrintedDisplayTerms.tsx";
+import { unitsWithTurns } from "./pageTurnPlaces.ts";
 import { evaluateUnitReviewState } from "./reviewState.ts";
 
 type GroupKind = "paragraph" | "display" | "footnote" | "other";
@@ -145,6 +147,19 @@ export function TranslationParagraphs({
   const blockKind = new Map(blocks.map((b) => [b.id, b.kind]));
   const marks = new Map<string, string>();
   for (const u of units) footnoteMarks(u.inlines, marks);
+  // The English sentences a printed page begins in (dispatch 255): English order is not German's,
+  // so a turn is marked at the start of the first English sentence that translates the German
+  // sentence holding it, never at a guessed English word.
+  const turnUnits = unitsWithTurns(blocks, units);
+  const pageMarks = (u: TranslationUnit): ReactNode =>
+    (turnUnits.get(u.id) ?? []).map((page) => (
+      <PageTurnMark
+        key={`turn-${page}`}
+        paper={u.sourceRefs[0]?.paper ?? ""}
+        page={page}
+        inSentence
+      />
+    ));
   const footnoteTarget = (footnoteId: string) => {
     const target = footnoteUnits?.get(footnoteId);
     return target ? `${anchorPrefix}${target}` : undefined;
@@ -199,6 +214,7 @@ export function TranslationParagraphs({
             data-kind="equation"
             data-equation-id={math.equationId}
           >
+            {pageMarks(u)}
             {printed ? (
               <PrintedDisplayTerms display={printed} inline>
                 {body}
@@ -214,6 +230,7 @@ export function TranslationParagraphs({
     return (
       <Fragment key={u.id}>
         <span {...unitAttributes(u)} className="translation-unit">
+          {pageMarks(u)}
           {renderInlines(u.inlines, { idPrefix: anchorPrefix, footnoteTarget }, `tr-${u.id}`)}
           {showSource(u)}
         </span>{" "}

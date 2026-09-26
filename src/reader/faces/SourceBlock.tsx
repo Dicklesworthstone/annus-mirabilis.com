@@ -8,7 +8,9 @@ import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
 import { EditorialNoteMarker } from "./EditorialNoteMarker.tsx";
 import { renderInlines } from "./inlines.tsx";
 import { PageLocators } from "./PageLocators.tsx";
+import { PageTurnMark } from "./PageTurnMark.tsx";
 import { PrintedDisplayTerms } from "./PrintedDisplayTerms.tsx";
+import { blockTurns, piecesWithTurns } from "./pageTurnPlaces.ts";
 
 export interface SourceBlockProps {
   readonly block: SourceBlock;
@@ -194,6 +196,10 @@ export function SourceBlockComponent({
         // numbered relation such as § 1's "1." and "2.", folded into the paragraph that introduces
         // it). That renders as a break, not as the space.
         const characters = Array.from(plainText(block.inlines));
+        // Where a printed page begins inside the paragraph (dispatch 255): the sentence that holds
+        // a turn is cut there and the mark set between its words.
+        const turns = blockTurns(block);
+        const lastSpan = block.sentenceSpans[block.sentenceSpans.length - 1];
         bodyContent = (
           <p
             id={block.id}
@@ -217,8 +223,32 @@ export function SourceBlockComponent({
               const isActive = activeSentenceId === span.id;
               const isHighlighted = highlightedSentenceIds?.has(span.id) ?? false;
               const spanInlines = getInlinesForSpan(block.inlines, span.span);
-              const content =
-                spanInlines.length > 0
+              const isLast = span === lastSpan;
+              const turned = turns.some(
+                (t) =>
+                  t.at >= span.span.start &&
+                  (t.at < span.span.end || (isLast && t.at === span.span.end)),
+              );
+              const content = turned
+                ? piecesWithTurns(block.inlines, span.span.start, span.span.end, turns, isLast).map(
+                    (piece) =>
+                      piece.kind === "turn" ? (
+                        <PageTurnMark
+                          key={`turn-${piece.page}`}
+                          paper={paperSlug}
+                          page={piece.page}
+                        />
+                      ) : (
+                        <Fragment key={`text-${piece.from}`}>
+                          {renderInlines(
+                            piece.inlines,
+                            undefined,
+                            `src-span-${span.id}-${piece.from}`,
+                          )}
+                        </Fragment>
+                      ),
+                  )
+                : spanInlines.length > 0
                   ? renderInlines(spanInlines, undefined, `src-span-${span.id}`)
                   : block.diplomaticText.slice(span.span.start, span.span.end);
 
