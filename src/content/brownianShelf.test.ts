@@ -1,9 +1,9 @@
 /**
  * The Brownian shelf's sources were read (dispatch 252). Each card records, in its own
  * `sourceChecks`, the scan or catalog record that was read, the day, and what matched; nothing
- * renders it. The checks land card by card, so the cards checked so far are named by id: a named
- * card that loses a check turns this red, and the list becomes the whole shelf when the last card
- * is read.
+ * renders it. Every card on the shelf, and the later evidence beside it, now carries a check for
+ * each of its sources, so a card added without one turns this red. The cards read are also named by
+ * id, so the shelf cannot pass by losing one.
  */
 import { describe, expect, test } from "bun:test";
 import { sourceCheckProblems, uncheckedSources } from "../discovery/cards/sourceChecks.ts";
@@ -23,6 +23,7 @@ const CHECKED = [
   "vant-hoff-1887-osmotic-gas-law",
   "naegeli-1879-single-impacts",
   "gouy-1888-brownian-motion",
+  "perrin-1909-molecular-reality",
 ];
 
 describe("the Brownian shelf's source checks", () => {
@@ -31,14 +32,13 @@ describe("the Brownian shelf's source checks", () => {
     for (const card of CARDS) expect(sourceCheckProblems(card)).toEqual([]);
   });
 
-  test("a card that records checks has checked every one of its sources", () => {
-    const withChecks = CARDS.filter((card) => (card.sourceChecks ?? []).length > 0);
-    // Not vacuous: at least the named cards below carry checks.
-    expect(withChecks.length).toBeGreaterThan(0);
-    for (const card of withChecks) expect([card.id, uncheckedSources(card)]).toEqual([card.id, []]);
+  test("every card has checked every one of its sources", () => {
+    for (const card of CARDS) expect([card.id, uncheckedSources(card)]).toEqual([card.id, []]);
   });
 
   test("each card named as checked is on the shelf and carries its checks", () => {
+    // Not vacuous, and not a census: the cards read must stay on the shelf, while a card added
+    // later needs only its own checks, which the test above demands.
     for (const id of CHECKED) {
       const card = CARDS.find((c) => c.id === id);
       expect(card?.id).toBe(id);

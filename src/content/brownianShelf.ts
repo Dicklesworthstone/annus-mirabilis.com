@@ -469,13 +469,13 @@ export const BROWNIAN_LATER_EVIDENCE: readonly KnowledgeCard[] = [
   {
     id: "perrin-1909-molecular-reality",
     proposition:
-      "Perrin measures suspensions of gamboge grains of known radius, among them their vertical distribution in sedimentation equilibrium, and infers the number of molecules in a gram-molecule. Across his methods the values lie between roughly 6 and 7.5 × 10²³; the sedimentation-equilibrium value is near 7 × 10²³.",
+      "Perrin measures suspensions of spherical gamboge and mastic grains of measured radius, among them their vertical distribution in sedimentation equilibrium, and infers N, the number of molecules in a gram-molecule. His three Brownian-motion methods give 70.5, 71.5 and 65 × 10²² (the distribution of a uniform emulsion, the mean displacement, the mean rotation), and he takes 70.5 × 10²², about 7 × 10²³, as the most probable value.",
     status: "later",
     sources: [
       {
         title: "Mouvement brownien et réalité moléculaire",
-        locator: "Ann. Chim. Phys. (8) 18 (1909) 1",
-        date: "1909",
+        locator: "J. Perrin, Ann. Chim. Phys. (8) 18 (1909) 5",
+        date: "1909-09",
       },
     ],
     date: {
@@ -486,6 +486,21 @@ export const BROWNIAN_LATER_EVIDENCE: readonly KnowledgeCard[] = [
       eventKind: "published",
     },
     limits:
-      "Later evidence, not on the 1904 shelf. The range is this edition's summary of the paper; its tables are not yet transcribed here.",
+      "Later evidence, not on the 1904 shelf. The same table sets these values beside those of other phenomena, from the viscosity of gases to the infra-red spectrum, which range from 30 to 200 × 10²². The numbers here are read from that table; the dataset behind them is not transcribed.",
+    sourceChecks: [
+      {
+        source: 0,
+        checkedBy: "agent:SapphireCastle",
+        checkedOn: "2026-09-26",
+        url: "https://gallica.bnf.fr/ark:/12148/bpt6k349481",
+        read: "page-image",
+        matched:
+          'Gallica\'s record for bpt6k349481 is Annales de chimie et de physique, 1909 (SER8,T18); its pagination record puts page n at image n-2. Image 3 is p. 5: "Mouvement brownien et réalité moléculaire; par M. Jean Perrin", I, 1; p. 7 (image 5): spherical grains of gamboge or mastic several microns across. p. 111 (image 109), from the table of §42: "Mouvement brownien: Répartition d\'une émulsion uniforme 70,5; Déplacement moyen en un temps donné 71,5; Rotation moyenne en un temps donné 65" (N.10^-22), the other rows ranging from "> 45" and "< 200" (viscosity of gases) to "60 à 80" (infra-red spectrum); "La valeur la plus probable me paraît toujours 70,5.10^22". p. 113 (image 111), foot: "Ann. de Chim. et de Phys., 8e série, t. XVIII. (Septembre 1909.)"; the paper ends on p. 114, where Ch. Tanret\'s begins.',
+        differs: [
+          "The locator gave p. 1; the paper begins on p. 5 of the volume, and runs to p. 114.",
+          "The card gave \"between roughly 6 and 7.5 × 10²³\" as this edition's summary. The table's own values for Brownian motion are 65, 70.5 and 71.5 × 10²², with 70.5 as his most probable value; the card now quotes them, and the limits say what else the table holds.",
+        ],
+      },
+    ],
   },
 ];
