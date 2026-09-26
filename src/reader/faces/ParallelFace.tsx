@@ -22,6 +22,7 @@ import { groupTranslationUnits, TranslationParagraphs } from "./TranslationParag
 import { unitsBySourceRef } from "./TranslationUnit.tsx";
 import { MASTHEAD_TITLE_ID, unitTranslating } from "./translationMasthead.ts";
 import "../reader.css";
+import { InlineTerms } from "./InlineTerms.tsx";
 
 /**
  * The English column's DOM ids carry this prefix. A unit's id is its German sentence's id by the
@@ -122,6 +123,8 @@ export function ParallelFace({
       </noscript>
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: harness data-ready contract; source from a tested pure function. */}
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
+      {/* Inline formulas as targets, on a paper drawn in colour (dispatch 272). */}
+      <InlineTerms paper={paper.slug} />
       <header className="page-intro">
         <p className="eyebrow">Parallel edition · {paper.titleEnglishWorking}</p>
         {/* The translated masthead (translationMasthead.ts); both columns still print it. */}

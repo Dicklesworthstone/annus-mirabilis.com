@@ -16,13 +16,17 @@
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { renderToString } from "katex";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
-import { isRegisteredQuantityId } from "../../content/quantities/registry.ts";
+import { loadReaderDescriptions } from "../../content/quantities/readerDescriptions.ts";
+import { getQuantityRegistry, isRegisteredQuantityId } from "../../content/quantities/registry.ts";
 import type { ConcordanceEntry } from "../../content/schemas/concordance.ts";
 import type { Inline } from "../../content/schemas/inlines.ts";
 import { strictParse } from "../../content/schemas/strictParse.ts";
 import { type BilingualEdition, loadBilingualEdition } from "../../reader/faces/bilingualLoader.ts";
 import { glyphSignature } from "../latex/printedAtoms.ts";
+import type { TermFacts } from "../termFacts.ts";
+import { fallbackTermFacts, notationFor, notationLink } from "./fallbackFacts.ts";
 import {
   type CompiledInline,
   compileInlineFormula,
@@ -190,11 +194,18 @@ export type InlineCensus = Readonly<{
   refused: number;
 }>;
 
+/** Each quantity an inline formula binds, with the glyphs and the first scope it is printed in. */
+export type InlineQuantityUse = Readonly<{
+  glyphs: readonly string[];
+  scope: Readonly<{ anchor: string; section: string }>;
+}>;
+
 export type PaperInlines = Readonly<{
   paper: string;
   holders: Readonly<Record<string, string>>;
   /** Keyed by scope key and LaTeX, joined by a NUL. */
   formulas: Readonly<Record<string, CompiledInline>>;
+  quantities: Readonly<Record<string, InlineQuantityUse>>;
   problems: readonly InlineTermsProblem[];
   census: InlineCensus;
 }>;
@@ -217,6 +228,10 @@ export async function checkPaperInlines(
     exceptions: overrides.exceptions ?? loadInlineExceptions(root),
   };
   const formulas: Record<string, CompiledInline> = {};
+  const quantities: Record<
+    string,
+    { glyphs: string[]; scope: { anchor: string; section: string } }
+  > = {};
   const refusedKeys = new Set<string>();
   const problems: InlineTermsProblem[] = [];
   const census = { formulas: 0, german: 0, english: 0, coloured: 0, plainDeclared: 0, refused: 0 };
@@ -229,14 +244,77 @@ export async function checkPaperInlines(
       if (resolved.problems.length > 0) {
         refusedKeys.add(key);
         problems.push(...resolved.problems);
-      } else formulas[key] = compileInlineFormula(resolved);
+      } else {
+        formulas[key] = compileInlineFormula(resolved);
+        for (const term of resolved.terms) {
+          const use = quantities[term.quantityId] ?? {
+            glyphs: [],
+            scope: { anchor: at.anchor, section: at.section },
+          };
+          quantities[term.quantityId] = use;
+          if (!use.glyphs.includes(term.glyph)) use.glyphs.push(term.glyph);
+        }
+      }
     }
     const compiled = formulas[key];
     if (!compiled) census.refused++;
     else if (compiled.terms.length > 0) census.coloured++;
     else census.plainDeclared++;
   }
-  return { paper, holders, formulas, problems, census };
+  return { paper, holders, formulas, quantities, problems, census };
+}
+
+/** What the page's inspector says about a quantity an inline formula binds (InlineTermLighting). */
+export type InlineQuantityFacts = Readonly<{
+  name: string;
+  /** The glyph as first printed, drawn at build time so the reader ships no KaTeX. */
+  glyphHtml: string;
+  facts: TermFacts;
+  /** Its entry on /notation/, and what the letter means there where the entry says. */
+  href: string;
+  hrefMeaning?: string | undefined;
+}>;
+
+/**
+ * Each inline quantity's facts, as a printed display's are found where no model record names the
+ * quantity (paperDisplays.ts, dispatch 250): the registry, the reader description, and what each
+ * printed letter means in the scope it is first printed in.
+ */
+export function inlineQuantityFacts(
+  root: string,
+  inlines: Pick<PaperInlines, "paper" | "quantities">,
+  options: Readonly<{ firstUse?: (paper: string, anchor: string) => string | null }> = {},
+): Readonly<Record<string, InlineQuantityFacts>> {
+  const registry = getQuantityRegistry().quantities;
+  const descriptions = loadReaderDescriptions(root, isRegisteredQuantityId);
+  const concordance = loadConcordanceForPaper(inlines.paper).entries;
+  const out: Record<string, InlineQuantityFacts> = {};
+  for (const [quantityId, use] of Object.entries(inlines.quantities)) {
+    const quantity = registry.get(quantityId);
+    const [glyph] = use.glyphs;
+    if (!quantity || glyph === undefined) continue;
+    const link = notationLink(concordance, glyph, quantityId, use.scope, inlines.paper);
+    out[quantityId] = {
+      name: quantity.name,
+      glyphHtml: renderToString(glyph, {
+        output: "html",
+        throwOnError: true,
+        strict: "error",
+        trust: false,
+        maxExpand: 100,
+        maxSize: 10,
+      }),
+      facts: fallbackTermFacts({
+        paper: inlines.paper,
+        quantity,
+        about: descriptions.get(quantityId),
+        notation: notationFor(concordance, use.glyphs, quantityId, use.scope, options.firstUse),
+      }),
+      href: link.href,
+      ...(link.meaning ? { hrefMeaning: link.meaning } : {}),
+    };
+  }
+  return out;
 }
 
 export class InlineTermsBuildError extends Error {

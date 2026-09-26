@@ -18,6 +18,7 @@ import { TranslationParagraphs } from "./TranslationParagraphs.tsx";
 import { unitsBySourceRef } from "./TranslationUnit.tsx";
 import { MASTHEAD_AUTHOR_ID, MASTHEAD_TITLE_ID, unitTranslating } from "./translationMasthead.ts";
 import "../reader.css";
+import { InlineTerms } from "./InlineTerms.tsx";
 
 export interface EnglishFaceProps {
   /** Which faces have content, derived by PaperPage from the same counts it dispatches on. */
@@ -67,6 +68,8 @@ export function EnglishFace({
     >
       {/* biome-ignore lint/security/noDangerouslySetInnerHtml: harness data-ready contract; source from a tested pure function. */}
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
+      {/* Inline formulas as targets, on a paper drawn in colour (dispatch 272). */}
+      <InlineTerms paper={paper.slug} />
       <header className="page-intro" lang="en">
         <p className="eyebrow">Translation · {paper.titleEnglishWorking}</p>
         {/* The translated masthead is the title, under its own unit id (translationMasthead.ts);

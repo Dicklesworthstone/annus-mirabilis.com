@@ -16,6 +16,7 @@ import {
   assertInlinesPublishable,
   checkPaperInlines,
   ENFORCED_INLINE_PAPERS,
+  inlineQuantityFacts,
 } from "../src/equations/printed/paperInlines.ts";
 import {
   assignQuantityColoursPreferring,
@@ -462,7 +463,16 @@ await writeFile(
     papers: Object.fromEntries(
       inlinePapers
         .filter((p) => ENFORCED_INLINE_PAPERS.includes(p.paper))
-        .map((p) => [p.paper, { holders: p.holders, formulas: p.formulas }]),
+        .map((p) => [
+          p.paper,
+          {
+            holders: p.holders,
+            formulas: p.formulas,
+            quantities: inlineQuantityFacts(process.cwd(), p, {
+              firstUse: (paper, anchor) => resolveFirstUse(paper, anchor, firstUseTargets),
+            }),
+          },
+        ]),
     ),
   })}\n`,
 );

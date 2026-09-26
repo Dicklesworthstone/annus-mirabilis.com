@@ -7,15 +7,26 @@
  * No "use client".
  */
 import payload from "../../generated/printed-inlines.json";
+import type { TermFacts } from "../termFacts.ts";
 
 export type PrintedInline = Readonly<{
   html: string;
   terms: readonly Readonly<{ termId: string; quantityId: string; glyph: string }>[];
 }>;
 
+/** What the page's inspector says about one inline quantity (paperInlines.ts, InlineQuantityFacts). */
+export type PrintedInlineQuantity = Readonly<{
+  name: string;
+  glyphHtml: string;
+  facts: TermFacts;
+  href: string;
+  hrefMeaning?: string | undefined;
+}>;
+
 type PaperPayload = Readonly<{
   holders: Readonly<Record<string, string>>;
   formulas: Readonly<Record<string, PrintedInline>>;
+  quantities: Readonly<Record<string, PrintedInlineQuantity>>;
 }>;
 
 const PAPERS = (payload as unknown as { papers: Readonly<Record<string, PaperPayload>> }).papers;
@@ -30,4 +41,12 @@ export function printedInline(
   const own = PAPERS[paper];
   const scope = own?.holders[holder];
   return scope === undefined ? undefined : own?.formulas[`${scope}\u0000${latex}`];
+}
+
+/** The inspector's facts for every quantity a paper's inline formulas bind, or undefined for a paper
+ * whose inline formulas are not drawn in colour. */
+export function printedInlineQuantities(
+  paper: string,
+): Readonly<Record<string, PrintedInlineQuantity>> | undefined {
+  return PAPERS[paper]?.quantities;
 }

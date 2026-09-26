@@ -25,6 +25,7 @@ import {
   sectionGlossPath,
 } from "./glossSections.ts";
 import { sentenceAtoms } from "./glossStream.ts";
+import { InlineTerms } from "./InlineTerms.tsx";
 import { renderInlines } from "./inlines.tsx";
 import { speakInlines } from "./mathSpeech.ts";
 import { PageLocators } from "./PageLocators.tsx";
@@ -197,6 +198,8 @@ export function GlossFace({
       data-paper-slug={paper.slug}
       data-reasoning-words={initialReasoningWords ? "on" : "off"}
     >
+      {/* Inline formulas as targets, on a paper drawn in colour (dispatch 272). */}
+      <InlineTerms paper={paper.slug} />
       {/* No review banner (D-2026-09-25-no-review-status-banners): each gloss unit's record keeps
           who drafted it and its review state. */}
       {/* What the gloss does not reach yet, named once, as the English face names its untranslated

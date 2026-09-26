@@ -629,7 +629,8 @@
   cursor: pointer;
 }
 .equation-visual .katex [data-quantity-id],
-.printed-display-terms .katex [data-quantity-id] {
+.printed-display-terms .katex [data-quantity-id],
+.inline-math[data-inline-terms] .katex [data-quantity-id] {
   border-radius: 0.25em;
   background: color-mix(in srgb, var(--qc) var(--term-rest), transparent);
   -webkit-box-decoration-break: clone;
@@ -648,7 +649,9 @@
 .equation-visual .katex [data-quantity-id][data-lit],
 .equation-visual .katex [data-quantity-id][data-selected="true"],
 .printed-display-terms .katex [data-quantity-id]:hover,
-.printed-display-terms .katex [data-quantity-id][data-lit] {
+.printed-display-terms .katex [data-quantity-id][data-lit],
+.inline-math[data-inline-terms] .katex [data-quantity-id]:hover,
+.inline-math[data-inline-terms] .katex [data-quantity-id][data-lit] {
   color: var(--ink);
   background: color-mix(in srgb, var(--qc) var(--term-lit), transparent);
   box-shadow:
@@ -667,7 +670,8 @@
   .equation-legend [data-quantity-id],
   .equation-sentence [data-quantity-id],
   .equation-visual .katex [data-quantity-id],
-  .printed-display-terms .katex [data-quantity-id] {
+  .printed-display-terms .katex [data-quantity-id],
+  .inline-math[data-inline-terms] .katex [data-quantity-id] {
     transition:
       background-color 0.15s ease,
       box-shadow 0.15s ease;
