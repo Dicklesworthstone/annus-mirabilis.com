@@ -175,7 +175,7 @@ describe("each gap is refused by name", () => {
     [
       "a margin record that does not exist",
       (c) => (c.usedLater = ["me-margin-e"]),
-      /margin record me-margin-e does not exist/,
+      /claims a later use, me-margin-e, that no connection or margin record names/,
     ],
     [
       "a passage of no record",

@@ -18,6 +18,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { REGISTERED_IDS } from "../../experiments/catalogue.ts";
+import { type Connection, loadConnections } from "../connections/connections.ts";
 import { loadGermanSourceFace } from "../editions/germanSourceFace.ts";
 import type { RouteSlug } from "../ids.ts";
 import { loadConcordanceForPaper } from "../notation/loader.ts";
@@ -120,6 +121,11 @@ export type ResultContext = Readonly<{
   /** The paper's misconception ledger: each record's id to the result ids it names. */
   ledger: ReadonlyMap<string, readonly string[]>;
   registries: ResultRegistries;
+  /**
+   * The connections among the papers (content/connections/connections.yaml, dispatch 253): a card's
+   * "used later" may name one only where the connection records a use of that very card.
+   */
+  connections?: readonly Connection[] | undefined;
   /**
    * Whether the paper prints β, read from its notation concordance: light quanta prints Wien's β
    * and relativity its Lorentz factor, while mass-energy writes the radical out and its concordance
@@ -317,10 +323,24 @@ export function checkResultCards(
     const misconceptionIds = [...context.ledger]
       .filter(([, results]) => results.includes(id))
       .map(([misconception]) => misconception);
+    // A later use is claimed only where a record says so: a margin record, or a connection whose
+    // recorded use starts at this very card (dispatch 253). A connection that joins papers without
+    // one using the other, or records the use of another card, supports no claim here.
     const usedLater = strings(c.usedLater);
-    for (const u of usedLater)
-      if (!context.registries.marginRecords.has(u))
-        problems.push(`${at}: margin record ${u} does not exist`);
+    for (const u of usedLater) {
+      if (context.registries.marginRecords.has(u)) continue;
+      const connection = context.connections?.find((k) => k.id === u);
+      if (!connection)
+        problems.push(`${at}: claims a later use, ${u}, that no connection or margin record names`);
+      else if (!connection.uses)
+        problems.push(
+          `${at}: claims a later use, ${u}, a ${connection.kind} connection that records no use`,
+        );
+      else if (connection.uses.from.paper !== context.paper || connection.uses.from.result !== id)
+        problems.push(
+          `${at}: claims a later use, ${u}, which records the use of ${connection.uses.from.paper} ${connection.uses.from.result}`,
+        );
+    }
 
     const printedCheck = str(c.printedCheck) || undefined;
     if (printedCheck && context.scenarios.get(printedCheck) !== context.paper)
@@ -467,6 +487,7 @@ export function resultContext(
     equations: recordIds(root, "equations", paper),
     scenarios: scenarioOwners(root),
     presets: presetRegistry(root),
+    connections: loadConnections(root),
     face,
     sentencePages: sentencePages(root, paper),
     ledger: misconceptionLedger(root, paper),
