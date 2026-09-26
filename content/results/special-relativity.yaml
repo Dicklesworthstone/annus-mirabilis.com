@@ -1,0 +1,224 @@
+# The results of Zur Elektrodynamik bewegter Körper (ap-17-891), as the results face shows them
+# (dispatch 241), in the form of content/results/mass-energy.yaml. Checked by
+# src/content/results/resultCards.ts.
+#
+# The as-printed layer is never typed here: each entry names an anchor of the German face (a
+# display, or sentences of a paragraph by their order in it) and the text is read from the face.
+# This paper has no ledger draft, so the face is read from its source blocks
+# (src/content/results/sourceBlockFace.ts), as the German face is. Einstein's notation stays on
+# the printed side: β is the modern γ, τ is the moving system's time coordinate (not a proper
+# time), and V is the speed of light (content/notation/special-relativity.yaml). Everything
+# written here (the one-sentence reading, the decoder, the qualifications, the probe questions) is
+# draft explanatory prose.
+#
+# A card's common wrong turns are not listed here: each record in
+# content/misconceptions/special-relativity names the results it concerns in its resultIds, bound
+# to the cards that quote its anchored paragraphs. "Used later" notes stay empty until margin
+# records exist to cite. Probes name the laboratory, the question, and a preset its manifest
+# registers (content/experiments/sr-NN.yaml).
+paper: special-relativity
+review: draft
+cards:
+  - id: sr-relativity-of-simultaneity
+    title: "The relativity of simultaneity"
+    section: s2
+    arguments: [arg-sr-rod-events]
+    printed:
+      - anchor: eq-s2-d2
+      - anchor: eq-s2-d3
+      - anchor: s2-p7
+        sentences: [4]
+      - anchor: s2-p8
+        sentences: [1]
+    equations: [eq-model-sr-simultaneity-offset]
+    oneSentence: "Clocks at the two ends of a moving rod, which the stationary system calls synchronous, are not synchronous by the moving observers' own test, so two events that are simultaneous in one coordinate system are in general not simultaneous in a system moving relative to it."
+    decoder:
+      - symbol: "\\(t_A\\), \\(t_B\\), \\(t'_A\\)"
+        meaning: "The times, read on the stationary system's clocks, at which a ray of light leaves the end A of the rod, is reflected at the end B, and arrives back at A."
+      - symbol: "\\(r_{AB}\\)"
+        meaning: "The length of the moving rod, measured in the stationary system."
+      - symbol: "\\(v\\)"
+        meaning: "The speed of the rod along the X-axis of the stationary system."
+      - symbol: "\\(V\\)"
+        meaning: "The speed of light, printed V; today it is written c."
+      - symbol: "why the two times differ"
+        meaning: "In the stationary system the ray chases the end B, which moves away at \\(v\\), and meets the end A coming toward it, so the way out takes \\(r_{AB}/(V-v)\\) and the way back \\(r_{AB}/(V+v)\\). The test of § 1 that the moving observers apply calls the clocks synchronous only when the two times are equal."
+    qualifications:
+      - kind: premise
+        text: "The result rests on § 1's definition of synchronous clocks, by a ray of light sent out and reflected, and on the principle of the constancy of the velocity of light. Simultaneity at a distance is defined by that procedure; the paper does not observe it."
+    probes:
+      - instrument: sr-01
+        question: "Two clocks 10 light-seconds apart move at 0.6 of the speed of light and are set by the moving observers' own test: how far apart do they read in the stationary system, and which one is ahead?"
+        preset: sr-01-moving-pair-0.6c
+      - instrument: sr-03
+        question: "Take two events that are simultaneous in K: at what times does k assign them?"
+        preset: sr-03-valid-pair-0.6c
+    usedLater: []
+    meanings:
+      argumentStatus: "A consequence of the definition of synchronous clocks and the two principles"
+      modelStatus: "Exact within the paper's kinematics"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "It is the conclusion § 2 draws in its own words: the concept of simultaneity has no absolute meaning."
+
+  - id: sr-principles-compatible
+    title: "The two principles are compatible"
+    section: s3
+    arguments: [arg-sr-lorentz-map]
+    printed:
+      - anchor: s3-p16
+        sentences: [1]
+      - anchor: eq-s3-d17
+      - anchor: eq-s3-d18
+      - anchor: s3-p17
+        sentences: [1, 2]
+    equations: []
+    oneSentence: "A spherical light wave sent out from the common origin at the time zero spreads with the speed \\(V\\) in the stationary system and, transformed by the equations of § 3, also with the speed \\(V\\) in the moving system, which shows that the principle of relativity and the constancy of the speed of light are compatible."
+    decoder:
+      - symbol: "\\(x^2+y^2+z^2=V^2t^2\\)"
+        meaning: "The points the wave has just reached at the time \\(t\\) of the stationary system K: a sphere of radius \\(Vt\\)."
+      - symbol: "\\(\\xi^2+\\eta^2+\\zeta^2=V^2\\tau^2\\)"
+        meaning: "The same wave front in the coordinates of the moving system k, at its time \\(\\tau\\): again a sphere, growing at the speed \\(V\\)."
+      - symbol: "\\(\\xi, \\eta, \\zeta, \\tau\\)"
+        meaning: "The coordinates and the time of the moving system k, as § 3 defines them; \\(\\tau\\) is k's time coordinate, not a proper time."
+    qualifications:
+      - kind: premise
+        text: "The transformation equations were built from the constancy of the speed of light in the stationary system and the definition of time; the spherical wave checks that the same holds in the moving system, which is what the principle of relativity requires."
+    probes:
+      - instrument: sr-04
+        question: "With the constructed map at 0.6 of the speed of light, does a ray keep the speed of light in both systems?"
+        preset: sr-04-construct-0.6c
+      - instrument: sr-04
+        question: "Put the Galilean map on the same rays: what speed does it give the light in the moving system?"
+        preset: sr-04-galilean-shelf
+    usedLater: []
+    meanings:
+      argumentStatus: "A check that the two postulates do not contradict each other"
+      modelStatus: "Exact within the paper's kinematics"
+      evidentialRole: "A consistency argument, not evidence"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "The introduction calls the two postulates only apparently irreconcilable; this is where § 3 shows they agree."
+
+  - id: sr-transformation-equations
+    title: "The transformation equations"
+    section: s3
+    arguments: [arg-sr-lorentz-map, arg-sr-transverse-and-inverse]
+    printed:
+      - anchor: s3-p22
+        sentences: [10]
+      - anchor: eq-s3-d25
+      - anchor: eq-s3-d26
+    equations: [eq-model-sr-map-time, eq-model-sr-map-position, eq-model-sr-lorentz-factor]
+    oneSentence: "An event with coordinates \\(x, y, z\\) and time \\(t\\) in the stationary system has, in a system moving along x with speed \\(v\\), the time \\(\\tau=\\beta(t-vx/V^2)\\) and the coordinates \\(\\xi=\\beta(x-vt)\\), \\(\\eta=y\\), \\(\\zeta=z\\), once the unknown factor \\(\\varphi(v)\\) of the derivation is shown to be 1."
+    decoder:
+      - symbol: "\\(\\beta\\)"
+        meaning: "Einstein's β is \\(1/\\sqrt{1-(v/V)^2}\\), the factor written γ today. It is not today's β, which means \\(v/c\\)."
+      - symbol: "\\(\\tau\\)"
+        meaning: "The time of the moving system k at the event, as its own clocks, set by § 1's rule, read it. It is k's time coordinate, not a proper time."
+      - symbol: "\\(\\xi, \\eta, \\zeta\\)"
+        meaning: "The event's coordinates in k, whose axes are parallel to those of the stationary system K."
+      - symbol: "\\(V\\)"
+        meaning: "The speed of light, printed V; today it is written c."
+      - symbol: "\\(\\varphi(v)=1\\)"
+        meaning: "The derivation leaves a factor \\(\\varphi(v)\\) open. A third system moving back with \\(-v\\) gives \\(\\varphi(v)\\varphi(-v)=1\\), and a rod moving across its length, which cannot depend on the sense of the motion, gives \\(\\varphi(v)=\\varphi(-v)\\); so \\(\\varphi(v)=1\\)."
+    qualifications:
+      - kind: premise
+        text: "The equations follow from the two principles, from § 1's definition of time and from the symmetry arguments the paper states; the factor \\(\\varphi(v)\\) is fixed by symmetry, not by an observation."
+    probes:
+      - instrument: sr-04
+        question: "At 0.6 of the speed of light, what does the constructed map give for β, and which constraint fixes each coefficient?"
+        preset: sr-04-construct-0.6c
+      - instrument: sr-03
+        question: "Boost to 0.6 of the speed of light: what do the two systems say about the same two events?"
+        preset: sr-03-boost-0.6c
+    usedLater: []
+    meanings:
+      argumentStatus: "The derivation of § 3, completed by a symmetry argument"
+      modelStatus: "Exact within the paper's kinematics"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "Every later section of the paper applies these equations: to rods and clocks, to velocities, to the fields and to light."
+
+  - id: sr-moving-rigid-body
+    title: "A moving sphere measured as an ellipsoid"
+    section: s4
+    arguments: [arg-sr-clock-and-length]
+    printed:
+      - anchor: s4-p1
+        sentences: [4]
+      - anchor: eq-s4-d3
+      - anchor: s4-p3
+        sentences: [1, 2, 3]
+    equations: [eq-model-sr-length-contraction]
+    oneSentence: "A rigid body that is a sphere of radius \\(R\\) when measured at rest has, measured from the stationary system while it moves with speed \\(v\\), the shape of an ellipsoid whose axis along the motion is \\(R\\sqrt{1-(v/V)^2}\\) and whose two other axes stay \\(R\\)."
+    decoder:
+      - symbol: "\\(R\\sqrt{1-(v/V)^2}\\)"
+        meaning: "The length of the axis along the motion, measured in the stationary system: the sphere is shortened in the ratio \\(1:\\sqrt{1-(v/V)^2}\\) in that direction only."
+      - symbol: "\\(R, R\\)"
+        meaning: "The two axes across the motion, which the motion leaves unchanged."
+      - symbol: "\"vom ruhenden System aus betrachtet\""
+        meaning: "Viewed from the stationary system: the shape is found from the positions of the body's points at one time \\(t=0\\) of that system."
+      - symbol: "\\(v=V\\)"
+        meaning: "At the speed of light every moving object would be flat in the stationary system; for speeds greater than light the paper says its considerations become meaningless."
+    qualifications:
+      - kind: premise
+        text: "The shape is a set of positions read at one time of the stationary system. It is not what a camera would record, which also depends on when light from each point left it."
+    probes:
+      - instrument: sr-03
+        question: "The sphere moving at 0.6 of the speed of light: what are its three axes in the stationary system?"
+        preset: sr-03-sphere-0.6c
+      - instrument: sr-03
+        question: "Measure k's rod from K and K's rod from k: is the shortening the same both ways?"
+        preset: sr-03-reciprocal-0.6c
+    usedLater: []
+    meanings:
+      argumentStatus: "A consequence of the transformation equations"
+      modelStatus: "Exact within the paper's kinematics, for a body the paper calls rigid"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "It is the first physical consequence § 4 draws from the transformation: lengths along the motion depend on the system that measures them."
+
+  - id: sr-moving-clock
+    title: "A moving clock falls behind"
+    section: s4
+    arguments: [arg-sr-clock-and-length, arg-sr-transported-clock]
+    printed:
+      - anchor: s4-p5
+        sentences: [1, 2]
+      - anchor: eq-s4-d6
+      - anchor: s4-p6
+        sentences: [2]
+      - anchor: s4-p8
+        sentences: [1, 2]
+    equations: [eq-model-sr-time-dilation, eq-model-sr-slow-clock, eq-model-sr-transported-clock]
+    oneSentence: "A clock at rest in the moving system, viewed from the stationary system, loses \\(1-\\sqrt{1-(v/V)^2}\\) seconds each second, so a clock moved from A to B, or around a closed curve back to A, lags behind the clock that stayed, by \\(\\frac{1}{2}tv^2/V^2\\) seconds to second order."
+    decoder:
+      - symbol: "\\(\\tau\\)"
+        meaning: "The reading of the clock at the origin of the moving system k: the time of k there. It is k's time coordinate, not a proper time."
+      - symbol: "\\(\\tau = t\\sqrt{1-(v/V)^2}\\)"
+        meaning: "At the place of that clock, \\(x=vt\\), the transformation gives this: while the stationary system's clocks advance by \\(t\\), the moving clock advances by less."
+      - symbol: "\\(\\frac{1}{2}tv^2/V^2\\)"
+        meaning: "The lag after a trip lasting \\(t\\) seconds of the stationary system, to within quantities of the fourth and higher order in \\(v/V\\)."
+      - symbol: "Unruhuhr"
+        meaning: "A balance-wheel clock, the paper's example for the clock at the equator."
+    qualifications:
+      - kind: approximation
+        text: "The lag \\(\\frac{1}{2}tv^2/V^2\\) is printed to within quantities of the fourth and higher order; the exact loss follows from the square root."
+      - kind: premise
+        text: "The theorem for a closed curve assumes that the result proved for a polygonal line also holds for a continuously curved one, and the paper says it assumes this."
+      - kind: inference
+        text: "The equator remark applies the closed-curve theorem to the earth's rotation. On the real rotating earth gravity enters as well, which this model does not include; the card keeps the remark as printed and makes no prediction for real clocks."
+    probes:
+      - instrument: sr-05
+        question: "A clock goes out and back at 0.6 of the speed of light: how far behind the clock that stayed is it at the reunion?"
+        preset: sr-05-out-and-back-0.6c
+      - instrument: sr-05
+        question: "At \\(v/V = 10^{-4}\\), compare the exact loss with the paper's second-order lag."
+        preset: sr-05-low-speed-1e-4
+    usedLater: []
+    meanings:
+      argumentStatus: "A consequence of the transformation equations, and an assumption for curved paths"
+      modelStatus: "Exact for a straight path, second order as printed, and assumed for a curved one"
+      evidentialRole: "A derivation, not evidence"
+      historicalStatus: "Introduced in this paper"
+    selectionReason: "It is the consequence § 4 calls peculiar: two clocks that were synchronous no longer are after one of them has moved."

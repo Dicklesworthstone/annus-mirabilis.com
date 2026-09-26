@@ -13,7 +13,7 @@
   },
   "instrumentIds": ["sr-05"],
   "anchors": ["s4-p5", "s4-p6", "s4-p7", "s4-p8"],
-  "resultIds": [],
+  "resultIds": ["sr-moving-clock"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plates pp. 904–905",
     "SR-05 preset sr-05-circle-0.6c: properTime = 8 s, coordinateTime = 10 s, reunionExactLag = 2 s, reunionPrintedApproxLag = 1.8 s at speed 0.6",

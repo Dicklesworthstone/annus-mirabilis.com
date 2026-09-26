@@ -13,6 +13,7 @@
   },
   "instrumentIds": ["sr-03"],
   "anchors": ["s3-p22", "eq-s3-d26"],
+  "resultIds": ["sr-transformation-equations"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plate p. 902",
     "SR-03 preset sr-03-boost-0.6c: v = 0.6; β = 1/√(1 − 0.36) = 1.25"

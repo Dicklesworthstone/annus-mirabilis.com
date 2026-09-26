@@ -15,7 +15,7 @@
     "reason": "A matter of notation and definition: the notation concordance's entry for τ (sr.tau.coordinateTimeMoving) and the definition on p. 898."
   },
   "anchors": ["s3-p3", "s3-p22", "eq-s3-d25", "s4-p5"],
-  "resultIds": [],
+  "resultIds": ["sr-transformation-equations", "sr-moving-clock"],
   "sources": [
     "A. Einstein, Ann. Phys. (4) 17, 891–921 (1905), plates pp. 898, 902 and 903–904",
     "notation concordance: content/notation/special-relativity.yaml, entry sr.tau.coordinateTimeMoving"
