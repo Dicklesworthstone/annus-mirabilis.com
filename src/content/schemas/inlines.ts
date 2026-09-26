@@ -76,6 +76,7 @@ export type Inline =
   | FootnoteMarkInline
   | TermInline
   | ReferenceInline
+  | MisprintInline
   | CitationRefInline
   | SpaceInline
   | LineBreakInline;
@@ -104,9 +105,8 @@ export function plainText(inlinesOrText: readonly Inline[] | string): string {
         res += node.mark || "";
         break;
       case "term":
-        res += node.text || "";
-        break;
       case "reference":
+      case "misprint":
         res += node.text || "";
         break;
       case "citation-ref":
@@ -227,6 +227,24 @@ export function validateInline(node: unknown, path = "inline"): Inline {
       };
     case "line-break":
       return { kind: "line-break" };
+    case "misprint":
+      if (
+        typeof o.text !== "string" ||
+        o.text.length === 0 ||
+        typeof o.recordId !== "string" ||
+        !/^[a-z0-9][a-z0-9-]*$/.test(o.recordId)
+      )
+        throw new MisprintInlineError(
+          "misprint-without-record",
+          `${path}: a misprint needs its word as printed and the id of its receipt record.`,
+        );
+      return {
+        kind: "misprint",
+        text: o.text,
+        recordId: o.recordId,
+        ...(lang ? { lang } : {}),
+        ...(dir ? { dir } : {}),
+      };
     default:
       throw new Error(`${path}: Unknown inline kind "${kind}".`);
   }
@@ -251,4 +269,29 @@ function definitionOf(
       ? { definitionLang: validateLanguageTag(o.definitionLang, `${path}.definitionLang`) }
       : {}),
   };
+}
+
+/**
+ * A word the 1905 compositor set wrongly, kept exactly as printed and marked against the receipt
+ * record that explains it (docs/provenance/<key>.md, typographicalErrors; dispatch 262). `text` is
+ * the printed word, so marking a block changes no character of its German text. The reading meant
+ * and the reason come from the record (src/content/provenance/misprints.ts), never from here.
+ */
+export type MisprintInline = Readonly<{
+  kind: "misprint";
+  text: string;
+  recordId: string;
+  lang?: string | undefined;
+  dir?: "ltr" | "rtl" | undefined;
+}>;
+
+/** A misprint inline that cannot be marked: its printed word or its record id is missing. */
+export class MisprintInlineError extends Error {
+  constructor(
+    readonly code: "misprint-without-record",
+    message: string,
+  ) {
+    super(message);
+    this.name = "MisprintInlineError";
+  }
 }

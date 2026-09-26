@@ -11,7 +11,12 @@ locators:
 diplomaticText: "II. Eektrodynamischer Teil."
 inlines:
   - kind: "text"
-    text: "II. Eektrodynamischer Teil."
+    text: "II. "
+  - kind: "misprint"
+    text: "Eektrodynamischer"
+    recordId: "err-typo-p907-1"
+  - kind: "text"
+    text: " Teil."
 sentenceSpans:
   - id: "part-2"
     span:

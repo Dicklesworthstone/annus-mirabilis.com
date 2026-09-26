@@ -1,7 +1,9 @@
 import { renderToString } from "katex";
 import React from "react";
+import { misprintNotes } from "../../content/provenance/misprints.ts";
 import type { Inline } from "../../content/schemas/inlines.ts";
 import { printedDisplay } from "../../equations/printed/printedDisplays.ts";
+import { MisprintAnnotation } from "./MisprintAnnotation.tsx";
 import { PrintedDisplayTerms } from "./PrintedDisplayTerms.tsx";
 import { referenceHref } from "./referenceHref.ts";
 import { TermAnnotation } from "./TermAnnotation.tsx";
@@ -143,6 +145,30 @@ export function renderInlines(
             dir={node.dir}
           />
         );
+
+      case "misprint": {
+        // Marked only against a live source-layer record (misprints.ts). A marker naming a
+        // retracted record, or one no receipt holds, prints the word and nothing else.
+        const note = misprintNotes().get(node.recordId);
+        if (!note)
+          return (
+            <span key={key} lang={node.lang} dir={node.dir}>
+              {node.text}
+            </span>
+          );
+        return (
+          <MisprintAnnotation
+            key={key}
+            recordId={node.recordId}
+            printed={node.text}
+            reading={note.reading}
+            reason={note.reason}
+            href={`/sources/#${node.recordId}`}
+            lang={node.lang}
+            dir={node.dir}
+          />
+        );
+      }
 
       case "reference":
         return (

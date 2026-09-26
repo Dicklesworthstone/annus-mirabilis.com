@@ -15,8 +15,9 @@ inlines:
     text: "§ 7. Theorie des "
   - kind: "emphasis"
     inlines:
-      - kind: "text"
+      - kind: "misprint"
         text: "Doppeler"
+        recordId: "err-typo-p910-1"
   - kind: "text"
     text: "schen Prinzips und der Aberration."
 sentenceSpans:

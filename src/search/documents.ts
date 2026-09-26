@@ -519,6 +519,7 @@ export function searchInlineText(inlines: readonly Inline[]): string {
         case "text":
         case "term":
         case "reference":
+        case "misprint":
           return node.text;
         case "space":
         case "line-break":
