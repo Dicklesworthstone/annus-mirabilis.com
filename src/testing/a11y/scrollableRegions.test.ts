@@ -558,6 +558,14 @@ export const NOT_YET_AUDITED = new Map<string, number>([
   // runtime from formulaOverflow.inline.ts, and only when the formula overflows, so a step that fits
   // carries none.
   ["eq-step-formula", 1],
+  // The equation drawn at the top of its own explanation page (src/app/equations/[paper]/[display],
+  // dispatch 303). It is set as a display and a phone column cannot hold every one of the 200, so it
+  // scrolls in its own box under its rule rather than widening the page. ONE JSX element, carrying
+  // role="group" and the authored spoken form as its name, and NO tabIndex in the TSX: as for
+  // inline-display and eq-step-formula, the tab stop comes at runtime from formulaOverflow.inline.ts,
+  // which is loaded by the root layout and selects every element rather than a list of classes, so it
+  // reaches this page and adds the stop only where the box actually overflows.
+  ["equation-explanation-formula", 1],
   // A formula inside a line of text (inlines.tsx, GlossPair.tsx, NotationEntryCard.tsx), made an
   // inline-flex box that scrolls in its line by 300f81ec, so Brownian's s2-p4-s1 formula (309 to
   // 345px) no longer widens the English, parallel and gloss faces at 320. Three JSX elements, with
