@@ -1,0 +1,83 @@
+# SR-03's formulas, and what each one carries (dispatch 291).
+lab: sr-03
+formulas:
+  - latex: "\\begin{gathered}t_B - t_A = \\frac{r_{AB}}{c - v}, \\\\ t'_A - t_B = \\frac{r_{AB}}{c + v}\\end{gathered}"
+    incidental: "§ 2's two printed lines gathered into one block, with c for the paper's V. Each is a printed display with its own words on the reading face, and the block is an arrangement rather than an equation of the lab's own, so the words belong where the two lines are printed."
+
+  # § 3's transformation, the line of it § 4 uses, in modern letters.
+  - latex: "x' = \\gamma (x - v t) = \\frac{x - v t}{\\sqrt{1 - v^2/c^2}}"
+    display: eq-s3-d25
+
+  # The contraction as a ratio of lengths, which the paper states as the axes of an ellipsoid.
+  - latex: "\\Delta x = \\Delta x' \\sqrt{1 - \\frac{v^2}{c^2}} = \\frac{L_0}{\\gamma}"
+    own:
+      inWords:
+        - text: "The distance between the ends in "
+        - text: "the stationary system"
+          quantityId: coordinatePositionStationary
+        - text: ", both read at one time, is the distance between them in "
+        - text: "the system the rod rests in"
+          quantityId: coordinatePositionMoving
+        - text: " times the square root of one less the square of "
+        - text: "the speed"
+          quantityId: frameSpeed
+        - text: " over "
+        - text: "the velocity of light"
+          quantityId: speedOfLight
+        - text: ": that is, "
+        - text: "the rod's own length"
+          quantityId: lengthProper
+        - text: " divided by "
+        - text: "the factor"
+          quantityId: lorentzFactor
+        - text: "."
+      r0: "A rod is measured shorter along its motion, by the factor, when both ends are read at one time of the system doing the measuring."
+      r1: "The condition is the whole of it: both ends are read at one time of the stationary system, which is what the sentence above the display means by $\\Delta t = 0$. Put that into the transformation of the display above and the time term drops out, leaving the two lengths in this ratio. The measurement is not about what a camera would record, and nothing has happened to the rod: the two systems disagree about which pairs of readings are simultaneous, and a length is defined by readings taken at one time. Read the same rod at one time of the system it rests in and the ratio goes the other way, which is why neither system is the one that is right."
+      r2:
+        - latex: "\\Delta x' = \\gamma (\\Delta x - v \\Delta t)"
+          why: "The transformation of the display above, applied to the difference between the two ends rather than to one position."
+        - latex: "\\Delta t = 0 \\quad \\Longrightarrow \\quad \\Delta x' = \\gamma \\, \\Delta x"
+          why: "Both ends read at one time of the stationary system. The time term drops and the two lengths differ by the factor alone."
+        - latex: "\\Delta x = \\frac{\\Delta x'}{\\gamma} = \\Delta x' \\sqrt{1 - \\frac{v^2}{c^2}}"
+          why: "Turn it over. Since the factor is never less than 1, the length measured in the stationary system is never the greater of the two."
+        - latex: "v = 0.6 \\, c \\quad \\Longrightarrow \\quad \\Delta x = 0.8 \\, \\Delta x'"
+          why: "A worked value: at six tenths of the velocity of light the factor is 1.25 and the measured length is four fifths of the rod's own."
+      r3: "The paper does not state the result as a ratio of lengths. § 4 asks what shape a sphere carried along has, and answers with the axes of an ellipsoid, $R \\sqrt{1 - (v/V)^2}$, $R$, $R$, which is the display two below this one. Writing it as $L_0 / \\gamma$ is this edition's arrangement, and $L_0$ is a modern name for the length in the system the rod rests in; the paper has no symbol for it here."
+
+  - latex: "R \\sqrt{1 - \\frac{v^2}{c^2}}, \\qquad R, \\qquad R"
+    display: eq-s4-d3
+
+  # Minkowski's interval, which the paper does not have.
+  - latex: "\\begin{aligned}s^2 &= \\Delta x^2 + \\Delta y^2 + \\Delta z^2 - c^2 \\Delta t^2 \\\\ &= \\Delta x'^2 + \\Delta y'^2 + \\Delta z'^2 - c^2 \\Delta t'^2\\end{aligned}"
+    own:
+      inWords:
+        - text: "The squared interval"
+          quantityId: spacetimeIntervalSquared
+        - text: " between two events: the squared distance between them along "
+        - text: "the three coordinates"
+          quantityId: coordinatePositionStationary
+        - text: ", less the square of "
+        - text: "the velocity of light"
+          quantityId: speedOfLight
+        - text: " times the time between them in "
+        - text: "the stationary system"
+          quantityId: coordinateTimeStationary
+        - text: ". The same number comes out from "
+        - text: "the coordinates"
+          quantityId: coordinatePositionMoving
+        - text: " and "
+        - text: "the time"
+          quantityId: coordinateTimeMoving
+        - text: " of any other system."
+      r0: "One number, built from the distance and the time between two events, that every system computes alike. It is a later way of stating what the transformation does."
+      r1: "Both systems disagree about the distance between two events and about the time between them, and this combination of the two is what they agree on. Checking it is arithmetic with the transformation, and the same cancellation that carried the light sphere of § 3 into the moving system carries this: the cross terms in $\\Delta x \\, \\Delta t$ cancel and the factor meets the bracket it is built from. A reader who has met the contraction and the slowing of a clock as separate results can take this as the single statement both come from."
+      r2:
+        - latex: "\\Delta x' = \\gamma (\\Delta x - v \\Delta t), \\qquad \\Delta t' = \\gamma \\left( \\Delta t - \\frac{v}{c^2} \\Delta x \\right)"
+          why: "The transformation, applied to the differences between two events."
+        - latex: "\\Delta x'^2 - c^2 \\Delta t'^2 = \\gamma^2 \\left[ (\\Delta x - v \\Delta t)^2 - c^2 \\left( \\Delta t - \\frac{v}{c^2} \\Delta x \\right)^2 \\right]"
+          why: "Square both and subtract. Everything is inside one factor of $\\gamma^2$."
+        - latex: "(\\Delta x - v \\Delta t)^2 - c^2 \\left( \\Delta t - \\frac{v}{c^2} \\Delta x \\right)^2 = \\left( 1 - \\frac{v^2}{c^2} \\right) \\left( \\Delta x^2 - c^2 \\Delta t^2 \\right)"
+          why: "Expand. The cross terms are $-2 v \\Delta x \\Delta t$ in both and cancel, leaving $\\Delta x^2 \\left( 1 - \\frac{v^2}{c^2} \\right) - \\Delta t^2 \\left( c^2 - v^2 \\right)$, which is the right-hand side."
+        - latex: "\\gamma^2 \\left( 1 - \\frac{v^2}{c^2} \\right) = 1 \\quad \\Longrightarrow \\quad \\Delta x'^2 - c^2 \\Delta t'^2 = \\Delta x^2 - c^2 \\Delta t^2"
+          why: "The factor meets the bracket and the two sides are equal. The transverse terms are unchanged by the transformation, so adding them to both sides completes the display."
+      r3: "This is not in the paper. It is Minkowski's, from his lecture of 1908, and the lab's own sentence says so before the display. Nothing in § 3 or § 4 requires it, and the site's account of the 1905 argument never uses it as a premise: the transformation is derived from the two principles, and this invariance is a consequence of the transformation rather than an axiom it rests on. It is offered here as a later way of stating the same facts, which is what it is."

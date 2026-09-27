@@ -1,0 +1,56 @@
+# ME-01's formulas, and what each one carries (dispatch 291). Six of the nine displays are equations
+# the mass-energy paper prints, in the lab's letters, and take its own records.
+lab: me-01
+formulas:
+  - latex: "l^* = l \\frac{1 - \\frac{v}{V}\\cos\\varphi}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}}"
+    display: eq-s0-d1
+
+  - latex: "l^* = l\\,\\gamma\\,(1 - \\beta\\cos\\varphi)"
+    incidental: "The display above it in modern letters, and the sentence between them makes the substitution: it names β as v/c and γ as the Lorentz factor. The two displays are one equation, so the words belong to the printed one."
+
+  - latex: "\\begin{gathered}E_0 = E_1 + \\frac{1}{2}L + \\frac{1}{2}L = E_1 + L \\\\ \\implies E_0 - E_1 = L\\end{gathered}"
+    display: eq-s0-d2
+
+  # The lab's own working: the two pulses separately, which is where the aberration factor enters and
+  # what makes the cancellation two displays below worth watching. The paper prints only their sum.
+  - latex: "\\begin{gathered}\\text{Pulse 1} = \\frac{1}{2}L\\,\\gamma\\,(1 - \\beta\\cos\\varphi), \\\\ \\text{Pulse 2} = \\frac{1}{2}L\\,\\gamma\\,(1 + \\beta\\cos\\varphi)\\end{gathered}"
+    own:
+      inWords:
+        - text: "Each pulse carries half of "
+        - text: "the energy the body gives off at rest"
+          quantityId: emittedEnergyRestFrame
+        - text: ", multiplied by "
+        - text: "the factor"
+          quantityId: lorentzFactor
+        - text: " and by one less or one plus "
+        - text: "the speed ratio"
+          quantityId: speedRatio
+        - text: " times the cosine of "
+        - text: "the angle the light leaves at"
+          quantityId: emissionAngle
+        - text: "."
+      r0: "The two pulses as the moving observer measures them: the one sent forward and the one sent back, each half the rest-frame energy with the same factor and opposite angle terms."
+      r1: "The body gives off two equal pulses in opposite directions, each of energy $\\frac{1}{2}L$ as measured where the body rests. The moving observer measures each one changed by the factor the display at the top of the page gives, and the two angles differ by a half turn, so where the first carries $1 - \\beta\\cos\\varphi$ the second carries $1 + \\beta\\cos\\varphi$. Neither pulse alone has a simple energy in this frame: the forward one is diminished and the backward one increased, or the reverse, depending on which way the observer moves. What matters for the argument is that the two angle terms are equal and opposite, which the next display uses."
+      r2:
+        - latex: "\\frac{1}{2}L, \\qquad \\frac{1}{2}L"
+          why: "The two pulses as measured where the body rests: equal, and opposite in direction, so that the body does not begin to move."
+        - latex: "\\frac{1}{2}L\\,\\gamma\\,(1 - \\beta\\cos\\varphi)"
+          why: "The first pulse as the moving observer measures it, by the transformation of light energy at the top of the page, with $\\varphi$ the angle between the light and the observer's motion."
+        - latex: "\\frac{1}{2}L\\,\\gamma\\,(1 + \\beta\\cos\\varphi)"
+          why: "The second pulse goes the opposite way, half a turn from the first, so the cosine of its angle is the negative of the first one's. Nothing else about it differs."
+      r3: "Splitting the emission into two named pulses is this edition's way of setting out the step; the paper writes the two terms inside one bracket and never names them separately. Two pulses rather than one is Einstein's own condition and not a simplification: a body that gave off a single pulse would recoil, and the energy it then carried away in motion would have to be accounted for. The pair makes the body's own motion unchanged, which is what lets the argument compare only energies."
+
+  - latex: "\\begin{aligned}&\\text{Total moving light} \\\\ &\\quad = \\frac{1}{2}L\\,\\gamma\\,(1 - \\beta\\cos\\varphi) \\\\ &\\qquad + \\frac{1}{2}L\\,\\gamma\\,(1 + \\beta\\cos\\varphi) \\\\ &\\quad = \\gamma L\\end{aligned}"
+    incidental: "The addition of the two pulses of the display above, and the sentence before it states the reason the sum is simple: the angle terms cancel identically. The paper prints the sum rather than the addition."
+
+  - latex: "\\begin{gathered}H_0 = H_1 + \\gamma L \\\\ \\implies H_0 - H_1 = \\gamma L\\end{gathered}"
+    display: eq-s0-d3
+
+  - latex: "\\begin{aligned}&(H_0 - E_0) - (H_1 - E_1) \\\\ &\\qquad = \\gamma L - L \\\\ &\\qquad = L\\,(\\gamma - 1)\\end{aligned}"
+    display: eq-s0-d4
+
+  - latex: "H - E = K + C"
+    display: eq-s0-d5
+
+  - latex: "\\begin{aligned}(K_0 + C) - (K_1 + C) &= K_0 - K_1 \\\\ &= L\\,(\\gamma - 1)\\end{aligned}"
+    display: eq-s0-d6
