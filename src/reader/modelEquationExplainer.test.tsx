@@ -3,15 +3,17 @@
  * from the rendered cards, as a reader's browser receives them:
  * - every model equation of the four papers carries the panel, since every record has the words to
  *   fill it: from the printed display it is bound to, or from its own sentence and explanation;
- * - the panel offers only the levels it has, and never an empty one: a card explained from its own
- *   record shows In words and the full explanation, and says so with data-only-level rather than
- *   obeying a page Detail it cannot answer;
+ * - the panel names only the levels it has, and never an empty one: a card explained from its own
+ *   record offers In words and the full explanation, and says so with data-only-level rather than
+ *   obeying a page Detail it cannot answer. The levels themselves are fetched (dispatch 292);
  * - each In words phrase names a quantity the card's own formula binds, so pointing at one lights
  *   the other (the card lights by exact quantity id within itself);
  * - nothing in it is a block element, since a card's sentence and chips are phrasing content.
  * The denominator is printed: how many cards, and where each panel's words came from.
  */
 import { describe, expect, test } from "bun:test";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { Window } from "happy-dom";
 import { exportMarkup } from "../testing/exportMarkup.ts";
 import { ArgumentEquations } from "./ArgumentEquations.tsx";
@@ -57,25 +59,22 @@ describe("the explainer on a model equation", () => {
         withPanel++;
         if (equation?.explainer?.display) fromDisplay++;
         else fromRecord++;
-        // Only levels with words, and a single-level panel says which one it is, so the page's
-        // Detail cannot open it empty.
-        const levels = [...node.querySelectorAll(".eq-level")].map((l) =>
-          l.getAttribute("data-level"),
-        );
+        // The levels are fetched, not carried (dispatch 292): the page names them, and a
+        // single-level panel says which one it is so the page's Detail cannot open it empty.
+        expect([id, node.querySelectorAll(".eq-level").length]).toEqual([id, 0]);
+        const levels = equation?.explainer?.levels ?? [];
         expect([id, levels.length > 0]).toEqual([id, true]);
         const only = node.getAttribute("data-only-level");
         if (only === null) expect([id, levels.length > 1]).toEqual([id, true]);
-        else expect([id, levels]).toEqual([id, [only]]);
+        else expect([id, [...levels]]).toEqual([id, [only]]);
+        // Its fragment exists, and its control is a real link for a reader without JavaScript.
+        const url = node.getAttribute("data-explainer-fragment") ?? "";
+        expect([id, url.startsWith("/equation-explanations/")]).toEqual([id, true]);
+        expect([id, existsSync(join("public", url))]).toEqual([id, true]);
+        expect([id, !!node.querySelector("a.eq-explain-control[href]")]).toEqual([id, true]);
         // Every phrase in words names a quantity this card's own formula binds.
-        const glyphs = new Set(
-          [...card.querySelectorAll("[data-quantity-id]")]
-            .filter((g) => !g.closest(".eq-explainer"))
-            .map((g) => g.getAttribute("data-quantity-id")),
-        );
-        for (const phrase of node.querySelectorAll(".eq-explain-words [data-quantity-id]")) {
-          const q = phrase.getAttribute("data-quantity-id");
-          expect([id, q, glyphs.has(q)]).toEqual([id, q, true]);
-        }
+        // The words travel with the levels, so the page carries none of them.
+        expect([id, node.querySelectorAll(".eq-explain-words").length]).toEqual([id, 0]);
         expect([id, node.querySelectorAll(NOT_PHRASING).length]).toEqual([id, 0]);
       }
       console.log(`${paper} ${argument}: ${cardsHere.length} model equations, each with its panel`);
