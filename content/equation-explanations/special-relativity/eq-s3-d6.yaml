@@ -1,0 +1,37 @@
+# special-relativity eq-s3-d6: what the display says, at every level (dispatch 286).
+# Written from the German of s3-p10 (p. 899) and its plate; every step was checked by hand.
+display: eq-s3-d6
+paper: special-relativity
+inWords:
+  - text: "The moving system's time"
+    quantityId: coordinateTimeMoving
+  - text: " is "
+  - text: "a factor still to be found"
+    quantityId: transformationCoefficientA
+  - text: " times "
+  - text: "the stationary time"
+    quantityId: coordinateTimeStationary
+  - text: " less "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " over the square of "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " less the square of that speed, times "
+  - text: "the distance along the motion"
+    quantityId: auxiliaryGalileanCoordinate
+  - text: "."
+r0: "The moving system's time, at last: it runs with the stationary time, and it is set back by an amount that grows with the distance along the motion. One factor is still unknown and is settled later in the section."
+r1: "Three facts are put together here. The rate of change across the motion is zero, so neither of the two transverse distances appears. The equation of the previous displays fixes the ratio of the two remaining rates of change. And the equations were assumed linear at the head of the section, so a function whose rates of change are constant is that constant times its argument, with nothing else. The constant in front, which the paper calls $a$, is left standing: the paper says only that it is a function of $v$ still to be found, and $\\varphi(v)$ is what it becomes on p. 900. The paper also fixes the zero of the moving system's time by putting $\\tau = 0$ at $t = 0$ at the origin of $k$, which is why there is no constant added on the right."
+r2:
+  - latex: "\\frac{\\partial \\tau}{\\partial y} = 0, \\quad \\frac{\\partial \\tau}{\\partial z} = 0"
+    why: "From the rays sent across the motion: neither transverse distance can appear in $\\tau$."
+  - latex: "\\frac{\\partial \\tau}{\\partial t} = a"
+    why: "The equations were assumed linear, so each rate of change is a constant. The paper names this one $a$ and leaves it to be found."
+  - latex: "\\frac{\\partial \\tau}{\\partial x'} = - \\frac{v}{V^2 - v^2} a"
+    why: "The equation of the previous display, with that constant put in: the two rates of change stand in a fixed ratio."
+  - latex: "\\tau = a t - a \\frac{v}{V^2 - v^2} x'"
+    why: "A linear function with these constant rates of change, and no constant term: the paper fixes $\\tau = 0$ at $t = 0$ at the origin of $k$."
+  - latex: "\\tau = a \\left( t - \\frac{v}{V^2 - v^2} x' \\right)"
+    why: "Take $a$ outside, which is the line as printed."
+r3: "The linearity is asserted, not derived: the paper gives the homogeneity of space and time as its reason in one sentence (p. 898) and does not return to it. The factor $a$ is left unknown on purpose, and the paper spends the rest of the section, through the third system $K'$ and a rod held across the motion, showing that it is one."

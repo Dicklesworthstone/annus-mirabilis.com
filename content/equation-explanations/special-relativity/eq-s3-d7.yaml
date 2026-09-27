@@ -1,0 +1,22 @@
+# special-relativity eq-s3-d7: what the display says, at every level (dispatch 286).
+# Written from the German of s3-p12 (p. 899) and its plate; every step was checked by hand.
+display: eq-s3-d7
+paper: special-relativity
+inWords:
+  - text: "The distance along the motion in the moving system"
+    quantityId: coordinatePositionMoving
+  - text: " is "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " times "
+  - text: "the moving system's time"
+    quantityId: coordinateTimeMoving
+  - text: "."
+r0: "A ray sent along the moving system's first axis must be found, by that system's own measurements, to travel at the velocity of light. That is this line, and it is where the second principle enters the derivation of the distances."
+r1: "The paper has the moving system's time and now wants its distances. The requirement it uses is the one the two principles together demand: light, measured in the moving system, also travels at $V$. So a ray sent from the origin at $\\tau = 0$ along the direction of increasing $\\xi$ is at $\\xi = V \\tau$ at the moving system's time $\\tau$. The line is short but it is not an identity: it is the constancy of the velocity of light, asserted now of a system the paper has not yet described, and it is what the rest of the section has to be consistent with. Where the first displays used the velocity of light in the stationary system to fix the two legs of a signal, this uses it in the moving one."
+r2:
+  - latex: "\\text{distance} = \\text{speed} \\times \\text{time}"
+    why: "For a ray that leaves the origin at $\\tau = 0$ and travels along one axis at a constant speed."
+  - latex: "\\xi = V \\tau"
+    why: "The speed measured in the moving system is $V$, by the principle of the constancy of the velocity of light taken with the principle of relativity, which is what the paragraph states."
+r3: "This is the step the paper's title paragraph promised and the one that separates it from an account in which the moving system's clocks are merely mis-set: the same $V$ is required in both systems, rather than derived in one and carried to the other (p. 899)."

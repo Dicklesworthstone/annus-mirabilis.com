@@ -1,0 +1,32 @@
+# special-relativity eq-s3-d8: what the display says, at every level (dispatch 286).
+# Written from the German of s3-p12 (p. 899) and its plate; every step was checked by hand.
+display: eq-s3-d8
+paper: special-relativity
+inWords:
+  - text: "The distance along the motion in the moving system"
+    quantityId: coordinatePositionMoving
+  - text: " is "
+  - text: "the factor still to be found"
+    quantityId: transformationCoefficientA
+  - text: " times "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " times "
+  - text: "the stationary time"
+    quantityId: coordinateTimeStationary
+  - text: " less "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " over the square of the velocity of light less the square of that speed, times "
+  - text: "the distance along the motion"
+    quantityId: auxiliaryGalileanCoordinate
+  - text: "."
+r0: "The same ray, with the moving system's time written out in the stationary system's terms. It gives the moving distance in terms of a stationary time and a stationary distance, which is half of what the section is after."
+r1: "Nothing new is assumed here: the expression for $\\tau$ that the previous displays reached is put into $\\xi = V \\tau$. What the line still contains is a stationary time $t$ as well as a distance, so it does not yet say where the ray is in terms of position alone. The paper removes $t$ in the next two displays by asking, of this same ray, how far it has got in the stationary system at the stationary time $t$, and putting that in. The factor $a$ is still the unknown of the previous display, and it rides along untouched."
+r2:
+  - latex: "\\xi = V \\tau"
+    why: "The ray, measured in the moving system, travels at the velocity of light."
+  - latex: "\\tau = a \\left( t - \\frac{v}{V^2 - v^2} x' \\right)"
+    why: "The moving system's time, as the section has just found it."
+  - latex: "\\xi = a V \\left( t - \\frac{v}{V^2 - v^2} x' \\right)"
+    why: "Put the second into the first. The line as printed."

@@ -1,0 +1,26 @@
+# special-relativity eq-s3-d5: what the display says, at every level (dispatch 286).
+# Written from the German of s3-p10 (p. 899) and its plate; every step was checked by hand.
+display: eq-s3-d5
+paper: special-relativity
+inWords:
+  - text: "How fast "
+  - text: "the moving system's time"
+    quantityId: coordinateTimeMoving
+  - text: " changes with "
+  - text: "either coordinate across the motion"
+    quantityId: coordinatePositionStationary
+  - text: " is zero, for both of them."
+r0: "Across the motion nothing slides: clocks set in the moving system agree with the stationary system's about what is simultaneous, so long as one moves only sideways. The sliding of the previous display happens along the direction of the motion alone."
+r1: "The paper reaches this by running the argument of the first displays along the other two axes. A ray sent along the moving system's second axis has to keep up with that axis as it is carried along at $v$, so part of its velocity goes into the motion and what is left for crossing is $\\sqrt{V^2 - v^2}$, the figure the paper states here. The outward and the return leg then take the same stationary time, which is what makes the first-order terms cancel and leaves the rate of change across the motion at zero. The result is what allows $\\tau$ to be written with $t$ and one distance only, which the next display does."
+r2:
+  - latex: "\\text{out} = \\text{back} = \\frac{y}{\\sqrt{V^2 - v^2}}"
+    why: "The two legs across the motion take the same stationary time, since the ray crosses at $\\sqrt{V^2 - v^2}$ each way and the axis is carried along with the system."
+  - latex: "\\frac{1}{2}\\left[ \\tau(0,0,0,t) + \\tau\\left( 0,0,0, t + \\frac{2 y}{\\sqrt{V^2 - v^2}} \\right) \\right] = \\tau\\left( 0, y, 0, t + \\frac{y}{\\sqrt{V^2 - v^2}} \\right)"
+    why: "The rule of § 1 again, for a ray that goes out along the second axis and comes back."
+  - latex: "\\frac{y}{\\sqrt{V^2 - v^2}} \\frac{\\partial \\tau}{\\partial t} = y \\frac{\\partial \\tau}{\\partial y} + \\frac{y}{\\sqrt{V^2 - v^2}} \\frac{\\partial \\tau}{\\partial t}"
+    why: "Both sides to first order in a small $y$, with $\\tau(0,0,0,t)$ taken from each."
+  - latex: "\\frac{\\partial \\tau}{\\partial y} = 0"
+    why: "The terms in $\\frac{\\partial \\tau}{\\partial t}$ are the same on both sides, so what is left is zero; divide by $y$."
+  - latex: "\\frac{\\partial \\tau}{\\partial z} = 0"
+    why: "The third axis is the second one over again, with nothing in the argument to tell them apart."
+r3: "The speed $\\sqrt{V^2 - v^2}$ is not a velocity of light smaller than $V$: it is how fast the ray crosses the stationary system's second axis while also keeping pace with the moving system along the first, and the paper says as much in the same sentence (p. 899). A modern account gets the same figure by adding the velocities as components of one vector of length $V$."
