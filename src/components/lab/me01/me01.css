@@ -30,6 +30,14 @@
   gap: 1.25rem;
 }
 
+/* A grid item's automatic minimum is its content, so without this the ledger table pushed its own
+   column wider than the phone and the PAGE scrolled sideways (measured at 390: 60px of page scroll,
+   0 of region scroll). With it the item may shrink and the scroll happens inside .table-scroll,
+   which is focusable and named. */
+.me01-figure-grid > * {
+  min-width: 0;
+}
+
 @container (min-width: 38rem) {
   .me01-figure-grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -47,18 +55,43 @@
   margin: 0.25rem 0 0.75rem;
 }
 
-.me01-ledger {
-  display: grid;
-  gap: 0.75rem;
+/* The two accounts, as the table the manifest declares (am-jioj). It replaces a definition list of
+   two groups: the same lines, now with one row per line and one column per frame, so a reader
+   comparing the rest frame with the moving frame moves along a row rather than between two lists. */
+.me01-ledger-table {
   margin: 0.75rem 0 0;
+  border-collapse: collapse;
+  font-size: var(--type-small);
+  /* Measured at 390 before these rules: the global `tbody th { width: 58% }` left the moving-frame
+     column about 40px wide, where the phone rule `overflow-wrap: anywhere` broke its heading into
+     "In / the / movi / ng / fram / e" and split "v²/V²" across two lines. A floor of 26rem fixed the
+     breaking and hid the moving column behind a 94px scroll instead - the column the two actions
+     tell a reader to read. So the table fits the phone instead: short column heads, the equal-halves
+     qualification in the caption, and the long printed-notation equation on a row of its own. */
 }
 
-.me01-ledger dt {
+.me01-ledger-table caption {
+  text-align: left;
+  padding-bottom: 0.5rem;
+  color: var(--muted);
+}
+
+.me01-ledger-table th,
+.me01-ledger-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.35rem 0.75rem 0.35rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.me01-ledger-table th[scope="row"] {
   font-weight: 600;
 }
 
-.me01-ledger dd {
-  margin: 0;
+/* The global `tbody th { width: 58% }` squeezed the two frame columns into the rest; a ledger's
+   line names are short enough to take less. */
+.me01-ledger-table tbody th {
+  width: 40%;
 }
 
 .me01-equation {

@@ -1,5 +1,6 @@
 import type { Me01Parameters } from "../../../experiments/me01/definition.ts";
 import type { Me01Snapshot } from "../../../experiments/me01/session.ts";
+import type { ScientificResult } from "../../../experiments/results/types.ts";
 import { fixed, numberText } from "../presentation.ts";
 import "./me01.css";
 
@@ -17,6 +18,35 @@ function scalarOf(
   return res && res.status === "value" && typeof res.value === "number" ? res.value : null;
 }
 
+/**
+ * A ledger line's own cell. The body's energies come back `symbolic` - the kernel is not told what
+ * E₀ or H₀ are, and the argument does not need them - so the cell shows the symbol the snapshot
+ * names rather than a number, with its status on the element (the pattern MagnetConductorLab's
+ * reading uses). Nothing is computed here: every number is the accepted snapshot's, in units of L.
+ */
+function LedgerCell({
+  result,
+  inL,
+  output,
+}: {
+  result: ScientificResult | undefined;
+  inL: (x: number | null) => string;
+  output: string;
+}) {
+  if (result?.status === "symbolic")
+    return (
+      <td data-output={output} data-status="symbolic">
+        {result.unspecifiedSymbols.join(", ")}
+      </td>
+    );
+  if (result?.status === "value") return <td data-output={output}>{inL(scalarOf(result))}</td>;
+  return (
+    <td data-output={output} data-status={result?.status ?? "unavailable"}>
+      not computed at these settings
+    </td>
+  );
+}
+
 const label = { fontSize: "12px", fontFamily: "var(--font-sans)" } as const;
 
 export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlotProps) {
@@ -24,7 +54,6 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
   const isModern = notation === "modern";
   const isRelaxed = premise === "relaxed";
 
-  const sumVal = scalarOf(evaluation.pulseSumMoving);
   const p1Val = scalarOf(evaluation.pulse1Moving);
   const p2Val = scalarOf(evaluation.pulse2Moving);
   const subVal = scalarOf(evaluation.subtractionDifference);
@@ -220,20 +249,96 @@ export function TwoLedgersPlot({ parameters, evaluation, clipId }: TwoLedgersPlo
 
         <div className="ledger-summary">
           <p className="me01-figure-title">The two energy accounts</p>
-          <dl className="me01-ledger">
-            <div>
-              <dt>In the body's rest frame (K₀)</dt>
-              <dd>Light sent out: L/2 + L/2 = 1.0000 L</dd>
-              <dd className="me01-equation">E₀ − E₁ = L</dd>
-            </div>
-            <div>
-              <dt>In the moving frame (k, speed v)</dt>
-              <dd>
-                Light sent out: {inL(sumVal)} (= {gammaSymbol}·L)
-              </dd>
-              <dd className="me01-equation">H₀ − H₁ = {gammaSymbol}·L</dd>
-            </div>
-          </dl>
+          {/* THE TABLE THE MANIFEST DECLARES (am-jioj). me-01 declares a view `table-two-ledgers`
+              of kind `table`, and two of its actions promise a reader will "read the moving ledger
+              values in the table". Until this, the accounts were a two-item definition list giving
+              each frame's light total and its balance equation, so the promise named a structure
+              that was not here and the individual pulse energies lived only as labels inside the
+              drawing. Two accounts of the same emission, line by line, are tabular: a reader moving
+              by row compares the same line in the two frames, which a nested list cannot offer. */}
+          <section
+            className="table-scroll"
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: a region that scrolls must be focusable or its off-screen columns cannot be reached by keyboard at all (am-bc6s)
+            tabIndex={0}
+            aria-label="The two energy accounts, line by line, in the body's rest frame and in the moving frame"
+          >
+            <table className="me01-ledger-table" data-view="table-two-ledgers">
+              <caption>
+                Each line in units of the emitted energy L, for the accepted settings: v ={" "}
+                {numberText(frameSpeed)}c, φ = {numberText(emissionAngle)}°. The body sends out two
+                equal halves, L/2 each, in its own frame; the moving frame sees them unequal.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Line of the account</th>
+                  <th scope="col">Rest frame (K₀)</th>
+                  <th scope="col">Moving frame (k)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Body&apos;s energy before emission</th>
+                  <LedgerCell
+                    result={evaluation.restBodyBefore}
+                    inL={inL}
+                    output="restBodyBefore"
+                  />
+                  <LedgerCell
+                    result={evaluation.movingBodyBefore}
+                    inL={inL}
+                    output="movingBodyBefore"
+                  />
+                </tr>
+                <tr>
+                  <th scope="row">Light sent out</th>
+                  <LedgerCell
+                    result={evaluation.restBalanceLight}
+                    inL={inL}
+                    output="restBalanceLight"
+                  />
+                  <LedgerCell
+                    result={evaluation.movingBalanceLight}
+                    inL={inL}
+                    output="movingBalanceLight"
+                  />
+                </tr>
+                <tr>
+                  <th scope="row">…of which pulse 1</th>
+                  <td>L/2</td>
+                  <LedgerCell result={evaluation.pulse1Moving} inL={inL} output="pulse1Moving" />
+                </tr>
+                <tr>
+                  <th scope="row">…of which pulse 2</th>
+                  <td>L/2</td>
+                  <LedgerCell result={evaluation.pulse2Moving} inL={inL} output="pulse2Moving" />
+                </tr>
+                <tr>
+                  <th scope="row">…the two pulses together</th>
+                  <td>L</td>
+                  <LedgerCell
+                    result={evaluation.pulseSumMoving}
+                    inL={inL}
+                    output="pulseSumMoving"
+                  />
+                </tr>
+                <tr>
+                  <th scope="row">Body&apos;s energy after emission</th>
+                  <LedgerCell result={evaluation.restBodyAfter} inL={inL} output="restBodyAfter" />
+                  <LedgerCell
+                    result={evaluation.movingBodyAfter}
+                    inL={inL}
+                    output="movingBodyAfter"
+                  />
+                </tr>
+                <tr>
+                  <th scope="row">The account as an equation</th>
+                  <td className="me01-equation" colSpan={2}>
+                    E₀ − E₁ = L; H₀ − H₁ = {gammaSymbol}·L
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
           <div className="me01-subtraction">
             <p className="me01-figure-title">Subtracting one account from the other</p>
             <p className="me01-equation">(H₀ − E₀) − (H₁ − E₁) = L({gammaSymbol} − 1)</p>
