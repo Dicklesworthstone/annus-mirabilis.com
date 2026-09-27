@@ -1,0 +1,38 @@
+# special-relativity eq-s10-d10: what the display says, at every level (dispatch 281).
+# Written from the German of s10-p17 (pp. 920-921) and its plate; every step was checked by hand.
+display: eq-s10-d10
+paper: special-relativity
+inWords:
+  - text: "The potential difference the electron has passed through"
+    quantityId: acceleratingPotential
+  - text: ": the sum of "
+  - text: "the electric force"
+    quantityId: electricFieldStationary
+  - text: " along "
+  - text: "the path"
+    quantityId: coordinatePositionStationary
+  - text: ", which comes to "
+  - text: "the mass of the electron"
+    quantityId: electronMass
+  - text: " over "
+  - text: "its charge"
+    quantityId: electronCharge
+  - text: ", times the square of "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", times the factor at "
+  - text: "the velocity attained"
+    quantityId: frameSpeed
+  - text: " less one."
+r0: "The second relation offered to experiment: the potential difference an electron has fallen through, and the velocity it reaches, are tied together by the kinetic energy of the display above, divided by the charge."
+r1: "The energy the electrostatic field gives up is $\\int \\varepsilon X \\, d x$, and the charge is the same all along the path, so it comes out of the integral and leaves $\\varepsilon \\int X \\, d x$. What is left of the integral is the potential difference $P$ the electron has passed through. Setting the energy equal to the energy of motion, as the display above does, and dividing by the charge gives this relation. It is the previous display over $\\varepsilon$, and nothing else, but it is written in quantities an experiment sets and reads: a voltage applied and a velocity attained."
+r2:
+  - latex: "W = \\int \\varepsilon X \\, d x = \\varepsilon \\int X \\, d x = \\varepsilon P"
+    why: "The charge is constant along the path, so it comes out of the integral; what remains is the potential difference the electron has passed through."
+  - latex: "P = \\frac{W}{\\varepsilon} = \\frac{\\mu}{\\varepsilon} V^2 \\left\\{ \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} - 1 \\right\\}"
+    why: "Divide the kinetic energy of the display above by the charge. This is the printed form."
+  - latex: "\\frac{\\mu}{\\varepsilon} V^2 \\left\\{ \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} - 1 \\right\\} \\approx \\frac{\\mu v^2}{2 \\varepsilon}"
+    why: "At low speed the brace is about $\\frac{1}{2} \\left( \\frac{v}{V} \\right)^2$, so $\\varepsilon P$ is about $\\frac{1}{2} \\mu v^2$, the relation between accelerating voltage and velocity that ordinary mechanics gives."
+  - latex: "v = 0.6 \\, V \\quad \\Longrightarrow \\quad P = 0.25 \\, \\frac{\\mu}{\\varepsilon} V^2"
+    why: "A worked value: at six tenths of the velocity of light the factor is $1.25$, so the brace is $0.25$."
+r3: "The relation is the kinetic energy divided by the charge, so an experiment that sets a potential difference and measures the velocity attained tests the energy formula of the display above, and with it the first row of (A). The paper introduces it as the second of the properties of the motion of the electron accessible to experiment (p. 920)."

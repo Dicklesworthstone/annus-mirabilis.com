@@ -1,0 +1,41 @@
+# special-relativity eq-s10-d11: what the display says, at every level (dispatch 281).
+# Written from the German of s10-p18 (p. 921) and its plate; every step was checked by hand.
+display: eq-s10-d11
+paper: special-relativity
+inWords:
+  - text: "How fast the speed across the motion"
+    quantityId: coordinatePositionStationary
+  - text: " changes with "
+  - text: "the time"
+    quantityId: coordinateTimeStationary
+  - text: ", taken toward the centre of the path: the square of "
+  - text: "the electron's speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the radius of curvature of its path"
+    quantityId: radiusCurvatureMagnetic
+  - text: ", which is "
+  - text: "its charge"
+    quantityId: electronCharge
+  - text: " over "
+  - text: "its mass"
+    quantityId: electronMass
+  - text: ", times its speed over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", times "
+  - text: "the magnetic force"
+    quantityId: magneticFieldStationary
+  - text: ", times the square root of one less the square of that speed ratio."
+r0: "What a magnetic force alone does to the path: it bends it, and the bending is the ordinary one of a circular path, with the magnetic force reduced by the square root."
+r1: "A magnetic force $N$ acts perpendicular to the velocity of the electron, and it is the only deflecting force. Put $Y = 0$ in the second row of (A) and what is left is an acceleration across the motion, directed opposite to the $y$ axis, of size $\\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta} \\frac{v}{V} N$; and $\\frac{1}{\\beta}$ is $\\sqrt{1 - (v/V)^2}$. The paper then equates this acceleration with $\\frac{v^2}{R}$, the acceleration toward the centre of a path of radius of curvature $R$ travelled at the speed $v$, which is a piece of ordinary kinematics it uses without writing it out. The square root is the whole of the difference from the older theory: the faster the electron, the less a given magnetic force bends it, beyond what the growing velocity in the numerator already accounts for."
+r2:
+  - latex: "\\frac{d^2 y}{d t^2} = \\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta} \\left( 0 - \\frac{v}{V} N \\right) = - \\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta} \\frac{v}{V} N"
+    why: "The second row of (A) with no electric force. The sign says the path bends toward the side the $y$ axis points away from."
+  - latex: "\\frac{1}{\\beta} = \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}"
+    why: "The factor as defined on p. 900, written the way the printed display carries it."
+  - latex: "- \\frac{d^2 y}{d t^2} = \\frac{v^2}{R}"
+    why: "The acceleration is toward the centre of the path. For a path of radius of curvature $R$ travelled at the speed $v$, that acceleration is $\\frac{v^2}{R}$; the paper uses this without deriving it."
+  - latex: "\\frac{v^2}{R} = \\frac{\\varepsilon}{\\mu} \\frac{v}{V} N \\cdot \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}"
+    why: "The two together, which is the printed display."
+r3: "Two things enter here that § 10 has not stated. The centripetal acceleration $\\frac{v^2}{R}$ is ordinary kinematics, and it is legitimate because the accelerations of (A) are measured in the resting system, which is where the path and its radius of curvature are described. And the speed $v$ is taken as unchanged while the path bends, which holds for a magnetic force: it is perpendicular to the velocity, so it does no work, and the kinetic energy of the display above stays put."

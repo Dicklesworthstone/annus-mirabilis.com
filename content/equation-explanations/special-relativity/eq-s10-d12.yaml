@@ -1,0 +1,35 @@
+# special-relativity eq-s10-d12: what the display says, at every level (dispatch 281).
+# Written from the German of s10-p18 and s10-p14 (p. 921) and its plate; every step was checked by hand.
+display: eq-s10-d12
+paper: special-relativity
+inWords:
+  - text: "The radius of curvature of the path"
+    quantityId: radiusCurvatureMagnetic
+  - text: ": the square of "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", times "
+  - text: "the mass of the electron"
+    quantityId: electronMass
+  - text: " over "
+  - text: "its charge"
+    quantityId: electronCharge
+  - text: ", times "
+  - text: "its speed"
+    quantityId: frameSpeed
+  - text: " over the velocity of light divided by the square root of one less the square of that ratio, times one over "
+  - text: "the magnetic force"
+    quantityId: magneticFieldStationary
+  - text: "."
+r0: "The third relation offered to experiment: the radius the magnetic force bends the path into, written out for the velocity and the field."
+r1: "This is the display above solved for $R$. The velocity appears twice over, as the $v^2$ of the centripetal acceleration and as the $\\frac{v}{V}$ the magnetic force carries, and one power cancels; the square root moves to the denominator. The paper prints the result with $V^2$ in front and the speed ratio in the numerator, which is the same expression rearranged. The paper closes the section by saying that these three relations are a complete expression of the laws by which, according to the theory presented, the electron must move."
+r2:
+  - latex: "\\frac{v^2}{R} = \\frac{\\varepsilon}{\\mu} \\frac{v}{V} N \\cdot \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}"
+    why: "The display above."
+  - latex: "R = \\frac{v^2}{\\frac{\\varepsilon}{\\mu} \\frac{v}{V} N \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} = \\frac{\\mu}{\\varepsilon} \\frac{v V}{N \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
+    why: "Solve for $R$. One power of the velocity cancels against the $\\frac{v}{V}$, and what is left of it is $v V$."
+  - latex: "\\frac{\\mu}{\\varepsilon} \\frac{v V}{N \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} = V^2 \\frac{\\mu}{\\varepsilon} \\cdot \\frac{\\frac{v}{V}}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} \\cdot \\frac{1}{N}"
+    why: "The same expression written as the paper prints it: take $V^2$ out in front, and $v V$ over $V^2$ is $\\frac{v}{V}$."
+  - latex: "v = 0.6 \\, V \\quad \\Longrightarrow \\quad R = 0.75 \\, \\frac{\\mu}{\\varepsilon} \\frac{V^2}{N}"
+    why: "A worked value: at six tenths of the velocity of light the square root is $0.8$, so the middle factor is $\\frac{0.6}{0.8} = 0.75$."
+r3: "The combination that carries the velocity here, $\\frac{\\mu v}{\\sqrt{1 - (v/V)^2}}$, is what later physics calls the momentum of the electron, and the relation reads: the radius times the charge times the magnetic force is that momentum times the velocity of light. In that form the formula is still in use for measuring fast charged particles, where it is called the magnetic rigidity. The paper offers it as the third of the relations accessible to experiment and closes: these three relations are a complete expression of the laws by which, according to the theory presented, the electron must move (p. 921)."

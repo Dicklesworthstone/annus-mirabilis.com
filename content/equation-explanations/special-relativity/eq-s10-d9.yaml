@@ -1,0 +1,27 @@
+# special-relativity eq-s10-d9: what the display says, at every level (dispatch 281).
+# Written from the German of s10-p15 and s10-p16 (p. 920) and its plate; every step was checked by hand.
+display: eq-s10-d9
+paper: special-relativity
+inWords:
+  - text: "How far a magnetic force bends the electron's path"
+    quantityId: magneticDeflectability
+  - text: ", divided by "
+  - text: "how far an electric force of the same size bends it"
+    quantityId: electricDeflectability
+  - text: ", is "
+  - text: "the speed of the electron"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "The first of the three relations the paper offers to experiment: the magnetic and electric deflectability stand in the ratio of the electron's speed to the velocity of light."
+r1: "In the second row of (A) the electric force $Y$ stands alone while the magnetic force $N$ is multiplied by $\\frac{v}{V}$. So a magnetic force bends the path $\\frac{v}{V}$ times as strongly as an electric force of the same size, and the paper states it the other way round first: the two act equally strongly on an electron moving with the velocity $v$ when $Y = N \\cdot \\frac{v}{V}$. Everything else in the row, the charge, the mass and the factor, is common to both and divides out, so the ratio is $\\frac{v}{V}$ at any velocity whatever. The paper says the velocity of the electron can be determined from this ratio for arbitrary velocities, and that the relation is open to test, because the velocity can also be measured directly, for instance by means of rapidly oscillating electric and magnetic fields."
+r2:
+  - latex: "\\frac{d^2 y}{d t^2} = \\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta} \\left( Y - \\frac{v}{V} N \\right)"
+    why: "The second row of (A): the one bending of the path, with both forces in it."
+  - latex: "Y = N \\cdot \\frac{v}{V}"
+    why: "The paper's way of putting it: the bracket vanishes, so an electric force of this size and the magnetic force $N$ deflect the moving electron equally strongly, in opposite senses."
+  - latex: "\\frac{A_m}{A_e} = \\frac{\\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta} \\frac{v}{V}}{\\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta}} = \\frac{v}{V}"
+    why: "The deflection each force produces per unit of its own size. The magnetic one enters the row multiplied by $\\frac{v}{V}$ and the electric one alone; the charge, the mass and the factor are the same in both and divide out, so the ratio holds at any velocity."
+r3: "This is the first of the three relations the paper lists as accessible to experiment, and its use is the reverse of its derivation: the ratio of the two deflections measures the velocity of the electron, at any velocity and without knowing the charge or the mass. The paper adds that the relation is itself open to test, since the velocity can be measured directly as well, for instance with rapidly oscillating fields (p. 920)."

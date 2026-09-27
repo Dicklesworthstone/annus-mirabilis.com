@@ -1,0 +1,43 @@
+# special-relativity eq-s10-d8: what the display says, at every level (dispatch 281).
+# Written from the German of s10-p10 and s10-p11 (pp. 919-920) and its plate; every step was checked by hand. The middle member's missing mass factor is the misprint err-typo-p920-1.
+display: eq-s10-d8
+paper: special-relativity
+inWords:
+  - text: "The energy of motion of the electron"
+    quantityId: kineticEnergy
+  - text: ": the work "
+  - text: "its charge"
+    quantityId: electronCharge
+  - text: " and "
+  - text: "the electric force"
+    quantityId: electricFieldStationary
+  - text: " do along "
+  - text: "the path"
+    quantityId: coordinatePositionStationary
+  - text: ", which comes to "
+  - text: "the mass of the electron"
+    quantityId: electronMass
+  - text: " times the square of "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", times "
+  - text: "the factor"
+    quantityId: lorentzFactor
+  - text: " at "
+  - text: "the velocity reached"
+    quantityId: frameSpeed
+  - text: " less one."
+r0: "The kinetic energy of the electron: the energy the electrostatic field gives up while the electron is driven from rest, which is $\\mu V^2$ times the factor less one."
+r1: "An electron starts from rest at the origin and is driven along the $X$ axis by an electrostatic force. The energy withdrawn from the field is $\\int \\varepsilon X \\, d x$, and because the electron is to be slowly accelerated and so to give off no energy as radiation, the paper sets that equal to the energy of motion $W$. The first row of (A) holds throughout the motion, so $\\varepsilon X$ can be replaced by $\\mu \\beta^3$ times the rate at which the velocity changes, and the integral over the path becomes an integral over the velocity from 0 to the value reached. Carrying it out gives $\\mu V^2$ times the bracket. The energy grows without limit as $v$ approaches $V$: the paper adds that $W$ becomes infinitely great for $v = V$, and that velocities greater than that of light have no possibility of existence, as in its earlier results. The middle member is printed without the mass factor $\\mu$ (err-typo-p920-1), while the two outer members carry it."
+r2:
+  - latex: "\\varepsilon X = \\mu \\beta^3 \\frac{d^2 x}{d t^2} = \\mu \\beta^3 \\frac{d v}{d t}"
+    why: "The first row of (A), multiplied by $\\mu \\beta^3$. The paper says this equation holds throughout the whole motion considered, and the electron's velocity along the $X$ axis is the $v$ the factor is built from."
+  - latex: "\\int \\varepsilon X \\, d x = \\mu \\int \\beta^3 \\frac{d v}{d t} \\, d x = \\mu \\int_0^v \\beta^3 v \\, d v"
+    why: "On the path $d x = v \\, d t$, so the time drops out and $\\frac{d v}{d t} \\, d x$ becomes $v \\, d v$. The limits are the velocity at the start, which is 0, and the velocity reached. The plate prints this middle member without the $\\mu$."
+  - latex: "\\frac{d}{d v} \\left( \\frac{V^2}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} \\right) = \\frac{v}{\\left( 1 - \\left( \\frac{v}{V} \\right)^2 \\right)^{3/2}} = \\beta^3 v"
+    why: "The integral needs no substitution: differentiating $V^2 \\beta$ with respect to $v$ gives back $\\beta^3 v$, so $V^2 \\beta$ is what the integral accumulates."
+  - latex: "\\mu \\int_0^v \\beta^3 v \\, d v = \\mu V^2 \\left\\{ \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} - 1 \\right\\}"
+    why: "The accumulated value at the velocity reached, less its value at $v = 0$, where the factor is 1. This is the printed right-hand member."
+  - latex: "\\mu V^2 \\left\\{ \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} - 1 \\right\\} \\approx \\frac{1}{2} \\mu v^2"
+    why: "A check at low speed: for small $\\frac{v}{V}$ the square root is about $1 - \\frac{1}{2} \\left( \\frac{v}{V} \\right)^2$ and its reciprocal about $1 + \\frac{1}{2} \\left( \\frac{v}{V} \\right)^2$, so the brace is about $\\frac{1}{2} \\left( \\frac{v}{V} \\right)^2$ and the whole is the energy of motion of ordinary mechanics."
+r3: "The middle member prints $\\int_0^v \\beta^3 v \\, d v$ with no $\\mu$ in front (err-typo-p920-1), so as printed it does not equal the members on either side of it; the omission is confined to that member and the stated result is the one the arithmetic gives. Two things are worth noticing about what is printed. The condition that the electron give off no energy as radiation is an assumption of this display, not a result: it is what lets the energy taken from the field be set equal to the energy of motion. And the expression is a difference. $\\mu V^2$ appears here only as a coefficient, and the paper assigns no energy to the electron at rest; that question is the subject of the paper Einstein sent to the Annalen in September 1905."

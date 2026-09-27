@@ -1,0 +1,43 @@
+# special-relativity eq-s9-d3: what the display says, at every level (dispatch 281).
+# Written from the German of s9-p2 (pp. 916-917) and its plate; every step was checked by hand. The missing factor on the three magnetic equations is the misprint err-typo-p916-1.
+display: eq-s9-d3
+paper: special-relativity
+inWords:
+  - text: "One over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", times "
+  - text: "the velocity of the electricity in the moving system"
+    quantityId: chargeVelocityMoving
+  - text: " times "
+  - text: "its density there"
+    quantityId: chargeDensityMoving
+  - text: " plus how fast "
+  - text: "the moving system's electric force"
+    quantityId: electricFieldMoving
+  - text: " changes with "
+  - text: "that system's time"
+    quantityId: coordinateTimeMoving
+  - text: ", is how "
+  - text: "its magnetic force"
+    quantityId: magneticFieldMoving
+  - text: " turns across "
+  - text: "its coordinates"
+    quantityId: coordinatePositionMoving
+  - text: "; and the same for the magnetic force, with the electric force turning."
+r0: "The six equations of the stationary system, written out in the moving one. Every letter is primed and the form is unchanged."
+r1: "This is the result of § 9. The paper transforms the six equations of the stationary system with the transformations of §§ 3 and 6 and finds the same six equations again, with the coordinates, the time, the forces, the velocity of the electricity and its density all read in the moving system. Nothing in their shape marks out the system they are written in, which is what the principle of relativity asks of them. The form does not come out by itself: it requires the velocity and the density in the moving system to be what the next display says they are, and the paper's remark after it is that the velocity so defined is nothing other than the velocity of the electric masses measured in the moving system, as the addition theorem of § 5 gives it. With that, the paper concludes that the electrodynamic foundation of Lorentz's theory of the electrodynamics of moving bodies agrees with the principle of relativity. The three magnetic equations are printed here without the factor $\\frac{1}{V}$ that stands on them in the stationary system."
+r2:
+  - latex: "\\frac{\\partial}{\\partial \\xi} = \\beta \\left( \\frac{\\partial}{\\partial x} + \\frac{v}{V^2} \\frac{\\partial}{\\partial t} \\right) , \\quad \\frac{\\partial}{\\partial \\tau} = \\beta \\left( \\frac{\\partial}{\\partial t} + v \\frac{\\partial}{\\partial x} \\right) , \\quad \\frac{\\partial}{\\partial \\eta} = \\frac{\\partial}{\\partial y} , \\quad \\frac{\\partial}{\\partial \\zeta} = \\frac{\\partial}{\\partial z}"
+    why: "§ 3's transformation read backwards, $x = \\beta (\\xi + v \\tau)$ and $t = \\beta \\left( \\tau + \\frac{v}{V^2} \\xi \\right)$, put through the chain rule. Across the motion nothing changes."
+  - latex: "\\frac{\\partial N'}{\\partial \\eta} - \\frac{\\partial M'}{\\partial \\zeta} = \\beta \\left[ \\left( \\frac{\\partial N}{\\partial y} - \\frac{\\partial M}{\\partial z} \\right) - \\frac{v}{V} \\left( \\frac{\\partial Y}{\\partial y} + \\frac{\\partial Z}{\\partial z} \\right) \\right]"
+    why: "The right-hand side of the first equation, with § 6's $N' = \\beta \\left( N - \\frac{v}{V} Y \\right)$ and $M' = \\beta \\left( M + \\frac{v}{V} Z \\right)$ put in, and the transverse derivatives left as they are."
+  - latex: "\\frac{\\partial N}{\\partial y} - \\frac{\\partial M}{\\partial z} = \\frac{1}{V} \\left\\{ u_x \\left( \\frac{\\partial X}{\\partial x} + \\frac{\\partial Y}{\\partial y} + \\frac{\\partial Z}{\\partial z} \\right) + \\frac{\\partial X}{\\partial t} \\right\\} , \\qquad \\frac{\\partial Y}{\\partial y} + \\frac{\\partial Z}{\\partial z} = \\left( \\frac{\\partial X}{\\partial x} + \\frac{\\partial Y}{\\partial y} + \\frac{\\partial Z}{\\partial z} \\right) - \\frac{\\partial X}{\\partial x}"
+    why: "The first equation of the stationary system for the first bracket, and for the second the definition of the density printed beneath that system, which is the sum of the three slopes of the electric force."
+  - latex: "\\frac{\\partial N'}{\\partial \\eta} - \\frac{\\partial M'}{\\partial \\zeta} = \\frac{\\beta}{V} \\left[ (u_x - v) \\left( \\frac{\\partial X}{\\partial x} + \\frac{\\partial Y}{\\partial y} + \\frac{\\partial Z}{\\partial z} \\right) + \\frac{\\partial X}{\\partial t} + v \\frac{\\partial X}{\\partial x} \\right]"
+    why: "Put both in and collect. The two terms carrying the density go together into $(u_x - v)$, and the term in $\\frac{\\partial X}{\\partial x}$ is left over."
+  - latex: "\\frac{1}{V} \\left\\{ u_\\xi \\varrho' + \\frac{\\partial X'}{\\partial \\tau} \\right\\} = \\frac{1}{V} \\left\\{ u_\\xi \\varrho' + \\beta \\left( \\frac{\\partial X}{\\partial t} + v \\frac{\\partial X}{\\partial x} \\right) \\right\\}"
+    why: "Now the left-hand side, with $X' = X$ from § 6 and the rule for $\\frac{\\partial}{\\partial \\tau}$ from the first step."
+  - latex: "u_\\xi \\varrho' = \\frac{u_x - v}{1 - \\frac{u_x v}{V^2}} \\cdot \\beta \\left( 1 - \\frac{v u_x}{V^2} \\right) \\left( \\frac{\\partial X}{\\partial x} + \\frac{\\partial Y}{\\partial y} + \\frac{\\partial Z}{\\partial z} \\right) = \\beta (u_x - v) \\left( \\frac{\\partial X}{\\partial x} + \\frac{\\partial Y}{\\partial y} + \\frac{\\partial Z}{\\partial z} \\right)"
+    why: "The two sides agree exactly when the velocity and the density in the moving system are what the next display defines them to be: the denominators cancel and what is left is what the collected right-hand side needs. That is why § 9 needs the display that follows this one."
+r3: "The three magnetic equations of this display are printed without the factor $\\frac{1}{V}$, while the same three carry it in the stationary system above; read on the plate of p. 916 and recorded in the receipt as err-typo-p916-1. The German and English faces keep the printed reading. What the section establishes is a claim about Lorentz's theory, not about the equations alone: the paper says that if the electric masses are thought of as bound to small rigid bodies, ions or electrons, these equations are the electromagnetic foundation of Lorentz's electrodynamics and optics of moving bodies, and that the foundation so read agrees with the principle of relativity (pp. 916-917)."
