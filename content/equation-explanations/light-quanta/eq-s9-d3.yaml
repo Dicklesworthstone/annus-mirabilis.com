@@ -1,0 +1,29 @@
+# light-quanta eq-s9-d3: what the display says, at every level (dispatch 279).
+# Written from the German of s9-p3 (p. 148) and its plate; the steps were checked by hand.
+display: eq-s9-d3
+paper: light-quanta
+inWords:
+  - text: "The number of gram-molecules ionized"
+    quantityId: ionizedGramMolecules
+  - text: " equals "
+  - text: "the quantity of light absorbed"
+    quantityId: absorbedLightEnergy
+  - text: " divided by "
+  - text: "the gas constant R"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: "."
+r0: "The consequence the paper wants tested: if every absorbed quantum ionizes one molecule, then counting the light absorbed tells how many gram-molecules were ionized, with no free constant to adjust."
+r1: "The paper calls this a further consequence whose testing by experiment seems to it of great importance, and it is the paper's last equation. If every absorbed quantum ionizes a molecule, then the number of molecules ionized is the number of quanta absorbed, and the number of quanta is the absorbed light energy divided by the energy of one quantum. Counted by the gram-molecule, the energy needed is $R \\beta \\nu$. There is nothing left to fit: given the absorbed light and the frequency, the count follows. The paper states the condition under which it expects the relation to hold, and states it as a condition: it must hold, if the conception corresponds to reality, for every gas that shows at the frequency concerned no appreciable absorption unaccompanied by ionization. A gas that absorbs light in some other way as well would ionize less than the relation says."
+r2:
+  - latex: "\\frac{R}{N} \\beta \\nu"
+    why: "The energy of one quantum, which on the assumption of this section ionizes one molecule."
+  - latex: "R \\beta \\nu = N \\cdot \\frac{R}{N} \\beta \\nu"
+    why: "The energy needed for a whole gram-molecule: that many molecules, one quantum each."
+  - latex: "j = \\frac{L}{R \\beta \\nu} ."
+    why: "Divide the absorbed light energy by the energy that ionizes one gram-molecule: the printed line."

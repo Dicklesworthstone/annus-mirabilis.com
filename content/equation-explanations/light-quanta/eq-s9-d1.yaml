@@ -1,0 +1,26 @@
+# light-quanta eq-s9-d1: what the display says, at every level (dispatch 279).
+# Written from the German of s9-p1 (p. 148) and its plate; the steps were checked by hand.
+display: eq-s9-d1
+paper: light-quanta
+inWords:
+  - text: "The gas constant R"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: ", which is the energy of one gram-equivalent's worth of light quanta, is at least "
+  - text: "the work of ionization per gram-equivalent"
+    quantityId: ionizationWorkPerGramEquivalent
+  - text: "."
+r0: "If one absorbed quantum ionizes one molecule, the work needed to ionize a molecule cannot be more than the energy of the quantum that does it. Counted by the gram-equivalent, that is this inequality."
+r1: "Section 9 turns to the ionization of a gas by ultraviolet light. The paper says we shall have to assume that one absorbed light energy quantum is used to ionize one gas molecule. What follows first is a bound: the work of ionization of a molecule, which the paper is careful to call the theoretically necessary work, cannot be greater than the energy of an absorbed effective quantum. Multiplying both by the number of molecules in a gram-molecule turns the statement about one molecule into one about a gram-equivalent, where the quantum's energy becomes $R \\beta \\nu$ and the ionization work is what the paper writes $J$. The inequality is a bound and not an equation, because a quantum may carry more energy than ionization needs."
+r2:
+  - latex: "\\frac{R}{N} \\beta \\nu"
+    why: "The energy of one light quantum at the frequency $\\nu$, from section 6."
+  - latex: "\\frac{R}{N} \\beta \\nu \\geqq \\frac{J}{N}"
+    why: "One quantum ionizes one molecule, so the quantum's energy is at least the work of ionizing one molecule, which is the work per gram-equivalent shared out over the molecules in it."
+  - latex: "R \\beta \\nu \\geqq J ."
+    why: "Multiply both sides by the number of molecules in a gram-molecule: the printed line."

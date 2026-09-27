@@ -1,0 +1,26 @@
+# light-quanta eq-s9-d2: what the display says, at every level (dispatch 279).
+# Written from the German of s9-p1 (p. 148) and its plate; the steps were checked by hand.
+display: eq-s9-d2
+paper: light-quanta
+inWords:
+  - text: "The gas constant R"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: " of the longest effective wavelength for air comes to 6,4 · 10¹² erg, which is at least "
+  - text: "the work of ionization per gram-equivalent"
+    quantityId: ionizationWorkPerGramEquivalent
+  - text: "."
+r0: "A number for that bound. Lenard's measurements give the longest effective wavelength for air as about 1,9 · 10⁻⁵ cm, and the quantum energy per gram-equivalent at that wavelength is 6,4 · 10¹² erg."
+r1: "The longest wavelength that still ionizes is the weakest quantum that still works, so it gives the sharpest bound the measurement allows. The paper takes it from Lenard's measurements as about $1{,}9 \\cdot 10^{-5}$ cm for air and puts the corresponding frequency into the preceding inequality. Repeating the arithmetic needs the speed of light and a value for $R$, neither of which this paper prints; with $3 \\cdot 10^{10}$ cm per second and $8{,}31 \\cdot 10^{7}$ erg per gram-molecule and degree the result is $6{,}4 \\cdot 10^{12}$ erg, as printed. The paper then gets a second bound from a different kind of measurement: from J. Stark's smallest measured ionization potential for air, about 10 volts at platinum anodes, the work per gram-equivalent comes out as $9{,}6 \\cdot 10^{12}$, which the paper says is nearly equal to the one just found. The two are an upper bound on the same quantity reached by different routes, one optical and one electrical."
+r2:
+  - latex: "\\nu = \\frac{3 \\cdot 10^{10}}{1{,}9 \\cdot 10^{-5}} = 1{,}58 \\cdot 10^{15}"
+    why: "The frequency belonging to the longest effective wavelength: the speed of light in centimetres per second, divided by Lenard's wavelength of about $1{,}9 \\cdot 10^{-5}$ cm for air. The paper prints neither that relation nor the speed of light here."
+  - latex: "R \\beta \\nu = 8{,}31 \\cdot 10^{7} \\cdot 4{,}866 \\cdot 10^{-11} \\cdot 1{,}58 \\cdot 10^{15}"
+    why: "With $\\beta$ as the paper printed it in section 2 and the gas constant supplied from outside the paper, since it is printed nowhere in it."
+  - latex: "R \\beta \\nu = 6{,}4 \\cdot 10^{12} \\text{ Erg} \\geqq J ."
+    why: "The product comes to $6{,}39 \\cdot 10^{12}$, which is the printed value to the two figures given: the printed line."
