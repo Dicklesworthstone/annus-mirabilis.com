@@ -223,7 +223,7 @@ entries:
       unicode: "ν"
       latex: "\\nu"
       variant: plain
-    meaning: "Number density of suspended particles, ν = n/V*"
+    meaning: "Number density of suspended particles in § 2's derivation of the osmotic pressure, ν = n/V*"
     binding:
       quantityId: numberDensity
     operation:
