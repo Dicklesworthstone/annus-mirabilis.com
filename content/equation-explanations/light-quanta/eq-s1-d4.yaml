@@ -20,4 +20,6 @@ r2:
   - latex: "d A_\\nu, \\; d \\alpha_\\nu"
     why: "Ask for the chance that every value falls within its own small range at once. For quantities that vary continuously, that chance is proportional to the product of the widths of all the ranges."
   - latex: "d W = f \\prod_\\nu d A_\\nu \\, d \\alpha_\\nu"
-    why: "The factor of proportionality, f, depends on where all the values lie: it is the probability density. The paper writes the same product out term by term, and sets the arguments of f without commas."
+    why: "The factor of proportionality, f, depends on where all the values lie: it is the probability density."
+  - latex: "d W = f(A_1 A_2 \\ldots \\alpha_1 \\alpha_2 \\ldots) d A_1 d A_2 \\ldots d \\alpha_1 d \\alpha_2 \\ldots"
+    why: "The same thing written out term by term, which is the printed line. The paper sets the arguments of f without commas between them."
