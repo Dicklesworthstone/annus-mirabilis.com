@@ -1,0 +1,39 @@
+# brownian-motion eq-s2-d11: what the display says, at every level (dispatch 282).
+# Written from the German of s2-p7 and the plate of p. 553; the steps were checked by hand.
+display: eq-s2-d11
+paper: brownian-motion
+inWords:
+  - text: "The free energy"
+    quantityId: freeEnergy
+  - text: " is minus "
+  - text: "the gas constant"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: " over "
+  - text: "the number of real molecules in a gram-molecule"
+    quantityId: avogadroConstant
+  - text: ", times the logarithm of "
+  - text: "the factor"
+    quantityId: configurationIntegralFactor
+  - text: " added to "
+  - text: "the number of particles"
+    quantityId: particleCount
+  - text: " times the logarithm of "
+  - text: "the volume holding them"
+    quantityId: volume
+  - text: "."
+r0: "Put the value of the integral into the free energy. The logarithm turns the product into a sum, and the part that knows about the volume is separated from the part that does not: one term holds the unevaluated factor, the other the number of particles times the logarithm of the volume."
+r1: "The free energy was $F = -\\frac{R T}{N} \\lg B$, and $B$ has just been found to be $J V^{*n}$. The logarithm of a product is the sum of the logarithms, and the logarithm of a power carries the exponent to the front, so $\\lg B = \\lg J + n \\lg V^*$. The paper never evaluates $J$, and it does not have to. Whatever number it is, it does not change when the wall is moved, so it contributes nothing to a derivative with respect to $V^*$: the whole of the osmotic pressure will come from the second term. That the term is $n \\lg V^*$, with $n$ the number of particles and no other property of them, is why the result of the next display counts bodies and is indifferent to their size."
+r2:
+  - latex: "F = - \\frac{R T}{N} \\lg B"
+    why: "The free energy from the first paragraph of the section."
+  - latex: "F = - \\frac{R T}{N} \\lg ( J V^{*n} )"
+    why: "With the value of the integral just found."
+  - latex: "\\lg ( J V^{*n} ) = \\lg J + \\lg V^{*n}"
+    why: "The logarithm of a product is the sum of the logarithms."
+  - latex: "\\lg V^{*n} = n \\lg V^*"
+    why: "A power inside a logarithm becomes a factor in front of it."
+  - latex: "F = - \\frac{R T}{N} \\{ \\lg J + n \\lg V^* \\}"
+    why: "The printed form. The first term inside the brace does not depend on $V^*$; the second holds the whole of that dependence."

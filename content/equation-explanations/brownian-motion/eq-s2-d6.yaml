@@ -1,0 +1,15 @@
+# brownian-motion eq-s2-d6: what the display says, at every level (dispatch 282).
+# Written from the German of s2-p4 and s2-p5 and the plates of pp. 552 and 553; the steps were
+# checked by hand.
+display: eq-s2-d6
+paper: brownian-motion
+inWords:
+  - text: "The two sets of regions given to "
+  - text: "the centres of the particles"
+    quantityId: latentPosition1d
+  - text: " have equal sizes."
+r0: "The second set of boxes was chosen to differ from the first only in position, so the two products of box sizes are the same number. That is what lets the comparison that follows be a comparison of the factors alone."
+r1: "This line records the choice made on the page before, where the second system of regions is said to differ from the first only by its position and not by its size. Written out, the product of the $3n$ edge lengths of the first system equals the product of the $3n$ edge lengths of the second. It is not a result about the liquid or about the particles; it is the condition under which the next lines compare $d B$ with $d B'$, and without it a difference between the two could come from the boxes rather than from the physics."
+r2:
+  - latex: "d x_1 d y_1 \\ldots d z_n = d x'_1 d y'_1 \\ldots d z'_n"
+    why: "As printed. The regions were chosen to differ only in position, and this is that choice written as an equation between the two products."

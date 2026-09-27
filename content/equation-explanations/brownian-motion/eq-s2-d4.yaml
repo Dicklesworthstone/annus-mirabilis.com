@@ -1,0 +1,21 @@
+# brownian-motion eq-s2-d4: what the display says, at every level (dispatch 282).
+# Written from the German of s2-p4 and the plate of p. 552; the steps were checked by hand.
+display: eq-s2-d4
+paper: brownian-motion
+inWords:
+  - text: "The part of the integral"
+    quantityId: configurationIntegral
+  - text: " that belongs to one choice of infinitely small regions for "
+  - text: "the centres of the particles"
+    quantityId: latentPosition1d
+  - text: " is the product of the sizes of those regions with "
+  - text: "a factor J"
+    quantityId: configurationIntegralFactor
+  - text: "."
+r0: "Assign each particle's centre a tiny box and ask what part of the integral belongs to those boxes. Whatever the answer is in detail, it is the product of the box sizes with a single factor, and the argument that follows is about that factor alone."
+r1: "The coordinates are named first: $x_1, y_1, z_1$ for the centre of gravity of the first particle, $x_2, y_2, z_2$ for the second, and so on to $x_n, y_n, z_n$ for the last. Each centre is given an infinitely small parallelepiped region, $d x_1 d y_1 d z_1$ for the first and so on, all of them lying in $V^*$. The question is what the integral of the display before is worth when the particles' centres are restricted to those regions, and the paper says the answer can in any case be brought to this form. The content of the form is the split: everything that depends on how big the regions are sits in the product $d x_1 d y_1 \\ldots d z_n$, and everything else sits in $J$. The text then says at once what it will prove about $J$: it does not depend on the choice of the regions' positions, nor on the size of $V^*$, that is on the position of the semipermeable wall."
+r2:
+  - latex: "d B = d x_1 d y_1 \\ldots d z_n \\cdot J"
+    why: "As printed. The product has $3n$ factors, three coordinates for each of the $n$ particles."
+  - latex: "J = \\frac{d B}{d x_1 d y_1 \\ldots d z_n}"
+    why: "The same statement read as a definition of $J$: the part of the integral per unit of the $3n$-dimensional region. Written this way, the claim that $J$ does not depend on the regions is the claim that halving every box halves $d B$ with it."

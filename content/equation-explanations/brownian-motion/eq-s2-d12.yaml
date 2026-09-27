@@ -1,0 +1,48 @@
+# brownian-motion eq-s2-d12: what the display says, at every level (dispatch 282).
+# Written from the German of s2-p7, s2-p8 and the plate of p. 553; the steps were checked by hand.
+display: eq-s2-d12
+paper: brownian-motion
+inWords:
+  - text: "The osmotic pressure"
+    quantityId: osmoticPressure
+  - text: " is how much "
+  - text: "the free energy"
+    quantityId: freeEnergy
+  - text: " falls when "
+  - text: "the volume holding the particles"
+    quantityId: volume
+  - text: " grows, which comes to "
+  - text: "the gas constant"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: " times "
+  - text: "the number of particles"
+    quantityId: particleCount
+  - text: " over "
+  - text: "the number of real molecules in a gram-molecule"
+    quantityId: avogadroConstant
+  - text: " and over that volume; that is, R T over N times "
+  - text: "the number of particles in unit volume"
+    quantityId: numberDensity
+  - text: "."
+r0: "Differentiating the free energy with respect to the volume gives the pressure on the wall, and it is exactly the expression section 1 proposed for suspended bodies. The unevaluated factor drops out, because it does not change when the wall moves."
+r1: "The pressure a wall feels is the rate at which the free energy falls as the volume behind it grows, $p = -\\partial F / \\partial V^*$. Only the term $n \\lg V^*$ depends on $V^*$, and the derivative of $\\lg V^*$ is $1/V^*$, so the derivative of the free energy is $-\\frac{R T}{N} \\cdot \\frac{n}{V^*}$ and the pressure is its negative. Writing $\\nu = n / V^*$ for the number of particles in unit volume gives the second form, $p = \\frac{R T}{N} \\nu$, which is the expression section 1 wrote down for suspended bodies and promised to justify here. The paragraph after the display draws the conclusion: the existence of the osmotic pressure is a consequence of the molecular-kinetic theory of heat, and on that theory dissolved molecules and suspended bodies of equal number behave, in respect of osmotic pressure, completely alike at great dilution. Nothing in the derivation asked how large the particles are. What entered was their number, the homogeneity of the liquid, the absence of forces, and the independence of their motions."
+r2:
+  - latex: "p = - \\frac{\\partial F}{\\partial V^*}"
+    why: "The pressure on the wall as the fall of the free energy with the volume behind it. The paper prints this as the first member of the display."
+  - latex: "F = - \\frac{R T}{N} \\{ \\lg J + n \\lg V^* \\}"
+    why: "The free energy from the display before."
+  - latex: "\\frac{\\partial}{\\partial V^*} \\lg J = 0"
+    why: "$J$ was shown not to depend on $V^*$, so its term contributes nothing to the derivative. This is where the work of the middle of the section is spent."
+  - latex: "\\frac{\\partial}{\\partial V^*} \\lg V^* = \\frac{1}{V^*}"
+    why: "The derivative of the logarithm."
+  - latex: "\\frac{\\partial F}{\\partial V^*} = - \\frac{R T}{N} \\cdot \\frac{n}{V^*}"
+    why: "The constant factor and the $n$ carried through the derivative of the second term."
+  - latex: "p = \\frac{R T}{V^*} \\frac{n}{N}"
+    why: "Its negative, which is the pressure: the first printed value."
+  - latex: "\\nu = \\frac{n}{V^*}"
+    why: "The number of particles in unit volume, as section 1 defined it."
+  - latex: "p = \\frac{R T}{N} \\nu"
+    why: "The second printed value. It is the expression of section 1, now derived rather than proposed."

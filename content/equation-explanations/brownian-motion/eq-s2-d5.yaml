@@ -1,0 +1,21 @@
+# brownian-motion eq-s2-d5: what the display says, at every level (dispatch 282).
+# Written from the German of s2-p4 and the plate of p. 552; the steps were checked by hand.
+display: eq-s2-d5
+paper: brownian-motion
+inWords:
+  - text: "The part of the integral"
+    quantityId: configurationIntegral
+  - text: " that belongs to a second choice of regions for "
+  - text: "the centres of the particles"
+    quantityId: latentPosition1d
+  - text: " is, in the same way, the product of the sizes of those regions with "
+  - text: "a factor J prime"
+    quantityId: configurationIntegralFactor
+  - text: "."
+r0: "Now a second set of boxes for the same particles, in other places but of the same sizes. The same split holds, with its own factor, and comparing the two factors is the whole of the argument."
+r1: "A second system of infinitely small regions for the particles' centres is given, $d x'_1 d y'_1 d z'_2$ and so on, which are to differ from the ones given first only by their position and not by their size, and which likewise all lie in $V^*$. The paper says that analogously $d B' = d x'_1 d y'_1 \\ldots d z'_n \\cdot J'$. Nothing new is assumed here: it is the same form written for the second choice, with its own factor. The question the section has to settle is whether the factor came out the same, because $J$ was claimed to be independent of where the regions are, and the two choices differ in nothing else."
+r2:
+  - latex: "d B' = d x'_1 d y'_1 \\ldots d z'_n \\cdot J'"
+    why: "As printed, for the second system of regions. Each primed coordinate belongs to the same particle as the unprimed one with the same index."
+  - latex: "J' = \\frac{d B'}{d x'_1 d y'_1 \\ldots d z'_n}"
+    why: "Read as a definition, as before: the part of the integral per unit of the second $3n$-dimensional region."

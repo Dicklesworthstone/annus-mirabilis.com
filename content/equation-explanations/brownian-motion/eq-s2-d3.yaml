@@ -1,0 +1,41 @@
+# brownian-motion eq-s2-d3: what the display says, at every level (dispatch 282).
+# Written from the German of s2-p1 and the plate of p. 551; the steps were checked by hand.
+display: eq-s2-d3
+paper: brownian-motion
+inWords:
+  - text: "The free energy"
+    quantityId: freeEnergy
+  - text: " is minus "
+  - text: "the gas constant"
+    quantityId: molarGasConstant
+  - text: " divided by "
+  - text: "the number of real molecules in a gram-molecule"
+    quantityId: avogadroConstant
+  - text: ", times "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: ", times the logarithm of the integral over all values of "
+  - text: "the state variables"
+    quantityId: stateVariable
+  - text: " of e raised to minus "
+  - text: "the energy as a function of those variables"
+    quantityId: microstateEnergy
+  - text: " times N over R T; and that integral is called "
+  - text: "B"
+    quantityId: configurationIntegral
+  - text: "."
+r0: "Subtracting the temperature times the entropy from the energy leaves the free energy, and in it the system's own energy cancels: what remains is the logarithm of a single integral, which the paper names B. Everything the rest of the section does is done to that one integral."
+r1: "The free energy is the energy less the temperature times the entropy, and the paper writes down its value with a 'therefore', because the entropy of the display before is all it needs. Multiplying that entropy by $T$ gives $\\bar{E}$ back in the first term, which then cancels against the $\\bar{E}$ of the energy, and what is left is $-2 \\varkappa T$ times the logarithm of the integral. With $2 \\varkappa = R/N$ this is the first form printed. The second form gives the integral a name, $B$: the paper will not evaluate it, and says on the next page that an exact calculation of $F$ could hardly be thought of even if the molecular picture were settled in every detail. It only needs to know how $F$ depends on the size of the volume $V^*$ in which the particles are held, and $B$ is where that dependence sits."
+r2:
+  - latex: "F = \\bar{E} - T S"
+    why: "The free energy in terms of the energy and the entropy. The paper uses it without printing it."
+  - latex: "F = \\bar{E} - T \\left( \\frac{\\bar{E}}{T} + 2 \\varkappa \\lg \\int e^{-\\frac{E}{2 \\varkappa T}} d p_1 \\ldots d p_l \\right)"
+    why: "The entropy of the display before, put in."
+  - latex: "F = - 2 \\varkappa T \\lg \\int e^{-\\frac{E}{2 \\varkappa T}} d p_1 \\ldots d p_l"
+    why: "The temperature cancels in the first term inside the bracket, leaving $\\bar{E} - \\bar{E} = 0$. The energy of the system has dropped out."
+  - latex: "F = - \\frac{R}{N} T \\lg \\int e^{-\\frac{E N}{R T}} d p_1 \\ldots d p_l"
+    why: "With $2 \\varkappa = R/N$ in the factor and in the exponent. This is the first form printed."
+  - latex: "B = \\int e^{-\\frac{E N}{R T}} d p_1 \\ldots d p_l"
+    why: "The name the paper gives that integral. Page 552 calls it the integral B occurring in the expressions for $S$ and $F$."
+  - latex: "F = - \\frac{R T}{N} \\lg B"
+    why: "The second form printed. The whole of the section's work is now a question about $B$."

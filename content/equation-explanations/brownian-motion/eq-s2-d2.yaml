@@ -1,0 +1,37 @@
+# brownian-motion eq-s2-d2: what the display says, at every level (dispatch 282).
+# Written from the German of s2-p1 and the plate of p. 551; the steps were checked by hand.
+display: eq-s2-d2
+paper: brownian-motion
+inWords:
+  - text: "The entropy of the system"
+    quantityId: entropy
+  - text: " is "
+  - text: "the energy of the system"
+    quantityId: systemEnergy
+  - text: " divided by "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: ", plus twice "
+  - text: "the constant kappa"
+    quantityId: boltzmannConstant
+  - text: " times the logarithm of an integral, taken over every combination of values of "
+  - text: "the state variables"
+    quantityId: stateVariable
+  - text: " the problem allows, of e raised to minus "
+  - text: "the energy as a function of those variables"
+    quantityId: microstateEnergy
+  - text: " divided by twice kappa times the temperature."
+r0: "For such a system the entropy is its mean energy over the temperature, plus a term that counts the states available to it: the logarithm of an integral in which a state of high energy counts for little and one of low energy for much."
+r1: "The letters are named in the sentence under the display. $T$ is the absolute temperature, $\\bar{E}$ the energy of the system, $E$ the energy as a function of the $p_\\nu$, and the integral is to be taken over all combinations of values of the $p_\\nu$ compatible with the conditions of the problem. The bar matters: $\\bar{E}$ is one number, the energy the system has, while $E$ under the integral is a function that takes a different value at each combination of the state variables. The constant $\\varkappa$ is not left free. The text ties it to the $N$ of section 1 by $2 \\varkappa N = R$, so $2\\varkappa$ is the gas constant $R$ divided by the number of molecules in a gram-molecule: the gas constant for a single molecule. Put that in and the exponent becomes $-EN/RT$, which is the form the free energy of the next display is printed in."
+r2:
+  - latex: "S = \\frac{\\bar{E}}{T} + 2 \\varkappa \\lg \\int e^{-\\frac{E}{2 \\varkappa T}} d p_1 \\ldots d p_l"
+    why: "As printed. The integral runs over the whole space of the state variables, restricted only by the conditions of the problem, and $d p_1 \\ldots d p_l$ is its element of volume."
+  - latex: "2 \\varkappa N = R"
+    why: "The relation the same paragraph states between $\\varkappa$ and the $N$ of section 1, the number of real molecules in a gram-molecule."
+  - latex: "2 \\varkappa = \\frac{R}{N}"
+    why: "Divide by $N$. The gas constant belongs to a gram-molecule, so $R/N$ is what belongs to one molecule."
+  - latex: "\\frac{E}{2 \\varkappa T} = \\frac{E N}{R T}"
+    why: "The exponent with $2\\varkappa$ replaced. Dividing by $R/N$ is multiplying by $N/R$."
+  - latex: "S = \\frac{\\bar{E}}{T} + \\frac{R}{N} \\lg \\int e^{-\\frac{E N}{R T}} d p_1 \\ldots d p_l"
+    why: "The same entropy in the letters of section 1, with $R$ and $N$ in place of $\\varkappa$ in both the factor and the exponent."
+r3: "The paper fixes $\\varkappa$ only through $2 \\varkappa N = R$, so $2\\varkappa$ is the quantity later written $k_B$ and $\\varkappa$ is half of it. The notation concordance records the halving, because reading $\\varkappa$ as Boltzmann's constant would double every energy this section counts."

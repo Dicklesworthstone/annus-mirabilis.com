@@ -1,0 +1,19 @@
+# brownian-motion eq-s2-d9: what the display says, at every level (dispatch 282).
+# Written from the German of s2-p5, s2-p7 and the plate of p. 553; the steps were checked by hand.
+display: eq-s2-d9
+paper: brownian-motion
+inWords:
+  - text: "The two factors"
+    quantityId: configurationIntegralFactor
+  - text: " are equal."
+r0: "The bookkeeping said the two factors stand in the ratio of the two parts of the integral; the physics said those parts are equal. So the factor is the same wherever the regions are put, and the sentence after the display adds that it does not depend on the size of the volume either."
+r1: "The paper says that from this and from the equation last found it follows that $J = J'$. The two statements are of different kinds and that is the point of the section. One is a matter of definition, $d B / d B' = J / J'$, and holds whatever the particles do. The other, $d B / B = d B' / B$, is where the molecular-kinetic theory of heat is used. Put together: the probabilities being equal makes $d B = d B'$, and then the ratio $J / J'$ is 1. The sentence after the display draws the conclusion the section was working towards, that $J$ depends neither on $V^*$ nor on $x_1, y_1 \\ldots z_n$, and the next display integrates on that ground."
+r2:
+  - latex: "\\frac{d B}{B} = \\frac{d B'}{B}"
+    why: "The equality of the probabilities, from the display before."
+  - latex: "d B = d B'"
+    why: "Multiply both sides by $B$, the whole integral, which is one and the same number on both sides."
+  - latex: "\\frac{d B}{d B'} = 1"
+    why: "Two equal quantities in a quotient."
+  - latex: "J = J'"
+    why: "With $d B / d B' = J / J'$ from the bookkeeping, the ratio of the factors is 1 as well. The printed form."

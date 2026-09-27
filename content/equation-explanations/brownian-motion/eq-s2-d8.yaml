@@ -1,0 +1,17 @@
+# brownian-motion eq-s2-d8: what the display says, at every level (dispatch 282).
+# Written from the German of s2-p5 and the plate of p. 553; the steps were checked by hand.
+display: eq-s2-d8
+paper: brownian-motion
+inWords:
+  - text: "One part of the integral, measured against the whole integral"
+    quantityId: configurationIntegral
+  - text: ", equals the other part measured against that same whole."
+r0: "Each part of the integral, divided by the whole of it, is the probability of finding the particles' centres in those regions at a moment picked at random. Where the particles move independently, the liquid is the same throughout and no forces act, equal regions must be equally probable, so the two are equal."
+r1: "Here the molecular theory of heat enters. From the works cited in the footnote, the paper says, it follows easily that $d B / B$, and likewise $d B' / B$, is the probability that at an arbitrarily chosen instant the particles' centres lie in the regions $(d x_1 \\ldots d z_n)$, respectively in the regions $(d x'_1 \\ldots d z'_n)$. Both are divided by the same $B$, because $B$ is the whole integral over every position the particles may take, and it is the same whichever set of regions one asks about. Three conditions are then named: the motions of the individual particles are, with sufficient approximation, independent of one another; the liquid is homogeneous; and no forces act on the particles. Under them, regions of equal size must carry equal probabilities, since nothing distinguishes one place in $V^*$ from another. That is the display. It is the only place in the section where a physical assumption about the liquid is made, and the three conditions are exactly where it could fail: a force such as gravity, a liquid that differs from place to place, or particles close enough to feel one another would each single out positions."
+r2:
+  - latex: "\\frac{d B}{B}"
+    why: "The probability that at an arbitrarily chosen instant the particles' centres lie in the first set of regions."
+  - latex: "\\frac{d B'}{B}"
+    why: "The probability for the second set. The denominator is the same $B$, the integral over all positions available to the particles."
+  - latex: "\\frac{d B}{B} = \\frac{d B'}{B}"
+    why: "The regions are of equal size, the liquid is homogeneous, no forces act, and the particles move independently of one another, so no set of positions in $V^*$ is more probable than another of the same size. The printed form."

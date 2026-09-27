@@ -1,0 +1,21 @@
+# brownian-motion eq-s2-d7: what the display says, at every level (dispatch 282).
+# Written from the German of s2-p4 and s2-p5 and the plates of pp. 552 and 553; the steps were
+# checked by hand.
+display: eq-s2-d7
+paper: brownian-motion
+inWords:
+  - text: "The two parts of the integral"
+    quantityId: configurationIntegral
+  - text: " stand in the same ratio as "
+  - text: "their two factors"
+    quantityId: configurationIntegralFactor
+  - text: "."
+r0: "Divide one of the two forms by the other. The products of box sizes are equal and cancel, so the ratio of the two parts of the integral is the ratio of the two factors, and nothing else."
+r1: "This is the first of the two statements that will be set against each other. It is pure bookkeeping: $d B$ is the product of the box sizes with $J$, $d B'$ is the equal product with $J'$, so in the quotient the products cancel and $d B / d B' = J / J'$. No property of the liquid has been used yet. The next paragraph supplies the physics, in the form of a statement about probabilities, and the two together give the result the section needs."
+r2:
+  - latex: "\\frac{d B}{d B'} = \\frac{d x_1 d y_1 \\ldots d z_n \\cdot J}{d x'_1 d y'_1 \\ldots d z'_n \\cdot J'}"
+    why: "The two displays before, one divided by the other."
+  - latex: "d x_1 d y_1 \\ldots d z_n = d x'_1 d y'_1 \\ldots d z'_n"
+    why: "The regions were chosen of equal size, so the two products are one number, and a number divided by itself is 1."
+  - latex: "\\frac{d B}{d B'} = \\frac{J}{J'}"
+    why: "What is left after that cancellation: the printed form."

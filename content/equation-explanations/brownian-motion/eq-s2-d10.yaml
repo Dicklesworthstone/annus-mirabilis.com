@@ -1,0 +1,33 @@
+# brownian-motion eq-s2-d10: what the display says, at every level (dispatch 282).
+# Written from the German of s2-p7 and the plate of p. 553; the steps were checked by hand.
+display: eq-s2-d10
+paper: brownian-motion
+inWords:
+  - text: "The whole integral"
+    quantityId: configurationIntegral
+  - text: " is "
+  - text: "the factor"
+    quantityId: configurationIntegralFactor
+  - text: " times the volume open to "
+  - text: "each particle's centre"
+    quantityId: latentPosition1d
+  - text: ", that is "
+  - text: "the volume holding them"
+    quantityId: volume
+  - text: " raised to the power of "
+  - text: "the number of particles"
+    quantityId: particleCount
+  - text: "."
+r0: "Since the factor is the same everywhere, it comes out of the integral, and what is left is the volume available to each particle's centre multiplied once for every particle. That is the volume raised to the power of the number of particles, and it is the only place where the size of the enclosed volume enters."
+r1: "It has just been shown that $J$ depends neither on $V^*$ nor on the positions $x_1, y_1 \\ldots z_n$. A constant may be taken outside an integral, so the integration is over $d x_1 \\ldots d z_n$ alone. Each particle's centre ranges over the part volume $V^*$, and integrating the three coordinates of one particle over that region gives $V^*$. There are $n$ particles, and their positions are integrated independently of one another, so the result is $V^*$ multiplied by itself $n$ times. The whole integral is therefore $J V^{*n}$, and the only dependence on the size of the volume is that power. The free energy of the next display reads it off."
+r2:
+  - latex: "B = \\int J d x_1 \\ldots d z_n"
+    why: "The whole integral written as a sum over the regions, each contributing $J$ times its own size."
+  - latex: "B = J \\int d x_1 \\ldots d z_n"
+    why: "$J$ is the same for every position of the regions and for every size of $V^*$, as the paragraph before established, so it comes out of the integral."
+  - latex: "\\int d x_1 d y_1 d z_1 = V^*"
+    why: "The three coordinates of one particle's centre, integrated over the region it is held in. This is the volume of that region."
+  - latex: "\\int d x_1 \\ldots d z_n = V^{*n}"
+    why: "The same for each of the $n$ particles, and the integrations are independent, so the factor $V^*$ appears $n$ times."
+  - latex: "B = J V^{*n}"
+    why: "The printed form. The size of the volume enters only here, and only through the power $n$."
