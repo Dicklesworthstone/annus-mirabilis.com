@@ -355,7 +355,7 @@ violations: no `.wasm`, no `pdfjs-dist`, no `three` in the initial graph.
 Five live faces are over 250 kB gzipped: relativity parallel **672,870 (2.7×)**, German 383,954,
 English 338,331, results 278,490, light-quanta parallel 266,241. Worse, `scripts/perf/readingFaces.ts`
 walks only the paper index, the `view/<face>` pages and the per-section gloss — so
-**`/papers/brownian-motion/s4/` at 283,879 B gzip is over budget, in no record, and in no population.**
+**`/papers/brownian-motion/s4/` at 283,879 B gzip is over budget, in no record, and in no population.** Filed: `am-snn0`.
 
 ### Privacy: isolation kept cleanly, the one promised analytic absent
 
@@ -406,7 +406,11 @@ bundling phase `cd`s into. `site.binding: "unbound"`, `commit: null`, no `releas
 Simulator-only is confirmed (283 runs on "AM iPhone 17", 7 on "AM iPad", **0 device runs**). Newest
 evidence of any kind: **2026-09-24**, and the latest `apple-ui-tests` record is **FAILED — 24 passed, 7
 failed, 1 skipped**, with two `signal kill` crashes and unfixed contrast findings on the native Contents
-screen. 38 app beads: 36 open, 2 deferred, **0 closed**.
+screen. 38 app beads: 36 open, 2 deferred, **0 closed**. Filed today: `am-tny4`.
+
+> Correction: commit `d125c21f`'s message cites this bead as `am-1ynv`, an id I wrote before the bead
+> was created. The bead is **`am-tny4`**. The commit is left as it is, because rewriting a pushed commit
+> in a shared checkout to fix metadata costs more than the wrong id does.
 
 ### Launch: the profile the plan names cannot currently succeed
 
@@ -424,7 +428,7 @@ Measured directly against the registry, not from prose:
   "these checks are HTTP only". `allCandidateChecksPassed` requires every check to have passed, so
   `candidateChecksPassed` is **permanently false** and `validatePromotePreconditions` always throws on
   `--promote`. **The exact command `am-launch-public-release-5nkq` specifies cannot succeed today.**
-- **0 release records and 0 authorization files are tracked.** `artifacts/releases` does not exist;
+- **0 release records and 0 authorization files are tracked.** Filed: `am-qsm9`. `artifacts/releases` does not exist;
   `git ls-files 'artifacts/releases*'` returns nothing.
 
 ### `docs/DECISIONS.md`: 26 decisions, four stale, one never ratified
