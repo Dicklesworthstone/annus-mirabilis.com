@@ -273,3 +273,169 @@ Found while measuring. Each should be applied to the document named.
   `content/**/*.yaml` files that standard YAML cannot parse. The site is unaffected because
   `src/content/provenance/yaml.ts` is hand-rolled and documents that it keeps unknown escapes as
   written. It is a latent trap for any standard tool, worth fixing at the source.
+
+---
+
+## 8. The non-functional promises, measured
+
+### Without JavaScript: the book survives, the controls vanish rather than link
+
+What works, measured on the live site over 105 fetched pages ≥1 kB:
+
+- **The text and the mathematics are in the initial HTML.** Visible `<main>` text with scripts, styles
+  and `<noscript>` stripped: relativity German **109,378** characters, English **101,278**, parallel
+  **206,907**. Relativity's German face carries **505 `<math>` elements and 1,242 KaTeX roots.**
+- **Find-in-page reaches the whole paper.** 209 unique `data-block-id` and 223 unique
+  `data-sentence-id` against 213 source blocks: **98%.** Nothing is virtualised out of the DOM.
+- **Real links are plentiful**: 115 unique hrefs on `/papers/mass-energy/`, **272** on
+  `/papers/special-relativity/`, 53 on `/lab/bm-01/`.
+- **The explanation panel's no-JS route is the promise done right.** `EquationExplainer.tsx:203` is a
+  real `<a href={explainerHref(explanation)}>` resolving to `/equations/<paper>/<display>/`, one
+  statically generated page per display over all 200 records.
+
+What does not:
+
+- **4,380 of 8,820 buttons across the live site disappear with JavaScript off** (50%), because
+  `noScriptControls.ts` ships `button:enabled{display:none!important}`. Relativity's German face loses
+  **320 of 320**, and **317 of those are `visually-hidden-focusable` sentence-alignment affordances** —
+  so the loss falls hardest on keyboard and screen-reader users. Hiding a dead control is more honest
+  than leaving it dead, and it is not the promised "real links, never hydration-dependent buttons". The
+  explainer's anchor proves the link was always achievable.
+- **R0 is unreachable without JavaScript.** `<html>` as served carries no `data-detail` and `?detail=0`
+  cannot change it in a static export, so the 8 `<div data-reading="0" hidden>` per page stay hidden.
+  R1 is the CSS default and works; R2 and R3 are native `<details>` a reader can open. **3 of 4
+  readings survive, and the one that survives least is the one written for the reader with no algebra.**
+
+### Accessibility
+
+- **Authored spoken forms: 200 of 200 printed displays, 154 of 154 model equations**, and
+  `argument.ts:1587` refuses an empty one. **But `MathInline` has no `spoken` field at all**, and the
+  corpus holds **914 inline math nodes** in the German blocks and 914 in the translation units. On
+  relativity's German face, **98 of 505 `<math>` elements carry an authored `aria-label` and 407 rely on
+  KaTeX-generated MathML** — against a plan that says generated speech "is often wrong for physics
+  notation".
+- 42 of 42 live lab pages have an SVG; **38 of 42 have a table.** The four without: `me-01` (whose
+  manifest promises one — see `am-jioj`), `me-03`, `bm-07/kitchen`, `brownian-data`.
+  `bm-07/kitchen` is the **only** page with a `<canvas>` and it has 0 tables, 0 `aria-describedby`, 0
+  `figcaption`, and 3 SVGs with no `aria-label`.
+- `AccessibleGraphView.tsx` is **imported by exactly one file: itself.** `DataTable.tsx` is referenced
+  only from inside its own module. The three-layer accessible description machinery is built and unused.
+- **No tooltip-only explanation exists** (0 `title=` in the live relativity German face; all 20
+  `title=` sites in src have another route). **0 of 42 lab pages have a range input without a number
+  input beside it.** Reading-only is real, applied pre-paint, and genuinely gates worker autoload.
+- **No sonification exists** (0 `new Audio(`/`AudioContext` in src), so "sound starts muted" is
+  vacuously true.
+- `/accessibility/` says, in the reader's face: "it aims at WCAG 2.2 level AA. It does not yet claim to
+  meet it… No round of testing with disabled readers, using their own tools, has been recorded yet."
+  **No false conformance claim anywhere.** This is the most creditable page measured.
+
+### Performance: two of eight budgets have ever been measured
+
+Newest artifact `artifacts/budgets/perf-20260926T182511Z-6590b21f.json`, `outcome: "fail"`,
+`calibrationState: "provisional"`, `buildRevision: "uncommitted"`:
+
+| budget | recorded | status |
+|---|---|---|
+| initial-route-js ≤ 204,800 B | **198,280 B brotli** | **pass**, 3.2% headroom |
+| reading-face-html ≤ 250,000 B gzip | 181,066 largest held to budget | pass **only by exemption** |
+| visible-text-math | true | not-available: "an inline sample, not a built page" |
+| interaction-latency p75 ≤ 200 ms | 86 | not-available: "20 synthetic interactions; no browser was driven" |
+| layout-shift ≤ 0.1 | 0.03 | not-available: "synthetic shift list; no page was rendered" |
+| instrument-feedback ≤ 100 ms | 65 | not-available: "synthetic marks; no instrument was operated" |
+| animation-frame-rate | 16.6 | **fail**: "intervals are synthetic, no frames were rendered" |
+| resource-lifecycle | not-measured | not-available |
+
+**Five of the eight have never been measured once.** The numbers beside them are synthetic values
+produced without driving a browser, rendering a page, operating an instrument or drawing a frame — and
+each artifact says so in its own notes. So "60 Hz desktop, 30 Hz mobile" and "CLS at most 0.1" are
+aspirations with a placeholder beside them. The initial-route graph guard is real and reports 0
+violations: no `.wasm`, no `pdfjs-dist`, no `three` in the initial graph.
+
+**The reading-face budget is exceeded on the deployed site, and the measured population has a hole.**
+Five live faces are over 250 kB gzipped: relativity parallel **672,870 (2.7×)**, German 383,954,
+English 338,331, results 278,490, light-quanta parallel 266,241. Worse, `scripts/perf/readingFaces.ts`
+walks only the paper index, the `view/<face>` pages and the per-section gloss — so
+**`/papers/brownian-motion/s4/` at 283,879 B gzip is over budget, in no record, and in no population.**
+
+### Privacy: isolation kept cleanly, the one promised analytic absent
+
+- **0 external `<script src>`, 0 external stylesheets, 0 external images or iframes, no `Set-Cookie`**
+  across 105 live pages. All 11 external hosts are citation hrefs (doi.org 150, github.com 121,
+  fourmilab 29, dlmf.nist.gov 4, …). This promise is kept without qualification.
+- **The clarity signal does not exist.** Its only trace is a registered storage namespace
+  (`keys.ts:355`), showing **0 B** on `/your-data/`. No control renders, nothing aggregates, no weekly
+  summary is published. And `/about/` now says the site **"runs no analytics"** — so the public copy
+  contradicts the plan rather than the plan being met. One of the two should change; the bead
+  `am-plat-clarity-signal-nlwr` is open.
+
+### Security
+
+Live CSP is tight: `default-src 'self'`, **no broad `unsafe-eval`** (only the narrow
+`wasm-unsafe-eval`), `object-src 'none'`, `frame-ancestors 'self'`, plus `referrer-policy: no-referrer`
+and HSTS `max-age=63072000`. `'unsafe-inline'` is present for scripts, required by the three pre-paint
+inline scripts; weaker than a nonce, and not forbidden by the promise. **0 `eval(` or `new Function(`
+in src.** KaTeX `trust: false` at 5 sites with one narrowly scoped exception. URL state is bounded
+(256 tape events, 2,048 URL chars, 32 KiB decompressed).
+
+`application/wasm` **is** served, `content-length: 92751`, and the served bytes' SHA-256 is
+**byte-identical to `wasmDigest` in `/wasm/manifest.json`**. But `cache-control: public, max-age=0,
+must-revalidate` on a content-addressed artifact: the "long-lived caching for immutable WASM" promise
+is not met.
+
+### The iPhone app cannot currently be built
+
+54 Swift files, **6,264 lines**, plus 30 TypeScript files in `scripts/app/`. The WKWebView shell is the
+strongest part: `EditionSchemeHandler.swift` serves `am-edition://edition/`, manifest-listed paths only,
+fixed `nosniff`/`no-referrer` headers, never `Set-Cookie`, with a TypeScript twin and shared origin
+vectors.
+
+Of the 12 promised shell features: **7 real** (library, outlines, Discover and Lab catalogues, Handoff,
+share, print), **1 partial** (Dynamic Type mapping without a Settings screen), **3 absent at zero
+bytes** (native search: 0 of 54 files match `searchable|UISearchController`; Spotlight: 0 hits for
+`CoreSpotlight`; facsimile downloads: 0 hits for "facsimile", while the edition manifest already
+excludes 9 PDFs and 16.2 MB **on the promise of that downloader**), and **1 built but inert**: universal
+links have handling, policy, vectors, Swift and UI tests and an AASA generator — and
+`AnnusMirabilis.entitlements` is an empty `<dict/>`, no `apple-app-site-association` file exists, and
+the generator is imported by nothing but its own test, so **the OS would never route a link to the app.**
+
+**The blocker:** the edition manifest describes 1,073 files and 91,835,885 bytes, and
+`generated/app-edition/edition-source.txt` points at a **deleted agent scratchpad** that the Xcode
+bundling phase `cd`s into. `site.binding: "unbound"`, `commit: null`, no `release` key — the app has
+**never been bound to a web `releaseId`**, which is its central rule. `scripts/app/verified-app-release.ts`
+**does not exist**; `release-absence.ts` does, and is a good DEBUG-marker gate, not a release script.
+Simulator-only is confirmed (283 runs on "AM iPhone 17", 7 on "AM iPad", **0 device runs**). Newest
+evidence of any kind: **2026-09-24**, and the latest `apple-ui-tests` record is **FAILED — 24 passed, 7
+failed, 1 skipped**, with two `signal kill` crashes and unfixed contrast findings on the native Contents
+screen. 38 app beads: 36 open, 2 deferred, **0 closed**.
+
+### Launch: the profile the plan names cannot currently succeed
+
+Measured directly against the registry, not from prose:
+
+- **`launch` is not a distinct profile.** 47 steps registered; scaffold 10, preview 31, launch 31, and
+  **`launch minus preview: []`, `preview minus launch: []`**. The only launch-specific behaviour is
+  hostname breadth.
+- **"All four complete papers closed and verified" is not representable.** All four
+  `content/papers/*.json` carry `status: "explanation-preview"`, and
+  `src/content/schemas/reading.ts:310-311` permits **only** `explanation-preview` and
+  `in-preparation`. **No value means complete.** 0 of 4.
+- **3 of 7 candidate checks are permanently `not-available`.** `four-complete-paper-texts`,
+  `accepted-wasm-result-per-capability` and `deliberate-typed-refusal` all call `notRun(…)` because
+  "these checks are HTTP only". `allCandidateChecksPassed` requires every check to have passed, so
+  `candidateChecksPassed` is **permanently false** and `validatePromotePreconditions` always throws on
+  `--promote`. **The exact command `am-launch-public-release-5nkq` specifies cannot succeed today.**
+- **0 release records and 0 authorization files are tracked.** `artifacts/releases` does not exist;
+  `git ls-files 'artifacts/releases*'` returns nothing.
+
+### `docs/DECISIONS.md`: 26 decisions, four stale, one never ratified
+
+Holding: the stack pins (no `^` or `~`), no-Tailwind (0 hits anywhere), fonts-ship-whole, and the
+facsimile-text-layer prohibition (2 non-test hits, both comments citing the denylist, **0 call sites**).
+
+Stale or contradicted: `D-2026-09-15-stack-versions` allowlists a root `tailwind.config.ts` that no
+longer exists; `D-2026-09-17-remove-task-to-epic-dependency-edges` claimed all task-to-epic edges were
+removed while `.beads/issues.jsonl` still holds **15** (all `parent-child`, not blockers);
+`D-2026-09-22-dsr-is-the-ci` holds in the guard while `quality-gates/registry.ts:6,574` still names
+`.github/workflows/*.yml` as its consumer; and **`D-2026-09-17-tailwind-styling-resolution` is itself
+still marked PROPOSED and was never ratified**, though `AGENTS.md` treats it as binding and the
+migration it describes is now essentially complete.
