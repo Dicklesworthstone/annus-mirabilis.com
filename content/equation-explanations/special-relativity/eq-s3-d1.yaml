@@ -1,0 +1,25 @@
+# special-relativity eq-s3-d1: what the display says, at every level (dispatch 286).
+# Written from the German of s3-p7 (p. 898) and its plate; every step was checked by hand.
+display: eq-s3-d1
+paper: special-relativity
+inWords:
+  - text: "Half the sum of "
+  - text: "the time the ray leaves the origin of the moving system"
+    quantityId: coordinateTimeMoving
+  - text: " and "
+  - text: "the time it arrives back there"
+    quantityId: coordinateTimeMoving
+  - text: " equals "
+  - text: "the time it is reflected at the far point"
+    quantityId: coordinateTimeMoving
+  - text: ", all three read on clocks at rest in the moving system."
+r0: "The clocks of the moving system are set by the rule of § 1: a ray sent out and reflected back must take the same time each way, by those clocks. This line is that rule, written for a ray sent along the axis of the motion."
+r1: "The three times are readings of clocks that rest in $k$ and travel with it. The ray leaves $k$'s origin at $\\tau_0$, is reflected at $\\tau_1$ by a point that rests in $k$ a fixed distance along the axis of the motion, and returns to the origin at $\\tau_2$. The rule of § 1 says the outward and the return leg take equal times, so $\\tau_1$ lies halfway between $\\tau_0$ and $\\tau_2$. Nothing here is yet a statement about the stationary system: it is a condition the function $\\tau$ must satisfy. What turns it into an equation for $\\tau$ is the next display, which writes each of the three times as $\\tau$ at a place and a stationary time, and those stationary times are fixed by the velocity of light in the stationary system."
+r2:
+  - latex: "\\tau_1 - \\tau_0 = \\tau_2 - \\tau_1"
+    why: "The rule of § 1: out and back take the same time, judged by the clocks of the system the ray travels in, here $k$."
+  - latex: "2 \\tau_1 = \\tau_0 + \\tau_2"
+    why: "Add $\\tau_1 + \\tau_0$ to both sides."
+  - latex: "\\frac{1}{2}(\\tau_0 + \\tau_2) = \\tau_1"
+    why: "Halve both sides, which is the line as the paper prints it."
+r3: "The equality is a stipulation, not a finding: § 1 defines what synchronous means by this very rule, after saying that the time a ray takes each way is not something the paper knows in advance (p. 894). The same definition was applied to the stationary system in § 1 and is applied here, unchanged, to the moving one, which is the step the principle of relativity licenses."

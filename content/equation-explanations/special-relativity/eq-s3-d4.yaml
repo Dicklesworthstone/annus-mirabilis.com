@@ -1,0 +1,34 @@
+# special-relativity eq-s3-d4: what the display says, at every level (dispatch 286).
+# Written from the German of s3-p7 (p. 898) and its plate; every step was checked by hand.
+display: eq-s3-d4
+paper: special-relativity
+inWords:
+  - text: "How fast "
+  - text: "the moving system's time"
+    quantityId: coordinateTimeMoving
+  - text: " changes with "
+  - text: "the distance along the motion"
+    quantityId: auxiliaryGalileanCoordinate
+  - text: ", plus "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " over the square of "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " less the square of that speed, times how fast it changes with "
+  - text: "the stationary time"
+    quantityId: coordinateTimeStationary
+  - text: ", is zero."
+r0: "The same equation, tidied. It says the moving system's time cannot depend on the stationary time alone: move along the direction of the motion and the setting of the clocks slides, by an amount this equation fixes."
+r1: "The arithmetic is only the combining of the two fractions, but the result is the whole of the relativity of simultaneity in one line. If $\\frac{\\partial \\tau}{\\partial x'}$ were zero, clocks that the moving system calls synchronous would be synchronous in the stationary system too, and the two systems would share a single time. The equation says instead that the two rates of change stand in a fixed ratio, $\\frac{v}{V^2 - v^2}$, which vanishes only when $v = 0$. The paragraph that follows notes that the origin was not special: any other point could have been the ray's starting point, so the equation holds for all values of $x'$, $y$ and $z$."
+r2:
+  - latex: "\\frac{1}{2}\\left( \\frac{1}{V-v} + \\frac{1}{V+v} \\right) = \\frac{1}{2} \\cdot \\frac{(V+v) + (V-v)}{(V-v)(V+v)} = \\frac{V}{V^2 - v^2}"
+    why: "Add the two fractions over the common denominator $V^2 - v^2$; the two $v$ terms cancel and $2V$ is halved."
+  - latex: "\\frac{V}{V^2 - v^2} \\frac{\\partial \\tau}{\\partial t} - \\frac{1}{V-v} \\frac{\\partial \\tau}{\\partial t} = \\frac{\\partial \\tau}{\\partial x'}"
+    why: "Take the term in $\\frac{\\partial \\tau}{\\partial t}$ on the right over to the left, and the term in $\\frac{\\partial \\tau}{\\partial x'}$ over to the right."
+  - latex: "\\frac{1}{V-v} = \\frac{V+v}{V^2 - v^2}"
+    why: "Put the second fraction over the same denominator, so the two can be subtracted."
+  - latex: "\\frac{V - (V+v)}{V^2 - v^2} \\frac{\\partial \\tau}{\\partial t} = - \\frac{v}{V^2 - v^2} \\frac{\\partial \\tau}{\\partial t} = \\frac{\\partial \\tau}{\\partial x'}"
+    why: "Subtract: $V - V - v = -v$."
+  - latex: "\\frac{\\partial \\tau}{\\partial x'} + \\frac{v}{V^2 - v^2} \\frac{\\partial \\tau}{\\partial t} = 0"
+    why: "Bring both terms to one side, which is the line as printed."

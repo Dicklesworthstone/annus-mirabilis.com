@@ -1,0 +1,32 @@
+# special-relativity eq-s3-d3: what the display says, at every level (dispatch 286).
+# Written from the German of s3-p7 (p. 898) and its plate; every step was checked by hand.
+display: eq-s3-d3
+paper: special-relativity
+inWords:
+  - text: "Half the sum of one over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " less "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " and one over their sum, times how fast "
+  - text: "the moving system's time"
+    quantityId: coordinateTimeMoving
+  - text: " changes with "
+  - text: "the stationary time"
+    quantityId: coordinateTimeStationary
+  - text: ", equals how fast it changes with "
+  - text: "the distance along the motion"
+    quantityId: auxiliaryGalileanCoordinate
+  - text: " plus the first of those two delays times its rate of change with the stationary time."
+r0: "The same condition for a point very close to the origin. Once the distance is small, only the rate at which each time changes matters, so the condition becomes an equation between rates of change."
+r1: "The paper says: choose $x'$ infinitely small. The two sides of the previous display then differ only by their first-order terms in $x'$, and those must agree. On the left the argument of $\\tau$ is moved in time alone, by the whole out-and-back delay; on the right it is moved in place by $x'$ and in time by the outward delay. Dividing by $x'$ leaves the rates. The step assumes $\\tau$ has first derivatives to work with, which the linearity assumed at the head of the section supplies. Every term here is still written with the stationary system's delays, so the unknown is the single function $\\tau$ and nothing about $k$'s own measurements has been used."
+r2:
+  - latex: "\\tau\\left( 0,0,0, t + \\frac{x'}{V-v} + \\frac{x'}{V+v} \\right) = \\tau(0,0,0,t) + \\left( \\frac{x'}{V-v} + \\frac{x'}{V+v} \\right) \\frac{\\partial \\tau}{\\partial t}"
+    why: "The return reading, to first order in the small delay: the value at $t$ plus the delay times the rate of change with $t$."
+  - latex: "\\tau\\left( x',0,0, t + \\frac{x'}{V-v} \\right) = \\tau(0,0,0,t) + x' \\frac{\\partial \\tau}{\\partial x'} + \\frac{x'}{V-v} \\frac{\\partial \\tau}{\\partial t}"
+    why: "The reflection reading, to first order in both the small distance and the small delay."
+  - latex: "\\tau(0,0,0,t) + \\frac{1}{2}\\left( \\frac{x'}{V-v} + \\frac{x'}{V+v} \\right) \\frac{\\partial \\tau}{\\partial t} = \\tau(0,0,0,t) + x' \\frac{\\partial \\tau}{\\partial x'} + \\frac{x'}{V-v} \\frac{\\partial \\tau}{\\partial t}"
+    why: "Both readings go into $\\frac{1}{2}(\\tau_0 + \\tau_2) = \\tau_1$. The departure reading appears on the left halved and once more from $\\tau_0$, which together make one of it."
+  - latex: "\\frac{1}{2}\\left( \\frac{1}{V-v} + \\frac{1}{V+v} \\right) \\frac{\\partial \\tau}{\\partial t} = \\frac{\\partial \\tau}{\\partial x'} + \\frac{1}{V-v} \\frac{\\partial \\tau}{\\partial t}"
+    why: "Take $\\tau(0,0,0,t)$ from both sides and divide by $x'$, which is the line as printed. The paper compresses these three moves into the words choose $x'$ infinitely small."

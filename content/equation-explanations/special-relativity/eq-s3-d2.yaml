@@ -1,0 +1,38 @@
+# special-relativity eq-s3-d2: what the display says, at every level (dispatch 286).
+# Written from the German of s3-p7 (p. 898) and its plate; every step was checked by hand.
+display: eq-s3-d2
+paper: special-relativity
+inWords:
+  - text: "Half the sum of "
+  - text: "the moving system's time"
+    quantityId: coordinateTimeMoving
+  - text: " at the origin at "
+  - text: "the stationary time"
+    quantityId: coordinateTimeStationary
+  - text: " and at the origin a while later, equals the same "
+  - text: "moving system's time"
+    quantityId: coordinateTimeMoving
+  - text: " at "
+  - text: "the far point's resting place"
+    quantityId: auxiliaryGalileanCoordinate
+  - text: " at the moment the ray reaches it. The two delays are that place divided by "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " less, and then plus, "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: "."
+r0: "The same rule as the line before, with each of the three times written out: where the clock is, and what the stationary system's clocks read at that moment. The out and back legs take different stationary times, because the target runs away from the light on the way out and meets it on the way back."
+r1: "The function $\\tau$ is being sought as a function of $x'$, $y$, $z$ and $t$, so each of the three readings is written in those terms. The ray leaves the origin of $k$ when the stationary clocks read $t$, which is $\\tau(0,0,0,t)$. Measured in the stationary system the target point moves away at $v$ while the light closes at $V$, so the gap shuts at $V - v$ and the outward leg takes $\\frac{x'}{V-v}$ of stationary time; the reflection is therefore $\\tau$ at the place $x'$ at the stationary time $t + \\frac{x'}{V-v}$. On the way back the origin comes to meet the light, so the two close at $V + v$ and the return leg takes $\\frac{x'}{V+v}$. Both legs are stated in the stationary system, where the principle of the constancy of the velocity of light has already been assumed; the moving system's own measurements are what the equation is being solved for, and are not used here."
+r2:
+  - latex: "\\tau_0 = \\tau(0,0,0,t)"
+    why: "The departure, at the origin of $k$, when the stationary clocks read $t$."
+  - latex: "x' = (V - v) \\cdot \\text{time out}"
+    why: "In the stationary system the light gains on the target at $V - v$, the target resting in $k$ at $x'$."
+  - latex: "\\tau_1 = \\tau\\left( x', 0, 0, t + \\frac{x'}{V-v} \\right)"
+    why: "The reflection, at the far point, at the stationary time the light gets there."
+  - latex: "\\tau_2 = \\tau\\left( 0,0,0, t + \\frac{x'}{V-v} + \\frac{x'}{V+v} \\right)"
+    why: "The return: the light and the origin close at $V + v$, so the second leg adds $\\frac{x'}{V+v}$."
+  - latex: "\\frac{1}{2}(\\tau_0 + \\tau_2) = \\tau_1"
+    why: "The rule of the previous display, into which the three readings now go, giving the line as printed."
+r3: "The $x'$ here is the paper's auxiliary $x' = x - v t$ of the paragraph before, the distance from $k$'s origin measured in the stationary system, and not the moving system's own coordinate, which the paper calls $\\xi$ and reaches only at the end of the section (p. 898; the notation concordance). A modern account usually writes this coordinate as $x'$ and so collides with the paper's own use of the letter."
