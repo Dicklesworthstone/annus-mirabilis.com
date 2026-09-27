@@ -110,3 +110,7 @@ xcuserdata/
 
 # Python bytecode from scripts/figures and scripts/reference
 __pycache__/
+
+# Equation explanations, split out of the reading faces (dispatch 292): one static fragment per
+# explanation, written by scripts/build-equations.ts and fetched when a reader opens a panel.
+public/equation-explanations/

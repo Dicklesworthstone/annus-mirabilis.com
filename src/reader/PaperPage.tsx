@@ -38,6 +38,7 @@ import {
 } from "./faceAvailability.ts";
 import { type BilingualEdition, loadBilingualEdition } from "./faces/bilingualLoader.ts";
 import { EnglishFace } from "./faces/EnglishFace.tsx";
+import { ExplainerFragments } from "./faces/ExplainerFragments.tsx";
 import {
   missingGermanSections,
   unglossedSections,
@@ -777,6 +778,8 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           page only, and only where the paper has records. */}
       {sectionId ? null : <PaperMargins margins={loadPaperMargins(paper.id)} />}
       <ExplanationInlineTerms paper={paper.id} />
+      {/* The model cards' panels fetch their levels on first expansion (dispatch 292). */}
+      <ExplainerFragments />
       {/* The references, without the record's source-status notice
           (D-2026-09-25-no-review-status-banners): it said who had not yet reviewed what. */}
       <section className="reading reading-column" aria-label="References">

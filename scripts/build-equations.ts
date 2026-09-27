@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
 import { renderToString } from "katex";
 import { loadFirstUseTargets, resolveFirstUse } from "../src/app/notation/firstUseTargets.ts";
 import { compileReadingContent } from "../src/content/compiler/compile.ts";
@@ -18,7 +19,16 @@ import {
   ENFORCED_EXPLANATION_PAPERS,
   loadExplanationSources,
 } from "../src/equations/printed/equationExplanations.ts";
+import {
+  EXPLAINER_FRAGMENT_DIR,
+  explainerFragment,
+  inlineExplanation,
+} from "../src/equations/printed/explainerFragments.tsx";
 import { explanationFormulas } from "../src/equations/printed/explanationFormulas.ts";
+import {
+  assertLabExplanationsPublishable,
+  checkLabExplanations,
+} from "../src/equations/printed/labExplanations.ts";
 import { labFormulaSites } from "../src/equations/printed/labFormulaSites.ts";
 import { labInlineViews } from "../src/equations/printed/labInlines.ts";
 import {
@@ -266,7 +276,9 @@ const explainedEquations = equations.map((equation) => {
     if (record) fromDisplay += 1;
     else fromRecord += 1;
   }
-  return explainer ? { ...equation, explainer } : equation;
+  return explainer
+    ? { ...equation, explainer: inlineExplanation({ ...explainer, equation: equation.id }) }
+    : equation;
 });
 console.log(
   JSON.stringify({
@@ -602,13 +614,62 @@ await writeFile(
     ),
   })}\n`,
 );
+// THE PANEL'S WEIGHT (dispatch 292). A face carries the control, the equation in words and the
+// names of the levels; the levels themselves go to a static fragment per explanation, fetched on
+// first expansion, and to the page that holds them for a reader without JavaScript. Measured before
+// this split: relativity's German face 992,203 gzipped against a recorded 385,289, and its parallel
+// face 1,867,064, because every panel is written twice, once as markup and once into the flight data.
+const explainerFragments = [
+  ...equationExplanations.flatMap((e) => e.explanations),
+  // A model equation explained from its own record has a fragment of its own; one explained from a
+  // display's record shares that display's, since it is the same explanation.
+  ...explainedEquations.flatMap((equation) =>
+    equation.explainer && !equation.explainer.display
+      ? [{ ...equation.explainer, equation: equation.id }]
+      : [],
+  ),
+].map((explanation) => explainerFragment(explanation));
+for (const dir of new Set(explainerFragments.map((f) => dirname(f.path))))
+  await mkdir(dir, { recursive: true });
+await Promise.all(explainerFragments.map((f) => writeFile(f.path, f.json)));
+console.log(
+  JSON.stringify({
+    event: "explainer-fragments",
+    fragments: explainerFragments.length,
+    dir: EXPLAINER_FRAGMENT_DIR,
+    bytes: explainerFragments.reduce((n, f) => n + f.json.length, 0),
+  }),
+);
 await writeFile(
   "src/generated/equation-explanations.json",
   `${JSON.stringify({
     schemaVersion: 1,
     rendererDigest,
-    // Each printed display's explanation, compiled, for every record that passed; a display with none
-    // has no entry, and its face shows no control rather than an empty one (EquationExplainer).
+    // Each printed display's explanation, for every record that passed; a display with none has no
+    // entry, and its face shows no control rather than an empty one (EquationExplainer). The faces
+    // take the inline part alone: the levels are in the fragments written above, and the whole of
+    // each explanation is in the full payload below, which only the explanation page reads.
+    papers: Object.fromEntries(
+      equationExplanations
+        .filter((e) => e.explanations.length > 0)
+        .map((e) => [
+          e.paper,
+          {
+            displays: Object.fromEntries(
+              e.explanations.map((x) => [x.display, inlineExplanation(x)]),
+            ),
+          },
+        ]),
+    ),
+  })}\n`,
+);
+await writeFile(
+  "src/generated/equation-explanations-full.json",
+  `${JSON.stringify({
+    schemaVersion: 1,
+    rendererDigest,
+    // Every level of every explanation, for /equations/<paper>/<id>/ alone: the page a reader
+    // without JavaScript is given, and where a failed fetch sends one. No face imports this.
     papers: Object.fromEntries(
       equationExplanations
         .filter((e) => e.explanations.length > 0)
@@ -616,6 +677,50 @@ await writeFile(
           e.paper,
           { displays: Object.fromEntries(e.explanations.map((x) => [x.display, x])) },
         ]),
+    ),
+    equations: Object.fromEntries(
+      explainedEquations.flatMap((equation) =>
+        equation.explainer && !equation.explainer.display
+          ? [[equation.id, { ...equation.explainer, equation: equation.id }]]
+          : [],
+      ),
+    ),
+  })}\n`,
+);
+// THE LABORATORIES' FORMULAS (dispatch 291), checked and compiled after the printed displays'
+// records, and given the records this run has just compiled rather than the payload on disk, which
+// is still the previous run's at this moment.
+const freshDisplayRecords = new Map(
+  equationExplanations.flatMap((e) =>
+    e.explanations.map((x) => [`${e.paper}\u0000${x.display}`, x] as const),
+  ),
+);
+const labExplanations = checkLabExplanations(process.cwd(), {
+  displayRecord: (paper, display) =>
+    paper === undefined || display === undefined
+      ? undefined
+      : freshDisplayRecords.get(`${paper}\u0000${display}`),
+});
+console.log(
+  JSON.stringify({
+    event: "lab-explanations",
+    ...labExplanations.census,
+    problems: labExplanations.problems.length,
+  }),
+);
+assertLabExplanationsPublishable(labExplanations);
+await writeFile(
+  "src/generated/lab-explanations.json",
+  `${JSON.stringify({
+    schemaVersion: 1,
+    rendererDigest,
+    // Each lab formula's explainer, by the latex its page writes. A formula with no entry, and one
+    // whose entry judged it incidental, has none, and its page draws no control rather than an
+    // empty one (LabFormula).
+    labs: Object.fromEntries(
+      [...labExplanations.explainers]
+        .filter(([, drawn]) => drawn.size > 0)
+        .map(([lab, drawn]) => [lab, Object.fromEntries(drawn)]),
     ),
   })}\n`,
 );

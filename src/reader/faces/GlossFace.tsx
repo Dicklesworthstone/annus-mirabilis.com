@@ -16,6 +16,7 @@ import type { FaceAvailability } from "../faceAvailability.ts";
 import { AlignmentController } from "./AlignmentController.tsx";
 import { buildAlignmentIndex } from "./alignment.ts";
 import { claimedDisplayIds } from "./displayClaims.ts";
+import { ExplainerFragments } from "./ExplainerFragments.tsx";
 import { sectionsLabel } from "./editionCoverage.ts";
 import { GlossSentence } from "./GlossSentence.tsx";
 import {
@@ -200,6 +201,8 @@ export function GlossFace({
     >
       {/* Inline formulas as targets, on a paper drawn in colour (dispatch 272). */}
       <InlineTerms paper={paper.slug} />
+      {/* The panels' levels, fetched when a reader first opens one (dispatch 292). */}
+      <ExplainerFragments />
       {/* No review banner (D-2026-09-25-no-review-status-banners): each gloss unit's record keeps
           who drafted it and its review state. */}
       {/* What the gloss does not reach yet, named once, as the English face names its untranslated

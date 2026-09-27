@@ -22,6 +22,7 @@ import { groupTranslationUnits, TranslationParagraphs } from "./TranslationParag
 import { unitsBySourceRef } from "./TranslationUnit.tsx";
 import { MASTHEAD_TITLE_ID, unitTranslating } from "./translationMasthead.ts";
 import "../reader.css";
+import { ExplainerFragments } from "./ExplainerFragments.tsx";
 import { InlineTerms } from "./InlineTerms.tsx";
 
 /**
@@ -125,6 +126,8 @@ export function ParallelFace({
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
       {/* Inline formulas as targets, on a paper drawn in colour (dispatch 272). */}
       <InlineTerms paper={paper.slug} />
+      {/* The panels' levels, fetched when a reader first opens one (dispatch 292). */}
+      <ExplainerFragments />
       <header className="page-intro">
         <p className="eyebrow">Parallel edition · {paper.titleEnglishWorking}</p>
         {/* The translated masthead (translationMasthead.ts); both columns still print it. */}

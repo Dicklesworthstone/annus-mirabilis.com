@@ -16,7 +16,6 @@
   text-align: start;
 }
 
-.eq-explain-open,
 .eq-explain-level {
   position: absolute;
   width: 1px;
@@ -32,6 +31,7 @@
 .eq-explain-control {
   position: relative;
   display: inline-flex;
+  text-decoration: none;
   align-items: center;
   gap: 0.5rem;
   min-height: 2.75rem;
@@ -53,10 +53,10 @@
   border-bottom: 2px solid currentColor;
   transform: rotate(-45deg);
 }
-.eq-explain-control:has(.eq-explain-open:checked)::before {
+.eq-explainer[data-open="true"] .eq-explain-control::before {
   transform: rotate(45deg);
 }
-.eq-explain-control:has(:focus-visible),
+.eq-explain-control:focus-visible,
 .eq-explain-also:has(:focus-visible) {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
@@ -70,29 +70,24 @@
   border-inline-start: 2px solid var(--rule);
   line-height: 1.65;
 }
-.eq-explainer:has(> .eq-explain-control .eq-explain-open:checked) > .eq-explain-body {
+.eq-explainer[data-open="true"] > .eq-explain-body {
   display: block;
-}
-/* No script ran: open, and the control closes it. */
-:root:not([data-detail]) .eq-explainer > .eq-explain-body {
-  display: block;
-}
-:root:not([data-detail])
-  .eq-explainer:has(> .eq-explain-control .eq-explain-open:checked)
-  > .eq-explain-body {
-  display: none;
-}
-:root:not([data-detail]) .eq-explain-control::before {
-  transform: rotate(45deg);
-}
-:root:not([data-detail]) .eq-explain-control:has(.eq-explain-open:checked)::before {
-  transform: rotate(-45deg);
 }
 
-.eq-explain-words,
-.eq-explain-more {
+/* The levels arrive from a static fragment when a reader first opens the panel
+   (ExplainerFragments.tsx, dispatch 292), so this is empty in the page itself. */
+.eq-explain-levels {
   display: block;
-  margin: 0.4rem 0;
+}
+
+/* A panel whose fragment did not load says so; its control is still the link to the page that holds
+   every level. */
+.eq-explainer[data-explainer-filled="failed"] .eq-explain-levels::before {
+  content: "The explanation did not load. Follow the link above to read it.";
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  color: var(--muted);
 }
 
 .eq-level {
@@ -178,4 +173,17 @@
 :root[data-detail="0"] .eq-explain-also[data-level="0"],
 :root[data-detail="2"] .eq-explain-also[data-level="2"] {
   display: none;
+}
+
+/* The page that holds one equation's every level (/equations/<paper>/<display>/, dispatch 292): the
+   address a reader without JavaScript follows, and where a panel whose fragment fails sends one.
+   Its levels are always shown, since a reader arrived here to read them. */
+.equation-explanation-page {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+.equation-explanation-levels .eq-level {
+  display: block;
+  margin: 1.2rem 0;
 }

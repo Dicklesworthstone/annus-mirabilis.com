@@ -18,6 +18,7 @@ import { TranslationParagraphs } from "./TranslationParagraphs.tsx";
 import { unitsBySourceRef } from "./TranslationUnit.tsx";
 import { MASTHEAD_AUTHOR_ID, MASTHEAD_TITLE_ID, unitTranslating } from "./translationMasthead.ts";
 import "../reader.css";
+import { ExplainerFragments } from "./ExplainerFragments.tsx";
 import { InlineTerms } from "./InlineTerms.tsx";
 
 export interface EnglishFaceProps {
@@ -70,6 +71,8 @@ export function EnglishFace({
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
       {/* Inline formulas as targets, on a paper drawn in colour (dispatch 272). */}
       <InlineTerms paper={paper.slug} />
+      {/* The panels' levels, fetched when a reader first opens one (dispatch 292). */}
+      <ExplainerFragments />
       <header className="page-intro" lang="en">
         <p className="eyebrow">Translation · {paper.titleEnglishWorking}</p>
         {/* The translated masthead is the title, under its own unit id (translationMasthead.ts);

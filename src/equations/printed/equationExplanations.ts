@@ -117,6 +117,13 @@ export type ExplainerLevels = Readonly<{
   paper: string;
   /** The printed display this explains, where it explains one. */
   display?: string | undefined;
+  /** The model equation this explains, where it explains one rather than a display. */
+  equation?: string | undefined;
+  /**
+   * Which levels this explanation fills, for the panel that carries none of them (dispatch 292):
+   * the page names the levels and fetches their words on first expansion.
+   */
+  levels?: readonly string[] | undefined;
   inWords: readonly WordsPhrase[];
   r0?: readonly ProsePart[] | undefined;
   r1?: readonly ProsePart[] | undefined;

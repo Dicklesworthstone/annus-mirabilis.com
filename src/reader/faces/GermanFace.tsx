@@ -20,6 +20,7 @@ import { FACE_REGISTRY, type FaceId } from "./registry.ts";
 import { SourceBlock } from "./SourceBlock.tsx";
 import "../reader.css";
 import "./germanDraftFace.css";
+import { ExplainerFragments } from "./ExplainerFragments.tsx";
 import { InlineTerms } from "./InlineTerms.tsx";
 
 export interface GermanFaceProps {
@@ -139,6 +140,8 @@ export function GermanFace({
       <script dangerouslySetInnerHTML={{ __html: ROOT_ARMING_SOURCE }} />
       {/* Inline formulas as targets, on a paper drawn in colour (dispatch 272). */}
       <InlineTerms paper={paper.slug} />
+      {/* The panels' levels, fetched when a reader first opens one (dispatch 292). */}
+      <ExplainerFragments />
       <header className="page-intro" lang="de">
         <p className="eyebrow">Quelle · {paper.titleGerman}</p>
         <h1 className="source-paper-title">{paper.titleGerman}</h1>
