@@ -839,6 +839,21 @@
   justify-content: center;
   margin: 0.25rem 0 0.75rem;
 }
+/*
+ * THE GROUP CLOSES WITH THE AIR IT OPENS WITH (dispatch 290). A printed display on a reading face
+ * is now a group of three: the formula, its chips, and "Explain this equation" under them. Measured
+ * in Chromium on a build of 5350e8bd, relativity's German face, the gaps down one group were
+ *   1440: prose 31.5 | formula 26.8 chips 12 control | 21.4 prose
+ *    390: prose 26.3 | formula 23.0 chips 12 control | 20.4 prose
+ * so the group CLOSED more tightly than its own widest inner gap, and the control sat nearer the
+ * sentence below than the formula sat to its own legend. A group that closes tighter than it is
+ * spaced inside reads as though its last part belongs to whatever follows. The space below the
+ * panel is set here, in the face's own rhythm; the panel's own margins stay with the panel
+ * (equationExplainer.css, dispatch 289).
+ */
+.printed-display-terms .eq-explainer {
+  margin-bottom: 1.6rem;
+}
 /* KaTeX stacks a fraction's numerator and denominator (and any stacked layout) in layered spans,
    and in a printed display the layer over a denominator took the pointer: measured on live at
    60839015, a pointer at the centre of a term's glyph reached the term for 32 of mass-energy's 54
