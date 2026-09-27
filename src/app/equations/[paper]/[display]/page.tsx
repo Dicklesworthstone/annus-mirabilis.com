@@ -44,24 +44,6 @@ export default async function Page({
     <main className="equation-explanation-page" data-paper={paper} data-explains={display}>
       <p className="eyebrow">{paper.replace(/-/g, " ")}</p>
       <h1>The equation explained</h1>
-      <p className="eq-explain-words equation-sentence">
-        <span className="eq-level-name">In words</span>
-        {explanation.inWords.map((phrase, n) =>
-          phrase.quantityId ? (
-            <span
-              // biome-ignore lint/suspicious/noArrayIndexKey: the phrases are a fixed sentence and never reorder.
-              key={n}
-              className="equation-quantity"
-              data-quantity-id={phrase.quantityId}
-            >
-              {phrase.text}
-            </span>
-          ) : (
-            // biome-ignore lint/suspicious/noArrayIndexKey: as above.
-            <span key={n}>{phrase.text}</span>
-          ),
-        )}
-      </p>
       <div className="equation-explanation-levels">
         <ExplainerBody explanation={explanation} />
       </div>
