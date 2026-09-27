@@ -8,7 +8,15 @@
  * - COLOURED: it marks a quantity (data-quantity-id), which the face lights and pins;
  * - LABELLED: its atoms are names the notation declares no quantity, a point A, an axis X, a system
  *   K, a sign, each marked data-label with a note of what it names, which the face lights and pins;
- * - A CHIP'S GLYPH: the symbol inside a term chip, which carries its quantity and its colour (--qc);
+ * - A CHIP'S GLYPH IN ITS TERM'S COLOUR: the symbol inside a term chip. The chip carries the
+ *   quantity and the colour (--qc), and the glyph inherits it, so this category is coloured, not
+ *   plain. It is counted apart from "coloured" only because the colour reaches it through its
+ *   chip rather than through a data-quantity-id rule of its own, and the name said so too quietly:
+ *   dispatch 290 was written on the reading that 639 of these were "still drawn in the ink".
+ *   Measured in Chromium on a build of 5350e8bd, over eight route kinds (the four papers' faces, a
+ *   section page, a lab, /notation/, a foundation and /discover/), in light and dark and with
+ *   JavaScript off: of every chip glyph on those pages, NONE computes the body ink. Relativity's
+ *   German face has 639 and light quanta's English 264, and all of them take their term's colour;
  * - A WORD EQUATION: a printed display whose record binds no letter because it prints words
  *   (content/display-terms), named by its spoken form;
  * - A NUMBER: a formula with no printed letter at all (2/3, 6 · 10^23).
@@ -29,7 +37,7 @@ import { loadBilingualEdition } from "./bilingualLoader.ts";
 import { blocksBySection } from "./glossSections.ts";
 
 const FACES = ["german", "english", "parallel", "gloss"] as const;
-type Kind = "coloured" | "labelled" | "chip" | "word-equation" | "number";
+type Kind = "coloured" | "labelled" | "chipInItsColour" | "word-equation" | "number";
 type Census = { counts: Record<Kind, number>; problems: string[] };
 
 /** The displays whose record binds no letter: they print words (content/display-terms). */
@@ -63,7 +71,7 @@ function census(
   const { document } = new Window();
   document.body.innerHTML = html;
   const out: Census = {
-    counts: { coloured: 0, labelled: 0, chip: 0, "word-equation": 0, number: 0 },
+    counts: { coloured: 0, labelled: 0, chipInItsColour: 0, "word-equation": 0, number: 0 },
     problems: [],
   };
   const roots = [...document.querySelectorAll(".katex")].filter(
@@ -94,8 +102,10 @@ function census(
       continue;
     }
     const chip = root.closest(".term-chip[data-quantity-id]");
+    // The chip must carry the colour itself: a chip with no --qc would leave its glyph in the ink,
+    // and is not counted here but falls through to the refusal below.
     if (chip && /--qc\s*:/.test(chip.getAttribute("style") ?? "")) {
-      out.counts.chip++;
+      out.counts.chipInItsColour++;
       continue;
     }
     const display = root.closest("[data-display-terms]");
