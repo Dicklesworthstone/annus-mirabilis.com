@@ -132,11 +132,23 @@ export function inlineLabelNotes(
  * name says the same thing under a paragraph and under the panel that explains it.
  */
 export function paperLabelNotes(paper: string, root: string): Readonly<Record<string, string>> {
-  const signs = loadDisplayTerms(root, paper)?.notQuantities ?? [];
+  const file = loadDisplayTerms(root, paper);
+  // A sign is named by its GLYPH and its section, never by the display it was declared under
+  // (signSource), so a sign one display declares is marked wherever that section prints it,
+  // including the source paragraph. Reading only the file's own list left those names saying
+  // nothing: Brownian declares l and ν under eq-s2-d1 alone, and § 2's paragraph s2-p1 prints
+  // both. So every display's list is read here too, and the first reason given for a glyph is
+  // the one kept, because saidOf() prefers the paper's own words in any case.
+  const reasons = new Map<string, string>();
+  for (const sign of [
+    ...(file?.notQuantities ?? []),
+    ...(file?.displays ?? []).flatMap((display) => display.notQuantities),
+  ])
+    if (!reasons.has(sign.glyph)) reasons.set(sign.glyph, sign.reason);
   return inlineLabelNotes(
     paper,
     loadConcordanceForPaper(paper).entries,
     loadInlineExceptions(root),
-    signs.map((sign) => ({ glyph: sign.glyph, reason: sign.reason })),
+    [...reasons].map(([glyph, reason]) => ({ glyph, reason })),
   );
 }
