@@ -27,7 +27,7 @@
     "full": [
       {
         "kind": "paragraph",
-        "text": "The displacement law tells us what a given \\(D\\) predicts. A separate model connects \\(D\\) to a tracer’s physical surroundings. Let \\(b\\) be mobility, so a small force \\(F\\) produces mean drift \\(bF\\). Stokes drag for a sphere gives \\(b = 1/(6\\pi\\eta a)\\)."
+        "text": "The displacement law tells us what a given \\(D\\) predicts. A separate model connects \\(D\\) to a tracer’s physical surroundings. Let \\(b\\) be mobility, so a small force \\(K\\), Einstein's letter for it, produces mean drift \\(bK\\). Stokes drag for a sphere gives \\(b = 1/(6\\pi\\eta a)\\)."
       },
       {
         "kind": "foundation",
@@ -36,7 +36,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "Let \\(c\\) be number density. At isothermal balance the force density \\(cF\\) balances the osmotic-pressure gradient. With ideal osmotic pressure \\(cRT/N\\), the drift flux \\(cbF\\) becomes \\(b\\,(RT/N)\\) times the density gradient. Equating it with the opposite diffusive flux gives \\(D = bRT/N\\)."
+        "text": "Let \\(c\\) be number density. At isothermal balance the force density \\(cK\\) balances the osmotic-pressure gradient. With ideal osmotic pressure \\(cRT/N\\), the drift flux \\(cbK\\) becomes \\(b\\,(RT/N)\\) times the density gradient. Equating it with the opposite diffusive flux gives \\(D = bRT/N\\)."
       },
       {
         "kind": "foundation",
@@ -75,8 +75,8 @@
         "items": [
           "Name the quantities. \\(T\\) is the absolute temperature, in kelvin. \\(\\eta\\) is the liquid’s dynamic viscosity, its resistance to flow, in pascal seconds. \\(a\\) is the radius of the spherical tracer. \\(R\\) is the molar gas constant, and \\(N\\) is the number of molecules in a mole. Einstein prints the viscosity as \\(k\\) and the radius as \\(P\\); his \\(k\\) is the viscosity, not Boltzmann’s constant.",
           "\\(D\\) is the diffusivity of the earlier passages: it says how fast the mean square grows, \\(\\langle x^2\\rangle = 2Dt\\). This passage asks what fixes \\(D\\). The route has two halves: how a tracer answers a steady push, and how the crowding of many tracers pushes back.",
-          "First half, the push. Suppose a small steady force \\(F\\) acts on each tracer. In a viscous liquid the tracer soon moves at a steady mean drift speed in proportion to the force. Call the ratio of speed to force the mobility \\(b\\), so the drift speed is \\(bF\\).",
-          "Stokes’s law gives the drag on a sphere moving slowly at speed \\(v\\) through a liquid as \\(6\\pi\\eta av\\). At steady drift the drag balances the push, \\(F = 6\\pi\\eta av\\), so \\(v = F/(6\\pi\\eta a)\\) and the mobility is \\(b = 1/(6\\pi\\eta a)\\). Stokes’s law is brought in from the theory of fluids; the random-walk argument does not supply it."
+          "First half, the push. Suppose a small steady force \\(K\\) acts on each tracer; K is Einstein's letter for it in § 3. In a viscous liquid the tracer soon moves at a steady mean drift speed in proportion to the force. Call the ratio of speed to force the mobility \\(b\\), so the drift speed is \\(bK\\).",
+          "Stokes’s law gives the drag on a sphere moving slowly at speed \\(v\\) through a liquid as \\(6\\pi\\eta av\\). At steady drift the drag balances the push, \\(K = 6\\pi\\eta av\\), so \\(v = K/(6\\pi\\eta a)\\) and the mobility is \\(b = 1/(6\\pi\\eta a)\\). Stokes’s law is brought in from the theory of fluids; the random-walk argument does not supply it."
         ]
       },
       {
@@ -89,7 +89,7 @@
         "items": [
           "Second half, the crowding. Let \\(c\\) be the number of tracers per unit volume, which Einstein writes \\(\\nu\\). Few, small tracers in a liquid exert an osmotic pressure, written here Π, of the same form as an ideal gas’s pressure: Π = cRT/N. Dividing \\(R\\) by \\(N\\) turns the gas constant per mole into a constant per molecule.",
           "Let the density vary along \\(x\\). A gradient is the rate at which a quantity changes with position. With \\(T\\) held fixed, only \\(c\\) varies in cRT/N, so the constant factor comes outside: the gradient of Π is \\(RT/N\\) times the gradient of \\(c\\).",
-          "In a steady balance, the force on the tracers in a thin slab is held by the difference in osmotic pressure across it. Per unit volume that reads: \\(cF\\) equals the gradient of Π, which is \\(RT/N\\) times the gradient of \\(c\\). This osmotic law, like Stokes’s, is brought in from outside; conservation of tracers alone does not give it."
+          "In a steady balance, the force on the tracers in a thin slab is held by the difference in osmotic pressure across it. Per unit volume that reads: \\(cK\\) equals the gradient of Π, which is \\(RT/N\\) times the gradient of \\(c\\). This osmotic law, like Stokes’s, is brought in from outside; conservation of tracers alone does not give it."
         ]
       },
       {
@@ -100,7 +100,7 @@
       {
         "kind": "steps",
         "items": [
-          "Now count flows. A flux is the number of tracers crossing unit area in unit time. Tracers drifting at speed \\(bF\\) with density \\(c\\) carry the drift flux \\(c\\,bF\\). Multiply the balance of the last step by \\(b\\): the drift flux is \\(b\\,(RT/N)\\) times the gradient of \\(c\\).",
+          "Now count flows. A flux is the number of tracers crossing unit area in unit time. Tracers drifting at speed \\(bK\\) with density \\(c\\) carry the drift flux \\(c\\,bK\\). Multiply the balance of the last step by \\(b\\): the drift flux is \\(b\\,(RT/N)\\) times the gradient of \\(c\\).",
           "Fick’s law gives the diffusive flux: tracers spread from crowded to sparse regions, and the flux is \\(-D\\) times the gradient of \\(c\\), with the minus sign because the flow runs down the gradient.",
           "In the balance nothing flows overall, so the two fluxes add to zero: \\(b\\,(RT/N)\\) times the gradient, minus \\(D\\) times the gradient, is zero. Divide by the gradient, which is not zero where the density varies: \\(D = bRT/N\\).",
           "Substitute the Stokes mobility \\(b = 1/(6\\pi\\eta a)\\): \\(D = (RT/N) \\times 1/(6\\pi\\eta a)\\), which is \\(RT\\) divided by \\(6\\pi\\eta aN\\). Einstein found this in §3 and quotes it at the start of §5 as \\(D = \\frac{RT}{N}\\frac{1}{6\\pi kP}\\), with his \\(k\\) for \\(\\eta\\) and his \\(P\\) for \\(a\\).",

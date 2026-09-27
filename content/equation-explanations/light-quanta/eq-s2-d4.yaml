@@ -1,0 +1,33 @@
+# light-quanta eq-s2-d4: what the display says, at every level (dispatch 279).
+# Written from the German of s2-p2 (p. 136) and its plate; the steps were checked by hand.
+display: eq-s2-d4
+paper: light-quanta
+inWords:
+  - text: "The radiation's energy per unit volume and unit frequency"
+    quantityId: frequencyEnergyDensity
+  - text: " equals "
+  - text: "the constant α"
+    quantityId: wienConstantAlpha
+  - text: " divided by "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: ", times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: " squared, times "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: "."
+r0: "For long waves and high radiation densities, Planck's formula goes over into a density proportional to the square of the frequency and to the temperature: the form section 1 derived."
+r1: "Where $T/\\nu$ is large, the exponent $\\frac{\\beta \\nu}{T}$ is small, and the exponential of a small number is very nearly one plus that number. The denominator of Planck's formula becomes $\\frac{\\beta \\nu}{T}$, and dividing $\\alpha \\nu^3$ by it gives this line. The paper reads large $T/\\nu$ as 'large wavelengths and radiation densities'. The next sentence observes that this is the form section 1 derived from Maxwell's theory and the electron theory; only the way the coefficient is written differs, $\\frac{\\alpha}{\\beta}$ here and $\\frac{R}{N} \\frac{8 \\pi}{L^3}$ there."
+r2:
+  - latex: "\\varrho_\\nu = \\frac{\\alpha \\nu^3}{e^{\\frac{\\beta \\nu}{T}} - 1}"
+    why: "Planck's formula, the first display of section 2."
+  - latex: "e^{\\frac{\\beta \\nu}{T}} \\approx 1 + \\frac{\\beta \\nu}{T}"
+    why: "For large $T/\\nu$ the exponent is small, and the exponential of a small number is very nearly one plus the number."
+  - latex: "e^{\\frac{\\beta \\nu}{T}} - 1 \\approx \\frac{\\beta \\nu}{T}"
+    why: "Subtract the one: the denominator is, very nearly, the exponent itself."
+  - latex: "\\varrho_\\nu \\approx \\frac{\\alpha \\nu^3}{\\frac{\\beta \\nu}{T}} = \\frac{\\alpha \\nu^3 T}{\\beta \\nu}"
+    why: "Put that into the formula. Dividing by a fraction is multiplying by its reciprocal."
+  - latex: "\\varrho_\\nu = \\frac{\\alpha}{\\beta} \\nu^2 T"
+    why: "Cancel one factor $\\nu$ between the numerator and the denominator. The approximation becomes exact in the limit of large $T/\\nu$, the paper's 'in der Grenze': the printed line."

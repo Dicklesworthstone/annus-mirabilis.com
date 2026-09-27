@@ -1,0 +1,31 @@
+# light-quanta eq-s2-d5: what the display says, at every level (dispatch 279).
+# Written from the German of s2-p2 (p. 137) and its plate; the steps were checked by hand.
+display: eq-s2-d5
+paper: light-quanta
+inWords:
+  - text: "The gas constant"
+    quantityId: molarGasConstant
+  - text: " over "
+  - text: "the number of molecules in a gram-equivalent"
+    quantityId: avogadroConstant
+  - text: ", times eight π over "
+  - text: "the speed of light"
+    quantityId: speedOfLight
+  - text: " cubed, equals "
+  - text: "the constant α"
+    quantityId: wienConstantAlpha
+  - text: " over "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: "."
+r0: "Section 1's density and the long-wave limit of Planck's formula have the same form, so their coefficients must be equal. This joins the gas theory's R/N to the radiation constants α and β."
+r1: "Both expressions say the density grows as $\\nu^2 T$; they differ only in the number in front. Section 1 wrote it as $\\frac{R}{N} \\frac{8 \\pi}{L^3}$, from Maxwell's theory, the electron theory and the kinetic theory of gases; Planck's formula at long waves writes it as $\\frac{\\alpha}{\\beta}$, from measurement. The paper sets the two equal. The step leans only on the region where section 1's picture agrees with experience, long waves and high densities, and not on Planck's theory of black radiation: this is the independence, 'to a certain degree', that section 2 set out to show."
+r2:
+  - latex: "\\varrho_\\nu = \\frac{R}{N} \\frac{8 \\pi \\nu^2}{L^3} T"
+    why: "Section 1's density (its seventh display)."
+  - latex: "\\varrho_\\nu = \\frac{\\alpha}{\\beta} \\nu^2 T"
+    why: "Planck's formula at long waves (the preceding display)."
+  - latex: "\\frac{R}{N} \\frac{8 \\pi}{L^3} \\nu^2 T = \\frac{\\alpha}{\\beta} \\nu^2 T"
+    why: "Both describe the same density where both hold, so set them equal, writing section 1's $8 \\pi \\nu^2$ as $8 \\pi$ times $\\nu^2$."
+  - latex: "\\frac{R}{N} \\frac{8 \\pi}{L^3} = \\frac{\\alpha}{\\beta}"
+    why: "Divide both sides by $\\nu^2 T$, the same on both: the coefficients must agree. The printed line."

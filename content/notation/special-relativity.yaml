@@ -2749,3 +2749,63 @@ modernOnlySymbols:
     scope: ["sr-s3"]
     introducedBy: "kinematics-modern-lens"
     label: "Modern ansatz transverse coefficient. NEVER written k; k is the moving system."
+  - id: sr.modern.q.particleChargeMagnitude.s6
+    glyph:
+      unicode: "q"
+      latex: "q"
+      variant: plain
+    binding:
+      quantityId: particleChargeMagnitude
+    scope: ["sr-s6"]
+    introducedBy: "the explanation of § 6's magnet and conductor"
+    label: "The charge carried through the magnetic field in the explanation of § 6; the paper names no charge there"
+  - id: sr.modern.q.electronCharge.s10
+    glyph:
+      unicode: "q"
+      latex: "q"
+      variant: plain
+    binding:
+      quantityId: electronCharge
+    scope: ["sr-s10"]
+    introducedBy: "modern-notation"
+    label: "The electron's charge, which § 10 prints as ε, as the explanation writes it"
+  - id: sr.modern.E.electricFieldStationary.s10
+    glyph:
+      unicode: "E"
+      latex: "E"
+      variant: plain
+    binding:
+      quantityId: electricFieldStationary
+    scope: ["sr-s10"]
+    introducedBy: "modern-notation"
+    label: "The electric field across the electron's path, which § 10 prints by its components X, Y, Z, as the explanation writes it"
+  - id: sr.modern.u.electronSpeedStationary.s10
+    glyph:
+      unicode: "u"
+      latex: "u"
+      variant: plain
+    binding:
+      quantityId: electronSpeedStationary
+    scope: ["sr-s10"]
+    introducedBy: "modern-notation"
+    label: "The electron's speed, the variable of the explanation's integral in § 10"
+  - id: sr.modern.u.clockSpeedStationary.s4
+    glyph:
+      unicode: "u"
+      latex: "u"
+      variant: plain
+    binding:
+      quantityId: clockSpeedStationary
+    scope: ["sr-s4"]
+    introducedBy: "modern-notation"
+    label: "The speed of a transported clock on one leg of its path, in the explanation of § 4"
+  - id: sr.modern.u.chargeVelocityStationary.s9
+    glyph:
+      unicode: "u"
+      latex: "u"
+      variant: plain
+    binding:
+      quantityId: chargeVelocityStationary
+    scope: ["sr-s9"]
+    introducedBy: "modern-notation"
+    label: "The velocity of the moving charges, whose components § 9 prints as u_x, u_y, u_z, as the explanation writes it undivided"

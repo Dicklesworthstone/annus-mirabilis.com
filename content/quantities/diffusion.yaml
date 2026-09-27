@@ -635,6 +635,17 @@
   frame: not-applicable
   colorRole: material
 
+- id: partitionArea
+  name: Partition area
+  description: >
+    The area A of a wall or partition on which an osmotic pressure acts, so that the force on it is
+    the pressure times A (Brownian motion, the explanation of § 1; BM-02's partition).
+  dimensionStatus: declared
+  dimension: [2, 0, 0, 0, 0, 0]
+  mathematicalKind: scalar
+  frame: not-applicable
+  colorRole: space-geometry
+
 - id: hydrostaticHead
   name: Hydrostatic head
   description: BM-02's equilibrium head Pi/(rho*g).

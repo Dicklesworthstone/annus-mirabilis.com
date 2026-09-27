@@ -1,0 +1,34 @@
+# light-quanta eq-s2-d6: what the display says, at every level (dispatch 279).
+# Written from the German of s2-p2 (p. 137) and its plate; the steps were checked by hand.
+display: eq-s2-d6
+paper: light-quanta
+inWords:
+  - text: "The number of molecules in a gram-equivalent"
+    quantityId: avogadroConstant
+  - text: " equals "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " over "
+  - text: "the constant α"
+    quantityId: wienConstantAlpha
+  - text: ", times eight π times "
+  - text: "the gas constant"
+    quantityId: molarGasConstant
+  - text: " over "
+  - text: "the speed of light"
+    quantityId: speedOfLight
+  - text: " cubed, which comes to 6.17 × 10²³."
+r0: "Solved for N, the match of coefficients gives the number of molecules in a gram-equivalent from Planck's radiation constants: 6.17 × 10²³, so a hydrogen atom weighs 1.62 × 10⁻²⁴ gram. Einstein notes that this is exactly Planck's value and agrees satisfactorily with other methods."
+r1: "Solve the preceding equation for $N$ and the number of molecules in a gram-equivalent comes out in terms of the radiation constants $\\alpha$ and $\\beta$, the gas constant $R$ and the speed of light $L$. The paper prints the value $6{,}17 \\cdot 10^{23}$ and draws the consequence that an atom of hydrogen weighs $1/N$ gram, $1{,}62 \\cdot 10^{-24}$ g. It adds that this is exactly the value Planck found, and that it agrees satisfactorily with the values found for this quantity by other means. The paper does not print the value of $R$ it used; with the usual values of the time, $R = 8{,}31 \\cdot 10^7$ and $L = 3 \\cdot 10^{10}$ in centimetre, gram and second units, the formula gives the printed number when $\\alpha$ is $6{,}10 \\cdot 10^{-57}$ (see the margin)."
+r2:
+  - latex: "\\frac{R}{N} \\frac{8 \\pi}{L^3} = \\frac{\\alpha}{\\beta}"
+    why: "The match of coefficients (the preceding display)."
+  - latex: "\\frac{8 \\pi R}{L^3} = \\frac{\\alpha}{\\beta} N"
+    why: "Multiply both sides by $N$."
+  - latex: "N = \\frac{\\beta}{\\alpha} \\frac{8 \\pi R}{L^3}"
+    why: "Multiply both sides by $\\frac{\\beta}{\\alpha}$ and turn the equation round: the printed formula for $N$."
+  - latex: "N = \\frac{4{,}866 \\cdot 10^{-11}}{6{,}10 \\cdot 10^{-57}} \\cdot \\frac{8 \\pi \\cdot 8{,}31 \\cdot 10^{7}}{(3 \\cdot 10^{10})^3} = 6{,}17 \\cdot 10^{23}"
+    why: "Put in the numbers. The paper does not print $R$, and the value used is the usual one of the time. With $\\alpha$ as printed, $6{,}10 \\cdot 10^{-56}$, the same arithmetic gives $6{,}17 \\cdot 10^{22}$, a tenth of the printed result (see the margin)."
+  - latex: "\\frac{1}{N} = \\frac{1}{6{,}17 \\cdot 10^{23}} = 1{,}62 \\cdot 10^{-24}"
+    why: "The paper's consequence. Taking a gram-equivalent of hydrogen as one gram, as the paper does, one atom weighs $1/N$ gram."
+r3: "As the edition reads the plate of p. 136, the exponent of α is −56. With the paper's β and the usual values of the time for R and L, which it does not print, the formula for N gives the printed 6.17 × 10²³ only with α = 6.10 × 10⁻⁵⁷; with −56 it gives a tenth of that. The provenance receipt records the plate reading, from a single witness, as watch-alpha-exponent (docs/provenance/ap-17-132.md), and the edition's historical constant set uses 10⁻⁵⁷ (content/quantities/constant-sets/einstein-1905-light-quanta-printed.yaml, cross-referenced there to the Collected Papers, vol. 2, doc. 14, p. 154)."

@@ -1,0 +1,16 @@
+# light-quanta eq-s2-d2: what the display says, at every level (dispatch 279).
+# Written from the German of s2-p2 (p. 136) and its plate; the steps were checked by hand.
+display: eq-s2-d2
+paper: light-quanta
+inWords:
+  - text: "The constant α of Planck's formula"
+    quantityId: wienConstantAlpha
+  - text: " is 6.10 × 10⁻⁵⁶, as the paper prints it."
+r0: "The first constant of Planck's formula, with the value the paper prints. It sets the height of the whole spectrum, and with β it will give the number of molecules in a gram-equivalent."
+r1: "The paper prints the two constants of Planck's formula on lines of their own, without units. $\\alpha$ multiplies $\\nu^3$ in the numerator of Planck's formula, so it sets the height of the whole spectrum. The paper's argument uses it only through the ratio $\\frac{\\alpha}{\\beta}$, the coefficient of the long-wave form of the formula, from which it finds $N$."
+r2:
+  - latex: "\\alpha = 6{,}10 \\cdot 10^{-56}"
+    why: "The value as the edition reads it on p. 136, with the German decimal comma."
+  - latex: "\\frac{\\alpha}{\\beta}"
+    why: "Where it acts: the paper uses $\\alpha$ only through this ratio, the coefficient of the long-wave form $\\varrho_\\nu = \\frac{\\alpha}{\\beta} \\nu^2 T$."
+r3: "As the edition reads the plate of p. 136, the exponent of α is −56. With the paper's β and the usual values of the time for R and L, which it does not print, the formula for N gives the printed 6.17 × 10²³ only with α = 6.10 × 10⁻⁵⁷; with −56 it gives a tenth of that. The provenance receipt records the plate reading, from a single witness, as watch-alpha-exponent (docs/provenance/ap-17-132.md), and the edition's historical constant set uses 10⁻⁵⁷ (content/quantities/constant-sets/einstein-1905-light-quanta-printed.yaml, cross-referenced there to the Collected Papers, vol. 2, doc. 14, p. 154)."

@@ -1,0 +1,29 @@
+# light-quanta eq-s2-d1: what the display says, at every level (dispatch 279).
+# Written from the German of s2-p2 (p. 136) and its plate; the steps were checked by hand.
+display: eq-s2-d1
+paper: light-quanta
+inWords:
+  - text: "The radiation's energy per unit volume and unit frequency"
+    quantityId: frequencyEnergyDensity
+  - text: " equals "
+  - text: "the constant α"
+    quantityId: wienConstantAlpha
+  - text: " times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: " cubed, divided by e raised to "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " times the frequency over "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: ", less one."
+r0: "Planck's radiation formula, which the paper says satisfies all experience so far: the energy density at each frequency and temperature, with two constants α and β. Section 2 uses it to show that Planck's determination of the elementary quanta is to a degree independent of his theory of black radiation."
+r1: "Section 2 sets out to show that Planck's determination of the elementary quanta is, to a certain degree, independent of his theory of black radiation. It starts from Planck's formula for $\\varrho_\\nu$, which the paper says satisfies all experience so far, citing Planck in the Annalen, vol. 4, p. 561, 1901. The numerator grows as $\\nu^3$, but the exponential $e^{\\frac{\\beta \\nu}{T}}$ in the denominator grows faster than any power once $\\beta \\nu$ is large compared with $T$, so at high frequency the density falls away to nothing and the total energy is finite, unlike section 1's result. At low frequency the exponential is close to $1 + \\frac{\\beta \\nu}{T}$ and the formula goes over into section 1's form, which is the next step of the argument. The values of $\\alpha$ and $\\beta$ follow on their own lines."
+r2:
+  - latex: "e^{\\frac{\\beta \\nu}{T}} - 1"
+    why: "The denominator. At a fixed temperature it grows without limit as the frequency rises, faster than any power of the frequency."
+  - latex: "\\frac{\\alpha \\nu^3}{e^{\\frac{\\beta \\nu}{T}} - 1}"
+    why: "Divide $\\alpha \\nu^3$ by it. At high frequency the exponential wins, so the density falls away to zero instead of growing without limit as section 1's did."
+  - latex: "\\varrho_\\nu = \\frac{\\alpha \\nu^3}{e^{\\frac{\\beta \\nu}{T}} - 1}"
+    why: "Planck's formula as the paper quotes it. The paper takes it from Planck and from experience, and does not derive it."

@@ -1874,3 +1874,13 @@ modernOnlySymbols:
     scope: ["bm-s2"]
     introducedBy: "modern typesetting of the printed curly kappa"
     label: "The constant κ of 2κN = R, in the form of kappa modern texts set; the plate prints the curly kappa"
+  - id: bm.modern.A.partitionArea
+    glyph:
+      unicode: "A"
+      latex: "A"
+      variant: plain
+    binding:
+      quantityId: partitionArea
+    scope: ["bm-s1"]
+    introducedBy: "the explanation of § 1's osmotic pressure"
+    label: "The area of a wall on which the osmotic pressure acts, in the explanation of § 1; the paper gives it no letter"

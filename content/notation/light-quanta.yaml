@@ -1961,3 +1961,13 @@ modernOnlySymbols:
     scope: ["lq-s1", "lq-s2", "lq-s3", "lq-s4", "lq-s6"]
     introducedBy: "modern typesetting of the printed rho, whose tail curls left"
     label: "The frequency density ρ_ν, in the form of rho modern texts set; the plate prints the rho whose tail curls left"
+  - id: lq.modern.Vacc.acceleratingPotential
+    glyph:
+      unicode: "V_acc"
+      latex: "V_{\\mathrm{acc}}"
+      variant: plain
+    binding:
+      quantityId: acceleratingPotential
+    scope: ["lq-s8"]
+    introducedBy: "the explanation of § 8's inverse process"
+    label: "The potential through which cathode-ray electrons fall, in the explanation of cathode luminescence; the paper gives it no letter"

@@ -1,0 +1,15 @@
+# light-quanta eq-s2-d3: what the display says, at every level (dispatch 279).
+# Written from the German of s2-p2 (p. 136) and its plate; the steps were checked by hand.
+display: eq-s2-d3
+paper: light-quanta
+inWords:
+  - text: "The constant β of Planck's formula"
+    quantityId: wienConstantBeta
+  - text: " is 4.866 × 10⁻¹¹, as the paper prints it."
+r0: "The second constant of Planck's formula, with the value the paper prints. It sets the frequency, relative to the temperature, at which the spectrum turns over, and the later sections build the size of the energy quantum from it."
+r1: "$\\beta$ stands in the exponent of Planck's formula, as $\\frac{\\beta \\nu}{T}$, so it sets the scale of frequency, relative to the temperature, at which the exponential takes over. Where $\\beta \\nu$ is small compared with $T$ the formula goes over into section 1's; where it is large the density falls off. It is the same $\\beta$ from which the later sections build the size of the energy quantum, $\\frac{R}{N} \\beta \\nu$. It is the constant of Planck's and Wien's formulas, not the $\\beta$ of the relativity paper."
+r2:
+  - latex: "\\beta = 4{,}866 \\cdot 10^{-11}"
+    why: "The value as printed on p. 136, with the German decimal comma."
+  - latex: "\\frac{\\beta \\nu}{T}"
+    why: "Where it acts: in the exponent of Planck's formula. A frequency $\\nu$ counts as low when $\\beta \\nu$ is small compared with the temperature $T$."

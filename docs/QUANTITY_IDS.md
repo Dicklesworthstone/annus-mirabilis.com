@@ -2,7 +2,7 @@
 
 Generated from `content/quantities/*.yaml` by `scripts/generate-quantity-ids.ts`. Do not hand-edit; run `bun scripts/generate-quantity-ids.ts` to regenerate, and `--check` in CI to confirm this file is fresh.
 
-Total: 304 quantities, 45 rejected spellings, 0 reserved spellings.
+Total: 305 quantities, 45 rejected spellings, 0 reserved spellings.
 
 ## Registered quantities
 
@@ -206,6 +206,7 @@ Total: 304 quantities, 45 rejected spellings, 0 reserved spellings.
 | particleMass | Particle mass | 0,1,0,0,0,0 | not-applicable | scalar | — |
 | particleRadius | Particle radius | 1,0,0,0,0,0 | not-applicable | scalar | — |
 | particleVelocity | Particle velocity (laboratory) | 1,0,-1,0,0,0 | laboratory | vector | — |
+| partitionArea | Partition area | 2,0,0,0,0,0 | not-applicable | scalar | — |
 | partitionForce | Partition force | 1,1,-2,0,0,0 | not-applicable | scalar | — |
 | pathBoostParallelComponent | Path boost-parallel component | 0,0,0,0,0,0 | not-applicable | scalar | — |
 | peakFrequency | Peak frequency | 0,0,-1,0,0,0 | not-applicable | scalar | — |
