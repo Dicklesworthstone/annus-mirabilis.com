@@ -1,0 +1,24 @@
+# special-relativity eq-s3-d16: what the display says, at every level (dispatch 287).
+# Written from the German of s3-p14 (p. 900) and its plate; every step was checked by hand.
+display: eq-s3-d16
+paper: special-relativity
+inWords:
+  - text: "The factor"
+    quantityId: lorentzFactor
+  - text: " is one divided by the square root of one less the square of "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "The abbreviation the transformation is written with: one over the square root of one less the square of the speed ratio. It is 1 at rest and grows without limit as the speed approaches that of light."
+r1: "This is a definition, introduced to keep the four lines above short. The quantity it abbreviates is the one that appeared by itself in the algebra: $\\frac{V}{\\sqrt{V^2 - v^2}}$, which is the same number written without dividing through by $V$. The paper writes it $\\beta$, and it is the letter the whole paper then uses, in §§ 4, 6, 7, 9 and 10. It is never smaller than 1, it is 1 exactly when the system is at rest, and it has no value at all once $v$ reaches $V$, which is one of the places where the theory puts a limit on the speeds it admits."
+r2:
+  - latex: "\\frac{V}{\\sqrt{V^2 - v^2}} = \\frac{V}{V \\sqrt{1 - \\frac{v^2}{V^2}}} = \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
+    why: "Take $V$ out of the square root and cancel it against the one in front. The two forms are the same number."
+  - latex: "v = 0 \\quad \\Longrightarrow \\quad \\beta = 1"
+    why: "At rest the transformation reduces to the identity in this factor, as it must."
+  - latex: "v = 0.6 \\, V \\quad \\Longrightarrow \\quad \\beta = \\frac{1}{\\sqrt{1 - 0.36}} = \\frac{1}{0.8} = 1.25"
+    why: "A worked value, the one the laboratories of this edition use most."
+r3: "This factor is not Einstein's invention and not his notation. It is the one Lorentz's transformation of 1904 already carries; what § 3 has done is to derive it from the two principles stated in § 2 rather than assume it. Later writing calls it $\\gamma$, and the concordance of this edition marks the collision, because the paper's own $\\beta$ is the modern $\\gamma$, not the modern $\\beta$, which is the speed ratio $v/V$."

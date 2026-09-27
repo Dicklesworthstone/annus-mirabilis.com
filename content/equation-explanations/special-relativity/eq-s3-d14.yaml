@@ -1,0 +1,30 @@
+# special-relativity eq-s3-d14: what the display says, at every level (dispatch 287).
+# Written from the German of s3-p12 (pp. 899-900) and its plate; every step was checked by hand.
+display: eq-s3-d14
+paper: special-relativity
+inWords:
+  - text: "The third coordinate of the moving system"
+    quantityId: coordinatePositionMoving
+  - text: " is "
+  - text: "the coefficient"
+    quantityId: transformationCoefficientA
+  - text: " times "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " divided by the square root of its square less the square of "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: ", times "
+  - text: "the third coordinate of the stationary one"
+    quantityId: coordinatePositionStationary
+  - text: "."
+r0: "The third coordinate transforms exactly as the second does. Across the motion both carry the same factor."
+r1: "The paper says it finds this in an analogous way by considering rays of light moved along the two other axes, and prints the $z$ line without repeating the working. It is the working of the $y$ line with $z$ in place of $y$. A ray is sent from the origin of the moving system along its third axis. In the stationary system that ray travels with the velocity $V$, but its starting point is carried along the $x$ axis with the velocity $v$, so its progress along $z$ is only $\\sqrt{V^2 - v^2}$. Measured in the moving system the same ray travels with $V$, so after the time $\\tau$ it stands at $\\zeta = V \\tau$. Putting the two together gives the printed line. Nothing in it depends on the third axis rather than the second, which is the paper's reason for not writing it twice."
+r2:
+  - latex: "\\frac{z}{\\sqrt{V^2 - v^2}} = t"
+    why: "The ray leaves the origin of the moving system along the third axis and stays on it, so the auxiliary coordinate $x - v t$ is zero throughout. Its progress along $z$ in the stationary system is $\\sqrt{V^2 - v^2}$, because the velocity $V$ is shared between the motion along $z$ and the motion along $x$ that the ray inherits from the system."
+  - latex: "\\tau = a \\left( t - \\frac{v}{V^2 - v^2} (x - v t) \\right) = a t"
+    why: "The expression for $\\tau$ that stands inside the $\\eta$ display above (p. 900), with the auxiliary coordinate written out. It is zero on this ray, so the second term drops."
+  - latex: "\\zeta = V \\tau = a V t = a \\frac{V}{\\sqrt{V^2 - v^2}} z"
+    why: "In the moving system the ray travels with $V$, so its third coordinate after the time $\\tau$ is $V \\tau$. Substituting first $\\tau = a t$ and then $t = z / \\sqrt{V^2 - v^2}$ gives the printed line."
+r3: "The two transverse lines are obtained from rays sent across the motion, not from any assumption that lengths across the motion are unchanged. That is worth keeping in view, because the factor $a \\frac{V}{\\sqrt{V^2 - v^2}}$ standing here is not yet 1: it becomes 1 only on p. 902, after the argument from the identity of the transformation from the stationary system to the third system and from the symmetry of a rod moved across its own axis."

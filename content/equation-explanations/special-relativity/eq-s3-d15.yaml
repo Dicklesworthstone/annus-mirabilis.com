@@ -1,0 +1,41 @@
+# special-relativity eq-s3-d15: what the display says, at every level (dispatch 287).
+# Written from the German of s3-p12 and s3-p14 (p. 900) and its plate; every step was checked by hand.
+display: eq-s3-d15
+paper: special-relativity
+inWords:
+  - text: "The time of the moving system"
+    quantityId: coordinateTimeMoving
+  - text: " and "
+  - text: "its three coordinates"
+    quantityId: coordinatePositionMoving
+  - text: ", each as "
+  - text: "a function of the speed still unknown"
+    quantityId: scaleFactorUnknown
+  - text: " times what the transformation gives: for the time and the first coordinate, "
+  - text: "the factor"
+    quantityId: lorentzFactor
+  - text: " times "
+  - text: "the time"
+    quantityId: coordinateTimeStationary
+  - text: " and "
+  - text: "the first coordinate"
+    quantityId: coordinatePositionStationary
+  - text: " of the stationary system taken together with "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " and "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: "; across the motion, the coordinate unchanged."
+r0: "The transformation, assembled. Each line carries one function of the speed that is still unknown; apart from it, these are the equations the section is looking for."
+r1: "The four lines before this one are written in the auxiliary coordinate the section introduced for the distance from the origin of the moving system, whose value is $x - v t$. Substituting that value turns them into equations in the coordinates and the time of the stationary system, and the algebra collects the coefficients into the factor $\\beta$ defined just below. In the same step the paper replaces the coefficient $a$, which was still unknown, by a function that is also still unknown: $\\varphi(v)$ is $a \\beta$, and the paper calls it a provisionally unknown function of $v$. Nothing has been assumed about it. The shape of the equations is now fixed, and only that one factor, common to all four lines, is left to determine; § 3 does that on p. 902 and finds it to be 1."
+r2:
+  - latex: "\\tau = a \\left( t - \\frac{v}{V^2 - v^2} (x - v t) \\right) = a \\frac{V^2}{V^2 - v^2} \\left( t - \\frac{v}{V^2} x \\right)"
+    why: "The paper's instruction is to put in for the auxiliary coordinate its value, which is $x - v t$. Do that and collect. The terms in $t$ give $t \\left( 1 + \\frac{v^2}{V^2 - v^2} \\right) = t \\frac{V^2}{V^2 - v^2}$, and the term in $x$ is $- \\frac{v x}{V^2 - v^2}$; taking $\\frac{V^2}{V^2 - v^2}$ out in front leaves $t - \\frac{v}{V^2} x$."
+  - latex: "\\frac{V^2}{V^2 - v^2} = \\frac{1}{1 - \\left( \\frac{v}{V} \\right)^2} = \\beta^2 , \\qquad \\frac{V}{\\sqrt{V^2 - v^2}} = \\beta"
+    why: "Divide numerator and denominator by $V^2$. The coefficient in the first two lines is $\\beta^2$ and the one in the transverse lines is $\\beta$, with $\\beta$ as the display below defines it."
+  - latex: "\\tau = a \\beta^2 \\left( t - \\frac{v}{V^2} x \\right) , \\quad \\xi = a \\beta^2 (x - v t) , \\quad \\eta = a \\beta y , \\quad \\zeta = a \\beta z"
+    why: "The four lines with the coefficients written in $\\beta$. The first two carry $\\beta^2$ and the transverse two carry $\\beta$."
+  - latex: "\\varphi(v) = a \\beta \\quad \\Longrightarrow \\quad a \\beta^2 = \\varphi(v) \\beta , \\quad a \\beta = \\varphi(v)"
+    why: "The paper writes the one unknown that is left as $\\varphi(v)$. With that name the first two lines read $\\varphi(v) \\beta$ and the transverse two read $\\varphi(v)$, which is the display as printed."
+r3: "The paper adds a qualification under this display that is easy to pass over: if no assumption at all is made about the initial position of the moving system and about the zero of $\\tau$, an additive constant is to be added on the right of each of these equations (p. 900). The equations as printed already carry the choice that the origins meet and that $\\tau$ and $t$ are zero together. What is still open at this point is the common factor, and § 3 spends the next two pages on it."

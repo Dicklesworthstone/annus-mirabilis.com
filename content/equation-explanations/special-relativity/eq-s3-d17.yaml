@@ -1,0 +1,22 @@
+# special-relativity eq-s3-d17: what the display says, at every level (dispatch 287).
+# Written from the German of s3-p15 and s3-p16 (pp. 900-901) and its plate; every step was checked by hand.
+display: eq-s3-d17
+paper: special-relativity
+inWords:
+  - text: "The three coordinates"
+    quantityId: coordinatePositionStationary
+  - text: ", each squared and added, are the square of "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " times the square of "
+  - text: "the time"
+    quantityId: coordinateTimeStationary
+  - text: "."
+r0: "A spherical wave sent from the common origin at the moment the two clocks read zero, written in the stationary system: every point it has reached is at the distance $V t$."
+r1: "The paper stops here to settle something it has not yet settled: that the principle of the constancy of the velocity of light is compatible with the principle of relativity. The transformation was built by requiring light to travel with $V$ along particular lines; it does not follow from that alone that light travels with $V$ in every direction in the moving system. So a wave is sent out from the common origin at the time $t = \\tau = 0$ and is taken to spread in the stationary system with the velocity $V$. A point $(x, y, z)$ that the wave has just reached lies at the distance $V t$ from the origin, and squaring that statement gives this equation. The display after it is the same statement in the moving system's letters, and the question is whether the transformation carries one into the other."
+r2:
+  - latex: "\\sqrt{x^2 + y^2 + z^2} = V t"
+    why: "The distance of the point from the origin, which the wave covers in the time $t$ at the velocity $V$."
+  - latex: "x^2 + y^2 + z^2 = V^2 t^2"
+    why: "The same, squared, so that no square root stands in the way of substituting the transformation into it. This is what the paper prints."
+r3: "What is assumed here and what is established are different things, and the paper is careful about the order. The spherical spreading in the stationary system is the assumption, taken from the principle of § 2. The spherical spreading in the moving system, which is the display after this one, is the thing shown. Showing it is a calculation with the transformation of p. 900, and it goes through for any value of the factor $\\varphi(v)$, which is still unknown at this point."
