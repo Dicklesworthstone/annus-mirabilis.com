@@ -1,0 +1,30 @@
+# light-quanta eq-s7-d1: what the display says, at every level (dispatch 279).
+# Written from the German of s7-p1 (p. 144) and its plate; the steps were checked by hand.
+display: eq-s7-d1
+paper: light-quanta
+inWords:
+  - text: "The gas constant R"
+    quantityId: molarGasConstant
+  - text: " over "
+  - text: "the number N"
+    quantityId: avogadroConstant
+  - text: ", times "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: ", times "
+  - text: "the frequency of the produced light"
+    quantityId: emittedFrequency
+  - text: ", is at most the same constants times "
+  - text: "the frequency of the exciting light"
+    quantityId: incidentFrequency
+  - text: "."
+r0: "One quantum of the exciting light is absorbed and gives rise to one quantum of the produced light. If the substance is not a standing source of energy, the quantum that comes out cannot carry more energy than the one that went in."
+r1: "Section 7 applies the result of section 6 to photoluminescence, where light of one frequency is turned into light of another. The paper assumes that both the exciting and the produced light consist of energy quanta of the size $\\frac{R}{N} \\beta \\nu$ that section 6 arrived at, with $\\nu$ the frequency concerned. It then reads the process this way: each exciting quantum of frequency $\\nu_1$ is absorbed and, at least when the exciting quanta are spread thinly enough, gives rise by itself to one quantum of frequency $\\nu_2$. The paper allows that quanta of further frequencies, and energy of another kind such as heat, may arise at the same time, and says that the intermediate processes by which the final result comes about do not matter. The condition is stated as a condition: if the photoluminescent substance is not to be regarded as a standing source of energy, then by the principle of energy the produced quantum's energy cannot exceed the exciting quantum's. That is an inequality and not an equation, because the rest of the energy may go into those other quanta or into heat."
+r2:
+  - latex: "\\frac{R}{N} \\beta \\nu_1"
+    why: "The energy of one quantum of the exciting light, by section 6's size with the exciting frequency put in."
+  - latex: "\\frac{R}{N} \\beta \\nu_2"
+    why: "The energy of the one quantum of produced light that it gives rise to."
+  - latex: "\\frac{R}{N} \\beta \\nu_2 \\leqq \\frac{R}{N} \\beta \\nu_1"
+    why: "The principle of energy, given that the substance supplies none of its own: what comes out is at most what went in. The remainder, if any, is carried off by the other quanta and by heat that the paper allows for, which is why this is not an equation."
+r3: "The sentence that introduces this inequality is printed \"es muß also die Bezeichnung gelten\". A Bezeichnung is a designation; what holds between two energies is a Beziehung, a relation. The provenance receipt records the reading and the argument as typo-bezeichnung-p144 (docs/provenance/ap-17-132.md), and the source face keeps the word as printed. The receipt leaves open whether the slip is the compositor's or Einstein's, and the sense the translation must carry, a relation, is the same either way."

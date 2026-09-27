@@ -1,0 +1,20 @@
+# light-quanta eq-s7-d2: what the display says, at every level (dispatch 279).
+# Written from the German of s7-p1 (p. 144) and its plate; the steps were checked by hand.
+display: eq-s7-d2
+paper: light-quanta
+inWords:
+  - text: "The frequency of the produced light"
+    quantityId: emittedFrequency
+  - text: " is at most "
+  - text: "the frequency of the exciting light"
+    quantityId: incidentFrequency
+  - text: "."
+r0: "The constants are the same on both sides and divide out, so the produced light's frequency cannot exceed the exciting light's. The paper names this the known Stokes rule."
+r1: "$R$, $N$ and $\\beta$ are positive and stand on both sides of the preceding inequality, so they divide out and leave a statement about the two frequencies alone. Photoluminescent light is not of higher frequency than the light that excites it, which the paper names as the known rule of Stokes. Section 7 then says in what cases deviations from the rule are conceivable on its view: when so many quanta are being transformed per unit volume at once that one produced quantum can take its energy from several exciting ones, and when the exciting or the produced light is not of the constitution that belongs to black radiation within the range where Wien's law holds. The second case draws the paper's particular interest, because on its view it is not excluded that a light that is not Wien radiation behaves, even at great dilution, differently in its energy relations from black radiation in that range."
+r2:
+  - latex: "\\frac{R}{N} \\beta \\nu_2 \\leqq \\frac{R}{N} \\beta \\nu_1"
+    why: "The preceding inequality, between the energies of the two quanta."
+  - latex: "\\frac{R}{N} \\beta > 0"
+    why: "The gas constant, the number of molecules in a gram-molecule and Wien's constant are all positive, so dividing by them leaves the sense of the inequality unchanged."
+  - latex: "\\nu_2 \\leqq \\nu_1 ."
+    why: "Divide both sides by that common positive factor: the printed line, which is Stokes's rule."
