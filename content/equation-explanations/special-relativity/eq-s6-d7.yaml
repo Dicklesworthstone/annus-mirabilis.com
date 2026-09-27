@@ -1,0 +1,22 @@
+# special-relativity eq-s6-d7: what the display says, at every level (dispatch 281).
+# Written from the German of s6-p5 and its footnote (p. 909) and its plate; every step was checked by hand.
+display: eq-s6-d7
+paper: special-relativity
+inWords:
+  - text: "The factor"
+    quantityId: fieldScaleFactorUnknown
+  - text: " is the same for "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " v as for −v."
+r0: "By symmetry, reversing the direction of the moving system cannot change the factor."
+r1: "The paper says this follows from reasons of symmetry, and its footnote gives an example. Suppose the only force in $K$ is a magnetic component $N$. Then the relations give $k$ an electric component $Y'$ across the motion, and if the moving system moves the other way at the same speed, symmetry says $Y'$ must keep its size and change its sign. The relations give the size in terms of the factor for $v$ and for $-v$, and the two can match only if the factors are equal. The factor $\\beta$ is the same both ways, because it depends on $v$ only through its square."
+r2:
+  - latex: "X = Y = Z = L = M = 0, \\quad N \\neq 0"
+    why: "The footnote's example: in $K$ the only force is a magnetic component $N$."
+  - latex: "Y' = \\varphi(v) \\beta \\left( -\\frac{v}{V} N \\right)"
+    why: "The relation for $Y'$ from the previous displays, with this field put in: only the term in $N$ survives."
+  - latex: "Y' = \\varphi(-v) \\beta \\frac{v}{V} N"
+    why: "The same field seen from a system moving the other way, with velocity $-v$: the sign of the term flips, $\\beta$ does not."
+  - latex: "\\varphi(v) = \\varphi(-v)"
+    why: "Symmetry requires the second value to be the first with its sign changed and its size kept. That holds only if $\\varphi(-v) = \\varphi(v)$."

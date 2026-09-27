@@ -1,0 +1,41 @@
+# special-relativity eq-s6-d5: what the display says, at every level (dispatch 281).
+# Written from the German of s6-p4 (p. 908) and its plate; every step was checked by hand.
+display: eq-s6-d5
+paper: special-relativity
+inWords:
+  - text: "Each component of "
+  - text: "the moving system's electric force"
+    quantityId: electricFieldMoving
+  - text: " and "
+  - text: "magnetic force"
+    quantityId: magneticFieldMoving
+  - text: " equals "
+  - text: "an unknown common factor"
+    quantityId: fieldScaleFactorUnknown
+  - text: " times the combination in the same place of the transformed equations: along the motion, "
+  - text: "the stationary electric force"
+    quantityId: electricFieldStationary
+  - text: " or "
+  - text: "magnetic force"
+    quantityId: magneticFieldStationary
+  - text: " itself; across it, "
+  - text: "the factor"
+    quantityId: lorentzFactor
+  - text: " times one force's component mixed with the other's, weighted by "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "Comparing the two sets of equations for $k$, the transformed one and the required one, the paper concludes that $k$'s forces are the transformed combinations of $K$'s forces, all multiplied by one common factor $\\psi(v)$ that is not yet known."
+r1: "There are now two sets of equations in $k$'s coordinates: the Maxwell-Hertz equations transformed from $K$ (the second display of § 6) and the same equations required of $k$'s own forces (the fourth). Both are equivalent to the equations in $K$, so, as the paper says, they must express exactly the same thing. They also have the same shape, differing only in the symbols that stand for the forces. From this the paper concludes that the functions in corresponding places must agree up to a factor $\\psi(v)$ common to all of them, independent of $\\xi$, $\\eta$, $\\zeta$ and $\\tau$ and possibly dependent on $v$. The step is asserted, not argued in detail. The display writes the conclusion out: $X'$ stands where $X$ stood, $N'$ where $\\beta \\left( N - \\frac{v}{V} Y \\right)$ stood, and so on for all six. The factor is fixed in the next displays."
+r2:
+  - latex: "\\frac{1}{V} \\frac{\\partial X}{\\partial \\tau} = \\frac{\\partial \\beta \\left( N - \\frac{v}{V} Y \\right)}{\\partial \\eta} - \\frac{\\partial \\beta \\left( M + \\frac{v}{V} Z \\right)}{\\partial \\zeta}"
+    why: "The first row of the transformed equations: $K$'s forces, written in $k$'s coordinates."
+  - latex: "\\frac{1}{V} \\frac{\\partial X'}{\\partial \\tau} = \\frac{\\partial N'}{\\partial \\eta} - \\frac{\\partial M'}{\\partial \\zeta}"
+    why: "The first row of the equations required in $k$. Letter for letter, $X$ stands where $X'$ stands, $\\beta \\left( N - \\frac{v}{V} Y \\right)$ where $N'$ stands, and $\\beta \\left( M + \\frac{v}{V} Z \\right)$ where $M'$ stands."
+  - latex: "X' = \\psi(v) X, \\quad N' = \\psi(v) \\beta \\left( N - \\frac{v}{V} Y \\right), \\quad M' = \\psi(v) \\beta \\left( M + \\frac{v}{V} Z \\right)"
+    why: "Both sets describe the same processes, so the paper sets the functions in corresponding places equal, up to a factor $\\psi(v)$ that is the same for all of them. It cannot depend on the place or the time, only possibly on $v$."
+  - latex: "Y' = \\psi(v) \\beta \\left( Y - \\frac{v}{V} N \\right), \\quad Z' = \\psi(v) \\beta \\left( Z + \\frac{v}{V} M \\right), \\quad L' = \\psi(v) L"
+    why: "The other rows match the remaining three components the same way. That gives all six relations of the display."

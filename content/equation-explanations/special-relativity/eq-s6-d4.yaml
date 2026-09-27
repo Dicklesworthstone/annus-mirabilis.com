@@ -1,0 +1,30 @@
+# special-relativity eq-s6-d4: what the display says, at every level (dispatch 281).
+# Written from the German of s6-p3 (p. 908) and its plate; every step was checked by hand.
+display: eq-s6-d4
+paper: special-relativity
+inWords:
+  - text: "In the moving system, the rate at which "
+  - text: "its electric force"
+    quantityId: electricFieldMoving
+  - text: " changes with "
+  - text: "its time"
+    quantityId: coordinateTimeMoving
+  - text: ", divided by "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", equals how "
+  - text: "its magnetic force"
+    quantityId: magneticFieldMoving
+  - text: " circulates across "
+  - text: "its coordinates"
+    quantityId: coordinatePositionMoving
+  - text: "; and the rate at which its magnetic force changes, divided by the same velocity, equals how its electric force circulates, taken the other way round."
+r0: "What the principle of relativity demands: in the moving system $k$, the electric and magnetic forces that $k$ measures obey the same Maxwell-Hertz equations, in $k$'s own time and coordinates, as $K$'s forces do in $K$."
+r1: "This display is a requirement, not a result. The principle of relativity says the laws of electrodynamics take the same form in every system in uniform motion, so if the Maxwell-Hertz equations hold in $K$ they must hold in $k$. The paper is careful about what the primed forces are: $(X', Y', Z')$ and $(L', M', N')$ are defined in $k$ by their ponderomotive actions, the forces they exert on electric and magnetic masses at rest in $k$. The equations are those of the first display with every quantity replaced by $k$'s own: $\\tau$ for $t$, $\\xi$, $\\eta$, $\\zeta$ for $x$, $y$, $z$, and primed forces for unprimed. The velocity of light $V$ is the same in both, as the second principle requires."
+r2:
+  - latex: "\\frac{1}{V} \\frac{\\partial X}{\\partial t} = \\frac{\\partial N}{\\partial y} - \\frac{\\partial M}{\\partial z}"
+    why: "The first row of the equations that hold in $K$, from the first display of § 6."
+  - latex: "\\frac{1}{V} \\frac{\\partial X'}{\\partial \\tau} = \\frac{\\partial N'}{\\partial \\eta} - \\frac{\\partial M'}{\\partial \\zeta}"
+    why: "The principle of relativity: the same law, written in $k$'s own measures. Each force component takes its prime, $\\tau$ replaces $t$, and $\\xi$, $\\eta$, $\\zeta$ replace $x$, $y$, $z$."
+  - latex: "\\frac{1}{V} \\frac{\\partial L'}{\\partial \\tau} = \\frac{\\partial Y'}{\\partial \\zeta} - \\frac{\\partial Z'}{\\partial \\eta}"
+    why: "The same substitution in every other row gives the other five. $V$ keeps its value, because the velocity of light is the same in both systems."

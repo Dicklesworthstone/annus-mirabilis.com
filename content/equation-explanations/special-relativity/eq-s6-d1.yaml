@@ -1,0 +1,32 @@
+# special-relativity eq-s6-d1: what the display says, at every level (dispatch 281).
+# Written from the German of s6-p1 (p. 907) and its plate; every step was checked by hand.
+display: eq-s6-d1
+paper: special-relativity
+inWords:
+  - text: "In the stationary system, the rate at which "
+  - text: "the electric force"
+    quantityId: electricFieldStationary
+  - text: " changes with "
+  - text: "the time"
+    quantityId: coordinateTimeStationary
+  - text: ", divided by "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", equals how "
+  - text: "the magnetic force"
+    quantityId: magneticFieldStationary
+  - text: " circulates across "
+  - text: "the coordinates"
+    quantityId: coordinatePositionStationary
+  - text: "; and the rate at which the magnetic force changes, divided by the same velocity, equals how the electric force circulates, taken the other way round."
+r0: "The Maxwell-Hertz equations for empty space, written in the stationary system $K$. They are where § 6 begins: the electrodynamics the principle of relativity must carry over to the moving system."
+r1: "$(X, Y, Z)$ is the electric force and $(L, M, N)$ the magnetic force, as the paper says, both measured in $K$ with the time $t$ and the coordinates $x$, $y$, $z$. The left column says that where the electric force changes in time, the magnetic force circulates around it: $\\frac{1}{V} \\frac{\\partial X}{\\partial t}$ equals the difference of two slopes of the magnetic force across the other two directions. The right column says the same of the magnetic force, with the electric force circulating the other way, so the order of the two slopes is reversed. The velocity of light $V$ appears because the electric and magnetic forces are measured in the same units, and it sets how fast a change in one produces the other. Empty space means no charges and no currents: they enter in § 9. The paper does not derive these equations. It lets them hold in $K$ (mögen gültig sein) and asks what they become in the moving system."
+r2:
+  - latex: "\\frac{1}{V} \\frac{\\partial X}{\\partial t} = \\frac{\\partial N}{\\partial y} - \\frac{\\partial M}{\\partial z}"
+    why: "Start with the electric force's first component, $X$. The symbol $\\frac{\\partial X}{\\partial t}$ is how fast $X$ changes with the time $t$ at one fixed place. Divided by $V$, it equals how fast $N$ changes along $y$, less how fast $M$ changes along $z$."
+  - latex: "\\frac{1}{V} \\frac{\\partial Y}{\\partial t} = \\frac{\\partial L}{\\partial z} - \\frac{\\partial N}{\\partial x}"
+    why: "The same rule for the second component, with every letter moved one place on: $x$ to $y$ to $z$ and back to $x$, and $L$ to $M$ to $N$ and back to $L$. One more move gives the third row, for $Z$."
+  - latex: "\\frac{1}{V} \\frac{\\partial L}{\\partial t} = \\frac{\\partial Y}{\\partial z} - \\frac{\\partial Z}{\\partial y}"
+    why: "The right-hand column is the same pattern for the magnetic force, with the electric force on the right. The two slopes come in the opposite order, so the sign is opposite: a changing magnetic force goes with the electric force circulating the other way."
+  - latex: "\\frac{1}{V} \\frac{\\partial N}{\\partial t} = \\frac{\\partial X}{\\partial y} - \\frac{\\partial Y}{\\partial x}"
+    why: "Moving the letters on twice more gives the other two rows of the column. Six equations in all, one for each component of each force, with no charge or current in any of them."

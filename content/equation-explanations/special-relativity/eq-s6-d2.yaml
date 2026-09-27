@@ -1,0 +1,42 @@
+# special-relativity eq-s6-d2: what the display says, at every level (dispatch 281).
+# Written from the German of s6-p2 (pp. 907-908) and its plate; every step was checked by hand.
+display: eq-s6-d2
+paper: special-relativity
+inWords:
+  - text: "Written in "
+  - text: "the moving system's time"
+    quantityId: coordinateTimeMoving
+  - text: " and "
+  - text: "coordinates"
+    quantityId: coordinatePositionMoving
+  - text: ", the same six equations keep their shape, with "
+  - text: "the electric force"
+    quantityId: electricFieldStationary
+  - text: " and "
+  - text: "the magnetic force"
+    quantityId: magneticFieldStationary
+  - text: " of the stationary system mixed in pairs by "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " and multiplied by "
+  - text: "the factor"
+    quantityId: lorentzFactor
+  - text: "."
+r0: "The field equations of the first display, rewritten in the time $\\tau$ and coordinates $\\xi$, $\\eta$, $\\zeta$ of the system $k$ that moves with velocity $v$, by the transformation of § 3. The forces are still those measured in $K$; only the coordinates they are written in have changed."
+r1: "The paper takes the transformation of § 3 and applies it to the equations of the first display, without showing the work. Every derivative with respect to $t$ and $x$ becomes a combination of derivatives with respect to $\\tau$ and $\\xi$, and when the terms are collected, the equations come back in the same shape as before. In the places where $X$, $Y$, $Z$, $L$, $M$, $N$ stood, there now stand $X$, $\\beta \\left( Y - \\frac{v}{V} N \\right)$, $\\beta \\left( Z + \\frac{v}{V} M \\right)$, $L$, $\\beta \\left( M + \\frac{v}{V} Z \\right)$ and $\\beta \\left( N - \\frac{v}{V} Y \\right)$. The components along the motion are left alone; each component across the motion picks up a share of the other force's perpendicular component. That regularity is what the next steps of § 6 use. One detail the paper passes over: the rows for $X$ and $L$ also need the fact that in empty space neither force has a divergence, a Maxwell equation not printed beside the six."
+r2:
+  - latex: "\\tau = \\beta \\left( t - \\frac{v}{V^2} x \\right), \\quad \\xi = \\beta (x - v t), \\quad \\eta = y, \\quad \\zeta = z"
+    why: "The transformation of § 3, with the factor there found to be 1. It gives the time and coordinates that the moving system $k$ assigns to an event at $x$, $y$, $z$ and $t$ in $K$."
+  - latex: "\\frac{\\partial}{\\partial t} = \\beta \\left( \\frac{\\partial}{\\partial \\tau} - v \\frac{\\partial}{\\partial \\xi} \\right), \\quad \\frac{\\partial}{\\partial x} = \\beta \\left( \\frac{\\partial}{\\partial \\xi} - \\frac{v}{V^2} \\frac{\\partial}{\\partial \\tau} \\right)"
+    why: "The chain rule. A force that depends on $t$ and $x$ through $\\tau$ and $\\xi$ changes with $t$ by $\\beta$ times its change with $\\tau$, plus $-\\beta v$ times its change with $\\xi$, because $\\tau$ grows at the rate $\\beta$ and $\\xi$ at the rate $-\\beta v$ as $t$ advances. Along $x$, $\\tau$ changes at the rate $-\\beta v / V^2$ and $\\xi$ at the rate $\\beta$. Along $y$ and $z$ nothing is new: $\\frac{\\partial}{\\partial y} = \\frac{\\partial}{\\partial \\eta}$ and $\\frac{\\partial}{\\partial z} = \\frac{\\partial}{\\partial \\zeta}$."
+  - latex: "\\frac{\\beta}{V} \\left( \\frac{\\partial Y}{\\partial \\tau} - v \\frac{\\partial Y}{\\partial \\xi} \\right) = \\frac{\\partial L}{\\partial \\zeta} - \\beta \\left( \\frac{\\partial N}{\\partial \\xi} - \\frac{v}{V^2} \\frac{\\partial N}{\\partial \\tau} \\right)"
+    why: "Put these into the second equation of the first display, $\\frac{1}{V} \\frac{\\partial Y}{\\partial t} = \\frac{\\partial L}{\\partial z} - \\frac{\\partial N}{\\partial x}$."
+  - latex: "\\frac{1}{V} \\frac{\\partial \\beta \\left( Y - \\frac{v}{V} N \\right)}{\\partial \\tau} = \\frac{\\partial L}{\\partial \\zeta} - \\frac{\\partial \\beta \\left( N - \\frac{v}{V} Y \\right)}{\\partial \\xi}"
+    why: "Gather the two $\\tau$-slopes on the left and the two $\\xi$-slopes on the right. On the left, $\\frac{\\beta}{V} \\frac{\\partial Y}{\\partial \\tau} - \\frac{\\beta v}{V^2} \\frac{\\partial N}{\\partial \\tau}$ is $\\frac{1}{V}$ times the $\\tau$-slope of $\\beta \\left( Y - \\frac{v}{V} N \\right)$; on the right, $\\beta \\frac{\\partial N}{\\partial \\xi} - \\frac{\\beta v}{V} \\frac{\\partial Y}{\\partial \\xi}$ is the $\\xi$-slope of $\\beta \\left( N - \\frac{v}{V} Y \\right)$. This is the second printed row. The third, fifth and sixth rows come out the same way."
+  - latex: "\\frac{\\partial X}{\\partial x} + \\frac{\\partial Y}{\\partial y} + \\frac{\\partial Z}{\\partial z} = 0"
+    why: "The first row needs one more fact, which the paper does not state: in empty space the electric force has no divergence. Written in the new coordinates it says $\\frac{\\partial X}{\\partial \\xi} = \\frac{v}{V^2} \\frac{\\partial X}{\\partial \\tau} - \\frac{1}{\\beta} \\left( \\frac{\\partial Y}{\\partial \\eta} + \\frac{\\partial Z}{\\partial \\zeta} \\right)$."
+  - latex: "\\frac{1}{V} \\frac{\\partial X}{\\partial \\tau} = \\frac{\\partial \\beta \\left( N - \\frac{v}{V} Y \\right)}{\\partial \\eta} - \\frac{\\partial \\beta \\left( M + \\frac{v}{V} Z \\right)}{\\partial \\zeta}"
+    why: "Substituting as before turns the first equation into $\\frac{\\beta}{V} \\left( \\frac{\\partial X}{\\partial \\tau} - v \\frac{\\partial X}{\\partial \\xi} \\right) = \\frac{\\partial N}{\\partial \\eta} - \\frac{\\partial M}{\\partial \\zeta}$. Put in the divergence condition and use $\\beta \\left( 1 - \\frac{v^2}{V^2} \\right) = \\frac{1}{\\beta}$: the left side becomes $\\frac{1}{\\beta V} \\frac{\\partial X}{\\partial \\tau}$ and the two new terms join the right side. Multiplied by $\\beta$, this is the first printed row. The fourth row, for $L$, comes the same way from the magnetic force's divergence."

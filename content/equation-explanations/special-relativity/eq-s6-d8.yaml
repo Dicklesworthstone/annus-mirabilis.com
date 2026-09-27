@@ -1,0 +1,20 @@
+# special-relativity eq-s6-d8: what the display says, at every level (dispatch 281).
+# Written from the German of s6-p5 (p. 909) and its plate; every step was checked by hand.
+display: eq-s6-d8
+paper: special-relativity
+inWords:
+  - text: "The factor"
+    quantityId: fieldScaleFactorUnknown
+  - text: " is one, whatever "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: "."
+r0: "Putting the last two conditions together fixes the factor: its square is 1, and the factor itself is 1."
+r1: "The product of the factor for $v$ and for $-v$ is 1, and the two factors are equal. So the factor times itself is 1. A number whose square is 1 is 1 or $-1$, and the paper writes $\\varphi(v) = 1$ without further comment. The other root would reverse the sign of every force component even for $v = 0$, when $k$ and $K$ coincide and must measure the same forces. With the factor gone, the relations of p. 908 become the transformation of the next display."
+r2:
+  - latex: "\\varphi(v) \\cdot \\varphi(-v) = 1"
+    why: "From inverting the relations, two displays back."
+  - latex: "\\varphi(v) \\cdot \\varphi(v) = 1"
+    why: "Replace $\\varphi(-v)$ by $\\varphi(v)$, which symmetry allows."
+  - latex: "\\varphi(v) = 1"
+    why: "A number whose square is 1 is 1 or $-1$. The paper takes 1; $-1$ would reverse every component even at $v = 0$, where the two systems coincide."

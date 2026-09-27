@@ -1,0 +1,39 @@
+# special-relativity eq-s6-d9: what the display says, at every level (dispatch 281).
+# Written from the German of s6-p5 to s6-p10 (pp. 909-910) and its plate; every step was checked by hand.
+display: eq-s6-d9
+paper: special-relativity
+inWords:
+  - text: "In the moving system, "
+  - text: "the electric force"
+    quantityId: electricFieldMoving
+  - text: " and "
+  - text: "the magnetic force"
+    quantityId: magneticFieldMoving
+  - text: " along the motion equal "
+  - text: "the electric force"
+    quantityId: electricFieldStationary
+  - text: " and "
+  - text: "the magnetic force"
+    quantityId: magneticFieldStationary
+  - text: " of the stationary system; across the motion, each is "
+  - text: "the factor"
+    quantityId: lorentzFactor
+  - text: " times the stationary system's component mixed with the other force's perpendicular component, weighted by "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "The transformation of the electric and magnetic forces from $K$ to $k$, with the factor fixed at 1. Along the motion the components are unchanged; across it, each system's electric force contains part of the other's magnetic force, and the reverse."
+r1: "These are the relations of p. 908 with the common factor set to 1. The paper then says what they mean. A point charge of one unit at rest in $K$ feels the force $(X, Y, Z)$; at rest in $k$, at least for the instant, it feels $(X', Y', Z')$. So a charge moving with $k$ through a purely magnetic field in $K$ feels, in its own system, an electric force: with only $N$ present, $Y' = -\\beta \\frac{v}{V} N$. In the old mode of expression this is the electromotive force on a moving charge, equal to the vector product of its velocity and the magnetic force divided by the velocity of light, when second and higher powers of $\\frac{v}{V}$ are neglected. In the new mode it is simply the electric force in the charge's own system. The paper concludes that the electromotive force is only an auxiliary concept, and that the asymmetry of the introduction, the magnet moving past the conductor or the conductor past the magnet, disappears."
+r2:
+  - latex: "X' = \\psi(v) X, \\quad Y' = \\psi(v) \\beta \\left( Y - \\frac{v}{V} N \\right), \\quad N' = \\psi(v) \\beta \\left( N - \\frac{v}{V} Y \\right)"
+    why: "The relations of p. 908, three of the six, with the common factor still in them."
+  - latex: "\\psi(v) = 1"
+    why: "The factor, fixed by the three displays before this one, where the paper prints it as φ(v) = 1 (p. 909)."
+  - latex: "X' = X, \\quad Y' = \\beta \\left( Y - \\frac{v}{V} N \\right), \\quad N' = \\beta \\left( N - \\frac{v}{V} Y \\right)"
+    why: "Put in 1 for the factor. The same for the other three relations gives the whole display."
+  - latex: "Y' = -\\beta \\frac{v}{V} N"
+    why: "The paper's reading: in $K$ there is only the magnetic component $N$, and a unit charge moves with $k$. In its own system it feels an electric force across the motion. At $v = 0.6 \\, V$, where $\\beta = 1.25$, that is $-0.75 \\, N$; for small $v$ it is $-\\frac{v}{V} N$, the electromotive force of the old mode of expression."
+r3: "The paper puts the first three relations into words twice (pp. 909-910): in the old mode of expression, an electromotive force acts on a moving unit pole besides the electric force; in the new mode, the force on it is the electric force in a system at rest with it. It adds that something analogous holds for magnetomotive forces, and that questions about the seat of the electromotive forces in unipolar machines become pointless."

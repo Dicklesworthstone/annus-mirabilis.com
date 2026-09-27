@@ -1,0 +1,22 @@
+# special-relativity eq-s6-d6: what the display says, at every level (dispatch 281).
+# Written from the German of s6-p5 (p. 909) and its plate; every step was checked by hand.
+display: eq-s6-d6
+paper: special-relativity
+inWords:
+  - text: "The unknown factor"
+    quantityId: fieldScaleFactorUnknown
+  - text: " for "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " v, times the same factor for the speed −v, equals one."
+r0: "Going from $K$ to $k$ and back must return the original forces. The way there multiplies by the factor for $v$, the way back by the factor for $-v$, so their product is 1."
+r1: "The paper introduced the factor as $\\psi(v)$ on p. 908 and writes it $\\varphi(v)$ from here on (p. 909); it is the same factor, and the site keeps both letters as printed. The argument inverts the relations of the previous display in two ways. First, solve them for $K$'s forces in terms of $k$'s. Second, apply the same relations to the transformation from $k$ back to $K$, which is the transformation with velocity $-v$. The two answers must be identical, and comparing them gives the condition. The first component shows it most simply; the others give the same result."
+r2:
+  - latex: "X' = \\varphi(v) X"
+    why: "The first relation of the previous display, with the factor written as it is printed from p. 909 on."
+  - latex: "X = \\frac{X'}{\\varphi(v)}"
+    why: "The first way of inverting: solve for $X$."
+  - latex: "X = \\varphi(-v) X'"
+    why: "The second way: going from $k$ back to $K$ is the same transformation with velocity $-v$, so the same relation holds with the two systems exchanged and $v$ replaced by $-v$."
+  - latex: "\\varphi(v) \\cdot \\varphi(-v) = 1"
+    why: "Both give $X$, so $1 / \\varphi(v) = \\varphi(-v)$, which is the display. Solving the relations for $Y$ and $N$ gives the same condition, because $\\beta \\left( 1 - \\frac{v^2}{V^2} \\right) = \\frac{1}{\\beta}$ and $\\beta$ is the same for $v$ and $-v$."

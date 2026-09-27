@@ -1,0 +1,24 @@
+# special-relativity eq-s6-d3: what the display says, at every level (dispatch 281).
+# Written from the German of s6-p2 (p. 908) and its plate; every step was checked by hand.
+display: eq-s6-d3
+paper: special-relativity
+inWords:
+  - text: "The factor"
+    quantityId: lorentzFactor
+  - text: " is one over the square root of one minus the square of "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " divided by "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "The factor $\\beta$ that multiplies every mixed combination in the transformed equations, the same factor § 3 introduced. It is 1 when the system is at rest and grows without limit as $v$ approaches $V$."
+r1: "The paper repeats here the factor it defined on p. 900, because it appears in every transformed equation. It depends on $v$ only through $\\frac{v}{V}$, the speed as a fraction of the velocity of light, and only through its square, so reversing the direction of motion leaves it unchanged. At everyday speeds it is 1 to many decimal places; at $v = 0.6 \\, V$ it is exactly 1.25; for $v$ equal to $V$ it has no finite value, which is why the paper's systems always move more slowly than light."
+r2:
+  - latex: "\\frac{v}{V}"
+    why: "The speed of the moving system as a fraction of the velocity of light: 0.6 for a system moving at six tenths of it."
+  - latex: "1 - \\left( \\frac{v}{V} \\right)^2"
+    why: "Square the fraction and subtract it from one. For 0.6 this gives $1 - 0.36 = 0.64$. The result stays positive as long as $v$ is less than $V$."
+  - latex: "\\beta = \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
+    why: "Take the square root, 0.8 in the example, and then its reciprocal: $\\beta = 1 / 0.8 = 1.25$. For $v = 0$ every step gives 1."
+r3: "The paper's $\\beta$ is the factor that modern texts write $\\gamma$; modern texts use the letter beta for the ratio $v/c$ instead. The site keeps the printed letter on the faces and says so in the notation (the paper's definition, p. 900; this display, p. 908)."
