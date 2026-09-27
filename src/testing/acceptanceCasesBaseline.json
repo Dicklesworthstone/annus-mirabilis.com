@@ -1,13 +1,12 @@
 {
   "measured": "2026-09-27",
   "bead": "am-nxbq",
-  "note": "Acceptance refs that resolve to no scenario and no declared in-code fixture. The only allowed direction is shorter: a ref removed from this list because it now resolves is the work, and a ref added to it is new debt that the gate refuses. Do not delete a dangling ref from a manifest to shorten this list: a ref naming a case nobody wrote is a debt, an absent ref is a lie.",
+  "note": "Acceptance refs that resolve to no scenario and no declared in-code fixture. The only allowed direction is shorter: a ref removed from this list because it now resolves is the work, and a ref added to it is new debt that the gate refuses. Do not delete a dangling ref from a manifest to shorten this list: a ref naming a case nobody wrote is a debt, an absent ref is a lie. Paid so far: bm-02-nonpositive-inputs-refused (am-nxbq, the first scenario in the repository to use expected.status).",
   "dangling": [
     "anti-stokes-single-quantum-disallowed",
     "bm-02-classical-expectation-zero",
     "bm-02-default-golden",
     "bm-02-dilute-boundary-refused",
-    "bm-02-nonpositive-inputs-refused",
     "bm-02-size-independence",
     "bm-03-locked-cluster",
     "bm-03-million-particles",

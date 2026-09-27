@@ -1,0 +1,32 @@
+# BM-02's first acceptance case that refuses (am-nxbq, dispatch 304).
+#
+# WHICH CONTROL VALUE A READER MOVES TO REACH IT: the instrument's temperature control, T. Taken to
+# absolute zero, or below it, the osmotic-pressure evaluator refuses rather than returning a number,
+# because n k T is not a pressure this model will report outside its stated condition. The reader
+# sees the refusal's own sentence and its repair, not a zero and not a NaN.
+#
+# This is the first scenario in the repository to use `expected.status`, a field the schema has
+# always declared and the runner never read until this change. Before it, a scenario could declare a
+# refusal and pass without one ever happening.
+id: "bm-02-nonpositive-inputs-refused"
+kind: "adversarial"
+title: "BM-02 refuses a temperature at absolute zero rather than reporting a pressure"
+description: "The osmotic pressure of the suspended particles is n k T, and the reference evaluator states its condition as n >= 0 and T > 0. A reader who drags the temperature control to 0 K asks for a value the model does not define: the product would be zero, which looks like an answer and is not one, since the model has no standing at that temperature. The evaluator refuses with the condition it states, and the instrument shows that sentence. The number density is left at a value that is admissible on its own, so the refusal can only be coming from the temperature."
+plausibleMistake: "That the pressure at absolute zero is simply zero, because n k T with T = 0 is zero. The arithmetic is right and the claim is not: the model states a condition, T > 0, and a number computed outside a model's condition is not that model's answer. A zero here would be indistinguishable on the page from a pressure the model vouches for."
+intendedFailure: "The evaluator refuses before it multiplies, so no zero is ever produced to be mistaken for a pressure. The scenario passes only when the refusal arrives with the status outside-domain and the condition the evaluator itself states; a run that returned the number zero fails here, and so does one that refuses for some other reason."
+constantSetId: "modern-si-2019"
+owner: "diffusion.osmoticPressure"
+inputs:
+  numberDensity:
+    value: 1.0e+18
+    unit: "m^-3"
+  temperature:
+    value: 0
+    unit: "K"
+expected:
+  status:
+    outputId: "osmoticPressure"
+    status: "outside-domain"
+    reasonCode: "n >= 0 and T > 0"
+modelVersion: 1
+schemaVersion: 1
