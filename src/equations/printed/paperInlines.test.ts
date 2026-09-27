@@ -49,7 +49,11 @@ describe("the census every enforced paper closes", () => {
       console.log(`inline census ${paper}: ${JSON.stringify(census)}`);
       expect(census.formulas).toBeGreaterThan(0);
       expect(census.formulas).toBe(census.german + census.english);
-      expect(census.formulas).toBe(census.coloured + census.plainDeclared + census.refused);
+      // Every formula lands in exactly one bucket. `valued` joined them in dispatch 302: a number
+      // printed in the prose is neither coloured (it is not a symbol) nor plain (it carries a note).
+      expect(census.formulas).toBe(
+        census.coloured + census.plainDeclared + census.valued + census.refused,
+      );
       expect(problems.map((p) => p.message)).toEqual([]);
       expect(census.refused).toBe(0);
     }

@@ -67,6 +67,34 @@ describe("inline formulas on the reading faces", () => {
     expect(coloured?.props["data-paper"]).toBe("special-relativity");
   });
 
+  test("a number printed in the prose reaches the DOM with what it is the value of", () => {
+    // Dispatch 302. The data is only worth having if it is drawn: a note that stops at the compiler
+    // is not a reader outcome. Brownian's 6 · 10^23 is the value the paper assigns to N, so the
+    // element carries the note and lights N; it must NOT carry data-inline-terms, because the
+    // numeral is not a symbol and must stay out of the coloured census and N's glyph list.
+    const [valued] = renderInlines([{ kind: "math", latex: "6 \\cdot 10^{23}" }], {
+      terms: { paper: "brownian-motion", holder: "s5-p2" },
+    }) as ReactElement<Record<string, unknown>>[];
+    expect(valued?.props["data-value-of"]).toBe("avogadroConstant");
+    expect(String(valued?.props["data-inline-value"])).toContain("assigns to N");
+    expect(Object.keys(valued?.props ?? {})).not.toContain("data-inline-terms");
+
+    // The one with no quantity carries its note and nothing to light, which is how a number that is
+    // the value of nothing is recorded: light quanta's 2/3 is the ratio of two energies.
+    const [ratio] = renderInlines([{ kind: "math", latex: "2/3" }], {
+      terms: { paper: "light-quanta", holder: "s1-p3" },
+    }) as ReactElement<Record<string, unknown>>[];
+    expect(String(ratio?.props["data-inline-value"])).toContain("ratio");
+    expect(Object.keys(ratio?.props ?? {})).not.toContain("data-value-of");
+
+    // The negative control: an ordinary coloured formula carries no value attributes, so the two
+    // above are not passing on something every formula has.
+    const [coloured] = renderInlines([{ kind: "math", latex: "v" }], {
+      terms: { paper: "special-relativity", holder: "s3-p2" },
+    }) as ReactElement<Record<string, unknown>>[];
+    expect(Object.keys(coloured?.props ?? {})).not.toContain("data-inline-value");
+  });
+
   test("a plain inline formula carries no colour props at all, not even undefined ones", () => {
     // React's flight data writes an undefined prop as "$undefined": two such keys on each of
     // relativity's 410 plain formulas grew its German face past its record (dispatch 272).

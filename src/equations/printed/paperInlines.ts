@@ -14,8 +14,6 @@
  * and refused. For a paper in ENFORCED_INLINE_PAPERS a refusal stops the build by name; for any
  * other the refused formulas stay plain and are reported by name, never silently.
  */
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import { renderToString } from "katex";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import { misprintNotes } from "../../content/provenance/misprints.ts";
@@ -23,9 +21,7 @@ import { loadReaderDescriptions } from "../../content/quantities/readerDescripti
 import { getQuantityRegistry, isRegisteredQuantityId } from "../../content/quantities/registry.ts";
 import type { ConcordanceEntry } from "../../content/schemas/concordance.ts";
 import type { Inline } from "../../content/schemas/inlines.ts";
-import { strictParse } from "../../content/schemas/strictParse.ts";
 import { type BilingualEdition, loadBilingualEdition } from "../../reader/faces/bilingualLoader.ts";
-import { glyphSignature } from "../latex/printedAtoms.ts";
 import type { TermFacts } from "../termFacts.ts";
 import { fallbackTermFacts, notationFor, notationLink } from "./fallbackFacts.ts";
 import { ENFORCED_INLINE_PAPERS, loadInlineExceptions } from "./inlineExceptions.ts";
@@ -38,6 +34,7 @@ import {
   type InlineTermsProblem,
   resolveInlineTerms,
 } from "./inlineTerms.ts";
+import { type InlineValue, inlineValuesByScope, loadInlineValues } from "./inlineValues.ts";
 
 export {
   ENFORCED_INLINE_PAPERS,
@@ -135,6 +132,12 @@ export type InlineCensus = Readonly<{
   coloured: number;
   /** Every atom a declared non-quantity or a listed exception: plain on purpose. */
   plainDeclared: number;
+  /**
+   * Whole formulas that are a number the paper prints in its prose, carrying what they are the
+   * value of (dispatch 302). Counted apart from `coloured`, because a numeral is not a symbol, and
+   * apart from `plainDeclared`, because it is not left plain.
+   */
+  valued: number;
   refused: number;
 }>;
 
@@ -162,6 +165,7 @@ export async function checkPaperInlines(
     edition?: Pick<BilingualEdition, "blocks" | "units">;
     concordance?: readonly ConcordanceEntry[];
     exceptions?: readonly InlineException[];
+    values?: readonly InlineValue[];
   }> = {},
 ): Promise<PaperInlines> {
   const edition = overrides.edition ?? (await loadBilingualEdition(paper, root));
@@ -171,6 +175,8 @@ export async function checkPaperInlines(
     isRegistered: isRegisteredQuantityId,
     exceptions: overrides.exceptions ?? loadInlineExceptions(root),
   };
+  // What each number printed in the prose is the value of, keyed by the paragraph and the formula.
+  const values = inlineValuesByScope(overrides.values ?? loadInlineValues(root), paper);
   const formulas: Record<string, CompiledInline> = {};
   const quantities: Record<
     string,
@@ -182,7 +188,15 @@ export async function checkPaperInlines(
   // of § 1 lights with every other A of § 1 and never with the A of § 7, which is an amplitude. It
   // is derived, not counted, so an explanation panel resolving the same name as the page renders
   // (explanationInlines.ts) reaches the same id and lights with it (inlineLabels.ts).
-  const census = { formulas: 0, german: 0, english: 0, coloured: 0, plainDeclared: 0, refused: 0 };
+  const census = {
+    formulas: 0,
+    german: 0,
+    english: 0,
+    coloured: 0,
+    plainDeclared: 0,
+    valued: 0,
+    refused: 0,
+  };
   for (const at of occurrences) {
     census.formulas++;
     census[at.face]++;
@@ -200,7 +214,17 @@ export async function checkPaperInlines(
         refusedKeys.add(key);
         problems.push(...resolved.problems);
       } else {
-        formulas[key] = compileInlineFormula(resolved);
+        const compiledHere = compileInlineFormula(resolved);
+        const value = values.get(`${at.anchor}\u0000${at.latex}`);
+        formulas[key] = value
+          ? {
+              ...compiledHere,
+              value: {
+                ...(value.quantityId === undefined ? {} : { quantityId: value.quantityId }),
+                note: value.note,
+              },
+            }
+          : compiledHere;
         for (const term of resolved.terms) {
           const use = quantities[term.quantityId] ?? {
             glyphs: [],
@@ -214,6 +238,7 @@ export async function checkPaperInlines(
     const compiled = formulas[key];
     if (!compiled) census.refused++;
     else if (compiled.terms.length > 0) census.coloured++;
+    else if (compiled.value) census.valued++;
     else census.plainDeclared++;
   }
   return { paper, holders, formulas, quantities, problems, census };

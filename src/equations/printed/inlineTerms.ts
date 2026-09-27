@@ -142,6 +142,13 @@ export type CompiledInline = Readonly<{
    * label an id, which the reading faces do (paperInlines.ts). Absent otherwise.
    */
   labels?: readonly Readonly<{ labelId: string; glyph: string; note?: string | undefined }>[];
+  /**
+   * Where the whole formula is a number the paper prints in its prose: what it is the value of
+   * (inlineValues.ts). Not a term, because the number is not the quantity it lights: "6 · 10^23" is
+   * what the paper assigns to N, so it must not join N's glyph list or the coloured census. The
+   * quantity is absent where the sentence supports none, and the note is always present.
+   */
+  value?: Readonly<{ quantityId?: string | undefined; note: string }> | undefined;
 }>;
 
 /** The KaTeX options every face renders an inline formula with (inlines.tsx). */

@@ -14,6 +14,12 @@ export type PrintedInline = Readonly<{
   terms: readonly Readonly<{ termId: string; quantityId: string; glyph: string }>[];
   /** Its atoms marked as labels: a point, an axis, a system, a sign (dispatch 280, step 1b). */
   labels?: readonly PrintedInlineLabel[];
+  /**
+   * Where the whole formula is a number the paper prints in its prose: what it is the value of
+   * (dispatch 302). The quantity is absent where the sentence supports none, as with light quanta's
+   * 2/3, which is the ratio of two energies and the value of neither.
+   */
+  value?: Readonly<{ quantityId?: string; note: string }>;
 }>;
 
 /** A label an inline formula marks, with the glyph and what it names. */

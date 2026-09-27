@@ -142,6 +142,17 @@ export function renderInlines(
                     ...(coloured.terms.length > 0 ? { "data-inline-terms": "" } : {}),
                     // Its points, axes and systems, which light and pin with a note (dispatch 280).
                     ...((coloured.labels?.length ?? 0) > 0 ? { "data-inline-labels": "" } : {}),
+                    // A number the paper prints in its prose: what it is the value of, and the
+                    // quantity whose symbol it lights (dispatch 302). The note is the whole of what
+                    // a reader gets by pointing at it, since a numeral has no glyph to bind.
+                    ...(coloured.value
+                      ? {
+                          "data-inline-value": coloured.value.note,
+                          ...(coloured.value.quantityId
+                            ? { "data-value-of": coloured.value.quantityId }
+                            : {}),
+                        }
+                      : {}),
                   }
                 : {})}
               {...{ dangerouslySetInnerHTML: { __html: coloured?.html ?? html } }}
