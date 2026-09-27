@@ -47,7 +47,7 @@ import type { ConcordanceEntry } from "../../content/schemas/concordance.ts";
 import { strictParse } from "../../content/schemas/strictParse.ts";
 import { loadBilingualEdition } from "../../reader/faces/bilingualLoader.ts";
 import { type DisplayTermsEntry, displayOccurrences, loadDisplayTerms } from "./displayTerms.ts";
-import { inlineLabelId } from "./inlineLabels.ts";
+import { inlineLabelId, signSource } from "./inlineLabels.ts";
 import {
   compileInlineFormula,
   type InlineTermsContext,
@@ -99,7 +99,13 @@ export type ProsePart =
       labelled?: boolean | undefined;
     }>;
 
-export type CompiledStep = Readonly<{ formula: string; why: readonly ProsePart[] }>;
+export type CompiledStep = Readonly<{
+  formula: string;
+  /** As a prose formula says it (ProsePart): what the step's own formula binds and names. */
+  coloured?: boolean | undefined;
+  labelled?: boolean | undefined;
+  why: readonly ProsePart[];
+}>;
 
 export type CompiledExplanation = Readonly<{
   paper: string;
@@ -185,9 +191,9 @@ function displayReadings(
   fileSigns: readonly Readonly<{ glyph: string }>[],
   anchor: string,
 ): ConcordanceEntry[] {
-  const reading = (glyph: string, binding: object, n: number) =>
+  const reading = (glyph: string, binding: object, id: string) =>
     ({
-      id: `display-terms ${entry.display} ${n}`,
+      id,
       scope: [anchor],
       glyph: { unicode: glyph, latex: glyph, variant: "plain" },
       binding,
@@ -195,13 +201,14 @@ function displayReadings(
   const bound = new Set(entry.terms.map((t) => t.glyph));
   return [
     ...[...new Map(entry.terms.map((t) => [t.glyph, t.quantityId]))].map(([glyph, quantityId], n) =>
-      reading(glyph, { quantityId }, n),
+      reading(glyph, { quantityId }, `display-terms ${entry.display} ${n}`),
     ),
+    // A sign is named by its glyph, not by the display it was declared under, so the same sign in
+    // two displays of one section is one name the page lights together and says one thing about
+    // (inlineLabels.ts, dispatch 280).
     ...[...entry.notQuantities, ...fileSigns]
       .filter((sign) => !bound.has(sign.glyph))
-      .map((sign, n) =>
-        reading(sign.glyph, { nonQuantityKind: "operator" }, entry.terms.length + n),
-      ),
+      .map((sign) => reading(sign.glyph, { nonQuantityKind: "operator" }, signSource(sign.glyph))),
   ];
 }
 
@@ -373,7 +380,10 @@ export async function checkPaperExplanations(
       let html: string;
       let labelled = false;
       try {
-        const compiled = compileInlineFormula(resolved, displayMode ? KATEX_DISPLAY : renderToString);
+        const compiled = compileInlineFormula(
+          resolved,
+          displayMode ? KATEX_DISPLAY : renderToString,
+        );
         html = compiled.html;
         labelled = (compiled.labels?.length ?? 0) > 0;
         // A step is laid out in display style, but it is not one of the paper's printed displays:
@@ -445,10 +455,15 @@ export async function checkPaperExplanations(
     prose(record.inWords.map((p) => p.text).join(""), "inWords");
     const r0 = prose(record.r0, "r0");
     const r1 = prose(record.r1, "r1");
-    const r2 = record.r2.map((step, i) => ({
-      formula: draw(step.latex, `r2 step ${i + 1}`, true)?.html ?? "",
-      why: prose(step.why, `r2 step ${i + 1}`),
-    }));
+    const r2 = record.r2.map((step, i) => {
+      const drawn = draw(step.latex, `r2 step ${i + 1}`, true);
+      return {
+        formula: drawn?.html ?? "",
+        ...(drawn?.coloured ? { coloured: true } : {}),
+        ...(drawn?.labelled ? { labelled: true } : {}),
+        why: prose(step.why, `r2 step ${i + 1}`),
+      };
+    });
     const r3 = record.r3 === undefined ? undefined : prose(record.r3, "r3");
     if (problems.length === before)
       explanations.push({

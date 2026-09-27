@@ -22,7 +22,7 @@ import { renderToString } from "katex";
 import { parseYaml } from "../../content/provenance/yaml.ts";
 import { printedAtoms } from "../../equations/latex/printedAtoms.ts";
 import { ENFORCED_INLINE_PAPERS } from "../../equations/printed/paperInlines.ts";
-import { printedInlineLabels } from "../../equations/printed/printedInlines.ts";
+import { paperLabelNotes } from "../../equations/printed/inlineLabels.ts";
 import { exportMarkup } from "../../testing/exportMarkup.ts";
 import { PaperPage } from "../PaperPage.tsx";
 import { loadBilingualEdition } from "./bilingualLoader.ts";
@@ -57,7 +57,7 @@ function printsNoLetter(tex: string): boolean {
 function census(
   paper: string,
   html: string,
-  notes: Readonly<Record<string, Readonly<{ note?: string }>>>,
+  notes: Readonly<Record<string, string>>,
   words: ReadonlySet<string>,
 ): Census {
   const { document } = new Window();
@@ -84,7 +84,7 @@ function census(
     if (labels.length > 0) {
       const unnoted = labels
         .map((l) => l.getAttribute("data-label") ?? "")
-        .filter((id) => !notes[id]?.note);
+        .filter((id) => !notes[id]);
       const formula = root.closest(".inline-math");
       if (unnoted.length > 0)
         out.problems.push(`${where}: labels ${unnoted.join(", ")} say nothing of what they name`);
@@ -132,7 +132,8 @@ describe("every formula on a reading face is coloured, or a name that says what 
     const problems: string[] = [];
     let labelled = 0;
     for (const paper of ENFORCED_INLINE_PAPERS) {
-      const notes = printedInlineLabels(paper) ?? {};
+      // The very map the page's islands ship, so a name the reader points at says what this reads.
+      const notes = paperLabelNotes(paper, process.cwd());
       const words = wordEquations(paper);
       for (const face of FACES) {
         const found = census(paper, await facePages(paper, face), notes, words);

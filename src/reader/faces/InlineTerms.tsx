@@ -5,10 +5,8 @@
  * paper it renders nothing. A server component: the notation is read here and only the one paper's
  * facts and notes reach the island.
  */
-import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import { InlineTermLighting } from "../../equations/InlineTermLighting.tsx";
-import { inlineLabelNotes } from "../../equations/printed/inlineLabels.ts";
-import { loadInlineExceptions } from "../../equations/printed/paperInlines.ts";
+import { paperLabelNotes } from "../../equations/printed/inlineLabels.ts";
 import { printedInlineQuantities } from "../../equations/printed/printedInlines.ts";
 import "../../equations/equations.css";
 import "../../generated/quantity-colours-by-paper.css";
@@ -16,10 +14,6 @@ import "../../generated/quantity-colours-by-paper.css";
 export function InlineTerms({ paper }: { paper: string }) {
   const quantities = printedInlineQuantities(paper);
   if (!quantities) return null;
-  const labels = inlineLabelNotes(
-    paper,
-    loadConcordanceForPaper(paper).entries,
-    loadInlineExceptions(process.cwd()),
-  );
+  const labels = paperLabelNotes(paper, process.cwd());
   return <InlineTermLighting paper={paper} quantities={quantities} labels={labels} />;
 }

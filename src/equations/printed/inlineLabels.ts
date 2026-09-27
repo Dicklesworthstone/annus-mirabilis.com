@@ -17,9 +17,15 @@
  * exception (content/inline-terms/exceptions.yaml). Both are read here, so a name the reader points
  * at on any page of a paper says the same thing.
  */
+import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import { normalizeSectionId } from "../../content/notation/resolve.ts";
 import type { ConcordanceEntry } from "../../content/schemas/concordance.ts";
+/** The name a display-terms sign is read under (equationExplanations.ts gives its entry this id). */
+export const signSource = (glyph: string): string => `display-terms sign ${glyph}`;
+
+import { loadDisplayTerms } from "./displayTerms.ts";
 import type { InlineException } from "./inlineTerms.ts";
+import { loadInlineExceptions } from "./paperInlines.ts";
 
 /**
  * The id of one reading of a name in one section. Short, because it is printed once per marked
@@ -58,11 +64,17 @@ export function paperSections(concordance: readonly ConcordanceEntry[]): readonl
  *
  * `exceptions` is the whole list as the resolver reads it (loadInlineExceptions), because a
  * listed sign is named by its place in that list, as inlineTerms.ts names it.
+ *
+ * `signs` are the glyphs a paper's display-terms file declares no quantity, which an explanation
+ * panel reads before the paper's own notation (equationExplanations.ts). Each says what the
+ * concordance or the listed exception already says of that glyph where either does, so one sign
+ * does not say two things on one page, and its own reason only where neither does.
  */
 export function inlineLabelNotes(
   paper: string,
   concordance: readonly ConcordanceEntry[],
   exceptions: readonly InlineException[],
+  signs: readonly Readonly<{ glyph: string; reason: string }>[] = [],
 ): Readonly<Record<string, string>> {
   const sections = paperSections(concordance);
   const notes: Record<string, string> = {};
@@ -92,5 +104,39 @@ export function inlineLabelNotes(
     for (const section of placesOf(exception.scope))
       add(`exception ${index}`, section, exception.note);
   });
+  // A sign a display-terms file declares: what the paper already says of that glyph in that
+  // section, or, where nothing does, the file's own reason for declaring it.
+  const saidOf = (glyph: string, section: string): string | undefined => {
+    const listed = exceptions.find(
+      (e) => e.paper === paper && e.glyph === glyph && placesOf(e.scope).includes(section),
+    );
+    if (listed?.note) return listed.note;
+    const declared = concordance.find(
+      (e) =>
+        !("quantityId" in e.binding) &&
+        e.glyph.latex === glyph &&
+        e.meaning &&
+        placesOf(e.scope).includes(section),
+    );
+    return declared?.meaning;
+  };
+  for (const sign of signs)
+    for (const section of sections)
+      add(signSource(sign.glyph), section, saidOf(sign.glyph, section) ?? sign.reason);
   return notes;
+}
+
+/**
+ * What each name a paper prints says, read from the paper's own files: its notation concordance,
+ * the listed signs, and the signs its display-terms file declares. Both islands call this, so a
+ * name says the same thing under a paragraph and under the panel that explains it.
+ */
+export function paperLabelNotes(paper: string, root: string): Readonly<Record<string, string>> {
+  const signs = loadDisplayTerms(root, paper)?.notQuantities ?? [];
+  return inlineLabelNotes(
+    paper,
+    loadConcordanceForPaper(paper).entries,
+    loadInlineExceptions(root),
+    signs.map((sign) => ({ glyph: sign.glyph, reason: sign.reason })),
+  );
 }
