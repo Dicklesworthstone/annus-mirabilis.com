@@ -87,7 +87,14 @@ describe("the explanation records", () => {
     const math = explained?.r1.filter((p) => p.kind === "math") ?? [];
     expect(math.length).toBe(3);
     expect(math.every((p) => p.kind === "math" && p.html.includes("data-quantity-id"))).toBe(true);
-    expect(checked.census).toEqual({ displays: 7, explained: 1, refused: 0, missing: 6 });
+    expect(checked.census).toEqual({
+      displays: 7,
+      explained: 1,
+      refused: 0,
+      missing: 6,
+      // The fixture's one record carries no r3, so the margin count is 0 here (am-8gbg).
+      withMargin: 0,
+    });
   });
 
   test("each refusal is refused with its own code, naming the display", async () => {
@@ -199,5 +206,25 @@ describe("the explanation records", () => {
       enforced: [],
     });
     expect(() => assertExplanationsPublishable([clean], ["mass-energy"])).not.toThrow();
+  });
+
+  test("the census counts the historian's margins, so the gap is a number the build prints", async () => {
+    // am-8gbg. r0, r1 and r2 are required of every record, so `explained` already covers them; r3
+    // is optional and nothing counted it, which is how 11 of 52 in light quanta went unnoticed
+    // until an audit found it. The build spreads this census into its JSON event, so adding the
+    // field is what makes the gap visible every run.
+    const lq = await checkPaperExplanations(process.cwd(), "light-quanta");
+    const me = await checkPaperExplanations(process.cwd(), "mass-energy");
+
+    // Non-vacuity in both directions, which is the whole point: a count that could only ever be 0,
+    // or only ever equal `explained`, would tell a reader nothing. Light quanta has records
+    // WITHOUT a margin and mass-energy has every record WITH one.
+    expect(lq.census.withMargin).toBeGreaterThan(0);
+    expect(lq.census.withMargin).toBeLessThan(lq.census.explained);
+    expect(me.census.withMargin).toBe(me.census.explained);
+
+    // And it counts what it says it counts, checked against the records rather than against itself.
+    const counted = lq.explanations.filter((e) => e.r3 !== undefined).length;
+    expect(lq.census.withMargin).toBe(counted);
   });
 });
