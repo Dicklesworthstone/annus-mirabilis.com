@@ -1,0 +1,38 @@
+# light-quanta eq-s6-d5: what the display says, at every level (dispatch 279).
+# Written from the German of s6-p3 (p. 143) and its plate; the steps were checked by hand.
+display: eq-s6-d5
+paper: light-quanta
+inWords:
+  - text: "The integral over all "
+  - text: "frequencies"
+    quantityId: frequency
+  - text: " of "
+  - text: "the constant α"
+    quantityId: wienConstantAlpha
+  - text: " times the frequency cubed, times e to minus "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " times the frequency over "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: ", which is the energy of black radiation per unit volume, divided by the same integral with each frequency's share divided by the size of one quantum there, which counts the quanta, equals three times "
+  - text: "the gas constant R"
+    quantityId: molarGasConstant
+  - text: " over "
+  - text: "the number N"
+    quantityId: avogadroConstant
+  - text: ", times the temperature."
+r0: "With Wien's formula, the mean size of an energy quantum in black radiation is 3(R/N)T: the total energy divided by the number of quanta. The paper sets it beside the mean kinetic energy of a molecule's motion at the same temperature, (3/2)(R/N)T."
+r1: "The paper compares the mean size of the energy quanta of black radiation with the mean kinetic energy of the centre-of-mass motion of a molecule at the same temperature, which it gives as $\\frac{3}{2} \\frac{R}{N} T$. The mean size of a quantum is the energy per unit volume divided by the number of quanta per unit volume. The numerator adds up Wien's energy density over all frequencies. In the denominator each frequency's energy is divided by the size of one quantum at that frequency, $\\frac{R \\beta \\nu}{N}$, which counts the quanta there. The paper names Wien's formula as the basis of the calculation, and the integrals use it over the whole spectrum, although section 4 said it holds only for large $\\nu/T$. Both integrals are standard, and the ratio is $3 \\frac{R}{N} T$, twice the molecule's figure. The paper sets the two side by side and draws no further conclusion from the factor here."
+r2:
+  - latex: "\\int_0^\\infty \\alpha \\nu^3 e^{-\\frac{\\beta \\nu}{T}} d \\nu"
+    why: "The energy of black radiation per unit volume: Wien's energy density, section 4's first display, added up over all frequencies."
+  - latex: "\\frac{N}{R \\beta \\nu} \\alpha \\nu^3 e^{-\\frac{\\beta \\nu}{T}}"
+    why: "The energy density at the frequency $\\nu$ divided by the size of one quantum there, $\\frac{R \\beta \\nu}{N}$: the number of quanta per unit volume and unit frequency. Integrated over all frequencies it is the denominator."
+  - latex: "\\int_0^\\infty \\nu^3 e^{-\\frac{\\beta \\nu}{T}} d \\nu = 6 \\left( \\frac{T}{\\beta} \\right)^4"
+    why: "Take $\\frac{\\beta \\nu}{T}$ as the variable of integration. The integral of its cube times the exponential of its negative, from zero to infinity, is 6, and the change of variable brings out four factors of $\\frac{T}{\\beta}$."
+  - latex: "\\int_0^\\infty \\nu^2 e^{-\\frac{\\beta \\nu}{T}} d \\nu = 2 \\left( \\frac{T}{\\beta} \\right)^3"
+    why: "The same with the square in place of the cube: the integral is 2, with three factors of $\\frac{T}{\\beta}$. The $\\nu$ in the quantum's size has cancelled one power of the frequency."
+  - latex: "\\frac{6 \\alpha \\left( \\frac{T}{\\beta} \\right)^4}{\\frac{N}{R \\beta} \\cdot 2 \\alpha \\left( \\frac{T}{\\beta} \\right)^3} = 3 \\frac{R}{N} T"
+    why: "Divide. $\\alpha$ cancels, 6 over 2 is 3, and one factor of $\\frac{T}{\\beta}$ is left, whose $\\beta$ cancels the $\\beta$ from the quantum's size: the printed value."
+r3: "The provenance receipt records that the denominator of the small printed fraction in (3/2)(R/N)T, on p. 143, does not resolve on the pinned scan. It also records that the edition's 3/2 rests on physics, the mean kinetic energy of a molecule's centre-of-mass motion, and not on a reading of the plate: watch-three-halves-fraction-p143 (docs/provenance/ap-17-132.md). The value 3(R/N)T of the display itself is printed in full size, and its digits and letters are legible on the plate."

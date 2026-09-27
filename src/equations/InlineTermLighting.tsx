@@ -16,6 +16,11 @@
  * (elementsOfQuantity), never by prefix, and the paper is read from each copy's own data-paper, so
  * relativity's V is never lit by mass-energy's. The controller clears only what it lit, so a
  * display block's own lighting (TermHighlight) is left alone.
+ *
+ * LABELS TOO (dispatch 280, step 1b; the owner: "all must have the nice hover-over effects"). A
+ * letter the notation declares no quantity, a point A, an axis X, a system K, is marked data-label:
+ * pointing at it lights every copy of the same label, which is the same reading in the same section,
+ * and pressing it pins a note saying what it names. It keeps the ink: it has no quantity's colour.
  */
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -31,8 +36,18 @@ export type InlineQuantity = Readonly<{
   hrefMeaning?: string | undefined;
 }>;
 
-/** A pinned quantity and the inline formula it was pinned from. */
-export type InlinePin = Readonly<{ quantityId: string; formula: Element }>;
+/** What a label names, and its glyph drawn at build time. */
+export type InlineLabelNote = Readonly<{ glyphHtml: string; note: string }>;
+
+/**
+ * A pinned quantity, or a pinned label, and the inline formula it was pinned from. Exactly one of
+ * quantityId and labelId is set.
+ */
+export type InlinePin = Readonly<{
+  quantityId?: string | undefined;
+  labelId?: string | undefined;
+  formula: Element;
+}>;
 
 const paperOf = (element: Element): string | null =>
   element.closest("[data-paper]")?.getAttribute("data-paper") ?? null;
@@ -43,6 +58,43 @@ function inlineGlyphAt(paper: string, target: EventTarget | null): Element | nul
   const glyph = target.closest("[data-quantity-id]");
   const formula = glyph?.closest(".inline-math[data-inline-terms]");
   return glyph && formula && formula.getAttribute("data-paper") === paper ? glyph : null;
+}
+
+/** The label of an inline formula of this paper at target, if there is one. */
+function inlineLabelAt(paper: string, target: EventTarget | null): Element | null {
+  if (!(target instanceof Element)) return null;
+  const label = target.closest("[data-label]");
+  const formula = label?.closest(".inline-math[data-inline-labels]");
+  return label && formula && formula.getAttribute("data-paper") === paper ? label : null;
+}
+
+/** What is under the pointer: a quantity or a label, by id, and the formula it stands in. */
+function markAt(
+  paper: string,
+  target: EventTarget | null,
+): Readonly<{ quantityId?: string; labelId?: string; formula: Element }> | null {
+  const glyph = inlineGlyphAt(paper, target);
+  if (glyph)
+    return {
+      quantityId: glyph.getAttribute("data-quantity-id") as string,
+      formula: glyph.closest(".inline-math") as Element,
+    };
+  const label = inlineLabelAt(paper, target);
+  if (label)
+    return {
+      labelId: label.getAttribute("data-label") as string,
+      formula: label.closest(".inline-math") as Element,
+    };
+  return null;
+}
+
+/** Every copy of one label on the page, in this paper's inline formulas. */
+function copiesOfLabel(root: Element, paper: string, labelId: string): Element[] {
+  return [...root.querySelectorAll("[data-label]")].filter(
+    (element) =>
+      element.getAttribute("data-label") === labelId &&
+      element.closest(".inline-math")?.getAttribute("data-paper") === paper,
+  );
 }
 
 /**
@@ -56,16 +108,27 @@ export function attachInlineLighting(
   onPin: (pin: InlinePin | null) => void,
 ): () => void {
   const owner = root.ownerDocument;
+  // What the pointer is on, as "q:<quantity id>" or "l:<label id>", so the two never collide.
   let hovered: string | null = null;
   let pinned: InlinePin | null = null;
   let lit: Element[] = [];
+  const keyOf = (mark: Pick<InlinePin, "quantityId" | "labelId"> | null) =>
+    mark?.quantityId !== undefined
+      ? `q:${mark.quantityId}`
+      : mark?.labelId !== undefined
+        ? `l:${mark.labelId}`
+        : null;
   const update = () => {
     for (const element of lit) element.removeAttribute("data-lit");
-    const active = hovered ?? pinned?.quantityId ?? null;
+    const active = hovered ?? keyOf(pinned);
     lit =
       active === null
         ? []
-        : elementsOfQuantity(root, active).filter((element) => paperOf(element) === paper);
+        : active.startsWith("l:")
+          ? copiesOfLabel(root, paper, active.slice(2))
+          : elementsOfQuantity(root, active.slice(2)).filter(
+              (element) => paperOf(element) === paper,
+            );
     for (const element of lit) element.setAttribute("data-lit", "true");
   };
   const pin = (next: InlinePin | null) => {
@@ -74,7 +137,7 @@ export function attachInlineLighting(
     update();
   };
   const onOver = (event: Event) => {
-    hovered = inlineGlyphAt(paper, event.target)?.getAttribute("data-quantity-id") ?? null;
+    hovered = keyOf(markAt(paper, event.target));
     update();
   };
   const onLeave = () => {
@@ -82,15 +145,9 @@ export function attachInlineLighting(
     update();
   };
   const onClick = (event: Event) => {
-    const glyph = inlineGlyphAt(paper, event.target);
-    if (glyph) {
-      const quantityId = glyph.getAttribute("data-quantity-id") as string;
-      const formula = glyph.closest(".inline-math") as Element;
-      pin(
-        pinned?.quantityId === quantityId && pinned.formula === formula
-          ? null
-          : { quantityId, formula },
-      );
+    const mark = markAt(paper, event.target);
+    if (mark) {
+      pin(pinned && keyOf(pinned) === keyOf(mark) && pinned.formula === mark.formula ? null : mark);
       return;
     }
     // A press inside the open inspector (its notation link) keeps the pin.
@@ -120,9 +177,12 @@ export function attachInlineLighting(
 export function InlineTermLighting({
   paper,
   quantities,
+  labels = {},
 }: {
   paper: string;
   quantities: Readonly<Record<string, InlineQuantity>>;
+  /** What each label of the page names (dispatch 280): a point, an axis, a system, a sign. */
+  labels?: Readonly<Record<string, InlineLabelNote>>;
 }) {
   const [pin, setPin] = useState<InlinePin | null>(null);
   const [host, setHost] = useState<HTMLElement | null>(null);
@@ -144,8 +204,11 @@ export function InlineTermLighting({
     setHost(span);
     return () => span.remove();
   }, [pin, paper]);
-  const quantity = pin ? quantities[pin.quantityId] : undefined;
-  if (!pin || !host || !quantity) return null;
+  if (!pin || !host) return null;
+  const label = pin.labelId === undefined ? undefined : labels[pin.labelId];
+  if (label) return createPortal(<LabelNote label={label} />, host);
+  const quantity = pin.quantityId === undefined ? undefined : quantities[pin.quantityId];
+  if (!quantity || pin.quantityId === undefined) return null;
   return createPortal(
     <TermInspector
       inline
@@ -160,5 +223,35 @@ export function InlineTermLighting({
       </a>
     </TermInspector>,
     host,
+  );
+}
+
+/**
+ * A pinned label's note: its glyph and what it names, set out as the inspector sets out a
+ * quantity, inside the sentence. It has no unit, dimension or value, because it names no quantity.
+ */
+function LabelNote({ label }: { label: InlineLabelNote }) {
+  return (
+    // biome-ignore lint/a11y/useSemanticElements: inline, a <fieldset> would end the paragraph the formula is printed in, and it groups form controls, not a note.
+    <span
+      className="term-inspector inline-label-note"
+      role="group"
+      aria-label="About this letter"
+      data-inline=""
+    >
+      <span className="term-inspector-name">
+        <span
+          className="term-inspector-glyph katex"
+          aria-hidden="true"
+          {...{ dangerouslySetInnerHTML: { __html: label.glyphHtml } }}
+        />
+        <strong>{label.note}</strong>
+      </span>
+      <span className="term-inspector-facts">
+        <span className="term-inspector-fact">
+          <span className="term-inspector-fact-value">A name in the text, not a quantity.</span>
+        </span>
+      </span>
+    </span>
   );
 }

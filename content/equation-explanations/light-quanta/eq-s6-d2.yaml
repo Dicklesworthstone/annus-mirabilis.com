@@ -1,0 +1,37 @@
+# light-quanta eq-s6-d2: what the display says, at every level (dispatch 279).
+# Written from the German of s6-p1 (p. 142) and its plate; the steps were checked by hand.
+display: eq-s6-d2
+paper: light-quanta
+inWords:
+  - text: "The same entropy"
+    quantityId: radiationEntropy
+  - text: " difference, written as "
+  - text: "the gas constant R"
+    quantityId: molarGasConstant
+  - text: " over "
+  - text: "the number N"
+    quantityId: avogadroConstant
+  - text: ", times the natural logarithm of the ratio of "
+  - text: "the volumes"
+    quantityId: volume
+  - text: " v and v₀ raised to the power N over R times "
+  - text: "the radiation's energy"
+    quantityId: radiationEnergy
+  - text: " over "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: "."
+r0: "The same entropy difference, rewritten: R/N times the logarithm of the volume ratio raised to a power. Nothing changes but the form, and the form now matches Boltzmann's principle."
+r1: "The coefficient $\\frac{E}{\\beta \\nu}$ is multiplied and divided by $\\frac{R}{N}$, and the part that is left over, $\\frac{N}{R} \\frac{E}{\\beta \\nu}$, goes into the logarithm as an exponent, because a number times a logarithm is the logarithm of the power. The value of the entropy difference is the same as in the preceding line. What changes is its shape: $\\frac{R}{N}$ times the logarithm of something, which is the shape of Boltzmann's principle in the next display."
+r2:
+  - latex: "\\frac{E}{\\beta \\nu} = \\frac{R}{N} \\cdot \\frac{N}{R} \\frac{E}{\\beta \\nu}"
+    why: "Multiply and divide by $\\frac{R}{N}$, which changes nothing."
+  - latex: "S - S_0 = \\frac{R}{N} \\cdot \\frac{N}{R} \\frac{E}{\\beta \\nu} \\lg \\left( \\frac{v}{v_0} \\right)"
+    why: "Put that into the preceding display."
+  - latex: "\\frac{N}{R} \\frac{E}{\\beta \\nu} \\lg \\left( \\frac{v}{v_0} \\right) = \\lg \\left[ \\left( \\frac{v}{v_0} \\right)^{\\frac{N}{R} \\frac{E}{\\beta \\nu}} \\right]"
+    why: "A number times a logarithm is the logarithm of the power with that number as exponent, the rule of section 5 read backwards."
+  - latex: "S - S_0 = \\frac{R}{N} \\lg \\left[ \\left( \\frac{v}{v_0} \\right)^{\\frac{N}{R} \\frac{E}{\\beta \\nu}} \\right]"
+    why: "The printed line."

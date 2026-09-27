@@ -1,0 +1,37 @@
+# light-quanta eq-s6-d4: what the display says, at every level (dispatch 279).
+# Written from the German of s6-p5 (p. 143) and its plate; the steps were checked by hand.
+display: eq-s6-d4
+paper: light-quanta
+inWords:
+  - text: "The probability"
+    quantityId: configurationProbability
+  - text: " that, at a moment chosen at random, all the energy of monochromatic radiation shut in "
+  - text: "the volume"
+    quantityId: volume
+  - text: " v₀ is found in its part v, is v over v₀ raised to the power "
+  - text: "the number N"
+    quantityId: avogadroConstant
+  - text: " over "
+  - text: "the gas constant R"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the radiation's energy"
+    quantityId: radiationEnergy
+  - text: " over "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: "."
+r0: "Comparing the two forms gives the probability that all the radiation's energy is found in part of its volume. It has the form of section 5's gas of independent points, and the paper concludes that dilute monochromatic radiation behaves, in its thermal properties, as if it consisted of independent energy quanta of size Rβν/N."
+r1: "Set the two expressions for the same entropy difference equal, and the probability $W$ can be read off. The direction is the reverse of section 5's: there the probability was counted and the entropy followed; here the entropy is known from Wien's law, and the probability is inferred from it. The paper states what this $W$ is the probability of: monochromatic radiation of frequency $\\nu$ and energy $E$ is enclosed by reflecting walls in the volume $v_0$, and $W$ is the probability that at a moment chosen at random the whole energy is in the part $v$. For $n$ independent points section 5 found $\\left( \\frac{v}{v_0} \\right)^n$. The two agree if $\\frac{N}{R} \\frac{E}{\\beta \\nu}$ plays the part of the number of points, that is, if the energy $E$ comes in pieces of size $\\frac{R \\beta \\nu}{N}$. The paper draws the conclusion with its hedges: monochromatic radiation of low density, within the range where Wien's formula holds, behaves in respect of the theory of heat as if it consisted of mutually independent energy quanta of that size. Its last paragraph of section 6 then proposes to test whether the laws of the production and transformation of light are also such as if light consisted of such quanta. That test is the subject of sections 7 to 9."
+r2:
+  - latex: "\\frac{R}{N} \\lg W = \\frac{R}{N} \\lg \\left[ \\left( \\frac{v}{v_0} \\right)^{\\frac{N}{R} \\frac{E}{\\beta \\nu}} \\right]"
+    why: "The same entropy difference in two forms: Boltzmann's principle and the rewritten result of section 4."
+  - latex: "\\lg W = \\lg \\left[ \\left( \\frac{v}{v_0} \\right)^{\\frac{N}{R} \\frac{E}{\\beta \\nu}} \\right]"
+    why: "Divide both sides by $\\frac{R}{N}$."
+  - latex: "W = \\left( \\frac{v}{v_0} \\right)^{\\frac{N}{R} \\frac{E}{\\beta \\nu}}"
+    why: "Numbers with equal logarithms are equal: the printed line."
+  - latex: "\\frac{N}{R} \\frac{E}{\\beta \\nu} = \\frac{E}{\\frac{R \\beta \\nu}{N}}"
+    why: "The exponent is the energy divided by $\\frac{R \\beta \\nu}{N}$. In section 5's formula the exponent was the number of independent points, so here it counts pieces of energy of that size. This is the comparison behind the paper's as if."

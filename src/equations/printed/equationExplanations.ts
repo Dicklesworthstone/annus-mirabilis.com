@@ -353,6 +353,11 @@ export async function checkPaperExplanations(
       let html: string;
       try {
         html = compileInlineFormula(resolved, displayMode ? KATEX_DISPLAY : renderToString).html;
+        // A step is laid out in display style, but it is not one of the paper's printed displays:
+        // it keeps KaTeX's display layout and MathML and loses the katex-display wrapper, which the
+        // faces count as the displays the paper prints (GermanDraftFace.test.tsx).
+        if (displayMode)
+          html = html.replace(/^<span class="katex-display">([\s\S]*)<\/span>$/, "$1");
       } catch (error) {
         problem(
           "explanation-formula-refused",

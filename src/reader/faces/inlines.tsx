@@ -140,6 +140,8 @@ export function renderInlines(
                 ? {
                     "data-paper": options.terms.paper,
                     ...(coloured.terms.length > 0 ? { "data-inline-terms": "" } : {}),
+                    // Its points, axes and systems, which light and pin with a note (dispatch 280).
+                    ...((coloured.labels?.length ?? 0) > 0 ? { "data-inline-labels": "" } : {}),
                   }
                 : {})}
               {...{ dangerouslySetInnerHTML: { __html: coloured?.html ?? html } }}

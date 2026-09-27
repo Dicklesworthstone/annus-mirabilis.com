@@ -13,13 +13,19 @@
  *
  * INLINE, most displays are set inside a paragraph's <p>: the block and its chips are then spans.
  * A face holds many displays, so their chips keep no live region of their own (BlockTermChips).
+ *
+ * EXPLAIN THIS EQUATION (dispatch 278): where the display has an explanation, it follows the chips,
+ * inside the same TermHighlight, so its phrases and the formula's glyphs light each other
+ * (EquationExplainer.tsx).
  */
 import type { ReactNode } from "react";
 import type { PrintedDisplayPayload } from "../../equations/printed/paperDisplays.ts";
+import { printedExplanation } from "../../equations/printed/printedExplanations.ts";
 import { colourStyle, paperQuantityColours } from "../../equations/quantityColourView.ts";
 import { BlockTermChips } from "../../equations/TermChips.tsx";
 import { TermHighlight } from "../../equations/TermHighlight.tsx";
 import "../../equations/equations.css";
+import { EquationExplainer } from "./EquationExplainer.tsx";
 
 export function PrintedDisplayTerms({
   display,
@@ -32,6 +38,7 @@ export function PrintedDisplayTerms({
   children: ReactNode;
 }) {
   const colours = paperQuantityColours(display.paper);
+  const explanation = printedExplanation(display.paper, display.display);
   const items = display.legend.flatMap((line) => {
     const colour = colours[line.quantityId];
     return colour
@@ -65,6 +72,7 @@ export function PrintedDisplayTerms({
         label="Quantities in this formula"
         items={items}
       />
+      {explanation ? <EquationExplainer explanation={explanation} /> : null}
     </TermHighlight>
   );
 }

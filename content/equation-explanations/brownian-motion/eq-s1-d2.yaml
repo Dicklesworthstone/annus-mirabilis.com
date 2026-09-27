@@ -1,0 +1,43 @@
+# brownian-motion eq-s1-d2: what the display says, at every level (dispatch 282).
+# Written from the German of s1-p2 and s1-p3 and the plates of pp. 550-551; the steps were checked
+# by hand.
+display: eq-s1-d2
+paper: brownian-motion
+inWords:
+  - text: "The osmotic pressure"
+    quantityId: osmoticPressure
+  - text: " of the suspended bodies equals "
+  - text: "the gas constant"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: " over "
+  - text: "the part of the liquid's volume that holds them"
+    quantityId: volume
+  - text: ", times "
+  - text: "the number of bodies"
+    quantityId: particleCount
+  - text: " over "
+  - text: "the number of real molecules in a gram-molecule"
+    quantityId: avogadroConstant
+  - text: "; that is, R T over N times "
+  - text: "the number of bodies in unit volume"
+    quantityId: numberDensity
+  - text: "."
+r0: "If a suspended body is counted as one molecule, n of them in the volume V* press on the wall as n/N gram-molecules of a solute would, p = (RT/N)ν, with ν their number per unit volume and N the number of real molecules in a gram-molecule. The paper proposes it as the molecular-kinetic view, for bodies far enough apart, and promises to show in § 2 that the theory leads to it."
+r1: "Put small suspended bodies in the part $V^*$ instead of a dissolved substance, bodies that cannot pass the wall either. Classical thermodynamics, the paper says, does not lead one to expect a force on the wall: the free energy of the system seems not to depend on where the wall and the bodies are, only on the total masses and properties of the suspended substance, the liquid and the wall, and on the pressure and temperature. Gravity is neglected, and so are the energy and entropy of the surfaces of contact, since the changes of position considered are taken to leave those surfaces unchanged. The molecular-kinetic theory of heat leads elsewhere. On it, a dissolved molecule differs from a suspended body only in size, and the paper sees no reason why a number of suspended bodies should not give the same osmotic pressure as the same number of dissolved molecules. The bodies must perform a slow, disordered motion in the liquid, driven by its molecular motion, and if the wall keeps them in $V^*$ they will push on it as dissolved molecules do. So with $n$ bodies in $V^*$, that is $\\nu = n/V^*$ in unit volume, and neighbours far enough apart, the pressure is that of $n/N$ gram-molecules: $p = \\frac{RT}{V^*}\\frac{n}{N} = \\frac{RT}{N}\\nu$, where $N$ is the number of real molecules in a gram-molecule. The paper calls this an extended view of osmotic pressure and defers its justification to § 2."
+r2:
+  - latex: "p V^* = R T z"
+    why: "The law for a dissolved substance, the display before: $z$ gram-molecules in the part $V^*$."
+  - latex: "z = \\frac{n}{N}"
+    why: "Count each of the $n$ suspended bodies as one molecule. With $N$ real molecules in a gram-molecule, $n$ molecules make $n/N$ gram-molecules. This is the paper's premise, not a result: suspended bodies differ from dissolved molecules only in size."
+  - latex: "p V^* = R T \\frac{n}{N}"
+    why: "Put $n/N$ for $z$ in the law."
+  - latex: "p = \\frac{R T}{V^*} \\frac{n}{N}"
+    why: "Divide both sides by $V^*$: the first form the paper prints."
+  - latex: "\\nu = \\frac{n}{V^*}"
+    why: "The paper's number of bodies in unit volume."
+  - latex: "p = \\frac{R T}{N} \\cdot \\frac{n}{V^*} = \\frac{R T}{N} \\nu"
+    why: "Take $1/V^*$ over to $n$ and write $\\nu$ for $n/V^*$: the second form printed. It holds only while neighbouring bodies are far enough apart, as the paper stipulates."
+r3: "In modern notation $R/N$ is Boltzmann's constant $k_B$, so the display reads $p = \\nu k_B T$, the pressure of an ideal gas of $\\nu$ particles in unit volume. The paper writes $R/N$ throughout, and treats $N$ as a quantity still to be measured: § 5 turns the result round to estimate it from observed displacements."

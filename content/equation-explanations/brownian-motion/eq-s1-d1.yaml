@@ -1,0 +1,30 @@
+# brownian-motion eq-s1-d1: what the display says, at every level (dispatch 282).
+# Written from the German of s1-p1 and the plate of p. 550; the steps were checked by hand.
+display: eq-s1-d1
+paper: brownian-motion
+inWords:
+  - text: "The osmotic pressure"
+    quantityId: osmoticPressure
+  - text: " times "
+  - text: "the part of the liquid's volume that holds the solution"
+    quantityId: volume
+  - text: " equals "
+  - text: "the gas constant"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: " times "
+  - text: "the number of gram-molecules dissolved"
+    quantityId: soluteAmount
+  - text: "."
+r0: "A dissolved substance, held in part of a liquid by a wall that lets only the solvent through, presses on that wall as a gas would: pressure times that volume equals R times the temperature times the gram-molecules dissolved. The paper states it for a non-electrolyte, when the volume per gram-molecule is large enough."
+r1: "The paper sets up the case it will compare with suspended particles. In a part $V^*$ of a liquid, $z$ gram-molecules of a non-electrolyte are dissolved, and a wall that lets the solvent through but not the dissolved substance separates $V^*$ from pure solvent. The wall then feels the osmotic pressure $p$, and for large enough values of $V^*/z$ it satisfies $p V^* = R T z$, with $R$ the gas constant and $T$ the absolute temperature. That is the form of the gas law for $z$ gram-molecules, and the paper states it without derivation, as known. Its two conditions matter: a non-electrolyte, and a dilute solution, since $V^*/z$ large means much volume for each gram-molecule dissolved. The next display asks what the same wall feels when the part $V^*$ holds suspended bodies instead."
+r2:
+  - latex: "p V^* = R T z"
+    why: "The law the paper states for $z$ gram-molecules of a non-electrolyte dissolved in the part $V^*$, when $V^*/z$ is large enough. It is not derived in the paper."
+  - latex: "p = R T \\frac{z}{V^*}"
+    why: "Divide both sides by $V^*$. The pressure grows with the gram-molecules dissolved per unit of that volume, and with the absolute temperature."
+  - latex: "p = \\frac{R T}{V^* / z}"
+    why: "The same law with the volume per gram-molecule dissolved, $V^*/z$, in the denominator. The paper asks for $V^*/z$ to be large enough: the law holds for a dilute solution, where the pressure is correspondingly small. What it counts is gram-molecules; the kind of dissolved substance does not enter."
+r3: "The law is van 't Hoff's (Z. physik. Chem. 1, 1887, 481). He printed it in his own letters as ‘PV = RT’ (p. 491), valid for solutions with the restriction that holds for gases too: the dilution must be large enough. Most salts, and the strong acids and bases, give a larger pressure in water, by a factor he writes i, which he ascribed on Arrhenius's suggestion to a splitting into ions (p. 501). The paper names neither him nor his paper, and asks for the same two conditions: a non-electrolyte, and large enough $V^*/z$."

@@ -5,8 +5,10 @@
  * controller is driven with native events on a happy-dom page, as the face's markup is served.
  */
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { act } from "react";
+import { createRoot } from "react-dom/client";
 import { installDom, uninstallDom } from "../testing/reactDom.ts";
-import { attachInlineLighting, type InlinePin } from "./InlineTermLighting.tsx";
+import { attachInlineLighting, type InlinePin, InlineTermLighting } from "./InlineTermLighting.tsx";
 
 const PAGE = `
 <main>
@@ -83,5 +85,118 @@ describe("the inline lighting controller", () => {
     expect(lit()).toEqual([]);
     over("inline-v");
     expect(lit()).toEqual([]);
+  });
+});
+
+/**
+ * LABELS (dispatch 280, step 1b; the owner: "all must have the nice hover-over effects"). A letter
+ * the notation declares no quantity is marked data-label: pointing at it lights every copy of the
+ * same label, the same reading in the same section, and nothing else; pressing it pins a note.
+ */
+const LABELS = `
+<main>
+  <p>Im Punkte <span class="inline-math" data-paper="special-relativity" data-inline-labels=""><span class="katex"><span class="katex-html"><span data-term="l1" data-label="L1" id="point-A">A</span></span></span></span>
+  und <span class="inline-math" data-paper="special-relativity" data-inline-labels=""><span class="katex"><span class="katex-html"><span data-term="l1" data-label="L2" id="point-B">B</span></span></span></span>,
+  wieder <span class="inline-math" data-paper="special-relativity" data-inline-labels=""><span class="katex"><span class="katex-html"><span data-term="l1" data-label="L1" id="point-A2">A</span></span></span></span>,
+  mit <span class="inline-math" data-paper="special-relativity" data-inline-terms=""><span class="katex"><span class="katex-html"><span data-term="i1" data-quantity-id="speedOfLight" id="speed-V">V</span></span></span></span>.</p>
+  <p>Im § 7 <span class="inline-math" data-paper="special-relativity" data-inline-labels=""><span class="katex"><span class="katex-html"><span data-term="l1" data-label="L9" id="other-A">A</span></span></span></span>
+  und <span class="inline-math" data-paper="light-quanta" data-inline-labels=""><span class="katex"><span class="katex-html"><span data-term="l1" data-label="L1" id="lq-L1">x</span></span></span></span>.</p>
+  <p id="elsewhere">Text.</p>
+</main>`;
+
+describe("labels in the inline lighting", () => {
+  let pins: (InlinePin | null)[] = [];
+  let detach: () => void = () => {};
+  beforeEach(async () => {
+    await installDom();
+    document.body.innerHTML = LABELS;
+    pins = [];
+    detach = attachInlineLighting(
+      document.querySelector("main") as Element,
+      "special-relativity",
+      (p) => pins.push(p),
+    );
+  });
+  afterEach(async () => {
+    detach();
+    await uninstallDom();
+  });
+
+  test("pointing at a label lights every copy of that label in its paper, and nothing else", () => {
+    over("point-A");
+    // Not B, not § 7's A (another label), not light quanta's L1, not a quantity.
+    expect(lit()).toEqual(["point-A", "point-A2"]);
+    over("point-B");
+    expect(lit()).toEqual(["point-B"]);
+    over("speed-V");
+    expect(lit()).toEqual(["speed-V"]);
+    over("elsewhere");
+    expect(lit()).toEqual([]);
+  });
+
+  test("a press pins the label, which stays lit until a second press or Escape", () => {
+    click("point-A");
+    expect(pins.at(-1)?.labelId).toBe("L1");
+    expect(pins.at(-1)?.quantityId).toBeUndefined();
+    over("elsewhere");
+    expect(lit()).toEqual(["point-A", "point-A2"]);
+    click("point-A");
+    expect(pins.at(-1)).toBeNull();
+    click("point-B");
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect(pins.at(-1)).toBeNull();
+    expect(lit()).toEqual([]);
+  });
+
+  test("a label and a quantity never share a pin: pressing the quantity moves it", () => {
+    click("point-A");
+    click("speed-V");
+    expect(pins.at(-1)?.quantityId).toBe("speedOfLight");
+    expect(pins.at(-1)?.labelId).toBeUndefined();
+    expect(lit()).toEqual(["speed-V"]);
+  });
+});
+
+describe("the island shows a pinned label's note after its formula", () => {
+  beforeEach(async () => {
+    await installDom();
+    document.body.innerHTML = LABELS;
+  });
+  afterEach(async () => {
+    await uninstallDom();
+  });
+
+  test("the note names what the letter names, and closes with the pin", async () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    const root = createRoot(host);
+    await act(async () =>
+      root.render(
+        <InlineTermLighting
+          paper="special-relativity"
+          quantities={{}}
+          labels={{
+            L1: {
+              glyphHtml: '<span class="katex-html">A</span>',
+              note: "A point of the stationary system where a clock stands, the first of the clocks compared.",
+            },
+          }}
+        />,
+      ),
+    );
+    await act(async () => click("point-A"));
+    const note = document.querySelector("[data-inline-inspector] .inline-label-note");
+    expect(note?.querySelector("strong")?.textContent).toBe(
+      "A point of the stationary system where a clock stands, the first of the clocks compared.",
+    );
+    // It stands just after the formula pressed, inside the sentence.
+    expect(
+      byId("point-A")
+        .closest(".inline-math")
+        ?.nextElementSibling?.hasAttribute("data-inline-inspector"),
+    ).toBe(true);
+    await act(async () => click("point-A"));
+    expect(document.querySelector("[data-inline-inspector]")).toBeNull();
+    await act(async () => root.unmount());
   });
 });

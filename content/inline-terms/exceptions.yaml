@@ -14,24 +14,29 @@ exceptions:
     glyph: "\\pi"
     scope: ["all"]
     reason: "The number π, a constant of geometry and no quantity of the paper."
+    note: "The number π."
   - paper: light-quanta
     glyph: "d"
     scope: ["all"]
     reason: "The sign of a differential, as in d ν, d T, d E and d W: it takes a small change of what follows it."
+    note: "The sign of a small change of what follows it, as in dν: an operation, not a quantity."
   - paper: light-quanta
     glyph: "\\delta"
     scope: ["all"]
     reason: "The sign of a variation, in § 3's condition for the entropy's maximum (δ ρ)."
+    note: "The sign of a small variation, in the condition for the entropy to be greatest."
   - paper: light-quanta
     glyph: "x"
     scope: ["lq-s1-fn3"]
     reason: "A misprint for α, recorded as typo-x-for-alpha-p135 in docs/provenance/ap-17-132.md: the footnote defines no x, and its sentence ranges over the amplitudes A and the phases α only. The x is kept as printed and names no quantity."
+    note: "A misprint for α, the phase: the 1905 printing sets x here, and the edition keeps it as printed."
 
   # Brownian motion. d has the reason content/display-terms/brownian-motion.yaml gives the displays.
   - paper: brownian-motion
     glyph: "d"
     scope: ["all"]
     reason: "The differential d of an integral or a derivative, as in d x₁, d n and d Δ: an operation, not a quantity."
+    note: "The sign of a small change of what follows it, as in dx: an operation, not a quantity."
 
   # Special relativity (dispatch 277). π and d have the reasons content/display-terms/
   # special-relativity.yaml gives the displays. The capital letters below are names, read from the
@@ -42,39 +47,69 @@ exceptions:
     glyph: "\\pi"
     scope: ["all"]
     reason: "The number π: in φ = π/2 (§ 7, p. 912), in the energy density A²/8π (§ 8, pp. 913 and 915), and in the 4π-fold density of electricity (§ 9, p. 916). A constant of geometry and no quantity of the paper."
+    note: "The number π."
   - paper: special-relativity
     glyph: "d"
     scope: ["all"]
     reason: "The differential d of § 10's integral ∫εX dx (p. 920): an operation, not a quantity."
+    note: "The sign of a small change of what follows it, as in dx: an operation, not a quantity."
   - paper: special-relativity
     glyph: "A"
-    scope: ["sr-s1-p7", "sr-s1-p8", "sr-s2-p6", "sr-s2-p7", "sr-s4-p6", "sr-s4-p7", "sr-s4-p8"]
-    reason: "A point, not a quantity: 'im Punkte A des Raumes eine Uhr' (§ 1, p. 893), the rod's end 'an den beiden Stabenden (A und B)' (§ 2, p. 896), and 'in den Punkten A und B von K' where clocks rest (§ 4, p. 904)."
+    scope: ["sr-s1-p7", "sr-s1-p8"]
+    reason: "A point, not a quantity: 'im Punkte A des Raumes eine Uhr' (§ 1, p. 893)."
+    note: "A point of the stationary system where a clock stands, the first of the clocks compared."
   - paper: special-relativity
     glyph: "B"
-    scope: ["sr-s1-p7", "sr-s1-p8", "sr-s2-p6", "sr-s2-p7", "sr-s4-p6", "sr-s4-p7"]
-    reason: "A point, not a quantity: 'im Punkte B des Raumes eine Uhr' (§ 1, p. 893), the rod's other end (§ 2, p. 896), and the second point where a clock rests (§ 4, p. 904)."
+    scope: ["sr-s1-p7", "sr-s1-p8"]
+    reason: "A point, not a quantity: 'im Punkte B des Raumes eine Uhr' (§ 1, p. 893)."
+    note: "A second point of the stationary system, where another clock stands."
   - paper: special-relativity
     glyph: "C"
     scope: ["sr-s1-p8"]
     reason: "A third point with a clock, 'mit der Uhr in C' (§ 1, p. 894): a name, not a quantity."
+    note: "A third point, where a third clock stands."
+  - paper: special-relativity
+    glyph: "A"
+    scope: ["sr-s2-p6", "sr-s2-p7"]
+    reason: "An end of the moving rod, not a quantity: 'an den beiden Stabenden (A und B)' (§ 2, p. 896)."
+    note: "One end of the moving rod, where a clock is fixed: the light sets out from here."
+  - paper: special-relativity
+    glyph: "B"
+    scope: ["sr-s2-p6", "sr-s2-p7"]
+    reason: "The moving rod's other end, not a quantity: 'an den beiden Stabenden (A und B)' (§ 2, p. 896)."
+    note: "The moving rod's other end, where a clock is fixed: the light is reflected here."
+  - paper: special-relativity
+    glyph: "A"
+    scope: ["sr-s4-p6", "sr-s4-p7", "sr-s4-p8"]
+    reason: "A point, not a quantity: 'in den Punkten A und B von K' where clocks rest (§ 4, p. 904)."
+    note: "A point at rest in the stationary system, where the travelling clock sets out."
+  - paper: special-relativity
+    glyph: "B"
+    scope: ["sr-s4-p6", "sr-s4-p7"]
+    reason: "A point, not a quantity: 'in den Punkten A und B von K' where clocks rest (§ 4, p. 904)."
+    note: "A second point at rest in the stationary system, where the travelling clock arrives."
   - paper: special-relativity
     glyph: "X"
     scope: ["sr-s2-p2", "sr-s3-p1", "sr-s3-p7", "sr-s4-p3", "sr-s5-p1", "sr-s5-p2"]
     reason: "The name of the X-axis: 'die X-Achse des ruhenden Koordinatensystems' (§ 2, p. 895), 'Die X-Achsen beider Systeme' (§ 3, p. 897), 'längs der X-Achse' (§ 3, p. 898), 'die X-Dimension' of the sphere (§ 4, p. 903), 'längs der X-Achse des Systems K' (§ 5, p. 905). Not the electric force X of §§ 6 to 10."
+    note: "The X-axis, the direction the moving system travels along: a name, not a quantity."
   - paper: special-relativity
     glyph: "Y"
     scope: ["sr-s3-p1", "sr-s4-p3"]
     reason: "The name of the Y-axis: 'ihre Y- und Z-Achsen bezüglich parallel' (§ 3, p. 897) and 'die Y- und Z-Dimension der Kugel' (§ 4, p. 903). Not the electric force Y of §§ 6 to 10."
+    note: "The Y-axis, one of the two directions across the motion: a name, not a quantity."
   - paper: special-relativity
     glyph: "Z"
     scope: ["sr-s3-p1", "sr-s3-p10", "sr-s4-p3"]
     reason: "The name of an axis: the Z-axes of both systems (§ 3, p. 897), the axis of k named beside the H-axis in 'auf die H- und Z-Achse angewandt' (§ 3, p. 899), and 'die Y- und Z-Dimension der Kugel' (§ 4, p. 903). Not the electric force Z of §§ 6 to 10."
+    note: "The Z-axis, the other direction across the motion: a name, not a quantity."
   - paper: special-relativity
     glyph: "H"
     scope: ["sr-s3-p10", "sr-s3-p22"]
     reason: "The capital eta that names the H-axis of the moving system k, the axis of η: 'auf die H- und Z-Achse angewandt' (§ 3, p. 899) and 'das Stück der H-Achse des Systems k' (§ 3, p. 902). A name, not a quantity."
+    note: "The moving system’s axis of η, named with a capital eta: a name, not a quantity."
   - paper: special-relativity
     glyph: "\\Xi"
     scope: ["sr-s3-p18", "sr-s5-p2", "sr-s5-p6"]
     reason: "The capital xi that names the Ξ-axis of the moving system k, the axis of ξ: 'parallel zur Ξ-Achse' (§ 3, p. 901), 'der X-Achse (Ξ-Achse)' and 'auf der Ξ-Achse' (§ 5, p. 906). A name, not a quantity."
+    note: "The moving system’s axis of ξ, named with a capital xi: a name, not a quantity."

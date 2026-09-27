@@ -57,7 +57,8 @@ export type InlineExceptionsCode =
   | "inline-exceptions-no-paper"
   | "inline-exceptions-glyph-not-one-atom"
   | "inline-exceptions-no-scope"
-  | "inline-exceptions-no-reason";
+  | "inline-exceptions-no-reason"
+  | "inline-exceptions-no-note";
 
 export class InlineExceptionsError extends Error {
   readonly code: InlineExceptionsCode;
@@ -107,7 +108,19 @@ export function parseInlineExceptions(raw: unknown, where: string): readonly Inl
         "inline-exceptions-no-reason",
         `${at}: a reason of a sentence is required.`,
       );
-    return { paper: e.paper, glyph, scope: e.scope as string[], reason: e.reason.trim() };
+    // What the sign names, for the reader who points at it on a reading face (dispatch 280).
+    if (typeof e.note !== "string" || e.note.trim().length < 8)
+      throw new InlineExceptionsError(
+        "inline-exceptions-no-note",
+        `${at}: a note saying what the sign names, in the reader's words, is required.`,
+      );
+    return {
+      paper: e.paper,
+      glyph,
+      scope: e.scope as string[],
+      reason: e.reason.trim(),
+      note: e.note.trim(),
+    };
   });
 }
 

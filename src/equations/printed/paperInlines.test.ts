@@ -124,6 +124,7 @@ describe("the exceptions list is checked", () => {
     glyph: "\\pi",
     scope: ["all"],
     reason: "The number π, a ratio of lengths, not a quantity.",
+    note: "The number π.",
   };
   const code = (raw: unknown) => {
     try {
@@ -144,5 +145,9 @@ describe("the exceptions list is checked", () => {
     expect(code({ exceptions: [{ ...good, reason: "a number" }] })).toBe(
       "inline-exceptions-no-reason",
     );
+    // What it names, for the reader who points at it on a reading face (dispatch 280).
+    const { note: _, ...noNote } = good;
+    expect(code({ exceptions: [noNote] })).toBe("inline-exceptions-no-note");
+    expect(code({ exceptions: [{ ...good, note: "π" }] })).toBe("inline-exceptions-no-note");
   });
 });

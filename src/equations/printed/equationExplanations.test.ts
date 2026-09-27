@@ -76,7 +76,10 @@ describe("the explanation records", () => {
     expect(explained?.display).toBe("eq-s0-d1");
     expect(explained?.inWords.filter((p) => p.quantityId).length).toBe(5);
     expect(explained?.r2[0]?.formula).toContain('data-quantity-id="lightComplexEnergyMoving"');
-    expect(explained?.r2[0]?.formula).toContain('class="katex-display"');
+    // In display style, with its MathML a block, but not wrapped as one of the paper's displays.
+    expect(explained?.r2[0]?.formula).toContain('display="block"');
+    expect(explained?.r2[0]?.formula).not.toContain('class="katex-display"');
+    expect(explained?.r2[0]?.formula.startsWith('<span class="katex">')).toBe(true);
     const math = explained?.r1.filter((p) => p.kind === "math") ?? [];
     expect(math.length).toBe(3);
     expect(math.every((p) => p.kind === "math" && p.html.includes("data-quantity-id"))).toBe(true);

@@ -1,0 +1,29 @@
+# light-quanta eq-s6-d1: what the display says, at every level (dispatch 279).
+# Written from the German of s6-p1 (p. 142) and its plate; the steps were checked by hand.
+display: eq-s6-d1
+paper: light-quanta
+inWords:
+  - text: "The entropy"
+    quantityId: radiationEntropy
+  - text: " of monochromatic radiation in "
+  - text: "the volume"
+    quantityId: volume
+  - text: " v, less its entropy in the volume v₀, equals "
+  - text: "its energy"
+    quantityId: radiationEnergy
+  - text: " over "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: ", times the natural logarithm of v over v₀."
+r0: "Section 6 starts again from section 4's result: how the entropy of monochromatic radiation of low density changes with its volume. It is the same logarithm of the volume ratio that section 5 found for a gas."
+r1: "This is section 4's last display, repeated so that section 6 can interpret it by Boltzmann's principle. It holds for monochromatic radiation of energy $E$ in a narrow band at the frequency $\\nu$, dilute enough for Wien's law to apply, when its volume changes from $v_0$ to $v$ with its energy unchanged. Section 5 found for $n$ independent points, a gas or the molecules of a dilute solution, the same logarithm of the volume ratio with a different coefficient. The next display rewrites the radiation's coefficient so that the two can be compared letter for letter."
+r2:
+  - latex: "S = -\\frac{E}{\\beta \\nu} \\left\\{ \\lg \\frac{E}{v \\alpha \\nu^3 d \\nu} - 1 \\right\\}"
+    why: "Section 4's entropy of radiation of energy $E$ in the band $d \\nu$ filling the volume $v$, from Wien's law."
+  - latex: "S - S_0 = -\\frac{E}{\\beta \\nu} \\left\\{ \\lg \\frac{E}{v \\alpha \\nu^3 d \\nu} - \\lg \\frac{E}{v_0 \\alpha \\nu^3 d \\nu} \\right\\}"
+    why: "Subtract the same expression for the volume $v_0$. The $-1$ in the two brackets cancels."
+  - latex: "S - S_0 = \\frac{E}{\\beta \\nu} \\lg \\left( \\frac{v}{v_0} \\right)"
+    why: "Everything but the two volumes cancels in the quotient of the logarithms: the printed line."

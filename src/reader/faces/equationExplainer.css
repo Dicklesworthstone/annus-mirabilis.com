@@ -1,0 +1,171 @@
+/*
+ * "Explain this equation" under a printed display (EquationExplainer.tsx, dispatch 278).
+ *
+ * One level of container: the panel is prose with a rule at its start, and nothing inside it is
+ * boxed. Every element is a span, so each is made a block here. The toggles are checkboxes wrapped
+ * in their labels; the checkbox is hidden from sight but keeps its focus, and its label shows it.
+ *
+ * WHICH LEVEL SHOWS. The page's Detail (:root[data-detail], set before first paint by the reader's
+ * pre-paint script) names one level: Overview (0), Full explanation (1) or Every step (2). A level
+ * whose "Also" toggle is checked shows too, on this equation only. With no data-detail at all no
+ * script ran: the panel is open, and it shows the full explanation.
+ */
+.eq-explainer {
+  display: block;
+  margin: 0.25rem 0 0.9rem;
+  text-align: start;
+}
+
+.eq-explain-open,
+.eq-explain-level {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.eq-explain-control {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  color: var(--muted);
+  cursor: pointer;
+}
+.eq-explain-control:hover {
+  color: var(--ink);
+}
+/* A chevron drawn with borders: pointing right when closed, down when open. */
+.eq-explain-control::before {
+  content: "";
+  display: inline-block;
+  width: 0.45em;
+  height: 0.45em;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+}
+.eq-explain-control:has(.eq-explain-open:checked)::before {
+  transform: rotate(45deg);
+}
+.eq-explain-control:has(:focus-visible),
+.eq-explain-also:has(:focus-visible) {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 0.2em;
+}
+
+.eq-explain-body {
+  display: none;
+  margin-top: 0.15rem;
+  padding-inline-start: 0.9rem;
+  border-inline-start: 2px solid var(--rule);
+  line-height: 1.65;
+}
+.eq-explainer:has(> .eq-explain-control .eq-explain-open:checked) > .eq-explain-body {
+  display: block;
+}
+/* No script ran: open, and the control closes it. */
+:root:not([data-detail]) .eq-explainer > .eq-explain-body {
+  display: block;
+}
+:root:not([data-detail])
+  .eq-explainer:has(> .eq-explain-control .eq-explain-open:checked)
+  > .eq-explain-body {
+  display: none;
+}
+:root:not([data-detail]) .eq-explain-control::before {
+  transform: rotate(45deg);
+}
+:root:not([data-detail]) .eq-explain-control:has(.eq-explain-open:checked)::before {
+  transform: rotate(-45deg);
+}
+
+.eq-explain-words,
+.eq-explain-more {
+  display: block;
+  margin: 0.4rem 0;
+}
+
+.eq-level {
+  display: none;
+  margin: 0.5rem 0;
+}
+:root:not([data-detail]) .eq-level[data-level="1"],
+:root[data-detail="1"] .eq-level[data-level="1"],
+:root[data-detail="0"] .eq-level[data-level="0"],
+:root[data-detail="2"] .eq-level[data-level="2"],
+.eq-explainer:has(.eq-explain-level[data-level="0"]:checked) .eq-level[data-level="0"],
+.eq-explainer:has(.eq-explain-level[data-level="1"]:checked) .eq-level[data-level="1"],
+.eq-explainer:has(.eq-explain-level[data-level="2"]:checked) .eq-level[data-level="2"],
+.eq-explainer:has(.eq-explain-level[data-level="3"]:checked) .eq-level[data-level="3"] {
+  display: block;
+}
+
+/* A formula in the explanation's prose, a little smaller than KaTeX's own 1.21em beside the prose (1.05em, a size the type scale already has). */
+.eq-explain-math .katex {
+  font-size: 1.05em;
+}
+
+.eq-level-name {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.eq-steps,
+.eq-step,
+.eq-step-formula,
+.eq-step-why {
+  display: block;
+}
+.eq-step {
+  margin: 0.35rem 0 0.75rem;
+}
+.eq-step-formula {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.eq-step-formula .katex-display {
+  margin: 0.2rem 0;
+}
+
+/* "Also": one toggle per level. The page's own level is already open and has none. */
+.eq-explain-more > .eq-level-name {
+  display: inline;
+  margin-inline-end: 0.25rem;
+}
+.eq-explain-also {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 0.45rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--link-underline);
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+.eq-explain-also:has(:checked) {
+  font-weight: 600;
+  text-decoration: none;
+}
+:root:not([data-detail]) .eq-explain-also[data-level="1"],
+:root[data-detail="1"] .eq-explain-also[data-level="1"],
+:root[data-detail="0"] .eq-explain-also[data-level="0"],
+:root[data-detail="2"] .eq-explain-also[data-level="2"] {
+  display: none;
+}

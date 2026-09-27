@@ -861,6 +861,46 @@
 .inline-math[data-inline-terms] .katex [data-quantity-id] {
   pointer-events: auto;
 }
+
+/*
+ * A LABEL in an inline formula (dispatch 280, step 1b; the owner: "all must have the nice hover-over
+ * effects"): a letter the notation declares no quantity, a point A, an axis X, a system K, a sign.
+ * It keeps the ink, since it has no quantity's colour; a quiet rule under it says it can be pointed
+ * at. Pointing at it lights every copy of the same label, the same reading in the same section,
+ * with a neutral ring, and a press pins a note saying what it names (InlineTermLighting.tsx).
+ */
+.inline-math[data-inline-labels] .katex .vlist,
+.inline-math[data-inline-labels] .katex .vlist > span,
+.inline-math[data-inline-labels] .katex .pstrut {
+  pointer-events: none;
+}
+.inline-math[data-inline-labels] .katex [data-label] {
+  border-radius: 0.2em;
+  box-shadow: inset 0 -0.08em 0 color-mix(in srgb, var(--muted) 60%, transparent);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.inline-math[data-inline-labels] .katex [data-label]:hover,
+.inline-math[data-inline-labels] .katex [data-label][data-lit] {
+  background: color-mix(in srgb, var(--muted) 16%, transparent);
+  box-shadow:
+    0 0 0 0.05em color-mix(in srgb, var(--muted) 16%, transparent),
+    0 0 0 0.1em color-mix(in srgb, var(--muted) 70%, transparent);
+}
+/*
+ * A chip's glyph and name take its term's colour before JavaScript as after (dispatch 280): until
+ * then the chip is a link to /notation/, and the site's link rule, :root a:not(.button,
+ * .skip-link), outranked .term-chips .term-chip and drew it in the ink, all but its dot.
+ */
+:root .term-chips a.term-chip {
+  color: var(--qc);
+}
+/* A pinned label's note (InlineTermLighting.tsx): its glyph stays in the ink, as on the page. */
+.term-inspector.inline-label-note .term-inspector-glyph {
+  color: var(--ink);
+}
 .equation-legend > [role="listitem"] {
   display: inline-flex;
   align-items: baseline;

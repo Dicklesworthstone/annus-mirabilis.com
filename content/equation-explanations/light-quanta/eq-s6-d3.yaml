@@ -1,0 +1,22 @@
+# light-quanta eq-s6-d3: what the display says, at every level (dispatch 279).
+# Written from the German of s6-p1 (p. 143) and its plate; the steps were checked by hand.
+display: eq-s6-d3
+paper: light-quanta
+inWords:
+  - text: "The entropy"
+    quantityId: radiationEntropy
+  - text: " of a state less that of the initial state equals "
+  - text: "the gas constant R"
+    quantityId: molarGasConstant
+  - text: " over "
+  - text: "the number N"
+    quantityId: avogadroConstant
+  - text: ", times the natural logarithm of "
+  - text: "the state's probability"
+    quantityId: configurationProbability
+  - text: " relative to the initial state."
+r0: "Boltzmann's principle in its general form, as section 5 stated it, set beside the radiation's entropy."
+r1: "The paper calls this the general formula expressing Boltzmann's principle. Section 5 stated it for any system, with $W$ the probability of a state relative to an initial state, and used it for a gas. Section 6 now applies it to radiation, whose entropy difference the preceding display has put in the same form. The paper says only that comparing the two leads to a conclusion, and the next display draws it."
+r2:
+  - latex: "S - S_0 = \\frac{R}{N} \\lg W"
+    why: "Boltzmann's principle as section 5 wrote it on p. 141: the entropy difference is $\\frac{R}{N}$ times the logarithm of the relative probability $W$. Section 6 applies it to the radiation."
