@@ -1,0 +1,25 @@
+# brownian-motion eq-s3-d5: what the display says, at every level (dispatch 282).
+# Written from the German of s3-p6 and its footnote and the plate of p. 555; the steps were checked
+# by hand.
+display: eq-s3-d5
+paper: brownian-motion
+inWords:
+  - text: "The force on one particle"
+    quantityId: externalForcePerParticle
+  - text: " divided by six pi times "
+  - text: "the friction coefficient of the liquid"
+    quantityId: viscosity
+  - text: " times "
+  - text: "the radius of a particle"
+    quantityId: particleRadius
+  - text: "."
+r0: "A sphere pulled through a liquid does not accelerate away; it settles at a steady speed, where the pull is matched by the liquid's resistance. That speed is the force divided by six pi times the liquid's friction coefficient times the sphere's radius."
+r1: "The section now takes the equilibrium apart into two processes running in opposite directions: a motion of the suspended substance under the force $K$ acting on each particle, and a diffusion, which is to be regarded as a result of the disordered motions of the particles produced by the molecular motion of heat. This display is the first of the two. If the suspended particles have the form of spheres of radius $P$, and the liquid has the friction coefficient $k$, then the force $K$ gives a single particle this velocity. It is the resistance law for a slowly moving sphere, and the footnote refers the reader to Kirchhoff's Vorlesungen über Mechanik, 26. Vorlesung, § 4. The velocity is steady, not growing: the resistance rises with the speed until it matches the force, and what is printed is the speed at which they match. Two properties enter that the equilibrium condition (1) had no use for, the size of the particle and the friction of the liquid, and they are what will remain in the diffusion coefficient at the end of the section."
+r2:
+  - latex: "6 \\pi k P v"
+    why: "The resistance a liquid of friction coefficient $k$ offers a sphere of radius $P$ moving through it with speed $v$, the law the footnote cites."
+  - latex: "K = 6 \\pi k P v"
+    why: "Steady motion: the force and the resistance are equal, so the particle neither speeds up nor slows down."
+  - latex: "v = \\frac{K}{6 \\pi k P}"
+    why: "Divided by the resistance factor. The printed value, the speed one particle takes under the force."
+r3: "Einstein's $k$ here is the friction coefficient of the liquid, what is now called its viscosity, and not Boltzmann's constant; the constant for one molecule appears in this paper only as $R/N$. The notation concordance marks the collision, because reading this $k$ as Boltzmann's constant turns a resistance into an energy."

@@ -1,0 +1,31 @@
+# brownian-motion eq-s3-1: what the display says, at every level (dispatch 282).
+# Written from the German of s3-p3 and s3-p4 and the plate of p. 554; the steps were checked by
+# hand.
+display: eq-s3-1
+paper: brownian-motion
+inWords:
+  - text: "Minus "
+  - text: "the force on one particle"
+    quantityId: externalForcePerParticle
+  - text: " times "
+  - text: "the number of particles in unit volume"
+    quantityId: numberDensity
+  - text: ", plus "
+  - text: "the gas constant"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: " over "
+  - text: "the number of molecules in a gram-molecule"
+    quantityId: avogadroConstant
+  - text: " times how steeply the number density changes along the column, is zero."
+r0: "The paper's first equation. At every point the force on the particles is balanced by the tendency of the suspended substance to spread from where it is crowded to where it is not, and the balance fixes how steeply the number density may vary."
+r1: "Put the two variations together. The energy term and the entropy term are both integrals along the column with $\\delta x$ standing free, so they combine into one integral of a bracket times $\\delta x$, and that integral is to vanish for an arbitrary virtual displacement. A quantity whose integral against every shift vanishes must itself vanish at every point, since otherwise a shift concentrated where the bracket is positive would make the integral positive. So the bracket is zero everywhere, which is the equation the paper numbers (1). Read it as a balance of two pressures at each point: the force term $K \\nu$ is what the outside force exerts on the particles of unit volume, and $\\frac{R T}{N} \\frac{\\partial \\nu}{\\partial x}$ is what the crowding of the particles exerts against it. Nothing in it mentions the size of the particles."
+r2:
+  - latex: "- \\int_0^l K \\nu \\delta x d x + T \\frac{R}{N} \\int_0^l \\frac{\\partial \\nu}{\\partial x} \\delta x d x = 0"
+    why: "The two variations of the displays before, put into the condition that the free energy does not change. The entropy variation is itself negative and enters after a minus sign, so this second term is positive."
+  - latex: "\\int_0^l \\left( - K \\nu + \\frac{R T}{N} \\frac{\\partial \\nu}{\\partial x} \\right) \\delta x d x = 0"
+    why: "One integral, with the shift outside the bracket."
+  - latex: "- K \\nu + \\frac{R T}{N} \\frac{\\partial \\nu}{\\partial x} = 0"
+    why: "The integral vanishes for every virtual displacement, and a shift can be put anywhere along the column, so the bracket vanishes at every point. The printed equation (1)."

@@ -1,0 +1,24 @@
+# brownian-motion eq-s3-d7: what the display says, at every level (dispatch 282).
+# Written from the German of s3-p7 and the plate of p. 555; the steps were checked by hand.
+display: eq-s3-d7
+paper: brownian-motion
+inWords:
+  - text: "Minus "
+  - text: "the diffusion coefficient"
+    quantityId: diffusionCoefficient
+  - text: " times how steeply "
+  - text: "the mass of one particle"
+    quantityId: particleMass
+  - text: " times "
+  - text: "the number of particles in unit volume"
+    quantityId: numberDensity
+  - text: " changes along the column, in grams."
+r0: "The second of the two opposed processes: diffusion carries matter from where the suspended substance is crowded to where it is not, and the grams crossing a unit of cross-section each second are the diffusion coefficient times the steepness of the fall in mass per unit volume."
+r1: "The paper calls $D$ the diffusion coefficient of the suspended substance and $\\mu$ the mass of one particle, and writes down what passes per unit of time by diffusion in grams. The product $\\mu \\nu$ is the mass of suspended substance in unit volume, so this is Fick's law in its usual shape, a flow proportional to how steeply the concentration falls. The minus sign says the flow runs from the crowded side to the empty one: where $\\mu \\nu$ grows with $x$, the flow is towards smaller $x$. The paper does not derive the law here; it is the definition of the diffusion coefficient, and the value of $D$ for suspended spheres is what the section is about to compute."
+r2:
+  - latex: "\\mu \\nu"
+    why: "The mass of suspended substance in unit volume: the mass of one particle times the number of them in it."
+  - latex: "\\frac{\\partial (\\mu \\nu)}{\\partial x}"
+    why: "How steeply that mass per unit volume changes along the column."
+  - latex: "- D \\frac{\\partial (\\mu \\nu)}{\\partial x}"
+    why: "The grams crossing a unit of cross-section in a unit of time, proportional to that steepness, with the sign making the flow run towards the emptier side. The printed form."

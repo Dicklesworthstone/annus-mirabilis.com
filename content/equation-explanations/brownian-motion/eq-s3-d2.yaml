@@ -1,0 +1,28 @@
+# brownian-motion eq-s3-d2: what the display says, at every level (dispatch 282).
+# Written from the German of s3-p2 and s3-p3 and the plate of p. 554; the steps were checked by
+# hand.
+display: eq-s3-d2
+paper: brownian-motion
+inWords:
+  - text: "The change in "
+  - text: "the energy"
+    quantityId: systemEnergy
+  - text: " is minus the sum, over the column from zero to "
+  - text: "its far end"
+    quantityId: columnLength
+  - text: ", of "
+  - text: "the force on one particle"
+    quantityId: externalForcePerParticle
+  - text: " times "
+  - text: "the number of particles in unit volume"
+    quantityId: numberDensity
+  - text: " times how far they are shifted."
+r0: "Shifting the particles along the force takes energy out of the system, and the amount is the force times the number of particles moved times how far each moves, added up along the column."
+r1: "The liquid is taken to have cross-section 1 perpendicular to the $X$-axis and to be bounded by the planes $x = 0$ and $x = l$. A slice at $x$ of thickness $d x$ then has volume $d x$ and holds $\\nu d x$ particles. Each feels the force $K$, and shifting the slice by $\\delta x$ lets that force do work $K \\nu \\delta x d x$ on it. Work done by the force lowers the energy of the system, which is the minus sign, and the whole change is the sum of the slices, the integral from 0 to $l$. The force may vary from place to place, and so may the number density and the shift, so all three stay inside the integral."
+r2:
+  - latex: "K \\nu d x"
+    why: "The force on the particles of one slice: $\\nu d x$ particles in the slice, since the cross-section is 1, each feeling the force $K$."
+  - latex: "K \\nu \\delta x d x"
+    why: "The work that force does when the slice is shifted by $\\delta x$."
+  - latex: "\\delta E = - \\int_0^l K \\nu \\delta x d x"
+    why: "Added over the column and made negative, because work done by the force on the substance comes out of the system's energy. The printed form."

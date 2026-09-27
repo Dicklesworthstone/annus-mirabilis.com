@@ -1,0 +1,21 @@
+# brownian-motion eq-s3-d8: what the display says, at every level (dispatch 282).
+# Written from the German of s3-p7 and the plate of p. 555; the steps were checked by hand.
+display: eq-s3-d8
+paper: brownian-motion
+inWords:
+  - text: "Minus "
+  - text: "the diffusion coefficient"
+    quantityId: diffusionCoefficient
+  - text: " times how steeply "
+  - text: "the number of particles in unit volume"
+    quantityId: numberDensity
+  - text: " changes along the column."
+r0: "The same diffusion flow counted in particles instead of grams, which is what the balance with the force needs, since the force was also counted in particles."
+r1: "Every particle has the same mass $\\mu$, and that mass does not depend on where the particle is, so it comes out of the derivative and can be divided away. What is left counts particles through the unit of cross-section rather than grams. The step is small but it is the one that makes the two flows comparable: the force drove $\\frac{\\nu K}{6 \\pi k P}$ particles across, and diffusion carries $- D \\frac{\\partial \\nu}{\\partial x}$ particles back, both through the same unit of cross-section in the same unit of time. The next display sets their sum to zero."
+r2:
+  - latex: "- D \\frac{\\partial (\\mu \\nu)}{\\partial x}"
+    why: "The flow in grams, from the display before."
+  - latex: "\\frac{\\partial (\\mu \\nu)}{\\partial x} = \\mu \\frac{\\partial \\nu}{\\partial x}"
+    why: "The particles all have the same mass wherever they are, so it is a constant here and passes through the derivative."
+  - latex: "- D \\frac{\\partial \\nu}{\\partial x}"
+    why: "Divided by the mass of one particle: the flow counted in particles. The printed form."

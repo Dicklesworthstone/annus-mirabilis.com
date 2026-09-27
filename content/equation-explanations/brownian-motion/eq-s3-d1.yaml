@@ -1,0 +1,27 @@
+# brownian-motion eq-s3-d1: what the display says, at every level (dispatch 282).
+# Written from the German of s3-p1 and s3-p2 and the plate of p. 554; the steps were checked by
+# hand.
+display: eq-s3-d1
+paper: brownian-motion
+inWords:
+  - text: "The change in "
+  - text: "the free energy"
+    quantityId: freeEnergy
+  - text: " under a small imagined shift of the suspended substance, which is the change in "
+  - text: "the energy"
+    quantityId: systemEnergy
+  - text: " less "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: " times the change in "
+  - text: "the entropy"
+    quantityId: entropy
+  - text: ", is zero."
+r0: "Section 3 asks how the suspended particles arrange themselves when a force pushes them one way and their own disorder spreads them the other. The answer is the arrangement whose free energy does not change under any small imagined shift of the substance."
+r1: "Suspended particles are distributed at random in a liquid, and the section studies their state of dynamic equilibrium under the assumption that a force $K$ acts on each particle, a force that depends on position but not on the time, and which for simplicity is taken to point along the $X$-axis everywhere. Let $\\nu$ be the number of suspended particles in unit volume. At thermodynamic equilibrium $\\nu$ is such a function of $x$ that for an arbitrary virtual displacement $\\delta x$ of the suspended substance the variation of the free energy vanishes. The displacement is virtual: nothing is moved, and the condition asks what arrangement would not be improved by moving it. The two displays that follow work out the two variations separately, the energy from the work the force would do and the entropy from the stretching of the substance, and setting their combination to zero for every $\\delta x$ gives the equilibrium condition."
+r2:
+  - latex: "\\delta F = \\delta E - T \\delta S = 0"
+    why: "As printed. $\\delta$ marks what a quantity would become under the imagined shift, and the free energy is stationary at equilibrium, so the two terms must cancel for every choice of $\\delta x$."
+  - latex: "F = E - T S"
+    why: "The free energy the variation is taken of. The temperature is held fixed, so it passes through the variation as a constant."
+r3: "The condition is the one classical thermodynamics gives for equilibrium at fixed temperature and volume. Section 1 had argued that classical thermodynamics, applied to suspended bodies, expects no force on a wall at all; here it is used with the entropy of the suspended substance counted as section 2 counts it, which is what makes the balance come out as it does."

@@ -1,0 +1,26 @@
+# brownian-motion eq-s3-d6: what the display says, at every level (dispatch 282).
+# Written from the German of s3-p6 and the plate of p. 555; the steps were checked by hand.
+display: eq-s3-d6
+paper: brownian-motion
+inWords:
+  - text: "The number of particles in unit volume"
+    quantityId: numberDensity
+  - text: " times "
+  - text: "the force on one particle"
+    quantityId: externalForcePerParticle
+  - text: ", divided by six pi times "
+  - text: "the friction coefficient of the liquid"
+    quantityId: viscosity
+  - text: " times "
+  - text: "the radius of a particle"
+    quantityId: particleRadius
+  - text: "."
+r0: "How many particles the force carries across a unit of cross-section in a unit of time: the number in unit volume times the speed each of them takes."
+r1: "The display before gave the speed of one particle under the force. To count how many cross a surface, take the particles that lie within one speed's distance of it: in unit time every particle within that distance passes, and through a cross-section of area 1 that is a volume equal to the speed itself. With $\\nu$ particles in unit volume, the number passing is $\\nu$ times the speed. This is the first of the two opposed flows, the one the force drives; the second, the diffusion, is counted in the displays that follow, and dynamic equilibrium is the statement that the two cancel."
+r2:
+  - latex: "v = \\frac{K}{6 \\pi k P}"
+    why: "The speed one particle takes under the force, from the display before."
+  - latex: "\\nu v"
+    why: "The particles crossing a unit of cross-section in a unit of time: those within a distance $v$ of it, which occupy a volume $v$ when the cross-section is 1, at $\\nu$ particles in unit volume."
+  - latex: "\\frac{\\nu K}{6 \\pi k P}"
+    why: "The same with the speed written out. The printed form."

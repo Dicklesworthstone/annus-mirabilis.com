@@ -1,0 +1,40 @@
+# brownian-motion eq-s3-d9: what the display says, at every level (dispatch 282).
+# Written from the German of s3-p8 and the plates of pp. 555 and 556; the steps were checked by
+# hand.
+display: eq-s3-d9
+paper: brownian-motion
+inWords:
+  - text: "The diffusion coefficient"
+    quantityId: diffusionCoefficient
+  - text: " is "
+  - text: "the gas constant"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: " over "
+  - text: "the number of molecules in a gram-molecule"
+    quantityId: avogadroConstant
+  - text: ", times one over six pi times "
+  - text: "the friction coefficient of the liquid"
+    quantityId: viscosity
+  - text: " times "
+  - text: "the radius of a particle"
+    quantityId: particleRadius
+  - text: "."
+r0: "The result of the section. How fast a suspended substance spreads is settled by the temperature, the friction of the liquid, the size of its particles, and the number of molecules in a gram-molecule. The force that was used to find it has gone: the answer holds whether or not any force is acting."
+r1: "The two conditions found for dynamic equilibrium, (1) and (2), are enough to compute the diffusion coefficient. Equation (1) says $K \\nu = \\frac{R T}{N} \\frac{\\partial \\nu}{\\partial x}$, so wherever $\\nu K$ appears in equation (2) it may be replaced. Every term then carries the factor $\\frac{\\partial \\nu}{\\partial x}$, which cancels: the answer does not depend on how the particles happen to be distributed, nor on the force, both of which were scaffolding. What is left is the printed value. The sentence that closes the section on the next page states what has been shown: the diffusion coefficient of the suspended substance depends, apart from universal constants and the absolute temperature, only on the friction coefficient of the liquid and on the size of the suspended particles. Two of those quantities can be measured with a microscope and a thermometer, and one of them, $N$, was not known with precision, which is why the paper can later turn the relation round."
+r2:
+  - latex: "- K \\nu + \\frac{R T}{N} \\frac{\\partial \\nu}{\\partial x} = 0"
+    why: "Equation (1), the equilibrium of the force against the crowding."
+  - latex: "K \\nu = \\frac{R T}{N} \\frac{\\partial \\nu}{\\partial x}"
+    why: "The same, with the force term on one side."
+  - latex: "\\frac{\\nu K}{6 \\pi k P} - D \\frac{\\partial \\nu}{\\partial x} = 0"
+    why: "Equation (2), the equilibrium of the two flows."
+  - latex: "\\frac{1}{6 \\pi k P} \\frac{R T}{N} \\frac{\\partial \\nu}{\\partial x} - D \\frac{\\partial \\nu}{\\partial x} = 0"
+    why: "Equation (1) put into equation (2) in place of $\\nu K$."
+  - latex: "\\left( \\frac{R T}{N} \\frac{1}{6 \\pi k P} - D \\right) \\frac{\\partial \\nu}{\\partial x} = 0"
+    why: "The common factor taken out. Wherever the number density varies at all, the bracket must vanish."
+  - latex: "D = \\frac{R T}{N} \\frac{1}{6 \\pi k P}"
+    why: "The printed result. The force and the distribution have both dropped out, and what remains can be measured."
+r3: "The section reaches the diffusion coefficient by holding a thermodynamic equilibrium beside a mechanical one, and the force $K$ appears in both and survives in neither. The resistance law it uses is the one for a slowly moving sphere, which the footnote of the page before refers to Kirchhoff's Vorlesungen über Mechanik; its $k$ is the friction coefficient of the liquid, not Boltzmann's constant."

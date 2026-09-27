@@ -1,0 +1,34 @@
+# brownian-motion eq-s3-d3: what the display says, at every level (dispatch 282).
+# Written from the German of s3-p3 and the plate of p. 554; the steps were checked by hand.
+display: eq-s3-d3
+paper: brownian-motion
+inWords:
+  - text: "The change in "
+  - text: "the entropy"
+    quantityId: entropy
+  - text: " is the sum along the column, from zero to "
+  - text: "its far end"
+    quantityId: columnLength
+  - text: ", of "
+  - text: "the gas constant"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the number of particles in unit volume"
+    quantityId: numberDensity
+  - text: " over "
+  - text: "the number of molecules in a gram-molecule"
+    quantityId: avogadroConstant
+  - text: ", times how much the shift stretches each slice; which is the same as minus that constant times the sum of the change in the number density times the shift."
+r0: "A shift that stretches a slice raises the entropy of the particles in it, by the gas constant for one particle for each unit of stretching. Written the second way, after an integration by parts, the entropy change is governed by how steeply the number density varies along the column."
+r1: "A shift $\\delta x$ that grows along the column stretches each slice, and the amount of stretching is $\\partial \\delta x / \\partial x$: the slice between $x$ and $x + d x$ becomes longer by that fraction. The suspended particles are counted as section 2 counts them, one particle behaving as one molecule of a dilute solution, so each contributes $R/N$ to the entropy for each unit of relative stretching, and there are $\\nu d x$ of them in the slice. That is the first form printed. The second form comes from integrating by parts. The boundary term vanishes because the substance stays inside the column, and what is left puts the shift $\\delta x$ outside the derivative, in the same shape as the energy variation of the display before, so that the two can be added slice by slice."
+r2:
+  - latex: "\\frac{\\partial \\delta x}{\\partial x}"
+    why: "How much the shift stretches a slice: the rate at which the displacement grows along the column."
+  - latex: "R \\frac{\\nu}{N} \\frac{\\partial \\delta x}{\\partial x} d x"
+    why: "The entropy gained by the $\\nu d x$ particles of the slice, at $R/N$ for each particle and each unit of stretching."
+  - latex: "\\delta S = \\int_0^l R \\frac{\\nu}{N} \\frac{\\partial \\delta x}{\\partial x} d x"
+    why: "Added along the column: the first form printed."
+  - latex: "\\int_0^l \\nu \\frac{\\partial \\delta x}{\\partial x} d x = - \\int_0^l \\frac{\\partial \\nu}{\\partial x} \\delta x d x"
+    why: "Integration by parts. The boundary term is the number density times the shift at the two ends, and it vanishes because the substance is not displaced out of the column."
+  - latex: "\\delta S = - \\frac{R}{N} \\int_0^l \\frac{\\partial \\nu}{\\partial x} \\delta x d x"
+    why: "The second form printed, with the shift standing free as it does in the energy variation."
