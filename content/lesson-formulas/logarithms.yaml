@@ -1,0 +1,34 @@
+# logarithms: where each formula's shape is used in the papers, and which letters are bound (dispatch 300).
+#
+# One entry per formula block of content/foundations/logarithms.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, which is the edge the
+# displays already have in reverse through their prerequisites. `notUsed` records, with its reason,
+# a formula the papers do not print, so the absence is a judgement and not a silence.
+# `notQuantities` declares a letter plain, with the reason, where it is a teaching placeholder and
+# not a canonical quantity; inventing a quantity to make it bind would be a lie about the lesson.
+lesson: logarithms
+formulas:
+  - latex: "\\ln(AB) = \\ln A + \\ln B, \\qquad \\ln\\left(f^{\\,n}\\right) = n \\ln f"
+    usedAt:
+      - paper: brownian-motion
+        display: eq-s2-d11
+        note: "Both laws at once: § 2's free energy needs the logarithm of J times V* to the power n, and the paper splits it into lg J plus n lg V*."
+      - paper: light-quanta
+        display: eq-s6-d2
+        note: "The power law inside the bracket: the exponent of the volume ratio comes down in front of the logarithm."
+  - latex: "S - S_0 = \\frac{R}{N} \\ln W"
+    usedAt:
+      - paper: light-quanta
+        display: eq-s5-d6
+        note: "Boltzmann's principle as the paper prints it, with lg for the natural logarithm."
+      - paper: light-quanta
+        display: eq-s6-d3
+        note: "The same principle again, where § 6 turns it round to read a count off the entropy."
+  - latex: "W = \\left(\\frac{v}{v_0}\\right)^{n}"
+    usedAt:
+      - paper: light-quanta
+        display: eq-s5-d7
+        note: "The paper's own line: the probability that n independent points are all in the part volume."
+      - paper: light-quanta
+        display: eq-s6-d4
+        note: "The same form with the exponent evaluated from the entropy, which is where the count comes from."

@@ -1,0 +1,24 @@
+# derivatives: where each formula's shape is used in the papers, and which letters are bound (dispatch 300).
+#
+# One entry per formula block of content/foundations/derivatives.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, which is the edge the
+# displays already have in reverse through their prerequisites. `notUsed` records, with its reason,
+# a formula the papers do not print, so the absence is a judgement and not a silence.
+# `notQuantities` declares a letter plain, with the reason, where it is a teaching placeholder and
+# not a canonical quantity; inventing a quantity to make it bind would be a lie about the lesson.
+lesson: derivatives
+formulas:
+  - latex: "\\frac{dx}{dt} = \\lim_{\\Delta t \\to 0} \\frac{x(t+\\Delta t) - x(t)}{\\Delta t}"
+    usedAt:
+      - paper: special-relativity
+        display: eq-s10-d1
+        note: "A derivative of a derivative, put to work: the acceleration in the electron's equation of motion."
+  - latex: "\\frac{\\partial f}{\\partial t} = D\\,\\frac{\\partial^2 f}{\\partial x^2}"
+    usedAt:
+      - paper: brownian-motion
+        display: eq-s4-1
+        note: "The diffusion equation itself, which the paper numbers (1) and derives from the step law."
+  - latex: "3(t+\\Delta t)^2 - 3t^2 = 6t\\,\\Delta t + 3(\\Delta t)^2"
+    notUsed: "The lesson's own worked example, a distance in an interval. The papers do not print it; what they print is the derivative it leads to."
+  - latex: "\\frac{6t\\,\\Delta t + 3(\\Delta t)^2}{\\Delta t} = 6t + 3\\,\\Delta t"
+    notUsed: "The second half of the same worked example, dividing the interval out. Kept as the lesson's arithmetic, not a shape the papers use."

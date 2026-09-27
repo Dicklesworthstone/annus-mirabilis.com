@@ -1,0 +1,47 @@
+# gaussian-distributions: where each formula's shape is used in the papers, and which letters are bound (dispatch 300).
+#
+# One entry per formula block of content/foundations/gaussian-distributions.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, which is the edge the
+# displays already have in reverse through their prerequisites. `notUsed` records, with its reason,
+# a formula the papers do not print, so the absence is a judgement and not a silence.
+# `notQuantities` declares a letter plain, with the reason, where it is a teaching placeholder and
+# not a canonical quantity; inventing a quantity to make it bind would be a lie about the lesson.
+lesson: gaussian-distributions
+formulas:
+  - latex: "p(x,t)=\\frac{1}{\\sqrt{4\\pi Dt}}\\exp\\left(-\\frac{x^2}{4Dt}\\right)"
+    usedAt:
+      - paper: brownian-motion
+        display: eq-s4-d11
+        note: "The paper's own solution, in its letters: the same density with n particles in front."
+  - latex: "u=\\frac{x}{\\sqrt{4Dt}},\\qquad dx=\\sqrt{4Dt}\\,du"
+    notUsed: "The substitution the lesson makes to do the integral. The papers integrate over the displacement itself and print no change of variable."
+    notQuantities:
+      - glyph: "u"
+        reason: "the dimensionless variable the substitution introduces"
+      - glyph: "x"
+        reason: "the displacement it is built from"
+      - glyph: "D"
+        reason: "the diffusion coefficient in that combination"
+      - glyph: "t"
+        reason: "the elapsed time in it"
+  - latex: "\\begin{aligned}\\int_{-\\infty}^{\\infty}p(x,t)\\,dx&=\\frac{1}{\\sqrt{\\pi}}\\int_{-\\infty}^{\\infty}e^{-u^2}\\,du\\\\&=1\\end{aligned}"
+    notUsed: "The normalisation worked through the substitution. The paper states the corresponding condition directly, as the entry for the next formula shows."
+    notQuantities:
+      - glyph: "p"
+        reason: "the generic density being normalised"
+      - glyph: "u"
+        reason: "the substituted variable"
+  - latex: "\\begin{aligned}I^2&=\\int_{-\\infty}^{\\infty}\\int_{-\\infty}^{\\infty}e^{-(u^2+v^2)}\\,du\\,dv\\\\&=\\int_{0}^{\\infty}e^{-r^2}\\,2\\pi r\\,dr=\\pi\\end{aligned}"
+    notUsed: "The polar-coordinate trick for the Gaussian integral, a piece of mathematics the lesson supplies. No paper prints it."
+    notQuantities:
+      - glyph: "I"
+        reason: "the value of the integral being found"
+      - glyph: "u"
+        reason: "one substituted variable"
+      - glyph: "v"
+        reason: "the second substituted variable, introduced only so that the square of the integral becomes a double integral over a plane"
+  - latex: "\\frac{1}{\\sqrt\\pi}\\int_{-\\infty}^{\\infty}u^2e^{-u^2}\\,du=\\frac12"
+    usedAt:
+      - paper: brownian-motion
+        display: eq-s4-d9
+        note: "The second moment, which is what the paper's coefficient of the diffusion equation is: one over tau times the integral of Δ² over two."

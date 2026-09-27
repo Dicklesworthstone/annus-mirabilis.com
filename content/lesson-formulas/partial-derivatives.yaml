@@ -1,0 +1,48 @@
+# partial-derivatives: where each formula's shape is used in the papers, and which letters are bound (dispatch 300).
+#
+# One entry per formula block of content/foundations/partial-derivatives.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, which is the edge the
+# displays already have in reverse through their prerequisites. `notUsed` records, with its reason,
+# a formula the papers do not print, so the absence is a judgement and not a silence.
+# `notQuantities` declares a letter plain, with the reason, where it is a teaching placeholder and
+# not a canonical quantity; inventing a quantity to make it bind would be a lie about the lesson.
+lesson: partial-derivatives
+formulas:
+  - latex: "\\left(\\frac{\\partial f}{\\partial x}\\right)_t \\qquad \\left(\\frac{\\partial f}{\\partial t}\\right)_x"
+    notUsed: "The notation itself, not an equation. Its use is everywhere the papers hold one variable fixed while another changes; the entries below point at the two clearest."
+    notQuantities:
+      - glyph: "f"
+        reason: "a generic function of two variables"
+      - glyph: "x"
+        reason: "one of its two generic arguments"
+      - glyph: "t"
+        reason: "its other generic argument, the one held fixed in the first derivative and varied in the second"
+  - latex: "\\left(\\frac{\\partial V}{\\partial p}\\right)_T \\quad \\text{versus} \\quad \\left(\\frac{\\partial V}{\\partial p}\\right)_S"
+    notUsed: "A thermodynamic example the lesson brings from outside, to show that the held variable changes the answer. The papers print no such pair."
+    notQuantities:
+      - glyph: "V"
+        reason: "a generic volume in the borrowed example; the papers' V is the velocity of light or a volume depending on the paper, so this letter is left unbound here"
+      - glyph: "p"
+        reason: "a generic pressure in the borrowed thermodynamic example, not the osmotic pressure the Brownian paper binds to this letter"
+      - glyph: "T"
+        reason: "the temperature held fixed in the first, the entropy in the second"
+  - latex: "\\left(\\frac{\\partial \\varphi}{\\partial \\rho}\\right)_{\\nu} = \\frac{1}{T}"
+    usedAt:
+      - paper: light-quanta
+        display: eq-s3-d8
+        note: "The paper's own partial derivative of the entropy density with respect to the energy density, at fixed frequency, identified with one over the temperature."
+  - latex: "f(x,t) = \\frac{1}{\\sqrt{4\\pi D t}}\\,e^{-x^2/4Dt}"
+    usedAt:
+      - paper: brownian-motion
+        display: eq-s4-d11
+        note: "The profile whose two partial derivatives the lesson takes, printed as § 4's solution."
+  - latex: "\\left(\\frac{\\partial f}{\\partial x}\\right)_t = -\\frac{x}{2Dt}\\,f(x,t)"
+    usedAt:
+      - paper: brownian-motion
+        display: eq-s4-d6
+        note: "The slope in x, used by the paper inside its Taylor expansion of the profile."
+  - latex: "\\left(\\frac{\\partial f}{\\partial t}\\right)_x = \\left(-\\frac{1}{2t} + \\frac{x^2}{4Dt^2}\\right) f(x,t)"
+    usedAt:
+      - paper: brownian-motion
+        display: eq-s4-1
+        note: "The rate in t, which is the left side of the diffusion equation the paper derives."

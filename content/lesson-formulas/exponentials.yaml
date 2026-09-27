@@ -1,0 +1,38 @@
+# exponentials: where each formula's shape is used in the papers, and which letters are bound (dispatch 300).
+#
+# One entry per formula block of content/foundations/exponentials.json, named by its latex exactly as the
+# lesson writes it. `usedAt` names printed displays that print this shape, which is the edge the
+# displays already have in reverse through their prerequisites. `notUsed` records, with its reason,
+# a formula the papers do not print, so the absence is a judgement and not a silence.
+# `notQuantities` declares a letter plain, with the reason, where it is a teaching placeholder and
+# not a canonical quantity; inventing a quantity to make it bind would be a lie about the lesson.
+lesson: exponentials
+formulas:
+  - latex: "\\begin{gathered} \\frac{dN}{dt} = -kN, \\\\ \\text{so}\\quad N(t) = N_0\\,e^{-kt} \\end{gathered}"
+    notUsed: "Radioactive decay is the lesson's way in, not a shape any of the four papers prints. The papers' exponentials are Wien's law and the diffusion profile, which the two entries below point at."
+    notQuantities:
+      - glyph: "N"
+        reason: "a generic amount that decays, standing for whatever the reader is counting: the papers bind N to the number of molecules in a gram-molecule, which this is not"
+      - glyph: "N_0"
+        reason: "its value at the start, a placeholder in the same sense"
+      - glyph: "k"
+        reason: "the decay rate of that generic amount. Einstein's k in the Brownian paper is a viscosity, so binding this letter here would carry a false reading into the papers"
+      - glyph: "t"
+        reason: "the elapsed time of the generic example"
+  - latex: "e^{x} = 1 + x + \\frac{x^{2}}{2} + \\frac{x^{3}}{6} + \\ldots"
+    notUsed: "The series is a tool the lesson supplies, not a line the papers print. Where a paper expands something it is the square root of 1 − (v/V)², in relativity § 4."
+    notQuantities:
+      - glyph: "e"
+        reason: "the base of natural logarithms, a number and not a quantity"
+      - glyph: "x"
+        reason: "the generic argument of the series"
+  - latex: "\\rho = \\alpha\\,\\nu^{3} e^{-\\beta \\nu / T}"
+    usedAt:
+      - paper: light-quanta
+        display: eq-s4-d1
+        note: "Wien's radiation law, which this is: the exponential in it is what § 4's whole entropy calculation rests on."
+  - latex: "f(x,t) = \\frac{n}{\\sqrt{4\\pi D}}\\,\\frac{e^{-x^{2}/4Dt}}{\\sqrt{t}}"
+    usedAt:
+      - paper: brownian-motion
+        display: eq-s4-d11
+        note: "The solution of § 4's diffusion equation, printed with exactly this exponential, and the line § 5 puts numbers into."
