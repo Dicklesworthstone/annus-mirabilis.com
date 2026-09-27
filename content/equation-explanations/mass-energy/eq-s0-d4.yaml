@@ -18,13 +18,13 @@ inWords:
   - text: ". What is left is "
   - text: "the energy carried off by the light"
     quantityId: emittedEnergyRestFrame
-  - text: ", times a factor that depends only on "
+  - text: ", times one over the square root of one less the square of the ratio of "
   - text: "the speed of the moving system"
     quantityId: frameSpeed
-  - text: " and "
+  - text: " to "
   - text: "the speed of light"
     quantityId: speedOfLight
-  - text: "."
+  - text: ", less one."
 r0: "Subtracting the body's two sets of books removes the energies themselves and leaves only how much the two systems disagree. The disagreement changes during the emission, by an amount fixed entirely by the light emitted and the speed."
 r1: "Two accounts of one process now stand side by side: $E_0 = E_1 + L$ in the system where the body rests, and $H_0 = H_1 + \\frac{L}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}}$ in the moving one. Neither $E$ nor $H$ is known, and the paper never needs to know them. Subtracting one equation from the other, as the paper says, cancels the unknowns in pairs and leaves the difference $H - E$ before the emission set against the same difference after. What remains on the right is $L$ times the amount by which the square root's reciprocal exceeds one. If the body were at rest in both systems, or if no light were emitted, the right side would be zero and the two differences would agree. The emission has changed the gap between the two accounts, and the size of that change does not depend on what the body is made of."
 r2:

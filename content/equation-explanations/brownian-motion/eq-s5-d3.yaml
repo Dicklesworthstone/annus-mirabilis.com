@@ -8,7 +8,7 @@ inWords:
   - text: " is the square root of "
   - text: "the elapsed time"
     quantityId: observationInterval
-  - text: ", times the square root of "
+  - text: ", times the square root of this quotient: "
   - text: "the gas constant"
     quantityId: molarGasConstant
   - text: " times "

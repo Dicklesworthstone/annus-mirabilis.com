@@ -9,7 +9,7 @@ inWords:
   - text: " divided by "
   - text: "its energy in the stationary system"
     quantityId: lightComplexEnergyStationary
-  - text: " is the square root of one minus "
+  - text: " is the square root of this quotient: one minus "
   - text: "the speed"
     quantityId: frameSpeed
   - text: " over "

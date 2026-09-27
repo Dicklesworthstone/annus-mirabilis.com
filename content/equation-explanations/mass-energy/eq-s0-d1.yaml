@@ -8,16 +8,16 @@ inWords:
   - text: " is "
   - text: "its energy in the system the light was described in first"
     quantityId: lightComplexEnergyStationary
-  - text: ", times a factor set by "
+  - text: ", times one less the ratio of "
   - text: "the speed of the moving system"
     quantityId: frameSpeed
-  - text: " against "
+  - text: " to "
   - text: "the speed of light"
     quantityId: speedOfLight
-  - text: ", and by "
+  - text: " times the cosine of "
   - text: "the angle between the light's direction of travel and the x-axis"
     quantityId: propagationAngleStationary
-  - text: "."
+  - text: ", all of it divided by the square root of one less the square of that same ratio."
 r0: "The same light carries different amounts of energy for two observers in relative motion, and how much depends on the direction the light travels. This is the one result the paper takes over from the electrodynamics paper, and everything after it is built on this line."
 r1: "A system of plane light waves has energy $l$ referred to the coordinate system $(x, y, z)$, and its ray direction, the wave normal, makes the angle $\\varphi$ with the $x$-axis. Now introduce a second system $(\\xi, \\eta, \\zeta)$ in uniform parallel translation, whose origin moves with the speed $v$ along the $x$-axis. The same quantity of light, measured in $(\\xi, \\eta, \\zeta)$, has the energy $l^*$ this display gives, where $V$ is the speed of light. Two things vary. The square root in the denominator does not depend on direction and makes the measured energy larger. The factor $1 - \\frac{v}{V} \\cos \\varphi$ does depend on direction: light sent forward along the motion counts for less in the moving system, light sent backward for more. Einstein does not derive this here. He states that he derived it in section 8 of the electrodynamics paper, and says of it only: we make use of this result in what follows."
 r2:

@@ -8,7 +8,7 @@ inWords:
   - text: " by an observer moving straight away from the source is "
   - text: "the source's frequency"
     quantityId: waveFrequencyStationary
-  - text: " times the square root of one minus "
+  - text: " times the square root of this quotient: one minus "
   - text: "the speed"
     quantityId: frameSpeed
   - text: " over "
