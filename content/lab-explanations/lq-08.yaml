@@ -1,0 +1,49 @@
+# LQ-08's formulas, and what each one carries (dispatch 291).
+#
+# One entry per formula the page sets apart as a display, naming it by its latex exactly as the page
+# writes it. Each entry is one of three things: `display`, the paper's own record for a formula that
+# is one of its printed displays; `own`, the lab's words for a form the paper does not print; or
+# `incidental`, with the reason for giving it no control of its own.
+lab: lq-08
+formulas:
+  # The law as § 8 prints it, in Einstein's letters. The reader meets the same words here and on the
+  # reading face, and the two cannot disagree, because there is only one record.
+  - latex: "\\Pi\\varepsilon = \\frac{R}{N}\\beta\\nu - P"
+    display: eq-s8-d2
+
+  # The same law in modern letters, which the paper does not print. The lab's own words, and the
+  # margin says whose the notation is.
+  - latex: "e V_s = h\\nu - \\Phi \\implies V_s = \\frac{h}{e}\\nu - \\frac{\\Phi}{e}"
+    own:
+      inWords:
+        - text: "The energy a light quantum carries in, "
+        - text: "Planck's constant"
+          quantityId: planckConstant
+        - text: " times "
+        - text: "the frequency"
+          quantityId: frequency
+        - text: ", less "
+        - text: "the work an electron spends escaping the surface"
+          quantityId: workFunction
+        - text: ", is what is left to "
+        - text: "the electron's charge"
+          quantityId: elementaryCharge
+        - text: " climbing through "
+        - text: "the stopping potential"
+          quantityId: stoppingPotentialMagnitude
+        - text: "."
+      r0: "The same law as the display above, with the letters physics has used since: $h$ for the quantum of action, $e$ for the electron's charge, $\\Phi$ for the escape work."
+      r1: "Nothing has changed but the letters. Where the paper writes $\\frac{R}{N}\\beta\\nu$ for the energy of one quantum, this writes $h\\nu$; where it writes $\\varepsilon$ for the charge and $P$ for the work of escape, this writes $e$ and $\\Phi$. Dividing through by the charge puts the law in the form an experiment reads off a graph: the stopping potential is a straight line in the frequency, of slope $\\frac{h}{e}$ and intercept $-\\frac{\\Phi}{e}$. The slope is the same for every substance, which is the part of the law that can be checked without knowing anything about the surface, and the intercept is the part that belongs to the substance alone."
+      r2:
+        - latex: "\\frac{R}{N}\\beta\\nu = h\\nu"
+          why: "The energy of one quantum, in the paper's letters and then in the modern one. The paper's $\\frac{R}{N}\\beta$ is the number physics now writes $h$, and § 6 of the paper computes it as $6{,}5537\\cdot 10^{-27}$ erg s."
+        - latex: "e V_s = h\\nu - \\Phi"
+          why: "The law of the display above with those letters put in: the quantum's energy, less the escape work, is the energy the electron still has, and the stopping potential is what just takes it away again."
+        - latex: "V_s = \\frac{h}{e}\\nu - \\frac{\\Phi}{e}"
+          why: "Divide by the charge. In this form the law is a straight line in the frequency, and the two things an experiment can read from it, the slope and the intercept, are separated."
+      r3: "The modern letters are this edition's, not Einstein's. The paper of 1905 has no $h$ in it: it writes the quantum's energy as $\\frac{R}{N}\\beta\\nu$, built from the gas constant, Avogadro's number and Wien's constant, and it is Planck's 1900 radiation work that the constant comes from. Writing $h$ here is a rename and nothing more, and it imports no later physics; the site's notation concordance records the substitution for § 8."
+
+  # Einstein's own arithmetic on the law above, with the sentence before it naming the frequency he
+  # took and the sentence after it saying what the agreement is worth.
+  - latex: "V_s \\approx \\frac{h\\nu}{e} \\approx 4.3\\ \\text{V}"
+    incidental: "A worked value of the law two displays above, not a law of its own. The sentence before it gives the frequency Einstein took, the ultraviolet end of the solar spectrum, and says he neglected the escape work; the sentence after it says the agreement with Lenard is one of order of magnitude and not a measurement of the law. A panel here would repeat both."
