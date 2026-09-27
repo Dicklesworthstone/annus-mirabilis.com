@@ -43,7 +43,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "The third relation compares bending by the two kinds of field. In an electric field across the motion the path curves with radius \\(\\gamma mv^2/(|q|E)\\) at that instant; the field also speeds the electron up as the path turns, so the radius keeps changing. In a magnetic field the speed stays constant and the path is a circle of radius \\(\\gamma mv/(|q|B)\\). The electron-dynamics laboratory keeps the two cases apart."
+        "text": "The third relation compares bending by the two kinds of field. In an electric field across the motion the path curves with radius \\(\\gamma mv^2/(|q|E_y)\\) at that instant; the field also speeds the electron up as the path turns, so the radius keeps changing. In a magnetic field the speed stays constant and the path is a circle of radius \\(\\gamma mv/(|q|B)\\). The electron-dynamics laboratory keeps the two cases apart."
       },
       {
         "kind": "foundation",

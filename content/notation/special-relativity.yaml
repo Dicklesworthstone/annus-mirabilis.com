@@ -2769,16 +2769,6 @@ modernOnlySymbols:
     scope: ["sr-s10"]
     introducedBy: "modern-notation"
     label: "The electron's charge, which § 10 prints as ε, as the explanation writes it"
-  - id: sr.modern.E.electricFieldStationary.s10
-    glyph:
-      unicode: "E"
-      latex: "E"
-      variant: plain
-    binding:
-      quantityId: electricFieldStationary
-    scope: ["sr-s10"]
-    introducedBy: "modern-notation"
-    label: "The electric field across the electron's path, which § 10 prints by its components X, Y, Z, as the explanation writes it"
   - id: sr.modern.u.electronSpeedStationary.s10
     glyph:
       unicode: "u"
