@@ -1,0 +1,27 @@
+# special-relativity eq-s8-d5: what the display says, at every level (dispatch 281).
+# Written from the German of s8-p2 and s8-p5 (p. 914) and its plate; every step was checked by hand.
+display: eq-s8-d5
+paper: special-relativity
+inWords:
+  - text: "For an observer moving along the direction of the light, "
+  - text: "the energy of the light complex in the moving system"
+    quantityId: lightComplexEnergyMoving
+  - text: " divided by "
+  - text: "its energy in the stationary system"
+    quantityId: lightComplexEnergyStationary
+  - text: " is the square root of one minus "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", divided by one plus it."
+r0: "The energy of a light complex for an observer moving along the direction of the light: it changes by exactly the factor by which the frequency changes."
+r1: "With $\\varphi = 0$ the general formula simplifies as the Doppler formula did in § 7. The paper then remarks that the energy and the frequency of a light complex change with the observer's state of motion according to the same law, and leaves the remark there. At $v = 0.6 \\, V$ both are halved."
+r2:
+  - latex: "\\frac{E'}{E} = \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
+    why: "The energy ratio for any angle, the previous display."
+  - latex: "\\frac{E'}{E} = \\frac{1 - \\frac{v}{V}}{\\sqrt{\\left( 1 - \\frac{v}{V} \\right) \\left( 1 + \\frac{v}{V} \\right)}}"
+    why: "Put $\\varphi = 0$ and factor the difference of squares under the root."
+  - latex: "\\frac{E'}{E} = \\sqrt{\\frac{1 - \\frac{v}{V}}{1 + \\frac{v}{V}}}"
+    why: "Cancel one square root of $1 - \\frac{v}{V}$. This is the factor of the Doppler formula for the same direction (§ 7, p. 912)."

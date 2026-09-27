@@ -1,0 +1,35 @@
+# special-relativity eq-s8-d13: what the display says, at every level (dispatch 281).
+# Written from the German of s8-p10 (p. 915) and its plate; every step was checked by hand.
+display: eq-s8-d13
+paper: special-relativity
+inWords:
+  - text: "The pressure of the light on the moving mirror"
+    quantityId: radiationPressureMirror
+  - text: " is twice the energy per unit volume of the incident light, from "
+  - text: "its amplitude"
+    quantityId: lightAmplitudeStationary
+  - text: ", times the square of the cosine of "
+  - text: "the angle of incidence"
+    quantityId: propagationAngleStationary
+  - text: " less "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", divided by one minus the square of that ratio."
+r0: "The pressure light exerts on a perfectly reflecting mirror that moves with velocity $v$, found from the energy principle: the energy the light brings, less the energy it takes away, is the work the pressure does on the mirror."
+r1: "The paper measures everything in the stationary system. The light brings energy to each unit area of the mirror at the rate of the energy density times the speed at which it overtakes the mirror, $V \\cos \\varphi - v$. The reflected light carries energy away at its own density times the speed at which it and the mirror separate. By the energy principle the difference is the work the light pressure does in unit time, which the paper sets equal to $P \\cdot v$. Solving for $P$ gives the display. For light falling straight on the mirror, a mirror receding at $v = 0.6 \\, V$ feels a quarter of the pressure it would feel at rest: $\\frac{0.4^2}{0.64} = 0.25$."
+r2:
+  - latex: "\\frac{A^2}{8\\pi} \\left( V \\cos \\varphi - v \\right)"
+    why: "The energy arriving at unit area of the mirror in unit time, measured in $K$: the energy per unit volume times the rate at which the light overtakes the mirror, its speed along $x$ less the mirror's."
+  - latex: "\\frac{A'''^2}{8\\pi} \\left( -V \\cos \\varphi''' + v \\right)"
+    why: "The energy leaving unit area in unit time: the reflected light moves back with the speed $V \\cos \\varphi'''$ along $x$, which is negative, while the mirror moves forward with $v$."
+  - latex: "-V \\cos \\varphi''' + v = V \\left( 1 - \\frac{v^2}{V^2} \\right) \\frac{\\cos \\varphi - \\frac{v}{V}}{1 - 2 \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2}"
+    why: "Put in $\\cos \\varphi'''$ from the display two back; the numerator collects to $\\cos \\varphi \\left( 1 - \\frac{v^2}{V^2} \\right) - \\frac{v}{V} \\left( 1 - \\frac{v^2}{V^2} \\right)$."
+  - latex: "\\frac{A'''^2}{8\\pi} \\left( -V \\cos \\varphi''' + v \\right) = \\frac{A^2}{8\\pi} V \\left( \\cos \\varphi - \\frac{v}{V} \\right) \\frac{1 - 2 \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2}"
+    why: "With $A'''$ from the display three back, one factor $1 - 2 \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2$ and one factor $1 - \\left( \\frac{v}{V} \\right)^2$ cancel."
+  - latex: "P \\cdot v = 2 \\frac{A^2}{8\\pi} v \\frac{\\left( \\cos \\varphi - \\frac{v}{V} \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2}"
+    why: "Subtract the energy leaving from the energy arriving. What remains of $1 - \\frac{1 - 2 \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2}$ is $\\frac{2 \\frac{v}{V} \\left( \\cos \\varphi - \\frac{v}{V} \\right)}{1 - \\left( \\frac{v}{V} \\right)^2}$, and $V \\cdot \\frac{v}{V} = v$. By the energy principle this difference is the work $P \\cdot v$."
+  - latex: "P = 2 \\frac{A^2}{8\\pi} \\frac{\\left( \\cos \\varphi - \\frac{v}{V} \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2}"
+    why: "Divide by $v$."

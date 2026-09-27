@@ -1,0 +1,28 @@
+# special-relativity eq-s8-d1: what the display says, at every level (dispatch 281).
+# Written from the German of s8-p1 (p. 913) and its plate; every step was checked by hand.
+display: eq-s8-d1
+paper: special-relativity
+inWords:
+  - text: "The points whose "
+  - text: "coordinates"
+    quantityId: coordinatePositionStationary
+  - text: " lie at a fixed distance, "
+  - text: "the radius"
+    quantityId: lightSphereRadius
+  - text: ", from a centre that moves with "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " along "
+  - text: "the direction of the wave"
+    quantityId: directionCosineStationary
+  - text: " as "
+  - text: "the time"
+    quantityId: coordinateTimeStationary
+  - text: " runs: a sphere that travels with the light."
+r0: "A sphere that moves along with the light. No energy crosses its surface, so it always encloses the same portion of light, which the paper calls a light complex."
+r1: "The paper wants to compare the energy of a given portion of light in the two systems, and first needs to say which portion. The centre of this sphere is at $(V a t, V b t, V c t)$: it moves with the velocity of light along the wave normal, whose direction cosines are $a$, $b$, $c$, and every point of the surface moves with it. For the plane waves of § 7, whose energy also moves along the wave normal at the velocity of light, no energy passes through any element of such a surface, so it encloses the same light at every moment. The paper then asks how much energy this surface encloses when it is regarded from the moving system."
+r2:
+  - latex: "(V a t, V b t, V c t)"
+    why: "The centre of the sphere at the time $t$: it has travelled the distance $V t$ along the direction with cosines $a$, $b$, $c$, the direction the light travels."
+  - latex: "(x - V a t)^2 + (y - V b t)^2 + (z - V c t)^2 = R^2"
+    why: "The points at the distance $R$ from that centre, by Pythagoras in three dimensions. As $t$ runs the whole sphere slides along with the light, keeping its radius."

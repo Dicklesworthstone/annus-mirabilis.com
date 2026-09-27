@@ -1,0 +1,31 @@
+# special-relativity eq-s8-d3: what the display says, at every level (dispatch 281).
+# Written from the German of s8-p2 (p. 913) and its plate; every step was checked by hand.
+display: eq-s8-d3
+paper: special-relativity
+inWords:
+  - text: "The volume of the ellipsoid in the moving system"
+    quantityId: lightComplexVolumeMoving
+  - text: " divided by "
+  - text: "the volume of the sphere in the stationary system"
+    quantityId: lightComplexVolumeStationary
+  - text: " is the square root of one minus the square of "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", divided by one minus that ratio times the cosine of "
+  - text: "the angle between the wave normal and the motion"
+    quantityId: propagationAngleStationary
+  - text: "."
+r0: "The volume of the same light complex in the two systems. It is not the same, which is why the energy ratio is not simply the ratio of the squared amplitudes."
+r1: "The paper says only that a simple calculation shows this. The ellipsoid is the sphere of radius $R$ with the first coordinate stretched by one factor and the other two slid along in proportion to it; sliding slices past each other changes no volume, so only the stretch counts. With the cosine $a$ written as $\\cos \\varphi$, the angle between the wave normal and the direction of motion, the ratio is the display. For light travelling along the motion ($\\varphi = 0$) at $v = 0.6 \\, V$ the moving system finds the complex filling twice the volume: $\\frac{0.8}{0.4} = 2$."
+r2:
+  - latex: "\\beta \\xi - a \\beta \\frac{v}{V} \\xi = \\beta \\left( 1 - a \\frac{v}{V} \\right) \\xi"
+    why: "The first bracket of the ellipsoid's equation is one factor times $\\xi$."
+  - latex: "\\eta - b \\beta \\frac{v}{V} \\xi"
+    why: "The second bracket shifts $\\eta$ by an amount proportional to $\\xi$; the third does the same to $\\zeta$. Such a shift slides thin slices of the body past one another and leaves its volume unchanged."
+  - latex: "S' = \\frac{S}{\\beta \\left( 1 - a \\frac{v}{V} \\right)}"
+    why: "So the ellipsoid has the volume of the sphere divided by the factor $\\beta \\left( 1 - a \\frac{v}{V} \\right)$ that multiplies $\\xi$: the sphere is compressed along $\\xi$ by that factor."
+  - latex: "\\frac{S'}{S} = \\frac{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}{1 - \\frac{v}{V} \\cos \\varphi}"
+    why: "Write $\\beta$ out as $\\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}$ and $a$ as $\\cos \\varphi$."

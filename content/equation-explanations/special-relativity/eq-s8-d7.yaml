@@ -1,0 +1,25 @@
+# special-relativity eq-s8-d7: what the display says, at every level (dispatch 281).
+# Written from the German of s8-p7 (p. 914) and its plate; every step was checked by hand.
+display: eq-s8-d7
+paper: special-relativity
+inWords:
+  - text: "The cosine of "
+  - text: "the angle of incidence in the mirror's system"
+    quantityId: propagationAngleMoving
+  - text: " is the cosine of "
+  - text: "the angle of incidence in the stationary system"
+    quantityId: propagationAngleStationary
+  - text: " less "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", divided by one minus that ratio times the same cosine."
+r0: "The direction of the incident light in the mirror's system: the law of aberration of § 7, applied to the light that falls on the mirror."
+r1: "$\\varphi$ is the angle between the incident light's direction and the direction of motion, which is also the normal of the mirror, measured in $K$; $\\varphi'$ is the same angle measured in $k$. This is § 7's law of aberration (p. 912) repeated for the mirror problem."
+r2:
+  - latex: "a = \\cos \\varphi"
+    why: "The incident light's direction cosine along the motion, § 7's $a$, is the cosine of the angle of incidence."
+  - latex: "\\cos \\varphi' = \\frac{\\cos \\varphi - \\frac{v}{V}}{1 - \\frac{v}{V} \\cos \\varphi}"
+    why: "§ 7's first direction cosine in $k$, the old one less $\\frac{v}{V}$ over one less their product (p. 911), written with the angles as § 7 writes it on p. 912: the law of aberration."

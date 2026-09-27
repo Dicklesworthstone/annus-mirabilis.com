@@ -1,0 +1,27 @@
+# special-relativity eq-s8-d6: what the display says, at every level (dispatch 281).
+# Written from the German of s8-p7 (p. 914) and its plate; every step was checked by hand.
+display: eq-s8-d6
+paper: special-relativity
+inWords:
+  - text: "The amplitude of the incident light in the mirror's system"
+    quantityId: lightAmplitudeMoving
+  - text: " is "
+  - text: "its amplitude in the stationary system"
+    quantityId: lightAmplitudeStationary
+  - text: " times one minus "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " times the cosine of "
+  - text: "the angle of incidence"
+    quantityId: propagationAngleStationary
+  - text: ", divided by the square root of one minus the square of that ratio."
+r0: "The first step of the moving-mirror problem: the incident light's amplitude as the mirror's own system $k$ measures it."
+r1: "A perfectly reflecting mirror lies in the plane $\\xi = 0$ of the moving system, so it moves with $k$. The paper solves the problem in three moves: describe the incident light in $k$, reflect it there as from a mirror at rest, and describe the reflected light back in $K$. This display and the next two are the first move, taken from § 7: the amplitude, the direction and the frequency of the incident light in $k$. The amplitude is the square root of § 7's result for its square."
+r2:
+  - latex: "A'^2 = A^2 \\frac{\\left( 1 - \\frac{v}{V} \\cos \\varphi \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2}"
+    why: "The squared amplitude in $k$, from § 7 (p. 912)."
+  - latex: "A' = A \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
+    why: "Take the square root; both sides are positive, since $\\frac{v}{V}$ is less than 1."

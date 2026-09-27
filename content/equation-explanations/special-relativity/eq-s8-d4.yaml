@@ -1,0 +1,43 @@
+# special-relativity eq-s8-d4: what the display says, at every level (dispatch 281).
+# Written from the German of s8-p1 and s8-p2 (p. 913) and its plate; every step was checked by hand.
+display: eq-s8-d4
+paper: special-relativity
+inWords:
+  - text: "The energy of the light complex in the moving system"
+    quantityId: lightComplexEnergyMoving
+  - text: " divided by "
+  - text: "its energy in the stationary system"
+    quantityId: lightComplexEnergyStationary
+  - text: " is the moving system's energy density, from "
+  - text: "its amplitude"
+    quantityId: lightAmplitudeMoving
+  - text: ", times "
+  - text: "its volume"
+    quantityId: lightComplexVolumeMoving
+  - text: ", over the stationary system's, from "
+  - text: "its amplitude"
+    quantityId: lightAmplitudeStationary
+  - text: ", times "
+  - text: "its volume"
+    quantityId: lightComplexVolumeStationary
+  - text: "; this comes to one minus "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " times the cosine of "
+  - text: "the angle of the wave normal to the motion"
+    quantityId: propagationAngleStationary
+  - text: ", divided by the square root of one minus the square of that ratio."
+r0: "How the energy of a given portion of light depends on the system it is measured in: its density times its volume in each system, and the ratio of the two."
+r1: "The paper takes $\\frac{A^2}{8 \\pi}$ as the light energy per unit volume, as it is in the units it uses, and, by the principle of relativity, $\\frac{A'^2}{8 \\pi}$ as the energy per unit volume in the moving system. The energy of the light complex is the density times the volume it fills, in each system. The squared amplitude grows by the square of the Doppler factor (§ 7), while the volume shrinks by one power of it, so the energy changes by the Doppler factor itself. An observer receding from the light ($\\varphi = 0$) at $v = 0.6 \\, V$ measures half the energy."
+r2:
+  - latex: "\\frac{A'^2}{A^2} = \\frac{\\left( 1 - \\frac{v}{V} \\cos \\varphi \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2}"
+    why: "From § 7 (p. 912): the squared amplitude, and with it the energy density $\\frac{A^2}{8 \\pi}$, changes by this factor."
+  - latex: "\\frac{S'}{S} = \\frac{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}{1 - \\frac{v}{V} \\cos \\varphi}"
+    why: "The volume of the light complex in the two systems, from the previous display."
+  - latex: "\\frac{E'}{E} = \\frac{\\frac{A'^2}{8\\pi} S'}{\\frac{A^2}{8\\pi} S}"
+    why: "Energy is energy per unit volume times volume, in each system."
+  - latex: "\\frac{E'}{E} = \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
+    why: "Multiply the two ratios: one factor $1 - \\frac{v}{V} \\cos \\varphi$ cancels, and the square root divides once into $1 - \\left( \\frac{v}{V} \\right)^2$."

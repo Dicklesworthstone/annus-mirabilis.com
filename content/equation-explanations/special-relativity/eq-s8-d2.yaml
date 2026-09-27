@@ -1,0 +1,35 @@
+# special-relativity eq-s8-d2: what the display says, at every level (dispatch 281).
+# Written from the German of s8-p2 (p. 913) and its plate; every step was checked by hand.
+display: eq-s8-d2
+paper: special-relativity
+inWords:
+  - text: "Seen from the moving system at its time zero, the travelling sphere is the surface where the square of "
+  - text: "the factor"
+    quantityId: lorentzFactor
+  - text: " times the first "
+  - text: "coordinate"
+    quantityId: coordinatePositionMoving
+  - text: ", less "
+  - text: "the first direction cosine"
+    quantityId: directionCosineStationary
+  - text: " times that factor times "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " times the same coordinate, plus two like squares for the other coordinates, equals the square of "
+  - text: "the radius"
+    quantityId: lightSphereRadius
+  - text: ": an ellipsoid."
+r0: "The travelling sphere as the moving system sees it at one instant of its own time, $\\tau = 0$: not a sphere but an ellipsoid."
+r1: "The paper asks what surface the sphere of the previous display is when regarded in $k$. It takes the instant $\\tau = 0$ of $k$'s time and rewrites the sphere's equation in $k$'s coordinates with the transformation of § 3. Because $k$'s instant is not a single instant of $K$, points at different $\\xi$ are caught at different times $t$, and the sphere comes out stretched and slanted: an ellipsoid. Its volume is compared with the sphere's in the next display."
+r2:
+  - latex: "\\tau = \\beta \\left( t - \\frac{v}{V^2} x \\right) = 0"
+    why: "The instant in $k$ at which the paper looks. For each point it fixes the time in $K$ at which that point is caught."
+  - latex: "x = \\beta \\xi, \\quad t = \\beta \\frac{v}{V^2} \\xi"
+    why: "At $\\tau = 0$, § 3's transformation gives $x = \\beta (\\xi + v \\tau) = \\beta \\xi$ and $t = \\beta \\left( \\tau + \\frac{v}{V^2} \\xi \\right) = \\beta \\frac{v}{V^2} \\xi$; and $y = \\eta$, $z = \\zeta$."
+  - latex: "x - V a t = \\beta \\xi - a \\beta \\frac{v}{V} \\xi, \\quad y - V b t = \\eta - b \\beta \\frac{v}{V} \\xi"
+    why: "Put these into the brackets of the sphere's equation. The third bracket, with $z$ and the third cosine, becomes $\\zeta$ less the third cosine times $\\beta \\frac{v}{V} \\xi$ in the same way."
+  - latex: "\\left( \\beta \\xi - a \\beta \\frac{v}{V} \\xi \\right)^2 + \\left( \\eta - b \\beta \\frac{v}{V} \\xi \\right)^2 + \\left( \\zeta - c \\beta \\frac{v}{V} \\xi \\right)^2 = R^2"
+    why: "The sphere's equation written in $k$'s coordinates at $\\tau = 0$: the display."

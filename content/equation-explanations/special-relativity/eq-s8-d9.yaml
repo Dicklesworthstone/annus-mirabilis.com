@@ -1,0 +1,33 @@
+# special-relativity eq-s8-d9: what the display says, at every level (dispatch 281).
+# Written from the German of s8-p7 (p. 914) and its plate; every step was checked by hand.
+display: eq-s8-d9
+paper: special-relativity
+inWords:
+  - text: "In the mirror's own system, "
+  - text: "the amplitude of the reflected light"
+    quantityId: lightAmplitudeReflectedMoving
+  - text: " equals "
+  - text: "that of the incident light"
+    quantityId: lightAmplitudeMoving
+  - text: "; the cosine of "
+  - text: "the reflected light's angle"
+    quantityId: propagationAngleReflectedMoving
+  - text: " is minus the cosine of "
+  - text: "the incident light's"
+    quantityId: propagationAngleMoving
+  - text: "; and "
+  - text: "the reflected frequency"
+    quantityId: waveFrequencyReflectedMoving
+  - text: " equals "
+  - text: "the incident frequency"
+    quantityId: waveFrequencyMoving
+  - text: "."
+r0: "Reflection in the mirror's own system, where the mirror is at rest: the light comes back with the same amplitude and frequency, and its direction along the mirror's normal is reversed."
+r1: "In $k$ the mirror does not move, so the reflection is the ordinary one of optics: a perfect mirror at rest returns all the light, unchanged in frequency, at an angle of reflection equal to the angle of incidence. The component of the light's direction along the mirror's normal, the direction of motion, reverses, so the cosine changes sign. This is the second of the paper's three moves. Nothing here depends on $v$: the motion enters only through the first move and the third."
+r2:
+  - latex: "A'' = A'"
+    why: "A perfect mirror at rest reflects all the light, so the amplitude is unchanged."
+  - latex: "\\cos \\varphi'' = -\\cos \\varphi'"
+    why: "The angle of reflection equals the angle of incidence, on the other side of the normal: the direction's component along the normal reverses."
+  - latex: "\\nu'' = \\nu'"
+    why: "A mirror at rest does not change the frequency."

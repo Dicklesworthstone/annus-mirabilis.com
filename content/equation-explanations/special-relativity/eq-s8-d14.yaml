@@ -1,0 +1,24 @@
+# special-relativity eq-s8-d14: what the display says, at every level (dispatch 281).
+# Written from the German of s8-p10 (p. 915) and its plate; every step was checked by hand.
+display: eq-s8-d14
+paper: special-relativity
+inWords:
+  - text: "To a first approximation, "
+  - text: "the pressure of light on the mirror"
+    quantityId: radiationPressureMirror
+  - text: " is twice the energy per unit volume of the incident light, from "
+  - text: "its amplitude"
+    quantityId: lightAmplitudeStationary
+  - text: ", times the square of the cosine of "
+  - text: "the angle of incidence"
+    quantityId: propagationAngleStationary
+  - text: "."
+r0: "The radiation pressure on a mirror when its speed is negligible against the velocity of light: twice the energy density of the light, times the square of the cosine of the angle of incidence."
+r1: "Dropping the terms in $\\frac{v}{V}$ leaves the pressure on a mirror at rest. The paper says that this agrees with experience and with other theories. It names neither. For light falling straight on the mirror the pressure is twice the energy per unit volume of the light. At oblique incidence it is smaller by $\\cos^2 \\varphi$, the value the exact formula takes when $\\frac{v}{V}$ is set to zero."
+r2:
+  - latex: "P = 2 \\frac{A^2}{8\\pi} \\frac{\\left( \\cos \\varphi - \\frac{v}{V} \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2}"
+    why: "The pressure on the moving mirror, the previous display."
+  - latex: "\\frac{v}{V} \\to 0"
+    why: "The first approximation: the mirror's speed is small against the velocity of light, so the terms in $\\frac{v}{V}$ are dropped."
+  - latex: "P = 2 \\frac{A^2}{8\\pi} \\cos^2 \\varphi"
+    why: "The numerator becomes $\\cos^2 \\varphi$ and the denominator 1."

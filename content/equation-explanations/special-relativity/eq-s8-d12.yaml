@@ -1,0 +1,38 @@
+# special-relativity eq-s8-d12: what the display says, at every level (dispatch 281).
+# Written from the German of s8-p7 (p. 915) and its plate; every step was checked by hand.
+display: eq-s8-d12
+paper: special-relativity
+inWords:
+  - text: "The frequency of the reflected light in the stationary system"
+    quantityId: waveFrequencyReflectedStationary
+  - text: " is "
+  - text: "its frequency in the mirror's system"
+    quantityId: waveFrequencyReflectedMoving
+  - text: " times one plus "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " times the cosine of "
+  - text: "its angle there"
+    quantityId: propagationAngleReflectedMoving
+  - text: ", divided by the square root of one minus the square of that ratio; in terms of "
+  - text: "the incident frequency"
+    quantityId: waveFrequencyStationary
+  - text: " and "
+  - text: "the angle of incidence"
+    quantityId: propagationAngleStationary
+  - text: ", it is one minus twice the ratio times the cosine plus its square, over one minus the square of the ratio, which the page prints as the square of one minus the ratio."
+r0: "The frequency of the light reflected from a moving mirror, back in the stationary system. It changes by the same factor as the reflected amplitude."
+r1: "Doppler's principle with $-v$ carries the reflected frequency from $k$ back to $K$, and the first two moves express it through the incident frequency. The working is the same as for the amplitude two displays back, since the amplitude and the frequency transform by the same factor, and so it gives the same final factor, over $1 - \\left( \\frac{v}{V} \\right)^2$. The page prints the last denominator as $\\left( 1 - \\frac{v}{V} \\right)^2$, which the middle member of the display does not give. For a mirror receding at $v = 0.6 \\, V$ from light that falls straight on it, the reflected frequency is a quarter of the incident one."
+r2:
+  - latex: "\\nu''' = \\nu'' \\frac{1 + \\frac{v}{V} \\cos \\varphi''}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
+    why: "Back to $K$: Doppler's principle with $-v$ for $v$, and the reflected light's angle in $k$."
+  - latex: "\\nu'' = \\nu' = \\nu \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
+    why: "The first two moves: Doppler's principle into $k$, and reflection unchanged in frequency."
+  - latex: "1 + \\frac{v}{V} \\cos \\varphi'' = \\frac{1 - 2 \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2}{1 - \\frac{v}{V} \\cos \\varphi}"
+    why: "As for the amplitude: reflection reverses the cosine, and aberration gives it in terms of $\\cos \\varphi$."
+  - latex: "\\nu''' = \\nu \\frac{1 - 2 \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2}"
+    why: "Multiply: the factor $1 - \\frac{v}{V} \\cos \\varphi$ cancels and the two square roots give $1 - \\left( \\frac{v}{V} \\right)^2$. The page's last member has $\\left( 1 - \\frac{v}{V} \\right)^2$ in its place."
+r3: "The source receipt records the printed denominator $\\left( 1 - \\frac{v}{V} \\right)^2$ as a suspected misprint for $1 - \\left( \\frac{v}{V} \\right)^2$ (err-typo-p915-1): composing the paper's own transformations on p. 914 and the display's middle member gives the latter, and the amplitude display just above it, built the same way, prints the latter. The German and English faces keep the printed reading (p. 915)."

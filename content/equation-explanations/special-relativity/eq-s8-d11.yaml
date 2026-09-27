@@ -1,0 +1,30 @@
+# special-relativity eq-s8-d11: what the display says, at every level (dispatch 281).
+# Written from the German of s8-p7 (p. 915) and its plate; every step was checked by hand.
+display: eq-s8-d11
+paper: special-relativity
+inWords:
+  - text: "The cosine of "
+  - text: "the reflected light's angle in the stationary system"
+    quantityId: propagationAngleReflectedStationary
+  - text: " is the cosine of "
+  - text: "its angle in the mirror's system"
+    quantityId: propagationAngleReflectedMoving
+  - text: " plus "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", divided by one plus that ratio times the same cosine; in terms of "
+  - text: "the angle of incidence"
+    quantityId: propagationAngleStationary
+  - text: ", it is minus one plus the square of the ratio times the cosine, less twice the ratio, over one minus twice the ratio times the cosine plus its square."
+r0: "The direction of the reflected light back in the stationary system. For a moving mirror the angle of reflection is not the angle of incidence."
+r1: "The law of aberration with $-v$ carries the reflected direction from $k$ back to $K$; then the first two moves express it through the angle of incidence. For $v = 0$ the long form is $-\\cos \\varphi$, ordinary reflection. For a moving mirror the reflected light leaves at a different angle. The light must overtake the mirror, so $\\cos \\varphi$ must exceed $\\frac{v}{V}$; for a mirror receding at a tenth of the velocity of light from light falling at $\\varphi = \\frac{\\pi}{3}$, the numerator is $1.01 \\cdot 0.5 - 0.2 = 0.305$ and the denominator $1 - 0.1 + 0.01 = 0.91$, so $\\cos \\varphi''' \\approx -0.34$ instead of the $-0.5$ of a mirror at rest."
+r2:
+  - latex: "\\cos \\varphi''' = \\frac{\\cos \\varphi'' + \\frac{v}{V}}{1 + \\frac{v}{V} \\cos \\varphi''}"
+    why: "Back to $K$: the law of aberration with $-v$ for $v$."
+  - latex: "\\cos \\varphi'' + \\frac{v}{V} = \\frac{-\\left( 1 + \\left( \\frac{v}{V} \\right)^2 \\right) \\cos \\varphi + 2 \\frac{v}{V}}{1 - \\frac{v}{V} \\cos \\varphi}"
+    why: "Put in $\\cos \\varphi'' = -\\frac{\\cos \\varphi - \\frac{v}{V}}{1 - \\frac{v}{V} \\cos \\varphi}$ and bring $\\frac{v}{V}$ over the same denominator: $-\\cos \\varphi + \\frac{v}{V} + \\frac{v}{V} - \\left( \\frac{v}{V} \\right)^2 \\cos \\varphi$."
+  - latex: "\\cos \\varphi''' = -\\frac{\\left( 1 + \\left( \\frac{v}{V} \\right)^2 \\right) \\cos \\varphi - 2 \\frac{v}{V}}{1 - 2 \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2}"
+    why: "Divide by $1 + \\frac{v}{V} \\cos \\varphi''$, which the previous display found to be $\\frac{1 - 2 \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2}{1 - \\frac{v}{V} \\cos \\varphi}$; the denominators $1 - \\frac{v}{V} \\cos \\varphi$ cancel."

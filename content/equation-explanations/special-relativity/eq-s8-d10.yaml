@@ -1,0 +1,37 @@
+# special-relativity eq-s8-d10: what the display says, at every level (dispatch 281).
+# Written from the German of s8-p7 (p. 915) and its plate; every step was checked by hand.
+display: eq-s8-d10
+paper: special-relativity
+inWords:
+  - text: "The amplitude of the reflected light in the stationary system"
+    quantityId: lightAmplitudeReflectedStationary
+  - text: " is "
+  - text: "its amplitude in the mirror's system"
+    quantityId: lightAmplitudeReflectedMoving
+  - text: " times one plus "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " times the cosine of "
+  - text: "its angle there"
+    quantityId: propagationAngleReflectedMoving
+  - text: ", divided by the square root of one minus the square of that ratio; in terms of "
+  - text: "the incident amplitude"
+    quantityId: lightAmplitudeStationary
+  - text: " and "
+  - text: "the angle of incidence"
+    quantityId: propagationAngleStationary
+  - text: ", this is one minus twice the ratio times the cosine plus its square, over one minus its square."
+r0: "The third move: the reflected light's amplitude transformed back to the stationary system, and then written in terms of the incident light alone."
+r1: "Going back from $k$ to $K$ is the transformation with velocity $-v$, so § 7's amplitude formula applies with $-v$ in place of $v$ and the angle measured in $k$. Putting in the first two moves gives the reflected amplitude in terms of the incident amplitude and angle. A mirror receding from light that falls straight on it ($\\varphi = 0$) returns light of amplitude $A \\frac{1 - v/V}{1 + v/V}$: at $v = 0.6 \\, V$, a quarter of $A$."
+r2:
+  - latex: "A''' = A'' \\frac{1 + \\frac{v}{V} \\cos \\varphi''}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
+    why: "Back to $K$: § 7's amplitude formula with $-v$ for $v$, and $\\varphi''$ for the angle."
+  - latex: "1 + \\frac{v}{V} \\cos \\varphi'' = 1 - \\frac{v}{V} \\frac{\\cos \\varphi - \\frac{v}{V}}{1 - \\frac{v}{V} \\cos \\varphi}"
+    why: "Reflection gave $\\cos \\varphi'' = -\\cos \\varphi'$, and aberration gave $\\cos \\varphi'$ in terms of $\\cos \\varphi$."
+  - latex: "1 + \\frac{v}{V} \\cos \\varphi'' = \\frac{1 - 2 \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2}{1 - \\frac{v}{V} \\cos \\varphi}"
+    why: "Over the common denominator the numerator is $1 - \\frac{v}{V} \\cos \\varphi - \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2$."
+  - latex: "A''' = A \\frac{1 - 2 \\frac{v}{V} \\cos \\varphi + \\left( \\frac{v}{V} \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2}"
+    why: "With $A'' = A' = A \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}$, the factor $1 - \\frac{v}{V} \\cos \\varphi$ cancels and the two square roots multiply to $1 - \\left( \\frac{v}{V} \\right)^2$."
