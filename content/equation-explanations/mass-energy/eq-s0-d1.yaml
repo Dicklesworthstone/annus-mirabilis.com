@@ -1,0 +1,32 @@
+# mass-energy eq-s0-d1: what the display says, at every level (dispatch 278).
+# Written from the German of s0-p5 and its footnotes (p. 639) and the plate of that page.
+display: eq-s0-d1
+paper: mass-energy
+inWords:
+  - text: "The energy of the light measured in the moving system"
+    quantityId: lightComplexEnergyMoving
+  - text: " is "
+  - text: "its energy in the system the light was described in first"
+    quantityId: lightComplexEnergyStationary
+  - text: ", times a factor set by "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " against "
+  - text: "the speed of light"
+    quantityId: speedOfLight
+  - text: ", and by "
+  - text: "the angle between the light's direction of travel and the x-axis"
+    quantityId: propagationAngleStationary
+  - text: "."
+r0: "The same light carries different amounts of energy for two observers in relative motion, and how much depends on the direction the light travels. This is the one result the paper takes over from the electrodynamics paper, and everything after it is built on this line."
+r1: "A system of plane light waves has energy $l$ referred to the coordinate system $(x, y, z)$, and its ray direction, the wave normal, makes the angle $\\varphi$ with the $x$-axis. Now introduce a second system $(\\xi, \\eta, \\zeta)$ in uniform parallel translation, whose origin moves with the speed $v$ along the $x$-axis. The same quantity of light, measured in $(\\xi, \\eta, \\zeta)$, has the energy $l^*$ this display gives, where $V$ is the speed of light. Two things vary. The square root in the denominator does not depend on direction and makes the measured energy larger. The factor $1 - \\frac{v}{V} \\cos \\varphi$ does depend on direction: light sent forward along the motion counts for less in the moving system, light sent backward for more. Einstein does not derive this here. He states that he derived it in section 8 of the electrodynamics paper, and says of it only: we make use of this result in what follows."
+r2:
+  - latex: "l^* = l \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}}"
+    why: "The result as the paper prints it on page 639, taken over from section 8 of the electrodynamics paper. The steps below do not derive it; they read what it says in the three directions the argument will use."
+  - latex: "l^* = l \\frac{1 - \\frac{v}{V}}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}} = l \\sqrt{\\frac{1 - \\frac{v}{V}}{1 + \\frac{v}{V}}}"
+    why: "Light sent along the $x$-axis, in the direction the second system travels, has $\\cos \\varphi = 1$. The square root factors as $\\sqrt{1 - \\frac{v}{V}} \\sqrt{1 + \\frac{v}{V}}$, one of which cancels the numerator. The moving observer measures less energy than $l$."
+  - latex: "l^* = l \\sqrt{\\frac{1 + \\frac{v}{V}}{1 - \\frac{v}{V}}}"
+    why: "Light sent the opposite way has $\\cos \\varphi = -1$, which turns the numerator into $1 + \\frac{v}{V}$ and reverses the ratio. The moving observer measures more energy than $l$. The paper uses this case and the one above together, since the body emits equally in two opposite directions."
+  - latex: "l^* = \\frac{l}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}}"
+    why: "Light sent across the motion, at right angles to the $x$-axis in the system $(x, y, z)$, has $\\cos \\varphi = 0$, and only the square root is left. Whatever the direction, the measured energy of a fixed quantity of light differs between the two systems."
+r3: "The paper carries a footnote at this point, 'A. Einstein, Ann. d. Phys. 17. p. 891. 1905', which is the electrodynamics paper of the same year, and the text says the result was derived there in section 8. A second footnote adds that the principle of the constancy of the speed of light used there is contained in Maxwell's equations. $V$ is the letter the 1905 papers print for the speed of light; a reader today writes $c$. The quantity transformed is the energy of a light complex, and the paper's whole argument needs nothing else from relativity."

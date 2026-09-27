@@ -1,0 +1,39 @@
+# mass-energy eq-s0-d4: what the display says, at every level (dispatch 278).
+# Written from the German of s0-p7 (pp. 640 to 641) and the plate of page 640.
+display: eq-s0-d4
+paper: mass-energy
+inWords:
+  - text: "Take "
+  - text: "the body's energy in the moving system before the emission"
+    quantityId: bodyEnergyMovingBefore
+  - text: " less "
+  - text: "its energy in the system it rests in"
+    quantityId: bodyEnergyRestBefore
+  - text: ", and subtract the same difference after, between "
+  - text: "the moving system's value"
+    quantityId: bodyEnergyMovingAfter
+  - text: " and "
+  - text: "the resting system's value"
+    quantityId: bodyEnergyRestAfter
+  - text: ". What is left is "
+  - text: "the energy carried off by the light"
+    quantityId: emittedEnergyRestFrame
+  - text: ", times a factor that depends only on "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " and "
+  - text: "the speed of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "Subtracting the body's two sets of books removes the energies themselves and leaves only how much the two systems disagree. The disagreement changes during the emission, by an amount fixed entirely by the light emitted and the speed."
+r1: "Two accounts of one process now stand side by side: $E_0 = E_1 + L$ in the system where the body rests, and $H_0 = H_1 + \\frac{L}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}}$ in the moving one. Neither $E$ nor $H$ is known, and the paper never needs to know them. Subtracting one equation from the other, as the paper says, cancels the unknowns in pairs and leaves the difference $H - E$ before the emission set against the same difference after. What remains on the right is $L$ times the amount by which the square root's reciprocal exceeds one. If the body were at rest in both systems, or if no light were emitted, the right side would be zero and the two differences would agree. The emission has changed the gap between the two accounts, and the size of that change does not depend on what the body is made of."
+r2:
+  - latex: "E_0 = E_1 + L"
+    why: "The account in the system where the body rests, with the two halves added, as the previous display gives it."
+  - latex: "H_0 = H_1 + \\frac{L}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}}"
+    why: "The account in the moving system, where the same light carries more energy."
+  - latex: "H_0 - E_0 = H_1 - E_1 + \\frac{L}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}} - L"
+    why: "Subtract the first equation from the second. On the left the two energies before the emission stand together, on the right the two after it, along with the difference of the two light terms."
+  - latex: "(H_0 - E_0) - (H_1 - E_1) = L \\left\\{ \\frac{1}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}} - 1 \\right\\}"
+    why: "Bring the energies after the emission to the left and take $L$ outside. The unknown energies appear only in the two differences, and what multiplies $L$ is a pure number fixed by the speed."
+r3: "This step is arithmetic and carries no physics of its own. It does not yet say that the quantity it has isolated is a kinetic energy: that reading comes on page 641, from a premise about the arbitrary constants in $H$ and $E$. The paper keeps the two apart, and so does this edition."

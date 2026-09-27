@@ -1,0 +1,35 @@
+# mass-energy eq-s0-d3: what the display says, at every level (dispatch 278).
+# Written from the German of s0-p7 (pp. 640 to 641) and the plate of page 640.
+display: eq-s0-d3
+paper: mass-energy
+inWords:
+  - text: "The body's energy before it emits"
+    quantityId: bodyEnergyMovingBefore
+  - text: ", measured in the moving system, equals "
+  - text: "its energy after"
+    quantityId: bodyEnergyMovingAfter
+  - text: " plus the two light complexes as that system measures them, which together come to "
+  - text: "the energy carried off by the light"
+    quantityId: emittedEnergyRestFrame
+  - text: " divided by the square root set by "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " against "
+  - text: "the speed of light"
+    quantityId: speedOfLight
+  - text: ", with no trace left of "
+  - text: "the angle the light was sent at"
+    quantityId: emissionAngle
+  - text: "."
+r0: "The same emission, entered in the traveller's books. Each half of the light transforms by the rule of the first display, one gaining what the other loses, so the direction of the emission drops out and the total is larger than in the body's own system."
+r1: "By the principle of relativity, the energy principle holds in the moving system $(\\xi, \\eta, \\zeta)$ as well. Call the body's energies there $H_0$ before the emission and $H_1$ after. Each of the two light complexes must now be measured in that system, and the relation of page 639 does it. The first, sent at the angle $\\varphi$, carries the factor $1 - \\frac{v}{V} \\cos \\varphi$; the second, sent the opposite way, carries $1 + \\frac{v}{V} \\cos \\varphi$, because reversing the ray direction reverses the sign of the cosine. Added, the two cosine terms cancel and what is left is $\\frac{L}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}}$. The angle has gone, and the traveller records the light as carrying more energy than $L$. This is the whole asymmetry the paper needs: the same emission costs the body $L$ in one system and more than $L$ in the other."
+r2:
+  - latex: "\\frac{L}{2} \\frac{1 - \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}}"
+    why: "The first light complex, of energy $\\frac{L}{2}$ in the system where the body rests, measured in the moving system by the relation of page 639."
+  - latex: "\\frac{L}{2} \\frac{1 + \\frac{v}{V} \\cos \\varphi}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}}"
+    why: "The second complex travels the opposite way, so its ray direction makes the supplementary angle with the $x$-axis and its cosine changes sign. Nothing else in the factor changes."
+  - latex: "\\frac{L}{2} \\frac{\\left(1 - \\frac{v}{V} \\cos \\varphi\\right) + \\left(1 + \\frac{v}{V} \\cos \\varphi\\right)}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}} = \\frac{L}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}}"
+    why: "Adding the two, the terms in $\\cos \\varphi$ cancel and the numerator is $2$, which the $\\frac{L}{2}$ in front turns into $L$. The result no longer depends on the direction of the emission."
+  - latex: "H_0 = H_1 + \\frac{L}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}}"
+    why: "The energy principle in the moving system, with the light's total energy there written out. Since the square root is smaller than one, the traveller's books show the body losing more than $L$."
+r3: "The two emissions are equal in the system where the body rests, and unequal in the moving one; only their sum is free of the angle. Einstein keeps the angle $\\varphi$ general and lets it cancel, rather than choosing a convenient direction, so the conclusion does not depend on how the body was oriented. From this paragraph on, $\\varphi$ is the angle the light is emitted at, where on page 639 it was the direction of a light complex already present."

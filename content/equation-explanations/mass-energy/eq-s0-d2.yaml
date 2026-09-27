@@ -1,0 +1,26 @@
+# mass-energy eq-s0-d2: what the display says, at every level (dispatch 278).
+# Written from the German of s0-p6 and s0-p7 (pp. 640 to 641) and the plate of page 640.
+display: eq-s0-d2
+paper: mass-energy
+inWords:
+  - text: "The body's energy before it emits"
+    quantityId: bodyEnergyRestBefore
+  - text: ", measured in the system it rests in, equals "
+  - text: "its energy after"
+    quantityId: bodyEnergyRestAfter
+  - text: " plus the two halves of "
+  - text: "the energy carried off by the light"
+    quantityId: emittedEnergyRestFrame
+  - text: "."
+r0: "The body sends out two equal amounts of light in opposite directions and stays at rest. In the system where it rests, the books balance in the plainest way: the energy it loses is the energy the light carries off."
+r1: "A body rests in the system $(x, y, z)$ and has the energy $E_0$ there. It now emits plane light waves of energy $\\frac{L}{2}$ in a direction making the angle $\\varphi$ with the $x$-axis, and at the same time an equal quantity of light in the opposite direction. Because the two emissions are equal and opposite, the body stays at rest in $(x, y, z)$. Call $E_1$ its energy after the emission, in the same system. The principle of energy conservation then reads as this display: what the body had is what it has left plus what the two light complexes carry away. The bracket holds the two emissions separately rather than their sum $L$, and that is deliberate: in the moving system of the next display they no longer have equal energies, and each must be transformed on its own."
+r2:
+  - latex: "E_0"
+    why: "The energy of the body before the emission, referred to the system $(x, y, z)$ in which it rests. The paper assigns no absolute value to it, and never needs one."
+  - latex: "\\frac{L}{2} + \\frac{L}{2}"
+    why: "The two light complexes, each of energy $\\frac{L}{2}$ measured in $(x, y, z)$, one at the angle $\\varphi$ to the $x$-axis and one in the opposite direction. $L$ is the name for what they carry off together."
+  - latex: "E_0 = E_1 + \\left[ \\frac{L}{2} + \\frac{L}{2} \\right]"
+    why: "The energy principle applied in $(x, y, z)$: the energy before equals the energy left in the body plus the energy of the light."
+  - latex: "E_0 - E_1 = L"
+    why: "The two halves add to $L$, so in the body's own system the drop in its energy is exactly the energy emitted. On its own this says nothing about mass; the second system is what makes the argument."
+r3: "The paper states that the body remains at rest in $(x, y, z)$ during the emission, which is why an unchanged body energy may be compared before and after. This holds because the two light complexes are equal and opposite. A single pulse would set the body moving and the comparison would not be between two states of rest."

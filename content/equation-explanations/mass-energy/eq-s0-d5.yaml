@@ -1,0 +1,37 @@
+# mass-energy eq-s0-d5: what the display says, at every level (dispatch 278).
+# Written from the German of s0-p7 (p. 641) and the plate of that page.
+display: eq-s0-d5
+paper: mass-energy
+inWords:
+  - text: "Before the emission, "
+  - text: "the body's energy in the moving system"
+    quantityId: bodyEnergyMovingBefore
+  - text: " less "
+  - text: "its energy in the system it rests in"
+    quantityId: bodyEnergyRestBefore
+  - text: " is "
+  - text: "the energy of its motion as the moving system reckons it"
+    quantityId: kineticEnergyBefore
+  - text: ", plus "
+  - text: "a constant left over from the arbitrary zero of each energy"
+    quantityId: additiveEnergyConstant
+  - text: ". After the emission the same holds, with "
+  - text: "the moving system's value"
+    quantityId: bodyEnergyMovingAfter
+  - text: ", "
+  - text: "the resting system's value"
+    quantityId: bodyEnergyRestAfter
+  - text: " and "
+  - text: "the energy of motion after"
+    quantityId: kineticEnergyAfter
+  - text: "."
+r0: "The gap between the two accounts is named. One system sees the body at rest and the other sees it moving, so the difference between their energies is the energy of its motion, apart from a constant that the choice of a zero point leaves free."
+r1: "The paper now reads the two differences of the previous display. $H$ and $E$ are energies of the same body referred to two systems in motion relative to each other, and in one of them, $(x, y, z)$, the body rests. The difference $H - E$ can therefore differ from the kinetic energy $K$ of the body with respect to the other system, $(\\xi, \\eta, \\zeta)$, only by an additive constant $C$, which depends on the choice of the arbitrary additive constants of the energies $H$ and $E$. So one may set $H_0 - E_0 = K_0 + C$ before the emission and $H_1 - E_1 = K_1 + C$ after it. The same letter $C$ stands in both lines, and the paper gives the reason in one clause: $C$ does not change during the emission. That is the premise the argument turns on. Without it the two constants could differ and the subtraction of the next display would leave an unknown behind."
+r2:
+  - latex: "H_0 - E_0 = K_0 + C"
+    why: "Before the emission. The body is at rest in $(x, y, z)$ and moving with respect to $(\\xi, \\eta, \\zeta)$, so the two energies differ by the energy of that motion, up to a constant."
+  - latex: "H_1 - E_1 = K_1 + C"
+    why: "After the emission, in the same form. The body is still at rest in $(x, y, z)$, since the two light complexes were equal and opposite."
+  - latex: "C"
+    why: "The same constant in both lines. The paper's reason is that $C$ does not change during the light emission: it comes from the zero points chosen for $H$ and $E$, and the emission does not touch that choice."
+r3: "Einstein asserts, and does not prove, that $H - E$ can differ from the kinetic energy only by an additive constant. The step is a reading of two energy accounts, not a theorem about arbitrary extended systems, and the constancy of $C$ through the emission is a premise rather than a result. He supports the reading a few lines later by observing that the difference $K_0 - K_1$ depends on the speed in the same way as the kinetic energy of the electron in section 10 of the electrodynamics paper. That is a comparison offered after the fact, and it is not used as a further premise here."

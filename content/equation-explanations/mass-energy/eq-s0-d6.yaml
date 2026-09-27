@@ -1,0 +1,30 @@
+# mass-energy eq-s0-d6: what the display says, at every level (dispatch 278).
+# Written from the German of s0-p7 (p. 641) and the plate of that page.
+display: eq-s0-d6
+paper: mass-energy
+inWords:
+  - text: "The energy of the body's motion before the emission"
+    quantityId: kineticEnergyBefore
+  - text: ", less "
+  - text: "its energy of motion after"
+    quantityId: kineticEnergyAfter
+  - text: ", equals "
+  - text: "the energy carried off by the light"
+    quantityId: emittedEnergyRestFrame
+  - text: ", times a factor that depends only on "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " against "
+  - text: "the speed of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "Emitting light has cost the body some of its energy of motion, although nobody pushed it and its speed has not changed. How much it lost does not depend on what the body is made of, only on the energy it radiated and how fast it is travelling."
+r1: "Put the two lines of the previous display into the subtraction of the one before that. On the left, $(H_0 - E_0) - (H_1 - E_1)$ becomes $(K_0 + C) - (K_1 + C)$, and the constant cancels against itself, which is exactly what the premise that $C$ does not change during the emission was for. What is left is $K_0 - K_1$, the drop in the body's energy of motion with respect to $(\\xi, \\eta, \\zeta)$, and it equals $L$ times the amount by which the square root's reciprocal exceeds one. The paper draws two conclusions from it. The kinetic energy of the body with respect to $(\\xi, \\eta, \\zeta)$ decreases through the emission of light, by an amount independent of the qualities of the body. And the difference $K_0 - K_1$ depends on the speed in the same way as the kinetic energy of the electron in section 10 of the electrodynamics paper. The body has not been slowed: it rests in $(x, y, z)$ throughout, before and after. Its speed relative to the traveller is the same $v$ as before. Something other than the speed must have fallen."
+r2:
+  - latex: "(K_0 + C) - (K_1 + C) = L \\left\\{ \\frac{1}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}} - 1 \\right\\}"
+    why: "The two readings of the previous display, put into the subtraction of the one before it. The left side is the difference of the two energy gaps, now named."
+  - latex: "K_0 - K_1 = L \\left\\{ \\frac{1}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}} - 1 \\right\\}"
+    why: "The constant appears once with each sign and cancels. Every unknown has now gone from the account: what is left relates a drop in the energy of motion to the energy emitted."
+  - latex: "K_0 - K_1 = 0"
+    why: "The case $v = 0$, where the square root is one and the brace vanishes. An observer at rest beside the body sees no energy of motion before or after, and the whole effect is invisible. The argument needs the second system to be moving."
+r3: "The paper states that the drop is independent of the qualities of the body, which is what makes the conclusion general rather than a fact about one lamp. The comparison with the electron's kinetic energy in section 10 of the electrodynamics paper is offered as a check on the reading of $K$, not as a premise. Nothing here yet mentions mass: this line relates an energy of motion to an energy radiated, and the step to mass comes with the low-speed form on the same page."

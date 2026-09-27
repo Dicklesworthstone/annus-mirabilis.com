@@ -1,0 +1,32 @@
+# mass-energy eq-s0-d7: what the display says, at every level (dispatch 278).
+# Written from the German of s0-p11 to s0-p13 (p. 641) and the plate of that page.
+display: eq-s0-d7
+paper: mass-energy
+inWords:
+  - text: "The energy of the body's motion before the emission"
+    quantityId: kineticEnergyBefore
+  - text: ", less "
+  - text: "its energy of motion after"
+    quantityId: kineticEnergyAfter
+  - text: ", is "
+  - text: "the energy carried off by the light"
+    quantityId: emittedEnergyRestFrame
+  - text: " divided by "
+  - text: "the square of the speed of light"
+    quantityId: speedOfLight
+  - text: ", times half the square of "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: "."
+r0: "At speeds well below light speed the loss takes the shape of an ordinary energy of motion, one half a coefficient times the speed squared. The coefficient has fallen by the emitted energy divided by the square of the speed of light, and that coefficient is the body's mass."
+r1: "Neglecting magnitudes of the fourth and higher orders, the paper says, we may set $K_0 - K_1 = \\frac{L}{V^2} \\frac{v^2}{2}$. The exact brace of the previous display is a series in $\\frac{v}{V}$ whose first term is $\\frac{1}{2} \\left(\\frac{v}{V}\\right)^2$, and dropping the rest leaves this. The form is the point. An energy of motion at low speed is half the body's mass times the square of its speed, so any expression of the shape $\\frac{v^2}{2}$ times a coefficient invites the coefficient to be read as a mass. Here the drop in the energy of motion is $\\frac{v^2}{2}$ times $\\frac{L}{V^2}$, and since the speed has not changed, the coefficient has. From this equation, the paper writes, it follows immediately: if a body gives off the energy $L$ in the form of radiation, its mass diminishes by $\\frac{L}{V^2}$. The approximation is what makes the reading possible, and it holds only while $v$ is small compared with $V$; the exact relation of the previous display stands at any speed."
+r2:
+  - latex: "\\frac{1}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}} = 1 + \\frac{1}{2} \\left(\\frac{v}{V}\\right)^2 + \\frac{3}{8} \\left(\\frac{v}{V}\\right)^4 + \\ldots"
+    why: "Expand the reciprocal square root as a series in $\\frac{v}{V}$. The paper does not print the series; it says only that magnitudes of the fourth and higher orders are neglected, which is this expansion cut after its second term."
+  - latex: "\\frac{1}{\\sqrt{1 - \\left(\\frac{v}{V}\\right)^2}} - 1 = \\frac{1}{2} \\left(\\frac{v}{V}\\right)^2"
+    why: "The brace of the previous display, with the fourth-order term and everything beyond it dropped. At one tenth of the speed of light the discarded term is under one percent of the one kept."
+  - latex: "K_0 - K_1 = L \\cdot \\frac{1}{2} \\left(\\frac{v}{V}\\right)^2 = \\frac{L}{V^2} \\frac{v^2}{2}"
+    why: "Multiply by $L$ and separate the two factors: the speed appears only as $\\frac{v^2}{2}$, and everything else is $\\frac{L}{V^2}$."
+  - latex: "\\frac{L}{V^2}"
+    why: "The coefficient of $\\frac{v^2}{2}$ is what an energy of motion at low speed carries as its mass. The body's speed is unchanged, so the fall in the energy of motion is a fall in that coefficient: the mass diminishes by $\\frac{L}{V^2}$."
+r3: "The paper does not write the equation a reader may expect here. It states the result in words, that a body giving off the energy $L$ as radiation loses $\\frac{L}{V^2}$ of mass, and then in the units of its day: the mass changes by $L$ divided by $9 \\cdot 10^{20}$, with the energy in erg and the mass in grams, which is $V^2$ in centimetres per second squared. Einstein adds that whether the energy withdrawn passes into radiation is immaterial, and reaches the general statement that the mass of a body is a measure of its energy content. The closing paragraph proposes a test: bodies whose energy content is variable in a high degree, radium salts for instance, might make one possible. This calculation gives a change of mass, not an absolute energy content."
