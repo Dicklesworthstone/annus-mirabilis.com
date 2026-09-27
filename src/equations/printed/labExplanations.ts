@@ -415,6 +415,20 @@ function compileOwn(
   const inWords: WordsPhrase[] = inWordsRaw.flatMap((value): WordsPhrase[] => {
     const phrase = (value ?? {}) as { text?: unknown; quantityId?: unknown };
     if (typeof phrase.text !== "string" || phrase.text === "") return [];
+    // A phrase whose text carries the name of a field is a record whose YAML did not parse the way
+    // it was written. The site's own parser (content/provenance/yaml.ts) accepts shapes that
+    // standard YAML refuses, and when it does it hands the raw source back as the value: a phrase
+    // written `- text: "A", "quantityId": b` came back as one phrase whose text was that whole
+    // line, quotes and all, and would have been read by visitors. No phrase a reader should see
+    // contains this field's name, so this catches the class rather than the one instance.
+    if (phrase.text.includes("quantityId")) {
+      problem(
+        "lab-explanation-unreadable",
+        where,
+        `${where} inWords: a phrase's text contains "quantityId", so its YAML did not parse as written: ${JSON.stringify(phrase.text.slice(0, 72))}.`,
+      );
+      return [{ text: phrase.text }];
+    }
     if (typeof phrase.quantityId !== "string") return [{ text: phrase.text }];
     if (!bound.has(phrase.quantityId)) {
       problem(

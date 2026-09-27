@@ -180,6 +180,21 @@ describe("the laboratories' formula explanations", () => {
       expect(codes).toContain("lab-explanation-missing-level");
     });
 
+    test("a phrase whose YAML did not parse as written", () => {
+      // The site's parser accepts `- text: "A", "quantityId": b` and hands back one phrase whose
+      // text is that whole line. It reached a committed record once and the census called it clean.
+      const codes = codesOf(
+        record({
+          latex: MODERN_LAW,
+          own: {
+            inWords: [{ text: '"The frequency", "quantityId": frequency' }],
+            r1: "A full explanation.",
+          },
+        }),
+      );
+      expect(codes).toContain("lab-explanation-unreadable");
+    });
+
     test("a file naming a lab other than its own", () => {
       expect(codesOf({ lab: "lq-09", formulas: [] })).toContain("lab-explanation-misfiled");
     });
