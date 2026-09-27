@@ -8,6 +8,7 @@ import {
 import {
   apparentSpeed,
   intervalProbability,
+  osmoticPressure,
   rmsDisplacement,
   stokesEinsteinD,
 } from "../../physics/reference/diffusion.ts";
@@ -109,7 +110,29 @@ export type OwnerContext = Readonly<{
   inputs: Record<string, number>;
   constantSetId: string;
 }>;
-export type OwnerFn = (ctx: OwnerContext) => Record<string, number>;
+/**
+ * WHAT AN OWNER MAY SAY WHEN IT WILL NOT GIVE A NUMBER (am-nxbq, dispatch 304). Until now an owner
+ * returned numbers or threw, so a model that refuses, which is the one thing AGENTS.md makes
+ * mandatory for an acceptance case, had nowhere to be recorded: `diffusionRms` threw away
+ * `stokes-gas-medium` as "stokesEinsteinD did not return a value". A refusal returned this way is
+ * compared against the scenario's own `expected.status`, which the schema has always declared and
+ * nothing read.
+ *
+ * The three fields are the ones the schema names: the output that was refused, the typed result
+ * status, and the reason code, which for a refusal is a code in the refusal registry.
+ */
+export type OwnerRefusal = Readonly<{
+  refused: Readonly<{ outputId: string; status: string; reasonCode: string }>;
+}>;
+
+export type OwnerResult = Record<string, number> | OwnerRefusal;
+
+/** Whether an owner refused rather than returning numbers. */
+export function isOwnerRefusal(result: OwnerResult): result is OwnerRefusal {
+  return typeof result === "object" && result !== null && "refused" in result;
+}
+
+export type OwnerFn = (ctx: OwnerContext) => OwnerResult;
 export type OwnerRecord = Readonly<{
   id: string;
   fn: OwnerFn;
@@ -227,7 +250,36 @@ function gaussianIntervalProbability(ctx: OwnerContext): Record<string, number> 
   }
   return { intervalProbability: p.result.value };
 }
-function diffusionRms(ctx: OwnerContext): Record<string, number> {
+/**
+ * BM-02's osmotic pressure, and the refusal it gives for an inadmissible input (am-nxbq, dispatch
+ * 304). The reference evaluator refuses a temperature at or below zero, which is a value a reader
+ * can set from the instrument's own temperature control, and this carries that refusal out where a
+ * scenario's `expected.status` can be compared against it.
+ */
+function osmoticPressureOwner(ctx: OwnerContext): OwnerResult {
+  const set =
+    ctx.constantSetId === "modern-si-2019"
+      ? getConstantSet("modern-si-2019")
+      : printedBrownianSet();
+  const evaluation = osmoticPressure(
+    { n: num(ctx.inputs, "numberDensity"), T: num(ctx.inputs, "temperature") },
+    set,
+  );
+  if (evaluation.result.status !== "value" || typeof evaluation.result.value !== "number")
+    return {
+      refused: {
+        outputId: "osmoticPressure",
+        status: evaluation.result.status,
+        reasonCode:
+          "condition" in evaluation.result
+            ? String(evaluation.result.condition)
+            : evaluation.result.status,
+      },
+    };
+  return { osmoticPressure: evaluation.result.value };
+}
+
+function diffusionRms(ctx: OwnerContext): OwnerResult {
   const set =
     ctx.constantSetId === "modern-si-2019"
       ? getConstantSet("modern-si-2019")
@@ -241,7 +293,14 @@ function diffusionRms(ctx: OwnerContext): Record<string, number> {
     set,
   );
   if (D.result.status !== "value" || typeof D.result.value !== "number") {
-    throw new Error("stokesEinsteinD did not return a value.");
+    // The model refused, and the code it refused with is the thing an acceptance case is for.
+    return {
+      refused: {
+        outputId: "diffusionCoefficient",
+        status: D.result.status,
+        reasonCode: "condition" in D.result ? String(D.result.condition) : D.result.status,
+      },
+    };
   }
   const rms = rmsDisplacement(D.result.value, num(ctx.inputs, "elapsedTime"));
   if (rms.result.status !== "value" || typeof rms.result.value !== "number") {
@@ -330,6 +389,11 @@ const OWNERS: OwnerRecord[] = [
     id: "diffusion.stokesEinsteinRms",
     sourcePath: diffusionPath,
     fn: diffusionRms,
+  },
+  {
+    id: "diffusion.osmoticPressure",
+    sourcePath: diffusionPath,
+    fn: osmoticPressureOwner,
   },
   {
     id: "diffusion.walkKernelDiffusivity",

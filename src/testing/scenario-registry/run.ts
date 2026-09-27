@@ -17,7 +17,20 @@ import { checkEditorialInputs } from "./editorialInputs.ts";
 import { guardIllustrativeInputs, historicalDerivedValueFlag } from "./evidentialRoleGuard.ts";
 import { checkIdentityIndependence, readOwnerSource } from "./identityRoutes.ts";
 import type { LoadedScenario } from "./load.ts";
-import { getOwner, ownerSourceMap } from "./owners.ts";
+import { getOwner, isOwnerRefusal, type OwnerResult, ownerSourceMap } from "./owners.ts";
+
+/**
+ * An owner's numbers, or the refusal it gave instead (am-nxbq, dispatch 304). Every route but the
+ * main one wants numbers and has nothing to compare a refusal against, so it says so by name rather
+ * than indexing a refusal as though it held them.
+ */
+function numbersOrThrow(result: OwnerResult, owner: string): Record<string, number> {
+  if (isOwnerRefusal(result))
+    throw new Error(
+      `${owner} refused with ${result.refused.reasonCode} (${result.refused.status}); this route compares numbers and has no expected.status to compare it against.`,
+    );
+  return result;
+}
 
 export type ScenarioRunStatus = "passed" | "failed" | "not-available";
 
@@ -52,8 +65,14 @@ export function runCrossOwnerScenario(
   const ownerA = getOwner(ownerAId);
   const ownerB = getOwner(ownerBId);
   const inputs = inputNumbers(scenario);
-  const outA = ownerA.fn({ inputs, constantSetId: scenario.constantSetId });
-  const outB = ownerB.fn({ inputs, constantSetId: scenario.constantSetId });
+  const outA = numbersOrThrow(
+    ownerA.fn({ inputs, constantSetId: scenario.constantSetId }),
+    ownerAId,
+  );
+  const outB = numbersOrThrow(
+    ownerB.fn({ inputs, constantSetId: scenario.constantSetId }),
+    ownerBId,
+  );
 
   const sharedKeys = Object.keys(outA).filter((k) => k in outB);
   const deviationByOutput: Record<string, number> = {};
@@ -447,14 +466,20 @@ function runOne(
     if (!routeA || !routeB) {
       return { ...base, status: "not-available", message: "Identity is missing a route." };
     }
-    const first = getOwner(routeA.owner).fn({
-      inputs: inputNumbers(scenario),
-      constantSetId: scenario.constantSetId,
-    });
-    const second = getOwner(routeB.owner).fn({
-      inputs: inputNumbers(scenario),
-      constantSetId: scenario.constantSetId,
-    });
+    const first = numbersOrThrow(
+      getOwner(routeA.owner).fn({
+        inputs: inputNumbers(scenario),
+        constantSetId: scenario.constantSetId,
+      }),
+      routeA.owner,
+    );
+    const second = numbersOrThrow(
+      getOwner(routeB.owner).fn({
+        inputs: inputNumbers(scenario),
+        constantSetId: scenario.constantSetId,
+      }),
+      routeB.owner,
+    );
     extra.identityRouteResults = [first, second];
     const key = Object.keys(first)[0] ?? "value";
     const spec = scenario.expected.outputs?.[0]?.tolerance ?? {
@@ -506,7 +531,10 @@ function runOne(
     };
     const obsKey = scenario.observation?.observableId;
     const values = hyps.map((h) => {
-      const out = getOwner(h.owner).fn({ inputs, constantSetId: scenario.constantSetId });
+      const out = numbersOrThrow(
+        getOwner(h.owner).fn({ inputs, constantSetId: scenario.constantSetId }),
+        h.owner,
+      );
       const key = obsKey && obsKey in out ? obsKey : (Object.keys(out)[0] ?? "value");
       return out[key] ?? Number.NaN;
     });
@@ -559,10 +587,50 @@ function runOne(
     return { ...base, status: "passed", message: `Discrimination outcome ${compared.outcome}.` };
   }
 
-  const outputs = getOwner(scenario.owner).fn({
+  const owned = getOwner(scenario.owner).fn({
     inputs: inputNumbers(scenario),
     constantSetId: scenario.constantSetId,
   });
+
+  // A REFUSAL IS A RESULT, AND IT IS COMPARED (am-nxbq, dispatch 304). `expected.status` has been in
+  // the scenario schema from the start and nothing read it, so a scenario could declare a refusal
+  // and pass without one ever happening. These four branches are the whole of the comparison, and
+  // each says which of the two sides was wrong.
+  const wanted = scenario.expected.status;
+  if (isOwnerRefusal(owned)) {
+    const got = owned.refused;
+    extra.refused = got;
+    if (!wanted)
+      return {
+        ...base,
+        status: "failed",
+        message: `${scenario.owner} refused with ${got.reasonCode} (${got.status}) and the scenario expects numbers. A refusal is declared with expected.status.`,
+      };
+    if (wanted.status !== got.status || wanted.reasonCode !== got.reasonCode)
+      return {
+        ...base,
+        status: "failed",
+        message: `Expected ${wanted.status}/${wanted.reasonCode} on ${wanted.outputId}, and the owner refused with ${got.status}/${got.reasonCode} on ${got.outputId}.`,
+      };
+    if (wanted.outputId !== got.outputId)
+      return {
+        ...base,
+        status: "failed",
+        message: `The refusal ${got.reasonCode} was expected on ${wanted.outputId} and came on ${got.outputId}.`,
+      };
+    return {
+      ...base,
+      status: "passed",
+      message: `Refused as expected: ${got.status}/${got.reasonCode} on ${got.outputId}.`,
+    };
+  }
+  if (wanted)
+    return {
+      ...base,
+      status: "failed",
+      message: `The scenario expects ${wanted.status}/${wanted.reasonCode} on ${wanted.outputId} and ${scenario.owner} returned numbers.`,
+    };
+  const outputs = owned;
   extra.actual = outputs;
   if (scenario.transcription?.status === "verified-suspected-misprint") {
     extra.transcription = scenario.transcription;
