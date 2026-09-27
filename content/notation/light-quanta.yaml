@@ -200,7 +200,7 @@ entries:
 
   - id: lq.alpha.wienConstant
     paper: light-quanta
-    scope: ["lq-s1", "lq-s2"]
+    scope: ["lq-s1", "lq-s2", "lq-s4", "lq-s6"]
     glyph:
       unicode: "α"
       latex: "\\alpha"
@@ -224,6 +224,10 @@ entries:
           anchor: lq-s1-p1
         - sectionId: lq-s2
           anchor: lq-s2-p2
+        - sectionId: lq-s4
+          anchor: lq-s4-p1
+        - sectionId: lq-s6
+          anchor: lq-s6-p3
     # Moved from the note, which readers see, by dispatch 246
     #   (D-2026-09-25-no-review-status-banners): "This page never carries or corrects a printed value.
     #   A suspected misprint in the exponent of α is recorded with the scan's provenance, not here."
@@ -233,7 +237,7 @@ entries:
       anchor: lq-s2-p2
     verification:
       printed: true
-      checkedAgainst: "Plate of printed page 136 (public/figures/plates/pages/ap-17-132/136-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 133 carries no mathematics. α is first printed on page 136, in §2 (Planck's formula and its value). It is not printed in §1, whose only alphas are the Fourier phases of the footnote on page 135. An agent check, not a human review; human review pending."
+      checkedAgainst: "Plate of printed page 136 (public/figures/plates/pages/ap-17-132/136-1280.webp): glyph read by eye from the page image, not the text layer. The entry's former page 133 carries no mathematics. α is first printed on page 136, in §2 (Planck's formula and its value). It is not printed in §1, whose only alphas are the Fourier phases of the footnote on page 135. §4 prints it on page 139 in Wien's law ρ = αν³e^(-βν/T), which §4's first paragraph introduces, and in the displays that follow; §6 prints it on page 143 in both integrals of the display comparing the mean energy quantum with 3(R/N)T (both checked 2026-09-26 by agent:SapphireCastle from the plate images). An agent check, not a human review; human review pending."
       by: "agent:ConcordanceCheck-light-quanta"
       date: "2026-09-24"
 
