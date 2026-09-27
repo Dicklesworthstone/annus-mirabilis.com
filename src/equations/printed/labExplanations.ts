@@ -485,12 +485,19 @@ function compileOwn(
   return refusals === 0 ? levels : undefined;
 }
 
+/**
+ * The refusal this loader raises, with its code as the first argument at every throw site, as
+ * EquationExplanationsError takes its own. The code is at the site and not only inside the
+ * constructor because that is where the refusal scanner reads it: a throw whose first argument is a
+ * message alone is counted as a bare throw, which is undeclared debt rather than a typed refusal,
+ * and it fails the ratchet.
+ */
 export class LabExplanationsError extends Error {
   readonly code: "lab-explanations-refused";
-  constructor(message: string) {
-    super(`lab-explanations-refused: ${message}`);
+  constructor(code: "lab-explanations-refused", message: string) {
+    super(`${code}: ${message}`);
     this.name = "LabExplanationsError";
-    this.code = "lab-explanations-refused";
+    this.code = code;
   }
 }
 
@@ -503,6 +510,7 @@ export class LabExplanationsError extends Error {
 export function assertLabExplanationsPublishable(checked: LabExplanations): void {
   if (checked.problems.length > 0)
     throw new LabExplanationsError(
+      "lab-explanations-refused",
       `${LAB_EXPLANATIONS_DIR}/:\n${checked.problems.map((p) => `  ${p.code}: ${p.message}`).join("\n")}`,
     );
 }

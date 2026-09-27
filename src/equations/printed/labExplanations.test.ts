@@ -9,7 +9,12 @@
  * the length of one assertion.
  */
 import { describe, expect, test } from "bun:test";
-import { checkLabExplanations, type LabExplanationSource } from "./labExplanations.ts";
+import {
+  assertLabExplanationsPublishable,
+  checkLabExplanations,
+  type LabExplanationSource,
+  LabExplanationsError,
+} from "./labExplanations.ts";
 import { labFormulaSites } from "./labFormulaSites.ts";
 
 /** LQ-08's three displayed formulas, as its page writes them. */
@@ -197,6 +202,24 @@ describe("the laboratories' formula explanations", () => {
 
     test("a file naming a lab other than its own", () => {
       expect(codesOf({ lab: "lq-09", formulas: [] })).toContain("lab-explanation-misfiled");
+    });
+
+    test("the build's refusal carries its code, and a clean set passes", () => {
+      const planted = checkLabExplanations(process.cwd(), {
+        sources: [{ lab: "lq-08", raw: record({ latex: "E = m c^2", display: "eq-s8-d2" }) }],
+      });
+      let caught: unknown;
+      try {
+        assertLabExplanationsPublishable(planted);
+      } catch (error) {
+        caught = error;
+      }
+      expect(caught).toBeInstanceOf(LabExplanationsError);
+      expect((caught as LabExplanationsError).code).toBe("lab-explanations-refused");
+      // The refusal names what was wrong, not only that something was.
+      expect((caught as Error).message).toContain("lab-explanation-unknown-formula");
+      // And the tree as it stands is publishable, so the refusal is not thrown on every build.
+      expect(() => assertLabExplanationsPublishable(checked)).not.toThrow();
     });
 
     test("a refused record is not drawn at all", () => {
