@@ -1,0 +1,33 @@
+# brownian-motion eq-2: what the display says, at every level (dispatch 279).
+# Written from the German of s3-p7 (p. 555) and its plate; the steps were checked by hand.
+display: eq-2
+paper: brownian-motion
+inWords:
+  - text: "The particles carried through unit cross-section in unit time by "
+  - text: "the force on each particle"
+    quantityId: externalForcePerParticle
+  - text: ", which is "
+  - text: "the number of particles per unit volume"
+    quantityId: numberDensity
+  - text: " times that force divided by six pi times "
+  - text: "the coefficient of friction of the liquid"
+    quantityId: viscosity
+  - text: " and "
+  - text: "the radius of a particle"
+    quantityId: particleRadius
+  - text: ", less those carried back by diffusion, which is "
+  - text: "the diffusion coefficient"
+    quantityId: diffusionCoefficient
+  - text: " times the gradient of the number density, comes to zero."
+r0: "The two currents cancel. As many particles are pushed across a surface each second by the force as are carried back across it by diffusion, and that balance is what the paper calls dynamic equilibrium."
+r1: "Section 3 regards the equilibrium state it has just considered as the superposition of two processes running in opposite senses: a motion of the suspended substance under the force acting on each particle, and a diffusion process to be understood as a consequence of the disordered motions of the particles arising from the molecular motion of heat. This line sets the two against each other. The first current follows from the mechanics of a viscous liquid: a spherical particle of radius $P$ in a liquid of friction coefficient $k$ is driven at the velocity the force divided by the Stokes factor gives, and the number crossing unit area each second is that velocity times the number of particles per unit volume. The second is the diffusion current, which the paper writes first in grams, using the mass of a particle, and then in particles. Dynamic equilibrium does not mean that nothing moves. Both currents are running; what vanishes is their sum. The paper labels this equation (2) and combines it with the equilibrium condition it labelled (1) to obtain the diffusion coefficient, which is the result section 5 begins from."
+r2:
+  - latex: "\\frac{K}{6 \\pi k P}"
+    why: "The velocity the force gives a single particle: a sphere of radius $P$ moving through a liquid of friction coefficient $k$ settles at the speed at which the resistance matches the driving force. The paper does not derive this and refers the reader to Kirchhoff's lectures for it."
+  - latex: "\\frac{\\nu K}{6 \\pi k P}"
+    why: "The particles crossing unit cross-section in unit time under the force: the number per unit volume times the velocity they all share."
+  - latex: "- D \\frac{\\partial \\nu}{\\partial x}"
+    why: "The particles crossing the same surface in unit time by diffusion, against the gradient of the number density. The paper writes the same current first as a mass, in grams, with the mass of a particle in it, and then divides that out to count particles."
+  - latex: "\\frac{\\nu K}{6 \\pi k P} - D \\frac{\\partial \\nu}{\\partial x} = 0."
+    why: "In dynamic equilibrium neither current is zero, but nothing accumulates anywhere, so the two must cancel at every point: the printed equation (2)."
+r3: "The Stokes velocity is not derived in this paper. A footnote to the sentence that states it reads \"Vgl. z. B. G. Kirchhoff, Vorlesungen über Mechanik, 26. Vorlesung § 4\", referring the reader to Gustav Kirchhoff's lectures on mechanics for the resistance a viscous liquid offers a moving sphere. The label (2) is printed once in this paper, unlike the label (1), which section 3 and section 4 each use for a different equation; the provenance receipt records that repeat as watch-equation-label-1-repeats (docs/provenance/ap-17-549.md)."
