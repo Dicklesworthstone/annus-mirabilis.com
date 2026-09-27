@@ -1,0 +1,11 @@
+# BM-07's formulas (dispatch 291/301).
+lab: bm-07
+formulas:
+  - latex: "\\begin{gathered}\\widehat D=\\frac{1}{2dM\\Delta t}\\sum_{i=1}^{M}\\lVert\\Delta\\mathbf r_i\\rVert^2, \\\\ q=dM\\end{gathered}"
+    incidental: "The lab's estimator, and the sentence introducing it is its recipe in words: for independent, equally spaced Gaussian increments in d coordinates with known zero drift, average their squared lengths and divide by twice the number of coordinates and the time interval. The paper runs the inference the other way, from a measured displacement to Avogadro's number, and prints no estimator."
+
+  - latex: "\\left[\\frac{q\\widehat D_{\\mathrm{unbiased}}}{\\chi^2_{q,1-\\alpha/2}},\\ \\frac{q\\widehat D_{\\mathrm{unbiased}}}{\\chi^2_{q,\\alpha/2}}\\right]"
+    incidental: "An interval from the chi-square quantiles, whose meaning the sentences on both sides give: the sentence before says what follows the distribution and under which assumptions, and the one after says what the coverage does and does not promise. Nothing in the paper corresponds to it."
+
+  - latex: "N a=\\frac{RT}{6\\pi\\eta D},\\qquad \\widehat N=\\frac{RT}{6\\pi\\eta a\\widehat D}"
+    display: eq-s5-d1

@@ -1,0 +1,8 @@
+# ME-02's formulas (dispatch 291/301). Both are the paper's own results, rearranged.
+lab: me-02
+formulas:
+  - latex: "\\begin{gathered}K_0-K_1=L(\\gamma-1)=L\\frac{\\gamma^2\\beta^2}{\\gamma+1}, \\\\ \\beta=\\frac{v}{c}\\end{gathered}"
+    display: eq-s0-d6
+
+  - latex: "\\begin{gathered}\\tfrac12 L\\beta^2\\quad \\text{(quadratic)} \\\\ \\lim_{v\\to 0}\\frac{2L(\\gamma-1)}{v^2}=\\frac{L}{c^2}\\end{gathered}"
+    display: eq-s0-d7

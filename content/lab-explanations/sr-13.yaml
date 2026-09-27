@@ -1,0 +1,11 @@
+# SR-13's formulas (dispatch 291/301).
+lab: sr-13
+formulas:
+  - latex: "\\begin{gathered}\\frac{d^2x}{dt^2} = \\frac{\\varepsilon}{\\mu}\\frac{1}{\\beta^3}X, \\\\ \\frac{d^2y}{dt^2} = \\frac{\\varepsilon}{\\mu}\\frac{1}{\\beta}\\left(Y - \\frac{v}{V}N\\right)\\end{gathered}"
+    display: eq-A
+
+  - latex: "\\begin{gathered}R_e = \\frac{\\gamma m v^2}{|q| E} \\approx 2.2995\\text{ m} \\\\ (\\text{Newtonian } R_{e,\\text{newt}} = \\frac{m v^2}{|q| E} \\\\ \\approx 1.8396\\text{ m})\\end{gathered}"
+    incidental: "A case the lab invents, an electron at the settings the page names, worked to a number and set beside what the older mechanics would have given. The relation it evaluates is § 10's third experimental consequence, which is a printed display and carries its words there."
+
+  - latex: "\\begin{gathered}\\begin{aligned}W &= m c^2 (\\gamma - 1) = 0.25 m c^2 \\\\ &\\approx 127.75\\text{ keV}\\end{aligned} \\\\ \\implies P = \\frac{W}{e} \\approx 127.75\\text{ kV}\\end{gathered}"
+    incidental: "The same invented case carried through the kinetic energy of § 10 to the potential difference that produces it. Both relations are printed displays with their own words; the numbers here are the lab's."

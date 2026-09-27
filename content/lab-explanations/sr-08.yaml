@@ -1,0 +1,9 @@
+# SR-08's formulas (dispatch 291/301). Both evaluate a case; § 6's transformation carries its own
+# words on the reading face.
+lab: sr-08
+formulas:
+  - latex: "\\begin{aligned}E'_y &= \\gamma(E_y - v B_z) \\\\ &= 1.25\\text{ V/m}, \\\\ B'_z &= -\\gamma\\frac{v}{c^2}E_y = -\\frac{0.75}{c} \\\\ &\\approx -2.5017\\times 10^{-9}\\text{ T}\\end{aligned}"
+    incidental: "§ 6's transformation of the two forces evaluated at the case the page sets up, ending in numbers with their units. The laws are on the first line of each pair and are printed displays; the rest is arithmetic the sentences around it set up."
+
+  - latex: "\\begin{gathered}E^2 - c^2 B^2 = 1.0\\text{ (V/m)}^2, \\\\ \\mathbf{E}\\cdot\\mathbf{B} = 0\\end{gathered}"
+    incidental: "A check that the two combinations come out the same in both systems, computed from the numbers above. Neither combination is printed in the paper; both are later ways of stating what § 6's transformation does."

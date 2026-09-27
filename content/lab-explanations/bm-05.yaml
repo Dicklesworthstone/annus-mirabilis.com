@@ -1,0 +1,41 @@
+# BM-05's formulas (dispatch 291/301).
+lab: bm-05
+formulas:
+  # The lab's own discrete walk. § 4 works with a continuous distribution of displacements and
+  # prints no sum over steps.
+  - latex: "\\begin{gathered}x_n=\\sum_{j=1}^{n}\\Delta_j, \\\\ \\langle\\Delta\\rangle=0, \\\\ \\langle x_n^2\\rangle=n\\langle\\Delta^2\\rangle\\end{gathered}"
+    own:
+      id: lab-bm-05-discrete-walk
+      inWords:
+        - text: "The place a particle has reached"
+          quantityId: displacement1d
+        - text: " is the sum of "
+        - text: "the steps"
+          quantityId: displacementIncrement
+        - text: " it has taken. Their average is zero, and the average of the square of where it has got to is "
+        - text: "the number of steps"
+          quantityId: walkStepCount
+        - text: " times the average of the square of one step."
+      r0: "A walk in steps: the displacements add, their average is nothing, and the average of the square grows in proportion to how many steps have been taken."
+      r1: "The particle takes a step, then another, each drawn independently and each as likely to go one way as the other. Adding them gives where it has got to. The average of the sum is the sum of the averages, which is zero, so the walk has no preferred direction and no drift. The average of the SQUARE does not vanish, because squaring removes the signs, and it is the one growing quantity: expanding the square gives $n$ terms of $\\langle\\Delta^2\\rangle$ and $n(n-1)$ cross terms, and every cross term is the product of two averages that are separately zero, because the steps are independent. So the mean square grows in proportion to the number of steps, and the typical distance in proportion to its square root. That is the whole of why a walk spreads as the square root of the time, and why it is so much slower than travelling."
+      r2:
+        - latex: "x_n=\\sum_{j=1}^{n}\\Delta_j"
+          why: "Where the particle has got to after $n$ steps: the steps add, and nothing else about them is used."
+        - latex: "\\langle\\Delta\\rangle=0"
+          why: "Each step is as likely to go one way as the other, which is the assumption § 4 makes about the displacements in the interval it considers."
+        - latex: "\\langle x_n^2\\rangle=\\sum_{j=1}^{n}\\langle\\Delta_j^2\\rangle+\\text{the cross terms}"
+          why: "Square the sum and average. It falls into the squared terms and the cross terms."
+        - latex: "\\langle\\Delta_j\\rangle=0 \\quad \\Longrightarrow \\quad \\text{every cross term}=0"
+          why: "A cross term is the average of a product of two different steps. The steps are independent, so that average is the product of their two averages, and each of those is zero. Every cross term goes, and there are $n(n-1)$ of them."
+        - latex: "\\langle x_n^2\\rangle=n\\langle\\Delta^2\\rangle"
+          why: "What is left is $n$ equal squared terms. The mean square is proportional to the number of steps, not to its square, which is the difference between spreading and travelling."
+      r3: "The discrete walk is this edition's, not Einstein's. § 4 does not count steps: it takes a distribution $\\varphi(\\Delta)$ of displacements in a short interval $\\tau$, assumes it symmetric, and expands under an integral. The two give the same diffusion equation, and the lab's next displays make the passage. What the step picture adds is a reason a reader can hold, and what it costs is that the interval $\\tau$ becomes a step rather than a limit; the paper is careful that $\\tau$ be small enough for the expansion and large enough for independence, and a walk in steps hides that condition rather than removing it."
+
+  - latex: "\\begin{gathered}D=\\frac{\\langle\\Delta^2\\rangle}{2\\tau}, \\\\ \\langle x^2\\rangle=2Dt, \\\\ \\sqrt{\\langle x^2\\rangle}\\propto\\sqrt{t}\\end{gathered}"
+    display: eq-s4-d9
+
+  - latex: "\\begin{aligned}& p(x,t+\\tau) \\\\ &\\qquad = \\int p(x-\\Delta,t)\\varphi(\\Delta)\\,d\\Delta\\end{aligned}"
+    display: eq-s4-d4
+
+  - latex: "\\frac{\\partial p}{\\partial t}=D\\frac{\\partial^2p}{\\partial x^2}"
+    display: eq-s4-1

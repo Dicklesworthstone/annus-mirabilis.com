@@ -1,0 +1,11 @@
+# BM-06's formulas (dispatch 291/301).
+lab: bm-06
+formulas:
+  - latex: "\\begin{gathered}D = \\frac{k_B T}{6\\pi\\eta a}, \\\\ \\langle x^2\\rangle = 2Dt, \\\\ \\lambda_x = \\sqrt{2Dt}\\end{gathered}"
+    incidental: "Three of the paper's printed results gathered into one block, the diffusion coefficient of § 5 and the mean square and typical displacement of §§ 4 and 5, in modern letters. Each is a printed display and carries its words where it is printed; the block is an arrangement rather than an equation of the lab's own."
+
+  - latex: "\\begin{gathered}p(x,t)=\\frac{1}{\\sqrt{4\\pi Dt}}\\exp\\!\\left(-\\frac{x^2}{4Dt}\\right) \\\\ (D>0,\\ t>0)\\end{gathered}"
+    display: eq-s4-d11
+
+  - latex: "r=\\frac{D\\,\\Delta t}{(\\Delta x)^2}\\leq\\frac12"
+    incidental: "A condition on the lab's own stepping scheme, not on diffusion. The sentence before it says exactly that: the finite grid approximates diffusion with an explicit scheme whose diffusion number must not exceed one half, and a refused timestep is a limitation of the algorithm rather than a prohibition on diffusion. Nothing in the paper corresponds to it."
