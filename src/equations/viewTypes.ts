@@ -1,8 +1,11 @@
 import type { ExactScale } from "./ast.ts";
 import type { NavigationNode } from "./navigation.ts";
 import type { NotationNoteTarget } from "./notationNoteTarget.ts";
+// A type alone: it is erased at compile time, so the module it names never reaches a bundle.
+import type { ExplainerLevels } from "./printed/equationExplanations.ts";
 import type { Quantity } from "./quantities.ts";
 import type { EquationRecord } from "./record.ts";
+
 /** Serialized, pre-rendered route-local payload. Rendering imports are server-only. */
 export type CompiledEquation = EquationRecord &
   Readonly<{
@@ -19,6 +22,13 @@ export type CompiledEquation = EquationRecord &
     }>[];
     /** The legend's glyph for each quantity this record prints with its own letter. */
     printedGlyphHtml?: Readonly<Record<string, string>>;
+    /**
+     * The "Explain this equation" panel's levels (dispatch 278, step 4): the bound printed display's
+     * record where this equation has one, else this record's own sentence and explanation
+     * (src/equations/printed/modelExplanations.ts). The build attaches it to the payloads the
+     * explanation pages draw from, so the card shows the panel the printed displays show.
+     */
+    explainer?: ExplainerLevels;
     /**
      * The notation toggle (html[data-notation]). "printed": the same tree drawn in Einstein's
      * letters, with its sentence and legend glyphs. "modern": it keeps today's letters in both

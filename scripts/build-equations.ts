@@ -21,7 +21,15 @@ import {
 import { explanationFormulas } from "../src/equations/printed/explanationFormulas.ts";
 import { labFormulaSites } from "../src/equations/printed/labFormulaSites.ts";
 import { labInlineViews } from "../src/equations/printed/labInlines.ts";
-import { assertPublishable, printedDisplays } from "../src/equations/printed/paperDisplays.ts";
+import {
+  type ModelExplanationGap,
+  modelExplanation,
+} from "../src/equations/printed/modelExplanations.ts";
+import {
+  assertPublishable,
+  boundEquations,
+  printedDisplays,
+} from "../src/equations/printed/paperDisplays.ts";
 import {
   assertInlinesPublishable,
   checkPaperInlines,
@@ -230,6 +238,46 @@ await mkdir("src/generated", { recursive: true });
 // each compiled equation stays exactly what compileEquation(record) returns. A prerequisite link
 // names its lesson with it: note titles repeat ("What it asserts" is on nine Brownian relations),
 // and a link named by the note alone reached five different lessons under one name.
+// "EXPLAIN THIS EQUATION" ON A MODEL EQUATION (dispatch 278, step 4). Each teaching equation the
+// explanation pages draw carries the panel the printed displays carry: from the record of the
+// display it is bound to (content/bindings), or else from its own sentence and explanation
+// (modelExplanations.ts). Nothing is written here that an author did not write.
+//
+// Attached to the paper payloads and the per-argument chunks, which are what those pages and their
+// disclosures read. The foundation and laboratory payloads below are built from `equations` without
+// it, so no laboratory's first-route JavaScript grows for a card that shows no panel.
+const explainedDisplays = new Map(
+  equationExplanations.map((e) => [e.paper, new Map(e.explanations.map((x) => [x.display, x]))]),
+);
+const displayOfEquation = new Map<string, string>();
+for (const paper of new Set(equations.map((e) => e.paper)))
+  for (const [display, bound] of boundEquations(process.cwd(), paper))
+    for (const id of bound) displayOfEquation.set(id, display);
+const modelGaps: ModelExplanationGap[] = [];
+let fromDisplay = 0;
+let fromRecord = 0;
+const explainedEquations = equations.map((equation) => {
+  if (equation.paper === "foundations") return equation;
+  const display = displayOfEquation.get(equation.id);
+  const record = display ? explainedDisplays.get(equation.paper)?.get(display) : undefined;
+  const { explainer, gap } = modelExplanation(equation, record);
+  if (gap) modelGaps.push(gap);
+  if (explainer) {
+    if (record) fromDisplay += 1;
+    else fromRecord += 1;
+  }
+  return explainer ? { ...equation, explainer } : equation;
+});
+console.log(
+  JSON.stringify({
+    event: "model-explanations",
+    equations: explainedEquations.filter((e) => e.paper !== "foundations").length,
+    fromDisplay,
+    fromRecord,
+    gaps: modelGaps.length,
+    ...(modelGaps.length > 0 ? { unexplained: modelGaps } : {}),
+  }),
+);
 const lessonTitles = (own: readonly (typeof equations)[number][]) =>
   citedLessonTitles(own, result.foundations);
 // Each route receives only its paper's payload. Extending admission must not
@@ -246,8 +294,10 @@ for (const [paper, file] of [
       {
         schemaVersion: 1,
         rendererDigest,
-        equations: equations.filter((equation) => equation.paper === paper),
-        foundationTitles: lessonTitles(equations.filter((equation) => equation.paper === paper)),
+        equations: explainedEquations.filter((equation) => equation.paper === paper),
+        foundationTitles: lessonTitles(
+          explainedEquations.filter((equation) => equation.paper === paper),
+        ),
       },
       null,
       2,
@@ -262,7 +312,7 @@ for (const [paper, file] of [
 // one left behind by a renamed argument is loaded by no page.
 await mkdir("src/generated/argument-equations", { recursive: true });
 const equationsByArgument = new Map<string, (typeof equations)[number][]>();
-for (const equation of equations) {
+for (const equation of explainedEquations) {
   if (equation.paper === "foundations" || !equation.argument) continue;
   equationsByArgument.set(equation.argument, [
     ...(equationsByArgument.get(equation.argument) ?? []),

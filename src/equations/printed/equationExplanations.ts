@@ -108,6 +108,22 @@ export type CompiledStep = Readonly<{
   why: readonly ProsePart[];
 }>;
 
+/**
+ * The levels an explainer may draw. A printed display's record always carries In words, Overview,
+ * Full explanation and Every step; a model equation explained from its own record carries In words
+ * and Full explanation alone (modelExplanations.ts), and the panel offers what is there.
+ */
+export type ExplainerLevels = Readonly<{
+  paper: string;
+  /** The printed display this explains, where it explains one. */
+  display?: string | undefined;
+  inWords: readonly WordsPhrase[];
+  r0?: readonly ProsePart[] | undefined;
+  r1?: readonly ProsePart[] | undefined;
+  r2?: readonly CompiledStep[] | undefined;
+  r3?: readonly ProsePart[] | undefined;
+}>;
+
 export type CompiledExplanation = Readonly<{
   paper: string;
   display: string;

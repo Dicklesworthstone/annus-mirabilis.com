@@ -99,6 +99,16 @@
   display: none;
   margin: 0.5rem 0;
 }
+/* An explanation with a single level shows it, whatever the page's Detail names: a model equation
+   explained from its own record has In words and the full explanation alone, and a panel that
+   obeyed the setting would open empty at Overview or Every step (dispatch 278, step 4). */
+.eq-explainer[data-only-level="0"] .eq-level[data-level="0"],
+.eq-explainer[data-only-level="1"] .eq-level[data-level="1"],
+.eq-explainer[data-only-level="2"] .eq-level[data-level="2"],
+.eq-explainer[data-only-level="3"] .eq-level[data-level="3"] {
+  display: block;
+}
+
 :root:not([data-detail]) .eq-level[data-level="1"],
 :root[data-detail="1"] .eq-level[data-level="1"],
 :root[data-detail="0"] .eq-level[data-level="0"],

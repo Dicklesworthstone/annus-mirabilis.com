@@ -10,6 +10,7 @@ import type { CompiledExplanation } from "./equationExplanations.ts";
 export type {
   CompiledExplanation,
   CompiledStep,
+  ExplainerLevels,
   ProsePart,
   WordsPhrase,
 } from "./equationExplanations.ts";

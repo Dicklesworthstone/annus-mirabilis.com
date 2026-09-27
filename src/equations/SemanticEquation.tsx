@@ -9,6 +9,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { EquationExplainer } from "../reader/faces/EquationExplainer.tsx";
 import { exponentialParts } from "../units/scientific.ts";
 import { useEquationScope } from "./EquationScope.tsx";
 import { readTermValue, resolveSlot, retainedState } from "./live/values.ts";
@@ -320,6 +321,10 @@ export function SemanticEquation({
         onPress={selectQuantity}
         onClear={() => select(null)}
       />
+      {/* "Explain this equation", the control the printed displays carry (dispatch 278, step 4).
+          It sits inside this card, so a phrase of the equation in words lights the term in the
+          formula and the reverse: the card lights by quantity id across everything it holds. */}
+      {equation.explainer ? <EquationExplainer explanation={equation.explainer} /> : null}
       <p className="equation-mathml" role="status" aria-live="polite" aria-atomic="true">
         {note ? `${note.title}. ${note.explanation}` : ""}
       </p>

@@ -9,7 +9,10 @@
  *
  * THE LEVELS, from the display's record (content/equation-explanations/, compiled by the build):
  * In words; Overview (R0); Full explanation (R1); Every step (R2), each step's formula with the
- * reason for it; Historian's margin (R3), where the record has one. Opened, the panel shows In words
+ * reason for it; Historian's margin (R3), where the record has one. A model equation on an
+ * explanation page carries the same control, from its bound display's record or from its own
+ * sentence and explanation (modelExplanations.ts, dispatch 278 step 4); it then has In words and
+ * the full explanation alone, and the panel offers those rather than padding the rest. Opened, the panel shows In words
  * and the level the page's Detail names (Overview, Full explanation or Show every step,
  * :root[data-detail], set before first paint). "Also" opens any other level on this one equation,
  * without changing the page's setting.
@@ -22,10 +25,7 @@
  * Every level is in the static HTML.
  */
 import { Fragment } from "react";
-import type {
-  CompiledExplanation,
-  ProsePart,
-} from "../../equations/printed/printedExplanations.ts";
+import type { ExplainerLevels, ProsePart } from "../../equations/printed/printedExplanations.ts";
 import "./equationExplainer.css";
 
 const LEVELS = [
@@ -62,11 +62,24 @@ function Prose({ parts, paper }: { parts: readonly ProsePart[]; paper: string })
   );
 }
 
-export function EquationExplainer({ explanation }: { explanation: CompiledExplanation }) {
-  const levels = LEVELS.filter((l) => l.level !== "3" || explanation.r3 !== undefined);
-  const steps = explanation.r2.map((step, n) => ({ step, key: `step-${n + 1}` }));
+export function EquationExplainer({ explanation }: { explanation: ExplainerLevels }) {
+  const has = {
+    "0": explanation.r0 !== undefined,
+    "1": explanation.r1 !== undefined,
+    "2": explanation.r2 !== undefined && explanation.r2.length > 0,
+    "3": explanation.r3 !== undefined,
+  } as const;
+  const levels = LEVELS.filter((l) => has[l.level]);
+  const steps = (explanation.r2 ?? []).map((step, n) => ({ step, key: `step-${n + 1}` }));
   return (
-    <span className="eq-explainer" lang="en" data-explains={explanation.display}>
+    <span
+      className="eq-explainer"
+      lang="en"
+      data-explains={explanation.display}
+      // The panel shows the level the page's Detail names. Where the explanation has only one
+      // level, it is that level that shows, whatever the setting, rather than an empty panel.
+      data-only-level={levels.length === 1 ? levels[0]?.level : undefined}
+    >
       <label className="eq-explain-control">
         <input type="checkbox" className="eq-explain-open" />
         Explain this equation
@@ -90,55 +103,63 @@ export function EquationExplainer({ explanation }: { explanation: CompiledExplan
             ),
           )}
         </span>
-        <span className="eq-level" data-level="0">
-          <span className="eq-level-name">Overview</span>
-          <Prose parts={explanation.r0} paper={explanation.paper} />
-        </span>
-        <span className="eq-level" data-level="1">
-          <span className="eq-level-name">Full explanation</span>
-          <Prose parts={explanation.r1} paper={explanation.paper} />
-        </span>
-        <span className="eq-level" data-level="2">
-          <span className="eq-level-name">Every step</span>
-          {/* biome-ignore lint/a11y/useSemanticElements: inline, an <ol> would end the paragraph the display is printed in. */}
-          <span className="eq-steps" role="list">
-            {steps.map(({ step, key }) => (
-              // biome-ignore lint/a11y/useSemanticElements: an <li> needs its <ol>, which a paragraph may not hold.
-              <span key={key} className="eq-step" role="listitem">
-                <span
-                  className={
-                    step.coloured || step.labelled
-                      ? "eq-step-formula inline-math"
-                      : "eq-step-formula"
-                  }
-                  data-paper={step.coloured || step.labelled ? explanation.paper : undefined}
-                  data-inline-terms={step.coloured ? "" : undefined}
-                  data-inline-labels={step.labelled ? "" : undefined}
-                  // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX output compiled by the build from a checked record, as the prose's formulas are.
-                  dangerouslySetInnerHTML={{ __html: step.formula }}
-                />
-                <span className="eq-step-why">
-                  <Prose parts={step.why} paper={explanation.paper} />
-                </span>
-              </span>
-            ))}
+        {explanation.r0 ? (
+          <span className="eq-level" data-level="0">
+            <span className="eq-level-name">Overview</span>
+            <Prose parts={explanation.r0} paper={explanation.paper} />
           </span>
-        </span>
+        ) : null}
+        {explanation.r1 ? (
+          <span className="eq-level" data-level="1">
+            <span className="eq-level-name">Full explanation</span>
+            <Prose parts={explanation.r1} paper={explanation.paper} />
+          </span>
+        ) : null}
+        {has["2"] ? (
+          <span className="eq-level" data-level="2">
+            <span className="eq-level-name">Every step</span>
+            {/* biome-ignore lint/a11y/useSemanticElements: inline, an <ol> would end the paragraph the display is printed in. */}
+            <span className="eq-steps" role="list">
+              {steps.map(({ step, key }) => (
+                // biome-ignore lint/a11y/useSemanticElements: an <li> needs its <ol>, which a paragraph may not hold.
+                <span key={key} className="eq-step" role="listitem">
+                  <span
+                    className={
+                      step.coloured || step.labelled
+                        ? "eq-step-formula inline-math"
+                        : "eq-step-formula"
+                    }
+                    data-paper={step.coloured || step.labelled ? explanation.paper : undefined}
+                    data-inline-terms={step.coloured ? "" : undefined}
+                    data-inline-labels={step.labelled ? "" : undefined}
+                    // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX output compiled by the build from a checked record, as the prose's formulas are.
+                    dangerouslySetInnerHTML={{ __html: step.formula }}
+                  />
+                  <span className="eq-step-why">
+                    <Prose parts={step.why} paper={explanation.paper} />
+                  </span>
+                </span>
+              ))}
+            </span>
+          </span>
+        ) : null}
         {explanation.r3 ? (
           <span className="eq-level" data-level="3">
             <span className="eq-level-name">Historian's margin</span>
             <Prose parts={explanation.r3} paper={explanation.paper} />
           </span>
         ) : null}
-        <span className="eq-explain-more">
-          <span className="eq-level-name">Also</span>
-          {levels.map(({ level, name }) => (
-            <label key={level} className="eq-explain-also" data-level={level}>
-              <input type="checkbox" className="eq-explain-level" data-level={level} />
-              {name}
-            </label>
-          ))}
-        </span>
+        {levels.length > 1 ? (
+          <span className="eq-explain-more">
+            <span className="eq-level-name">Also</span>
+            {levels.map(({ level, name }) => (
+              <label key={level} className="eq-explain-also" data-level={level}>
+                <input type="checkbox" className="eq-explain-level" data-level={level} />
+                {name}
+              </label>
+            ))}
+          </span>
+        ) : null}
       </span>
     </span>
   );
