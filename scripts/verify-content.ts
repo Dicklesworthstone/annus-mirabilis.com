@@ -15,7 +15,7 @@ import yaml from "js-yaml";
 import { auditInstruments, loadLiveInstrumentRows } from "../src/content/audits/instruments.ts";
 import {
   auditMisconceptions,
-  type MisconceptionAuditInput,
+  loadLiveMisconceptionInput,
 } from "../src/content/audits/misconceptions.ts";
 import {
   auditReadings,
@@ -331,14 +331,18 @@ const result = await runVerifyContent({
       return auditShelf(input);
     },
     misconceptions: async () => {
-      const input: MisconceptionAuditInput = {
-        papers: [],
-        knownAnchors: new Set<string>(),
-        knownInstruments: new Set<string>(),
-        knownResults: new Set<string>(),
-        knownSources: new Set<string>(),
-      };
-      return auditMisconceptions(input);
+      // The ledgers as they are on disk (am-8gbg). This passed `papers: []` and four empty sets
+      // until 2026-09-27 while content/misconceptions held 26 records, so every check ran over
+      // nothing and reported green. The count is printed beside the verdict because "0 errors" over
+      // an empty input and "0 errors" over 26 records read identically.
+      const live = loadLiveMisconceptionInput(root);
+      console.log(
+        `[audit-misconceptions] ${live.entries} ledger records in ${live.input.papers.length} papers; ` +
+          `${live.input.knownAnchors.size} anchors, ${live.input.knownResults.size} results and ` +
+          `${live.input.knownInstruments.size} instruments to resolve against; ` +
+          `${live.unjudgedSources} prose citations not judged (the check resolves ids, the records carry prose).`,
+      );
+      return auditMisconceptions(live.input);
     },
     instruments: async () => {
       const rows = loadLiveInstrumentRows(root);
