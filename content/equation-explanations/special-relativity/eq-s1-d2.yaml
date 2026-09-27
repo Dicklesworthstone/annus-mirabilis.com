@@ -1,0 +1,26 @@
+# special-relativity eq-s1-d2: what the display says, at every level (dispatch 279).
+# Written from the German of s1-p10 (p. 894) and its plate; the steps were checked by hand.
+display: eq-s1-d2
+paper: special-relativity
+inWords:
+  - text: "Twice the distance between A and B"
+    quantityId: eventSeparationSpatial
+  - text: ", divided by "
+  - text: "the time at which the ray returns to A"
+    quantityId: coordinateTimeStationary
+  - text: " less "
+  - text: "the time at which it left A"
+    quantityId: coordinateTimeStationary
+  - text: ", equals "
+  - text: "the velocity of light in empty space"
+    quantityId: speedOfLight
+  - text: ", a universal constant."
+r0: "The round trip out and back, divided by the time it takes, is a universal constant. The paper establishes this in accordance with experience, which it could not do for a one-way trip."
+r1: "The quantity on the left is built from the whole journey out and back: the path is twice the distance from A to B, and the time is the interval between two readings of the one clock at A, its reading when the ray leaves and its reading when the ray returns. That is why the paper can set this quantity in accordance with experience while the preceding line had to be a definition. Both readings here are taken by the same clock at the same place, so the quantity is measurable without any stipulation about distant clocks, whereas a one-way time needs two clocks and so needs the definition of the preceding line before it means anything at all. Having fixed that this round-trip quantity is a universal constant, the velocity of light in empty space, the paper has what the second principle of section 2 will use."
+r2:
+  - latex: "2 \\overline{AB}"
+    why: "The path the ray covers on the whole journey: from A to B and back again."
+  - latex: "t'_A - t_A"
+    why: "The time that journey takes, as the interval between two readings of the single clock at A. The reading at B does not enter, so no synchronisation is needed."
+  - latex: "\\frac{2 \\overline{AB}}{t'_A - t_A} = V"
+    why: "Path divided by time, set in accordance with experience as a universal constant, which the paper names as the velocity of light in empty space: the printed line."

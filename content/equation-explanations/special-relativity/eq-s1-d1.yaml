@@ -1,0 +1,25 @@
+# special-relativity eq-s1-d1: what the display says, at every level (dispatch 279).
+# Written from the German of s1-p7 (p. 894) and its plate; the steps were checked by hand.
+display: eq-s1-d1
+paper: special-relativity
+inWords:
+  - text: "The time by the clock at B"
+    quantityId: coordinateTimeStationary
+  - text: " at which the ray is reflected, less "
+  - text: "the time by the clock at A"
+    quantityId: coordinateTimeStationary
+  - text: " at which it set out, equals "
+  - text: "the time by the clock at A at which it returns"
+    quantityId: coordinateTimeStationary
+  - text: ", less the time of the reflection."
+r0: "The definition of synchronism: two clocks count as synchronous when light takes as long to go from the first to the second as to come back. The paper sets this by definition, not by measurement."
+r1: "A clock at A lets an observer at A date the events in its immediate neighbourhood, and a clock at B, which the paper is careful to add is one of exactly the same constitution, does the same at B. What cannot be done without a further stipulation is to compare an event at A with an event at B in time: so far there is an A-time and a B-time, and no time common to A and B. The paper's move is to make one by fixing, by definition, that the time light needs to go from A to B equals the time it needs to go from B to A. The display is that stipulation written out for a ray that leaves A, is reflected at B and returns. Because it is a definition, it is not something an experiment could find false. What the paper does claim, and states as an assumption in the next paragraph, is that the definition is free of contradictions and can be made for arbitrarily many points, so that two relations hold generally: if the clock at B runs synchronously with the clock at A then the clock at A runs synchronously with the clock at B, and if the clock at A is synchronous with the clocks at B and at C then those two are synchronous with each other."
+r2:
+  - latex: "t_A"
+    why: "The reading of the clock at A when the ray leaves A, which the paper calls the A-time of the departure."
+  - latex: "t_B"
+    why: "The reading of the clock at B when the ray arrives there and is reflected back toward A, the B-time of the reflection."
+  - latex: "t'_A"
+    why: "The reading of the clock at A when the ray gets back, again an A-time. All three readings are taken where the event happens, by a clock standing there, so none of them presupposes a comparison between the two places."
+  - latex: "t_B - t_A = t'_A - t_B ."
+    why: "The outward interval and the return interval, set equal. This is the stipulation itself: the paper introduces it with the words that the common time can be defined by fixing by definition that the two are the same, and sets the phrase in italics on the page."
