@@ -1,0 +1,30 @@
+# light-quanta eq-s4-d2: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p2 (p. 139) and its plate; the steps were checked by hand.
+display: eq-s4-d2
+paper: light-quanta
+inWords:
+  - text: "One over "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: " equals minus one over "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: ", times the natural logarithm of "
+  - text: "the energy density"
+    quantityId: frequencyEnergyDensity
+  - text: " divided by "
+  - text: "the constant α"
+    quantityId: wienConstantAlpha
+  - text: " times the frequency cubed."
+r0: "Wien's law solved for one over the temperature. Section 3 showed that 1/T is the rate at which the entropy density grows with the energy density, so this is the rate the next step integrates."
+r1: "Take the logarithm of Wien's law and solve it for $\\frac{1}{T}$; the paper writes $\\lg$ for the natural logarithm. The result expresses the temperature through the density at one frequency. Where the density is small compared with $\\alpha \\nu^3$ the logarithm is negative and $\\frac{1}{T}$ positive, as it must be. Section 3 found that in black radiation $\\frac{\\partial \\varphi}{\\partial \\varrho} = \\frac{1}{T}$, so this line is the rate at which the entropy density grows with the density, ready to be integrated."
+r2:
+  - latex: "\\frac{\\varrho}{\\alpha \\nu^3} = e^{-\\beta \\frac{\\nu}{T}}"
+    why: "Divide Wien's law by $\\alpha \\nu^3$."
+  - latex: "\\lg \\frac{\\varrho}{\\alpha \\nu^3} = -\\beta \\frac{\\nu}{T}"
+    why: "Take the natural logarithm of both sides, which the paper writes $\\lg$. The logarithm of an exponential is its exponent."
+  - latex: "\\frac{1}{T} = -\\frac{1}{\\beta \\nu} \\lg \\frac{\\varrho}{\\alpha \\nu^3}"
+    why: "Divide both sides by $-\\beta \\nu$: the printed line."

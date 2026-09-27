@@ -1,0 +1,33 @@
+# light-quanta eq-s4-d5: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p2 (p. 139) and its plate; the steps were checked by hand.
+display: eq-s4-d5
+paper: light-quanta
+inWords:
+  - text: "The entropy"
+    quantityId: radiationEntropy
+  - text: " of the radiation in "
+  - text: "the volume v"
+    quantityId: volume
+  - text: ", less its entropy in the volume v₀, equals "
+  - text: "its energy"
+    quantityId: radiationEnergy
+  - text: " over "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: ", times the natural logarithm of the ratio of the two volumes."
+r0: "Keep the energy and the band and change only the volume: the entropy grows by E/(βν) times the logarithm of the ratio of the volumes. The paper goes on to say that monochromatic radiation of low density varies its entropy with the volume by the same law as an ideal gas or a dilute solution."
+r1: "Section 4 now looks only at how the entropy depends on the volume. Write $S_0$ for the entropy of the same radiation, with the same energy and band, when it fills the volume $v_0$, and subtract. Everything that does not involve the volume cancels, and what is left is the logarithm of the ratio of the volumes: doubling the volume adds $\\frac{E}{\\beta \\nu} \\lg 2$, and doubling it again adds the same amount again. The paper draws the conclusion in its next sentence: the entropy of monochromatic radiation of sufficiently small density varies with the volume by the same law as the entropy of an ideal gas or of a dilute solution. Section 5 works that law out for a gas, and section 6 interprets the radiation's version of it by Boltzmann's principle."
+r2:
+  - latex: "S = -\\frac{E}{\\beta \\nu} \\left\\{ \\lg \\frac{E}{v \\alpha \\nu^3 d \\nu} - 1 \\right\\}"
+    why: "The entropy in the volume $v$ (the preceding display)."
+  - latex: "S_0 = -\\frac{E}{\\beta \\nu} \\left\\{ \\lg \\frac{E}{v_0 \\alpha \\nu^3 d \\nu} - 1 \\right\\}"
+    why: "The same radiation, with the same energy and band, in the volume $v_0$."
+  - latex: "S - S_0 = -\\frac{E}{\\beta \\nu} \\left\\{ \\lg \\frac{E}{v \\alpha \\nu^3 d \\nu} - \\lg \\frac{E}{v_0 \\alpha \\nu^3 d \\nu} \\right\\}"
+    why: "Subtract: the $-1$ in the two brackets cancels."
+  - latex: "\\lg \\frac{E}{v \\alpha \\nu^3 d \\nu} - \\lg \\frac{E}{v_0 \\alpha \\nu^3 d \\nu} = \\lg \\frac{v_0}{v}"
+    why: "A difference of logarithms is the logarithm of the quotient, and everything except the two volumes cancels in the quotient."
+  - latex: "S - S_0 = -\\frac{E}{\\beta \\nu} \\lg \\frac{v_0}{v} = \\frac{E}{\\beta \\nu} \\lg \\left( \\frac{v}{v_0} \\right)"
+    why: "Turning a fraction upside down changes the sign of its logarithm: the printed line."

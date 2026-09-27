@@ -1,0 +1,42 @@
+# light-quanta eq-s4-d4: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p2 (p. 139) and its plate; the steps were checked by hand.
+display: eq-s4-d4
+paper: light-quanta
+inWords:
+  - text: "The entropy"
+    quantityId: radiationEntropy
+  - text: " of radiation of "
+  - text: "energy"
+    quantityId: radiationEnergy
+  - text: " E, in a narrow band of "
+  - text: "frequency"
+    quantityId: frequency
+  - text: " and filling "
+  - text: "the volume"
+    quantityId: volume
+  - text: " v, is v times "
+  - text: "the entropy density"
+    quantityId: spectralEntropyDensity
+  - text: " times the band's width. With "
+  - text: "the energy density"
+    quantityId: frequencyEnergyDensity
+  - text: " written as the energy over the volume and the width, it is minus the energy over "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " times the frequency, times the natural logarithm of the energy over the volume, "
+  - text: "the constant α"
+    quantityId: wienConstantAlpha
+  - text: ", the frequency cubed and the width, less one."
+r0: "The entropy of a given amount of radiation energy in a narrow band of frequencies, filling a volume v: the entropy density times the volume and the band's width, written through the energy instead of the density."
+r1: "The paper now takes a definite amount of radiation: energy $E$, with frequencies between $\\nu$ and $\\nu + d \\nu$, filling the volume $v$. Its entropy is the entropy per unit volume and frequency, times the volume, times the width of the band. The density is the energy per unit volume and frequency, so $\\varrho = \\frac{E}{v d \\nu}$, and putting that into the preceding line turns everything into the energy, the volume and the band. The formula now shows how the entropy depends on the volume, which the next line isolates."
+r2:
+  - latex: "S = v \\varphi(\\varrho, \\nu) d \\nu"
+    why: "The entropy of section 3's first display, for a band so narrow that $\\varphi$ is the same across it: the integral over frequency becomes $\\varphi$ times the width $d \\nu$."
+  - latex: "\\varrho = \\frac{E}{v d \\nu}"
+    why: "The energy $E$ fills the volume $v$ and the band $d \\nu$, so the energy per unit volume and unit frequency is $E$ divided by both."
+  - latex: "v \\varphi d \\nu = -v d \\nu \\frac{\\varrho}{\\beta \\nu} \\left\\{ \\lg \\frac{\\varrho}{\\alpha \\nu^3} - 1 \\right\\}"
+    why: "Put in the entropy density of the preceding display."
+  - latex: "v d \\nu \\cdot \\varrho = E"
+    why: "The factor in front becomes the energy."
+  - latex: "S = -\\frac{E}{\\beta \\nu} \\left\\{ \\lg \\frac{E}{v \\alpha \\nu^3 d \\nu} - 1 \\right\\}"
+    why: "Replace $\\varrho$ inside the logarithm by $\\frac{E}{v d \\nu}$ as well: the printed line."

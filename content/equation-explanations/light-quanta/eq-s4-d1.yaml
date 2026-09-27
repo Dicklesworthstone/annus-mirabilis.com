@@ -1,0 +1,29 @@
+# light-quanta eq-s4-d1: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p1 (p. 139) and its plate; the steps were checked by hand.
+display: eq-s4-d1
+paper: light-quanta
+inWords:
+  - text: "The radiation's energy per unit volume and unit frequency"
+    quantityId: frequencyEnergyDensity
+  - text: " equals "
+  - text: "the constant α"
+    quantityId: wienConstantAlpha
+  - text: " times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: " cubed, times e raised to minus "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " times the frequency over "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: "."
+r0: "Wien's law for black radiation. The paper knows it is not exactly valid, but experiment had confirmed it very well where ν/T is large, and section 4 builds on it with its results limited to that region."
+r1: "Section 4 bases its calculation on the law W. Wien originally set up for black radiation. The paper says plainly that observations show it is not exactly valid, but that for large values of $\\nu/T$ experiment had confirmed it very completely, so the results that follow hold only within certain limits: high frequency and low density. Compared with Planck's formula of section 2 it lacks the $-1$ in the denominator. Where $\\frac{\\beta \\nu}{T}$ is large the exponential is huge and the $-1$ makes no difference, so there the two laws agree. The same constants $\\alpha$ and $\\beta$ appear in both."
+r2:
+  - latex: "\\varrho_\\nu = \\frac{\\alpha \\nu^3}{e^{\\frac{\\beta \\nu}{T}} - 1}"
+    why: "Planck's formula, from section 2, for comparison."
+  - latex: "e^{\\frac{\\beta \\nu}{T}} - 1 \\approx e^{\\frac{\\beta \\nu}{T}}"
+    why: "Where $\\frac{\\beta \\nu}{T}$ is large the exponential is very large, and taking one away changes it very little."
+  - latex: "\\varrho = \\frac{\\alpha \\nu^3}{e^{\\frac{\\beta \\nu}{T}}} = \\alpha \\nu^3 e^{-\\beta \\frac{\\nu}{T}}"
+    why: "Dividing by an exponential is multiplying by the exponential of minus its exponent: Wien's law as the paper prints it. The paper takes the law from Wien and from experiment; this comparison only shows where the two formulas agree."

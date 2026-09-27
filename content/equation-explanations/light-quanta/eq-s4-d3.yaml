@@ -1,0 +1,31 @@
+# light-quanta eq-s4-d3: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p2 (p. 139) and its plate; the steps were checked by hand.
+display: eq-s4-d3
+paper: light-quanta
+inWords:
+  - text: "The entropy per unit volume and unit frequency"
+    quantityId: spectralEntropyDensity
+  - text: " equals minus "
+  - text: "the energy density"
+    quantityId: frequencyEnergyDensity
+  - text: " over "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: ", times the natural logarithm of the density over "
+  - text: "the constant α"
+    quantityId: wienConstantAlpha
+  - text: " times the frequency cubed, less one."
+r0: "Integrating that rate from zero density gives the entropy density, at each frequency, of radiation that obeys Wien's law."
+r1: "Section 3's law says $\\frac{\\partial \\varphi}{\\partial \\varrho} = \\frac{1}{T}$, and the preceding line gives $\\frac{1}{T}$ as a function of $\\varrho$ at a fixed frequency. So $\\varphi$ is found by integrating it over $\\varrho$, and section 3 also fixed where to start: $\\varphi$ vanishes for $\\varrho = 0$. The integral of a logarithm is the variable times the logarithm, less the variable, which gives the bracket with its $-1$. Where the density is small the bracket is negative and $\\varphi$ positive."
+r2:
+  - latex: "\\frac{\\partial \\varphi}{\\partial \\varrho} = -\\frac{1}{\\beta \\nu} \\lg \\frac{\\varrho}{\\alpha \\nu^3}"
+    why: "Section 3's law, with $\\frac{1}{T}$ taken from the preceding display."
+  - latex: "\\varphi(\\varrho, \\nu) = -\\frac{1}{\\beta \\nu} \\int_0^{\\varrho} \\lg \\frac{\\varrho}{\\alpha \\nu^3} d \\varrho"
+    why: "Integrate over the density at a fixed frequency, starting from $\\varrho = 0$, where section 3 says $\\varphi$ vanishes."
+  - latex: "\\int \\lg \\frac{\\varrho}{\\alpha \\nu^3} d \\varrho = \\varrho \\lg \\frac{\\varrho}{\\alpha \\nu^3} - \\varrho"
+    why: "The rule for integrating a logarithm: differentiating the right-hand side gives back $\\lg \\frac{\\varrho}{\\alpha \\nu^3}$. At $\\varrho = 0$ it is zero, since $\\varrho$ times its logarithm goes to zero there."
+  - latex: "\\varphi(\\varrho, \\nu) = -\\frac{\\varrho}{\\beta \\nu} \\left\\{ \\lg \\frac{\\varrho}{\\alpha \\nu^3} - 1 \\right\\}"
+    why: "Multiply by $-\\frac{1}{\\beta \\nu}$ and take out the factor $\\varrho$: the printed line."
