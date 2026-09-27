@@ -1,0 +1,29 @@
+# special-relativity eq-s7-d8: what the display says, at every level (dispatch 281).
+# Written from the German of s7-p3 (p. 912) and its plate; every step was checked by hand.
+display: eq-s7-d8
+paper: special-relativity
+inWords:
+  - text: "The frequency perceived"
+    quantityId: waveFrequencyMoving
+  - text: " by an observer moving straight away from the source is "
+  - text: "the source's frequency"
+    quantityId: waveFrequencyStationary
+  - text: " times the square root of one minus "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", divided by one plus it."
+r0: "Doppler's principle for an observer moving along the line from the source, the case $\\varphi = 0$: the frequency falls by a square-root factor as the observer recedes, and rises as it approaches."
+r1: "With $\\varphi = 0$ the observer moves directly away from the source. Then $1 - \\cos \\varphi \\frac{v}{V}$ is $1 - \\frac{v}{V}$, and dividing it by $\\sqrt{\\left( 1 - \\frac{v}{V} \\right) \\left( 1 + \\frac{v}{V} \\right)}$ leaves the perspicuous form, as the paper calls it. At $v = 0.6 \\, V$ the frequency is halved: $\\sqrt{0.4 / 1.6} = 0.5$. With $v$ negative the observer approaches, and the frequency rises without bound as $v$ approaches $-V$. The paper points this out as contrary to the usual view."
+r2:
+  - latex: "\\nu' = \\nu \\frac{1 - \\cos \\varphi \\frac{v}{V}}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
+    why: "Doppler's principle for any angle, the previous display."
+  - latex: "\\nu' = \\nu \\frac{1 - \\frac{v}{V}}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
+    why: "Put $\\varphi = 0$, so $\\cos \\varphi = 1$."
+  - latex: "\\nu' = \\nu \\frac{1 - \\frac{v}{V}}{\\sqrt{\\left( 1 - \\frac{v}{V} \\right) \\left( 1 + \\frac{v}{V} \\right)}}"
+    why: "Factor the difference of two squares under the root."
+  - latex: "\\nu' = \\nu \\sqrt{\\frac{1 - \\frac{v}{V}}{1 + \\frac{v}{V}}}"
+    why: "Cancel one square root of $1 - \\frac{v}{V}$ against the numerator."
+r3: "The sentence after this display is printed: for $v = -\\infty$, $\\nu = \\infty$ (p. 912). The source receipt records two suspected misprints in it: the equation gives an infinite perceived frequency as $v$ approaches $-V$, not $-\\infty$, since for $v$ beyond $-V$ its root is not real (err-typo-p912-2); and the frequency that grows is the perceived $\\nu'$, not the source's $\\nu$ (err-typo-p912-1). The faces keep the printed reading."

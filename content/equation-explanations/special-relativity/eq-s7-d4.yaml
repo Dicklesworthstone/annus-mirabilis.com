@@ -1,0 +1,26 @@
+# special-relativity eq-s7-d4: what the display says, at every level (dispatch 281).
+# Written from the German of s7-p2 (p. 911) and its plate; every step was checked by hand.
+display: eq-s7-d4
+paper: special-relativity
+inWords:
+  - text: "The direction cosine along the motion in the moving system"
+    quantityId: directionCosineMoving
+  - text: " is "
+  - text: "the stationary one"
+    quantityId: directionCosineStationary
+  - text: " less "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", divided by one minus their product."
+r0: "How the direction of the wave, measured against the direction of motion, looks from the moving system. It is the first of the three new direction cosines, and the one that carries the aberration of light."
+r1: "This is what stands before $\\xi$ in the phase written in $k$'s coordinates, divided by $\\frac{\\omega'}{V}$; the factor $\\beta$ cancels. At $v = 0$ it is $a$ itself. A wave running exactly along the motion ($a = 1$) or against it ($a = -1$) keeps its direction. Any other wave is turned towards the direction opposite to the motion: a wave crossing at right angles in $K$ ($a = 0$) has $a' = -\\frac{v}{V}$ in $k$. The paper returns to this display as the law of aberration, in the form with angles (p. 912)."
+r2:
+  - latex: "\\omega \\left( t - \\frac{a x}{V} \\right) = \\omega \\beta \\left( 1 - a \\frac{v}{V} \\right) \\tau - \\frac{\\omega}{V} \\beta \\left( a - \\frac{v}{V} \\right) \\xi"
+    why: "The part of the phase that holds $\\tau$ and $\\xi$, written in $k$'s time and coordinates (the working of the second display of § 7)."
+  - latex: "a' = \\frac{\\beta \\left( a - \\frac{v}{V} \\right)}{\\beta \\left( 1 - a \\frac{v}{V} \\right)}"
+    why: "Written as $\\omega' \\left( \\tau - \\frac{a' \\xi + \\ldots}{V} \\right)$ with $\\omega' = \\omega \\beta \\left( 1 - a \\frac{v}{V} \\right)$, the coefficient of $\\xi$ gives $a'$."
+  - latex: "a' = \\frac{a - \\frac{v}{V}}{1 - a \\frac{v}{V}}"
+    why: "The factor $\\beta$ cancels. For $a = 0$ and $v = 0.6 \\, V$ this gives $a' = -0.6$."

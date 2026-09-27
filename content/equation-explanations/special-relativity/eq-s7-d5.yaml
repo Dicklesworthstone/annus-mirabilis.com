@@ -1,0 +1,32 @@
+# special-relativity eq-s7-d5: what the display says, at every level (dispatch 281).
+# Written from the German of s7-p2 (p. 911) and its plate; every step was checked by hand.
+display: eq-s7-d5
+paper: special-relativity
+inWords:
+  - text: "The direction cosine along the second axis in the moving system"
+    quantityId: directionCosineMoving
+  - text: " is "
+  - text: "the stationary one"
+    quantityId: directionCosineStationary
+  - text: " divided by "
+  - text: "the factor"
+    quantityId: lorentzFactor
+  - text: " and by one minus "
+  - text: "the direction cosine along the motion"
+    quantityId: directionCosineStationary
+  - text: " times "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "The second new direction cosine, for the axis $\\eta$ across the motion. The motion does not act along this axis directly, but the cosine changes so that the three new cosines still describe a direction."
+r1: "It comes from the coefficient of $\\eta$ in the phase written in $k$'s coordinates, divided by $\\frac{\\omega'}{V}$. The $\\eta$ term keeps its coefficient, $\\frac{\\omega}{V} b$, but $\\omega'$ is not $\\omega$, so $b' = \\frac{b}{\\beta \\left( 1 - a \\frac{v}{V} \\right)}$. For the wave crossing at right angles with $b = 1$ and $v = 0.6 \\, V$, $b' = \\frac{1}{1.25} = 0.8$, and with $a' = -0.6$ this gives $0.36 + 0.64 = 1$, a direction again."
+r2:
+  - latex: "\\omega' = \\omega \\beta \\left( 1 - a \\frac{v}{V} \\right)"
+    why: "The angular frequency in $k$. In the phase written in $k$'s coordinates, $\\eta$ appears only in the term $-\\frac{\\omega}{V} b \\eta$, since $y = \\eta$."
+  - latex: "\\frac{\\omega}{V} b = \\frac{\\omega'}{V} b'"
+    why: "To write the phase as $\\omega'$ times $\\tau$ less the new cosines' terms over $V$, the coefficient of $\\eta$ must equal $\\frac{\\omega'}{V} b'$."
+  - latex: "b' = \\frac{b}{\\beta \\left( 1 - a \\frac{v}{V} \\right)}"
+    why: "Divide by $\\frac{\\omega'}{V}$ and put in $\\omega'$."

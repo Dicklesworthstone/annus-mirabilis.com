@@ -1,0 +1,33 @@
+# special-relativity eq-s7-d3: what the display says, at every level (dispatch 281).
+# Written from the German of s7-p2 (p. 911) and its plate; every step was checked by hand.
+display: eq-s7-d3
+paper: special-relativity
+inWords:
+  - text: "The angular frequency in the moving system"
+    quantityId: waveAngularFrequencyMoving
+  - text: " is "
+  - text: "the angular frequency in the stationary system"
+    quantityId: waveAngularFrequencyStationary
+  - text: " times "
+  - text: "the factor"
+    quantityId: lorentzFactor
+  - text: " times one minus "
+  - text: "the direction cosine of the wave along the motion"
+    quantityId: directionCosineStationary
+  - text: " times "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "How fast the wave oscillates in the moving system. It depends on how the wave's direction lies against the motion: lower for a wave running the same way as $k$, higher for a wave running against it."
+r1: "The factor $\\omega'$ is what stands before $\\tau$ when the phase is written in $k$'s time and coordinates. The cosine $a$ says how the wave's direction lies against the motion: $a = 1$ for a wave travelling along $+x$, the direction $k$ moves, $a = -1$ for one travelling against it, and $a = 0$ for one crossing the motion at right angles. For $a = 1$ and $v = 0.6 \\, V$, $\\omega' = \\omega \\cdot 1.25 \\cdot 0.4 = 0.5 \\, \\omega$; for $a = -1$, $\\omega' = 2 \\, \\omega$. Even at $a = 0$ the frequency changes, to $\\beta \\omega$, a change of second order in $\\frac{v}{V}$ that the first-order formula $\\omega' = \\omega \\left( 1 - a \\frac{v}{V} \\right)$ does not show. The paper draws the consequences for the frequency an observer perceives in the next paragraph."
+r2:
+  - latex: "\\omega \\left( t - \\frac{a x}{V} \\right) = \\omega \\beta \\left( 1 - a \\frac{v}{V} \\right) \\tau - \\frac{\\omega}{V} \\beta \\left( a - \\frac{v}{V} \\right) \\xi"
+    why: "The phase of the wave written in $k$'s time and coordinates (the working of the previous display). The time appears only in this part of it."
+  - latex: "\\omega' = \\omega \\beta \\left( 1 - a \\frac{v}{V} \\right)"
+    why: "The coefficient of $\\tau$ is how fast the phase advances in $k$'s time, the angular frequency in $k$."
+  - latex: "a = 1: \\quad \\omega' = \\omega \\beta \\left( 1 - \\frac{v}{V} \\right)"
+    why: "For a wave running the same way as $k$: at $v = 0.6 \\, V$, $\\beta = 1.25$ and $1 - 0.6 = 0.4$, so $\\omega' = 0.5 \\, \\omega$."
+r3: "Modern texts write this as the relativistic Doppler factor, with the letter gamma for the paper's $\\beta$ and the letter beta for the ratio of the speed to the velocity of light (the notation concordance; the paper, p. 911)."

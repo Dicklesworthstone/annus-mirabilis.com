@@ -1,0 +1,55 @@
+# special-relativity eq-s7-d2: what the display says, at every level (dispatch 281).
+# Written from the German of s7-p2 (p. 911) and its plate; every step was checked by hand.
+display: eq-s7-d2
+paper: special-relativity
+inWords:
+  - text: "In the moving system, each component of "
+  - text: "the electric force"
+    quantityId: electricFieldMoving
+  - text: " and of "
+  - text: "the magnetic force"
+    quantityId: magneticFieldMoving
+  - text: " is again an amplitude times the sine of "
+  - text: "one phase"
+    quantityId: wavePhase
+  - text: ": along the motion the stationary system's "
+  - text: "electric"
+    quantityId: electricFieldAmplitudeStationary
+  - text: " or "
+  - text: "magnetic amplitude"
+    quantityId: magneticFieldAmplitudeStationary
+  - text: " itself; across it, "
+  - text: "the factor"
+    quantityId: lorentzFactor
+  - text: " times one amplitude mixed with the other's, weighted by "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ". The phase advances with "
+  - text: "the moving system's time"
+    quantityId: coordinateTimeMoving
+  - text: " at "
+  - text: "a new angular frequency"
+    quantityId: waveAngularFrequencyMoving
+  - text: " and travels along "
+  - text: "its coordinates"
+    quantityId: coordinatePositionMoving
+  - text: " in "
+  - text: "a new direction"
+    quantityId: directionCosineMoving
+  - text: "."
+r0: "The same wave as the moving system $k$ sees it: still a plane wave, with amplitudes transformed as § 6 says, and a phase that has its own frequency and its own direction in $k$."
+r1: "The paper asks what these waves are like for an observer at rest in $k$, and answers by applying two earlier results: § 6 for the forces and § 3 for the coordinates and time. It says the result follows directly, and shows none of the work. The forces transform component by component, and because every component carries the same factor $\\sin \\Phi$, the transformation acts on the amplitudes alone. The phase is a number attached to each event, the same whichever system computes it; written in $k$'s time and coordinates it takes the same form as before, $\\omega' \\left( \\tau - \\frac{a' \\xi + b' \\eta + c' \\zeta}{V} \\right)$, with the new frequency and direction cosines of the next four displays. So in $k$ too the light is a plane wave moving at the velocity $V$."
+r2:
+  - latex: "X' = X_0 \\sin \\Phi, \\quad Y' = \\beta \\left( Y_0 - \\frac{v}{V} N_0 \\right) \\sin \\Phi"
+    why: "Put the wave of the first display into the transformation of § 6: $X' = X$, $Y' = \\beta \\left( Y - \\frac{v}{V} N \\right)$, and so on. The common factor $\\sin \\Phi$ comes out of every bracket."
+  - latex: "t = \\beta \\left( \\tau + \\frac{v}{V^2} \\xi \\right), \\quad x = \\beta (\\xi + v \\tau), \\quad y = \\eta, \\quad z = \\zeta"
+    why: "To write the phase in $k$'s coordinates, express $K$'s time and coordinates through $k$'s: § 3's transformation run backwards, which is the same transformation with $-v$."
+  - latex: "\\omega \\left( t - \\frac{a x}{V} \\right) = \\omega \\beta \\left( 1 - a \\frac{v}{V} \\right) \\tau - \\frac{\\omega}{V} \\beta \\left( a - \\frac{v}{V} \\right) \\xi"
+    why: "Substitute into the part of the phase that holds $t$ and $x$, and collect. The terms in $\\tau$ are $\\omega \\beta \\tau - \\omega a \\beta \\frac{v}{V} \\tau$; the terms in $\\xi$ are $\\omega \\beta \\frac{v}{V^2} \\xi - \\frac{\\omega a \\beta}{V} \\xi$. The other two parts, with $b y$ and the third cosine times $z$, become the same with $\\eta$ and $\\zeta$, because $y = \\eta$ and $z = \\zeta$."
+  - latex: "\\Phi' = \\omega' \\left( \\tau - \\frac{a' \\xi + b' \\eta + c' \\zeta}{V} \\right)"
+    why: "Take out the factor $\\omega \\beta \\left( 1 - a \\frac{v}{V} \\right)$ and call it $\\omega'$. What stands before $\\xi$, $\\eta$ and $\\zeta$ inside the bracket are then the new direction cosines $a'$, $b'$, $c'$ of the next displays. The paper names the phase written this way $\\Phi'$."
+  - latex: "a'^2 + b'^2 + c'^2 = 1"
+    why: "A check the paper does not print: since the squares of the three old cosines add to one, the numerator $\\left( a - \\frac{v}{V} \\right)^2 + (1 - a^2) \\left( 1 - \\frac{v^2}{V^2} \\right)$ equals $\\left( 1 - a \\frac{v}{V} \\right)^2$. So $a'$, $b'$, $c'$ describe a direction, and the wave crosses $k$ at the velocity $V$, as the principle of the constancy of the velocity of light requires."

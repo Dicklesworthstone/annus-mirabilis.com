@@ -1,0 +1,45 @@
+# special-relativity eq-s7-d1: what the display says, at every level (dispatch 281).
+# Written from the German of s7-p1 (p. 910) and its plate; every step was checked by hand.
+display: eq-s7-d1
+paper: special-relativity
+inWords:
+  - text: "In the stationary system, each component of "
+  - text: "the electric force"
+    quantityId: electricFieldStationary
+  - text: " and of "
+  - text: "the magnetic force"
+    quantityId: magneticFieldStationary
+  - text: " is its "
+  - text: "electric"
+    quantityId: electricFieldAmplitudeStationary
+  - text: " or "
+  - text: "magnetic amplitude"
+    quantityId: magneticFieldAmplitudeStationary
+  - text: " times the sine of "
+  - text: "one phase"
+    quantityId: wavePhase
+  - text: ", which advances with "
+  - text: "the time"
+    quantityId: coordinateTimeStationary
+  - text: " at "
+  - text: "the angular frequency"
+    quantityId: waveAngularFrequencyStationary
+  - text: " and falls behind along "
+  - text: "the coordinates"
+    quantityId: coordinatePositionStationary
+  - text: " in the direction the wave travels, given by "
+  - text: "its direction cosines"
+    quantityId: directionCosineStationary
+  - text: ", at "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "A plane light wave in the stationary system $K$: every component of the electric and magnetic force oscillates with the same phase $\\Phi$, which travels along the wave normal at the velocity of light. This is the wave that § 7 will look at from the moving system."
+r1: "The paper places a source of electrodynamic waves very far from the origin of $K$, so that near the origin its waves may be represented, to a sufficient approximation, by plane waves. $(X_0, Y_0, Z_0)$ and $(L_0, M_0, N_0)$ are the amplitudes of the electric and magnetic force, and $a$, $b$, $c$ the direction cosines of the wave normal, the cosines of the angles it makes with the three axes. All six components rise and fall together with $\\sin \\Phi$. The phase $\\Phi = \\omega \\left( t - \\frac{a x + b y + c z}{V} \\right)$ is the same on every plane $a x + b y + c z = \\mathrm{const}$, and such a plane moves along the normal at the velocity $V$. The angular frequency $\\omega$ says how fast the phase advances in time."
+r2:
+  - latex: "\\Phi = \\omega \\left( t - \\frac{a x + b y + c z}{V} \\right)"
+    why: "The phase of the wave. At a fixed place it grows steadily with $t$, at the rate $\\omega$."
+  - latex: "a x + b y + c z = V t + \\mathrm{const}"
+    why: "Where is the phase the same? Wherever $t - \\frac{a x + b y + c z}{V}$ is the same: on a plane perpendicular to the direction $(a, b, c)$, which moves along that direction a distance $V t$ in the time $t$. So the wave travels at the velocity of light."
+  - latex: "X = X_0 \\sin \\Phi, \\quad L = L_0 \\sin \\Phi"
+    why: "Each component of each force is its amplitude times $\\sin \\Phi$. The other four components follow the same pattern with their own amplitudes."

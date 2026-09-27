@@ -1,0 +1,31 @@
+# special-relativity eq-s7-d7: what the display says, at every level (dispatch 281).
+# Written from the German of s7-p3 (p. 911) and its plate; every step was checked by hand.
+display: eq-s7-d7
+paper: special-relativity
+inWords:
+  - text: "The frequency the moving observer perceives"
+    quantityId: waveFrequencyMoving
+  - text: " is "
+  - text: "the frequency of the source"
+    quantityId: waveFrequencyStationary
+  - text: " times one minus the cosine of "
+  - text: "the angle between the line from the source and the observer's velocity"
+    quantityId: propagationAngleStationary
+  - text: " times "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", divided by the square root of one minus the square of that speed ratio."
+r0: "Doppler's principle for any speed: the frequency an observer moving with velocity $v$ perceives from a very distant source, in terms of the angle between the line from the source and the observer's velocity."
+r1: "This is the equation for $\\omega'$ read as a statement about an observer. The frequency is $\\nu = \\frac{\\omega}{2 \\pi}$, and the factor $2 \\pi$ cancels. The source is infinitely distant and at rest in $K$; the observer moves with velocity $v$, and $\\varphi$ is the angle between the line from source to observer and the observer's velocity, measured in the source's system. That line is the direction the light travels, so its cosine with the direction of motion is $a = \\cos \\varphi$. An observer moving away from the source ($\\varphi = 0$) perceives a lower frequency, one moving towards it ($\\varphi = \\pi$) a higher one. The square root makes the formula exact at every speed below $V$; to first order in $\\frac{v}{V}$ it is the older $\\nu' = \\nu \\left( 1 - \\cos \\varphi \\frac{v}{V} \\right)$."
+r2:
+  - latex: "\\omega' = \\omega \\beta \\left( 1 - a \\frac{v}{V} \\right)"
+    why: "The angular frequency in $k$, from p. 911."
+  - latex: "\\omega = 2 \\pi \\nu, \\quad \\omega' = 2 \\pi \\nu'"
+    why: "An angular frequency is $2 \\pi$ times the number of oscillations per second."
+  - latex: "a = \\cos \\varphi"
+    why: "The wave travels along the line from the source to the observer, so the cosine of its direction with the motion is the cosine of the angle $\\varphi$."
+  - latex: "\\nu' = \\nu \\frac{1 - \\cos \\varphi \\frac{v}{V}}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
+    why: "Cancel $2 \\pi$ and write $\\beta$ out."

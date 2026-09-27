@@ -1,0 +1,36 @@
+# special-relativity eq-s7-d11: what the display says, at every level (dispatch 281).
+# Written from the German of s7-p6 (p. 912) and its plate; every step was checked by hand.
+display: eq-s7-d11
+paper: special-relativity
+inWords:
+  - text: "The square of "
+  - text: "the amplitude in the moving system"
+    quantityId: lightAmplitudeMoving
+  - text: " is the square of "
+  - text: "the amplitude in the stationary system"
+    quantityId: lightAmplitudeStationary
+  - text: " times the square of one minus "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " times the cosine of "
+  - text: "the ray's angle"
+    quantityId: propagationAngleStationary
+  - text: ", divided by one minus the square of that speed ratio."
+r0: "The amplitude of the wave as the moving observer measures it. Its square changes by the same factor as the frequency, squared: a receding observer finds the light weaker, an approaching one stronger."
+r1: "$A$ and $A'$ are the amplitude of the electric or of the magnetic force, measured in the stationary and in the moving system; for a plane wave the two forces have equal amplitudes in each system. The paper states the result without the working, which uses the amplitudes of the second display and two properties of a plane wave: the electric force is perpendicular to the direction of the wave, and the magnetic force is the vector product of that direction and the electric force. The factor on the right is $\\beta^2 \\left( 1 - \\frac{v}{V} \\cos \\varphi \\right)^2$, the square of the Doppler factor, so the amplitude and the frequency change in the same proportion."
+r2:
+  - latex: "A'^2 = X_0^2 + \\beta^2 \\left( Y_0 - \\frac{v}{V} N_0 \\right)^2 + \\beta^2 \\left( Z_0 + \\frac{v}{V} M_0 \\right)^2"
+    why: "The square of the electric amplitude in $k$, read off the second display of § 7."
+  - latex: "a = \\cos \\varphi, \\quad b = \\sin \\varphi"
+    why: "Turn the axes about the direction of motion, which changes nothing in the problem, until the ray lies in the plane of the first two axes. Its third direction cosine is then zero, and the first two are the cosine and sine of $\\varphi$."
+  - latex: "M_0 = -a Z_0, \\quad N_0 = a Y_0 - b X_0, \\quad a X_0 + b Y_0 = 0"
+    why: "For a plane wave the magnetic amplitude is the vector product of the direction of the ray and the electric amplitude, and the electric amplitude is perpendicular to the ray."
+  - latex: "Y_0 - \\frac{v}{V} N_0 = \\left( 1 - a \\frac{v}{V} \\right) Y_0 + b \\frac{v}{V} X_0, \\quad Z_0 + \\frac{v}{V} M_0 = \\left( 1 - a \\frac{v}{V} \\right) Z_0"
+    why: "Put in $N_0$ and $M_0$ and gather the terms."
+  - latex: "A'^2 = X_0^2 + \\beta^2 \\left[ \\left( 1 - a \\frac{v}{V} \\right)^2 A^2 - \\left( 1 - \\frac{v^2}{V^2} \\right) X_0^2 \\right]"
+    why: "Square and add, using $b Y_0 = -a X_0$, $b^2 = 1 - a^2$ and $A^2 = X_0^2 + Y_0^2 + Z_0^2$: the terms in $X_0^2$ collect to $\\left( 1 - a \\frac{v}{V} \\right)^2 - \\left( 1 - \\frac{v^2}{V^2} \\right)$ times $X_0^2$."
+  - latex: "A'^2 = A^2 \\frac{\\left( 1 - \\frac{v}{V} \\cos \\varphi \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2}"
+    why: "Since $\\beta^2 \\left( 1 - \\frac{v^2}{V^2} \\right) = 1$, the $X_0^2$ terms cancel, leaving $\\beta^2 \\left( 1 - a \\frac{v}{V} \\right)^2 A^2$. With $a = \\cos \\varphi$ this is the display."

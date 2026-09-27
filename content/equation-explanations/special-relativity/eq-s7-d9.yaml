@@ -1,0 +1,27 @@
+# special-relativity eq-s7-d9: what the display says, at every level (dispatch 281).
+# Written from the German of s7-p5 (p. 912) and its plate; every step was checked by hand.
+display: eq-s7-d9
+paper: special-relativity
+inWords:
+  - text: "The cosine of "
+  - text: "the ray's angle in the moving system"
+    quantityId: propagationAngleMoving
+  - text: " is the cosine of "
+  - text: "its angle in the stationary system"
+    quantityId: propagationAngleStationary
+  - text: " less "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", divided by one minus that ratio times the same cosine."
+r0: "The law of aberration in its most general form, as the paper calls it: how the direction of a ray, measured from the direction of motion, differs between the stationary and the moving observer."
+r1: "The paper takes the equation for $a'$ and writes both cosines as angles: $\\varphi$ is the angle between the ray and the line of motion in the source's system, $\\varphi'$ the angle between the wave normal (the direction of the ray) in the moving system and the same line. Aberration is the change from $\\varphi$ to $\\varphi'$. It vanishes for rays along the motion and is largest for rays near right angles to it. The light the moving observer receives comes from a direction shifted towards the direction of motion, which is what an astronomer observes as the aberration of starlight."
+r2:
+  - latex: "a' = \\frac{a - \\frac{v}{V}}{1 - a \\frac{v}{V}}"
+    why: "The first new direction cosine, from p. 911."
+  - latex: "a = \\cos \\varphi, \\quad a' = \\cos \\varphi'"
+    why: "The direction cosine along the motion is the cosine of the angle between the ray and the line of motion, in each system."
+  - latex: "\\cos \\varphi' = \\frac{\\cos \\varphi - \\frac{v}{V}}{1 - \\frac{v}{V} \\cos \\varphi}"
+    why: "Substitute. For $\\varphi = 0$ this gives $\\cos \\varphi' = 1$: a ray along the motion keeps its direction."

@@ -1,0 +1,32 @@
+# special-relativity eq-s7-d6: what the display says, at every level (dispatch 281).
+# Written from the German of s7-p2 (p. 911) and its plate; every step was checked by hand.
+display: eq-s7-d6
+paper: special-relativity
+inWords:
+  - text: "The direction cosine along the third axis in the moving system"
+    quantityId: directionCosineMoving
+  - text: " is "
+  - text: "the stationary one"
+    quantityId: directionCosineStationary
+  - text: " divided by "
+  - text: "the factor"
+    quantityId: lorentzFactor
+  - text: " and by one minus "
+  - text: "the direction cosine along the motion"
+    quantityId: directionCosineStationary
+  - text: " times "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "The third new direction cosine, for the axis $\\zeta$, found exactly as the second: the two axes across the motion are treated alike."
+r1: "Everything said of the second cosine holds for $c'$ with $\\zeta$ in place of $\\eta$. The two cosines across the motion are scaled by the same factor, so the part of the wave's direction that lies across the motion keeps its orientation around the axis of motion; only the angle to that axis changes. The paper closes the list with gesetzt ist (have been set): these four quantities are definitions that make the phase in $k$ look like the phase in $K$."
+r2:
+  - latex: "\\frac{\\omega}{V} c = \\frac{\\omega'}{V} c'"
+    why: "The coefficient of $\\zeta$ in the phase must equal $\\frac{\\omega'}{V} c'$, as for $\\eta$."
+  - latex: "c' = \\frac{c}{\\beta \\left( 1 - a \\frac{v}{V} \\right)}"
+    why: "Divide by $\\frac{\\omega'}{V}$ with $\\omega' = \\omega \\beta \\left( 1 - a \\frac{v}{V} \\right)$."
+  - latex: "\\frac{c'}{c} = \\frac{1}{\\beta \\left( 1 - a \\frac{v}{V} \\right)}"
+    why: "The second cosine is scaled by the same factor, so the ratio of the two cosines across the motion is unchanged, and the wave turns only in the plane that contains the direction of motion."

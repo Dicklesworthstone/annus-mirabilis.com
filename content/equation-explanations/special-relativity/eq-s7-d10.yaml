@@ -1,0 +1,24 @@
+# special-relativity eq-s7-d10: what the display says, at every level (dispatch 281).
+# Written from the German of s7-p5 (p. 912) and its plate; every step was checked by hand.
+display: eq-s7-d10
+paper: special-relativity
+inWords:
+  - text: "For a ray at right angles to the motion in the stationary system, the cosine of "
+  - text: "its angle in the moving system"
+    quantityId: propagationAngleMoving
+  - text: " is minus "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "The simplest case of aberration: a ray that crosses the motion at right angles in the stationary system meets the moving observer at an angle whose cosine is $-\\frac{v}{V}$."
+r1: "With $\\varphi = \\frac{\\pi}{2}$ the cosine of $\\varphi$ is zero, and the general law leaves $\\cos \\varphi' = -\\frac{v}{V}$. For small $v$ the ray is tipped from the right angle by about $\\frac{v}{V}$ radians, the classical aberration angle. At $v = 0.6 \\, V$ the cosine is $-0.6$ and $\\varphi'$ is about 126.87 degrees."
+r2:
+  - latex: "\\cos \\varphi' = \\frac{\\cos \\varphi - \\frac{v}{V}}{1 - \\frac{v}{V} \\cos \\varphi}"
+    why: "The general law of aberration, the previous display."
+  - latex: "\\cos \\frac{\\pi}{2} = 0"
+    why: "A ray at right angles to the motion in $K$."
+  - latex: "\\cos \\varphi' = -\\frac{v}{V}"
+    why: "The numerator becomes $-\\frac{v}{V}$ and the denominator 1."

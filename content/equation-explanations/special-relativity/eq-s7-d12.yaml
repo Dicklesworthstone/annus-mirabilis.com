@@ -1,0 +1,27 @@
+# special-relativity eq-s7-d12: what the display says, at every level (dispatch 281).
+# Written from the German of s7-p6 and s7-p7 (p. 912) and its plate; every step was checked by hand.
+display: eq-s7-d12
+paper: special-relativity
+inWords:
+  - text: "For an observer moving straight away from the source, the square of "
+  - text: "the amplitude in the moving system"
+    quantityId: lightAmplitudeMoving
+  - text: " is the square of "
+  - text: "the amplitude in the stationary system"
+    quantityId: lightAmplitudeStationary
+  - text: " times one minus "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", divided by one plus it."
+r0: "The amplitude for an observer moving along the line from the source, the case $\\varphi = 0$: its square falls by the same factor as the frequency, and rises without bound as an approaching observer's speed nears that of light."
+r1: "With $\\varphi = 0$ the factor $\\frac{\\left( 1 - \\frac{v}{V} \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2}$ simplifies to $\\frac{1 - \\frac{v}{V}}{1 + \\frac{v}{V}}$, the square of the Doppler factor for this direction. At $v = 0.6 \\, V$ the squared amplitude is a quarter and the amplitude half of its value in $K$; approaching at the same speed ($v = -0.6 \\, V$) the squared amplitude is four times as great. The paper draws the conclusion in the next sentence: for an observer approaching a light source with the velocity $V$, the source would have to appear infinitely intense."
+r2:
+  - latex: "A'^2 = A^2 \\frac{\\left( 1 - \\frac{v}{V} \\cos \\varphi \\right)^2}{1 - \\left( \\frac{v}{V} \\right)^2}"
+    why: "The squared amplitude for any angle, the previous display."
+  - latex: "A'^2 = A^2 \\frac{\\left( 1 - \\frac{v}{V} \\right)^2}{\\left( 1 - \\frac{v}{V} \\right) \\left( 1 + \\frac{v}{V} \\right)}"
+    why: "Put $\\varphi = 0$ and factor the denominator."
+  - latex: "A'^2 = A^2 \\frac{1 - \\frac{v}{V}}{1 + \\frac{v}{V}}"
+    why: "Cancel one factor $1 - \\frac{v}{V}$."
