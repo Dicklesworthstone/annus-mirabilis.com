@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import "../../components/lab/labShell.css";
 import { EmbedLauncher } from "../../components/embed/EmbedLauncher.tsx";
 import { LocalPredictions } from "../../components/lab/LocalPredictions.tsx";
+import { ExplainerFragments } from "../../reader/faces/ExplainerFragments.tsx";
 
 /**
  * Connect the instruments to the shared reasoning laboratories without changing their state.
@@ -23,6 +24,12 @@ export default function LaboratoryLayout({ children }: { children: ReactNode }) 
     <>
       {/* The predict gate remembers answers here; an embed's never does (predictPersistence.ts). */}
       <LocalPredictions />
+      {/* One island for every laboratory (dispatch 301): a press on "Explain this equation" under a
+          display opens it here instead of following its link to the page holding its levels. Every
+          control is a real anchor, so a laboratory without this still reaches every word; this only
+          keeps the reader on the instrument. It listens and holds no state, so a page with no
+          explained formula pays for a listener and nothing else. */}
+      <ExplainerFragments />
       <div className="lab-route">{children}</div>
       <EmbedLauncher />
       <nav className="actions no-print" aria-label="Ways to test a model">

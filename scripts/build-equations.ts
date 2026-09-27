@@ -619,6 +619,33 @@ await writeFile(
 // first expansion, and to the page that holds them for a reader without JavaScript. Measured before
 // this split: relativity's German face 992,203 gzipped against a recorded 385,289, and its parallel
 // face 1,867,064, because every panel is written twice, once as markup and once into the flight data.
+// THE LABORATORIES' FORMULAS (dispatch 291), checked and compiled after the printed displays'
+// records, and given the records this run has just compiled rather than the payload on disk, which
+// is still the previous run's at this moment.
+const freshDisplayRecords = new Map(
+  equationExplanations.flatMap((e) =>
+    e.explanations.map((x) => [`${e.paper}\u0000${x.display}`, x] as const),
+  ),
+);
+const labExplanations = checkLabExplanations(process.cwd(), {
+  displayRecord: (paper, display) =>
+    paper === undefined || display === undefined
+      ? undefined
+      : freshDisplayRecords.get(`${paper}\u0000${display}`),
+});
+console.log(
+  JSON.stringify({
+    event: "lab-explanations",
+    ...labExplanations.census,
+    problems: labExplanations.problems.length,
+  }),
+);
+assertLabExplanationsPublishable(labExplanations);
+/** The laboratories' own records, which need a fragment and a page of their own. */
+const labOwnExplainers = [...labExplanations.explainers.values()].flatMap((drawn) =>
+  [...drawn.values()].filter((e) => !e.display && e.equation),
+);
+
 const explainerFragments = [
   ...equationExplanations.flatMap((e) => e.explanations),
   // A model equation explained from its own record has a fragment of its own; one explained from a
@@ -628,6 +655,10 @@ const explainerFragments = [
       ? [{ ...equation.explainer, equation: equation.id }]
       : [],
   ),
+  // A laboratory's own record (dispatch 301) has a fragment for the same reason: its levels are
+  // not carried by the lab page. One whose words are a printed display's does not, because it
+  // travels under that display's id and shares the fragment the reading face fetches.
+  ...labOwnExplainers,
 ].map((explanation) => explainerFragment(explanation));
 for (const dir of new Set(explainerFragments.map((f) => dirname(f.path))))
   await mkdir(dir, { recursive: true });
@@ -678,37 +709,16 @@ await writeFile(
           { displays: Object.fromEntries(e.explanations.map((x) => [x.display, x])) },
         ]),
     ),
-    equations: Object.fromEntries(
-      explainedEquations.flatMap((equation) =>
+    equations: Object.fromEntries([
+      ...explainedEquations.flatMap((equation) =>
         equation.explainer && !equation.explainer.display
-          ? [[equation.id, { ...equation.explainer, equation: equation.id }]]
+          ? [[equation.id, { ...equation.explainer, equation: equation.id }] as const]
           : [],
       ),
-    ),
+      ...labOwnExplainers.map((e) => [e.equation ?? "", e] as const),
+    ]),
   })}\n`,
 );
-// THE LABORATORIES' FORMULAS (dispatch 291), checked and compiled after the printed displays'
-// records, and given the records this run has just compiled rather than the payload on disk, which
-// is still the previous run's at this moment.
-const freshDisplayRecords = new Map(
-  equationExplanations.flatMap((e) =>
-    e.explanations.map((x) => [`${e.paper}\u0000${x.display}`, x] as const),
-  ),
-);
-const labExplanations = checkLabExplanations(process.cwd(), {
-  displayRecord: (paper, display) =>
-    paper === undefined || display === undefined
-      ? undefined
-      : freshDisplayRecords.get(`${paper}\u0000${display}`),
-});
-console.log(
-  JSON.stringify({
-    event: "lab-explanations",
-    ...labExplanations.census,
-    problems: labExplanations.problems.length,
-  }),
-);
-assertLabExplanationsPublishable(labExplanations);
 await writeFile(
   "src/generated/lab-explanations.json",
   `${JSON.stringify({
@@ -720,7 +730,10 @@ await writeFile(
     labs: Object.fromEntries(
       [...labExplanations.explainers]
         .filter(([, drawn]) => drawn.size > 0)
-        .map(([lab, drawn]) => [lab, Object.fromEntries(drawn)]),
+        .map(([lab, drawn]) => [
+          lab,
+          Object.fromEntries([...drawn].map(([latex, e]) => [latex, inlineExplanation(e)])),
+        ]),
     ),
   })}\n`,
 );
