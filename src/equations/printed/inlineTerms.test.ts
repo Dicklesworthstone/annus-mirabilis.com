@@ -102,6 +102,39 @@ describe("a glyph that resolves to nothing or to two quantities is refused with 
     expect(r.problems[0]?.message).toContain("volume");
   });
 
+  test("two readings that both leave a sign plain agree, whatever kind of sign each calls it", () => {
+    // Neither reading colours the glyph, so there is nothing to choose between. Light quanta's
+    // footnote f is a function label to the concordance, and the display that prints it declares
+    // the same f no quantity (dispatch 278).
+    const entries = loadConcordanceForPaper("mass-energy").entries;
+    const v = entries.find((e) => e.glyph.latex === "V");
+    if (!v) throw new Error("mass-energy's concordance has no V");
+    const asLabel = {
+      ...v,
+      id: "me.V.label",
+      binding: { nonQuantityKind: "function-label" },
+    } as ConcordanceEntry;
+    const asOperator = {
+      ...v,
+      id: "me.V.operator",
+      binding: { nonQuantityKind: "operator" },
+    } as ConcordanceEntry;
+    const at = scope("mass-energy", "s0-p5", "s0");
+    const plain = resolveInlineTerms("V", at, {
+      ...contextFor("mass-energy"),
+      concordance: [asLabel, asOperator],
+    });
+    expect(plain.problems).toEqual([]);
+    expect(plain.terms).toEqual([]);
+    expect(plain.declared).toBe(1);
+    // A quantity and a sign still disagree: one of them would colour it.
+    const split = resolveInlineTerms("V", at, {
+      ...contextFor("mass-energy"),
+      concordance: [v, asOperator],
+    });
+    expect(split.problems.map((p) => p.code)).toEqual(["inline-terms-ambiguous-glyph"]);
+  });
+
   test("a binding to an unregistered quantity is refused", () => {
     const entries = loadConcordanceForPaper("mass-energy").entries;
     const v = entries.find((e) => e.glyph.latex === "V");

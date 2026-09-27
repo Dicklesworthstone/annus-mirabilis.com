@@ -59,12 +59,17 @@ describe("an explanation's inline formulas", () => {
   });
 
   test("a paper not yet read against its passages stays plain, even where a formula resolves", () => {
-    // eV ≥ hν in light quanta § 8: V there is the accelerating potential, the concordance's V is the
-    // volume. It resolves, so only the paper list keeps it from being coloured as a volume.
+    // eV ≥ hν with V the accelerating potential, as light quanta § 8 wrote it before dispatch 273:
+    // the concordance's § 8 V is the volume. It resolves, so only the paper list keeps a paper's
+    // formulas plain until its letters have been read.
     const lq = { paper: "light-quanta", section: "s8", where: "arg-lq-test steps" } as const;
-    expect(explanationInline("eV\\ge h\\nu", lq)).toBeUndefined();
+    expect(explanationInline("eV\\ge h\\nu", lq, [], [])).toBeUndefined();
     expect(explanationInline("eV\\ge h\\nu", lq, [], ["light-quanta"])?.html).toContain(
       'data-quantity-id="volume"',
+    );
+    // As § 8 now writes it, the accelerating potential has a letter of its own.
+    expect(explanationInline("eV_{\\mathrm{acc}}\\ge h\\nu", lq)?.html).toContain(
+      'data-quantity-id="acceleratingPotential"',
     );
   });
 

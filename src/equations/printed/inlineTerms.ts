@@ -210,7 +210,10 @@ export function resolveInlineTerms(
       });
       continue;
     }
-    if (readings.some((r) => r.binds !== first.binds)) {
+    // Two readings disagree only where they would draw the glyph differently: two quantities, or a
+    // quantity and a sign. Two signs of different kinds (a function label, an operator) both leave
+    // it plain (dispatch 278).
+    if (readings.some((r) => r.quantityId !== first.quantityId)) {
       problems.push({
         code: "inline-terms-ambiguous-glyph",
         where: scope.where,

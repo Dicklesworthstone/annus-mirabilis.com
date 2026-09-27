@@ -41,12 +41,12 @@ export type ExplanationScope = Readonly<{
 
 /**
  * Papers whose explanation formulas are coloured, each added once every binding it produces has been
- * read against the passage it is written in. Resolving is not the same as being right: in light
- * quanta § 8 an explanation writes V for the accelerating potential (eV ≥ hν), and the concordance's
- * § 8 reading of V is the volume, so it resolves and would be coloured as a volume. A paper's own
- * letters are fixed at the source before it joins.
+ * read against the passage it is written in. Resolving is not the same as being right: light quanta
+ * § 8 wrote eV ≥ hν with V the accelerating potential, and the concordance's § 8 reading of V is the
+ * volume, so it resolved and would have been coloured as a volume. A paper's letters are fixed at the
+ * source before it joins; for light quanta, § 1's Ē and § 8's V_acc (dispatch 273).
  */
-export const COLOURED_EXPLANATION_PAPERS: readonly string[] = ["mass-energy"];
+export const COLOURED_EXPLANATION_PAPERS: readonly string[] = ["mass-energy", "light-quanta"];
 
 /** Papers whose every explanation formula must colour or be a listed exception. */
 export const ENFORCED_EXPLANATION_PAPERS: readonly string[] = [];

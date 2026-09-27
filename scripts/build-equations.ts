@@ -12,6 +12,12 @@ import { buildMassEnergyElimination } from "../src/equations/derivations/massEne
 import { buildMassEnergyLowSpeed } from "../src/equations/derivations/massEnergyLowSpeed.ts";
 import { renderLowSpeedProof } from "../src/equations/derivations/renderLowSpeed.ts";
 import { notationNoteTarget } from "../src/equations/notationNoteTarget.ts";
+import {
+  assertExplanationsPublishable,
+  checkPaperExplanations,
+  ENFORCED_EXPLANATION_PAPERS,
+  loadExplanationSources,
+} from "../src/equations/printed/equationExplanations.ts";
 import { explanationFormulas } from "../src/equations/printed/explanationFormulas.ts";
 import { labFormulaSites } from "../src/equations/printed/labFormulaSites.ts";
 import { labInlineViews } from "../src/equations/printed/labInlines.ts";
@@ -146,7 +152,27 @@ for (const p of inlinePapers) {
     );
 }
 assertInlinesPublishable(inlinePapers);
+// AN EXPLANATION FOR EVERY PRINTED DISPLAY (dispatch 278): each record read against its display and
+// compiled in colour (equationExplanations.ts). A refused record stops the build in any paper. A
+// display with no record stops it only in an enforced paper, and in every other is named here.
+const equationExplanations = await Promise.all(
+  result.papers.map((p) => checkPaperExplanations(process.cwd(), p.paper.id)),
+);
+for (const e of equationExplanations)
+  if (e.census.displays > 0)
+    console.log(
+      JSON.stringify({
+        event: "equation-explanations",
+        paper: e.paper,
+        ...e.census,
+        ...(e.missing.length > 0 && !ENFORCED_EXPLANATION_PAPERS.includes(e.paper)
+          ? { unexplained: e.missing }
+          : {}),
+      }),
+    );
+assertExplanationsPublishable(equationExplanations);
 const sourcePaths = [
+  "src/equations/printed/equationExplanations.ts",
   "src/equations/printed/inlineTerms.ts",
   "src/equations/printed/paperInlines.ts",
   ...(existsSync("content/inline-terms/exceptions.yaml")
@@ -161,6 +187,11 @@ const sourcePaths = [
   "src/content/quantities/readerDescriptions.ts",
   "content/reader-descriptions/quantities.yaml",
   ...result.papers.map((p) => `content/display-terms/${p.paper.id}.yaml`).filter(existsSync),
+  ...result.papers.flatMap((p) =>
+    loadExplanationSources(process.cwd(), p.paper.id).map(
+      (source) => `content/equation-explanations/${p.paper.id}/${source.file}`,
+    ),
+  ),
   "src/equations/latex.ts",
   "src/equations/latex/render.ts",
   "src/equations/notationForms.ts",
@@ -328,6 +359,8 @@ for (const paper of [...new Set(equations.map((e) => e.paper))].sort()) {
     ...Object.values(inlinePapers.find((p) => p.paper === paper)?.formulas ?? {}),
     ...(explanationPapers.find((e) => e.paper === paper)?.formulas ?? []),
     ...(labViews.papers[paper]?.formulas ?? []),
+    // The formulas of the displays' explanations (dispatch 278), in their prose and their steps.
+    ...(equationExplanations.find((e) => e.paper === paper)?.formulas ?? []),
     // The Discover pages' formulas (dispatch 276), read from the list the pages draw from.
     ...discoverViews.filter((f) => f.paper === paper),
   ].filter((f) => f.terms.length > 0);
@@ -515,6 +548,23 @@ await writeFile(
               firstUse: (paper, anchor) => resolveFirstUse(paper, anchor, firstUseTargets),
             }),
           },
+        ]),
+    ),
+  })}\n`,
+);
+await writeFile(
+  "src/generated/equation-explanations.json",
+  `${JSON.stringify({
+    schemaVersion: 1,
+    rendererDigest,
+    // Each printed display's explanation, compiled, for every record that passed; a display with none
+    // has no entry, and its face shows no control rather than an empty one (EquationExplainer).
+    papers: Object.fromEntries(
+      equationExplanations
+        .filter((e) => e.explanations.length > 0)
+        .map((e) => [
+          e.paper,
+          { displays: Object.fromEntries(e.explanations.map((x) => [x.display, x])) },
         ]),
     ),
   })}\n`,
