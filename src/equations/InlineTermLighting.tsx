@@ -17,6 +17,16 @@
  * relativity's V is never lit by mass-energy's. The controller clears only what it lit, so a
  * display block's own lighting (TermHighlight) is left alone.
  *
+ * A CHIP IS A TARGET TOO (dispatch 290; the owner: "all must have the nice hover-over effects").
+ * Pointing at a glyph in a formula already lit every copy of its quantity on the page, chips
+ * included: measured on the build of 8d42d5ef, relativity's German face lit all 500 copies of
+ * coordinateTimeStationary, 38 of them chips. Pointing at the CHIP lit 17, its own display block
+ * and no further, because the block's own controller (TermHighlight) lights what it contains and
+ * nothing else. The two directions now match. The island lights the copies OUTSIDE the chip's own
+ * block and leaves those inside it to that block, so no element is lit by two owners and each
+ * clears only what it lit. The pin stays the block's: a chip already opens the inspector under its
+ * own formula, and a second one would be a second answer to one press.
+ *
  * LABELS TOO (dispatch 280, step 1b; the owner: "all must have the nice hover-over effects"). A
  * letter the notation declares no quantity, a point A, an axis X, a system K, is marked data-label:
  * pointing at it lights every copy of the same label, which is the same reading in the same section,
@@ -88,6 +98,32 @@ function markAt(
   return null;
 }
 
+/**
+ * What the pointer is on for LIGHTING: a mark, or a chip. A chip carries the block that lights its
+ * own copies, so the island can leave that block's elements alone.
+ */
+function litTargetAt(
+  paper: string,
+  target: EventTarget | null,
+): Readonly<{ quantityId?: string; labelId?: string; ownBlock?: Element | null }> | null {
+  const mark = markAt(paper, target);
+  if (mark) return mark;
+  const chip = chipAt(paper, target);
+  return chip
+    ? {
+        quantityId: chip.getAttribute("data-quantity-id") as string,
+        ownBlock: chip.closest("[data-display-terms]"),
+      }
+    : null;
+}
+
+/** The chip of this paper at target, if there is one: a legend chip carrying a quantity. */
+function chipAt(paper: string, target: EventTarget | null): Element | null {
+  if (!(target instanceof Element)) return null;
+  const chip = target.closest(".term-chip[data-quantity-id]");
+  return chip && paperOf(chip) === paper ? chip : null;
+}
+
 /** Every copy of one label on the page, in this paper's inline formulas. */
 function copiesOfLabel(root: Element, paper: string, labelId: string): Element[] {
   return [...root.querySelectorAll("[data-label]")].filter(
@@ -110,6 +146,8 @@ export function attachInlineLighting(
   const owner = root.ownerDocument;
   // What the pointer is on, as "q:<quantity id>" or "l:<label id>", so the two never collide.
   let hovered: string | null = null;
+  // The block that lights the hovered chip's own copies, which this island leaves to it.
+  let hoveredOwnBlock: Element | null = null;
   let pinned: InlinePin | null = null;
   let lit: Element[] = [];
   const keyOf = (mark: Pick<InlinePin, "quantityId" | "labelId"> | null) =>
@@ -127,7 +165,9 @@ export function attachInlineLighting(
         : active.startsWith("l:")
           ? copiesOfLabel(root, paper, active.slice(2))
           : elementsOfQuantity(root, active.slice(2)).filter(
-              (element) => paperOf(element) === paper,
+              (element) =>
+                paperOf(element) === paper &&
+                !hoveredOwnBlock?.contains(element),
             );
     for (const element of lit) element.setAttribute("data-lit", "true");
   };
@@ -137,11 +177,14 @@ export function attachInlineLighting(
     update();
   };
   const onOver = (event: Event) => {
-    hovered = keyOf(markAt(paper, event.target));
+    const target = litTargetAt(paper, event.target);
+    hovered = keyOf(target ?? null);
+    hoveredOwnBlock = target?.ownBlock ?? null;
     update();
   };
   const onLeave = () => {
     hovered = null;
+    hoveredOwnBlock = null;
     update();
   };
   const onClick = (event: Event) => {
@@ -157,6 +200,7 @@ export function attachInlineLighting(
   const onKey = (event: Event) => {
     if ((event as KeyboardEvent).key !== "Escape" || (!pinned && hovered === null)) return;
     hovered = null;
+    hoveredOwnBlock = null;
     pin(null);
   };
   root.addEventListener("pointerover", onOver);

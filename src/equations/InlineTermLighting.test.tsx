@@ -197,3 +197,76 @@ describe("the island shows a pinned label's note after its formula", () => {
     await act(async () => root.unmount());
   });
 });
+
+/**
+ * A CHIP IS A TARGET TOO (dispatch 290). Pointing at a glyph already lit every copy of its
+ * quantity, chips included; pointing at a chip lit only its own block. The island now lights the
+ * copies outside that block and leaves the ones inside it to the block's own controller, so no
+ * element has two owners.
+ */
+const CHIPS = `
+<main>
+  <p>Die Energie <span class="inline-math" data-paper="mass-energy" data-inline-terms=""><span class="katex"><span class="katex-html"><span data-term="i1" data-quantity-id="speedOfLight" id="page-V">V</span></span></span></span>.</p>
+  <span class="printed-display-terms" data-paper="mass-energy" data-display-terms="eq-s0-d1">
+    <span class="katex"><span data-term="t1" data-quantity-id="speedOfLight" id="own-display-V">V</span></span>
+    <span class="term-chips"><button class="term-chip" data-quantity-id="speedOfLight" id="own-chip" style="--qc: var(--q-0)"><span class="equation-legend-glyph" id="own-chip-glyph">V</span></button></span>
+  </span>
+  <span class="printed-display-terms" data-paper="mass-energy" data-display-terms="eq-s0-d2">
+    <span class="katex"><span data-term="t1" data-quantity-id="speedOfLight" id="other-display-V">V</span></span>
+    <span class="term-chips"><button class="term-chip" data-quantity-id="speedOfLight" id="other-chip" style="--qc: var(--q-0)">V</button></span>
+  </span>
+  <span class="printed-display-terms" data-paper="special-relativity" data-display-terms="eq-s3-d1">
+    <span class="term-chips"><button class="term-chip" data-quantity-id="speedOfLight" id="other-paper-chip">V</button></span>
+  </span>
+  <p id="away">Text.</p>
+</main>`;
+
+describe("a chip lights the page, and leaves its own block to its own controller", () => {
+  let detach: () => void = () => {};
+  beforeEach(async () => {
+    await installDom();
+    document.body.innerHTML = CHIPS;
+    detach = attachInlineLighting(
+      document.querySelector("main") as Element,
+      "mass-energy",
+      () => {},
+    );
+  });
+  afterEach(async () => {
+    detach();
+    await uninstallDom();
+  });
+
+  test("pointing at a chip lights every copy outside its block, in its paper only", () => {
+    over("own-chip");
+    // Not own-chip or own-display-V: the block that holds them lights those itself. Not the
+    // other paper's chip.
+    expect(lit()).toEqual(["other-chip", "other-display-V", "page-V"]);
+  });
+
+  test("pointing at the glyph inside a chip counts as the chip", () => {
+    over("own-chip-glyph");
+    expect(lit()).toEqual(["other-chip", "other-display-V", "page-V"]);
+  });
+
+  test("pointing at a formula glyph still lights every copy, chips included", () => {
+    over("page-V");
+    // Nothing is held back here: no block owns the pointer, so the island lights them all.
+    expect(lit()).toEqual(["other-chip", "other-display-V", "own-chip", "own-display-V", "page-V"]);
+  });
+
+  test("moving off clears what the island lit, and a chip press is left to the block", () => {
+    over("own-chip");
+    expect(lit().length).toBe(3);
+    over("away");
+    expect(lit()).toEqual([]);
+    // The island pins formulas, not chips: a chip has its own inspector under its own formula.
+    let pinned: unknown = "unset";
+    detach();
+    detach = attachInlineLighting(document.querySelector("main") as Element, "mass-energy", (p) => {
+      pinned = p;
+    });
+    click("own-chip");
+    expect(pinned).toBe("unset");
+  });
+});
