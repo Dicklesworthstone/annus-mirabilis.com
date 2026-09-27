@@ -23,6 +23,7 @@ formulas:
   # the conclusion in words at the end of § 6 and prints no such line.
   - latex: "\\epsilon = \\frac{E}{n_{\\text{eff}}} = \\frac{R\\beta\\nu}{N} = h\\nu"
     own:
+      id: lab-lq-06-quantum-size
       inWords:
         - text: "The size of one packet"
           quantityId: quantumEnergy

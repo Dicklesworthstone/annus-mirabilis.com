@@ -15,6 +15,7 @@ formulas:
   # margin says whose the notation is.
   - latex: "e V_s = h\\nu - \\Phi \\implies V_s = \\frac{h}{e}\\nu - \\frac{\\Phi}{e}"
     own:
+      id: lab-lq-08-stopping-potential-modern
       inWords:
         - text: "The energy a light quantum carries in, "
         - text: "Planck's constant"

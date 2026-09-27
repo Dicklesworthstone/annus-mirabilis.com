@@ -11,6 +11,7 @@ formulas:
   # The contraction as a ratio of lengths, which the paper states as the axes of an ellipsoid.
   - latex: "\\Delta x = \\Delta x' \\sqrt{1 - \\frac{v^2}{c^2}} = \\frac{L_0}{\\gamma}"
     own:
+      id: lab-sr-03-contraction-ratio
       inWords:
         - text: "The distance between the ends in "
         - text: "the stationary system"
@@ -50,6 +51,7 @@ formulas:
   # Minkowski's interval, which the paper does not have.
   - latex: "\\begin{aligned}s^2 &= \\Delta x^2 + \\Delta y^2 + \\Delta z^2 - c^2 \\Delta t^2 \\\\ &= \\Delta x'^2 + \\Delta y'^2 + \\Delta z'^2 - c^2 \\Delta t'^2\\end{aligned}"
     own:
+      id: lab-sr-03-minkowski-interval
       inWords:
         - text: "The squared interval"
           quantityId: spacetimeIntervalSquared

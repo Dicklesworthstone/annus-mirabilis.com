@@ -15,6 +15,7 @@ formulas:
   # what makes the cancellation two displays below worth watching. The paper prints only their sum.
   - latex: "\\begin{gathered}\\text{Pulse 1} = \\frac{1}{2}L\\,\\gamma\\,(1 - \\beta\\cos\\varphi), \\\\ \\text{Pulse 2} = \\frac{1}{2}L\\,\\gamma\\,(1 + \\beta\\cos\\varphi)\\end{gathered}"
     own:
+      id: lab-me-01-two-pulses
       inWords:
         - text: "Each pulse carries half of "
         - text: "the energy the body gives off at rest"

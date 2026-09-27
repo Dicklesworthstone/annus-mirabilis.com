@@ -59,6 +59,7 @@ export type LabExplanationCode =
   | "lab-explanation-kind"
   | "lab-explanation-missing-display-record"
   | "lab-explanation-missing-level"
+  | "lab-explanation-own-id"
   | "lab-explanation-words-extra-quantity"
   | "lab-explanation-formula-refused"
   | "lab-explanation-voice";
@@ -440,6 +441,19 @@ function compileOwn(
     }
     return [{ text: phrase.text, quantityId: phrase.quantityId }];
   });
+  // AN OWN RECORD NEEDS AN ADDRESS (dispatch 301). Its levels are not carried by the page: they go
+  // to a static fragment the panel fetches, and to the page a reader without JavaScript is given,
+  // and both are named from this id (explainerLinks.ts). A reused record needs none, because it
+  // travels under the printed display's own id and that fragment already exists.
+  const id = text(own.id);
+  if (!id?.startsWith(`lab-${lab}-`)) {
+    problem(
+      "lab-explanation-own-id",
+      where,
+      `${where}: an own record carries an id of the form lab-${lab}-<slug>, which names its fragment and its page; this one has ${JSON.stringify(own.id)}.`,
+    );
+    return undefined;
+  }
   const r0 = text(own.r0);
   const r1 = text(own.r1);
   const r3 = text(own.r3);
@@ -476,6 +490,7 @@ function compileOwn(
   prose(inWords.map((phrase) => phrase.text).join(""), "inWords");
   const levels: ExplainerLevels = {
     paper,
+    equation: id,
     inWords,
     ...(r0 ? { r0: prose(r0, "r0") } : {}),
     r1: prose(r1, "r1"),

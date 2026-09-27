@@ -22,6 +22,9 @@ const PRINTED_LAW = "\\Pi\\varepsilon = \\frac{R}{N}\\beta\\nu - P";
 const MODERN_LAW = "e V_s = h\\nu - \\Phi \\implies V_s = \\frac{h}{e}\\nu - \\frac{\\Phi}{e}";
 const WORKED_VALUE = "V_s \\approx \\frac{h\\nu}{e} \\approx 4.3\\ \\text{V}";
 
+/** An own record needs an id, and every plant below carries one so it reaches its own predicate. */
+const PLANT_ID = "lab-lq-08-plant";
+
 const checked = checkLabExplanations();
 
 /** The codes a planted record produces, with the real files left out of the run. */
@@ -140,6 +143,7 @@ describe("the laboratories' formula explanations", () => {
         record({
           latex: MODERN_LAW,
           own: {
+            id: PLANT_ID,
             inWords: [{ text: "The gas constant", quantityId: "molarGasConstant" }],
             r1: "A full explanation.",
           },
@@ -153,6 +157,7 @@ describe("the laboratories' formula explanations", () => {
         record({
           latex: MODERN_LAW,
           own: {
+            id: PLANT_ID,
             inWords: [{ text: "The frequency", quantityId: "frequency" }],
             r1: "A full explanation.",
             r2: [{ latex: "\\Xi_{\\text{plant}} = 1", why: "A step with a glyph nothing binds." }],
@@ -167,6 +172,7 @@ describe("the laboratories' formula explanations", () => {
         record({
           latex: MODERN_LAW,
           own: {
+            id: PLANT_ID,
             inWords: [{ text: "The frequency", quantityId: "frequency" }],
             r1: "Obviously the law is a straight line in the frequency.",
           },
@@ -179,7 +185,7 @@ describe("the laboratories' formula explanations", () => {
       const codes = codesOf(
         record({
           latex: MODERN_LAW,
-          own: { inWords: [{ text: "The frequency", quantityId: "frequency" }] },
+          own: { id: PLANT_ID, inWords: [{ text: "The frequency", quantityId: "frequency" }] },
         }),
       );
       expect(codes).toContain("lab-explanation-missing-level");
@@ -192,12 +198,40 @@ describe("the laboratories' formula explanations", () => {
         record({
           latex: MODERN_LAW,
           own: {
+            id: PLANT_ID,
             inWords: [{ text: '"The frequency", "quantityId": frequency' }],
             r1: "A full explanation.",
           },
         }),
       );
       expect(codes).toContain("lab-explanation-unreadable");
+    });
+
+    test("an own record with no id, which would have no fragment and no page", () => {
+      const codes = codesOf(
+        record({
+          latex: MODERN_LAW,
+          own: {
+            inWords: [{ text: "The frequency", quantityId: "frequency" }],
+            r1: "A full explanation.",
+          },
+        }),
+      );
+      expect(codes).toContain("lab-explanation-own-id");
+    });
+
+    test("an own record whose id does not name its lab", () => {
+      const codes = codesOf(
+        record({
+          latex: MODERN_LAW,
+          own: {
+            id: "lab-sr-03-not-this-lab",
+            inWords: [{ text: "The frequency", quantityId: "frequency" }],
+            r1: "A full explanation.",
+          },
+        }),
+      );
+      expect(codes).toContain("lab-explanation-own-id");
     });
 
     test("a file naming a lab other than its own", () => {
@@ -229,6 +263,7 @@ describe("the laboratories' formula explanations", () => {
           raw: record({
             latex: MODERN_LAW,
             own: {
+              id: PLANT_ID,
               inWords: [{ text: "The frequency", quantityId: "frequency" }],
               r1: "A full explanation.",
               r2: [

@@ -4,6 +4,7 @@ lab: sr-02
 formulas:
   - latex: "\\begin{gathered}\\mathcal{E}=vB\\ell, \\\\ \\mathcal{E}'=\\gamma vB\\ell, \\\\ \\mathbf{E}'_\\perp=\\gamma(\\mathbf{v}\\times\\mathbf{B})_\\perp\\end{gathered}"
     own:
+      id: lab-sr-02-magnet-and-conductor
       inWords:
         - text: "The electromotive force when the magnet is taken to be at rest"
           quantityId: electromotiveForceMagnetFrame
