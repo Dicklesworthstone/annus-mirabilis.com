@@ -108,32 +108,30 @@ const text = (value: unknown): string | undefined =>
   typeof value === "string" && value.trim() !== "" ? value : undefined;
 
 /** The entries of one lab's file, or a problem naming what is wrong with it. */
-function readFile(
-  root: string,
+function readEntries(
   lab: string,
+  raw: unknown,
   problem: (code: LabExplanationCode, where: string, message: string) => void,
 ): Entry[] {
   const file = join(LAB_EXPLANATIONS_DIR, `${lab}.yaml`);
-  const raw = strictParse(readFileSync(join(root, file), "utf8"), "yaml", file) as {
-    [key: string]: unknown;
-  } | null;
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
     problem("lab-explanation-unreadable", file, `${file}: not a record.`);
     return [];
   }
-  if (raw.lab !== lab) {
+  const record = raw as { [key: string]: unknown };
+  if (record.lab !== lab) {
     problem(
       "lab-explanation-misfiled",
       file,
-      `${file}: a lab's entries are filed as <lab>.yaml and name it; this one names ${JSON.stringify(raw.lab)}.`,
+      `${file}: a lab's entries are filed as <lab>.yaml and name it; this one names ${JSON.stringify(record.lab)}.`,
     );
     return [];
   }
-  if (!Array.isArray(raw.formulas)) {
+  if (!Array.isArray(record.formulas)) {
     problem("lab-explanation-unreadable", file, `${file}: formulas is a list of entries.`);
     return [];
   }
-  return raw.formulas.flatMap((value): Entry[] => {
+  return record.formulas.flatMap((value): Entry[] => {
     const entry = (value ?? {}) as Entry;
     const latex = text(entry.latex);
     if (!latex) {
@@ -155,11 +153,43 @@ export function labsWithExplanations(root = process.cwd()): string[] {
     : [];
 }
 
+/** One lab's file as the checker reads it: the lab, and whatever its YAML parsed to. */
+export type LabExplanationSource = Readonly<{ lab: string; raw: unknown }>;
+
+/** Every lab file on disk, parsed, in directory order. */
+export function loadLabExplanationSources(root = process.cwd()): LabExplanationSource[] {
+  return labsWithExplanations(root).map((lab) => ({
+    lab,
+    raw: strictParse(
+      readFileSync(join(root, LAB_EXPLANATIONS_DIR, `${lab}.yaml`), "utf8"),
+      "yaml",
+      join(LAB_EXPLANATIONS_DIR, `${lab}.yaml`),
+    ),
+  }));
+}
+
 /**
  * Every lab's entries, checked against the formulas its page actually draws, with each explainer
- * compiled ready for the renderer.
+ * compiled ready for the renderer. `sources` replaces what is on disk, so a test can plant a record
+ * without writing a file into a checkout several other agents are editing (checkPaperExplanations
+ * takes its sources the same way).
+ *
+ * `displayRecord` is how a reused record is found. It defaults to the generated payload, which is
+ * what the author's check and the tests read; the build passes the records it has just compiled in
+ * the same process instead, because the payload on disk is still the previous run's at that moment
+ * and a lab would otherwise reuse a record that no longer exists.
  */
-export function checkLabExplanations(root = process.cwd()): LabExplanations {
+export function checkLabExplanations(
+  root = process.cwd(),
+  overrides: Readonly<{
+    sources?: readonly LabExplanationSource[];
+    displayRecord?: (
+      paper: string | undefined,
+      display: string | undefined,
+    ) => CompiledExplanation | undefined;
+  }> = {},
+): LabExplanations {
+  const displayRecord = overrides.displayRecord ?? printedExplanation;
   const problems: LabExplanationProblem[] = [];
   const sites = labFormulaSites(root);
   const explainers = new Map<string, Map<string, ExplainerLevels>>();
@@ -176,10 +206,10 @@ export function checkLabExplanations(root = process.cwd()): LabExplanations {
     into.set(site.lab, set);
   }
 
-  for (const lab of labsWithExplanations(root)) {
+  for (const { lab, raw } of overrides.sources ?? loadLabExplanationSources(root)) {
     const problem = (code: LabExplanationCode, where: string, message: string) =>
       problems.push({ code, lab, where, message });
-    const entries = readFile(root, lab, (code, where, message) => problem(code, where, message));
+    const entries = readEntries(lab, raw, problem);
     const scope = labScope(lab, root);
     const drawnFor = new Map<string, ExplainerLevels>();
     const seen = new Set<string>();
@@ -243,7 +273,7 @@ export function checkLabExplanations(root = process.cwd()): LabExplanations {
 
       if (entry.display !== undefined) {
         const paper = entry.paper ?? scope?.paper;
-        const record = printedExplanation(paper, entry.display);
+        const record = displayRecord(paper, entry.display);
         if (!record) {
           problem(
             "lab-explanation-missing-display-record",
@@ -439,4 +469,26 @@ function compileOwn(
     ...(r3 ? { r3: prose(r3, "r3") } : {}),
   };
   return refusals === 0 ? levels : undefined;
+}
+
+export class LabExplanationsError extends Error {
+  readonly code: "lab-explanations-refused";
+  constructor(message: string) {
+    super(`lab-explanations-refused: ${message}`);
+    this.name = "LabExplanationsError";
+    this.code = "lab-explanations-refused";
+  }
+}
+
+/**
+ * Stops the build on any problem, naming each one. A displayed formula with NO entry is not a
+ * problem: the labs are filled in one at a time and the census carries the count. A wrong entry is,
+ * because a record that names a formula no page draws, or reuses a record that is not there, would
+ * otherwise be a control that quietly never appears.
+ */
+export function assertLabExplanationsPublishable(checked: LabExplanations): void {
+  if (checked.problems.length > 0)
+    throw new LabExplanationsError(
+      `${LAB_EXPLANATIONS_DIR}/:\n${checked.problems.map((p) => `  ${p.code}: ${p.message}`).join("\n")}`,
+    );
 }
