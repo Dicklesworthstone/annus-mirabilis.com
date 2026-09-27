@@ -17,6 +17,7 @@ import {
   assertExplanationsPublishable,
   checkPaperExplanations,
   ENFORCED_EXPLANATION_PAPERS,
+  type ExplainerLevels,
   loadExplanationSources,
 } from "../src/equations/printed/equationExplanations.ts";
 import {
@@ -266,6 +267,14 @@ for (const paper of new Set(equations.map((e) => e.paper)))
 const modelGaps: ModelExplanationGap[] = [];
 let fromDisplay = 0;
 let fromRecord = 0;
+// THE WHOLE OF EACH MODEL EQUATION'S EXPLANATION, BY ITS ID (dispatch 303). What the card carries is
+// trimmed to the words and the level names, because the explanation pages pay for every byte of it
+// twice (dispatch 292). The levels themselves must survive that trim: they are what the fragment a
+// panel fetches and the page a reader without JavaScript is given are made of. Between 292 and this
+// line both were built from the trimmed record, so the 35 equations explained from their own record
+// named a full explanation on the card whose prose existed nowhere - measured: every one of their
+// fragments held 209 to 804 bytes, the words and no level at all.
+const modelExplainers = new Map<string, ExplainerLevels>();
 const explainedEquations = equations.map((equation) => {
   if (equation.paper === "foundations") return equation;
   const display = displayOfEquation.get(equation.id);
@@ -275,6 +284,7 @@ const explainedEquations = equations.map((equation) => {
   if (explainer) {
     if (record) fromDisplay += 1;
     else fromRecord += 1;
+    modelExplainers.set(equation.id, { ...explainer, equation: equation.id });
   }
   return explainer
     ? { ...equation, explainer: inlineExplanation({ ...explainer, equation: equation.id }) }
@@ -650,11 +660,10 @@ const explainerFragments = [
   ...equationExplanations.flatMap((e) => e.explanations),
   // A model equation explained from its own record has a fragment of its own; one explained from a
   // display's record shares that display's, since it is the same explanation.
-  ...explainedEquations.flatMap((equation) =>
-    equation.explainer && !equation.explainer.display
-      ? [{ ...equation.explainer, equation: equation.id }]
-      : [],
-  ),
+  ...explainedEquations.flatMap((equation) => {
+    const own = modelExplainers.get(equation.id);
+    return own && !own.display ? [own] : [];
+  }),
   // A laboratory's own record (dispatch 301) has a fragment for the same reason: its levels are
   // not carried by the lab page. One whose words are a printed display's does not, because it
   // travels under that display's id and shares the fragment the reading face fetches.
@@ -710,11 +719,10 @@ await writeFile(
         ]),
     ),
     equations: Object.fromEntries([
-      ...explainedEquations.flatMap((equation) =>
-        equation.explainer && !equation.explainer.display
-          ? [[equation.id, { ...equation.explainer, equation: equation.id }] as const]
-          : [],
-      ),
+      ...explainedEquations.flatMap((equation) => {
+        const own = modelExplainers.get(equation.id);
+        return own && !own.display ? [[equation.id, own] as const] : [];
+      }),
       ...labOwnExplainers.map((e) => [e.equation ?? "", e] as const),
     ]),
   })}\n`,

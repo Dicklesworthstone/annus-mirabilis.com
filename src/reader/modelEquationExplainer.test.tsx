@@ -12,9 +12,10 @@
  * The denominator is printed: how many cards, and where each panel's words came from.
  */
 import { describe, expect, test } from "bun:test";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Window } from "happy-dom";
+import { fullExplanation } from "../equations/printed/fullExplanations.ts";
 import { exportMarkup } from "../testing/exportMarkup.ts";
 import { ArgumentEquations } from "./ArgumentEquations.tsx";
 import { paperEquations } from "./paperEquations.ts";
@@ -84,6 +85,51 @@ describe("the explainer on a model equation", () => {
     );
     expect(withPanel).toBe(cards);
     expect(cards).toBeGreaterThan(0);
+  });
+
+  // A FRAGMENT THAT EXISTS IS NOT A FRAGMENT THAT SAYS ANYTHING (dispatch 303). The case above
+  // asserts the file is there, which is what a reader's panel fetches, and that passed while the
+  // file held 209 bytes: the words, no levels, and none of the author's explanation. The levels are
+  // named on the card and the prose lives only here and on the page, so this asserts the prose
+  // itself arrives, by the two paths a reader has - the panel's fragment and the page's payload.
+  test("a model equation's own explanation reaches both the fragment and the page", () => {
+    let checked = 0;
+    for (const paper of PAPERS)
+      for (const equation of paperEquations(paper).values()) {
+        const explainer = equation.explainer;
+        // A card explained from a printed display's record shares that display's fragment, which the
+        // reading faces' own test covers; this is about the records that have nowhere else to live.
+        if (!explainer || explainer.display) continue;
+        checked++;
+        const id = equation.id;
+        const levels = explainer.levels ?? [];
+        // The record's own words give In words and the full explanation (modelExplanations.ts), so
+        // level 1 is named on the card. A named level a reader cannot open is worse than none.
+        expect([id, [...levels]]).toEqual([id, ["1"]]);
+        const fragment = JSON.parse(
+          readFileSync(join("public", "equation-explanations", paper, `${id}.json`), "utf8"),
+        ) as { levels: string[]; html: string };
+        expect([id, [...fragment.levels]]).toEqual([id, [...levels]]);
+        expect([id, fragment.html.includes("Full explanation")]).toEqual([id, true]);
+        // The author's prose, not a level name: the first words of the record's explanation, which
+        // is the whole point of the level. Compared on text, so markup between the words cannot
+        // hide a miss (the prose carries no mathematics: modelExplanations.ts).
+        const { document } = new Window();
+        document.body.innerHTML = fragment.html;
+        const text = (document.body.textContent ?? "").replace(/\s+/g, " ");
+        const opening = equation.explanation.trim().replace(/\s+/g, " ").slice(0, 60);
+        expect([id, opening.length > 0]).toEqual([id, true]);
+        expect([id, text.includes(opening)]).toEqual([id, true]);
+        // The page a reader without JavaScript is given carries the same prose.
+        const full = fullExplanation(paper, id);
+        expect([id, full !== undefined]).toEqual([id, true]);
+        const prose = (full?.r1 ?? []).map((part) => ("text" in part ? part.text : "")).join("");
+        expect([id, prose.replace(/\s+/g, " ").includes(opening)]).toEqual([id, true]);
+      }
+    console.log(
+      `model equations explained from their own record: ${checked}, each with its explanation in its fragment and on its page`,
+    );
+    expect(checked).toBeGreaterThan(0);
   });
 
   test("the whole corpus is explained: every model equation of every paper has its words", () => {
