@@ -160,6 +160,14 @@ export type ExplanationCensus = Readonly<{
   refused: number;
   /** Displays with no record at all. */
   missing: number;
+  /**
+   * Explained displays whose record carries an r3, the historian's margin (am-8gbg). r0, r1 and r2
+   * are required of every record and are therefore always `explained`; r3 is optional and is the
+   * only level whose absence no count showed. It was 71 of 200 across the four papers when this
+   * number was first printed, and 11 of 52 in light quanta, which is the kind of gap that is found
+   * by an audit six months later unless the build says it every run.
+   */
+  withMargin: number;
 }>;
 
 export type PaperExplanations = Readonly<{
@@ -535,6 +543,7 @@ export async function checkPaperExplanations(
       explained: explanations.length,
       refused: refused.size,
       missing: missing.length,
+      withMargin: explanations.filter((e) => e.r3 !== undefined).length,
     },
   };
 }

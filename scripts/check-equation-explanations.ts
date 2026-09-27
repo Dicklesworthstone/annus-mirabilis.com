@@ -18,7 +18,10 @@ for (const paper of papers) {
   const checked = await checkPaperExplanations(process.cwd(), paper);
   const { census } = checked;
   console.log(
-    `${paper}: ${census.explained} of ${census.displays} displays explained, ${census.refused} refused, ${census.missing} with no record`,
+    `${paper}: ${census.explained} of ${census.displays} displays explained, ${census.refused} refused, ${census.missing} with no record; ` +
+      // r0, r1 and r2 are required of every record; r3 is optional, so its absence is the one gap
+      // no count showed until am-8gbg. Printed beside the verdict rather than left to be found.
+      `${census.withMargin} of ${census.explained} carry a historian's margin`,
   );
   for (const p of checked.problems) console.log(`  ${p.code}: ${p.message}`);
   if (checked.missing.length > 0) console.log(`  no record yet: ${checked.missing.join(", ")}`);
