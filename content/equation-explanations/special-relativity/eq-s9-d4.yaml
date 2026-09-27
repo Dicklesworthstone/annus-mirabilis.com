@@ -1,0 +1,45 @@
+# special-relativity eq-s9-d4: what the display says, at every level (dispatch 281).
+# Written from the German of s9-p2 and s9-p3 (pp. 916-917) and its plate; every step was checked by hand.
+display: eq-s9-d4
+paper: special-relativity
+inWords:
+  - text: "The velocity of the electricity in the moving system"
+    quantityId: chargeVelocityMoving
+  - text: ": along the motion, "
+  - text: "its velocity in the stationary system"
+    quantityId: chargeVelocityStationary
+  - text: " less "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: ", divided by one minus their product over the square of "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: "; across the motion, the stationary component divided by "
+  - text: "the factor"
+    quantityId: lorentzFactor
+  - text: " and by the same denominator. "
+  - text: "Its density in the moving system"
+    quantityId: chargeDensityMoving
+  - text: ", how much "
+  - text: "the moving system's electric force"
+    quantityId: electricFieldMoving
+  - text: " spreads out across "
+  - text: "its coordinates"
+    quantityId: coordinatePositionMoving
+  - text: ", is "
+  - text: "its density in the stationary system"
+    quantityId: chargeDensityStationary
+  - text: " times the factor and one minus the same product."
+r0: "The velocity and density of electricity as the moving system measures them. The velocity is the addition theorem of § 5; the density changes by a factor that depends on how fast the electricity moves."
+r1: "These are the quantities that make the transformed equations keep their form. The velocity $(u_\\xi, u_\\eta, u_\\zeta)$ is, as the paper points out, nothing but the velocity of the electric masses measured in $k$: it follows from the addition theorem of velocities of § 5, because a charge moving with velocity $u$ in $K$ moves with this velocity in $k$. The density $\\varrho'$ is again the divergence of $k$'s electric force, and it equals $\\beta \\left( 1 - \\frac{v u_x}{V^2} \\right) \\varrho$. Electricity at rest in $K$ ($u_x = 0$) is denser by the factor $\\beta$ in $k$, because $k$ finds its volume contracted. The paper remarks that it follows easily from these equations that a charged body whose charge is constant as seen from a system moving with it also has a constant charge in $K$ (p. 917)."
+r2:
+  - latex: "d\\xi = \\beta (u_x - v) \\, dt, \\quad d\\tau = \\beta \\left( 1 - \\frac{u_x v}{V^2} \\right) dt"
+    why: "A piece of electricity moves with velocity $u$ in $K$: in a short time $dt$ its $x$ changes by $u_x \\, dt$. § 3's $\\xi = \\beta (x - v t)$ and $\\tau = \\beta \\left( t - \\frac{v}{V^2} x \\right)$ then change by these amounts."
+  - latex: "u_\\xi = \\frac{d\\xi}{d\\tau} = \\frac{u_x - v}{1 - \\frac{u_x v}{V^2}}"
+    why: "The velocity along the motion in $k$: the change of $\\xi$ per unit of $k$'s time; $\\beta$ cancels."
+  - latex: "u_\\eta = \\frac{d\\eta}{d\\tau} = \\frac{u_y}{\\beta \\left( 1 - \\frac{u_x v}{V^2} \\right)}"
+    why: "Across the motion $\\eta = y$, so $d\\eta = u_y \\, dt$, and $\\beta$ stays in the denominator. The same for $u_\\zeta$ with $u_z$."
+  - latex: "\\varrho' = \\beta \\varrho + \\beta \\frac{v}{V^2} \\frac{\\partial X}{\\partial t} - \\beta \\frac{v}{V} \\left( \\frac{\\partial N}{\\partial y} - \\frac{\\partial M}{\\partial z} \\right)"
+    why: "Now the density. Take the divergence of $k$'s electric force, with $\\frac{\\partial}{\\partial \\xi} = \\beta \\left( \\frac{\\partial}{\\partial x} + \\frac{v}{V^2} \\frac{\\partial}{\\partial t} \\right)$ and § 6's $X' = X$, $Y' = \\beta \\left( Y - \\frac{v}{V} N \\right)$, $Z' = \\beta \\left( Z + \\frac{v}{V} M \\right)$, and collect $\\frac{\\partial X}{\\partial x} + \\frac{\\partial Y}{\\partial y} + \\frac{\\partial Z}{\\partial z}$ into $\\varrho$."
+  - latex: "\\varrho' = \\beta \\left( 1 - \\frac{v u_x}{V^2} \\right) \\varrho"
+    why: "The first field equation in $K$ replaces the bracket by $\\frac{1}{V} \\left( u_x \\varrho + \\frac{\\partial X}{\\partial t} \\right)$. The terms in $\\frac{\\partial X}{\\partial t}$ cancel, leaving $\\beta \\varrho - \\beta \\frac{v u_x}{V^2} \\varrho$."

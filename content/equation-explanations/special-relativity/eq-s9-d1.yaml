@@ -1,0 +1,36 @@
+# special-relativity eq-s9-d1: what the display says, at every level (dispatch 281).
+# Written from the German of s9-p1 (p. 916) and its plate; every step was checked by hand.
+display: eq-s9-d1
+paper: special-relativity
+inWords:
+  - text: "In the stationary system, the current carried by "
+  - text: "moving electricity"
+    quantityId: chargeVelocityStationary
+  - text: " of "
+  - text: "density"
+    quantityId: chargeDensityStationary
+  - text: ", together with the rate at which "
+  - text: "the electric force"
+    quantityId: electricFieldStationary
+  - text: " changes with "
+  - text: "the time"
+    quantityId: coordinateTimeStationary
+  - text: ", divided by "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", equals how "
+  - text: "the magnetic force"
+    quantityId: magneticFieldStationary
+  - text: " circulates across "
+  - text: "the coordinates"
+    quantityId: coordinatePositionStationary
+  - text: "; the equations for the change of the magnetic force are those of empty space."
+r0: "The Maxwell-Hertz equations of § 6 with the currents of moving electricity added: where electricity moves, it drives the magnetic force as a changing electric force does."
+r1: "These are the equations of § 6 with one new term in each row of the left column: $u_x \\varrho$, the current carried by electricity of density $\\frac{\\varrho}{4 \\pi}$ moving with velocity $(u_x, u_y, u_z)$. The paper defines $\\varrho$ in the next display as the divergence of the electric force, which is $4 \\pi$ times the density of electricity in its units. The right column, for the change of the magnetic force, has no current and is unchanged. The paper adds that if the electric masses are imagined bound invariably to small rigid bodies, ions or electrons, these equations are the electromagnetic foundation of Lorentz's electrodynamics and optics of moving bodies. The question of § 9 is whether that foundation agrees with the principle of relativity."
+r2:
+  - latex: "\\frac{1}{V} \\frac{\\partial X}{\\partial t} = \\frac{\\partial N}{\\partial y} - \\frac{\\partial M}{\\partial z}"
+    why: "The first row of § 6, for empty space: a changing electric force goes with a circulating magnetic force."
+  - latex: "\\frac{1}{V} \\left\\{ u_x \\varrho + \\frac{\\partial X}{\\partial t} \\right\\} = \\frac{\\partial N}{\\partial y} - \\frac{\\partial M}{\\partial z}"
+    why: "With electricity present and moving, its current $u_x \\varrho$ joins the change of the electric force as a source of the circulating magnetic force. The other two rows add $u_y \\varrho$ and $u_z \\varrho$."
+  - latex: "\\frac{1}{V} \\frac{\\partial L}{\\partial t} = \\frac{\\partial Y}{\\partial z} - \\frac{\\partial Z}{\\partial y}"
+    why: "The equations for the magnetic force are those of empty space: there is no magnetic current."

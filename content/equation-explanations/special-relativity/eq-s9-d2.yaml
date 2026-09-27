@@ -1,0 +1,21 @@
+# special-relativity eq-s9-d2: what the display says, at every level (dispatch 281).
+# Written from the German of s9-p1 (p. 916) and its plate; every step was checked by hand.
+display: eq-s9-d2
+paper: special-relativity
+inWords:
+  - text: "The density of electricity"
+    quantityId: chargeDensityStationary
+  - text: ", four pi times over, is how much "
+  - text: "the electric force"
+    quantityId: electricFieldStationary
+  - text: " spreads out from a point, its slopes along "
+  - text: "the three coordinates"
+    quantityId: coordinatePositionStationary
+  - text: " added together."
+r0: "What the paper means by $\\varrho$: the divergence of the electric force, which is $4 \\pi$ times the density of electricity."
+r1: "The sum of the three slopes, each component of the electric force changing along its own axis, measures how much the electric force spreads out from a point. Where there is no electricity it is zero, as in the empty space of § 6; where there is electricity it is $4 \\pi$ times its density, in the units the paper uses. So $\\varrho$ in the current $u_x \\varrho$ of the previous display is this same quantity. The paper says so in words: $\\varrho$ denotes $4 \\pi$ times the density of electricity."
+r2:
+  - latex: "\\frac{\\partial X}{\\partial x}, \\quad \\frac{\\partial Y}{\\partial y}, \\quad \\frac{\\partial Z}{\\partial z}"
+    why: "How fast each component of the electric force changes along its own axis."
+  - latex: "\\varrho = \\frac{\\partial X}{\\partial x} + \\frac{\\partial Y}{\\partial y} + \\frac{\\partial Z}{\\partial z}"
+    why: "Their sum, the divergence of the electric force: $4 \\pi$ times the density of electricity, as the paper says."
