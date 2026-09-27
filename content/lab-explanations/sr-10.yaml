@@ -1,0 +1,12 @@
+# SR-10's formulas (dispatch 291).
+lab: sr-10
+formulas:
+  - latex: "\\begin{gathered}\\frac{V'}{V} = \\frac{1}{q} = \\frac{\\sqrt{1 - \\beta^2}}{1 - \\beta\\cos\\varphi} = \\frac{1}{0.5} = 2.0 \\\\ \\implies V' = 2.0\\text{ m}^3\\end{gathered}"
+    incidental: "The lab's worked case: § 8's ratio of volumes evaluated at the settings the page has just named, ending in a number with its unit. The ratio itself is a printed display and carries its words on the reading face."
+
+  - latex: "\\begin{aligned}E' &= u'V' \\\\ &= (u q^2)(V / q) \\\\ &= u V q \\\\ &= E q \\\\ &= 0.5\\text{ J}\\end{aligned}"
+    incidental: "The same worked case carried through to the energy, line by line from the densities and volumes above it. What it arrives at, that the energy changes by the same factor as the frequency, is the printed display below."
+
+  # § 8's own observation, that energy and frequency follow the same law.
+  - latex: "\\frac{E'}{E} = \\frac{\\nu'}{\\nu} = \\gamma(1 - \\beta\\cos\\varphi)"
+    display: eq-s8-d4

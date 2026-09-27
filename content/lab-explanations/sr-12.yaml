@@ -1,0 +1,15 @@
+# SR-12's formulas (dispatch 291).
+#
+# All three displays evaluate a case rather than state a law: this lab's laws, the transformations of
+# the charge density and the current density, are written inside its sentences, and § 9's own
+# displays carry their words on the reading face.
+lab: sr-12
+formulas:
+  - latex: "\\begin{aligned}\\rho' &= \\gamma\\left(\\rho - \\frac{v J_x}{c^2}\\right) \\\\ &= 1.25\\left(0 - \\frac{0.6}{c}\\right) \\\\ &= -\\frac{0.75}{c} \\\\ &\\approx -2.5017\\times 10^{-9}\\text{ C/m}^3\\end{aligned}"
+    incidental: "The transformation evaluated at the case the page sets up, a neutral conductor carrying a current, ending in a number with its unit. Its first line is the law, which § 9 prints and explains on the reading face; the rest is arithmetic the sentences around it set up."
+
+  - latex: "\\begin{aligned}J'_x &= \\gamma\\left(J_x - v\\rho\\right) \\\\ &= 1.25(1 - 0) \\\\ &= 1.25\\text{ A/m}^2\\end{aligned}"
+    incidental: "The companion evaluation for the current density, in the same worked case and the same form: the law on the first line and arithmetic under it."
+
+  - latex: "\\begin{gathered}(c\\rho)^2 - J_x^2 = 0 - 1 = -1\\text{ (A/m}^2)^2, \\\\ \\begin{aligned}(c\\rho')^2 - (J'_x)^2 &= (-0.75)^2 - (1.25)^2 \\\\ &= 0.5625 - 1.5625 \\\\ &= -1\\text{ (A/m}^2)^2\\end{aligned}\\end{gathered}"
+    incidental: "A check that the two numbers above come out to the same invariant in both systems. It is arithmetic on the two displays above it, and the combination it forms is a later way of stating § 9's result rather than anything the paper prints."

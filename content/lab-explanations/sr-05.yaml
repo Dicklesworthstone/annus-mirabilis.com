@@ -1,0 +1,5 @@
+# SR-05's formula (dispatch 291). The approximation § 4 makes for a slowly moving clock.
+lab: sr-05
+formulas:
+  - latex: "1-\\sqrt{1-v^2/V^2}\\approx\\tfrac12\\,v^2/V^2"
+    display: eq-s4-d6
