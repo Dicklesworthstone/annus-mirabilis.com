@@ -1,0 +1,22 @@
+# light-quanta eq-s3-d7: what the display says, at every level (dispatch 279).
+# Written from the German of s3-p4 (p. 138) and its plate; the steps were checked by hand.
+display: eq-s3-d7
+paper: light-quanta
+inWords:
+  - text: "The increase of "
+  - text: "the radiation's entropy"
+    quantityId: radiationEntropy
+  - text: " equals one over "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: ", times the increase of "
+  - text: "the radiation's energy"
+    quantityId: radiationEnergy
+  - text: "."
+r0: "The warming is reversible and the added energy is the heat supplied, so thermodynamics gives the entropy's increase as that heat divided by the absolute temperature."
+r1: "The paper now brings in thermodynamics. The energy $d E$ added to the radiation is the heat supplied to it, and the warming is reversible, so by the rule of thermodynamics for a reversible change the entropy grows by the heat divided by the absolute temperature at which it is taken in. This is a second expression for the same $d S$."
+r2:
+  - latex: "d E"
+    why: "The energy added to the unit volume of radiation. The paper notes that it equals the heat supplied; the volume stays $v = 1$, so no work is done."
+  - latex: "d S = \\frac{1}{T} d E"
+    why: "For a reversible change the entropy increases by the heat supplied divided by the absolute temperature: the printed line."

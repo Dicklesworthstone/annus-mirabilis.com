@@ -1,0 +1,27 @@
+# light-quanta eq-s3-d5: what the display says, at every level (dispatch 279).
+# Written from the German of s3-p4 (p. 138) and its plate; the steps were checked by hand.
+display: eq-s3-d5
+paper: light-quanta
+inWords:
+  - text: "The increase of "
+  - text: "the radiation's entropy"
+    quantityId: radiationEntropy
+  - text: " in a unit volume, when it is warmed a little, is the sum over every "
+  - text: "frequency"
+    quantityId: frequency
+  - text: " of the rate at which "
+  - text: "the entropy density"
+    quantityId: spectralEntropyDensity
+  - text: " grows with "
+  - text: "the energy density"
+    quantityId: frequencyEnergyDensity
+  - text: ", times that density's increase."
+r0: "Warm black radiation in a unit volume a little: at each frequency its entropy grows by the rate ∂φ/∂ρ times the increase of the density there, and these add up over all frequencies."
+r1: "Section 3 now asks what the common value of $\\partial \\varphi / \\partial \\varrho$ is. Take black radiation of volume $v = 1$ and raise its temperature by $d T$. The density at each frequency grows by $d \\varrho$, and the entropy per unit volume and frequency grows by $\\frac{\\partial \\varphi}{\\partial \\varrho} d \\varrho$; adding over all frequencies gives the whole increase of entropy, $d S$. With $v = 1$ the entropy is the integral of the section's first display itself."
+r2:
+  - latex: "S = \\int_0^\\infty \\varphi(\\varrho, \\nu) d \\nu"
+    why: "The entropy of the section's first display, with $v = 1$."
+  - latex: "d \\varphi = \\frac{\\partial \\varphi}{\\partial \\varrho} d \\varrho"
+    why: "At a fixed frequency $\\varphi$ changes only because the density does: by its rate of change with the density times the change of density."
+  - latex: "d S = \\int_{\\nu = 0}^{\\nu = \\infty} \\frac{\\partial \\varphi}{\\partial \\varrho} d \\varrho d \\nu"
+    why: "Add the changes over every frequency: the printed line."

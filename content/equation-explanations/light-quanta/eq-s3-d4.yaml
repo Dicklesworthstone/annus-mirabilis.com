@@ -1,0 +1,29 @@
+# light-quanta eq-s3-d4: what the display says, at every level (dispatch 279).
+# Written from the German of s3-p3 (p. 138) and its plate; the steps were checked by hand.
+display: eq-s3-d4
+paper: light-quanta
+inWords:
+  - text: "The sum over every "
+  - text: "frequency"
+    quantityId: frequency
+  - text: " of the rate at which "
+  - text: "the entropy density"
+    quantityId: spectralEntropyDensity
+  - text: " grows with "
+  - text: "the energy density"
+    quantityId: frequencyEnergyDensity
+  - text: ", less "
+  - text: "a number the same at every frequency"
+    quantityId: lagrangeMultiplier
+  - text: ", times any small change of the density, is zero."
+r0: "The two conditions combine with a number λ, the same at every frequency, into one condition that holds for every change of the density. It follows that in black radiation the rate ∂φ/∂ρ does not depend on the frequency."
+r1: "The entropy condition must hold for every change $\\delta \\varrho$ that keeps the energy fixed. The paper expresses this with a number $\\lambda$ that does not depend on $\\nu$: with the energy condition multiplied by $\\lambda$ and subtracted, the integral of the bracket times $\\delta \\varrho$ vanishes for every choice of $\\delta \\varrho$ as a function of $\\nu$, whether or not it keeps the energy fixed. An integral of the bracket times an arbitrary $\\delta \\varrho$ can vanish for every $\\delta \\varrho$ only if the bracket is zero at every frequency. So in black radiation $\\partial \\varphi / \\partial \\varrho$ equals $\\lambda$ everywhere: as the paper concludes, it is independent of $\\nu$. $\\lambda$ is what is now called a Lagrange multiplier."
+r2:
+  - latex: "\\int_0^\\infty \\frac{\\partial \\varphi}{\\partial \\varrho} \\delta \\varrho d \\nu = 0"
+    why: "The entropy condition written out: to first order the entropy changes by $\\frac{\\partial \\varphi}{\\partial \\varrho} \\delta \\varrho$ at each frequency, and this must add up to zero whenever the energy is unchanged."
+  - latex: "\\lambda \\int_0^\\infty \\delta \\varrho d \\nu = 0"
+    why: "The energy condition, multiplied by a number $\\lambda$ that is the same at every frequency. It is still zero."
+  - latex: "\\int_0^\\infty \\left( \\frac{\\partial \\varphi}{\\partial \\varrho} - \\lambda \\right) \\delta \\varrho d \\nu = 0"
+    why: "Subtract the second from the first. With $\\lambda$ suitably chosen this holds for every choice of $\\delta \\varrho$ as a function of $\\nu$, not only those that keep the energy fixed: the printed line."
+  - latex: "\\frac{\\partial \\varphi}{\\partial \\varrho} = \\lambda"
+    why: "If the integral vanishes for every $\\delta \\varrho$, the bracket must vanish at every frequency; a $\\delta \\varrho$ concentrated where it did not would give an integral that is not zero. So in black radiation $\\partial \\varphi / \\partial \\varrho$ has the same value at every frequency."

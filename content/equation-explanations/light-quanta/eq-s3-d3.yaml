@@ -1,0 +1,21 @@
+# light-quanta eq-s3-d3: what the display says, at every level (dispatch 279).
+# Written from the German of s3-p3 (p. 138) and its plate; the steps were checked by hand.
+display: eq-s3-d3
+paper: light-quanta
+inWords:
+  - text: "The change in the sum, over every "
+  - text: "frequency"
+    quantityId: frequency
+  - text: ", of "
+  - text: "the energy density"
+    quantityId: frequencyEnergyDensity
+  - text: " is zero: the total energy per unit volume is held fixed."
+r0: "The side condition: the maximum is sought only among spectra with the same total energy, so the small changes of the density must leave the energy per unit volume unchanged."
+r1: "The entropy is to be a maximum at a given energy, so only those alterations of the spectrum count that leave the total energy unchanged. The energy per unit volume is $\\int_0^\\infty \\varrho d \\nu$, so its variation must vanish: whatever energy is taken from some frequencies must be put back at others."
+r2:
+  - latex: "\\int_0^\\infty \\varrho d \\nu"
+    why: "The radiation's energy per unit volume: the density added up over every frequency, as in section 1."
+  - latex: "\\int_0^\\infty \\delta \\varrho d \\nu"
+    why: "Its change when the density at each frequency changes by $\\delta \\varrho$."
+  - latex: "\\delta \\int_0^\\infty \\varrho d \\nu = 0"
+    why: "The energy is given, so the change must be zero: the printed side condition."

@@ -1,0 +1,29 @@
+# light-quanta eq-s3-d6: what the display says, at every level (dispatch 279).
+# Written from the German of s3-p4 (p. 138) and its plate; the steps were checked by hand.
+display: eq-s3-d6
+paper: light-quanta
+inWords:
+  - text: "The increase of "
+  - text: "the radiation's entropy"
+    quantityId: radiationEntropy
+  - text: " equals the rate at which "
+  - text: "the entropy density"
+    quantityId: spectralEntropyDensity
+  - text: " grows with "
+  - text: "the energy density"
+    quantityId: frequencyEnergyDensity
+  - text: ", times the increase of "
+  - text: "the radiation's energy"
+    quantityId: radiationEnergy
+  - text: "."
+r0: "In black radiation the rate ∂φ/∂ρ is the same at every frequency, so it comes out of the sum, and what is left is the increase of the radiation's energy."
+r1: "In black radiation $\\partial \\varphi / \\partial \\varrho$ does not depend on $\\nu$, the conclusion of the paragraph before, so it can be taken out of the integral. What remains, the increase of the density added up over all frequencies, is the increase $d E$ of the radiation's energy in the unit volume. The entropy's increase is then that common rate times the energy's increase."
+r2:
+  - latex: "d S = \\int_{\\nu = 0}^{\\nu = \\infty} \\frac{\\partial \\varphi}{\\partial \\varrho} d \\varrho d \\nu"
+    why: "The preceding display."
+  - latex: "d S = \\frac{\\partial \\varphi}{\\partial \\varrho} \\int_{\\nu = 0}^{\\nu = \\infty} d \\varrho d \\nu"
+    why: "$\\partial \\varphi / \\partial \\varrho$ has the same value at every frequency in black radiation, so it comes out of the integral."
+  - latex: "d E = \\int_{\\nu = 0}^{\\nu = \\infty} d \\varrho d \\nu"
+    why: "The remaining integral is the increase of the energy in the unit volume, since that energy is $\\int_0^\\infty \\varrho d \\nu$."
+  - latex: "d S = \\frac{\\partial \\varphi}{\\partial \\varrho} d E"
+    why: "Put the two together: the printed line."

@@ -1,0 +1,26 @@
+# light-quanta eq-s3-d8: what the display says, at every level (dispatch 279).
+# Written from the German of s3-p4 (p. 138) and its plate; the steps were checked by hand.
+display: eq-s3-d8
+paper: light-quanta
+inWords:
+  - text: "The rate at which "
+  - text: "the entropy density"
+    quantityId: spectralEntropyDensity
+  - text: " grows with "
+  - text: "the energy density"
+    quantityId: frequencyEnergyDensity
+  - text: ", at any frequency, equals one over "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: "."
+r0: "Comparing the two expressions for the entropy's increase gives the common rate: ∂φ/∂ρ is one over the temperature, at every frequency. The paper calls this the law of black radiation; it lets φ be found from the radiation law and the other way round."
+r1: "The two displays before this one give the same increase of entropy $d S$ for the same increase of energy $d E$, so their factors must agree. The rate at which the entropy per unit volume and frequency grows with the density is one over the absolute temperature, at every frequency. The paper calls this 'the law of black radiation': given $\\varphi$, it fixes how $\\varrho$ depends on $\\nu$ and $T$, and given the radiation law, $\\varphi$ follows by integrating over $\\varrho$, starting from $\\varphi = 0$ at $\\varrho = 0$. Section 4 does exactly that with Wien's law. Doubling the temperature halves the rate."
+r2:
+  - latex: "d S = \\frac{\\partial \\varphi}{\\partial \\varrho} d E"
+    why: "From the density: the second display of the paragraph."
+  - latex: "d S = \\frac{1}{T} d E"
+    why: "From thermodynamics: the preceding display."
+  - latex: "\\frac{\\partial \\varphi}{\\partial \\varrho} d E = \\frac{1}{T} d E"
+    why: "Both are the same $d S$."
+  - latex: "\\frac{\\partial \\varphi}{\\partial \\varrho} = \\frac{1}{T}"
+    why: "Divide both sides by $d E$, which is not zero: the printed law."

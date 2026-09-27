@@ -1,0 +1,30 @@
+# light-quanta eq-s3-d1: what the display says, at every level (dispatch 279).
+# Written from the German of s3-p2 (pp. 137-138) and its plate; the steps were checked by hand.
+display: eq-s3-d1
+paper: light-quanta
+inWords:
+  - text: "The radiation's entropy"
+    quantityId: radiationEntropy
+  - text: " equals "
+  - text: "the volume it fills"
+    quantityId: volume
+  - text: " times the sum, over every "
+  - text: "frequency"
+    quantityId: frequency
+  - text: ", of "
+  - text: "the entropy per unit volume and unit frequency"
+    quantityId: spectralEntropyDensity
+  - text: ", which depends on "
+  - text: "the energy density"
+    quantityId: frequencyEnergyDensity
+  - text: " at that frequency and on the frequency itself."
+r0: "If the radiation's energy density at every frequency fixes its properties, its entropy is the volume times a sum over frequencies of an entropy density that depends on the density and the frequency. The entropies of different frequencies add, because radiations of different frequencies can be separated without work or heat."
+r1: "Section 3 takes a radiation filling the volume $v$ and assumes that its perceptible properties are completely fixed once its density $\\varrho(\\nu)$ is given at every frequency. Radiations of different frequencies can be separated from one another without doing work and without supplying heat, so their entropies add, and the entropy of the whole can be written as the volume times an integral over frequency of a function $\\varphi$ of the density and the frequency. The paper remarks that $\\varphi$ could be reduced to a function of one variable by using the fact that adiabatic compression between reflecting walls leaves the entropy unchanged, but it does not take that route; it goes straight to finding $\\varphi$ from the law of black radiation."
+r2:
+  - latex: "\\varphi(\\varrho, \\nu) d \\nu"
+    why: "The entropy per unit volume of the radiation between $\\nu$ and $\\nu + d \\nu$: a function of the density there and of the frequency, because the paper assumes the density at every frequency fixes the radiation's properties."
+  - latex: "\\int_0^\\infty \\varphi(\\varrho, \\nu) d \\nu"
+    why: "Radiations of different frequencies can be separated without work and without heat, so their entropies add: sum over every frequency."
+  - latex: "S = v \\int_0^\\infty \\varphi(\\varrho, \\nu) d \\nu"
+    why: "The density does not vary through the volume, so multiply the entropy per unit volume by the volume $v$: the printed line."
+r3: "Section 3 opens by saying that the argument is contained in 'a famous paper by Mr. W. Wien' and is given here only for completeness (p. 137); the paper does not identify which paper of Wien's. Its footnote calls the assumption that the density at every frequency fixes the radiation's perceptible properties 'arbitrary', to be kept as the simplest until experiment forces it to be abandoned."

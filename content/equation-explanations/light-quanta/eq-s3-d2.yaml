@@ -1,0 +1,24 @@
+# light-quanta eq-s3-d2: what the display says, at every level (dispatch 279).
+# Written from the German of s3-p3 (p. 138) and its plate; the steps were checked by hand.
+display: eq-s3-d2
+paper: light-quanta
+inWords:
+  - text: "Under any small alteration of the spectrum, the change in the sum over every "
+  - text: "frequency"
+    quantityId: frequency
+  - text: " of "
+  - text: "the entropy per unit volume and unit frequency"
+    quantityId: spectralEntropyDensity
+  - text: ", taken at "
+  - text: "the energy density"
+    quantityId: frequencyEnergyDensity
+  - text: " there, is zero."
+r0: "For black radiation the entropy is a maximum at the given energy: no small change in how the energy is spread over the frequencies raises it, so its first-order change is zero."
+r1: "Section 3 defines black radiation by a maximum principle: $\\varrho$ is the function of $\\nu$ for which the entropy is a maximum at a given energy. The paper writes this as a variation, marked $\\delta$: alter the density at each frequency by a small amount $\\delta \\varrho$, and at a maximum the entropy does not change to first order. The volume is fixed, so the factor $v$ is dropped and the condition is put on the integral itself. It is to hold for every alteration that leaves the energy unchanged, the condition of the next display."
+r2:
+  - latex: "\\int_0^\\infty \\varphi(\\varrho, \\nu) d \\nu"
+    why: "The entropy per unit volume: the integral of the preceding display, with the volume held fixed."
+  - latex: "\\varphi(\\varrho + \\delta \\varrho, \\nu) - \\varphi(\\varrho, \\nu) \\approx \\frac{\\partial \\varphi}{\\partial \\varrho} \\delta \\varrho"
+    why: "Change the density at each frequency by a small amount $\\delta \\varrho$. To first order the entropy density changes by its rate of change with the density times that amount."
+  - latex: "\\delta \\int_0^\\infty \\varphi(\\varrho, \\nu) d \\nu = 0"
+    why: "At a maximum no such small change raises or lowers the entropy to first order: the printed condition, to hold whenever the energy is unchanged (the next display)."
