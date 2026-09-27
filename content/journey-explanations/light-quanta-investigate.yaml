@@ -1,0 +1,141 @@
+# The light quanta investigation's formulas, and what each one carries (dispatch 293).
+#
+# /discover/light-quanta/investigate/ is a route a reader could take, not a transcript of Einstein's
+# thinking, so where it writes its own form the margin says whose it is. The shape is the one
+# content/lab-explanations/ uses (dispatch 291).
+page: discover/light-quanta/investigate
+formulas:
+  # § 4's volume law for the entropy of low-density radiation. The paper prints it as eq-s4-d5 with
+  # its own letters; the route writes ln for the paper's lg and capital V for its v, so the words are
+  # the route's and the margin records both substitutions.
+  - latex: "S-S_0=\\frac{E}{\\beta\\nu}\\ln\\frac{V}{V_0}"
+    own:
+      inWords:
+        - text: "The change in "
+        - text: "the radiation's entropy"
+          quantityId: radiationEntropy
+        - text: " when it is given a larger "
+        - text: "volume"
+          quantityId: volume
+        - text: " is "
+        - text: "its energy"
+          quantityId: radiationEnergy
+        - text: " divided by "
+        - text: "Wien's constant"
+          quantityId: wienConstantBeta
+        - text: " times "
+        - text: "the frequency"
+          quantityId: frequency
+        - text: ", times the logarithm of the ratio of the two volumes."
+      r0: "Let low-density radiation of a fixed energy and colour occupy a larger volume. Its entropy rises by an amount that depends only on the ratio of the volumes, not on how large either is."
+      r1: "This is the result § 4 reaches from Wien's radiation law, and the route brings it forward because its form is what the next step recognises. Everything that does not involve the volume cancels in the subtraction, so the dependence on the volume stands alone: doubling the volume adds the same amount of entropy again, whatever volume one started from. Two conditions are carried with it and are not decoration. The radiation must be monochromatic, since $\\nu$ appears in the answer, and it must be of low density, because the law it rests on is Wien's, which holds at the short-wave, low-density end and fails elsewhere. The quantity $\\frac{E}{\\beta \\nu}$ in front of the logarithm is the one the route will read as a count."
+      r2:
+        - latex: "S - S_0 = \\frac{E}{\\beta \\nu} \\ln \\frac{V}{V_0}"
+          why: "The printed result of § 4, with the ratio of the volumes inside the logarithm. Only the ratio appears, so the law says nothing about the absolute size of either volume."
+        - latex: "\\frac{V}{V_0} = 2 \\ \\Longrightarrow \\ S - S_0 = \\frac{E}{\\beta \\nu} \\ln 2"
+          why: "Doubling the volume, as a check on the form: the entropy rises by a fixed amount, and doubling again adds the same amount a second time."
+      r3: "Two notations here are the route's, not Einstein's. The paper writes lg where this writes ln, and in this paper lg is the natural logarithm, which the site's notation concordance records against the plate of page 139; and the paper writes the volumes in lower case. The physics is § 4's and the conditions are the paper's own."
+
+  # The route's own comparison of two ways of counting, built from § 5's method. The paper does not
+  # print these two probabilities side by side.
+  - latex: "W_{\\mathrm{independent}}=f^n,\\quad W_{\\mathrm{locked}}=f,\\quad f=\\frac{V}{V_0}"
+    own:
+      inWords:
+        - text: "If the parts move independently, "
+        - text: "the probability of finding them all in the smaller region"
+          quantityId: configurationProbability
+        - text: " is "
+        - text: "the fraction of the volume"
+          quantityId: volumeRatio
+        - text: " raised to "
+        - text: "the number of parts"
+          quantityId: independentPointCount
+        - text: "; if they move as one, it is that fraction once."
+      r0: "Ask what chance there is of finding everything crowded into part of the box. For independent parts the chance is the fraction multiplied by itself once per part; for parts locked together it is the fraction, once. The two answers differ enormously, and that difference is what the route uses to count."
+      r1: "This is the route's own way of putting the question § 5 answers, and the paper prints neither line. Take a volume $V_0$ and ask for the probability that everything in it is found, at a given moment, inside the part $V$. For $n$ parts moving independently of one another the probability is the product of $n$ equal chances, each the fraction of the volume; for one indivisible thing, or for parts locked rigidly together, it is that fraction once. The contrast is the instrument: an observed probability of the form fraction-to-a-power announces how many independent things there are, because the exponent is the count. Nothing physical has been assumed about light here. This is a statement about counting, and the next step is where it meets the entropy of the display above."
+      r2:
+        - latex: "W_{\\mathrm{independent}} = f^n"
+          why: "Each of the $n$ parts is in the smaller region with probability $f$, independently of the others, so the chance that all of them are is the product of $n$ such factors."
+        - latex: "W_{\\mathrm{locked}} = f"
+          why: "Parts that move as one body are in the region together or not at all, so there is a single chance, however many of them there are."
+        - latex: "f = \\frac{V}{V_0}"
+          why: "The fraction itself: what share of the original volume the smaller region is. It is the same ratio that stands inside the logarithm in the entropy law above."
+      r3: "The comparison is the route's, set out to make the exponent visible. Einstein's § 5 works with Boltzmann's principle rather than with a pair of probabilities written side by side, and the site never claims this ordering is how he thought."
+
+  # The route's own identification: the entropy's coefficient read as a count, and the size that
+  # follows. The paper reaches the same magnitude in § 6 and states it in prose (s6-p6).
+  - latex: "\\begin{gathered}\\frac{E}{\\beta\\nu}=n_{\\mathrm{eff}}\\frac{R}{N},\\\\ n_{\\mathrm{eff}}=\\frac{NE}{R\\beta\\nu},\\qquad \\epsilon=\\frac{R\\beta\\nu}{N}\\end{gathered}"
+    own:
+      inWords:
+        - text: "Reading the entropy's coefficient as a count gives "
+        - text: "the number of independent parts"
+          quantityId: effectiveIndependentCount
+        - text: ", which is "
+        - text: "the number of molecules in a gram-molecule"
+          quantityId: avogadroConstant
+        - text: " times "
+        - text: "the radiation's energy"
+          quantityId: radiationEnergy
+        - text: ", over "
+        - text: "the gas constant"
+          quantityId: molarGasConstant
+        - text: " times "
+        - text: "Wien's constant"
+          quantityId: wienConstantBeta
+        - text: " times "
+        - text: "the frequency"
+          quantityId: frequency
+        - text: "; and dividing the energy by that count gives "
+        - text: "the energy of one part"
+          quantityId: quantumEnergy
+        - text: "."
+      r0: "Put the two together. The coefficient standing in front of the logarithm in the entropy law is exactly what the counting argument says a number of independent parts would produce, and dividing the total energy by that number gives the energy of one of them."
+      r1: "The entropy law of the first display and the counting of the second have the same shape, and this step is the route's move of setting them equal. An entropy that rises by the logarithm of a volume ratio belongs, on Boltzmann's principle, to a probability of the form fraction-to-a-power; the power is the number of independent parts, and the constant in front of the logarithm is the gas constant for one molecule, $\\frac{R}{N}$, times that number. Reading the coefficient $\\frac{E}{\\beta \\nu}$ that way gives the count, and the energy of a single part follows by division. The magnitude that comes out, $\\frac{R \\beta \\nu}{N}$, is the one § 6 of the paper states in words: monochromatic radiation of low density behaves, in respect of heat theory, as if it consisted of mutually independent energy quanta of that size. The count is not observed; it is inferred from a form, which is why the paper calls its point of view heuristic."
+      r2:
+        - latex: "\\frac{E}{\\beta \\nu} = n_{\\mathrm{eff}} \\frac{R}{N}"
+          why: "The coefficient of the logarithm in the entropy law, set equal to what a count of independent parts would give: each part contributes the gas constant for one molecule."
+        - latex: "n_{\\mathrm{eff}} = \\frac{N E}{R \\beta \\nu}"
+          why: "Solved for the count. It grows with the energy, so brighter light of the same colour is more parts and not larger ones."
+        - latex: "\\epsilon = \\frac{E}{n_{\\mathrm{eff}}} = \\frac{R \\beta \\nu}{N}"
+          why: "The energy of one part: the total divided by the count. The energy cancels, and what is left depends on the frequency alone."
+      r3: "The route reaches the paper's magnitude by its own path. Einstein's § 6 obtains it from Boltzmann's principle applied to the entropy of § 4, and states the conclusion in prose rather than as a numbered display; the site's discovery pages label this a route a reader could take, and the labels n with a subscript and epsilon are the route's letters."
+
+  # § 8's photoelectric relation in the route's letters, with the stopping potential written out. The
+  # paper prints the law as eq-s8-d1 and eq-s8-d2.
+  - latex: "\\begin{gathered}K_{\\max}=\\frac{R\\beta\\nu}{N}-P,\\\\ \\Pi=\\frac{K_{\\max}}{e}\\quad(K_{\\max}\\geq 0)\\end{gathered}"
+    own:
+      inWords:
+        - text: "The most kinetic energy an electron can leave with"
+          quantityId: maxKineticEnergy
+        - text: " is what one quantum brings in, "
+        - text: "the gas constant"
+          quantityId: molarGasConstant
+        - text: " times "
+        - text: "Wien's constant"
+          quantityId: wienConstantBeta
+        - text: " times "
+        - text: "the frequency"
+          quantityId: frequency
+        - text: " over "
+        - text: "the number of molecules in a gram-molecule"
+          quantityId: avogadroConstant
+        - text: ", less "
+        - text: "the work of escaping the surface"
+          quantityId: workFunction
+        - text: "; and "
+        - text: "the stopping potential"
+          quantityId: stoppingPotentialMagnitude
+        - text: " is that energy divided by "
+        - text: "the electron's charge"
+          quantityId: elementaryCharge
+        - text: "."
+      r0: "One quantum is absorbed by one electron. What the electron keeps is the quantum's energy less the work of getting out, and the voltage that just stops it is that energy per unit charge. Below a frequency where the quantum cannot pay the escape work, nothing comes out at all."
+      r1: "Section 8 applies the quantum hypothesis to the production of cathode rays by light, and the route writes the law with the stopping potential made explicit. The first line is the paper's: an electron that absorbs one quantum and reaches the surface without losing energy on the way leaves with at most $\\frac{R \\beta \\nu}{N} - P$, where $P$ is the work it must spend escaping. The second line is the measurement. A retarding voltage $\\Pi$ takes energy $e\\Pi$ from each electron, so the voltage that just stops the fastest of them reports the maximum kinetic energy directly. Two consequences follow, and both are testable. The stopping potential is a straight line in the frequency whose slope is the same for every substance, since only $P$ belongs to the material; and below the frequency at which the quantum's energy equals $P$ there is no emission at all, however bright the light. The bracket is the route's way of saying that the formula returns no negative energy: below the threshold the law does not give a small negative speed, it gives no electron."
+      r2:
+        - latex: "K_{\\max} = \\frac{R \\beta \\nu}{N} - P"
+          why: "The paper's own line: one quantum in, the escape work out, and what is left is the most the electron can keep. An electron that loses energy on its way to the surface leaves with less, which is why this is a maximum."
+        - latex: "e \\Pi = K_{\\max}"
+          why: "The retarding voltage that just stops the fastest electrons takes exactly their kinetic energy, the charge times the potential difference."
+        - latex: "\\Pi = \\frac{K_{\\max}}{e} = \\frac{R \\beta \\nu}{N e} - \\frac{P}{e}"
+          why: "Divided by the charge. In this form the law is a straight line in the frequency: the slope belongs to nature and the intercept to the substance."
+      r3: "The relation is § 8's and the letters are mostly the paper's; writing the stopping potential as a separate line, and the condition that the energy is not negative, are the route's, to make the two testable consequences explicit. The paper's own $\\Pi$ appears in its § 8 display for the stopping potential."

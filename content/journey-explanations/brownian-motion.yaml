@@ -1,0 +1,79 @@
+# The Brownian journey's formulas, and what each one carries (dispatch 293).
+#
+# One entry per formula /discover/brownian-motion/ sets apart, named by its latex exactly as the
+# page writes it (src/discovery/journeyFormulaList.ts). Each entry is one of three things, as
+# content/lab-explanations/ has them (dispatch 291): `display`, the paper's own record where the
+# journey prints one of its displays; `own`, the route's words where it writes a form the paper does
+# not print; or `incidental`, with the reason for giving it no control.
+#
+# A journey is a route a reader could take, not a transcript of Einstein's thinking, so an `own`
+# record's margin says whose the form is.
+page: discover/brownian-motion
+formulas:
+  # Step 02. The osmotic pressure of the suspended bodies, as § 2 prints it at s2-p7. The reader
+  # meets the same words here and on the reading face, because there is one record.
+  - latex: "p=\\frac{RT}{N}\\,\\nu"
+    display: eq-s2-d12
+
+  # Step 03. The diffusion coefficient, in Einstein's letters, as § 3 prints it.
+  - latex: "D=\\frac{RT}{N}\\,\\frac{1}{6\\pi kP}"
+    display: eq-s3-d9
+
+  # Step 03, the same law in the letters physics has used since. The paper prints no k_B and no eta,
+  # so this is the route's form and its margin says so.
+  - latex: "D=\\frac{k_BT}{6\\pi\\eta a}"
+    own:
+      inWords:
+        - text: "How fast a suspended substance spreads"
+          quantityId: diffusionCoefficient
+        - text: " is "
+        - text: "Boltzmann's constant"
+          quantityId: boltzmannConstant
+        - text: " times "
+        - text: "the absolute temperature"
+          quantityId: temperature
+        - text: ", divided by six pi times "
+        - text: "the liquid's viscosity"
+          quantityId: viscosity
+        - text: " times "
+        - text: "the radius of a particle"
+          quantityId: particleRadius
+        - text: "."
+      r0: "The same law as the display above, in the letters physics has used since: $k_B$ for the gas constant of a single molecule, $\\eta$ for the liquid's viscosity, $a$ for the radius."
+      r1: "Nothing has changed here but the letters. Einstein's $\\frac{R}{N}$, the gas constant divided by the number of molecules in a gram-molecule, is the constant now written $k_B$; his $k$, the friction coefficient of the liquid, is what is now called its viscosity and written $\\eta$; and his $P$, the radius of a suspended sphere, is written $a$. One of those renamings is worth pausing on, because the letter it frees is the letter it collides with: Einstein's $k$ in this paper is a viscosity and never Boltzmann's constant, and a reader who carries the modern $k$ backwards into § 3 turns a resistance into an energy. The site's notation concordance marks that collision where the paper prints it."
+      r2:
+        - latex: "\\frac{R}{N} = k_B"
+          why: "The gas constant belongs to a gram-molecule and $N$ is the number of molecules in one, so the quotient is what belongs to a single molecule. That quotient is the constant now written $k_B$."
+        - latex: "k = \\eta, \\qquad P = a"
+          why: "The paper's friction coefficient of the liquid is its viscosity, and the paper's sphere radius is the radius. Both are renamings and neither changes the law."
+        - latex: "D = \\frac{k_B T}{6 \\pi \\eta a}"
+          why: "The printed law with those three substitutions made. It says the same thing: at a fixed temperature, a bigger particle or a thicker liquid spreads more slowly, and in the same proportion."
+      r3: "The modern letters are this edition's, not Einstein's. The 1905 paper has no $k_B$ in it, and its $k$ means the opposite of what a modern reader expects; the substitution imports no later physics and is recorded in the notation concordance for § 3."
+
+  # Step 04. The spread over time, which § 4 prints as one display (eq-s4-d12) and § 5 repeats. The
+  # route sets the two statements side by side and writes the mean square with angle brackets.
+  - latex: "\\langle x^2\\rangle=2Dt \\qquad \\lambda_x=\\sqrt{2Dt}"
+    own:
+      inWords:
+        - text: "The average of the square of "
+          quantityId: displacement1d
+        - text: "a particle's displacement grows in proportion to "
+        - text: "the time watched"
+          quantityId: observationInterval
+        - text: ", at twice "
+        - text: "the diffusion coefficient"
+          quantityId: diffusionCoefficient
+        - text: "; and "
+        - text: "the typical displacement"
+          quantityId: rmsDisplacement1d
+        - text: " is the square root of that."
+      r0: "A particle does not travel at a steady speed. What grows in proportion to the time is the square of its displacement, so the distance itself grows as the square root of the time: four times as long gives twice as far, not four times."
+      r1: "The paper prints both statements as one display in § 4, with the mean square written under a square root and an overbar over it, and repeats the second in § 5 where it puts numbers in. The route separates them because they answer different questions. The first is the law of the spreading: the mean of the square of the displacement is $2 D t$, which is what the diffusion equation gives for a cloud that starts at a point. The second names one number a microscope can check, $\\lambda_x$, the square root of that mean square. It is not the average displacement, and it is not the farthest a particle goes; it is the root mean square, the statistic the derivation actually produces. The square root is what makes the motion look unlike ordinary travel: a particle that goes a micron in a second goes not sixty but about eight microns in a minute."
+      r2:
+        - latex: "\\langle x^2 \\rangle = 2 D t"
+          why: "The mean square displacement after a time $t$, for particles that all start together. It is linear in the time, which is the signature of a walk whose steps are independent of one another."
+        - latex: "\\lambda_x = \\sqrt{\\langle x^2 \\rangle}"
+          why: "The definition of the typical displacement: take the square root of the mean square, which returns a length."
+        - latex: "\\lambda_x = \\sqrt{2 D t}"
+          why: "The two put together, which is what the paper prints. Doubling the time multiplies this by the square root of two, not by two."
+      r3: "The angle brackets are the route's notation for the mean; the paper writes an overbar over the squared displacement instead, and states both parts in the single display of § 4. Nothing else here is the route's: the law and the statistic are the paper's, and § 5 evaluates the second of them for a sphere of one thousandth of a millimetre in water."

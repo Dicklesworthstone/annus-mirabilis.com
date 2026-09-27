@@ -1,0 +1,10 @@
+# The mass-energy journey's formulas, and what each one carries (dispatch 293).
+#
+# One entry per formula /discover/mass-energy/ sets apart, named by its latex exactly as the page
+# writes it, in the shape content/lab-explanations/ uses (dispatch 291).
+page: discover/mass-energy
+formulas:
+  # Step 05. The paper's last display, in its own letters, so the route and the reading face say the
+  # same thing from one record.
+  - latex: "K_0 - K_1 = \\frac{L}{V^2}\\,\\frac{v^2}{2}"
+    display: eq-s0-d7

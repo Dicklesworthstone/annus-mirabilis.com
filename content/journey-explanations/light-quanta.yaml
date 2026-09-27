@@ -1,0 +1,36 @@
+# The light quanta journey's formulas, and what each one carries (dispatch 293).
+#
+# One entry per formula /discover/light-quanta/ sets apart, named by its latex exactly as the page
+# writes it (src/discovery/journeyFormulaList.ts), in the shape content/lab-explanations/ uses
+# (dispatch 291): `display` for one of the paper's printed displays, `own` for a form the paper does
+# not print, `incidental` with a recorded reason for no control.
+page: discover/light-quanta
+formulas:
+  # Step 06. The size of one energy quantum. The paper states it in the prose of § 6 rather than in a
+  # numbered display (s6-p4 and the conclusion at s6-p6), so the words are the route's, built from
+  # that sentence and keeping its qualifications.
+  - latex: "\\frac{R\\,\\beta\\,\\nu}{N}"
+    own:
+      inWords:
+        - text: "The gas constant"
+          quantityId: molarGasConstant
+        - text: " times "
+        - text: "Wien's constant"
+          quantityId: wienConstantBeta
+        - text: " times "
+        - text: "the frequency"
+          quantityId: frequency
+        - text: ", divided by "
+        - text: "the number of molecules in a gram-molecule"
+          quantityId: avogadroConstant
+        - text: "."
+      r0: "The size of one energy quantum. It is fixed by the frequency alone: double the frequency and each quantum carries twice the energy, whatever the brightness of the light."
+      r1: "This is the quantity § 6 arrives at, and the paper states it in a sentence rather than in a numbered display. The conclusion reads that monochromatic radiation of low density, within the range of validity of Wien's radiation formula, behaves in respect of heat theory as if it consisted of mutually independent energy quanta of the magnitude $\\frac{R \\beta \\nu}{N}$. Every qualification in that sentence is load-bearing. Low density and Wien's range are where the entropy calculation of §§ 4 and 5 holds; in respect of heat theory says the comparison is between two entropies and not a claim about interference or refraction; and as if marks the whole thing as the heuristic point of view the paper's title announces. The letters are the ones the paper has to hand: $R$ the gas constant, $N$ the number of molecules in a gram-molecule, so $R/N$ is the gas constant for one molecule, and $\\beta$ the constant in Wien's exponent. The product is the energy the route will test against a metal surface in the step that follows."
+      r2:
+        - latex: "\\frac{R}{N}"
+          why: "The gas constant divided by the number of molecules in a gram-molecule: what belongs to a single molecule. The paper uses this quotient throughout rather than a constant of its own."
+        - latex: "\\beta \\nu"
+          why: "Wien's constant times the frequency. In Wien's radiation formula $\\beta \\nu / T$ is the exponent, so $\\beta \\nu$ has the dimensions of a temperature and $\\frac{R}{N} \\beta \\nu$ those of an energy."
+        - latex: "\\frac{R \\beta \\nu}{N}"
+          why: "The two together: the magnitude the paper names in § 6. It grows with the frequency and does not depend on how much light there is."
+      r3: "The paper has no Planck constant in it. What is written here as $\\frac{R \\beta}{N}$ is the quantity later called $h$, and § 6 computes a value for it from Wien's constants; writing $h \\nu$ instead is a rename that the site's notation concordance records, and it imports no later physics. The claim itself is offered as heuristic: the title of the paper calls it a point of view, and § 6 says as if."
