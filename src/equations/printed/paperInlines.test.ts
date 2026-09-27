@@ -5,13 +5,19 @@
  */
 import { describe, expect, test } from "bun:test";
 import { loadBilingualEdition } from "../../reader/faces/bilingualLoader.ts";
+// The exceptions list is parsed and refused by inlineExceptions.ts, so its cases are imported from
+// there rather than through paperInlines.ts, which re-exports them: a refusal is covered by the test
+// that names the file it is thrown in (src/testing/refusals/refusalScanner.ts attributes a test to
+// the files it imports).
+import {
+  ENFORCED_INLINE_PAPERS,
+  InlineExceptionsError,
+  parseInlineExceptions,
+} from "./inlineExceptions.ts";
 import {
   assertInlinesPublishable,
   checkPaperInlines,
-  ENFORCED_INLINE_PAPERS,
-  InlineExceptionsError,
   paperInlineHolders,
-  parseInlineExceptions,
   scopeKey,
 } from "./paperInlines.ts";
 
