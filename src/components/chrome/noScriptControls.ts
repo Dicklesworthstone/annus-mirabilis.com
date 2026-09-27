@@ -20,3 +20,57 @@
  * element, so it cannot move anything.
  */
 export const NOSCRIPT_CONTROLS_CSS = "button:enabled{display:none!important}";
+
+/*
+ * WITHOUT JAVASCRIPT, EVERY READING OF THE DETAIL AXIS IS STILL REACHABLE (am-b7jy).
+ *
+ * The Detail axis is served by rendering all of a unit's readings into the page and revealing one
+ * with CSS keyed on `data-detail`, which the pre-paint script sets on <html>. R1 is the default and
+ * needs no attribute, so it survives; the others are revealed only under an attribute no script means
+ * no one sets. Measured 2026-09-27:
+ *
+ * - THE PAPER FACES rendered R0 as `<div data-reading="0" hidden>` (PaperPage, PaperReader), and
+ *   reader.css turns `hidden` into display:none. 8 such blocks on mass-energy's explanation face and
+ *   15 on light quanta's, none reachable. R2 and R3 there are native <details> a reader can open, so
+ *   R0 alone was lost - the reading written to say in one or two sentences what a paragraph claims,
+ *   which is the one the no-algebra route leans on.
+ * - THE LABORATORY CAPTIONS are the larger half. labShell.css hides every `p[data-detail]` under a
+ *   lab root and reveals `p[data-detail="1"]` alone; R0, R2 and R3 are revealed only under
+ *   `html[data-detail]` or `html[data-lens]`. These are <p>, not disclosures, so a reader without
+ *   script could not reach them by any action. 63 of 63 caption targets carry all four authored
+ *   readings - the one population in the repository where the four-reading promise is complete.
+ *
+ * The R0 selector carries no [hidden]: with scripts off EVERY R0 is meant to be reachable, and a
+ * rule that required the attribute would miss one rendered without it and would also be harder to
+ * check, since a selector can only be matched against an element that carries what it asks for.
+ *
+ * So this reveals R0 and R2 wherever a script alone could have. It is the Detail axis only: R3 is the
+ * Perspective axis, and on the paper faces it is already a disclosure a reader can open. On a lab page
+ * R3 stays unreachable without script, which is a stated gap rather than an oversight - there is no
+ * lens control without script either, so revealing it would show modern-lens material to a reader who
+ * cannot turn it off, and the honest fix is the disclosure the paper faces use.
+ *
+ * THE NAMES ARE GENERATED CONTENT, DELIBERATELY. Three readings in sequence with nothing to tell them
+ * apart is two paragraphs of apparent repetition. A real element would be better, and the 44 lab pages
+ * each hand-emit their own `<p data-detail="N">` with no shared component, so a markup label costs 44
+ * files of churn across pages other panes are editing, for a label only this stylesheet ever shows.
+ * The trade is stated rather than hidden: `content` is announced by current screen readers, and
+ * without it a reader with scripts off gets the readings unlabelled, which is what they get today
+ * minus the readings.
+ */
+export const NOSCRIPT_READINGS_CSS = [
+  '[data-reading="0"],',
+  ':is(.laboratory,.laboratory-shell,.lab-readings)>p[data-detail="0"],',
+  ':is(.laboratory,.laboratory-shell,.lab-readings)>p[data-detail="2"]',
+  "{display:block!important}",
+  '[data-reading="0"]::before,',
+  ':is(.laboratory,.laboratory-shell,.lab-readings)>p[data-detail="0"]::before,',
+  ':is(.laboratory,.laboratory-shell,.lab-readings)>p[data-detail="2"]::before',
+  "{display:block;font-family:var(--font-sans);font-size:var(--type-small);",
+  "letter-spacing:0.04em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:0.2rem}",
+  '[data-reading="0"]::before,',
+  ':is(.laboratory,.laboratory-shell,.lab-readings)>p[data-detail="0"]::before',
+  '{content:"In one breath"}',
+  ':is(.laboratory,.laboratory-shell,.lab-readings)>p[data-detail="2"]::before',
+  '{content:"Every step"}',
+].join("");

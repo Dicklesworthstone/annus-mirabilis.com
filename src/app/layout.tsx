@@ -8,7 +8,10 @@ import "../a11y/modal/modal.css";
 import { READING_SETTINGS_PREPAINT } from "../a11y/readingSettings/prepaint";
 import { ReadingSettingsPanel } from "../a11y/readingSettings/ReadingSettingsPanel";
 import { MenuToggle } from "../components/chrome/MenuToggle.tsx";
-import { NOSCRIPT_CONTROLS_CSS } from "../components/chrome/noScriptControls.ts";
+import {
+  NOSCRIPT_CONTROLS_CSS,
+  NOSCRIPT_READINGS_CSS,
+} from "../components/chrome/noScriptControls.ts";
 import { PrimaryNavLinks } from "../components/chrome/PrimaryNavLinks.tsx";
 import { FORMULA_OVERFLOW_SOURCE } from "../components/edition/formulaOverflow.inline";
 import { shareImage } from "../components/share/shareImages.ts";
@@ -61,10 +64,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {/* How a page prints: one column, no chrome, no closed drawers. Loaded only for print, so no
             screen waits for it (src/platform/print/sitePrint.css, served by print.css/route.ts). */}
         <link rel="stylesheet" href="/print.css" media="print" />
-        {/* Without JavaScript, a button only JavaScript can work is not shown
-            (components/chrome/noScriptControls.ts says which, and why not a wrapper). */}
+        {/* Without JavaScript, a button only JavaScript can work is not shown, and every reading of
+            the Detail axis is still reachable (components/chrome/noScriptControls.ts says which, why
+            not a wrapper, and why the readings' names are generated content). */}
         <noscript>
-          <style>{NOSCRIPT_CONTROLS_CSS}</style>
+          <style>{`${NOSCRIPT_CONTROLS_CSS}${NOSCRIPT_READINGS_CSS}`}</style>
         </noscript>
       </head>
       <body>
