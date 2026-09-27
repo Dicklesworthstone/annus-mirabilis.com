@@ -30,7 +30,7 @@ const EXPECTED_UNREACHABLE: ReadonlyMap<string, string> = new Map([
   ],
   [
     "audit-misconceptions.ts",
-    "Thin CLI over src/content/audits/misconceptions.ts, whose auditMisconceptions() is called by verify-content.ts. content/misconceptions/ does not exist, so verify-content passes it an empty input and there is nothing for a CLI run to audit.",
+    "Thin CLI over src/content/audits/misconceptions.ts, whose auditMisconceptions() is called by verify-content.ts over the 26 live ledger records in content/misconceptions (am-8gbg, 2026-09-27). Only this --fixture entry point is unreachable; the audit itself judges the real corpus. The reason recorded here until 2026-09-27 denied that directory any records at all, which stopped being true when the ledgers landed and was still on the page.",
   ],
   [
     "audit-readings.ts",
@@ -42,7 +42,7 @@ const EXPECTED_UNREACHABLE: ReadonlyMap<string, string> = new Map([
   ],
   [
     "validate-ledger.ts",
-    "Takes a ledger path. No reviewed ledger exists: public/papers/transcripts/ holds no files. Wiring it in would be red on arrival, which trains people to ignore red gates.",
+    "Takes a ledger path and validates a REVIEWED transcription. public/papers/transcripts/ holds 4 machine drafts and no *-reviewed.txt, so there is nothing for it to validate; wiring it in would be red on arrival, which trains people to ignore red gates. The reason recorded here until 2026-09-27 denied that directory any files at all, which stopped being true when the drafts landed.",
   ],
 ]);
 
@@ -170,5 +170,48 @@ describe("check-shaped scripts are reachable from some runner (am-unwired-audits
     for (const name of EXPECTED_UNREACHABLE.keys()) {
       expect(scriptNames).toContain(name);
     }
+  });
+
+  test("a recorded reason that claims a path is empty is checked against the path (am-8gbg)", () => {
+    /**
+     * AN ENTRY HERE IS A RECORDED DECISION, and a decision outlives the condition it was made
+     * under. Two of these reasons had already expired when this test was written:
+     * audit-misconceptions said "content/misconceptions/ does not exist" while 26 ledger records
+     * sat in it, and validate-ledger said "public/papers/transcripts/ holds no files" while it
+     * held four machine drafts. Both entries stayed correct in their VERDICT, the script really is
+     * unreachable, so nothing failed and the false reasons were quoted into two later documents.
+     *
+     * So the claim is now checked rather than believed. A reason may still say a directory is
+     * empty; it may not say so while the directory has records in it.
+     *
+     * A CONSTRAINT ON HOW A REASON IS WRITTEN, learned by this test firing on its own fix: the
+     * matcher reads text and cannot tell a live claim from one being recounted, so a rewritten
+     * reason must NOT quote the expired wording. Say what is true now, and describe the old claim
+     * without repeating its words. This is the same trap as a gate that reads prose about a
+     * forbidden construct and takes it for the construct.
+     */
+    const claims = [...EXPECTED_UNREACHABLE.entries()].flatMap(([script, reason]) =>
+      [...reason.matchAll(/\b((?:content|public)\/[\w./-]+?)\/?\s+(?:does not exist|holds no files)/g)].map(
+        (m) => ({ script, path: m[1] as string }),
+      ),
+    );
+    const broken = claims.filter(({ path }) => {
+      const full = join(ROOT, path);
+      try {
+        return readdirSync(full).length > 0;
+      } catch {
+        return false; // absent, so the claim stands
+      }
+    });
+    expect(
+      broken.map(
+        ({ script, path }) =>
+          `${script}: its reason says ${path} is empty, but it holds records. Rewrite the reason or wire the script in.`,
+      ),
+    ).toEqual([]);
+    // The control: the matcher finds claims at all, or the assertion above passes on an empty list
+    // and proves nothing. audit-shelf's reason names content/historical-premises, which is empty.
+    expect(claims.length).toBeGreaterThan(0);
+    expect(claims.map((c) => c.script)).toContain("audit-shelf.ts");
   });
 });
