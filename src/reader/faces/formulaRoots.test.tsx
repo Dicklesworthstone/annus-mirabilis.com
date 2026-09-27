@@ -126,28 +126,41 @@ async function facePages(paper: string, face: (typeof FACES)[number]): Promise<s
   return (await Promise.all(pages.map((page) => exportMarkup(page)))).join("\n");
 }
 
+/**
+ * This one renders sixteen whole faces, four papers by four faces, the gloss one page per section,
+ * and reads every KaTeX root on each. It took 5,981 ms on 5a999b12, over bun's 5,000 ms default,
+ * and the deploy lane runs `bun test` with that default, so the test says its own budget here
+ * rather than depend on the lane passing a flag. 60,000 ms is room for a slow machine under a
+ * parallel build, not a licence to grow: it is the whole file's work, not one face's.
+ */
+const WHOLE_CORPUS_MS = 60_000;
+
 describe("every formula on a reading face is coloured, or a name that says what it names", () => {
-  test("on every face of every enforced paper", async () => {
-    expect(ENFORCED_INLINE_PAPERS.length).toBeGreaterThan(0);
-    const problems: string[] = [];
-    let labelled = 0;
-    for (const paper of ENFORCED_INLINE_PAPERS) {
-      // The very map the page's islands ship, so a name the reader points at says what this reads.
-      const notes = paperLabelNotes(paper, process.cwd());
-      const words = wordEquations(paper);
-      for (const face of FACES) {
-        const found = census(paper, await facePages(paper, face), notes, words);
-        // The denominator: every root read, by kind.
-        console.log(`[formula roots] ${paper} ${face}: ${JSON.stringify(found.counts)}`);
-        expect(found.counts.coloured).toBeGreaterThan(0);
-        labelled += found.counts.labelled;
-        problems.push(...found.problems);
+  test(
+    "on every face of every enforced paper",
+    async () => {
+      expect(ENFORCED_INLINE_PAPERS.length).toBeGreaterThan(0);
+      const problems: string[] = [];
+      let labelled = 0;
+      for (const paper of ENFORCED_INLINE_PAPERS) {
+        // The very map the page's islands ship, so a name the reader points at says what this reads.
+        const notes = paperLabelNotes(paper, process.cwd());
+        const words = wordEquations(paper);
+        for (const face of FACES) {
+          const found = census(paper, await facePages(paper, face), notes, words);
+          // The denominator: every root read, by kind.
+          console.log(`[formula roots] ${paper} ${face}: ${JSON.stringify(found.counts)}`);
+          expect(found.counts.coloured).toBeGreaterThan(0);
+          labelled += found.counts.labelled;
+          problems.push(...found.problems);
+        }
       }
-    }
-    expect(problems).toEqual([]);
-    // Not vacuous: the faces do print names, and each was read as one.
-    expect(labelled).toBeGreaterThan(0);
-  });
+      expect(problems).toEqual([]);
+      // Not vacuous: the faces do print names, and each was read as one.
+      expect(labelled).toBeGreaterThan(0);
+    },
+    WHOLE_CORPUS_MS,
+  );
 
   test("the plants: a bare letter, and a name that says nothing, are refused by their block", () => {
     const bare = renderToString("q", { output: "htmlAndMathml" });
