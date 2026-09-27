@@ -1,0 +1,37 @@
+# light-quanta eq-s8-d3: what the display says, at every level (dispatch 279).
+# Written from the German of s8-p3 (p. 146) and its plate; the steps were checked by hand.
+display: eq-s8-d3
+paper: light-quanta
+inWords:
+  - text: "The potential Π"
+    quantityId: stoppingPotentialMagnitude
+  - text: " times "
+  - text: "the charge of a gram-equivalent"
+    quantityId: gramEquivalentCharge
+  - text: " of a monovalent ion equals "
+  - text: "the gas constant R"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: ", less "
+  - text: "the work per gram-equivalent"
+    quantityId: workFunctionPerGramEquivalent
+  - text: "."
+r0: "The same relation counted by the gram-equivalent instead of by the single electron. Multiplying through by N replaces the electron's charge with the charge of a gram-equivalent and R/N by R."
+r1: "Multiplying the preceding line by $N$ turns every quantity from a per-electron into a per-gram-equivalent one. $E$ is the charge of a gram-equivalent of a monovalent ion, and $P'$ is what the paper calls the potential of that quantity of negative electricity with respect to the body. The relation keeps its shape, which is what matters for the test: the stopping potential is a straight line in the frequency. The paper then puts numbers in. Setting $E = 9{,}6 \\cdot 10^3$, it says that $\\Pi \\cdot 10^{-8}$ is the potential in volts that the body takes up under irradiation in vacuum. With $P' = 0$, $\\nu = 1{,}03 \\cdot 10^{15}$, which it gives as the limit of the solar spectrum toward the ultraviolet, and $\\beta = 4{,}866 \\cdot 10^{-11}$, it obtains 4,3 volts, and says the result agrees in order of magnitude with Lenard's. Repeating that arithmetic needs a value for $R$, which this paper does not print anywhere."
+r2:
+  - latex: "\\Pi \\varepsilon = \\frac{R}{N} \\beta \\nu - P"
+    why: "The relation for one electron, the preceding display."
+  - latex: "N \\Pi \\varepsilon = N \\frac{R}{N} \\beta \\nu - N P"
+    why: "Multiply both sides by the number of molecules in a gram-molecule."
+  - latex: "E = N \\varepsilon"
+    why: "The charge of a gram-equivalent of a monovalent ion is that number of electronic charges, which is how the paper's $E$ is defined."
+  - latex: "P' = N P"
+    why: "The work per gram-equivalent is the work for one electron taken that number of times, which is the quantity the paper calls the potential of that amount of negative electricity with respect to the body."
+  - latex: "\\Pi E = R \\beta \\nu - P'"
+    why: "The $N$ in the first term on the right cancels against the $\\frac{1}{N}$: the printed line."
+r3: "Four lines below this display the paper sets E = 9,6 · 10³ and says that Π · 10⁻⁸ is the potential in volts. The numerical result is then printed as Π · 10⁷ = 4,3 Volt, which the preceding sentence contradicts: the two factors differ by fifteen orders of magnitude. The provenance receipt records the page's own contradiction as typo-pi-exponent-p146 (docs/provenance/ap-17-132.md), keeps the printed reading on the source face, and rules that the site's photoelectric fixture uses the 4,3 volts and the 10⁻⁸ conversion."

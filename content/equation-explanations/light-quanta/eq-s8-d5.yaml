@@ -1,0 +1,31 @@
+# light-quanta eq-s8-d5: what the display says, at every level (dispatch 279).
+# Written from the German of s8-p10 (p. 147) and its plate; the steps were checked by hand.
+display: eq-s8-d5
+paper: light-quanta
+inWords:
+  - text: "The potential Π"
+    quantityId: stoppingPotentialMagnitude
+  - text: " times "
+  - text: "the charge of a gram-equivalent"
+    quantityId: gramEquivalentCharge
+  - text: ", plus "
+  - text: "the work per gram-equivalent"
+    quantityId: workFunctionPerGramEquivalent
+  - text: ", is at least "
+  - text: "the gas constant R"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: "."
+r0: "Cathode luminescence is the inverse process: an electron arrives and light is produced. The same consideration run backwards turns the inequality around, so the electron's energy is at least one quantum of the light it makes."
+r1: "Cathode luminescence is the inverse of the process just considered: instead of light freeing an electron, an electron produces light. The paper says only that a consideration analogous to the one carried out gives this relation, and does not work it through. The energy now travels the other way, so the electron's energy is what is available and a produced quantum is what must be paid for, which reverses the inequality. The paper then compares the two sides in Lenard's substances, where the electron's energy is always considerably the greater, since the voltage the cathode rays must have traversed to produce light that is just visible amounts in some cases to several hundred and in others to thousands of volts. It draws the conclusion that the kinetic energy of one electron is to be assumed to go into the production of many light quanta."
+r2:
+  - latex: "\\Pi E + P' \\leqq R \\beta \\nu ."
+    why: "The photoelectric relation of the preceding display, where light brings the energy and the electron carries away at most one quantum."
+  - latex: "\\Pi E + P' \\geqq R \\beta \\nu ."
+    why: "In cathode luminescence the electron brings the energy and the light is produced from it, so the same accounting runs in the other direction: what the electron brings is at least the energy of a quantum it produces. The printed line is the preceding one with its sense reversed, and the paper reaches it by an analogous consideration that it does not set out."
+r3: "The sentence after this display is printed \"ist P E stets bedeutend größer als R β ν\". What the argument needs there is Π E, the energy an electron carries after traversing the potential Π, since P is the work of leaving the body and the comparison is about the voltage the cathode rays have traversed. The provenance receipt records the reading as typo-pe-for-pi-p147 (docs/provenance/ap-17-132.md), and the source face keeps the letter as printed."

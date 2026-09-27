@@ -1,0 +1,32 @@
+# light-quanta eq-s8-d4: what the display says, at every level (dispatch 279).
+# Written from the German of s8-p9 (p. 147) and its plate; the steps were checked by hand.
+display: eq-s8-d4
+paper: light-quanta
+inWords:
+  - text: "The potential Π"
+    quantityId: stoppingPotentialMagnitude
+  - text: " times "
+  - text: "the charge of a gram-equivalent"
+    quantityId: gramEquivalentCharge
+  - text: ", plus "
+  - text: "the work per gram-equivalent"
+    quantityId: workFunctionPerGramEquivalent
+  - text: ", is at most "
+  - text: "the gas constant R"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: " times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: "."
+r0: "Drop the assumption that some quanta give their whole energy to a single electron, and the equation weakens to an inequality: what the electron carries away can only be less than one quantum, never more."
+r1: "The paper says what the preceding equation assumed: that the energy of at least a part of the exciting light's quanta is given up completely, each to a single electron. It calls that assumption a natural one, and here it sets it aside. If an electron may take up only part of a quantum's energy, the fastest electron's energy is no longer fixed at one whole quantum less the work of leaving; it can fall short of it. So the two sides need no longer be equal, and what remains is that they cannot be exceeded. The relation is then one-sided, and the straight line of the preceding paragraphs becomes an upper bound rather than a prediction."
+r2:
+  - latex: "\\Pi E = R \\beta \\nu - P'"
+    why: "The relation of the preceding display, which assumed that a quantum gives its whole energy to one electron."
+  - latex: "\\Pi E + P' = R \\beta \\nu"
+    why: "Move the work per gram-equivalent to the left. In this form the left side is the whole energy the electron received and the right side is one quantum."
+  - latex: "\\Pi E + P' \\leqq R \\beta \\nu ."
+    why: "Without the assumption an electron takes up only part of a quantum, so the energy it received is at most one quantum and may be less: the printed line."

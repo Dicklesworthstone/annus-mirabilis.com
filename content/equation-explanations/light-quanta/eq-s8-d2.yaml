@@ -1,0 +1,33 @@
+# light-quanta eq-s8-d2: what the display says, at every level (dispatch 279).
+# Written from the German of s8-p3 (p. 146) and its plate; the steps were checked by hand.
+display: eq-s8-d2
+paper: light-quanta
+inWords:
+  - text: "The potential Π"
+    quantityId: stoppingPotentialMagnitude
+  - text: " that just prevents the body from losing electricity, times "
+  - text: "the electron's charge"
+    quantityId: elementaryCharge
+  - text: ", equals "
+  - text: "the gas constant R"
+    quantityId: molarGasConstant
+  - text: " over "
+  - text: "the number N"
+    quantityId: avogadroConstant
+  - text: ", times "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: ", times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: ", less "
+  - text: "the work P"
+    quantityId: workFunction
+  - text: "."
+r0: "Charge the body positively until it just stops losing electricity. The work the potential then does against the fastest electron is equal to that electron's kinetic energy, which gives a relation between the stopping potential and the frequency."
+r1: "The body is charged to the positive potential $\\Pi$ and surrounded by conductors at potential zero. The paper's condition is that $\\Pi$ is just able to prevent a loss of electricity from the body: at that potential even the fastest electron fails to get away. The work done against an electron leaving is $\\Pi$ times its charge, which the paper calls the electrical mass of the electron and writes $\\varepsilon$. Setting that work equal to the greatest kinetic energy of the preceding display gives the relation. Its content is that the stopping potential rises with the frequency of the light and not with its intensity, and that the rise is by a fixed amount per unit of frequency. The paper draws the consequence two paragraphs later: if the derived relation is right, $\\Pi$ drawn against the frequency of the exciting light in cartesian coordinates must be a straight line whose slope is independent of the substance investigated."
+r2:
+  - latex: "\\Pi \\varepsilon"
+    why: "The work the retarding potential does on one electron of charge $\\varepsilon$ in taking it from the body to the conductors at potential zero."
+  - latex: "\\Pi \\varepsilon = \\frac{R}{N} \\beta \\nu - P"
+    why: "The potential is just able to prevent the loss of electricity, so the fastest electron's kinetic energy, the preceding display, is exactly used up against it. An electron with less energy is held back at a smaller potential: the printed line."

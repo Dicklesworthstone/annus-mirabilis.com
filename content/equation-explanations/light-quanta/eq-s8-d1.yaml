@@ -1,0 +1,27 @@
+# light-quanta eq-s8-d1: what the display says, at every level (dispatch 279).
+# Written from the German of s8-p2 (p. 146) and its plate; the steps were checked by hand.
+display: eq-s8-d1
+paper: light-quanta
+inWords:
+  - text: "The gas constant R"
+    quantityId: molarGasConstant
+  - text: " over "
+  - text: "the number N"
+    quantityId: avogadroConstant
+  - text: ", times "
+  - text: "the constant β"
+    quantityId: wienConstantBeta
+  - text: ", times "
+  - text: "the frequency"
+    quantityId: frequency
+  - text: " of the exciting light, less "
+  - text: "the work P"
+    quantityId: workFunction
+  - text: " that an electron has to do in leaving the body."
+r0: "The kinetic energy of the fastest electrons that leave the body: one whole quantum of the exciting light, less the work of getting out. Electrons stirred up deeper in have already lost part of their energy by the time they reach the surface."
+r1: "Section 8 takes the production of cathode rays by light on the view that the exciting light consists of energy quanta of the size $\\frac{R}{N} \\beta \\nu$. Quanta enter the surface layer of the body and their energy is turned, at least in part, into kinetic energy of electrons. The paper calls it the simplest conception that a light quantum gives its whole energy to a single electron, and assumes that this happens, while saying that electrons taking up only part of a quantum's energy is not to be excluded. An electron given kinetic energy inside the body will have lost part of it by the time it reaches the surface, and each electron has besides a work $P$ to do in leaving, characteristic of the body. So this expression is not the energy of every electron: it belongs to those excited immediately at the surface and normal to it, which leave with the greatest normal velocity."
+r2:
+  - latex: "\\frac{R}{N} \\beta \\nu"
+    why: "The energy of one quantum of the exciting light, from section 6, at the frequency of that light."
+  - latex: "\\frac{R}{N} \\beta \\nu - P"
+    why: "One whole quantum goes to one electron, and $P$ is taken off for the work of leaving the body. Nothing is taken off for the journey to the surface, because these are the electrons excited at the surface itself: the printed line is a greatest value, and every other electron falls below it."
