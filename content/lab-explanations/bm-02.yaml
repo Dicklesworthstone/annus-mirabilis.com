@@ -1,0 +1,5 @@
+# BM-02's formula (dispatch 291). The paper's osmotic-pressure law, in modern letters.
+lab: bm-02
+formulas:
+  - latex: "\\Pi = n k_B T,\\qquad n = \\frac{N_p}{V}"
+    display: eq-s1-d2

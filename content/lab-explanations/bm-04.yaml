@@ -1,0 +1,8 @@
+# BM-04's formulas (dispatch 291).
+lab: bm-04
+formulas:
+  - latex: "J_{\\text{net}} = \\nu\\,\\frac{K}{6\\pi k P} - D\\frac{\\partial\\nu}{\\partial x} = 0"
+    incidental: "The two fluxes § 3 prints separately, set equal. The sentence carrying this display names each term as it goes: the Stokes drift each particle acquires under the force, the counter-flux diffusion produces, and the equating of the two. The paper prints the drift and the diffusion flux as their own displays and equates them in prose."
+
+  - latex: "D = \\frac{RT}{N}\\frac{1}{6\\pi k P} = \\mu k_B T"
+    display: eq-s3-d9

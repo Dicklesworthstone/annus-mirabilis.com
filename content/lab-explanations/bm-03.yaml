@@ -1,0 +1,14 @@
+# BM-03's formulas, and what each one carries (dispatch 291).
+lab: bm-03
+formulas:
+  - latex: "\\begin{aligned}B &= \\int\\cdots\\int dx_1\\dots dz_n \\\\ &= V^{*n}J, \\\\ F &= -2\\kappa T\\lg B \\\\ &= -2\\kappa Tn\\lg V^* \\\\ &\\quad -2\\kappa T\\lg J+\\text{const}\\end{aligned}"
+    incidental: "Two of § 2's printed displays gathered into one block, the integral for B and the free energy that follows from it, with the paper's own letters. Each is a printed display with its own words on the reading face, and the block is an arrangement rather than an equation of the lab's own; the display below it restates the same free energy in modern letters and carries the words."
+
+  - latex: "\\begin{aligned}F &= -N_p k_B T\\ln V \\\\ &\\quad - k_B T\\ln J + F_0\\end{aligned}"
+    display: eq-s2-d11
+
+  - latex: "p=-\\frac{\\partial F}{\\partial V}=\\frac{N_p k_BT}{V}=n k_BT"
+    display: eq-s2-d12
+
+  - latex: "p_{\\text{locked}}=\\frac{k_B T}{V}"
+    incidental: "The lab's counterexample, not a result of the paper: the sentence before it sets up the rigidly locked cluster and says the pressure is that of one independent unit, and the sentence after it draws the conclusion, that osmotic pressure counts independently placed units and not constituents. A panel would repeat both."
