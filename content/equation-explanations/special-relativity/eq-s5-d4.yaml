@@ -1,0 +1,22 @@
+# special-relativity eq-s5-d4: what the display says, at every level (dispatch 282).
+# Written from the German of s5-p3 and s5-p4 and the plates of pp. 905 and 906; the steps were
+# checked by hand.
+display: eq-s5-d4
+paper: special-relativity
+inWords:
+  - text: "The angle"
+    quantityId: velocityDirectionAngle
+  - text: " is the one whose tangent is "
+  - text: "the point's speed across the motion"
+    quantityId: velocityComponentYMoving
+  - text: " over "
+  - text: "its speed along the motion"
+    quantityId: velocityComponentXMoving
+  - text: "."
+r0: "The direction the point travels in the moving system, given as the angle between its velocity and the velocity of that system. It is the third and last quantity the composition formula needs."
+r1: "The angle is defined by the ratio of the two components of the point's velocity in the moving system, and the sentence at the top of the next page says what it is for: $\\alpha$ is then to be regarded as the angle between the velocities $v$ and $w$. With $w$ and $\\alpha$ in hand the two components can be written $w \\cos \\alpha$ along the motion and $w \\sin \\alpha$ across it, which is what turns the two equations of the display before into one formula for the resulting speed. The formula that follows is symmetric in $v$ and $w$, and this angle is why: it is the angle between them, and it does not privilege either."
+r2:
+  - latex: "\\alpha = \\operatorname{arctg} \\frac{w_y}{w_x}"
+    why: "As printed, with the components written in the letters of the axes. The tangent of the angle is the ratio of the component across the motion to the component along it."
+  - latex: "w_\\xi = w \\cos \\alpha, \\quad w_\\eta = w \\sin \\alpha"
+    why: "The same statement read backwards, which is the form the next display uses: the two components of a speed $w$ making the angle $\\alpha$ with the direction of the motion."

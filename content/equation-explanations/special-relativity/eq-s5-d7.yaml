@@ -1,0 +1,29 @@
+# special-relativity eq-s5-d7: what the display says, at every level (dispatch 282).
+# Written from the German of s5-p5 and the plate of p. 906; the steps were checked by hand.
+display: eq-s5-d7
+paper: special-relativity
+inWords:
+  - text: "The resulting speed"
+    quantityId: velocityComposed
+  - text: " is "
+  - text: "the speed of light"
+    quantityId: speedOfLight
+  - text: " times a fraction whose denominator exceeds its numerator by the product of the two "
+  - text: "amounts by which the compounded speeds fall short of light"
+    quantityId: speedDeficitFromLight
+  - text: " over that speed, so the result stays below it."
+r0: "Write each of the two speeds as the speed of light less something positive. The composition then comes out as the speed of light times a fraction smaller than one, so two speeds below light always compound to a speed below light."
+r1: "The paper proves the claim by writing $v = V - \\varkappa$ and $w = V - \\lambda$, with $\\varkappa$ and $\\lambda$ positive and smaller than $V$, which any two speeds below the speed of light can be written as. The composition of the display before then takes this form, and the comparison is immediate: the denominator is the numerator plus $\\frac{\\varkappa \\lambda}{V}$, which is positive, so the fraction is less than one and $U$ is less than $V$. The proof needs no smallness and no approximation: it holds for two speeds each as close to $V$ as one likes, and it is what secures the speed of light as a limit rather than merely a large number."
+r2:
+  - latex: "v = V - \\varkappa, \\quad w = V - \\lambda"
+    why: "Any two speeds below the speed of light, written by how far each falls short of it. Both shortfalls are positive and smaller than $V$."
+  - latex: "v + w = 2 V - \\varkappa - \\lambda"
+    why: "Their sum, the numerator of the addition theorem."
+  - latex: "1 + \\frac{v w}{V^2} = \\frac{V^2 + (V - \\varkappa)(V - \\lambda)}{V^2} = \\frac{2 V^2 - V(\\varkappa + \\lambda) + \\varkappa \\lambda}{V^2}"
+    why: "Its denominator, with the product multiplied out over a common denominator."
+  - latex: "U = \\frac{(2V - \\varkappa - \\lambda) V^2}{2 V^2 - V(\\varkappa + \\lambda) + \\varkappa \\lambda}"
+    why: "The quotient of the two."
+  - latex: "U = V \\frac{2 V - \\varkappa - \\lambda}{2 V - \\varkappa - \\lambda + \\frac{\\varkappa \\lambda}{V}}"
+    why: "Numerator and denominator divided by $V$, which leaves one factor $V$ in front. The printed form."
+  - latex: "\\frac{\\varkappa \\lambda}{V} > 0"
+    why: "Both shortfalls are positive, so the denominator exceeds the numerator by this amount and the fraction is smaller than one. Hence the printed conclusion that $U$ is less than $V$."

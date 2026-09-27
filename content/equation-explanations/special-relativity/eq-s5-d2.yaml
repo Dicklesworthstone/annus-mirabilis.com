@@ -1,0 +1,41 @@
+# special-relativity eq-s5-d2: what the display says, at every level (dispatch 282).
+# Written from the German of s5-p2 and the plate of p. 905; the steps were checked by hand.
+display: eq-s5-d2
+paper: special-relativity
+inWords:
+  - text: "In the stationary system the point's "
+  - text: "place along the motion"
+    quantityId: coordinatePositionStationary
+  - text: " is "
+  - text: "its speed along that direction in the moving system"
+    quantityId: velocityComponentXMoving
+  - text: " added to "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: ", divided by one plus their product over the square of "
+  - text: "the speed of light"
+    quantityId: speedOfLight
+  - text: ", times "
+  - text: "the stationary time"
+    quantityId: coordinateTimeStationary
+  - text: "; and its place across the motion carries "
+  - text: "the speed across"
+    quantityId: velocityComponentYMoving
+  - text: " with the same denominator and a square root in the numerator."
+r0: "The same motion described in the stationary system. The two speeds along the motion do not simply add: their sum is divided by a factor that grows with their product. The speed across the motion is reduced as well, although nothing pushes the point sideways."
+r1: "The transformation of § 3 is put into the equations of motion, and $x, y, z, t$ take the place of $\\xi, \\eta, \\zeta, \\tau$. The first equation gives the familiar composition with its denominator; the second is the one worth pausing on. The point's sideways progress is smaller in $K$ than $w_\\eta$ would suggest, by both the square root and the same denominator, and no force acts across the motion. The cause is the clock: $\\eta$ and $y$ are the same length, so what has changed is the time in which that length is covered. The paper draws the conclusion under the display: the law of the parallelogram of velocities holds, on our theory, only to a first approximation."
+r2:
+  - latex: "\\xi = \\beta(x - vt), \\quad \\tau = \\beta\\left( t - \\frac{v}{V^2} x \\right), \\quad \\eta = y"
+    why: "The transformation found in § 3, which is all this section uses."
+  - latex: "\\beta(x - v t) = w_\\xi \\beta \\left( t - \\frac{v}{V^2} x \\right)"
+    why: "The first equation of motion with both sides transformed. The factor $\\beta$ stands on both sides and divides out."
+  - latex: "x \\left( 1 + \\frac{v w_\\xi}{V^2} \\right) = t (w_\\xi + v)"
+    why: "The terms in $x$ collected on the left and those in $t$ on the right."
+  - latex: "x = \\frac{w_\\xi + v}{1 + \\frac{v w_\\xi}{V^2}} t"
+    why: "Divided by the bracket: the first printed equation."
+  - latex: "t - \\frac{v}{V^2} x = t \\frac{1 - \\frac{v^2}{V^2}}{1 + \\frac{v w_\\xi}{V^2}}"
+    why: "The value of $x$ just found, put back into the moving system's time. The terms in $v w_\\xi$ cancel in the numerator."
+  - latex: "y = w_\\eta \\beta t \\frac{1 - \\frac{v^2}{V^2}}{1 + \\frac{v w_\\xi}{V^2}} = \\frac{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}{1 + \\frac{v w_\\xi}{V^2}} w_\\eta t"
+    why: "The second equation of motion with that time in it. Since $\\beta$ is one over the square root, $\\beta$ times $1 - (v/V)^2$ is the square root itself. The second printed equation."
+  - latex: "z = 0"
+    why: "The third coordinate is unchanged by the transformation, so the motion stays in the plane it started in."

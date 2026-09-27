@@ -1,0 +1,29 @@
+# special-relativity eq-s5-d6: what the display says, at every level (dispatch 282).
+# Written from the German of s5-p4 and the plate of p. 906; the steps were checked by hand.
+display: eq-s5-d6
+paper: special-relativity
+inWords:
+  - text: "When the two motions have the same direction, "
+  - text: "the resulting speed"
+    quantityId: velocityComposed
+  - text: " is "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " plus "
+  - text: "the speed of the point in it"
+    quantityId: velocityInMovingFrame
+  - text: ", divided by one plus their product over the square of "
+  - text: "the speed of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "The case everyone pictures: both motions along the same line. The speeds are added as always and then divided by a factor slightly greater than one, which is why the sum never reaches the speed of light."
+r1: "If $w$ also has the direction of the $X$-axis, which is the Ξ-axis of the moving system, then the angle is zero, its cosine is one and its sine is nothing. The correcting term under the root vanishes with the sine, what is left under the root is the square of $v + w$, and the denominator keeps the product. The result is the addition theorem in the form it is usually quoted. For small speeds the denominator is nearly one and the old rule is recovered, which is the approximation the paper had in mind when it said the parallelogram law holds to a first approximation. The two consequences the section draws from this one line are that two speeds below $V$ always compound to a speed below $V$, and that $V$ compounded with any smaller speed gives $V$ again."
+r2:
+  - latex: "\\cos \\alpha = 1, \\quad \\sin \\alpha = 0"
+    why: "The angle between the two velocities is zero when they point the same way."
+  - latex: "U = \\frac{\\sqrt{v^2 + w^2 + 2 v w}}{1 + \\frac{v w}{V^2}}"
+    why: "The general formula with those values. The term that was subtracted carried the sine and has gone."
+  - latex: "v^2 + w^2 + 2 v w = (v + w)^2"
+    why: "The square under the root is a perfect square, so the root is the sum itself."
+  - latex: "U = \\frac{v + w}{1 + \\frac{v w}{V^2}}"
+    why: "The printed form. The numerator is the old answer and the denominator is what the theory adds."

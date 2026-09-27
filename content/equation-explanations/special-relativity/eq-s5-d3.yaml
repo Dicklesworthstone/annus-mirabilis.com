@@ -1,0 +1,36 @@
+# special-relativity eq-s5-d3: what the display says, at every level (dispatch 282).
+# Written from the German of s5-p3 and the plate of p. 905; the steps were checked by hand.
+display: eq-s5-d3
+paper: special-relativity
+inWords:
+  - text: "The square of "
+  - text: "the resulting speed"
+    quantityId: velocityComposed
+  - text: " is the square of how fast "
+  - text: "the place along the motion"
+    quantityId: coordinatePositionStationary
+  - text: " changes with "
+  - text: "the stationary time"
+    quantityId: coordinateTimeStationary
+  - text: ", plus the square of how fast "
+  - text: "the place across it"
+    quantityId: coordinatePositionStationary
+  - text: " does; and the square of "
+  - text: "the speed in the moving system"
+    quantityId: velocityInMovingFrame
+  - text: " is the sum of the squares of "
+  - text: "its component along the motion"
+    quantityId: velocityComponentXMoving
+  - text: " and "
+  - text: "its component across"
+    quantityId: velocityComponentYMoving
+  - text: "."
+r0: "Two names for what is about to be compared: the speed of the point as the stationary system reckons it, and the speed of the same point as the moving system reckons it. Each is built from its own components in the ordinary way."
+r1: "These are definitions, not results. $U$ is the speed of the point in the stationary system, got from the two rates at which its coordinates there change with the stationary time, and $w$ is the speed of the point in the moving system, got from the two constants of the first display. Each is formed by the ordinary rule for combining components at right angles, and each uses the coordinates and the time of one system only. That is the care the section takes: a quantity measured partly in one system and partly in another would mean nothing. The angle of the next display completes the description of $w$, and then the two can be compared."
+r2:
+  - latex: "U^2 = \\left( \\frac{d x}{d t} \\right)^2 + \\left( \\frac{d y}{d t} \\right)^2"
+    why: "The speed in the stationary system, from the rates at which the two coordinates of that system change with its own time. The printed definition."
+  - latex: "w^2 = w_\\xi^2 + w_\\eta^2"
+    why: "The speed in the moving system, from the two constants of the equations of motion there. The second printed definition."
+  - latex: "\\frac{d x}{d t} = \\frac{w_\\xi + v}{1 + \\frac{v w_\\xi}{V^2}}, \\quad \\frac{d y}{d t} = \\frac{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}{1 + \\frac{v w_\\xi}{V^2}} w_\\eta"
+    why: "The two rates, read off the display before: both coordinates are constants times $t$, so each rate is that constant."

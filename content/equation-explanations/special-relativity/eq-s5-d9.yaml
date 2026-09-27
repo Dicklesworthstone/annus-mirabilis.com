@@ -1,0 +1,26 @@
+# special-relativity eq-s5-d9: what the display says, at every level (dispatch 282).
+# Written from the German of s5-p6 and s5-p7 and the plates of pp. 906 and 907; the steps were
+# checked by hand.
+display: eq-s5-d9
+paper: special-relativity
+inWords:
+  - text: "The speed of the moving system"
+    quantityId: frameSpeed
+  - text: " plus "
+  - text: "the speed of a third system relative to it"
+    quantityId: velocityInMovingFrame
+  - text: ", divided by one plus their product over the square of "
+  - text: "the speed of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "Carry out the transformation of § 3 twice over and the result is a single transformation of the same kind, with this one speed in place of the original. Composing two of these transformations never leads outside the family."
+r1: "The formula for $U$ in the case of equal directions can also be had by composing two transformations. Beside the systems $K$ and $k$ of § 3 the paper introduces a third, $k'$, moving parallel to $k$ with its origin travelling along the Ξ-axis at the speed $w$. The equations between $x, y, z, t$ and the corresponding quantities of $k'$ then differ from those found in § 3 only in that this quantity stands in the place of $v$. Two readings of that: it is a second derivation of the addition theorem, from the structure of the transformations rather than from a moving point; and it says that these parallel transformations form a group, which the paper notes on the next page with the remark that this is as it must be. Being a group is the guarantee that the theory gives one answer: a chain of transformations can be carried out in any grouping, and the family of admissible descriptions is closed."
+r2:
+  - latex: "\\frac{v + w}{1 + \\frac{v w}{V^2}}"
+    why: "The printed quantity: the composition of the two speeds, in the same form the addition theorem gave."
+  - latex: "\\tau = \\beta \\left( t - \\frac{v}{V^2} x \\right), \\quad \\xi = \\beta (x - v t)"
+    why: "The transformation of § 3 from the stationary system to $k$, the first of the two to be applied."
+  - latex: "\\beta = \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}"
+    why: "Its factor, which is fixed by the speed appearing in the transformation and by nothing else."
+  - latex: "v \\rightarrow \\frac{v + w}{1 + \\frac{v w}{V^2}}"
+    why: "What the two transformations together come to: equations of exactly the form found in § 3, with this speed wherever $v$ stood. So the composition of two such transformations is again one of them."

@@ -1,0 +1,24 @@
+# special-relativity eq-s5-d8: what the display says, at every level (dispatch 282).
+# Written from the German of s5-p6 and the plate of p. 906; the steps were checked by hand.
+display: eq-s5-d8
+paper: special-relativity
+inWords:
+  - text: "Compounding "
+  - text: "the speed of light"
+    quantityId: speedOfLight
+  - text: " with any smaller "
+  - text: "speed"
+    quantityId: velocityInMovingFrame
+  - text: " gives "
+  - text: "a result"
+    quantityId: velocityComposed
+  - text: " equal to the speed of light again."
+r0: "Light keeps its speed however fast the system carrying it travels. The denominator grows by exactly as much as the numerator, and the two changes cancel."
+r1: "The paper states the consequence in words first: the velocity of light $V$ cannot be altered by composition with a sub-light velocity. Setting $v = V$ in the addition theorem gives the display, where the numerator and the denominator share the factor $V + w$ and leave $V$ behind. This is not a new assumption. The constancy of the light speed was put in at the start of § 3, and the transformation was built to respect it; the display shows that the composition law which follows from that transformation does not undo it. It is worth seeing that the cancellation is exact rather than approximate, since it holds for every $w$ smaller than $V$, and that the denominator of the addition theorem is what makes it exact."
+r2:
+  - latex: "U = \\frac{V + w}{1 + \\frac{V w}{V^2}}"
+    why: "The addition theorem with the first speed equal to the speed of light."
+  - latex: "1 + \\frac{V w}{V^2} = 1 + \\frac{w}{V} = \\frac{V + w}{V}"
+    why: "The denominator simplified: one factor of $V$ cancels in the product, and the rest is the same sum over $V$."
+  - latex: "U = \\frac{V + w}{\\frac{V + w}{V}} = V"
+    why: "The sum divides out and the speed of light is left. The printed result."

@@ -1,0 +1,27 @@
+# special-relativity eq-s5-d1: what the display says, at every level (dispatch 282).
+# Written from the German of s5-p1 and the plate of p. 905; the steps were checked by hand.
+display: eq-s5-d1
+paper: special-relativity
+inWords:
+  - text: "A point's "
+  - text: "place in the moving system"
+    quantityId: coordinatePositionMoving
+  - text: " along the direction of motion is "
+  - text: "a constant speed"
+    quantityId: velocityComponentXMoving
+  - text: " times "
+  - text: "the moving system's time"
+    quantityId: coordinateTimeMoving
+  - text: ", across it is "
+  - text: "another constant speed"
+    quantityId: velocityComponentYMoving
+  - text: " times that same time, and the third coordinate stays zero."
+r0: "A point travels in a straight line at a steady speed, as judged in the moving system. The section asks what its motion looks like in the system the moving one travels through."
+r1: "The system $k$ moves along the $X$-axis of $K$ with the speed $v$, and in $k$ a point moves according to these equations, where $w_\\xi$ and $w_\\eta$ are constants. The motion is as simple as a motion can be: the point sets out from the origin of $k$ at $\\tau = 0$ and goes in a fixed direction at a fixed rate, with no acceleration anywhere. Two components are enough because the third can be set to zero by choosing the axes, so the whole motion lies in one plane. What the section asks is what this motion becomes when it is described in $K$, and the answer will be that the two speeds do not simply add. Everything the section needs comes from § 3: no new principle is introduced here, only the transformation already found."
+r2:
+  - latex: "\\xi = w_\\xi \\tau"
+    why: "The motion along the direction the two systems move relative to each other, at the constant rate $w_\\xi$ measured with the rods and clocks of $k$."
+  - latex: "\\eta = w_\\eta \\tau"
+    why: "The motion across that direction, at the constant rate $w_\\eta$, measured in the same system."
+  - latex: "\\zeta = 0"
+    why: "The third coordinate, which the choice of axes makes zero throughout, so the point stays in one plane."

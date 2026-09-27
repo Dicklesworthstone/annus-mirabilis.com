@@ -1,0 +1,33 @@
+# special-relativity eq-s5-d5: what the display says, at every level (dispatch 282).
+# Written from the German of s5-p4 and the plate of p. 906; the steps were checked by hand.
+display: eq-s5-d5
+paper: special-relativity
+inWords:
+  - text: "The resulting speed"
+    quantityId: velocityComposed
+  - text: " is the square root of the square of "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " plus the square of "
+  - text: "the speed of the point in it"
+    quantityId: velocityInMovingFrame
+  - text: " plus twice their product times the cosine of "
+  - text: "the angle between them"
+    quantityId: velocityDirectionAngle
+  - text: ", less the square of their product times the sine of that angle over "
+  - text: "the speed of light"
+    quantityId: speedOfLight
+  - text: "; all divided by one plus their product times that cosine over the square of the speed of light."
+r0: "The general rule for compounding two velocities that make an angle with each other. Under the root sits what the old parallelogram rule would give, and beside it a subtraction and a denominator that are new; both vanish when the speeds are small against light."
+r1: "The two components of $w$ are $w \\cos \\alpha$ and $w \\sin \\alpha$, and putting them into the two rates of the display before and adding the squares gives this after a simple calculation. Under the root, the first three terms are exactly the parallelogram law, the square of the sum of two vectors making the angle $\\alpha$. What is new is the term subtracted from them and the denominator, and each carries the speed of light in a square. The paper then remarks on the form: it is noteworthy that $v$ and $w$ enter the expression for the resulting velocity in a symmetric way, so it makes no difference which of the two is called the motion of the system and which the motion of the point in it. Nothing here restricts $\\alpha$, so this one formula covers the two special cases that follow, the same direction and the case of light."
+r2:
+  - latex: "\\frac{d x}{d t} = \\frac{w \\cos \\alpha + v}{1 + \\frac{v w \\cos \\alpha}{V^2}}, \\quad \\frac{d y}{d t} = \\frac{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}}{1 + \\frac{v w \\cos \\alpha}{V^2}} w \\sin \\alpha"
+    why: "The two rates with the components of $w$ written by the angle."
+  - latex: "U^2 = \\frac{(w \\cos \\alpha + v)^2 + \\left( 1 - \\frac{v^2}{V^2} \\right) w^2 \\sin^2 \\alpha}{\\left( 1 + \\frac{v w \\cos \\alpha}{V^2} \\right)^2}"
+    why: "Their squares added. The denominator is the same for both and comes out squared."
+  - latex: "(w \\cos \\alpha + v)^2 + w^2 \\sin^2 \\alpha = v^2 + w^2 + 2 v w \\cos \\alpha"
+    why: "The numerator without the correcting term: the squares of the cosine and sine parts add to $w^2$, and the cross term is twice the product with the cosine. This is the parallelogram law."
+  - latex: "- \\frac{v^2}{V^2} w^2 \\sin^2 \\alpha = - \\left( \\frac{v w \\sin \\alpha}{V} \\right)^2"
+    why: "The remaining piece of the numerator, which is what the square root in the sideways rate leaves behind."
+  - latex: "U = \\frac{\\sqrt{(v^2 + w^2 + 2 v w \\cos \\alpha) - \\left( \\frac{v w \\sin \\alpha}{V} \\right)^2}}{1 + \\frac{v w \\cos \\alpha}{V^2}}"
+    why: "The square root of the whole. The printed form, symmetric in the two speeds."
