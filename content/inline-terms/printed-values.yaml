@@ -1,0 +1,77 @@
+# A NUMBER THE PAPER PRINTS IN ITS PROSE, AND WHAT IT IS THE VALUE OF (dispatch 302).
+#
+# Read by src/equations/printed/inlineValues.ts and passed to the inline resolver, which marks the
+# whole formula rather than an atom inside it: each of these IS a whole inline formula, a numeral
+# with no letter in it to bind.
+#
+# WHY THESE ARE NOT TERMS. A term says the atom IS that quantity, and a term's glyph joins the
+# quantity's list of printed glyphs and the coloured census. "6 · 10²³" is not N; it is the number
+# Einstein assigns to N in one sentence. Marking it a term would put a numeral in N's glyph list and
+# count it as a coloured symbol, and both would be false. So a value is its own kind: it names the
+# quantity it is a value of, so a reader pointing at it sees that quantity's symbol light, and it is
+# counted apart from the coloured formulas.
+#
+# WHY THEY ARE NOT EXCEPTIONS EITHER. An exception declares a glyph left plain WITH A REASON, and is
+# refused where the concordance has a reading. These are not plain: they carry a note and, where the
+# sentence supports one, a quantity. A number with nothing to say about it belongs in neither list,
+# and `quantityId` is therefore optional here: where the sentence does not support a quantity, the
+# record says so and the note carries the whole of what is known.
+#
+# EVERY NOTE WAS WRITTEN AFTER READING THE SENTENCE IN THE LEDGER, not from the number's shape.
+# A value's note says what the number IS: a value assigned, an upper bound, a measured length. Where
+# the number is a value of a reciprocal or a limit rather than of the quantity itself, the note says
+# that too, because the quantity it lights is then not what the number equals.
+
+values:
+  # Light quanta § 1, p. 134. "Die Energie Ē ist nämlich wegen der Gleichheit der zeitlichen
+  # Mittelwerte von kinetischer und potentieller Energie des Resonators 2/3 mal so groß wie die
+  # lebendige Kraft eines freien, einatomigen Gasmoleküles."
+  #
+  # NO QUANTITY, and the reason is the sentence. 2/3 is the ratio of two energies, the resonator's
+  # mean energy to a free monatomic molecule's vis viva. It is not the value of either of them, and
+  # a quantity chosen for it would have to be one of the two, which would be wrong. It carries a
+  # note and nothing else.
+  - paper: light-quanta
+    anchor: s1-p3
+    latex: "2/3"
+    note: "Not a measured number: the ratio of two energies. One straight-line vibration of a resonator has two thirds of the mean kinetic energy of a free monatomic gas molecule, because the vibration's kinetic and potential energies have equal time averages."
+
+  # Light quanta § 2, p. 137. "d. h. ein Atom Wasserstoff wiegt 1/N Gramm = 1,62 · 10⁻²⁴ g."
+  #
+  # It lights N, and the note says why that is not what it equals: the number is the value of 1/N.
+  # The site has no quantity for the mass of a hydrogen atom, and inventing one for a single numeral
+  # would put a quantity in the registry that no equation uses.
+  - paper: light-quanta
+    anchor: s2-p2
+    latex: "= 1{,}62 \\cdot 10^{-24}"
+    quantityId: avogadroConstant
+    note: "The mass of one hydrogen atom in grams. It is the value of 1/N, the reciprocal of the number that lights with it, and not of N itself: the paper writes that an atom of hydrogen weighs 1/N gram."
+
+  # Light quanta § 9, p. 148. "Nach Messungen Lenards ist aber die größte wirksame Wellenlänge für
+  # Luft ca. 1,9 · 10⁻⁵ cm, also"
+  - paper: light-quanta
+    anchor: s9-p1
+    latex: "1{,}9 \\cdot 10^{-5}"
+    quantityId: wavelength
+    note: "The longest wavelength that still ionizes air, in centimetres, which the paper takes from Lenard's measurements. Being the longest effective one, it belongs to the weakest quantum that still works, which is why it gives the sharpest bound the measurement allows."
+
+  # Light quanta § 9, p. 148. "Es ergibt sich also für J die obere Grenze 9,6 · 10¹², welche nahezu
+  # gleich der eben gefundenen ist."
+  #
+  # An upper BOUND on J, not a value of it, and the note says so. It lights J because that is the
+  # quantity the bound is on.
+  - paper: light-quanta
+    anchor: s9-p3
+    latex: "9{,}6 \\cdot 10^{12}"
+    quantityId: ionizationWorkPerGramEquivalent
+    note: "An upper limit on the ionization work per gram-equivalent, not a value of it: the paper reaches it from Stark's smallest measured ionization potential for air, about 10 volts, and says it is nearly equal to the limit found from the wavelength a few lines above."
+
+  # Brownian § 5, p. 559. "wenn N gemäß den Resultaten der kinetischen Gastheorie 6 · 10²³ gesetzt
+  # wird".
+  #
+  # The one clean case: a value the paper assigns to a quantity it has been using.
+  - paper: brownian-motion
+    anchor: s5-p2
+    latex: "6 \\cdot 10^{23}"
+    quantityId: avogadroConstant
+    note: "The value the paper assigns to N, the number of molecules in a gram-molecule, taken from the results of the kinetic theory of gases. It is an input to the displacement calculated here and not a result of it; § 5's last display turns the relation round and makes N the thing a measurement would yield."
