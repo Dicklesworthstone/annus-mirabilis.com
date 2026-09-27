@@ -205,9 +205,53 @@ entries:
       by: "agent:ConcordanceCheck-brownian-motion"
       date: "2026-09-24"
 
+  # Split out of bm.nu.numberDensity on 2026-09-27 (agent:SapphireCastle, dispatch 284). The
+  # PRINTED reading is the same number density, and GreenOx's evidence for it is carried over
+  # below; what differs is the MODERN form. The parent entry renames this glyph to n, and in this
+  # paragraph n is already taken: p. 552 introduces n as the number of suspended bodies ("in dem
+  # Teilvolumen V* von V moegen sich n geloeste Molekuele bez. suspendierte Koerper befinden"),
+  # and the paragraph's last display prints both letters in one line,
+  # p = -dF/dV* = (R T / V*)(n / N) = (R T / N) nu. Renaming nu to n there would put two different
+  # quantities under one letter inside a single printed equation, and it made the glyph n carry two
+  # readings at the same level, which refused the explanation records of eq-s2-d10, d11 and d12.
+  # The modern form therefore keeps nu here, as bm.nu.index does for the same glyph elsewhere in
+  # this section. Read from the page images at 110 and 200 dpi, not the text layer.
+  - id: bm.nu.numberDensity.s2p7
+    paper: brownian-motion
+    scope: ["bm-s2-p7"]
+    glyph:
+      unicode: "ν"
+      latex: "\\nu"
+      variant: plain
+    meaning: "Number density of suspended particles, ν = n/V*"
+    binding:
+      quantityId: numberDensity
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "\\nu"
+    collision:
+      severity: caution
+      kind: within-paper
+      collidesWith: ["frequency", "particleCount"]
+      collidesWithModern: ["frequency"]
+      firstUseAnchor: bm-s2-p7
+      firstUseBySection:
+        - sectionId: bm-s2
+          anchor: bm-s2-p7
+    sources:
+      facsimilePage: 553
+      anchor: bm-s2-p7
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 553, read by eye from a pdftoppm image of the pinned PDF at 200 dpi, not the text layer. The paragraph's last display prints p = -dF/dV* = (R T / V*)(n / N) = (R T / N) nu, so nu here is the number density of section 1 and not the index of bm.nu.index, which holds for the equations of motion in s2-p1; that reading is GreenOx's, taken 2026-09-25, and is unchanged. What is recorded here in addition, from the same plate and from p. 552 at 110 dpi, is that the paragraph also prints n for the number of suspended bodies, in the same display, so this glyph's modern form must not be renamed to n (agent:SapphireCastle, 2026-09-27). An agent check, not a human review."
+      by: "agent:SapphireCastle"
+      date: "2026-09-27"
+
   - id: bm.nu.numberDensity
     paper: brownian-motion
-    scope: ["bm-s1", "bm-s2-p7", "bm-s3", "bm-s4"]
+    scope: ["bm-s1", "bm-s3", "bm-s4"]
     glyph:
       unicode: "ν"
       latex: "\\nu"
@@ -229,8 +273,6 @@ entries:
       firstUseBySection:
         - sectionId: bm-s1
           anchor: bm-s1-p3
-        - sectionId: bm-s2
-          anchor: bm-s2-p7
         - sectionId: bm-s3
           anchor: bm-s3-p2
         - sectionId: bm-s4
