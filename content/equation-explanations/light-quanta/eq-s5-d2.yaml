@@ -1,0 +1,18 @@
+# light-quanta eq-s5-d2: what the display says, at every level (dispatch 279).
+# Written from the German of s5-p2 (p. 140) and its plate; the steps were checked by hand.
+display: eq-s5-d2
+paper: light-quanta
+inWords:
+  - text: "The entropy"
+    quantityId: entropy
+  - text: " of the two systems taken as one is the sum of their two entropies, and it is also some function of "
+  - text: "the probability"
+    quantityId: configurationProbability
+  - text: " of the combined system's state."
+r0: "Taken together as one system, the pair has an entropy that is the sum of the two entropies, and by the same principle it is also a function of the pair's probability."
+r1: "Regard the two systems as a single system with entropy $S$ and probability $W$. Entropy adds for systems that do not act on each other, so $S$ is the sum $S_1 + S_2$. And the pair is a system in its own right, so the principle of the preceding line applies to it too: its entropy is some function $\\varphi$ of its probability. The next line says how $W$ is built from $W_1$ and $W_2$, and together the three lines fix what the function must be."
+r2:
+  - latex: "S = S_1 + S_2"
+    why: "The two systems do not interact, so the entropy of the pair is the sum of their entropies."
+  - latex: "S = \\varphi(W)"
+    why: "The pair is itself a system, so its entropy is a function of the probability of its state. The function $\\varphi$ is not assumed to be either system's own function."

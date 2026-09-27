@@ -1,0 +1,32 @@
+# light-quanta eq-s5-d10: what the display says, at every level (dispatch 279).
+# Written from the German of s5-fn1 (p. 142) and its plate; the steps were checked by hand.
+display: eq-s5-d10
+paper: light-quanta
+inWords:
+  - text: "The pressure"
+    quantityId: pressure
+  - text: " times "
+  - text: "the volume"
+    quantityId: volume
+  - text: " equals "
+  - text: "the gas constant R"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the number n"
+    quantityId: independentPointCount
+  - text: " of points over "
+  - text: "the number N"
+    quantityId: avogadroConstant
+  - text: ", times "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: "."
+r0: "The gas law: pressure times volume equals R times n/N times the temperature. It holds equally for the osmotic pressure of a dilute solution, and no assumption about how the molecules move went into it."
+r1: "From the footnote's chain, the work $p \\, dv$ equals $R \\frac{n}{N} T \\frac{dv}{v}$, with the factor $T$ that the printed chain drops. Divide by $dv$ and multiply by $v$. The result is the Boyle-Gay-Lussac law: at a fixed temperature $pv$ stays constant, and at a fixed volume the pressure grows in proportion to the absolute temperature. $n/N$ is the amount in gram-molecules. For a dilute solution, where the points are the dissolved molecules, the same equation is the law of osmotic pressure that the paper calls of the same form. The paper calls it remarkable that deriving these laws needs no assumption about the law by which the molecules move."
+r2:
+  - latex: "p d v = R \\frac{n}{N} T \\frac{d v}{v}"
+    why: "The work and the last member of the preceding display, with the factor $T$ restored."
+  - latex: "p = R \\frac{n}{N} \\frac{T}{v}"
+    why: "Divide both sides by $dv$."
+  - latex: "p v = R \\frac{n}{N} T"
+    why: "Multiply both sides by $v$: the printed line."

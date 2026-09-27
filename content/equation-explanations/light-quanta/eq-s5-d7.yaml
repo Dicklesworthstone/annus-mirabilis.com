@@ -1,0 +1,23 @@
+# light-quanta eq-s5-d7: what the display says, at every level (dispatch 279).
+# Written from the German of s5-p8 (p. 142) and its plate; the steps were checked by hand.
+display: eq-s5-d7
+paper: light-quanta
+inWords:
+  - text: "The probability"
+    quantityId: configurationProbability
+  - text: " that all "
+  - text: "the n points"
+    quantityId: independentPointCount
+  - text: " are found in the part v of "
+  - text: "the volume"
+    quantityId: volume
+  - text: " v₀ at a moment chosen at random is the fraction v over v₀, raised to the power n."
+r0: "The probability that, at a randomly chosen moment, all n independently moving points are in the part v of the volume v₀ is the fraction v/v₀ multiplied by itself n times."
+r1: "The special case of section 5: a volume $v_0$ holds $n$ movable points, molecules for example. Nothing is assumed about the law of their motion except that no part of the space, and no direction, is preferred. The points are also few enough that their action on one another can be ignored. The paper asks how probable it is, relative to the original state, that at a moment chosen at random all $n$ points are in a given part $v$ of the volume. For one point the answer is the fraction of the volume, $v/v_0$, because no part of the space is preferred. The points move independently, so as in the third display the probabilities multiply. The paper calls this a statistical probability."
+r2:
+  - latex: "\\frac{v}{v_0}"
+    why: "One point: no part of the space is preferred, so the chance that it is in the part $v$ at a random moment is the fraction of the volume that $v$ takes up."
+  - latex: "W = \\frac{v}{v_0} \\cdot \\frac{v}{v_0} \\cdots \\frac{v}{v_0}"
+    why: "The $n$ points move independently of one another, so the chance that all are in $v$ at once is the product of their separate chances, one factor for each point."
+  - latex: "W = \\left( \\frac{v}{v_0} \\right)^n"
+    why: "The same factor $n$ times is a power: the printed line."

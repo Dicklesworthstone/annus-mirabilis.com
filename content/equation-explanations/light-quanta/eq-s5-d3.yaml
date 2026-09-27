@@ -1,0 +1,13 @@
+# light-quanta eq-s5-d3: what the display says, at every level (dispatch 279).
+# Written from the German of s5-p2 (p. 140) and its plate; the steps were checked by hand.
+display: eq-s5-d3
+paper: light-quanta
+inWords:
+  - text: "The probability"
+    quantityId: configurationProbability
+  - text: " of the combined system's state is the product of the probabilities of the two systems' states."
+r0: "The probability of the pair's state is the product of the two probabilities. The paper reads this as saying that the states of the two systems are independent events."
+r1: "The probability that two independent events both happen is the product of their probabilities: if each system is in its state half the time, both are in them together a quarter of the time. The paper says the relation expresses exactly that the states of the two systems are events independent of each other, which is what not interacting means here. So the entropies add while the probabilities multiply, and the next display turns that pair of facts into an equation for the function $\\varphi$."
+r2:
+  - latex: "W = W_1 \\cdot W_2"
+    why: "For independent events the probability of both is the product of the probabilities of each. The paper names this as the meaning of the relation: the states of the two systems are independent events."

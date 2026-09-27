@@ -1,0 +1,31 @@
+# light-quanta eq-s5-d8: what the display says, at every level (dispatch 279).
+# Written from the German of s5-p8 (p. 142) and its plate; the steps were checked by hand.
+display: eq-s5-d8
+paper: light-quanta
+inWords:
+  - text: "The entropy"
+    quantityId: entropy
+  - text: " with all points in the part v, less the entropy with them spread through "
+  - text: "the volume"
+    quantityId: volume
+  - text: " v₀, equals "
+  - text: "the gas constant R"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the number n"
+    quantityId: independentPointCount
+  - text: " of points over "
+  - text: "the number N"
+    quantityId: avogadroConstant
+  - text: ", times the natural logarithm of v over v₀."
+r0: "Boltzmann's principle turns that probability into an entropy difference: R times n/N times the logarithm of v/v₀. It is the form that section 4 found for monochromatic radiation."
+r1: "Put the probability of the preceding display into Boltzmann's principle. The logarithm of a power is the exponent times the logarithm, so the number of points becomes a coefficient. $n/N$ is the amount of the substance in gram-molecules. When $v$ is smaller than $v_0$ the logarithm is negative: gathering all the points into part of the volume lowers the entropy, because that state is less probable. The paper remarks that deriving this equation needs no assumption about the law by which the molecules move. It adds that the Boyle-Gay-Lussac law, and the law of osmotic pressure of the same form, follow from it by thermodynamics, which its footnote does. Section 4 found the same dependence on volume for monochromatic radiation of low density, with the radiation's energy divided by Wien's constant times the frequency in place of R times n over N, and section 6 compares the two."
+r2:
+  - latex: "S - S_0 = \\frac{R}{N} \\lg W"
+    why: "Boltzmann's principle (p. 141)."
+  - latex: "S - S_0 = \\frac{R}{N} \\lg \\left( \\frac{v}{v_0} \\right)^n"
+    why: "Put in the probability of the preceding display."
+  - latex: "\\lg \\left( \\frac{v}{v_0} \\right)^n = n \\lg \\left( \\frac{v}{v_0} \\right)"
+    why: "The logarithm of a power is the exponent times the logarithm."
+  - latex: "S - S_0 = R \\left( \\frac{n}{N} \\right) \\lg \\left( \\frac{v}{v_0} \\right)"
+    why: "Collect the factors: the printed line."

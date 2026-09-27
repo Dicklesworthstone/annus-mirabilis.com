@@ -1,0 +1,43 @@
+# light-quanta eq-s5-d9: what the display says, at every level (dispatch 279).
+# Written from the German of s5-fn1 (p. 142) and its plate; the steps were checked by hand.
+display: eq-s5-d9
+paper: light-quanta
+inWords:
+  - text: "When the volume grows by dv at a fixed temperature, the decrease of "
+  - text: "the system's energy"
+    quantityId: systemEnergy
+  - text: " less "
+  - text: "the temperature"
+    quantityId: temperature
+  - text: " times "
+  - text: "the entropy"
+    quantityId: entropy
+  - text: " equals "
+  - text: "the pressure"
+    quantityId: pressure
+  - text: " times dv, which equals the temperature times the growth of the entropy. The footnote sets this equal to "
+  - text: "the gas constant R"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the number n"
+    quantityId: independentPointCount
+  - text: " over "
+  - text: "the number N"
+    quantityId: avogadroConstant
+  - text: " times dv over "
+  - text: "the volume"
+    quantityId: volume
+  - text: ", where the next line needs a further factor of the temperature."
+r0: "The footnote derives the gas law from the entropy difference. At a fixed temperature the work p dv equals T dS, and the entropy difference gives dS. As printed, the last member lacks a factor T that the next line needs."
+r1: "The footnote, with $E$ the energy of the system, reads the entropy difference thermodynamically. At a fixed temperature the work $p \\, dv$ the system does as its volume grows equals the decrease of its free energy $E - TS$. That decrease is $T \\, dS$ if the energy does not change when only the volume does. For points that do not act on one another, as section 5 assumes, the energy does not change, and the footnote uses this without stating it. Differentiating the entropy difference with respect to $v$ gives $dS$. As printed, the last member reads $R \\frac{n}{N} \\frac{dv}{v}$, which is $dS$ and not $T \\, dS$. The factor $T$ is needed for the next line, $pv = R \\frac{n}{N} T$, to follow."
+r2:
+  - latex: "- d(E - T S) = p d v"
+    why: "At a fixed temperature, the work the system does when its volume grows by $dv$ equals the decrease of $E - TS$."
+  - latex: "- d(E - T S) = - d E + T d S"
+    why: "At a fixed temperature the change of $TS$ is $T \\, dS$."
+  - latex: "- d E + T d S = T d S"
+    why: "The footnote's next equality holds when the energy does not change as only the volume changes, which is true for points that do not act on one another. The footnote uses this without saying so."
+  - latex: "d S = R \\frac{n}{N} \\frac{d v}{v}"
+    why: "Differentiate the entropy difference of the preceding display with respect to $v$, with $S_0$ and $v_0$ fixed. The rate of change of $\\lg v$ is $\\frac{1}{v}$."
+  - latex: "T d S = R \\frac{n}{N} T \\frac{d v}{v}"
+    why: "Multiply by $T$. The printed line drops this $T$ from its last member. The receipt records the dropped letter as typo-dropped-T-footnote-p142, and the page image shows clean space where it would stand. With $T$ restored the next line follows."

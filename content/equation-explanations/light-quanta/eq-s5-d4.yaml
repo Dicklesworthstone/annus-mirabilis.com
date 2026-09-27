@@ -1,0 +1,20 @@
+# light-quanta eq-s5-d4: what the display says, at every level (dispatch 279).
+# Written from the German of s5-p6 (p. 141) and its plate; the steps were checked by hand.
+display: eq-s5-d4
+paper: light-quanta
+inWords:
+  - text: "The entropy"
+    quantityId: entropy
+  - text: " function, applied to the product of "
+  - text: "the two probabilities"
+    quantityId: configurationProbability
+  - text: ", equals the first system's entropy function of its probability plus the second system's entropy function of its probability."
+r0: "Put the three preceding lines together: the entropy function of a product of probabilities equals the sum of the two entropy functions of the factors."
+r1: "This is the preceding three lines combined. The entropy of the pair is $\\varphi$ of its probability, that probability is $W_1 \\cdot W_2$, and the entropy is also $\\varphi_1(W_1) + \\varphi_2(W_2)$. The result is an equation for unknown functions: whatever $\\varphi$ is, applied to a product it must give a sum. The logarithm has that property, since the logarithm of a product is the sum of the logarithms. The next display states that the logarithm, times a constant and plus a constant, is what the functions must be."
+r2:
+  - latex: "\\varphi(W) = S_1 + S_2"
+    why: "The entropy of the pair, written both ways (the second display)."
+  - latex: "S_1 + S_2 = \\varphi_1(W_1) + \\varphi_2(W_2)"
+    why: "Each system's entropy as a function of its own probability (the first display)."
+  - latex: "\\varphi(W_1 \\cdot W_2) = \\varphi_1(W_1) + \\varphi_2(W_2)"
+    why: "Put in $W = W_1 \\cdot W_2$ from the third display: the printed line."

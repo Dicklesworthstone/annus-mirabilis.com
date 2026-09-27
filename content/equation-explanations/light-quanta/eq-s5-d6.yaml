@@ -1,0 +1,26 @@
+# light-quanta eq-s5-d6: what the display says, at every level (dispatch 279).
+# Written from the German of s5-p6 (p. 141) and its plate; the steps were checked by hand.
+display: eq-s5-d6
+paper: light-quanta
+inWords:
+  - text: "The entropy"
+    quantityId: entropy
+  - text: " of a state less the entropy of an initial state equals "
+  - text: "the gas constant R"
+    quantityId: molarGasConstant
+  - text: " over "
+  - text: "the number N"
+    quantityId: avogadroConstant
+  - text: " of molecules in a gram-molecule, times the natural logarithm of "
+  - text: "the state's probability"
+    quantityId: configurationProbability
+  - text: " relative to the initial state."
+r0: "Boltzmann's principle in the form the paper uses: the entropy of a state, measured from an initial state, is R/N times the logarithm of the state's probability relative to that initial state."
+r1: "The paper states that the universal constant $C$ has the value $R/N$, and says this follows from the kinetic theory of gases. It does not derive it here. $R$ and $N$ mean what they meant in section 2: the gas constant and the number of true molecules in a gram-molecule. $R/N$ is the gas constant per molecule, which modern texts call Boltzmann's constant. Writing the entropy of a state and of an initial state in the form of the preceding display and subtracting removes the added constant. The difference of logarithms is the logarithm of the ratio of the two probabilities, and that ratio is what the paper means by $W$ here: the relative probability of the state measured against the initial one. Sections 5 and 6 use this relation for a gas and then for radiation."
+r2:
+  - latex: "S - S_0 = C \\lg W"
+    why: "Write the entropy of the state and of the initial state as $C$ times the logarithm of the probability plus a constant, and subtract. The constants cancel, and the difference of the logarithms is the logarithm of the relative probability $W$."
+  - latex: "C = \\frac{R}{N}"
+    why: "The value of $C$, which the paper takes from the kinetic theory of gases without deriving it."
+  - latex: "S - S_0 = \\frac{R}{N} \\lg W"
+    why: "Put in the value: the printed line."

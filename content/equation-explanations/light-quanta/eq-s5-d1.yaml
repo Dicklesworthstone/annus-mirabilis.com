@@ -1,0 +1,18 @@
+# light-quanta eq-s5-d1: what the display says, at every level (dispatch 279).
+# Written from the German of s5-p2 (p. 140) and its plate; the steps were checked by hand.
+display: eq-s5-d1
+paper: light-quanta
+inWords:
+  - text: "The entropy"
+    quantityId: entropy
+  - text: " of the first system is some function of "
+  - text: "the probability"
+    quantityId: configurationProbability
+  - text: " of its momentary state, and the entropy of the second system is some function, not necessarily the same one, of the probability of its own state."
+r0: "Two systems that do not act on each other each have an entropy that is some function of the probability of their momentary state. The paper states this under two conditions: that the probability of a state makes sense, and that every increase of entropy can be read as a move to a more probable state."
+r1: "Section 5 opens with a caution. In molecular calculations of entropy the word probability is often used in a sense that differs from the definition of the probability calculus, and cases of equal probability are often fixed by hypothesis. The paper announces a separate work showing that the statistical probability suffices, and gives here only the general formulation of Boltzmann's principle and its use in quite special cases. The formulation starts from a conditional. If it makes sense to speak of the probability of a state of a system, and if every increase of entropy can be conceived as a transition to a more probable state, then the entropy $S_1$ of a system is a function of the probability $W_1$ of its momentary state. The display writes that for two systems that do not interact. Each has its own function, $\\varphi_1$ and $\\varphi_2$, and nothing yet says the two functions are the same."
+r2:
+  - latex: "S_1 = \\varphi_1(W_1)"
+    why: "The paper states this as a consequence of two conditions: if it makes sense to speak of the probability of a state of a system, and if every increase of entropy can be conceived as a transition to a more probable state. The first system's entropy is then some function of the probability of its momentary state."
+  - latex: "S_2 = \\varphi_2(W_2)"
+    why: "The same for the second system, with a function of its own. The two systems do not interact, which the next displays use."
