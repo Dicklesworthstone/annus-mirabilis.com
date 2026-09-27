@@ -1,0 +1,31 @@
+# brownian-motion eq-s4-d4: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p6 (p. 557) and its plate; the steps were checked by hand.
+display: eq-s4-d4
+paper: brownian-motion
+inWords:
+  - text: "The number of particles per unit volume"
+    quantityId: numberDensity
+  - text: " in a thin slab at the later "
+  - text: "time"
+    quantityId: fieldTimeCoordinate
+  - text: ", one "
+  - text: "short interval"
+    quantityId: stepInterval
+  - text: " on, is collected from every place a particle could have come from: the density there at the earlier time, weighted by "
+  - text: "the frequency"
+    quantityId: transitionKernel
+  - text: " of "
+  - text: "the displacement"
+    quantityId: displacementIncrement
+  - text: " that would have brought it across."
+r0: "The bookkeeping step. To know how many particles are in a slab a moment later, add up the particles now standing at every distance away, each weighted by how often a shift of that size occurs."
+r1: "The paper writes $\\nu = f(x, t)$ for the number of particles per unit volume and computes the distribution at the time $t + \\tau$ from the distribution at the time $t$. The count in the slab between $x$ and $x + d x$ at the later time gathers contributions from every position $x + \\Delta$, since a particle sitting there arrives in the slab if its shift carries it across. The weight is the frequency of that shift, and the integral runs over all shifts. Nothing has been approximated yet: given the frequency law and the independence of successive intervals, this line is exact, and everything after it is expansion and truncation. The printed integrand is $f(x + \\Delta)$ with the time argument left off; it is the same function at the time $t$, which the next line but one writes out in full."
+r2:
+  - latex: "f(x + \\Delta, t) d x"
+    why: "The particles standing in a slab of the same width a distance $\\Delta$ away, at the earlier time."
+  - latex: "\\varphi(-\\Delta) d \\Delta"
+    why: "A particle there reaches the slab at $x$ by making the shift $-\\Delta$, so the weight is the frequency of that shift."
+  - latex: "\\varphi(-\\Delta) = \\varphi(\\Delta)"
+    why: "By the evenness of the frequency law the weight can be written with the sign the paper prints. The paper does not remark on the sign, and without the evenness the two would have to be kept apart."
+  - latex: "f(x, t + \\tau) d x = d x \\cdot \\int_{\\Delta = -\\infty}^{\\Delta = +\\infty} f(x + \\Delta) \\varphi(\\Delta) d \\Delta ."
+    why: "Add the contributions over all shifts: the printed line, with $d x$ outside the integral because the slab's width does not depend on the shift."

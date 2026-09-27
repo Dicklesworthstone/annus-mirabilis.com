@@ -1,0 +1,25 @@
+# brownian-motion eq-s4-d9: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p6 (p. 558) and its plate; the steps were checked by hand.
+display: eq-s4-d9
+paper: brownian-motion
+inWords:
+  - text: "The mean of half the squared "
+  - text: "displacement"
+    quantityId: displacementIncrement
+  - text: " under "
+  - text: "the frequency law"
+    quantityId: transitionKernel
+  - text: ", divided by "
+  - text: "the short interval"
+    quantityId: stepInterval
+  - text: ", is written as "
+  - text: "the diffusion coefficient"
+    quantityId: diffusionCoefficient
+  - text: "."
+r0: "The definition that turns the step law into a single number: half the mean square step per unit time. The paper sets this, and the next line shows the number is the diffusion coefficient."
+r1: "The paper introduces this with the words and by setting, which marks it as a definition rather than a derivation. The quantity on the left is a property of the stepping alone: half the mean square displacement in one interval, divided by the length of that interval. For it to name a constant of the substance, the mean square displacement in one interval must be proportional to the length of the interval, so that the quotient does not depend on how $\\tau$ was chosen. The paper does not say this and does not argue it; the proportionality is what the finished equation then asserts, since its solution has a mean square that grows in proportion to the time. Calling the number $D$ is at this point only a name, and the identification with the diffusion coefficient of section 3 is made on the next line by the form of the equation it produces."
+r2:
+  - latex: "\\int_{-\\infty}^{+\\infty} \\frac{\\Delta^2}{2} \\varphi(\\Delta) d \\Delta"
+    why: "The third moment integral of the balance: half the mean square of the displacement made in one interval."
+  - latex: "\\frac{1}{\\tau} \\int_{-\\infty}^{+\\infty} \\frac{\\Delta^2}{2} \\varphi(\\Delta) d \\Delta = D"
+    why: "Divide by the length of the interval and give the quotient a name: the printed line. Written the other way round it says that the mean square step is $2 D \\tau$, which is the same relation between mean square and time that the result at the end of the section carries."

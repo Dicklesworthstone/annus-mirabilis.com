@@ -1,0 +1,27 @@
+# brownian-motion eq-s4-1: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p6 (p. 558) and its plate; the steps were checked by hand.
+display: eq-s4-1
+paper: brownian-motion
+inWords:
+  - text: "The rate at which "
+  - text: "the number of particles per unit volume"
+    quantityId: numberDensity
+  - text: " changes with "
+  - text: "time"
+    quantityId: fieldTimeCoordinate
+  - text: " equals "
+  - text: "the diffusion coefficient"
+    quantityId: diffusionCoefficient
+  - text: " times the curvature of that density along the axis."
+r0: "The differential equation of diffusion, reached from the disordered stepping alone. The paper names it as the well known one, and recognizes the constant in it as the diffusion coefficient."
+r1: "Of the terms left in the balance, the ones of even order in $\\Delta$ vanish because the frequency law is even, and of the rest the paper keeps the first and the third and drops the others as small. Dividing by the interval and putting in the definition of $D$ leaves the diffusion equation. Two things are worth separating. The equation is the known one, so nothing about its form is new; what is new is the route, since it was obtained from the disordered motion of independent particles and a frequency law with two properties, and not from a continuum law of transport. That is why the paper says one recognizes that $D$ is the diffusion coefficient: the constant defined a line earlier out of the mean square step sits exactly where the diffusion coefficient sits in the known equation. The identification is read off the form of the result."
+r2:
+  - latex: "\\int_{-\\infty}^{+\\infty} \\Delta \\varphi(\\Delta) d \\Delta = 0"
+    why: "The second term of the balance vanishes because its integrand is odd, and with it every term of even order in the paper's counting."
+  - latex: "\\frac{\\partial f}{\\partial t} \\cdot \\tau = \\frac{\\partial^2 f}{\\partial x^2} \\int_{-\\infty}^{+\\infty} \\frac{\\Delta^2}{2} \\varphi(\\Delta) d \\Delta"
+    why: "Keep the first and third terms of the right side, as the paper says it does, and drop the later odd ones as very small against those. This is the one step of the derivation that is an estimate rather than an identity."
+  - latex: "\\frac{\\partial f}{\\partial t} = \\frac{\\partial^2 f}{\\partial x^2} \\cdot \\frac{1}{\\tau} \\int_{-\\infty}^{+\\infty} \\frac{\\Delta^2}{2} \\varphi(\\Delta) d \\Delta"
+    why: "Divide both sides by the interval."
+  - latex: "\\frac{\\partial f}{\\partial t} = D \\frac{\\partial^2 f}{\\partial x^2} ."
+    why: "Put in the definition of the preceding line: the printed equation. The interval $\\tau$ has left the equation, which is what lets the result be compared with a measurement made over any time at all."
+r3: "The label (1) is printed twice in this paper: in section 3 on p. 554 for the equilibrium condition, and here on p. 558 for the diffusion equation. Each section restarts its numbering, so a bare reference to equation (1) in this paper is ambiguous and the edition's anchors are section-qualified. The provenance receipt records both plate readings as watch-equation-label-1-repeats (docs/provenance/ap-17-549.md)."

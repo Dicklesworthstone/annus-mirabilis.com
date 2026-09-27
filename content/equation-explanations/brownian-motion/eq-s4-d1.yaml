@@ -1,0 +1,24 @@
+# brownian-motion eq-s4-d1: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p4 (p. 556) and its plate; the steps were checked by hand.
+display: eq-s4-d1
+paper: brownian-motion
+inWords:
+  - text: "The number of the "
+  - text: "suspended particles"
+    quantityId: particleCount
+  - text: " whose position along the axis grows, in one short interval, by an amount lying between "
+  - text: "a displacement Δ"
+    quantityId: displacementIncrement
+  - text: " and that displacement plus a little more, is the whole number of particles times "
+  - text: "the frequency law for the displacements"
+    quantityId: transitionKernel
+  - text: " at that displacement, times the width of the range."
+r0: "In a short interval each particle shifts along the axis by its own amount, positive or negative. A frequency law says how the shifts are distributed, and this line counts how many particles fall in a narrow band of shifts."
+r1: "Section 4 sets out to treat the disordered motion itself. Its first assumption is that each particle performs a motion independent of the motion of all the others, and that the motions of one and the same particle in different intervals are to be taken as mutually independent processes, which the paper qualifies at once: so long as those intervals are not thought of as chosen too small. It then introduces an interval $\\tau$, very small against the observable intervals, but still large enough that the motions in two successive intervals $\\tau$ count as independent events. Against that background this line does not derive anything; it names a frequency law. The number of particles receiving a shift between $\\Delta$ and $\\Delta + d \\Delta$ is written as the total number times $\\varphi(\\Delta) d \\Delta$. The whole derivation that follows uses only three facts about $\\varphi$: that it is a frequency law, that it is even, and that it is different from zero only for very small displacements."
+r2:
+  - latex: "n"
+    why: "The number of particles suspended in the liquid altogether."
+  - latex: "\\varphi(\\Delta) d \\Delta"
+    why: "The share of them whose shift in the interval $\\tau$ falls between $\\Delta$ and $\\Delta + d \\Delta$. $\\varphi$ is a density in the displacement, not a probability by itself: a probability only appears once it is multiplied by a width."
+  - latex: "d n = n \\varphi(\\Delta) d \\Delta"
+    why: "The count in that band is the share times the total. The paper writes that the number will be expressible by an equation of this form, which is a definition of $\\varphi$ rather than a result about it."

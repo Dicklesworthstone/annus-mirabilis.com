@@ -1,0 +1,21 @@
+# brownian-motion eq-s4-d2: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p4 (p. 556) and its plate; the steps were checked by hand.
+display: eq-s4-d2
+paper: brownian-motion
+inWords:
+  - text: "Adding up "
+  - text: "the frequency law"
+    quantityId: transitionKernel
+  - text: " over every possible "
+  - text: "displacement"
+    quantityId: displacementIncrement
+  - text: ", from the far negative to the far positive, gives one."
+r0: "Every particle makes some shift, so the shares over all possible shifts add up to the whole. This is what fixes the scale of the frequency law."
+r1: "The first of the two conditions the paper imposes on $\\varphi$. It is not an extra assumption about the physics but the statement that $\\varphi$ counts all the particles once: summing the bands of the preceding line over every displacement must return the whole number of particles, and dividing by that number leaves one. The integral runs from minus to plus infinity, although the paper adds in the same sentence that $\\varphi$ differs from zero only for very small values of $\\Delta$, so the infinite limits are a convenience and the mass of the law sits near zero. The condition is used twice later: once to cancel a term against the left side of the balance, and once implicitly whenever a moment of $\\varphi$ is taken."
+r2:
+  - latex: "\\varphi(\\Delta) d \\Delta"
+    why: "The share of the particles whose shift falls in one band, from the preceding display: the count in that band divided by the number of particles."
+  - latex: "\\int_{-\\infty}^{+\\infty} \\varphi(\\Delta) d \\Delta"
+    why: "Add that share over every band, from the far negative displacement to the far positive one."
+  - latex: "\\int_{-\\infty}^{+\\infty} \\varphi(\\Delta) d \\Delta = 1"
+    why: "Every particle receives some shift in the interval, so the counts of all the bands add to the whole number of particles and the shares add to one: the printed line."

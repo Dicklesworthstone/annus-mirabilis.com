@@ -1,0 +1,21 @@
+# brownian-motion eq-s4-d6: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p6 (p. 557) and its plate; the steps were checked by hand.
+display: eq-s4-d6
+paper: brownian-motion
+inWords:
+  - text: "The number of particles per unit volume"
+    quantityId: numberDensity
+  - text: " a "
+  - text: "displacement"
+    quantityId: displacementIncrement
+  - text: " away, at the same "
+  - text: "time"
+    quantityId: fieldTimeCoordinate
+  - text: ", written as its value here plus the displacement times its slope, plus half the displacement squared times the curvature, and so on without end."
+r0: "The second expansion: the density a small distance away, written as a series in that distance. It runs on indefinitely, and the paper prints it so."
+r1: "The paper expands the density in powers of $\\Delta$ and then says the expansion may be carried out under the integral, because only very small values of $\\Delta$ contribute to it. That is where the second condition on $\\varphi$ earns its keep: the series in $\\Delta$ need not converge usefully for large displacements, since the frequency law gives those no weight. The series is printed as running on without end, and the truncation comes later and is argued separately. Each power of $\\Delta$ will meet the frequency law under the integral and turn into a moment of the step law, which is how the physics of the stepping enters an equation about the density."
+r2:
+  - latex: "f(x + \\Delta, t) = f(x, t) + \\Delta \\frac{\\partial f(x, t)}{\\partial x} + \\frac{\\Delta^2}{2!} \\frac{\\partial^2 f(x, t)}{\\partial x^2} \\ldots \\text{ in inf.}"
+    why: "The Taylor expansion of the density in the position, about the point $x$, at fixed time. The paper prints it as continuing indefinitely and does not truncate it here."
+  - latex: "\\Delta^2 \\ll \\Delta"
+    why: "For the small displacements the frequency law admits, each power is far smaller than the one before, so the later terms of the series matter less and less. This is the ground the paper gives for expanding under the integral, not a separate assumption."

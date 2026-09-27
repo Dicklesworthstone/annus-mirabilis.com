@@ -1,0 +1,19 @@
+# brownian-motion eq-s4-d8: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p6 (p. 557) and its plate; the steps were checked by hand.
+display: eq-s4-d8
+paper: brownian-motion
+inWords:
+  - text: "The whole weight of "
+  - text: "the frequency law"
+    quantityId: transitionKernel
+  - text: ", added over every "
+  - text: "displacement"
+    quantityId: displacementIncrement
+  - text: ", is one."
+r0: "The normalization, repeated at the point where it is used. It makes the first term on the right simply the density, which cancels the density standing on the left."
+r1: "This is the condition set out on p. 556, printed again on p. 557 where the derivation calls on it. The paper introduces it with the words that we obtain from that equation by taking into account that this holds. Its effect is a cancellation: the first term on the right of the balance is the density times this integral, so it is the density itself, and it removes the bare density on the left. What is left on the left is the time derivative multiplied by the small interval, which is one factor of $\\tau$ away from the diffusion equation."
+r2:
+  - latex: "f \\cdot \\int_{-\\infty}^{+\\infty} \\varphi(\\Delta) d \\Delta = f \\cdot 1 = f"
+    why: "The first term on the right of the balance, with the normalization put in."
+  - latex: "\\frac{\\partial f}{\\partial t} \\cdot \\tau = \\frac{\\partial f}{\\partial x} \\int_{-\\infty}^{+\\infty} \\Delta \\varphi(\\Delta) d \\Delta + \\frac{\\partial^2 f}{\\partial x^2} \\int_{-\\infty}^{+\\infty} \\frac{\\Delta^2}{2} \\varphi(\\Delta) d \\Delta \\ldots"
+    why: "Take the bare density away from both sides."

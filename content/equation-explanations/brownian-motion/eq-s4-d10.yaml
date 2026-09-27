@@ -1,0 +1,22 @@
+# brownian-motion eq-s4-d10: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p10 (p. 558) and its plate; the steps were checked by hand.
+display: eq-s4-d10
+paper: brownian-motion
+inWords:
+  - text: "At the initial "
+  - text: "time"
+    quantityId: fieldTimeCoordinate
+  - text: ", and at every place off the origin, "
+  - text: "the density of particles"
+    quantityId: numberDensity
+  - text: " is zero, while at any time the density added over the whole axis is "
+  - text: "the number of particles"
+    quantityId: particleCount
+  - text: "."
+r0: "Refer every particle to its own starting point, and the problem becomes diffusion from a point: everything starts at the origin, and the particles are neither made nor destroyed."
+r1: "The important further consideration of the section, and the step that makes the result measurable. The derivation so far referred all the particles to one coordinate system, which the paper points out is not necessary, since the motions of the individual particles are independent of one another. So each particle is referred to a system whose origin is where that particle stood at the initial time. The meaning of $f$ changes with it: it no longer counts particles at a position, it counts particles whose coordinate has grown by an amount in a given range. The paper notes that $f$ changes according to equation (1) in this case too. The two conditions then fix the solution. The first is stated in the text for positions off the origin at the initial time, which is the qualification the display itself does not carry; the second holds at every time and says the particles are conserved. With them the problem agrees with the problem of diffusion from a point, neglecting the interaction of the diffusing particles, and the paper calls it mathematically completely determined."
+r2:
+  - latex: "f(x, t) = 0"
+    why: "At the initial time each particle sits at the origin of its own system, so at any position away from the origin there is nothing. The paper states this for positions greater or less than zero at the initial time; the condition says nothing about the origin itself, where the density is not finite."
+  - latex: "\\int_{-\\infty}^{+\\infty} f(x, t) d x = n"
+    why: "The total over all positions is the number of particles, at the initial time and at every later time, since the motion moves particles about but neither creates nor destroys them."

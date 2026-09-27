@@ -1,0 +1,30 @@
+# brownian-motion eq-s4-d11: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p10 (p. 558) and its plate; the steps were checked by hand.
+display: eq-s4-d11
+paper: brownian-motion
+inWords:
+  - text: "The density of particles"
+    quantityId: numberDensity
+  - text: " at a position and "
+  - text: "time"
+    quantityId: fieldTimeCoordinate
+  - text: " is "
+  - text: "the number of particles"
+    quantityId: particleCount
+  - text: " divided by the square root of four pi times "
+  - text: "the diffusion coefficient"
+    quantityId: diffusionCoefficient
+  - text: ", times the exponential of minus the position squared over four times the coefficient and the time, divided by the square root of the time."
+r0: "The solution: a bell curve that starts as a spike at the origin and spreads as the square root of the time. Its shape is the shape of the law of random errors."
+r1: "This is the solution of the diffusion equation under the two conditions of the preceding line. The paper gives it without working it out, and it can be checked rather than solved for: differentiating it once in the time and twice in the position reproduces equation (1), the integral over the axis returns the number of particles at every time, and as the time approaches zero the curve grows without bound at the origin and vanishes elsewhere. The paper draws two remarks from it. The first is that the frequency distribution of the position changes in an arbitrary time is the same as that of random errors, which it says was to be expected. The second is the one that matters: what is of consequence is how the constant in the exponent is connected with the diffusion coefficient. The width of the bell is not a free parameter to be fitted, it is fixed by $D$, and the next line reads that width off."
+r2:
+  - latex: "f(x, t) = \\frac{n}{\\sqrt{4 \\pi D}} \\frac{e^{-\\frac{x^2}{4 D t}}}{\\sqrt{t}} ."
+    why: "The printed solution, to be checked against the equation and the two conditions."
+  - latex: "\\frac{\\partial f}{\\partial t} = f \\left( \\frac{x^2}{4 D t^2} - \\frac{1}{2 t} \\right)"
+    why: "Differentiate in the time. The two terms come from the exponent and from the factor of one over the square root of the time."
+  - latex: "\\frac{\\partial^2 f}{\\partial x^2} = f \\left( \\frac{x^2}{4 D^2 t^2} - \\frac{1}{2 D t} \\right)"
+    why: "Differentiate twice in the position: the first derivative brings down a factor, the second differentiates that factor as well."
+  - latex: "\\frac{\\partial f}{\\partial t} = D \\frac{\\partial^2 f}{\\partial x^2}"
+    why: "Multiplying the second of these by $D$ gives the first, term for term, so the solution satisfies equation (1)."
+  - latex: "\\int_{-\\infty}^{+\\infty} f(x, t) d x = n"
+    why: "The integral of the bell curve over the axis is the leading factor times the square root of four pi times $D$ times the time, and the square roots cancel against the leading factor: the number of particles, at every time, as the second condition requires."

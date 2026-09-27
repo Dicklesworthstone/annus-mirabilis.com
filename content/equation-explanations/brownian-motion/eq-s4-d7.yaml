@@ -1,0 +1,31 @@
+# brownian-motion eq-s4-d7: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p6 (p. 557) and its plate; the steps were checked by hand.
+display: eq-s4-d7
+paper: brownian-motion
+inWords:
+  - text: "The density"
+    quantityId: numberDensity
+  - text: " plus the "
+  - text: "short interval"
+    quantityId: stepInterval
+  - text: " times its rate of change in "
+  - text: "time"
+    quantityId: fieldTimeCoordinate
+  - text: ", equals the density times the whole weight of "
+  - text: "the frequency law"
+    quantityId: transitionKernel
+  - text: ", plus its slope times the mean "
+  - text: "displacement"
+    quantityId: displacementIncrement
+  - text: ", plus its curvature times the mean of half the displacement squared, and so on."
+r0: "Put the two expansions into the bookkeeping line. Each power of the displacement meets the frequency law and becomes an average over the steps, so the equation now connects the density's derivatives to the moments of the step law."
+r1: "The two expansions go into the balance, the one in time on the left and the one in space under the integral. The derivatives of the density do not depend on $\\Delta$, so each comes outside its own integral and leaves behind a pure moment of the frequency law: the total weight, the mean displacement, the mean of half the squared displacement, and so on. What the paper then says about the right-hand side is the whole of the truncation argument, and it has two parts. The second, fourth and further terms vanish on account of the evenness of $\\varphi$. Of the first, third, fifth and further terms, each following one is very small against the one before it. The first part is exact; the second is an estimate, and the paper offers no bound for it."
+r2:
+  - latex: "f + \\frac{\\partial f}{\\partial t} \\cdot \\tau"
+    why: "The left side of the balance, with the expansion in the time put in."
+  - latex: "\\int_{-\\infty}^{+\\infty} \\left[ f + \\Delta \\frac{\\partial f}{\\partial x} + \\frac{\\Delta^2}{2} \\frac{\\partial^2 f}{\\partial x^2} \\ldots \\right] \\varphi(\\Delta) d \\Delta"
+    why: "The right side, with the expansion in the position put in under the integral."
+  - latex: "\\frac{\\partial f}{\\partial x} \\int_{-\\infty}^{+\\infty} \\Delta \\varphi(\\Delta) d \\Delta"
+    why: "The derivatives are taken at the fixed point $x$ and do not depend on the variable of integration, so each one comes outside its integral. What is left behind is a moment of the frequency law."
+  - latex: "f + \\frac{\\partial f}{\\partial t} \\cdot \\tau = f \\cdot \\int_{-\\infty}^{+\\infty} \\varphi(\\Delta) d \\Delta + \\frac{\\partial f}{\\partial x} \\int_{-\\infty}^{+\\infty} \\Delta \\varphi(\\Delta) d \\Delta + \\frac{\\partial^2 f}{\\partial x^2} \\int_{-\\infty}^{+\\infty} \\frac{\\Delta^2}{2} \\varphi(\\Delta) d \\Delta \\ldots"
+    why: "Term by term, this is the printed line."

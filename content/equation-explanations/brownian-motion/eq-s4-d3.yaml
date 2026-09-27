@@ -1,0 +1,19 @@
+# brownian-motion eq-s4-d3: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p4 (p. 556) and its plate; the steps were checked by hand.
+display: eq-s4-d3
+paper: brownian-motion
+inWords:
+  - text: "The frequency law"
+    quantityId: transitionKernel
+  - text: " gives a shift to the right the same frequency as "
+  - text: "the equal shift"
+    quantityId: displacementIncrement
+  - text: " to the left."
+r0: "The frequency law is even: a shift one way is exactly as common as the same shift the other way. Nothing in the liquid picks out a direction along the axis."
+r1: "The second condition on $\\varphi$, and the one that does the heavy work later. It says the disordered motion has no preferred direction along the axis, which is what makes the motion a diffusion rather than a drift. Two consequences follow, and the derivation uses both: the mean shift in one interval is zero, so the term of first order in the expansion drops out, and with it every term of odd order. The paper states the condition here and appeals to it on the next page, where it is printed with x in place of $\\Delta$ as its argument."
+r2:
+  - latex: "\\varphi(\\Delta) = \\varphi(-\\Delta)"
+    why: "The frequency of a shift depends on its size and not on its sign. The paper states this as a condition that $\\varphi$ satisfies, beside the condition that it is different from zero only for very small displacements."
+  - latex: "\\int_{-\\infty}^{+\\infty} \\Delta \\varphi(\\Delta) d \\Delta = 0"
+    why: "A consequence used further down: the integrand is odd, since $\\Delta$ changes sign while $\\varphi$ does not, so the contributions from the two sides cancel in pairs and the mean shift in one interval vanishes."
+r3: "This condition is printed on p. 556 in Δ, as the display has it. On p. 557, where the same evenness is used to kill the even terms of the series, it is printed φ(x) = φ(-x), with x as the argument. x is the position coordinate throughout the section and the step law is defined over Δ, so the printed form on p. 557 states the evenness in the wrong variable. The provenance receipt records the reading as typo-phi-argument-p557 (docs/provenance/ap-17-549.md), and the source face keeps it as printed."

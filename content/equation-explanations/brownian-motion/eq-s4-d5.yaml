@@ -1,0 +1,21 @@
+# brownian-motion eq-s4-d5: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p6 (p. 557) and its plate; the steps were checked by hand.
+display: eq-s4-d5
+paper: brownian-motion
+inWords:
+  - text: "The number of particles per unit volume"
+    quantityId: numberDensity
+  - text: " one "
+  - text: "short interval"
+    quantityId: stepInterval
+  - text: " after a given "
+  - text: "time"
+    quantityId: fieldTimeCoordinate
+  - text: " is its value at that time plus the interval times the rate at which it is changing."
+r0: "Because the interval is very small, the density a moment later is the density now plus the rate of change times the length of the moment."
+r1: "The first of the two expansions. The paper justifies it in one clause, that $\\tau$ is very small, and writes that we can therefore set this. It is the first-order Taylor expansion in the time, and what it drops is of the order of $\\tau^2$. The point of making it is that the left side of the balance then contains the time derivative that the diffusion equation needs, multiplied by the small interval. The interval cannot be shrunk to zero to make the step exact, because the derivation also needs $\\tau$ to be long enough that successive shifts are independent. That tension is in the paper's own description of $\\tau$: very small against observable intervals, yet not too small."
+r2:
+  - latex: "f(x, t + \\tau) = f(x, t) + \\tau \\frac{\\partial f}{\\partial t} + \\frac{\\tau^2}{2} \\frac{\\partial^2 f}{\\partial t^2} \\ldots"
+    why: "The Taylor expansion of the density in the time, about the earlier time."
+  - latex: "f(x, t + \\tau) = f(x, t) + \\tau \\frac{\\partial f}{\\partial t} ."
+    why: "Keep the first order and drop the rest, because $\\tau$ is very small: the printed line. What was dropped is smaller than what was kept by a further factor of $\\tau$."

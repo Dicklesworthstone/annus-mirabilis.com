@@ -1,0 +1,27 @@
+# brownian-motion eq-s4-d12: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p11 (p. 559) and its plate; the steps were checked by hand.
+display: eq-s4-d12
+paper: brownian-motion
+inWords:
+  - text: "The displacement along the axis"
+    quantityId: rmsDisplacement1d
+  - text: " is the square root of "
+  - text: "the arithmetic mean of the squares of the displacements"
+    quantityId: meanSquareDisplacement1d
+  - text: ", and it equals the square root of twice "
+  - text: "the diffusion coefficient"
+    quantityId: diffusionCoefficient
+  - text: " times "
+  - text: "the elapsed time"
+    quantityId: observationInterval
+  - text: "."
+r0: "The result of the paper: the typical displacement grows as the square root of the time, not in proportion to it. Doubling the time multiplies the displacement by about 1.41, not by 2."
+r1: "The paper computes the displacement a particle undergoes on the average along the axis, and corrects itself in the same sentence to say what it means more precisely: the root of the arithmetic mean of the squares of the displacements. The distinction is kept in the edition because the two are different numbers for a bell curve, and only the second is what the formula gives. The consequence the paper draws next is that the mean displacement is proportional to the square root of the time, which is the signature that distinguishes this motion from a drift, where displacement grows in proportion to time. The section closes by remarking that the root of the mean of the squares of the total displacements, in all three directions rather than along one axis, has the value of this quantity times the square root of three."
+r2:
+  - latex: "\\overline{x^2} = \\frac{\\int_{-\\infty}^{+\\infty} x^2 f(x, t) d x}{\\int_{-\\infty}^{+\\infty} f(x, t) d x}"
+    why: "The arithmetic mean of the squares of the displacements: each displacement squared, weighted by how many particles have it, divided by the number of particles, which is what the integral in the denominator comes to."
+  - latex: "\\overline{x^2} = 2 D t"
+    why: "Carry out the integral with the solution of the preceding display. The result is the width of the bell curve read as a mean square, and it grows in proportion to the time."
+  - latex: "\\lambda_x = \\sqrt{\\overline{x^2}} = \\sqrt{2 D t} ."
+    why: "Take the root: the printed line. Because the root is taken at the end, the displacement itself grows as the square root of the time, so a hundredfold longer observation gives a tenfold larger displacement."
+r3: "Whether the x² under the root carries its own bar for the mean, distinct from the radical's vinculum, cannot be settled on the pinned scan: at 400 dpi one bar runs over x² at the same height as the vinculum over 2 D t, and a second bar beneath it is not separable. The sentence introducing the display settles the sense in words, calling it the root of the arithmetic mean of the squares, so the edition keeps the bar. The provenance receipt records the reading as watch-mean-bar-lambda-p559 (docs/provenance/ap-17-549.md)."
