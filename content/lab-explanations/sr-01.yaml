@@ -1,0 +1,5 @@
+# SR-01's formula (dispatch 291). § 1's definition of synchrony, solved for the reading at B.
+lab: sr-01
+formulas:
+  - latex: "t_B = \\tfrac{1}{2}\\left(t_A + t'_A\\right)"
+    display: eq-s1-d1

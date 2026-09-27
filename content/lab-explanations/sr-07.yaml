@@ -1,0 +1,5 @@
+# SR-07's formula (dispatch 291). The first of the six Maxwell-Hertz equations § 6 starts from.
+lab: sr-07
+formulas:
+  - latex: "\\frac{1}{V}\\frac{\\partial X}{\\partial t}=\\frac{\\partial N}{\\partial y}-\\frac{\\partial M}{\\partial z}"
+    display: eq-s6-d1

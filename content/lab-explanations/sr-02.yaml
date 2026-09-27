@@ -1,0 +1,38 @@
+# SR-02's formula (dispatch 291). The introduction's magnet and conductor, in modern letters, which
+# the paper argues in words and prints no equation for.
+lab: sr-02
+formulas:
+  - latex: "\\begin{gathered}\\mathcal{E}=vB\\ell, \\\\ \\mathcal{E}'=\\gamma vB\\ell, \\\\ \\mathbf{E}'_\\perp=\\gamma(\\mathbf{v}\\times\\mathbf{B})_\\perp\\end{gathered}"
+    own:
+      inWords:
+        - text: "The electromotive force when the magnet is taken to be at rest"
+          quantityId: electromotiveForceMagnetFrame
+        - text: " is "
+        - text: "the speed between them"
+          quantityId: frameSpeed
+        - text: " times "
+        - text: "the magnetic force"
+          quantityId: magneticFieldStationary
+        - text: " times "
+        - text: "the length of the conductor"
+          quantityId: lengthProper
+        - text: ". "
+        - text: "The same force read in the conductor's own system"
+          quantityId: electromotiveForceConductorFrame
+        - text: " is that again times "
+        - text: "the factor"
+          quantityId: lorentzFactor
+        - text: ", and there "
+        - text: "an electric force across the motion"
+          quantityId: electricFieldMoving
+        - text: " is what does the work."
+      r0: "The same experiment counted twice: once as a magnet moving past a conductor, once as a conductor moving past a magnet. The number that matters is the same, and only the name of the cause changes."
+      r1: "This is the asymmetry the paper opens with. In the customary view the two cases are described quite differently: move the magnet and an electric field arises, with a definite energy, which drives a current in the conductor; move the conductor and no electric field arises, but an electromotive force appears in it, to which no energy corresponds, producing a current of the same size and direction. The paper's complaint is not that the numbers disagree, because they do not, but that two accounts are given of one phenomenon which depends only on the relative motion. § 6 settles it: what one system calls a magnetic force another calls, in part, an electric one, and the force on a charge at rest in its own system is simply the electric force there. The third line is that statement in modern letters."
+      r2:
+        - latex: "\\mathcal{E}=vB\\ell"
+          why: "The conductor moves and the magnet is taken to be at rest. In the older mode of expression, each charge carried along in the conductor feels an electromotive force, and around the circuit it comes to this."
+        - latex: "\\mathbf{E}'_\\perp=\\gamma(\\mathbf{v}\\times\\mathbf{B})_\\perp"
+          why: "Read in the system the conductor rests in, there is an electric force across the motion. This is the transformation § 6 prints for the electric force across the motion, written with vectors: with no electric force in the first system, what is left is the magnetic force times the speed, times the factor."
+        - latex: "\\mathcal{E}'=\\gamma vB\\ell"
+          why: "That force along the length of the conductor. It differs from the first line by the factor alone, and at the speeds a laboratory magnet reaches the factor is 1 to many decimal places, which is why the older account worked."
+      r3: "The letters are modern and so is the vector product: the paper of 1905 writes the field components as separate letters, uses no bold vectors and no cross product, and its introduction prints no equation at all, arguing the case in words. What it does print, in § 6, is the transformation these lines rest on, and the remark that the electromotive force plays in it merely the part of an auxiliary concept, whose introduction is occasioned by the circumstance that electric and magnetic forces have no existence independent of the state of motion of the system of coordinates."

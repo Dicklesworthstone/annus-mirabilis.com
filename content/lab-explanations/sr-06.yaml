@@ -1,0 +1,6 @@
+# SR-06's formula (dispatch 291). § 5's composition of two velocities in one line, in modern letters
+# and with a worked value.
+lab: sr-06
+formulas:
+  - latex: "U=\\frac{v+w}{1+vw/c^{2}}=\\frac{15}{17}c"
+    display: eq-s5-d6

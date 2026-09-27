@@ -1,0 +1,6 @@
+# LQ-02's formula (dispatch 291). § 1's integral over the whole spectrum, stopped at a cut-off so
+# that the growth can be watched rather than met as an infinity.
+lab: lq-02
+formulas:
+  - latex: "\\begin{aligned}U(\\nu_c) &= \\int_0^{\\nu_c} \\frac{8\\pi\\nu^2}{c^3}k_BT\\,d\\nu \\\\ &= \\frac{8\\pi k_BT}{3c^3}\\nu_c^3\\end{aligned}"
+    display: eq-s1-d8
