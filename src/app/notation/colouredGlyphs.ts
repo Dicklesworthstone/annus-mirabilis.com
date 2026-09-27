@@ -135,6 +135,7 @@ export function notationFormula(
         braced: true,
       },
     ],
+    labels: [],
     declared: 0,
     exceptions: 0,
     problems: [],

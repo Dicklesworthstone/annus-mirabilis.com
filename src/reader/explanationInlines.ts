@@ -44,9 +44,16 @@ export type ExplanationScope = Readonly<{
  * read against the passage it is written in. Resolving is not the same as being right: light quanta
  * § 8 wrote eV ≥ hν with V the accelerating potential, and the concordance's § 8 reading of V is the
  * volume, so it resolved and would have been coloured as a volume. A paper's letters are fixed at the
- * source before it joins; for light quanta, § 1's Ē and § 8's V_acc (dispatch 273).
+ * source before it joins (dispatch 273): light quanta's Ē (§ 1) and V_acc (§ 8); Brownian's K (§ 3)
+ * and partition area A (§ 1); relativity's charge q (§§ 6, 10), field E (§ 10) and speeds u
+ * (§§ 4, 9, 10).
  */
-export const COLOURED_EXPLANATION_PAPERS: readonly string[] = ["mass-energy", "light-quanta"];
+export const COLOURED_EXPLANATION_PAPERS: readonly string[] = [
+  "mass-energy",
+  "light-quanta",
+  "brownian-motion",
+  "special-relativity",
+];
 
 /** Papers whose every explanation formula must colour or be a listed exception. */
 export const ENFORCED_EXPLANATION_PAPERS: readonly string[] = [];

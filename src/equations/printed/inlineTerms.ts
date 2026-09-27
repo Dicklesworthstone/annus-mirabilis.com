@@ -61,6 +61,11 @@ export type InlineException = Readonly<{
   /** Sections or anchors it holds in, or ["all"]. */
   scope: readonly string[];
   reason: string;
+  /**
+   * What the sign names, in the reader's words, shown when a reader points at it on a reading face
+   * (dispatch 280, step 1b). The reason is the editor's; this is the reader's.
+   */
+  note?: string | undefined;
 }>;
 
 export type InlineTermsContext = Readonly<{
@@ -92,10 +97,31 @@ export type InlineTerm = Readonly<{
   braced: boolean;
 }>;
 
+/**
+ * An atom left plain on purpose: a concordance entry in scope declares it no quantity, or a listed
+ * exception holds it (dispatch 280, step 1b). It carries what it names, so a reading face can say
+ * so when a reader points at it. `source` names where the reading came from: the concordance
+ * entry's id, or the exception's paper, glyph and place in the list. A caller that wants the atom
+ * marked in the render gives it a `labelId`; without one it stays unmarked, as before.
+ */
+export type InlineLabel = Readonly<{
+  source: string;
+  /** The atom as printed. */
+  glyph: string;
+  /** What it names, in the reader's words; absent where its exception gives none. */
+  note?: string | undefined;
+  start: number;
+  end: number;
+  braced: boolean;
+  labelId?: string | undefined;
+}>;
+
 export type ResolvedInline = Readonly<{
   latex: string;
   scope: InlineScope;
   terms: readonly InlineTerm[];
+  /** The atoms declared or excepted, each with what it names (InlineLabel). */
+  labels: readonly InlineLabel[];
   /** Atoms a concordance entry in scope declares no quantity. */
   declared: number;
   /** Atoms left plain by a listed exception. */
@@ -111,6 +137,11 @@ export type CompiledInline = Readonly<{
   html: string;
   /** Each bound atom, with its glyph as printed (for a legend or the inspector). */
   terms: readonly Readonly<{ termId: string; quantityId: string; glyph: string }>[];
+  /**
+   * Each atom marked as a label (data-label), with what it names: only where the caller gave the
+   * label an id, which the reading faces do (paperInlines.ts). Absent otherwise.
+   */
+  labels?: readonly Readonly<{ labelId: string; glyph: string; note?: string | undefined }>[];
 }>;
 
 /** The KaTeX options every face renders an inline formula with (inlines.tsx). */
@@ -153,7 +184,12 @@ function readingsInScope(
   entries: readonly ConcordanceEntry[],
   signature: string,
   scope: InlineScope,
-): readonly Readonly<{ id: string; binds: string; quantityId?: string | undefined }>[] {
+): readonly Readonly<{
+  id: string;
+  binds: string;
+  quantityId?: string | undefined;
+  meaning?: string | undefined;
+}>[] {
   const own = normalizeSectionId(scope.anchor);
   const opinions = entries.flatMap((entry) => {
     if (!scopeMatches(entry.scope, scope.anchor, scope.section)) return [];
@@ -163,7 +199,7 @@ function readingsInScope(
       quantityId ??
       `not a quantity (${"nonQuantityKind" in entry.binding ? entry.binding.nonQuantityKind : "?"})`;
     const local = entry.scope.some((s) => normalizeSectionId(s) === own);
-    return [{ id: entry.id, binds, quantityId, local }];
+    return [{ id: entry.id, binds, quantityId, meaning: entry.meaning, local }];
   });
   return opinions.some((o) => o.local) ? opinions.filter((o) => o.local) : opinions;
 }
@@ -190,16 +226,32 @@ export function resolveInlineTerms(
   const exceptions = context.exceptions.filter(
     (e) => e.paper === scope.paper && scopeMatches(e.scope, scope.anchor, scope.section),
   );
-  const excepted = new Set(exceptions.flatMap((e) => signatureOrUndefined(e.glyph) ?? []));
+  // Each glyph's first listed exception in scope, with its place in the whole list, which names it.
+  const excepted = new Map<string, Readonly<{ exception: InlineException; index: number }>>();
+  for (const exception of exceptions) {
+    const signature = signatureOrUndefined(exception.glyph);
+    if (signature !== undefined && !excepted.has(signature))
+      excepted.set(signature, { exception, index: context.exceptions.indexOf(exception) });
+  }
   const terms: InlineTerm[] = [];
+  const labels: InlineLabel[] = [];
   let declared = 0;
   let listed = 0;
   for (const atom of atoms) {
     const readings = readingsInScope(context.concordance, atom.signature, scope);
     const [first] = readings;
     if (!first) {
-      if (excepted.has(atom.signature)) {
+      const listing = excepted.get(atom.signature);
+      if (listing) {
         listed++;
+        labels.push({
+          source: `exception ${listing.index}`,
+          glyph: atom.text,
+          ...(listing.exception.note ? { note: listing.exception.note } : {}),
+          start: atom.start,
+          end: atom.markEnd,
+          braced: atom.bare,
+        });
         continue;
       }
       problems.push({
@@ -224,6 +276,14 @@ export function resolveInlineTerms(
     }
     if (first.quantityId === undefined) {
       declared++;
+      labels.push({
+        source: first.id,
+        glyph: atom.text,
+        ...(first.meaning ? { note: first.meaning } : {}),
+        start: atom.start,
+        end: atom.markEnd,
+        braced: atom.bare,
+      });
       continue;
     }
     if (!context.isRegistered(first.quantityId)) {
@@ -247,7 +307,7 @@ export function resolveInlineTerms(
       braced: atom.bare,
     });
   }
-  return { latex, scope, terms, declared, exceptions: listed, problems };
+  return { latex, scope, terms, labels, declared, exceptions: listed, problems };
 }
 
 const KATEX_HTML = '<span class="katex-html" aria-hidden="true">';
@@ -284,11 +344,22 @@ export function compileInlineFormula(
     );
   const plain = render(latex, INLINE_KATEX);
   const base = { paper: scope.paper, where: scope.where, latex };
-  if (resolved.terms.length === 0) return { ...base, html: plain, terms: [] };
-  const allowed = new Set(resolved.terms.map((t) => t.termId));
+  // A label is marked only where the caller named it (the reading faces, dispatch 280); its term id
+  // is l1, l2 in the formula, beside the quantities' i1, i2.
+  const labels = resolved.labels.flatMap((label, i) =>
+    label.labelId === undefined ? [] : [{ ...label, labelId: label.labelId, termId: `l${i + 1}` }],
+  );
+  if (resolved.terms.length === 0 && labels.length === 0)
+    return { ...base, html: plain, terms: [] };
+  const allowed = new Set([...resolved.terms, ...labels].map((t) => t.termId));
   const marked = markPrintedLatex(
     latex,
-    resolved.terms.map(({ start, end, termId, braced }) => ({ start, end, termId, braced })),
+    [...resolved.terms, ...labels].map(({ start, end, termId, braced }) => ({
+      start,
+      end,
+      termId,
+      braced,
+    })),
   );
   const html = render(marked, {
     ...INLINE_KATEX,
@@ -328,5 +399,23 @@ export function compileInlineFormula(
     quantityId,
     glyph,
   }));
-  return { ...base, html: withQuantityIds(drawn, terms), terms };
+  const withTerms = withQuantityIds(drawn, terms);
+  if (labels.length === 0) return { ...base, html: withTerms, terms };
+  // Each label's mark names its label: the same letter with the same meaning in the same section
+  // shares one id across the page, which is what the face lights together.
+  const labelOf = new Map(labels.map((l) => [l.termId, l.labelId]));
+  const withLabels = withTerms.replace(/data-term="(l\d+)"/g, (whole, termId: string) => {
+    const labelId = labelOf.get(termId);
+    return labelId === undefined ? whole : `${whole} data-label="${labelId}"`;
+  });
+  return {
+    ...base,
+    html: withLabels,
+    terms,
+    labels: labels.map(({ labelId, glyph, note }) => ({
+      labelId,
+      glyph,
+      ...(note ? { note } : {}),
+    })),
+  };
 }
