@@ -6,8 +6,9 @@
  * the lab pages' own source with the TypeScript parser: that parser must never reach a page's module
  * graph. This file imports one small JSON and nothing else. No "use client".
  */
-import type { ExplainerLevels } from "./equationExplanations.ts";
+
 import payload from "../../generated/lab-explanations.json";
+import type { ExplainerLevels } from "./equationExplanations.ts";
 
 const LABS = (
   payload as unknown as {

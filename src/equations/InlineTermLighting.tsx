@@ -165,9 +165,7 @@ export function attachInlineLighting(
         : active.startsWith("l:")
           ? copiesOfLabel(root, paper, active.slice(2))
           : elementsOfQuantity(root, active.slice(2)).filter(
-              (element) =>
-                paperOf(element) === paper &&
-                !hoveredOwnBlock?.contains(element),
+              (element) => paperOf(element) === paper && !hoveredOwnBlock?.contains(element),
             );
     for (const element of lit) element.setAttribute("data-lit", "true");
   };
