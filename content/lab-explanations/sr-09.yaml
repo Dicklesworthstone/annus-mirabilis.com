@@ -1,0 +1,8 @@
+# SR-09's formulas (dispatch 291). Both evaluate § 7's Doppler law at the settings the page names.
+lab: sr-09
+formulas:
+  - latex: "\\begin{aligned}\\nu' &= \\nu\\gamma(1 - \\beta\\cos\\theta) \\\\ &= \\nu\\sqrt{\\frac{1-\\beta}{1+\\beta}} \\\\ &= 0.5\\nu \\\\ &= 250\\text{ THz}\\end{aligned}"
+    display: eq-s7-d7
+
+  - latex: "\\begin{gathered}\\nu' = \\gamma\\nu = 1.25\\nu = 625\\text{ THz}, \\\\ \\cos\\theta' = -\\beta = -0.6 \\\\ \\implies \\theta' \\approx 126.87^\\circ\\end{gathered}"
+    incidental: "The transverse case of the display above, worked at the same settings, together with the aberration angle that goes with it. Both laws are printed displays of § 7 and carry their words on the reading face; this block is their arithmetic, and the sentence introducing it names the case."

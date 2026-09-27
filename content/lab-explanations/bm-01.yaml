@@ -1,0 +1,9 @@
+# BM-01's formulas (dispatch 291).
+lab: bm-01
+formulas:
+  # § 4's result: the mean displacement vanishes and the mean square grows with the time.
+  - latex: "\\begin{gathered}\\langle x\\rangle=0, \\\\ \\langle x^2\\rangle=2Dt, \\\\ \\lambda_x=\\sqrt{2Dt}\\end{gathered}"
+    display: eq-s4-d12
+
+  - latex: "\\frac{\\lambda_x}{\\tau}=\\sqrt{\\frac{2D}{\\tau}}"
+    incidental: "The lab's own construction, not a result of the paper: the typical displacement divided by the interval it was measured over, which grows without limit as the interval shrinks. It exists to show why a mean velocity cannot be measured this way, and the sentence carrying it says so. § 5's own remark about the unmeasurability of the velocity is where the paper makes the point."
