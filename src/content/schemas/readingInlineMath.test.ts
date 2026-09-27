@@ -41,6 +41,16 @@ describe("the reading-record validator", () => {
     );
   });
 
+  test("the overline the paper prints over a mean is allowed, and nothing else came with it", () => {
+    // Light quanta § 1's Ē (p. 134), as its concordance entry spells it.
+    expect(refusal(withFull(String.raw`the mean energy \(\overline{E}=\frac{R}{N}T\)`))).toBe(
+      "accepted",
+    );
+    expect(refusal(withFull(String.raw`a mean \(\bar{E}\)`))).toContain(
+      "Unsupported math command: bar",
+    );
+  });
+
   test("a malformed delimiter in a paragraph or a step fails with its code", () => {
     expect(refusal(withFull(String.raw`energy \(k_B T and more`))).toContain(
       "inline-math-unclosed",

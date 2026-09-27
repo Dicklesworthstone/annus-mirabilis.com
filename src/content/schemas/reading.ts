@@ -178,6 +178,8 @@ const mathCommands = new Set([
   "mathrm",
   "underbrace",
   "overbrace",
+  // Ē, the mean energy light quanta § 1 prints (p. 134), spelled as its concordance entry (lq.Ebar).
+  "overline",
   "begin",
   "end",
   "le",
