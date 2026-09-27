@@ -49,7 +49,9 @@ function Prose({ parts, paper }: { parts: readonly ProsePart[]; paper: string })
     ) : (
       <span
         key={key}
-        className={part.coloured || part.labelled ? "eq-explain-math inline-math" : "eq-explain-math"}
+        className={
+          part.coloured || part.labelled ? "eq-explain-math inline-math" : "eq-explain-math"
+        }
         data-paper={part.coloured || part.labelled ? paper : undefined}
         data-inline-terms={part.coloured ? "" : undefined}
         data-inline-labels={part.labelled ? "" : undefined}
@@ -104,7 +106,14 @@ export function EquationExplainer({ explanation }: { explanation: CompiledExplan
               // biome-ignore lint/a11y/useSemanticElements: an <li> needs its <ol>, which a paragraph may not hold.
               <span key={key} className="eq-step" role="listitem">
                 <span
-                  className="eq-step-formula"
+                  className={
+                    step.coloured || step.labelled
+                      ? "eq-step-formula inline-math"
+                      : "eq-step-formula"
+                  }
+                  data-paper={step.coloured || step.labelled ? explanation.paper : undefined}
+                  data-inline-terms={step.coloured ? "" : undefined}
+                  data-inline-labels={step.labelled ? "" : undefined}
                   // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX output compiled by the build from a checked record, as the prose's formulas are.
                   dangerouslySetInnerHTML={{ __html: step.formula }}
                 />
