@@ -1,0 +1,18 @@
+# LQ-09's formulas, and what each one carries (dispatch 291).
+lab: lq-09
+formulas:
+  # § 9's condition, with the lab setting the modern form beside the printed one.
+  - latex: "R\\beta\\nu \\ge J \\quad \\iff \\quad h\\nu \\ge J_{\\text{mol}}"
+    display: eq-s9-d1
+
+  - latex: "j = \\frac{L}{R\\beta\\nu}"
+    display: eq-s9-d3
+
+  # The same count with the gram-equivalent divided out, which the sentence above it states in full.
+  - latex: "N_{\\text{ion}} = \\frac{L}{h\\nu}"
+    incidental: "The display above it, divided through by Avogadro's number to count molecules rather than gram-molecules, and the sentence between them says so: it names N_A as Avogadro's constant and N_ion as the number of ionized molecules. The paper counts in gram-equivalents throughout § 9 and prints no such line. A panel here would repeat the sentence that introduces it."
+
+  # Einstein's own arithmetic for the quantum energy per gram-equivalent, whose value is what § 9
+  # prints and compares with the ionization work.
+  - latex: "\\begin{aligned}R\\beta\\nu &= 8{,}31\\cdot 10^7 \\\\ &\\quad \\times 4{,}866\\cdot 10^{-11} \\\\ &\\quad \\times 1{,}58\\cdot 10^{15} \\\\ &\\approx 6{,}4\\cdot 10^{12}\\text{ Erg}\\end{aligned}"
+    display: eq-s9-d2

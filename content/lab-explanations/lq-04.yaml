@@ -1,0 +1,10 @@
+# LQ-04's formulas, and what each one carries (dispatch 291). Both are equations the paper prints.
+lab: lq-04
+formulas:
+  - latex: "\\frac{\\partial\\varphi}{\\partial\\varrho} = \\frac{1}{T}"
+    display: eq-s3-d8
+
+  # § 4's closing result. The lab keeps the paper's v and v_0 and notes in the display itself that
+  # the printed lg is the natural logarithm.
+  - latex: "\\begin{gathered}S - S_0 = \\frac{E}{\\beta\\nu}\\ln\\frac{v}{v_0} \\\\ (\\text{printed \"lg\" is the} \\\\ \\text{natural logarithm})\\end{gathered}"
+    display: eq-s4-d5

@@ -1,0 +1,70 @@
+# LQ-06's formulas, and what each one carries (dispatch 291).
+#
+# Five of the seven are equations § 5 or § 6 prints, in the lab's letters, so they take the paper's
+# own records and the reader meets the same words in both places.
+lab: lq-06
+formulas:
+  # § 6's opening result, with the lab writing ln for the printed lg and V for the printed v.
+  - latex: "S - S_0 = \\frac{E}{\\beta\\nu}\\ln\\frac{V}{V_0}"
+    display: eq-s6-d1
+
+  # § 5's entropy of n independent points, which § 6 is about to compare this one with. The lab adds
+  # the modern k_B beside the paper's R/N; it is the same equation.
+  - latex: "S - S_0 = \\frac{R}{N}\\,n\\ln\\frac{V}{V_0} = k_B\\,n\\ln\\frac{V}{V_0}"
+    display: eq-s5-d8
+
+  - latex: "S - S_0 = \\frac{R}{N}\\ln\\left[\\left(\\frac{V}{V_0}\\right)^{\\frac{N}{R}\\frac{E}{\\beta\\nu}}\\right]"
+    display: eq-s6-d2
+
+  - latex: "W = \\left(\\frac{V}{V_0}\\right)^{\\frac{N}{R}\\frac{E}{\\beta\\nu}}"
+    display: eq-s6-d4
+
+  # The lab's own chain, from the exponent § 6 reads off to the size of one packet. The paper states
+  # the conclusion in words at the end of § 6 and prints no such line.
+  - latex: "\\epsilon = \\frac{E}{n_{\\text{eff}}} = \\frac{R\\beta\\nu}{N} = h\\nu"
+    own:
+      inWords:
+        - text: "The size of one packet"
+          quantityId: quantumEnergy
+        - text: " is "
+        - text: "the radiation's energy"
+          quantityId: radiationEnergy
+        - text: " divided by "
+        - text: "the number of independent points it behaves as though it had"
+          quantityId: effectiveIndependentCount
+        - text: ", which is "
+        - text: "the gas constant"
+          quantityId: molarGasConstant
+        - text: " times "
+        - text: "Wien's constant"
+          quantityId: wienConstantBeta
+        - text: " times "
+        - text: "the frequency"
+          quantityId: frequency
+        - text: ", over "
+        - text: "Avogadro's number"
+          quantityId: avogadroConstant
+        - text: ": the quantity later physics writes as "
+        - text: "Planck's constant"
+          quantityId: planckConstant
+        - text: " times the frequency."
+      r0: "What the exponent of the previous display means, read as a size: the radiation's energy divided into that many equal packets, each of them $\\frac{R\\beta\\nu}{N}$."
+      r1: "The previous display puts the entropy of the radiation into the form § 5 found for $n$ independent points, and the exponent standing where $n$ stood is $\\frac{N}{R}\\frac{E}{\\beta\\nu}$. Reading that exponent as a count is the whole of the step: if the radiation's entropy behaves as though it were made of that many independent things, then the energy of each of them is the total $E$ divided by the count, which is $\\frac{R\\beta\\nu}{N}$. It depends on the frequency and on nothing else about the radiation, which is what makes it a property of the light rather than of how much of it there is. The last member is a rename: $\\frac{R\\beta}{N}$ is the constant Planck introduced in 1900, and modern notation writes it $h$."
+      r2:
+        - latex: "W = \\left(\\frac{V}{V_0}\\right)^{\\frac{N}{R}\\frac{E}{\\beta\\nu}}"
+          why: "The previous display. Compared with § 5's $W = \\left(\\frac{v}{v_0}\\right)^{n}$ for $n$ points moving independently in the volume, the exponent stands exactly where the count stands."
+        - latex: "n_{\\text{eff}} = \\frac{N}{R}\\frac{E}{\\beta\\nu}"
+          why: "So this is the number of independent points the radiation's entropy behaves as though it had. It is a reading of the exponent, not a count of anything the paper has observed."
+        - latex: "\\epsilon = \\frac{E}{n_{\\text{eff}}} = \\frac{E}{\\frac{N}{R}\\frac{E}{\\beta\\nu}} = \\frac{R\\beta\\nu}{N}"
+          why: "Divide the energy by the count. The energy $E$ cancels, which is why the size of a packet does not depend on how much radiation there is."
+        - latex: "\\frac{R\\beta}{N} = h \\quad \\Longrightarrow \\quad \\epsilon = h\\nu"
+          why: "The three constants together are Planck's, so the packet's energy is his quantum of action times the frequency. The lab computes the product from Einstein's own values two displays below."
+      r3: "The chain is this edition's, not Einstein's: § 6 prints the entropy and the exponent and then states the conclusion in words, that monochromatic radiation of low density behaves, in respect of the theory of heat, as though it consisted of mutually independent energy quanta of magnitude $\\frac{R\\beta\\nu}{N}$. Writing $h$ at the end is a rename and imports no later physics; the paper of 1905 has no $h$ in it. What the step does not establish is that light IS made of such quanta, and the paper does not claim it here: the entropy behaves as though it were, which is the heuristic point of view of the title."
+
+  # The product of the three 1905 values, which the sentences around it already explain.
+  - latex: "\\frac{R\\beta}{N} = 6{,}5537\\cdot 10^{-27}\\text{ erg}\\cdot\\text{s}"
+    incidental: "An arithmetic result the lab computes from the three values named in the sentence before it, and the sentence after it says whose constant it is and that it sits about 1.1 per cent below the modern value. The paper does not print the product. A panel here would repeat both sentences."
+
+  # § 6's mean-energy integral, with the lab's modern k_B added to the printed right-hand side.
+  - latex: "\\begin{aligned}\\langle \\epsilon \\rangle &= \\frac{\\int_0^\\infty \\alpha\\nu^3 e^{-\\beta\\nu/T} d\\nu}{\\int_0^\\infty \\frac{N}{R\\beta\\nu}\\alpha\\nu^3 e^{-\\beta\\nu/T} d\\nu} \\\\ &= 3\\frac{R}{N}T \\\\ &= 3 k_B T\\end{aligned}"
+    display: eq-s6-d5
