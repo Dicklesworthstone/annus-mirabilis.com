@@ -1,0 +1,31 @@
+# special-relativity eq-s2-d3: what the display says, at every level (dispatch 279).
+# Written from the German of s2-p7 (p. 897) and its plate; the steps were checked by hand.
+display: eq-s2-d3
+paper: special-relativity
+inWords:
+  - text: "The time at which the ray returns to A"
+    quantityId: coordinateTimeStationary
+  - text: " less "
+  - text: "the time at which it was reflected at B"
+    quantityId: coordinateTimeStationary
+  - text: " equals "
+  - text: "the length of the moving rod, measured in the resting system"
+    quantityId: lengthMeasuredStationary
+  - text: ", divided by "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " plus "
+  - text: "the velocity of the rod"
+    quantityId: frameSpeed
+  - text: "."
+r0: "The return trip. Now the end A is running toward the ray, so the gap closes at V plus v, and the leg takes less time than the outward one. The two legs are unequal, so the rod's observers do not find their clocks synchronous."
+r1: "The return leg, worked out the same way. The ray again travels at $V$ in the resting system, but the end A is now coming to meet it at $v$, so the closing rate is $V + v$ and the leg is shorter than the outward one. The paper draws the conclusion at once: observers moving with the rod would find the two clocks not running synchronously, while observers in the resting system would declare them synchronous. It then states what this means, and the statement is the point of section 2. We cannot ascribe any absolute meaning to the concept of simultaneity; two events that are simultaneous when regarded from one coordinate system are no longer to be taken as simultaneous when regarded from a system moving relative to it. The clocks themselves are not at fault and nothing about them has changed. The criterion of section 1 is applied honestly by both sets of observers, and it gives them different answers because the ray's two legs are unequal in one system and equal in the other."
+r2:
+  - latex: "V + v"
+    why: "The rate at which the ray closes on A on the way back, since A moves toward the ray while the ray travels at $V$ in the resting system."
+  - latex: "t'_A - t_B = \\frac{r_{AB}}{V + v} ,"
+    why: "The same length divided by the new closing rate: the printed line."
+  - latex: "\\frac{r_{AB}}{V - v} > \\frac{r_{AB}}{V + v}"
+    why: "The two legs are unequal whenever the rod moves at all, because a smaller denominator gives a larger quotient. Only for a rod at rest do they agree."
+  - latex: "t_B - t_A \\neq t'_A - t_B"
+    why: "So the criterion of section 1, which is what the observers travelling with the rod apply, is not satisfied for them: judged from the resting system their two clocks are not synchronous, though the resting system's own observers call them so."

@@ -1,0 +1,15 @@
+# special-relativity eq-s2-d1: what the display says, at every level (dispatch 279).
+# Written from the German of s2-p1 (p. 895) and its plate; the steps were checked by hand.
+display: eq-s2-d1
+paper: special-relativity
+inWords:
+  - text: "Velocity is the path the light travels divided by the duration of the journey, with duration taken in the sense of the definition of section 1."
+r0: "What velocity means in the second principle: the light path divided by the duration. The duration is the one section 1 had to define, which is why the principle points back to it."
+r1: "Section 2 rests on two principles, which it states in order. The first is the principle of relativity: the laws by which the states of physical systems change are independent of which of two coordinate systems, in uniform translational motion relative to each other, those changes of state are referred to. The second is that every ray of light moves in the resting coordinate system with the definite velocity V, independent of whether the ray was emitted by a resting or by a moving body. This line belongs to the second and says what its velocity is. The pointer at the end carries the weight: the duration is to be understood in the sense of the definition of section 1, that is, measured by clocks that were made synchronous by the stipulation there. Without it the second principle would not yet have a meaning, because the time a ray takes to go one way from one place to another is exactly the quantity that no measurement fixes until distant clocks have been synchronised. The two principles are, as the paper presents them, not in obvious agreement, and the rest of the paper is the demonstration that they can be held together once the kinematics is put right."
+r2:
+  - latex: "\\text{Lichtweg}"
+    why: "The path the ray covers, a distance measured in the resting system."
+  - latex: "\\text{Zeitdauer}"
+    why: "The duration of that journey. This is the term the definition of section 1 makes available: the ray starts at one place and arrives at another, so the two readings come from two different clocks, and they can only be subtracted because section 1 stipulated what it means for those clocks to be synchronous."
+  - latex: "\\text{Geschwindigkeit} = \\frac{\\text{Lichtweg}}{\\text{Zeitdauer}} ,"
+    why: "Path divided by duration: the printed line, which fixes the sense in which the second principle asserts a definite velocity V."

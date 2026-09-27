@@ -1,0 +1,32 @@
+# special-relativity eq-s2-d2: what the display says, at every level (dispatch 279).
+# Written from the German of s2-p7 (p. 896) and its plate; the steps were checked by hand.
+display: eq-s2-d2
+paper: special-relativity
+inWords:
+  - text: "The time at which the ray reaches B"
+    quantityId: coordinateTimeStationary
+  - text: " less "
+  - text: "the time at which it left A"
+    quantityId: coordinateTimeStationary
+  - text: " equals "
+  - text: "the length of the moving rod, measured in the resting system"
+    quantityId: lengthMeasuredStationary
+  - text: ", divided by "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " less "
+  - text: "the velocity of the rod"
+    quantityId: frameSpeed
+  - text: "."
+r0: "The outward trip along the moving rod. The light travels at V in the resting system while the far end runs away at v, so the gap closes at V less v."
+r1: "A rigid rod of length $l$ lies along the X-axis and is given a uniform motion with velocity $v$ in the direction of increasing $x$. Clocks are attached at its two ends, A and B, synchronous with the clocks of the resting system, and an observer travels with each clock. Those observers apply to their pair of clocks the criterion of section 1. A ray leaves A, is reflected at B, and returns to A. This line is the outward leg, worked out in the resting system. The second principle fixes the ray's velocity there at $V$, whatever the motion of the rod that emitted it, and the end B is not standing still: it moves away at $v$ while the ray is in flight. The rate at which the ray closes on B is therefore $V - v$. Nothing here says light slows down; the difference is between the ray's velocity and the velocity of the target it is chasing, both measured in the same resting system."
+r2:
+  - latex: "V"
+    why: "The velocity of the ray in the resting system, by the second principle, independent of the motion of the rod from which it was emitted."
+  - latex: "v"
+    why: "The velocity of the end B, which is running away from the ray in the same direction."
+  - latex: "V - v"
+    why: "The rate at which the distance between ray and target shrinks, both velocities being taken in the resting system."
+  - latex: "t_B - t_A = \\frac{r_{AB}}{V - v}"
+    why: "The gap to be closed is the length of the moving rod measured in the resting system, so the time for the outward leg is that length divided by the closing rate: the printed line."
+r3: "A footnote attached to the word \"Zeit\" at the start of this passage fixes what it means here, and the passage does not work without it: \"Zeit\" bedeutet hier \"Zeit des ruhenden Systems\" und zugleich \"Zeigerstellung der bewegten Uhr, welche sich an dem Orte, von dem die Rede ist, befindet\". So the three readings are times of the resting system, and each is also the reading of the moving clock that happens to be at the place spoken of. Read from the plate of p. 896."
