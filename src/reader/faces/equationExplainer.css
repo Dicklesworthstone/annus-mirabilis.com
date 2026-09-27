@@ -221,3 +221,25 @@
   display: block;
   margin: 1.2rem 0;
 }
+
+/* THE EQUATION ITSELF, ABOVE ITS EXPLANATION (dispatch 303). Seen in a browser, this page explained
+   an equation that was not on it. The formula is drawn from the same compiled record the reading face
+   draws, and it stands alone above the levels with a rule under it; on a narrow screen it scrolls
+   inside its own box rather than widening the page. It is drawn in the reader's ink and not in the
+   quantity colours, because this page carries neither quantity-colours-by-paper.css nor equations.css,
+   so its prose formulas and its words are uncoloured too (measured on the built page). Colouring the
+   page is one import and a look in a browser, and it belongs to its own change. */
+.equation-explanation-formula {
+  margin: 0 0 1.6rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid var(--rule);
+  overflow-x: auto;
+}
+/* The way back to where the equation is printed: the passage, the step, or the laboratory. */
+.equation-explanation-source {
+  margin: 2rem 0 0;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+}

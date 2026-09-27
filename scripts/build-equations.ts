@@ -703,6 +703,81 @@ await writeFile(
     ),
   })}\n`,
 );
+// THE EQUATION ON ITS OWN PAGE, AND THE WAY BACK (dispatch 303). The page that holds every level is
+// a real URL: a reader without JavaScript is sent there by the panel's control, a failed fetch sends
+// one there, and a search engine or a shared link can land one there cold. Measured on a build of
+// adbc5095, every one of its 243 pages explained an equation that was not on the screen and offered
+// no link to where it is printed: 0 of them carried a drawn equation, and the explanation of a model
+// equation carried no mathematics at all. So the page keeps its levels AND draws the equation above
+// them, rather than becoming a fragment excluded from indexing, because it is the only route that
+// reader has and the words are about the formula.
+//
+// This is attached HERE and nowhere else: a face, a card and a fetched fragment are all injected
+// beside the equation, so drawing it again there would print it twice and pay for the bytes (292).
+const drawnDisplays = new Map(
+  printed.displays.map((d) => [`${d.paper}\u0000${d.display}`, { html: d.html, spoken: d.spoken }]),
+);
+const argumentOfEquation = new Map(
+  explainedEquations.flatMap((e) =>
+    e.paper === "foundations"
+      ? []
+      : [[e.id, { html: e.html, spoken: e.spoken, argument: e.argument }]],
+  ),
+);
+const labOfFormula = new Map<string, Readonly<{ lab: string; latex: string }>>();
+for (const [lab, drawn] of labExplanations.explainers)
+  for (const [latex, e] of drawn)
+    if (e.equation && !e.display) labOfFormula.set(e.equation, { lab, latex });
+/** One explanation with the equation it explains, drawn, and the way back to where it is printed. */
+const onItsPage = (explanation: ExplainerLevels): ExplainerLevels => {
+  const display = explanation.display;
+  if (display) {
+    const drawn = drawnDisplays.get(`${explanation.paper}\u0000${display}`);
+    return drawn
+      ? {
+          ...explanation,
+          printed: { html: drawn.html, spoken: drawn.spoken },
+          // Every paper has a whole-paper German face and anchors each printed display by its id on
+          // it (measured on the built output: id="eq-s3-d4" on relativity's, which is sectioned).
+          source: {
+            href: `/papers/${explanation.paper}/view/german/#${display}`,
+            label: "Read it in the paper",
+          },
+        }
+      : explanation;
+  }
+  const id = explanation.equation;
+  if (!id) return explanation;
+  const model = argumentOfEquation.get(id);
+  if (model?.html) {
+    return {
+      ...explanation,
+      printed: { html: model.html, spoken: model.spoken },
+      // The card is drawn inside its argument on the paper's explanation page, which anchors each one
+      // by its id (measured: id="arg-me-mass-change" and its siblings).
+      ...(model.argument
+        ? {
+            source: {
+              href: `/papers/${explanation.paper}/#${model.argument}`,
+              label: "Read the step it belongs to",
+            },
+          }
+        : {}),
+    };
+  }
+  const lab = labOfFormula.get(id);
+  return lab
+    ? {
+        ...explanation,
+        // A laboratory's formula is not a compiled display: the record names it by the latex the lab
+        // page writes (labExplanations.ts), so it is drawn from that, in the lab's own notation.
+        printed: {
+          html: renderToString(lab.latex, { displayMode: true, output: "htmlAndMathml" }),
+        },
+        source: { href: `/lab/${lab.lab}/`, label: "Open the laboratory" },
+      }
+    : explanation;
+};
 await writeFile(
   "src/generated/equation-explanations-full.json",
   `${JSON.stringify({
@@ -715,15 +790,17 @@ await writeFile(
         .filter((e) => e.explanations.length > 0)
         .map((e) => [
           e.paper,
-          { displays: Object.fromEntries(e.explanations.map((x) => [x.display, x])) },
+          {
+            displays: Object.fromEntries(e.explanations.map((x) => [x.display, onItsPage(x)])),
+          },
         ]),
     ),
     equations: Object.fromEntries([
       ...explainedEquations.flatMap((equation) => {
         const own = modelExplainers.get(equation.id);
-        return own && !own.display ? [[equation.id, own] as const] : [];
+        return own && !own.display ? [[equation.id, onItsPage(own)] as const] : [];
       }),
-      ...labOwnExplainers.map((e) => [e.equation ?? "", e] as const),
+      ...labOwnExplainers.map((e) => [e.equation ?? "", onItsPage(e)] as const),
     ]),
   })}\n`,
 );

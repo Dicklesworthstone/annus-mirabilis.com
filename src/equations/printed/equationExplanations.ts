@@ -129,6 +129,16 @@ export type ExplainerLevels = Readonly<{
   r1?: readonly ProsePart[] | undefined;
   r2?: readonly CompiledStep[] | undefined;
   r3?: readonly ProsePart[] | undefined;
+  /**
+   * THE EQUATION ITSELF, DRAWN, AND WHERE IT IS PRINTED (dispatch 303). Carried only by the full
+   * payload that the equation explanation page reads, and never by a face, a card or a fragment:
+   * each of those is injected beside the equation, which is already on the reader's screen there,
+   * and that page is the only place an explanation is met away from it. `spoken` is the authored
+   * spoken form, as a face gives a printed display (PrintedDisplayTerms), and `source` is the way
+   * back to the passage, the step or the laboratory the equation belongs to.
+   */
+  printed?: Readonly<{ html: string; spoken?: string | undefined }> | undefined;
+  source?: Readonly<{ href: string; label: string }> | undefined;
 }>;
 
 export type CompiledExplanation = Readonly<{
