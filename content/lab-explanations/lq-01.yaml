@@ -1,0 +1,11 @@
+# LQ-01's formulas (dispatch 301).
+lab: lq-01
+formulas:
+  - latex: "\\begin{aligned}\\psi(\\mathbf{r}, t) &= \\frac{A_1}{r_1}\\cos(k r_1 - \\omega t + \\phi_1) \\\\ &\\quad + \\frac{A_2}{r_2}\\cos(k r_2 - \\omega t + \\phi_2)\\end{aligned}"
+    incidental: "The superposition of two spherical waves, standard wave optics the lab uses as its background. Its sentence introduces it as the wave description being tested, and the paper's introduction prints no equations at all."
+  - latex: "\\langle I \\rangle = \\frac{\\kappa}{2}\\left[ a_1^2 + a_2^2 + 2 a_1 a_2 \\cos\\delta \\right]"
+    incidental: "The time-averaged intensity that follows from it, which the sentence before it names as what a detector records: the average over millions of optical periods."
+  - latex: "I(r) = \\frac{P}{4\\pi r^2}"
+    incidental: "The inverse-square fall of intensity with distance, ordinary wave optics, introduced by the sentence that carries it."
+  - latex: "\\oint_{\\text{sphere}} I(r)\\, dA = P"
+    incidental: "The statement that the power through any sphere is the same, which is the previous display integrated and is said in words where it stands."

@@ -1,0 +1,37 @@
+# ME-03's formulas (dispatch 301).
+lab: me-03
+formulas:
+  # The conclusion the paper states in words and prints no equation for.
+  - latex: "\\Delta m = -\\frac{L}{c^2}"
+    own:
+      id: lab-me-03-mass-change
+      inWords:
+        - text: "The change in "
+        - text: "the mass"
+          quantityId: invariantMassSystem
+        - text: " is minus "
+        - text: "the energy given off"
+          quantityId: emittedEnergyRestFrame
+        - text: " divided by the square of "
+        - text: "the velocity of light"
+          quantityId: speedOfLight
+        - text: "."
+      r0: "What the paper concludes: a body that gives off energy loses mass, and the amount is the energy divided by the square of the velocity of light."
+      r1: "The paper reaches this by comparing two accounting sheets for one emission, and its own way of putting the result is that the mass of a body is a measure of its energy content; if the energy changes by $L$, the mass changes in the same sense by $L$ divided by $9 \\cdot 10^{20}$, the energy being measured in ergs and the mass in grammes. The sign is worth keeping: giving energy off is a loss of mass, which is why the change is written with a minus here. The division by a very large number is why nothing about the effect is ordinary: an erg of radiation costs about $10^{-21}$ grammes, and the paper says as much, that bodies whose energy content is variable to a high degree, radium salts for instance, are where a test might be possible."
+      r2:
+        - latex: "K_0 - K_1 = L \\left( \\frac{1}{\\sqrt{1 - \\frac{v^2}{c^2}}} - 1 \\right)"
+          why: "The paper's result for the kinetic energies before and after the emission, which the display at the end of its argument prints."
+        - latex: "K_0 - K_1 \\approx \\frac{1}{2} \\frac{L}{c^2} v^2"
+          why: "At low speed the bracket is about $\\frac{1}{2} \\frac{v^2}{c^2}$, so the difference of the two kinetic energies is the ordinary $\\frac{1}{2} m v^2$ with $\\frac{L}{c^2}$ standing where the mass stands."
+        - latex: "\\Delta m = -\\frac{L}{c^2}"
+          why: "Reading that coefficient as a mass is the whole of the step: the body's kinetic energy at a given speed has fallen by exactly what a body of mass $\\frac{L}{c^2}$ would have had, so that much mass went with the light."
+      r3: "The equation is this edition's, not Einstein's. The 1905 paper prints no formula for the mass change: it states the conclusion in words and gives the divisor as the number $9 \\cdot 10^{20}$ in the units of the day. Writing it as $\\Delta m = -L/c^2$ is a rearrangement of what the paper says, and the form that became famous, $E = mc^2$, appears nowhere in it. The paper's own last sentence is a proposal rather than a claim of proof: that a test may succeed with bodies whose energy content is variable to a high degree."
+
+  - latex: "\\Delta E_{\\text{isolated}} = 0 \\implies \\Delta m_{\\text{isolated}} = 0"
+    incidental: "A corollary of the display above, read for a system nothing leaves: no energy out, no mass lost. The sentence carrying it says so, and the paper draws no such consequence."
+
+  - latex: "m^2 c^2 = P^\\mu P_\\mu = \\left(\\frac{E}{c}\\right)^2 - \\|\\mathbf{p}\\|^2"
+    incidental: "A later formulation, the four-momentum, which the lab offers as a modern lens and its sentence introduces as one. Nothing of it is in the paper: the letters are not the paper's notation, which is also why the resolver draws it plain and names its glyphs rather than colouring them."
+
+  - latex: "m_{\\text{two pulses}} = \\frac{L}{c^2}"
+    incidental: "The mass the pair of pulses carries away, which is the display at the top of this page read the other way round, and the sentence carrying it says that. The paper's argument is about the body's loss and does not assign a mass to the light."

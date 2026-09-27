@@ -1,0 +1,13 @@
+# BM-08's formulas (dispatch 301).
+lab: bm-08
+formulas:
+  - latex: "\\begin{gathered}\\begin{aligned}Y_i &= \\frac{1}{T_e}\\int_{t_i}^{t_i+T_e}X(s)\\,ds \\\\ &\\quad + v_{\\mathrm{stage}}(t_i+T_e/2)+\\varepsilon_i,\\end{aligned} \\\\ \\varepsilon_i\\sim\\mathcal N(0,\\sigma^2)\\end{gathered}"
+    incidental: "The lab's camera model, and the sentence introducing it is the model in words: each recorded position is the true path averaged over the exposure, plus the stage motion at mid-exposure, plus an independent localization error. Nothing in the paper corresponds to it; Einstein's § 5 asks what a displacement is, not how a camera records one."
+  - latex: "\\begin{gathered}\\gamma_0=2D(\\Delta t-T_e/3)+2\\sigma^2, \\\\ \\gamma_1=DT_e/3-\\sigma^2\\end{gathered}"
+    incidental: "The two moments that model implies, written out so the next display can combine them. The sentences around them name what each term is, the blur and the localization."
+  - latex: "\\widehat D_{\\mathrm{CVE}}=\\frac{\\widehat\\gamma_0/2+\\widehat\\gamma_1}{\\Delta t}"
+    incidental: "The estimator the two moments above are combined into, whose reason the sentence before it gives: the combination of the second moment and the neighbouring product cancels the localization and the blur terms."
+  - latex: "D=\\frac{V-2\\sigma^2}{2(\\Delta t-T_e/3)}"
+    incidental: "The same relation solved for the diffusivity, a rearrangement of the line above rather than a further claim."
+  - latex: "\\begin{gathered}v_{\\mathrm{app,ideal}}=\\sqrt{2D/\\Delta t}, \\\\ v_{\\mathrm{app,camera}}=\\frac{\\sqrt{2D\\Delta t+2\\sigma^2}}{\\Delta t}\\end{gathered}"
+    incidental: "The apparent velocity under the two models, ideal and camera, set side by side so the difference can be read. Both are constructions of this lab, and the paper prints no apparent velocity."
