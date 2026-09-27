@@ -18,7 +18,10 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { splitInlineMath } from "../../content/inlineMath.ts";
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
-import { isRegisteredQuantityId } from "../../content/quantities/registry.ts";
+// The page's own registration check (the generated labels), so the build lists exactly the formulas
+// the page colours, even when that file is older than content/quantities. A registry check here
+// disagreed with the page in a lane whose labels predated partitionArea (e81b1489).
+import { isRegisteredForPage } from "../../reader/explanationInlines.ts";
 import { resolveInlineTerms } from "./inlineTerms.ts";
 import { modernInlineEntries } from "./modernScope.ts";
 import type { InlineQuantityUse } from "./paperInlines.ts";
@@ -52,7 +55,7 @@ export function explanationFormulas(root: string, paper: string): ExplanationFor
   const dir = join(root, "content", "arguments", paper);
   const context = {
     concordance: modernInlineEntries(paper, loadConcordanceForPaper(paper)),
-    isRegistered: isRegisteredQuantityId,
+    isRegistered: isRegisteredForPage,
     exceptions: [],
   };
   const formulas: ExplanationFormula[] = [];
