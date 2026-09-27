@@ -1,0 +1,30 @@
+# special-relativity eq-s3-d21: what the display says, at every level (dispatch 287).
+# Written from the German of s3-p22 (p. 902) and its plate; every step was checked by hand.
+display: eq-s3-d21
+paper: special-relativity
+inWords:
+  - text: "The three coordinates of one end of the rod"
+    quantityId: coordinatePositionStationary
+  - text: ", in the stationary system: along the motion it travels at "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " with "
+  - text: "the time"
+    quantityId: coordinateTimeStationary
+  - text: ", across the motion it stands at "
+  - text: "the length of the rod in its own system"
+    quantityId: lengthProper
+  - text: " divided by "
+  - text: "the unknown function"
+    quantityId: scaleFactorUnknown
+  - text: ", and in the third direction it stands at zero."
+r0: "Where one end of a moving rod is, measured in the stationary system. The rod lies across its own motion, and its far end sits at the length divided by the unknown factor."
+r1: "The paper now asks what the unknown function means, and answers with a rod. Take the piece of the second axis of the moving system between the points where its coordinates are $(0, 0, 0)$ and $(0, l, 0)$. Seen from the stationary system that piece is a rod moving with the velocity $v$ at right angles to its own axis, and this display gives the coordinates of the end away from the origin. Along the motion the rod is at the moving origin, which is at $v t$. Across the motion the transformation gives $\\eta = \\varphi(v) y$, so the end that sits at $\\eta = l$ sits at $y = l / \\varphi(v)$. The length of the rod measured in the stationary system is therefore $l / \\varphi(v)$, and that is the meaning of the function: it is the ratio of the rod's own length to the length the stationary system measures across the motion."
+r2:
+  - latex: "\\xi = 0 \\quad \\Longrightarrow \\quad \\beta (x - v t) = 0 \\quad \\Longrightarrow \\quad x_1 = v t"
+    why: "The end lies on the second axis of the moving system, so its first coordinate there is zero. The transformation then places it where the moving origin is, which in the stationary system is $v t$. The unknown factor divides out of this line."
+  - latex: "\\eta = l \\quad \\Longrightarrow \\quad \\varphi(v) \\, y = l \\quad \\Longrightarrow \\quad y_1 = \\frac{l}{\\varphi(v)}"
+    why: "Across the motion the transformation multiplies by the unknown function, so the stationary system's coordinate is the rod's own length divided by it."
+  - latex: "\\zeta = 0 \\quad \\Longrightarrow \\quad \\varphi(v) \\, z = 0 \\quad \\Longrightarrow \\quad z_1 = 0"
+    why: "The third direction is empty, and stays so whatever the factor is."
+r3: "This is where the still unknown factor acquires a physical reading, and it is worth noticing that the reading is about a length across the motion, not along it. The contraction along the motion that § 4 derives is a separate result, obtained after $\\varphi(v) = 1$ is in hand. Here the question is the opposite one: whether a rod carried across its own motion is measured differently at all, and the two conditions of this page answer that it is not."

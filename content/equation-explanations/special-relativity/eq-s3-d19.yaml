@@ -1,0 +1,43 @@
+# special-relativity eq-s3-d19: what the display says, at every level (dispatch 287).
+# Written from the German of s3-p21 and s3-p18 (p. 901) and its plate; every step was checked by hand.
+display: eq-s3-d19
+paper: special-relativity
+inWords:
+  - text: "The time of the third system"
+    quantityId: coordinateTimeStationary
+  - text: " and "
+  - text: "its coordinates"
+    quantityId: coordinatePositionStationary
+  - text: ", reached by transforming twice: first into "
+  - text: "the moving system's time"
+    quantityId: coordinateTimeMoving
+  - text: " and "
+  - text: "its coordinates"
+    quantityId: coordinatePositionMoving
+  - text: ", then back with "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " reversed, through "
+  - text: "the unknown function"
+    quantityId: scaleFactorUnknown
+  - text: " at each speed, "
+  - text: "the factor"
+    quantityId: lorentzFactor
+  - text: " and "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ". What comes out is the stationary system's own time and coordinates, each multiplied by the two unknown functions."
+r0: "The transformation applied twice: into a system moving with the speed, then into one moving back with the same speed. Everything returns to the stationary system's letters, multiplied by the two unknown factors."
+r1: "This is the device that determines the unknown function. A third system is introduced, moving relative to the moving system with the velocity $-v$ along its first axis, so that it is at rest relative to the stationary system. The transformation of p. 900 is applied twice, the second time with $-v$ in place of $v$. Each pair of terms that the reversal of sign produces cancels, and what is left in each line is the stationary system's own quantity multiplied by $\\varphi(v) \\varphi(-v)$. The factor $\\beta$ does not survive: it appears once in each application and the two cancel, because $\\beta$ is the same for $v$ and for $-v$."
+r2:
+  - latex: "\\beta(-v) = \\beta(v)"
+    why: "The factor is built from $\\left( \\frac{v}{V} \\right)^2$, so reversing the sign of the velocity leaves it unchanged. The paper still writes $\\beta(-v)$ in the display, to show where it came from."
+  - latex: "\\tau + \\frac{v}{V^2} \\xi = \\varphi(v) \\beta \\left[ \\left( t - \\frac{v}{V^2} x \\right) + \\frac{v}{V^2} (x - v t) \\right] = \\varphi(v) \\beta \\, t \\left( 1 - \\frac{v^2}{V^2} \\right) = \\varphi(v) \\frac{t}{\\beta}"
+    why: "The bracket in the first line, with the first transformation put in. The two terms in $x$ cancel exactly, and $\\beta \\left( 1 - \\frac{v^2}{V^2} \\right)$ is $\\frac{1}{\\beta}$."
+  - latex: "\\varphi(-v) \\beta \\cdot \\varphi(v) \\frac{t}{\\beta} = \\varphi(v) \\varphi(-v) \\, t"
+    why: "Multiply by what stands in front of the bracket. The two factors cancel, and the time of the third system is the stationary system's time multiplied by the two unknown functions."
+  - latex: "\\xi + v \\tau = \\varphi(v) \\beta \\left[ (x - v t) + v \\left( t - \\frac{v}{V^2} x \\right) \\right] = \\varphi(v) \\beta \\, x \\left( 1 - \\frac{v^2}{V^2} \\right) = \\varphi(v) \\frac{x}{\\beta}"
+    why: "The same for the first coordinate. Here it is the two terms in $t$ that cancel, and the same bracket appears."
+  - latex: "\\varphi(-v) \\eta = \\varphi(-v) \\varphi(v) \\, y"
+    why: "Across the motion there is no bracket at all: each application multiplies by its own unknown function, and the two stand side by side."
+r3: "The third system is at rest relative to the stationary one, and the paper says why in the next sentence: the relations between the two sets of coordinates do not contain the time. That is the whole of the argument, and it is worth noticing how little it assumes. It does not assume that the transformation is its own inverse, nor that reversing the velocity reverses the transformation; it assumes only that going out with $v$ and back with $-v$ must leave a system at rest relative to where it started."

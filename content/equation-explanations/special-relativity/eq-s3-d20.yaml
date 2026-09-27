@@ -1,0 +1,19 @@
+# special-relativity eq-s3-d20: what the display says, at every level (dispatch 287).
+# Written from the German of s3-p22 (pp. 901-902) and its plate; every step was checked by hand.
+display: eq-s3-d20
+paper: special-relativity
+inWords:
+  - text: "The unknown function"
+    quantityId: scaleFactorUnknown
+  - text: " at "
+  - text: "a speed"
+    quantityId: frameSpeed
+  - text: " times the same function at that speed reversed is one."
+r0: "The first of the two conditions on the unknown factor: its values at a speed and at the reversed speed multiply to one."
+r1: "The display above leaves the third system's coordinates equal to the stationary system's own, each multiplied by $\\varphi(v) \\varphi(-v)$. Those relations do not contain the time, so the two systems are at rest relative to each other, and the paper concludes that the transformation from the one to the other must be the identical transformation. A transformation that multiplies every coordinate by a number is the identity only if the number is 1. That gives this condition. On its own it does not settle the factor: any function with $\\varphi(-v) = 1 / \\varphi(v)$ satisfies it, and the paper needs the second condition, from the symmetry of a moving rod, to close the question."
+r2:
+  - latex: "\\varphi(v) \\varphi(-v) \\, x , \\quad \\varphi(v) \\varphi(-v) \\, y , \\quad \\varphi(v) \\varphi(-v) \\, z"
+    why: "What the display above leaves for the three coordinates of the third system: each is the stationary system's own coordinate times this one number."
+  - latex: "\\varphi(v) \\varphi(-v) = 1"
+    why: "The two systems are at rest relative to each other, because the relations between their coordinates do not contain the time, so the transformation between them is the identical one. Multiplying every coordinate by a number is the identity only when that number is 1."
+r3: "The step reads as a formality and is not one. It is the place where the requirement that the theory be consistent under going and returning is turned into an equation about the unknown factor. The paper's word for the conclusion is that the transformation from the stationary system to the third must be the identical transformation, which is a demand on the theory rather than a measurement, and it yields exactly one of the two relations needed."

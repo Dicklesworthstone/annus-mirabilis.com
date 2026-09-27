@@ -1,0 +1,26 @@
+# special-relativity eq-s3-d18: what the display says, at every level (dispatch 287).
+# Written from the German of s3-p16, s3-p20 and s3-p17 (p. 901) and its plate; every step was checked by hand.
+display: eq-s3-d18
+paper: special-relativity
+inWords:
+  - text: "The three coordinates of the moving system"
+    quantityId: coordinatePositionMoving
+  - text: ", each squared and added, are the square of "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " times the square of "
+  - text: "that system's own time"
+    quantityId: coordinateTimeMoving
+  - text: ". The wave is a sphere there too, spreading with the same velocity."
+r0: "The same spherical wave, written in the moving system: still a sphere, still spreading with the velocity of light. This is what makes the two principles of § 2 compatible."
+r1: "The paper transforms the previous display and says it obtains this after a simple calculation. The calculation is worth doing, because what comes out of it is the whole point of § 3. Substituting the transformation of p. 900 into $\\xi^2 + \\eta^2 + \\zeta^2 - V^2 \\tau^2$ leaves $x^2 + y^2 + z^2 - V^2 t^2$, multiplied by the square of the still unknown factor. The second expression is zero because the wave is a sphere in the stationary system, so the first is zero as well. A reader who expects the moving system to see an ellipsoid, or a sphere about a displaced centre, can watch both possibilities fail here: the terms that would produce them cancel. The paper draws the conclusion in one sentence: the wave considered is, viewed from the moving system also, a spherical wave of propagation velocity $V$, and with that its two fundamental principles are compatible with each other."
+r2:
+  - latex: "\\xi^2 + \\eta^2 + \\zeta^2 = \\varphi(v)^2 \\left[ \\beta^2 (x - v t)^2 + y^2 + z^2 \\right] , \\qquad V^2 \\tau^2 = \\varphi(v)^2 V^2 \\beta^2 \\left( t - \\frac{v}{V^2} x \\right)^2"
+    why: "The transformation of p. 900, each line squared. The unknown factor appears squared on both sides and nowhere else, so whatever it is, it cancels out of the comparison."
+  - latex: "(x - v t)^2 - V^2 \\left( t - \\frac{v}{V^2} x \\right)^2 = \\left( 1 - \\frac{v^2}{V^2} \\right) \\left( x^2 - V^2 t^2 \\right)"
+    why: "Expand both squares. The first is $x^2 - 2 v x t + v^2 t^2$ and the second is $V^2 t^2 - 2 v x t + \\frac{v^2}{V^2} x^2$. The cross terms are equal and cancel, leaving $x^2 \\left( 1 - \\frac{v^2}{V^2} \\right) - t^2 \\left( V^2 - v^2 \\right)$, which is the right-hand side."
+  - latex: "\\beta^2 \\left( 1 - \\frac{v^2}{V^2} \\right) = 1"
+    why: "From the definition of the factor: its square is the reciprocal of exactly this bracket."
+  - latex: "\\xi^2 + \\eta^2 + \\zeta^2 - V^2 \\tau^2 = \\varphi(v)^2 \\left[ x^2 + y^2 + z^2 - V^2 t^2 \\right] = 0"
+    why: "Put the three together. The $\\beta^2$ meets the bracket and becomes 1, the transverse terms come through as $y^2 + z^2$, and what is left inside is zero by the display above."
+r3: "The calculation never uses the value of $\\varphi(v)$, only that the same factor stands in all four lines of the transformation. So this step, which settles the compatibility of the two principles, leaves the factor exactly as unknown as it was; the paper has to determine it by a separate argument on the next two pages. It is worth separating the two questions the section is answering: whether a transformation of this shape can carry a light sphere into a light sphere, which is settled here, and which transformation of that shape is the right one, which is settled on p. 902."
