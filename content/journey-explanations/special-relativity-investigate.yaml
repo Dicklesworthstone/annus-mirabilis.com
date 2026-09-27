@@ -1,0 +1,243 @@
+# The relativity investigation's formulas, and what each one carries (dispatch 293).
+#
+# This page reconstructs the transformation from a linear ansatz. It is a route a reader could take,
+# not Einstein's reasoning and not the paper's order, so every margin here says so and the coloured
+# letters a(v), b(v), d(v) and k(v) are the route's, bound on this page alone
+# (content/inline-terms/discover.yaml).
+#
+# TWELVE OF THE THIRTEEN ARE `step` ENTRIES. The card they belong to already carries the authors'
+# own title and explanation (src/discovery/specialRelativityInvestigation.ts), which the panel takes
+# as its overview and full explanation, exactly as modelExplanations.ts takes an equation record's
+# own fields. This file adds only what no card carries: the equation in words, and the margin. The
+# prose is not copied here, so the two cannot drift apart.
+page: discover/special-relativity/investigate
+formulas:
+  # The page's own markup, not a card, so this one carries its words here.
+  - latex: "\\begin{gathered}x'=x-vt,\\quad t'=t;\\\\ x=\\pm ct\\ \\Longrightarrow\\ x'=(\\pm c-v)t'\\end{gathered}"
+    own:
+      inWords:
+        - text: "Under the old map, "
+        - text: "a position in the moving frame"
+          quantityId: coordinatePositionMoving
+        - text: " is "
+        - text: "the position on the platform"
+          quantityId: coordinatePositionStationary
+        - text: " less "
+        - text: "the frame's speed"
+          quantityId: frameSpeed
+        - text: " times "
+        - text: "the platform time"
+          quantityId: coordinateTimeStationary
+        - text: ", and "
+        - text: "the moving frame's time"
+          quantityId: coordinateTimeMoving
+        - text: " is that same time; so a ray that travels at "
+        - text: "the speed of light"
+          quantityId: speedOfLight
+        - text: " on the platform travels at that speed reduced or increased by the frame's speed in the moving frame."
+      r0: "The map everyone starts with, and the difficulty it runs into: it keeps one clock for both frames, and then light cannot have the same speed in both."
+      r1: "The Galilean map says the two frames share a time and differ only by a shift that grows with it. Put a light ray into it and the trouble appears at once: a ray at $c$ on the platform comes out at $c - v$ or $c + v$ in the moving frame, depending on which way it goes. That is what the second line records. The conflict is not with any measurement quoted here; it is with the postulate the next card admits, that the vacuum light speed is the same in both frames. So one of the two has to give, and the rest of this page asks what the smallest change to the map is that keeps the postulate. Notice what the Galilean map does get right, because the route does not caricature it: at ordinary speeds it is indistinguishable from what follows, and $t' = t$ is what makes it feel like common sense."
+      r2:
+        - latex: "x' = x - v t, \\qquad t' = t"
+          why: "The map itself. The second equation is the whole of the assumption that gives trouble: one time serves both frames."
+        - latex: "x = \\pm c t"
+          why: "A light ray on the platform, going either way."
+        - latex: "x' = \\pm c t - v t = (\\pm c - v) t'"
+          why: "The same ray in the moving frame, using $t' = t$. Its speed there is $c - v$ one way and $c + v$ the other, so the two frames do not agree about light."
+      r3: "The map is Galileo's and the difficulty is the paper's starting point, but this presentation is the route's. Einstein's § 3 does not begin by refuting the Galilean map; it derives the transformation from the two principles directly, and the auxiliary $x' = x - vt$ he does write there is a step inside that derivation, not the map refuted here."
+
+  - latex: "t_B = (t_A + t_A^{\\mathrm{return}})/2"
+    step: clocks
+    inWords:
+      - text: "The time a distant clock is set to"
+        quantityId: coordinateTimeStationary
+      - text: " is the average of the times a light signal leaves the first clock and comes back to it."
+    r3: "This is § 1's definition of synchrony, in the route's letters: the paper writes the condition as an equality of two intervals rather than as an average, and it states it for the clocks of one system before any transformation is in view."
+
+  - latex: "x'=a(v)(x-vt),\\qquad t'=b(v)t+d(v)x"
+    step: linear-map
+    inWords:
+      - text: "A candidate map: "
+      - text: "the moving frame's position"
+        quantityId: coordinatePositionMoving
+      - text: " is some factor"
+      - text: " depending on the speed"
+        quantityId: ansatzSpatialScale
+      - text: " times the Galilean combination, and "
+      - text: "its time"
+        quantityId: coordinateTimeMoving
+      - text: " is a mixture of "
+      - text: "the platform's time"
+        quantityId: coordinateTimeStationary
+      - text: " and "
+      - text: "its position"
+        quantityId: coordinatePositionStationary
+      - text: ", with "
+      - text: "a coefficient for each"
+        quantityId: ansatzTimeScale
+      - text: "."
+    r3: "The letters a, b and d are the route's, and they are bound on this page alone. Einstein's § 3 introduces no such ansatz: it argues from the homogeneity of space and time that the equations must be linear and then derives their coefficients, and its own a is a different quantity, the factor in front of the time in his first solution for tau."
+
+  - latex: "x=\\pm ct\\quad\\Longrightarrow\\quad x'=\\pm ct'"
+    step: light-postulate
+    inWords:
+      - text: "A ray that travels at "
+      - text: "the speed of light"
+        quantityId: speedOfLight
+      - text: " on "
+      - text: "the platform"
+        quantityId: coordinatePositionStationary
+      - text: " must travel at that same speed in "
+      - text: "the moving frame"
+        quantityId: coordinatePositionMoving
+      - text: "."
+    r3: "The postulate is the paper's second principle, stated in its introduction and used throughout § 3. Requiring it of the ansatz above, rather than deriving the transformation from it as the paper does, is the route's arrangement."
+
+  - latex: "a(1-v/c)=b+cd"
+    step: forward-ray
+    inWords:
+      - text: "For the ray going forward, "
+      - text: "the spatial factor"
+        quantityId: ansatzSpatialScale
+      - text: " times one less the ratio of "
+      - text: "the frame's speed"
+        quantityId: frameSpeed
+      - text: " to "
+      - text: "the speed of light"
+        quantityId: speedOfLight
+      - text: " equals "
+      - text: "the time factor"
+        quantityId: ansatzTimeScale
+      - text: " plus that speed times "
+      - text: "the mixing coefficient"
+        quantityId: ansatzTimeSpaceCoefficient
+      - text: "."
+    r3: "One equation from one direction of light, in the route's letters. The paper obtains its condition on tau from a round trip rather than from a single ray, so the shape of this step is the route's."
+
+  - latex: "a(1+v/c)=b-cd"
+    step: backward-ray
+    inWords:
+      - text: "For the ray going the other way, the same relation holds with "
+      - text: "the frame's speed"
+        quantityId: frameSpeed
+      - text: " added instead of subtracted and "
+      - text: "the mixing coefficient"
+        quantityId: ansatzTimeSpaceCoefficient
+      - text: " subtracted instead of added."
+    r3: "The second direction is what forces the time coefficient to be nonzero. The paper reaches the same necessity through the synchrony condition of § 3, not through a pair of rays treated separately."
+
+  - latex: "b=a,\\quad d=-av/c^2,\\quad t'=a(t-vx/c^2)"
+    step: light-family
+    inWords:
+      - text: "The two conditions together make "
+      - text: "the time factor"
+        quantityId: ansatzTimeScale
+      - text: " equal to "
+      - text: "the spatial factor"
+        quantityId: ansatzSpatialScale
+      - text: ", fix "
+      - text: "the mixing coefficient"
+        quantityId: ansatzTimeSpaceCoefficient
+      - text: ", and leave "
+      - text: "the moving frame's time"
+        quantityId: coordinateTimeMoving
+      - text: " as that one factor times "
+      - text: "the platform time"
+        quantityId: coordinateTimeStationary
+      - text: " less "
+      - text: "the position"
+        quantityId: coordinatePositionStationary
+      - text: " times the speed over the square of "
+      - text: "the speed of light"
+        quantityId: speedOfLight
+      - text: "."
+    r3: "The resulting form is the paper's, and one scale is still free at this point in both accounts: Einstein's § 3 carries an unknown function of the speed through the same stretch and settles it afterwards, as this page does."
+
+  - latex: "a(v)a(-v)(1-v^2/c^2)=1"
+    step: inverse
+    inWords:
+      - text: "Going out with "
+      - text: "the frame's speed"
+        quantityId: frameSpeed
+      - text: " and back with its opposite must return the starting coordinates, which ties "
+      - text: "the scale at one speed to the scale at the other"
+        quantityId: ansatzSpatialScale
+      - text: " and to "
+      - text: "the speed of light"
+        quantityId: speedOfLight
+      - text: "."
+    r3: "The paper does the same thing in § 3 with a third system K', and its condition is phi of v times phi of minus v equal to one. The route reaches the analogous relation for its own scale factor."
+
+  - latex: "a(v)=a(-v)"
+    step: isotropy
+    inWords:
+      - text: "The scale"
+        quantityId: ansatzSpatialScale
+      - text: " cannot depend on which way "
+      - text: "the frame moves"
+        quantityId: frameSpeed
+      - text: ", only on how fast."
+    r3: "Einstein's § 3 argues the same symmetry from a rod moving across its own length, and concludes phi of v equals phi of minus v. The route asserts isotropy directly instead, which is the shorter path and the less physical one."
+
+  - latex: "a(0)=1,\\qquad a(v)>0"
+    step: identity
+    inWords:
+      - text: "At rest the scale"
+        quantityId: ansatzSpatialScale
+      - text: " is one, and it stays positive at every "
+      - text: "speed"
+        quantityId: frameSpeed
+      - text: "."
+    r3: "Choosing the branch that is continuous with doing nothing is a step the paper does not print. It is where the route disposes of the negative root that the algebra also admits."
+
+  - latex: "a=\\gamma=\\frac{1}{\\sqrt{1-v^2/c^2}}"
+    step: normalize
+    inWords:
+      - text: "The scale"
+        quantityId: ansatzSpatialScale
+      - text: " is then "
+      - text: "the factor"
+        quantityId: lorentzFactor
+      - text: " one over the square root of one less the square of the ratio of "
+      - text: "the frame's speed"
+        quantityId: frameSpeed
+      - text: " to "
+      - text: "the speed of light"
+        quantityId: speedOfLight
+      - text: "."
+    r3: "The same factor stands in the paper's § 3, written beta and defined by the same expression. Gamma is the modern letter for it, and the site's notation concordance records the collision, since the paper's own beta in other places is not this factor."
+
+  - latex: "y'=k(v)y,\\qquad z'=k(v)z"
+    step: transverse-form
+    inWords:
+      - text: "The coordinates across the motion"
+        quantityId: coordinatePositionMoving
+      - text: " are some factor"
+      - text: " depending on the speed"
+        quantityId: ansatzTransverseScale
+      - text: " times "
+      - text: "the platform's"
+        quantityId: coordinatePositionStationary
+      - text: ", the same factor for both."
+    r3: "The route states the transverse form as an assumption to be tested. Einstein's § 3 derives the transverse equations from light sent along those axes, and his own argument for their scale is the rod of § 3's closing pages."
+
+  - latex: "k^2=\\gamma^2(1-v^2/c^2)=1,\\qquad y'=y,\\quad z'=z"
+    step: transverse-light
+    inWords:
+      - text: "Testing a ray across the motion makes the square of "
+      - text: "the transverse factor"
+        quantityId: ansatzTransverseScale
+      - text: " equal to the square of "
+      - text: "the longitudinal factor"
+        quantityId: lorentzFactor
+      - text: " times one less the square of the ratio of "
+      - text: "the frame's speed"
+        quantityId: frameSpeed
+      - text: " to "
+      - text: "the speed of light"
+        quantityId: speedOfLight
+      - text: ", which is one; so "
+      - text: "the coordinates across the motion"
+        quantityId: coordinatePositionMoving
+      - text: " are unchanged."
+    r3: "That lengths across the motion are unchanged is the paper's result too, reached in § 3 by the rod argument and stated as eta equals y and zeta equals z. The route gets there from a transverse ray instead."

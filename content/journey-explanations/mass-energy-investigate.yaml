@@ -1,0 +1,230 @@
+# The mass-energy investigation's formulas, and what each one carries (dispatch 293).
+#
+# Every one of the sixteen is a `step` entry: the step it names already carries the authors' own
+# title and explanation (src/discovery/massEnergyArgument.ts), which the panel takes as its overview
+# and full explanation, as modelExplanations.ts takes an equation record's own fields. This file adds
+# only the equation in words and the margin, so no prose is copied and the two cannot drift.
+#
+# The page is a reconstruction, so each margin says what belongs to the paper and what to the route.
+# Two steps are marked in the module as premises and one as assuming the target; their margins say
+# so, because a reader who takes them for derivations has been misled about the argument.
+page: discover/mass-energy/investigate
+formulas:
+  - latex: "L/2+L/2=L"
+    step: opposite-pulses
+    inWords:
+      - text: "Two equal halves of "
+      - text: "the emitted light energy"
+        quantityId: emittedEnergyRestFrame
+      - text: " leave in opposite directions, and together they are the whole of it."
+    r3: "The paper's § 1 makes the same choice, two plane light waves of energy L/2 each, sent in opposite directions. Splitting the emission this way is what keeps the body at rest, and an emission that is not symmetric needs a recoil the reconstruction does not model."
+
+  - latex: "\\begin{aligned}&\\text{energy before}=\\text{energy after}\\\\&\\qquad+\\text{emitted light energy}\\end{aligned}"
+    step: conservation
+    inWords:
+      - text: "In each frame separately, the energy the body had before equals the energy it has after, plus the energy carried off by the light."
+    r3: "Energy conservation holding in both frames is a premise of this route, stated in words because no letters are fixed yet. The paper assumes the same thing; it writes the two balances directly in § 1 rather than naming the principle."
+
+  - latex: "\\begin{gathered}l^*=l\\gamma(1-\\beta\\cos\\varphi),\\\\ \\gamma=(1-\\beta^2)^{-1/2},\\quad\\beta=v/c\\end{gathered}"
+    step: light-transform
+    inWords:
+      - text: "The energy of a light complex in the moving frame"
+        quantityId: lightComplexEnergyMoving
+      - text: " is "
+      - text: "its energy in the rest frame"
+        quantityId: lightComplexEnergyStationary
+      - text: " times "
+      - text: "the factor"
+        quantityId: lorentzFactor
+      - text: ", times one less "
+      - text: "the ratio of the frame's speed to the speed of light"
+        quantityId: speedRatio
+      - text: " times the cosine of "
+      - text: "the angle of emission"
+        quantityId: emissionAngle
+      - text: "."
+    r3: "This is § 8 of the relativity paper, and the mass-energy paper imports it explicitly: it is the one result the argument borrows from outside itself. The letters gamma and beta are the route's shorthand; the paper writes the radical out in full."
+
+  - latex: "E_0-E_1=L"
+    step: rest-balance
+    inWords:
+      - text: "In the rest frame, "
+      - text: "the body's energy before"
+        quantityId: bodyEnergyRestBefore
+      - text: " less "
+      - text: "its energy after"
+        quantityId: bodyEnergyRestAfter
+      - text: " is "
+      - text: "the light energy emitted"
+        quantityId: emittedEnergyRestFrame
+      - text: "."
+    r3: "The paper's first balance, in its own letters E_0 and E_1. Nothing is assumed here about what the body's energy is made of."
+
+  - latex: "\\begin{aligned}&\\frac{L\\gamma}{2}(1-\\beta\\cos\\varphi)+\\frac{L\\gamma}{2}(1+\\beta\\cos\\varphi)\\\\&\\quad=\\gamma L\\end{aligned}"
+    step: angle-cancellation
+    inWords:
+      - text: "Adding the two transformed halves of "
+      - text: "the light energy"
+        quantityId: emittedEnergyRestFrame
+      - text: ", the terms in "
+      - text: "the angle"
+        quantityId: emissionAngle
+      - text: " cancel and leave "
+      - text: "the factor"
+        quantityId: lorentzFactor
+      - text: " times that energy."
+    r3: "The cancellation is the paper's, and it is why the emission was chosen symmetric: the direction of the pulses drops out, so the result does not depend on which way the body was facing."
+
+  - latex: "H_0-H_1=\\gamma L"
+    step: moving-balance
+    inWords:
+      - text: "In the moving frame, "
+      - text: "the body's energy before"
+        quantityId: bodyEnergyMovingBefore
+      - text: " less "
+      - text: "its energy after"
+        quantityId: bodyEnergyMovingAfter
+      - text: " is "
+      - text: "the factor"
+        quantityId: lorentzFactor
+      - text: " times "
+      - text: "the light energy"
+        quantityId: emittedEnergyRestFrame
+      - text: "."
+    r3: "The paper's second balance, written with H for the energies referred to the moving system. The same light, counted in the other frame, comes to more by exactly that factor."
+
+  - latex: "(H_0-E_0)-(H_1-E_1)=L(\\gamma-1)"
+    step: subtract-balances
+    inWords:
+      - text: "Subtracting the two balances, the change in the gap between "
+      - text: "the moving-frame energy"
+        quantityId: bodyEnergyMovingBefore
+      - text: " and "
+      - text: "the rest-frame energy"
+        quantityId: bodyEnergyRestBefore
+      - text: " is "
+      - text: "the light energy"
+        quantityId: emittedEnergyRestFrame
+      - text: " times one less than "
+      - text: "the factor"
+        quantityId: lorentzFactor
+      - text: "."
+    r3: "This is the paper's own step and its central one: the two unknown energies are never evaluated, only the change in their difference, which is what the two balances between them determine."
+
+  - latex: "H_i-E_i=K_i+C_i\\quad(i=0,1)"
+    step: kinetic-offset
+    inWords:
+      - text: "The gap between a body's energy in the two frames is its kinetic energy, plus an additive constant that the energies leave undetermined."
+    r3: "A premise, not a result, and the route marks it as one. The paper writes a single C for both states and says in a footnote that the energies are determined only up to an additive constant; writing C_0 and C_1 separately is the route's way of making the next two steps ask whether that constant may change."
+
+  - latex: "K_0-K_1+(C_0-C_1)=L(\\gamma-1)"
+    step: retain-offset
+    inWords:
+      - text: "The drop in "
+      - text: "kinetic energy"
+        quantityId: kineticEnergyBefore
+      - text: " plus any change in "
+      - text: "the additive constant"
+        quantityId: additiveEnergyConstant
+      - text: " is "
+      - text: "the light energy"
+        quantityId: emittedEnergyRestFrame
+      - text: " times one less than "
+      - text: "the factor"
+        quantityId: lorentzFactor
+      - text: "."
+    r3: "The route keeps the possible change in the constant visible rather than dropping it silently. The paper's own text sets it aside in a sentence, and the difference is one of presentation, not of physics."
+
+  - latex: "C_0=C_1"
+    step: unchanged-offset
+    inWords:
+      - text: "The additive constant"
+        quantityId: additiveEnergyConstant
+      - text: " is taken to be the same before and after the emission."
+    r3: "The second premise, and the route says so. The paper states that C does not change because it depends only on the choice of the arbitrary additive constants of the energies; a reader who takes this line for a derived result has mistaken where the argument rests."
+
+  - latex: "K_0-K_1=L(\\gamma-1)"
+    step: kinetic-drop
+    inWords:
+      - text: "The kinetic energy the body loses"
+        quantityId: kineticEnergyBefore
+      - text: " is "
+      - text: "the light energy"
+        quantityId: emittedEnergyRestFrame
+      - text: " times one less than "
+      - text: "the factor"
+        quantityId: lorentzFactor
+      - text: "."
+    r3: "The paper's result, with the radical written out rather than as gamma. A body that emits light loses kinetic energy at the same speed, which is the surprising part: nothing has pushed it."
+
+  - latex: "\\lim_{v\\to0}\\frac{K_0-K_1}{v^2/2}=M_0-M_1"
+    step: inertial-coefficient
+    inWords:
+      - text: "The mass lost"
+        quantityId: bodyMassBefore
+      - text: " is defined as what the drop in "
+      - text: "kinetic energy"
+        quantityId: kineticEnergyBefore
+      - text: " comes to per unit of half the square of "
+      - text: "the speed"
+        quantityId: frameSpeed
+      - text: ", in the limit of small speeds."
+    r3: "Defining inertia by the coefficient of one half v squared at small speeds is the route's premise, stated so that the conclusion is about a defined quantity. The paper compares its expression with the kinetic energy of Newtonian mechanics and reads the mass off the same coefficient, without writing a limit."
+
+  - latex: "\\gamma-1=\\tfrac12(v/c)^2+O((v/c)^4)"
+    step: small-speed
+    inWords:
+      - text: "One less than "
+      - text: "the factor"
+        quantityId: lorentzFactor
+      - text: " is half the square of the ratio of "
+      - text: "the speed"
+        quantityId: frameSpeed
+      - text: " to "
+      - text: "the speed of light"
+        quantityId: speedOfLight
+      - text: ", together with terms of the fourth order and beyond."
+    r3: "The paper's own phrase is that it neglects magnitudes of the fourth and higher orders. Writing the remainder as an order symbol is the route's notation; the expansion and the neglect are the paper's."
+
+  - latex: "M_0-M_1=\\frac{L}{c^2},\\qquad\\Delta M=-\\frac{L}{c^2}"
+    step: inertia-loss
+    inWords:
+      - text: "The mass the body loses"
+        quantityId: bodyMassBefore
+      - text: " is "
+      - text: "the emitted light energy"
+        quantityId: emittedEnergyRestFrame
+      - text: " divided by the square of "
+      - text: "the speed of light"
+        quantityId: speedOfLight
+      - text: "."
+    r3: "The paper's conclusion, in modern letters: it writes V for the speed of light and states the result as the mass of a body being a measure of its energy content. What the argument establishes is the change, and the paper is careful to claim only that."
+
+  - latex: "E_0=M_0c^2,\\qquad E_1=M_1c^2"
+    step: assume-rest-energy
+    inWords:
+      - text: "A different route starts instead by assuming that "
+      - text: "a body's rest energy"
+        quantityId: bodyEnergyRestBefore
+      - text: " is "
+      - text: "its mass"
+        quantityId: bodyMassBefore
+      - text: " times the square of "
+      - text: "the speed of light"
+        quantityId: speedOfLight
+      - text: "."
+    r3: "This assumes what the other route concludes, and the module marks the step as assuming the target. It is offered as an alternative so that a reader can see the difference between a premise and a result; the 1905 paper does not take this route, and its conclusion is about the change in inertia, not about a total rest energy."
+
+  - latex: "(M_0-M_1)c^2=L"
+    step: rest-energy-check
+    inWords:
+      - text: "On that assumption the rest balance reads: the mass lost"
+        quantityId: bodyMassBefore
+      - text: " times the square of "
+      - text: "the speed of light"
+        quantityId: speedOfLight
+      - text: " is "
+      - text: "the light energy emitted"
+        quantityId: emittedEnergyRestFrame
+      - text: "."
+    r3: "The check closes the alternative route, and it is consistent rather than independent: it returns the same relation because the assumption of the step before already contains it. The 1905 paper's own derivation does not use it."
