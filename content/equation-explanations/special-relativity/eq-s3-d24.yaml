@@ -1,0 +1,19 @@
+# special-relativity eq-s3-d24: what the display says, at every level (dispatch 287).
+# Written from the German of s3-p22 (p. 902) and its plate; every step was checked by hand.
+display: eq-s3-d24
+paper: special-relativity
+inWords:
+  - text: "The unknown function"
+    quantityId: scaleFactorUnknown
+  - text: " at "
+  - text: "a speed"
+    quantityId: frameSpeed
+  - text: " equals the same function at that speed reversed."
+r0: "The same condition with the rod's own length divided out: the unknown factor is an even function of the speed."
+r1: "The rod's own length $l$ stands in both members of the display above and is not zero, so it cancels, and the reciprocals may be turned over. What is left says that the unknown function takes the same value at a speed and at the reversed speed. Together with the condition from the doubled transformation, which says that the two values multiply to one, this fixes the function up to a sign, and the next display shows what it is."
+r2:
+  - latex: "\\frac{l}{\\varphi(v)} = \\frac{l}{\\varphi(-v)} , \\qquad l \\neq 0"
+    why: "The display above. The rod was chosen with a definite length, so its own length may be divided out of both members."
+  - latex: "\\frac{1}{\\varphi(v)} = \\frac{1}{\\varphi(-v)} \\quad \\Longrightarrow \\quad \\varphi(v) = \\varphi(-v)"
+    why: "Divide by $l$ and turn both reciprocals over. Neither function value is zero, since a zero would make the rod's measured length infinite."
+r3: "Two conditions on one unknown function now stand on the page: $\\varphi(v) \\varphi(-v) = 1$ from the requirement that going out and returning leave the system where it was, and $\\varphi(v) = \\varphi(-v)$ from the symmetry of a rod carried across its axis. Neither alone determines the function, and neither is a measurement. The paper draws the conclusion from the pair of them in the next sentence."

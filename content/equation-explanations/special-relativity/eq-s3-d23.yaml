@@ -1,0 +1,24 @@
+# special-relativity eq-s3-d23: what the display says, at every level (dispatch 287).
+# Written from the German of s3-p22 (p. 902) and its plate; every step was checked by hand.
+display: eq-s3-d23
+paper: special-relativity
+inWords:
+  - text: "The length of the rod in its own system"
+    quantityId: lengthProper
+  - text: " divided by "
+  - text: "the unknown function"
+    quantityId: scaleFactorUnknown
+  - text: " at "
+  - text: "the speed"
+    quantityId: frameSpeed
+  - text: " is the same length divided by that function at the reversed speed."
+r0: "The second condition on the unknown factor: a rod carried across its own motion is measured the same length whichever way it goes."
+r1: "The length of the rod measured in the stationary system is $l / \\varphi(v)$. The paper now argues on grounds of symmetry that this measured length can depend only on the magnitude of the speed, not on the direction and the sense of the motion, so that it does not change when $v$ is replaced by $-v$. Writing that down gives this equation. The step is an appeal to the symmetry of space rather than a calculation: nothing in the transformation has been shown to require it. What makes it reasonable is that the rod is carried at right angles to its own axis, so reversing the motion carries the same rod through the same positions in the opposite order."
+r2:
+  - latex: "\\frac{l}{\\varphi(v)}"
+    why: "The length of the rod measured in the stationary system, from the two displays above."
+  - latex: "v \\longrightarrow -v"
+    why: "The same rod, carried across its own axis the other way. By symmetry the stationary system measures it the same, since the measured length can depend on the speed alone."
+  - latex: "\\frac{l}{\\varphi(v)} = \\frac{l}{\\varphi(-v)}"
+    why: "The two measurements written as equal, which is the printed display."
+r3: "This is the one step of § 3 that appeals to symmetry rather than to the two principles of § 2, and the paper marks it as such. The symmetry it uses is of space, not of the theory: that no direction across the motion is distinguished from its opposite. A reader who wants to see where the argument could be resisted should look here rather than at the algebra, and the answer would have to be a physical reason why a rod moved one way across its axis is measured differently from the same rod moved the other way."

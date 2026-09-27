@@ -1,0 +1,40 @@
+# special-relativity eq-s3-d25: what the display says, at every level (dispatch 287).
+# Written from the German of s3-p22 (p. 902) and its plate; every step was checked by hand.
+display: eq-s3-d25
+paper: special-relativity
+inWords:
+  - text: "The time of the moving system"
+    quantityId: coordinateTimeMoving
+  - text: " is "
+  - text: "the factor"
+    quantityId: lorentzFactor
+  - text: " times "
+  - text: "the time"
+    quantityId: coordinateTimeStationary
+  - text: " less "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " over the square of "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " times "
+  - text: "the first coordinate"
+    quantityId: coordinatePositionStationary
+  - text: "; "
+  - text: "the first coordinate of the moving system"
+    quantityId: coordinatePositionMoving
+  - text: " is the factor times the distance from the moving origin; and across the motion the coordinates are equal."
+r0: "The transformation § 3 was looking for. With the unknown factor settled at 1, this is the result the rest of the paper uses."
+r1: "The two conditions on the unknown function are that its values at a speed and the reversed speed multiply to one, and that they are equal. Together they say that its square is one, and the paper concludes that $\\varphi(v) = 1$ must hold, so that the transformation equations found above pass over into these. What they say can be read off line by line. Across the motion the coordinates are simply equal, so a rod carried at right angles to its motion is measured at its own length. Along the motion the distance from the moving origin is multiplied by $\\beta$, which is § 4's contraction seen from the other side. And the time of the moving system depends on the place as well as on the time of the stationary one, which is the whole of the paper's departure from what came before it: two events at the same time of the stationary system, at different places along the motion, are not at the same time of the moving system."
+r2:
+  - latex: "\\varphi(v) \\varphi(-v) = 1 , \\quad \\varphi(v) = \\varphi(-v) \\quad \\Longrightarrow \\quad \\varphi(v)^2 = 1"
+    why: "The two conditions of the displays above. Substituting the second into the first leaves the square of the function."
+  - latex: "\\varphi(v) = 1"
+    why: "The paper takes the positive root. The negative one would reverse the sense of both axes across the motion at every speed, and at rest the transformation has to be the identity, where $\\varphi$ is 1; the paper does not stop over the choice."
+  - latex: "\\tau = \\beta \\left( t - \\frac{v}{V^2} x \\right) , \\quad \\xi = \\beta (x - v t) , \\quad \\eta = y , \\quad \\zeta = z"
+    why: "The equations of p. 900 with 1 in place of the factor. This is the display as printed."
+  - latex: "v = 0 \\quad \\Longrightarrow \\quad \\beta = 1 , \\quad \\tau = t , \\quad \\xi = x , \\quad \\eta = y , \\quad \\zeta = z"
+    why: "A check at rest: the four lines are the identity, as they must be."
+  - latex: "\\beta (\\xi + v \\tau) = \\beta^2 \\left[ (x - v t) + v \\left( t - \\frac{v}{V^2} x \\right) \\right] = \\beta^2 x \\left( 1 - \\frac{v^2}{V^2} \\right) = x"
+    why: "And the inversion, which §§ 5, 9 and 10 all use: reading the equations backwards gives the same equations with $-v$ in place of $v$. The terms in $t$ cancel and the bracket meets $\\beta^2$. The same calculation on $\\beta \\left( \\tau + \\frac{v}{V^2} \\xi \\right)$ returns $t$."
+r3: "The section has arrived at the transformation Lorentz's electron theory of 1904 already contained, by a route that assumes neither an ether nor any property of matter: two principles from § 2, one definition of simultaneity from § 1, the requirement that going out and returning leave a system where it was, and the symmetry of a rod carried across its axis. The equations are the same; what they are taken to be about is not. Later writing calls them the Lorentz transformation and writes $\\gamma$ where the paper writes $\\beta$, and $c$ where it writes $V$."

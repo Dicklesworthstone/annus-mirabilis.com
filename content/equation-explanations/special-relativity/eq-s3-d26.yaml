@@ -1,0 +1,24 @@
+# special-relativity eq-s3-d26: what the display says, at every level (dispatch 287).
+# Written from the German of s3-p22 (p. 902) and its plate; every step was checked by hand.
+display: eq-s3-d26
+paper: special-relativity
+inWords:
+  - text: "The factor"
+    quantityId: lorentzFactor
+  - text: " is one divided by the square root of one less the square of "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "The abbreviation, repeated under the final equations so that they can be read on their own."
+r1: "This is the same definition printed on p. 900, set again beneath the finished transformation. The identity worth carrying away from it is not the formula but what the square of the factor does to the bracket it is built from: $\\beta^2 \\left( 1 - \\left( \\frac{v}{V} \\right)^2 \\right) = 1$. That is the step that makes every later calculation in the paper come out, in § 5's composition of velocities, in § 9's transformed field equations and in § 10's equations of motion. The factor is 1 at rest, about 1.25 at six tenths of the velocity of light, about 2.29 at nine tenths, and it has no value at all at $v = V$."
+r2:
+  - latex: "\\beta^2 \\left( 1 - \\left( \\frac{v}{V} \\right)^2 \\right) = 1"
+    why: "The square of the factor is the reciprocal of the bracket. This is the form in which the definition is used in the rest of the paper."
+  - latex: "v = 0.6 \\, V \\quad \\Longrightarrow \\quad \\beta = \\frac{1}{\\sqrt{1 - 0.36}} = \\frac{1}{0.8} = 1.25"
+    why: "The worked value this edition's laboratories use most."
+  - latex: "v = 0.9 \\, V \\quad \\Longrightarrow \\quad \\beta = \\frac{1}{\\sqrt{1 - 0.81}} = \\frac{1}{\\sqrt{0.19}} \\approx 2.29"
+    why: "At nine tenths of the velocity of light. The factor rises slowly at first and then without limit."
+r3: "The definition is printed twice in § 3, here and on p. 900, because the equations above it are printed twice: once with the unknown factor in them and once without. Keeping both displays is the edition's practice with the printed page, and the two records differ in what they are for. The earlier one introduces the abbreviation; this one states the identity the rest of the paper leans on."

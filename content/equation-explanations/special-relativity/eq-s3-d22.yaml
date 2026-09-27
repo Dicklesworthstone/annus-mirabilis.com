@@ -1,0 +1,26 @@
+# special-relativity eq-s3-d22: what the display says, at every level (dispatch 287).
+# Written from the German of s3-p22 (p. 902) and its plate; every step was checked by hand.
+display: eq-s3-d22
+paper: special-relativity
+inWords:
+  - text: "The three coordinates of the other end of the rod"
+    quantityId: coordinatePositionStationary
+  - text: ": it travels along the motion at "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " with "
+  - text: "the time"
+    quantityId: coordinateTimeStationary
+  - text: ", and stands at zero across the motion and in the third direction."
+r0: "The near end of the same rod: it sits at the origin of the moving system, so it travels with it and stands at zero in both other directions."
+r1: "The rod runs from the origin of the moving system outwards along the second axis, so its near end is the origin itself. All three of its coordinates in the moving system are zero, and the transformation carries that into the coordinates printed here. The unknown factor does not appear in this line at all: multiplying zero by it leaves zero. The length of the rod measured in the stationary system is the difference of the two ends' second coordinates, taken at the same time, which is $l / \\varphi(v)$ less nothing. The paper states that length in the sentence after this display, and adds that with it the meaning of the function is given."
+r2:
+  - latex: "\\xi = 0 , \\quad \\eta = 0 , \\quad \\zeta = 0"
+    why: "The near end is the origin of the moving system, so all three of its coordinates there are zero."
+  - latex: "\\beta (x - v t) = 0 \\quad \\Longrightarrow \\quad x_2 = v t"
+    why: "The factor is never zero, so the bracket is: the end is wherever the moving origin is, which the stationary system sees at $v t$. It is the same first coordinate as the far end, which is what makes the two ends a rod at right angles to the motion."
+  - latex: "\\varphi(v) \\, y = 0 \\quad \\Longrightarrow \\quad y_2 = 0 , \\qquad \\varphi(v) \\, z = 0 \\quad \\Longrightarrow \\quad z_2 = 0"
+    why: "Across the motion the transformation multiplies by the unknown function, and zero stays zero whatever it is."
+  - latex: "\\frac{l}{\\varphi(v)} - 0 = \\frac{l}{\\varphi(v)}"
+    why: "The length of the rod as the stationary system measures it: the second coordinate of the far end, from the display above, less the second coordinate of this one."
+r3: "Both ends carry the same first coordinate $v t$, so the two are read at one time of the stationary system and the difference of their second coordinates is a length rather than a diagonal. That is a condition the measurement has to meet and the section's own definition of simultaneity supplies it: a length in the stationary system is the distance between the positions of the two ends at the same time of that system."
