@@ -204,7 +204,7 @@ export function EquationExplainer({ explanation }: { explanation: ExplainerLevel
         Explain this equation
       </a>
       <span className="eq-explain-body">
-        <span className="eq-explain-levels" />
+        <span className="eq-explain-levels" aria-live="polite" />
       </span>
     </span>
   );

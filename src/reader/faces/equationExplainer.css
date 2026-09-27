@@ -80,6 +80,32 @@
   display: block;
 }
 
+/* WHAT STANDS THERE WHILE THE WORDS ARRIVE (dispatch 298). Measured on a build served locally, a
+   fragment lands 106 to 137 ms after the press, and in that moment the open panel is empty: the body
+   is shown with a height of 0. On a phone over a slow network it is longer, so a line says the
+   explanation is coming. The delay before it appears is deliberate: a fetch that lands quickly shows
+   nothing at all, rather than a flash of text a reader cannot read. */
+.eq-explainer[data-explainer-filled="fetching"] .eq-explain-levels::before {
+  content: "Opening the explanation.";
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  color: var(--muted);
+  opacity: 0;
+  animation: eq-explain-waiting 0s linear 0.4s forwards;
+}
+@keyframes eq-explain-waiting {
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .eq-explainer[data-explainer-filled="fetching"] .eq-explain-levels::before {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 /* A panel whose fragment did not load says so; its control is still the link to the page that holds
    every level. */
 .eq-explainer[data-explainer-filled="failed"] .eq-explain-levels::before {
@@ -88,6 +114,14 @@
   font-family: var(--font-sans);
   font-size: var(--type-fine);
   color: var(--muted);
+}
+
+/* The equation in words, and the choice of another level, both of which arrive with the levels from
+   the fragment. */
+.eq-explain-words,
+.eq-explain-more {
+  display: block;
+  margin: 0.4rem 0;
 }
 
 .eq-level {
