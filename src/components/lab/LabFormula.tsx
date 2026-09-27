@@ -61,9 +61,14 @@ export function LabFormula({
     <LabMath lab={lab} latex={latex} displayMode={true} tabIndex={tabIndex} printed={printed} />
   );
   // The pair is wrapped only when there is something to pair it with, so a lab page's markup is
-  // unchanged wherever no entry has been written yet.
+  // unchanged wherever no entry has been written yet. The wrapper carries a data attribute and NO
+  // class: a `lab-formula-explained` className went in with this component and the declared-classes
+  // ratchet caught it, correctly, because no stylesheet declared a rule for it and nothing selected
+  // it. It needed none — no lab stylesheet targets a display as a direct child, so the wrapper breaks
+  // no selector. If this pair ever needs styling, declare the rule in equationExplainer.css, which is
+  // what every page and embed rendering a panel already loads.
   return explanation ? (
-    <div className="lab-formula-explained" data-lab-formula-explained={lab}>
+    <div data-lab-formula-explained={lab}>
       {formula}
       <EquationExplainer explanation={explanation} />
     </div>
