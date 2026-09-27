@@ -1,0 +1,45 @@
+# special-relativity eq-s10-d3: what the display says, at every level (dispatch 281).
+# Written from the German of s10-p5 (p. 918) and its plate; every step was checked by hand.
+display: eq-s10-d3
+paper: special-relativity
+inWords:
+  - text: "The moving system's time"
+    quantityId: coordinateTimeMoving
+  - text: " and "
+  - text: "its coordinates"
+    quantityId: coordinatePositionMoving
+  - text: ", in terms of "
+  - text: "the time"
+    quantityId: coordinateTimeStationary
+  - text: " and "
+  - text: "the coordinates"
+    quantityId: coordinatePositionStationary
+  - text: " of the stationary one, through "
+  - text: "the factor"
+    quantityId: lorentzFactor
+  - text: ", "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " and "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: "; and "
+  - text: "the moving system's electric force"
+    quantityId: electricFieldMoving
+  - text: " in terms of "
+  - text: "the electric force"
+    quantityId: electricFieldStationary
+  - text: " and "
+  - text: "the magnetic force"
+    quantityId: magneticFieldStationary
+  - text: " of the stationary one."
+r0: "The transformations § 10 needs, gathered in one place: the time and coordinates from § 3, the electric force from § 6."
+r1: "Nothing is derived here. The left column is § 3's transformation of the time and the coordinates, with $\\beta$ for the factor $1 / \\sqrt{1 - (v/V)^2}$ defined on p. 900, and the right column is § 6's transformation of the electric force, with the factor $\\varphi(v)$ already fixed at 1 there. The paper has just laid down that $\\tau = \\xi = \\eta = \\zeta = 0$ when $t = x = y = z = 0$, so the two origins meet and no further shift is needed. Across the motion the coordinates are unchanged, $\\eta = y$ and $\\zeta = z$, while the electric force across the motion is not: each transverse component picks up a component of the stationary system's magnetic force, with the sign set by which axis it is."
+r2:
+  - latex: "\\tau = \\beta \\left( t - \\frac{v}{V^2} x \\right) , \\quad \\xi = \\beta (x - v t) , \\quad \\eta = y , \\quad \\zeta = z"
+    why: "§ 3's transformation, with the origins made to meet at $t = x = y = z = 0$."
+  - latex: "X' = X , \\quad Y' = \\beta \\left( Y - \\frac{v}{V} N \\right) , \\quad Z' = \\beta \\left( Z + \\frac{v}{V} M \\right)"
+    why: "§ 6's transformation of the electric force, with its factor $\\varphi(v)$ already fixed at 1 (p. 909)."
+  - latex: "\\eta = y , \\quad Y' = \\beta \\left( Y - \\frac{v}{V} N \\right)"
+    why: "The pair worth reading together: across the motion the coordinate is unchanged while the electric force is not. That difference is what makes the transverse mass of p. 919 what it is."
+r3: "The two columns are the two results § 10 rests on, and the paper reprints them rather than referring back. The right column is the one § 6 reads in words (pp. 909-910): a charge at rest in $k$ feels $(X', Y', Z')$, so a charge carried with $k$ through a purely magnetic force in the stationary system feels an electric force in its own system, which the older mode of expression called the electromotive force."

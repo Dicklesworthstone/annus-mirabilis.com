@@ -1,0 +1,30 @@
+# special-relativity eq-s10-d1: what the display says, at every level (dispatch 281).
+# Written from the German of s10-p1 and s10-p2 (p. 917) and its plate; every step was checked by hand.
+display: eq-s10-d1
+paper: special-relativity
+inWords:
+  - text: "The mass of the electron"
+    quantityId: electronMass
+  - text: ", times the rate at which the speed along "
+  - text: "each of its coordinates"
+    quantityId: coordinatePositionStationary
+  - text: " changes with "
+  - text: "the time"
+    quantityId: coordinateTimeStationary
+  - text: ", is "
+  - text: "its charge"
+    quantityId: electronCharge
+  - text: " times "
+  - text: "the electric force"
+    quantityId: electricFieldStationary
+  - text: " along that coordinate."
+r0: "The law of motion the paper assumes for an electron at rest: its mass times its acceleration is its charge times the electric force, one equation for each coordinate."
+r1: "This is the whole of what § 10 assumes about how an electron moves, and it is the ordinary law of mechanics for a charged particle. The paper asks it to hold only for an electron that is at rest in a certain epoch, and only for the element of time immediately following, with $\\mu$ the mass of the electron in so far as it is slowly moving. Nothing magnetic stands on the right: while the electron is at rest, the paper writes the force as the charge times the electric force alone. Everything later in the section, the two masses, the kinetic energy and the three relations open to experiment, comes from these three equations together with the principle of relativity and the transformations of §§ 3 and 6."
+r2:
+  - latex: "\\mu \\frac{d^2 x}{d t^2}"
+    why: "The mass of the electron times the acceleration along $x$, which is the rate at which the rate of change of $x$ with the time changes again."
+  - latex: "\\varepsilon X"
+    why: "The force. The electron carries the charge $\\varepsilon$ and stands in an electric force whose component along $x$ is $X$; no magnetic component enters, because the equation is asked for only while the electron is at rest."
+  - latex: "\\mu \\frac{d^2 x}{d t^2} = \\varepsilon X , \\quad \\mu \\frac{d^2 y}{d t^2} = \\varepsilon Y , \\quad \\mu \\frac{d^2 z}{d t^2} = \\varepsilon Z"
+    why: "The same along each axis, with $x$, $y$, $z$ the coordinates of the electron and $t$ the time of the stationary system they are measured in."
+r3: "The section is titled for the slowly accelerated electron, and this display is where that qualification enters. The paper says it assumes only the following about the law of motion (p. 917), and that $\\mu$ is the mass of the electron in so far as the same is slowly moving. No model of the electron is used: what is carried forward is that ordinary mechanics holds in the system the electron is momentarily at rest in."

@@ -1,0 +1,49 @@
+# special-relativity eq-A: what the display says, at every level (dispatch 281).
+# Written from the German of s10-p5 and s10-p6 (p. 918) and its plate; every step was checked by hand.
+display: eq-A
+paper: special-relativity
+inWords:
+  - text: "How fast the speed along "
+  - text: "each coordinate"
+    quantityId: coordinatePositionStationary
+  - text: " changes with "
+  - text: "the time"
+    quantityId: coordinateTimeStationary
+  - text: ": "
+  - text: "the charge"
+    quantityId: electronCharge
+  - text: " divided by "
+  - text: "the mass"
+    quantityId: electronMass
+  - text: ", divided again by the cube of "
+  - text: "the factor"
+    quantityId: lorentzFactor
+  - text: " along the motion and by the factor itself across it, times "
+  - text: "the electric force"
+    quantityId: electricFieldStationary
+  - text: " along that coordinate, with the transverse rows carrying also "
+  - text: "the speed of the electron"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " times "
+  - text: "the magnetic force"
+    quantityId: magneticFieldStationary
+  - text: " across it."
+r0: "The law of motion of an electron that is already moving, written in the time and coordinates of the system it moves in. Along the motion the electric force is divided by the cube of the factor; across the motion, by the factor itself."
+r1: "These are the equations the rest of § 10 draws on, and the paper labels them (A). They come from the three equations in $k$ by substituting the transformations of the display above, and the paper does not show that working. Two things make it come out: at the moment considered the electron moves along the $X$ axis with the velocity $v$, so $\\frac{d x}{d t} = v$ and the transverse velocities vanish; and $\\tau$ depends on $x$ as well as $t$, so a second derivative with respect to $\\tau$ is not simply a second derivative with respect to $t$. Working it through gives $\\frac{d^2 \\xi}{d \\tau^2} = \\beta^3 \\frac{d^2 x}{d t^2}$ along the motion and $\\frac{d^2 \\eta}{d \\tau^2} = \\beta^2 \\frac{d^2 y}{d t^2}$ across it, and the transverse electric force of $k$ brings a further $\\beta$ with it, which is why the transverse rows carry $\\frac{1}{\\beta}$ and not $\\frac{1}{\\beta^2}$."
+r2:
+  - latex: "\\frac{d \\xi}{d \\tau} = \\frac{\\frac{d \\xi}{d t}}{\\frac{d \\tau}{d t}} = \\frac{\\beta \\left( \\frac{d x}{d t} - v \\right)}{\\beta \\left( 1 - \\frac{v}{V^2} \\frac{d x}{d t} \\right)} = \\frac{\\frac{d x}{d t} - v}{1 - \\frac{v}{V^2} \\frac{d x}{d t}}"
+    why: "Differentiate $\\xi = \\beta (x - v t)$ and $\\tau = \\beta \\left( t - \\frac{v}{V^2} x \\right)$ with respect to $t$ and divide one by the other. The factor cancels, and what is left is the addition theorem of velocities of § 5."
+  - latex: "\\frac{d}{d t} \\left( \\frac{d \\xi}{d \\tau} \\right) = \\frac{d^2 x}{d t^2} \\cdot \\frac{1 - \\frac{v^2}{V^2}}{\\left( 1 - \\frac{v}{V^2} \\frac{d x}{d t} \\right)^2}"
+    why: "Differentiate that quotient once more with respect to $t$. The numerator of the quotient rule is $\\frac{d^2 x}{d t^2} \\left( 1 - \\frac{v}{V^2} \\frac{d x}{d t} \\right) + \\left( \\frac{d x}{d t} - v \\right) \\frac{v}{V^2} \\frac{d^2 x}{d t^2}$, and the two terms in $\\frac{d x}{d t}$ cancel, leaving $1 - \\frac{v^2}{V^2}$."
+  - latex: "\\frac{d^2 \\xi}{d \\tau^2} = \\frac{\\frac{d^2 x}{d t^2} \\beta^2}{\\frac{1}{\\beta}} = \\beta^3 \\frac{d^2 x}{d t^2}"
+    why: "At the moment considered $\\frac{d x}{d t} = v$. Then $1 - \\frac{v}{V^2} \\frac{d x}{d t} = 1 - \\frac{v^2}{V^2} = \\frac{1}{\\beta^2}$, so the fraction in the previous step is $\\frac{1 / \\beta^2}{1 / \\beta^4} = \\beta^2$; and dividing once more by $\\frac{d \\tau}{d t} = \\beta \\left( 1 - \\frac{v^2}{V^2} \\right) = \\frac{1}{\\beta}$ turns it into $\\beta^3$."
+  - latex: "\\mu \\beta^3 \\frac{d^2 x}{d t^2} = \\varepsilon X' = \\varepsilon X \\quad \\Longrightarrow \\quad \\frac{d^2 x}{d t^2} = \\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta^3} X"
+    why: "Put that into the first equation in $k$, and use $X' = X$ from the display above. Dividing by $\\mu \\beta^3$ gives the first row of (A)."
+  - latex: "\\frac{d \\eta}{d \\tau} = \\frac{\\frac{d y}{d t}}{\\beta \\left( 1 - \\frac{v}{V^2} \\frac{d x}{d t} \\right)} , \\qquad \\frac{d^2 \\eta}{d \\tau^2} = \\beta^2 \\frac{d^2 y}{d t^2}"
+    why: "Across the motion $\\eta = y$. When this is differentiated again, the term carrying the derivative of the denominator is multiplied by $\\frac{d y}{d t}$, which is zero at the moment considered, so only $\\frac{d^2 y}{d t^2}$ survives; dividing by $\\frac{d \\tau}{d t} = \\frac{1}{\\beta}$ twice over the two steps leaves $\\beta^2$."
+  - latex: "\\mu \\beta^2 \\frac{d^2 y}{d t^2} = \\varepsilon Y' = \\varepsilon \\beta \\left( Y - \\frac{v}{V} N \\right) \\quad \\Longrightarrow \\quad \\frac{d^2 y}{d t^2} = \\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta} \\left( Y - \\frac{v}{V} N \\right)"
+    why: "The second equation in $k$, with $Y'$ from the display above. One $\\beta$ of the $\\beta^2$ is used up against the $\\beta$ in $Y'$, which is why the transverse rows of (A) carry $\\frac{1}{\\beta}$. The third row follows in the same way with $Z$ and $M$."
+r3: "(A) is the only equation the paper numbers, and every later step of § 10 names it: the rewriting for the two masses (p. 919), the kinetic energy (p. 920), the announcement of the properties open to experiment (p. 920), the deflectability relation (p. 920) and the radius of curvature (p. 921). The step it passes over in one sentence is the longest calculation in the section, and its shape is worth keeping: the difference between the cube and the first power of the factor is not a difference between the electric forces along and across the motion, but between the way $\\tau$ enters a longitudinal and a transverse second derivative."

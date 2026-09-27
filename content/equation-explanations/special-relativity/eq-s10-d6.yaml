@@ -1,0 +1,27 @@
+# special-relativity eq-s10-d6: what the display says, at every level (dispatch 281).
+# Written from the German of s10-p7 (p. 919) and its plate; every step was checked by hand.
+display: eq-s10-d6
+paper: special-relativity
+inWords:
+  - text: "The number that goes with an acceleration along the motion: "
+  - text: "the mass of the electron"
+    quantityId: electronMass
+  - text: " divided by the cube of the square root of one less the square of "
+  - text: "its speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "The longitudinal mass: the mass of the slow electron divided by the cube of $\\sqrt{1 - (v/V)^2}$. It is what a push along the motion has to overcome."
+r1: "Take the row of the display above that belongs to the motion, $\\mu \\beta^3 \\frac{d^2 x}{d t^2} = \\varepsilon X'$, and apply the sentence: the number in front of the acceleration is the mass number. So the longitudinal mass is $\\mu \\beta^3$, and writing $\\beta$ out gives the printed form. It is $\\mu$ when the electron is at rest and grows without limit as $v$ approaches $V$: at $v = 0.6 \\, V$, where $\\beta = 1.25$, it is $1.953125 \\, \\mu$. Along the motion the force is the same number in both systems, since $X' = X$, so this coefficient is the ratio of force to acceleration whichever of the two systems the force is read in. The transverse coefficient of the next display is not like that."
+r2:
+  - latex: "\\mu \\beta^3 \\frac{d^2 x}{d t^2} = \\varepsilon X'"
+    why: "The row along the motion from the display above."
+  - latex: "\\text{Longitudinale Masse} = \\mu \\beta^3"
+    why: "The sentence applied: the number in front of the acceleration is the mass number."
+  - latex: "\\beta = \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} \\quad \\Longrightarrow \\quad \\mu \\beta^3 = \\frac{\\mu}{\\left( \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} \\right)^3}"
+    why: "The factor as the paper defines it on p. 900. Cubing the reciprocal is dividing by the cube, which is the printed form."
+  - latex: "v = 0.6 \\, V \\quad \\Longrightarrow \\quad \\beta = 1.25 , \\quad \\mu \\beta^3 = 1.953125 \\, \\mu"
+    why: "A worked value: at six tenths of the velocity of light the square root is $\\sqrt{1 - 0.36} = 0.8$, so $\\beta = 1.25$ and its cube is $1.953125$."
+r3: "The longitudinal number does not depend on where the force is read. A force along the motion has the same value in the system the electron rests in and in the resting system, which the display above shows as $\\varepsilon X = \\varepsilon X'$, so $\\mu \\beta^3$ is the ratio of force to acceleration under either reading. That is why the two mass formulas of this page are not alike in status: the next one carries the choice of § 10's sentence, and this one does not."

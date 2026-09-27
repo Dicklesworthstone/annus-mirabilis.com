@@ -1,0 +1,47 @@
+# special-relativity eq-s10-d4: what the display says, at every level (dispatch 281).
+# Written from the German of s10-p7 (pp. 918-919) and its plate; every step was checked by hand. The z row's printed exponent is the misprint err-typo-p919-1.
+display: eq-s10-d4
+paper: special-relativity
+inWords:
+  - text: "The mass of the electron"
+    quantityId: electronMass
+  - text: " times a power of "
+  - text: "the factor"
+    quantityId: lorentzFactor
+  - text: ", times how fast the speed along "
+  - text: "each coordinate"
+    quantityId: coordinatePositionStationary
+  - text: " changes with "
+  - text: "the time"
+    quantityId: coordinateTimeStationary
+  - text: ", is "
+  - text: "the charge"
+    quantityId: electronCharge
+  - text: " times "
+  - text: "the electric force"
+    quantityId: electricFieldStationary
+  - text: " there, with "
+  - text: "the speed of the electron"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " times "
+  - text: "the magnetic force"
+    quantityId: magneticFieldStationary
+  - text: " added across the motion; and each right-hand side is "
+  - text: "the electric force in the system the electron rests in"
+    quantityId: electricFieldMoving
+  - text: "."
+r0: "The equations (A) multiplied through, so that a number stands beside each acceleration and the force of the electron's own system stands on the right."
+r1: "The paper is about to ask after the longitudinal and the transverse mass, and it rewrites (A) so that each row reads as a mass times an acceleration on the left and a force on the right. Multiplying the first row of (A) by $\\mu \\beta^3$ and the transverse rows by $\\mu \\beta^2$ does it. What makes the right-hand sides the force rather than an expression in the forces of the stationary system is the transformation of § 6, already printed two displays above: $\\varepsilon X = \\varepsilon X'$ and $\\varepsilon \\beta \\left( Y - \\frac{v}{V} N \\right) = \\varepsilon Y'$. The paper remarks that $\\varepsilon X'$, $\\varepsilon Y'$, $\\varepsilon Z'$ are the components of the ponderomotive force on the electron considered in a system moving at that moment with the electron's velocity, and adds in a parenthesis that this force could be measured with a spring balance at rest in that system. The z row is printed with $\\mu \\beta^3$; the paper's own third row of (A) gives $\\mu \\beta^2$, and the explanation follows the arithmetic while the source face keeps what was printed."
+r2:
+  - latex: "\\frac{d^2 x}{d t^2} = \\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta^3} X \\quad \\Longrightarrow \\quad \\mu \\beta^3 \\frac{d^2 x}{d t^2} = \\varepsilon X"
+    why: "The first row of (A), multiplied by $\\mu \\beta^3$."
+  - latex: "\\varepsilon X = \\varepsilon X'"
+    why: "Along the motion the electric force is the same in both systems, so the same number is also the force measured in the system the electron rests in."
+  - latex: "\\frac{d^2 y}{d t^2} = \\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta} \\left( Y - \\frac{v}{V} N \\right) \\quad \\Longrightarrow \\quad \\mu \\beta^2 \\frac{d^2 y}{d t^2} = \\varepsilon \\beta \\left( Y - \\frac{v}{V} N \\right) = \\varepsilon Y'"
+    why: "The second row of (A), multiplied by $\\mu \\beta^2$. The right-hand side is $\\beta$ times the bracket, which is exactly $Y'$."
+  - latex: "\\frac{d^2 z}{d t^2} = \\frac{\\varepsilon}{\\mu} \\frac{1}{\\beta} \\left( Z + \\frac{v}{V} M \\right) \\quad \\Longrightarrow \\quad \\mu \\beta^2 \\frac{d^2 z}{d t^2} = \\varepsilon \\beta \\left( Z + \\frac{v}{V} M \\right) = \\varepsilon Z'"
+    why: "The third row in the same way. The multiplier is $\\mu \\beta^2$, as for $y$, since the third row of (A) carries $\\frac{1}{\\beta}$ like the second. The plate prints $\\mu \\beta^3$ on this row, which is the misprint err-typo-p919-1."
+r3: "The z row's coefficient is printed $\\mu \\beta^3$ on p. 919 and the paper's own steps give $\\mu \\beta^2$, recorded in the receipt as err-typo-p919-1. Three readings agree that the exponent on the plate is a 3, read against the $d t^2$ of the same row as a control. The arithmetic is not in doubt: the third equation of (A) on p. 918 carries $\\frac{1}{\\beta}$, the y row of this display prints $\\beta^2$, the two transverse directions are alike for motion along the $X$ axis, and the transverse mass two displays below is $\\frac{\\mu}{1 - (v/V)^2}$, which is $\\mu \\beta^2$ and holds for both of them. The ledger, the source block, the German face and the English face keep the printed reading; this explanation uses $\\beta^2$."

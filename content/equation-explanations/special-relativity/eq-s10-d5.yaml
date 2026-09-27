@@ -1,0 +1,16 @@
+# special-relativity eq-s10-d5: what the display says, at every level (dispatch 281).
+# Written from the German of s10-p7 and s10-p8 (p. 919) and its plate; every step was checked by hand.
+display: eq-s10-d5
+paper: special-relativity
+inWords:
+  - text: "A mass number times an acceleration number is a force number. The words are the paper's own, printed in place of a formula, and they name no quantity: they say how the words mass and force are to be used in what follows, not what an electron does."
+r0: "The sentence the paper puts in place of an equation: a mass number times an acceleration number is a force number. It fixes a way of speaking, and is not a result about electrons."
+r1: "Einstein has just called $\\varepsilon X'$, $\\varepsilon Y'$, $\\varepsilon Z'$ the force acting on the electron, meaning the force in a system moving at that moment with the electron, the one a spring balance at rest there would show. He now lays down that the accelerations are to be measured in the resting system. With those two choices made, each row of the display above already has the shape of this sentence, and whatever stands in front of the acceleration is what the sentence calls the mass number. The two numbers that come out are the longitudinal and the transverse mass of the next two displays. The paragraph after them says what this one costs: with another definition of force and of acceleration one would obtain other numbers for the masses, so in comparing different theories of the motion of the electron one must proceed with much caution."
+r2:
+  - latex: "\\mu \\beta^3 \\cdot \\frac{d^2 x}{d t^2} = \\varepsilon X'"
+    why: "The row along the motion, read as the sentence reads: the number in front of the acceleration is the mass number, the acceleration is measured in the resting system, and the force is the one measured in the system the electron rests in."
+  - latex: "\\mu \\beta^2 \\cdot \\frac{d^2 y}{d t^2} = \\varepsilon Y'"
+    why: "The row across the motion, read the same way."
+  - latex: "\\text{Massenzahl} = \\mu \\beta^3 \\quad \\text{oder} \\quad \\mu \\beta^2"
+    why: "So the sentence yields two mass numbers, one for a push along the motion and one for a push across it. Each is written out in the display that follows."
+r3: "This is the one place in § 10 where something is chosen rather than derived, and the paper says so in the next paragraph (p. 919): other definitions of the force and of the acceleration give other numbers for the masses. The choice is that the force is read in the system the electron rests in while the acceleration is read in the resting system, which is what a spring balance carried along with the electron and a laboratory clock and rule would each give."

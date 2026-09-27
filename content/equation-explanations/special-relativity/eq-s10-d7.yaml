@@ -1,0 +1,27 @@
+# special-relativity eq-s10-d7: what the display says, at every level (dispatch 281).
+# Written from the German of s10-p7 and s10-p8 (p. 919) and its plate; every step was checked by hand.
+display: eq-s10-d7
+paper: special-relativity
+inWords:
+  - text: "The number that goes with an acceleration across the motion: "
+  - text: "the mass of the electron"
+    quantityId: electronMass
+  - text: " divided by one less the square of "
+  - text: "its speed"
+    quantityId: frameSpeed
+  - text: " over "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: "."
+r0: "The transverse mass: the mass of the slow electron divided by $1 - (v/V)^2$. It is what a push across the motion has to overcome, with the force read in the electron's own system."
+r1: "The row across the motion is $\\mu \\beta^2 \\frac{d^2 y}{d t^2} = \\varepsilon Y'$, so the sentence gives $\\mu \\beta^2$ for the mass number, and $\\beta^2$ written out is $1 / (1 - (v/V)^2)$. At $v = 0.6 \\, V$ it is $1.5625 \\, \\mu$, where the longitudinal number is $1.953125 \\, \\mu$: the same electron is harder to push along its motion than across it. This number carries the choice § 10 made. The force in it is $\\varepsilon Y'$, read in the system the electron rests in, while the acceleration is read in the resting system. The same equations give $\\mu \\beta$ instead if the number divided by the acceleration is taken to be $\\varepsilon \\left( Y - \\frac{v}{V} N \\right)$, which is what stands in (A) before the $\\beta$ is taken out, and which later usage reads as the force on the electron in the resting system."
+r2:
+  - latex: "\\mu \\beta^2 \\frac{d^2 y}{d t^2} = \\varepsilon Y'"
+    why: "The row across the motion from the display above."
+  - latex: "\\text{Transversale Masse} = \\mu \\beta^2 = \\frac{\\mu}{1 - \\left( \\frac{v}{V} \\right)^2}"
+    why: "The sentence applied, with $\\beta^2 = 1 / \\left( 1 - (v/V)^2 \\right)$ from the definition on p. 900. This is the printed form."
+  - latex: "v = 0.6 \\, V \\quad \\Longrightarrow \\quad \\mu \\beta^2 = 1.5625 \\, \\mu , \\quad \\mu \\beta^3 = 1.953125 \\, \\mu"
+    why: "The two numbers at six tenths of the velocity of light, for the same electron: across the motion and along it."
+  - latex: "\\mu \\beta \\frac{d^2 y}{d t^2} = \\varepsilon \\left( Y - \\frac{v}{V} N \\right)"
+    why: "The second row of (A) again, multiplied by $\\mu \\beta$ instead of $\\mu \\beta^2$. Divide the right-hand side, which is $\\beta$ times smaller than $\\varepsilon Y'$, by the same acceleration and the coefficient is $\\mu \\beta$. Which number is called the transverse mass depends on that choice, not on the electron."
+r3: "Einstein's transverse mass divides the force measured in the electron's momentary rest system by the acceleration measured in the resting system; dividing the force measured in the resting system by the same acceleration gives $\\mu \\beta$. The two numbers answer two questions, and the electron has one mass $\\mu$, which is why the paper warns that comparing different theories of the motion of the electron needs care (p. 919). Kaufmann's deflection measurements of fast β-ray electrons, made from 1901 to 1906, seemed at first to favour Abraham's rival electron theory over the Lorentz–Einstein formulas, while Bucherer's of 1908 favoured the latter, and the question stayed open for some years."

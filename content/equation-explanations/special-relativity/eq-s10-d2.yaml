@@ -1,0 +1,30 @@
+# special-relativity eq-s10-d2: what the display says, at every level (dispatch 281).
+# Written from the German of s10-p3 to s10-p5 (pp. 917-918) and its plate; every step was checked by hand.
+display: eq-s10-d2
+paper: special-relativity
+inWords:
+  - text: "The mass of the electron"
+    quantityId: electronMass
+  - text: ", times the rate at which the speed along "
+  - text: "each of its coordinates in the moving system"
+    quantityId: coordinatePositionMoving
+  - text: " changes with "
+  - text: "that system's time"
+    quantityId: coordinateTimeMoving
+  - text: ", is "
+  - text: "its charge"
+    quantityId: electronCharge
+  - text: " times "
+  - text: "the electric force there"
+    quantityId: electricFieldMoving
+  - text: "."
+r0: "The same law, written in the system the electron is momentarily at rest in. It is the previous display with every letter replaced by the one that system uses."
+r1: "The paper places the electron at the origin at the moment in question and lets it move along the $X$ axis with the velocity $v$, so that it is at rest relative to a system $k$ moving along that axis with the same velocity. Being at rest there is the one case the assumed law of motion covers, and the principle of relativity gives the law the same form in $k$ as in the stationary system. So the previous display holds in $k$ with $\\xi$, $\\eta$, $\\zeta$ for the coordinates, $\\tau$ for the time, and $X'$, $Y'$, $Z'$ for the electric force. The paper asks this for small values of $t$ only, the element of time just after the moment considered. These three equations are the whole of the physical input of § 10; the rest of the section transforms them back into the stationary system."
+r2:
+  - latex: "\\frac{d x}{d t} = v , \\quad \\frac{d y}{d t} = \\frac{d z}{d t} = 0"
+    why: "The electron moves along the $X$ axis with the velocity $v$ at the moment considered, so it is at rest relative to $k$, which moves along that axis with the same velocity."
+  - latex: "\\mu \\frac{d^2 \\xi}{d \\tau^2} = \\varepsilon X'"
+    why: "The assumed law, written in $k$. The principle of relativity gives it the same form there, and $k$ is a system the electron is at rest in, which is the case the law covers."
+  - latex: "\\mu \\frac{d^2 \\xi}{d \\tau^2} = \\varepsilon X' , \\quad \\mu \\frac{d^2 \\eta}{d \\tau^2} = \\varepsilon Y' , \\quad \\mu \\frac{d^2 \\zeta}{d \\tau^2} = \\varepsilon Z'"
+    why: "The same along each of $k$'s axes. The paper notes that $\\xi$, $\\eta$, $\\zeta$, $\\tau$, $X'$, $Y'$, $Z'$ all refer to $k$."
+r3: "This is the one step in § 10 where the principle of relativity is used; everything after it is algebra. What it buys is that the law of motion need only be known for an electron at rest, since for any electron moving uniformly there is a system in which it is at rest at the moment considered. The paper asks the equations to hold for small values of $t$ (p. 918), which is an element of time rather than a finite stretch of the path."
