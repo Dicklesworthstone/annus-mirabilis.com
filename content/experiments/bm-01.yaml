@@ -389,11 +389,9 @@ owner:
       quantityId: diffusionCoefficient
 views:
   - id: microscope-trace
-    kind: canvas
+    kind: svg
     consumes:
       - tracerPositions
-    requires:
-      - canvas-2d
   - id: displacement-distribution
     kind: svg
     consumes:

@@ -196,17 +196,13 @@ views:
       - workFunction
       - maxKineticEnergy
   - id: lq-08-stopping-plot
-    kind: canvas
-    requires:
-      - canvas-2d
+    kind: svg
     consumes:
       - frequency
       - stoppingPotentialMagnitude
       - thresholdFrequency
   - id: lq-08-iv-curve
-    kind: canvas
-    requires:
-      - canvas-2d
+    kind: svg
     consumes:
       - collectorPotential
       - photocurrent
