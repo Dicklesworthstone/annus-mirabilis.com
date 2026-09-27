@@ -1,0 +1,34 @@
+# brownian-motion eq-s5-d1: what the display says, at every level (dispatch 279).
+# Written from the German of s5-p1 (p. 559) and its plate; the steps were checked by hand.
+display: eq-s5-d1
+paper: brownian-motion
+inWords:
+  - text: "The diffusion coefficient"
+    quantityId: diffusionCoefficient
+  - text: " equals "
+  - text: "the gas constant"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: ", divided by "
+  - text: "the number of molecules in a gram-molecule"
+    quantityId: avogadroConstant
+  - text: ", and divided again by six pi times "
+  - text: "the coefficient of friction of the liquid"
+    quantityId: viscosity
+  - text: " times "
+  - text: "the radius of a particle"
+    quantityId: particleRadius
+  - text: "."
+r0: "Section 3's value for the diffusion coefficient, brought forward. It ties the spreading of the suspended particles to the temperature, the stickiness of the liquid, and the size of a particle."
+r1: "Section 5 opens by collecting the two results it needs, and this is the first: the value found in section 3 for the diffusion coefficient of a substance suspended in a liquid in the form of small spheres of radius $P$. Its route there was a balance of two processes running in opposite senses, the drift of the suspended substance under a force acting on each particle and the diffusion that the disordered molecular motion produces. The letter $k$ in it is the coefficient of friction of the liquid, its viscosity, and not Boltzmann's constant; this paper does not use $k$ for that. What the expression says is that the diffusion coefficient is inversely proportional to the viscosity and to the particle radius, and proportional to the absolute temperature, with the number of molecules in a gram-molecule standing in the denominator as the only quantity in it that was not measurable at the time."
+r2:
+  - latex: "\\frac{R T}{N}"
+    why: "The energy per molecule at the working temperature. In section 3's first condition for equilibrium it is this quantity that converts the relative gradient of the suspended particles into the force acting on one of them. Section 5 prints neither that condition nor its letters for the force and the number density, which belong to section 3."
+  - latex: "6 \\pi k P"
+    why: "Stokes's resistance factor for a sphere: a particle of radius $P$ driven through a liquid whose coefficient of friction is $k$ settles at a velocity equal to the driving force divided by this. Section 3 takes it from the mechanics of a viscous liquid, not from anything molecular."
+  - latex: "\\frac{R T}{N} \\cdot \\frac{1}{6 \\pi k P}"
+    why: "Section 3's second condition sets the particles carried through unit cross-section by the force against those carried back by diffusion. Dividing the one condition by the other removes the force and the number density together, since both appear in each, and what is left is the energy per molecule divided by the resistance factor."
+  - latex: "D = \\frac{R T}{N} \\frac{1}{6 \\pi k P} ."
+    why: "That quotient is the diffusion coefficient: the printed line. Because the number density and its gradient cancel in the division, the result does not depend on how the particles happen to be distributed."

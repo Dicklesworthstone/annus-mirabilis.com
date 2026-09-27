@@ -1,0 +1,35 @@
+# brownian-motion eq-s5-d5: what the display says, at every level (dispatch 279).
+# Written from the German of s5-p3 (p. 560) and its plate; the steps were checked by hand.
+display: eq-s5-d5
+paper: brownian-motion
+inWords:
+  - text: "The number of molecules in a gram-molecule"
+    quantityId: avogadroNumberEstimate
+  - text: " equals "
+  - text: "the elapsed time"
+    quantityId: observationInterval
+  - text: " divided by the square of "
+  - text: "the observed displacement"
+    quantityId: rmsDisplacement1d
+  - text: ", times "
+  - text: "the gas constant"
+    quantityId: molarGasConstant
+  - text: " times "
+  - text: "the absolute temperature"
+    quantityId: temperature
+  - text: ", divided by three pi times "
+  - text: "the coefficient of friction of the liquid"
+    quantityId: viscosity
+  - text: " times "
+  - text: "the radius of a particle"
+    quantityId: particleRadius
+  - text: "."
+r0: "Read the relation backwards and it becomes a method: watch the particles, measure how far they wander in a known time, and the number of molecules in a gram-molecule follows from quantities a laboratory can measure."
+r1: "The paper turns the relation round. In the preceding form the number of molecules was an input taken from the kinetic theory of gases and the displacement was predicted; here the displacement is what is measured and the number is what comes out. Every other quantity on the right is available to an experimenter: the time of the observation, the temperature, the viscosity of the liquid, and the radius of the particles. The quantity this yields is an estimate obtained from a measurement, not the same thing as the number assumed a paragraph earlier, and the edition binds it as such. The paper ends on the strength of it, with the wish that a researcher may soon succeed in deciding the question raised here, which it calls important for the theory of heat, and the date line Bern, May 1905."
+r2:
+  - latex: "\\lambda_x = \\sqrt{t} \\cdot \\sqrt{\\frac{R T}{N} \\frac{1}{3 \\pi k P}}"
+    why: "The relation of section 5, with the displacement on the left."
+  - latex: "\\lambda_x^2 = t \\cdot \\frac{R T}{N} \\frac{1}{3 \\pi k P}"
+    why: "Square both sides. Both are positive, so nothing is lost."
+  - latex: "N = \\frac{t}{\\lambda_x^2} \\cdot \\frac{R T}{3 \\pi k P} ."
+    why: "Solve for the number: the printed line. Reading it with the figures of the preceding paragraph returns 6 times ten to the twenty-third, as it must, since those figures were obtained from the same relation."

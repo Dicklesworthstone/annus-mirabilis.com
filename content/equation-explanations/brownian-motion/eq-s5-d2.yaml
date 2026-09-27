@@ -1,0 +1,19 @@
+# brownian-motion eq-s5-d2: what the display says, at every level (dispatch 279).
+# Written from the German of s5-p1 (p. 559) and its plate; the steps were checked by hand.
+display: eq-s5-d2
+paper: brownian-motion
+inWords:
+  - text: "The displacement along the axis"
+    quantityId: rmsDisplacement1d
+  - text: " is the square root of twice "
+  - text: "the diffusion coefficient"
+    quantityId: diffusionCoefficient
+  - text: " times "
+  - text: "the elapsed time"
+    quantityId: observationInterval
+  - text: "."
+r0: "Section 4's result, brought forward beside section 3's. The two share the diffusion coefficient, and that is what lets it be removed."
+r1: "The second of the two results section 5 collects, found in section 4 for the mean of the displacements of the particles along the axis in the time $t$. It is repeated here unchanged. The point of setting the two lines side by side is that the diffusion coefficient occurs in both and is measurable in neither of the ways that matter for this paper: in section 3 it is expressed through the molecular quantities, and in section 4 through something a microscope can follow. Eliminating it between them leaves a relation between what can be watched and what cannot, which is the whole strategy of the paper."
+r2:
+  - latex: "\\lambda_x = \\sqrt{2 D t} ."
+    why: "Section 4's result for the root of the arithmetic mean of the squares of the displacements along the axis, unchanged. It came from the solution of the diffusion equation for particles that all start together."

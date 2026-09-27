@@ -1,0 +1,22 @@
+# brownian-motion eq-s5-d4: what the display says, at every level (dispatch 279).
+# Written from the German of s5-p2 (p. 559) and its plate; the steps were checked by hand.
+display: eq-s5-d4
+paper: brownian-motion
+inWords:
+  - text: "The displacement along the axis"
+    quantityId: rmsDisplacement1d
+  - text: " in one second comes to eight hundred-thousandths of a centimetre, which is eight tenths of a micron."
+r0: "The number that makes the prediction testable: for particles a thousandth of a millimetre across in water at 17 degrees, about eight tenths of a micron in one second, and about six microns in a minute."
+r1: "The paper puts in the values it needs and states each one. The number of molecules in a gram-molecule is set at 6 times ten to the twenty-third, taken from the results of the kinetic theory of gases, so it is an input here and not a result. The liquid is water at 17 degrees, with the coefficient of friction 1,35 times ten to the minus two in the units of the time. The particle diameter is a thousandth of a millimetre, so the radius in the formula is half of that, five hundred-thousandths of a centimetre. Repeating the arithmetic needs the gas constant and the temperature on the absolute scale, neither of which the paper prints here. With the gas constant at 8,31 times ten to the seventh and the temperature at 290 the formula gives 7,95 hundred-thousandths of a centimetre, which is the printed figure to the one significant digit it carries. The sentence after the display extends it to a minute: the displacement would then be about six microns, and the word about is the paper's own. A minute is sixty times as long but gives only about eight times the displacement, which is the square root at work."
+r2:
+  - latex: "P = \\frac{0{,}001 \\, \\text{mm}}{2} = 5 \\cdot 10^{-5} \\, \\text{cm}"
+    why: "The paper gives the particle diameter, and the formula takes the radius, so it is halved. A millimetre is a tenth of a centimetre."
+  - latex: "\\frac{R T}{N} = \\frac{8{,}31 \\cdot 10^{7} \\cdot 290}{6 \\cdot 10^{23}} = 4{,}02 \\cdot 10^{-14}"
+    why: "The energy per molecule at that temperature. The gas constant and the absolute temperature are supplied from outside the paper, which prints neither."
+  - latex: "3 \\pi k P = 3 \\pi \\cdot 1{,}35 \\cdot 10^{-2} \\cdot 5 \\cdot 10^{-5} = 6{,}36 \\cdot 10^{-6}"
+    why: "The friction factor, with the viscosity of water at 17 degrees as the paper gives it and the radius from the first step."
+  - latex: "\\lambda_x = \\sqrt{1 \\cdot \\frac{4{,}02 \\cdot 10^{-14}}{6{,}36 \\cdot 10^{-6}}} = 7{,}95 \\cdot 10^{-5} \\, \\text{cm}"
+    why: "One second under the root. The quotient is 6,31 times ten to the minus nine, and its root is the displacement."
+  - latex: "\\lambda_x = 8 \\cdot 10^{-5} \\, \\text{cm} = 0{,}8 \\, \\text{Mikron} ."
+    why: "Rounded to one digit, the printed line. The same calculation with sixty seconds gives 6,15 ten-thousandths of a centimetre, which is the about six microns of the following sentence."
+r3: "The receipt confirms both figures on the plate of p. 559 and records that the approximation in the minute figure is Einstein's own word, \"ca.\": the display prints 8 · 10⁻⁵ cm = 0,8 Mikron for the second, and the sentence after it reads that the mean displacement in one minute would be about 6 microns (watch-displacements, docs/provenance/ap-17-549.md). The same receipt records the viscosity and the particle size the calculation uses, as watch-viscosity-k and watch-particle-size."
