@@ -1,0 +1,30 @@
+# special-relativity eq-s4-d6: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p9 (p. 904) and its plate; the steps were checked by hand.
+display: eq-s4-d6
+paper: special-relativity
+inWords:
+  - text: "The time shown by the moving clock"
+    quantityId: coordinateTimeMoving
+  - text: " equals "
+  - text: "the time of the resting system"
+    quantityId: coordinateTimeStationary
+  - text: " times the square root of one less the square of the ratio of "
+  - text: "the velocity"
+    quantityId: frameSpeed
+  - text: " to "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", which is that time less the amount by which the root falls short of one, times that time."
+r0: "The moving clock falls behind. Per second of the resting system it loses the amount by which the root falls short of one, which for small velocities is about half the squared velocity ratio."
+r1: "Putting the clock's place into the time transformation leaves a relation between the two times alone. The first form says the moving clock's reading is the resting system's time diminished by the factor of the root, and the second form separates out the amount lost. The paper draws the consequence in seconds: the clock's indication, regarded from the resting system, falls behind per second by the amount by which the root falls short of one, or, up to quantities of fourth and higher order, by half the squared velocity ratio. The qualification is exact, and the series bears it out: the next term after the half is an eighth of the fourth power of the ratio. The paper then applies it to a journey. If two clocks at A and B are synchronous in the resting system and the one at A is moved along the connecting line to B with velocity $v$, then on arrival the two are no longer synchronous, and the clock moved from A to B lags behind the one that stayed by half the product of the elapsed time and the squared velocity ratio, again up to quantities of fourth and higher order. The paper adds that the result holds equally for a clock moved along any polygonal line, and even when the points A and B coincide; and that if the result just obtained for a polygonal line holds also for a continuously curved line, then a clock carried around a closed curve at constant speed lags on its return behind the one that stayed. Those extensions are the paper's own, and the last is offered as a consequence of assuming the polygonal result carries over."
+r2:
+  - latex: "\\tau = \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} \\left( t - \\frac{v}{V^2} \\cdot v t \\right)"
+    why: "The transformation with the clock's place put in, from the two preceding displays."
+  - latex: "t - \\frac{v^2}{V^2} t = t \\left( 1 - \\left( \\frac{v}{V} \\right)^2 \\right)"
+    why: "Inside the bracket the time factors out, leaving one less the squared velocity ratio."
+  - latex: "\\tau = \\frac{t \\left( 1 - \\left( \\frac{v}{V} \\right)^2 \\right)}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} = t \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}"
+    why: "A quantity divided by its own square root is that square root, so the factor of the root in front and the bracket combine into a single root."
+  - latex: "\\tau = t - \\left( 1 - \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} \\right) t ,"
+    why: "Add and subtract the resting system's time to display the loss on its own: the printed second form. The bracket is the fraction of a second the clock loses in each second."
+  - latex: "1 - \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} = \\frac{1}{2} \\left( \\frac{v}{V} \\right)^2 + \\frac{1}{8} \\left( \\frac{v}{V} \\right)^4 + \\ldots"
+    why: "Expanding the root shows why the paper's half of the squared ratio is right up to quantities of fourth and higher order: the first term it drops is the fourth power with an eighth in front."

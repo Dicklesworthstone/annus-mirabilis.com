@@ -1,0 +1,25 @@
+# special-relativity eq-s4-d3: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p1 (p. 903) and its plate; the steps were checked by hand.
+display: eq-s4-d3
+paper: special-relativity
+inWords:
+  - text: "The radius of the sphere"
+    quantityId: sphereRadius
+  - text: " times the square root of one less the square of the ratio of "
+  - text: "the velocity of the body"
+    quantityId: frameSpeed
+  - text: " to "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", then the radius unchanged, and the radius unchanged again."
+r0: "The three semi-axes of that surface: shortened along the direction of motion, unchanged across it. A body which at rest is a sphere is, in motion and regarded from the resting system, an ellipsoid of revolution."
+r1: "The semi-axes are read off the preceding equation. The paper states the conclusion with its frame of reference attached: a rigid body which examined at rest has the shape of a sphere has, in the moving state and regarded from the resting system, the shape of an ellipsoid of revolution with these axes. It then says what changes and what does not. The Y and Z dimensions of the sphere, and so of any rigid body of whatever shape, are not modified by the motion; the X dimension appears shortened in the ratio one to the root, and the more so the greater $v$ is. For $v = V$ all moving objects shrink into plane structures, seen from the resting system. For velocities greater than that of light the paper says its considerations become senseless, and adds that it will find in what follows that the velocity of light plays the part in this theory of an infinitely great velocity. The paper does not offer the shortening as an effect suffered by the body: the same body at rest in the moving system is a sphere there, and the two descriptions belong to two systems."
+r2:
+  - latex: "\\frac{x^2}{R^2 \\left( 1 - \\left( \\frac{v}{V} \\right)^2 \\right)} + \\frac{y^2}{R^2} + \\frac{z^2}{R^2} = 1"
+    why: "Divide the preceding equation through by the squared radius. Written this way, the number standing beneath each squared coordinate is the square of the semi-axis in that direction."
+  - latex: "R \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}"
+    why: "Along the motion the number beneath the squared coordinate is the squared radius times one less the squared velocity ratio, so the semi-axis there is the radius times the root, which is less than the radius for any motion at all."
+  - latex: "R \\quad \\text{and} \\quad R"
+    why: "Across the motion the number beneath each squared coordinate is the squared radius itself, so those two semi-axes are the radius unchanged."
+  - latex: "R \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} , \\quad R , \\quad R ."
+    why: "The three together, as the paper prints them: the axes of the ellipsoid of revolution."

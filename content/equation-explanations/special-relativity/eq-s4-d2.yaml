@@ -1,0 +1,28 @@
+# special-relativity eq-s4-d2: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p1 (p. 903) and its plate; the steps were checked by hand.
+display: eq-s4-d2
+paper: special-relativity
+inWords:
+  - text: "The square of the coordinate along the direction of motion, in the resting system"
+    quantityId: coordinatePositionStationary
+  - text: ", divided by one less the square of the ratio of "
+  - text: "the velocity of the body"
+    quantityId: frameSpeed
+  - text: " to "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", plus the squares of the two coordinates across the motion"
+    quantityId: coordinatePositionStationary
+  - text: ", equals the square of "
+  - text: "the radius of the sphere"
+    quantityId: sphereRadius
+  - text: "."
+r0: "The same surface written in the resting system's coordinates, all at the one time zero. It is no longer a sphere: the direction of motion carries a divisor and the two across it do not."
+r1: "The transformation of section 3 is put into the preceding equation, and the paper states the condition under which the result is read: expressed in $x$, $y$, $z$ at the time $t = 0$. That condition is not a detail. A moving body occupies different places at different times, so the only thing that can be called its shape in the resting system is the set of places its points occupy at one and the same time of that system, and the equation describes precisely that set. It is a statement about coordinates measured simultaneously in the resting system, and it is not a statement about what the body looks like, since light from the near and far parts of a body does not reach an eye or a plate at the same moment. The paper treats the surface as a locus, and the next line reads off its axes."
+r2:
+  - latex: "x^2 \\left( 1 - \\left( \\frac{v}{V} \\right)^2 \\right)^{-1}"
+    why: "Section 3's transformation of the coordinate along the motion, taken at the time $t = 0$, and then squared. At that instant the moving coordinate is the resting one divided by the square root of one less the squared velocity ratio, so its square carries that factor undivided."
+  - latex: "y^2 \\quad \\text{and} \\quad z^2"
+    why: "The two coordinates across the motion are carried over by section 3's transformation unchanged, so their squares enter as they stand."
+  - latex: "\\frac{x^2}{\\left( \\sqrt{1 - \\left( \\frac{v}{V} \\right)^2} \\right)^2} + y^2 + z^2 = R^2 ."
+    why: "Put the three into the sphere's equation: the printed line. The paper leaves the square of the root standing rather than cancelling it, which keeps the transformed coordinate visible in the result."

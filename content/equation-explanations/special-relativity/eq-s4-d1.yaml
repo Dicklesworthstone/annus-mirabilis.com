@@ -1,0 +1,19 @@
+# special-relativity eq-s4-d1: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p1 (p. 903) and its plate; the steps were checked by hand.
+display: eq-s4-d1
+paper: special-relativity
+inWords:
+  - text: "The squares of the three coordinates of a point of the surface, taken in the moving system"
+    quantityId: coordinatePositionMoving
+  - text: ", added together, equal the square of "
+  - text: "the radius of the sphere"
+    quantityId: sphereRadius
+  - text: "."
+r0: "A rigid sphere at rest in the moving system, its centre at that system's origin. In the moving system's own coordinates its surface is what a sphere always is: every point at the same distance from the centre."
+r1: "Section 4 asks what the results of section 3 mean for bodies and clocks. It starts from a rigid sphere of radius $R$ which rests relative to the moving system and whose centre lies at that system's coordinate origin. In the coordinates of the system it rests in, its surface is given by this equation, which says only that every point of the surface is the same distance $R$ from the centre. Nothing has been asserted yet about the resting system. The sentence that introduces the equation already describes the sphere as moving with velocity $v$ relative to the resting system, so the same body is about to be described twice over, and the next line does the describing."
+r2:
+  - latex: "\\xi^2 + \\eta^2 + \\zeta^2"
+    why: "The squared distance of a point of the surface from the origin of the moving system, in that system's own coordinates."
+  - latex: "\\xi^2 + \\eta^2 + \\zeta^2 = R^2 ."
+    why: "Set equal to the squared radius: the printed line, the surface of a sphere of radius $R$ centred on the origin of the system in which it rests."
+r3: "The word \"Kugel\" in the sentence introducing this equation carries a footnote that defines it: \"Das heißt einen Körper, welcher ruhend untersucht Kugelgestalt besitzt\", a body which, examined at rest, possesses spherical shape. The definition is what makes the section's question well posed, since the shape a body has when measured in motion is exactly what is being asked about and so cannot also be what \"sphere\" means. Read from the plate of p. 903."

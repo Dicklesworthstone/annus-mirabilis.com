@@ -1,0 +1,25 @@
+# special-relativity eq-s4-d4: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p9 (p. 904) and its plate; the steps were checked by hand.
+display: eq-s4-d4
+paper: special-relativity
+inWords:
+  - text: "The time shown by the moving clock"
+    quantityId: coordinateTimeMoving
+  - text: " equals one over the square root of one less the square of the ratio of "
+  - text: "the velocity"
+    quantityId: frameSpeed
+  - text: " to "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: ", times "
+  - text: "the time of the resting system"
+    quantityId: coordinateTimeStationary
+  - text: " less the velocity over the square of the velocity of light times "
+  - text: "the place of the clock"
+    quantityId: coordinatePositionStationary
+  - text: "."
+r0: "Section 3's time transformation, written for one clock. It gives what that clock reads in terms of the resting system's time and of where the clock is."
+r1: "The paper now turns from bodies to clocks. It takes one of the clocks which, at rest relative to the resting system, indicate the time $t$, and which, at rest relative to the moving system, indicate the time $\\tau$; it is placed at the moving system's coordinate origin and set so as to indicate $\\tau$. The question is how fast this clock runs when regarded from the resting system. The relation between the three quantities $x$, $t$ and $\\tau$, which all refer to the place of this clock, is the time transformation of section 3, quoted here without being rederived. The paper says these equations hold evidently, meaning that section 3 has already established them for every event and this clock's readings are events like any others. The second term inside the bracket is what makes the answer depend on where the clock is, and the next line supplies that."
+r2:
+  - latex: "\\tau = \\frac{1}{\\sqrt{1 - \\left( \\frac{v}{V} \\right)^2}} \\left( t - \\frac{v}{V^2} x \\right)"
+    why: "Section 3's transformation of the time, applied at the place of this clock. It is quoted, not derived again."

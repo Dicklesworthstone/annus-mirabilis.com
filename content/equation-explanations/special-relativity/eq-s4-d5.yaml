@@ -1,0 +1,19 @@
+# special-relativity eq-s4-d5: what the display says, at every level (dispatch 279).
+# Written from the German of s4-p9 (p. 904) and its plate; the steps were checked by hand.
+display: eq-s4-d5
+paper: special-relativity
+inWords:
+  - text: "The place of the clock in the resting system"
+    quantityId: coordinatePositionStationary
+  - text: " equals "
+  - text: "its velocity"
+    quantityId: frameSpeed
+  - text: " times "
+  - text: "the time of the resting system"
+    quantityId: coordinateTimeStationary
+  - text: "."
+r0: "Where the clock is. It sits at the origin of the moving system, and that origin travels at the velocity v, so in the resting system the clock's position is the velocity times the time."
+r1: "The second of the two equations that hold for this clock, and the one that makes it this clock rather than any point of space. The clock was placed at the coordinate origin of the moving system, and section 3 set that origin travelling along the X-axis of the resting system with the velocity $v$, the two origins having coincided at the start. So in the resting system the clock's coordinate at any time is the velocity times the time. Substituting it into the transformation is what turns a relation holding at every place into a statement about one travelling clock."
+r2:
+  - latex: "x = v t ."
+    why: "The moving system's origin starts where the resting system's origin is and travels at the constant velocity $v$, so after a time $t$ of the resting system it has covered $v t$: the printed line."
