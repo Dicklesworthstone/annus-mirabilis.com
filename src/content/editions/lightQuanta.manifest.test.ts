@@ -9,6 +9,7 @@ import { compileReadingContent } from "../compiler/compile.ts";
 import { parseIdSnapshot, validateFrozenIds } from "../frozenIds.ts";
 import { parseAlignableUnitId, parseInlineMathId, parseReferenceId } from "../ids.ts";
 import { formatManifestReportText, generateManifestReport } from "../manifest/report.ts";
+import { readSourceLayers } from "../manifest/sourceLayers.ts";
 import { validateSourceManifest } from "../manifest/schema.ts";
 import { validateManifest } from "../manifest/validator.ts";
 import { parseReceipt } from "../provenance/parseReceipt.ts";
@@ -798,7 +799,12 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
 
   test("e2e report CLI runs cleanly with exit code 0, no unassigned destinations, and no percentages", () => {
     const { manifest } = loadManifest();
-    const report = generateManifestReport(manifest);
+    // Layers derived from the tree, not defaulted (am-4cpx); the invariants this test guards are
+    // the exit code, the destinations and the absence of percentages, none of which changes.
+    const report = generateManifestReport(
+      manifest,
+      readSourceLayers(process.cwd(), manifest.paper, manifest.document, manifest.pageCount),
+    );
     const text = formatManifestReportText(report);
     const json = JSON.stringify(report, null, 2);
 

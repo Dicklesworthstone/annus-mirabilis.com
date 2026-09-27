@@ -18,9 +18,15 @@ import {
 } from "./types.ts";
 
 /**
- * Returns typed absent state for the four canonical source layers.
- * Since no ledger, transcription, translation, or gloss currently exists,
- * absence is a typed state rather than an implied or missing property.
+ * Typed absent state for the four canonical source layers, for a paper whose tree holds nothing.
+ *
+ * THIS IS NOT A DEFAULT ANY MORE (am-4cpx). It was the default value of generateManifestReport's
+ * `sourceLayers`, and its docblock said "Since no ledger, transcription, translation, or gloss
+ * currently exists", which was true when written and false for three of the four by 2026-09-27. The
+ * report therefore printed `transcription-not-started` over 456 source blocks, 821 translation
+ * units and 542 gloss units, and would have printed the same zeros on a finished edition. Callers
+ * now derive the layers from the tree (sourceLayers.ts) and pass them, so this is only for a caller
+ * that genuinely has no tree to read, such as a fixture.
  */
 export function getAbsentSourceLayers(
   defaultReason?: AbsentSourceLayerReason | string,
@@ -62,7 +68,12 @@ export function getAbsentSourceLayers(
  */
 export function generateManifestReport(
   manifest: SourceManifest,
-  sourceLayers: PaperSourceLayers = getAbsentSourceLayers(),
+  /**
+   * Required, and deliberately without a default (am-4cpx): a default that reported every layer
+   * absent meant every caller that forgot the argument published zeros that looked like a
+   * measurement. readSourceLayers(root, paper, document, pageCount) derives them from the tree.
+   */
+  sourceLayers: PaperSourceLayers,
 ): ManifestReportData {
   const byKind: Record<string, number> = {};
   const byStatus: Record<string, number> = {};
@@ -146,7 +157,13 @@ export function formatManifestReportText(report: ManifestReportData): string {
     if (layer.state === "absent") {
       lines.push(`  ${layerKind.padEnd(30)}: absent (${layer.reason})`);
     } else {
-      lines.push(`  ${layerKind.padEnd(30)}: present (${layer.status}, ${layer.unitCount} units)`);
+      // The denominator beside the count, so "0 of 542" cannot read like "542 of 542" (am-4cpx).
+      const of = layer.of === undefined ? "" : ` of ${layer.of}`;
+      const population = layer.population ? ` ${layer.population}` : " units";
+      lines.push(
+        `  ${layerKind.padEnd(30)}: present (${layer.status}, ${layer.unitCount}${of}${population})`,
+      );
+      if (layer.note) lines.push(`  ${"".padEnd(30)}  ${layer.note}`);
     }
   }
   lines.push(``);

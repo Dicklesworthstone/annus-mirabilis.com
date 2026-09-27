@@ -6,6 +6,7 @@ import { newRunIdentity, TestLogger } from "../../testing/log/logger.ts";
 import { resolveAlias, validateAliasRecord } from "../aliases.ts";
 import { parseIdSnapshot, validateFrozenIds } from "../frozenIds.ts";
 import { formatManifestReportText, generateManifestReport } from "../manifest/report.ts";
+import { readSourceLayers } from "../manifest/sourceLayers.ts";
 import { validateSourceManifest } from "../manifest/schema.ts";
 import { validateManifest } from "../manifest/validator.ts";
 import { checkReceipt } from "../provenance/checkReceipt.ts";
@@ -680,9 +681,16 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     });
   });
 
-  test("manifest reporting engine generates report with zero percentage and absent source layers", () => {
+  test("manifest reporting engine generates report with zero percentage and the tree's own layers", () => {
     const { manifest } = loadManifest();
-    const report = generateManifestReport(manifest);
+    // Derived from the tree, not defaulted (am-4cpx). This test used to assert all four layers
+    // absent, which was the defect frozen as an expectation: the report said
+    // "transcription-not-started" over 213 source blocks and would have said it on a finished
+    // edition. The invariant it really guards, that no aggregate percentage is printed, is kept.
+    const report = generateManifestReport(
+      manifest,
+      readSourceLayers(process.cwd(), manifest.paper, manifest.document, manifest.pageCount),
+    );
 
     expect(report.paper).toBe(PAPER_SLUG);
     expect(report.status).toBe("in-preparation");
@@ -690,10 +698,16 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     expect(report.inScopeCount).toBe(manifest.units.length);
     expect(report.notInScopeCount).toBe(0);
 
-    expect(report.layers.ledger.state).toBe("absent");
-    expect(report.layers.transcription.state).toBe("absent");
-    expect(report.layers.translation.state).toBe("absent");
-    expect(report.layers.gloss.state).toBe("absent");
+    // The tree holds a machine-draft ledger, source blocks, translation units and gloss units, so
+    // every layer is present; a draft ledger reports as a draft and never as "not started".
+    expect(report.layers.ledger.state).toBe("present");
+    expect(report.layers.transcription.state).toBe("present");
+    expect(report.layers.translation.state).toBe("present");
+    expect(report.layers.gloss.state).toBe("present");
+    const transcription = report.layers.transcription;
+    expect(transcription.state === "present" && transcription.unitCount).toBe(
+      manifest.units.length,
+    );
 
     const json = JSON.stringify(report, null, 2);
     const text = formatManifestReportText(report);

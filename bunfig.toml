@@ -14,6 +14,9 @@ pathIgnorePatterns = [
   "scripts/ocr-ledgers.cli.test.ts",
   "scripts/app/export-edition.test.ts",
   "src/content/ledger/validateLedgerCli.test.ts",
+  # am-4cpx: the source layers are derived from the tree, and their proof runs in the node lane so
+  # that it is not checked by the same lane the manifest report is generated in.
+  "src/content/manifest/sourceLayers.node.test.ts",
   "src/testing/a11y/accessibleNamesBrowser.test.mjs",
   "src/testing/styles/computedStylesLayout.test.ts",
   "src/testing/foundCalculus.browser.test.mjs",

@@ -95,6 +95,15 @@ export type SourceLayerState =
       readonly status: "draft" | "proofed" | "reviewed" | "accepted";
       readonly available: true;
       readonly unitCount: number;
+      /**
+       * The denominator `unitCount` is counted against, and what it counts (am-4cpx). A count
+       * without its population cannot tell 542 of 542 from 0 of 542, and the report printed the
+       * second for two months while the tree held the first.
+       */
+      readonly of?: number;
+      readonly population?: string;
+      /** What the status cannot carry: who reviewed, and under which decision. */
+      readonly note?: string;
     };
 
 export type PaperSourceLayers = Readonly<Record<SourceLayerKind, SourceLayerState>>;

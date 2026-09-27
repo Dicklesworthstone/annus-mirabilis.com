@@ -17,6 +17,7 @@ import {
   writeManifestReportJson,
 } from "../src/content/manifest/report.ts";
 import { validateSourceManifest } from "../src/content/manifest/schema.ts";
+import { readSourceLayers } from "../src/content/manifest/sourceLayers.ts";
 import { parseYaml } from "../src/content/provenance/yaml.ts";
 import { newRunIdentity } from "../src/testing/log/logger.ts";
 
@@ -93,7 +94,12 @@ async function main() {
   }
 
   const manifest = validateSourceManifest(parsedRaw, manifestPath);
-  const report = generateManifestReport(manifest);
+  // Derived from the tree, never defaulted: this report is the completeness authority, and a
+  // default that said "absent" made it print zeros over a filled tree for two months (am-4cpx).
+  const report = generateManifestReport(
+    manifest,
+    readSourceLayers(process.cwd(), manifest.paper, manifest.document, manifest.pageCount),
+  );
 
   const toolRunId = generateToolRunId();
   writeManifestReportJson(report, toolRunId);

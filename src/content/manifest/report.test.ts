@@ -13,6 +13,7 @@ import { describe, it } from "node:test";
 import {
   formatManifestReportText,
   generateManifestReport,
+  getAbsentSourceLayers,
   writeManifestReportJson,
 } from "./report.ts";
 import type { SourceManifest } from "./types.ts";
@@ -105,7 +106,7 @@ describe("Source Manifest Report Suite", () => {
   };
 
   it("computes per-kind and per-status inventory counts with not-in-scope separated", () => {
-    const report = generateManifestReport(sampleManifest);
+    const report = generateManifestReport(sampleManifest, getAbsentSourceLayers());
 
     assert.equal(report.paper, "report-sample-paper");
     assert.equal(report.document, "ap-17-132");
@@ -151,7 +152,7 @@ describe("Source Manifest Report Suite", () => {
   });
 
   it("formats human-readable text report without aggregate percentages", () => {
-    const report = generateManifestReport(sampleManifest);
+    const report = generateManifestReport(sampleManifest, getAbsentSourceLayers());
     const text = formatManifestReportText(report);
 
     assert.ok(text.includes("SOURCE MANIFEST INVENTORY REPORT: report-sample-paper"));
@@ -184,7 +185,7 @@ describe("Source Manifest Report Suite", () => {
       pageRange: [549, 560],
       units: [],
     };
-    const text = formatManifestReportText(generateManifestReport(empty));
+    const text = formatManifestReportText(generateManifestReport(empty, getAbsentSourceLayers()));
     assert.ok(text.includes("No source units inventoried"));
     assert.equal(text.toLowerCase().includes("are reviewed"), false);
     assert.equal(text.includes("%"), false);
@@ -196,7 +197,7 @@ describe("Source Manifest Report Suite", () => {
   });
 
   it("writes report JSON to artifacts/source-manifest/ and validates written file", () => {
-    const report = generateManifestReport(sampleManifest);
+    const report = generateManifestReport(sampleManifest, getAbsentSourceLayers());
     const runId = "test-run-1234";
     const writtenPath = writeManifestReportJson(report, runId);
 
@@ -251,7 +252,7 @@ describe("Source Manifest Report Suite", () => {
     } catch (err: any) {
       if (err?.code === "EBADF") {
         // Fallback directly via module functions when subprocess spawning is restricted
-        const report = generateManifestReport(fixtureManifest);
+        const report = generateManifestReport(fixtureManifest, getAbsentSourceLayers());
         jsonOutput = JSON.stringify(report);
         textOutput = formatManifestReportText(report);
       } else {
