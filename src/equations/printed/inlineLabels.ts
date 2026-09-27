@@ -20,12 +20,23 @@
 import { loadConcordanceForPaper } from "../../content/notation/loader.ts";
 import { normalizeSectionId } from "../../content/notation/resolve.ts";
 import type { ConcordanceEntry } from "../../content/schemas/concordance.ts";
-/** The name a display-terms sign is read under (equationExplanations.ts gives its entry this id). */
-export const signSource = (glyph: string): string => `display-terms sign ${glyph}`;
-
 import { loadDisplayTerms } from "./displayTerms.ts";
 import { loadInlineExceptions } from "./inlineExceptions.ts";
 import type { InlineException } from "./inlineTerms.ts";
+
+/** The name a display-terms sign is read under (equationExplanations.ts gives its entry this id). */
+export const signSource = (glyph: string): string => `display-terms sign ${glyph}`;
+
+export type InlineLabelsCode = "inline-label-id-collision";
+
+export class InlineLabelsError extends Error {
+  readonly code: InlineLabelsCode;
+  constructor(code: InlineLabelsCode, message: string) {
+    super(`${code}: ${message}`);
+    this.name = "InlineLabelsError";
+    this.code = code;
+  }
+}
 
 /**
  * The id of one reading of a name in one section. Short, because it is printed once per marked
@@ -75,18 +86,25 @@ export function inlineLabelNotes(
   concordance: readonly ConcordanceEntry[],
   exceptions: readonly InlineException[],
   signs: readonly Readonly<{ glyph: string; reason: string }>[] = [],
+  /**
+   * How a name is turned into an id. The derivation is the point of this module, so it is a
+   * parameter: inlineLabels.test.ts passes one that gives every name the same id, which is the only
+   * way to reach the guard below, no collision in the real one being constructible by search.
+   */
+  idOf: (source: string, section: string) => string = inlineLabelId,
 ): Readonly<Record<string, string>> {
   const sections = paperSections(concordance);
   const notes: Record<string, string> = {};
   const keyOf = new Map<string, string>();
   const add = (source: string, section: string, note: string) => {
-    const id = inlineLabelId(source, section);
+    const id = idOf(source, section);
     const key = `${source}\u0000${section}`;
     const taken = keyOf.get(id);
     // Two readings under one id would light together and say one another's words.
     if (taken !== undefined && taken !== key)
-      throw new Error(
-        `inline-label-id-collision: ${paper} gives ${id} to both ${taken.replace("\u0000", " in ")} and ${key.replace("\u0000", " in ")}.`,
+      throw new InlineLabelsError(
+        "inline-label-id-collision",
+        `${paper} gives ${id} to both ${taken.replace("\u0000", " in ")} and ${key.replace("\u0000", " in ")}.`,
       );
     keyOf.set(id, key);
     notes[id] = note;
