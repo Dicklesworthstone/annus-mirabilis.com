@@ -1,0 +1,35 @@
+# special-relativity eq-s3-d11: what the display says, at every level (dispatch 286).
+# Written from the German of s3-p12 (p. 900) and its plate; every step was checked by hand.
+display: eq-s3-d11
+paper: special-relativity
+inWords:
+  - text: "The distance across the motion in the moving system"
+    quantityId: coordinatePositionMoving
+  - text: " is "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " times "
+  - text: "the moving system's time"
+    quantityId: coordinateTimeMoving
+  - text: ", which is "
+  - text: "the factor still to be found"
+    quantityId: transformationCoefficientA
+  - text: " times the velocity of light times "
+  - text: "the stationary time"
+    quantityId: coordinateTimeStationary
+  - text: " less "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " over the square of the velocity of light less the square of that speed, times "
+  - text: "the distance along the motion"
+    quantityId: auxiliaryGalileanCoordinate
+  - text: "."
+r0: "The same two moves again, for a ray sent across the motion rather than along it: in the moving system that ray also travels at the velocity of light, and the moving system's time is what the section already found."
+r1: "The paper says it finds the other two coordinates in the same way, by considering rays sent along the other two axes, and prints the result. Written out, the reasoning is the pair of displays before it, with the second axis in place of the first: a ray sent at $\\tau = 0$ along the direction of increasing $\\eta$ is at $\\eta = V \\tau$ by the moving system's own measurement, and $\\tau$ is the function of $t$ and $x'$ that the section has found. The expression still carries a stationary time, and the display after this one removes it, exactly as $\\frac{x'}{V-v} = t$ removed it along the motion."
+r2:
+  - latex: "\\eta = V \\tau"
+    why: "The ray sent across the motion also travels at the velocity of light, measured in the moving system: the same requirement as for the ray along the motion."
+  - latex: "\\tau = a \\left( t - \\frac{v}{V^2 - v^2} x' \\right)"
+    why: "The moving system's time, as the section found it."
+  - latex: "\\eta = a V \\left( t - \\frac{v}{V^2 - v^2} x' \\right)"
+    why: "Put the second into the first, which is the line as printed."

@@ -1,0 +1,30 @@
+# special-relativity eq-s3-d13: what the display says, at every level (dispatch 286).
+# Written from the German of s3-p12 (p. 900) and its plate; every step was checked by hand.
+display: eq-s3-d13
+paper: special-relativity
+inWords:
+  - text: "The distance across the motion in the moving system"
+    quantityId: coordinatePositionMoving
+  - text: " is "
+  - text: "the factor still to be found"
+    quantityId: transformationCoefficientA
+  - text: " times "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " over the square root of its square less the square of "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: ", times "
+  - text: "the distance across the motion"
+    quantityId: coordinatePositionStationary
+  - text: "."
+r0: "The moving system's distance across the motion, in terms of the stationary one alone. A coordinate at right angles to the motion is not left alone here: it carries a factor, and only the argument at the end of the section brings that factor to one."
+r1: "The stationary time goes out of the expression for $\\eta$ the same way it went out along the motion: by putting in what this ray's own progress makes it. This ray keeps level with the moving system's origin along the direction of the motion, so the term that carried the sliding of the clocks drops, and what is left is the time multiplied by $a V$. The result is worth pausing on. Measured across the motion the coordinates are not equal, but stand in the ratio $\\frac{a V}{\\sqrt{V^2 - v^2}}$, which is $a \\beta$ in the notation the section reaches at its end. The two transverse coordinates come out the same as each other, which is why the next display is this one with the third axis in place of the second. What makes the transverse coordinates equal in the end is not this line but the argument with the third system and the rod held across the motion, which forces the leftover factor to one."
+r2:
+  - latex: "\\eta = a V t"
+    why: "The expression the section reached for the distance across the motion, with the term in the distance along the motion gone: this ray keeps level with the moving system's origin, so that distance is zero for it."
+  - latex: "\\eta = a V \\frac{y}{\\sqrt{V^2 - v^2}}"
+    why: "Put in the stationary time this ray has taken, from the previous display."
+  - latex: "\\eta = a \\frac{V}{\\sqrt{V^2 - v^2}} y"
+    why: "Gather the constants, which is the line as printed."
+r3: "In the form the section closes with, this factor is $\\varphi(v)$ and the transverse coordinates are left unchanged; that $\\varphi(v) = 1$ is not assumed here but argued afterwards, first by composing the transformation with its own reverse through the third system $K'$, then by a rod held across the motion and the symmetry of the two directions (pp. 901 and 902)."

@@ -1,0 +1,29 @@
+# special-relativity eq-s3-d12: what the display says, at every level (dispatch 286).
+# Written from the German of s3-p12 (p. 900) and its plate; every step was checked by hand.
+display: eq-s3-d12
+paper: special-relativity
+inWords:
+  - text: "The distance across the motion"
+    quantityId: coordinatePositionStationary
+  - text: " divided by the square root of the square of "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " less the square of "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " is "
+  - text: "the stationary time"
+    quantityId: coordinateTimeStationary
+  - text: "; and "
+  - text: "the distance along the motion"
+    quantityId: auxiliaryGalileanCoordinate
+  - text: " is zero."
+r0: "Where the ray sent across the motion has got to, told in the stationary system. It crosses at the speed left over after keeping pace with the moving system, and it never leaves that system's first axis, so the distance along the motion stays zero."
+r1: "Two facts about the same ray, both measured in the stationary system. It stays on the moving system's second axis, so its distance from that system's origin along the motion is zero: that is $x' = 0$, not $x = 0$, since the point it keeps up with is itself travelling. And it crosses at $\\sqrt{V^2 - v^2}$, the speed that is left when part of the velocity of light goes into keeping pace, which the section established when it sent rays across the motion earlier. Together they give the elapsed stationary time in terms of the distance across."
+r2:
+  - latex: "x' = 0"
+    why: "The ray keeps to the moving system's second axis, so it stays level with that system's origin along the direction of the motion."
+  - latex: "y = \\sqrt{V^2 - v^2} \; t"
+    why: "It crosses at the speed left over, which the section used before for the rays sent across the motion."
+  - latex: "\\frac{y}{\\sqrt{V^2 - v^2}} = t"
+    why: "Divide by that speed, which is the line as printed."

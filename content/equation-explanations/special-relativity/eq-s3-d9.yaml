@@ -1,0 +1,27 @@
+# special-relativity eq-s3-d9: what the display says, at every level (dispatch 286).
+# Written from the German of s3-p12 (p. 900) and its plate; every step was checked by hand.
+display: eq-s3-d9
+paper: special-relativity
+inWords:
+  - text: "The distance along the motion"
+    quantityId: auxiliaryGalileanCoordinate
+  - text: " divided by "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " less "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: " is "
+  - text: "the stationary time"
+    quantityId: coordinateTimeStationary
+  - text: "."
+r0: "Where the same ray has got to, told in the stationary system. It gains on the moving origin at the difference of the two speeds, so the time it has taken is the distance divided by that difference."
+r1: "The previous display left a stationary time and a stationary distance both standing in the expression for $\\xi$. This removes one of them. In the stationary system the ray travels at $V$ and the origin of $k$ travels at $v$ in the same direction, so the ray draws away from that origin at $V - v$. The distance it has drawn away, measured in the stationary system, is what the paper calls $x'$. The two together give the elapsed stationary time. The step uses the stationary system's own measurements only, where $V$ was assumed at the outset; the moving system's claim about the same ray was used in the previous display, and the two claims are what the section is holding together."
+r2:
+  - latex: "\\text{gap} = (V - v) \\times \\text{stationary time}"
+    why: "The ray goes at $V$ and the origin of $k$ at $v$, both measured in the stationary system, so the gap between them opens at $V - v$."
+  - latex: "x' = (V - v) t"
+    why: "That gap is the distance from $k$'s origin measured in the stationary system, which is $x'$; the ray and the origin were together at $t = 0$."
+  - latex: "\\frac{x'}{V - v} = t"
+    why: "Divide by $V - v$, which is the line as printed."
+r3: "The closing speed $V - v$ is a difference of two speeds in one system, not a velocity of light for anyone: no observer here measures light at $V - v$, and the paper's own § 2 used the same difference for the rod (p. 896). Reading it as a slower light is the mistake the section exists to avert."

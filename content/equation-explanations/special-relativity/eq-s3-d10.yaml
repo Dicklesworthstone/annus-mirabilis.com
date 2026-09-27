@@ -1,0 +1,33 @@
+# special-relativity eq-s3-d10: what the display says, at every level (dispatch 286).
+# Written from the German of s3-p12 (p. 900) and its plate; every step was checked by hand.
+display: eq-s3-d10
+paper: special-relativity
+inWords:
+  - text: "The distance along the motion in the moving system"
+    quantityId: coordinatePositionMoving
+  - text: " is "
+  - text: "the factor still to be found"
+    quantityId: transformationCoefficientA
+  - text: " times the square of "
+  - text: "the velocity of light"
+    quantityId: speedOfLight
+  - text: " over that square less the square of "
+  - text: "the speed of the moving system"
+    quantityId: frameSpeed
+  - text: ", times "
+  - text: "the distance along the motion"
+    quantityId: auxiliaryGalileanCoordinate
+  - text: "."
+r0: "The moving system's distance along the motion, in terms of a stationary distance alone: the time has gone. Apart from the factor still to be found, this is the stretching of the first coordinate that the whole section has been working towards."
+r1: "The stationary time is taken out of the expression for $\\xi$ by putting in what the previous display found it to be for this ray. What is left depends on $x'$ alone, with a coefficient built from the two speeds. The arithmetic is worth doing slowly, because the $V^2 - v^2$ in the denominator of the time expression and the $V - v$ from the ray's own progress combine into a single factor rather than cancelling. The paper prints the result and no working; the steps here supply it. When $a$ is settled at the end of the section as $\\frac{1}{\\beta}$ times a function that turns out to be one, this line becomes $\\xi = \\beta (x - v t)$, the form the section closes with."
+r2:
+  - latex: "\\xi = a V \\left( t - \\frac{v}{V^2 - v^2} x' \\right)"
+    why: "The expression for the moving distance that the section has reached."
+  - latex: "\\xi = a V \\left( \\frac{x'}{V - v} - \\frac{v}{V^2 - v^2} x' \\right)"
+    why: "Put in the stationary time this ray has taken, from the previous display."
+  - latex: "\\frac{1}{V - v} = \\frac{V + v}{V^2 - v^2}"
+    why: "Put both terms over the one denominator $V^2 - v^2$."
+  - latex: "\\frac{V + v}{V^2 - v^2} - \\frac{v}{V^2 - v^2} = \\frac{V}{V^2 - v^2}"
+    why: "Subtract: the two terms in $v$ cancel and $V$ is left."
+  - latex: "\\xi = a V \\cdot \\frac{V}{V^2 - v^2} x' = a \\frac{V^2}{V^2 - v^2} x'"
+    why: "The $V$ outside and the $V$ from the bracket make $V^2$, which is the line as printed."
