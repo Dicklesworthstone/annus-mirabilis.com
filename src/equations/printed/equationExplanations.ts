@@ -47,6 +47,7 @@ import type { ConcordanceEntry } from "../../content/schemas/concordance.ts";
 import { strictParse } from "../../content/schemas/strictParse.ts";
 import { loadBilingualEdition } from "../../reader/faces/bilingualLoader.ts";
 import { type DisplayTermsEntry, displayOccurrences, loadDisplayTerms } from "./displayTerms.ts";
+import { loadInlineExceptions } from "./inlineExceptions.ts";
 import { inlineLabelId, signSource } from "./inlineLabels.ts";
 import {
   compileInlineFormula,
@@ -54,7 +55,7 @@ import {
   resolveInlineTerms,
 } from "./inlineTerms.ts";
 import { modernInlineEntries } from "./modernScope.ts";
-import { type InlineQuantityUse, loadInlineExceptions } from "./paperInlines.ts";
+import type { InlineQuantityUse } from "./paperInlines.ts";
 
 export const EQUATION_EXPLANATIONS_DIR = join("content", "equation-explanations");
 

@@ -17,6 +17,7 @@
  * Server only: the concordance is read from content/ at build time.
  */
 import { loadConcordanceForPaper } from "../content/notation/loader.ts";
+import { loadInlineExceptions } from "../equations/printed/inlineExceptions.ts";
 import { inlineLabelId } from "../equations/printed/inlineLabels.ts";
 import {
   compileInlineFormula,
@@ -24,7 +25,6 @@ import {
   resolveInlineTerms,
 } from "../equations/printed/inlineTerms.ts";
 import { modernInlineEntries } from "../equations/printed/modernScope.ts";
-import { loadInlineExceptions } from "../equations/printed/paperInlines.ts";
 // The registry's own check (content/quantities/registry.ts) reads content/ at run time and cannot be
 // bundled into a page; this generated map names every registered id (explanationInlines.test.tsx
 // holds the two to the same answer).

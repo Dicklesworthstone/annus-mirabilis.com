@@ -28,6 +28,7 @@ import { type BilingualEdition, loadBilingualEdition } from "../../reader/faces/
 import { glyphSignature } from "../latex/printedAtoms.ts";
 import type { TermFacts } from "../termFacts.ts";
 import { fallbackTermFacts, notationFor, notationLink } from "./fallbackFacts.ts";
+import { ENFORCED_INLINE_PAPERS, loadInlineExceptions } from "./inlineExceptions.ts";
 import { inlineLabelId } from "./inlineLabels.ts";
 import {
   type CompiledInline,
@@ -38,101 +39,14 @@ import {
   resolveInlineTerms,
 } from "./inlineTerms.ts";
 
-export const INLINE_EXCEPTIONS_PATH = join("content", "inline-terms", "exceptions.yaml");
-
-/**
- * Papers whose every inline formula is coloured or declared: a refusal stops the build, and only
- * these are drawn in colour (scripts/build-equations.ts), so a paper turns over whole. A paper joins
- * when its concordance reads every glyph its formulas print.
- */
-export const ENFORCED_INLINE_PAPERS: readonly string[] = [
-  "mass-energy",
-  "light-quanta",
-  "brownian-motion",
-  // Dispatch 277: every glyph read from the plates of pp. 893 to 921, its points and axes listed.
-  "special-relativity",
-];
-
-export type InlineExceptionsCode =
-  | "inline-exceptions-not-a-list"
-  | "inline-exceptions-no-paper"
-  | "inline-exceptions-glyph-not-one-atom"
-  | "inline-exceptions-no-scope"
-  | "inline-exceptions-no-reason"
-  | "inline-exceptions-no-note";
-
-export class InlineExceptionsError extends Error {
-  readonly code: InlineExceptionsCode;
-  constructor(code: InlineExceptionsCode, message: string) {
-    super(`${code}: ${message}`);
-    this.name = "InlineExceptionsError";
-    this.code = code;
-  }
-}
-
-/** The listed exceptions, each checked: a known paper, one atom, a scope, and a reason. */
-export function parseInlineExceptions(raw: unknown, where: string): readonly InlineException[] {
-  const list = (raw as { exceptions?: unknown } | null)?.exceptions;
-  if (!Array.isArray(list))
-    throw new InlineExceptionsError(
-      "inline-exceptions-not-a-list",
-      `${where}: exceptions must be a list.`,
-    );
-  return list.map((item, i) => {
-    const at = `${where} exceptions[${i}]`;
-    const e = (item ?? {}) as Record<string, unknown>;
-    if (typeof e.paper !== "string" || !e.paper)
-      throw new InlineExceptionsError("inline-exceptions-no-paper", `${at}: paper is required.`);
-    const glyph = typeof e.glyph === "string" ? e.glyph : "";
-    let oneAtom = true;
-    try {
-      glyphSignature(glyph);
-    } catch {
-      oneAtom = false;
-    }
-    if (!oneAtom)
-      throw new InlineExceptionsError(
-        "inline-exceptions-glyph-not-one-atom",
-        `${at}: "${glyph}" is not one printed name.`,
-      );
-    if (
-      !Array.isArray(e.scope) ||
-      e.scope.length === 0 ||
-      e.scope.some((s) => typeof s !== "string" || !s)
-    )
-      throw new InlineExceptionsError(
-        "inline-exceptions-no-scope",
-        `${at}: scope must list sections, anchors or "all".`,
-      );
-    if (typeof e.reason !== "string" || e.reason.trim().length < 20)
-      throw new InlineExceptionsError(
-        "inline-exceptions-no-reason",
-        `${at}: a reason of a sentence is required.`,
-      );
-    // What the sign names, for the reader who points at it on a reading face (dispatch 280).
-    if (typeof e.note !== "string" || e.note.trim().length < 8)
-      throw new InlineExceptionsError(
-        "inline-exceptions-no-note",
-        `${at}: a note saying what the sign names, in the reader's words, is required.`,
-      );
-    return {
-      paper: e.paper,
-      glyph,
-      scope: e.scope as string[],
-      reason: e.reason.trim(),
-      note: e.note.trim(),
-    };
-  });
-}
-
-export function loadInlineExceptions(root: string): readonly InlineException[] {
-  const path = join(root, INLINE_EXCEPTIONS_PATH);
-  if (!existsSync(path)) return [];
-  return parseInlineExceptions(
-    strictParse(readFileSync(path, "utf8"), "yaml", INLINE_EXCEPTIONS_PATH),
-    INLINE_EXCEPTIONS_PATH,
-  );
-}
+export {
+  ENFORCED_INLINE_PAPERS,
+  INLINE_EXCEPTIONS_PATH,
+  type InlineExceptionsCode,
+  InlineExceptionsError,
+  loadInlineExceptions,
+  parseInlineExceptions,
+} from "./inlineExceptions.ts";
 
 /** The scope key a holder names: one render per scope and LaTeX. */
 export function scopeKey(scope: Pick<InlineScope, "paper" | "anchor" | "section">): string {

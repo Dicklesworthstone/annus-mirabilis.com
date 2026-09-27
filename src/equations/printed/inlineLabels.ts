@@ -24,8 +24,8 @@ import type { ConcordanceEntry } from "../../content/schemas/concordance.ts";
 export const signSource = (glyph: string): string => `display-terms sign ${glyph}`;
 
 import { loadDisplayTerms } from "./displayTerms.ts";
+import { loadInlineExceptions } from "./inlineExceptions.ts";
 import type { InlineException } from "./inlineTerms.ts";
-import { loadInlineExceptions } from "./paperInlines.ts";
 
 /**
  * The id of one reading of a name in one section. Short, because it is printed once per marked
