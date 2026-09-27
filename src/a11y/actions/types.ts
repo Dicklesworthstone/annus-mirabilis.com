@@ -72,7 +72,9 @@ export type ActionContractAuditCode =
   | "missing-action-announcement"
   | "action-equivalent-insufficient"
   | "result-outputs-mismatch"
-  | "action-id-mismatch";
+  | "action-id-mismatch"
+  /** The page a reader receives holds none of the elements the action promises (am-jioj). */
+  | "action-affordance-absent";
 
 export interface ActionContractAuditDiagnostic {
   readonly code: ActionContractAuditCode;
