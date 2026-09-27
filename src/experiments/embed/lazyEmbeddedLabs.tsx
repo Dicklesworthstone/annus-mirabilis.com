@@ -56,6 +56,12 @@ import "../../components/lab/labShell.css";
 import "../../components/lab/labControls.css";
 import "../../components/lab/sci.css";
 import "../../equations/equations.css";
+// A laboratory formula may carry the printed displays' explanation panel (LabFormula, dispatch
+// 291), whose stylesheet is imported by EquationExplainer, a component the embed reaches only
+// through a lazy import, so the walk in embedStylesheets.test.ts found it on the me-02 and bm-01
+// pages and not in the embed. The panel's disclosure is CSS alone (:has(), no script), so the
+// stylesheet is not decoration here: it is what closes the levels.
+import "../../reader/faces/equationExplainer.css";
 import "../../experiments/labels/executionChrome.css";
 import "../../experiments/permalink/permalink.css";
 import "../../components/lab/showTheCode.css";
