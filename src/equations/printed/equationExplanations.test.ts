@@ -70,7 +70,11 @@ describe("the explanation records", () => {
   });
 
   test("a good record compiles in colour, its phrases and its step bound to the display's quantities", async () => {
-    const checked = await checkPaperExplanations(ROOT, "mass-energy", { sources: plant(GOOD) });
+    // enforced: [] so the six displays this fixture does not plant are reported, not refused.
+    const checked = await checkPaperExplanations(ROOT, "mass-energy", {
+      sources: plant(GOOD),
+      enforced: [],
+    });
     expect(checked.problems).toEqual([]);
     const [explained] = checked.explanations;
     expect(explained?.display).toBe("eq-s0-d1");
@@ -126,6 +130,7 @@ describe("the explanation records", () => {
     ]);
     const named = await checkPaperExplanations(ROOT, "mass-energy", {
       sources: plant({ ...GOOD, r0: "" }),
+      enforced: [],
     });
     expect(named.problems[0]?.display).toBe("eq-s0-d1");
     expect(named.problems[0]?.message).toContain("eq-s0-d1");
@@ -150,6 +155,7 @@ describe("the explanation records", () => {
     // A_1 has no concordance entry of its own; light quanta's eq-s1-d4 binds it as a Fourier
     // amplitude, and its f is a sign the display declares, as the concordance reads it too.
     const checked = await checkPaperExplanations(ROOT, "light-quanta", {
+      enforced: [],
       sources: plant(
         {
           display: "eq-s1-d4",
@@ -176,6 +182,7 @@ describe("the explanation records", () => {
   test("the build stops on a problem in an enforced paper, naming it, and reports one in any other", async () => {
     const refused = await checkPaperExplanations(ROOT, "mass-energy", {
       sources: plant({ ...GOOD, r0: "" }),
+      enforced: [],
     });
     expect(() => assertExplanationsPublishable([refused], [])).not.toThrow();
     let caught: unknown;
@@ -187,7 +194,10 @@ describe("the explanation records", () => {
     expect(caught).toBeInstanceOf(EquationExplanationsError);
     expect((caught as EquationExplanationsError).code).toBe("equation-explanations-refused");
     expect((caught as Error).message).toContain("eq-s0-d1");
-    const clean = await checkPaperExplanations(ROOT, "mass-energy", { sources: plant(GOOD) });
+    const clean = await checkPaperExplanations(ROOT, "mass-energy", {
+      sources: plant(GOOD),
+      enforced: [],
+    });
     expect(() => assertExplanationsPublishable([clean], ["mass-energy"])).not.toThrow();
   });
 });

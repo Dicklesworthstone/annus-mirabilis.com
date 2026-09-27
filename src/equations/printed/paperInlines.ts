@@ -28,6 +28,7 @@ import { type BilingualEdition, loadBilingualEdition } from "../../reader/faces/
 import { glyphSignature } from "../latex/printedAtoms.ts";
 import type { TermFacts } from "../termFacts.ts";
 import { fallbackTermFacts, notationFor, notationLink } from "./fallbackFacts.ts";
+import { inlineLabelId } from "./inlineLabels.ts";
 import {
   type CompiledInline,
   compileInlineFormula,
@@ -264,17 +265,9 @@ export async function checkPaperInlines(
   const refusedKeys = new Set<string>();
   const problems: InlineTermsProblem[] = [];
   // Each label's id on the page (dispatch 280, step 1b): one per reading and section, so a point A
-  // of § 1 lights with every other A of § 1 and never with the A of § 7, which is an amplitude.
-  const labelIds = new Map<string, string>();
-  const labelId = (source: string, section: string) => {
-    const key = `${source}\u0000${section}`;
-    let id = labelIds.get(key);
-    if (id === undefined) {
-      id = `L${labelIds.size + 1}`;
-      labelIds.set(key, id);
-    }
-    return id;
-  };
+  // of § 1 lights with every other A of § 1 and never with the A of § 7, which is an amplitude. It
+  // is derived, not counted, so an explanation panel resolving the same name as the page renders
+  // (explanationInlines.ts) reaches the same id and lights with it (inlineLabels.ts).
   const census = { formulas: 0, german: 0, english: 0, coloured: 0, plainDeclared: 0, refused: 0 };
   for (const at of occurrences) {
     census.formulas++;
@@ -284,7 +277,10 @@ export async function checkPaperInlines(
       const read = resolveInlineTerms(at.latex, at, context);
       const resolved = {
         ...read,
-        labels: read.labels.map((l) => ({ ...l, labelId: labelId(l.source, at.section) })),
+        labels: read.labels.map((l) => ({
+          ...l,
+          labelId: inlineLabelId(l.source, at.section),
+        })),
       };
       if (resolved.problems.length > 0) {
         refusedKeys.add(key);

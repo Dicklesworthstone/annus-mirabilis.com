@@ -31,9 +31,11 @@ export function InlineMathText({
             key={segment.start}
             // A coloured formula is marked as the faces' inline formulas are, so the page's island
             // (ExplanationInlineTerms) lights and pins its glyphs and equations.css tints them.
-            className={marked?.coloured ? "inline-math" : undefined}
+            className={marked?.coloured || marked?.labelled ? "inline-math" : undefined}
             data-inline-terms={marked?.coloured ? "" : undefined}
-            data-paper={marked?.coloured ? scope?.paper : undefined}
+            // Its points, axes, systems and signs, which light and pin with a note (dispatch 280).
+            data-inline-labels={marked?.labelled ? "" : undefined}
+            data-paper={marked?.coloured || marked?.labelled ? scope?.paper : undefined}
             // biome-ignore lint/security/noDangerouslySetInnerHtml: static KaTeX output of a validated record, rendered with trust: false (the marked render trusts only its own data-term attributes); the surrounding words stay escaped React text.
             dangerouslySetInnerHTML={{ __html: marked?.html ?? plain }}
           />

@@ -47,6 +47,7 @@ import type { ConcordanceEntry } from "../../content/schemas/concordance.ts";
 import { strictParse } from "../../content/schemas/strictParse.ts";
 import { loadBilingualEdition } from "../../reader/faces/bilingualLoader.ts";
 import { type DisplayTermsEntry, displayOccurrences, loadDisplayTerms } from "./displayTerms.ts";
+import { inlineLabelId } from "./inlineLabels.ts";
 import {
   compileInlineFormula,
   type InlineTermsContext,
@@ -61,7 +62,7 @@ export const EQUATION_EXPLANATIONS_DIR = join("content", "equation-explanations"
  * Papers whose every printed display has its explanation: a display with no record stops the build.
  * A paper joins when its authors have written them all.
  */
-export const ENFORCED_EXPLANATION_PAPERS: readonly string[] = [];
+export const ENFORCED_EXPLANATION_PAPERS: readonly string[] = ["mass-energy"];
 
 export type ExplanationCode =
   | "explanation-unreadable"
@@ -84,10 +85,19 @@ export type ExplanationProblem = Readonly<{
 /** A phrase of the equation in words; a phrase that names a quantity carries its id. */
 export type WordsPhrase = Readonly<{ text: string; quantityId?: string | undefined }>;
 
-/** A piece of compiled prose: words, or a formula already drawn (coloured where it binds terms). */
+/**
+ * A piece of compiled prose: words, or a formula already drawn. A formula says whether it binds a
+ * quantity to colour, and whether it prints a name the notation declares no quantity (dispatch 280),
+ * so the panel marks its span as the reading faces mark theirs and the page's island lights both.
+ */
 export type ProsePart =
   | Readonly<{ kind: "text"; text: string }>
-  | Readonly<{ kind: "math"; html: string }>;
+  | Readonly<{
+      kind: "math";
+      html: string;
+      coloured?: boolean | undefined;
+      labelled?: boolean | undefined;
+    }>;
 
 export type CompiledStep = Readonly<{ formula: string; why: readonly ProsePart[] }>;
 
@@ -336,12 +346,22 @@ export async function checkPaperExplanations(
       isRegistered: isRegisteredQuantityId,
       exceptions,
     };
-    const draw = (latex: string, where: string, displayMode: boolean): string | undefined => {
-      const resolved = resolveInlineTerms(
+    const draw = (
+      latex: string,
+      where: string,
+      displayMode: boolean,
+    ): Readonly<{ html: string; coloured: boolean; labelled: boolean }> | undefined => {
+      const read = resolveInlineTerms(
         latex,
         { paper, where: `${display} ${where}`, anchor: scope.anchor, section: scope.section },
         context,
       );
+      // Its names take the ids the reading faces give them, so a k in a panel lights with the k in
+      // the paragraph it explains (inlineLabels.ts, dispatch 280).
+      const resolved = {
+        ...read,
+        labels: read.labels.map((l) => ({ ...l, labelId: inlineLabelId(l.source, scope.section) })),
+      };
       if (resolved.problems.length > 0) {
         problem(
           "explanation-formula-refused",
@@ -351,8 +371,11 @@ export async function checkPaperExplanations(
         return undefined;
       }
       let html: string;
+      let labelled = false;
       try {
-        html = compileInlineFormula(resolved, displayMode ? KATEX_DISPLAY : renderToString).html;
+        const compiled = compileInlineFormula(resolved, displayMode ? KATEX_DISPLAY : renderToString);
+        html = compiled.html;
+        labelled = (compiled.labels?.length ?? 0) > 0;
         // A step is laid out in display style, but it is not one of the paper's printed displays:
         // it keeps KaTeX's display layout and MathML and loses the katex-display wrapper, which the
         // faces count as the displays the paper prints (GermanDraftFace.test.tsx).
@@ -383,7 +406,7 @@ export async function checkPaperExplanations(
         if (!use) quantities[quantityId] = { glyphs: [glyph], scope };
         else if (!use.glyphs.includes(glyph)) use.glyphs.push(glyph);
       }
-      return html;
+      return { html, coloured: resolved.terms.length > 0, labelled };
     };
     const prose = (value: string, where: string): ProsePart[] => {
       const parts: ProsePart[] = [];
@@ -395,8 +418,14 @@ export async function checkPaperExplanations(
           words += value.slice(cursor, region.start);
         }
         words += " ";
-        const html = draw(region.latex, where, false);
-        if (html !== undefined) parts.push({ kind: "math", html });
+        const drawn = draw(region.latex, where, false);
+        if (drawn !== undefined)
+          parts.push({
+            kind: "math",
+            html: drawn.html,
+            ...(drawn.coloured ? { coloured: true } : {}),
+            ...(drawn.labelled ? { labelled: true } : {}),
+          });
         cursor = region.end;
       }
       if (cursor < value.length) {
@@ -417,7 +446,7 @@ export async function checkPaperExplanations(
     const r0 = prose(record.r0, "r0");
     const r1 = prose(record.r1, "r1");
     const r2 = record.r2.map((step, i) => ({
-      formula: draw(step.latex, `r2 step ${i + 1}`, true) ?? "",
+      formula: draw(step.latex, `r2 step ${i + 1}`, true)?.html ?? "",
       why: prose(step.why, `r2 step ${i + 1}`),
     }));
     const r3 = record.r3 === undefined ? undefined : prose(record.r3, "r3");

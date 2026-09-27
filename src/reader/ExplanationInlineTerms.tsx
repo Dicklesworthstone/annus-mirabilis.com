@@ -8,7 +8,10 @@
  * formulas the page draws (explanationFormulas.ts), so only the one paper's reach the island. For a
  * paper whose explanations are not yet coloured it renders nothing.
  */
+import { loadConcordanceForPaper } from "../content/notation/loader.ts";
 import { InlineTermLighting } from "../equations/InlineTermLighting.tsx";
+import { inlineLabelNotes } from "../equations/printed/inlineLabels.ts";
+import { loadInlineExceptions } from "../equations/printed/paperInlines.ts";
 import type { PrintedInlineQuantity } from "../equations/printed/printedInlines.ts";
 import payload from "../generated/explanation-inlines.json";
 import "../equations/equations.css";
@@ -24,5 +27,12 @@ const PAPERS = (
 
 export function ExplanationInlineTerms({ paper }: { paper: string }) {
   const quantities = PAPERS[paper]?.quantities;
-  return quantities ? <InlineTermLighting paper={paper} quantities={quantities} /> : null;
+  if (!quantities) return null;
+  // What each name the paper prints says, for the panels' points, axes, systems and signs.
+  const labels = inlineLabelNotes(
+    paper,
+    loadConcordanceForPaper(paper).entries,
+    loadInlineExceptions(process.cwd()),
+  );
+  return <InlineTermLighting paper={paper} quantities={quantities} labels={labels} />;
 }

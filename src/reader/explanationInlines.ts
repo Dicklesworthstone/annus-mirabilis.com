@@ -17,12 +17,14 @@
  * Server only: the concordance is read from content/ at build time.
  */
 import { loadConcordanceForPaper } from "../content/notation/loader.ts";
+import { inlineLabelId } from "../equations/printed/inlineLabels.ts";
 import {
   compileInlineFormula,
   type InlineTermsContext,
   resolveInlineTerms,
 } from "../equations/printed/inlineTerms.ts";
 import { modernInlineEntries } from "../equations/printed/modernScope.ts";
+import { loadInlineExceptions } from "../equations/printed/paperInlines.ts";
 // The registry's own check (content/quantities/registry.ts) reads content/ at run time and cannot be
 // bundled into a page; this generated map names every registered id (explanationInlines.test.tsx
 // holds the two to the same answer).
@@ -66,7 +68,10 @@ function contextFor(paper: string): InlineTermsContext {
     context = {
       concordance: modernInlineEntries(paper, loadConcordanceForPaper(paper)),
       isRegistered: isRegisteredForPage,
-      exceptions: [],
+      // The paper's own listed signs (dispatch 280, step 1b): an explanation writes π and d as the
+      // paper does, and the whole list is passed, unfiltered, because a sign is named by its place
+      // in it, which is how an explanation's π reaches the same note as a paragraph's.
+      exceptions: loadInlineExceptions(process.cwd()),
     };
     contexts.set(paper, context);
   }
@@ -75,23 +80,37 @@ function contextFor(paper: string): InlineTermsContext {
 
 /**
  * The formula drawn with its terms marked, or undefined when its paper is not yet coloured, or when
- * it does not resolve in its scope and its paper is not enforced (the caller then renders it plain). `coloured` is false for a formula
- * whose atoms are all operators, indices or exceptions: it resolves, and has nothing to colour.
+ * it does not resolve in its scope and its paper is not enforced (the caller then renders it plain).
+ * `coloured` is false for a formula with no quantity to colour; `labelled` is true where it prints a
+ * name the notation declares no quantity (a point, an axis, a system, a sign), which the page lights
+ * and pins with a note of its own (dispatch 280, step 1b).
  */
 export function explanationInline(
   latex: string,
   scope: ExplanationScope,
   enforced: readonly string[] = ENFORCED_EXPLANATION_PAPERS,
   coloured: readonly string[] = COLOURED_EXPLANATION_PAPERS,
-): Readonly<{ html: string; coloured: boolean }> | undefined {
+): Readonly<{ html: string; coloured: boolean; labelled: boolean }> | undefined {
   if (!coloured.includes(scope.paper) && !enforced.includes(scope.paper)) return undefined;
-  const resolved = resolveInlineTerms(
+  const read = resolveInlineTerms(
     latex,
     { paper: scope.paper, where: scope.where, anchor: scope.section, section: scope.section },
     contextFor(scope.paper),
   );
-  if (resolved.problems.length === 0)
-    return { html: compileInlineFormula(resolved).html, coloured: resolved.terms.length > 0 };
+  // Its names take the ids the reading faces give them, so a k in a panel lights with the k in the
+  // paragraph above it (inlineLabels.ts).
+  const resolved = {
+    ...read,
+    labels: read.labels.map((l) => ({ ...l, labelId: inlineLabelId(l.source, scope.section) })),
+  };
+  if (resolved.problems.length === 0) {
+    const compiled = compileInlineFormula(resolved);
+    return {
+      html: compiled.html,
+      coloured: resolved.terms.length > 0,
+      labelled: (compiled.labels?.length ?? 0) > 0,
+    };
+  }
   // Throws inline-terms-refused, naming the passage and each glyph.
   if (enforced.includes(scope.paper)) compileInlineFormula(resolved);
   return undefined;

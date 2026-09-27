@@ -36,8 +36,8 @@ export type InlineQuantity = Readonly<{
   hrefMeaning?: string | undefined;
 }>;
 
-/** What a label names, and its glyph drawn at build time. */
-export type InlineLabelNote = Readonly<{ glyphHtml: string; note: string }>;
+/** What a label names, in the reader's words (inlineLabels.ts). */
+export type InlineLabelNote = string;
 
 /**
  * A pinned quantity, or a pinned label, and the inline formula it was pinned from. Exactly one of
@@ -181,7 +181,7 @@ export function InlineTermLighting({
 }: {
   paper: string;
   quantities: Readonly<Record<string, InlineQuantity>>;
-  /** What each label of the page names (dispatch 280): a point, an axis, a system, a sign. */
+  /** What each name the paper prints says (dispatch 280): a point, an axis, a system, a sign. */
   labels?: Readonly<Record<string, InlineLabelNote>>;
 }) {
   const [pin, setPin] = useState<InlinePin | null>(null);
@@ -205,8 +205,8 @@ export function InlineTermLighting({
     return () => span.remove();
   }, [pin, paper]);
   if (!pin || !host) return null;
-  const label = pin.labelId === undefined ? undefined : labels[pin.labelId];
-  if (label) return createPortal(<LabelNote label={label} />, host);
+  const note = pin.labelId === undefined ? undefined : labels[pin.labelId];
+  if (note) return createPortal(<LabelNote note={note} />, host);
   const quantity = pin.quantityId === undefined ? undefined : quantities[pin.quantityId];
   if (!quantity || pin.quantityId === undefined) return null;
   return createPortal(
@@ -230,7 +230,7 @@ export function InlineTermLighting({
  * A pinned label's note: its glyph and what it names, set out as the inspector sets out a
  * quantity, inside the sentence. It has no unit, dimension or value, because it names no quantity.
  */
-function LabelNote({ label }: { label: InlineLabelNote }) {
+function LabelNote({ note }: { note: string }) {
   return (
     // biome-ignore lint/a11y/useSemanticElements: inline, a <fieldset> would end the paragraph the formula is printed in, and it groups form controls, not a note.
     <span
@@ -240,12 +240,7 @@ function LabelNote({ label }: { label: InlineLabelNote }) {
       data-inline=""
     >
       <span className="term-inspector-name">
-        <span
-          className="term-inspector-glyph katex"
-          aria-hidden="true"
-          {...{ dangerouslySetInnerHTML: { __html: label.glyphHtml } }}
-        />
-        <strong>{label.note}</strong>
+        <strong>{note}</strong>
       </span>
       <span className="term-inspector-facts">
         <span className="term-inspector-fact">

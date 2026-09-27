@@ -35,8 +35,13 @@ const LEVELS = [
   { level: "3", name: "Historian's margin" },
 ] as const;
 
-/** Prose with its formulas already drawn, keyed by position (the parts never move). */
-function Prose({ parts }: { parts: readonly ProsePart[] }) {
+/**
+ * Prose with its formulas already drawn, keyed by position (the parts never move). A formula that
+ * binds a quantity, or prints a name the notation declares no quantity, is marked as the reading
+ * faces mark theirs (inline-math, the paper, data-inline-terms or data-inline-labels), so the page's
+ * island lights and pins it and equations.css tints it (dispatch 280, step 1b).
+ */
+function Prose({ parts, paper }: { parts: readonly ProsePart[]; paper: string }) {
   const keyed = parts.map((part, n) => ({ part, key: `${n}:${part.kind}` }));
   return keyed.map(({ part, key }) =>
     part.kind === "text" ? (
@@ -44,7 +49,10 @@ function Prose({ parts }: { parts: readonly ProsePart[] }) {
     ) : (
       <span
         key={key}
-        className="eq-explain-math"
+        className={part.coloured || part.labelled ? "eq-explain-math inline-math" : "eq-explain-math"}
+        data-paper={part.coloured || part.labelled ? paper : undefined}
+        data-inline-terms={part.coloured ? "" : undefined}
+        data-inline-labels={part.labelled ? "" : undefined}
         // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX output compiled by the build from a checked record (equationExplanations.ts): no trust beyond \htmlData term marks, MathML checked equal to the plain render.
         dangerouslySetInnerHTML={{ __html: part.html }}
       />
@@ -82,11 +90,11 @@ export function EquationExplainer({ explanation }: { explanation: CompiledExplan
         </span>
         <span className="eq-level" data-level="0">
           <span className="eq-level-name">Overview</span>
-          <Prose parts={explanation.r0} />
+          <Prose parts={explanation.r0} paper={explanation.paper} />
         </span>
         <span className="eq-level" data-level="1">
           <span className="eq-level-name">Full explanation</span>
-          <Prose parts={explanation.r1} />
+          <Prose parts={explanation.r1} paper={explanation.paper} />
         </span>
         <span className="eq-level" data-level="2">
           <span className="eq-level-name">Every step</span>
@@ -101,7 +109,7 @@ export function EquationExplainer({ explanation }: { explanation: CompiledExplan
                   dangerouslySetInnerHTML={{ __html: step.formula }}
                 />
                 <span className="eq-step-why">
-                  <Prose parts={step.why} />
+                  <Prose parts={step.why} paper={explanation.paper} />
                 </span>
               </span>
             ))}
@@ -110,7 +118,7 @@ export function EquationExplainer({ explanation }: { explanation: CompiledExplan
         {explanation.r3 ? (
           <span className="eq-level" data-level="3">
             <span className="eq-level-name">Historian's margin</span>
-            <Prose parts={explanation.r3} />
+            <Prose parts={explanation.r3} paper={explanation.paper} />
           </span>
         ) : null}
         <span className="eq-explain-more">

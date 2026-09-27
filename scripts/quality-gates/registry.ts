@@ -187,6 +187,27 @@ export const QUALITY_GATE_STEPS: readonly GateStep[] = [
     },
     owner: "am-70ig",
   },
+  // 5c. The equation explanations (dispatch 278, the owner's "multiple options for explaining in
+  // more detail (including in words) what the equation means").
+  //
+  // The build already refuses a malformed record and, for an enforced paper, a display with none.
+  // This step is the author's census across every paper: it prints how many of each paper's printed
+  // displays carry a record and exits 1 on any problem, so a paper filling up is visible before it
+  // is enforced. scriptReachability.test.ts refuses a check-shaped script no runner invokes, and
+  // this entry is that runner.
+  {
+    id: "equation-explanations",
+    title: "Equation explanations census",
+    command: ["bun", "scripts/check-equation-explanations.ts"],
+    family: "fast",
+    cadence: "every-run",
+    requiredInCi: true,
+    requiredInProfiles: ["scaffold", "preview", "launch"],
+    availability: {
+      scriptPath: "scripts/check-equation-explanations.ts",
+    },
+    owner: "am-read-equation-explanations",
+  },
   // 6. Ultimate Bug Scanner (diff mode)
   {
     id: "ubs-diff",

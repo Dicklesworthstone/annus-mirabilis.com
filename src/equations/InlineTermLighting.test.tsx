@@ -176,10 +176,7 @@ describe("the island shows a pinned label's note after its formula", () => {
           paper="special-relativity"
           quantities={{}}
           labels={{
-            L1: {
-              glyphHtml: '<span class="katex-html">A</span>',
-              note: "A point of the stationary system where a clock stands, the first of the clocks compared.",
-            },
+            L1: "A point of the stationary system where a clock stands, the first of the clocks compared.",
           }}
         />,
       ),
