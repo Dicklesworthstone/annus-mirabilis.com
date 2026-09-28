@@ -41,7 +41,16 @@
       ]
     }
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:bridge-letter-for-quantity",
+      "kind": "cross-link"
+    },
+    {
+      "foundationId": "foundation:bridge-fractions-ratios",
+      "kind": "cross-link"
+    }
+  ],
   "stoppingPoint": "Each mark has one job where it appears. A formula that uses several at once, such as the diffusion equation, is read one mark at a time in its own lesson.",
   "citations": ["ap-17-549", "ap-17-891", "ap-17-132"]
 }

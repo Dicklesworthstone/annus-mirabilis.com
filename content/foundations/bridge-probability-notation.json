@@ -36,7 +36,12 @@
       ]
     }
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:bridge-fractions-ratios",
+      "kind": "cross-link"
+    }
+  ],
   "stoppingPoint": "A probability counts favoured outcomes among equally likely ones; a frequency counts what happened. How a probability becomes an entropy is the lesson on entropy and the number of ways.",
   "citations": ["ap-17-132"]
 }

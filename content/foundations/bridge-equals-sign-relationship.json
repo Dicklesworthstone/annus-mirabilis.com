@@ -36,7 +36,12 @@
       ]
     }
   ],
-  "prerequisites": [],
+  "prerequisites": [
+    {
+      "foundationId": "foundation:bridge-letter-for-quantity",
+      "kind": "cross-link"
+    }
+  ],
   "stoppingPoint": "An equals sign states that two quantities are the same. Which quantities, measured how, is what the paper around it has to say.",
   "citations": ["ap-18-639"]
 }
