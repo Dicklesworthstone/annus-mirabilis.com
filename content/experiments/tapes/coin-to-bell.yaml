@@ -7,12 +7,14 @@
 # bead's own "the tape commands the step-distribution control that bm-05-predict-step-shape is
 # attached to, its reveal settles that prompt" rule.
 #
-# `kernel` is not a number in Bm05Parameters (it is "coin" | "uniform" | "gaussian"), but the
-# tape schema (src/experiments/tapes/schema.ts, am-rt-control-tapes-0gc) requires every
-# initialConditions and control-event value to be a finite number. This tape reuses the existing
-# canonical numeric encoding from WALK_KERNELS in src/physics/reference/diffusion/walkLaws.ts
-# (coin = 0, uniform = 1, gaussian = 3 -- id 2 is reserved for the dimensionless teaching
-# Gaussian BM-05 does not use here) rather than inventing a second one.
+# `kernel` is not a number in Bm05Parameters: it is "coin" | "uniform" | "gaussian", and this tape
+# now writes those names. It used to write 0, 1 and 3, the canonical numeric encoding from
+# WALK_KERNELS, because the tape schema required every initialConditions and control-event value
+# to be a finite number. That cost more than it looked: BM-05 refuses `kernel: 0` with "This step
+# distribution is not registered for this calculation", so this was the one walkthrough of 22
+# that could not open its own instrument, and its page told a reader to set a control to a value
+# the control does not offer. The schema admits the name of an enumerated setting since am-3xdx,
+# and the permalink tape type had always allowed it.
 #
 # This file is validated for schema conformance only (src/testing/bm05Tape.test.ts, using the
 # real validateControlTape). It has not been replayed end to end through BM-05's session: the
@@ -40,7 +42,7 @@ initialConditions:
   runSteps: 400
   n: 0
   bias: 0.6
-  kernel: 0
+  kernel: "coin"
 events:
   - kind: control
     actionIndex: 1
@@ -71,15 +73,15 @@ events:
     commandClass: setup-change
     commandId: select-kernel
     parameterId: kernel
-    value: 1
-    previousValue: 0
+    value: "uniform"
+    previousValue: "coin"
   - kind: control
     actionIndex: 6
     commandClass: setup-change
     commandId: select-kernel
     parameterId: kernel
-    value: 3
-    previousValue: 1
+    value: "gaussian"
+    previousValue: "uniform"
 checkpoints:
   - actionIndex: 4
     stepIndex: 400
@@ -92,11 +94,6 @@ checkpoints:
     streamPositions: []
     label: "Coin kernel, 400 steps: the predict prompt settles here"
     teachingNote: "The histogram at 400 coin steps is the state that settles bm-05-predict-step-shape (same-bell-shape), read from this accepted snapshot's histogram and second-moment outputs, never from stored text."
-    expectedDisplayValues:
-      - label: "kernel"
-        value: 0
-        unit: "1"
-        constantSetId: not-applicable
   - actionIndex: 6
     stepIndex: 400
     simulatedTime: 40
@@ -108,8 +105,3 @@ checkpoints:
     streamPositions: []
     label: "Gaussian kernel, same seed and step count: the same bell"
     teachingNote: "Common random numbers: same seed, same step count, a different kernel. The second moment and histogram width agree with the coin-kernel checkpoint within the declared statistical band; the shapes differ at small n and agree at n = 400."
-    expectedDisplayValues:
-      - label: "kernel"
-        value: 3
-        unit: "1"
-        constantSetId: not-applicable
