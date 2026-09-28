@@ -16,9 +16,16 @@
  *
  * `analytic` IS NOT A DECLARED MODE and a link naming it is refused, although it is the state this
  * laboratory starts in. That is deliberate: the catalogue addresses the states a reader can ASK for,
- * and the default state's address is the bare `sr-02`. `encodeSr02Settings` therefore emits a query
- * only for a declared mode and the empty string otherwise, so the encoder never produces a link its
- * own decoder would refuse.
+ * and the default state's address is the bare `sr-02`.
+ *
+ * THIS MODULE DECODES AND DOES NOT ENCODE, which is the one-share-control invariant
+ * (src/testing/oneShareControl.test.ts): a laboratory that shares a `?tape=` link offers that link
+ * only, and its older settings link still LOADS when opened because the decoder stays. ec26d8d2
+ * shipped an `encodeSr02Settings` beside the tape link and gave sr-02 two share controls, which is
+ * the defect that test exists to stop; it held HEAD red and refused a deploy. The encoder is gone
+ * and nothing is lost, because `mode` is an sr-02 parameter and the tape already carries it: a tape
+ * built at `mode: "apparatus"` has `initialConditions.mode === "apparatus"`, and following that one
+ * link lands with `data-instrument-id="sr-02:apparatus"` stamped.
  *
  * WITHOUT JAVASCRIPT THIS DOES NOTHING, and the laboratory says so rather than pretending. The site
  * is a static export (`output: "export"`), so a server component cannot read `searchParams` and no
@@ -35,15 +42,6 @@ export type Sr02PermalinkResult =
   | { kind: "none" }
   | { kind: "settings"; parameters: Sr02Parameters }
   | { kind: "invalid"; message: string; requested: string };
-
-/**
- * The link for a state. A declared mode becomes `?mode=<mode>`; every other state, including the
- * default `analytic`, is the bare route, because that is the address the catalogue gives it.
- */
-export function encodeSr02Settings(p: Pick<Sr02Parameters, "mode">): string {
-  const resolved = resolveCatalogueAddress(`sr-02:${p.mode}`);
-  return "error" in resolved ? "" : `?mode=${encodeURIComponent(p.mode)}`;
-}
 
 /**
  * Reads `?mode=` and returns the parameters to apply, or a refusal naming what was asked for.

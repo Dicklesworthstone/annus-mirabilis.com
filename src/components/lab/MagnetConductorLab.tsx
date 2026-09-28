@@ -22,7 +22,7 @@ import {
   type Sr02Parameters,
 } from "../../experiments/sr02/definition.ts";
 import { validateSr02Parameters } from "../../experiments/sr02/parameters.ts";
-import { decodeSr02Settings, encodeSr02Settings } from "../../experiments/sr02/permalink.ts";
+import { decodeSr02Settings } from "../../experiments/sr02/permalink.ts";
 import { createSr02Session, type PreparedSr02Example } from "../../experiments/sr02/session.ts";
 import { SR02_TAPE } from "../../experiments/sr02/tape.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
@@ -390,15 +390,13 @@ export function MagnetConductorLab({
           summary={statusSummary}
           response={gate.response}
         />
+        {/* The ONE share control, and it already carries the mode: `mode` is an sr-02 parameter, so
+            the tape's initial conditions hold "apparatus" and the link round-trips this view
+            (am-inst-permalink-tape-s677, src/testing/oneShareControl.test.ts). ec26d8d2 wrote a
+            second ?mode= link beside it, which is the two-controls defect that test exists to stop.
+            The DECODER stays, so a ?mode=apparatus link still opens here and an undeclared mode is
+            still refused in words; this laboratory simply no longer writes one. */}
         <LabTapeLink link={withPredictions(tapeLink, gate)} />
-        {/* The address the catalogue gives this view, re-emitted so the round trip closes: the
-            apparatus view links as ?mode=apparatus, and the default state links as the bare route,
-            which is the address the catalogue gives IT. */}
-        <p className="fine">
-          <a href={`/lab/sr-02/${encodeSr02Settings(p)}`}>
-            {apparatus ? "Link to this apparatus view" : "Link to this view"}
-          </a>
-        </p>
         {linkNote ? (
           <p className="notice" role="alert" data-refusal-code="undeclared-mode-link">
             {linkNote}

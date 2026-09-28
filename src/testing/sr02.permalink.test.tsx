@@ -4,8 +4,12 @@ import { createRoot } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MagnetConductorLab } from "../components/lab/MagnetConductorLab.tsx";
 import { DECLARED_MODES, resolveCatalogueAddress } from "../experiments/catalogue.ts";
-import { decodeSr02Settings, encodeSr02Settings } from "../experiments/sr02/permalink.ts";
+import { decodeTapePermalink, encodeTapePermalink } from "../experiments/permalink/codec.ts";
+import { tapeForSettings } from "../experiments/permalink/sessionTape.ts";
+import { SR02_DEFAULTS } from "../experiments/sr02/definition.ts";
+import { decodeSr02Settings } from "../experiments/sr02/permalink.ts";
 import { DEFAULT_PREPARED_EXAMPLE } from "../experiments/sr02/session.ts";
+import { SR02_TAPE } from "../experiments/sr02/tape.ts";
 import { createContainer, installDom, removeContainer, uninstallDom } from "./reactDom.ts";
 
 // sr-02 is the one instrument on the site that declares a mode, and until dispatch 359 the site
@@ -73,16 +77,17 @@ test("a ?mode=apparatus link arrives in the apparatus state, and the bare route 
   await at("/lab/sr-02/", (r) => expect(r.stamp).toBe("sr-02"));
 });
 
-test("the state re-emits its own address, and that address returns to the same state", async () => {
-  let emitted = "";
-  await at("/lab/sr-02/?mode=apparatus", (r) => {
-    emitted = r.href ?? "";
-  });
-  expect(emitted).toBe("/lab/sr-02/?mode=apparatus");
-  await at(emitted, (r) => expect(r.stamp).toBe("sr-02:apparatus"));
-  // The default state's address is the bare route: the decoder reads no mode there, so the round
-  // trip closes on both states rather than only on the interesting one.
-  await at("/lab/sr-02/", (r) => expect(r.href).toBe("/lab/sr-02/"));
+test("the ONE share control carries the mode, and its link returns to the same state", async () => {
+  // The round trip rides the tape, not a second ?mode= link: `mode` is an sr-02 parameter, so the
+  // tape's initial conditions hold it. ec26d8d2 wrote a second link here and broke
+  // src/testing/oneShareControl.test.ts; this is the same property through the one control.
+  const tape = tapeForSettings(SR02_TAPE, { ...SR02_DEFAULTS, mode: "apparatus" });
+  expect(tape, "sr-02 records no tape for the apparatus view").toBeTruthy();
+  expect(tape?.initialConditions.mode).toBe("apparatus");
+  const href = `/lab/sr-02/?tape=${encodeTapePermalink(tape as NonNullable<typeof tape>)}`;
+  const back = decodeTapePermalink(new URL(`https://annus-mirabilis.com${href}`));
+  expect(back.kind).toBe("success");
+  await at(href, (r) => expect(r.stamp).toBe("sr-02:apparatus"));
 });
 
 test("an undeclared mode refuses in words instead of showing the default under its name", async () => {
@@ -90,8 +95,6 @@ test("an undeclared mode refuses in words instead of showing the default under i
     expect(r.refusal).toContain("does not offer");
     expect(r.refusal).toContain("nonsense");
     expect(r.stamp).toBe("sr-02");
-    // and it does not offer a link it would itself refuse
-    expect(r.href).toBe("/lab/sr-02/");
   });
   // Paired with an in-domain value: the refusal element is absent, not merely empty, when the
   // link is good. Without this the assertion above would pass against a notice that is always on
@@ -100,17 +103,18 @@ test("an undeclared mode refuses in words instead of showing the default under i
   await at("/lab/sr-02/", (r) => expect(r.refusal).toBe(""));
 });
 
-test("the encoder never emits an address its own decoder would refuse", () => {
-  for (const mode of ["apparatus", "analytic"] as const) {
-    const search = encodeSr02Settings({ mode });
-    const decoded = decodeSr02Settings(search);
-    expect(decoded.kind).not.toBe("invalid");
+test("the decoder reads every declared mode, and the tape is what writes one", () => {
+  // The decoder stays (the invariant's own wording) so an older ?mode= link still opens. Both
+  // directions, so a decoder that refused everything could not pass.
+  for (const mode of DECLARED_MODES["sr-02"]) {
+    const decoded = decodeSr02Settings(`?mode=${mode}`);
+    expect(decoded.kind).toBe("settings");
     if (decoded.kind === "settings") expect(decoded.parameters.mode).toBe(mode);
   }
-  // `analytic` is the default view and is deliberately NOT declared, so its address is the bare
-  // route and the encoder emits no query for it.
-  expect(encodeSr02Settings({ mode: "analytic" })).toBe("");
-  expect(encodeSr02Settings({ mode: "apparatus" })).toBe("?mode=apparatus");
+  expect(decodeSr02Settings("?mode=nonsense").kind).toBe("invalid");
+  expect(decodeSr02Settings("").kind).toBe("none");
+  // `analytic` is the default view and is deliberately not declared, so no link names it.
+  expect(decodeSr02Settings("?mode=analytic").kind).toBe("invalid");
 });
 
 test("without JavaScript the link lands on the default view, which is what the page says", () => {
