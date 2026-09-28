@@ -19,7 +19,7 @@
   "sources": ["A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 133 and 135–136"],
   "intervention": {
     "defaultsReviewed": {
-      "model": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "model": "No instrument, and the catalogue was checked for one on 2026-09-28 (dispatch 423). The correction turns on section 2 determining a molecular number from the long-wavelength limit of Planck's formula, and no laboratory in the catalogue performs that determination: LQ-02 is the classical divergence and LQ-03 the regimes of a measured spectrum. This is the radiation half of the molecular-number connection, whose Brownian half is BM-07, and it is the gap that would justify a new laboratory rather than a binding.",
       "labels": "Not applicable: no instrument; this entry is a matter of what the paper says.",
       "defaultControls": "Not applicable: no instrument; this entry is a matter of what the paper says.",
       "feedback": "Not applicable: no instrument; this entry is a matter of what the paper says."

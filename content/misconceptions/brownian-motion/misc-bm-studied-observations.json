@@ -21,7 +21,7 @@
   "sources": ["A. Einstein, Ann. Phys. (4) 17, 549–560 (1905), plates pp. 549 and 560"],
   "intervention": {
     "defaultsReviewed": {
-      "model": "Not applicable: no instrument; this entry is a matter of what the paper says.",
+      "model": "No instrument, and the catalogue was checked for one on 2026-09-28 (dispatch 423). The correction is about the aim the paper states in its first two sentences and about the imprecision of the reports within Einstein's reach, and no laboratory can demonstrate what an author had read. The nearest candidate, BM-08, models camera noise, exposure blur and drift in a modern measurement chain; binding it would suggest the site can show why the 1905 reports were too imprecise, which it cannot.",
       "labels": "Not applicable: no instrument; this entry is a matter of what the paper says.",
       "defaultControls": "Not applicable: no instrument; this entry is a matter of what the paper says.",
       "feedback": "Not applicable: no instrument; this entry is a matter of what the paper says."
