@@ -1,4 +1,5 @@
 import { tapesForExperiment } from "../../content/teachingTapes.ts";
+import { tapePath } from "../../reader/sitePaths.ts";
 
 /**
  * A LABORATORY SAYS WHICH RECORDED WALKTHROUGHS IT HAS (am-2rl9).
@@ -31,7 +32,7 @@ export function LabTapes({ lab }: { lab: string }) {
           : "Walkthroughs of this instrument"}
       </span>
       {tapes.map((tape) => (
-        <a className="button secondary" key={tape.tapeId} href={`/tapes/${tape.tapeId}/`}>
+        <a className="button secondary" key={tape.tapeId} href={tapePath(tape.tapeId)}>
           {tape.title}
         </a>
       ))}

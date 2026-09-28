@@ -10,6 +10,7 @@ import {
   listReadablePapers,
   paperPath,
 } from "../reader/paperRoutes.ts";
+import { staticHostPath } from "../reader/sitePaths.ts";
 import sitemap, { labPaths, NOT_IN_SITEMAP } from "./sitemap.ts";
 
 const APP = import.meta.dirname;
@@ -48,6 +49,12 @@ function canonicalPath(metadata: Metadata | undefined): string | undefined {
   if (!canonical) return undefined;
   const raw = typeof canonical === "string" || canonical instanceof URL ? canonical : canonical.url;
   return new URL(raw, "https://annus-mirabilis.com").pathname;
+}
+
+const SITE_ORIGIN = "https://annus-mirabilis.com";
+/** The path part of an absolute site URL, for comparing a listed URL against the shape rule. */
+function pathOf(url: string): string {
+  return url.startsWith(SITE_ORIGIN) ? url.slice(SITE_ORIGIN.length) : url;
 }
 
 describe("sitemap", () => {
@@ -121,7 +128,16 @@ describe("sitemap", () => {
   test("lists every foundation lesson and every instrument, once each", async () => {
     const urls = (await sitemap()).map((e) => e.url);
     expect(new Set(urls).size).toBe(urls.length);
-    expect(urls.filter((url) => !url.endsWith("/"))).toEqual([]);
+    // Every listed URL is in the form the HOST answers 200 for, which is the trailing slash
+    // except where the last segment contains a dot (am-tpzn, src/reader/sitePaths.ts). Checking
+    // each URL against the rule catches a literal in FIXED_PAGES that got it wrong either way.
+    expect(urls.filter((url) => url !== `${SITE_ORIGIN}${staticHostPath(pathOf(url))}`)).toEqual(
+      [],
+    );
+    // And the one case the rule exists for, written out, because the line above would be satisfied
+    // by any rule the sitemap happened to share with the helper.
+    expect(urls).toContain("https://annus-mirabilis.com/tapes/the-boost-to-0.6c");
+    expect(urls).not.toContain("https://annus-mirabilis.com/tapes/the-boost-to-0.6c/");
     const lessons = (await contentIndex()).payloads.filter((p) => p.kind === "foundation");
     expect(lessons.length).toBeGreaterThan(0);
     for (const lesson of lessons) expect(urls).toContain(absoluteUrl(`/foundations/${lesson.id}/`));

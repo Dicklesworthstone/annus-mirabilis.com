@@ -6,6 +6,7 @@ import { loadTeachingTapes } from "../content/teachingTapes.ts";
 import { ROUTE_INDEX } from "../discovery/routeIndex.ts";
 import { isSitemapExemptUrl } from "../experiments/permalink/canonical.ts";
 import { absoluteUrl, readerSitemapEntries } from "../reader/paperRoutes.ts";
+import { tapePath } from "../reader/sitePaths.ts";
 import { receiptsByPage } from "./sources/receiptPages.ts";
 
 export const dynamic = "force-static";
@@ -105,7 +106,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // One page per authored teaching tape (am-2rl9). They are the only address at which
     // these 21 records reach a reader, so leaving them out would hide the whole layer from search.
     ...loadTeachingTapes()
-      .tapes.map((tape) => `/tapes/${tape.tapeId}/`)
+      .tapes.map((tape) => tapePath(tape.tapeId))
       .sort(),
   ];
   const entries: MetadataRoute.Sitemap = [

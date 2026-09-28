@@ -18,6 +18,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { parseYaml } from "../../content/provenance/yaml.ts";
 import { loadTeachingTapes } from "../../content/teachingTapes.ts";
 import tapeLinks from "../../generated/tape-links.json";
+import { tapePath } from "../../reader/sitePaths.ts";
 import TapePage from "./[tape]/page.tsx";
 import TapesIndex from "./page.tsx";
 
@@ -34,9 +35,7 @@ describe("the teaching-tape pages", () => {
     const document = dom(renderToStaticMarkup(TapesIndex()));
     const hrefs = [...document.querySelectorAll("a")].map((a) => a.getAttribute("href") ?? "");
     expect(tapes.length).toBeGreaterThan(15);
-    const missing = tapes
-      .filter((t) => !hrefs.includes(`/tapes/${t.tapeId}/`))
-      .map((t) => t.tapeId);
+    const missing = tapes.filter((t) => !hrefs.includes(tapePath(t.tapeId))).map((t) => t.tapeId);
     expect(missing).toEqual([]);
     for (const experimentId of new Set(tapes.map((t) => t.experimentId)))
       expect(hrefs, `no link to ${experimentId}`).toContain(`/lab/${experimentId}/`);

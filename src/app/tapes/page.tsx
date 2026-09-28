@@ -1,5 +1,6 @@
 import { loadTeachingTapes } from "../../content/teachingTapes.ts";
 import tapeLinks from "../../generated/tape-links.json";
+import { tapePath } from "../../reader/sitePaths.ts";
 import "./tapes.css";
 
 /**
@@ -71,7 +72,7 @@ export default function Page() {
             <ul className="tape-list">
               {(byExperiment.get(experimentId) ?? []).map((tape) => (
                 <li key={tape.tapeId}>
-                  <a href={`/tapes/${tape.tapeId}/`}>{tape.title}</a>
+                  <a href={tapePath(tape.tapeId)}>{tape.title}</a>
                   {tape.description ? <span className="tape-blurb">{tape.description}</span> : null}
                 </li>
               ))}
