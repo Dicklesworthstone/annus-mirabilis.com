@@ -12,6 +12,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { type AliasRecord, validateAliasRecord } from "../src/content/aliases.ts";
+import { parseYaml } from "../src/content/provenance/yaml.ts";
 import { checkRevisionChanges, type VersionedRecord } from "../src/content/revisions.ts";
 import { newRunIdentity, TestLogger } from "../src/testing/log/logger.ts";
 
@@ -50,28 +51,37 @@ function withPathKey(record: VersionedRecord, relativePath: string): VersionedRe
   return { ...record, key: relativePath.split(path.sep).join("/") };
 }
 
-function parseRecordContent(content: string, filePath: string): VersionedRecord | null {
+/** Records that carry an id and a revision but could not be parsed. Reported, never dropped. */
+export const unparsed: string[] = [];
+
+/**
+ * A record as the check sees it (am-9755).
+ *
+ * THE YAML SIDE USED TO BE TWO REGEXES, for `id` and `revision`, with the whole file text under a
+ * `raw` key. So `record.lineage` was ALWAYS undefined for a YAML record, and
+ * `validateRecordLineage` demands a lineage array of every record past revision 1. The check was
+ * therefore asking 64 YAML records for a field its own reader could not read: no lineage anyone
+ * wrote would have satisfied it. Parsing with the site's own YAML parser is what makes the
+ * requirement answerable.
+ *
+ * A file that carries an id and a revision and then fails to parse is recorded in `unparsed`
+ * rather than returning null into the void, because a record silently missing from both sides of
+ * the comparison is a record this check no longer examines, and a shrinking population reads
+ * exactly like a clean one.
+ */
+export function parseRecordContent(content: string, filePath: string): VersionedRecord | null {
+  const looksLikeRecord = filePath.endsWith(".json")
+    ? content.includes('"id"') && content.includes('"revision"')
+    : /^id:/m.test(content) && /^revision:/m.test(content);
+  if (!looksLikeRecord) return null;
   try {
-    if (filePath.endsWith(".json")) {
-      const parsed = JSON.parse(content);
-      if (parsed && typeof parsed === "object" && "id" in parsed && "revision" in parsed) {
-        return parsed as VersionedRecord;
-      }
+    const parsed = filePath.endsWith(".json") ? JSON.parse(content) : parseYaml(content);
+    if (parsed && typeof parsed === "object" && "id" in parsed && "revision" in parsed) {
+      return parsed as VersionedRecord;
     }
-    // Simple key-value parser for basic yaml or JSON objects
-    if (content.includes("id:") && content.includes("revision:")) {
-      const idMatch = content.match(/^id:\s*["']?([^"'\r\n]+)["']?/m);
-      const revMatch = content.match(/^revision:\s*(\d+)/m);
-      if (idMatch && revMatch && idMatch[1] && revMatch[1]) {
-        return {
-          id: idMatch[1].trim(),
-          revision: Number.parseInt(revMatch[1].trim(), 10),
-          raw: content,
-        };
-      }
-    }
-  } catch {
-    // Ignore unparseable
+    unparsed.push(`${filePath}: parsed, but has no id and revision at the top level`);
+  } catch (error) {
+    unparsed.push(`${filePath}: ${(error as Error).message.slice(0, 120)}`);
   }
   return null;
 }
@@ -162,6 +172,12 @@ export async function runRevisionCheck(baseRef: string, contentDir: string): Pro
     });
   }
 
+  console.log(
+    `[check-revisions] ${baseRecords.length} records at ${baseRef}, ${headRecords.length} at HEAD, ` +
+      `${unparsed.length} carried an id and a revision and could not be parsed, ` +
+      `${result.findings.length} findings`,
+  );
+  for (const line of unparsed.slice(0, 10)) console.log(`  unparsed: ${line}`);
   if (result.ok) {
     logger.log({
       testId: "all-records",
