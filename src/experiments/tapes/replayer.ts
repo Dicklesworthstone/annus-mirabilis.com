@@ -35,7 +35,7 @@ export type TapeCompatibilityResult =
 
 export interface TapeReplayResult {
   readonly actionIndex: number;
-  readonly state: Readonly<Record<string, number>>;
+  readonly state: Readonly<Record<string, number | string>>;
   readonly digest: string;
   readonly digestKind: "host" | "blake3";
   readonly activeCheckpoint: TapeCheckpoint | null;
@@ -132,7 +132,7 @@ export class ControlTapeReplayer {
   private refusalCode?: RefusalCode | undefined;
   private refusal?: RequestRefusal | undefined;
   private currentActionIndex = 0;
-  private state: Record<string, number>;
+  private state: Record<string, number | string>;
 
   constructor(tape: ControlTapeV2 | unknown, runtimeContext: TapeRuntimeContext) {
     this.tape = validateControlTape(tape);
@@ -175,7 +175,7 @@ export class ControlTapeReplayer {
     return this.currentActionIndex;
   }
 
-  getCurrentState(): Readonly<Record<string, number>> {
+  getCurrentState(): Readonly<Record<string, number | string>> {
     return Object.freeze({ ...this.state });
   }
 
@@ -220,7 +220,7 @@ export class ControlTapeReplayer {
     }
 
     // Reset state to initial conditions
-    const workingState: Record<string, number> = { ...this.tape.initialConditions };
+    const workingState: Record<string, number | string> = { ...this.tape.initialConditions };
 
     // Apply all control events up to clampedAction
     const activePredictions: TapePredictionEvent[] = [];

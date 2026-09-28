@@ -182,13 +182,18 @@ describe("the numbers on a teaching tape's page, recomputed from its own inputs"
       (n, id) => n + (tapes.get(id)?.steps.reduce((m, s) => m + s.expected.length, 0) ?? 0),
       0,
     );
+    // DERIVED, AND THE THIRD TIME THIS LINE HAS GONE STALE TONIGHT. It described the remainder in
+    // prose, and the remainder moved twice in an hour: three input echoes were replaced by real
+    // quantities (am-wj6k) and two kernel codes left the records entirely (am-3xdx), each edit
+    // leaving a sentence that named tapes no longer in the set. Naming them from the records
+    // cannot drift.
+    const remaining = [...tapes.values()]
+      .filter((t) => !RECOMPUTED.has(t.tapeId))
+      .flatMap((t) => t.steps.flatMap((s) => s.expected.map((e) => `${t.tapeId}'s ${e.label}`)));
     console.log(
       `[tape numbers] ${total} recorded numbers on the tape pages; ${recomputed} recomputed from ` +
         `their tape's own inputs across ${RECOMPUTED.size} tapes; ${total - recomputed} not ` +
-        "recomputed: three are semantic-kind codes rather than quantities (coin-to-bell's two " +
-        "kernels, perrins-count's), and lq-05's W is checked for agreement with the state it is " +
-        "filed under rather than recomputed. The three that restated an input were replaced by " +
-        "the quantity their step settles (am-wj6k) and are recomputed now.",
+        `recomputed, named rather than described: ${remaining.join("; ") || "none"}`,
     );
     // Non-vacuity, and a reminder: if the corpus grows, the unchecked remainder grows with it.
     expect(total).toBeGreaterThan(recomputed);
@@ -197,11 +202,16 @@ describe("the numbers on a teaching tape's page, recomputed from its own inputs"
 });
 
 describe("a recorded number agrees with the parameters in force where it was recorded", () => {
-  /** The parameter values at an actionIndex: the initial conditions, then every earlier event. */
-  function inForce(t: TeachingTape, at: number): Record<string, number> {
-    const values: Record<string, number> = {};
+  /**
+   * The parameter values at an actionIndex: the initial conditions, then every earlier event.
+   * A value may be the name of an enumerated setting as well as a number (am-3xdx), and it has
+   * to pass through as one: merging a kernel name into a laboratory's defaults is the whole
+   * point of reading the state a number is filed under.
+   */
+  function inForce(t: TeachingTape, at: number): Record<string, number | string> {
+    const values: Record<string, number | string> = {};
     for (const [k, v] of Object.entries(t.initialConditions))
-      if (typeof v === "number") values[k] = v;
+      if (typeof v === "number" || typeof v === "string") values[k] = v;
     for (const step of t.steps)
       if (step.actionIndex <= at && step.parameterId && step.value !== undefined)
         values[step.parameterId] = step.value;
@@ -443,7 +453,9 @@ describe("a recorded number agrees with the parameters in force where it was rec
         for (const v of step.expected) {
           if (!v.label.startsWith("W")) continue;
           const { n, f } = inForce(t, step.actionIndex);
-          if (n === undefined || f === undefined) continue;
+          // Both are numeric parameters of LQ-05; the guard is what makes that a checked fact
+          // rather than an assumption now that a setting may also be a name (am-3xdx).
+          if (typeof n !== "number" || typeof f !== "number") continue;
           judged += 1;
           // "W (locked)" is the whole set moving together: one coin, so f whatever n is. Any other
           // W is the independent count, f^n.

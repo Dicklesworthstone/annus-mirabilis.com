@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { load } from "js-yaml";
+import { BM05_DEFAULTS } from "../experiments/bm05/definition.ts";
+import { validateBm05Parameters } from "../experiments/bm05/parameters.ts";
 import { validateControlTape } from "../experiments/tapes/schema.ts";
 import { WALK_KERNELS } from "../physics/reference/diffusion/walkLaws.ts";
 
@@ -44,16 +46,35 @@ describe("BM-05 teaching tape: coin to bell (schema conformance only)", () => {
     }
   });
 
-  test("the kernel switch events use WALK_KERNELS' own numeric ids, in the bead's stated order (coin, uniform, gaussian)", () => {
+  test("every kernel this tape names is one BM-05 accepts, in the order coin, uniform, gaussian", () => {
+    // THIS TEST CHECKED THE NUMERIC ENCODING UNTIL 2026-09-28: the events had to equal
+    // WALK_KERNELS.uniform.stepKernel and .gaussian.stepKernel, and initialConditions.kernel had
+    // to equal WALK_KERNELS.coin.stepKernel. Those numbers were what the old schema forced, and
+    // they were numbers BM-05 REFUSES: validateBm05Parameters rejects `kernel: 0` with "This step
+    // distribution is not registered for this calculation", so the tape could not open its own
+    // instrument and its page told a reader to set a control to a value it does not offer
+    // (am-3xdx).
+    //
+    // The question worth asking is not whether the record matches a table, it is whether the
+    // laboratory takes what the record says. So this hands each state to BM-05's own validator.
     const tape = loadTape();
     const kernelEvents = tape.events.filter(
       (e) => e.kind === "control" && e.parameterId === "kernel",
     );
     expect(kernelEvents).toHaveLength(2);
-    const values = kernelEvents.map((e) => (e.kind === "control" ? e.value : null));
-    expect(values).toEqual([WALK_KERNELS.uniform.stepKernel, WALK_KERNELS.gaussian.stepKernel]);
-    // The starting kernel (coin) is carried in initialConditions, also using the same encoding.
-    expect(tape.initialConditions.kernel).toBe(WALK_KERNELS.coin.stepKernel);
+    const sequence = [
+      tape.initialConditions.kernel,
+      ...kernelEvents.map((e) => (e.kind === "control" ? e.value : null)),
+    ];
+    expect(sequence).toEqual(["coin", "uniform", "gaussian"]);
+    // Each one, merged over the laboratory's defaults, is a state it accepts. This is the
+    // assertion the old version could not make, because none of its three values passed.
+    for (const kernel of sequence) {
+      const checked = validateBm05Parameters({ ...BM05_DEFAULTS, kernel }) as { kind: string };
+      expect(checked.kind, `BM-05 refuses kernel ${String(kernel)}`).toBe("accepted");
+    }
+    // And the names are still the registry's own, so the record and WALK_KERNELS cannot drift.
+    for (const kernel of sequence) expect(Object.keys(WALK_KERNELS)).toContain(kernel);
     for (const e of kernelEvents) {
       if (e.kind === "control") expect(e.commandClass).toBe("setup-change");
     }
@@ -78,9 +99,15 @@ describe("BM-05 teaching tape: coin to bell (schema conformance only)", () => {
     for (const idx of kernelSwitchIndices) expect(idx).toBeGreaterThan(4);
   });
 
-  test("a malformed copy (a non-numeric control value) is rejected by the real validator", () => {
+  test("a control value is a number or the name of an enumerated setting, and nothing else", () => {
+    // THIS TEST ASSERTED THE OPPOSITE UNTIL 2026-09-28, and its "malformed" value was
+    // `value: "uniform"`, which is the name of one of BM-05's own three step distributions. The
+    // schema required a finite number, which is what forced this tape to encode the kernel as 0,
+    // 1 and 3 (am-3xdx): numbers its own instrument refuses, on a page that told a reader to set
+    // a control to a value the control does not offer. The rule is wider now and this checks both
+    // of its edges rather than the one it had.
     const tape = loadTape();
-    const broken = {
+    const withValue = (value: unknown) => ({
       tapeVersion: tape.tapeVersion,
       tapeId: tape.tapeId,
       experimentId: tape.experimentId,
@@ -98,11 +125,20 @@ describe("BM-05 teaching tape: coin to bell (schema conformance only)", () => {
           commandClass: "setup-change",
           commandId: "select-kernel",
           parameterId: "kernel",
-          value: "uniform",
+          value,
         },
       ],
       checkpoints: [],
-    };
-    expect(() => validateControlTape(broken)).toThrow();
+    });
+    // Accepted: a number, and the name of an enumerated setting.
+    expect(() => validateControlTape(withValue(3))).not.toThrow();
+    expect(() => validateControlTape(withValue("uniform"))).not.toThrow();
+    // Refused: everything that is neither. An empty string is not a name, and a boolean, an
+    // object and a non-finite number are not settings at all.
+    for (const bad of ["", "   ", true, {}, [], null, Number.NaN, Number.POSITIVE_INFINITY])
+      expect(
+        () => validateControlTape(withValue(bad)),
+        `${JSON.stringify(bad)} was accepted`,
+      ).toThrow();
   });
 });

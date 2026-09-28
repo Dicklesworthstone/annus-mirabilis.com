@@ -33,7 +33,7 @@ export interface ControlTapeRecorderOptions {
   readonly streamVersion: number;
   readonly allocationId: string;
   readonly replayGrid?: ReplayGrid | undefined;
-  readonly initialConditions: Readonly<Record<string, number>>;
+  readonly initialConditions: Readonly<Record<string, number | string>>;
   readonly quantizationPolicies?: ParameterQuantizationPolicies | undefined;
   readonly title?: string | undefined;
   readonly description?: string | undefined;
@@ -45,8 +45,9 @@ export interface RecordControlEventParams {
   readonly commandClass: CommandClass;
   readonly commandId: string;
   readonly parameterId: string;
-  readonly value: number;
-  readonly previousValue?: number | undefined;
+  /** A number, or the name of an enumerated setting (am-3xdx, schema.ts isSettingValue). */
+  readonly value: number | string;
+  readonly previousValue?: number | string | undefined;
   readonly atSimulatedTime?: number | undefined;
 }
 
@@ -77,7 +78,7 @@ export class ControlTapeRecorder {
   readonly streamVersion: number;
   readonly allocationId: string;
   readonly replayGrid?: ReplayGrid | undefined;
-  readonly initialConditions: Readonly<Record<string, number>>;
+  readonly initialConditions: Readonly<Record<string, number | string>>;
   readonly quantizationPolicies?: ParameterQuantizationPolicies | undefined;
   readonly title?: string | undefined;
   readonly description?: string | undefined;
@@ -85,7 +86,7 @@ export class ControlTapeRecorder {
   readonly onBoundExceeded?: (() => void) | undefined;
 
   private currentActionIndex = 0;
-  private currentState: Record<string, number>;
+  private currentState: Record<string, number | string>;
   private events: TapeEventEntry[] = [];
   private checkpoints: TapeCheckpoint[] = [];
   private boundExceeded = false;
@@ -117,7 +118,7 @@ export class ControlTapeRecorder {
     return this.currentActionIndex;
   }
 
-  getCurrentState(): Readonly<Record<string, number>> {
+  getCurrentState(): Readonly<Record<string, number | string>> {
     return Object.freeze({ ...this.currentState });
   }
 
@@ -151,8 +152,11 @@ export class ControlTapeRecorder {
       );
     }
 
+    // QUANTIZATION IS FOR NUMBERS. An enumerated setting is its own name and has no step size to
+    // round to, so it passes through even where a policy is registered for that parameter; a
+    // policy on such a parameter is a mistake in the policy, not a reason to mangle the name.
     let quantizedValue = params.value;
-    if (this.quantizationPolicies?.[params.parameterId]) {
+    if (typeof params.value === "number" && this.quantizationPolicies?.[params.parameterId]) {
       quantizedValue = quantizeParameter(
         params.parameterId,
         params.value,

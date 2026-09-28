@@ -51,11 +51,24 @@ export type TapeStep = Readonly<{
   parameterId?: string | undefined;
   /** The manifest's own label and display unit for parameterId, where it declares one. */
   parameterName?: ParameterName | undefined;
-  value?: number | undefined;
+  /**
+   * A number, or the name of an enumerated setting (am-3xdx). BM-05's step distribution is
+   * "coin" | "uniform" | "gaussian", and reading only numbers here dropped the value from the
+   * page: the step rendered as "Set Step distribution" with nothing after it.
+   */
+  value?: number | string | undefined;
   label?: string | undefined;
   teachingNote?: string | undefined;
   expected: readonly TapeExpectedValue[];
 }>;
+
+/** A step's recorded value, as a number or as the name of an enumerated setting (am-3xdx). */
+function settingValue(raw: unknown): { value?: number | string } {
+  const asNumber = num(raw);
+  if (asNumber !== undefined) return { value: asNumber };
+  const asName = str(raw);
+  return asName !== undefined ? { value: asName } : {};
+}
 
 /** An instrument as a link can name it: "SR-03", "Rod Measurement and Simultaneity". */
 export type InstrumentName = Readonly<{ id: string; name: string }>;
@@ -174,7 +187,7 @@ export function stepsOf(
         const named = names[str(o.parameterId) ?? ""];
         return named ? { parameterName: named } : {};
       })(),
-      ...(num(o.value) !== undefined ? { value: num(o.value) } : {}),
+      ...settingValue(o.value),
       ...(str(c.label) ? { label: str(c.label) } : {}),
       ...(str(c.teachingNote) ? { teachingNote: str(c.teachingNote) } : {}),
       expected: expectedOf(c.expectedDisplayValues),

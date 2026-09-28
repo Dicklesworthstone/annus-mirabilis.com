@@ -44,8 +44,18 @@ export type TapeControlEvent = Readonly<{
   commandClass: CommandClass;
   commandId: string;
   parameterId: string;
-  value: number;
-  previousValue?: number | undefined;
+  /**
+   * A NUMBER, OR THE NAME OF AN ENUMERATED SETTING (am-3xdx). Canonical SI where the parameter is
+   * numeric, which is nearly all of them. Where a laboratory's own parameter is an enumeration,
+   * the name it uses: BM-05's `kernel` is "coin" | "uniform" | "gaussian", and requiring a number
+   * here is what forced coin-to-bell to encode it as 0, 1 and 3. That made the tape unopenable by
+   * its own instrument, which refuses `kernel: 0` with "This step distribution is not registered
+   * for this calculation", and made its page tell a reader to set a control to a number the
+   * control does not offer. The permalink tape type has always allowed `number | string`
+   * (src/experiments/permalink/types.ts); this brings the authored record into line with it.
+   */
+  value: number | string;
+  previousValue?: number | string | undefined;
   /** Required for, and only meaningful for, `physical-intervention`. */
   atSimulatedTime?: number | undefined;
 }>;
@@ -256,7 +266,7 @@ export type ControlTapeV2 = Readonly<{
   streamVersion: number;
   allocationId: string;
   replayGrid?: ReplayGrid | undefined;
-  initialConditions: Readonly<Record<string, number>>;
+  initialConditions: Readonly<Record<string, number | string>>;
   events: readonly TapeEventEntry[];
   checkpoints: readonly TapeCheckpoint[];
   title?: string | undefined;
@@ -267,6 +277,16 @@ export type ControlTapeV2 = Readonly<{
 /** In-memory recordings stop here with a visible notice; compact URL serialization (which may
  * apply a different, smaller bound) belongs to am-inst-permalink-tape-s677. */
 export const MAX_TAPE_EVENTS = 3600;
+
+/**
+ * What a recorded setting may be: a finite number, or a non-empty name for an enumerated
+ * parameter (am-3xdx). Nothing else, so an object, a boolean or NaN is still refused, and an
+ * empty string cannot stand in for "unset".
+ */
+export function isSettingValue(value: unknown): value is number | string {
+  if (typeof value === "number") return Number.isFinite(value);
+  return typeof value === "string" && value.trim().length > 0;
+}
 
 export function isValidTapeId(id: string): boolean {
   return TAPE_ID_PATTERN.test(id);
@@ -326,8 +346,11 @@ export function validateControlTape(raw: unknown, path = "tape"): ControlTapeV2 
     );
   }
   for (const [key, value] of Object.entries(o.initialConditions as Record<string, unknown>)) {
-    if (typeof value !== "number" || !Number.isFinite(value)) {
-      throw new TapeValidationError(`initialConditions.${key} must be a finite number.`, path);
+    if (!isSettingValue(value)) {
+      throw new TapeValidationError(
+        `initialConditions.${key} must be a finite number, or the name of an enumerated setting.`,
+        path,
+      );
     }
   }
   if (!Array.isArray(o.events)) throw new TapeValidationError("events must be an array.", path);
@@ -356,7 +379,9 @@ export function validateControlTape(raw: unknown, path = "tape"): ControlTapeV2 
     streamVersion: o.streamVersion as number,
     allocationId: o.allocationId,
     replayGrid,
-    initialConditions: Object.freeze({ ...(o.initialConditions as Record<string, number>) }),
+    initialConditions: Object.freeze({
+      ...(o.initialConditions as Record<string, number | string>),
+    }),
     events: Object.freeze(events),
     checkpoints: Object.freeze(checkpoints),
     title: typeof o.title === "string" ? o.title : undefined,
@@ -444,8 +469,17 @@ function validateEventEntry(raw: unknown, path: string): TapeEventEntry {
   if (typeof o.parameterId !== "string" || !o.parameterId.trim()) {
     throw new TapeValidationError("parameterId is required.", path);
   }
-  if (typeof o.value !== "number" || !Number.isFinite(o.value)) {
-    throw new TapeValidationError("value must be a finite canonical SI number.", path);
+  if (!isSettingValue(o.value)) {
+    throw new TapeValidationError(
+      "value must be a finite canonical SI number, or the name of an enumerated setting.",
+      path,
+    );
+  }
+  if (o.previousValue !== undefined && !isSettingValue(o.previousValue)) {
+    throw new TapeValidationError(
+      "previousValue must be a finite canonical SI number, or the name of an enumerated setting.",
+      path,
+    );
   }
   if (o.commandClass === "physical-intervention" && typeof o.atSimulatedTime !== "number") {
     throw new TapeValidationError("a physical-intervention event needs atSimulatedTime.", path);

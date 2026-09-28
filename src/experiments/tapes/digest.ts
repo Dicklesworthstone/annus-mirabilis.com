@@ -12,7 +12,13 @@ import type { U64String } from "../identity/u64.ts";
 import type { CheckpointStreamPosition } from "./schema.ts";
 
 export interface CheckpointDigestInput {
-  readonly state: Readonly<Record<string, number>>;
+  /**
+   * A setting may be the name of an enumerated parameter as well as a number (am-3xdx). Nothing
+   * about how NUMBERS are digested changes: the state is handed to scientificDigest as one
+   * opaque field, so an existing checkpoint's digest is unaffected and only a state that
+   * actually contains a name digests differently, which it must.
+   */
+  readonly state: Readonly<Record<string, number | string>>;
   readonly actionIndex: number;
   readonly stepIndex: number;
   readonly simulatedTime: number;
