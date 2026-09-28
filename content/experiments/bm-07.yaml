@@ -362,6 +362,25 @@ parameters:
       kind: linear
     role: independent
     commandClass: measurement-change
+  - id: d
+    label: "Observed coordinates"
+    accessibleName: "Number of coordinates recorded for each displacement"
+    accessibleDescription: "How many axes of each step the recording holds; the estimator averages the squared step over the axes it is given."
+    quantityId: displayedDimension
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - 1
+        - 2
+      reason: "One or two recorded axes; the synthetic generator and the estimator both work axis by axis, and there is no third to average over"
+    visualRange:
+      min: 1
+      max: 2
+    default: 2
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
 outputs:
   - id: diffusionCoefficientEstimate
     quantityId: diffusionCoefficient
