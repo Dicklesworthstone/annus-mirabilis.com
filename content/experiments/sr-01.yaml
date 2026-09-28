@@ -2,7 +2,10 @@ id: sr-01
 title: "SR-01: clock synchronization with the event ledger"
 explanatoryQuestion: "How can distant clocks acquire an operational common time, and do moving clocks share it?"
 sourceRefs:
-  - paper: relativity
+  # "special-relativity" is the slug AGENTS.md fixes and the other 12 relativity references use;
+  # "relativity" names no paper record, so this reference resolved to nothing wherever it was read
+  # (found 2026-09-28 by the walkthrough passage sweep, am-2rl9).
+  - paper: special-relativity
     id: s1
 argumentIds:
   - arg-sr-clock-sync
