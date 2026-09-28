@@ -13,8 +13,9 @@ export type TypedNumber =
 
 /**
  * `label` reads mid-sentence ("the boost speed"). `toStored` converts the typed number to the unit the
- * lab stores (v/c to m/s, say). `tooLarge` is the sentence for a typed number that is finite but
- * overflows once converted, normally the declared-domain sentence (declaredDomain.ts).
+ * lab stores (v/c to m/s, say). `tooLarge` is the sentence for a typed number the model cannot
+ * take because of its size: one that overflows on conversion, and one already too large to be a
+ * double as typed. Normally the declared-domain sentence (declaredDomain.ts).
  */
 export function readTypedNumber(
   text: string,
@@ -24,9 +25,13 @@ export function readTypedNumber(
 ): TypedNumber {
   const trimmed = text.trim();
   const typed = trimmed === "" ? Number.NaN : Number(trimmed);
-  if (!Number.isFinite(typed))
-    return { kind: "refused", requirement: `Enter ${label} as a number.` };
-  const value = toStored(typed);
+  if (Number.isNaN(typed)) return { kind: "refused", requirement: `Enter ${label} as a number.` };
+  // A typed number too large for a double is a MAGNITUDE the model cannot take, not a failure to
+  // type a number: Number("1e400") is Infinity, and a reader who typed four digits and an exponent
+  // was told "enter it as a number". That is the sentence this bead is about, and the finiteness
+  // test used to run on `typed` before the conversion, so the tooLarge sentence below - the one
+  // every caller supplies for exactly this - could never be reached by it.
+  const value = Number.isFinite(typed) ? toStored(typed) : typed;
   if (!Number.isFinite(value))
     return { kind: "refused", requirement: tooLarge ?? `Enter ${label} as a smaller number.` };
   return { kind: "number", value };
