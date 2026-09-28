@@ -231,7 +231,7 @@ describe("a refusal says what is wrong with the setting, not with the typing", a
     // this and the number here comes down with it, in the same commit; a new numeric control that
     // declares none raises it and is refused here rather than passing unseen. A debt, not a budget.
     //
-    // The 15 are not 15 unguarded settings, and the line above deliberately says only that they are
+    // The 14 are not 14 unguarded settings, and the line above deliberately says only that they are
     // outside what THIS sweep checks. Measured on 2026-09-28 by handing each validator 1e300 and
     // -1e300, they are: five that declare an ENUMERATED domain, which a min and a max cannot say
     // (bm-01.d and bm-07.d take one or two or three coordinates, where a range of 1 to 2 would
@@ -244,11 +244,35 @@ describe("a refusal says what is wrong with the setting, not with the typing", a
     // this model states no ceiling for them (lq-04.illustrativeC, sr-02.dipoleMoment,
     // sr-12.sphereCharge, sr-12.loopCurrent, sr-12.pulseAmplitude: a constant that cancels, a
     // source strength, a source charge, a loop current and a pulse amplitude).
-    expect(s.numericControls - s.controls).toBeLessThanOrEqual(15);
+    expect(s.numericControls - s.controls).toBeLessThanOrEqual(14);
     // The debt proper, ratcheted separately: controls whose manifest says nothing about what they
-    // take. 11 when first split on 2026-09-28, 10 once bm-01.axis was declared. The five kinds are
-    // named above; this is the number to drive down, and the one above cannot fall below it.
-    expect(s.numericControls - s.controls - s.enumeratedControls).toBeLessThanOrEqual(10);
+    // take. 11 when first split on 2026-09-28, then 10 with bm-01.axis and 9 with
+    // sr-12.pulseAmplitude. This is the number to drive down, and the one above cannot fall below
+    // it.
+    //
+    // The 9 were each read at their kernel on 2026-09-28 rather than judged from their names, and
+    // none has a range that would be true:
+    //   lq-04.illustrativeC       enters entropyWithUnfixedConstant as dNu * C * (V - V0), linear,
+    //                             in a function whose own note calls it an adversarial derivation
+    //                             variant. Its point is that an arbitrary constant's term does not
+    //                             cancel, so bounding it would undercut the demonstration.
+    //   sr-04's four candidates   are checked AGAINST the requirements, not applied as a map
+    //                             ("zero means the requirement holds"). The lab exists to let a
+    //                             reader propose a wrong one; +/-1e6 is a numerical evaluation
+    //                             bound and belongs in ParameterSpec's numericalDomain.
+    //   sr-02.dipoleMoment        enters dipoleField linearly; either sign is a magnet pointing
+    //                             the other way, and the model states no ceiling.
+    //   sr-12.loopCurrent         enters currentLoopCharges linearly; either sign is a current
+    //                             running the other way.
+    //   sr-12.sphereCharge        is read by nothing. The kernel derives the sphere's charge from
+    //                             sphereRadius and chargeDensity via sphereTotalCharge, and this
+    //                             input is only finiteness-checked. Its default is exactly
+    //                             sphereTotalCharge(1, 1), a mirror of the derived value.
+    //   bm-06.copiedDiffusivitySnapshotVersion is not a control and not a physical quantity. It
+    //                             carries another instrument's snapshot identity, and its
+    //                             non-negativity is a record invariant the lab enforces; a
+    //                             modelDomain would put a bookkeeping fact in the model's field.
+    expect(s.numericControls - s.controls - s.enumeratedControls).toBeLessThanOrEqual(9);
   });
 
   test("no control answers an out-of-range number with a sentence about the reader's typing", () => {
