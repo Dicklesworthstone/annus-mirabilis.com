@@ -244,14 +244,42 @@ describe("no pinned listing, no disclosure", () => {
     expect(renderToStaticMarkup(<ShowTheCode listings={[]} />)).toBe("");
   });
 
+  /**
+   * THIS TEST NAMED SR-11 AND SR-11 STOPPED BEING AN EXAMPLE OF ITS OWN PREMISE. 734efe38 gave
+   * sr-11 a catalogue entry, which is the work going well, and the assertion "sr-11 draws no box"
+   * became false for the right reason while still reading like a guard. It went red in a deploy's
+   * test lane rather than in the commit that caused it, because the commit updated two sibling
+   * suites and not this one.
+   *
+   * So the subject is now CHECKED rather than assumed. The premise assertion below fails with a
+   * sentence naming the cause the moment sr-09 is given a listing, instead of the render assertion
+   * failing with "expected not to contain show-the-code", which says nothing about why. And the
+   * fact that broke this test is now the positive control beside it, so the pair cannot drift
+   * apart: one lab without a listing draws nothing, one lab with one draws the box.
+   */
   test("a lab whose instrument has no pinned listing draws no empty 'Show the code' box", async () => {
-    // SR-11 asks getKernelListingsForInstrument("sr-11"), which has no entry: until this, its page
-    // carried a "Show the code" disclosure that opened onto nothing.
+    const { getKernelListingsForInstrument } = await import("../../content/kernel/listings.ts");
+    expect(
+      getKernelListingsForInstrument("sr-09"),
+      "sr-09 has gained a pinned listing, so it is no longer an example of a lab without one: " +
+        "move this case to an instrument that still has none, and make sr-09 a positive control",
+    ).toEqual([]);
+    const { DopplerAberrationLab } = await import("./sr09/DopplerAberrationLab.tsx");
+    const { DEFAULT_PREPARED_EXAMPLE } = await import("../../experiments/sr09/session.ts");
+    expect(
+      renderToStaticMarkup(<DopplerAberrationLab example={DEFAULT_PREPARED_EXAMPLE} />),
+    ).not.toContain('class="show-the-code"');
+  });
+
+  test("and a lab whose instrument HAS one draws it: sr-11, the case that broke the line above", async () => {
+    const { getKernelListingsForInstrument } = await import("../../content/kernel/listings.ts");
+    expect(getKernelListingsForInstrument("sr-11").length).toBeGreaterThan(0);
     const { MovingMirrorLab } = await import("./sr11/MovingMirrorLab.tsx");
     const { DEFAULT_PREPARED_EXAMPLE } = await import("../../experiments/sr11/session.ts");
-    const html = renderToStaticMarkup(<MovingMirrorLab example={DEFAULT_PREPARED_EXAMPLE} />);
-    expect(html).not.toContain('class="show-the-code"');
-    // ShowTheCodeColour.test.tsx holds the other side: BM-01, with pinned listings, still draws it.
+    expect(renderToStaticMarkup(<MovingMirrorLab example={DEFAULT_PREPARED_EXAMPLE} />)).toContain(
+      'class="show-the-code"',
+    );
+    // ShowTheCodeColour.test.tsx holds the colour half: BM-01's listings carry term colours too.
   });
 });
 
