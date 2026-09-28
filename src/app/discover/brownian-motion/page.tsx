@@ -11,6 +11,7 @@ import {
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
 import { BROWNIAN_LATER_EVIDENCE, BROWNIAN_SHELF_CARDS } from "../../../content/brownianShelf.ts";
 import {
+  DOORS,
   FIRST_HONEST_QUESTION,
   FORK_EXNER,
   FORK_NAEGELI,
@@ -23,6 +24,7 @@ import {
 } from "../../../discovery/brownian/journeyII.ts";
 import { EINSTEIN_ONE_SECOND } from "../../../discovery/brownian/numericExercises.ts";
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
+import { Doors } from "../../../discovery/Doors.tsx";
 import { Fork } from "../../../discovery/Fork.tsx";
 import { JourneyFormula } from "../../../discovery/JourneyFormula.tsx";
 import { PAGE_FORMULAS } from "../../../discovery/journeyFormulaList.ts";
@@ -230,7 +232,7 @@ export default function BrownianEncounter() {
           <StepDoor href="/lab/bm-04/">
             Balance the drift against the spreading, and watch the force drop out
           </StepDoor>
-          <StepDoor href="/papers/brownian-motion/s5/#arg-bm-diffusivity">
+          <StepDoor href="/papers/brownian-motion/s3/#arg-bm-diffusivity">
             Go straight to the explanation: what fixes D for a small sphere
           </StepDoor>
         </StepDoors>
@@ -382,6 +384,11 @@ export default function BrownianEncounter() {
         {SOURCE_JUMPS.map((jump) => (
           <SourceJump key={jump.id} jump={jump} />
         ))}
+        <p>
+          Two doors lead to the same coefficient: the paper&rsquo;s balance of a crowd, and one
+          particle&rsquo;s walk followed step by step. The route takes both, and they meet.
+        </p>
+        <Doors doors={DOORS} />
         <div className="actions">
           <a className="button" href="/papers/brownian-motion/">
             Read the argument and open its missing steps

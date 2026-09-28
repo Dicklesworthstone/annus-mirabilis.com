@@ -8,6 +8,7 @@
  * the check against the world.
  */
 import type {
+  Doors,
   Fork,
   JourneyMove,
   PpeTask,
@@ -40,6 +41,51 @@ export const MOVE: JourneyMove = {
 /** Where the marked step opens, in the reading face of §4. */
 export const MOVE_HREF =
   "/papers/brownian-motion/s4/?open=derivation-step:bm-variance-cross#arg-bm-independent-steps";
+
+/**
+ * THE TWO WAYS IN, and the equation both reach (the skeleton's tenth element). AGENTS.md asks each
+ * journey for a front door, the paper's own argument, and at least one side door that arrives at the
+ * same equation, "and the site says so". This route said half of it: step 03 calls the balance "a
+ * side door into the paper" and adds that the steps which follow one particle "reach the same D",
+ * and nothing named the doors or the arrival.
+ *
+ * The front door is the paper's own: the suspended particles press like dissolved molecules, a force
+ * pulls them, and in equilibrium the crowding pushes back exactly as hard, so the force cancels and
+ * what is left fixes D by the temperature, the viscosity and the radius. The side door is the one
+ * AGENTS.md names by its own examples, Fick's law and two accounting sheets: drift against
+ * diffusion, written as a loop in BM-05 and watched in BM-01, which reaches the same coefficient by
+ * following one particle instead of a crowd.
+ *
+ * Both arrive at the diffusion coefficient of a suspended sphere. The route prints it in both
+ * notations already, since Einstein writes k for the viscosity and P for the radius. What
+ * the side door adds is that the same D is the one in the spreading law a microscope can watch,
+ * which is what makes the paper's §5 displacement scale, and the count of molecules after it,
+ * something a measurement can reach.
+ */
+export const DOORS: Doors = {
+  frontDoor: {
+    id: "door-bm-front",
+    title: "The paper's balance, §§1 to 3",
+    arrivesAtEquationId: "eq-model-bm-diffusivity-molar",
+    arrivesAtLabel:
+      "the diffusion coefficient of a suspended sphere, D = RT/(6πηaN), the paper's relation in today's letters",
+    href: "/papers/brownian-motion/s3/#arg-bm-diffusivity",
+    summary:
+      "Grant that a visible particle presses on a membrane the way a dissolved molecule does, pull on the particles with a force, and let the crowd settle. The force cancels between the two ways of counting what crosses a plane each second, and the coefficient left behind depends on the temperature, the viscosity of the liquid and the radius of the particle alone.",
+  },
+  sideDoors: [
+    {
+      id: "door-bm-walk",
+      title: "Follow one particle: the walk, for programmers",
+      arrivesAtEquationId: "eq-model-bm-diffusivity-molar",
+      arrivesAtLabel:
+        "the diffusion coefficient of a suspended sphere, D = RT/(6πηaN), the paper's relation in today's letters",
+      href: "/lab/bm-05/",
+      summary:
+        "Write the loop instead: many short independent steps, each as likely to go one way as the other. The mean square of the total grows in proportion to the time, and the coefficient of that growth is the same D the balance fixes, which is why the spreading a microscope can watch measures the quantity the thermodynamic argument computes.",
+    },
+  ],
+};
 
 /** What Einstein wrote: a jump into the reading face where the paper makes the same move. */
 export const SOURCE_JUMPS: readonly SourceJump[] = [
