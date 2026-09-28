@@ -56,7 +56,7 @@ export const BM05_PROMPT: PredictPrompt = Object.freeze({
       description:
         "The two step laws never converge; the walk's spread keeps a visible trace of which law produced it.",
       separatingAssumption:
-        "That would hold if the two step laws produced genuinely different limiting distributions — a bias, or a variance that never settles. Coin, uniform, and Gaussian steps here are all zero-mean with the same finite variance, and the central limit theorem says any such step law converges to the same Gaussian after enough independent steps, so the two piles must merge rather than stay apart.",
+        "That would hold if the two step laws produced genuinely different limiting distributions: a bias, or a variance that never settles. Coin, uniform, and Gaussian steps here are all zero-mean with the same finite variance, and the central limit theorem says any such step law converges to the same Gaussian after enough independent steps, so the two piles must merge rather than stay apart.",
     }),
     Object.freeze({
       id: "same-bell-shape",
@@ -72,7 +72,7 @@ export const BM05_PROMPT: PredictPrompt = Object.freeze({
       description:
         "The resulting spread is wider than the coin-step case even though the per-step variance matches.",
       separatingAssumption:
-        "That would hold if the resulting spread depended on some property of the step law beyond its variance — a heavier tail inflating the typical size, for instance. Holding the variance fixed already fixes the limiting Gaussian's width; a different step shape with the same variance converges to the identical spread, not a wider one.",
+        "That would hold if the resulting spread depended on some property of the step law beyond its variance: a heavier tail inflating the typical size, for instance. Holding the variance fixed already fixes the limiting Gaussian's width; a different step shape with the same variance converges to the identical spread, not a wider one.",
     }),
   ]),
 });
