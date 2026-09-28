@@ -1,6 +1,7 @@
 import { Formula } from "../components/edition/Formula.tsx";
 import { FirstPages } from "../components/home/FirstPages.tsx";
 import "../components/home/wideProse.css";
+import { bridgeLessons, countInWords, sentenceCase } from "../components/home/bridgeLessons.ts";
 import { loadFirstPages } from "../components/home/firstPages.ts";
 import { germanTextSentences, germanTextState } from "../content/germanTextState.ts";
 import type { RouteSlug } from "../content/ids.ts";
@@ -8,6 +9,10 @@ import { translationSentence, translationState } from "../content/translationSta
 export default function Home() {
   // Counted from content/translation-units, so this line changes when the units do (dispatch 150).
   const papers = loadFirstPages();
+  // The no-algebra route, counted from content/foundations/bridge-*.json, so the sentence that
+  // offers it cannot outlive the lessons it names.
+  const bridges = bridgeLessons();
+  const openings = bridges.filter((lesson) => lesson.assumesNothing);
   const translationNow = translationSentence(
     translationState(process.cwd()),
     new Map(papers.map((paper) => [paper.slug, paper.title])),
@@ -144,6 +149,49 @@ export default function Home() {
       </section>
 
       <section className="reading page-flush">
+        <h2>Three ways to use this</h2>
+        <p>
+          You can <a href="/papers/">read a paper</a>, the German beside a close English
+          translation, and open any paragraph further where you want more of it. You can{" "}
+          <a href="/discover/">work an argument out first</a>, on a route that puts the alternatives
+          a careful reader had in 1904 on the table and says which of them still work. Or you can{" "}
+          <a href="/instruments/">operate the instrument</a> that tests a claim and watch what
+          changes when you change an assumption. The same passages, the same instruments and the
+          same claims are reachable from all three.
+        </p>
+        <p>
+          Depth is a separate choice from any of that, and it is yours at every paragraph rather
+          than declared once: every reading page carries a Detail control set to Overview, Full
+          explanation or Show every step. Choosing the shortest never hides the source text and
+          never simplifies a later page.
+        </p>
+        {bridges.length > 0 && (
+          <p>
+            If it is the mathematics that stands in the way, {countInWords(bridges.length)} short
+            lessons start from arithmetic, each with one question, a worked example and a plain
+            statement of where it stops:{" "}
+            <a href="/foundations/#lessons-no-algebra-needed">the lessons that need no algebra</a>.
+            {openings.length > 0 && (
+              <>
+                {" "}
+                {sentenceCase(
+                  openings.length === 1 ? "one assumes" : `${countInWords(openings.length)} assume`,
+                )}{" "}
+                nothing at all:{" "}
+                {openings.map((lesson, i) => (
+                  <span key={lesson.id}>
+                    {i > 0 ? (i === openings.length - 1 ? " and " : ", ") : ""}
+                    <a href={`/foundations/${lesson.id}/`}>{lesson.title}</a>
+                  </span>
+                ))}
+                .
+              </>
+            )}
+          </p>
+        )}
+      </section>
+
+      <section className="reading page-flush">
         <h2>What the printed page actually says</h2>
         <p>
           The fourth paper runs to three pages and comes down to one line, in the notation it was
@@ -175,11 +223,7 @@ export default function Home() {
           The explanations, the instruments and the discovery routes are written and working.{" "}
           {germanNow}
         </p>
-        <p>
-          {translationNow} For a paper with no translation yet, the English, parallel and
-          interlinear faces say it is unavailable instead of showing you a paraphrase and letting
-          you assume it was checked against the German.
-        </p>
+        <p>{translationNow}</p>
         <p>
           The page images come from scans listed, each with its source, its terms and its digest, on
           the <a href="/sources/">sources page</a>. The edition counts four papers and keeps

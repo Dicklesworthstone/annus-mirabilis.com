@@ -2,9 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
+import { bridgeLessons } from "../components/home/bridgeLessons.ts";
 import { loadFirstPages } from "../components/home/firstPages.ts";
 import { germanTextCount, germanTextSentences } from "../content/germanTextState.ts";
-import { nameInSentence } from "../content/translationState.ts";
+import { nameInSentence, translationState } from "../content/translationState.ts";
 import { PaperPage } from "../reader/PaperPage.tsx";
 import { exportMarkup } from "../testing/exportMarkup.ts";
 import About from "./about/page";
@@ -202,5 +203,82 @@ describe("the German-text sentences say each state plainly", () => {
     expect(germanTextCount(four(["reviewed", "draft", "draft", "draft"]))).toBe(
       "The German text is set for four of the four.",
     );
+  });
+});
+
+/**
+ * THE FRONT DOOR'S ROUTE OUT OF A DEAD END (dispatch 403).
+ *
+ * Two things are checked here and they fail in opposite directions. The first is that the page
+ * still offers the no-algebra lessons at all: it linked /foundations/ zero times until this, and
+ * so does the site's chrome, so a reader who needed a bridge had no door to one anywhere on the
+ * page they arrive at. The second is that what it says about those lessons is counted from the
+ * records rather than typed, which is the defect this file exists for: the clause removed from
+ * this page in the same commit explained what happens "for a paper with no translation yet",
+ * and there has been no such paper since all four translations were finished.
+ *
+ * The lesson records are read here a second way, straight off disk, and not through the helper
+ * the page calls.
+ */
+describe("the home page's no-algebra route", () => {
+  const html = renderToStaticMarkup(<Home />);
+  const text = textOf(html);
+  const onDisk = readdirSync(join(ROOT, "content", "foundations")).filter(
+    (file) => file.startsWith("bridge-") && file.endsWith(".json"),
+  );
+  const assumesNothing = onDisk.filter((file) => {
+    const record = JSON.parse(readFileSync(join(ROOT, "content", "foundations", file), "utf8")) as {
+      prerequisites?: unknown[];
+    };
+    return (record.prerequisites ?? []).length === 0;
+  });
+
+  test("offers the lessons that need no algebra, and a lesson page for each one it names", () => {
+    // Non-vacuity: there are bridge lessons to offer, and some that assume nothing.
+    expect(onDisk.length).toBeGreaterThan(0);
+    expect(assumesNothing.length).toBeGreaterThan(0);
+    expect(html).toContain('href="/foundations/#lessons-no-algebra-needed"');
+    for (const file of assumesNothing) {
+      const record = JSON.parse(
+        readFileSync(join(ROOT, "content", "foundations", file), "utf8"),
+      ) as { id: string; title: string };
+      expect(html).toContain(`href="/foundations/${record.id}/"`);
+      expect(text).toContain(record.title);
+    }
+  });
+
+  test("counts the lessons rather than saying a number that was true once", () => {
+    const words = [
+      "no",
+      "one",
+      "two",
+      "three",
+      "four",
+      "five",
+      "six",
+      "seven",
+      "eight",
+      "nine",
+      "ten",
+      "eleven",
+      "twelve",
+    ];
+    expect(text).toContain(`${words[onDisk.length] ?? String(onDisk.length)} short lessons`);
+    // The lessons named as assuming nothing are exactly the ones whose records say so, so a
+    // lesson that gains a prerequisite stops being offered as an opening.
+    const named = bridgeLessons(ROOT).filter((lesson) => lesson.assumesNothing);
+    expect(named.length).toBe(assumesNothing.length);
+    for (const lesson of bridgeLessons(ROOT))
+      if (!lesson.assumesNothing) expect(html).not.toContain(`href="/foundations/${lesson.id}/"`);
+  });
+
+  test("claims no paper is without a translation while every paper has units", () => {
+    const withUnits = new Set(translationState(ROOT).map((paper) => paper.slug));
+    // Non-vacuity, and the condition the assertion below is only meaningful under.
+    expect(papers.length).toBeGreaterThan(0);
+    const everyPaperTranslated = papers.every((paper) => withUnits.has(paper.slug));
+    expect(everyPaperTranslated).toBe(true);
+    expect(text).not.toContain("no translation yet");
+    expect(text).not.toMatch(/has none yet|have none yet/);
   });
 });
