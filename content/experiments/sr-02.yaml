@@ -70,6 +70,26 @@ parameters:
       base: 10
     role: independent
     commandClass: setup-change
+  - id: testCharge
+    label: "Test charge"
+    accessibleName: "Magnitude of the test point charge"
+    accessibleDescription: "Electric charge of the test particle used to read the field, in coulombs."
+    quantityId: electronCharge
+    displayUnit: "C"
+    modelDomain:
+      min: -1.0e-6
+      max: 1.0e-6
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite test charge without back-reaction."
+    visualRange:
+      min: -1.602176634e-19
+      max: 1.602176634e-19
+    default: 1.602176634e-19
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
 outputs:
   - id: emfMagnet
     quantityId: electromotiveForceMagnetFrame

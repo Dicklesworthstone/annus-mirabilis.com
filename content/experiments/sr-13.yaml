@@ -286,6 +286,26 @@ parameters:
       kind: linear
     role: independent
     commandClass: setup-change
+  - id: customCharge
+    label: "Custom particle charge"
+    accessibleName: "Charge of the custom particle"
+    accessibleDescription: "Electric charge of the custom particle, in coulombs, used when the particle choice is custom."
+    quantityId: electronCharge
+    displayUnit: "C"
+    modelDomain:
+      min: -1.0e-6
+      max: 1.0e-6
+      minInclusive: true
+      maxInclusive: true
+      reason: "The fields here are prescribed, so the particle's own field is not modelled and its charge stays small enough not to act back on them."
+    visualRange:
+      min: -1.602176634e-19
+      max: 1.602176634e-19
+    default: -1.602176634e-19
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
 outputs:
   - id: longitudinalMass
     quantityId: longitudinalMass

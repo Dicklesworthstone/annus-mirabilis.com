@@ -184,12 +184,18 @@ describe("a refusal says what is wrong with the setting, not with the typing", a
     expect(s.labsReached).toBeGreaterThan(25);
     expect(s.controls).toBeGreaterThan(100);
     expect(s.probes).toBeGreaterThan(100);
-    // A one-way ratchet on the unchecked population: 56 when first measured on 2026-09-28, 47 once
-    // BM-07's nine were declared, 33 with SR-08's seven, SR-12's six and SR-13's mass. Declaring a
-    // domain for one of them lowers this and the number here comes down with it, in the same
+    // A one-way ratchet on the unchecked population: 56 when first measured on 2026-09-28, then 47,
+    // 33 and 30 as BM-07's nine, SR-08's seven, SR-12's six and four more were declared. Declaring
+    // a domain for one of them lowers this and the number here comes down with it, in the same
     // commit; a new numeric control that declares none raises it and is refused here rather than
     // passing unseen. It is a debt, never a budget.
-    expect(s.numericControls - s.controls).toBeLessThanOrEqual(33);
+    //
+    // The 30 are not 30 unguarded settings, and the line above deliberately says only that they are
+    // outside what THIS sweep checks. Measured on 2026-09-28, 25 of the 33 then remaining refused a
+    // hostile value through their own lab's check, several by something a min and a max cannot say:
+    // a velocity's vector magnitude, an enumerated pair of coordinates, a lower endpoint against an
+    // upper one. What they lack is the range written down in the manifest, not a guard.
+    expect(s.numericControls - s.controls).toBeLessThanOrEqual(30);
   });
 
   test("no control answers an out-of-range number with a sentence about the reader's typing", () => {

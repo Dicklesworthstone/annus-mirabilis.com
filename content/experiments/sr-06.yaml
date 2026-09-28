@@ -71,6 +71,26 @@ parameters:
       kind: linear
     role: independent
     commandClass: setup-change
+  - id: secondAngleDeg
+    label: "Second boost angle"
+    accessibleName: "Angle of the second boost from the x-axis"
+    accessibleDescription: "Direction of the second boost measured from the x-axis, in degrees."
+    quantityId: emissionAngle
+    displayUnit: "deg"
+    modelDomain:
+      min: 0
+      max: 360
+      minInclusive: true
+      maxInclusive: true
+      reason: "A full turn of direction"
+    visualRange:
+      min: 0
+      max: 360
+    default: 90
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
 outputs:
   - id: composedSpeedOverC
     quantityId: frameSpeed
