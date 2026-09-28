@@ -46,6 +46,7 @@ import {
   unexplainedParts,
 } from "./unexplainedParts.ts";
 import "./reader.css";
+import { SectionTapes } from "./SectionTapes.tsx";
 
 /** The Brownian first encounter's id (BrownianFirstEncounter.tsx), a return anchor like a passage. */
 const ENTRY_ANCHOR = "entry-brownian-motion";
@@ -531,6 +532,9 @@ export async function PaperReader({
                     </p>
                   </article>
                 ))}
+              {/* Where a walkthrough of this section exists, the way to it (am-2rl9). Renders
+                  nothing on the sections that have none, which is most of them. */}
+              <SectionTapes paperId={paper.id} sectionId={s.id} />
             </section>
           ))}
           {section ? (

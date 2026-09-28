@@ -366,6 +366,32 @@ export function tapesForExperiment(
 }
 
 /**
+ * THE WALKTHROUGHS THAT LEAD BACK TO ONE PASSAGE, WHICH IS THE ARROW THE SITE WAS MISSING (am-2rl9).
+ *
+ * A tape page already says "Where this is in the paper", resolved through the instrument's declared
+ * sourceRefs. The reverse did not exist: measured 2026-09-28, the relativity paper page emitted 23
+ * links to /lab/ and 71 to /foundations/ and not one to /tapes/, so a reader working through a
+ * section had no way to learn that a recorded walkthrough of that very section existed.
+ *
+ * 15 distinct (paper, section) pairs have at least one, across all four papers: relativity s0 and
+ * s6 to s10, light-quanta s5, s7, s8 and s9, Brownian s4 and s5, mass-energy s0. That distribution
+ * is the argument for doing it. AGENTS.md's first non-negotiable outcome says the difficult closing
+ * sections, "paper 3, sections 6 to 10" and "paper 1, section 9", must never disappear behind the
+ * familiar headlines, and those are precisely the sections a walkthrough now reaches.
+ *
+ * Returns them sorted by id so the markup is stable between builds.
+ */
+export function tapesForPassage(
+  paperId: string,
+  sectionId: string,
+  root: string = process.cwd(),
+): TeachingTape[] {
+  return loadTeachingTapes(root)
+    .tapes.filter((t) => t.passages.some((p) => p.paper === paperId && p.sectionId === sectionId))
+    .sort((a, b) => a.tapeId.localeCompare(b.tapeId));
+}
+
+/**
  * A teaching tape's identity against the instrument it belongs to (am-2rl9).
  *
  * WHY THIS EXISTS. Nothing replays a tape, so nothing had ever compared one with its instrument, and

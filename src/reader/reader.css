@@ -3158,3 +3158,23 @@ html:is(
 .reading-column > .source-blocks-list > .source-block-wrapper {
   margin-block: var(--reader-paragraph-gap);
 }
+
+/*
+ * THE WALKTHROUGHS THAT LEAD BACK TO A SECTION (am-2rl9, SectionTapes.tsx).
+ *
+ * .actions already gives the row its flex layout, gap and wrapping, so these two rules add only
+ * what is specific to this nav: a rule above it, because it sits at the foot of a section and needs
+ * to read as a way onward rather than as the last passage's own tail, and a muted instrument id on
+ * each link so a reader knows which instrument a walkthrough opens before taking it.
+ *
+ * 15 of the four papers' sections carry one. The rest render nothing at all, so no section that has
+ * no walkthrough pays a border.
+ */
+.section-tapes {
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+.section-tape-instrument {
+  color: var(--muted);
+  font-size: 0.9em;
+}
