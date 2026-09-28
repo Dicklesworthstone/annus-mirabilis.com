@@ -6,6 +6,8 @@ import "../../components/home/wideProse.css";
 import { type GermanTextState, germanTextState } from "../../content/germanTextState.ts";
 import type { RouteSlug } from "../../content/ids.ts";
 import { type PaperTranslation, translationState } from "../../content/translationState.ts";
+import { FACE_REGISTRY } from "../../reader/faces/registry.ts";
+import { paperFacts, readableDate } from "./paperFacts.ts";
 
 /*
  * A paper's entry names a layer only when it is missing, read from the records at build time
@@ -29,14 +31,33 @@ export const metadata: Metadata = {
   description:
     "The four papers Einstein sent to the Annalen der Physik in 1905, in the order the journal received them, each under its printed German title.",
 };
+/**
+ * The faces a reader meets, with the LABEL taken from the reader's own registry
+ * (src/reader/faces/registry.ts) rather than written here: a face renamed there is renamed on this
+ * page in the same build, and a face removed stops the typechecker. The clause beside each one is
+ * this page's, because the registry carries no description.
+ */
+const FACE_CLAUSES: Readonly<Record<string, string>> = {
+  german: "The paper as printed, in Einstein's German, with the page turns marked where they fall.",
+  english: "A close English rendering, sentence by sentence against the German.",
+  parallel:
+    "The two side by side, so a phrase can be checked against its source without leaving the line.",
+  gloss: "Word for word under the German, for a reader following the original with little German.",
+  reading: "The explanation: what the passage claims, why the move is allowed, and what it costs.",
+  results: "The numbered results on their own, each with the instrument that puts it to work.",
+  facsimile: "The scanned page itself, pinned by checksum to the volume it came from.",
+};
+
+const FACES = Object.values(FACE_REGISTRY)
+  .filter((face) => FACE_CLAUSES[face.id] !== undefined)
+  .map((face) => ({ id: face.id, label: face.label, clause: FACE_CLAUSES[face.id] as string }));
+
 const papers = [
   {
     slug: "light-quanta",
     title: "Light quanta",
     german:
       "Über einen die Erzeugung und Verwandlung des Lichtes betreffenden heuristischen Gesichtspunkt",
-    received: "Received 18 March 1905",
-    locator: "Annalen der Physik (4), 17, 132–148 (1905)",
     scope:
       "Light behaves, in how it is produced and absorbed, as though its energy sits in separate pieces. Einstein calls this a heuristic viewpoint in the title itself, and says where he thinks the wave description stops being the useful one.",
   },
@@ -45,8 +66,6 @@ const papers = [
     title: "Brownian motion",
     german:
       "Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen",
-    received: "Received 11 May 1905",
-    locator: "Annalen der Physik (4), 17, 549–560 (1905)",
     plainScope:
       "If heat is the motion of molecules, a particle visible under a microscope and suspended in a liquid at rest should never stop moving. Einstein works out how far it should wander in a given time: a number a laboratory can check.",
     workingTitle:
@@ -65,8 +84,6 @@ const papers = [
     slug: "special-relativity",
     title: "Special relativity",
     german: "Zur Elektrodynamik bewegter Körper",
-    received: "Received 30 June 1905",
-    locator: "Annalen der Physik (4), 17, 891–921 (1905)",
     scope:
       "Move a magnet past a coil, or the coil past the magnet, and you measure the same current; the textbook account of the day told two different stories. Einstein rebuilds the measurement of time around that mismatch, beginning with what it takes to set two distant clocks.",
   },
@@ -74,14 +91,17 @@ const papers = [
     slug: "mass-energy",
     title: "Mass and energy",
     german: "Ist die Trägheit eines Körpers von seinem Energieinhalt abhängig?",
-    received: "Received 27 September 1905",
-    locator: "Annalen der Physik (4), 18, 639–641 (1905)",
     scope:
       "Three pages that follow from the June paper. One body's energy is written down twice, from rest and from a frame gliding past, and the two accounts are subtracted. A body that gives off energy has less mass afterwards.",
   },
 ];
 export default function Papers() {
   const plates = loadFirstPages();
+  // Every figure below comes from the record that owns it: the locator and the two dates from the
+  // provenance receipt's journal block and typed `dates`, the opening question from the paper's own
+  // first-encounter record. See paperFacts.ts for why none of it is written on this page.
+  const facts = paperFacts();
+  const factsOf = (slug: string) => facts.find((f) => f.slug === slug);
   const translations = translationState(process.cwd());
   const missingOf = (slug: string) =>
     missingLayers(
@@ -96,9 +116,33 @@ export default function Papers() {
         <p className="lead">
           Four papers, sent to Annalen der Physik between March and September, in the order the
           journal received them. The last of them is a three-page consequence of the third, so the
-          order is worth keeping.
+          order is worth keeping. It is the only order here: nothing on this page ranks them, and
+          the printed extent beside each one is a fact about the paper rather than a suggestion
+          about you.
         </p>
       </header>
+      <section className="reading page-flush" aria-labelledby="what-a-paper-is-here">
+        <h2 id="what-a-paper-is-here">What a paper is here</h2>
+        <p>
+          Every one of the four opens on the same set of faces, and a face is a way of showing the
+          same passage rather than a different document. The names below are the ones the reader
+          controls use; switching between them keeps your place at the same sentence.
+        </p>
+        <dl className="paper-faces">
+          {FACES.map(({ id, label, clause }) => (
+            <div key={id}>
+              <dt>{label}</dt>
+              <dd>{clause}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="fine">
+          Behind them sit the instruments, one per claim worth interrogating, and a reconstruction
+          of the problem before its solution was known. Both are reached from the passage they
+          belong to rather than from a menu.
+        </p>
+      </section>
+
       <ol className="paper-index">
         {papers.map((paper) => {
           const plate = plates.find((p) => p.slug === paper.slug);
@@ -131,7 +175,14 @@ export default function Papers() {
                 </div>
               )}
               <div className="paper-entry-body">
-                <p className="eyebrow">{paper.received}</p>
+                <p className="eyebrow">
+                  {factsOf(paper.slug)?.receivedIso
+                    ? `Received ${readableDate(factsOf(paper.slug)?.receivedIso)}`
+                    : null}
+                  {factsOf(paper.slug)?.publishedIso
+                    ? ` \u00b7 published ${readableDate(factsOf(paper.slug)?.publishedIso)}`
+                    : null}
+                </p>
                 <p lang="de" className="german-title">
                   {paper.german}
                 </p>
@@ -155,7 +206,12 @@ export default function Papers() {
                 )}
                 <p>{paper.plainScope ?? paper.scope}</p>
                 <p className="fine">Also known as: {paper.title}.</p>
-                <p className="fine">{paper.locator}</p>
+                <p className="fine">{factsOf(paper.slug)?.locator}</p>
+                {factsOf(paper.slug)?.question ? (
+                  <p className="paper-entry-question">
+                    It opens on a question: {factsOf(paper.slug)?.question}
+                  </p>
+                ) : null}
                 {missingOf(paper.slug) ? (
                   <p className="notice" data-missing-layers>
                     {missingOf(paper.slug)}
@@ -202,6 +258,11 @@ export default function Papers() {
                     <a href="/lab/me-02/">Follow the subtraction</a>
                   </div>
                 )}
+                <p className="fine">
+                  <a href={`/capstones/${paper.slug}/`}>
+                    Rebuild this paper&rsquo;s argument from its own claims
+                  </a>
+                </p>
               </div>
             </li>
           );

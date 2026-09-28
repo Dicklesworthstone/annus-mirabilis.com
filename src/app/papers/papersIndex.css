@@ -104,3 +104,34 @@
     max-width: 68ch;
   }
 }
+
+/*
+ * The question each paper opens with, read from its first-encounter record (dispatch 392). It sits
+ * between the scope sentence and the actions, in the reading serif rather than the fine print,
+ * because it is the paper speaking and not the site's apparatus.
+ */
+.paper-entry-question {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-serif);
+}
+
+/* The faces list: a term and its clause, at reading width (dispatch 392). */
+.paper-faces {
+  margin: 1rem 0 0;
+}
+
+.paper-faces > div {
+  padding: 0.35rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.paper-faces dt {
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.paper-faces dd {
+  margin: 0.15rem 0 0;
+}
