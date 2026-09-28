@@ -129,7 +129,21 @@ describe("/notation/ carries no review, verification or provenance status", asyn
    * Attributes are not visible text, so `<option value="me-s0-p5">Mass and energy, paragraph 5` is
    * correct and passes: `visibleText` drops tags, and the id is in the tag.
    */
-  const CONTENT_ID = /\b[a-z]{2}-s\d+(?:-p\d+)?(?:-s\d+)?(?:-m\d+)?\b/g;
+  /**
+   * THE PAPER PREFIX IS OPTIONAL, and requiring it is how the first version of this guard shipped
+   * with a hole. `docs/CONTENT_IDS.md` defines a sentence id as `s3-p2-s1`, with NO prefix; the
+   * `sr-` in `sr-s10-p10-s2-m2` belongs to a scope TOKEN, which is a different thing that happens
+   * to embed one. Written as `[a-z]{2}-s\d+…` this scan matched the token form only, so it passed a
+   * live page that was serving "The entry for s10-p4 does the same work…" in the very file family I
+   * had just audited. The probe I measured "1 offender across 292 entries" with carried the same
+   * regex, so the measurement was wrong too: there were two, and the guard and the census agreed
+   * with each other because they shared the mistake.
+   *
+   * `eq-` and `arg-` record ids are here for the same reason: they are content ids a reader has no
+   * use for, and the sweep that found s10-p4 found them by asking for all three shapes at once.
+   */
+  const CONTENT_ID =
+    /\b(?:[a-z]{2}-)?s\d+-p\d+(?:-s\d+)?(?:-m\d+)?\b|\beq-[a-z0-9]+(?:-[a-z0-9]+)+\b|\barg-[a-z0-9]+(?:-[a-z0-9]+)+\b/g;
 
   test("the content-id scan can actually fail, on both of its causes", () => {
     // The author's slip, verbatim from the record before 5d7070a5.
@@ -147,6 +161,26 @@ describe("/notation/ carries no review, verification or provenance status", asyn
       ),
     ).toBeNull();
     expect("§10, paragraph 10, sentence 2, formula 2".match(CONTENT_ID)).toBeNull();
+
+    // THE HOLE THE FIRST VERSION SHIPPED WITH, asserted so the prefix cannot creep back in as
+    // required. Verbatim from special-relativity.yaml before it was repaired: a bare id, which the
+    // live page was serving while this guard was green.
+    expect(
+      "The entry for s10-p4 does the same work for a paragraph where the letter only names the axis.".match(
+        CONTENT_ID,
+      )?.length,
+    ).toBe(1);
+    expect("s0-p2-s1".match(CONTENT_ID)?.length).toBe(1);
+    expect("eq-s0-d1".match(CONTENT_ID)?.length).toBe(1);
+    expect("arg-bm-introduction".match(CONTENT_ID)?.length).toBe(1);
+    // …and the prose it was replaced by is still clean.
+    expect("The entry for §10, paragraph 4 does the same work".match(CONTENT_ID)).toBeNull();
+
+    // NOT every hyphenated token is an id. A guard that fired on ordinary prose would be worse than
+    // the leak, because the cheapest way out of a false positive is to weaken the rule.
+    expect("mass-energy".match(CONTENT_ID)).toBeNull();
+    expect("light-quanta".match(CONTENT_ID)).toBeNull();
+    expect("Stokes-Einstein".match(CONTENT_ID)).toBeNull();
   });
 
   test("no content id reaches a reader anywhere on the page", () => {
