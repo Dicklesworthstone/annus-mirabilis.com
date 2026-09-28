@@ -159,12 +159,16 @@ owner:
       independentReferences:
         - experimentId: sr-09
           quantityId: dopplerFactor
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/waves.ts"
+      exportName: "phaseAtEvent"
   identifierBindings:
     - kernelFunction: evaluateSr09
       identifier: beta
       quantityId: frameSpeed
     - kernelFunction: evaluateSr09
-      identifier: theta
+      identifier: propagationAngleStationaryRad
       quantityId: propagationAngleStationary
     - kernelFunction: evaluateSr09
       identifier: doppler

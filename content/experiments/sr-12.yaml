@@ -175,15 +175,19 @@ owner:
       independentReferences:
         - experimentId: sr-12
           quantityId: chargeDensityMoving
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/fields.ts"
+      exportName: "transformChargeCurrent"
   identifierBindings:
     - kernelFunction: evaluateSr12
       identifier: boost
       quantityId: frameSpeed
     - kernelFunction: evaluateSr12
-      identifier: rhoPrime
+      identifier: chargeDensityMoving
       quantityId: chargeDensityMoving
     - kernelFunction: evaluateSr12
-      identifier: JprimeX
+      identifier: currentDensityMoving
       quantityId: currentDensityMoving
     - kernelFunction: transformChargeCurrent
       identifier: rho

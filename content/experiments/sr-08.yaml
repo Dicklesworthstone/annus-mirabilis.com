@@ -139,6 +139,10 @@ owner:
       independentReferences:
         - experimentId: sr-08
           quantityId: electricFieldMoving
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/fields.ts"
+      exportName: "transformSI"
   identifierBindings:
     - kernelFunction: evaluateSr08
       identifier: boost

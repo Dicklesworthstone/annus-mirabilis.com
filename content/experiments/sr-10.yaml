@@ -187,13 +187,13 @@ owner:
       identifier: beta
       quantityId: frameSpeed
     - kernelFunction: evaluateSr10
-      identifier: theta
+      identifier: propagationAngleStationaryRad
       quantityId: propagationAngleStationary
     - kernelFunction: evaluateSr10
-      identifier: energyMoving
+      identifier: transformedEnergyJ
       quantityId: lightComplexEnergyMoving
     - kernelFunction: evaluateSr10
-      identifier: volumeMoving
+      identifier: transformedVolumeM3
       quantityId: lightComplexVolumeMoving
   traceScenarioId: sr-10-longitudinal-0.6
   traceRows:

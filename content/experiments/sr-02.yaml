@@ -128,6 +128,14 @@ owner:
       independentReferences:
         - experimentId: sr-02
           quantityId: electromotiveForceMagnetFrame
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/fields.ts"
+      exportName: "transformSI"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/fields.ts"
+      exportName: "dipoleField"
   identifierBindings:
     - kernelFunction: evaluateSr02
       identifier: v
