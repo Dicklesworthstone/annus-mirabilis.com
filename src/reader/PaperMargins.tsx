@@ -13,10 +13,19 @@
  */
 import { citationTitleClose } from "../content/citationTitle.ts";
 import type { EditorialNoteKind } from "../content/schemas/source.ts";
+import misconceptionLinks from "../generated/misconception-links.json";
 import { labName } from "./actions/labNames.ts";
 import { InlineMathText } from "./InlineMathText.tsx";
 import type { PaperMargins as Margins } from "./marginRecords.ts";
 import { MisconceptionCallout } from "./misconceptions/MisconceptionCallout.tsx";
+
+/**
+ * What scripts/generate-misconception-links.ts writes for a record whose instrument accepts the
+ * settings of the preset it names. A record with no entry has a recorded cause in that same file.
+ */
+type MisconceptionLinkMap = Readonly<
+  Record<string, Readonly<{ href: string; presetId: string; kind: string }> | undefined>
+>;
 
 const NOTE_LABELS: Readonly<Record<EditorialNoteKind, string>> = {
   "historian-margin": "Historian’s margin",
@@ -43,6 +52,18 @@ export function PaperMargins({ margins }: { margins: Margins }) {
           </p>
           {misconceptions.map((m) => {
             const instrument = m.intervention.instrumentId ?? m.instrumentIds?.[0];
+            // THE SETTING THAT SHOWS THE POINT, WHERE ONE EXISTS (dispatch 331). AGENTS.md says a
+            // misconception "opens an instrument preset that shows it", and this link was a bare
+            // `/lab/<id>/`: the reader landed on the default view and had to find the setting
+            // themselves. scripts/generate-misconception-links.ts builds a `?tape=` link from the
+            // preset the record names, through the LABORATORY'S OWN binding and validator, so a link
+            // exists only where that instrument accepts those settings. 12 of the 17 callouts that
+            // name an instrument carry one; the other 5 fall back to the plain path here, and the
+            // generated file records the cause for each (three laboratories have no shared-link
+            // binding at all, two records name no registered preset).
+            const settingsHref = instrument
+              ? (misconceptionLinks.links as MisconceptionLinkMap)[m.id]?.href
+              : undefined;
             return (
               <MisconceptionCallout
                 key={m.id}
@@ -50,7 +71,7 @@ export function PaperMargins({ margins }: { margins: Margins }) {
                 detail={1}
                 modernLens={false}
                 interventionStatus={{ state: "not-yet-reviewed" }}
-                instrumentHref={instrument ? `/lab/${instrument}/` : undefined}
+                instrumentHref={settingsHref ?? (instrument ? `/lab/${instrument}/` : undefined)}
                 instrumentName={instrument ? labName(instrument) : undefined}
               />
             );
