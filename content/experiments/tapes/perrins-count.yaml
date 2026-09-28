@@ -24,13 +24,22 @@ initialConditions:
   d: 2
   dt: 1
   coverage: 0.95
+# radiusKnown is NOT listed above, and the omission is deliberate. BM-07's default is the boolean
+# false, which is the state this walkthrough opens in and the state the teaching note describes.
+# Writing it here as "false" would be a STRING: a tape's initialConditions are number | string, the
+# link generator hands them to validateBm07Parameters unconverted, and that validator takes only a
+# boolean, so the tape silently loses its "open with these settings" link. Measured: 21 links
+# became 20, with the cause reported as "These inputs do not meet the calculation's stated
+# requirements." The event below still declares the radius, because the event's value never reaches
+# that validator.
 events:
   - kind: control
     actionIndex: 1
     commandClass: estimator-change
     commandId: declare-independent-radius
-    parameterId: a
-    value: 5.0e-7
+    parameterId: radiusKnown
+    value: "true"
+    previousValue: "false"
 checkpoints:
   - actionIndex: 1
     stepIndex: 4096
@@ -42,9 +51,21 @@ checkpoints:
     seed: "1909"
     streamPositions: []
     label: "Declared radius, historical gas-constant set"
-    teachingNote: "Replay uses the dataset record's own constants. Modern exact k_B is not read."
+    teachingNote: "Before this step the radius is not declared, and the displacements alone fix only the product of radius and molecular number: Avogadro's number comes back underdetermined, which is the honest answer rather than a failure. Declaring the radius independently is what makes the count identifiable, and it is a change of estimator, not of the world: the observations are the same ones. Replay uses the dataset record's own constants. Modern exact k_B is not read."
     expectedDisplayValues:
-      - label: "semantic kind"
-        value: 0
-        unit: "1"
+      - label: "diffusionCoefficientEstimate"
+        value: 3.3053971770408627e-13
+        unit: "m2/s"
+        constantSetId: scenario-gas-constant-measured
+      - label: "radiusNumberProduct"
+        value: 391200811014655300
+        unit: "m/mol"
+        constantSetId: scenario-gas-constant-measured
+      - label: "avogadroNumberEstimate"
+        value: 7.824016220293107e+23
+        unit: "1/mol"
+        constantSetId: scenario-gas-constant-measured
+      - label: "generatorMolecularNumber"
+        value: 7.227892697865063e+23
+        unit: "1/mol"
         constantSetId: scenario-gas-constant-measured

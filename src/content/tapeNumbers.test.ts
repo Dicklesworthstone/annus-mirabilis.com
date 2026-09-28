@@ -30,6 +30,7 @@
  * unverified, and a reader is looking at them.
  */
 import { describe, expect, test } from "bun:test";
+import { BM07_DEFAULTS, type Bm07Parameters } from "../experiments/bm07/definition.ts";
 import { LQ06_DEFAULTS } from "../experiments/lq06/definition.ts";
 import { evaluateLq06 } from "../experiments/lq06/session.ts";
 import { LQ07_DEFAULTS } from "../experiments/lq07/definition.ts";
@@ -47,7 +48,16 @@ import {
   evaluateMe03,
   evaluatePhotonBox,
 } from "../physics/reference/massEnergy.ts";
+import { createBm07Recording, measureBm07 } from "../workers/operations/bm07.ts";
 import { loadTeachingTapes, type TeachingTape } from "./teachingTapes.ts";
+
+/** One entry of BM-07's accepted snapshot, as the tape's labels address it. */
+type Bm07Output = Readonly<{
+  quantityId: string;
+  unit: string;
+  status: string;
+  value?: number;
+}>;
 
 const tapes = new Map(loadTeachingTapes().tapes.map((t) => [t.tapeId, t]));
 
@@ -59,6 +69,7 @@ const tapes = new Map(loadTeachingTapes().tapes.map((t) => [t.tapeId, t]));
 const RECOMPUTED = new Set([
   "camera-bias",
   "ionization-bounds",
+  "perrins-count",
   "lq-07-journey-stage-g",
   "einstein-0-8-micron",
   "the-1906-box",
@@ -467,5 +478,98 @@ describe("a recorded number agrees with the parameters in force where it was rec
         }
     // Three W values across the two lq-05 tapes; a loop that judged none would prove nothing.
     expect(judged).toBeGreaterThan(2);
+  });
+
+  /**
+   * Perrin's count, one of the five tapes AGENTS.md names, and until now the only one whose
+   * recorded expectation was not a quantity at all: a row reading `semantic kind | 0 1`, which is
+   * what /tapes/perrins-count/ put in front of a reader. "semantic kind" is a FIELD of every
+   * output, not an output, so the label named nothing BM-07 produces and no arithmetic could have
+   * checked it.
+   *
+   * Repairing the number exposed a second defect underneath it. The step is called
+   * `declare-independent-radius` and it set `a` to 5e-7, which `initialConditions` had already set
+   * to 5e-7: a no-op wearing the name of the move the whole instrument is about. BM-07's own
+   * control for that move is `radiusKnown`, whose manifest description reads "False leaves (a, N)
+   * underdetermined."
+   *
+   * So the step now sets `radiusKnown`, and the property below is the teaching point rather than
+   * the four numbers: with the radius undeclared the displacements fix only the PRODUCT of radius
+   * and molecular number, and Avogadro's number comes back `underdetermined` - a typed state, not
+   * a failure and not a zero. Declaring the radius is an estimator-change, so the observations do
+   * not move: the diffusion estimate is bit-identical across the step, and only the count becomes
+   * identifiable. Asserting both halves is what stops a future edit from making the count
+   * appear without the declaration that earns it.
+   */
+  test("Perrin's count: the number is identifiable only once the radius is declared", async () => {
+    const t = tape("perrins-count");
+    const coerce = (v: unknown) => (v === "true" ? true : v === "false" ? false : v);
+    const settings = (through: number) => {
+      const held: Record<string, unknown> = { ...t.initialConditions };
+      for (const s of t.steps) {
+        if (s.actionIndex > through) break;
+        if (s.parameterId !== undefined && s.value !== undefined) held[s.parameterId] = s.value;
+      }
+      return {
+        ...BM07_DEFAULTS,
+        ...Object.fromEntries(Object.entries(held).map(([k, v]) => [k, coerce(v)])),
+        seed: t.seed,
+      } as Bm07Parameters;
+    };
+    const run = async (p: Bm07Parameters) => {
+      const recording = await createBm07Recording(p, {});
+      expect(recording.kind, "BM-07 refused to record").toBe("accepted");
+      if (recording.kind !== "accepted") throw new Error("unreachable");
+      const measured = await measureBm07(recording.data, p, false, {});
+      expect(measured.kind, "BM-07 refused to measure").toBe("accepted");
+      if (measured.kind !== "accepted") throw new Error("unreachable");
+      return new Map(
+        (measured.data as unknown as { outputs: readonly Bm07Output[] }).outputs.map((o) => [
+          o.quantityId,
+          o,
+        ]),
+      );
+    };
+
+    const before = await run(settings(0));
+    const after = await run(settings(1));
+
+    // The opening state, which the page's own settings table shows: radius not declared.
+    expect(settings(0).radiusKnown, "the tape must open with the radius undeclared").toBe(false);
+    expect(settings(1).radiusKnown, "the step must declare it").toBe(true);
+
+    // Undeclared: the count is a typed refusal to answer, and the product is what the data fix.
+    expect(before.get("avogadroNumberEstimate")?.status).toBe("underdetermined");
+    expect(before.get("radiusNumberProduct")?.status).toBe("value");
+
+    // An estimator-change moves no observation: the diffusion estimate is untouched by the step.
+    expect(after.get("diffusionCoefficientEstimate")?.value).toBe(
+      before.get("diffusionCoefficientEstimate")?.value,
+    );
+
+    // Declared: every number the page shows, redone from the tape's own settings.
+    let compared = 0;
+    for (const step of t.steps) {
+      for (const recorded of step.expected) {
+        const output = after.get(recorded.label);
+        expect(output, `${recorded.label} is not a BM-07 output`).toBeDefined();
+        expect(output?.status, `${recorded.label} at action ${step.actionIndex}`).toBe("value");
+        expect(output?.unit, `${recorded.label}'s unit`).toBe(recorded.unit);
+        expect(output?.value, `${recorded.label} at action ${step.actionIndex}`).toBeCloseTo(
+          recorded.value,
+          12,
+        );
+        compared += 1;
+      }
+    }
+    expect(compared, "the page shows four numbers").toBe(4);
+
+    // The exercise is a labelled synthetic inversion, so it is worth saying it inverts: the
+    // estimate recovers the generator's hidden number to better than 10 per cent. Recovery, not
+    // equality - an inference from 50 displacements is not supposed to land exactly.
+    const estimate = after.get("avogadroNumberEstimate")?.value ?? Number.NaN;
+    const hidden = after.get("generatorMolecularNumber")?.value ?? Number.NaN;
+    expect(Math.abs(estimate - hidden) / hidden).toBeLessThan(0.1);
+    expect(Math.abs(estimate - hidden) / hidden).toBeGreaterThan(0);
   });
 });
