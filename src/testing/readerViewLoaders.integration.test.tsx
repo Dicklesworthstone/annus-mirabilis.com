@@ -17,6 +17,7 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
+import type { ViewLoaders } from "../experiments/dispatch.tsx";
 import { READER_VIEW_LOADERS } from "../experiments/views/readerViewLoaders.ts";
 import { getClarificationKind } from "../reader/stack/kinds.ts";
 import { installDom, uninstallDom } from "./reactDom.ts";
@@ -24,7 +25,9 @@ import { installDom, uninstallDom } from "./reactDom.ts";
 beforeEach(installDom);
 afterEach(uninstallDom);
 
-async function renderOpen(rawId: string): Promise<string> {
+const INJECTED: ViewLoaders = { "sr-01": () => import("../experiments/views/sr01View.tsx") };
+
+async function renderOpen(rawId: string, viewLoaders?: ViewLoaders): Promise<string> {
   const definition = getClarificationKind("instrument-view");
   if (!definition) throw new Error("instrument-view is not registered");
   const parsed = definition.parseId(rawId);
@@ -32,9 +35,14 @@ async function renderOpen(rawId: string): Promise<string> {
   const container = document.createElement("div");
   document.body.appendChild(container);
   const root = createRoot(container);
-  // No viewLoaders: the production map is the thing under test.
   await act(async () => {
-    root.render(definition.render?.({ parsed, instanceId: `${rawId}:test` }));
+    root.render(
+      definition.render?.({
+        parsed,
+        instanceId: `${rawId}:test`,
+        ...(viewLoaders !== undefined ? { viewLoaders } : {}),
+      }),
+    );
   });
   // The dispatcher's Suspense fallback IS InPreparationNotice, so a chunk that has not resolved
   // looks exactly like an instrument with no loader. Ticks until the lazy import settles, or the
@@ -48,9 +56,17 @@ async function renderOpen(rawId: string): Promise<string> {
   return container.innerHTML;
 }
 
-describe("an instrument opened with no injected map", () => {
-  test("sr-01 mounts its laboratory, not the in-preparation surface", async () => {
-    const html = await renderOpen("sr-01");
+describe("the reader stack's view loaders", () => {
+  test("the production map is EMPTY, so sr-01 shows the placeholder", async () => {
+    // The withdrawal of 9d6b6d4d's entry, asserted rather than described: that entry cost the
+    // reading route its budget and readerViewLoaders.ts records the measured reason. When the lazy
+    // boundary lands, this expectation changes in the same commit as the entry.
+    expect(Object.keys(READER_VIEW_LOADERS)).toEqual([]);
+    expect(await renderOpen("sr-01")).toContain('data-testid="in-preparation-notice"');
+  });
+
+  test("with a loader injected, sr-01 mounts its laboratory rather than the placeholder", async () => {
+    const html = await renderOpen("sr-01", INJECTED);
     // The discriminator, and it is the same one the live measurement used: the placeholder every
     // registered instrument showed until now.
     expect(html).not.toContain('data-testid="in-preparation-notice"');
@@ -65,7 +81,7 @@ describe("an instrument opened with no injected map", () => {
   });
 
   test("an unknown id still refuses explicitly, in the same run", async () => {
-    const html = await renderOpen("me-99");
+    const html = await renderOpen("me-99", INJECTED);
     expect(html).toContain('data-testid="unknown-experiment-notice"');
     expect(html).toContain("me-99");
     expect(html).not.toContain('data-instrument-id="sr-01"');
@@ -97,7 +113,13 @@ describe("an instrument opened with no injected map", () => {
     };
     try {
       await act(async () => {
-        root.render(definition.render?.({ parsed, instanceId: "sr-01:reading-only" }));
+        root.render(
+          definition.render?.({
+            parsed,
+            instanceId: "sr-01:reading-only",
+            viewLoaders: INJECTED,
+          }),
+        );
       });
       for (let tick = 0; tick < 20; tick += 1)
         await act(async () => {
@@ -128,10 +150,10 @@ describe("an instrument opened with no injected map", () => {
   });
 
   test("an instrument with no entry in the map still shows the placeholder, and says so", async () => {
-    // The denominator this wiring does not cover: 36 of the 37 registered instruments. A reader
+    // With the production map empty this is every registered instrument, all 37 of them. A reader
     // opening one of those gets the same surface as before, which is why the map's size is
     // reported rather than left to be inferred.
-    expect(Object.keys(READER_VIEW_LOADERS)).toEqual(["sr-01"]);
+    expect(Object.keys(READER_VIEW_LOADERS)).toEqual([]);
     const html = await renderOpen("bm-01");
     expect(html).toContain('data-testid="in-preparation-notice"');
   });
