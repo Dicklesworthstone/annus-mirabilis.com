@@ -93,7 +93,13 @@ export const SOURCE_JUMPS: readonly SourceJump[] = [
     id: "jump-bm-drag",
     label: "Read the argument: what fixes D for a small sphere",
     paperId: "brownian-motion",
-    section: "s5",
+    // §3, where arg-bm-diffusivity renders, not §5. This record disagreed with its own pointer
+    // below ("is the paper's §3") and with the front door above, which already links to /s3/.
+    // SourceJump builds `/papers/<paper>/<section>/#<anchor>`, so the reader landed at the top of
+    // §5 and was never told they had missed: a wrong fragment returns HTTP 200. The section of the
+    // CONSEQUENCE was recorded instead of the section of the argument, which is the confusion the
+    // pointer itself explains: §3 fixes D, §5 turns it into a displacement.
+    section: "s3",
     targetAnchor: "arg-bm-diffusivity",
     pointer:
       "The second route, force against drag, is the paper's §3. Its result is the diffusion coefficient that §5 turns into a displacement.",
