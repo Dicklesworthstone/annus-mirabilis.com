@@ -45,6 +45,22 @@ import { loadTeachingTapes, type TeachingTape } from "./teachingTapes.ts";
 
 const tapes = new Map(loadTeachingTapes().tapes.map((t) => [t.tapeId, t]));
 
+/**
+ * The tapes whose every recorded number this file recomputes from its own inputs. Adding a check
+ * means adding its id here, and the reported figure follows; the reporting test refuses an id
+ * that names no tape, so the list cannot quietly describe a corpus it no longer matches.
+ */
+const RECOMPUTED = new Set([
+  "camera-bias",
+  "einstein-0-8-micron",
+  "the-1906-box",
+  "the-boost-to-0.6c",
+  "the-locked-positions",
+  "the-two-pulses",
+  "toward-low-speed",
+  "where-the-energy-went",
+]);
+
 function tape(id: string): TeachingTape {
   const found = tapes.get(id);
   if (!found) throw new Error(`no tape ${id}`);
@@ -143,19 +159,31 @@ describe("the numbers on a teaching tape's page, recomputed from its own inputs"
   });
 
   test("the file says how much of the reader-facing set it leaves unchecked", () => {
+    // DERIVED, NOT COUNTED BY HAND. This was the literal 20 and the true figure was 21: the
+    // constant drifted the moment a check was added, which is the failure AGENTS.md describes
+    // for a count used as evidence. Naming the tapes instead means adding a check updates the
+    // number, and the assertion below refuses a name that is not a tape.
     const total = [...tapes.values()].reduce(
       (n, t) => n + t.steps.reduce((m, s) => m + s.expected.length, 0),
       0,
     );
-    const recomputed = 20; // the tapes above by name, plus camera-bias and me-02
+    const unknown = [...RECOMPUTED].filter((id) => !tapes.has(id));
+    expect(unknown, "a recomputed tape that does not exist").toEqual([]);
+    const recomputed = [...RECOMPUTED].reduce(
+      (n, id) => n + (tapes.get(id)?.steps.reduce((m, s) => m + s.expected.length, 0) ?? 0),
+      0,
+    );
     console.log(
       `[tape numbers] ${total} recorded numbers on the tape pages; ${recomputed} recomputed from ` +
-        "their tape's own inputs, and the lq-05 W values additionally checked against the state " +
-        `they are filed under; ${total - recomputed} not recomputed (2 are semantic-kind codes, ` +
-        "the rest need the instrument's evaluator)",
+        `their tape's own inputs across ${RECOMPUTED.size} tapes; ${total - recomputed} not ` +
+        "recomputed: three are semantic-kind codes rather than quantities (coin-to-bell's two " +
+        "kernels, perrins-count's), three restate an input the same step has just set " +
+        "(ionization-bounds, lq-07, the-move: am-wj6k), and lq-05's W is checked for agreement " +
+        "with the state it is filed under rather than recomputed",
     );
     // Non-vacuity, and a reminder: if the corpus grows, the unchecked remainder grows with it.
     expect(total).toBeGreaterThan(recomputed);
+    expect(recomputed).toBeGreaterThan(15);
   });
 });
 
