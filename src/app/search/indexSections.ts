@@ -1,4 +1,7 @@
 import { SEARCH_TYPES, type SearchType } from "../../search/core.ts";
+import { TYPE_LABELS } from "../../search/typeLabels.ts";
+
+export { TYPE_LABELS };
 
 /**
  * THE SECTIONS /search/ RENDERS, AND THEIR HEADINGS.
@@ -16,30 +19,6 @@ import { SEARCH_TYPES, type SearchType } from "../../search/core.ts";
  * a heading here, and searchSections.test.ts requires every type to appear in the order as well.
  * Listing a type costs nothing when the index holds none of it: the page skips an empty kind.
  */
-export const TYPE_LABELS: Readonly<Record<SearchType, string>> = {
-  paper: "Papers",
-  section: "Sections",
-  argument: "Arguments",
-  equation: "Equations",
-  instrument: "Laboratories",
-  foundation: "Foundations",
-  result: "Argument synopses",
-  "sentence-de": "German passages",
-  "sentence-en": "English passages",
-  glossary: "Notation and terms",
-  misconception: "Common wrong turns",
-  margin: "Historical notes",
-  timeline: "Timeline",
-  "knowledge-card": "Knowledge cards",
-  person: "People",
-  essay: "Essays",
-  "connection-thread": "Connections",
-  walkthrough: "Recorded walkthroughs",
-  discovery: "Routes you could take",
-  tour: "Tours",
-  capstone: "Capstones",
-};
-
 /**
  * The order sections appear in. Types absent from the index are skipped, never rendered empty.
  *

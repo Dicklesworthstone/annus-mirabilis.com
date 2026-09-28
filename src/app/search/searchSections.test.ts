@@ -48,6 +48,22 @@ describe("the search page's sections cover every search type", () => {
     expect(unknown).toEqual([]);
   });
 
+  test("exactly one module DEFINES the headings, so two copies cannot drift again", () => {
+    // The defect was two maps that disagreed about "misconception" and differed in size by eleven
+    // entries. Counting the definitions is the only assertion that stays true as surfaces are added:
+    // a third consumer is fine, a third DEFINITION is the bug.
+    const files = [
+      "src/search/typeLabels.ts",
+      "src/search/CommandPalette.ts",
+      "src/app/search/indexSections.ts",
+      "src/app/search/page.tsx",
+    ];
+    const definitions = files.filter((file) =>
+      /(?:export )?const TYPE_LABELS\b/.test(readFileSync(join(process.cwd(), file), "utf8")),
+    );
+    expect(definitions).toEqual(["src/search/typeLabels.ts"]);
+  });
+
   test("the page reads these lists rather than keeping its own", () => {
     // The coarse half: the defect was two lists, so a test that only checks THIS list would pass
     // while the page used a private copy. Proving it imports them is source-level; proving it

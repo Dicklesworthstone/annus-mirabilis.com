@@ -7,30 +7,8 @@ import {
   searchResultHref,
 } from "./core.ts";
 import { type LoadedSearch, searchIndexLoader } from "./loadIndex.ts";
+import { TYPE_LABELS } from "./typeLabels.ts";
 
-const TYPE_LABELS: Readonly<Record<SearchType, string>> = {
-  paper: "Papers",
-  section: "Sections",
-  argument: "Arguments",
-  equation: "Equations",
-  instrument: "Laboratories",
-  foundation: "Foundations",
-  result: "Argument synopses",
-  "sentence-de": "German passages",
-  "sentence-en": "English passages",
-  glossary: "Notation and terms",
-  misconception: "Misconceptions",
-  margin: "Historical notes",
-  timeline: "Timeline",
-  "knowledge-card": "Knowledge cards",
-  person: "People",
-  essay: "Essays",
-  "connection-thread": "Connections",
-  tour: "Tours",
-  walkthrough: "Recorded walkthroughs",
-  discovery: "Routes you could take",
-  capstone: "Capstones",
-};
 let sequence = 0;
 function element<K extends keyof HTMLElementTagNameMap>(tag: K, text?: string, className?: string) {
   const node = document.createElement(tag);
