@@ -16,7 +16,7 @@ import { splitInlineMath } from "../content/inlineMath.ts";
 import { type Misconception, validateMisconception } from "../content/schemas/argument.ts";
 import { validateMath, validateReadingRecord } from "../content/schemas/reading.ts";
 import { type EditorialNote, validateEditorialNote } from "../content/schemas/source.ts";
-import { REGISTERED_IDS } from "../experiments/catalogue.ts";
+import { REGISTERED_IDS, resolveCatalogueAddress } from "../experiments/catalogue.ts";
 import { parseWhatIsTrue } from "./misconceptions/types.ts";
 
 /** A refusal from this loader, with a code a test can name (src/testing/refusals). */
@@ -118,15 +118,30 @@ export function loadPaperMargins(paper: string, root: string = process.cwd()): P
 
   /**
    * A comparison's rows point outwards, and a row pointing at nothing is a table cell a reader
-   * cannot follow (am-me-margin-entries-kfg5). Two of the three references are resolved here.
+   * cannot follow (am-me-margin-entries-kfg5). Both references are resolved here: `sourceNoteId`
+   * against this paper's notes, and `instrumentRef` through the catalogue's OWN resolver, which
+   * checks the instrument against the registry and, where a mode follows, against that instrument's
+   * `DECLARED_MODES`.
    *
-   * WHICH HALF THIS ANSWERS. `sourceNoteId` is resolved against the notes of this paper, and an
-   * instrument reference carrying a mode address has its instrument resolved against the registry.
-   * What is NOT resolved is a bare reference that names a MODEL IDENTITY rather than an instrument,
-   * such as `four-momentum-modern` declared in src/experiments/me03/definition.ts: this repository
-   * has no registry of model identities to check one against, so a typo in that position would pass
-   * here. Building that registry is not this loader's work; until it exists, the gap is named rather
-   * than papered over, and the instrument and mode halves are checked.
+   * WHAT THIS REPLACED, AND WHY IT COULD NOT FAIL (dispatch 351). The check here split the reference
+   * on ":" and compared the instrument with the registry ONLY WHEN A MODE FOLLOWED, so a bare
+   * reference was never compared with anything. Planted on this repository's own fixture, whose
+   * shipped reference is the colon form `me-99:box-1906`:
+   *
+   *     "zz-99:some-mode"      refused
+   *     "zz-99"                ACCEPTED
+   *     "four-momentum-modern" ACCEPTED, and it shipped
+   *
+   * The docblock this replaces described that gap as awaiting "a registry of model identities to
+   * check one against", treating a model identity as a third legitimate kind of reference. It is not
+   * one: criterion 7 asks for an instrument or a mode A READER CAN OPEN, and `four-momentum-modern`
+   * is the id of ME03_FOUR_MOMENTUM_MODEL, which opens nothing. So the repair is not a new registry
+   * but refusing anything the catalogue cannot resolve, which is what the resolver already decides
+   * for every other address on the site.
+   *
+   * ONE CONSEQUENCE WORTH KNOWING: `DECLARED_MODES` is empty for all 37 instruments, so NO colon
+   * address resolves today and any row wanting one must first declare its instrument's modes. That is
+   * why both mass-energy rows that carried a mode address now name their bare instrument (4d1100c9).
    */
   const noteIds = new Set(notes.map((note) => note.id));
   for (const note of notes) {
@@ -138,11 +153,11 @@ export function loadPaperMargins(paper: string, root: string = process.cwd()): P
           "margin-comparison-source-note-missing",
           `${where}: comparison row "${row.id}" cites "${row.sourceNoteId}", which is not a margin record of this paper.`,
         );
-      const [instrument, mode] = row.instrumentRef.split(":");
-      if (mode !== undefined && !registered.has(instrument ?? ""))
+      const address = resolveCatalogueAddress(row.instrumentRef);
+      if ("error" in address)
         throw new MarginRecordError(
           "margin-comparison-instrument-unregistered",
-          `${where}: comparison row "${row.id}" names the mode address "${row.instrumentRef}", whose instrument "${instrument}" is not registered.`,
+          `${where}: comparison row "${row.id}" names "${row.instrumentRef}", which a reader cannot open: ${address.error}.`,
         );
     }
   }

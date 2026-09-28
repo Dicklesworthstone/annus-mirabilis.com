@@ -65,6 +65,24 @@ describe("loading a paper's margin records", () => {
     expect(e.message).toContain("me-99:box-1906");
   });
 
+  test("refuses a BARE reference that names no instrument, which is the shape that shipped", () => {
+    // THE HOLE THIS CLOSES (dispatch 351). The check split the reference on ":" and compared the
+    // instrument with the registry only when a mode followed, so a reference with no colon was never
+    // compared with anything. The fixture above uses the colon form, so the planted negative only ever
+    // exercised the branch that worked, and `four-momentum-modern` -- the id of ME03_FOUR_MOMENTUM_MODEL,
+    // which opens nothing -- passed the loader and reached the corpus in
+    // content/editorial-notes/mass-energy/note-me-g-argument-comparison.json.
+    //
+    // The same resolver refuses the near-miss `me-03:four-momentum` with "is not a declared mode of
+    // me-03", because DECLARED_MODES is empty for all 37 instruments; that case shares this code path
+    // and was checked by planting it on the real record.
+    const e = refusal("comparison-instrument-bare-unregistered");
+    expect(e.code).toBe("margin-comparison-instrument-unregistered");
+    expect(e.message).toContain("four-momentum-modern");
+    expect(e.message).toContain("row-one");
+    expect(e.message).toContain("a reader cannot open");
+  });
+
   test("refuses a file that is not JSON: margin-record-not-json", () => {
     const e = refusal("yaml-file");
     expect(e.code).toBe("margin-record-not-json");
