@@ -93,3 +93,12 @@
   color: var(--ink-muted);
   font-size: var(--type-small);
 }
+
+/* The parameter's own id beside the name the manifest gives it. A tape addresses a parameter by id
+   and the reader needs the word, so the page leads with the word and keeps the id, quietly, for
+   anyone matching this page against the laboratory's controls. */
+.tape-param-id {
+  font-family: var(--font-mono);
+  font-size: var(--type-small);
+  color: var(--ink-muted);
+}

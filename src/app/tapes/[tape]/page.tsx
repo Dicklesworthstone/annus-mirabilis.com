@@ -63,7 +63,9 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
           <table className="tape-table">
             <caption>
               The settings the tape begins from
-              {tape.constantSetId ? `, under the constant set ${tape.constantSetId}` : ""}.
+              {tape.constantSetId ? `, under the constant set ${tape.constantSetId}` : ""}. Values
+              are the model&apos;s own, not the laboratory control&apos;s display: a radius of 5e-7
+              is half a micrometre.
             </caption>
             <thead>
               <tr>
@@ -74,7 +76,12 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
             <tbody>
               {conditions.map(([name, value]) => (
                 <tr key={name}>
-                  <th scope="row">{name}</th>
+                  <th scope="row">
+                    {tape.conditionNames[name]?.label ?? name}
+                    {tape.conditionNames[name] ? (
+                      <span className="tape-param-id"> ({name})</span>
+                    ) : null}
+                  </th>
                   <td>{String(value)}</td>
                 </tr>
               ))}
@@ -91,7 +98,10 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
               <p className="tape-change">
                 {step.parameterId ? (
                   <>
-                    Set <b>{step.parameterId}</b>
+                    Set <b>{step.parameterName?.label ?? step.parameterId}</b>
+                    {step.parameterName ? (
+                      <span className="tape-param-id"> ({step.parameterId})</span>
+                    ) : null}
                     {step.value === undefined ? null : <> to {step.value}</>}
                   </>
                 ) : step.actionIndex === 0 ? (

@@ -33,10 +33,24 @@ export type TapeExpectedValue = Readonly<{
 }>;
 
 /** A step of the walkthrough: what the tape changed, and what the author says to expect. */
+/**
+ * What an instrument's manifest calls a parameter, so a page need not show a bare id.
+ *
+ * THE LABEL ONLY, AND DELIBERATELY NOT THE UNIT. A manifest's `displayUnit` is the unit its CONTROL
+ * shows, after conversion, while a tape records the model's canonical value. bm-01 declares
+ * viscosity in "mPa s" and einstein-0-8-micron records eta as 0.00135, which is Pa s: printing them
+ * together would say 0.00135 mPa s and be wrong by a thousand. Its radius declares "um" and the
+ * tape records 5e-7, which is metres. So a page may say which quantity a letter is and must not
+ * dress the recorded number in the control's unit.
+ */
+export type ParameterName = Readonly<{ label: string }>;
+
 export type TapeStep = Readonly<{
   actionIndex: number;
   commandClass?: string | undefined;
   parameterId?: string | undefined;
+  /** The manifest's own label and display unit for parameterId, where it declares one. */
+  parameterName?: ParameterName | undefined;
   value?: number | undefined;
   label?: string | undefined;
   teachingNote?: string | undefined;
@@ -52,6 +66,8 @@ export type TeachingTape = Readonly<{
   constantSetId?: string | undefined;
   seed?: string | undefined;
   initialConditions: Readonly<Record<string, number | string>>;
+  /** The manifest's label and unit for each initial condition it declares a parameter for. */
+  conditionNames: Readonly<Record<string, ParameterName>>;
   steps: readonly TapeStep[];
   /** Named in AGENTS.md's teaching-tape list, so the page can say so. */
   named: boolean;
@@ -98,7 +114,10 @@ function expectedOf(raw: unknown): TapeExpectedValue[] {
  * a step says both what changed and what to expect. An event with no checkpoint keeps its change and
  * carries no expectations, which is the honest shape: the author recorded none.
  */
-export function stepsOf(raw: Record<string, unknown>): TapeStep[] {
+export function stepsOf(
+  raw: Record<string, unknown>,
+  names: Record<string, ParameterName> = {},
+): TapeStep[] {
   const checkpointAt = new Map<number, Record<string, unknown>>();
   for (const c of list(raw.checkpoints)) {
     const o = (c ?? {}) as Record<string, unknown>;
@@ -135,6 +154,10 @@ export function stepsOf(raw: Record<string, unknown>): TapeStep[] {
       actionIndex,
       ...(str(o.commandClass) ? { commandClass: str(o.commandClass) } : {}),
       ...(str(o.parameterId) ? { parameterId: str(o.parameterId) } : {}),
+      ...(() => {
+        const named = names[str(o.parameterId) ?? ""];
+        return named ? { parameterName: named } : {};
+      })(),
       ...(num(o.value) !== undefined ? { value: num(o.value) } : {}),
       ...(str(c.label) ? { label: str(c.label) } : {}),
       ...(str(c.teachingNote) ? { teachingNote: str(c.teachingNote) } : {}),
@@ -142,6 +165,32 @@ export function stepsOf(raw: Record<string, unknown>): TapeStep[] {
     });
   }
   return steps.sort((a, b) => a.actionIndex - b.actionIndex);
+}
+
+/**
+ * What an instrument's manifest calls each of its parameters (am-2rl9).
+ *
+ * The tape records address a parameter by its id, so a walkthrough page read "Set eta to 0.00135"
+ * and "T: 290.15". The manifests already carry a label, an accessible name and a display unit for
+ * every parameter, and nothing downstream of the tapes was reading them. This is that wire: the
+ * page says "Viscosity (eta) to 0.00135 mPa s", which is the same fact in words a reader has.
+ *
+ * Parsed with the site's own YAML reader, not matched with a regex. Two regexes over these very
+ * manifests went wrong earlier today, one of them writing a key into the middle of another block.
+ */
+function parameterNames(experimentId: string, root: string): Record<string, ParameterName> {
+  const path = join(root, "content", "experiments", `${experimentId}.yaml`);
+  if (!existsSync(path)) return {};
+  const manifest = parseYaml(readFileSync(path, "utf8")) as Record<string, unknown>;
+  const out: Record<string, ParameterName> = {};
+  for (const entry of list(manifest.parameters)) {
+    const o = (entry ?? {}) as Record<string, unknown>;
+    const id = str(o.id);
+    const label = str(o.label);
+    if (!id || !label) continue;
+    out[id] = { label };
+  }
+  return out;
 }
 
 /** Every authored teaching tape, by id, in id order. A tape with no title is a problem, not a tape. */
@@ -169,7 +218,8 @@ export function loadTeachingTapes(root: string = process.cwd()): {
     if (!experimentId) problems.push(`tape-no-experiment: ${at} names no experimentId`);
     if (!title)
       problems.push(`tape-no-title: ${at} has no title, so a reader has nothing to call it`);
-    const steps = stepsOf(raw);
+    const names = experimentId ? parameterNames(experimentId, root) : {};
+    const steps = stepsOf(raw, names);
     if (steps.length === 0)
       problems.push(`tape-no-steps: ${at} records no control event, so there is nothing to walk`);
     tapes.push({
@@ -181,6 +231,11 @@ export function loadTeachingTapes(root: string = process.cwd()): {
       ...(str(raw.constantSetId) ? { constantSetId: str(raw.constantSetId) } : {}),
       ...(str(raw.seed) ? { seed: str(raw.seed) } : {}),
       initialConditions: (raw.initialConditions ?? {}) as Record<string, number | string>,
+      conditionNames: Object.fromEntries(
+        Object.keys((raw.initialConditions ?? {}) as Record<string, unknown>)
+          .filter((k) => names[k])
+          .map((k) => [k, names[k] as ParameterName]),
+      ),
       steps,
       named: NAMED_IN_AGENTS.includes(tapeId),
     });
