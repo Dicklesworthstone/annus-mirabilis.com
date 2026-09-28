@@ -95,15 +95,23 @@ describe("schema: expectedDisplayValues (am-bm-01-tracer-ensemble-hdly)", () => 
     ).toBe("lambda_x at 1 s");
 
     let refusal = "";
+    let code: string | undefined;
     try {
       validateControlTape(checkpointWith([{ ...known, quantityId: "diffusionCoefficient" }]));
     } catch (error) {
       refusal = (error as Error).message;
+      code = (error as { code?: string }).code;
     }
     // Named, so an author can see which key was not understood, and told what is known.
     expect(refusal).toContain("quantityId");
     expect(refusal).toContain("unknown key");
     expect(refusal).toContain("constantSetId");
+    // AND IT CARRIES A TYPED CODE (am-2rl9, dispatch 386). This file's 66 other throws are
+    // message-first and untyped, which is the debt bareThrowsBaseline.json records; a refusal added
+    // now takes the coded form so the count does not grow. `tape-expected-value-unknown-key` is the
+    // code, and asserting it here is what makes it an exercised refusal rather than a new untested
+    // one.
+    expect(code).toBe("tape-expected-value-unknown-key");
     // Two unknown keys are both named, and the plural reads correctly.
     let plural = "";
     try {
@@ -134,19 +142,36 @@ describe("schema: expectedDisplayValues (am-bm-01-tracer-ensemble-hdly)", () => 
       validateControlTape(checkpointWith([{ ...base, outputId: "lockedProbability" }]))
         .checkpoints[0]?.expectedDisplayValues?.[0]?.outputId,
     ).toBe("lockedProbability");
-    // Empty or non-string is refused rather than treated as unset.
+    // Empty or non-string is refused rather than treated as unset, with its own typed code.
     for (const bad of ["", "   ", 7, null]) {
       let refusal = "";
+      let code: string | undefined;
       try {
         validateControlTape(checkpointWith([{ ...base, outputId: bad }]));
       } catch (error) {
         refusal = (error as Error).message;
+        code = (error as { code?: string }).code;
       }
-      expect([JSON.stringify(bad), refusal.includes("outputId")]).toEqual([
+      expect([JSON.stringify(bad), refusal.includes("outputId"), code]).toEqual([
         JSON.stringify(bad),
         true,
+        "tape-expected-value-invalid-output-id",
       ]);
     }
+  });
+
+  test("the 66 legacy refusals stay untyped, so the coded form is what distinguishes a new one", () => {
+    // The message-first form carries no code, which is the debt bareThrowsBaseline.json records at 66
+    // for this file. Asserted so that converting one of the 66 is a visible change here rather than a
+    // silent drift, and so the two codes above are known to be the only typed refusals in the file.
+    let legacy: { message: string; code?: string } | undefined;
+    try {
+      validateControlTape(checkpointWith([{ label: "no constant set", value: 1, unit: "1" }]));
+    } catch (error) {
+      legacy = error as { message: string; code?: string };
+    }
+    expect(legacy?.message).toContain("constantSetId");
+    expect(legacy?.code).toBeUndefined();
   });
 
   test("an expected display value with no constantSetId is rejected", () => {

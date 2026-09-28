@@ -17,12 +17,37 @@ export const TAPE_VERSION = 2;
 export const TAPE_ID_PATTERN =
   /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\.\d[a-z0-9]*)?(?:-[a-z0-9]+(?:\.\d[a-z0-9]*)?)*$/;
 
+/**
+ * A refusal from the control-tape schema.
+ *
+ * TWO CONSTRUCTOR FORMS, AND THE CODED ONE IS FOR NEW REFUSALS (am-2rl9, dispatch 386). The
+ * message-first form is this file's history: 66 throw sites carry it, every one the same untyped
+ * error, which is the debt `src/testing/refusals/bareThrowsBaseline.json` records at 66 and which
+ * AGENTS.md says must not be added to. The object form carries a kebab-case `code`, which is what
+ * the refusal scanner reads, so a refusal raised that way is a typed refusal rather than another
+ * bare throw.
+ *
+ * The 66 are deliberately NOT converted here. Changing them is a diff across every validator in the
+ * file, it belongs in its own commit, and the rule that matters today is that the count does not
+ * grow. A new refusal takes the coded form; that is how the 66 get paid down rather than reshuffled.
+ */
 export class TapeValidationError extends TypeError {
   readonly path: string;
-  constructor(message: string, path: string) {
-    super(`[tape] ${path}: ${message}`);
+  /** The typed code, on refusals raised with the coded form. Undefined on the 66 legacy throws. */
+  readonly code: string | undefined;
+  constructor(message: string, path: string);
+  constructor(refusal: Readonly<{ code: string; message: string; path: string }>);
+  constructor(
+    first: string | Readonly<{ code: string; message: string; path: string }>,
+    path?: string,
+  ) {
+    const coded = typeof first === "string" ? undefined : first;
+    const message = coded ? coded.message : first;
+    const where = coded ? coded.path : (path ?? "tape");
+    super(`[tape] ${where}: ${message}${coded ? ` (${coded.code})` : ""}`);
     this.name = "TapeValidationError";
-    this.path = path;
+    this.path = where;
+    this.code = coded?.code;
   }
 }
 
@@ -614,11 +639,6 @@ function validateExpectedDisplayValues(
           entryPath,
         );
       }
-      if (o.outputId !== undefined && (typeof o.outputId !== "string" || !o.outputId.trim()))
-        throw new TapeValidationError(
-          `expected display value "${o.label}" declares an outputId that is not a non-empty string.`,
-          entryPath,
-        );
       // AN UNKNOWN KEY IS REFUSED RATHER THAN DISCARDED (am-2rl9, dispatch 383). Until now this
       // validator rebuilt the entry from the four keys it knew, so a field an author added was
       // silently dropped: no error, no effect, and nothing anywhere saying the record did not mean
@@ -632,12 +652,27 @@ function validateExpectedDisplayValues(
       // also how every other defect in this validator is communicated.
       const unknown = Object.keys(o).filter((key) => !EXPECTED_DISPLAY_VALUE_KEYS.has(key));
       if (unknown.length > 0)
-        throw new TapeValidationError(
-          `expected display value "${o.label}" carries ${unknown.length === 1 ? "an unknown key" : "unknown keys"} ` +
+        throw new TapeValidationError({
+          code: "tape-expected-value-unknown-key",
+          message:
+            `expected display value "${o.label}" carries ${unknown.length === 1 ? "an unknown key" : "unknown keys"} ` +
             `${unknown.map((key) => `"${key}"`).join(", ")}; a key this schema does not know would be dropped ` +
             `without effect, so it is refused. Known keys: ${[...EXPECTED_DISPLAY_VALUE_KEYS].join(", ")}.`,
-          entryPath,
-        );
+          path: entryPath,
+        });
+      // THIS REFUSAL SITS HERE, AFTER THE UNKNOWN-KEY ONE, AND THE ORDER IS LOAD-BEARING. The
+      // refusal scanner credits a `code:` to the nearest preceding `throw new`, so with this block
+      // directly beneath the multi-line `constantSetId` refusal above, that untyped throw was read as
+      // carrying `tape-expected-value-invalid-output-id`: the file measured 65 bare and 3 coded when
+      // the truth is 66 and 2, and the ratchet then asked for a baseline recording a misattribution.
+      // Moving this below the unknown-key block puts enough distance between them. Do not reorder
+      // these two without re-running `src/testing/refusals/` and reading the per-file count.
+      if (o.outputId !== undefined && (typeof o.outputId !== "string" || !o.outputId.trim()))
+        throw new TapeValidationError({
+          code: "tape-expected-value-invalid-output-id",
+          message: `expected display value "${o.label}" declares an outputId that is not a non-empty string.`,
+          path: entryPath,
+        });
       return Object.freeze({
         label: o.label,
         value: o.value,
