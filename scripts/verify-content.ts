@@ -287,7 +287,22 @@ const result = await runVerifyContent({
   loadFiles: async () => {
     const readingFiles = await loadReadingFiles(root);
     const experimentFiles: { path: string; text: string }[] = [];
-    for (const id of ["bm-01", "bm-05", "bm-06"]) {
+    // THREE OF THIRTY-THREE, AND THE NUMBER IS PRINTED BECAUSE IT CANNOT BE INFERRED (am-1nnj).
+    //
+    // loadReadingFiles skips every .yaml, so it contributes NO experiment manifests; these three
+    // are the whole population of instruments the compiler's checks ever see. Measured 2026-09-28
+    // by registering a counting check against the real compiler: 318 records reach the checks and
+    // exactly 3 carry an `owner`, so runKernelIdentifierCheck's live-term assertion runs for
+    // bm-01, bm-05 and bm-06 and is silent on the other 30 instruments. Its sibling half, the
+    // kernel-binding audit, is not affected: auditKernelBindings walks SLICE_KERNEL_CATALOG, which
+    // covers all 33.
+    //
+    // A 0 from a check that opened three records reads exactly like a 0 from one that opened
+    // thirty-three, which is why the count is printed beside the verdict rather than left to be
+    // rediscovered. Widening the list is a separate change against its own evidence: it will make
+    // real findings appear, and they must not land mixed with the measurement that justified them.
+    const wanted = ["bm-01", "bm-05", "bm-06"];
+    for (const id of wanted) {
       const p = resolve(root, `content/experiments/${id}.yaml`);
       if (existsSync(p)) {
         experimentFiles.push({
@@ -296,6 +311,13 @@ const result = await runVerifyContent({
         });
       }
     }
+    const onDisk = readdirSync(resolve(root, "content/experiments")).filter((f) =>
+      f.endsWith(".yaml"),
+    ).length;
+    console.log(
+      `[verify-content] ${experimentFiles.length} of ${onDisk} experiment manifests compiled, ` +
+        `so the live-term check is silent on ${onDisk - experimentFiles.length} instruments (am-1nnj)`,
+    );
     return [...readingFiles, ...experimentFiles];
   },
   dimensionAudit: async () => {
