@@ -1,0 +1,168 @@
+# The light-quanta capstone (am-disc-capstone-light-quanta-98xc), served at /capstones/light-quanta/.
+#
+# AUTHORED TO THE BEAD. An earlier draft of this record was written to a dispatch that had not read
+# am-disc-capstone-light-quanta-98xc; the bead specifies the claim table, the anchors, the roles, the
+# edges, both orders, the nine assumptions, the three annotated equations and the four presets, and
+# this record follows it. Where it falls short, it falls short visibly: see the note at the end.
+#
+# THE CHAIN HAS THREE STRANDS that meet at the heuristic step, which is why it admits sixty-three
+# orders rather than one. A classical difficulty and the estimate of the molecular number (sections
+# one and two); the volume dependence of the radiation entropy in the Wien regime (sections three and
+# four); and a counting law for independent points (section five). Sections seven to nine draw
+# consequences under a FURTHER hypothesis, which is a6 and is not the same as the thermodynamic
+# result c6 reaches.
+#
+# WHAT THE RECORD REFUSES TO SAY, from the bead and from AGENTS.md: that photons were proved, that
+# light is not a wave, or that Planck proposed Einstein's light quanta. Planck's energy elements are
+# a property of the oscillators; c2 uses his formula to estimate a constant and says so. The phrase
+# "ultraviolet catastrophe" is Ehrenfest's, from 1911, and appears nowhere. Einstein never writes h,
+# so no claim does either. The effective count is a coefficient and is never rounded to a number of
+# quanta.
+id: capstone-light-quanta
+paper: light-quanta
+title: "Rebuild the heuristic viewpoint"
+question: "What exactly does the entropy argument license, in which regime, and which step is the guess the paper's own title calls heuristic?"
+
+claims:
+  - id: c1
+    text: "The wave description of light succeeds, and it is kept. But sharing energy classically among the modes of radiation in equilibrium gives a density that rises with every higher frequency, so the total over all frequencies is not finite. The classical route does not reach a spectrum."
+    anchor: eq-s1-d8
+    logicalRole: derivation
+    buildsOn: []
+    assumptionIds: [a7]
+  - id: c2
+    text: "Comparing Planck's formula where the wavelength is long and the density high with the classical result lets the constants be read off, and gives an estimate of the number of molecules in a gram-molecule from the printed constants. The formula is Planck's; the energy elements in his derivation belong to his oscillators, and this comparison does not adopt them as quanta of light."
+    anchor: eq-s2-d6
+    logicalRole: derivation
+    buildsOn: [c1]
+    assumptionIds: [a7]
+  - id: c3
+    text: "A measured spectrum determines the entropy of the radiation, because the rate at which the entropy density grows with the energy density at one frequency is the reciprocal of the temperature."
+    anchor: eq-s3-d8
+    logicalRole: derivation
+    buildsOn: []
+    assumptionIds: [a9]
+  - id: c4
+    text: "In the regime where Wien's law holds, at fixed energy in a fixed narrow band, the entropy of the radiation exceeds its value at a reference volume by the energy divided by the product of Wien's constant and the frequency, times the logarithm of the volume ratio."
+    anchor: eq-s4-d5
+    logicalRole: derivation
+    buildsOn: [c3]
+    assumptionIds: [a1, a2, a9]
+  - id: c5
+    text: "For a number of points moving independently in a volume, the chance that all are found in a sub-volume at one moment is the volume ratio raised to that number, so by Boltzmann's principle the entropy exceeds its reference value by the gas constant over the molecular number, times that number of points, times the same logarithm."
+    anchor: eq-s5-d6
+    logicalRole: derivation
+    buildsOn: []
+    assumptionIds: [a3, a8]
+  - id: c6
+    text: "The two expressions have the same form, so dilute monochromatic radiation behaves thermodynamically as if it were made of independent energy quanta, each of magnitude the gas constant over the molecular number times Wien's constant times the frequency. The effective count that makes the two agree is a coefficient in an entropy law and is never rounded to a whole number of quanta. This is the step the paper's title calls heuristic."
+    anchor: s6-p6
+    logicalRole: heuristic-inference
+    buildsOn: [c4, c5]
+    assumptionIds: [a1, a3, a8]
+  - id: c7
+    text: "Under the further hypothesis that light is also emitted and absorbed in such quanta, three consequences follow and are offered for test: that fluorescent light cannot exceed the exciting light in frequency, that the greatest energy an escaping electron keeps rises with frequency and not with brightness, and that the work of ionizing a molecule cannot exceed one quantum of the absorbed light. The hypothesis is an extension of the thermodynamic result, not a consequence of it."
+    anchor: s9-p1
+    logicalRole: derivation
+    buildsOn: [c6]
+    assumptionIds: [a4, a5, a6]
+
+# The paper's order, which the bead fixes and which reports no violation.
+paperOrder: [c1, c2, c3, c4, c5, c6, c7]
+# The worksheet's start order, authored and fixed by the bead. It reports exactly four violations,
+# c1 before c2, c3 before c4, c4 before c6 and c5 before c6: it opens on the heuristic step as though
+# the conclusion came first and the entropy argument were assembled afterwards to support it.
+startOrder: [c6, c2, c5, c7, c4, c1, c3]
+
+assumptions:
+  - id: a1
+    statement: "The Wien regime: radiation dilute enough, and of high enough frequency against the temperature, for Wien's law to hold. Experiment confirmed it there and it is known not to hold generally."
+    kind: approximation
+    anchor: s4-p1
+  - id: a2
+    statement: "A fixed narrow band of frequencies and a fixed energy within it, held the same on both sides of the comparison."
+    kind: setup
+    anchor: s4-p2
+  - id: a3
+    statement: "The counted elements are independent of one another, so the chance that all are in the sub-volume is the product of the separate chances."
+    kind: premise
+    anchor: s5-p1
+  - id: a4
+    statement: "Single-quantum absorption: one quantum gives the whole of its energy to one electron. The paper states this and says what becomes of the relation without it."
+    kind: premise
+    anchor: s8-p9
+  - id: a5
+    statement: "A declared work of escape, the energy an electron spends leaving the surface, which the paper writes as a single quantity and does not derive."
+    kind: idealization
+    anchor: s8-p3
+  - id: a6
+    statement: "The further hypothesis: that light is emitted and absorbed in such quanta, extending a result about the thermal behaviour of radiation to the emission and transformation of light. The paper introduces it as a question worth asking, not as something the entropy argument has established."
+    kind: premise
+    anchor: s7-p1
+  - id: a7
+    statement: "Classical equipartition applied to the modes of the radiation field, giving each the mean energy that collisions with a gas at the same temperature would give it."
+    kind: premise
+    anchor: s1-p3
+  - id: a8
+    statement: "Boltzmann's principle, connecting the entropy of a state to the probability of that state through the gas constant over the molecular number."
+    kind: premise
+    anchor: s5-p1
+  - id: a9
+    statement: "Radiation in equilibrium has a well-defined entropy per interval of frequency, and radiation of different frequencies is taken to be separable without doing work."
+    kind: premise
+    anchor: s3-p2
+
+equations:
+  - equationId: eq-model-lq-volume-entropy
+    purpose: "How the entropy of radiation in a narrow band depends on the volume, inside the regime where Wien's law holds. The paper prints it with Einstein's own volume symbol and his logarithm."
+  - equationId: eq-model-lq-configuration-probability
+    purpose: "The chance that independent points are all found in a sub-volume, which is the counting law the radiation result is compared with."
+  - equationId: eq-model-lq-stopping-energy
+    purpose: "The photoelectric relation as the paper prints it, in the gas constant, the molecular number and Wien's constant. Einstein never writes Planck's constant, so the modern form with it is a concordance reading rather than the paper's own."
+
+presets:
+  - instrumentId: lq-04
+    presetId: lq-04-halve-volume
+    purpose: "Halve the volume at fixed energy in a fixed band and watch the entropy fall by the logarithm of the ratio, while the Wien-regime measure stays inside the regime."
+    lookFor: []
+  - instrumentId: lq-05
+    presetId: lq-05-locked-positions
+    purpose: "Count the arrangements of independent points in half the volume, then lock them together and count again, and see what independence was doing."
+    lookFor:
+      - scenarioId: configurations-lq05
+        outputId: configurationProbability
+        description: "The chance that every one of the independent points is found in the half volume at one moment, which the scenario fixes as an exact rational."
+  - instrumentId: lq-06
+    presetId: lq-06-the-move
+    purpose: "Put the two volume laws side by side and read the effective count that makes them agree, which is a coefficient in an entropy law and not a number of things."
+    lookFor: []
+  - instrumentId: lq-08
+    presetId: lq-08-historical-check
+    purpose: "Follow the paper's own volt check through its printed representation, and see the greatest energy an escaping electron keeps move with frequency while the brightness moves only the rate."
+    lookFor:
+      - scenarioId: photoelectric-einstein-1905-printed
+        outputId: stoppingPotentialMagnitude
+        description: "The stopping potential by the printed route, which the paper gives to two figures and the scenario compares as a rounded printed value rather than as a number."
+
+explanationPrompt: "Explain to a friend why an entropy formula made Einstein suspect that light comes in energy quanta, which step was a guess, and why the wave theory's successes remained."
+
+selfCheckNotes:
+  c1: "The wave description is not set aside here and is not set aside later. What fails is a particular way of sharing energy among the modes, and the paper says the optical successes stand because optical measurements are averages over time."
+  c2: "Planck's formula is used and Planck's energy elements are not. In his derivation the elements are a property of the oscillators; treating them as quanta of light is the move this paper makes later and by a different route, and a reader who runs the two together has lost the paper's argument."
+  c6: "This is the heuristic step, and it leans on independence and on the Wien regime. It concludes that dilute monochromatic radiation behaves thermodynamically as if made of independent quanta. It does not conclude that light is made of particles, and the count it produces is a coefficient rather than a tally."
+  c7: "Everything here rests on the further hypothesis as well as on the step above it. Planck's position at the fork, that the agreement of the two entropy laws is a coincidence of mathematics and the elements belong to the oscillators, is coherent and this record does not mock it."
+
+limits: "The paper calls its own standpoint heuristic, in its title, and this record keeps it that way. The inference is carried out where Wien's law holds and concludes that radiation there behaves thermodynamically as if it consisted of independent energy quanta. It does not say that light is not a wave, and it does not refute the wave description, whose interference successes stand. The photoelectric relation alone is not proof of quanta: it is a prediction drawn from the hypothesis and offered for test, and an instrument given the hypothesis returns it rather than confirming it. The effective count is a coefficient in an entropy law and is never a number of things counted."
+
+reviewRecordIds: []
+
+# WHERE THIS RECORD FALLS SHORT OF am-disc-capstone-light-quanta-98xc, and why, so the gap is visible
+# rather than absent:
+#   - The bead's LQ-04 and LQ-06 lookFor entries cannot be authored yet. They name the golden states
+#     lq-04-halve-volume and lq06-golden-the-move, and NEITHER EXISTS as a scenario record:
+#     content/scenarios/ holds 48 files and none of them is either id, so the loader's scenarioExists
+#     resolver refuses them. Those two lookFor lists are empty rather than guessed, and the values the
+#     bead specifies for them are therefore unverified here.
+#   - LQ-05's locked-positions half and LQ-06's effective count are specified by the bead and are not
+#     asserted here for the same reason.
+#   - reviewRecordIds is empty: no person has read this record's physics.
