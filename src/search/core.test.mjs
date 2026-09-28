@@ -189,9 +189,18 @@ test("external, executable, escaped or traversal routes cannot become search lin
     "/papers/\\evil",
     "/papers/?next=evil",
     "/papers/\n",
+    // The dot added for /tapes/the-boost-to-0.6c must not open a traversal or a hidden segment.
+    "/tapes/../admin",
+    "/tapes/..",
+    "/tapes/.",
+    "/tapes/.hidden",
+    "/tapes/a..b",
   ]) {
     assert.throws(() => validateSearchDocument(doc("id", "title", { route })), route);
   }
+  // And the routes the dot was widened FOR are accepted, so the widening is not vacuous.
+  for (const route of ["/tapes/the-boost-to-0.6c", "/tapes/coin-to-bell/", "/tapes/"])
+    assert.ok(validateSearchDocument(doc("id", "title", { route })), route);
   assert.throws(() =>
     validateSearchDocument(doc("id", "title", { anchor: 'x" onfocus=alert(1)' })),
   );

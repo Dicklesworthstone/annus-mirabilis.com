@@ -206,7 +206,18 @@ export function validateSearchDocument(value: unknown): SearchDocument {
   boundedText(d.route, "route", 1000);
   if (
     !SEARCH_TYPES.includes(d.type as SearchType) ||
-    !/^\/(?:papers|foundations|lab|notation|discover|essays|connections|tours|capstones|timeline|1904)(?:\/[a-zA-Z0-9_-]+)*\/?$/u.test(
+    // ROUTE FAMILIES, AND WHY A SEGMENT MAY NOW CONTAIN A DOT.
+    //
+    // `tapes` joins the list because the 22 recorded walkthroughs became pages this week and were
+    // unfindable: measured on the published shards, /papers/, /foundations/ and /lab/ were indexed
+    // and /tapes/ had zero documents.
+    //
+    // A segment is `[a-zA-Z0-9_-]+` optionally followed by `.[a-zA-Z0-9_-]+` groups, because one
+    // tape id is `the-boost-to-0.6c` (AGENTS.md permits a dot between two digits). The dot can only
+    // sit BETWEEN allowed runs, so a segment can never be `.`, `..` or `.hidden`, and the traversal
+    // cases in core.test.mjs stay refused: /lab/../admin has a `..` segment that matches nothing
+    // here, and /papers/%2e%2e/ has no `%` in the class at all.
+    !/^\/(?:papers|foundations|lab|notation|discover|essays|connections|tours|tapes|capstones|timeline|1904)(?:\/[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-9_-]+)*)*\/?$/u.test(
       d.route,
     ) ||
     !/^[a-zA-Z0-9_.:-]*$/u.test(d.anchor as string) ||
