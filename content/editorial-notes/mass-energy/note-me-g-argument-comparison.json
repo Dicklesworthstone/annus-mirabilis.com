@@ -1,0 +1,71 @@
+{
+  "id": "note-me-g-argument-comparison",
+  "author": {
+    "id": "agent:NavyKite",
+    "kind": "model",
+    "modelId": "claude-opus-5-5"
+  },
+  "reviewState": "draft",
+  "kind": "side-note",
+  "historicalStatement": "site-reconstruction",
+  "claim": "Three arguments reach the conclusion of this paper from different premises, and a reader who meets only one of them cannot tell which of its features belong to the result and which belong to that route. The table below asks each of them the same five questions. It is a record of premises and not a ranking: no row of it says that one argument supersedes another, and the site does not call any of them refuted. The row that repays reading across is the last one. The premise this paper states about the additive constant is a restriction on which systems the reasoning addresses, and the later arguments reach the same conclusion for wider classes of system by importing more than 1905 does.",
+  "comparison": {
+    "questions": [
+      { "id": "importedResult", "label": "What result is imported" },
+      { "id": "massDefinition", "label": "What definition of mass" },
+      { "id": "conservationLaw", "label": "Which conservation law" },
+      { "id": "approximation", "label": "What approximation" },
+      { "id": "classOfSystems", "label": "Which class of systems", "scopeCritical": true }
+    ],
+    "arguments": [
+      {
+        "id": "ledger-1905",
+        "label": "The 1905 ledger",
+        "sourceNoteId": "note-me-b-additive-constant",
+        "instrumentRef": "me-01",
+        "cells": {
+          "importedResult": "The transformation of the energy of a light complex from section 8 of the electrodynamics paper, shown with its provenance, and nothing else dated after 1904.",
+          "massDefinition": "The coefficient of the square of the speed in the body's energy of motion at low speed, an inertial coefficient read off in a limit rather than a rest energy.",
+          "conservationLaw": "Energy conservation, applied separately in each of two inertial frames.",
+          "approximation": "An expansion to second order in the speed ratio, the paper's neglect of magnitudes of fourth and higher order; the conclusion is the limiting coefficient, and the finite-speed proxy ME-02 reports at a chosen speed is not that limit.",
+          "classOfSystems": "A body emitting radiation symmetrically, under the paper's stated premise that the additive constant in each frame's energy difference is unchanged by the emission."
+        }
+      },
+      {
+        "id": "box-1906",
+        "label": "The 1906 box",
+        "sourceNoteId": "note-me-c-1906-poincare",
+        "instrumentRef": "me-03:box-1906",
+        "cells": {
+          "importedResult": "That radiation carries momentum equal to its energy divided by the speed of light, and the centre-of-mass theorem for a closed system, neither of which the 1905 argument uses.",
+          "massDefinition": "The inertia that must travel with the light if the centre of mass of a closed system is to stay where it was.",
+          "conservationLaw": "Uniform motion of the centre of mass of a closed system with no external forces.",
+          "approximation": "Leading order in the ratio of the emitted energy to the box's rest energy, within the bound the instrument declares for box systems, with a rigid box, non-relativistic box motion, and a transit time set by the box's length and the speed of light.",
+          "classOfSystems": "A closed rigid container with emission and absorption inside it and no external forces."
+        }
+      },
+      {
+        "id": "four-momentum-modern",
+        "label": "A modern four-momentum derivation",
+        "sourceNoteId": "note-me-f-two-pulses",
+        "instrumentRef": "four-momentum-modern",
+        "cells": {
+          "importedResult": "The four-momentum formalism itself, which postdates 1905 and is the largest import of the three.",
+          "massDefinition": "The invariant mass of a total four-momentum, a property of the system rather than of any part of it.",
+          "conservationLaw": "Conservation of the total four-momentum.",
+          "approximation": "None inside the formalism, which is exact where it applies; what that costs is that the formalism is later.",
+          "classOfSystems": "Any system with a well-defined total four-momentum, including stressed and open systems the 1905 route does not reach."
+        }
+      }
+    ]
+  },
+  "sourceSupport": [
+    {
+      "citationId": "cit-einstein-1905-inertia",
+      "locator": "pp. 639–641",
+      "role": "primary"
+    }
+  ],
+  "affectedIds": ["s0-p11", "s0-p12", "s0-p13"],
+  "evidence": "Authored by agent:NavyKite on 2026-09-28 as this site's own comparison, which is why its historicalStatement is site-reconstruction rather than a claim about what anyone knew. It adds no citation of its own: each row names the margin record that already carries its sources, so the 1905 row points at note-me-b-additive-constant, where Ives and the reply by Stachel and Torretti are quoted from what they wrote; the 1906 row at note-me-c-1906-poincare; and the modern row at note-me-f-two-pulses, where the invariant mass of the pair is labelled later formalism. No number is retyped here. The 1905 row's approximation cell names ME-02's finite-speed proxy rather than printing a value, and the 1906 row's cell names the bound the ME-03 manifest declares for box systems rather than restating it, so both resolve where they are computed and cannot drift from the instruments. Each row names something a reader can open: the instrument me-01, the mode address me-03:box-1906, which src/experiments/permalink/schema.ts records as a declared mode address and not a preset id, and the model identity four-momentum-modern declared in src/experiments/me03/definition.ts."
+}
