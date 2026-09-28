@@ -1,0 +1,95 @@
+/*
+ * The teaching-tape pages (am-tape-reader-page). Plain prose and tables: a tape is a walkthrough,
+ * and the page's whole job is to be readable without JavaScript, on a phone, and in print.
+ *
+ * No class here is borrowed from a laboratory or a reading face. `printed-display-terms` is
+ * display:block and reusing it for an inline tint once broke 70 laboratory sentences, so these
+ * carry their own names and their own rules, and the only shared ones are `.eyebrow` and the
+ * element defaults from globals.css.
+ */
+.tape-page {
+  max-width: min(68ch, 100%);
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.tape-description {
+  font-size: var(--type-large);
+  line-height: 1.5;
+}
+
+.tape-honesty {
+  border-left: 3px solid var(--rule);
+  padding-left: 1rem;
+  color: var(--ink-muted);
+}
+
+.tape-to-lab {
+  margin: 1.2rem 0;
+}
+
+.tape-steps {
+  padding-left: 1.2rem;
+}
+
+.tape-steps > li {
+  margin-bottom: 2rem;
+}
+
+.tape-change {
+  margin: 0 0 0.3rem;
+}
+
+.tape-command-class {
+  font-family: var(--font-mono);
+  font-size: var(--type-small);
+  color: var(--ink-muted);
+}
+
+.tape-step-label {
+  margin: 0 0 0.3rem;
+  font-weight: 600;
+}
+
+.tape-note {
+  margin: 0 0 0.6rem;
+  color: var(--ink-muted);
+}
+
+/* A tape's numbers are few and short, so the table needs no scroll at 320px; if one ever grows,
+   give it a scrolling wrapper and record the class in scrollableRegions.test.ts. */
+.tape-table {
+  border-collapse: collapse;
+  margin: 0.6rem 0 0;
+  font-size: var(--type-small);
+}
+
+.tape-table caption {
+  text-align: start;
+  color: var(--ink-muted);
+  font-size: var(--type-small);
+  padding-bottom: 0.3rem;
+}
+
+.tape-table th,
+.tape-table td {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.3rem 0.8rem 0.3rem 0;
+  text-align: start;
+  vertical-align: top;
+}
+
+.tape-list {
+  list-style: none;
+  padding: 0;
+}
+
+.tape-list > li {
+  margin-bottom: 0.9rem;
+}
+
+.tape-blurb {
+  display: block;
+  color: var(--ink-muted);
+  font-size: var(--type-small);
+}

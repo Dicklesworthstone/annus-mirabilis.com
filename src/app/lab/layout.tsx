@@ -32,6 +32,17 @@ export default function LaboratoryLayout({ children }: { children: ReactNode }) 
       <ExplainerFragments />
       <div className="lab-route">{children}</div>
       <EmbedLauncher />
+      {/* The 21 authored teaching tapes reached no reader until 2026-09-27 (am-tape-reader-page).
+          One link, not a per-laboratory list: the lab routes are one directory each rather than a
+          dynamic segment, so this layout does not know which instrument it is wrapping, and a
+          client component that did would ship the tape map to every laboratory page. The index
+          groups by instrument, so a reader on bm-01 reaches bm-01's tape in one hop. */}
+      <nav className="actions no-print" aria-label="Recorded walkthroughs">
+        <span className="eyebrow">Recorded walkthroughs</span>
+        <a className="button secondary" href="/tapes/">
+          Teaching tapes: what to change, and what to expect
+        </a>
+      </nav>
       <nav className="actions no-print" aria-label="Ways to test a model">
         <span className="eyebrow">Ways to test a model</span>
         <a className="button secondary" href="/lab/bm-01/compare/">

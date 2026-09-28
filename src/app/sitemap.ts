@@ -2,6 +2,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import type { MetadataRoute } from "next";
 import { contentIndex } from "../content/server.ts";
+import { loadTeachingTapes } from "../content/teachingTapes.ts";
 import { ROUTE_INDEX } from "../discovery/routeIndex.ts";
 import { isSitemapExemptUrl } from "../experiments/permalink/canonical.ts";
 import { absoluteUrl, readerSitemapEntries } from "../reader/paperRoutes.ts";
@@ -24,6 +25,7 @@ export const FIXED_PAGES = [
   "/notation/",
   "/connections/",
   "/tours/",
+  "/tapes/",
   "/search/",
   "/sources/",
   "/about/",
@@ -100,6 +102,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...lessons,
     ...labPaths(),
     ...sources,
+    // One page per authored teaching tape (am-tape-reader-page). They are the only address at which
+    // these 21 records reach a reader, so leaving them out would hide the whole layer from search.
+    ...loadTeachingTapes()
+      .tapes.map((tape) => `/tapes/${tape.tapeId}/`)
+      .sort(),
   ];
   const entries: MetadataRoute.Sitemap = [
     { url: absoluteUrl("/") },
