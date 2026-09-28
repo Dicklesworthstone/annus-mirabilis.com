@@ -9,6 +9,7 @@ import {
 } from "../src/content/compiler/serverLoaders.ts";
 import { loadGermanSourceFace } from "../src/content/editions/germanSourceFace.ts";
 import type { RouteSlug } from "../src/content/ids.ts";
+import { loadTeachingTapes } from "../src/content/teachingTapes.ts";
 import { recordLatex } from "../src/equations/recordLatex.ts";
 import {
   CATALOGUE_IDS,
@@ -28,6 +29,7 @@ import {
   unitTranslating,
 } from "../src/reader/faces/translationMasthead.ts";
 import { paperSourceFaces } from "../src/reader/paperSourceFaces.ts";
+import { tapePath } from "../src/reader/sitePaths.ts";
 import { packageSearchIndex } from "../src/search/build.ts";
 import type { SearchAlias, SearchDocument } from "../src/search/core.ts";
 import {
@@ -43,6 +45,7 @@ import {
   type SearchProfile,
   searchInlineText,
   searchProfile,
+  walkthroughDocuments,
 } from "../src/search/documents.ts";
 
 /**
@@ -80,6 +83,19 @@ export async function loadSearchCorpus(
     status: CATALOGUE_STATUS[id],
     title: catalogueLabel(id),
     ...(CATALOGUE_QUESTIONS[id] ? { question: CATALOGUE_QUESTIONS[id] } : {}),
+  }));
+  // The recorded walkthroughs, from the loader the /tapes/ pages use rather than a second read of
+  // the YAML (this file's own rule, above). Each carries the passages its instrument declares, so a
+  // reader searching for the SECTION finds the walkthrough that works it.
+  const walkthroughs = loadTeachingTapes(root).tapes.map((tape) => ({
+    id: tape.tapeId,
+    title: tape.title,
+    description: tape.description ?? "",
+    route: tapePath(tape.tapeId),
+    paper: tape.passages[0]?.paper ?? "",
+    paperTitle: tape.passages[0]?.paperTitle ?? "",
+    instrumentId: tape.instrument?.id ?? tape.experimentId,
+    sectionTitles: tape.passages.map((passage) => passage.sectionTitle),
   }));
   const equationTerms = Object.fromEntries(
     papers.flatMap((paper) =>
@@ -170,6 +186,7 @@ export async function loadSearchCorpus(
   }
   const documents = [
     ...documentsFromCompiled(papers, foundations, instruments, profile, equationTerms),
+    ...walkthroughDocuments(walkthroughs, profile),
     ...notation,
     ...german,
     ...english,

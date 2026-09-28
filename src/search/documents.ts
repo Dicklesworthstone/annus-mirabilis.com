@@ -37,6 +37,17 @@ type Block = Readonly<
   | { kind: "foundation"; id: string; returnCaption: string }
 >;
 /** Structural input projections; the content compiler remains the schema owner. */
+export type SearchWalkthrough = Readonly<{
+  id: string;
+  title: string;
+  description: string;
+  /** Built by tapePath, because one id contains a dot and the host drops the trailing slash. */
+  route: string;
+  paper: string;
+  paperTitle: string;
+  instrumentId: string;
+  sectionTitles: readonly string[];
+}>;
 export type SearchFoundationProjection = Readonly<{
   id: string;
   title: string;
@@ -351,6 +362,51 @@ export type SearchNotationGlyph = Readonly<{
  * notation page's own glyph groups (notationData.ts, uniqueGlyphs), landing where that page's
  * symbol index lands. The concordance is the only source; nothing here is typed by hand.
  */
+/**
+ * A RECORDED WALKTHROUGH, AS SOMETHING A READER CAN FIND BY NAME.
+ *
+ * Measured 2026-09-28 against the published shards: 966 documents covering /papers/ (12,296 route
+ * occurrences), /foundations/ (2,772) and /lab/ (1,666), and ZERO for /tapes/. The 22 walkthrough
+ * pages went live this week and the index never learned about them, so a reader searching "the boost
+ * to 0.6c" or "magnet and conductor" found nothing while the page sat one link away.
+ *
+ * The "tour" type was declared in SEARCH_TYPES and used by no document at all. A recorded
+ * walkthrough is what it describes: an ordered route through one instrument with a stated budget.
+ *
+ * THE ROUTE COMES FROM tapePath, NOT FROM A TEMPLATE. One tape id contains a dot and the host serves
+ * that path without the trailing slash (am-tpzn); a hand-built `/tapes/${id}/` here would send every
+ * searcher for "the boost to 0.6c" through a 308.
+ */
+export function walkthroughDocuments(
+  walkthroughs: readonly SearchWalkthrough[],
+  profile: SearchProfile,
+): readonly SearchDocument[] {
+  searchProfile(profile);
+  return walkthroughs
+    .map((walkthrough) =>
+      validateSearchDocument({
+        id: `walkthrough:${walkthrough.id}`,
+        type: "tour",
+        // Every group of tapes names exactly one paper (measured), but a tape with no resolved
+        // passage gets the cross-paper scope rather than being dropped: a dropped document is a
+        // page a reader cannot find, and silence is the failure this whole builder exists to end.
+        paper: walkthrough.paper === "" ? "cross-paper" : walkthrough.paper,
+        section: "",
+        lang: "en",
+        route: walkthrough.route,
+        anchor: "",
+        face: "",
+        title: walkthrough.title,
+        // The description plus the sections it leads back to, so a reader searching for the
+        // PASSAGE finds the walkthrough that works it.
+        text: [walkthrough.description, ...walkthrough.sectionTitles].filter(Boolean).join(" "),
+        terms: [walkthrough.id, walkthrough.instrumentId],
+        scopeLabel: `${walkthrough.paperTitle || "Across the papers"} · recorded walkthrough of ${walkthrough.instrumentId}`,
+      }),
+    )
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
 export function notationDocuments(
   glyphs: readonly SearchNotationGlyph[],
   profile: SearchProfile,
