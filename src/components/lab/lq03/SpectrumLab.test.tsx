@@ -6,6 +6,34 @@ import labDigests from "../../../generated/lab-source-digests.json";
 import { exponentialParts } from "../../../units/scientific.ts";
 import { SpectrumComparison } from "./SpectrumLab.tsx";
 
+/**
+ * The leak scan below reads what the LAB draws, and the show-the-code panel is not that: it quotes
+ * the kernel's own source, which contains Number.POSITIVE_INFINITY and Number.isFinite as code. A
+ * reader meets those only by opening a closed <details>, while the leak this case exists to catch
+ * printed "ln(value) = -9.598486147758314e+285" in the table itself. Proven in both directions in
+ * its own case below.
+ */
+function withoutCodePanel(markup: string): string {
+  const open = markup.indexOf('<details id="stc"');
+  if (open < 0) return markup;
+  let depth = 0;
+  let i = open;
+  while (i < markup.length) {
+    const nextOpen = markup.indexOf("<details", i);
+    const nextClose = markup.indexOf("</details>", i);
+    if (nextClose < 0) break;
+    if (nextOpen >= 0 && nextOpen < nextClose) {
+      depth += 1;
+      i = nextOpen + "<details".length;
+      continue;
+    }
+    depth -= 1;
+    i = nextClose + "</details>".length;
+    if (depth === 0) return markup.slice(0, open) + markup.slice(i);
+  }
+  return markup.slice(0, open);
+}
+
 /** What <Sci value digits /> draws: toExponential's digits as a raised power of ten. */
 function drawn(value: number, digits: number): string {
   const parts = exponentialParts(value, digits);
@@ -86,10 +114,22 @@ describe("SpectrumLab: server-rendered markup shows real numbers without JavaScr
       sourceDigest: "src/physics/reference/radiation.ts",
     };
     const html = renderToStaticMarkup(<SpectrumComparison example={example} />);
+    const drawnMarkup = withoutCodePanel(html);
+    // The denominator this scan speaks for, so a stripper that emptied it would say so here.
+    expect(drawnMarkup.length).toBeGreaterThan(4000);
     for (const leak of ["double-precision", "ln(value)", "NaN", "Infinity", "e+285"]) {
-      expect(html).not.toContain(leak);
+      expect(drawnMarkup).not.toContain(leak);
     }
     // The classical u_lambda at this probe is e^2644.13 J/(m³ m), written 2.147882 × 10^1148.
-    expect(html).toContain("10<sup>1148</sup>");
+    expect(drawnMarkup).toContain("10<sup>1148</sup>");
+  });
+
+  test("the code-panel stripper takes the panel and nothing beside it", () => {
+    const plain = "<p>a value 10<sup>1148</sup> b</p>";
+    expect(withoutCodePanel(plain)).toBe(plain);
+    const panelled = `${plain}<details id="stc" class="show-the-code"><code>Number.POSITIVE_INFINITY</code></details><p>after</p>`;
+    expect(withoutCodePanel(panelled)).toBe(`${plain}<p>after</p>`);
+    const nested = `${plain}<details id="stc"><details><code>NaN</code></details></details><p>after</p>`;
+    expect(withoutCodePanel(nested)).toBe(`${plain}<p>after</p>`);
   });
 });

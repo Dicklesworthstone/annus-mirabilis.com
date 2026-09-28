@@ -3,6 +3,36 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { DEFAULT_LQ02_INPUTS } from "../../experiments/lq02/session";
 import { ModeAllocationLab } from "./ModeAllocationLab";
 
+/**
+ * The scientific-notation scan below reads what the LAB draws, and the show-the-code panel is not
+ * that: it quotes the kernel's own source, which carries literals like 6.1e-57 and 1.602176634e-19.
+ * Those are code a reader opens a closed <details> to read, not numbers the instrument states, and
+ * the guard they would trip exists because a SHARE once printed as "9.990000e-1".
+ *
+ * Proven in both directions in its own case below, because a stripper that removed everything would
+ * make the assertion pass forever, and the assertion states the size of what it did read.
+ */
+function withoutCodePanel(markup: string): string {
+  const open = markup.indexOf('<details id="stc"');
+  if (open < 0) return markup;
+  let depth = 0;
+  let i = open;
+  while (i < markup.length) {
+    const nextOpen = markup.indexOf("<details", i);
+    const nextClose = markup.indexOf("</details>", i);
+    if (nextClose < 0) break;
+    if (nextOpen >= 0 && nextOpen < nextClose) {
+      depth += 1;
+      i = nextOpen + "<details".length;
+      continue;
+    }
+    depth -= 1;
+    i = nextClose + "</details>".length;
+    if (depth === 0) return markup.slice(0, open) + markup.slice(i);
+  }
+  return markup.slice(0, open);
+}
+
 describe("ModeAllocationLab: static rendering (no JavaScript)", () => {
   const html = renderToStaticMarkup(<ModeAllocationLab example={DEFAULT_LQ02_INPUTS} />);
 
@@ -16,10 +46,22 @@ describe("ModeAllocationLab: static rendering (no JavaScript)", () => {
     ); // mean resonator energy
   });
 
+  test("the code-panel stripper takes the panel and nothing beside it", () => {
+    const plain = "<p>a 1.5e-7 b</p>";
+    expect(withoutCodePanel(plain)).toBe(plain);
+    const panelled = `${plain}<details id="stc" class="show-the-code"><summary>Show the code</summary><code>const alpha = 6.1e-57;</code></details><p>after</p>`;
+    expect(withoutCodePanel(panelled)).toBe(`${plain}<p>after</p>`);
+    const nested = `${plain}<details id="stc"><details><p>6.1e-57</p></details></details><p>after</p>`;
+    expect(withoutCodePanel(nested)).toBe(`${plain}<p>after</p>`);
+  });
+
   test("no number reaches the reader in toExponential's serialization", () => {
     // It printed "9.990000e-1" for a share of 99.9% until 2026-09-22.
-    expect(html).not.toMatch(/\d\.\d+e[-+]\d/);
-    expect(html).toContain("0.9990000"); // the share above the probe frequency
+    const drawn = withoutCodePanel(html);
+    // The denominator this scan speaks for, so that a stripper which emptied it would say so.
+    expect(drawn.length).toBeGreaterThan(4000);
+    expect(drawn).not.toMatch(/\d\.\d+e[-+]\d/);
+    expect(drawn).toContain("0.9990000"); // the share above the probe frequency
   });
 
   test("has exactly one instrument root, addressable as lq-02", () => {

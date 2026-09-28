@@ -48,12 +48,39 @@ function submit(input: HTMLInputElement) {
   onSubmit?.({ preventDefault() {} });
 }
 
+/**
+ * What the LAB says, without the show-the-code panel's quoted kernel source. That source carries
+ * literals like 6.1e-57 and 1.602176634e-19, which would trip the scans below although a reader
+ * only meets them by opening a closed <details> to read code. The clone keeps React's own tree
+ * untouched, since these cases go on rendering into the same container afterwards.
+ */
+function readerText(container: HTMLElement): string {
+  const clone = container.cloneNode(true) as HTMLElement;
+  for (const panel of [...clone.querySelectorAll("details.show-the-code")]) panel.remove();
+  return clone.textContent ?? "";
+}
+
 describe("LQ-02 refuses a non-positive field and states a large temperature readably", () => {
   beforeEach(async () => {
     await installDom();
   });
   afterEach(async () => {
     await uninstallDom();
+  });
+
+  test("the code-panel filter takes the panel and nothing beside it", () => {
+    const container = createContainer();
+    try {
+      container.innerHTML = "<p>kept 1e+300</p>";
+      expect(readerText(container)).toBe("kept 1e+300");
+      container.innerHTML =
+        '<p>kept 1e+300</p><details class="show-the-code"><p>dropped 6.1e-57</p></details>';
+      expect(readerText(container)).toBe("kept 1e+300");
+      // The container itself is left as it was, which is what the clone is for.
+      expect(container.textContent).toContain("dropped 6.1e-57");
+    } finally {
+      removeContainer(container);
+    }
   });
 
   test("a negative cutoff is refused at the form and never reaches the table", async () => {
@@ -77,7 +104,7 @@ describe("LQ-02 refuses a non-positive field and states a large temperature read
       );
       expect(alert?.textContent).toContain("still those of the last accepted settings");
       expect(container.textContent).not.toContain("Not modeled here: Cutoff frequency");
-      expect(container.textContent).not.toMatch(/\de[+-]\d/);
+      expect(readerText(container)).not.toMatch(/\de[+-]\d/);
 
       const temperature = field(container, "Temperature (K)");
       // One field per act: each onChange closes over the draft of the render it came from.
@@ -92,7 +119,7 @@ describe("LQ-02 refuses a non-positive field and states a large temperature read
       });
       expect(container.querySelector("[role=alert]")).toBeNull();
       expect(container.textContent).toContain("at 1 × 10³⁰⁰ K");
-      expect(container.textContent).not.toContain("1e+300");
+      expect(readerText(container)).not.toContain("1e+300");
     } finally {
       await act(async () => {
         root.unmount();
