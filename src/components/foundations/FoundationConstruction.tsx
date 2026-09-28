@@ -21,6 +21,7 @@ import { LogarithmProductTable } from "./LogarithmProductTable.tsx";
 import { MagnitudeScale } from "./MagnitudeScale.tsx";
 import { NudgeSensitivityDemo } from "./NudgeSensitivityDemo.tsx";
 import { OsmoticTable } from "./OsmoticTable.tsx";
+import { PeakAndDip } from "./PeakAndDip.tsx";
 import { PourAndShare } from "./PourAndShare.tsx";
 import { ProductsView } from "./ProductsView.tsx";
 import { RapidityAdder } from "./RapidityAdder.tsx";
@@ -141,5 +142,7 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
       return <FourCellsTwiceTheSide headingLevel={headingLevel} />;
     case "flux-continuity":
       return <CrossingABoundary headingLevel={headingLevel} />;
+    case "diffusion-equation":
+      return <PeakAndDip headingLevel={headingLevel} />;
   }
 }

@@ -152,3 +152,34 @@ export const netChange = (second: { entered: number; left: number }): number =>
 /** How many particles crossed a boundary at all, in either direction. */
 export const crossings = (second: { entered: number; left: number }): number =>
   second.entered + second.left;
+
+// The diffusion figure of dispatch 419. foundation:diffusion-equation was 2,991 visible characters
+// with 46 formulas and no picture, and its own prose describes a shape it never showed: "If the dye
+// is thicker on both sides than at the spot itself, a dip, dye drifts in from both sides and the
+// spot fills. If the spot is a peak ... The right-hand side is D times the curvature, which is
+// positive at a dip and negative at a peak."
+
+/**
+ * A dye profile along the tube with one peak and one dip, as a fraction of the tube's length.
+ * Curvature is negative at PEAK_AT and positive at DIP_AT, which is the sign the lesson's own
+ * sentence turns on, so the drawing shows the case the prose names rather than a generic bump.
+ */
+export const PEAK_AT = 0.25;
+export const DIP_AT = 0.75;
+export const profileHeight = (fraction: number): number =>
+  1 + 0.6 * Math.cos(2 * Math.PI * (fraction - PEAK_AT));
+
+/** Its second derivative, up to a positive constant: the sign is all the lesson claims. */
+export const profileCurvature = (fraction: number): number =>
+  -Math.cos(2 * Math.PI * (fraction - PEAK_AT));
+
+/** The spreading the lesson works: a typical distance of 1 mm after one minute. */
+export const SPREAD = { minutes: 1, millimetres: 1 } as const;
+
+/**
+ * Typical distance grows as the square root of D times t, so doubling D multiplies it by about
+ * 1.4 and quadrupling the time doubles it. Derived, never typed: the lesson's whole point is that
+ * the mean square is what doubles and the distance is its square root.
+ */
+export const spreadAfter = (dFactor: number, tFactor: number): number =>
+  SPREAD.millimetres * Math.sqrt(dFactor * tFactor);

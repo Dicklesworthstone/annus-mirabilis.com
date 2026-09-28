@@ -30,6 +30,7 @@ const BRIDGE_FIGURES = [
   // Not a bridge, and the list is no longer only bridges (dispatch 418): flux-continuity draws the
   // region and boundary its 22 formulas talk about. The obligations below are the same for it.
   "flux-continuity",
+  "diffusion-equation",
   "bridge-a-graph",
   "bridge-sum-average",
   "bridge-negative-numbers-direction",
@@ -57,9 +58,10 @@ describe("the bridge lessons' figures", () => {
         expect(label.length, `${id}: ${svg}`).toBeGreaterThan(80);
       }
     }
-    // Eight drawings across six lessons: bridge-a-graph draws both of the graphs its prose names,
-    // and flux-continuity draws one panel for each of the two seconds its example counts.
-    expect(drawings).toBe(8);
+    // Ten drawings across seven lessons: bridge-a-graph draws both of the graphs its prose names,
+    // flux-continuity one panel for each of the two seconds its example counts, and
+    // diffusion-equation one profile carrying both the peak and the dip, then the same dye later.
+    expect(drawings).toBe(10);
   });
 
   test("every one states its reading in words, under a heading", () => {

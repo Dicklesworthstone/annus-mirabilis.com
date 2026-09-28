@@ -52,6 +52,7 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   // had 22 rendered formulas and no picture of the region its subject is about. Static, with no
   // control, so it is not in CONSTRUCTIONS_WITH_CONTROLS either.
   "flux-continuity",
+  "diffusion-equation",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];
