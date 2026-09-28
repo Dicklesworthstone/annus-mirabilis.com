@@ -14,7 +14,7 @@ modelIdentity:
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1
-allocationId: lq-06.the-move.v1
+allocationId: deterministic
 initialConditions:
   radiationEnergy: 9.055615e-9
   frequency: 6.0e14

@@ -9,7 +9,7 @@ modelIdentity:
 constantSetId: modern-si-2019
 seed: "12345"
 streamVersion: 1
-allocationId: lq-05.configuration.v1
+allocationId: deterministic
 initialConditions:
   n: 10
   f: 0.5

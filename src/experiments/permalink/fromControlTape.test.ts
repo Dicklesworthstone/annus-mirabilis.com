@@ -102,7 +102,11 @@ describe("an authored control tape becomes a permalink tape", () => {
       const tape = convert(record);
       expect(tape.modelIdentity.modelId).toBe(record.modelIdentity.modelId);
       expect(tape.allocationId).toBe(record.allocationId);
-      expect(tape.streamVersion).toBe(record.streamVersion);
+      // Not compared verbatim: a record that has declared it allocated no stream converts to the
+      // sentinel on ITS OWN statement, which is streamIdentity's whole subject. What must never
+      // happen is the converter reading a binding, so the value is required to be a function of the
+      // record alone, computed here from the record and nothing else.
+      expect(tape.streamVersion).toBe(streamIdentity(record));
       expect(tape.constantSetId).toBe(record.constantSetId);
       expect(tape.seed).toBe(record.seed);
       expect(tape.teachingTapeRef?.tapeId).toBe(record.tapeId);
@@ -198,10 +202,17 @@ describe("the stream identity a converted tape carries", () => {
   test("a record that declares no allocation carries the sentinel, not its placeholder integer", () => {
     const record = RECORDS.find((r) => r.tapeId === "the-two-pulses");
     if (!record) throw new Error("the-two-pulses is not in the corpus");
-    // The corpus as authored: a real allocation name, so the integer is carried.
+    // ME-01 draws nothing and its record now says so, which is what this pair is about. The
+    // integer case is a record that really allocates a stream; both halves are asserted, because a
+    // function that always returned the sentinel would satisfy either one alone.
+    const drawing = RECORDS.find((r) => r.tapeId === "einstein-0-8-micron");
+    if (!drawing) throw new Error("einstein-0-8-micron is not in the corpus");
+    expect(drawing.allocationId).not.toBe(NO_STREAM);
+    expect(streamIdentity(drawing)).toBe(drawing.streamVersion);
+    // The record's own schema still requires the integer, which is why the sentinel cannot simply
+    // be written into this field: it is the allocation that carries the statement.
     expect(record.streamVersion).toBe(1);
-    expect(streamIdentity(record)).toBe(1);
-    // The same record stating that it allocated nothing.
+    expect(record.allocationId).toBe(NO_STREAM);
     const none = withAllocation(record, NO_STREAM);
     expect(streamIdentity(none)).toBe(NO_STREAM);
     expect(convert(none).streamVersion).toBe(NO_STREAM);

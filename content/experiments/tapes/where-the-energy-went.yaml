@@ -12,7 +12,7 @@ modelIdentity:
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1
-allocationId: me-03.none.v1
+allocationId: deterministic
 initialConditions:
   emittedEnergy: 1.0
   inputEnergy: 0.0

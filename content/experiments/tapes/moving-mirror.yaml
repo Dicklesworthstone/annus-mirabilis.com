@@ -12,7 +12,7 @@ modelIdentity:
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1
-allocationId: sr-11.none.v1
+allocationId: deterministic
 initialConditions:
   beta: 0.6
   incidentAngleDeg: 0

@@ -15,7 +15,7 @@ modelIdentity:
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1
-allocationId: lq-09.ionization.v1
+allocationId: deterministic
 initialConditions:
   frequency: 2.90159e15
   ionizationEnergyEv: 10.0

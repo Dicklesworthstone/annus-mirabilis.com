@@ -26,7 +26,7 @@ modelIdentity:
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1
-allocationId: me-01.ledgers.v1
+allocationId: deterministic
 initialConditions:
   frameSpeed: 0.6
   emittedEnergyRestFrame: 1

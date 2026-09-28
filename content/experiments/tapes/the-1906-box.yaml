@@ -12,7 +12,7 @@ modelIdentity:
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1
-allocationId: me-03.box.v1
+allocationId: deterministic
 initialConditions:
   boxMass: 1
   boxLength: 1

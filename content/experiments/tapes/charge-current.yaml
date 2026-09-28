@@ -12,7 +12,7 @@ modelIdentity:
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1
-allocationId: sr-12.none.v1
+allocationId: deterministic
 initialConditions:
   boost: 179875474.8
   chargeDensity: 0

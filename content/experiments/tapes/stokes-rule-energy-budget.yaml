@@ -9,7 +9,7 @@ modelIdentity:
 constantSetId: modern-si-2019
 seed: "0"
 streamVersion: 1
-allocationId: lq-07.stokes-rule.v1
+allocationId: deterministic
 initialConditions:
   nu1: 850
   nu2: 850

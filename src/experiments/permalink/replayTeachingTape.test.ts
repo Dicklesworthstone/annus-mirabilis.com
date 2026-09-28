@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
+import { loadWireTeachingTapes } from "../../content/teachingTapes.ts";
 import { ME01_TAPE } from "../me01/tape.ts";
 import { replayTeachingTapeOn } from "./replayTeachingTape.ts";
-import { TEACHING_TAPES } from "./teachingTapeCatalogue.ts";
 import type { TapeV2 } from "./types.ts";
 
 /**
@@ -15,18 +15,33 @@ import type { TapeV2 } from "./types.ts";
  * other.
  */
 const TAPE_ID = "the-two-pulses";
-const record = TEACHING_TAPES.get(TAPE_ID) as TapeV2;
+/*
+ * The records on disk, not src/generated/teaching-tapes.json.
+ *
+ * The generated catalogue is what a browser resolves through and it is right for the page, but it is
+ * a layer between this test and the records, and prepare:lab is what keeps it current. Reading it
+ * here meant this file could not see a record change at all: correcting 18 records left every
+ * assertion below green against a catalogue built before them, in a tree where regenerating a shared
+ * artifact is not mine to do. A check on the records reads the records.
+ */
+const FROM_RECORDS = loadWireTeachingTapes().tapes as ReadonlyMap<string, TapeV2>;
+const fromRecords = (id: string): TapeV2 | null => FROM_RECORDS.get(id) ?? null;
+const record = FROM_RECORDS.get(TAPE_ID) as TapeV2;
 const session = () => ME01_TAPE.createSession(`test-${Math.random().toString(36).slice(2, 8)}`);
 
 describe("replayTeachingTapeOn: what it refuses", () => {
   test("a name no walkthrough carries", () => {
-    const out = replayTeachingTapeOn(ME01_TAPE, session(), "no-such-walkthrough");
+    const out = replayTeachingTapeOn(ME01_TAPE, session(), "no-such-walkthrough", {
+      resolve: fromRecords,
+    });
     expect(out.kind).toBe("unknown-walkthrough");
   });
 
   test("a walkthrough recorded on another laboratory is refused by name, not replayed", () => {
     // A naive join would hand sr-03's settings to me-01's validator and report whatever came back.
-    const out = replayTeachingTapeOn(ME01_TAPE, session(), "the-boost-to-0.6c");
+    const out = replayTeachingTapeOn(ME01_TAPE, session(), "the-boost-to-0.6c", {
+      resolve: fromRecords,
+    });
     expect(out.kind).toBe("not-this-laboratory");
     if (out.kind !== "not-this-laboratory") throw new Error("unreachable");
     expect(out.recordedFor).toBe("sr-03");
@@ -35,20 +50,33 @@ describe("replayTeachingTapeOn: what it refuses", () => {
 });
 
 describe("the published walkthroughs, measured against their own laboratory", () => {
-  test("the-two-pulses refuses on identity, and the refusal names the field", () => {
-    const out = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID);
+  test("the-two-pulses now passes identity and is stopped by its recorded checkpoint", () => {
+    const out = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, { resolve: fromRecords });
     expect(out.kind).toBe("refused");
     if (out.kind !== "refused") throw new Error("unreachable");
-    // Measured 2026-09-28: every record declares streamVersion 1, and 24 of 28 laboratory bindings
-    // declare "deterministic". When the records are corrected this goes red and is replaced by the
-    // assertion below it, which is the one this bead is for.
-    expect(out.refusalCode).toBe("tape-stream-version-mismatch");
+    /*
+     * This asserted tape-stream-version-mismatch until the records declared the allocation they
+     * actually have. Measured the same way before and after, over the same 12 convertible
+     * walkthroughs: 12 of 12 refused, 8 of them on the stream version; now 8 are compatible and the
+     * 4 that refuse are BM-01, BM-05, BM-07 on their constant set and BM-08 on its allocation, all
+     * substantive differences on laboratories that really draw.
+     *
+     * So this walkthrough now reaches its own checkpoint, which is the SECOND of the three reasons
+     * measured in ac0bc2c2 and is not this unit: six of the seven live-session records carry a
+     * placeholder digest of one repeated digit, and this one carries host:15a92e1cf64617f2, which
+     * matches no digest this codebase computes. When that is repaired this line goes red and the
+     * assertion that replaces it is that a reader can play the walkthrough.
+     */
+    expect(out.refusalCode).toBe("tape-checkpoint-mismatch");
     expect(out.notice.length).toBeGreaterThan(0);
   });
 
   test("its recorded checkpoint is not one this codebase can reach, so replay is refused twice over", () => {
     // Identity aside: forced as a new run the events apply cleanly, and the digest still differs.
-    const out = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, { asNewRun: true });
+    const out = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, {
+      asNewRun: true,
+      resolve: fromRecords,
+    });
     expect(out.kind).toBe("replayed");
     if (out.kind !== "replayed") throw new Error("unreachable");
     expect(out.isNewRun).toBe(true);
@@ -65,7 +93,10 @@ describe("the mechanism, on a walkthrough whose identity is its laboratory's", (
    */
   function asRunnable(): TapeV2 {
     const env = ME01_TAPE.environment;
-    const probe = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, { asNewRun: true });
+    const probe = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, {
+      asNewRun: true,
+      resolve: fromRecords,
+    });
     if (probe.kind !== "replayed") throw new Error("the events do not apply at all");
     return {
       ...record,
@@ -174,14 +205,19 @@ describe("the refusal a reader is shown, and the two codes that reach it", () =>
    * first; one that always returned "tape-checkpoint-mismatch" passes a test that drives only the
    * second. Neither passes both, which is what makes this pair worth more than either half.
    *
-   * These are constructed records, as the block above is: the corpus cannot reach either branch
-   * today because every published record refuses on identity first, so proving the mapping needs a
-   * record whose identity is its laboratory's. That is a DEMONSTRATION of this path and says
-   * nothing about the corpus.
+   * These are constructed records, as the block above is. When this was written every published
+   * record refused on identity before either branch could be reached; since the records declare the
+   * allocation they have, 8 of the 12 pass identity and the-two-pulses reaches the checkpoint branch
+   * with the corpus alone. The construction is still what drives the OTHER branch, and replacing a
+   * digest here is still the only way to reach the checkpoint refusal deliberately rather than by
+   * relying on a placeholder that is going to be repaired. It remains a DEMONSTRATION of this path.
    */
   function withLabIdentity(): TapeV2 {
     const env = ME01_TAPE.environment;
-    const probe = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, { asNewRun: true });
+    const probe = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, {
+      asNewRun: true,
+      resolve: fromRecords,
+    });
     if (probe.kind !== "replayed") throw new Error("the events do not apply at all");
     return {
       ...record,
