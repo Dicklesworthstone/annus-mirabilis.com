@@ -395,6 +395,34 @@ owner:
       exportName: "evaluateSr13"
       independentReferences:
         - experimentId: sr-13
+  identifierBindings:
+    - kernelFunction: evaluateSr13
+      identifier: "acceleratingPotential"
+      quantityId: acceleratingPotential
+    - kernelFunction: evaluateSr13
+      identifier: "mass"
+      quantityId: electronMass
+    - kernelFunction: evaluateSr13
+      identifier: "initialSpeed"
+      quantityId: electronSpeedStationary
+    - kernelFunction: evaluateSr13
+      identifier: "beta"
+      quantityId: frameSpeed
+    - kernelFunction: evaluateSr13
+      identifier: "kineticEnergy"
+      quantityId: kineticEnergy
+    - kernelFunction: evaluateSr13
+      identifier: "lorentzFactor"
+      quantityId: lorentzFactor
+    - kernelFunction: evaluateSr13
+      identifier: "bMag"
+      quantityId: magneticFieldStationary
+    - kernelFunction: evaluateSr13
+      identifier: "charge"
+      quantityId: particleChargeMagnitude
+    - kernelFunction: evaluateSr13
+      identifier: "radiusCurvatureMagnetic"
+      quantityId: radiusCurvatureMagnetic
 views:
   - id: svg-electron-trajectory
     kind: svg

@@ -213,6 +213,15 @@ owner:
     - kernelFunction: evaluateSr10
       identifier: transformedVolumeM3
       quantityId: lightComplexVolumeMoving
+    - kernelFunction: evaluateSr10
+      identifier: "q"
+      quantityId: dopplerFactor
+    - kernelFunction: evaluateSr10
+      identifier: "initialEnergyJ"
+      quantityId: lightComplexEnergyStationary
+    - kernelFunction: evaluateSr10
+      identifier: "initialVolumeM3"
+      quantityId: lightComplexVolumeStationary
   traceScenarioId: sr-10-longitudinal-0.6
   traceRows:
     - label: Light complex energy factor at 0.6c receding

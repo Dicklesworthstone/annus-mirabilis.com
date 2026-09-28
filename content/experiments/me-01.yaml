@@ -291,6 +291,10 @@ owner:
       language: ts
       module: "src/physics/reference/massEnergy.ts"
       exportName: "evaluateSubtraction"
+    - displayRole: reference-implementation
+      language: ts
+      module: "src/physics/reference/massEnergy.ts"
+      exportName: "initializeMassEnergyLedger"
       independentReferences:
         - experimentId: me-01
           quantityId: kineticEnergyDifference
@@ -322,6 +326,18 @@ owner:
     - kernelFunction: evaluateSubtraction
       identifier: kineticDifference
       quantityId: kineticEnergyDifference
+    - kernelFunction: initializeMassEnergyLedger
+      identifier: "restBodyBefore"
+      quantityId: bodyEnergyRestBefore
+    - kernelFunction: initializeMassEnergyLedger
+      identifier: "restBodyAfter"
+      quantityId: bodyEnergyRestAfter
+    - kernelFunction: initializeMassEnergyLedger
+      identifier: "movingBodyBefore"
+      quantityId: bodyEnergyMovingBefore
+    - kernelFunction: initializeMassEnergyLedger
+      identifier: "movingBodyAfter"
+      quantityId: bodyEnergyMovingAfter
 views:
   - id: svg-two-ledgers
     kind: svg

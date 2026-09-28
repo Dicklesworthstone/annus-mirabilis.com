@@ -240,6 +240,12 @@ owner:
     - kernelFunction: transformSI
       identifier: boost
       quantityId: frameSpeed
+    - kernelFunction: transformSI
+      identifier: "gamma"
+      quantityId: lorentzFactor
+    - kernelFunction: transformSI
+      identifier: "c"
+      quantityId: speedOfLight
   traceScenarioId: sr-07-plane-wave-0.6c
   traceRows:
     - label: "Amplitude and frequency factors at 0.6c for the plus-x primary wave"

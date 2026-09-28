@@ -440,6 +440,9 @@ owner:
     - kernelFunction: evaluateMe03
       identifier: c
       quantityId: speedOfLight
+    - kernelFunction: evaluateMe03
+      identifier: "massChange"
+      quantityId: massChangeSigned
   traceScenarioId: me-03-box-canonical
   traceRows:
     - label: Pulse momentum

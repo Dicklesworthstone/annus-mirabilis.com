@@ -252,6 +252,15 @@ owner:
     - kernelFunction: desynchronizationObserved
       identifier: beta
       quantityId: pairBeta
+    - kernelFunction: synchronizationRound
+      identifier: "emissionTimeA"
+      quantityId: signalDepartureTimeA
+    - kernelFunction: synchronizationRound
+      identifier: "receptionTimeA"
+      quantityId: signalReturnTimeA
+    - kernelFunction: synchronizationRound
+      identifier: "assignedRemoteTime"
+      quantityId: signalReflectionTimeB
 views:
   - id: table-event-ledger
     kind: table

@@ -233,6 +233,12 @@ owner:
     - kernelFunction: compositionIncrement
       identifier: "u"
       quantityId: frameSpeed
+    - kernelFunction: composePrinted
+      identifier: "c"
+      quantityId: speedOfLight
+    - kernelFunction: composeBoosts
+      identifier: "g"
+      quantityId: lorentzFactor
   traceScenarioId: sr-06-collinear-0.6-0.6
   traceRows:
     - label: "Collinear 0.6c with 0.6c"

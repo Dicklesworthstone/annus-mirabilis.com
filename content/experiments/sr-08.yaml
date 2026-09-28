@@ -359,6 +359,12 @@ owner:
     - kernelFunction: transformSI
       identifier: B
       quantityId: magneticFieldStationary
+    - kernelFunction: evaluateSr08
+      identifier: "lorentzFactor"
+      quantityId: lorentzFactor
+    - kernelFunction: evaluateSr08
+      identifier: "c"
+      quantityId: speedOfLight
   traceScenarioId: sr-08-pure-electric-0.6c
   traceRows:
     - label: Transformed Ey component at 0.6c

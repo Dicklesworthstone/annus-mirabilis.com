@@ -187,6 +187,28 @@ owner:
       language: ts
       module: "src/experiments/sr05/worldline.ts"
       exportName: "reciprocalRates"
+  identifierBindings:
+    - kernelFunction: properTimeAlongLegs
+      identifier: "properTime"
+      quantityId: properTimeElapsed
+    - kernelFunction: properTimeAlongLegs
+      identifier: "coordinateTime"
+      quantityId: coordinateTimeStationary
+    - kernelFunction: properTimeAlongLegs
+      identifier: "gamma"
+      quantityId: lorentzFactor
+    - kernelFunction: properTimeAlongLegs
+      identifier: "beta"
+      quantityId: clockSpeedStationary
+    - kernelFunction: dilationLossPerSecond
+      identifier: "beta"
+      quantityId: frameSpeed
+    - kernelFunction: lightClockTicks
+      identifier: "armLengthLs"
+      quantityId: lengthProper
+    - kernelFunction: lightClockTicks
+      identifier: "coordinateTick"
+      quantityId: eventSeparationTemporalStationary
 views:
   - id: clock-readings
     kind: table

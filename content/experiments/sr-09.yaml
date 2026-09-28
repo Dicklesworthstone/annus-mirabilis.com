@@ -234,6 +234,21 @@ owner:
     - kernelFunction: phaseAtEvent
       identifier: phase
       quantityId: wavePhase
+    - kernelFunction: evaluateSr09
+      identifier: "gamma"
+      quantityId: lorentzFactor
+    - kernelFunction: evaluateSr09
+      identifier: "C_SI"
+      quantityId: speedOfLight
+    - kernelFunction: evaluateSr09
+      identifier: "propagationAngleMovingRad"
+      quantityId: propagationAngleMoving
+    - kernelFunction: evaluateSr09
+      identifier: "waveFrequencyMovingHz"
+      quantityId: waveFrequencyMoving
+    - kernelFunction: evaluateSr09
+      identifier: "waveFrequencyStationaryHz"
+      quantityId: waveFrequencyStationary
   traceScenarioId: sr-09-receding-0.6
   traceRows:
     - label: Longitudinal Doppler factor at 0.6c

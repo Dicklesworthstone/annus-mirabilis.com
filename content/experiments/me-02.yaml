@@ -148,6 +148,12 @@ owner:
     - kernelFunction: evaluateMe02
       identifier: limitValue
       quantityId: inertialMassDecrease
+    - kernelFunction: evaluateMe02
+      identifier: "gamma"
+      quantityId: lorentzFactor
+    - kernelFunction: evaluateMe02
+      identifier: "massChangeSigned"
+      quantityId: massChangeSigned
   traceScenarioId: mass-energy-printed-factor
   traceRows:
     - label: Exact kinetic-energy difference at 0.6c

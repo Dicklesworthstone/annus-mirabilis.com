@@ -20,6 +20,7 @@
     "evaluatePulseEnergies@src/physics/reference/massEnergy.ts": "sha256:eeb7552ef2676c312d9ed38a3601b7b3e1ed2387493ddaf20fd923234c7546de",
     "evaluateLedgers@src/physics/reference/massEnergy.ts": "sha256:ad34802170ca8f200c091d17119d686c02b7a4beaf02d073f1722ac74965eae4",
     "evaluateSubtraction@src/physics/reference/massEnergy.ts": "sha256:98436f159f767fc6824c6c3c79b8716f767c1e762857e1836ecef2058d24f207",
+    "initializeMassEnergyLedger@src/physics/reference/massEnergy.ts": "sha256:35f202a64ce0a1738e335423433623920b3e1c01fb8fa0707355cfd4779cbd0d",
     "evaluateMe02@src/physics/reference/massEnergy.ts": "sha256:53f944320b3803166e6436ebdf1160ba135efb2df9770617dd19a3ec30d1c5fc",
     "evaluateMe03@src/physics/reference/massEnergy.ts": "sha256:3e9ea1af4a87d89addf26618479bebd064d67ef5ce0091952a426570743deb22",
     "evaluatePhotonBox@src/physics/reference/massEnergy.ts": "sha256:ec37d2f99b43271a59a00c92d228d4e8112e5bbda87ca7342c0bd29b5650ff8a",

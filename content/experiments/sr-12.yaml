@@ -387,6 +387,12 @@ owner:
     - kernelFunction: transformChargeCurrent
       identifier: J
       quantityId: currentDensityStationary
+    - kernelFunction: evaluateSr12
+      identifier: "lorentzFactor"
+      quantityId: lorentzFactor
+    - kernelFunction: evaluateSr12
+      identifier: "c"
+      quantityId: speedOfLight
   traceScenarioId: sr-12-neutral-conductor-0.6
   traceRows:
     - label: Transformed charge density at 0.6c

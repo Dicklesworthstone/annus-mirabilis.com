@@ -220,6 +220,16 @@ owner:
       exportName: "evaluateSr11"
       independentReferences:
         - experimentId: sr-11
+  identifierBindings:
+    - kernelFunction: evaluateSr11
+      identifier: "beta"
+      quantityId: frameSpeed
+    - kernelFunction: evaluateSr11
+      identifier: "c"
+      quantityId: speedOfLight
+    - kernelFunction: evaluateSr11
+      identifier: "incidentAngleRad"
+      quantityId: propagationAngleStationary
 views:
   - id: svg-ray-reflection
     kind: svg

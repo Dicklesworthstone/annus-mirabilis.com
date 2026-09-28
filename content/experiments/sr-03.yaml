@@ -261,6 +261,31 @@ owner:
       language: ts
       module: "src/physics/reference/kinematics.ts"
       exportName: "ellipsoidAxes"
+  identifierBindings:
+    - kernelFunction: measureRodLength
+      identifier: "L0"
+      quantityId: lengthProper
+    - kernelFunction: measureRodLength
+      identifier: "measuredLength"
+      quantityId: lengthMeasuredStationary
+    - kernelFunction: measureRodLength
+      identifier: "v"
+      quantityId: frameSpeed
+    - kernelFunction: measureRodLength
+      identifier: "c"
+      quantityId: speedOfLight
+    - kernelFunction: classifySimultaneity
+      identifier: "deltaT"
+      quantityId: eventSeparationTemporalStationary
+    - kernelFunction: classifySimultaneity
+      identifier: "deltaTPrime"
+      quantityId: eventSeparationTemporalMoving
+    - kernelFunction: causalOrder
+      identifier: "dx"
+      quantityId: eventSeparationSpatial
+    - kernelFunction: ellipsoidAxes
+      identifier: "gamma"
+      quantityId: lorentzFactor
 views:
   - id: sr-03-strip-view
     kind: svg
