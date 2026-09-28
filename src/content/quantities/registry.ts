@@ -7,7 +7,6 @@
  */
 import { readdirSync, readFileSync } from "node:fs";
 import { extname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { type Quantity, validateQuantity } from "../schemas/argument.ts";
 import type { Frame } from "../schemas/meanings.ts";
 import { strictParse } from "../schemas/strictParse.ts";
@@ -33,9 +32,28 @@ export class UnknownQuantityError extends Error {
   }
 }
 
-export const QUANTITIES_DIR = fileURLToPath(
-  new URL("../../../content/quantities/", import.meta.url),
-);
+/**
+ * WHY THIS IS A cwd-RELATIVE PATH AND NOT `new URL(..., import.meta.url)`.
+ *
+ * It was the URL form, and webpack treats `new URL(<specifier>, import.meta.url)` as an asset
+ * reference it must resolve at build time. A DIRECTORY cannot resolve, so any route that reached
+ * this module — directly or through one hop — failed `next build` with
+ * "Can't resolve '../../../content/quantities/'". That happened four times: through a lab page
+ * (0bd55e6b), through a validator, through ExplanationInlineTerms.tsx and the equation explainer
+ * (which is why src/equations/printed/inlineExceptions.ts exists at all), and on 2026-09-28 through
+ * /app/tapes/page.tsx once the walkthrough pages began naming quantities.
+ *
+ * Each of the first three was repaired by keeping the registry out of that route's import graph,
+ * which works and leaves the landmine armed for the next route that needs a quantity name. A
+ * cwd-relative path is not an asset reference, so webpack does not try to resolve it and the
+ * constraint disappears instead of moving. This is also what the rest of the repository already
+ * does for content directories: LAB_EXPLANATIONS_DIR, DISPLAY_TERMS_DIR, INLINE_EXCEPTIONS_PATH.
+ *
+ * The trade is that the process must run from the repository root, which every script, test and
+ * build here already assumes; `loadQuantityRegistry(dir)` still takes an explicit directory, which
+ * is how the fixtures in registry.test.ts point somewhere else.
+ */
+export const QUANTITIES_DIR = join("content", "quantities");
 
 /** A record's id gets a distinct, frame-tagged pair only for a documented suffix. The suffix
  * must always agree with the record's own `frame` field; this is a defect, not a style note --

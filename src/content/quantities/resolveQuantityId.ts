@@ -4,7 +4,7 @@
  * never silently mapped. am-not-quantity-registry-2f7.
  */
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import type { Quantity } from "../schemas/argument.ts";
 import { strictParse } from "../schemas/strictParse.ts";
 import {
@@ -20,9 +20,10 @@ export type LegacySpellingEntry = Readonly<{
   message?: string | undefined;
 }>;
 
-export const LEGACY_SPELLINGS_PATH = fileURLToPath(
-  new URL("../../../content/quantities/legacy-spellings.yaml", import.meta.url),
-);
+/** cwd-relative for the same reason as QUANTITIES_DIR: `new URL(..., import.meta.url)` is an asset
+ *  reference webpack must resolve at build time, and a route that reaches this module then fails
+ *  the build. See the note on QUANTITIES_DIR in registry.ts for the four occasions. */
+export const LEGACY_SPELLINGS_PATH = join("content", "quantities", "legacy-spellings.yaml");
 
 /** Validates already-parsed legacy-spellings YAML data. Pure (no I/O), so both the file-based
  * loader below and the content compiler's text-based route (which already holds parsed YAML)
