@@ -48,6 +48,7 @@ import {
   evaluateMe03,
   evaluatePhotonBox,
 } from "../physics/reference/massEnergy.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 import { createBm07Recording, measureBm07 } from "../workers/operations/bm07.ts";
 import { loadTeachingTapes, type TeachingTape } from "./teachingTapes.ts";
 
@@ -569,7 +570,16 @@ describe("a recorded number agrees with the parameters in force where it was rec
     // equality - an inference from 50 displacements is not supposed to land exactly.
     const estimate = after.get("avogadroNumberEstimate")?.value ?? Number.NaN;
     const hidden = after.get("generatorMolecularNumber")?.value ?? Number.NaN;
-    expect(Math.abs(estimate - hidden) / hidden).toBeLessThan(0.1);
-    expect(Math.abs(estimate - hidden) / hidden).toBeGreaterThan(0);
+    // Through src/units/tolerance.ts, which AGENTS.md names as the one module that compares within
+    // a tolerance. The first draft of these two lines hand-rolled |a-b|/b and the tolerance ratchet
+    // caught it at a baseline of 0, correctly: a second comparison rule is how the site's idea of
+    // "close enough" quietly forks.
+    expect(
+      withinTolerance(estimate, hidden, { relative: 0.1 }).ok,
+      "the estimate should recover the generator's hidden number to better than 10 per cent",
+    ).toBe(true);
+    // Recovery, not equality. An inference from 50 displacements landing exactly on the hidden
+    // parameter would mean the generator's value had leaked into the estimator.
+    expect(estimate, "an inference is not supposed to land exactly").not.toBe(hidden);
   });
 });
