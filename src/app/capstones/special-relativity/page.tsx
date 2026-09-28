@@ -44,11 +44,13 @@ const PAPER = "special-relativity";
  * The address of a passage in the edition.
  *
  * MEASURED FOR THIS PAPER rather than inherited from the sibling pages, against the built HTML of
- * all seven faces. Of the nineteen anchors this page links to, the paper's default route carries 0,
- * the English face carries 6 (the four displays, the section-one footnote and the composition
- * display, but none of the paragraphs), and the German, parallel and facsimile faces carry 19 of 19.
- * The parallel face is chosen among those three for the reason the earlier capstones give: it shows
- * the English beside the German the claims were read from.
+ * all seven faces. The denominator is 20, read off this page's own rendered links rather than
+ * counted by hand, which is how the first attempt at this comment came out at 19: it dropped the
+ * field display. Of those 20, the paper's default route carries 0, the English face carries 7 (the
+ * six displays and the section-one footnote, and none of the paragraphs), and the German, parallel
+ * and facsimile faces each carry 20 of 20. The parallel face is chosen among those three for the
+ * reason the earlier capstones give: it shows the English beside the German the claims were read
+ * from.
  *
  * The face id comes from the registry rather than a string, so renaming that face stops the
  * typechecker here rather than leaving every link pointing at nothing.

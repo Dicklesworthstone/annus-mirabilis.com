@@ -173,10 +173,12 @@ describe("the special-relativity capstone page", () => {
   });
 
   test("each claim and assumption links to the passage it is read from, on a face that has it", () => {
-    // MEASURED FOR THIS PAPER against the built HTML of all seven faces, not inherited: of the
-    // nineteen anchors this page links to, the paper's default route carries 0, the English face
-    // carries 6 (the four displays, the section-one footnote and the composition display, and none
-    // of the paragraphs), and german, parallel and facsimile each carry 19 of 19.
+    // MEASURED FOR THIS PAPER against the built HTML of all seven faces, not inherited. The
+    // denominator is 20 distinct anchors, read off the built page's own links: counting them by hand
+    // first gave 19, because it dropped the field display, which is why the number below comes from
+    // the render. Of those 20 the paper's default route carries 0, the English face carries 7 (the
+    // six displays and the section-one footnote, none of the paragraphs), and german, parallel and
+    // facsimile each carry 20 of 20.
     expect(FACE_REGISTRY.parallel.id).toBe("parallel");
     expect(DEFAULT_FACE).not.toBe("parallel");
     for (const claim of capstone.claims)
