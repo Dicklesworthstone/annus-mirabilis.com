@@ -111,6 +111,32 @@ export interface ExportEmitterSourceBlockInput {
     | undefined;
 }
 
+/**
+ * THE TRANSLATION REVIEW STATES THAT COUNT AS REVIEWED, and the reason this is an ALLOWLIST (am-33q6).
+ *
+ * TranslationUnit.reviewState admits five values (src/content/schemas/source.ts): draft,
+ * machine-draft, in-progress, corrected and reviewed. The schema itself draws the line here, by
+ * requiring an editor attribution for exactly "corrected" and "reviewed" and for no other state, so
+ * those two are the reviewed tier and the other three are not.
+ *
+ * This used to be the denylist `reviewState === "draft" || reviewState === "machine-draft"`, which
+ * omitted "in-progress", so an in-progress translation was published under a strict profile with its
+ * English and with no draft marker at all. docs/EXPORTS.md says production exports "only published,
+ * verified units", so the code contradicted its own documented contract.
+ *
+ * The denylist was almost certainly carried over from the BLOCK filter below, which reads
+ * SourceBlockStatus.review. That is a DIFFERENT vocabulary, `draft | in-progress | reviewed |
+ * accepted`, and there the two-state denylist is complete. One list copied across two vocabularies
+ * is how the hole opened.
+ *
+ * It is an allowlist because the failure directions are not symmetric. A denylist of refused states
+ * fails OPEN: add a sixth state to the schema and unreviewed translation publishes until someone
+ * remembers this line. An allowlist of admitted states fails CLOSED: the new state is withheld until
+ * someone decides it is reviewed. For publishing translation nobody has reviewed, closed is the safe
+ * direction, and a state with no reviewState at all is withheld for the same reason.
+ */
+export const REVIEWED_TRANSLATION_STATES: ReadonlySet<string> = new Set(["corrected", "reviewed"]);
+
 export interface ExportEmitterTranslationUnitInput {
   readonly id: string;
   readonly sourceRefs?:
@@ -483,7 +509,8 @@ export async function emitMachineReadableExports(
               // written as "".
               englishText = plainText(tu.inlines ?? []) || undefined;
               tuReviewState = tu.reviewState;
-              tuDraft = tuReviewState === "draft" || tuReviewState === "machine-draft";
+              // Not in the reviewed tier, which includes carrying no reviewState at all.
+              tuDraft = !REVIEWED_TRANSLATION_STATES.has(tuReviewState ?? "");
               break;
             }
           }

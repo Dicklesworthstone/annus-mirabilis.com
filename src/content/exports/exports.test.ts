@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
@@ -13,7 +14,7 @@ import {
 } from "../../testing/fixtures/bilingual/brownianBilingualFixture.ts";
 import { getLogger } from "../../testing/log/logger.ts";
 import { formatExportLinkHtml, getPaperExportLinks, getSectionExportLinks } from "./discovery.ts";
-import { emitMachineReadableExports } from "./emitter.ts";
+import { emitMachineReadableExports, REVIEWED_TRANSLATION_STATES } from "./emitter.ts";
 import { escapeMarkdownSourceText, generateSectionMarkdown } from "./markdown.ts";
 import { assertExportSafety, ExportValidationError, validateExportRecord } from "./schemas.ts";
 import type { ExportIndex, SectionExport } from "./types.ts";
@@ -991,5 +992,101 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
       "passed",
       "A machine-draft translation on a reviewed block is exported under preview and withheld under production.",
     );
+  });
+
+  it("withholds an in-progress translation too, which the old denylist published (am-33q6)", async () => {
+    // THE SAME GUARD, THE STATE IT MISSED. `tuDraft` was the denylist
+    // `reviewState === "draft" || reviewState === "machine-draft"`, so an in-progress translation
+    // was published under a strict profile with its English and with no draft marker. The block
+    // filter above it treats in-progress as draft, and the schema requires an editor attribution
+    // for corrected and reviewed only, so in-progress is unreviewed by both of the other readers of
+    // this field.
+    const tempBase = process.env.AM_TEST_TMP ?? tmpdir();
+    const previewDir = await mkdtemp(resolve(tempBase, "am-inprog-preview-"));
+    const prodDir = await mkdtemp(resolve(tempBase, "am-inprog-prod-"));
+
+    const reviewedBlock = {
+      id: "bm-s4-b-inprog",
+      section: "s4",
+      order: 1,
+      diplomaticText: "Unfertiger Satz der Bewegung.",
+      sentenceSpans: [
+        { id: "bm-s4-b-inprog-s1", span: { exactText: "Unfertiger Satz der Bewegung." } },
+      ],
+      status: { review: "reviewed", translation: "in-progress" },
+    };
+    const inProgressTranslation = {
+      id: "tu-inprog-01",
+      sourceRefs: [{ id: "bm-s4-b-inprog-s1" }],
+      inlines: [{ kind: "text", text: "Unfinished sentence of motion." }],
+      reviewState: "in-progress",
+    } as const;
+
+    const emit = async (rootDir: string, releaseProfile: string) => {
+      await emitMachineReadableExports({
+        rootDir,
+        contentRevision: `rev-${releaseProfile}`,
+        releaseProfile,
+        papers: [
+          {
+            id: "brownian-motion",
+            title: "Brownian Motion",
+            sections: [{ id: "s4", title: "Section 4" }],
+          },
+        ],
+        sourceBlocks: [reviewedBlock],
+        translationUnits: [inProgressTranslation],
+      });
+      return JSON.parse(
+        await readFile(resolve(rootDir, "exports/v1/papers/brownian-motion/s4.json"), "utf8"),
+      );
+    };
+
+    const preview = await emit(previewDir, "preview");
+    const production = await emit(prodDir, "production");
+
+    expect(preview.blocks.length).toBe(1);
+    expect(production.blocks.length).toBe(1);
+    expect(preview.sentences[0].english).toBe("Unfinished sentence of motion.");
+    expect(production.sentences[0]).not.toHaveProperty("english");
+    // Equal across the arms, so the difference is the guard and not the fixture. The draft marker is
+    // asserted TRUE on both: an in-progress translation carried no marker at all before this, which
+    // is the half of the defect a profile check alone would not have caught.
+    expect(production.sentences[0].german).toBe(preview.sentences[0].german);
+    expect(preview.sentences[0].reviewState).toBe("in-progress");
+    expect(production.sentences[0].reviewState).toBe("in-progress");
+    expect(preview.sentences[0].draft).toBe(true);
+    expect(production.sentences[0].draft).toBe(true);
+
+    logOutcome(
+      "exports-in-progress-translation-withheld",
+      "passed",
+      "An in-progress translation is exported under preview with a draft marker and withheld under production.",
+    );
+  });
+
+  it("the reviewed tier is an allowlist over every state the schema admits (am-33q6)", () => {
+    // THE DENOMINATOR, AS AN ASSERTION RATHER THAN A SENTENCE. The states are read out of the
+    // schema file rather than copied here, so a sixth state added there fails this test instead of
+    // silently publishing: an allowlist fails closed, and this is the check that says so out loud.
+    const schema = readFileSync(resolve(process.cwd(), "src/content/schemas/source.ts"), "utf8");
+    const declared = [
+      ...new Set(
+        [...schema.matchAll(/reviewState: ((?:"[a-z-]+"\s*\|\s*)+"[a-z-]+")/g)].flatMap((m) =>
+          [...(m[1] ?? "").matchAll(/"([a-z-]+)"/g)].map((x) => x[1] as string),
+        ),
+      ),
+    ].sort();
+    // Non-vacuity: a regex that matched nothing would make every claim below true of an empty set.
+    expect(declared.length).toBeGreaterThan(3);
+    expect(declared).toEqual(["corrected", "draft", "in-progress", "machine-draft", "reviewed"]);
+
+    const admitted = declared.filter((s) => REVIEWED_TRANSLATION_STATES.has(s));
+    const withheld = declared.filter((s) => !REVIEWED_TRANSLATION_STATES.has(s));
+    expect(admitted).toEqual(["corrected", "reviewed"]);
+    expect(withheld).toEqual(["draft", "in-progress", "machine-draft"]);
+    // And the allowlist names nothing the schema does not have, which is the other way it could rot.
+    for (const state of REVIEWED_TRANSLATION_STATES)
+      expect([state, declared.includes(state)]).toEqual([state, true]);
   });
 });
