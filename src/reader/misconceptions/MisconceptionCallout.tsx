@@ -18,6 +18,37 @@ export type InterventionStatus =
   | Readonly<{ state: "reviewed" }>
   | Readonly<{ state: "not-yet-reviewed" }>;
 
+/**
+ * The accessible name of a callout's "See it in the instrument" link.
+ *
+ * THE SAME DEFECT HAS NOW BEEN FIXED TWICE, ONE STEP APART, and the second step is why the first is
+ * no longer sufficient. Two callouts once linked to /lab/bm-06/ and /lab/bm-01/ under the one name
+ * "See it in the instrument", which a screen reader cannot tell apart (WCAG 2.4.4) and the
+ * link-name gate refuses (am-jmma); naming the INSTRUMENT separated them. Then 359778ca gave each
+ * link the preset that demonstrates its own misconception, and brownian-motion had two callouts
+ * pointing at two different settings of ONE instrument: "See it in the instrument: Tracer ensemble"
+ * twice, two destinations. Naming the instrument is exactly as ambiguous as naming nothing once the
+ * instrument is shared.
+ *
+ * So the name carries the SETTING, and the setting is named by the misconception the link is set up
+ * for, in the reader's own words. Not by the preset id: an id in an accessible name is the same
+ * defect as an id in visible prose, which this repository spent the morning removing from three
+ * pages.
+ *
+ * The visible words stay "See it in the instrument" and the accessible name still begins with them,
+ * so WCAG 2.5.3 Label in Name holds: a voice-control user saying the words they can see still
+ * matches the link.
+ */
+export function instrumentLinkName(
+  instrumentName: string | undefined,
+  temptingClaim: string | undefined,
+): string | undefined {
+  const where = instrumentName ? `: ${instrumentName}` : "";
+  const forWhat = temptingClaim ? `, set up for \u201c${temptingClaim}\u201d` : "";
+  if (!where && !forWhat) return undefined;
+  return `See it in the instrument${where}${forWhat}`;
+}
+
 export function MisconceptionCallout({
   misconception,
   detail,
@@ -108,9 +139,7 @@ export function MisconceptionCallout({
               >
                 <a
                   href={instrumentHref}
-                  aria-label={
-                    instrumentName ? `See it in the instrument: ${instrumentName}` : undefined
-                  }
+                  aria-label={instrumentLinkName(instrumentName, misconception.temptingClaims[0])}
                 >
                   See it in the instrument
                 </a>
