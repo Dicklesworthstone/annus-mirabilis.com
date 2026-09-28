@@ -10,6 +10,7 @@
  * and the collapsed/expanded state survives print. Both tempting opposites, when present, render
  * with equal prominence -- neither is listed first as "the" claim.
  */
+import { hasInlineMath } from "../../content/inlineMath.ts";
 import type { Misconception } from "../../content/schemas/argument.ts";
 import { InlineMathText } from "../InlineMathText.tsx";
 import { parseWhatIsTrue, textForDetail } from "./types.ts";
@@ -43,8 +44,18 @@ export function instrumentLinkName(
   instrumentName: string | undefined,
   temptingClaim: string | undefined,
 ): string | undefined {
-  const where = instrumentName ? `: ${instrumentName}` : "";
-  const forWhat = temptingClaim ? `, set up for \u201c${temptingClaim}\u201d` : "";
+  // A name must never be read aloud as TeX. 3 of the 26 tempting claims carry inline mathematics
+  // (`\(E=mc^2\)` in two mass-energy entries, `\(\tau\)` in one relativity entry), and dropping one
+  // into an aria-label makes a screen reader say "backslash paren E equals m c caret 2". There is no
+  // authored spoken form for a claim, so the honest move is to leave the claim out of the name
+  // rather than speak its delimiters; the instrument still names where the link goes, and the
+  // link-name gate (am-jmma) is what would catch it if that ever became ambiguous.
+  const claim = temptingClaim && !hasInlineMath(temptingClaim) ? temptingClaim : undefined;
+  // The instrument names are sentences and several end in a full stop ("A smaller energy of motion
+  // at the same speed."), so appending ", set up for" produced "speed., set up for".
+  const named = instrumentName?.replace(/\.\s*$/, "");
+  const where = named ? `: ${named}` : "";
+  const forWhat = claim ? `, set up for \u201c${claim.replace(/\.\s*$/, "")}\u201d` : "";
   if (!where && !forWhat) return undefined;
   return `See it in the instrument${where}${forWhat}`;
 }
