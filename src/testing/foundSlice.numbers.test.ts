@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { erf } from "../physics/reference/special/erf.ts";
 import { roundsTo } from "../units/tolerance.ts";
+import { bridge, type LessonRecord, matchIn, passagesOf } from "./foundZeroAlgebra.shared.ts";
 
 /**
  * am-bm-slice-foundations-f5z9: every number the Brownian slice's lessons and bridges PRINT, redone
@@ -26,6 +27,43 @@ const text = (slug: string) => {
 };
 const printed = (value: number, shown: number, figures: number) =>
   roundsTo(value, shown, { significantFigures: figures }).ok;
+
+/** Every list of four numbers a passage prints, as "a, b, c, d" or "a, b, c and d". */
+function fourNumberLists(passages: readonly string[]): readonly (readonly number[])[] {
+  const pattern = /(\d+(?:\.\d+)?), (\d+(?:\.\d+)?), (\d+(?:\.\d+)?)(?:,| and) (\d+(?:\.\d+)?)/g;
+  const out: number[][] = [];
+  for (const passage of passages)
+    for (const m of passage.matchAll(pattern)) out.push(m.slice(1, 5).map(Number));
+  return out;
+}
+
+const mean = (values: readonly number[]): number =>
+  values.reduce((a, b) => a + b, 0) / values.length;
+
+/**
+ * Every ratio a passage asserts, in the two forms these lessons write: "6/2 is 3" and "2 particles
+ * out of 8 is 0.25". Anchored on the word that turns two numbers into a claim about their ratio,
+ * so an ordinary pair of numbers in a sentence is not read as one.
+ */
+function ratioClaims(
+  passages: readonly string[],
+): readonly Readonly<{ top: number; bottom: number; value: number; source: string }>[] {
+  const forms = [
+    /(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?) is (\d+(?:\.\d+)?)/g,
+    /(\d+(?:\.\d+)?) [a-z ]{0,20}?out of (\d+(?:\.\d+)?) is (\d+(?:\.\d+)?)/g,
+  ];
+  const out: { top: number; bottom: number; value: number; source: string }[] = [];
+  for (const passage of passages)
+    for (const form of forms)
+      for (const m of passage.matchAll(form))
+        out.push({
+          top: Number(m[1]),
+          bottom: Number(m[2]),
+          value: Number(m[3]),
+          source: m[0],
+        });
+  return out;
+}
 
 describe("integration", () => {
   const t = text("integration");
@@ -140,9 +178,31 @@ describe("mean, variance and RMS, and the squaring bridge", () => {
     expect(t).toContain("√20, about 4.472: twice as large");
   });
 
-  test("the sum bridge: 3 + 1 + 1 + 3 = 8", () => {
+  test("every list of jars the sum bridge prints averages to the one average it claims", () => {
+    // This pinned the sentence "Add 3 + 1 + 1 + 3 to get 8." and went red on dispatch 401's
+    // rewrite, which had removed it for a good reason: the page now draws the jars, so the worked
+    // example moved to the claim the drawing cannot make.
+    //
+    // The first repair asserted that SOME passage states the values, their total and their mean.
+    // Two plants proved that worthless: changing the explanation to "4, 0, 0 and 4" and changing
+    // "0.25 of the group" to "0.30" both stayed green at 24 of 24, because the example still
+    // stated a true version elsewhere in the same record and existence was all that was asked.
+    // A contradiction is not an absence, so the check now reads EVERY list the prose prints.
+    //
+    // The property is the lesson's own claim, that three mornings which look nothing alike share
+    // an average: whatever lists it prints, each must average to the figure it states.
+    const CLAIMED_AVERAGE = 2;
+    const lists = fourNumberLists(
+      passagesOf(bridge("bridge-sum-average") as unknown as LessonRecord),
+    );
+    for (const list of lists)
+      expect(mean(list), `${list.join(", ")} does not average to ${CLAIMED_AVERAGE}`).toBe(
+        CLAIMED_AVERAGE,
+      );
+    // A run that found no list reads exactly like one where every list checked out.
+    expect(lists.length, "no four-number list found in bridge-sum-average").toBeGreaterThan(2);
     expect(3 + 1 + 1 + 3).toBe(8);
-    expect(text("bridge-sum-average")).toContain("Add 3 + 1 + 1 + 3 to get 8.");
+    expect(8 / 4).toBe(CLAIMED_AVERAGE);
   });
 });
 
@@ -304,14 +364,21 @@ describe("bridge-negative-numbers-direction and bridge-a-graph", () => {
 });
 
 describe("the notation bridges", () => {
-  test("fractions: 6/2 = 3, 1/4 = 0.25 and 2/8 = 0.25", () => {
+  test("every ratio the fractions bridge states in prose is arithmetically true", () => {
+    // Two pinned sentences ("the fraction is 1/4 = 0.25", "... 2/8 = 0.25") were removed by
+    // dispatch 401, which moved the one-in-four against two-in-eight comparison into the lesson's
+    // new figure. Asserting that one true ratio survives somewhere is not enough: a plant changing
+    // 0.25 to 0.30 in the explanation stayed green, because the example still said 0.25. So every
+    // ratio the prose states is read out and checked.
+    const stated = ratioClaims(
+      passagesOf(bridge("bridge-fractions-ratios") as unknown as LessonRecord),
+    );
+    for (const { top, bottom, value, source } of stated) expect(top / bottom, source).toBe(value);
+    expect(stated.length, "no ratio claim found in bridge-fractions-ratios").toBeGreaterThan(1);
+    // REPORTED, NOT PAPERED OVER: 1/4 is now drawn and no longer written, so it is not among them.
+    // Restoring it to the record is a content change and belongs in a content commit.
     expect(6 / 2).toBe(3);
-    expect(1 / 4).toBe(0.25);
     expect(2 / 8).toBe(0.25);
-    const t = text("bridge-fractions-ratios");
-    expect(t).toContain("The fraction 6/2 is 3");
-    expect(t).toContain("the fraction is 1/4 = 0.25");
-    expect(t).toContain("the fraction is 2/8 = 0.25");
   });
 
   test("scientific notation: (6 × 10⁻⁶ m)² = 36 × 10⁻¹² m² = 3.6 × 10⁻¹¹ m²", () => {
