@@ -359,11 +359,49 @@ test("bm07.presets: teaching tape perrins-count compatibility and replay verific
   const compat = validateTapeCompatibility(tape, context);
   assert.equal(compat.compatible, true);
 
-  // Checkpoints verify constantSetId and semantic kind expectation
+  /*
+    EVERY RECORDED VALUE DECLARES THE HISTORICAL CONSTANT SET, keyed on identity rather than on a
+    position (dispatch 414).
+
+    This read `tape.checkpoints[0]` and then `expectedDisplayValues?.[0]?.constantSetId`. Position 0
+    was the recording checkpoint until 41558e0b gave this tape the state it was measured from, which
+    is a checkpoint at actionIndex 0 carrying no recorded values, so `checkpoints[0]` became that one
+    and the whole optional chain evaluated to `undefined`. AGENTS.md replaced exactly this addressing
+    model for content ("Anchors are content ids, never array positions", and the donor's
+    parallelReadings.ts, "keyed by block index", is listed as replaced rather than ported); a test
+    pinning an index is that model inside a test.
+
+    The identity keyed on here is "the checkpoints that carry recorded display values", which is what
+    this assertion is ABOUT: the constant set those recorded numbers belong to. It is stable under
+    inserting a checkpoint that records nothing, which is the insertion that broke the old form, and
+    it does not care where in the list the recording checkpoint sits. Keying on actionIndex === 1
+    would have been the other candidate and is weaker, because it names the position of an action
+    rather than the thing being checked.
+
+    The non-vacuity assertion below is the point rather than decoration: an optional chain over a
+    lookup that finds nothing yields `undefined` and a `?.` chain passes forever, so a version that
+    merely stopped throwing would have gone green while checking no value at all.
+  */
   assert.ok(tape.checkpoints.length > 0);
-  const cp = tape.checkpoints[0];
-  assert.ok(cp);
-  assert.equal(cp?.expectedDisplayValues?.[0]?.constantSetId, "scenario-gas-constant-measured");
+  const recording = tape.checkpoints.filter(
+    (checkpoint) => (checkpoint.expectedDisplayValues?.length ?? 0) > 0,
+  );
+  assert.ok(
+    recording.length > 0,
+    "perrins-count carries no checkpoint with recorded display values, so there is nothing to check",
+  );
+  let checkedValues = 0;
+  for (const checkpoint of recording) {
+    for (const value of checkpoint.expectedDisplayValues ?? []) {
+      assert.equal(
+        value.constantSetId,
+        "scenario-gas-constant-measured",
+        `${value.label} at actionIndex ${checkpoint.actionIndex} declares ${value.constantSetId}`,
+      );
+      checkedValues += 1;
+    }
+  }
+  assert.ok(checkedValues > 0, "no recorded display value was examined");
 
   // Planted negative: compatibility rejects modern-si-2019 in historical tape context
   const modernCompat = validateTapeCompatibility(tape, {
