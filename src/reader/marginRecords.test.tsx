@@ -5,6 +5,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
+import { Window } from "happy-dom";
 import { renderToStaticMarkup } from "react-dom/server";
 import { exportMarkup } from "../testing/exportMarkup.ts";
 import { loadPaperMargins, MarginRecordError } from "./marginRecords.ts";
@@ -124,6 +125,52 @@ describe("the sections on the page", () => {
     const visible = html.replace(/<annotation[^>]*>[\s\S]*?<\/annotation>/g, "");
     expect(visible).not.toContain("\\(");
     expect((html.match(/class="katex"/g) ?? []).length).toBeGreaterThanOrEqual(3);
+  });
+
+  test("the site's own reconstruction says so to a reader, and the record does not pretend to", () => {
+    // AGENTS.md on the fourth of its four historical statements: it "is always labeled 'A route you
+    // could take,' never 'What Einstein thought'". The corpus carried the register from ce87e624
+    // and no reader was shown it (dispatch 337). This asserts the page, on the real records.
+    const margins = loadPaperMargins("mass-energy", process.cwd());
+    const rendered = renderToStaticMarkup(<PaperMargins margins={margins} />);
+    const { document } = new Window();
+    document.body.innerHTML = rendered;
+    const notes = [...document.querySelectorAll("#historians-margin article")];
+    expect(notes.length).toBe(margins.notes.length);
+
+    const shownFor = (statement: string) =>
+      notes
+        .filter((note) => note.getAttribute("data-historical-statement") === statement)
+        .map((note) => note.querySelector("p.eyebrow")?.textContent ?? "");
+
+    // The one that must be labelled, in those words, on every note that carries the register.
+    const reconstructions = shownFor("site-reconstruction");
+    expect(reconstructions.length).toBeGreaterThan(0);
+    expect([...new Set(reconstructions)]).toEqual(["A route you could take"]);
+
+    // And the decision for the other three, asserted rather than left to drift: nothing is shown.
+    // A test that only checked the label above would pass just as well if every note wore it.
+    for (const statement of ["paper-asserts", "publicly-available", "einstein-knew-or-used"]) {
+      const shown = shownFor(statement);
+      expect([statement, shown.length > 0]).toEqual([statement, true]);
+      expect([statement, [...new Set(shown)]]).toEqual([statement, [""]]);
+    }
+
+    // Every note carries its register as data whether or not it is shown, so what the corpus knows
+    // is on the page even where the page says nothing about it.
+    expect(notes.map((note) => note.getAttribute("data-historical-statement"))).toEqual(
+      margins.notes.map((note) => note.historicalStatement ?? null),
+    );
+  });
+
+  test("a note with no register shows none and carries none", () => {
+    // Every margin record of the other three papers, and the fixtures: the field is optional, and
+    // absent must mean absent rather than an invented default.
+    const { document } = new Window();
+    document.body.innerHTML = html;
+    const note = document.querySelector("#historians-margin article");
+    expect(note?.getAttribute("data-historical-statement")).toBe(null);
+    expect(note?.querySelector("p.eyebrow")).toBe(null);
   });
 
   test("a paper without records renders no section at all", () => {

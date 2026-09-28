@@ -35,6 +35,32 @@ const NOTE_LABELS: Readonly<Record<EditorialNoteKind, string>> = {
   "side-note": "Editorial note",
 };
 
+/**
+ * WHICH REGISTER A NOTE IS WRITTEN IN, WHERE A READER NEEDS TO BE TOLD (am-me-margin-entries-kfg5,
+ * dispatch 337). AGENTS.md keeps four historical statements apart and says of the fourth, the site's
+ * own reconstruction: it "is always labeled 'A route you could take,' never 'What Einstein thought'".
+ * The corpus has carried the register since ce87e624 and no reader was shown it.
+ *
+ * THE CHOICE, STATED RATHER THAN DEFAULTED. Only `site-reconstruction` is given words. The other
+ * three - what the paper asserts, what was publicly available, what there is evidence Einstein knew
+ * or used - are all claims ABOUT THE HISTORICAL RECORD, which is what this section's own opening
+ * line already promises a reader. Labelling each of them would put three chips on the page to
+ * distinguish cases a reader is not at risk of confusing, and would dilute the one distinction that
+ * matters here: between the record and this site's reconstruction of a route through it. So they
+ * render nothing visible.
+ *
+ * Every note carries its register as `data-historical-statement` whether or not it is shown, so the
+ * page keeps what the corpus knows, a test can read it, and a later bead that wants the other three
+ * on the page does not have to re-derive them. A note with no register - every margin record of the
+ * other three papers today - carries no attribute and shows nothing.
+ */
+const REGISTER_LABELS: Readonly<Record<string, string | undefined>> = {
+  "site-reconstruction": "A route you could take",
+  "paper-asserts": undefined,
+  "publicly-available": undefined,
+  "einstein-knew-or-used": undefined,
+};
+
 export function PaperMargins({ margins }: { margins: Margins }) {
   const { misconceptions, notes, citations } = margins;
   return (
@@ -85,16 +111,23 @@ export function PaperMargins({ margins }: { margins: Margins }) {
           aria-labelledby="historians-margin-heading"
         >
           <h2 id="historians-margin-heading">Historian’s margin</h2>
-          <p className="fine">What was written, by whom and when, from the sources cited.</p>
+          <p className="fine">
+            What was written, by whom and when, from the sources cited. A note that is this
+            site&rsquo;s own reconstruction rather than the record says so under its heading.
+          </p>
           {notes.map((note) => (
             <article
               key={note.id}
               id={`note-${note.id}`}
               data-note-id={note.id}
               data-note-kind={note.kind}
+              data-historical-statement={note.historicalStatement}
               data-review-state={note.reviewState}
             >
               <h3>{NOTE_LABELS[note.kind]}</h3>
+              {note.historicalStatement && REGISTER_LABELS[note.historicalStatement] ? (
+                <p className="eyebrow">{REGISTER_LABELS[note.historicalStatement]}</p>
+              ) : null}
               <p>
                 <InlineMathText text={note.claim} />
               </p>
