@@ -20,6 +20,9 @@
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { permalinkTapeFromControlTape } from "../experiments/permalink/fromControlTape.ts";
+import type { TapeV2 } from "../experiments/permalink/types.ts";
+import { type ControlTapeV2, validateControlTape } from "../experiments/tapes/schema.ts";
 import { parseYaml } from "./provenance/yaml.ts";
 import { resolveQuantityId } from "./quantities/resolveQuantityId.ts";
 
@@ -619,4 +622,48 @@ export function tapeIdentityReport(root: string = process.cwd()): TapeIdentityRe
     undeclared: [...authored].filter((id) => !declared.has(id)).sort(),
     declaredWithNoRecord: [...declared].filter((id) => !authored.has(id)).sort(),
   };
+}
+
+/**
+ * THE AUTHORED WALKTHROUGHS AS WIRE TAPES, so an instrument can replay one (am-2rl9).
+ *
+ * `loadTeachingTapes` above reads the records for the READER: titles, steps, numbers, passages. This
+ * reads the same files for the REPLAYER, through the control-tape schema and the converter, and is
+ * what backs `createTeachingTapeResolver`. Keeping both here means the two views of a walkthrough
+ * cannot come from different file sets.
+ *
+ * A record that cannot become a wire tape is REPORTED rather than dropped, because a walkthrough
+ * missing from a resolver and a walkthrough that never existed look identical to a caller. Measured
+ * 2026-09-28: 12 of the 22 records convert; the other 10 carry a descriptive checkpoint digest such
+ * as `host:sha256:sr10-evaluateSr10` that the permalink schema refuses, since it requires hex.
+ */
+export function loadWireTeachingTapes(root: string = process.cwd()): {
+  tapes: Map<string, TapeV2>;
+  problems: string[];
+} {
+  const dir = join(root, TAPES_DIR);
+  const tapes = new Map<string, TapeV2>();
+  const problems: string[] = [];
+  if (!existsSync(dir)) return { tapes, problems };
+  for (const file of readdirSync(dir)
+    .filter((f) => f.endsWith(".yaml"))
+    .sort()) {
+    const at = `${TAPES_DIR}/${file}`;
+    let record: ControlTapeV2;
+    try {
+      record = validateControlTape(parseYaml(readFileSync(join(dir, file), "utf8")), at);
+    } catch (error) {
+      problems.push(`tape-invalid: ${at} is not a valid control tape: ${String(error)}`);
+      continue;
+    }
+    const converted = permalinkTapeFromControlTape(record);
+    if (converted.kind !== "converted") {
+      problems.push(
+        `tape-unconvertible: ${at} cannot be carried in a link (${converted.field}): ${converted.reason}`,
+      );
+      continue;
+    }
+    tapes.set(record.tapeId, converted.tape);
+  }
+  return { tapes, problems };
 }
