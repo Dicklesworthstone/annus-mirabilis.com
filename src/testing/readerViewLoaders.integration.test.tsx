@@ -57,12 +57,15 @@ async function renderOpen(rawId: string, viewLoaders?: ViewLoaders): Promise<str
 }
 
 describe("the reader stack's view loaders", () => {
-  test("the production map is EMPTY, so sr-01 shows the placeholder", async () => {
-    // The withdrawal of 9d6b6d4d's entry, asserted rather than described: that entry cost the
-    // reading route its budget and readerViewLoaders.ts records the measured reason. When the lazy
-    // boundary lands, this expectation changes in the same commit as the entry.
-    expect(Object.keys(READER_VIEW_LOADERS)).toEqual([]);
-    expect(await renderOpen("sr-01")).toContain('data-testid="in-preparation-notice"');
+  test("the production map carries sr-01 and mounts it through the lazy boundary", async () => {
+    // The re-landing of dispatch 385, asserted rather than described. The entry hands out a
+    // component ./lazyClarificationViews.tsx has already made lazy, which is the boundary that
+    // keeps the laboratory's chunk out of every paper route's initial JavaScript; the budget
+    // measurement for that is in the commit, and this is the half a test can hold.
+    expect(Object.keys(READER_VIEW_LOADERS)).toEqual(["sr-01"]);
+    const html = await renderOpen("sr-01");
+    expect(html).not.toContain('data-testid="in-preparation-notice"');
+    expect(html).toContain('class="laboratory-shell"');
   });
 
   test("with a loader injected, sr-01 mounts its laboratory rather than the placeholder", async () => {
@@ -153,7 +156,6 @@ describe("the reader stack's view loaders", () => {
     // With the production map empty this is every registered instrument, all 37 of them. A reader
     // opening one of those gets the same surface as before, which is why the map's size is
     // reported rather than left to be inferred.
-    expect(Object.keys(READER_VIEW_LOADERS)).toEqual([]);
     const html = await renderOpen("bm-01");
     expect(html).toContain('data-testid="in-preparation-notice"');
   });
