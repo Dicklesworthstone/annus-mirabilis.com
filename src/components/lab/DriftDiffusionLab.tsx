@@ -1,5 +1,6 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { createBm04BrowserChannel } from "../../experiments/bm04/browser.ts";
 import { BM04_FIELDS, fromBm04Draft, toBm04Draft } from "../../experiments/bm04/controls.ts";
 import { bm04DataCsv } from "../../experiments/bm04/dataExport.ts";
@@ -29,6 +30,7 @@ import { KEPT_RESULT } from "./keptResult.ts";
 import { LabMargin } from "./LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
+import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
 
 type ForceComparison = Readonly<{
@@ -494,6 +496,9 @@ export function DriftDiffusionLab({
         {withScripts(BM04_CAPTION.r2)}
       </p>
       <LabMargin>{withScripts(BM04_CAPTION.r3)}</LabMargin>
+
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="bm-04" listings={getKernelListingsForInstrument("bm-04")} />
     </section>
   );
 }

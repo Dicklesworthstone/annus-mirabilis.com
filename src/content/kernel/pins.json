@@ -63,7 +63,19 @@
     "radiationEntropyVolumeChange@src/physics/reference/radiation/entropy.ts": "sha256:821c6127e12fddad3c4735dfa040ffea7a9c55b477e04b7b8ece97c9d01873b6",
     "entropyWithUnfixedConstant@src/physics/reference/radiation/entropy.ts": "sha256:a42ddd67d2512e13a098f27a5197b950ee973e796d7510b1a41621a9606ca5b7",
     "fluorescenceBudget@src/physics/reference/photoelectric.ts": "sha256:11d71dbe93a9da3598599f4cc6cea5d332f7f441988613168aa553ff6c379002",
-    "stoppingPotentialMagnitude@src/physics/reference/photoelectric.ts": "sha256:d3b770e4a65e0a36833d8dd82384f33a3b6e6909190c9b094ceca3043aafc29a"
+    "stoppingPotentialMagnitude@src/physics/reference/photoelectric.ts": "sha256:d3b770e4a65e0a36833d8dd82384f33a3b6e6909190c9b094ceca3043aafc29a",
+    "osmoticPressure@src/physics/reference/diffusion/distributions.ts": "sha256:a981b895ccd74c72c660fd64bc27c0406701b50b7828b2e62565bdf6f9f3468c",
+    "volumeFraction@src/physics/reference/diffusion/routeA.ts": "sha256:ae2fc4df5d298eb04523984a56ab3654a70a0e788503682ade2e87c839113fb2",
+    "diluteDomainCheck@src/physics/reference/diffusion/routeA.ts": "sha256:7168af3321032692f9d3f7dfa32ec59745529da1b4ceecbb016e3ed2173cd0bc",
+    "partitionForce@src/physics/reference/diffusion/routeA.ts": "sha256:3362b3133d3a45c01111eef63d091ec93c9d0c86cff66a8498b9a6e3ba23839b",
+    "hydrostaticHead@src/physics/reference/diffusion/routeA.ts": "sha256:bb1200efdc06568c52194de05618bb14584145af82da8e46c5edeadd90e081f9",
+    "configurationVolumeTerm@src/physics/reference/diffusion/routeA.ts": "sha256:5efc881026d009ea6b258be1989aa5d7c2a99f1725fce0ea2429a0e57be5404f",
+    "configurationFactorRatio@src/physics/reference/diffusion/routeA.ts": "sha256:c43183b40c6387e4f2e0a7fc010ad221c0076449787b4d5d2f52374e165081b1",
+    "lockedClusterPressure@src/physics/reference/diffusion/routeA.ts": "sha256:4701dd45ce653f169f66b47d6c2a29963ef53bfb8e35998832fe669eb2f23ef0",
+    "driftDiffusionFrames1d@src/physics/reference/diffusion/driftDiffusion.ts": "sha256:af1cc1a77a820260026aa7f774161b211ece08205f7c21eac6447d1ab98ce6d1",
+    "equilibriumBalance@src/physics/reference/diffusion/routeA.ts": "sha256:02f6431cff2c11ada5c1ef25dedbc116f66ce0316e1eb872d33caf237f0751a4",
+    "decayLengths@src/physics/reference/diffusion/routeA.ts": "sha256:eeb06fece93e833b80eacacbe1cdf8b8e0ee05a74c6d22604b7c5c9bdc098917",
+    "osmoticEquilibriumProfile@src/physics/reference/diffusion/routeA.ts": "sha256:8c77120faf0ef1bb8539709ace90b0689625ded8b03fc3958f4f580a1608e557"
   },
   "closures": {
     "src/physics/reference/diffusion/distributions.ts": "source:sha256:1eb5b457e215116537778a643fdb94b42da696cd79689396720e6c289b7aa5fa",
@@ -86,6 +98,8 @@
     "src/physics/reference/radiation/avogadro.ts": "source:sha256:23dc5199d43c2adb82b9f351e14dfc9827aebc20c4a8da230342da7da0a42ddd",
     "src/physics/reference/radiation/spectra.ts": "source:sha256:bdb55492ae06e7487e7084cb0bc9eaecd8998c974d238e2169c36d96ee84ae4f",
     "src/physics/reference/radiation/bandIntegration.ts": "source:sha256:12d7ba1b588df5c4931f97f63012e1c1c8860aaf2d37e09ad35b0d72f6820c28",
-    "src/physics/reference/radiation/entropy.ts": "source:sha256:fde068fefdd3cf518e4bb114960bf60160e3dc81e5f4b32dbfac26cf60ac7524"
+    "src/physics/reference/radiation/entropy.ts": "source:sha256:fde068fefdd3cf518e4bb114960bf60160e3dc81e5f4b32dbfac26cf60ac7524",
+    "src/physics/reference/diffusion/routeA.ts": "source:sha256:46c1f6ca0c5cf360c7295d50136f8f7c733e714883b7ba1304ee6f317006d3ba",
+    "src/physics/reference/diffusion/driftDiffusion.ts": "source:sha256:814df5b58e46dc4ab4174450bce7994858f17094990d8de0ac8d7b47df1fe3b5"
   }
 }

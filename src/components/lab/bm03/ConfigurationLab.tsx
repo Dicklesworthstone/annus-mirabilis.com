@@ -27,11 +27,13 @@ import { KEPT_RESULT } from "../keptResult.ts";
 import { fixed, identity, numberText, readablePowers, sentenceNumber } from "../presentation.ts";
 import { ConfigurationPlot } from "./ConfigurationPlot.tsx";
 import "./bm03.css";
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
 import { Sci } from "../Sci.tsx";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 import { withScripts } from "../subscripts.tsx";
 
 // The manifest's prompt (scripts/generate-predict-prompts.mjs), one stable array for the gate. Its
@@ -606,6 +608,9 @@ export function ConfigurationLab({
         </div>
       )}
       {linkNote && <p className="notice">{linkNote}</p>}
+
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="bm-03" listings={getKernelListingsForInstrument("bm-03")} />
     </section>
   );
 }

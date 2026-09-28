@@ -1292,6 +1292,251 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     ],
     independentReferences: [],
   },
+
+  // BM-02, BM-03 and BM-04 (am-f3e4, dispatch 338). Route A, the osmotic half of paper 2: the
+  // partition, the configuration count, and the balance that makes a diffusivity out of the two.
+  //
+  // MODULE PATHS. bm-03's manifest names the barrel src/physics/reference/diffusion.ts; the three
+  // entries below name routeA.ts, where those functions are written. Same source, same hash, same
+  // line numbers either way, measured; what differs is the pointer a reader gets and the closure
+  // pin, which is 4 modules for routeA.ts against 22 for the barrel.
+  //
+  // Several of these return their headline number from an inline expression that no name holds:
+  // osmoticPressure's n k_B T, volumeFraction's sphere volume over the vessel, partitionForce's
+  // product, hydrostaticHead's quotient, lockedClusterPressure's kT / V, osmoticEquilibriumProfile's
+  // exp(logN). Those quantities are absent from liveTerms although each is registered and is what
+  // the laboratory shows, and a function's own declaration name is not a substitute for a value
+  // identifier: bound is what a reader can see coloured.
+  {
+    instrumentId: "bm-02",
+    kernel: tsRef("src/physics/reference/diffusion/distributions.ts", "osmoticPressure"),
+    // One sentence is the whole truth: a product of three numbers, behind one guard.
+    words: words(
+      "The ideal osmotic pressure of a suspension: the number of particles in a cubic metre, times the Boltzmann constant, times the temperature. A negative density or a nonpositive temperature is refused before the multiplication, and the constant comes from the declared set rather than a literal.",
+    ),
+    liveTerms: ["numberDensity", "temperature"],
+    identifierBindings: [
+      bind("osmoticPressure", "n", "numberDensity"),
+      bind("osmoticPressure", "T", "temperature"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-02",
+    kernel: tsRef("src/physics/reference/diffusion/routeA.ts", "volumeFraction"),
+    // One sentence is the whole truth: the particles' own volume over the volume they are in.
+    words: words(
+      "What fraction of the liquid the particles themselves occupy: the count times the volume of one sphere of this radius, divided by the volume of the vessel. The count must be a whole number, which is why it is checked with isSafeInteger rather than for being finite.",
+    ),
+    liveTerms: ["particleCount", "particleRadius", "volume"],
+    identifierBindings: [
+      bind("volumeFraction", "Np", "particleCount"),
+      bind("volumeFraction", "a", "particleRadius"),
+      bind("volumeFraction", "V", "volume"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-02",
+    kernel: tsRef("src/physics/reference/diffusion/routeA.ts", "diluteDomainCheck"),
+    words: {
+      r0: "Whether this suspension is dilute enough for the ideal law to be used, against a bound the caller has to declare.",
+      r1: "It compares the volume fraction with a bound and returns whether it is admitted, together with the two boundaries in the reader's own units: the largest particle count this vessel admits and the smallest vessel this count admits. At a million spheres of half a micron in a cubic millimetre the fraction is 0.000524, and against a bound of 0.01 the ceiling is 19,098,593 particles.",
+      r2: "Two things here are refusals of a kind a numerical guard does not make. There is NO DEFAULT BOUND: a missing or nonpositive phiMax, or a blank justification, returns outside-domain with the reason that the bound and the reason for it must both be declared, so nobody inherits a dilution criterion nobody chose. And the check reports virialCorrectionAtBound, the hard-sphere correction evaluated AT the bound, which is 0.041 at a bound of 0.01: that number is the size of what the ideal law is neglecting where it is least valid, so a reader can see the cost of the admission rather than only its verdict.",
+    },
+    liveTerms: ["volumeFraction", "particleCount", "particleRadius", "volume"],
+    identifierBindings: [
+      bind("diluteDomainCheck", "phi", "volumeFraction"),
+      bind("diluteDomainCheck", "phiMax", "volumeFraction"),
+      bind("diluteDomainCheck", "Np", "particleCount"),
+      bind("diluteDomainCheck", "a", "particleRadius"),
+      bind("diluteDomainCheck", "V", "volume"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-02",
+    kernel: tsRef("src/physics/reference/diffusion/routeA.ts", "partitionForce"),
+    // One sentence is the whole truth: pressure times area, and the guard that a zero pressure is
+    // admissible while a zero area is not.
+    words: words(
+      "The force the osmotic pressure puts on a partition: the pressure times the area. A zero pressure is allowed and gives a zero force, while a zero area is refused, because a partition with no area is not a partition.",
+    ),
+    liveTerms: ["osmoticPressure", "partitionArea"],
+    identifierBindings: [
+      bind("partitionForce", "Pi", "osmoticPressure"),
+      bind("partitionForce", "A", "partitionArea"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-02",
+    kernel: tsRef("src/physics/reference/diffusion/routeA.ts", "hydrostaticHead"),
+    words: {
+      r0: "The same osmotic pressure written as a height of liquid, which is a way of saying how small it is.",
+      r1: "Pressure divided by density times gravity. At 4 Pa in water it is 0.408 millimetres. The gravity is not an input a reader has to supply: it defaults to the declared standard 9.80665 m/s^2, and a caller may pass another.",
+      r2: "It carries a model note, and the note is the reason the function is worth having: an equivalent solvent column height, NOT a manometer in the apparatus. Nothing in this laboratory claims a tube of water stands anywhere. The number is a unit conversion whose purpose is to put a pressure most readers cannot picture into one they can, and the note is what keeps that from being read as a prediction about an experiment. The guards are of a piece with it: a nonpositive density or gravity is refused rather than divided by.",
+    },
+    liveTerms: ["osmoticPressure"],
+    identifierBindings: [bind("hydrostaticHead", "Pi", "osmoticPressure")],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-03",
+    kernel: tsRef("src/physics/reference/diffusion/routeA.ts", "configurationVolumeTerm"),
+    words: {
+      r0: "The part of a suspension's free energy that depends on the volume, and the pressure that follows from it.",
+      r1: "For Np independent particles the volume-dependent free energy is minus k_B T times Np times the logarithm of the volume, and the change between two volumes is minus k_B T Np ln(V/V0). Differentiating gives the pressure Np k_B T / V, which is the ideal osmotic law arrived at by counting configurations rather than by assuming it. All four are returned separately: Np ln V, the free-energy term, the difference between two volumes, and the pressure.",
+      r2: "Three of the seven returned fields are SYMBOLIC, and that is the honest part. The volume-independent factor J, the momentum integrals, and the free-energy offset F0 are all present in the free energy and none is evaluated, because each cancels in a difference between two volumes at one temperature. A calculation that dropped them silently would look identical and would have lost the reason the answer is allowed to ignore them. Instead each comes back with status symbolic and its unspecified symbol named, so the cancellation is a statement in the result rather than an omission in the code.",
+    },
+    liveTerms: ["particleCount", "volume", "temperature", "freeEnergy", "osmoticPressure"],
+    identifierBindings: [
+      bind("configurationVolumeTerm", "Np", "particleCount"),
+      bind("configurationVolumeTerm", "V", "volume"),
+      bind("configurationVolumeTerm", "V0", "volume"),
+      bind("configurationVolumeTerm", "T", "temperature"),
+      bind("configurationVolumeTerm", "freeEnergyTerm", "freeEnergy"),
+      bind("configurationVolumeTerm", "pressure", "osmoticPressure"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-03",
+    kernel: tsRef("src/physics/reference/diffusion/routeA.ts", "configurationFactorRatio"),
+    words: {
+      r0: "How many times more room a given number of particles have after the volume changes: the ratio raised to the power of the count.",
+      r1: "The configuration factor is the volume ratio to the power of the particle count, which is the probability in Boltzmann's relation once it is compared with a reference state. The function returns it three ways, because at any interesting count only some of them exist: an exact decimal for a count up to 12, the natural and base-ten logarithms always, and the plain double when one can hold it. The ratio arrives as a decimal STRING and is refused if it is not an exact decimal, so the exact answer is exact.",
+      r2: "Three separate pieces of arithmetic care, each with its reason in the source. The exact decimal is built by repeated BigInt multiplication of the decimal digits, so 2 to the twelfth comes back as the characters 4096 rather than as a float. The double is computed as ratio ** Np and not as exp(Np ln ratio), because the first is correctly rounded while the second drifts: the comment names 2 to the five hundredth, which is exact as a double and which the exponential form gets wrong in the fourteenth digit. And overflow, underflow to zero, and a subnormal result all report null rather than a number, since a subnormal has already lost digits; at a count of 1024 and a ratio of 2 the double is null while the logarithm still says 709.78. The logarithms are the answer that survives every size.",
+    },
+    liveTerms: ["particleCount", "volumeRatio"],
+    identifierBindings: [
+      bind("configurationFactorRatio", "Np", "particleCount"),
+      bind("configurationFactorRatio", "ratio", "volumeRatio"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-03",
+    kernel: tsRef("src/physics/reference/diffusion/routeA.ts", "lockedClusterPressure"),
+    words: {
+      r0: "What the same suspension would do if its particles were locked together into one body, which is the alternative the osmotic argument has to rule out.",
+      r1: "Lock every particle into a single unit and the configuration factor is the volume ratio itself rather than the ratio to the power of the count, so the pressure is k_B T / V instead of Np k_B T / V. For a cubic millimetre at 290.15 K that is 4.006 times 10^-12 Pa, smaller by exactly the particle count. The two readings are returned side by side, which is what lets a reader see that the pressure is a statement about independence rather than about the particles being there.",
+      r2: "The second field is not a number and must not be. Asked for the independent-particle pressure of a locked cluster, the function returns outside-domain with domainKind model and the reason that Np k_B T / V is not defined once the particles move as one unit, because pressure counts independently placed units. A zero would have been wrong in an interesting way: it would say the independent model predicts nothing here, when what is true is that the independent model does not apply here. This is the adversarial case of paper 2's argument, kept executable and kept labelled, rather than described in prose and never run.",
+    },
+    liveTerms: ["volume", "temperature"],
+    identifierBindings: [
+      bind("lockedClusterPressure", "V", "volume"),
+      bind("lockedClusterPressure", "T", "temperature"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-04",
+    kernel: tsRef("src/physics/reference/diffusion/driftDiffusion.ts", "driftDiffusionFrames1d"),
+    words: {
+      r0: "The density in a box under a steady force and random kicks together, stepped forward in time and returned frame by frame.",
+      r1: "An explicit finite-volume solve of the drift-diffusion equation on a one-dimensional grid with zero-flux walls. It returns every frame's density, the cell width, the drift velocity, the Peclet number that says which of the two transports dominates, and the stability ratio the step was accepted under. At the defaults of this laboratory the Peclet number is 3.90, so drift is a few times stronger than diffusion, and the stability ratio is 0.0052, far inside its limit of 1.",
+      r2: "The faces are not a plain average, and the refusals are not one refusal. The two transport speeds come from an exponentially fitted scheme: at a small ratio of drift to diffusion the against-drift speed is a series in that ratio, past a ratio of 50 it is written with e to the minus z so nothing overflows, and between them it is the speed over expm1. A plain centred average would give negative densities exactly where this is hardest. The refusals then separate what a reader can act on: too large a step with kicks present is drift-diffusion-unstable, the same step with no kicks at all is drift-cfl-exceeded, and each carries ranked repairs with the actual values to use, a step of 1.909 seconds at this laboratory's settings and a halved grid. A request too large to run is a budget outcome rather than either, since running out of room is not a statement about the physics.",
+    },
+    equationId: "eq-model-bm-diffusion-equation",
+    liveTerms: [
+      "kickDiffusivity",
+      "mobility",
+      "externalForcePerParticle",
+      "temperature",
+      "timeStep",
+      "driftVelocity",
+      "probabilityDensity",
+    ],
+    identifierBindings: [
+      bind("driftDiffusionFrames1d", "kickDiffusivity", "kickDiffusivity"),
+      bind("driftDiffusionFrames1d", "mobility", "mobility"),
+      bind("driftDiffusionFrames1d", "force", "externalForcePerParticle"),
+      bind("driftDiffusionFrames1d", "temperature", "temperature"),
+      bind("driftDiffusionFrames1d", "dt", "timeStep"),
+      bind("driftDiffusionFrames1d", "u", "driftVelocity"),
+      bind("driftDiffusionFrames1d", "values", "probabilityDensity", [
+        "eq-model-bm-diffusion-equation.t.density",
+      ]),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-04",
+    kernel: tsRef("src/physics/reference/diffusion/routeA.ts", "equilibriumBalance"),
+    words: {
+      r0: "The two descriptions of the same still suspension, the osmotic one and the kicked one, set against each other to see whether they agree.",
+      r1: "Paper 2's move is to demand that a force-driven drift and a diffusive spread cancel in equilibrium, and to read a diffusivity out of the demand. This computes both sides: the mobility route gives D = mu k_B T from Stokes's mobility and the temperature, and the balance route gives the diffusivity the cancellation requires. With the kicks set to mu k_B T both come to 3.1485 times 10^-13 m^2/s and the function reports agreement.",
+      r2: "Three things it returns instead of asserting. The relation D = mu k_B T comes back as a SYMBOLIC result with its four symbols named, so the page can show the relation without a number pretending to establish it. The two factors that cancel are returned as strings, mu times the force and k_B T over the force, which is where the force leaves the answer and why the diffusivity does not depend on how hard you pull. And agreement is a tolerance test, not an equality: the ratio of the two diffusivities must be within 10^-9 of one. At zero force there is no balance to read and the function says so: the balance diffusivity is not-applicable, with the reason that 0 over 0 is not an evaluation and that the construction relates two descriptions of one state. A zero would have claimed a still suspension does not diffuse.",
+    },
+    liveTerms: [
+      "externalForcePerParticle",
+      "temperature",
+      "viscosity",
+      "particleRadius",
+      "kickDiffusivity",
+      "mobility",
+      "diffusionCoefficient",
+    ],
+    identifierBindings: [
+      bind("equilibriumBalance", "force", "externalForcePerParticle"),
+      bind("equilibriumBalance", "temperature", "temperature"),
+      bind("equilibriumBalance", "eta", "viscosity"),
+      bind("equilibriumBalance", "a", "particleRadius"),
+      bind("equilibriumBalance", "kickDiffusivity", "kickDiffusivity"),
+      bind("equilibriumBalance", "mu", "mobility"),
+      bind("equilibriumBalance", "mobilityD", "diffusionCoefficient"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-04",
+    kernel: tsRef("src/physics/reference/diffusion/routeA.ts", "decayLengths"),
+    words: {
+      r0: "How far up the box the density falls by a factor of e, computed twice: once from the osmotic account and once from the kicks.",
+      r1: "The osmotic length is k_B T over the force; the kinetic length is the kick diffusivity over the mobility times the force. They are the two accounts of the same equilibrium profile, and they are equal exactly when the kicks carry the diffusivity the temperature demands. With the kicks set to mu k_B T both come to 4.006 times 10^-7 m and the returned kick strength is 1.",
+      r2: "At zero force both lengths are NOT-APPLICABLE and neither is infinite. The reason returned says why in the reader's terms: no force, no gradient, so the equilibrium profile is uniform and there is no decay length to speak of. An infinity would have been defensible as arithmetic and wrong as a description, because the quantity does not lose its value there, it loses its meaning. Bad inputs are a different refusal again, outside-domain rather than not-applicable, and the kick strength then comes back null rather than as a number nobody should read.",
+    },
+    liveTerms: [
+      "externalForcePerParticle",
+      "temperature",
+      "kickDiffusivity",
+      "mobility",
+      "osmoticDecayLength",
+      "kineticDecayLength",
+    ],
+    identifierBindings: [
+      bind("decayLengths", "force", "externalForcePerParticle"),
+      bind("decayLengths", "temperature", "temperature"),
+      bind("decayLengths", "kickDiffusivity", "kickDiffusivity"),
+      bind("decayLengths", "mobility", "mobility"),
+      bind("decayLengths", "osmotic", "osmoticDecayLength"),
+      bind("decayLengths", "kinetic", "kineticDecayLength"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-04",
+    kernel: tsRef("src/physics/reference/diffusion/routeA.ts", "osmoticEquilibriumProfile"),
+    words: {
+      r0: "The settled density at one height in a box, when the force and the kicks have come to balance.",
+      r1: "An exponential profile with a decay length of k_B T over the force, normalised so that the whole box holds the particles it was given. The function is evaluated at one position rather than over a grid, and it mirrors for a force pointing the other way rather than carrying a sign through the exponent. At zero force it returns the uniform density directly, which is the same expression in the limit and avoids dividing by a decay length that has gone to infinity.",
+      r2: "The exponential is enormous and the code is written around that. Across a box only a tenth of a millimetre wide at this laboratory's force, the settled density runs from about 9.7 times 10^-97 at one wall to about 2.5 times 10^12 at the other, so the obvious form, e to the x over lambda over e to the W over lambda minus 1, overflows its numerator and its denominator long before the ratio stops being representable. It is rewritten as e to the (z minus w) over 1 minus e to the minus w, where no intermediate exceeds 1, and the whole of it is then assembled in logarithms with two guards: a denominator that is not positive and finite is a numerical refusal, and a logarithm above 700 is another, because that is where the exponential would leave binary64. Both say outside-domain with domainKind numerical, which is not the same statement as the model refusing.",
+    },
+    liveTerms: [
+      "positionCoordinate1d",
+      "externalForcePerParticle",
+      "temperature",
+      "osmoticDecayLength",
+    ],
+    identifierBindings: [
+      bind("osmoticEquilibriumProfile", "x", "positionCoordinate1d"),
+      bind("osmoticEquilibriumProfile", "force", "externalForcePerParticle"),
+      bind("osmoticEquilibriumProfile", "temperature", "temperature"),
+      bind("osmoticEquilibriumProfile", "absL", "osmoticDecayLength"),
+    ],
+    independentReferences: [],
+  },
 ];
 
 export const SLICE_REGISTERED_SCENARIOS: Readonly<Record<string, readonly string[]>> = {
