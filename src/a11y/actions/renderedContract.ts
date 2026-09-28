@@ -38,7 +38,8 @@ export type PromisedAffordance = "table" | "typed-entry" | "selection" | "steppi
 const PROMISE_WORDS: Readonly<Record<PromisedAffordance, RegExp>> = Object.freeze({
   table: /\b(tables?|ledgers?|rows?|columns?|grid)\b/i,
   "typed-entry": /\b(type|types|typed|typing|enter|enters|entering|entry|input|field|fields)\b/i,
-  selection: /\b(select|selects|selecting|selection|choose|chooses|choosing|toggle|toggles|switch|switches|pick|picks)\b/i,
+  selection:
+    /\b(select|selects|selecting|selection|choose|chooses|choosing|toggle|toggles|switch|switches|pick|picks)\b/i,
   stepping: /\b(advance|advances|step|steps|stepping|retreat|retreats|next|previous|play|pause)\b/i,
   reading: /\b(read|reads|reading|inspect|inspects|observe|observes|compare|compares|comparing)\b/i,
 });
@@ -47,36 +48,38 @@ const PROMISE_WORDS: Readonly<Record<PromisedAffordance, RegExp>> = Object.freez
  * The elements that keep each promise, in the order they are tried. The first selector that matches
  * is reported, so a failure names what was looked for and a pass names what answered.
  */
-const AFFORDANCE_SELECTORS: Readonly<Record<PromisedAffordance, readonly string[]>> = Object.freeze({
-  table: ['table', '[role="table"]', '[role="grid"]', "dl"],
-  "typed-entry": [
-    'input[type="number"]',
-    'input[type="text"]',
-    "input:not([type])",
-    "textarea",
-    '[contenteditable="true"]',
-  ],
-  selection: [
-    "select",
-    'input[type="radio"]',
-    'input[type="checkbox"]',
-    "[aria-pressed]",
-    '[role="radio"]',
-    '[role="listbox"]',
-    '[role="combobox"]',
-    "[aria-current]",
-  ],
-  stepping: ["button", '[role="button"]', 'input[type="range"]'],
-  reading: [
-    "table",
-    "dl",
-    "output",
-    '[role="status"]',
-    "[data-output]",
-    "[data-quantity-id]",
-    "figcaption",
-  ],
-});
+const AFFORDANCE_SELECTORS: Readonly<Record<PromisedAffordance, readonly string[]>> = Object.freeze(
+  {
+    table: ["table", '[role="table"]', '[role="grid"]', "dl"],
+    "typed-entry": [
+      'input[type="number"]',
+      'input[type="text"]',
+      "input:not([type])",
+      "textarea",
+      '[contenteditable="true"]',
+    ],
+    selection: [
+      "select",
+      'input[type="radio"]',
+      'input[type="checkbox"]',
+      "[aria-pressed]",
+      '[role="radio"]',
+      '[role="listbox"]',
+      '[role="combobox"]',
+      "[aria-current]",
+    ],
+    stepping: ["button", '[role="button"]', 'input[type="range"]'],
+    reading: [
+      "table",
+      "dl",
+      "output",
+      '[role="status"]',
+      "[data-output]",
+      "[data-quantity-id]",
+      "figcaption",
+    ],
+  },
+);
 
 export type RenderedAffordanceReport = Readonly<{
   /** Actions whose promise was classified and looked for on the page. */
@@ -99,7 +102,10 @@ export function promisedAffordances(equivalentAffordance: string): readonly Prom
 }
 
 /** The first selector of this promise that the page answers with, or undefined where none does. */
-export function affordanceInPage(page: ParentNode, promise: PromisedAffordance): string | undefined {
+export function affordanceInPage(
+  page: ParentNode,
+  promise: PromisedAffordance,
+): string | undefined {
   for (const selector of AFFORDANCE_SELECTORS[promise]) {
     if (page.querySelector(selector)) return selector;
   }

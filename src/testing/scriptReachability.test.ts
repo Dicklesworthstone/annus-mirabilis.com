@@ -191,9 +191,11 @@ describe("check-shaped scripts are reachable from some runner (am-unwired-audits
      * forbidden construct and takes it for the construct.
      */
     const claims = [...EXPECTED_UNREACHABLE.entries()].flatMap(([script, reason]) =>
-      [...reason.matchAll(/\b((?:content|public)\/[\w./-]+?)\/?\s+(?:does not exist|holds no files)/g)].map(
-        (m) => ({ script, path: m[1] as string }),
-      ),
+      [
+        ...reason.matchAll(
+          /\b((?:content|public)\/[\w./-]+?)\/?\s+(?:does not exist|holds no files)/g,
+        ),
+      ].map((m) => ({ script, path: m[1] as string })),
     );
     const broken = claims.filter(({ path }) => {
       const full = join(ROOT, path);
