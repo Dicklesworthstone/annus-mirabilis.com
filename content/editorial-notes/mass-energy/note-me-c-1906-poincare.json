@@ -7,6 +7,7 @@
   },
   "reviewState": "draft",
   "kind": "historian-margin",
+  "historicalStatement": "einstein-knew-or-used",
   "claim": "In 1906 Einstein reached the same rule by another route. He argued that the rule, a change of energy \\(\\Delta E\\) going with a change of mass \\(\\Delta E/V^2\\), is the necessary and sufficient condition for the law of the conservation of the motion of the centre of gravity to hold, at least to a first approximation, also for systems in which electromagnetic processes occur. He wrote that the simple formal considerations needed for the proof are 'in der Hauptsache bereits in einer Arbeit von H. Poincaré enthalten', citing the Lorentz Festschrift of 1900, and that for the sake of clarity he would not rely on that paper (p. 627).",
   "sourceSupport": [
     {

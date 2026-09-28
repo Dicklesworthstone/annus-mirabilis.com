@@ -7,6 +7,7 @@
   },
   "reviewState": "draft",
   "kind": "side-note",
+  "historicalStatement": "site-reconstruction",
   "claim": "In the modern formulation, the paper's two pulses, sent out with equal energies \\(L/2\\) in opposite directions (p. 640), have zero total momentum, so as a system they have the invariant mass \\(L/c^2\\), although each pulse alone has none. This is a later formal explanation that resolves a common confusion. The 1905 argument does not use invariant mass, and nothing in it depends on this reading.",
   "sourceSupport": [
     {

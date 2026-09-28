@@ -7,6 +7,7 @@
   },
   "reviewState": "draft",
   "kind": "side-note",
+  "historicalStatement": "publicly-available",
   "claim": "Einstein returned to this question several times after 1905, and each return is later work: it neither replaces the three pages of 1905 nor widens what they establish. In 1906 he argued from the uniform motion of the centre of mass of a closed system that every energy \\(E\\) carries the inertia \\(E/V^2\\), and wrote that on this supposition the contradiction with the elements of mechanics disappears (p. 629); that argument imports the momentum of radiation and the centre-of-mass theorem, which the 1905 argument does not use. In 1907 he wrote the energy of a mass point of mass \\(\\mu\\) moving with speed \\(v\\) as \\(\\mu V^2/\\sqrt{1-(v/V)^2}\\) and concluded that a system of mass points in uniform motion can be replaced, as regards its energy, by a single mass point of mass \\(\\mu=E_0/V^2\\), with \\(E_0\\) the system's energy at rest (pp. 383–384); that step reaches a rest energy, which 1905 does not, because 1905 fixes its energies only up to additive constants. In 1935 he published an elementary derivation in the Bulletin of the American Mathematical Society (41, 223–230). This site has read the 1906 and 1907 papers at the pages cited and says nothing about the 1935 argument beyond its title and place, because the text has not been read here.",
   "sourceSupport": [
     {

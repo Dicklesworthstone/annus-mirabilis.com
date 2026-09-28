@@ -7,6 +7,7 @@
   },
   "reviewState": "draft",
   "kind": "historian-margin",
+  "historicalStatement": "publicly-available",
   "claim": "In 1904, before the paper, F. Hasenöhrl argued that radiation enclosed in a moving cavity gives the cavity an apparent mass, as if the mass of the system had been increased ('als ob die Masse unseres Systems ... vermehrt worden wäre'). He gave its value as \\(\\frac{8}{3}hε_0/c^2\\), where \\(hε_0\\) is the radiation energy in the cavity at rest (p. 363, equation 32). In January 1905 he corrected it: M. Abraham had sent him by letter a method giving half that value, \\(\\frac{4}{3}hε_0/c^2\\), and Hasenöhrl found that the difference came from a calculation error of his own (pp. 589–590). Both values concern radiation enclosed in a cavity, and both were obtained neglecting higher powers of the speed.",
   "sourceSupport": [
     {

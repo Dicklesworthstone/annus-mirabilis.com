@@ -7,6 +7,7 @@
   },
   "reviewState": "draft",
   "kind": "historian-margin",
+  "historicalStatement": "paper-asserts",
   "claim": "The equation \\(E=mc^2\\) does not appear in the paper. Its three pages state a change: a body that gives off the energy \\(L\\) as radiation loses the mass \\(L/V^2\\), with \\(V\\) the speed of light, and the paper prints the conversion \\(L/9\\cdot10^{20}\\) for energy in erg and mass in grams (p. 641). It gives no body a total energy equal to its mass times \\(V^2\\): its energies are fixed only up to arbitrary additive constants (pp. 640–641). Einstein's own later papers take the next steps. In 1906 he wrote that the contradiction he was examining disappears if every energy \\(E\\) is given the inertia \\(E/V^2\\) (p. 629). In 1907 he wrote the energy of a mass point of mass \\(\\mu\\) moving with speed \\(v\\) as \\(\\mu V^2/\\sqrt{1-(v/V)^2}\\), and concluded that a system of mass points in uniform motion can be replaced, as regards its energy, by a single mass point of mass \\(\\mu=E_0/V^2\\), where \\(E_0\\) is the system's energy at rest (pp. 383–384). The familiar string \\(E=mc^2\\) uses letters these papers do not.",
   "sourceSupport": [
     {

@@ -7,6 +7,7 @@
   },
   "reviewState": "draft",
   "kind": "historian-margin",
+  "historicalStatement": "paper-asserts",
   "claim": "The radium remark is a proposal, stated conditionally: it is not ruled out ('Es ist nicht ausgeschlossen'), the paper says, that bodies whose energy content varies to a high degree, such as radium salts, will allow the theory to be tested (p. 641). The paper reports no test. Measured checks came decades later, from nuclear physics; the reports cited here are J. D. Cockcroft and E. T. S. Walton's on the disintegration of elements by fast protons (1932) and K. T. Bainbridge's letter on the equivalence of mass and energy (1933).",
   "sourceSupport": [
     {
