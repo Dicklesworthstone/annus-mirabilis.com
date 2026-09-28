@@ -223,6 +223,99 @@ describe("the sections on the page", () => {
     expect(note?.querySelector("p.eyebrow")).toBe(null);
   });
 
+  /**
+   * THE COMPARISON THE RECORD PROMISED (dispatch 357). note-me-g-argument-comparison's claim ends "The
+   * table below asks each of them the same five questions", and until this was built nothing rendered
+   * the body: the record was validated and never shown. These read the real corpus through the real
+   * renderer, because the defect was not a wrong table, it was no table.
+   */
+  describe("the argument comparison a margin record carries", () => {
+    const { document } = new Window();
+    document.body.innerHTML = renderToStaticMarkup(
+      <PaperMargins margins={loadPaperMargins("mass-energy")} />,
+    );
+    const note = document.getElementById("note-note-me-g-argument-comparison");
+    const figure = note?.querySelector("figure.margin-comparison");
+
+    test("all fifteen authored cells reach the page, under five questions and three arguments", () => {
+      expect(figure, "the comparison did not render at all").not.toBe(null);
+      const columns = [...(figure?.querySelectorAll("thead th") ?? [])].map((c) =>
+        (c.textContent ?? "").trim(),
+      );
+      expect(columns).toEqual([
+        "The question",
+        "The 1905 ledger",
+        "The 1906 box",
+        "A modern four-momentum derivation",
+      ]);
+      const rows = [...(figure?.querySelectorAll("tbody tr") ?? [])];
+      expect(rows.map((r) => r.getAttribute("data-question-id"))).toEqual([
+        "importedResult",
+        "massDefinition",
+        "conservationLaw",
+        "approximation",
+        "classOfSystems",
+      ]);
+      // The count is the record's, not a number typed here: five questions times three arguments.
+      const cells = [...(figure?.querySelectorAll("tbody td") ?? [])];
+      expect(cells.length).toBe(15);
+      expect(cells.filter((c) => (c.textContent ?? "").trim().length > 20).length).toBe(15);
+      // Each cell names which argument it answers for, in markup rather than generated content, so
+      // the label survives a browser's own find and a screen reader when the cells become blocks.
+      expect(figure?.querySelectorAll(".comparison-which").length).toBe(15);
+    });
+
+    test("the scope-critical question is marked with a word, not only a tint", () => {
+      const scope = figure?.querySelector(".comparison-scope");
+      expect((scope?.textContent ?? "").trim()).toBe("Where the three routes differ in scope.");
+      // It belongs to classOfSystems and to no other row.
+      expect(
+        figure?.querySelector('tr[data-question-id="classOfSystems"] .comparison-scope'),
+      ).not.toBe(null);
+      expect(figure?.querySelectorAll(".comparison-scope").length).toBe(1);
+    });
+
+    test("this note shows its register, and the words are the ones AGENTS.md fixes", () => {
+      // The planted negative behind this: flipping historicalStatement to paper-asserts in the record
+      // removes this note's own label while the table still renders, so the label is the record's and
+      // not decoration. Nothing failed when I did that, which is why this assertion exists.
+      expect(note?.getAttribute("data-historical-statement")).toBe("site-reconstruction");
+      expect((note?.querySelector("p.eyebrow")?.textContent ?? "").trim()).toBe(
+        "A route you could take",
+      );
+    });
+
+    test("two rows share one instrument, and no two links say the same thing", () => {
+      // Both the 1906 box and the four-momentum reading are formalisms ME-03 selects with its own mode
+      // control, and ME-03 declares no mode, so both links go to /lab/me-03/. Identical link text for
+      // different rows is what the link-name gate refuses; each says which mode to choose once there.
+      const links = [...(figure?.querySelectorAll("a") ?? [])].map((a) => ({
+        text: (a.textContent ?? "").trim(),
+        href: a.getAttribute("href") ?? "",
+      }));
+      const labs = links.filter((l) => l.href.startsWith("/lab/"));
+      expect(labs.map((l) => l.href)).toEqual(["/lab/me-01/", "/lab/me-03/", "/lab/me-03/"]);
+      expect(new Set(labs.map((l) => l.text)).size).toBe(3);
+      expect(labs[1]?.text).toContain("choose the 1906 box");
+      expect(labs[2]?.text).toContain("choose the four-momentum");
+      // And every row's sources link names its own row rather than "the note this row cites".
+      const sources = links.filter((l) => l.href.startsWith("#note-"));
+      expect(sources.length).toBe(3);
+      expect(new Set(sources.map((l) => l.text)).size).toBe(3);
+    });
+
+    test("no review state reaches the reader, and the table says what is unreviewed", () => {
+      // D-2026-09-25-no-review-status-banners: the record is reviewState draft and that word appears in
+      // no reader-facing text, only in the data attribute the page already carried.
+      expect((document.body.textContent ?? "").toLowerCase()).not.toContain("draft");
+      expect(note?.getAttribute("data-review-state")).toBe("draft");
+      // The no-claim line, in the site's own voice rather than as a status chip.
+      expect((figure?.querySelector("caption")?.textContent ?? "").toLowerCase()).toContain(
+        "no physicist has reviewed them",
+      );
+    });
+  });
+
   test("a paper without records renders no section at all", () => {
     const empty = renderToStaticMarkup(
       <PaperMargins margins={{ misconceptions: [], notes: [], citations: new Map() }} />,

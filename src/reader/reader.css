@@ -3196,3 +3196,91 @@ html:is(
   color: var(--muted);
   font-size: var(--type-small);
 }
+
+/*
+ * THE ARGUMENT COMPARISON a margin record carries (am-me-margin-entries-kfg5, dispatch 357). A matrix
+ * where there is room for one, and five labelled groups of three answers where there is not.
+ *
+ * WHY 560px: it is this file's own narrow breakpoint, used by the outline, the passages and the face
+ * controls, so the comparison reflows where the rest of the reader already does. A 5 x 3 matrix does not
+ * survive 320px by shrinking: a previous sweep on this site read ZERO overflow while 229 laboratory
+ * cells were splitting their words, because a table crushes its columns rather than overflowing. So
+ * below the breakpoint the cells stop being cells.
+ */
+.margin-comparison {
+  margin: 1.5rem 0;
+}
+
+.margin-comparison table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.margin-comparison caption {
+  caption-side: top;
+  color: var(--muted);
+  font-size: var(--type-fine);
+  text-align: left;
+  padding-bottom: 0.5rem;
+}
+
+.margin-comparison th,
+.margin-comparison td {
+  border: 1px solid var(--rule);
+  padding: 0.5rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.margin-comparison thead th {
+  font-size: var(--type-fine);
+}
+
+.margin-comparison tbody th {
+  width: 22%;
+}
+
+/* The scope marker is a WORD, never a tint alone; the tint only follows it. */
+.comparison-scope {
+  color: var(--muted);
+  display: block;
+  font-size: var(--type-fine);
+  font-weight: 400;
+}
+
+/* Which argument a cell answers for. Hidden where the column heading already says it, shown when the
+ * cells become blocks; it is markup rather than generated content so a reader's own search finds it. */
+.comparison-which {
+  display: none;
+}
+
+@media (max-width: 560px) {
+  .margin-comparison thead {
+    display: none;
+  }
+
+  .margin-comparison table,
+  .margin-comparison tbody,
+  .margin-comparison tr,
+  .margin-comparison th,
+  .margin-comparison td {
+    display: block;
+    width: auto;
+  }
+
+  .margin-comparison tr + tr {
+    margin-top: 1rem;
+  }
+
+  .margin-comparison tbody th {
+    border-bottom: none;
+  }
+
+  .margin-comparison td {
+    border-top: none;
+  }
+
+  .comparison-which {
+    display: inline;
+  }
+}

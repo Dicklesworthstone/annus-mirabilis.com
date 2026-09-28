@@ -61,6 +61,118 @@ const REGISTER_LABELS: Readonly<Record<string, string | undefined>> = {
   "einstein-knew-or-used": undefined,
 };
 
+/**
+ * THE COMPARISON A RECORD PROMISED AND NO READER WAS SHOWN (am-me-margin-entries-kfg5, dispatch 357).
+ *
+ * note-me-g-argument-comparison holds five questions against three arguments, fifteen authored cells,
+ * and its own claim ends "The table below asks each of them the same five questions." Measured
+ * 2026-09-28, nothing rendered it: marginRecords.ts validated the body and the only other file that
+ * mentioned the record was its test. The prose promised a reader a table and showed them nothing.
+ *
+ * ROWS ARE QUESTIONS, COLUMNS ARE ARGUMENTS, which is the record's own shape and the one that survives
+ * a narrow screen without reordering the DOM. At 560 px and below the cells become blocks, so the page
+ * reads as five labelled groups of three answers; each cell therefore names its argument in words
+ * (`comparison-which`), hidden where the column heading already says it. That label is real text in the
+ * markup, not generated content, so it is found by the browser's own search and read by a screen reader.
+ *
+ * WHY NOT ONE STACKED BLOCK PER ARGUMENT at narrow width, which is the obvious alternative: it needs the
+ * opposite DOM order from the matrix, so one of the two widths would read against the source order. The
+ * comparison's value is reading three answers to ONE question together, and grouping by question keeps
+ * that at every width.
+ *
+ * TWO COLUMNS SHARE ONE INSTRUMENT, and the link text is where that is made honest. Both the 1906 box and
+ * the four-momentum reading are formalisms ME-03 selects with its own `mode` control, and ME-03 DECLARES
+ * NO MODE, so neither is addressable and both rows resolve only as the bare `me-03` (4d1100c9).
+ * `/lab/me-03/` opens at its 1905 ledger default, so a link promising the box or the four-momentum view
+ * would not keep its word. Each link instead says which mode the reader must choose once there, which
+ * distinguishes the two and tells the truth about the extra step. When me-03 declares its modes, as
+ * sr-02 declares `apparatus`, these become deep addresses and the sentence gets shorter.
+ *
+ * NO REVIEW STATE REACHES THE READER (D-2026-09-25-no-review-status-banners): the record is
+ * `reviewState: draft` and that word appears nowhere in the markup, only in `data-review-state` on the
+ * note, where it already was. The no-claim line below says what is unreviewed in the site's own voice.
+ */
+function ComparisonTable({
+  note,
+  comparison,
+}: {
+  note: string;
+  comparison: NonNullable<Margins["notes"][number]["comparison"]>;
+}) {
+  return (
+    <figure className="margin-comparison">
+      <table>
+        <caption>
+          Three routes to the same conclusion, each asked the same five questions. The cells are
+          this site&rsquo;s own reading of the three arguments, not a verdict on which is better,
+          and no physicist has reviewed them.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">The question</th>
+            {comparison.arguments.map((argument) => (
+              <th key={argument.id} scope="col" data-argument-id={argument.id}>
+                {argument.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {comparison.questions.map((question) => (
+            <tr key={question.id} data-question-id={question.id}>
+              <th scope="row">
+                {question.label}
+                {question.scopeCritical ? (
+                  // A word, never a tint alone: this is the one question where the three routes
+                  // genuinely differ in what they cover.
+                  <span className="comparison-scope"> Where the three routes differ in scope.</span>
+                ) : null}
+              </th>
+              {comparison.arguments.map((argument) => (
+                <td key={argument.id} data-argument-id={argument.id}>
+                  <b className="comparison-which">{argument.label}: </b>
+                  <InlineMathText text={argument.cells[question.id] ?? ""} />
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="fine">
+        {comparison.arguments.map((argument, n) => (
+          <span key={argument.id}>
+            {n > 0 && " "}
+            {argument.label}:{" "}
+            <a href={`/lab/${argument.instrumentRef}/`}>{openingWords(argument)}</a>, and{" "}
+            {/* Each link names its own row. Three links reading "the note this row cites" would be
+                three different destinations under one name, which the link-name gate refuses and a
+                screen reader cannot tell apart (WCAG 2.4.4); the misconception callouts carry the
+                same rule for the same reason. */}
+            <a href={`#note-${argument.sourceNoteId}`}>
+              {argument.label}
+              {"’"}s sources
+            </a>
+            {argument.sourceNoteId === note ? ", which is this note" : ""}.
+          </span>
+        ))}
+      </p>
+    </figure>
+  );
+}
+
+/**
+ * What a row's instrument link says. Two of the three rows address the same instrument because their
+ * formalisms are its modes and no mode is addressable yet, so the words carry the difference and name
+ * the step the reader still has to take. A row whose instrument needs no mode says so plainly.
+ */
+function openingWords(argument: { id: string; instrumentRef: string }): string {
+  const instrument = argument.instrumentRef.toUpperCase();
+  if (argument.id === "box-1906") return `Open ${instrument} and choose the 1906 box`;
+  if (argument.id === "four-momentum-modern")
+    return `Open ${instrument} and choose the four-momentum formalism`;
+  return `Open ${instrument}`;
+}
+
 export function PaperMargins({ margins }: { margins: Margins }) {
   const { misconceptions, notes, citations } = margins;
   return (
@@ -131,6 +243,9 @@ export function PaperMargins({ margins }: { margins: Margins }) {
               <p>
                 <InlineMathText text={note.claim} />
               </p>
+              {note.comparison ? (
+                <ComparisonTable note={note.id} comparison={note.comparison} />
+              ) : null}
               <p className="fine">
                 Sources:{" "}
                 {note.sourceSupport.map((source, n) => {
