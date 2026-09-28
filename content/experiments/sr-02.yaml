@@ -90,6 +90,24 @@ parameters:
       kind: linear
     role: independent
     commandClass: setup-change
+  - id: testPointDistance
+    label: "Test point distance"
+    accessibleName: "Distance from the source to the test point"
+    accessibleDescription: "Distance from the source to the point where the field is read, in metres."
+    quantityId: lengthMeasuredStationary
+    displayUnit: "m"
+    modelDomain:
+      min: 0
+      minInclusive: false
+      reason: "The field is read at a point outside the source, and the expression for it diverges as that distance goes to zero."
+    visualRange:
+      min: 0.01
+      max: 1
+    default: 0.05
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
 outputs:
   - id: emfMagnet
     quantityId: electromotiveForceMagnetFrame

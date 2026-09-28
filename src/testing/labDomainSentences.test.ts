@@ -184,18 +184,25 @@ describe("a refusal says what is wrong with the setting, not with the typing", a
     expect(s.labsReached).toBeGreaterThan(25);
     expect(s.controls).toBeGreaterThan(100);
     expect(s.probes).toBeGreaterThan(100);
-    // A one-way ratchet on the unchecked population: 56 when first measured on 2026-09-28, then 47,
-    // 33 and 30 as BM-07's nine, SR-08's seven, SR-12's six and four more were declared. Declaring
-    // a domain for one of them lowers this and the number here comes down with it, in the same
-    // commit; a new numeric control that declares none raises it and is refused here rather than
-    // passing unseen. It is a debt, never a budget.
+    // A one-way ratchet on the unchecked population: 56 when first measured on 2026-09-28, then
+    // 47, 33, 30 and 15 as the manifests were filled in. Declaring a domain for one of them lowers
+    // this and the number here comes down with it, in the same commit; a new numeric control that
+    // declares none raises it and is refused here rather than passing unseen. A debt, not a budget.
     //
-    // The 30 are not 30 unguarded settings, and the line above deliberately says only that they are
-    // outside what THIS sweep checks. Measured on 2026-09-28, 25 of the 33 then remaining refused a
-    // hostile value through their own lab's check, several by something a min and a max cannot say:
-    // a velocity's vector magnitude, an enumerated pair of coordinates, a lower endpoint against an
-    // upper one. What they lack is the range written down in the manifest, not a guard.
-    expect(s.numericControls - s.controls).toBeLessThanOrEqual(30);
+    // The 15 are not 15 unguarded settings, and the line above deliberately says only that they are
+    // outside what THIS sweep checks. Measured on 2026-09-28 by handing each validator 1e300 and
+    // -1e300, they are: five that declare an ENUMERATED domain, which a min and a max cannot say
+    // (bm-01.d and bm-07.d take one or two or three coordinates, where a range of 1 to 2 would
+    // admit 1.5; bm-06's two interval endpoints declare that any position is exact and are checked
+    // against each other instead); one bookkeeping identity that is not a control at all
+    // (bm-06.copiedDiffusivitySnapshotVersion, a snapshot version, where a physical reason would
+    // have to be invented); SR-04's four candidate coefficients, held to +/-1e6 by a NUMERICAL
+    // bound on what the comparison can evaluate, which is what ParameterSpec's numericalDomain is
+    // for and not a statement about the world; and five that accept both probes in silence because
+    // this model states no ceiling for them (lq-04.illustrativeC, sr-02.dipoleMoment,
+    // sr-12.sphereCharge, sr-12.loopCurrent, sr-12.pulseAmplitude: a constant that cancels, a
+    // source strength, a source charge, a loop current and a pulse amplitude).
+    expect(s.numericControls - s.controls).toBeLessThanOrEqual(15);
   });
 
   test("no control answers an out-of-range number with a sentence about the reader's typing", () => {

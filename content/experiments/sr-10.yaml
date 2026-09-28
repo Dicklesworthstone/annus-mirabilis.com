@@ -88,6 +88,24 @@ parameters:
       kind: linear
     role: independent
     commandClass: setup-change
+  - id: initialAmplitude
+    label: "Initial amplitude"
+    accessibleName: "Amplitude of the light complex in the stationary frame"
+    accessibleDescription: "Amplitude of the light complex in the stationary frame K."
+    quantityId: lightAmplitudeStationary
+    displayUnit: "1"
+    modelDomain:
+      min: 0
+      minInclusive: false
+      reason: "An amplitude is positive; at zero there is no light complex to transform."
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1.0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
 outputs:
   - id: frameSpeed
     quantityId: frameSpeed

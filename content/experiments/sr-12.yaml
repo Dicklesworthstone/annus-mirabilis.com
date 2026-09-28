@@ -180,6 +180,66 @@ parameters:
       kind: linear
     role: independent
     commandClass: setup-change
+  - id: carrierVelocityX
+    label: "Carrier velocity vx"
+    accessibleName: "Velocity component vx of the charge carriers"
+    accessibleDescription: "Velocity of the charge carriers along x in the stationary frame K, in metres per second."
+    quantityId: chargeVelocityStationary
+    displayUnit: "m/s"
+    modelDomain:
+      min: -299792458
+      max: 299792458
+      minInclusive: false
+      maxInclusive: false
+      reason: "No charge carrier moves at or beyond the speed of light; the speed of the three components together is checked as well."
+    visualRange:
+      min: -299792458
+      max: 299792458
+    default: 149896229
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: carrierVelocityY
+    label: "Carrier velocity vy"
+    accessibleName: "Velocity component vy of the charge carriers"
+    accessibleDescription: "Velocity of the charge carriers along y in the stationary frame K, in metres per second."
+    quantityId: chargeVelocityStationary
+    displayUnit: "m/s"
+    modelDomain:
+      min: -299792458
+      max: 299792458
+      minInclusive: false
+      maxInclusive: false
+      reason: "No charge carrier moves at or beyond the speed of light; the speed of the three components together is checked as well."
+    visualRange:
+      min: -299792458
+      max: 299792458
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: carrierVelocityZ
+    label: "Carrier velocity vz"
+    accessibleName: "Velocity component vz of the charge carriers"
+    accessibleDescription: "Velocity of the charge carriers along z in the stationary frame K, in metres per second."
+    quantityId: chargeVelocityStationary
+    displayUnit: "m/s"
+    modelDomain:
+      min: -299792458
+      max: 299792458
+      minInclusive: false
+      maxInclusive: false
+      reason: "No charge carrier moves at or beyond the speed of light; the speed of the three components together is checked as well."
+    visualRange:
+      min: -299792458
+      max: 299792458
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
 outputs:
   - id: chargeDensityStationary
     quantityId: chargeDensityStationary

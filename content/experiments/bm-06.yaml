@@ -257,6 +257,24 @@ parameters:
       base: 10
     role: independent
     commandClass: setup-change
+  - id: copiedDiffusivityValue
+    label: "Copied diffusivity"
+    accessibleName: "Diffusivity copied from another instrument's accepted snapshot"
+    accessibleDescription: "A diffusivity carried over from another instrument's accepted result, in square metres per second."
+    quantityId: diffusionCoefficient
+    displayUnit: "m2/s"
+    modelDomain:
+      min: 0
+      minInclusive: true
+      reason: "A diffusivity is not negative; a spread that ran backwards is not a result this model can carry."
+    visualRange:
+      min: 0
+      max: 1.0e-11
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
 outputs:
   - id: diffusionCoefficient
     quantityId: diffusionCoefficient

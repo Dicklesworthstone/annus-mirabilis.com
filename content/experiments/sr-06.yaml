@@ -91,6 +91,66 @@ parameters:
       kind: linear
     role: independent
     commandClass: setup-change
+  - id: secondBeta
+    label: "Second boost speed"
+    accessibleName: "Speed of the second boost as a fraction of c"
+    accessibleDescription: "Speed of the second boost, as a fraction of the speed of light."
+    quantityId: frameSpeed
+    displayUnit: "1"
+    modelDomain:
+      min: -1
+      max: 1
+      minInclusive: false
+      maxInclusive: false
+      reason: "No inertial observer moves at or beyond the speed of light"
+    visualRange:
+      min: -0.95
+      max: 0.95
+    default: 0.6
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: mediumIndex
+    label: "Medium index"
+    accessibleName: "Refractive index of the flowing medium"
+    accessibleDescription: "Refractive index of the medium the light passes through."
+    quantityId: dimensionlessRatio
+    displayUnit: "1"
+    modelDomain:
+      min: 1
+      max: 3
+      minInclusive: false
+      maxInclusive: true
+      reason: "Light travels more slowly in the medium than in vacuum, so the index is above 1, and the dragging comparison here stops at 3."
+    visualRange:
+      min: 1
+      max: 3
+    default: 1.333
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: flowSpeed
+    label: "Medium flow speed"
+    accessibleName: "Speed of the flowing medium"
+    accessibleDescription: "Speed at which the medium flows along the light path, in metres per second."
+    quantityId: frameSpeed
+    displayUnit: "m/s"
+    modelDomain:
+      min: -1000
+      max: 1000
+      minInclusive: true
+      maxInclusive: true
+      reason: "A liquid flowing at laboratory speeds, of the order Fizeau ran water at, far below the speed of light."
+    visualRange:
+      min: -20
+      max: 20
+    default: 7.06
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
 outputs:
   - id: composedSpeedOverC
     quantityId: frameSpeed

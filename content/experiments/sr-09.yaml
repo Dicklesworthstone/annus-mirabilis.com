@@ -68,6 +68,64 @@ parameters:
       kind: linear
     role: independent
     commandClass: setup-change
+  - id: detectorSpeed
+    label: "Detector speed"
+    accessibleName: "Speed of the detector as a fraction of c"
+    accessibleDescription: "Speed of the detector itself, a body in the apparatus, as a fraction of the speed of light."
+    quantityId: frameSpeed
+    displayUnit: "c"
+    modelDomain:
+      min: -1
+      max: 1
+      minInclusive: false
+      maxInclusive: false
+      reason: "A detector is a body in the apparatus, and no body moves at or beyond the speed of light."
+    visualRange:
+      min: -0.95
+      max: 0.95
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: secondOrderSpeed
+    label: "Second-order source speed"
+    accessibleName: "Source speed used for the second-order comparison"
+    accessibleDescription: "Source speed for the second-order Doppler comparison, as a fraction of the speed of light."
+    quantityId: frameSpeed
+    displayUnit: "c"
+    modelDomain:
+      min: 0
+      max: 1
+      minInclusive: false
+      maxInclusive: false
+      reason: "Above zero so there is a second-order term to compare, and below one because no source reaches the speed of light."
+    visualRange:
+      min: 0.001
+      max: 0.1
+    default: 0.005
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: countingWindowCycles
+    label: "Counting window"
+    accessibleName: "Length of the counting window in wave cycles"
+    accessibleDescription: "How many wave cycles the counting window spans."
+    quantityId: duration
+    displayUnit: "1"
+    modelDomain:
+      min: 0
+      minInclusive: false
+      reason: "A counting window spans a positive number of cycles; at zero there is nothing to count."
+    visualRange:
+      min: 1
+      max: 1000
+    default: 10
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
 outputs:
   - id: frameSpeed
     quantityId: frameSpeed
