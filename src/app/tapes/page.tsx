@@ -1,15 +1,21 @@
 import { loadTeachingTapes } from "../../content/teachingTapes.ts";
+import tapeLinks from "../../generated/tape-links.json";
 import "./tapes.css";
 
 /**
  * EVERY TEACHING TAPE (am-2rl9).
  *
- * The index for the 21 authored tapes, grouped by the instrument each belongs to. It exists because
- * a laboratory page cannot list its own tapes without editing 44 hand-written pages: the lab routes
- * are one directory each rather than a dynamic segment, and the shared layout does not know which
- * laboratory it is wrapping. One link from that layout reaches here, and every tape here links back
- * to its instrument, so the two directions are joined at this page rather than at 44 of them.
- * Listing a lab's tapes inline on the lab page is a better reader experience and is its own unit.
+ * The index for every authored tape, grouped by the instrument each belongs to. It exists because
+ * a reader who has not yet chosen an instrument has nowhere else to meet them: the lab routes are
+ * one directory each rather than a dynamic segment, so the shared layout cannot know which
+ * laboratory it is wrapping, and a reader would have to already be inside the right one.
+ *
+ * TWO CLAIMS IN THIS BLOCK HAVE SINCE BEEN OVERTAKEN and are corrected rather than left standing.
+ * It said "the 21 authored tapes", which drifted the day a 22nd was written; the counts a reader
+ * sees are derived and this no longer states one. And it said that listing a lab's own tapes
+ * inline "is its own unit", which shipped as bb350fac: LabTapes renders nothing where there is no
+ * tape, so it sits on every laboratory page that has one. The two directions are joined at both
+ * ends now, and this page is the catalogue rather than the only route.
  */
 export const metadata = {
   title: "Teaching tapes",
@@ -23,6 +29,11 @@ export default function Page() {
   for (const tape of tapes)
     byExperiment.set(tape.experimentId, [...(byExperiment.get(tape.experimentId) ?? []), tape]);
   const experiments = [...byExperiment.keys()].sort();
+  // DERIVED, because this sentence was wrong for four commits. It read "None of them runs the
+  // instrument for you: you set the values and compare", which was true until b5abbea3 gave 20 of
+  // the 22 a link that opens their instrument already set up. A count taken from the generated
+  // links cannot fall out of step with them the way a sentence did.
+  const opening = Object.keys(tapeLinks.links).length;
   const withNumbers = tapes.reduce(
     (n, t) => n + t.steps.filter((s) => s.expected.length > 0).length,
     0,
@@ -38,8 +49,12 @@ export default function Page() {
         {tapes.reduce((n, t) => n + t.steps.length, 0)} steps carry a number to check against.
       </p>
       <p className="tape-honesty">
-        Each page shows what the author recorded. None of them runs the instrument for you: you set
-        the values and compare.
+        Each page shows what the author recorded, not a result the page computed. {opening} of them
+        open their instrument with the walkthrough&apos;s first settings already in place;{" "}
+        {tapes.length - opening === 1
+          ? "on the other you set them"
+          : `on the other ${tapes.length - opening} you set them`}{" "}
+        yourself. Either way the instrument does the calculating and you compare.
       </p>
       {experiments.map((experimentId) => {
         // Every tape in a group names the same instrument, so the first one carries its name.

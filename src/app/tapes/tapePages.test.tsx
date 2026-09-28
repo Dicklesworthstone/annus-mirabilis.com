@@ -17,6 +17,7 @@ import { Window } from "happy-dom";
 import { renderToStaticMarkup } from "react-dom/server";
 import { parseYaml } from "../../content/provenance/yaml.ts";
 import { loadTeachingTapes } from "../../content/teachingTapes.ts";
+import tapeLinks from "../../generated/tape-links.json";
 import TapePage from "./[tape]/page.tsx";
 import TapesIndex from "./page.tsx";
 
@@ -75,6 +76,27 @@ describe("the teaching-tape pages", () => {
     // Both loops must have run: 34 steps and 16 carrying numbers on 2026-09-27.
     expect(stepsSeen).toBeGreaterThan(20);
     expect(numbersSeen).toBeGreaterThan(0);
+  });
+
+  test("the index's count of settings links is the records' count, not a number someone typed", () => {
+    // The sentence here read "None of them runs the instrument for you: you set the values and
+    // compare" for four commits after b5abbea3 made that false for 20 of the 22. The replacement
+    // is derived, and this is what keeps it that way: a literal creeping back in is the failure
+    // mode, and comparing the rendered number with the generated map catches it.
+    const document = dom(renderToStaticMarkup(TapesIndex()));
+    const sentence = document.querySelector(".tape-honesty")?.textContent ?? "";
+    const stated = sentence.match(/(\d+)\s+of them open their instrument/);
+    expect(
+      stated,
+      `the index does not state how many open their instrument: "${sentence}"`,
+    ).not.toBeNull();
+    const links = Object.keys((tapeLinks as { links: Record<string, unknown> }).links).length;
+    expect(Number(stated?.[1])).toBe(links);
+    // Non-vacuity: a page that stated zero, and a records file with no links, would agree.
+    expect(links).toBeGreaterThan(10);
+    // And the remainder it names is the rest of the corpus, not a second typed number.
+    const remainder = sentence.match(/on the other (\d+) you set them/);
+    if (remainder) expect(Number(remainder[1])).toBe(tapes.length - links);
   });
 
   test("every walkthrough leads back to the passage its instrument interrogates", async () => {
