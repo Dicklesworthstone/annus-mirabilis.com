@@ -87,10 +87,23 @@ describe("where a result is used later", () => {
       if (!cardHtml(use.to.paper, use.to.result))
         wrong.push(`${k.id}: ${use.to.result} is no card`);
     }
-    // Every card's claimed use: a connection on the map that records it.
+    // Every card's claimed use, in the form that card claimed it (dispatch 344). A CONNECTION must be
+    // on the map, because the map is what draws the paper-to-paper edges; a MARGIN RECORD is not an
+    // edge between papers and belongs on no map, so what is required of it is the card's own line and
+    // a link to the note on its explanation page. Requiring the map of both read as a defect the
+    // moment the first margin-backed claim landed, which is how this loop came to be split.
     for (const [paper, list] of cards)
       for (const c of list)
         for (const id of c.usedLater) {
+          const line = c.usedLaterText[id];
+          if (line) {
+            const section = usedLaterSection(cardHtml(paper, c.id));
+            if (!section?.includes(`href="/papers/${paper}/#note-${id}"`))
+              wrong.push(`${paper} ${c.id}: claims ${id} and does not link the note`);
+            if (!section?.includes(line))
+              wrong.push(`${paper} ${c.id}: claims ${id} and does not show its own line`);
+            continue;
+          }
           const k = connections.find((x) => x.id === id);
           if (!k?.uses || !map.includes(`href="#${id}"`))
             wrong.push(`${paper} ${c.id}: claims ${id}, which the map does not show as a use`);

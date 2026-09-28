@@ -89,20 +89,28 @@ export function toCard(
           })),
         }
       : {}),
-    // A later use, from the connection that records it (resultCards.ts has checked that its use
-    // starts at this card): its words, and a link to the card in the later paper that uses it.
-    // Margin records are cited by id once their registry exists; none can be listed until then.
-    // Without the connections record there is no recorded use to project.
-    usedBy: (connections ? record.usedLater : []).flatMap((id) => {
+    /**
+     * A later use, in the two forms a card may claim one (dispatch 344).
+     *
+     * A CONNECTION carries its own words and a card in a later paper: its text, and a link to that
+     * card. A MARGIN RECORD carries neither, so the card supplies the line (resultCards.ts refuses a
+     * margin-backed claim without one, and refuses mathematics in it, because this text becomes the
+     * label of a link) and the link goes to the note itself on the explanation page, where the
+     * evidence and its citations are. That is the whole point of citing rather than asserting: the
+     * words here are the card's, the support is the note's, and a reader can reach it in one press.
+     *
+     * The comment this replaces said margin records could be cited "once their registry exists". It
+     * exists (e437a5eb), and without this the projection dropped every such claim, so a card that
+     * claimed one showed no used-later line at all.
+     */
+    usedBy: record.usedLater.flatMap((id) => {
       const use = connections?.find((k) => k.id === id)?.uses;
-      return use
-        ? [
-            {
-              text: use.text,
-              href: `/papers/${use.to.paper}/view/results/#result-${use.to.result}`,
-            },
-          ]
-        : [];
+      if (use)
+        return [
+          { text: use.text, href: `/papers/${use.to.paper}/view/results/#result-${use.to.result}` },
+        ];
+      const line = record.usedLaterText[id];
+      return line ? [{ text: line, href: `/papers/${record.paper}/#note-${id}` }] : [];
     }),
     meanings: record.meanings,
     sources: record.printed.map((p) => ({ paper: record.paper, anchor: p.anchor })),

@@ -45,29 +45,33 @@ describe("the margin registry a card cites against", () => {
     expect(resultContext(ROOT, "brownian-motion")?.registries.marginRecords.size).toBe(0);
   });
 
-  test("a card may now cite a margin record, which nothing could do before", () => {
-    // THE ACCEPTANCE PATH, planted the way the refusals above are planted. It is planted rather than
-    // read off a real card because no card ships such a claim yet: the results face renders a later
-    // use as an edge of the connections map, so a margin-backed claim has nowhere to appear until
-    // am-read-results-face-uzh handles one. The citation path is what this bead owns, and this is it.
+  test("mass-energy's real cards cite margin records, and the registry is what licenses them", () => {
+    // THE ACCEPTANCE PATH, read off the real cards rather than planted, which it could not be when
+    // this test was written: the projection dropped a margin-backed claim, so none could ship until
+    // dispatch 344 gave one somewhere to appear. Four claims across three cards now do.
     const meFile = parseYaml(
       readFileSync(join(ROOT, "content", "results", "mass-energy.yaml"), "utf8"),
     ) as { cards: Record<string, unknown>[] };
     const context = resultContext(ROOT, "mass-energy");
     if (!context) throw new Error("mass-energy's result context did not load");
-    const claimed = {
-      ...meFile,
-      cards: meFile.cards.map((c) =>
-        c.id === "me-closing-remarks" ? { ...c, usedLater: ["note-me-e-radium-and-checks"] } : c,
+    const byRecord = meFile.cards.flatMap((c) =>
+      (Array.isArray(c.usedLater) ? c.usedLater : []).filter(
+        (u): u is { record: string } => typeof u === "object" && u !== null && "record" in u,
       ),
-    };
-    expect(checkResultCards(claimed, context).problems).toEqual([]);
-    // And with the registry empty, as it was until this change, that very claim is refused.
+    );
+    // Non-vacuity: with no such claim shipped, everything below passes while proving nothing.
+    expect(byRecord.length, "no card cites a margin record").toBeGreaterThan(0);
+    expect(checkResultCards(meFile, context).problems).toEqual([]);
+
+    // And with the registry empty, as it was until e437a5eb, every one of those claims is refused.
     const before = resultContext(ROOT, "mass-energy", EMPTY_REGISTRIES);
     if (!before) throw new Error("mass-energy's result context did not load");
-    expect(checkResultCards(claimed, before).problems).toEqual([
-      "mass-energy card me-closing-remarks: claims a later use, note-me-e-radium-and-checks, that no connection or margin record names",
-    ]);
+    const refused = checkResultCards(meFile, before).problems;
+    expect(refused.length).toBe(byRecord.length);
+    for (const { record } of byRecord)
+      expect(refused.join("\n")).toContain(
+        `claims a later use, ${record}, that no connection or margin record names`,
+      );
   });
 
   test("an id no editorial note names is still refused, and an empty registry licenses nothing", () => {

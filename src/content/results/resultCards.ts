@@ -78,7 +78,23 @@ export type ResultCardRecord = Readonly<{
     preset?: Readonly<{ id: string; label: string }> | undefined;
   }>[];
   misconceptionIds: readonly string[];
+  /** The ids a card claims a later use by, whichever of the two forms the record wrote. */
   usedLater: readonly string[];
+  /**
+   * The card's own line for a later use it claims by MARGIN RECORD, keyed by that record's id
+   * (dispatch 344).
+   *
+   * WHY THE CARD SAYS IT AND NOT THE NOTE. A connection carries `uses.text`, a short line written for
+   * exactly this place, and the face renders a later use as the LABEL OF A LINK. A margin record
+   * carries no such line: it has a `claim`, which is a paragraph, and two of the four mass-energy
+   * notes hold inline mathematics (`\(L/2\)`, `\(\Delta E\)`). Projecting a claim, or its first
+   * sentence, would put raw TeX in a link label, and AGENTS.md is flat that raw LaTeX is never visible
+   * to a reader. So a margin-backed claim is written as `{ record, text }`: the words are the card's
+   * own pointer and the record is the citation behind them, which is what "cited, not asserted" means
+   * here. A connection-backed claim stays a bare id and must not carry a line, because it already has
+   * one.
+   */
+  usedLaterText: Readonly<Record<string, string>>;
   printedCheck?: string | undefined;
   meanings: Readonly<{
     argumentStatus: string;
@@ -414,13 +430,32 @@ export function checkResultCards(
     // A later use is claimed only where a record says so: a margin record, or a connection whose
     // recorded use starts at this very card (dispatch 253). A connection that joins papers without
     // one using the other, or records the use of another card, supports no claim here.
-    const usedLater = strings(c.usedLater);
+    const later = usedLaterOf(c.usedLater, at);
+    const usedLater = later.ids;
+    const usedLaterText = later.text;
+    problems.push(...later.problems);
     for (const u of usedLater) {
-      if (context.registries.marginRecords.has(u)) continue;
+      if (context.registries.marginRecords.has(u)) {
+        // A margin record has no line of its own for a link label, so the card must supply one.
+        if (!usedLaterText[u])
+          problems.push(
+            `${at}: claims a later use, ${u}, a margin record, and gives no line of its own for it`,
+          );
+        continue;
+      }
       const connection = context.connections?.find((k) => k.id === u);
-      if (!connection)
+      // An id that names nothing gets ONE complaint, the one that says so. The line check below fires
+      // only for a real connection: with it above this lookup, an unknown id drew both, and the second
+      // told the author their id was a connection when it was nothing at all.
+      if (!connection) {
         problems.push(`${at}: claims a later use, ${u}, that no connection or margin record names`);
-      else if (!connection.uses)
+        continue;
+      }
+      if (usedLaterText[u])
+        problems.push(
+          `${at}: claims a later use, ${u}, with a line of its own, but a connection carries its own words`,
+        );
+      if (!connection.uses)
         problems.push(
           `${at}: claims a later use, ${u}, a ${connection.kind} connection that records no use`,
         );
@@ -471,6 +506,7 @@ export function checkResultCards(
       probes,
       misconceptionIds,
       usedLater,
+      usedLaterText,
       ...(printedCheck ? { printedCheck } : {}),
       meanings,
       selectionReason,
@@ -483,6 +519,45 @@ export function checkResultCards(
           `${context.paper} misconception ${misconception} names result ${r}, which is no card`,
         );
   return { cards, problems };
+}
+
+/**
+ * A card's later-use claims, in either form a record may write them (dispatch 344): a bare id, which
+ * is a connection carrying its own words, or `{ record, text }`, which is a margin record plus the
+ * card's own line for it. Mathematics in that line is refused here rather than rendered, because the
+ * face makes it the label of a link and a reader must never be shown raw TeX.
+ */
+function usedLaterOf(
+  raw: unknown,
+  at: string,
+): Readonly<{ ids: string[]; text: Record<string, string>; problems: string[] }> {
+  const ids: string[] = [];
+  const text: Record<string, string> = {};
+  const problems: string[] = [];
+  for (const entry of Array.isArray(raw) ? raw : []) {
+    if (typeof entry === "string") {
+      ids.push(entry);
+      continue;
+    }
+    const o = (entry ?? {}) as Record<string, unknown>;
+    const record = str(o.record);
+    const line = str(o.text);
+    if (!record) {
+      problems.push(`${at}: a later use names no record`);
+      continue;
+    }
+    ids.push(record);
+    if (!line) {
+      problems.push(`${at}: the later use ${record} carries no line of its own`);
+      continue;
+    }
+    if (/\\\(|\\\[|\\begin\{|\$/.test(line)) {
+      problems.push(`${at}: the later use ${record} writes mathematics in a link label: ${line}`);
+      continue;
+    }
+    text[record] = line;
+  }
+  return { ids, text, problems };
 }
 
 function recordIds(root: string, dir: string, paper: string): ReadonlySet<string> {

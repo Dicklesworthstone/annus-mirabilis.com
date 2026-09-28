@@ -77,7 +77,9 @@ cards:
       - instrument: me-01
         question: "With the observer at rest, what does each pulse carry and what does the body lose?"
         preset: me-01-rest-frame
-    usedLater: []
+    usedLater:
+      - record: note-me-f-two-pulses
+        text: "A later reading treats the two pulses as one system with an invariant mass, which the paper does not use."
     meanings:
       argumentStatus: "A chosen arrangement of the thought experiment"
       modelStatus: "Exact within the model"
@@ -224,7 +226,11 @@ cards:
         question: "Draw the system boundary around the body alone, then around the body and the light: which system loses mass?"
         preset: me-03-sealed-lamp-and-mirror
     printedCheck: mass-energy-printed-factor
-    usedLater: []
+    usedLater:
+      - record: note-me-c-1906-poincare
+        text: "In 1906 Einstein reached the same rule by another route, crediting Poincaré of 1900 for its formal part."
+      - record: note-me-boundary-later-derivations
+        text: "The 1907 paper turned this into a rest energy, which these three pages do not reach."
     meanings:
       argumentStatus: "The paper's conclusion, and an inference beyond it"
       modelStatus: "Exact in the limit of small speed; the conversion uses the printed constant"
@@ -257,7 +263,9 @@ cards:
       - instrument: me-03
         question: "Read the radium card's boundary note: what would a measurement have to compare?"
         preset: me-03-card-radium
-    usedLater: []
+    usedLater:
+      - record: note-me-e-radium-and-checks
+        text: "The measured checks the radium remark proposes came decades later, from nuclear physics."
     meanings:
       argumentStatus: "Two conditional remarks"
       modelStatus: "Outside the calculation"
