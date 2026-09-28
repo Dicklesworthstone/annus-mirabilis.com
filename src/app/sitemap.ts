@@ -29,12 +29,13 @@ export const FIXED_PAGES = [
   "/connections/",
   // The capstones are listed rather than exempted: each is a page at a fixed address with its own
   // text, reachable by a reader who never passes through the discovery route, and nothing about it
-  // is per-device or a duplicate of another canonical. Three are written, mass-energy
-  // (am-disc-capstones-infra-3352), brownian-motion (am-disc-capstone-brownian-f8tq) and
-  // light-quanta (am-disc-capstone-light-quanta-98xc); special-relativity joins with its record.
+  // is per-device or a duplicate of another canonical. All four are written: mass-energy
+  // (am-disc-capstones-infra-3352), brownian-motion (am-disc-capstone-brownian-f8tq), light-quanta
+  // (am-disc-capstone-light-quanta-98xc) and special-relativity (am-disc-capstone-relativity-t8hg).
   "/capstones/brownian-motion/",
   "/capstones/light-quanta/",
   "/capstones/mass-energy/",
+  "/capstones/special-relativity/",
   "/tours/",
   "/tapes/",
   "/search/",

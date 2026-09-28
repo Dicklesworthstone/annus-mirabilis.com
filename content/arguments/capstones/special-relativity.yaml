@@ -1,0 +1,212 @@
+# THE RELATIVITY CAPSTONE (am-disc-capstone-relativity-t8hg).
+#
+# Nine claims, spanning both parts of the paper. The kinematical part is the famous one and it is
+# five of the nine; the electrodynamical part, sections six to ten, is four, because "the difficult
+# closing sections (paper 3, sections 6 to 10) never disappear behind the familiar headlines".
+#
+# WHAT THE READER IS ASKED TO SEPARATE is what the paper CHOOSES from what it DERIVES. There are two
+# choices and the record marks each one as an assumption a claim names rather than as a step: the
+# synchronization of distant clocks (a4, a stipulation, section one) and the definition of force used
+# for the electron's masses (a9, a convention, section ten). Everything else between them is
+# derivation.
+#
+# NO MATHEMATICS IN THE TEXT, and not for want of it in the paper. The page renders these strings as
+# prose, so a dollar-delimited formula here would reach a reader as raw LaTeX, which the edition
+# never shows. The three sibling records carry no mathematics either. This is why the notation is
+# written in WORDS: Einstein's beta is the modern gamma, and his tau is the moving system's time
+# rather than the modern proper time. AGENTS.md forbids respelling a printed symbol, and a respelling
+# has broken the build through a lesson tie before, so the identification is stated rather than
+# performed. The equations below carry the symbols, from their own records, through their expression
+# trees.
+#
+# ANCHORS ARE PRINTED UNITS of the relativity edition, checked by corpusResolvers. One is worth a
+# note: c1's anchor is the introduction, where the paper announces "these two presuppositions" and
+# states the first of them in the words this claim uses. The second postulate is stated formally, and
+# both are numbered, at the head of section two, which is where c3's anchor sends the reader.
+id: capstone-special-relativity
+paper: special-relativity
+title: "Rebuild the electrodynamics of moving bodies"
+question: "How much of this paper can you rebuild from two postulates and one definition, and which two steps does it choose rather than derive?"
+
+claims:
+  - id: c1
+    text: "Two postulates. The same laws of electrodynamics and optics hold in every coordinate system in which the equations of mechanics hold, and a ray of light in empty space always travels at one definite speed, whatever the motion of the body that emitted it. The introduction announces both; the head of the kinematical part states them as numbered principles."
+    anchor: s0-p2
+    logicalRole: assumption
+    buildsOn: []
+    assumptionIds: [a1, a5]
+  - id: c2
+    text: "Clocks at two places are brought into agreement by a stipulation rather than by a measurement. A ray leaves the first clock, is reflected at the second and returns, and the second clock is set so that the outward and the return times come out equal. The paper says in its own words that this is settled by definition."
+    anchor: eq-s1-d1
+    logicalRole: definition
+    buildsOn: [c1]
+    assumptionIds: [a4, a7]
+  - id: c3
+    text: "Simultaneity carries no absolute meaning. Clocks synchronized by that stipulation in the stationary system are not synchronous for an observer travelling with a rod, so the length of a moving rod and the time of a distant event are answers to a stated measuring procedure rather than properties a body carries with it."
+    anchor: s2-p8
+    logicalRole: derivation
+    buildsOn: [c1, c2]
+    assumptionIds: [a4, a6]
+  - id: c4
+    text: "The two postulates, the definition of time, homogeneity, isotropy and reciprocity together fix the transformation between the systems. The paper prints a time equation and three position equations, carrying the factor it writes as beta, which is the modern gamma, and a further factor of the speed alone that the end of the section shows to equal unity. The auxiliary coordinate introduced earlier in the section, the distance from the moving origin reckoned in stationary-system terms, is not the moving system's own coordinate."
+    anchor: eq-s3-d25
+    logicalRole: derivation
+    buildsOn: [c1, c2]
+    assumptionIds: [a1, a2, a3, a4, a5]
+  - id: c5
+    text: "Three consequences follow from the transformation. A sphere at rest in the moving system is measured from the stationary system as an ellipsoid shortened along the direction of motion by the square root of one less the squared speed ratio; a clock carried along runs slow by that same factor; and two collinear velocities compose so that their result stays below the speed of light."
+    anchor: s4-p3
+    logicalRole: derivation
+    buildsOn: [c4]
+    assumptionIds: [a6]
+  - id: c6
+    text: "The Maxwell and Hertz equations for empty space keep their form in the moving system, with the electric and the magnetic components mixing under the transformation. What the magnet's rest system accounts for as a force on the conductor's moving charges, proportional to the charge's velocity across the magnetic field, is in the conductor's rest system an electric field. The asymmetry the paper opens with disappears, and the electromotive force is left as an auxiliary concept."
+    anchor: s6-p7
+    logicalRole: derivation
+    buildsOn: [c1, c4]
+    assumptionIds: [a8]
+  - id: c7
+    text: "The transformed wave yields Doppler's principle and aberration, and the energy of a light complex changes with the observer's motion by the same law as its frequency. The pressure of radiation on a moving mirror follows from the same transformation."
+    anchor: s8-p5
+    logicalRole: derivation
+    buildsOn: [c6]
+    assumptionIds: [a8]
+  - id: c8
+    text: "With convection currents present the equations again keep their form, provided the density of electricity and the velocity of electricity transform together. Lorentz's electromagnetic foundation therefore agrees with the principle of relativity, and the charge of a moving body comes out the same in both systems."
+    anchor: eq-s9-d4
+    logicalRole: derivation
+    buildsOn: [c6]
+    assumptionIds: [a8]
+  - id: c9
+    text: "For a slowly accelerated electron the paper adopts a definition of force, comparing the force in the electron's momentary rest system with the acceleration reckoned in the stationary system, and obtains a longitudinal and a transverse coefficient which differ from each other and from the rest mass. The kinetic energy it derives grows without bound as the speed approaches that of light, and the section closes by saying that another definition of force would give other numbers for the masses."
+    anchor: eq-s10-d4
+    logicalRole: derivation
+    buildsOn: [c6, c8]
+    assumptionIds: [a9, a10]
+
+# The order the paper prints, which is one of the arrangements its twelve edges admit. The page
+# computes how many there are from the chain rather than printing a number authored here.
+paperOrder: [c1, c2, c3, c4, c5, c6, c7, c8, c9]
+# Where the worksheet starts. Authored and fixed: it breaks six of the twelve edges, which is the
+# reader's work. It is not a shuffle and it is not the paper's order.
+startOrder: [c5, c1, c7, c3, c9, c2, c6, c4, c8]
+
+assumptions:
+  - id: a1
+    statement: "A stationary system is one in which Newton's mechanical equations hold, and the second system moves uniformly with respect to it."
+    kind: premise
+    anchor: s1-p1
+  - id: a2
+    statement: "Space and time are homogeneous, and space is isotropic."
+    kind: premise
+    anchor: s3-p5
+  - id: a3
+    statement: "The equations of the transformation are linear, which the paper argues from that homogeneity rather than assuming outright."
+    kind: premise
+    anchor: s3-p5
+  - id: a4
+    statement: "Distant clocks are set by the stipulation that light takes equal times to travel out and to travel back between them. This is the first of the paper's two choices."
+    kind: stipulation
+    anchor: s1-p7
+  - id: a5
+    statement: "The speed of light in empty space is a universal constant in the stationary system."
+    kind: premise
+    anchor: s1-p10
+  - id: a6
+    statement: "Rigid measuring rods and identical clocks, on which the introduction says every theory of this kind rests, because its assertions concern relations between rigid bodies, clocks and electromagnetic processes."
+    kind: idealization
+    anchor: s0-p3
+  - id: a7
+    statement: "Whether two events at approximately the same place are simultaneous is taken as unproblematic. The footnote to the first section sets that imprecision aside, and it is about simultaneity at one place rather than about the concept of the rigid body."
+    kind: idealization
+    anchor: s1-fn1
+  - id: a8
+    statement: "The principle of relativity is applied to the Maxwell and Hertz equations, so that they hold in the moving system if they hold in the stationary one."
+    kind: premise
+    anchor: s6-p3
+  - id: a9
+    statement: "Force is defined so that the force measured in the electron's momentary rest system is set against the acceleration reckoned in the stationary system. This is the second of the paper's two choices, and the paper names it as one."
+    kind: convention
+    anchor: s10-p8
+  - id: a10
+    statement: "The electron is a point charge, slowly accelerated, and it radiates nothing."
+    kind: idealization
+    anchor: s10-p1
+
+# Four printed displays, one from each stage of the argument. Each carries its own spoken form and is
+# bound to a printed display of this paper, so a reader can be sent to the page it appears on.
+equations:
+  - equationId: eq-model-sr-sync-equal-legs
+    purpose: "The condition that sets a distant clock. Read it as the stipulation it is: the outward and the return light times are made equal, not found equal."
+  - equationId: eq-model-sr-map-time
+    purpose: "The time equation of the transformation, in the paper's own notation and in modern symbols generated from the same expression tree."
+  - equationId: eq-model-sr-velocity-x
+    purpose: "How two collinear velocities compose, with the denominator that keeps the result below the speed of light."
+  - equationId: eq-model-sr-field-ey
+    purpose: "One component of the field transformation, where a field that is purely electric in one system is a mixture of the two in the other."
+
+presets:
+  - instrumentId: sr-01
+    presetId: sr-01-sync-0-10
+    purpose: "Send a signal out and back between two stations and watch which time the agreement assigns to the reflection. The laboratory registers a second flash that leaves later, whose assigned time again falls midway through its own pair, which is what makes the rule a convention rather than a discovery."
+    lookFor:
+      - scenarioId: events-synchronization-midpoint
+        outputId: assignedRemoteTime
+        description: "The time assigned to the reflection falls midway between departure and return, because that is what the stipulation says to do."
+      - scenarioId: events-synchronization-midpoint
+        outputId: roundTripSpeedLsPerS
+        description: "The round-trip speed the same exchange reports is the constant the paper stipulates, and it is a consequence of the setting rather than a measurement of it."
+  - instrumentId: sr-03
+    tapeId: the-boost-to-0.6c
+    purpose: "Follow the teaching tape through one boost and watch which pairs of events count as a length and which do not."
+    lookFor:
+      - scenarioId: kinematics-boost-0.6c
+        outputId: deltaTPrimeS
+        description: "A pair of events simultaneous in the stationary system arrives in the moving system with a time separation that is not zero and is negative, so the two ends were never read at one moving-system time."
+      - scenarioId: kinematics-boost-0.6c
+        outputId: deltaXPrimeLs
+        description: "The separation of that same pair is larger than the rod at rest, and the instrument refuses to call it a length, because the readings were not simultaneous in the system doing the measuring."
+      - scenarioId: kinematics-boost-0.6c
+        outputId: contractedLengthLs
+        description: "A pair that is simultaneous in the measuring system does count, and its separation is shorter than the rest length by the factor the fourth section prints."
+  - instrumentId: sr-08
+    presetId: sr-08-pure-electric-0.6c
+    purpose: "Begin with a field that is purely electric in the stationary system and change system. The magnetic component that appears is not a second field; it is the same field described from a system in motion."
+    lookFor:
+      - scenarioId: fields-sr08-frame-change
+        outputId: EprimeY
+        description: "The transverse electric component in the moving system is larger than in the stationary one, by the factor the transformation carries."
+      - scenarioId: fields-sr08-frame-change
+        outputId: BprimeZ
+        description: "A magnetic component appears where the stationary system had none, with the sign the transformation fixes and not one chosen for the picture."
+  - instrumentId: sr-13
+    presetId: sr-13-convention-0.6
+    purpose: "Change the definition of force and watch which numbers move. One transverse coefficient answers to the paper's convention and another to the later one, the longitudinal coefficient answers to neither, and the quantities an experiment could actually measure stay where they are."
+    lookFor:
+      - scenarioId: electron-conventions
+        outputId: transverseMassComoving
+        description: "The transverse coefficient under the definition of force this paper adopts."
+      - scenarioId: electron-conventions
+        outputId: transverseMassLaboratory
+        description: "The transverse coefficient under the later definition, which differs from the paper's while describing the same electron in the same field."
+      - scenarioId: electron-conventions
+        outputId: longitudinalMass
+        description: "The longitudinal coefficient, which comes out the same under either definition."
+      - scenarioId: electron-energy-fixtures
+        outputId: acceleratingPotentialExact
+        description: "The potential difference this electron must fall through to reach that speed, well above what the Newtonian expression asks for."
+      - scenarioId: electron-energy-fixtures
+        outputId: radiusCurvatureMagneticExact
+        description: "The radius a magnetic field bends this electron into, which does not depend on which definition of force was chosen, because it is a prediction rather than a convention."
+
+explanationPrompt: "Explain to a friend why “at the same time” needs a procedure, how that procedure changes the electrodynamics of a magnet and a coil, and which two things the paper chooses rather than derives."
+
+selfCheckNotes:
+  c2: "A definition, not a result. It rests on the stipulation of equal light times each way and on setting the imprecision in simultaneity at one place aside, which is why it names those two and derives nothing."
+  c6: "Read the direction with care. In the magnet's rest system there is a force on the conductor's moving charges; in the conductor's rest system there is an electric field. The two accounts agree, and the asymmetry was in the description rather than in the phenomenon."
+  c8: "This extends the claim before it rather than repeating it. There the equations kept their form for empty space; here they keep it with electricity in motion, which is what lets the charge of a moving body come out the same in both systems."
+  c9: "The transverse coefficient depends on the definition of force this section adopts. The predictions an experiment could check, the potential difference and the radius of the deflection, do not."
+
+limits: "Spacetime diagrams and the invariance of the interval come from Minkowski's lecture of 1908. They are later aids and neither is a premise of anything above. The train and the embankment are Einstein's popular illustration of 1917 for the first two sections, not the argument of 1905. This page does not say what led Einstein to the paper: the unsuccessful attempts to detect the earth's motion through the light medium appear in the introduction among examples of a similar kind, and a reconstruction is not a cause. The two velocity-dependent masses are the paper's own language, and the modern account instead keeps one invariant mass and puts the speed dependence into energy and momentum; both are shown here, and neither is folded into the other."
+
+reviewRecordIds: []
