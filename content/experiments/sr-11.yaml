@@ -219,7 +219,13 @@ owner:
       module: "src/physics/reference/waves.ts"
       exportName: "evaluateSr11"
       independentReferences:
+        # The pressure on a perfect reflector is what section eight is for: its closing paragraph
+        # says the energy arriving at the mirror and the energy leaving it differ by the work done
+        # by the light's pressure, "which gives the pressure exactly". So the independent reference
+        # this kernel wants checked is its radiationPressure output. The entry named no quantity at
+        # all, and the resolver stringified the absence into a filename (am-33q6, dispatch 366).
         - experimentId: sr-11
+          quantityId: radiationPressure
   identifierBindings:
     - kernelFunction: evaluateSr11
       identifier: "beta"

@@ -393,8 +393,16 @@ owner:
       language: ts
       module: "src/physics/reference/electron.ts"
       exportName: "evaluateSr13"
-      independentReferences:
-        - experimentId: sr-13
+      # An independentReferences entry was declared here naming no quantity, so the resolver
+      # stringified the absence and reported a missing file content/verification/sr-13/undefined.yaml
+      # (am-33q6, dispatch 366). It is removed rather than completed, because WHICH output an
+      # independent reference should check is a judgement here and not a lookup: this kernel's
+      # headline outputs are the longitudinal and transverse masses, and the transverse mass depends
+      # on the force convention, which AGENTS.md's notation concordance names as a substantive
+      # modernization rather than a change of symbol. Choosing one would embed that convention in a
+      # verification record. Section ten's convention-free culmination is the electron's kinetic
+      # energy, which is the recommendation on the bead; restoring the entry with a quantity chosen
+      # deliberately is a smaller change than correcting a wrong one later.
   identifierBindings:
     - kernelFunction: evaluateSr13
       identifier: "acceleratingPotential"
