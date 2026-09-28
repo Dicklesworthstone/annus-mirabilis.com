@@ -17,6 +17,8 @@ pathIgnorePatterns = [
   # am-4cpx: the source layers are derived from the tree, and their proof runs in the node lane so
   # that it is not checked by the same lane the manifest report is generated in.
   "src/content/manifest/sourceLayers.node.test.ts",
+  # am-f3e4: reads the historical pins with `git show`, which bun's runner cannot spawn here.
+  "src/content/kernel/declaredPins.node.test.ts",
   "src/testing/a11y/accessibleNamesBrowser.test.mjs",
   "src/testing/styles/computedStylesLayout.test.ts",
   "src/testing/foundCalculus.browser.test.mjs",
