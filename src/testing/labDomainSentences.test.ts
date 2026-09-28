@@ -61,7 +61,16 @@ const NOT_YET_INFORMATIVE: ReadonlyMap<string, string> = new Map();
 type Refusal = Pick<RequestRefusal, "message" | "details">;
 type Result = Readonly<{ kind: string; refusal?: Refusal }>;
 
-/** A value just past each declared bound, inside what a double can represent. */
+/**
+ * A value just past each declared bound, inside what a double can represent.
+ *
+ * Non-finite values are deliberately NOT probed here. An infinite stored value is refused before a
+ * validator by every path a reader has: readTypedNumber refuses the field, and a permalink decoder
+ * answers with its own sentence. Probing Infinity at this layer reported 101 of 165 controls as
+ * uninformative for a state no reader can reach, which is a measurement of the backstop rather than
+ * of the reader's experience. The reachable half of that defect is a typed text, and it is tested
+ * where the reader meets it, in typedNumber.test.ts.
+ */
 function justOutside(d: DeclaredDomain): number[] {
   const span = d.min !== undefined && d.max !== undefined ? d.max - d.min : 0;
   const out: number[] = [];
@@ -113,12 +122,17 @@ async function sweep() {
   let controls = 0;
   let labsReached = 0;
   let probes = 0;
+  let numericControls = 0;
   for (const lab of labs) {
     const domains = Object.entries(declaredDomains(lab));
     if (domains.length === 0) continue;
     const bound = await labBindings(lab);
     if (!bound) continue;
     labsReached++;
+    // Every setting a reader can type a number into, whether or not a domain is declared for it.
+    // Without this the sweep's denominator is the population that already declares a domain, and a
+    // control with none is not reported as unchecked - it is not reported at all.
+    for (const v of Object.values(bound.defaults)) if (typeof v === "number") numericControls++;
     for (const [id, d] of domains) {
       if (typeof bound.defaults[id] !== "number") continue;
       controls++;
@@ -148,7 +162,7 @@ async function sweep() {
       if (informative) informativeKeys.add(key);
     }
   }
-  return { findings, controls, labsReached, probes, informativeKeys };
+  return { findings, controls, labsReached, probes, informativeKeys, numericControls };
 }
 
 describe("a refusal says what is wrong with the setting, not with the typing", async () => {
@@ -159,11 +173,21 @@ describe("a refusal says what is wrong with the setting, not with the typing", a
       `[domain sentences] ${s.informativeKeys.size} of ${s.controls} controls across ${s.labsReached} labs ` +
         `answer an out-of-range number by naming the setting; ${s.probes} probes`,
     );
+    // The second number is the one that is easy not to print. A reader can type into all of these;
+    // this sweep can only speak for the ones whose manifest declares a range.
+    console.log(
+      `[domain sentences] ${s.controls} of ${s.numericControls} numeric controls declare a domain; ` +
+        `${s.numericControls - s.controls} are outside what this sweep can check`,
+    );
     // Floors, not a census. A sweep that reached nothing would pass every assertion below by
     // examining nothing, and zero reads exactly like a pass.
     expect(s.labsReached).toBeGreaterThan(25);
     expect(s.controls).toBeGreaterThan(100);
     expect(s.probes).toBeGreaterThan(100);
+    // A one-way ratchet on the unchecked population, measured at 56 on 2026-09-28. Declaring a
+    // domain for one of them lowers this and the number here can follow it down; a new numeric
+    // control that declares none raises it and is refused here rather than passing unseen.
+    expect(s.numericControls - s.controls).toBeLessThanOrEqual(56);
   });
 
   test("no control answers an out-of-range number with a sentence about the reader's typing", () => {
