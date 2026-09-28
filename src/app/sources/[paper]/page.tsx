@@ -208,7 +208,9 @@ function ReceiptRecord({
           {j.series}, volume {j.volume} (whole series {j.wholeSeriesVolume}), issue {j.issue}, pages{" "}
           {j.pages.first} to {j.pages.last}. The issue number is taken from {j.issueSource}.
         </p>
-        <dl className="receipt-dates">
+        {/* The label-and-value list /sources/ already uses for a scan's facts, and the same
+            markup: a dl of div/dt/dd, stacked on a phone, two columns once there is room. */}
+        <dl className="sources-facts">
           {fm.paper.dates.map((d) => (
             <div key={d.type}>
               <dt>{DATE_LABELS[d.type] ?? d.type}</dt>
@@ -246,10 +248,9 @@ function ReceiptRecord({
         </p>
         <p>
           The file is {scan.pageCount} {scan.pageCount === 1 ? "page" : "pages"} of{" "}
-          <code>{scan.mimeType}</code>. Its SHA-256 is{" "}
-          <code className="receipt-digest">{scan.sha256}</code>, and that is the digest of the file
-          this site serves, not of a copy of it elsewhere. A scan whose digest differs is a
-          different scan, whatever it is called.
+          <code>{scan.mimeType}</code>. Its SHA-256 is <code>{scan.sha256}</code>, and that is the
+          digest of the file this site serves, not of a copy of it elsewhere. A scan whose digest
+          differs is a different scan, whatever it is called.
         </p>
       </section>
     </>
