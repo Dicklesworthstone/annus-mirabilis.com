@@ -128,3 +128,43 @@ describe("scenario runner", () => {
     expect(resDisagree.maxDeviation).toBeCloseTo(0.2928932, 5);
   });
 });
+
+describe("a scenario naming a constant set nobody registered", () => {
+  /**
+   * The refusal at run.ts's resolveSet. It carries the typed code
+   * `constant-set-not-registered`, the same code `constants.ts` refuses with, on the error's
+   * `cause`, and runOne puts that code in front of the failed result's message so a failure can be
+   * triaged by its code rather than by matching an English sentence.
+   *
+   * Before 2026-09-27 the throw carried prose and no code at all, so refusalRatchet could not see
+   * the site: it counted as neither tested nor untested and appeared in no report.
+   */
+  test("fails with the typed code rather than only prose, and does not throw out of the runner", () => {
+    const real = loadScenarios(defaultScenarioDirs()).find(
+      (item) => item.scenario.id === "self-test-golden",
+    );
+    expect(real, "the fixture this test rewrites is gone").toBeDefined();
+    if (!real) return;
+
+    // Not a `scenario-` id: resolveSet builds a declared set for those on purpose, so an id with
+    // that prefix would take the fallback and never reach the refusal.
+    const unregistered = {
+      ...real,
+      scenario: { ...real.scenario, constantSetId: "not-a-registered-constant-set" },
+    };
+    expect(unregistered.scenario.constantSetId.startsWith("scenario-")).toBe(false);
+
+    const { results, failed } = runScenariosIsolated([unregistered]);
+    expect(failed).toBe(1);
+    const only = results[0];
+    expect(only?.status).toBe("failed");
+    expect(only?.message).toContain("constant-set-not-registered");
+    expect(only?.message).toContain("not-a-registered-constant-set");
+
+    // The positive half: the same fixture, untouched, still passes. Without this the assertions
+    // above would hold for a runner that failed every scenario it was given.
+    const untouched = runScenariosIsolated([real]);
+    expect(untouched.failed).toBe(0);
+    expect(untouched.results[0]?.status).toBe("passed");
+  });
+});

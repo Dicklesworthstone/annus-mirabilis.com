@@ -256,7 +256,13 @@ function resolveSet(id: string): ConstantSet {
         ],
       });
     }
-    throw new Error(`Constant set ${id} is not registered.`);
+    // The same typed code the constants module refuses with (constants.ts:882), carried on the
+    // error's `cause` so it is a real property a caller can branch on rather than prose a reader
+    // has to parse, and so refusalRatchet can see the site at all. A kebab code inside a template
+    // literal is invisible to the scanner: its positional pattern reads a QUOTED first argument.
+    throw new Error(`Constant set ${id} is not registered.`, {
+      cause: { code: "constant-set-not-registered", constantSetId: id },
+    });
   }
 }
 
@@ -379,7 +385,19 @@ function runOne(
   try {
     set = resolveSet(scenario.constantSetId);
   } catch (err) {
-    return { ...base, status: "failed", message: err instanceof Error ? err.message : String(err) };
+    // The refusal's typed code travels to the reader of the result, not only its prose. resolveSet
+    // puts `constant-set-not-registered` on the error's `cause`, and a failed scenario that says the
+    // code can be triaged by the code rather than by matching an English sentence.
+    const code =
+      err instanceof Error && typeof err.cause === "object" && err.cause !== null
+        ? (err.cause as { code?: unknown }).code
+        : undefined;
+    const prose = err instanceof Error ? err.message : String(err);
+    return {
+      ...base,
+      status: "failed",
+      message: typeof code === "string" ? `${code}: ${prose}` : prose,
+    };
   }
 
   const inputIds = Object.keys(scenario.inputs ?? {});

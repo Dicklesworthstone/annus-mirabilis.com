@@ -325,7 +325,7 @@
   "src/testing/scenario-registry/coverageDerivation.ts": 4,
   "src/testing/scenario-registry/evidentialRoleGuard.ts": 1,
   "src/testing/scenario-registry/load.ts": 1,
-  "src/testing/scenario-registry/owners.ts": 18,
+  "src/testing/scenario-registry/owners.ts": 17,
   "src/testing/scenario-registry/run.ts": 1,
   "src/testing/stats/assertions.ts": 23,
   "src/testing/stats/criticalValues.ts": 5,
