@@ -128,3 +128,27 @@ export const meanSquare = (values: readonly number[]): number => average(values.
 
 /** The square root of the mean square: a typical distance, back in the original unit. */
 export const rootMeanSquare = (values: readonly number[]): number => Math.sqrt(meanSquare(values));
+
+// The flux figure of dispatch 418, and the first entry here for a lesson that is not a bridge. The
+// module holds the numbers a lesson's FIGURE draws, whichever lesson that is; foundation:flux-
+// continuity is one of the 31 of 45 lessons that rendered no figure at all, and at 1,909 visible
+// characters with 22 formulas it was the shortest that is not a no-algebra bridge.
+
+/**
+ * The two seconds foundation:flux-continuity counts, exactly as its worked example prints them:
+ * seven particles cross in and five cross out, then five and five. Everything the figure states
+ * about them is derived below rather than typed, so the drawing cannot claim an accumulation the
+ * crossings do not give.
+ */
+export const FLUX_SECONDS = [
+  { entered: 7, left: 5 },
+  { entered: 5, left: 5 },
+] as const;
+
+/** What the region gained: what came in less what went out. */
+export const netChange = (second: { entered: number; left: number }): number =>
+  second.entered - second.left;
+
+/** How many particles crossed a boundary at all, in either direction. */
+export const crossings = (second: { entered: number; left: number }): number =>
+  second.entered + second.left;

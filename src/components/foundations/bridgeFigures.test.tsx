@@ -1,6 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
-import { JARS, PARTICLE_ENDS, SHARES, WALK } from "../../foundations/bridgeFigures.ts";
+import {
+  crossings,
+  FLUX_SECONDS,
+  JARS,
+  netChange,
+  PARTICLE_ENDS,
+  SHARES,
+  WALK,
+} from "../../foundations/bridgeFigures.ts";
 import { FoundationConstruction } from "./FoundationConstruction.tsx";
 
 /**
@@ -19,6 +27,9 @@ import { FoundationConstruction } from "./FoundationConstruction.tsx";
  */
 
 const BRIDGE_FIGURES = [
+  // Not a bridge, and the list is no longer only bridges (dispatch 418): flux-continuity draws the
+  // region and boundary its 22 formulas talk about. The obligations below are the same for it.
+  "flux-continuity",
   "bridge-a-graph",
   "bridge-sum-average",
   "bridge-negative-numbers-direction",
@@ -46,8 +57,9 @@ describe("the bridge lessons' figures", () => {
         expect(label.length, `${id}: ${svg}`).toBeGreaterThan(80);
       }
     }
-    // Six drawings across five lessons; bridge-a-graph draws both of the graphs its prose names.
-    expect(drawings).toBe(6);
+    // Eight drawings across six lessons: bridge-a-graph draws both of the graphs its prose names,
+    // and flux-continuity draws one panel for each of the two seconds its example counts.
+    expect(drawings).toBe(8);
   });
 
   test("every one states its reading in words, under a heading", () => {
@@ -92,5 +104,13 @@ describe("the bridge lessons' figures", () => {
     const ruler = find("bridge-negative-numbers-direction");
     expect(ruler).toContain("start");
     expect(ruler).toContain("+3");
+    // The flux figure prints both crossings and the net it derives from them, never a typed net.
+    const flux = find("flux-continuity");
+    for (const second of FLUX_SECONDS) {
+      expect(flux).toContain(`${second.entered} in`);
+      expect(flux).toContain(`${second.left} out`);
+      expect(flux).toContain(`${crossings(second)} crossed`);
+    }
+    expect(flux).toContain(`+${netChange(FLUX_SECONDS[0] as (typeof FLUX_SECONDS)[number])}`);
   });
 });

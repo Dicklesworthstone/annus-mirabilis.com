@@ -4,6 +4,7 @@ import { BalancedAccount } from "./BalancedAccount.tsx";
 import { BoostTable } from "./BoostTable.tsx";
 import { ConfigurationCounter } from "./ConfigurationCounter.tsx";
 import { CountingThePlaces } from "./CountingThePlaces.tsx";
+import { CrossingABoundary } from "./CrossingABoundary.tsx";
 import {
   CONSTRUCTIONS_WITH_CONTROLS,
   type FoundationConstructionId,
@@ -138,5 +139,7 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
       return <FourOutcomes headingLevel={headingLevel} />;
     case "bridge-squaring-square-roots":
       return <FourCellsTwiceTheSide headingLevel={headingLevel} />;
+    case "flux-continuity":
+      return <CrossingABoundary headingLevel={headingLevel} />;
   }
 }

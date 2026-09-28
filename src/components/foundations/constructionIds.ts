@@ -48,6 +48,10 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "bridge-equals-sign-relationship",
   "bridge-probability-notation",
   "bridge-squaring-square-roots",
+  // Not a bridge, and the first entry here that is not (dispatch 418). foundation:flux-continuity
+  // had 22 rendered formulas and no picture of the region its subject is about. Static, with no
+  // control, so it is not in CONSTRUCTIONS_WITH_CONTROLS either.
+  "flux-continuity",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];
