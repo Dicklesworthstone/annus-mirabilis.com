@@ -25,29 +25,20 @@
  * question of a single shared map is worth asking then, with two real entries to compare.
  */
 import type { ViewLoaders } from "../dispatch.tsx";
+import { Sr01ClarificationView } from "./lazyClarificationViews.tsx";
 
 /**
- * EMPTY, AND THIS IS A WITHDRAWAL RATHER THAN A DEFERRAL (dispatch 381).
+ * ONE ENTRY, THROUGH A BOUNDARY (dispatch 385). 9d6b6d4d held `() => import("./sr01View.tsx")`
+ * here and it cost the reading route its budget: 169,840 bytes of initial JavaScript became
+ * 342,297 against 204,800, and the Performance Budgets Gate refused a deploy. 0116e261 withdrew it.
  *
- * 9d6b6d4d put `"sr-01": () => import("./sr01View.tsx")` here and it cost the reading route its
- * budget: initial-route-js for /papers/[paper]/[section] went to 342,297 bytes against 204,800,
- * and the Performance Budgets Gate refused a deploy. The entry is withdrawn until the mechanism
- * below is applied and measured, because a blocked deploy is worse than a missing instrument.
- *
- * WHY THE ARROW-FUNCTION IMPORT DID NOT SPLIT, measured in the build of 7230e225 rather than
- * guessed. It is not about the arrow. ALL 41 laboratory components are ALREADY client references
- * of /papers/[paper] -- they are listed in page_client-reference-manifest.js whether or not this
- * map exists. Of those 41, exactly the ones this map reached had a chunk in the route's INITIAL
- * file list: ClockSyncLab in 8130 (35,630 bytes) through this module, and TracerLab through an
- * uncommitted second entry. The other 39 escape, and they escape because they are reached through
- * `React.lazy()` called at module scope inside a `"use client"` BOUNDARY module,
- * src/experiments/embed/lazyEmbeddedLabs.tsx. Neither this module nor sr01View.tsx carries a
- * directive, so webpack folds both into the importing client entry's graph and emits their chunk
- * as part of the route rather than as an async one.
- *
- * So the shape that works is the one lazyEmbeddedLabs.tsx and lazyIslands.tsx already use, and the
- * next attempt is to mirror it exactly rather than to try a third arrangement: a `"use client"`
- * module that calls `lazy(() => import(...))` at module scope, with this map handing the
- * dispatcher the component that module exports.
+ * The arrow was never the mechanism. All 41 laboratory components are already client references of
+ * /papers/[paper]; of those, exactly the ones this map reached had a chunk in the route's INITIAL
+ * file list, and the 39 that escape do so because they are reached through `React.lazy()` at module
+ * scope inside a "use client" boundary. So the entries below hand out components that
+ * ./lazyClarificationViews.tsx has already made lazy, and that module is the boundary. The
+ * measurement is in this commit's message; the reasoning is in that module's docblock.
  */
-export const READER_VIEW_LOADERS: ViewLoaders = Object.freeze({});
+export const READER_VIEW_LOADERS: ViewLoaders = Object.freeze({
+  "sr-01": () => Promise.resolve({ default: Sr01ClarificationView }),
+});
