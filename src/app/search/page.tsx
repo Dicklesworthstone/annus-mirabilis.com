@@ -4,6 +4,7 @@ import { type SearchType, searchResultHref } from "../../search/core.ts";
 import { parseSearchShard } from "../../search/protocol.ts";
 import { SearchPageField } from "../../search/SearchPageField.tsx";
 import { readCurrentSearchShard, readSearchManifest } from "../../search/server.ts";
+import { TYPE_LABELS, TYPE_ORDER } from "./indexSections.ts";
 
 export const metadata: Metadata = {
   title: "Search",
@@ -44,33 +45,6 @@ export const metadata: Metadata = {
  * manifest's sha256 and refuses a shard whose bytes or count disagree. So this page cannot drift
  * from what the palette searches: they read the same bytes.
  */
-
-const TYPE_LABELS: Readonly<Record<string, string>> = {
-  paper: "Papers",
-  section: "Sections",
-  argument: "Arguments",
-  equation: "Equations",
-  instrument: "Laboratories",
-  foundation: "Foundations",
-  result: "Argument synopses",
-  "sentence-de": "German passages",
-  "sentence-en": "English passages",
-  glossary: "Notation and terms",
-};
-
-/** The order sections appear in. Types absent from the index are skipped, never rendered empty. */
-const TYPE_ORDER: readonly string[] = [
-  "paper",
-  "section",
-  "argument",
-  "result",
-  "equation",
-  "instrument",
-  "foundation",
-  "sentence-de",
-  "sentence-en",
-  "glossary",
-];
 
 /**
  * Two kinds the palette searches are not listed here entry by entry, because each already has a
