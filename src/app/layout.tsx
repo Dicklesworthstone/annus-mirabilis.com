@@ -125,13 +125,19 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </div>
           {/* The four papers again at the foot, because the end of a long paper is where a reader
               looks for the next one; the guided paths are a way of reading them, so they sit here
-              rather than among the pages about the site. */}
+              rather than among the pages about the site.
+              The recorded walkthroughs join them on that same reasoning. Measured 2026-09-28, they
+              were the only one of the three guided layers with no top-level route at all: /tours/
+              is here, /discover/ is in the header, and /tapes/ was reachable only from a paper
+              section, an instrument, the catalogue or search. Every one of those needs a reader to
+              already be somewhere. */}
           <nav aria-label="The four papers">
             <a href="/papers/light-quanta/">Light quanta</a>
             <a href="/papers/brownian-motion/">Brownian motion</a>
             <a href="/papers/special-relativity/">Special relativity</a>
             <a href="/papers/mass-energy/">Mass and energy</a>
             <a href="/tours/">Guided reading paths</a>
+            <a href="/tapes/">Recorded walkthroughs</a>
           </nav>
           <nav aria-label="About this site">
             <a href="/about/">About this edition</a>
