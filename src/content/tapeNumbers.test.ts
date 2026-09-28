@@ -71,6 +71,15 @@ const RECOMPUTED = new Set([
   "camera-bias",
   "ionization-bounds",
   "perrins-count",
+  // Recomputed all along, and the report said otherwise. The lq-05 test below loops over EVERY
+  // lq-05 tape and judges any label beginning with "W", so this tape's single W has been checked
+  // against f^n at the n in force since that test was written; it was simply never added here.
+  // The report therefore understated itself, and said so in the same run in which it caught a
+  // planted 0.126: "1 not recomputed: lq-05-journey-stage-e's W" printed directly above
+  // "error: lq-05-journey-stage-e step 0 W against n=3, f=0.5". A coverage list maintained by hand
+  // beside the checks it describes will drift away from them; this one drifted toward pessimism,
+  // which is the harmless direction and still meant the file's own headline figure was wrong.
+  "lq-05-journey-stage-e",
   "lq-07-journey-stage-g",
   "einstein-0-8-micron",
   "the-1906-box",
@@ -207,9 +216,19 @@ describe("the numbers on a teaching tape's page, recomputed from its own inputs"
         `their tape's own inputs across ${RECOMPUTED.size} tapes; ${total - recomputed} not ` +
         `recomputed, named rather than described: ${remaining.join("; ") || "none"}`,
     );
-    // Non-vacuity, and a reminder: if the corpus grows, the unchecked remainder grows with it.
-    expect(total).toBeGreaterThan(recomputed);
-    expect(recomputed).toBeGreaterThan(15);
+    // THIS USED TO ASSERT `total > recomputed`, described as "a reminder that if the corpus grows,
+    // the unchecked remainder grows with it". It was an assertion that this file must stay
+    // INCOMPLETE, and it went red the moment the last gap closed, which is the opposite of what a
+    // coverage check should do: finishing the work must not break the test that measures it.
+    // AGENTS.md draws exactly this line - a count is for reporting, not for asserting.
+    //
+    // What that line was really guarding is emptiness, so it now says that on purpose, and the
+    // floor is the measured figure rather than a round number: 29 recorded numbers, all 29
+    // recomputed, across 13 tapes at 2026-09-28. A drop below that is a check that stopped
+    // running, and `remaining` above names any number that is not covered.
+    expect(recomputed).toBeLessThanOrEqual(total);
+    expect(total).toBeGreaterThanOrEqual(29);
+    expect(recomputed).toBeGreaterThanOrEqual(29);
   });
 });
 
