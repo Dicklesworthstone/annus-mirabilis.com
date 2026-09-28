@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { FluorescenceLab } from "../../../components/lab/lq07/FluorescenceLab.tsx";
 import { LQ07_DEFAULTS } from "../../../experiments/lq07/definition.ts";
 import { evaluateLq07, type PreparedLq07Example } from "../../../experiments/lq07/session.ts";
@@ -133,6 +134,7 @@ export default function FluorescencePage() {
           </a>
         </div>
       </section>
+      <LabTapes lab="lq-07" />
     </>
   );
 }

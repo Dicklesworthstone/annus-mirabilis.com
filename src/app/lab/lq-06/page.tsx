@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { CoefficientMatchEntry } from "../../../components/lab/lq06/CoefficientMatchEntry.tsx";
 import type { PreparedLq06Example } from "../../../experiments/lq06/session.ts";
 import example from "../../../generated/lq06-example.json";
@@ -176,6 +177,7 @@ export default function CoefficientMatchPage() {
           <a href="/discover/light-quanta/">Open the light-quanta journey</a>
         </div>
       </section>
+      <LabTapes lab="lq-06" />
     </>
   );
 }

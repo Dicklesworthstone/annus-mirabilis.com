@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { InferenceComparison } from "../../../components/lab/InferenceLab.tsx";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { validateBm07Parameters } from "../../../experiments/bm07/parameters.ts";
 import example from "../../../generated/bm07-example.json";
 export const metadata: Metadata = {
@@ -156,6 +157,7 @@ export default function InferencePage() {
           <a href="/lab/bm-06/">Compare with the predicted spread</a>
         </div>
       </section>
+      <LabTapes lab="bm-07" />
     </>
   );
 }

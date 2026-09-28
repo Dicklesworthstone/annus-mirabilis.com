@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { IonizationComparison } from "../../../components/lab/lq09/IonizationLab.tsx";
 import example from "../../../generated/lq09-example.json";
 
@@ -154,6 +155,7 @@ export default function IonizationPage() {
           <a href="/discover/light-quanta/">Open the light-quanta journey</a>
         </div>
       </section>
+      <LabTapes lab="lq-09" />
     </>
   );
 }

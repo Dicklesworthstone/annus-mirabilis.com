@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { CameraComparison } from "../../../components/lab/CameraLab.tsx";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { validateBm08Parameters } from "../../../experiments/bm08/parameters.ts";
 import example from "../../../generated/bm08-example.json";
 export const metadata: Metadata = {
@@ -136,6 +137,7 @@ export default function CameraPage() {
           <a href="/lab/bm-01/">Return to the tracer ensemble</a>
         </div>
       </section>
+      <LabTapes lab="bm-08" />
     </>
   );
 }

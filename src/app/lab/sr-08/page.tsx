@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { FieldFrameChangeLab } from "../../../components/lab/sr08/FieldFrameChangeLab.tsx";
 import { validateSr08Parameters } from "../../../experiments/sr08/parameters.ts";
 import example from "../../../generated/sr08-example.json";
@@ -73,6 +74,7 @@ export default function FieldFrameChangePage() {
           <a href="/lab/sr-02/">Magnet and conductor</a>
         </div>
       </section>
+      <LabTapes lab="sr-08" />
     </>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { MovingMirrorLab } from "../../../components/lab/sr11/MovingMirrorLab.tsx";
 import { validateSr11Parameters } from "../../../experiments/sr11/parameters.ts";
 import example from "../../../generated/sr11-example.json";
@@ -90,6 +91,7 @@ export default function MovingMirrorPage() {
           </a>
         </div>
       </section>
+      <LabTapes lab="sr-11" />
     </>
   );
 }

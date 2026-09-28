@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { RodSimultaneityLab } from "../../../components/lab/RodSimultaneityLab.tsx";
 import { validateSr03Parameters } from "../../../experiments/sr03/parameters.ts";
 import example from "../../../generated/sr03-example.json";
@@ -145,6 +146,7 @@ export default function RodSimultaneityPage() {
           <a href="/papers/special-relativity/#s4">Read §4 (Physical Meaning of Moving Bodies)</a>
         </div>
       </section>
+      <LabTapes lab="sr-03" />
     </>
   );
 }

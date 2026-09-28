@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { LightComplexLab } from "../../../components/lab/sr10/LightComplexLab.tsx";
 import { validateSr10Parameters } from "../../../experiments/sr10/parameters.ts";
 import example from "../../../generated/sr10-example.json";
@@ -89,6 +90,7 @@ export default function LightComplexPage() {
           </a>
         </div>
       </section>
+      <LabTapes lab="sr-10" />
     </>
   );
 }

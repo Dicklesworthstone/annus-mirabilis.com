@@ -3,6 +3,7 @@ import "./walks.css";
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { WalkComparison } from "../../../components/lab/WalkLab.tsx";
 import { validateBm05Parameters } from "../../../experiments/bm05/parameters.ts";
 import example from "../../../generated/bm05-example.json";
@@ -97,6 +98,7 @@ export default function WalkPage() {
           <a href="/lab/bm-01/">Return to the tracer ensemble</a>
         </div>
       </section>
+      <LabTapes lab="bm-05" />
     </>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { TracerComparison } from "../../../components/lab/TracerLab.tsx";
 import { LAB_CARDS, labShareImages } from "../../../components/share/shareImages.ts";
 import example from "../../../generated/bm01-example.json";
@@ -79,6 +80,7 @@ export default function TracerPage() {
           <a href="/discover/brownian-motion/">Return to the argument</a>
         </div>
       </section>
+      <LabTapes lab="bm-01" />
     </>
   );
 }

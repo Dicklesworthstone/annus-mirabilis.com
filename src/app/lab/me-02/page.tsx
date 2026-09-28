@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { CoefficientComparison } from "../../../components/lab/CoefficientLab.tsx";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import type { CompiledEquation } from "../../../equations/viewTypes.ts";
 import { validateMe02Parameters } from "../../../experiments/me02/parameters.ts";
 import massEnergyEquations from "../../../generated/mass-energy-equations.json";
@@ -95,6 +96,7 @@ export default function CoefficientPage() {
           </a>
         </div>
       </section>
+      <LabTapes lab="me-02" />
     </>
   );
 }

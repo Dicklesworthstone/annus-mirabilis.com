@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { ChargeCurrentLab } from "../../../components/lab/sr12/ChargeCurrentLab.tsx";
 import { validateSr12Parameters } from "../../../experiments/sr12/parameters.ts";
 import example from "../../../generated/sr12-example.json";
@@ -80,6 +81,7 @@ export default function ChargeCurrentPage() {
           <a href="/lab/sr-08/">Field frame change</a>
         </div>
       </section>
+      <LabTapes lab="sr-12" />
     </>
   );
 }

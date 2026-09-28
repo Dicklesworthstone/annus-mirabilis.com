@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { IndependentConfigurationsLab } from "../../../components/lab/lq05/IndependentConfigurationsLab.tsx";
 import { LQ05_DEFAULTS } from "../../../experiments/lq05/definition.ts";
 import { evaluateLq05, type PreparedLq05Example } from "../../../experiments/lq05/session.ts";
@@ -104,6 +105,7 @@ export default function IndependentConfigurationsPage() {
           </a>
         </div>
       </section>
+      <LabTapes lab="lq-05" />
     </>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { DopplerAberrationLab } from "../../../components/lab/sr09/DopplerAberrationLab.tsx";
 import { validateSr09Parameters } from "../../../experiments/sr09/parameters.ts";
 import example from "../../../generated/sr09-example.json";
@@ -68,6 +69,7 @@ export default function DopplerAberrationPage() {
           </a>
         </div>
       </section>
+      <LabTapes lab="sr-09" />
     </>
   );
 }
