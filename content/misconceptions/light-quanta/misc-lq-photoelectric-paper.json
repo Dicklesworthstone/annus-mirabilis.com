@@ -14,16 +14,19 @@
   "staticTreatment": {
     "reason": "A matter of the paper's structure: the introduction, § 6's conclusion and § 8's place among three applications are the evidence."
   },
+  "instrumentIds": ["lq-06"],
   "anchors": ["s0-p3", "s6-p6", "s8-p1"],
   "resultIds": ["lq-energy-quanta"],
   "sources": ["A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 133, 143 and 145"],
   "intervention": {
+    "instrumentId": "lq-06",
     "defaultsReviewed": {
-      "model": "Not applicable: no instrument; this entry is a matter of what the paper says.",
-      "labels": "Not applicable: no instrument; this entry is a matter of what the paper says.",
-      "defaultControls": "Not applicable: no instrument; this entry is a matter of what the paper says.",
-      "feedback": "Not applicable: no instrument; this entry is a matter of what the paper says."
+      "model": "Described from the manifest: the entropy of monochromatic radiation in the Wien regime beside the entropy of an ideal gas, compared at one volume ratio (LQ-06, outputs radiationEntropy, gasEntropy, entropyVolumeCoefficient, effectiveIndependentCount, quantumEnergy and correspondenceVerdict).",
+      "labels": "Described from the manifest: the two entropies, the coefficient of the volume law each one carries, the number of independent things the radiation behaves as, and the energy of one quantum.",
+      "defaultControls": "Described from the manifest: default scenario lq06-golden-the-move, radiation energy 9.055615e-9 J at frequency 6e14 Hz against 10 gas particles, volume ratio 0.5 at 3000 K.",
+      "feedback": "Described from the manifest: the verdict on whether the two volume laws correspond, reached from entropy alone, with nothing photoelectric among the inputs or the outputs."
     },
+    "scenarioId": "lq06-golden-the-move",
     "reviewRecordId": "pending-review-misc-lq-photoelectric-paper"
   },
   "authorship": {

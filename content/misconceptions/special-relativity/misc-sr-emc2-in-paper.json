@@ -14,6 +14,7 @@
   "staticTreatment": {
     "reason": "A matter of what the paper derives: § 10's kinetic energy of the electron is the evidence, and the September paper on inertia is where the relation appears."
   },
+  "instrumentIds": ["sr-13"],
   "anchors": ["s10-p10", "s10-p11"],
   "resultIds": ["sr-electron-kinetic-energy"],
   "sources": [
@@ -21,12 +22,14 @@
     "A. Einstein, Ann. Phys. (4) 18, 639–641 (1905), the site's mass-energy paper"
   ],
   "intervention": {
+    "instrumentId": "sr-13",
     "defaultsReviewed": {
-      "model": "Not applicable: no instrument; this entry is a matter of what the paper says.",
-      "labels": "Not applicable: no instrument; this entry is a matter of what the paper says.",
-      "defaultControls": "Not applicable: no instrument; this entry is a matter of what the paper says.",
-      "feedback": "Not applicable: no instrument; this entry is a matter of what the paper says."
+      "model": "Described from the manifest: an electron accelerated by declared fields, with the work done on it and the energy it carries (SR-13, outputs kineticEnergy and kineticEnergyNewtonian).",
+      "labels": "Described from the manifest: the kinetic energy of the electron beside its Newtonian value, under a declared force convention and mass language.",
+      "defaultControls": "Described from the manifest: default scenario sr-13-transverse-e-2ns, a transverse electric field of 1.0e5 V/m for 2.0e-9 s on an electron already at 0.6 of the speed of light.",
+      "feedback": "Described from the manifest: the energy that section 10 computes and how it grows as the speed approaches that of light, which is the quantity the June paper derives."
     },
+    "scenarioId": "sr-13-transverse-e-2ns",
     "reviewRecordId": "pending-review-misc-sr-emc2-in-paper"
   },
   "authorship": {
