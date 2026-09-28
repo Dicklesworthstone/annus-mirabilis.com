@@ -14,6 +14,7 @@ import {
   WALK,
   walkSpeeds,
 } from "../foundations/bridgeFigures.ts";
+import { withinTolerance } from "../units/tolerance.ts";
 
 /**
  * The five bridge figures draw numbers their lessons also state in prose (dispatch 401), and the
@@ -108,11 +109,16 @@ describe("the numbers the bridge figures draw", () => {
   test("squaring the displacement squares its power of ten, and the printed figures match", () => {
     expect(MINUTE_DISPLACEMENT * 1e6).toBe(MINUTE_DISPLACEMENT_MICROMETRES);
     // 6e-6 * 6e-6 is 3.6000000000000005e-11 in double precision, so the printed value is declared
-    // and held to the arithmetic here within a relative tolerance rather than by equality.
+    // and held to the arithmetic here within a relative tolerance rather than by equality. The
+    // comparison goes through src/units/tolerance.ts, the one module that owns it: a hand-rolled
+    // relative difference here was a duplicate of that logic, and its verdict prints the
+    // difference and the allowance where a bare boolean printed neither.
     const computed = MINUTE_DISPLACEMENT * MINUTE_DISPLACEMENT;
+    const squared = withinTolerance(computed, MINUTE_DISPLACEMENT_SQUARED, { relative: 1e-12 });
     expect(
-      Math.abs(computed - MINUTE_DISPLACEMENT_SQUARED) / MINUTE_DISPLACEMENT_SQUARED,
-    ).toBeLessThan(1e-12);
+      squared.ok,
+      `${squared.kind}: differed by ${squared.diff}, allowed ${squared.allowed}`,
+    ).toBe(true);
     expect(MINUTE_DISPLACEMENT_SQUARED_MANTISSA * 1e-11).toBe(MINUTE_DISPLACEMENT_SQUARED);
     // The lesson's own trap: a square micrometre is twelve places down, not six.
     const microPower = PLACES.find((p) => p.symbol === "μm")?.power as number;
