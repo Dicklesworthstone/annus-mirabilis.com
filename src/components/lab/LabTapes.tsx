@@ -23,8 +23,12 @@ export function LabTapes({ lab }: { lab: string }) {
   if (tapes.length === 0) return null;
   return (
     <nav className="actions no-print" aria-label="Recorded walkthroughs of this instrument">
+      {/* "of this instrument", because the layout's block for ALL the walkthroughs sits directly
+          below and both read "Recorded walkthroughs" until 2026-09-27. */}
       <span className="eyebrow">
-        {tapes.length === 1 ? "A recorded walkthrough" : "Recorded walkthroughs"}
+        {tapes.length === 1
+          ? "A walkthrough of this instrument"
+          : "Walkthroughs of this instrument"}
       </span>
       {tapes.map((tape) => (
         <a className="button secondary" key={tape.tapeId} href={`/tapes/${tape.tapeId}/`}>

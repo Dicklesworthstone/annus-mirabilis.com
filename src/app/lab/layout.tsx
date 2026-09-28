@@ -38,15 +38,19 @@ export default function LaboratoryLayout({ children }: { children: ReactNode }) 
           and one mount reaches all 46 routes; it draws nothing on a page with no readings. */}
       <LabDetailControl />
       <EmbedLauncher />
-      {/* The 21 authored teaching tapes reached no reader until 2026-09-27 (am-2rl9).
-          One link, not a per-laboratory list: the lab routes are one directory each rather than a
-          dynamic segment, so this layout does not know which instrument it is wrapping, and a
-          client component that did would ship the tape map to every laboratory page. The index
-          groups by instrument, so a reader on bm-01 reaches bm-01's tape in one hop. */}
-      <nav className="actions no-print" aria-label="Recorded walkthroughs">
-        <span className="eyebrow">Recorded walkthroughs</span>
+      {/* The route to ALL the walkthroughs. A laboratory's OWN walkthroughs are named by LabTapes
+          on the 18 pages that have one, which this layout cannot do: the lab routes are one
+          directory each, so it does not know which instrument it wraps, and a client component
+          that read the pathname would ship the tape map to all 46 pages.
+
+          The label says "Every" because both blocks show together on those 18, and until now both
+          were headed "Recorded walkthroughs", so a reader met the same words twice in a row over
+          two different things. Specific first, then all of them; on the 28 laboratories with no
+          walkthrough of their own this block still reads correctly on its own. */}
+      <nav className="actions no-print" aria-label="Every recorded walkthrough">
+        <span className="eyebrow">Every recorded walkthrough</span>
         <a className="button secondary" href="/tapes/">
-          Teaching tapes: what to change, and what to expect
+          Teaching tapes, grouped by instrument
         </a>
       </nav>
       <nav className="actions no-print" aria-label="Ways to test a model">
