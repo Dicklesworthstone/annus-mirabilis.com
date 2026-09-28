@@ -3,6 +3,13 @@
 id: "closing-received"
 sentenceId: "closing-received"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-24"
+    reason: "4feb1ea5 content(mass-energy): word-level interlinear gloss of the whole paper, 34 units, machine draft"
+  - revision: 2
+    date: "2026-09-24"
+    reason: "a5ed1a54 content(gloss): the mass-energy received line glosses its year, so every word token of the paper's 34 alignable units has a gloss, 590 of 590; still a machine draft (am-edn-gloss-mass-energy-g0y, dispatch 177)"
 sourceRevision: 1
 sourceTextDigest: "30625c646ab1e18f0768e88da3fb4db954ac692b8e68407d4b8c15bfed9e9dc8"
 lang: "en"

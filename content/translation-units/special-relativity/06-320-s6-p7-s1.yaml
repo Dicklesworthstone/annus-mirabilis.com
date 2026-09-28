@@ -19,6 +19,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "fe796132 content(special-relativity): the part-2 heading and \u00a7 6 in German and English, 21 source blocks, 36 machine-draft units, 36 alignment edges (dispatch 193)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "1248d1a8 review(special-relativity): round 1 of the English, \u00a7 6 with the part-2 heading, 36 units read against the German and the plates, one correction (dispatch 199)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

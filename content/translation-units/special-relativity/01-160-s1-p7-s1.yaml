@@ -31,6 +31,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "ed42524e content(special-relativity): \u00a7 1, \"Definition der Gleichzeitigkeit\", in German and English with the part-1 heading, 15 source blocks, 31 machine-draft units, 31 alignment edges; plates pp. 892-895 read (dispatch 192)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "c14ddc1f review(special-relativity): round 1 of the English, the masthead, the introduction and section 1, 44 units read against the German and the plates (dispatch 198)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

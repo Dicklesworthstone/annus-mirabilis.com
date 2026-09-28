@@ -31,6 +31,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "e07c304b content(special-relativity): \u00a7 3, the transformation of coordinates and times, in German and English, 45 source blocks, 83 machine-draft units, 83 alignment edges; plates pp. 897-902 read (dispatch 192)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "96d63911 translation(special-relativity): review round 1 of \u00a7 3, 83 units read against the German and the plates, one correction (dispatch 201; round 1 under D-2026-09-25-agent-reviewed-translations)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

@@ -19,6 +19,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "180474f5 content(special-relativity): \u00a7 4, the physical meaning of the transformation for moving rigid bodies and clocks, in German and English, 16 source blocks, 27 machine-draft units, 27 alignment edges; plates pp. 903-905 read (dispatch 192)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "3abc79be translation(special-relativity): \u00a7 4 is final, 27 units checked by AI agents in two fresh-eye rounds (D-2026-09-25)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

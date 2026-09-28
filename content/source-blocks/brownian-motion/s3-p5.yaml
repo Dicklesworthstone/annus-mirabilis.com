@@ -42,6 +42,13 @@ sentenceSpans:
       blockRevision: 2
       textDigest: "17c26bc0c3b6e341e9e1ba40fe2e2a4376f9ef6d5d95abeb15de62a8d1ee91fb"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "9d5f0530 content(brownian-motion): the paper's 87 German source blocks, one per frozen manifest unit, from the ledger as read against the plates (dispatch 191)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "e22c3443 content(brownian-motion): s3-p5-s2's processes \"1.\" and \"2.\" start their own lines, as p. 555 prints them, in the German block and the English unit (dispatch 205; NavyKite 40101, TanElk 40105)"
 status:
   transcription: "draft"
   mathTranscription: "draft"

@@ -21,6 +21,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "1a27f772 content(light-quanta): the English translation of section 4, 18 machine-draft units aligned to the German (dispatch 190)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "3362c8c0 translation(light-quanta): s4-p2-s1b says \"the preceding section\" for Einstein's \"in dem vorigen Paragraphen\", which is \u00a7 3, not the paragraph above"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

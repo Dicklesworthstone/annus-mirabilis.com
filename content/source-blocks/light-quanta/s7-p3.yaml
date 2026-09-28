@@ -45,6 +45,13 @@ sentenceSpans:
       blockRevision: 2
       textDigest: "8fcd074c4b0c88053486026e8db376bb44477b4758166b637ba4675ac0d9865b"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "a9ba98e5 content(light-quanta): the German source blocks of section 7, 7 more of the paper's 128 frozen units (dispatch 190)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "2ad772a1 content(light-quanta): s7-p3's cases \"1.\" and \"2.\" start their own lines, as p. 145 prints them, in the German block and the English unit (TanElk 40036)"
 status:
   transcription: "draft"
   mathTranscription: "not-applicable"

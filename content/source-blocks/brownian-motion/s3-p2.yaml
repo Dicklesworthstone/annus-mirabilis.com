@@ -122,6 +122,13 @@ sentenceSpans:
       blockRevision: 2
       textDigest: "c735efd8472e28ddb8393774f5b738a2e88b09534e1c135ce918f22b87db9f90"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "9d5f0530 content(brownian-motion): the paper's 87 German source blocks, one per frozen manifest unit, from the ledger as read against the plates (dispatch 191)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "c7c9b661 content(brownian-motion): a space after the last 6 display formulas that had none, after a colon, a footnote mark or \"t = 0\", as every display in the other three papers has (dispatch 207)"
 status:
   transcription: "draft"
   mathTranscription: "draft"

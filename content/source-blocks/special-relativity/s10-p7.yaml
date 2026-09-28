@@ -94,6 +94,13 @@ sentenceSpans:
       blockRevision: 2
       textDigest: "f3ad7574b4edcb4985bdfdc21a2d6d0123a62294ae88c4251f0b15899bf2b9a4"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "8455f95b content(special-relativity): \u00a7 10 and the closing lines in German and English, 35 source blocks, 52 machine-draft units, 52 alignment edges; Part II is complete (dispatch 193)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "85aaa22b source(special-relativity): eq-s10-d4's z row carries \u03b2\u00b3 as p. 919 prints it, a misprint for \u03b2\u00b2, recorded as err-typo-p919-1 (dispatch 208; TanElk's ruling, mail 40159)"
 status:
   transcription: "draft"
   mathTranscription: "draft"

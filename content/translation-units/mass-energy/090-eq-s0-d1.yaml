@@ -20,6 +20,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-24"
+    reason: "53a1be56 content(mass-energy): first English draft translation, 43 units and their alignment"
+  - revision: 2
+    date: "2026-09-24"
+    reason: "945f7b0b content(mass-energy): the German text read word by word against the plates; six differences corrected in the ledger and the source blocks (dispatch 162)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

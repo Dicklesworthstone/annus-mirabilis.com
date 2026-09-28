@@ -31,6 +31,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "d7ca1fac content(light-quanta): the English translation of section 5, 39 machine-draft units aligned to the German (dispatch 190)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "078ee28a review(light-quanta): round 1 of the English, sections 3 to 7, 117 units read against the German and the plates (dispatch 198)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

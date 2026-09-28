@@ -49,6 +49,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "2db0a57a content(light-quanta): the English translation of the masthead, the introduction and section 1, 46 machine-draft units aligned to the German, with the translator recorded in the receipt (dispatch 190)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "97f3afea review(light-quanta): round 1 of the English, the masthead through section 2, 65 units read against the German and the plates (dispatch 196)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

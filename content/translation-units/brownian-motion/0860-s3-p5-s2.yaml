@@ -32,6 +32,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "8717e29e content(brownian-motion): the English of \u00a7 3, 36 machine-draft units and their alignment (dispatch 197; am-edn-translation-brownian-rest-h0z)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "e22c3443 content(brownian-motion): s3-p5-s2's processes \"1.\" and \"2.\" start their own lines, as p. 555 prints them, in the German block and the English unit (dispatch 205; NavyKite 40101, TanElk 40105)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

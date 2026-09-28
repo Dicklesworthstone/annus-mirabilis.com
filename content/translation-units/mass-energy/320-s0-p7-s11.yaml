@@ -27,6 +27,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-24"
+    reason: "53a1be56 content(mass-energy): first English draft translation, 43 units and their alignment"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "dc3d24d8 translation(mass-energy): one best reading per unit; the four alternatives are resolved, one promoted (dispatch 223, D-2026-09-25-one-best-translation)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

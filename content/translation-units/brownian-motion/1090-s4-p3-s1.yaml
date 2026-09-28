@@ -27,6 +27,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "d8df736e content(brownian-motion): the English of \u00a7 4, 47 machine-draft units and their alignment; Brownian's English is complete as a machine draft (dispatch 197; am-edn-translation-brownian-s4-s5-jr4)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "945a79b3 translation(brownian-motion): section 4 is final, 47 units checked by AI agents in two fresh-eye rounds, with one correction in round 2 (D-2026-09-25)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

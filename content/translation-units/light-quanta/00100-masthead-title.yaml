@@ -24,6 +24,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "2db0a57a content(light-quanta): the English translation of the masthead, the introduction and section 1, 46 machine-draft units aligned to the German, with the translator recorded in the receipt (dispatch 190)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "f0b4f09d content(light-quanta): the English masthead drops the printed \";\" and \".\" as the other three papers do (TanElk ruling, dispatch 213); words unchanged, revision 2"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

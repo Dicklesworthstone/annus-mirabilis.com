@@ -24,6 +24,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "e4ce219d content(special-relativity): \u00a7 2, \"\u00dcber die Relativit\u00e4t von L\u00e4ngen und Zeiten\", in German and English, 13 source blocks, 27 machine-draft units, 27 alignment edges; plates pp. 895-897 read (dispatch 192)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "e22efec3 content(special-relativity): the English of \u00a7\u00a7 1-2 opens the printed lines \"1.\", \"2.\", \"a)\", \"b)\" and \"Die Entfernung\" as the plates and the German blocks do, 7 final units at revision 2, words unchanged (TanElk 40098)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

@@ -19,6 +19,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "d460da55 content(special-relativity): \u00a7 5, the addition theorem of velocities, in German and English, 14 source blocks, 29 machine-draft units, 29 alignment edges; Part I is complete (dispatch 192)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "5624f79a translation(special-relativity): section 5 is final, 29 units checked by AI agents in two fresh-eye rounds; round 2 makes four corrections (dispatch 205; D-2026-09-25)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

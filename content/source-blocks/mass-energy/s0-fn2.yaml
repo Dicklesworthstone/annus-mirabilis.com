@@ -28,6 +28,13 @@ sentenceSpans:
       blockRevision: 2
       textDigest: "1df422076ad20a551868a878ccf6e29edfd20c34f683ab5fe1b94e804bb00d97"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-24"
+    reason: "56de00be content(mass-energy): the paper's 25 German source blocks, and the parallel face shows German beside English"
+  - revision: 2
+    date: "2026-09-24"
+    reason: "945f7b0b content(mass-energy): the German text read word by word against the plates; six differences corrected in the ledger and the source blocks (dispatch 162)"
 status:
   transcription: "draft"
   mathTranscription: "not-applicable"

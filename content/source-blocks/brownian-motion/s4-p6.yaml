@@ -182,6 +182,16 @@ sentenceSpans:
       blockRevision: 3
       textDigest: "8eb5017776d30bbf4b96e13cc218b19816db430d5729c9900d6afa11901d332e"
 revision: 3
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "9d5f0530 content(brownian-motion): the paper's 87 German source blocks, one per frozen manifest unit, from the ledger as read against the plates (dispatch 191)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "e86c6140 content(brownian-motion): s2-p4 and s4-p6 are cut on the plate's sentence boundaries, one printed sentence per span (Option B, TanElk mail 40022; am-edn-translation-brownian-rest-h0z)"
+  - revision: 3
+    date: "2026-09-25"
+    reason: "c46a3e13 content(brownian-motion): a space after each display formula that sat between two words, so the plain text no longer glues them (\"Formausdr\u00fcckbar\"); 12 seams in 7 blocks (dispatch 207)"
 status:
   transcription: "draft"
   mathTranscription: "draft"

@@ -56,6 +56,16 @@ sentenceSpans:
       blockRevision: 3
       textDigest: "0d2551214f4b6ff7d979c8da67ca26d21a7038c0dbf00c01f9cd1210d58f490f"
 revision: 3
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "9d5f0530 content(brownian-motion): the paper's 87 German source blocks, one per frozen manifest unit, from the ledger as read against the plates (dispatch 191)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "c46a3e13 content(brownian-motion): a space after each display formula that sat between two words, so the plain text no longer glues them (\"Formausdr\u00fcckbar\"); 12 seams in 7 blocks (dispatch 207)"
+  - revision: 3
+    date: "2026-09-25"
+    reason: "c7c9b661 content(brownian-motion): a space after the last 6 display formulas that had none, after a colon, a footnote mark or \"t = 0\", as every display in the other three papers has (dispatch 207)"
 status:
   transcription: "draft"
   mathTranscription: "draft"

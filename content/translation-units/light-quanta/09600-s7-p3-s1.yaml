@@ -29,6 +29,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "3e2f7c81 content(light-quanta): the English translation of section 7, 15 machine-draft units aligned to the German, with the receipt updated (dispatch 190)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "2ad772a1 content(light-quanta): s7-p3's cases \"1.\" and \"2.\" start their own lines, as p. 145 prints them, in the German block and the English unit (TanElk 40036)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

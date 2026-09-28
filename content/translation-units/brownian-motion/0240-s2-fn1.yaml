@@ -22,6 +22,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "d0ce26a9 content(brownian-motion): the English of \u00a7 2, 42 machine-draft units and their alignment (dispatch 197; am-edn-translation-brownian-rest-h0z)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "9b1f2374 translation(brownian-motion): one best reading per unit; the 22 alternatives are resolved, three promoted (dispatch 223, D-2026-09-25-one-best-translation)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

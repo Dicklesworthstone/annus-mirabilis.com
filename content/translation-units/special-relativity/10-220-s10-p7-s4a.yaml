@@ -19,6 +19,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "8455f95b content(special-relativity): \u00a7 10 and the closing lines in German and English, 35 source blocks, 52 machine-draft units, 52 alignment edges; Part II is complete (dispatch 193)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "8540df02 review(special-relativity): round 1 of the English, \u00a7 10 and the closing lines, 52 units read against the German and the plates, three corrections (dispatch 203)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

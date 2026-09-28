@@ -40,6 +40,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-25"
+    reason: "ed42524e content(special-relativity): \u00a7 1, \"Definition der Gleichzeitigkeit\", in German and English with the part-1 heading, 15 source blocks, 31 machine-draft units, 31 alignment edges; plates pp. 892-895 read (dispatch 192)"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "e22efec3 content(special-relativity): the English of \u00a7\u00a7 1-2 opens the printed lines \"1.\", \"2.\", \"a)\", \"b)\" and \"Die Entfernung\" as the plates and the German blocks do, 7 final units at revision 2, words unchanged (TanElk 40098)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:

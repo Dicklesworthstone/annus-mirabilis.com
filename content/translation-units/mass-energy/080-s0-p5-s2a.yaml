@@ -39,6 +39,13 @@ translator:
   kind: "model"
   modelId: "claude-opus-5-5"
 revision: 2
+lineage:
+  - revision: 1
+    date: "2026-09-24"
+    reason: "53a1be56 content(mass-energy): first English draft translation, 43 units and their alignment"
+  - revision: 2
+    date: "2026-09-25"
+    reason: "c93cc37c content(mass-energy): English review round 1: all 43 units read against the German and the plates; Einstein's two pairs of dashes restored (D-2026-09-25-agent-reviewed-translations, dispatch 194)"
 unresolvedAlternatives: []
 reviewState: "reviewed"
 agentReview:
