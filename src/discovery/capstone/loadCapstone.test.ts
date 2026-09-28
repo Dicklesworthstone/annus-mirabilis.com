@@ -71,11 +71,29 @@ describe("the mass-energy capstone, against the corpus", () => {
   });
 
   test("a paper with no capstone record is refused by name, not answered with an empty one", () => {
-    // True today and the reason this reads as a plant rather than a wish: three of the four
-    // capstones are unwritten, so this is the live state of the corpus.
-    expect(capstoneExists("light-quanta")).toBe(false);
-    expect(refusalFrom(() => loadCapstone("light-quanta")).code).toBe("capstone-record-missing");
+    // THE ABSENCE IS THIS TEST'S OWN, not the corpus's. It used to assert that light-quanta had no
+    // capstone, with a comment saying three of the four were unwritten, which was true when it was
+    // written and false the moment light-quanta's record landed. The test had borrowed a gap in the
+    // corpus as its negative fixture, so it went red exactly when the project closed the gap, and
+    // swapping in whichever paper is still unwritten would only move the same trap one paper along.
+    //
+    // The condition it creates instead: rootWithRecord writes the mass-energy record and no other
+    // into a fresh root, so every other paper is absent THERE by construction. That holds at four
+    // capstones, at five, and at none.
+    const root = rootWithRecord(readFileSync(RECORD, "utf8"));
+
+    // The positive control, in two parts. The root is a working corpus rather than an empty
+    // directory, and the real corpus still has the record this file is about. Both are assertions
+    // that something EXISTS, so content work can only make them more true.
+    expect(capstoneExists("mass-energy", root)).toBe(true);
+    expect(loadCapstone("mass-energy", root).capstone.id).toBe("capstone-mass-energy");
     expect(capstoneExists("mass-energy")).toBe(true);
+
+    // And the refusal itself, for a real paper slug that this root does not carry.
+    expect(capstoneExists("special-relativity", root)).toBe(false);
+    const refusal = refusalFrom(() => loadCapstone("special-relativity", root));
+    expect(refusal.code).toBe("capstone-record-missing");
+    expect(refusal.message).toContain("special-relativity");
   });
 
   test("an equation the paper never prints is refused, with the id named", () => {
