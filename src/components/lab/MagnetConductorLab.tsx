@@ -22,6 +22,7 @@ import {
   type Sr02Parameters,
 } from "../../experiments/sr02/definition.ts";
 import { validateSr02Parameters } from "../../experiments/sr02/parameters.ts";
+import { decodeSr02Settings, encodeSr02Settings } from "../../experiments/sr02/permalink.ts";
 import { createSr02Session, type PreparedSr02Example } from "../../experiments/sr02/session.ts";
 import { SR02_TAPE } from "../../experiments/sr02/tape.ts";
 import { instrumentRootAttributes } from "../../experiments/store/identityAttributes.ts";
@@ -142,8 +143,30 @@ export function MagnetConductorLab({
   const [typed, setTyped] = useState(() => typedFrom(example.parameters));
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
+  const [linkNote, setLinkNote] = useState("");
   useEffect(() => {
     setReady(true);
+  }, []);
+  // A shared ?mode= link arrives here (dispatch 359). The catalogue decides which modes are
+  // addressable: decodeSr02Settings resolves `sr-02:<mode>` rather than comparing strings, so this
+  // laboratory and DECLARED_MODES cannot drift apart. A mode nobody declared is REFUSED in words
+  // and the worked example stays, rather than the page quietly showing a state the URL does not
+  // name. A ?tape= link carries its own settings through useLabTapeLink above, so when both are
+  // present the tape wins and this says which one it honoured.
+  //
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the URL is read once, at mount. Listing `apply` would re-run this on every render and re-apply the link over whatever the reader has since changed; listing `example.parameters` would do the same whenever the parent hands a new object. The component already takes `example` as a mount-time input twice above, in the session and the draft initializers, and this is the third.
+  useEffect(() => {
+    const search = window.location.search;
+    if (new URLSearchParams(search).has("tape")) {
+      if (new URLSearchParams(search).has("mode"))
+        setLinkNote("This link carries both a tape and a mode; the tape's own settings were used.");
+      return;
+    }
+    const shared = decodeSr02Settings(search, example.parameters);
+    if (shared.kind === "settings") {
+      apply(shared.parameters);
+      setLinkNote("");
+    } else if (shared.kind === "invalid") setLinkNote(shared.message);
   }, []);
   function apply(parameters: Sr02Parameters) {
     const outcome = session.apply(parameters);
@@ -212,7 +235,9 @@ export function MagnetConductorLab({
         <p className="notice">
           JavaScript is off. This is a complete worked example calculated when the site was built.
           The two descriptions, the named-speed comparison and the apparatus captions remain
-          available; changing the settings requires JavaScript.
+          available; changing the settings requires JavaScript, and so does following a
+          ?mode=apparatus link, which this page reads in the browser because the site is a static
+          export. Without JavaScript such a link lands here, on this default view.
         </p>
       </noscript>
       <PredictGatePanels gate={gate} />
@@ -366,6 +391,19 @@ export function MagnetConductorLab({
           response={gate.response}
         />
         <LabTapeLink link={withPredictions(tapeLink, gate)} />
+        {/* The address the catalogue gives this view, re-emitted so the round trip closes: the
+            apparatus view links as ?mode=apparatus, and the default state links as the bare route,
+            which is the address the catalogue gives IT. */}
+        <p className="fine">
+          <a href={`/lab/sr-02/${encodeSr02Settings(p)}`}>
+            {apparatus ? "Link to this apparatus view" : "Link to this view"}
+          </a>
+        </p>
+        {linkNote ? (
+          <p className="notice" role="alert" data-refusal-code="undeclared-mode-link">
+            {linkNote}
+          </p>
+        ) : null}
         <div className="lab-results" {...gate.response}>
           {apparatus ? (
             <ApparatusPanel
