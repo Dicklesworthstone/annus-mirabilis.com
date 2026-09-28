@@ -8,6 +8,29 @@ import { DEFAULT_PREPARED_EXAMPLE, snapshotOutputs } from "../../experiments/sr0
 import generated from "../../generated/sr02-example.json";
 import { MagnetConductorLab } from "./MagnetConductorLab.tsx";
 
+/** The rendered markup with the "Show the code" disclosure removed, by tag balance (am-f3e4). */
+function withoutCodePanel(markup: string): string {
+  const start = markup.indexOf("<details id=");
+  const at = markup.indexOf('class="show-the-code"');
+  if (at === -1 || start === -1) return markup;
+  const open = markup.lastIndexOf("<details", at);
+  let depth = 0;
+  let i = open;
+  for (;;) {
+    const nextOpen = markup.indexOf("<details", i + 1);
+    const nextClose = markup.indexOf("</details>", i + 1);
+    if (nextClose === -1) return markup.slice(0, open);
+    if (nextOpen !== -1 && nextOpen < nextClose) {
+      depth++;
+      i = nextOpen;
+      continue;
+    }
+    if (depth === 0) return markup.slice(0, open) + markup.slice(nextClose + "</details>".length);
+    depth--;
+    i = nextClose;
+  }
+}
+
 describe("MagnetConductorLab: static rendering (no JavaScript)", () => {
   const html = renderToStaticMarkup(<MagnetConductorLab example={DEFAULT_PREPARED_EXAMPLE} />);
 
@@ -75,7 +98,11 @@ describe("sr-02:apparatus", () => {
     expect(html).toContain('data-execution-label="static"');
     expect(html).toContain(SR02_APPARATUS_CAPTIONS.magnetMoves);
     expect(html).toContain(SR02_APPARATUS_CAPTIONS.observation);
-    expect(html).not.toContain("electromotiveForceMagnetFrame");
+    // Scoped past "Show the code" (am-f3e4): that panel is a closed <details> holding the
+    // evaluator's source and its identifier legend, so the quantity's NAME appears there as code.
+    // The guard is about a computed field VALUE being displayed, which is still asserted over
+    // everything the laboratory itself renders.
+    expect(withoutCodePanel(html)).not.toContain("electromotiveForceMagnetFrame");
   });
 
   test("withheld resolution sits in a closed native disclosure", () => {

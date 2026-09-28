@@ -1,5 +1,6 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { readTypedNumber } from "../../experiments/controls/typedNumber.ts";
 import {
   executionLabelFor,
@@ -32,6 +33,7 @@ import { KEPT_RESULT } from "./keptResult.ts";
 import { LabMargin } from "./LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { display, identity, result, sentenceNumber } from "./presentation.ts";
+import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
 
 const SPEED_06C = 0.6 * 299792458;
@@ -396,6 +398,9 @@ export function MagnetConductorLab({
         {withScripts(SR02_CAPTION.r2)}
       </p>
       <LabMargin>{withScripts(SR02_CAPTION.r3)}</LabMargin>
+
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="sr-02" listings={getKernelListingsForInstrument("sr-02")} />
       <p>
         Choose which body is described as moving, type a speed, and inspect both accounts of the
         same current. No dragging is required. The ether-plus-local-time account is not declared

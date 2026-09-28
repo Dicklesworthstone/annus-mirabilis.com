@@ -28,12 +28,14 @@ import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { withScripts } from "../subscripts.tsx";
 import "../labControls.css";
 import "../showTheCode.css";
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
 import { numberText, sentenceNumber } from "../presentation.ts";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 
 function outputByQuantityId(
   outputs: readonly PublishedResult[],
@@ -494,6 +496,9 @@ const roundTripSpeedLsPerS = (2 * separationLs) / (receptionTimeA - emissionTime
         {withScripts(SR01_CAPTION.r2)}
       </p>
       <LabMargin>{withScripts(SR01_CAPTION.r3)}</LabMargin>
+
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="sr-01" listings={getKernelListingsForInstrument("sr-01")} />
 
       <p className="assumptions-note">
         {SR01_MODEL.assumptions[0]} Alternative:{" "}

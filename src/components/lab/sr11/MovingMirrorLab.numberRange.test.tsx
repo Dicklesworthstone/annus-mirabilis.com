@@ -52,6 +52,12 @@ describe("SR-11 past the number range", () => {
       expect(lab?.getAttribute("data-pending")).toBe("false");
       // Since dispatch 184 the declared domain (up to 10^6 J/m³) refuses it before any calculation.
       expect(Number(lab?.getAttribute("data-accepted-input-revision"))).toBe(before);
+      // Scoped past "Show the code" (am-f3e4): that panel is a closed <details> holding the
+      // evaluator's own source, which contains the literals Number.NaN and POSITIVE_INFINITY as
+      // code. The guard is about what the laboratory READS OUT, and it still covers everything
+      // else the page renders.
+      const panel = container.querySelector("details.show-the-code");
+      panel?.remove();
       const text = container.textContent ?? "";
       expect(text).toContain("Enter the incident energy density u from");
       expect(text).toContain("the range this model describes");

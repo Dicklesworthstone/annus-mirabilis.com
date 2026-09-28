@@ -485,6 +485,156 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     ],
     independentReferences: [],
   },
+
+  // SR-01, SR-02, SR-07 and SR-11 (am-f3e4, dispatch 324).
+  //
+  // A NOTE ON LIVE TERMS, because this batch is where the trap bites hardest. Of the 37 quantityIds
+  // these four manifests use, 11 are registered. sr-01's are ALL unregistered (rodBeta, pairBeta,
+  // assignedRemoteTime, criterionOffset and the rest), so its entries declare only what is both
+  // canonical and true of the identifier, and two of them declare none at all rather than bind a
+  // near miss. The panel still shows the code, the hash and the words; colour is what is missing,
+  // not the deliverable.
+  {
+    instrumentId: "sr-01",
+    kernel: tsRef("src/physics/reference/events.ts", "synchronizationRound"),
+    words: {
+      r0: "One round trip of a light signal, and the time it assigns to the distant clock: the midpoint of sending and receiving.",
+      r1: "This is § 1's definition, computed. Given the time a signal left A, the time its echo returned to A, and the separation, it assigns the distant clock the average of the two local readings, and reports the round-trip speed over that separation. It also returns criterionOffset, which is the outward interval minus the return interval as the definition assigns them, and which is therefore zero by construction.",
+      r2: "The refusals come first and they are different facts: a nonfinite time is a malformed request, while a reception at or before its emission is a request outside the model, and each returns its own code. Then assignedRemoteTime is (emissionTimeA + receptionTimeA) / 2, and roundTripSpeedLsPerS is twice the separation over the elapsed round trip, which is a speed the definition does not assume but measures. equalsC compares that speed with c to within 1e-9 rather than testing equality of floating-point numbers. criterionOffset is computed and returned even though the construction forces it to zero, because a reader should be able to watch it stay zero rather than be told it does.",
+      r3: "The one-way speed is not measured here and cannot be: § 1 makes the equality of the two legs a stipulation, and this function computes what follows from that stipulation. What it measures is the round trip, which is what experience fixes.",
+    },
+    liveTerms: [],
+    identifierBindings: [],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-01",
+    kernel: tsRef("src/physics/reference/events.ts", "movingRodLegs"),
+    words: {
+      r0: "The two legs of the same signal along a moving rod: the chase out takes longer than the return, and the difference is the whole of § 2's argument.",
+      r1: "A light signal runs from one end of a moving rod to the other and back. Measured in the resting system the light travels at c while the far end runs away at beta, so the gap closes at c minus beta on the way out; on the return the near end runs to meet the light and the gap closes at c plus beta. The function returns both legs and, as criterionSatisfiedInStationaryFrame, whether they are equal, which happens only when beta is zero.",
+      r2: "Nothing here says light slows down. The rates c - beta and c + beta are closing rates between two speeds both taken in the resting system, not speeds of light, and the two legs are separationLs divided by each. Because the denominators differ whenever the rod moves, the observers travelling with the rod cannot both apply § 1's criterion and agree with the resting system: that is the contradiction § 2 exhibits, and the boolean is the site's way of letting a reader watch it appear and disappear as beta passes through zero.",
+    },
+    liveTerms: ["frameSpeed"],
+    identifierBindings: [bind("movingRodLegs", "beta", "frameSpeed")],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-01",
+    kernel: tsRef("src/physics/reference/events.ts", "desynchronizationObserved"),
+    words: words(
+      "Two clocks synchronised in their own system are not synchronised in the system they move through: the trailing one reads ahead, by the separation times the speed over the square of the light speed, and the function returns that magnitude with which clock leads.",
+    ),
+    liveTerms: ["frameSpeed"],
+    identifierBindings: [bind("desynchronizationObserved", "beta", "frameSpeed")],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-02",
+    kernel: tsRef("src/physics/reference/fields.ts", "transformSI"),
+    words: {
+      r0: "The electric and magnetic fields as the moving frame measures them: along the motion each is unchanged, across it each mixes with the other.",
+      r1: "This is § 6's transformation in modern SI letters. The components along the boost, E sub x and B sub x, pass through untouched. The transverse components mix: the new E sub y is gamma times (E sub y minus v times B sub z), and the new B sub y is gamma times (B sub y plus v times E sub z over c squared). A frame with no electric field at all therefore measures one, which is the whole content of the magnet-and-conductor observation the paper opens with.",
+      r2: "The function computes gamma from v over c and, if that refuses, returns the input fields unchanged with gamma reported as NaN rather than inventing a transformed field. Otherwise each component is built once, in the order x, y, z, and the result is frozen so a caller cannot mutate a field it was handed. Note the asymmetry between the two blocks: the electric mixing carries v while the magnetic mixing carries v over c squared. That is not a typo but the SI unit system, and the same physics written in Gaussian units puts v over c in both, which is what transformGaussianHistorical does for the paper's own form.",
+    },
+    liveTerms: ["electricFieldStationary", "magneticFieldStationary", "frameSpeed"],
+    identifierBindings: [
+      bind("transformSI", "E", "electricFieldStationary"),
+      bind("transformSI", "B", "magneticFieldStationary"),
+      bind("transformSI", "v", "frameSpeed"),
+      bind("transformSI", "γ", "lorentzFactor"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-02",
+    kernel: tsRef("src/physics/reference/fields.ts", "dipoleField"),
+    words: words(
+      "The magnetic field of a point dipole at a point in space: three times the dipole's component along the line of sight, spread along that line, less the dipole itself, all falling off as the cube of the distance.",
+    ),
+    liveTerms: ["magneticDipoleMoment"],
+    identifierBindings: [bind("dipoleField", "moment", "magneticDipoleMoment")],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-02",
+    kernel: tsRef("src/physics/reference/fields.ts", "evaluateSr02"),
+    words: {
+      r0: "The magnet and the conductor, computed in both frames at once, with every quantity carrying its own status rather than a number it has not earned.",
+      r1: "The laboratory's evaluator. It takes the relative speed, the field, the path and the charge, transforms the field to the conductor's frame, computes the force in each frame, and returns the electromotive force each description gives. The two descriptions differ in what they say is happening, an electric force in one and a magnetic force in the other, and agree on what is measured, which is the observation the paper opens with.",
+      r2: "Almost all of this function is about what it refuses to say. In apparatus mode it returns every row as SYMBOLIC, a typed state carrying the letter rather than a number, because no numbers have been requested. If the speed, field, length or charge is not finite, or the speed reaches c, or the declared path has no length, every row becomes OUTSIDE-DOMAIN with the condition named. Where the path lies along the motion the electromotive force is zero in both frames, and the excess becomes NOT-APPLICABLE with its reason rather than a zero that could be read as a measurement. Where the path is neither along nor across within tolerance the rows become UNDETERMINED, since the classification itself is the thing in doubt. The circuit current is always not-applicable, with the reason that no circuit is modelled. Only after all of that does it compute: emfMagnet is the magnitude of v times B times the length, taken only across the motion, and emfConductor is gamma times it.",
+    },
+    liveTerms: [
+      "frameSpeed",
+      "magneticFieldStationary",
+      "electromotiveForceMagnetFrame",
+      "electromotiveForceConductorFrame",
+    ],
+    identifierBindings: [
+      bind("evaluateSr02", "v", "frameSpeed"),
+      bind("evaluateSr02", "Bz", "magneticFieldStationary"),
+      bind("evaluateSr02", "emfMagnet", "electromotiveForceMagnetFrame"),
+      bind("evaluateSr02", "emfConductor", "electromotiveForceConductorFrame"),
+      bind("evaluateSr02", "γ", "lorentzFactor"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-07",
+    kernel: tsRef("src/physics/reference/fields.ts", "maxwellResidualsPlaneWave"),
+    words: {
+      r0: "A numerical test of § 6's claim: transform a plane wave into the moving system and ask whether Maxwell's equations still hold there, by measuring how far from zero they come out.",
+      r1: "The function builds a plane wave, transforms its field derivatives into the moving system by the chain rule, and forms the two combinations that Faraday's and Ampere's laws set to zero. What it returns is not a verdict but the residuals themselves, six of them, together with the largest, so that a reader sees the size of the failure rather than a passed or failed stamp. It also returns the amplitude and frequency factors, which for a wave along the motion are the Doppler factor gamma times (1 minus the direction cosine times beta).",
+      r2: "The comparison is where the care is. Testing a floating-point residual against zero would fail on rounding alone, so each of the six is compared with a tolerance built from the terms that produced it: a relative part times the largest term, plus a floor times the wave's own scale. A residual smaller than that is not evidence of a violation, and the function says so by leaving allPassed true. The events are seeded, so the same six residuals come back on every run and a reader can compare two runs meaningfully. The convention parameter selects the printed transformation or its flipped sign, which is how a reader can watch the residuals leave zero when the wrong sign is used.",
+      r3: "This is a modern verification oracle, not a step of the 1905 argument. The paper asserts the form invariance and demonstrates it algebraically; computing residuals against a tolerance is the site's way of letting a reader test it, and a small residual is evidence about this implementation rather than a proof about nature.",
+    },
+    liveTerms: ["frameSpeed", "lorentzFactor"],
+    identifierBindings: [
+      bind("maxwellResidualsPlaneWave", "v", "frameSpeed"),
+      bind("maxwellResidualsPlaneWave", "γ", "lorentzFactor"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-07",
+    kernel: tsRef("src/physics/reference/fields.ts", "transformGaussianHistorical"),
+    words: {
+      r0: "The same field transformation in the paper's own units, where the mixing term is the speed over the light speed in both the electric and the magnetic line.",
+      r1: "Paper 3 works in Gaussian units, and there the transformation is symmetric between the two fields: each transverse component picks up v over c times the other's. The SI form of the same physics carries v in the electric line and v over c squared in the magnetic one. Nothing physical differs; the unit system moves the factors.",
+      r2: "The function computes the factor from v over c and, if that refuses, hands back the input fields with the factor reported as NaN rather than a transformed field it cannot justify. Then each component is written once: the components along the boost pass through, and the four transverse ones mix with vOverC. Compare it line by line with transformSI and the only differences are where the c's sit.",
+      r3: "The identifier holding the Lorentz factor in this function is the Greek letter beta, which is the paper's own letter for it. A modern reader expects beta to mean v over c, and in this file that ratio is called vOverC. The site keeps the printed letter in the historical function and the modern letter in the SI one, and the notation concordance records the collision; reading this beta as v over c would invert the whole transformation.",
+    },
+    liveTerms: [
+      "electricFieldStationary",
+      "magneticFieldStationary",
+      "frameSpeed",
+      "lorentzFactor",
+    ],
+    identifierBindings: [
+      bind("transformGaussianHistorical", "E", "electricFieldStationary"),
+      bind("transformGaussianHistorical", "B", "magneticFieldStationary"),
+      bind("transformGaussianHistorical", "v", "frameSpeed"),
+      bind("transformGaussianHistorical", "β", "lorentzFactor"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-11",
+    kernel: tsRef("src/physics/reference/waves.ts", "evaluateSr11"),
+    words: {
+      r0: "Light reflected from a moving mirror: the frequency it comes back with, the angle it leaves at, the pressure it exerts, and the power it carries, each with its own status.",
+      r1: "The laboratory's evaluator for § 8's moving mirror. It takes the mirror's speed, the angle of incidence, the incident energy density and the mirror's area, and returns the frequency ratio, the cosine and degrees of the reflected angle, the amplitude ratio, the radiation pressure and force, the incident and reflected powers, the rate at which the light does work on the mirror, and the residual by which the energy account fails to balance. In the mirror's own rest frame it reports no work and equal powers, which is the check that the two descriptions agree.",
+      r2: "Three refusals, and they are three different facts. A speed at or beyond the light speed is OUTSIDE-DOMAIN with the boundary named. An angle whose cosine is within tolerance of the mirror's speed is INDETERMINATE, because that is exactly the interception boundary and the classification itself is in doubt. An angle whose cosine is at or below the mirror's speed is NOT-APPLICABLE, with the reason that the light never reaches the receding mirror: the mirror is outrunning it. Only past all three does the function compute, and even then the energy-balance residual is returned rather than asserted to be zero, so a reader can see how well the account closes instead of being told that it does.",
+      r3: "The condition that the light must overtake the mirror is the paper's own: § 8's reflection formulas hold where the cosine of the angle of incidence exceeds the mirror's speed over the light speed, and the site refuses rather than extrapolating past it.",
+    },
+    liveTerms: ["radiationForce", "incidentPower"],
+    identifierBindings: [
+      bind("evaluateSr11", "beta", "frameSpeed"),
+      bind("evaluateSr11", "radiationForce", "radiationForce"),
+      bind("evaluateSr11", "incidentPower", "incidentPower"),
+    ],
+    independentReferences: [],
+  },
 ];
 
 export const SLICE_REGISTERED_SCENARIOS: Readonly<Record<string, readonly string[]>> = {
