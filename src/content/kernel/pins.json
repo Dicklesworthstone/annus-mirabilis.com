@@ -22,7 +22,15 @@
     "evaluateSubtraction@src/physics/reference/massEnergy.ts": "sha256:98436f159f767fc6824c6c3c79b8716f767c1e762857e1836ecef2058d24f207",
     "evaluateMe02@src/physics/reference/massEnergy.ts": "sha256:53f944320b3803166e6436ebdf1160ba135efb2df9770617dd19a3ec30d1c5fc",
     "evaluateMe03@src/physics/reference/massEnergy.ts": "sha256:3e9ea1af4a87d89addf26618479bebd064d67ef5ce0091952a426570743deb22",
-    "evaluatePhotonBox@src/physics/reference/massEnergy.ts": "sha256:ec37d2f99b43271a59a00c92d228d4e8112e5bbda87ca7342c0bd29b5650ff8a"
+    "evaluatePhotonBox@src/physics/reference/massEnergy.ts": "sha256:ec37d2f99b43271a59a00c92d228d4e8112e5bbda87ca7342c0bd29b5650ff8a",
+    "galileanVelocity@src/physics/reference/kinematics.ts": "sha256:61ffd6f21cfa123929d7aaedeee5caa696acfe8d845de83c38b7d5ff94eaced7",
+    "rapidity@src/physics/reference/kinematics.ts": "sha256:e65b9b89f2c7b54cbfbb9631ea63c2f3eb3c11f9408a9b93bea81701f5bee1e6",
+    "galileanRelativisticVelocityDifference@src/physics/reference/kinematics.ts": "sha256:55c9c824481d821897c873699fbed848645ee9ecf60ca46dd0e47c8255ee5932",
+    "dilationLossPerSecond@src/physics/reference/kinematics.ts": "sha256:16174608520a91b1901a27754605296b471556b17585818e16bd777a3027c413",
+    "reciprocalRates@src/experiments/sr05/worldline.ts": "sha256:268de30e365ff413ce4b418d22cee21a230f2cdee2730a1f9d744c75ad8b46b0",
+    "composedSpeedShortfall@src/physics/reference/kinematics.ts": "sha256:af74a43a1adb32361c07caa5d8676b82a29c1da6511f68fcb855fe6d187c3b56",
+    "compositionIncrement@src/physics/reference/kinematics.ts": "sha256:85f4b6196296e162324a7317248b6a2da914aeb3e075f4990ec20bbe0c9c659c",
+    "composePrinted@src/physics/reference/kinematics.ts": "sha256:6867c4fe6fc64d68167f2382a7113dcb7ef7d09a8bd0ca42e5b34db9ef2853f2"
   },
   "closures": {
     "src/physics/reference/diffusion/distributions.ts": "source:sha256:1eb5b457e215116537778a643fdb94b42da696cd79689396720e6c289b7aa5fa",
@@ -31,6 +39,8 @@
     "src/physics/reference/diffusion/walks.ts": "source:sha256:8f0ba3c9a1c2e938fc21f0a5b0378c8260814ee1092bbd1538c4a80826f0a10b",
     "src/physics/reference/special/erf.ts": "source:sha256:36da87a989cc4d16571414b99849aa31ea544bb30878fd80fb9c19ffa9e11f62",
     "src/physics/reference/diffusion/ftcs.ts": "source:sha256:78631b3a586b67a5df64acf5f6cdab373612148d057eaa29eb93e689dac56ffb",
-    "src/physics/reference/massEnergy.ts": "source:sha256:a441f6d58cdc8873bdb34aab7d1934e97d367196cbb75933f73609d03077cb2f"
+    "src/physics/reference/massEnergy.ts": "source:sha256:a441f6d58cdc8873bdb34aab7d1934e97d367196cbb75933f73609d03077cb2f",
+    "src/physics/reference/kinematics.ts": "source:sha256:643f0321be8661c699a38279edac01ee819d00c347b0cb90a33c7cd04c6700dd",
+    "src/experiments/sr05/worldline.ts": "source:sha256:2a642bf55c8b519f40d0e4e79b7a96c2dd7cc01f3d2ab3b6c2b1b39a0ef9aac4"
   }
 }

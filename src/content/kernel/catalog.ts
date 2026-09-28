@@ -340,6 +340,151 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     independentReferences: [],
     traceScenarioId: "me-03-box-canonical",
   },
+
+  // SR-04, SR-05 and SR-06 (am-f3e4, dispatch 321). Each lab's frame-speed control IS beta: sr-04
+  // reads v/c with displayUnit "c" and sr-06 with displayUnit "1", so binding a kernel's `beta` to
+  // frameSpeed binds the control the reader is moving, not a quantity of the same name.
+  //
+  // Where one sentence is the whole truth it is the only sentence (words()); where R2 has more to
+  // say it is written out, and every one of those is a cancellation-free form whose reason for
+  // existing IS the step R2 shows. Collapsing those into R0 would throw away what the function is.
+  {
+    instrumentId: "sr-04",
+    kernel: tsRef("src/physics/reference/kinematics.ts", "galileanVelocity"),
+    // One sentence is the whole truth: the function subtracts, and there is nothing under it.
+    words: words(
+      "Subtract the frame's speed from the speed measured in the resting system. That is the everyday rule this laboratory is testing, and it carries no reference to the speed of light at all.",
+    ),
+    liveTerms: ["frameSpeed", "velocityInMovingFrame"],
+    identifierBindings: [
+      bind("galileanVelocity", "u", "velocityComponentXStationary"),
+      bind("galileanVelocity", "v", "frameSpeed"),
+      bind("galileanVelocity", "galileanVelocity", "velocityInMovingFrame"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-04",
+    kernel: tsRef("src/physics/reference/kinematics.ts", "rapidity"),
+    words: {
+      r0: "The rapidity of a boost: a way of writing its speed that adds up when boosts are applied one after another, where the speeds themselves do not.",
+      r1: "Rapidity is the inverse hyperbolic tangent of v/c, computed here as half the logarithm of (1 + beta) over (1 - beta). Two collinear boosts have rapidities that simply add, which is what makes it useful: the speeds compose by the addition theorem instead, and never add. The factor and the speed follow from it, since gamma is the hyperbolic cosine of the rapidity and gamma times beta its hyperbolic sine.",
+      r2: "The function refuses before it computes. isMode1904 refuses the whole surface, because a rapidity is not a quantity the 1904 shelf holds; then refuseBeta rejects a nonfinite beta and any |beta| at or beyond 1, since there is no inertial observer there and the logarithm would divide by zero exactly at the light speed. What is left is one line: 0.5 * Math.log((1 + beta) / (1 - beta)). At beta = 0.6 the ratio is 1.6 over 0.4, so the rapidity is half of log 4, which is log 2. At beta = 0 it is 0, and it grows without bound as beta approaches 1, which is the same fact as light speed being unreachable, written in a coordinate where the boundary has moved to infinity.",
+      r3: "Rapidity is a later aid and the module says so: paper 3 prints no rapidity glyph, and the hyperbolic reading of a boost is Minkowski's 1908 geometry rather than Einstein's 1905 kinematics. It is offered here as a modern lens on the same map, and it imports no later physics into the construction the laboratory performs.",
+    },
+    liveTerms: ["frameSpeed", "rapidity"],
+    identifierBindings: [
+      bind("rapidity", "beta", "frameSpeed"),
+      bind("rapidity", "rapidity", "rapidity"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-04",
+    kernel: tsRef("src/physics/reference/kinematics.ts", "galileanRelativisticVelocityDifference"),
+    words: {
+      r0: "How far the relativistic answer sits from the Galilean one, computed as a single quantity rather than by subtracting two nearly equal numbers.",
+      r1: "The relativistic transformed velocity is (u - v) divided by (1 - u v / c squared); the Galilean one is (u - v). Their difference is the first times the small factor relativeSize, which is (u v / c squared) divided by (1 - u v / c squared). At everyday speeds that factor is around ten to the minus seventeen, so the difference is far below anything the two velocities could be measured to.",
+      r2: "Subtracting the two answers directly would compute (u - v) / (1 - u v / c squared) minus (u - v), two numbers that agree to sixteen digits at walking speeds, and the result would be mostly rounding error. The algebra removes the cancellation before the arithmetic: factor out (u - v) and what remains is 1 / (1 - u v / c squared) minus 1, which is exactly (u v / c squared) / (1 - u v / c squared). That is relativeSize, and the difference is (u - v) times it. The function returns both, so a reader can see that the ratio, not the difference, is the quantity that stays meaningful at small speeds. Its guards are the same shape as elsewhere: finite inputs, a positive c, |v| strictly below c, and |u| at most c, since a particle may move at the light speed while a frame may not.",
+    },
+    equationId: "eq-model-sr-velocity-x",
+    liveTerms: ["frameSpeed"],
+    identifierBindings: [
+      bind("galileanRelativisticVelocityDifference", "u", "velocityComponentXStationary", [
+        "eq-model-sr-velocity-x.t.ux",
+      ]),
+      bind("galileanRelativisticVelocityDifference", "v", "frameSpeed", [
+        "eq-model-sr-velocity-x.t.speed",
+      ]),
+      bind("galileanRelativisticVelocityDifference", "c", "speedOfLight", [
+        "eq-model-sr-velocity-x.t.light",
+      ]),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-05",
+    kernel: tsRef("src/physics/reference/kinematics.ts", "dilationLossPerSecond"),
+    words: {
+      r0: "How much a moving clock falls behind per second of the resting system, given exactly and again in the paper's small-speed form, so the two can be compared.",
+      r1: "The loss per coordinate second is 1 minus 1 over gamma. The function returns it as exact, computed as beta squared over (1 + the square root of 1 minus beta squared), and beside it printedSecondOrder, which is half of beta squared. The second is what the paper prints on page 904 when it says the moving clock falls behind by half of (v/V) squared per second, neglecting magnitudes of the fourth order and higher.",
+      r2: "Writing 1 minus the square root of (1 minus beta squared) directly would subtract two numbers that agree to sixteen digits at any everyday speed, and the answer would be rounding error. Multiplying above and below by (1 + the root) turns the numerator into 1 minus (1 minus beta squared), which is beta squared, and leaves the denominator 1 + the root: no subtraction of near-equals survives. At beta = 0.6 the root is 0.8 and the exact loss is 0.36 over 1.8, which is 0.2, while the printed second-order form gives 0.18; the two differ by a tenth of the answer at that speed. At a walking pace they agree to more digits than any clock can resolve, which is what the paper's neglect of fourth-order terms means.",
+    },
+    equationId: "eq-model-sr-slow-clock",
+    liveTerms: ["frameSpeed"],
+    identifierBindings: [
+      bind("dilationLossPerSecond", "beta", "frameSpeed", ["eq-model-sr-slow-clock.t.speed"]),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-05",
+    kernel: tsRef("src/experiments/sr05/worldline.ts", "reciprocalRates"),
+    words: {
+      r0: "Each frame reports the same factor for the other's clock. The function returns that one factor, which is gamma.",
+      r1: "There is no asymmetry to find here: the frame at rest reports the moving clock running slow by gamma, and the moving frame reports the resting clock slow by the same gamma. The function returns the single dilationFactor rather than a pair, because a pair would suggest the two numbers could differ.",
+      r2: "The implementation is gamma and a refusal: it calls gamma(beta), returns that result unchanged if it is not a value, and otherwise wraps the number as dilationFactor. What it deliberately does NOT do is compare two separated clock readings, and the comment in the source says so. That comparison needs a simultaneity convention to say which readings are being compared, and choosing one is where the apparent paradox of the twins lives; this function makes the symmetric statement about rates and stops, rather than smuggling a convention in.",
+    },
+    equationId: "eq-model-sr-time-dilation",
+    liveTerms: ["frameSpeed", "lorentzFactor"],
+    identifierBindings: [
+      bind("reciprocalRates", "beta", "frameSpeed"),
+      bind("reciprocalRates", "dilationFactor", "lorentzFactor", [
+        "eq-model-sr-time-dilation.t.factor",
+      ]),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-06",
+    kernel: tsRef("src/physics/reference/kinematics.ts", "composedSpeedShortfall"),
+    words: {
+      r0: "How far the composed speed falls short of the light speed, computed as its own quantity so that the answer survives when the shortfall is tiny.",
+      r1: "Composing two speeds below c gives a speed below c, and this function returns by how much: 1 minus U/c, where U is the collinear composition. It is written as (1 - beta1) times (1 - beta2), over (1 + beta1 beta2). Compose 0.99 with 0.99 and the shortfall is one part in 19801, a number that says what the composed speed is far better than 0.99994949 does.",
+      r2: "The reason this function exists is the reason it is not written as 1 minus composeCollinear. The composition is (beta1 + beta2) over (1 + beta1 beta2), so the shortfall is (1 + beta1 beta2 - beta1 - beta2) over (1 + beta1 beta2), and the numerator factors exactly into (1 - beta1)(1 - beta2). Computing it that way multiplies two small numbers; computing it as 1 minus the composition subtracts two numbers that agree to as many digits as the shortfall is small, and at 0.99 with 0.99 that throws away four of the sixteen digits available. Same guards as elsewhere: each input finite, each |beta| strictly below 1.",
+    },
+    liveTerms: ["frameSpeed"],
+    identifierBindings: [
+      bind("composedSpeedShortfall", "beta1", "frameSpeed"),
+      bind("composedSpeedShortfall", "beta2", "velocityInMovingFrame"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-06",
+    kernel: tsRef("src/physics/reference/kinematics.ts", "compositionIncrement"),
+    words: {
+      r0: "How much adding a second speed actually gains, computed directly rather than by composing and then subtracting.",
+      r1: "Add w to a frame already moving at u and the gain is not w. It is w times (1 minus u squared over c squared), divided by (1 + u w over c squared). The first factor is what makes the gain shrink as u approaches the light speed: at u near c, almost nothing is added however large w is.",
+      r2: "Composing and then subtracting would compute (u + w) / (1 + u w / c squared) minus u, two numbers that are close whenever w is small, which is exactly when the increment is the quantity of interest. Doing the subtraction first, on paper, gives (u + w - u - u squared w / c squared) over (1 + u w / c squared); the u terms cancel exactly and what is left is w (1 - u squared / c squared) over the same denominator, with no near-equal subtraction left for the arithmetic to lose.",
+    },
+    liveTerms: ["frameSpeed"],
+    identifierBindings: [
+      bind("compositionIncrement", "u", "frameSpeed"),
+      bind("compositionIncrement", "w", "velocityInMovingFrame"),
+      bind("compositionIncrement", "c", "speedOfLight"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-06",
+    kernel: tsRef("src/physics/reference/kinematics.ts", "composePrinted"),
+    words: {
+      r0: "The paper's own composition formula for two speeds at an angle, in its printed form, with its refusals made explicit.",
+      r1: "This is the formula of paper 3, section 5: the resulting speed is the square root of (v squared plus w squared plus twice v w cos alpha, less the square of v w sin alpha over c), all divided by (1 + v w cos alpha over c squared). Under the root the first three terms are the parallelogram law, the answer ordinary mechanics would give; the subtracted term and the denominator are what the theory adds, and both vanish as the speeds fall away from c. The angle alpha is between the two velocities, and the expression is symmetric in v and w, which the paper remarks on.",
+      r2: "The function computes cos alpha and sin alpha once, then the denominator 1 + v w cos alpha / c squared, then the radicand inner. It refuses before taking the root, in two ways that are different facts: a nonfinite input or a non-positive c is a malformed request, while |v| or |w| at or beyond c is a request outside the model, and those return different codes. It then refuses again if the radicand came out negative or the denominator vanished, rather than returning a NaN that would flow into a plot. Only then does it return the square root of inner over den. Setting alpha to zero makes sin alpha zero and cos alpha one, and the whole expression collapses to (v + w) over (1 + v w / c squared), the collinear form.",
+      r3: "The printed form is Einstein's, from section 5 of the 1905 paper, where V is the letter for the light speed and alpha is the angle between the velocities. The site keeps the structure of the printed line rather than a rearranged modern equivalent, so that a reader comparing the panel with the page sees the same shape.",
+    },
+    equationId: "eq-model-sr-velocity-x",
+    liveTerms: ["frameSpeed", "emissionAngle"],
+    identifierBindings: [
+      bind("composePrinted", "v", "frameSpeed", ["eq-model-sr-velocity-x.t.speed"]),
+      bind("composePrinted", "w", "velocityInMovingFrame"),
+      bind("composePrinted", "alpha", "emissionAngle"),
+      bind("composePrinted", "c", "speedOfLight", ["eq-model-sr-velocity-x.t.light"]),
+    ],
+    independentReferences: [],
+  },
 ];
 
 export const SLICE_REGISTERED_SCENARIOS: Readonly<Record<string, readonly string[]>> = {

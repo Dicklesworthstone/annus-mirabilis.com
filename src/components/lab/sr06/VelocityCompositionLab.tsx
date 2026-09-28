@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
@@ -27,6 +28,7 @@ import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { fixed, result } from "../presentation.ts";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { VelocityCompositionPlot } from "./VelocityCompositionPlot.tsx";
 
@@ -392,6 +394,8 @@ export function VelocityCompositionLab({
         </p>
       </section>
       <p className="not-modeled">Not modeled: {SR06_NOT_MODELED.join("; ")}.</p>
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="sr-06" listings={getKernelListingsForInstrument("sr-06")} />
       <div>
         <p className="eyebrow">Presets</p>
         {SR06_PRESETS.map((preset) => (

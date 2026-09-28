@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { typedOrNaN } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
@@ -34,6 +35,7 @@ import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 import { withScripts } from "../subscripts.tsx";
 
 const CONSTRAINT_LABELS: Readonly<Record<ConstraintId, string>> = {
@@ -486,6 +488,9 @@ export function LorentzMapLab({
           )}
 
           <p className="fine">Not modeled: {SR04_NOT_MODELED.join("; ")}.</p>
+
+          {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+          <ShowTheCode instrumentId="sr-04" listings={getKernelListingsForInstrument("sr-04")} />
 
           <details>
             <summary>The same construction without dragging, color, or a canvas</summary>

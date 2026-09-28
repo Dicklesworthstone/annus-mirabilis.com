@@ -18,7 +18,9 @@ import { readablePowers } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import "./sr05.css";
 
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { LabMargin } from "../LabMargin.tsx";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 export type MovingClocksLabProps = Readonly<{
   example?: PreparedSr05Example | undefined;
   /**
@@ -337,6 +339,9 @@ export function MovingClocksLab({ example, session: sharedSession }: MovingClock
         {withScripts(SR05_CAPTION.r2)}
       </p>
       <LabMargin>{withScripts(SR05_CAPTION.r3)}</LabMargin>
+
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="sr-05" listings={getKernelListingsForInstrument("sr-05")} />
 
       <p className="fine">
         Model: an ideal clock whose rate depends only on its instantaneous speed. Not modeled:
