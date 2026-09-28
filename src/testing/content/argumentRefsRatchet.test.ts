@@ -101,8 +101,11 @@ describe("an instrument's declared argument exists", () => {
     console.log(
       `[argument refs] ${carried} references in ${Object.keys(allowed).length} instruments still name no record (am-3a8u)`,
     );
-    // 29 on 2026-09-28. Asserted as a ceiling rather than an equality: paying the debt must not
-    // turn this red, and adding to it must.
-    expect(carried).toBeLessThanOrEqual(29);
+    // 29 when this ratchet was written on 2026-09-28, 24 after the five references whose intent
+    // the records settle were resolved the same day. A ceiling rather than an equality, so paying
+    // the debt stays green; lowered with the debt, so it cannot creep back. The "no new
+    // reference" test above catches additions to the manifests; this one catches additions to
+    // the baseline itself.
+    expect(carried).toBeLessThanOrEqual(24);
   });
 });

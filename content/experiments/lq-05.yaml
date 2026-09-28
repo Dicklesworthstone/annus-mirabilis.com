@@ -7,7 +7,10 @@ sourceRefs:
     id: s5
 argumentIds:
   - arg-lq-boltzmann-principle
-  - arg-lq-independent-points
+  # arg-lq-independent-points named no record. LQ-05 asks how counting independent
+  # possibilities gives an entropy going like n ln V, and arg-lq-independent-configurations asks
+  # why the probability is f to the power n rather than f (am-3a8u).
+  - arg-lq-independent-configurations
   - arg-lq-entropy-volume
 schemaVersion: 1
 parameters:

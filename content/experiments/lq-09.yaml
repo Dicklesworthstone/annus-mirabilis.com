@@ -6,8 +6,11 @@ sourceRefs:
   - paper: light-quanta
     id: s9
 argumentIds:
-  - arg-lq-ionization-bound
-  - arg-lq-absorbed-energy-count
+  # arg-lq-ionization-bound and arg-lq-absorbed-energy-count named no records, and they are the
+  # two halves of one authored argument: arg-lq-ionization-and-counts, "What can energy
+  # conservation say about gas ionization?", which is LQ-09's own question. One reference, not
+  # two (am-3a8u).
+  - arg-lq-ionization-and-counts
   - arg-lq-threshold-frequency
 schemaVersion: 1
 parameters:

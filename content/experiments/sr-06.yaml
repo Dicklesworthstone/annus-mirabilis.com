@@ -5,7 +5,10 @@ sourceRefs:
   - paper: special-relativity
     id: s5
 argumentIds:
-  - arg-sr-composition
+  # arg-sr-composition named no record; SR-06 asks why adding speeds does not preserve light
+  # speed, and arg-sr-velocity-composition asks why two ordinary-looking speeds do not simply
+  # add. One argument, two spellings (am-3a8u).
+  - arg-sr-velocity-composition
 schemaVersion: 1
 parameters:
   - id: frameBeta

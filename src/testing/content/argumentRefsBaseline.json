@@ -4,24 +4,14 @@
     "bm-05": ["arg-bm-variance-of-sum"],
     "bm-06": ["arg-bm-diffusion", "arg-bm-displacement"],
     "lq-01": ["arg-lq-energy-spreading", "arg-lq-time-averages", "arg-lq-wave-success"],
-    "lq-05": ["arg-lq-boltzmann-principle", "arg-lq-entropy-volume", "arg-lq-independent-points"],
+    "lq-05": ["arg-lq-boltzmann-principle", "arg-lq-entropy-volume"],
     "lq-06": ["arg-lq-coefficient-match", "arg-lq-mean-energy", "arg-lq-the-move"],
     "lq-07": ["arg-lq-stokes-rule", "arg-lq-weak-illumination"],
-    "lq-08": [
-      "arg-lq-intensity-rate",
-      "arg-lq-photoelectric",
-      "arg-lq-stopping-potential",
-      "arg-lq-threshold-frequency"
-    ],
-    "lq-09": [
-      "arg-lq-absorbed-energy-count",
-      "arg-lq-ionization-bound",
-      "arg-lq-threshold-frequency"
-    ],
+    "lq-08": ["arg-lq-intensity-rate", "arg-lq-stopping-potential", "arg-lq-threshold-frequency"],
+    "lq-09": ["arg-lq-threshold-frequency"],
     "sr-01": ["arg-sr-clock-sync"],
     "sr-02": ["arg-sr-opening-asymmetry"],
     "sr-03": ["arg-sr-physical-meaning-rods-spheres", "arg-sr-relativity-of-simultaneity"],
-    "sr-06": ["arg-sr-composition"],
     "sr-07": ["arg-sr-field-equations"],
     "sr-08": ["arg-sr-field-transform"],
     "sr-13": ["arg-sr-electron-dynamics"]

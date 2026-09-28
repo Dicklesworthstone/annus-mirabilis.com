@@ -6,7 +6,10 @@ sourceRefs:
   - paper: light-quanta
     id: s8
 argumentIds:
-  - arg-lq-photoelectric
+  # arg-lq-photoelectric named no record. LQ-08 asks what changes the energy of the emitted
+  # electrons and what changes their number; arg-lq-photoelectric-energy asks what changes when
+  # frequency rises and what changes when power rises (am-3a8u).
+  - arg-lq-photoelectric-energy
   - arg-lq-stopping-potential
   - arg-lq-intensity-rate
   - arg-lq-threshold-frequency
