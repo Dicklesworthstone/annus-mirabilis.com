@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabWrongTurns } from "../../../components/lab/LabWrongTurns.tsx";
 import { MovingClocksLab } from "../../../components/lab/sr05/MovingClocksLab.tsx";
 import type { PreparedSr05Example } from "../../../experiments/sr05/session.ts";
 import generatedExample from "../../../generated/sr05-example.json";
@@ -87,6 +88,7 @@ export default function MovingClocksPage() {
           integral, which this instrument does not offer.
         </p>
       </section>
+      <LabWrongTurns lab="sr-05" />
     </>
   );
 }

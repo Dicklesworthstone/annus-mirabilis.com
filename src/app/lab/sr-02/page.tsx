@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { LabTapes } from "../../../components/lab/LabTapes.tsx";
+import { LabWrongTurns } from "../../../components/lab/LabWrongTurns.tsx";
 import { MagnetConductorComparison } from "../../../components/lab/MagnetConductorLab.tsx";
 import { validateSr02Parameters } from "../../../experiments/sr02/parameters.ts";
 import example from "../../../generated/sr02-example.json";
@@ -68,6 +69,7 @@ export default function MagnetConductorPage() {
           <a href="/lab/me-02/">A mass-energy laboratory that is already open</a>
         </div>
       </section>
+      <LabWrongTurns lab="sr-02" />
       <LabTapes lab="sr-02" />
     </>
   );

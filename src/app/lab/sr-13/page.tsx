@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { LabTapes } from "../../../components/lab/LabTapes.tsx";
+import { LabWrongTurns } from "../../../components/lab/LabWrongTurns.tsx";
 import { ElectronDynamicsLab } from "../../../components/lab/sr13/ElectronDynamicsLab.tsx";
 import { validateSr13Parameters } from "../../../experiments/sr13/parameters.ts";
 import example from "../../../generated/sr13-example.json";
@@ -93,6 +94,7 @@ export default function ElectronDynamicsPage() {
           </a>
         </div>
       </section>
+      <LabWrongTurns lab="sr-13" />
       <LabTapes lab="sr-13" />
     </>
   );

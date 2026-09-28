@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { LabTapes } from "../../../components/lab/LabTapes.tsx";
+import { LabWrongTurns } from "../../../components/lab/LabWrongTurns.tsx";
 import { BoundaryLedgerComparison } from "../../../components/lab/me03/BoundaryLedgerLab.tsx";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/me03/session.ts";
 import labDigests from "../../../generated/lab-source-digests.json";
@@ -92,6 +93,7 @@ export default function BoundaryLedgerPage() {
           <a href="/lab/me-02/">Open the small-speed coefficient laboratory</a>
         </div>
       </section>
+      <LabWrongTurns lab="me-03" />
       <LabTapes lab="me-03" />
     </>
   );

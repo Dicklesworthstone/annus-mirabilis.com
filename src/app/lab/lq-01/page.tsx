@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabWrongTurns } from "../../../components/lab/LabWrongTurns.tsx";
 import { WaveDescriptionLab } from "../../../components/lab/WaveDescriptionLab.tsx";
 import { validateLq01Parameters } from "../../../experiments/lq01/parameters.ts";
 import example from "../../../generated/lq01-example.json";
@@ -115,6 +116,7 @@ export default function WaveDescriptionPage() {
           <a href="/discover/light-quanta/">Open the light-quanta journey</a>
         </div>
       </section>
+      <LabWrongTurns lab="lq-01" />
     </>
   );
 }

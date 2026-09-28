@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabWrongTurns } from "../../../components/lab/LabWrongTurns.tsx";
 import { ClockSyncComparison } from "../../../components/lab/sr01/ClockSyncLab.tsx";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/sr01/session.ts";
 import labDigests from "../../../generated/lab-source-digests.json";
@@ -93,6 +94,7 @@ export default function ClockSyncPage() {
           <a href="/lab/bm-01/">The Brownian tracer laboratory</a>
         </div>
       </section>
+      <LabWrongTurns lab="sr-01" />
     </>
   );
 }

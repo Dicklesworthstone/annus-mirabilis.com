@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BrownianComparison } from "../../../components/lab/BrownianLab.tsx";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabWrongTurns } from "../../../components/lab/LabWrongTurns.tsx";
 import example from "../../../generated/bm06-example.json";
 export const metadata: Metadata = {
   title: "The spreading laboratory",
@@ -79,6 +80,7 @@ export default function BrownianLabPage() {
           comparing it with an unbounded Gaussian is also comparing two boundary models.
         </p>
       </section>
+      <LabWrongTurns lab="bm-06" />
     </>
   );
 }

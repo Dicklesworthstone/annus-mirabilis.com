@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LabFormula, LabInlineFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabWrongTurns } from "../../../components/lab/LabWrongTurns.tsx";
 import { PhotoelectricComparison } from "../../../components/lab/lq08/PhotoelectricLab.tsx";
 import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
 import example from "../../../generated/lq08-example.json";
@@ -148,6 +149,7 @@ export default function PhotoelectricPage() {
           <a href="/discover/light-quanta/">Open the light-quanta journey</a>
         </div>
       </section>
+      <LabWrongTurns lab="lq-08" />
     </>
   );
 }
