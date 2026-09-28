@@ -11,8 +11,18 @@
 #
 # Where the bead and the manifests disagree, the manifests win, because the candidate ids are the
 # contract: ME-01's prompt me-01-predict-tilt-axis registers me-01-candidate-sum-unchanged,
-# -sum-decreases and -sum-increases, and no tape named the-two-pulses exists, so step 3 cites the
-# registered preset me-01-sixty-degree-tilt, which sets the prompt's control (the emission angle).
+# -sum-decreases and -sum-increases, so step 3 cites the registered preset
+# me-01-sixty-degree-tilt, which sets the prompt's control (the emission angle).
+#
+# THAT SENTENCE USED TO END "and no tape named the-two-pulses exists", which stopped being true on
+# 2026-09-28 (8dbdd6d6). The tape exists, it walks ME-01 through 0, 45 and 90 degrees, and it is
+# the evidence for this very prompt: the pair's total is 1.25 at all three angles while each
+# flash's share goes 0.25, 0.4042, 1. The step still cites the PRESET, deliberately. This step is
+# budgeted at two minutes and a preset is one press that sets the prompt's control; the tape is a
+# four-step walkthrough on its own page, better once a reader wants the evidence and too long for
+# the slot. A reader who wants it reaches it from ME-01's own page, which now lists its
+# walkthroughs (bb350fac). Recorded here so the next author knows the tape was considered rather
+# than missed.
 id: fifteen-minutes-mass-energy
 title: "The mass-energy paper in fifteen minutes"
 paper: mass-energy
