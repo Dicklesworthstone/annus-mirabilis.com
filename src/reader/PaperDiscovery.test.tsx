@@ -28,7 +28,7 @@ function readerText(html: string): string {
 }
 
 const papers = await listReadablePapers();
-const routed = new Set(ROUTE_INDEX.map((entry) => entry.slug));
+const routed = new Set<string>(ROUTE_INDEX.map((entry) => entry.slug));
 
 describe("a paper names the route a reader could take through it", () => {
   test("the population is real: every readable paper has a route to link", () => {
@@ -49,7 +49,9 @@ describe("a paper names the route a reader could take through it", () => {
     expect(readerText(html)).toContain(`${route?.steps.length} steps`);
   });
 
-  for (const paperId of ["special-relativity", "light-quanta", "mass-energy"]) {
+  // The union PaperPage accepts; a bare string[] does not typecheck against it.
+  const shellPapers = ["special-relativity", "light-quanta", "mass-energy"] as const;
+  for (const paperId of shellPapers) {
     test(`${paperId}, through the PaperPage shell, links its own route`, async () => {
       const html = await exportMarkup(await PaperPage({ paperId }));
       const route = ROUTE_INDEX.find((entry) => entry.slug === paperId);
