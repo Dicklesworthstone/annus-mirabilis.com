@@ -85,3 +85,23 @@
   min-height: 44px;
   align-content: center;
 }
+
+/*
+ * The two sentences a reader chooses on (dispatch 395): the observation that does not fit, and the
+ * question the route opens with. Both are the journey's own words, so they sit in the reading serif
+ * above the site's summary of the route rather than in its fine print.
+ */
+.journey-nagging {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-serif);
+}
+
+.journey-question {
+  margin: 0.4rem 0 0.6rem;
+  color: var(--muted);
+}
+
+/* What is in the route, counted from its own records. Never an ordering. */
+.journey-shape {
+  margin: 0.4rem 0 0;
+}

@@ -7,6 +7,7 @@ import {
   WRITTEN_DISCOVERY_ROUTES,
 } from "../../discovery/journeyRegistry.ts";
 import { ROUTE_INDEX as ROUTES } from "../../discovery/routeIndex.ts";
+import { journeyFactsFor } from "./journeyFacts.ts";
 import "../papers/papersIndex.css";
 import "./discover.css";
 import "../../components/home/wideProse.css";
@@ -116,7 +117,27 @@ export default function DiscoverIndex() {
                 <h2>
                   <a href={`/discover/${route.slug}/`}>{route.name}</a>
                 </h2>
+                {journeyFactsFor(route.slug) ? (
+                  <>
+                    {/* The reason to take THIS route: the observation that does not fit, in the
+                        journey's own words (AGENTS.md calls it the nagging fact). */}
+                    <p className="journey-nagging">{journeyFactsFor(route.slug)?.naggingFact}</p>
+                    <p className="journey-question">
+                      It starts you here: {journeyFactsFor(route.slug)?.firstQuestion}
+                    </p>
+                  </>
+                ) : null}
                 <p>{route.blurb}</p>
+                {journeyFactsFor(route.slug) ? (
+                  <p className="fine journey-shape">
+                    {route.steps.length} steps &middot; {journeyFactsFor(route.slug)?.forks} forks
+                    where a reasonable person could have gone the other way &middot; one step marked
+                    as the non-obvious one &middot; the paper&rsquo;s own argument and{" "}
+                    {journeyFactsFor(route.slug)?.sideDoors} other{" "}
+                    {journeyFactsFor(route.slug)?.sideDoors === 1 ? "route" : "routes"} to{" "}
+                    {journeyFactsFor(route.slug)?.arrivesAt}.
+                  </p>
+                ) : null}
                 <ol className="route-steps" aria-label={`The ${route.steps.length} steps`}>
                   {route.steps.map((step) => (
                     <li key={step}>{step}</li>
@@ -128,6 +149,11 @@ export default function DiscoverIndex() {
                     Take this route
                   </a>
                   <a href={`/papers/${route.slug}/`}>Read the paper instead</a>
+                  {journeyFactsFor(route.slug) ? (
+                    <a href={journeyFactsFor(route.slug)?.frontDoorHref}>
+                      Go straight to where the route lands
+                    </a>
+                  ) : null}
                 </div>
               </div>
             </li>
