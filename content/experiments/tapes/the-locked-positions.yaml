@@ -43,6 +43,7 @@ checkpoints:
     expectedDisplayValues:
       - label: "W (independent)"
         value: 0.0009765625
+        outputId: configurationProbability
         unit: "1"
         constantSetId: modern-si-2019
   - actionIndex: 2
@@ -59,6 +60,7 @@ checkpoints:
     expectedDisplayValues:
       - label: "W (locked)"
         value: 0.5
+        outputId: lockedProbability
         unit: "1"
         constantSetId: modern-si-2019
 title: "The locked positions"

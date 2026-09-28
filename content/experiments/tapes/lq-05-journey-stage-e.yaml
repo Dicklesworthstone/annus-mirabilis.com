@@ -42,6 +42,7 @@ checkpoints:
     expectedDisplayValues:
       - label: "W"
         value: 0.125
+        outputId: configurationProbability
         unit: "1"
         constantSetId: modern-si-2019
 title: "Journey I Stage E: The Microstate Counter"
