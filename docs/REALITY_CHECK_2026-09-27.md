@@ -314,10 +314,30 @@ What does not:
   relativity's German face, **98 of 505 `<math>` elements carry an authored `aria-label` and 407 rely on
   KaTeX-generated MathML** — against a plan that says generated speech "is often wrong for physics
   notation".
-- 42 of 42 live lab pages have an SVG; **38 of 42 have a table.** The four without: `me-01` (whose
-  manifest promises one — see `am-jioj`), `me-03`, `bm-07/kitchen`, `brownian-data`.
-  `bm-07/kitchen` is the **only** page with a `<canvas>` and it has 0 tables, 0 `aria-describedby`, 0
-  `figcaption`, and 3 SVGs with no `aria-label`.
+- 42 of 42 live lab pages have an SVG; **38 of 42 have a table** in their served HTML. The four
+  without were reported as `me-01`, `me-03`, `bm-07/kitchen` and `brownian-data`.
+
+  > **Correction, 2026-09-27 21:05, TanElk.** Three of those four are artifacts of measuring a
+  > client-rendered surface by its static output, and I published them without checking the
+  > component source. Re-measured:
+  >
+  > - **`bm-07/kitchen` is not a defect.** Its canvas carries `role="img"` and the description
+  >   "Captured video frame. Choose coordinates by pointer or arrow keys, then use Record point.
+  >   Typed coordinates are also available", which names the nonvisual equivalents. It HAS an
+  >   inspectable table, `VideoTracker.tsx:708`, six columns wide (kind and label, actual time,
+  >   requested time, X, Y, status and identity) behind a disclosure reading "N observations (last
+  >   30 shown; downloads contain all)". It is absent from the built HTML because it renders once
+  >   the reader has recorded something, which is correct. Its three SVGs are the menu and theme
+  >   chrome icons, all `aria-hidden="true" focusable="false"`, which is also correct.
+  > - **`me-03`** renders a table in one of its three component files.
+  > - **`me-01` was real** — I confirmed it independently, 0 tables in 444 lines of
+  >   `TwoLedgersLab.tsx` against a manifest promising one — and NavyKite fixed it in `137b8afe`.
+  > - **`brownian-data`** renders none in its one component file; whether it needs one is unchecked.
+  >
+  > The method error is the finding worth keeping: a count over built HTML answers "what does a
+  > reader receive before interacting", not "does this lab have an accessible equivalent". Those are
+  > different questions and only the first was measured. This is the same shape as the rest of
+  > section 2, turned on its author.
 - `AccessibleGraphView.tsx` is **imported by exactly one file: itself.** `DataTable.tsx` is referenced
   only from inside its own module. The three-layer accessible description machinery is built and unused.
 - **No tooltip-only explanation exists** (0 `title=` in the live relativity German face; all 20
