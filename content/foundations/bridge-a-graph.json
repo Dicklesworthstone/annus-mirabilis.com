@@ -9,7 +9,7 @@
   "explanation": [
     {
       "kind": "paragraph",
-      "text": "Walk for a minute and note how far you have gone every ten seconds: 0 m at the start, 14 m after ten seconds, 28 m after twenty, and so on. Draw a line along the bottom of a page for time and one up the side for distance, and put a dot for each pair. That is a graph: each dot is one moment, read across for the time and up for the distance."
+      "text": "Walk for a minute and note how far you have gone every ten seconds: 0 m at the start, 14 m after ten seconds, 28 m after twenty, and so on. The first drawing below puts time along the bottom and distance up the side, with a dot for each pair. That is a graph: each dot is one moment, read across for the time and up for the distance."
     },
     {
       "kind": "paragraph",
@@ -25,7 +25,7 @@
       "kind": "steps",
       "items": [
         "Four particles end at −3, −1, +1 and +3 micrometres from where they started.",
-        "Mark those positions along the bottom and draw a bar one particle tall above each.",
+        "The second drawing puts those positions along the bottom, with a bar one particle tall above each.",
         "The bars stand two on each side of zero, at the same distances out. The picture is symmetric, so the average position is 0.",
         "Yet no bar stands at zero: every particle moved. The graph shows at a glance what the average hides."
       ]

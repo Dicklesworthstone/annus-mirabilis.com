@@ -20,13 +20,15 @@
     {
       "kind": "steps",
       "items": [
-        "In a group of 4 particles, 1 moves to the right: the fraction is 1/4 = 0.25.",
-        "In a group of 8, 2 move to the right: the fraction is 2/8 = 0.25.",
-        "Doubling both the number that moved and the size of the group leaves the fraction at 0.25."
+        "A steady walk covers 14 metres in 10 seconds.",
+        "Divide the distance by the time: 14 divided by 10 is 1.4, and the unit divides with it, so the rate is 1.4 metres per second.",
+        "After 60 seconds the same walk has covered 84 metres, and 84 divided by 60 is 1.4 again. The walk is steady, so the ratio does not depend on how long it is watched.",
+        "Metres and seconds are different units, so neither cancels and what comes out is a new quantity that keeps a unit of its own.",
+        "The drawing below is the other case: 2 particles out of 8 has the same unit above and below, they cancel, and 0.25 is left as a plain number."
       ]
     }
   ],
-  "exampleTitle": "One in four, two in eight",
+  "exampleTitle": "Fourteen metres in ten seconds",
   "prerequisites": [
     {
       "foundationId": "foundation:bridge-sum-average",
