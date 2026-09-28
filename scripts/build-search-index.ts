@@ -10,6 +10,7 @@ import {
 import { loadGermanSourceFace } from "../src/content/editions/germanSourceFace.ts";
 import type { RouteSlug } from "../src/content/ids.ts";
 import { loadTeachingTapes } from "../src/content/teachingTapes.ts";
+import { ROUTE_INDEX } from "../src/discovery/routeIndex.ts";
 import { recordLatex } from "../src/equations/recordLatex.ts";
 import {
   CATALOGUE_IDS,
@@ -36,6 +37,7 @@ import {
   aliasesForDocuments,
   assertSearchCoverage,
   assertSearchFaceCoverage,
+  discoveryDocuments,
   documentsFromCompiled,
   englishTranslationDocuments,
   germanSourceDocuments,
@@ -187,6 +189,7 @@ export async function loadSearchCorpus(
   const documents = [
     ...documentsFromCompiled(papers, foundations, instruments, profile, equationTerms),
     ...walkthroughDocuments(walkthroughs, profile),
+    ...discoveryDocuments(ROUTE_INDEX, profile),
     ...notation,
     ...german,
     ...english,

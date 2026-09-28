@@ -37,6 +37,13 @@ type Block = Readonly<
   | { kind: "foundation"; id: string; returnCaption: string }
 >;
 /** Structural input projections; the content compiler remains the schema owner. */
+export type SearchDiscoveryRoute = Readonly<{
+  slug: string;
+  name: string;
+  germanTitle: string;
+  blurb: string;
+  steps: readonly string[];
+}>;
 export type SearchWalkthrough = Readonly<{
   id: string;
   title: string;
@@ -378,6 +385,50 @@ export type SearchNotationGlyph = Readonly<{
  * that path without the trailing slash (am-tpzn); a hand-built `/tapes/${id}/` here would send every
  * searcher for "the boost to 0.6c" through a 308.
  */
+/**
+ * A DISCOVERY ROUTE, AS SOMETHING A READER CAN FIND BY NAME.
+ *
+ * AGENTS.md calls the discovery journeys the site's signature content. Measured 2026-09-28 against
+ * the published shards, /discover/ had ZERO documents, so the four routes were reachable only by
+ * browsing to them. A reader who types "magnet and conductor" or "ultraviolet" should meet the route
+ * that reconstructs the problem, not only the passages that state its answer.
+ *
+ * ONE DOCUMENT PER ROUTE, NOT ONE PER STEP. The steps have names but no addresses of their own, so a
+ * per-step document would carry a link to somewhere the step is not. The step names go into the
+ * document's TEXT instead, which is what makes a search for a step phrase find the route it belongs
+ * to, and the link then lands where the reader can actually start.
+ */
+export function discoveryDocuments(
+  routes: readonly SearchDiscoveryRoute[],
+  profile: SearchProfile,
+): readonly SearchDocument[] {
+  searchProfile(profile);
+  return routes
+    .map((route) =>
+      validateSearchDocument({
+        id: `discovery:${route.slug}`,
+        type: "discovery",
+        paper: route.slug,
+        section: "",
+        lang: "en",
+        route: `/discover/${route.slug}/`,
+        anchor: "",
+        face: "",
+        title: route.name,
+        text: [route.blurb, ...route.steps].join(" "),
+        // ONLY THE GERMAN TITLE, because terms are the highest-weighted field (12, against 8 for
+        // the title and 1 for the text) and are meant for names a reader might actually type that
+        // the title does not already contain. Putting the slug here too put "brownian motion" into
+        // the heaviest field a second time and floated this route above the PAPER for the query
+        // "brownain", which queryQuality.test.ts measures on live as a place a reader wants the
+        // paper. The German title is a real alternative name; the slug is a URL fragment.
+        terms: [route.germanTitle],
+        scopeLabel: `${route.name} · a route you could take, ${route.steps.length} steps`,
+      }),
+    )
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
 export function walkthroughDocuments(
   walkthroughs: readonly SearchWalkthrough[],
   profile: SearchProfile,
