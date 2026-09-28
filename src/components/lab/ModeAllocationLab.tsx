@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, type ReactNode, useId, useState } from "react";
+import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { typedOrNaN } from "../../experiments/controls/typedNumber.ts";
 import { executionLabelFor } from "../../experiments/labels/executionLabelFor.ts";
 import { executionLabelAttributes } from "../../experiments/labels/resultAttributes.ts";
@@ -23,6 +24,7 @@ import { LabMargin } from "./LabMargin.tsx";
 import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
 import { display, fixed, sentenceNumber } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
+import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
 
 const NOT_MODELED = [
@@ -374,6 +376,9 @@ export function ModeAllocationLab({
         {withScripts(LQ02_CAPTION.r2)}
       </p>
       <LabMargin>{withScripts(LQ02_CAPTION.r3)}</LabMargin>
+
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="lq-02" listings={getKernelListingsForInstrument("lq-02")} />
     </section>
   );
 }

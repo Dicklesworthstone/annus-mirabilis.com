@@ -22,6 +22,13 @@ const tsRef = (module: string, exportName: string) => ({
   exportName,
 });
 
+// regimeRelativeErrors is ONE function that three manifests declare (lq-02, lq-03, lq-04), so its
+// words are written once here rather than copied into three entries that would then drift apart.
+const REGIME_ERROR_WORDS = {
+  r0: "How far Wien's law and the classical law each sit from Planck's at this frequency and temperature, and which of the two is admitted here.",
+  r1: "Everything turns on one dimensionless number, x = h nu / (k_B T). Wien's relative error is e to the minus x, so Wien is good where x is large, which is high frequency or low temperature. The classical error is (e^x - 1)/x - 1, which vanishes where x is small. The function returns both errors, the regime they put you in, and the value of x at which each error reaches its tolerance, one per cent by default. Measured at 600 THz and 5800 K: x = 4.96, Wien runs 0.70 per cent below Planck, and the classical law is 27.7 times too large.",
+  r2: "The classical error is measured against Planck, the same denominator Wien's error uses, and the comment above it records that it was not always. It was computed as 1 - x/(e^x - 1), which divides the difference by the classical value instead of by Planck's. The two agree to first order at small x, which is exactly where the classical law is used, so the error was invisible wherever anyone looked; at x = 5.76 it read 0.98 while the classical law is about 55 times Planck's value, and it put the one per cent boundary at x = 0.020067 where the owning bead specifies 0.0198678. That boundary is now found by Newton's method on e^x - 1 = (1 + epsilon) x and comes out at 0.019867768. Past x = 700 the exponential leaves binary64 and the classical error is returned as Infinity, which a caller has to put into words rather than print.",
+} as const;
 export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
   {
     instrumentId: "bm-01",
@@ -833,6 +840,421 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
       bind("ionizationCount", "ionRate", "ionizationRate"),
       bind("ionizationCount", "ionCount", "ionCount", ["eq-model-lq-ion-count-bound.t.ions"]),
       bind("ionizationCount", "jMol", "ionizedGramMolecules"),
+    ],
+    independentReferences: [],
+  },
+
+  // LQ-02, LQ-03, LQ-04 and LQ-07 (am-f3e4, dispatch 333). This closes the light-quanta family:
+  // all nine instruments now have entries, and none of these four labs mounted the panel before.
+  //
+  // TWO BINDINGS DELIBERATELY NOT MADE, both for the same reason. radiationEntropyVolumeChange
+  // returns a field NAMED effectiveIndependentCount whose value is E/(B nu) in J/K, which
+  // content/quantities/radiation.yaml defines as entropyVolumeCoefficient while saying of the
+  // count that it "stays dimensionless and never carries the J/K value". The identifier is bound
+  // to the quantity it holds, not the quantity it is named after; src/experiments/lq04/session.ts
+  // already relabels the field and computes the true count itself. And fluorescenceBudget's e1J
+  // and e2J are both quanta energies, but binding both to quantumEnergy would merge the absorbed
+  // and emitted quantum into one colour, which is the collapse the incidentFrequency record warns
+  // against, so neither is bound and the two frequencies carry the distinction.
+  //
+  // independentReferences is [] on all sixteen, as on every entry above. The lq-03 and lq-04
+  // manifests declare references into content/verification/, a directory that does not exist.
+  {
+    instrumentId: "lq-02",
+    kernel: tsRef("src/physics/reference/radiation/classical.ts", "meanResonatorEnergy"),
+    words: {
+      r0: "The average energy of one resonator at temperature T: k_B times T, and nothing else in it.",
+      r1: "The classical equipartition result, returned in joules and in electronvolts, with the ratio to a free molecule's average kinetic energy beside it. At 300 K it is 4.141947e-21 J, which is 0.025852 eV. The function takes the Boltzmann constant from the declared set rather than a literal, so a historical set gives Einstein's printed R over N instead.",
+      r2: "The ratio it returns is 2/3, and the 2 and the 3 come from different places. A free molecule has three directions to move in and gets half of k_B T for each, so 1.5 k_B T. A resonator has one direction, but it stores energy twice over, half in motion and half in the spring, so the two halves make one whole k_B T rather than a half. The quotient of those is 2/3, written as a literal in the return with the arithmetic in a comment beside it. The number is not measured here and is not fitted; it is what equipartition asserts, which is the assertion the rest of this laboratory tests against a spectrum.",
+    },
+    liveTerms: ["temperature", "meanResonatorEnergy", "boltzmannConstant"],
+    identifierBindings: [
+      bind("meanResonatorEnergy", "T", "temperature"),
+      bind("meanResonatorEnergy", "kB", "boltzmannConstant"),
+      bind("meanResonatorEnergy", "energyJoules", "meanResonatorEnergy"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-02",
+    kernel: tsRef("src/physics/reference/radiation/classical.ts", "classicalCutoffEnergyDensity"),
+    words: {
+      r0: "How much energy the classical rule puts below a chosen frequency: it grows as the cube of that frequency, so the answer is as large as the cutoff you allow.",
+      r1: "U = (8 pi k_B T / 3 c^3) times the cube of the cutoff frequency, which is the Rayleigh-Jeans density integrated from zero up to that cutoff. At a cutoff of 1e15 Hz and 5800 K it returns 24.898 J/m^3. Doubling the cutoff multiplies it by eight, and that is the whole of the difficulty: there is no frequency at which the classical allocation stops adding energy.",
+      r2: "Three refusals, and the third one is a different KIND of refusal from the other two. A cutoff at infinity and a cutoff at or below zero are physical refusals, as is a nonpositive temperature. The third fires after the arithmetic: the cube carries the product past the largest number a double can hold, so the result is checked for finiteness and refused with domainKind numerical rather than physical, saying that the value is larger than this calculation can represent and naming the cube as the reason. Measured: a cutoff of 5.6e102 Hz still returns 4.37e264, and 1e103 Hz refuses. Returning the infinity instead printed 'Infinity J/m3' on this page with a NaN share beside it, which is a statement about binary64 dressed as a statement about radiation.",
+    },
+    equationId: "eq-model-lq-cutoff-total",
+    liveTerms: [
+      "frequency",
+      "temperature",
+      "energyDensityBelowCutoff",
+      "boltzmannConstant",
+      "speedOfLight",
+    ],
+    identifierBindings: [
+      bind("classicalCutoffEnergyDensity", "nuCutoff", "frequency", [
+        "eq-model-lq-cutoff-total.t.cutoff",
+      ]),
+      bind("classicalCutoffEnergyDensity", "T", "temperature", [
+        "eq-model-lq-cutoff-total.t.temperature",
+      ]),
+      bind("classicalCutoffEnergyDensity", "kB", "boltzmannConstant", [
+        "eq-model-lq-cutoff-total.t.boltzmann",
+      ]),
+      bind("classicalCutoffEnergyDensity", "c", "speedOfLight", [
+        "eq-model-lq-cutoff-total.t.light",
+      ]),
+      bind("classicalCutoffEnergyDensity", "uCutoff", "energyDensityBelowCutoff", [
+        "eq-model-lq-cutoff-total.t.total",
+      ]),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-02",
+    kernel: tsRef("src/physics/reference/radiation/classical.ts", "classicalTotalEnergy"),
+    words: {
+      r0: "The classical total over all frequencies, which is not a number: the function refuses, and says why.",
+      r1: "Integrating the classical density from zero to infinity gives no finite answer, because the density rises as the square of the frequency and never turns over. So this function computes nothing. It returns an outside-domain result whose reason is that the classical allocation assigns unbounded total energy, and it does that for every temperature.",
+      r2: "It takes a temperature and a constant set and uses neither, which is why both parameters are written with a leading underscore. That is the honest shape for this one: the answer does not depend on the temperature, so accepting the temperature and ignoring it is the statement. Compare the refusal beside it. Its sibling refuses a large cutoff with domainKind numerical, because a bigger floating-point type would push that boundary out; this one refuses with domainKind physical, because no arithmetic would help. A reader who sees one word of difference between the two is seeing the whole distinction between a limit of the machine and a limit of the model.",
+    },
+    liveTerms: ["temperature"],
+    identifierBindings: [bind("classicalTotalEnergy", "_T", "temperature")],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-02",
+    kernel: tsRef("src/physics/reference/radiation/avogadro.ts", "avogadroFromPlanckConstants"),
+    words: {
+      r0: "Einstein's paragraph 2 arithmetic: two constants fitted to a radiation spectrum give the number of molecules in a mole.",
+      r1: "N = (beta / alpha) times 8 pi R / L^3, with alpha and beta the two constants of Wien's law as Planck had fitted them, R the gas constant and L the speed of light. Run on the 1905 CGS inputs it returns 6.170486250063268e23, against the 6.17e23 Einstein printed and 6.02214076e23 in the modern definition: high by 2.5 per cent. It returns both the unrounded value and the printed one, and it derives the hydrogen atom mass and R over N from the PRINTED N, so that the page's numbers and the paper's numbers agree digit for digit.",
+      r2: "Three of the inputs carry markers because they are not all the same kind of input. alpha's marker records a corrected witness exponent, 10^-57 where the witness has 10^-56. R and the speed of light are marked editorial-input: Einstein does not print R in paragraph 2, and the 3e10 cm/s is the rounded figure of the period, so the function says which numbers are his and which are the edition's. It also records the sensitivity of each, linear in R and inverse cubic in L, which is the reason the rounding of the speed of light matters three times as much as the rounding of R. Two silent conversions are worth knowing before reading a result: a gas constant below 100 is taken as SI and multiplied by 1e7, and a speed of light below 1e9 is taken as m/s and multiplied by 100, so mixing a modern set into these CGS formulas is handled rather than refused.",
+    },
+    equationId: "eq-model-lq-avogadro-from-spectrum",
+    liveTerms: [
+      "wienConstantAlpha",
+      "wienConstantBeta",
+      "molarGasConstant",
+      "speedOfLight",
+      "avogadroNumberEstimate",
+    ],
+    identifierBindings: [
+      bind("avogadroFromPlanckConstants", "alpha", "wienConstantAlpha", [
+        "eq-model-lq-avogadro-from-spectrum.t.alpha",
+      ]),
+      bind("avogadroFromPlanckConstants", "beta", "wienConstantBeta", [
+        "eq-model-lq-avogadro-from-spectrum.t.beta",
+      ]),
+      bind("avogadroFromPlanckConstants", "R_cgs", "molarGasConstant", [
+        "eq-model-lq-avogadro-from-spectrum.t.gas",
+      ]),
+      bind("avogadroFromPlanckConstants", "L_cgs", "speedOfLight", [
+        "eq-model-lq-avogadro-from-spectrum.t.light",
+      ]),
+      bind("avogadroFromPlanckConstants", "N_unrounded", "avogadroNumberEstimate"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-02",
+    kernel: tsRef("src/physics/reference/radiation/spectra.ts", "regimeRelativeErrors"),
+    words: REGIME_ERROR_WORDS,
+    liveTerms: ["frequency", "temperature"],
+    identifierBindings: [
+      bind("regimeRelativeErrors", "nu", "frequency"),
+      bind("regimeRelativeErrors", "T", "temperature"),
+      bind("regimeRelativeErrors", "h", "planckConstant"),
+      bind("regimeRelativeErrors", "kB", "boltzmannConstant"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-03",
+    kernel: tsRef("src/physics/reference/radiation/spectra.ts", "planckFrequencyEnergyDensity"),
+    words: {
+      r0: "Planck's spectrum at one frequency and temperature: the classical mode count multiplied by an average energy that falls away at high frequency.",
+      r1: "u_nu = (8 pi h nu^3 / c^3) divided by (e^x - 1), with x = h nu / (k_B T). The first factor is the same mode count the classical law uses; everything that distinguishes Planck from Rayleigh and Jeans is in the second. Measured at 600 THz and 5800 K it returns 9.383671111056491e-16 J per cubic metre per hertz, where the classical law gives 2.689e-14 and Wien's gives 9.318e-16.",
+      r2: "Nothing here is computed as a product. The prefactor and the factor are both taken to logarithms, added, and handed to packLogRepresentation, which returns the plain value when a double can hold it and otherwise reports the logarithm and marks the value not linearly representable. That matters because this quantity ranges over hundreds of orders of magnitude across the axes this laboratory offers, and a product of 8 pi h with nu cubed underflows long before the physics stops being interesting. The x > 50 branch is there for the same reason in the other direction: -x - log1p(-e^-x) is algebraically the same as -log(e^x - 1) and stays finite past x = 709, where e^x does not. The two branches below it are the same expression written twice, so the x < 1e-4 case is a distinction the code does not currently make.",
+    },
+    equationId: "eq-model-lq-planck-low-frequency",
+    liveTerms: ["frequency", "temperature", "frequencyEnergyDensity"],
+    identifierBindings: [
+      bind("planckFrequencyEnergyDensity", "nu", "frequency", [
+        "eq-model-lq-planck-low-frequency.t.frequency",
+      ]),
+      bind("planckFrequencyEnergyDensity", "T", "temperature", [
+        "eq-model-lq-planck-low-frequency.t.temperature",
+      ]),
+      bind("planckFrequencyEnergyDensity", "h", "planckConstant"),
+      bind("planckFrequencyEnergyDensity", "c", "speedOfLight"),
+      bind("planckFrequencyEnergyDensity", "kB", "boltzmannConstant"),
+      bind("planckFrequencyEnergyDensity", "value", "frequencyEnergyDensity"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-03",
+    kernel: tsRef("src/physics/reference/radiation/spectra.ts", "wienFrequencyEnergyDensity"),
+    // One sentence is the whole truth: it is the Planck expression with the minus one removed, and
+    // what that costs is measured by regimeRelativeErrors rather than stated here.
+    words: words(
+      "Wien's spectrum, (8 pi h nu^3 / c^3) times e to the minus x, with x = h nu / (k_B T). It is Planck's expression with the minus one dropped from the denominator, which is why the two agree wherever the exponential is large, and it is computed in logarithms for the same reason Planck's is.",
+    ),
+    equationId: "eq-model-lq-wien-spectrum",
+    liveTerms: ["frequency", "temperature", "frequencyEnergyDensity"],
+    identifierBindings: [
+      bind("wienFrequencyEnergyDensity", "nu", "frequency", [
+        "eq-model-lq-wien-spectrum.t.frequency",
+      ]),
+      bind("wienFrequencyEnergyDensity", "T", "temperature", [
+        "eq-model-lq-wien-spectrum.t.temperature",
+      ]),
+      bind("wienFrequencyEnergyDensity", "h", "planckConstant"),
+      bind("wienFrequencyEnergyDensity", "c", "speedOfLight"),
+      bind("wienFrequencyEnergyDensity", "kB", "boltzmannConstant"),
+      bind("wienFrequencyEnergyDensity", "value", "frequencyEnergyDensity", [
+        "eq-model-lq-wien-spectrum.t.density",
+      ]),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-03",
+    kernel: tsRef(
+      "src/physics/reference/radiation/spectra.ts",
+      "rayleighJeansFrequencyEnergyDensity",
+    ),
+    // One sentence is the whole truth: mode count times k_B T, and no Planck constant anywhere in it.
+    words: words(
+      "The classical spectrum, (8 pi nu^2 / c^3) times k_B T: the number of modes at this frequency multiplied by the equipartition energy of each. The Planck constant does not appear, which is the point of showing it beside the other two.",
+    ),
+    equationId: "eq-model-lq-classical-density",
+    liveTerms: ["frequency", "temperature", "frequencyEnergyDensity"],
+    identifierBindings: [
+      bind("rayleighJeansFrequencyEnergyDensity", "nu", "frequency", [
+        "eq-model-lq-classical-density.t.frequency",
+      ]),
+      bind("rayleighJeansFrequencyEnergyDensity", "T", "temperature", [
+        "eq-model-lq-classical-density.t.temperature",
+      ]),
+      bind("rayleighJeansFrequencyEnergyDensity", "c", "speedOfLight", [
+        "eq-model-lq-classical-density.t.light",
+      ]),
+      bind("rayleighJeansFrequencyEnergyDensity", "kB", "boltzmannConstant", [
+        "eq-model-lq-classical-density.t.boltzmann",
+      ]),
+      bind("rayleighJeansFrequencyEnergyDensity", "value", "frequencyEnergyDensity", [
+        "eq-model-lq-classical-density.t.density",
+      ]),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-03",
+    kernel: tsRef("src/physics/reference/radiation/bandIntegration.ts", "planckBandEnergyDensity"),
+    words: {
+      r0: "The energy the Planck spectrum puts between two frequencies, integrated numerically rather than looked up.",
+      r1: "It integrates the Planck density from one frequency bound to the other with adaptive Gauss-Kronrod quadrature: fifteen points per interval, and each interval split in two whenever the fifteen-point and seven-point estimates disagree by more than a relative 1e-12. At 5800 K the band from 400 to 790 THz comes back as 0.376 J/m^3, which is 43.9 per cent of everything the spectrum holds. Three refusals come first: a bound at or below zero, a range whose upper bound is not above its lower, and a nonpositive temperature.",
+      r2: "The check worth knowing is that the quadrature was not compared against itself. Taking the band from 1e9 to 1e17 Hz at 5800 K, this function returns 0.8561759005957852 J/m^3 where the closed form a T^4 in the same file returns 0.8561759006386072, an agreement to eleven significant figures by two routes that share no arithmetic. The one place to be careful is the integrand: where the density is not linearly representable it contributes zero rather than refusing, which is right for a tail that has underflowed and would be silently wrong for a band that lies entirely out of range, since the answer would then be a confident zero.",
+    },
+    liveTerms: ["frequency", "temperature", "bandEnergy"],
+    identifierBindings: [
+      bind("planckBandEnergyDensity", "nuMin", "frequency"),
+      bind("planckBandEnergyDensity", "nuMax", "frequency"),
+      bind("planckBandEnergyDensity", "T", "temperature"),
+      bind("planckBandEnergyDensity", "total", "bandEnergy"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-03",
+    kernel: tsRef("src/physics/reference/radiation/spectra.ts", "regimeRelativeErrors"),
+    words: REGIME_ERROR_WORDS,
+    liveTerms: ["frequency", "temperature"],
+    identifierBindings: [
+      bind("regimeRelativeErrors", "nu", "frequency"),
+      bind("regimeRelativeErrors", "T", "temperature"),
+      bind("regimeRelativeErrors", "h", "planckConstant"),
+      bind("regimeRelativeErrors", "kB", "boltzmannConstant"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-04",
+    kernel: tsRef("src/physics/reference/radiation/entropy.ts", "wienTemperatureFromDensity"),
+    words: {
+      r0: "Read Wien's law backwards: given how much energy sits at one frequency, what temperature would put it there?",
+      r1: "Wien's law gives the density from the temperature; this inverts it. T = B nu / ln(A nu^3 / rho), with A = 8 pi h / c^3 and B = h / k_B, which are Einstein's printed alpha and beta written in modern constants. Fed back the density Wien's own law gives at 600 THz and 5800 K, it returns 5800 K. This inversion is what makes the entropy workbench possible: the entropy of radiation is defined through its temperature, and the temperature is not an input here but a reading.",
+      r2: "The refusal at high density is a property of the Wien form rather than of the arithmetic. A nu^3 is the largest density the law can express at this frequency, because the logarithm's argument A nu^3 / rho falls to 1 there and the implied temperature runs to infinity; past it the logarithm turns negative and the formula returns a negative temperature, which is why the function stops at the boundary and names it. Measured at 600 THz, A nu^3 is 1.335e-13 J per cubic metre per hertz, so a density of 1e-10 is refused with the boundary quoted. Nothing about this refusal says the radiation is impossible; it says that Wien's law is the wrong description of it, which is the same thing the regime report says in continuous numbers.",
+    },
+    equationId: "eq-model-lq-wien-inverse-temperature",
+    liveTerms: ["temperature", "frequency", "frequencyEnergyDensity"],
+    identifierBindings: [
+      bind("wienTemperatureFromDensity", "rho", "frequencyEnergyDensity", [
+        "eq-model-lq-wien-inverse-temperature.t.density",
+      ]),
+      bind("wienTemperatureFromDensity", "nu", "frequency", [
+        "eq-model-lq-wien-inverse-temperature.t.frequency",
+      ]),
+      bind("wienTemperatureFromDensity", "T", "temperature", [
+        "eq-model-lq-wien-inverse-temperature.t.temperature",
+      ]),
+      bind("wienTemperatureFromDensity", "A", "wienConstantAlpha", [
+        "eq-model-lq-wien-inverse-temperature.t.alpha",
+      ]),
+      bind("wienTemperatureFromDensity", "B", "wienConstantBeta", [
+        "eq-model-lq-wien-inverse-temperature.t.beta",
+      ]),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-04",
+    kernel: tsRef("src/physics/reference/radiation/entropy.ts", "wienSpectralEntropyDensity"),
+    words: {
+      r0: "The entropy of monochromatic radiation at one frequency, from its energy density alone.",
+      r1: "s_nu = -(rho / (B nu)) times (ln(rho / (A nu^3)) - 1), which is what you get by integrating the inverse temperature of the line above with respect to the energy. It is the expression paragraph 4 arrives at, and the whole of paragraph 6 is what happens when its volume dependence is read as a probability. At 600 THz with the Wien density for 5800 K it returns 1.930e-19 J per cubic metre per hertz per kelvin.",
+      r2: "Zero density is not a refusal here, and that is a decision rather than an oversight. The expression contains ln(rho), which has no value at zero, but it is multiplied by rho, and rho ln(rho) goes to zero as rho does. So the function returns a typed analytic-limit at rho = 0, carrying the value 0 and the sentence that the entropy density vanishes continuously there, instead of a NaN or an unexplained zero. A negative density is a different case and is refused outright, and a density above A nu^3 is refused as outside the Wien domain, the same boundary the temperature inversion stops at. Three inputs, three different kinds of answer.",
+    },
+    equationId: "eq-model-lq-wien-entropy-density",
+    liveTerms: ["frequencyEnergyDensity", "frequency", "spectralEntropyDensity"],
+    identifierBindings: [
+      bind("wienSpectralEntropyDensity", "rho", "frequencyEnergyDensity", [
+        "eq-model-lq-wien-entropy-density.t.density",
+      ]),
+      bind("wienSpectralEntropyDensity", "nu", "frequency", [
+        "eq-model-lq-wien-entropy-density.t.frequency",
+      ]),
+      bind("wienSpectralEntropyDensity", "A", "wienConstantAlpha", [
+        "eq-model-lq-wien-entropy-density.t.alpha",
+      ]),
+      bind("wienSpectralEntropyDensity", "B", "wienConstantBeta", [
+        "eq-model-lq-wien-entropy-density.t.beta",
+      ]),
+      bind("wienSpectralEntropyDensity", "sNu", "spectralEntropyDensity", [
+        "eq-model-lq-wien-entropy-density.t.entropyDensity",
+      ]),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-04",
+    kernel: tsRef("src/physics/reference/radiation/entropy.ts", "radiationEntropyVolumeChange"),
+    words: {
+      r0: "How the entropy of a narrow band of radiation changes when its volume changes at fixed energy: a coefficient times the logarithm of the volume ratio.",
+      r1: "Delta S = (E / (B nu)) times ln(V / V0). The shape is the whole argument: an entropy that depends on volume only through a logarithm, with a coefficient that does not depend on the volume at all. Alongside the change it returns the temperatures and the dimensionless x at both volumes, so a reader can see that expanding the box at fixed energy cools it. Measured for 1 nJ in a 1 THz band at 600 THz, doubling a cubic centimetre: Delta S = 2.407e-14 J/K, with the temperature falling from 5884 K to 5154 K.",
+      r2: "Two gates stand in front of the formula and they refuse for different reasons. The band must be narrow, a bandwidth no more than one per cent of the frequency, because the law is stated at one frequency and integrating it over a wide band is a different calculation; that check runs FIRST, before the positivity checks, so a wide band is reported as a wide band rather than as whatever else is wrong. Then the Wien regime is checked at BOTH volumes, not just the starting one, because compressing the box raises the density and can carry the final state out of the range where the entropy expression holds even when the initial state is inside it. One warning about the returned fields: effectiveIndependentCount holds E/(B nu), which carries joules per kelvin and is what content/quantities/radiation.yaml calls entropyVolumeCoefficient; the dimensionless count E/(h nu) is a different number, smaller by the Boltzmann constant, and src/experiments/lq04/session.ts computes it separately rather than trusting the name.",
+    },
+    equationId: "eq-model-lq-volume-entropy",
+    liveTerms: [
+      "radiationEnergy",
+      "frequency",
+      "volume",
+      "bandwidth",
+      "radiationEntropy",
+      "volumeRatio",
+      "entropyVolumeCoefficient",
+    ],
+    identifierBindings: [
+      bind("radiationEntropyVolumeChange", "E", "radiationEnergy", [
+        "eq-model-lq-volume-entropy.t.energy",
+      ]),
+      bind("radiationEntropyVolumeChange", "nu", "frequency", [
+        "eq-model-lq-volume-entropy.t.frequency",
+      ]),
+      bind("radiationEntropyVolumeChange", "V", "volume", ["eq-model-lq-volume-entropy.t.volume"]),
+      bind("radiationEntropyVolumeChange", "V0", "volume", [
+        "eq-model-lq-volume-entropy.t.volume0",
+      ]),
+      bind("radiationEntropyVolumeChange", "dNu", "bandwidth"),
+      bind("radiationEntropyVolumeChange", "B", "wienConstantBeta", [
+        "eq-model-lq-volume-entropy.t.beta",
+      ]),
+      bind("radiationEntropyVolumeChange", "A", "wienConstantAlpha"),
+      bind("radiationEntropyVolumeChange", "deltaS", "radiationEntropy", [
+        "eq-model-lq-volume-entropy.t.entropy",
+      ]),
+      bind("radiationEntropyVolumeChange", "effectiveCount", "entropyVolumeCoefficient"),
+      bind("radiationEntropyVolumeChange", "volumeRatio", "volumeRatio"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-04",
+    kernel: tsRef("src/physics/reference/radiation/entropy.ts", "entropyWithUnfixedConstant"),
+    words: {
+      r0: "The same entropy change with one integration constant left unfixed, which is the version that does not work, kept so a reader can see how badly.",
+      r1: "Integrating the inverse temperature to get an entropy leaves a constant of integration that may depend on the frequency but not on the energy. Paragraph 4 fixes it; this function does not, and adds the term it leaves behind, dNu times C times (V - V0), to the correct Delta S. It returns both numbers and labels itself an adversarial derivation variant, not a model of radiation.",
+      r2: "The point is the size. With the same band and volumes as the honest calculation and a C of only 1e-3, the extra term is 1000 J/K beside a real Delta S of 2.407e-14 J/K: seventeen orders of magnitude, so the unfixed constant does not perturb the answer, it replaces it. The other half of the point is the shape. The extra term is linear in the volume rather than logarithmic, so an entropy carrying it could not be read as the logarithm of a probability at all, and paragraph 6's argument would have nothing to work with. Note also what this function does NOT have: no narrow-band gate, no Wien check, no positivity check. It is not a model, so it does not carry a model's guards, and it will return a number for inputs the real calculation refuses.",
+    },
+    equationId: "eq-model-lq-unfixed-constant",
+    liveTerms: [
+      "radiationEnergy",
+      "frequency",
+      "volume",
+      "bandwidth",
+      "radiationEntropy",
+      "entropyDensityConstant",
+      "entropyFromUnfixedConstant",
+    ],
+    identifierBindings: [
+      bind("entropyWithUnfixedConstant", "E", "radiationEnergy"),
+      bind("entropyWithUnfixedConstant", "nu", "frequency", [
+        "eq-model-lq-unfixed-constant.t.frequency",
+      ]),
+      bind("entropyWithUnfixedConstant", "V", "volume", ["eq-model-lq-unfixed-constant.t.volume"]),
+      bind("entropyWithUnfixedConstant", "V0", "volume", [
+        "eq-model-lq-unfixed-constant.t.volume0",
+      ]),
+      bind("entropyWithUnfixedConstant", "dNu", "bandwidth", [
+        "eq-model-lq-unfixed-constant.t.band",
+      ]),
+      bind("entropyWithUnfixedConstant", "C", "entropyDensityConstant", [
+        "eq-model-lq-unfixed-constant.t.constant",
+      ]),
+      bind("entropyWithUnfixedConstant", "B", "wienConstantBeta"),
+      bind("entropyWithUnfixedConstant", "deltaS", "radiationEntropy"),
+      bind("entropyWithUnfixedConstant", "extraTerm", "entropyFromUnfixedConstant", [
+        "eq-model-lq-unfixed-constant.t.extra",
+      ]),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-04",
+    kernel: tsRef("src/physics/reference/radiation/spectra.ts", "regimeRelativeErrors"),
+    words: REGIME_ERROR_WORDS,
+    liveTerms: ["frequency", "temperature"],
+    identifierBindings: [
+      bind("regimeRelativeErrors", "nu", "frequency"),
+      bind("regimeRelativeErrors", "T", "temperature"),
+      bind("regimeRelativeErrors", "h", "planckConstant"),
+      bind("regimeRelativeErrors", "kB", "boltzmannConstant"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-07",
+    kernel: tsRef("src/physics/reference/photoelectric.ts", "fluorescenceBudget"),
+    words: {
+      r0: "Whether a fluorescent body may emit light of a given frequency after absorbing light of another, under the paper's assumption that one quantum in makes at most one quantum out.",
+      r1: "The bound is h times the emitted frequency no greater than h times the absorbed frequency, which is Stokes's rule with a reason attached rather than a rule of thumb. The function returns the verdict, both quantum energies in electronvolts, the largest emitted frequency the assumption allows, the energy left over for other channels when the emission is allowed, and the deficit when it is not. Measured at 600 THz in and 500 THz out: 2.4814 eV absorbed, 2.0678 eV emitted, 0.4136 eV left for heat.",
+      r2: "Four regimes, and they are four different claims rather than four settings. The paper's own case allows anything at or below the absorbed frequency, and under the light-only channel choice the SAME pair, 600 THz in and 500 THz out, is disallowed: the leftover 0.4136 eV has nowhere to go, so only exact resonance is permitted. Deviation case 1 lets k absorbed quanta combine, and at k = 3 the ceiling rises to three times the absorbed frequency, 1500 THz. Deviation case 2 is the one that refuses rather than answers: where the exciting light is outside the range in which Wien's law holds, paragraph 7 allows that the light may behave differently, so the function returns outside-domain with no bound derived, and at 100 THz against a 5800 K source that is what happens, with e to the minus x at 0.437 against a tolerance of 0.01. The modern thermal allowance is marked as not being in the 1905 paper at all: ten thermal degrees of freedom at 300 K add 0.2585 eV, which lifts the ceiling from 600 to 662.51 THz. A verdict from this function without its label is not a verdict.",
+    },
+    equationId: "eq-model-lq-fluorescence-bound",
+    liveTerms: ["incidentFrequency", "emittedFrequency", "planckConstant"],
+    identifierBindings: [
+      bind("fluorescenceBudget", "nu1", "incidentFrequency", [
+        "eq-model-lq-fluorescence-bound.t.in",
+      ]),
+      bind("fluorescenceBudget", "nu2", "emittedFrequency", [
+        "eq-model-lq-fluorescence-bound.t.out",
+      ]),
+      bind("fluorescenceBudget", "h", "planckConstant", [
+        "eq-model-lq-fluorescence-bound.t.planck",
+      ]),
+      bind("fluorescenceBudget", "kB", "boltzmannConstant"),
+      bind("fluorescenceBudget", "e", "elementaryCharge"),
     ],
     independentReferences: [],
   },

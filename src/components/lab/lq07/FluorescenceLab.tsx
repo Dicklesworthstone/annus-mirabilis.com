@@ -38,7 +38,9 @@ import { withScripts } from "../subscripts.tsx";
 import { FluorescencePlot } from "./FluorescencePlot.tsx";
 import "./fluorescenceLab.css";
 
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { LabMargin } from "../LabMargin.tsx";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 
 const LQ07_PROMPTS = PREDICT_PROMPTS["lq-07"] ?? [];
 
@@ -671,6 +673,9 @@ export function FluorescenceLab({
         {withScripts(LQ07_CAPTION.r2)}
       </p>
       <LabMargin>{withScripts(LQ07_CAPTION.r3)}</LabMargin>
+
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="lq-07" listings={getKernelListingsForInstrument("lq-07")} />
     </article>
   );
 }

@@ -48,7 +48,21 @@
     "independentPointsProbability@src/physics/reference/radiation/configurations.ts": "sha256:5b22bdf318ce2a02c142ea75816c922193ca08355fb40ce7d091c3b312e68991",
     "effectiveIndependentCount@src/physics/reference/radiation/quanta.ts": "sha256:0d9da7e740ad17c4d05a650a48b86979a75de01a34c7f433d6861cf9b5abd0af",
     "meanQuantumEnergyWien@src/physics/reference/radiation/quanta.ts": "sha256:d3e624115b5f972b23acb0c8ef5d2170fb74a8749f1f5f5f1c4ca5e3fa23c92f",
-    "ionizationCount@src/physics/reference/photoelectric.ts": "sha256:b9faf7cd99d516b3082ef66c3793b0bc08fdc6c5c1b8fe35cd73b2da43f238cb"
+    "ionizationCount@src/physics/reference/photoelectric.ts": "sha256:b9faf7cd99d516b3082ef66c3793b0bc08fdc6c5c1b8fe35cd73b2da43f238cb",
+    "meanResonatorEnergy@src/physics/reference/radiation/classical.ts": "sha256:8e2de4a307208c7d7d1db091948f7f506dcb965f85b6b13bb6d9eea35664fd47",
+    "classicalCutoffEnergyDensity@src/physics/reference/radiation/classical.ts": "sha256:30fafb7552580daad6a33f3b2a92743fa440291109a59225b8d52c85a7502397",
+    "classicalTotalEnergy@src/physics/reference/radiation/classical.ts": "sha256:3ce397f29778d8b35371d97d40d6278b47c6c19bca6bf7ecc7132745953540bb",
+    "avogadroFromPlanckConstants@src/physics/reference/radiation/avogadro.ts": "sha256:df0de169bcc51df201761940d1cede359d1b87afa7a55ee78c6cc2e5968526c3",
+    "regimeRelativeErrors@src/physics/reference/radiation/spectra.ts": "sha256:a4b44ec160f4721a8ce8233a6c39adb4e6b2dc061a427db51151d9bddaee5917",
+    "planckFrequencyEnergyDensity@src/physics/reference/radiation/spectra.ts": "sha256:d3a25d58cb1c5886f7c5f2582d305e3bdd7e3381fa26f490935e8bf73ca136b4",
+    "wienFrequencyEnergyDensity@src/physics/reference/radiation/spectra.ts": "sha256:bdf403193622426ca6356e97cd28d4f762d7ede397f10650087d7214678c397f",
+    "rayleighJeansFrequencyEnergyDensity@src/physics/reference/radiation/spectra.ts": "sha256:72f42d8291a9769560bd3921b345d5adf0bb31fbfdb729e5766833f81a9a7751",
+    "planckBandEnergyDensity@src/physics/reference/radiation/bandIntegration.ts": "sha256:67db96ef0d7c4d6b2fb9465408df41c4ccc69ccaed656905ed2ed1e121788cfd",
+    "wienTemperatureFromDensity@src/physics/reference/radiation/entropy.ts": "sha256:f6372988e97fa21e082ae1348d5457c2d231c2b5c5d6b821e0a953164448a4d0",
+    "wienSpectralEntropyDensity@src/physics/reference/radiation/entropy.ts": "sha256:ae060f5f571edb75b002d62554511e795af409405e09c16441b29ab59964c00a",
+    "radiationEntropyVolumeChange@src/physics/reference/radiation/entropy.ts": "sha256:821c6127e12fddad3c4735dfa040ffea7a9c55b477e04b7b8ece97c9d01873b6",
+    "entropyWithUnfixedConstant@src/physics/reference/radiation/entropy.ts": "sha256:a42ddd67d2512e13a098f27a5197b950ee973e796d7510b1a41621a9606ca5b7",
+    "fluorescenceBudget@src/physics/reference/photoelectric.ts": "sha256:11d71dbe93a9da3598599f4cc6cea5d332f7f441988613168aa553ff6c379002"
   },
   "closures": {
     "src/physics/reference/diffusion/distributions.ts": "source:sha256:1eb5b457e215116537778a643fdb94b42da696cd79689396720e6c289b7aa5fa",
@@ -66,6 +80,11 @@
     "src/physics/reference/radiation/waves.ts": "source:sha256:0c92c9c5009dc95da20787171afbf146c86368d966bb940fbfb3c33b6c45c870",
     "src/physics/reference/radiation/configurations.ts": "source:sha256:ce815ddb8116b9ce4144d1d08d7114cfd6f10f73cc1856c0f1f4acca1d11d899",
     "src/physics/reference/radiation/quanta.ts": "source:sha256:ab783937b34322002ab174f8ac603b8003999d84fed141d3c11421f0782ebdfc",
-    "src/physics/reference/photoelectric.ts": "source:sha256:ec2e880450e8b87339b38d7c064aae6130c4cc601ac472708677ae755153b980"
+    "src/physics/reference/photoelectric.ts": "source:sha256:ec2e880450e8b87339b38d7c064aae6130c4cc601ac472708677ae755153b980",
+    "src/physics/reference/radiation/classical.ts": "source:sha256:823352dad6415960afe183b0918581a5075f8ab800d6c225cd3395e454c786bd",
+    "src/physics/reference/radiation/avogadro.ts": "source:sha256:23dc5199d43c2adb82b9f351e14dfc9827aebc20c4a8da230342da7da0a42ddd",
+    "src/physics/reference/radiation/spectra.ts": "source:sha256:bdb55492ae06e7487e7084cb0bc9eaecd8998c974d238e2169c36d96ee84ae4f",
+    "src/physics/reference/radiation/bandIntegration.ts": "source:sha256:12d7ba1b588df5c4931f97f63012e1c1c8860aaf2d37e09ad35b0d72f6820c28",
+    "src/physics/reference/radiation/entropy.ts": "source:sha256:fde068fefdd3cf518e4bb114960bf60160e3dc81e5f4b32dbfac26cf60ac7524"
   }
 }

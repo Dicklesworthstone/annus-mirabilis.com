@@ -8,6 +8,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { typedOrNaN } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
@@ -39,6 +40,7 @@ import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { Sci, SciFromLn } from "../Sci.tsx";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { SpectrumPlot } from "./SpectrumPlot.tsx";
@@ -599,6 +601,9 @@ export function SpectrumLab({
         {withScripts(LQ03_CAPTION.r2)}
       </p>
       <LabMargin>{withScripts(LQ03_CAPTION.r3)}</LabMargin>
+
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="lq-03" listings={getKernelListingsForInstrument("lq-03")} />
     </section>
   );
 }
