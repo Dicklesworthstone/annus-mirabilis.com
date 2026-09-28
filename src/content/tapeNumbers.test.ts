@@ -31,8 +31,9 @@
  */
 import { describe, expect, test } from "bun:test";
 import { ME01_DEFAULTS } from "../experiments/me01/definition.ts";
+import { ME03_DEFAULTS } from "../experiments/me03/definition.ts";
 import { getConstantSet } from "../physics/reference/constants.ts";
-import { evaluateMe01 } from "../physics/reference/massEnergy.ts";
+import { evaluateMe01, evaluateMe03, evaluatePhotonBox } from "../physics/reference/massEnergy.ts";
 import { loadTeachingTapes, type TeachingTape } from "./teachingTapes.ts";
 
 const tapes = new Map(loadTeachingTapes().tapes.map((t) => [t.tapeId, t]));
@@ -139,7 +140,7 @@ describe("the numbers on a teaching tape's page, recomputed from its own inputs"
       (n, t) => n + t.steps.reduce((m, s) => m + s.expected.length, 0),
       0,
     );
-    const recomputed = 15; // the three tapes above plus the two pulses' nine, by name
+    const recomputed = 18; // the tapes above by name, including me-03's three
     console.log(
       `[tape numbers] ${total} recorded numbers on the tape pages; ${recomputed} recomputed from ` +
         "their tape's own inputs, and the lq-05 W values additionally checked against the state " +
@@ -195,6 +196,72 @@ describe("a recorded number agrees with the parameters in force where it was rec
     );
     expect(new Set(shares).size).toBe(shares.length);
     expect(shares.length).toBeGreaterThan(2);
+  });
+
+  test("where the energy went: the two zeros are a cancellation, not a stuck zero", () => {
+    const t = tape("where-the-energy-went");
+    const step = t.steps.find((s) => s.expected.length > 0);
+    expect(step).toBeDefined();
+    if (!step) return;
+    const snapshot = evaluateMe03({
+      ...ME03_DEFAULTS,
+      ...inForce(t, step.actionIndex),
+    }) as never as Record<string, { status?: string; value?: number } | undefined>;
+    const named: Record<string, string> = {
+      "system energy change": "systemEnergyChange",
+      "system mass change": "systemMassChange",
+    };
+    let compared = 0;
+    for (const recorded of step.expected) {
+      const field = named[recorded.label];
+      expect(field, `${recorded.label} has no ME-03 output named for it`).toBeDefined();
+      const output = snapshot[field as string];
+      expect(output?.status, recorded.label).toBe("value");
+      expect(output?.value, recorded.label).toBe(recorded.value);
+      compared += 1;
+    }
+    expect(compared).toBe(2);
+    // NON-VACUITY, and it is the whole reason a recorded zero needs checking: an evaluator that
+    // returned zero for everything would satisfy the two assertions above. At this same state the
+    // BODY's own ledger is not zero, and it is not zero by the paper's own amount: the body loses
+    // the energy it emitted, and mass E/c^2 with it. The system zero is those two cancelling.
+    const emitted = inForce(t, step.actionIndex).emittedEnergy;
+    expect(emitted).toBeGreaterThan(0);
+    expect(snapshot.energyChange?.value).toBe(-(emitted as number));
+    const c = (snapshot.speedOfLight as unknown as number) ?? 0;
+    expect(c).toBeGreaterThan(1e8);
+    expect(snapshot.massChange?.value).toBeCloseTo(-(emitted as number) / (c * c), 30);
+  });
+
+  test("the 1906 box: the centre of mass stays put only because the light carries mass", () => {
+    const t = tape("the-1906-box");
+    const step = t.steps.find((s) => s.expected.some((e) => e.label === "center of mass shift"));
+    expect(step).toBeDefined();
+    if (!step) return;
+    const at = inForce(t, step.actionIndex);
+    // The box's own settings, read from the tape rather than written here.
+    const box = {
+      M: at.boxMass as number,
+      ell: at.boxLength as number,
+      E: at.pulseEnergy as number,
+      assignLightMass: at.assignLightMass === 1,
+    };
+    expect(box.assignLightMass).toBe(true);
+    const withMass = evaluatePhotonBox(box) as never as Record<
+      string,
+      { status?: string; value?: number } | undefined
+    >;
+    const recorded = step.expected.find((e) => e.label === "center of mass shift");
+    expect(withMass.centerOfMassShift?.value).toBe(recorded?.value);
+    // THE NEGATIVE CONTROL IS THE TEACHING POINT. Deny the light its mass and the same box moves
+    // the same distance while the centre of mass no longer stays put, which is the contradiction
+    // the 1906 argument exists to resolve. Without this, "0" is a number no computation defends.
+    const withoutMass = evaluatePhotonBox({ ...box, assignLightMass: false }) as never as Record<
+      string,
+      { status?: string; value?: number } | undefined
+    >;
+    expect(withoutMass.centerOfMassShift?.value).not.toBe(0);
+    expect(withoutMass.centerOfMassShift?.value).toBe(withMass.boxDisplacement?.value);
   });
 
   test("lq-05: W is f to the power of the n that holds at that step, not some other n", () => {
