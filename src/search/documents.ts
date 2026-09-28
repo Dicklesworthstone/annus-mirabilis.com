@@ -370,8 +370,9 @@ export type SearchNotationGlyph = Readonly<{
  * pages went live this week and the index never learned about them, so a reader searching "the boost
  * to 0.6c" or "magnet and conductor" found nothing while the page sat one link away.
  *
- * The "tour" type was declared in SEARCH_TYPES and used by no document at all. A recorded
- * walkthrough is what it describes: an ordered route through one instrument with a stated budget.
+ * The type is "walkthrough", added in 447ea63b. The only guided-route type before that was "tour",
+ * which the palette renders as the heading "Tours", and the site uses that word for the guided
+ * reading paths at /tours/ rather than for an ordered run of one instrument.
  *
  * THE ROUTE COMES FROM tapePath, NOT FROM A TEMPLATE. One tape id contains a dot and the host serves
  * that path without the trailing slash (am-tpzn); a hand-built `/tapes/${id}/` here would send every
@@ -386,7 +387,7 @@ export function walkthroughDocuments(
     .map((walkthrough) =>
       validateSearchDocument({
         id: `walkthrough:${walkthrough.id}`,
-        type: "tour",
+        type: "walkthrough",
         // Every group of tapes names exactly one paper (measured), but a tape with no resolved
         // passage gets the cross-paper scope rather than being dropped: a dropped document is a
         // page a reader cannot find, and silence is the failure this whole builder exists to end.

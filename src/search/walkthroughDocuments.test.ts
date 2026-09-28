@@ -40,7 +40,7 @@ describe("recorded walkthroughs are in the search corpus", () => {
 
   test("each carries the tour type, its paper, and a title a reader would type", () => {
     for (const document of documents) {
-      expect(document.type).toBe("tour");
+      expect(document.type).toBe("walkthrough");
       expect(document.paper.length).toBeGreaterThan(0);
       expect(document.title.length).toBeGreaterThan(0);
       expect(document.route.startsWith("/tapes/")).toBe(true);
