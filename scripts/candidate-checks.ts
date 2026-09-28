@@ -24,6 +24,7 @@ import { spawn } from "node:child_process";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { describeSweep, sitemapRoutes, sweepAnchors } from "./anchorTargets.ts";
 import type { CandidateCheckResult } from "./deployment-verification.ts";
 
 export type Fetched = Readonly<{ status: number; body: Buffer }>;
@@ -307,7 +308,75 @@ export async function runCandidateChecksAgainst(
       "A lab's typed refusal appears only when a browser executes the page; these checks are HTTP only.",
     ),
   );
+  results.push(await fragmentAnchorsResolve(fetcher));
+
+  // ONE NAME, ONE CHECK. The bead's interface criterion is that registration "rejects a duplicate
+  // id", and until now nothing did: two checks sharing a name would both appear, and
+  // summarizeCandidateChecks would print the name twice while allCandidateChecksPassed silently
+  // judged both. A duplicate is a programming error in this file, so it throws rather than
+  // returning a result nobody would read.
+  const seen = new Set<string>();
+  const duplicates = results.map((r) => r.name).filter((n) => (seen.has(n) ? true : !seen.add(n)));
+  if (duplicates.length > 0) {
+    throw new Error(
+      `Duplicate candidate check id(s): ${[...new Set(duplicates)].sort().join(", ")}. Every check registers one name.`,
+    );
+  }
   return results;
+}
+
+/**
+ * EVERY FRAGMENT LINK ON THE CANDIDATE POINTS AT AN ID THAT EXISTS (am-rel-candidate-checks-kc7y).
+ *
+ * A link to `/papers/x/#arg-foo` on a page with no `arg-foo` is HTTP 200 and broken for the reader,
+ * who lands at the top and never learns what they missed. Measured this morning on live: 8 of 8
+ * fragment links on the mass-energy capstone were broken that way.
+ *
+ * Routes come from the candidate's own sitemap and every page is fetched, so this reads no local
+ * build directory. The denominator is in the detail on every run, because a sweep that found
+ * nothing and a sweep that examined nothing are the same sentence otherwise — which is why 0 pairs
+ * FAILS here rather than passing.
+ */
+export async function fragmentAnchorsResolve(fetcher: Fetcher): Promise<CandidateCheckResult> {
+  const name = "fragment-anchors-resolve";
+  const sitemap = await fetcher("/sitemap.xml");
+  if (sitemap.status !== 200) {
+    return {
+      name,
+      status: "failed",
+      detail: `${name}: /sitemap.xml returned ${sitemap.status}, so no route list could be read and nothing was checked.`,
+    };
+  }
+  const routes = sitemapRoutes(sitemap.body.toString("utf8"));
+  if (routes.length === 0) {
+    return {
+      name,
+      status: "failed",
+      detail: `${name}: the sitemap listed 0 routes, so nothing was checked.`,
+    };
+  }
+  const sweep = await sweepAnchors(fetcher, routes);
+  const described = describeSweep(sweep);
+  // A FLOOR ON A MEASURED COUNT, AND DELIBERATELY FAR BELOW IT. Measured 2026-09-28 against the
+  // built export: 20,069 fragment links, 1,937 distinct target#fragment, over 271 target pages from
+  // 240 routes. The floor is 100 because a false refusal here blocks a deploy, and the case it has
+  // to catch is not a slightly smaller site but an href pattern that collects almost nothing — a
+  // sweep that examined nothing reports the cleanest result this check can produce.
+  if (sweep.pairs < 100) {
+    return {
+      name,
+      status: "failed",
+      detail: `${name}: only ${sweep.pairs} fragment links were collected across ${routes.length} routes, far below the 989 measured on 2026-09-28. The sweep examined too little to be believed. ${described}`,
+    };
+  }
+  if (sweep.broken.length > 0 || sweep.unreachable.length > 0) {
+    return { name, status: "failed", detail: `${name}: ${described}` };
+  }
+  return {
+    name,
+    status: "passed",
+    detail: `${name}: ${described}. Anchors only: this proves each fragment exists on the page it names, not that it is the right passage.`,
+  };
 }
 
 /**
