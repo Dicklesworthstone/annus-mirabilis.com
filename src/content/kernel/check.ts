@@ -11,6 +11,7 @@ import {
   checkTraceScenario,
   validateDisplayRole,
 } from "./bindings.ts";
+import { SLICE_KERNEL_CATALOG } from "./catalog.ts";
 import { extractRustFunction } from "./extractRust.ts";
 import { extractTypeScriptExport, KernelExtractionError } from "./extractTypeScript.ts";
 import type { ExtractedKernelSource } from "./types.ts";
@@ -177,11 +178,54 @@ export function runKernelIdentifierCheck(context: CheckContext, root = process.c
       });
     }
     const liveTerms = liveTermsFromRecords(rec, context.records);
+
+    // BOTH SOURCES OF A BINDING, BECAUSE THERE ARE TWO AND THEY DRIFT (am-1nnj, dispatch 358).
+    //
+    // A binding is written in the manifest, `owner.identifierBindings`, which is what everything
+    // above this line reads; and in SLICE_KERNEL_CATALOG, which is what verify.ts turns into
+    // src/generated/kernel-listings.json and therefore what colours a symbol for a reader. Measured
+    // at HEAD across sr-* and me-* on 2026-09-28: 14 bindings in the manifests only, 34 in the
+    // catalogue only, 54 in both. A live-term check that read one source would have called 34 terms
+    // unbound that a reader already sees coloured, or 14 bound that the gate's own record does not
+    // carry. Neither number is small and neither is visible from one side.
+    //
+    // So the live-term half of this check asks the union: does ANY source bind this quantity. The
+    // bindings above are still checked against the manifest alone, because a manifest binding that
+    // names an absent identifier is the manifest's defect, and the catalogue's own copies are
+    // audited by auditKernelBindings over the same extracted sources.
+    const catalogueEntries = SLICE_KERNEL_CATALOG.filter((e) => e.instrumentId === instrumentId);
+    const liveTermBindings = [
+      ...bindings,
+      ...catalogueEntries.flatMap((entry) => entry.identifierBindings),
+    ];
+    const liveTermExtracted = new Map(extracted);
+    for (const entry of catalogueEntries) {
+      const name = entry.kernel.exportName;
+      if (name === undefined || liveTermExtracted.has(name)) continue;
+      if (entry.kernel.language !== "ts" || entry.kernel.module === undefined) continue;
+      try {
+        liveTermExtracted.set(
+          name,
+          extractTypeScriptExport({
+            root,
+            modulePath: entry.kernel.module,
+            exportName: name,
+            revision: entry.kernel.revision ?? "catalogue",
+          }),
+        );
+      } catch {
+        // A catalogue kernel that will not extract is auditKernelBindings' finding, reported there
+        // against the catalogue it belongs to. Reporting it again here would name the instrument
+        // twice for one defect, and swallowing it cannot hide it: the other gate runs on the same
+        // sources in the same lane.
+      }
+    }
+
     for (const issue of checkLiveTermBindings({
       instrumentId,
       liveTerms,
-      bindings,
-      extracted,
+      bindings: liveTermBindings,
+      extracted: liveTermExtracted,
     })) {
       context.report({
         recordId: instrumentId,

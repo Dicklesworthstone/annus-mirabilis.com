@@ -33,6 +33,7 @@ import {
   runVerifyContent,
 } from "../src/content/audits/verifyContent.ts";
 import { auditKernelBindings } from "../src/content/kernel/audit.ts";
+import { SLICE_KERNEL_CATALOG } from "../src/content/kernel/catalog.ts";
 import { loadProvenanceReceipts } from "../src/content/provenance/loadReceipts.ts";
 import { TestLogger } from "../src/testing/log/logger.ts";
 import { runArchitectureGateCli } from "./app-router-architecture.ts";
@@ -43,7 +44,7 @@ import { runRevisionCheck } from "./check-revisions.ts";
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 
 function printHelp(): void {
-  console.log(`Usage: bun scripts/verify-content.ts [--base <ref>] [--require-local] [--help]
+  console.log(`Usage: bun scripts/verify-content.ts [--base <ref>] [--require-local] [--all-instruments] [--help]
 
 Runs the architecture gate, the content compiler with every registered check,
 audit-dimensions, the four content audits (readings, shelf, misconceptions, instruments),
@@ -53,6 +54,11 @@ ${RULE_0_HELP}
 
 The standalone voice-lint quality-gate step is folded into this command as
 the registered check family "voice".
+
+--all-instruments compiles every manifest under content/experiments instead of the
+three the compiler's checks see by default, which is what the live-term half of the
+kernel-binding check runs over. It reports 68 errors on 2026-09-28 and is therefore
+not the default; the count it has to reach is zero (am-1nnj).
 `);
 }
 
@@ -61,16 +67,19 @@ function parseArgs(argv: string[]): {
   baseRef?: string;
   requireLocal: boolean;
   skipArchitecture: boolean;
+  allInstruments: boolean;
 } {
   let help = false;
   let baseRef: string | undefined;
   let requireLocal = false;
   let skipArchitecture = false;
+  let allInstruments = false;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "--help" || arg === "-h") help = true;
     else if (arg === "--require-local") requireLocal = true;
     else if (arg === "--skip-architecture") skipArchitecture = true;
+    else if (arg === "--all-instruments") allInstruments = true;
     else if (arg === "--base" && argv[i + 1]) {
       baseRef = argv[i + 1];
       i += 1;
@@ -80,6 +89,7 @@ function parseArgs(argv: string[]): {
     help,
     requireLocal,
     skipArchitecture,
+    allInstruments,
     ...(baseRef !== undefined ? { baseRef } : {}),
   };
 }
@@ -278,6 +288,44 @@ function loadLiveReadingsAuditInput(
   return { targets, owners };
 }
 
+/**
+ * How many identifier bindings each source carries, and how many both carry (am-1nnj, dispatch 358).
+ *
+ * This is a REPORT, not a gate. It exists because a binding is written twice, in a manifest's
+ * `owner.identifierBindings` and in SLICE_KERNEL_CATALOG, and the second is the one verify.ts turns
+ * into src/generated/kernel-listings.json and therefore the one that colours a symbol for a reader.
+ * The two drift, in both directions, and a single total would hide that.
+ */
+function bindingSourceSplit(files: readonly { path: string; text: string }[]): {
+  manifestOnly: number;
+  both: number;
+  catalogueOnly: number;
+} {
+  const key = (instrumentId: string, b: { kernelFunction: string; quantityId: string }) =>
+    `${instrumentId}|${b.kernelFunction}|${b.quantityId}`;
+  const manifest = new Set<string>();
+  for (const file of files) {
+    const doc = yaml.load(file.text) as {
+      id?: string;
+      owner?: { identifierBindings?: readonly { kernelFunction: string; quantityId: string }[] };
+    };
+    const id = doc?.id ?? file.path.replace(/^experiments\/|\.yaml$/g, "");
+    for (const b of doc?.owner?.identifierBindings ?? []) manifest.add(key(id, b));
+  }
+  // The catalogue side is scoped to the instruments actually compiled. Comparing three manifests
+  // against all thirty-three catalogue entries reported "329 catalogue only", which is true of the
+  // catalogue and says nothing about the population this run examined.
+  const compiled = new Set(files.map((f) => f.path.replace(/^experiments\/|\.yaml$/g, "")));
+  const catalogue = new Set<string>();
+  for (const entry of SLICE_KERNEL_CATALOG) {
+    if (!compiled.has(entry.instrumentId)) continue;
+    for (const b of entry.identifierBindings) catalogue.add(key(entry.instrumentId, b));
+  }
+  let both = 0;
+  for (const k of manifest) if (catalogue.has(k)) both += 1;
+  return { manifestOnly: manifest.size - both, both, catalogueOnly: catalogue.size - both };
+}
+
 const baseRef = args.baseRef ?? gitBaseRef();
 const result = await runVerifyContent({
   root,
@@ -287,36 +335,47 @@ const result = await runVerifyContent({
   loadFiles: async () => {
     const readingFiles = await loadReadingFiles(root);
     const experimentFiles: { path: string; text: string }[] = [];
-    // THREE OF THIRTY-THREE, AND THE NUMBER IS PRINTED BECAUSE IT CANNOT BE INFERRED (am-1nnj).
+    // WHICH MANIFESTS THE COMPILER'S CHECKS SEE, AND WHY THE DEFAULT IS STILL THREE (am-1nnj).
     //
-    // loadReadingFiles skips every .yaml, so it contributes NO experiment manifests; these three
-    // are the whole population of instruments the compiler's checks ever see. Measured 2026-09-28
-    // by registering a counting check against the real compiler: 318 records reach the checks and
-    // exactly 3 carry an `owner`, so runKernelIdentifierCheck's live-term assertion runs for
-    // bm-01, bm-05 and bm-06 and is silent on the other 30 instruments. Its sibling half, the
-    // kernel-binding audit, is not affected: auditKernelBindings walks SLICE_KERNEL_CATALOG, which
-    // covers all 33.
+    // loadReadingFiles skips every .yaml, so it contributes NO experiment manifests and this loop
+    // is the whole population of instruments the compiler's checks ever see. bm-01, bm-05 and
+    // bm-06 are that population by default, which means runKernelIdentifierCheck's live-term
+    // assertion is silent on the other thirty. A 0 from a check that opened three records reads
+    // exactly like a 0 from one that opened thirty-three, which is why the count is printed.
     //
-    // A 0 from a check that opened three records reads exactly like a 0 from one that opened
-    // thirty-three, which is why the count is printed beside the verdict rather than left to be
-    // rediscovered. Widening the list is a separate change against its own evidence: it will make
-    // real findings appear, and they must not land mixed with the measurement that justified them.
-    const wanted = ["bm-01", "bm-05", "bm-06"];
-    for (const id of wanted) {
-      const p = resolve(root, `content/experiments/${id}.yaml`);
-      if (existsSync(p)) {
-        experimentFiles.push({
-          path: `experiments/${id}.yaml`,
-          text: readFileSync(p, "utf8"),
-        });
-      }
+    // WHY THE DEFAULT DID NOT FLIP ON 2026-09-28, measured rather than assumed. Three panes bound
+    // 119 live terms across the four papers (8cd4d69b, 1b6a5d8c, 740aa1bf) so that the widening
+    // could land green. Run with --all-instruments on that tree it does not: 68 errors, of which
+    // 40 are live-term-unbound and 28 are two families the narrow population had never reached,
+    // dangling-independent-reference and unregistered-trace-scenario. Flipping the default would
+    // turn this gate red for every pane, and the standing instruction is that the widening lands
+    // only when the count is zero. So the population is reachable with one flag, the census is
+    // printed on every run, and the number that has to reach zero is a command anyone can repeat
+    // rather than a measurement living in one agent's scratchpad.
+    //
+    // THE CENSUS BELOW IS REPORTED, NOT ASSERTED. A binding is written in two places, the manifest
+    // and SLICE_KERNEL_CATALOG, and the second is what colours a symbol for a reader. The live-term
+    // check reads the union of both (src/content/kernel/check.ts), so the split is printed here to
+    // keep the drift visible rather than resolved into one total nobody can decompose.
+    const onDisk = readdirSync(resolve(root, "content/experiments"))
+      .filter((f) => f.endsWith(".yaml"))
+      .sort();
+    const chosen = args.allInstruments ? onDisk : ["bm-01.yaml", "bm-05.yaml", "bm-06.yaml"];
+    for (const file of chosen) {
+      const full = resolve(root, "content/experiments", file);
+      if (!existsSync(full)) continue;
+      experimentFiles.push({ path: `experiments/${file}`, text: readFileSync(full, "utf8") });
     }
-    const onDisk = readdirSync(resolve(root, "content/experiments")).filter((f) =>
-      f.endsWith(".yaml"),
-    ).length;
+    const split = bindingSourceSplit(experimentFiles);
     console.log(
-      `[verify-content] ${experimentFiles.length} of ${onDisk} experiment manifests compiled, ` +
-        `so the live-term check is silent on ${onDisk - experimentFiles.length} instruments (am-1nnj)`,
+      `[verify-content] ${experimentFiles.length} of ${onDisk.length} experiment manifests ` +
+        `compiled, so the live-term check is silent on ${onDisk.length - experimentFiles.length} ` +
+        `instruments (am-1nnj; --all-instruments compiles every one)`,
+    );
+    console.log(
+      `[verify-content] identifier bindings by source over those ${experimentFiles.length}: ` +
+        `${split.manifestOnly} manifest only, ${split.both} in both, ${split.catalogueOnly} ` +
+        `catalogue only; the live-term check reads the union`,
     );
     return [...readingFiles, ...experimentFiles];
   },

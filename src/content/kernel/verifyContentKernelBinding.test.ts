@@ -87,16 +87,19 @@ describe("verify-content kernel binding audit (am-inst-show-the-code-4brv)", () 
 
   test("planted missing live-term binding fails with live-term-unbound", async () => {
     const bm01Raw = readFileSync(resolve(root, "content/experiments/bm-01.yaml"), "utf8");
-    // Remove all diffusionCoefficient bindings (from rmsDisplacement and apparentSpeed)
-    const plantedText = bm01Raw
-      .replace(
-        '    - kernelFunction: rmsDisplacement\n      identifier: "D"\n      quantityId: diffusionCoefficient\n',
-        "",
-      )
-      .replace(
-        '    - kernelFunction: apparentSpeed\n      identifier: "D"\n      quantityId: diffusionCoefficient\n',
-        "",
-      );
+    // THE PLANT MOVED, AND WHY IT HAD TO (am-1nnj, dispatch 358). It used to remove bm-01's two
+    // diffusionCoefficient bindings. Since the live-term half reads the UNION of the manifest and
+    // SLICE_KERNEL_CATALOG, and the catalogue also binds diffusionCoefficient for bm-01, that plant
+    // stopped reaching the predicate: the term was still bound, no error was correct, and the test
+    // read as a passing gate over a plant that could no longer fail. modelApparentSpeed is bound in
+    // bm-01's manifest and in no catalogue entry, so removing it leaves the quantity unbound in
+    // every source the check now reads. If a catalogue entry ever binds it, this test goes green
+    // for the wrong reason, which is what the assertion on the message is for.
+    const plantedText = bm01Raw.replace(
+      '    - kernelFunction: apparentSpeed\n      identifier: "apparentSpeed"\n      quantityId: modelApparentSpeed\n',
+      "",
+    );
+    expect(plantedText).not.toBe(bm01Raw);
 
     const readingFiles = await loadReadingFiles(root);
     const result = await compileContent([
@@ -108,7 +111,7 @@ describe("verify-content kernel binding audit (am-inst-show-the-code-4brv)", () 
       (d) => d.checkId === KERNEL_BINDING_CHECK_ID && d.rule === "live-term-unbound",
     );
     expect(kernelErrors.length).toBeGreaterThanOrEqual(1);
-    expect(kernelErrors.some((e) => e.message.includes("diffusionCoefficient"))).toBe(true);
+    expect(kernelErrors.some((e) => e.message.includes("modelApparentSpeed"))).toBe(true);
     expect(kernelErrors[0]?.recordId).toBe("bm-01");
   });
 
