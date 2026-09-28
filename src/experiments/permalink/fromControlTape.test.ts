@@ -13,7 +13,7 @@ import { type ControlTapeV2, validateControlTape } from "../tapes/schema.ts";
 import { encodeTapePermalink } from "./codec.ts";
 import { MAX_PERMALINK_URL_LENGTH } from "./codecCore.ts";
 import { checkTapeCompatibility } from "./compatibility.ts";
-import { permalinkTapeFromControlTape } from "./fromControlTape.ts";
+import { NO_STREAM, permalinkTapeFromControlTape, streamIdentity } from "./fromControlTape.ts";
 import type { ExperimentEnvironment, TapeV2 } from "./types.ts";
 
 const DIR = join(process.cwd(), "content/experiments/tapes");
@@ -177,5 +177,66 @@ describe("the join: validate, convert, then compatibility", () => {
     // And the conversion does not make a difference disappear: a tape converted from a record
     // declaring version "1" must NOT match an environment declaring 2.
     expect(tape.modelIdentity.modelVersion).toBe(1);
+  });
+});
+
+describe("the stream identity a converted tape carries", () => {
+  /*
+   * A control tape's streamVersion must be a positive integer by its own schema, so a walkthrough
+   * that consumes no randomness could not say so and all 22 records were authored as 1, while 24 of
+   * the 28 laboratory bindings declare the sentinel "deterministic" and the comparison is equality.
+   * `streamIdentity` translates on the RECORD's own statement: a record whose allocationId is the
+   * sentinel has said it allocated no stream, so no stream version describes it.
+   *
+   * Both directions are driven. The second test is the guard the first one could have removed.
+   */
+  const withAllocation = (record: ControlTapeV2, allocationId: string): ControlTapeV2 => ({
+    ...record,
+    allocationId,
+  });
+
+  test("a record that declares no allocation carries the sentinel, not its placeholder integer", () => {
+    const record = RECORDS.find((r) => r.tapeId === "the-two-pulses");
+    if (!record) throw new Error("the-two-pulses is not in the corpus");
+    // The corpus as authored: a real allocation name, so the integer is carried.
+    expect(record.streamVersion).toBe(1);
+    expect(streamIdentity(record)).toBe(1);
+    // The same record stating that it allocated nothing.
+    const none = withAllocation(record, NO_STREAM);
+    expect(streamIdentity(none)).toBe(NO_STREAM);
+    expect(convert(none).streamVersion).toBe(NO_STREAM);
+    // And it is then compatible with a laboratory that declares the sentinel, which is the whole
+    // point: 8 of the 12 convertible walkthroughs refused on this field alone.
+    const tape = convert(none);
+    const lab = {
+      ...environmentAsRecorded(tape),
+      streamVersion: NO_STREAM,
+      allocationId: NO_STREAM,
+    };
+    expect(checkTapeCompatibility(tape, lab).compatible).toBe(true);
+  });
+
+  test("a record that names a real allocation still refuses a laboratory on another stream version", () => {
+    const record = RECORDS.find((r) => r.tapeId === "einstein-0-8-micron");
+    if (!record) throw new Error("einstein-0-8-micron is not in the corpus");
+    // BM-01 draws: its binding declares a real stream version and its record names an allocation.
+    expect(record.allocationId).not.toBe(NO_STREAM);
+    const tape = convert(record);
+    expect(tape.streamVersion).toBe(record.streamVersion);
+    // THE PLANT: the laboratory has moved to stream semantics 2. This must still refuse, or the
+    // translation above has removed the refusal it was written for.
+    const moved = checkTapeCompatibility(tape, {
+      ...environmentAsRecorded(tape),
+      streamVersion: 2,
+    });
+    expect(moved.compatible).toBe(false);
+    if (!moved.compatible) expect(moved.refusalCode).toBe("tape-stream-version-mismatch");
+    // A laboratory that has stopped drawing is a different model and refuses on the stream too: the
+    // sentinel is not a wildcard that matches an integer.
+    const stopped = checkTapeCompatibility(tape, {
+      ...environmentAsRecorded(tape),
+      streamVersion: NO_STREAM,
+    });
+    expect(stopped.compatible).toBe(false);
   });
 });

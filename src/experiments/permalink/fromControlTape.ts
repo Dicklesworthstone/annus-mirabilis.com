@@ -56,6 +56,40 @@ function isControl(e: TapeEventEntry): e is Extract<TapeEventEntry, { kind: "con
   return e.kind === "control";
 }
 
+/**
+ * A laboratory that consumes no randomness declares this where a stream version would go, and so
+ * does a tape recorded on one.
+ */
+export const NO_STREAM = "deterministic";
+
+/**
+ * The stream identity a permalink tape carries, which is not always the one the control-tape record
+ * states.
+ *
+ * WHY THESE TWO FIELDS DISAGREED, measured 2026-09-28. A control tape's `streamVersion` must be a
+ * POSITIVE INTEGER by its own schema, so a walkthrough that consumes no randomness had no way to say
+ * so and every one of the 22 records was authored as `1`. A laboratory that consumes no randomness
+ * declares the sentinel `"deterministic"`, and 24 of the 28 bindings do. `checkTapeCompatibility`
+ * compares the two for equality, correctly, and refused all 12 convertible walkthroughs before a
+ * single event was applied: 8 on the stream version alone.
+ *
+ * The record is not silent, though, because `allocationId` is a string in the control-tape schema
+ * and can hold the same sentinel. A record declaring `allocationId: deterministic` is stating that
+ * it allocated no stream, and a stream version is a version of something it has just said does not
+ * exist. So the converted tape carries the sentinel for BOTH, on the record's own statement.
+ *
+ * THIS IS NOT A WAY TO MAKE A REFUSAL PASS, and the distinction is the whole point. A record naming
+ * a real allocation keeps its integer and is compared as before, so a tape recorded under stream
+ * semantics a laboratory no longer implements still refuses. fromControlTape.test.ts plants exactly
+ * that case and asserts it still refuses; without that plant this function would be a hole in the
+ * guard rather than a translation between two vocabularies.
+ */
+export function streamIdentity(
+  record: Readonly<{ streamVersion: number; allocationId: string }>,
+): number | string {
+  return record.allocationId.trim() === NO_STREAM ? NO_STREAM : record.streamVersion;
+}
+
 export function permalinkTapeFromControlTape(record: ControlTapeV2): ControlTapeConversion {
   const version = record.modelIdentity.modelVersion;
   if (!CANONICAL_INTEGER.test(version))
@@ -116,7 +150,7 @@ export function permalinkTapeFromControlTape(record: ControlTapeV2): ControlTape
     },
     constantSetId: record.constantSetId,
     seed: record.seed,
-    streamVersion: record.streamVersion,
+    streamVersion: streamIdentity(record),
     allocationId: record.allocationId,
     ...(record.replayGrid === undefined ? {} : { replayGrid: record.replayGrid }),
     initialConditions: record.initialConditions,
