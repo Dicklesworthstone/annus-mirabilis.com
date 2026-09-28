@@ -24,7 +24,11 @@
  *      EXPECTATION IS UNJUDGED. Two identities count, and each is an exact claim the corpus already
  *      makes rather than a judgement this file forms:
  *
- *        a. the label IS the field id of an output the instrument holds with `status: "value"`;
+ *        c. the record NAMES the output field, through `outputId` (am-2rl9, dispatch 383). This is the
+ *           route for a label that is authored prose a reader sees, like `W (locked)`, which can
+ *           never be a field id or a kernel identifier. It is tried first, being the most specific,
+ *           and it is the only route that can separate two fields declared to hold one quantity;
+ *        a. or the label IS the field id of an output the instrument holds with `status: "value"`;
  *        b. or the label and exactly one such field are declared to hold the SAME CANONICAL
  *           QUANTITY. A label reaches a canonical quantity through `quantityDisplay`, which is the
  *           site's one lookup and is deliberately exact: either the label is itself a registered
@@ -63,9 +67,15 @@
  * `the-move`, `ionization-bounds` and `lq-07-journey-stage-g` each carry ONE checkpoint whose
  * `actionIndex` is 1, so it is the state AFTER their single event. Driving the replay from the array
  * position leaves the instrument at the opening state, which for those three produced exactly half
- * the recorded value twice over and zero once, and read like three wrong records. The step therefore
- * comes from the checkpoint's own `actionIndex`: the permalink tape's `stepIndex` is the INCLUSIVE
- * index of the last event to apply, so it is `actionIndex - 1`, and `null` when no event precedes.
+ * the recorded value twice over and zero once, and read like three wrong records.
+ *
+ * AND `actionIndex - 1` IS NOT THE ANSWER EITHER, which is the second half of the same trap and was
+ * found the same way, by a plausible number. A record's `actionIndex` counts every event including a
+ * `prediction`, while the wire tape a replay drives carries only control events. Two of the twelve
+ * convertible records carry a prediction, and on `the-locked-positions` that offset applied a control
+ * event a whole checkpoint early. `stepIndexForCheckpoint` below counts CONTROL events and states the
+ * measurement; this paragraph kept the superseded rule for one commit and is corrected here rather
+ * than left to read as authority.
  *
  * TOLERANCE, NEVER EQUALITY, and never a hand-rolled difference: `withinTolerance` from
  * src/units/tolerance.ts. The bound is half a unit in the recorded value's own last significant
@@ -93,6 +103,8 @@ export type TapeExpectation = Readonly<{
   unit?: string | undefined;
   constantSetId?: string | undefined;
   canonicalQuantityId?: string | undefined;
+  /** The instrument's declared output field this number is read from, when the record names one. */
+  outputId?: string | undefined;
 }>;
 
 /**
@@ -173,9 +185,23 @@ export function judgeExpectation(
     (output) => output.status === "value" && typeof output.value === "number",
   );
   const available = comparable.map((output) => output.quantityId);
+  // Route (c) first, because it is the most specific: the record names the output field outright.
+  let match =
+    expectation.outputId === undefined
+      ? undefined
+      : comparable.find((output) => output.quantityId === expectation.outputId);
+  let via = "the record names the output field";
+  if (!match && expectation.outputId !== undefined && expectation.canonicalQuantityId === undefined)
+    return {
+      kind: "unjudged",
+      reason: `"${expectation.label}" names the output field "${expectation.outputId}", which this instrument does not produce with a value`,
+      available,
+    };
   // Route (a): the label is the field id itself.
-  let match = comparable.find((output) => output.quantityId === expectation.label);
-  let via = "the label is the field id";
+  if (!match) {
+    match = comparable.find((output) => output.quantityId === expectation.label);
+    if (match) via = "the label is the field id";
+  }
   if (!match && expectation.canonicalQuantityId !== undefined) {
     // Route (b): the corpus declares the label and exactly one produced field to be one quantity.
     const sameQuantity = comparable.filter(
@@ -218,9 +244,34 @@ export function judgeExpectation(
   };
 }
 
-/** The permalink `stepIndex` a checkpoint's own `actionIndex` implies. Null when no event precedes. */
-export function stepIndexForActionIndex(actionIndex: number): number | null {
-  return actionIndex > 0 ? actionIndex - 1 : null;
+/** Only what this file needs of a recorded event: when it happens and whether it is a control. */
+export type TapeEventLike = Readonly<{ actionIndex: number; kind?: string | undefined }>;
+
+/**
+ * The permalink `stepIndex` a checkpoint implies: the inclusive index of the last event to apply.
+ *
+ * IT COUNTS CONTROL EVENTS, NOT ACTION INDICES, and the difference is a whole checkpoint's worth of
+ * state. A record's `actionIndex` counts EVERY event, including a `prediction`, while the wire tape a
+ * replay drives carries only control events, so the two numbering schemes diverge by the number of
+ * non-control events before the checkpoint. Measured across the 12 convertible records: two carry a
+ * prediction event, `the-boost-to-0.6c` and `the-locked-positions`.
+ *
+ * `the-locked-positions` is why this is not a tidy-up. Its checkpoint 0, "Ten independent particles in
+ * half a volume", sits at actionIndex 1 after a prediction event, and its one control event at
+ * actionIndex 2 sets n to 60. Derived as `actionIndex - 1` the replay applied that control event,
+ * leaving lq-05 at n = 60 with an accepted `configurationProbability` of 8.67e-19 where the record says
+ * 0.0009765625, which is 0.5^10 and correct for the ten particles the label names. That is a right
+ * record against a wrong state, and reported as a disagreement it would have been the third false
+ * finding this check produced from its own indexing.
+ */
+export function stepIndexForCheckpoint(
+  events: readonly TapeEventLike[],
+  actionIndex: number,
+): number | null {
+  const applied = events.filter(
+    (event) => (event.kind ?? "control") === "control" && event.actionIndex <= actionIndex,
+  ).length;
+  return applied > 0 ? applied - 1 : null;
 }
 
 export type ExpectationTally = Readonly<{

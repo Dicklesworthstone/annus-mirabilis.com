@@ -63,7 +63,7 @@ import {
   type ProducedOutput,
   significantDigitsOf,
   specFor,
-  stepIndexForActionIndex,
+  stepIndexForCheckpoint,
   summarizeTally,
   type TapeExpectation,
   toleranceFor,
@@ -161,13 +161,14 @@ function replayOutputs(
   authoredInitial: Record<string, unknown>,
   checkpoint: Readonly<{ actionIndex: number; digest: string }>,
   checkpointIndex: number,
+  events: readonly Readonly<{ actionIndex: number; kind?: string | undefined }>[],
 ): { outputs: readonly ProducedOutput[]; problem: string } {
   const opening = tapeForSettings(binding, { ...binding.defaults, ...authoredInitial });
   if (!opening)
     return { outputs: [], problem: "the instrument refused the walkthrough's opening settings" };
   const session = binding.createSession(`tape-expectations-${tapeId}-${checkpointIndex}`);
   const runner = createSessionReplayRunner(binding, session);
-  const stepIndex = stepIndexForActionIndex(checkpoint.actionIndex);
+  const stepIndex = stepIndexForCheckpoint(events, checkpoint.actionIndex);
   const result = replayTape(
     {
       ...opening,
@@ -198,6 +199,7 @@ for (const file of readdirSync(TAPE_DIR)
   ) as unknown as {
     tapeId: string;
     experimentId: string;
+    events: readonly { actionIndex: number; kind?: string | undefined }[];
     checkpoints: readonly {
       actionIndex: number;
       digest: string;
@@ -233,6 +235,7 @@ for (const file of readdirSync(TAPE_DIR)
       (authored as { initialConditions?: Record<string, unknown> }).initialConditions ?? {},
       checkpoint,
       index,
+      record.events,
     );
     if (!fieldQuantities.has(record.experimentId))
       fieldQuantities.set(record.experimentId, declaredFieldQuantities(record.experimentId));
@@ -255,9 +258,16 @@ for (const file of readdirSync(TAPE_DIR)
       const declared = labelQuantities.get(
         `${record.tapeId}|${checkpoint.actionIndex}|${expectation.label}`,
       );
+      // A record that names its output field also carries that field's declared canonical quantity,
+      // so route (b) can still serve as a fallback for a laboratory whose snapshot keys its outputs
+      // canonically rather than by field id.
+      const canonicalOfNamedField =
+        expectation.outputId === undefined ? undefined : fields.get(expectation.outputId);
       const withDeclaration: TapeExpectation = {
         ...expectation,
-        ...(declared === undefined ? {} : { canonicalQuantityId: declared }),
+        ...((canonicalOfNamedField ?? declared) === undefined
+          ? {}
+          : { canonicalQuantityId: canonicalOfNamedField ?? declared }),
       };
       rows.push({
         ...common,
@@ -393,6 +403,93 @@ describe("teaching tapes' recorded expectations against their instruments (am-2r
     expect(
       judgeExpectation({ label: "someQuantityTheInstrumentHas", value: 1.25 }, produced).kind,
     ).toBe("judged");
+  });
+
+  test("the step a checkpoint implies counts control events, not action indices", () => {
+    // THE FIX THIS COMMIT CARRIES, read off the real record rather than a fixture, so it cannot drift
+    // from the corpus. the-locked-positions' first event is a PREDICTION at actionIndex 1 and its one
+    // control event is at actionIndex 2, so the wire tape a replay drives holds one event where the
+    // record holds two.
+    const record = validateControlTape(
+      strictParse(readFileSync(resolve(TAPE_DIR, "the-locked-positions.yaml"), "utf8"), "yaml"),
+    ) as unknown as {
+      events: readonly { actionIndex: number; kind?: string }[];
+      checkpoints: readonly { actionIndex: number; label?: string }[];
+    };
+    expect(record.events.map((e) => e.kind ?? "control")).toEqual(["prediction", "control"]);
+
+    const first = record.checkpoints[0];
+    const second = record.checkpoints[1];
+    if (!first || !second) throw new Error("the-locked-positions lost a checkpoint");
+    // Checkpoint 0 is AFTER the prediction and BEFORE the control event, so no event is applied.
+    expect(first.actionIndex).toBe(1);
+    expect(stepIndexForCheckpoint(record.events, first.actionIndex)).toBeNull();
+    // Checkpoint 1 is after the control event, which is the wire tape's event 0.
+    expect(second.actionIndex).toBe(2);
+    expect(stepIndexForCheckpoint(record.events, second.actionIndex)).toBe(0);
+    // The regression named: `actionIndex - 1` would have applied the control event at checkpoint 0,
+    // leaving lq-05 at n = 60 and its probability at 0.5^60 where the record says 0.5^10.
+    expect(stepIndexForCheckpoint(record.events, first.actionIndex)).not.toBe(
+      first.actionIndex - 1,
+    );
+
+    // And where every event is a control, the two derivations agree, which is why nine judged
+    // expectations did not move when this changed.
+    const allControl = [1, 2, 3].map((actionIndex) => ({ actionIndex, kind: "control" }));
+    expect(stepIndexForCheckpoint(allControl, 0)).toBeNull();
+    for (const at of [1, 2, 3])
+      expect([at, stepIndexForCheckpoint(allControl, at)]).toEqual([at, at - 1]);
+  });
+
+  test("a record naming its output field is judged by that field, and refused when it names none", () => {
+    // ROUTE (c), added with the schema's new `outputId`. It is the only route that can separate two
+    // fields declared to hold one quantity, which is lq-05's real shape.
+    const produced: ProducedOutput[] = [
+      {
+        quantityId: "configurationProbability",
+        status: "value",
+        value: 8.67361737988405e-19,
+        canonicalQuantityId: "configurationProbability",
+      },
+      {
+        quantityId: "lockedProbability",
+        status: "value",
+        value: 0.5,
+        canonicalQuantityId: "configurationProbability",
+      },
+    ];
+    // Named field, so the ambiguity that refuses route (b) does not arise.
+    const locked = judgeExpectation(
+      {
+        label: "W (locked)",
+        value: 0.5,
+        outputId: "lockedProbability",
+        canonicalQuantityId: "configurationProbability",
+      },
+      produced,
+    );
+    expect(locked).toMatchObject({ kind: "judged", agrees: true, field: "lockedProbability" });
+    if (locked.kind === "judged") expect(locked.via).toBe("the record names the output field");
+    // The same two fields, the other one named: a different number, and still judged rather than
+    // ambiguous. Without `outputId` this pair is exactly the case route (b) must refuse.
+    expect(
+      judgeExpectation(
+        {
+          label: "W (independent)",
+          value: 8.67361737988405e-19,
+          outputId: "configurationProbability",
+        },
+        produced,
+      ),
+    ).toMatchObject({ kind: "judged", agrees: true, field: "configurationProbability" });
+    // A named field the instrument does not produce is unjudged and says so, naming the field.
+    const missing = judgeExpectation(
+      { label: "W (locked)", value: 0.5, outputId: "noSuchField" },
+      produced,
+    );
+    expect(missing.kind).toBe("unjudged");
+    if (missing.kind !== "unjudged") throw new Error("unreachable");
+    expect(missing.reason).toContain("noSuchField");
   });
 
   test("a declared canonical quantity binds one field, and refuses two", () => {
