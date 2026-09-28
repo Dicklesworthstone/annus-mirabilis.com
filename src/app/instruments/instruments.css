@@ -229,3 +229,24 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/*
+ * WHICH INSTRUMENTS HAVE A RECORDED WALKTHROUGH (am-2rl9, instruments/page.tsx).
+ *
+ * A sibling of the card link, not part of it: the whole card is already one anchor and an anchor
+ * cannot contain another. `.instrument-specimen a` makes the CARD a grid with inherited colour and
+ * no underline, and it matches any anchor inside a specimen, so these two rules put this link back
+ * to being a line of text that reads as a link. No new colour: the underline carries it, which
+ * keeps this out of the accent-channel contrast sweep.
+ */
+.instrument-walkthroughs {
+  margin: 0.4rem 0 0;
+  font-size: var(--type-fine);
+  line-height: 1.4;
+  color: var(--muted);
+}
+.instrument-specimen .instrument-walkthroughs a {
+  display: inline;
+  color: inherit;
+  text-decoration: underline;
+}

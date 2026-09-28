@@ -2,11 +2,12 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Metadata } from "next";
 import { Fragment } from "react";
-import { loadTeachingTapes } from "../../content/teachingTapes.ts";
+import { loadTeachingTapes, tapesForExperiment } from "../../content/teachingTapes.ts";
 import { CATALOGUE_IDS, CATALOGUE_STATUS, type CatalogueId } from "../../experiments/catalogue.ts";
 import { labName } from "../../reader/actions/labNames.ts";
 import { previewValue } from "./previewPrecision.ts";
 import "./instruments.css";
+import { tapePath } from "../../reader/sitePaths.ts";
 
 export const metadata: Metadata = {
   title: "Instruments",
@@ -304,6 +305,7 @@ function InstrumentList({ ids }: { ids: readonly CatalogueId[] }) {
       {ids.map((id) => {
         const picture = specimenPicture(id);
         const plate = picture ? undefined : tablePlate(id);
+        const walkthroughs = tapesForExperiment(id);
         return (
           <li key={id} className="instrument-specimen">
             <a href={`/lab/${id}/`}>
@@ -331,6 +333,22 @@ function InstrumentList({ ids }: { ids: readonly CatalogueId[] }) {
               )}
               <span className="instrument-question">{labName(id)}</span>
             </a>
+            {/* WHICH instruments have a walkthrough, not just how many (am-2rl9). The page's lead
+                already says "19 of them also have a recorded walkthrough" and links the index; a
+                reader scanning the catalogue still could not see which card that meant. A sibling
+                of the card link, never nested inside it, because an anchor inside an anchor is not
+                valid markup and the whole card is already one. */}
+            {walkthroughs.length > 0 ? (
+              <p className="instrument-walkthroughs">
+                {walkthroughs.length === 1 ? "Walkthrough: " : "Walkthroughs: "}
+                {walkthroughs.map((tape, index) => (
+                  <span key={tape.tapeId}>
+                    {index > 0 ? ", " : null}
+                    <a href={tapePath(tape.tapeId)}>{tape.title}</a>
+                  </span>
+                ))}
+              </p>
+            ) : null}
           </li>
         );
       })}
