@@ -9,8 +9,16 @@
  * ones arithmetic can close.
  *
  * THE METHOD IS TO REDO THE LINE, never to restate the answer. Each check takes the tape's own
- * `initialConditions` and computes the quantity from them; the recorded value is the thing being
- * tested, never an input to the computation.
+ * `initialConditions`, or the registered constant set the tape names, and computes the quantity
+ * from them; the recorded value is the thing being tested, never an input to the computation.
+ *
+ * A CORRECTION THIS FILE CARRIES. Its first version hard-coded R = 8.31 and said that
+ * einstein-1905-brownian-printed "is not registered in constants.ts, so the site cannot evaluate
+ * it". That was false, and I had it from the tape's own comment of 2026-09-16, which named the bead
+ * that would register the set and which I did not check had since closed. getConstantSet resolves
+ * it: era 1905, six entries, each sourced to Ann. Phys. (4) 17 (1905), p. 559, §5, and among them
+ * the very displacement the tape records. Reading the set makes the check stronger than the literal
+ * did and removes a hedge that was not true.
  *
  * WHAT IS NOT CHECKED HERE, said rather than left to be assumed. Of the 17 recorded numbers, this
  * file checks 6. Two are semantic-kind codes rather than quantities (coin-to-bell, perrins-count);
@@ -20,6 +28,7 @@
  * unverified, and a reader is looking at them.
  */
 import { describe, expect, test } from "bun:test";
+import { getConstantSet } from "../physics/reference/constants.ts";
 import { loadTeachingTapes, type TeachingTape } from "./teachingTapes.ts";
 
 const tapes = new Map(loadTeachingTapes().tapes.map((t) => [t.tapeId, t]));
@@ -77,7 +86,7 @@ describe("the numbers on a teaching tape's page, recomputed from its own inputs"
     expect(got.get("W (independent)")).toBeLessThan(got.get("W (locked)") ?? 0);
   });
 
-  test("Einstein's 0.8 micron: the two displacements are one diffusivity, and it names an Avogadro number", () => {
+  test("Einstein's 0.8 micron: the recorded numbers are the registered 1905 set's own", () => {
     const t = tape("einstein-0-8-micron");
     const got = expectations(t);
     const oneSecond = got.get("lambda_x at 1 s");
@@ -87,32 +96,38 @@ describe("the numbers on a teaching tape's page, recomputed from its own inputs"
     if (oneSecond === undefined || sixtySeconds === undefined) return;
 
     // CONSTANT-FREE: whatever D is, sqrt(2Dt) scales as sqrt(t). This catches a wrong second number
-    // without needing to agree about any constant, and it is the relation the paper rests on.
+    // without agreeing about any constant, and it is the relation the paper rests on.
     expect(sixtySeconds / oneSecond).toBeCloseTo(Math.sqrt(60), 6);
 
-    // What the first number MEANS under the tape's own inputs. D = lambda^2 / 2t, and Einstein's
-    // relation D = RT / (6 pi eta a N) then names an N. Reported as an implication rather than
-    // assumed: the constant set einstein-1905-brownian-printed is not registered in
-    // constants.ts, so the site cannot evaluate it, and this says what the recorded number is
-    // consistent with instead of pretending to read it from a set that is not there.
-    const T = num(t, "T");
-    const eta = num(t, "eta");
-    const a = num(t, "a");
-    const R = 8.31; // J/(mol K), the gas constant to the precision Einstein prints
-    const D = (oneSecond * 1e-6) ** 2 / 2; // metres squared per second, at t = 1 s
-    const impliedN = (R * T) / (6 * Math.PI * eta * a * D);
-    console.log(
-      `[tape numbers] einstein-0-8-micron implies D = ${D.toExponential(6)} m2/s and, with R = ${R}, ` +
-        `T = ${T}, eta = ${eta}, a = ${a}, an Avogadro number of ${impliedN.toExponential(4)} per mole`,
-    );
-    // Within a per cent of 6.0e23, which is the round figure this tape was authored against.
-    expect(impliedN / 6.0e23).toBeGreaterThan(0.99);
-    expect(impliedN / 6.0e23).toBeLessThan(1.01);
-    // AGENTS.md records the historical fixture as about 0.79 um at 1 s and 6.15 to 6.16 at 60 s.
-    expect(oneSecond).toBeGreaterThan(0.78);
-    expect(oneSecond).toBeLessThan(0.8);
-    expect(sixtySeconds).toBeGreaterThan(6.15);
-    expect(sixtySeconds).toBeLessThan(6.17);
+    // THE SET IS REGISTERED, so read it rather than hard-coding anything. An earlier version of
+    // this test carried R = 8.31 as a literal and said in its docblock that
+    // einstein-1905-brownian-printed "is not registered in constants.ts, so the site cannot
+    // evaluate it". That was false. I took it from the tape's own comment of 2026-09-16, which said
+    // the set was not yet registered and named the bead that would register it, and I did not check
+    // whether it still held. getConstantSet resolves it: era 1905, six entries, each sourced to
+    // Ann. Phys. (4) 17 (1905), p. 559, §5.
+    const set = getConstantSet("einstein-1905-brownian-printed");
+    const value = (quantityId: string): number => {
+      const entry = set.entries.find((e) => e.quantityId === quantityId);
+      if (!entry) throw new Error(`the 1905 set has no ${quantityId}`);
+      return entry.value;
+    };
+
+    // The tape starts from the set's own numbers, not from numbers that merely resemble them.
+    expect(t.initialConditions.T).toBeCloseTo(value("temperature"), 12);
+    expect(t.initialConditions.eta).toBeCloseTo(value("viscosity"), 15);
+    expect(t.initialConditions.a).toBeCloseTo(value("particleRadius"), 18);
+
+    // And the recorded displacement is the set's own printed figure, to the metre it states.
+    expect(oneSecond * 1e-6).toBeCloseTo(value("rmsDisplacement1d"), 15);
+
+    // Finally the relation itself, computed from the set: D = RT / (6 pi eta a N), lambda = sqrt(2Dt).
+    const D =
+      (value("molarGasConstant") * value("temperature")) /
+      (6 * Math.PI * value("viscosity") * value("particleRadius") * value("avogadroConstant"));
+    const lambda = Math.sqrt(2 * D * 1) * 1e6; // micrometres, at t = 1 s
+    expect(lambda).toBeCloseTo(oneSecond, 6);
+    expect(Math.sqrt(2 * D * 60) * 1e6).toBeCloseTo(sixtySeconds, 5);
   });
 
   test("the file says how much of the reader-facing set it leaves unchecked", () => {
