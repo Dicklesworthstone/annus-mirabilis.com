@@ -14,16 +14,19 @@
   "staticTreatment": {
     "reason": "A matter of what the paper attributes to Planck and what it proposes itself; §§ 1–2 and the introduction are the evidence."
   },
+  "instrumentIds": ["lq-02"],
   "anchors": ["s0-p3", "s1-p4", "s2", "s2-p1", "s2-p2"],
   "resultIds": ["lq-planck-constants"],
   "sources": ["A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 133 and 135–136"],
   "intervention": {
+    "instrumentId": "lq-02",
     "defaultsReviewed": {
-      "model": "No instrument, and the catalogue was checked for one on 2026-09-28 (dispatch 423). The correction turns on section 2 determining a molecular number from the long-wavelength limit of Planck's formula, and no laboratory in the catalogue performs that determination: LQ-02 is the classical divergence and LQ-03 the regimes of a measured spectrum. This is the radiation half of the molecular-number connection, whose Brownian half is BM-07, and it is the gap that would justify a new laboratory rather than a binding.",
-      "labels": "Not applicable: no instrument; this entry is a matter of what the paper says.",
-      "defaultControls": "Not applicable: no instrument; this entry is a matter of what the paper says.",
-      "feedback": "Not applicable: no instrument; this entry is a matter of what the paper says."
+      "model": "Described from the manifest: the classical mean-energy allocation over resonator modes, and, from the two constants of Planck's fitted formula in the classical limit, Avogadro's number (LQ-02, output avogadroFromPlanck, quantity avogadroNumberEstimate, computed by avogadroFromPlanckConstants in src/physics/reference/radiation/avogadro.ts).",
+      "labels": "Described from the manifest: the mean resonator energy and the energy up to a cutoff, and the Avogadro readout taken from the constants printed in section 2 and labelled apart from the modern defined value.",
+      "defaultControls": "Described from the manifest: default scenario lq-02-golden-1500k-cutoff-1e14, temperature 1500 K with an upper frequency limit of 1.0e14 Hz and a probe frequency of 1.0e13 Hz.",
+      "feedback": "Described from the manifest: the number section 2 determines, computed from Einstein's printed constants, so a reader sees that what that section gets from Planck's formula is a molecular number and not a quantum of light."
     },
+    "scenarioId": "lq-02-golden-1500k-cutoff-1e14",
     "reviewRecordId": "pending-review-misc-lq-planck-quanta"
   },
   "authorship": {
