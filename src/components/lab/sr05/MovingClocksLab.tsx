@@ -4,6 +4,7 @@ import { useId, useMemo, useSyncExternalStore } from "react";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
 import { labelRootAttributes } from "../../../experiments/labels/resultAttributes.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import {
   SR05_CAPTION,
@@ -12,6 +13,7 @@ import {
   type Sr05Parameters,
 } from "../../../experiments/sr05/definition.ts";
 import { createSr05Session, type PreparedSr05Example } from "../../../experiments/sr05/session.ts";
+import { SR05_TAPE } from "../../../experiments/sr05/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { readablePowers } from "../presentation.ts";
@@ -29,6 +31,11 @@ export type MovingClocksLabProps = Readonly<{
    * owns its own, as on /lab/sr-05/.
    */
   session?: ReturnType<typeof createSr05Session> | undefined;
+  /**
+   * Only the standalone route opts into URL state, as SR-01's does: an embedded instrument keeps the
+   * setup its page gave it rather than taking one from an address it does not own (dispatch 335).
+   */
+  restoreFromLocation?: boolean | undefined;
 }>;
 
 function numberOf(
@@ -71,7 +78,11 @@ const WORLDLINE_WORDS: Readonly<Record<string, string>> = {
   circle: "a circle at constant speed",
 };
 
-export function MovingClocksLab({ example, session: sharedSession }: MovingClocksLabProps) {
+export function MovingClocksLab({
+  example,
+  session: sharedSession,
+  restoreFromLocation = false,
+}: MovingClocksLabProps) {
   const instanceId = useId();
   const session = useMemo(
     () => sharedSession ?? createSr05Session(instanceId, example),
@@ -81,6 +92,18 @@ export function MovingClocksLab({ example, session: sharedSession }: MovingClock
     session.subscribe,
     session.getSnapshot,
     session.getServerSnapshot,
+  );
+
+  /**
+   * A shared ?tape= link restores through this laboratory's own session (dispatch 335). There is no
+   * form to put the settings into and none to keep in step: every reading below is drawn from the
+   * accepted snapshot, so a restored tape redraws the whole laboratory by itself.
+   */
+  const tapeLink = useLabTapeLink(
+    SR05_TAPE,
+    session,
+    session.acceptedParameters(),
+    restoreFromLocation,
   );
 
   const accepted = view.accepted;
@@ -136,6 +159,7 @@ export function MovingClocksLab({ example, session: sharedSession }: MovingClock
       <header className="lab-heading">
         <h2 id={`${instanceId}-title`}>Moving clocks</h2>
       </header>
+      <LabTapeLink link={tapeLink} />
       <div className="lab-status-row">
         <ExecutionChrome state={executionKind} view={view} />
       </div>

@@ -52,12 +52,93 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseYaml } from "../src/content/provenance/yaml.ts";
+import { BM06_DEFAULTS } from "../src/experiments/bm06/definition.ts";
+import { validateBm06Parameters } from "../src/experiments/bm06/parameters.ts";
+import { decodeBm06Settings, encodeBm06Settings } from "../src/experiments/bm06/permalink.ts";
 import { encodeTapePermalink } from "../src/experiments/permalink/codec.ts";
 import { MAX_PERMALINK_URL_LENGTH } from "../src/experiments/permalink/codecCore.ts";
 import { draftTapeForSettings } from "../src/experiments/permalink/draftTape.ts";
 import { requirementsOf, tapeForSettings } from "../src/experiments/permalink/sessionTape.ts";
+import { SR01_DEFAULTS } from "../src/experiments/sr01/definition.ts";
+import { validateSr01Parameters } from "../src/experiments/sr01/parameters.ts";
+import { decodeSr01Settings, encodeSr01Settings } from "../src/experiments/sr01/permalink.ts";
 import { loadPaperMargins } from "../src/reader/marginRecords.ts";
 import { DRAFT_BINDINGS, SESSION_BINDINGS, type TapeLinkKind } from "./generate-tape-links.ts";
+
+/**
+ * A LABORATORY THAT READS ITS OWN QUERY FORMAT ON MOUNT, rather than a `?tape=` permalink (dispatch 335).
+ *
+ * Four laboratories had no shared-link binding and each was blocking a link a reader clicks. Two of
+ * them turned out to honour a link already, in their own format and not the generic one: SR-01's
+ * ClockSyncLab calls `decodeSr01Settings(window.location.search)` and its standalone route passes
+ * `restoreFromLocation`, and BM-06's BrownianLab calls `decodeBm06Settings(window.location.search)`
+ * in its mount effect. So the honest link for those two is the one they read, and adding a `?tape=`
+ * binding for them would have meant new machinery beside a working mechanism.
+ *
+ * THE TWO PROMISES DIFFER, and `kind` records which. SR-01 applies the decoded settings to its session
+ * on arrival and says "Loaded the linked setup and recalculated the event ledger", so it is `session`.
+ * BM-06 fills its form and says "Shared settings are loaded. Choose Apply settings to calculate them",
+ * so it is `form`. Both laboratories validate before anything is minted: BM-06's own encoder throws on
+ * settings it would refuse, and this generator validates first in either case.
+ */
+export type QuerySettingsBinding = Readonly<{
+  experimentId: string;
+  defaults: Readonly<Record<string, unknown>>;
+  validate(input: unknown): Readonly<{ kind: string; data?: unknown }>;
+  encode(parameters: never): string;
+  /**
+   * The laboratory's own reader for that format. This generator does not need it; the guard test
+   * does, to follow a minted link back the way the instrument will, and it lives here so the pair
+   * cannot drift apart into two tables.
+   */
+  decode(search: string): Readonly<{ kind: string; parameters?: unknown }>;
+  kind: TapeLinkKind;
+}>;
+
+export const QUERY_BINDINGS: Readonly<Record<string, QuerySettingsBinding>> = Object.freeze({
+  "sr-01": Object.freeze({
+    experimentId: "sr-01",
+    defaults: SR01_DEFAULTS as unknown as Readonly<Record<string, unknown>>,
+    validate: validateSr01Parameters as QuerySettingsBinding["validate"],
+    encode: encodeSr01Settings as unknown as QuerySettingsBinding["encode"],
+    decode: decodeSr01Settings as QuerySettingsBinding["decode"],
+    kind: "session" as const,
+  }),
+  "bm-06": Object.freeze({
+    experimentId: "bm-06",
+    defaults: BM06_DEFAULTS as Readonly<Record<string, unknown>>,
+    validate: validateBm06Parameters as QuerySettingsBinding["validate"],
+    encode: encodeBm06Settings as unknown as QuerySettingsBinding["encode"],
+    decode: decodeBm06Settings as QuerySettingsBinding["decode"],
+    kind: "form" as const,
+  }),
+});
+
+/**
+ * A PRESET CANNOT CARRY A BOOLEAN, AND ONE LABORATORY REQUIRES ONE (dispatch 335).
+ *
+ * bm-06's manifest declares the FTCS grid switch as `enumerated: [0, 1]` and the preset
+ * bm-06-modern-one-second writes `gridEnabled: 0`, while `Bm06Parameters.gridEnabled` is a boolean and
+ * the laboratory refuses anything else: "The grid switch must be true or false." Writing `false` in the
+ * preset is not the repair, because `validateExperiment` keeps only number and string values in
+ * `parameterValues` and DROPS a boolean silently, so the key would vanish rather than fail. Measured:
+ * the validated preset then reports `gridEnabled: undefined`.
+ *
+ * So the 0 or 1 the manifest declares is read as the boolean the laboratory's own default declares, and
+ * only where that default IS a boolean. Every other value is passed through untouched and the
+ * laboratory refuses it, which is the point: this converts a spelling the content layer cannot write,
+ * it does not widen what an instrument accepts.
+ */
+export function settingsForLab(
+  defaults: Readonly<Record<string, unknown>>,
+  values: Readonly<Record<string, number | string | boolean>>,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(values))
+    out[key] =
+      typeof defaults[key] === "boolean" && (value === 0 || value === 1) ? value === 1 : value;
+  return out;
+}
 
 export type RegisteredPreset = Readonly<{
   presetId: string;
@@ -75,6 +156,8 @@ export type MisconceptionLink = Readonly<{
   settings: number;
   /** Which of the record's two fields named the preset, so a reader of this file can check it. */
   namedBy: "scenarioId" | "prose";
+  /** Which mechanism minted it: the generic ?tape= permalink, or the laboratory's own query format. */
+  via: "tape" | "lab-query";
 }>;
 
 /**
@@ -206,12 +289,61 @@ export function buildMisconceptionLinks(root: string = ROOT): MisconceptionLinks
       }
       const session = SESSION_BINDINGS[preset.experimentId];
       const draft = DRAFT_BINDINGS[preset.experimentId];
+      const query = !session && !draft ? QUERY_BINDINGS[preset.experimentId] : undefined;
+      if (query) {
+        // The laboratory reads its own query format on mount, so the link is minted in that format
+        // and not as a ?tape=, which this instrument would ignore. It still validates first.
+        const wanted = { ...query.defaults, ...settingsForLab(query.defaults, settings) };
+        const accepted = query.validate(wanted);
+        if (accepted.kind !== "accepted") {
+          notLinked[record.id] = {
+            experimentId: preset.experimentId,
+            presetId: preset.presetId,
+            cause: "refused",
+            reason: refusalSentence(preset.experimentId, accepted),
+          };
+          continue;
+        }
+        let encoded: string;
+        try {
+          encoded = query.encode(accepted.data as never);
+        } catch {
+          notLinked[record.id] = {
+            experimentId: preset.experimentId,
+            presetId: preset.presetId,
+            cause: "not-recordable",
+            reason: `${preset.experimentId.toUpperCase()} accepted ${preset.presetId} but its own settings link refused to carry them.`,
+          };
+          continue;
+        }
+        const queryHref = `/lab/${preset.experimentId}/${encoded}`;
+        if (queryHref.length > MAX_PERMALINK_URL_LENGTH) {
+          notLinked[record.id] = {
+            experimentId: preset.experimentId,
+            presetId: preset.presetId,
+            cause: "too-long",
+            reason: `The link for ${preset.presetId} is ${queryHref.length} characters, over the ${MAX_PERMALINK_URL_LENGTH} a shared link may carry.`,
+          };
+          continue;
+        }
+        links[record.id] = {
+          experimentId: preset.experimentId,
+          presetId: preset.presetId,
+          presetLabel: preset.label,
+          href: queryHref,
+          kind: query.kind,
+          settings: Object.keys(settings).length,
+          namedBy,
+          via: "lab-query",
+        };
+        continue;
+      }
       if (!session && !draft) {
         notLinked[record.id] = {
           experimentId: preset.experimentId,
           presetId: preset.presetId,
           cause: "no-binding",
-          reason: `${preset.experimentId.toUpperCase()} has no shared-link binding, so no link can carry settings to it and ${record.id} keeps the plain lab path.`,
+          reason: `${preset.experimentId.toUpperCase()} has neither a shared-link binding nor a settings link of its own, so nothing can carry settings to it and ${record.id} keeps the plain lab path.`,
         };
         continue;
       }
@@ -260,6 +392,7 @@ export function buildMisconceptionLinks(root: string = ROOT): MisconceptionLinks
         kind: session ? "session" : "form",
         settings: Object.keys(settings).length,
         namedBy,
+        via: "tape",
       };
     }
   return Object.freeze({ links: Object.freeze(links), notLinked: Object.freeze(notLinked) });

@@ -22,11 +22,13 @@
 import { describe, expect, test } from "bun:test";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
+import { Window } from "happy-dom";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import {
   buildMisconceptionLinks,
   presetNamedBy,
+  QUERY_BINDINGS,
   registeredPresets,
 } from "../../scripts/generate-misconception-links.ts";
 import { DRAFT_BINDINGS, SESSION_BINDINGS } from "../../scripts/generate-tape-links.ts";
@@ -100,10 +102,49 @@ describe("a misconception's link into its instrument", () => {
   test("every generated link is restored by the laboratory it addresses, at the preset's settings", () => {
     const failures: string[] = [];
     let restored = 0;
+    let byQuery = 0;
     for (const [id, link] of Object.entries(built.links)) {
       expect(link.href.length, `${id} is over the permalink bound`).toBeLessThanOrEqual(
         MAX_PERMALINK_URL_LENGTH,
       );
+      // A LABORATORY THAT READS ITS OWN FORMAT IS FOLLOWED THE WAY IT WILL READ IT (dispatch 335).
+      // SR-01 and BM-06 honour a settings link of their own and ignore a ?tape=, so decoding these
+      // with the tape codec would report a broken link for one that works, and asserting a ?tape=
+      // prefix for all would have refused the two links that are correct.
+      if (link.via === "lab-query") {
+        const binding = QUERY_BINDINGS[link.experimentId];
+        expect(
+          binding,
+          `${id} is minted as a lab query but ${link.experimentId} has no binding`,
+        ).toBeDefined();
+        const search = link.href.slice(link.href.indexOf("?"));
+        const decoded = binding?.decode(search) as
+          | Readonly<{ kind: string; parameters?: Record<string, unknown> }>
+          | undefined;
+        if (decoded?.kind !== "settings") {
+          failures.push(
+            `${id}: ${link.experimentId} does not read its own link (${decoded?.kind})`,
+          );
+          continue;
+        }
+        const preset = presets.get(link.presetId);
+        for (const [key, value] of Object.entries(preset?.parameterValues ?? {})) {
+          // The one spelling the content layer cannot write: a preset says 0 or 1 where the
+          // laboratory's default is a boolean, so the value that arrives is that boolean.
+          const wanted =
+            typeof binding?.defaults[key] === "boolean" && (value === 0 || value === 1)
+              ? String(value === 1)
+              : String(value);
+          const carried = String(decoded.parameters?.[key]);
+          if (carried !== wanted)
+            failures.push(
+              `${id}: ${key} is ${wanted} in ${link.presetId}, link carries ${carried}`,
+            );
+        }
+        byQuery += 1;
+        restored += 1;
+        continue;
+      }
       expect(link.href.startsWith(`/lab/${link.experimentId}/?tape=`)).toBe(true);
       const decoded = decodeTapePermalink(new URL(`https://annus-mirabilis.com${link.href}`));
       if (decoded.kind !== "success") {
@@ -137,23 +178,45 @@ describe("a misconception's link into its instrument", () => {
     }
     expect(failures).toEqual([]);
     expect(restored).toBe(Object.keys(built.links).length);
+    // Both arms must have run, or one of them is asserting nothing: 2 links are minted in a
+    // laboratory's own query format and the rest as ?tape= permalinks.
+    expect(byQuery).toBeGreaterThan(0);
+    expect(restored - byQuery).toBeGreaterThan(0);
   });
 
   test("the rendered callout carries the settings link, and a record with none keeps the plain path", () => {
-    // The reader-facing half, because a generated map nothing renders is not a fix. One page carries
-    // both halves: Brownian's callouts include misc-bm-velocity, which names bm-01-velocity-trap and
-    // whose laboratory has a binding, and misc-bm-radial-gaussian, which names bm-06-modern-one-second
-    // and whose laboratory has none, so the first must carry settings and the second must not pretend to.
-    const html = renderToStaticMarkup(
-      createElement(PaperMargins, { margins: loadPaperMargins("brownian-motion") }),
-    );
+    // The reader-facing half, because a generated map nothing renders is not a fix. Brownian's page
+    // carries both mechanisms: misc-bm-velocity reaches BM-01 through a ?tape= permalink, and
+    // misc-bm-radial-gaussian reaches BM-06 through the settings link BM-06 reads itself.
+    //
+    // THIS TEST NAMED BM-06 AS THE PLAIN-PATH CASE until dispatch 335 bound it, and it failed the
+    // moment that landed, which is the assertion doing its job. The negative control moved to light
+    // quanta rather than being dropped: misc-lq-ultraviolet-catastrophe names LQ-02 and no registered
+    // preset, so its callout must still carry the plain lab path and no invented query.
+    // The hrefs are read from the parsed attributes, not matched as substrings of the markup: a
+    // laboratory's own settings link carries several parameters, and React escapes the & between them
+    // to &amp; in the attribute, which is correct HTML and does not appear in the string being sought.
+    const hrefs = (paper: string): string[] => {
+      const { document } = new Window();
+      document.body.innerHTML = renderToStaticMarkup(
+        createElement(PaperMargins, { margins: loadPaperMargins(paper) }),
+      );
+      return [...document.querySelectorAll("a")].map((a) => a.getAttribute("href") ?? "");
+    };
+    const brownian = hrefs("brownian-motion");
     const velocity = built.links["misc-bm-velocity"];
     expect(velocity, "misc-bm-velocity is not linked, so this test proves nothing").toBeDefined();
-    expect(html).toContain(`href="${velocity?.href}"`);
-    expect(html).toContain("?tape=");
-    // The plain path for the one whose laboratory cannot carry settings, and no invented query.
-    expect(built.notLinked["misc-bm-radial-gaussian"]?.cause).toBe("no-binding");
-    expect(html).toContain('href="/lab/bm-06/"');
+    expect(velocity?.via).toBe("tape");
+    expect(brownian).toContain(velocity?.href);
+    const radial = built.links["misc-bm-radial-gaussian"];
+    expect(radial?.via, "BM-06 reads its own settings link, not a tape").toBe("lab-query");
+    expect(brownian).toContain(radial?.href);
+    // And neither callout is left on the bare path it used to carry.
+    expect(brownian).not.toContain("/lab/bm-01/");
+    expect(brownian).not.toContain("/lab/bm-06/");
+
+    expect(built.notLinked["misc-lq-ultraviolet-catastrophe"]?.cause).toBe("names-no-preset");
+    expect(hrefs("light-quanta")).toContain("/lab/lq-02/");
   });
 
   test("a preset id is read against the registry, so a truncated id cannot become a link", () => {

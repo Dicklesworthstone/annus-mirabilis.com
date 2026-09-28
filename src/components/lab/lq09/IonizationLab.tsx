@@ -20,6 +20,8 @@ import {
   einsteinPrintedIonizationChecks,
   type PreparedLq09Example,
 } from "../../../experiments/lq09/session.ts";
+import { LQ09_TAPE } from "../../../experiments/lq09/tape.ts";
+import { LabTapeLink, useLabTapeLink } from "../../../experiments/permalink/LabTapeLink.tsx";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { PublishedResult } from "../../../experiments/store/instanceStore.ts";
@@ -39,6 +41,11 @@ import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 export type IonizationLabProps = Readonly<{
   example?: PreparedLq09Example | undefined;
+  /**
+   * Only the standalone route opts into URL state, as SR-01's and SR-05's do: an embedded instrument
+   * keeps the setup its page gave it rather than taking one from an address it does not own.
+   */
+  restoreFromLocation?: boolean | undefined;
 }>;
 
 // The manifest's prompts (scripts/generate-predict-prompts.mjs), one stable array for the gate. They
@@ -82,9 +89,20 @@ function notDetermined(out: PublishedResult | undefined): string {
   return "Not determined";
 }
 
-export function IonizationLab({ example }: IonizationLabProps) {
+export function IonizationLab({ example, restoreFromLocation = false }: IonizationLabProps) {
   const session = useMemo(() => createLq09Session("lq09-interactive-session", example), [example]);
   const uid = useId();
+  /**
+   * A shared ?tape= link restores through this laboratory's own session (dispatch 335). No draft needs
+   * setting: every field reads `drafts[key] ?? shown(key)`, and `shown` comes from the accepted
+   * snapshot, so a restored tape appears in the fields with nothing else to keep in step.
+   */
+  const tapeLink = useLabTapeLink(
+    LQ09_TAPE,
+    session,
+    session.acceptedParameters(),
+    restoreFromLocation,
+  );
 
   const snapshot = useSyncExternalStore(
     session.subscribe,
@@ -212,6 +230,7 @@ export function IonizationLab({ example }: IonizationLabProps) {
         <p className="eyebrow">Gas ionization by light</p>
         <h2>Gas ionization bounds and counting model</h2>
       </header>
+      <LabTapeLink link={tapeLink} />
       <div className="lab-status-row">
         <ExecutionChrome
           state={executionKind}

@@ -34,7 +34,7 @@ export default function MovingClocksPage() {
         </p>
       </header>
 
-      <MovingClocksLab example={example} />
+      <MovingClocksLab example={example} restoreFromLocation />
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
         <ul>

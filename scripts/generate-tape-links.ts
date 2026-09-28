@@ -46,6 +46,7 @@ import { LQ05_TAPE } from "../src/experiments/lq05/tape.ts";
 import { LQ06_TAPE } from "../src/experiments/lq06/tape.ts";
 import { LQ07_TAPE } from "../src/experiments/lq07/tape.ts";
 import { LQ08_TAPE } from "../src/experiments/lq08/tape.ts";
+import { LQ09_TAPE } from "../src/experiments/lq09/tape.ts";
 import { ME01_TAPE } from "../src/experiments/me01/tape.ts";
 import { ME02_TAPE } from "../src/experiments/me02/tape.ts";
 import { ME03_TAPE } from "../src/experiments/me03/tape.ts";
@@ -64,6 +65,7 @@ import {
 import { SR02_TAPE } from "../src/experiments/sr02/tape.ts";
 import { SR03_DRAFT_TAPE } from "../src/experiments/sr03/draftTape.ts";
 import { SR04_TAPE } from "../src/experiments/sr04/tape.ts";
+import { SR05_TAPE } from "../src/experiments/sr05/tape.ts";
 import { SR06_TAPE } from "../src/experiments/sr06/tape.ts";
 import { SR07_TAPE } from "../src/experiments/sr07/tape.ts";
 import { SR08_TAPE } from "../src/experiments/sr08/tape.ts";
@@ -88,11 +90,13 @@ export const SESSION_BINDINGS: Readonly<Record<string, LabTapeBinding>> = Object
   "lq-06": LQ06_TAPE,
   "lq-07": LQ07_TAPE,
   "lq-08": LQ08_TAPE,
+  "lq-09": LQ09_TAPE,
   "me-01": ME01_TAPE,
   "me-02": ME02_TAPE,
   "me-03": ME03_TAPE,
   "sr-02": SR02_TAPE,
   "sr-04": SR04_TAPE,
+  "sr-05": SR05_TAPE,
   "sr-06": SR06_TAPE,
   "sr-07": SR07_TAPE,
   "sr-08": SR08_TAPE,

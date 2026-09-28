@@ -28,7 +28,7 @@ export default function IonizationPage() {
         </p>
       </header>
 
-      <IonizationComparison example={example} />
+      <IonizationComparison example={example} restoreFromLocation />
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
         <ul>
