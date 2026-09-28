@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { strictParse } from "../content/schemas/strictParse.ts";
 import {
   type DeclaredDomain,
   declaredDomains,
@@ -89,6 +90,25 @@ function justOutside(d: DeclaredDomain): number[] {
   return out;
 }
 
+/**
+ * The ids whose manifest declares an ENUMERATED domain rather than a range.
+ *
+ * Without this the count below cannot tell a control that declares nothing from one that declares
+ * a set a min and a max cannot express, and the single number was misread as unguarded settings
+ * three times running. bm-01.d takes one, two or three coordinates and bm-06's interval endpoints
+ * declare that any position is exact; none of those is a debt.
+ */
+function enumeratedIds(lab: string): ReadonlySet<string> {
+  const file = resolve(root, "content/experiments", `${lab}.yaml`);
+  const manifest = strictParse(readFileSync(file, "utf8"), "yaml") as {
+    parameters?: { id?: unknown; modelDomain?: Record<string, unknown> }[];
+  };
+  const ids = new Set<string>();
+  for (const p of manifest.parameters ?? [])
+    if (typeof p.id === "string" && p.modelDomain && "enumerated" in p.modelDomain) ids.add(p.id);
+  return ids;
+}
+
 async function labBindings(lab: string) {
   const dir = resolve(root, "src/experiments", lab.replace("-", ""));
   let defaults: Record<string, unknown> | undefined;
@@ -123,6 +143,7 @@ async function sweep() {
   let labsReached = 0;
   let probes = 0;
   let numericControls = 0;
+  let enumeratedControls = 0;
   for (const lab of labs) {
     const domains = Object.entries(declaredDomains(lab));
     if (domains.length === 0) continue;
@@ -132,7 +153,12 @@ async function sweep() {
     // Every setting a reader can type a number into, whether or not a domain is declared for it.
     // Without this the sweep's denominator is the population that already declares a domain, and a
     // control with none is not reported as unchecked - it is not reported at all.
-    for (const v of Object.values(bound.defaults)) if (typeof v === "number") numericControls++;
+    const enumerated = enumeratedIds(lab);
+    for (const [id, v] of Object.entries(bound.defaults)) {
+      if (typeof v !== "number") continue;
+      numericControls++;
+      if (!declaredDomains(lab)[id] && enumerated.has(id)) enumeratedControls++;
+    }
     for (const [id, d] of domains) {
       if (typeof bound.defaults[id] !== "number") continue;
       controls++;
@@ -162,7 +188,15 @@ async function sweep() {
       if (informative) informativeKeys.add(key);
     }
   }
-  return { findings, controls, labsReached, probes, informativeKeys, numericControls };
+  return {
+    findings,
+    controls,
+    labsReached,
+    probes,
+    informativeKeys,
+    numericControls,
+    enumeratedControls,
+  };
 }
 
 describe("a refusal says what is wrong with the setting, not with the typing", async () => {
@@ -175,9 +209,17 @@ describe("a refusal says what is wrong with the setting, not with the typing", a
     );
     // The second number is the one that is easy not to print. A reader can type into all of these;
     // this sweep can only speak for the ones whose manifest declares a range.
+    const outside = s.numericControls - s.controls;
     console.log(
       `[domain sentences] ${s.controls} of ${s.numericControls} numeric controls declare a domain; ` +
-        `${s.numericControls - s.controls} are outside what this sweep can check`,
+        `${outside} are outside what this sweep can check`,
+    );
+    // And the third splits that remainder, because one number for both kinds was read as "N
+    // unguarded settings" in three dispatches running. A control declaring an enumerated domain has
+    // said what it takes; only the last group is a debt.
+    console.log(
+      `[domain sentences] of those ${outside}: ${s.enumeratedControls} declare an enumerated ` +
+        `domain, ${outside - s.enumeratedControls} declare nothing at all`,
     );
     // Floors, not a census. A sweep that reached nothing would pass every assertion below by
     // examining nothing, and zero reads exactly like a pass.
@@ -203,6 +245,10 @@ describe("a refusal says what is wrong with the setting, not with the typing", a
     // sr-12.sphereCharge, sr-12.loopCurrent, sr-12.pulseAmplitude: a constant that cancels, a
     // source strength, a source charge, a loop current and a pulse amplitude).
     expect(s.numericControls - s.controls).toBeLessThanOrEqual(15);
+    // The debt proper, ratcheted separately: controls whose manifest says nothing about what they
+    // take. 11 when first split on 2026-09-28, 10 once bm-01.axis was declared. The five kinds are
+    // named above; this is the number to drive down, and the one above cannot fall below it.
+    expect(s.numericControls - s.controls - s.enumeratedControls).toBeLessThanOrEqual(10);
   });
 
   test("no control answers an out-of-range number with a sentence about the reader's typing", () => {
