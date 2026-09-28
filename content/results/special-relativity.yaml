@@ -54,7 +54,7 @@ cards:
       - instrument: sr-02
         question: "Now show the resolution: how does one description, depending only on the relative motion, cover both cases?"
         preset: sr-02-apparatus
-    usedLater: []
+    usedLater: [relativity-premises]
     meanings:
       argumentStatus: "Two presuppositions, from which the paper derives the rest"
       modelStatus: "The theory's starting points, not results of it"
