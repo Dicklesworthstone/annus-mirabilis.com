@@ -5,9 +5,11 @@ sourceRefs:
   - paper: brownian-motion
     id: s3
 argumentIds:
-  - arg-bm-inference
+  # arg-bm-inference and arg-bm-diffusion-equation are withdrawn. BM-04 is the drift-diffusion
+  # balance on s3, and s3 binds all seven of its paragraphs to arg-bm-diffusivity alone. Its kernels
+  # hold no estimator and no probability density, so the two withdrawn references charged it with
+  # displacement1d and observationInterval, which belong to the inference laboratories (am-1nnj).
   - arg-bm-diffusivity
-  - arg-bm-diffusion-equation
 schemaVersion: 1
 parameters:
   - id: F
@@ -354,6 +356,11 @@ owner:
     - kernelFunction: driftDiffusionFrames1d
       identifier: "u"
       quantityId: driftVelocity
+    # The diffusion coefficient equilibriumBalance computes from the mobility and the thermal energy,
+    # mu * kT. arg-bm-diffusivity's equations make it live and nothing bound it (am-1nnj).
+    - kernelFunction: equilibriumBalance
+      identifier: "mobilityD"
+      quantityId: diffusionCoefficient
   traceScenarioId: bm-04-golden
   traceRows:
     - label: "Stokes mobility"

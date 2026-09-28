@@ -457,6 +457,11 @@ owner:
     - kernelFunction: estimateIncrements
       identifier: "observationInterval"
       quantityId: observationInterval
+    # The displacements themselves. eq-model-bm-diffusivity-from-data reads "D is the mean of x
+    # squared over two t", and estimateIncrements holds those x in `increments` (am-1nnj).
+    - kernelFunction: estimateIncrements
+      identifier: "increments"
+      quantityId: displacement1d
   traceScenarioId: bm-07-inversion-golden
   traceRows:
     - label: "Golden inversion"

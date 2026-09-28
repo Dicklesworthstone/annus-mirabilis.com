@@ -12,7 +12,13 @@ sourceRefs:
     id: s2
 # The reading face explains sections 4 and 5 only; the osmotic argument of sections 1 and 2 has no
 # argument record yet, so none is cited rather than a neighbouring one.
-argumentIds: []
+argumentIds:
+  # BM-02 asks whether suspended particles press on a partition as dissolved molecules do. Its own
+  # sourceRefs are s1 and s2, which bind to exactly these two and to nothing else: s1's three
+  # paragraphs to arg-bm-osmotic-suspended, "Should small bodies suspended in a liquid press on a
+  # wall that holds them back?", and s2's nine to arg-bm-kinetic-justification (am-1nnj).
+  - arg-bm-osmotic-suspended
+  - arg-bm-kinetic-justification
 schemaVersion: 1
 parameters:
   - id: Np

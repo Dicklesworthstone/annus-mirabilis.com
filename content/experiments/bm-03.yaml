@@ -5,9 +5,14 @@ sourceRefs:
   - paper: brownian-motion
     id: s2
 argumentIds:
-  - arg-bm-diffusivity
-  - arg-bm-diffusion-equation
-  - arg-bm-observable
+  # These read arg-bm-diffusivity, arg-bm-diffusion-equation and arg-bm-observable, which are three
+  # other laboratories' arguments: BM-03 is the configuration integral on s2, its question is "how
+  # does counting where independent particles can be produce the pressure law without solving any
+  # motion", and arg-bm-kinetic-justification asks that in the paper's words. s2 binds all nine of
+  # its paragraphs to it and to nothing else, and BM-03's kernels and its seven identifier bindings
+  # are configuration and osmotic quantities with no diffusion quantity among them. The three it
+  # named charged it with seven live terms it does not compute (am-1nnj).
+  - arg-bm-kinetic-justification
 schemaVersion: 1
 parameters:
   - id: Np

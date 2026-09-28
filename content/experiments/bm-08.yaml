@@ -404,6 +404,11 @@ owner:
     - kernelFunction: cameraMoments
       identifier: "drift"
       quantityId: driftVelocity
+    # The same displacements under the camera model: covarianceEstimator takes them as `increments`,
+    # which is where eq-model-bm-diffusivity-from-data's x lives for this instrument (am-1nnj).
+    - kernelFunction: covarianceEstimator
+      identifier: "increments"
+      quantityId: displacement1d
 views:
   - id: camera-path
     kind: svg
