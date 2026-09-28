@@ -245,6 +245,58 @@ answers.
 
 ---
 
+## A Check Inherits The Silence Of Whatever It Reads
+
+The rule above is about a scanner reading text where it meant to read code. This is its general
+form, and it cost three defects in one night, all of them green: **a check is only as honest as
+the layer it reads, and when that layer drops something quietly the check cannot see what is
+missing.**
+
+- A test asserted that every walkthrough's link points at a paper section that exists. It read the
+  LOADER'S OUTPUT, and the loader silently drops a reference it cannot resolve, so the check only
+  ever saw references that already resolve. Planting `id: s99` in an instrument manifest left it
+  green at 24 links instead of 25. Rewritten against the manifests on disk, the same plant turned
+  it red and the first real run found `sr-01` declaring `paper: relativity` where the slug is
+  `special-relativity`, a reference that had resolved to nothing wherever it was read.
+- The cross-commit revision check demanded a `lineage` array of every record past revision 1, and
+  its YAML reader was two regexes for `id` and `revision`. `record.lineage` was therefore ALWAYS
+  undefined, so the check asked 64 records for a field its own reader could not deliver. No
+  lineage anyone wrote would have satisfied it.
+- A test asserted that the injected no-script stylesheet carried `content:` rules naming each
+  reading. It passed every run while guarding a mechanism the bead's own acceptance criterion had
+  rejected in writing, because generated content is not text a screen reader can be relied on to
+  announce. Green, faithful, and to the wrong design.
+
+The three share a shape. Nothing errored, nothing was slow, and no count looked wrong; the check
+simply never reached the thing it was written for. Practically:
+
+- **A check on inputs reads the inputs.** Not the records a loader handed back, not the objects a
+  resolver accepted, not a view that has already filtered. Where a layer between you and the data
+  can drop a case, that layer is part of what you are testing, not part of your instrument.
+- **When a bead says HOW something must be done and not only THAT it must, read the test against
+  that clause before trusting the green.** A test written against a rejected design passes
+  forever, and being green is what stops anyone rereading the criterion beside it.
+- **When the mechanism changes, keep the old one as an explicit negative in the same test**, so
+  the rejected design cannot creep back in under a passing suite.
+- **A plant is the only cheap way to tell these apart.** Three plants in one night changed what
+  was believed: one stayed green because the fixture could not reach the defect, one stayed green
+  because the check read the wrong population, and one went red for a parse error rather than the
+  arithmetic it was meant to catch. A green plant is a finding about the plant until you have
+  shown the plant reaches the predicate.
+
+### A baseline is the record of a debt, not a budget to draw on
+
+A ratchet refused a commit because `src/experiments/tapes/schema.ts` went from its baselined 66
+bare throw sites to 67. The 67th was a validator added in passing, useful but not required by the
+change. Raising the baseline would have taken ten seconds.
+
+Do not. Every throw in that file is the same typed error with a message-first signature, which is
+exactly the debt the 66 describes; a 67th of the same kind adds to it, however well-intentioned.
+Withdraw the addition, or justify it to the owner as its own decision. And when a debt is paid
+down, lower the ceiling with it: a baseline that only ever rises is a budget.
+
+---
+
 ## Branch Policy
 
 - The primary branch is `main`.
