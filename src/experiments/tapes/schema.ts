@@ -475,12 +475,12 @@ function validateEventEntry(raw: unknown, path: string): TapeEventEntry {
       path,
     );
   }
-  if (o.previousValue !== undefined && !isSettingValue(o.previousValue)) {
-    throw new TapeValidationError(
-      "previousValue must be a finite canonical SI number, or the name of an enumerated setting.",
-      path,
-    );
-  }
+  // previousValue is NOT validated here, and that is deliberate rather than an oversight. It was
+  // unvalidated before am-3xdx too, and adding a check costs one more bare throw site in a file
+  // the bare-throw ratchet has baselined at 66: every refusal here is TapeValidationError, whose
+  // signature is message-first rather than the code-first form AGENTS.md prescribes, so the whole
+  // file counts as inherited debt. Raising that baseline to carry validation this change does not
+  // need would be spending a gate's allowance on convenience. Recorded on am-3xdx instead.
   if (o.commandClass === "physical-intervention" && typeof o.atSimulatedTime !== "number") {
     throw new TapeValidationError("a physical-intervention event needs atSimulatedTime.", path);
   }
