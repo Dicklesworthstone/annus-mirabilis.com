@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { loadTeachingTapes } from "../../../content/teachingTapes.ts";
 import { commandClassInWords } from "../../../experiments/commands/types.ts";
+import { labName } from "../../../reader/actions/labNames.ts";
 import "../tapes.css";
 
 /**
@@ -51,11 +52,14 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
   const lab = `/lab/${tape.experimentId}/`;
   return (
     <main className="tape-page">
-      <p className="eyebrow">A teaching tape for {tape.experimentId}</p>
+      <p className="eyebrow">
+        A teaching tape for {labName(tape.experimentId)}{" "}
+        <span className="tape-raw-id">{tape.experimentId}</span>
+      </p>
       <h1>{tape.title}</h1>
       {tape.description ? <p className="tape-description">{tape.description}</p> : null}
       <p className="tape-to-lab">
-        <a href={lab}>Open {tape.experimentId} and follow it</a>
+        <a href={lab}>Open {labName(tape.experimentId)} and follow it</a>
       </p>
 
       {conditions.length > 0 ? (
@@ -80,7 +84,7 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
                   <th scope="row">
                     {tape.conditionNames[name]?.label ?? name}
                     {tape.conditionNames[name] ? (
-                      <span className="tape-param-id"> ({name})</span>
+                      <span className="tape-raw-id"> ({name})</span>
                     ) : null}
                   </th>
                   <td>{String(value)}</td>
@@ -101,7 +105,7 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
                   <>
                     Set <b>{step.parameterName?.label ?? step.parameterId}</b>
                     {step.parameterName ? (
-                      <span className="tape-param-id"> ({step.parameterId})</span>
+                      <span className="tape-raw-id"> ({step.parameterId})</span>
                     ) : null}
                     {step.value === undefined ? null : <> to {step.value}</>}
                   </>
@@ -150,8 +154,8 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
 
       <p className="tape-honesty">
         These are the values the tape&apos;s author recorded, not a result this page computed.
-        Nothing here runs the instrument. Set them yourself in <a href={lab}>{tape.experimentId}</a>{" "}
-        and compare what it gives you.
+        Nothing here runs the instrument. Set them yourself in{" "}
+        <a href={lab}>{labName(tape.experimentId)}</a> and compare what it gives you.
       </p>
       <p className="tape-to-lab">
         <a href="/tapes/">Every teaching tape</a>

@@ -1,4 +1,5 @@
 import { loadTeachingTapes } from "../../content/teachingTapes.ts";
+import { labName } from "../../reader/actions/labNames.ts";
 import "./tapes.css";
 
 /**
@@ -43,8 +44,11 @@ export default function Page() {
       </p>
       {experiments.map((experimentId) => (
         <section key={experimentId} aria-labelledby={`tapes-${experimentId}`}>
+          {/* The instrument's name, then its id: a reader browsing walkthroughs should not have
+              to know that bm-01 is the tracer ensemble (am-2rl9). */}
           <h2 id={`tapes-${experimentId}`}>
-            <a href={`/lab/${experimentId}/`}>{experimentId}</a>
+            <a href={`/lab/${experimentId}/`}>{labName(experimentId)}</a>{" "}
+            <span className="tape-raw-id">{experimentId}</span>
           </h2>
           <ul className="tape-list">
             {(byExperiment.get(experimentId) ?? []).map((tape) => (

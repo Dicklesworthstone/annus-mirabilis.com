@@ -94,10 +94,12 @@
   font-size: var(--type-small);
 }
 
-/* The parameter's own id beside the name the manifest gives it. A tape addresses a parameter by id
-   and the reader needs the word, so the page leads with the word and keeps the id, quietly, for
-   anyone matching this page against the laboratory's controls. */
-.tape-param-id {
+/* A raw id kept beside the name it stands for: a parameter's id beside the manifest's label, an
+   instrument's id beside its name. A tape addresses both by id and a reader needs the word, so the
+   page leads with the word and keeps the id, quietly, for anyone matching this page against the
+   laboratory's own controls. Named tape-raw-id rather than tape-param-id, which it was called for
+   an hour and which would have lied the moment it dressed an instrument. */
+.tape-raw-id {
   font-family: var(--font-mono);
   font-size: var(--type-small);
   color: var(--ink-muted);
