@@ -5,7 +5,7 @@ sourceRefs:
   - paper: special-relativity
     id: s0
 argumentIds:
-  - arg-sr-opening-asymmetry
+  - arg-sr-magnet-conductor
 schemaVersion: 1
 parameters:
   - id: speed

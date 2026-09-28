@@ -6,12 +6,14 @@ sourceRefs:
   - paper: light-quanta
     id: s5
 argumentIds:
-  - arg-lq-boltzmann-principle
+  - arg-lq-statistical-probability
   # arg-lq-independent-points named no record. LQ-05 asks how counting independent
   # possibilities gives an entropy going like n ln V, and arg-lq-independent-configurations asks
   # why the probability is f to the power n rather than f (am-3a8u).
   - arg-lq-independent-configurations
-  - arg-lq-entropy-volume
+  # arg-lq-entropy-volume named no record and asked for nothing further: s5 binds its nine units to
+  # arg-lq-independent-configurations and arg-lq-statistical-probability, and the volume law IS what
+  # "why the probability is f to the power n" concludes. One reference, not two (am-3a8u).
 schemaVersion: 1
 parameters:
   - id: n

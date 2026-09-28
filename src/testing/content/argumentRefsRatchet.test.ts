@@ -71,7 +71,11 @@ describe("an instrument's declared argument exists", () => {
       `[argument refs] ${records.size} argument records; ${total} references from ${declared.size} manifests`,
     );
     expect(records.size).toBeGreaterThan(40);
-    expect(total).toBeGreaterThan(50);
+    // 61 references when this was written, 51 once the dangling ones were resolved: several
+    // instruments named two or three ids for the one argument their section binds, so resolving
+    // them consolidated rather than repointed. The floor guards emptiness, and it sits well below
+    // the live count so the next honest consolidation does not go red for the wrong reason.
+    expect(total).toBeGreaterThan(40);
   });
 
   test("no manifest gains a reference to an argument that does not exist", () => {
@@ -101,11 +105,12 @@ describe("an instrument's declared argument exists", () => {
     console.log(
       `[argument refs] ${carried} references in ${Object.keys(allowed).length} instruments still name no record (am-3a8u)`,
     );
-    // 29 when this ratchet was written on 2026-09-28, 24 after the five references whose intent
-    // the records settle were resolved the same day. A ceiling rather than an equality, so paying
-    // the debt stays green; lowered with the debt, so it cannot creep back. The "no new
-    // reference" test above catches additions to the manifests; this one catches additions to
-    // the baseline itself.
-    expect(carried).toBeLessThanOrEqual(24);
+    // 29 when this ratchet was written on 2026-09-28, then 24, and 0 once the remaining 24 were
+    // resolved against the argument each instrument's own source section binds. A ceiling rather
+    // than an equality, so paying the debt stays green; lowered with the debt, so it cannot creep
+    // back. At zero the "no new reference" test above is a flat assertion, which is what this
+    // ratchet was built to become. The "no new reference" test catches additions to the
+    // manifests; this one catches additions to the baseline itself.
+    expect(carried).toBeLessThanOrEqual(0);
   });
 });

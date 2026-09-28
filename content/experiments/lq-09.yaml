@@ -11,7 +11,9 @@ argumentIds:
   # conservation say about gas ionization?", which is LQ-09's own question. One reference, not
   # two (am-3a8u).
   - arg-lq-ionization-and-counts
-  - arg-lq-threshold-frequency
+  # arg-lq-threshold-frequency named no record. LQ-09's s9 binds all four of its units to
+  # arg-lq-ionization-and-counts, whose question is LQ-09's own, and the frequency threshold is the
+  # conclusion that argument reaches rather than a second argument (am-3a8u).
 schemaVersion: 1
 parameters:
   - id: frequency

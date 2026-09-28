@@ -59,7 +59,6 @@ sourceRefs:
     id: s5
 argumentIds:
   - arg-bm-independent-steps
-  - arg-bm-variance-of-sum
   - arg-bm-gaussian
   - arg-bm-diffusion-equation
 schemaVersion: 1

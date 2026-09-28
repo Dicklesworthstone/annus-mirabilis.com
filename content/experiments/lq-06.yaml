@@ -6,9 +6,7 @@ sourceRefs:
   - paper: light-quanta
     id: s6
 argumentIds:
-  - arg-lq-the-move
-  - arg-lq-coefficient-match
-  - arg-lq-mean-energy
+  - arg-lq-entropy-correspondence
 schemaVersion: 1
 parameters:
   - id: radiationEnergy

@@ -7,8 +7,8 @@ sourceRefs:
   - paper: special-relativity
     id: s4
 argumentIds:
-  - arg-sr-relativity-of-simultaneity
-  - arg-sr-physical-meaning-rods-spheres
+  - arg-sr-rod-events
+  - arg-sr-clock-and-length
 schemaVersion: 1
 parameters:
   - id: rodRestFrame

@@ -5,7 +5,7 @@ sourceRefs:
   - paper: special-relativity
     id: s6
 argumentIds:
-  - arg-sr-field-transform
+  - arg-sr-field-components
 schemaVersion: 1
 parameters:
   - id: boost

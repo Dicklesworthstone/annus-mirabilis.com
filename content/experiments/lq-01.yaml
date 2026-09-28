@@ -5,9 +5,7 @@ sourceRefs:
   - paper: light-quanta
     id: s0
 argumentIds:
-  - arg-lq-wave-success
-  - arg-lq-time-averages
-  - arg-lq-energy-spreading
+  - arg-lq-wave-and-transfer
 schemaVersion: 1
 parameters:
   - id: A1

@@ -5,7 +5,8 @@ sourceRefs:
   - paper: special-relativity
     id: s10
 argumentIds:
-  - arg-sr-electron-dynamics
+  - arg-sr-electron-work
+  - arg-sr-electron-conventions
 schemaVersion: 1
 parameters:
   - id: electricFieldX

@@ -10,9 +10,14 @@ argumentIds:
   # electrons and what changes their number; arg-lq-photoelectric-energy asks what changes when
   # frequency rises and what changes when power rises (am-3a8u).
   - arg-lq-photoelectric-energy
-  - arg-lq-stopping-potential
-  - arg-lq-intensity-rate
-  - arg-lq-threshold-frequency
+  # arg-lq-stopping-potential, arg-lq-intensity-rate and arg-lq-threshold-frequency named no
+  # records. LQ-08's own s8 binds its fifteen units to arg-lq-photoelectric-energy (9),
+  # arg-lq-stopping-and-losses (6) and arg-lq-photoelectric-limits (1), which are the three this
+  # instrument interrogates: the stopping potential is "why retarding an electron does not make its
+  # charge positive", the threshold is where Einstein expects the regularities to stop holding, and
+  # the intensity-rate half is what arg-lq-photoelectric-energy already asks (am-3a8u).
+  - arg-lq-stopping-and-losses
+  - arg-lq-photoelectric-limits
 schemaVersion: 1
 parameters:
   - id: incidentPower

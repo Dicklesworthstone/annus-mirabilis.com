@@ -8,7 +8,7 @@ sourceRefs:
   - paper: special-relativity
     id: s1
 argumentIds:
-  - arg-sr-clock-sync
+  - arg-sr-synchronization
 schemaVersion: 1
 parameters:
   - id: stationSeparationLs

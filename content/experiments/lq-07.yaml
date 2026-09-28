@@ -6,9 +6,7 @@ sourceRefs:
   - paper: light-quanta
     id: s7
 argumentIds:
-  - arg-lq-stokes-rule
   - arg-lq-fluorescence-budget
-  - arg-lq-weak-illumination
 schemaVersion: 1
 parameters:
   - id: nu1

@@ -59,8 +59,13 @@ sourceRefs:
 argumentIds:
   - arg-bm-gaussian
   - arg-bm-diffusion-equation
-  - arg-bm-displacement
-  - arg-bm-diffusion
+  # arg-bm-displacement and arg-bm-diffusion named no records. BM-06 asks where a diffusing tracer
+  # is likely to be after a time t, which arg-bm-gaussian and arg-bm-diffusion-equation above
+  # already state. Its s4 also binds arg-bm-observable, "What can we measure when left and right
+  # cancel?", and wiring BM-06 to it charged this instrument with modelApparentSpeed, a quantity
+  # BM-08 computes and BM-06's kernels do not bind: verify-content reported it as live-term-unbound.
+  # The two references are dropped rather than repointed, because a reference is a claim about what
+  # the instrument demonstrates and a wrong one is worse than none (am-3a8u).
 schemaVersion: 1
 parameters:
   - id: T
