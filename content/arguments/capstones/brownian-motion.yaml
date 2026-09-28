@@ -1,0 +1,127 @@
+# The brownian-motion capstone (am-1nnj follow-on, dispatch 355), served at /capstones/brownian-motion/.
+#
+# The paper's move is that two arguments of different kinds arrive at one coefficient: a
+# thermodynamic one about the pressure suspended bodies exert on a wall, and a statistical one about
+# steps that do not know about each other. The capstone is built around that meeting point and
+# around the second thing the paper insists on, that what a microscope can measure is a spread and
+# not a speed.
+#
+# Two traps shape the record. No number is typed into it: Einstein's own worked figure and his value
+# for the number in a gram-molecule come from the instruments, not from this file. And no claim here
+# says the paper measured anything. It states what the molecular-kinetic assumptions imply and asks
+# for the observation, which the closing paragraph is explicit about.
+id: capstone-brownian-motion
+paper: brownian-motion
+title: "Rebuild the argument for the spread"
+question: "Why is the thing to measure a spread rather than a speed, and what makes an argument about pressure on a wall and an argument about independent steps arrive at the same coefficient?"
+
+claims:
+  - id: c1
+    text: "On the molecular-kinetic view a dissolved molecule differs from a suspended body only in size, so suspended bodies in slow irregular motion should press on a wall that holds them back exactly as dissolved molecules do. Classical thermodynamics says they should not."
+    anchor: s1-p3
+    logicalRole: heuristic-inference
+    buildsOn: []
+    assumptionIds: [a1]
+  - id: c2
+    text: "Read the equilibrium as two opposed processes rather than as a state: the particles drift under the force acting on them, and diffusion carries them back down their own concentration gradient."
+    anchor: s3-p5
+    logicalRole: derivation
+    buildsOn: [c1]
+    assumptionIds: [a2]
+  - id: c3
+    text: "Setting the two rates equal gives the diffusion coefficient in terms of the gas constant, the absolute temperature, the number of molecules in a gram-molecule, the viscosity of the liquid and the radius of a particle, and of nothing else."
+    anchor: s3-p8
+    logicalRole: derivation
+    buildsOn: [c2]
+    assumptionIds: [a2, a3]
+  - id: c4
+    text: "Each particle is taken to move independently of all the others, and one particle's motions in different time intervals count as independent too, as long as those intervals are not taken too small."
+    anchor: s4-p2
+    logicalRole: assumption
+    buildsOn: []
+    assumptionIds: [a4]
+  - id: c5
+    text: "Writing the number of particles at a later time through the number at the earlier one, and expanding in the small interval and the small displacement, gives the differential equation of diffusion, whose coefficient is the same one the first argument reached."
+    anchor: eq-s4-1
+    logicalRole: derivation
+    buildsOn: [c4]
+    assumptionIds: [a4, a5]
+  - id: c6
+    text: "The displacements in a given time are then distributed like random errors, and the root mean square of the displacement grows as the square root of the time rather than in proportion to it. A velocity read off two positions therefore depends on how often you look."
+    anchor: s4-p12
+    logicalRole: derivation
+    buildsOn: [c5]
+    assumptionIds: [a4]
+  - id: c7
+    text: "Eliminating the coefficient between the two arguments leaves the typical displacement in quantities a laboratory can set and measure. Turned around, the same relation determines the number of molecules in a gram-molecule from observed displacements."
+    anchor: s5-p1
+    logicalRole: generalization
+    buildsOn: [c3, c6]
+    assumptionIds: [a3]
+
+# One order consistent with the chain, which the paper prints: the thermodynamic argument, then the
+# statistical one, then the point where they meet.
+paperOrder: [c1, c2, c3, c4, c5, c6, c7]
+# Where the worksheet begins, and it is a plausible wrong reading rather than a shuffle: it starts
+# from the diffusion equation as though the paper derived that first, puts the independence
+# assumption after the equation it licenses, and leaves the osmotic argument looking like a separate
+# topic bolted on afterwards.
+startOrder: [c5, c6, c4, c1, c2, c3, c7]
+
+assumptions:
+  - id: a1
+    statement: "The molecular-kinetic theory of heat is adopted, on which a suspended body and a dissolved molecule differ only in size. The paper is explicit that classical thermodynamics denies the conclusion drawn from it."
+    kind: premise
+    anchor: s1-p3
+  - id: a2
+    statement: "The suspension is in equilibrium, so its free energy does not change under any small virtual displacement, and the force acting on a particle depends on where it is and not on when."
+    kind: premise
+    anchor: s3-p2
+  - id: a3
+    statement: "The particles are spheres, large against the molecules of the liquid and far enough apart to ignore each other, so the resistance to their motion is the drag on a sphere moving slowly through a continuous liquid."
+    kind: idealization
+    anchor: s3-p6
+  - id: a4
+    statement: "Particles move independently of one another, and one particle's motions in separate intervals are independent of each other."
+    kind: premise
+    anchor: s4-p2
+  - id: a5
+    statement: "The interval is chosen small compared with the times an observer can resolve, yet long enough that what a particle does in one interval tells you nothing about what it does in the next."
+    kind: stipulation
+    anchor: s4-p3
+
+equations:
+  - equationId: eq-model-bm-diffusivity-molar
+    purpose: "What the drag and the osmotic argument together fix, written with the gas constant."
+  - equationId: eq-model-bm-diffusion-equation
+    purpose: "What follows from independent steps alone, with no thermodynamics in it."
+  - equationId: eq-model-bm-rms
+    purpose: "The spread a microscope can measure, once the two arguments are joined."
+
+presets:
+  - instrumentId: bm-01
+    tapeId: einstein-0-8-micron
+    purpose: "Watch the typical distance grow as the square root of the time, and see what the same tracer's apparent speed does when you change how often you look at it."
+    lookFor: []
+  - instrumentId: bm-07
+    tapeId: perrins-count
+    purpose: "Turn the relation around and read the number of molecules in a gram-molecule off a set of observed displacements, with the interval its estimate carries."
+    lookFor: []
+
+explanationPrompt: "Explain to someone else why the quantity to measure is a spread rather than a speed, how an argument about pressure on a wall and an argument about independent steps arrive at one coefficient, and what the paper asks an experimenter to do that it does not do itself."
+
+selfCheckNotes:
+  c1: "This is the step the paper knows is contested. It does not prove that suspended bodies exert an osmotic pressure; it adopts the view on which they must, and says plainly that classical thermodynamics denies it."
+  c3: "The drag law is imported, not derived, and it carries a domain with it. A particle small enough that the liquid stops behaving as a continuum is outside this argument, and so is a suspension dense enough for the particles to feel each other."
+  c5: "Two arguments reach the same coefficient by different routes, and that agreement is the paper's point. Neither route is a measurement of it."
+  c6: "This is why the observable is a spread. A velocity estimated by dividing a displacement by the time between two looks gets larger the more often you look, so it measures the observer's cadence rather than the particle."
+  c7: "The relation is read in both directions here, and only one of them is an inference about the world. Predicting a displacement from an assumed molecular number is not the same act as estimating that number from displacements someone measured."
+
+limits: "The paper establishes what the molecular-kinetic assumptions imply and asks for the observation; it reports no measurement of its own. Einstein writes in the opening that the motions he predicts may be the Brownian motion already reported, and that the accounts available to him were too imprecise for him to judge, and he closes by hoping a researcher will decide the question. Nothing on this page shows that molecules exist: it shows what follows if they do, and what an experimenter would have to find for the prediction to be borne out. The drag law and the dilute sphere are assumptions with a domain, and outside that domain the coefficient this argument fixes is not the one a suspension would show."
+
+reviewRecordIds: []
+
+# WHAT THIS RECORD DOES NOT YET CARRY:
+#   - lookFor entries on either preset, which need scenario ids and output ids this record does not
+#     name, so both are empty rather than guessed;
+#   - a review record id, because no person has read this record's physics (reviewRecordIds is empty).
