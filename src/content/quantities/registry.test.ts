@@ -68,7 +68,7 @@ describe("registry loads and every record validates", () => {
     }
   });
 
-  test("reject: (registry.ts:64) throws frame-suffix-mismatch when quantity id suffix disagrees with frame field", () => {
+  test("reject: (registry.ts:82) throws frame-suffix-mismatch when quantity id suffix disagrees with frame field", () => {
     const fixtureDir = new URL("./__fixtures__/frame-suffix-mismatch", import.meta.url).pathname;
     try {
       loadQuantityRegistry(fixtureDir);
