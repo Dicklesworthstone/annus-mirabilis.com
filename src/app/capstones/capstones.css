@@ -1,0 +1,134 @@
+/*
+ * The capstone pages (am-disc-capstones-infra-3352).
+ *
+ * Colours come from the theme tokens only, so both themes and the contrast sweep are satisfied by
+ * construction rather than by a pair of hand-picked values.
+ *
+ * THE PRINT RULES ARE NOT AN AFTERTHOUGHT HERE. A capstone exists so a reader can explain the
+ * argument to someone else, and that happens on paper as often as on a screen. So a claim never
+ * breaks across a page, and the links print their addresses: a printed page whose "Read this in the
+ * paper" leads nowhere is a page that has lost the half of itself that mattered.
+ */
+
+.capstone-chain {
+  color: var(--muted);
+}
+
+.capstone-claims {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: capstone-claim;
+}
+
+.capstone-claim {
+  position: relative;
+  margin: 1.75rem 0;
+  padding: 1rem 0 1rem 2.75rem;
+  border-top: 1px solid var(--rule);
+  counter-increment: capstone-claim;
+}
+
+/*
+ * The claim number is generated, and it is the one thing on this page that may be: the numbers are
+ * an ordinal the list already carries, so a reader whose software skips generated content loses
+ * nothing that is not also in the list structure and in the "Uses claim 3" line below.
+ */
+.capstone-claim::before {
+  content: counter(capstone-claim);
+  position: absolute;
+  left: 0;
+  top: 1rem;
+  font-family: var(--font-mono);
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+
+.capstone-claim-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  margin: 0 0 0.5rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.capstone-role {
+  color: var(--ink);
+}
+
+.capstone-builds,
+.capstone-kind {
+  color: var(--muted);
+}
+
+.capstone-kind {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.capstone-source {
+  margin: 0.45rem 0 0;
+  font-size: var(--type-small);
+}
+
+.capstone-note {
+  margin: 0.7rem 0 0;
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--rule);
+  color: var(--muted);
+}
+
+.capstone-assumptions,
+.capstone-equations,
+.capstone-settings {
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.capstone-assumptions > li,
+.capstone-equation,
+.capstone-setting {
+  margin: 0 0 1.5rem;
+  padding: 0 0 1.25rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.capstone-equation h3 {
+  margin: 0 0 0.35rem;
+}
+
+.capstone-spoken {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-mono);
+  font-size: var(--type-fine);
+  color: var(--muted);
+}
+
+.capstone-limits {
+  margin: 0;
+}
+
+@media print {
+  .capstone-claim,
+  .capstone-equation,
+  .capstone-setting,
+  .capstone-assumptions > li {
+    break-inside: avoid;
+  }
+
+  .capstone-source a::after {
+    content: " (annus-mirabilis.com" attr(href) ")";
+    font-size: var(--type-fine);
+  }
+
+  .capstone-note {
+    border-left-color: var(--ink);
+  }
+}

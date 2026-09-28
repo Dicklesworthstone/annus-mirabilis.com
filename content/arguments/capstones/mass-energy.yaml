@@ -1,0 +1,118 @@
+# The mass-energy capstone (am-disc-capstone-mass-energy-wbxy), served at /capstones/mass-energy/.
+#
+# THIS IS A MINIMAL RECORD, written by the infrastructure bead (am-disc-capstones-infra-3352) so the
+# route has something real to render rather than shipping an empty page. It carries the six claims,
+# the chain, both orders, the five assumptions and three of the paper's displays, all resolved
+# against the corpus. What the content bead still owes is listed at the end of this file.
+#
+# Two traps shape the record, and both are editorial rather than schematic. No ledger here holds an
+# absolute rest energy, because assuming one would assume the conclusion. And the finite-speed
+# quotient is never called the exact mass loss: the conclusion is about the limiting coefficient.
+id: capstone-mass-energy
+paper: mass-energy
+title: "Rebuild the September argument"
+question: "Which premise does the work, and which subtraction removes what cannot be measured?"
+
+claims:
+  - id: c1
+    text: "The energy of a light complex transforms between two frames by a rule the June paper on the electrodynamics of moving bodies established in its section eight. This paper quotes that result instead of deriving it again."
+    anchor: s0-p5
+    logicalRole: admitted-import
+    buildsOn: []
+    assumptionIds: [a1]
+  - id: c2
+    text: "A body at rest gives off equal amounts of light in opposite directions, so it is still at rest in the frame where it began."
+    anchor: s0-p7
+    logicalRole: assumption
+    buildsOn: []
+    assumptionIds: [a4]
+  - id: c3
+    text: "Write the body's energy before and after the emission in both frames. Each frame gives a balance, and in the moving frame the two pulse energies depend on the emission angle while their sum does not."
+    anchor: eq-s0-d3
+    logicalRole: derivation
+    buildsOn: [c1, c2]
+    assumptionIds: [a1, a4]
+  - id: c4
+    text: "Subtracting one balance from the other removes the internal energies nobody has measured, provided the difference between a body's two frame energies is its kinetic energy plus a constant that the emission leaves unchanged."
+    anchor: eq-s0-d4
+    logicalRole: derivation
+    buildsOn: [c3]
+    assumptionIds: [a2, a5]
+  - id: c5
+    text: "Where the speed is small against the speed of light, the surviving difference takes the Newtonian form, with a coefficient carrying the emitted energy divided by the square of the speed of light."
+    anchor: s0-p11
+    logicalRole: derivation
+    buildsOn: [c4]
+    assumptionIds: [a3]
+  - id: c6
+    text: "The body's mass after the emission is smaller by the emitted energy divided by the square of the speed of light, and the paper then states the general proposition that a body's mass measures its energy content."
+    anchor: s0-p13
+    logicalRole: generalization
+    buildsOn: [c5]
+    assumptionIds: [a3, a5]
+
+# One order consistent with the chain, which the paper prints. It is not the answer: the chain is a
+# partial order and the page says how many arrangements satisfy it.
+paperOrder: [c1, c2, c3, c4, c5, c6]
+# Where the worksheet begins. Authored to differ from the paper's, because a start order that is
+# already the paper's turns reconstruction into copying.
+startOrder: [c5, c2, c6, c3, c1, c4]
+
+assumptions:
+  - id: a1
+    statement: "The light-energy transformation imported from the earlier paper's section eight, whose provenance this paper states in its own opening."
+    kind: premise
+    anchor: s0-p5
+  - id: a2
+    statement: "The difference between a body's energy in the moving frame and in its rest frame is its kinetic energy plus a constant, and that constant is the same before and after the emission. The paper asserts this rather than deriving it."
+    kind: premise
+    anchor: s0-p7
+  - id: a3
+    statement: "The Newtonian form of kinetic energy, which holds where the speed is small against the speed of light."
+    kind: approximation
+    anchor: s0-p11
+  - id: a4
+    statement: "The two emissions are equal and opposite, so the body does not recoil."
+    kind: setup
+    anchor: s0-p7
+  - id: a5
+    statement: "The system under discussion is the body alone, not the body together with the radiation it has sent away."
+    kind: boundary-choice
+    anchor: s0-p12
+
+equations:
+  - equationId: eq-model-me-symmetric-sum
+    purpose: "How the two pulse energies divide in the moving frame, and what their sum does not depend on."
+  - equationId: eq-model-me-ledger-subtraction-chain
+    purpose: "The subtraction that removes the internal energies."
+  - equationId: eq-model-me-kinetic-drop-low-speed
+    purpose: "What the surviving difference becomes once the speed is small."
+
+presets:
+  - instrumentId: me-01
+    tapeId: the-two-pulses
+    purpose: "Watch the two pulse energies change with the emission angle while their sum stays where it is."
+  - instrumentId: me-02
+    tapeId: toward-low-speed
+    purpose: "Follow the exact difference beside its low-speed proxy as the speed falls."
+
+explanationPrompt: "Explain to someone else why a body that gives off light loses mass, which subtraction removes what cannot be measured, and why the finite-speed quotient is not the exact mass loss."
+
+selfCheckNotes:
+  c1: "The imported result is the one step this paper does not take for itself. Its provenance is the June paper, quoted here in the opening."
+  c4: "The cancellation does not establish the premise it leans on. The paper asserts that the constant is the same before and after the emission, and later writers questioned that."
+  c5: "The low-speed form is an approximation. Treating its quotient as the exact mass loss is the mistake this capstone is built around."
+  c6: "The general proposition reaches past radiation to any energy a body gives up. The paper states it; the argument above establishes the radiation case."
+
+limits: "The paper never writes the equation it is now quoted for, and this capstone does not supply it. Nothing here says that mass turns into light: the body loses inertia in proportion to the energy it gives off. No ledger on this page carries an absolute rest energy."
+
+reviewRecordIds: []
+
+# WHAT THE CONTENT BEAD (am-disc-capstone-mass-energy-wbxy) STILL OWES:
+#   - the lookFor entries on both presets, which need scenario ids and output ids and the numbers
+#     the bead specifies, none of which this record names;
+#   - the optional third setting, me-03 with the preset me-03-sealed-lamp-and-mirror, which
+#     separates the body's boundary from body-plus-radiation;
+#   - the self-check note tying c4 to the later debate by citation (Ives 1952; Stachel and
+#     Torretti 1982) and its link to the margin entry, which this record states without sources;
+#   - a review record id, since reviewRecordIds is empty and nothing here has been reviewed.

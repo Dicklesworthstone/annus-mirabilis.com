@@ -27,6 +27,11 @@ export const FIXED_PAGES = [
   "/kitchen/",
   "/notation/",
   "/connections/",
+  // The capstones are listed rather than exempted: each is a page at a fixed address with its own
+  // text, reachable by a reader who never passes through the discovery route, and nothing about it
+  // is per-device or a duplicate of another canonical. Only mass-energy is written
+  // (am-disc-capstones-infra-3352); the other three join this list with their records.
+  "/capstones/mass-energy/",
   "/tours/",
   "/tapes/",
   "/search/",

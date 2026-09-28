@@ -75,6 +75,35 @@ function findCycle(
 }
 
 /**
+ * How many arrangements of `items` satisfy every edge, or undefined when there are more items than
+ * `limit` allows to be enumerated. A capstone page states this so a reader is told plainly that the
+ * chain admits more than one order and the paper's is one of them, rather than being left to infer
+ * that the printed sequence is the only one that works.
+ *
+ * It enumerates rather than counting linear extensions cleverly, and refuses past `limit` instead of
+ * growing slowly worse: eight items is forty thousand permutations and a capstone with more claims
+ * than that wants a different presentation, not a longer wait at build time.
+ */
+export function consistentOrderCount(
+  items: readonly string[],
+  edges: readonly DependencyEdge[],
+  limit = 8,
+): number | undefined {
+  if (items.length > limit) return undefined;
+  let count = 0;
+  const walk = (chosen: readonly string[], rest: readonly string[]): void => {
+    if (rest.length === 0) {
+      if (dependencyFeedback(items, edges, chosen).consistent) count += 1;
+      return;
+    }
+    for (const [index, item] of rest.entries())
+      walk([...chosen, item], [...rest.slice(0, index), ...rest.slice(index + 1)]);
+  };
+  walk([], items);
+  return count;
+}
+
+/**
  * The edges `order` breaks. `items` is the whole set, `edges` the authored dependencies, `order` the
  * reader's arrangement.
  */

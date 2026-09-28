@@ -9,6 +9,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import {
+  consistentOrderCount,
   type DependencyEdge,
   DependencyGraphError,
   dependencyFeedback,
@@ -110,6 +111,23 @@ describe("dependencyFeedback on the capstone fixture graph", () => {
     } catch (error) {
       expect((error as DependencyGraphError).code).toBe("dependency-edge-unknown-item");
     }
+  });
+
+  test("consistentOrderCount agrees with the enumeration, and refuses past its limit", () => {
+    // The same four the enumeration above finds, from the function a page will call.
+    expect(consistentOrderCount(ITEMS, EDGES)).toBe(4);
+    // A total order admits exactly one arrangement, and no edges admit all of them. Both are
+    // computed here rather than asserted from the chain's shape.
+    const chain: DependencyEdge[] = [
+      { from: "A", to: "B" },
+      { from: "B", to: "C" },
+    ];
+    expect(consistentOrderCount(["A", "B", "C"], chain)).toBe(1);
+    expect(consistentOrderCount(["A", "B", "C"], [])).toBe(6);
+    // Past the limit it says it did not look, rather than returning a number it did not compute or
+    // taking minutes to produce one.
+    expect(consistentOrderCount(ITEMS, EDGES, 5)).toBeUndefined();
+    expect(consistentOrderCount(ITEMS, EDGES, 6)).toBe(4);
   });
 
   test("the result carries no score, count or verdict field a caller could print", () => {
