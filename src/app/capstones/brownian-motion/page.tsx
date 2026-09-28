@@ -5,6 +5,7 @@ import { consistentOrderCount } from "../../../discovery/shared/dependencyFeedba
 import { FACE_REGISTRY } from "../../../reader/faces/registry.ts";
 import { roleLabel } from "../../../reader/passageKind.ts";
 import { tapePath } from "../../../reader/sitePaths.ts";
+import { renderedEquation } from "../renderedEquations.ts";
 import "../capstones.css";
 
 /**
@@ -47,6 +48,11 @@ const PAPER = "brownian-motion";
  */
 function passageHref(anchor: string): string {
   return `/papers/${PAPER}/view/${FACE_REGISTRY.parallel.id}/#${anchor}`;
+}
+
+/** This paper's build-time rendering for one equation id (../renderedEquations.ts). */
+function math(equationId: string) {
+  return renderedEquation(PAPER, equationId);
 }
 
 export const metadata: Metadata = {
@@ -162,6 +168,19 @@ export default function BrownianCapstonePage() {
             <li className="capstone-equation" key={equation.equationId}>
               <h3>{equation.title}</h3>
               <p>{equation.purpose}</p>
+              {/* THE EQUATION ITSELF, from src/generated/<paper>-equations.json, which
+                  scripts/build-equations.ts compiled from this record's expression tree. Nothing is
+                  rendered or retyped here; see ../renderedEquations.ts for why the spoken form alone
+                  was not enough. aria-hidden because the spoken paragraph below is this formula's
+                  accessible name, and a reader with a screen reader should hear it once. */}
+              {math(equation.equationId) === undefined ? null : (
+                <div
+                  className="capstone-math"
+                  aria-hidden="true"
+                  // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX written by scripts/build-equations.ts from this record's own tree, the same bytes the reading faces render.
+                  dangerouslySetInnerHTML={{ __html: math(equation.equationId)?.html ?? "" }}
+                />
+              )}
               <p className="capstone-spoken">{equation.spoken}</p>
               <p className="capstone-source">
                 <a href={passageHref(equation.displayUnit)}>See it printed in the paper</a>

@@ -104,6 +104,17 @@
   margin: 0 0 0.35rem;
 }
 
+/* THE EQUATION AS THE READING FACES SHOW IT (dispatch 426), above the spoken form that names it.
+   No line-height and no colour of its own: KaTeX sets its own metrics, and adding a value here
+   would grow the type-scale ratchet's vocabulary for nothing. It scrolls sideways rather than
+   forcing the page wide, which is the narrow-screen behaviour the reading faces already use; the
+   wrapper is aria-hidden and is not a tab stop, and nothing is lost by not reaching its right
+   edge, because the spoken form directly below says the whole formula in words. */
+.capstone-math {
+  margin: 0.6rem 0 0;
+  overflow-x: auto;
+}
+
 .capstone-spoken {
   margin: 0.4rem 0 0;
   font-family: var(--font-mono);
