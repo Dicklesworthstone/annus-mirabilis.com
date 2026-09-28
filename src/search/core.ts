@@ -32,6 +32,12 @@ export const SEARCH_TYPES = [
   "essay",
   "connection-thread",
   "tour",
+  // A RECORDED WALKTHROUGH IS NOT A TOUR, and the site's own vocabulary keeps them apart: a Tour is
+  // a guided reading path across a paper (/tours/, "Guided reading paths"), a walkthrough is an
+  // ordered run of ONE instrument (/tapes/). Indexing the 22 walkthroughs under "tour" grouped them
+  // in the palette under a heading reading "Tours", which is a word the site uses for something
+  // else. Additive: this makes a new value valid and narrows nothing.
+  "walkthrough",
   "capstone",
 ] as const;
 export type SearchType = (typeof SEARCH_TYPES)[number];

@@ -27,6 +27,7 @@ const TYPE_LABELS: Readonly<Record<SearchType, string>> = {
   essay: "Essays",
   "connection-thread": "Connections",
   tour: "Tours",
+  walkthrough: "Recorded walkthroughs",
   capstone: "Capstones",
 };
 let sequence = 0;
