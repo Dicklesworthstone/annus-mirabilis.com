@@ -38,6 +38,12 @@ export const SEARCH_TYPES = [
   // in the palette under a heading reading "Tours", which is a word the site uses for something
   // else. Additive: this makes a new value valid and narrows nothing.
   "walkthrough",
+  // A DISCOVERY ROUTE IS A THIRD GUIDED THING, kept apart from the other two for the same reason:
+  // /tours/ is a reading path across a paper, /tapes/ is an ordered run of one instrument, and
+  // /discover/ is a reconstruction of the problem before its solution was known. AGENTS.md calls
+  // the last of these the site's signature content and labels it "a route you could take".
+  // Additive: this makes a new value valid and narrows nothing.
+  "discovery",
   "capstone",
 ] as const;
 export type SearchType = (typeof SEARCH_TYPES)[number];
