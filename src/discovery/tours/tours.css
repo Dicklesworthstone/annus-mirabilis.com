@@ -93,3 +93,12 @@
     display: none;
   }
 }
+
+/*
+ * What a path ends at, on the index (dispatch 397): the record's own targetClaim for the timed
+ * path, and the first and last stop's titles for a catalogue one. It sits under the counts because
+ * it is the reason to choose that path rather than a fact about its size.
+ */
+.tour-target {
+  color: var(--muted);
+}
