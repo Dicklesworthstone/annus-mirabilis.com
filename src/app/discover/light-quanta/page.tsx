@@ -441,6 +441,13 @@ export default function LightQuantaRoute() {
           paper&rsquo;s own argument, and a counting loop a programmer can write.
         </p>
         <Doors doors={DOORS} />
+        <p>
+          The chain can also be rebuilt from its claims rather than followed through them. The
+          capstone holds the regime and the independence assumption apart from the conclusion they
+          license, so the heuristic stays a heuristic while you put it in order:{" "}
+          <a href="/capstones/light-quanta/">Rebuild the heuristic viewpoint</a>. It is optional,
+          and nothing above depends on it.
+        </p>
         <div className="actions">
           <a className="button" href="/papers/light-quanta/">
             Read the argument as the paper makes it

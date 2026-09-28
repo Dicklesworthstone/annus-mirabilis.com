@@ -389,6 +389,13 @@ export default function BrownianEncounter() {
           particle&rsquo;s walk followed step by step. The route takes both, and they meet.
         </p>
         <Doors doors={DOORS} />
+        <p>
+          The two doors can also be taken apart and put back together. The capstone separates what
+          the balance of a crowd establishes from what one particle&rsquo;s walk establishes, and
+          asks which of them has to come before which:{" "}
+          <a href="/capstones/brownian-motion/">Rebuild the argument for the spread</a>. It is
+          optional, and nothing above depends on it.
+        </p>
         <div className="actions">
           <a className="button" href="/papers/brownian-motion/">
             Read the argument and open its missing steps

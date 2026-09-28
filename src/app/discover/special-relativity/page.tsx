@@ -411,6 +411,13 @@ export default function SpecialRelativityRoute() {
           a programmer&rsquo;s way in. Both arrive at the same equation.
         </p>
         <Doors doors={DOORS} />
+        <p>
+          Rebuilding this paper is a different exercise from reading it, and long enough to be worth
+          doing on its own. The capstone carries both halves, the kinematics and the electrodynamic
+          sections that follow it, and marks the two steps the paper chooses rather than derives:{" "}
+          <a href="/capstones/special-relativity/">Rebuild the electrodynamics of moving bodies</a>.
+          It is optional, and nothing above depends on it.
+        </p>
         <div className="actions">
           <a className="button" href="/papers/special-relativity/">
             Read the argument as this edition explains it

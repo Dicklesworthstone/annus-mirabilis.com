@@ -379,6 +379,13 @@ export default function MassEnergyRoute() {
           <SourceJump key={jump.id} jump={jump} />
         ))}
         <Doors doors={DOORS} />
+        <p>
+          The argument is short enough to rebuild from its parts. The capstone sets out this
+          paper&rsquo;s claims in an order that does not work, states the premises the subtraction
+          leans on separately from the steps that use them, and asks you to find an order that does:{" "}
+          <a href="/capstones/mass-energy/">Rebuild the September argument</a>. It is optional, and
+          nothing above depends on it.
+        </p>
         <div className="actions">
           <a className="button" href="/papers/mass-energy/">
             Read the argument as the paper makes it

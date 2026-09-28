@@ -6,6 +6,33 @@ import { tourDestination, tourPosition } from "../../../discovery/tours/navigati
 import { TimedTour } from "../../../discovery/tours/TimedTour.tsx";
 import "../../../discovery/tours/tours.css";
 
+/**
+ * THE CAPSTONE A PAPER'S PATH CAN END AT (am-disc-capstones-infra-3352, dispatch 373).
+ *
+ * That bead's Location section says the tours link the capstone by the same route, and until this
+ * they did not: measured across the built site, 0 of 718 pages carried an href into /capstones/.
+ *
+ * THE LINK TEXT IS THE RECORD'S OWN TITLE rather than the word "Capstone", so a reader is told what
+ * they are being offered. It is a lookup rather than a template for two reasons: a paper with no
+ * capstone record gets no link instead of a link to a page that is not there, and
+ * `src/app/capstones/reachability.test.tsx` asserts each title here equals `capstone.title` in
+ * content/arguments/capstones/<paper>.yaml, so the copy cannot drift from the record.
+ *
+ * THE BEAD NAMES THE ONE-EVENING AND FULL-COURSE TOURS, WHICH DO NOT EXIST. `TOUR_BUDGETS` in
+ * src/content/schemas/experiment.ts declares `fifteen-minutes`, `one-evening` and `full-course`,
+ * and content/tours holds ONE record, at `fifteen-minutes`. The four guided tours in the catalogue
+ * here are the tours a reader can walk today, one per paper, so they carry the link. The timed
+ * fifteen-minute tour returns early below and deliberately does not: it is the shortest path and
+ * the equations-free one, the bead's clause names the two longer budgets rather than that one, and
+ * an optional reconstruction is not what a reader who chose fifteen minutes asked for.
+ */
+const CAPSTONE_TITLE: Readonly<Record<string, string | undefined>> = {
+  "brownian-motion": "Rebuild the argument for the spread",
+  "light-quanta": "Rebuild the heuristic viewpoint",
+  "mass-energy": "Rebuild the September argument",
+  "special-relativity": "Rebuild the electrodynamics of moving bodies",
+};
+
 type Props = { params: Promise<{ tour: string }> };
 export const dynamicParams = false;
 /** The release profile decides whether a draft move summary may be shown (tours.ts). */
@@ -104,6 +131,14 @@ export default async function GuidedTourPage({ params }: Props) {
           any question, try a changed assumption, or explain which step would fail if that
           assumption changed.
         </p>
+        {CAPSTONE_TITLE[tour.paper] === undefined ? null : (
+          <p>
+            One way to carry it is to rebuild it. The capstone lays out this paper&rsquo;s claims in
+            an order that does not work and asks you to find one that does:{" "}
+            <a href={`/capstones/${tour.paper}/`}>{CAPSTONE_TITLE[tour.paper]}</a>. It is optional,
+            and this path is complete without it.
+          </p>
+        )}
         <div className="guided-tour-actions">
           <a href={`/discover/${tour.paper}/`}>Follow the longer discovery reconstruction</a>
           <a href={`/papers/${tour.paper}/`}>Return to the full paper</a>
