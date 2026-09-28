@@ -1,8 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import {
+  crossings,
+  FLUX_SECONDS,
   JARS,
   MINUTE_DISPLACEMENT_MICROMETRES,
   MINUTE_DISPLACEMENT_SQUARED_MANTISSA,
+  netChange,
   PARTICLE_ENDS,
   WALK,
   walkSpeeds,
@@ -72,7 +75,39 @@ type Claim = Readonly<{
   forms: readonly (readonly string[])[];
 }>;
 
+const [flux1, flux2] = FLUX_SECONDS as unknown as readonly [
+  (typeof FLUX_SECONDS)[number],
+  (typeof FLUX_SECONDS)[number],
+];
+
 const CLAIMS: readonly Claim[] = [
+  // FLUX_SECONDS: the first key here for a lesson that is not a bridge, added with the figure of
+  // dispatch 418. The check already read one non-bridge record (mean-variance-rms), so nothing
+  // about the mechanism changed; only the claims did.
+  {
+    key: "FLUX_SECONDS",
+    slug: "flux-continuity",
+    why: "the first panel draws this many crossing in and this many crossing out",
+    forms: [[`${flux1.entered} particles`, `${flux1.left} cross out`]],
+  },
+  {
+    key: "FLUX_SECONDS.net",
+    slug: "flux-continuity",
+    why: "the accumulation the first panel prints, derived from those two counts",
+    forms: [[`rises by ${netChange(flux1)}`]],
+  },
+  {
+    key: "FLUX_SECONDS",
+    slug: "flux-continuity",
+    why: "the second panel draws as many leaving as arriving",
+    forms: [[`${flux2.entered} cross in`, `${flux2.left} cross out`]],
+  },
+  {
+    key: "FLUX_SECONDS.crossings",
+    slug: "flux-continuity",
+    why: "the count that crossed while nothing accumulated, which is the lesson's whole point",
+    forms: [[`${crossings(flux2)} particles crossed`]],
+  },
   // PARTICLE_ENDS: three records across two panes' lessons, the widest coupling of the four.
   {
     key: "PARTICLE_ENDS",
@@ -268,7 +303,7 @@ describe("a bridge figure's numbers and its lesson's prose", () => {
     // A run that examined nothing reads exactly like a clean one, so the population is asserted.
     expect(CLAIMS.length).toBeGreaterThan(0);
     expect(records.size).toBeGreaterThan(1);
-    expect(keys.size).toBe(4);
+    expect(keys.size).toBe(5);
     expect(problems).toEqual([]);
   });
 
