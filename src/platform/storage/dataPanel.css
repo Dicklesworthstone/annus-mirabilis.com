@@ -221,3 +221,32 @@ button.data-panel-btn-confirm:hover:not(:disabled) {
   vertical-align: top;
   overflow-wrap: anywhere;
 }
+
+/*
+ * The key list on /your-data/ (dispatch 389). A reader is told to compare these names against
+ * what their own browser holds, so the name is the thing that must be legible: monospace, on its
+ * own line at reading width, with the human label beside it rather than above it.
+ */
+.storage-key-list {
+  margin: 0.75rem 0 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+.storage-key-list > li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.75rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.storage-key-list code {
+  font-family: var(--font-mono);
+  font-size: var(--type-fine);
+}
+
+.storage-key-list span {
+  color: var(--muted);
+  font-size: var(--type-small);
+}
