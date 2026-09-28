@@ -5,12 +5,15 @@ import { dirname, join } from "node:path";
 import {
   allCandidateChecksPassed,
   candidateRoutes,
+  DECLARED_NOT_RUNNABLE,
   type Fetcher,
   REQUEST_ATTEMPTS,
   runCandidateChecksAgainst,
   scriptChunks,
   servedAsBuilt,
+  staleNotRunnableDeclarations,
   summarizeCandidateChecks,
+  undeclaredNotRunnable,
 } from "./candidate-checks.ts";
 
 /**
@@ -81,8 +84,16 @@ describe("candidate checks (am-rel-candidate-checks-kc7y)", () => {
       ["accepted-wasm-result-per-capability", "not-available"],
       ["deliberate-typed-refusal", "not-available"],
     ]);
-    // Three checks did not run, so the catalogue as a whole has not passed.
-    expect(allCandidateChecksPassed(results)).toBe(false);
+    // Until am-qsm9 this read `toBe(false)`, with the comment "three checks did not run, so the
+    // catalogue as a whole has not passed". That was a faithful description of a predicate that
+    // returned false for EVERY candidate that could ever exist, because the same three checks are
+    // structurally not-runnable here: two need a browser and the third has no complete paper to
+    // load. `validatePromotePreconditions` therefore threw on every promote, so the release path
+    // AGENTS.md specifies could not succeed for any input, and the four real checks passing was
+    // invisible. The three are now DECLARED in DECLARED_NOT_RUNNABLE with a reason and an owning
+    // bead, which is what lets this be true; an UNDECLARED silence still returns false, and the
+    // tests below plant each way it must still refuse.
+    expect(allCandidateChecksPassed(results)).toBe(true);
     expect(summarizeCandidateChecks(results)).toContain("4 passed");
     expect(summarizeCandidateChecks(results)).toContain("3 not run");
     expect(byName(results, "every-instrument-bundle")?.detail).toContain("1 pages, 1 chunks");
@@ -243,5 +254,62 @@ describe("a request that gets no HTTP response is asked again; nothing else is",
     expect(report.problems.length).toBe(1);
     expect(report.problems[0]).toContain("differ from the built");
     expect(calls.get("/lab/bm-01/")).toBe(1);
+  });
+});
+
+describe("a check that cannot run blocks a promotion unless somebody said why (am-qsm9)", () => {
+  const passed = (name: string) => ({ name, status: "passed" as const, detail: "ran" });
+  const failed = (name: string) => ({ name, status: "failed" as const, detail: "broke" });
+  const silent = (name: string) => ({
+    name,
+    status: "not-available" as const,
+    detail: "did not run",
+  });
+  const declared = [...DECLARED_NOT_RUNNABLE.keys()];
+
+  test("the three declared checks are the ones the catalogue actually leaves not-available", async () => {
+    // Against the real catalogue, not a hand-built list: a declaration for a check that now runs,
+    // or for one that is not in the catalogue at all, is stale and must be removed rather than left.
+    const { staticDir, root, fetcher } = fixture();
+    const results = await runCandidateChecksAgainst({ fetcher, staticDir, root });
+    expect(results.length).toBeGreaterThan(4);
+    expect(staleNotRunnableDeclarations(results)).toEqual([]);
+    expect(undeclaredNotRunnable(results)).toEqual([]);
+    expect(allCandidateChecksPassed(results)).toBe(true);
+  });
+
+  test("every declaration carries a reason and an owning bead", () => {
+    expect(declared.length).toBeGreaterThan(0);
+    for (const [name, { reason, bead }] of DECLARED_NOT_RUNNABLE) {
+      expect(reason.length, `${name} has no reason`).toBeGreaterThan(60);
+      expect(bead, `${name} names no bead`).toMatch(/^am-[a-z0-9-]+$/);
+    }
+  });
+
+  test("an UNDECLARED check that did not run still blocks the promotion", () => {
+    const results = [passed("a"), silent("a-new-check-nobody-declared")];
+    expect(undeclaredNotRunnable(results).map((r) => r.name)).toEqual([
+      "a-new-check-nobody-declared",
+    ]);
+    expect(allCandidateChecksPassed(results)).toBe(false);
+  });
+
+  test("a DECLARED check that fails still blocks the promotion", () => {
+    const name = declared[0] ?? "";
+    expect(name.length).toBeGreaterThan(0);
+    expect(allCandidateChecksPassed([passed("a"), failed(name)])).toBe(false);
+  });
+
+  test("a declaration cannot make a promotion pass over nothing", () => {
+    // Every check declared and none run: no evidence at all, so not a pass. This is the shape the
+    // repository keeps finding, a green computed over an empty population.
+    expect(allCandidateChecksPassed(declared.map(silent))).toBe(false);
+    expect(allCandidateChecksPassed([])).toBe(false);
+  });
+
+  test("a declared check that starts passing is reported as a stale declaration", () => {
+    const name = declared[0] ?? "";
+    const results = [passed("a"), passed(name), ...declared.slice(1).map(silent)];
+    expect(staleNotRunnableDeclarations(results)).toEqual([name]);
   });
 });

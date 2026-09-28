@@ -374,7 +374,80 @@ export function summarizeCandidateChecks(results: readonly CandidateCheckResult[
   ].join("; ");
 }
 
-/** True only when every check in the catalogue ran and passed. A check that did not run is not a pass. */
+/**
+ * A check that cannot run here, why, and who owns closing the gap (am-qsm9).
+ *
+ * THE PROBLEM THIS SOLVES. `allCandidateChecksPassed` used to require every check to have PASSED,
+ * and three of the seven call `notRun`, so it returned false on every candidate that has ever
+ * existed and `validatePromotePreconditions` threw every time. The promote path AGENTS.md specifies,
+ * and that am-launch-public-release-5nkq names, could not succeed for any input. A gate that is
+ * always closed tells a reader as little as one that is always open: neither answers a question
+ * about the candidate, and this one hid the fact that four real checks were passing.
+ *
+ * WHY A DECLARATION AND NOT AN EXEMPTION. Dropping the three from the predicate would let the NEXT
+ * check that quietly stops running slip through, which is the failure this repository keeps finding.
+ * So a `not-available` check passes the predicate only if it is named HERE, with a reason and an
+ * owning bead. An undeclared `not-available` still fails, a declared check that FAILS still fails,
+ * and a declared check that starts passing makes its declaration stale, which
+ * `staleNotRunnableDeclarations` reports so the entry is removed rather than left to rot.
+ *
+ * These three are honest gaps, not excuses. Two need a browser to execute a page and this harness is
+ * HTTP only; the third has no complete paper to load because no paper is complete.
+ */
+export const DECLARED_NOT_RUNNABLE: ReadonlyMap<string, { reason: string; bead: string }> = new Map(
+  [
+    [
+      "four-complete-paper-texts",
+      {
+        reason:
+          "No paper is complete, so there is no complete paper text to load. The paper pages that do exist are checked byte-for-byte by paper-pages-served-as-built, which runs.",
+        bead: "am-definition-of-done-as-code-8w1c",
+      },
+    ],
+    [
+      "accepted-wasm-result-per-capability",
+      {
+        reason:
+          "An accepted WASM result exists only when a browser runs a lab's worker, and these checks are HTTP only. The artifact's bytes and digest ARE checked, by verify-wasm-artifacts; what is unchecked here is that a reader gets a result from them.",
+        bead: "am-frankensim-repin-and-bind-jvhg",
+      },
+    ],
+    [
+      "deliberate-typed-refusal",
+      {
+        reason:
+          "A lab's typed refusal appears only when a browser executes the page. The refusal codes and their reader language are checked in the unit lane; what is unchecked here is that a reader can reach one on the deployed site.",
+        bead: "am-nxbq",
+      },
+    ],
+  ],
+);
+
+/**
+ * Checks that did not run and are not declared above: the ones that must block a promotion, because
+ * nobody has said why they are silent.
+ */
+export function undeclaredNotRunnable(
+  results: readonly CandidateCheckResult[],
+): CandidateCheckResult[] {
+  return results.filter((r) => r.status === "not-available" && !DECLARED_NOT_RUNNABLE.has(r.name));
+}
+
+/** Declarations for checks that now pass, or that are not in the catalogue at all: remove them. */
+export function staleNotRunnableDeclarations(results: readonly CandidateCheckResult[]): string[] {
+  const byName = new Map(results.map((r) => [r.name, r.status]));
+  return [...DECLARED_NOT_RUNNABLE.keys()]
+    .filter((name) => byName.get(name) !== "not-available")
+    .sort();
+}
+
+/**
+ * True when every check either passed or is a DECLARED not-runnable one. A failure is still a
+ * failure, an undeclared silence is still a failure, and an empty result set is never a pass.
+ */
 export function allCandidateChecksPassed(results: readonly CandidateCheckResult[]): boolean {
-  return results.length > 0 && results.every((r) => r.status === "passed");
+  if (results.length === 0) return false;
+  if (results.some((r) => r.status === "failed")) return false;
+  if (undeclaredNotRunnable(results).length > 0) return false;
+  return results.some((r) => r.status === "passed");
 }
