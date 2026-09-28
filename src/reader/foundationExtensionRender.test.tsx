@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { renderToStaticMarkup } from "react-dom/server";
 import { loadReadingFiles } from "../../scripts/build-content.ts";
 import { compileReadingContent } from "../content/compiler/compile.ts";
 import { compileContent } from "../content/compiler/compiler.ts";
 import { type Foundation, validateReadingRecord } from "../content/schemas/reading.ts";
+import { exportMarkup } from "../testing/exportMarkup.ts";
 import { FoundationBody } from "./Blocks.tsx";
 
 /**
@@ -94,7 +94,10 @@ describe("FoundationBody draws the section after the stopping point", () => {
   test("heading, body, and order", async () => {
     const result = compileReadingContent(await corpus());
     const lesson = result.foundations.find((f) => f.id === TARGET) as Foundation;
-    const html = renderToStaticMarkup(
+    // exportMarkup, not renderToStaticMarkup: a lesson with a construction reaches FoundationBody
+    // through LazyFoundationConstruction, and React.lazy suspends under the synchronous renderer.
+    // This lesson gained a figure in a420-era work; the next one will too.
+    const html = await exportMarkup(
       <FoundationBody foundation={lesson} foundations={result.foundations} headingLevel={2} />,
     );
     const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
@@ -105,14 +108,24 @@ describe("FoundationBody draws the section after the stopping point", () => {
   });
 
   test("a lesson with no sections renders none", async () => {
-    // A lesson with no construction, so the static render needs no lazy island, and no section.
     const result = await baseline();
-    const lesson = result.foundations.find((f) => f.id === "flux-continuity") as Foundation;
-    expect(sectionIds(lesson)).toEqual([]);
-    const html = renderToStaticMarkup(
+    // CHOSEN BY THE PROPERTY, NOT BY NAME. This named flux-continuity under the comment "A lesson
+    // with no construction, so the static render needs no lazy island", which was true when it was
+    // written and which giving that lesson a figure falsified. Naming a different lesson rebuilds
+    // the same trap one lesson along, because lessons keep gaining figures; and the premise was
+    // never what this test is about, which is whether a lesson with no EXTENSION SECTION renders
+    // none. So it now finds such a lesson itself, and renders through exportMarkup so that whether
+    // the lesson happens to have a lazy island cannot decide the verdict.
+    const withNone = result.foundations.filter((f) => sectionIds(f).length === 0);
+    const withSome = result.foundations.filter((f) => sectionIds(f).length > 0);
+    // Both populations real, so neither the choice above nor the assertion below is vacuous.
+    expect(withNone.length, "no lesson without an extension section").toBeGreaterThan(0);
+    expect(withSome.length, "no lesson with an extension section").toBeGreaterThan(0);
+    const lesson = withNone[0] as Foundation;
+    const html = await exportMarkup(
       <FoundationBody foundation={lesson} foundations={result.foundations} />,
     );
-    expect(html).toContain("foundation-stop");
-    expect(html).not.toContain("data-extension-section");
+    expect(html, lesson.id).toContain("foundation-stop");
+    expect(html, lesson.id).not.toContain("data-extension-section");
   });
 });
