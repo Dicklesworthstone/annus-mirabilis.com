@@ -32,6 +32,7 @@ import { type CheckFamily, listRegisteredChecks, runAllChecks } from "./checks/r
 import { buildContentIndexes, type ContentIndexes } from "./indexes.ts";
 import { ContentError, checkFileSize, checkNfc, parseContentFile } from "./loaders.ts";
 import { checkMisconceptionRecord } from "./marginRecords.ts";
+import { recordKeyFor } from "./recordKey.ts";
 import {
   buildReviewQueue,
   type FlagReviewRecord,
@@ -218,14 +219,7 @@ export async function compileContent(
           );
         }
 
-        const recordKey =
-          routeMatch.kind === "paper" ||
-          routeMatch.kind === "argument" ||
-          routeMatch.kind === "foundation" ||
-          routeMatch.kind === "citation" ||
-          routeMatch.kind === "equation"
-            ? recId
-            : `${routeMatch.kind}:${matchParams.paper ?? ""}:${recId}`;
+        const recordKey = recordKeyFor(routeMatch.kind, matchParams.paper, recId);
 
         if (rawRecords.has(recordKey)) {
           addIssue("error", "duplicate-id", file.path, `Duplicate record id: ${recId}.`, {

@@ -21,6 +21,7 @@ import {
   type ContentCheck,
   registerCheck,
 } from "../../compiler/checks/registry.ts";
+import { editorialNotePaper, isEditorialNoteKey } from "../../compiler/recordKey.ts";
 import type { PaperDate } from "../../schemas/dates.ts";
 import { type Inline, plainText } from "../../schemas/inlines.ts";
 import { type SpanAnchor, spanTextDigest } from "../../schemas/spans.ts";
@@ -396,7 +397,8 @@ export const checkMissingSourceBlock: ContentCheck = {
     }
 
     // Check papers' orderedBlockIds
-    for (const rawRec of ctx.records.values()) {
+    let unjudgedAffectedIds = 0;
+    for (const [key, rawRec] of ctx.records.entries()) {
       if (!rawRec || typeof rawRec !== "object") continue;
       const rec = rawRec as Record<string, unknown>;
       const kind = typeof rec.kind === "string" ? rec.kind : "";
@@ -494,9 +496,12 @@ export const checkMissingSourceBlock: ContentCheck = {
         }
       }
 
-      // Check EditorialNote.affectedIds
-      if (kind === "editorial-note" && Array.isArray(rec.affectedIds)) {
-        const defaultPaper = typeof rec.paper === "string" ? rec.paper : "";
+      // Check EditorialNote.affectedIds. Identified by the record KEY, not by `rec.kind`: an
+      // editorial note's own kind is `historian-margin`, `dispute`, `side-note` and so on, so the
+      // old `kind === "editorial-note"` matched none of the 8 records on disk (am-as1w). The paper
+      // comes from the key too, because a note carries no `paper` field; its directory is its paper.
+      if (isEditorialNoteKey(key) && Array.isArray(rec.affectedIds)) {
+        const defaultPaper = editorialNotePaper(key) ?? "";
         for (const affId of rec.affectedIds) {
           if (typeof affId === "string") {
             const parts = affId.includes("#") ? affId.split("#") : [defaultPaper, affId];
@@ -505,6 +510,18 @@ export const checkMissingSourceBlock: ContentCheck = {
             if (targetPaper && targetId) {
               const blocks = paperBlocks.get(targetPaper) ?? new Set();
               const sentences = paperSentences.get(targetPaper) ?? new Set();
+              // A CHECK WITH NOTHING TO RESOLVE AGAINST DECLINES, it does not condemn (am-as1w).
+              // `loadReadingFiles` skips every .yaml, and source blocks are .yaml: measured
+              // 2026-09-28, 0 of the 464 files under content/source-blocks/ reach the compiler, so
+              // `blocks` and `sentences` are empty for every paper. Enabling this check without
+              // this guard reported all 17 affectedIds of the 8 real notes as missing, which are
+              // false positives about an absent population rather than findings about the notes.
+              // Counted rather than passed over in silence, because "0 errors" over a population
+              // that could not be loaded reads exactly like "0 errors" over a clean one.
+              if (blocks.size === 0 && sentences.size === 0) {
+                unjudgedAffectedIds += 1;
+                continue;
+              }
               // Only check if targetId matches source block/sentence pattern (e.g. s<n>-p<m>)
               if (/^s\d+(-p\d+|-fn\d+|-s\d+|)/.test(targetId)) {
                 if (!blocks.has(targetId) && !sentences.has(targetId)) {
@@ -574,6 +591,12 @@ export const checkMissingSourceBlock: ContentCheck = {
         }
       }
     }
+    // The silence is printed rather than left implicit: a run that judged nothing and a run
+    // that found nothing are both zero errors, and only this line tells them apart (am-as1w).
+    if (unjudgedAffectedIds > 0)
+      console.log(
+        `[structural] ${unjudgedAffectedIds} editorial-note affectedIds not judged: no source blocks are loaded for their papers (loadReadingFiles skips .yaml).`,
+      );
   },
 };
 
@@ -885,7 +908,8 @@ export const checkDanglingCitation: ContentCheck = {
       }
 
       // 2. EditorialNote.sourceSupport[].citationId
-      if (kind === "editorial-note" && Array.isArray(rec.sourceSupport)) {
+      // By key, not by `rec.kind`: see the affectedIds check above (am-as1w).
+      if (isEditorialNoteKey(key) && Array.isArray(rec.sourceSupport)) {
         for (let i = 0; i < rec.sourceSupport.length; i++) {
           const ss = rec.sourceSupport[i];
           if (
@@ -1393,7 +1417,7 @@ export const checkLedgerMarkerInEdition: ContentCheck = {
       if (
         kind === "source-block" ||
         kind === "translation-unit" ||
-        kind === "editorial-note" ||
+        isEditorialNoteKey(key) ||
         kind === "argument" ||
         kind === "foundation"
       ) {
