@@ -13,7 +13,11 @@
 import { describe, expect, test } from "bun:test";
 import { Window } from "happy-dom";
 import { ME01_DEFAULTS } from "../../../experiments/me01/definition.ts";
-import { evaluateMe01 } from "../../../physics/reference/massEnergy.ts";
+// From the experiment's session layer, which is where TwoLedgersLab itself gets it. A `.tsx`
+// may not import src/physics/reference/** at all (noPhysicsInComponents): the experiment owns
+// the call and the component consumes the result, and a test of the component tests the same
+// seam the product uses.
+import { evaluateMe01 } from "../../../experiments/me01/session.ts";
 import { exportMarkup } from "../../../testing/exportMarkup.ts";
 import { fixed } from "../presentation.ts";
 import { TwoLedgersPlot } from "./TwoLedgersPlot.tsx";
