@@ -1,0 +1,142 @@
+# Teaching tape "the two pulses" (am-2rl9). AGENTS.md names five teaching tapes and this was the
+# one with no record; content/tours/fifteen-minutes-mass-energy.yaml already carries a comment
+# saying so and citing something else at its step 3. ME-01 is the instrument it belongs to: its
+# manifest title is "opposite pulses and two ledgers".
+#
+# EVERY NUMBER BELOW WAS COMPUTED BY ME-01'S OWN EVALUATOR at the settings of its step, not by
+# hand and not from the paper: src/physics/reference/massEnergy.ts through evaluateMe01, with
+# ME01_DEFAULTS and the overrides each step records. src/content/tapeNumbers.test.ts recomputes
+# them from the same inputs.
+#
+# THE DIGESTS ARE REAL, AND SMALLER THAN THEY LOOK. Each is tapeStateDigestV2 over the full
+# accepted parameter state at that action index, the FNV-1a form the runtime itself computes
+# (sessionTape.ts). Nothing replays an authored control tape yet, so they are recorded for when
+# something does, not cited as evidence that a replay happened.
+tapeVersion: 2
+tapeId: the-two-pulses
+experimentId: me-01
+mode: "me-01:default"
+title: the two pulses
+description: A body at rest emits two light pulses of equal energy in opposite directions. Turn the pair, and each pulse's share changes while their sum in the moving frame does not.
+isTeachingSequence: true
+modelIdentity:
+  modelId: mass-energy-two-ledgers-host
+  modelVersion: "1"
+  artifactDigest: "host:sha256:me01-two-ledgers-evaluateMe01"
+constantSetId: modern-si-2019
+seed: "0"
+streamVersion: 1
+allocationId: me-01.ledgers.v1
+initialConditions:
+  frameSpeed: 0.6
+  emittedEnergyRestFrame: 1
+  emissionAngle: 0
+events:
+  - kind: control
+    actionIndex: 1
+    commandClass: setup-change
+    commandId: turn-the-pair
+    parameterId: emissionAngle
+    value: 45
+    previousValue: 0
+  - kind: control
+    actionIndex: 2
+    commandClass: setup-change
+    commandId: turn-the-pair-broadside
+    parameterId: emissionAngle
+    value: 90
+    previousValue: 45
+  - kind: control
+    # The frame speed is ME-01's observer parameter (ME01_CLASSES), so watching the same emission
+    # from a slower frame is an observer change and not a new experiment.
+    actionIndex: 3
+    commandClass: observer-change
+    commandId: watch-from-a-slower-frame
+    parameterId: frameSpeed
+    value: 0.1
+    previousValue: 0.6
+checkpoints:
+  - actionIndex: 0
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:de5dcf14f6c3d8ce"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "Both pulses forward and back along the motion"
+    teachingNote: "The two pulses carry L = 1 between them in the rest frame. In the frame moving at 0.6c they carry 1.25, which is L times the factor 1.25, and the body's kinetic energy falls by 0.25 = L(1.25 - 1). The low-speed form Einstein takes next, half L v^2/c^2, would give 0.18 here: 39 per cent low, which is why he takes it only for small speeds."
+    expectedDisplayValues:
+      - label: pulseSumMoving
+        value: 1.25
+        unit: "J"
+        constantSetId: modern-si-2019
+      - label: kineticEnergyDifference
+        value: 0.25
+        unit: "J"
+        constantSetId: modern-si-2019
+      - label: pulseEnergyRatio
+        value: 0.25
+        unit: "1"
+        constantSetId: modern-si-2019
+  - actionIndex: 1
+    stepIndex: 1
+    simulatedTime: 0
+    digest: "host:d95c7f73ff986e94"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "The pair turned to 45 degrees"
+    teachingNote: "One pulse gains what the other loses: their energy ratio goes from 0.25 to 0.4042. The sum is still 1.25 and the kinetic-energy difference is still 0.25. This is the cancellation the argument rests on, and it is worth seeing rather than being told."
+    expectedDisplayValues:
+      - label: pulseSumMoving
+        value: 1.25
+        unit: "J"
+        constantSetId: modern-si-2019
+      - label: pulseEnergyRatio
+        value: 0.4042339787513938
+        unit: "1"
+        constantSetId: modern-si-2019
+  - actionIndex: 2
+    stepIndex: 2
+    simulatedTime: 0
+    digest: "host:f997eab025835fd7"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "Broadside: the two pulses are equal again"
+    teachingNote: "At 90 degrees the ratio is exactly 1, the two pulses sharing the moving-frame energy equally, and the sum is still 1.25. Three different directions, three different splits, one sum. The result does not depend on which way the body fired."
+    expectedDisplayValues:
+      - label: pulseSumMoving
+        value: 1.25
+        unit: "J"
+        constantSetId: modern-si-2019
+      - label: pulseEnergyRatio
+        value: 1
+        unit: "1"
+        constantSetId: modern-si-2019
+  - actionIndex: 3
+    stepIndex: 3
+    simulatedTime: 0
+    digest: "host:15a92e1cf64617f2"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "The same emission watched from 0.1c"
+    teachingNote: "The kinetic-energy difference is 0.005038, and half L v^2/c^2 is 0.005: 0.76 per cent apart, where the same comparison at 0.6c was 39 per cent apart. That gap closing is the whole content of Einstein's 'to within magnitudes of the fourth and higher orders'."
+    expectedDisplayValues:
+      - label: kineticEnergyDifference
+        value: 0.005037815259212077
+        unit: "J"
+        constantSetId: modern-si-2019
+      - label: pulseSumMoving
+        value: 1.005037815259212
+        unit: "J"
+        constantSetId: modern-si-2019

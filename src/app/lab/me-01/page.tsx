@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
+import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { TwoLedgersComparison } from "../../../components/lab/me01/TwoLedgersLab.tsx";
 import { DEFAULT_PREPARED_EXAMPLE } from "../../../experiments/me01/session.ts";
 import labDigests from "../../../generated/lab-source-digests.json";
@@ -135,6 +136,7 @@ export default function TwoLedgersPage() {
           </a>
         </div>
       </section>
+      <LabTapes lab="me-01" />
     </>
   );
 }

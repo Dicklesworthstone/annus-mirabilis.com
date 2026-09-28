@@ -466,6 +466,9 @@ presets:
 tapeModel:
   modelId: mass-energy-two-ledgers-host
   modelVersion: 1
+teachingTapes:
+  - tapeId: the-two-pulses
+    title: the two pulses
 predictMode:
   enabled: true
   prompts:

@@ -20,15 +20,19 @@
  * the very displacement the tape records. Reading the set makes the check stronger than the literal
  * did and removes a hedge that was not true.
  *
- * WHAT IS NOT CHECKED HERE, said rather than left to be assumed. Of the 17 recorded numbers, this
- * file checks 6. Two are semantic-kind codes rather than quantities (coin-to-bell, perrins-count);
+ * WHAT IS NOT CHECKED HERE, said rather than left to be assumed. The count is printed by the test
+ * below rather than frozen here, because the corpus grows: on 2026-09-27 it was 28 recorded
+ * numbers of which this file recomputes 15, the nine of them being "the two pulses", whose every
+ * value came from evaluateMe01 and is compared back against it. Two are semantic-kind codes rather than quantities (coin-to-bell, perrins-count);
  * nine need the instrument's own evaluator or a context the tape does not carry (camera-bias's
  * naive expectation, ionization-bounds' incident power, lq-07's Stokes frequency, lq-06's n,
  * lq-05-journey-stage-e's W, the-1906-box's zero shift, me-02's limiting coefficient). Those are
  * unverified, and a reader is looking at them.
  */
 import { describe, expect, test } from "bun:test";
+import { ME01_DEFAULTS } from "../experiments/me01/definition.ts";
 import { getConstantSet } from "../physics/reference/constants.ts";
+import { evaluateMe01 } from "../physics/reference/massEnergy.ts";
 import { loadTeachingTapes, type TeachingTape } from "./teachingTapes.ts";
 
 const tapes = new Map(loadTeachingTapes().tapes.map((t) => [t.tapeId, t]));
@@ -135,7 +139,7 @@ describe("the numbers on a teaching tape's page, recomputed from its own inputs"
       (n, t) => n + t.steps.reduce((m, s) => m + s.expected.length, 0),
       0,
     );
-    const recomputed = 6; // the three tapes above, by name
+    const recomputed = 15; // the three tapes above plus the two pulses' nine, by name
     console.log(
       `[tape numbers] ${total} recorded numbers on the tape pages; ${recomputed} recomputed from ` +
         "their tape's own inputs, and the lq-05 W values additionally checked against the state " +
@@ -158,6 +162,40 @@ describe("a recorded number agrees with the parameters in force where it was rec
         values[step.parameterId] = step.value;
     return values;
   }
+
+  test("the two pulses: every number is ME-01's own evaluator at the step's settings", () => {
+    // This tape was authored on 2026-09-27 and its nine numbers came from evaluateMe01 at these
+    // very settings, so this is the check that keeps them honest: if ME-01's physics moves, the
+    // record goes red instead of quietly disagreeing with the instrument it walks a reader
+    // through. Each label is the snapshot field it names, which is why the comparison is direct.
+    const t = tape("the-two-pulses");
+    let compared = 0;
+    for (const step of t.steps) {
+      if (step.expected.length === 0) continue;
+      const snapshot = evaluateMe01({
+        ...ME01_DEFAULTS,
+        ...inForce(t, step.actionIndex),
+      }) as unknown as Record<string, { status?: string; value?: number } | undefined>;
+      for (const recorded of step.expected) {
+        const output = snapshot[recorded.label];
+        expect(output, `${recorded.label} is not an ME-01 output`).toBeDefined();
+        expect(output?.status, `${recorded.label} at action ${step.actionIndex}`).toBe("value");
+        expect(output?.value, `${recorded.label} at action ${step.actionIndex}`).toBeCloseTo(
+          recorded.value,
+          12,
+        );
+        compared += 1;
+      }
+    }
+    expect(compared).toBe(9);
+    // The teaching point, asserted as a property rather than left to the three equal numbers
+    // above: turning the pair changes each pulse's share and never their sum.
+    const shares = t.steps.flatMap((step) =>
+      step.expected.filter((e) => e.label === "pulseEnergyRatio").map((e) => e.value),
+    );
+    expect(new Set(shares).size).toBe(shares.length);
+    expect(shares.length).toBeGreaterThan(2);
+  });
 
   test("lq-05: W is f to the power of the n that holds at that step, not some other n", () => {
     // THE DEFECT THIS CATCHES, and it was live. lq-05-journey-stage-e recorded W = 0.125 at the
