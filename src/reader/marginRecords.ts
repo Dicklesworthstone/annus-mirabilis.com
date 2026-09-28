@@ -139,9 +139,19 @@ export function loadPaperMargins(paper: string, root: string = process.cwd()): P
    * but refusing anything the catalogue cannot resolve, which is what the resolver already decides
    * for every other address on the site.
    *
-   * ONE CONSEQUENCE WORTH KNOWING: `DECLARED_MODES` is empty for all 37 instruments, so NO colon
-   * address resolves today and any row wanting one must first declare its instrument's modes. That is
-   * why both mass-energy rows that carried a mode address now name their bare instrument (4d1100c9).
+   * ONE CONSEQUENCE WORTH KNOWING: `me-03` declares no mode, so neither `me-03:box-1906` nor
+   * `me-03:four-momentum` resolves, which is why both mass-energy rows that carried a mode address now
+   * name their bare instrument (4d1100c9). A row wanting a mode address needs its instrument to declare
+   * that mode first, as sr-02 declares `apparatus`.
+   *
+   * THIS PARAGRAPH SAID SOMETHING FALSE UNTIL 2026-09-28 and the correction is worth keeping. It read
+   * "`DECLARED_MODES` is empty for all 37 instruments, so NO colon address resolves today". The
+   * catalogue holds 38 ids, sr-02 has declared `apparatus` since 9dbaf884, and
+   * `resolveCatalogueAddress("sr-02:apparatus")` resolves. I took the claim from the resolver's own
+   * docblock, which is stale, instead of printing what the overrides contain: reading the prose about a
+   * construct rather than the construct, which is the error this repository has a rule about. Nothing
+   * here depended on the wrong half, because me-03 declares nothing either way, but the sentence was
+   * quoted as evidence that the mechanism was dead everywhere.
    */
   const noteIds = new Set(notes.map((note) => note.id));
   for (const note of notes) {
