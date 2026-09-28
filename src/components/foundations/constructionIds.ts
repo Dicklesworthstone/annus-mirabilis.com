@@ -42,6 +42,12 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "bridge-negative-numbers-direction",
   "bridge-fractions-ratios",
   "bridge-scientific-notation-units",
+  // The three of dispatch 409. Each draws a claim its own lesson makes in words and could not show:
+  // an account whose two sides are one length, the four ways two tokens can land, and four cells of
+  // one mean square filling the mean square of twice the displacement. None has a control either.
+  "bridge-equals-sign-relationship",
+  "bridge-probability-notation",
+  "bridge-squaring-square-roots",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];

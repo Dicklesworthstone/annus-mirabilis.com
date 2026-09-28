@@ -77,3 +77,54 @@ export function walkSpeeds(): readonly number[] {
 
 /** The share of a group that moved, as a plain number. */
 export const shareOf = (row: { moved: number; group: number }): number => row.moved / row.group;
+
+// The three figures of dispatch 409, on the same terms as the five above: the numbers live here so
+// that a drawing and the paragraph it sits under cannot drift apart.
+
+/**
+ * The made-up account of foundation:bridge-equals-sign-relationship, in the lesson's own units: a
+ * body starts with `before`, keeps `kept` and sends `sent` away as light. The figure draws the two
+ * rows at one scale, so `kept + sent` must be `before` or the second row would overrun the first
+ * and the picture would contradict the balance it exists to show.
+ */
+export const ACCOUNT = { before: 100, kept: 70, sent: 30 } as const;
+
+/** Which half of the box a token landed in. The lesson's two tokens each take one of these. */
+export type Half = "left" | "right";
+
+/**
+ * Every equally likely outcome of dropping `tokens` tokens, each into the left or the right half,
+ * in the order foundation:bridge-probability-notation lists them: left and left, left and right,
+ * right and left, right and right. There are 2^tokens of them and exactly one is all left, which
+ * is where the lesson's 1/4 for two tokens and 1/16 for four come from. Generated rather than
+ * typed, so the count and the list cannot disagree.
+ */
+export function outcomes(tokens: number): readonly (readonly Half[])[] {
+  if (tokens <= 0) return [[]];
+  return outcomes(tokens - 1).flatMap((rest) => [
+    ["left" as Half, ...rest],
+    ["right" as Half, ...rest],
+  ]);
+}
+
+/**
+ * The two tokens the lesson drops. The run of a hundred drops its second paragraph counts is not
+ * here, because no figure draws it: 23 of 100 and a quarter of 100 land about 5 viewBox units
+ * apart, which is roughly 6 px at a bridge figure's drawn width, so a reader would see the two as
+ * the same at exactly the point the lesson says they differ.
+ */
+export const TOKENS = 2;
+
+/**
+ * The four displacements of foundation:bridge-squaring-square-roots, in micrometres. The same four
+ * numbers as PARTICLE_ENDS, and deliberately a separate constant: they are the ends of a walk in
+ * one lesson and the inputs to a mean square in the other, and either lesson may change its example
+ * without the other following.
+ */
+export const DISPLACEMENTS = [-3, -1, 1, 3] as const;
+
+/** The average of the squares: the mean square. */
+export const meanSquare = (values: readonly number[]): number => average(values.map((v) => v * v));
+
+/** The square root of the mean square: a typical distance, back in the original unit. */
+export const rootMeanSquare = (values: readonly number[]): number => Math.sqrt(meanSquare(values));

@@ -1,5 +1,6 @@
 "use client";
 
+import { BalancedAccount } from "./BalancedAccount.tsx";
 import { BoostTable } from "./BoostTable.tsx";
 import { ConfigurationCounter } from "./ConfigurationCounter.tsx";
 import { CountingThePlaces } from "./CountingThePlaces.tsx";
@@ -11,6 +12,8 @@ import {
 import { DescriptionOrWorld } from "./DescriptionOrWorld.tsx";
 import { EnergyLedger } from "./EnergyLedger.tsx";
 import { EntropyTemperatureCheck } from "./EntropyTemperatureCheck.tsx";
+import { FourCellsTwiceTheSide } from "./FourCellsTwiceTheSide.tsx";
+import { FourOutcomes } from "./FourOutcomes.tsx";
 import { HeldFixedToggle } from "./HeldFixedToggle.tsx";
 import type { HeadingLevel } from "./headingLevel.ts";
 import { LogarithmProductTable } from "./LogarithmProductTable.tsx";
@@ -129,5 +132,11 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
       return <SameShareTwice headingLevel={headingLevel} />;
     case "bridge-scientific-notation-units":
       return <CountingThePlaces headingLevel={headingLevel} />;
+    case "bridge-equals-sign-relationship":
+      return <BalancedAccount headingLevel={headingLevel} />;
+    case "bridge-probability-notation":
+      return <FourOutcomes headingLevel={headingLevel} />;
+    case "bridge-squaring-square-roots":
+      return <FourCellsTwiceTheSide headingLevel={headingLevel} />;
   }
 }
