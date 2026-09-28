@@ -1,5 +1,4 @@
 import { loadTeachingTapes } from "../../content/teachingTapes.ts";
-import { labName } from "../../reader/actions/labNames.ts";
 import "./tapes.css";
 
 /**
@@ -42,24 +41,29 @@ export default function Page() {
         Each page shows what the author recorded. None of them runs the instrument for you: you set
         the values and compare.
       </p>
-      {experiments.map((experimentId) => (
-        <section key={experimentId} aria-labelledby={`tapes-${experimentId}`}>
-          {/* The instrument's name, then its id: a reader browsing walkthroughs should not have
-              to know that bm-01 is the tracer ensemble (am-2rl9). */}
-          <h2 id={`tapes-${experimentId}`}>
-            <a href={`/lab/${experimentId}/`}>{labName(experimentId)}</a>{" "}
-            <span className="tape-raw-id">{experimentId}</span>
-          </h2>
-          <ul className="tape-list">
-            {(byExperiment.get(experimentId) ?? []).map((tape) => (
-              <li key={tape.tapeId}>
-                <a href={`/tapes/${tape.tapeId}/`}>{tape.title}</a>
-                {tape.description ? <span className="tape-blurb">{tape.description}</span> : null}
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+      {experiments.map((experimentId) => {
+        // Every tape in a group names the same instrument, so the first one carries its name.
+        const instrument = byExperiment.get(experimentId)?.[0]?.instrument;
+        return (
+          <section key={experimentId} aria-labelledby={`tapes-${experimentId}`}>
+            {/* The instrument's id and the name its manifest gives it (am-2rl9).
+              NOT the accessible-name table, whose entries are whole sentences written
+              to complete "Try it: ..." and read as broken English in a heading. */}
+            <h2 id={`tapes-${experimentId}`}>
+              <a href={`/lab/${experimentId}/`}>{instrument?.id ?? experimentId}</a>
+              {instrument ? `, ${instrument.name}` : null}
+            </h2>
+            <ul className="tape-list">
+              {(byExperiment.get(experimentId) ?? []).map((tape) => (
+                <li key={tape.tapeId}>
+                  <a href={`/tapes/${tape.tapeId}/`}>{tape.title}</a>
+                  {tape.description ? <span className="tape-blurb">{tape.description}</span> : null}
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
     </main>
   );
 }

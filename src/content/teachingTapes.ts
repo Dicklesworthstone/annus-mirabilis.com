@@ -57,6 +57,9 @@ export type TapeStep = Readonly<{
   expected: readonly TapeExpectedValue[];
 }>;
 
+/** An instrument as a link can name it: "SR-03", "Rod Measurement and Simultaneity". */
+export type InstrumentName = Readonly<{ id: string; name: string }>;
+
 export type TeachingTape = Readonly<{
   tapeId: string;
   experimentId: string;
@@ -68,6 +71,8 @@ export type TeachingTape = Readonly<{
   initialConditions: Readonly<Record<string, number | string>>;
   /** The manifest's label and unit for each initial condition it declares a parameter for. */
   conditionNames: Readonly<Record<string, ParameterName>>;
+  /** The instrument's id and the name its manifest gives it, for a link that reads as a sentence. */
+  instrument?: InstrumentName | undefined;
   steps: readonly TapeStep[];
   /** Named in AGENTS.md's teaching-tape list, so the page can say so. */
   named: boolean;
@@ -178,19 +183,46 @@ export function stepsOf(
  * Parsed with the site's own YAML reader, not matched with a regex. Two regexes over these very
  * manifests went wrong earlier today, one of them writing a key into the middle of another block.
  */
-function parameterNames(experimentId: string, root: string): Record<string, ParameterName> {
+function manifestFacts(
+  experimentId: string,
+  root: string,
+): { names: Record<string, ParameterName>; instrument: InstrumentName | undefined } {
   const path = join(root, "content", "experiments", `${experimentId}.yaml`);
-  if (!existsSync(path)) return {};
+  if (!existsSync(path)) return { names: {}, instrument: undefined };
   const manifest = parseYaml(readFileSync(path, "utf8")) as Record<string, unknown>;
-  const out: Record<string, ParameterName> = {};
+  const names: Record<string, ParameterName> = {};
   for (const entry of list(manifest.parameters)) {
     const o = (entry ?? {}) as Record<string, unknown>;
     const id = str(o.id);
     const label = str(o.label);
     if (!id || !label) continue;
-    out[id] = { label };
+    names[id] = { label };
   }
-  return out;
+  return { names, instrument: instrumentNameFrom(str(manifest.title), experimentId) };
+}
+
+/**
+ * The instrument's short id and its name, split from the manifest's title.
+ *
+ * WHY NOT labNames.ts, WHICH I USED FIRST AND WHICH WAS WRONG. That table holds each instrument's
+ * ACCESSIBLE NAME, written to complete "Try it: ...", so its entries are whole sentences: SR-03's
+ * is "Simultaneity is relative; moving bodies contract." Dropped into a sentence frame on the tape
+ * pages in 93f55a4e it produced "Open Simultaneity is relative; moving bodies contract. with these
+ * settings", and LQ-09's two-sentence entry was worse. The manifests carry a name for exactly this
+ * use ("SR-03: Rod Measurement and Simultaneity"), and all 33 of them lead with the instrument's
+ * own id, which is how the two halves are recovered here.
+ */
+export function instrumentNameFrom(
+  title: string | undefined,
+  experimentId: string,
+): InstrumentName | undefined {
+  if (!title) return undefined;
+  const head = `${experimentId.toUpperCase()}:`;
+  const name = title.toUpperCase().startsWith(head)
+    ? title.slice(head.length).trim()
+    : title.trim();
+  if (!name) return undefined;
+  return { id: experimentId.toUpperCase(), name };
 }
 
 /** Every authored teaching tape, by id, in id order. A tape with no title is a problem, not a tape. */
@@ -218,7 +250,9 @@ export function loadTeachingTapes(root: string = process.cwd()): {
     if (!experimentId) problems.push(`tape-no-experiment: ${at} names no experimentId`);
     if (!title)
       problems.push(`tape-no-title: ${at} has no title, so a reader has nothing to call it`);
-    const names = experimentId ? parameterNames(experimentId, root) : {};
+    const { names, instrument } = experimentId
+      ? manifestFacts(experimentId, root)
+      : { names: {} as Record<string, ParameterName>, instrument: undefined };
     const steps = stepsOf(raw, names);
     if (steps.length === 0)
       problems.push(`tape-no-steps: ${at} records no control event, so there is nothing to walk`);
@@ -236,6 +270,7 @@ export function loadTeachingTapes(root: string = process.cwd()): {
           .filter((k) => names[k])
           .map((k) => [k, names[k] as ParameterName]),
       ),
+      ...(instrument ? { instrument } : {}),
       steps,
       named: NAMED_IN_AGENTS.includes(tapeId),
     });

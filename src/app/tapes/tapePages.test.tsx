@@ -51,7 +51,15 @@ describe("the teaching-tape pages", () => {
       expect(items.length, `${tape.tapeId} rendered no step`).toBe(tape.steps.length);
       stepsSeen += items.length;
       const text = document.body.textContent ?? "";
-      expect(text, `${tape.tapeId} does not link its instrument`).toContain(tape.experimentId);
+      // The LINK, not the id in the prose. The page used to print the raw "sr-03" beside the
+      // instrument's name and this read it out of the body text; it now shows "SR-03" and the
+      // lowercase id lives only in the address. Reading the anchor is the stronger form of the
+      // same question, and it is the one the assertion's message was always asking.
+      const labHrefs = [...document.querySelectorAll("a")].map((a) => a.getAttribute("href") ?? "");
+      expect(
+        labHrefs.some((href) => href.startsWith(`/lab/${tape.experimentId}/`)),
+        `${tape.tapeId} does not link its instrument`,
+      ).toBe(true);
       for (const step of tape.steps)
         for (const value of step.expected) {
           numbersSeen += 1;

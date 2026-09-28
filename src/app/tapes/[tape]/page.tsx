@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { loadTeachingTapes } from "../../../content/teachingTapes.ts";
 import { commandClassInWords } from "../../../experiments/commands/types.ts";
-import { labName } from "../../../reader/actions/labNames.ts";
+import tapeLinks from "../../../generated/tape-links.json";
 import "../tapes.css";
 
 /**
@@ -22,9 +22,24 @@ import "../tapes.css";
  *
  * WHAT THE PAGE DOES NOT CLAIM. It does not run anything. Every number here is the number the author
  * recorded, shown as an expectation, and the page says so rather than presenting it as a result.
- * Making the instrument replay the tape is the next unit and needs the hook implemented against
- * these records; until then this page says plainly that the reader sets the values.
+ *
+ * THE OPENING SETTINGS TRAVEL (am-2rl9, second unit). Where the laboratory accepts them, the link to
+ * the instrument carries the walkthrough's opening state in the `?tape=` link the laboratory already
+ * restores on load, so a reader arrives set up rather than copying numbers off this page by hand.
+ * scripts/generate-tape-links.ts builds each link through the LABORATORY'S OWN binding, so a link
+ * exists only where the instrument accepts that state; 19 of 21 do, and the other two keep the plain
+ * link and this page's older sentence. The link carries the opening state only and replays nothing:
+ * the recorded checkpoints hold placeholder digests, so a replay would verify nothing.
+ *
+ * WITHOUT JAVASCRIPT the settings do not arrive, because the laboratory reads the link after mount.
+ * That is the state a laboratory is in anyway with no script, and it says so itself; the page does
+ * not promise otherwise.
  */
+/** What scripts/generate-tape-links.ts writes for a tape whose instrument accepts its opening state. */
+type TapeSettingsLinks = Readonly<
+  Record<string, Readonly<{ experimentId: string; href: string; kind: string }> | undefined>
+>;
+
 export const dynamicParams = false;
 
 export function generateStaticParams() {
@@ -50,16 +65,23 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
   if (!tape) notFound();
   const conditions = Object.entries(tape.initialConditions);
   const lab = `/lab/${tape.experimentId}/`;
+  const settingsLink = (tapeLinks.links as unknown as TapeSettingsLinks)[tape.tapeId];
+  const openHref = settingsLink?.href ?? lab;
+  // The instrument's short id reads inside a sentence; its manifest name stands beside the title.
+  const shortName = tape.instrument?.id ?? tape.experimentId;
+  const openText = settingsLink
+    ? `Open ${shortName} with these settings`
+    : `Open ${shortName} and follow it`;
   return (
     <main className="tape-page">
       <p className="eyebrow">
-        A teaching tape for {labName(tape.experimentId)}{" "}
-        <span className="tape-raw-id">{tape.experimentId}</span>
+        A teaching tape for {shortName}
+        {tape.instrument ? `, ${tape.instrument.name}` : null}
       </p>
       <h1>{tape.title}</h1>
       {tape.description ? <p className="tape-description">{tape.description}</p> : null}
       <p className="tape-to-lab">
-        <a href={lab}>Open {labName(tape.experimentId)} and follow it</a>
+        <a href={openHref}>{openText}</a>
       </p>
 
       {conditions.length > 0 ? (
@@ -154,8 +176,22 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
 
       <p className="tape-honesty">
         These are the values the tape&apos;s author recorded, not a result this page computed.
-        Nothing here runs the instrument. Set them yourself in{" "}
-        <a href={lab}>{labName(tape.experimentId)}</a> and compare what it gives you.
+        Nothing here runs the instrument.{" "}
+        {settingsLink ? (
+          <>
+            <a href={settingsLink.href}>{openText}</a>
+            {settingsLink.kind === "form"
+              ? ": the link puts them in its form, and it calculates when you apply them."
+              : ": the link opens it with them already in place."}{" "}
+            Compare what it gives you with what is recorded here. The settings travel in the link
+            and the laboratory reads them as it loads, so without JavaScript it opens at its worked
+            example instead.
+          </>
+        ) : (
+          <>
+            Set them yourself in <a href={lab}>{shortName}</a> and compare what it gives you.
+          </>
+        )}
       </p>
       <p className="tape-to-lab">
         <a href="/tapes/">Every teaching tape</a>
