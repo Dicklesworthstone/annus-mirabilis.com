@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Metadata } from "next";
 import { Fragment } from "react";
+import { loadTeachingTapes } from "../../content/teachingTapes.ts";
 import { CATALOGUE_IDS, CATALOGUE_STATUS, type CatalogueId } from "../../experiments/catalogue.ts";
 import { labName } from "../../reader/actions/labNames.ts";
 import { previewValue } from "./previewPrecision.ts";
@@ -341,6 +342,10 @@ export default function InstrumentsIndex() {
   const inPreparation = CATALOGUE_IDS.filter((id) => CATALOGUE_STATUS[id] !== "registered");
   const loose = unaffiliated();
 
+  // Counted from the records, not written as a word: I first wrote "Nineteen" here and the number
+  // is 18. A count in reader-facing copy that nothing derives is a claim waiting to go stale.
+  const tapedInstruments = new Set(loadTeachingTapes().tapes.map((tape) => tape.experimentId)).size;
+
   return (
     <>
       <section className="hero">
@@ -352,6 +357,13 @@ export default function InstrumentsIndex() {
         <p className="lead">
           Each answers one question: you set the conditions, it computes, and it says where its
           number came from. Each is a model, labelled as one, never a recording of nature.
+        </p>
+        {/* The teaching tapes were reachable only from inside a laboratory's own page (am-2rl9),
+            which is the one place a reader who has not yet chosen an instrument is not. This is
+            the catalogue they open first. */}
+        <p className="lead">
+          {tapedInstruments} of them also have a <a href="/tapes/">recorded walkthrough</a>: where
+          to start, what to change, in what order, and the numbers to expect.
         </p>
       </section>
 
