@@ -3178,3 +3178,21 @@ html:is(
   color: var(--muted);
   font-size: 0.9em;
 }
+
+/*
+ * THE PAPER'S OWN DISCOVERY ROUTE (PaperDiscovery.tsx).
+ *
+ * .actions carries the row. The opening sentence beneath the link is the route's authored first
+ * line, so it reads as prose rather than as a caption: full width of the row, muted, and given a
+ * basis of 100% so it wraps onto its own line instead of sitting beside the button in the flex row.
+ */
+.paper-discovery {
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+.paper-discovery-opening {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--type-small);
+}

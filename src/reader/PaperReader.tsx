@@ -46,6 +46,7 @@ import {
   unexplainedParts,
 } from "./unexplainedParts.ts";
 import "./reader.css";
+import { PaperDiscovery } from "./PaperDiscovery.tsx";
 import { SectionTapes } from "./SectionTapes.tsx";
 
 /** The Brownian first encounter's id (BrownianFirstEncounter.tsx), a return anchor like a passage. */
@@ -553,6 +554,10 @@ export async function PaperReader({
           </section>
         </StickyLabRegion>
       </ReaderLayout>
+      {/* The paper's own discovery route (measured 2026-09-28: every paper page linked /discover/
+          once, and it was the index from the global nav). Renders nothing for a paper with no
+          route. */}
+      <PaperDiscovery paperId={paper.id} />
       <section className="reader-downloads">
         <h2>Read in another form</h2>
         <p>

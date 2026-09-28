@@ -79,6 +79,7 @@ import { UnexplainedOutlineEntry, UnexplainedPartsLine } from "./UnexplainedPart
 import { outlineOrder, paperParts, unexplainedParts } from "./unexplainedParts.ts";
 import "./reader.css";
 import "./paperLayout.css";
+import { PaperDiscovery } from "./PaperDiscovery.tsx";
 import { SectionTapes } from "./SectionTapes.tsx";
 
 export interface PaperPageOptions {
@@ -793,6 +794,9 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
       {/* A paper's common wrong turns and historian's margin (dispatch 163), on the whole-paper
           page only, and only where the paper has records. */}
       {sectionId ? null : <PaperMargins margins={loadPaperMargins(paper.id)} />}
+      {/* The paper's own discovery route, on the whole-paper page only: a section is not the paper,
+          and a route reconstructs the whole argument. Renders nothing where there is no route. */}
+      {sectionId ? null : <PaperDiscovery paperId={paper.id} />}
       <ExplanationInlineTerms paper={paper.id} />
       {/* The model cards' panels fetch their levels on first expansion (dispatch 292). */}
       <ExplainerFragments />
