@@ -10,6 +10,7 @@
 import { describe, expect, test } from "bun:test";
 import { loadTeachingTapes, tapesForPassage } from "../content/teachingTapes.ts";
 import { exportMarkup } from "../testing/exportMarkup.ts";
+import { PaperPage } from "./PaperPage.tsx";
 import { PaperReader } from "./PaperReader.tsx";
 
 const PAPER = "brownian-motion";
@@ -91,4 +92,45 @@ describe("a paper section names the walkthroughs that lead back to it", () => {
     expect(tapesForPassage(PAPER, "s99")).toEqual([]);
     expect(tapesForPassage("not-a-paper", "s5")).toEqual([]);
   });
+});
+
+/**
+ * THE OTHER THREE PAPERS, WHICH THE BROWNIAN RENDER ABOVE CANNOT SPEAK FOR (am-2rl9).
+ *
+ * PaperReader serves brownian-motion alone; light-quanta, special-relativity and mass-energy render
+ * through the paper-agnostic PaperPage shell. The first version of this file tested only the
+ * PaperReader render, so it was green while 13 of the 15 (paper, section) pairs had no link at all,
+ * and the commit message said the opposite. The population a test examines has to be the population
+ * that ships.
+ */
+describe("the walkthrough links reach the papers PaperPage renders", () => {
+  const shellPapers = [...new Set([...pairs.keys()].map((k) => k.split("/")[0] ?? ""))]
+    .filter((p) => p !== PAPER)
+    .sort();
+
+  test("there are papers rendered by the shell, so the loop below is not empty", () => {
+    expect(shellPapers.length).toBeGreaterThan(1);
+    console.log(`[shell papers] ${shellPapers.join(", ")}`);
+  });
+
+  for (const paperId of ["special-relativity", "light-quanta", "mass-energy"]) {
+    test(`${paperId} links every walkthrough that names one of its sections`, async () => {
+      const sections = [...pairs.keys()]
+        .filter((k) => k.startsWith(`${paperId}/`))
+        .map((k) => k.slice(paperId.length + 1));
+      expect(sections.length).toBeGreaterThan(0);
+      const markup = await exportMarkup(await PaperPage({ paperId }));
+      const missing: string[] = [];
+      for (const sectionId of sections)
+        for (const tape of tapesForPassage(paperId, sectionId)) {
+          if (!markup.includes(`/tapes/${tape.tapeId}`))
+            missing.push(`${sectionId}: href ${tape.tapeId}`);
+          if (!markup.includes(escapeForHtml(tape.title)))
+            missing.push(`${sectionId}: title "${tape.title}"`);
+        }
+      expect(missing).toEqual([]);
+      const navs = [...markup.matchAll(/class="[^"]*section-tapes[^"]*"/g)];
+      expect(navs.length).toBe(sections.length);
+    }, 120_000);
+  }
 });
