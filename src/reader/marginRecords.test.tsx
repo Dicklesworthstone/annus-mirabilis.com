@@ -4,6 +4,7 @@
  * (PaperMargins.tsx) are static markup that renders nothing for a paper without records.
  */
 import { describe, expect, test } from "bun:test";
+import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { Window } from "happy-dom";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -13,6 +14,7 @@ import { PaperMargins } from "./PaperMargins.tsx";
 import { PaperPage } from "./PaperPage.tsx";
 
 const FIXTURES = join(process.cwd(), "src", "reader", "__fixtures__", "margins");
+const NOTES_DIR = join(process.cwd(), "content", "editorial-notes");
 const root = (name: string) => join(FIXTURES, name);
 
 describe("loading a paper's margin records", () => {
@@ -160,6 +162,32 @@ describe("the sections on the page", () => {
     // is on the page even where the page says nothing about it.
     expect(notes.map((note) => note.getAttribute("data-historical-statement"))).toEqual(
       margins.notes.map((note) => note.historicalStatement ?? null),
+    );
+  });
+
+  test("every margin record that ships names its register", () => {
+    // The requirement, where it costs nothing. Making historicalStatement REQUIRED in the schema is
+    // one line of validation and a new throw site in the middle of source.ts, which would shift the
+    // line citations that credit ~30 refusal sites below it and repeat the repair of 92f2c0a2 on the
+    // file the orchestrator has already flagged. The contract it would enforce is enforced here
+    // instead, over the population that matters: the records a reader is actually served. When the
+    // line-citation bead lands, the schema can take this over.
+    const papers = existsSync(NOTES_DIR) ? readdirSync(NOTES_DIR) : [];
+    const missing: string[] = [];
+    let checked = 0;
+    for (const paper of papers) {
+      for (const note of loadPaperMargins(paper, process.cwd()).notes) {
+        checked++;
+        if (!note.historicalStatement) missing.push(`${paper}/${note.id}`);
+      }
+    }
+    // Non-vacuity: a run over no papers, or over papers whose notes all vanished, would report a
+    // clean sweep of nothing.
+    expect(papers.length).toBeGreaterThan(0);
+    expect(checked).toBeGreaterThan(0);
+    expect(missing).toEqual([]);
+    console.log(
+      `[margin registers] ${checked} shipped notes across ${papers.length} paper(s), 0 without a register`,
     );
   });
 
