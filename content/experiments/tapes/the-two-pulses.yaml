@@ -123,7 +123,7 @@ checkpoints:
   - actionIndex: 3
     stepIndex: 3
     simulatedTime: 0
-    digest: "host:15a92e1cf64617f2"
+    digest: "host:9d8dc3d885f386f9"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1

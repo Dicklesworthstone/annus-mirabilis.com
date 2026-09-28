@@ -31,7 +31,7 @@ checkpoints:
   - actionIndex: 0
     stepIndex: 0
     simulatedTime: 0
-    digest: "host:sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    digest: "host:bdccdb9f8026dd48"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1

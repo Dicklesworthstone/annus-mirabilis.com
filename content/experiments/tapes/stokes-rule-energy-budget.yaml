@@ -33,7 +33,7 @@ checkpoints:
   - actionIndex: 1
     stepIndex: 1
     simulatedTime: 1
-    digest: "host:sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    digest: "host:98b1f84ab839bee8"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1
@@ -44,7 +44,7 @@ checkpoints:
   - actionIndex: 2
     stepIndex: 2
     simulatedTime: 2
-    digest: "host:sha256:6666666666666666666666666666666666666666666666666666666666666666"
+    digest: "host:6496c1ab593898ee"
     digestKind: host
     checkpointVersion: 1
     streamSemanticsVersion: 1

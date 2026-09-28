@@ -50,10 +50,55 @@ describe("replayTeachingTapeOn: what it refuses", () => {
 });
 
 describe("the published walkthroughs, measured against their own laboratory", () => {
-  test("the-two-pulses now passes identity and is stopped by its recorded checkpoint", () => {
+  test("the-two-pulses replays on ME-01 from its own record, and satisfies its own checkpoint", () => {
     const out = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, { resolve: fromRecords });
-    expect(out.kind).toBe("refused");
-    if (out.kind !== "refused") throw new Error("unreachable");
+    /*
+     * This asserted tape-stream-version-mismatch, then tape-checkpoint-mismatch, and now asserts a
+     * replay. The three reasons measured in ac0bc2c2 are all answered for this record: its
+     * allocation says what it is, its four checkpoint digests are ones a replay reaches, and the
+     * default step stops where its last checkpoint was taken. Nothing here is forced: asNewRun is
+     * not passed, so the identity check and the checkpoint verification both ran.
+     */
+    expect(out.kind).toBe("replayed");
+    if (out.kind !== "replayed") throw new Error("unreachable");
+    expect(out.isNewRun).toBe(false);
+    expect(out.executedEventCount).toBe(3);
+    expect(out.state.emissionAngle).toBe(90);
+    expect(out.state.frameSpeed).toBe(0.1);
+    expect(out.acceptedCheckpoint.digest).toBe(record.acceptedCheckpoint.digest);
+  });
+
+  test("a walkthrough checkpointed before its first event replays to that checkpoint, not past it", async () => {
+    // lq-05-journey-stage-e records one event at actionIndex 1 and its only checkpoint at
+    // actionIndex 0, the state BEFORE that event. Replaying to the last event reached a state no
+    // checkpoint in the record describes and refused, with every digest in the file correct.
+    const { LQ05_TAPE } = (await import("../lq05/tape.ts")) as {
+      LQ05_TAPE: typeof ME01_TAPE;
+    };
+    const id = "lq-05-journey-stage-e";
+    const tape = fromRecords(id);
+    if (!tape) throw new Error(`${id} is not in the records`);
+    expect(tape.events.length).toBe(1);
+    expect(tape.acceptedCheckpoint.acceptedActionIndex).toBe(0);
+    const out = replayTeachingTapeOn(LQ05_TAPE, LQ05_TAPE.createSession("lq05-step"), id, {
+      resolve: (x) => (x === id ? tape : null),
+    });
+    expect(out.kind).toBe("replayed");
+    if (out.kind !== "replayed") throw new Error("unreachable");
+    expect(out.executedEventCount).toBe(0);
+    // And naming the step explicitly still reaches past it, where the checkpoint no longer matches.
+    const past = replayTeachingTapeOn(LQ05_TAPE, LQ05_TAPE.createSession("lq05-past"), id, {
+      resolve: (x) => (x === id ? tape : null),
+      stepIndex: 0,
+    });
+    expect(past.kind).toBe("refused");
+    if (past.kind === "refused") expect(past.refusalCode).toBe("tape-checkpoint-mismatch");
+  });
+
+  test("its recorded checkpoint is reached at every step the record names", () => {
+    const out = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, { resolve: fromRecords });
+    expect(out.kind).toBe("replayed");
+    if (out.kind !== "replayed") throw new Error("unreachable");
     /*
      * This asserted tape-stream-version-mismatch until the records declared the allocation they
      * actually have. Measured the same way before and after, over the same 12 convertible
@@ -67,21 +112,31 @@ describe("the published walkthroughs, measured against their own laboratory", ()
      * matches no digest this codebase computes. When that is repaired this line goes red and the
      * assertion that replaces it is that a reader can play the walkthrough.
      */
-    expect(out.refusalCode).toBe("tape-checkpoint-mismatch");
-    expect(out.notice.length).toBeGreaterThan(0);
+    expect(out.acceptedCheckpoint.acceptedActionIndex).toBe(
+      record.acceptedCheckpoint.acceptedActionIndex,
+    );
   });
 
-  test("its recorded checkpoint is not one this codebase can reach, so replay is refused twice over", () => {
-    // Identity aside: forced as a new run the events apply cleanly, and the digest still differs.
-    const out = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, {
+  test("forced as a new run it reaches the same state, and says it is a new run", () => {
+    /*
+     * This asserted that the digest DIFFERED, which was true while the record carried a checkpoint
+     * no replay reached. The record now carries the digest a replay does reach, so the two agree and
+     * what is left to check here is that asNewRun changes the run's identity and nothing else: the
+     * same events, the same state, the same digest, reported as a new run rather than a restore.
+     */
+    const forced = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, {
       asNewRun: true,
       resolve: fromRecords,
     });
-    expect(out.kind).toBe("replayed");
-    if (out.kind !== "replayed") throw new Error("unreachable");
-    expect(out.isNewRun).toBe(true);
-    expect(out.executedEventCount).toBe(record.events.length);
-    expect(out.acceptedCheckpoint.digest).not.toBe(record.acceptedCheckpoint.digest);
+    const restored = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, { resolve: fromRecords });
+    expect(forced.kind).toBe("replayed");
+    expect(restored.kind).toBe("replayed");
+    if (forced.kind !== "replayed" || restored.kind !== "replayed") throw new Error("unreachable");
+    expect(forced.isNewRun).toBe(true);
+    expect(restored.isNewRun).toBe(false);
+    expect(forced.executedEventCount).toBe(record.events.length);
+    expect(forced.state).toEqual(restored.state);
+    expect(forced.acceptedCheckpoint.digest).toBe(record.acceptedCheckpoint.digest);
   });
 });
 
