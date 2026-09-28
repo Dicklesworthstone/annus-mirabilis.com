@@ -37,7 +37,9 @@ import {
 } from "./PhotoelectricPlot.tsx";
 import "./photoelectricLab.css";
 
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { LabMargin } from "../LabMargin.tsx";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 export type PhotoelectricLabProps = Readonly<{
   example?: PreparedLq08Example | undefined;
   /** Millikan's 1916 points, or why they are withheld: built on the server from the record. */
@@ -478,6 +480,10 @@ export function PhotoelectricLab({
           <LabMargin>{withScripts(LQ08_CAPTION.r3)}</LabMargin>
         </>
       )}
+
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). Outside the
+          readings fragment above, so it is there whether or not the readings are. */}
+      <ShowTheCode instrumentId="lq-08" listings={getKernelListingsForInstrument("lq-08")} />
 
       <div className="lab-bottom">
         <div className="lq08-historical">
