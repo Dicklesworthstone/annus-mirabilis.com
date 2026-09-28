@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import "../../components/lab/labShell.css";
 import { EmbedLauncher } from "../../components/embed/EmbedLauncher.tsx";
+import { LabDetailControl } from "../../components/lab/LabDetailControl.tsx";
 import { LocalPredictions } from "../../components/lab/LocalPredictions.tsx";
 import { ExplainerFragments } from "../../reader/faces/ExplainerFragments.tsx";
 
@@ -31,6 +32,11 @@ export default function LaboratoryLayout({ children }: { children: ReactNode }) 
           explained formula pays for a listener and nothing else. */}
       <ExplainerFragments />
       <div className="lab-route">{children}</div>
+      {/* The Detail axis, under the readings it governs (am-5bff). A laboratory had no control for
+          it, so a reader with JavaScript saw one reading of four while a reader without saw three.
+          Here rather than in each instrument because it belongs to the page, not to the physics,
+          and one mount reaches all 46 routes; it draws nothing on a page with no readings. */}
+      <LabDetailControl />
       <EmbedLauncher />
       {/* The 21 authored teaching tapes reached no reader until 2026-09-27 (am-2rl9).
           One link, not a per-laboratory list: the lab routes are one directory each rather than a

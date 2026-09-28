@@ -648,3 +648,36 @@ html[data-detail="2"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[dat
 .lab-route .page-intro {
   max-width: none;
 }
+
+/* THE DETAIL CONTROL UNDER AN INSTRUMENT (am-5bff, LabDetailControl.tsx). A row of three, in the
+   page's own control language rather than the instrument's: it changes which reading is shown and
+   nothing about the physics, so it is quiet, and it sits below the readings it governs. It is
+   drawn only after hydration, so nothing reserves space for it in the static page. */
+.lab-detail-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 1rem;
+  margin: 1.5rem 0;
+  padding: 0.7rem 1rem;
+  border: 0;
+  border-left: 2px solid var(--rule);
+  background: var(--wash);
+  max-width: 68ch;
+}
+
+.lab-detail-control > legend {
+  float: left;
+  width: 100%;
+  margin: 0 0 0.4rem;
+  padding: 0;
+  font-size: var(--type-small);
+  color: var(--muted);
+}
+
+.lab-detail-control label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: var(--type-small);
+}
