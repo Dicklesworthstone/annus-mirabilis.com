@@ -38,6 +38,8 @@ type PaperPayload = Readonly<{
   holders: Readonly<Record<string, string>>;
   formulas: Readonly<Record<string, PrintedInline>>;
   quantities: Readonly<Record<string, PrintedInlineQuantity>>;
+  /** Named occurrences in printed order, keyed by scope and LaTeX (am-rse2). */
+  occurrences?: Readonly<Record<string, readonly string[]>> | undefined;
 }>;
 
 const PAPERS = (payload as unknown as { papers: Readonly<Record<string, PaperPayload>> }).papers;
@@ -47,11 +49,42 @@ export function printedInline(
   paper: string | undefined,
   holder: string | undefined,
   latex: string,
+  /**
+   * This printing of the formula, where the record names one (a math inline's `inlineId`). A
+   * paragraph that prints one glyph twice in two meanings has a render for each, and the occurrence
+   * is what tells them apart (am-rse2: relativity's s10-p10 X-axis and its electrostatic force X).
+   * Every other formula has one render for its scope and LaTeX, found by the same call without it.
+   */
+  inlineId?: string | undefined,
 ): PrintedInline | undefined {
   if (paper === undefined || holder === undefined) return undefined;
   const own = PAPERS[paper];
   const scope = own?.holders[holder];
-  return scope === undefined ? undefined : own?.formulas[`${scope}\u0000${latex}`];
+  if (scope === undefined) return undefined;
+  const atOccurrence =
+    inlineId === undefined ? undefined : own?.formulas[`${scope}\u0000${inlineId}\u0000${latex}`];
+  return atOccurrence ?? own?.formulas[`${scope}\u0000${latex}`];
+}
+
+/**
+ * The render of the `ordinal`-th printing of this LaTeX in its holder, for a caller that renders a
+ * paragraph from its text and so has no inline record to read an id from - a result card's quotation
+ * (sourceMarkup.tsx). Where the paragraph names no occurrence of that LaTeX, which is every
+ * paragraph but one, this is exactly printedInline.
+ */
+export function printedInlineAt(
+  paper: string | undefined,
+  holder: string | undefined,
+  latex: string,
+  ordinal: number,
+): PrintedInline | undefined {
+  if (paper === undefined || holder === undefined) return undefined;
+  const own = PAPERS[paper];
+  const scope = own?.holders[holder];
+  if (scope === undefined) return undefined;
+  const named = own?.occurrences?.[`${scope}\u0000${latex}`];
+  const occurrence = named?.[ordinal];
+  return printedInline(paper, holder, latex, occurrence);
 }
 
 /** The inspector's facts for every quantity a paper's inline formulas bind, or undefined for a paper

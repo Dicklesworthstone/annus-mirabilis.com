@@ -55,7 +55,7 @@ import {
 } from "../../content/editions/segmentSentences.ts";
 import { LEDGER_KATEX_SETTINGS, parseLedgerMath } from "../../content/ledger/ledgerMathSettings.ts";
 import { printedDisplay, printedDisplayInPaper } from "../../equations/printed/printedDisplays.ts";
-import { printedInline } from "../../equations/printed/printedInlines.ts";
+import { printedInlineAt } from "../../equations/printed/printedInlines.ts";
 import { PrintedDisplayTerms } from "./PrintedDisplayTerms.tsx";
 import "./sourceMarkup.css";
 
@@ -299,6 +299,9 @@ export function renderSourceMarkup(
     if (cursor < segment.length) push(segment.slice(cursor));
   };
 
+  // How many times each LaTeX has been printed in this quotation so far, so a paragraph that reads
+  // two printings of one glyph differently can be quoted correctly (am-rse2).
+  const quotedSeen = new Map<string, number>();
   let cursor = 0;
   for (const region of regions) {
     if (region.start > cursor) pushMarkup(text.slice(cursor, region.start));
@@ -321,7 +324,18 @@ export function renderSourceMarkup(
       // A card's quotation of a paper drawn in colour (dispatch 272): the German face's own coloured
       // render, found by the paper, the anchor quoted and the exact LaTeX (printedInlines.ts). Only
       // a coloured formula carries the faces' class and data, so the lighting island finds it.
-      const coloured = quoted ? printedInline(quoted.paper, quoted.near, region.latex) : undefined;
+      //
+      // BY COUNT, NOT BY ID (am-rse2). A quotation is rendered from the paragraph's text, so unlike
+      // the reading face it holds no inline record and cannot name which printing this is. Where a
+      // paragraph reads two printings of one glyph differently - relativity's s10-p10 X-axis and its
+      // electrostatic force X - the nth printing here is the nth the build recorded for it. For
+      // every paragraph that names no occurrence, which is all the others, this is the same lookup
+      // it was.
+      const ordinal = quotedSeen.get(region.latex) ?? 0;
+      quotedSeen.set(region.latex, ordinal + 1);
+      const coloured = quoted
+        ? printedInlineAt(quoted.paper, quoted.near, region.latex, ordinal)
+        : undefined;
       push(
         <span
           key={key}

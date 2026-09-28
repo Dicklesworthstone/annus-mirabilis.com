@@ -616,6 +616,7 @@ await writeFile(
           {
             holders: p.holders,
             formulas: p.formulas,
+            occurrences: p.occurrences,
             quantities: inlineQuantityFacts(process.cwd(), p, {
               firstUse: (paper, anchor) => resolveFirstUse(paper, anchor, firstUseTargets),
             }),

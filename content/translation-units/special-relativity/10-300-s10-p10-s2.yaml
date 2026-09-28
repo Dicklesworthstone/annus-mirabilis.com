@@ -17,12 +17,16 @@ inlines:
     latex: "K"
   - kind: "text"
     text: ", with initial velocity 0, steadily along the "
+  # The same two printings as the German sentence, under the same occurrence ids, so the reading
+  # scoped to the axis in the concordance reaches this face too (am-rse2). No word changes here.
   - kind: "math"
     latex: "X"
+    inlineId: "s10-p10-s2-m2"
   - kind: "text"
     text: "-axis under the action of an electrostatic force "
   - kind: "math"
     latex: "X"
+    inlineId: "s10-p10-s2-m3"
   - kind: "text"
     text: ", it is clear that the energy withdrawn from the electrostatic field has the value "
   - kind: "math"

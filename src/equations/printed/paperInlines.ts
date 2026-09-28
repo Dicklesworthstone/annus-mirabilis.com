@@ -50,6 +50,19 @@ export function scopeKey(scope: Pick<InlineScope, "paper" | "anchor" | "section"
   return `${scope.paper}|${scope.anchor}|${scope.section}`;
 }
 
+/**
+ * The key one compiled render is stored under. A formula the record marks with an `inlineId` is
+ * stored under that occurrence as well, so one paragraph can print one glyph twice and read the two
+ * differently (am-rse2): relativity's s10-p10 names the X-axis and an electrostatic force X in one
+ * sentence. Everything else keeps the one-render-per-scope-and-LaTeX key it had, so no other
+ * formula on any face is compiled or stored twice.
+ */
+export function formulaKey(scope: string, latex: string, occurrence?: string | undefined): string {
+  return occurrence === undefined
+    ? `${scope}\u0000${latex}`
+    : `${scope}\u0000${occurrence}\u0000${latex}`;
+}
+
 type Holder = Readonly<{
   id: string;
   kind?: string | undefined;
@@ -67,14 +80,33 @@ type Holder = Readonly<{
  * formulas on the face.
  */
 export function inlineFormulas(inlines: readonly Inline[]): string[] {
+  return inlineFormulaSites(inlines).map((site) => site.latex);
+}
+
+/**
+ * The same walk, with the occurrence each formula is printed at where the record names one: a math
+ * inline's `inlineId` (am-rse2). A misprint's two readings share the misprint's own site, since they
+ * are one printing of one formula.
+ */
+export function inlineFormulaSites(
+  inlines: readonly Inline[],
+): { latex: string; occurrence?: string | undefined }[] {
   return inlines.flatMap((inline) => {
-    if (inline.kind === "math") return inline.display === true ? [] : [inline.latex];
+    if (inline.kind === "math")
+      return inline.display === true
+        ? []
+        : [
+            {
+              latex: inline.latex,
+              ...(inline.inlineId === undefined ? {} : { occurrence: inline.inlineId }),
+            },
+          ];
     if (inline.kind === "misprint" && "math" in inline) {
       const meant = misprintNotes().get(inline.recordId)?.formula?.reading;
-      return [inline.math.latex, ...(meant === undefined ? [] : [meant])];
+      return [{ latex: inline.math.latex }, ...(meant === undefined ? [] : [{ latex: meant }])];
     }
     const nested = (inline as { inlines?: readonly Inline[] }).inlines;
-    return Array.isArray(nested) ? inlineFormulas(nested) : [];
+    return Array.isArray(nested) ? inlineFormulaSites(nested) : [];
   });
 }
 
@@ -108,8 +140,14 @@ export function paperInlineHolders(
       scopeOfBlock.set(sentence.id, scope);
       holders[sentence.id] = scopeKey(scope);
     }
-    for (const latex of inlineFormulas(block.inlines))
-      occurrences.push({ ...scope, where: block.id, latex, face: "german" });
+    for (const { latex, occurrence } of inlineFormulaSites(block.inlines))
+      occurrences.push({
+        ...scope,
+        where: block.id,
+        latex,
+        face: "german",
+        ...(occurrence === undefined ? {} : { occurrence }),
+      });
   }
   for (const unit of edition.units as readonly Holder[]) {
     // A unit that translates an equation block prints that display: content/display-terms colours
@@ -118,8 +156,14 @@ export function paperInlineHolders(
     const german = (unit.sourceRefs ?? []).map((r) => scopeOfBlock.get(r.id)).find(Boolean);
     const scope = german ?? { paper, anchor: unit.id, section: "" };
     holders[unit.id] = scopeKey(scope);
-    for (const latex of inlineFormulas(unit.inlines))
-      occurrences.push({ ...scope, where: unit.id, latex, face: "english" });
+    for (const { latex, occurrence } of inlineFormulaSites(unit.inlines))
+      occurrences.push({
+        ...scope,
+        where: unit.id,
+        latex,
+        face: "english",
+        ...(occurrence === undefined ? {} : { occurrence }),
+      });
   }
   return { holders, occurrences };
 }
@@ -152,6 +196,13 @@ export type PaperInlines = Readonly<{
   holders: Readonly<Record<string, string>>;
   /** Keyed by scope key and LaTeX, joined by a NUL. */
   formulas: Readonly<Record<string, CompiledInline>>;
+  /**
+   * Where one paragraph prints one LaTeX at named occurrences, their ids in printed order, keyed by
+   * scope and LaTeX (am-rse2). A result card quotes a paragraph from its text and has no inline
+   * record to read an id from, so it counts printings instead: the nth `X` of this paragraph is the
+   * nth id here. Empty for every paragraph whose formulas are not named, which is all but one.
+   */
+  occurrences: Readonly<Record<string, readonly string[]>>;
   quantities: Readonly<Record<string, InlineQuantityUse>>;
   problems: readonly InlineTermsProblem[];
   census: InlineCensus;
@@ -183,6 +234,7 @@ export async function checkPaperInlines(
     { glyphs: string[]; scope: { anchor: string; section: string } }
   > = {};
   const refusedKeys = new Set<string>();
+  const occurrenceOrder: Record<string, string[]> = {};
   const problems: InlineTermsProblem[] = [];
   // Each label's id on the page (dispatch 280, step 1b): one per reading and section, so a point A
   // of § 1 lights with every other A of § 1 and never with the A of § 7, which is an amplitude. It
@@ -200,7 +252,13 @@ export async function checkPaperInlines(
   for (const at of occurrences) {
     census.formulas++;
     census[at.face]++;
-    const key = `${scopeKey(at)}\u0000${at.latex}`;
+    const key = formulaKey(scopeKey(at), at.latex, at.occurrence);
+    if (at.occurrence !== undefined && at.face === "german") {
+      const shared = formulaKey(scopeKey(at), at.latex);
+      const ordered = occurrenceOrder[shared] ?? [];
+      if (!ordered.includes(at.occurrence)) ordered.push(at.occurrence);
+      occurrenceOrder[shared] = ordered;
+    }
     if (!formulas[key] && !refusedKeys.has(key)) {
       const read = resolveInlineTerms(at.latex, at, context);
       const resolved = {
@@ -241,7 +299,15 @@ export async function checkPaperInlines(
     else if (compiled.value) census.valued++;
     else census.plainDeclared++;
   }
-  return { paper, holders, formulas, quantities, problems, census };
+  return {
+    paper,
+    holders,
+    formulas,
+    quantities,
+    occurrences: occurrenceOrder,
+    problems,
+    census,
+  };
 }
 
 /** What the page's inspector says about a quantity an inline formula binds (InlineTermLighting). */

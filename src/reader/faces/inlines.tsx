@@ -127,7 +127,12 @@ export function renderInlines(
             );
           }
           // In colour where the build bound its glyphs through the concordance (inlineTerms.ts).
-          const coloured = printedInline(options?.terms?.paper, options?.terms?.holder, node.latex);
+          const coloured = printedInline(
+            options?.terms?.paper,
+            options?.terms?.holder,
+            node.latex,
+            node.inlineId,
+          );
           return (
             <span
               key={key}

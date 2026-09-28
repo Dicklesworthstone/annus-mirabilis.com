@@ -22,12 +22,18 @@ inlines:
     latex: "K"
   - kind: "text"
     text: " aus mit der Anfangsgeschwindigkeit 0 beständig auf der "
+  # The axis and the force are the same letter in one sentence (p. 920, line 1), so each printing is
+  # named and the concordance scopes a reading to the first of them (am-rse2). The ids are their
+  # places among the inline formulas of s10-p10-s2, which prints K, the axis X, the force X, then
+  # the integral.
   - kind: "math"
     latex: "X"
+    inlineId: "s10-p10-s2-m2"
   - kind: "text"
     text: "-Achse unter der Wirkung einer elektrostatischen Kraft "
   - kind: "math"
     latex: "X"
+    inlineId: "s10-p10-s2-m3"
   - kind: "text"
     text: ", so ist klar, daß die dem elektrostatischen Felde entzogene Energie den Wert "
   - kind: "math"

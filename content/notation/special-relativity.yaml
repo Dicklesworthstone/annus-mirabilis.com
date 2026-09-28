@@ -2698,6 +2698,31 @@ entries:
       by: "agent:TopazPrairie"
       date: "2026-09-26"
 
+  - id: sr.X.axisLabelS10p10
+    paper: special-relativity
+    scope: ["sr-s10-p10-s2-m2"]
+    glyph:
+      unicode: "X"
+      latex: "X"
+      variant: plain
+    meaning: "The X-axis of K, the line the electron moves along: a name, not the electrostatic force X printed four words later in the same sentence"
+    binding:
+      nonQuantityKind: coordinate-system-label
+    operation:
+      kind: rename
+      target:
+        form: symbol
+        modernGlyph: "x"
+    notes: "Scoped to the first of the two X's this paragraph prints, not to the paragraph: the second is the electrostatic force, and so is the X of the integral that follows it. The entry for s10-p4 does the same work for a paragraph where the letter only names the axis."
+    sources:
+      facsimilePage: 920
+      anchor: sr-s10-p10
+    verification:
+      printed: true
+      checkedAgainst: "Plate of printed page 920 (public/figures/plates/pages/ap-17-891/920-1280.webp): glyph read by eye from the page image, not the text layer. Line 1 reads 'X-Achse unter der Wirkung einer elektrostatischen Kraft X,', both italic capital X; the sentence begins on p. 919 and the page turn falls inside it. The force is the letter printed again on line 3, in the value the field gives up, and in the display W = integral of epsilon X dx. An agent check, not a human review."
+      by: "agent:NavyKite"
+      date: "2026-09-28"
+
 modernOnlySymbols:
   - id: sr.chi.rapidity
     glyph:

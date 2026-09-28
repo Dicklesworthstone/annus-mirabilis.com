@@ -51,6 +51,14 @@ export type InlineScope = Readonly<{
   anchor: string;
   /** Its section (s0 to s10), for entries scoped to a section. */
   section: string;
+  /**
+   * THIS occurrence of the formula, where the record names one (a math inline's `inlineId`), for an
+   * entry scoped to one printing of a glyph rather than to the paragraph (am-rse2). Relativity's
+   * s10-p10 prints "auf der X-Achse unter der Wirkung einer elektrostatischen Kraft X" (p. 920,
+   * line 1): the axis and the electrostatic force are the same LaTeX in one sentence, so a reading
+   * keyed by the paragraph cannot tell them apart, and the axis was drawn in the force's colour.
+   */
+  occurrence?: string | undefined;
 }>;
 
 /** A sign the concordance does not carry, listed with its reason (content/inline-terms). */
@@ -182,10 +190,11 @@ function signatureOrUndefined(glyph: string): string | undefined {
 }
 
 /**
- * The concordance's readings of one atom in scope, at the level that decides: entries scoped to the
- * formula's own paragraph if any, else those scoped more widely. The same precedence as
- * concordanceBinding (displayTerms.ts), returned whole so that two readings can be told apart from
- * none.
+ * The concordance's readings of one atom in scope, at the level that decides: entries scoped to this
+ * printing of the formula if any, else those scoped to its paragraph, else those scoped more widely.
+ * The paragraph level is the same precedence as concordanceBinding (displayTerms.ts); the occurrence
+ * level is narrower still (am-rse2), and it is what lets one paragraph read two printings of one
+ * glyph differently. Returned whole so that two readings can be told apart from none.
  */
 function readingsInScope(
   entries: readonly ConcordanceEntry[],
@@ -198,16 +207,22 @@ function readingsInScope(
   meaning?: string | undefined;
 }>[] {
   const own = normalizeSectionId(scope.anchor);
+  const here = scope.occurrence === undefined ? undefined : normalizeSectionId(scope.occurrence);
   const opinions = entries.flatMap((entry) => {
-    if (!scopeMatches(entry.scope, scope.anchor, scope.section)) return [];
+    // An entry scoped to an occurrence is in scope only at that occurrence. scopeMatches knows
+    // nothing of occurrences, so such an entry would otherwise never match at all.
+    const atOccurrence =
+      here !== undefined && entry.scope.some((s) => normalizeSectionId(s) === here);
+    if (!atOccurrence && !scopeMatches(entry.scope, scope.anchor, scope.section)) return [];
     if (signatureOrUndefined(entry.glyph.latex ?? "") !== signature) return [];
     const quantityId = "quantityId" in entry.binding ? entry.binding.quantityId : undefined;
     const binds =
       quantityId ??
       `not a quantity (${"nonQuantityKind" in entry.binding ? entry.binding.nonQuantityKind : "?"})`;
     const local = entry.scope.some((s) => normalizeSectionId(s) === own);
-    return [{ id: entry.id, binds, quantityId, meaning: entry.meaning, local }];
+    return [{ id: entry.id, binds, quantityId, meaning: entry.meaning, local, atOccurrence }];
   });
+  if (opinions.some((o) => o.atOccurrence)) return opinions.filter((o) => o.atOccurrence);
   return opinions.some((o) => o.local) ? opinions.filter((o) => o.local) : opinions;
 }
 
