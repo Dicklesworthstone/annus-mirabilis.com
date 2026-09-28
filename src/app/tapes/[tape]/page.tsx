@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { loadTeachingTapes } from "../../../content/teachingTapes.ts";
+import { commandClassInWords } from "../../../experiments/commands/types.ts";
 import "../tapes.css";
 
 /**
@@ -110,7 +111,10 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
                   <>Step {step.actionIndex}</>
                 )}
                 {step.commandClass ? (
-                  <span className="tape-command-class"> ({step.commandClass})</span>
+                  <span className="tape-command-class" data-command-class={step.commandClass}>
+                    {" "}
+                    {commandClassInWords(step.commandClass) ?? step.commandClass}
+                  </span>
                 ) : null}
               </p>
               {step.label ? <p className="tape-step-label">{step.label}</p> : null}
