@@ -3,7 +3,9 @@ import { join } from "node:path";
 import type { MetadataRoute } from "next";
 import { contentIndex } from "../content/server.ts";
 import { loadTeachingTapes } from "../content/teachingTapes.ts";
+import { tourIds } from "../content/tours/tours.ts";
 import { ROUTE_INDEX } from "../discovery/routeIndex.ts";
+import { GUIDED_TOURS } from "../discovery/tours/catalogue.ts";
 import { isSitemapExemptUrl } from "../experiments/permalink/canonical.ts";
 import { absoluteUrl, readerSitemapEntries } from "../reader/paperRoutes.ts";
 import { tapePath } from "../reader/sitePaths.ts";
@@ -104,9 +106,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...labPaths(),
     ...sources,
     // One page per authored teaching tape (am-2rl9). They are the only address at which
-    // these 21 records reach a reader, so leaving them out would hide the whole layer from search.
+    // these records reach a reader, so leaving them out would hide the whole layer from search.
     ...loadTeachingTapes()
       .tapes.map((tape) => tapePath(tape.tapeId))
+      .sort(),
+    // EVERY GUIDED READING PATH, FROM BOTH SOURCES. Measured on the live sitemap 2026-09-28: /tours/
+    // appeared ONCE, the index, while all five path pages answered 200. A page absent from the
+    // sitemap is a page a search engine is not told about, and these are the routes the site
+    // recommends.
+    //
+    // Both sources, because /tours/ renders both and listing one would cover four of five: the YAML
+    // records through tourIds, and the GUIDED_TOURS catalogue in code. Indexing the catalogue alone
+    // is the error this repository has now made in four places.
+    ...[...tourIds(process.cwd()), ...GUIDED_TOURS.map((tour) => tour.id)]
+      .map((id) => `/tours/${id}/`)
       .sort(),
   ];
   const entries: MetadataRoute.Sitemap = [

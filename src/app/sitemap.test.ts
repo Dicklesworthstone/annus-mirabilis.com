@@ -3,6 +3,8 @@ import { existsSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import type { Metadata } from "next";
 import { contentIndex } from "../content/server.ts";
+import { tourIds } from "../content/tours/tours.ts";
+import { GUIDED_TOURS } from "../discovery/tours/catalogue.ts";
 import { isSitemapExemptUrl } from "../experiments/permalink/canonical.ts";
 import {
   absoluteUrl,
@@ -134,6 +136,16 @@ describe("sitemap", () => {
     expect(urls.filter((url) => url !== `${SITE_ORIGIN}${staticHostPath(pathOf(url))}`)).toEqual(
       [],
     );
+    // EVERY GUIDED READING PATH, FROM BOTH SOURCES. The live sitemap listed /tours/ once, the
+    // index, while all five path pages answered 200. Both sources are required non-empty so that
+    // listing only the code catalogue, which covers four of the five, cannot pass.
+    const yamlTours = tourIds(process.cwd());
+    const codeTours = GUIDED_TOURS.map((tour) => tour.id);
+    expect(yamlTours.length).toBeGreaterThan(0);
+    expect(codeTours.length).toBeGreaterThan(2);
+    for (const id of [...yamlTours, ...codeTours])
+      expect(urls).toContain(absoluteUrl(`/tours/${id}/`));
+
     // And the one case the rule exists for, written out, because the line above would be satisfied
     // by any rule the sitemap happened to share with the helper.
     expect(urls).toContain("https://annus-mirabilis.com/tapes/the-boost-to-0.6c");
