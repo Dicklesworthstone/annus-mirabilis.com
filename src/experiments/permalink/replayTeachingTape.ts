@@ -39,6 +39,12 @@ import type { TapeAcceptedCheckpoint, TapeV2 } from "./types.ts";
  * computed it and a record's `modelIdentity` cannot earn a label here.
  */
 
+/** The same tape with no teaching reference, so the replayer uses the events it is given. */
+function withoutTeachingRef(tape: TapeV2): TapeV2 {
+  const { teachingTapeRef: _ref, ...rest } = tape;
+  return rest as TapeV2;
+}
+
 export type TeachingTapeReplay =
   | Readonly<{
       kind: "replayed";
@@ -118,9 +124,28 @@ export function replayTeachingTapeOn(
     ...createSessionReplayRunner(binding, session),
     resolveTeachingTape: resolve,
   };
-  const last = Math.max(0, tape.events.length - 1);
-  const stepIndex = Math.min(Math.max(0, options.stepIndex ?? last), last);
-  const request: TapeV2 = { ...tape, teachingTapeRef: { tapeId, stepIndex } };
+  /*
+   * WHERE A REPLAY STOPS BY DEFAULT: at the state the tape's accepted checkpoint names, not at the
+   * last event. The two are not always the same, and when they differ the verification cannot pass.
+   * lq-05-journey-stage-e records one event at actionIndex 1 and its only checkpoint at actionIndex
+   * 0, the state BEFORE that event; replaying to the last event reached a state no checkpoint in the
+   * record describes, and it refused with tape-checkpoint-mismatch while every digest in the file was
+   * correct. A caller that wants a particular step still names it.
+   */
+  const accepted = tape.acceptedCheckpoint.acceptedActionIndex;
+  const upToCheckpoint = tape.events.filter((event) => event.actionIndex <= accepted).length - 1;
+  const stepIndex = Math.min(options.stepIndex ?? upToCheckpoint, tape.events.length - 1);
+  /*
+   * A checkpoint taken before the first event asks for the initial conditions and nothing else.
+   * `teachingTapeRef.stepIndex` cannot say that, because the schema requires a non-negative integer
+   * and slice(0, 0 + 1) would apply one event, so that case drops the ref and empties the events
+   * rather than passing a stepIndex the schema forbids. The resolver still ran: this function
+   * resolved the record itself, above.
+   */
+  const request: TapeV2 =
+    stepIndex >= 0
+      ? { ...tape, teachingTapeRef: { tapeId, stepIndex } }
+      : { ...withoutTeachingRef(tape), events: [] };
   const result = replayTape(request, runner, options.asNewRun ? { forceNewRun: true } : undefined);
   if (result.kind === "success")
     return {
