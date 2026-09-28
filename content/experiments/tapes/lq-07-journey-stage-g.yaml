@@ -1,3 +1,9 @@
+# THE RECORDED EXPECTATION WAS THE INPUT, corrected 2026-09-28 (am-wj6k). It read "nu2 = 900 THz",
+# the setting the step makes one line above. The note is the single-quantum ledger,
+# h*nu1 = h*nu2 + E_other, and at nu1 = 850 and nu2 = 900 that ledger cannot balance: LQ-07's
+# evaluator returns allowed = false with an energy deficit of 0.206783384846193 eV and a highest
+# permitted nu2 of 850 THz. The deficit is the number the step settles, and the reason Stokes's
+# rule is the subject here.
 tapeVersion: 2
 tapeId: lq-07-journey-stage-g
 experimentId: lq-07
@@ -36,9 +42,9 @@ checkpoints:
     label: "The Single-Quantum Ledger"
     teachingNote: "Single-quantum energy accounting: h*nu1 = h*nu2 + E_other."
     expectedDisplayValues:
-      - label: "nu2"
-        value: 900
-        unit: "THz"
+      - label: "energyDeficitEv"
+        value: 0.206783384846193
+        unit: "eV"
         constantSetId: modern-si-2019
 title: "Journey I Stage G: The Fluorescence Energy Accounting"
 description: "Interactive journey stage examining Stokes's rule, deviation cases, and weak-illumination proportionality."

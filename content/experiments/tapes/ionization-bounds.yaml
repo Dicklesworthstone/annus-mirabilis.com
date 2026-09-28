@@ -1,3 +1,9 @@
+# THE RECORDED EXPECTATION WAS THE INPUT, corrected 2026-09-28 (am-wj6k). It read
+# "incidentPower = 2e-06 W", which is the setting the step itself makes one line above, so it
+# could not disagree with the instrument. The checkpoint's own note is about the consequence:
+# "Doubling absorbed light energy L doubles the count of ionized molecules: j = L/(R*beta*nu)."
+# LQ-09's evaluator gives that count as 260062617330.8689 at the opening power and
+# 520125234661.7378 after the step, exactly double, so that is what the page shows now.
 tapeVersion: 2
 tapeId: ionization-bounds
 experimentId: lq-09
@@ -37,9 +43,9 @@ checkpoints:
     label: "Proportional Energy Accounting"
     teachingNote: "Doubling absorbed light energy L doubles the count of ionized molecules: j = L / (R*beta*nu)."
     expectedDisplayValues:
-      - label: "incidentPower"
-        value: 0.000002
-        unit: "W"
+      - label: "ionizationCount"
+        value: 520125234661.7378
+        unit: "1"
         constantSetId: modern-si-2019
 title: "Gas Ionization Threshold and Single-Quantum Energy Conservation"
 description: "Walkthrough of Einstein's 1905 §9 threshold bound h*nu >= J_mol, count relations j = L/(R*beta*nu), and historical checks."

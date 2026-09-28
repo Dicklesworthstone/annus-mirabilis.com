@@ -30,6 +30,12 @@
  * unverified, and a reader is looking at them.
  */
 import { describe, expect, test } from "bun:test";
+import { LQ06_DEFAULTS } from "../experiments/lq06/definition.ts";
+import { evaluateLq06 } from "../experiments/lq06/session.ts";
+import { LQ07_DEFAULTS } from "../experiments/lq07/definition.ts";
+import { evaluateLq07 } from "../experiments/lq07/session.ts";
+import { LQ09_DEFAULTS } from "../experiments/lq09/definition.ts";
+import { evaluateLq09 } from "../experiments/lq09/session.ts";
 import { ME01_DEFAULTS } from "../experiments/me01/definition.ts";
 import { ME02_DEFAULTS } from "../experiments/me02/definition.ts";
 import { ME03_DEFAULTS } from "../experiments/me03/definition.ts";
@@ -52,10 +58,13 @@ const tapes = new Map(loadTeachingTapes().tapes.map((t) => [t.tapeId, t]));
  */
 const RECOMPUTED = new Set([
   "camera-bias",
+  "ionization-bounds",
+  "lq-07-journey-stage-g",
   "einstein-0-8-micron",
   "the-1906-box",
   "the-boost-to-0.6c",
   "the-locked-positions",
+  "the-move",
   "the-two-pulses",
   "toward-low-speed",
   "where-the-energy-went",
@@ -177,9 +186,9 @@ describe("the numbers on a teaching tape's page, recomputed from its own inputs"
       `[tape numbers] ${total} recorded numbers on the tape pages; ${recomputed} recomputed from ` +
         `their tape's own inputs across ${RECOMPUTED.size} tapes; ${total - recomputed} not ` +
         "recomputed: three are semantic-kind codes rather than quantities (coin-to-bell's two " +
-        "kernels, perrins-count's), three restate an input the same step has just set " +
-        "(ionization-bounds, lq-07, the-move: am-wj6k), and lq-05's W is checked for agreement " +
-        "with the state it is filed under rather than recomputed",
+        "kernels, perrins-count's), and lq-05's W is checked for agreement with the state it is " +
+        "filed under rather than recomputed. The three that restated an input were replaced by " +
+        "the quantity their step settles (am-wj6k) and are recomputed now.",
     );
     // Non-vacuity, and a reminder: if the corpus grows, the unchecked remainder grows with it.
     expect(total).toBeGreaterThan(recomputed);
@@ -359,6 +368,67 @@ describe("a recorded number agrees with the parameters in force where it was rec
       { value?: number } | undefined
     >;
     expect(opening.exactDifference?.value).not.toBe(snapshot.exactDifference as never);
+  });
+
+  /** A value out of an evaluator that returns a list of results, by the quantity it names. */
+  function resultValue(rows: unknown, quantityId: string): number | undefined {
+    for (const row of Array.isArray(rows) ? rows : []) {
+      const r = row as { quantityId?: string; status?: string; value?: number };
+      if (r.quantityId === quantityId && r.status === "value") return r.value;
+    }
+    return undefined;
+  }
+
+  test("ionization bounds: doubling the power doubles the count, which is what the step records", () => {
+    // The record used to expect "incidentPower = 2e-06 W", the setting the step had just made
+    // (am-wj6k). It records LQ-09's ionization count now, and the note's claim is the assertion:
+    // doubling the absorbed light energy doubles the count.
+    const t = tape("ionization-bounds");
+    const step = t.steps.find((s) => s.expected.length > 0);
+    expect(step).toBeDefined();
+    if (!step) return;
+    const at = inForce(t, step.actionIndex);
+    const after = evaluateLq09({ ...LQ09_DEFAULTS, ...at });
+    const recorded = step.expected[0];
+    expect(recorded?.label).toBe("ionizationCount");
+    expect(resultValue(after, "ionizationCount")).toBe(recorded?.value);
+    const before = evaluateLq09({ ...LQ09_DEFAULTS, ...t.initialConditions });
+    const opening = resultValue(before, "ionizationCount");
+    expect(opening).toBeGreaterThan(0);
+    expect(recorded?.value).toBeCloseTo((opening as number) * 2, 6);
+  });
+
+  test("the move: doubling the points doubles the gas entropy, which is what the step records", () => {
+    const t = tape("the-move");
+    const step = t.steps.find((s) => s.expected.length > 0);
+    expect(step).toBeDefined();
+    if (!step) return;
+    const after = evaluateLq06({ ...LQ06_DEFAULTS, ...inForce(t, step.actionIndex) });
+    const recorded = step.expected[0];
+    expect(recorded?.label).toBe("gasEntropy");
+    expect(resultValue(after, "gasEntropy")).toBe(recorded?.value);
+    const before = evaluateLq06({ ...LQ06_DEFAULTS, ...t.initialConditions });
+    const opening = resultValue(before, "gasEntropy");
+    expect(opening).toBeLessThan(0);
+    expect(recorded?.value).toBeCloseTo((opening as number) * 2, 30);
+  });
+
+  test("the fluorescence ledger: at this step it cannot balance, and by how much", () => {
+    const t = tape("lq-07-journey-stage-g");
+    const step = t.steps.find((s) => s.expected.length > 0);
+    expect(step).toBeDefined();
+    if (!step) return;
+    const at = inForce(t, step.actionIndex);
+    const snapshot = evaluateLq07({ ...LQ07_DEFAULTS, ...at }) as {
+      budget?: { allowed?: boolean; energyDeficitEv?: number; nu2MaxHz?: number };
+    };
+    const recorded = step.expected[0];
+    expect(recorded?.label).toBe("energyDeficitEv");
+    expect(snapshot.budget?.energyDeficitEv).toBe(recorded?.value);
+    // Non-vacuity, and the teaching point: a deficit only means something because the single
+    // quantum assumption REFUSES this step, and the ceiling it refuses against is nu1 itself.
+    expect(snapshot.budget?.allowed).toBe(false);
+    expect(snapshot.budget?.nu2MaxHz).toBe((at.nu1 as number) * 1e12);
   });
 
   test("lq-05: W is f to the power of the n that holds at that step, not some other n", () => {

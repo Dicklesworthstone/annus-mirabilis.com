@@ -1,3 +1,8 @@
+# THE RECORDED EXPECTATION WAS THE INPUT, corrected 2026-09-28 (am-wj6k). It read "n = 20", the
+# setting the step makes one line above. The note is about what that does: "Changing n to 20
+# doubles the exponent in the volume ratio." LQ-06's evaluator gives the gas entropy as
+# -9.56992961692908e-23 J/K at n = 10 and -1.913985923385816e-22 at n = 20, exactly double, which
+# is the doubling the note describes and a number a reader can check against the instrument.
 tapeVersion: 2
 tapeId: the-move
 experimentId: lq-06
@@ -36,9 +41,9 @@ checkpoints:
     label: "Double the gas particles"
     teachingNote: "Changing n to 20 doubles the exponent in the volume ratio."
     expectedDisplayValues:
-      - label: "n"
-        value: 20
-        unit: "1"
+      - label: "gasEntropy"
+        value: -1.913985923385816e-22
+        unit: "J/K"
         constantSetId: modern-si-2019
 title: "The Move: From Entropy Law to Energy Quanta"
 description: "Teaching tape demonstrating the matching of the entropy coefficients between ideal gas and monochromatic radiation."
