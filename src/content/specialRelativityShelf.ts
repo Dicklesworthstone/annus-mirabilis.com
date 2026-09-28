@@ -72,6 +72,8 @@ export const SPECIAL_RELATIVITY_SHELF_CARDS: readonly KnowledgeCard[] = [
     proposition:
       "A star's apparent position shifts through the year by an amount set by the Earth's speed and the speed of light.",
     status: "available",
+    limits:
+      "The measurement gives the ratio of the Earth's speed to the speed of light from an observed angle, and it is a first-order effect in that ratio. An emission picture, a stationary ether the Earth moves through, and the kinematics this route is heading towards all account for it, so it cannot be used to decide between them.",
     sources: [
       {
         title:
@@ -120,6 +122,8 @@ export const SPECIAL_RELATIVITY_SHELF_CARDS: readonly KnowledgeCard[] = [
     proposition:
       "Light travelling through moving water is carried along by it, but only partly, by a measured fraction rather than fully.",
     status: "available",
+    limits:
+      "A first-order measurement of how much of the water's motion is added to the light, agreeing with the partial-drag coefficient Fresnel had written down. It does not reach the second order in the speed ratio, where the null results of this shelf live, and it settles nothing about whether there is an ether: the same fraction is what both the dragged-ether account and the later kinematics give.",
     sources: [
       {
         title: "Sur les hypothèses relatives à l'éther lumineux",
@@ -152,6 +156,8 @@ export const SPECIAL_RELATIVITY_SHELF_CARDS: readonly KnowledgeCard[] = [
     proposition:
       "The equations of the electromagnetic field fix the speed at which an electromagnetic disturbance travels, and Maxwell argues that light is such a disturbance, because that speed and the measured speed of light agree as far as the measurements go.",
     status: "available",
+    limits:
+      "The speed the equations fix is a speed with respect to the medium the theory posits, and the identification with light rests on that number agreeing with the measured speed of light as far as the measurements went in 1873. The theory as it stands says nothing about what the speed is measured against when the source or the observer is moving, which is the question this route opens on.",
     sources: [
       {
         title: "A Treatise on Electricity and Magnetism",
@@ -270,6 +276,8 @@ export const SPECIAL_RELATIVITY_SHELF_CARDS: readonly KnowledgeCard[] = [
     proposition:
       "The laws of physical phenomena must be the same for an observer at rest and for one carried along in uniform translation, so that there is no means of telling whether one is so carried: one of the general principles of mathematical physics, which Poincaré calls results of experiment strongly generalized.",
     status: "available",
+    limits:
+      "An address surveying the principles of physics, which names this one and asks whether it will survive the coming crisis; it is not a derivation, and nothing in it is offered as a new kinematics. Poincaré keeps the ether, and reads the time of moving observers as an apparent time fixed by exchanging light signals, a convenient one rather than the time. Raising the principle to a postulate, joining it to the constancy of the speed of light, and then taking that apparent time as what a clock reads is the step the June 1905 paper takes and this card does not.",
     sources: [
       {
         title: "L'état actuel et l'avenir de la physique mathématique",

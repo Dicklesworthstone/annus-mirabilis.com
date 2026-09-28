@@ -163,6 +163,8 @@ export const LIGHT_QUANTA_SHELF_CARDS: readonly KnowledgeCard[] = [
     proposition:
       "The entropy of a state is proportional to the logarithm of the number of ways that state can be realised.",
     status: "available",
+    limits:
+      "A relation between an entropy and a count, stated for a gas whose states Boltzmann could enumerate, and on a particular division of the energy into elements. It fixes no constant of proportionality: the value later written k is not in it. Read forwards it turns a count into an entropy; the route reads it backwards, from a measured volume dependence to a count of independent things, and that direction is an inference the principle does not license by itself.",
     sources: [
       {
         title:

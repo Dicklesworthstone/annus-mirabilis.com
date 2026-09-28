@@ -20,6 +20,8 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
     proposition:
       "For material points acting on one another by attracting and repelling forces that depend only on their distance, the tensional force lost always equals the living force gained, so their sum stays constant: Helmholtz calls this the principle of the conservation of force, what is now called energy, and carries it to heat, electricity and magnetism.",
     status: "available",
+    limits:
+      "The demonstration covers material points acting along the line between them with forces that depend only on their distance; heat, electricity and radiation are brought in afterwards, case by case, by argument rather than by the same proof. It fixes differences of energy and nothing else, so it says nothing about how much energy a body holds when it is at rest, which is the quantity this route is asking about.",
     sources: [
       {
         title: "Über die Erhaltung der Kraft",
@@ -93,6 +95,8 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
     proposition:
       "In a medium through which light waves travel there is a pressure normal to the waves, equal to the energy in unit of volume, so that a body on which light falls is pushed away from the side it falls on.",
     status: "available",
+    limits:
+      "A result inside Maxwell's own theory of the field, for waves falling squarely on a surface that absorbs them; the equality with the energy in unit volume holds in that case and is not a general law of light. In 1873 it was unmeasured. It gives light momentum and a push, and says nothing about whether the energy carries inertia.",
     sources: [
       {
         title: "A Treatise on Electricity and Magnetism",
@@ -128,6 +132,8 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
     proposition:
       "Energy in the electromagnetic field flows, and the rate of flow through a surface can be written down.",
     status: "available",
+    limits:
+      "The theorem fixes how much energy crosses a closed surface, which leaves the flux at a point determined only up to a term that carries nothing through any surface. It is a consequence of Maxwell's equations rather than an independent measurement, and it does not say what carries the energy or where it sits between source and absorber.",
     sources: [
       {
         title: "On the Transfer of Energy in the Electromagnetic Field",
@@ -169,6 +175,8 @@ export const MASS_ENERGY_SHELF_CARDS: readonly KnowledgeCard[] = [
     proposition:
       "The pressure of light on a solid body was measured in the laboratory and agreed with the predicted magnitude.",
     status: "available",
+    limits:
+      "A measurement of a force on a vane, to the accuracy Lebedev states, against the magnitude Maxwell's theory predicts. The hard part was separating the pressure from the radiometric forces of the residual gas, so the card is worth what that separation is worth. Agreement tests the pressure and nothing further: it does not weigh the energy.",
     sources: [
       {
         title: "Untersuchungen über die Druckkräfte des Lichtes",
