@@ -7,7 +7,7 @@ description: Teaching tape demonstrating the transformation of electric and magn
 isTeachingSequence: true
 modelIdentity:
   modelId: field-frame-change-host
-  modelVersion: 1
+  modelVersion: "1"
   artifactDigest: "host:sha256:sr08-evaluateSr08"
 constantSetId: modern-si-2019
 seed: "0"

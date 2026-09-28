@@ -4,7 +4,7 @@ experimentId: lq-05
 mode: "lq-05:default"
 modelIdentity:
   modelId: lq05-independent-configurations-v1
-  modelVersion: 1
+  modelVersion: "1"
   artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
 constantSetId: modern-si-2019
 seed: "19050511"

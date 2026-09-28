@@ -4,7 +4,7 @@ experimentId: lq-09
 mode: "lq-09:default"
 modelIdentity:
   modelId: lq09-ionization-reference-v1
-  modelVersion: 1
+  modelVersion: "1"
   artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
 constantSetId: modern-si-2019
 seed: "0"

@@ -7,7 +7,7 @@ description: Teaching tape demonstrating mass coefficients, work, kinetic energy
 isTeachingSequence: true
 modelIdentity:
   modelId: electron-dynamics-host
-  modelVersion: 1
+  modelVersion: "1"
   artifactDigest: "host:sha256:sr13-electronDynamics"
 constantSetId: modern-si-2019
 seed: "0"

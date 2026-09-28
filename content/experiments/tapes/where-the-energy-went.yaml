@@ -7,7 +7,7 @@ description: "Teaching tape demonstrating boundary energy balances: body alone l
 isTeachingSequence: true
 modelIdentity:
   modelId: me-03-box-1906-v1
-  modelVersion: 1
+  modelVersion: "1"
   artifactDigest: "host:sha256:me03-boundary-evaluateMe03"
 constantSetId: modern-si-2019
 seed: "0"

@@ -7,7 +7,7 @@ description: "Demonstrates the relativity of simultaneity and length contraction
 isTeachingSequence: true
 modelIdentity:
   modelId: sr-03
-  modelVersion: 1
+  modelVersion: "1"
   artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
 constantSetId: modern-si-2019
 seed: "1905"

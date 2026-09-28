@@ -7,7 +7,7 @@ description: Teaching tape demonstrating frequency shift, aberration, radiation 
 isTeachingSequence: true
 modelIdentity:
   modelId: moving-mirror-host
-  modelVersion: 1
+  modelVersion: "1"
   artifactDigest: "host:sha256:sr11-movingMirror"
 constantSetId: modern-si-2019
 seed: "0"
