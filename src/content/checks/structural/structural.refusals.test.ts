@@ -16,19 +16,19 @@
  *    - (structural.ts:323) equation
  *    - (structural.ts:335) argument
  * 2. missing-source-block (3 sites):
- *    - (structural.ts:488) alignment edge missing sentenceId
- *    - (structural.ts:529) editorial note affectedIds missing source unit
- *    - (structural.ts:584) argument cross-paper reference unresolved
+ *    - (structural.ts:511) alignment edge missing sentenceId
+ *    - (structural.ts:552) editorial note affectedIds missing source unit
+ *    - (structural.ts:607) argument cross-paper reference unresolved
  * 3. broken-alignment (5 sites):
- *    - (structural.ts:764) German sentence without alignment edge
- *    - (structural.ts:791) German block-level alignable unit without alignment edge
- *    - (structural.ts:805) English translation unit without incoming alignment edge
- *    - (structural.ts:832) Suffixed translation unit without sibling split unit
- *    - (structural.ts:841) Unsuffixed translation unit exists beside suffixed units
+ *    - (structural.ts:787) German sentence without alignment edge
+ *    - (structural.ts:814) German block-level alignable unit without alignment edge
+ *    - (structural.ts:828) English translation unit without incoming alignment edge
+ *    - (structural.ts:855) Suffixed translation unit without sibling split unit
+ *    - (structural.ts:864) Unsuffixed translation unit exists beside suffixed units
  * 4. hero-quote-unresolved (1 site):
- *    - (structural.ts:1386) Hero quote text not matching anchor text
+ *    - (structural.ts:1409) Hero quote text not matching anchor text
  * 5. span-digest-mismatch (1 site):
- *    - (structural.ts:1562) Alignment edge target translation unit digest mismatch
+ *    - (structural.ts:1585) Alignment edge target translation unit digest mismatch
  *
  * Each test cites its explicit throw site (structural.ts:<line>) and provides both an accept
  * path and a reject path exercising the exact structural boundary condition.
@@ -327,7 +327,7 @@ describe("checkDuplicateId Refusals (structural.ts)", () => {
 });
 
 describe("checkMissingSourceBlock Refusals (structural.ts)", () => {
-  test("checkMissingSourceBlock: (structural.ts:488) missing-source-block rejects alignment edge referencing missing sentence span, accepts valid sentence span", () => {
+  test("checkMissingSourceBlock: (structural.ts:511) missing-source-block rejects alignment edge referencing missing sentence span, accepts valid sentence span", () => {
     // Reject: alignment edge references sentence span missing from paper source blocks
     const reject = createMockContext({
       b1: {
@@ -387,7 +387,7 @@ describe("checkMissingSourceBlock Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkMissingSourceBlock: (structural.ts:529) missing-source-block rejects editorial note referencing missing source unit, accepts existing source unit", () => {
+  test("checkMissingSourceBlock: (structural.ts:552) missing-source-block rejects editorial note referencing missing source unit, accepts existing source unit", () => {
     // SHAPE AND KEY ARE THE CORPUS'S, NOT AN INVENTED PAIR (am-as1w). This fixture used to author
     // `kind: "editorial-note"` with a `paper` field under the key `note1`. No record on disk has
     // that shape: a note's `kind` is its own note kind and its paper is its directory, carried in
@@ -444,7 +444,7 @@ describe("checkMissingSourceBlock Refusals (structural.ts)", () => {
     expect(keyed.reports[0]?.message).toContain('in paper "paper-b"');
   });
 
-  test("checkMissingSourceBlock: (structural.ts:584) missing-source-block rejects cross-paper reference to non-existent record, accepts existing reference", () => {
+  test("checkMissingSourceBlock: (structural.ts:607) missing-source-block rejects cross-paper reference to non-existent record, accepts existing reference", () => {
     // Reject: argument prerequisites references special-relativity#eq-s8-d9 which does not exist
     const reject = createMockContext({
       arg1: {
@@ -481,7 +481,7 @@ describe("checkMissingSourceBlock Refusals (structural.ts)", () => {
 });
 
 describe("checkBrokenAlignment Refusals (structural.ts)", () => {
-  test("checkBrokenAlignment: (structural.ts:764) broken-alignment rejects German sentence with no alignment edge, accepts aligned sentence", () => {
+  test("checkBrokenAlignment: (structural.ts:787) broken-alignment rejects German sentence with no alignment edge, accepts aligned sentence", () => {
     // Reject: German sentence b1-s1 in block b1 has no alignment edge
     const reject = createMockContext({
       b1: {
@@ -529,7 +529,7 @@ describe("checkBrokenAlignment Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkBrokenAlignment: (structural.ts:791) broken-alignment rejects German block-level alignable unit with no alignment edge, accepts aligned block", () => {
+  test("checkBrokenAlignment: (structural.ts:814) broken-alignment rejects German block-level alignable unit with no alignment edge, accepts aligned block", () => {
     // Reject: German heading s1-h1 has no alignment edge
     const reject = createMockContext({
       s1h1: {
@@ -575,7 +575,7 @@ describe("checkBrokenAlignment Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkBrokenAlignment: (structural.ts:805) broken-alignment rejects English translation unit with no incoming alignment edge, accepts targeted translation unit", () => {
+  test("checkBrokenAlignment: (structural.ts:828) broken-alignment rejects English translation unit with no incoming alignment edge, accepts targeted translation unit", () => {
     // Reject: tu-2 has no incoming alignment edge
     const reject = createMockContext({
       s1p1: {
@@ -642,7 +642,7 @@ describe("checkBrokenAlignment Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkBrokenAlignment: (structural.ts:832) broken-alignment rejects suffixed translation unit with no sibling split unit, accepts paired split units", () => {
+  test("checkBrokenAlignment: (structural.ts:855) broken-alignment rejects suffixed translation unit with no sibling split unit, accepts paired split units", () => {
     // Reject: s3-p2-s1a exists without sibling split unit (only 1 suffix)
     const reject = createMockContext({
       s3p2s1: {
@@ -713,7 +713,7 @@ describe("checkBrokenAlignment Refusals (structural.ts)", () => {
     expect(accept.reports).toHaveLength(0);
   });
 
-  test("checkBrokenAlignment: (structural.ts:841) broken-alignment rejects unsuffixed translation unit existing beside suffixed units, accepts isolated splits", () => {
+  test("checkBrokenAlignment: (structural.ts:864) broken-alignment rejects unsuffixed translation unit existing beside suffixed units, accepts isolated splits", () => {
     // Reject: unsuffixed s3-p2-s1 exists beside suffixed units s3-p2-s1a and s3-p2-s1b
     const reject = createMockContext({
       s3p2s1Block: {
@@ -804,7 +804,7 @@ describe("checkBrokenAlignment Refusals (structural.ts)", () => {
 });
 
 describe("checkHeroQuoteUnresolved Refusals (structural.ts)", () => {
-  test("checkHeroQuoteUnresolved: (structural.ts:1386) hero-quote-unresolved rejects quote text not resolving exactly at anchor, accepts matching text", () => {
+  test("checkHeroQuoteUnresolved: (structural.ts:1409) hero-quote-unresolved rejects quote text not resolving exactly at anchor, accepts matching text", () => {
     // Reject: hero quote text does not resolve exactly at anchor s1-p1
     const reject = createMockContext({
       s1p1: {
@@ -852,7 +852,7 @@ describe("checkHeroQuoteUnresolved Refusals (structural.ts)", () => {
 });
 
 describe("checkSpanDigestMismatch Refusals (structural.ts)", () => {
-  test("checkSpanDigestMismatch: (structural.ts:1562) span-digest-mismatch rejects alignment edge target translation unit digest mismatch, accepts matching digest", () => {
+  test("checkSpanDigestMismatch: (structural.ts:1585) span-digest-mismatch rejects alignment edge target translation unit digest mismatch, accepts matching digest", () => {
     const tuContent = "English translation text for digest check.";
     const validDigest = spanTextDigest(tuContent);
 

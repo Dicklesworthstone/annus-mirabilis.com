@@ -396,6 +396,29 @@ export const checkMissingSourceBlock: ContentCheck = {
       }
     }
 
+    // THE POPULATION HAS TWO SOURCES AND THEY ARE COMPLEMENTARY, not a duplicate authority
+    // (am-as1w). Records give it to a unit test, which constructs `kind: "source-block"` entries
+    // in a mock context. Production has none, because loadReadingFiles skips every .yaml and the
+    // 456 block files never become records; there the caller supplies the index instead, read
+    // from content/source-blocks/ by src/content/compiler/sourceBlockIndex.ts. Merging rather
+    // than choosing means neither path can silently become the only one.
+    if (ctx.sourceBlockIndex) {
+      for (const [paper, ids] of ctx.sourceBlockIndex) {
+        let blocks = paperBlocks.get(paper);
+        if (!blocks) {
+          blocks = new Set();
+          paperBlocks.set(paper, blocks);
+        }
+        for (const id of ids.blocks) blocks.add(id);
+        let sSet = paperSentences.get(paper);
+        if (!sSet) {
+          sSet = new Set();
+          paperSentences.set(paper, sSet);
+        }
+        for (const id of ids.sentences) sSet.add(id);
+      }
+    }
+
     // Check papers' orderedBlockIds
     let unjudgedAffectedIds = 0;
     for (const [key, rawRec] of ctx.records.entries()) {
@@ -511,11 +534,11 @@ export const checkMissingSourceBlock: ContentCheck = {
               const blocks = paperBlocks.get(targetPaper) ?? new Set();
               const sentences = paperSentences.get(targetPaper) ?? new Set();
               // A CHECK WITH NOTHING TO RESOLVE AGAINST DECLINES, it does not condemn (am-as1w).
-              // `loadReadingFiles` skips every .yaml, and source blocks are .yaml: measured
-              // 2026-09-28, 0 of the 464 files under content/source-blocks/ reach the compiler, so
-              // `blocks` and `sentences` are empty for every paper. Enabling this check without
-              // this guard reported all 17 affectedIds of the 8 real notes as missing, which are
-              // false positives about an absent population rather than findings about the notes.
+              // Enabling this check while the population was absent reported all 17 affectedIds of
+              // the 8 real notes as missing, which were false positives about an absent population
+              // rather than findings about the notes. The population is now supplied by the caller
+              // (compiler/sourceBlockIndex.ts, 456 blocks in 4 papers), and this stays because a
+              // caller that does not supply one must still get silence rather than 17 accusations.
               // Counted rather than passed over in silence, because "0 errors" over a population
               // that could not be loaded reads exactly like "0 errors" over a clean one.
               if (blocks.size === 0 && sentences.size === 0) {
@@ -595,7 +618,7 @@ export const checkMissingSourceBlock: ContentCheck = {
     // that found nothing are both zero errors, and only this line tells them apart (am-as1w).
     if (unjudgedAffectedIds > 0)
       console.log(
-        `[structural] ${unjudgedAffectedIds} editorial-note affectedIds not judged: no source blocks are loaded for their papers (loadReadingFiles skips .yaml).`,
+        `[structural] ${unjudgedAffectedIds} editorial-note affectedIds not judged: no source blocks were supplied for their papers, so this check declined rather than reporting them as missing (am-as1w).`,
       );
   },
 };

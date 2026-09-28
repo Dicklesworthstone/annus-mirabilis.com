@@ -7,7 +7,7 @@
  *    - (json.ts:22) file-budget
  *    - (json.ts:24) non-nfc
  * 2. src/content/compiler/checks/registry.ts (1 site):
- *    - (registry.ts:167) check-crashed
+ *    - (registry.ts:172) check-crashed
  * 3. src/content/compiler/compile.ts (3 sites):
  *    - (compile.ts:186) path-identity
  *    - (compile.ts:272) equation-review-pending
@@ -140,7 +140,7 @@ describe("src/content/compiler/checks/registry.ts Refusals", () => {
     clearRegisteredChecksForTests();
   });
 
-  test("runAllChecks: (registry.ts:167) check-crashed reports crashing checks, accepts cleanly running checks", async () => {
+  test("runAllChecks: (registry.ts:172) check-crashed reports crashing checks, accepts cleanly running checks", async () => {
     // Reject: check throws uncaught error
     const explodingCheck: ContentCheck = {
       id: "exploding-check",

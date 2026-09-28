@@ -41,6 +41,7 @@ import {
   type ReviewQueueResult,
 } from "./reviewQueue.ts";
 import { matchContentRoute } from "./routes.ts";
+import type { SourceBlockIndex } from "./sourceBlockIndex.ts";
 
 export type DiagnosticSeverity = "error" | "flag" | "review";
 
@@ -75,6 +76,9 @@ export interface CompilerOptions {
   readonly maxFileBytes?: number | undefined;
   readonly flagReviewsYaml?: string | undefined;
   readonly mathRenderer?: ((latex: string) => { html: string; mathml: string }) | undefined;
+  /** The source-block ids the structural pass resolves `affectedIds` against. Supplied by the
+   *  caller rather than compiled as records; see src/content/compiler/sourceBlockIndex.ts. */
+  readonly sourceBlockIndex?: SourceBlockIndex | undefined;
 }
 
 export interface CompilerPhaseDurations {
@@ -361,6 +365,9 @@ export async function compileContent(
     records: rawRecords,
     files,
     indexes,
+    ...(options?.sourceBlockIndex !== undefined
+      ? { sourceBlockIndex: options.sourceBlockIndex }
+      : {}),
   };
   const checkResult = await runAllChecks(checkContext);
   for (const cd of checkResult.diagnostics) {

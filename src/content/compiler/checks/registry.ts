@@ -5,6 +5,8 @@
  * Spec: AGENTS.md and am-cm-compiler-core-oa7
  */
 
+import type { SourceBlockIndex } from "../sourceBlockIndex.ts";
+
 export const DECLARED_CHECK_FAMILIES = [
   "compiler",
   "structural",
@@ -47,6 +49,9 @@ export interface CheckContext {
   records: Map<string, unknown>;
   files: readonly { path: string; text: string }[];
   indexes: unknown;
+  /** Source-block ids by paper, when the caller supplied them. Absent means a check that needs
+   *  them must DECLINE and say so, never condemn every id as missing (am-as1w). */
+  sourceBlockIndex?: SourceBlockIndex | undefined;
   report: (item: CheckReportItem) => void;
 }
 

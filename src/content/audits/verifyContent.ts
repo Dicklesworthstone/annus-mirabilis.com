@@ -7,6 +7,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { listRegisteredChecks } from "../compiler/checks/registry.ts";
 import { compileContent } from "../compiler/compile.ts";
+import { loadSourceBlockIndex, sourceBlockCount } from "../compiler/sourceBlockIndex.ts";
 import {
   compareCheckInventory,
   type InventoriedCheck,
@@ -79,7 +80,17 @@ export async function runVerifyContent(
   // 2. Content compiler with registered checks + check inventory
   registerVerifyContentChecks();
   const files = await options.loadFiles();
-  const compiled = await compileContent(files);
+  // THE SOURCE BLOCKS THE STRUCTURAL PASS RESOLVES AGAINST (am-as1w). They travel as an option
+  // rather than as records: compiling the 456 block files as ordinary records adds 70 duplicate-id
+  // errors, because an equation-id rule treats ids as global while these are per-paper by design,
+  // and 115 of the basenames are shared between papers. See compiler/sourceBlockIndex.ts.
+  const sourceBlockIndex = loadSourceBlockIndex(options.root);
+  console.log(
+    `[verify-content] ${sourceBlockCount(sourceBlockIndex)} source blocks in ` +
+      `${sourceBlockIndex.size} papers supplied to the structural pass, so an editorial note's ` +
+      `affectedIds can be resolved rather than declined.`,
+  );
+  const compiled = await compileContent(files, { sourceBlockIndex });
   for (const diagnostic of compiled.diagnostics) {
     // The RECORD, then where in it, then what is wrong (am-9755). This line read
     // `code: path: message` until 2026-09-27, which for a voice violation printed

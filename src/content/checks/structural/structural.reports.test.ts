@@ -73,7 +73,7 @@ describe("duplicate-id: the source-block site, not the twelve that already had t
 });
 
 describe("missing-source-block: the two sites that were not driven", () => {
-  test("(structural.ts:412) a paper's orderedBlockIds names a block that does not exist", () => {
+  test("(structural.ts:435) a paper's orderedBlockIds names a block that does not exist", () => {
     const records = {
       p: {
         kind: "paper",
@@ -95,7 +95,7 @@ describe("missing-source-block: the two sites that were not driven", () => {
     expect(run(checkMissingSourceBlock, complete)).toHaveLength(0);
   });
 
-  test("(structural.ts:478) an alignment edge points at a source block that does not exist", () => {
+  test("(structural.ts:501) an alignment edge points at a source block that does not exist", () => {
     const records = {
       b: { kind: "source-block", id: "s1-p1", paper: "brownian-motion" },
       al: {
@@ -145,7 +145,7 @@ describe("broken-alignment: the three sites that were not driven", () => {
     text: "In this paper it will be shown.",
   };
 
-  test("(structural.ts:693) an edge names a sentence that is not a span of its own block", () => {
+  test("(structural.ts:716) an edge names a sentence that is not a span of its own block", () => {
     const records = {
       b: block,
       t: tu,
@@ -168,7 +168,7 @@ describe("broken-alignment: the three sites that were not driven", () => {
     );
   });
 
-  test("(structural.ts:726) an edge targets a translation unit that is missing in its paper", () => {
+  test("(structural.ts:749) an edge targets a translation unit that is missing in its paper", () => {
     const records = {
       b: block,
       t: tu,
@@ -191,7 +191,7 @@ describe("broken-alignment: the three sites that were not driven", () => {
     );
   });
 
-  test("(structural.ts:741) an edge's target range runs past the end of the translation text", () => {
+  test("(structural.ts:764) an edge's target range runs past the end of the translation text", () => {
     const makeRecords = (range: { start: number; end: number }) => ({
       b: block,
       t: tu,
@@ -224,7 +224,7 @@ describe("impossible-date-order: the two later sites, distinguished by which pai
   const dateLine = d("date-line", "1905-05-01");
   const received = d("received", "1905-05-11");
 
-  test("(structural.ts:1057) received is strictly after issue publication", () => {
+  test("(structural.ts:1080) received is strictly after issue publication", () => {
     const records = {
       p: {
         kind: "paper",
@@ -250,7 +250,7 @@ describe("impossible-date-order: the two later sites, distinguished by which pai
     expect(run(checkImpossibleDateOrder, ordered)).toHaveLength(0);
   });
 
-  test("(structural.ts:1074) issue publication is strictly after a later edition", () => {
+  test("(structural.ts:1097) issue publication is strictly after a later edition", () => {
     const records = {
       p: {
         kind: "paper",
@@ -276,7 +276,7 @@ describe("impossible-date-order: the two later sites, distinguished by which pai
 });
 
 describe("the four single sites", () => {
-  test("(structural.ts:1170) germanLatex and englishLatex differ byte for byte", () => {
+  test("(structural.ts:1193) germanLatex and englishLatex differ byte for byte", () => {
     const records = {
       e: {
         kind: "equation",
@@ -306,7 +306,7 @@ describe("the four single sites", () => {
     expect(run(checkEquationNotIdentical, identical)).toHaveLength(0);
   });
 
-  test("(structural.ts:1264) a paper is complete while one of its blocks is still a draft", () => {
+  test("(structural.ts:1287) a paper is complete while one of its blocks is still a draft", () => {
     const records = {
       p: { kind: "paper", id: "brownian-motion", status: "complete" },
       b: {
@@ -352,7 +352,7 @@ describe("the four single sites", () => {
     expect(run(checkCompleteWhileMissing, inProgress)).toHaveLength(0);
   });
 
-  test("(structural.ts:1349) a hero quote's anchor resolves to no edition record at all", () => {
+  test("(structural.ts:1372) a hero quote's anchor resolves to no edition record at all", () => {
     const records = {
       b: {
         kind: "source-block",
@@ -394,7 +394,7 @@ describe("the four single sites", () => {
     ).toHaveLength(0);
   });
 
-  test("(structural.ts:1527) an edge's SOURCE span digest disagrees with the block text", () => {
+  test("(structural.ts:1550) an edge's SOURCE span digest disagrees with the block text", () => {
     const text = "In dieser Arbeit soll gezeigt werden.";
     const records = {
       "s1-p1": { kind: "source-block", id: "s1-p1", paper: "brownian-motion", text },
@@ -497,7 +497,7 @@ describe("the two sites only the node-lane e2e reached", () => {
     expect(run(checkDuplicateId, otherPaper)).toHaveLength(0);
   });
 
-  test("(structural.ts:1207) an aligned English equation differs by bytes from its German block", () => {
+  test("(structural.ts:1230) an aligned English equation differs by bytes from its German block", () => {
     const records = {
       g: {
         kind: "source-block",
