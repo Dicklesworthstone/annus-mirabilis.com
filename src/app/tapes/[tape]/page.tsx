@@ -170,6 +170,8 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
                   </>
                 ) : step.actionIndex === 0 ? (
                   <>Where it starts, before anything changes</>
+                ) : step.prediction ? (
+                  <>A question to answer before the next change</>
                 ) : (
                   <>Step {step.actionIndex}</>
                 )}
@@ -182,6 +184,33 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
               </p>
               {step.label ? <p className="tape-step-label">{step.label}</p> : null}
               {step.teachingNote ? <p className="tape-note">{step.teachingNote}</p> : null}
+              {/* THE PREDICTION THE WALKTHROUGH PAUSES ON (dispatch 393). Two of the 22 records
+                  carry a prediction event, and it reached this page as the bare words "Step 1":
+                  the question, its candidates and the author's own answer were all in the corpus
+                  and none of them was rendered. The question and the candidates come from the
+                  instrument's prompt record and the answer from the event's payload; nothing here
+                  is authored. The author's choice sits inside a closed `details` so a reader can
+                  answer first, which is the site's own pattern for a prediction and needs no
+                  JavaScript. */}
+              {step.prediction ? (
+                <>
+                  <p>{step.prediction.question}</p>
+                  <ul>
+                    {step.prediction.candidates.map((candidate) => (
+                      <li key={candidate.label}>
+                        <b>{candidate.label}</b>
+                        {candidate.description ? <> {candidate.description}</> : null}
+                      </li>
+                    ))}
+                  </ul>
+                  {step.prediction.recorded ? (
+                    <details data-tape-prediction>
+                      <summary>The answer this tape&apos;s author recorded</summary>
+                      <p className="tape-note">{step.prediction.recorded}</p>
+                    </details>
+                  ) : null}
+                </>
+              ) : null}
               {step.expected.length > 0 ? (
                 <table className="tape-table">
                   <caption>What the author recorded that a reader should see here.</caption>
@@ -236,6 +265,64 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
           </>
         )}
       </p>
+      {/* WHAT THE PARAGRAPH ABOVE ASKS FOR (dispatch 393). That paragraph has always told a reader
+          to compare what the instrument gives them with what is recorded here, and the page withheld
+          the three things that decide whether a difference is a disagreement at all: the seed, the
+          model version and the random-stream semantics. All three are in every one of the 22 records
+          and none of them reached a reader. A run under a different seed is a different run.
+
+          THE ARTIFACT DIGEST IS LEFT OUT ON PURPOSE. Measured 2026-09-28: 0 of the 22 records carry a
+          real hex digest and all 22 carry a placeholder, so printing one would hand a reader a
+          fabricated identity. AGENTS.md puts detailed artifact identity in an expandable model note
+          rather than on the page, and there is nothing honest to put there yet. */}
+      <section aria-labelledby="tape-recorded-under">
+        <h2 id="tape-recorded-under">What these numbers were recorded under</h2>
+        <table className="tape-table">
+          <caption>
+            The identities the recorded values belong to. The same instrument run under a different
+            seed, or under a later version of its model, gives different numbers without either set
+            being wrong.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Identity</th>
+              <th scope="col">Recorded as</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tape.model ? (
+              <tr>
+                <th scope="row">Model</th>
+                <td>
+                  {tape.model.id} <span className="tape-raw-id">version {tape.model.version}</span>
+                </td>
+              </tr>
+            ) : null}
+            {tape.seed ? (
+              <tr>
+                <th scope="row">Seed</th>
+                <td>
+                  <data value={tape.seed}>{tape.seed}</data>
+                </td>
+              </tr>
+            ) : null}
+            {tape.streamVersion === undefined ? null : (
+              <tr>
+                <th scope="row">Random-stream semantics</th>
+                <td>version {tape.streamVersion}</td>
+              </tr>
+            )}
+            {/* NO CONSTANT-SET ROW, for two reasons found by the voice lint rather than by review.
+                It is already on this page, in the caption of "Where it starts", so a row here was
+                repeating the page to itself. And printing it twice doubled a leak: coin-to-bell's
+                record carries `constantSetId: not-applicable`, a typed status name that AGENTS.md
+                says never reaches a reader, and checkVoice went from 1 finding to 2 when this row
+                existed. The leak is a content defect in that record and is reported, not patched
+                here with a special case. */}
+          </tbody>
+        </table>
+      </section>
+
       {tape.passages.length > 0 ? (
         <nav className="tape-onward" aria-label="Where this is in the paper">
           {/* The instrument's manifest already declares the passages it interrogates

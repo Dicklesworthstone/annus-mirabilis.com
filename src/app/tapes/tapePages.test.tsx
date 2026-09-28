@@ -193,6 +193,106 @@ describe("the teaching-tape pages", () => {
     expect(text).toContain("Nothing here runs the instrument");
   });
 
+  test("every page says what its numbers were recorded under, from the record", async () => {
+    // The honesty line asks a reader to compare their own run with the recorded values. These are
+    // the identities that decide whether a difference is a disagreement: a run under another seed
+    // or a later model version is a different run. Every value is read from the record here, so a
+    // page that printed a number of its own would fail rather than look tidy.
+    let checked = 0;
+    for (const tape of tapes) {
+      const html = renderToStaticMarkup(
+        await TapePage({ params: Promise.resolve({ tape: tape.tapeId }) }),
+      );
+      const raw = parseYaml(
+        readFileSync(join("content/experiments/tapes", `${tape.tapeId}.yaml`), "utf8"),
+      ) as Record<string, unknown>;
+      const identity = (raw.modelIdentity ?? {}) as Record<string, unknown>;
+      const document = dom(html);
+      const text = document.body.textContent ?? "";
+      const section = document.querySelector('section[aria-labelledby="tape-recorded-under"]');
+      expect([tape.tapeId, section === null]).toEqual([tape.tapeId, false]);
+      const recorded = section?.textContent ?? "";
+      expect([tape.tapeId, recorded.includes("What these numbers were recorded under")]).toEqual([
+        tape.tapeId,
+        true,
+      ]);
+      for (const value of [identity.modelId, identity.modelVersion, raw.seed, raw.streamVersion])
+        expect([tape.tapeId, String(value), recorded.includes(String(value))]).toEqual([
+          tape.tapeId,
+          String(value),
+          true,
+        ]);
+      // THE ARTIFACT DIGEST MUST NOT REACH A READER: 0 of the 22 records carry a real hex digest
+      // and all 22 carry a placeholder, so printing one would be printing a fabricated identity.
+      expect([tape.tapeId, text.includes(String(identity.artifactDigest))]).toEqual([
+        tape.tapeId,
+        false,
+      ]);
+      // THE CONSTANT SET IS NOT REPEATED HERE. It is already in the caption of "Where it starts",
+      // and each recorded expectation names its own in the "Under" column, which is why a
+      // page-wide count is 1 + one per expectation and not a useful assertion. What must stay true
+      // is that this section does not add another copy: on coin-to-bell that copy doubled a
+      // status-name leak, its record carrying `constantSetId: not-applicable`.
+      if (typeof raw.constantSetId === "string")
+        expect([tape.tapeId, recorded.includes(raw.constantSetId)]).toEqual([tape.tapeId, false]);
+      checked++;
+    }
+    // Non-vacuity: a loop over no tapes would satisfy every assertion above.
+    expect(checked).toBe(tapes.length);
+    expect(checked).toBeGreaterThan(15);
+  });
+
+  test("a prediction step asks its question, and keeps the answer behind a closed drawer", async () => {
+    // Two of the records carry a prediction event, and it reached this page as the bare words
+    // "Step 1". The question and the candidates come from the instrument's prompt record and the
+    // recorded answer from the event's payload, so this asserts against those rather than strings.
+    const withPrediction = tapes.filter((t) => t.steps.some((s) => s.prediction));
+    expect(withPrediction.map((t) => t.tapeId).sort()).toEqual([
+      "the-boost-to-0.6c",
+      "the-locked-positions",
+    ]);
+    for (const tape of withPrediction) {
+      const html = renderToStaticMarkup(
+        await TapePage({ params: Promise.resolve({ tape: tape.tapeId }) }),
+      );
+      const document = dom(html);
+      const text = document.body.textContent ?? "";
+      for (const step of tape.steps) {
+        if (!step.prediction) continue;
+        expect([tape.tapeId, text.includes(step.prediction.question)]).toEqual([tape.tapeId, true]);
+        for (const candidate of step.prediction.candidates)
+          expect([tape.tapeId, candidate.label, text.includes(candidate.label)]).toEqual([
+            tape.tapeId,
+            candidate.label,
+            true,
+          ]);
+        // The answer is inside a details that is NOT open, so a reader meets the question first.
+        const drawer = document.querySelector("details[data-tape-prediction]");
+        expect([tape.tapeId, drawer === null]).toEqual([tape.tapeId, false]);
+        expect([tape.tapeId, drawer?.hasAttribute("open")]).toEqual([tape.tapeId, false]);
+        if (step.prediction.recorded)
+          expect([tape.tapeId, drawer?.textContent?.includes(step.prediction.recorded)]).toEqual([
+            tape.tapeId,
+            true,
+          ]);
+      }
+      // And the step no longer reads as a bare "Step 1".
+      expect([tape.tapeId, text.includes("A question to answer before the next change")]).toEqual([
+        tape.tapeId,
+        true,
+      ]);
+    }
+    // A tape with no prediction event grows no drawer.
+    const plain = tapes.find((t) => !t.steps.some((s) => s.prediction));
+    expect(plain).toBeDefined();
+    if (plain) {
+      const html = renderToStaticMarkup(
+        await TapePage({ params: Promise.resolve({ tape: plain.tapeId }) }),
+      );
+      expect(dom(html).querySelectorAll("details[data-tape-prediction]").length).toBe(0);
+    }
+  });
+
   test("every page is reachable with no script: no button, and every control is an anchor", async () => {
     const pages = [renderToStaticMarkup(TapesIndex())];
     for (const tape of tapes.slice(0, 4))

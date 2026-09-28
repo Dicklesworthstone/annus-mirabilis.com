@@ -23,6 +23,7 @@ import { join } from "node:path";
 import { permalinkTapeFromControlTape } from "../experiments/permalink/fromControlTape.ts";
 import type { TapeV2 } from "../experiments/permalink/types.ts";
 import { type ControlTapeV2, validateControlTape } from "../experiments/tapes/schema.ts";
+import { PREDICT_PROMPTS } from "../generated/predict-prompts.ts";
 import { parseYaml } from "./provenance/yaml.ts";
 import { resolveQuantityId } from "./quantities/resolveQuantityId.ts";
 
@@ -87,6 +88,22 @@ export type TapeStep = Readonly<{
   label?: string | undefined;
   teachingNote?: string | undefined;
   expected: readonly TapeExpectedValue[];
+  /**
+   * The prediction a walkthrough pauses on, resolved from the event's `promptId` against the
+   * instrument's own prompt record. Two of the 22 records carry a prediction event, and until now
+   * such a step reached the page as the bare words "Step 1": the question, the candidates and the
+   * author's own choice were all in the corpus and none of them was rendered.
+   */
+  prediction?: TapePrediction | undefined;
+}>;
+
+/** A prediction step's question and candidates, read from the instrument's prompt record. */
+export type TapePrediction = Readonly<{
+  promptId: string;
+  question: string;
+  candidates: readonly Readonly<{ label: string; description: string }>[];
+  /** The candidate the tape's author recorded choosing, where the event names one. */
+  recorded?: string | undefined;
 }>;
 
 /** A step's recorded value, as a number or as the name of an enumerated setting (am-3xdx). */
@@ -117,6 +134,14 @@ export type TeachingTape = Readonly<{
   mode?: string | undefined;
   constantSetId?: string | undefined;
   seed?: string | undefined;
+  /**
+   * The model the recorded values belong to. The record's `artifactDigest` is deliberately NOT
+   * carried: measured 2026-09-28, 0 of the 22 records hold a real hex digest and all 22 hold a
+   * placeholder, so surfacing it would show a reader a fabricated identity.
+   */
+  model?: Readonly<{ id: string; version: string }> | undefined;
+  /** The random-stream semantics the recorded values were drawn under. */
+  streamVersion?: number | undefined;
   initialConditions: Readonly<Record<string, number | string>>;
   /** The manifest's label and unit for each initial condition it declares a parameter for. */
   conditionNames: Readonly<Record<string, ParameterName>>;
@@ -276,6 +301,44 @@ function expectedOf(
 }
 
 /**
+ * The model identity a record declares, as the page needs it: an id and a version, and nothing else.
+ * `artifactDigest` is left behind on purpose, for the reason given on `TeachingTape.model`.
+ */
+function modelOf(
+  raw: Record<string, unknown>,
+): Readonly<{ id: string; version: string }> | undefined {
+  const identity = (raw.modelIdentity ?? {}) as Record<string, unknown>;
+  const id = str(identity.modelId);
+  const version = str(identity.modelVersion);
+  return id && version ? { id, version } : undefined;
+}
+
+/**
+ * The prediction an event names, resolved against the instrument's own prompt record.
+ *
+ * NOTHING IS AUTHORED HERE. The question, the candidate labels and their descriptions come from
+ * `PREDICT_PROMPTS`, which the instrument declares, and the chosen candidate comes from the tape
+ * event's own `payload.candidateId`. A promptId that resolves to nothing yields no prediction rather
+ * than a heading with an empty body.
+ */
+function predictionOf(event: Record<string, unknown>): TapePrediction | undefined {
+  const promptId = str(event.promptId);
+  const instrumentId = str(event.instrumentId);
+  if (!promptId || !instrumentId) return undefined;
+  const prompt = (PREDICT_PROMPTS[instrumentId] ?? []).find((p) => p.promptId === promptId);
+  if (!prompt) return undefined;
+  const payload = (event.payload ?? {}) as Record<string, unknown>;
+  const chosenId = str(payload.candidateId);
+  const chosen = prompt.candidates.find((c) => c.id === chosenId);
+  return {
+    promptId,
+    question: prompt.question,
+    candidates: prompt.candidates.map((c) => ({ label: c.label, description: c.description })),
+    ...(chosen ? { recorded: chosen.label } : {}),
+  };
+}
+
+/**
  * The walkthrough: each control event joined to the checkpoint recorded at the same actionIndex, so
  * a step says both what changed and what to expect. An event with no checkpoint keeps its change and
  * carries no expectations, which is the honest shape: the author recorded none.
@@ -329,6 +392,13 @@ export function stepsOf(
       ...(str(c.label) ? { label: str(c.label) } : {}),
       ...(str(c.teachingNote) ? { teachingNote: str(c.teachingNote) } : {}),
       expected: expectedOf(c.expectedDisplayValues, declared),
+      // A PREDICTION EVENT IS A STEP WITH A QUESTION, not a bare "Step 1" (dispatch 393). The
+      // event names a promptId and the candidate its author chose; both resolve against the
+      // instrument's own prompt record, so nothing here is authored.
+      ...(() => {
+        const prediction = predictionOf(o);
+        return prediction ? { prediction } : {};
+      })(),
     });
   }
   return steps.sort((a, b) => a.actionIndex - b.actionIndex);
@@ -483,6 +553,10 @@ export function loadTeachingTapes(root: string = process.cwd()): {
       ...(str(raw.mode) ? { mode: str(raw.mode) } : {}),
       ...(str(raw.constantSetId) ? { constantSetId: str(raw.constantSetId) } : {}),
       ...(str(raw.seed) ? { seed: str(raw.seed) } : {}),
+      ...(modelOf(raw) ? { model: modelOf(raw) } : {}),
+      ...(num((raw as { streamVersion?: unknown }).streamVersion) === undefined
+        ? {}
+        : { streamVersion: num((raw as { streamVersion?: unknown }).streamVersion) }),
       initialConditions: (raw.initialConditions ?? {}) as Record<string, number | string>,
       conditionNames: Object.fromEntries(
         Object.keys((raw.initialConditions ?? {}) as Record<string, unknown>)

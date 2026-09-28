@@ -160,3 +160,21 @@
   color: var(--ink-muted);
   font-size: var(--type-small);
 }
+
+@media print {
+  /* AN ANSWER IS CONTENT, NOT A DRAWER, and the site's print policy drops a closed one
+     (sitePrint.css), which would leave "The answer this tape's author recorded" as a heading over
+     nothing. The same repair the counting and clock encounters use: print it open, with the summary
+     as a bold label. The question and its candidates print either way; it is the answer that
+     paper cannot reach by clicking. */
+  .tape-page details[data-tape-prediction]:not([open]) {
+    display: block;
+  }
+  .tape-page details[data-tape-prediction]::details-content {
+    content-visibility: visible;
+    display: block;
+  }
+  .tape-page details[data-tape-prediction] > summary {
+    font-weight: 600;
+  }
+}
