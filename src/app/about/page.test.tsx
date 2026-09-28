@@ -1,9 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { dayAndMonth, loadFirstPages } from "../../components/home/firstPages.ts";
 import { loadProvenanceReceipts } from "../../content/provenance/loadReceipts.ts";
+import { PAPER_SLUGS } from "../../content/schemas/source.pure.ts";
 import { reuseOf } from "../sources/reuse.ts";
 import About from "./page";
 import { PORTRAIT } from "./portrait.ts";
@@ -61,13 +62,53 @@ describe("/about/", () => {
     expect(text).toContain(line.trim().replace(/'/g, "’"));
   });
 
+  /*
+    A ROUTE IS SERVED BY A FILE, AND THAT FILE MAY SIT BEHIND A DYNAMIC SEGMENT (dispatch 425).
+
+    This asked for src/app/<route>/page.tsx literally, which is true of a static route and false of
+    every dynamic one in the app: /papers/light-quanta/ is served by src/app/papers/[paper]/page.tsx
+    and /sources/molecular-dimensions/ by src/app/sources/[paper]/page.tsx. So the check could only
+    ever confirm the static links this page already had, and it refused the first paper link added
+    to it. It is the check that was narrow, not the links.
+
+    The resolver below walks the route one segment at a time, preferring an exact directory and
+    falling back to the single dynamic one at that level, and requires a page.tsx where it lands.
+    A slug behind a dynamic segment is then checked against the set that route can name, so a
+    misspelt paper still fails. The two negatives at the end are there because a resolver that
+    returned true for everything would pass this loop forever.
+  */
+  const routeIsServed = (route: string): boolean => {
+    let dir = join("src", "app");
+    for (const segment of route.split("/").filter(Boolean)) {
+      const exact = join(dir, segment);
+      if (existsSync(exact)) {
+        dir = exact;
+        continue;
+      }
+      const dynamic = readdirSync(dir, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory() && entry.name.startsWith("["))
+        .map((entry) => entry.name);
+      if (dynamic.length !== 1) return false;
+      dir = join(dir, dynamic[0] as string);
+    }
+    return existsSync(join(dir, "page.tsx"));
+  };
+
   test("every link within the site names a page that exists", () => {
     const internal = [...html.matchAll(/href="(\/[^"#]*)"/g)].map((m) => m[1] as string);
     expect(internal.length).toBeGreaterThan(0);
     for (const href of internal) {
       const route = href.replace(/^\/|\/$/g, "");
-      expect(existsSync(join("src", "app", route, "page.tsx"))).toBe(true);
+      expect(routeIsServed(route), href).toBe(true);
+      // Behind /papers/ and /sources/ the segment is a paper slug, and only these five exist.
+      const [head, slug] = route.split("/");
+      if ((head === "papers" || head === "sources") && slug !== undefined && slug.length > 0)
+        expect(PAPER_SLUGS as readonly string[], href).toContain(slug);
     }
+    // The resolver refuses a segment that matches nothing and has no dynamic sibling, and refuses
+    // a directory that serves no page of its own.
+    expect(routeIsServed("about/not-a-page")).toBe(false);
+    expect(routeIsServed("does-not-exist-at-all")).toBe(false);
   });
 
   test("the photograph is described, served at every width its srcSet names, and credited as the library records it", () => {
