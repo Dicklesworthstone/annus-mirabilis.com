@@ -60,6 +60,16 @@ export default function Page() {
       {experiments.map((experimentId) => {
         // Every tape in a group names the same instrument, so the first one carries its name.
         const instrument = byExperiment.get(experimentId)?.[0]?.instrument;
+        // The paper this instrument's walkthroughs lead back to. Measured 2026-09-28: all 19
+        // groups name exactly one paper, so the heading can carry it; a group that ever spans two
+        // gets none rather than an arbitrary first, because a heading that is right 18 times out
+        // of 19 is worse than a heading that is silent.
+        const groupPapers = new Map(
+          (byExperiment.get(experimentId) ?? []).flatMap((tape) =>
+            tape.passages.map((passage) => [passage.paper, passage] as const),
+          ),
+        );
+        const groupPaper = groupPapers.size === 1 ? [...groupPapers.values()][0] : undefined;
         return (
           <section key={experimentId} aria-labelledby={`tapes-${experimentId}`}>
             {/* The instrument's id and the name its manifest gives it (am-2rl9).
@@ -69,11 +79,29 @@ export default function Page() {
               <a href={`/lab/${experimentId}/`}>{instrument?.id ?? experimentId}</a>
               {instrument ? `, ${instrument.name}` : null}
             </h2>
+            {groupPaper ? (
+              <p className="tape-group-paper">
+                On <a href={`/papers/${groupPaper.paper}/`}>{groupPaper.paperTitle}</a>
+              </p>
+            ) : null}
             <ul className="tape-list">
               {(byExperiment.get(experimentId) ?? []).map((tape) => (
                 <li key={tape.tapeId}>
                   <a href={tapePath(tape.tapeId)}>{tape.title}</a>
                   {tape.description ? <span className="tape-blurb">{tape.description}</span> : null}
+                  {/* Where it leads back to, which the walkthrough's own page has carried since
+                      it was written and the index did not. The paper is in the heading above, so
+                      these name the section alone; three of the 22 lead to two sections. */}
+                  {tape.passages.length > 0 ? (
+                    <span className="tape-passage-links">
+                      {tape.passages.map((passage, index) => (
+                        <span key={passage.href}>
+                          {index > 0 ? ", " : null}
+                          <a href={passage.href}>{passage.sectionTitle}</a>
+                        </span>
+                      ))}
+                    </span>
+                  ) : null}
                 </li>
               ))}
             </ul>

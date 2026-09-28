@@ -138,3 +138,25 @@
   color: var(--muted);
   font-size: var(--type-small);
 }
+
+/*
+ * WHERE A WALKTHROUGH LEADS (am-2rl9, tapes/page.tsx).
+ *
+ * The index groups by instrument, which is the right axis for someone choosing an instrument and
+ * the wrong one for someone arriving from a paper. The paper sits under each group heading and the
+ * section under each tape, so both readers can scan it. Measured 2026-09-28: all 19 groups name
+ * exactly one paper and all 22 tapes name at least one section.
+ *
+ * --type-small and --ink-muted are what .tape-blurb beside them already uses, so the three lines of
+ * a list item stay one rhythm rather than three sizes.
+ */
+.tape-group-paper {
+  margin: -0.4rem 0 1rem;
+  color: var(--ink-muted);
+  font-size: var(--type-small);
+}
+.tape-passage-links {
+  display: block;
+  color: var(--ink-muted);
+  font-size: var(--type-small);
+}
