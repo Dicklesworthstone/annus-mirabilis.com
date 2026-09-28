@@ -207,11 +207,26 @@ describe("auditMisconceptions (am-cm-audit-scripts-d34)", () => {
     expect(empty.ok).toBe(false);
     expect(empty.population).toEqual({ total: 0, judged: 0, notYetAuditable: 0 });
 
-    // And the live corpus, so the refusal above is not bought by making every input fail. The
-    // count is asserted as non-empty rather than as a number: a 27th ledger is correct work.
+    // And the live corpus, so the refusal above is not bought by making every input fail.
+    //
+    // THE FLOOR IS ON A MEASURED COUNT, not `> 0` (am-as1w). The defect this loader exists to
+    // remove was an audit reading an empty population, and `> 0` only catches the whole of that
+    // defect: a loader that reached one paper's directory, or one file of the 26, would examine
+    // almost nothing and still pass. Measured 2026-09-28 by running the loader: 26 ledger records
+    // across 4 papers (brownian-motion 5, light-quanta 5, mass-energy 8, special-relativity 8),
+    // resolving against 286 anchors, 38 results and 33 instruments.
+    //
+    // These are FLOORS, not a census, and deliberately below what is on disk: authoring a 27th
+    // ledger is correct work and must not turn this red. They are not a budget either, so when the
+    // corpus grows they may be raised to the new measurement, never lowered to accommodate a loss.
     const live = loadLiveMisconceptionInput(new URL("../../../", import.meta.url).pathname);
-    expect(live.entries).toBeGreaterThan(0);
-    expect(live.input.papers.length).toBeGreaterThan(0);
+    expect(live.entries).toBeGreaterThanOrEqual(20);
+    expect(live.input.papers.length).toBeGreaterThanOrEqual(4);
+    // The sets it resolves against are floored too: the audit's verdict is only worth the
+    // population on BOTH sides of the resolution, and an audit with records but nothing to resolve
+    // them against reports on a question it cannot answer.
+    expect(live.input.knownAnchors.size).toBeGreaterThanOrEqual(200);
+    expect(live.input.knownResults.size).toBeGreaterThanOrEqual(30);
     const report = auditMisconceptions(live.input);
     expect(report.population?.total).toBe(live.entries);
     expect(report.ok).toBe(true);
