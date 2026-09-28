@@ -73,6 +73,36 @@ test("permalink.compatibility: accept identical tape and environment", () => {
   assert.equal(check.compatible, true);
 });
 
+// am-w3g8: a refusal must not name two values that print the same and leave it there.
+test("permalink.compatibility: a stream version that prints the same says what differs", () => {
+  // 1 against "1". Strict comparison refuses, and the sentence used to read "Recorded with
+  // stream generator version 1; current is 1", which tells an author nothing to act on. The
+  // same shape on modelVersion cost this session two commits on 2026-09-27.
+  const tape: TapeV2 = { ...FIXTURE_TEACHING_TAPE_EINSTEIN_08, streamVersion: 1 };
+  const env: ExperimentEnvironment = { ...FIXTURE_ENVIRONMENT, streamVersion: "1" };
+  const check = checkTapeCompatibility(tape, env);
+  assert.equal(check.compatible, false);
+  if (!check.compatible) {
+    assert.equal(check.refusalCode, "tape-stream-version-mismatch");
+    assert.match(check.notice, /written the same and are not the same value/);
+    assert.match(check.notice, /the tape's is a number and this laboratory's is a string/);
+  }
+});
+
+// am-w3g8: and it stays quiet when the two are plainly different, so an ordinary mismatch keeps
+// its ordinary sentence. Without this the fix could have appended the clause to every refusal.
+test("permalink.compatibility: an ordinary version mismatch gains no extra clause", () => {
+  const tape: TapeV2 = { ...FIXTURE_TEACHING_TAPE_EINSTEIN_08, streamVersion: 1 };
+  const env: ExperimentEnvironment = { ...FIXTURE_ENVIRONMENT, streamVersion: 2 };
+  const check = checkTapeCompatibility(tape, env);
+  assert.equal(check.compatible, false);
+  if (!check.compatible) {
+    assert.equal(check.refusalCode, "tape-stream-version-mismatch");
+    assert.ok(!check.notice.includes("written the same"));
+    assert.match(check.notice, /version 1; current is 2/);
+  }
+});
+
 // Site 1: (compatibility.ts:37) tape-version-unsupported
 test("permalink.compatibility: Site (compatibility.ts:37) rejects unsupported tape version with tape-version-unsupported", () => {
   const tape: TapeV2 = { ...FIXTURE_TEACHING_TAPE_EINSTEIN_08, tapeVersion: 1 as unknown as 2 };

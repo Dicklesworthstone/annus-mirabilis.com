@@ -25,6 +25,30 @@ export type CompatibilityResult =
       offerNewRun: true;
     }>;
 
+/**
+ * WHEN A REFUSAL NAMES TWO VALUES THAT PRINT THE SAME (am-w3g8).
+ *
+ * The comparisons below are strict, and two of the fields they compare may be a number or a
+ * string: a tape recorded with `streamVersion: 1` against a laboratory declaring `"1"` refuses
+ * with "Recorded with stream generator version 1; current is 1." A reader of that notice, or an
+ * author trying to fix the record, is told two identical things are different and given nothing
+ * to act on.
+ *
+ * Measured cost, 2026-09-27: the same shape on modelVersion sent this session round a circle for
+ * two commits, correcting a record to "1", being refused by a notice naming 1 and 1, then
+ * unquoting it to 1 and being refused by the schema.
+ *
+ * This says what actually differs, and ONLY when the two print alike, so an ordinary mismatch
+ * keeps its ordinary sentence.
+ */
+function sameOnPaper(recorded: unknown, current: unknown): string {
+  if (String(recorded) !== String(current)) return "";
+  return (
+    ` Those are written the same and are not the same value: the tape's is a ${typeof recorded}` +
+    ` and this laboratory's is a ${typeof current}.`
+  );
+}
+
 export function checkTapeCompatibility(
   tape: TapeV2,
   env: ExperimentEnvironment,
@@ -52,7 +76,9 @@ export function checkTapeCompatibility(
     return {
       compatible: false,
       refusalCode: "tape-model-mismatch",
-      notice: `${def.message} Recorded under "${tape.modelIdentity.modelId}@v${tape.modelIdentity.modelVersion}"; current is "${env.modelId}@v${env.modelVersion}".`,
+      notice:
+        `${def.message} Recorded under "${tape.modelIdentity.modelId}@v${tape.modelIdentity.modelVersion}"; current is "${env.modelId}@v${env.modelVersion}".` +
+        sameOnPaper(tape.modelIdentity.modelVersion, env.modelVersion),
       repair: def.repair,
       tapeIdentity: tape.modelIdentity,
       currentIdentity: { modelId: env.modelId, modelVersion: env.modelVersion },
@@ -98,7 +124,9 @@ export function checkTapeCompatibility(
     return {
       compatible: false,
       refusalCode: "tape-stream-version-mismatch",
-      notice: `${def.message} Recorded with stream generator version ${tape.streamVersion}; current is ${env.streamVersion}.`,
+      notice:
+        `${def.message} Recorded with stream generator version ${tape.streamVersion}; current is ${env.streamVersion}.` +
+        sameOnPaper(tape.streamVersion, env.streamVersion),
       repair: def.repair,
       tapeIdentity: { streamVersion: tape.streamVersion },
       currentIdentity: { streamVersion: env.streamVersion },
