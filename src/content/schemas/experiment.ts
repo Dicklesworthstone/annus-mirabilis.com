@@ -1062,11 +1062,11 @@ export function validateExperiment(raw: unknown, path = "Experiment"): Experimen
         path: typeof k.path === "string" ? k.path : undefined,
         fnName: typeof k.fnName === "string" ? k.fnName : undefined,
         revision: typeof k.revision === "string" ? k.revision : undefined,
+        // Each entry validated rather than cast: a missing id stringified into a path (am-33q6).
         independentReferences: Array.isArray(k.independentReferences)
-          ? (k.independentReferences as readonly Readonly<{
-              experimentId: string;
-              quantityId: string;
-            }>[])
+          ? k.independentReferences.map((entry, n) =>
+              independentReferenceOf(entry, `${kPath}.independentReferences[${n}]`),
+            )
           : undefined,
       };
       kernelFunctions.push(kRef);
@@ -3932,4 +3932,40 @@ function promptCandidates(
     );
   }
   return { candidates, supportedCandidateId: supported, ...explained };
+}
+
+/**
+ * ONE independentReferences ENTRY, WITH BOTH OF ITS IDS (am-33q6).
+ *
+ * This used to be a cast. src/content/kernel/bindings.ts builds the path
+ * `content/verification/${experimentId}/${quantityId}.yaml` from these two fields and reports the
+ * file as missing when it does not exist, so an entry that omitted quantityId was stringified into
+ * `content/verification/sr-11/undefined.yaml` and the report read as MISSING CONTENT rather than as
+ * a MALFORMED RECORD. Two manifests were in that state, and the direction of the error is the
+ * problem: someone repairing the missing verification family would author records for every other
+ * pair and still be left hunting a filename nobody ever meant to write.
+ *
+ * Refusing here names the record and the field instead, so a third instance is impossible. It is
+ * placed at the end of this file on purpose: this module's refusal sites are cited by line from
+ * experiment.test.ts and from the beads, and appending leaves every one of those citations true.
+ */
+function independentReferenceOf(
+  raw: unknown,
+  path: string,
+): Readonly<{ experimentId: string; quantityId: string }> {
+  const entry = (raw ?? {}) as Record<string, unknown>;
+  for (const field of ["experimentId", "quantityId"] as const) {
+    const value = entry[field];
+    if (typeof value !== "string" || !value.trim())
+      throw new ExperimentValidationError(
+        "incomplete-independent-reference",
+        `An independentReferences entry requires ${field}: the verification record's path is built from experimentId and quantityId together, so an absent one becomes the string "undefined" in a filename.`,
+        "Experiment",
+        `${path}.${field}`,
+      );
+  }
+  return {
+    experimentId: entry.experimentId as string,
+    quantityId: entry.quantityId as string,
+  };
 }

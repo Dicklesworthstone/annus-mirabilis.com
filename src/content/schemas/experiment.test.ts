@@ -4023,3 +4023,45 @@ test("Experiment: a predict prompt's explanation is kept, and refused when it is
     );
   }
 });
+
+test("Experiment: (experiment.ts:3960) incomplete-independent-reference rejected when an entry omits quantityId, accepted when it carries one", () => {
+  // THE MALFORMED RECORD THAT READ AS A MISSING FILE (am-33q6). checkIndependentReferences builds
+  // content/verification/<experimentId>/<quantityId>.yaml from the two ids, so an entry with only
+  // an experimentId was stringified into ".../undefined.yaml" and reported as missing CONTENT.
+  // Two manifests were in that state and the error pointed at a filename nobody meant to write.
+  const yaml = fs.readFileSync(path.join(FIXTURES_DIR, "experiment-valid.yaml"), "utf8");
+  const raw = strictParse(yaml, "yaml") as any;
+  raw.owner.kernelFunctions[0].independentReferences = [{ experimentId: "sr-11" }];
+  assert.throws(
+    () => validateExperiment(raw),
+    (err: any) => {
+      assert.ok(err instanceof ExperimentValidationError);
+      assert.equal(err.code, "incomplete-independent-reference");
+      // The path names the record and the field, which is the whole point of refusing here.
+      assert.match(err.path, /independentReferences\[0\]\.quantityId$/);
+      return true;
+    },
+  );
+  // The other arm, so this is not a check that everything throws: a complete entry passes.
+  const raw2 = strictParse(yaml, "yaml") as any;
+  raw2.owner.kernelFunctions[0].independentReferences = [
+    { experimentId: "sr-11", quantityId: "radiationPressure" },
+  ];
+  const accepted = validateExperiment(raw2);
+  assert.ok(accepted);
+  assert.equal(
+    accepted.owner.kernelFunctions?.[0]?.independentReferences?.[0]?.quantityId,
+    "radiationPressure",
+  );
+  // And an experimentId missing is refused by the same code, named on its own field.
+  const raw3 = strictParse(yaml, "yaml") as any;
+  raw3.owner.kernelFunctions[0].independentReferences = [{ quantityId: "radiationPressure" }];
+  assert.throws(
+    () => validateExperiment(raw3),
+    (err: any) => {
+      assert.equal(err.code, "incomplete-independent-reference");
+      assert.match(err.path, /independentReferences\[0\]\.experimentId$/);
+      return true;
+    },
+  );
+});
