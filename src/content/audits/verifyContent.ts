@@ -81,7 +81,18 @@ export async function runVerifyContent(
   const files = await options.loadFiles();
   const compiled = await compileContent(files);
   for (const diagnostic of compiled.diagnostics) {
-    const line = `${diagnostic.code}: ${diagnostic.path}: ${diagnostic.message}`;
+    // The RECORD, then where in it, then what is wrong (am-9755). This line read
+    // `code: path: message` until 2026-09-27, which for a voice violation printed
+    // "overclaim: whatIsTrue.r0: Voice violation [overclaim]: ..." and named no record at all.
+    // Four such failures had been standing on HEAD, over a corpus of 26 misconception ledgers, and
+    // nobody could act on them because nobody could tell which ledger. The Diagnostic already
+    // carried recordId and file; only this line dropped them.
+    const where = [diagnostic.recordId, diagnostic.file].filter(
+      (part): part is string => typeof part === "string" && part.length > 0,
+    );
+    const at = where.length > 0 ? `${where.join(" (")}${where.length > 1 ? ")" : ""}: ` : "";
+    const owner = diagnostic.beadId ? ` (${diagnostic.beadId})` : "";
+    const line = `${diagnostic.code}: ${at}${diagnostic.path}: ${diagnostic.message}${owner}`;
     if (diagnostic.severity === "error") errors.push(line);
     else flags.push(line);
   }
