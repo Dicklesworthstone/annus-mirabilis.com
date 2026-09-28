@@ -10,8 +10,11 @@ export function chapterHref(path: string): string {
   return `${path.replace(/\.html$/, "")}/`;
 }
 
-/** "558 KB" rather than "571730 bytes": a reader decides by size, not by count. */
-function formatSize(bytes: number): string {
+/**
+ * "558 KB" rather than "571730 bytes": a reader decides by size, not by count. Exported so
+ * /offline/ states its totals in the same words as the download beside them.
+ */
+export function formatSize(bytes: number): string {
   return bytes < 1024 * 1024
     ? `${Math.round(bytes / 1024)} KB`
     : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
