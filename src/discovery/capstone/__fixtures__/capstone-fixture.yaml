@@ -1,0 +1,85 @@
+# The capstone fixture (am-disc-capstones-infra-3352): six claims whose dependencies are the graph
+# the bead specifies, A->C, B->C, C->D, D->E, D->F, so the schema tests and the ordering tests work
+# on the same chain. Four orders are consistent with it: ABCDEF, ABCDFE, BACDEF, BACDFE.
+#
+# It is a fixture, not a capstone anyone is served: the claims are about a worked example rather than
+# a paper, and no number appears in any of them, which is the rule the record exists to keep.
+id: "capstone-fixture"
+paper: "brownian-motion"
+title: "A worked chain, for the tests"
+question: "How does a chain of claims hold together when several orders of it are sound?"
+claims:
+  - id: "claim-a"
+    text: "The liquid is made of molecules in motion, and nothing in the argument needs to say how many."
+    anchor: "s1-p1"
+    logicalRole: "assumption"
+    buildsOn: []
+    assumptionIds: ["assume-molecular"]
+  - id: "claim-b"
+    text: "A suspended grain is pushed from every side at once, and the pushes do not cancel exactly."
+    anchor: "s1-p2"
+    logicalRole: "assumption"
+    buildsOn: []
+    assumptionIds: ["assume-independent-kicks"]
+  - id: "claim-c"
+    text: "Because the pushes are independent and as likely one way as the other, the average displacement is nothing while the spread is not."
+    anchor: "s4-p1"
+    logicalRole: "heuristic-inference"
+    buildsOn: ["claim-a", "claim-b"]
+    assumptionIds: ["assume-independent-kicks"]
+  - id: "claim-d"
+    text: "The mean square of the displacement therefore grows in proportion to the time."
+    anchor: "s4-p2"
+    logicalRole: "derivation"
+    buildsOn: ["claim-c"]
+    assumptionIds: ["assume-independent-kicks"]
+  - id: "claim-e"
+    text: "A microscope watching one grain measures that spread, so the coefficient is observable."
+    anchor: "s4-p3"
+    logicalRole: "empirical-observation"
+    buildsOn: ["claim-d"]
+    assumptionIds: ["assume-observation-interval"]
+  - id: "claim-f"
+    text: "The same coefficient appears in the balance between crowding and drag, which fixes it from the temperature, the liquid and the grain."
+    anchor: "s3-p1"
+    logicalRole: "derivation"
+    buildsOn: ["claim-d"]
+    assumptionIds: ["assume-stokes-drag"]
+paperOrder: ["claim-a", "claim-b", "claim-c", "claim-d", "claim-e", "claim-f"]
+startOrder: ["claim-f", "claim-c", "claim-a", "claim-e", "claim-b", "claim-d"]
+presets:
+  - instrumentId: "bm-01"
+    tapeId: "einstein-0-8-micron"
+    purpose: "Watch the spread grow with the time, and read the coefficient the walk reports."
+    lookFor:
+      - scenarioId: "bm-01-einstein-tracer"
+        outputId: "rmsDisplacement1d"
+        description: "The displacement scale after one second, beside the same scale after a minute."
+equations:
+  - equationId: "eq-model-bm-mean-square-growth"
+    purpose: "The line the whole chain is built towards, in one relation."
+  - equationId: "eq-model-bm-diffusivity-molar"
+    purpose: "The same coefficient, written from the temperature, the liquid and the grain."
+assumptions:
+  - id: "assume-molecular"
+    statement: "The liquid is molecular, and the argument never needs a count of its molecules."
+    kind: "premise"
+    anchor: "s1-p1"
+  - id: "assume-independent-kicks"
+    statement: "Displacements over separate intervals are independent, and as likely one way as the other."
+    kind: "idealization"
+    anchor: "s4-p1"
+  - id: "assume-observation-interval"
+    statement: "The interval watched is long compared with the time a push takes to die away."
+    kind: "approximation"
+  - id: "assume-stokes-drag"
+    statement: "A sphere moving slowly through the liquid meets a drag proportional to its speed."
+    kind: "idealization"
+    anchor: "s3-p1"
+explanationPrompt: "Explain to someone who has not read the paper why watching one grain can say anything about molecules."
+selfCheckNotes:
+  claim-c: "This step grants that separate pushes are independent, which is where the spread comes from."
+  claim-d: "The growth in proportion to the time follows from that independence and nothing else."
+  claim-f: "The drag law is doing the work here, and it holds for a slow sphere."
+limits: "The chain is a worked example for the tests. It states no result of the paper and cites no measurement."
+reviewRecordIds: []
