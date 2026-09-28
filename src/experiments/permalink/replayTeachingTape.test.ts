@@ -164,3 +164,83 @@ describe("the mechanism, on a walkthrough whose identity is its laboratory's", (
     expect(accepted.runId.endsWith("/run/3")).toBe(true);
   });
 });
+
+describe("the refusal a reader is shown, and the two codes that reach it", () => {
+  /*
+   * replayTeachingTape.ts maps the replayer's two NON-refusal failures onto one refused shape with
+   * two different codes: an `invariant-violation` becomes `tape-checkpoint-mismatch`, and an
+   * `invalid` replay carries the replayer's own `reason`. Both branches are driven here on purpose.
+   * A naive implementation that always returned `result.reason` passes a test that drives only the
+   * first; one that always returned "tape-checkpoint-mismatch" passes a test that drives only the
+   * second. Neither passes both, which is what makes this pair worth more than either half.
+   *
+   * These are constructed records, as the block above is: the corpus cannot reach either branch
+   * today because every published record refuses on identity first, so proving the mapping needs a
+   * record whose identity is its laboratory's. That is a DEMONSTRATION of this path and says
+   * nothing about the corpus.
+   */
+  function withLabIdentity(): TapeV2 {
+    const env = ME01_TAPE.environment;
+    const probe = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, { asNewRun: true });
+    if (probe.kind !== "replayed") throw new Error("the events do not apply at all");
+    return {
+      ...record,
+      streamVersion: env.streamVersion,
+      allocationId: env.allocationId,
+      constantSetId: env.constantSetId,
+      modelIdentity: { modelId: env.modelId, modelVersion: env.modelVersion },
+      acceptedCheckpoint: probe.acceptedCheckpoint,
+    };
+  }
+
+  test("a checkpoint the replay cannot reproduce is refused as tape-checkpoint-mismatch", () => {
+    const reachable = withLabIdentity();
+    // Identity is the laboratory's, so the compatibility check passes and the replay runs; only the
+    // recorded digest is wrong. `asNewRun` is deliberately NOT passed, because forceNewRun skips
+    // checkpoint verification and this is the verification's own refusal.
+    const wrongCheckpoint: TapeV2 = {
+      ...reachable,
+      acceptedCheckpoint: { ...reachable.acceptedCheckpoint, digest: "host:0000000000000000" },
+    };
+    const out = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, {
+      resolve: (id) => (id === TAPE_ID ? wrongCheckpoint : null),
+    });
+    // The defect this guards is a replay that applied every event and reported success while the
+    // state it reached was not the one the walkthrough recorded.
+    expect(out.kind).toBe("refused");
+    if (out.kind !== "refused") throw new Error("unreachable");
+    expect(out.refusalCode).toBe("tape-checkpoint-mismatch");
+    expect(out.notice.length).toBeGreaterThan(0);
+    // The same record with the digest left alone replays, so the refusal is the digest and not the
+    // construction: without this line a record that refused for any reason would pass.
+    const control = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, {
+      resolve: (id) => (id === TAPE_ID ? reachable : null),
+    });
+    expect(control.kind).toBe("replayed");
+  });
+
+  test("an event the laboratory refuses carries the replayer's own reason, not the checkpoint code", () => {
+    const reachable = withLabIdentity();
+    const [first, ...rest] = reachable.events;
+    // The compiled event carries `paramId`, not `parameterId`, and no `kind` discriminant. Asserted
+    // rather than assumed, because a rename upstream would otherwise leave this test building an
+    // event the laboratory ignores, which would refuse for the wrong reason and still be green.
+    if (!first) throw new Error("the walkthrough has no events");
+    expect(first.paramId).toBe("emissionAngle");
+    // A frame speed of 5 is 5c. ME-01's session refuses it, `applyEvent` throws, and the replayer
+    // returns kind "invalid" with reason "event-replay-failed" rather than an invariant violation.
+    const refusedByTheLab: TapeV2 = {
+      ...reachable,
+      events: [{ ...first, paramId: "frameSpeed", value: 5, previousValue: 0.6 }, ...rest],
+    };
+    const out = replayTeachingTapeOn(ME01_TAPE, session(), TAPE_ID, {
+      resolve: (id) => (id === TAPE_ID ? refusedByTheLab : null),
+      stepIndex: 0,
+    });
+    expect(out.kind).toBe("refused");
+    if (out.kind !== "refused") throw new Error("unreachable");
+    expect(out.refusalCode).toBe("event-replay-failed");
+    expect(out.refusalCode).not.toBe("tape-checkpoint-mismatch");
+    expect(out.notice.length).toBeGreaterThan(0);
+  });
+});
