@@ -2713,7 +2713,7 @@ entries:
       target:
         form: symbol
         modernGlyph: "x"
-    notes: "Scoped to the first of the two X's this paragraph prints, not to the paragraph: the second is the electrostatic force, and so is the X of the integral that follows it. The entry for s10-p4 does the same work for a paragraph where the letter only names the axis."
+    notes: "Scoped to the first of the two X's this paragraph prints, not to the paragraph: the second is the electrostatic force, and so is the X of the integral that follows it. The entry for §10, paragraph 4 does the same work for a paragraph where the letter only names the axis."
     sources:
       facsimilePage: 920
       anchor: sr-s10-p10
