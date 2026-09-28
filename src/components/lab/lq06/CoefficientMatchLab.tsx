@@ -29,10 +29,12 @@ import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { CoefficientMatchSideBySidePlot, MeanEnergyStripPlot } from "./CoefficientMatchPlot.tsx";
 import "./coefficientMatchLab.css";
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 export type CoefficientMatchLabProps = Readonly<{
   example?: PreparedLq06Example | undefined;
 }>;
@@ -452,6 +454,9 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
         {withScripts(LQ06_CAPTION.r2)}
       </p>
       <LabMargin>{withScripts(LQ06_CAPTION.r3)}</LabMargin>
+
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="lq-06" listings={getKernelListingsForInstrument("lq-06")} />
 
       <div className="lab-bottom">
         <div className="not-modeled">

@@ -39,7 +39,16 @@
     "evaluateSr02@src/physics/reference/fields.ts": "sha256:2f5e277be9a7291d9a8733d8b4b11a53f0ed68b407e7b855edade01d59969f4b",
     "maxwellResidualsPlaneWave@src/physics/reference/fields.ts": "sha256:1aa29e33145a81a9dd34ccf8d0d4a035e97322c57c5e2847ba11d93ddfd88564",
     "transformGaussianHistorical@src/physics/reference/fields.ts": "sha256:72f5c3896fe7018ea7fa631cd106ea1be8dc553a49f8c3ccb3bb21264bdb8f58",
-    "evaluateSr11@src/physics/reference/waves.ts": "sha256:1e4cadb9104f65489aad06ebe337527cec8d5de1ebd7919441142cbee73f8bcc"
+    "evaluateSr11@src/physics/reference/waves.ts": "sha256:1e4cadb9104f65489aad06ebe337527cec8d5de1ebd7919441142cbee73f8bcc",
+    "twoSourceIntensity@src/physics/reference/radiation/waves.ts": "sha256:6fd24fcb5858023b88cd0a6389a8da475f5dff4fae95f6cb08502c47992634da",
+    "inverseSquareIntensity@src/physics/reference/radiation/waves.ts": "sha256:ad39a6e1d729c60dcfe8d52137da59746f6d586dfd167edce3d421453f945909",
+    "shellPowerIdentity@src/physics/reference/radiation/waves.ts": "sha256:9f2ffa322783d9b7b0ee733995c2406c5ec089829771b183fb89469e92e0da16",
+    "fringeVisibility@src/physics/reference/radiation/waves.ts": "sha256:9307a3704e2df1d3b89d5719e1642e3544c53b522729b6af112756cca9bfcd71",
+    "fringeSpacingSmallAngle@src/physics/reference/radiation/waves.ts": "sha256:38cd8c4532f99000e1180dae2e50efffa64afeadc5f56bd6d9fa81d1725da6eb",
+    "independentPointsProbability@src/physics/reference/radiation/configurations.ts": "sha256:5b22bdf318ce2a02c142ea75816c922193ca08355fb40ce7d091c3b312e68991",
+    "effectiveIndependentCount@src/physics/reference/radiation/quanta.ts": "sha256:0d9da7e740ad17c4d05a650a48b86979a75de01a34c7f433d6861cf9b5abd0af",
+    "meanQuantumEnergyWien@src/physics/reference/radiation/quanta.ts": "sha256:d3e624115b5f972b23acb0c8ef5d2170fb74a8749f1f5f5f1c4ca5e3fa23c92f",
+    "ionizationCount@src/physics/reference/photoelectric.ts": "sha256:b9faf7cd99d516b3082ef66c3793b0bc08fdc6c5c1b8fe35cd73b2da43f238cb"
   },
   "closures": {
     "src/physics/reference/diffusion/distributions.ts": "source:sha256:1eb5b457e215116537778a643fdb94b42da696cd79689396720e6c289b7aa5fa",
@@ -53,6 +62,10 @@
     "src/experiments/sr05/worldline.ts": "source:sha256:2a642bf55c8b519f40d0e4e79b7a96c2dd7cc01f3d2ab3b6c2b1b39a0ef9aac4",
     "src/physics/reference/events.ts": "source:sha256:6a74ffb808e237804957cdbae406280d631a510f5b659cb9f9b6de076d68d62b",
     "src/physics/reference/fields.ts": "source:sha256:35f3c9e1b7082b6b3db49289f2f9cac6256addde96ae68888c49508db3684f35",
-    "src/physics/reference/waves.ts": "source:sha256:a9a41cdef1247caf617289e9271ece9f64d9a7c3712588a64ee415b1f1016351"
+    "src/physics/reference/waves.ts": "source:sha256:a9a41cdef1247caf617289e9271ece9f64d9a7c3712588a64ee415b1f1016351",
+    "src/physics/reference/radiation/waves.ts": "source:sha256:0c92c9c5009dc95da20787171afbf146c86368d966bb940fbfb3c33b6c45c870",
+    "src/physics/reference/radiation/configurations.ts": "source:sha256:ce815ddb8116b9ce4144d1d08d7114cfd6f10f73cc1856c0f1f4acca1d11d899",
+    "src/physics/reference/radiation/quanta.ts": "source:sha256:ab783937b34322002ab174f8ac603b8003999d84fed141d3c11421f0782ebdfc",
+    "src/physics/reference/photoelectric.ts": "source:sha256:ec2e880450e8b87339b38d7c064aae6130c4cc601ac472708677ae755153b980"
   }
 }

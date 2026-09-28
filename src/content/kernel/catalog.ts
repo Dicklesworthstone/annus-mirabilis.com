@@ -635,6 +635,207 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     ],
     independentReferences: [],
   },
+
+  // LQ-01, LQ-05, LQ-06 and LQ-09 (am-f3e4, dispatch 329). The light-quanta family had no entries
+  // at all, so all four labs mounted the panel for the first time in this commit.
+  //
+  // ON THE MODULE PATHS. The lq-01 and lq-05 manifests declare the barrel
+  // src/physics/reference/radiation.ts; the entries below name the file the function is actually
+  // written in. Measured: extraction through the barrel and through the file return the same
+  // source, the same hash and the same line numbers, so the only difference is what the panel
+  // points a reader at and how wide the closure pin is. The barrel's closure is 20 modules,
+  // including constants.ts and philox.ts; waves.ts is 6 and configurations.ts is 9. lq-06 and
+  // lq-09 name real files in their manifests already and are unchanged here.
+  //
+  // ON LIVE TERMS. Eleven of the quantityIds these four manifests use are not registered
+  // (phaseAngle, visibility, fringeSpacing, dimensionlessRatio, lnW, sampleFraction, trialCount,
+  // meanEnergyRatio, gasEntropy, absorptionEfficiency, duration), so nothing below binds them:
+  // a live term that is not an exact canonical quantity id is a compiler rejection, not a near
+  // miss. lq-01's phase control and its fringe-spacing readout are the notable absences.
+  {
+    instrumentId: "lq-01",
+    kernel: tsRef("src/physics/reference/radiation/waves.ts", "twoSourceIntensity"),
+    words: {
+      r0: "Two coherent sources, and the brightness where their waves meet: either the steady reading a detector settles to, or the square of the field at one instant.",
+      r1: "Each source contributes an amplitude that falls as one over its distance, a1 = A1/r1 and a2 = A2/r2. The time-averaged reading is a1 squared plus a2 squared plus 2 a1 a2 cos(delta), and that last cross term is the whole of interference: it adds at delta = 0 and cancels the rest at delta = pi. The phase difference comes from the path difference, k(r1 - r2), unless the caller supplies one. Given an absorption coefficient kappa the answer is in watts per square metre; without one it is normalized to what a single source would average.",
+      r2: "The instantaneous branch returns twice the square of the field, not the square, and the reason is that the two readouts have to agree. Average psi = a1 cos(phi) + a2 cos(phi + delta) over a period and you get half of (a1 squared + a2 squared + 2 a1 a2 cos delta), which is half what the time-averaged branch reports, so doubling the instantaneous square makes the average of the instant equal the average the other branch gives. The comments in the source record that it was once the plain square, which peaked at 4 for two unit waves in phase, exactly the number the averaged branch returns, and then averaged to half of it. They record the other half of the same repair too: the instantaneous branch used to take delta from the geometry alone, so at r1 = r2 a caller-set delta of pi read dark on average and bright at t = 0.",
+    },
+    liveTerms: ["radiationElectricField", "wavelength", "incidentPower"],
+    identifierBindings: [
+      bind("twoSourceIntensity", "A1", "radiationElectricField"),
+      bind("twoSourceIntensity", "A2", "radiationElectricField"),
+      bind("twoSourceIntensity", "wavelength", "wavelength"),
+      bind("twoSourceIntensity", "intensity", "incidentPower"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-01",
+    kernel: tsRef("src/physics/reference/radiation/waves.ts", "inverseSquareIntensity"),
+    // One sentence is the whole truth: a division, and two refusals before it.
+    words: words(
+      "Divide the source's power by the area of the sphere the light has reached, 4 pi r squared, and refuse before dividing: a radius at or below zero and a negative power each return a typed outside-domain result quoting the value that was passed.",
+    ),
+    liveTerms: ["incidentPower", "displacement1d"],
+    identifierBindings: [
+      bind("inverseSquareIntensity", "P", "incidentPower"),
+      bind("inverseSquareIntensity", "r", "displacement1d"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-01",
+    kernel: tsRef("src/physics/reference/radiation/waves.ts", "shellPowerIdentity"),
+    words: {
+      r0: "Add the intensity up over a whole sphere drawn around the source, and check that what comes back is the power that left it.",
+      r1: "The surface integral of I(r) = P / (4 pi r squared) over a sphere of radius r. Substituting mu = cos(theta) turns it into 2 pi r squared times the integral of I over mu from -1 to 1; the function sums that on a uniform grid of twice the order and returns the enclosed power. For any radius it returns P, which is the statement that spreading dilutes the intensity without losing any of the energy.",
+      r2: "What this establishes, and what it does not. The integrand does not depend on mu at all, so every node contributes the same I_r times dMu and the sum is exactly twice I_r whatever the node placement is. The comment above the loop names Gauss-Legendre quadrature and the loop is a uniform sum; for a constant integrand those agree, and for an anisotropic source they would not. So this function checks the bookkeeping, the 4 pi r squared of the sphere against the one-over-r-squared of the falloff, rather than the accuracy of any quadrature rule. Passing it is evidence that the area and the falloff cancel, and it is not evidence about integrating a source that shines unevenly.",
+    },
+    liveTerms: ["incidentPower", "displacement1d"],
+    identifierBindings: [
+      bind("shellPowerIdentity", "P", "incidentPower"),
+      bind("shellPowerIdentity", "r", "displacement1d"),
+      bind("shellPowerIdentity", "enclosedPower", "incidentPower"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-01",
+    kernel: tsRef("src/physics/reference/radiation/waves.ts", "fringeVisibility"),
+    words: {
+      r0: "How sharp the fringes are, from the two amplitudes alone: 1 when the waves are equally strong, falling toward 0 as either one takes over.",
+      r1: "V = 2 A1 A2 / (A1 squared + A2 squared). This is the contrast a detector reports, the largest intensity minus the smallest over their sum, with the largest (A1 + A2) squared where the waves arrive in step and the smallest (A1 - A2) squared where they arrive opposed: the difference is 4 A1 A2, the sum is twice (A1 squared + A2 squared), and the factor of 2 cancels.",
+      r2: "Only the ratio of the amplitudes matters. Write rho = A2/A1 and the expression is 2 rho / (1 + rho squared), which equals 1 at rho = 1 and falls away on either side, so doubling both amplitudes changes nothing and the visibility can never pass 1. The guard returns zero when neither amplitude is positive. The case the arithmetic needs it for is the pair (0, 0), where the quotient would be zero divided by zero, and this laboratory's domain declares both amplitudes non-negative, so that pair is the case the guard meets.",
+    },
+    liveTerms: ["radiationElectricField"],
+    identifierBindings: [
+      bind("fringeVisibility", "A1", "radiationElectricField"),
+      bind("fringeVisibility", "A2", "radiationElectricField"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-01",
+    kernel: tsRef("src/physics/reference/radiation/waves.ts", "fringeSpacingSmallAngle"),
+    words: {
+      r0: "The distance from one bright fringe to the next: the wavelength times the distance to the screen, divided by the separation of the two sources.",
+      r1: "Delta y = lambda D / d, in the small-angle form. The path difference at a point a height y up the screen is taken as d y / D rather than the exact d sin(theta), and the two agree while y stays small against D. All three lengths must be in the same unit, and the answer comes back in that unit.",
+      r2: "There is no guard inside the function, and that is a division of labour rather than an omission. A separation of zero would divide by zero and return Infinity; the caller refuses it first, in src/workers/operations/lq01.ts, which tests that the separation is strictly positive and otherwise returns a typed outside-domain result saying that zero separation produces infinite fringe spacing. So the listing shows the arithmetic without the refusal, and the refusal a reader meets on the page lives one call above the code shown here.",
+    },
+    liveTerms: ["wavelength", "displacement1d"],
+    identifierBindings: [
+      bind("fringeSpacingSmallAngle", "wavelength", "wavelength"),
+      bind("fringeSpacingSmallAngle", "separation", "displacement1d"),
+      bind("fringeSpacingSmallAngle", "screenDistance", "displacement1d"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-05",
+    kernel: tsRef(
+      "src/physics/reference/radiation/configurations.ts",
+      "independentPointsProbability",
+    ),
+    words: {
+      r0: "The chance that n independent points are all inside a fraction f of the volume at the same moment: f multiplied by itself n times.",
+      r1: "W = f to the n, with f the volume ratio V/V0. The function returns it three ways, because past any interesting n only one of them survives in a double: the plain value, the natural logarithm n ln f, and the base-ten logarithm. The last field, deltaSOverKb, is the entropy change in units of the Boltzmann constant, and it is the same number as ln W, which is Boltzmann's relation and the reason the calculation is here at all.",
+      r2: "f to the n underflows quickly, and the three representations are the answer to that. Measured with this function at f = 0.5: n = 100 still returns 7.888609052210105e-31, and n = 1100 returns exactly 0, with linearRepresentable false and log10W = -331.13. That is why the entropy is not computed from the value: the logarithm of a zero is minus Infinity, while n ln f is ordinary arithmetic at any n. Pass f as a pair of bigints and the function also returns the exact rational p to the n over q to the n, which no floating-point path can offer.",
+    },
+    equationId: "eq-model-lq-configuration-probability",
+    liveTerms: ["independentPointCount", "volumeRatio", "configurationProbability"],
+    identifierBindings: [
+      bind("independentPointsProbability", "n", "independentPointCount", [
+        "eq-model-lq-configuration-probability.t.count",
+      ]),
+      bind("independentPointsProbability", "f", "volumeRatio", [
+        "eq-model-lq-configuration-probability.t.fraction",
+      ]),
+      bind("independentPointsProbability", "value", "configurationProbability", [
+        "eq-model-lq-configuration-probability.t.probability",
+      ]),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-06",
+    kernel: tsRef("src/physics/reference/radiation/quanta.ts", "effectiveIndependentCount"),
+    words: {
+      r0: "How many independent things the radiation is behaving like: its energy divided by the energy of one element, E over h nu.",
+      r1: "The count paragraph 6 reads off the entropy comparison. Given an energy and a frequency it divides by the element energy and returns the count, that element energy in joules, and the same in electronvolts. The element energy arrives three ways: as a number, which is Einstein's printed R beta nu over N; from a declared constant set; or, with nothing passed, from the modern SI Planck constant.",
+      r2: "The count is a real number and is not required to be a whole one. At E = 1e-18 joules and nu = 6.0e14 hertz it returns 2.5153169660702535, with an element energy of 2.4814 electronvolts. What makes that division mean a count is not this line: equate the radiation's entropy change, E over beta nu times ln(V/V0), with a gas's, R over N times n times ln(V/V0), and the exponent n in W = (V/V0) to the n has to be E N over R beta nu, which is E over h nu. The function performs the division; the entropy comparison is what licenses reading it as a number of independent somethings. There is no guard on a zero frequency, which would make the element energy zero and the count Infinity, and this laboratory's frequency domain starts at 1e14 hertz.",
+    },
+    equationId: "eq-model-lq-effective-count",
+    liveTerms: ["radiationEnergy", "frequency", "effectiveIndependentCount", "quantumEnergy"],
+    identifierBindings: [
+      bind("effectiveIndependentCount", "E", "radiationEnergy", [
+        "eq-model-lq-effective-count.t.energy",
+      ]),
+      bind("effectiveIndependentCount", "nu", "frequency", [
+        "eq-model-lq-effective-count.t.frequency",
+      ]),
+      bind("effectiveIndependentCount", "count", "effectiveIndependentCount", [
+        "eq-model-lq-effective-count.t.count",
+      ]),
+      bind("effectiveIndependentCount", "quantumEnergy", "quantumEnergy"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-06",
+    kernel: tsRef("src/physics/reference/radiation/quanta.ts", "meanQuantumEnergyWien"),
+    words: {
+      r0: "The average energy of one quantum across a whole Wien spectrum at temperature T: three times k_B T, which is twice the average kinetic energy of a gas molecule.",
+      r1: "It returns 3 k_B T in joules and electronvolts, beside the resonator energy k_B T and a molecule's 1.5 k_B T, and the ratio of the first to the last, which comes out at exactly 2. At 300 K that is 0.0776 electronvolts against 0.0388. It also returns the ratio of a 600 terahertz quantum's energy to this average, about 32, which says how far an optical quantum sits above the thermal average at room temperature.",
+      r2: "The 3 is a ratio of two gamma integrals. Write x = h nu / k_B T; a Wien spectrum puts energy proportional to x cubed times e to the minus x in each interval and quanta proportional to x squared times e to the minus x, so the mean energy per quantum is k_B T times the integral of the first over the integral of the second, which is 6 over 2. The gamma3 and gamma4 helpers below are those integrals up to a finite x in closed form, and the function spends them on the honest part of the answer: the boundary x0 = ln(1/epsilon) is where Wien's form departs from Planck's by more than epsilon, and at the default epsilon of 0.01 it sits at x0 = 4.605. Below that boundary lie 0.675 of the Wien energy and 0.838 of the Wien quanta. The 3 k_B T average is therefore dominated by the frequencies where the stipulated spectrum is outside the regime it was admitted for, which is what the returned modelStatus says in one string.",
+      r3: "The paragraph 6 conclusion carries its own parenthesis: monochromatic radiation of low density, within the range of validity of Wien's radiation formula, behaves in thermal respects as if it consisted of mutually independent energy quanta. The shares this function returns are the site's accounting of how much of the spectrum lies outside that range, not a figure the paper computes.",
+    },
+    liveTerms: ["temperature", "meanQuantumEnergyWien", "boltzmannConstant"],
+    identifierBindings: [
+      bind("meanQuantumEnergyWien", "T", "temperature"),
+      bind("meanQuantumEnergyWien", "kB", "boltzmannConstant"),
+      bind("meanQuantumEnergyWien", "meanWienJoules", "meanQuantumEnergyWien"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "lq-09",
+    kernel: tsRef("src/physics/reference/photoelectric.ts", "ionizationCount"),
+    words: {
+      r0: "How many molecules a beam of light can ionize: count the quanta it delivers, and under the paper's hypothesis each absorbed quantum ionizes one molecule.",
+      r1: "The evaluator behind this laboratory. It checks the frequency against the ionization energy, resolves the incident and absorbed powers through the absorption efficiency, multiplies the absorbed power by the duration to get the absorbed energy, divides that by h nu for the number of absorbed quanta, and then lets the absorption mode decide what may be said about ionization. Every number it returns carries its own status, so the quanta can be a value on a page where the ionization count is a refusal.",
+      r2: "Four exits, and the difference between them is the content of the function. A frequency below the threshold is NOT-APPLICABLE for the ionization count and the gram-molecules, while the incident rate, the absorbed rate and the absorbed quanta stay values: light did arrive, it just cannot ionize, and reporting zero ionizations would have merged those two statements. An absorption mode of unknown is UNDERDETERMINED, and the reason names the bound rather than guessing at a fraction: the count cannot pass the number of absorbed quanta. A declared fraction multiplies that bound and says so. The unqualified hypothesis, every absorbed quantum ionizing one molecule, is the remaining exit and the one the paper argues for, and it returns the count and the gram-molecules divided by the Avogadro constant. Bad inputs, a negative power or an efficiency outside zero to one or a negative duration, are OUTSIDE-DOMAIN before any of that.",
+    },
+    equationId: "eq-model-lq-ion-count-bound",
+    liveTerms: [
+      "frequency",
+      "ionizationEnergyPerMolecule",
+      "incidentPower",
+      "quantumEfficiency",
+      "absorbedLightEnergy",
+      "quantumRate",
+      "absorbedQuantumRate",
+      "ionizationRate",
+      "ionCount",
+      "ionizedGramMolecules",
+    ],
+    identifierBindings: [
+      bind("ionizationCount", "nu", "frequency", ["eq-model-lq-ion-count-bound.t.frequency"]),
+      bind("ionizationCount", "ionizationEnergyEv", "ionizationEnergyPerMolecule"),
+      bind("ionizationCount", "incidentPowerWatts", "incidentPower"),
+      bind("ionizationCount", "declaredFraction", "quantumEfficiency"),
+      bind("ionizationCount", "lAbs", "absorbedLightEnergy", [
+        "eq-model-lq-ion-count-bound.t.absorbed",
+      ]),
+      bind("ionizationCount", "h", "planckConstant", ["eq-model-lq-ion-count-bound.t.planck"]),
+      bind("ionizationCount", "na", "avogadroConstant"),
+      bind("ionizationCount", "incQRate", "quantumRate"),
+      bind("ionizationCount", "absQRate", "absorbedQuantumRate"),
+      bind("ionizationCount", "ionRate", "ionizationRate"),
+      bind("ionizationCount", "ionCount", "ionCount", ["eq-model-lq-ion-count-bound.t.ions"]),
+      bind("ionizationCount", "jMol", "ionizedGramMolecules"),
+    ],
+    independentReferences: [],
+  },
 ];
 
 export const SLICE_REGISTERED_SCENARIOS: Readonly<Record<string, readonly string[]>> = {

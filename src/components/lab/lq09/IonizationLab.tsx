@@ -32,9 +32,11 @@ import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { IonizationCountingPlot, IonizationThresholdLadderPlot } from "./IonizationPlot.tsx";
 import "./ionizationLab.css";
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 export type IonizationLabProps = Readonly<{
   example?: PreparedLq09Example | undefined;
 }>;
@@ -480,6 +482,9 @@ export function IonizationLab({ example }: IonizationLabProps) {
         {withScripts(LQ09_CAPTION.r2)}
       </p>
       <LabMargin>{withScripts(LQ09_CAPTION.r3)}</LabMargin>
+
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="lq-09" listings={getKernelListingsForInstrument("lq-09")} />
     </section>
   );
 }

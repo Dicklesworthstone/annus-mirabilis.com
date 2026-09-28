@@ -38,7 +38,9 @@ import { withScripts } from "../subscripts.tsx";
 import { IndependentConfigurationsPlot } from "./IndependentConfigurationsPlot.tsx";
 import "./independentConfigurationsLab.css";
 
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { LabMargin } from "../LabMargin.tsx";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 
 const LQ05_PROMPTS = PREDICT_PROMPTS["lq-05"] ?? [];
 
@@ -636,6 +638,9 @@ export function IndependentConfigurationsLab({
         {withScripts(LQ05_CAPTION.r2)}
       </p>
       <LabMargin>{withScripts(LQ05_CAPTION.r3)}</LabMargin>
+
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="lq-05" listings={getKernelListingsForInstrument("lq-05")} />
     </article>
   );
 }

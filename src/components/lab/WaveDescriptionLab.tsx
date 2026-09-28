@@ -37,7 +37,9 @@ import {
 } from "./WaveDescriptionPlots.tsx";
 import "./waveDescriptionLab.css";
 
+import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { LabMargin } from "./LabMargin.tsx";
+import { ShowTheCode } from "./ShowTheCode.tsx";
 export type WaveDescriptionLabProps = Readonly<{
   example: PreparedLq01Example;
   title?: string;
@@ -575,6 +577,9 @@ export function WaveDescriptionLab({
         {withScripts(LQ01_CAPTION.r2)}
       </p>
       <LabMargin>{withScripts(LQ01_CAPTION.r3)}</LabMargin>
+
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="lq-01" listings={getKernelListingsForInstrument("lq-01")} />
 
       <div className="lab-bottom">
         <div className="not-modeled">
