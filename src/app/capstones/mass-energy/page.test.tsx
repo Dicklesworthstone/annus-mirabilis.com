@@ -13,6 +13,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { loadCapstone } from "../../../discovery/capstone/loadCapstone.ts";
 import { consistentOrderCount } from "../../../discovery/shared/dependencyFeedback.ts";
 import { DEFAULT_FACE, FACE_REGISTRY } from "../../../reader/faces/registry.ts";
+import { tapePath } from "../../../reader/sitePaths.ts";
 import CapstonePage from "./page";
 
 const html = renderToStaticMarkup(<CapstonePage />);
@@ -63,7 +64,13 @@ describe("the mass-energy capstone page", () => {
       expect(html).toContain(`href="/papers/mass-energy/view/parallel/#${equation.displayUnit}"`);
     for (const preset of capstone.presets) {
       expect(html).toContain(`href="/lab/${preset.instrumentId}/"`);
-      if (preset.tapeId !== undefined) expect(html).toContain(`/tapes/${preset.tapeId}/`);
+      // THROUGH `tapePath`, NEVER A TEMPLATE (am-tpzn, dispatch 390). The site serves an id whose
+      // last segment carries a dot WITHOUT a trailing slash and every other id with one, so a
+      // hand-built `/tapes/${id}/` is wrong for `the-boost-to-0.6c`, which answers 308 in that form.
+      // BOTH of this capstone's presets name a tape and NEITHER id is dotted, so the template this
+      // replaces was passing by coincidence rather than by rule: it asserted the right string for
+      // these two ids and would assert a 308ing one for the first dotted id to appear here.
+      if (preset.tapeId !== undefined) expect(html).toContain(`href="${tapePath(preset.tapeId)}"`);
     }
   });
 

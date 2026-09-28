@@ -17,6 +17,7 @@ import {
   dependencyFeedback,
 } from "../../../discovery/shared/dependencyFeedback.ts";
 import { DEFAULT_FACE, FACE_REGISTRY } from "../../../reader/faces/registry.ts";
+import { tapePath } from "../../../reader/sitePaths.ts";
 import CapstonePage from "./page";
 
 const html = renderToStaticMarkup(<CapstonePage />);
@@ -74,7 +75,12 @@ describe("the light-quanta capstone page", () => {
       expect(html).toContain(`href="/papers/light-quanta/view/parallel/#${equation.displayUnit}"`);
     for (const preset of capstone.presets) {
       expect(html).toContain(`href="/lab/${preset.instrumentId}/"`);
-      if (preset.tapeId !== undefined) expect(html).toContain(`/tapes/${preset.tapeId}/`);
+      // THROUGH `tapePath`, NEVER A TEMPLATE (am-tpzn, dispatch 390). The site serves an id whose
+      // last segment carries a dot WITHOUT a trailing slash and every other id with one, so a
+      // hand-built `/tapes/${id}/` is wrong for `the-boost-to-0.6c`, which answers 308 in that form.
+      // No preset of this capstone names a tape, so unlike its siblings this line has never run; the
+      // first one that did would have failed for a reason unrelated to the change that triggered it.
+      if (preset.tapeId !== undefined) expect(html).toContain(`href="${tapePath(preset.tapeId)}"`);
     }
   });
 
