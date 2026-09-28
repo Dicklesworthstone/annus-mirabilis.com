@@ -21,15 +21,39 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseYaml } from "./provenance/yaml.ts";
+import { resolveQuantityId } from "./quantities/resolveQuantityId.ts";
 
 export const TAPES_DIR = join("content", "experiments", "tapes");
 
+/**
+ * THE REGISTRY'S NAME FOR A RECORDED FIELD, AND HOW IT WAS REACHED (dispatch 325).
+ *
+ * A checkpoint addresses the evaluator's output by its snapshot field id, so /tapes/the-two-pulses/
+ * showed a reader the row `pulseSumMoving`, which is a developer's name for the energy of the light
+ * complex in the moving system. The id has to stay the id in the record, because `tapeNumbers.test.ts`
+ * reaches the evaluator's output BY it, and renaming one in the YAML would silently unhook that
+ * check. So the name is resolved for DISPLAY and the id keeps its place beside it.
+ *
+ * `via` says which half of the population a row is in, because the two halves are not equally strong:
+ * "registry" means the field id IS a canonical quantity id and the lookup was exact, while "manifest"
+ * means the instrument's own record declares which quantity that field holds (an `outputs` entry's
+ * `quantityId`, or an `owner.identifierBindings` entry for a kernel identifier).
+ */
+export type QuantityDisplay = Readonly<{
+  text: string;
+  quantityId: string;
+  via: "registry" | "manifest";
+}>;
+
 /** One thing the reader should see on screen at a checkpoint, as the author recorded it. */
 export type TapeExpectedValue = Readonly<{
+  /** The snapshot field id, unchanged: what the evaluator is addressed by. Never a display name. */
   label: string;
   value: number;
   unit?: string | undefined;
   constantSetId?: string | undefined;
+  /** The name a reader is given, where a record says which quantity this field holds. */
+  quantity?: QuantityDisplay | undefined;
 }>;
 
 /** A step of the walkthrough: what the tape changed, and what the author says to expect. */
@@ -121,18 +145,128 @@ function list(v: unknown): unknown[] {
   return Array.isArray(v) ? v : [];
 }
 
-function expectedOf(raw: unknown): TapeExpectedValue[] {
+/**
+ * WHICH CANONICAL QUANTITY EACH OF AN INSTRUMENT'S FIELDS HOLDS, AS ITS OWN RECORD DECLARES IT.
+ *
+ * Two declarations say this, and both are the manifest's own: an `outputs` entry carries the
+ * `quantityId` of the snapshot field it names, and an `owner.identifierBindings` entry carries the
+ * one a kernel identifier stands for. `pulseSumMoving` is reached the second way.
+ *
+ * TWO FIELDS MAY HONESTLY HOLD ONE QUANTITY, so a claim is not refused for being shared: me-01
+ * declares both the ledger's `movingBalanceLight` and the pulse sum `pulseSumMoving` as the light
+ * complex's energy in the moving system, and both are true. The case that must not reach a reader is
+ * narrower and is handled where the harm is, in `withoutAmbiguousNames` below.
+ */
+function declaredQuantities(manifest: Record<string, unknown>): Record<string, string> {
+  const owner = (manifest.owner ?? {}) as Record<string, unknown>;
+  const out: Record<string, string> = {};
+  for (const entry of list(manifest.outputs)) {
+    const o = (entry ?? {}) as Record<string, unknown>;
+    const field = str(o.id);
+    const quantityId = str(o.quantityId);
+    if (field && quantityId) out[field] = quantityId;
+  }
+  for (const entry of list(owner.identifierBindings)) {
+    const o = (entry ?? {}) as Record<string, unknown>;
+    const field = str(o.identifier);
+    const quantityId = str(o.quantityId);
+    if (field && quantityId) out[field] = quantityId;
+  }
+  return out;
+}
+
+/** The same record without the display name, so an ambiguous row falls back to its field id. */
+function withoutName(value: TapeExpectedValue): TapeExpectedValue {
+  return {
+    label: value.label,
+    value: value.value,
+    ...(value.unit ? { unit: value.unit } : {}),
+    ...(value.constantSetId ? { constantSetId: value.constantSetId } : {}),
+  };
+}
+
+/**
+ * A NAME MUST IDENTIFY A ROW AMONG THE ROWS SHOWN WITH IT (dispatch 325).
+ *
+ * Found by reading the rendered page rather than by counting resolutions. bm-07 declares the outputs
+ * `avogadroNumberEstimate` and `radiusNumberProduct` with the SAME quantityId,
+ * `avogadroNumberEstimate`, and perrins-count records both: 7.82 × 10²³ 1/mol and 3.91 × 10¹⁷ m/mol.
+ * Resolved naively, one table would show a reader two different numbers under one name, and the
+ * second of them is the product a·N rather than a number of molecules per mole. So where a name is
+ * claimed by more than one field of one tape, the MANIFEST-derived claim yields and that row keeps its
+ * id; a row whose own field id is the canonical id keeps its name, because that lookup was exact.
+ *
+ * WHAT I TRIED FIRST AND DISCARDED, because it would have been worse than nothing: checking the
+ * recorded unit's dimension against the registry quantity's. `parseUnitToDimension` returns
+ * dimensionless for every compound unit it does not know ("m/mol", "1/mol", "m2/s" and "J/K" all come
+ * back [0,0,0,0,0,0]), and the registry stores exact rational exponents as objects rather than
+ * numbers, so `areDimensionsEqual` compared incomparable shapes and reported agreement for every pair
+ * including this one. A guard that cannot fail is not a guard, and the mis-binding is filed for
+ * bm-07's manifest rather than papered over here.
+ */
+function withoutAmbiguousNames(steps: readonly TapeStep[]): TapeStep[] {
+  const labelsByName = new Map<string, Set<string>>();
+  for (const step of steps)
+    for (const value of step.expected) {
+      if (!value.quantity) continue;
+      const labels = labelsByName.get(value.quantity.text) ?? new Set<string>();
+      labels.add(value.label);
+      labelsByName.set(value.quantity.text, labels);
+    }
+  const ambiguous = new Set(
+    [...labelsByName].filter(([, labels]) => labels.size > 1).map(([name]) => name),
+  );
+  if (ambiguous.size === 0) return [...steps];
+  return steps.map((step) => ({
+    ...step,
+    expected: step.expected.map((value) =>
+      value.quantity && value.quantity.via === "manifest" && ambiguous.has(value.quantity.text)
+        ? withoutName(value)
+        : value,
+    ),
+  }));
+}
+
+/**
+ * The name to show for a recorded field, through the canonical registry and nothing looser.
+ *
+ * `resolveQuantityId` is the site's one lookup and it is deliberately exact: no label match, no
+ * prefix, no case-insensitive fallback, because that permissiveness is the donor defect the registry
+ * exists to prevent. A field it cannot resolve keeps its id, and that is the honest half rather than a
+ * gap: of the 18 distinct labels left unresolved across the 22 tapes, 9 are already authored prose
+ * ("center of mass shift", "lambda_x at 1 s") and want no translation, and 9 are id-shaped with no
+ * record declaring which quantity they hold.
+ */
+export function quantityDisplay(
+  field: string,
+  declared: Readonly<Record<string, string>> = {},
+): QuantityDisplay | undefined {
+  const direct = resolveQuantityId(field);
+  if (direct.ok) return { text: direct.quantity.name, quantityId: field, via: "registry" };
+  const declaredId = declared[field];
+  if (!declaredId) return undefined;
+  const resolved = resolveQuantityId(declaredId);
+  if (!resolved.ok) return undefined;
+  return { text: resolved.quantity.name, quantityId: declaredId, via: "manifest" };
+}
+
+function expectedOf(
+  raw: unknown,
+  declared: Readonly<Record<string, string>> = {},
+): TapeExpectedValue[] {
   return list(raw).flatMap((e) => {
     const o = (e ?? {}) as Record<string, unknown>;
     const label = str(o.label);
     const value = num(o.value);
     if (label === undefined || value === undefined) return [];
+    const quantity = quantityDisplay(label, declared);
     return [
       {
         label,
         value,
         ...(str(o.unit) ? { unit: str(o.unit) } : {}),
         ...(str(o.constantSetId) ? { constantSetId: str(o.constantSetId) } : {}),
+        ...(quantity ? { quantity } : {}),
       },
     ];
   });
@@ -146,6 +280,7 @@ function expectedOf(raw: unknown): TapeExpectedValue[] {
 export function stepsOf(
   raw: Record<string, unknown>,
   names: Record<string, ParameterName> = {},
+  declared: Readonly<Record<string, string>> = {},
 ): TapeStep[] {
   const checkpointAt = new Map<number, Record<string, unknown>>();
   for (const c of list(raw.checkpoints)) {
@@ -171,7 +306,7 @@ export function stepsOf(
       actionIndex: at,
       ...(str(c.label) ? { label: str(c.label) } : {}),
       ...(str(c.teachingNote) ? { teachingNote: str(c.teachingNote) } : {}),
-      expected: expectedOf(c.expectedDisplayValues),
+      expected: expectedOf(c.expectedDisplayValues, declared),
     });
   }
   for (const e of list(raw.events)) {
@@ -190,7 +325,7 @@ export function stepsOf(
       ...settingValue(o.value),
       ...(str(c.label) ? { label: str(c.label) } : {}),
       ...(str(c.teachingNote) ? { teachingNote: str(c.teachingNote) } : {}),
-      expected: expectedOf(c.expectedDisplayValues),
+      expected: expectedOf(c.expectedDisplayValues, declared),
     });
   }
   return steps.sort((a, b) => a.actionIndex - b.actionIndex);
@@ -214,9 +349,10 @@ function manifestFacts(
   names: Record<string, ParameterName>;
   instrument: InstrumentName | undefined;
   passages: TapePassage[];
+  declared: Record<string, string>;
 } {
   const path = join(root, "content", "experiments", `${experimentId}.yaml`);
-  if (!existsSync(path)) return { names: {}, instrument: undefined, passages: [] };
+  if (!existsSync(path)) return { names: {}, instrument: undefined, passages: [], declared: {} };
   const manifest = parseYaml(readFileSync(path, "utf8")) as Record<string, unknown>;
   const names: Record<string, ParameterName> = {};
   for (const entry of list(manifest.parameters)) {
@@ -230,6 +366,7 @@ function manifestFacts(
     names,
     instrument: instrumentNameFrom(str(manifest.title), experimentId),
     passages: passagesOf(manifest.sourceRefs, root),
+    declared: declaredQuantities(manifest),
   };
 }
 
@@ -324,14 +461,15 @@ export function loadTeachingTapes(root: string = process.cwd()): {
     if (!experimentId) problems.push(`tape-no-experiment: ${at} names no experimentId`);
     if (!title)
       problems.push(`tape-no-title: ${at} has no title, so a reader has nothing to call it`);
-    const { names, instrument, passages } = experimentId
+    const { names, instrument, passages, declared } = experimentId
       ? manifestFacts(experimentId, root)
       : {
           names: {} as Record<string, ParameterName>,
           instrument: undefined,
           passages: [] as TapePassage[],
+          declared: {} as Record<string, string>,
         };
-    const steps = stepsOf(raw, names);
+    const steps = withoutAmbiguousNames(stepsOf(raw, names, declared));
     if (steps.length === 0)
       problems.push(`tape-no-steps: ${at} records no control event, so there is nothing to walk`);
     tapes.push({

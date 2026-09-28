@@ -44,6 +44,7 @@ describe("the teaching-tape pages", () => {
   test("every tape's own page renders its title, its steps and its recorded numbers", async () => {
     let stepsSeen = 0;
     let numbersSeen = 0;
+    let longValuesSeen = 0;
     for (const tape of tapes) {
       const html = renderToStaticMarkup(
         await TapePage({ params: Promise.resolve({ tape: tape.tapeId }) }),
@@ -63,15 +64,37 @@ describe("the teaching-tape pages", () => {
         labHrefs.some((href) => href.startsWith(`/lab/${tape.experimentId}/`)),
         `${tape.tapeId} does not link its instrument`,
       ).toBe(true);
+      // Dispatch 325 separated the two: the recorded double stays on the page in a <data value>,
+      // where it remains verifiable, and what a reader READS is the formatted form. Asserting only
+      // "the body text contains String(value)" would now pass on a page that prints
+      // 0.4042339787513938 again, so both halves are asserted, and the second one names the defect.
+      const recorded = [...document.querySelectorAll("data")].map(
+        (element) => element.getAttribute("value") ?? "",
+      );
       for (const step of tape.steps)
         for (const value of step.expected) {
           numbersSeen += 1;
           expect(text, `${tape.tapeId} drops ${value.label}`).toContain(value.label);
-          expect(text, `${tape.tapeId} drops the value of ${value.label}`).toContain(
+          expect(recorded, `${tape.tapeId} drops the recorded value of ${value.label}`).toContain(
             String(value.value),
           );
         }
+      // THE READER IS NOT SHOWN A FULL-PRECISION DOUBLE. /tapes/the-two-pulses/ showed
+      // "0.4042339787513938 1" until dispatch 325: sixteen significant figures from a model whose
+      // inputs are rough, with a bare "1" for a unit.
+      for (const value of tape.steps.flatMap((step) => step.expected)) {
+        const asRecorded = String(value.value);
+        if (asRecorded.replace(/\D/g, "").length <= 9) continue;
+        longValuesSeen += 1;
+        expect(
+          text,
+          `${tape.tapeId} prints the full-precision ${asRecorded} for ${value.label}`,
+        ).not.toContain(asRecorded);
+      }
     }
+    // The check above is worthless if no tape records a long value: twelve recorded values across
+    // seven tapes do, measured with this same predicate.
+    expect(longValuesSeen).toBeGreaterThan(0);
     // Both loops must have run: 34 steps and 16 carrying numbers on 2026-09-27.
     expect(stepsSeen).toBeGreaterThan(20);
     expect(numbersSeen).toBeGreaterThan(0);

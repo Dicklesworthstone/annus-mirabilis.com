@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { loadTeachingTapes } from "../../../content/teachingTapes.ts";
 import { commandClassInWords } from "../../../experiments/commands/types.ts";
+import { numberText, unitText } from "../../../experiments/controls/declaredDomain.ts";
 import tapeLinks from "../../../generated/tape-links.json";
 import "../tapes.css";
 
@@ -34,11 +35,47 @@ import "../tapes.css";
  * WITHOUT JAVASCRIPT the settings do not arrive, because the laboratory reads the link after mount.
  * That is the state a laboratory is in anyway with no script, and it says so itself; the page does
  * not promise otherwise.
+ *
+ * WHAT THE READER IS SHOWN A QUANTITY CALLED, AND HOW MANY (dispatch 325). A checkpoint addresses the
+ * evaluator's output by its snapshot field id, so this page showed rows named `pulseSumMoving` and
+ * `pulseEnergyRatio`. Each label is now resolved through the canonical quantity registry where a
+ * record says which quantity the field holds, and the field id stays beside the name in parentheses,
+ * exactly as it already did for a control. WHICH HALF EACH ROW IS IN: of the 29 recorded values, 9 are
+ * named through the registry (3 because the field id is itself a canonical quantity id, and 6 because
+ * the instrument's own manifest declares which quantity that output or kernel identifier holds) and 20
+ * keep their id. Those 20 are 18 distinct labels, and they are not one gap: 9 are already authored
+ * prose ("center of mass shift", "lambda_x at 1 s", "system energy change") and want no translation,
+ * while 9 are id-shaped with no record yet declaring which quantity they hold.
+ *
+ * THE NUMBER AND ITS UNIT COME FROM THE LABORATORIES' OWN WRITER, `numberText` and `unitText`, so a
+ * tape and the instrument it belongs to do not disagree about how to print 10¹⁷ or a dimensionless
+ * ratio. Before this, /tapes/the-two-pulses/ showed `0.4042339787513938 1`: sixteen significant
+ * figures from a model whose inputs are rough, with a bare "1" hanging after them as a unit. The
+ * recorded double is not lost, it moves into the `value` attribute of a `<data>` element, which keeps
+ * the separation AGENTS.md asks for between a stored full-precision value and a formatted one and
+ * leaves the record verifiable from the page itself.
+ *
+ * TWO SETTINGS ROWS STILL SHOW THEIR IDS, and the reason is worth writing down rather than papering
+ * over: perrins-count sets `d` and `coverage`, and BM-07's manifest declares neither as a parameter,
+ * so `conditionNames` has nothing for them and neither is a registry id. Its evaluator does carry a
+ * private phrase table, and that table is NOT used here on purpose: it reads "the target interval
+ * coverage, in percent," while the tape records the fraction 0.95, so borrowing it would label that
+ * row wrong by a hundred. The repair belongs in bm-07's manifest, where a control is declared.
  */
 /** What scripts/generate-tape-links.ts writes for a tape whose instrument accepts its opening state. */
 type TapeSettingsLinks = Readonly<
   Record<string, Readonly<{ experimentId: string; href: string; kind: string }> | undefined>
 >;
+
+/**
+ * A recorded expectation as the laboratories write one: six significant figures, a power of ten
+ * where the size asks for one, and no unit at all for a pure number, so a ratio reads "0.404234"
+ * rather than "0.4042339787513938 1".
+ */
+function recordedValue(value: number, unit: string | undefined): string {
+  const text = unitText(unit ?? "");
+  return `${numberText(value)}${!text ? "" : text === "°" ? text : ` ${text}`}`;
+}
 
 export const dynamicParams = false;
 
@@ -158,10 +195,16 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
                   <tbody>
                     {step.expected.map((value) => (
                       <tr key={value.label}>
-                        <th scope="row">{value.label}</th>
+                        <th scope="row">
+                          {value.quantity?.text ?? value.label}
+                          {value.quantity ? (
+                            <span className="tape-raw-id"> ({value.label})</span>
+                          ) : null}
+                        </th>
                         <td>
-                          {value.value}
-                          {value.unit ? ` ${value.unit}` : ""}
+                          <data value={String(value.value)}>
+                            {recordedValue(value.value, value.unit)}
+                          </data>
                         </td>
                         <td>{value.constantSetId ?? tape.constantSetId ?? "the lab's own set"}</td>
                       </tr>

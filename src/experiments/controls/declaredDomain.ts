@@ -60,8 +60,15 @@ const SUPERSCRIPT: Record<string, string> = {
   "−": "⁻",
 };
 
-/** A bound as the page writes numbers: plain between 10⁻³ and 10⁶, else a power of ten. */
-function numberText(value: number): string {
+/**
+ * A bound as the page writes numbers: plain between 10⁻³ and 10⁶, else a power of ten.
+ *
+ * EXPORTED for the teaching-tape pages (dispatch 325), which printed a recorded expectation as the
+ * raw double: /tapes/the-two-pulses/ showed a reader 0.4042339787513938. A tape and the instrument
+ * it belongs to must not disagree about how to write a number, so they share this one writer rather
+ * than growing a second rule beside it.
+ */
+export function numberText(value: number): string {
   const rounded = Number(value.toPrecision(6));
   const size = Math.abs(rounded);
   if (size === 0 || (size >= 1e-3 && size < 1e6)) return String(rounded).replace(/^-/, "−");
