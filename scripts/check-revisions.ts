@@ -41,6 +41,15 @@ function readGitFileAtRef(ref: string, relativePath: string): string | null {
   }
 }
 
+/**
+ * The record as the cross-commit check pairs it: keyed by its FILE PATH, not by its id
+ * (am-9755). 537 of the corpus's 770 ids name more than one file, so an id-keyed map compared
+ * one paper's masthead with another's. revisions.ts's `pairingKey` carries the reasoning.
+ */
+function withPathKey(record: VersionedRecord, relativePath: string): VersionedRecord {
+  return { ...record, key: relativePath.split(path.sep).join("/") };
+}
+
 function parseRecordContent(content: string, filePath: string): VersionedRecord | null {
   try {
     if (filePath.endsWith(".json")) {
@@ -101,7 +110,7 @@ export async function runRevisionCheck(baseRef: string, contentDir: string): Pro
     const rawBase = readGitFileAtRef(baseRef, relPath);
     if (rawBase) {
       const rec = parseRecordContent(rawBase, relPath);
-      if (rec) baseRecords.push(rec);
+      if (rec) baseRecords.push(withPathKey(rec, relPath));
     }
   }
 
@@ -125,7 +134,8 @@ export async function runRevisionCheck(baseRef: string, contentDir: string): Pro
     try {
       const raw = readFileSync(fullPath, "utf8");
       const rec = parseRecordContent(raw, fullPath);
-      if (rec) headRecords.push(rec);
+      // The same spelling git gives: ls-tree prints repository-relative paths.
+      if (rec) headRecords.push(withPathKey(rec, path.relative(process.cwd(), fullPath)));
     } catch {
       // Ignore
     }

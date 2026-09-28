@@ -11,6 +11,71 @@ import { newRunIdentity, TestLogger } from "./log/logger.ts";
 describe("Revisions, Lineages, and Distinct Identity Dimensions", () => {
   const logger = new TestLogger("content-ids", newRunIdentity());
 
+  /**
+   * TWO RECORDS THAT SHARE AN ID ARE NOT ONE RECORD (am-9755).
+   *
+   * Measured over content/ on 2026-09-27: 1,816 records carry an id and a revision and use 770
+   * distinct ids, so 537 ids name more than one file, `masthead-title` and three others naming
+   * twelve each. Keyed by id, this check compared one paper's masthead with another's and reported
+   * 223 findings between two commits that touched no content at all, which also means it could
+   * never report none. The pairing key is the record's own `key` where its loader sets one, and
+   * scripts/check-revisions.ts sets the file path.
+   *
+   * The first case is the defect. The second is its other half, and it is the one a careless fix
+   * would break: the same file, changed without a revision bump, must still be caught.
+   */
+  it("pairs records by their key, so one paper's record is not compared with another's", () => {
+    const a: VersionedRecord = {
+      id: "masthead-title",
+      key: "content/a/masthead-title.yaml",
+      revision: 1,
+      text: "On A",
+    };
+    const b: VersionedRecord = {
+      id: "masthead-title",
+      key: "content/b/masthead-title.yaml",
+      revision: 1,
+      text: "On B",
+    };
+    // THE ORDER IS THE POINT, and the first version of this test did not have it: with both sides
+    // in the same order an id-keyed map keeps the same record on each side and the comparison is
+    // accidentally right. The real caller reads base from `git ls-tree` and head from a directory
+    // walk, which do not agree on order, so the map kept A on one side and B on the other and
+    // reported a change nobody made. Planting `return record.id` in pairingKey leaves the
+    // same-order case green and turns this one red, which is how the plant was caught.
+    const result = checkRevisionChanges([a, b], [b, a]);
+    expect(result.findings).toEqual([]);
+    expect(result.ok).toBe(true);
+  });
+
+  it("still catches one keyed file changed without a revision bump", () => {
+    const base: VersionedRecord[] = [
+      { id: "masthead-title", key: "content/a/masthead-title.yaml", revision: 1, text: "On A" },
+      { id: "masthead-title", key: "content/b/masthead-title.yaml", revision: 1, text: "On B" },
+    ];
+    const head: VersionedRecord[] = [
+      { id: "masthead-title", key: "content/a/masthead-title.yaml", revision: 1, text: "On A" },
+      {
+        id: "masthead-title",
+        key: "content/b/masthead-title.yaml",
+        revision: 1,
+        text: "On B, reworded",
+      },
+    ];
+    const result = checkRevisionChanges(base, head);
+    const changed = result.findings.filter((f) => f.kind === "content-changed-revision-unchanged");
+    expect(changed.length).toBe(1);
+    // The finding names the RECORD, because that is what a reader needs; the key only pairs it.
+    expect(changed[0]?.recordId).toBe("masthead-title");
+  });
+
+  it("falls back to the id when a loader sets no key", () => {
+    const base: VersionedRecord[] = [{ id: "premise-only", revision: 1, text: "before" }];
+    const head: VersionedRecord[] = [{ id: "premise-only", revision: 1, text: "after" }];
+    const result = checkRevisionChanges(base, head);
+    expect(result.findings.map((f) => f.kind)).toEqual(["content-changed-revision-unchanged"]);
+  });
+
   it("fails when content hash changes but revision remains unchanged", () => {
     const baseRecords: VersionedRecord[] = [
       { id: "premise-rayleigh", revision: 1, title: "Original text" },

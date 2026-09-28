@@ -179,6 +179,30 @@ export interface RevisionCheckResult {
 }
 
 /**
+ * WHAT MAKES TWO RECORDS THE SAME RECORD AT TWO COMMITS (am-9755).
+ *
+ * `id`, until 2026-09-27, and an id is unique only inside its layer and its paper. Measured over
+ * content/: 1,816 records carry an id and a revision, and they use 770 distinct ids, so 537 ids
+ * name more than one file. `masthead-title`, `closing-dateline`, `closing-received` and
+ * `masthead-author` each name TWELVE files, one per paper in each of the source-block, translation
+ * and gloss layers.
+ *
+ * Keyed by id, the map kept whichever file was read last, so the check compared light-quanta's
+ * masthead against relativity's and reported that its content had changed while its revision had
+ * not. It reported 223 such findings between two commits that touched no content file at all, and
+ * it could never have reported none. A check that cannot pass cannot report a real omission
+ * either: it had been red long enough to be read as scenery.
+ *
+ * So a record pairs on its own `key` when its loader sets one, which for the cross-commit check is
+ * the file's path, the one thing that identifies the same record at two commits. `id` stays what
+ * the finding NAMES, because a reader needs the record's own id, and the alias check stays keyed
+ * by id, because a retirement alias retires an id and not a path.
+ */
+function pairingKey(record: VersionedRecord): string {
+  return typeof record.key === "string" && record.key ? record.key : record.id;
+}
+
+/**
  * Pure core check comparing base records with head records.
  */
 export function checkRevisionChanges(
@@ -191,12 +215,13 @@ export function checkRevisionChanges(
   const headMap = new Map<string, VersionedRecord>();
   const retiredAliasIds = new Set(aliases.map((a) => a.retiredId));
 
-  for (const rec of baseRecords) baseMap.set(rec.id, rec);
-  for (const rec of headRecords) headMap.set(rec.id, rec);
+  for (const rec of baseRecords) baseMap.set(pairingKey(rec), rec);
+  for (const rec of headRecords) headMap.set(pairingKey(rec), rec);
 
   // 1. Check all base records
-  for (const [id, baseRec] of baseMap.entries()) {
-    const headRec = headMap.get(id);
+  for (const [key, baseRec] of baseMap.entries()) {
+    const headRec = headMap.get(key);
+    const id = baseRec.id;
 
     if (!headRec) {
       if (!retiredAliasIds.has(id)) {
@@ -250,14 +275,14 @@ export function checkRevisionChanges(
   }
 
   // 2. Validate all new head records
-  for (const [id, headRec] of headMap.entries()) {
-    if (!baseMap.has(id)) {
+  for (const [key, headRec] of headMap.entries()) {
+    if (!baseMap.has(key)) {
       const lineageVal = validateRecordLineage(headRec);
       if (!lineageVal.ok) {
         findings.push({
           kind: "invalid-lineage",
-          recordId: id,
-          message: `New record '${id}' has invalid lineage: ${lineageVal.error}`,
+          recordId: headRec.id,
+          message: `New record '${headRec.id}' has invalid lineage: ${lineageVal.error}`,
           headRevision: headRec.revision,
         });
       }
