@@ -322,6 +322,31 @@ describe("Notation Concordance Page (am-not-notation-page-2us)", () => {
     expect(formatScopeToken("light-quanta", "lq-s0-p2")).toBe("introduction, paragraph 2");
     expect(formatScopeToken("molecular-dimensions", "md-1911")).toBe("the 1911 correction");
     expect(formatScope("light-quanta", ["lq-s2", "lq-s5", "lq-s8"])).toBe("§2, §5 and §8");
+    // SENTENCE AND INLINE-FORMULA SCOPES. sr.X.axisLabelS10p10 is scoped to ONE of the two X's its
+    // paragraph prints, so the label has to keep the sentence and the formula: collapsing it to
+    // "§10, paragraph 10" would assert exactly what that entry denies.
+    expect(formatScopeToken("special-relativity", "sr-s10-p10-s2-m2")).toBe(
+      "§10, paragraph 10, sentence 2, formula 2",
+    );
+    expect(formatScopeToken("special-relativity", "sr-s10-p10-s2")).toBe(
+      "§10, paragraph 10, sentence 2",
+    );
+    // THE TRAP THAT MADE THIS ORDER-DEPENDENT, asserted so it cannot come back. A token ending in a
+    // SENTENCE number is indistinguishable in shape from one ending in a SECTION number, so before
+    // the longer patterns existed this rendered as "§2" - a confident pointer at the wrong part of
+    // the paper, which reads as correct in a way a leaked raw id does not.
+    expect(formatScopeToken("special-relativity", "sr-s10-p10-s2")).not.toBe("§2");
+    // And s0 is the introduction, never section zero, so it must be matched before the general
+    // section form. The first draft of the fix put the general form first and produced "§0".
+    expect(formatScopeToken("light-quanta", "lq-s0-p2-s1")).toBe(
+      "introduction, paragraph 2, sentence 1",
+    );
+    expect(formatScopeToken("light-quanta", "lq-s0-p2-s1-m3")).toBe(
+      "introduction, paragraph 2, sentence 1, formula 3",
+    );
+    expect(formatScopeToken("mass-energy", "me-s0-p5-s2-m1")).toBe(
+      "paragraph 5, sentence 2, formula 1",
+    );
     // An unknown token stays visible rather than vanishing.
     expect(formatScopeToken("light-quanta", "lq-part-9")).toBe("lq-part-9");
     // Across the real records, no raw content id reaches the page.

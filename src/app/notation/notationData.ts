@@ -80,7 +80,41 @@ export function formatScopeToken(paper: string, token: string): string {
   if (/(^|-)all$/.test(token)) return "throughout";
   if (/-1906$/.test(token)) return "the 1906 text";
   if (/-1911$/.test(token)) return "the 1911 correction";
-  let m = /-s0-p(\d+)$/.exec(token);
+  // THE SENTENCE AND INLINE-FORMULA FORMS COME FIRST, and the order is load-bearing (am-not-…-2us).
+  // docs/CONTENT_IDS.md gives `s<n>-p<m>-s<k>` for a sentence and `s<n>-p<m>-s<k>-m<i>` for a
+  // substantive inline equation. Neither was handled, and the two failures were different:
+  //   sr-s10-p10-s2-m2  fell through every branch and printed the RAW ID at a reader, which is
+  //                     what the page's own leak assertion caught.
+  //   sr-s10-p10-s2     matched the bare `-s(\d+)$` branch below, because a token ending in a
+  //                     SENTENCE number looks exactly like one ending in a SECTION number, and
+  //                     rendered as "§2" - a confident pointer to the wrong part of the paper.
+  // The second is the dangerous one: a leaked id is visibly broken, a wrong section reads fine.
+  // Both are fixed by matching the longer forms before the shorter ones can claim their suffix.
+  // s0 FIRST, because it is not section zero. Papers 1 to 3 write s0 for the unnumbered
+  // introduction and paper 4 has no sections at all, so a generic `-s(\d+)-` pattern placed above
+  // these would match s0 and render "§0" - which my own probe of every token form caught, after
+  // the first draft of this fix did exactly that.
+  let m = /-s0-p(\d+)-s(\d+)-m(\d+)$/.exec(token);
+  if (m)
+    return whole
+      ? `paragraph ${m[1]}, sentence ${m[2]}, formula ${m[3]}`
+      : `introduction, paragraph ${m[1]}, sentence ${m[2]}, formula ${m[3]}`;
+  m = /-s0-p(\d+)-s(\d+)$/.exec(token);
+  if (m)
+    return whole
+      ? `paragraph ${m[1]}, sentence ${m[2]}`
+      : `introduction, paragraph ${m[1]}, sentence ${m[2]}`;
+  m = /-s(\d+)-p(\d+)-s(\d+)-m(\d+)$/.exec(token);
+  if (m)
+    return whole
+      ? `paragraph ${m[2]}, sentence ${m[3]}, formula ${m[4]}`
+      : `§${m[1]}, paragraph ${m[2]}, sentence ${m[3]}, formula ${m[4]}`;
+  m = /-s(\d+)-p(\d+)-s(\d+)$/.exec(token);
+  if (m)
+    return whole
+      ? `paragraph ${m[2]}, sentence ${m[3]}`
+      : `§${m[1]}, paragraph ${m[2]}, sentence ${m[3]}`;
+  m = /-s0-p(\d+)$/.exec(token);
   if (m) return whole ? `paragraph ${m[1]}` : `introduction, paragraph ${m[1]}`;
   if (/-s0$/.test(token)) return whole ? "throughout" : "introduction";
   m = /-s(\d+)-fn(\d+)$/.exec(token);
