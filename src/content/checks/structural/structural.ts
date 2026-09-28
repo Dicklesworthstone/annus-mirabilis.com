@@ -21,7 +21,11 @@ import {
   type ContentCheck,
   registerCheck,
 } from "../../compiler/checks/registry.ts";
-import { editorialNotePaper, isEditorialNoteKey } from "../../compiler/recordKey.ts";
+import {
+  editorialNotePaper,
+  isEditorialNoteKey,
+  sourceBlockPaper,
+} from "../../compiler/recordKey.ts";
 import type { PaperDate } from "../../schemas/dates.ts";
 import { type Inline, plainText } from "../../schemas/inlines.ts";
 import { type SpanAnchor, spanTextDigest } from "../../schemas/spans.ts";
@@ -133,6 +137,8 @@ export const checkDuplicateId: ContentCheck = {
 
     // 3. Global equation and argument ids
     const globalEquations = new Set<string>();
+    /** `paper#id` for a printed equation block, whose id is per-paper by design. */
+    const paperEquationBlocks = new Set<string>();
     const globalArguments = new Set<string>();
 
     for (const [key, rawRec] of ctx.records.entries()) {
@@ -318,17 +324,57 @@ export const checkDuplicateId: ContentCheck = {
         }
         misconceptions.add(id);
       } else if (kind === "equation") {
-        if (globalEquations.has(id)) {
-          ctx.report({
-            rule: "duplicate-id",
-            recordId: id,
-            file,
-            path: id,
-            message: `Duplicate equation id "${id}" globally.`,
-            repair: `Ensure equation record ids are globally unique across all papers.`,
-          });
+        // TWO FAMILIES CARRY `kind: "equation"`, AND ONLY ONE OF THEM IS GLOBAL (am-as1w follow-on).
+        //
+        // An equation RECORD, under content/equations/, is addressed by bare id from any paper, so
+        // its id must be unique across all of them. Measured 2026-09-28: 154 records, 0 duplicated
+        // ids. The rule is right about its own population and is kept unchanged for it.
+        //
+        // A SOURCE BLOCK whose kind is "equation" is a printed display, and its id is per-paper by
+        // design. AGENTS.md qualifies a repeat only "when a printed number repeats within a paper";
+        // sentence ids such as s3-p2-s1 carry no paper prefix, which only works in a per-paper
+        // namespace; and an editorial note crosses that namespace with an explicit paper#id.
+        // Measured: 200 such blocks, 47 ids present in more than one paper, 117 (paper, id) pairs
+        // involved, so a global reading reports 117 - 47 = 70 duplicate-id errors about a corpus
+        // that is correct. That is exactly what appeared when the blocks were first compiled as
+        // records.
+        //
+        // The families are told apart by the record KEY, not by `rec.kind`, for the same reason
+        // editorial notes are: `kind` is the RECORD's own kind and cannot name a family. A source
+        // block is keyed source-block:<paper>:<id>; an equation record is keyed by bare id.
+        // Within-paper uniqueness is not lost by this, and the mechanism is stronger than a
+        // duplicate key: `path-identity` binds a source block's id to its filename stem, so two
+        // files in one paper CANNOT declare the same id, and the collision is unconstructible
+        // rather than merely caught. Measured 2026-09-28: two files under one paper both declaring
+        // `eq-dup-x` produce two path-identity refusals naming each file. The scoped set below is
+        // the second half of that guarantee, for any caller that keys blocks differently.
+        const blockPaper = sourceBlockPaper(key);
+        if (blockPaper === null) {
+          if (globalEquations.has(id)) {
+            ctx.report({
+              rule: "duplicate-id",
+              recordId: id,
+              file,
+              path: id,
+              message: `Duplicate equation id "${id}" globally.`,
+              repair: `Ensure equation record ids are globally unique across all papers.`,
+            });
+          }
+          globalEquations.add(id);
+        } else {
+          const scoped = `${blockPaper}#${id}`;
+          if (paperEquationBlocks.has(scoped)) {
+            ctx.report({
+              rule: "duplicate-id",
+              recordId: id,
+              file,
+              path: id,
+              message: `Duplicate equation source-block id "${id}" within paper "${blockPaper}".`,
+              repair: `Ensure a printed equation id is unique within its own paper.`,
+            });
+          }
+          paperEquationBlocks.add(scoped);
         }
-        globalEquations.add(id);
       } else if (kind === "argument") {
         if (globalArguments.has(id)) {
           ctx.report({

@@ -61,6 +61,16 @@ export function editorialNotePaper(key: string): string | null {
   return parsed && parsed.routeKind === "editorial-note" ? parsed.paper : null;
 }
 
+/**
+ * The paper a source block belongs to, or null when this key is not a source block. A block's id is
+ * per-paper by design, so a consumer that judges block ids needs the paper to scope them; reading it
+ * from the key rather than from the record keeps one authority for the namespace.
+ */
+export function sourceBlockPaper(key: string): string | null {
+  const parsed = parseRecordKey(key);
+  return parsed && parsed.routeKind === "source-block" ? parsed.paper : null;
+}
+
 /** Whether this key names an editorial note, whatever the note's own kind happens to be. */
 export function isEditorialNoteKey(key: string): boolean {
   return editorialNotePaper(key) !== null;
