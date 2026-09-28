@@ -1487,6 +1487,45 @@ export type SourceSupport = Readonly<{
   role?: "primary" | "secondary" | undefined;
 }>;
 
+/**
+ * SEVERAL ARGUMENTS FOR ONE RESULT, ASKED THE SAME QUESTIONS (am-me-margin-entries-kfg5).
+ *
+ * Three arguments reach the conclusion of the mass-energy paper from different premises, and a
+ * reader who meets only one of them cannot tell which of its features are the result's and which are
+ * that route's. The comparison asks each argument the same questions and records the answers.
+ *
+ * It is a record of premises, never a scoreboard. Nothing here ranks the arguments, and the shape
+ * refuses to help: there is no score, no verdict field and no ordering claim, and a question a row
+ * cannot answer is a refusal rather than an empty cell that reads as a weakness. AGENTS.md's rule
+ * holds over it: an argument that is empirically equivalent within its scope is never declared
+ * refuted.
+ *
+ * A question may be marked `scopeCritical`, which says the answers in that row change WHICH SYSTEMS
+ * the conclusion is established for, rather than how it is reached. That mark is what lets the
+ * readings audit insist the substance appears at a reading a reader meets without opening R3.
+ */
+export type ComparisonQuestion = Readonly<{
+  id: string;
+  label: string;
+  scopeCritical?: boolean | undefined;
+}>;
+
+export type ComparisonArgument = Readonly<{
+  id: string;
+  label: string;
+  /** The margin record that carries this argument's sources, so no citation is duplicated here. */
+  sourceNoteId: string;
+  /** An instrument, mode address or model identity a reader can open. */
+  instrumentRef: string;
+  /** One answer per question id. Every question, or the record is refused by name. */
+  cells: Readonly<Record<string, string>>;
+}>;
+
+export type ArgumentComparison = Readonly<{
+  questions: readonly ComparisonQuestion[];
+  arguments: readonly ComparisonArgument[];
+}>;
+
 export type EditorialNote = Readonly<{
   id: string;
   author: AuthorshipEntry;
@@ -1499,6 +1538,8 @@ export type EditorialNote = Readonly<{
    * exists for carry it.
    */
   historicalStatement?: HistoricalStatement | undefined;
+  /** An argument comparison, where the record is one (am-me-margin-entries-kfg5). */
+  comparison?: ArgumentComparison | undefined;
   affectedIds: readonly string[];
   reviewState: "draft" | "machine-draft" | "in-progress" | "corrected" | "reviewed";
   originalReading?: string | undefined;
@@ -1509,6 +1550,114 @@ export type EditorialNote = Readonly<{
   lang?: string | undefined;
   dir?: TextDirection | undefined;
 }>;
+
+/**
+ * An argument comparison's shape. What it refuses, and why each refusal is worth having:
+ *
+ * - fewer than two arguments, because a comparison of one is a claim wearing a table's clothes;
+ * - more than three, which is the bead's own rule: a fourth column turns a comparison into a survey,
+ *   and Einstein's own later derivations belong in the boundary note instead;
+ * - a question a row does not answer, named by argument AND question, because an empty cell in a
+ *   table of premises reads as a weakness in that argument rather than as an unfinished record;
+ * - a row that cites no margin record or names nothing a reader can open, because the comparison is
+ *   a route into the sources and the instruments, not a paragraph with a border.
+ */
+export function validateArgumentComparison(
+  raw: unknown,
+  path = "EditorialNote.comparison",
+): ArgumentComparison {
+  if (!raw || typeof raw !== "object")
+    throw new SchemaValidationError(
+      "invalid-comparison",
+      "comparison must be an object.",
+      "EditorialNote",
+      path,
+    );
+  const o = raw as Record<string, unknown>;
+  const rawQuestions = Array.isArray(o.questions) ? o.questions : [];
+  if (rawQuestions.length === 0)
+    throw new SchemaValidationError(
+      "comparison-questions-required",
+      "comparison.questions must name at least one question.",
+      "EditorialNote",
+      `${path}.questions`,
+    );
+  const questions: ComparisonQuestion[] = rawQuestions.map((value, index) => {
+    const q = (value ?? {}) as Record<string, unknown>;
+    if (typeof q.id !== "string" || !q.id.trim() || typeof q.label !== "string" || !q.label.trim())
+      throw new SchemaValidationError(
+        "comparison-question-invalid",
+        `comparison.questions[${index}] needs an id and a label.`,
+        "EditorialNote",
+        `${path}.questions[${index}]`,
+      );
+    return {
+      id: q.id,
+      label: q.label,
+      ...(q.scopeCritical === true ? { scopeCritical: true } : {}),
+    };
+  });
+  const seen = new Set<string>();
+  for (const q of questions) {
+    if (seen.has(q.id))
+      throw new SchemaValidationError(
+        "comparison-question-duplicate",
+        `comparison.questions repeats "${q.id}".`,
+        "EditorialNote",
+        `${path}.questions`,
+      );
+    seen.add(q.id);
+  }
+
+  const rawArguments = Array.isArray(o.arguments) ? o.arguments : [];
+  if (rawArguments.length < 2)
+    throw new SchemaValidationError(
+      "comparison-arguments-too-few",
+      `comparison.arguments needs at least two arguments; found ${rawArguments.length}.`,
+      "EditorialNote",
+      `${path}.arguments`,
+    );
+  if (rawArguments.length > 3)
+    throw new SchemaValidationError(
+      "comparison-arguments-too-many",
+      `comparison.arguments takes at most three arguments; found ${rawArguments.length}. A fourth column turns a comparison into a survey.`,
+      "EditorialNote",
+      `${path}.arguments`,
+    );
+  const args: ComparisonArgument[] = rawArguments.map((value, index) => {
+    const a = (value ?? {}) as Record<string, unknown>;
+    for (const field of ["id", "label", "sourceNoteId", "instrumentRef"] as const) {
+      if (typeof a[field] !== "string" || !(a[field] as string).trim())
+        throw new SchemaValidationError(
+          "comparison-argument-invalid",
+          `comparison.arguments[${index}] needs a ${field}.`,
+          "EditorialNote",
+          `${path}.arguments[${index}].${field}`,
+        );
+    }
+    const cells = (a.cells ?? {}) as Record<string, unknown>;
+    for (const question of questions) {
+      const cell = cells[question.id];
+      if (typeof cell !== "string" || !cell.trim())
+        throw new SchemaValidationError(
+          "comparison-cell-missing",
+          `comparison: argument "${a.id as string}" does not answer "${question.id}".`,
+          "EditorialNote",
+          `${path}.arguments[${index}].cells.${question.id}`,
+        );
+    }
+    const answered: Record<string, string> = {};
+    for (const question of questions) answered[question.id] = cells[question.id] as string;
+    return {
+      id: a.id as string,
+      label: a.label as string,
+      sourceNoteId: a.sourceNoteId as string,
+      instrumentRef: a.instrumentRef as string,
+      cells: answered,
+    };
+  });
+  return { questions, arguments: args };
+}
 
 export function validateEditorialNote(raw: unknown, path = "EditorialNote"): EditorialNote {
   if (!raw || typeof raw !== "object")
@@ -1613,6 +1762,11 @@ export function validateEditorialNote(raw: unknown, path = "EditorialNote"): Edi
     );
   }
 
+  const comparison =
+    o.comparison === undefined
+      ? undefined
+      : validateArgumentComparison(o.comparison, `${path}.comparison`);
+
   const reviewState = (o.reviewState as string) || "draft";
   if (!["draft", "machine-draft", "in-progress", "corrected", "reviewed"].includes(reviewState)) {
     throw new SchemaValidationError(
@@ -1634,6 +1788,7 @@ export function validateEditorialNote(raw: unknown, path = "EditorialNote"): Edi
     ...(o.historicalStatement === undefined
       ? {}
       : { historicalStatement: o.historicalStatement as HistoricalStatement }),
+    ...(comparison === undefined ? {} : { comparison }),
     affectedIds: Array.isArray(o.affectedIds) ? (o.affectedIds as string[]) : [],
     reviewState: reviewState as EditorialNote["reviewState"],
     originalReading: (o.originalReading as string) || undefined,

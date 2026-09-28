@@ -12,6 +12,7 @@ import { codePointLength, codePointSlice } from "./inlines.ts";
 import {
   type Citation,
   validateAlignment,
+  validateArgumentComparison,
   validateCitation,
   validateEditorialNote,
   validateGlossUnit,
@@ -401,6 +402,102 @@ test("GlossUnit: tokens and multiword units validation", () => {
 // ==========================================
 // 6. EDITORIAL NOTE TESTS
 // ==========================================
+test("EditorialNote: an argument comparison answers every question, and refuses by name", () => {
+  // A record of premises, not a scoreboard (am-me-margin-entries-kfg5). What the shape refuses is
+  // the point: an unanswered question in a table of premises reads as a weakness in that argument,
+  // so it is a refusal naming the argument and the question rather than an empty cell.
+  const questions = [
+    { id: "importedResult", label: "What result is imported" },
+    { id: "classOfSystems", label: "Which class of systems", scopeCritical: true },
+  ];
+  const row = (id: string, cells: Record<string, string>) => ({
+    id,
+    label: `The ${id} argument`,
+    sourceNoteId: "note-me-b-additive-constant",
+    instrumentRef: "me-01",
+    cells,
+  });
+  const full = {
+    questions,
+    arguments: [
+      row("a", { importedResult: "One imported result.", classOfSystems: "One class." }),
+      row("b", { importedResult: "Another imported result.", classOfSystems: "Another class." }),
+    ],
+  };
+  const ok = validateArgumentComparison(full);
+  assert.equal(ok.arguments.length, 2);
+  assert.equal(ok.questions[1]?.scopeCritical, true);
+  assert.equal(ok.arguments[0]?.cells.classOfSystems, "One class.");
+
+  // A missing cell names both the argument and the question.
+  assert.throws(
+    () =>
+      validateArgumentComparison({
+        questions,
+        arguments: [
+          row("a", { importedResult: "One imported result.", classOfSystems: "One class." }),
+          row("b", { importedResult: "Another imported result." }),
+        ],
+      }),
+    (err: any) => {
+      assert.equal(err.code, "comparison-cell-missing");
+      assert.match(err.message, /"b"/);
+      assert.match(err.message, /classOfSystems/);
+      return true;
+    },
+  );
+
+  // One argument is not a comparison, and four columns are a survey: both are refused, so the
+  // editorial rule is in the schema rather than only in a bead.
+  assert.throws(
+    () => validateArgumentComparison({ questions, arguments: [full.arguments[0]] }),
+    (err: any) => {
+      assert.equal(err.code, "comparison-arguments-too-few");
+      return true;
+    },
+  );
+  assert.throws(
+    () =>
+      validateArgumentComparison({
+        questions,
+        arguments: [
+          ...full.arguments,
+          row("c", { importedResult: "c", classOfSystems: "c" }),
+          row("d", { importedResult: "d", classOfSystems: "d" }),
+        ],
+      }),
+    (err: any) => {
+      assert.equal(err.code, "comparison-arguments-too-many");
+      return true;
+    },
+  );
+
+  // A row with no margin record behind it, or nothing a reader can open, is refused as well.
+  for (const field of ["sourceNoteId", "instrumentRef"] as const) {
+    const broken = { ...row("a", { importedResult: "x", classOfSystems: "y" }), [field]: "" };
+    assert.throws(
+      () => validateArgumentComparison({ questions, arguments: [broken, full.arguments[1]] }),
+      (err: any) => {
+        assert.equal(err.code, "comparison-argument-invalid");
+        return true;
+      },
+    );
+  }
+
+  // And the note carries it through, as with historicalStatement.
+  const note = validateEditorialNote({
+    id: "note-cmp-1",
+    author: { id: "jemanuel", kind: "human" },
+    claim: "Three arguments, five questions.",
+    sourceSupport: [{ citationId: "cit-prim-1", role: "primary" }],
+    kind: "side-note",
+    affectedIds: ["s0-p12"],
+    reviewState: "draft",
+    comparison: full,
+  });
+  assert.equal(note.comparison?.arguments.length, 2);
+});
+
 test("EditorialNote: historicalStatement is validated and CARRIED, not silently dropped", () => {
   // The bug this guards: the validator accepted the field and returned a record without it, so a
   // margin record could declare which of AGENTS.md's four historical statements it concerns and a
