@@ -782,7 +782,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
               {/* Where a walkthrough of this section exists, the way to it (am-2rl9). This shell
                   serves light-quanta, relativity and mass-energy; PaperReader serves Brownian and
                   carries the same mount. Renders nothing on the sections that have none. */}
-              <SectionTapes paperId={paper.id} sectionId={s.id} />
+              <SectionTapes paperId={paper.id} sectionId={s.id} sectionTitle={s.title} />
             </section>
           ))}
           {sectionId ? (

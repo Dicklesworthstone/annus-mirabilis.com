@@ -534,7 +534,7 @@ export async function PaperReader({
                 ))}
               {/* Where a walkthrough of this section exists, the way to it (am-2rl9). Renders
                   nothing on the sections that have none, which is most of them. */}
-              <SectionTapes paperId={paper.id} sectionId={s.id} />
+              <SectionTapes paperId={paper.id} sectionId={s.id} sectionTitle={s.title} />
             </section>
           ))}
           {section ? (

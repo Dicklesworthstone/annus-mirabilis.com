@@ -22,16 +22,27 @@ import { tapePath } from "./sitePaths.ts";
 export function SectionTapes({
   paperId,
   sectionId,
+  sectionTitle,
 }: {
   readonly paperId: string;
   readonly sectionId: string;
+  /**
+   * The section's own title, which is what makes this landmark's accessible name unique.
+   *
+   * A page renders one of these per section with a walkthrough, and src/testing/a11y/
+   * navLandmarkNames.test.tsx requires every nav landmark on the page to carry a DISTINCT
+   * accessible name: two navs both called "Recorded walkthroughs of this section" are two
+   * landmarks a screen-reader user cannot tell apart in a landmark list. The visible eyebrow
+   * still says "this section", because a sighted reader has the heading above it.
+   */
+  readonly sectionTitle: string;
 }) {
   const tapes = tapesForPassage(paperId, sectionId);
   if (tapes.length === 0) return null;
   return (
     <nav
       className="actions section-tapes no-print"
-      aria-label="Recorded walkthroughs of this section"
+      aria-label={`Recorded walkthroughs of ${sectionTitle}`}
     >
       <span className="eyebrow">
         {tapes.length === 1
