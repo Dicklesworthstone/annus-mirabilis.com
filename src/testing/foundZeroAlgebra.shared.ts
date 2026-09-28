@@ -102,7 +102,7 @@ export function sentences(text: string): readonly string[] {
     .filter((s) => s.length > 0);
 }
 
-const escape = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const escapeForRegExp = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /**
  * Does this unit of text hold the token? A token that begins and ends with a word character is
@@ -111,7 +111,7 @@ const escape = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
  */
 export function holds(unit: string, token: string): boolean {
   const bounded = /^\w/.test(token) && /\w$/.test(token);
-  return bounded ? new RegExp(`\\b${escape(token)}\\b`).test(unit) : unit.includes(token);
+  return bounded ? new RegExp(`\\b${escapeForRegExp(token)}\\b`).test(unit) : unit.includes(token);
 }
 
 /**

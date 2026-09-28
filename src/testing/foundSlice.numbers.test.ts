@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { erf } from "../physics/reference/special/erf.ts";
 import { roundsTo } from "../units/tolerance.ts";
-import { bridge, type LessonRecord, matchIn, passagesOf } from "./foundZeroAlgebra.shared.ts";
+import { bridge, type LessonRecord, passagesOf } from "./foundZeroAlgebra.shared.ts";
 
 /**
  * am-bm-slice-foundations-f5z9: every number the Brownian slice's lessons and bridges PRINT, redone
@@ -36,9 +36,6 @@ function fourNumberLists(passages: readonly string[]): readonly (readonly number
     for (const m of passage.matchAll(pattern)) out.push(m.slice(1, 5).map(Number));
   return out;
 }
-
-const mean = (values: readonly number[]): number =>
-  values.reduce((a, b) => a + b, 0) / values.length;
 
 /**
  * Every ratio a passage asserts, in the two forms these lessons write: "6/2 is 3" and "2 particles
@@ -158,7 +155,7 @@ describe("distributions", () => {
 
 describe("mean, variance and RMS, and the squaring bridge", () => {
   const moves = [-3, -1, 1, 3];
-  const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+  const mean = (xs: readonly number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
   test("−3, −1, +1, +3: mean 0, mean distance 2, mean square 5, RMS √5 ≈ 2.236", () => {
     expect(mean(moves)).toBe(0);
     expect(mean(moves.map(Math.abs))).toBe(2);
@@ -276,7 +273,7 @@ describe("probability-independence: two coin steps of 1 m", () => {
   const t = text("probability-independence");
   const steps = [1, -1] as const;
   const pairs = steps.flatMap((first) => steps.map((second) => [first, second] as const));
-  const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+  const mean = (xs: readonly number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
 
   test("four walks end 2 m right, at the start twice, 2 m left; squares 4, 0, 0, 4 average 2", () => {
     const ends = pairs.map(([a, b]) => a + b);
@@ -331,7 +328,7 @@ describe("flux-continuity: counting across the ends of a stretch", () => {
 });
 
 describe("bridge-negative-numbers-direction and bridge-a-graph", () => {
-  const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+  const mean = (xs: readonly number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
 
   test("+3 and −3 sum to zero and their distances to six; −1 and +1 average zero and distance one", () => {
     expect(3 + -3).toBe(0);
