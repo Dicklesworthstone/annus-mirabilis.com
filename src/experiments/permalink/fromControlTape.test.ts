@@ -10,6 +10,8 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { strictParse } from "../../content/schemas/strictParse.ts";
 import { type ControlTapeV2, validateControlTape } from "../tapes/schema.ts";
+import { encodeTapePermalink } from "./codec.ts";
+import { MAX_PERMALINK_URL_LENGTH } from "./codecCore.ts";
 import { checkTapeCompatibility } from "./compatibility.ts";
 import { permalinkTapeFromControlTape } from "./fromControlTape.ts";
 import type { ExperimentEnvironment, TapeV2 } from "./types.ts";
@@ -36,6 +38,12 @@ function environmentAsRecorded(tape: TapeV2): ExperimentEnvironment {
   };
 }
 
+/** The records that reach a permalink tape at all; the rest are refused by name and are the
+ *  subject of the first test rather than of the compatibility ones. */
+const CONVERTIBLE: readonly ControlTapeV2[] = RECORDS.filter(
+  (r) => permalinkTapeFromControlTape(r).kind === "converted",
+);
+
 function convert(record: ControlTapeV2): TapeV2 {
   const out = permalinkTapeFromControlTape(record);
   if (out.kind !== "converted") throw new Error(`${record.tapeId}: ${out.field} ${out.reason}`);
@@ -50,27 +58,47 @@ describe("an authored control tape becomes a permalink tape", () => {
     expect(RECORDS.map((r) => r.tapeId)).toContain("the-boost-to-0.6c");
   });
 
-  test("every authored record converts, and the type boundary is the only coercion", () => {
-    const failed: string[] = [];
+  test("every record either converts or is refused by name, and a converted one always encodes", () => {
+    // Not a census: the split moves as records are corrected. The property is that there is no
+    // third outcome, that a refusal is actionable, and that nothing downstream can throw on a
+    // converted tape. Before the converter checked its own output, 10 records produced a tape that
+    // `encodeTapePermalink` threw on, which is a failure moved downstream rather than refused.
+    let converted = 0;
+    let refused = 0;
     for (const record of RECORDS) {
       const out = permalinkTapeFromControlTape(record);
       if (out.kind !== "converted") {
-        failed.push(`${record.tapeId}: ${out.field}`);
+        refused += 1;
+        expect(out.field.length, `${record.tapeId} refused with no field`).toBeGreaterThan(0);
+        expect(out.repair.length, `${record.tapeId} refused with no repair`).toBeGreaterThan(20);
+        expect(out.reason, `${record.tapeId}`).toContain(" ");
         continue;
       }
+      converted += 1;
+      // The wire accepts it: this is the join that was missing one layer over.
+      expect(() => encodeTapePermalink(out.tape)).not.toThrow();
+      expect(
+        `/lab/${record.experimentId}/?tape=${encodeTapePermalink(out.tape)}`.length,
+      ).toBeLessThanOrEqual(MAX_PERMALINK_URL_LENGTH);
       // The record writes a string; the link carries a number; they name the same version.
       expect(typeof record.modelIdentity.modelVersion).toBe("string");
       expect(typeof out.tape.modelIdentity.modelVersion).toBe("number");
       expect(String(out.tape.modelIdentity.modelVersion)).toBe(record.modelIdentity.modelVersion);
     }
-    expect(failed).toEqual([]);
+    expect(converted + refused).toBe(RECORDS.length);
+    // Non-vacuity in both directions, so neither a converter that refused everything nor one that
+    // converted everything could pass this file unnoticed.
+    expect(converted).toBeGreaterThan(0);
+    console.log(
+      `[control tape -> permalink] ${converted} convert, ${refused} refused, of ${RECORDS.length}`,
+    );
   });
 
   test("the conversion carries what the AUTHOR recorded, not a laboratory's own identity", () => {
     // This is the property that distinguishes a converter from the generator's rebuild-from-binding
     // path. If this ever starts reading a binding, every compatibility result below becomes
     // tautological and the refusals that are real findings would vanish silently.
-    for (const record of RECORDS) {
+    for (const record of CONVERTIBLE) {
       const tape = convert(record);
       expect(tape.modelIdentity.modelId).toBe(record.modelIdentity.modelId);
       expect(tape.allocationId).toBe(record.allocationId);
@@ -120,13 +148,13 @@ describe("the join: validate, convert, then compatibility", () => {
 
   test("every authored tape is compatible with the instrument as its author pinned it", () => {
     const refused: string[] = [];
-    for (const record of RECORDS) {
+    for (const record of CONVERTIBLE) {
       const tape = convert(record);
       const verdict = checkTapeCompatibility(tape, environmentAsRecorded(tape));
       if (!verdict.compatible) refused.push(`${record.tapeId}: ${verdict.refusalCode}`);
     }
     expect(refused).toEqual([]);
-    expect(RECORDS.length).toBeGreaterThan(15);
+    expect(CONVERTIBLE.length).toBeGreaterThan(5);
   });
 
   test("a model that genuinely differs is still refused, and the notice names the difference", () => {

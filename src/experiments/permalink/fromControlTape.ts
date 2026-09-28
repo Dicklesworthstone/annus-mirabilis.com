@@ -35,6 +35,7 @@
  */
 
 import type { ControlTapeV2, TapeEventEntry } from "../tapes/schema.ts";
+import { TapeValidationError, validateTapeV2 } from "./schema.ts";
 import type { TapeControlEvent, TapePredictionEvent, TapeV2 } from "./types.ts";
 
 export type ControlTapeConversion =
@@ -132,5 +133,22 @@ export function permalinkTapeFromControlTape(record: ControlTapeV2): ControlTape
     ...(record.title === undefined ? {} : { title: record.title }),
     ...(record.description === undefined ? {} : { description: record.description }),
   };
+  // THE OUTPUT IS CHECKED BY THE WIRE VALIDATOR ITSELF, not by a pattern copied here. A converter
+  // that hands on a tape the permalink schema refuses has moved the failure downstream, where
+  // `encodeTapePermalink` throws instead of refusing: measured 2026-09-28, 10 of the 22 authored
+  // records carry a descriptive checkpoint digest ("host:sha256:sr10-evaluateSr10") that the
+  // control-tape schema accepts and the permalink schema does not, because it requires hex. Calling
+  // the real validator means the two cannot drift apart, which a second copy of DIGEST_PATTERN here
+  // would guarantee they eventually did.
+  try {
+    validateTapeV2(tape);
+  } catch (error) {
+    if (!(error instanceof TapeValidationError)) throw error;
+    return unconvertible(
+      error.path,
+      `The record cannot be carried in a shared link: ${error.message}`,
+      "Correct the field the message names in the authored record, or open the laboratory at the tape's settings instead of linking to a recorded state.",
+    );
+  }
   return Object.freeze({ kind: "converted" as const, tape: Object.freeze(tape) });
 }
