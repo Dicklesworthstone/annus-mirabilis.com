@@ -94,6 +94,7 @@ describe("an instrument's actions are kept by its page, not by its prose", () =>
     let verified = 0;
     const unclassified: string[] = [];
     const failures: string[] = [];
+    const kept: string[] = [];
     for (const instrument of instruments) {
       const page = await renderLab(instrument.route);
       const report = auditRenderedActions(instrument.id, instrument.actions, page);
@@ -101,11 +102,22 @@ describe("an instrument's actions are kept by its page, not by its prose", () =>
       verified += report.verified;
       unclassified.push(...report.unclassified.map((a) => `${instrument.id} ${a}`));
       failures.push(...report.diagnostics.map((d) => d.message));
+      kept.push(...report.found);
     }
     // Printed beside the verdict: a run that examined nothing would otherwise read exactly like a
-    // clean one.
+    // clean one. The breakdown matters as much as the total, because "stepping" is answered by any
+    // button and "reading" by any element carrying a quantity id, so those two are nearly free on a
+    // laboratory page; the discriminating kinds are table, typed entry and selection.
+    const byKind = new Map<string, number>();
+    for (const line of kept) {
+      const kind = line.split(" ")[1] ?? "?";
+      byKind.set(kind, (byKind.get(kind) ?? 0) + 1);
+    }
     console.log(
       `[action contracts] ${examined} promised affordances examined against the rendered DOM, ${verified} found on the page, ${failures.length} absent`,
+    );
+    console.log(
+      `[action contracts] by promise: ${[...byKind].map(([k, n]) => `${k} ${n}`).join(", ")}`,
     );
     console.log(
       `[action contracts] ${unclassified.length} actions whose wording names no affordance this vocabulary knows, so the page cannot answer for them: ${unclassified.join(", ") || "none"}`,
@@ -144,6 +156,36 @@ describe("an instrument's actions are kept by its page, not by its prose", () =>
     expect(prose.filter((d) => d.actionId && d.code !== "result-outputs-mismatch")).toEqual([]);
     console.log(
       `[action contracts] plant: me-01 with ${tables.length} table(s) removed -> ${absent.length} affordance(s) reported absent by the rendered audit, ${prose.length} by the prose audit`,
+    );
+  });
+
+  test("Planted Negative: a laboratory that loses its typed fields goes red for typed entry", async () => {
+    // One plant on one promise kind proves that kind and nothing else. Typed entry is the rule
+    // AGENTS.md states in its own words - "Readers can type exact values as well as drag" - so it is
+    // the second kind worth proving the audit can fail on.
+    const withTyping = instruments.find((instrument) =>
+      instrument.actions.some((a) =>
+        promisedAffordances(a.equivalentAffordance ?? "").includes("typed-entry"),
+      ),
+    );
+    if (!withTyping)
+      throw new Error("no instrument promises typed entry, so this plant is vacuous");
+    const page = await renderLab(withTyping.route);
+    const fields = [
+      ...page.querySelectorAll('input:not([type="range"]), textarea, [contenteditable="true"]'),
+    ];
+    expect(fields.length).toBeGreaterThan(0);
+    for (const field of fields) field.remove();
+    const report = auditRenderedActions(withTyping.id, withTyping.actions, page);
+    const absent = report.diagnostics.filter(
+      (d) =>
+        d.code === "action-affordance-absent" &&
+        d.message.includes("a field a value can be typed into"),
+    );
+    expect(absent.length).toBeGreaterThan(0);
+    expect(absent.every((d) => d.instrumentId === withTyping.id)).toBe(true);
+    console.log(
+      `[action contracts] plant: ${withTyping.id} with ${fields.length} typed field(s) removed -> ${absent.length} typed-entry promise(s) reported absent`,
     );
   });
 });
