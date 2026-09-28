@@ -224,6 +224,26 @@ parameters:
       kind: linear
     role: independent
     commandClass: measurement-change
+  - id: axis
+    label: "Coordinate"
+    accessibleName: "Which coordinate the statistics are taken along"
+    accessibleDescription: "Whether the displayed statistics follow the x, y or z coordinate of each tracer."
+    quantityId: measurementKind
+    displayUnit: ""
+    modelDomain:
+      enumerated:
+        - 0
+        - 1
+        - 2
+      reason: "The x, y or z coordinate; the walk is isotropic, so the choice selects which coordinate is reported and not a different experiment"
+    visualRange:
+      min: 0
+      max: 2
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
 outputs:
   - id: tracerPositions
     quantityId: particleRadius
