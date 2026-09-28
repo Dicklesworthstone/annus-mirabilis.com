@@ -31,6 +31,7 @@ import "../showTheCode.css";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
+import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
 import { numberText, sentenceNumber } from "../presentation.ts";
 
@@ -479,9 +480,7 @@ const roundTripSpeedLsPerS = (2 * separationLs) / (receptionTimeA - emissionTime
       <p data-detail="2" hidden>
         {withScripts(SR01_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(SR01_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(SR01_CAPTION.r3)}</LabMargin>
 
       <p className="assumptions-note">
         {SR01_MODEL.assumptions[0]} Alternative:{" "}

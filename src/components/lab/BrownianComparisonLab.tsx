@@ -29,8 +29,8 @@ import {
   type ReplayPrediction,
 } from "../../reader/notebook/replayEntry.ts";
 import { SaveComparisonReplay } from "../../reader/notebook/SaveComparisonReplay.tsx";
+import { LabMargin } from "./LabMargin.tsx";
 import { withScripts } from "./subscripts.tsx";
-
 export function BrownianComparisonLab({
   example,
   passage = { contentRevision: null, translationRevision: null },
@@ -346,9 +346,7 @@ export function BrownianComparisonLab({
       <p data-detail="2" hidden>
         {withScripts(BM01_COMPARE_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(BM01_COMPARE_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(BM01_COMPARE_CAPTION.r3)}</LabMargin>
     </section>
   );
 }

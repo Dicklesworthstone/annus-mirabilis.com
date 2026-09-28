@@ -36,6 +36,7 @@ import { FieldFrameChangePlot } from "./FieldFrameChangePlot.tsx";
 import "../labControls.css";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { KEPT_RESULT } from "../keptResult.ts";
+import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 
 const C_SI = 299792458;
@@ -524,9 +525,7 @@ export function FieldFrameChangeLab({
       <p data-detail="2" hidden>
         {withScripts(SR08_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(SR08_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(SR08_CAPTION.r3)}</LabMargin>
 
       <p className="fine">Not modeled: {SR08_NOT_MODELED.join("; ")}.</p>
     </section>

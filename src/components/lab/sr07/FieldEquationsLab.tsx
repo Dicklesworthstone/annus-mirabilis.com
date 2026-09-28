@@ -36,6 +36,7 @@ import { instrumentRootAttributes } from "../../../experiments/store/identityAtt
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
+import { LabMargin } from "../LabMargin.tsx";
 import { fixed, identity, result, sentenceNumber } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { withScripts } from "../subscripts.tsx";
@@ -401,9 +402,7 @@ export function FieldEquationsLab({
       <p data-detail="2" hidden>
         {withScripts(SR07_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(SR07_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(SR07_CAPTION.r3)}</LabMargin>
       <table className="inference-summary sr07-components">
         <caption>Printed symbols in paper 3, section 6</caption>
         <thead>

@@ -29,6 +29,7 @@ import {
   type TrajectoryDraft,
 } from "../../experiments/bm07/trajectoryDraft.ts";
 import { CameraTrajectoryResult } from "./CameraTrajectoryResult.tsx";
+import { LabMargin } from "./LabMargin.tsx";
 import { Sci } from "./Sci.tsx";
 import { withScripts } from "./subscripts.tsx";
 import { TrajectoryInspection } from "./TrajectoryInspection.tsx";
@@ -629,9 +630,7 @@ export function MeasuredTrajectoryLab() {
       <p data-detail="2" hidden>
         {withScripts(BROWNIAN_DATA_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(BROWNIAN_DATA_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(BROWNIAN_DATA_CAPTION.r3)}</LabMargin>
     </section>
   );
 }

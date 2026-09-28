@@ -30,6 +30,7 @@ import { DistributionPlot, GridComparison } from "./DistributionPlot.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { gridRefusalSentences } from "./gridRefusalWords.ts";
 import { KEPT_RESULT } from "./keptResult.ts";
+import { LabMargin } from "./LabMargin.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
 import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
@@ -509,9 +510,7 @@ export function BrownianLab({
           <p data-detail="2" hidden>
             {withScripts(BM06_CAPTION.r2)}
           </p>
-          <p data-detail="3" hidden>
-            {withScripts(BM06_CAPTION.r3)}
-          </p>
+          <LabMargin>{withScripts(BM06_CAPTION.r3)}</LabMargin>
         </>
       )}
       <div className="lab-bottom">

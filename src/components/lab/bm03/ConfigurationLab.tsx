@@ -29,6 +29,7 @@ import { ConfigurationPlot } from "./ConfigurationPlot.tsx";
 import "./bm03.css";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
 import { Sci } from "../Sci.tsx";
 import { withScripts } from "../subscripts.tsx";
@@ -541,9 +542,7 @@ export function ConfigurationLab({
           <p data-detail="2" hidden>
             {withScripts(BM03_CAPTION.r2)}
           </p>
-          <p data-detail="3" hidden>
-            {withScripts(BM03_CAPTION.r3)}
-          </p>
+          <LabMargin>{withScripts(BM03_CAPTION.r3)}</LabMargin>
         </>
       )}
 

@@ -37,6 +37,7 @@ import {
 } from "./PhotoelectricPlot.tsx";
 import "./photoelectricLab.css";
 
+import { LabMargin } from "../LabMargin.tsx";
 export type PhotoelectricLabProps = Readonly<{
   example?: PreparedLq08Example | undefined;
   /** Millikan's 1916 points, or why they are withheld: built on the server from the record. */
@@ -461,9 +462,7 @@ export function PhotoelectricLab({
           <p data-detail="2" hidden>
             {withScripts(LQ08_CAPTION.r2)}
           </p>
-          <p data-detail="3" hidden>
-            {withScripts(LQ08_CAPTION.r3)}
-          </p>
+          <LabMargin>{withScripts(LQ08_CAPTION.r3)}</LabMargin>
         </>
       )}
 

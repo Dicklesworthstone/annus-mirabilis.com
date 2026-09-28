@@ -185,13 +185,6 @@ const REACHABLE_BY_ANOTHER_ROUTE = new Map<string, string>([
     "The historian's margin is a <details> a reader can open, and it is the Perspective axis rather " +
       "than the Detail axis. reader.css:550 says so at the rule.",
   ],
-  [
-    ':is(.laboratory, .laboratory-shell, .lab-readings) > p[data-detail="3"]',
-    "KNOWN GAP, recorded rather than fixed here. A laboratory caption's R3 is a <p> gated on the " +
-      "modern lens, and there is no lens control without script, so revealing it would show " +
-      "modern-lens material to a reader who cannot turn it off. The honest fix is the disclosure the " +
-      "paper faces use, which is a change to 44 lab pages and belongs to its own unit.",
-  ],
 ]);
 
 describe("a reading only a script can reveal is also revealed with no script", () => {

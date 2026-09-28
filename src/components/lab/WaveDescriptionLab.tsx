@@ -37,6 +37,7 @@ import {
 } from "./WaveDescriptionPlots.tsx";
 import "./waveDescriptionLab.css";
 
+import { LabMargin } from "./LabMargin.tsx";
 export type WaveDescriptionLabProps = Readonly<{
   example: PreparedLq01Example;
   title?: string;
@@ -560,9 +561,7 @@ export function WaveDescriptionLab({
       <p data-detail="2" hidden>
         {withScripts(LQ01_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(LQ01_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(LQ01_CAPTION.r3)}</LabMargin>
 
       <div className="lab-bottom">
         <div className="not-modeled">

@@ -34,6 +34,7 @@ import { ChargeCurrentPlot } from "./ChargeCurrentPlot.tsx";
 import "../labControls.css";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { KEPT_RESULT } from "../keptResult.ts";
+import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 
 const C_SI = 299792458;
@@ -748,9 +749,7 @@ export function ChargeCurrentLab({
       <p data-detail="2" hidden>
         {withScripts(SR12_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(SR12_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(SR12_CAPTION.r3)}</LabMargin>
 
       <footer
         className="fine"

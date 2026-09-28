@@ -38,6 +38,7 @@ import "./me01.css";
 import "../showTheCode.css";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
+import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
 import { sentenceNumber } from "../presentation.ts";
 
@@ -432,9 +433,7 @@ export function TwoLedgersLab({
       <p data-detail="2" hidden>
         {withScripts(ME01_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(ME01_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(ME01_CAPTION.r3)}</LabMargin>
     </section>
   );
 }

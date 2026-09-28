@@ -23,6 +23,7 @@ import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { TimeLegend } from "../../visuals/kit/TimeLegend.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
+import { LabMargin } from "./LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { SeedHelp } from "./SeedHelp.tsx";
@@ -658,9 +659,7 @@ export function TracerLab({
         <p data-detail="2" hidden>
           {withScripts(BM01_CAPTION.r2)}
         </p>
-        <p data-detail="3" hidden>
-          {withScripts(BM01_CAPTION.r3)}
-        </p>
+        <LabMargin>{withScripts(BM01_CAPTION.r3)}</LabMargin>
         <section
           id={`${id}-model`}
           className="live-equation-group"

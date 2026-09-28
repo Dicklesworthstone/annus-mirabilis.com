@@ -20,6 +20,7 @@ import { ExperimentRuntimeError } from "../../../experiments/refusal.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import type { AcceptedSnapshot } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { LabMargin } from "../LabMargin.tsx";
 import { display, identity, result, unitText } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import styles from "./AvogadroLab.module.css";
@@ -470,9 +471,7 @@ export function AvogadroLab({ sourceDigest = "" }: { sourceDigest?: string } = {
       <p data-detail="2" hidden>
         {withScripts(AVOGADRO_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(AVOGADRO_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(AVOGADRO_CAPTION.r3)}</LabMargin>
     </section>
   );
 }

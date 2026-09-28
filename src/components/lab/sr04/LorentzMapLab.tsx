@@ -31,6 +31,7 @@ import { SR04_TAPE } from "../../../experiments/sr04/tape.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
+import { LabMargin } from "../LabMargin.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { withScripts } from "../subscripts.tsx";
@@ -508,9 +509,7 @@ export function LorentzMapLab({
       <p data-detail="2" hidden>
         {withScripts(SR04_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(SR04_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(SR04_CAPTION.r3)}</LabMargin>
     </section>
   );
 }

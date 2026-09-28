@@ -1,6 +1,7 @@
 import "./kitchen.css";
 import type { Metadata } from "next";
 import { KitchenComparison } from "../../../../components/lab/kitchen/KitchenLab.tsx";
+import { LabMargin } from "../../../../components/lab/LabMargin.tsx";
 import { withScripts } from "../../../../components/lab/subscripts.tsx";
 import { KITCHEN_CAPTION } from "../../../../experiments/bm07/kitchen/caption.ts";
 import practice from "../../../../generated/kitchen-practice.json";
@@ -29,9 +30,7 @@ export default function KitchenObservationPage() {
         <p data-detail="2" hidden>
           {withScripts(KITCHEN_CAPTION.r2)}
         </p>
-        <p data-detail="3" hidden>
-          {withScripts(KITCHEN_CAPTION.r3)}
-        </p>
+        <LabMargin>{withScripts(KITCHEN_CAPTION.r3)}</LabMargin>
       </section>
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>

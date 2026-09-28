@@ -29,6 +29,7 @@ import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
+import { LabMargin } from "./LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { display, identity, result, sentenceNumber } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
@@ -381,9 +382,7 @@ export function MagnetConductorLab({
       <p data-detail="2" hidden>
         {withScripts(SR02_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(SR02_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(SR02_CAPTION.r3)}</LabMargin>
       <p>
         Choose which body is described as moving, type a speed, and inspect both accounts of the
         same current. No dragging is required. The ether-plus-local-time account is not declared

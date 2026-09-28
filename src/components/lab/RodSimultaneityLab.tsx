@@ -26,6 +26,7 @@ import { fixed } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
 import "./rodSimultaneityLab.css";
 import { KEPT_RESULT } from "./keptResult.ts";
+import { LabMargin } from "./LabMargin.tsx";
 import { identity } from "./presentation.ts";
 import {
   MinkowskiDiagramPlot,
@@ -33,7 +34,6 @@ import {
   SphereEllipsoidPlot,
 } from "./RodSimultaneityPlots.tsx";
 import { Sci } from "./Sci.tsx";
-
 export type RodSimultaneityLabProps = Readonly<{
   example: PreparedSr03Example;
   title?: string;
@@ -659,9 +659,7 @@ export function RodSimultaneityLab({
       <p className="sr03-context" data-detail="2" hidden>
         {withScripts(SR03_CAPTION.r2)}
       </p>
-      <p className="sr03-context" data-detail="3" hidden>
-        {withScripts(SR03_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(SR03_CAPTION.r3)}</LabMargin>
 
       {/* Spacetime event interval ledger: Δt in k and the causal order answer the prompts. */}
       <div className="notice" style={{ margin: "1.5rem 0" }} {...gate.response}>

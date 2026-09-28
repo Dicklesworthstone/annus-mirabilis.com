@@ -38,6 +38,8 @@ import { withScripts } from "../subscripts.tsx";
 import { IndependentConfigurationsPlot } from "./IndependentConfigurationsPlot.tsx";
 import "./independentConfigurationsLab.css";
 
+import { LabMargin } from "../LabMargin.tsx";
+
 const LQ05_PROMPTS = PREDICT_PROMPTS["lq-05"] ?? [];
 
 export function IndependentConfigurationsLab({
@@ -620,9 +622,7 @@ export function IndependentConfigurationsLab({
       <p data-detail="2" hidden>
         {withScripts(LQ05_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(LQ05_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(LQ05_CAPTION.r3)}</LabMargin>
     </article>
   );
 }

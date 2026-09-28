@@ -33,6 +33,7 @@ import {
   InferenceValue,
 } from "./InferencePlots.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
+import { LabMargin } from "./LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { SEED_MAX_READABLE, SeedHelp } from "./SeedHelp.tsx";
@@ -810,9 +811,7 @@ export function InferenceLab({
           <p data-detail="2" hidden>
             {withScripts(BM07_CAPTION.r2)}
           </p>
-          <p data-detail="3" hidden>
-            {withScripts(BM07_CAPTION.r3)}
-          </p>
+          <LabMargin>{withScripts(BM07_CAPTION.r3)}</LabMargin>
         </>
       )}
     </section>

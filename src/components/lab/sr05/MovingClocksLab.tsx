@@ -18,6 +18,7 @@ import { readablePowers } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 import "./sr05.css";
 
+import { LabMargin } from "../LabMargin.tsx";
 export type MovingClocksLabProps = Readonly<{
   example?: PreparedSr05Example | undefined;
   /**
@@ -322,9 +323,7 @@ export function MovingClocksLab({ example, session: sharedSession }: MovingClock
       <p data-detail="2" hidden>
         {withScripts(SR05_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(SR05_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(SR05_CAPTION.r3)}</LabMargin>
 
       <p className="fine">
         Model: an ideal clock whose rate depends only on its instantaneous speed. Not modeled:

@@ -31,8 +31,8 @@ import { CoefficientMatchSideBySidePlot, MeanEnergyStripPlot } from "./Coefficie
 import "./coefficientMatchLab.css";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { KEPT_RESULT } from "../keptResult.ts";
+import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
-
 export type CoefficientMatchLabProps = Readonly<{
   example?: PreparedLq06Example | undefined;
 }>;
@@ -438,9 +438,7 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
       <p data-detail="2" hidden>
         {withScripts(LQ06_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(LQ06_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(LQ06_CAPTION.r3)}</LabMargin>
 
       <div className="lab-bottom">
         <div className="not-modeled">

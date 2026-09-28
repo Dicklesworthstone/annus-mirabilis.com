@@ -44,6 +44,7 @@ import "../showTheCode.css";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
+import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { numberText, sentenceNumber } from "../presentation.ts";
 
@@ -761,9 +762,7 @@ export function BoundaryLedgerLab({
       <p data-detail="2" hidden>
         {withScripts(ME03_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(ME03_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(ME03_CAPTION.r3)}</LabMargin>
     </section>
   );
 }

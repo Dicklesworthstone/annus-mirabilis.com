@@ -44,6 +44,7 @@ import type {
 } from "../../../experiments/store/instanceStore.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
+import { LabMargin } from "../LabMargin.tsx";
 import { identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { withScripts } from "../subscripts.tsx";
@@ -419,9 +420,7 @@ export function EntropyWorkbenchLab({
       <p data-detail="2" hidden>
         {withScripts(LQ04_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(LQ04_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(LQ04_CAPTION.r3)}</LabMargin>
     </section>
   );
 }

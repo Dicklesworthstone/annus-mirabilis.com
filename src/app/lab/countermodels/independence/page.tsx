@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
+import { LabMargin } from "../../../../components/lab/LabMargin.tsx";
 import { withScripts } from "../../../../components/lab/subscripts.tsx";
 import generated from "../../../../generated/countermodels.json";
 import { INDEPENDENCE_CAPTION } from "../../../../reasoning/independence/caption.ts";
 import { IndependenceWorkbench } from "../../../../reasoning/independence/IndependenceWorkbench.tsx";
 import { createOccupancyState } from "../../../../reasoning/independence/state.ts";
-
 export const metadata: Metadata = {
   title: "Does the same average imply independent positions?",
   description:
@@ -43,9 +43,7 @@ export default function IndependencePage() {
         <p data-detail="2" hidden>
           {withScripts(INDEPENDENCE_CAPTION.r2)}
         </p>
-        <p data-detail="3" hidden>
-          {withScripts(INDEPENDENCE_CAPTION.r3)}
-        </p>
+        <LabMargin>{withScripts(INDEPENDENCE_CAPTION.r3)}</LabMargin>
       </section>
       <section className="reading">
         <h2>Which premise earns the exponent?</h2>

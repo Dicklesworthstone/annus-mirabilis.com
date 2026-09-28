@@ -21,6 +21,7 @@ import { CameraMomentTable } from "./CameraMomentTable.tsx";
 import { CameraCoverage, CameraPath, CameraSpeed } from "./CameraPlots.tsx";
 import { InferenceInterval as Interval, InferenceValue as Value } from "./InferencePlots.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
+import { LabMargin } from "./LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
 import { SEED_MAX_READABLE, SeedHelp } from "./SeedHelp.tsx";
@@ -712,9 +713,7 @@ export function CameraLab({
           <p data-detail="2" hidden>
             {withScripts(BM08_CAPTION.r2)}
           </p>
-          <p data-detail="3" hidden>
-            {withScripts(BM08_CAPTION.r3)}
-          </p>
+          <LabMargin>{withScripts(BM08_CAPTION.r3)}</LabMargin>
         </>
       )}
     </section>

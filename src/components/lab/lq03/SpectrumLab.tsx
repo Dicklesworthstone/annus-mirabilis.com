@@ -36,6 +36,7 @@ import { statusMessage } from "../../../experiments/results/explanations.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
+import { LabMargin } from "../LabMargin.tsx";
 import { fixed, identity } from "../presentation.ts";
 import { Sci, SciFromLn } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
@@ -584,9 +585,7 @@ export function SpectrumLab({
       <p data-detail="2" hidden>
         {withScripts(LQ03_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(LQ03_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(LQ03_CAPTION.r3)}</LabMargin>
     </section>
   );
 }

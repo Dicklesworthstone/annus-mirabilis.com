@@ -488,9 +488,29 @@ html[data-detail="2"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[dat
 }
 
 html[data-detail="0"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[data-detail="0"],
-html[data-detail="2"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[data-detail="2"],
-html[data-lens="modern"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[data-detail="3"] {
+html[data-detail="2"] :is(.laboratory, .laboratory-shell, .lab-readings) > p[data-detail="2"] {
   display: block;
+}
+
+/* THE HISTORIAN'S MARGIN OF AN INSTRUMENT (am-4ms3, LabMargin.tsx). R3 used to be a fourth
+   paragraph revealed by html[data-lens="modern"], and a laboratory page mounts no
+   ReaderController and carries no lens control, so with the pre-paint script setting
+   data-lens="paper" on every page the only route to it was ?lens=modern in the address bar. It is
+   a closed <details> now, present for every reader and gated by nothing, which is what the reading
+   pages do for the same material (src/reader/reader.css, THE HISTORIAN'S MARGIN). Sized like the
+   readings beside it: a reading measure, and the caption's smaller type. */
+:is(.laboratory, .laboratory-shell, .lab-readings) > .lab-margin {
+  margin: 1rem 0;
+  max-width: 68ch;
+  font-size: var(--type-small);
+}
+
+:is(.laboratory, .laboratory-shell, .lab-readings) > .lab-margin > summary {
+  cursor: pointer;
+}
+
+:is(.laboratory, .laboratory-shell, .lab-readings) > .lab-margin > p {
+  margin: 0.5rem 0 0;
 }
 
 /* One title per lab page, for the instruments whose root is .laboratory-shell (sr-01, sr-06,

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LabMargin } from "../../../../components/lab/LabMargin.tsx";
 import { withScripts } from "../../../../components/lab/subscripts.tsx";
 import { PHOTOELECTRIC_DATA_CAPTION } from "../../../../reasoning/photoelectricData/caption.ts";
 import { PhotoelectricDataWorkbench } from "../../../../reasoning/photoelectricData/PhotoelectricDataWorkbench.tsx";
@@ -6,7 +7,6 @@ import {
   acceptedExampleAnalysis,
   modernPhotoelectricReference,
 } from "../../../../reasoning/photoelectricData/session.ts";
-
 export const metadata: Metadata = {
   title: "Infer from a photoelectric stopping-potential record",
   description:
@@ -44,9 +44,7 @@ export default function PhotoelectricDataPage() {
         <p data-detail="2" hidden>
           {withScripts(PHOTOELECTRIC_DATA_CAPTION.r2)}
         </p>
-        <p data-detail="3" hidden>
-          {withScripts(PHOTOELECTRIC_DATA_CAPTION.r3)}
-        </p>
+        <LabMargin>{withScripts(PHOTOELECTRIC_DATA_CAPTION.r3)}</LabMargin>
       </section>
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>

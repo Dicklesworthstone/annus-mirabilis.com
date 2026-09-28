@@ -27,6 +27,7 @@ import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "../AcceptedStatus.tsx";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
+import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { display, fixed, identity, result } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
@@ -390,9 +391,7 @@ export function DopplerAberrationLab({
       <p data-detail="2" hidden>
         {withScripts(SR09_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(SR09_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(SR09_CAPTION.r3)}</LabMargin>
 
       <p className="fine">Not modeled: {SR09_NOT_MODELED.join("; ")}.</p>
     </section>

@@ -19,6 +19,7 @@ import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
 import { AcceptedStatus } from "./AcceptedStatus.tsx";
 import { ExperimentSettings } from "./ExperimentSettings.tsx";
 import { KEPT_RESULT } from "./keptResult.ts";
+import { LabMargin } from "./LabMargin.tsx";
 import { PredictGatePanels, usePredictGate } from "./PredictGate.tsx";
 import { display, fixed, sentenceNumber } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
@@ -359,9 +360,7 @@ export function ModeAllocationLab({
       <p data-detail="2" hidden>
         {withScripts(LQ02_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(LQ02_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(LQ02_CAPTION.r3)}</LabMargin>
     </section>
   );
 }

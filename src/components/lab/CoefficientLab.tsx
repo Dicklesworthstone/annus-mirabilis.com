@@ -33,6 +33,7 @@ import { ShowTheCode } from "./ShowTheCode.tsx";
 import "./coefficientLab.css";
 import { refusalSentence } from "../../experiments/results/refusalSentence.ts";
 import { PREDICT_PROMPTS } from "../../generated/predict-prompts.ts";
+import { LabMargin } from "./LabMargin.tsx";
 import { display, identity, result } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
 
@@ -556,9 +557,7 @@ export function CoefficientLab({
       <p data-detail="2" hidden>
         {withScripts(ME02_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(ME02_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(ME02_CAPTION.r3)}</LabMargin>
 
       {boundEquations.length > 0 && (
         <section

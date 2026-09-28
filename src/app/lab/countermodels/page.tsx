@@ -7,6 +7,7 @@ import type { PreparedCountermodelCase } from "../../../reasoning/countermodel/s
 import { CountermodelWorkbench } from "../../../reasoning/countermodel/Workbench.tsx";
 import "../../../components/lab/showTheCode.css";
 
+import { LabMargin } from "../../../components/lab/LabMargin.tsx";
 export const metadata: Metadata = {
   title: "Compare models: which observations can decide?",
   description:
@@ -39,9 +40,7 @@ export default function CountermodelPage() {
           <p data-detail="2" hidden>
             {withScripts(COUNTERMODELS_CAPTION.r2)}
           </p>
-          <p data-detail="3" hidden>
-            {withScripts(COUNTERMODELS_CAPTION.r3)}
-          </p>
+          <LabMargin>{withScripts(COUNTERMODELS_CAPTION.r3)}</LabMargin>
         </section>
       )}
       {generated.cases.length === 0 && (

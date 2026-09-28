@@ -18,6 +18,7 @@ import {
   shelfSnapshot,
 } from "../../../experiments/shelfOptics/state.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
+import { LabMargin } from "../LabMargin.tsx";
 import { readablePowers } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
 
@@ -420,9 +421,7 @@ export function ShelfOpticsLab({
       <p data-detail="2" hidden>
         {withScripts(caption.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(caption.r3)}
-      </p>
+      <LabMargin>{withScripts(caption.r3)}</LabMargin>
     </section>
   );
 }

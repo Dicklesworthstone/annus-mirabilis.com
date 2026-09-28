@@ -33,8 +33,8 @@ import { withScripts } from "../subscripts.tsx";
 import { IonizationCountingPlot, IonizationThresholdLadderPlot } from "./IonizationPlot.tsx";
 import "./ionizationLab.css";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
+import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate } from "../PredictGate.tsx";
-
 export type IonizationLabProps = Readonly<{
   example?: PreparedLq09Example | undefined;
 }>;
@@ -466,9 +466,7 @@ export function IonizationLab({ example }: IonizationLabProps) {
       <p data-detail="2" hidden>
         {withScripts(LQ09_CAPTION.r2)}
       </p>
-      <p data-detail="3" hidden>
-        {withScripts(LQ09_CAPTION.r3)}
-      </p>
+      <LabMargin>{withScripts(LQ09_CAPTION.r3)}</LabMargin>
     </section>
   );
 }

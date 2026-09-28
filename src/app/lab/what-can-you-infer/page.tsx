@@ -6,6 +6,7 @@ import { parseInferenceEvidence } from "../../../reasoning/infer/evidence.ts";
 import { FamilyWorkbench } from "../../../reasoning/infer/FamilyWorkbench.tsx";
 import "../../../components/lab/showTheCode.css";
 
+import { LabMargin } from "../../../components/lab/LabMargin.tsx";
 export const metadata: Metadata = {
   title: "What can you infer? Keep the data, add independent information",
   description:
@@ -39,9 +40,7 @@ export default function InferenceWorkbenchPage() {
           <p data-detail="2" hidden>
             {withScripts(INFER_CAPTION.r2)}
           </p>
-          <p data-detail="3" hidden>
-            {withScripts(INFER_CAPTION.r3)}
-          </p>
+          <LabMargin>{withScripts(INFER_CAPTION.r3)}</LabMargin>
         </section>
       )}
       {examples.length === 0 && (

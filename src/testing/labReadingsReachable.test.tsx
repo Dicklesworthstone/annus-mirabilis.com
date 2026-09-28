@@ -7,8 +7,15 @@ import { installDom, uninstallDom } from "./reactDom.ts";
 
 /**
  * Every laboratory whose definition authors the four instrument readings (an `XX_CAPTION` with r0 to
- * r3) renders them where the reader's detail setting can switch them: as `p[data-detail="0".."3"]`,
- * direct children of the lab root, which labShell.css selects with a child combinator.
+ * r3) renders them where the reader's detail setting can switch them: r0 to r2 as
+ * `p[data-detail="0".."2"]` and r3 as `details[data-detail="3"]`, all direct children of the lab
+ * root, which labShell.css selects with a child combinator.
+ *
+ * R3 BECAME A DISCLOSURE in am-4ms3 and this assertion moved with it. It is the same question in
+ * the same strength: each of the four readings must sit where the child combinator reaches it, and
+ * the "none elsewhere" clause below still holds for both shapes. The reason R3 is no longer a
+ * paragraph is that a laboratory has no lens control, so a paragraph gated on the modern lens was
+ * reachable by nobody; LabMargin.tsx carries the full account.
  *
  * Two failures this guards, both found on 2026-09-23: three labs (lq-05, lq-07, lq-09) authored their
  * readings and never rendered them, and bm-03's readings, once rendered, sat one element too deep for
@@ -51,6 +58,7 @@ describe("lab readings are reachable by the detail setting", () => {
 
   for (const route of routes) {
     test(`${route} renders readings 0 to 3 as direct children of its lab root`, async () => {
+      // r0 to r2 are paragraphs and r3 is a disclosure; both must be direct children of the root.
       const mod = (await import(join(ROOT, "src", "app", "lab", route, "page.tsx"))) as {
         default: (props: Record<string, unknown>) => unknown;
       };
@@ -60,11 +68,15 @@ describe("lab readings are reachable by the detail setting", () => {
       const root = host.querySelector(".laboratory, .laboratory-shell");
       expect(root).not.toBeNull();
       const reached = Array.from(root?.children ?? [])
-        .filter((el) => el.tagName === "P" && el.hasAttribute("data-detail"))
-        .map((el) => el.getAttribute("data-detail"));
-      expect(reached).toEqual(["0", "1", "2", "3"]);
+        .filter(
+          (el) =>
+            (el.tagName === "P" || el.tagName === "DETAILS") && el.hasAttribute("data-detail"),
+        )
+        .map((el) => `${el.tagName.toLowerCase()}${el.getAttribute("data-detail")}`);
+      expect(reached).toEqual(["p0", "p1", "p2", "details3"]);
       // None elsewhere: a reading nested deeper is one the rule cannot switch.
-      expect(host.querySelectorAll("p[data-detail]").length).toBe(4);
+      expect(host.querySelectorAll("p[data-detail]").length).toBe(3);
+      expect(host.querySelectorAll("details[data-detail]").length).toBe(1);
     });
   }
 });
