@@ -72,6 +72,27 @@ function validateSr08Fields(input: unknown): Sr08ParameterCheck {
     numbers[key] = value;
     if (!Number.isFinite(value)) invalid.push(key);
   }
+  // A boost that overflowed to ±Infinity IS at or beyond light speed, and saying "enter it as a
+  // number" tells a reader who typed 1e300 that their number was not one (dispatch 320). The speed
+  // sentence owns that case, as it already does in SR-12, which refuses the same input by naming
+  // the limit. NaN still falls through below: a blank or unreadable field is not a fast frame.
+  // The form shields the typed path already, converting through readTypedNumber and showing the
+  // declared-domain sentence; this is the path a permalink, a tape or an embed takes.
+  if (!Number.isNaN(numbers.boost) && Math.abs(numbers.boost) >= C_SI) {
+    return {
+      kind: "refused",
+      refusal: makeRefusal(
+        "invalid-parameter",
+        { parameterIds: ["boost"] },
+        {
+          details: {
+            requirements:
+              "Enter a frame speed below the speed of light: no inertial observer moves at or beyond c.",
+          },
+        },
+      ),
+    };
+  }
   if (invalid.length > 0) {
     return {
       kind: "refused",

@@ -86,6 +86,29 @@ describe("SR-08 session store and parameter validation", () => {
     expect(session.getSnapshot().accepted?.revisions.input).toBeGreaterThan(beforeRev);
   });
 
+  test("a boost that overflows to Infinity is refused by the speed limit, not called not-a-number", () => {
+    // Dispatch 320. A reader who types 1e300 into the boost field, which is typed in c and stored
+    // in m/s, sends 1e300 * c = Infinity. The finiteness loop used to reach it first and answer
+    // "Enter the boost v/c as a number", which tells someone who typed a number that they did not.
+    // An infinite boost IS at or beyond light speed, so the speed sentence owns it, as it already
+    // did in SR-12 for the same input.
+    for (const boost of [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 1e300 * C_SI]) {
+      const checked = validateSr08Parameters({ ...SR08_DEFAULTS, boost });
+      expect(checked.kind).toBe("refused");
+      if (checked.kind === "refused") {
+        const said = checked.refusal.details?.requirements ?? "";
+        expect(said).toContain("below the speed of light");
+        expect(said).not.toContain("as a number");
+      }
+    }
+
+    // NaN still belongs to the other sentence: a blank or unreadable field is not a fast frame.
+    const blank = validateSr08Parameters({ ...SR08_DEFAULTS, boost: Number.NaN });
+    expect(blank.kind).toBe("refused");
+    if (blank.kind === "refused")
+      expect(blank.refusal.details?.requirements ?? "").toContain("as a number");
+  });
+
   test("superluminal parameter is refused", () => {
     const checked = validateSr08Parameters({
       ...SR08_DEFAULTS,
