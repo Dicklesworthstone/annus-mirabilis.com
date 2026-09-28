@@ -6,8 +6,8 @@ title: "where the energy went"
 description: "Teaching tape demonstrating boundary energy balances: body alone loses mass, radiation carries energy, and the combined isolated system conserves total mass and energy."
 isTeachingSequence: true
 modelIdentity:
-  modelId: me-03-boundary-ledger-v1
-  modelVersion: "1"
+  modelId: me-03-box-1906-v1
+  modelVersion: 1
   artifactDigest: "host:sha256:me03-boundary-evaluateMe03"
 constantSetId: modern-si-2019
 seed: "0"

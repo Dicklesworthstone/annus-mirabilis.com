@@ -479,3 +479,6 @@ defaultScenario: sr03-signature-0.6c
 tapeModel:
   modelId: sr-03
   modelVersion: 1
+teachingTapes:
+  - tapeId: the-boost-to-0.6c
+    title: "The boost to 0.6c"

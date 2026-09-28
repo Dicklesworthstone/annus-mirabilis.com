@@ -605,6 +605,8 @@ teachingTapes:
 
 realRate:
   natural: false
+  - tapeId: where-the-energy-went
+    title: "where the energy went"
 # /embed/lab/me-03/ exists since am-lab-manifests-embeds-questions-missing-nree.
 embeddable: true
 predictMode:

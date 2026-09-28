@@ -7,7 +7,7 @@ description: Teaching tape that compares the magnet-rest and conductor-rest desc
 isTeachingSequence: true
 modelIdentity:
   modelId: magnet-conductor-host
-  modelVersion: "1"
+  modelVersion: 1
   artifactDigest: "host:sha256:sr02-evaluateSr02"
 constantSetId: modern-si-2019
 seed: "0"

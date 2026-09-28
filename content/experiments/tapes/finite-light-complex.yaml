@@ -7,7 +7,7 @@ description: Teaching tape demonstrating how the energy and volume of a bounded 
 isTeachingSequence: true
 modelIdentity:
   modelId: light-complex-host
-  modelVersion: "1"
+  modelVersion: 1
   artifactDigest: "host:sha256:sr10-evaluateSr10"
 constantSetId: modern-si-2019
 seed: "0"

@@ -18,7 +18,7 @@
  * This module only READS and shapes. It renders nothing, and it computes no physical quantity: every
  * number it passes on is the number the author wrote in the record.
  */
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseYaml } from "./provenance/yaml.ts";
 
@@ -174,4 +174,91 @@ export function tapesForExperiment(
   root: string = process.cwd(),
 ): TeachingTape[] {
   return loadTeachingTapes(root).tapes.filter((t) => t.experimentId === experimentId);
+}
+
+/**
+ * A teaching tape's identity against the instrument it belongs to (am-2rl9).
+ *
+ * WHY THIS EXISTS. Nothing replays a tape, so nothing had ever compared one with its instrument, and
+ * measured 2026-09-27 the two had drifted in three independent directions at once:
+ *
+ * - 12 of 21 tapes recorded a model identity the instrument's manifest contradicts. Most were the
+ *   version written as "1.0.0" where the manifest and the runtime binding both say 1, and five named
+ *   a different model entirely (`sr03-rod-simultaneity-v1` where sr-03's manifest and its own
+ *   draftTape both say `sr-03`). Every disputed case resolved the same way: the manifest and the
+ *   runtime binding agreed and the hand-authored tape was the odd one out.
+ * - 6 authored tapes were named by no manifest, among them `the-boost-to-0.6c`, which AGENTS.md
+ *   names by id as a feature.
+ * - 3 tape ids were declared by a manifest with no record behind them.
+ *
+ * The first two are fixed. The third is reported, not asserted away: a declared tape nobody has
+ * written yet is a plan, and removing the declaration would erase it.
+ *
+ * WHAT A MISMATCH COSTS, which is why this is not bookkeeping. `checkTapeCompatibility` compares
+ * modelId and modelVersion with `!==`, so a tape whose identity disagrees is REFUSED before a reader
+ * sees anything. It is also strict across the string/number boundary: with the version quoted as
+ * "1" against the runtime's 1 the refusal fires and its notice reads "Recorded under
+ * brownian-motion-reference@v1; current is brownian-motion-reference@v1", naming two values that
+ * look identical. That is a refusal that cannot explain itself, and it is filed separately.
+ */
+export type TapeIdentityReport = Readonly<{
+  checked: number;
+  modelMismatches: readonly string[];
+  undeclared: readonly string[];
+  declaredWithNoRecord: readonly string[];
+}>;
+
+/** Tape ids a manifest declares that nobody has written yet. A plan, not a defect. */
+export const PLANNED_TAPES: readonly string[] = [
+  "bm-04-balance-tape-01",
+  "lq-06-the-move-walkthrough",
+  "photoelectric-millikan-walkthrough",
+];
+
+function manifestBlock(text: string, key: string): string | undefined {
+  const m = new RegExp(String.raw`^${key}:\s*\n((?:\s+.*\n)+)`, "m").exec(text);
+  return m?.[1];
+}
+
+function scalar(text: string, key: string): string | undefined {
+  const m = new RegExp(String.raw`^\s*${key}:\s*"?([^"\n]+)"?\s*$`, "m").exec(text);
+  return m?.[1]?.trim();
+}
+
+export function tapeIdentityReport(root: string = process.cwd()): TapeIdentityReport {
+  const manifestDir = join(root, "content", "experiments");
+  const declared = new Set<string>();
+  for (const file of readdirSync(manifestDir).filter((f) => f.endsWith(".yaml"))) {
+    const block = manifestBlock(readFileSync(join(manifestDir, file), "utf8"), "teachingTapes");
+    if (!block) continue;
+    for (const m of block.matchAll(/^\s*-\s*tapeId:\s*"?([^"\n]+)"?\s*$/gm))
+      declared.add((m[1] ?? "").trim());
+  }
+
+  const modelMismatches: string[] = [];
+  const authored = new Set<string>();
+  const dir = join(root, TAPES_DIR);
+  for (const file of readdirSync(dir).filter((f) => f.endsWith(".yaml"))) {
+    const text = readFileSync(join(dir, file), "utf8");
+    const id = file.replace(/\.yaml$/, "");
+    authored.add(id);
+    const experimentId = scalar(text, "experimentId");
+    const identity = manifestBlock(text, "modelIdentity");
+    if (!experimentId || !identity) continue;
+    const manifestPath = join(manifestDir, `${experimentId}.yaml`);
+    if (!existsSync(manifestPath)) continue;
+    const tapeModel = manifestBlock(readFileSync(manifestPath, "utf8"), "tapeModel");
+    if (!tapeModel) continue;
+    const want = `${scalar(tapeModel, "modelId")}@${scalar(tapeModel, "modelVersion")}`;
+    const got = `${scalar(identity, "modelId")}@${scalar(identity, "modelVersion")}`;
+    if (want !== got)
+      modelMismatches.push(`${id}: records ${got}, ${experimentId} declares ${want}`);
+  }
+
+  return {
+    checked: authored.size,
+    modelMismatches,
+    undeclared: [...authored].filter((id) => !declared.has(id)).sort(),
+    declaredWithNoRecord: [...declared].filter((id) => !authored.has(id)).sort(),
+  };
 }

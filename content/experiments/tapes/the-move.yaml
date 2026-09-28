@@ -3,8 +3,8 @@ tapeId: the-move
 experimentId: lq-06
 mode: "lq-06:default"
 modelIdentity:
-  modelId: lq06-the-move-v1
-  modelVersion: "1.0.0"
+  modelId: lq-06-coefficient-match
+  modelVersion: 1
   artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
 constantSetId: modern-si-2019
 seed: "0"

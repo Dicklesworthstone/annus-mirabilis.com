@@ -7,7 +7,7 @@ description: Teaching tape demonstrating the relativistic Doppler effect and abe
 isTeachingSequence: true
 modelIdentity:
   modelId: doppler-aberration-host
-  modelVersion: "1"
+  modelVersion: 1
   artifactDigest: "host:sha256:sr09-evaluateSr09"
 constantSetId: modern-si-2019
 seed: "0"

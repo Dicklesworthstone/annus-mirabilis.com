@@ -258,6 +258,8 @@ tapeModel:
 teachingTapes:
   - tapeId: lq-06-the-move-walkthrough
     title: "The Move: From Entropy Law to Energy Quanta"
+  - tapeId: the-move
+    title: "The Move: From Entropy Law to Energy Quanta"
 presets:
   - presetId: lq-06-the-move
     label: "The Move (§6 Golden State)"

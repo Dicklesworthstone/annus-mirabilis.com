@@ -3,8 +3,8 @@ tapeId: lq-07-journey-stage-g
 experimentId: lq-07
 mode: "lq-07:default"
 modelIdentity:
-  modelId: lq07-journey-stage-g-v1
-  modelVersion: "1.0.0"
+  modelId: fluorescence-budget-reference
+  modelVersion: 1
   artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
 constantSetId: modern-si-2019
 seed: "0"

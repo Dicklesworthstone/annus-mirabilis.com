@@ -7,7 +7,7 @@ description: Teaching tape that walks the observer speed toward zero so the prox
 isTeachingSequence: true
 modelIdentity:
   modelId: mass-energy-coefficient-host
-  modelVersion: "1"
+  modelVersion: 1
   artifactDigest: "host:sha256:me02-coefficient-evaluateMe02"
 constantSetId: modern-si-2019
 seed: "0"

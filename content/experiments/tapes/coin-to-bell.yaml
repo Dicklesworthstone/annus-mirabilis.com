@@ -27,7 +27,7 @@ title: "coin to bell"
 isTeachingSequence: true
 modelIdentity:
   modelId: bm05-host-preview-v1
-  modelVersion: "1.0.0"
+  modelVersion: 1
   artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
 constantSetId: not-applicable
 seed: "1905"

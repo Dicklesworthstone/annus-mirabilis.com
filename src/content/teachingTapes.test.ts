@@ -15,7 +15,13 @@
 import { describe, expect, test } from "bun:test";
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
-import { loadTeachingTapes, NAMED_IN_AGENTS, TAPES_DIR } from "./teachingTapes.ts";
+import {
+  loadTeachingTapes,
+  NAMED_IN_AGENTS,
+  PLANNED_TAPES,
+  TAPES_DIR,
+  tapeIdentityReport,
+} from "./teachingTapes.ts";
 
 const { tapes, problems } = loadTeachingTapes();
 const manifestIds = new Set(
@@ -88,5 +94,42 @@ describe("the authored teaching tapes", () => {
       expect(tape?.named, `${id} should be flagged as named`).toBe(true);
       expect(tape?.steps.length ?? 0, `${id} has no steps`).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("a teaching tape's identity matches the instrument it belongs to", () => {
+  const report = tapeIdentityReport();
+
+  test("the comparison is live, proved by the difference it DOES find", () => {
+    console.log(
+      `[tape identity] ${report.checked} tapes; ${report.modelMismatches.length} model mismatches; ` +
+        `${report.undeclared.length} named by no manifest; ${report.declaredWithNoRecord.length} declared with no record`,
+    );
+    expect(report.checked).toBeGreaterThan(15);
+    // The positive control, and it is built in rather than planted: the declared-versus-authored
+    // comparison finds three ids a manifest names with nothing behind them. A comparison that found
+    // nothing in EITHER direction would be consistent with reading nothing at all, and on
+    // 2026-09-27 the first version of this function did exactly that, silently, because a regex
+    // lost its backslashes and matched no manifest block.
+    expect(report.declaredWithNoRecord.length).toBeGreaterThan(0);
+  });
+
+  test("no tape records a model identity its instrument contradicts", () => {
+    // 12 of 21 did before 2026-09-27: mostly the version as "1.0.0" against the manifest's 1, and
+    // five naming a different model altogether. checkTapeCompatibility compares these with !==, so
+    // a mismatch refuses the replay before a reader sees anything.
+    expect(report.modelMismatches).toEqual([]);
+  });
+
+  test("every authored tape is named by its instrument's manifest", () => {
+    // Six were named by none, among them the-boost-to-0.6c, which AGENTS.md names by id.
+    expect(report.undeclared).toEqual([]);
+  });
+
+  test("a manifest declares no tape beyond the ones known to be planned", () => {
+    // Subset, not equality: these three are plans, and writing one must not turn this red. A NEW
+    // declaration with no record does.
+    const unexpected = report.declaredWithNoRecord.filter((id) => !PLANNED_TAPES.includes(id));
+    expect(unexpected).toEqual([]);
   });
 });

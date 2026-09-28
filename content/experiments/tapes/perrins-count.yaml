@@ -10,7 +10,7 @@ title: "Perrin's count"
 isTeachingSequence: true
 modelIdentity:
   modelId: inference-bm07-host
-  modelVersion: "1.0.0"
+  modelVersion: 1
   artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
 constantSetId: scenario-gas-constant-measured
 seed: "1909"

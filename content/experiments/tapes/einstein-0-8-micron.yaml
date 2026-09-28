@@ -26,7 +26,7 @@ experimentId: bm-01
 mode: "bm-01:default"
 modelIdentity:
   modelId: brownian-motion-reference
-  modelVersion: "1.0.0"
+  modelVersion: 1
   artifactDigest: "host:sha256:0000000000000000000000000000000000000000000000000000000000000000"
 constantSetId: einstein-1905-brownian-printed
 seed: "1905"
