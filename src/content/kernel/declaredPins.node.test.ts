@@ -35,8 +35,15 @@ test("the gate reports the real gap over the historical pins, and both counts", 
   const report = reportDeclaredPins(declared, keys);
   console.log(`[declared pins] at ${HISTORICAL}: ${summarizeDeclaredPins(report)}`);
   assert.equal(report.pins, 22, "historical pins");
-  assert.equal(report.distinctDeclared, 108, "declared functions, resolved through barrels");
-  assert.equal(report.missing.length, 88, "declared with no pin at the start of am-f3e4");
+  // THE TWO NUMBERS BELOW ARE A CENSUS OF TODAY'S DECLARATIONS, not of the history this test is
+  // about, so they move whenever a manifest declares a kernel it did not declare before. On
+  // 2026-09-28 me-01 declared initializeMassEnergyLedger, the function that names the four body
+  // energies symbolically and refuses an Mc^2 seed (am-1nnj, dispatch 354), and 108/88 became
+  // 109/89. The historical fact this test exists for is untouched: 22 pins then, and the gap
+  // against them still shrinks, which is the assertion below and the one that cannot be satisfied
+  // by adding anything.
+  assert.equal(report.distinctDeclared, 109, "declared functions, resolved through barrels");
+  assert.equal(report.missing.length, 89, "declared with no pin at the start of am-f3e4");
   // The gate must also SHRINK against today's pins, or it is measuring nothing that moved.
   const currentText = execFileSync("git", ["show", "HEAD:src/content/kernel/pins.json"], {
     cwd: root,
