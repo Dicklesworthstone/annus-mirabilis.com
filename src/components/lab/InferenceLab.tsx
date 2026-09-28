@@ -1,5 +1,6 @@
 "use client";
 import { type FormEvent, useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
+import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { createBm07BrowserChannel } from "../../experiments/bm07/browser.ts";
 import {
   fromInferenceDraft,
@@ -37,6 +38,7 @@ import { LabMargin } from "./LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, result, scalar } from "./presentation.ts";
 import { SEED_MAX_READABLE, SeedHelp } from "./SeedHelp.tsx";
+import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
 
 const estimatorNames = {
@@ -827,6 +829,9 @@ export function InferenceLab({
           <LabMargin>{withScripts(BM07_CAPTION.r3)}</LabMargin>
         </>
       )}
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). Outside the
+          readings fragment above, so it is there whether or not the readings are. */}
+      <ShowTheCode instrumentId="bm-07" listings={getKernelListingsForInstrument("bm-07")} />
     </section>
   );
 }

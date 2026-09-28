@@ -75,7 +75,17 @@
     "driftDiffusionFrames1d@src/physics/reference/diffusion/driftDiffusion.ts": "sha256:af1cc1a77a820260026aa7f774161b211ece08205f7c21eac6447d1ab98ce6d1",
     "equilibriumBalance@src/physics/reference/diffusion/routeA.ts": "sha256:02f6431cff2c11ada5c1ef25dedbc116f66ce0316e1eb872d33caf237f0751a4",
     "decayLengths@src/physics/reference/diffusion/routeA.ts": "sha256:eeb06fece93e833b80eacacbe1cdf8b8e0ee05a74c6d22604b7c5c9bdc098917",
-    "osmoticEquilibriumProfile@src/physics/reference/diffusion/routeA.ts": "sha256:8c77120faf0ef1bb8539709ace90b0689625ded8b03fc3958f4f580a1608e557"
+    "osmoticEquilibriumProfile@src/physics/reference/diffusion/routeA.ts": "sha256:8c77120faf0ef1bb8539709ace90b0689625ded8b03fc3958f4f580a1608e557",
+    "estimateIncrements@src/physics/reference/inference.ts": "sha256:71f7841c5ec492581374173df9d328a3e208b2d1abb9cce82f455ea92f23389e",
+    "inverseBias@src/physics/reference/inference.ts": "sha256:95caaf88d552be626b5d3c6b1371ef33c5b2934361ab493bafacdffa0cd0e058",
+    "invertToMolecularNumber@src/physics/reference/inference.ts": "sha256:efce210ad84842a38f67ae1f5e8c952a02d58d7797d326bed27772f99bcf9b72",
+    "combinedMolecularNumberInterval@src/physics/reference/inference.ts": "sha256:3335f9e6c633a8147da58f7335e269c0996e3fa0b9b6b6cf2b59aab0f5ec0321",
+    "identifiabilityFamily@src/physics/reference/inference.ts": "sha256:4d25196f7d987b1e967488ce3f9fcb932a4041addbefd7b5ced130539a9c2829",
+    "cameraMoments@src/physics/reference/inference/observation.ts": "sha256:83cfd1186b1aa96f8d0dfdd59a89c84e241a51db1afd7a43d678d18f6070dc1b",
+    "covarianceEstimator@src/physics/reference/inference/observation.ts": "sha256:c819dee82ba95281ed8aad5cd93dc656ca7b3acc11633efc7497f1a710882dab",
+    "disjointPairsKnownNoiseInterval@src/physics/reference/inference/observation.ts": "sha256:28f46917a5658571285f63148076eba58dc36a31814a32f4a74b00ccbbf3cf2b",
+    "stationaryClickNoiseEstimate@src/physics/reference/inference/observation.ts": "sha256:edf6a3b57f9af2fdeb61bce6f389dec306fd70e77885bf772cc1551ecb1c81fb",
+    "bartlettBandsMA1@src/physics/reference/inference/observation.ts": "sha256:4b2cccf1506e72469656be3250df670885efe5ab2c1c5acc45a0b261d49c03dd"
   },
   "closures": {
     "src/physics/reference/diffusion/distributions.ts": "source:sha256:1eb5b457e215116537778a643fdb94b42da696cd79689396720e6c289b7aa5fa",
@@ -100,6 +110,8 @@
     "src/physics/reference/radiation/bandIntegration.ts": "source:sha256:12d7ba1b588df5c4931f97f63012e1c1c8860aaf2d37e09ad35b0d72f6820c28",
     "src/physics/reference/radiation/entropy.ts": "source:sha256:fde068fefdd3cf518e4bb114960bf60160e3dc81e5f4b32dbfac26cf60ac7524",
     "src/physics/reference/diffusion/routeA.ts": "source:sha256:46c1f6ca0c5cf360c7295d50136f8f7c733e714883b7ba1304ee6f317006d3ba",
-    "src/physics/reference/diffusion/driftDiffusion.ts": "source:sha256:814df5b58e46dc4ab4174450bce7994858f17094990d8de0ac8d7b47df1fe3b5"
+    "src/physics/reference/diffusion/driftDiffusion.ts": "source:sha256:814df5b58e46dc4ab4174450bce7994858f17094990d8de0ac8d7b47df1fe3b5",
+    "src/physics/reference/inference.ts": "source:sha256:9bd541144f6c6fededa53812fdebd959543e1ae60998c7421ce02e43908b1366",
+    "src/physics/reference/inference/observation.ts": "source:sha256:9bd541144f6c6fededa53812fdebd959543e1ae60998c7421ce02e43908b1366"
   }
 }

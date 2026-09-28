@@ -1,5 +1,6 @@
 "use client";
 import { type FormEvent, useEffect, useId, useMemo, useState, useSyncExternalStore } from "react";
+import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { createBm08BrowserChannel } from "../../experiments/bm08/browser.ts";
 import {
   type CameraDraft,
@@ -25,6 +26,7 @@ import { LabMargin } from "./LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGate.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
 import { SEED_MAX_READABLE, SeedHelp } from "./SeedHelp.tsx";
+import { ShowTheCode } from "./ShowTheCode.tsx";
 import { withScripts } from "./subscripts.tsx";
 
 // The manifest's prompt (scripts/generate-predict-prompts.mjs), one stable array for the gate.
@@ -729,6 +731,9 @@ export function CameraLab({
           <LabMargin>{withScripts(BM08_CAPTION.r3)}</LabMargin>
         </>
       )}
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). Outside the
+          readings fragment above, so it is there whether or not the readings are. */}
+      <ShowTheCode instrumentId="bm-08" listings={getKernelListingsForInstrument("bm-08")} />
     </section>
   );
 }

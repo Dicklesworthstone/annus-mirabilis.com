@@ -1537,6 +1537,212 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     ],
     independentReferences: [],
   },
+
+  // BM-07 and BM-08 (am-f3e4, dispatch 343). The two inference laboratories: recovering a molecular
+  // number from displacements, and what a real camera does to the displacements first.
+  //
+  // ONE BINDING DELIBERATELY NOT MADE, and it is a live defect rather than a choice of style.
+  // identifiabilityFamily returns `product`, which is R T / (6 pi eta D) and carries a radius times
+  // a molecular number. The bm-07 manifest binds its radiusNumberProduct output to
+  // quantityId: avogadroNumberEstimate, which is per-mole and a different dimension; am-ff2s holds
+  // that, and it needs a new canonical quantity rather than a repair in passing. So `product` is
+  // bound to nothing here, and radiusNumberProduct does not become a live term by way of this
+  // catalogue. `numbers`, whose elements ARE per-mole molecular numbers, is bound.
+  //
+  // NO traceScenarioId on any of these, although the bm-07 manifest declares one and the scenario
+  // file exists. verify.ts computes a trace for exactly one pair, traceScenarioId
+  // "diffusion-einstein-1905-printed" with exportName "stokesEinsteinD"; every other entry gets
+  // undefined. Carrying the id would also fail checkTraceScenario, since SLICE_REGISTERED_SCENARIOS
+  // has no bm-07 key. A declared trace that reaches no reader is a claim, not a feature.
+  //
+  // Two entries bind nothing at all. stationaryClickNoiseEstimate returns sigma2, a VARIANCE of a
+  // localization error, and the registered quantity localizationErrorStd is a standard deviation;
+  // binding one to the other would be the same kind of mistake as the one above. bartlettBandsMA1's
+  // gamma0 and gamma1 are covariances of increments, for which there is no registered id. Both
+  // still show their source, their hash and their words.
+  {
+    instrumentId: "bm-07",
+    kernel: tsRef("src/physics/reference/inference.ts", "estimateIncrements"),
+    words: {
+      r0: "A diffusivity read off a run of measured displacements, by one of three named estimators.",
+      r1: "It sums the squared displacements and divides by twice the interval and by a count, which is the whole of the estimate. What differs between the three estimators is the count and whether the mean is subtracted first: the known-zero-drift estimator subtracts nothing and divides by the full number of coordinates; the drift-centered one subtracts the sample mean and loses one degree of freedom for it; the maximum-likelihood one centres as well but divides by the uncentred count. On the same eight displacements at half-second spacing those give 2.8125, 3.0536 and 2.6719 times 10^-12 m^2/s.",
+      r2: "The third estimator returns TWO numbers and the difference between them is the point. dHat is the maximum-likelihood value, which is biased low, and unbiasedDHat beside it is the same data divided by the degrees of freedom, with biasFactor saying how far apart they are: 0.875, which is seven over eight, on that run. A caller that builds an interval must use the unbiased one, and the comment on chiSquareInterval says so, because a chi-square interval around a biased point estimate is an interval around the wrong centre. Two more pieces of care are visible in the arithmetic: every displacement is divided by the largest of them before squaring, so a run in micrometres and a run in metres take the same path, and the sum is accumulated with a compensation term rather than added straight, because a long run of small squares loses its tail otherwise. A single centred increment is not a small sample but an UNDERDETERMINED one, and the returned reason says why: drift and spread cannot be separated from one observation.",
+    },
+    liveTerms: ["observationInterval", "diffusionCoefficient"],
+    identifierBindings: [
+      bind("estimateIncrements", "observationInterval", "observationInterval"),
+      bind("estimateIncrements", "dHat", "diffusionCoefficient"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-07",
+    kernel: tsRef("src/physics/reference/inference.ts", "inverseBias"),
+    words: {
+      r0: "How much the reciprocal of a diffusivity estimate runs high, and whether its spread even exists.",
+      r1: "A molecular number is recovered by DIVIDING by the diffusivity, and the reciprocal of a noisy estimate is not the reciprocal of the truth. For a chi-square estimate on q degrees of freedom the mean of the reciprocal is larger by normalization over (q - 2), and its variance is twice the normalization squared over (q - 2) squared times (q - 4). At q = 5 those are 1.667 and 5.556; at q = 10 with a normalization of 12, 1.5 and 0.75.",
+      r2: "The two thresholds in those denominators are the whole function. At two degrees of freedom or fewer the reciprocal has NO FINITE EXPECTATION, so the answer is not a large number but a typed not-applicable whose reason says exactly that; a mean factor computed from q - 2 at q = 2 would have been an infinity dressed as a correction. At four or fewer the mean exists but the variance does not, so varianceFactor comes back null while the mean factor is still returned. Three outcomes from one formula, and the middle one is the one a naive implementation loses: it is possible to know how far high an estimate runs and to have no finite answer for how much it scatters.",
+    },
+    liveTerms: [],
+    identifierBindings: [],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-07",
+    kernel: tsRef("src/physics/reference/inference.ts", "invertToMolecularNumber"),
+    words: {
+      r0: "The inversion paper 2 exists for: a diffusivity, a temperature, a viscosity and a radius give the number of molecules in a mole.",
+      r1: "N = R T / (6 pi eta a D), which is the Stokes-Einstein relation read backwards, with the interval carried through by dividing the ENDS in the opposite order, so the upper diffusivity gives the lower number. On a modern set at 290.15 K, 1.35 mPa s, half a micron and a diffusivity of 3.1 times 10^-13 m^2/s it returns 6.116 times 10^23, which is 1.0156 times the defined Avogadro constant, and the Boltzmann constant implied by the same inputs, 1.3594 times 10^-23 J/K.",
+      r2: "Two guards stand in front of the arithmetic and neither is numerical. The first refuses a radius that came from THESE SAME DISPLACEMENTS with an assumed molecular number, code circular-radius-from-displacement, because a number recovered that way was put in by hand; that is AGENTS.md's no-circular-explanations rule as executable code rather than as editorial advice. The second asks what the constant set MEANS. A gas constant defined in the modern SI makes the answer a consistency-check, a gas constant measured without counting molecules makes it an independent-estimate, and a set that establishes neither is refused as outside-domain with the reason that it does not support a noncircular observational estimate. Synthetic data is a fourth case and is labelled synthetic-recovery, which is a check of the machinery and not evidence about molecules. The same number means four different things and the function will not hand it over without saying which.",
+    },
+    liveTerms: [
+      "temperature",
+      "viscosity",
+      "particleRadius",
+      "molarGasConstant",
+      "diffusionCoefficient",
+      "avogadroNumberEstimate",
+    ],
+    identifierBindings: [
+      bind("invertToMolecularNumber", "temperature", "temperature"),
+      bind("invertToMolecularNumber", "viscosity", "viscosity"),
+      bind("invertToMolecularNumber", "particleRadius", "particleRadius"),
+      bind("invertToMolecularNumber", "molarGasConstant", "molarGasConstant"),
+      bind("invertToMolecularNumber", "diffusionCoefficient", "diffusionCoefficient"),
+      bind("invertToMolecularNumber", "avogadroNumberEstimate", "avogadroNumberEstimate"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-07",
+    kernel: tsRef("src/physics/reference/inference.ts", "combinedMolecularNumberInterval"),
+    words: {
+      r0: "One interval for the molecular number that carries the uncertainty in the temperature, the viscosity and the radius as well as in the diffusivity.",
+      r1: "It takes a declared interval for any of the three conditions, pairs the endpoints in the direction that widens the answer, and returns the result with its coverage reduced by the sum of the input error rates. The pairing is where the care is: the lower molecular number uses the lowest temperature against the highest viscosity, radius and diffusivity, and the upper one the reverse, because N rises with T and falls with each of the other three.",
+      r2: "The coverage arithmetic is a Bonferroni union bound and the function says so in the returned record, with coverageKind conservative and an estimatorId that names the procedure. That word is doing work. The inputs are NOT assumed independent, which is why the error rates add rather than compounding, and the result is therefore at least the stated coverage rather than equal to it. Two refusals come from the same accounting: an input interval with no valid declared coverage is not-applicable rather than ignored, and error rates that leave no positive coverage return not-applicable too, because an interval with no guarantee left is not a wider interval, it is no interval. An input interval that does not contain its own point value is refused outright.",
+    },
+    liveTerms: ["temperature", "viscosity", "particleRadius", "molarGasConstant"],
+    identifierBindings: [
+      bind("combinedMolecularNumberInterval", "T", "temperature"),
+      bind("combinedMolecularNumberInterval", "eta", "viscosity"),
+      bind("combinedMolecularNumberInterval", "a", "particleRadius"),
+      bind("combinedMolecularNumberInterval", "R", "molarGasConstant"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-07",
+    kernel: tsRef("src/physics/reference/inference.ts", "identifiabilityFamily"),
+    words: {
+      r0: "Every radius and molecular number the same measurement admits, drawn as one curve, because the displacements fix their product and not either one.",
+      r1: "A diffusivity fixes R T / (6 pi eta D), and that is a product of a radius and a molecular number. Give the radius and the number follows; give the number and the radius follows; measure the displacements alone and neither is determined. The function returns 41 radii spaced evenly in the logarithm across the range asked for, with the molecular number that goes with each. Over two decades of radius the numbers run over two decades too, from 3.058 times 10^24 down to 3.058 times 10^22.",
+      r2: "This is what an UNDERDETERMINED result looks like when it is drawn rather than refused. Elsewhere the laboratory returns a typed underdetermined status and stops; here the same fact is made visible, because a reader who sees one curve and is told to pick a point on it has understood the shape of the inference in a way no refusal message conveys. It is also the honest answer to the question the paper is usually said to have settled: paper 2 does not weigh a molecule from displacements alone, it fixes a product, and Perrin's independent radius is what turns the product into a count. The function carries the constant set's semantic kind through unchanged, so a family drawn from synthetic data is still labelled synthetic.",
+    },
+    liveTerms: [
+      "diffusionCoefficient",
+      "temperature",
+      "viscosity",
+      "particleRadius",
+      "avogadroNumberEstimate",
+    ],
+    identifierBindings: [
+      bind("identifiabilityFamily", "D", "diffusionCoefficient"),
+      bind("identifiabilityFamily", "T", "temperature"),
+      bind("identifiabilityFamily", "eta", "viscosity"),
+      bind("identifiabilityFamily", "radii", "particleRadius"),
+      bind("identifiabilityFamily", "numbers", "avogadroNumberEstimate"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-08",
+    kernel: tsRef("src/physics/reference/inference/observation.ts", "cameraMoments"),
+    words: {
+      r0: "What a real camera does to the displacements before anyone estimates anything: a shutter that is open for a while, and a position that is never read exactly.",
+      r1: "For a shutter open for a time Te out of each frame interval dt, and a localization error of standard deviation sigma, the measured increment variance is 2 D (dt - Te/3) + 2 sigma squared, and neighbouring increments acquire a covariance of D Te/3 - sigma squared. The function returns both, the apparent speed a reader would compute from each, and their ratio. At a diffusivity of 3.1 times 10^-13 m^2/s and half-second frames: an ideal camera gives a variance of 3.1 times 10^-13 and a ratio of 1; a shutter open the whole interval gives 2.067 times 10^-13 and a ratio of 0.816; a localization error of 0.2 micrometres with no blur gives 3.9 times 10^-13 and a ratio of 1.122.",
+      r2: "Blur and localization error pull in OPPOSITE directions and the covariance is what tells them apart. Blur averages the position over the time the shutter is open, which removes variance from each increment and puts a POSITIVE correlation between neighbours, since they share the same averaging window. Localization error is independent from frame to frame, which adds variance and puts a NEGATIVE correlation between neighbours, because an error high in one frame ends one increment high and starts the next one low. Measured above: the covariance is 5.167 times 10^-14 under full blur and minus 4 times 10^-14 under localization error alone. This is why the adversarial fixture in AGENTS.md says camera noise does NOT leave neighbouring increments independent, and it is why the covariance estimator two functions down can recover the diffusivity and the noise separately from the same run. The crossover, returned only where the error acts alone, is the frame spacing at which the two contributions are equal.",
+    },
+    liveTerms: [
+      "diffusionCoefficient",
+      "observationInterval",
+      "exposureTime",
+      "localizationErrorStd",
+      "driftVelocity",
+      "apparentSpeed",
+      "apparentSpeedRatio",
+    ],
+    identifierBindings: [
+      bind("cameraMoments", "D", "diffusionCoefficient"),
+      bind("cameraMoments", "dt", "observationInterval"),
+      bind("cameraMoments", "exposure", "exposureTime"),
+      bind("cameraMoments", "sigma", "localizationErrorStd"),
+      bind("cameraMoments", "drift", "driftVelocity"),
+      bind("cameraMoments", "idealApparentSpeed", "apparentSpeed"),
+      bind("cameraMoments", "measuredApparentSpeed", "apparentSpeed"),
+      bind("cameraMoments", "apparentSpeedRatio", "apparentSpeedRatio"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-08",
+    kernel: tsRef("src/physics/reference/inference/observation.ts", "covarianceEstimator"),
+    words: {
+      r0: "The diffusivity and the localization error recovered together, from the variance of the increments and the covariance of neighbouring ones.",
+      r1: "Two measured moments, two unknowns. The diffusivity is the variance over two plus the covariance, all over the frame interval; the localization variance is a weighted combination of the two with the exposure entering through the ratio Te / 6 dt. Both come out of one pass over the increments, and neither needs the other declared in advance, which is what the previous function's opposite signs make possible.",
+      r2: "Two refusals of a kind that is easy to write the other way. The drift must be KNOWN and is subtracted as given: the comment says not to substitute a fitted mean, because centring on the sample mean changes the finite-sample expectation of the covariance and this estimator's algebra assumes it was not. And a negative estimate is RETURNED, not clipped: with few increments, or with noise larger than the motion, either moment can come out on the wrong side of zero, and the comment records that these are diagnostics rather than values to be made positive. A clip to zero would turn a visible failure of the model into a plausible small number, which is the direction this whole laboratory is built against.",
+    },
+    liveTerms: ["observationInterval", "exposureTime", "driftVelocity", "diffusionCoefficient"],
+    identifierBindings: [
+      bind("covarianceEstimator", "dt", "observationInterval"),
+      bind("covarianceEstimator", "exposure", "exposureTime"),
+      bind("covarianceEstimator", "knownDrift", "driftVelocity"),
+      bind("covarianceEstimator", "D", "diffusionCoefficient"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-08",
+    kernel: tsRef(
+      "src/physics/reference/inference/observation.ts",
+      "disjointPairsKnownNoiseInterval",
+    ),
+    words: {
+      r0: "A confidence interval for the diffusivity from frame pairs that share nothing, with the localization noise subtracted off.",
+      r1: "Take frames in pairs, (0,1), (2,3) and so on, so that no frame and no localization error appears in two increments. Estimate the increment variance from those pairs, subtract twice the noise variance, and divide by twice the interval less a third of the exposure. The interval comes from the chi-square band on the variance, with the noise endpoints subtracted in the widening direction. Drift is fitted from the pairs rather than taken from the truth, which costs a degree of freedom and is the honest choice when a reader has only the frames.",
+      r2: "A negative upper endpoint returns an EMPTY set and says so, and that is the hardest thing in this function to leave alone. When the localization noise is larger than the motion, the noise-corrected interval can lie entirely below zero; the function then returns interval null with empty true, keeps the negative point estimate, and flags lowerClipped where only the lower end went under. Measured on a run with a noise variance a thousand times the spread: an estimate of minus 2.14 times 10^-12, twenty pairs, nineteen degrees of freedom, and no interval. The comment says why it must not be retried or made positive: an empty set is a MISS, and a coverage study that quietly discards its misses reports a coverage it has not got. Two further distinctions live in the same record. Coverage is exact when the noise variance is declared exactly and CONSERVATIVE when it is estimated from stationary clicks, because the error rate is then split between two bands; and the procedure refuses outright rather than approximating if a caller says the spacing is not equal or the errors are not independent.",
+    },
+    liveTerms: ["observationInterval", "exposureTime", "diffusionCoefficient"],
+    identifierBindings: [
+      bind("disjointPairsKnownNoiseInterval", "dt", "observationInterval"),
+      bind("disjointPairsKnownNoiseInterval", "exposure", "exposureTime"),
+      bind("disjointPairsKnownNoiseInterval", "estimate", "diffusionCoefficient"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-08",
+    kernel: tsRef("src/physics/reference/inference/observation.ts", "stationaryClickNoiseEstimate"),
+    words: {
+      r0: "The localization error measured from something that is not moving: click the same fixed feature a few times and see how much the clicks scatter.",
+      r1: "It takes at least five clicks per coordinate on a stationary feature and returns the variance of their scatter, with the degrees of freedom that variance carries. That number is then the noise the pair interval subtracts, so the laboratory never has to assume a localization error: a reader supplies one by doing the same thing an experimenter would.",
+      r2: "It does not implement a variance at all. It calls the displacement estimator, the same one bm-07 uses, with an interval of exactly 0.5, and takes its unbiased diffusivity as the answer. That is not a fudge, it is the reason 0.5 is there: the estimator divides the sum of squares by two times the interval, so an interval of a half makes that factor one and the returned diffusivity IS the unbiased mean square per degree of freedom. One estimator, two meanings, and no second copy of the same arithmetic to drift out of step with the first. The consequence a reader should know is that the drift-centered estimator is the one used, so a slowly wandering stage is removed from the clicks along with the mean, and five clicks give four degrees of freedom per coordinate rather than five.",
+    },
+    liveTerms: [],
+    identifierBindings: [],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "bm-08",
+    kernel: tsRef("src/physics/reference/inference/observation.ts", "bartlettBandsMA1"),
+    words: {
+      r0: "How much the two measured moments would scatter by themselves, if the model were exactly right.",
+      r1: "Bartlett's asymptotic formulas for a moving-average process of order one, which is what camera increments are: correlated with their immediate neighbours and with nothing further away. Given the variance and the neighbour covariance and the number of increments, it returns the standard deviation each of those two moments would show across repeated runs.",
+      r2: "The docblock's own capital letters are the point: these are sampling bands for the MOMENTS, and NOT confidence intervals for the diffusivity. The distinction matters because the diffusivity is a combination of both moments, so its uncertainty is not either of these and is not their sum; a reader who took the variance band as an error bar on D would be quoting a number about the wrong quantity. The admissibility check is the other half. A covariance larger in size than half the variance cannot come from a moving-average process of order one at all, so the function refuses rather than returning a band for a model the data has already contradicted, and the refusal is an input refusal rather than a numerical one.",
+    },
+    liveTerms: [],
+    identifierBindings: [],
+    independentReferences: [],
+  },
 ];
 
 export const SLICE_REGISTERED_SCENARIOS: Readonly<Record<string, readonly string[]>> = {
