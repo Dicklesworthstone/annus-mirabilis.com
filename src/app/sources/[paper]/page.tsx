@@ -167,6 +167,139 @@ export default async function ReceiptPage({ params }: { params: Promise<{ paper:
   );
 }
 
+const DATE_LABELS: Readonly<Record<string, string>> = {
+  "date-line": "Dated at the end of the paper",
+  received: "Received by the journal",
+  submitted: "Submitted",
+  "issue-publication": "Issue published",
+  "later-edition": "Later edition",
+};
+
+/** A rights status as a reader-facing phrase. The receipt's own token is shown beside it, because
+ *  the token is what the record says and a paraphrase alone would not be checkable. */
+const RIGHTS_WORDS: Readonly<Record<string, string>> = {
+  "scan-open-terms": "the scanning institution states open terms",
+  "public-domain-text": "public domain",
+  "in-copyright-witness-only": "in copyright, consulted as a witness and never reproduced",
+};
+
+function rightsWords(status: string): string {
+  return RIGHTS_WORDS[status] ?? status;
+}
+
+/** One receipt's bibliographic identity and the scan that stands behind it. */
+function ReceiptRecord({
+  fm,
+  ids,
+  heading: Heading,
+}: {
+  fm: ReceiptFrontMatter;
+  ids: string;
+  heading: "h2" | "h3";
+}) {
+  const j = fm.paper.journal;
+  const scan = fm.scan;
+  return (
+    <>
+      <section className="reading page-flush sources-section" aria-labelledby={`${ids}record`}>
+        <Heading id={`${ids}record`}>Where this sits in the record</Heading>
+        <p>
+          {fm.paper.authorLine}, <i lang="de">{fm.paper.titleGerman}</i>. {j.name}, series{" "}
+          {j.series}, volume {j.volume} (whole series {j.wholeSeriesVolume}), issue {j.issue}, pages{" "}
+          {j.pages.first} to {j.pages.last}. The issue number is taken from {j.issueSource}.
+        </p>
+        <dl className="receipt-dates">
+          {fm.paper.dates.map((d) => (
+            <div key={d.type}>
+              <dt>{DATE_LABELS[d.type] ?? d.type}</dt>
+              <dd>
+                {d.text ?? d.iso}
+                {d.precision === "day" ? "" : ` (${d.precision} precision)`}. Taken from {d.source}
+                {d.confirmedFromScan ? ", confirmed against the scan" : ""}.
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <section className="reading page-flush sources-section" aria-labelledby={`${ids}scan`}>
+        <Heading id={`${ids}scan`}>The scan this edition serves</Heading>
+        <p>
+          Scanned by {scan.institution} and acquired on {formatDay(scan.acquisitionDate)}. Its
+          rights status is recorded as <code>{scan.rightsStatus}</code>,{" "}
+          {rightsWords(scan.rightsStatus)}, which is the reason it is served here rather than linked
+          to.{" "}
+          {scan.termsStatementUrls.length > 0 ? (
+            <>
+              The terms are stated at{" "}
+              {scan.termsStatementUrls.map((url, i) => (
+                <span key={url}>
+                  {i > 0 ? ", " : ""}
+                  <a href={url}>{new URL(url).hostname}</a>
+                </span>
+              ))}
+              .
+            </>
+          ) : (
+            "The receipt records no terms statement URL."
+          )}
+        </p>
+        <p>
+          The file is {scan.pageCount} {scan.pageCount === 1 ? "page" : "pages"} of{" "}
+          <code>{scan.mimeType}</code>. Its SHA-256 is{" "}
+          <code className="receipt-digest">{scan.sha256}</code>, and that is the digest of the file
+          this site serves, not of a copy of it elsewhere. A scan whose digest differs is a
+          different scan, whatever it is called.
+        </p>
+      </section>
+    </>
+  );
+}
+
+/** What the receipt records as not done. */
+function ReceiptLimits({
+  fm,
+  ids,
+  heading: Heading,
+}: {
+  fm: ReceiptFrontMatter;
+  ids: string;
+  heading: "h2" | "h3";
+}) {
+  const t = fm.transcription;
+  const editors = t.editors ?? [];
+  const watching = fm.watchList ?? [];
+  const pending = fm.pending ?? [];
+  return (
+    <section className="reading page-flush sources-section" aria-labelledby={`${ids}limits`}>
+      <Heading id={`${ids}limits`}>What has not been established</Heading>
+      <p>
+        The German ledger for this scan is recorded as <code>{t.ledgerStatus}</code>, and{" "}
+        {editors.length === 0
+          ? "no editor is named against it"
+          : `${editors.length === 1 ? "one editor is" : `${editors.length} editors are`} named against it`}
+        .{" "}
+        {t.ledgerSha256
+          ? ""
+          : "The receipt records no digest for the ledger file, so there is nothing here to check a ledger against. "}
+        No person has reviewed the transcription. A ledger produced by machine and corrected by hand
+        is a draft, and it stays a draft until a qualified reader checks it against the plates; the
+        role that would do that is recorded as open in the project&rsquo;s owners file.
+      </p>
+      <p>
+        {watching.length > 0
+          ? `${watching.length} ${watching.length === 1 ? "reading is" : "readings are"} on the watch list for this scan, which is where a reading that looked wrong is kept until somebody settles it. `
+          : ""}
+        {pending.length > 0
+          ? `${pending.length} ${pending.length === 1 ? "section of the receipt is" : "sections of the receipt are"} marked pending. `
+          : ""}
+        Everything above is what the receipt records. It is a record of what was done, and it is not
+        a claim that the result is correct.
+      </p>
+    </section>
+  );
+}
+
 /** One receipt's pages, witnesses and state, under headings of the given rank. */
 function ReceiptSections({
   fm,
@@ -182,6 +315,8 @@ function ReceiptSections({
   const errorPages = [...new Set(errors.map((e) => e.locator.printedPage))].sort((a, b) => a - b);
   return (
     <>
+      <ReceiptRecord fm={fm} ids={ids} heading={Heading} />
+
       <section className="reading page-flush sources-section" aria-labelledby={`${ids}pages`}>
         <Heading id={`${ids}pages`}>Pages</Heading>
         <table className="receipt-pages">
@@ -219,7 +354,9 @@ function ReceiptSections({
               {w.identity.endsWith(".") ? " " : ". "}
               {w.availability === "available"
                 ? `Consulted on ${formatDay(w.checkedAt)}.`
-                : `Not found when looked for on ${formatDay(w.checkedAt)}.`}
+                : `Not found when looked for on ${formatDay(w.checkedAt)}.`}{" "}
+              Rights: <code>{w.rightsStatus}</code>, {rightsWords(w.rightsStatus)}.
+              {w.notes ? ` ${w.notes}` : ""}
             </li>
           ))}
         </ul>
@@ -240,6 +377,8 @@ function ReceiptSections({
           ) : null}
         </p>
       </section>
+
+      <ReceiptLimits fm={fm} ids={ids} heading={Heading} />
     </>
   );
 }

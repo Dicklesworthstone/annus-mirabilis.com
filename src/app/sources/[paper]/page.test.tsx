@@ -101,3 +101,107 @@ describe("/sources/[paper]/", () => {
     }
   });
 });
+
+/** Markup with its HTML entities resolved, so a value holding & or an apostrophe is comparable. */
+function decoded(html: string): string {
+  return html
+    .replace(/&amp;/g, "&")
+    .replace(/&#x27;|&rsquo;|&#39;/g, "’")
+    .replace(/&quot;/g, '"')
+    .replace(/&middot;/g, "·")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
+describe("/sources/[paper]/ surfaces the receipt rather than a fraction of it", () => {
+  test("every figure on a receipt's part of the page is that receipt's own", async () => {
+    // The staleness guard, and the reason it is written this way: a digest typed into a page is
+    // worse than no digest, because a reader cannot tell a stale one from a current one. Each value
+    // is read from the receipt here and asserted to appear in the markup that receipt produced, so
+    // a page that stopped reading the record would go red rather than quietly drift.
+    expect(receipts.length).toBeGreaterThanOrEqual(5);
+    for (const fm of receipts) {
+      // Compared against DECODED text: React escapes & to &amp;, and an institution named
+      // "Bell & Howell" would otherwise read as absent from a page that shows it plainly.
+      const part = decoded(await receiptPart(fm));
+      const where = `${fm.slug}`;
+      // The scan that is served, by its digest in full.
+      expect(part, `${where}: the scan digest is absent`).toContain(fm.scan.sha256);
+      expect(part, `${where}: the scanning institution is absent`).toContain(fm.scan.institution);
+      expect(part, `${where}: the scan rights status is absent`).toContain(fm.scan.rightsStatus);
+      // Where it sits in the record.
+      expect(part, `${where}: the journal volume is absent`).toContain(
+        String(fm.paper.journal.volume),
+      );
+      expect(part, `${where}: the whole-series volume is absent`).toContain(
+        String(fm.paper.journal.wholeSeriesVolume),
+      );
+      expect(part, `${where}: the first page is absent`).toContain(
+        String(fm.paper.journal.pages.first),
+      );
+      // Every date the receipt records, by type.
+      for (const d of fm.paper.dates)
+        expect(part, `${where}: the ${d.type} date is absent`).toContain(d.text ?? d.iso);
+      // Every witness's rights status, which the page omitted entirely before.
+      for (const w of fm.witnesses ?? [])
+        expect(part, `${where}: witness ${w.identity} carries no rights status`).toContain(
+          w.rightsStatus,
+        );
+    }
+  });
+
+  test("a witness consulted but never reproduced is marked as such, and there is at least one", async () => {
+    // Not a hypothetical category: every receipt carries witnesses of both kinds, and the
+    // in-copyright ones are the more interesting fact because they explain what is NOT reproduced.
+    const inCopyright = receipts.flatMap((fm) =>
+      (fm.witnesses ?? []).filter((w) => w.rightsStatus === "in-copyright-witness-only"),
+    );
+    expect(inCopyright.length).toBeGreaterThan(0);
+    for (const fm of receipts) {
+      if (!(fm.witnesses ?? []).some((w) => w.rightsStatus === "in-copyright-witness-only"))
+        continue;
+      const part = decoded(await receiptPart(fm));
+      expect(part).toContain("in-copyright-witness-only");
+      expect(part).toContain("consulted as a witness and never reproduced");
+    }
+  });
+
+  test("each receipt says what has NOT been established, beside what has", async () => {
+    // The clause /accessibility/ now carries, and it applies harder here: a page that lists a
+    // digest and omits that nobody has reviewed the transcription tells a reader the verifiable
+    // half. Measured across the receipts: every ledger is in-progress or not-started, none records
+    // a ledger digest, and none names an editor.
+    for (const fm of receipts) {
+      const part = decoded(await receiptPart(fm));
+      const where = `${fm.slug}`;
+      expect(part, `${where}: no limits section`).toContain("What has not been established");
+      expect(part, `${where}: the ledger status is not stated`).toContain(
+        fm.transcription.ledgerStatus,
+      );
+      expect(part, `${where}: the review gap is not stated`).toContain(
+        "No person has reviewed the transcription",
+      );
+      expect(part, `${where}: the record is presented as a result`).toContain(
+        "it is not a claim that the result is correct",
+      );
+      if ((fm.transcription.editors ?? []).length === 0)
+        expect(part, `${where}: an unnamed editor is not said to be unnamed`).toContain(
+          "no editor is named against it",
+        );
+    }
+  });
+
+  test("the pages read without JavaScript, and print", async () => {
+    for (const slug of generateStaticParams().map((p) => p.paper)) {
+      const html = await render(slug);
+      expect(html).not.toContain("use client");
+      // Substance, in the unit this page was measured in: before this change the thinnest was 1,799
+      // visible characters and the index that led to it was 19,914.
+      const text = html
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      expect(text.length, `${slug} is thin`).toBeGreaterThan(4000);
+    }
+  });
+});
