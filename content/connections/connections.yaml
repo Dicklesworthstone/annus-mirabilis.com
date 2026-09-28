@@ -21,6 +21,24 @@ connections:
       from: { paper: special-relativity, result: sr-light-complex-energy }
       to: { paper: mass-energy, result: me-light-energy-transformation }
       text: "The mass-energy paper of September 1905 starts from this transformation, citing § 8 of this paper."
+  # The second thing the September paper says it takes from the June one, and a different thing
+  # from the result above: not a derived formula but the ground it stands on. Its footnote s0-fn1
+  # is "A. Einstein, Ann. d. Phys. 17. p. 891. 1905.", and s0-p2 says what it takes from there:
+  # "Ich legte dort die Maxwell-Hertzschen Gleichungen für den leeren Raum nebst dem Maxwellschen
+  # Ausdruck für die elektromagnetische Energie des Raumes zugrunde und außerdem das Prinzip:",
+  # with s0-p3 then stating the relativity principle in full. The use is s0-p7 sentence 3, the
+  # sentence me-two-balances is anchored to: "Für diesen Vorgang muß das Energieprinzip gelten
+  # und zwar (nach dem Prinzip der Relativität) in bezug auf beide Koordinatensysteme."
+  # The paper makes this connection itself. Nothing here is a claim about what led to what.
+  - id: relativity-premises
+    kind: borrows
+    label: "Takes a premise"
+    what: "The September paper stands on the June paper's premises: the Maxwell-Hertz equations and the relativity principle."
+    papers: [special-relativity, mass-energy]
+    uses:
+      from: { paper: special-relativity, result: sr-two-postulates }
+      to: { paper: mass-energy, result: me-two-balances }
+      text: "The mass-energy paper of September 1905 opens by saying it laid these foundations down in this paper, and applies the energy principle in both systems by the relativity principle."
   - id: molecular-number
     kind: same-number
     label: "Separate routes to one number"
