@@ -291,8 +291,55 @@ describe("Kernel bindings refusal sites (bindings.ts) (am-muyh)", () => {
 });
 
 describe("Kernel check refusal sites (check.ts) (am-muyh)", () => {
-  // Site 10 (line 103)
-  test("site (check.ts:107) kernel-export-missing: reports kernel-export-missing when extraction fails on missing module/export, accepts valid kernel", () => {
+  // Site (line 93), added with the refusal itself (am-1nnj).
+  test("site (check.ts:93) instrument-declares-no-arguments: reports an instrument that declares kernelFunctions but no argumentIds, and stays silent when it declares some", () => {
+    const kernelFunctions = [
+      {
+        displayRole: "reference-implementation",
+        language: "ts",
+        module: "src/physics/reference/diffusion/distributions.ts",
+        exportName: "stokesEinsteinD",
+      },
+    ];
+    // REFUSE: kernels declared, argumentIds absent. Before am-1nnj this instrument silently
+    // inherited every equation quantity in the corpus as its live terms instead.
+    const refused: any[] = [];
+    runKernelIdentifierCheck(
+      {
+        records: new Map([["no-args", { id: "no-args", owner: { kernelFunctions } }]]),
+        report: (issue: any) => refused.push(issue),
+      } as any,
+      process.cwd(),
+    );
+    assert.ok(
+      refused.some((r) => r.rule === "instrument-declares-no-arguments"),
+      'expected report with rule "instrument-declares-no-arguments"',
+    );
+
+    // ACCEPT: the same instrument declaring an argument reports nothing of this rule. Without this
+    // half the rule could fire on every instrument and still pass the line above.
+    const accepted: any[] = [];
+    runKernelIdentifierCheck(
+      {
+        records: new Map([
+          [
+            "has-args",
+            { id: "has-args", argumentIds: ["arg-bm-diffusivity"], owner: { kernelFunctions } },
+          ],
+        ]),
+        report: (issue: any) => accepted.push(issue),
+      } as any,
+      process.cwd(),
+    );
+    assert.equal(
+      accepted.filter((r) => r.rule === "instrument-declares-no-arguments").length,
+      0,
+      "an instrument that declares argumentIds must not be reported as declaring none",
+    );
+  });
+
+  // Site 10 (line 132)
+  test("site (check.ts:132) kernel-export-missing: reports kernel-export-missing when extraction fails on missing module/export, accepts valid kernel", () => {
     const reportedBad: any[] = [];
     const contextBad = {
       records: new Map([
