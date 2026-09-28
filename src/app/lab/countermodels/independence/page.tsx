@@ -38,9 +38,22 @@ export default function IndependencePage() {
       </header>
       <IndependenceWorkbench example={createOccupancyState()} />
       <section className="lab-readings" aria-label="The comparison in words">
-        <p data-detail="0">{withScripts(INDEPENDENCE_CAPTION.r0)}</p>
-        <p data-detail="1">{withScripts(INDEPENDENCE_CAPTION.r1)}</p>
+        <p data-detail="0">
+          <noscript>
+            <b className="reading-label">In one breath</b>
+          </noscript>
+          {withScripts(INDEPENDENCE_CAPTION.r0)}
+        </p>
+        <p data-detail="1">
+          <noscript>
+            <b className="reading-label">Full explanation</b>
+          </noscript>
+          {withScripts(INDEPENDENCE_CAPTION.r1)}
+        </p>
         <p data-detail="2" hidden>
+          <noscript>
+            <b className="reading-label">Every step</b>
+          </noscript>
           {withScripts(INDEPENDENCE_CAPTION.r2)}
         </p>
         <LabMargin>{withScripts(INDEPENDENCE_CAPTION.r3)}</LabMargin>

@@ -63,14 +63,8 @@ export const NOSCRIPT_READINGS_CSS = [
   ':is(.laboratory,.laboratory-shell,.lab-readings)>p[data-detail="0"],',
   ':is(.laboratory,.laboratory-shell,.lab-readings)>p[data-detail="2"]',
   "{display:block!important}",
-  '[data-reading="0"]::before,',
-  ':is(.laboratory,.laboratory-shell,.lab-readings)>p[data-detail="0"]::before,',
-  ':is(.laboratory,.laboratory-shell,.lab-readings)>p[data-detail="2"]::before',
-  "{display:block;font-family:var(--font-sans);font-size:var(--type-small);",
-  "letter-spacing:0.04em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:0.2rem}",
-  '[data-reading="0"]::before,',
-  ':is(.laboratory,.laboratory-shell,.lab-readings)>p[data-detail="0"]::before',
-  '{content:"In one breath"}',
-  ':is(.laboratory,.laboratory-shell,.lab-readings)>p[data-detail="2"]::before',
-  '{content:"Every step"}',
+  // The label itself is REAL TEXT in a <noscript>, rendered by the paper faces and by every
+  // laboratory caption, and styled by .reading-label in globals.css rather than here: an element
+  // that exists only when scripting is off needs no rule that exists only when scripting is off,
+  // and a class declared in a stylesheet is one the declared-class ratchet can see (am-b7jy).
 ].join("");

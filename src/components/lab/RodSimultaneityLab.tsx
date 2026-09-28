@@ -651,12 +651,21 @@ export function RodSimultaneityLab({
       {/* The four readings follow the reader's detail setting, as on every other laboratory: direct
           children of the lab root, which labShell.css's detail rules select. */}
       <p className="sr03-context" data-detail="0">
+        <noscript>
+          <b className="reading-label">In one breath</b>
+        </noscript>
         {withScripts(SR03_CAPTION.r0)}
       </p>
       <p className="sr03-context" data-detail="1">
+        <noscript>
+          <b className="reading-label">Full explanation</b>
+        </noscript>
         {withScripts(SR03_CAPTION.r1)}
       </p>
       <p className="sr03-context" data-detail="2" hidden>
+        <noscript>
+          <b className="reading-label">Every step</b>
+        </noscript>
         {withScripts(SR03_CAPTION.r2)}
       </p>
       <LabMargin>{withScripts(SR03_CAPTION.r3)}</LabMargin>

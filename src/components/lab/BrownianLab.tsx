@@ -505,9 +505,22 @@ export function BrownianLab({
           children of the lab root, which labShell.css's detail rules select. */}
       {readings && (
         <>
-          <p data-detail="0">{withScripts(BM06_CAPTION.r0)}</p>
-          <p data-detail="1">{withScripts(BM06_CAPTION.r1)}</p>
+          <p data-detail="0">
+            <noscript>
+              <b className="reading-label">In one breath</b>
+            </noscript>
+            {withScripts(BM06_CAPTION.r0)}
+          </p>
+          <p data-detail="1">
+            <noscript>
+              <b className="reading-label">Full explanation</b>
+            </noscript>
+            {withScripts(BM06_CAPTION.r1)}
+          </p>
           <p data-detail="2" hidden>
+            <noscript>
+              <b className="reading-label">Every step</b>
+            </noscript>
             {withScripts(BM06_CAPTION.r2)}
           </p>
           <LabMargin>{withScripts(BM06_CAPTION.r3)}</LabMargin>

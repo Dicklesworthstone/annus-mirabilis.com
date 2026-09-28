@@ -225,17 +225,26 @@ describe("a reading only a script can reveal is also revealed with no script", (
     expect(unreachable).toEqual([]);
   });
 
-  test("a revealed reading is named, so three in sequence do not read as repetition", () => {
-    const named = ruleSelectors(NOSCRIPT_READINGS_CSS).filter(({ body }) =>
+  test("a revealed reading is named in real text, not in generated content", async () => {
+    // THIS TEST ASSERTED THE OPPOSITE UNTIL 2026-09-28, and it was wrong in the way am-b7jy's own
+    // criterion names: it checked that the injected stylesheet carried `content:` rules naming the
+    // readings. Generated content is not text a screen reader can be relied on to read, cannot be
+    // selected, and is not translated, and a reader with scripts off is exactly who this serves.
+    // So the labels are <noscript><b class="reading-label"> in the markup now, and this asserts
+    // the rendered words, with the old mechanism as an explicit negative.
+    const html = await exportMarkup(await PaperPage({ paperId: "mass-energy" } as never));
+    const labels = [...html.matchAll(/<b class="reading-label">([^<]+)<\/b>/g)].map((m) => m[1]);
+    expect(labels.length).toBeGreaterThan(4);
+    expect(new Set(labels)).toEqual(new Set(["In one breath", "Full explanation"]));
+    // Each one sits inside a <noscript>, so a reader WITH script is not shown a second name for a
+    // reading the Detail control already names.
+    const outside = html.replace(/<noscript>[\s\S]*?<\/noscript>/g, "");
+    expect(outside).not.toContain("reading-label");
+    // The negative: no rule in the injected stylesheet names a reading through generated content.
+    const generated = ruleSelectors(NOSCRIPT_READINGS_CSS).filter(({ body }) =>
       /content\s*:/.test(body),
     );
-    // Parsed as rules with a `content` declaration, not searched for as a substring.
-    expect(named.length).toBeGreaterThan(0);
-    for (const level of ["0", "2"])
-      expect(
-        named.some(({ selector }) => selector.includes(`"${level}"`)),
-        `no no-script rule names the reading at detail ${level}`,
-      ).toBe(true);
+    expect(generated.map(({ selector }) => selector)).toEqual([]);
   });
 
   test("the paper faces really do render a hidden R0, so the rule above has work to do", async () => {

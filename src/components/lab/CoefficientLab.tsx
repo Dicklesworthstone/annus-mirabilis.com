@@ -552,9 +552,22 @@ export function CoefficientLab({
       <LabTapeLink link={withPredictions(tapeLink, gate)} />
       {/* The caption's readings follow the instrument (dispatch 263). Above the predict gate they
           pushed the instrument more than 1000px down at 1440; every sentence is still here. */}
-      <p data-detail="0">{withScripts(ME02_CAPTION.r0)}</p>
-      <p data-detail="1">{withScripts(ME02_CAPTION.r1)}</p>
+      <p data-detail="0">
+        <noscript>
+          <b className="reading-label">In one breath</b>
+        </noscript>
+        {withScripts(ME02_CAPTION.r0)}
+      </p>
+      <p data-detail="1">
+        <noscript>
+          <b className="reading-label">Full explanation</b>
+        </noscript>
+        {withScripts(ME02_CAPTION.r1)}
+      </p>
       <p data-detail="2" hidden>
+        <noscript>
+          <b className="reading-label">Every step</b>
+        </noscript>
         {withScripts(ME02_CAPTION.r2)}
       </p>
       <LabMargin>{withScripts(ME02_CAPTION.r3)}</LabMargin>

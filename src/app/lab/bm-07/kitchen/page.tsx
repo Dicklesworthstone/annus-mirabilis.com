@@ -25,9 +25,22 @@ export default function KitchenObservationPage() {
       </header>
       <KitchenComparison practice={practice} />
       <section className="lab-readings" aria-label="The analysis in words">
-        <p data-detail="0">{withScripts(KITCHEN_CAPTION.r0)}</p>
-        <p data-detail="1">{withScripts(KITCHEN_CAPTION.r1)}</p>
+        <p data-detail="0">
+          <noscript>
+            <b className="reading-label">In one breath</b>
+          </noscript>
+          {withScripts(KITCHEN_CAPTION.r0)}
+        </p>
+        <p data-detail="1">
+          <noscript>
+            <b className="reading-label">Full explanation</b>
+          </noscript>
+          {withScripts(KITCHEN_CAPTION.r1)}
+        </p>
         <p data-detail="2" hidden>
+          <noscript>
+            <b className="reading-label">Every step</b>
+          </noscript>
           {withScripts(KITCHEN_CAPTION.r2)}
         </p>
         <LabMargin>{withScripts(KITCHEN_CAPTION.r3)}</LabMargin>

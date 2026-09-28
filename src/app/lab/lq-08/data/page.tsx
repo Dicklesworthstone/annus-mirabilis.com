@@ -39,9 +39,22 @@ export default function PhotoelectricDataPage() {
       </header>
       <PhotoelectricDataWorkbench reference={reference} example={initial} />
       <section className="lab-readings" aria-label="The fit in words">
-        <p data-detail="0">{withScripts(PHOTOELECTRIC_DATA_CAPTION.r0)}</p>
-        <p data-detail="1">{withScripts(PHOTOELECTRIC_DATA_CAPTION.r1)}</p>
+        <p data-detail="0">
+          <noscript>
+            <b className="reading-label">In one breath</b>
+          </noscript>
+          {withScripts(PHOTOELECTRIC_DATA_CAPTION.r0)}
+        </p>
+        <p data-detail="1">
+          <noscript>
+            <b className="reading-label">Full explanation</b>
+          </noscript>
+          {withScripts(PHOTOELECTRIC_DATA_CAPTION.r1)}
+        </p>
         <p data-detail="2" hidden>
+          <noscript>
+            <b className="reading-label">Every step</b>
+          </noscript>
           {withScripts(PHOTOELECTRIC_DATA_CAPTION.r2)}
         </p>
         <LabMargin>{withScripts(PHOTOELECTRIC_DATA_CAPTION.r3)}</LabMargin>

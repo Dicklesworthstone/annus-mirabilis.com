@@ -1890,3 +1890,25 @@ select {
 .editorial-additions {
   margin: 1.5rem 0;
 }
+
+/* ---------------------------------------------------------------------------
+   WHICH READING IS THIS (am-b7jy)
+
+   Without JavaScript the Detail axis cannot switch, so every authored reading
+   shows at once and a reader meets two or three passages in a row about the
+   same paragraph. Each carries its name in a <noscript>: real text a screen
+   reader reads and a browser translates, which CSS generated content is not,
+   and which is the whole point when the population served is a reader with
+   scripts off. The element does not exist at all when scripting is on, so this
+   rule costs a JavaScript reader nothing. The words are the Detail control's.
+   --------------------------------------------------------------------------- */
+.reading-label {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-family: var(--font-sans);
+  font-size: var(--type-small);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}

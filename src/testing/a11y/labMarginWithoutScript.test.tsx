@@ -73,6 +73,37 @@ describe("a laboratory's historian's margin", () => {
     expect(old).toEqual([]);
   });
 
+  test("each of a laboratory's readings says which reading it is, in real text", async () => {
+    // Without script all three readings of the Detail axis show at once (fd4ddf81's rules), so a
+    // reader meets three passages in a row about the same instrument. The name is <noscript> text
+    // rather than CSS generated content, which is am-b7jy's criterion and the reason this asserts
+    // the markup rather than a stylesheet.
+    const routes = pages(`${APP}lab/`, "lab/").sort();
+    const problems: string[] = [];
+    let labelled = 0;
+    for (const rel of routes) {
+      const mod = await import(`${APP}${rel}page.tsx`);
+      const out = mod.default({ params: Promise.resolve({}), searchParams: Promise.resolve({}) });
+      const html = await exportMarkup(out instanceof Promise ? await out : out);
+      const { document } = new Window();
+      document.body.innerHTML = html;
+      for (const reading of document.querySelectorAll("p[data-detail]")) {
+        const level = reading.getAttribute("data-detail") ?? "";
+        const label = reading.querySelector("noscript .reading-label");
+        if (!label) {
+          problems.push(`${rel}: the reading at detail ${level} has no name`);
+          continue;
+        }
+        if ((label.textContent ?? "").trim().length < 6)
+          problems.push(`${rel}: the name at detail ${level} is empty`);
+        labelled += 1;
+      }
+    }
+    console.log(`[lab readings] ${labelled} named readings across ${routes.length} lab pages`);
+    expect(problems).toEqual([]);
+    expect(labelled).toBeGreaterThan(60);
+  });
+
   test("every margin a laboratory renders is a closed disclosure with real text", async () => {
     const routes = pages(`${APP}lab/`, "lab/").sort();
     expect(routes.length).toBeGreaterThan(30);

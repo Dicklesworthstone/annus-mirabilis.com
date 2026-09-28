@@ -537,9 +537,22 @@ export function ConfigurationLab({
           notation & counterexample):", and nested one level deeper the rules could not reach them. */}
       {readings && (
         <>
-          <p data-detail="0">{withScripts(BM03_CAPTION.r0)}</p>
-          <p data-detail="1">{withScripts(BM03_CAPTION.r1)}</p>
+          <p data-detail="0">
+            <noscript>
+              <b className="reading-label">In one breath</b>
+            </noscript>
+            {withScripts(BM03_CAPTION.r0)}
+          </p>
+          <p data-detail="1">
+            <noscript>
+              <b className="reading-label">Full explanation</b>
+            </noscript>
+            {withScripts(BM03_CAPTION.r1)}
+          </p>
           <p data-detail="2" hidden>
+            <noscript>
+              <b className="reading-label">Every step</b>
+            </noscript>
             {withScripts(BM03_CAPTION.r2)}
           </p>
           <LabMargin>{withScripts(BM03_CAPTION.r3)}</LabMargin>

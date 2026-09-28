@@ -406,9 +406,22 @@ export function MovingMirrorLab({
         </div>
       </div>
       {/* The caption follows the instrument it describes; above it, it came between a phone's heading and the result. */}
-      <p data-detail="0">{withScripts(SR11_CAPTION.r0)}</p>
-      <p data-detail="1">{withScripts(SR11_CAPTION.r1)}</p>
+      <p data-detail="0">
+        <noscript>
+          <b className="reading-label">In one breath</b>
+        </noscript>
+        {withScripts(SR11_CAPTION.r0)}
+      </p>
+      <p data-detail="1">
+        <noscript>
+          <b className="reading-label">Full explanation</b>
+        </noscript>
+        {withScripts(SR11_CAPTION.r1)}
+      </p>
       <p data-detail="2" hidden>
+        <noscript>
+          <b className="reading-label">Every step</b>
+        </noscript>
         {withScripts(SR11_CAPTION.r2)}
       </p>
       <LabMargin>{withScripts(SR11_CAPTION.r3)}</LabMargin>

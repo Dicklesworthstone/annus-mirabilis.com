@@ -363,6 +363,17 @@ export async function PaperReader({
                           className="reading-version"
                           key={reading}
                         >
+                          {/* REAL TEXT, NOT CSS GENERATED CONTENT (am-b7jy). Without script
+                              both readings show at once, and the reader needs to know which is
+                              which; the acceptance criterion is that the words are text a screen
+                              reader reads and a browser translates, not ::before content. Inside
+                              <noscript>, so a reader with script sees nothing and the Detail
+                              control keeps saying it instead. The words are the control's own. */}
+                          <noscript>
+                            <b className="reading-label">
+                              {reading === "overview" ? "In one breath" : "Full explanation"}
+                            </b>
+                          </noscript>
                           <ReadingBlocks
                             blocks={a.readings[reading]}
                             foundations={foundations}
