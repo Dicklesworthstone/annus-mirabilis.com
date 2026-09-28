@@ -23,7 +23,13 @@ import {
   sitemapRoutes,
   sweepAnchors,
 } from "./anchorTargets.ts";
-import { type Fetched, type Fetcher, fragmentAnchorsResolve } from "./candidate-checks.ts";
+import {
+  assertUniqueCheckNames,
+  CandidateCheckRegistrationError,
+  type Fetched,
+  type Fetcher,
+  fragmentAnchorsResolve,
+} from "./candidate-checks.ts";
 
 /** A site in a map: path -> HTML. Anything absent is a 404, as a server would answer. */
 function siteFetcher(pages: Record<string, string>): Fetcher {
@@ -134,5 +140,31 @@ describe("the sweep and the candidate check", () => {
     expect(sitemapRoutes(sitemapOf(["/a/", "/b/"]))).toEqual(["/a/", "/b/"]);
     expect(sitemapRoutes("<urlset><loc>/relative/</loc></urlset>")).toEqual(["/relative/"]);
     expect(sitemapRoutes("<urlset></urlset>")).toEqual([]);
+  });
+});
+
+describe("registering a candidate check", () => {
+  const result = (name: string) => ({ name, status: "passed" as const, detail: "" });
+
+  test("a duplicate id is refused by a typed code, not a bare Error", () => {
+    // The refusal this guard exists for, driven rather than left to a mistake. 24d51b7a threw a
+    // bare Error here, which refused a deploy at the fast-gate ratchets because the file carries no
+    // refusal baseline; a candidate check that refuses a promotion has to say which check failed.
+    let thrown: unknown;
+    try {
+      assertUniqueCheckNames([result("a"), result("b"), result("a")]);
+    } catch (error) {
+      thrown = error;
+    }
+    expect(thrown).toBeInstanceOf(CandidateCheckRegistrationError);
+    expect((thrown as CandidateCheckRegistrationError).code).toBe("duplicate-candidate-check-id");
+    // The reader-facing words name the offending id, so a log says what to fix.
+    expect((thrown as Error).message).toContain("a");
+    expect((thrown as Error).message).toContain("Every check registers one name");
+  });
+
+  test("distinct ids are accepted, so the guard is not simply always throwing", () => {
+    expect(() => assertUniqueCheckNames([result("a"), result("b")])).not.toThrow();
+    expect(() => assertUniqueCheckNames([])).not.toThrow();
   });
 });

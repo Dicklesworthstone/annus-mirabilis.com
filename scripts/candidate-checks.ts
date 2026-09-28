@@ -232,6 +232,30 @@ function notRun(name: string, why: string): CandidateCheckResult {
   return { name, status: "not-available", detail: why };
 }
 
+/**
+ * A REFUSAL FROM THIS FILE SAYS WHICH ONE IT IS (am-rel-candidate-checks-kc7y, dispatch 387).
+ *
+ * The duplicate-id guard below threw a bare `Error`. That refused a deploy at the fast-gate
+ * ratchets for a second reason than the one it was written for: `scripts/candidate-checks.ts` has
+ * no refusal baseline, and the ratchet's own words are that "a file absent from the baseline was
+ * never measured, and reporting it as an increase from zero invents a measurement nobody took".
+ * So the bare throw was undeclared debt rather than a regression.
+ *
+ * It is paid rather than recorded, because the argument for paying it is the check's own purpose: a
+ * candidate check that refuses a promotion should say WHICH check failed and why, and a bare Error
+ * carries no code for a log, a scanner or a release manifest to name. `scripts/e2e-edition-pipeline.ts`
+ * records the same lesson about EmptyCorpusError, which "threw with no arguments at all before, so
+ * nothing naming the refusal reached a reader or the scanner".
+ */
+export class CandidateCheckRegistrationError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.name = "CandidateCheckRegistrationError";
+    this.code = code;
+  }
+}
+
 export type CandidateCheckOptions = Readonly<{
   fetcher: Fetcher;
   staticDir: string;
@@ -315,14 +339,28 @@ export async function runCandidateChecksAgainst(
   // summarizeCandidateChecks would print the name twice while allCandidateChecksPassed silently
   // judged both. A duplicate is a programming error in this file, so it throws rather than
   // returning a result nobody would read.
+  assertUniqueCheckNames(results);
+  return results;
+}
+
+/**
+ * The registration interface's own criterion: it "accepts checks from other beads and rejects a
+ * duplicate id". Nothing enforced it until now. Two checks sharing a name would both appear,
+ * `summarizeCandidateChecks` would print the name twice, and `allCandidateChecksPassed` would judge
+ * both without anyone being able to tell which verdict belonged to which check.
+ *
+ * Exported so the refusal is reachable by a test rather than only by a mistake: a guard that can
+ * only be exercised by breaking the catalogue is a guard nobody ever sees work.
+ */
+export function assertUniqueCheckNames(results: readonly CandidateCheckResult[]): void {
   const seen = new Set<string>();
   const duplicates = results.map((r) => r.name).filter((n) => (seen.has(n) ? true : !seen.add(n)));
   if (duplicates.length > 0) {
-    throw new Error(
+    throw new CandidateCheckRegistrationError(
+      "duplicate-candidate-check-id",
       `Duplicate candidate check id(s): ${[...new Set(duplicates)].sort().join(", ")}. Every check registers one name.`,
     );
   }
-  return results;
 }
 
 /**
