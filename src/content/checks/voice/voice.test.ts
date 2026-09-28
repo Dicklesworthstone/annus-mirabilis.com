@@ -408,6 +408,9 @@ describe("overclaim", () => {
     // The negation exemption is scoped to one sentence: a denial in the previous
     // sentence does not license a verdict in this one.
     "It was not obvious at the time. Perrin proved it in 1909",
+    // The boundary of the sich-bewähren exemption below: "proved it" is two letters from
+    // "proved itself" and is still a verdict on the world.
+    "the 1909 count proved it",
   ];
   for (const text of failing) {
     it(`"${text}" fails in prose`, () => {
@@ -425,6 +428,11 @@ describe("overclaim", () => {
     "This relation is assumed, not proved by conservation.",
     "Treat localized energy transfer as an additional hypothesis, not as something proved by drawing separate dots.",
     "The equality was never proved for the general case",
+    // "has proved itself" is the site's translation of Einstein's "hat sich ... bewährt": the wave
+    // theory HAS PERFORMED WELL, not that anything was established (am-9755, matchers.ts
+    // isPerformedWell). It took verify-content red on misc-lq-not-a-wave, whose whole subject is
+    // that the paper keeps the wave theory.
+    "The undulatory theory of light has proved itself excellently in the representation of purely optical phenomena",
   ];
   for (const text of passing) {
     it(`"${text}" passes`, () => {

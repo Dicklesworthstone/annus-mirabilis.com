@@ -558,6 +558,28 @@ function isDirectlyNegated(text: string, matchIndex: number): boolean {
   return !/[.;:!?]/.test(between);
 }
 
+/**
+ * Whether this "proved" is *sich bewähren* rather than a verdict (am-9755).
+ *
+ * "has proved itself excellently" is the site's own translation of Einstein's "hat sich ...
+ * vortrefflich bewährt" in the light paper's second sentence: it says the wave theory HAS
+ * PERFORMED WELL, not that anything was established as true. The gloss unit for s0-p2-s1 records
+ * exactly that reading ("sich bewähren, in the perfect: 'has proved itself'"), and the phrase
+ * recurs wherever that sentence is quoted, which today is four content files.
+ *
+ * The overclaim rule read it as a verdict and took verify-content red on misc-lq-not-a-wave's r0
+ * and r1, whose whole subject is that the paper KEEPS the wave theory. Rewriting Einstein's
+ * sentence to quiet a linter is the damage `isDirectlyNegated` was written to avoid, so this is
+ * the same correction for the same phrase: an idiom the rule cannot mean.
+ *
+ * Narrow on purpose. Only the word immediately after the match, so "proved itself" steps back and
+ * "proved it" does not, and a following sentence cannot reach across a full stop.
+ */
+function isPerformedWell(text: string, matchIndex: number, matchedText: string): boolean {
+  const after = text.slice(matchIndex + matchedText.length, matchIndex + matchedText.length + 12);
+  return /^\s+itself\b/i.test(after);
+}
+
 export function matchOverclaim(
   text: string,
   rule: OverclaimRule,
@@ -580,6 +602,7 @@ export function matchOverclaim(
         const window = text.slice(windowStart, windowEnd).toLowerCase();
         if (rule.provedAllowlistNearWords.some((w) => window.includes(w.toLowerCase()))) continue;
         if (isDirectlyNegated(text, m.index)) continue;
+        if (isPerformedWell(text, m.index, m.matchedText)) continue;
       }
       findings.push(
         finding(

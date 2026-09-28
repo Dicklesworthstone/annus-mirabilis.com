@@ -22,6 +22,25 @@ import { loadVoiceOverrides, type VoiceOverrideEntry } from "./overrides.ts";
 
 export const VOICE_LINT_CHECK_ID = "editorial.voice";
 
+/**
+ * FIELDS WHOSE TEXT THE SITE QUOTES RATHER THAN ASSERTS (am-9755).
+ *
+ * A misconception record's `temptingClaims` holds the claim the record exists to refute:
+ * "Einstein's paper proved that molecules exist." The overclaim rule read it as the site making
+ * that claim and took verify-content red on misc-bm-proves-molecules, and every record written in
+ * future would meet the same wall, because naming the tempting overclaim plainly is what the field
+ * is FOR. Blunting it to satisfy a linter would damage the record.
+ *
+ * So these are scanned as a quotation. That is not a blanket exemption: it hands them to the same
+ * `quotationExempt` switch every rule already declares for itself, so overclaim steps back while
+ * any rule that does not exempt quotations still binds. A mocking tempting claim is still a
+ * finding, which matters, because AGENTS.md's rule is that nobody is mocked.
+ *
+ * This is the same correction `isDirectlyNegated` made for the same rule and the same phrase
+ * (matchers.ts): the rule was reading the site's own careful distinction as the error it guards.
+ */
+export const QUOTED_FIELDS = new Set(["temptingClaims"]);
+
 export const EXCLUDED_FIELDS = new Set([
   "id",
   "kind",
@@ -202,7 +221,15 @@ function scanRecordText(
       }
 
       const fieldPath = basePath ? `${basePath}.${key}` : key;
-      scanRecordText(recordId, recordKind, val, fieldPath, context, overrides, currentSource);
+      scanRecordText(
+        recordId,
+        recordKind,
+        val,
+        fieldPath,
+        context,
+        overrides,
+        QUOTED_FIELDS.has(key) ? { ...currentSource, layer: "quotation" } : currentSource,
+      );
     }
   }
 }
