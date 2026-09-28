@@ -14,6 +14,15 @@
  *   - it reads the paper's two CHOICES as results: the synchronization stipulation and the
  *     definition of force behind the electron's masses.
  *
+ * WHERE THE PHYSICS WENT. The two assertions that call a reference evaluator directly, SR-03's length
+ * refusal and SR-08's field invariant, are in `src/testing/capstoneRelativity.presets.test.ts`, because
+ * `src/testing/noPhysicsInComponents.test.ts` forbids importing `src/physics/reference/**` from any
+ * watched module, and `isWatchedPath` counts both every `.tsx` AND everything under `src/app/`, so
+ * neither this file nor a plain `.ts` beside it may do it. They were here first, they turned that
+ * boundary red and refused a deployment candidate, and moving them out of `src/app/` was the repair
+ * rather than exempting this file. Everything that reads the record, the render, or a scenario golden
+ * through the registry is still here.
+ *
  * WHY THIS FILE IS NOT AT THE PATH THE BEAD NAMES. The bead's test plan names
  * `content/arguments/capstones/specialRelativity.test.ts`. Measured today: `bun run test` is
  * `bun test --isolate --timeout 60000 src scripts`, tsconfig includes only `src/**` and `scripts/**`,
@@ -33,8 +42,6 @@ import {
   consistentOrderCount,
   dependencyFeedback,
 } from "../../../discovery/shared/dependencyFeedback.ts";
-import { measureRodLength } from "../../../physics/reference/events.ts";
-import { fieldInvariants } from "../../../physics/reference/fields.ts";
 import { DEFAULT_FACE, FACE_REGISTRY } from "../../../reader/faces/registry.ts";
 import { tapePath } from "../../../reader/sitePaths.ts";
 import { loadScenarioFile } from "../../../testing/scenario-registry/load.ts";
@@ -398,34 +405,11 @@ describe("the special-relativity capstone page", () => {
     expect(dx.reference).toBe(12.5);
     const contracted = owned("kinematics-boost-0.6c", "contractedLengthLs");
     expect(contracted.reference).toBe(8);
-
-    // The refusal itself, from the owner that issues it. The pair simultaneous in the stationary
-    // system is not simultaneous in the moving one, so its separation is not a length.
-    const refused = measureRodLength(
-      { t: 0, x: 0, y: 0, z: 0 },
-      { t: dt.actual, x: dx.actual, y: 0, z: 0 },
-      "k",
-      "K",
-      0.6,
-      10,
-      1,
-    );
-    expect(refused.status).toBe("not-applicable");
-    expect(refused.condition).toBe("non-simultaneous-endpoints");
-    expect(refused.measuredLength).toBeUndefined();
-    // Positive control: a pair simultaneous in the measuring frame IS a length, and it is the
-    // contracted one. Without this the refusal above could come from a broken call.
-    const credited = measureRodLength(
-      { t: 0, x: 0, y: 0, z: 0 },
-      { t: 0, x: contracted.actual, y: 0, z: 0 },
-      "k",
-      "K",
-      0.6,
-      10,
-      1,
-    );
-    expect(credited.status).toBe("value");
-    expect(withinTolerance(credited.measuredLength ?? 0, 8, { absolute: 1e-12 }).ok).toBe(true);
+    // THE REFUSAL ITSELF IS ASSERTED IN src/testing/capstoneRelativity.presets.test.ts, not here,
+    // because it needs `measureRodLength` from physics/reference and nothing under `src/app/` may
+    // import that (src/testing/noPhysicsInComponents.test.ts). Five assertions live there: the
+    // not-applicable status, the non-simultaneous-endpoints condition, the absent length, and the
+    // positive control's two, where a frame-simultaneous pair IS credited at the contracted value.
   });
 
   test("SR-08 grows the electric component and makes a magnetic one appear", () => {
@@ -434,20 +418,11 @@ describe("the special-relativity capstone page", () => {
     const bz = owned("fields-sr08-frame-change", "BprimeZ");
     expect(bz.reference).toBeLessThan(0);
     expect(withinTolerance(bz.actual, -2.50173072552e-9, { relative: 1e-6 }).ok).toBe(true);
-
-    // The invariant the bead names is an output of the fields owner rather than of any scenario
-    // file, so it is computed here in both frames from the same evaluator.
-    const rest = fieldInvariants({ x: 0, y: 1, z: 0 }, { x: 0, y: 0, z: 0 });
-    const moving = fieldInvariants({ x: 0, y: ey.actual, z: 0 }, { x: 0, y: 0, z: bz.actual });
-    expect(withinTolerance(rest.e2MinusC2B2, 1, { absolute: 1e-12 }).ok).toBe(true);
-    expect(withinTolerance(moving.e2MinusC2B2, 1, { absolute: 1e-12 }).ok).toBe(true);
-    // Positive control: the combination is not trivially one for any pair of fields, so the two
-    // agreements above are the invariance rather than a constant the function returns.
-    expect(
-      withinTolerance(fieldInvariants({ x: 0, y: 2, z: 0 }, { x: 0, y: 0, z: 0 }).e2MinusC2B2, 1, {
-        absolute: 1e-12,
-      }).ok,
-    ).toBe(false);
+    // THE INVARIANT IS ASSERTED IN src/testing/capstoneRelativity.presets.test.ts, for the same
+    // reason: it needs `fieldInvariants` from physics/reference, and it is an output of no scenario,
+    // so it cannot be had from a golden here. Three assertions live there: the combination equal to
+    // one in the rest system and in the moving system, and a negative control where a different
+    // field pair does not give one.
   });
 
   test("SR-13 moves the transverse coefficient with the convention and leaves the prediction alone", () => {
