@@ -46,6 +46,22 @@ describe("loading a paper's margin records", () => {
     throw new Error(`${name}: loaded without a refusal`);
   };
 
+  // A comparison's rows point outwards (am-me-margin-entries-kfg5). Both halves the loader can
+  // resolve are driven here; the half it cannot, a bare model identity with no registry to check it
+  // against, is named in the loader's own comment rather than asserted over.
+  test("refuses a comparison row citing a record this paper does not have", () => {
+    const e = refusal("comparison-source-note-missing");
+    expect(e.code).toBe("margin-comparison-source-note-missing");
+    expect(e.message).toContain("row-one");
+    expect(e.message).toContain("note-that-does-not-exist");
+  });
+
+  test("refuses a comparison row whose mode address names an unregistered instrument", () => {
+    const e = refusal("comparison-instrument-unregistered");
+    expect(e.code).toBe("margin-comparison-instrument-unregistered");
+    expect(e.message).toContain("me-99:box-1906");
+  });
+
   test("refuses a file that is not JSON: margin-record-not-json", () => {
     const e = refusal("yaml-file");
     expect(e.code).toBe("margin-record-not-json");

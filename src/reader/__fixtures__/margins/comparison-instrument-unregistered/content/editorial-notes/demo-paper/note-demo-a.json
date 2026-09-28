@@ -1,0 +1,56 @@
+{
+  "id": "note-demo-a",
+  "kind": "historian-margin",
+  "author": {
+    "id": "agent:fixture",
+    "kind": "model",
+    "modelId": "fixture-model"
+  },
+  "claim": "The paper writes \\(L/V^2\\), not the familiar form.",
+  "sourceSupport": [
+    {
+      "citationId": "cit-demo",
+      "locator": "p. 641",
+      "role": "primary"
+    }
+  ],
+  "affectedIds": [
+    "s0-p4"
+  ],
+  "reviewState": "draft",
+  "comparison": {
+    "questions": [
+      {
+        "id": "importedResult",
+        "label": "What result is imported"
+      },
+      {
+        "id": "classOfSystems",
+        "label": "Which class of systems",
+        "scopeCritical": true
+      }
+    ],
+    "arguments": [
+      {
+        "id": "row-one",
+        "label": "The first argument",
+        "sourceNoteId": "note-demo-a",
+        "instrumentRef": "me-99:box-1906",
+        "cells": {
+          "importedResult": "One imported result.",
+          "classOfSystems": "One class of systems."
+        }
+      },
+      {
+        "id": "row-two",
+        "label": "The second argument",
+        "sourceNoteId": "note-demo-a",
+        "instrumentRef": "me-01",
+        "cells": {
+          "importedResult": "Another imported result.",
+          "classOfSystems": "Another class of systems."
+        }
+      }
+    ]
+  }
+}

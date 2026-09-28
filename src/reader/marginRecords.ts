@@ -106,19 +106,46 @@ export function loadPaperMargins(paper: string, root: string = process.cwd()): P
     citations.set(id, { id, title: record.title, locator: record.locator, url: record.url });
   };
 
-  const notes = jsonRecords(join(root, "content", "editorial-notes", paper)).map(
-    ({ path, value }) => {
-      const record = validateEditorialNote(value, path);
-      checkInlineMath(record.claim, path);
-      if (record.sourceSupport.length === 0)
+  const noteFiles = jsonRecords(join(root, "content", "editorial-notes", paper));
+  const notes = noteFiles.map(({ path, value }) => {
+    const record = validateEditorialNote(value, path);
+    checkInlineMath(record.claim, path);
+    if (record.sourceSupport.length === 0)
+      throw new MarginRecordError("margin-note-uncited", `${path}: a margin note cites no source.`);
+    for (const source of record.sourceSupport) cite(source.citationId, path);
+    return record;
+  });
+
+  /**
+   * A comparison's rows point outwards, and a row pointing at nothing is a table cell a reader
+   * cannot follow (am-me-margin-entries-kfg5). Two of the three references are resolved here.
+   *
+   * WHICH HALF THIS ANSWERS. `sourceNoteId` is resolved against the notes of this paper, and an
+   * instrument reference carrying a mode address has its instrument resolved against the registry.
+   * What is NOT resolved is a bare reference that names a MODEL IDENTITY rather than an instrument,
+   * such as `four-momentum-modern` declared in src/experiments/me03/definition.ts: this repository
+   * has no registry of model identities to check one against, so a typo in that position would pass
+   * here. Building that registry is not this loader's work; until it exists, the gap is named rather
+   * than papered over, and the instrument and mode halves are checked.
+   */
+  const noteIds = new Set(notes.map((note) => note.id));
+  for (const note of notes) {
+    if (!note.comparison) continue;
+    const where = join(root, "content", "editorial-notes", paper, `${note.id}.json`);
+    for (const row of note.comparison.arguments) {
+      if (!noteIds.has(row.sourceNoteId))
         throw new MarginRecordError(
-          "margin-note-uncited",
-          `${path}: a margin note cites no source.`,
+          "margin-comparison-source-note-missing",
+          `${where}: comparison row "${row.id}" cites "${row.sourceNoteId}", which is not a margin record of this paper.`,
         );
-      for (const source of record.sourceSupport) cite(source.citationId, path);
-      return record;
-    },
-  );
+      const [instrument, mode] = row.instrumentRef.split(":");
+      if (mode !== undefined && !registered.has(instrument ?? ""))
+        throw new MarginRecordError(
+          "margin-comparison-instrument-unregistered",
+          `${where}: comparison row "${row.id}" names the mode address "${row.instrumentRef}", whose instrument "${instrument}" is not registered.`,
+        );
+    }
+  }
 
   const byId = <T extends { id: string }>(a: T, b: T) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
   return {
