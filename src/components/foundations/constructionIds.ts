@@ -54,6 +54,7 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "flux-continuity",
   "diffusion-equation",
   "random-walks",
+  "gaussian-distributions",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];

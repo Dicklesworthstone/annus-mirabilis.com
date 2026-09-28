@@ -1,6 +1,7 @@
 "use client";
 
 import { BalancedAccount } from "./BalancedAccount.tsx";
+import { BellAndItsWidths } from "./BellAndItsWidths.tsx";
 import { BoostTable } from "./BoostTable.tsx";
 import { ConfigurationCounter } from "./ConfigurationCounter.tsx";
 import { CountingThePlaces } from "./CountingThePlaces.tsx";
@@ -147,5 +148,7 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
       return <PeakAndDip headingLevel={headingLevel} />;
     case "random-walks":
       return <StepsAndSpread headingLevel={headingLevel} />;
+    case "gaussian-distributions":
+      return <BellAndItsWidths headingLevel={headingLevel} />;
   }
 }

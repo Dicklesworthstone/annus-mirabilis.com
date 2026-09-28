@@ -12,6 +12,8 @@
  * reader is invited to check by counting: four jars, a steady walk, two rows of dots.
  */
 
+import { erf } from "../physics/reference/special/erf.ts";
+
 /** Marbles in the four jars of foundation:bridge-sum-average, before they are poured together. */
 export const JARS = [3, 1, 1, 3] as const;
 
@@ -203,3 +205,21 @@ export const typicalDistance = (steps: number): number => STEP_METRES * Math.sqr
 
 /** The step counts the figure marks, chosen so their typical distances are whole metres. */
 export const STEP_MARKS = [1, 4, 9, 16] as const;
+
+// The Gaussian figure of dispatch 420. foundation:gaussian-distributions was 6,747 characters
+// about the shape of a distribution, with five inline svg that are all square-root signs and no
+// picture of the shape.
+
+/** The widths the lesson bands, in root-mean-square widths from the start. */
+export const WIDTH_BANDS = [1, 2, 3] as const;
+
+/**
+ * The chance of ending within k widths of the start, as a percentage. Read from the erf owner
+ * rather than typed: foundSlice.numbers.test.ts already holds the lesson's printed 68, 95 and
+ * 99.7 to this same function, so the figure and that check cannot disagree about what the bands
+ * are worth.
+ */
+export const withinWidths = (k: number): number => 100 * erf(k / Math.SQRT2);
+
+/** The height of the unit-width bell at x widths, with its peak at 1. */
+export const bellHeight = (widths: number): number => Math.exp(-(widths * widths) / 2);

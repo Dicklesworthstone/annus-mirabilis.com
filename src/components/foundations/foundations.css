@@ -980,3 +980,49 @@ article.foundation-page {
   fill-opacity: 0.5;
   stroke: none;
 }
+
+/* The nested bands of the Gaussian figure (BellAndItsWidths, dispatch 420). Three fills of one
+   ink, lightest outermost, so the nesting reads as nesting. None of the meaning rests on telling
+   them apart: each band is bounded by a drawn rule at its own width, the widths are numbered along
+   the axis, and the key under the figure names each band and its percentage in words. */
+.bridge-band-inner {
+  fill: var(--muted);
+  fill-opacity: 0.45;
+  stroke: none;
+}
+
+.bridge-band-middle {
+  fill: var(--muted);
+  fill-opacity: 0.28;
+  stroke: none;
+}
+
+.bridge-band-outer {
+  fill: var(--muted);
+  fill-opacity: 0.14;
+  stroke: none;
+}
+
+.bridge-figure.bell-figure {
+  max-width: 25rem;
+}
+
+.bell-key {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.bell-key li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.6rem;
+  align-items: start;
+}
+
+.bell-swatch {
+  width: 1.75rem;
+  height: 1.125rem;
+}

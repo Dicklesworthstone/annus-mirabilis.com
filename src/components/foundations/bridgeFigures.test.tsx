@@ -32,6 +32,7 @@ const BRIDGE_FIGURES = [
   "flux-continuity",
   "diffusion-equation",
   "random-walks",
+  "gaussian-distributions",
   "bridge-a-graph",
   "bridge-sum-average",
   "bridge-negative-numbers-direction",
@@ -45,24 +46,44 @@ const rendered = BRIDGE_FIGURES.map((id) => ({
 }));
 
 describe("the bridge lessons' figures", () => {
-  test("every one draws something, and every drawing has a name a screen reader can read", () => {
+  test("every one draws something, and every drawing is either named or explicitly hidden", () => {
+    // A figure's svg must carry role="img" and an authored aria-label. A DECORATIVE svg, such as
+    // the colour swatch in a key, must carry neither and must be aria-hidden, or a screen reader
+    // reads the key twice. An earlier version of this test required a name of every svg without
+    // distinguishing the two, and the Gaussian figure's three swatches failed it correctly for the
+    // wrong reason: the rule was right and the population was not. Both halves are now required,
+    // which is stricter than what it replaced rather than looser.
     expect(rendered.length).toBe(BRIDGE_FIGURES.length);
     let drawings = 0;
+    let decorative = 0;
     for (const { id, html } of rendered) {
       const svgs = html.match(/<svg\b[^>]*>/g) ?? [];
       expect(svgs.length, id).toBeGreaterThan(0);
-      drawings += svgs.length;
+      let namedHere = 0;
       for (const svg of svgs) {
+        if (svg.includes('aria-hidden="true"')) {
+          decorative += 1;
+          // A hidden graphic must not also announce itself.
+          expect(svg, `${id}: hidden svg carries a name`).not.toContain("aria-label");
+          expect(svg, `${id}: hidden svg claims a role`).not.toContain('role="img"');
+          continue;
+        }
         expect(svg, id).toContain('role="img"');
         const label = svg.match(/aria-label="([^"]*)"/)?.[1] ?? "";
         // Long enough to describe a picture rather than name it: the shortest here is the jars.
         expect(label.length, `${id}: ${svg}`).toBeGreaterThan(80);
+        namedHere += 1;
+        drawings += 1;
       }
+      // Every lesson keeps at least one named figure, so nothing can go dark behind aria-hidden.
+      expect(namedHere, `${id}: no named figure`).toBeGreaterThan(0);
     }
-    // Twelve drawings across eight lessons: bridge-a-graph draws both of the graphs its prose names,
-    // flux-continuity one panel for each of the two seconds its example counts, and
-    // diffusion-equation one profile carrying both the peak and the dip, then the same dye later.
-    expect(drawings).toBe(12);
+    // Thirteen named drawings across nine lessons; bridge-a-graph draws both of the graphs its
+    // prose names, flux-continuity one panel per second, diffusion-equation the profile and then
+    // the same dye later, and random-walks the four walks and then the square-root growth.
+    expect(drawings).toBe(13);
+    // And the decorative swatches are a real population, so the branch above is not dead code.
+    expect(decorative).toBeGreaterThan(0);
   });
 
   test("every one states its reading in words, under a heading", () => {
