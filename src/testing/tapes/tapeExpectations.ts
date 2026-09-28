@@ -20,12 +20,37 @@
  *      reports why; measured 2026-09-28, ten records carry a placeholder `acceptedCheckpoint.digest`
  *      of the form `host:sha256:<name>` where the schema requires hex. Those expectations are
  *      EXCLUDED with the conversion problem quoted, not passed.
- *   3. A LABEL THAT IS NOT A PRODUCED QUANTITY ID IS UNJUDGED. An expectation is compared only when
- *      its label is the `quantityId` of an output the replayed instrument holds with
- *      `status: "value"`. Matching by value instead would let any output carrying the same number
- *      count as agreement, which for a value like 1.25 is arithmetic coincidence rather than
- *      evidence. An unmatched label is reported WITH the quantity ids the instrument did produce, so
- *      the report says what binding it would take to judge it, and it is never counted as passing.
+ *   3. A LABEL IS MATCHED TO A PRODUCED FIELD BY IDENTITY, NEVER BY RESEMBLANCE, AND OTHERWISE THE
+ *      EXPECTATION IS UNJUDGED. Two identities count, and each is an exact claim the corpus already
+ *      makes rather than a judgement this file forms:
+ *
+ *        a. the label IS the field id of an output the instrument holds with `status: "value"`;
+ *        b. or the label and exactly one such field are declared to hold the SAME CANONICAL
+ *           QUANTITY. A label reaches a canonical quantity through `quantityDisplay`, which is the
+ *           site's one lookup and is deliberately exact: either the label is itself a registered
+ *           quantity id, or the instrument's manifest declares what it holds, through
+ *           `outputs[].quantityId` for a snapshot field or `owner.identifierBindings` for a kernel
+ *           identifier. A field reaches one through the same manifest.
+ *
+ *      Route (b) is why four of `the-two-pulses`' expectations are judged: me-01's manifest declares
+ *      the kernel identifier `pulseSumMoving` (of `evaluatePulseEnergies`) and the output field
+ *      `movingBalanceLight` to hold one and the same canonical quantity, `lightComplexEnergyMoving`,
+ *      the light complex's energy in the MOVING system, and both are true. Nothing here pairs the two
+ *      because their words resemble each other; the manifest says they are one quantity and this reads
+ *      that claim. The snapshot happens to key that output by the canonical id and carries
+ *      `movingBalanceLight` in its `ownerId`, which is why both lookups below are tried.
+ *
+ *      EXACTLY ONE, because two fields may honestly hold one quantity: lq-05 declares both
+ *      `configurationProbability` and `lockedProbability` as the canonical `configurationProbability`,
+ *      and on `the-locked-positions` those two carry different numbers, 0.0009765625 and 0.5. A
+ *      canonical match against either would be a coin toss dressed as a comparison, so an ambiguous
+ *      canonical quantity is reported unjudged with both candidates named.
+ *
+ *      Matching by VALUE is not one of the routes. Any output carrying the same number would count as
+ *      agreement, which for a value like 1.25 is arithmetic coincidence rather than evidence.
+ *
+ *      An unmatched label is reported WITH the field ids the instrument did produce, so the report
+ *      says what binding it would take to judge it, and it is never counted as passing.
  *
  * WHO COMPUTES THE COMPARISON VALUE. The instrument does. The expectation is compared against the
  * `outputs` of the accepted snapshot the instrument's own session reaches after the replay, each of
@@ -57,20 +82,30 @@
  */
 import { withinTolerance } from "../../units/tolerance.ts";
 
-/** One `expectedDisplayValues` entry of a checkpoint. */
+/**
+ * One `expectedDisplayValues` entry of a checkpoint. `canonicalQuantityId` is what the corpus says
+ * this label holds, from the same resolution the reader-facing tape page uses; absent when nothing
+ * declares it, which is the honest state of an authored prose label like "center of mass shift".
+ */
 export type TapeExpectation = Readonly<{
   label: string;
   value: number;
   unit?: string | undefined;
   constantSetId?: string | undefined;
+  canonicalQuantityId?: string | undefined;
 }>;
 
-/** One output of an accepted snapshot. Only `status: "value"` carries a number to compare. */
+/**
+ * One output of an accepted snapshot. Its `quantityId` is the instrument's FIELD id;
+ * `canonicalQuantityId` is the canonical quantity the manifest declares that field to hold. Only
+ * `status: "value"` carries a number to compare.
+ */
 export type ProducedOutput = Readonly<{
   quantityId: string;
   status: string;
   value?: unknown;
   ownerId?: string | undefined;
+  canonicalQuantityId?: string | undefined;
 }>;
 
 export type ExpectationVerdict =
@@ -83,6 +118,9 @@ export type ExpectationVerdict =
       allowed: number;
       /** withinTolerance's own verdict kind: `within`, `outside`, or a refused spec. */
       kindOfComparison: string;
+      /** The produced field the expectation was matched to, and by which identity. */
+      field: string;
+      via: string;
       ownerId: string;
     }>
   | Readonly<{ kind: "unjudged"; reason: string; available: readonly string[] }>;
@@ -131,19 +169,36 @@ export function judgeExpectation(
   expectation: TapeExpectation,
   produced: readonly ProducedOutput[],
 ): ExpectationVerdict {
-  const available = produced
-    .filter((output) => output.status === "value" && typeof output.value === "number")
-    .map((output) => output.quantityId);
-  const match = produced.find(
-    (output) =>
-      output.quantityId === expectation.label &&
-      output.status === "value" &&
-      typeof output.value === "number",
+  const comparable = produced.filter(
+    (output) => output.status === "value" && typeof output.value === "number",
   );
+  const available = comparable.map((output) => output.quantityId);
+  // Route (a): the label is the field id itself.
+  let match = comparable.find((output) => output.quantityId === expectation.label);
+  let via = "the label is the field id";
+  if (!match && expectation.canonicalQuantityId !== undefined) {
+    // Route (b): the corpus declares the label and exactly one produced field to be one quantity.
+    const sameQuantity = comparable.filter(
+      (output) => output.canonicalQuantityId === expectation.canonicalQuantityId,
+    );
+    if (sameQuantity.length > 1)
+      return {
+        kind: "unjudged",
+        reason:
+          `"${expectation.label}" is declared to hold ${expectation.canonicalQuantityId}, and this ` +
+          `instrument produces ${sameQuantity.length} fields declared to hold it ` +
+          `(${sameQuantity.map((o) => o.quantityId).join(", ")}), so the match is ambiguous`,
+        available,
+      };
+    match = sameQuantity[0];
+    via = `both are declared to hold ${expectation.canonicalQuantityId}`;
+  }
   if (!match)
     return {
       kind: "unjudged",
-      reason: `the label "${expectation.label}" is not a quantity this instrument produces with a value`,
+      reason: expectation.canonicalQuantityId
+        ? `"${expectation.label}" is declared to hold ${expectation.canonicalQuantityId}, which no field this instrument produces is declared to hold`
+        : `the label "${expectation.label}" is not a field this instrument produces with a value, and nothing declares which quantity it holds`,
       available,
     };
   const producedValue = match.value as number;
@@ -158,6 +213,8 @@ export function judgeExpectation(
     allowed: verdict.allowed,
     kindOfComparison: verdict.kind,
     ownerId: match.ownerId ?? "(unnamed owner)",
+    field: match.quantityId,
+    via,
   };
 }
 

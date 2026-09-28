@@ -19,17 +19,35 @@
  * correction is written into tapeExpectations.ts beside the rule it produced, because the shape of the
  * error, a plausible finding re-derived from my own instrument, is the thing worth remembering.
  *
- * THE OTHER 24 ARE NOT PASSES. Ten name an instrument with no permalink binding (bm-01, bm-07, bm-08,
+ * FIVE OF THE NINE WERE UNJUDGED UNTIL THE CHECK READ THE CORPUS'S OWN BINDINGS (dispatch 380), and
+ * the four it gained needed no content change at all. me-01's manifest already declares the kernel
+ * identifier `pulseSumMoving` and the output field `movingBalanceLight` as one quantity, the light
+ * complex's energy in the moving system; the check was comparing label strings against snapshot keys
+ * and so could not see a claim the reader-facing tape page has been rendering all along. Route (b) in
+ * tapeExpectations.ts is that claim read, not invented.
+ *
+ * THE OTHER 20 ARE NOT PASSES. Ten name an instrument with no permalink binding (bm-01, bm-07, bm-08,
  * sr-03), four sit on records that cannot convert to a wire tape because their digest is a
- * placeholder, and ten carry a label that is not a quantity id the instrument produces. Each is
- * counted and named, and the last group is reported with the ids the instrument DID produce, which is
- * the list of bindings that would widen this check.
+ * placeholder, and six remain unjudged for two stated reasons:
+ *
+ *   - `pulseEnergyRatio`, three times on the-two-pulses: me-01 declares no such output field, names no
+ *     such kernel identifier, and produces no dimensionless output at all, its three value outputs all
+ *     being in joules. There is no quantity to compare a ratio with, so binding it would need the
+ *     instrument to expose the ratio rather than a label to change.
+ *   - `W`, `W (independent)` and `W (locked)` on lq-05's two tapes: these are authored prose, and
+ *     lq-05's kernel names its probability `value`, which the manifest already declares holds
+ *     `configurationProbability`. Declaring `W` as a kernel identifier would be a false claim about the
+ *     source, and a label carrying a space can never be one. What they would need is a `quantityId` on
+ *     the expectation record itself, which `ExpectedDisplayValue` does not carry and whose validator
+ *     drops unknown keys, so it is a schema change rather than a content edit.
  */
 import { describe, expect, test } from "bun:test";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { resolveQuantityId } from "../../content/quantities/resolveQuantityId.ts";
+import { validateExperiment } from "../../content/schemas/experiment.ts";
 import { strictParse } from "../../content/schemas/strictParse.ts";
-import { loadWireTeachingTapes } from "../../content/teachingTapes.ts";
+import { loadTeachingTapes, loadWireTeachingTapes } from "../../content/teachingTapes.ts";
 import { replayTape } from "../../experiments/permalink/replay.ts";
 import {
   createSessionReplayRunner,
@@ -82,6 +100,51 @@ type Row = Readonly<{
   verdict: ExpectationVerdict | Readonly<{ kind: "excluded"; reason: string }>;
 }>;
 
+/**
+ * What the corpus says each label holds, keyed by tape id, checkpoint action index and label. Read
+ * from `loadTeachingTapes`, which is the projection the reader-facing tape page renders, so this
+ * check and that page agree about a binding by construction rather than by a second lookup here.
+ */
+function declaredLabelQuantities(): Map<string, string> {
+  const out = new Map<string, string>();
+  const { tapes: reading } = loadTeachingTapes(ROOT);
+  for (const tape of reading as unknown as readonly {
+    tapeId: string;
+    steps?: readonly {
+      actionIndex: number;
+      expected?: readonly { label: string; quantity?: { quantityId: string } }[];
+    }[];
+  }[])
+    for (const step of tape.steps ?? [])
+      for (const expected of step.expected ?? [])
+        if (expected.quantity?.quantityId)
+          out.set(
+            `${tape.tapeId}|${step.actionIndex}|${expected.label}`,
+            expected.quantity.quantityId,
+          );
+  return out;
+}
+
+/**
+ * What each instrument's manifest declares its output FIELDS to hold, keyed by experiment id and
+ * field id. The same `outputs[].quantityId` the page's own resolution uses.
+ */
+function declaredFieldQuantities(experimentId: string): Map<string, string> {
+  const out = new Map<string, string>();
+  const file = resolve(ROOT, "content/experiments", `${experimentId}.yaml`);
+  if (!existsSync(file)) return out;
+  const manifest = validateExperiment(
+    strictParse(readFileSync(file, "utf8"), "yaml"),
+  ) as unknown as {
+    outputs?: readonly { id?: string; quantityId?: string }[];
+  };
+  for (const output of manifest.outputs ?? [])
+    if (output.id && output.quantityId) out.set(output.id, output.quantityId);
+  return out;
+}
+
+const labelQuantities = declaredLabelQuantities();
+const fieldQuantities = new Map<string, Map<string, string>>();
 const bindings = await bindingsByExperiment();
 const { tapes, problems } = loadWireTeachingTapes(ROOT);
 const resolver = createTeachingTapeResolver(tapes);
@@ -171,14 +234,39 @@ for (const file of readdirSync(TAPE_DIR)
       checkpoint,
       index,
     );
-    for (const expectation of expectations)
+    if (!fieldQuantities.has(record.experimentId))
+      fieldQuantities.set(record.experimentId, declaredFieldQuantities(record.experimentId));
+    const fields = fieldQuantities.get(record.experimentId) ?? new Map<string, string>();
+    // WHAT A PRODUCED FIELD'S KEY IS depends on the laboratory, which is why both exact lookups are
+    // tried and neither is a guess. me-01's snapshot keys its outputs by the CANONICAL quantity
+    // (`lightComplexEnergyMoving`, with the manifest's field id `movingBalanceLight` in its ownerId),
+    // while lq-05's keys them by the manifest FIELD id (`deltaSOverKb`, whose declared quantity is
+    // `entropy`). So a key resolves through the manifest's outputs first, and otherwise stands for
+    // itself only when the canonical registry knows it. A key neither knows carries no canonical
+    // quantity and can only be matched by route (a).
+    const annotated = outputs.map((output) => {
+      const declaredForField = fields.get(output.quantityId);
+      const canonical =
+        declaredForField ??
+        (resolveQuantityId(output.quantityId).ok ? output.quantityId : undefined);
+      return { ...output, ...(canonical === undefined ? {} : { canonicalQuantityId: canonical }) };
+    });
+    for (const expectation of expectations) {
+      const declared = labelQuantities.get(
+        `${record.tapeId}|${checkpoint.actionIndex}|${expectation.label}`,
+      );
+      const withDeclaration: TapeExpectation = {
+        ...expectation,
+        ...(declared === undefined ? {} : { canonicalQuantityId: declared }),
+      };
       rows.push({
         ...common,
-        expectation,
+        expectation: withDeclaration,
         verdict: problem
           ? { kind: "excluded", reason: problem }
-          : judgeExpectation(expectation, outputs),
+          : judgeExpectation(withDeclaration, annotated),
       });
+    }
   }
 }
 
@@ -192,12 +280,13 @@ const tally = {
 };
 
 /**
- * Judged when this check was written, measured by its own first run: 29 expectations, 14 excluded by
- * rule, 5 judged, 10 unjudged. A floor, not an allowlist: binding a label to a produced quantity id,
- * giving an instrument a permalink binding, or replacing a placeholder digest raises it, and a
- * regression that stops judging one of the five takes the count below it and names the tape.
+ * Judged when this check last grew, measured by its own run: 29 expectations, 14 excluded by rule,
+ * 9 judged, 6 unjudged. It stood at 5 until the check read the corpus's declared bindings
+ * (dispatch 380). A floor, not an allowlist: exposing a missing output, giving an instrument a
+ * permalink binding, or replacing a placeholder digest raises it, and a regression that stops judging
+ * one of the nine takes the count below it and names the tape.
  */
-const JUDGED_FLOOR = 5;
+const JUDGED_FLOOR = 9;
 
 describe("teaching tapes' recorded expectations against their instruments (am-2rl9)", () => {
   test("the counts are reported with their denominator, and the population is not empty", () => {
@@ -205,9 +294,9 @@ describe("teaching tapes' recorded expectations against their instruments (am-2r
       const where = `${row.tapeId} cp${row.checkpointIndex} "${row.expectation.label}"`;
       if (row.verdict.kind === "judged")
         console.log(
-          `[tape expectations] judged   ${where}: recorded ${row.expectation.value}, ` +
-            `${row.verdict.ownerId} produced ${row.verdict.produced}, within ${row.verdict.allowed} ` +
-            `(${row.verdict.agrees ? "agrees" : "DISAGREES"})`,
+          `[tape expectations] judged   ${where} -> ${row.verdict.field} (${row.verdict.via}): ` +
+            `recorded ${row.expectation.value}, ${row.verdict.ownerId} produced ${row.verdict.produced}, ` +
+            `within ${row.verdict.allowed} (${row.verdict.agrees ? "agrees" : "DISAGREES"})`,
         );
       else if (row.verdict.kind === "unjudged")
         console.log(
@@ -304,6 +393,72 @@ describe("teaching tapes' recorded expectations against their instruments (am-2r
     expect(
       judgeExpectation({ label: "someQuantityTheInstrumentHas", value: 1.25 }, produced).kind,
     ).toBe("judged");
+  });
+
+  test("a declared canonical quantity binds one field, and refuses two", () => {
+    // ROUTE (b), the one this unit added, with both of its outcomes. Neither is reachable from the
+    // corpus today in its refusing form, so it is exercised here rather than left as a branch nobody
+    // has seen work: lq-05 does declare two fields with one canonical quantity, but no label of its
+    // tapes resolves to that quantity, so the ambiguity guard would otherwise never run.
+    const declared: TapeExpectation = {
+      label: "pulseSumMoving",
+      value: 1.25,
+      canonicalQuantityId: "lightComplexEnergyMoving",
+    };
+    const oneField: ProducedOutput[] = [
+      {
+        quantityId: "lightComplexEnergyMoving",
+        status: "value",
+        value: 1.25,
+        canonicalQuantityId: "lightComplexEnergyMoving",
+        ownerId: "massEnergy.movingBalanceLight",
+      },
+      {
+        quantityId: "emittedEnergyRestFrame",
+        status: "value",
+        value: 1,
+        canonicalQuantityId: "emittedEnergyRestFrame",
+      },
+    ];
+    const judged = judgeExpectation(declared, oneField);
+    expect(judged).toMatchObject({
+      kind: "judged",
+      agrees: true,
+      field: "lightComplexEnergyMoving",
+    });
+    if (judged.kind === "judged")
+      expect(judged.via).toBe("both are declared to hold lightComplexEnergyMoving");
+
+    // Two fields declared to hold the same quantity, carrying DIFFERENT numbers, which is lq-05's
+    // real shape: configurationProbability and lockedProbability both declare
+    // `configurationProbability`, and on the-locked-positions they are 0.0009765625 and 0.5. A
+    // canonical match against either would be a coin toss, so it is unjudged and names both.
+    const twoFields: ProducedOutput[] = [
+      {
+        quantityId: "configurationProbability",
+        status: "value",
+        value: 0.0009765625,
+        canonicalQuantityId: "configurationProbability",
+      },
+      {
+        quantityId: "lockedProbability",
+        status: "value",
+        value: 0.5,
+        canonicalQuantityId: "configurationProbability",
+      },
+    ];
+    const ambiguous = judgeExpectation(
+      { label: "W (locked)", value: 0.5, canonicalQuantityId: "configurationProbability" },
+      twoFields,
+    );
+    expect(ambiguous.kind).toBe("unjudged");
+    if (ambiguous.kind !== "unjudged") throw new Error("unreachable");
+    expect(ambiguous.reason).toContain("ambiguous");
+    expect(ambiguous.reason).toContain("configurationProbability");
+    expect(ambiguous.reason).toContain("lockedProbability");
+    // And it is refused even though one of the two carries exactly the recorded number: agreement of
+    // a value is not identity of a quantity, which is the whole reason this route is by declaration.
+    expect(twoFields.some((f) => f.value === 0.5)).toBe(true);
   });
 
   test("the tolerance is the recorded value's own precision, and zero is handled separately", () => {
