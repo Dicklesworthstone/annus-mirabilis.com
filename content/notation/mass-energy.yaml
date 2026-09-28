@@ -223,7 +223,7 @@ entries:
       firstUseBySection:
         - sectionId: me-s0
           anchor: me-s0-p5
-    notes: "Propagation angle in cited §8 transformation formula. Scoped strictly to citation anchor me-s0-p1. Distinct from emission angle in me-s0-p2..p6."
+    notes: "Propagation angle in the §8 transformation formula the paper cites. Scoped strictly to that citation, in paragraph 1, and distinct from the emission angle φ of paragraphs 2 to 6."
     sources:
       facsimilePage: 639
       anchor: me-s0-p5
