@@ -268,6 +268,24 @@ parameters:
       kind: linear
     role: independent
     commandClass: presentation-change
+  - id: customMass
+    label: "Custom particle mass"
+    accessibleName: "Rest mass of the custom particle"
+    accessibleDescription: "Rest mass of the custom particle, in kilograms, used when the particle choice is custom."
+    quantityId: particleVelocity
+    displayUnit: "kg"
+    modelDomain:
+      min: 0
+      minInclusive: false
+      reason: "The equation of motion divides by the rest mass, so a custom particle has a positive one; at zero it has no equation of motion in this model."
+    visualRange:
+      min: 1.0e-31
+      max: 1.0e-26
+    default: 9.1093837139e-31
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
 outputs:
   - id: longitudinalMass
     quantityId: longitudinalMass

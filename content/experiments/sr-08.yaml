@@ -48,6 +48,146 @@ parameters:
       kind: linear
     role: independent
     commandClass: setup-change
+  - id: electricFieldX
+    label: "Electric field Ex"
+    accessibleName: "Electric field component Ex in the stationary frame K"
+    accessibleDescription: "Electric field along x in the stationary frame K, in volts per metre."
+    quantityId: electricFieldStationary
+    displayUnit: "V/m"
+    modelDomain:
+      min: -1.0e8
+      max: 1.0e8
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite laboratory electric fields."
+    visualRange:
+      min: -1.0e8
+      max: 1.0e8
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: electricFieldY
+    label: "Electric field Ey"
+    accessibleName: "Electric field component Ey in the stationary frame K"
+    accessibleDescription: "Electric field along y in the stationary frame K, in volts per metre."
+    quantityId: electricFieldStationary
+    displayUnit: "V/m"
+    modelDomain:
+      min: -1.0e8
+      max: 1.0e8
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite laboratory electric fields."
+    visualRange:
+      min: -1.0e8
+      max: 1.0e8
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: electricFieldZ
+    label: "Electric field Ez"
+    accessibleName: "Electric field component Ez in the stationary frame K"
+    accessibleDescription: "Electric field along z in the stationary frame K, in volts per metre."
+    quantityId: electricFieldStationary
+    displayUnit: "V/m"
+    modelDomain:
+      min: -1.0e8
+      max: 1.0e8
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite laboratory electric fields."
+    visualRange:
+      min: -1.0e8
+      max: 1.0e8
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: magneticFieldX
+    label: "Magnetic field Bx"
+    accessibleName: "Magnetic field component Bx in the stationary frame K"
+    accessibleDescription: "Magnetic field along x in the stationary frame K, in tesla."
+    quantityId: magneticFieldStationary
+    displayUnit: "T"
+    modelDomain:
+      min: -10.0
+      max: 10.0
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite laboratory magnetic fields."
+    visualRange:
+      min: -10.0
+      max: 10.0
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: magneticFieldY
+    label: "Magnetic field By"
+    accessibleName: "Magnetic field component By in the stationary frame K"
+    accessibleDescription: "Magnetic field along y in the stationary frame K, in tesla."
+    quantityId: magneticFieldStationary
+    displayUnit: "T"
+    modelDomain:
+      min: -10.0
+      max: 10.0
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite laboratory magnetic fields."
+    visualRange:
+      min: -10.0
+      max: 10.0
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: magneticFieldZ
+    label: "Magnetic field Bz"
+    accessibleName: "Magnetic field component Bz in the stationary frame K"
+    accessibleDescription: "Magnetic field along z in the stationary frame K, in tesla."
+    quantityId: magneticFieldStationary
+    displayUnit: "T"
+    modelDomain:
+      min: -10.0
+      max: 10.0
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite laboratory magnetic fields."
+    visualRange:
+      min: -10.0
+      max: 10.0
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: detectorSpeed
+    label: "Detector speed"
+    accessibleName: "Speed of the moving detector along the x-axis"
+    accessibleDescription: "Speed of the detector itself, a physical component of the apparatus rather than a change of observer."
+    quantityId: frameSpeed
+    displayUnit: "m/s"
+    modelDomain:
+      min: -284802835.1
+      max: 284802835.1
+      minInclusive: true
+      maxInclusive: true
+      reason: "A detector is a body in the apparatus, not a choice of observer, and no body moves at or beyond the speed of light; the teaching range stays inside 0.95c."
+    visualRange:
+      min: 0
+      max: 284802835.1
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
 outputs:
   - id: electricFieldStationary
     quantityId: electricFieldStationary

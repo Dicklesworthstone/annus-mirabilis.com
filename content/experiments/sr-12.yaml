@@ -68,6 +68,118 @@ parameters:
       kind: linear
     role: independent
     commandClass: setup-change
+  - id: currentDensityY
+    label: "Current density Jy"
+    accessibleName: "Current density component Jy in the stationary frame K"
+    accessibleDescription: "Volumetric current density along y in the stationary frame K, in amperes per square metre."
+    quantityId: currentDensityStationary
+    displayUnit: "A/m^2"
+    modelDomain:
+      min: -1.0e9
+      max: 1.0e9
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite volumetric current density."
+    visualRange:
+      min: -1.0e9
+      max: 1.0e9
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: currentDensityZ
+    label: "Current density Jz"
+    accessibleName: "Current density component Jz in the stationary frame K"
+    accessibleDescription: "Volumetric current density along z in the stationary frame K, in amperes per square metre."
+    quantityId: currentDensityStationary
+    displayUnit: "A/m^2"
+    modelDomain:
+      min: -1.0e9
+      max: 1.0e9
+      minInclusive: true
+      maxInclusive: true
+      reason: "Finite volumetric current density."
+    visualRange:
+      min: -1.0e9
+      max: 1.0e9
+    default: 0
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: sphereRadius
+    label: "Sphere radius"
+    accessibleName: "Radius of the uniformly charged sphere"
+    accessibleDescription: "Radius of the uniformly charged sphere, in metres."
+    quantityId: sphereRadius
+    displayUnit: "m"
+    modelDomain:
+      min: 0
+      minInclusive: false
+      reason: "A sphere is a body of positive radius; at zero there is nothing to carry the charge, and a negative radius is not a sphere."
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: loopLengthX
+    label: "Loop length along x"
+    accessibleName: "Side length of the current loop along x"
+    accessibleDescription: "Side length of the rectangular current loop along x, in metres."
+    quantityId: lengthMeasuredStationary
+    displayUnit: "m"
+    modelDomain:
+      min: 0
+      minInclusive: false
+      reason: "A loop encloses area between two positive side lengths; at zero the loop has no area and carries no magnetic moment."
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: loopLengthY
+    label: "Loop length along y"
+    accessibleName: "Side length of the current loop along y"
+    accessibleDescription: "Side length of the rectangular current loop along y, in metres."
+    quantityId: lengthMeasuredStationary
+    displayUnit: "m"
+    modelDomain:
+      min: 0
+      minInclusive: false
+      reason: "A loop encloses area between two positive side lengths; at zero the loop has no area and carries no magnetic moment."
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 0.5
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: pulseWidth
+    label: "Pulse width"
+    accessibleName: "Spatial width of the field pulse"
+    accessibleDescription: "Width of the travelling field pulse along its direction of motion, in metres."
+    quantityId: lengthMeasuredStationary
+    displayUnit: "m"
+    modelDomain:
+      min: 0
+      minInclusive: false
+      reason: "A pulse occupies a positive width; at zero there is no pulse to transform, and a negative width does not describe one."
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
 outputs:
   - id: chargeDensityStationary
     quantityId: chargeDensityStationary
