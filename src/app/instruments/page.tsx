@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Metadata } from "next";
 import { Fragment } from "react";
+import { parseYaml } from "../../content/provenance/yaml.ts";
 import { loadTeachingTapes, tapesForExperiment } from "../../content/teachingTapes.ts";
 import { CATALOGUE_IDS, CATALOGUE_STATUS, type CatalogueId } from "../../experiments/catalogue.ts";
 import { labName } from "../../reader/actions/labNames.ts";
@@ -12,7 +13,7 @@ import { tapePath } from "../../reader/sitePaths.ts";
 export const metadata: Metadata = {
   title: "Instruments",
   description:
-    "Every instrument in the edition, grouped by the paper whose argument it serves, each named by the question it answers.",
+    "Every instrument in the edition, grouped by the paper whose argument it serves, each with the question its own manifest says it answers.",
 };
 
 /**
@@ -25,9 +26,10 @@ export const metadata: Metadata = {
  * WHY THIS IS NOT THE FLAT CATALOGUE THE DOCTRINE DECLINES. AGENTS.md organises the edition
  * around an argument, and a list of thirty-four siblings in one column is the shape it rejects
  * and the shape that made the old homepage unreadable. Here the grouping IS the argument: an
- * instrument appears under the paper whose claim it interrogates, and each is named by the
- * question it answers rather than by its id. A reader who wants the instruments for one paper
- * sees them together; a reader who wants one instrument reads a sentence, not "sr-09".
+ * instrument appears under the paper whose claim it interrogates, and each carries two lines
+ * rather than its id: the short one it is named by, and the question its own manifest says it
+ * answers. A reader who wants the instruments for one paper sees them together; a reader who
+ * wants one instrument reads a sentence, not "sr-09".
  *
  * THE LIST IS DERIVED, NOT TRANSCRIBED. Ids and readiness come from src/experiments/catalogue.ts
  * and names from labNames.ts, so an instrument added to the catalogue appears here without anyone
@@ -189,6 +191,41 @@ function specimenPicture(id: CatalogueId): string | undefined {
   return existsSync(join(process.cwd(), "public", file)) ? file : undefined;
 }
 
+/**
+ * THE QUESTION EACH INSTRUMENT'S OWN MANIFEST SAYS IT ANSWERS (dispatch 410).
+ *
+ * AGENTS.md's instrument contract opens with "the question it answers", and every one of the 33
+ * manifests declares one: `explanatoryQuestion` is present in 33 of 33 files, and both YAML readers
+ * in this repository agree on all 33. Until now none of them reached this page. What a reader saw
+ * was labNames.ts, which is a short line and often a declarative one ("Where Wien's law holds, and
+ * where it stops."), and for six instruments not even that but a bare topic ("Tracer ensemble",
+ * "Random steps"). So the catalogue showed answers, and sometimes only subjects, where the records
+ * held questions.
+ *
+ * BOTH LINES, BECAUSE THEY DO DIFFERENT WORK, and the lengths decide it. The short line has a
+ * median of 46 characters and a maximum of 79; the manifest questions have a median of 135 and a
+ * maximum of 196. Thirty-three questions as link text would be a page a reader cannot scan for "the
+ * one about clocks", so the short line stays the name and the link, and the question sits under it
+ * as what the instrument commits to answering. The four registered instruments with no manifest
+ * (the three shelf comparisons and light-thread) simply have no second line, the same way a missing
+ * name degrades to an id rather than vanishing.
+ *
+ * Read with the repository's own YAML reader rather than a regex, which is not a preference: a
+ * single-line regex over these files missed sr-13, whose question contains escaped double quotes,
+ * and reported 32 of 33 while looking exactly like a clean result.
+ */
+const QUESTIONS: Readonly<Record<string, string>> = (() => {
+  const found: Record<string, string> = {};
+  for (const id of CATALOGUE_IDS) {
+    const path = join(process.cwd(), "content/experiments", `${id}.yaml`);
+    if (!existsSync(path)) continue;
+    const manifest = parseYaml(readFileSync(path, "utf8")) as Record<string, unknown>;
+    const question = manifest.explanatoryQuestion;
+    if (typeof question === "string" && question.trim().length > 0) found[id] = question.trim();
+  }
+  return found;
+})();
+
 /** An instrument still in preparation may already have a preview page under src/app/lab/. */
 function hasPreviewPage(id: CatalogueId): boolean {
   return existsSync(join(process.cwd(), "src/app/lab", id, "page.tsx"));
@@ -338,6 +375,11 @@ function InstrumentList({ ids }: { ids: readonly CatalogueId[] }) {
                 reader scanning the catalogue still could not see which card that meant. A sibling
                 of the card link, never nested inside it, because an anchor inside an anchor is not
                 valid markup and the whole card is already one. */}
+            {/* The question the record owns, under the name the reader scans by. A sibling of
+                the card link and never inside it: the link's name is the short line, and a
+                140-character question inside the anchor would become the whole card's accessible
+                name. */}
+            {QUESTIONS[id] ? <p className="instrument-asks">{QUESTIONS[id]}</p> : null}
             {walkthroughs.length > 0 ? (
               <p className="instrument-walkthroughs">
                 {walkthroughs.length === 1 ? "Walkthrough: " : "Walkthroughs: "}
@@ -415,10 +457,23 @@ export default function InstrumentsIndex() {
         {/* Named in words, and linked where a preview page already exists, so the gap between
             what the edition plans and what it has finished stays visible. "In preparation" is the
             catalogue's own status: the model has no admitted owner yet, which is a different
-            question from whether a page renders (avogadro-lab has one). */}
+            question from whether a page renders (avogadro-lab has one).
+
+            THE READER-FACING SENTENCE USED TO READ "Still being finished" (dispatch 410), which
+            contradicted the "(a preview page exists)" beside it: a reader who clicked found a
+            working laboratory and no sign of what was unfinished. Checked, and the notice is NOT
+            stale. AGENTS.md's "all 33 core labs are live" and this section are about different
+            populations: the 33 core labs are exactly the ids with a manifest under
+            content/experiments/ (9 light-quanta, 8 Brownian, 13 relativity, 3 mass-energy), all 37
+            registered ids have a route and a built page, and avogadro-lab is a 34th, the
+            molecular-dimensions companion, with NO manifest. That absence is what is missing, so
+            the sentence now says so instead of implying the page is half-built. */}
         <p>
-          Still being finished, and listed so the gap between what the edition plans and what it has
-          finished stays visible:
+          Listed so the gap between what the edition plans and what it has finished stays visible.
+          What is missing here is the record rather than the page: an instrument of the edition
+          declares in its own manifest the question it answers, who computes its numbers, and what
+          it does not model, and this one has no manifest yet. You can open it and operate it. The
+          edition does not yet stand behind its numbers.
         </p>
         <ul>
           {inPreparation.map((id) => (

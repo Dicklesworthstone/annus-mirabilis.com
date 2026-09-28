@@ -250,3 +250,14 @@
   color: inherit;
   text-decoration: underline;
 }
+
+/* THE QUESTION THE RECORD OWNS (dispatch 410), under the short line the reader scans by. Quieter
+   than the name and set above the walkthrough line, because it is what the instrument commits to
+   answering rather than a pointer somewhere else. Same size and colour tokens as the walkthrough
+   line so the card keeps one rhythm; nothing here is a new colour. */
+.instrument-asks {
+  margin: 0.35rem 0 0;
+  font-size: var(--type-fine);
+  line-height: 1.4;
+  color: var(--muted);
+}
