@@ -35,6 +35,13 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "viscosity-stokes-drag",
   "temperature-thermal-energy",
   "free-energy-osmotic-pressure",
+  // The no-algebra route's bridges (dispatch 401). Each draws the picture its own prose had asked
+  // the reader to draw on paper; none has a control, so none is in CONSTRUCTIONS_WITH_CONTROLS.
+  "bridge-a-graph",
+  "bridge-sum-average",
+  "bridge-negative-numbers-direction",
+  "bridge-fractions-ratios",
+  "bridge-scientific-notation-units",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];

@@ -857,3 +857,126 @@ article.foundation-page {
     top: 2rem;
   }
 }
+
+/* The no-algebra route's bridge figures (dispatch 401): ReadingAGraph, PourAndShare, SignedRuler,
+   SameShareTwice, CountingThePlaces. All five are static drawings with no controls, so they carry
+   no state and need no notice; each is server-rendered into the static HTML and each states its
+   reading in words underneath.
+
+   Every distinction here is drawn twice over, once in shape and once in ink, so that none of it
+   rests on telling two colours apart: a dot that counts is filled and one that does not is an
+   outline; a journey out is a solid arrow and the journey back is broken; a bar's shaded share is
+   also cut by a tick at its boundary. Widths are viewBox units, about one to the pixel at the
+   figures' drawn size, and the labels take the site-wide svg[role="img"] text rule. */
+.bridge-figure {
+  display: block;
+  width: 100%;
+  max-width: 22rem;
+  height: auto;
+  margin: 1rem auto;
+}
+
+.bridge-figure.walk-figure,
+.bridge-figure.places-figure {
+  max-width: 25rem;
+}
+
+.bridge-axis {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  fill: none;
+}
+
+.bridge-tick {
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.bridge-grid {
+  stroke: var(--muted);
+  stroke-width: 0.75;
+  stroke-opacity: 0.4;
+}
+
+.bridge-axis-name {
+  font-weight: 600;
+}
+
+.bridge-number {
+  fill: var(--muted);
+}
+
+.bridge-line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.bridge-dot {
+  fill: var(--ink);
+}
+
+/* The read-off step, the return journey and the squaring link: all three are the same broken
+   stroke, because all three are a move the reader makes rather than a thing that was measured. */
+.bridge-step {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+  fill: none;
+}
+
+.bridge-arrow {
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.bridge-marker {
+  fill: var(--ink);
+  stroke: none;
+}
+
+.bridge-bar {
+  fill: var(--muted);
+  fill-opacity: 0.35;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.bridge-jar {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.bridge-marble {
+  fill: var(--muted);
+  fill-opacity: 0.5;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.bridge-dot-moved {
+  fill: var(--ink);
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.bridge-dot-still {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.bridge-bar-whole {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.bridge-bar-share {
+  fill: var(--muted);
+  fill-opacity: 0.5;
+  stroke: none;
+}

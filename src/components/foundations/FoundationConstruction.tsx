@@ -2,6 +2,7 @@
 
 import { BoostTable } from "./BoostTable.tsx";
 import { ConfigurationCounter } from "./ConfigurationCounter.tsx";
+import { CountingThePlaces } from "./CountingThePlaces.tsx";
 import {
   CONSTRUCTIONS_WITH_CONTROLS,
   type FoundationConstructionId,
@@ -16,11 +17,15 @@ import { LogarithmProductTable } from "./LogarithmProductTable.tsx";
 import { MagnitudeScale } from "./MagnitudeScale.tsx";
 import { NudgeSensitivityDemo } from "./NudgeSensitivityDemo.tsx";
 import { OsmoticTable } from "./OsmoticTable.tsx";
+import { PourAndShare } from "./PourAndShare.tsx";
 import { ProductsView } from "./ProductsView.tsx";
 import { RapidityAdder } from "./RapidityAdder.tsx";
+import { ReadingAGraph } from "./ReadingAGraph.tsx";
 import { RepeatedIntervals } from "./RepeatedIntervals.tsx";
 import { RepeatedProportionalTable } from "./RepeatedProportionalTable.tsx";
+import { SameShareTwice } from "./SameShareTwice.tsx";
 import { ScalingTable } from "./ScalingTable.tsx";
+import { SignedRuler } from "./SignedRuler.tsx";
 import { SinkingSpheres } from "./SinkingSpheres.tsx";
 import { SpeedSpread } from "./SpeedSpread.tsx";
 import { TableToPlotBuilder } from "./TableToPlotBuilder.tsx";
@@ -114,5 +119,15 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
       return <SpeedSpread headingLevel={headingLevel} />;
     case "free-energy-osmotic-pressure":
       return <OsmoticTable headingLevel={headingLevel} />;
+    case "bridge-a-graph":
+      return <ReadingAGraph headingLevel={headingLevel} />;
+    case "bridge-sum-average":
+      return <PourAndShare headingLevel={headingLevel} />;
+    case "bridge-negative-numbers-direction":
+      return <SignedRuler headingLevel={headingLevel} />;
+    case "bridge-fractions-ratios":
+      return <SameShareTwice headingLevel={headingLevel} />;
+    case "bridge-scientific-notation-units":
+      return <CountingThePlaces headingLevel={headingLevel} />;
   }
 }
