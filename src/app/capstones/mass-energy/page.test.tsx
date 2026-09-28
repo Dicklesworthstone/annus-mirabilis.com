@@ -12,6 +12,7 @@ import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadCapstone } from "../../../discovery/capstone/loadCapstone.ts";
 import { consistentOrderCount } from "../../../discovery/shared/dependencyFeedback.ts";
+import { DEFAULT_FACE, FACE_REGISTRY } from "../../../reader/faces/registry.ts";
 import CapstonePage from "./page";
 
 const html = renderToStaticMarkup(<CapstonePage />);
@@ -43,14 +44,23 @@ describe("the mass-energy capstone page", () => {
     expect(startPositions).not.toEqual([...startPositions].sort((a, b) => a - b));
   });
 
-  test("each claim and assumption links to the passage it is read from", () => {
+  test("each claim and assumption links to the passage it is read from, on a face that has it", () => {
+    // The face matters and this is where it was got wrong. A source unit id lives on the German,
+    // parallel and gloss faces; the paper's DEFAULT route renders the explanation face, whose
+    // anchors are argument ids, so a link to /papers/mass-energy/#s0-p7 lands at the top of the
+    // page. Found in the built output, not by any test: see the page's docblock for the counts.
+    expect(FACE_REGISTRY.parallel.id).toBe("parallel");
+    expect(DEFAULT_FACE).not.toBe("parallel");
     for (const claim of capstone.claims)
-      expect([claim.id, html.includes(`href="/papers/mass-energy/#${claim.anchor}"`)]).toEqual([
+      expect(html).not.toContain(`href="/papers/mass-energy/#${claim.anchor}"`);
+
+    for (const claim of capstone.claims)
+      expect([
         claim.id,
-        true,
-      ]);
+        html.includes(`href="/papers/mass-energy/view/parallel/#${claim.anchor}"`),
+      ]).toEqual([claim.id, true]);
     for (const equation of equations)
-      expect(html).toContain(`href="/papers/mass-energy/#${equation.displayUnit}"`);
+      expect(html).toContain(`href="/papers/mass-energy/view/parallel/#${equation.displayUnit}"`);
     for (const preset of capstone.presets) {
       expect(html).toContain(`href="/lab/${preset.instrumentId}/"`);
       if (preset.tapeId !== undefined) expect(html).toContain(`/tapes/${preset.tapeId}/`);

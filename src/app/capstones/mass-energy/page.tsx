@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { assumptionKindLabel } from "../../../discovery/capstone/capstoneLabels.ts";
 import { loadCapstone } from "../../../discovery/capstone/loadCapstone.ts";
 import { consistentOrderCount } from "../../../discovery/shared/dependencyFeedback.ts";
+import { FACE_REGISTRY } from "../../../reader/faces/registry.ts";
 import { roleLabel } from "../../../reader/passageKind.ts";
 import { tapePath } from "../../../reader/sitePaths.ts";
 import "../capstones.css";
@@ -38,15 +39,25 @@ import "../capstones.css";
 const PAPER = "mass-energy";
 
 /**
- * The address of a passage in the edition, built here rather than imported from the reader's route
- * helper. The reason is the import graph: that helper reaches the content compiler through
- * src/content/server.ts, and taking it pulled 139 modules into this route for the sake of one path.
- * A page in this repository has been broken three times by a route reaching a registry it did not
- * need, and the graph is the thing no test lane looks at. The shape below is already written
- * literally in eight other modules, so the helper was not what kept it consistent.
+ * The address of a passage in the edition.
+ *
+ * IT NAMES A FACE, and that is not a detail. A claim's anchor is a source unit, `s0-p7` or
+ * `eq-s0-d4`, and the paper's DEFAULT route does not carry those ids: its default face is the
+ * explanation, whose anchors are argument ids. Measured in the build of caa8689f, out/papers/
+ * mass-energy/index.html contains none of this page's eight anchors, while the parallel, German and
+ * gloss faces contain all eight and the English face five of eight. Linking to the default route
+ * would have put every "Read this in the paper" at the top of a page instead of at the sentence.
+ * The parallel face is chosen over the German because it shows the English beside it.
+ *
+ * The face id comes from the registry rather than a string, so removing or renaming that face stops
+ * the typechecker here rather than leaving the links pointing at nothing.
+ *
+ * The path is built here rather than taken from the reader's route helper, because that helper
+ * reaches the content compiler through src/content/server.ts and pulled 139 modules into this route
+ * for the sake of one path.
  */
 function passageHref(anchor: string): string {
-  return `/papers/${PAPER}/#${anchor}`;
+  return `/papers/${PAPER}/view/${FACE_REGISTRY.parallel.id}/#${anchor}`;
 }
 
 export const metadata: Metadata = {
