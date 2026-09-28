@@ -37,6 +37,8 @@ import {
   type EditorialNoteKind,
   GLOSS_NOTE_CLASSES,
   type GlossNoteClass,
+  HISTORICAL_STATEMENTS,
+  type HistoricalStatement,
   MULTIWORD_UNIT_KINDS,
   type MultiwordUnitKind,
   PAPER_SLUGS,
@@ -51,6 +53,8 @@ export {
   type EditorialNoteKind,
   GLOSS_NOTE_CLASSES,
   type GlossNoteClass,
+  HISTORICAL_STATEMENTS,
+  type HistoricalStatement,
   MULTIWORD_UNIT_KINDS,
   type MultiwordUnitKind,
   PAPER_SLUGS,
@@ -1489,6 +1493,12 @@ export type EditorialNote = Readonly<{
   claim: string;
   sourceSupport: readonly SourceSupport[];
   kind: EditorialNoteKind;
+  /**
+   * Which of AGENTS.md's four historical statements this record concerns
+   * (am-me-margin-entries-kfg5). Optional while the corpus is being given the field; the records it
+   * exists for carry it.
+   */
+  historicalStatement?: HistoricalStatement | undefined;
   affectedIds: readonly string[];
   reviewState: "draft" | "machine-draft" | "in-progress" | "corrected" | "reviewed";
   originalReading?: string | undefined;
@@ -1591,6 +1601,18 @@ export function validateEditorialNote(raw: unknown, path = "EditorialNote"): Edi
     }
   }
 
+  if (
+    o.historicalStatement !== undefined &&
+    !HISTORICAL_STATEMENTS.includes(o.historicalStatement as HistoricalStatement)
+  ) {
+    throw new SchemaValidationError(
+      "invalid-historical-statement",
+      `Invalid historicalStatement "${String(o.historicalStatement)}". One of: ${HISTORICAL_STATEMENTS.join(", ")}.`,
+      "EditorialNote",
+      `${path}.historicalStatement`,
+    );
+  }
+
   const reviewState = (o.reviewState as string) || "draft";
   if (!["draft", "machine-draft", "in-progress", "corrected", "reviewed"].includes(reviewState)) {
     throw new SchemaValidationError(
@@ -1607,6 +1629,11 @@ export function validateEditorialNote(raw: unknown, path = "EditorialNote"): Edi
     claim: o.claim as string,
     sourceSupport,
     kind,
+    // Carried through, not dropped: a field the validator accepts and discards is a reader-facing
+    // claim that never reaches a reader, which is how this one was found.
+    ...(o.historicalStatement === undefined
+      ? {}
+      : { historicalStatement: o.historicalStatement as HistoricalStatement }),
     affectedIds: Array.isArray(o.affectedIds) ? (o.affectedIds as string[]) : [],
     reviewState: reviewState as EditorialNote["reviewState"],
     originalReading: (o.originalReading as string) || undefined,

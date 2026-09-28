@@ -401,6 +401,47 @@ test("GlossUnit: tokens and multiword units validation", () => {
 // ==========================================
 // 6. EDITORIAL NOTE TESTS
 // ==========================================
+test("EditorialNote: historicalStatement is validated and CARRIED, not silently dropped", () => {
+  // The bug this guards: the validator accepted the field and returned a record without it, so a
+  // margin record could declare which of AGENTS.md's four historical statements it concerns and a
+  // reader would never be told. An accepted-and-discarded field reads exactly like a working one
+  // from the record's side (am-me-margin-entries-kfg5).
+  const base = {
+    id: "note-hist-1",
+    author: { id: "jemanuel", kind: "human" },
+    claim: "The paper asserts this, rather than the site reconstructing it.",
+    sourceSupport: [{ citationId: "cit-prim-1", role: "primary" }],
+    kind: "historian-margin",
+    affectedIds: ["s0-p12"],
+    reviewState: "draft",
+  };
+
+  // Carried through, one value of each kind so no single spelling is the only one proven.
+  for (const value of [
+    "publicly-available",
+    "einstein-knew-or-used",
+    "paper-asserts",
+    "site-reconstruction",
+  ] as const) {
+    const note = validateEditorialNote({ ...base, historicalStatement: value });
+    assert.equal(note.historicalStatement, value);
+  }
+
+  // The other direction: a value outside the four is refused by name, so a typo cannot pass as a
+  // fifth register.
+  assert.throws(
+    () => validateEditorialNote({ ...base, historicalStatement: "einstein-thought" }),
+    (err: any) => {
+      assert.equal(err.code, "invalid-historical-statement");
+      return true;
+    },
+  );
+
+  // And absent stays absent while the corpus is being given the field: undefined is not a refusal
+  // and is not an invented default.
+  assert.equal(validateEditorialNote(base).historicalStatement, undefined);
+});
+
 test("EditorialNote: dispute note requires primary sourceSupport, correction requires fields", () => {
   const rawDisputeNoPrimary = {
     id: "note-dispute-1",
