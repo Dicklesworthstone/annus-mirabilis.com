@@ -249,8 +249,11 @@ export default function AboutPage() {
         </p>
         <p>
           So Einstein&rsquo;s four include the dissertation, and the four usually counted now put
-          the mass and energy paper in its place. This edition reads those four in full and keeps
-          the dissertation and its correction beside them as a companion.
+          the mass and energy paper in its place. This edition reads{" "}
+          <a href="/papers/">those four</a> in full and keeps{" "}
+          <a href="/sources/molecular-dimensions/">the dissertation and its correction</a> beside
+          them as a companion, with their scans, terms and witnesses recorded as the four
+          papers&rsquo; are.
         </p>
         <p className="fine">
           The letter is paraphrased here, not quoted: Einstein to Conrad Habicht, May 1905, in The
@@ -283,13 +286,15 @@ export default function AboutPage() {
         <p>
           The explanations are new writing in modern notation, drafted with AI assistance. You
           choose how much of each you read: an overview, the full explanation, or every step, and
-          you can add a modern lens on what came later. The discovery journeys reconstruct a way to
-          a result from what was known before 1905, and say so: each is a route you could take, not
-          a record of what Einstein thought.
+          you can add a modern lens on what came later.{" "}
+          <a href="/discover/">The discovery journeys</a> reconstruct a way to a result from what
+          was known before 1905, and say so: each is a route you could take, not a record of what
+          Einstein thought.
         </p>
         <p>
-          Every number an instrument shows is worked out by that instrument and labelled as a
-          calculation. None of them is a measurement of nature.
+          Every number <a href="/instruments/">an instrument</a> shows is worked out by that
+          instrument and labelled as a calculation. None of them is a measurement of nature. The
+          catalogue gives each one the question its own record says it answers.
         </p>
         <p>
           The English translation is the edition&rsquo;s own, made from the German. {translationNow}{" "}
@@ -331,7 +336,13 @@ export default function AboutPage() {
           </div>
           {revisions.papers.map((paper) => (
             <div key={paper.slug}>
-              <dt>{paper.title}</dt>
+              {/* The title is the paper's door. This list already had the slug and printed the
+                  title as plain text, so a reader checking which revision they read could not get
+                  from it to the paper. The citation EXAMPLES below stay plain text on purpose:
+                  those are addresses to write down, not links to follow. */}
+              <dt>
+                <a href={`/papers/${paper.slug}/`}>{paper.title}</a>
+              </dt>
               <dd>
                 <code>{paper.revision}</code>
               </dd>
