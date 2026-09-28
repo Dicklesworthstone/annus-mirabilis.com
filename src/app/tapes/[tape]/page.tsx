@@ -193,6 +193,25 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
           </>
         )}
       </p>
+      {tape.passages.length > 0 ? (
+        <nav className="tape-onward" aria-label="Where this is in the paper">
+          {/* The instrument's manifest already declares the passages it interrogates
+              (sourceRefs), and until now nothing downstream of a tape read them: the walkthrough
+              named its instrument and the instrument named its paper, and the reader made the
+              second hop themselves. Each href is resolved against the paper's own record, so a
+              section that does not exist produces no link rather than a dead one. */}
+          <h2>Where this is in the paper</h2>
+          <ul>
+            {tape.passages.map((passage) => (
+              <li key={passage.href}>
+                <a href={passage.href}>{passage.sectionTitle}</a>{" "}
+                <span className="tape-paper-name">{passage.paperTitle}</span>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ) : null}
+
       <p className="tape-to-lab">
         <a href="/tapes/">Every teaching tape</a>
       </p>

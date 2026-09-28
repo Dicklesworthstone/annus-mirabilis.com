@@ -11,8 +11,11 @@
  * not the whole story.
  */
 import { describe, expect, test } from "bun:test";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { Window } from "happy-dom";
 import { renderToStaticMarkup } from "react-dom/server";
+import { parseYaml } from "../../content/provenance/yaml.ts";
 import { loadTeachingTapes } from "../../content/teachingTapes.ts";
 import TapePage from "./[tape]/page.tsx";
 import TapesIndex from "./page.tsx";
@@ -72,6 +75,64 @@ describe("the teaching-tape pages", () => {
     // Both loops must have run: 34 steps and 16 carrying numbers on 2026-09-27.
     expect(stepsSeen).toBeGreaterThan(20);
     expect(numbersSeen).toBeGreaterThan(0);
+  });
+
+  test("every walkthrough leads back to the passage its instrument interrogates", async () => {
+    // The link is generated from the instrument's manifest `sourceRefs`, so this asserts two
+    // separate things and says which is which: that every declared reference names a section
+    // that EXISTS, read from the paper records here rather than through the tape loader, and
+    // that the page renders a link for each one.
+    const papers = new Map<string, Set<string>>();
+    for (const file of readdirSync(join(process.cwd(), "content", "papers"))) {
+      if (!file.endsWith(".json")) continue;
+      const record = JSON.parse(
+        readFileSync(join(process.cwd(), "content", "papers", file), "utf8"),
+      ) as { id?: string; sections?: { id?: string }[] };
+      const slug = file.replace(/\.json$/, "");
+      papers.set(slug, new Set((record.sections ?? []).map((x) => String(x.id))));
+    }
+    expect(papers.size).toBeGreaterThan(3);
+
+    // THE MANIFESTS, NOT THE LOADER'S OUTPUT. The first version of this read `tape.passages`,
+    // which is what the loader has already resolved: a reference to a section that does not exist
+    // is DROPPED there, so the check could only ever see references that resolve. Planting
+    // `id: s99` in sr-03's manifest left it green at 24 links instead of 25. Reading the manifests
+    // here is what makes a dangling reference visible.
+    const dangling: string[] = [];
+    for (const file of readdirSync(join(process.cwd(), "content", "experiments"))) {
+      if (!file.endsWith(".yaml")) continue;
+      const manifest = parseYaml(
+        readFileSync(join(process.cwd(), "content", "experiments", file), "utf8"),
+      ) as { sourceRefs?: { paper?: string; id?: string }[] };
+      for (const ref of manifest.sourceRefs ?? []) {
+        const sections = papers.get(String(ref.paper));
+        if (!sections) dangling.push(`${file}: no paper ${String(ref.paper)}`);
+        else if (!sections.has(String(ref.id)))
+          dangling.push(`${file}: ${String(ref.paper)} has no section ${String(ref.id)}`);
+      }
+    }
+
+    let links = 0;
+    for (const tape of tapes) {
+      for (const passage of tape.passages) {
+        expect(passage.href).toBe(`/papers/${passage.paper}/${passage.sectionId}/`);
+        links += 1;
+      }
+      if (tape.passages.length === 0) continue;
+      const html = renderToStaticMarkup(
+        await TapePage({ params: Promise.resolve({ tape: tape.tapeId }) }),
+      );
+      const hrefs = [...dom(html).querySelectorAll("nav.tape-onward a")].map((a) =>
+        a.getAttribute("href"),
+      );
+      expect(hrefs, `${tape.tapeId} does not link its passages`).toEqual(
+        tape.passages.map((x) => x.href),
+      );
+    }
+    expect(dangling).toEqual([]);
+    console.log(`[tape passages] ${links} links from ${tapes.length} walkthroughs into the papers`);
+    // Non-vacuity: a resolver that returned nothing would satisfy every assertion above.
+    expect(links).toBeGreaterThan(15);
   });
 
   test("a tape page says the numbers are recorded, not computed", async () => {

@@ -60,6 +60,15 @@ export type TapeStep = Readonly<{
 /** An instrument as a link can name it: "SR-03", "Rod Measurement and Simultaneity". */
 export type InstrumentName = Readonly<{ id: string; name: string }>;
 
+/** A passage the walkthrough's instrument interrogates, as a link back into the edition. */
+export type TapePassage = Readonly<{
+  paper: string;
+  paperTitle: string;
+  sectionId: string;
+  sectionTitle: string;
+  href: string;
+}>;
+
 export type TeachingTape = Readonly<{
   tapeId: string;
   experimentId: string;
@@ -73,6 +82,8 @@ export type TeachingTape = Readonly<{
   conditionNames: Readonly<Record<string, ParameterName>>;
   /** The instrument's id and the name its manifest gives it, for a link that reads as a sentence. */
   instrument?: InstrumentName | undefined;
+  /** The source passages the instrument declares, so a walkthrough leads back to the paper. */
+  passages: readonly TapePassage[];
   steps: readonly TapeStep[];
   /** Named in AGENTS.md's teaching-tape list, so the page can say so. */
   named: boolean;
@@ -186,9 +197,13 @@ export function stepsOf(
 function manifestFacts(
   experimentId: string,
   root: string,
-): { names: Record<string, ParameterName>; instrument: InstrumentName | undefined } {
+): {
+  names: Record<string, ParameterName>;
+  instrument: InstrumentName | undefined;
+  passages: TapePassage[];
+} {
   const path = join(root, "content", "experiments", `${experimentId}.yaml`);
-  if (!existsSync(path)) return { names: {}, instrument: undefined };
+  if (!existsSync(path)) return { names: {}, instrument: undefined, passages: [] };
   const manifest = parseYaml(readFileSync(path, "utf8")) as Record<string, unknown>;
   const names: Record<string, ParameterName> = {};
   for (const entry of list(manifest.parameters)) {
@@ -198,7 +213,53 @@ function manifestFacts(
     if (!id || !label) continue;
     names[id] = { label };
   }
-  return { names, instrument: instrumentNameFrom(str(manifest.title), experimentId) };
+  return {
+    names,
+    instrument: instrumentNameFrom(str(manifest.title), experimentId),
+    passages: passagesOf(manifest.sourceRefs, root),
+  };
+}
+
+/**
+ * THE PASSAGES A WALKTHROUGH LEADS BACK TO (am-2rl9).
+ *
+ * An instrument's manifest declares `sourceRefs`, the passages it interrogates, and until now
+ * nothing downstream of a tape read them: a walkthrough named its instrument and the instrument
+ * named its paper, and the reader made the second hop themselves. The mission is that a visitor
+ * moves continuously between the projections, so the walkthrough carries the link.
+ *
+ * Every reference is resolved against the paper's own record, so a section that does not exist
+ * produces no link rather than a dead one: `/papers/<paper>/<section>/` is a real route for every
+ * section in that record (sectionStaticParams in src/reader/paperRoutes.ts) and for nothing else.
+ */
+function passagesOf(refs: unknown, root: string): TapePassage[] {
+  const out: TapePassage[] = [];
+  for (const entry of list(refs)) {
+    const o = (entry ?? {}) as Record<string, unknown>;
+    const paper = str(o.paper);
+    const sectionId = str(o.id);
+    if (!paper || !sectionId) continue;
+    const path = join(root, "content", "papers", `${paper}.json`);
+    if (!existsSync(path)) continue;
+    let record: Record<string, unknown>;
+    try {
+      record = JSON.parse(readFileSync(path, "utf8")) as Record<string, unknown>;
+    } catch {
+      continue;
+    }
+    const section = list(record.sections)
+      .map((s) => (s ?? {}) as Record<string, unknown>)
+      .find((s) => str(s.id) === sectionId);
+    if (!section) continue;
+    out.push({
+      paper,
+      paperTitle: str(record.title) ?? paper,
+      sectionId,
+      sectionTitle: str(section.title) ?? sectionId,
+      href: `/papers/${paper}/${sectionId}/`,
+    });
+  }
+  return out;
 }
 
 /**
@@ -250,9 +311,13 @@ export function loadTeachingTapes(root: string = process.cwd()): {
     if (!experimentId) problems.push(`tape-no-experiment: ${at} names no experimentId`);
     if (!title)
       problems.push(`tape-no-title: ${at} has no title, so a reader has nothing to call it`);
-    const { names, instrument } = experimentId
+    const { names, instrument, passages } = experimentId
       ? manifestFacts(experimentId, root)
-      : { names: {} as Record<string, ParameterName>, instrument: undefined };
+      : {
+          names: {} as Record<string, ParameterName>,
+          instrument: undefined,
+          passages: [] as TapePassage[],
+        };
     const steps = stepsOf(raw, names);
     if (steps.length === 0)
       problems.push(`tape-no-steps: ${at} records no control event, so there is nothing to walk`);
@@ -271,6 +336,7 @@ export function loadTeachingTapes(root: string = process.cwd()): {
           .map((k) => [k, names[k] as ParameterName]),
       ),
       ...(instrument ? { instrument } : {}),
+      passages,
       steps,
       named: NAMED_IN_AGENTS.includes(tapeId),
     });

@@ -104,3 +104,37 @@
   font-size: var(--type-small);
   color: var(--ink-muted);
 }
+
+/* WHERE THIS IS IN THE PAPER (am-2rl9). A walkthrough interrogates a passage, and the instrument's
+   manifest already says which; this is that link. It sits after the steps, where a reader has
+   finished with the walkthrough, for the reason the laboratory layout records: anything added
+   above the content pushes the content down the page on a phone. */
+.tape-onward {
+  margin: 2.5rem 0 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.tape-onward > h2 {
+  margin: 0 0 0.6rem;
+  font-size: var(--type-small);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.tape-onward ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tape-onward li + li {
+  margin-top: 0.4rem;
+}
+
+.tape-paper-name {
+  color: var(--muted);
+  font-size: var(--type-small);
+}
