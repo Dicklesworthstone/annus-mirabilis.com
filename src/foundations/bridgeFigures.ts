@@ -223,3 +223,25 @@ export const withinWidths = (k: number): number => 100 * erf(k / Math.SQRT2);
 
 /** The height of the unit-width bell at x widths, with its peak at 1. */
 export const bellHeight = (widths: number): number => Math.exp(-(widths * widths) / 2);
+
+// The density figure of dispatch 420. foundation:distributions was 3,950 visible characters on
+// the difference between a density and a probability, with no authored figure.
+
+/** The bin foundation:distributions counts: 30 of 100 particles in a 2 micrometre bin. */
+export const BIN = { particles: 100, inBin: 30, micrometres: 2 } as const;
+
+/** What the bin holds. A probability belongs to an interval, so this is the bin's own number. */
+export const binProbability = (): number => BIN.inBin / BIN.particles;
+
+/**
+ * The density there, per micrometre and per metre. The same bin measured two ways: the height
+ * changes with the unit of length and the probability does not, which is the lesson's first claim.
+ */
+export const binDensityPerMicrometre = (): number => binProbability() / BIN.micrometres;
+export const binDensityPerMetre = (): number => binDensityPerMicrometre() * 1e6;
+
+/** The two spans the worked example spreads one unit of probability over, in micrometres. */
+export const FLAT_SPANS = [4, 2] as const;
+
+/** A flat density holding all the probability over that span: taller when the span is narrower. */
+export const flatDensity = (micrometres: number): number => 1 / micrometres;

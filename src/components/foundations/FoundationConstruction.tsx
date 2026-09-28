@@ -16,6 +16,7 @@ import { EnergyLedger } from "./EnergyLedger.tsx";
 import { EntropyTemperatureCheck } from "./EntropyTemperatureCheck.tsx";
 import { FourCellsTwiceTheSide } from "./FourCellsTwiceTheSide.tsx";
 import { FourOutcomes } from "./FourOutcomes.tsx";
+import { HeightIsNotProbability } from "./HeightIsNotProbability.tsx";
 import { HeldFixedToggle } from "./HeldFixedToggle.tsx";
 import type { HeadingLevel } from "./headingLevel.ts";
 import { LogarithmProductTable } from "./LogarithmProductTable.tsx";
@@ -150,5 +151,7 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
       return <StepsAndSpread headingLevel={headingLevel} />;
     case "gaussian-distributions":
       return <BellAndItsWidths headingLevel={headingLevel} />;
+    case "distributions":
+      return <HeightIsNotProbability headingLevel={headingLevel} />;
   }
 }
