@@ -123,6 +123,21 @@ const BM07_DOMAIN_DISPLAY: Readonly<Record<string, DomainDisplay>> = {
   eta: { label: "assumed viscosity", unit: "mPa·s", scale: 1e3 },
   a: { label: "assumed particle radius", unit: "μm", scale: 1e6 },
   coverageTrials: { label: "number of hypothetical experiments" },
+  // The generator's own T, eta and a, which InferenceLab feeds to the generator exactly where the
+  // estimator's T, eta and a go, so they take the same ranges and the same reasons. Until they were
+  // declared their only check was "greater than zero", which the comment above notes let 1e-300 K
+  // through, and a temperature of 1e-300 K is not a liquid.
+  generatorT: { label: "generator temperature" },
+  generatorEta: { label: "generator viscosity", unit: "mPa·s", scale: 1e3 },
+  generatorRadius: { label: "generator radius", unit: "μm", scale: 1e6 },
+  // Each of these is typed as a percentage and stored as a fraction, so the sentence has to scale
+  // or it would name a range of 0 to 1 beside a field reading 95.
+  coverage: { label: "target interval coverage", unit: "percent", scale: 100 },
+  inputCoverage: { label: "coverage of each input interval", unit: "percent", scale: 100 },
+  temperatureError: { label: "temperature relative bound", unit: "percent", scale: 100 },
+  viscosityError: { label: "viscosity relative bound", unit: "percent", scale: 100 },
+  radiusError: { label: "radius relative bound", unit: "percent", scale: 100 },
+  calibrationScale: { label: "calibration scale" },
 };
 
 /** The fields above, then every range content/experiments/bm-07.yaml declares (dispatch 184). */

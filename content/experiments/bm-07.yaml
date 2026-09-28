@@ -183,6 +183,185 @@ parameters:
       base: 10
     role: independent
     commandClass: estimator-change
+  - id: generatorT
+    label: "Generator temperature"
+    accessibleName: "Temperature of the hidden generator"
+    accessibleDescription: "Setup input: the temperature the synthetic observations are made at, not the estimator's assumption"
+    quantityId: temperature
+    displayUnit: "K"
+    modelDomain:
+      min: 273
+      max: 330
+      minInclusive: true
+      maxInclusive: true
+      reason: "Liquid water at ordinary laboratory pressure"
+    visualRange:
+      min: 273
+      max: 330
+    default: 293.15
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: generatorEta
+    label: "Generator viscosity"
+    accessibleName: "Viscosity of the hidden generator"
+    accessibleDescription: "Setup input: the viscosity the synthetic observations are made at, in pascal-seconds"
+    quantityId: viscosity
+    displayUnit: "Pa s"
+    modelDomain:
+      min: 0.0005
+      max: 0.02
+      minInclusive: true
+      maxInclusive: true
+      reason: "Newtonian-liquid Stokes drag"
+    visualRange:
+      min: 0.0005
+      max: 0.02
+    default: 0.001
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: setup-change
+  - id: generatorRadius
+    label: "Generator radius"
+    accessibleName: "Sphere radius of the hidden generator"
+    accessibleDescription: "Setup input: the sphere radius the synthetic observations are made with"
+    quantityId: particleRadius
+    displayUnit: "m"
+    modelDomain:
+      min: 1e-7
+      max: 5e-6
+      minInclusive: true
+      maxInclusive: true
+      reason: "Dilute sphere, Stokes hydrodynamic regime"
+    visualRange:
+      min: 1e-7
+      max: 5e-6
+    default: 5e-7
+    mapping:
+      kind: log
+      base: 10
+    role: independent
+    commandClass: setup-change
+  - id: coverage
+    label: "Target interval coverage"
+    accessibleName: "Confidence level of the reported interval"
+    accessibleDescription: "The share of repeated experiments whose interval should contain the value"
+    quantityId: observationInterval
+    displayUnit: "1"
+    modelDomain:
+      min: 0
+      max: 1
+      minInclusive: false
+      maxInclusive: false
+      reason: "A confidence level is a probability, and an interval that covers never or always says nothing about these displacements"
+    visualRange:
+      min: 0.5
+      max: 0.99
+    default: 0.95
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+  - id: inputCoverage
+    label: "Input interval coverage"
+    accessibleName: "Confidence level declared for each input bound"
+    accessibleDescription: "The coverage of the temperature, viscosity and radius bounds; zero means none was declared"
+    quantityId: observationInterval
+    displayUnit: "1"
+    modelDomain:
+      min: 0
+      max: 1
+      minInclusive: true
+      maxInclusive: false
+      reason: "A confidence level is a probability, and zero records that no input interval was declared"
+    visualRange:
+      min: 0
+      max: 0.99
+    default: 0.99
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+  - id: temperatureError
+    label: "Temperature relative bound"
+    accessibleName: "Relative uncertainty of the assumed temperature"
+    accessibleDescription: "Fraction by which the assumed temperature may be wrong; zero declares none"
+    quantityId: temperature
+    displayUnit: "1"
+    modelDomain:
+      min: 0
+      max: 1
+      minInclusive: true
+      maxInclusive: false
+      reason: "A relative bound on a positive quantity, where 100 percent would put the temperature at absolute zero"
+    visualRange:
+      min: 0
+      max: 0.2
+    default: 0.005
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+  - id: viscosityError
+    label: "Viscosity relative bound"
+    accessibleName: "Relative uncertainty of the assumed viscosity"
+    accessibleDescription: "Fraction by which the assumed viscosity may be wrong; zero declares none"
+    quantityId: viscosity
+    displayUnit: "1"
+    modelDomain:
+      min: 0
+      max: 1
+      minInclusive: true
+      maxInclusive: false
+      reason: "A relative bound on a positive quantity, where 100 percent would leave the liquid with no viscosity at all"
+    visualRange:
+      min: 0
+      max: 0.2
+    default: 0.02
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+  - id: radiusError
+    label: "Radius relative bound"
+    accessibleName: "Relative uncertainty of the assumed radius"
+    accessibleDescription: "Fraction by which the assumed radius may be wrong; zero declares none"
+    quantityId: particleRadius
+    displayUnit: "1"
+    modelDomain:
+      min: 0
+      max: 1
+      minInclusive: true
+      maxInclusive: false
+      reason: "A relative bound on a positive quantity, where 100 percent would shrink the sphere to a point"
+    visualRange:
+      min: 0
+      max: 0.3
+    default: 0.1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: estimator-change
+  - id: calibrationScale
+    label: "Calibration scale"
+    accessibleName: "Length calibration of the recording"
+    accessibleDescription: "Multiplies every recorded displacement; one means the recording is already in metres"
+    quantityId: particleRadius
+    displayUnit: "1"
+    modelDomain:
+      min: 0
+      minInclusive: false
+      reason: "A length calibration multiplies every displacement, so zero would erase the motion and a negative factor would reflect it"
+    visualRange:
+      min: 0.1
+      max: 10
+    default: 1
+    mapping:
+      kind: linear
+    role: independent
+    commandClass: measurement-change
 outputs:
   - id: diffusionCoefficientEstimate
     quantityId: diffusionCoefficient
