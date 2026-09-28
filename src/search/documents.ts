@@ -37,6 +37,14 @@ type Block = Readonly<
   | { kind: "foundation"; id: string; returnCaption: string }
 >;
 /** Structural input projections; the content compiler remains the schema owner. */
+export type SearchGuidedTour = Readonly<{
+  id: string;
+  title: string;
+  paper: string;
+  introduction: string;
+  /** Every stop or step by name, so a search for one reaches the path that contains it. */
+  stopTitles: readonly string[];
+}>;
 export type SearchDiscoveryRoute = Readonly<{
   slug: string;
   name: string;
@@ -398,6 +406,47 @@ export type SearchNotationGlyph = Readonly<{
  * document's TEXT instead, which is what makes a search for a step phrase find the route it belongs
  * to, and the link then lands where the reader can actually start.
  */
+/**
+ * A GUIDED READING PATH, AS SOMETHING A READER CAN FIND BY NAME.
+ *
+ * The last of the three guided layers to be indexed. Measured 2026-09-28, /tours/ had ZERO search
+ * documents while the "tour" type sat in SEARCH_TYPES describing exactly these and holding nothing.
+ *
+ * TWO SOURCES, and the page renders both: content/tours/*.yaml through tourIds and requireTour, and
+ * the GUIDED_TOURS catalogue in code. Indexing only the catalogue would have covered four of the
+ * five paths a reader can see, which is the population error this file has now made once already
+ * (the kernel catalogue and the manifests) and which the caller therefore passes in already merged.
+ *
+ * NO TERMS. Terms are the heaviest field in the engine and are for names a reader might type that
+ * the title does not already contain. A tour's id restates its paper, and putting that in terms is
+ * what floated a discovery route above its own paper for the query "brownain". The title and the
+ * stop names carry these.
+ */
+export function tourDocuments(
+  tours: readonly SearchGuidedTour[],
+  profile: SearchProfile,
+): readonly SearchDocument[] {
+  searchProfile(profile);
+  return tours
+    .map((tour) =>
+      validateSearchDocument({
+        id: `tour:${tour.id}`,
+        type: "tour",
+        paper: tour.paper,
+        section: "",
+        lang: "en",
+        route: `/tours/${tour.id}/`,
+        anchor: "",
+        face: "",
+        title: tour.title,
+        text: [tour.introduction, ...tour.stopTitles].filter(Boolean).join(" "),
+        terms: [],
+        scopeLabel: `A guided reading path · ${tour.stopTitles.length} stops`,
+      }),
+    )
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
 export function discoveryDocuments(
   routes: readonly SearchDiscoveryRoute[],
   profile: SearchProfile,

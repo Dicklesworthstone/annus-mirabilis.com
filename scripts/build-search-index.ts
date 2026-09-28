@@ -10,7 +10,9 @@ import {
 import { loadGermanSourceFace } from "../src/content/editions/germanSourceFace.ts";
 import type { RouteSlug } from "../src/content/ids.ts";
 import { loadTeachingTapes } from "../src/content/teachingTapes.ts";
+import { requireTour, tourIds } from "../src/content/tours/tours.ts";
 import { ROUTE_INDEX } from "../src/discovery/routeIndex.ts";
+import { GUIDED_TOURS } from "../src/discovery/tours/catalogue.ts";
 import { recordLatex } from "../src/equations/recordLatex.ts";
 import {
   CATALOGUE_IDS,
@@ -47,6 +49,7 @@ import {
   type SearchProfile,
   searchInlineText,
   searchProfile,
+  tourDocuments,
   walkthroughDocuments,
 } from "../src/search/documents.ts";
 
@@ -99,6 +102,32 @@ export async function loadSearchCorpus(
     instrumentId: tape.instrument?.id ?? tape.experimentId,
     sectionTitles: tape.passages.map((passage) => passage.sectionTitle),
   }));
+  // BOTH tour sources, merged here rather than in the builder, because /tours/ renders both and
+  // indexing one would cover four of the five paths a reader can see: the YAML records through
+  // tourIds/requireTour, and the GUIDED_TOURS catalogue in code.
+  const guidedTours = [
+    ...tourIds(root).flatMap((id) => {
+      const tour = requireTour(root, id);
+      return tour
+        ? [
+            {
+              id: tour.id,
+              title: tour.title,
+              paper: tour.paper,
+              introduction: tour.introduction,
+              stopTitles: tour.steps.map((step) => step.title),
+            },
+          ]
+        : [];
+    }),
+    ...GUIDED_TOURS.map((tour) => ({
+      id: tour.id,
+      title: tour.title,
+      paper: tour.paper,
+      introduction: tour.introduction,
+      stopTitles: tour.stops.map((stop) => stop.title),
+    })),
+  ];
   const equationTerms = Object.fromEntries(
     papers.flatMap((paper) =>
       paper.equations.map((equation) => [equation.id, recordLatex(equation) ?? ""]),
@@ -190,6 +219,7 @@ export async function loadSearchCorpus(
     ...documentsFromCompiled(papers, foundations, instruments, profile, equationTerms),
     ...walkthroughDocuments(walkthroughs, profile),
     ...discoveryDocuments(ROUTE_INDEX, profile),
+    ...tourDocuments(guidedTours, profile),
     ...notation,
     ...german,
     ...english,
