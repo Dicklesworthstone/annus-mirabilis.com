@@ -14,15 +14,18 @@
   "staticTreatment": {
     "reason": "A matter of what the paper says about the wave theory; the introduction is the evidence."
   },
+  "instrumentIds": ["lq-01"],
   "anchors": ["s0-p2", "s0-p3", "s0-p4"],
   "sources": ["A. Einstein, Ann. Phys. (4) 17, 132–148 (1905), plates pp. 132–133"],
   "intervention": {
+    "instrumentId": "lq-01",
     "defaultsReviewed": {
-      "model": "Not applicable: no instrument; this entry is a matter of what the paper says.",
-      "labels": "Not applicable: no instrument; this entry is a matter of what the paper says.",
-      "defaultControls": "Not applicable: no instrument; this entry is a matter of what the paper says.",
-      "feedback": "Not applicable: no instrument; this entry is a matter of what the paper says."
+      "model": "Described from the manifest: two coherent sources and the continuous wave description of what reaches a screen (LQ-01, outputs centerIntensity, instantaneousCenterIntensity, fringeVisibility and fringeSpacing).",
+      "labels": "Described from the manifest: the intensity at the screen centre, its instantaneous value beside its time average, the fringe visibility and the fringe spacing.",
+      "defaultControls": "Described from the manifest: default scenario waves-lq01, two sources of equal amplitude 1 in phase, wavelength 1, source separation 3, screen distance 100.",
+      "feedback": "Described from the manifest: the interference the wave description predicts, and the instantaneous intensity beside the time average, which is the distinction the paper's second paragraph rests on."
     },
+    "scenarioId": "waves-lq01",
     "reviewRecordId": "pending-review-misc-lq-not-a-wave"
   },
   "authorship": {

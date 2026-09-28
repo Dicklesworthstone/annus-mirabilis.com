@@ -14,16 +14,19 @@
   "staticTreatment": {
     "reason": "A matter of what the paper claims: the introduction's conditional, § 5's formula for N and the closing wish are the evidence."
   },
+  "instrumentIds": ["bm-07"],
   "anchors": ["s0-p2", "s5-p3", "s5-p4"],
   "resultIds": ["bm-molecular-number"],
   "sources": ["A. Einstein, Ann. Phys. (4) 17, 549–560 (1905), plates pp. 549, 559 and 560"],
   "intervention": {
+    "instrumentId": "bm-07",
     "defaultsReviewed": {
-      "model": "Not applicable: no instrument; this entry is a matter of what the paper says.",
-      "labels": "Not applicable: no instrument; this entry is a matter of what the paper says.",
-      "defaultControls": "Not applicable: no instrument; this entry is a matter of what the paper says.",
-      "feedback": "Not applicable: no instrument; this entry is a matter of what the paper says."
+      "model": "Described from the manifest: the inference of a molecular number from measured displacements, with the radius either declared independently or left undetermined (BM-07, outputs diffusionCoefficientEstimate, avogadroNumberEstimate and radiusNumberProduct).",
+      "labels": "Described from the manifest: the estimated diffusion coefficient, the estimated molecular number, and the radius-number product that stays undetermined when no independent radius is declared.",
+      "defaultControls": "Described from the manifest: default scenario bm-07-identifiability, a synthetic observation set of 50 displacements at 1 s frame spacing, seed 1905, inference temperature 293.15 K and viscosity 0.001 Pa s.",
+      "feedback": "Described from the manifest: an interval on the estimate and its coverage over repeated hypothetical experiments, which is the deciding measurement the paper asks for and does not supply."
     },
+    "scenarioId": "bm-07-identifiability",
     "reviewRecordId": "pending-review-misc-bm-proves-molecules"
   },
   "authorship": {

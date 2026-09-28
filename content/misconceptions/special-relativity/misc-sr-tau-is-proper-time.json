@@ -14,6 +14,7 @@
   "staticTreatment": {
     "reason": "A matter of notation and definition: the notation concordance's entry for τ (sr.tau.coordinateTimeMoving) and the definition on p. 898."
   },
+  "instrumentIds": ["sr-03"],
   "anchors": ["s3-p3", "s3-p22", "eq-s3-d25", "s4-p5"],
   "resultIds": ["sr-transformation-equations", "sr-moving-clock"],
   "sources": [
@@ -21,12 +22,14 @@
     "notation concordance: content/notation/special-relativity.yaml, entry sr.tau.coordinateTimeMoving"
   ],
   "intervention": {
+    "instrumentId": "sr-03",
     "defaultsReviewed": {
-      "model": "Not applicable: no instrument; this entry is a matter of the paper's text.",
-      "labels": "Not applicable: no instrument; this entry is a matter of the paper's text.",
-      "defaultControls": "Not applicable: no instrument; this entry is a matter of the paper's text.",
-      "feedback": "Not applicable: no instrument; this entry is a matter of the paper's text."
+      "model": "Described from the manifest: two frames in relative motion, a rod of declared proper length, and a chosen pair of endpoint events (SR-03, outputs temporalSeparationK, temporalSeparationKPrime, simultaneityK, simultaneityKPrime and readingsOnRodEnds).",
+      "labels": "Described from the manifest: the spatial and temporal separation of the two events in each frame, whether each frame calls them simultaneous, and the readings on the rod's ends.",
+      "defaultControls": "Described from the manifest: default scenario sr03-signature-0.6c, a rod at rest in k of proper length 10 measured from K at relative speed 0.6, endpoint pair platform-simultaneous.",
+      "feedback": "Described from the manifest: two events simultaneous in one frame separated in time in the other, so the time assigned to an event depends on where it happens as well as when."
     },
+    "scenarioId": "sr03-signature-0.6c",
     "reviewRecordId": "pending-review-misc-sr-tau-is-proper-time"
   },
   "authorship": {
