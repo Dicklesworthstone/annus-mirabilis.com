@@ -72,7 +72,7 @@ export function SignedRuler({ headingLevel = 3 }: { readonly headingLevel?: Head
       </p>
 
       <svg
-        className="bridge-figure ruler-figure"
+        className="bridge-figure"
         viewBox={`0 0 ${W} ${H}`}
         role="img"
         aria-label="A ruler numbered from minus four to plus four with zero at the middle. On the upper band two arrows leave zero, one reaching plus three and one reaching minus three. On the lower band one arrow leaves zero for plus three and a second, drawn as a broken line, returns from plus three to zero. Every arrow is three units long."

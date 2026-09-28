@@ -141,7 +141,7 @@ export function ReadingAGraph({ headingLevel = 3 }: { readonly headingLevel?: He
       </p>
 
       <svg
-        className="bridge-figure particles-figure"
+        className="bridge-figure"
         viewBox={`0 0 ${W} ${BARS_H}`}
         role="img"
         aria-label={`Four bars, each one particle tall, standing above ${PARTICLE_ENDS.join(", ")} micrometres on a line running from minus four to plus four. Two stand left of zero and two right of it, at matching distances. No bar stands at zero, and a mark under zero labels the average position.`}

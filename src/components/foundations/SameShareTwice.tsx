@@ -47,7 +47,7 @@ export function SameShareTwice({ headingLevel = 3 }: { readonly headingLevel?: H
       </p>
 
       <svg
-        className="bridge-figure shares-figure"
+        className="bridge-figure"
         viewBox={`0 0 ${W} ${H}`}
         role="img"
         aria-label={`Two rows of dots with a bar under each. The first row has four dots of which one is filled, and its bar has a quarter of its length shaded. The second row has eight dots of which two are filled, and its bar has the same length shaded. Both shares are ${fractions[0]}.`}

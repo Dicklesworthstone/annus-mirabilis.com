@@ -67,7 +67,7 @@ export function PourAndShare({ headingLevel = 3 }: { readonly headingLevel?: Hea
       </p>
 
       <svg
-        className="bridge-figure jars-figure"
+        className="bridge-figure"
         viewBox={`0 0 ${W} ${H}`}
         role="img"
         aria-label={`Two groups of four jars. On the left the jars hold ${JARS.join(", ")} marbles, so two are full to three and two hold one each. On the right the same ${total} marbles are shared out and every jar holds ${mean}. Both groups hold ${total} marbles in ${JARS.length} jars.`}
