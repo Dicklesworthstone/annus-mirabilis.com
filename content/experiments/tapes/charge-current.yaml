@@ -34,5 +34,5 @@ checkpoints:
     streamSemanticsVersion: 1
     seed: "0"
     streamPositions: []
-    label: charge-current-0.6c
+    label: "A wire that carries current and is neutral at rest, seen from 0.6c"
     teachingNote: At 0.6c a neutral wire with Jx=1 A/m² develops a net charge density rho'=-2.5017e-9 C/m³ while current transforms to J'x=1.25 A/m².

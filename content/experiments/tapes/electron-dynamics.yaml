@@ -40,5 +40,5 @@ checkpoints:
     streamSemanticsVersion: 1
     seed: "0"
     streamPositions: []
-    label: electron-dynamics-0.6c
+    label: "An electron already moving at 0.6c, in both mass conventions"
     teachingNote: At 0.6c, the electron has gamma = 1.25, transverse mass 1.5625m in Einstein's 1905 convention and 1.25m in Planck's 1906 convention. Both conventions yield identical observable deflection radii.

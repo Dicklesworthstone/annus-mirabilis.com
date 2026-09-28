@@ -33,5 +33,5 @@ checkpoints:
     streamSemanticsVersion: 1
     seed: "0"
     streamPositions: []
-    label: field-transformation-0.6c
+    label: "A field that is purely electric at rest, seen from 0.6c"
     teachingNote: At 0.6c a pure Ey=1 V/m field transforms to E'y=1.25 V/m and B'z=-2.5017e-9 T, preserving invariants.

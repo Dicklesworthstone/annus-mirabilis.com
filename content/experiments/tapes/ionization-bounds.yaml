@@ -31,6 +31,22 @@ events:
     parameterId: incidentPower
     value: 0.000002
 checkpoints:
+  # WHERE IT STARTS (dispatch 404). The step doubles the incident power and its note is a claim
+  # about proportionality, j = L/(R*beta*nu), which needs two states to be visible. This is the
+  # first of them, at the opening power initialConditions declares. No expectedDisplayValues, for
+  # the reason recorded in the-move.yaml: src/content/tapeNumbers.test.ts finds its step by
+  # `expected.length > 0` and computes this state itself as `opening`.
+  - actionIndex: 0
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:sha256:7777777777777777777777777777777777777777777777777777777777777777"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "One microwatt absorbed, before the power is doubled"
+    teachingNote: "The walkthrough opens with one microwatt of absorbed light above the ionization threshold. Read the count of ionized molecules off the instrument here, because the next step doubles the power and the claim being made is that the count follows in proportion. The threshold itself is a separate question from the count: it is about whether a single quantum carries enough energy, and doubling the power does not change it."
   - actionIndex: 1
     stepIndex: 1
     simulatedTime: 1

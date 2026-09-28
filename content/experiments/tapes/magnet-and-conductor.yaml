@@ -31,6 +31,27 @@ events:
     parameterId: speed
     value: 179875474.8
 checkpoints:
+  # THE FIRST EVENT HAD NO CHECKPOINT (dispatch 404), so the step at index 1 reached the page as
+  # the bare words "Set speed to 20" with nothing to read. A step's label and teaching note come
+  # from the checkpoint at its own actionIndex (src/content/teachingTapes.ts, stepsOf), so a tape
+  # with two events and one checkpoint guides only one of its two steps. This is the low-speed
+  # state, which is what makes the next one worth looking at.
+  #
+  # No expectedDisplayValues: the point here is an agreement between two descriptions, and no
+  # number for this speed has been recorded. stepIndex and simulatedTime are 0 as in the
+  # checkpoint below, because SR-02 is a static evaluation rather than a stepped run, and the
+  # digest names this file's evaluator exactly as that checkpoint's does.
+  - actionIndex: 1
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:sha256:sr02-evaluateSr02"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "Walking pace, where the two descriptions agree"
+    teachingNote: "At this speed it makes no observable difference which body you call the one at rest: whether you say the moving magnet produces an electric field or the moving conductor's charges feel a force, the current you would measure is the same. Einstein's first paragraph is about that agreement being an embarrassment for the theory rather than a comfort, because the two accounts describe one phenomenon with two different mechanisms. Raise the speed in the next step and the two accounts stop matching."
   - actionIndex: 2
     stepIndex: 0
     simulatedTime: 0
@@ -40,5 +61,5 @@ checkpoints:
     streamSemanticsVersion: 1
     seed: "0"
     streamPositions: []
-    label: both-descriptions
+    label: "The two descriptions at 0.6c, where they no longer agree"
     teachingNote: At 0.6c the two electromotive forces differ by the factor 1.25.

@@ -33,7 +33,7 @@ checkpoints:
     streamSemanticsVersion: 1
     seed: "0"
     streamPositions: []
-    label: combined-isolated-system-balance
+    label: "The whole enclosure, with nothing crossing its boundary"
     teachingNote: Inside a combined isolated enclosure, radiation absorption leaves total system mass unchanged.
     expectedDisplayValues:
       - label: system energy change

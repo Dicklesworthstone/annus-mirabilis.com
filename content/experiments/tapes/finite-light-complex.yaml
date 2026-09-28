@@ -35,5 +35,5 @@ checkpoints:
     streamSemanticsVersion: 1
     seed: "0"
     streamPositions: []
-    label: light-complex-0.6
+    label: "A bounded packet of light, seen from 0.6c"
     teachingNote: At 0.6c receding light complex volume doubles (1/q = 2.0) while energy halves (q = 0.5), unlike rigid rod contraction (1/gamma = 0.8).

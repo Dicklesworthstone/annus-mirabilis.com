@@ -41,6 +41,27 @@ events:
     value: "true"
     previousValue: "false"
 checkpoints:
+  # WHERE IT STARTS (dispatch 404). This record's own note below describes the state before the
+  # declaration and no step showed it, so the walkthrough opened on its own conclusion. A
+  # checkpoint with no event at index 0 is how the projection carries a starting state
+  # (src/content/teachingTapes.ts, stepsOf), and the page renders it as "Where it starts".
+  #
+  # stepIndex and simulatedTime are the SAME as index 1 on purpose: an estimator change alters
+  # neither the world nor the clock, so the observations here are the very ones the next step
+  # re-reads. That is the point the note makes. The digest is a legible placeholder, as every
+  # digest in this file is; no expectedDisplayValues, because the result here is the typed state
+  # `underdetermined` rather than a number, and a typed state is not a display value.
+  - actionIndex: 0
+    stepIndex: 4096
+    simulatedTime: 1024
+    digest: "host:sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "1909"
+    streamPositions: []
+    label: "The displacements alone, with the radius not yet declared"
+    teachingNote: "Perrin's displacements are already in hand, and on their own they do not pick out a molecular number: they fix only the product of the radius and that number, so any count you like can be had by choosing a radius to match. The instrument says so rather than returning a figure, which is the honest answer to the question as posed and not a failure of the calculation. Open it at these settings to see which outputs it will and will not give you, then read the next step, where declaring the radius is what makes one count identifiable."
   - actionIndex: 1
     stepIndex: 4096
     simulatedTime: 1024

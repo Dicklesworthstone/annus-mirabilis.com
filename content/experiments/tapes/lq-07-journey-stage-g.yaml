@@ -30,6 +30,22 @@ events:
     parameterId: nu2
     value: 900
 checkpoints:
+  # WHERE IT STARTS (dispatch 404). The step raises the emitted frequency to 900 THz, where the
+  # single-quantum ledger cannot balance. The opening state is the boundary it steps past: nu1 and
+  # nu2 are both 850 THz, so h*nu1 = h*nu2 leaves nothing over, and this record's own header notes
+  # that LQ-07 gives 850 THz as the highest permitted nu2. No expectedDisplayValues, for the reason
+  # recorded in the-move.yaml.
+  - actionIndex: 0
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:sha256:6666666666666666666666666666666666666666666666666666666666666666"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "Emitted light at the absorbed frequency, where the ledger just balances"
+    teachingNote: "The walkthrough opens with the emitted light at the same frequency as the absorbed light, which is the edge of what a single quantum can pay for: the energy going out equals the energy coming in and nothing is left for anything else. Stokes's rule says the emitted frequency does not exceed the absorbed one, and this is that limit rather than a comfortable case inside it. The next step asks for more than the quantum has."
   - actionIndex: 1
     stepIndex: 1
     simulatedTime: 1

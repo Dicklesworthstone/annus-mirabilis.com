@@ -34,5 +34,5 @@ checkpoints:
     streamSemanticsVersion: 1
     seed: "0"
     streamPositions: []
-    label: doppler-aberration-0.6
+    label: "Light travelling along the line of motion, seen from 0.6c"
     teachingNote: At 0.6c receding light along the axis halves its frequency (factor 0.5) while phase remains invariant.

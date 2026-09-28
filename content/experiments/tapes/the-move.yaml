@@ -29,6 +29,25 @@ events:
     parameterId: gasParticles
     value: 20
 checkpoints:
+  # WHERE IT STARTS (dispatch 404). The step below doubles n, and its note is a claim about a
+  # CHANGE ("doubles the exponent in the volume ratio"), which a reader cannot check from one
+  # state. This is the state the doubling is measured from: n = 10, as initialConditions declares.
+  # No expectedDisplayValues here on purpose. The opening entropy is a real evaluator output and
+  # src/content/tapeNumbers.test.ts already computes it as `opening`, but that test selects its
+  # step with `find(s => s.expected.length > 0)`, so recording a value at index 0 would silently
+  # retarget it to this checkpoint and it would then assert the doubling against the wrong state.
+  # The step names the setting and sends the reader to the instrument instead.
+  - actionIndex: 0
+    stepIndex: 0
+    simulatedTime: 0
+    digest: "host:sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    digestKind: host
+    checkpointVersion: 1
+    streamSemanticsVersion: 1
+    seed: "0"
+    streamPositions: []
+    label: "Ten points in the gas, before the count is doubled"
+    teachingNote: "The walkthrough opens with ten points in the gas at the declared volume ratio and temperature. Read the gas entropy off the instrument here first: the next step's claim is about how that number responds when the count of points doubles, and a single reading cannot show a response. Einstein's move is the match between this coefficient and the one radiation gives, so the quantity to watch is the coefficient, not its size."
   - actionIndex: 1
     stepIndex: 1
     simulatedTime: 1

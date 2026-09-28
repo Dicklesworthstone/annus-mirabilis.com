@@ -35,5 +35,5 @@ checkpoints:
     streamSemanticsVersion: 1
     seed: "0"
     streamPositions: []
-    label: receding-mirror-0.6c
+    label: "Reflection from a mirror receding at 0.6c"
     teachingNote: Light hitting a receding mirror at 0.6c returns with frequency ratio 0.25, while mechanical work P*v*Am = 0.3*I*Am accounts exactly for the energy lost by the radiation.
