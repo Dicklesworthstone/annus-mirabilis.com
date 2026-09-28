@@ -192,6 +192,15 @@ owner:
     - kernelFunction: "effectiveIndependentCount"
       identifier: "nu"
       quantityId: "frequency"
+    - kernelFunction: "effectiveIndependentCount"
+      identifier: "count"
+      quantityId: "effectiveIndependentCount"
+    - kernelFunction: "effectiveIndependentCount"
+      identifier: "h"
+      quantityId: "planckConstant"
+    - kernelFunction: "meanQuantumEnergyWien"
+      identifier: "kB"
+      quantityId: "boltzmannConstant"
 views:
   - id: lq-06-side-by-side
     kind: svg

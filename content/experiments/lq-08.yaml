@@ -196,6 +196,12 @@ owner:
     - kernelFunction: "stoppingPotentialMagnitude"
       identifier: "workFunctionJoules"
       quantityId: "workFunction"
+    - kernelFunction: "stoppingPotentialMagnitude"
+      identifier: "e"
+      quantityId: "elementaryCharge"
+    - kernelFunction: "stoppingPotentialMagnitude"
+      identifier: "kResult"
+      quantityId: "maxKineticEnergy"
 views:
   - id: lq-08-energy-diagram
     kind: svg

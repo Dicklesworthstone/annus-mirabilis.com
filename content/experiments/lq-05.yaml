@@ -200,6 +200,16 @@ owner:
       language: ts
       module: "src/physics/reference/radiation.ts"
       exportName: "independentPointsProbability"
+  identifierBindings:
+    - kernelFunction: "independentPointsProbability"
+      identifier: "n"
+      quantityId: "independentPointCount"
+    - kernelFunction: "independentPointsProbability"
+      identifier: "f"
+      quantityId: "volumeRatio"
+    - kernelFunction: "independentPointsProbability"
+      identifier: "value"
+      quantityId: "configurationProbability"
 views:
   - id: lq-05-configuration-grid
     kind: svg

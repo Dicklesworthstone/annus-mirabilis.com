@@ -230,6 +230,15 @@ owner:
     - kernelFunction: "ionizationCount"
       identifier: "ionizationEnergyEv"
       quantityId: "ionizationEnergyPerMolecule"
+    - kernelFunction: "ionizationCount"
+      identifier: "lAbs"
+      quantityId: "absorbedLightEnergy"
+    - kernelFunction: "ionizationCount"
+      identifier: "ionCount"
+      quantityId: "ionCount"
+    - kernelFunction: "ionizationCount"
+      identifier: "h"
+      quantityId: "planckConstant"
 views:
   - id: lq-09-energy-ladder
     kind: svg
