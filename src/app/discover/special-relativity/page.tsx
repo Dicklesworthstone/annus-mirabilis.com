@@ -10,6 +10,7 @@ import {
 import { Shelf } from "../../../discovery/cards/Shelf.tsx";
 import { Doors } from "../../../discovery/Doors.tsx";
 import { Fork } from "../../../discovery/Fork.tsx";
+import { MoveMarker } from "../../../discovery/MoveMarker.tsx";
 import { PpeTask } from "../../../discovery/PpeTask.tsx";
 import { RouteMap } from "../../../discovery/RouteMap.tsx";
 import { MOVING_CLOCK_EXERCISE } from "../../../discovery/relativity/clockExercise.ts";
@@ -22,13 +23,19 @@ import {
 } from "../../../discovery/relativity/journeyExercises.ts";
 import {
   DOORS,
+  FIRST_HONEST_QUESTION,
   FORK_SOURCE_SPEED,
   FORK_UNDETECTED_ETHER,
+  MOVE,
+  MOVE_HREF,
+  NAGGING_FACT,
   PPE_TASK,
+  SOURCE_JUMPS,
   WORLD_CHECK,
 } from "../../../discovery/relativity/journeyIII.ts";
 import { MOVING_ROD } from "../../../discovery/relativity/numericExercises.ts";
 import { MOVING_CLOCK_CHECK_EXAMPLE } from "../../../discovery/relativity/worldCheck.ts";
+import { SourceJump } from "../../../discovery/SourceJump.tsx";
 import { StepDoor, StepDoors } from "../../../discovery/StepDoor.tsx";
 
 export const metadata: Metadata = {
@@ -85,6 +92,19 @@ export default function SpecialRelativityRoute() {
         </p>
       </header>
       <RouteMap slug="special-relativity" />
+
+      <section id="nagging-fact" aria-labelledby="nagging-fact-title">
+        <p className="eyebrow" id="nagging-fact-title">
+          The nagging fact
+        </p>
+        <p className="lead">{NAGGING_FACT}</p>
+      </section>
+      <section id="first-question" aria-labelledby="first-question-title">
+        <p className="eyebrow" id="first-question-title">
+          The first honest question
+        </p>
+        <p className="lead">{FIRST_HONEST_QUESTION}</p>
+      </section>
 
       <section id="step-01">
         <p className="step-number">01 / Start where the paper starts</p>
@@ -199,9 +219,11 @@ export default function SpecialRelativityRoute() {
         </StepDoors>
       </section>
 
+      <MoveMarker move={MOVE} href={MOVE_HREF} />
+
       <section id="step-05">
         <p className="step-number">05 / Build the map</p>
-        <h2>The move</h2>
+        <h2>What the definition forces</h2>
         <p>
           Now the work is mechanical, and this is the step that the story usually skips. Take the
           two statements from step 3 as given, take the clock-setting procedure from step 4, and ask
@@ -380,6 +402,9 @@ export default function SpecialRelativityRoute() {
           <a href="/papers/special-relativity/view/german/">German text</a> and an English
           translation are on this site.
         </p>
+        {SOURCE_JUMPS.map((jump) => (
+          <SourceJump key={jump.id} jump={jump} />
+        ))}
         <p>
           Two doors lead to the same place, the map of section 3: the paper&rsquo;s own construction
           from the clock-setting rule, and the map built one requirement at a time in a laboratory,

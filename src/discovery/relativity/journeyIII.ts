@@ -12,9 +12,116 @@
  * Fizeau's p. 355, the three null results are Lorentz's p. 825, and the second presupposition is
  * the paper's own sentence s0-p2-s2.
  */
-import type { Doors, Fork, PpeTask, WorldCheck } from "../../content/schemas/journey.ts";
+import type {
+  Doors,
+  Fork,
+  JourneyMove,
+  PpeTask,
+  SourceJump,
+  WorldCheck,
+} from "../../content/schemas/journey.ts";
 import { SR05_MODEL, SR05_PRESETS } from "../../experiments/sr05/definition.ts";
 import { CLOCK_CHECK_READING } from "./worldCheck.ts";
+
+/**
+ * The observation that does not fit (the skeleton's second element). It is the paper's own opening
+ * paragraph, which is where this route starts: one reading of one needle, and two accounts of it.
+ */
+export const NAGGING_FACT =
+  "Push a magnet into a coil of wire, or move the coil over the magnet at the same relative speed, and the needle deflects by the same amount. The accepted theory of 1904 accounts for the two cases by two different mechanisms, and no measurement tells them apart.";
+
+/** One sentence, second person (the skeleton's third element). */
+export const FIRST_HONEST_QUESTION =
+  "If every measurement you can make comes out the same in both cases, what are you still entitled to say about which one is moving?";
+
+/**
+ * THE ONE NON-OBVIOUS STEP of this route, named as the move.
+ *
+ * It is not the construction of the map. The page's own step 05 says why: once the two principles
+ * and the clock-setting rule are granted, and space and time are taken to be the same everywhere
+ * and in every direction, the algebra is forced and only one set of relations survives. The step
+ * that is not forced is the one before it, in section 1: deciding that "at the same time", said of
+ * two places, is not a fact waiting to be found but a rule someone lays down, and then laying one
+ * down with a light signal. Everything the paper does afterwards depends on that being a definition.
+ *
+ * The summary is an authored sentence, recorded as a draft: only a named physics reviewer may set
+ * it reviewed.
+ */
+export const MOVE: JourneyMove = {
+  label: "Treat simultaneity as something you define, not something you find",
+  chainId: "arg-sr-synchronization",
+  stepId: "eq-model-sr-sync-equal-legs",
+  r0Summary: {
+    text: "Two clocks standing apart cannot be compared until someone says what comparing them means, so the rule is laid down rather than discovered: send a light signal from the first clock to the second and back, and call the reflection simultaneous with the reading halfway between sending and receiving, which turns the apparent quarrel between the two principles into a question about coordinates that the rest of the paper settles by algebra.",
+    reviewState: "draft",
+  },
+};
+
+/** Where the marked step opens in the reading face: the paper's section 1. */
+export const MOVE_HREF = "/papers/special-relativity/s1/#arg-sr-synchronization";
+
+/**
+ * Where the paper makes each step this route has just made (the skeleton's eighth element). The
+ * sections are the ones the closing paragraph names, in the paper's order, and each anchor is an
+ * argument of this edition: the opening asymmetry, the clock-setting rule, what a length is, the
+ * construction, the two consequences a reader has worked by hand.
+ */
+export const SOURCE_JUMPS: readonly SourceJump[] = [
+  {
+    id: "jump-sr-s0-magnet-conductor",
+    label: "Read the opening: the magnet and the conductor",
+    paperId: "special-relativity",
+    section: "s0",
+    targetAnchor: "arg-sr-magnet-conductor",
+    pointer:
+      "The paper opens on the same apparatus this route opens on, and calls the two accounts of it an asymmetry that does not attach to the phenomena. The same paragraph states the two principles it will keep.",
+  },
+  {
+    id: "jump-sr-s1-synchronization",
+    label: "Read section 1: what the time of a distant event means",
+    paperId: "special-relativity",
+    section: "s1",
+    targetAnchor: "arg-sr-synchronization",
+    pointer:
+      "The move. Section 1 lays down, by definition, that light takes the same time out and back between two clocks, and so fixes what it means for clocks at different places to agree.",
+  },
+  {
+    id: "jump-sr-s2-rod-events",
+    label: "Read section 2: a length is a pair of events",
+    paperId: "special-relativity",
+    section: "s2",
+    targetAnchor: "arg-sr-rod-events",
+    pointer:
+      "Measuring a moving rod means marking where its ends are at one time, and section 1 has just made that phrase depend on the frame the marks are made in. The paper draws the consequence before it has any transformation to point at.",
+  },
+  {
+    id: "jump-sr-s3-lorentz-map",
+    label: "Read section 3: the map the two principles leave",
+    paperId: "special-relativity",
+    section: "s3",
+    targetAnchor: "arg-sr-lorentz-map",
+    pointer:
+      "With the clock rule granted, the paper asks what relation between one observer's coordinates and another's keeps light at the same speed in both directions, and finds the relations forced up to a scale it then fixes.",
+  },
+  {
+    id: "jump-sr-s4-clock-and-length",
+    label: "Read section 4: moving clocks and moving rods",
+    paperId: "special-relativity",
+    section: "s4",
+    targetAnchor: "arg-sr-clock-and-length",
+    pointer:
+      "The two results a reader has worked by hand here, taken from the map rather than assumed: what a moving clock reads, and what a moving rod measures, each stated with the procedure that measures it.",
+  },
+  {
+    id: "jump-sr-s5-velocity-composition",
+    label: "Read section 5: how two speeds combine",
+    paperId: "special-relativity",
+    section: "s5",
+    targetAnchor: "arg-sr-velocity-composition",
+    pointer:
+      "Adding speeds keeps the denominator the ordinary rule leaves out, so two speeds below the speed of light compose to a speed below it, which is the exercise in this route's last step.",
+  },
+];
 
 /**
  * Fork A, after the null results of step 02: what to do with an ether nobody has detected. The
