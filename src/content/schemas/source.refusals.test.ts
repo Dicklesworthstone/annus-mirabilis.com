@@ -271,7 +271,7 @@ const VALID_EDITION = {
 // 1. VALIDATE PAPER REFUSALS (12 SITES)
 // ============================================================================
 
-test("validatePaper: (source.ts:151) invalid-record rejects non-object raw record, accepts valid paper", () => {
+test("validatePaper: (source.ts:155) invalid-record rejects non-object raw record, accepts valid paper", () => {
   assertSchemaRefusal(() => validatePaper(null), "invalid-record");
   assertSchemaRefusal(() => validatePaper("not-an-object"), "invalid-record");
   const accepted = validatePaper(VALID_PAPER);
@@ -423,7 +423,7 @@ test("validatePaper: (source.ts:266) invalid-journal-pages rejects invalid pages
 // 2. VALIDATE SOURCE ASSET REFUSALS (20 SITES)
 // ============================================================================
 
-test("validateSourceAsset: (source.ts:337) invalid-record rejects non-object raw asset, accepts valid asset", () => {
+test("validateSourceAsset: (source.ts:341) invalid-record rejects non-object raw asset, accepts valid asset", () => {
   assertSchemaRefusal(() => validateSourceAsset(null), "invalid-record");
   assertSchemaRefusal(() => validateSourceAsset("bad-asset"), "invalid-record");
   const accepted = validateSourceAsset(VALID_ASSET);
@@ -612,7 +612,7 @@ test("validateSourceAsset: (source.ts:455) invalid-pin-local-path rejects pin-lo
   assert.equal(accepted.path, "sources/pinned/ap-17-549.pdf");
 });
 
-test("validateSourceAsset: (source.ts:516) missing-required-rights-field rejects public-domain-image missing rights.source, accepts with source", () => {
+test("validateSourceAsset: (source.ts:520) missing-required-rights-field rejects public-domain-image missing rights.source, accepts with source", () => {
   assertSchemaRefusal(
     () =>
       validateSourceAsset({
@@ -641,7 +641,7 @@ test("validateSourceAsset: (source.ts:516) missing-required-rights-field rejects
   assert.equal(accepted.rights.source, "https://archive.org");
 });
 
-test("validateSourceAsset: (source.ts:527) missing-required-rights-field rejects public-domain-image missing rights.credit, accepts with credit", () => {
+test("validateSourceAsset: (source.ts:531) missing-required-rights-field rejects public-domain-image missing rights.credit, accepts with credit", () => {
   assertSchemaRefusal(
     () =>
       validateSourceAsset({
@@ -670,7 +670,7 @@ test("validateSourceAsset: (source.ts:527) missing-required-rights-field rejects
   assert.equal(accepted.rights.credit, "Lucien Chavan, 1905");
 });
 
-test("validateSourceAsset: (source.ts:538) missing-required-rights-field rejects public-domain-text missing rights.recordedAt, accepts with date", () => {
+test("validateSourceAsset: (source.ts:542) missing-required-rights-field rejects public-domain-text missing rights.recordedAt, accepts with date", () => {
   assertSchemaRefusal(
     () =>
       validateSourceAsset({
@@ -713,7 +713,7 @@ test("validateSourceAsset: (source.ts:537) missing-publication-reason rejects no
   assert.equal(accepted.publicationReason, "Historical reference only.");
 });
 
-test("validateSourceAsset: (source.ts:576) missing-required-rights-field rejects named-license missing rights.source, accepts with source", () => {
+test("validateSourceAsset: (source.ts:580) missing-required-rights-field rejects named-license missing rights.source, accepts with source", () => {
   assertSchemaRefusal(
     () =>
       validateSourceAsset({
@@ -756,7 +756,7 @@ test("validateSourceAsset: (source.ts:576) missing-required-rights-field rejects
   assert.equal(accepted.rights.source, "https://github.com/example/repo");
 });
 
-test("validateSourceAsset: (source.ts:587) missing-required-rights-field rejects scan-terms-unknown with whitespace statement for reuseTerms, accepts non-empty", () => {
+test("validateSourceAsset: (source.ts:591) missing-required-rights-field rejects scan-terms-unknown with whitespace statement for reuseTerms, accepts non-empty", () => {
   assertSchemaRefusal(
     () =>
       validateSourceAsset({
@@ -806,7 +806,7 @@ test("validateSourceAsset: (source.ts:587) missing-required-rights-field rejects
 // 3. VALIDATE SOURCE BLOCK REFUSALS (12 SITES)
 // ============================================================================
 
-test("validateSourceBlock: (source.ts:678) invalid-record rejects non-object raw block, accepts valid block", () => {
+test("validateSourceBlock: (source.ts:682) invalid-record rejects non-object raw block, accepts valid block", () => {
   assertSchemaRefusal(() => validateSourceBlock(null), "invalid-record");
   assertSchemaRefusal(() => validateSourceBlock("not-an-object"), "invalid-record");
   const accepted = validateSourceBlock(VALID_BLOCK);
@@ -882,7 +882,7 @@ test("validateSourceBlock: (source.ts:771) invalid-contained-in rejects whitespa
   assert.equal(accepted.containedIn, "sec-01");
 });
 
-test("validateSourceBlock: (source.ts:795) invalid-revision rejects non-positive or non-integer revision, accepts positive integer", () => {
+test("validateSourceBlock: (source.ts:799) invalid-revision rejects non-positive or non-integer revision, accepts positive integer", () => {
   assertSchemaRefusal(
     () => validateSourceBlock({ ...VALID_BLOCK, revision: 0 }),
     "invalid-revision",
@@ -895,7 +895,7 @@ test("validateSourceBlock: (source.ts:795) invalid-revision rejects non-positive
   assert.equal(accepted.revision, 1);
 });
 
-test("validateSourceBlock: (source.ts:824) invalid-direction rejects invalid text direction, accepts ltr or rtl", () => {
+test("validateSourceBlock: (source.ts:828) invalid-direction rejects invalid text direction, accepts ltr or rtl", () => {
   assertSchemaRefusal(
     () => validateSourceBlock({ ...VALID_BLOCK, dir: "invalid-dir" }),
     "invalid-direction",
@@ -988,14 +988,14 @@ test("validateSourceBlock: (source.ts:874) missing-span-id rejects sentenceSpan 
 // 4. VALIDATE TRANSLATION UNIT REFUSALS (4 SITES)
 // ============================================================================
 
-test("validateTranslationUnit: (source.ts:968) invalid-record rejects non-object raw translation unit, accepts valid unit", () => {
+test("validateTranslationUnit: (source.ts:972) invalid-record rejects non-object raw translation unit, accepts valid unit", () => {
   assertSchemaRefusal(() => validateTranslationUnit(null), "invalid-record");
   assertSchemaRefusal(() => validateTranslationUnit("bad-tu"), "invalid-record");
   const accepted = validateTranslationUnit(VALID_TU);
   assert.equal(accepted.id, "s3-p2-s1a");
 });
 
-test("validateTranslationUnit: (source.ts:993) invalid-revision rejects non-positive or non-integer revision, accepts positive integer", () => {
+test("validateTranslationUnit: (source.ts:997) invalid-revision rejects non-positive or non-integer revision, accepts positive integer", () => {
   assertSchemaRefusal(
     () => validateTranslationUnit({ ...VALID_TU, revision: 0 }),
     "invalid-revision",
@@ -1008,7 +1008,7 @@ test("validateTranslationUnit: (source.ts:993) invalid-revision rejects non-posi
   assert.equal(accepted.revision, 3);
 });
 
-test("validateTranslationUnit: (source.ts:1028) invalid-direction rejects invalid text direction, accepts ltr or rtl", () => {
+test("validateTranslationUnit: (source.ts:1032) invalid-direction rejects invalid text direction, accepts ltr or rtl", () => {
   assertSchemaRefusal(
     () => validateTranslationUnit({ ...VALID_TU, dir: "top-to-bottom" }),
     "invalid-direction",
@@ -1017,7 +1017,7 @@ test("validateTranslationUnit: (source.ts:1028) invalid-direction rejects invali
   assert.equal(accepted.dir, "ltr");
 });
 
-test("validateTranslationUnit: (source.ts:1039) invalid-review-state rejects invalid reviewState, accepts valid state", () => {
+test("validateTranslationUnit: (source.ts:1043) invalid-review-state rejects invalid reviewState, accepts valid state", () => {
   assertSchemaRefusal(
     () => validateTranslationUnit({ ...VALID_TU, reviewState: "not-ready" }),
     "invalid-review-state",
@@ -1030,7 +1030,7 @@ test("validateTranslationUnit: (source.ts:1039) invalid-review-state rejects inv
 // 5. VALIDATE ALIGNMENT REFUSALS (5 SITES)
 // ============================================================================
 
-test("validateAlignment: (source.ts:1107) invalid-record rejects non-object raw alignment, accepts valid alignment", () => {
+test("validateAlignment: (source.ts:1111) invalid-record rejects non-object raw alignment, accepts valid alignment", () => {
   assertSchemaRefusal(() => validateAlignment(null), "invalid-record");
   assertSchemaRefusal(() => validateAlignment(1234), "invalid-record");
   const accepted = validateAlignment(VALID_ALIGNMENT);
@@ -1047,7 +1047,7 @@ test("validateAlignment: (source.ts:1106) missing-edges rejects empty or non-arr
   assert.equal(accepted.edges.length, 1);
 });
 
-test("validateAlignment: (source.ts:1116) invalid-edge rejects non-object edge element, accepts valid edge object", () => {
+test("validateAlignment: (source.ts:1120) invalid-edge rejects non-object edge element, accepts valid edge object", () => {
   assertSchemaRefusal(
     () => validateAlignment({ ...VALID_ALIGNMENT, edges: [null] }),
     "invalid-edge",
@@ -1109,7 +1109,7 @@ test("validateAlignment: (source.ts:1135) invalid-edge-target rejects edge missi
 // 6. VALIDATE GLOSS UNIT REFUSALS (13 SITES)
 // ============================================================================
 
-test("validateGlossUnit: (source.ts:1214) invalid-record rejects non-object raw gloss unit, accepts valid gloss unit", () => {
+test("validateGlossUnit: (source.ts:1218) invalid-record rejects non-object raw gloss unit, accepts valid gloss unit", () => {
   assertSchemaRefusal(() => validateGlossUnit(null), "invalid-record");
   assertSchemaRefusal(() => validateGlossUnit(true), "invalid-record");
   const accepted = validateGlossUnit(VALID_GLOSS);
@@ -1129,7 +1129,7 @@ test("validateGlossUnit: (source.ts:1238) missing-sentence-id rejects empty or m
   assert.equal(accepted.sentenceId, "s1-p1-s1");
 });
 
-test("validateGlossUnit: (source.ts:1231) invalid-revision rejects non-positive or non-integer revision, accepts positive integer", () => {
+test("validateGlossUnit: (source.ts:1235) invalid-revision rejects non-positive or non-integer revision, accepts positive integer", () => {
   assertSchemaRefusal(() => validateGlossUnit({ ...VALID_GLOSS, revision: 0 }), "invalid-revision");
   assertSchemaRefusal(
     () => validateGlossUnit({ ...VALID_GLOSS, revision: -1 }),
@@ -1139,7 +1139,7 @@ test("validateGlossUnit: (source.ts:1231) invalid-revision rejects non-positive 
   assert.equal(accepted.revision, 2);
 });
 
-test("validateGlossUnit: (source.ts:1288) invalid-language-tag rejects invalid sourceLang tag, accepts valid tag", () => {
+test("validateGlossUnit: (source.ts:1292) invalid-language-tag rejects invalid sourceLang tag, accepts valid tag", () => {
   assertSchemaRefusal(
     () => validateGlossUnit({ ...VALID_GLOSS, sourceLang: "bad!source!lang" }),
     "invalid-language-tag",
@@ -1168,7 +1168,7 @@ test("validateGlossUnit: (source.ts:1325) missing-tokens rejects empty or non-ar
   assert.equal(accepted.tokens.length, 3);
 });
 
-test("validateGlossUnit: (source.ts:1324) invalid-direction rejects invalid text direction, accepts ltr or rtl", () => {
+test("validateGlossUnit: (source.ts:1328) invalid-direction rejects invalid text direction, accepts ltr or rtl", () => {
   assertSchemaRefusal(
     () => validateGlossUnit({ ...VALID_GLOSS, dir: "vertical" }),
     "invalid-direction",
@@ -1177,7 +1177,7 @@ test("validateGlossUnit: (source.ts:1324) invalid-direction rejects invalid text
   assert.equal(accepted.dir, "ltr");
 });
 
-test("validateGlossUnit: (source.ts:1330) invalid-review-state rejects unknown reviewState, accepts valid state", () => {
+test("validateGlossUnit: (source.ts:1334) invalid-review-state rejects unknown reviewState, accepts valid state", () => {
   assertSchemaRefusal(
     () => validateGlossUnit({ ...VALID_GLOSS, reviewState: "unapproved" }),
     "invalid-review-state",
@@ -1186,7 +1186,7 @@ test("validateGlossUnit: (source.ts:1330) invalid-review-state rejects unknown r
   assert.equal(accepted.reviewState, "draft");
 });
 
-test("validateGlossUnit: (source.ts:1355) invalid-token rejects non-object token entry, accepts valid token object", () => {
+test("validateGlossUnit: (source.ts:1359) invalid-token rejects non-object token entry, accepts valid token object", () => {
   assertSchemaRefusal(() => validateGlossUnit({ ...VALID_GLOSS, tokens: [null] }), "invalid-token");
   assertSchemaRefusal(
     () => validateGlossUnit({ ...VALID_GLOSS, tokens: ["not-a-token"] }),
@@ -1213,7 +1213,7 @@ test("validateGlossUnit: (source.ts:1363) missing-german-token rejects token mis
   assert.equal(accepted.tokens[0]?.german, "Wort");
 });
 
-test("validateGlossUnit: (source.ts:1413) invalid-multiword-unit rejects non-object multiword unit, accepts valid multiword unit", () => {
+test("validateGlossUnit: (source.ts:1417) invalid-multiword-unit rejects non-object multiword unit, accepts valid multiword unit", () => {
   assertSchemaRefusal(
     () => validateGlossUnit({ ...VALID_GLOSS, multiwordUnits: [null] }),
     "invalid-multiword-unit",
@@ -1245,7 +1245,7 @@ test("validateGlossUnit: (source.ts:1436) missing-multiword-english rejects mult
   assert.equal(accepted.multiwordUnits[0]?.english, "in this");
 });
 
-test("validateGlossUnit: (source.ts:1444) unlisted-note-class rejects multiword unit with unknown noteClass, accepts listed noteClass", () => {
+test("validateGlossUnit: (source.ts:1448) unlisted-note-class rejects multiword unit with unknown noteClass, accepts listed noteClass", () => {
   assertSchemaRefusal(
     () =>
       validateGlossUnit({
@@ -1279,7 +1279,7 @@ test("validateGlossUnit: (source.ts:1444) unlisted-note-class rejects multiword 
 // 7. VALIDATE EDITORIAL NOTE REFUSALS (6 SITES)
 // ============================================================================
 
-test("validateEditorialNote: (source.ts:1505) invalid-record rejects non-object raw note, accepts valid note", () => {
+test("validateEditorialNote: (source.ts:1664) invalid-record rejects non-object raw note, accepts valid note", () => {
   assertSchemaRefusal(() => validateEditorialNote(null), "invalid-record");
   assertSchemaRefusal(() => validateEditorialNote(999), "invalid-record");
   const accepted = validateEditorialNote(VALID_NOTE);
@@ -1296,7 +1296,7 @@ test("validateEditorialNote: (source.ts:1548) missing-claim rejects empty or non
   assert.equal(accepted.claim, "Einstein priority claim.");
 });
 
-test("validateEditorialNote: (source.ts:1539) invalid-language-tag rejects invalid note language tag, accepts valid tag", () => {
+test("validateEditorialNote: (source.ts:1698) invalid-language-tag rejects invalid note language tag, accepts valid tag", () => {
   assertSchemaRefusal(
     () => validateEditorialNote({ ...VALID_NOTE, lang: "bad!note!lang" }),
     "invalid-language-tag",
@@ -1305,7 +1305,7 @@ test("validateEditorialNote: (source.ts:1539) invalid-language-tag rejects inval
   assert.equal(accepted.lang, "en");
 });
 
-test("validateEditorialNote: (source.ts:1554) invalid-direction rejects invalid note text direction, accepts ltr or rtl", () => {
+test("validateEditorialNote: (source.ts:1713) invalid-direction rejects invalid note text direction, accepts ltr or rtl", () => {
   assertSchemaRefusal(
     () => validateEditorialNote({ ...VALID_NOTE, dir: "bidi-invalid" }),
     "invalid-direction",
@@ -1323,7 +1323,7 @@ test("validateEditorialNote: (source.ts:1608) invalid-correction-layer rejects l
   assert.equal(accepted.layer, "source");
 });
 
-test("validateEditorialNote: (source.ts:1596) invalid-review-state rejects unknown note reviewState, accepts valid state", () => {
+test("validateEditorialNote: (source.ts:1772) invalid-review-state rejects unknown note reviewState, accepts valid state", () => {
   assertSchemaRefusal(
     () => validateEditorialNote({ ...VALID_NOTE, reviewState: "unapproved" }),
     "invalid-review-state",
@@ -1336,21 +1336,21 @@ test("validateEditorialNote: (source.ts:1596) invalid-review-state rejects unkno
 // 8. VALIDATE CITATION REFUSALS (3 SITES)
 // ============================================================================
 
-test("validateCitation: (source.ts:1642) invalid-record rejects non-object raw citation, accepts valid citation", () => {
+test("validateCitation: (source.ts:1824) invalid-record rejects non-object raw citation, accepts valid citation", () => {
   assertSchemaRefusal(() => validateCitation(null), "invalid-record");
   assertSchemaRefusal(() => validateCitation("bad-citation"), "invalid-record");
   const accepted = validateCitation(VALID_CITATION);
   assert.equal(accepted.id, "cit-doi-1");
 });
 
-test("validateCitation: (source.ts:1651) missing-id rejects empty or non-string id, accepts valid id", () => {
+test("validateCitation: (source.ts:1833) missing-id rejects empty or non-string id, accepts valid id", () => {
   assertSchemaRefusal(() => validateCitation({ ...VALID_CITATION, id: "   " }), "missing-id");
   assertSchemaRefusal(() => validateCitation({ ...VALID_CITATION, id: null }), "missing-id");
   const accepted = validateCitation({ ...VALID_CITATION, id: "cit-1905-einstein" });
   assert.equal(accepted.id, "cit-1905-einstein");
 });
 
-test("validateCitation: (source.ts:1654) missing-title rejects empty or non-string title, accepts valid title", () => {
+test("validateCitation: (source.ts:1836) missing-title rejects empty or non-string title, accepts valid title", () => {
   assertSchemaRefusal(() => validateCitation({ ...VALID_CITATION, title: "   " }), "missing-title");
   assertSchemaRefusal(() => validateCitation({ ...VALID_CITATION, title: 123 }), "missing-title");
   const accepted = validateCitation({
@@ -1364,7 +1364,7 @@ test("validateCitation: (source.ts:1654) missing-title rejects empty or non-stri
 // 9. VALIDATE TRANSLATION EDITION REFUSALS (9 SITES)
 // ============================================================================
 
-test("validateTranslationEdition: (source.ts:1740) invalid-record rejects non-object raw edition, accepts valid edition", () => {
+test("validateTranslationEdition: (source.ts:1922) invalid-record rejects non-object raw edition, accepts valid edition", () => {
   assertSchemaRefusal(() => validateTranslationEdition(null), "invalid-record");
   assertSchemaRefusal(() => validateTranslationEdition("bad-edition"), "invalid-record");
   const accepted = validateTranslationEdition(VALID_EDITION);
@@ -1400,7 +1400,7 @@ test("validateTranslationEdition: (source.ts:1780) missing-paper-id rejects empt
   assert.equal(accepted.paperId, "ap-17-549");
 });
 
-test("validateTranslationEdition: (source.ts:1765) missing-title rejects empty or missing edition title, accepts valid title", () => {
+test("validateTranslationEdition: (source.ts:1947) missing-title rejects empty or missing edition title, accepts valid title", () => {
   assertSchemaRefusal(
     () => validateTranslationEdition({ ...VALID_EDITION, title: "   " }),
     "missing-title",
@@ -1416,7 +1416,7 @@ test("validateTranslationEdition: (source.ts:1765) missing-title rejects empty o
   assert.equal(accepted.title, "English Translation Edition");
 });
 
-test("validateTranslationEdition: (source.ts:1796) missing-license rejects empty or missing license, accepts valid license", () => {
+test("validateTranslationEdition: (source.ts:1978) missing-license rejects empty or missing license, accepts valid license", () => {
   assertSchemaRefusal(
     () => validateTranslationEdition({ ...VALID_EDITION, license: "   " }),
     "missing-license",
@@ -1429,7 +1429,7 @@ test("validateTranslationEdition: (source.ts:1796) missing-license rejects empty
   assert.equal(accepted.license, "CC-BY-4.0");
 });
 
-test("validateTranslationEdition: (source.ts:1806) missing-language rejects empty or missing language, accepts valid language", () => {
+test("validateTranslationEdition: (source.ts:1988) missing-language rejects empty or missing language, accepts valid language", () => {
   assertSchemaRefusal(
     () => validateTranslationEdition({ ...VALID_EDITION, language: "   " }),
     "missing-language",
@@ -1493,7 +1493,7 @@ test("validateTranslationEdition: (source.ts:1843) missing-units rejects non-arr
  * appear here at all. Eleven sites, eleven real gaps.
  */
 
-test("validateSourceAsset: (source.ts:505) missing-required-rights-field rejects a status whose required statement is blank", () => {
+test("validateSourceAsset: (source.ts:509) missing-required-rights-field rejects a status whose required statement is blank", () => {
   // The per-status required-field loop, which is a different site from the five
   // field-specific ones above it: this one fires for rights.statement on ANY status whose
   // vocabulary entry requires it, so it is the rule rather than a named field.
@@ -1506,13 +1506,13 @@ test("validateSourceAsset: (source.ts:505) missing-required-rights-field rejects
   assert.equal(accepted.sha256, VALID_ASSET.sha256);
 });
 
-test("validateSourceBlock: (source.ts:687) missing-id rejects a block with no id", () => {
+test("validateSourceBlock: (source.ts:691) missing-id rejects a block with no id", () => {
   assertSchemaRefusal(() => validateSourceBlock({ ...VALID_BLOCK, id: "   " }), "missing-id");
   assertSchemaRefusal(() => validateSourceBlock({ ...VALID_BLOCK, id: null }), "missing-id");
   assert.equal(validateSourceBlock(VALID_BLOCK).id, VALID_BLOCK.id);
 });
 
-test("validateSourceBlock: (source.ts:690) invalid-kind rejects a block kind outside the list", () => {
+test("validateSourceBlock: (source.ts:694) invalid-kind rejects a block kind outside the list", () => {
   // A block id survives a rename; a block KIND selects which face renders it, so an
   // unlisted kind is a record nothing can display rather than a record with a typo.
   assertSchemaRefusal(
@@ -1522,7 +1522,7 @@ test("validateSourceBlock: (source.ts:690) invalid-kind rejects a block kind out
   assert.equal(validateSourceBlock(VALID_BLOCK).kind, "paragraph");
 });
 
-test("validateSourceBlock: (source.ts:809) invalid-language-tag rejects a malformed block lang", () => {
+test("validateSourceBlock: (source.ts:813) invalid-language-tag rejects a malformed block lang", () => {
   // lang is optional on a block, so the refusal fires only when one is PRESENT and
   // malformed. Passing undefined must still be accepted, or this arm would be asserting
   // that the field is required, which it is not.
@@ -1534,13 +1534,13 @@ test("validateSourceBlock: (source.ts:809) invalid-language-tag rejects a malfor
   assert.equal(accepted.id, VALID_BLOCK.id);
 });
 
-test("validateTranslationUnit: (source.ts:977) missing-id rejects a unit with no id", () => {
+test("validateTranslationUnit: (source.ts:981) missing-id rejects a unit with no id", () => {
   assertSchemaRefusal(() => validateTranslationUnit({ ...VALID_TU, id: "" }), "missing-id");
   assertSchemaRefusal(() => validateTranslationUnit({ ...VALID_TU, id: 7 }), "missing-id");
   assert.equal(validateTranslationUnit(VALID_TU).id, VALID_TU.id);
 });
 
-test("validateGlossUnit: (source.ts:1260) missing-lang rejects a gloss with no target language", () => {
+test("validateGlossUnit: (source.ts:1264) missing-lang rejects a gloss with no target language", () => {
   // Required here and optional on a SourceBlock, which is why the two have separate
   // sites: a gloss with no target language cannot be rendered for any reader.
   assertSchemaRefusal(() => validateGlossUnit({ ...VALID_GLOSS, lang: "  " }), "missing-lang");
@@ -1548,7 +1548,7 @@ test("validateGlossUnit: (source.ts:1260) missing-lang rejects a gloss with no t
   assert.equal(validateGlossUnit(VALID_GLOSS).lang, "en");
 });
 
-test("validateGlossUnit: (source.ts:1272) invalid-language-tag rejects a malformed gloss lang", () => {
+test("validateGlossUnit: (source.ts:1276) invalid-language-tag rejects a malformed gloss lang", () => {
   // Reached only because the presence check above it PASSES, which is what separates
   // this arm from missing-lang: "deutsch" is present and is not a language tag.
   assertSchemaRefusal(
@@ -1558,7 +1558,7 @@ test("validateGlossUnit: (source.ts:1272) invalid-language-tag rejects a malform
   assert.equal(validateGlossUnit(VALID_GLOSS).lang, "en");
 });
 
-test("validateGlossUnit: (source.ts:1367) unlisted-note-class rejects a token noteClass outside the list", () => {
+test("validateGlossUnit: (source.ts:1371) unlisted-note-class rejects a token noteClass outside the list", () => {
   // noteClass is optional on a token, so undefined must pass. The refusal exists because
   // a gloss note is rendered by class, and an unlisted class is a note with no treatment.
   const tokens = (VALID_GLOSS.tokens as Record<string, unknown>[]).map((token, index) =>
@@ -1568,12 +1568,12 @@ test("validateGlossUnit: (source.ts:1367) unlisted-note-class rejects a token no
   assert.equal(validateGlossUnit(VALID_GLOSS).sentenceId, VALID_GLOSS.sentenceId);
 });
 
-test("validateEditorialNote: (source.ts:1514) missing-id rejects a note with no id", () => {
+test("validateEditorialNote: (source.ts:1673) missing-id rejects a note with no id", () => {
   assertSchemaRefusal(() => validateEditorialNote({ ...VALID_NOTE, id: "   " }), "missing-id");
   assert.equal(validateEditorialNote(VALID_NOTE).id, VALID_NOTE.id);
 });
 
-test("validateEditorialNote: (source.ts:1517) invalid-kind rejects a note kind outside the list", () => {
+test("validateEditorialNote: (source.ts:1676) invalid-kind rejects a note kind outside the list", () => {
   // The kinds are the editorial layers AGENTS.md separates - historian's margin,
   // correction, typographical, dispute, side note - so an unlisted kind is a note whose
   // attribution layer is undefined, not a cosmetic mislabel.
@@ -1584,7 +1584,7 @@ test("validateEditorialNote: (source.ts:1517) invalid-kind rejects a note kind o
   assert.equal(validateEditorialNote(VALID_NOTE).kind, "dispute");
 });
 
-test("validateCitation: (source.ts:1662) invalid-role rejects a citation role outside the four", () => {
+test("validateCitation: (source.ts:1844) invalid-role rejects a citation role outside the four", () => {
   // The four roles carry different evidential weight - a comparison witness is not a
   // primary source - so an unlisted role would let a witness be cited as evidence.
   assertSchemaRefusal(

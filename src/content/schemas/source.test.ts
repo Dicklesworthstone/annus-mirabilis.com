@@ -498,6 +498,68 @@ test("EditorialNote: an argument comparison answers every question, and refuses 
   assert.equal(note.comparison?.arguments.length, 2);
 });
 
+test("EditorialNote: a comparison's questions are refused when they are unusable", () => {
+  // The four refusals on the questions themselves, each driven rather than named. A table whose
+  // questions are missing, unlabelled or repeated cannot be rendered as a comparison, and a reader
+  // would meet a row of blanks instead (am-me-margin-entries-kfg5).
+  const ok = [{ id: "importedResult", label: "What result is imported" }];
+  const rows = [
+    {
+      id: "a",
+      label: "A",
+      sourceNoteId: "note-x",
+      instrumentRef: "me-01",
+      cells: { importedResult: "One." },
+    },
+    {
+      id: "b",
+      label: "B",
+      sourceNoteId: "note-x",
+      instrumentRef: "me-01",
+      cells: { importedResult: "Two." },
+    },
+  ];
+
+  assert.throws(
+    () => validateArgumentComparison("not an object"),
+    (err: any) => {
+      assert.equal(err.code, "invalid-comparison");
+      return true;
+    },
+  );
+
+  assert.throws(
+    () => validateArgumentComparison({ questions: [], arguments: rows }),
+    (err: any) => {
+      assert.equal(err.code, "comparison-questions-required");
+      return true;
+    },
+  );
+
+  // A question with no label cannot head a column, and one with no id cannot be answered.
+  for (const question of [{ id: "importedResult" }, { label: "What result is imported" }]) {
+    assert.throws(
+      () => validateArgumentComparison({ questions: [question], arguments: rows }),
+      (err: any) => {
+        assert.equal(err.code, "comparison-question-invalid");
+        return true;
+      },
+    );
+  }
+
+  assert.throws(
+    () => validateArgumentComparison({ questions: [...ok, ...ok], arguments: rows }),
+    (err: any) => {
+      assert.equal(err.code, "comparison-question-duplicate");
+      return true;
+    },
+  );
+
+  // The control: the same shape with usable questions validates, so each refusal above is the
+  // question and not the rows.
+  assert.equal(validateArgumentComparison({ questions: ok, arguments: rows }).questions.length, 1);
+});
+
 test("EditorialNote: historicalStatement is validated and CARRIED, not silently dropped", () => {
   // The bug this guards: the validator accepted the field and returned a record without it, so a
   // margin record could declare which of AGENTS.md's four historical statements it concerns and a

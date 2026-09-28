@@ -14,9 +14,7 @@
       "role": "primary"
     }
   ],
-  "affectedIds": [
-    "s0-p4"
-  ],
+  "affectedIds": ["s0-p4"],
   "reviewState": "draft",
   "comparison": {
     "questions": [
