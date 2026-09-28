@@ -90,9 +90,20 @@ export type ResultCardRecord = Readonly<{
 }>;
 
 /**
- * What a card may cite beyond the paper's own records and the laboratories' manifests. The margin
- * records have no registry a card can resolve against yet, so the default is empty: until one
- * lands, a card lists none rather than inventing one.
+ * What a card may cite beyond the paper's own records and the laboratories' manifests.
+ *
+ * THE MARGIN REGISTRY NOW LANDS FROM DISK (dispatch 340). This comment used to say the margin records
+ * had no registry a card could resolve against, so the default was empty and a card was to list none
+ * until one landed. That default was the reason a card COULD NOT cite one at all: `checkResultCards`
+ * licenses a later use either by a margin record id or by a connection whose recorded use starts at
+ * that very card, and with this set empty only the second path existed. Measured 2026-09-28, no
+ * connection records a use from any mass-energy card, so its seven cards had no way to claim a later
+ * use, and `usedLater` was empty on all 38 cards of all four papers with the single exception of
+ * relativity's light-energy card, which cites a connection.
+ *
+ * `resultContext` now reads the ids of content/editorial-notes/<paper>/ the way it already reads the
+ * paper's arguments and equations. A caller may still pass its own registries, which is how the
+ * refusal paths are tested, and EMPTY_REGISTRIES stays for a caller that means to license nothing.
  */
 export type ResultRegistries = Readonly<{
   marginRecords: ReadonlySet<string>;
@@ -548,7 +559,7 @@ function misconceptionLedger(root: string, paper: string): ReadonlyMap<string, r
 export function resultContext(
   root: string,
   paper: string,
-  registries: ResultRegistries = EMPTY_REGISTRIES,
+  registries?: ResultRegistries,
 ): ResultContext | null {
   const face = loadGermanSourceFace(paper as RouteSlug, root) ?? sourceBlockFace(root, paper);
   if (!face) return null;
@@ -569,7 +580,7 @@ export function resultContext(
     sentencePages: sentencePages(root, paper),
     publishedSentences: publishedSentences(root, paper),
     ledger: misconceptionLedger(root, paper),
-    registries,
+    registries: registries ?? { marginRecords: recordIds(root, "editorial-notes", paper) },
     printsBeta: printsBeta(root, paper),
   };
 }
@@ -605,7 +616,10 @@ export function hasResultCards(root: string, paper: string): boolean {
 export function loadResultCards(
   root: string,
   paper: string,
-  registries: ResultRegistries = EMPTY_REGISTRIES,
+  // Undefined rather than EMPTY_REGISTRIES, so resultContext reads the paper's editorial notes from
+  // disk (dispatch 340). Passing the empty set explicitly here defeated that default and refused
+  // every margin-record claim, which is how the first version of this change reached the test.
+  registries?: ResultRegistries,
 ): Readonly<{ cards: readonly ResultCardRecord[]; problems: readonly string[] }> | null {
   const file = join(root, "content", "results", `${paper}.yaml`);
   if (!existsSync(file)) return null;

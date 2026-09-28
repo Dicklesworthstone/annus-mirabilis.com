@@ -7,7 +7,7 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseYaml } from "../provenance/yaml.ts";
-import { checkResultCards, resultContext } from "./resultCards.ts";
+import { checkResultCards, EMPTY_REGISTRIES, resultContext } from "./resultCards.ts";
 
 const ROOT = process.cwd();
 const PAPER = "special-relativity";
@@ -27,6 +27,76 @@ function laterUseProblems(claims: Readonly<Record<string, readonly string[]>>): 
     (p) => p.includes("later use") || p.includes("margin record"),
   );
 }
+
+/**
+ * THE OTHER HALF OF THE SAME RULE (dispatch 340). Everything above tests the refusal, with the claims
+ * planted, and it passed while `usedLater` was empty on all 38 cards of all four papers: the margin
+ * registry defaulted to an empty set, so the only claim any card could make was a connection whose
+ * recorded use starts at that card, and exactly one card in the corpus had one. A rule whose acceptance
+ * path no record exercises is a rule that could be inverted without a test noticing, so these read the
+ * registry off disk and check a real card's real claim.
+ */
+describe("the margin registry a card cites against", () => {
+  test("it is read from the paper's own editorial notes, and it is not empty", () => {
+    const registry = resultContext(ROOT, "mass-energy")?.registries.marginRecords;
+    expect(registry?.size, "no margin ids: every claim below would be refused").toBeGreaterThan(0);
+    expect(registry?.has("note-me-c-1906-poincare")).toBe(true);
+    // A paper with no editorial-notes directory gets an empty set rather than another paper's ids.
+    expect(resultContext(ROOT, "brownian-motion")?.registries.marginRecords.size).toBe(0);
+  });
+
+  test("a card may now cite a margin record, which nothing could do before", () => {
+    // THE ACCEPTANCE PATH, planted the way the refusals above are planted. It is planted rather than
+    // read off a real card because no card ships such a claim yet: the results face renders a later
+    // use as an edge of the connections map, so a margin-backed claim has nowhere to appear until
+    // am-read-results-face-uzh handles one. The citation path is what this bead owns, and this is it.
+    const meFile = parseYaml(
+      readFileSync(join(ROOT, "content", "results", "mass-energy.yaml"), "utf8"),
+    ) as { cards: Record<string, unknown>[] };
+    const context = resultContext(ROOT, "mass-energy");
+    if (!context) throw new Error("mass-energy's result context did not load");
+    const claimed = {
+      ...meFile,
+      cards: meFile.cards.map((c) =>
+        c.id === "me-closing-remarks" ? { ...c, usedLater: ["note-me-e-radium-and-checks"] } : c,
+      ),
+    };
+    expect(checkResultCards(claimed, context).problems).toEqual([]);
+    // And with the registry empty, as it was until this change, that very claim is refused.
+    const before = resultContext(ROOT, "mass-energy", EMPTY_REGISTRIES);
+    if (!before) throw new Error("mass-energy's result context did not load");
+    expect(checkResultCards(claimed, before).problems).toEqual([
+      "mass-energy card me-closing-remarks: claims a later use, note-me-e-radium-and-checks, that no connection or margin record names",
+    ]);
+  });
+
+  test("an id no editorial note names is still refused, and an empty registry licenses nothing", () => {
+    const meFile = parseYaml(
+      readFileSync(join(ROOT, "content", "results", "mass-energy.yaml"), "utf8"),
+    ) as { cards: Record<string, unknown>[] };
+    const context = resultContext(ROOT, "mass-energy");
+    if (!context) throw new Error("mass-energy's result context did not load");
+    const invented = {
+      ...meFile,
+      cards: meFile.cards.map((c) =>
+        c.id === "me-mass-decrease" ? { ...c, usedLater: ["note-me-no-such-record"] } : c,
+      ),
+    };
+    expect(checkResultCards(invented, context).problems).toEqual([
+      "mass-energy card me-mass-decrease: claims a later use, note-me-no-such-record, that no connection or margin record names",
+    ]);
+    // A margin record of ANOTHER paper is not licensed either: the registry is read per paper.
+    const elsewhere = {
+      ...meFile,
+      cards: meFile.cards.map((c) =>
+        c.id === "me-mass-decrease" ? { ...c, usedLater: ["note-me-e-radium-and-checks"] } : c,
+      ),
+    };
+    const brownian = resultContext(ROOT, "brownian-motion");
+    if (!brownian) throw new Error("brownian's result context did not load");
+    expect(checkResultCards(elsewhere, brownian).problems.length).toBeGreaterThan(0);
+  });
+});
 
 describe("a card's later uses", () => {
   test("the context holds the connections, one of which records a use of a relativity card", () => {
