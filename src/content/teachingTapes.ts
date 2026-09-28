@@ -106,6 +106,26 @@ export function stepsOf(raw: Record<string, unknown>): TapeStep[] {
     if (at !== undefined) checkpointAt.set(at, o);
   }
   const steps: TapeStep[] = [];
+  /**
+   * A CHECKPOINT WITH NO EVENT IS STILL A RECORDED OBSERVATION. Walking events alone dropped any
+   * checkpoint whose actionIndex no event shares, and the commonest of those is the starting state
+   * at index 0. lq-05-journey-stage-e's only checkpoint belongs there: it describes n = 3, the
+   * initial condition, and had been filed at index 1 beside the event that sets n to 60, so the
+   * page read "Set n to 60 / n = 3 gives W = 1/8". Moving the checkpoint fixed the record; this
+   * makes sure moving it does not make the observation disappear instead.
+   */
+  const eventIndices = new Set(
+    list(raw.events).map((e) => num(((e ?? {}) as Record<string, unknown>).actionIndex)),
+  );
+  for (const [at, c] of [...checkpointAt].sort((a, b) => a[0] - b[0])) {
+    if (eventIndices.has(at)) continue;
+    steps.push({
+      actionIndex: at,
+      ...(str(c.label) ? { label: str(c.label) } : {}),
+      ...(str(c.teachingNote) ? { teachingNote: str(c.teachingNote) } : {}),
+      expected: expectedOf(c.expectedDisplayValues),
+    });
+  }
   for (const e of list(raw.events)) {
     const o = (e ?? {}) as Record<string, unknown>;
     const actionIndex = num(o.actionIndex);

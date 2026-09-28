@@ -22,9 +22,15 @@ events:
     parameterId: n
     value: 60
 checkpoints:
-  - actionIndex: 1
-    stepIndex: 1
-    simulatedTime: 1
+  # The starting state, where n = 3, which is what this checkpoint's own label and teaching note
+  # describe. It was recorded at actionIndex 1, the index of the event that sets n to 60, so the
+  # walkthrough read "Set n to 60 / Three particles in half volume / n = 3 gives W = 1/8 / W =
+  # 0.125" on /tapes/lq-05-journey-stage-e/ (TanElk, 2026-09-27). The number was right and the
+  # index was wrong. The n = 60 step carries no recorded expectation, because the author recorded
+  # none, and inventing one here would be authoring physics into someone else's record.
+  - actionIndex: 0
+    stepIndex: 0
+    simulatedTime: 0
     digest: "host:sha256:3333333333333333333333333333333333333333333333333333333333333333"
     digestKind: host
     checkpointVersion: 1

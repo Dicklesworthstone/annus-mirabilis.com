@@ -120,12 +120,53 @@ describe("the numbers on a teaching tape's page, recomputed from its own inputs"
       (n, t) => n + t.steps.reduce((m, s) => m + s.expected.length, 0),
       0,
     );
-    const checked = 6;
+    const recomputed = 6; // the three tapes above, by name
     console.log(
-      `[tape numbers] ${checked} of ${total} recorded numbers recomputed here; ${total - checked} unchecked ` +
-        "(2 are semantic-kind codes, the rest need the instrument's evaluator)",
+      `[tape numbers] ${total} recorded numbers on the tape pages; ${recomputed} recomputed from ` +
+        "their tape's own inputs, and the lq-05 W values additionally checked against the state " +
+        `they are filed under; ${total - recomputed} not recomputed (2 are semantic-kind codes, ` +
+        "the rest need the instrument's evaluator)",
     );
     // Non-vacuity, and a reminder: if the corpus grows, the unchecked remainder grows with it.
-    expect(total).toBeGreaterThan(checked);
+    expect(total).toBeGreaterThan(recomputed);
+  });
+});
+
+describe("a recorded number agrees with the parameters in force where it was recorded", () => {
+  /** The parameter values at an actionIndex: the initial conditions, then every earlier event. */
+  function inForce(t: TeachingTape, at: number): Record<string, number> {
+    const values: Record<string, number> = {};
+    for (const [k, v] of Object.entries(t.initialConditions))
+      if (typeof v === "number") values[k] = v;
+    for (const step of t.steps)
+      if (step.actionIndex <= at && step.parameterId && step.value !== undefined)
+        values[step.parameterId] = step.value;
+    return values;
+  }
+
+  test("lq-05: W is f to the power of the n that holds at that step, not some other n", () => {
+    // THE DEFECT THIS CATCHES, and it was live. lq-05-journey-stage-e recorded W = 0.125 at the
+    // actionIndex of the event that sets n to 60, while 0.125 is 0.5^3, the n it starts from. The
+    // page read "Set n to 60 / Three particles in half volume / n = 3 gives W = 1/8 / W = 0.125".
+    // The number was right and the index was wrong, and a check on the number alone would have
+    // passed. This one asks whether it agrees with the state it is filed under.
+    let judged = 0;
+    for (const t of [...tapes.values()].filter((x) => x.experimentId === "lq-05"))
+      for (const step of t.steps)
+        for (const v of step.expected) {
+          if (!v.label.startsWith("W")) continue;
+          const { n, f } = inForce(t, step.actionIndex);
+          if (n === undefined || f === undefined) continue;
+          judged += 1;
+          // "W (locked)" is the whole set moving together: one coin, so f whatever n is. Any other
+          // W is the independent count, f^n.
+          const expected = v.label.includes("locked") ? f : f ** n;
+          expect(
+            v.value,
+            `${t.tapeId} step ${step.actionIndex} ${v.label} against n=${n}, f=${f}`,
+          ).toBeCloseTo(expected, 12);
+        }
+    // Three W values across the two lq-05 tapes; a loop that judged none would prove nothing.
+    expect(judged).toBeGreaterThan(2);
   });
 });

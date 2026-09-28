@@ -94,6 +94,8 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
                     Set <b>{step.parameterId}</b>
                     {step.value === undefined ? null : <> to {step.value}</>}
                   </>
+                ) : step.actionIndex === 0 ? (
+                  <>Where it starts, before anything changes</>
                 ) : (
                   <>Step {step.actionIndex}</>
                 )}
