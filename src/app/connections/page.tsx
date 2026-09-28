@@ -42,6 +42,37 @@ export default function ConnectionsPage() {
           <a href="/lab/me-01/">Two energy ledgers</a>
         </p>
       </section>
+      {/* The connection this section records is one the paper makes itself: footnote 1 of the
+          mass-energy paper cites the relativity paper, and s0-p2 says what it takes from there.
+          The three quotations are this edition's own translation units s0-p2-s1, s0-p3-s1 and
+          s0-p7-s3, quoted as they are served, so the page and the edition cannot disagree. Nothing
+          here is a claim about the order in which Einstein found the two, which the record could
+          not support. */}
+      <section className="reading page-flush" id="relativity-premises">
+        <p className="eyebrow">Takes a premise</p>
+        <h2>The foundations the September paper says it laid down in June</h2>
+        <p>
+          The mass–energy paper’s first footnote is the relativity paper: “A. Einstein, Ann. d.
+          Phys. 17. p. 891. 1905.” Its second paragraph says what it takes from there: “There I took
+          as a basis the Maxwell-Hertz equations for empty space, together with Maxwell’s expression
+          for the electromagnetic energy of space, and in addition the principle:”, and the next
+          paragraph states that principle in full. In the seventh paragraph the principle does its
+          work: “The energy principle must hold for this process, and indeed (by the principle of
+          relativity) with respect to both coordinate systems.” That sentence is where the two
+          energy ledgers get their second coordinate system.
+        </p>
+        <p>
+          This is the later paper citing the earlier one, so it records which premises the September
+          argument imports. It says nothing about the order in which the two were found, and nothing
+          on this page infers one.
+        </p>
+        <p>
+          <a href="/papers/mass-energy/view/english/#s0-fn1">The footnote</a> ·{" "}
+          <a href="/papers/mass-energy/view/english/#s0-p2-s1">What it takes as a basis</a> ·{" "}
+          <a href="/papers/special-relativity/#s0">The relativity paper’s two postulates</a> ·{" "}
+          <a href="/papers/mass-energy/view/english/#s0-p7-s3">Where the principle is used</a>
+        </p>
+      </section>
       <section className="reading page-flush" id="molecular-number">
         <p className="eyebrow">Separate routes to one number · Companion preview</p>
         <h2>What information lets you infer a molecular number?</h2>
