@@ -33,7 +33,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadTeachingTapes } from "../src/content/teachingTapes.ts";
+import { loadTeachingTapes, loadWireTeachingTapes } from "../src/content/teachingTapes.ts";
 import { BM01_DRAFT_TAPE } from "../src/experiments/bm01/draftTape.ts";
 import { BM04_DRAFT_TAPE } from "../src/experiments/bm04/draftTape.ts";
 import { BM05_DRAFT_TAPE } from "../src/experiments/bm05/draftTape.ts";
@@ -225,6 +225,34 @@ export const BOUND_LABORATORIES: readonly string[] = Object.freeze(
   [...Object.keys(SESSION_BINDINGS), ...Object.keys(DRAFT_BINDINGS)].sort(),
 );
 
+/**
+ * THE AUTHORED WALKTHROUGHS AS WIRE TAPES, FOR THE BROWSER (am-2rl9, dispatch 382).
+ *
+ * `loadWireTeachingTapes` reads the YAML with node:fs, so it cannot run where an instrument runs.
+ * This is the same map as a build product, which is how every other laboratory result already
+ * reaches a page. It is written beside tape-links.json BY THE SAME GENERATOR on purpose: two
+ * artifacts from one source that some lane regenerates separately is a staleness trap, and this
+ * repository has one recorded already.
+ *
+ * SIZE, MEASURED BEFORE CHOOSING THE SHAPE (2026-09-28): the whole map is 11,876 bytes raw and
+ * 2,453 gzipped, across 12 tapes and 10 instruments; the largest single instrument is 2,010 raw and
+ * 644 gzipped. Against the initial reading route's 200 KiB compressed budget that is 1.2 per cent,
+ * so it ships as ONE file. A per-instrument split would buy under 2 kB and cost a loader.
+ *
+ * The 10 records that do not convert are carried as `problems` rather than dropped, because a
+ * walkthrough missing from a resolver and one that never existed look identical to a caller.
+ */
+async function generateTeachingTapes(root: string) {
+  const { tapes, problems } = loadWireTeachingTapes(root);
+  const byId: Record<string, unknown> = {};
+  for (const id of [...tapes.keys()].sort()) byId[id] = tapes.get(id);
+  await writeFile(
+    resolve(root, "src/generated/teaching-tapes.json"),
+    `${JSON.stringify({ tapes: byId, problems }, null, 2)}\n`,
+  );
+  return { tapes: Object.keys(byId).length, problems: problems.length };
+}
+
 export async function generateTapeLinks() {
   const built = buildTapeLinks();
   const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -233,9 +261,12 @@ export async function generateTapeLinks() {
     resolve(root, "src/generated/tape-links.json"),
     `${JSON.stringify(built, null, 2)}\n`,
   );
+  const wire = await generateTeachingTapes(root);
   return {
     linked: Object.keys(built.links).length,
     notLinked: Object.keys(built.notLinked).length,
+    replayable: wire.tapes,
+    unconvertible: wire.problems,
   };
 }
 
