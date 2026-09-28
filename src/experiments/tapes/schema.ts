@@ -236,6 +236,19 @@ export type ExpectedDisplayValue = Readonly<{
   value: number;
   unit: string;
   constantSetId: string;
+  /**
+   * Which of the instrument's declared outputs this number is read from, for a `label` that is
+   * authored prose rather than a field id (am-2rl9, dispatch 383). Optional, because a label that is
+   * itself a field id, or that the manifest already declares through `owner.identifierBindings`,
+   * needs nothing here.
+   *
+   * IT NAMES A FIELD AND NOT A CANONICAL QUANTITY, which was measured rather than assumed: lq-05
+   * declares both its `configurationProbability` and its `lockedProbability` outputs as the canonical
+   * quantity `configurationProbability`, and on `the-locked-positions` those two carry 0.0009765625
+   * and 0.5. A canonical quantity therefore cannot say which number a reader is looking at, and a
+   * field can.
+   */
+  outputId?: string | undefined;
 }>;
 
 export type TapeCheckpoint = Readonly<{
@@ -561,9 +574,22 @@ function validateCheckpoint(raw: unknown, path: string): TapeCheckpoint {
   });
 }
 
+/**
+ * Every key an expectation entry may carry. The refusal below reads this set, so adding a field to
+ * `ExpectedDisplayValue` means adding it here or the records cannot use it.
+ */
+const EXPECTED_DISPLAY_VALUE_KEYS: ReadonlySet<string> = new Set([
+  "label",
+  "value",
+  "unit",
+  "constantSetId",
+  "outputId",
+]);
+
 /** Every expected displayed value must name the constant set it was computed under
  * (am-bm-01-tracer-ensemble-hdly): a value with no `constantSetId`, or an empty one, fails
- * validation rather than being silently accepted as unlabeled. */
+ * validation rather than being silently accepted as unlabeled. An unknown key is refused
+ * (am-2rl9): see the comment at the refusal for why it is refused rather than reported. */
 function validateExpectedDisplayValues(
   raw: unknown,
   path: string,
@@ -588,11 +614,36 @@ function validateExpectedDisplayValues(
           entryPath,
         );
       }
+      if (o.outputId !== undefined && (typeof o.outputId !== "string" || !o.outputId.trim()))
+        throw new TapeValidationError(
+          `expected display value "${o.label}" declares an outputId that is not a non-empty string.`,
+          entryPath,
+        );
+      // AN UNKNOWN KEY IS REFUSED RATHER THAN DISCARDED (am-2rl9, dispatch 383). Until now this
+      // validator rebuilt the entry from the four keys it knew, so a field an author added was
+      // silently dropped: no error, no effect, and nothing anywhere saying the record did not mean
+      // what it says. That is the same failure this repository keeps finding a layer up, a
+      // population that could not be read looking exactly like a clean one, and it is worse here
+      // because the author has written the claim down and been told nothing.
+      //
+      // REFUSING RATHER THAN REPORTING, measured before choosing: across the 22 tape records, all 29
+      // expectation entries carry exactly the four known keys and NOT ONE carries an unknown key, so
+      // refusing costs nothing today and a clean sweep is the cheapest moment to close a gate. It is
+      // also how every other defect in this validator is communicated.
+      const unknown = Object.keys(o).filter((key) => !EXPECTED_DISPLAY_VALUE_KEYS.has(key));
+      if (unknown.length > 0)
+        throw new TapeValidationError(
+          `expected display value "${o.label}" carries ${unknown.length === 1 ? "an unknown key" : "unknown keys"} ` +
+            `${unknown.map((key) => `"${key}"`).join(", ")}; a key this schema does not know would be dropped ` +
+            `without effect, so it is refused. Known keys: ${[...EXPECTED_DISPLAY_VALUE_KEYS].join(", ")}.`,
+          entryPath,
+        );
       return Object.freeze({
         label: o.label,
         value: o.value,
         unit: o.unit,
         constantSetId: o.constantSetId,
+        ...(o.outputId === undefined ? {} : { outputId: o.outputId }),
       });
     }),
   );
