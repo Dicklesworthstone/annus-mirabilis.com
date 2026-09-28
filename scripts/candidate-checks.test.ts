@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { createHash } from "node:crypto";
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -37,6 +38,53 @@ function fixture() {
   put("lab/bm-01/index.html", '<script src="/_next/static/chunks/lab.js" async=""></script>');
   put("_next/static/chunks/lab.js", "console.log(1)");
   put("foundations/fractions/index.html", "<main>fractions</main>");
+
+  // A CANDIDATE SERVES MORE THAN PAGES, and two checks read the rest of it (dispatch 387). Without
+  // these the fixture is not "a candidate serving exactly the build": fragment-anchors-resolve would
+  // find no sitemap and wasm-artifact-served-as-pinned no manifest, and both would correctly refuse.
+  //
+  // The anchor page carries 120 links because the check floors a sweep at 100 pairs: a run that
+  // collects almost nothing has a broken href pattern rather than a clean site, and a fixture that
+  // could not clear its own floor would be testing the floor instead of the check.
+  const anchorIdsInFixture = Array.from({ length: 120 }, (_, i) => `frag-${i}`);
+  put(
+    "anchors/targets/index.html",
+    `<main>${anchorIdsInFixture.map((id) => `<h2 id="${id}">${id}</h2>`).join("")}</main>`,
+  );
+  put(
+    "anchors/links/index.html",
+    `<main>${anchorIdsInFixture
+      .map((id) => `<a href="/anchors/targets/#${id}">${id}</a>`)
+      .join("")}</main>`,
+  );
+  put(
+    "sitemap.xml",
+    `<?xml version="1.0"?><urlset>${["/papers/mass-energy/", "/anchors/links/", "/anchors/targets/"]
+      .map((route) => `<loc>https://annus-mirabilis.com${route}</loc>`)
+      .join("")}</urlset>`,
+  );
+
+  const wasmBytes = Buffer.from("\0asm\u0001\0\0\0 fixture artifact", "binary");
+  const glueBytes = Buffer.from("export function brownian_frames() {}\n", "utf8");
+  const digestOf = (b: Buffer) => createHash("sha256").update(b).digest("hex");
+  const bundleDir = "wasm/fs-annus-diffusion/deadbeefdeadbeef";
+  mkdirSync(join(staticDir, ...bundleDir.split("/")), { recursive: true });
+  writeFileSync(join(staticDir, ...bundleDir.split("/"), "artifact_bg.wasm"), wasmBytes);
+  writeFileSync(join(staticDir, ...bundleDir.split("/"), "artifact.js"), glueBytes);
+  put(
+    "wasm/manifest.json",
+    JSON.stringify({
+      schemaVersion: 1,
+      bundleId: "fs-annus-diffusion",
+      bundleDir: `public/${bundleDir}`,
+      wasmDigest: digestOf(wasmBytes),
+      capabilities: [{ capabilityId: "diffusion.brownian-frames" }],
+      files: {
+        "artifact_bg.wasm": { sha256: digestOf(wasmBytes), bytes: wasmBytes.length },
+        "artifact.js": { sha256: digestOf(glueBytes), bytes: glueBytes.length },
+      },
+    }),
+  );
   mkdirSync(join(root, "content/source-blocks/mass-energy"), { recursive: true });
   writeFileSync(
     join(root, "content/source-blocks/mass-energy/manifest.ids.snapshot.txt"),
@@ -83,6 +131,10 @@ describe("candidate checks (am-rel-candidate-checks-kc7y)", () => {
       ["no-javascript-source-text", "passed"],
       ["accepted-wasm-result-per-capability", "not-available"],
       ["deliberate-typed-refusal", "not-available"],
+      // Two checks added by dispatches 384 and 387. The ORDER is asserted with the names, so a
+      // check appended without thought shows up here rather than sliding in unnoticed.
+      ["wasm-artifact-served-as-pinned", "passed"],
+      ["fragment-anchors-resolve", "passed"],
     ]);
     // Until am-qsm9 this read `toBe(false)`, with the comment "three checks did not run, so the
     // catalogue as a whole has not passed". That was a faithful description of a predicate that
@@ -94,7 +146,7 @@ describe("candidate checks (am-rel-candidate-checks-kc7y)", () => {
     // bead, which is what lets this be true; an UNDECLARED silence still returns false, and the
     // tests below plant each way it must still refuse.
     expect(allCandidateChecksPassed(results)).toBe(true);
-    expect(summarizeCandidateChecks(results)).toContain("4 passed");
+    expect(summarizeCandidateChecks(results)).toContain("6 passed");
     expect(summarizeCandidateChecks(results)).toContain("3 not run");
     expect(byName(results, "every-instrument-bundle")?.detail).toContain("1 pages, 1 chunks");
   });

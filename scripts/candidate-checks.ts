@@ -21,6 +21,7 @@
  *   runs here. The HTTP checks cannot see page errors or execution labels either.
  */
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -323,15 +324,16 @@ export async function runCandidateChecksAgainst(
   results.push(
     notRun(
       "accepted-wasm-result-per-capability",
-      "FrankenSim's brownian_frames is bound for BM-01 (am-frankensim-repin-and-bind-jvhg), but an accepted result exists only when a browser runs the lab's worker, and these checks are HTTP only.",
+      "An accepted result exists only after a reader presses Apply and a browser runs the lab's worker, and these checks are HTTP only. What IS checkable over HTTP is the artifact's identity on the candidate, and wasm-artifact-served-as-pinned now checks it.",
     ),
   );
   results.push(
     notRun(
       "deliberate-typed-refusal",
-      "A lab's typed refusal appears only when a browser executes the page; these checks are HTTP only.",
+      "Measured 2026-09-28 across 718 built pages: NO registered refusal code is rendered into served HTML. Every occurrence of one sits inside a Show-the-code listing, which is source text a reader is shown rather than a refusal a reader received. A typed refusal reaches a reader only when a browser executes the page, so this needs a browser lane rather than a better HTTP probe.",
     ),
   );
+  results.push(await wasmArtifactServedAsPinned(fetcher));
   results.push(await fragmentAnchorsResolve(fetcher));
 
   // ONE NAME, ONE CHECK. The bead's interface criterion is that registration "rejects a duplicate
@@ -361,6 +363,101 @@ export function assertUniqueCheckNames(results: readonly CandidateCheckResult[])
       `Duplicate candidate check id(s): ${[...new Set(duplicates)].sort().join(", ")}. Every check registers one name.`,
     );
   }
+}
+
+/**
+ * THE DEPLOYED WASM IS THE PINNED ARTIFACT, BYTE FOR BYTE (am-rel-candidate-checks-kc7y).
+ *
+ * AGENTS.md requires candidate checks to include "one real accepted WASM result per numerical
+ * capability ... against the deployed assets rather than the build directory", and the bead sharpens
+ * it: the check must "assert the manifest digest and the refusal semantics". An accepted RESULT
+ * needs a browser to press Apply and run the worker, which this harness cannot do. The manifest
+ * DIGEST does not: it is a claim about bytes, and bytes are what HTTP serves.
+ *
+ * So this checks the half that is checkable, under a name that claims only that half.
+ * `verify-wasm-artifacts.ts` already checks digests in the LOCAL build; what was unchecked until now
+ * is that the CANDIDATE serves those same bytes — a stale CDN object, a partial upload or a
+ * mispinned directory would pass every local gate and still reach a reader.
+ *
+ * Every file the manifest declares is fetched and hashed, not only the .wasm, and the count is the
+ * denominator: a manifest that declared nothing would otherwise report the cleanest result here.
+ */
+export async function wasmArtifactServedAsPinned(fetcher: Fetcher): Promise<CandidateCheckResult> {
+  const name = "wasm-artifact-served-as-pinned";
+  const res = await fetcher("/wasm/manifest.json");
+  if (res.status !== 200) {
+    return {
+      name,
+      status: "failed",
+      detail: `${name}: /wasm/manifest.json returned ${res.status} on the candidate, so no artifact identity could be read and nothing was checked.`,
+    };
+  }
+  let manifest: {
+    bundleId?: string;
+    bundleDir?: string;
+    wasmDigest?: string;
+    files?: Record<string, { sha256?: string; bytes?: number }>;
+    capabilities?: unknown[];
+  };
+  try {
+    manifest = JSON.parse(res.body.toString("utf8"));
+  } catch (error) {
+    return {
+      name,
+      status: "failed",
+      detail: `${name}: the served manifest is not JSON (${String(error)}).`,
+    };
+  }
+  const files = Object.entries(manifest.files ?? {});
+  if (files.length === 0) {
+    return {
+      name,
+      status: "failed",
+      detail: `${name}: the served manifest declares 0 files, so nothing was checked.`,
+    };
+  }
+  const dir = String(manifest.bundleDir ?? "").replace(/^public\//, "/");
+  if (!dir.startsWith("/")) {
+    return {
+      name,
+      status: "failed",
+      detail: `${name}: the served manifest's bundleDir ${JSON.stringify(manifest.bundleDir)} does not resolve to a served path.`,
+    };
+  }
+  const mismatches: string[] = [];
+  let checked = 0;
+  for (const [file, declared] of files) {
+    const got = await fetcher(`${dir}/${file}`);
+    if (got.status !== 200) {
+      mismatches.push(`${file}: HTTP ${got.status}`);
+      continue;
+    }
+    checked += 1;
+    const digest = createHash("sha256").update(got.body).digest("hex");
+    if (declared.sha256 && digest !== declared.sha256) {
+      mismatches.push(
+        `${file}: sha256 ${digest.slice(0, 16)}… served, ${String(declared.sha256).slice(0, 16)}… declared`,
+      );
+      continue;
+    }
+    if (typeof declared.bytes === "number" && got.body.length !== declared.bytes) {
+      mismatches.push(`${file}: ${got.body.length} bytes served, ${declared.bytes} declared`);
+    }
+  }
+  const capabilities = Array.isArray(manifest.capabilities) ? manifest.capabilities.length : 0;
+  const where = `${checked} of ${files.length} declared files fetched from ${dir}, ${capabilities} capabilities declared`;
+  if (mismatches.length > 0) {
+    return {
+      name,
+      status: "failed",
+      detail: `${name}: ${where}; ${mismatches.length} did not match what the manifest pins (${mismatches.slice(0, 3).join("; ")}).`,
+    };
+  }
+  return {
+    name,
+    status: "passed",
+    detail: `${name}: ${where}, every one matching its declared sha256 and byte count. Bytes only: this proves the candidate serves the pinned artifact, NOT that a reader obtains an accepted result from it, which needs a browser.`,
+  };
 }
 
 /**
