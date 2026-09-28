@@ -183,3 +183,23 @@ export const SPREAD = { minutes: 1, millimetres: 1 } as const;
  */
 export const spreadAfter = (dFactor: number, tFactor: number): number =>
   SPREAD.millimetres * Math.sqrt(dFactor * tFactor);
+
+// The random-walk figure of dispatch 419. foundation:random-walks was listed in the sweep as
+// having 2 svg, and both turned out to be KaTeX radical glyphs inside its formulas
+// (width="400em", viewBox="0 0 400000 1944"), so it had no figure at all.
+
+/** Where the four equally likely two-step coin walks end, in metres, as the lesson lists them. */
+export const TWO_STEP_ENDS = [2, 0, 0, -2] as const;
+
+/** The typical size of one step of the coin walk, in metres. */
+export const STEP_METRES = 1;
+
+/**
+ * The typical distance from the start after n steps: the square root of the mean square, which is
+ * n step-squares. Derived, because the lesson exists to say that this is a square root and not a
+ * sum: 1 m after one step, about 1.4 after two, 10 after a hundred, 20 after four hundred.
+ */
+export const typicalDistance = (steps: number): number => STEP_METRES * Math.sqrt(steps);
+
+/** The step counts the figure marks, chosen so their typical distances are whole metres. */
+export const STEP_MARKS = [1, 4, 9, 16] as const;

@@ -33,6 +33,7 @@ import { ScalingTable } from "./ScalingTable.tsx";
 import { SignedRuler } from "./SignedRuler.tsx";
 import { SinkingSpheres } from "./SinkingSpheres.tsx";
 import { SpeedSpread } from "./SpeedSpread.tsx";
+import { StepsAndSpread } from "./StepsAndSpread.tsx";
 import { TableToPlotBuilder } from "./TableToPlotBuilder.tsx";
 import { TaylorBinomialExtension } from "./TaylorBinomialExtension.tsx";
 import { TurnedAxes } from "./TurnedAxes.tsx";
@@ -144,5 +145,7 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
       return <CrossingABoundary headingLevel={headingLevel} />;
     case "diffusion-equation":
       return <PeakAndDip headingLevel={headingLevel} />;
+    case "random-walks":
+      return <StepsAndSpread headingLevel={headingLevel} />;
   }
 }

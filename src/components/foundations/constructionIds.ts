@@ -53,6 +53,7 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   // control, so it is not in CONSTRUCTIONS_WITH_CONTROLS either.
   "flux-continuity",
   "diffusion-equation",
+  "random-walks",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];
