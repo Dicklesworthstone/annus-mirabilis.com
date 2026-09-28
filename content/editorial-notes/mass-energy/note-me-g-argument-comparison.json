@@ -35,7 +35,7 @@
         "id": "box-1906",
         "label": "The 1906 box",
         "sourceNoteId": "note-me-c-1906-poincare",
-        "instrumentRef": "me-03:box-1906",
+        "instrumentRef": "me-03",
         "cells": {
           "importedResult": "That radiation carries momentum equal to its energy divided by the speed of light, and the centre-of-mass theorem for a closed system, neither of which the 1905 argument uses.",
           "massDefinition": "The inertia that must travel with the light if the centre of mass of a closed system is to stay where it was.",
@@ -48,7 +48,7 @@
         "id": "four-momentum-modern",
         "label": "A modern four-momentum derivation",
         "sourceNoteId": "note-me-f-two-pulses",
-        "instrumentRef": "four-momentum-modern",
+        "instrumentRef": "me-03",
         "cells": {
           "importedResult": "The four-momentum formalism itself, which postdates 1905 and is the largest import of the three.",
           "massDefinition": "The invariant mass of a total four-momentum, a property of the system rather than of any part of it.",
@@ -67,5 +67,5 @@
     }
   ],
   "affectedIds": ["s0-p11", "s0-p12", "s0-p13"],
-  "evidence": "Authored by agent:NavyKite on 2026-09-28 as this site's own comparison, which is why its historicalStatement is site-reconstruction rather than a claim about what anyone knew. It adds no citation of its own: each row names the margin record that already carries its sources, so the 1905 row points at note-me-b-additive-constant, where Ives and the reply by Stachel and Torretti are quoted from what they wrote; the 1906 row at note-me-c-1906-poincare; and the modern row at note-me-f-two-pulses, where the invariant mass of the pair is labelled later formalism. No number is retyped here. The 1905 row's approximation cell names ME-02's finite-speed proxy rather than printing a value, and the 1906 row's cell names the bound the ME-03 manifest declares for box systems rather than restating it, so both resolve where they are computed and cannot drift from the instruments. Each row names something a reader can open: the instrument me-01, the mode address me-03:box-1906, which src/experiments/permalink/schema.ts records as a declared mode address and not a preset id, and the model identity four-momentum-modern declared in src/experiments/me03/definition.ts."
+  "evidence": "Authored by agent:NavyKite on 2026-09-28 as this site's own comparison, which is why its historicalStatement is site-reconstruction rather than a claim about what anyone knew. It adds no citation of its own: each row names the margin record that already carries its sources, so the 1905 row points at note-me-b-additive-constant, where Ives and the reply by Stachel and Torretti are quoted from what they wrote; the 1906 row at note-me-c-1906-poincare; and the modern row at note-me-f-two-pulses, where the invariant mass of the pair is labelled later formalism. No number is retyped here. The 1905 row's approximation cell names ME-02's finite-speed proxy rather than printing a value, and the 1906 row's cell names the bound the ME-03 manifest declares for box systems rather than restating it, so both resolve where they are computed and cannot drift from the instruments. Each row names an instrument a reader can open: me-01 for the 1905 ledger, and me-03 for both the 1906 box and the modern four-momentum reading, which are two modes of that one instrument. It named a mode address (me-03:box-1906) and a model identity (four-momentum-modern) until 2026-09-28, and neither resolved: DECLARED_MODES in src/experiments/catalogue.ts is empty for every instrument, so resolveCatalogueAddress refuses any colon address with undeclared-mode, and it refuses a model identity as an unknown catalogue id. The sentence here also claimed that src/experiments/permalink/schema.ts records me-03:box-1906 as a declared mode address; it does not, and holds no list of modes at all, mentioning that string only as an example in a comment beside a check that rejects preset-shaped strings. Which formalism each row belongs to is named in its own cells instead."
 }
