@@ -26,20 +26,19 @@
  * and so could not see a claim the reader-facing tape page has been rendering all along. Route (b) in
  * tapeExpectations.ts is that claim read, not invented.
  *
- * THE OTHER 20 ARE NOT PASSES. Ten name an instrument with no permalink binding (bm-01, bm-07, bm-08,
+ * THE OTHER 17 ARE NOT PASSES. Ten name an instrument with no permalink binding (bm-01, bm-07, bm-08,
  * sr-03), four sit on records that cannot convert to a wire tape because their digest is a
- * placeholder, and six remain unjudged for two stated reasons:
+ * placeholder, and three remain unjudged: `pulseEnergyRatio`, three times on the-two-pulses. me-01
+ * declares no such output field, names no such kernel identifier, and produces no dimensionless output
+ * at all, its three value outputs all being in joules, so there is no field a record could name. That
+ * one needs the instrument to expose the ratio.
  *
- *   - `pulseEnergyRatio`, three times on the-two-pulses: me-01 declares no such output field, names no
- *     such kernel identifier, and produces no dimensionless output at all, its three value outputs all
- *     being in joules. There is no quantity to compare a ratio with, so binding it would need the
- *     instrument to expose the ratio rather than a label to change.
- *   - `W`, `W (independent)` and `W (locked)` on lq-05's two tapes: these are authored prose, and
- *     lq-05's kernel names its probability `value`, which the manifest already declares holds
- *     `configurationProbability`. Declaring `W` as a kernel identifier would be a false claim about the
- *     source, and a label carrying a space can never be one. What they would need is a `quantityId` on
- *     the expectation record itself, which `ExpectedDisplayValue` does not carry and whose validator
- *     drops unknown keys, so it is a schema change rather than a content edit.
+ * lq-05's three prose labels, `W`, `W (independent)` and `W (locked)`, were in that list until their
+ * records named their output field through `outputId` (dispatch 383). They could not be bound by
+ * renaming: `W` is not a kernel identifier, lq-05's kernel names its probability `value`, and a label
+ * carrying a space can never be an identifier. They also could not be bound by a canonical quantity,
+ * because lq-05 declares BOTH `configurationProbability` and `lockedProbability` as the canonical
+ * `configurationProbability` and those two carry numbers fifteen orders of magnitude apart.
  */
 import { describe, expect, test } from "bun:test";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -291,12 +290,17 @@ const tally = {
 
 /**
  * Judged when this check last grew, measured by its own run: 29 expectations, 14 excluded by rule,
- * 9 judged, 6 unjudged. It stood at 5 until the check read the corpus's declared bindings
- * (dispatch 380). A floor, not an allowlist: exposing a missing output, giving an instrument a
- * permalink binding, or replacing a placeholder digest raises it, and a regression that stops judging
- * one of the nine takes the count below it and names the tape.
+ * 12 judged, 3 unjudged. It stood at 5 until the check read the corpus's declared bindings
+ * (dispatch 380), and at 9 until three records named their output field through `outputId`
+ * (dispatch 383).
+ *
+ * THIS IS A COVERAGE FLOOR AND IT ONLY EVER RISES, which is the opposite direction from a debt
+ * ceiling: raising it requires more of the corpus to be checked, and lowering it would be a visible
+ * edit admitting that something stopped being checked. Exposing a missing output, giving an instrument
+ * a permalink binding, or replacing a placeholder digest raises it; a regression that stops judging
+ * one of the twelve takes the count below it and names the tape.
  */
-const JUDGED_FLOOR = 9;
+const JUDGED_FLOOR = 12;
 
 describe("teaching tapes' recorded expectations against their instruments (am-2rl9)", () => {
   test("the counts are reported with their denominator, and the population is not empty", () => {
