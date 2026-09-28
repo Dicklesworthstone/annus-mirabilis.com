@@ -1,4 +1,12 @@
 # Teaching tape "Camera noise and exposure bias" (am-bm-08-measurement-bias-h1ye).
+#
+# THE RECORDED NAIVE EXPECTATION WAS THE INPUT D (0.42944e-12), corrected 2026-09-28 to what
+# BM-08's own evaluator gives at these settings. cameraMoments in
+# src/physics/reference/inference/observation.ts computes
+#   variance = 2 D (dt - exposure/3) + 2 sigma^2,  naiveExpectation = variance / (2 dt)
+# which at D = 4.2944e-13, dt = 1, exposure = 0.5, sigma = 2e-7 is 3.9786666666666666e-13. The old
+# value said the naive estimator recovers D exactly, which is the opposite of what this instrument
+# is for. src/content/tapeNumbers.test.ts recomputes it.
 tapeVersion: 2
 tapeId: camera-bias
 experimentId: bm-08
@@ -43,9 +51,9 @@ checkpoints:
     seed: "1905"
     streamPositions: []
     label: "Noisy, exposure-blurred camera observations"
-    teachingNote: "Camera noise adds 2*sigma^2 variance and negative lag-1 covariance."
+    teachingNote: "Camera noise adds 2*sigma^2 variance and negative lag-1 covariance, and the two do not cancel: at these settings the exposure blur takes 7.157e-14 m2/s off the estimate while the localization noise puts 4e-14 back, so the naive estimator reads 3.9787e-13 where the true D is 4.2944e-13, 7.3 per cent low. Reading the naive number as D is the mistake this instrument exists to show."
     expectedDisplayValues:
       - label: "naive expectation"
-        value: 0.42944e-12
+        value: 3.9786666666666666e-13
         unit: "m2/s"
         constantSetId: modern-si-2019

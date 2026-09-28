@@ -31,9 +31,16 @@
  */
 import { describe, expect, test } from "bun:test";
 import { ME01_DEFAULTS } from "../experiments/me01/definition.ts";
+import { ME02_DEFAULTS } from "../experiments/me02/definition.ts";
 import { ME03_DEFAULTS } from "../experiments/me03/definition.ts";
 import { getConstantSet } from "../physics/reference/constants.ts";
-import { evaluateMe01, evaluateMe03, evaluatePhotonBox } from "../physics/reference/massEnergy.ts";
+import { cameraMoments } from "../physics/reference/inference/observation.ts";
+import {
+  evaluateMe01,
+  evaluateMe02,
+  evaluateMe03,
+  evaluatePhotonBox,
+} from "../physics/reference/massEnergy.ts";
 import { loadTeachingTapes, type TeachingTape } from "./teachingTapes.ts";
 
 const tapes = new Map(loadTeachingTapes().tapes.map((t) => [t.tapeId, t]));
@@ -140,7 +147,7 @@ describe("the numbers on a teaching tape's page, recomputed from its own inputs"
       (n, t) => n + t.steps.reduce((m, s) => m + s.expected.length, 0),
       0,
     );
-    const recomputed = 18; // the tapes above by name, including me-03's three
+    const recomputed = 20; // the tapes above by name, plus camera-bias and me-02
     console.log(
       `[tape numbers] ${total} recorded numbers on the tape pages; ${recomputed} recomputed from ` +
         "their tape's own inputs, and the lq-05 W values additionally checked against the state " +
@@ -262,6 +269,68 @@ describe("a recorded number agrees with the parameters in force where it was rec
     >;
     expect(withoutMass.centerOfMassShift?.value).not.toBe(0);
     expect(withoutMass.centerOfMassShift?.value).toBe(withMass.boxDisplacement?.value);
+  });
+
+  test("camera bias: the naive expectation is what the camera model gives, and it is not D", () => {
+    // THIS RECORD WAS WRONG ON THE LIVE SITE until 2026-09-28: it recorded the input D itself,
+    // 0.42944e-12, as the naive estimator's expectation, which says the estimator recovers D
+    // exactly and is the opposite of what BM-08 exists to show. cameraMoments gives
+    // 3.9786666666666666e-13 at these settings.
+    const t = tape("camera-bias");
+    const step = t.steps.find((s) => s.expected.some((e) => e.label === "naive expectation"));
+    expect(step).toBeDefined();
+    if (!step) return;
+    const at = inForce(t, step.actionIndex);
+    const model = {
+      D: at.D as number,
+      dt: at.dt as number,
+      exposure: at.exposure as number,
+      sigma: at.sigma as number,
+      drift: (at.stageDrift as number) ?? 0,
+      d: at.d as number,
+    };
+    // `Computation` is {kind, data}, not {status, value}: my first probe accepted either
+    // shape through a `??` chain and so told me the number without telling me the contract.
+    const moments = cameraMoments(model) as {
+      kind: string;
+      data?: { naiveExpectation: number };
+    };
+    expect(moments.kind).toBe("accepted");
+    const recorded = step.expected.find((e) => e.label === "naive expectation");
+    expect(moments.data?.naiveExpectation).toBe(recorded?.value);
+    // THE NON-VACUITY IS THE TEACHING POINT: the expectation must NOT be the true D, and the gap
+    // must be the exposure blur minus what the localization noise adds, each read from the model's
+    // own parameters rather than written here.
+    expect(moments.data?.naiveExpectation).not.toBe(model.D);
+    const blur = (model.D * model.exposure) / (3 * model.dt);
+    const noise = model.sigma ** 2 / model.dt;
+    expect(blur).toBeGreaterThan(noise);
+    expect(moments.data?.naiveExpectation).toBeCloseTo(model.D - blur + noise, 20);
+  });
+
+  test("toward low speed: the limiting mass decrease is exactly L over c squared", () => {
+    const t = tape("toward-low-speed");
+    const step = t.steps.find((s) => s.expected.length > 0);
+    expect(step).toBeDefined();
+    if (!step) return;
+    const at = inForce(t, step.actionIndex);
+    const snapshot = evaluateMe02({ ...ME02_DEFAULTS, ...at }) as never as Record<string, unknown>;
+    const c = snapshot.speedOfLight as number;
+    const decrease = (snapshot.inertialMassDecrease as { value?: number } | undefined)?.value;
+    expect(c).toBeGreaterThan(1e8);
+    expect(decrease).toBeDefined();
+    // The recorded number is that coefficient in units of L/c^2, where Einstein's conclusion makes
+    // it exactly 1. Normalising here rather than comparing kilograms is what the record says.
+    const normalised = ((decrease as number) * c * c) / (at.emittedEnergy as number);
+    const recorded = step.expected[0];
+    expect(normalised).toBe(recorded?.value);
+    // Non-vacuity: the tape walks beta down to 0, and the exact difference at its OPENING speed is
+    // not the limit, which is the whole reason the walk exists.
+    const opening = evaluateMe02({ ...ME02_DEFAULTS, ...t.initialConditions }) as never as Record<
+      string,
+      { value?: number } | undefined
+    >;
+    expect(opening.exactDifference?.value).not.toBe(snapshot.exactDifference as never);
   });
 
   test("lq-05: W is f to the power of the n that holds at that step, not some other n", () => {
