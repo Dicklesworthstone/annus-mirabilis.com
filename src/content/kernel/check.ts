@@ -41,6 +41,22 @@ export function liveTermsFromRecords(
   const argumentIds = Array.isArray(experiment.argumentIds)
     ? experiment.argumentIds.filter((id): id is string => typeof id === "string")
     : [];
+  // AN INSTRUMENT THAT DECLARES NO ARGUMENTS CLAIMS NO EQUATION LIVE TERMS (am-1nnj).
+  //
+  // The filter below skipped an equation only when argumentIds was non-empty, so an instrument with
+  // an EMPTY list skipped nothing and inherited every equation quantity in the corpus as its own
+  // live terms. The absent declaration failed OPEN, which is backwards for a check whose purpose is
+  // catching an unbound term.
+  //
+  // Measured 2026-09-28 with verify-content widened to all 33 manifests: exactly four instruments
+  // declare no argumentIds (bm-02, lq-03, lq-04, sr-04) and exactly those four carried 433 of the
+  // 538 findings, with 104 of their unbound terms shared by all four ACROSS PAPERS, so sr-04, a
+  // relativity instrument, was charged with avogadroConstant and bodyMassBefore.
+  //
+  // Returning nothing here is honest rather than lenient: the manifest declares nothing to derive
+  // from, so there is nothing to claim. runKernelIdentifierCheck reports the missing declaration
+  // separately, so the gap is visible instead of silently unchecked.
+  if (argumentIds.length === 0) return [];
   const ids = new Set<string>();
   for (const rec of records.values()) {
     if (!rec || typeof rec !== "object") continue;
@@ -50,13 +66,7 @@ export function liveTermsFromRecords(
     // exemption needs BOTH the explicit flag and no bindings: the parser refuses a flagged record
     // that binds an output, and this condition keeps such a record audited even if it got past.
     if (r.live === false && Array.isArray(r.bindings) && r.bindings.length === 0) continue;
-    if (
-      argumentIds.length > 0 &&
-      typeof r.argument === "string" &&
-      !argumentIds.includes(r.argument)
-    ) {
-      continue;
-    }
+    if (typeof r.argument === "string" && !argumentIds.includes(r.argument)) continue;
     for (const q of quantityIdsFromTree(r.tree)) ids.add(q);
   }
   return [...ids].sort();
@@ -72,6 +82,21 @@ export function runKernelIdentifierCheck(context: CheckContext, root = process.c
       ? (owner.kernelFunctions as KernelFunctionRef[])
       : [];
     if (kernels.length === 0) continue;
+    // The instrument declares kernels but no arguments, so liveTermsFromRecords has nothing to
+    // derive its live terms from and returns none (am-1nnj). That is the honest answer and it is
+    // also a hole, so it is reported rather than passed over: without this line the four
+    // instruments in that state would be silently exempt from the live-term half of this check,
+    // which is the same failure shape, one layer further in.
+    if (!Array.isArray(rec.argumentIds) || rec.argumentIds.length === 0) {
+      context.report({
+        recordId: instrumentId,
+        rule: "instrument-declares-no-arguments",
+        message:
+          `Instrument ${instrumentId} declares kernelFunctions but no argumentIds, so its live ` +
+          "terms cannot be derived and the live-term half of this check cannot run for it. Declare " +
+          "the arguments this instrument interrogates. (am-1nnj)",
+      });
+    }
     const bindings = Array.isArray(owner.identifierBindings)
       ? (owner.identifierBindings as IdentifierBinding[])
       : [];
