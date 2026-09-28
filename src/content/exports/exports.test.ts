@@ -910,4 +910,86 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
       "docs/EXPORTS.md verified for complete endpoint and stability contract coverage.",
     );
   });
+
+  it("withholds a draft translation from a reviewed block under a strict profile (am-33q6)", async () => {
+    // THE GUARD AT emitter.ts's `if (!isPreview && tuDraft)`, WHICH NOTHING REACHED.
+    //
+    // The profile test above filters a DRAFT BLOCK, so under production the block never survives to
+    // the point where that guard runs: its production arm asserts blocks.length === 0, and the
+    // translation-level guard is never exercised by it. am-33q6 records the same shape one level
+    // down, a dead guard over dead code; this is the case that separates the two.
+    //
+    // The case is the one the rights rules care about: a block whose German is REVIEWED carrying an
+    // English translation that is only a machine draft. The block must publish under production and
+    // the draft English must not travel with it, or the first strict export serves unreviewed
+    // translation as though it were the edition's.
+    const tempBase = process.env.AM_TEST_TMP ?? tmpdir();
+    const previewDir = await mkdtemp(resolve(tempBase, "am-guard-preview-"));
+    const prodDir = await mkdtemp(resolve(tempBase, "am-guard-prod-"));
+
+    // review wins over translation in the emitter's blockReviewState, so this block is not draft.
+    const reviewedBlock = {
+      id: "bm-s4-b-reviewed",
+      section: "s4",
+      order: 1,
+      diplomaticText: "Geprüfter Satz der Bewegung.",
+      sentenceSpans: [
+        { id: "bm-s4-b-reviewed-s1", span: { exactText: "Geprüfter Satz der Bewegung." } },
+      ],
+      status: { review: "reviewed", translation: "machine-draft" },
+    };
+    const draftTranslation = {
+      id: "tu-draft-02",
+      sourceRefs: [{ id: "bm-s4-b-reviewed-s1" }],
+      inlines: [{ kind: "text", text: "Reviewed sentence of motion." }],
+      reviewState: "machine-draft",
+    } as const;
+
+    const emit = async (rootDir: string, releaseProfile: string) => {
+      await emitMachineReadableExports({
+        rootDir,
+        contentRevision: `rev-${releaseProfile}`,
+        releaseProfile,
+        papers: [
+          {
+            id: "brownian-motion",
+            title: "Brownian Motion",
+            sections: [{ id: "s4", title: "Section 4" }],
+          },
+        ],
+        sourceBlocks: [reviewedBlock],
+        translationUnits: [draftTranslation],
+      });
+      return JSON.parse(
+        await readFile(resolve(rootDir, "exports/v1/papers/brownian-motion/s4.json"), "utf8"),
+      );
+    };
+
+    const preview = await emit(previewDir, "preview");
+    const production = await emit(prodDir, "production");
+
+    // The block survives BOTH profiles, which is what makes this a test of the translation guard
+    // rather than of the block filter above it.
+    expect(preview.blocks.length).toBe(1);
+    expect(production.blocks.length).toBe(1);
+    expect(preview.sentences.length).toBe(1);
+    expect(production.sentences.length).toBe(1);
+
+    // The two arms, observably different in the one field the guard controls.
+    expect(preview.sentences[0].english).toBe("Reviewed sentence of motion.");
+    expect(production.sentences[0]).not.toHaveProperty("english");
+    // Everything else about the sentence is the same, so the difference is the guard and not the
+    // fixture: the German travels under both, and both still say the translation is a draft.
+    expect(production.sentences[0].german).toBe(preview.sentences[0].german);
+    expect(preview.sentences[0].reviewState).toBe("machine-draft");
+    expect(production.sentences[0].reviewState).toBe("machine-draft");
+    expect(preview.sentences[0].draft).toBe(true);
+    expect(production.sentences[0].draft).toBe(true);
+
+    logOutcome(
+      "exports-draft-translation-withheld",
+      "passed",
+      "A machine-draft translation on a reviewed block is exported under preview and withheld under production.",
+    );
+  });
 });
