@@ -102,7 +102,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...lessons,
     ...labPaths(),
     ...sources,
-    // One page per authored teaching tape (am-tape-reader-page). They are the only address at which
+    // One page per authored teaching tape (am-2rl9). They are the only address at which
     // these 21 records reach a reader, so leaving them out would hide the whole layer from search.
     ...loadTeachingTapes()
       .tapes.map((tape) => `/tapes/${tape.tapeId}/`)

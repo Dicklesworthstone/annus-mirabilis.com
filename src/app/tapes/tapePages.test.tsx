@@ -1,5 +1,5 @@
 /**
- * The teaching-tape pages render what the records hold (am-tape-reader-page).
+ * The teaching-tape pages render what the records hold (am-2rl9).
  *
  * The point of these pages is that a reader can reach a tape at all: measured 2026-09-27, all 21
  * authored tapes reached no reader by any route. So the assertions here are about reachability and

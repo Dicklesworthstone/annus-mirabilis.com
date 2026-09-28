@@ -2,7 +2,7 @@ import { loadTeachingTapes } from "../../content/teachingTapes.ts";
 import "./tapes.css";
 
 /**
- * EVERY TEACHING TAPE (am-tape-reader-page).
+ * EVERY TEACHING TAPE (am-2rl9).
  *
  * The index for the 21 authored tapes, grouped by the instrument each belongs to. It exists because
  * a laboratory page cannot list its own tapes without editing 44 hand-written pages: the lab routes

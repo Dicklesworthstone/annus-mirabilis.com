@@ -1,5 +1,5 @@
 /**
- * THE AUTHORED TEACHING TAPES, READ FOR A READER (am-tape-reader-page).
+ * THE AUTHORED TEACHING TAPES, READ FOR A READER (am-2rl9).
  *
  * `content/experiments/tapes/` holds 21 tapes, schema-shaped and checked by nothing, and until this
  * module no reader could reach one. AGENTS.md names five of them as a feature ("Einstein's 0.8

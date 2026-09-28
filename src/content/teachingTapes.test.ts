@@ -1,5 +1,5 @@
 /**
- * The 21 authored teaching tapes, read as a reader would meet them (am-tape-reader-page).
+ * The 21 authored teaching tapes, read as a reader would meet them (am-2rl9).
  *
  * These records were checked by nothing before this file. They are schema-shaped YAML under
  * content/experiments/tapes/, AGENTS.md names five of them as a feature, and no component replayed

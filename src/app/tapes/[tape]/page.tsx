@@ -3,7 +3,7 @@ import { loadTeachingTapes } from "../../../content/teachingTapes.ts";
 import "../tapes.css";
 
 /**
- * ONE TEACHING TAPE, AS A WALKTHROUGH A READER CAN FOLLOW (am-tape-reader-page).
+ * ONE TEACHING TAPE, AS A WALKTHROUGH A READER CAN FOLLOW (am-2rl9).
  *
  * AGENTS.md names five teaching tapes as a feature and describes a scrubber that restores one.
  * Measured 2026-09-27, all 21 authored tapes reached no reader by any route: the replayer and the
