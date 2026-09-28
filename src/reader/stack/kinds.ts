@@ -15,6 +15,7 @@ import {
   resolveCatalogueAddress,
 } from "../../experiments/catalogue.ts";
 import { ExperimentDispatch, type ViewLoaders } from "../../experiments/dispatch.tsx";
+import { READER_VIEW_LOADERS } from "../../experiments/views/readerViewLoaders.ts";
 
 /**
  * `viewLoaders` is optional and specific to `instrument-view`'s render, threaded through here
@@ -158,11 +159,16 @@ export function registerDefaultClarificationKinds(): void {
   if (!registry.has("instrument-view")) {
     registerClarificationKind<InstrumentViewTarget>("instrument-view", {
       parseId: parseInstrumentViewId,
+      // The production map, unless a caller supplies its own. Without one the dispatcher defaults
+      // to {}, resolves no loader, and renders the in-preparation surface for every registered
+      // instrument, which is what the live site did until now (am-read-return-stack-oxa, dispatch
+      // 376). `viewLoaders` stays honoured when passed, so the fixture map
+      // instrumentViewKind.integration.test.ts injects still wins.
       render: ({ parsed, instanceId, viewLoaders }) =>
         createElement(ExperimentDispatch, {
           id: parsed.raw,
           instanceId,
-          ...(viewLoaders !== undefined ? { viewLoaders } : {}),
+          viewLoaders: viewLoaders ?? READER_VIEW_LOADERS,
         }),
       staticHref: instrumentViewHref,
       title: instrumentViewTitle,
