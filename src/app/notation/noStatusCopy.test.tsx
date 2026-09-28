@@ -107,4 +107,50 @@ describe("/notation/ carries no review, verification or provenance status", asyn
   test("no visible status word outside an allowed phrase", () => {
     expect(statusCopy(text)).toEqual([]);
   });
+
+  /**
+   * A reader never meets a content id, and this guard is here rather than beside the records
+   * because the SAME symptom has two unrelated causes and only the rendered page sees both.
+   *
+   *   9ee1ab6a: `formatScopeToken` had no branch for `sr-s10-p10-s2-m2`, so the FORMATTER printed
+   *             the id because it could not say the scope in words.
+   *   5d7070a5: me.phi.propagationAngleStationary's note read "Scoped strictly to citation anchor
+   *             me-s0-p1. Distinct from emission angle in me-s0-p2..p6." An AUTHOR typed ids into
+   *             prose, where no formatter ever looks.
+   *
+   * A check over the YAML would have caught the second and not the first; a unit test of
+   * formatScopeToken catches the first and not the second. A reader cannot tell them apart, so the
+   * guard is placed where the reader is.
+   *
+   * Added while the family is clean: a sweep of all 292 notation entries' `notes`, `meaning`,
+   * `definition` and `collision` prose found exactly one offender, now fixed. This is the cheapest
+   * moment to close it, not a campaign against a widespread habit.
+   *
+   * Attributes are not visible text, so `<option value="me-s0-p5">Mass and energy, paragraph 5` is
+   * correct and passes: `visibleText` drops tags, and the id is in the tag.
+   */
+  const CONTENT_ID = /\b[a-z]{2}-s\d+(?:-p\d+)?(?:-s\d+)?(?:-m\d+)?\b/g;
+
+  test("the content-id scan can actually fail, on both of its causes", () => {
+    // The author's slip, verbatim from the record before 5d7070a5.
+    expect(
+      "Scoped strictly to citation anchor me-s0-p1. Distinct from emission angle in me-s0-p2..p6.".match(
+        CONTENT_ID,
+      )?.length,
+    ).toBe(2);
+    // The formatter's slip, verbatim from the token 9ee1ab6a repaired.
+    expect("sr-s10-p10-s2-m2".match(CONTENT_ID)?.length).toBe(1);
+    // And it does not fire on the prose those ids were replaced BY, which is what the page says now.
+    expect(
+      "in paragraph 1, and distinct from the emission angle φ of paragraphs 2 to 6".match(
+        CONTENT_ID,
+      ),
+    ).toBeNull();
+    expect("§10, paragraph 10, sentence 2, formula 2".match(CONTENT_ID)).toBeNull();
+  });
+
+  test("no content id reaches a reader anywhere on the page", () => {
+    const found = [...new Set(text.match(CONTENT_ID) ?? [])];
+    expect(found, `content ids in the page's visible text: ${found.join(", ")}`).toEqual([]);
+  });
 });
