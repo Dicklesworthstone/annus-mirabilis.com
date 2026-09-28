@@ -231,7 +231,12 @@ export function tapeIdentityReport(root: string = process.cwd()): TapeIdentityRe
   for (const file of readdirSync(manifestDir).filter((f) => f.endsWith(".yaml"))) {
     const block = manifestBlock(readFileSync(join(manifestDir, file), "utf8"), "teachingTapes");
     if (!block) continue;
-    for (const m of block.matchAll(/^\s*-\s*tapeId:\s*"?([^"\n]+)"?\s*$/gm))
+    // TWO SHAPES, because the manifests use two. lq-05 lists bare ids (`- the-locked-positions`)
+    // and me-03 lists mappings (`- tapeId: the-1906-box` with a title). Reading only the mapping
+    // shape reported lq-05's two authored tapes as declared by nobody, and acting on that reported
+    // difference is how content/experiments/lq-05.yaml got a duplicate entry in the other shape on
+    // 2026-09-27. A reader of a list must accept every shape the list is written in.
+    for (const m of block.matchAll(/^\s*-\s*(?:tapeId:\s*)?"?([^"\n:]+?)"?\s*$/gm))
       declared.add((m[1] ?? "").trim());
   }
 

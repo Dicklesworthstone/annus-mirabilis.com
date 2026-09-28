@@ -279,10 +279,6 @@ tapeModel:
 teachingTapes:
   - the-locked-positions
   - lq-05-journey-stage-e
-  - tapeId: lq-05-journey-stage-e
-    title: "Journey I Stage E: The Microstate Counter"
-  - tapeId: the-locked-positions
-    title: "The locked positions"
 presets:
   - presetId: lq-05-first-encounter
     label: "First encounter (n = 2, f = 1/2)"
