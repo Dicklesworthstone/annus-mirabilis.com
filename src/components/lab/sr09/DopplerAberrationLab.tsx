@@ -1,5 +1,6 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { readTypedNumber } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
@@ -30,6 +31,7 @@ import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { display, fixed, identity, result } from "../presentation.ts";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { DopplerAberrationPlot } from "./DopplerAberrationPlot.tsx";
 
@@ -407,6 +409,8 @@ export function DopplerAberrationLab({
       <LabMargin>{withScripts(SR09_CAPTION.r3)}</LabMargin>
 
       <p className="fine">Not modeled: {SR09_NOT_MODELED.join("; ")}.</p>
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="sr-09" listings={getKernelListingsForInstrument("sr-09")} />
     </section>
   );
 }

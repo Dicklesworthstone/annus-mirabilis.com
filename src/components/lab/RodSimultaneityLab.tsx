@@ -25,6 +25,7 @@ import { PredictGatePanels, usePredictGate, withPredictions } from "./PredictGat
 import { fixed } from "./presentation.ts";
 import { withScripts } from "./subscripts.tsx";
 import "./rodSimultaneityLab.css";
+import { getKernelListingsForInstrument } from "../../content/kernel/listings.ts";
 import { KEPT_RESULT } from "./keptResult.ts";
 import { LabMargin } from "./LabMargin.tsx";
 import { identity } from "./presentation.ts";
@@ -34,6 +35,7 @@ import {
   SphereEllipsoidPlot,
 } from "./RodSimultaneityPlots.tsx";
 import { Sci } from "./Sci.tsx";
+import { ShowTheCode } from "./ShowTheCode.tsx";
 export type RodSimultaneityLabProps = Readonly<{
   example: PreparedSr03Example;
   title?: string;
@@ -796,6 +798,8 @@ export function RodSimultaneityLab({
           <li>Superluminal observers (|v| &ge; c) or tachyonic coordinate frames.</li>
         </ul>
       </div>
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="sr-03" listings={getKernelListingsForInstrument("sr-03")} />
     </section>
   );
 }

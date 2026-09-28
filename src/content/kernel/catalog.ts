@@ -24,6 +24,14 @@ const tsRef = (module: string, exportName: string) => ({
 
 // regimeRelativeErrors is ONE function that three manifests declare (lq-02, lq-03, lq-04), so its
 // words are written once here rather than copied into three entries that would then drift apart.
+// transformSI is ONE function that two manifests declare (sr-02 and sr-08), so its words are written
+// once rather than copied into two entries that would then drift apart.
+const TRANSFORM_SI_WORDS = {
+  r0: "The electric and magnetic fields as the moving frame measures them: along the motion each is unchanged, across it each mixes with the other.",
+  r1: "This is § 6's transformation in modern SI letters. The components along the boost, E sub x and B sub x, pass through untouched. The transverse components mix: the new E sub y is gamma times (E sub y minus v times B sub z), and the new B sub y is gamma times (B sub y plus v times E sub z over c squared). A frame with no electric field at all therefore measures one, which is the whole content of the magnet-and-conductor observation the paper opens with.",
+  r2: "The function computes gamma from v over c and, if that refuses, returns the input fields unchanged with gamma reported as NaN rather than inventing a transformed field. Otherwise each component is built once, in the order x, y, z, and the result is frozen so a caller cannot mutate a field it was handed. Note the asymmetry between the two blocks: the electric mixing carries v while the magnetic mixing carries v over c squared. That is not a typo but the SI unit system, and the same physics written in Gaussian units puts v over c in both, which is what transformGaussianHistorical does for the paper's own form.",
+} as const;
+
 const REGIME_ERROR_WORDS = {
   r0: "How far Wien's law and the classical law each sit from Planck's at this frequency and temperature, and which of the two is admitted here.",
   r1: "Everything turns on one dimensionless number, x = h nu / (k_B T). Wien's relative error is e to the minus x, so Wien is good where x is large, which is high frequency or low temperature. The classical error is (e^x - 1)/x - 1, which vanishes where x is small. The function returns both errors, the regime they put you in, and the value of x at which each error reaches its tolerance, one per cent by default. Measured at 600 THz and 5800 K: x = 4.96, Wien runs 0.70 per cent below Planck, and the classical law is 27.7 times too large.",
@@ -539,11 +547,7 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
   {
     instrumentId: "sr-02",
     kernel: tsRef("src/physics/reference/fields.ts", "transformSI"),
-    words: {
-      r0: "The electric and magnetic fields as the moving frame measures them: along the motion each is unchanged, across it each mixes with the other.",
-      r1: "This is § 6's transformation in modern SI letters. The components along the boost, E sub x and B sub x, pass through untouched. The transverse components mix: the new E sub y is gamma times (E sub y minus v times B sub z), and the new B sub y is gamma times (B sub y plus v times E sub z over c squared). A frame with no electric field at all therefore measures one, which is the whole content of the magnet-and-conductor observation the paper opens with.",
-      r2: "The function computes gamma from v over c and, if that refuses, returns the input fields unchanged with gamma reported as NaN rather than inventing a transformed field. Otherwise each component is built once, in the order x, y, z, and the result is frozen so a caller cannot mutate a field it was handed. Note the asymmetry between the two blocks: the electric mixing carries v while the magnetic mixing carries v over c squared. That is not a typo but the SI unit system, and the same physics written in Gaussian units puts v over c in both, which is what transformGaussianHistorical does for the paper's own form.",
-    },
+    words: TRANSFORM_SI_WORDS,
     liveTerms: ["electricFieldStationary", "magneticFieldStationary", "frameSpeed"],
     identifierBindings: [
       bind("transformSI", "E", "electricFieldStationary"),
@@ -1741,6 +1745,203 @@ export const SLICE_KERNEL_CATALOG: readonly KernelCatalogEntry[] = [
     },
     liveTerms: [],
     identifierBindings: [],
+    independentReferences: [],
+  },
+
+  // SR-03, SR-08, SR-09, SR-10, SR-12 and SR-13 (am-f3e4, dispatch 343). The last six, and with
+  // them every one of the 33 instruments shows the code that produced its numbers.
+  //
+  // FOUR OF THESE FILL A SNAPSHOT WITH NaN on a superluminal boost rather than returning a typed
+  // refusal, and the listings show it: evaluateSr09, evaluateSr10 and transformChargeCurrent do
+  // that, and evaluateSr12 and evaluateSr08 refuse properly instead. In every case the guard is one
+  // layer up, in the parameter validator or in the caller, so a reader never reaches the NaN branch;
+  // each R2 below says which layer holds the guard rather than pretending the branch is not there.
+  {
+    instrumentId: "sr-03",
+    kernel: tsRef("src/physics/reference/events.ts", "measureRodLength"),
+    words: {
+      r0: "The length of a moving rod, and the refusal that comes first: two endpoint events that are not simultaneous are not a measurement of anything.",
+      r1: "A length is the distance between two endpoint events taken AT THE SAME TIME in the frame doing the measuring, so the function checks the time gap before it measures anything. Simultaneous endpoints give the distance between them: a rod of unit proper length, measured from the frame it moves through at six tenths of the light speed, gives 0.8. Endpoints that are not simultaneous give a not-applicable result whose reason says why.",
+      r2: "The refusal carries a REPAIR rather than only a complaint. When the endpoints are not simultaneous the function calls selectSimultaneousEndpoints for the rod and the measuring frame, and hands back the pair of events that WOULD have been a measurement, in repairSuggestedPair. That is the difference between telling a reader they have made a mistake and showing them the measurement they were reaching for. The tolerance is one part in a million million of a second, so a pair generated by a transformation and carrying rounding error still counts as simultaneous, while a genuinely staggered pair does not.",
+    },
+    liveTerms: ["frameSpeed"],
+    identifierBindings: [bind("measureRodLength", "v", "frameSpeed")],
+    independentReferences: [],
+  },
+  // NO ENTRY for classifySimultaneity, and it is not an omission of judgement. The pin writer
+  // refuses it as "uncommitted-pinned-source" although src/physics/reference/events.ts is clean and
+  // identical to HEAD: extractFromRepoFile starts an OVERLOADED export at its first overload
+  // signature (lines 337-428) while extractFunctionSource, which the committed-source check uses,
+  // starts at the implementation (352-428), so the two hash different text and the guard reads the
+  // disagreement as a dirty tree. Measured on this file: the two agree on causalOrder,
+  // measureRodLength and ellipsoidAxes, and differ on classifySimultaneity and redescribe, which
+  // are the two overloaded exports. Forcing it with --allow-dirty-pins would leave the
+  // committed-source check red for every pane, so sr-03 shows three of its four kernels until the
+  // extractor agrees with itself.
+  {
+    instrumentId: "sr-03",
+    kernel: tsRef("src/physics/reference/events.ts", "causalOrder"),
+    words: {
+      r0: "Whether one event could have caused another, which unlike their time order is the same in every frame.",
+      r1: "It computes the interval s squared, the spatial separation less the light-travel separation, and classifies. Times are in seconds and distances in light-seconds here, so c is 1 and the arithmetic is readable: one light-second apart at the same time gives s squared of 1 and spacelike; one second apart and one light-second apart gives 0 and lightlike; two seconds and one light-second gives minus 3 and timelike. Each classification comes back with a sentence a reader can use, and the spacelike one says in words that the time order can be reversed by choosing a frame.",
+      r2: "The lightlike case needs a tolerance and the tolerance is absolute, one part in a million million of a squared light-second. That is a real decision rather than a detail. An exactly lightlike pair is a measure-zero set in floating point, so a test for equality with zero would classify almost every light ray as spacelike or timelike depending on the last bit; measured here, a pair a hundredth of a femtosecond past lightlike still classifies as lightlike. The cost is the other direction: two events genuinely separated by less than that tolerance are called lightlike when they are not, and the tolerance is absolute rather than relative, so it means different things at different scales. It is stated here because a reader who moves the events a long way apart should know which way the classification errs.",
+    },
+    liveTerms: [],
+    identifierBindings: [],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-03",
+    kernel: tsRef("src/physics/reference/kinematics.ts", "ellipsoidAxes"),
+    // One sentence is the whole truth: one axis is shortened, two are not.
+    words: words(
+      "The three axes of a sphere as the frame it moves through measures it: the one along the motion is shortened by the square root of one minus beta squared, and the two across it are unchanged. At six tenths of the light speed a unit sphere measures 0.8 by 1 by 1. The paper's § 4 calls that an ellipsoid of revolution, and this function is the whole of that sentence.",
+    ),
+    liveTerms: ["frameSpeed"],
+    identifierBindings: [bind("ellipsoidAxes", "beta", "frameSpeed")],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-08",
+    kernel: tsRef("src/physics/reference/fields.ts", "evaluateSr08"),
+    words: {
+      r0: "One test charge in one electromagnetic field, described twice: from the laboratory and from a frame moving past it.",
+      r1: "It transforms the fields, transforms the charge's velocity, and computes the Lorentz force in both descriptions, alongside the two field invariants that must come out the same in each. Everything a reader sees on this page comes from one call: the stationary and moving fields, the stationary and moving velocities, the transverse force in the laboratory and in the comoving frame, and the Lorentz factor that relates them.",
+      r2: "The two transverse forces are NOT equal and that is the instrument's subject. The comoving transverse force is the laboratory one times the Lorentz factor, because a force is a rate of change of momentum and the two frames do not agree about time; a reader who expects the components to match is meeting paper 3's § 10 head on, and this is the adversarial fixture AGENTS.md names as forces having equal numerical components in different frames. Three refusals guard the arithmetic and they are separate facts rather than one validity check: any nonfinite input, a boost at or past the light speed, and a TEST CHARGE at or past the light speed, which is a different condition from the boost and has its own message. Each refusal fills every row of the snapshot with an outside-domain result, so no half-populated snapshot with some real numbers and some missing ever reaches a view.",
+    },
+    liveTerms: [
+      "frameSpeed",
+      "electricFieldMoving",
+      "magneticFieldMoving",
+      "electricFieldStationary",
+      "magneticFieldStationary",
+    ],
+    identifierBindings: [
+      bind("evaluateSr08", "boost", "frameSpeed"),
+      bind("evaluateSr08", "Eprime", "electricFieldMoving"),
+      bind("evaluateSr08", "Bprime", "magneticFieldMoving"),
+      bind("evaluateSr08", "E0", "electricFieldStationary"),
+      bind("evaluateSr08", "B0", "magneticFieldStationary"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-08",
+    kernel: tsRef("src/physics/reference/fields.ts", "transformSI"),
+    words: TRANSFORM_SI_WORDS,
+    liveTerms: ["electricFieldStationary", "magneticFieldStationary", "frameSpeed"],
+    identifierBindings: [
+      bind("transformSI", "E", "electricFieldStationary"),
+      bind("transformSI", "B", "magneticFieldStationary"),
+      bind("transformSI", "v", "frameSpeed"),
+      bind("transformSI", "γ", "lorentzFactor"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-09",
+    kernel: tsRef("src/physics/reference/waves.ts", "evaluateSr09"),
+    words: {
+      r0: "The frequency and the direction of a light wave as a moving observer finds them: the Doppler shift and the aberration, from one boost and one angle.",
+      r1: "Paper 3's § 7 in one evaluation. It takes the boost, the angle the wave travels at in the resting system and its frequency, and returns the transformed angle, the transformed frequency, the Doppler factor, the amplitude factor, the line-of-sight factors for a source receding and approaching, and the aberration in arcseconds for the Earth's orbital speed. It also returns the second-order shift at a stated small speed, which is the part that distinguishes this prediction from the classical one.",
+      r2: "It checks the phase rather than asserting it. The function builds named events, transforms the wave four-vector, evaluates the phase at each event in both frames with phaseAtEvent, and reports whether the two agree; it also carries an ADVERSARIAL phase, built to disagree, so that the check has something to fail against and a passing agreement is not a property of the checker. Two refusals of different kinds sit at the front: a classical observer factor and a classical source factor are returned alongside the relativistic one, because the classical predictions differ only at second order and a reader has to see all three to see the difference at all. A boost at or past the light speed fills the snapshot with NaN rather than a typed refusal; the guard is in src/experiments/sr09/parameters.ts, which refuses such a beta before the evaluator is called, so the branch is unreachable from the page and is visible only in the listing.",
+    },
+    liveTerms: ["frameSpeed", "propagationAngleStationary", "dopplerFactor"],
+    identifierBindings: [
+      bind("evaluateSr09", "beta", "frameSpeed"),
+      bind("evaluateSr09", "propagationAngleStationaryRad", "propagationAngleStationary"),
+      bind("evaluateSr09", "doppler", "dopplerFactor"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-09",
+    kernel: tsRef("src/physics/reference/waves.ts", "phaseAtEvent"),
+    // One sentence is the whole truth: a dot product less a product, and a refusal before it.
+    words: words(
+      "The phase of a wave at one event: the wave vector dotted into the position, less the angular frequency times the time. It is the quantity that must come out the same in every frame, which is why it is computed here rather than assumed, and a nonfinite coordinate or component is refused by name before the arithmetic.",
+    ),
+    liveTerms: ["wavePhase"],
+    identifierBindings: [bind("phaseAtEvent", "phase", "wavePhase")],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-10",
+    kernel: tsRef("src/physics/reference/waves.ts", "evaluateSr10"),
+    words: {
+      r0: "What happens to the energy of a bundle of light when the observer moves, which is the result the mass-energy paper of September then uses.",
+      r1: "A light complex carries an energy, occupies a volume and has an amplitude, and all three change together under a boost. The function returns the transformed energy, volume and amplitude, and the three factors relating them, for a bundle travelling at a stated angle. The energy factor is the same Doppler factor the previous instrument returns, which is § 8's result: the energy of a light complex transforms exactly as its frequency does.",
+      r2: "It carries its own COUNTERMODEL. Beside the real volume factor it computes lightComplexMaterialContractionCountermodel, the factor a bundle would have if it contracted like a material body, and returns both so the page can show that they differ. AGENTS.md names this as an adversarial fixture and names the trap in it too: a ray transverse in the MOVING frame gives exactly the material factor, so a countermodel tested only there would agree with the truth and prove nothing, which is why the angle is an input and the comparison is made across angles. A boost at or past the light speed fills the snapshot with NaN rather than refusing in the typed way; as with its sibling the guard sits in the parameter validator one layer up.",
+    },
+    liveTerms: [
+      "frameSpeed",
+      "propagationAngleStationary",
+      "lightComplexEnergyMoving",
+      "lightComplexVolumeMoving",
+    ],
+    identifierBindings: [
+      bind("evaluateSr10", "beta", "frameSpeed"),
+      bind("evaluateSr10", "propagationAngleStationaryRad", "propagationAngleStationary"),
+      bind("evaluateSr10", "transformedEnergyJ", "lightComplexEnergyMoving"),
+      bind("evaluateSr10", "transformedVolumeM3", "lightComplexVolumeMoving"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-12",
+    kernel: tsRef("src/physics/reference/fields.ts", "evaluateSr12"),
+    words: {
+      r0: "A charge density and a current, described from two frames, with the total charge coming out the same in both.",
+      r1: "It transforms the four-current, computes its invariant, evaluates the continuity residual in each frame, and totals the charge on a sphere and around a current loop. The heart of it is that charge is invariant while charge DENSITY is not: a sphere carries the same total charge in both descriptions, and the function returns the two totals separately so a reader can see them agree rather than being told they do.",
+      r2: "Four refusals, and one of them is not about the observer at all. Nonfinite inputs, a boost past 0.95 of the light speed, and a Lorentz factor that will not evaluate are the first three. The fourth belongs to the model: in convection mode the CARRIER velocity must be below the light speed, which is a statement about the charges in the wire rather than about the frame watching them, and it is refused separately with its own message. The 0.95 bound is tighter than the physics requires and is this laboratory's declared teaching range, not a claim that nothing moves faster. Each refusal fills every row with an outside-domain result, so a snapshot never mixes real numbers with missing ones.",
+    },
+    liveTerms: ["frameSpeed", "chargeDensityMoving", "currentDensityMoving"],
+    identifierBindings: [
+      bind("evaluateSr12", "boost", "frameSpeed"),
+      bind("evaluateSr12", "chargeDensityMoving", "chargeDensityMoving"),
+      bind("evaluateSr12", "currentDensityMoving", "currentDensityMoving"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-12",
+    kernel: tsRef("src/physics/reference/fields.ts", "transformChargeCurrent"),
+    words: {
+      r0: "The charge density and the current as the moving frame measures them, which mix exactly as the time and the position do.",
+      r1: "The transformed density is gamma times the density less the current along the boost over c squared; the transformed current along the boost is gamma times the current less the density times the velocity. The components across the boost pass through. Written side by side with the coordinate transformation the pattern is the same, which is the point of showing this function next to that one: a density and a current form a four-vector in the same way a time and a position do.",
+      r2: "Its refusal path returns NaN in every field rather than a typed result, and that is worth knowing rather than hiding. The function is not the laboratory's entry point: evaluateSr12 refuses a nonfinite input, a boost past 0.95 of the light speed and a failing Lorentz factor BEFORE calling this, so the NaN branch cannot be reached from the page. It is in the listing because it is in the code, and a reader who follows the call from the evaluator will see a guard that the evaluator has already made unnecessary.",
+    },
+    liveTerms: ["chargeDensityStationary", "currentDensityStationary", "frameSpeed"],
+    identifierBindings: [
+      bind("transformChargeCurrent", "rho", "chargeDensityStationary"),
+      bind("transformChargeCurrent", "J", "currentDensityStationary"),
+      bind("transformChargeCurrent", "beta", "frameSpeed"),
+      bind("transformChargeCurrent", "γ", "lorentzFactor"),
+    ],
+    independentReferences: [],
+  },
+  {
+    instrumentId: "sr-13",
+    kernel: tsRef("src/physics/reference/electron.ts", "evaluateSr13"),
+    words: {
+      r0: "A slowly accelerated electron, and the three different numbers that all have a claim to be called its mass.",
+      r1: "It returns the longitudinal mass, the transverse mass in the comoving convention and the transverse mass in the laboratory convention, along with the kinetic energy, the accelerating potential, the radius of curvature in a magnetic and in an electric field, and the trajectory. At six tenths of the light speed an electron's three masses are 1.7792, 1.4233 and 1.1387 times 10^-30 kg: the longitudinal is the rest mass times gamma cubed, the comoving transverse times gamma squared, and the laboratory transverse times gamma.",
+      r2: "The two transverse masses differ by a factor of gamma and NEITHER is wrong. Einstein's § 10 defines the transverse mass as the comoving transverse force divided by the laboratory acceleration, which gives gamma squared; Planck's 1906 convention defines force as the rate of change of momentum, which gives gamma. The paper's own footnote says the definition of force is a matter of convention, and this function returns both rather than choosing, with the convention named in each identifier. AGENTS.md's notation concordance calls this out as a substantive modernization rather than a rename, which is why both are here and why neither is called simply the mass. A speed at or past the light speed refuses every mass and energy row with the code superluminal-speed, before any gamma is taken.",
+    },
+    liveTerms: [
+      "speedRatio",
+      "longitudinalMass",
+      "transverseMassComoving",
+      "transverseMassLaboratory",
+      "lorentzFactor",
+    ],
+    identifierBindings: [
+      bind("evaluateSr13", "beta", "speedRatio"),
+      bind("evaluateSr13", "longM", "longitudinalMass"),
+      bind("evaluateSr13", "transMComov", "transverseMassComoving"),
+      bind("evaluateSr13", "transMLab", "transverseMassLaboratory"),
+      bind("evaluateSr13", "g", "lorentzFactor"),
+    ],
     independentReferences: [],
   },
 ];

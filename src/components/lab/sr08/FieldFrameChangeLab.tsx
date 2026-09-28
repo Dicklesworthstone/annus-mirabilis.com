@@ -34,10 +34,12 @@ import { display, fixed, identity, result, sentenceNumber } from "../presentatio
 import { withScripts } from "../subscripts.tsx";
 import { FieldFrameChangePlot } from "./FieldFrameChangePlot.tsx";
 import "../labControls.css";
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 
 const C_SI = 299792458;
 
@@ -541,6 +543,8 @@ export function FieldFrameChangeLab({
       <LabMargin>{withScripts(SR08_CAPTION.r3)}</LabMargin>
 
       <p className="fine">Not modeled: {SR08_NOT_MODELED.join("; ")}.</p>
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="sr-08" listings={getKernelListingsForInstrument("sr-08")} />
     </section>
   );
 }

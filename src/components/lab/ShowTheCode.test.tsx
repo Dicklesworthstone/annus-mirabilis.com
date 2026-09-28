@@ -245,30 +245,47 @@ describe("no pinned listing, no disclosure", () => {
   });
 
   /**
-   * THIS TEST NAMED SR-11 AND SR-11 STOPPED BEING AN EXAMPLE OF ITS OWN PREMISE. 734efe38 gave
-   * sr-11 a catalogue entry, which is the work going well, and the assertion "sr-11 draws no box"
-   * became false for the right reason while still reading like a guard. It went red in a deploy's
-   * test lane rather than in the commit that caused it, because the commit updated two sibling
-   * suites and not this one.
+   * THIS CASE HAS NOW OUTLIVED TWO SUBJECTS, and the second time is the interesting one.
    *
-   * So the subject is now CHECKED rather than assumed. The premise assertion below fails with a
-   * sentence naming the cause the moment sr-09 is given a listing, instead of the render assertion
-   * failing with "expected not to contain show-the-code", which says nothing about why. And the
-   * fact that broke this test is now the positive control beside it, so the pair cannot drift
-   * apart: one lab without a listing draws nothing, one lab with one draws the box.
+   * It named sr-11, and 734efe38 gave sr-11 a listing, so the assertion "sr-11 draws no box" became
+   * false for the right reason while still reading like a guard; it went red in a deploy lane
+   * rather than in the commit that caused it. 5fb452ad repaired that by naming sr-09 and asserting
+   * the PREMISE first, so the next time would fail with a sentence saying what had happened.
+   *
+   * That sentence has now fired. Every one of the 33 instruments has a pinned listing (measured
+   * with getKernelListingsForInstrument, the accessor the page calls), so the tree no longer holds
+   * a lab that could stand for "no listing". Moving the case to another instrument is not
+   * available, and waiting for one is not either.
+   *
+   * So the negative is stated where it cannot be invalidated by the catalogue again, at the
+   * component, with the empty array a listing-less lab would hand it; and the end-to-end half is
+   * replaced by something STRONGER than the old case rather than weaker. The old one said: this
+   * one lab, which happens to have no listing, draws no empty box. The new one says: NO instrument
+   * is listing-less, so no mounted panel can draw an empty box, over the whole population and with
+   * the population's size printed beside the verdict.
    */
-  test("a lab whose instrument has no pinned listing draws no empty 'Show the code' box", async () => {
+  test("the component draws nothing when a lab hands it no listings", () => {
+    expect(renderToStaticMarkup(<ShowTheCode instrumentId="sr-09" listings={[]} />)).toBe("");
+  });
+
+  test("no instrument is listing-less, so no mounted panel can draw an empty box", async () => {
     const { getKernelListingsForInstrument } = await import("../../content/kernel/listings.ts");
-    expect(
-      getKernelListingsForInstrument("sr-09"),
-      "sr-09 has gained a pinned listing, so it is no longer an example of a lab without one: " +
-        "move this case to an instrument that still has none, and make sr-09 a positive control",
-    ).toEqual([]);
-    const { DopplerAberrationLab } = await import("./sr09/DopplerAberrationLab.tsx");
-    const { DEFAULT_PREPARED_EXAMPLE } = await import("../../experiments/sr09/session.ts");
-    expect(
-      renderToStaticMarkup(<DopplerAberrationLab example={DEFAULT_PREPARED_EXAMPLE} />),
-    ).not.toContain('class="show-the-code"');
+    const { readdirSync } = await import("node:fs");
+    const { dirname, join, resolve } = await import("node:path");
+    const { fileURLToPath } = await import("node:url");
+    const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+    const ids = readdirSync(join(root, "content", "experiments"))
+      .filter((name) => name.endsWith(".yaml"))
+      .map((name) => name.slice(0, -".yaml".length))
+      .sort();
+    // The denominator, so that a run over an empty directory says so instead of reading clean.
+    expect(ids.length).toBeGreaterThan(30);
+    const empty = ids.filter((id) => getKernelListingsForInstrument(id).length === 0);
+    const total = ids.reduce((n, id) => n + getKernelListingsForInstrument(id).length, 0);
+    console.log(
+      `[show the code] ${ids.length} instruments, ${total} listings, ${empty.length} with none`,
+    );
+    expect(empty).toEqual([]);
   });
 
   test("and a lab whose instrument HAS one draws it: sr-11, the case that broke the line above", async () => {

@@ -32,10 +32,12 @@ import { display, fixed, identity, result, sentenceNumber } from "../presentatio
 import { withScripts } from "../subscripts.tsx";
 import { ChargeCurrentPlot } from "./ChargeCurrentPlot.tsx";
 import "../labControls.css";
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { PREDICT_PROMPTS } from "../../../generated/predict-prompts.ts";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 
 const C_SI = 299792458;
 
@@ -779,6 +781,8 @@ export function ChargeCurrentLab({
           <strong>Not modeled:</strong> {SR12_NOT_MODELED.join(", ")}.
         </div>
       </footer>
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="sr-12" listings={getKernelListingsForInstrument("sr-12")} />
     </section>
   );
 }

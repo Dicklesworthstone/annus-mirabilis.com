@@ -85,7 +85,17 @@
     "covarianceEstimator@src/physics/reference/inference/observation.ts": "sha256:c819dee82ba95281ed8aad5cd93dc656ca7b3acc11633efc7497f1a710882dab",
     "disjointPairsKnownNoiseInterval@src/physics/reference/inference/observation.ts": "sha256:28f46917a5658571285f63148076eba58dc36a31814a32f4a74b00ccbbf3cf2b",
     "stationaryClickNoiseEstimate@src/physics/reference/inference/observation.ts": "sha256:edf6a3b57f9af2fdeb61bce6f389dec306fd70e77885bf772cc1551ecb1c81fb",
-    "bartlettBandsMA1@src/physics/reference/inference/observation.ts": "sha256:4b2cccf1506e72469656be3250df670885efe5ab2c1c5acc45a0b261d49c03dd"
+    "bartlettBandsMA1@src/physics/reference/inference/observation.ts": "sha256:4b2cccf1506e72469656be3250df670885efe5ab2c1c5acc45a0b261d49c03dd",
+    "measureRodLength@src/physics/reference/events.ts": "sha256:e97beaf8ac0d914a0a5e24484d65e0fa3833db6173332226b603634480313930",
+    "causalOrder@src/physics/reference/events.ts": "sha256:b756870e17e329d30ef7d9ecf32adc1f17b5b263675e5c7a050475c430aebfb0",
+    "ellipsoidAxes@src/physics/reference/kinematics.ts": "sha256:af73d6f0e3a79dda8161fd4c40c41990f83d555f870f8cfaaf52746c4bb9fe45",
+    "evaluateSr08@src/physics/reference/fields.ts": "sha256:43dfe57d5385e4353a8cd2585d794915b8880066aaea05223810c6c3b3daf7e0",
+    "evaluateSr09@src/physics/reference/waves.ts": "sha256:ef623131c3e8ea8ac949e8079db833adab903b09b5bb016549d9ecbd18d959b4",
+    "phaseAtEvent@src/physics/reference/waves.ts": "sha256:f28ee2f8d5ebf08961325ceeae3e003e27155b8fb8e75e8b79852f0aa2340adb",
+    "evaluateSr10@src/physics/reference/waves.ts": "sha256:ad778c144088027bf765a7708142de80d198481e20d810dad7ba4d4e62bca5e2",
+    "evaluateSr12@src/physics/reference/fields.ts": "sha256:2456d6085eed656243ff791b623bb875b6b857f37d0460ec80a5545dc81b1e9a",
+    "transformChargeCurrent@src/physics/reference/fields.ts": "sha256:4efbed0926134abf4e2db73308635313f2cfefb0971f46939053c1346f13dfad",
+    "evaluateSr13@src/physics/reference/electron.ts": "sha256:bb62046b9943f0fd874f6cf4023f1baf428e741c5f1cbd01923fbbab5921bad3"
   },
   "closures": {
     "src/physics/reference/diffusion/distributions.ts": "source:sha256:1eb5b457e215116537778a643fdb94b42da696cd79689396720e6c289b7aa5fa",
@@ -112,6 +122,7 @@
     "src/physics/reference/diffusion/routeA.ts": "source:sha256:46c1f6ca0c5cf360c7295d50136f8f7c733e714883b7ba1304ee6f317006d3ba",
     "src/physics/reference/diffusion/driftDiffusion.ts": "source:sha256:814df5b58e46dc4ab4174450bce7994858f17094990d8de0ac8d7b47df1fe3b5",
     "src/physics/reference/inference.ts": "source:sha256:9bd541144f6c6fededa53812fdebd959543e1ae60998c7421ce02e43908b1366",
-    "src/physics/reference/inference/observation.ts": "source:sha256:9bd541144f6c6fededa53812fdebd959543e1ae60998c7421ce02e43908b1366"
+    "src/physics/reference/inference/observation.ts": "source:sha256:9bd541144f6c6fededa53812fdebd959543e1ae60998c7421ce02e43908b1366",
+    "src/physics/reference/electron.ts": "source:sha256:645cc163b231cbd8368f4e0591347176a93e456e48e274c10b74e0e158fa0869"
   }
 }

@@ -1,5 +1,6 @@
 "use client";
 import { type FormEvent, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
 import { readTypedNumber } from "../../../experiments/controls/typedNumber.ts";
 import { ExecutionChrome } from "../../../experiments/labels/ExecutionChrome.tsx";
 import { executionStateKindFromHostLabel } from "../../../experiments/labels/executionLabelFor.ts";
@@ -30,6 +31,7 @@ import { KEPT_RESULT } from "../keptResult.ts";
 import { LabMargin } from "../LabMargin.tsx";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { display, fixed, identity, result, sentenceNumber } from "../presentation.ts";
+import { ShowTheCode } from "../ShowTheCode.tsx";
 import { withScripts } from "../subscripts.tsx";
 import { ElectronDynamicsPlot } from "./ElectronDynamicsPlot.tsx";
 
@@ -539,6 +541,8 @@ export function ElectronDynamicsLab({
       </p>
       <LabMargin>{withScripts(SR13_CAPTION.r3)}</LabMargin>
       <p className="fine">Not modeled: {SR13_NOT_MODELED.join("; ")}.</p>
+      {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
+      <ShowTheCode instrumentId="sr-13" listings={getKernelListingsForInstrument("sr-13")} />
     </section>
   );
 }
