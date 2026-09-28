@@ -433,7 +433,17 @@ export function MassEnergyFirstEncounter({
           </p>
         )}
         <p>
-          <a href="#arg-me-import" data-reader-anchor="arg-me-import">
+          {/* THE ARGUMENT LIVES ON THE PAPER PAGE, AND THIS ENCOUNTER DOES NOT (dispatch 396).
+              This read "#arg-me-import" and was right on /papers/mass-energy/, which publishes
+              id="arg-me-import", and wrong on /tours/fifteen-minutes-mass-energy/, which renders
+              this same island (TimedTour.tsx) and holds no such id: the fragment-anchors candidate
+              check found the link landing at the top of the tour with nothing to tell the reader
+              they had missed. The absolute form is correct on BOTH, because a fragment link whose
+              path already matches is a same-document jump, so the paper page is unchanged with
+              JavaScript off; with it on, ReaderController reads data-reader-anchor and never
+              follows the href at all. paperPath() is not used here on purpose: paperRoutes.ts
+              imports content/server.ts, which must not enter a "use client" island. */}
+          <a href="/papers/mass-energy/#arg-me-import" data-reader-anchor="arg-me-import">
             Follow the complete explanatory argument →
           </a>
         </p>

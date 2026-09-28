@@ -5,9 +5,17 @@ import { renderInlines } from "./inlines.tsx";
 export interface FootnoteItemProps {
   readonly footnote: SourceBlock;
   /**
-   * Also publish the footnote's own id, which links from outside the page name (a passage's
-   * printed paragraphs, content/bindings). The item keeps footnote-<id> for the marks that point
-   * at it. The German face asks for this; the parallel face, whose rows repeat ids otherwise, does not.
+   * Also publish the footnote's own id, which is the canonical page anchor for a footnote block
+   * (docs/CONTENT_IDS.md 7.1) and what links from outside the page name: a passage's printed
+   * paragraphs, content/bindings, a capstone. The item keeps footnote-<id> for the marks that
+   * point at it.
+   *
+   * The German face and the parallel face both ask for this. Until 2026-09-28 this line read "the
+   * parallel face, whose rows repeat ids otherwise, does not", and that reason did not hold: the
+   * repetition it feared is what ENGLISH_ANCHOR_PREFIX already prevents, and with the prop on,
+   * englishAnchors.test.tsx measures no repeated id on that face. The cost of the wrong reason
+   * was a canonical anchor that resolved on 95 built pages and not on the parallel face, found by
+   * a candidate check rather than by a test here (dispatch 396).
    */
   readonly anchored?: boolean | undefined;
   /** What follows the footnote inside its item: the German face's "Explained in" line. */

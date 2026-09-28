@@ -219,7 +219,20 @@ export function ParallelFace({
                     <p className="parallel-half-label">Deutsch</p>
                     {/* One list per footnote, so it can sit in its row; start keeps its number. */}
                     <ol className="footnotes-list" start={index + 1}>
-                      <FootnoteItem footnote={row.block} />
+                      {/* ANCHORED: the German column publishes the footnote's own id, which is the
+                          canonical page anchor for a footnote block (docs/CONTENT_IDS.md 7.1 lists
+                          #s3-fn1 beside #s3-p2 as a fragment used directly). Measured on the build
+                          of 2026-09-28: 95 built pages published id="s<n>-fn<k>" and the parallel
+                          face published none, so a cross-page link to #s1-fn1 resolved on every
+                          face but this one. That is what the fragment-anchors candidate check
+                          caught from /capstones/special-relativity/, and no test on this face
+                          could see it, because this face links its own marks to #footnote-<id>
+                          and englishAnchors.test.tsx reads the links the page itself emits. The
+                          prop's own docblock used to say the parallel face declines this because
+                          its rows would repeat ids; the repetition is what ENGLISH_ANCHOR_PREFIX
+                          already prevents, and englishAnchors.test.tsx asserts no id repeats with
+                          this on. */}
+                      <FootnoteItem footnote={row.block} anchored />
                     </ol>
                   </div>
                 ) : null}
