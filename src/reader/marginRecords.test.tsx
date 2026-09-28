@@ -74,8 +74,12 @@ describe("loading a paper's margin records", () => {
     // content/editorial-notes/mass-energy/note-me-g-argument-comparison.json.
     //
     // The same resolver refuses the near-miss `me-03:four-momentum` with "is not a declared mode of
-    // me-03", because DECLARED_MODES is empty for all 37 instruments; that case shares this code path
-    // and was checked by planting it on the real record.
+    // me-03", because me-03 declares no mode; that case shares this code path and was checked by
+    // planting it on the real record. This comment said "DECLARED_MODES is empty for all 37
+    // instruments" until 2026-09-28: the catalogue holds 38 ids, and one of them, sr-02, has
+    // declared `apparatus` since 9dbaf884. Nothing here depended on the wrong half, since me-03
+    // declares nothing either way, but the sentence was quoted as evidence that the mechanism was
+    // dead everywhere.
     const e = refusal("comparison-instrument-bare-unregistered");
     expect(e.code).toBe("margin-comparison-instrument-unregistered");
     expect(e.message).toContain("four-momentum-modern");

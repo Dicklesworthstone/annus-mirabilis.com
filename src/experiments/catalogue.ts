@@ -337,7 +337,19 @@ export type CatalogueAddressErrorCode =
  * if a mode is present, checks it against that id's `DECLARED_MODES`. A
  * preset id (hyphen-joined, no colon) is a bare instrument-id shape and is
  * never looked up as a mode; a preset offered as a mode (via a colon) fails
- * here because no id currently declares any mode.
+ * here, and so does a mode its id does not declare.
+ *
+ * ONE ID DECLARES A MODE: sr-02, whose `apparatus` its own laboratory
+ * implements (MagnetConductorLab.tsx branches on `p.mode === "apparatus"`
+ * and stamps `data-instrument-id="sr-02:apparatus"`). `sr-02:apparatus`
+ * therefore resolves; every other colon address in the tree does not.
+ *
+ * This paragraph read "no id currently declares any mode" until 2026-09-28,
+ * which stopped being true on 2026-09-16 when 9dbaf884 added the override,
+ * and the stale sentence was then quoted twice as evidence that the whole
+ * mechanism was dead: once in a margin-record test comment and once in a
+ * published editorial note. A comment about a table is not the table, and
+ * this one was read instead of it.
  */
 export function resolveCatalogueAddress(
   value: string,

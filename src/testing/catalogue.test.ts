@@ -140,6 +140,31 @@ describe("resolveCatalogueAddress: grammar plus membership, owned here", () => {
     }
   });
 
+  /**
+   * THE DECLARED HALF HAD NO TEST, so deleting the one override would have gone unnoticed: every
+   * case in this file asserted that a mode address FAILS, and the only id that declares a mode
+   * would have kept failing quietly while sr-02's own lab went on stamping
+   * data-instrument-id="sr-02:apparatus" on its root (MagnetConductorLab.tsx:197). The pair below
+   * is the gate in both directions on the same id: the mode it declares resolves and carries its
+   * mode, and a mode it does not declare still fails with the same code as any other id's.
+   */
+  test("the one declared mode resolves, and the declaring set is asserted by identity", () => {
+    expect(DECLARED_MODES["sr-02"]).toEqual(["apparatus"]);
+    const declaring = CATALOGUE_IDS.filter((id) => DECLARED_MODES[id].length > 0);
+    expect(declaring).toEqual(["sr-02"]);
+    expect(resolveCatalogueAddress("sr-02:apparatus")).toEqual({ id: "sr-02", mode: "apparatus" });
+  });
+
+  test("a mode the declaring id does NOT declare still fails, so the override is not a blanket", () => {
+    const result = resolveCatalogueAddress("sr-02:analytic");
+    expect("error" in result).toBe(true);
+    if ("error" in result) {
+      expect(result.code).toBe("undeclared-mode");
+      // The declared list is named in the message, so a reader of the failure sees what is on offer.
+      expect(result.error).toContain("apparatus");
+    }
+  });
+
   test("a preset id offered as a mode is rejected the same way", () => {
     const result = resolveCatalogueAddress("sr-03:boost-0.6c");
     expect("error" in result).toBe(true);
