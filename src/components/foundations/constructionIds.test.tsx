@@ -36,9 +36,17 @@ describe("the construction list agrees with FoundationConstruction", () => {
     }
   });
 
-  test("the foundation: prefix names the same construction", () => {
+  test("the foundation: prefix names the same construction", async () => {
     expect(foundationConstructionId("foundation:derivatives")).toBe("derivatives");
     expect(foundationConstructionId("derivatives")).toBe("derivatives");
-    expect(foundationConstructionId("mean-variance-rms")).toBe(null);
+    // Chosen by the property, not by name: this read "mean-variance-rms", which was a lesson with
+    // no construction when it was written and stopped being one the moment it was given a figure.
+    // Naming another lesson rebuilds the trap, because lessons keep gaining them.
+    const lessons = (await contentIndex()).payloads
+      .filter((p) => p.kind === "foundation")
+      .map((p) => p.id);
+    const unlisted = lessons.filter((id) => foundationConstructionId(id) === null);
+    expect(unlisted.length, "every lesson now has a construction").toBeGreaterThan(0);
+    expect(foundationConstructionId(unlisted[0] as string)).toBe(null);
   });
 });

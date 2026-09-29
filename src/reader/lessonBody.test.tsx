@@ -130,11 +130,12 @@ describe("loadLessonBody", () => {
 
   test("a lesson with no construction mounts nothing", async () => {
     const mounts: string[] = [];
+    // Built here rather than borrowed from a lesson that happens to have no construction: this
+    // named mean-variance-rms, which stopped being such a lesson the moment it was given a figure.
+    const noConstruction = `<main><article class="foundation-lesson"><p>A lesson body.</p></article></main>`;
     const slot = slotFor("mean-variance-rms");
     const result = await loadLessonBody(slot, {
-      fetch: fetchFrom({
-        [lessonPageHref("mean-variance-rms")]: await lessonPage("mean-variance-rms"),
-      }),
+      fetch: fetchFrom({ [lessonPageHref("mean-variance-rms")]: noConstruction }),
       mount: (_slot, id) => {
         mounts.push(id);
         return { unmount: () => {} };
