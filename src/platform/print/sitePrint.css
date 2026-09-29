@@ -138,6 +138,16 @@ summary::marker {
    and a lesson or section on paper is found by that name; printing 241 relative paths on one
    section page would bury the prose. An internal link that carries a locator ("§4, p. 556")
    prints the locator instead. */
+/* A SHAREABLE LINK IS NOT A THING PAPER CAN DO (dispatch 445). ShareControl's no-clipboard
+   fallback is a text input holding the permalink, and on a laboratory that is a 400-character
+   base64 tape printed as a wall of characters under the label "Shareable link (selectable):".
+   Measured on /lab/bm-01/ under print emulation: it was one of only seven controls that still
+   printed, the other six being a prediction's radios, which are kept deliberately. The component
+   is another pane's; only its printed appearance is changed here. */
+:root .share-control-fallback {
+  display: none;
+}
+
 :root main a[href^="http"]:not([data-no-print-url])::after,
 :root main a[href^="//"]:not([data-no-print-url])::after {
   content: " (" attr(href) ")";

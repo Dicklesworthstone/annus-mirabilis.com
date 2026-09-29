@@ -30,21 +30,35 @@
    1.086) by holding each token's hue and saturation and moving only its
    lightness. --ink is NOT re-derived; tokens.ts records the arithmetic that
    refuses it. */
-:root[data-theme="kramgasse-night"] {
-  --paper: #1c2128;
-  --ink: #e8e6e1;
-  --muted: #979ea6;
-  --rule: #363c42;
-  --accent: #e0a458;
-  --focus-ring: #e8e6e1;
-  --wash: #21282f;
-  --plot: #8fcbc2;
-  --plot-darkfield: #0d1117;
-  color-scheme: dark;
+/*
+   THE DARK THEME IS A SCREEN THEME (dispatch 445). Measured under print emulation on the build of
+   34a9c68c: a reader whose device is dark printed /papers/brownian-motion/s4/ with the body
+   background forced white by sitePrint.css and the INK still #e8e6e1, which is near-white text on
+   white paper, plus 24 panels painted #21282f. The page came out unreadable.
+
+   Scoping the override to screen is the whole repair, and it is done here rather than in
+   sitePrint.css so that no token value is written twice: print simply falls through to the
+   :root/annalen block above, which is the one source of these nine values. A print block that
+   re-declared them would be a second copy to keep in step, which is the mistake the comment on the
+   no-JavaScript duplicate below already warns about.
+*/
+@media screen {
+  :root[data-theme="kramgasse-night"] {
+    --paper: #1c2128;
+    --ink: #e8e6e1;
+    --muted: #979ea6;
+    --rule: #363c42;
+    --accent: #e0a458;
+    --focus-ring: #e8e6e1;
+    --wash: #21282f;
+    --plot: #8fcbc2;
+    --plot-darkfield: #0d1117;
+    color-scheme: dark;
+  }
 }
 /* Without JavaScript the pre-paint script never sets data-theme, so the device's setting has to be
    honoured here. The values repeat the block above; change both together. */
-@media (prefers-color-scheme: dark) {
+@media screen and (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     --paper: #1c2128;
     --ink: #e8e6e1;
