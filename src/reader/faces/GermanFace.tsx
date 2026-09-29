@@ -143,7 +143,7 @@ export function GermanFace({
       {/* The panels' levels, fetched when a reader first opens one (dispatch 292). */}
       <ExplainerFragments />
       <header className="page-intro" lang="de">
-        <p className="eyebrow">Quelle · {paper.titleGerman}</p>
+        <p className="eyebrow">Quelle</p>
         <h1 className="source-paper-title">{paper.titleGerman}</h1>
         <p className="source-author-line">von {paper.authorLine}</p>
         {dateLine?.text && <p className="source-date-line">{dateLine.text}</p>}

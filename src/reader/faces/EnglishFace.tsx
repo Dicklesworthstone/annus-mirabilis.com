@@ -88,7 +88,7 @@ export function EnglishFace({
       {/* The panels' levels, fetched when a reader first opens one (dispatch 292). */}
       <ExplainerFragments />
       <header className="page-intro" lang="en">
-        <p className="eyebrow">Translation · {paper.titleEnglishWorking}</p>
+        <p className="eyebrow">Translation</p>
         {/* The translated masthead is the title, under its own unit id (translationMasthead.ts);
             Einstein's title stands beneath it. */}
         <h1

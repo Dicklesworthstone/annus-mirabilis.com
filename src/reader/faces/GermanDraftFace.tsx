@@ -153,9 +153,8 @@ export function GermanDraftFace({
   return (
     <div data-reader-root data-ready="true" data-view="german" className="reader-root">
       <header className="page-intro">
-        <p className="eyebrow">
-          Read · {paperTitle} · {FACE_REGISTRY.german.label}
-        </p>
+        {/* The heading below is the paper's own title, so the eyebrow names the face only. */}
+        <p className="eyebrow">Read · {FACE_REGISTRY.german.label}</p>
         <h1
           className="source-paper-title"
           lang="de"
