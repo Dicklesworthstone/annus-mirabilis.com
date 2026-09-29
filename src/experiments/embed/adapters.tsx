@@ -120,10 +120,16 @@ export async function renderEmbeddedLaboratory(id: EmbeddableId): Promise<ReactN
     case "lq-03": {
       const { LQ03_DEFAULTS } = await import("../lq03/definition.ts");
       const { evaluateLq03 } = await import("../lq03/session.ts");
+      const { default: labDigests } = await import("../../generated/lab-source-digests.json");
       const example = {
         parameters: LQ03_DEFAULTS,
         evaluation: evaluateLq03(LQ03_DEFAULTS),
-        sourceDigest: "src/physics/reference/radiation.ts",
+        // THE DIGEST, NOT THE PATH (dispatch 452). deriveHostExecution refuses anything that is
+        // not source:sha256:<64 hex>, and its refusal reaches a reader as "This experiment is
+        // unavailable on this device": a claim about their machine, caused by this line.
+        // /lab/lq-03/ has always passed labDigests["lq-03"]; the embed of the same instrument said
+        // unavailable at 320px and at 1280px alike until this matched it.
+        sourceDigest: labDigests["lq-03"],
       };
       return <LazySpectrumLab example={example} />;
     }
@@ -135,8 +141,10 @@ export async function renderEmbeddedLaboratory(id: EmbeddableId): Promise<ReactN
       const { LQ07_DEFAULTS } = await import("../lq07/definition.ts");
       const { evaluateLq07 } = await import("../lq07/session.ts");
       const evalResult = evaluateLq07(LQ07_DEFAULTS);
+      const { default: labDigests } = await import("../../generated/lab-source-digests.json");
       const example: PreparedLq07Example = {
-        sourceDigest: "src/physics/reference/photoelectric.ts",
+        // The same defect as lq-03 above, in the same shape.
+        sourceDigest: labDigests["lq-07"],
         parameters: LQ07_DEFAULTS,
         results: evalResult.outputs.map(
           (o) => `${o.quantityId}=${o.status === "value" ? String(o.value) : o.status}`,
