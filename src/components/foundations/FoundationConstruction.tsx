@@ -23,6 +23,7 @@ import type { HeadingLevel } from "./headingLevel.ts";
 import { LogarithmProductTable } from "./LogarithmProductTable.tsx";
 import { MagnitudeScale } from "./MagnitudeScale.tsx";
 import { NudgeSensitivityDemo } from "./NudgeSensitivityDemo.tsx";
+import { OneAreaManyShapes } from "./OneAreaManyShapes.tsx";
 import { OsmoticTable } from "./OsmoticTable.tsx";
 import { PeakAndDip } from "./PeakAndDip.tsx";
 import { PourAndShare } from "./PourAndShare.tsx";
@@ -122,7 +123,14 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
     case "quantities-units":
       return <UnitCancellationTable headingLevel={headingLevel} />;
     case "error-and-inference":
-      return <RepeatedIntervals headingLevel={headingLevel} />;
+      // Two sections: the rectangles its first paragraph names, then the interval demonstration
+      // that was already here. Safe in the dialog since 4bd6681a.
+      return (
+        <>
+          <OneAreaManyShapes headingLevel={headingLevel} />
+          <RepeatedIntervals headingLevel={headingLevel} />
+        </>
+      );
     case "matrices-linear-maps":
       return <BoostTable headingLevel={headingLevel} />;
     case "hyperbolic-functions-rapidity":

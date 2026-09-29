@@ -350,3 +350,17 @@ export const meanDistance = (values: readonly number[]): number =>
  * bridgeFigures.test.ts holds it to the square root through withinTolerance().
  */
 export const PRINTED_RMS = 2.236;
+
+// The underdetermination figure of dispatch 444. foundation:error-and-inference opens with a
+// rectangle whose area is known and whose sides are not, and draws nothing.
+
+/** The area the lesson knows, in square centimetres, and three pairs of sides that give it. */
+export const RECTANGLE_AREA = 12;
+export const RECTANGLE_SIDES = [
+  [3, 4],
+  [2, 6],
+  [1, 12],
+] as const;
+
+/** The area a pair of sides encloses: the one thing the measurement fixes. */
+export const rectangleArea = (sides: readonly [number, number]): number => sides[0] * sides[1];

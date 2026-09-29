@@ -40,6 +40,7 @@ const BRIDGE_FIGURES = [
   "derivatives",
   "frames-events",
   "mean-variance-rms",
+  "error-and-inference",
   "bridge-a-graph",
   "bridge-sum-average",
   "bridge-negative-numbers-direction",
@@ -85,10 +86,10 @@ describe("the bridge lessons' figures", () => {
       // Every lesson keeps at least one named figure, so nothing can go dark behind aria-hidden.
       expect(namedHere, `${id}: no named figure`).toBeGreaterThan(0);
     }
-    // Twenty-five named drawings across fifteen lessons; bridge-a-graph draws both of the graphs its
+    // Twenty-six named drawings across sixteen lessons; bridge-a-graph draws both of the graphs its
     // prose names, flux-continuity one panel per second, diffusion-equation the profile and then
     // the same dye later, and random-walks the four walks and then the square-root growth.
-    expect(drawings).toBe(25);
+    expect(drawings).toBe(26);
     // And the decorative swatches are a real population, so the branch above is not dead code.
     expect(decorative).toBeGreaterThan(0);
   });
