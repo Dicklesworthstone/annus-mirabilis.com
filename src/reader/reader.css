@@ -2341,6 +2341,23 @@ html:is(
   margin: -0.35em -0.15em;
 }
 
+/* AT 400% ZOOM THE DELIBERATE OVERHANG ESCAPES THE PAGE (dispatch 459). The cap above is
+   calc(100% + 0.3em) on purpose, because a plain 100% left every gloss formula 0.3em short and
+   scrolling, and that reason still holds at reading widths. At a ~320px viewport, which is what
+   400% of 1280 gives, there is no page gutter left to absorb it: measured on the build of
+   9dde0926 at 320x256, /papers/brownian-motion/view/parallel/ scrolled sideways by 8px and the
+   outermost uncontained offender was a .inline-math box 314px wide with its right edge at 328.
+   Two-dimensional scrolling is what WCAG 2.2 reflow forbids, and it is the one thing this page
+   must not do, so at this width the formula gives up 0.3em rather than the page giving up reflow.
+   Nothing is hidden: the box still scrolls in its line and still earns its tab stop from
+   formulaOverflow.inline.ts, and .inline-math keeps its existing entry in the
+   scrollable-regions ratchet. Above 22rem the measured rule is untouched. */
+@media (max-width: 22rem) {
+  .inline-math {
+    max-width: 100%;
+  }
+}
+
 .cue-reasoning-marked {
   font-weight: 700;
 }
