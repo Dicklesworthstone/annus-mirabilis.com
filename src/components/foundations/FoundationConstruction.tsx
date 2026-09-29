@@ -28,6 +28,7 @@ import { OsmoticTable } from "./OsmoticTable.tsx";
 import { PeakAndDip } from "./PeakAndDip.tsx";
 import { PourAndShare } from "./PourAndShare.tsx";
 import { ProductsView } from "./ProductsView.tsx";
+import { PushOfLight } from "./PushOfLight.tsx";
 import { RapidityAdder } from "./RapidityAdder.tsx";
 import { ReadingAGraph } from "./ReadingAGraph.tsx";
 import { RepeatedIntervals } from "./RepeatedIntervals.tsx";
@@ -187,5 +188,7 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
       return <TwoClocksOneFlash headingLevel={headingLevel} />;
     case "mean-variance-rms":
       return <ThreeAverages headingLevel={headingLevel} />;
+    case "momentum-energy-light":
+      return <PushOfLight headingLevel={headingLevel} />;
   }
 }
