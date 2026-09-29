@@ -2626,7 +2626,8 @@ html:is(
   margin: 0.25rem 0;
 }
 
-.parallel-author,
+/* `.parallel-author` left this group with the line it styled: the parallel face's author is now
+   inside its citation, and the grid prints Einstein's own author row with its page marker. */
 .source-date-line,
 .journal-citation {
   font-size: var(--type-small);
