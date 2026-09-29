@@ -56,6 +56,7 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "random-walks",
   "gaussian-distributions",
   "distributions",
+  "integration",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];

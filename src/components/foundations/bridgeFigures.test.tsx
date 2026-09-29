@@ -34,6 +34,7 @@ const BRIDGE_FIGURES = [
   "random-walks",
   "gaussian-distributions",
   "distributions",
+  "integration",
   "bridge-a-graph",
   "bridge-sum-average",
   "bridge-negative-numbers-direction",
@@ -79,10 +80,10 @@ describe("the bridge lessons' figures", () => {
       // Every lesson keeps at least one named figure, so nothing can go dark behind aria-hidden.
       expect(namedHere, `${id}: no named figure`).toBeGreaterThan(0);
     }
-    // Fifteen named drawings across ten lessons; bridge-a-graph draws both of the graphs its
+    // Seventeen named drawings across eleven lessons; bridge-a-graph draws both of the graphs its
     // prose names, flux-continuity one panel per second, diffusion-equation the profile and then
     // the same dye later, and random-walks the four walks and then the square-root growth.
-    expect(drawings).toBe(15);
+    expect(drawings).toBe(17);
     // And the decorative swatches are a real population, so the branch above is not dead code.
     expect(decorative).toBeGreaterThan(0);
   });

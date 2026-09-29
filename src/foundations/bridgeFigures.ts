@@ -245,3 +245,26 @@ export const FLAT_SPANS = [4, 2] as const;
 
 /** A flat density holding all the probability over that span: taller when the span is narrower. */
 export const flatDensity = (micrometres: number): number => 1 / micrometres;
+
+// The integration figure of dispatch 421. foundation:integration had no construction at all, and
+// its mechanism is an instruction to picture something: "cut the line into narrow strips ... Add
+// the strips, then cut them narrower and add again."
+
+/** The density foundation:integration adds up: it rises from 0 to 0.5 per micrometre over 4 μm. */
+export const RAMP = { micrometres: 4, topDensity: 0.5 } as const;
+export const rampDensity = (micrometres: number): number =>
+  (RAMP.topDensity / RAMP.micrometres) * micrometres;
+
+/** The triangle's whole area, which is one because the particle has to be somewhere. */
+export const rampArea = (): number => 0.5 * RAMP.micrometres * RAMP.topDensity;
+
+/** The strip counts the lesson cuts the stretch into. */
+export const STRIP_COUNTS = [4, 8] as const;
+
+/** A left-edge strip sum: each strip takes the height at its own left edge. */
+export const stripSum = (strips: number): number => {
+  const width = RAMP.micrometres / strips;
+  let total = 0;
+  for (let i = 0; i < strips; i += 1) total += rampDensity(i * width) * width;
+  return total;
+};

@@ -1,5 +1,6 @@
 "use client";
 
+import { AddingInStrips } from "./AddingInStrips.tsx";
 import { BalancedAccount } from "./BalancedAccount.tsx";
 import { BellAndItsWidths } from "./BellAndItsWidths.tsx";
 import { BoostTable } from "./BoostTable.tsx";
@@ -153,5 +154,7 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
       return <BellAndItsWidths headingLevel={headingLevel} />;
     case "distributions":
       return <HeightIsNotProbability headingLevel={headingLevel} />;
+    case "integration":
+      return <AddingInStrips headingLevel={headingLevel} />;
   }
 }
