@@ -21,12 +21,11 @@
   "intervention": {
     "instrumentId": "me-02",
     "defaultsReviewed": {
-      "model": "Described from the manifest: the exact kinetic-energy difference, its quadratic approximation and the limiting mass coefficient, with the printed erg-to-gram conversion (src/physics/reference/massEnergy.ts)",
+      "model": "Described from the manifest: the exact kinetic-energy difference, its quadratic approximation and the limiting mass coefficient, with the printed erg-to-gram conversion (src/physics/reference/massEnergy.ts) The printed factor's own scenario record is content/scenarios/mass-energy-printed-factor.yaml, owned by the paper rather than registered as a preset of ME-02, so it is named here as provenance and not as a setting: no preset of this laboratory demonstrates this correction, and the callout therefore links ME-02's page rather than a setting on it.",
       "labels": "Described from the manifest: the three outputs and the printed conversion, in the paper's letters",
       "defaultControls": "Described from the manifest: preset me-02-limit-zero; speed slid toward zero; the printed-erg probe converts an energy in erg to grams",
       "feedback": "Described from the manifest: the limiting coefficient is shown as a coefficient, never as a finite-speed ratio"
     },
-    "scenarioId": "mass-energy-printed-factor",
     "reviewRecordId": "pending-review-misc-me-formula-in-paper"
   },
   "authorship": {
