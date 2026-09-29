@@ -836,15 +836,25 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
           label where a sentence about their own argument had been written for them.
 
           ReaderController fills this from the frame's trigger on open and hides it again when no
-          caption is authored, so nothing is composed from an anchor id. It is an anchor rather than
-          a button on purpose: the root noscript rule hides an enabled button AND the text inside
-          it, and `data-reader-close` is matched by attribute, so the listener treats this exactly
-          as it treats the button beside it.
+          caption is authored, so nothing is composed from an anchor id.
+
+          A BUTTON, NOT AN ANCHOR, decided by what it does: `data-reader-close` empties the frames,
+          closes the lesson and restores focus to the trigger. It navigates nowhere. The first draft
+          was `<a href="#">`, which biome's useValidAnchor refused and was right to: an element
+          announced as a link that cannot be followed is the defect the accessibility chapter names,
+          and `href="#"` would have been silencing the rule rather than answering it. The three
+          sibling controls in this dialog are buttons for the same reason, so this is one vocabulary
+          rather than two.
+
+          The no-script reader loses nothing: this line is served hidden and only script unhides it,
+          the dialog itself is opened by script, and their way into a lesson is a real link to
+          /foundations/<id>/. The root noscript rule hides an enabled button and the text inside it,
+          which costs nothing here for exactly that reason.
         */}
         <p className="fine" data-return-caption-line hidden>
-          <a href="#" data-reader-close data-return-caption-link>
+          <button type="button" data-reader-close data-return-caption-link>
             <span data-return-caption-text />
-          </a>
+          </button>
         </p>
         {foundations.map((f) => (
           <section key={f.id} data-foundation-panel={f.id} hidden>

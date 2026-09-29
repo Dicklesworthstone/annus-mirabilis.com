@@ -294,13 +294,12 @@ export function ReaderController(props: Props) {
          * caption means no line, rather than a sentence composed from an anchor id.
          */
         const returnLine = root.querySelector<HTMLElement>("[data-return-caption-line]");
-        const returnLink = root.querySelector<HTMLAnchorElement>("[data-return-caption-link]");
+        const returnLink = root.querySelector<HTMLButtonElement>("[data-return-caption-link]");
         const returnText = root.querySelector<HTMLElement>("[data-return-caption-text]");
         const triggerEl = frame.triggerId ? document.getElementById(frame.triggerId) : null;
         const authoredCaption = triggerEl?.dataset.returnCaption ?? "";
         if (returnLine && returnLink && returnText) {
           returnText.textContent = authoredCaption;
-          returnLink.setAttribute("href", `#${state.anchor}`);
           returnLine.hidden = authoredCaption === "";
         }
         const questionEl = root.querySelector<HTMLElement>("[data-compass-question]");
