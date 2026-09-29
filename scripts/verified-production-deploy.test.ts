@@ -31,6 +31,7 @@ import {
   type ReleaseCandidateRecord,
   redactArgs,
   run,
+  runPreflightQualityGates,
   type SpawnFn,
   toolRunArtifactDirectory,
   validatePromotePreconditions,
@@ -549,5 +550,79 @@ describe("a failed command says what went wrong (dispatch 476)", () => {
     });
     expect(message).not.toContain("abc123");
     expect(message).toContain("<redacted>");
+  });
+
+  test("a refused gate chain carries the chain's own output, not just its exit code", () => {
+    // MEASURED, not imagined: a candidate-only run refused at the gates produced a deploy log of
+    // two lines for a chain that had printed the failing step and a formatter diagnostic naming the
+    // file. The gates are spawned directly rather than through run(), with no stdio option, which
+    // spawnSync defaults to "pipe", so everything was captured and dropped.
+    let message = "";
+    try {
+      assertQualityGatesResult(1, "preflight-quality-gates", {
+        stdout: "Checked 4307 files in 2s.\nFound 1 error.",
+        stderr:
+          "x [3/10] Biome linter check (lint) FAILED with exit code 1\ncontent/editorial-notes/brownian-motion/note-bm-k-is-viscosity.json format",
+      });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    expect(message).toContain("exit code 1");
+    expect(message).toContain("Biome linter check (lint) FAILED");
+    expect(message).toContain("note-bm-k-is-viscosity.json");
+    expect(message).toContain("Found 1 error.");
+    // The exit code still comes first, and exit 2 keeps its own distinct wording.
+    expect(message.indexOf("exit code 1")).toBeLessThan(message.indexOf("Biome"));
+    expect(() => assertQualityGatesResult(2, "preflight-quality-gates", { stderr: "x" })).toThrow(
+      /unavailable \(exit 2\)/u,
+    );
+    // A passing chain still throws nothing, and the old two-argument contract still holds.
+    expect(() => assertQualityGatesResult(0, "preflight-quality-gates")).not.toThrow();
+    expect(() => assertQualityGatesResult(1, "preflight-quality-gates")).toThrow(/exit code 1/u);
+  });
+
+  test("a gate chain that printed nothing says so rather than looking discarded", () => {
+    let message = "";
+    try {
+      assertQualityGatesResult(1, "preflight-quality-gates", { stdout: "", stderr: "" });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    expect(message).toContain("wrote nothing");
+  });
+
+  test("the gate STEP hands the chain's output to the refusal, not only the exit code", () => {
+    // This is the test the first attempt did not have: a plant that stopped the call site passing
+    // the output left every test green, because they reached assertQualityGatesResult and not the
+    // line that feeds it. runPreflightQualityGates exists so this seam is reachable.
+    __setSpawnForTesting(
+      fakeSpawn({
+        status: 1,
+        stdout: "Steps Failed:  1",
+        stderr: "x [3/10] Biome linter check (lint) FAILED with exit code 1",
+      }),
+    );
+    try {
+      let message = "";
+      try {
+        runPreflightQualityGates("scaffold");
+      } catch (error) {
+        message = error instanceof Error ? error.message : String(error);
+      }
+      expect(message).toContain("preflight-quality-gates");
+      expect(message).toContain("Biome linter check (lint) FAILED");
+      expect(message).toContain("Steps Failed:  1");
+    } finally {
+      __resetSpawnForTesting();
+    }
+  });
+
+  test("a passing gate chain refuses nothing", () => {
+    __setSpawnForTesting(fakeSpawn({ status: 0, stdout: "all green" }));
+    try {
+      expect(() => runPreflightQualityGates("scaffold")).not.toThrow();
+    } finally {
+      __resetSpawnForTesting();
+    }
   });
 });

@@ -506,13 +506,68 @@ export async function acquireDeploymentLock(): Promise<Server> {
   return server;
 }
 
-export function assertQualityGatesResult(exitCode: number, stage = "preflight-gates"): void {
-  if (exitCode === 2) {
-    throw new Error(`${stage}: required quality gate step was unavailable (exit 2).`);
-  }
-  if (exitCode !== 0) {
-    throw new Error(`${stage}: quality gate check failed with exit code ${exitCode}.`);
-  }
+/**
+ * THE SECOND PLACE THE DIAGNOSIS WAS DISCARDED (dispatch 476).
+ *
+ * `run` was fixed to report a failed command's stderr, and the gates do not go through `run`: they
+ * are spawned directly, and that call passes `{ encoding: "utf8" }` with NO `stdio`, which
+ * spawnSync defaults to "pipe". So the gate chain's entire output was captured and then dropped on
+ * the floor, and only `status` was read. Measured: a refused candidate-only run produced a deploy
+ * log of TWO LINES, "preflight-quality-gates: quality gate check failed with exit code 1", for a
+ * chain that had printed the failing step, its command and a formatter diagnostic naming the file.
+ *
+ * `output` is optional so the exit-code contract this function already had is unchanged, and so a
+ * caller that genuinely has nothing to show is not forced to invent something.
+ */
+export function assertQualityGatesResult(
+  exitCode: number,
+  stage = "preflight-gates",
+  output?: Readonly<{ stdout?: string | null; stderr?: string | null }>,
+): void {
+  if (exitCode === 0) return;
+  const head =
+    exitCode === 2
+      ? `${stage}: required quality gate step was unavailable (exit 2).`
+      : `${stage}: quality gate check failed with exit code ${exitCode}.`;
+  const stderr = outputTail(
+    output?.stderr ?? "",
+    FAILED_COMMAND_STDERR_LINES,
+    FAILED_COMMAND_MAX_CHARS,
+  );
+  const stdout = outputTail(
+    output?.stdout ?? "",
+    FAILED_COMMAND_STDERR_LINES,
+    Math.max(0, FAILED_COMMAND_MAX_CHARS - stderr.length),
+  );
+  const parts = [head];
+  if (stderr !== "")
+    parts.push(`Last ${FAILED_COMMAND_STDERR_LINES} lines of the gate chain's stderr:\n${stderr}`);
+  if (stdout !== "")
+    parts.push(`Last ${FAILED_COMMAND_STDERR_LINES} lines of the gate chain's stdout:\n${stdout}`);
+  if (output !== undefined && stderr === "" && stdout === "")
+    parts.push("The gate chain wrote nothing, so the exit code is all it said.");
+  throw new Error(parts.join("\n\n"));
+}
+
+/**
+ * Runs the profile's gate chain and refuses with what it said.
+ *
+ * WHY THIS IS A FUNCTION AND NOT FOUR LINES INSIDE `main` (dispatch 476). It was those four lines,
+ * and when the output-discarding defect was repaired there, a plant that removed the repair from the
+ * CALL SITE left every test green: the tests could reach `assertQualityGatesResult` and not the line
+ * that hands it the output. A green plant is a finding about the plant, so the seam moved here, where
+ * `__setSpawnForTesting` reaches it and the plant goes red.
+ */
+export function runPreflightQualityGates(
+  profile: ReleaseProfile,
+  stage = "preflight-quality-gates",
+): void {
+  const result = activeSpawn(
+    "bun",
+    ["scripts/quality-gates.ts", "--profile", profile, "--fail-fast"],
+    { encoding: "utf8" },
+  );
+  assertQualityGatesResult(result.status ?? 1, stage, result);
 }
 
 export function determinePromotionHostnames(
@@ -870,12 +925,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       return;
     }
 
-    const gatesResult = activeSpawn(
-      "bun",
-      ["scripts/quality-gates.ts", "--profile", options.profile, "--fail-fast"],
-      { encoding: "utf8" },
-    );
-    assertQualityGatesResult(gatesResult.status ?? 1, "preflight-quality-gates");
+    runPreflightQualityGates(options.profile);
 
     assertNoConflictingBuilds("before-build");
     const buildStartedAt = Date.now();

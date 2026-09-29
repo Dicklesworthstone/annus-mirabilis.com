@@ -44,7 +44,7 @@
   "scripts/sources/ocrPlanSchema.ts": 1,
   "scripts/sources/ocrRunner.ts": 10,
   "scripts/spawnObserved.ts": 2,
-  "scripts/verified-production-deploy.ts": 25,
+  "scripts/verified-production-deploy.ts": 24,
   "scripts/verify-constant-sets.ts": 1,
   "scripts/verify-wasm-artifacts.ts": 3,
   "scripts/wasm-artifacts/capabilityMatrix.ts": 14,
