@@ -9,6 +9,7 @@ import {
   SHARES,
   WALK,
 } from "../../foundations/bridgeFigures.ts";
+import { CONSTRUCTIONS_WITH_CONTROLS } from "./constructionIds.ts";
 import { FoundationConstruction } from "./FoundationConstruction.tsx";
 
 /**
@@ -36,6 +37,7 @@ const BRIDGE_FIGURES = [
   "distributions",
   "integration",
   "taylor-expansion",
+  "derivatives",
   "bridge-a-graph",
   "bridge-sum-average",
   "bridge-negative-numbers-direction",
@@ -81,10 +83,10 @@ describe("the bridge lessons' figures", () => {
       // Every lesson keeps at least one named figure, so nothing can go dark behind aria-hidden.
       expect(namedHere, `${id}: no named figure`).toBeGreaterThan(0);
     }
-    // Nineteen named drawings across twelve lessons; bridge-a-graph draws both of the graphs its
+    // Twenty-one named drawings across thirteen lessons; bridge-a-graph draws both of the graphs its
     // prose names, flux-continuity one panel per second, diffusion-equation the profile and then
     // the same dye later, and random-walks the four walks and then the square-root growth.
-    expect(drawings).toBe(19);
+    expect(drawings).toBe(21);
     // And the decorative swatches are a real population, so the branch above is not dead code.
     expect(decorative).toBeGreaterThan(0);
   });
@@ -96,11 +98,34 @@ describe("the bridge lessons' figures", () => {
     }
   });
 
-  test("none of them is operated, so none needs the no-JavaScript notice", () => {
+  test("no figure is operated, and a lesson that has an operated construction still says so", () => {
+    // This asserted that NO lesson here renders a control, which was true while every one of these
+    // lessons had only the figure I wrote. It stopped being true at foundation:derivatives, whose
+    // nudge readout has buttons and was already in CONSTRUCTIONS_WITH_CONTROLS before the curve was
+    // drawn beside it. The rule was right and the population was not: what must hold is that MY
+    // FIGURES add no control, not that the lesson has none.
+    let operated = 0;
     for (const { id, html } of rendered) {
+      // Every drawing is inert: no control inside any svg, whatever else the lesson carries.
+      for (const svg of html.match(/<svg\b[\s\S]*?<\/svg>/g) ?? [])
+        expect(
+          svg.match(/<(?:button|input|select|textarea)\b/),
+          `${id}: control inside a figure`,
+        ).toBe(null);
+      if (
+        CONSTRUCTIONS_WITH_CONTROLS.includes(id as (typeof CONSTRUCTIONS_WITH_CONTROLS)[number])
+      ) {
+        operated += 1;
+        // Its own notice is still there, so a reader without JavaScript is told the rest is inert.
+        expect(html.includes("JavaScript is off"), id).toBe(true);
+        continue;
+      }
       expect(html.match(/<(?:button|input|select|textarea)\b/), id).toBe(null);
       expect(html.includes("JavaScript is off"), id).toBe(false);
     }
+    // Both groups populated, so neither branch is dead: derivatives is operated, the rest are not.
+    expect(operated).toBeGreaterThan(0);
+    expect(operated).toBeLessThan(rendered.length);
   });
 
   test("none of them gives the no-algebra route algebra", () => {

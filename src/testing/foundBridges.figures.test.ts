@@ -1,13 +1,20 @@
 import { describe, expect, test } from "bun:test";
 import {
   average,
+  averageSpeed,
+  BALL,
+  ballPosition,
+  INSTANT_SPEED,
   JARS,
   MINUTE_DISPLACEMENT,
   MINUTE_DISPLACEMENT_MICROMETRES,
   MINUTE_DISPLACEMENT_SQUARED,
   MINUTE_DISPLACEMENT_SQUARED_MANTISSA,
+  NUDGES,
   PARTICLE_ENDS,
   PLACES,
+  PRINTED_POSITIONS,
+  PRINTED_SPEEDS,
   SHARES,
   shareOf,
   sum,
@@ -104,6 +111,37 @@ describe("the numbers the bridge figures draw", () => {
     const micro = PLACES.find((p) => p.symbol === "μm");
     expect(micro?.power).toBe(-6);
     expect(PLACES.find((p) => p.symbol === "mm")?.power).toBe(-3);
+  });
+
+  test("the ball's printed speeds and positions are the arithmetic, to a stated tolerance", () => {
+    // Every one of these is a rounding of a value double precision cannot hold exactly: the
+    // average over a tenth of a second is 6.300000000000008 and the position 3.630000000000001.
+    // The figure prints the declared value, and this is what stops the declaration drifting from
+    // the formula it stands for. The comparison goes through the one module that owns tolerance.
+    expect(NUDGES.length).toBe(PRINTED_SPEEDS.length);
+    expect(NUDGES.length).toBe(PRINTED_POSITIONS.length);
+    expect(NUDGES.length).toBeGreaterThan(1);
+    for (const [i, nudge] of NUDGES.entries()) {
+      const speed = withinTolerance(averageSpeed(nudge), PRINTED_SPEEDS[i] as number, {
+        relative: 1e-12,
+      });
+      expect(speed.ok, `speed at ${nudge}: ${speed.kind}, off by ${speed.diff}`).toBe(true);
+      const place = withinTolerance(
+        ballPosition(BALL.atSeconds + nudge),
+        PRINTED_POSITIONS[i] as number,
+        { relative: 1e-12 },
+      );
+      expect(place.ok, `position at ${nudge}: ${place.kind}, off by ${place.diff}`).toBe(true);
+    }
+    // The averages approach the instant's speed and never reach it: each is 3 times its own nudge
+    // above it, which is the term the lesson's worked example cancels.
+    for (const [i, nudge] of NUDGES.entries()) {
+      const excess = (PRINTED_SPEEDS[i] as number) - INSTANT_SPEED;
+      expect(excess).toBeGreaterThan(0);
+      const predicted = withinTolerance(excess, BALL.coefficient * nudge, { relative: 1e-9 });
+      expect(predicted.ok, `excess at ${nudge}: ${predicted.kind}`).toBe(true);
+    }
+    expect(INSTANT_SPEED).toBe(2 * BALL.coefficient * BALL.atSeconds);
   });
 
   test("squaring the displacement squares its power of ten, and the printed figures match", () => {

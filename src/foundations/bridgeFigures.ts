@@ -290,3 +290,30 @@ export const stripSum = (strips: number): number => {
   for (let i = 0; i < strips; i += 1) total += rampDensity(i * width) * width;
   return total;
 };
+
+// The derivative figure of dispatch 437. foundation:derivatives says "shorten the interval and
+// watch what happens" and "on a graph of position against time, the derivative at a point is the
+// steepness of the curve there", and its construction draws no curve at all.
+
+/** The rolling ball of foundation:derivatives: it has gone 3t² metres after t seconds. */
+export const BALL = { coefficient: 3, atSeconds: 1 } as const;
+export const ballPosition = (seconds: number): number => BALL.coefficient * seconds * seconds;
+
+/** The shrinking intervals the lesson averages over. */
+export const NUDGES = [1, 0.1, 0.01, 0.001] as const;
+
+/** The average speed over one of them, which is 6 + 3Δt and settles on 6. */
+export const averageSpeed = (nudge: number): number =>
+  (ballPosition(BALL.atSeconds + nudge) - ballPosition(BALL.atSeconds)) / nudge;
+
+/** The speed at the instant itself, the value the averages close in on. */
+export const INSTANT_SPEED = 2 * BALL.coefficient * BALL.atSeconds;
+
+/**
+ * What the lesson PRINTS for each interval. Declared as well as derived: in double precision the
+ * average over 0.1 s comes out as 6.300000000000008 and the position as 3.630000000000001, and a
+ * reader-facing figure must not show the fifteenth digit of a rounding error. bridgeFigures.test.ts
+ * holds each of these to the arithmetic through withinTolerance().
+ */
+export const PRINTED_SPEEDS = [9, 6.3, 6.03, 6.003] as const;
+export const PRINTED_POSITIONS = [12, 3.63, 3.0603, 3.006003] as const;

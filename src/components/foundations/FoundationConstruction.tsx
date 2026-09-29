@@ -33,6 +33,7 @@ import { RepeatedIntervals } from "./RepeatedIntervals.tsx";
 import { RepeatedProportionalTable } from "./RepeatedProportionalTable.tsx";
 import { SameShareTwice } from "./SameShareTwice.tsx";
 import { ScalingTable } from "./ScalingTable.tsx";
+import { SecantsToATangent } from "./SecantsToATangent.tsx";
 import { SignedRuler } from "./SignedRuler.tsx";
 import { SinkingSpheres } from "./SinkingSpheres.tsx";
 import { SpeedSpread } from "./SpeedSpread.tsx";
@@ -86,7 +87,14 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
     case "functions-graphs":
       return <TableToPlotBuilder headingLevel={headingLevel} />;
     case "derivatives":
-      return <NudgeSensitivityDemo headingLevel={headingLevel} />;
+      // Two sections, as taylor-expansion has since dc9c979b: the curve its own sentence points at,
+      // then the nudge readout that was already here. Safe in the dialog since 4bd6681a.
+      return (
+        <>
+          <SecantsToATangent headingLevel={headingLevel} />
+          <NudgeSensitivityDemo headingLevel={headingLevel} />
+        </>
+      );
     case "partial-derivatives":
       return <HeldFixedToggle headingLevel={headingLevel} />;
     case "exponentials":
