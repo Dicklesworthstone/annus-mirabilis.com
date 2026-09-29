@@ -147,6 +147,13 @@ export function AddingInStrips({ headingLevel = 3 }: { readonly headingLevel?: H
           triangle's area of {area}. Narrower strips leave smaller wedges, so the totals climb
           toward {area} and never past it. That limit is what the integral names.
         </p>
+        <p>
+          What it does not show: these strips take the height at their left edge, which is one
+          choice among several. Taking the right edge would overshoot {area} and climb down to it
+          instead, and taking the middle of each strip would land much closer from the start. All
+          three settle on the same {area}, and that they agree is the fact the integral rests on.
+          Nothing in either drawing demonstrates it.
+        </p>
       </div>
     </section>
   );

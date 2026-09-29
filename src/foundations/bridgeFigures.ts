@@ -250,6 +250,28 @@ export const flatDensity = (micrometres: number): number => 1 / micrometres;
 // its mechanism is an instruction to picture something: "cut the line into narrow strips ... Add
 // the strips, then cut them narrower and add again."
 
+// The square foundation:taylor-expansion tells the reader to picture (dispatch 433).
+
+/** The square foundation:taylor-expansion grows, and the steps it grows by. */
+export const SQUARE_SIDE = 2;
+export const SQUARE_STEPS = [0.1, 0.5, 2] as const;
+
+/** Keeping the value and the slope term only: the two strips, and no corner. */
+export const linearEstimate = (step: number): number =>
+  SQUARE_SIDE * SQUARE_SIDE + 2 * SQUARE_SIDE * step;
+
+/** The whole grown square. */
+export const exactSquare = (step: number): number => (SQUARE_SIDE + step) * (SQUARE_SIDE + step);
+
+/**
+ * The corner the linear estimate drops, which is the step squared. DECLARED as well as derived,
+ * because 0.1 * 0.1 is 0.010000000000000002 in double precision and a reader-facing figure must
+ * not print the seventeenth digit of a rounding error. bridgeFigures.test.ts holds each printed
+ * value to the arithmetic through withinTolerance().
+ */
+export const droppedCorner = (step: number): number => step * step;
+export const PRINTED_CORNERS = [0.01, 0.25, 4] as const;
+
 /** The density foundation:integration adds up: it rises from 0 to 0.5 per micrometre over 4 μm. */
 export const RAMP = { micrometres: 4, topDensity: 0.5 } as const;
 export const rampDensity = (micrometres: number): number =>

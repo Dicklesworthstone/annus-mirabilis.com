@@ -36,6 +36,7 @@ import { ScalingTable } from "./ScalingTable.tsx";
 import { SignedRuler } from "./SignedRuler.tsx";
 import { SinkingSpheres } from "./SinkingSpheres.tsx";
 import { SpeedSpread } from "./SpeedSpread.tsx";
+import { SquareAndItsCorner } from "./SquareAndItsCorner.tsx";
 import { StepsAndSpread } from "./StepsAndSpread.tsx";
 import { TableToPlotBuilder } from "./TableToPlotBuilder.tsx";
 import { TaylorBinomialExtension } from "./TaylorBinomialExtension.tsx";
@@ -93,7 +94,15 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
     case "logarithms":
       return <LogarithmProductTable headingLevel={headingLevel} />;
     case "taylor-expansion":
-      return <TaylorBinomialExtension headingLevel={headingLevel} />;
+      // Two sections for one lesson: the square its opening sentence tells the reader to picture,
+      // then the binomial extension that was already here. loadLessonBody mounts every section of
+      // a lesson's dispatch since 4bd6681a, which is what makes a fragment safe in the dialog.
+      return (
+        <>
+          <SquareAndItsCorner headingLevel={headingLevel} />
+          <TaylorBinomialExtension headingLevel={headingLevel} />
+        </>
+      );
     case "unit-system-1905":
       return <UnitConversionCalculator headingLevel={headingLevel} />;
     case "ratios-scaling":
