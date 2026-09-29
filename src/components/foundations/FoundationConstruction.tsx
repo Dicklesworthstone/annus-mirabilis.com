@@ -42,6 +42,7 @@ import { StepsAndSpread } from "./StepsAndSpread.tsx";
 import { TableToPlotBuilder } from "./TableToPlotBuilder.tsx";
 import { TaylorBinomialExtension } from "./TaylorBinomialExtension.tsx";
 import { TurnedAxes } from "./TurnedAxes.tsx";
+import { TwoClocksOneFlash } from "./TwoClocksOneFlash.tsx";
 import { TwoCurves } from "./TwoCurves.tsx";
 import { UnitCancellationTable } from "./UnitCancellationTable.tsx";
 import { UnitConversionCalculator } from "./UnitConversionCalculator.tsx";
@@ -173,5 +174,7 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
       return <HeightIsNotProbability headingLevel={headingLevel} />;
     case "integration":
       return <AddingInStrips headingLevel={headingLevel} />;
+    case "frames-events":
+      return <TwoClocksOneFlash headingLevel={headingLevel} />;
   }
 }

@@ -317,3 +317,21 @@ export const INSTANT_SPEED = 2 * BALL.coefficient * BALL.atSeconds;
  */
 export const PRINTED_SPEEDS = [9, 6.3, 6.03, 6.003] as const;
 export const PRINTED_POSITIONS = [12, 3.63, 3.0603, 3.006003] as const;
+
+// The synchrony figure of dispatch 440. foundation:frames-events is §1's clock rule inside ONE
+// frame, not simultaneity between two, so its figure is a signal exchange between two clocks and
+// imports no spacetime geometry: no axes, no light cone, no second observer.
+
+/** The round trip §1 uses to set a distant clock, in seconds on clock A. */
+export const SYNC = { leaves: 0, returns: 10 } as const;
+
+/** When the flash turned round, by the rule: half way between leaving and returning. */
+export const reflectionTime = (): number => (SYNC.leaves + SYNC.returns) / 2;
+
+/** What a clock two seconds fast reads at that same moment, and the correction it needs. */
+export const FAST_READING = 7;
+export const fastBy = (): number => FAST_READING - reflectionTime();
+
+/** The distance the lesson supposes, in metres, and the speed the same trip then gives. */
+export const SIGNAL_DISTANCE = 1.5e9;
+export const signalSpeed = (): number => (2 * SIGNAL_DISTANCE) / (SYNC.returns - SYNC.leaves);

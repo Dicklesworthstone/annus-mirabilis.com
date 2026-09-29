@@ -57,6 +57,7 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "gaussian-distributions",
   "distributions",
   "integration",
+  "frames-events",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];
