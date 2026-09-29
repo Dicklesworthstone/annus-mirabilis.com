@@ -150,6 +150,36 @@ export type IdentityReport = Readonly<{
  */
 export const REQUEST_ATTEMPTS = 3;
 
+/**
+ * The same retry policy, as a Fetcher a caller can hand anywhere, because the browser probe had none.
+ *
+ * `servedAsBuilt` retries a status-0 request and reports which paths it retried. The browser probe
+ * served every byte on a single attempt, so one failed `vercel curl` subprocess left a page missing
+ * a chunk with nothing to say about it. Measured on 2026-09-28 against a complete export: planting a
+ * single status 0 for `/_next/static/chunks/4269.3973e0a70b800eb3.js` made BM-01 report labels
+ * `[static]` then `[static]`, 0 wasm requests, no FrankenSim wording AND no page error, which is
+ * exactly what that evening's candidate reported for BM-01 while BM-05 and BM-06 passed. Driven by
+ * hand and through this probe over the same export, BM-01 reaches "Ideal model, computed with
+ * FrankenSim" at three press timings, so a missing byte and a lab that never calls its owner are
+ * indistinguishable in the observation.
+ *
+ * A real HTTP status is the deployment's answer and is never retried.
+ */
+export function retryingFetcher(
+  fetcher: Fetcher,
+  attempts: number = REQUEST_ATTEMPTS,
+  delayMs = 500,
+): Fetcher {
+  return async (path) => {
+    let fetched = await fetcher(path);
+    for (let attempt = 1; fetched.status === 0 && attempt < attempts; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs * attempt));
+      fetched = await fetcher(path);
+    }
+    return fetched;
+  };
+}
+
 /** Fetches each path and compares its bytes with the uploaded file, a few requests at a time. */
 export async function servedAsBuilt(
   fetcher: Fetcher,

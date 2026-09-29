@@ -20,6 +20,7 @@ import {
   REQUEST_ATTEMPTS,
   REQUIRED_SECTIONS,
   type RefusalObservation,
+  retryingFetcher,
   runCandidateChecksAgainst,
   scriptChunks,
   sectionOfId,
@@ -29,6 +30,7 @@ import {
   undeclaredNotRunnable,
   WASM_CAPABILITY_TARGETS,
 } from "./candidate-checks.ts";
+import { unsuppliedSentences } from "./candidateBrowserProbe.ts";
 
 /**
  * A static tree shaped like `.vercel/output/static`, and a repo root holding mass-energy's frozen
@@ -906,5 +908,101 @@ describe("four complete paper texts (dispatch 474)", () => {
     }
     // Reported, not frozen: the corpus grows, and an equality here would break on correct work.
     expect(total).toBeGreaterThan(500);
+  });
+});
+
+describe("the transport under the browser probe (dispatch 483)", () => {
+  /**
+   * WHY THIS BLOCK EXISTS. The candidate of 2026-09-28 refused 54 commits on one line:
+   * "diffusion.brownian-frames: 0 wasm request(s) were made and no frankensim label appeared".
+   * BM-01 was fine. Driven over the same export by hand at three press timings, and through the
+   * probe's own machinery, it reaches "Ideal model, computed with FrankenSim" with one request.
+   * Planting a single status 0 for one chunk BM-01 needs reproduced the refusal exactly: labels
+   * [static] then [static], 0 wasm requests, no wording, and no page error.
+   *
+   * Two defects, one signature. The probe served every byte on a single attempt while the HTTP
+   * checks have retried a status 0 since 2026-09-24, and when a byte did not arrive the
+   * observation said nothing, so the gate blamed the laboratory. Neither fix makes a missing
+   * result pass.
+   */
+  const ONE_PATH = "/_next/static/chunks/4269.3973e0a70b800eb3.js";
+
+  test("a request that got no HTTP answer is asked again, and the answer that arrives is used", async () => {
+    const asked: string[] = [];
+    const flaky: Fetcher = async (path) => {
+      asked.push(path);
+      return asked.length === 1
+        ? { status: 0, body: Buffer.alloc(0) }
+        : { status: 200, body: Buffer.from("chunk") };
+    };
+    const fetched = await retryingFetcher(flaky, REQUEST_ATTEMPTS, 0)(ONE_PATH);
+    expect(fetched.status).toBe(200);
+    expect(fetched.body.toString()).toBe("chunk");
+    expect(asked.length).toBe(2);
+  });
+
+  test("a real HTTP status is the deployment's answer and is asked for exactly once", async () => {
+    // The negative a "retry everything" implementation fails: a 404 is evidence about the
+    // deployment, and retrying it would turn a served-bytes finding into three of them.
+    const asked: string[] = [];
+    const missing: Fetcher = async (path) => {
+      asked.push(path);
+      return { status: 404, body: Buffer.from("not found") };
+    };
+    const fetched = await retryingFetcher(missing, REQUEST_ATTEMPTS, 0)("/lab/bm-01/");
+    expect(fetched.status).toBe(404);
+    expect(asked).toEqual(["/lab/bm-01/"]);
+  });
+
+  test("it gives up after REQUEST_ATTEMPTS and reports the transport failure rather than a 200", async () => {
+    let asked = 0;
+    const dead: Fetcher = async () => {
+      asked += 1;
+      return { status: 0, body: Buffer.alloc(0) };
+    };
+    const fetched = await retryingFetcher(dead, REQUEST_ATTEMPTS, 0)(ONE_PATH);
+    expect(fetched.status).toBe(0);
+    expect(asked).toBe(REQUEST_ATTEMPTS);
+    expect(REQUEST_ATTEMPTS).toBeGreaterThan(1);
+  });
+
+  test("an unsupplied byte is named, and a failed request reads differently from a status", () => {
+    const sentences = unsuppliedSentences(
+      new Map([
+        [ONE_PATH, 0],
+        ["/wasm/fs-annus-diffusion/80a1f8fda6f69003/fs_annus_diffusion_bg.wasm", 404],
+      ]),
+    );
+    expect(sentences.length).toBe(2);
+    expect(sentences[0]).toContain(ONE_PATH);
+    expect(sentences[0]).toContain("the request itself failed after every attempt");
+    expect(sentences[1]).toContain("status 404");
+    // Non-vacuity on purpose: a page that lost nothing must produce no sentence at all, or every
+    // passing release record would carry one.
+    expect(unsuppliedSentences(new Map())).toEqual([]);
+  });
+
+  test("a capability whose page lost a byte fails with the harness named, not the laboratory", async () => {
+    const { fetcher } = fixture();
+    const starved: AcceptedWasmObservation = {
+      capabilityId: "diffusion.brownian-frames",
+      lab: "bm-01",
+      labelsBefore: ["static", "static"],
+      labelsAfter: ["static", "static"],
+      labelTexts: ["Static worked example"],
+      wasmRequests: [],
+      pageErrors: unsuppliedSentences(new Map([[ONE_PATH, 0]])),
+    };
+    const result = await acceptedWasmResultPerCapability(
+      fetcher,
+      fakeProbe({ observations: { ...GOOD_OBSERVATIONS, "diffusion.brownian-frames": starved } }),
+    );
+    // Still refused. The repair names the cause; it does not let a missing result through.
+    expect(result.status).toBe("failed");
+    expect(result.detail).toContain("could not supply");
+    expect(result.detail).toContain(ONE_PATH);
+    // And it does not report the sentence the same run would have shown before: that wording
+    // asserts the laboratory produced nothing, which is the claim this whole block exists to stop.
+    expect(result.detail).not.toContain("0 wasm request(s) were made and no frankensim label");
   });
 });
