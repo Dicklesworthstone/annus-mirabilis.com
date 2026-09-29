@@ -40,6 +40,35 @@ export type Fetched = Readonly<{ status: number; body: Buffer }>;
 /** Resolves with the HTTP status and body, or with status 0 when the request itself failed. */
 export type Fetcher = (path: string) => Promise<Fetched>;
 
+/**
+ * The arguments `vercel curl` is given, as a value a test can read.
+ *
+ * `-L` is the part that matters. The candidate is behind Vercel SSO, and this module's own
+ * documentation records what that means: "a plain browser request gets a 302 to vercel.com/sso-api".
+ * Without -L a redirect IS the answer this fetcher returns, and the browser probe fulfils a response
+ * with status, body and content type but NO location header, so the asset silently never arrives.
+ *
+ * Measured 2026-09-29 against the built export of 65db2e50: a planted 302 on one chunk BM-01 needs
+ * reproduces the candidate's line exactly, labels [static] then [static], 0 wasm requests, wording
+ * absent, and ZERO page errors. The same path planted at 404 produces the same damage and IS
+ * reported. So a redirect was the one transport failure this harness could neither follow nor see.
+ */
+export function vercelCurlArgs(path: string, deploymentUrl: string, outFile: string): string[] {
+  return [
+    "curl",
+    path,
+    "--deployment",
+    deploymentUrl,
+    "--",
+    "-s",
+    "-L",
+    "-o",
+    outFile,
+    "-w",
+    "%{http_code}",
+  ];
+}
+
 /** Fetches a path from a protected candidate through `vercel curl`, which supplies the bypass. */
 export function vercelCurlFetcher(deploymentUrl: string, cwd: string = process.cwd()): Fetcher {
   const dir = mkdtempSync(join(tmpdir(), "am-candidate-checks-"));
@@ -47,11 +76,10 @@ export function vercelCurlFetcher(deploymentUrl: string, cwd: string = process.c
   return (path) =>
     new Promise((resolve) => {
       const out = join(dir, `${n++}.bin`);
-      const child = spawn(
-        "vercel",
-        ["curl", path, "--deployment", deploymentUrl, "--", "-s", "-o", out, "-w", "%{http_code}"],
-        { cwd, stdio: ["ignore", "pipe", "pipe"] },
-      );
+      const child = spawn("vercel", vercelCurlArgs(path, deploymentUrl, out), {
+        cwd,
+        stdio: ["ignore", "pipe", "pipe"],
+      });
       let stdout = "";
       child.stdout.on("data", (chunk: Buffer) => {
         stdout += chunk.toString();

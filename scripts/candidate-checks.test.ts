@@ -28,9 +28,10 @@ import {
   staleNotRunnableDeclarations,
   summarizeCandidateChecks,
   undeclaredNotRunnable,
+  vercelCurlArgs,
   WASM_CAPABILITY_TARGETS,
 } from "./candidate-checks.ts";
-import { unsuppliedSentences } from "./candidateBrowserProbe.ts";
+import { isUnsupplied, unsuppliedSentences } from "./candidateBrowserProbe.ts";
 
 /**
  * A static tree shaped like `.vercel/output/static`, and a repo root holding mass-energy's frozen
@@ -1003,6 +1004,65 @@ describe("the transport under the browser probe (dispatch 483)", () => {
     expect(result.detail).toContain(ONE_PATH);
     // And it does not report the sentence the same run would have shown before: that wording
     // asserts the laboratory produced nothing, which is the claim this whole block exists to stop.
+    expect(result.detail).not.toContain("0 wasm request(s) were made and no frankensim label");
+  });
+});
+describe("a redirect is a transport failure too (dispatch 493)", () => {
+  /**
+   * WHY THIS BLOCK EXISTS. After the retry and the unsupplied reporting landed, the candidate refused
+   * BM-01 again with the same line, on two deployments hours apart, and the log carried no "could not
+   * supply". That was read as eliminating the transport. It did not: the recorder only saw status 0
+   * and 4xx/5xx, and `route.fulfill` carries no location header, so a 3xx was both unfollowed and
+   * unreported. A candidate behind Vercel SSO answers an unsigned request with a 302.
+   *
+   * Measured against the export of 65db2e50: a planted 302 on one chunk BM-01 needs gives labels
+   * [static] then [static], 0 wasm requests, wording absent and 0 page errors, which is the
+   * candidate's line exactly. The same path at 404 does the same damage and was reported.
+   */
+  test("only a 2xx supplied the bytes; a redirect did not", () => {
+    for (const supplied of [200, 201, 204, 206]) expect(isUnsupplied(supplied)).toBe(false);
+    // The four a naive `status >= 400` misses, which is the defect this block records.
+    for (const redirect of [301, 302, 303, 307, 308]) expect(isUnsupplied(redirect)).toBe(true);
+    for (const refused of [0, 404, 500, 599]) expect(isUnsupplied(refused)).toBe(true);
+  });
+
+  test("a redirect's sentence says why this probe cannot follow it", () => {
+    const sentences = unsuppliedSentences(new Map([["/_next/static/chunks/4269.js", 302]]));
+    expect(sentences.length).toBe(1);
+    expect(sentences[0]).toContain("/_next/static/chunks/4269.js");
+    expect(sentences[0]).toContain("status 302");
+    expect(sentences[0]).toContain("location header");
+  });
+
+  test("vercel curl follows redirects, and still reports the status of what it ended up with", () => {
+    const args = vercelCurlArgs("/lab/bm-01/", "https://candidate.example", "/tmp/out.bin");
+    expect(args).toContain("-L");
+    expect(args).toContain("/lab/bm-01/");
+    expect(args).toContain("https://candidate.example");
+    expect(args).toContain("%{http_code}");
+    // -L belongs to curl, so it has to sit after the `--` that ends vercel's own options.
+    expect(args.indexOf("-L")).toBeGreaterThan(args.indexOf("--"));
+  });
+
+  test("a capability whose page was redirected fails with the redirect named", async () => {
+    const { fetcher } = fixture();
+    const redirected: AcceptedWasmObservation = {
+      capabilityId: "diffusion.brownian-frames",
+      lab: "bm-01",
+      labelsBefore: ["static", "static"],
+      labelsAfter: ["static", "static"],
+      labelTexts: ["Static worked example"],
+      wasmRequests: [],
+      pageErrors: unsuppliedSentences(new Map([["/_next/static/chunks/4269.js", 302]])),
+    };
+    const result = await acceptedWasmResultPerCapability(
+      fetcher,
+      fakeProbe({
+        observations: { ...GOOD_OBSERVATIONS, "diffusion.brownian-frames": redirected },
+      }),
+    );
+    expect(result.status).toBe("failed");
+    expect(result.detail).toContain("status 302");
     expect(result.detail).not.toContain("0 wasm request(s) were made and no frankensim label");
   });
 });

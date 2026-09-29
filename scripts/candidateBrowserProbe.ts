@@ -90,8 +90,28 @@ export function contentTypeForPath(pathname: string): string {
 export function unsuppliedSentences(unsupplied: ReadonlyMap<string, number>): string[] {
   return [...unsupplied].map(
     ([path, status]) =>
-      `the probe could not supply ${path} (${status === 0 ? "the request itself failed after every attempt" : `status ${status}`}), so the page ran without it and a missing result here may be this harness's rather than the deployment's`,
+      `the probe could not supply ${path} (${describeUnsupplied(status)}), so the page ran without it and a missing result here may be this harness's rather than the deployment's`,
   );
+}
+
+/**
+ * Whether a status delivered the bytes the page asked for. Only a 2xx did.
+ *
+ * A 3XX COUNTS AS UNSUPPLIED, and that is the correction (dispatch 493). This probe fulfils every
+ * response with status, body and content type and no location header, so a redirect reaches the
+ * browser with nowhere to go and the asset never arrives. The first version of this recorded only
+ * `status === 0 || status >= 400`, which left exactly one transport failure both unfollowed and
+ * unseen, and it is the one a Vercel SSO candidate answers with: a 302.
+ */
+export function isUnsupplied(status: number): boolean {
+  return status < 200 || status >= 300;
+}
+
+function describeUnsupplied(status: number): string {
+  if (status === 0) return "the request itself failed after every attempt";
+  if (status >= 300 && status < 400)
+    return `status ${status}, a redirect this probe cannot follow because it fulfils a response without its location header`;
+  return `status ${status}`;
 }
 
 type ProbeState = Readonly<{
@@ -135,7 +155,7 @@ async function open(fetcher: Fetcher): Promise<ProbeState> {
       cache.set(key, response);
     }
     counters.served += 1;
-    if (response.status === 0 || response.status >= 400) unsupplied.set(key, response.status);
+    if (isUnsupplied(response.status)) unsupplied.set(key, response.status);
     await route.fulfill({
       status: response.status === 0 ? 599 : response.status,
       body: response.body,
