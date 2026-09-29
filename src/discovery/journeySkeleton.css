@@ -185,3 +185,34 @@
 .journey-ppe li > .eyebrow {
   margin: 0;
 }
+
+/* The convergence figure in the Doors section (dispatch 450). Every lane is the same box and the
+   same join, because the rule it has to keep is that no route is drawn as the main road; there is
+   deliberately no variant class for the front door. */
+.journey-doors-figure {
+  display: block;
+  width: 100%;
+  max-width: 26rem;
+  height: auto;
+  margin: 1rem 0;
+}
+
+.journey-door-lane {
+  fill: var(--muted);
+  fill-opacity: 0.12;
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.journey-door-lane-label {
+  fill: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  text-anchor: middle;
+}
+
+.journey-door-join {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
