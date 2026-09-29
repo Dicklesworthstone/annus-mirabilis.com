@@ -21,6 +21,7 @@ import {
 import { loadBilingualEdition } from "./faces/bilingualLoader.ts";
 import { missingGermanSections } from "./faces/editionCoverage.ts";
 import type { FaceId } from "./faces/registry.ts";
+import { sectionOfSourceId, unitSection } from "./faces/unitSections.ts";
 import { paperSectionIds } from "./paperSections.ts";
 
 export interface PaperSourceFaces {
@@ -81,15 +82,12 @@ export async function paperSourceFaces(paperId: string): Promise<PaperSourceFace
   );
   // Each block's section, under its own id and its sentences' ids, which is what a unit's
   // sourceRefs name; then the first unit, in the face's order, whose source lies in each section.
-  const sectionOf = new Map<string, string>();
-  for (const block of blocks) {
-    if (!block.section) continue;
-    sectionOf.set(block.id, block.section);
-    for (const span of block.sentenceSpans ?? []) sectionOf.set(span.id, block.section);
-  }
+  // The index and the lookup moved to faces/unitSections.ts when EnglishFace needed them too
+  // (dispatch 480); this reads that one rather than keeping a second copy in step by hand.
+  const sectionOf = sectionOfSourceId(blocks);
   const firstUnit = new Map<string, string>();
   for (const unit of edition?.units ?? []) {
-    const section = unit.sourceRefs.map((r) => sectionOf.get(r.id)).find((s) => s !== undefined);
+    const section = unitSection(unit, sectionOf);
     if (section !== undefined && !firstUnit.has(section)) firstUnit.set(section, unit.id);
   }
   // The first glossed sentence of each section, in the blocks' reading order. A block with no

@@ -17,6 +17,7 @@ import type { FaceId } from "./registry.ts";
 import { TranslationParagraphs } from "./TranslationParagraphs.tsx";
 import { unitsBySourceRef } from "./TranslationUnit.tsx";
 import { MASTHEAD_AUTHOR_ID, MASTHEAD_TITLE_ID, unitTranslating } from "./translationMasthead.ts";
+import { sectionOfSourceId, unitsInSection } from "./unitSections.ts";
 import "../reader.css";
 import { ExplainerFragments } from "./ExplainerFragments.tsx";
 import { InlineTerms } from "./InlineTerms.tsx";
@@ -53,7 +54,20 @@ export function EnglishFace({
   // The masthead's units head the page instead of opening the body.
   const titleUnit = unitTranslating(units, MASTHEAD_TITLE_ID);
   const authorUnit = unitTranslating(units, MASTHEAD_AUTHOR_ID);
-  const bodyUnits = units.filter((u) => u !== titleUnit && u !== authorUnit);
+  // SCOPED TO ITS SECTION, as the parallel face already scopes its German (dispatch 480). This
+  // face rendered every unit whatever the URL said, so relativity's eleven section English faces
+  // each carried the whole paper: 106,302 to 106,325 visible characters against the whole paper's
+  // 106,333, and 343.5 to 343.7 kB gzipped apiece. A reader who opened section 3's English face was
+  // served all ten sections. The mapping is the one paperSourceFaces.ts already used to find a
+  // section's first unit, extracted to unitSections.ts so both readers ask one index rather than
+  // two agreeing by luck.
+  const inSection = units.filter((u) => u !== titleUnit && u !== authorUnit);
+  const bodyUnits = sectionId
+    ? // `blocks` is optional on this face. With none there is no index, every unit's section
+      // reads as undefined, and unitsInSection keeps them all: a face that cannot place its
+      // units renders what it did before rather than dropping text it failed to classify.
+      unitsInSection(inSection, sectionOfSourceId(blocks ?? []), sectionId)
+    : inSection;
   // No review banner, review chip or translator credit (D-2026-09-25-no-review-status-banners,
   // the owner: "we don't need messages like this on the site"). Who translated and checked each
   // unit stays in its record (translator, agentReview) and in the provenance receipt.
