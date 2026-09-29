@@ -162,10 +162,23 @@ export function ParallelFace({
         availability={availability}
       />
 
+      {/*
+        ONE QUIET LINE, NOT A PANEL (dispatch 499). This was the heaviest block on the page, on every
+        paper, permanently: a washed and bordered box measuring 66px at desktop and 110px at 320px,
+        above the reading it was explaining. The chrome is gone from the stylesheet and the words stay.
+
+        THE KEYBOARD SENTENCE STAYS TOO, and is scoped in words rather than hidden. j and k are real
+        and a keyboard reader has nowhere else to learn them: the accessibility page says the edition
+        can be read from a keyboard and lists no keys. Hiding the sentence on a touch viewport would
+        have cost that reader the only place it is written, and a media query cannot tell a phone from
+        a phone with a keyboard. "On a keyboard" is how src/app/not-found.tsx already says this.
+
+        "Point at" rather than "Hover", because a touch reader cannot hover and was being told to.
+      */}
       <aside className="parallel-help-bar fine" aria-label="Alignment guidance">
         <p>
-          Hover or focus a sentence to highlight its aligned counterpart. Press <kbd>j</kbd> /{" "}
-          <kbd>k</kbd> to step through sentences in reading order.
+          Focus or point at a sentence to light its aligned counterpart. On a keyboard, <kbd>j</kbd>{" "}
+          and <kbd>k</kbd> step through sentences in reading order.
         </p>
       </aside>
 

@@ -2623,12 +2623,18 @@ html:is(
   margin: 0.25rem 0;
 }
 
+/*
+ * The alignment hint, demoted from a panel to a line (dispatch 499). Measured before the change on
+ * the built pages: 66px tall at 1280 and 110px at 320, washed and bordered, on every paper's
+ * parallel face, permanently. It was the heaviest block on a page whose job is reading. The words
+ * are unchanged in substance and the <aside> keeps its label, so assistive technology still finds
+ * it; what goes is the box it was painted in.
+ */
 .parallel-help-bar {
-  margin: 1rem 0;
-  padding: 0.5rem 0.75rem;
-  background: var(--wash);
-  border: 1px solid var(--line);
-  border-radius: 4px;
+  margin: 0.5rem 0 1rem;
+  padding: 0;
+  border: 0;
+  background: none;
 }
 
 .column-heading {

@@ -129,9 +129,21 @@ describe("ParallelFace render tests", () => {
       />,
     );
 
-    expect(html).toContain(
-      "Press <kbd>j</kbd> / <kbd>k</kbd> to step through sentences in reading order.",
-    );
+    // THE FACTS, NOT THE SENTENCE (dispatch 499). This asserted one exact phrasing, so
+    // rewording the hint turned it red while nothing it protects had changed. What must hold is
+    // that both keys are named, marked up as keys, and that the reader is told they are for a
+    // keyboard rather than for the phone in their hand: the panel was demoted to a line and the
+    // keyboard instruction had to survive the demotion, because the accessibility page lists no
+    // keys and this line is the only place j and k are written down.
+    expect(html).toContain("<kbd>j</kbd>");
+    expect(html).toContain("<kbd>k</kbd>");
+    expect(html).toContain("On a keyboard");
+    expect(html).toMatch(/step through sentences in reading order/u);
+    // The alignment half of the hint, which is what a pointer or a focus ring does.
+    expect(html).toMatch(/light its aligned counterpart/u);
+    // A negative the previous wording would fail: a touch reader cannot hover and was being
+    // told to. This is the phrasing the demotion replaced.
+    expect(html).not.toContain("Hover or focus a sentence");
   });
 
   test("renders 320 px stacked parallel layout with layout='stacked' and responsive attributes", () => {
