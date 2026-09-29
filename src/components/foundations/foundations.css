@@ -228,7 +228,9 @@
 
 /* The label above a chooser, which was a bold inline style on each one. */
 .foundation-choice-label {
-  font-weight: bold;
+  /* 700, not the `bold` keyword: they are the same computed weight, and the type-scale ratchet
+     counts SPELLINGS, so a second name for a weight already in the vocabulary reads as growth. */
+  font-weight: 700;
   margin: 0.5rem 0;
 }
 
