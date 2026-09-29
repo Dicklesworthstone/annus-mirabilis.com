@@ -1,0 +1,42 @@
+{
+  "kind": "misconception",
+  "id": "misc-bm-mean-is-zero",
+  "paper": "brownian-motion",
+  "temptingClaims": ["The average displacement is zero, so on average the grains have not moved."],
+  "whyTempting": "A grain is as likely to go left as right, so the signed displacements cancel, and the first average anyone forms is the one that vanishes.",
+  "whereItIsTrue": "The signed mean displacement along an axis is zero in the model, and a finite sample fluctuates around zero rather than settling away from it.",
+  "whatIsTrue": {
+    "r0": "The paper does not average the displacements. It averages their squares and takes the root, and that number grows with the square root of the time.",
+    "r1": "§ 4 says which average it means, and corrects itself in the same sentence: it computes the displacement \\(\\lambda_x\\) along the x-axis that a particle undergoes on average, or, more precisely expressed, the root of the arithmetic mean of the squares of the displacements (p. 558). The signed mean is zero by the symmetry of the distribution, and a quantity that is zero for every time carries no information about the motion. The mean of the squares does not vanish, and § 4 closes by remarking that the mean displacement is therefore proportional to the square root of the time, and that the root of the mean of the squares of the total displacements is \\(\\lambda_x\\sqrt{3}\\) (p. 559). BM-01 reports both from one accepted snapshot: signedMean with its interval bands, which straddle zero, and meanSquare with its own, which does not.",
+    "r2": "(1) The distribution of displacements after a time \\(t\\) is symmetric about zero, so the signed mean is zero for every \\(t\\). (2) Squaring removes the sign, so the mean of the squares is positive and grows. (3) § 4's own words are \"the root of the arithmetic mean of the squares\", not \"the mean displacement\", and the paper writes the correction into the sentence rather than leaving it to a reader. (4) \\(\\lambda_x = \\sqrt{2Dt}\\): four times the time gives twice the root mean square, not four times. (5) So a mean near zero is what the model predicts, and it is not a statement that nothing moved.",
+    "r3": "Root mean square is the modern name for what § 4 spells out in words; the paper has no such term. The lesson on squares and square roots carries the arithmetic on its own, for a reader who wants it without the notation."
+  },
+  "instrumentIds": ["bm-01"],
+  "anchors": ["s4-p11", "s4-p12"],
+  "resultIds": ["bm-displacement-law"],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 17, 549–560 (1905), plates pp. 558–559",
+    "BM-01 preset diffusion-einstein-1905-printed: outputs signedMean with signedMeanLowerBand and signedMeanUpperBand, beside meanSquare with meanSquareLowerBand and meanSquareUpperBand, from one accepted snapshot"
+  ],
+  "intervention": {
+    "instrumentId": "bm-01",
+    "defaultsReviewed": {
+      "model": "Described from the manifest: an ensemble of tracers spreading by the paper's diffusion law, with the signed mean and the mean of the squares both reported from the same accepted snapshot (BM-01, outputs signedMean, meanSquare, rmsDisplacement1d and sampleMeanSquare).",
+      "labels": "Described from the manifest: the signed mean with an interval band above and below it, and the mean square with its own band, so the one that straddles zero and the one that does not are read side by side.",
+      "defaultControls": "Described from the manifest: default scenario diffusion-einstein-1905-printed, the paper's own printed case rather than a modern set.",
+      "feedback": "Described from the manifest: the signed mean's band straddling zero while the mean square's does not, which is the difference the claim collapses."
+    },
+    "scenarioId": "diffusion-einstein-1905-printed",
+    "reviewRecordId": "pending-review-misc-bm-mean-is-zero"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:NavyKite",
+        "kind": "model",
+        "modelId": "claude-opus-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}

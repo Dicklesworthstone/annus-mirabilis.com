@@ -1,0 +1,44 @@
+{
+  "kind": "misconception",
+  "id": "misc-bm-synthetic-count",
+  "paper": "brownian-motion",
+  "temptingClaims": [
+    "The laboratory recovered the molecular number, so the count has been confirmed here."
+  ],
+  "whyTempting": "The inference runs, the number that comes out is close to the accepted one, and an interval is drawn around it, which is what a measurement looks like.",
+  "whereItIsTrue": "The recovery is real as far as it goes: the estimator does return the generator's parameter from displacements it was not given directly, and the interval does cover it at the stated rate.",
+  "whatIsTrue": {
+    "r0": "The displacements were generated from a number the laboratory already had. Recovering it checks the inference, not the world. § 5 asks for a measurement, and the paper closes by leaving that to somebody else.",
+    "r1": "BM-07's default observation set is synthetic: displacements produced from a declared diffusivity, radius, temperature and viscosity under a recorded seed, and the inference then works back to a molecular number. What that tests is whether the estimator and its interval behave, which is worth testing and is not an observation of molecules. The paper is explicit about which step it is missing: § 5 says that conversely the relation found can be used to determine \\(N\\) (p. 559), and the paper closes by wishing that a researcher may soon succeed in deciding the question raised here, important for the theory of heat (p. 560). A number recovered from a generator does not decide it, because nothing outside the laboratory was consulted. BM-07 registers a separate preset, bm-07-perrin-1909, for the case where the displacements are not the laboratory's own.",
+    "r2": "(1) The generator is given a diffusivity, a radius, a temperature, a viscosity and a seed. (2) It emits displacements consistent with those. (3) The estimator reads the displacements and returns a diffusion coefficient, a molecular number and, where no independent radius is declared, only the product of radius and number. (4) Agreement between step 3 and step 1 is a fact about steps 2 and 3. (5) A count of molecules needs displacements that came from a microscope and a radius established separately, which is the arrangement § 5 describes and the paper does not carry out.",
+    "r3": "The distinction is not the paper's; it belongs to how this site builds instruments. A labelled generator with a hidden parameter checks inference machinery, and a historical or real-data inference uses source-pinned observations with calibration established independently. The two are kept apart in the records as well as on the page."
+  },
+  "instrumentIds": ["bm-07"],
+  "anchors": ["s5-p3", "s5-p4"],
+  "resultIds": ["bm-molecular-number"],
+  "sources": [
+    "A. Einstein, Ann. Phys. (4) 17, 549–560 (1905), plates pp. 559 and 560",
+    "BM-07 preset bm-07-identifiability: observation set synthetic, seed 1905, 50 displacements at 1 s frame spacing, inference temperature 293.15 K and viscosity 0.001 Pa s; outputs diffusionCoefficientEstimate, avogadroNumberEstimate and radiusNumberProduct"
+  ],
+  "intervention": {
+    "instrumentId": "bm-07",
+    "defaultsReviewed": {
+      "model": "Described from the manifest: displacements from a declared generator under a recorded seed, and an inference back to a molecular number with an interval (BM-07, controls observationSet, generatorT, generatorEta, generatorRadius and seed; outputs diffusionCoefficientEstimate, avogadroNumberEstimate and radiusNumberProduct).",
+      "labels": "Described from the manifest: the generator's own temperature, viscosity and radius are named controls, separate from the inference temperature and viscosity, so a reader can see which numbers went in before any came out.",
+      "defaultControls": "Described from the manifest: default scenario bm-07-identifiability, observation set synthetic, seed 1905, 50 displacements at 1 s frame spacing.",
+      "feedback": "Described from the manifest: the estimate with its interval and the coverage of that interval over repeated hypothetical experiments, which is a statement about the procedure rather than about a liquid."
+    },
+    "scenarioId": "bm-07-identifiability",
+    "reviewRecordId": "pending-review-misc-bm-synthetic-count"
+  },
+  "authorship": {
+    "draftedBy": [
+      {
+        "id": "agent:NavyKite",
+        "kind": "model",
+        "modelId": "claude-opus-5"
+      }
+    ]
+  },
+  "reviewState": "draft"
+}
