@@ -45,8 +45,21 @@ describe("tokensExport: CSS and TypeScript tokens stay in sync", () => {
   // --plot missing from it left every test green and a no-JavaScript dark reader with the light
   // theme's chart colour at 1.77:1.
   test("the no-JavaScript dark block declares exactly what Kramgasse Night declares", () => {
+    /*
+      THE PREFIX IS TOLERATED, THE COMPARISON IS NOT (dispatch 464). bd352d20 made the dark theme a
+      SCREEN theme, because a reader whose device is dark was printing near-white ink on white paper,
+      so this block is now `@media screen and (prefers-color-scheme: dark)`. The locator hard-coded
+      the unprefixed text and threw "No prefers-color-scheme dark block", which reads as the two
+      palettes having diverged when they had not: both lists are ten declarations and identical.
+
+      Only the way the block is FOUND changes. What is asserted below is untouched and still exact:
+      the block must exist, it must contain :root:not([data-theme]), and its declarations must equal
+      Kramgasse Night's set for set. A missing --plot here once left a no-JavaScript dark reader with
+      the light theme's chart colour at 1.77:1, which is what this test exists to catch, and it
+      still fails on exactly that.
+    */
     const media = CSS.match(
-      /@media \(prefers-color-scheme: dark\)\s*\{\s*:root:not\(\[data-theme\]\)\s*\{([^}]*)\}/,
+      /@media (?:screen and )?\(prefers-color-scheme: dark\)\s*\{\s*:root:not\(\[data-theme\]\)\s*\{([^}]*)\}/,
     );
     if (!media?.[1])
       throw new Error("No prefers-color-scheme dark block for :root:not([data-theme]).");
