@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { isReducedMotionPreferred } from "../../a11y/reducedMotion.ts";
 import { DEFAULT_EMBED_OPTIONS } from "./contract.ts";
 import { installEmbedPresentation } from "./presentation.ts";
 
@@ -125,4 +126,68 @@ test("two frame documents are independent", () => {
   stopLeft();
   assert.equal(right.root.getAttribute("data-theme"), "annalen");
   stopRight();
+});
+
+/*
+  THE CLAUSE IS ABOUT THE LABORATORIES, NOT ABOUT AN ATTRIBUTE (dispatch 430).
+
+  "explicit reduction remains enabled even if the OS does not request it" above asserts
+  `data-embed-motion === "reduce"`, which is the attribute this installer had just set, so it cannot
+  fail while the clause is broken. It was green for as long as the clause was broken.
+
+  What AGENTS.md promises is "respect for detail, theme, and reduced-motion parameters", and what a
+  laboratory's animation loop asks is `isReducedMotionPreferred()`. So these two go through that
+  function, with the document and the device stubbed, and would fail if the parameter stopped
+  reaching it. The second is the negative: without it a version that reduced unconditionally would
+  satisfy the first forever.
+*/
+function withStubbedDocument(root, deviceAsksReduce, body) {
+  const hadDocument = "document" in globalThis;
+  const hadWindow = "window" in globalThis;
+  const previousDocument = globalThis.document;
+  const previousWindow = globalThis.window;
+  const media = (query) => ({
+    matches: deviceAsksReduce && query.includes("prefers-reduced-motion"),
+    media: query,
+    addEventListener() {},
+    removeEventListener() {},
+  });
+  globalThis.document = { documentElement: root };
+  globalThis.window = { matchMedia: media };
+  try {
+    return body(media);
+  } finally {
+    if (hadDocument) globalThis.document = previousDocument;
+    else delete globalThis.document;
+    if (hadWindow) globalThis.window = previousWindow;
+    else delete globalThis.window;
+  }
+}
+
+test("motion=reduce reaches the gate a laboratory's animation asks, with the device quiet", () => {
+  const e = environment();
+  withStubbedDocument(e.root, false, (media) => {
+    // The device asks for nothing, so only the parameter can stop the animation.
+    assert.equal(isReducedMotionPreferred(), false);
+    const stop = installEmbedPresentation(
+      e.root,
+      { ...DEFAULT_EMBED_OPTIONS, motion: "reduce" },
+      media,
+    );
+    assert.equal(e.root.getAttribute("data-reduced-motion"), "true");
+    assert.equal(isReducedMotionPreferred(), true);
+    stop();
+    // Reversible: the gate goes back to what it said before the embed installed anything.
+    assert.equal(isReducedMotionPreferred(), false);
+  });
+});
+
+test("system motion on a quiet device leaves the laboratories animating", () => {
+  const e = environment();
+  withStubbedDocument(e.root, false, (media) => {
+    const stop = installEmbedPresentation(e.root, DEFAULT_EMBED_OPTIONS, media);
+    assert.equal(e.root.getAttribute("data-reduced-motion"), null);
+    assert.equal(isReducedMotionPreferred(), false);
+    stop();
+  });
 });
