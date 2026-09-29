@@ -133,7 +133,14 @@
 }
 /* Without JavaScript the field could open nothing, so it is not shown. The pre-paint script sets
    data-theme whenever JavaScript runs, before the first frame, so the field is laid out from the
-   start and hydration no longer moves the page. */
+   start and hydration no longer moves the page.
+
+   data-theme IS A PROXY FOR SCRIPTING, not a statement about the theme (dispatch 432). The
+   condition is a side effect of an unrelated feature: if the theme ever stops being set before
+   paint, or moves to another attribute, this field stops appearing for everyone and no test of the
+   theme would notice. The failure direction is the safe one, a hidden field rather than a dead
+   one, and /search/ carries a noscript line naming what that reader has instead. Anyone changing
+   the pre-paint script should read this rule first. */
 :root:not([data-theme]) .search-page-field-wrap {
   display: none;
 }

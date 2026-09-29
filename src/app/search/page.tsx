@@ -179,6 +179,20 @@ export default async function SearchIndexPage() {
             The lead used to open with "Press Ctrl K", which a phone cannot do; the shortcut now
             sits inside the field, shown only where there is a keyboard to press it on. */}
         <SearchPageField />
+        {/* THE SENTENCE A READER WITHOUT SCRIPTING WAS NOT GIVEN (dispatch 432). The field above
+            is hidden by search.css when nothing sets data-theme, and until now that reader watched
+            a control vanish and was told nothing. This site is a static export, so a form here
+            would have no server to answer it; the index below is the honest answer and this says
+            so without apologising for it or promising a search. Outside any button on purpose:
+            the root layout's no-script rule is `button:enabled{display:none}`, which hides what a
+            button wraps, so a sentence placed inside one would disappear with it. */}
+        <noscript>
+          <p className="fine">
+            Scripts are off, so the search field is not shown: it opens a dialog, and a dialog needs
+            a script to open it. Nothing else on this page depends on one. What it would have
+            searched is the list below.
+          </p>
+        </noscript>
         <p className="lead">
           Every entry in the edition&rsquo;s index is listed below, once each: {listed} of them,
           each linking to the passage, argument, equation, instrument or lesson it names. Your
