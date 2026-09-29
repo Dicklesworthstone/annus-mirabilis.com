@@ -335,3 +335,18 @@ export const fastBy = (): number => FAST_READING - reflectionTime();
 /** The distance the lesson supposes, in metres, and the speed the same trip then gives. */
 export const SIGNAL_DISTANCE = 1.5e9;
 export const signalSpeed = (): number => (2 * SIGNAL_DISTANCE) / (SYNC.returns - SYNC.leaves);
+
+// The three-averages figure of dispatch 444. foundation:mean-variance-rms asks which average shows
+// how far particles got, and answers with three. meanSquare() and rootMeanSquare() are already
+// here from the squaring bridge, so only the third statistic and its printed rounding are new.
+
+/** The average of the distances, ignoring sign: the third of the lesson's three answers. */
+export const meanDistance = (values: readonly number[]): number =>
+  average(values.map((v) => Math.abs(v)));
+
+/**
+ * The RMS of the lesson's four displacements as it PRINTS it. The exact value is the square root
+ * of 5, which has no finite decimal, so the figure shows the rounding the lesson shows and
+ * bridgeFigures.test.ts holds it to the square root through withinTolerance().
+ */
+export const PRINTED_RMS = 2.236;

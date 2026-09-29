@@ -58,6 +58,7 @@ export const FOUNDATION_CONSTRUCTION_IDS = [
   "distributions",
   "integration",
   "frames-events",
+  "mean-variance-rms",
 ] as const;
 
 export type FoundationConstructionId = (typeof FOUNDATION_CONSTRUCTION_IDS)[number];

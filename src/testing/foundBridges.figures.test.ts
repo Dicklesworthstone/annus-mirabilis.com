@@ -10,10 +10,13 @@ import {
   MINUTE_DISPLACEMENT_MICROMETRES,
   MINUTE_DISPLACEMENT_SQUARED,
   MINUTE_DISPLACEMENT_SQUARED_MANTISSA,
+  meanDistance,
+  meanSquare,
   NUDGES,
   PARTICLE_ENDS,
   PLACES,
   PRINTED_POSITIONS,
+  PRINTED_RMS,
   PRINTED_SPEEDS,
   SHARES,
   shareOf,
@@ -21,7 +24,7 @@ import {
   WALK,
   walkSpeeds,
 } from "../foundations/bridgeFigures.ts";
-import { withinTolerance } from "../units/tolerance.ts";
+import { roundsTo, withinTolerance } from "../units/tolerance.ts";
 
 /**
  * The five bridge figures draw numbers their lessons also state in prose (dispatch 401), and the
@@ -111,6 +114,27 @@ describe("the numbers the bridge figures draw", () => {
     const micro = PLACES.find((p) => p.symbol === "μm");
     expect(micro?.power).toBe(-6);
     expect(PLACES.find((p) => p.symbol === "mm")?.power).toBe(-3);
+  });
+
+  test("the three averages are three different numbers, and the printed RMS is a rounding", () => {
+    const ends = PARTICLE_ENDS;
+    const mean = average(ends);
+    const distance = meanDistance(ends);
+    const squares = meanSquare(ends);
+    // Three answers, and the lesson only works because they differ.
+    expect(mean).toBe(0);
+    expect(distance).toBeGreaterThan(mean);
+    expect(Math.sqrt(squares)).toBeGreaterThan(distance);
+    // Squaring weighs the far ones more, so the RMS always sits at or beyond the mean distance.
+    expect(squares).toBe(average(ends.map((v) => v * v)));
+    // 2.236 is a ROUNDING of the square root of 5, not a value double precision cannot hold, so
+    // it is checked as a rounding to four significant figures rather than against a tolerance.
+    const printed = roundsTo(Math.sqrt(squares), PRINTED_RMS, { significantFigures: 4 });
+    expect(printed.ok, `printed RMS ${PRINTED_RMS} is not ${Math.sqrt(squares)} to 4 figures`).toBe(
+      true,
+    );
+    // Here and only here the RMS is also the standard deviation, because the mean is zero.
+    expect(Math.sqrt(squares - mean * mean)).toBe(Math.sqrt(squares));
   });
 
   test("the ball's printed speeds and positions are the arithmetic, to a stated tolerance", () => {

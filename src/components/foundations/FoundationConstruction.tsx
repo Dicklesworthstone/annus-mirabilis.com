@@ -41,6 +41,7 @@ import { SquareAndItsCorner } from "./SquareAndItsCorner.tsx";
 import { StepsAndSpread } from "./StepsAndSpread.tsx";
 import { TableToPlotBuilder } from "./TableToPlotBuilder.tsx";
 import { TaylorBinomialExtension } from "./TaylorBinomialExtension.tsx";
+import { ThreeAverages } from "./ThreeAverages.tsx";
 import { TurnedAxes } from "./TurnedAxes.tsx";
 import { TwoClocksOneFlash } from "./TwoClocksOneFlash.tsx";
 import { TwoCurves } from "./TwoCurves.tsx";
@@ -176,5 +177,7 @@ function constructionFor(id: FoundationConstructionId, headingLevel: HeadingLeve
       return <AddingInStrips headingLevel={headingLevel} />;
     case "frames-events":
       return <TwoClocksOneFlash headingLevel={headingLevel} />;
+    case "mean-variance-rms":
+      return <ThreeAverages headingLevel={headingLevel} />;
   }
 }
