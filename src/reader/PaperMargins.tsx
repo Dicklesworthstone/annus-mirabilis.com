@@ -173,8 +173,36 @@ function openingWords(argument: { id: string; instrumentRef: string }): string {
   return `Open ${instrument}`;
 }
 
-export function PaperMargins({ margins }: { margins: Margins }) {
+/**
+ * The bibliography ids that denote the paper a margin is printed on (dispatch 546).
+ *
+ * Each paper record's own `citation` field is the authority. ONE paper needs more than that field
+ * gives: mass-energy's `citation` is `ap-18-639`, whose bibliography record is the 1923
+ * Perrett-Jeffery English translation and says so, while every margin record on that paper cites
+ * `cit-einstein-1905-inertia`, the German original. Two records, one work. Keyed on `citation`
+ * alone this repair would silently do nothing on the one paper whose margin is 16% of its page, so
+ * the second id is named here with its reason rather than left to fail quietly.
+ *
+ * The duplication itself is not repaired here: which key names the mass-energy paper is an
+ * editorial decision, and thirteen content files already cite `ap-18-639`.
+ */
+export const PAPER_OWN_CITATIONS: Readonly<Record<string, readonly string[]>> = {
+  "light-quanta": ["ap-17-132"],
+  "brownian-motion": ["ap-17-549"],
+  "special-relativity": ["ap-17-891"],
+  "mass-energy": ["ap-18-639", "cit-einstein-1905-inertia"],
+};
+
+export function PaperMargins({
+  margins,
+  paperId,
+}: {
+  margins: Margins;
+  /** Omitted, every source prints in full, which is what a surface outside a paper page needs. */
+  paperId?: string;
+}) {
   const { misconceptions, notes, citations } = margins;
+  const own = new Set(paperId ? (PAPER_OWN_CITATIONS[paperId] ?? []) : []);
   return (
     <>
       {misconceptions.length > 0 && (
@@ -251,6 +279,16 @@ export function PaperMargins({ margins }: { margins: Margins }) {
                 {note.sourceSupport.map((source, n) => {
                   const c = citations.get(source.citationId);
                   if (!c) return null;
+                  // A source that IS this page's paper prints the journal locator alone. Measured on
+                  // 1ec891a0: each of light-quanta's five entries opened with the paper's full
+                  // German title, the title of the page the reader is standing on, before the volume
+                  // line and the six words that locate the passage. The title goes; the journal
+                  // locator stays, because volume and pages are what a reader carries to a library,
+                  // and it carries the link out.
+                  //
+                  // A record citing its own paper as a WHOLE, with no locator, keeps the full
+                  // citation: the journal line alone would not say which work it names.
+                  const isOwnPaper = own.has(source.citationId) && Boolean(source.locator);
                   // Each source reads as one sentence: title, locator, the note's own page, and
                   // one full stop. A locator already ends in one, so it is dropped before the page.
                   const where = source.locator
@@ -259,10 +297,16 @@ export function PaperMargins({ margins }: { margins: Margins }) {
                   return (
                     <span key={`${source.citationId}-${source.locator ?? n}`}>
                       {n > 0 && " "}
-                      <cite>
-                        <a href={c.url}>{c.title}</a>
-                      </cite>
-                      {citationTitleClose(c.title)} {where}
+                      {isOwnPaper ? (
+                        <a href={c.url}>{where}</a>
+                      ) : (
+                        <>
+                          <cite>
+                            <a href={c.url}>{c.title}</a>
+                          </cite>
+                          {citationTitleClose(c.title)} {where}
+                        </>
+                      )}
                     </span>
                   );
                 })}
