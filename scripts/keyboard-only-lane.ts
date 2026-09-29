@@ -161,7 +161,20 @@ async function main(): Promise<number> {
     page.on("pageerror", (error) => errors.push(`${error.message}`.slice(0, 120)));
 
     console.log("\narriving on a paper section");
-    await page.goto(`${base}/papers/brownian-motion/s4/`, { waitUntil: "load", timeout: 40000 });
+    {
+      const opened = await page.goto(`${base}/papers/brownian-motion/s4/`, {
+        waitUntil: "load",
+        timeout: 40000,
+      });
+      const code = opened?.status();
+      // A 404 body is twelve bytes: zero overflow, zero dark ink, zero missing labels. Without
+      // this guard a route that MOVED reads exactly like a clean lane, and dispatch 445 cited
+      // a pass on one (/foundations/random-walk/, where the route is random-walkS).
+      if (code !== 200)
+        throw new Error(
+          `${page.url()} answered ${code ?? "no response"}: a 404 body measures as clean, so this is a failed citation and not a pass`,
+        );
+    }
     await page.waitForTimeout(800);
     await page.keyboard.press("Tab");
     const first = await activeStop(page);
@@ -226,7 +239,17 @@ async function main(): Promise<number> {
     }
 
     console.log("\na laboratory: change something and read the result");
-    await page.goto(`${base}/lab/bm-01/`, { waitUntil: "load", timeout: 40000 });
+    {
+      const opened = await page.goto(`${base}/lab/bm-01/`, { waitUntil: "load", timeout: 40000 });
+      const code = opened?.status();
+      // A 404 body is twelve bytes: zero overflow, zero dark ink, zero missing labels. Without
+      // this guard a route that MOVED reads exactly like a clean lane, and dispatch 445 cited
+      // a pass on one (/foundations/random-walk/, where the route is random-walkS).
+      if (code !== 200)
+        throw new Error(
+          `${page.url()} answered ${code ?? "no response"}: a 404 body measures as clean, so this is a failed citation and not a pass`,
+        );
+    }
     await page.waitForTimeout(900);
     const skip = await tabUntil(
       page,

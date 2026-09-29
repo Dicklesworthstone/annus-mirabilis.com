@@ -97,7 +97,20 @@ type Seen = {
 };
 
 async function observe(page: Page, base: string, query: string): Promise<Seen> {
-  await page.goto(`${base}/embed/lab/${LAB}/${query}`, { waitUntil: "load", timeout: 30000 });
+  {
+    const opened = await page.goto(`${base}/embed/lab/${LAB}/${query}`, {
+      waitUntil: "load",
+      timeout: 30000,
+    });
+    const code = opened?.status();
+    // A 404 body is twelve bytes: zero overflow, zero dark ink, zero missing labels. Without
+    // this guard a route that MOVED reads exactly like a clean lane, and dispatch 445 cited
+    // a pass on one (/foundations/random-walk/, where the route is random-walkS).
+    if (code !== 200)
+      throw new Error(
+        `${page.url()} answered ${code ?? "no response"}: a 404 body measures as clean, so this is a failed citation and not a pass`,
+      );
+  }
   await page
     .waitForSelector('[data-embed-ready="true"], [data-embed-invalid]', { timeout: 15000 })
     .catch(() => undefined);
