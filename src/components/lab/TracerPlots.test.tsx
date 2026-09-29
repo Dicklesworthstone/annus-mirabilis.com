@@ -75,17 +75,46 @@ describe("TracerScaling refusal and plot contracts (am-a11y-action-contracts-cle
 
   // Predict mode (am-inst-predict-mode-ti7m, dispatch 156 option c): the frame stays and the
   // spread the prompts ask about waits. Without a gate the plots are unchanged.
-  test("the histogram keeps its axis in view while its bars, model line and range wait", () => {
+  //
+  // These read what is INSIDE the gated group rather than the order of the markup. The version
+  // before dispatch 502 asserted `class="comparison-curve"></path><text>Fraction in each bin`,
+  // which pinned the title INSIDE the gate: the assertion passed while the test's own name, and
+  // the component's docblock, both said the titles stay in view. The properties below cannot be
+  // satisfied that way.
+  const gatedGroup = (html: string) =>
+    html.match(/<g data-predict-response="awaiting">([\s\S]*?)<\/g>/)?.[1] ?? "";
+  /** The caption text that waits with the marks, as distinct from the note that replaces it. */
+  const gatedCaption = (html: string) =>
+    html.match(/<span data-predict-response="awaiting">([\s\S]*?)<\/span>/)?.[1] ?? "";
+
+  test("the histogram keeps its title and its note in view while its bars, model line and range wait", () => {
     const awaiting = { "data-predict-response": "awaiting" } as const;
     const html = renderToStaticMarkup(
       <TracerHistogram snapshot={acceptedSnapshot} response={awaiting} />,
     );
+    const gated = gatedGroup(html);
+    expect(gated).not.toBe("");
+    // What waits: the bars, the model line and the range the prompts ask about.
+    expect(gated).toContain('class="histogram-bar"');
+    expect(gated).toContain('class="comparison-curve"');
+    expect(gated).toContain("μm");
+    // What stays: the axis and the plot's own title.
+    expect(gated).not.toContain("Fraction in each bin");
+    expect(html).toContain("Fraction in each bin");
+    expect(html).toContain('class="axis"');
+    // The frame says why it is empty, and the caption stops describing marks that are not drawn.
+    expect(html).toContain('data-predict-placeholder="awaiting"');
+    expect(html).toContain("Choose an answer above");
     expect(html).toMatch(
-      /<path d="M35 35V205H275" class="axis"><\/path><g data-predict-response="awaiting"><rect/,
+      /<span data-predict-response="awaiting">\s*Solid bars: the synthetic sample\./,
     );
-    expect(html).toMatch(/class="comparison-curve"><\/path><text[^>]*>Fraction in each bin/);
+    // The overflow counts are a result, and they wait with the result.
+    expect(gatedCaption(html)).toContain("Counts beyond the plotted range");
+
     const plain = renderToStaticMarkup(<TracerHistogram snapshot={acceptedSnapshot} />);
     expect(plain).not.toContain("data-predict-response");
+    expect(plain).not.toContain("data-predict-placeholder");
+    expect(plain).toContain("Solid bars: the synthetic sample.");
   });
 
   test("the scaling plot keeps its axis and labels while its two curves wait", () => {
@@ -95,8 +124,12 @@ describe("TracerScaling refusal and plot contracts (am-a11y-action-contracts-cle
         response={{ "data-predict-response": "awaiting" }}
       />,
     );
-    expect(html).toMatch(
-      /class="axis"><\/path><g data-predict-response="awaiting"><path[^>]*class="curve"><\/path><path[^>]*class="comparison-curve"><\/path><\/g>/,
-    );
+    const gated = gatedGroup(html);
+    expect(gated).toContain('class="curve"');
+    expect(gated).toContain('class="comparison-curve"');
+    expect(gated).not.toContain("log scale");
+    expect(html).toContain("log scale");
+    expect(html).toContain("Choose an answer above");
+    expect(gatedCaption(html)).toContain("Solid: this sample.");
   });
 });

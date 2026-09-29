@@ -192,6 +192,27 @@ html[data-detail] [data-predict-response="awaiting"] {
   display: none;
 }
 
+/*
+ * THE FRAME SAYS WHY IT IS EMPTY (dispatch 502). BM-01's displacement histogram gated its bars,
+ * its model line and its own title together, so before a prediction it was two hairlines and a
+ * void, and the caption under it went on describing solid bars and a dashed line that were not
+ * drawn, down to "Counts beyond the plotted range: 0 left, 0 right", which is a result number
+ * leaking through the gate. The sentence explaining the emptiness was in the other column.
+ *
+ * This is the mirror of the rule above and is keyed the same way ON PURPOSE. A React test of
+ * `awaiting` would have been wrong: the server renders `awaiting` for every gated lab, and a
+ * reader without JavaScript is served THAT markup and sees the result, because the rule above
+ * needs `data-detail` and only a running script sets it. So a placeholder is hidden by default,
+ * which is what that reader needs, and appears only where the result is actually waiting.
+ */
+[data-predict-placeholder] {
+  display: none;
+}
+
+html[data-detail] [data-predict-placeholder="awaiting"] {
+  display: inline;
+}
+
 html:not([data-detail]) [data-predict-gate] {
   display: none;
 }
