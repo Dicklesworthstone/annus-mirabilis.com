@@ -319,18 +319,16 @@ export function ChargeCurrentLab({
           <fieldset aria-labelledby={`${id}-unit-label`} className="button-group">
             <button
               type="button"
-              className={p.unitLayer === "si" ? "button" : "button secondary"}
+              className={p.unitLayer === "si" ? "button compact" : "button secondary compact"}
               aria-pressed={p.unitLayer === "si"}
-              style={{ padding: "0.2rem 0.5rem", fontSize: "var(--type-fine)", minHeight: "auto" }}
               onClick={() => apply({ ...p, unitLayer: "si" })}
             >
               SI (modern)
             </button>
             <button
               type="button"
-              className={p.unitLayer === "gaussian" ? "button" : "button secondary"}
+              className={p.unitLayer === "gaussian" ? "button compact" : "button secondary compact"}
               aria-pressed={p.unitLayer === "gaussian"}
-              style={{ padding: "0.2rem 0.5rem", fontSize: "var(--type-fine)", minHeight: "auto" }}
               onClick={() => apply({ ...p, unitLayer: "gaussian" })}
             >
               Gaussian 1905 (§9)

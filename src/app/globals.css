@@ -238,6 +238,25 @@ button.secondary,
   color: var(--ink);
   border-color: var(--rule);
 }
+/*
+ * A dense control group's button: fine type and tighter padding, and the 44px target KEPT.
+ *
+ * It replaces eight hand-written inline size overrides on two laboratories (dispatch 491). Two of
+ * those, on SR-12's unit chooser, also wrote `min-height: auto`, which switched the house target
+ * off: measured in Chromium at 390px, an iPhone 13 viewport, those two buttons rendered 26.9px
+ * tall against the 44px every other button keeps. That is NOT a WCAG 2.2 AA failure, because the
+ * AA minimum for Target Size is 24 by 24 CSS pixels and 26.9 clears it by 2.9px; it is a departure
+ * from the house rule, measured rather than inferred. This class therefore sets no min-height at
+ * all, so .button's 44px stands, and there is no longer a site that can opt out of it by hand.
+ *
+ * ONE PADDING, not the three the inline styles carried (0.2rem/0.5rem, 0.25rem/0.5rem and
+ * 0.25rem/0.625rem). Those differences were hand-tuned near-duplicates rather than distinctions
+ * anyone chose, and collapsing them is the point of a shared modifier.
+ */
+.button.compact {
+  padding: 0.25rem 0.5rem;
+  font-size: var(--type-fine);
+}
 .button-group {
   display: flex;
   gap: 0.5rem;

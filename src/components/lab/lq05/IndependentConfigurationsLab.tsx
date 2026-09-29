@@ -314,24 +314,21 @@ export function IndependentConfigurationsLab({
               <div style={{ display: "flex", gap: "0.375rem" }}>
                 <button
                   type="button"
-                  className="button secondary"
-                  style={{ padding: "0.25rem 0.5rem", fontSize: "var(--type-fine)" }}
+                  className="button secondary compact"
                   onClick={() => setFraction(0.5)}
                 >
                   Half (1/2)
                 </button>
                 <button
                   type="button"
-                  className="button secondary"
-                  style={{ padding: "0.25rem 0.5rem", fontSize: "var(--type-fine)" }}
+                  className="button secondary compact"
                   onClick={() => setFraction(0.25)}
                 >
                   Quarter (1/4)
                 </button>
                 <button
                   type="button"
-                  className="button secondary"
-                  style={{ padding: "0.25rem 0.5rem", fontSize: "var(--type-fine)" }}
+                  className="button secondary compact"
                   onClick={() => setFraction(1.0)}
                 >
                   Full (1)
@@ -376,27 +373,24 @@ export function IndependentConfigurationsLab({
                 >
                   <button
                     type="button"
-                    className={`button ${p.view === "enumeration" ? "" : "secondary"}`}
+                    className={`button compact ${p.view === "enumeration" ? "" : "secondary"}`}
                     aria-pressed={p.view === "enumeration"}
-                    style={{ padding: "0.25rem 0.625rem", fontSize: "var(--type-fine)" }}
                     onClick={() => setViewMode("enumeration")}
                   >
                     Enumeration
                   </button>
                   <button
                     type="button"
-                    className={`button ${p.view === "sampling" ? "" : "secondary"}`}
+                    className={`button compact ${p.view === "sampling" ? "" : "secondary"}`}
                     aria-pressed={p.view === "sampling"}
-                    style={{ padding: "0.25rem 0.625rem", fontSize: "var(--type-fine)" }}
                     onClick={() => setViewMode("sampling")}
                   >
                     Sampling
                   </button>
                   <button
                     type="button"
-                    className={`button ${p.view === "logarithmic" ? "" : "secondary"}`}
+                    className={`button compact ${p.view === "logarithmic" ? "" : "secondary"}`}
                     aria-pressed={p.view === "logarithmic"}
-                    style={{ padding: "0.25rem 0.625rem", fontSize: "var(--type-fine)" }}
                     onClick={() => setViewMode("logarithmic")}
                   >
                     Logarithmic
