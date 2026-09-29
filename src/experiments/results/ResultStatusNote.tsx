@@ -62,6 +62,14 @@ export function ResultStatusNote({
       data-result-status={result ? result.status : undefined}
       data-refusal-code={refusal ? refusal.code : undefined}
       data-outcome={outcome ? outcome.outcome : undefined}
+      /*
+       * Announced when it carries a refusal or an execution outcome, and silent for an ordinary
+       * accepted result, which is the shape CurrencyIndicator already uses one directory away
+       * (`role={state === "accepted" ? undefined : "status"}`). Polite rather than assertive: this
+       * note also reports outcomes a reader did not ask for, and AGENTS.md is explicit that a live
+       * region must carry committed states rather than a stream (dispatch 519).
+       */
+      role={refusal || outcome ? "status" : undefined}
     >
       <p className="result-status-message">{explanation.message}</p>
       <p className="result-status-action">{explanation.nextAction}</p>

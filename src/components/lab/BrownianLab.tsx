@@ -376,8 +376,27 @@ export function BrownianLab({
           )}
         </form>
         <div className="lab-results" {...identity(snapshot)}>
+          {/*
+          ROLE ALERT, BECAUSE A REFUSAL A READER CANNOT SEE IS A REFUSAL THEY NEVER RECEIVE
+          (dispatch 519). Driven on the built export: the notice carries the code, a 428
+          character sentence, two admissible repairs and the kept settings, and NO live-region
+          ancestor at all, so a reader pressing Apply is told nothing and the experiment
+          appears to have done nothing.
+
+          POLITE, ruled by the orchestrator in dispatch 521 and reversible in one word. The reasoning:
+                a typed refusal after a press is a REQUESTED SUMMARY, and AGENTS.md's live-region rule
+                distinguishes those from ambient change; a reader who has just pressed a control is
+                already attending to its outcome, where assertive exists to interrupt someone reading
+                something else; and polite queues where assertive would talk over a second committed
+                state. CHOSEN BY REASONING, NOT BY TESTING: no disabled reader has heard it, and that
+                is a human gate. The earlier draft argued the other way: it is the outcome of the reader's own
+          press and they are waiting for it; it is COMMITTED and discrete, one per apply rather
+          than a stream, so AGENTS.md's warning that "a 60 Hz animation never produces a 60 Hz
+          live-region stream" does not bite here; and the form error a few lines above already
+          announces itself this way, as do SR-01, ME-01 and ME-03.
+          */}
           {view.refusal && (
-            <div className="notice error" data-refusal-code={view.refusal.code}>
+            <div className="notice error" aria-live="polite" data-refusal-code={view.refusal.code}>
               <h3>Requested calculation not accepted</h3>
               <p>{view.refusal.message}</p>
               {gridRefusalSentences(view.refusal).map((sentence) => (
