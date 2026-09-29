@@ -268,11 +268,48 @@ export async function main() {
   }
 
   if (!options.selfTestFailure) {
+    /*
+     * SCENARIO SOURCE EXISTS FOR SOME PAPERS NOW (dispatch 441), and the configuration failure below
+     * is still correct for the ones it does not cover. A paper without a journey is not quietly
+     * passed: it is named in the failure, which is what this harness has always done.
+     */
+    const { PAPER_JOURNEYS } = await import("./e2e/journeys/massEnergy.ts");
+    const { runPaperJourney } = await import("./e2e/paperJourney.ts");
+    const selected = PAPER_JOURNEYS.filter(
+      (entry) =>
+        options.all ||
+        options.sliceIds.length === 0 ||
+        options.sliceIds.includes(entry.journey.sliceId) ||
+        options.sliceIds.includes(entry.journey.paperSlug),
+    );
+    if (selected.length > 0) {
+      let failures = 0;
+      for (const entry of selected) {
+        const result = await runPaperJourney({
+          entry,
+          recorder,
+          baseUrl: options.baseUrl,
+          headed: options.headed,
+          captureEvidence: captureFailureEvidence,
+        });
+        failures += result.failedSteps;
+        if (result.failedSteps > 0 && options.failFast) break;
+      }
+      finishRun(recorder, {
+        startedAt,
+        baseUrl: options.baseUrl,
+        sliceIds: selected.map((entry) => entry.journey.sliceId),
+        viewports: options.viewports,
+      });
+      if (failures > 0) process.exitCode = 1;
+      return;
+    }
     recordRunConfigurationFailure(
       recorder,
       new Error(
-        "Paper vertical-slice scenarios are not wired in yet; see am-test-e2e-harness-bqmh, which builds the " +
-          "paper lanes, the DOM readiness contract, and the fixture bundler on this extracted harness. " +
+        `No paper vertical-slice scenario matches ${options.sliceIds.join(", ") || "(none requested)"}; ` +
+          `journeys exist for ${PAPER_JOURNEYS.map((entry) => entry.journey.paperSlug).join(", ")}. ` +
+          "The remaining papers are am-test-e2e-harness-bqmh's scope. " +
           "Run with --self-test-failure to exercise the failure-evidence retention path.",
       ),
     );
