@@ -536,6 +536,30 @@ export const AUDITED_SCROLL_CLASSES = [
  */
 export const NOT_YET_AUDITED = new Map<string, number>([
   ["camera-results", 4],
+  // The rendered display in each capstone's "The displays this argument turns on" (a03a90c7,
+  // dispatch 426), set to scroll in its own box so a wide equation neither clips nor widens the
+  // page. THIRTEEN JSX elements, 3 on each of mass-energy, brownian-motion and light-quanta and 4
+  // on special-relativity, one per equation the capstone's record names, with no tabIndex in the
+  // TSX: as for inline-display and eq-step-formula, the tab stop and the name come at runtime from
+  // formulaOverflow.inline.ts, only where the box actually overflows.
+  //
+  // Measured on the worktree build whose HEAD is 570adcc4, which contains a03a90c7, served from
+  // its own out/ so the absolute /_next/ asset paths resolve and real layout happens. At 320px,
+  // ONE of the 13 overflows: mass-energy's low-speed drop, scrollWidth 319 against clientWidth
+  // 288. At 1280px none does, every one 760 against 760. No page scrolls sideways at either width,
+  // which is what the overflow is there to prevent.
+  //
+  // The count is 13 and not 26. Raw occurrences of the class in a built page are double, because a
+  // Next page embeds its own RSC payload and the className appears again inside that escaped JSON;
+  // this number counts opening tags.
+  //
+  // Recorded rather than audited, and the debt is precisely this: the one element that overflows
+  // gets its stop at runtime, so a reader with scripting off and a 320px column cannot reach the
+  // right-hand end of that one formula. What they can read instead is the authored spoken form
+  // directly below it, which is on the page for every display either way. The wrapper stopped being
+  // aria-hidden in c5a2c325, because a focusable element hidden from assistive technology is worse
+  // than either state alone.
+  ["capstone-math", 13],
   ["clarification-dialog", 2],
   ["controlled-comparison", 1],
   ["countermodel-scroll", 0],
