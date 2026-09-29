@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import "./foundations.css";
 import { type HeadingLevel, headingTag } from "./headingLevel.ts";
 
@@ -65,6 +65,10 @@ export function RepeatedProportionalTable({
     Title = headingTag(headingLevel),
     Sub = headingTag(headingLevel, 1);
   const [selectedStep, setSelectedStep] = useState<number>(1);
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    setReady(true);
+  }, []);
 
   const fallbackStep: DecayStep = {
     n: 0,
@@ -92,29 +96,25 @@ export function RepeatedProportionalTable({
         <sup>−0.5</sup>, about 0.607.
       </p>
 
-      <fieldset
-        className="proportional-controls"
-        aria-label="Step selector"
-        style={{ border: "none", padding: 0, margin: "1rem 0" }}
-      >
-        <p style={{ fontWeight: "bold", margin: "0.5rem 0" }}>
-          Select a step index n to inspect compounding:
-        </p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+      {/* Disabled until hydrated, which is this repository's pattern for a control that cannot
+          act without JavaScript (ClockFirstEncounter, MassEnergyFirstEncounter, and the detail
+          and lens controls ReaderController enables at reader/ReaderController.tsx:149). The
+          chooser is not HIDDEN without JavaScript, because every value it reveals is already
+          printed in the full table below: a reader who cannot press it loses nothing, and
+          removing the buttons would hide that the other steps exist. `.enhanced-only` is the
+          reader's mechanism and is not available here, because this lesson also renders at
+          /foundations/exponentials/, which has no [data-reader-root] and where nothing ever
+          sets [data-enhanced]. */}
+      <fieldset className="proportional-controls" aria-label="Step selector" disabled={!ready}>
+        <p className="foundation-choice-label">Select a step index n to inspect compounding:</p>
+        <div className="button-group">
           {DECAY_STEPS.map((step) => (
             <button
               key={step.n}
               type="button"
+              className="secondary"
               onClick={() => setSelectedStep(step.n)}
               aria-pressed={selectedStep === step.n}
-              style={{
-                padding: "0.4rem 0.8rem",
-                border: "1px solid var(--rule)",
-                borderRadius: "4px",
-                background: selectedStep === step.n ? "var(--accent)" : "var(--paper)",
-                color: selectedStep === step.n ? "var(--paper)" : "var(--ink)",
-                cursor: "pointer",
-              }}
             >
               Step n = {step.n} (t = {step.t}s)
             </button>

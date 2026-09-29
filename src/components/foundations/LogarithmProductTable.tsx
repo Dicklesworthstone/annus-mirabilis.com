@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { LN_2, LOG10_2 } from "../../foundations/calculus.ts";
 import { type HeadingLevel, headingTag } from "./headingLevel.ts";
 
@@ -56,6 +56,10 @@ export function LogarithmProductTable({
     Title = headingTag(headingLevel),
     Sub = headingTag(headingLevel, 1);
   const [notationMode, setNotationMode] = useState<NotationMode>("modern-iso");
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    setReady(true);
+  }, []);
 
   const isAnnalen = notationMode === "annalen-1905";
   const logSymbol = isAnnalen ? "lg" : "ln";
@@ -76,27 +80,26 @@ export function LogarithmProductTable({
         W, plus a constant. The table checks the rule on three pairs of numbers.
       </p>
 
-      <div className="notation-toggle-controls" style={{ margin: "1rem 0" }}>
-        <p style={{ fontWeight: "bold", margin: "0.5rem 0" }}>Notation display toggle:</p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", alignItems: "center" }}>
+      <div className="notation-toggle-controls">
+        {/* Disabled rather than hidden without JavaScript. This one switches a display
+            convention rather than revealing content: the table is complete in whichever symbol
+            it is showing, and the callout immediately below explains both lg and ln in prose, so
+            nothing is lost to a reader who cannot press it. The lesson also renders at
+            /foundations/logarithms/, where nothing sets [data-enhanced]. */}
+        <p className="foundation-choice-label">Notation display toggle:</p>
+        <div className="button-group">
           <button
             type="button"
+            className="secondary"
+            disabled={!ready}
             onClick={() => setNotationMode(isAnnalen ? "modern-iso" : "annalen-1905")}
             aria-pressed={isAnnalen}
-            style={{
-              padding: "0.5rem 1rem",
-              border: "1px solid var(--rule)",
-              borderRadius: "4px",
-              background: isAnnalen ? "var(--accent)" : "var(--paper)",
-              color: isAnnalen ? "var(--paper)" : "var(--ink)",
-              cursor: "pointer",
-            }}
           >
             {isAnnalen
               ? "Notation: 1905 Annalen der Physik (lg = natural log)"
               : "Notation: Modern ISO standard (ln = natural log)"}
           </button>
-          <span style={{ fontSize: "0.85rem", color: "var(--muted)" }}>
+          <span className="fine">
             Switches the table between the symbol printed in 1905, lg, and the modern ln.
           </span>
         </div>

@@ -195,6 +195,43 @@
   margin: 1rem 0;
 }
 
+/*
+ * THE FOUNDATION CHOOSERS ARE STYLED HERE RATHER THAN ON EACH BUTTON (dispatch 489).
+ *
+ * Thirty-three buttons across nine built pages carried the same six inline declarations, hand
+ * painting `button.secondary` with a 4px radius against the interface's 0 and a smaller pad than
+ * the 44px target: padding, border, border-radius, background, color, cursor. They are now the
+ * house button, and what was left unstyled anywhere is the pressed state, so a chosen option
+ * looked exactly like the ones that were not. This is the same rule `.lab-choice` carries in
+ * labShell.css, in the same colours, written once for the family rather than once per component.
+ *
+ * The count is worth stating because the raw number is not the debt: 1,789 buttons in the built
+ * site carry an inline style and 1,789 minus these are `--qc`/`--qd`, the per-instance quantity
+ * colour handed to a stylesheet, which is the mechanism working as designed. The 219,641 inline
+ * styles on spans are KaTeX, which AGENTS.md mandates.
+ */
+.proportional-controls,
+.toggle-controls,
+.nudge-controls {
+  border: none;
+  padding: 0;
+}
+
+.proportional-controls button[aria-pressed="true"],
+.toggle-controls button[aria-pressed="true"],
+.nudge-controls button[aria-pressed="true"],
+.notation-toggle-controls button[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+/* The label above a chooser, which was a bold inline style on each one. */
+.foundation-choice-label {
+  font-weight: bold;
+  margin: 0.5rem 0;
+}
+
 .proportional-readout,
 .construction-display,
 .held-fixed-display,
@@ -205,6 +242,16 @@
   padding: 1rem;
   background: var(--wash);
   margin: 1rem 0;
+}
+
+/*
+ * Both held-fixed panels are in the static HTML and JavaScript narrows to one, so a reader
+ * without it keeps BOTH: the panels carry different physics, Fick's first law in one and the
+ * diffusion equation of §4 in the other, and hiding the chooser alone would have deleted
+ * whichever was not selected. The panels are separated when both are shown.
+ */
+.held-fixed-display + .held-fixed-display {
+  margin-top: 0.75rem;
 }
 
 /* Rule, field and padding come from the callout family in globals.css (callout-limit on the
