@@ -1665,6 +1665,35 @@ samp,
   .draft-note {
     display: none !important;
   }
+  /*
+   * A WRAPPER AROUND TEXT IS NEVER HIDDEN, ONLY UNWRAPPED (dispatch 542).
+   *
+   * The rule above hides every button, and TermAnnotation wraps an annotated period word in one
+   * after hydration, so printing deleted the word and left its punctuation: measured on the export,
+   * "bezogen werden (Relativitätsprinzip)." printed as "bezogen werden ()." 92 words went this way
+   * across the eight faces that carry annotations - 46 distinct words, each on its German face and
+   * its parallel face - including Relativitätsprinzip, molekularkinetischen Theorie der Wärme,
+   * Undulationstheorie and schwarze Strahlung. A printed source with holes in it is the worst shape
+   * a defect can take in an edition whose doctrine is that the source is kept as printed.
+   *
+   * `display: contents` takes the button's box away and leaves its text in flow, which is exactly
+   * what paper wants. reader.css refuses the same declaration for the 320px overflow problem, and
+   * correctly: there the annotation still needs its own layout because it is still a control. Here
+   * it is not a control, so the box is the only thing to remove.
+   *
+   * The affordance goes with the box. A dotted underline and a help cursor promise a note that
+   * cannot open on paper, so the word prints as the rest of the sentence prints.
+   *
+   * THE NO-SCRIPT PATH IS ALREADY CORRECT and needs nothing: TermAnnotation renders
+   * .term-annotation-text as plain text until hydration, so with scripts off no button exists to
+   * hide. This defect only reaches a reader who prints a page that HAS hydrated, which is the
+   * ordinary case.
+   */
+  .term-annotation {
+    display: contents !important;
+    text-decoration: none;
+    cursor: auto;
+  }
   .site-header,
   .site-footer,
   main {
