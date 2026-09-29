@@ -216,3 +216,59 @@
   stroke: var(--ink);
   stroke-width: 1.25;
 }
+
+/* The three-boundary comparison in the mass-energy journey (dispatch 450). The boundary is one
+   dashed line in all three panels and only its contents change; there is deliberately no variant
+   class per panel, so no later edit can make one boundary look more real than another. A body
+   inside the boundary is filled and one outside is an outline, so membership is carried by shape
+   and not by colour alone. */
+.journey-boundaries {
+  margin: 1rem 0;
+}
+
+.journey-boundaries-figure {
+  display: block;
+  width: 100%;
+  max-width: 26rem;
+  height: auto;
+  margin: 0 auto 0.5rem;
+}
+
+.journey-boundary-line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+  stroke-dasharray: 5 4;
+}
+
+.journey-boundary-body {
+  fill: var(--muted);
+  fill-opacity: 0.45;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.journey-boundary-outside {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+  stroke-dasharray: 3 3;
+}
+
+.journey-boundary-ray {
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.journey-boundary-ray-outside {
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.journey-boundary-label {
+  fill: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--type-fine);
+  text-anchor: middle;
+}

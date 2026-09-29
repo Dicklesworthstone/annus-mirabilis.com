@@ -3,6 +3,7 @@ import { ExercisePart } from "../../../components/discover/ExercisePart.tsx";
 import { ExplanationPart } from "../../../components/discover/ExplanationPart.tsx";
 import { MassEnergyWorldCheck } from "../../../components/discover/MassEnergyWorldCheck.tsx";
 import { NumericPart } from "../../../components/discover/NumericPart.tsx";
+import { ThreeBoundaries } from "../../../components/discover/ThreeBoundaries.tsx";
 import {
   MASS_ENERGY_LATER_EVIDENCE,
   MASS_ENERGY_SHELF_CARDS,
@@ -312,6 +313,7 @@ export default function MassEnergyRoute() {
           and read the mass that goes with it. Its cards put the same rule to radium, the Sun, coal,
           a candle and a year of a light bulb.
         </p>
+        <ThreeBoundaries />
         <MassEnergyWorldCheck
           example={ledgerExample}
           check={WORLD_CHECK}
