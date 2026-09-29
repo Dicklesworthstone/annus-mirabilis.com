@@ -40,5 +40,11 @@
     "date": "2026-09-26",
     "verdict": "Superseded, never to apply. NavyKite's wt-254 verification-build stub: 2 lines in src/equations/printed/labInlines.ts replacing the registry import of isRegisteredQuantityId with an always-true function so a worktree bundle would build. The underlying defect (the registry's directory URL cannot be bundled) was fixed properly in 0bd55e6b, which reads registered ids from the generated map. No unlanded work.",
     "reviewedUnder": "am-frankensim-repin-and-bind-jvhg"
+  },
+  {
+    "sha": "fd3353ad3a17bb2eec1802454b772731dfae4af3",
+    "date": "2026-09-29",
+    "verdict": "Superseded, checked rather than asserted. Mine, made in the detached worktree at 65db2e50 while checking out 16001f32 for a dev build, holding the dispatch-498 first-screen repair: 5 files, 27 insertions, 12 deletions. EVERY line it adds is present at 16001f32 (0 absent across all five files), and every construct it removes is gone there: ParallelFace carries 0 occurrences of parallel-german-title and 0 of parallel-author, with the merged citation 'By {paper.authorLine} \u00b7' once; reader.css no longer declares .parallel-author; and GermanDraftFace's eyebrow is already the one-line 'Read \u00b7 {FACE_REGISTRY.german.label}'. That is 4311f4eb for the faces, ef76b8f2 for the selector and 16001f32 for the prop. Nothing in it is unlanded work. Reviewed under dispatch 539 by pane %3 and recorded against am-8wv8, the bead whose verdicts populate this file; am-8wv8 and am-70ig are both closed and this is a new instance of the same review, not work under either. NOT DROPPED: the gate and RULE 1 agree that is the owner's decision, and an acknowledged stash costs nothing where it sits.",
+    "reviewedUnder": "am-8wv8"
   }
 ]
