@@ -2781,8 +2781,26 @@ html:is(
    reads as the text around it, with a dotted underline that turns solid while hovered or open.
    A <button> stays inline-block whatever its display, so a long hyphenated word cannot break at
    its hyphen as the plain word could (4 of the 25 blocks set one more line). */
+/* THE BOX NEVER OUTGROWS ITS COLUMN (dispatch 467). A <button> is sized to its content and its
+   content is an anonymous block that does not break across the parent's line boxes, so a long
+   annotated run had no way to fit: measured on the build of 9dde0926 at 320x256, which is 400%
+   zoom, one of the ten annotations on the parallel German face was 309px wide in a 288px column
+   with its right edge at 325 in a 320px viewport, and that was the second of the two causes of 5px
+   of two-dimensional scrolling. `display: inline` does not help, because the button's content
+   still will not break; `display: contents` clears the overflow and takes the button's box away
+   with it, which would cost the annotation its own layout, so it is refused.
+
+   A plain cap is enough and changes nothing a reader relies on. Measured with it: page overflow 0,
+   all ten annotations still laid out and still focusable, no button's content clipped that was not
+   already overflowing its own box by 3px, and the widest goes 309 to 288, which is the column. The
+   term stays a real button with its definition, so the period vocabulary is not taken away from the
+   narrow-screen reader, and the no-script path is untouched: TermAnnotation renders
+   .term-annotation-text as plain text until hydration precisely because the layout hides an enabled
+   button, so with scripts off there are no term buttons to constrain. A misprint keeps its own rule
+   below and its own marker. */
 .term-annotation {
   min-height: 0;
+  max-width: 100%;
   padding: 0;
   border: 0;
   background: none;
