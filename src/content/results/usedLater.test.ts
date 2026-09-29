@@ -41,8 +41,21 @@ describe("the margin registry a card cites against", () => {
     const registry = resultContext(ROOT, "mass-energy")?.registries.marginRecords;
     expect(registry?.size, "no margin ids: every claim below would be refused").toBeGreaterThan(0);
     expect(registry?.has("note-me-c-1906-poincare")).toBe(true);
-    // A paper with no editorial-notes directory gets an empty set rather than another paper's ids.
-    expect(resultContext(ROOT, "brownian-motion")?.registries.marginRecords.size).toBe(0);
+    // ISOLATION, asserted as itself rather than through a paper that happened to have no notes.
+    // This read `brownian-motion`'s registry and required it to be EMPTY, which was true while
+    // content/editorial-notes held one directory and stopped being true the moment that paper was
+    // given margin records. Emptiness was never the property: what must hold is that a paper's
+    // registry carries its own ids and never another paper's, and that holds at any size.
+    const brownian = resultContext(ROOT, "brownian-motion")?.registries.marginRecords;
+    expect(brownian, "brownian-motion has no result context").toBeDefined();
+    expect(
+      brownian?.size,
+      "both registries must be populated or the overlap below is vacuous",
+    ).toBeGreaterThan(0);
+    for (const id of brownian ?? [])
+      expect(registry?.has(id), `${id} leaked into mass-energy`).toBe(false);
+    for (const id of registry ?? [])
+      expect(brownian?.has(id), `${id} leaked into brownian-motion`).toBe(false);
   });
 
   test("mass-energy's real cards cite margin records, and the registry is what licenses them", () => {
