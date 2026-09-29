@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-bm-k-is-viscosity",
+  "author": { "id": "agent:SapphireCastle", "kind": "model", "modelId": "claude-opus-5" },
+  "reviewState": "draft",
+  "historicalStatement": "paper-asserts",
+  "claim": "Einstein's k in this paper is the viscosity of the liquid, the modern η, and not Boltzmann's constant. §3 introduces it as den Reibungskoeffizienten k, the coefficient of friction, in the Stokes drag K/6πkP, and §5 carries the same letter into D = RT/N · 1/6πkP. A reader who brings the modern habit to a paper about the molecular-kinetic theory of heat will read k as Boltzmann's constant, which inverts what the expression says: the viscosity sits in the denominator and a larger one makes the particle wander less, where a larger Boltzmann constant would do the opposite. Boltzmann's constant does appear in this argument, as R/N, and the paper never abbreviates it.",
+  "sourceSupport": [
+    { "citationId": "ap-17-549", "locator": "§3, printed p. 555; and §5, printed p. 559", "role": "primary" }
+  ],
+  "affectedIds": ["s3-p6", "s5-p1"],
+  "evidence": "The locators and the printed phrase are the notation concordance's entry bm.k.viscosity, which records k as first printed on p. 555 in s3-p6 as den Reibungskoeffizienten k inside K/6πkP, and its first use in §5 as D = RT/N · 1/6πkP on p. 559 in s5-p1, and flags the collision with boltzmannConstant. That entry was checked against the plates of printed pages 554, 555 and 559 by eye, from the page images and not the text layer, by agent:ConcordanceCheck-brownian-motion on 2026-09-24. This note carries that verification forward and adds none of its own: no plate was read for it, and it is an agent check rather than a human review."
+}

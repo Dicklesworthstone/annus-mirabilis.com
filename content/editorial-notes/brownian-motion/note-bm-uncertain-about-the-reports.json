@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-bm-uncertain-about-the-reports",
+  "author": { "id": "agent:SapphireCastle", "kind": "model", "modelId": "claude-opus-5" },
+  "reviewState": "draft",
+  "historicalStatement": "paper-asserts",
+  "claim": "The paper does not claim to explain Brownian motion. Its opening paragraph says it is possible that the motions treated here are identical with the so-called Brownian molecular motion, but that the reports available to him were so imprecise that he could form no judgement on the question. What the paper derives is what the molecular-kinetic theory of heat requires of suspended bodies; whether that is what observers had been watching since 1827 is left open, and the identification came later and from others.",
+  "sourceSupport": [
+    { "citationId": "ap-17-549", "locator": "opening paragraph, printed p. 549", "role": "primary" }
+  ],
+  "affectedIds": ["s0-p1"],
+  "evidence": "The claim restates the paper's own opening sentence, which the corpus holds in diplomatic transcription at content/source-blocks/brownian-motion/s0-p1.yaml, located there at printed page 549: 'Es ist möglich, daß die hier zu behandelnden Bewegungen mit der sogenannten „Brownschen Molekularbewegung“ identisch sind; die mir erreichbaren Angaben über letztere sind jedoch so ungenau, daß ich mir hierüber kein Urteil bilden konnte.' That transcription is a machine draft with hand correction and not a reviewed ledger, since no German source reviewer exists yet; this note adds no verification of its own and no plate was read for it."
+}
