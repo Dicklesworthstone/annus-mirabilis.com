@@ -289,6 +289,20 @@ export function ReaderController(props: Props) {
         if (heading) {
           dialog.setAttribute("aria-labelledby", heading.id);
         }
+        /*
+         * The authored way back: the caption the trigger carries, shown as the route itself. No
+         * caption means no line, rather than a sentence composed from an anchor id.
+         */
+        const returnLine = root.querySelector<HTMLElement>("[data-return-caption-line]");
+        const returnLink = root.querySelector<HTMLAnchorElement>("[data-return-caption-link]");
+        const returnText = root.querySelector<HTMLElement>("[data-return-caption-text]");
+        const triggerEl = frame.triggerId ? document.getElementById(frame.triggerId) : null;
+        const authoredCaption = triggerEl?.dataset.returnCaption ?? "";
+        if (returnLine && returnLink && returnText) {
+          returnText.textContent = authoredCaption;
+          returnLink.setAttribute("href", `#${state.anchor}`);
+          returnLine.hidden = authoredCaption === "";
+        }
         const questionEl = root.querySelector<HTMLElement>("[data-compass-question]");
         if (questionEl) {
           questionEl.textContent = questions[state.anchor] ?? "The Brownian displacement argument";

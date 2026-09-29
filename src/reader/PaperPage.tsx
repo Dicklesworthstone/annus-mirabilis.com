@@ -825,6 +825,27 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
         <p className="fine reader-compass-question">
           <strong>The question we were answering:</strong> <span data-compass-question />
         </p>
+        {/*
+          THE WAY BACK, IN THE WORDS THE LINK AUTHORED (dispatch 446).
+
+          The route back already existed and works: "Return to the exact step" pops the frames,
+          drops ?open= from the address and restores focus to the trigger the reader left. What was
+          missing is that every foundation link carries an authored `data-return-caption` - "Return
+          to comparing the two energy accounts." for ME-01's work-energy link - which reached the
+          client in the hydration payload and was rendered nowhere, so the reader saw a generic
+          label where a sentence about their own argument had been written for them.
+
+          ReaderController fills this from the frame's trigger on open and hides it again when no
+          caption is authored, so nothing is composed from an anchor id. It is an anchor rather than
+          a button on purpose: the root noscript rule hides an enabled button AND the text inside
+          it, and `data-reader-close` is matched by attribute, so the listener treats this exactly
+          as it treats the button beside it.
+        */}
+        <p className="fine" data-return-caption-line hidden>
+          <a href="#" data-reader-close data-return-caption-link>
+            <span data-return-caption-text />
+          </a>
+        </p>
         {foundations.map((f) => (
           <section key={f.id} data-foundation-panel={f.id} hidden>
             <h2 id={`clarification-${f.id}`} tabIndex={-1}>
