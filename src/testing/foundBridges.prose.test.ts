@@ -4,7 +4,9 @@ import {
   binDensityPerMicrometre,
   crossings,
   exactSquare,
+  FAST_READING,
   FLUX_SECONDS,
+  fastBy,
   flatDensity,
   INSTANT_SPEED,
   JARS,
@@ -17,10 +19,13 @@ import {
   PRINTED_POSITIONS,
   PRINTED_SPEEDS,
   RAMP,
+  reflectionTime,
   SPREAD,
   SQUARE_SIDE,
   SQUARE_STEPS,
   STRIP_COUNTS,
+  SYNC,
+  signalSpeed,
   spreadAfter,
   stripSum,
   typicalDistance,
@@ -99,6 +104,36 @@ const [flux1, flux2] = FLUX_SECONDS as unknown as readonly [
 ];
 
 const CLAIMS: readonly Claim[] = [
+  {
+    key: "SYNC",
+    slug: "frames-events",
+    why: "the flash leaves A at the top of both drawings",
+    forms: [[`reads ${SYNC.leaves} s`, "flash leaves"]],
+  },
+  {
+    key: "SYNC",
+    slug: "frames-events",
+    why: "and returns at the bottom of both",
+    forms: [[`reads ${SYNC.returns} s`]],
+  },
+  {
+    key: "SYNC",
+    slug: "frames-events",
+    why: "the half-way mark, which is the rule the figure draws",
+    forms: [[`at ${reflectionTime()} s`, "reflection"]],
+  },
+  {
+    key: "FAST_READING",
+    slug: "frames-events",
+    why: "the second panel's clock, and the correction it needs",
+    forms: [[`read ${FAST_READING} s`, `${fastBy()} s fast`]],
+  },
+  {
+    key: "SIGNAL_SPEED",
+    slug: "frames-events",
+    why: "the speed the same round trip gives, stated in the words equivalent",
+    forms: [[`${signalSpeed() / 1e8} × 10⁸ metres per second`]],
+  },
   {
     key: "BALL",
     slug: "derivatives",
@@ -473,7 +508,7 @@ describe("a bridge figure's numbers and its lesson's prose", () => {
     // A run that examined nothing reads exactly like a clean one, so the population is asserted.
     expect(CLAIMS.length).toBeGreaterThan(0);
     expect(records.size).toBeGreaterThan(1);
-    expect(keys.size).toBe(13);
+    expect(keys.size).toBe(16);
     expect(problems).toEqual([]);
   });
 
