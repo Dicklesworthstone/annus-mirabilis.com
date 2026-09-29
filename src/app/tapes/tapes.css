@@ -56,8 +56,20 @@
   color: var(--ink-muted);
 }
 
-/* A tape's numbers are few and short, so the table needs no scroll at 320px; if one ever grows,
-   give it a scrolling wrapper and record the class in scrollableRegions.test.ts. */
+/* THE ASSUMPTION HERE WAS FALSE AND THIS COMMENT ASKED FOR THE REPAIR (dispatch 460). It read:
+   "A tape's numbers are few and short, so the table needs no scroll at 320px; if one ever grows,
+   give it a scrolling wrapper and record the class in scrollableRegions.test.ts."
+
+   One had grown. Measured on out/ built 21:22 at a 320px viewport, /tapes/the-1906-box/ carried a
+   table.tape-table 330px wide with no scrolling ancestor, which pushed the whole document to 378px:
+   a reader on a phone had to scroll the PAGE sideways to reach the Value column, and the caption was
+   clipped with it. The other tapes were fine at 224px and 226px, which is why nobody saw it.
+
+   Each tape table now sits in a .table-scroll section, focusable and named, as the reader's tables
+   elsewhere do. The table reflows to 224px inside it rather than scrolling, so the document is 320px
+   again with 26 cells and none crushed, and NO new scrollable region exists: nothing to record in
+   scrollableRegions.test.ts. If a future tape's columns cannot reflow, the wrapper is already there
+   and it will scroll instead, and THAT is the day the class needs recording for this file. */
 .tape-table {
   border-collapse: collapse;
   margin: 0.6rem 0 0;

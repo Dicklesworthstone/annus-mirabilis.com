@@ -124,33 +124,40 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
       {conditions.length > 0 ? (
         <section aria-labelledby="tape-start">
           <h2 id="tape-start">Where it starts</h2>
-          <table className="tape-table">
-            <caption>
-              The settings the tape begins from
-              {tape.constantSetId ? `, under the constant set ${tape.constantSetId}` : ""}. Values
-              are the model&apos;s own, not the laboratory control&apos;s display: a radius of 5e-7
-              is half a micrometre.
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col">Setting</th>
-                <th scope="col">Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {conditions.map(([name, value]) => (
-                <tr key={name}>
-                  <th scope="row">
-                    {tape.conditionNames[name]?.label ?? name}
-                    {tape.conditionNames[name] ? (
-                      <span className="tape-raw-id"> ({name})</span>
-                    ) : null}
-                  </th>
-                  <td>{String(value)}</td>
+          <section
+            className="table-scroll"
+            // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable (WCAG 2.1.1)
+            tabIndex={0}
+            aria-label="The settings the tape begins from"
+          >
+            <table className="tape-table">
+              <caption>
+                The settings the tape begins from
+                {tape.constantSetId ? `, under the constant set ${tape.constantSetId}` : ""}. Values
+                are the model&apos;s own, not the laboratory control&apos;s display: a radius of
+                5e-7 is half a micrometre.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Setting</th>
+                  <th scope="col">Value</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {conditions.map(([name, value]) => (
+                  <tr key={name}>
+                    <th scope="row">
+                      {tape.conditionNames[name]?.label ?? name}
+                      {tape.conditionNames[name] ? (
+                        <span className="tape-raw-id"> ({name})</span>
+                      ) : null}
+                    </th>
+                    <td>{String(value)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
         </section>
       ) : null}
 
@@ -212,34 +219,43 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
                 </>
               ) : null}
               {step.expected.length > 0 ? (
-                <table className="tape-table">
-                  <caption>What the author recorded that a reader should see here.</caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">Quantity</th>
-                      <th scope="col">Expected</th>
-                      <th scope="col">Under</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {step.expected.map((value) => (
-                      <tr key={value.label}>
-                        <th scope="row">
-                          {value.quantity?.text ?? value.label}
-                          {value.quantity ? (
-                            <span className="tape-raw-id"> ({value.label})</span>
-                          ) : null}
-                        </th>
-                        <td>
-                          <data value={String(value.value)}>
-                            {recordedValue(value.value, value.unit)}
-                          </data>
-                        </td>
-                        <td>{value.constantSetId ?? tape.constantSetId ?? "the lab's own set"}</td>
+                <section
+                  className="table-scroll"
+                  // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable (WCAG 2.1.1)
+                  tabIndex={0}
+                  aria-label="What the author recorded that a reader should see at this step"
+                >
+                  <table className="tape-table">
+                    <caption>What the author recorded that a reader should see here.</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Expected</th>
+                        <th scope="col">Under</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {step.expected.map((value) => (
+                        <tr key={value.label}>
+                          <th scope="row">
+                            {value.quantity?.text ?? value.label}
+                            {value.quantity ? (
+                              <span className="tape-raw-id"> ({value.label})</span>
+                            ) : null}
+                          </th>
+                          <td>
+                            <data value={String(value.value)}>
+                              {recordedValue(value.value, value.unit)}
+                            </data>
+                          </td>
+                          <td>
+                            {value.constantSetId ?? tape.constantSetId ?? "the lab's own set"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </section>
               ) : null}
             </li>
           ))}
@@ -277,50 +293,58 @@ export default async function Page({ params }: { params: Promise<{ tape: string 
           rather than on the page, and there is nothing honest to put there yet. */}
       <section aria-labelledby="tape-recorded-under">
         <h2 id="tape-recorded-under">What these numbers were recorded under</h2>
-        <table className="tape-table">
-          <caption>
-            The identities the recorded values belong to. The same instrument run under a different
-            seed, or under a later version of its model, gives different numbers without either set
-            being wrong.
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col">Identity</th>
-              <th scope="col">Recorded as</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tape.model ? (
+        <section
+          className="table-scroll"
+          // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be focusable (WCAG 2.1.1)
+          tabIndex={0}
+          aria-label="The identities the recorded values belong to"
+        >
+          <table className="tape-table">
+            <caption>
+              The identities the recorded values belong to. The same instrument run under a
+              different seed, or under a later version of its model, gives different numbers without
+              either set being wrong.
+            </caption>
+            <thead>
               <tr>
-                <th scope="row">Model</th>
-                <td>
-                  {tape.model.id} <span className="tape-raw-id">version {tape.model.version}</span>
-                </td>
+                <th scope="col">Identity</th>
+                <th scope="col">Recorded as</th>
               </tr>
-            ) : null}
-            {tape.seed ? (
-              <tr>
-                <th scope="row">Seed</th>
-                <td>
-                  <data value={tape.seed}>{tape.seed}</data>
-                </td>
-              </tr>
-            ) : null}
-            {tape.streamVersion === undefined ? null : (
-              <tr>
-                <th scope="row">Random-stream semantics</th>
-                <td>version {tape.streamVersion}</td>
-              </tr>
-            )}
-            {/* NO CONSTANT-SET ROW, for two reasons found by the voice lint rather than by review.
+            </thead>
+            <tbody>
+              {tape.model ? (
+                <tr>
+                  <th scope="row">Model</th>
+                  <td>
+                    {tape.model.id}{" "}
+                    <span className="tape-raw-id">version {tape.model.version}</span>
+                  </td>
+                </tr>
+              ) : null}
+              {tape.seed ? (
+                <tr>
+                  <th scope="row">Seed</th>
+                  <td>
+                    <data value={tape.seed}>{tape.seed}</data>
+                  </td>
+                </tr>
+              ) : null}
+              {tape.streamVersion === undefined ? null : (
+                <tr>
+                  <th scope="row">Random-stream semantics</th>
+                  <td>version {tape.streamVersion}</td>
+                </tr>
+              )}
+              {/* NO CONSTANT-SET ROW, for two reasons found by the voice lint rather than by review.
                 It is already on this page, in the caption of "Where it starts", so a row here was
                 repeating the page to itself. And printing it twice doubled a leak: coin-to-bell's
                 record carries `constantSetId: not-applicable`, a typed status name that AGENTS.md
                 says never reaches a reader, and checkVoice went from 1 finding to 2 when this row
                 existed. The leak is a content defect in that record and is reported, not patched
                 here with a special case. */}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </section>
       </section>
 
       {tape.passages.length > 0 ? (
