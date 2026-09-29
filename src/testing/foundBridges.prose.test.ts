@@ -13,12 +13,17 @@ import {
   linearEstimate,
   MINUTE_DISPLACEMENT_MICROMETRES,
   MINUTE_DISPLACEMENT_SQUARED_MANTISSA,
+  meanDistance,
+  meanSquare,
   netChange,
   PARTICLE_ENDS,
   PRINTED_CORNERS,
   PRINTED_POSITIONS,
+  PRINTED_RMS,
   PRINTED_SPEEDS,
   RAMP,
+  RECTANGLE_AREA,
+  RECTANGLE_SIDES,
   reflectionTime,
   SPREAD,
   SQUARE_SIDE,
@@ -104,6 +109,36 @@ const [flux1, flux2] = FLUX_SECONDS as unknown as readonly [
 ];
 
 const CLAIMS: readonly Claim[] = [
+  {
+    key: "THREE_AVERAGES",
+    slug: "mean-variance-rms",
+    why: "the middle mark of the second panel's scale",
+    forms: [[`their mean is ${meanDistance(PARTICLE_ENDS)}`, "distances"]],
+  },
+  {
+    key: "THREE_AVERAGES",
+    slug: "mean-variance-rms",
+    why: "the area the figure deliberately keeps off that scale",
+    forms: [[`their mean is ${meanSquare(PARTICLE_ENDS)}`, "squares"]],
+  },
+  {
+    key: "THREE_AVERAGES",
+    slug: "mean-variance-rms",
+    why: "the outermost mark, a rounding of the square root",
+    forms: [[`about ${PRINTED_RMS}`, "RMS"]],
+  },
+  {
+    key: "RECTANGLE",
+    slug: "error-and-inference",
+    why: "the area every rectangle in the figure encloses",
+    forms: [[`area is ${RECTANGLE_AREA} square centimetres`]],
+  },
+  {
+    key: "RECTANGLE",
+    slug: "error-and-inference",
+    why: "the three pairs of sides the figure draws, in the sentence that names them",
+    forms: [RECTANGLE_SIDES.map(([a, b]) => `${a} and ${b}`)],
+  },
   {
     key: "SYNC",
     slug: "frames-events",
@@ -508,7 +543,7 @@ describe("a bridge figure's numbers and its lesson's prose", () => {
     // A run that examined nothing reads exactly like a clean one, so the population is asserted.
     expect(CLAIMS.length).toBeGreaterThan(0);
     expect(records.size).toBeGreaterThan(1);
-    expect(keys.size).toBe(16);
+    expect(keys.size).toBe(18);
     expect(problems).toEqual([]);
   });
 
