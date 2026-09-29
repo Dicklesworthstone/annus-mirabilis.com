@@ -259,7 +259,6 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                 explainedBy={explainedBy}
                 notExplained={notExplained}
                 paperId={resolved.paperId}
-                paperTitle={paperRecord.paper.title}
                 germanTitle={paperRecord.paper.germanTitle}
                 sectionId={resolved.section}
                 availability={availability}
