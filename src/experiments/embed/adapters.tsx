@@ -62,17 +62,50 @@ export async function renderEmbeddedLaboratory(id: EmbeddableId): Promise<ReactN
       return <LazyConfigurationLab />;
     }
     case "lq-05": {
-      return <LazyIndependentConfigurationsLab />;
+      const { LQ05_DEFAULTS } = await import("../lq05/definition.ts");
+      const { evaluateLq05 } = await import("../lq05/session.ts");
+      const { default: labDigests } = await import("../../generated/lab-source-digests.json");
+      const lq05 = evaluateLq05(LQ05_DEFAULTS);
+      return (
+        <LazyIndependentConfigurationsLab
+          example={{
+            sourceDigest: labDigests["lq-05"],
+            parameters: LQ05_DEFAULTS,
+            results: lq05.outputs.map(
+              (o) => `${o.quantityId}=${o.status === "value" ? String(o.value) : o.status}`,
+            ),
+            stepIndex: 1,
+            simulationTime: 1.0,
+          }}
+        />
+      );
     }
     case "lq-06": {
       const { default: example } = await import("../../generated/lq06-example.json");
       return <LazyCoefficientMatchEntry example={example as unknown as PreparedLq06Example} />;
     }
     case "sr-04": {
-      return <LazyLorentzMapLab />;
+      const { SR04_DEFAULTS } = await import("../sr04/definition.ts");
+      const { evaluateSr04 } = await import("../sr04/session.ts");
+      const { default: labDigests } = await import("../../generated/lab-source-digests.json");
+      return (
+        <LazyLorentzMapLab
+          example={{
+            parameters: SR04_DEFAULTS,
+            evaluation: evaluateSr04(SR04_DEFAULTS),
+            sourceDigest: labDigests["sr-04"],
+          }}
+        />
+      );
     }
     case "me-01": {
-      return <LazyTwoLedgersLab />;
+      const { DEFAULT_PREPARED_EXAMPLE } = await import("../me01/session.ts");
+      const { default: labDigests } = await import("../../generated/lab-source-digests.json");
+      return (
+        <LazyTwoLedgersLab
+          example={{ ...DEFAULT_PREPARED_EXAMPLE, sourceDigest: labDigests["me-01"] }}
+        />
+      );
     }
     case "me-02": {
       const { validateMe02Parameters } = await import("../me02/parameters.ts");
@@ -168,7 +201,13 @@ export async function renderEmbeddedLaboratory(id: EmbeddableId): Promise<ReactN
     }
     case "sr-01": {
       const { DEFAULT_PREPARED_EXAMPLE } = await import("../sr01/session.ts");
-      return <LazyClockSyncLab example={DEFAULT_PREPARED_EXAMPLE} />;
+      const { default: labDigests } = await import("../../generated/lab-source-digests.json");
+      // Its own sourceDigest is a path, so the embed inherited the same refusal as lq-03 below.
+      return (
+        <LazyClockSyncLab
+          example={{ ...DEFAULT_PREPARED_EXAMPLE, sourceDigest: labDigests["sr-01"] }}
+        />
+      );
     }
     case "sr-02": {
       const { validateSr02Parameters } = await import("../sr02/parameters.ts");
