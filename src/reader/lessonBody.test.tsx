@@ -75,6 +75,34 @@ describe("extractLesson", () => {
 });
 
 describe("loadLessonBody", () => {
+  test("a lesson that draws several constructions mounts one slot and keeps no dead copy", async () => {
+    // Structural rather than borrowed: the fixture builds a lesson with two construction sections
+    // itself, so this holds whether or not any real lesson currently draws two. Before the change
+    // it guards, only the first was replaced and the second stayed in the copied markup, so the
+    // dialog showed it twice once the live dispatch re-rendered both.
+    const twoSections = `<main><article class="foundation-lesson">
+        <section class="foundation-construction" data-foundation-construction="a">first</section>
+        <section class="foundation-extension" data-foundation-extension="b">second</section>
+      </article></main>`;
+    const mounts: string[] = [];
+    const mount = (slot: HTMLElement, id: string): MountedConstruction => {
+      mounts.push(`${id}:${slot.childNodes.length}`);
+      return { unmount: () => {} };
+    };
+    const slot = slotFor("two-constructions");
+    const result = await loadLessonBody(slot, {
+      fetch: fetchFrom({ [lessonPageHref("two-constructions")]: twoSections }),
+      mount,
+    });
+    expect(result).toBe("loaded");
+    // Exactly one mount point, and no copied section of either kind left beside it.
+    expect(slot.querySelectorAll("[data-construction-slot]").length).toBe(1);
+    expect(slot.querySelectorAll(".foundation-construction, .foundation-extension").length).toBe(0);
+    expect(mounts).toEqual(["two-constructions:0"]);
+    // Non-vacuity: the fixture really did carry two, or the assertions above prove nothing.
+    expect((twoSections.match(/foundation-(construction|extension)/g) ?? []).length).toBe(4);
+  });
+
   test("fills the slot once, and mounts a lesson's construction into its own slot", async () => {
     const calls: string[] = [];
     const mounts: string[] = [];

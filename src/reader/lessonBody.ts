@@ -106,12 +106,22 @@ export async function loadLessonBody(
     slot.removeAttribute("aria-busy");
     return "failed";
   }
-  const construction = lesson.querySelector(CONSTRUCTION_SELECTOR);
+  // A lesson may draw more than one construction: FoundationConstruction dispatches a single
+  // component per lesson, but that component may render several sections, as foundation:taylor-
+  // expansion does once its square is drawn beside the binomial extension. Mounting React into
+  // the FIRST of them re-renders all of them, so the copied static markup of the others has to
+  // go with it. Taking only the first and leaving the rest standing showed the later sections
+  // twice in the dialog, once live and once as a dead copy.
+  const constructions = [...lesson.querySelectorAll<HTMLElement>(CONSTRUCTION_SELECTOR)];
+  const construction = constructions[0] ?? null;
   let constructionSlot: HTMLElement | null = null;
   if (construction) {
     constructionSlot = target.createElement("div");
     constructionSlot.setAttribute("data-construction-slot", id);
     construction.replaceWith(constructionSlot);
+    // Not a deletion of anything authored: these are copies inside a fragment this function built,
+    // and the mount above puts every one of them back, live.
+    for (const extra of constructions.slice(1)) extra.remove();
   }
   slot.replaceChildren(lesson);
   slot.dataset.lessonState = "loaded";
