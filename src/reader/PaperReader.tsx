@@ -17,6 +17,8 @@ import { type CompanionKind, resolveCompanionKind } from "./layout/companionKind
 import { ReaderLayout } from "./layout/ReaderLayout.tsx";
 import { StickyLabRegion } from "./layout/StickyLabRegion.tsx";
 import { LazyBrownianFirstEncounter } from "./lazyIslands.tsx";
+import { loadPaperMargins } from "./marginRecords.ts";
+import { PaperMargins } from "./PaperMargins.tsx";
 import "./actions/kindRegistration.ts";
 import type { CompiledMissingStepLesson } from "../equations/missingStep/compiled.ts";
 import { MissingStepDisclosure } from "../equations/missingStep/MissingStepPanel.tsx";
@@ -554,6 +556,15 @@ export async function PaperReader({
           </section>
         </StickyLabRegion>
       </ReaderLayout>
+      {/* THE LEDGER THIS SHELL WAS MISSING (dispatch 428). PaperMargins is imported by
+          PaperPage.tsx, which serves the other three papers; brownian-motion is served by this
+          shell, so its five misconception records published no `id="misconception-..."` anywhere
+          and reached no reader by anchor. Measured on the built pages before this: light-quanta 5,
+          mass-energy 8, special-relativity 8, brownian-motion 0. Nothing in this file said the
+          omission was deliberate, and no decision record names it.
+          Gated on `section` exactly as PaperPage line 796 is, so the ledger sits on the
+          whole-paper page and a section page does not republish the same ids. */}
+      {section ? null : <PaperMargins margins={loadPaperMargins(paper.id)} />}
       {/* The paper's own discovery route (measured 2026-09-28: every paper page linked /discover/
           once, and it was the index from the global nav). Renders nothing for a paper with no
           route. */}
