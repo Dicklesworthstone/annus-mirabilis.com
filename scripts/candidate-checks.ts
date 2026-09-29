@@ -21,9 +21,12 @@
  * so the bytes executed are still the deployment's bytes. A run with no probe reports both as
  * `not-available` and neither is declared, which keeps `candidateChecksPassed` false.
  *
- * WHAT DOES NOT RUN, and says so in its result rather than passing:
- * - `four-complete-paper-texts`: no paper is complete yet (plan §17.7), so there is nothing to load
- *   under that name. `paper-pages-served-as-built` checks the paper pages that do exist.
+ * EVERY CHECK IN THE CATALOGUE NOW RUNS (dispatch 474). `four-complete-paper-texts` was the last
+ * silence, declared on the reading that "complete" meant editorially finished, which no candidate
+ * check could ever assert. It asserts the reachable thing instead: the deployment serves every
+ * source block the build compiled, 544 of them across the four papers when this was measured on 2026-09-28, anchored inside
+ * `<main id="main">` where a reader without JavaScript receives them. What it does NOT claim is
+ * stated in its own result, because the check's NAME invites the stronger claim.
  */
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -260,6 +263,178 @@ export class CandidateCheckRegistrationError extends Error {
     this.name = "CandidateCheckRegistrationError";
     this.code = code;
   }
+}
+
+// ---------------------------------------------------------------------------
+// FOUR COMPLETE PAPER TEXTS (am-rel-candidate-checks-kc7y, dispatch 474).
+//
+// WHAT "COMPLETE" MEANS HERE, because the name invites a claim this check does not make. It does NOT
+// assert that an edition is editorially complete, reviewed, or translated; none of the four is
+// finished and no candidate check could say so. It asserts that the text the DEPLOYMENT serves
+// carries every source block the BUILD compiled: the declared id list for each paper is anchored, in
+// full, inside `<main id="main">` on the page a reader without JavaScript receives.
+//
+// WHY THE DECLARED LIST IS THE RIGHT DENOMINATOR. `content/source-blocks/<paper>/
+// manifest.ids.snapshot.txt` is asserted equal to the compiled manifest's unit ids, in order, by
+// each paper's own manifest test, and those tests plant a removal and require it to fail. So the
+// snapshot is the corpus the build compiled rather than a hand-kept list that could drift from it.
+//
+// WHY THE SECTION FLOOR IS NOT DECORATION. "Every declared id is present" is 100% of whatever the
+// snapshot happens to hold, so a corpus that silently lost a whole section would still read as
+// complete: the denominator shrinks with the numerator. AGENTS.md names the sections most likely to
+// vanish behind the familiar headlines -- "paper 3, sections 6 to 10; paper 1, section 9" -- so
+// those must still HAVE declared ids, which a shrunken corpus cannot satisfy.
+//
+// WHAT IS NOT ASSERTED, and why. Document ORDER is not. The snapshot is in manifest order, and the
+// page renders a footnote apparatus at the end: measured on mass-energy, s0-fn1 and s0-fn2 are
+// declared between the paragraphs that mark them and served after every paragraph, so 20 of 25 ids
+// are "out of order" on a page that is correct. An order assertion would go red on correct work,
+// which is the brittleness AGENTS.md warns about in "A Count Is For Reporting, Not For Asserting".
+// ---------------------------------------------------------------------------
+
+/** The four papers, by name, so a paper dropped from the corpus fails rather than shrinking the run. */
+export const COMPLETE_TEXT_PAPERS: readonly string[] = Object.freeze([
+  "mass-energy",
+  "light-quanta",
+  "brownian-motion",
+  "special-relativity",
+]);
+
+/**
+ * The sections AGENTS.md names as the ones that must never disappear: paper 3's 6 to 10 and paper
+ * 1's 9. Each must still have declared ids, which is what stops a shrunken corpus reading as
+ * complete.
+ */
+export const REQUIRED_SECTIONS: ReadonlyMap<string, readonly number[]> = new Map([
+  ["special-relativity", Object.freeze([6, 7, 8, 9, 10])],
+  ["light-quanta", Object.freeze([9])],
+]);
+
+/**
+ * Which numbered section an id belongs to, or null for the masthead, part headings and closing
+ * blocks. Anchored on purpose: a prefix test would read `s10-p1` as section 1, which would let
+ * section 1 stand in for the section 10 the floor above is looking for.
+ */
+export function sectionOfId(id: string): number | null {
+  const match = /^(?:eq-)?s(\d+)(?:-|$)/u.exec(id);
+  return match ? Number(match[1]) : null;
+}
+
+/**
+ * A REAL `id` ATTRIBUTE, not the substring.
+ *
+ * Measured on the built export: the bare substring `id="s0-p2"` occurs three times inside
+ * `<main>` on mass-energy's German face, and only ONE of them is an anchor. The other two are
+ * `data-block-id="s0-p2"`. A substring test would therefore be satisfied by the data attributes
+ * alone, on a page where every anchor a reader's fragment link needs had been dropped.
+ */
+export function anchorsId(html: string, id: string): boolean {
+  return new RegExp(`(?:^|[\\s"'])id="${id.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}"`, "u").test(
+    html,
+  );
+}
+
+/** The contents of `<main id="main">`, or "" when the page has no such element. */
+export function mainContents(html: string): string {
+  const open = html.indexOf('<main id="main">');
+  if (open < 0) return "";
+  const close = html.indexOf("</main>", open);
+  return html.slice(open, close < 0 ? undefined : close);
+}
+
+export function declaredSourceBlockIds(root: string, paper: string): string[] {
+  const file = join(root, "content/source-blocks", paper, "manifest.ids.snapshot.txt");
+  if (!existsSync(file)) return [];
+  return readFileSync(file, "utf8")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line !== "" && !line.startsWith("#"));
+}
+
+export async function fourCompletePaperTexts(
+  fetcher: Fetcher,
+  staticDir: string,
+  root: string,
+  papers: readonly string[] = COMPLETE_TEXT_PAPERS,
+): Promise<CandidateCheckResult> {
+  const name = "four-complete-paper-texts";
+  if (papers.length !== 4)
+    return {
+      name,
+      status: "failed",
+      detail: `This check is named for four papers and was given ${papers.length}. A shorter list is a smaller denominator, not a passing candidate.`,
+    };
+
+  const lines: string[] = [];
+  const failures: string[] = [];
+  let anchored = 0;
+  let declared = 0;
+  for (const paper of papers) {
+    const path = `/papers/${paper}/view/german/`;
+    const ids = declaredSourceBlockIds(root, paper);
+    if (ids.length === 0) {
+      failures.push(
+        `${paper}: no source-block ids are declared, so there is nothing to look for on ${path}`,
+      );
+      lines.push(`${paper}: 0 declared`);
+      continue;
+    }
+    declared += ids.length;
+
+    // The served bytes must be the uploaded bytes FIRST; only then is reading the local copy the
+    // same thing as reading the response, which is what lets the id scan run against a local file.
+    const report = await servedAsBuilt(fetcher, staticDir, [path]);
+    if (report.problems.length > 0) {
+      failures.push(`${paper}: ${report.problems.join("; ")}`);
+      lines.push(`${paper}: ${ids.length} declared, page not served as built`);
+      continue;
+    }
+    const main = mainContents(readFileSync(localFile(staticDir, path), "utf8"));
+    if (main.length === 0) {
+      failures.push(`${paper}: ${path} serves no <main id="main">, so no id can be anchored in it`);
+      lines.push(`${paper}: ${ids.length} declared, no main element`);
+      continue;
+    }
+    const missing = ids.filter((id) => !anchorsId(main, id));
+    anchored += ids.length - missing.length;
+
+    const sections = new Set(
+      ids.map((id) => sectionOfId(id)).filter((section): section is number => section !== null),
+    );
+    const requiredSections = REQUIRED_SECTIONS.get(paper) ?? [];
+    const absentSections = requiredSections.filter((section) => !sections.has(section));
+
+    lines.push(
+      `${paper}: ${ids.length - missing.length} of ${ids.length} declared ids anchored in <main> on ${path}; ${sections.size} numbered section(s)${
+        requiredSections.length > 0
+          ? `, of which the required ${requiredSections.join(", ")} are ${absentSections.length === 0 ? "all declared" : `MISSING ${absentSections.join(", ")}`}`
+          : ""
+      }`,
+    );
+    if (missing.length > 0)
+      failures.push(
+        `${paper}: ${missing.length} declared id(s) are not anchored on the served page, among them ${missing.slice(0, 6).join(", ")}`,
+      );
+    if (absentSections.length > 0)
+      failures.push(
+        `${paper}: the corpus declares no ids for section(s) ${absentSections.join(", ")}, which AGENTS.md names as sections that must never disappear`,
+      );
+  }
+
+  const examined = `Examined ${papers.length} papers and ${declared} declared source-block ids, ${anchored} of them anchored: ${lines.join(" — ")}.`;
+  if (declared === 0)
+    return {
+      name,
+      status: "failed",
+      detail: `No declared source-block id was found for any of the ${papers.length} papers, so this check examined nothing. ${examined}`,
+    };
+  if (failures.length > 0)
+    return { name, status: "failed", detail: `${failures.join(" | ")}. ${examined}` };
+  return {
+    name,
+    status: "passed",
+    detail: `All ${declared} source blocks the build compiled for the four papers are anchored in the served text a reader without JavaScript receives. ${examined} "Complete" here means the deployment serves the whole compiled corpus; it is not a claim that any edition is editorially complete, translated or reviewed.`,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -587,12 +762,7 @@ export async function runCandidateChecksAgainst(
   const routes = candidateRoutes(staticDir);
   const results: CandidateCheckResult[] = [];
 
-  results.push(
-    notRun(
-      "four-complete-paper-texts",
-      "0 of 4 papers are complete (plan §17.7), so there is no complete paper text to load. The paper pages that exist are checked by paper-pages-served-as-built.",
-    ),
-  );
+  results.push(await fourCompletePaperTexts(fetcher, staticDir, root));
 
   results.push(
     identityResult(
@@ -853,7 +1023,14 @@ async function noJavaScriptSourceText(
   const open = html.indexOf('<main id="main">');
   const close = open < 0 ? -1 : html.indexOf("</main>", open);
   const main = open < 0 ? "" : html.slice(open, close < 0 ? undefined : close);
-  const missing = ids.filter((id) => !main.includes(`id="${id}"`));
+  // ANCHORED, because the bare substring is not the attribute. Measured on the built export:
+  // `id="s0-p2"` occurs three times inside this page's <main> and only one is an anchor; the other
+  // two are `data-block-id="s0-p2"`. Until dispatch 474 this line was `main.includes('id="' + id +
+  // '"')`, which the data attributes alone satisfy, so it would have passed on a page that had lost
+  // every anchor a no-script reader's fragment link needs. Same rule as AGENTS.md's "A Count Used
+  // As Evidence Is Anchored": an unanchored pattern fails toward whatever text sits near the thing
+  // being measured.
+  const missing = ids.filter((id) => !anchorsId(main, id));
   if (ids.length === 0 || missing.length > 0) {
     return {
       name,
@@ -899,51 +1076,64 @@ export function summarizeCandidateChecks(results: readonly CandidateCheckResult[
  * and a declared check that starts passing makes its declaration stale, which
  * `staleNotRunnableDeclarations` reports so the entry is removed rather than left to rot.
  *
- * ONE ENTRY REMAINS, and it used to be three. `accepted-wasm-result-per-capability` and
- * `deliberate-typed-refusal` were declared here because "a browser must execute a page and this
- * harness is HTTP only"; a browser probe now drives both (dispatch 462), so their declarations were
- * removed in the same commit that implemented them, which is exactly what
- * `staleNotRunnableDeclarations` exists to force. What remains has no complete paper to load
- * because no paper is complete.
+ * THE MAP IS NOW EMPTY, and it held three entries two dispatches ago. All three were implemented
+ * rather than re-argued: `accepted-wasm-result-per-capability` and `deliberate-typed-refusal` by the
+ * browser probe (dispatch 462), and `four-complete-paper-texts` by asking the deployment for the
+ * compiled corpus instead of waiting for an editorially complete edition (dispatch 474). Each
+ * declaration was removed in the same commit that implemented its check, which is what
+ * `staleNotRunnableDeclarations` exists to force.
+ *
+ * AN EMPTY MAP IS NOT A DEAD MECHANISM. Every check in the catalogue runs today, so any
+ * `not-available` result is now UNDECLARED and blocks a promotion, which is the strictest the
+ * predicate has ever been. The three functions below take the declarations as a parameter so both
+ * branches stay tested while nothing in production is declared.
  */
 export const DECLARED_NOT_RUNNABLE: ReadonlyMap<string, { reason: string; bead: string }> = new Map(
-  [
-    [
-      "four-complete-paper-texts",
-      {
-        reason:
-          "No paper is complete, so there is no complete paper text to load. The paper pages that do exist are checked byte-for-byte by paper-pages-served-as-built, which runs.",
-        bead: "am-definition-of-done-as-code-8w1c",
-      },
-    ],
-  ],
+  [],
 );
 
 /**
  * Checks that did not run and are not declared above: the ones that must block a promotion, because
  * nobody has said why they are silent.
  */
+export type NotRunnableDeclarations = ReadonlyMap<string, { reason: string; bead: string }>;
+
+/*
+ * WHY THESE THREE TAKE THE DECLARATIONS AS AN ARGUMENT (dispatch 474). DECLARED_NOT_RUNNABLE is now
+ * EMPTY, and a predicate that reads an empty module constant cannot be tested for the behaviour that
+ * matters: that a DECLARED silence is tolerated and an UNDECLARED one is not. With the map empty,
+ * every test of the declared branch would pass vacuously, and the machinery would quietly stop being
+ * guarded at exactly the moment nothing in production exercises it -- which is AGENTS.md's "a gate's
+ * own test must not live only in the lane that gate controls". Production callers pass nothing and
+ * get the real map; the tests pass a synthetic one and keep both branches alive for the next check
+ * that goes silent.
+ */
 export function undeclaredNotRunnable(
   results: readonly CandidateCheckResult[],
+  declarations: NotRunnableDeclarations = DECLARED_NOT_RUNNABLE,
 ): CandidateCheckResult[] {
-  return results.filter((r) => r.status === "not-available" && !DECLARED_NOT_RUNNABLE.has(r.name));
+  return results.filter((r) => r.status === "not-available" && !declarations.has(r.name));
 }
 
 /** Declarations for checks that now pass, or that are not in the catalogue at all: remove them. */
-export function staleNotRunnableDeclarations(results: readonly CandidateCheckResult[]): string[] {
+export function staleNotRunnableDeclarations(
+  results: readonly CandidateCheckResult[],
+  declarations: NotRunnableDeclarations = DECLARED_NOT_RUNNABLE,
+): string[] {
   const byName = new Map(results.map((r) => [r.name, r.status]));
-  return [...DECLARED_NOT_RUNNABLE.keys()]
-    .filter((name) => byName.get(name) !== "not-available")
-    .sort();
+  return [...declarations.keys()].filter((name) => byName.get(name) !== "not-available").sort();
 }
 
 /**
  * True when every check either passed or is a DECLARED not-runnable one. A failure is still a
  * failure, an undeclared silence is still a failure, and an empty result set is never a pass.
  */
-export function allCandidateChecksPassed(results: readonly CandidateCheckResult[]): boolean {
+export function allCandidateChecksPassed(
+  results: readonly CandidateCheckResult[],
+  declarations: NotRunnableDeclarations = DECLARED_NOT_RUNNABLE,
+): boolean {
   if (results.length === 0) return false;
   if (results.some((r) => r.status === "failed")) return false;
-  if (undeclaredNotRunnable(results).length > 0) return false;
+  if (undeclaredNotRunnable(results, declarations).length > 0) return false;
   return results.some((r) => r.status === "passed");
 }

@@ -181,11 +181,15 @@ function notAvailableCheck(name: string, description: string): CandidateCheckDef
 }
 
 /**
- * Named candidate checks a verified release runs against the deployed,
- * unpromoted candidate before promotion. Every entry starts `not-available`
- * and stays that way until am-rel-candidate-checks-kc7y implements it; the
- * registry exists now so the release script and its tests can depend on a
- * stable, named shape instead of an ad hoc list assembled per release.
+ * The NAMED SHAPE of the candidate checks, not the checks themselves.
+ *
+ * Every entry here is `not-available` by construction, and the release does NOT run this registry:
+ * `scripts/verified-production-deploy.ts` calls `runCandidateChecksAgainst` in
+ * `scripts/candidate-checks.ts`, where all nine checks are implemented and none is not-available any
+ * more (dispatches 462 and 474 closed the last three). This list survives because the release
+ * script's tests depend on a stable, named shape, and because `CandidateCheckDefinition` carries the
+ * one-sentence description a release manifest quotes. Read it as a catalogue of names, never as a
+ * statement about what a candidate proved: for that, read the results the other module returns.
  */
 export const CANDIDATE_CHECK_REGISTRY: readonly CandidateCheckDefinition[] = [
   notAvailableCheck(

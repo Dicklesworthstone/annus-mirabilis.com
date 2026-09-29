@@ -7,15 +7,22 @@ import {
   type AcceptedWasmObservation,
   acceptedWasmResultPerCapability,
   allCandidateChecksPassed,
+  anchorsId,
   type CandidateBrowserProbe,
+  COMPLETE_TEXT_PAPERS,
   candidateRoutes,
   DECLARED_NOT_RUNNABLE,
+  declaredSourceBlockIds,
   deliberateTypedRefusal,
   type Fetcher,
+  fourCompletePaperTexts,
+  type NotRunnableDeclarations,
   REQUEST_ATTEMPTS,
+  REQUIRED_SECTIONS,
   type RefusalObservation,
   runCandidateChecksAgainst,
   scriptChunks,
+  sectionOfId,
   servedAsBuilt,
   staleNotRunnableDeclarations,
   summarizeCandidateChecks,
@@ -102,6 +109,39 @@ function fixture() {
     join(root, "content/source-blocks/mass-energy/manifest.ids.snapshot.txt"),
     "s0-p1\neq-s0-d1\n",
   );
+
+  // FOUR PAPERS, because four-complete-paper-texts is named for four and a shorter fixture would
+  // make it fail here for the fixture's reason rather than the candidate's. Each paper declares a
+  // few ids and serves a German face anchoring exactly those, including the sections AGENTS.md says
+  // must never disappear: relativity's 6 to 10 and light-quanta's 9.
+  const OTHER_PAPERS: Readonly<Record<string, readonly string[]>> = {
+    "light-quanta": ["s0-p1", "s9-p1", "eq-s9-d1"],
+    "brownian-motion": ["s0-p1", "s1-p1"],
+    "special-relativity": [
+      "s0-p1",
+      "s6-p1",
+      "s7-p1",
+      "s8-p1",
+      "s9-p1",
+      "s10-p1",
+      "closing-dateline",
+    ],
+  };
+  for (const [paper, ids] of Object.entries(OTHER_PAPERS)) {
+    mkdirSync(join(root, "content/source-blocks", paper), { recursive: true });
+    writeFileSync(
+      join(root, "content/source-blocks", paper, "manifest.ids.snapshot.txt"),
+      `${ids.join("\n")}\n`,
+    );
+    // The data attribute is here on purpose: it is what an unanchored substring test would match
+    // instead of the anchor, and the fixture's `deadAnchors` negative below removes only the anchor.
+    put(
+      `papers/${paper}/view/german/index.html`,
+      `<main id="main">${ids
+        .map((id) => `<p id="${id}" data-block-id="${id}">Quelle ${id}</p>`)
+        .join("")}</main>`,
+    );
+  }
   const served = new Map<string, { status: number; body: Buffer }>();
   const fetcher: Fetcher = async (path) => {
     const override = served.get(path);
@@ -136,7 +176,7 @@ describe("candidate checks (am-rel-candidate-checks-kc7y)", () => {
     const { staticDir, root, fetcher } = fixture();
     const results = await runCandidateChecksAgainst({ fetcher, staticDir, root });
     expect(results.map((r) => [r.name, r.status])).toEqual([
-      ["four-complete-paper-texts", "not-available"],
+      ["four-complete-paper-texts", "passed"],
       ["paper-pages-served-as-built", "passed"],
       ["representative-foundations", "passed"],
       ["every-instrument-bundle", "passed"],
@@ -161,8 +201,8 @@ describe("candidate checks (am-rel-candidate-checks-kc7y)", () => {
       "accepted-wasm-result-per-capability",
       "deliberate-typed-refusal",
     ]);
-    expect(summarizeCandidateChecks(results)).toContain("6 passed");
-    expect(summarizeCandidateChecks(results)).toContain("3 not run");
+    expect(summarizeCandidateChecks(results)).toContain("7 passed");
+    expect(summarizeCandidateChecks(results)).toContain("2 not run");
     expect(byName(results, "every-instrument-bundle")?.detail).toContain("1 pages, 1 chunks");
   });
 
@@ -334,6 +374,24 @@ describe("a check that cannot run blocks a promotion unless somebody said why (a
   });
   const declared = [...DECLARED_NOT_RUNNABLE.keys()];
 
+  /*
+   * A SYNTHETIC DECLARATION MAP, because the real one is now EMPTY (dispatch 474). All three of its
+   * entries were implemented rather than re-argued, so nothing in production is declared, and every
+   * test of the "a declared silence is tolerated" branch would now pass vacuously against the real
+   * map. The machinery still has to work for the next check that goes silent, so these tests hand it
+   * a map of their own; the tests that assert the PRODUCTION state read the real one.
+   */
+  const synthetic: NotRunnableDeclarations = new Map([
+    [
+      "a-check-somebody-declared",
+      {
+        reason:
+          "It needs a thing that does not exist yet, and the reason is stated at the length this repository requires so that a declaration cannot be a shrug.",
+        bead: "am-a-bead-that-owns-closing-it",
+      },
+    ],
+  ]);
+
   test("the declared check is the one the catalogue actually leaves not-available", async () => {
     // Against the real catalogue, not a hand-built list: a declaration for a check that now runs,
     // or for one that is not in the catalogue at all, is stale and must be removed rather than left.
@@ -347,9 +405,27 @@ describe("a check that cannot run blocks a promotion unless somebody said why (a
       expect(results.find((r) => r.name === name)?.status).toBe("not-available");
   });
 
+  test("the production map is empty, and that is consistent with every check running", async () => {
+    // The invariant, rather than a count: a check may be silent only if it is declared. With no
+    // declarations left, NO check in the catalogue may report not-available when it is given
+    // everything it needs. That is asserted against the real catalogue, so a check that goes quiet
+    // later fails here as well as in the predicate.
+    expect(declared).toEqual([]);
+    const { staticDir, root, fetcher } = fixture();
+    const results = await runCandidateChecksAgainst({
+      fetcher,
+      staticDir,
+      root,
+      probe: fakeProbe(),
+    });
+    expect(results.filter((r) => r.status === "not-available")).toEqual([]);
+    expect(results.length).toBeGreaterThan(8);
+  });
+
   test("every declaration carries a reason and an owning bead", () => {
-    expect(declared.length).toBeGreaterThan(0);
-    for (const [name, { reason, bead }] of DECLARED_NOT_RUNNABLE) {
+    // Vacuous against an empty production map by design, so it runs against the synthetic one too:
+    // the shape a future declaration must have is still asserted somewhere that can fail.
+    for (const [name, { reason, bead }] of [...DECLARED_NOT_RUNNABLE, ...synthetic]) {
       expect(reason.length, `${name} has no reason`).toBeGreaterThan(60);
       expect(bead, `${name} names no bead`).toMatch(/^am-[a-z0-9-]+$/);
     }
@@ -364,22 +440,27 @@ describe("a check that cannot run blocks a promotion unless somebody said why (a
   });
 
   test("a DECLARED check that fails still blocks the promotion", () => {
-    const name = declared[0] ?? "";
+    const name = [...synthetic.keys()][0] ?? "";
     expect(name.length).toBeGreaterThan(0);
-    expect(allCandidateChecksPassed([passed("a"), failed(name)])).toBe(false);
+    // Declared, and silent: tolerated. Declared, and FAILING: still refused.
+    expect(allCandidateChecksPassed([passed("a"), silent(name)], synthetic)).toBe(true);
+    expect(allCandidateChecksPassed([passed("a"), failed(name)], synthetic)).toBe(false);
   });
 
   test("a declaration cannot make a promotion pass over nothing", () => {
     // Every check declared and none run: no evidence at all, so not a pass. This is the shape the
     // repository keeps finding, a green computed over an empty population.
-    expect(allCandidateChecksPassed(declared.map(silent))).toBe(false);
+    expect(allCandidateChecksPassed([...synthetic.keys()].map(silent), synthetic)).toBe(false);
     expect(allCandidateChecksPassed([])).toBe(false);
   });
 
   test("a declared check that starts passing is reported as a stale declaration", () => {
-    const name = declared[0] ?? "";
-    const results = [passed("a"), passed(name), ...declared.slice(1).map(silent)];
-    expect(staleNotRunnableDeclarations(results)).toEqual([name]);
+    // This is the mechanism that forced all three declarations out as they were implemented.
+    const name = [...synthetic.keys()][0] ?? "";
+    expect(staleNotRunnableDeclarations([passed("a"), silent(name)], synthetic)).toEqual([]);
+    expect(staleNotRunnableDeclarations([passed("a"), passed(name)], synthetic)).toEqual([name]);
+    // And a declaration for a check that is not in the catalogue at all is stale too.
+    expect(staleNotRunnableDeclarations([passed("a")], synthetic)).toEqual([name]);
   });
 });
 
@@ -668,7 +749,7 @@ describe("the two checks that need a browser (dispatch 462)", () => {
       probe: fakeProbe(),
     });
     expect(results.map((r) => [r.name, r.status])).toEqual([
-      ["four-complete-paper-texts", "not-available"],
+      ["four-complete-paper-texts", "passed"],
       ["paper-pages-served-as-built", "passed"],
       ["representative-foundations", "passed"],
       ["every-instrument-bundle", "passed"],
@@ -681,6 +762,149 @@ describe("the two checks that need a browser (dispatch 462)", () => {
     expect(staleNotRunnableDeclarations(results)).toEqual([]);
     expect(undeclaredNotRunnable(results)).toEqual([]);
     expect(allCandidateChecksPassed(results)).toBe(true);
-    expect(summarizeCandidateChecks(results)).toContain("8 passed");
+    expect(summarizeCandidateChecks(results)).toContain("9 passed");
+    expect(summarizeCandidateChecks(results)).toContain("0 not run");
+  });
+});
+
+describe("four complete paper texts (dispatch 474)", () => {
+  test("it names the papers, the ids and the required sections it examined", async () => {
+    const { staticDir, root, fetcher } = fixture();
+    const result = await fourCompletePaperTexts(fetcher, staticDir, root);
+    expect(result.status).toBe("passed");
+    // The denominator is printed, per paper, so a shrunken corpus is visible in the release record.
+    expect(result.detail).toContain("Examined 4 papers and 14 declared source-block ids");
+    for (const paper of ["mass-energy", "light-quanta", "brownian-motion", "special-relativity"])
+      expect(result.detail).toContain(paper);
+    expect(result.detail).toContain("required 6, 7, 8, 9, 10 are all declared");
+    // And it refuses the claim its own name invites.
+    expect(result.detail).toContain("not a claim that any edition is editorially complete");
+  });
+
+  test("a declared id that is not anchored on the served page fails", async () => {
+    const { staticDir, root, fetcher, put } = fixture();
+    // Relativity's section 8 paragraph loses its anchor and keeps its data attribute, which is the
+    // exact shape of the closing sections AGENTS.md says must never disappear behind the headlines.
+    put(
+      "papers/special-relativity/view/german/index.html",
+      '<main id="main"><p id="s0-p1">a</p><p id="s6-p1">b</p><p id="s7-p1">c</p><p data-block-id="s8-p1">d</p><p id="s9-p1">e</p><p id="s10-p1">f</p><p id="closing-dateline">g</p></main>',
+    );
+    const result = await fourCompletePaperTexts(fetcher, staticDir, root);
+    expect(result.status).toBe("failed");
+    expect(result.detail).toContain("1 declared id(s) are not anchored");
+    expect(result.detail).toContain("s8-p1");
+    // It still says what it examined, so the other three papers' counts are readable.
+    expect(result.detail).toContain("Examined 4 papers");
+  });
+
+  test("a data attribute is not an anchor, which the substring test it replaced could not tell", () => {
+    // THE MEASURED NEGATIVE. On the built export the bare substring `id="s0-p2"` occurs three times
+    // inside mass-energy's <main> and only one is an anchor; the other two are `data-block-id`. The
+    // no-JavaScript check tested the substring until dispatch 474, so it would have passed on a page
+    // that had lost every anchor a reader's fragment link needs.
+    const anchored = '<p id="s8-p1" data-block-id="s8-p1">x</p>';
+    const dataOnly = '<p data-block-id="s8-p1" data-align-sentences-control="true">x</p>';
+    expect(anchorsId(anchored, "s8-p1")).toBe(true);
+    expect(anchorsId(dataOnly, "s8-p1")).toBe(false);
+    expect(dataOnly.includes('id="s8-p1"')).toBe(true);
+  });
+
+  test("a section id is read whole, so section 1 cannot stand in for section 10", () => {
+    expect(sectionOfId("s1-p1")).toBe(1);
+    expect(sectionOfId("s10-p1")).toBe(10);
+    expect(sectionOfId("eq-s10-d12")).toBe(10);
+    expect(sectionOfId("s1-fn1")).toBe(1);
+    expect(sectionOfId("s9")).toBe(9);
+    expect(sectionOfId("masthead-title")).toBe(null);
+    expect(sectionOfId("closing-ack")).toBe(null);
+    expect(sectionOfId("part-1")).toBe(null);
+  });
+
+  test("a corpus that lost a whole section is not complete, even at 100 percent", async () => {
+    // The vacuity this check is designed against: every declared id present is 100% of whatever the
+    // snapshot holds, so a corpus that dropped sections 8 to 10 would still read as complete. The
+    // named sections must still HAVE declared ids, and a shrunken corpus cannot satisfy that.
+    const { staticDir, root, fetcher, put } = fixture();
+    const shrunk = ["s0-p1", "s6-p1", "s7-p1"];
+    writeFileSync(
+      join(root, "content/source-blocks/special-relativity/manifest.ids.snapshot.txt"),
+      `${shrunk.join("\n")}\n`,
+    );
+    put(
+      "papers/special-relativity/view/german/index.html",
+      `<main id="main">${shrunk.map((id) => `<p id="${id}">x</p>`).join("")}</main>`,
+    );
+    const result = await fourCompletePaperTexts(fetcher, staticDir, root);
+    expect(result.status).toBe("failed");
+    expect(result.detail).toContain("declares no ids for section(s) 8, 9, 10");
+    // Every id it did declare WAS anchored, so a check without the floor would have passed here.
+    expect(result.detail).toContain("3 of 3 declared ids anchored");
+  });
+
+  test("nothing to examine is a failure, in each of its shapes", async () => {
+    const { staticDir, root, fetcher } = fixture();
+    // An empty repository: no snapshot for any paper, so no id can be looked for.
+    const bareRoot = mkdtempSync(join(tmpdir(), "am-cc-empty-root-"));
+    const onNothing = await fourCompletePaperTexts(fetcher, staticDir, bareRoot);
+    expect(onNothing.status).toBe("failed");
+    expect(onNothing.detail).toContain("examined nothing");
+
+    // A shorter paper list is a smaller denominator, not a passing candidate.
+    const onThree = await fourCompletePaperTexts(fetcher, staticDir, root, [
+      "mass-energy",
+      "light-quanta",
+      "brownian-motion",
+    ]);
+    expect(onThree.status).toBe("failed");
+    expect(onThree.detail).toContain("named for four papers and was given 3");
+  });
+
+  test("a page that is not served as built fails before its ids are counted", async () => {
+    const { staticDir, root, fetcher, served } = fixture();
+    served.set("/papers/light-quanta/view/german/", {
+      status: 200,
+      body: Buffer.from(
+        '<main id="main"><p id="s0-p1">a</p><p id="s9-p1">b</p><p id="eq-s9-d1">c</p></main>',
+      ),
+    });
+    const result = await fourCompletePaperTexts(fetcher, staticDir, root);
+    expect(result.status).toBe("failed");
+    expect(result.detail).toContain("light-quanta");
+    expect(result.detail).toContain("page not served as built");
+  });
+
+  test("a page with no main element cannot anchor anything", async () => {
+    const { staticDir, root, fetcher, put } = fixture();
+    put(
+      "papers/brownian-motion/view/german/index.html",
+      '<div id="s0-p1">a</div><div id="s1-p1">b</div>',
+    );
+    const result = await fourCompletePaperTexts(fetcher, staticDir, root);
+    expect(result.status).toBe("failed");
+    expect(result.detail).toContain('serves no <main id="main">');
+  });
+
+  test("the papers and required sections are the ones AGENTS.md names", () => {
+    // The rows are data and this keeps them honest against the real corpus rather than the fixture:
+    // paper 3's sections 6 to 10 and paper 1's section 9 must be declared in the repository today.
+    expect([...COMPLETE_TEXT_PAPERS]).toEqual([
+      "mass-energy",
+      "light-quanta",
+      "brownian-motion",
+      "special-relativity",
+    ]);
+    expect(REQUIRED_SECTIONS.get("special-relativity")).toEqual([6, 7, 8, 9, 10]);
+    expect(REQUIRED_SECTIONS.get("light-quanta")).toEqual([9]);
+    let total = 0;
+    for (const paper of COMPLETE_TEXT_PAPERS) {
+      const ids = declaredSourceBlockIds(process.cwd(), paper);
+      expect(ids.length).toBeGreaterThan(20);
+      total += ids.length;
+      const sections = new Set(ids.map(sectionOfId));
+      for (const required of REQUIRED_SECTIONS.get(paper) ?? [])
+        expect(sections.has(required)).toBe(true);
+    }
+    // Reported, not frozen: the corpus grows, and an equality here would break on correct work.
+    expect(total).toBeGreaterThan(500);
   });
 });
