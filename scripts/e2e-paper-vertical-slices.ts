@@ -273,7 +273,7 @@ export async function main() {
      * is still correct for the ones it does not cover. A paper without a journey is not quietly
      * passed: it is named in the failure, which is what this harness has always done.
      */
-    const { PAPER_JOURNEYS } = await import("./e2e/journeys/massEnergy.ts");
+    const { PAPER_JOURNEYS } = await import("./e2e/journeys/index.ts");
     const { runPaperJourney } = await import("./e2e/paperJourney.ts");
     const selected = PAPER_JOURNEYS.filter(
       (entry) =>

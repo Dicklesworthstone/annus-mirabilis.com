@@ -1,5 +1,14 @@
-import type { Page } from "playwright";
-import type { PaperE2EJourney, PaperE2EJourneyStepKind } from "../paper-e2e-contract.ts";
+import type { PaperE2EJourney } from "../paper-e2e-contract.ts";
+import {
+  enterSourcePassage,
+  type JourneyActions,
+  openFoundation,
+  operateInstrument,
+  returnToArgument,
+  returnToSource,
+  selectLinkedTerm,
+  switchFace,
+} from "./steps.ts";
 
 /*
  * ONE PAPER'S CONTINUOUS JOURNEY, AS SCENARIO SOURCE (am-test-e2e-harness-bqmh, dispatch 441).
@@ -86,203 +95,19 @@ const MASS_ENERGY_JOURNEY_SHAPE: PaperE2EJourney = {
 
 export const MASS_ENERGY_JOURNEY: PaperE2EJourney = Object.freeze(MASS_ENERGY_JOURNEY_SHAPE);
 
-export type JourneyStepOutcome = Readonly<{ expected: unknown; actual: unknown }>;
-export type JourneyAction = (page: Page, baseUrl: string) => Promise<JourneyStepOutcome>;
-
+/*
+ * The paper's own names, and nothing about how a step is driven: that is steps.ts, shared with the
+ * other three journeys. What is asserted here is this paper's content - its opening sentence, the
+ * laboratory of its two ledgers and the control that moves the observer to rest.
+ */
 const SENTENCE = "s0-p1-s1";
-const PAPER = "/papers/mass-energy";
 
-/** Present in the DOM, which is what an anchor target must be; visibility is a separate question. */
-async function requirePresent(page: Page, selector: string, what: string): Promise<number> {
-  const count = await page.locator(selector).count();
-  if (count === 0) throw new Error(`${what}: no element matches ${selector}`);
-  return count;
-}
-
-export const MASS_ENERGY_ACTIONS: Readonly<Record<PaperE2EJourneyStepKind, JourneyAction>> =
-  Object.freeze({
-    async "enter-source-passage"(page, baseUrl) {
-      await page.goto(`${baseUrl}${PAPER}/view/parallel/#${SENTENCE}`, { waitUntil: "load" });
-      await requirePresent(page, `#${SENTENCE}`, "entry sentence");
-      const text = (await page.locator(`#${SENTENCE}`).first().innerText()).trim();
-      if (text.length === 0) throw new Error("the entry sentence rendered no text");
-      return {
-        expected: `#${SENTENCE} carries the paper's first sentence`,
-        actual: text.slice(0, 80),
-      };
-    },
-
-    async "switch-face"(page, baseUrl) {
-      // The face chooser's own link, not a hand-built URL: the reader's route is the thing under test.
-      const link = page.locator(`a[href="${PAPER}/view/english/"]`).first();
-      if ((await link.count()) === 0)
-        throw new Error("the parallel face offers no link to English");
-      await link.click();
-      await page.waitForURL(/\/view\/english\//u, { timeout: 15000 });
-      await requirePresent(page, `#${SENTENCE}`, "the same sentence on the English face");
-      void baseUrl;
-      return { expected: "the English face keeps the reader's place", actual: page.url() };
-    },
-
-    async "open-foundation"(page, baseUrl) {
-      /*
-       * A foundation OPENS IN PLACE rather than navigating, which took two wrong drafts to establish.
-       * The markup is `<a href="/foundations/work-energy/" data-foundation="work-energy"
-       * data-return-caption="...">`, so the first draft asserted `[data-foundation-panel]` existed
-       * after the click and PASSED without the click meaning anything: the paper page already carries
-       * eighteen such panels. The second waited for a navigation to /foundations/work-energy/ and
-       * timed out. Measured: the click rewrites the URL to `?open=foundation%3Awork-energy` and makes
-       * `[data-foundation-panel="work-energy"]` visible, one panel of the eighteen. So the assertion
-       * names the panel and the parameter.
-       */
-      await page.goto(`${baseUrl}${PAPER}/`, { waitUntil: "load" });
-      const link = page.locator("a[data-foundation][data-return-caption]").first();
-      if ((await link.count()) === 0)
-        throw new Error("the explanation offers no foundation link carrying a return caption");
-      const foundationId = (await link.getAttribute("data-foundation")) ?? "";
-      await link.scrollIntoViewIfNeeded();
-      await link.click({ timeout: 10000, noWaitAfter: true });
-      const panel = page.locator(`[data-foundation-panel="${foundationId}"]`);
-      await panel.waitFor({ state: "visible", timeout: 15000 });
-      if (!page.url().includes(`open=foundation%3A${foundationId}`))
-        throw new Error(`the panel opened but the URL does not name it: ${page.url()}`);
-      const open = await page.locator("[data-foundation-panel]:visible").count();
-      if (open !== 1) throw new Error(`${open} foundation panels are open, not one`);
-      return {
-        expected: `the ${foundationId} lesson opens in place`,
-        actual: page.url().slice(-48),
-      };
-    },
-
-    async "return-to-argument"(page, baseUrl) {
-      /*
-       * A CORRECTION TO WHAT THIS STEP CLAIMED (dispatch 446).
-       *
-       * This step used to fail, and the report said there was NO reader-facing route back. That was
-       * wrong, and the mistake was in the measurement rather than in the edition: I searched for
-       * `[data-return]` attributes that do not exist and for return-like controls INSIDE
-       * `[data-foundation-panel]`, when the controls live in the dialog's chrome beside the panel.
-       * They are there and they work - measured: "Return to the exact step" closes the panel, drops
-       * ?open= from the address and restores focus to the exact trigger the reader left
-       * (a#me-entrance-work-energy). AGENTS.md's "no prerequisite dead ends" was not broken.
-       *
-       * What WAS missing is smaller and is now fixed in the reader: every foundation link carries an
-       * authored `data-return-caption` - here "Return to comparing the two energy accounts." - which
-       * reached the client and was rendered nowhere, so a reader saw a generic label where a sentence
-       * about their own argument had been written for them. The panel now renders it as the route
-       * itself, and this step asserts the authored words, the return, and the focus.
-       */
-      void baseUrl;
-      const authored = await page
-        .locator("a[data-foundation][data-return-caption]")
-        .first()
-        .getAttribute("data-return-caption");
-      const trigger = await page
-        .locator("a[data-foundation][data-return-caption]")
-        .first()
-        .getAttribute("id");
-      const authoredRoute = page.locator(
-        "[data-return-caption-line]:visible [data-return-caption-link]",
-      );
-      const generic = page.locator("button[data-reader-close]");
-      let used: string;
-      if ((await authoredRoute.count()) > 0) {
-        const shown = (await authoredRoute.first().innerText()).trim();
-        if (shown !== (authored ?? "").trim())
-          throw new Error(`the way back reads "${shown}" where the link authored "${authored}"`);
-        used = `the authored route: ${shown}`;
-        await authoredRoute.first().click({ timeout: 10000, noWaitAfter: true });
-      } else if ((await generic.count()) > 0) {
-        // The generic control is a real route back, so the journey is not broken by its label; the
-        // authored caption is asserted above only when the panel renders it.
-        used = `the generic route: ${(await generic.first().innerText()).trim()}`;
-        await generic.first().click({ timeout: 10000, noWaitAfter: true });
-      } else {
-        throw new Error("the open lesson offers no route back to the argument");
-      }
-      // The return is only a return if the lesson closes, the address stops naming it, and the
-      // reader's focus is where they left it.
-      await page.waitForFunction(
-        () => document.querySelectorAll("[data-foundation-panel]:not([hidden])").length === 0,
-        undefined,
-        { timeout: 15000 },
-      );
-      if (page.url().includes("open=foundation"))
-        throw new Error(`the lesson closed but the address still names it: ${page.url()}`);
-      const focused = await page.evaluate(() => document.activeElement?.id ?? "");
-      if (trigger && focused !== trigger)
-        throw new Error(`focus landed on "${focused}" rather than the trigger "${trigger}"`);
-      return { expected: "the reader is back at the interrupted argument, focused", actual: used };
-    },
-
-    async "operate-instrument"(page, baseUrl) {
-      await page.goto(`${baseUrl}/lab/me-01/`, { waitUntil: "load" });
-      const skip = page.getByRole("button", { name: "Skip prediction" });
-      if (await skip.isVisible().catch(() => false)) await skip.click();
-      const statusBefore = (await page.locator("p.status-line").first().innerText()).replace(
-        /\s+/gu,
-        " ",
-      );
-      const control = page.getByRole("button", {
-        name: "Stationary observer (v = 0)",
-        exact: true,
-      });
-      if (!(await control.isVisible().catch(() => false)))
-        throw new Error("the instrument offers no control to operate");
-      await control.click();
-      // The accepted status line spaces its announcements by a second on purpose, so wait for a new
-      // one rather than for the old one to hold still.
-      for (let attempt = 0; attempt < 20; attempt += 1) {
-        const now = (await page.locator("p.status-line").first().innerText()).replace(/\s+/gu, " ");
-        if (now !== statusBefore && now.length > 0)
-          return {
-            expected: "operating the instrument accepts a new state",
-            actual: now.slice(0, 90),
-          };
-        await page.waitForTimeout(250);
-      }
-      throw new Error("the instrument accepted no new state after its control was operated");
-    },
-
-    async "select-linked-term"(page, baseUrl) {
-      /*
-       * A selectable term is `button.term-chip[data-quantity-id]`, and the served HTML marks it
-       * `disabled` until hydration, which is the repository's own no-script pattern. My first draft
-       * looked for `[data-term]` and found 135 of them: those are the highlighted spans in the
-       * mathematics, not the control. So this waits for the chip to become enabled, which is also the
-       * only honest way to know the page hydrated.
-       */
-      await page.goto(`${baseUrl}${PAPER}/`, { waitUntil: "load" });
-      const chip = page.locator("button.term-chip[data-quantity-id]").first();
-      if ((await chip.count()) === 0) throw new Error("the paper offers no term chip to select");
-      const quantityId = await chip.getAttribute("data-quantity-id");
-      await chip.scrollIntoViewIfNeeded();
-      let enabled = false;
-      for (let attempt = 0; attempt < 24 && !enabled; attempt += 1) {
-        enabled = await chip.isEnabled().catch(() => false);
-        if (!enabled) await page.waitForTimeout(250);
-      }
-      if (!enabled)
-        throw new Error(`the ${quantityId} chip never became enabled, so it never hydrated`);
-      await chip.click({ timeout: 10000 });
-      const pressed = await chip.getAttribute("aria-pressed");
-      if (pressed !== "true")
-        throw new Error(`selecting ${quantityId} left aria-pressed=${pressed}`);
-      return { expected: "a selected term is marked pressed", actual: quantityId };
-    },
-
-    async "return-to-source"(page, baseUrl) {
-      await page.goto(`${baseUrl}${PAPER}/view/parallel/#${SENTENCE}`, { waitUntil: "load" });
-      await requirePresent(page, `#${SENTENCE}`, "the entry sentence on return");
-      const text = (await page.locator(`#${SENTENCE}`).first().innerText()).trim();
-      if (text.length === 0) throw new Error("the entry sentence rendered no text on return");
-      return { expected: "the journey ends where it began", actual: `#${SENTENCE}` };
-    },
-  });
-
-export const PAPER_JOURNEYS: readonly Readonly<{
-  journey: PaperE2EJourney;
-  actions: Readonly<Record<PaperE2EJourneyStepKind, JourneyAction>>;
-}>[] = Object.freeze([
-  Object.freeze({ journey: MASS_ENERGY_JOURNEY, actions: MASS_ENERGY_ACTIONS }),
-]);
+export const MASS_ENERGY_ACTIONS: JourneyActions = Object.freeze({
+  "enter-source-passage": enterSourcePassage("mass-energy", SENTENCE),
+  "switch-face": switchFace("mass-energy", SENTENCE),
+  "open-foundation": openFoundation("mass-energy"),
+  "return-to-argument": returnToArgument,
+  "operate-instrument": operateInstrument("me-01", "Stationary observer (v = 0)"),
+  "select-linked-term": selectLinkedTerm("mass-energy"),
+  "return-to-source": returnToSource("mass-energy", SENTENCE),
+});

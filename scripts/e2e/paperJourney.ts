@@ -1,5 +1,5 @@
 import { type Browser, type BrowserContext, chromium, type Page } from "playwright";
-import type { JourneyAction } from "./journeys/massEnergy.ts";
+import type { JourneyAction } from "./journeys/steps.ts";
 import {
   PAPER_E2E_VIEWPORTS,
   type PaperE2EEvent,
