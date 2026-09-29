@@ -31,24 +31,35 @@ const dirs = (dir: string): string[] =>
         .sort()
     : [];
 
-/** Every built reading face under out/papers, as repository-relative paths, in a stable order. */
+/**
+ * Every built reading page under out/papers, as repository-relative paths, in a stable order.
+ *
+ * WHAT A READER CAN REACH, NOT THREE URL SHAPES (dispatch 469). This walked
+ * <paper>/index.html, <paper>/view/<face>/ and <paper>/<section>/view/gloss/, which is 60 of the
+ * 257 pages the build writes under out/papers. The other 197 were never opened by the row, and
+ * measured on the 21:22 build 23 of them were over the 250,000-byte budget: the largest,
+ * special-relativity/s3/view/parallel/, at 417.3 kB gzipped from 2.9 MB raw, and
+ * brownian-motion/s4/index.html at 299.2 kB in no record at all. The row passed the whole time,
+ * which is the same shape as a gate that cannot fail: a budget that never looks at two thirds of
+ * its population reports a clean number about the third it does look at.
+ *
+ * So the population is now every index.html under out/papers, found by walking the tree rather
+ * than by naming shapes, because the shapes are what went stale: the row was widened once already
+ * from four pages to the faces, and a section's own faces were added to the build afterwards
+ * without anyone widening it again. A walk has no shape to go stale.
+ */
 export function builtReadingFacePaths(root: string): string[] {
   const papersDir = resolve(root, "out/papers");
   const out: string[] = [];
   const add = (path: string) => {
     if (existsSync(path)) out.push(relative(root, path));
   };
-  for (const paper of dirs(papersDir)) {
-    const paperDir = join(papersDir, paper);
-    add(join(paperDir, "index.html"));
-    for (const face of dirs(join(paperDir, "view")))
-      add(join(paperDir, "view", face, "index.html"));
-    for (const section of dirs(paperDir)) {
-      if (section === "view") continue;
-      add(join(paperDir, section, "view", "gloss", "index.html"));
-    }
-  }
-  return out;
+  const walk = (dir: string): void => {
+    add(join(dir, "index.html"));
+    for (const child of dirs(dir)) walk(join(dir, child));
+  };
+  for (const paper of dirs(papersDir)) walk(join(papersDir, paper));
+  return [...new Set(out)].sort();
 }
 
 /**

@@ -31,22 +31,33 @@ const face = (name: string, gzipBytes: number): MeasuredFace => ({ name, gzipByt
 const GERMAN = "out/papers/special-relativity/view/german/index.html";
 
 describe("the reading faces the budget measures", () => {
-  test("the default page, every /view/ face, and each section's gloss page; nothing else", () => {
+  test("every page a reader can reach under out/papers, at any depth, and nothing outside it", () => {
+    // THIS TEST ENCODED THE OLD POPULATION (dispatch 469). It read "the default page, every /view/
+    // face, and each section's gloss page; nothing else", and its own fixture listed a section's
+    // document page and a section's German face under the comment "neither is measured" - which was
+    // true of the walk and false of the reader, who can open both. Those two pages were 299.2 kB
+    // and 352.8 kB gzipped on the 21:22 build while the row reported a pass, because the row never
+    // opened them. The assertion is now the property rather than the shape list: what the build
+    // writes under out/papers is what gets measured, so a route added later cannot escape by not
+    // matching a pattern nobody remembered to widen.
     const root = outWith([
       "out/papers/special-relativity/index.html",
       "out/papers/special-relativity/view/german/index.html",
       "out/papers/special-relativity/view/gloss/index.html",
       "out/papers/special-relativity/s3/view/gloss/index.html",
-      // A section's other pages serve the paper's own faces, and a section's document page is
-      // not a face: neither is measured.
       "out/papers/special-relativity/s3/index.html",
       "out/papers/special-relativity/s3/view/german/index.html",
+      // Outside out/papers, so still not measured by this row.
+      "out/lab/bm-01/index.html",
+      "out/index.html",
     ]);
     expect(builtReadingFacePaths(root)).toEqual([
       "out/papers/special-relativity/index.html",
+      "out/papers/special-relativity/s3/index.html",
+      "out/papers/special-relativity/s3/view/german/index.html",
+      "out/papers/special-relativity/s3/view/gloss/index.html",
       "out/papers/special-relativity/view/german/index.html",
       "out/papers/special-relativity/view/gloss/index.html",
-      "out/papers/special-relativity/s3/view/gloss/index.html",
     ]);
     expect(builtReadingFacePaths(outWith([]))).toEqual([]);
   });
@@ -130,7 +141,9 @@ describe("the verdict", () => {
     const real = loadReadingFaceRecords(process.cwd());
     expect(real.length).toBeGreaterThan(0);
     for (const r of real) {
-      expect(r.face).toMatch(/^out\/papers\/[a-z-]+\/(view\/[a-z]+\/)?index\.html$/);
+      // A section segment is allowed since dispatch 469: 23 of the recorded faces are a section's
+      // own page or one of its faces, which the row could not see until its population was widened.
+      expect(r.face).toMatch(/^out\/papers\/[a-z-]+\/(s\d+\/)?(view\/[a-z]+\/)?index\.html$/);
       // A record is for a face the budget cannot hold; one within the budget would only loosen it.
       expect(r.gzipBytes).toBeGreaterThan(READING_FACE_BUDGET_BYTES);
       expect(r.reason.trim().length).toBeGreaterThan(20);

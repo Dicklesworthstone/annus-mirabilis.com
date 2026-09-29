@@ -1,5 +1,5 @@
 {
-  "about": "Reading faces over the 250,000-byte gzipped budget, each held to its measured size (scripts/perf/readingFaces.ts, row reading-face-html of scripts/run-perf-budgets.ts). A recorded face fails when it grows past its size; an unrecorded face fails over 250,000. The budget is not raised. First measured on a build of 54c8cbf4 on 2026-09-26; relativity's German, English and parallel faces and light quanta's parallel face re-measured on a build of 9f3c915d the same day, gzip level 9, the random build id blanked (dispatch 254); light quanta's parallel face re-measured on a build of f27080a9 the same day, after its inline formulas were drawn in colour (dispatch 272); relativity's German, English, parallel and results faces re-measured on builds of 61f173a7 with and without dispatch 277's change, after its inline formulas were drawn in colour.",
+  "about": "Reading faces over the 250,000-byte gzipped budget, each held to its measured size (scripts/perf/readingFaces.ts, row reading-face-html of scripts/run-perf-budgets.ts). A recorded face fails when it grows past its size; an unrecorded face fails over 250,000. The budget is not raised. First measured on a build of 54c8cbf4 on 2026-09-26; relativity's German, English and parallel faces and light quanta's parallel face re-measured on a build of 9f3c915d the same day, gzip level 9, the random build id blanked (dispatch 254); light quanta's parallel face re-measured on a build of f27080a9 the same day, after its inline formulas were drawn in colour (dispatch 272); relativity's German, English, parallel and results faces re-measured on builds of 61f173a7 with and without dispatch 277's change, after its inline formulas were drawn in colour. WIDENED 2026-09-29 (dispatch 469): the row walked three URL shapes and measured 60 of the 257 pages under out/papers; it now walks the tree. The 23 faces recorded with that date were over the budget before the row could see them, so the count rose because the measurement did, not because the site did. Each is held to the size measured on the 21:22 build.",
   "faces": [
     {
       "face": "out/papers/special-relativity/view/german/index.html",
@@ -25,6 +25,121 @@
       "face": "out/papers/light-quanta/view/parallel/index.html",
       "gzipBytes": 277985,
       "reason": "The German and English faces of light quanta side by side, each whole, with 52 coloured printed displays and their chips; the flight data carries the tree twice. It measured 245,579 on the build of 54c8cbf4 and 253,448 on the build of 9f3c915d, over the budget by the page-turn marks, printed footnote marks, misprint markers and period-word notes of dispatches 255, 258, 262 and 264. It measured 254,861 on the build of 4b368f1b and 267,090 on the build of f27080a9, once its 262 inline formulas were drawn in the paper's colours (59b4deaf, dispatch 272, the owner's request): about 5,000 bytes are the inspector's facts for the 35 quantities they name, about 4,500 the quantity ids on each coloured glyph, and the rest KaTeX's span around each marked glyph. Whole-paper by TanElk's ruling (mail 40857). Re-measured on a build of af0f86e3 on 2026-09-27, after \"Explain this equation\" landed under every printed display. Inlining every level of every explanation had taken this face to 670,646; dd7bd466 moved the levels a reader has not opened into a fragment fetched on first expansion, and what remains on the face is one link per equation. Recorded because the growth is that link, measured at 3.3 per cent, not text that could be cut. Re-measured on a build of 739a8135 on 2026-09-27 at 277,985 bytes, 2,113 past the record and 65 past the 2,048-byte allowance. 197 of those bytes are the no-script readings stylesheet (fd4ddf81), measured exactly by compressing this built page with and without it: it is what makes R0 and the laboratories' R2 reachable when scripts do not run, and 199 bytes for three readings is the trade, stated rather than buried. The remaining 1,916 accrued across the commits between d5b82b41 and 739a8135 and I could NOT attribute them individually without a baseline build, so this record says so instead of guessing; the face's own docblock notes that chunk hashes and flight-data chunk paths alone move the same content by a few hundred gzipped bytes. The 250 kB budget in AGENTS.md remains violated by this face at 2.8 times over, which is am-snn0's subject and is not resolved by re-measuring it here."
+    },
+    {
+      "face": "out/papers/special-relativity/s3/view/parallel/index.html",
+      "gzipBytes": 427342,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 6.98 MB raw, of which 64% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 7857 KaTeX instances over 128,016 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s10/view/parallel/index.html",
+      "gzipBytes": 414465,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 6.67 MB raw, of which 64% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 7166 KaTeX instances over 123,229 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s6/view/parallel/index.html",
+      "gzipBytes": 403607,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 6.72 MB raw, of which 64% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6892 KaTeX instances over 122,913 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s8/view/parallel/index.html",
+      "gzipBytes": 396879,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 6.56 MB raw, of which 64% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 7046 KaTeX instances over 119,793 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s7/view/parallel/index.html",
+      "gzipBytes": 391995,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 6.50 MB raw, of which 64% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6986 KaTeX instances over 117,721 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s9/view/parallel/index.html",
+      "gzipBytes": 385774,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 6.41 MB raw, of which 64% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6643 KaTeX instances over 116,199 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s4/view/parallel/index.html",
+      "gzipBytes": 383069,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 6.23 MB raw, of which 64% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6714 KaTeX instances over 114,515 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s5/view/parallel/index.html",
+      "gzipBytes": 382982,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 6.31 MB raw, of which 64% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6795 KaTeX instances over 114,631 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s1/view/parallel/index.html",
+      "gzipBytes": 373286,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 6.12 MB raw, of which 65% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6534 KaTeX instances over 114,920 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s2/view/parallel/index.html",
+      "gzipBytes": 371782,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 6.09 MB raw, of which 65% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6464 KaTeX instances over 113,935 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s0/view/parallel/index.html",
+      "gzipBytes": 363762,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 5.97 MB raw, of which 65% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6287 KaTeX instances over 111,605 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s10/view/english/index.html",
+      "gzipBytes": 351971,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 5.86 MB raw, of which 65% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6282 KaTeX instances over 106,318 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s9/view/english/index.html",
+      "gzipBytes": 351941,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 5.86 MB raw, of which 65% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6282 KaTeX instances over 106,296 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s6/view/english/index.html",
+      "gzipBytes": 351858,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 5.86 MB raw, of which 65% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6282 KaTeX instances over 106,314 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s8/view/english/index.html",
+      "gzipBytes": 351803,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 5.86 MB raw, of which 65% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6282 KaTeX instances over 106,316 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s4/view/english/index.html",
+      "gzipBytes": 351800,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 5.86 MB raw, of which 65% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6282 KaTeX instances over 106,318 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s7/view/english/index.html",
+      "gzipBytes": 351798,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 5.86 MB raw, of which 65% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6282 KaTeX instances over 106,306 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s0/view/english/index.html",
+      "gzipBytes": 351797,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 5.86 MB raw, of which 65% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6282 KaTeX instances over 106,325 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s2/view/english/index.html",
+      "gzipBytes": 351797,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 5.86 MB raw, of which 65% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6282 KaTeX instances over 106,308 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s1/view/english/index.html",
+      "gzipBytes": 351793,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 5.86 MB raw, of which 65% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6282 KaTeX instances over 106,302 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s3/view/english/index.html",
+      "gzipBytes": 351777,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 5.86 MB raw, of which 65% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6282 KaTeX instances over 106,319 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/special-relativity/s5/view/english/index.html",
+      "gzipBytes": 351751,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 5.86 MB raw, of which 65% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 6282 KaTeX instances over 106,298 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
+    },
+    {
+      "face": "out/papers/brownian-motion/s4/index.html",
+      "gzipBytes": 306334,
+      "reason": "Measured for the first time when the row's population widened from 60 pages to every page under out/papers (dispatch 469). 2.88 MB raw, of which 59% is the hydration flight payload inside <script>, carrying the element tree a second time; the tree is 2802 KaTeX instances over 176,538 visible characters. Not a regression: the page is this size on the 21:22 build and was this size before the row could see it."
     }
   ]
 }
