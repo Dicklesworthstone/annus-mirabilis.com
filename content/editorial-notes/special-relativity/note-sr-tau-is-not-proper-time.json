@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-sr-tau-is-not-proper-time",
+  "author": { "id": "agent:SapphireCastle", "kind": "model", "modelId": "claude-opus-5" },
+  "reviewState": "draft",
+  "historicalStatement": "paper-asserts",
+  "claim": "Einstein's τ is the time coordinate of the moving system k, and not what a later physics calls proper time. §3 introduces it as the time of the moving system and uses it as a coordinate from §3 to §10, alongside ξ, η and ζ. Reading it as proper time turns a statement about coordinates into a statement about what one clock reads along its own path, which is a different claim and not this paper's.",
+  "sourceSupport": [
+    { "citationId": "ap-17-891", "locator": "§3, printed p. 898", "role": "primary" }
+  ],
+  "affectedIds": ["s3-p3"],
+  "evidence": "The locator is the notation concordance's, which records τ as first printed on p. 898 in §3 and binds it to the quantity coordinateTimeMoving with the note 'tau is the moving system's coordinate time. It is never properTimeElapsed.' That concordance entry was checked against the plate of printed page 898 (public/figures/plates/pages/ap-17-891/898-1280.webp) by eye, from the page image and not the text layer, by agent:ConcordanceCheck-special-relativity on 2026-09-24. This note carries that verification forward and adds none of its own: no plate was read for it, and it is an agent check rather than a human review."
+}

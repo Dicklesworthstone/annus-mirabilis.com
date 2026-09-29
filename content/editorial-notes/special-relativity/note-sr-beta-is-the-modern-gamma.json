@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-sr-beta-is-the-modern-gamma",
+  "author": { "id": "agent:SapphireCastle", "kind": "model", "modelId": "claude-opus-5" },
+  "reviewState": "draft",
+  "historicalStatement": "paper-asserts",
+  "claim": "Einstein's β is the factor a modern text writes γ. The paper defines it on printed page 900 as 1/√(1 − (v/V)²) and defines it again on page 902. A reader who carries the modern habit across will read β as the speed ratio v/c, which is what β means today and is not what it means here; the same letter is Wien's constant in the light-quanta paper, so it collides twice over.",
+  "sourceSupport": [
+    { "citationId": "ap-17-891", "locator": "§3, printed pp. 900 and 902", "role": "primary" }
+  ],
+  "affectedIds": ["s3-p14"],
+  "evidence": "The locator and both definitions are the notation concordance's, which records β as first printed on p. 900, defined there as β = 1/√(1 − (v/V)²) and defined again on p. 902, bound to the Lorentz factor and flagged as colliding with the modern speedRatio and with the light-quanta paper's wienConstantBeta. That entry was checked against the plates of printed pages 900 and 902 by eye, from the page images and not the text layer, by agent:ConcordanceCheck-special-relativity on 2026-09-24. This note carries that verification forward and adds none of its own: no plate was read for it, and it is an agent check rather than a human review."
+}
