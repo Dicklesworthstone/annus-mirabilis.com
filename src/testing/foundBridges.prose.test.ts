@@ -6,6 +6,7 @@ import {
   exactSquare,
   FLUX_SECONDS,
   flatDensity,
+  INSTANT_SPEED,
   JARS,
   linearEstimate,
   MINUTE_DISPLACEMENT_MICROMETRES,
@@ -13,6 +14,8 @@ import {
   netChange,
   PARTICLE_ENDS,
   PRINTED_CORNERS,
+  PRINTED_POSITIONS,
+  PRINTED_SPEEDS,
   RAMP,
   SPREAD,
   SQUARE_SIDE,
@@ -96,6 +99,30 @@ const [flux1, flux2] = FLUX_SECONDS as unknown as readonly [
 ];
 
 const CLAIMS: readonly Claim[] = [
+  {
+    key: "BALL",
+    slug: "derivatives",
+    why: "the chord the first panel draws over a whole second",
+    forms: [[`${PRINTED_SPEEDS[0]} m/s`, "average"]],
+  },
+  {
+    key: "BALL",
+    slug: "derivatives",
+    why: "where that chord's shorter cousin meets the curve",
+    forms: [[`reaches ${PRINTED_POSITIONS[1]} m`]],
+  },
+  {
+    key: "BALL",
+    slug: "derivatives",
+    why: "the third point of the second panel, already on the line",
+    forms: [[`${PRINTED_SPEEDS[2]} m/s`]],
+  },
+  {
+    key: "BALL",
+    slug: "derivatives",
+    why: "the tangent's slope, which the second panel draws as the line they settle onto",
+    forms: [[`close in on ${INSTANT_SPEED} m/s`]],
+  },
   // Every figure number added after dispatch 419, keyed on the constants its drawing reads and
   // matched against the sentence in the record that states it. All six lessons print these in
   // prose, so a change to any constant moves the figure away from a paragraph as well as from a
@@ -446,7 +473,7 @@ describe("a bridge figure's numbers and its lesson's prose", () => {
     // A run that examined nothing reads exactly like a clean one, so the population is asserted.
     expect(CLAIMS.length).toBeGreaterThan(0);
     expect(records.size).toBeGreaterThan(1);
-    expect(keys.size).toBe(12);
+    expect(keys.size).toBe(13);
     expect(problems).toEqual([]);
   });
 
