@@ -7,6 +7,12 @@ import {
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { ScaleBar } from "../../visuals/kit/ScaleBar.tsx";
 import type { RepresentationScale } from "../../visuals/kit/types.ts";
+import {
+  AwaitingNote,
+  type PredictPlaceholder,
+  type PredictResponse,
+  placeholderOf,
+} from "./predictPlaceholder.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
 
 export function TracerPaths({ snapshot, zoom }: { snapshot: AcceptedSnapshot; zoom: number }) {
@@ -89,20 +95,6 @@ export function TracerPaths({ snapshot, zoom }: { snapshot: AcceptedSnapshot; zo
  * axes and titles in view and spread this on the bars, the curves and the ranges, which show the
  * spread the prompts ask about.
  */
-type PredictResponse = Readonly<{ "data-predict-response": "shown" | "awaiting" }>;
-type PredictPlaceholder = Readonly<{ "data-predict-placeholder": "shown" | "awaiting" }>;
-
-/**
- * The attribute that shows a note WHERE the result is waiting (dispatch 502, predict.css). It
- * mirrors the gate's own attribute rather than testing `awaiting` in React, because the server
- * renders `awaiting` for every gated lab and a reader without JavaScript is served that markup
- * with the result visible. An ungated plot gets no attribute and is unchanged.
- */
-const placeholderOf = (response?: PredictResponse): PredictPlaceholder | undefined =>
-  response === undefined
-    ? undefined
-    : { "data-predict-placeholder": response["data-predict-response"] };
-
 /**
  * What the caption says while the result waits. The caption's description of the marks is gated
  * with the marks, so this stands in its place rather than leaving the caption empty: an empty
@@ -115,27 +107,6 @@ function AwaitingCaption({ placeholder }: { placeholder: PredictPlaceholder | un
     <span {...placeholder}>
       This plot appears when you choose an answer above, say you have one in mind, or skip.
     </span>
-  );
-}
-
-/** The note inside an empty frame, in the plot's own coordinates. */
-function AwaitingNote({
-  placeholder,
-  y,
-}: {
-  placeholder: PredictPlaceholder | undefined;
-  y: number;
-}) {
-  if (placeholder === undefined) return null;
-  return (
-    <>
-      <text {...placeholder} x="155" y={y} textAnchor="middle">
-        Choose an answer above
-      </text>
-      <text {...placeholder} x="155" y={y + 18} textAnchor="middle">
-        to see the result
-      </text>
-    </>
   );
 }
 
@@ -169,7 +140,7 @@ export function TracerHistogram({
         <text x="35" y="20">
           Fraction in each bin
         </text>
-        <AwaitingNote placeholder={placeholderOf(response)} y={110} />
+        <AwaitingNote placeholder={placeholderOf(response)} x={155} y={110} />
         <g {...response}>
           {Array.from({ length: observed.length }, (_, i) => {
             const xPos = x(i);
@@ -283,7 +254,7 @@ export function TracerScaling({
           aria-label={`${kind.label}. Time uses a logarithmic axis; the vertical axis is ${log ? "logarithmic" : "linear"}. Exact values are in the following table.`}
         >
           <path d="M40 35V205H270" className="axis" />
-          <AwaitingNote placeholder={placeholderOf(response)} y={110} />
+          <AwaitingNote placeholder={placeholderOf(response)} x={155} y={110} />
           <g {...response}>
             <path d={path(sample)} className="curve" />
             <path d={path(model)} className="comparison-curve" />
