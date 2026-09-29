@@ -528,6 +528,8 @@ const GOOD_REFUSAL: RefusalObservation = {
   readerText:
     "Requested calculation not accepted This time step is too large for the explicit diffusion scheme. This step gives a diffusion number D·Δt/Δx² of 42.944, and the explicit scheme stays stable only up to 0.5. FrankenSim's diffusion1d_frames refused the step before computing anything.",
   nonFiniteTokens: [],
+  // What a reader who cannot see the screen is told: BM-06's notice is role="alert" (dispatch 519).
+  announcedBy: "alert",
   pageErrors: [],
 };
 
@@ -906,5 +908,32 @@ describe("four complete paper texts (dispatch 474)", () => {
     }
     // Reported, not frozen: the corpus grows, and an equality here would break on correct work.
     expect(total).toBeGreaterThan(500);
+  });
+});
+
+describe("a refusal a reader cannot see (dispatch 519)", () => {
+  /**
+   * The defect this check could not see. Driven on the built export, BM-06's refusal carried its
+   * typed code, a 428-character sentence, two admissible repairs and the kept settings, and sat in
+   * NO live region. Every assertion this check made was true, so it was green on exactly the page
+   * where a reader who cannot see the screen received nothing at all.
+   */
+  test("a refusal in no live region fails, however good its sentence is", async () => {
+    const result = await deliberateTypedRefusal(
+      fakeProbe({ refusal: { ...GOOD_REFUSAL, announcedBy: "none" } }),
+    );
+    expect(result.status).toBe("failed");
+    expect(result.detail).toContain("no live region");
+    // Everything else about this fixture is correct, which is the point: the sentence, the code and
+    // the absence of nonfinite tokens all still hold.
+    expect(result.detail).not.toContain("carried no reader-facing sentence");
+    expect(result.detail).toContain("announced by none");
+  });
+
+  test("a passing run says how the refusal reached a reader who cannot see it", async () => {
+    const result = await deliberateTypedRefusal(fakeProbe());
+    expect(result.status).toBe("passed");
+    expect(result.detail).toContain("announced by alert");
+    expect(result.detail).toContain("an announcement for a reader who cannot see it");
   });
 });

@@ -38,8 +38,47 @@ import type {
 /** The origin the page believes it is on. It resolves nowhere, which is the point. */
 const SYNTHETIC_ORIGIN = "https://candidate-under-test.invalid";
 
-/** Long enough for a worker to load the artifact and publish a snapshot on a slow machine. */
-const SETTLE_MS = 8000;
+/**
+ * How long a press may take to produce a result before the run gives up on it.
+ *
+ * THE BUG THIS EXISTS FOR (dispatch 504). Three candidates refused BM-01 on the same line while the
+ * laboratory worked in every other condition. Driven against one real deployment, one build and
+ * this same probe, changing only the ORDER of the targets:
+ *
+ *   bm-01 first -> bm-01 FAILS with 0 wasm requests; bm-05 and bm-06 pass
+ *   bm-01 last  -> bm-05 FAILS with 0 wasm requests; bm-06 and bm-01 pass
+ *
+ * The defect followed the POSITION, not the laboratory. Every byte here arrives through its own
+ * `vercel curl` subprocess, about 300ms each; the first lab driven pays for its worker chunk AND
+ * the WASM artifact with a cold cache, and 8000ms of sleep ran out before the fetch was even made.
+ * BM-01 refused three candidates for being first in WASM_CAPABILITY_TARGETS.
+ *
+ * Waiting for the RESULT rather than for the clock is both stricter and faster: a lab that answers
+ * in 300ms is not waited on for 8 seconds, and one that needs 20 is not called empty. Nothing about
+ * what counts as an accepted result changes; a run that reaches this deadline still fails, and says
+ * it waited.
+ */
+export const RESULT_DEADLINE_MS = 45000;
+
+/**
+ * Polls `settled` until it is true, or the deadline passes. Returns the wait, for the record.
+ *
+ * It takes a `sleep` rather than a Page so the property can be proved without a browser, in a lane
+ * this gate does not control: the gate runs in the release pipeline, and a gate whose only proof
+ * lives downstream of itself disappears at the moment it fails open.
+ */
+export async function waitForResult(
+  sleep: (ms: number) => Promise<void>,
+  settled: () => Promise<boolean>,
+  deadlineMs: number = RESULT_DEADLINE_MS,
+): Promise<number> {
+  const started = Date.now();
+  while (Date.now() - started < deadlineMs) {
+    if (await settled()) return Date.now() - started;
+    await sleep(250);
+  }
+  return Date.now() - started;
+}
 
 const CONTENT_TYPES: Readonly<Record<string, string>> = Object.freeze({
   html: "text/html; charset=utf-8",
@@ -212,7 +251,14 @@ export async function createCandidateBrowserProbe(
         else {
           await apply.scrollIntoViewIfNeeded();
           await apply.click({ timeout: 15000 });
-          await page.waitForTimeout(SETTLE_MS);
+          const waited = await waitForResult(
+            (ms) => page.waitForTimeout(ms),
+            async () => (await readLabels(page)).labels.includes("frankensim"),
+          );
+          if (waited >= RESULT_DEADLINE_MS)
+            errors.push(
+              `${target.lab} produced no frankensim label within ${Math.round(RESULT_DEADLINE_MS / 1000)}s of the press`,
+            );
         }
       } catch (error) {
         errors.push(`driving ${target.lab} failed: ${String(error).slice(0, 200)}`);
@@ -242,7 +288,10 @@ export async function createCandidateBrowserProbe(
         else {
           await apply.scrollIntoViewIfNeeded();
           await apply.click({ timeout: 15000 });
-          await page.waitForTimeout(SETTLE_MS);
+          await waitForResult(
+            (ms) => page.waitForTimeout(ms),
+            async () => (await page.locator("[data-refusal-code]").count()) > 0,
+          );
         }
       } catch (error) {
         errors.push(`driving ${target.lab} failed: ${String(error).slice(0, 200)}`);
@@ -265,6 +314,19 @@ export async function createCandidateBrowserProbe(
             .join(" ")
             .slice(0, 600),
           nonFiniteTokens: [...new Set(text.match(/NaN|Infinity/gu) ?? [])],
+          /*
+           * The live region a reader who cannot see the screen would be told through. Read from the
+           * refusal element itself or its nearest ancestor, because that is exactly what an
+           * assistive technology follows, and reported as "none" when there is no such region.
+           */
+          announcedBy: (() => {
+            const marked = document.querySelector("[data-refusal-code]");
+            const region = marked?.closest("[aria-live],[role='status'],[role='alert']");
+            if (!region) return "none";
+            return (
+              region.getAttribute("aria-live") ?? region.getAttribute("role") ?? "a live region"
+            );
+          })(),
         };
       });
       await page.close();
@@ -273,6 +335,7 @@ export async function createCandidateBrowserProbe(
         codes: Object.freeze([...observed.codes]),
         readerText: observed.readerText,
         nonFiniteTokens: Object.freeze([...observed.nonFiniteTokens]),
+        announcedBy: observed.announcedBy,
         pageErrors: Object.freeze([...errors]),
       });
     },

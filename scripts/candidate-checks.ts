@@ -494,6 +494,17 @@ export type RefusalObservation = Readonly<{
   codes: readonly string[];
   readerText: string;
   nonFiniteTokens: readonly string[];
+  /**
+   * How the refusal reaches a reader who cannot see it: the live region containing it, named by its
+   * role or aria-live, or "none".
+   *
+   * WHY THE CHECK NEEDED THIS (dispatch 519). Driven on the built export, BM-06's refusal carried
+   * its typed code, a 428-character sentence, two admissible repairs and the kept settings, and sat
+   * in NO live region: a reader pressing Apply was told nothing and the experiment appeared to have
+   * done nothing. This check was GREEN on exactly that page, because it read the DOM's text, where
+   * the defect is invisible. A check inherits the silence of whatever it reads.
+   */
+  announcedBy: string;
   pageErrors: readonly string[];
 }>;
 
@@ -714,7 +725,7 @@ export async function deliberateTypedRefusal(
   const missing = target.mustSay.filter(
     (fragment) => !observed.readerText.toLowerCase().includes(fragment.toLowerCase()),
   );
-  const examined = `Drove ${target.lab} to its declared refusal: codes [${observed.codes.join(",") || "none"}]; reader sentence ${observed.readerText.length} characters; nonfinite tokens [${observed.nonFiniteTokens.join(",") || "none"}].`;
+  const examined = `Drove ${target.lab} to its declared refusal: codes [${observed.codes.join(",") || "none"}]; reader sentence ${observed.readerText.length} characters; nonfinite tokens [${observed.nonFiniteTokens.join(",") || "none"}]; announced by ${observed.announcedBy}.`;
   const failures: string[] = [];
   if (observed.pageErrors.length > 0) failures.push(observed.pageErrors.join(" | "));
   if (!observed.codes.includes(target.expectedCode))
@@ -731,12 +742,16 @@ export async function deliberateTypedRefusal(
     failures.push(
       `the page shows ${observed.nonFiniteTokens.join(" and ")} where a value would be`,
     );
+  if (observed.announcedBy === "none")
+    failures.push(
+      "the refusal is in no live region, so a reader who cannot see the screen is told nothing when the model refuses",
+    );
   if (failures.length > 0)
     return { name, status: "failed", detail: `${failures.join(" | ")}. ${examined}` };
   return {
     name,
     status: "passed",
-    detail: `${target.lab} refused a deliberately illegal step as the typed ${target.expectedCode}, with a sentence a reader can read and no NaN, Infinity or silent clamp. ${examined} ${target.why}`,
+    detail: `${target.lab} refused a deliberately illegal step as the typed ${target.expectedCode}, with a sentence a reader can read, an announcement for a reader who cannot see it, and no NaN, Infinity or silent clamp. ${examined} ${target.why}`,
   };
 }
 
