@@ -26,18 +26,14 @@ import {
   type PreparedMe01Example,
 } from "../../../experiments/me01/session.ts";
 import { ME01_TAPE } from "../../../experiments/me01/tape.ts";
-import {
-  playWalkthrough,
-  type WalkthroughPlay,
-} from "../../../experiments/permalink/playWalkthrough.ts";
 import { deriveHostExecution } from "../../../experiments/provenance/executionState.ts";
 import { instrumentRootAttributes } from "../../../experiments/store/identityAttributes.ts";
-import { tapePath } from "../../../reader/sitePaths.ts";
 import { ExperimentSettings } from "../ExperimentSettings.tsx";
 import { KEPT_RESULT } from "../keptResult.ts";
 import { ShowTheCode } from "../ShowTheCode.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
+import { WalkthroughControl } from "../WalkthroughControl.tsx";
 import { TwoLedgersPlot } from "./TwoLedgersPlot.tsx";
 import "../labControls.css";
 import "./me01.css";
@@ -99,8 +95,6 @@ export function TwoLedgersLab({
   const [linkNote, setLinkNote] = useState("");
   const [linkPending, setLinkPending] = useState(false);
   const [sharedUrl, setSharedUrl] = useState("");
-  // The recorded walkthrough this laboratory has, played into this very session (am-2rl9).
-  const [played, setPlayed] = useState<WalkthroughPlay | null>(null);
   // Predict mode (am-inst-predict-mode-ti7m): the result waits for the reader's answer.
   const gate = usePredictGate("me-01", ME01_PREDICT_PROMPTS);
 
@@ -171,25 +165,6 @@ export function TwoLedgersLab({
     }
     setLinkPending(false);
     apply(parsed);
-  }
-
-  /*
-   * Play the walkthrough this laboratory records, into this session.
-   *
-   * The fields follow the result, because a form left showing the old numbers over new results is a
-   * defect this repository has already paid for: 12 of 12 laboratories with an Apply button lost
-   * restored settings that way. A refusal leaves the laboratory exactly as it was and says why.
-   */
-  function playRecordedWalkthrough(tapeId: string) {
-    const outcome = playWalkthrough(ME01_TAPE, session, tapeId);
-    setPlayed(outcome);
-    if (outcome.kind !== "played") return;
-    setError("");
-    setRefusalCode(null);
-    setLinkNote("");
-    setLinkPending(false);
-    const next = session.acceptedParameters() as Me01Parameters;
-    setDraft(toMe01Draft(next));
   }
 
   type NumericKey = "frameSpeed" | "emissionAngle" | "emittedEnergyRestFrame";
@@ -394,24 +369,15 @@ export function TwoLedgersLab({
               Copy a link to these settings
             </button>
             {/*
-              The recorded walkthrough, played here rather than read off its page. Without JavaScript
-              this button is hidden by the root layout's noscript rule and the page's own link to the
-              walkthrough stays, which is the reader's route in that case (LabTapes, server-rendered).
-              No text sits inside the button, because that rule hides what a button wraps.
+              The recorded walkthrough, played into this session. Shared with the other four
+              laboratories whose walkthroughs replay (dispatch 436); it was inline here from
+              00ac4861 and the contract is identical per laboratory.
             */}
-            <button
-              type="button"
-              className="secondary"
-              onClick={() => playRecordedWalkthrough("the-two-pulses")}
-              data-walkthrough="the-two-pulses"
-            >
-              Play the recorded walkthrough
-            </button>
-            {sharedUrl && (
-              <p className="fine">
-                Link copied: <code>{sharedUrl}</code>
-              </p>
-            )}
+            <WalkthroughControl
+              binding={ME01_TAPE}
+              session={session}
+              onPlayed={(parameters) => setDraft(toMe01Draft(parameters as Me01Parameters))}
+            />
           </ExperimentSettings>
 
           {error && (
@@ -424,26 +390,6 @@ export function TwoLedgersLab({
             summary={statusSummary}
             response={gate.response}
           />
-          {played && (
-            <div
-              className={played.kind === "played" ? "notice" : "notice error"}
-              role={played.kind === "played" ? undefined : "alert"}
-              data-walkthrough-result={played.kind}
-              data-walkthrough-code={played.kind === "refused" ? played.code : undefined}
-            >
-              <p>{played.notice}</p>
-              {played.kind === "refused" && played.repair && (
-                <p className="fine">{played.repair}</p>
-              )}
-              {played.kind === "played" && (
-                <p className="fine">
-                  Recorded in <a href={tapePath(played.tapeId)}>its walkthrough</a>, which says what
-                  each step is for. Nothing here was computed by the recording: the label above is
-                  this laboratory's own.
-                </p>
-              )}
-            </div>
-          )}
           {linkNote && (
             <div className="notice">
               <p>{linkNote}</p>

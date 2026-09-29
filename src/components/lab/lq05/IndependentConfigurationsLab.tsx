@@ -35,6 +35,7 @@ import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGa
 import { fixed, identity, readablePowers, sentenceNumber } from "../presentation.ts";
 import { PowerOfTen, Sci } from "../Sci.tsx";
 import { withScripts } from "../subscripts.tsx";
+import { WalkthroughControl } from "../WalkthroughControl.tsx";
 import { IndependentConfigurationsPlot } from "./IndependentConfigurationsPlot.tsx";
 import "./independentConfigurationsLab.css";
 
@@ -420,6 +421,12 @@ export function IndependentConfigurationsLab({
                 </label>
               </div>
               <p className="fine">These two apply at once.</p>
+              {/* The recorded walkthrough, played into this session (dispatch 436). */}
+              <WalkthroughControl
+                binding={LQ05_TAPE}
+                session={session}
+                onPlayed={(parameters) => setDraft(toLq05Draft(parameters as Lq05Parameters))}
+              />
             </ExperimentSettings>
           </div>
         </form>

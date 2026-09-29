@@ -35,6 +35,7 @@ import { KEPT_RESULT } from "../keptResult.ts";
 import { PredictGatePanels, usePredictGate, withPredictions } from "../PredictGate.tsx";
 import { fixed, identity, sentenceNumber } from "../presentation.ts";
 import { withScripts } from "../subscripts.tsx";
+import { WalkthroughControl } from "../WalkthroughControl.tsx";
 import { FluorescencePlot } from "./FluorescencePlot.tsx";
 import "./fluorescenceLab.css";
 
@@ -467,6 +468,12 @@ export function FluorescenceLab({
                   </fieldset>
                 </div>
                 <p className="fine">These apply at once.</p>
+                {/* The recorded walkthrough, played into this session (dispatch 436). */}
+                <WalkthroughControl
+                  binding={LQ07_TAPE}
+                  session={session}
+                  onPlayed={(parameters) => setDraft(toLq07Draft(parameters as Lq07Parameters))}
+                />
               </ExperimentSettings>
             )}
           </div>

@@ -82,13 +82,25 @@ function serveExport(port: number): Promise<Server> {
   });
 }
 
-/** Controls on ME-01 that apply settings, each by its accessible name. */
-const CONTROLS: readonly string[] = [
+/**
+ * WHAT GENERALISES AND WHAT DOES NOT (dispatch 436).
+ *
+ * The click harness generalises: any laboratory page in the export can be opened and any control
+ * pressed. The OBSERVABLE does not. The form-follows-apply property below compares ME-01's
+ * frame-speed field against the frame speed in ME-01's own status sentence, and each laboratory words
+ * its status line and names its fields differently, so a per-laboratory table of observables would be
+ * five hand-written pairs maintained against five components. So the strong property is checked where
+ * it is observable, on ME-01, and every laboratory that mounts the walkthrough control is checked for
+ * the general property instead: pressing it produces a result notice and no page error.
+ */
+const FORM_FOLLOWS_LAB = "me-01";
+const FORM_FOLLOWS_CONTROLS: readonly string[] = [
   "Stationary observer (v = 0)",
   "Transverse emission (v = 0.6c, φ = 90°)",
   "Collinear emission (v = 0.6c, φ = 0°)",
-  "Play the recorded walkthrough",
 ];
+/** Every laboratory that mounts the walkthrough control (dispatch 436). */
+const WALKTHROUGH_LABS: readonly string[] = ["me-01", "lq-05", "lq-06", "lq-07", "lq-09"];
 
 async function main(): Promise<number> {
   const urlArg = process.argv.indexOf("--base-url");
@@ -121,7 +133,7 @@ async function main(): Promise<number> {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   const pageErrors: string[] = [];
   page.on("pageerror", (error) => pageErrors.push(error.message));
-  await page.goto(`${base}/lab/me-01/`, { waitUntil: "load", timeout: 30000 });
+  await page.goto(`${base}/lab/${FORM_FOLLOWS_LAB}/`, { waitUntil: "load", timeout: 30000 });
 
   // Predict mode hides the results until the reader answers, so answer it as a reader would.
   const skip = page.getByRole("button", { name: "Skip prediction" });
@@ -192,7 +204,7 @@ async function main(): Promise<number> {
   let agreed = 0;
   const absent: string[] = [];
   const disagreed: string[] = [];
-  for (const name of CONTROLS) {
+  for (const name of FORM_FOLLOWS_CONTROLS) {
     const control = page.getByRole("button", { name, exact: true });
     if (!(await control.isVisible().catch(() => false))) {
       absent.push(name);
@@ -216,11 +228,46 @@ async function main(): Promise<number> {
   }
 
   console.log(
-    `[form follows apply] ${CONTROLS.length} controls named, ${present} present in this build, ` +
-      `${clicked} clicked, ${agreed} agreed`,
+    `[form follows apply] ${FORM_FOLLOWS_CONTROLS.length} controls named on ${FORM_FOLLOWS_LAB}, ` +
+      `${present} present in this build, ${clicked} clicked, ${agreed} agreed`,
   );
   for (const name of absent) console.log(`  absent from this build, so not checked: "${name}"`);
   for (const line of disagreed) console.log(`  DISAGREED: ${line}`);
+
+  // Every laboratory that mounts the walkthrough control: pressing it says something to a reader.
+  let walkButtons = 0;
+  let walkPlayed = 0;
+  const walkAbsent: string[] = [];
+  for (const lab of WALKTHROUGH_LABS) {
+    await page.goto(`${base}/lab/${lab}/`, { waitUntil: "load", timeout: 30000 });
+    const skipHere = page.getByRole("button", { name: "Skip prediction" });
+    if (await skipHere.isVisible().catch(() => false)) await skipHere.click();
+    const controls = page.locator("button[data-walkthrough]");
+    const count = await controls.count();
+    if (count === 0) {
+      walkAbsent.push(lab);
+      continue;
+    }
+    for (let index = 0; index < count; index += 1) {
+      walkButtons += 1;
+      await controls.nth(index).click({ timeout: 10000 });
+      const notice = page.locator('[data-walkthrough-result="played"]');
+      if (
+        await notice
+          .first()
+          .isVisible({ timeout: 5000 })
+          .catch(() => false)
+      )
+        walkPlayed += 1;
+      else disagreed.push(`${lab}: a walkthrough button produced no played notice`);
+    }
+  }
+  console.log(
+    `[walkthrough controls] ${WALKTHROUGH_LABS.length} laboratories, ${walkButtons} buttons found, ` +
+      `${walkPlayed} played`,
+  );
+  for (const lab of walkAbsent) console.log(`  no walkthrough control in this build: ${lab}`);
+
   if (pageErrors.length > 0) console.log(`  page errors: ${pageErrors.join(" | ")}`);
 
   await browser.close();

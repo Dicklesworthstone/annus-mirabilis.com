@@ -32,6 +32,7 @@ import { fixed, identity, sentenceNumber } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
+import { WalkthroughControl } from "../WalkthroughControl.tsx";
 import { IonizationCountingPlot, IonizationThresholdLadderPlot } from "./IonizationPlot.tsx";
 import "./ionizationLab.css";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
@@ -320,6 +321,12 @@ export function IonizationLab({ example, restoreFromLocation = false }: Ionizati
                 step={0.05}
               />
             )}
+            {/* The recorded walkthrough, played into this session (dispatch 436). */}
+            <WalkthroughControl
+              binding={LQ09_TAPE}
+              session={session}
+              onPlayed={() => setDrafts({})}
+            />
           </ExperimentSettings>
 
           {error && (

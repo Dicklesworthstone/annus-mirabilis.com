@@ -27,6 +27,7 @@ import { fixed, identity } from "../presentation.ts";
 import { Sci } from "../Sci.tsx";
 import { SliderField } from "../SliderField.tsx";
 import { withScripts } from "../subscripts.tsx";
+import { WalkthroughControl } from "../WalkthroughControl.tsx";
 import { CoefficientMatchSideBySidePlot, MeanEnergyStripPlot } from "./CoefficientMatchPlot.tsx";
 import "./coefficientMatchLab.css";
 import { getKernelListingsForInstrument } from "../../../content/kernel/listings.ts";
@@ -329,6 +330,12 @@ export function CoefficientMatchLab({ example }: CoefficientMatchLabProps) {
             <SliderField {...field("volumeRatio")} unit="ratio" min={0.05} max={2} step={0.05} />
             <SliderField {...field("gasParticles")} unit="count" min={1} max={100} step={1} />
             <SliderField {...field("temperature")} unit="K" min={500} max={6000} step={100} />
+            {/* The recorded walkthrough, played into this session (dispatch 436). */}
+            <WalkthroughControl
+              binding={LQ06_TAPE}
+              session={session}
+              onPlayed={() => setDrafts({})}
+            />
           </ExperimentSettings>
 
           {error && (
