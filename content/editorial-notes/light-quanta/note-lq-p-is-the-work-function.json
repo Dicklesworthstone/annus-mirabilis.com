@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-lq-p-is-the-work-function",
+  "author": { "id": "agent:SapphireCastle", "kind": "model", "modelId": "claude-opus-5" },
+  "reviewState": "draft",
+  "historicalStatement": "paper-asserts",
+  "claim": "P in §8 of this paper is the work function, the escape work characteristic of the body, printed as eine für den Körper charakteristische Größe. In the Brownian paper the same letter is the radius of a suspended particle. A reader moving between the two papers is moving between an energy and a length, so the mistake does not survive a check of dimensions, but nothing on the page warns of it.",
+  "sourceSupport": [
+    { "citationId": "ap-17-132", "locator": "§8, printed p. 146", "role": "primary" }
+  ],
+  "affectedIds": ["s8-p2"],
+  "evidence": "The locator and the printed phrase are the notation concordance's entry lq.P.workFunction, which records the italic P as first printed on p. 146 in §8 and flags the collision with the Brownian paper's particle radius. That entry was checked against the plate of printed page 146 by eye, from the page image and not the text layer, and it corrects a former page 145 which does not carry P. This note carries that verification forward and adds none of its own: no plate was read for it, and it is an agent check rather than a human review."
+}

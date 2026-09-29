@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-lq-l-changes-meaning-by-section",
+  "author": { "id": "agent:SapphireCastle", "kind": "model", "modelId": "claude-opus-5" },
+  "reviewState": "draft",
+  "historicalStatement": "paper-asserts",
+  "claim": "L changes meaning inside this one paper. In §§1 and 2 it is the speed of light in empty space; in §9 it is the absorbed light energy, printed as der absorbierten Lichtmenge L and standing in j = L/(Rβν). The same letter is the energy a body gives off in the mass-energy paper. §9 is one of the sections most often skipped, and a reader who arrives there carrying the L of §1 will read a speed where the paper writes an energy.",
+  "sourceSupport": [
+    { "citationId": "ap-17-132", "locator": "§§1 and 2, printed p. 135; and §9, printed p. 148", "role": "primary" }
+  ],
+  "affectedIds": ["s1-p4", "s9-p3"],
+  "evidence": "Both locators are the notation concordance's, which holds two entries for this letter: lq.L.speedOfLight, scoped to §§1 and 2 and first printed on p. 135, and lq.L.absorbedLightEnergy, scoped to §9 and first printed on p. 148 with the phrase der absorbierten Lichtmenge L. The second was checked against the plate of printed page 148 by eye, from the page image and not the text layer, and it corrects a former page 147 which carries no L. This note carries those verifications forward and adds none of its own: no plate was read for it, and it is an agent check rather than a human review."
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-lq-nu-is-frequency",
+  "author": { "id": "agent:SapphireCastle", "kind": "model", "modelId": "claude-opus-5" },
+  "reviewState": "draft",
+  "historicalStatement": "paper-asserts",
+  "claim": "ν in this paper is a frequency, counted in cycles per second, and it keeps that meaning from §1 to the end. In the Brownian paper ν is a number of particles per unit volume. The two are a rate and a density, and an argument that carried one into the other would be comparing a count in time with a count in space.",
+  "sourceSupport": [
+    { "citationId": "ap-17-132", "locator": "§1, printed p. 135", "role": "primary" }
+  ],
+  "affectedIds": ["s1-p4"],
+  "evidence": "The locator is the notation concordance's entry lq.nu.frequency, which records ν as first printed on p. 135 in §1 and flags the collision with the Brownian paper's number density. That entry was checked against the plate of printed page 135 by eye, from the page image and not the text layer, and it corrects a former page 132, which carries no mathematics. This note carries that verification forward and adds none of its own: no plate was read for it, and it is an agent check rather than a human review."
+}
