@@ -107,11 +107,20 @@ export function TermChips({
   );
 }
 
-/** A chip's dot, glyph (printed, and modern under the notation toggle) and name. */
+/**
+ * A chip's glyph (printed, and modern under the notation toggle) and name.
+ *
+ * THE DOT IS GONE (dispatch 499). The chip carried its quantity's colour five times over: a dot, the
+ * glyph, the label text, the border and a filled background tint. A screenshot pass found the chips
+ * "the loudest things on a page whose job is reading", and on the parallel face the same legend
+ * appears in both columns, so every excess is paid twice on one screen. What remains is the glyph in
+ * its colour and the name in words, which is what AGENTS.md's rule requires: colour helps identify
+ * meaning and never carries it alone, so the two NON-colour carriers are the floor and the dot was
+ * never one of them.
+ */
 function ChipContent({ item }: { item: TermChipItem }) {
   return (
     <>
-      <span className="term-chip-dot" aria-hidden="true" />
       {item.glyphHtml ? (
         <span
           className="equation-legend-glyph"

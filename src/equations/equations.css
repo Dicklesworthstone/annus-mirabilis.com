@@ -710,7 +710,14 @@
   padding: 0.2rem 0.8rem;
   border: 1px solid color-mix(in srgb, var(--qc) 40%, transparent);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--qc) var(--term-rest), transparent);
+  /*
+   * NO RESTING FILL (dispatch 499). The tint made every chip a painted pill, and a reading page
+   * carries up to 24 of them per formula in each of two columns. The outline still says "control",
+   * and the LIT state below keeps its own background, a stronger border and a glow, so dropping the
+   * resting fill widens the distance between a chip at rest and the one a reader has pinned rather
+   * than narrowing it: the resting tint was competing with the state it had to be told apart from.
+   */
+  background: transparent;
   color: var(--qc);
   font: inherit;
   cursor: pointer;
@@ -718,13 +725,6 @@
 /* Before JavaScript runs, a printed display's chip is a link to /notation/ (dispatch 254). */
 .term-chips a.term-chip {
   text-decoration: none;
-}
-.term-chips .term-chip-dot {
-  flex: none;
-  width: 0.6em;
-  height: 0.6em;
-  border-radius: 50%;
-  background: var(--qc);
 }
 .equation-sentence .term-phrase {
   display: inline;
