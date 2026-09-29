@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-sr-transverse-mass-depends-on-the-force-convention",
+  "author": { "id": "agent:SapphireCastle", "kind": "model", "modelId": "claude-opus-5" },
+  "reviewState": "draft",
+  "historicalStatement": "paper-asserts",
+  "claim": "The transverse mass in §10 is not a property of the electron on its own. Einstein says so on the page: with another definition of force and acceleration one would get other numbers for the masses, and he draws the moral himself, that one must be very careful in comparing different theories of the motion of the electron. A modern text usually adopts a different force convention and so prints a different transverse mass, and the two are not in disagreement about the physics. A reader who takes the number from here into a later book, or the other way, is comparing two conventions rather than two claims.",
+  "sourceSupport": [
+    { "citationId": "ap-17-891", "locator": "§10, printed p. 919", "role": "primary" }
+  ],
+  "affectedIds": ["s10-p7", "s10-p8"],
+  "evidence": "The claim restates the paper's own sentence, which the corpus holds in diplomatic transcription at s10-p8, located there at printed page 919: 'Natürlich würde man bei anderer Definition der Kraft und der Beschleunigung andere Zahlen für die Massen erhalten; man ersieht daraus, daß man bei der Vergleichung verschiedener Theorien der Bewegung des Elektrons sehr vorsichtig verfahren muß.' The longitudinal and transverse masses are introduced just before it, at s10-p7 on p. 918. That transcription is a machine draft with hand correction and not a reviewed ledger; this note adds no verification of its own and no plate was read for it."
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-sr-no-experiment-is-named",
+  "author": { "id": "agent:SapphireCastle", "kind": "model", "modelId": "claude-opus-5" },
+  "reviewState": "draft",
+  "historicalStatement": "paper-asserts",
+  "claim": "The paper names no experiment. Its introduction refers once to the failed attempts to detect a motion of the earth relative to the light medium, in those general words, and Michelson and Morley appear nowhere in it. What the paper offers as its reason is the asymmetry in the accepted electrodynamics of a magnet and a conductor, which it puts first. An account that makes one experiment the cause of this paper is telling a story about Einstein rather than reading the paper, and it is a different kind of claim from anything printed here.",
+  "sourceSupport": [
+    { "citationId": "ap-17-891", "locator": "introduction, printed p. 891", "role": "primary" }
+  ],
+  "affectedIds": ["s0-p1", "s0-p2"],
+  "evidence": "Checked across the paper's 213 source blocks: no block contains the string Michelson or Morley. The introduction's own wording is held in diplomatic transcription at s0-p2, 'sowie die mißlungenen Versuche, eine Bewegung der Erde relativ zum „Lichtmedium“ zu konstatieren'. The claim is about what the paper does not say, so it rests on that search rather than on a plate, and the transcription it reads is a machine draft with hand correction and not a reviewed ledger. This note makes no claim about what Einstein knew of the Michelson-Morley result, which is a separate historical statement and would need its own evidence."
+}
