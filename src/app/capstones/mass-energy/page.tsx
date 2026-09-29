@@ -184,9 +184,17 @@ export default function MassEnergyCapstonePage() {
                   was not enough. aria-hidden because the spoken paragraph below is this formula's
                   accessible name, and a reader with a screen reader should hear it once. */}
               {math(equation.equationId) === undefined ? null : (
+                /* NOT aria-hidden, and that was wrong until dispatch 430. Measured at 320px on the
+                   build of 570adcc4: one of these 13 elements overflows (scrollWidth 319 against
+                   clientWidth 288, the mass-energy low-speed drop), and initFormulaOverflow scans
+                   every element and gives any region that actually scrolls a tabindex="0" and an
+                   aria-label. With aria-hidden on the wrapper that produced a focusable element
+                   hidden from assistive technology: a tab stop that announces nothing, which is
+                   worse than either state alone. The formula is still announced once, because the
+                   KaTeX html carries aria-hidden on its own visual layer and holds no MathML, so
+                   the spoken paragraph below remains the only thing read out. */
                 <div
                   className="capstone-math"
-                  aria-hidden="true"
                   // biome-ignore lint/security/noDangerouslySetInnerHtml: KaTeX written by scripts/build-equations.ts from this record's own tree, the same bytes the reading faces render.
                   dangerouslySetInnerHTML={{ __html: math(equation.equationId)?.html ?? "" }}
                 />

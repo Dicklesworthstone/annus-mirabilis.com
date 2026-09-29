@@ -55,10 +55,27 @@ describe("capstone mathematics", () => {
       const html = await exportMarkup(mod.default());
       const displays = (html.match(/class="katex-display"/g) ?? []).length;
       expect(displays, paper).toBe(equations.length);
-      // The visual layer is hidden from assistive technology and the spoken form is the name, so a
-      // screen reader hears the formula once. KaTeX marks its own html layer; the wrapper does too.
-      const wrappers = (html.match(/class="capstone-math" aria-hidden="true"/g) ?? []).length;
+      /*
+        THE WRAPPER IS NOT aria-hidden, and this assertion is the reason (dispatch 430).
+
+        It used to be, and it used to be asserted here. Measured at 320px on a build containing
+        a03a90c7, one of the 13 elements overflows, and initFormulaOverflow gives any region that
+        really scrolls a tabindex="0" and an aria-label. An aria-hidden element with a tab stop is
+        focusable and unannounced, so the pairing this once asserted was the defect.
+
+        The formula is still read once: KaTeX puts aria-hidden on its own visual layer and this
+        artifact carries no MathML, so the spoken paragraph is the only thing announced, which the
+        next assertion checks.
+      */
+      const wrappers = (html.match(/class="capstone-math"/g) ?? []).length;
       expect(wrappers, paper).toBe(equations.length);
+      expect(html, `${paper}: the wrapper must not be hidden and focusable`).not.toContain(
+        'class="capstone-math" aria-hidden',
+      );
+      expect(
+        (html.match(/<math[\s>]/g) ?? []).length,
+        `${paper}: no MathML to double-announce`,
+      ).toBe(0);
       // The markup escapes an apostrophe, and several spoken forms contain one ("the electron's
       // charge"), so the comparison is against decoded text. Matching the raw markup instead
       // reported a missing spoken form for a page that carries it.
