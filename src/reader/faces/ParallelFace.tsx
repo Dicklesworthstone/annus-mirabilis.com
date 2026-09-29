@@ -21,6 +21,7 @@ import { SourceBlock as SourceBlockItem } from "./SourceBlock.tsx";
 import { groupTranslationUnits, TranslationParagraphs } from "./TranslationParagraphs.tsx";
 import { unitsBySourceRef } from "./TranslationUnit.tsx";
 import { MASTHEAD_TITLE_ID, unitTranslating } from "./translationMasthead.ts";
+import { sectionOfSourceId, unitsInSection } from "./unitSections.ts";
 import "../reader.css";
 import { ExplainerFragments } from "./ExplainerFragments.tsx";
 import { InlineTerms } from "./InlineTerms.tsx";
@@ -70,6 +71,21 @@ export function ParallelFace({
     ? blocks.filter((b) => b.section === sectionId || !b.section)
     : blocks;
 
+  /**
+   * AND THE ENGLISH HALF IS SCOPED THE SAME WAY (dispatch 484). The line above scoped the German
+   * half and nothing scoped the English one: groupTranslationUnits ran over every unit in the
+   * paper, and parallelRows gives an English group whose German block this page does not print a
+   * row of its own with no German, by design, for a display the German side leaves out. On a
+   * section page that design met the other nine sections and printed all of them. Every one of
+   * relativity's eleven section parallel faces rendered 95 translation paragraphs, the same 95 the
+   * whole paper renders; 25 of 40 sampled paragraphs from s10 were on s3's page and 25 of 40 from
+   * s0 were too. This is 4a3f676c's defect in the other face, so it reads that index rather than a
+   * third one, and a unit no block places (the masthead) stays, as it does there.
+   */
+  const sectionUnits = sectionId
+    ? unitsInSection(units, sectionOfSourceId(blocks), sectionId)
+    : units;
+
   const footnoteBlocks = filteredBlocks.filter((b) => b.kind === "footnote");
   // A display its paragraph or footnote prints in place is not printed again as its own block.
   // The claims are counted before the footnotes are set aside: light quanta's s1-fn3 prints three
@@ -84,7 +100,7 @@ export function ParallelFace({
   const { rows, footnoteRows } = parallelRows(
     mainBlocks,
     footnoteBlocks,
-    groupTranslationUnits(units, alignment, blocks, standaloneDisplays),
+    groupTranslationUnits(sectionUnits, alignment, blocks, standaloneDisplays),
     blocks,
   );
   const english = (row: ParallelRow) =>
