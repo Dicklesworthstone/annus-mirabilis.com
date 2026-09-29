@@ -1,14 +1,29 @@
 import { describe, expect, test } from "bun:test";
 import {
+  BIN,
+  binDensityPerMicrometre,
   crossings,
+  exactSquare,
   FLUX_SECONDS,
+  flatDensity,
   JARS,
+  linearEstimate,
   MINUTE_DISPLACEMENT_MICROMETRES,
   MINUTE_DISPLACEMENT_SQUARED_MANTISSA,
   netChange,
   PARTICLE_ENDS,
+  PRINTED_CORNERS,
+  RAMP,
+  SPREAD,
+  SQUARE_SIDE,
+  SQUARE_STEPS,
+  STRIP_COUNTS,
+  spreadAfter,
+  stripSum,
+  typicalDistance,
   WALK,
   walkSpeeds,
+  withinWidths,
 } from "../foundations/bridgeFigures.ts";
 import { bridge } from "./foundZeroAlgebra.shared.ts";
 
@@ -81,6 +96,134 @@ const [flux1, flux2] = FLUX_SECONDS as unknown as readonly [
 ];
 
 const CLAIMS: readonly Claim[] = [
+  // Every figure number added after dispatch 419, keyed on the constants its drawing reads and
+  // matched against the sentence in the record that states it. All six lessons print these in
+  // prose, so a change to any constant moves the figure away from a paragraph as well as from a
+  // picture, which is the drift this file exists to catch.
+  {
+    key: "SPREAD",
+    slug: "diffusion-equation",
+    why: "the second panel is drawn for this typical distance",
+    forms: [[`${SPREAD.millimetres} mm`, "typical distance"]],
+  },
+  {
+    key: "SPREAD",
+    slug: "diffusion-equation",
+    why: "the wider bell is the same dye after four times as long",
+    forms: [[`${spreadAfter(1, 4)} mm`, "doubles"]],
+  },
+  {
+    key: "SPREAD",
+    slug: "diffusion-equation",
+    why: "the square root of two, which the caption states and the figure does not draw",
+    forms: [[`about ${spreadAfter(2, 1).toFixed(1)} mm`]],
+  },
+  {
+    key: "TYPICAL_DISTANCE",
+    slug: "random-walks",
+    why: "the curve's second panel passes through this point",
+    forms: [[`${typicalDistance(100)} m after a hundred`]],
+  },
+  {
+    key: "TYPICAL_DISTANCE",
+    slug: "random-walks",
+    why: "the two-step walk, whose four ends the first panel draws",
+    forms: [[`about ${typicalDistance(2).toFixed(1)} m after two`]],
+  },
+  {
+    key: "TYPICAL_DISTANCE",
+    slug: "random-walks",
+    why: "four times the steps for twice the distance, the claim the curve makes",
+    forms: [[`${typicalDistance(400)} m`, "Four hundred steps"]],
+  },
+  {
+    key: "WITHIN_WIDTHS",
+    slug: "gaussian-distributions",
+    why: "the inner band of the bell",
+    forms: [[`about ${Number(withinWidths(1).toPrecision(2))} per cent`, "one width"]],
+  },
+  {
+    key: "WITHIN_WIDTHS",
+    slug: "gaussian-distributions",
+    why: "the middle band, which contains the inner one",
+    forms: [[`about ${Number(withinWidths(2).toPrecision(2))} per cent`, "two widths"]],
+  },
+  {
+    key: "WITHIN_WIDTHS",
+    slug: "gaussian-distributions",
+    why: "the outer band",
+    forms: [[`about ${Number(withinWidths(3).toPrecision(3))} per cent`]],
+  },
+  {
+    key: "BIN",
+    slug: "distributions",
+    why: "the first panel's bar, and the height it is labelled with",
+    forms: [[`${BIN.inBin} land in one bin`, `${binDensityPerMicrometre()} per micrometre`]],
+  },
+  {
+    key: "FLAT_DENSITY",
+    slug: "distributions",
+    why: "the wider rectangle of the second panel",
+    forms: [[`${flatDensity(4)} per micrometre`]],
+  },
+  {
+    key: "FLAT_DENSITY",
+    slug: "distributions",
+    why: "the narrower, taller rectangle, which encloses the same area",
+    forms: [[`${flatDensity(2)} per micrometre`, "Squeeze"]],
+  },
+  {
+    key: "SQUARE",
+    slug: "taylor-expansion",
+    why: "the two strips and the corner the first panel draws to scale",
+    forms: [
+      [`which add ${2 * SQUARE_SIDE * (SQUARE_STEPS[0] as number)}`, `adds ${PRINTED_CORNERS[0]}`],
+    ],
+  },
+  {
+    key: "SQUARE",
+    slug: "taylor-expansion",
+    why: "the whole grown square",
+    forms: [[`${exactSquare(SQUARE_STEPS[0] as number)}`, "squared is"]],
+  },
+  {
+    key: "SQUARE",
+    slug: "taylor-expansion",
+    why: "the middle of the three squares in the second panel",
+    forms: [
+      [
+        `${linearEstimate(SQUARE_STEPS[1] as number)} instead of ${exactSquare(SQUARE_STEPS[1] as number)}`,
+      ],
+    ],
+  },
+  {
+    key: "SQUARE",
+    slug: "taylor-expansion",
+    why: "the largest, where the dropped corner is a quarter of the square",
+    forms: [
+      [
+        `${linearEstimate(SQUARE_STEPS[2] as number)} instead of ${exactSquare(SQUARE_STEPS[2] as number)}`,
+      ],
+    ],
+  },
+  {
+    key: "RAMP",
+    slug: "integration",
+    why: "the height the ramp reaches at the right of both drawings",
+    forms: [[`${RAMP.topDensity} per micrometre at the right`]],
+  },
+  {
+    key: "RAMP",
+    slug: "integration",
+    why: "the first cut, whose bars the figure draws",
+    forms: [[`= ${stripSum(STRIP_COUNTS[0] as number)}`, "Four strips"]],
+  },
+  {
+    key: "RAMP",
+    slug: "integration",
+    why: "the second cut, closer to the triangle",
+    forms: [[`that is ${stripSum(STRIP_COUNTS[1] as number)}`, "Eight strips"]],
+  },
   // FLUX_SECONDS: the first key here for a lesson that is not a bridge, added with the figure of
   // dispatch 418. The check already read one non-bridge record (mean-variance-rms), so nothing
   // about the mechanism changed; only the claims did.
@@ -303,7 +446,7 @@ describe("a bridge figure's numbers and its lesson's prose", () => {
     // A run that examined nothing reads exactly like a clean one, so the population is asserted.
     expect(CLAIMS.length).toBeGreaterThan(0);
     expect(records.size).toBeGreaterThan(1);
-    expect(keys.size).toBe(5);
+    expect(keys.size).toBe(12);
     expect(problems).toEqual([]);
   });
 
