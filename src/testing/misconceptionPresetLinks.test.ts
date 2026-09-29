@@ -211,9 +211,64 @@ describe("a misconception's link into its instrument", () => {
     const radial = built.links["misc-bm-radial-gaussian"];
     expect(radial?.via, "BM-06 reads its own settings link, not a tape").toBe("lab-query");
     expect(brownian).toContain(radial?.href);
-    // And neither callout is left on the bare path it used to carry.
-    expect(brownian).not.toContain("/lab/bm-01/");
-    expect(brownian).not.toContain("/lab/bm-06/");
+
+    // PER RECORD, NOT PER PAGE, and this is what changed (dispatch 463). These two lines read
+    //     expect(brownian).not.toContain("/lab/bm-01/")
+    //     expect(brownian).not.toContain("/lab/bm-06/")
+    // which asserted a property of the PAGE as a proxy for a property of two RECORDS: that the
+    // callouts which used to sit on a bare path now carry their settings link. The proxy held only
+    // while brownian's ledger had exactly two records naming an instrument. f918397d added two more,
+    // and misc-bm-mean-is-zero names BM-01's defaultScenario rather than a registered preset, so it
+    // has no setting to link and correctly falls back to /lab/bm-01/ - the very behaviour the second
+    // half of this test's own name endorses. The page then carried a bare bm-01 path again, for a
+    // reason the page-level assertion could not tell from the defect.
+    //
+    // So the question is asked of each record instead, which is what the file's docblock says the
+    // population is for, and it is strictly stronger: it covers every linked record on every paper
+    // rather than two, and it holds however many records a ledger gains.
+    const calloutHrefs = (paper: string): Map<string, string[]> => {
+      const { document } = new Window();
+      document.body.innerHTML = renderToStaticMarkup(
+        createElement(PaperMargins, { margins: loadPaperMargins(paper) }),
+      );
+      const out = new Map<string, string[]>();
+      for (const callout of document.querySelectorAll("[data-misconception-id]")) {
+        const id = callout.getAttribute("data-misconception-id") ?? "";
+        out.set(
+          id,
+          [...callout.querySelectorAll(".misconception-instrument-link a")].map(
+            (a) => a.getAttribute("href") ?? "",
+          ),
+        );
+      }
+      return out;
+    };
+    let linkedSeen = 0;
+    let plainSeen = 0;
+    const wrong: string[] = [];
+    for (const paper of readdirSync(join(process.cwd(), "content", "misconceptions"))) {
+      for (const [id, hrefsForId] of calloutHrefs(paper)) {
+        const record = records.find((r) => r.id === id);
+        const lab = record?.intervention.instrumentId ?? record?.instrumentIds?.[0];
+        const link = built.links[id];
+        if (link) {
+          if (!hrefsForId.includes(link.href))
+            wrong.push(`${id}: linked to ${link.href} and the callout renders ${hrefsForId}`);
+          else linkedSeen++;
+        } else if (lab) {
+          // No setting to open, so the callout keeps the plain path rather than an invented query.
+          if (!hrefsForId.includes(`/lab/${lab}/`))
+            wrong.push(`${id}: has no link and the callout renders ${hrefsForId}`);
+          else plainSeen++;
+        } else if (hrefsForId.length > 0) {
+          wrong.push(`${id}: names no instrument and the callout renders ${hrefsForId}`);
+        }
+      }
+    }
+    expect(wrong).toEqual([]);
+    // Both arms must have run, or one of them is asserting nothing.
+    expect(linkedSeen, "no linked callout was rendered").toBeGreaterThan(0);
+    expect(plainSeen, "no plain-path callout was rendered").toBeGreaterThan(0);
 
     expect(built.notLinked["misc-lq-ultraviolet-catastrophe"]?.cause).toBe("names-no-preset");
     expect(hrefs("light-quanta")).toContain("/lab/lq-02/");
