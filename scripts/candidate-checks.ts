@@ -12,13 +12,18 @@
  * request gets a 302 to vercel.com/sso-api). Each served page and script is compared byte for byte
  * with the file `vercel build` wrote to `.vercel/output/static`, which is what was uploaded.
  *
+ * WHAT ALSO RUNS, IN A BROWSER (dispatch 462). Two of the checks AGENTS.md requires by name cannot be
+ * answered over HTTP at all. Measured across 718 built pages, NO registered refusal code is rendered
+ * into served HTML, and an execution label in served HTML is always `static`, because both are earned
+ * by a lab's worker executing on the page. So `accepted-wasm-result-per-capability` and
+ * `deliberate-typed-refusal` are driven by an injected `CandidateBrowserProbe`
+ * (scripts/candidateBrowserProbe.ts), which serves a real browser ENTIRELY from the `Fetcher` above,
+ * so the bytes executed are still the deployment's bytes. A run with no probe reports both as
+ * `not-available` and neither is declared, which keeps `candidateChecksPassed` false.
+ *
  * WHAT DOES NOT RUN, and says so in its result rather than passing:
  * - `four-complete-paper-texts`: no paper is complete yet (plan §17.7), so there is nothing to load
  *   under that name. `paper-pages-served-as-built` checks the paper pages that do exist.
- * - `accepted-wasm-result-per-capability`: BM-01 binds FrankenSim's brownian_frames, but an
- *   accepted result exists only when a browser runs the lab's worker, and no browser runs here.
- * - `deliberate-typed-refusal`: a lab's refusal needs a browser executing the page, and no browser
- *   runs here. The HTTP checks cannot see page errors or execution labels either.
  */
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -257,11 +262,320 @@ export class CandidateCheckRegistrationError extends Error {
   }
 }
 
+// ---------------------------------------------------------------------------
+// THE TWO CHECKS THAT NEED A BROWSER (am-rel-candidate-checks-kc7y, dispatch 462).
+//
+// AGENTS.md requires a candidate to include "one real accepted WASM result per numerical
+// capability" and "one deliberate typed refusal". Both were `not-available` here until the browser
+// probe existed, so every promotion so far has gone out without them. The probe is injected rather
+// than imported (scripts/candidateBrowserProbe.ts) for two reasons: this module stays free of
+// Playwright so its own tests can drive a fake probe, and a run WITHOUT a probe reports
+// `not-available` and is UNDECLARED, which keeps `candidateChecksPassed` false instead of letting a
+// silent browser failure read as clean.
+// ---------------------------------------------------------------------------
+
+/** One step a reader would take before pressing the apply control, as data rather than code. */
+export type LabPreparation =
+  | Readonly<{ kind: "open-settings-drawers" }>
+  | Readonly<{ kind: "press"; name: string }>
+  | Readonly<{ kind: "select"; field: string; value: string }>
+  | Readonly<{ kind: "check"; labelMatches: string }>
+  | Readonly<{ kind: "fill"; field: string; value: string }>;
+
+/** Which laboratory earns a capability's label, and what a reader does to make it earn one. */
+export type WasmCapabilityTarget = Readonly<{
+  capabilityId: string;
+  browserExport: string;
+  lab: string;
+  prepare: readonly LabPreparation[];
+  apply: string;
+  why: string;
+}>;
+
+export type AcceptedWasmObservation = Readonly<{
+  capabilityId: string;
+  lab: string;
+  /** Every `data-execution-label` value on arrival, before the reader's action. */
+  labelsBefore: readonly string[];
+  labelsAfter: readonly string[];
+  /** The public wordings rendered after the action, which is what a reader actually reads. */
+  labelTexts: readonly string[];
+  wasmRequests: readonly string[];
+  pageErrors: readonly string[];
+}>;
+
+export type RefusalTarget = Readonly<{
+  lab: string;
+  prepare: readonly LabPreparation[];
+  apply: string;
+  expectedCode: string;
+  /** Fragments the reader's own sentence must contain, so a bare code cannot pass for an explanation. */
+  mustSay: readonly string[];
+  why: string;
+}>;
+
+export type RefusalObservation = Readonly<{
+  lab: string;
+  codes: readonly string[];
+  readerText: string;
+  nonFiniteTokens: readonly string[];
+  pageErrors: readonly string[];
+}>;
+
+export type CandidateBrowserProbe = Readonly<{
+  observeAcceptedWasm: (target: WasmCapabilityTarget) => Promise<AcceptedWasmObservation>;
+  provokeRefusal: (target: RefusalTarget) => Promise<RefusalObservation>;
+  close: () => Promise<void>;
+}>;
+
+/**
+ * One row per capability the artifact manifest declares, each naming the laboratory that binds it.
+ *
+ * MEASURED, NOT READ OFF THE PLAN. AGENTS.md's status section says `diffusion1d_frames` and
+ * `philox_normals` are "built into the artifact and bound to no lab yet". That was true when it was
+ * written and is not true now: driven against the built export on 2026-09-28, BM-05 under the
+ * Gaussian step law and BM-06 with its optional grid enabled both reach
+ * "Ideal model, computed with FrankenSim". All three capabilities therefore have a binding, and the
+ * check below has no not-applicable row. When a future capability has none, its row states that
+ * reason and the check reports `not-applicable` for it rather than passing over it.
+ */
+export const WASM_CAPABILITY_TARGETS: readonly WasmCapabilityTarget[] = Object.freeze([
+  Object.freeze({
+    capabilityId: "diffusion.brownian-frames",
+    browserExport: "brownian_frames",
+    lab: "bm-01",
+    prepare: Object.freeze([Object.freeze({ kind: "open-settings-drawers" as const })]),
+    apply: "Apply trial settings",
+    why: "BM-01's tracer trajectories are recorded by brownian_frames; its apply control sits inside the settings drawer.",
+  }),
+  Object.freeze({
+    capabilityId: "diffusion.philox-normals",
+    browserExport: "philox_normals",
+    lab: "bm-05",
+    prepare: Object.freeze([
+      Object.freeze({ kind: "select" as const, field: "kernel", value: "gaussian" }),
+    ]),
+    apply: "Apply walk settings",
+    why: "Only a Gaussian step law draws normals, so the coin and uniform walks are host calculations by design and the step law has to be chosen first.",
+  }),
+  Object.freeze({
+    capabilityId: "diffusion.ftcs-1d",
+    browserExport: "diffusion1d_frames",
+    lab: "bm-06",
+    prepare: Object.freeze([
+      Object.freeze({ kind: "open-settings-drawers" as const }),
+      Object.freeze({ kind: "check" as const, labelMatches: "numerical grid" }),
+    ]),
+    apply: "Apply settings",
+    why: "BM-06's primary output is the analytic density, always a host calculation; the optional grid beside it is stepped by diffusion1d_frames and carries its own label.",
+  }),
+]);
+
+/**
+ * The refusal this check provokes, through a reader's own control rather than a hand-built request.
+ *
+ * BM-06 offers a preset named "Try a step that is too large", so the deliberate refusal is two
+ * presses a reader can make. The FTCS scheme is stable only to a diffusion number of 0.5 and refuses
+ * above it; measured on the built export the refusal arrives as `ftcs-unstable` with a sentence
+ * naming the number it reached, the limit, which stepper refused, and two repairs.
+ */
+export const DELIBERATE_REFUSAL_TARGET: RefusalTarget = Object.freeze({
+  lab: "bm-06",
+  prepare: Object.freeze([
+    Object.freeze({ kind: "press" as const, name: "Try a step that is too large" }),
+  ]),
+  apply: "Apply settings",
+  expectedCode: "ftcs-unstable",
+  mustSay: Object.freeze(["not accepted", "diffusion number", "stable only up to"]),
+  why: "The explicit diffusion scheme refuses above a diffusion number of 0.5 by design, so this is a real model boundary rather than an error injected for the check.",
+});
+
+type DeployedCapability = Readonly<{ capabilityId: string; browserExport: string }>;
+
+/**
+ * The capability list comes from the manifest THE DEPLOYMENT SERVES, not from the repository, so the
+ * denominator belongs to the thing being checked. A manifest that is missing, unparseable or empty
+ * is a failure of the check rather than an empty pass: zero capabilities examined reads exactly like
+ * three examined and found good.
+ */
+export async function deployedWasmCapabilities(
+  fetcher: Fetcher,
+): Promise<{ capabilities: DeployedCapability[]; problem?: string }> {
+  const fetched = await fetcher("/wasm/manifest.json");
+  if (fetched.status !== 200)
+    return { capabilities: [], problem: `/wasm/manifest.json answered ${fetched.status}` };
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(fetched.body.toString("utf8"));
+  } catch (error) {
+    return { capabilities: [], problem: `/wasm/manifest.json is not JSON: ${String(error)}` };
+  }
+  const raw = (parsed as { capabilities?: unknown }).capabilities;
+  if (!Array.isArray(raw))
+    return { capabilities: [], problem: "/wasm/manifest.json declares no capabilities array" };
+  const capabilities: DeployedCapability[] = [];
+  for (const entry of raw) {
+    const record = entry as { capabilityId?: unknown; browserExport?: unknown };
+    if (typeof record.capabilityId !== "string" || typeof record.browserExport !== "string")
+      return { capabilities: [], problem: "a manifest capability has no id or no browser export" };
+    capabilities.push({ capabilityId: record.capabilityId, browserExport: record.browserExport });
+  }
+  if (capabilities.length === 0)
+    return { capabilities: [], problem: "the served manifest declares zero capabilities" };
+  return { capabilities };
+}
+
+/**
+ * One real accepted result per numerical capability.
+ *
+ * WHAT IT ASSERTS, AND WHY IT IS NOT THE NETWORK REQUEST. For each capability the deployed manifest
+ * declares: no `frankensim` label is present on arrival, and one appears after the reader's action,
+ * with the public wording beside it. A fetched artifact that produces a host calculation therefore
+ * FAILS, which is the measured negative: BM-05 on its default coin walk fetches the same artifact,
+ * with a 200, and stays "Ideal model, host calculation".
+ */
+export async function acceptedWasmResultPerCapability(
+  fetcher: Fetcher,
+  probe: CandidateBrowserProbe | undefined,
+  targets: readonly WasmCapabilityTarget[] = WASM_CAPABILITY_TARGETS,
+): Promise<CandidateCheckResult> {
+  const name = "accepted-wasm-result-per-capability";
+  const { capabilities, problem } = await deployedWasmCapabilities(fetcher);
+  if (problem !== undefined)
+    return { name, status: "failed", detail: `No capability could be examined: ${problem}.` };
+  if (probe === undefined)
+    return notRun(
+      name,
+      `This run supplied no browser probe, so none of the ${capabilities.length} declared capabilities was driven. An accepted result is produced by a lab's worker, so nothing here can be concluded from the served bytes alone.`,
+    );
+
+  const byId = new Map(targets.map((target) => [target.capabilityId, target]));
+  const unbound = capabilities.filter((capability) => !byId.has(capability.capabilityId));
+  const stale = targets.filter(
+    (target) => !capabilities.some((c) => c.capabilityId === target.capabilityId),
+  );
+  if (unbound.length > 0 || stale.length > 0) {
+    const parts = [
+      unbound.length > 0
+        ? `${unbound.length} served capability(ies) have no target row: ${unbound.map((c) => c.capabilityId).join(", ")}`
+        : "",
+      stale.length > 0
+        ? `${stale.length} target row(s) name a capability the deployment does not declare: ${stale.map((t) => t.capabilityId).join(", ")}`
+        : "",
+    ].filter((part) => part.length > 0);
+    return {
+      name,
+      status: "failed",
+      detail: `The capability list and the target rows disagree, so the denominator is unknown. ${parts.join("; ")}. Add or remove a row in WASM_CAPABILITY_TARGETS rather than letting a capability go unexamined.`,
+    };
+  }
+
+  const lines: string[] = [];
+  const failures: string[] = [];
+  for (const capability of capabilities) {
+    const target = byId.get(capability.capabilityId);
+    if (target === undefined) continue;
+    if (target.browserExport !== capability.browserExport) {
+      failures.push(
+        `${capability.capabilityId}: the deployment declares export ${capability.browserExport} where the target row names ${target.browserExport}`,
+      );
+      continue;
+    }
+    const observed = await probe.observeAcceptedWasm(target);
+    const earnedBefore = observed.labelsBefore.filter((label) => label === "frankensim").length;
+    const earnedAfter = observed.labelsAfter.filter((label) => label === "frankensim").length;
+    const wording = observed.labelTexts.includes("Ideal model, computed with FrankenSim");
+    lines.push(
+      `${capability.capabilityId} (${capability.browserExport}) on ${target.lab}: labels on arrival [${[...new Set(observed.labelsBefore)].join(",") || "none"}] then [${[...new Set(observed.labelsAfter)].join(",") || "none"}]; ${observed.wasmRequests.length} wasm request(s); wording ${wording ? "present" : "absent"}`,
+    );
+    if (observed.pageErrors.length > 0)
+      failures.push(`${capability.capabilityId}: ${observed.pageErrors.join(" | ")}`);
+    else if (earnedBefore > 0)
+      failures.push(
+        `${capability.capabilityId}: a frankensim label was already present on arrival, so it was not earned by an accepted call`,
+      );
+    else if (earnedAfter === 0)
+      failures.push(
+        `${capability.capabilityId}: ${observed.wasmRequests.length} wasm request(s) were made and no frankensim label appeared, so no accepted result was produced`,
+      );
+    else if (!wording)
+      failures.push(
+        `${capability.capabilityId}: the label attribute says frankensim but no reader-facing wording says so`,
+      );
+  }
+
+  const examined = `Examined ${capabilities.length} declared capability(ies): ${lines.join(" — ")}.`;
+  if (failures.length > 0)
+    return {
+      name,
+      status: "failed",
+      detail: `${failures.length} of ${capabilities.length} capability(ies) produced no accepted FrankenSim result: ${failures.join(" | ")}. ${examined}`,
+    };
+  return {
+    name,
+    status: "passed",
+    detail: `${capabilities.length} of ${capabilities.length} declared capability(ies) produced an accepted FrankenSim result on the deployed assets, each earned by a reader's action rather than by a loaded artifact. ${examined} This proves the owner answered, not that its physics is right.`,
+  };
+}
+
+/**
+ * One deliberate typed refusal a reader can read.
+ *
+ * Asserts the code arrived, that the reader's sentence explains it, and that nothing in the page
+ * shows `NaN` or `Infinity` in its place. A refusal that produced no sentence, or a page that
+ * quietly showed a number instead, both fail.
+ */
+export async function deliberateTypedRefusal(
+  probe: CandidateBrowserProbe | undefined,
+  target: RefusalTarget = DELIBERATE_REFUSAL_TARGET,
+): Promise<CandidateCheckResult> {
+  const name = "deliberate-typed-refusal";
+  if (probe === undefined)
+    return notRun(
+      name,
+      `This run supplied no browser probe, so no refusal was provoked. The intended one is ${target.lab}'s ${target.expectedCode}, reached through its own "${target.prepare.map((step) => (step.kind === "press" ? step.name : step.kind)).join(", ")}" control.`,
+    );
+  const observed = await probe.provokeRefusal(target);
+  const missing = target.mustSay.filter(
+    (fragment) => !observed.readerText.toLowerCase().includes(fragment.toLowerCase()),
+  );
+  const examined = `Drove ${target.lab} to its declared refusal: codes [${observed.codes.join(",") || "none"}]; reader sentence ${observed.readerText.length} characters; nonfinite tokens [${observed.nonFiniteTokens.join(",") || "none"}].`;
+  const failures: string[] = [];
+  if (observed.pageErrors.length > 0) failures.push(observed.pageErrors.join(" | "));
+  if (!observed.codes.includes(target.expectedCode))
+    failures.push(
+      `no element carried data-refusal-code="${target.expectedCode}", so nothing typed refused`,
+    );
+  if (observed.readerText.length === 0)
+    failures.push("the refusal carried no reader-facing sentence at all");
+  else if (missing.length > 0)
+    failures.push(
+      `the reader's sentence does not say ${missing.map((fragment) => `"${fragment}"`).join(", ")}`,
+    );
+  if (observed.nonFiniteTokens.length > 0)
+    failures.push(
+      `the page shows ${observed.nonFiniteTokens.join(" and ")} where a value would be`,
+    );
+  if (failures.length > 0)
+    return { name, status: "failed", detail: `${failures.join(" | ")}. ${examined}` };
+  return {
+    name,
+    status: "passed",
+    detail: `${target.lab} refused a deliberately illegal step as the typed ${target.expectedCode}, with a sentence a reader can read and no NaN, Infinity or silent clamp. ${examined} ${target.why}`,
+  };
+}
+
 export type CandidateCheckOptions = Readonly<{
   fetcher: Fetcher;
   staticDir: string;
   /** Repository root, for the frozen manifest ids the no-JavaScript check looks for. */
   root?: string;
+  /**
+   * A browser driving the deployment's own bytes, for the two checks that cannot be answered over
+   * HTTP. Omitting it does not excuse them: both report `not-available`, neither is declared, and
+   * `allCandidateChecksPassed` is therefore false, so a release cannot promote on a silent browser.
+   */
+  probe?: CandidateBrowserProbe | undefined;
 }>;
 
 /** Runs every check once, in catalogue order. A check that cannot run says why; none passes by default. */
@@ -321,18 +635,8 @@ export async function runCandidateChecksAgainst(
 
   results.push(await noJavaScriptSourceText(fetcher, staticDir, root));
 
-  results.push(
-    notRun(
-      "accepted-wasm-result-per-capability",
-      "An accepted result exists only after a reader presses Apply and a browser runs the lab's worker, and these checks are HTTP only. What IS checkable over HTTP is the artifact's identity on the candidate, and wasm-artifact-served-as-pinned now checks it.",
-    ),
-  );
-  results.push(
-    notRun(
-      "deliberate-typed-refusal",
-      "Measured 2026-09-28 across 718 built pages: NO registered refusal code is rendered into served HTML. Every occurrence of one sits inside a Show-the-code listing, which is source text a reader is shown rather than a refusal a reader received. A typed refusal reaches a reader only when a browser executes the page, so this needs a browser lane rather than a better HTTP probe.",
-    ),
-  );
+  results.push(await acceptedWasmResultPerCapability(fetcher, options.probe));
+  results.push(await deliberateTypedRefusal(options.probe));
   results.push(await wasmArtifactServedAsPinned(fetcher));
   results.push(await fragmentAnchorsResolve(fetcher));
 
@@ -595,8 +899,12 @@ export function summarizeCandidateChecks(results: readonly CandidateCheckResult[
  * and a declared check that starts passing makes its declaration stale, which
  * `staleNotRunnableDeclarations` reports so the entry is removed rather than left to rot.
  *
- * These three are honest gaps, not excuses. Two need a browser to execute a page and this harness is
- * HTTP only; the third has no complete paper to load because no paper is complete.
+ * ONE ENTRY REMAINS, and it used to be three. `accepted-wasm-result-per-capability` and
+ * `deliberate-typed-refusal` were declared here because "a browser must execute a page and this
+ * harness is HTTP only"; a browser probe now drives both (dispatch 462), so their declarations were
+ * removed in the same commit that implemented them, which is exactly what
+ * `staleNotRunnableDeclarations` exists to force. What remains has no complete paper to load
+ * because no paper is complete.
  */
 export const DECLARED_NOT_RUNNABLE: ReadonlyMap<string, { reason: string; bead: string }> = new Map(
   [
@@ -606,22 +914,6 @@ export const DECLARED_NOT_RUNNABLE: ReadonlyMap<string, { reason: string; bead: 
         reason:
           "No paper is complete, so there is no complete paper text to load. The paper pages that do exist are checked byte-for-byte by paper-pages-served-as-built, which runs.",
         bead: "am-definition-of-done-as-code-8w1c",
-      },
-    ],
-    [
-      "accepted-wasm-result-per-capability",
-      {
-        reason:
-          "An accepted WASM result exists only when a browser runs a lab's worker, and these checks are HTTP only. The artifact's bytes and digest ARE checked, by verify-wasm-artifacts; what is unchecked here is that a reader gets a result from them.",
-        bead: "am-frankensim-repin-and-bind-jvhg",
-      },
-    ],
-    [
-      "deliberate-typed-refusal",
-      {
-        reason:
-          "A lab's typed refusal appears only when a browser executes the page. The refusal codes and their reader language are checked in the unit lane; what is unchecked here is that a reader can reach one on the deployed site.",
-        bead: "am-nxbq",
       },
     ],
   ],

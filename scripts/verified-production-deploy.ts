@@ -53,10 +53,12 @@ import {
 } from "./authorization";
 import {
   allCandidateChecksPassed,
+  type CandidateBrowserProbe,
   runCandidateChecksAgainst,
   summarizeCandidateChecks,
   vercelCurlFetcher,
 } from "./candidate-checks";
+import { createCandidateBrowserProbe } from "./candidateBrowserProbe";
 import {
   assertCanonicalProjectIdentity,
   assertDeploymentReadyAndAliased,
@@ -796,10 +798,29 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     saveReleaseCandidateRecord(candidateRecord);
 
     // What the unpromoted candidate serves, compared with the upload, before any alias moves.
-    const checks = await runCandidateChecksAgainst({
-      fetcher: vercelCurlFetcher(candidateUrl),
-      staticDir: path.join(process.cwd(), ".vercel/output/static"),
-    });
+    // The fetcher is shared with the browser probe, so the two checks that need a page to execute
+    // run against the same authenticated bytes as the byte-identity checks. A probe that cannot
+    // launch is not fatal here and is not excused either: both browser checks then report
+    // not-available, neither is declared, and candidateChecksPassed stays false.
+    const candidateFetcher = vercelCurlFetcher(candidateUrl);
+    let probe: CandidateBrowserProbe | undefined;
+    try {
+      probe = await createCandidateBrowserProbe(candidateFetcher);
+    } catch (error) {
+      console.warn(
+        `Candidate browser probe unavailable (${String(error).slice(0, 200)}); the accepted-WASM and typed-refusal checks will report not-available and candidateChecksPassed will stay false.`,
+      );
+    }
+    let checks: Awaited<ReturnType<typeof runCandidateChecksAgainst>>;
+    try {
+      checks = await runCandidateChecksAgainst({
+        fetcher: candidateFetcher,
+        staticDir: path.join(process.cwd(), ".vercel/output/static"),
+        probe,
+      });
+    } finally {
+      await probe?.close();
+    }
     saveReleaseCandidateRecord(candidateRecordWithChecks(candidateRecord, checks));
     for (const check of checks) {
       console.log(`candidate check ${check.name}: ${check.status}. ${check.detail}`);
