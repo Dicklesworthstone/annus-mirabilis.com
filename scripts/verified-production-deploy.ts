@@ -119,6 +119,106 @@ export function toolRunArtifactDirectory(toolRunId: string = newToolRunId()): st
   return path.join(process.cwd(), "artifacts", "verified-production-deploy", toolRunId);
 }
 
+/*
+ * A FAILED COMMAND SAYS WHAT WENT WRONG (dispatch 476).
+ *
+ * THE DEFECT. `run` captured stderr and threw before reading it, so every captured command's failure
+ * reached the operator as one line: "vercel exited with status 1." A deploy of 44 commits was refused
+ * with exactly that and nobody could say why. The output was not lost in a log file; it was in
+ * `result.stderr` in the same scope, discarded four lines later. AGENTS.md states the rule this broke,
+ * in the swarm chapter: never silence stderr in a command whose output will be cited as evidence.
+ *
+ * WHY THE MESSAGE AND NOT A LOG. `main().catch` prints `error.message` and nothing else, so the
+ * message is the entire diagnosis surface a person reading a refusal has.
+ *
+ * THE BOUND, and why these numbers. Vercel can emit thousands of lines. The last 40 of stderr is a
+ * diagnosis; the whole buffer is a wall nobody reads, and `maxBuffer` here is 64 MiB. stdout is kept
+ * too but shorter, at 10 lines, because tools that report failures on stdout put the reason last;
+ * both are capped together at 4000 characters so one enormous line cannot defeat the line bound.
+ *
+ * WHAT IS NEVER PRINTED. The command's environment. A deploy environment can carry a token, and none
+ * of it is read here: only the command name, its arguments and its own output. An argument naming a
+ * path is kept, because a path is not its contents, and a value following a flag whose NAME says
+ * token, secret, password or key is replaced, which is cheap insurance rather than the main defence.
+ */
+export const FAILED_COMMAND_STDERR_LINES = 40;
+export const FAILED_COMMAND_STDOUT_LINES = 10;
+export const FAILED_COMMAND_MAX_CHARS = 4000;
+
+/** The last `lines` lines, then truncated to `maxChars` from the END, which is where the reason is. */
+export function outputTail(text: string, lines: number, maxChars: number): string {
+  const trimmed = text.replace(/\s+$/u, "");
+  if (trimmed === "") return "";
+  const kept = trimmed.split("\n").slice(-lines).join("\n");
+  return kept.length <= maxChars ? kept : `...${kept.slice(kept.length - maxChars)}`;
+}
+
+const SECRET_FLAG = /(token|secret|password|passwd|credential|apikey|api-key|key)$/iu;
+
+/**
+ * The argument list as the operator needs to see it, with any value that FOLLOWS a secret-named flag
+ * replaced. This is not a general secret scanner and does not pretend to be: the real guarantee is
+ * that the environment is never read, and that nothing here opens a file an argument names.
+ */
+export function redactArgs(args: readonly string[]): string[] {
+  const out: string[] = [];
+  let redactNext = false;
+  for (const arg of args) {
+    if (redactNext) {
+      out.push("<redacted>");
+      redactNext = false;
+      continue;
+    }
+    const inline = /^(--?[A-Za-z0-9-]+)=(.*)$/su.exec(arg);
+    if (inline?.[1] !== undefined && SECRET_FLAG.test(inline[1])) {
+      out.push(`${inline[1]}=<redacted>`);
+      continue;
+    }
+    if (/^--?[A-Za-z0-9-]+$/u.test(arg) && SECRET_FLAG.test(arg)) {
+      out.push(arg);
+      redactNext = true;
+      continue;
+    }
+    out.push(arg);
+  }
+  return out;
+}
+
+/**
+ * What a failed command's refusal says. The status comes first, because it is the first thing to
+ * know; the output follows it. When the command was not captured its output went straight to this
+ * terminal, so the message says to look above rather than implying there was nothing.
+ */
+export function describeCommandFailure(
+  command: string,
+  args: readonly string[],
+  captured: boolean,
+  result: Readonly<{ status: number | null; stdout?: string | null; stderr?: string | null }>,
+): string {
+  const invocation = [command, ...redactArgs(args)].join(" ");
+  const head = `${command} exited with status ${result.status ?? "unknown"}.`;
+  if (!captured)
+    return `${head} It ran as: ${invocation}. Its output was not captured and went to this terminal, so the reason is in the lines above.`;
+  const stderr = outputTail(
+    result.stderr ?? "",
+    FAILED_COMMAND_STDERR_LINES,
+    FAILED_COMMAND_MAX_CHARS,
+  );
+  const stdout = outputTail(
+    result.stdout ?? "",
+    FAILED_COMMAND_STDOUT_LINES,
+    Math.max(0, FAILED_COMMAND_MAX_CHARS - stderr.length),
+  );
+  const parts = [`${head} It ran as: ${invocation}.`];
+  if (stderr !== "")
+    parts.push(`Last ${FAILED_COMMAND_STDERR_LINES} lines of its stderr:\n${stderr}`);
+  if (stdout !== "")
+    parts.push(`Last ${FAILED_COMMAND_STDOUT_LINES} lines of its stdout:\n${stdout}`);
+  if (stderr === "" && stdout === "")
+    parts.push("It wrote nothing to stdout or stderr, so the status code is all it said.");
+  return parts.join("\n\n");
+}
+
 export function run(
   command: string,
   args: string[],
@@ -134,7 +234,9 @@ export function run(
 
   if (result.error) throw result.error;
   if (result.status !== 0) {
-    throw new Error(`${command} exited with status ${result.status ?? "unknown"}.`);
+    // The output is read BEFORE the throw. It used to be discarded here and read four lines below,
+    // which no failure ever reached.
+    throw new Error(describeCommandFailure(command, args, capture, result));
   }
 
   const stdout = result.stdout ?? "";

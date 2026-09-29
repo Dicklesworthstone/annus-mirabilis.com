@@ -9,20 +9,29 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  __resetSpawnForTesting,
+  __setSpawnForTesting,
   assertCompletePrebuiltArtifact,
   assertQualityGatesResult,
   type CommandResult,
   candidateRecordWithoutChecks,
   deploymentUrl,
+  describeCommandFailure,
   determinePromotionHostnames,
   executePromotionStateMachine,
+  FAILED_COMMAND_MAX_CHARS,
+  FAILED_COMMAND_STDERR_LINES,
   filterTrackedWorkingTreeChanges,
   getReleaseRecordPath,
   loadReleaseCandidate,
+  outputTail,
   parseCliArgs,
   parseConflictingBuilds,
   parseProtectedPreviewStatus,
   type ReleaseCandidateRecord,
+  redactArgs,
+  run,
+  type SpawnFn,
   toolRunArtifactDirectory,
   validatePromotePreconditions,
 } from "./verified-production-deploy";
@@ -411,5 +420,134 @@ describe("scripts/verified-production-deploy.ts pipeline safety tests", () => {
     expect(() =>
       validatePromotePreconditions({ record, currentHeadCommit: record.commit }),
     ).toThrow(/has failed candidate checks/i);
+  });
+});
+
+describe("a failed command says what went wrong (dispatch 476)", () => {
+  /* The real seam: `run` spawns through activeSpawn, so a fake spawn exercises the actual failing
+   * path rather than a reimplementation of it. A deploy of 44 commits was refused with the single
+   * line "vercel exited with status 1", because the throw happened before stderr was read. */
+  const fakeSpawn = (
+    result: Partial<ReturnType<typeof import("node:child_process").spawnSync>>,
+  ): SpawnFn => (() => ({ status: 1, stdout: "", stderr: "", ...result })) as unknown as SpawnFn;
+
+  test("the thrown message carries the captured stderr, after the status", () => {
+    __setSpawnForTesting(
+      fakeSpawn({
+        status: 1,
+        stderr:
+          "Error: You have reached your daily deployment limit.\nUpgrade your plan or wait 6 hours.",
+      }),
+    );
+    try {
+      expect(() => run("vercel", ["deploy", "--prebuilt", "--prod"], true)).toThrow(
+        /exited with status 1/u,
+      );
+      let message = "";
+      try {
+        run("vercel", ["deploy", "--prebuilt", "--prod"], true);
+      } catch (error) {
+        message = error instanceof Error ? error.message : String(error);
+      }
+      // The status first, because it is the first thing to know; then the reason.
+      expect(message.indexOf("exited with status 1")).toBeLessThan(
+        message.indexOf("daily deployment limit"),
+      );
+      expect(message).toContain("Upgrade your plan or wait 6 hours.");
+      expect(message).toContain("It ran as: vercel deploy --prebuilt --prod");
+    } finally {
+      __resetSpawnForTesting();
+    }
+  });
+
+  test("a command that failed with output only on stdout still explains itself", () => {
+    __setSpawnForTesting(fakeSpawn({ status: 2, stdout: "gate failed: budgets.ts over budget" }));
+    try {
+      let message = "";
+      try {
+        run("bun", ["scripts/quality-gates.ts"], true);
+      } catch (error) {
+        message = error instanceof Error ? error.message : String(error);
+      }
+      expect(message).toContain("exited with status 2");
+      expect(message).toContain("gate failed: budgets.ts over budget");
+    } finally {
+      __resetSpawnForTesting();
+    }
+  });
+
+  test("a silent failure says the status code is all there was, rather than nothing", () => {
+    // Otherwise an empty stderr and a discarded stderr look identical to the operator, which is the
+    // ambiguity that made the original defect survive.
+    __setSpawnForTesting(fakeSpawn({ status: 1 }));
+    try {
+      let message = "";
+      try {
+        run("vercel", ["alias", "set", "x", "y"], true);
+      } catch (error) {
+        message = error instanceof Error ? error.message : String(error);
+      }
+      expect(message).toContain("wrote nothing to stdout or stderr");
+    } finally {
+      __resetSpawnForTesting();
+    }
+  });
+
+  test("an uncaptured command points at the terminal instead of implying silence", () => {
+    // No captured output at all, which is what stdio: inherit leaves behind.
+    __setSpawnForTesting(fakeSpawn({ status: 1 }));
+    try {
+      let message = "";
+      try {
+        run("bun", ["run", "build"], false);
+      } catch (error) {
+        message = error instanceof Error ? error.message : String(error);
+      }
+      expect(message).toContain("went to this terminal");
+      expect(message).toContain("the lines above");
+    } finally {
+      __resetSpawnForTesting();
+    }
+  });
+
+  test("the output is bounded by lines and by characters, and keeps the END", () => {
+    // A bound that kept the head would throw away the reason, which tools print last.
+    const many = Array.from({ length: 500 }, (_, i) => `line ${i + 1}`).join("\n");
+    const tail = outputTail(many, FAILED_COMMAND_STDERR_LINES, FAILED_COMMAND_MAX_CHARS);
+    expect(tail.split("\n")).toHaveLength(FAILED_COMMAND_STDERR_LINES);
+    expect(tail.endsWith("line 500")).toBe(true);
+    expect(tail).not.toContain("line 460\n");
+
+    // One enormous line must not defeat the line bound.
+    const wall = `${"x".repeat(50_000)}\nthe actual reason`;
+    const capped = outputTail(wall, FAILED_COMMAND_STDERR_LINES, FAILED_COMMAND_MAX_CHARS);
+    expect(capped.length).toBeLessThanOrEqual(FAILED_COMMAND_MAX_CHARS + 3);
+    expect(capped.endsWith("the actual reason")).toBe(true);
+
+    // And the two tails together stay within the one budget.
+    const message = describeCommandFailure("vercel", ["deploy"], true, {
+      status: 1,
+      stdout: many,
+      stderr: many,
+    });
+    expect(message.length).toBeLessThan(FAILED_COMMAND_MAX_CHARS + 600);
+  });
+
+  test("a value following a secret-named flag is replaced, and a path is not", () => {
+    expect(
+      redactArgs(["deploy", "--token", "abc123", "--authorization", "auth/deploy.json"]),
+    ).toEqual(["deploy", "--token", "<redacted>", "--authorization", "auth/deploy.json"]);
+    expect(redactArgs(["--api-key=sk-live-1", "--profile=launch"])).toEqual([
+      "--api-key=<redacted>",
+      "--profile=launch",
+    ]);
+    // The real guarantee is the negative: nothing here reads process.env, and the message is built
+    // only from the command, its arguments and its own output.
+    const message = describeCommandFailure("vercel", ["deploy", "--token", "abc123"], true, {
+      status: 1,
+      stderr: "nope",
+    });
+    expect(message).not.toContain("abc123");
+    expect(message).toContain("<redacted>");
   });
 });
