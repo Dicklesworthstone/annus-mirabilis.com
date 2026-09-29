@@ -20,7 +20,7 @@
   "scripts/e2e/fixtures/bundleFixtures.ts": 2,
   "scripts/e2e/fixtures/fixtureServer.ts": 1,
   "scripts/e2e/fixtures/runFixtureBuild.ts": 2,
-  "scripts/e2e/journeys/massEnergy.ts": 16,
+  "scripts/e2e/journeys/steps.ts": 16,
   "scripts/e2e/lanes.ts": 9,
   "scripts/e2e/paper-e2e-contract.ts": 12,
   "scripts/e2e/paperJourney.ts": 1,
