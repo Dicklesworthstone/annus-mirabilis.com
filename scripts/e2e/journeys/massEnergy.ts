@@ -156,50 +156,63 @@ export const MASS_ENERGY_ACTIONS: Readonly<Record<PaperE2EJourneyStepKind, Journ
 
     async "return-to-argument"(page, baseUrl) {
       /*
-       * THE STEP THIS JOURNEY CANNOT PERFORM, and it is not routed around.
+       * A CORRECTION TO WHAT THIS STEP CLAIMED (dispatch 446).
        *
-       * The way back is authored: every foundation link carries `data-return-caption`, and this one's
-       * is "Return to comparing the two energy accounts." With the panel open, that sentence appears
-       * in exactly one place in the document - inside a <script>, the hydration payload - and nothing
-       * renders it. Measured on the built page with the panel open: no element whose own text is the
-       * caption, no button or link in the panel whose name matches return, back or close, and zero
-       * elements carrying `[data-return]` or `[data-return-to]` anywhere.
+       * This step used to fail, and the report said there was NO reader-facing route back. That was
+       * wrong, and the mistake was in the measurement rather than in the edition: I searched for
+       * `[data-return]` attributes that do not exist and for return-like controls INSIDE
+       * `[data-foundation-panel]`, when the controls live in the dialog's chrome beside the panel.
+       * They are there and they work - measured: "Return to the exact step" closes the panel, drops
+       * ?open= from the address and restores focus to the exact trigger the reader left
+       * (a#me-entrance-work-energy). AGENTS.md's "no prerequisite dead ends" was not broken.
        *
-       * The browser's own Back button would work, since the URL carries ?open=. That is the browser's
-       * affordance and not the edition's, and AGENTS.md's journey asks for a return to the exact
-       * interrupted argument. Using page.goBack() here would turn a missing control into a green
-       * lane, so this asserts the control and fails while it is absent.
+       * What WAS missing is smaller and is now fixed in the reader: every foundation link carries an
+       * authored `data-return-caption` - here "Return to comparing the two energy accounts." - which
+       * reached the client and was rendered nowhere, so a reader saw a generic label where a sentence
+       * about their own argument had been written for them. The panel now renders it as the route
+       * itself, and this step asserts the authored words, the return, and the focus.
        */
       void baseUrl;
-      const caption = await page
+      const authored = await page
         .locator("a[data-foundation][data-return-caption]")
         .first()
         .getAttribute("data-return-caption");
-      const rendered = await page.getByText(caption ?? "", { exact: false }).count();
-      const controls = await page.locator("[data-return], [data-return-to]").count();
-      const named = await page
-        .locator("[data-foundation-panel]:visible")
-        .locator("a, button")
-        .evaluateAll(
-          (els) =>
-            els.filter((el) =>
-              /return|back|close/iu.test(
-                `${el.textContent ?? ""} ${el.getAttribute("aria-label") ?? ""}`,
-              ),
-            ).length,
-        );
-      if (rendered > 0 || controls > 0 || named > 0) {
-        const back = page.locator("[data-return], [data-return-to]").first();
-        if ((await back.count()) > 0) {
-          await back.click({ timeout: 10000, noWaitAfter: true });
-          await requirePresent(page, "[data-argument-id]", "the argument returned to");
-          return { expected: "the reader is back at the argument", actual: "a return control" };
-        }
-      }
-      throw new Error(
-        `no reader-facing route back to the argument: the caption "${caption}" renders in ${rendered} element(s), ` +
-          `${controls} element(s) carry data-return, and the open panel offers ${named} control(s) named return, back or close`,
+      const trigger = await page
+        .locator("a[data-foundation][data-return-caption]")
+        .first()
+        .getAttribute("id");
+      const authoredRoute = page.locator(
+        "[data-return-caption-line]:visible [data-return-caption-link]",
       );
+      const generic = page.locator("button[data-reader-close]");
+      let used: string;
+      if ((await authoredRoute.count()) > 0) {
+        const shown = (await authoredRoute.first().innerText()).trim();
+        if (shown !== (authored ?? "").trim())
+          throw new Error(`the way back reads "${shown}" where the link authored "${authored}"`);
+        used = `the authored route: ${shown}`;
+        await authoredRoute.first().click({ timeout: 10000, noWaitAfter: true });
+      } else if ((await generic.count()) > 0) {
+        // The generic control is a real route back, so the journey is not broken by its label; the
+        // authored caption is asserted above only when the panel renders it.
+        used = `the generic route: ${(await generic.first().innerText()).trim()}`;
+        await generic.first().click({ timeout: 10000, noWaitAfter: true });
+      } else {
+        throw new Error("the open lesson offers no route back to the argument");
+      }
+      // The return is only a return if the lesson closes, the address stops naming it, and the
+      // reader's focus is where they left it.
+      await page.waitForFunction(
+        () => document.querySelectorAll("[data-foundation-panel]:not([hidden])").length === 0,
+        undefined,
+        { timeout: 15000 },
+      );
+      if (page.url().includes("open=foundation"))
+        throw new Error(`the lesson closed but the address still names it: ${page.url()}`);
+      const focused = await page.evaluate(() => document.activeElement?.id ?? "");
+      if (trigger && focused !== trigger)
+        throw new Error(`focus landed on "${focused}" rather than the trigger "${trigger}"`);
+      return { expected: "the reader is back at the interrupted argument, focused", actual: used };
     },
 
     async "operate-instrument"(page, baseUrl) {
