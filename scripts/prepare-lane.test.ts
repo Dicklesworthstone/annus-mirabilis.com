@@ -63,7 +63,9 @@ describe("prepare lane: the chain is derived, not restated", () => {
     // content compiler. The literal read `steps[0] === build-content.ts` and went red, without any
     // regression, when generate-quantity-labels.ts (0e4499eb) took the first slot of the same phase.
     assert.ok(
-      steps.some((s) => s.phase === "prepare:content" && s.command === "bun scripts/build-content.ts"),
+      steps.some(
+        (s) => s.phase === "prepare:content" && s.command === "bun scripts/build-content.ts",
+      ),
       "the content compiler runs in the prepare:content phase",
     );
     assert.equal(steps.at(-1)?.phase, "prepare:offline");

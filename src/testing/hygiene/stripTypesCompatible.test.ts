@@ -52,7 +52,9 @@ describe("no tracked TypeScript under src or scripts needs code generated for it
     const violations = files.flatMap((file) =>
       stripTypesViolations(file, readFileSync(join(ROOT, file), "utf8")),
     );
-    console.log(`strip-types compatibility: examined ${files.length} files, ${violations.length} violations`);
+    console.log(
+      `strip-types compatibility: examined ${files.length} files, ${violations.length} violations`,
+    );
     expect(violations.map((v) => `${v.file}:${v.line} ${v.construct}`)).toEqual([]);
   });
 });
