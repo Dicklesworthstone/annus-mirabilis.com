@@ -35,6 +35,7 @@ import type {
   WasmCapabilityTarget,
 } from "./candidate-checks.ts";
 import { retryingFetcher } from "./candidate-checks.ts";
+import { refusalAnnouncedBy } from "./refusalAnnouncement.ts";
 
 /** The origin the page believes it is on. It resolves nowhere, which is the point. */
 const SYNTHETIC_ORIGIN = "https://candidate-under-test.invalid";
@@ -370,21 +371,10 @@ export async function createCandidateBrowserProbe(
             .join(" ")
             .slice(0, 600),
           nonFiniteTokens: [...new Set(text.match(/NaN|Infinity/gu) ?? [])],
-          /*
-           * The live region a reader who cannot see the screen would be told through. Read from the
-           * refusal element itself or its nearest ancestor, because that is exactly what an
-           * assistive technology follows, and reported as "none" when there is no such region.
-           */
-          announcedBy: (() => {
-            const marked = document.querySelector("[data-refusal-code]");
-            const region = marked?.closest("[aria-live],[role='status'],[role='alert']");
-            if (!region) return "none";
-            return (
-              region.getAttribute("aria-live") ?? region.getAttribute("role") ?? "a live region"
-            );
-          })(),
         };
       });
+      // A separate evaluate: the callback above is serialized into the page and cannot call it.
+      const announcedBy = await page.evaluate(refusalAnnouncedBy as () => string);
       errors.push(...unsuppliedSentences(state.unsupplied));
       await page.close();
       return Object.freeze({
@@ -392,7 +382,7 @@ export async function createCandidateBrowserProbe(
         codes: Object.freeze([...observed.codes]),
         readerText: observed.readerText,
         nonFiniteTokens: Object.freeze([...observed.nonFiniteTokens]),
-        announcedBy: observed.announcedBy,
+        announcedBy,
         pageErrors: Object.freeze([...errors]),
       });
     },
