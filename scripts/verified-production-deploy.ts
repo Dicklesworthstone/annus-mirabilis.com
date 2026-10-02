@@ -95,6 +95,9 @@ export interface ReleaseCandidateRecord {
   readonly candidateChecks?: readonly CandidateCheckResult[] | undefined;
   readonly authorizationRef?: string | undefined;
   readonly targetHostnames?: readonly string[] | undefined;
+  /** How this release ended, set when the durable record is written (am-rc1001-bridge-plan-pcjk.3). */
+  readonly outcome?: "candidate-recorded" | "refused" | "promoted" | undefined;
+  readonly finishedAt?: string | undefined;
 }
 
 export type CommandResult = {
@@ -764,6 +767,118 @@ export function validatePromotePreconditions(options: {
   }
 }
 
+/**
+ * WHICH COMMIT IS LIVE, ANSWERED BY THE SITE ITSELF (am-rc1001-bridge-plan-pcjk.3).
+ *
+ * On 2026-10-01 nobody could say which commit production was built from without probing for
+ * content differences: it turned out to be a line of 27 commits on no branch and no remote. The
+ * deploy script now writes public/release.json before `vercel build`, so the exact deployed bytes
+ * carry their commit, and the post-promotion smoke test reads it back from the live alias.
+ */
+export const RELEASE_IDENTITY_SCHEMA = "annus-mirabilis-release-identity.v1";
+
+export type ReleaseIdentity = Readonly<{
+  schema: typeof RELEASE_IDENTITY_SCHEMA;
+  commit: string;
+  profile: ReleaseProfile;
+  toolRunId: string;
+  builtAt: string;
+}>;
+
+export function releaseIdentity(fields: Omit<ReleaseIdentity, "schema">): ReleaseIdentity {
+  return { schema: RELEASE_IDENTITY_SCHEMA, ...fields };
+}
+
+/** Writes public/release.json (gitignored), which the static export serves at /release.json. */
+export function writeReleaseIdentity(identity: ReleaseIdentity, root = process.cwd()): string {
+  const file = path.join(root, "public", "release.json");
+  fs.writeFileSync(file, `${JSON.stringify(identity, null, 2)}\n`, "utf8");
+  return file;
+}
+
+/**
+ * Why a commit must not be released, or undefined when it may: it has to be on origin/main, as
+ * of a fetch made now. On 2026-09-29 the live site was built from commits that existed in one
+ * checkout only, and a reset of main would have removed them from production on the next deploy
+ * (docs/DECISIONS.md D-2026-10-02-restore-main-by-merge).
+ */
+export function originAncestryRefusal(
+  commit: string,
+  observed: Readonly<{ fetched: boolean; isAncestor: boolean }>,
+): string | undefined {
+  if (!observed.fetched) {
+    return `could not fetch origin, so whether ${commit} is on origin/main is unknown. Fix the network or credentials and retry; an unknown is not a pass.`;
+  }
+  if (!observed.isAncestor) {
+    return `${commit} is not on origin/main. Release only a commit that is on origin/main: push it (or merge it into main and push), then rerun.`;
+  }
+  return undefined;
+}
+
+/** Fetches origin/main now and asks git whether `commit` is an ancestor of it. */
+export function observeOriginAncestry(
+  commit: string,
+): Readonly<{ fetched: boolean; isAncestor: boolean }> {
+  const fetched = activeSpawn("git", ["fetch", "--quiet", "origin", "main"], {
+    cwd: process.cwd(),
+    encoding: "utf8",
+  });
+  if (fetched.error || fetched.status !== 0) return { fetched: false, isAncestor: false };
+  const ancestry = activeSpawn("git", ["merge-base", "--is-ancestor", commit, "origin/main"], {
+    cwd: process.cwd(),
+    encoding: "utf8",
+  });
+  return { fetched: true, isAncestor: !ancestry.error && ancestry.status === 0 };
+}
+
+export function assertCommitOnOrigin(commit: string, stage: string): void {
+  const refusal = originAncestryRefusal(commit, observeOriginAncestry(commit));
+  if (refusal !== undefined) throw new Error(`${stage}: ${refusal}`);
+}
+
+/**
+ * The durable copy of a release record: docs/releases/<commit>-<toolRunId>.json, committed by
+ * explicit path and pushed. Every record before 2026-10-02 went into artifacts/ (gitignored),
+ * usually inside a scratch worktree, and none survived; the iPhone app could not bind to a web
+ * release because none existed. A failed commit or push warns rather than fails: the release has
+ * already happened by now, and the operator is told exactly what to push.
+ */
+export function persistReleaseRecord(record: ReleaseCandidateRecord, root = process.cwd()): string {
+  const dir = path.join(root, "docs", "releases");
+  const recordPath = saveReleaseCandidateRecord(record, dir);
+  const relative = path.relative(root, recordPath);
+  const quiet = { cwd: root, encoding: "utf8" as const };
+  const added = activeSpawn("git", ["add", "--", relative], quiet);
+  const committed =
+    !added.error && added.status === 0
+      ? activeSpawn(
+          "git",
+          [
+            "commit",
+            "--quiet",
+            "-m",
+            `chore(release): record ${record.toolRunId}, ${record.outcome ?? "unfinished"}, commit ${record.commit.slice(0, 8)}`,
+            "--",
+            relative,
+          ],
+          quiet,
+        )
+      : added;
+  if (committed.error || committed.status !== 0) {
+    console.warn(
+      `Release record written to ${relative} but NOT committed; commit and push it by hand.`,
+    );
+    return recordPath;
+  }
+  const pushed = activeSpawn("git", ["push", "--quiet", "origin", "HEAD:main"], quiet);
+  if (pushed.error || pushed.status !== 0) {
+    console.warn(
+      `Release record committed as ${relative} but NOT pushed; run git push origin HEAD:main.`,
+    );
+  }
+  return recordPath;
+}
+
 export function getReleaseRecordPath(
   toolRunId: string,
   customDir?: string,
@@ -795,20 +910,28 @@ export function loadReleaseCandidate(
     const raw = fs.readFileSync(identifier, "utf8");
     return JSON.parse(raw) as ReleaseCandidateRecord;
   }
-  const dir = customDir ?? path.join(process.cwd(), "artifacts", "releases");
-  const directPath = path.join(dir, `${identifier}.json`);
-  if (fs.existsSync(directPath)) {
-    const raw = fs.readFileSync(directPath, "utf8");
-    return JSON.parse(raw) as ReleaseCandidateRecord;
-  }
-  if (fs.existsSync(dir)) {
-    const files = fs.readdirSync(dir);
-    for (const file of files) {
+  // The durable copies (docs/releases, tracked) first, then the local working copies
+  // (artifacts/releases, gitignored), so a candidate recorded on another machine can be promoted.
+  const dirs =
+    customDir !== undefined
+      ? [customDir]
+      : [
+          path.join(process.cwd(), "docs", "releases"),
+          path.join(process.cwd(), "artifacts", "releases"),
+        ];
+  for (const dir of dirs) {
+    const directPath = path.join(dir, `${identifier}.json`);
+    if (fs.existsSync(directPath)) {
+      const raw = fs.readFileSync(directPath, "utf8");
+      return JSON.parse(raw) as ReleaseCandidateRecord;
+    }
+    if (!fs.existsSync(dir)) continue;
+    for (const file of fs.readdirSync(dir)) {
       if (!file.endsWith(".json")) continue;
-      const fullPath = path.join(dir, file);
       try {
-        const raw = fs.readFileSync(fullPath, "utf8");
-        const record = JSON.parse(raw) as ReleaseCandidateRecord;
+        const record = JSON.parse(
+          fs.readFileSync(path.join(dir, file), "utf8"),
+        ) as ReleaseCandidateRecord;
         if (
           record.toolRunId === identifier ||
           record.candidateDeploymentId === identifier ||
@@ -823,7 +946,7 @@ export function loadReleaseCandidate(
     }
   }
   throw new Error(
-    `Candidate release record not found for identifier '${identifier}' (looked in ${dir}).`,
+    `Candidate release record not found for identifier '${identifier}' (looked in ${dirs.join(", ")}).`,
   );
 }
 
@@ -908,6 +1031,10 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
         `[DRY-RUN] Verified deployment plan for profile '${options.profile}' (mode: ${mode})`,
       );
       console.log(`[DRY-RUN] Head commit: ${headCommit}`);
+      const originRefusal = originAncestryRefusal(headCommit, observeOriginAncestry(headCommit));
+      console.log(
+        `[DRY-RUN] On origin/main: ${originRefusal === undefined ? "yes" : `NO (${originRefusal})`}`,
+      );
       console.log(`[DRY-RUN] Target hostnames: ${targetHostnames.join(", ")}`);
       return;
     }
@@ -930,6 +1057,8 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
         record,
         currentHeadCommit: headCommit,
       });
+      assertCommitOnOrigin(record.commit, "promote");
+      process.env.EXPECTED_RELEASE_COMMIT = record.commit;
 
       const inspectOutput = run("vercel", ["inspect", record.candidateUrl], true).stdout;
       assertDeploymentReadyAndAliased(inspectOutput, targetHostnames);
@@ -941,12 +1070,28 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
         inspectRunner: (host) => run("vercel", ["inspect", host], true).stdout,
         smokeRunner: () => run("bun", ["scripts/smoke-test-deployment.ts"]),
       });
+      persistReleaseRecord({
+        ...record,
+        outcome: "promoted",
+        finishedAt: new Date().toISOString(),
+      });
       return;
     }
 
+    assertCommitOnOrigin(headCommit, "preflight");
     runPreflightQualityGates(options.profile);
 
     assertNoConflictingBuilds("before-build");
+    const toolRunId = newToolRunId();
+    writeReleaseIdentity(
+      releaseIdentity({
+        commit: headCommit,
+        profile: options.profile,
+        toolRunId,
+        builtAt: new Date().toISOString(),
+      }),
+    );
+    process.env.EXPECTED_RELEASE_COMMIT = headCommit;
     const buildStartedAt = Date.now();
     run("vercel", ["pull", "--yes"]);
     run("vercel", ["build", "--prod"]);
@@ -956,7 +1101,6 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     const deployResult = run("vercel", ["deploy", "--prebuilt", "--prod", "--skip-domain"], true);
     const candidateUrl = deploymentUrl(deployResult.stdout);
 
-    const toolRunId = newToolRunId();
     const candidateRecord = candidateRecordWithoutChecks({
       toolRunId,
       createdAt: new Date().toISOString(),
@@ -992,7 +1136,10 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     } finally {
       await probe?.close();
     }
-    saveReleaseCandidateRecord(candidateRecordWithChecks(candidateRecord, checks));
+    const checkedRecord = candidateRecordWithChecks(candidateRecord, checks);
+    saveReleaseCandidateRecord(checkedRecord);
+    const finish = (outcome: "candidate-recorded" | "refused" | "promoted") =>
+      persistReleaseRecord({ ...checkedRecord, outcome, finishedAt: new Date().toISOString() });
     for (const check of checks) {
       console.log(`candidate check ${check.name}: ${check.status}. ${check.detail}`);
     }
@@ -1000,6 +1147,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       console.error(
         `\nVerified production deployment refused: a candidate check failed on ${candidateUrl}; no alias moved. ${summarizeCandidateChecks(checks)}`,
       );
+      finish("refused");
       process.exitCode = 1;
       return;
     }
@@ -1008,6 +1156,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       console.log(
         `Candidate deployment recorded: ${candidateUrl} (toolRunId: ${toolRunId}). No aliases moved.`,
       );
+      finish("candidate-recorded");
       return;
     }
 
@@ -1016,10 +1165,14 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       console.error(
         `\nVerified production deployment refused on ${candidateUrl}; no alias moved: ${refusal}`,
       );
+      finish("refused");
       process.exitCode = 1;
       return;
     }
 
+    // The bytes just checked were built from headCommit. If anything committed in this checkout
+    // since (an auto-committer did, twice, on 2026-10-02), refuse rather than label the release.
+    assertCommitUnchanged(headCommit, "before-promotion");
     executePromotionStateMachine({
       candidateUrl,
       targetHostnames,
@@ -1027,6 +1180,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       inspectRunner: (host) => run("vercel", ["inspect", host], true).stdout,
       smokeRunner: () => run("bun", ["scripts/smoke-test-deployment.ts"]),
     });
+    finish("promoted");
   } finally {
     lock.close();
   }

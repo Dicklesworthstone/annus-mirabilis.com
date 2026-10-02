@@ -4,13 +4,15 @@
  * Owner: am-rel-verified-deploy-qndt
  */
 
-import { describe, expect, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
 import * as fs from "node:fs";
+import * as os from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   __resetSpawnForTesting,
   __setSpawnForTesting,
+  assertCommitOnOrigin,
   assertCompletePrebuiltArtifact,
   assertQualityGatesResult,
   type CommandResult,
@@ -26,17 +28,23 @@ import {
   filterTrackedWorkingTreeChanges,
   getReleaseRecordPath,
   loadReleaseCandidate,
+  observeOriginAncestry,
+  originAncestryRefusal,
   outputTail,
   parseCliArgs,
   parseConflictingBuilds,
   parseProtectedPreviewStatus,
+  persistReleaseRecord,
+  RELEASE_IDENTITY_SCHEMA,
   type ReleaseCandidateRecord,
   redactArgs,
+  releaseIdentity,
   run,
   runPreflightQualityGates,
   type SpawnFn,
   toolRunArtifactDirectory,
   validatePromotePreconditions,
+  writeReleaseIdentity,
 } from "./verified-production-deploy";
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
@@ -681,5 +689,126 @@ describe("the direct path moves no alias unless every candidate check passed (am
     expect(() =>
       validatePromotePreconditions({ record, currentHeadCommit: record.commit }),
     ).toThrow(/has failed candidate checks/i);
+  });
+});
+
+describe("a release is only of a commit on origin/main, and says which commit it is (am-rc1001-bridge-plan-pcjk.3)", () => {
+  const COMMIT = "0123456789abcdef0123456789abcdef01234567";
+
+  afterEach(() => {
+    __resetSpawnForTesting();
+  });
+
+  test("the guard: an ancestor of origin/main passes; not an ancestor, or no fetch, refuses", () => {
+    expect(originAncestryRefusal(COMMIT, { fetched: true, isAncestor: true })).toBeUndefined();
+    expect(originAncestryRefusal(COMMIT, { fetched: true, isAncestor: false })).toContain(
+      "is not on origin/main",
+    );
+    // An unknown is not a pass: a failed fetch refuses even if a stale ref would say "ancestor".
+    expect(originAncestryRefusal(COMMIT, { fetched: false, isAncestor: true })).toContain(
+      "could not fetch origin",
+    );
+  });
+
+  test("the observation fetches origin first, then asks git merge-base --is-ancestor", () => {
+    const calls: string[] = [];
+    const ancestorExit = { value: 1 };
+    __setSpawnForTesting(((command: string, args: readonly string[]) => {
+      calls.push([command, ...args].join(" "));
+      const status = args[0] === "merge-base" ? ancestorExit.value : 0;
+      return { status, stdout: "", stderr: "" };
+    }) as unknown as SpawnFn);
+    expect(observeOriginAncestry(COMMIT)).toEqual({ fetched: true, isAncestor: false });
+    expect(calls).toEqual([
+      "git fetch --quiet origin main",
+      `git merge-base --is-ancestor ${COMMIT} origin/main`,
+    ]);
+    ancestorExit.value = 0;
+    expect(observeOriginAncestry(COMMIT)).toEqual({ fetched: true, isAncestor: true });
+  });
+
+  test("a failed fetch is observed as unfetched, never as an ancestor", () => {
+    __setSpawnForTesting(((_c: string, args: readonly string[]) => ({
+      status: args[0] === "fetch" ? 128 : 0,
+      stdout: "",
+      stderr: "fatal: unable to access",
+    })) as unknown as SpawnFn);
+    expect(observeOriginAncestry(COMMIT)).toEqual({ fetched: false, isAncestor: false });
+    expect(() => assertCommitOnOrigin(COMMIT, "preflight")).toThrow(/preflight: could not fetch/);
+  });
+
+  test("the release identity is written to public/release.json with its commit", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "am-release-identity-"));
+    fs.mkdirSync(path.join(root, "public"));
+    const identity = releaseIdentity({
+      commit: COMMIT,
+      profile: "scaffold",
+      toolRunId: "20261002T000000Z-test",
+      builtAt: "2026-10-02T00:00:00.000Z",
+    });
+    const written = writeReleaseIdentity(identity, root);
+    expect(written).toBe(path.join(root, "public", "release.json"));
+    const read = JSON.parse(fs.readFileSync(written, "utf8"));
+    expect(read).toEqual(identity);
+    expect(read.schema).toBe(RELEASE_IDENTITY_SCHEMA);
+    expect(read.commit).toBe(COMMIT);
+  });
+
+  test("the durable record lands in docs/releases and is committed by explicit path, then pushed", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "am-release-durable-"));
+    const calls: string[] = [];
+    __setSpawnForTesting(((command: string, args: readonly string[]) => {
+      calls.push([command, ...args].join(" "));
+      return { status: 0, stdout: "", stderr: "" };
+    }) as unknown as SpawnFn);
+    const record = {
+      ...candidateRecordWithoutChecks({
+        toolRunId: "20261002T000000Z-test",
+        createdAt: "2026-10-02T00:00:00.000Z",
+        commit: COMMIT,
+        profile: "scaffold",
+        candidateUrl: "https://example.invalid/candidate",
+      }),
+      outcome: "promoted" as const,
+    };
+    const written = persistReleaseRecord(record, root);
+    const relative = path.relative(root, written);
+    expect(relative).toBe(path.join("docs", "releases", `${COMMIT}-20261002T000000Z-test.json`));
+    expect(JSON.parse(fs.readFileSync(written, "utf8")).outcome).toBe("promoted");
+    expect(calls[0]).toBe(`git add -- ${relative}`);
+    // The commit names its path, so nothing else staged in a shared tree rides along.
+    expect(
+      calls[1]?.startsWith(
+        "git commit --quiet -m chore(release): record 20261002T000000Z-test, promoted",
+      ),
+    ).toBe(true);
+    expect(calls[1]?.endsWith(`-- ${relative}`)).toBe(true);
+    expect(calls[2]).toBe("git push --quiet origin HEAD:main");
+  });
+
+  test("a durable record is found by --promote before the local working copies", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "am-release-lookup-"));
+    const durable = path.join(root, "docs", "releases");
+    fs.mkdirSync(durable, { recursive: true });
+    const record = candidateRecordWithoutChecks({
+      toolRunId: "20261002T010101Z-durable",
+      createdAt: "2026-10-02T01:01:01.000Z",
+      commit: COMMIT,
+      profile: "scaffold",
+      candidateUrl: "https://example.invalid/durable",
+    });
+    fs.writeFileSync(
+      path.join(durable, `${COMMIT}-20261002T010101Z-durable.json`),
+      JSON.stringify(record),
+    );
+    const cwd = process.cwd();
+    try {
+      process.chdir(root);
+      expect(loadReleaseCandidate("20261002T010101Z-durable").candidateUrl).toBe(
+        "https://example.invalid/durable",
+      );
+    } finally {
+      process.chdir(cwd);
+    }
   });
 });

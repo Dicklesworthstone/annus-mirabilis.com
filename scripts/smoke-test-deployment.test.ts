@@ -11,7 +11,9 @@ import {
   __resetLogWriterForTesting,
   __setLogWriterForTesting,
   BASE_URL,
+  checkReleaseIdentity,
   checkUrl,
+  DEFAULT_ROUTES,
   type LogWriter,
   logEvent,
   runSmokeTests,
@@ -203,5 +205,76 @@ describe("runSmokeTests multi-route execution", () => {
     const summaryEvent = loggedEvents.find((e) => e.step === "summary");
     expect(summaryEvent).toBeDefined();
     expect(summaryEvent?.outcome).toBe("fail");
+  });
+});
+
+describe("the release identity and the plan's smoke routes (am-rc1001-bridge-plan-pcjk.3)", () => {
+  const loggedEvents: Array<{ step: string; outcome: "pass" | "fail"; message: string }> = [];
+  const COMMIT = "0123456789abcdef0123456789abcdef01234567";
+  const page = `${"<html>".padEnd(1200, " ")}</html>`;
+
+  beforeEach(() => {
+    loggedEvents.length = 0;
+    __setLogWriterForTesting((step, outcome, message) => {
+      loggedEvents.push({ step, outcome, message });
+    });
+  });
+
+  afterEach(() => {
+    __resetLogWriterForTesting();
+  });
+
+  const serving = (identity: unknown, identityStatus = 200): typeof fetch =>
+    (async (url: RequestInfo | URL) =>
+      String(url).endsWith("/release.json")
+        ? new Response(JSON.stringify(identity), { status: identityStatus })
+        : new Response(page, { status: 200 })) as typeof fetch;
+
+  test("the default routes are the home page and plan §18.3's mass-energy paper and German endpoint", () => {
+    expect(DEFAULT_ROUTES).toEqual([
+      "/",
+      "/papers/mass-energy/",
+      "/papers/mass-energy/view/german/",
+    ]);
+  });
+
+  test("the live build naming the promoted commit passes", async () => {
+    expect(
+      await checkReleaseIdentity(COMMIT, "https://x.invalid", serving({ commit: COMMIT })),
+    ).toBe(true);
+  });
+
+  test("an alias still on another build fails, naming both commits", async () => {
+    const other = "fedcba9876543210fedcba9876543210fedcba98";
+    expect(
+      await checkReleaseIdentity(COMMIT, "https://x.invalid", serving({ commit: other })),
+    ).toBe(false);
+    const event = loggedEvents.find((e) => e.step === "check:release-identity");
+    expect(event?.outcome).toBe("fail");
+    expect(event?.message).toContain(other);
+    expect(event?.message).toContain(COMMIT);
+  });
+
+  test("a build with no /release.json fails rather than passing silently", async () => {
+    expect(await checkReleaseIdentity(COMMIT, "https://x.invalid", serving({}, 404))).toBe(false);
+  });
+
+  test("runSmokeTests applies the identity check when given a commit, and fails the run on a mismatch", async () => {
+    const ok = await runSmokeTests(
+      DEFAULT_ROUTES,
+      "https://x.invalid",
+      serving({ commit: COMMIT }),
+      false,
+      COMMIT,
+    );
+    expect(ok).toBe(true);
+    const bad = await runSmokeTests(
+      DEFAULT_ROUTES,
+      "https://x.invalid",
+      serving({ commit: "nope" }),
+      false,
+      COMMIT,
+    );
+    expect(bad).toBe(false);
   });
 });

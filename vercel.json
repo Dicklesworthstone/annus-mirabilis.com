@@ -8,6 +8,24 @@
   },
   "headers": [
     {
+      "source": "/wasm/([^/]+)/([0-9a-f]{16})/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/release.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    },
+    {
       "source": "/fonts/(.*)\\.(ttf|woff2)",
       "headers": [
         {

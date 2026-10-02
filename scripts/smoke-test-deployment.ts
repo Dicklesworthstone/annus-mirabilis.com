@@ -32,6 +32,58 @@ import { newToolRunId } from "./runIds";
 
 export const BASE_URL = process.env.BASE_URL || "https://annus-mirabilis.com";
 
+/**
+ * The routes a promotion must leave healthy. Plan §18.3 names the smoke test: "the mass–energy
+ * paper, because it is quick, plus its German edition endpoint". Until 2026-10-02 only "/" was
+ * checked (am-rc1001-bridge-plan-pcjk.3).
+ */
+export const DEFAULT_ROUTES: readonly string[] = [
+  "/",
+  "/papers/mass-energy/",
+  "/papers/mass-energy/view/german/",
+];
+
+/**
+ * The live alias serves the build it was promoted to: /release.json (written by the deploy script
+ * before `vercel build`) names the expected commit. Without this, a promotion that left an alias on
+ * an older deployment would pass every route check.
+ */
+export async function checkReleaseIdentity(
+  expectedCommit: string,
+  baseUrl: string = BASE_URL,
+  fetchFn: typeof fetch = fetch,
+): Promise<boolean> {
+  const url = `${baseUrl}/release.json`;
+  try {
+    const res = await fetchFn(url, { method: "GET", cache: "no-store" });
+    if (res.status !== 200) {
+      const message = `${url} returned HTTP ${res.status}; the live build does not say which commit it is`;
+      console.error(`❌ FAILED: ${message}`);
+      logEvent("check:release-identity", "fail", message);
+      return false;
+    }
+    const identity = (await res.json()) as { commit?: unknown };
+    if (
+      typeof identity.commit !== "string" ||
+      identity.commit.toLowerCase() !== expectedCommit.toLowerCase()
+    ) {
+      const message = `${url} names commit ${String(identity.commit)}, expected ${expectedCommit}`;
+      console.error(`❌ FAILED: ${message}`);
+      logEvent("check:release-identity", "fail", message);
+      return false;
+    }
+    const message = `${url} names the promoted commit ${expectedCommit}`;
+    console.log(`✓ OK: ${message}`);
+    logEvent("check:release-identity", "pass", message);
+    return true;
+  } catch (err: unknown) {
+    const message = `${url} - ${err instanceof Error ? err.message : String(err)}`;
+    console.error(`❌ NETWORK ERROR: ${message}`);
+    logEvent("check:release-identity", "fail", message);
+    return false;
+  }
+}
+
 export const toolRunId = newToolRunId();
 export const artifactDirectory = path.join(
   process.cwd(),
@@ -105,10 +157,11 @@ export async function checkUrl(
 }
 
 export async function runSmokeTests(
-  routes: readonly string[] = ["/"],
+  routes: readonly string[] = DEFAULT_ROUTES,
   baseUrl: string = BASE_URL,
   fetchFn: typeof fetch = fetch,
   exitOnFailure: boolean = true,
+  expectedCommit: string | undefined = process.env.EXPECTED_RELEASE_COMMIT,
 ): Promise<boolean> {
   console.log("=== Annus Mirabilis Production Smoke Test Gate ===");
   console.log(`Target: ${baseUrl}`);
@@ -121,6 +174,9 @@ export async function runSmokeTests(
   for (const route of routes) {
     const ok = await checkUrl(route, baseUrl, fetchFn);
     if (!ok) allPassed = false;
+  }
+  if (expectedCommit !== undefined && expectedCommit !== "") {
+    if (!(await checkReleaseIdentity(expectedCommit, baseUrl, fetchFn))) allPassed = false;
   }
 
   if (!allPassed) {
