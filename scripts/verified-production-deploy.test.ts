@@ -14,10 +14,12 @@ import {
   assertCompletePrebuiltArtifact,
   assertQualityGatesResult,
   type CommandResult,
+  candidateRecordWithChecks,
   candidateRecordWithoutChecks,
   deploymentUrl,
   describeCommandFailure,
   determinePromotionHostnames,
+  directPromotionRefusal,
   executePromotionStateMachine,
   FAILED_COMMAND_MAX_CHARS,
   FAILED_COMMAND_STDERR_LINES,
@@ -624,5 +626,60 @@ describe("a failed command says what went wrong (dispatch 476)", () => {
     } finally {
       __resetSpawnForTesting();
     }
+  });
+});
+
+describe("the direct path moves no alias unless every candidate check passed (am-rc1001-bridge-plan-pcjk.6)", () => {
+  const passed = (name: string) => ({ name, status: "passed" as const, detail: "ok" });
+  const unavailable = (name: string) => ({
+    name,
+    status: "not-available" as const,
+    detail: "browser probe could not launch",
+  });
+
+  test("every check passed: the direct path may promote", () => {
+    expect(directPromotionRefusal([passed("a"), passed("b")])).toBeUndefined();
+  });
+
+  test("a NOT-AVAILABLE check refuses, and is named with its status", () => {
+    // The planted case. Until 2026-10-02 only `failed` blocked the direct path, so this exact
+    // shape, the probe unable to launch, moved the aliases with two required checks unrun.
+    const refusal = directPromotionRefusal([
+      passed("paper-pages-served-as-built"),
+      unavailable("accepted-wasm-result-per-capability"),
+      unavailable("deliberate-typed-refusal"),
+    ]);
+    expect(refusal).toBeDefined();
+    expect(refusal).toContain("accepted-wasm-result-per-capability (not-available)");
+    expect(refusal).toContain("deliberate-typed-refusal (not-available)");
+  });
+
+  test("a failed check refuses too, and an empty result set is never a pass", () => {
+    expect(
+      directPromotionRefusal([passed("a"), { name: "b", status: "failed", detail: "x" }]),
+    ).toContain("b (failed)");
+    expect(directPromotionRefusal([])).toContain("no candidate check produced a result");
+  });
+
+  test("the direct path and --promote agree on the same results", () => {
+    // Both read allCandidateChecksPassed: the direct path through directPromotionRefusal, --promote
+    // through the record's candidateChecksPassed. A record built from not-available results is
+    // refused by both.
+    const results = [passed("a"), unavailable("b")];
+    const record = candidateRecordWithChecks(
+      candidateRecordWithoutChecks({
+        toolRunId: "20261002T000000Z-test",
+        createdAt: "2026-10-02T00:00:00.000Z",
+        commit: "0123456789012345678901234567890123456789",
+        profile: "scaffold",
+        candidateUrl: "https://example.invalid/candidate",
+      }),
+      results,
+    );
+    expect(record.candidateChecksPassed).toBe(false);
+    expect(directPromotionRefusal(results)).toBeDefined();
+    expect(() =>
+      validatePromotePreconditions({ record, currentHeadCommit: record.commit }),
+    ).toThrow(/has failed candidate checks/i);
   });
 });

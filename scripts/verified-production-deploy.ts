@@ -716,6 +716,25 @@ export function candidateRecordWithChecks(
   };
 }
 
+/**
+ * Why the DIRECT path (no --candidate-only, no --promote) must not move aliases, or undefined when
+ * it may. Every check has to have passed, exactly as --promote demands through
+ * candidateChecksPassed. Until 2026-10-02 the direct path refused only on `failed`, so a browser
+ * probe that could not launch turned the two checks AGENTS.md requires by name (an accepted WASM
+ * result per capability, a deliberate typed refusal) into `not-available` and the aliases moved
+ * anyway (am-rc1001-bridge-plan-pcjk.6).
+ */
+export function directPromotionRefusal(
+  checks: readonly CandidateCheckResult[],
+): string | undefined {
+  if (allCandidateChecksPassed(checks)) return undefined;
+  const notPassed = checks.filter((check) => check.status !== "passed");
+  const named = notPassed.map((check) => `${check.name} (${check.status})`).join(", ");
+  return checks.length === 0
+    ? "no candidate check produced a result, so nothing about this deployment is verified"
+    : `candidate checks did not all pass: ${named}. Re-run once the checks can run, or record the candidate with --candidate-only and promote it later with --promote.`;
+}
+
 export function validatePromotePreconditions(options: {
   record: ReleaseCandidateRecord;
   currentHeadCommit: string;
@@ -989,6 +1008,15 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       console.log(
         `Candidate deployment recorded: ${candidateUrl} (toolRunId: ${toolRunId}). No aliases moved.`,
       );
+      return;
+    }
+
+    const refusal = directPromotionRefusal(checks);
+    if (refusal !== undefined) {
+      console.error(
+        `\nVerified production deployment refused on ${candidateUrl}; no alias moved: ${refusal}`,
+      );
+      process.exitCode = 1;
       return;
     }
 
