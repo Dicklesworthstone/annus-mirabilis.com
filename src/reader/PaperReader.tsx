@@ -564,7 +564,7 @@ export async function PaperReader({
           omission was deliberate, and no decision record names it.
           Gated on `section` exactly as PaperPage line 796 is, so the ledger sits on the
           whole-paper page and a section page does not republish the same ids. */}
-      {section ? null : <PaperMargins margins={loadPaperMargins(paper.id)} />}
+      {section ? null : <PaperMargins margins={loadPaperMargins(paper.id)} paperId={paper.id} />}
       {/* The paper's own discovery route (measured 2026-09-28: every paper page linked /discover/
           once, and it was the index from the global nav). Renders nothing for a paper with no
           route. */}

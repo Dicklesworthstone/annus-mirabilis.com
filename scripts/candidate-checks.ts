@@ -40,6 +40,35 @@ export type Fetched = Readonly<{ status: number; body: Buffer }>;
 /** Resolves with the HTTP status and body, or with status 0 when the request itself failed. */
 export type Fetcher = (path: string) => Promise<Fetched>;
 
+/**
+ * The arguments `vercel curl` is given, as a value a test can read.
+ *
+ * `-L` is the part that matters. The candidate is behind Vercel SSO, and this module's own
+ * documentation records what that means: "a plain browser request gets a 302 to vercel.com/sso-api".
+ * Without -L a redirect IS the answer this fetcher returns, and the browser probe fulfils a response
+ * with status, body and content type but NO location header, so the asset silently never arrives.
+ *
+ * Measured 2026-09-29 against the built export of 65db2e50: a planted 302 on one chunk BM-01 needs
+ * reproduces the candidate's line exactly, labels [static] then [static], 0 wasm requests, wording
+ * absent, and ZERO page errors. The same path planted at 404 produces the same damage and IS
+ * reported. So a redirect was the one transport failure this harness could neither follow nor see.
+ */
+export function vercelCurlArgs(path: string, deploymentUrl: string, outFile: string): string[] {
+  return [
+    "curl",
+    path,
+    "--deployment",
+    deploymentUrl,
+    "--",
+    "-s",
+    "-L",
+    "-o",
+    outFile,
+    "-w",
+    "%{http_code}",
+  ];
+}
+
 /** Fetches a path from a protected candidate through `vercel curl`, which supplies the bypass. */
 export function vercelCurlFetcher(deploymentUrl: string, cwd: string = process.cwd()): Fetcher {
   const dir = mkdtempSync(join(tmpdir(), "am-candidate-checks-"));
@@ -47,11 +76,10 @@ export function vercelCurlFetcher(deploymentUrl: string, cwd: string = process.c
   return (path) =>
     new Promise((resolve) => {
       const out = join(dir, `${n++}.bin`);
-      const child = spawn(
-        "vercel",
-        ["curl", path, "--deployment", deploymentUrl, "--", "-s", "-o", out, "-w", "%{http_code}"],
-        { cwd, stdio: ["ignore", "pipe", "pipe"] },
-      );
+      const child = spawn("vercel", vercelCurlArgs(path, deploymentUrl, out), {
+        cwd,
+        stdio: ["ignore", "pipe", "pipe"],
+      });
       let stdout = "";
       child.stdout.on("data", (chunk: Buffer) => {
         stdout += chunk.toString();
@@ -149,6 +177,36 @@ export type IdentityReport = Readonly<{
  * the build. A real HTTP status (404, 500) and a byte difference are never retried.
  */
 export const REQUEST_ATTEMPTS = 3;
+
+/**
+ * The same retry policy, as a Fetcher a caller can hand anywhere, because the browser probe had none.
+ *
+ * `servedAsBuilt` retries a status-0 request and reports which paths it retried. The browser probe
+ * served every byte on a single attempt, so one failed `vercel curl` subprocess left a page missing
+ * a chunk with nothing to say about it. Measured on 2026-09-28 against a complete export: planting a
+ * single status 0 for `/_next/static/chunks/4269.3973e0a70b800eb3.js` made BM-01 report labels
+ * `[static]` then `[static]`, 0 wasm requests, no FrankenSim wording AND no page error, which is
+ * exactly what that evening's candidate reported for BM-01 while BM-05 and BM-06 passed. Driven by
+ * hand and through this probe over the same export, BM-01 reaches "Ideal model, computed with
+ * FrankenSim" at three press timings, so a missing byte and a lab that never calls its owner are
+ * indistinguishable in the observation.
+ *
+ * A real HTTP status is the deployment's answer and is never retried.
+ */
+export function retryingFetcher(
+  fetcher: Fetcher,
+  attempts: number = REQUEST_ATTEMPTS,
+  delayMs = 500,
+): Fetcher {
+  return async (path) => {
+    let fetched = await fetcher(path);
+    for (let attempt = 1; fetched.status === 0 && attempt < attempts; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs * attempt));
+      fetched = await fetcher(path);
+    }
+    return fetched;
+  };
+}
 
 /** Fetches each path and compares its bytes with the uploaded file, a few requests at a time. */
 export async function servedAsBuilt(

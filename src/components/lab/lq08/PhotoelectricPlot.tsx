@@ -1,5 +1,6 @@
 import type { MillikanOverlayResult } from "../../../experiments/lq08/millikan.ts";
 import { visibleColor } from "../../../experiments/lq08/session.ts";
+import { AwaitingNote, placeholderOf } from "../predictPlaceholder.tsx";
 import { fixed } from "../presentation.ts";
 import { Sci, SubSvg } from "../Sci.tsx";
 
@@ -318,6 +319,7 @@ export function StoppingPotentialPlot({
           borderRadius: "0.25rem",
         }}
       >
+        <AwaitingNote placeholder={placeholderOf(response)} x={210} y={120} />
         {/* Axes */}
         <line
           x1={padding.left}
@@ -533,11 +535,13 @@ export function CurrentVoltagePlot({
         <span style={{ fontFamily: "var(--font-mono, monospace)" }}>
           I<sub>sat</sub> = {saturationCurrentMicroAmps.toFixed(2)} &mu;A
         </span>
+        . Below the retarding cutoff the curve stands at zero; above it the current flattens at that
+        saturation.
       </p>
       <svg
         viewBox={`0 0 ${width} ${height}`}
         role="img"
-        aria-label="Current-voltage characteristic curve showing saturation and retarding cutoff"
+        aria-label="Current against collector potential."
         style={{
           width: "100%",
           height: "auto",
@@ -546,6 +550,7 @@ export function CurrentVoltagePlot({
           borderRadius: "0.25rem",
         }}
       >
+        <AwaitingNote placeholder={placeholderOf(response)} x={190} y={95} />
         {/* Axes */}
         <line
           x1={padding.left}

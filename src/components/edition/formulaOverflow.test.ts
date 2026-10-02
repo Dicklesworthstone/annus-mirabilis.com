@@ -166,4 +166,44 @@ describe("formulaOverflow (am-bc6s)", () => {
   test("initFormulaOverflow does not throw in any environment", () => {
     expect(() => initFormulaOverflow()).not.toThrow();
   });
+
+  test("a scroll region the author already made focusable is not claimed, and an unclaimed one still is", async () => {
+    /*
+      React #418 on /lab/bm-01/, measured in a dev build on 2026-09-29: "some attributes of the
+      server rendered HTML didn't match the client properties", naming three
+      `<section className="show-the-code-scroll">` with `- data-scroll-focus=""`. ShowTheCode renders
+      those with `tabIndex={0}`; this script ran before hydration and marked them, and React then
+      hydrated a DOM carrying an attribute its props do not have.
+
+      Claiming them was wrong on the script's own terms too: its cleanup removes a tabindex wherever
+      it sees this marker, so a later pass would have stripped a tab stop React authored.
+    */
+    await installDom();
+    try {
+      const authored = document.createElement("section");
+      authored.className = "show-the-code-scroll";
+      authored.setAttribute("tabindex", "0");
+      authored.setAttribute("aria-label", "stokesEinsteinD source");
+      authored.style.overflowY = "auto";
+      Object.defineProperty(authored, "scrollHeight", { value: 900, configurable: true });
+      Object.defineProperty(authored, "clientHeight", { value: 300, configurable: true });
+      document.body.appendChild(authored);
+
+      // The positive control, or a guard that disabled the feature entirely would read as a pass.
+      const unclaimed = document.createElement("section");
+      unclaimed.style.overflowY = "auto";
+      Object.defineProperty(unclaimed, "scrollHeight", { value: 900, configurable: true });
+      Object.defineProperty(unclaimed, "clientHeight", { value: 300, configurable: true });
+      document.body.appendChild(unclaimed);
+
+      initFormulaOverflow();
+
+      expect(authored.hasAttribute("data-scroll-focus")).toBe(false);
+      expect(authored.getAttribute("tabindex")).toBe("0");
+      expect(unclaimed.getAttribute("data-scroll-focus")).toBe("");
+      expect(unclaimed.getAttribute("tabindex")).toBe("0");
+    } finally {
+      uninstallDom();
+    }
+  });
 });

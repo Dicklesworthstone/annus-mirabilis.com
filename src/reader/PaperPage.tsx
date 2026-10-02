@@ -259,7 +259,6 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
                 explainedBy={explainedBy}
                 notExplained={notExplained}
                 paperId={resolved.paperId}
-                paperTitle={paperRecord.paper.title}
                 germanTitle={paperRecord.paper.germanTitle}
                 sectionId={resolved.section}
                 availability={availability}
@@ -793,7 +792,7 @@ export async function PaperPage(request: PaperRouteRequest, options?: PaperPageO
       </div>
       {/* A paper's common wrong turns and historian's margin (dispatch 163), on the whole-paper
           page only, and only where the paper has records. */}
-      {sectionId ? null : <PaperMargins margins={loadPaperMargins(paper.id)} />}
+      {sectionId ? null : <PaperMargins margins={loadPaperMargins(paper.id)} paperId={paper.id} />}
       {/* The paper's own discovery route, on the whole-paper page only: a section is not the paper,
           and a route reconstructs the whole argument. Renders nothing where there is no route. */}
       {sectionId ? null : <PaperDiscovery paperId={paper.id} />}

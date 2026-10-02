@@ -7,6 +7,12 @@ import {
 import type { AcceptedSnapshot } from "../../experiments/store/instanceStore.ts";
 import { ScaleBar } from "../../visuals/kit/ScaleBar.tsx";
 import type { RepresentationScale } from "../../visuals/kit/types.ts";
+import {
+  AwaitingNote,
+  type PredictPlaceholder,
+  type PredictResponse,
+  placeholderOf,
+} from "./predictPlaceholder.tsx";
 import { array, display, identity, scalar } from "./presentation.ts";
 
 export function TracerPaths({ snapshot, zoom }: { snapshot: AcceptedSnapshot; zoom: number }) {
@@ -89,7 +95,20 @@ export function TracerPaths({ snapshot, zoom }: { snapshot: AcceptedSnapshot; zo
  * axes and titles in view and spread this on the bars, the curves and the ranges, which show the
  * spread the prompts ask about.
  */
-type PredictResponse = Readonly<{ "data-predict-response": "shown" | "awaiting" }>;
+/**
+ * What the caption says while the result waits. The caption's description of the marks is gated
+ * with the marks, so this stands in its place rather than leaving the caption empty: an empty
+ * frame with nothing under it was the complaint, and the sentence that explained it was in the
+ * other column.
+ */
+function AwaitingCaption({ placeholder }: { placeholder: PredictPlaceholder | undefined }) {
+  if (placeholder === undefined) return null;
+  return (
+    <span {...placeholder}>
+      This plot appears when you choose an answer above, say you have one in mind, or skip.
+    </span>
+  );
+}
 
 export function TracerHistogram({
   snapshot,
@@ -109,12 +128,19 @@ export function TracerHistogram({
     y = (v: number) => 205 - (v / maximum) * 165;
   return (
     <figure className="plot" {...identity(snapshot)}>
+      {/* The name describes the FRAME, which is true whether or not the marks are drawn. What the
+          marks are belongs in the caption below, which is gated with them, so neither a reader nor
+          a screen reader is told about bars and a dashed line while the result is waiting. */}
       <svg
         viewBox="0 0 300 255"
         role="img"
-        aria-label="Histogram of every tracer's signed coordinate displacement. Solid bars are sampled proportions; the dashed line gives model probabilities for the same bins."
+        aria-label="Histogram of every tracer's signed coordinate displacement."
       >
         <path d="M35 35V205H275" className="axis" />
+        <text x="35" y="20">
+          Fraction in each bin
+        </text>
+        <AwaitingNote placeholder={placeholderOf(response)} x={155} y={110} />
         <g {...response}>
           {Array.from({ length: observed.length }, (_, i) => {
             const xPos = x(i);
@@ -136,9 +162,6 @@ export function TracerHistogram({
             ).join(" ")}
             className="comparison-curve"
           />
-          <text x="35" y="20">
-            Fraction in each bin
-          </text>
           <text x="35" y="228">
             {display(edges.at(0), 1e6)} μm
           </text>
@@ -148,9 +171,12 @@ export function TracerHistogram({
         </g>
       </svg>
       <figcaption>
-        Solid bars: the synthetic sample. Dashed line: probabilities of the same bins under the
-        unbounded model, not a density curve. Counts beyond the plotted range:{" "}
-        {scalar(snapshot, "underflow")} left, {scalar(snapshot, "overflow")} right.
+        <AwaitingCaption placeholder={placeholderOf(response)} />
+        <span {...response}>
+          Solid bars: the synthetic sample. Dashed line: probabilities of the same bins under the
+          unbounded model, not a density curve. Counts beyond the plotted range:{" "}
+          {scalar(snapshot, "underflow")} left, {scalar(snapshot, "overflow")} right.
+        </span>
       </figcaption>
     </figure>
   );
@@ -225,9 +251,10 @@ export function TracerScaling({
         <svg
           viewBox="0 0 300 250"
           role="img"
-          aria-label={`${kind.label} compared with the model. Time uses a logarithmic axis; the vertical axis is ${log ? "logarithmic" : "linear"}. Exact values are in the following table.`}
+          aria-label={`${kind.label}. Time uses a logarithmic axis; the vertical axis is ${log ? "logarithmic" : "linear"}. Exact values are in the following table.`}
         >
           <path d="M40 35V205H270" className="axis" />
+          <AwaitingNote placeholder={placeholderOf(response)} x={155} y={110} />
           <g {...response}>
             <path d={path(sample)} className="curve" />
             <path d={path(model)} className="comparison-curve" />
@@ -243,11 +270,14 @@ export function TracerScaling({
           </text>
         </svg>
         <figcaption>
-          Solid: this sample. Dashed: the model. The time axis is logarithmic.{" "}
-          {log
-            ? "Zero sample values, if any, remain in the table but cannot appear on a log scale."
-            : ""}{" "}
-          All times refer to the same recorded paths.
+          <AwaitingCaption placeholder={placeholderOf(response)} />
+          <span {...response}>
+            Solid: this sample. Dashed: the model. The time axis is logarithmic.{" "}
+            {log
+              ? "Zero sample values, if any, remain in the table but cannot appear on a log scale."
+              : ""}{" "}
+            All times refer to the same recorded paths.
+          </span>
         </figcaption>
       </figure>
       <details>

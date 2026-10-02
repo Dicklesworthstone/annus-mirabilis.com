@@ -78,7 +78,6 @@ describe("declared paragraphs and part labels", () => {
         <GermanDraftFace
           face={face}
           paperId="brownian-motion"
-          paperTitle="Brownian motion"
           germanTitle="Brownsche Bewegung"
           explainedBy={{
             "s1-p1": [{ id: "arg-bm-osmotic-suspended", title: "Passage one" }],

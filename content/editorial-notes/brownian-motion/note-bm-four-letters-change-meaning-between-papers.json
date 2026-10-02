@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-bm-four-letters-change-meaning-between-papers",
+  "author": { "id": "agent:SapphireCastle", "kind": "model", "modelId": "claude-opus-5" },
+  "reviewState": "draft",
+  "historicalStatement": "paper-asserts",
+  "claim": "Four of this paper's letters mean something else in the papers beside it. ν here is a number of particles per unit volume, introduced in §1 as n/V*, where in the light-quanta and relativity papers it is a frequency: a density against a rate. P here is the radius of a suspended sphere, where in the light-quanta paper it is the photoelectric work function: a length against an energy. τ here is the short observation interval of §4, chosen small against the times we observe but long enough that successive displacements are independent, where in the relativity paper it is the time coordinate of the moving system. And φ here is the transition kernel of §4, the probability of a displacement per unit length, where in the dissertation it is a volume fraction. None of these is a near miss: in each pair the two meanings carry different dimensions, so an expression carried across from one paper to the other stops balancing.",
+  "sourceSupport": [
+    {
+      "citationId": "ap-17-549",
+      "locator": "§1, printed p. 550; §3, printed p. 555; §4, printed p. 556",
+      "role": "primary"
+    }
+  ],
+  "affectedIds": ["s1-p3", "s3-p6", "s4-p3", "s4-p4"],
+  "evidence": "The four locators are the notation concordance's entries bm.nu.numberDensity (p. 550, s1-p3), bm.P.particleRadius (p. 555, s3-p6), bm.tau.observationInterval (p. 556, s4-p3) and bm.phi.transitionKernel (p. 556, s4-p4), each of which records the glyph as read by eye from the page image and not the text layer, by agent:ConcordanceCheck-brownian-motion. This note carries those verifications forward and adds none of its own: no plate was read for it, and it is an agent check rather than a human review. The dimensional claim is the note's own reasoning about the meanings those entries record, not something the paper states."
+}

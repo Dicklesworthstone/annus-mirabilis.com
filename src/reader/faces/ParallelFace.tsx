@@ -21,6 +21,7 @@ import { SourceBlock as SourceBlockItem } from "./SourceBlock.tsx";
 import { groupTranslationUnits, TranslationParagraphs } from "./TranslationParagraphs.tsx";
 import { unitsBySourceRef } from "./TranslationUnit.tsx";
 import { MASTHEAD_TITLE_ID, unitTranslating } from "./translationMasthead.ts";
+import { sectionOfSourceId, unitsInSection } from "./unitSections.ts";
 import "../reader.css";
 import { ExplainerFragments } from "./ExplainerFragments.tsx";
 import { InlineTerms } from "./InlineTerms.tsx";
@@ -70,6 +71,21 @@ export function ParallelFace({
     ? blocks.filter((b) => b.section === sectionId || !b.section)
     : blocks;
 
+  /**
+   * AND THE ENGLISH HALF IS SCOPED THE SAME WAY (dispatch 484). The line above scoped the German
+   * half and nothing scoped the English one: groupTranslationUnits ran over every unit in the
+   * paper, and parallelRows gives an English group whose German block this page does not print a
+   * row of its own with no German, by design, for a display the German side leaves out. On a
+   * section page that design met the other nine sections and printed all of them. Every one of
+   * relativity's eleven section parallel faces rendered 95 translation paragraphs, the same 95 the
+   * whole paper renders; 25 of 40 sampled paragraphs from s10 were on s3's page and 25 of 40 from
+   * s0 were too. This is 4a3f676c's defect in the other face, so it reads that index rather than a
+   * third one, and a unit no block places (the masthead) stays, as it does there.
+   */
+  const sectionUnits = sectionId
+    ? unitsInSection(units, sectionOfSourceId(blocks), sectionId)
+    : units;
+
   const footnoteBlocks = filteredBlocks.filter((b) => b.kind === "footnote");
   // A display its paragraph or footnote prints in place is not printed again as its own block.
   // The claims are counted before the footnotes are set aside: light quanta's s1-fn3 prints three
@@ -84,7 +100,7 @@ export function ParallelFace({
   const { rows, footnoteRows } = parallelRows(
     mainBlocks,
     footnoteBlocks,
-    groupTranslationUnits(units, alignment, blocks, standaloneDisplays),
+    groupTranslationUnits(sectionUnits, alignment, blocks, standaloneDisplays),
     blocks,
   );
   const english = (row: ParallelRow) =>
@@ -129,18 +145,23 @@ export function ParallelFace({
       {/* The panels' levels, fetched when a reader first opens one (dispatch 292). */}
       <ExplainerFragments />
       <header className="page-intro">
-        <p className="eyebrow">Parallel edition · {paper.titleEnglishWorking}</p>
+        <p className="eyebrow">Parallel edition</p>
         {/* The translated masthead (translationMasthead.ts); both columns still print it. */}
         <h1 className="parallel-paper-title">
           {titleUnit ? plainText(titleUnit.inlines) : paper.titleEnglishWorking}
         </h1>
-        <p className="parallel-german-title" lang="de">
-          <em>{paper.titleGerman}</em>
-        </p>
-        <p className="parallel-author">By {paper.authorLine}</p>
+        {/*
+          EINSTEIN'S TITLE AND AUTHOR LINE ARE NOT REPEATED HERE (dispatch 498). Every paper's grid
+          opens with its `masthead-title` block, which prints the German title beside its
+          translation and carries the page marker this header cannot: [p. 549], [p. 891], [p. 132],
+          [p. 639]. Measured on the export of 65db2e50 at 1280x900, a second copy above the grid
+          helped push the first German sentence to y=1011 on relativity and y=1168 on brownian, so a
+          reader opening a paper met the furniture of the edition and none of the edition. The
+          citation keeps the author, because a citation without one is not a citation.
+        */}
         <p className="journal-citation fine">
-          {paper.journal.name} ({paper.journal.series}) {paper.journal.volume},{" "}
-          {paper.journal.pages.first}–{paper.journal.pages.last}
+          By {paper.authorLine} · {paper.journal.name} ({paper.journal.series}){" "}
+          {paper.journal.volume}, {paper.journal.pages.first}–{paper.journal.pages.last}
           {published ? ` (${published.earliest.slice(0, 4)})` : ""}.
         </p>
       </header>

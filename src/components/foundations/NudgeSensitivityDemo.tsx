@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { PLANCK_TO_ELEMENTARY_CHARGE_RATIO } from "../../foundations/calculus.ts";
 import { Sci } from "../lab/Sci.tsx";
 import "./foundations.css";
@@ -32,6 +32,10 @@ export function NudgeSensitivityDemo({
     Title = headingTag(headingLevel),
     Sub = headingTag(headingLevel, 1);
   const [selectedIndex, setSelectedIndex] = useState<number>(2); // Default to small nudge
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    setReady(true);
+  }, []);
   const baseNu = 6.0e14; // Base frequency in Hz (visible light, 500 nm)
 
   const fallbackStep: NudgeStep = { label: "+1.0 × 10¹³ Hz (small nudge)", deltaNu: 1.0e13 };
@@ -59,24 +63,23 @@ export function NudgeSensitivityDemo({
       <fieldset
         className="nudge-controls"
         aria-label="Frequency nudge step selection"
-        style={{ border: "none", padding: 0, margin: 0 }}
+        disabled={!ready}
       >
-        <p style={{ fontWeight: "bold", margin: "0.5rem 0" }}>Choose a frequency step Δν:</p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
+        {/* Disabled rather than hidden without JavaScript, and for the same reason as the step
+            selector in RepeatedProportionalTable: the table below already prints Δν, ΔV and the
+            ratio for all four steps, so the reader who cannot press these still sees the point
+            of the lesson, which is that the ratio does not move. This lesson also renders at
+            /foundations/derivatives/, outside any [data-reader-root], so `.enhanced-only` would
+            hide the chooser there even with JavaScript running. */}
+        <p className="foundation-choice-label">Choose a frequency step Δν:</p>
+        <div className="button-group">
           {NUDGE_STEPS.map((step, idx) => (
             <button
               key={step.label}
               type="button"
+              className="secondary"
               onClick={() => setSelectedIndex(idx)}
               aria-pressed={selectedIndex === idx}
-              style={{
-                padding: "0.4rem 0.8rem",
-                border: "1px solid var(--rule)",
-                borderRadius: "4px",
-                background: selectedIndex === idx ? "var(--accent)" : "var(--paper)",
-                color: selectedIndex === idx ? "var(--paper)" : "var(--ink)",
-                cursor: "pointer",
-              }}
             >
               {step.label}
             </button>

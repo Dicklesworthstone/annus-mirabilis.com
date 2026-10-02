@@ -34,6 +34,7 @@ import type {
   RefusalTarget,
   WasmCapabilityTarget,
 } from "./candidate-checks.ts";
+import { retryingFetcher } from "./candidate-checks.ts";
 
 /** The origin the page believes it is on. It resolves nowhere, which is the point. */
 const SYNTHETIC_ORIGIN = "https://candidate-under-test.invalid";
@@ -111,6 +112,47 @@ export function contentTypeForPath(pathname: string): string {
   return CONTENT_TYPES[ext] ?? "application/octet-stream";
 }
 
+/**
+ * What an observation says when the probe could not supply a byte the page asked for.
+ *
+ * MEASURED, not hypothetical (dispatch 483). Against a complete export, planting a single status 0
+ * for `/_next/static/chunks/4269.3973e0a70b800eb3.js` made BM-01 report labels `[static]` then
+ * `[static]`, 0 wasm requests, no FrankenSim wording and NO page error: byte for byte the signature
+ * the candidate of 2026-09-28 reported, which was read as "BM-01 makes zero wasm requests" and
+ * refused the release of 54 commits. The same lab driven over the same export, by hand at three
+ * press timings and through this probe, reaches "Ideal model, computed with FrankenSim".
+ *
+ * So one asset that never arrived and a laboratory that never called its owner are the same
+ * observation, and the check cannot tell them apart unless the probe says which it was. This does
+ * not excuse a missing result: the check still fails. It names the cause.
+ */
+export function unsuppliedSentences(unsupplied: ReadonlyMap<string, number>): string[] {
+  return [...unsupplied].map(
+    ([path, status]) =>
+      `the probe could not supply ${path} (${describeUnsupplied(status)}), so the page ran without it and a missing result here may be this harness's rather than the deployment's`,
+  );
+}
+
+/**
+ * Whether a status delivered the bytes the page asked for. Only a 2xx did.
+ *
+ * A 3XX COUNTS AS UNSUPPLIED, and that is the correction (dispatch 493). This probe fulfils every
+ * response with status, body and content type and no location header, so a redirect reaches the
+ * browser with nowhere to go and the asset never arrives. The first version of this recorded only
+ * `status === 0 || status >= 400`, which left exactly one transport failure both unfollowed and
+ * unseen, and it is the one a Vercel SSO candidate answers with: a 302.
+ */
+export function isUnsupplied(status: number): boolean {
+  return status < 200 || status >= 300;
+}
+
+function describeUnsupplied(status: number): string {
+  if (status === 0) return "the request itself failed after every attempt";
+  if (status >= 300 && status < 400)
+    return `status ${status}, a redirect this probe cannot follow because it fulfils a response without its location header`;
+  return `status ${status}`;
+}
+
 type ProbeState = Readonly<{
   browser: Browser;
   context: BrowserContext;
@@ -118,6 +160,12 @@ type ProbeState = Readonly<{
    * `vercel curl` subprocesses near the number of DISTINCT assets rather than of requests. */
   cache: Map<string, { status: number; body: Buffer }>;
   counters: { served: number; aborted: number; fetched: number };
+  /**
+   * Paths this probe could not supply, with the status it reported, cleared when a page opens so
+   * each observation carries its own. A byte that never arrives is INVISIBLE in a page's labels,
+   * which is how a harness failure came to read as a broken laboratory; see `unsuppliedSentences`.
+   */
+  unsupplied: Map<string, number>;
 }>;
 
 async function open(fetcher: Fetcher): Promise<ProbeState> {
@@ -125,6 +173,11 @@ async function open(fetcher: Fetcher): Promise<ProbeState> {
   const context = await browser.newContext({ viewport: { width: 1280, height: 1200 } });
   const cache = new Map<string, { status: number; body: Buffer }>();
   const counters = { served: 0, aborted: 0, fetched: 0 };
+  const unsupplied = new Map<string, number>();
+  // One `vercel curl` subprocess per asset, and a failed spawn resolves with status 0. The HTTP
+  // checks have retried that since 2026-09-24; this probe never did, and every byte a page needs
+  // came from a single attempt.
+  const transport = retryingFetcher(fetcher);
   await context.route("**/*", async (route) => {
     const url = new URL(route.request().url());
     if (url.origin !== SYNTHETIC_ORIGIN) {
@@ -136,18 +189,19 @@ async function open(fetcher: Fetcher): Promise<ProbeState> {
     let response = cache.get(key);
     if (response === undefined) {
       counters.fetched += 1;
-      const fetched = await fetcher(key);
+      const fetched = await transport(key);
       response = { status: fetched.status, body: fetched.body };
       cache.set(key, response);
     }
     counters.served += 1;
+    if (isUnsupplied(response.status)) unsupplied.set(key, response.status);
     await route.fulfill({
       status: response.status === 0 ? 599 : response.status,
       body: response.body,
       contentType: contentTypeForPath(url.pathname),
     });
   });
-  return { browser, context, cache, counters };
+  return { browser, context, cache, counters, unsupplied };
 }
 
 /**
@@ -217,6 +271,7 @@ function readLabels(page: Page): Promise<LabelReading> {
 /** Opens one laboratory, answers its predict gate as a reader would, and returns the page. */
 async function openLab(state: ProbeState, lab: string): Promise<{ page: Page; errors: string[] }> {
   const page = await state.context.newPage();
+  state.unsupplied.clear();
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(String(error).slice(0, 200)));
   const response = await page.goto(`${SYNTHETIC_ORIGIN}/lab/${lab}/`, { waitUntil: "load" });
@@ -264,6 +319,7 @@ export async function createCandidateBrowserProbe(
         errors.push(`driving ${target.lab} failed: ${String(error).slice(0, 200)}`);
       }
       const after = await readLabels(page);
+      errors.push(...unsuppliedSentences(state.unsupplied));
       await page.close();
       return Object.freeze({
         capabilityId: target.capabilityId,
@@ -329,6 +385,7 @@ export async function createCandidateBrowserProbe(
           })(),
         };
       });
+      errors.push(...unsuppliedSentences(state.unsupplied));
       await page.close();
       return Object.freeze({
         lab: target.lab,

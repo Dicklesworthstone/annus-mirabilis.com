@@ -1,4 +1,5 @@
 import type { Lq01Parameters } from "../../experiments/lq01/definition.ts";
+import { AwaitingNote, placeholderOf } from "./predictPlaceholder.tsx";
 import { display, fixed } from "./presentation.ts";
 import { Sci } from "./Sci.tsx";
 
@@ -209,6 +210,7 @@ export function InterferencePlot({
           borderRadius: "0.25rem",
         }}
       >
+        <AwaitingNote placeholder={placeholderOf(response)} x={240} y={120} />
         {/* Grid lines and ticks */}
         <line
           x1={padding.left}

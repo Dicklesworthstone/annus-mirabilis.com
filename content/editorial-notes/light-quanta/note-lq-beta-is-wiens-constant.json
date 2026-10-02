@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-lq-beta-is-wiens-constant",
+  "author": { "id": "agent:SapphireCastle", "kind": "model", "modelId": "claude-opus-5" },
+  "reviewState": "draft",
+  "historicalStatement": "paper-asserts",
+  "claim": "Einstein's β in this paper is Wien's constant, what a modern reader would write as Planck's constant divided by Boltzmann's. It is not the β of the relativity paper, where the same letter is the factor written γ today, and it is not the modern β for a speed ratio. The dimensions settle it rather than the context: β carries a time times a temperature, so that βν/T in the exponential is a pure number, while a speed ratio and a Lorentz factor are both dimensionless and could not stand there.",
+  "sourceSupport": [
+    { "citationId": "ap-17-132", "locator": "§2, printed p. 136", "role": "primary" }
+  ],
+  "affectedIds": ["s2-p2"],
+  "evidence": "The locator is the notation concordance's entry lq.beta.wienConstant, which records β as first printed on p. 136 in §2 and flags the collision with the relativity paper's Lorentz factor and with the modern speed ratio. That entry was checked against the plate of printed page 136 by eye, from the page image and not the text layer, and it corrects a former page 134 which does not carry β. This note carries that verification forward and adds none of its own: no plate was read for it, and it is an agent check rather than a human review."
+}

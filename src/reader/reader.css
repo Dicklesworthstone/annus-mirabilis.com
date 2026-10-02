@@ -358,6 +358,17 @@
     font-size: var(--type-title);
     margin-bottom: 0.5rem;
   }
+  /* The same step down for a FACE's title, which is not a direct child of .reader-root and so was
+     never reached by the rule above. Measured at 320px on the export of 65db2e50: at display size
+     the printed titles ran to four lines (light quanta) and five (brownian), and the first German
+     sentence stood at y=1134 and y=1265 against a 568px screen. Every word of the title stays
+     (dispatch 498). */
+  .parallel-paper-title,
+  .source-paper-title,
+  .translation-paper-title {
+    font-size: var(--type-title);
+    margin-bottom: 0.375rem;
+  }
   .reader-root > .page-intro > .lead {
     margin-block: 0.375rem;
   }
@@ -2615,7 +2626,8 @@ html:is(
   margin: 0.25rem 0;
 }
 
-.parallel-author,
+/* `.parallel-author` left this group with the line it styled: the parallel face's author is now
+   inside its citation, and the grid prints Einstein's own author row with its page marker. */
 .source-date-line,
 .journal-citation {
   font-size: var(--type-small);

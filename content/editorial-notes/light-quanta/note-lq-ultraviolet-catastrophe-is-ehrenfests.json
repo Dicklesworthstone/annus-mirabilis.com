@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "kind": "historian-margin",
+  "id": "note-lq-ultraviolet-catastrophe-is-ehrenfests",
+  "author": { "id": "agent:SapphireCastle", "kind": "model", "modelId": "claude-opus-5" },
+  "reviewState": "draft",
+  "historicalStatement": "publicly-available",
+  "claim": "The phrase ultraviolet catastrophe is Paul Ehrenfest's and dates from 1911, six years after this paper. It is not available to a reader of 1905 and it is not the framing this paper uses: the difficulty Einstein meets in §1 is that the radiation law which follows from the accepted theory disagrees with what is measured, not a named catastrophe inherited from a textbook. Reading the 1905 argument through the later phrase makes the paper answer a question that had not yet been asked in those words.",
+  "sourceSupport": [
+    { "citationId": "cit-ehrenfest-1911", "locator": "Section IV, p. 92", "role": "primary" }
+  ],
+  "evidence": "The date and locator are the site's own bibliography entry cit-ehrenfest-1911, which records P. Ehrenfest, Welche Züge der Lichtquantenhypothese spielen..., Annalen der Physik (4) 36, 91–118 (1911), and names Section IV on p. 92. This note attaches to no printed block of the 1905 paper on purpose: the phrase is not in it, which is the whole claim. I have not read Ehrenfest's paper; the citation and its locator are taken from the bibliography record as written, and no human reviewer has checked either."
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { type HeadingLevel, headingTag } from "./headingLevel.ts";
 
 export type HeldFixedMode = "time-fixed" | "position-fixed";
@@ -15,6 +15,10 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
     Title = headingTag(headingLevel),
     Sub = headingTag(headingLevel, 1);
   const [activeMode, setActiveMode] = useState<HeldFixedMode>("time-fixed");
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    setReady(true);
+  }, []);
 
   return (
     <section
@@ -31,83 +35,65 @@ export function HeldFixedToggle({ headingLevel = 3 }: { readonly headingLevel?: 
         and which one you mean depends on what you keep still: the moment, or the place.
       </p>
 
-      <fieldset
-        className="toggle-controls"
-        aria-label="What to keep still"
-        style={{ border: "none", padding: 0, margin: "1rem 0" }}
-      >
-        <p style={{ fontWeight: "bold", margin: "0.5rem 0" }}>Keep one of them still:</p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+      <fieldset className="toggle-controls" aria-label="What to keep still" disabled={!ready}>
+        <p className="foundation-choice-label">Keep one of them still:</p>
+        <div className="button-group">
           <button
             type="button"
+            className="secondary"
             onClick={() => setActiveMode("time-fixed")}
             aria-pressed={activeMode === "time-fixed"}
-            style={{
-              padding: "0.5rem 1rem",
-              border: "1px solid var(--rule)",
-              borderRadius: "4px",
-              background: activeMode === "time-fixed" ? "var(--accent)" : "var(--paper)",
-              color: activeMode === "time-fixed" ? "var(--paper)" : "var(--ink)",
-              cursor: "pointer",
-            }}
           >
             One moment: hold t fixed, ∂f/∂x
           </button>
           <button
             type="button"
+            className="secondary"
             onClick={() => setActiveMode("position-fixed")}
             aria-pressed={activeMode === "position-fixed"}
-            style={{
-              padding: "0.5rem 1rem",
-              border: "1px solid var(--rule)",
-              borderRadius: "4px",
-              background: activeMode === "position-fixed" ? "var(--accent)" : "var(--paper)",
-              color: activeMode === "position-fixed" ? "var(--paper)" : "var(--ink)",
-              cursor: "pointer",
-            }}
           >
             One place: hold x fixed, ∂f/∂t
           </button>
         </div>
       </fieldset>
 
-      <div
-        className="held-fixed-display"
-        style={{
-          border: "1px solid var(--rule)",
-          borderRadius: "4px",
-          padding: "1.2rem",
-          background: "var(--paper)",
-          margin: "1rem 0",
-        }}
-      >
-        {activeMode === "time-fixed" ? (
-          <div>
-            <Sub style={{ margin: "0 0 0.5rem 0" }}>One moment: t fixed, ∂f/∂x</Sub>
-            <p>
-              Freeze the moment and compare neighbouring places, as in a single photograph of the
-              tube. ∂f/∂x says how steeply the concentration changes along it: particles per µm³ for
-              each µm, which is particles per µm⁴.
-            </p>
-            <p>
-              Particles drift down that slope. The flux, the number crossing each square micrometre
-              in a second, is J = −D ∂f/∂x: Fick’s first law.
-            </p>
-          </div>
-        ) : (
-          <div>
-            <Sub style={{ margin: "0 0 0.5rem 0" }}>One place: x fixed, ∂f/∂t</Sub>
-            <p>
-              Keep your eye on one spot under the microscope and let time run. ∂f/∂t says how fast
-              the count there rises or falls: particles per µm³ for each second.
-            </p>
-            <p>
-              Particles are neither made nor destroyed, so the count at a spot changes only by what
-              flows in and out: ∂f/∂t = −∂J/∂x = D ∂²f/∂x². That is the diffusion equation of §4.
-            </p>
-          </div>
-        )}
-      </div>
+      {/*
+        BOTH PANELS ARE IN THE STATIC HTML AND JAVASCRIPT NARROWS TO ONE (dispatch 489).
+        This chooser is not like its three siblings. They sit above a table that already prints
+        every state, so a disabled chooser costs a reader nothing; here each panel carries
+        different physics, Fick's first law in one and the diffusion equation of §4 in the other,
+        and only the active one was rendered. A reader without JavaScript therefore had two
+        pressable buttons that did nothing AND no way to reach ∂f/∂t at all. Rendering both and
+        letting the toggle focus one is the repair; `ready` is false until hydration, so the
+        server's HTML and the first client render agree.
+      */}
+      {(!ready || activeMode === "time-fixed") && (
+        <div className="held-fixed-display">
+          <Sub>One moment: t fixed, ∂f/∂x</Sub>
+          <p>
+            Freeze the moment and compare neighbouring places, as in a single photograph of the
+            tube. ∂f/∂x says how steeply the concentration changes along it: particles per µm³ for
+            each µm, which is particles per µm⁴.
+          </p>
+          <p>
+            Particles drift down that slope. The flux, the number crossing each square micrometre in
+            a second, is J = −D ∂f/∂x: Fick’s first law.
+          </p>
+        </div>
+      )}
+      {(!ready || activeMode === "position-fixed") && (
+        <div className="held-fixed-display">
+          <Sub>One place: x fixed, ∂f/∂t</Sub>
+          <p>
+            Keep your eye on one spot under the microscope and let time run. ∂f/∂t says how fast the
+            count there rises or falls: particles per µm³ for each second.
+          </p>
+          <p>
+            Particles are neither made nor destroyed, so the count at a spot changes only by what
+            flows in and out: ∂f/∂t = −∂J/∂x = D ∂²f/∂x². That is the diffusion equation of §4.
+          </p>
+        </div>
+      )}
 
       {/*
         am-a3f1. The four sibling foundations components wrap their tables in

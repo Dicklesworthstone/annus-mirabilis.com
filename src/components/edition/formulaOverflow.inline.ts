@@ -71,6 +71,21 @@ export function initFormulaOverflow(): void {
           continue;
         }
         if (scrollsX || scrollsY) {
+          /*
+            AN AUTHOR'S OWN TAB STOP IS NOT THIS SCRIPT'S TO CLAIM, which is the same principle as
+            the comment below, applied one step earlier. ShowTheCode renders its scroll regions with
+            `tabIndex={0}` already; this script ran before hydration, marked them, and React then
+            hydrated a DOM carrying an attribute its props do not have. That is React #418 on
+            /lab/bm-01/, measured in a dev build on 2026-09-29: "some attributes of the server
+            rendered HTML didn't match the client properties", naming three
+            `<section className="show-the-code-scroll">` with `- data-scroll-focus=""`.
+
+            Claiming them was also wrong on its own terms: the cleanup paths remove a tabindex
+            whenever they see this marker, so a later pass would have stripped a tab stop React
+            authored. The element keeps its own tabindex and its own name; nothing is lost.
+          */
+          const authored = el.hasAttribute("tabindex") && !el.hasAttribute("data-scroll-focus");
+          if (authored) continue;
           // Marks only what this script added, so it never removes an author's own tabindex.
           el.setAttribute("data-scroll-focus", "");
           el.setAttribute("tabindex", "0");
