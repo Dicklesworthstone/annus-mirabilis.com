@@ -838,3 +838,51 @@ Epic: **`am-rc1001-bridge-plan-pcjk`**. Children are `.N` below.
 | A, app | `.41` placeholder WASM in the edition |
 | D, documents | `.42` README · `.43` AGENTS.md corrections · `.44` EXPORTS, FRANKENSIM_BINDING and docblocks |
 | X, second-order | `.45` release from a fresh clone · `.46` `main` only moves forward, plus reset forensics · `.47` acceptance probes · `.48` corpus mutation testing · `.49` cross-model review rounds · `.50` Philox-driven property tests · `.51` post-promotion live probe · `.52` static faces with islands |
+
+## 15. Addendum, 2026-10-02: the owner's decisions, and what was done
+
+The owner answered §11 in the same session. The answers are quoted verbatim in `docs/DECISIONS.md`
+under "The reality-check decisions of 2026-10-02":
+
+- D-A: "Merge tag into main (Recommended)".
+- D-B: "Extend, model-diverse (Recommended)".
+- D-C: "Static HTML + islands (Recommended)".
+- D-D: "Withdraw it".
+
+AGENTS.md was updated where those decisions change it.
+
+### D-A was executed
+
+1. **The merge.** Merge commit `98b7ef60`, parents `82e010bb` and `413470b7`.
+   `git rev-list --count main..rescue/2026-09-29-1500-four-landed` is now 0.
+2. **The one conflict** was resolved by keeping both sides: 52 of 52 test titles, and 175
+   assertions against 143 and 168 in the parents.
+3. **The lanes**, in a fresh worktree at the merge, against the 19ee33db baseline:
+
+   | Lane | At the merge | Baseline |
+   |---|---|---|
+   | typecheck | rc=0 | |
+   | bun | 15,709 tests, 2 failures | 15,687 tests, 4 failures |
+   | node | 46 failures | 47 failures |
+
+   - The 2 remaining bun failures are the perf tests that need a built `.next/`, an artifact of the
+     worktree.
+   - Diffing failing test names against the baseline: **0 introduced in either lane**. The two real
+     bun failures (`usedLater` and the bare-throw ratchet) are fixed, and so is one node test.
+4. **The remote.** `main` and the five `rescue/2026-09-29-*` tags are on `origin`. The stranded work
+   is no longer single-machine.
+
+### Two consequences
+
+- **`main` is safe to deploy.** The next verified deploy no longer removes anything readers have. It
+  would add four fixes that were on neither line (print words, margin titles, lab placeholders and
+  the a11y live regions). The remaining Track 0 beads (`.3` to `.8`) still apply.
+- **A second unexplained ref update.** At 14:29:31, 57 seconds after the merge commit and before the
+  lanes finished, `refs/remotes/origin/main` **and** `refs/remotes/origin/master` were updated "by
+  push" from this checkout, to the merge commit. This session did not do it.
+  - Ruled out: git hooks, every script and test in the repository, the Claude Code hooks, the
+    crontab, the launch agents, and the other Claude sessions on the machine.
+  - The upload mirrors `main` to `master`, which this session's own upload on 10-01 did not do. So
+    some sync tool acts on this checkout. The 09-29 reset fits the same family.
+  - Evidence is on bead `.46`, which proposes a log-only `reference-transaction` hook as the cheapest
+    way to name it next time.
