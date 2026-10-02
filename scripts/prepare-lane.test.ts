@@ -59,7 +59,13 @@ describe("prepare lane: the chain is derived, not restated", () => {
     // second copy of this list is exactly what would have kept saying 34.
     assert.ok(steps.length >= 35, `expected at least 35 generators, derived ${steps.length}`);
     assert.equal(steps[0]?.phase, "prepare:content");
-    assert.equal(steps[0]?.command, "bun scripts/build-content.ts");
+    // The property, not the literal first command: the content phase leads and includes the
+    // content compiler. The literal read `steps[0] === build-content.ts` and went red, without any
+    // regression, when generate-quantity-labels.ts (0e4499eb) took the first slot of the same phase.
+    assert.ok(
+      steps.some((s) => s.phase === "prepare:content" && s.command === "bun scripts/build-content.ts"),
+      "the content compiler runs in the prepare:content phase",
+    );
     assert.equal(steps.at(-1)?.phase, "prepare:offline");
     for (const [i, step] of steps.entries()) {
       assert.equal(step.index, i + 1);
