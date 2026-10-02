@@ -172,3 +172,27 @@
 .sources-corrections > li > p {
   margin: 0.2rem 0;
 }
+
+/* A QUOTED MISPRINT SCROLLS IN ITS OWN LINE, NOT THE PAGE (2026-10-02).
+   The corrections list quotes each misprint whole, and the longest, typo-dz-prime-subscript-p552
+   ("dx1′dy1′dz2′, …, dxn′dyn′dzn′"), is wider than the column at 320px: the phone-overflow sweep
+   (scripts/e2e/phoneOverflow.e2e.test.ts) measured /sources/ at scrollWidth 327 against 320, the
+   only overflowing route of 2,151 route-width pairs. These are the reader faces' declarations for
+   .inline-math (src/reader/reader.css, whose reasons are recorded there), which this page does not
+   load: inline-flex keeps the formula on its baseline, and formulaOverflow.inline.ts gives the box
+   its tab stop and name when it scrolls. With them injected into the same build: 320 against 320. */
+.sources-section .inline-math {
+  display: inline-flex;
+  box-sizing: border-box;
+  max-width: calc(100% + 0.3em);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.35em 0.15em;
+  margin: -0.35em -0.15em;
+}
+
+@media (max-width: 22rem) {
+  .sources-section .inline-math {
+    max-width: 100%;
+  }
+}
