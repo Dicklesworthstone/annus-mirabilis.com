@@ -12,6 +12,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import yaml from "js-yaml";
+import { auditEquationIdentity } from "../src/content/audits/equationIdentity.ts";
 import { auditInstruments, loadLiveInstrumentRows } from "../src/content/audits/instruments.ts";
 import {
   auditMisconceptions,
@@ -327,6 +328,10 @@ function bindingSourceSplit(files: readonly { path: string; text: string }[]): {
 }
 
 const baseRef = args.baseRef ?? gitBaseRef();
+const equationIdentity = auditEquationIdentity(root);
+console.log(
+  `[audit-equation-identity] examined ${equationIdentity.blocks} equation blocks, ${equationIdentity.units} aligned English units: ${equationIdentity.report.errorCount} errors`,
+);
 const result = await runVerifyContent({
   root,
   ...(baseRef !== undefined ? { baseRef } : {}),
@@ -452,6 +457,9 @@ const result = await runVerifyContent({
   extraReports: [
     ...(provenance.findings.length > 0 ? [provenance.report] : []),
     auditKernelBindings(root),
+    // English displays byte-identical to their German blocks (am-rc1001-bridge-plan-pcjk.10): the
+    // structural check meant to enforce it selects a block kind no record carries.
+    equationIdentity.report,
   ],
 });
 

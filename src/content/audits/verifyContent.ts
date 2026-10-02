@@ -204,10 +204,17 @@ export async function runVerifyContent(
 
   for (const report of options.extraReports ?? []) {
     findings.push(...report.findings);
+    {
+      const line = populationLine(report);
+      if (line !== null) populations.push(line);
+    }
     for (const finding of report.findings) {
       if (finding.severity === "error") errors.push(findingLine(finding));
       else flags.push(findingLine(finding));
     }
+    // A report that judged nothing has not passed (am-1hst), even with no finding to say so.
+    if (!report.ok && !report.findings.some((finding) => finding.severity === "error"))
+      errors.push(`${report.audit}: not ok, with no error finding; it judged no records.`);
   }
 
   return Object.freeze({
