@@ -1184,3 +1184,95 @@ appIcon: "asset catalog AppIcon, one 1024 px universal image"
 - **What it supersedes:** AGENTS.md "How to Add or Revise a Paper Section", step 2's "Unresolved
   readings stay visible in internal review and, where intellectually important, in a public
   editorial note". Readings are resolved now, not published as alternatives.
+
+## The reality-check decisions of 2026-10-02 (D-A to D-D)
+
+**Decider:** the owner (jemanuel), in a Claude Code session on 2026-10-02.
+
+- The four questions were put after the reality check of 2026-10-01
+  (`docs/REALITY_CHECK_2026-10-01.md` §11; beads `am-rc1001-bridge-plan-pcjk.1`, `.38`, `.39` and `.40`).
+- The owner answered each one by selecting an option.
+- Each choice below is quoted verbatim as selected, together with the option text the owner was
+  shown.
+
+### D-2026-10-02-restore-main-by-merge (bead am-rc1001-bridge-plan-pcjk.1)
+
+- **Owner selected, verbatim:** "Merge tag into main (Recommended)".
+- **Option text shown:** "True merge commit, resolve the one test-file conflict keeping both sides,
+  run both lanes, push main and the five rescue tags, lift dispatch 505's git freeze. From then on
+  deploy only from main."
+- **Why it was needed:**
+  - On 2026-09-29 at 01:02:56, main was moved back to origin/main, cause unidentified. That dropped
+    18 unpushed commits.
+  - The orchestrator continued detached and tagged the line. The live site was built from it, so 27
+    commits existed only under the local tag `rescue/2026-09-29-1500-four-landed`.
+- **Done:** merge commit `98b7ef60` (parents `82e010bb` and `413470b7`). The one conflict, in
+  `scripts/candidate-checks.test.ts`, was resolved by keeping both sides: 52 of 52 test titles, and
+  175 assertions against 143 and 168 in the parents.
+- **Dispatch 505 is lifted.** Its 2026-09-29 01:06 freeze ("STOP WRITING TO GIT … I will not
+  repair it without the owner") is lifted by this decision. Panes commit again under AGENTS.md
+  "Committing In A Shared Working Tree".
+- **Deploy only from main.** From now on, release only a commit that is on `origin/main`. Bead
+  `.3` makes the deploy script refuse anything else. Bead `.45` builds every candidate from a fresh
+  clone of `origin`.
+
+### D-2026-10-02-agent-review-beyond-english (bead am-rc1001-bridge-plan-pcjk.38)
+
+- **Owner selected, verbatim:** "Extend, model-diverse (Recommended)".
+- **Option text shown:** "Agent review with a different-family reviewer for ledgers, physics, R2.
+  Keep disabled-reader sessions, comprehension tests and the real-device check human-only, since
+  agents cannot honestly stand in for those."
+- **The choice, layer by layer:**
+
+  | Layer | Who reviews |
+  |---|---|
+  | German ledgers (the line-by-line plate comparison) | Agent review: at least two fresh-eye rounds, at least one by a reviewer whose model family differs from the author's |
+  | The physics or mathematics review of each complete derivation | The same |
+  | R2 readability | The same |
+  | Disabled-reader sessions with their own tools | **Human only** |
+  | Comprehension rounds (plan §17.5, §17.6) | **Human only** |
+  | The real-device check | **Human only** |
+
+  Each agent round is recorded in the provenance receipt, naming the agent, its model id and family,
+  the date, the units checked and the corrections made.
+- **What it supersedes:** for the first three layers only, the human-reviewer requirement in plan
+  §17.2 and §17.7 item 9, and in AGENTS.md "How to Add or Revise a Paper Section", step 8 (Review
+  gates). The `human-gate` label stays on the beads for the three human-only layers. On the others
+  it is re-cut under beads `.19` and `.20`.
+- **What does not change:**
+  - Machine-generated drafts still never self-certify. The author's own model family can never
+    supply the round that makes a layer final.
+  - No page or record ever claims a human reviewer. Receipts name the agents and model families.
+  - D-2026-09-25-no-review-status-banners still governs reader-facing notices.
+- **Not asked, so unchanged:** review of explanatory prose beyond the physics review of
+  derivations keeps its existing rules until the owner is asked.
+- **Applied by:**
+  - `.17`: the review guard compares model families;
+  - `.49`: cross-model review rounds over the 821 translation units and the ledgers.
+
+### D-2026-10-02-reading-faces-static-islands (bead am-rc1001-bridge-plan-pcjk.39)
+
+- **Owner selected, verbatim:** "Static HTML + islands (Recommended)".
+- **Option text shown:** "Render faces as static HTML and hydrate only term chips, the equation
+  explorer and passage actions. Also fixes first-route JS and the hidden no-JS buttons; it is what
+  the plan specified."
+- **Consequence:**
+  - The 250 kB gzipped reading-face budget stands as the target. Measured live on 2026-10-01,
+    relativity's parallel face was 806,184 B, with about 64% attributed to React's hydration payload
+    (`perf/readingFaceRecords.json`).
+  - The implementation is bead `.52`: one face first (mass-energy German), then the rest, measured
+    as served before and after.
+
+### D-2026-10-02-withdraw-clarity-signal (bead am-rc1001-bridge-plan-pcjk.40)
+
+- **Owner selected, verbatim:** "Withdraw it".
+- **Option text shown:** "Keep 'no analytics'; remove the clarity signal from the plan and
+  AGENTS.md."
+- **Consequence:**
+  - The site runs no analytics, as `/about/` already says.
+  - This entry supersedes plan §16.6's clarity signal and the clarity-signal item in §19.3 batch I.
+    The plan document is a dated record and is not edited.
+  - AGENTS.md is updated in the same commit as this entry.
+  - Bead `am-plat-clarity-signal-nlwr` is to be closed by the orchestrator as withdrawn by this
+    decision. The reserved storage key in `src/platform/storage/keys.ts` is left for the same
+    orchestrator to remove or keep, with a reason.
