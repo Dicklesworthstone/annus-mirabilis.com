@@ -222,4 +222,19 @@ export interface ManifestReportData {
   readonly exportedCount: number;
   readonly importedCount: number;
   readonly layers: PaperSourceLayers;
+  /**
+   * Whether the unit statuses above were DERIVED from the tree (unitCoverage.ts) or read from the
+   * manifest's own fields. Only a derived report can say every block is covered.
+   */
+  readonly unitStatusSource: "derived-from-tree" | "manifest-fields";
+  /** Units every applicable layer covers, a binding's declared status included. */
+  readonly coveredCount: number;
+  /** Units whose every sentence has a gloss unit; reported, not gating. */
+  readonly glossedCount: number;
+  /** Units covered by a declaration rather than an explanation, each with its reason. */
+  readonly declaredUnits: readonly {
+    readonly id: string;
+    readonly status: string;
+    readonly reason: string;
+  }[];
 }

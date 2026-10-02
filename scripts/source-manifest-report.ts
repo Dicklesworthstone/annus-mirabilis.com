@@ -18,6 +18,7 @@ import {
 } from "../src/content/manifest/report.ts";
 import { validateSourceManifest } from "../src/content/manifest/schema.ts";
 import { readSourceLayers } from "../src/content/manifest/sourceLayers.ts";
+import { deriveUnitCoverage } from "../src/content/manifest/unitCoverage.ts";
 import { parseYaml } from "../src/content/provenance/yaml.ts";
 import { newRunIdentity } from "../src/testing/log/logger.ts";
 
@@ -96,9 +97,12 @@ async function main() {
   const manifest = validateSourceManifest(parsedRaw, manifestPath);
   // Derived from the tree, never defaulted: this report is the completeness authority, and a
   // default that said "absent" made it print zeros over a filled tree for two months (am-4cpx).
+  // The unit statuses too (am-rc1001-bridge-plan-pcjk.13): read from the manifest's own fields,
+  // which none fills in, every one of 544 units printed `unspecified`.
   const report = generateManifestReport(
     manifest,
     readSourceLayers(process.cwd(), manifest.paper, manifest.document, manifest.pageCount),
+    deriveUnitCoverage(process.cwd(), manifest),
   );
 
   const toolRunId = generateToolRunId();

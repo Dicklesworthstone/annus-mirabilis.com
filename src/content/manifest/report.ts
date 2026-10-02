@@ -16,6 +16,22 @@ import {
   SOURCE_LAYER_KINDS,
   type SourceManifest,
 } from "./types.ts";
+import type { UnitCoverage } from "./unitCoverage.ts";
+
+export class ManifestReportError extends Error {
+  readonly code: "unit-coverage-population";
+  constructor(code: ManifestReportError["code"], message: string) {
+    super(message);
+    this.code = code;
+    this.name = "ManifestReportError";
+  }
+}
+
+/**
+ * The statuses that count a unit complete: a reviewed or accepted hand status, or a derived status
+ * every applicable layer reaches (unitCoverage.ts).
+ */
+const COMPLETE_STATUSES = new Set(["reviewed", "accepted", "covered", "covered-declared"]);
 
 /**
  * Typed absent state for the four canonical source layers, for a paper whose tree holds nothing.
@@ -74,7 +90,20 @@ export function generateManifestReport(
    * measurement. readSourceLayers(root, paper, document, pageCount) derives them from the tree.
    */
   sourceLayers: PaperSourceLayers,
+  /**
+   * Each unit's status derived from the tree (deriveUnitCoverage, am-rc1001-bridge-plan-pcjk.13).
+   * Without it the statuses are the manifest's own fields, which no manifest fills in, so every unit
+   * reads `unspecified`; the report says which source it used, and only a derived one can say every
+   * block is covered. A hand-written `status` on a unit still wins, as a declared override.
+   */
+  unitCoverage?: readonly UnitCoverage[],
 ): ManifestReportData {
+  const derived = new Map((unitCoverage ?? []).map((c) => [c.id, c]));
+  if (unitCoverage !== undefined && unitCoverage.length !== manifest.units.length)
+    throw new ManifestReportError(
+      "unit-coverage-population",
+      `unit coverage holds ${unitCoverage.length} units and ${manifest.paper}'s manifest lists ${manifest.units.length}; a coverage over fewer units than the manifest cannot report it.`,
+    );
   const byKind: Record<string, number> = {};
   const byStatus: Record<string, number> = {};
   const incompleteUnits: {
@@ -98,11 +127,12 @@ export function generateManifestReport(
     const kindKey = isNotInScope ? `${unit.kind} (not-in-scope)` : unit.kind;
     byKind[kindKey] = (byKind[kindKey] ?? 0) + 1;
 
-    const st = unit.status ?? "unspecified";
+    const coverage = derived.get(unit.id);
+    const st = unit.status ?? coverage?.status ?? "unspecified";
     const statusKey = isNotInScope ? `${st} (not-in-scope)` : st;
     byStatus[statusKey] = (byStatus[statusKey] ?? 0) + 1;
 
-    if (!isNotInScope && st !== "reviewed" && st !== "accepted") {
+    if (!isNotInScope && !COMPLETE_STATUSES.has(st)) {
       incompleteUnits.push({
         id: unit.id,
         kind: unit.kind,
@@ -112,7 +142,16 @@ export function generateManifestReport(
     }
   }
 
+  const covered = (unitCoverage ?? []).filter(
+    (c) => c.status === "covered" || c.status === "covered-declared",
+  );
   return {
+    unitStatusSource: unitCoverage === undefined ? "manifest-fields" : "derived-from-tree",
+    coveredCount: covered.length,
+    glossedCount: (unitCoverage ?? []).filter((c) => c.glossed).length,
+    declaredUnits: (unitCoverage ?? []).flatMap((c) =>
+      c.declared ? [{ id: c.id, status: c.declared.status, reason: c.declared.reason }] : [],
+    ),
     paper: manifest.paper,
     document: manifest.document,
     status: manifest.status,
@@ -174,14 +213,39 @@ export function formatManifestReportText(report: ManifestReportData): string {
   }
   lines.push(``);
 
-  lines.push(`--- Units by Status ---`);
+  lines.push(
+    report.unitStatusSource === "derived-from-tree"
+      ? `--- Units by Status (derived from the tree: ${report.totalUnits} units, the manifest's ${report.totalUnits}) ---`
+      : `--- Units by Status (the manifest's own fields; not derived) ---`,
+  );
   for (const [st, count] of Object.entries(report.byStatus).sort((a, b) => b[1] - a[1])) {
     lines.push(`  ${st.padEnd(30)}: ${count}`);
   }
+  if (report.unitStatusSource === "derived-from-tree")
+    lines.push(`  ${"glossed (reported, not gating)".padEnd(30)}: ${report.glossedCount}`);
   lines.push(``);
+  if (report.declaredUnits.length > 0) {
+    lines.push(
+      `--- Covered by a declaration, not an explanation (${report.declaredUnits.length}) ---`,
+    );
+    for (const d of report.declaredUnits.slice(0, 10))
+      lines.push(`  - ${d.id.padEnd(20)} ${d.status}: ${d.reason}`);
+    if (report.declaredUnits.length > 10)
+      lines.push(`  ... and ${report.declaredUnits.length - 10} more`);
+    lines.push(``);
+  }
 
   if (report.totalUnits === 0) {
     lines.push(`No source units inventoried. Absence is recorded; review is not claimed.`);
+    lines.push(``);
+  } else if (
+    report.unitStatusSource === "derived-from-tree" &&
+    report.incompleteUnits.length === 0 &&
+    report.coveredCount === report.inScopeCount
+  ) {
+    lines.push(
+      `Every block covered: ${report.coveredCount} of ${report.inScopeCount} in-scope units (${report.declaredUnits.length} by a declaration). That is not a review certificate: see the layers above for what is a draft.`,
+    );
     lines.push(``);
   } else if (report.incompleteUnits.length > 0) {
     lines.push(`--- Incomplete Units (${report.incompleteUnits.length}) ---`);
