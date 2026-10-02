@@ -23,7 +23,7 @@ r1: "Two facts about the same ray, both measured in the stationary system. It st
 r2:
   - latex: "x' = 0"
     why: "The ray keeps to the moving system's second axis, so it stays level with that system's origin along the direction of the motion."
-  - latex: "y = \\sqrt{V^2 - v^2} \; t"
+  - latex: "y = \\sqrt{V^2 - v^2} \\; t"
     why: "It crosses at the speed left over, which the section used before for the rays sent across the motion."
   - latex: "\\frac{y}{\\sqrt{V^2 - v^2}} = t"
     why: "Divide by that speed, which is the line as printed."
