@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "../../components/home/wideProse.css";
 import "../about/about.css";
 import { criteriaCounts } from "./criteriaCounts.ts";
+import { spokenFormCounts } from "./spokenFormCounts.ts";
 
 export const metadata: Metadata = {
   title: "Accessibility",
@@ -32,6 +33,7 @@ const REPOSITORY = "https://github.com/Dicklesworthstone/annus-mirabilis.com";
  */
 export default function AccessibilityPage() {
   const criteria = criteriaCounts();
+  const spoken = spokenFormCounts();
 
   return (
     <div>
@@ -110,10 +112,16 @@ export default function AccessibilityPage() {
           claim is made against it.
         </p>
         <p>
-          Mathematics is the part most likely to fail you, and it is checked least by machine. Each
-          equation carries a spoken form written by hand rather than generated, because generated
-          speech is frequently wrong for physics notation, and those forms have been read against
-          screen readers in automated runs but not yet by a person who depends on one.
+          Mathematics is the part most likely to fail you, and it is checked least by machine.{" "}
+          {spoken.spoken === spoken.displays
+            ? `All ${spoken.displays}`
+            : `${spoken.spoken} of the ${spoken.displays}`}{" "}
+          displayed equations in the four papers carry a spoken form written by hand rather than
+          generated, because generated speech is frequently wrong for physics notation; it is the
+          name a screen reader is given for the equation. Mathematics inside a sentence has no
+          hand-written spoken form yet, and a screen reader reads it from the MathML the page
+          generates. No one has yet listened to any of these forms with a screen reader, and no
+          person who depends on one has checked them.
         </p>
       </section>
 

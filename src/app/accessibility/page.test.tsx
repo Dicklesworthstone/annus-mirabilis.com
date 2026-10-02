@@ -1,7 +1,11 @@
 import { describe, expect, test } from "bun:test";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
+import { loadBilingualEdition } from "../../reader/faces/bilingualLoader.ts";
 import { criteriaCounts } from "./criteriaCounts.ts";
 import Accessibility from "./page";
+import { SPOKEN_FORM_PAPERS, spokenFormCounts } from "./spokenFormCounts.ts";
 
 /**
  * /accessibility/ in its pending state. No disabled-reader testing round is recorded, so the page
@@ -97,5 +101,87 @@ describe("/accessibility/ leads somewhere", () => {
     // Rendered to static markup above; a page needing hydration to say what it says would fail the
     // thing it is describing.
     expect(text.length).toBeGreaterThan(3000);
+  });
+});
+
+/**
+ * Each claim the page makes about spoken forms, with the measurement that would contradict it
+ * (am-rc1001-bridge-plan-pcjk.35). Until 2026-10-02 the page said "Each equation carries a spoken
+ * form written by hand" (inline mathematics has none) and that the forms "have been read against
+ * screen readers in automated runs" (no screen reader has ever run). Both read as careful prose.
+ */
+export function spokenFormOverclaims(
+  pageText: string,
+  facts: Readonly<{ screenReaderRunRecorded: boolean; inlineSpokenForms: boolean }>,
+): string[] {
+  const found: string[] = [];
+  const claimsScreenReaderRun =
+    /\bscreen readers? in automated runs\b|\b(?:have|has) been (?:read|checked|tested|heard) (?:against|with|on|by|through) (?:a |one or more )?screen readers?/i;
+  if (!facts.screenReaderRunRecorded && claimsScreenReaderRun.test(pageText))
+    found.push("claims a screen-reader run, and docs/accessibility/runs/ records none");
+  const claimsEveryEquation = /\b(?:each|every) (?:equation|formula)\b[^.]*\bspoken form/i;
+  if (!facts.inlineSpokenForms && claimsEveryEquation.test(pageText))
+    found.push("claims every equation has a spoken form, and inline mathematics has none");
+  return found;
+}
+
+describe("/accessibility/ claims about spoken forms hold against the records", () => {
+  const counts = spokenFormCounts();
+  // Inline mathematics would carry an authored form in content/inline-terms. Read, not assumed:
+  // on 2026-10-02 none of its four files had a spoken field.
+  const inlineDir = join(process.cwd(), "content", "inline-terms");
+  const inlineFiles = readdirSync(inlineDir).filter((f) => f.endsWith(".yaml"));
+  const inlineSpokenForms = inlineFiles.some((f) =>
+    /^\s*-?\s*spoken:/m.test(readFileSync(join(inlineDir, f), "utf8")),
+  );
+
+  test("the inline records were read", () => {
+    expect(inlineFiles.length).toBeGreaterThan(0);
+  });
+
+  test("the check catches the two sentences the page printed before", () => {
+    const before =
+      "Each equation carries a spoken form written by hand rather than generated, because generated " +
+      "speech is frequently wrong for physics notation, and those forms have been read against " +
+      "screen readers in automated runs but not yet by a person who depends on one.";
+    expect(
+      spokenFormOverclaims(before, { screenReaderRunRecorded: false, inlineSpokenForms }),
+    ).toHaveLength(2);
+    // With a recorded run and authored inline forms the same sentences would be true.
+    expect(
+      spokenFormOverclaims(before, { screenReaderRunRecorded: true, inlineSpokenForms: true }),
+    ).toEqual([]);
+  });
+
+  test("the page makes neither claim while the records do not support it", () => {
+    expect(
+      spokenFormOverclaims(text, {
+        screenReaderRunRecorded: counts.screenReaderRunRecorded,
+        inlineSpokenForms,
+      }),
+    ).toEqual([]);
+    // And it says the limits in words, so a reader is told, not only spared a false claim.
+    expect(text).toContain("Mathematics inside a sentence has no hand-written spoken form yet");
+    expect(text).toContain("No one has yet listened to any of these forms with a screen reader");
+  });
+
+  test("the count the page prints is the count of displays the four papers print", async () => {
+    // Every printed display has a display-terms entry, so "All N displayed equations" is about the
+    // papers, not only about the entries someone happened to write.
+    let printed = 0;
+    for (const paper of SPOKEN_FORM_PAPERS) {
+      const edition = await loadBilingualEdition(paper);
+      printed += (edition?.blocks ?? []).filter((b) => b.kind === "equation").length;
+    }
+    console.log(
+      `spoken forms: ${counts.spoken} of ${counts.displays} display entries; ${printed} displays printed`,
+    );
+    expect(printed).toBeGreaterThan(100);
+    expect(counts.displays).toBe(printed);
+    const phrase =
+      counts.spoken === counts.displays
+        ? `All ${counts.displays} displayed equations`
+        : `${counts.spoken} of the ${counts.displays} displayed equations`;
+    expect(text).toContain(phrase);
   });
 });
