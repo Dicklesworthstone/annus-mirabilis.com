@@ -154,11 +154,21 @@ export function scriptChunks(html: string): string[] {
 const VERCEL_TOOLBAR_SUFFIX =
   /^\n;\(function\(\)\{if\(typeof document==="undefined"\|\|!\/\(\?:\^\|;\\s\)__vercel_toolbar=1\(\?:;\|\$\)\/\.test\(document\.cookie\)\)return;var s=document\.createElement\('script'\);s\.src='https:\/\/vercel\.live\/_next-live\/feedback\/feedback\.js';s\.setAttribute\("data-explicit-opt-in","true"\);s\.setAttribute\("data-cookie-opt-in","true"\);s\.setAttribute\("data-deployment-id","dpl_[A-Za-z0-9]{8,64}"\);\(\(document\.head\|\|document\.documentElement\)\.appendChild\(s\)\)\}\)\(\);$/;
 
+/**
+ * The same loader as Vercel serves it since at least 2026-10-02, with the cookie test wrapped in
+ * `try{...}catch(e){return;}`. Measured on the candidate of 63dc6e43: webpack-cde6a9b0fbf228bf.js served
+ * 12,768 bytes against the built 12,307, the built bytes followed by exactly this. Matched the same
+ * way, character for character with only the deployment id free.
+ */
+const VERCEL_TOOLBAR_SUFFIX_TRY =
+  /^\n;\(function\(\)\{try\{if\(typeof document==="undefined"\|\|!\/\(\?:\^\|;\\s\)__vercel_toolbar=1\(\?:;\|\$\)\/\.test\(document\.cookie\)\)return;\}catch\(e\)\{return;\}var s=document\.createElement\('script'\);s\.src='https:\/\/vercel\.live\/_next-live\/feedback\/feedback\.js';s\.setAttribute\("data-explicit-opt-in","true"\);s\.setAttribute\("data-cookie-opt-in","true"\);s\.setAttribute\("data-deployment-id","dpl_[A-Za-z0-9]{8,64}"\);\(\(document\.head\|\|document\.documentElement\)\.appendChild\(s\)\)\}\)\(\);$/;
+
 /** True when `served` is exactly `built` followed by Vercel's toolbar loader. */
 export function isBuiltPlusVercelToolbar(served: Buffer, built: Buffer): boolean {
   if (served.length <= built.length || !served.subarray(0, built.length).equals(built))
     return false;
-  return VERCEL_TOOLBAR_SUFFIX.test(served.subarray(built.length).toString("utf8"));
+  const suffix = served.subarray(built.length).toString("utf8");
+  return VERCEL_TOOLBAR_SUFFIX.test(suffix) || VERCEL_TOOLBAR_SUFFIX_TRY.test(suffix);
 }
 
 export type IdentityReport = Readonly<{

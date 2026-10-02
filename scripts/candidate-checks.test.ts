@@ -268,6 +268,45 @@ describe("candidate checks (am-rel-candidate-checks-kc7y)", () => {
   const TOOLBAR =
     '\n;(function(){if(typeof document==="undefined"||!/(?:^|;\\s)__vercel_toolbar=1(?:;|$)/.test(document.cookie))return;var s=document.createElement(\'script\');s.src=\'https://vercel.live/_next-live/feedback/feedback.js\';s.setAttribute("data-explicit-opt-in","true");s.setAttribute("data-cookie-opt-in","true");s.setAttribute("data-deployment-id","dpl_A9rtHXRksk9GrFtRQT7D9cbTrQLV");((document.head||document.documentElement).appendChild(s))})();';
 
+  // The same loader as the candidate of 63dc6e43 served it on 2026-10-02: the cookie test is now
+  // wrapped in try/catch. Copied byte for byte from the served chunk; only the deployment id differs.
+  const TOOLBAR_TRY =
+    '\n;(function(){try{if(typeof document==="undefined"||!/(?:^|;\\s)__vercel_toolbar=1(?:;|$)/.test(document.cookie))return;}catch(e){return;}var s=document.createElement(\'script\');s.src=\'https://vercel.live/_next-live/feedback/feedback.js\';s.setAttribute("data-explicit-opt-in","true");s.setAttribute("data-cookie-opt-in","true");s.setAttribute("data-deployment-id","dpl_9TaBXPJX35x8oPu5HCdmQGUF7rv5");((document.head||document.documentElement).appendChild(s))})();';
+
+  test("the try/catch form Vercel serves since 2026-10-02 is named as the same finding", async () => {
+    const { staticDir, root, fetcher, served } = fixture();
+    served.set("/_next/static/chunks/lab.js", {
+      status: 200,
+      body: Buffer.from(`console.log(1)${TOOLBAR_TRY}`),
+    });
+    const check = byName(
+      await runCandidateChecksAgainst({ fetcher, staticDir, root }),
+      "every-instrument-bundle",
+    );
+    expect(check?.status).toBe("passed");
+    expect(check?.detail).toContain("Finding: 1 served as built plus Vercel's toolbar loader");
+  });
+
+  test("the try/catch form with anything changed or added still fails", async () => {
+    const { staticDir, root, fetcher, served } = fixture();
+    for (const tail of [
+      TOOLBAR_TRY.replace("vercel.live", "evil.example"),
+      TOOLBAR_TRY.replace("catch(e){return;}", "catch(e){}"),
+      `${TOOLBAR_TRY}x()`,
+    ]) {
+      expect(tail).not.toBe(TOOLBAR_TRY);
+      served.set("/_next/static/chunks/lab.js", {
+        status: 200,
+        body: Buffer.from(`console.log(1)${tail}`),
+      });
+      const check = byName(
+        await runCandidateChecksAgainst({ fetcher, staticDir, root }),
+        "every-instrument-bundle",
+      );
+      expect(check?.status).toBe("failed");
+    }
+  });
+
   test("Vercel's toolbar loader appended to a chunk is named as a finding, not passed silently", async () => {
     const { staticDir, root, fetcher, served } = fixture();
     served.set("/_next/static/chunks/lab.js", {
