@@ -16,7 +16,7 @@
       "!public/edition",
       "!src/generated",
       "!artifacts",
-    "!docs/releases",
+      "!docs/releases",
       "!.beads",
       "!docs/design/placeholder",
       "!public/wasm/fs-annus-diffusion",
