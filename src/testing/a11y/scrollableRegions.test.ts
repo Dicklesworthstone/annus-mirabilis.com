@@ -645,6 +645,16 @@ export const NOT_YET_AUDITED = new Map<string, number>([
     against. If this entry is ever "cleared", check that the class became a subject first.
   */
   ["sr-investigation-page", 1],
+  /*
+    sources-section is an ANCESTOR, the same case as sr-investigation-page above. The only rule
+    that scrolls is `.sources-section .inline-math` (src/app/sources/sources.css, 2026-10-02): a
+    quoted misprint scrolls in its own line at 320px instead of widening /sources/. The subject is
+    .inline-math, which already has its entry, and whose tab stop and name come at runtime from
+    formulaOverflow.inline.ts only when it overflows. The 12 is the elements carrying the class in
+    the TSX (5 in src/app/sources/page.tsx, 7 in src/app/sources/[paper]/page.tsx), none with a
+    tabIndex, which is correct for a wrapper that does not scroll.
+  */
+  ["sources-section", 12],
   ["source-equation", 1],
   ["sr07-components", 1],
   ["sr07-equation", 1],
