@@ -16,6 +16,7 @@ import {
   LabExplanationsError,
 } from "./labExplanations.ts";
 import { labFormulaSites } from "./labFormulaSites.ts";
+import { printedExplanation } from "./printedExplanations.ts";
 
 /** LQ-08's three displayed formulas, as its page writes them. */
 const PRINTED_LAW = "\\Pi\\varepsilon = \\frac{R}{N}\\beta\\nu - P";
@@ -25,12 +26,15 @@ const WORKED_VALUE = "V_s \\approx \\frac{h\\nu}{e} \\approx 4.3\\ \\text{V}";
 /** An own record needs an id, and every plant below carries one so it reaches its own predicate. */
 const PLANT_ID = "lab-lq-08-plant";
 
-const checked = checkLabExplanations();
+const checked = checkLabExplanations(process.cwd(), { displayRecord: printedExplanation });
 
 /** The codes a planted record produces, with the real files left out of the run. */
 function codesOf(raw: unknown, lab = "lq-08"): string[] {
   const sources: LabExplanationSource[] = [{ lab, raw }];
-  return checkLabExplanations(process.cwd(), { sources }).problems.map((p) => p.code);
+  return checkLabExplanations(process.cwd(), {
+    sources,
+    displayRecord: printedExplanation,
+  }).problems.map((p) => p.code);
 }
 
 /** A record of one entry, for a plant. */
@@ -241,6 +245,7 @@ describe("the laboratories' formula explanations", () => {
     test("the build's refusal carries its code, and a clean set passes", () => {
       const planted = checkLabExplanations(process.cwd(), {
         sources: [{ lab: "lq-08", raw: record({ latex: "E = m c^2", display: "eq-s8-d2" }) }],
+        displayRecord: printedExplanation,
       });
       let caught: unknown;
       try {
@@ -273,7 +278,10 @@ describe("the laboratories' formula explanations", () => {
           }),
         },
       ];
-      const planted = checkLabExplanations(process.cwd(), { sources });
+      const planted = checkLabExplanations(process.cwd(), {
+        sources,
+        displayRecord: printedExplanation,
+      });
       expect(planted.explainers.get("lq-08")?.has(MODERN_LAW)).toBe(false);
       expect(planted.census.explained).toBe(0);
     });

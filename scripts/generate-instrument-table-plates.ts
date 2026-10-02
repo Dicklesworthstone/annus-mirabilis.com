@@ -6,9 +6,11 @@
  * Each laboratory route is rendered on the server with its default settings, as `next build`
  * renders it, and scripts/instrument-table-plate.ts reads the first table in view that holds
  * values. So every number on a plate is the one the laboratory itself prints for its static worked
- * case, computed by the owner it labels, and none is typed here or on the catalogue. It runs last in
- * prepare:lab, after the generators whose output the laboratory pages import, so every build reads
- * the values again and a plate cannot go stale while its laboratory moves on.
+ * case, computed by the owner it labels, and none is typed here or on the catalogue. It runs after
+ * every prepare:lab generator whose output the laboratory pages import (only the search index follows
+ * it), so every build reads the values again and a plate cannot go stale while its laboratory moves
+ * on. A page that imports a generated file nobody has written yet fails the chain rather than
+ * becoming "unread".
  *
  * Which instruments: the registered ones without a picture, by the rule /instruments/ uses to show
  * one (a manifest entry and a file on disk). An instrument this cannot read, because its page does
@@ -63,7 +65,17 @@ for (const id of ids) {
     if (plate) plates[id] = plate;
     else unread[id] = "no table of values in view on its page";
   } catch (error) {
-    unread[id] = `its page did not render: ${(error as Error).message.split("\n")[0]}`;
+    const message = (error as Error).message.split("\n")[0] ?? "";
+    // A generated module that does not exist yet is a fault in the prepare chain's ORDER, not an
+    // unreadable laboratory: reporting it under "unread" let a fresh clone ship a degraded plate for
+    // lq-06 while the shared checkout read a stale teaching-tapes.json (am-rc1001-bridge-plan-pcjk.5).
+    if (/Cannot find module .*\/generated\//.test(message)) {
+      throw new Error(
+        `generate-instrument-table-plates: ${id}'s page imports a generated file that no earlier ` +
+          `prepare step has written. Move its generator ahead of this one. ${message}`,
+      );
+    }
+    unread[id] = `its page did not render: ${message}`;
   }
 }
 

@@ -47,7 +47,6 @@ import type {
 } from "./equationExplanations.ts";
 import { labFormulaSites } from "./labFormulaSites.ts";
 import { labFormula, labScope } from "./labInlines.ts";
-import { printedExplanation } from "./printedExplanations.ts";
 
 export const LAB_EXPLANATIONS_DIR = join("content", "lab-explanations");
 
@@ -175,22 +174,24 @@ export function loadLabExplanationSources(root = process.cwd()): LabExplanationS
  * without writing a file into a checkout several other agents are editing (checkPaperExplanations
  * takes its sources the same way).
  *
- * `displayRecord` is how a reused record is found. It defaults to the generated payload, which is
- * what the author's check and the tests read; the build passes the records it has just compiled in
- * the same process instead, because the payload on disk is still the previous run's at that moment
- * and a lab would otherwise reuse a record that no longer exists.
+ * `displayRecord` is how a reused record is found, and every caller passes it. The author's check
+ * and the tests pass `printedExplanation`, the generated payload; the build passes the records it has
+ * just compiled in the same process, because the payload on disk is still the previous run's at that
+ * moment and a lab would otherwise reuse a record that no longer exists. There is deliberately no
+ * default: a default meant this module imported the payload, so scripts/build-equations.ts, which
+ * WRITES that payload, could not even load in a clean checkout (am-rc1001-bridge-plan-pcjk.5).
  */
 export function checkLabExplanations(
   root = process.cwd(),
   overrides: Readonly<{
     sources?: readonly LabExplanationSource[];
-    displayRecord?: (
+    displayRecord: (
       paper: string | undefined,
       display: string | undefined,
     ) => CompiledExplanation | undefined;
-  }> = {},
+  }>,
 ): LabExplanations {
-  const displayRecord = overrides.displayRecord ?? printedExplanation;
+  const displayRecord = overrides.displayRecord;
   const problems: LabExplanationProblem[] = [];
   const sites = labFormulaSites(root);
   const explainers = new Map<string, Map<string, ExplainerLevels>>();

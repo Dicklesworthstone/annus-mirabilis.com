@@ -12,8 +12,9 @@
  * needs a judgement, so an empty run reads as "0 of 89 explained, 89 missing" and never as clean.
  */
 import { checkLabExplanations } from "../src/equations/printed/labExplanations.ts";
+import { printedExplanation } from "../src/equations/printed/printedExplanations.ts";
 
-const checked = checkLabExplanations(process.cwd());
+const checked = checkLabExplanations(process.cwd(), { displayRecord: printedExplanation });
 const { census } = checked;
 console.log(
   `lab formulas: ${census.explained} of ${census.displayed} displayed formulas explained ` +
