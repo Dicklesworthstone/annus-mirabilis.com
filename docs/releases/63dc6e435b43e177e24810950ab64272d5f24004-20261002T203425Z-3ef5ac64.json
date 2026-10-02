@@ -1,0 +1,66 @@
+{
+  "schema": "annus-mirabilis-release-record.v1",
+  "toolRunId": "20261002T203425Z-3ef5ac64",
+  "createdAt": "2026-10-02T20:41:05.089Z",
+  "commit": "63dc6e435b43e177e24810950ab64272d5f24004",
+  "profile": "scaffold",
+  "candidateUrl": "https://annus-mirabilis-104ie3eoo-dicklesworthstones-projects.vercel.app",
+  "candidateDeploymentId": "https://annus-mirabilis-104ie3eoo-dicklesworthstones-projects.vercel.app",
+  "candidateChecksPassed": false,
+  "candidateCheckSummary": "7 passed (four-complete-paper-texts, paper-pages-served-as-built, representative-foundations, no-javascript-source-text, accepted-wasm-result-per-capability, wasm-artifact-served-as-pinned, fragment-anchors-resolve); 2 failed (every-instrument-bundle, deliberate-typed-refusal); 0 not run",
+  "authorizationRef": "deploy-auth.yaml#63dc6e43",
+  "targetHostnames": [
+    "annus-mirabilis.com",
+    "www.annus-mirabilis.com",
+    "annus-mirabilis-seven.vercel.app"
+  ],
+  "candidateChecks": [
+    {
+      "name": "four-complete-paper-texts",
+      "status": "passed",
+      "detail": "All 544 source blocks the build compiled for the four papers are anchored in the served text a reader without JavaScript receives. Examined 4 papers and 544 declared source-block ids, 544 of them anchored: mass-energy: 25 of 25 declared ids anchored in <main> on /papers/mass-energy/view/german/; 1 numbered section(s) — light-quanta: 128 of 128 declared ids anchored in <main> on /papers/light-quanta/view/german/; 10 numbered section(s), of which the required 9 are all declared — brownian-motion: 178 of 178 declared ids anchored in <main> on /papers/brownian-motion/view/german/; 6 numbered section(s) — special-relativity: 213 of 213 declared ids anchored in <main> on /papers/special-relativity/view/german/; 11 numbered section(s), of which the required 6, 7, 8, 9, 10 are all declared. \"Complete\" here means the deployment serves the whole compiled corpus; it is not a claim that any edition is editorially complete, translated or reviewed."
+    },
+    {
+      "name": "paper-pages-served-as-built",
+      "status": "passed",
+      "detail": "32 of 32 paper pages served byte-identical to the build. HTTP only: this proves the served bytes, not that any text is complete or reviewed."
+    },
+    {
+      "name": "representative-foundations",
+      "status": "passed",
+      "detail": "45 of 45 foundation pages served byte-identical to the build. HTTP only."
+    },
+    {
+      "name": "every-instrument-bundle",
+      "status": "failed",
+      "detail": "1 of 165 lab pages and script chunks (41 pages, 124 chunks) not served as built: /_next/static/chunks/webpack-cde6a9b0fbf228bf.js: served 12768 bytes differ from the built 12307"
+    },
+    {
+      "name": "no-javascript-source-text",
+      "status": "passed",
+      "detail": "/papers/mass-energy/view/german/ served as built, with all 25 of 25 frozen manifest ids anchored inside <main id=\"main\"> (no JavaScript executed)."
+    },
+    {
+      "name": "accepted-wasm-result-per-capability",
+      "status": "passed",
+      "detail": "3 of 3 declared capability(ies) produced an accepted FrankenSim result on the deployed assets, each earned by a reader's action rather than by a loaded artifact. Examined 3 declared capability(ies): diffusion.brownian-frames (brownian_frames) on bm-01: labels on arrival [static] then [frankensim,host]; 1 wasm request(s); wording present — diffusion.philox-normals (philox_normals) on bm-05: labels on arrival [static] then [frankensim]; 1 wasm request(s); wording present — diffusion.ftcs-1d (diffusion1d_frames) on bm-06: labels on arrival [static] then [host,frankensim]; 1 wasm request(s); wording present. This proves the owner answered, not that its physics is right."
+    },
+    {
+      "name": "deliberate-typed-refusal",
+      "status": "failed",
+      "detail": "the refusal is in no live region, so a reader who cannot see the screen is told nothing when the model refuses. Drove bm-06 to its declared refusal: codes [ftcs-unstable]; reader sentence 433 characters; nonfinite tokens [none]; announced by none."
+    },
+    {
+      "name": "wasm-artifact-served-as-pinned",
+      "status": "passed",
+      "detail": "wasm-artifact-served-as-pinned: 4 of 4 declared files fetched from /wasm/fs-annus-diffusion/80a1f8fda6f69003, 3 capabilities declared, every one matching its declared sha256 and byte count. Bytes only: this proves the candidate serves the pinned artifact, NOT that a reader obtains an accepted result from it, which needs a browser."
+    },
+    {
+      "name": "fragment-anchors-resolve",
+      "status": "passed",
+      "detail": "fragment-anchors-resolve: 9828 fragment links (1792 distinct target#fragment) over 272 target pages, from 240 routes; 0 broken. Anchors only: this proves each fragment exists on the page it names, not that it is the right passage."
+    }
+  ],
+  "outcome": "refused",
+  "finishedAt": "2026-10-02T20:45:24.604Z"
+}
