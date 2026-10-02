@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
-import { mkdtemp, readFile } from "node:fs/promises";
+import { existsSync, readFileSync } from "node:fs";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { paperMetadata } from "../../reader/paperRoutes.ts";
 import {
   FIXTURE_BROWNIAN_ALIGNMENT,
@@ -13,7 +13,12 @@ import {
   FIXTURE_EDITORIAL_NOTES,
 } from "../../testing/fixtures/bilingual/brownianBilingualFixture.ts";
 import { getLogger } from "../../testing/log/logger.ts";
-import { formatExportLinkHtml, getPaperExportLinks, getSectionExportLinks } from "./discovery.ts";
+import {
+  formatExportLinkHtml,
+  getPaperExportLinks,
+  getSectionExportLinks,
+  publishedExportLinks,
+} from "./discovery.ts";
 import { emitMachineReadableExports, REVIEWED_TRANSLATION_STATES } from "./emitter.ts";
 import { escapeMarkdownSourceText, generateSectionMarkdown } from "./markdown.ts";
 import { assertExportSafety, ExportValidationError, validateExportRecord } from "./schemas.ts";
@@ -852,29 +857,47 @@ describe("Machine-Readable Exports (/exports/v1/) (am-cm-machine-readable-export
     );
   });
 
-  // 13. Paper & Section Metadata Discovery Links (AC 7)
-  it("paperMetadata includes alternate link types for paper and section discovery (AC 7)", async () => {
-    // Paper route metadata
+  // 13. Paper & Section Metadata Discovery Links (AC 7), advertised only once published
+  it("paperMetadata advertises an export only when its file is published (AC 7, am-rc1001-bridge-plan-pcjk.8)", async () => {
+    // Until 2026-10-02 this asserted the four links were always present, which is the defect: no
+    // build step runs the emitter, so every one was a 404 on the live site. A link is now kept only
+    // when public/<href> exists, so this checkout, which publishes no export, advertises none.
+    const published = (types: Record<string, string> | undefined) =>
+      Object.entries(types ?? {}).filter(([, href]) => href.startsWith("/exports/"));
     const paperMeta = await paperMetadata({ paperId: "brownian-motion" });
-    expect(paperMeta.alternates?.types).toBeDefined();
-    const paperTypes = paperMeta.alternates?.types as Record<string, string>;
-    expect(paperTypes["application/json"]).toBe("/exports/v1/papers/brownian-motion.json");
-    expect(paperTypes["application/ld+json"]).toBe("/exports/v1/jsonld/brownian-motion.json");
-    expect(paperTypes["application/tei+xml"]).toBe("/exports/v1/tei/brownian-motion.xml");
-    expect(paperTypes["text/tab-separated-values"]).toBe("/exports/v1/corpus/brownian-motion.tsv");
-
-    // Section route metadata
     const sectionMeta = await paperMetadata({ paperId: "brownian-motion", section: "s4" });
-    expect(sectionMeta.alternates?.types).toBeDefined();
-    const sectionTypes = sectionMeta.alternates?.types as Record<string, string>;
-    expect(sectionTypes["application/json"]).toBe("/exports/v1/papers/brownian-motion/s4.json");
-    expect(sectionTypes["text/markdown"]).toBe("/exports/v1/papers/brownian-motion/s4.md");
+    const anyPublished = existsSync(resolve(process.cwd(), "public/exports/v1"));
+    if (!anyPublished) {
+      expect(published(paperMeta.alternates?.types as Record<string, string> | undefined)).toEqual(
+        [],
+      );
+      expect(
+        published(sectionMeta.alternates?.types as Record<string, string> | undefined),
+      ).toEqual([]);
+    }
+    for (const [, href] of [
+      ...published(paperMeta.alternates?.types as Record<string, string> | undefined),
+      ...published(sectionMeta.alternates?.types as Record<string, string> | undefined),
+    ]) {
+      expect(existsSync(resolve(process.cwd(), "public", `.${href}`))).toBe(true);
+    }
 
     logOutcome(
       "exports-metadata-discovery",
       "passed",
-      "Paper and section routes provide rel=alternate export types in metadata.",
+      "Paper and section routes advertise only published exports.",
     );
+  });
+
+  it("publishedExportLinks keeps a published file's link and drops an unpublished one, in both directions", async () => {
+    const root = await mkdtemp(join(tmpdir(), "am-export-links-"));
+    const all = getPaperExportLinks("brownian-motion");
+    expect(publishedExportLinks(all, root)).toEqual([]);
+    const tsv = all.find((d) => d.type === "text/tab-separated-values");
+    if (!tsv) throw new Error("the TSV descriptor is missing from getPaperExportLinks");
+    await mkdir(join(root, "public", dirname(tsv.href)), { recursive: true });
+    await writeFile(join(root, "public", tsv.href), "id\tgerman\tenglish\n");
+    expect(publishedExportLinks(all, root).map((d) => d.href)).toEqual([tsv.href]);
   });
 
   // 14. Documentation Contract Verification (AC 6)

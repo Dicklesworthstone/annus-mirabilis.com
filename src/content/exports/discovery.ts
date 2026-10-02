@@ -5,7 +5,15 @@
  * corresponding machine-readable exports.
  *
  * Spec: am-cm-machine-readable-exports-xgy (Criterion 8).
+ *
+ * A page advertises an export only once that export is published. Until 2026-10-02 every paper and
+ * section page carried all of these links while no build step ran the emitter, so a crawler
+ * following `rel=alternate` met a 404 on every one (am-rc1001-bridge-plan-pcjk.8).
+ * `publishedExportLinks` keeps a descriptor only when its file exists under `public/`, which is what
+ * the static export serves at the same path.
  */
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 
 export interface ExportLinkDescriptor {
   readonly rel: "alternate";
@@ -70,4 +78,15 @@ export function formatExportLinkHtml(descriptors: readonly ExportLinkDescriptor[
   return descriptors
     .map((d) => `<link rel="${d.rel}" type="${d.type}" href="${d.href}" title="${d.title}" />`)
     .join("\n");
+}
+
+/**
+ * The descriptors whose files are actually published: `public<href>` exists. A link to a file
+ * nobody wrote is a dead link in every page's head, so it is dropped rather than advertised.
+ */
+export function publishedExportLinks(
+  descriptors: readonly ExportLinkDescriptor[],
+  root = process.cwd(),
+): readonly ExportLinkDescriptor[] {
+  return descriptors.filter((d) => existsSync(join(root, "public", d.href)));
 }

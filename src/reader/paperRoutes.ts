@@ -6,7 +6,11 @@
  */
 import type { Metadata } from "next";
 import { paperShareImages } from "../components/share/shareImages.ts";
-import { getPaperExportLinks, getSectionExportLinks } from "../content/exports/discovery.ts";
+import {
+  getPaperExportLinks,
+  getSectionExportLinks,
+  publishedExportLinks,
+} from "../content/exports/discovery.ts";
 import { PAPER_SLUGS } from "../content/schemas/source.ts";
 import { contentIndex, loadPaper } from "../content/server.ts";
 import { DEFAULT_FACE, FACE_REGISTRY, type FaceId } from "./faces/registry.ts";
@@ -182,10 +186,11 @@ export async function paperMetadata(request: PaperRouteRequest): Promise<Metadat
     resolved.face === "german" || resolved.face === "english" || resolved.face === "gloss"
       ? absoluteUrl(path)
       : absoluteUrl(documentPath);
-  const exportLinks =
+  const exportLinks = publishedExportLinks(
     sectionId === undefined
       ? getPaperExportLinks(resolved.paperId)
-      : getSectionExportLinks(resolved.paperId, sectionId);
+      : getSectionExportLinks(resolved.paperId, sectionId),
+  );
   const types: Record<string, string> = {};
   for (const link of exportLinks) {
     types[link.type] = link.href;
