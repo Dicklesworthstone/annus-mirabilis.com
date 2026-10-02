@@ -21,8 +21,10 @@ export default function BrownianInvestigationPage() {
         </p>
         <p>
           The trial here is synthetic: this site computes it from a model, with the tracer and
-          spreading instruments. It is not a historical measurement, and not a reconstruction of
-          Einstein’s private thoughts.
+          spreading instruments. It is not a historical measurement.
+        </p>
+        <p className="notice">
+          A route you could take, not a transcript of Einstein’s private thoughts.
         </p>
         <div className="actions">
           <a href="/discover/brownian-motion/">Back to the Brownian route</a>
