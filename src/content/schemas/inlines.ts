@@ -326,14 +326,17 @@ function misprintFormula(o: Record<string, unknown>, path: string): MisprintForm
 
 /** A misprint inline that cannot be marked: its printed word or its record id is missing. */
 export class MisprintInlineError extends Error {
-  constructor(
-    readonly code:
-      | "misprint-without-record"
-      | "misprint-formula-not-inline"
-      | "misprint-formula-without-record",
-    message: string,
-  ) {
+  // An explicit field, not a constructor parameter property: `node --experimental-strip-types`
+  // refuses parameter properties (ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX), and this module is loaded by
+  // the node lane through structural.e2e, brownian.manifest.e2e and lightQuanta.manifest.e2e.
+  readonly code:
+    | "misprint-without-record"
+    | "misprint-formula-not-inline"
+    | "misprint-formula-without-record";
+
+  constructor(code: MisprintInlineError["code"], message: string) {
     super(message);
+    this.code = code;
     this.name = "MisprintInlineError";
   }
 }
