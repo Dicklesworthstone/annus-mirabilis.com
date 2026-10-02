@@ -5,6 +5,7 @@ import { LabWrongTurns } from "../../../components/lab/LabWrongTurns.tsx";
 import { WaveDescriptionLab } from "../../../components/lab/WaveDescriptionLab.tsx";
 import { validateLq01Parameters } from "../../../experiments/lq01/parameters.ts";
 import example from "../../../generated/lq01-example.json";
+import { NotModeledLine } from "../NotModeledLine.tsx";
 
 export const metadata: Metadata = {
   title: "Wave description and energy spreading",
@@ -33,6 +34,7 @@ export default function WaveDescriptionPage() {
       </header>
 
       <WaveDescriptionLab example={{ ...example, parameters: checked.data }} />
+      <NotModeledLine instrumentId="lq-01" />
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
         <ul>

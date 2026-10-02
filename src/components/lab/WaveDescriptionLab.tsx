@@ -580,23 +580,9 @@ export function WaveDescriptionLab({
 
       {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
       <ShowTheCode instrumentId="lq-01" listings={getKernelListingsForInstrument("lq-01")} />
-
-      <div className="lab-bottom">
-        <div className="not-modeled">
-          <h3>What this model leaves out</h3>
-          <p>It adds continuous scalar waves and spreads energy over spheres. It does not model:</p>
-          <ul>
-            <li>polarization, or the vector components of the electromagnetic field;</li>
-            <li>photon statistics, antibunching, or any quantum optics;</li>
-            <li>absorption, emission, or detection by matter;</li>
-            <li>light that is not monochromatic, or that has a finite coherence length;</li>
-            <li>diffraction beyond the idealised pair of coherent point sources;</li>
-            <li>
-              an absolute intensity scale, unless a power and a detector geometry are declared.
-            </li>
-          </ul>
-        </div>
-      </div>
+      {/* What this model leaves out is the manifest's list, printed by the page
+          (src/app/lab/NotModeledLine.tsx); a paraphrase here was a second source that said it in
+          other words. */}
     </section>
   );
 }

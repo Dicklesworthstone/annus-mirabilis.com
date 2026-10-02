@@ -170,10 +170,10 @@ assumptions:
   - "The coefficient multiplying ln(V/V0) represents the same physical entropy capacity in both systems."
 admittedDomain: "Monochromatic Wien-regime radiation and ideal gas comparison in identical volume transformations"
 notModeled:
-  - "Radiation outside the Wien regime (e.g. Rayleigh-Jeans limit)"
-  - "Mechanism of photon emission and absorption (developed in §§7–9)"
-  - "Cavity wall thermalization processes"
-  - "Wave interference inside the volume"
+  - "Radiation outside the Wien regime"
+  - "Mechanism of emission and absorption (reserved for §§7–9)"
+  - "Cavity wall dynamics and boundary interactions"
+  - "Wave interference patterns inside the volume"
 owner:
   kind: reference-evaluator
   kernelFunctions:

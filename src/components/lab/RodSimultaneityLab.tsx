@@ -776,28 +776,9 @@ export function RodSimultaneityLab({
         </section>
       </div>
 
-      {/* Epistemic limits (not modeled) */}
-      <div className="notice" style={{ margin: "1.5rem 0" }}>
-        <h3 style={{ marginTop: 0 }}>What this model leaves out</h3>
-        <p className="fine">
-          It applies exact special-relativistic coordinate transformations, coordinate length
-          measurements and invariant intervals between inertial frames. It does not model:
-        </p>
-        <ul className="fine">
-          <li>
-            Optical camera image appearance (Terrell-Penrose rotation and light-travel-time
-            distortion), which differs from coordinate measurement at a single instant.
-          </li>
-          <li>Accelerating reference frames, Rindler horizons, or Thomas precession.</li>
-          <li>
-            Internal stress, elasticity, Born rigidity breakdown, or relativistic wave propagation
-            during rod acceleration.
-          </li>
-          <li>Gravitational time dilation or spacetime curvature (general relativity).</li>
-          <li>Quantum uncertainty or field fluctuations at Planck-scale event intervals.</li>
-          <li>Superluminal observers (|v| &ge; c) or tachyonic coordinate frames.</li>
-        </ul>
-      </div>
+      {/* What this model leaves out is the manifest's list, printed by the page
+          (src/app/lab/NotModeledLine.tsx). A six-item list written here disagreed with the
+          manifest's five. */}
       {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}
       <ShowTheCode instrumentId="sr-03" listings={getKernelListingsForInstrument("sr-03")} />
     </section>

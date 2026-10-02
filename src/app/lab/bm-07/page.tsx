@@ -7,6 +7,7 @@ import { LabTapes } from "../../../components/lab/LabTapes.tsx";
 import { LabWrongTurns } from "../../../components/lab/LabWrongTurns.tsx";
 import { validateBm07Parameters } from "../../../experiments/bm07/parameters.ts";
 import example from "../../../generated/bm07-example.json";
+import { NotModeledLine } from "../NotModeledLine.tsx";
 export const metadata: Metadata = {
   title: "From wandering to molecular-number inference",
   description:
@@ -30,6 +31,7 @@ export default function InferencePage() {
         </p>
       </header>
       <InferenceComparison example={{ ...example, parameters: checked.data }} />
+      <NotModeledLine instrumentId="bm-07" />
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
         <ul>

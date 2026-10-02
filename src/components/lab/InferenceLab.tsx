@@ -777,12 +777,7 @@ export function InferenceLab({
           accepted snapshot.
         </p>
       </section>
-      <p className="not-modeled">
-        Not modeled: localization error, blur, correlated or irregularly timed increments, and
-        censoring (see the camera laboratory and kitchen mode); non-Gaussian increments;
-        time-varying drift; polydispersity within one track set; wall effects; uncertainty in C
-        without declared coverages; uncertainty in the gas constant itself.
-      </p>
+      {/* Not modeled: the manifest's list, printed by the page (src/app/lab/NotModeledLine.tsx). */}
       <details className="inference-provenance">
         <summary>Accepted calculation identity and limits</summary>
         <p className="fine">

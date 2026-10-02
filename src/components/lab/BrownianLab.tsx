@@ -622,7 +622,9 @@ export function BrownianLab({
           <p>{BM06_RADIAL_EXPLANATIONS.rmsRadius3d}</p>
         </section>
         <section>
-          <h3>What this model leaves out</h3>
+          {/* These are the model's assumptions; what it leaves out is the manifest's notModeled
+              list, printed by the page (src/app/lab/NotModeledLine.tsx). */}
+          <h3>What this model assumes</h3>
           {BM06_MODEL.assumptions.map((note) => (
             <p key={note}>{note}</p>
           ))}

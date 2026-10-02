@@ -6,6 +6,7 @@ import { LabWrongTurns } from "../../../components/lab/LabWrongTurns.tsx";
 import { RodSimultaneityLab } from "../../../components/lab/RodSimultaneityLab.tsx";
 import { validateSr03Parameters } from "../../../experiments/sr03/parameters.ts";
 import example from "../../../generated/sr03-example.json";
+import { NotModeledLine } from "../NotModeledLine.tsx";
 
 export const metadata: Metadata = {
   title: "Rod measurement and simultaneity",
@@ -34,6 +35,7 @@ export default function RodSimultaneityPage() {
       </header>
 
       <RodSimultaneityLab example={{ ...example, parameters: checked.data }} />
+      <NotModeledLine instrumentId="sr-03" />
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
         <ul>

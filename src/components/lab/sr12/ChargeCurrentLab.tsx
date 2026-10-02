@@ -776,7 +776,7 @@ export function ChargeCurrentLab({
         }}
       >
         <div style={{ paddingTop: "0.5rem", fontSize: "var(--type-fine)" }}>
-          <strong>Not modeled:</strong> {SR12_NOT_MODELED.join(", ")}.
+          <strong>Not modeled:</strong> {SR12_NOT_MODELED.join("; ")}.
         </div>
       </footer>
       {/* The reader can read the evaluator that produced these numbers (am-f3e4). */}

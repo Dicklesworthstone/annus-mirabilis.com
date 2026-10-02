@@ -5,6 +5,7 @@ import { LabWrongTurns } from "../../../components/lab/LabWrongTurns.tsx";
 import { MovingClocksLab } from "../../../components/lab/sr05/MovingClocksLab.tsx";
 import type { PreparedSr05Example } from "../../../experiments/sr05/session.ts";
 import generatedExample from "../../../generated/sr05-example.json";
+import { NotModeledLine } from "../NotModeledLine.tsx";
 
 // JSON module resolution widens the literal-typed `worldlinePreset` field to `string`; the
 // generator (scripts/generate-sr05.mjs) writes it from a real Sr05Parameters value, so the
@@ -36,6 +37,7 @@ export default function MovingClocksPage() {
       </header>
 
       <MovingClocksLab example={example} restoreFromLocation />
+      <NotModeledLine instrumentId="sr-05" />
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
         <ul>

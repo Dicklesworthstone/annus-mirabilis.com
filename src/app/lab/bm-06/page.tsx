@@ -4,6 +4,7 @@ import { LabFormula } from "../../../components/lab/LabFormula.tsx";
 import { LabInlineTerms } from "../../../components/lab/LabInlineTerms.tsx";
 import { LabWrongTurns } from "../../../components/lab/LabWrongTurns.tsx";
 import example from "../../../generated/bm06-example.json";
+import { NotModeledLine } from "../NotModeledLine.tsx";
 export const metadata: Metadata = {
   title: "The spreading laboratory",
   description:
@@ -24,6 +25,7 @@ export default function BrownianLabPage() {
         </p>
       </header>
       <BrownianComparison example={example} />
+      <NotModeledLine instrumentId="bm-06" />
       <nav className="lab-onward" aria-label="From here">
         <h2>From here</h2>
         <ul>
