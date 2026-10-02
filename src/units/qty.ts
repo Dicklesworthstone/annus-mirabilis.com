@@ -376,13 +376,22 @@ export interface PortValidationResult {
 }
 
 export class DimensionContractError extends Error {
+  readonly portId: string;
+  readonly reason: string;
+  readonly expectedDimension: SiDimensionVector;
+  readonly actualDimension: SiDimensionVector;
+
   constructor(
-    public readonly portId: string,
-    public readonly reason: string,
-    public readonly expectedDimension: SiDimensionVector,
-    public readonly actualDimension: SiDimensionVector,
+    portId: string,
+    reason: string,
+    expectedDimension: SiDimensionVector,
+    actualDimension: SiDimensionVector,
   ) {
     super(`Dimension Contract Violation on port "${portId}": ${reason}`);
+    this.portId = portId;
+    this.reason = reason;
+    this.expectedDimension = expectedDimension;
+    this.actualDimension = actualDimension;
     this.name = "DimensionContractError";
   }
 }

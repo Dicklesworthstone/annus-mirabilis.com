@@ -178,12 +178,15 @@ export interface RegimeClassificationResult<TRegime extends string> {
 }
 
 export class IntervalRefusalError extends Error {
-  constructor(
-    public readonly parameterKey: string,
-    public readonly reason: string,
-    public readonly inputInterval?: Interval | undefined,
-  ) {
+  readonly parameterKey: string;
+  readonly reason: string;
+  readonly inputInterval?: Interval | undefined;
+
+  constructor(parameterKey: string, reason: string, inputInterval?: Interval | undefined) {
     super(`Interval Refusal on "${parameterKey}": ${reason}`);
+    this.parameterKey = parameterKey;
+    this.reason = reason;
+    this.inputInterval = inputInterval;
     this.name = "IntervalRefusalError";
   }
 }

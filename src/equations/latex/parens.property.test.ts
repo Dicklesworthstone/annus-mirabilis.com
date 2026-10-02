@@ -387,7 +387,10 @@ type ParsedNode =
 
 class TestPrecedenceParser {
   private pos = 0;
-  constructor(private readonly tokens: readonly Token[]) {}
+  private readonly tokens: readonly Token[];
+  constructor(tokens: readonly Token[]) {
+    this.tokens = tokens;
+  }
 
   peek(): Token | undefined {
     return this.tokens[this.pos];

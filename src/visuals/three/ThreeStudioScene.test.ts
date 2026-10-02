@@ -24,11 +24,14 @@ mock.module("three", () => ({
   SRGBColorSpace: "srgb",
   ClampToEdgeWrapping: 1001,
   Vector3: class {
-    constructor(
-      public x = 0,
-      public y = 0,
-      public z = 0,
-    ) {}
+    x: number;
+    y: number;
+    z: number;
+    constructor(x = 0, y = 0, z = 0) {
+      this.x = x;
+      this.y = y;
+      this.z = z;
+    }
   },
   Spherical: class {
     setFromVector3() {
