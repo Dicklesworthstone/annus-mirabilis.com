@@ -31,6 +31,16 @@ const base: KnowledgeCard = {
 const journey = (card: KnowledgeCard) => [{ journey: "test-journey", cards: [card] }];
 
 describe("the shelf publication gate the build runs", () => {
+  test("an unverified card is counted, not refused: what publicationGate.ts's header says", () => {
+    // checkPublicationGate refuses an unverified card under the production profile; the build
+    // counts that refusal as "unverified" and does not fail on it (am-rc1001-bridge-plan-pcjk.12).
+    // If the build ever starts refusing, this fails and the header must change with it.
+    expect(isCardVerified(base)).toBe(false);
+    const result = checkShelfPublication(journey(base), render);
+    expect(result).toMatchObject({ checked: 1, verified: 0, unverified: 1 });
+    expect(result.problems).toEqual([]);
+  });
+
   test("no card the four journeys render shows verification status", () => {
     const result = checkShelfPublication(JOURNEY_CARDS, render);
     const cards = JOURNEY_CARDS.reduce((n, j) => n + j.cards.length, 0);

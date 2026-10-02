@@ -25,7 +25,7 @@ import {
   type ReadingTarget,
   type ReadingTargetKind,
 } from "../src/content/audits/readings.ts";
-import { auditShelf, type ShelfAuditInput } from "../src/content/audits/shelf.ts";
+import { auditLiveShelves } from "../src/content/audits/shelfLive.ts";
 import { type AuditFinding, type AuditReport, summarize } from "../src/content/audits/types.ts";
 import {
   loadCommittedInventory,
@@ -408,8 +408,14 @@ const result = await runVerifyContent({
       );
     },
     shelf: async () => {
-      const input: ShelfAuditInput = { cards: [] };
-      return auditShelf(input);
+      // The cards the four journeys render (am-rc1001-bridge-plan-pcjk.12). This passed
+      // `{ cards: [] }` until 2026-10-02, so the shelf audit judged nothing and reported green.
+      const live = auditLiveShelves();
+      console.log(
+        `[audit-shelf] examined ${live.cards} cards on ${live.shelves} shelves: ` +
+          `${live.report.errorCount} errors, ${live.report.flagCount} flags`,
+      );
+      return live.report;
     },
     misconceptions: async () => {
       // The ledgers as they are on disk (am-8gbg). This passed `papers: []` and four empty sets

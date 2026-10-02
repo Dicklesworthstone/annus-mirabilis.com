@@ -1,14 +1,14 @@
 /**
  * Knowledge Card & Shelf Rules Validators.
  *
- * Implements the 13 canonical card rules for the discovery framework,
- * ensuring 1904 epistemic boundaries are strictly enforced and typed refusals
- * are generated for out-of-order citations.
+ * Implements the 13 canonical card rules for the discovery framework, ensuring 1904 epistemic
+ * boundaries are strictly enforced and typed refusals are generated for out-of-order citations.
  *
  * Specification: am-disc-knowledge-cards-iw8j, am-ep-discovery-33u
  */
 
 import { evaluateShelfDate } from "../../content/checks/epistemic/shelfDate.ts";
+import { cardDateAfter } from "../../content/schemas/argument.ts";
 import type { CardRuleDiagnostic, KnowledgeCard, VerificationQueueItem } from "./types.ts";
 
 export type StageCitationContext = Readonly<{
@@ -64,7 +64,7 @@ export function validateCardIntrinsicRules(
   const dateEarliest = card.date.earliest;
   const latestYear = card.date.latestYear;
 
-  if (dateEarliest && dateLatest && dateEarliest > dateLatest) {
+  if (dateEarliest && dateLatest && cardDateAfter(dateEarliest, dateLatest)) {
     diagnostics.push({
       severity: "error",
       rule: "card-date-earliest-after-latest",
@@ -117,7 +117,7 @@ export function validateCardIntrinsicRules(
 
   // Rule 11: Prior event is prior
   if (card.priorEvent) {
-    if (card.priorEvent.latest && dateLatest && card.priorEvent.latest > dateLatest) {
+    if (card.priorEvent.latest && dateLatest && cardDateAfter(card.priorEvent.latest, dateLatest)) {
       diagnostics.push({
         severity: "error",
         rule: "card-prior-event-not-prior",

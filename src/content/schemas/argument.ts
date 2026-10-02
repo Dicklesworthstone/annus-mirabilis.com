@@ -475,7 +475,7 @@ export function validateHistoricalPremise(
         `${path}.priorEvent.eventKind`,
       );
     }
-    if (typeof pe.latest === "string" && pe.latest > latest) {
+    if (typeof pe.latest === "string" && cardDateAfter(pe.latest, latest)) {
       throw new ArgumentSchemaError(
         "card-prior-event-not-prior",
         `priorEvent latest (${pe.latest}) must not be after date latest (${latest}).`,
@@ -3046,4 +3046,21 @@ function sourceUndefinedDimensionNote(
     );
   }
   return o.dimensionNote;
+}
+
+/**
+ * Whether date `a` is after date `b`, compared at the coarser of their two precisions.
+ *
+ * Card dates are written as "1879", "1879-06" or "1879-06-07". Comparing the strings whole put
+ * "1879-06-07" after "1879", because a longer string with an equal prefix sorts later, so the one
+ * card whose prior event is dated to the day (naegeli-1879-single-impacts, a presentation on
+ * 7 June 1879, published in 1879) was refused as "not prior" (am-rc1001-bridge-plan-pcjk.12). A
+ * year says nothing about which day of it, so two dates are compared only as far as both go.
+ *
+ * At the end of the file on purpose: tests cite this file's throw sites by line number, so new code
+ * goes below them (src/testing/refusals, am-ksl3).
+ */
+export function cardDateAfter(a: string, b: string): boolean {
+  const shared = Math.min(a.length, b.length);
+  return a.slice(0, shared) > b.slice(0, shared);
 }

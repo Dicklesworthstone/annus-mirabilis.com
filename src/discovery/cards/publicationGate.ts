@@ -1,10 +1,10 @@
 /**
  * Publication Gate for Knowledge Cards.
  *
- * Implements Rule 3:
- * - Production and preview profiles fail when a published discovery journey,
- *   stage, desk object, timeline entry, or world check cites an unverified card.
- * - Draft profile permits unverified cards with a visible research marker.
+ * Rule 3, as a function: checkPublicationGate refuses an unverified cited card under the
+ * production and preview profiles, and permits it under draft with a research marker.
+ * NO BUILD REFUSES ON IT: the build counts the refusals as unverified (see the note at the end of
+ * this file, am-rc1001-bridge-plan-pcjk.12).
  *
  * Specification: am-disc-knowledge-cards-iw8j, am-ep-discovery-33u
  */
@@ -88,3 +88,16 @@ export function checkPublicationGate(
     diagnostics,
   };
 }
+
+/*
+ * WHY NO BUILD REFUSES ON THE GATE (am-rc1001-bridge-plan-pcjk.12). Until 2026-10-02 this file's
+ * header said production and preview builds "fail" on an unverified card, and none did. The build's
+ * shelf check (scripts/check-shelf-publication.ts, through shelfPublication.ts) calls
+ * checkPublicationGate for every card a journey renders and COUNTS the refusals as unverified; it
+ * fails the build only on a partial verification record, or on verification status in reader copy.
+ * Measured 2026-10-02: 46 cards, 0 verified, because a verification names a reviewer and
+ * docs/OWNERS.md names none who could verify them, so refusing would refuse every release. The
+ * refusal belongs on the launch profile, which is not yet distinct from preview (am-qsm9).
+ * shelfPublication.test.ts holds the counting behaviour, so this note and the build cannot drift
+ * apart again. The note is at the end because tests cite this file's throw sites by line.
+ */
