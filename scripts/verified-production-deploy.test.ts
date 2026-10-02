@@ -44,6 +44,7 @@ import {
   runPreflightQualityGates,
   type SpawnFn,
   toolRunArtifactDirectory,
+  VERCEL_DEPLOY_ARGS,
   validatePromotePreconditions,
   writeReleaseIdentity,
 } from "./verified-production-deploy";
@@ -819,5 +820,28 @@ describe("a release is only of a commit on origin/main, and says which commit it
     } finally {
       process.chdir(cwd);
     }
+  });
+});
+
+describe("the candidate upload", () => {
+  test("never takes a hostname, and uploads one archive rather than every file", () => {
+    // --skip-domain: no public hostname moves before the candidate checks pass.
+    expect(VERCEL_DEPLOY_ARGS.slice(0, 4)).toEqual([
+      "deploy",
+      "--prebuilt",
+      "--prod",
+      "--skip-domain",
+    ]);
+    // --archive=tgz: Vercel refuses more than 15,000 files in one upload, and the prebuilt output
+    // was 25,884 on 2026-10-02. Without it every deploy is refused after the gates and the build.
+    expect(VERCEL_DEPLOY_ARGS).toContain("--archive=tgz");
+    // And the main path uploads with exactly these arguments, not a second copy of them.
+    const source = fs.readFileSync(
+      path.join(path.dirname(fileURLToPath(import.meta.url)), "verified-production-deploy.ts"),
+      "utf8",
+    );
+    const uploads = [...source.matchAll(/run\("vercel", \[\s*"deploy"/g)];
+    expect(uploads).toHaveLength(0);
+    expect(source).toContain('run("vercel", [...VERCEL_DEPLOY_ARGS], true)');
   });
 });

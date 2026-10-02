@@ -18,7 +18,8 @@
  * Vercel CLI commands this pipeline calls (locked at CLI `59.10.0`):
  *   vercel pull --yes                               fetch project settings
  *   vercel build --prod                             produce a Build Output API v3 bundle locally
- *   vercel deploy --prebuilt --prod --skip-domain    upload the prebuilt candidate without aliasing (never omit --skip-domain)
+ *   vercel deploy --prebuilt --prod --skip-domain --archive=tgz
+ *                                                    upload the prebuilt candidate without aliasing (never omit --skip-domain)
  *   vercel inspect <url>                             read deployment status and aliases
  *   vercel alias set <previewUrl> <hostname>          atomically promote the verified candidate
  *   vercel curl --deployment <d> <path> -- ...        fetch protected-preview HTTP status before promotion
@@ -221,6 +222,21 @@ export function describeCommandFailure(
     parts.push("It wrote nothing to stdout or stderr, so the status code is all it said.");
   return parts.join("\n\n");
 }
+
+/**
+ * The upload of the prebuilt candidate. --skip-domain is never omitted: the candidate must not take
+ * a public hostname before its checks pass. --archive=tgz because Vercel refuses an upload of more
+ * than 15,000 files, and on 2026-10-02 the prebuilt output reached 25,884 ("Invalid request:
+ * `files` should NOT have more than 15000 items, received 25884"), so every deploy was refused at
+ * upload, after the gates and the build had run.
+ */
+export const VERCEL_DEPLOY_ARGS = Object.freeze([
+  "deploy",
+  "--prebuilt",
+  "--prod",
+  "--skip-domain",
+  "--archive=tgz",
+] as const);
 
 export function run(
   command: string,
@@ -1110,7 +1126,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     assertCompletePrebuiltArtifact(buildStartedAt);
 
     assertNoConflictingBuilds("before-deploy");
-    const deployResult = run("vercel", ["deploy", "--prebuilt", "--prod", "--skip-domain"], true);
+    const deployResult = run("vercel", [...VERCEL_DEPLOY_ARGS], true);
     const candidateUrl = deploymentUrl(deployResult.stdout);
 
     const candidateRecord = candidateRecordWithoutChecks({
