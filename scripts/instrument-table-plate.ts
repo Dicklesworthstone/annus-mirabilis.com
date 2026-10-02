@@ -251,3 +251,31 @@ export function readTablePlate(html: string, rowLimit = 4): TablePlate | null {
   }
   return null;
 }
+
+/** A generator that ran before one whose output it reads: a fault in the prepare chain's order. */
+export class PrepareOrderError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.code = code;
+    this.name = "PrepareOrderError";
+  }
+}
+
+/**
+ * Why a laboratory page could not be read, for the plates' "unread" list. A page that imports a
+ * generated file nobody has written yet is NOT unread: it is a fault in the prepare chain's order,
+ * and reporting it as "unread" let a fresh clone ship a degraded plate for lq-06 while the shared
+ * checkout read a stale teaching-tapes.json (am-rc1001-bridge-plan-pcjk.5). That case throws.
+ */
+export function unreadReasonForRenderFailure(id: string, error: unknown): string {
+  const message = (error instanceof Error ? error.message : String(error)).split("\n")[0] ?? "";
+  if (/Cannot find module .*\/generated\//.test(message)) {
+    throw new PrepareOrderError(
+      "prepare-generated-input-missing",
+      `generate-instrument-table-plates: ${id}'s page imports a generated file that no earlier ` +
+        `prepare step has written. Move its generator ahead of this one. ${message}`,
+    );
+  }
+  return `its page did not render: ${message}`;
+}

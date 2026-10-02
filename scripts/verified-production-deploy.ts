@@ -831,9 +831,21 @@ export function observeOriginAncestry(
   return { fetched: true, isAncestor: !ancestry.error && ancestry.status === 0 };
 }
 
+/** A release refused for a named reason, so a log or release record can say which one. */
+export class ReleaseRefusalError extends Error {
+  readonly code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.code = code;
+    this.name = "ReleaseRefusalError";
+  }
+}
+
 export function assertCommitOnOrigin(commit: string, stage: string): void {
   const refusal = originAncestryRefusal(commit, observeOriginAncestry(commit));
-  if (refusal !== undefined) throw new Error(`${stage}: ${refusal}`);
+  if (refusal !== undefined) {
+    throw new ReleaseRefusalError("release-commit-not-on-origin", `${stage}: ${refusal}`);
+  }
 }
 
 /**

@@ -37,6 +37,7 @@ import {
   persistReleaseRecord,
   RELEASE_IDENTITY_SCHEMA,
   type ReleaseCandidateRecord,
+  ReleaseRefusalError,
   redactArgs,
   releaseIdentity,
   run,
@@ -734,7 +735,15 @@ describe("a release is only of a commit on origin/main, and says which commit it
       stderr: "fatal: unable to access",
     })) as unknown as SpawnFn);
     expect(observeOriginAncestry(COMMIT)).toEqual({ fetched: false, isAncestor: false });
-    expect(() => assertCommitOnOrigin(COMMIT, "preflight")).toThrow(/preflight: could not fetch/);
+    let caught: unknown;
+    try {
+      assertCommitOnOrigin(COMMIT, "preflight");
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBeInstanceOf(ReleaseRefusalError);
+    expect((caught as ReleaseRefusalError).code).toBe("release-commit-not-on-origin");
+    expect((caught as ReleaseRefusalError).message).toMatch(/preflight: could not fetch/);
   });
 
   test("the release identity is written to public/release.json with its commit", () => {

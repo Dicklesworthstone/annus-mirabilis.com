@@ -5,7 +5,11 @@
  * exponents, avogadro-lab's <small> second line, and the <noscript> notice every laboratory carries.
  */
 import { describe, expect, test } from "bun:test";
-import { readTablePlate } from "./instrument-table-plate.ts";
+import {
+  PrepareOrderError,
+  readTablePlate,
+  unreadReasonForRenderFailure,
+} from "./instrument-table-plate.ts";
 
 const text = (runs: { t: string; s?: string }[]) =>
   runs.map((run) => (run.s ? `${run.s === "sup" ? "^" : "_"}{${run.t}}` : run.t)).join("");
@@ -109,5 +113,34 @@ describe("what a cell is", () => {
       (_, i) => `<tr><th>Row ${i}</th><td>${i}</td></tr>`,
     ).join("");
     expect(readTablePlate(`<table><tbody>${rows}</tbody></table>`)?.rows).toHaveLength(4);
+  });
+});
+
+describe("a page that cannot render is unread, unless the chain's order is the cause (am-rc1001-bridge-plan-pcjk.5)", () => {
+  test("an ordinary render failure is reported as unread, with its first line", () => {
+    expect(unreadReasonForRenderFailure("lq-02", new Error("boom\nstack"))).toBe(
+      "its page did not render: boom",
+    );
+  });
+
+  test("a missing GENERATED module refuses with prepare-generated-input-missing", () => {
+    let caught: unknown;
+    try {
+      unreadReasonForRenderFailure(
+        "lq-06",
+        new Error("Cannot find module '../../generated/teaching-tapes.json' imported from x.ts"),
+      );
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBeInstanceOf(PrepareOrderError);
+    expect((caught as PrepareOrderError).code).toBe("prepare-generated-input-missing");
+    expect((caught as PrepareOrderError).message).toContain("lq-06");
+  });
+
+  test("a missing module that is NOT generated stays an ordinary unread reason", () => {
+    expect(
+      unreadReasonForRenderFailure("lq-02", new Error("Cannot find module 'left-pad' from x.ts")),
+    ).toContain("its page did not render");
   });
 });

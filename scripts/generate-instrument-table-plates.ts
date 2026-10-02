@@ -24,7 +24,11 @@ import { fileURLToPath } from "node:url";
 import type { ReactElement } from "react";
 import { renderToReadableStream } from "react-dom/server";
 import { CATALOGUE_IDS, CATALOGUE_STATUS } from "../src/experiments/catalogue.ts";
-import { readTablePlate, type TablePlate } from "./instrument-table-plate.ts";
+import {
+  readTablePlate,
+  type TablePlate,
+  unreadReasonForRenderFailure,
+} from "./instrument-table-plate.ts";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const OUT = join(ROOT, "src/generated/instrument-table-plates.json");
@@ -65,17 +69,7 @@ for (const id of ids) {
     if (plate) plates[id] = plate;
     else unread[id] = "no table of values in view on its page";
   } catch (error) {
-    const message = (error as Error).message.split("\n")[0] ?? "";
-    // A generated module that does not exist yet is a fault in the prepare chain's ORDER, not an
-    // unreadable laboratory: reporting it under "unread" let a fresh clone ship a degraded plate for
-    // lq-06 while the shared checkout read a stale teaching-tapes.json (am-rc1001-bridge-plan-pcjk.5).
-    if (/Cannot find module .*\/generated\//.test(message)) {
-      throw new Error(
-        `generate-instrument-table-plates: ${id}'s page imports a generated file that no earlier ` +
-          `prepare step has written. Move its generator ahead of this one. ${message}`,
-      );
-    }
-    unread[id] = `its page did not render: ${message}`;
+    unread[id] = unreadReasonForRenderFailure(id, error);
   }
 }
 
