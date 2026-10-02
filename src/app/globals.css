@@ -1694,6 +1694,18 @@ samp,
     text-decoration: none;
     cursor: auto;
   }
+  /*
+   * THE SYMBOL KEY UNDER A FORMULA IS CONTENT ON PAPER (am-plat-print-3orn, 2026-10-02).
+   *
+   * Each term chip is a <button> (it lights its quantity on screen), so the rule above hid every
+   * legend entry, and with it the symbol a reader needs to read the printed formula. Measured on a
+   * fresh build with scripts/e2e/printStepDrawers.e2e.test.ts's measure: /papers/brownian-motion/s4/
+   * laid out 460 formulas on screen and 346 under print, and all 114 missing were glyphs inside
+   * .term-chip buttons. The chip prints as the legend entry it is; it is not a control on paper.
+   */
+  .term-chips .term-chip {
+    display: inline-flex !important;
+  }
   .site-header,
   .site-footer,
   main {
