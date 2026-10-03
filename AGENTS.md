@@ -1143,6 +1143,23 @@ bun scripts/e2e-paper-vertical-slices.ts   # browser acceptance lanes with JSONL
 `node --experimental-strip-types`, which also strips them, so a green suite says nothing about
 whether the repository compiles. That is what `bun run check:types` is for.
 
+**BOTH TEST LANES NEED A FRESH `bun run build` FIRST, and they fail differently when they do not
+have one.** Measured 2026-10-03 on a checkout whose `.next/` held only `cache/`, `types/` and
+`diagnostics/`:
+
+- `bun run test` goes RED with exactly two failures, both in `scripts/perf/runPerfBudgets.test.ts`:
+  `existsSync(".next/app-build-manifest.json")` is false, and `runPerformanceBudgets()` returns
+  `ok: false` because 6 of its 8 rows report `not-available` with no build output to measure. The
+  other 15,770 tests pass. After a build the same file is 14 pass, 0 fail, 49 expect() calls.
+- `bun run test:node` REFUSES TO START, and says so clearly: "out/ is stale, run bun run build",
+  naming the static source files modified since the `out/` build commit. That preflight is correct
+  and deliberate ("This lane never rebuilds out/ for you, on purpose"), because seven browser and
+  E2E tests would otherwise each rediscover the same fact.
+
+So a content or source change invalidates both lanes until `bun run build` runs again. Two red perf
+rows after editing `content/` are this, not a regression in your change; confirm by building and
+re-running that one file. Do not skip the perf file or loosen its budgets to get green.
+
 Until a command exists, do not report it as passing.
 
 ---
