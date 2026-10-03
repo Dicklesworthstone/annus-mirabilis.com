@@ -157,15 +157,9 @@ export const DECLARED_ABSENCES: AbsenceDeclarations = new Map([
     "light-quanta",
     new Map<string, AbsenceDeclaration>([
       [
-        "sentence",
-        {
-          kind: "debt",
-          reason:
-            "235 sentence ids are authored as sentenceSpans on the paragraph source blocks and keyed by the paper's translation units, but no unit of kind `sentence` is in the manifest.",
-          bead: "am-edn-inventory-light-quanta-skp",
-        },
-      ],
-      [
+        // The `sentence` debt was PAID on 2026-10-03: the fifty paragraphs' 135 sentence ids are now
+        // units of kind `sentence`, a set equal to the distinct sentenceIds of the paper's alignment
+        // file. This entry went stale the moment they landed and was removed by the same change.
         "inline-equation",
         {
           kind: "debt",

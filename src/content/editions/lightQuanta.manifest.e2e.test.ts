@@ -60,7 +60,12 @@ describe("light-quanta source-manifest report CLI (am-edn-inventory-light-quanta
       units: Array<{ id: string; destination?: unknown; locators: Array<{ page: number }> }>;
     };
 
-    assert.equal(manifest.units.length, 128);
+    // A report, not an assertion. This was `assert.equal(manifest.units.length, 128)`, standing
+    // above the destination loop, so it aborted the only check in this block whenever the roster
+    // moved; it broke on 2026-10-03 when the paper's 135 sentence ids were inventoried under owner
+    // ruling am-xz2d. The brownian sibling already carries the same note for the same reason. What is
+    // asserted is non-vacuity plus the property: every unit, at any roster size, has a destination.
+    assert.ok(manifest.units.length > 0, "the manifest roster must not be empty");
     for (const unit of manifest.units) {
       assert.ok(unit.destination, `Unit ${unit.id} must have a destination`);
     }

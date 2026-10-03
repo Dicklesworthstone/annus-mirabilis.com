@@ -42,6 +42,54 @@ units:
       argumentObligations:
         - optics-undulation-heuristic
 
+  - id: s0-p1-s1
+    kind: sentence
+    section: s0
+    containedIn: s0-p1
+    locators:
+      - page: 132
+    destination:
+      translationUnits:
+        - s0-p1-s1
+      argumentObligations:
+        - optics-undulation-heuristic
+
+  - id: s0-p1-s2
+    kind: sentence
+    section: s0
+    containedIn: s0-p1
+    locators:
+      - page: 132
+    destination:
+      translationUnits:
+        - s0-p1-s2
+      argumentObligations:
+        - optics-undulation-heuristic
+
+  - id: s0-p1-s3
+    kind: sentence
+    section: s0
+    containedIn: s0-p1
+    locators:
+      - page: 132
+    destination:
+      translationUnits:
+        - s0-p1-s3
+      argumentObligations:
+        - optics-undulation-heuristic
+
+  - id: s0-p1-s4
+    kind: sentence
+    section: s0
+    containedIn: s0-p1
+    locators:
+      - page: 132
+    destination:
+      translationUnits:
+        - s0-p1-s4
+      argumentObligations:
+        - optics-undulation-heuristic
+
   - id: s0-p2
     kind: paragraph
     section: s0
@@ -57,6 +105,31 @@ units:
       argumentObligations:
         - optics-undulation-heuristic
 
+  - id: s0-p2-s1
+    kind: sentence
+    section: s0
+    containedIn: s0-p2
+    locators:
+      - page: 132
+    destination:
+      translationUnits:
+        - s0-p2-s1
+      argumentObligations:
+        - optics-undulation-heuristic
+
+  - id: s0-p2-s2
+    kind: sentence
+    section: s0
+    containedIn: s0-p2
+    locators:
+      - page: 132
+      - page: 133
+    destination:
+      translationUnits:
+        - s0-p2-s2
+      argumentObligations:
+        - optics-undulation-heuristic
+
   - id: s0-p3
     kind: paragraph
     section: s0
@@ -69,6 +142,30 @@ units:
       argumentObligations:
         - optics-undulation-heuristic
 
+  - id: s0-p3-s1
+    kind: sentence
+    section: s0
+    containedIn: s0-p3
+    locators:
+      - page: 133
+    destination:
+      translationUnits:
+        - s0-p3-s1
+      argumentObligations:
+        - optics-undulation-heuristic
+
+  - id: s0-p3-s2
+    kind: sentence
+    section: s0
+    containedIn: s0-p3
+    locators:
+      - page: 133
+    destination:
+      translationUnits:
+        - s0-p3-s2
+      argumentObligations:
+        - optics-undulation-heuristic
+
   - id: s0-p4
     kind: paragraph
     section: s0
@@ -78,6 +175,18 @@ units:
       editionBlockId: block-light-quanta-s0-p4
       translationUnits:
         - planned
+      argumentObligations:
+        - optics-undulation-heuristic
+
+  - id: s0-p4-s1
+    kind: sentence
+    section: s0
+    containedIn: s0-p4
+    locators:
+      - page: 133
+    destination:
+      translationUnits:
+        - s0-p4-s1
       argumentObligations:
         - optics-undulation-heuristic
 
@@ -115,6 +224,67 @@ units:
       argumentObligations:
         - blackbody-rayleigh-divergence
 
+  - id: s1-p1-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p1
+    locators:
+      - page: 133
+    destination:
+      translationUnits:
+        - s1-p1-s1
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p1-s2
+    kind: sentence
+    section: s1
+    containedIn: s1-p1
+    locators:
+      - page: 133
+    destination:
+      translationUnits:
+        - s1-p1-s2
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p1-s3
+    kind: sentence
+    section: s1
+    containedIn: s1-p1
+    locators:
+      - page: 133
+      - page: 134
+    destination:
+      translationUnits:
+        - s1-p1-s3
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p1-s4
+    kind: sentence
+    section: s1
+    containedIn: s1-p1
+    locators:
+      - page: 134
+    destination:
+      translationUnits:
+        - s1-p1-s4
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p1-s5
+    kind: sentence
+    section: s1
+    containedIn: s1-p1
+    locators:
+      - page: 134
+    destination:
+      translationUnits:
+        - s1-p1-s5
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
   - id: s1-fn1
     kind: footnote
     section: s1
@@ -148,6 +318,18 @@ units:
       argumentObligations:
         - blackbody-rayleigh-divergence
 
+  - id: s1-p2-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p2
+    locators:
+      - page: 134
+    destination:
+      translationUnits:
+        - s1-p2-s1
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
   - id: s1-p3
     kind: paragraph
     section: s1
@@ -160,6 +342,80 @@ units:
       editionBlockId: block-light-quanta-s1-p3
       translationUnits:
         - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p3-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p3
+    locators:
+      - page: 134
+    destination:
+      translationUnits:
+        - s1-p3-s1
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p3-s2
+    kind: sentence
+    section: s1
+    containedIn: s1-p3
+    locators:
+      - page: 134
+    destination:
+      translationUnits:
+        - s1-p3-s2
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p3-s3
+    kind: sentence
+    section: s1
+    containedIn: s1-p3
+    locators:
+      - page: 134
+    destination:
+      translationUnits:
+        - s1-p3-s3a
+        - s1-p3-s3b
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p3-s4
+    kind: sentence
+    section: s1
+    containedIn: s1-p3
+    locators:
+      - page: 134
+    destination:
+      translationUnits:
+        - s1-p3-s4
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p3-s5
+    kind: sentence
+    section: s1
+    containedIn: s1-p3
+    locators:
+      - page: 134
+      - page: 135
+    destination:
+      translationUnits:
+        - s1-p3-s5
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p3-s6
+    kind: sentence
+    section: s1
+    containedIn: s1-p3
+    locators:
+      - page: 135
+    destination:
+      translationUnits:
+        - s1-p3-s6
       argumentObligations:
         - blackbody-rayleigh-divergence
 
@@ -205,6 +461,54 @@ units:
       editionBlockId: block-light-quanta-s1-p4
       translationUnits:
         - planned
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p4-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p4
+    locators:
+      - page: 135
+    destination:
+      translationUnits:
+        - s1-p4-s1
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p4-s2
+    kind: sentence
+    section: s1
+    containedIn: s1-p4
+    locators:
+      - page: 135
+    destination:
+      translationUnits:
+        - s1-p4-s2
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p4-s3
+    kind: sentence
+    section: s1
+    containedIn: s1-p4
+    locators:
+      - page: 135
+    destination:
+      translationUnits:
+        - s1-p4-s3
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p4-s4
+    kind: sentence
+    section: s1
+    containedIn: s1-p4
+    locators:
+      - page: 135
+    destination:
+      translationUnits:
+        - s1-p4-s4
       argumentObligations:
         - blackbody-rayleigh-divergence
 
@@ -311,6 +615,42 @@ units:
       argumentObligations:
         - blackbody-rayleigh-divergence
 
+  - id: s1-p5-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p5
+    locators:
+      - page: 136
+    destination:
+      translationUnits:
+        - s1-p5-s1
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p5-s2
+    kind: sentence
+    section: s1
+    containedIn: s1-p5
+    locators:
+      - page: 136
+    destination:
+      translationUnits:
+        - s1-p5-s2
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
+  - id: s1-p5-s3
+    kind: sentence
+    section: s1
+    containedIn: s1-p5
+    locators:
+      - page: 136
+    destination:
+      translationUnits:
+        - s1-p5-s3
+      argumentObligations:
+        - blackbody-rayleigh-divergence
+
   - id: eq-s1-d6
     kind: display-equation
     section: s1
@@ -384,6 +724,18 @@ units:
       argumentObligations:
         - planck-quanta-constants
 
+  - id: s2-p1-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p1
+    locators:
+      - page: 136
+    destination:
+      translationUnits:
+        - s2-p1-s1
+      argumentObligations:
+        - planck-quanta-constants
+
   - id: s2-p2
     kind: paragraph
     section: s2
@@ -421,6 +773,70 @@ units:
       editionBlockId: block-light-quanta-s2-p2
       translationUnits:
         - planned
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: s2-p2-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p2
+    locators:
+      - page: 136
+    destination:
+      translationUnits:
+        - s2-p2-s1a
+        - s2-p2-s1b
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: s2-p2-s2
+    kind: sentence
+    section: s2
+    containedIn: s2-p2
+    locators:
+      - page: 136
+    destination:
+      translationUnits:
+        - s2-p2-s2
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: s2-p2-s3
+    kind: sentence
+    section: s2
+    containedIn: s2-p2
+    locators:
+      - page: 136
+      - page: 137
+    destination:
+      translationUnits:
+        - s2-p2-s3
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: s2-p2-s4
+    kind: sentence
+    section: s2
+    containedIn: s2-p2
+    locators:
+      - page: 137
+    destination:
+      translationUnits:
+        - s2-p2-s4a
+        - s2-p2-s4b
+        - s2-p2-s4c
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: s2-p2-s5
+    kind: sentence
+    section: s2
+    containedIn: s2-p2
+    locators:
+      - page: 137
+    destination:
+      translationUnits:
+        - s2-p2-s5
       argumentObligations:
         - planck-quanta-constants
 
@@ -541,6 +957,18 @@ units:
       argumentObligations:
         - planck-quanta-constants
 
+  - id: s2-p4-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p4
+    locators:
+      - page: 137
+    destination:
+      translationUnits:
+        - s2-p4-s1
+      argumentObligations:
+        - planck-quanta-constants
+
   - id: s2-p5
     kind: paragraph
     section: s2
@@ -550,6 +978,18 @@ units:
       editionBlockId: block-light-quanta-s2-p5
       translationUnits:
         - planned
+      argumentObligations:
+        - planck-quanta-constants
+
+  - id: s2-p5-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p5
+    locators:
+      - page: 137
+    destination:
+      translationUnits:
+        - s2-p5-s1
       argumentObligations:
         - planck-quanta-constants
 
@@ -584,6 +1024,18 @@ units:
       argumentObligations:
         - radiation-entropy-identity
 
+  - id: s3-p1-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p1
+    locators:
+      - page: 137
+    destination:
+      translationUnits:
+        - s3-p1-s1
+      argumentObligations:
+        - radiation-entropy-identity
+
   - id: s3-p2
     kind: paragraph
     section: s3
@@ -603,6 +1055,68 @@ units:
       editionBlockId: block-light-quanta-s3-p2
       translationUnits:
         - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p2-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p2
+    locators:
+      - page: 137
+    destination:
+      translationUnits:
+        - s3-p2-s1
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p2-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p2
+    locators:
+      - page: 137
+    destination:
+      translationUnits:
+        - s3-p2-s2
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p2-s3
+    kind: sentence
+    section: s3
+    containedIn: s3-p2
+    locators:
+      - page: 137
+      - page: 138
+    destination:
+      translationUnits:
+        - s3-p2-s3a
+        - s3-p2-s3b
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p2-s4
+    kind: sentence
+    section: s3
+    containedIn: s3-p2
+    locators:
+      - page: 138
+    destination:
+      translationUnits:
+        - s3-p2-s4
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p2-s5
+    kind: sentence
+    section: s3
+    containedIn: s3-p2
+    locators:
+      - page: 138
+    destination:
+      translationUnits:
+        - s3-p2-s5
       argumentObligations:
         - radiation-entropy-identity
 
@@ -643,6 +1157,44 @@ units:
       editionBlockId: block-light-quanta-s3-p3
       translationUnits:
         - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p3-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p3
+    locators:
+      - page: 138
+    destination:
+      translationUnits:
+        - s3-p3-s1a
+        - s3-p3-s1b
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p3-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p3
+    locators:
+      - page: 138
+    destination:
+      translationUnits:
+        - s3-p3-s2a
+        - s3-p3-s2b
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p3-s3
+    kind: sentence
+    section: s3
+    containedIn: s3-p3
+    locators:
+      - page: 138
+    destination:
+      translationUnits:
+        - s3-p3-s3
       argumentObligations:
         - radiation-entropy-identity
 
@@ -700,6 +1252,68 @@ units:
       editionBlockId: block-light-quanta-s3-p4
       translationUnits:
         - planned
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p4-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p4
+    locators:
+      - page: 138
+    destination:
+      translationUnits:
+        - s3-p4-s1a
+        - s3-p4-s1b
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p4-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p4
+    locators:
+      - page: 138
+    destination:
+      translationUnits:
+        - s3-p4-s2
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p4-s3
+    kind: sentence
+    section: s3
+    containedIn: s3-p4
+    locators:
+      - page: 138
+    destination:
+      translationUnits:
+        - s3-p4-s3
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p4-s4
+    kind: sentence
+    section: s3
+    containedIn: s3-p4
+    locators:
+      - page: 138
+    destination:
+      translationUnits:
+        - s3-p4-s4
+      argumentObligations:
+        - radiation-entropy-identity
+
+  - id: s3-p4-s5
+    kind: sentence
+    section: s3
+    containedIn: s3-p4
+    locators:
+      - page: 138
+      - page: 139
+    destination:
+      translationUnits:
+        - s3-p4-s5
       argumentObligations:
         - radiation-entropy-identity
 
@@ -790,6 +1404,43 @@ units:
       argumentObligations:
         - wien-regime-entropy-volume
 
+  - id: s4-p1-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p1
+    locators:
+      - page: 139
+    destination:
+      translationUnits:
+        - s4-p1-s1a
+        - s4-p1-s1b
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: s4-p1-s2
+    kind: sentence
+    section: s4
+    containedIn: s4-p1
+    locators:
+      - page: 139
+    destination:
+      translationUnits:
+        - s4-p1-s2
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: s4-p1-s3
+    kind: sentence
+    section: s4
+    containedIn: s4-p1
+    locators:
+      - page: 139
+    destination:
+      translationUnits:
+        - s4-p1-s3
+      argumentObligations:
+        - wien-regime-entropy-volume
+
   - id: eq-s4-d1
     kind: display-equation
     section: s4
@@ -820,6 +1471,67 @@ units:
       editionBlockId: block-light-quanta-s4-p2
       translationUnits:
         - planned
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: s4-p2-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p2
+    locators:
+      - page: 139
+    destination:
+      translationUnits:
+        - s4-p2-s1a
+        - s4-p2-s1b
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: s4-p2-s2
+    kind: sentence
+    section: s4
+    containedIn: s4-p2
+    locators:
+      - page: 139
+    destination:
+      translationUnits:
+        - s4-p2-s2
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: s4-p2-s3
+    kind: sentence
+    section: s4
+    containedIn: s4-p2
+    locators:
+      - page: 139
+    destination:
+      translationUnits:
+        - s4-p2-s3
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: s4-p2-s4
+    kind: sentence
+    section: s4
+    containedIn: s4-p2
+    locators:
+      - page: 139
+    destination:
+      translationUnits:
+        - s4-p2-s4
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: s4-p2-s5
+    kind: sentence
+    section: s4
+    containedIn: s4-p2
+    locators:
+      - page: 139
+    destination:
+      translationUnits:
+        - s4-p2-s5
       argumentObligations:
         - wien-regime-entropy-volume
 
@@ -901,6 +1613,31 @@ units:
       argumentObligations:
         - wien-regime-entropy-volume
 
+  - id: s4-p5-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p5
+    locators:
+      - page: 139
+    destination:
+      translationUnits:
+        - s4-p5-s1
+      argumentObligations:
+        - wien-regime-entropy-volume
+
+  - id: s4-p5-s2
+    kind: sentence
+    section: s4
+    containedIn: s4-p5
+    locators:
+      - page: 139
+      - page: 140
+    destination:
+      translationUnits:
+        - s4-p5-s2
+      argumentObligations:
+        - wien-regime-entropy-volume
+
   - id: s5
     kind: section-heading
     section: s5
@@ -925,6 +1662,54 @@ units:
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
+  - id: s5-p1-s1
+    kind: sentence
+    section: s5
+    containedIn: s5-p1
+    locators:
+      - page: 140
+    destination:
+      translationUnits:
+        - s5-p1-s1
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p1-s2
+    kind: sentence
+    section: s5
+    containedIn: s5-p1
+    locators:
+      - page: 140
+    destination:
+      translationUnits:
+        - s5-p1-s2
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p1-s3
+    kind: sentence
+    section: s5
+    containedIn: s5-p1
+    locators:
+      - page: 140
+    destination:
+      translationUnits:
+        - s5-p1-s3
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p1-s4
+    kind: sentence
+    section: s5
+    containedIn: s5-p1
+    locators:
+      - page: 140
+    destination:
+      translationUnits:
+        - s5-p1-s4
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
   - id: s5-p2
     kind: paragraph
     section: s5
@@ -937,6 +1722,55 @@ units:
       editionBlockId: block-light-quanta-s5-p2
       translationUnits:
         - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p2-s1
+    kind: sentence
+    section: s5
+    containedIn: s5-p2
+    locators:
+      - page: 140
+    destination:
+      translationUnits:
+        - s5-p2-s1
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p2-s2
+    kind: sentence
+    section: s5
+    containedIn: s5-p2
+    locators:
+      - page: 140
+    destination:
+      translationUnits:
+        - s5-p2-s2
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p2-s3
+    kind: sentence
+    section: s5
+    containedIn: s5-p2
+    locators:
+      - page: 140
+    destination:
+      translationUnits:
+        - s5-p2-s3a
+        - s5-p2-s3b
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p2-s4
+    kind: sentence
+    section: s5
+    containedIn: s5-p2
+    locators:
+      - page: 141
+    destination:
+      translationUnits:
+        - s5-p2-s4
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
@@ -994,6 +1828,43 @@ units:
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
+  - id: s5-p6-s1
+    kind: sentence
+    section: s5
+    containedIn: s5-p6
+    locators:
+      - page: 141
+    destination:
+      translationUnits:
+        - s5-p6-s1a
+        - s5-p6-s1b
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p6-s2
+    kind: sentence
+    section: s5
+    containedIn: s5-p6
+    locators:
+      - page: 141
+    destination:
+      translationUnits:
+        - s5-p6-s2
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p6-s3
+    kind: sentence
+    section: s5
+    containedIn: s5-p6
+    locators:
+      - page: 141
+    destination:
+      translationUnits:
+        - s5-p6-s3
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
   - id: eq-s5-d4
     kind: display-equation
     section: s5
@@ -1048,6 +1919,66 @@ units:
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
+  - id: s5-p3-s1
+    kind: sentence
+    section: s5
+    containedIn: s5-p3
+    locators:
+      - page: 141
+    destination:
+      translationUnits:
+        - s5-p3-s1
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p3-s2
+    kind: sentence
+    section: s5
+    containedIn: s5-p3
+    locators:
+      - page: 141
+    destination:
+      translationUnits:
+        - s5-p3-s2
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p3-s3
+    kind: sentence
+    section: s5
+    containedIn: s5-p3
+    locators:
+      - page: 141
+    destination:
+      translationUnits:
+        - s5-p3-s3
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p3-s4
+    kind: sentence
+    section: s5
+    containedIn: s5-p3
+    locators:
+      - page: 141
+    destination:
+      translationUnits:
+        - s5-p3-s4
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p3-s5
+    kind: sentence
+    section: s5
+    containedIn: s5-p3
+    locators:
+      - page: 141
+    destination:
+      translationUnits:
+        - s5-p3-s5
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
   - id: s5-p4
     kind: paragraph
     section: s5
@@ -1057,6 +1988,42 @@ units:
       editionBlockId: block-light-quanta-s5-p4
       translationUnits:
         - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p4-s1
+    kind: sentence
+    section: s5
+    containedIn: s5-p4
+    locators:
+      - page: 141
+    destination:
+      translationUnits:
+        - s5-p4-s1
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p4-s2
+    kind: sentence
+    section: s5
+    containedIn: s5-p4
+    locators:
+      - page: 141
+    destination:
+      translationUnits:
+        - s5-p4-s2
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p4-s3
+    kind: sentence
+    section: s5
+    containedIn: s5-p4
+    locators:
+      - page: 141
+    destination:
+      translationUnits:
+        - s5-p4-s3
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
@@ -1072,6 +2039,30 @@ units:
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
+  - id: s5-p7-s1
+    kind: sentence
+    section: s5
+    containedIn: s5-p7
+    locators:
+      - page: 142
+    destination:
+      translationUnits:
+        - s5-p7-s1
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p7-s2
+    kind: sentence
+    section: s5
+    containedIn: s5-p7
+    locators:
+      - page: 142
+    destination:
+      translationUnits:
+        - s5-p7-s2
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
   - id: s5-p8
     kind: paragraph
     section: s5
@@ -1081,6 +2072,19 @@ units:
       editionBlockId: block-light-quanta-s5-p8
       translationUnits:
         - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p8-s1
+    kind: sentence
+    section: s5
+    containedIn: s5-p8
+    locators:
+      - page: 142
+    destination:
+      translationUnits:
+        - s5-p8-s1a
+        - s5-p8-s1b
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
@@ -1128,6 +2132,18 @@ units:
       editionBlockId: block-light-quanta-s5-p5
       translationUnits:
         - planned
+      argumentObligations:
+        - boltzmann-entropy-gas-solution
+
+  - id: s5-p5-s1
+    kind: sentence
+    section: s5
+    containedIn: s5-p5
+    locators:
+      - page: 142
+    destination:
+      translationUnits:
+        - s5-p5-s1
       argumentObligations:
         - boltzmann-entropy-gas-solution
 
@@ -1207,6 +2223,33 @@ units:
       argumentObligations:
         - quanta-entropy-inference
 
+  - id: s6-p1-s1
+    kind: sentence
+    section: s6
+    containedIn: s6-p1
+    locators:
+      - page: 142
+    destination:
+      translationUnits:
+        - s6-p1-s1
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: s6-p1-s2
+    kind: sentence
+    section: s6
+    containedIn: s6-p1
+    locators:
+      - page: 142
+      - page: 143
+    destination:
+      translationUnits:
+        - s6-p1-s2a
+        - s6-p1-s2b
+        - s6-p1-s2c
+      argumentObligations:
+        - quanta-entropy-inference
+
   - id: eq-s6-d1
     kind: display-equation
     section: s6
@@ -1261,6 +2304,18 @@ units:
       argumentObligations:
         - quanta-entropy-inference
 
+  - id: s6-p5-s1
+    kind: sentence
+    section: s6
+    containedIn: s6-p5
+    locators:
+      - page: 143
+    destination:
+      translationUnits:
+        - s6-p5-s1
+      argumentObligations:
+        - quanta-entropy-inference
+
   - id: eq-s6-d4
     kind: display-equation
     section: s6
@@ -1287,6 +2342,18 @@ units:
       argumentObligations:
         - quanta-entropy-inference
 
+  - id: s6-p2-s1
+    kind: sentence
+    section: s6
+    containedIn: s6-p2
+    locators:
+      - page: 143
+    destination:
+      translationUnits:
+        - s6-p2-s1
+      argumentObligations:
+        - quanta-entropy-inference
+
   - id: s6-p6
     kind: paragraph
     section: s6
@@ -1299,6 +2366,18 @@ units:
       argumentObligations:
         - quanta-entropy-inference
 
+  - id: s6-p6-s1
+    kind: sentence
+    section: s6
+    containedIn: s6-p6
+    locators:
+      - page: 143
+    destination:
+      translationUnits:
+        - s6-p6-s1
+      argumentObligations:
+        - quanta-entropy-inference
+
   - id: s6-p3
     kind: paragraph
     section: s6
@@ -1308,6 +2387,30 @@ units:
       editionBlockId: block-light-quanta-s6-p3
       translationUnits:
         - planned
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: s6-p3-s1
+    kind: sentence
+    section: s6
+    containedIn: s6-p3
+    locators:
+      - page: 143
+    destination:
+      translationUnits:
+        - s6-p3-s1
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: s6-p3-s2
+    kind: sentence
+    section: s6
+    containedIn: s6-p3
+    locators:
+      - page: 143
+    destination:
+      translationUnits:
+        - s6-p3-s2
       argumentObligations:
         - quanta-entropy-inference
 
@@ -1340,6 +2443,31 @@ units:
       argumentObligations:
         - quanta-entropy-inference
 
+  - id: s6-p4-s1
+    kind: sentence
+    section: s6
+    containedIn: s6-p4
+    locators:
+      - page: 143
+      - page: 144
+    destination:
+      translationUnits:
+        - s6-p4-s1
+      argumentObligations:
+        - quanta-entropy-inference
+
+  - id: s6-p4-s2
+    kind: sentence
+    section: s6
+    containedIn: s6-p4
+    locators:
+      - page: 144
+    destination:
+      translationUnits:
+        - s6-p4-s2
+      argumentObligations:
+        - quanta-entropy-inference
+
   - id: s7
     kind: section-heading
     section: s7
@@ -1361,6 +2489,79 @@ units:
       editionBlockId: block-light-quanta-s7-p1
       translationUnits:
         - planned
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p1-s1
+    kind: sentence
+    section: s7
+    containedIn: s7-p1
+    locators:
+      - page: 144
+    destination:
+      translationUnits:
+        - s7-p1-s1
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p1-s2
+    kind: sentence
+    section: s7
+    containedIn: s7-p1
+    locators:
+      - page: 144
+    destination:
+      translationUnits:
+        - s7-p1-s2
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p1-s3
+    kind: sentence
+    section: s7
+    containedIn: s7-p1
+    locators:
+      - page: 144
+    destination:
+      translationUnits:
+        - s7-p1-s3
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p1-s4
+    kind: sentence
+    section: s7
+    containedIn: s7-p1
+    locators:
+      - page: 144
+    destination:
+      translationUnits:
+        - s7-p1-s4
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p1-s5
+    kind: sentence
+    section: s7
+    containedIn: s7-p1
+    locators:
+      - page: 144
+    destination:
+      translationUnits:
+        - s7-p1-s5a
+        - s7-p1-s5b
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p1-s6
+    kind: sentence
+    section: s7
+    containedIn: s7-p1
+    locators:
+      - page: 144
+    destination:
+      translationUnits:
+        - s7-p1-s6
       argumentObligations:
         - stokes-rule-photoluminescence
 
@@ -1404,6 +2605,30 @@ units:
       argumentObligations:
         - stokes-rule-photoluminescence
 
+  - id: s7-p2-s1
+    kind: sentence
+    section: s7
+    containedIn: s7-p2
+    locators:
+      - page: 144
+    destination:
+      translationUnits:
+        - s7-p2-s1
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p2-s2
+    kind: sentence
+    section: s7
+    containedIn: s7-p2
+    locators:
+      - page: 144
+    destination:
+      translationUnits:
+        - s7-p2-s2
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
   - id: s7-p3
     kind: paragraph
     section: s7
@@ -1416,6 +2641,18 @@ units:
       argumentObligations:
         - stokes-rule-photoluminescence
 
+  - id: s7-p3-s1
+    kind: sentence
+    section: s7
+    containedIn: s7-p3
+    locators:
+      - page: 145
+    destination:
+      translationUnits:
+        - s7-p3-s1
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
   - id: s7-p4
     kind: paragraph
     section: s7
@@ -1425,6 +2662,30 @@ units:
       editionBlockId: block-light-quanta-s7-p4
       translationUnits:
         - planned
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p4-s1
+    kind: sentence
+    section: s7
+    containedIn: s7-p4
+    locators:
+      - page: 145
+    destination:
+      translationUnits:
+        - s7-p4-s1
+      argumentObligations:
+        - stokes-rule-photoluminescence
+
+  - id: s7-p4-s2
+    kind: sentence
+    section: s7
+    containedIn: s7-p4
+    locators:
+      - page: 145
+    destination:
+      translationUnits:
+        - s7-p4-s2
       argumentObligations:
         - stokes-rule-photoluminescence
 
@@ -1465,6 +2726,18 @@ units:
       argumentObligations:
         - photoelectric-stopping-potential
 
+  - id: s8-p1-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p1
+    locators:
+      - page: 145
+    destination:
+      translationUnits:
+        - s8-p1-s1
+      argumentObligations:
+        - photoelectric-stopping-potential
+
   - id: s8-fn1
     kind: footnote
     section: s8
@@ -1501,6 +2774,103 @@ units:
       argumentObligations:
         - photoelectric-stopping-potential
 
+  - id: s8-p2-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p2
+    locators:
+      - page: 145
+    destination:
+      translationUnits:
+        - s8-p2-s1
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p2-s2
+    kind: sentence
+    section: s8
+    containedIn: s8-p2
+    locators:
+      - page: 145
+    destination:
+      translationUnits:
+        - s8-p2-s2
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p2-s3
+    kind: sentence
+    section: s8
+    containedIn: s8-p2
+    locators:
+      - page: 145
+    destination:
+      translationUnits:
+        - s8-p2-s3
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p2-s4
+    kind: sentence
+    section: s8
+    containedIn: s8-p2
+    locators:
+      - page: 145
+    destination:
+      translationUnits:
+        - s8-p2-s4
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p2-s5
+    kind: sentence
+    section: s8
+    containedIn: s8-p2
+    locators:
+      - page: 145
+      - page: 146
+    destination:
+      translationUnits:
+        - s8-p2-s5
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p2-s6
+    kind: sentence
+    section: s8
+    containedIn: s8-p2
+    locators:
+      - page: 146
+    destination:
+      translationUnits:
+        - s8-p2-s6
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p2-s7
+    kind: sentence
+    section: s8
+    containedIn: s8-p2
+    locators:
+      - page: 146
+    destination:
+      translationUnits:
+        - s8-p2-s7
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p2-s8
+    kind: sentence
+    section: s8
+    containedIn: s8-p2
+    locators:
+      - page: 146
+    destination:
+      translationUnits:
+        - s8-p2-s8
+      argumentObligations:
+        - photoelectric-stopping-potential
+
   - id: eq-s8-d1
     kind: display-equation
     section: s8
@@ -1531,6 +2901,20 @@ units:
       editionBlockId: block-light-quanta-s8-p3
       translationUnits:
         - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p3-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p3
+    locators:
+      - page: 146
+    destination:
+      translationUnits:
+        - s8-p3-s1a
+        - s8-p3-s1b
+        - s8-p3-s1c
       argumentObligations:
         - photoelectric-stopping-potential
 
@@ -1588,6 +2972,18 @@ units:
       argumentObligations:
         - photoelectric-stopping-potential
 
+  - id: s8-p4-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p4
+    locators:
+      - page: 146
+    destination:
+      translationUnits:
+        - s8-p4-s1
+      argumentObligations:
+        - photoelectric-stopping-potential
+
   - id: s8-p5
     kind: paragraph
     section: s8
@@ -1610,6 +3006,30 @@ units:
       editionBlockId: block-light-quanta-s8-p5
       translationUnits:
         - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p5-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p5
+    locators:
+      - page: 146
+    destination:
+      translationUnits:
+        - s8-p5-s1
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p5-s2
+    kind: sentence
+    section: s8
+    containedIn: s8-p5
+    locators:
+      - page: 146
+    destination:
+      translationUnits:
+        - s8-p5-s2
       argumentObligations:
         - photoelectric-stopping-potential
 
@@ -1659,6 +3079,18 @@ units:
       argumentObligations:
         - photoelectric-stopping-potential
 
+  - id: s8-p6-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p6
+    locators:
+      - page: 146
+    destination:
+      translationUnits:
+        - s8-p6-s1
+      argumentObligations:
+        - photoelectric-stopping-potential
+
   - id: s8-fn4
     kind: footnote
     section: s8
@@ -1692,6 +3124,30 @@ units:
       argumentObligations:
         - photoelectric-stopping-potential
 
+  - id: s8-p7-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p7
+    locators:
+      - page: 147
+    destination:
+      translationUnits:
+        - s8-p7-s1
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p7-s2
+    kind: sentence
+    section: s8
+    containedIn: s8-p7
+    locators:
+      - page: 147
+    destination:
+      translationUnits:
+        - s8-p7-s2
+      argumentObligations:
+        - photoelectric-stopping-potential
+
   - id: s8-p8
     kind: paragraph
     section: s8
@@ -1701,6 +3157,18 @@ units:
       editionBlockId: block-light-quanta-s8-p8
       translationUnits:
         - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p8-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p8
+    locators:
+      - page: 147
+    destination:
+      translationUnits:
+        - s8-p8-s1
       argumentObligations:
         - photoelectric-stopping-potential
 
@@ -1727,6 +3195,30 @@ units:
       editionBlockId: block-light-quanta-s8-p9
       translationUnits:
         - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p9-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p9
+    locators:
+      - page: 147
+    destination:
+      translationUnits:
+        - s8-p9-s1
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p9-s2
+    kind: sentence
+    section: s8
+    containedIn: s8-p9
+    locators:
+      - page: 147
+    destination:
+      translationUnits:
+        - s8-p9-s2
       argumentObligations:
         - photoelectric-stopping-potential
 
@@ -1766,6 +3258,42 @@ units:
       editionBlockId: block-light-quanta-s8-p10
       translationUnits:
         - planned
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p10-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p10
+    locators:
+      - page: 147
+    destination:
+      translationUnits:
+        - s8-p10-s1
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p10-s2
+    kind: sentence
+    section: s8
+    containedIn: s8-p10
+    locators:
+      - page: 147
+    destination:
+      translationUnits:
+        - s8-p10-s2
+      argumentObligations:
+        - photoelectric-stopping-potential
+
+  - id: s8-p10-s3
+    kind: sentence
+    section: s8
+    containedIn: s8-p10
+    locators:
+      - page: 147
+    destination:
+      translationUnits:
+        - s8-p10-s3
       argumentObligations:
         - photoelectric-stopping-potential
 
@@ -1821,6 +3349,55 @@ units:
       editionBlockId: block-light-quanta-s9-p1
       translationUnits:
         - planned
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-p1-s1
+    kind: sentence
+    section: s9
+    containedIn: s9-p1
+    locators:
+      - page: 147
+      - page: 148
+    destination:
+      translationUnits:
+        - s9-p1-s1
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-p1-s2
+    kind: sentence
+    section: s9
+    containedIn: s9-p1
+    locators:
+      - page: 148
+    destination:
+      translationUnits:
+        - s9-p1-s2
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-p1-s3
+    kind: sentence
+    section: s9
+    containedIn: s9-p1
+    locators:
+      - page: 148
+    destination:
+      translationUnits:
+        - s9-p1-s3
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-p1-s4
+    kind: sentence
+    section: s9
+    containedIn: s9-p1
+    locators:
+      - page: 148
+    destination:
+      translationUnits:
+        - s9-p1-s4
       argumentObligations:
         - gas-ionization-bounds
 
@@ -1880,6 +3457,78 @@ units:
       editionBlockId: block-light-quanta-s9-p3
       translationUnits:
         - planned
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-p3-s1
+    kind: sentence
+    section: s9
+    containedIn: s9-p3
+    locators:
+      - page: 148
+    destination:
+      translationUnits:
+        - s9-p3-s1
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-p3-s2
+    kind: sentence
+    section: s9
+    containedIn: s9-p3
+    locators:
+      - page: 148
+    destination:
+      translationUnits:
+        - s9-p3-s2
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-p3-s3
+    kind: sentence
+    section: s9
+    containedIn: s9-p3
+    locators:
+      - page: 148
+    destination:
+      translationUnits:
+        - s9-p3-s3
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-p3-s4
+    kind: sentence
+    section: s9
+    containedIn: s9-p3
+    locators:
+      - page: 148
+    destination:
+      translationUnits:
+        - s9-p3-s4
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-p3-s5
+    kind: sentence
+    section: s9
+    containedIn: s9-p3
+    locators:
+      - page: 148
+    destination:
+      translationUnits:
+        - s9-p3-s5
+      argumentObligations:
+        - gas-ionization-bounds
+
+  - id: s9-p3-s6
+    kind: sentence
+    section: s9
+    containedIn: s9-p3
+    locators:
+      - page: 148
+    destination:
+      translationUnits:
+        - s9-p3-s6
       argumentObligations:
         - gas-ionization-bounds
 

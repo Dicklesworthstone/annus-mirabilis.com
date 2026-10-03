@@ -61,7 +61,25 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     expect(manifest.idsFrozenAt).toBe("2026-09-19T04:30:00Z");
     expect(manifest.frozenBy).toBe(LIGHT_QUANTA_BEAD);
 
-    expect(manifest.units.length).toBe(128);
+    // A COUNT IS FOR REPORTING, NOT FOR ASSERTING (AGENTS.md, the section of that name). This read
+    // `toBe(128)` and broke on correct work on 2026-10-03, when the paper's 135 sentence ids were
+    // inventoried as units of kind `sentence` under owner ruling am-xz2d. It is also the worst place
+    // for a census: above the loop that checks duplicate ids, id prefixes, locators, authored
+    // statuses and destinations, all of which went unevaluated whenever the roster moved by one. The
+    // floor below is the non-vacuity the census was guarding by accident; the question a count
+    // cannot answer is asked by src/content/manifest/requiredUnitKinds.test.ts.
+    expect(manifest.units.length).toBeGreaterThan(0);
+    console.log(
+      `light-quanta manifest roster: ${manifest.units.length} units (${[
+        ...manifest.units.reduce(
+          (counts, unit) => counts.set(unit.kind, (counts.get(unit.kind) ?? 0) + 1),
+          new Map<string, number>(),
+        ),
+      ]
+        .sort()
+        .map(([kind, n]) => `${kind}=${n}`)
+        .join(" ")})`,
+    );
 
     // No duplicate IDs and check prefix / properties
     const idSet = new Set<string>();
@@ -112,8 +130,7 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
       paper: PAPER_SLUG,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message:
-        "Manifest schema and validator pass with 0 errors, 128 units, and absent derived statuses.",
+      message: `Manifest schema and validator pass with 0 errors, ${manifest.units.length} units, and absent derived statuses.`,
       extra: { unitCount: manifest.units.length, check: "schema" },
     });
   });
@@ -575,8 +592,12 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     const snapshotIds = parseIdSnapshot(snapshotText);
     const manifestIds = manifest.units.map((u) => u.id);
 
+    // The sequence equality above IS the property: the snapshot pins exactly the manifest's ids, in
+    // order. The `toBe(128)` that stood here added nothing it does not already imply, and broke when
+    // the sentence units landed on 2026-10-03. Non-vacuity stays, so an empty snapshot matching an
+    // empty manifest cannot pass as agreement.
     expect(snapshotIds).toEqual(manifestIds);
-    expect(snapshotIds.length).toBe(128);
+    expect(snapshotIds.length).toBeGreaterThan(0);
 
     // Validate frozen IDs
     const validResult = validateFrozenIds(snapshotText, manifestIds, []);
@@ -809,9 +830,14 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
     const json = JSON.stringify(report, null, 2);
 
     expect(report.paper).toBe(PAPER_SLUG);
-    expect(report.totalUnits).toBe(128);
-    expect(report.inScopeCount).toBe(128);
+    // The invariant, rather than the census that stood here: the report counts exactly the units the
+    // manifest holds, and classes every one of them as in scope. That holds at any roster size, and
+    // it actually tests the report, which `toBe(128)` twice did not: a report that counted a fixed
+    // 128 regardless of its input would have satisfied the old assertion.
+    expect(report.totalUnits).toBe(manifest.units.length);
+    expect(report.inScopeCount).toBe(manifest.units.length);
     expect(report.notInScopeCount).toBe(0);
+    expect(report.totalUnits).toBeGreaterThan(0);
 
     // No unit lacks a destination
     for (const u of manifest.units) {
@@ -828,8 +854,7 @@ describe("light-quanta source manifest inventory (am-edn-inventory-light-quanta-
       paper: PAPER_SLUG,
       outcome: "passed",
       comparisonKind: "bitwise",
-      message:
-        "Report CLI completes with 128 units, no unassigned destinations, and no percentages.",
+      message: `Report CLI completes with ${manifest.units.length} units, no unassigned destinations, and no percentages.`,
       extra: { check: "report-cli" },
     });
   });
