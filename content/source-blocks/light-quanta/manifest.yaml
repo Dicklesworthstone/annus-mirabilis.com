@@ -49,6 +49,7 @@ units:
     locators:
       - page: 132
     destination:
+      editionBlockId: block-light-quanta-s0-p1-s1
       translationUnits:
         - s0-p1-s1
       argumentObligations:
@@ -61,6 +62,7 @@ units:
     locators:
       - page: 132
     destination:
+      editionBlockId: block-light-quanta-s0-p1-s2
       translationUnits:
         - s0-p1-s2
       argumentObligations:
@@ -73,6 +75,7 @@ units:
     locators:
       - page: 132
     destination:
+      editionBlockId: block-light-quanta-s0-p1-s3
       translationUnits:
         - s0-p1-s3
       argumentObligations:
@@ -85,6 +88,7 @@ units:
     locators:
       - page: 132
     destination:
+      editionBlockId: block-light-quanta-s0-p1-s4
       translationUnits:
         - s0-p1-s4
       argumentObligations:
@@ -112,6 +116,7 @@ units:
     locators:
       - page: 132
     destination:
+      editionBlockId: block-light-quanta-s0-p2-s1
       translationUnits:
         - s0-p2-s1
       argumentObligations:
@@ -125,6 +130,7 @@ units:
       - page: 132
       - page: 133
     destination:
+      editionBlockId: block-light-quanta-s0-p2-s2
       translationUnits:
         - s0-p2-s2
       argumentObligations:
@@ -149,6 +155,7 @@ units:
     locators:
       - page: 133
     destination:
+      editionBlockId: block-light-quanta-s0-p3-s1
       translationUnits:
         - s0-p3-s1
       argumentObligations:
@@ -161,6 +168,7 @@ units:
     locators:
       - page: 133
     destination:
+      editionBlockId: block-light-quanta-s0-p3-s2
       translationUnits:
         - s0-p3-s2
       argumentObligations:
@@ -185,6 +193,7 @@ units:
     locators:
       - page: 133
     destination:
+      editionBlockId: block-light-quanta-s0-p4-s1
       translationUnits:
         - s0-p4-s1
       argumentObligations:
@@ -231,6 +240,7 @@ units:
     locators:
       - page: 133
     destination:
+      editionBlockId: block-light-quanta-s1-p1-s1
       translationUnits:
         - s1-p1-s1
       argumentObligations:
@@ -243,6 +253,7 @@ units:
     locators:
       - page: 133
     destination:
+      editionBlockId: block-light-quanta-s1-p1-s2
       translationUnits:
         - s1-p1-s2
       argumentObligations:
@@ -256,6 +267,7 @@ units:
       - page: 133
       - page: 134
     destination:
+      editionBlockId: block-light-quanta-s1-p1-s3
       translationUnits:
         - s1-p1-s3
       argumentObligations:
@@ -268,6 +280,7 @@ units:
     locators:
       - page: 134
     destination:
+      editionBlockId: block-light-quanta-s1-p1-s4
       translationUnits:
         - s1-p1-s4
       argumentObligations:
@@ -280,6 +293,7 @@ units:
     locators:
       - page: 134
     destination:
+      editionBlockId: block-light-quanta-s1-p1-s5
       translationUnits:
         - s1-p1-s5
       argumentObligations:
@@ -325,6 +339,7 @@ units:
     locators:
       - page: 134
     destination:
+      editionBlockId: block-light-quanta-s1-p2-s1
       translationUnits:
         - s1-p2-s1
       argumentObligations:
@@ -352,6 +367,7 @@ units:
     locators:
       - page: 134
     destination:
+      editionBlockId: block-light-quanta-s1-p3-s1
       translationUnits:
         - s1-p3-s1
       argumentObligations:
@@ -364,6 +380,7 @@ units:
     locators:
       - page: 134
     destination:
+      editionBlockId: block-light-quanta-s1-p3-s2
       translationUnits:
         - s1-p3-s2
       argumentObligations:
@@ -376,6 +393,7 @@ units:
     locators:
       - page: 134
     destination:
+      editionBlockId: block-light-quanta-s1-p3-s3
       translationUnits:
         - s1-p3-s3a
         - s1-p3-s3b
@@ -389,6 +407,7 @@ units:
     locators:
       - page: 134
     destination:
+      editionBlockId: block-light-quanta-s1-p3-s4
       translationUnits:
         - s1-p3-s4
       argumentObligations:
@@ -402,6 +421,7 @@ units:
       - page: 134
       - page: 135
     destination:
+      editionBlockId: block-light-quanta-s1-p3-s5
       translationUnits:
         - s1-p3-s5
       argumentObligations:
@@ -414,6 +434,7 @@ units:
     locators:
       - page: 135
     destination:
+      editionBlockId: block-light-quanta-s1-p3-s6
       translationUnits:
         - s1-p3-s6
       argumentObligations:
@@ -471,6 +492,7 @@ units:
     locators:
       - page: 135
     destination:
+      editionBlockId: block-light-quanta-s1-p4-s1
       translationUnits:
         - s1-p4-s1
       argumentObligations:
@@ -483,6 +505,7 @@ units:
     locators:
       - page: 135
     destination:
+      editionBlockId: block-light-quanta-s1-p4-s2
       translationUnits:
         - s1-p4-s2
       argumentObligations:
@@ -495,6 +518,7 @@ units:
     locators:
       - page: 135
     destination:
+      editionBlockId: block-light-quanta-s1-p4-s3
       translationUnits:
         - s1-p4-s3
       argumentObligations:
@@ -507,6 +531,7 @@ units:
     locators:
       - page: 135
     destination:
+      editionBlockId: block-light-quanta-s1-p4-s4
       translationUnits:
         - s1-p4-s4
       argumentObligations:
@@ -622,6 +647,7 @@ units:
     locators:
       - page: 136
     destination:
+      editionBlockId: block-light-quanta-s1-p5-s1
       translationUnits:
         - s1-p5-s1
       argumentObligations:
@@ -634,6 +660,7 @@ units:
     locators:
       - page: 136
     destination:
+      editionBlockId: block-light-quanta-s1-p5-s2
       translationUnits:
         - s1-p5-s2
       argumentObligations:
@@ -646,6 +673,7 @@ units:
     locators:
       - page: 136
     destination:
+      editionBlockId: block-light-quanta-s1-p5-s3
       translationUnits:
         - s1-p5-s3
       argumentObligations:
@@ -731,6 +759,7 @@ units:
     locators:
       - page: 136
     destination:
+      editionBlockId: block-light-quanta-s2-p1-s1
       translationUnits:
         - s2-p1-s1
       argumentObligations:
@@ -783,6 +812,7 @@ units:
     locators:
       - page: 136
     destination:
+      editionBlockId: block-light-quanta-s2-p2-s1
       translationUnits:
         - s2-p2-s1a
         - s2-p2-s1b
@@ -796,6 +826,7 @@ units:
     locators:
       - page: 136
     destination:
+      editionBlockId: block-light-quanta-s2-p2-s2
       translationUnits:
         - s2-p2-s2
       argumentObligations:
@@ -809,6 +840,7 @@ units:
       - page: 136
       - page: 137
     destination:
+      editionBlockId: block-light-quanta-s2-p2-s3
       translationUnits:
         - s2-p2-s3
       argumentObligations:
@@ -821,6 +853,7 @@ units:
     locators:
       - page: 137
     destination:
+      editionBlockId: block-light-quanta-s2-p2-s4
       translationUnits:
         - s2-p2-s4a
         - s2-p2-s4b
@@ -835,6 +868,7 @@ units:
     locators:
       - page: 137
     destination:
+      editionBlockId: block-light-quanta-s2-p2-s5
       translationUnits:
         - s2-p2-s5
       argumentObligations:
@@ -964,6 +998,7 @@ units:
     locators:
       - page: 137
     destination:
+      editionBlockId: block-light-quanta-s2-p4-s1
       translationUnits:
         - s2-p4-s1
       argumentObligations:
@@ -988,6 +1023,7 @@ units:
     locators:
       - page: 137
     destination:
+      editionBlockId: block-light-quanta-s2-p5-s1
       translationUnits:
         - s2-p5-s1
       argumentObligations:
@@ -1031,6 +1067,7 @@ units:
     locators:
       - page: 137
     destination:
+      editionBlockId: block-light-quanta-s3-p1-s1
       translationUnits:
         - s3-p1-s1
       argumentObligations:
@@ -1065,6 +1102,7 @@ units:
     locators:
       - page: 137
     destination:
+      editionBlockId: block-light-quanta-s3-p2-s1
       translationUnits:
         - s3-p2-s1
       argumentObligations:
@@ -1077,6 +1115,7 @@ units:
     locators:
       - page: 137
     destination:
+      editionBlockId: block-light-quanta-s3-p2-s2
       translationUnits:
         - s3-p2-s2
       argumentObligations:
@@ -1090,6 +1129,7 @@ units:
       - page: 137
       - page: 138
     destination:
+      editionBlockId: block-light-quanta-s3-p2-s3
       translationUnits:
         - s3-p2-s3a
         - s3-p2-s3b
@@ -1103,6 +1143,7 @@ units:
     locators:
       - page: 138
     destination:
+      editionBlockId: block-light-quanta-s3-p2-s4
       translationUnits:
         - s3-p2-s4
       argumentObligations:
@@ -1115,6 +1156,7 @@ units:
     locators:
       - page: 138
     destination:
+      editionBlockId: block-light-quanta-s3-p2-s5
       translationUnits:
         - s3-p2-s5
       argumentObligations:
@@ -1167,6 +1209,7 @@ units:
     locators:
       - page: 138
     destination:
+      editionBlockId: block-light-quanta-s3-p3-s1
       translationUnits:
         - s3-p3-s1a
         - s3-p3-s1b
@@ -1180,6 +1223,7 @@ units:
     locators:
       - page: 138
     destination:
+      editionBlockId: block-light-quanta-s3-p3-s2
       translationUnits:
         - s3-p3-s2a
         - s3-p3-s2b
@@ -1193,6 +1237,7 @@ units:
     locators:
       - page: 138
     destination:
+      editionBlockId: block-light-quanta-s3-p3-s3
       translationUnits:
         - s3-p3-s3
       argumentObligations:
@@ -1262,6 +1307,7 @@ units:
     locators:
       - page: 138
     destination:
+      editionBlockId: block-light-quanta-s3-p4-s1
       translationUnits:
         - s3-p4-s1a
         - s3-p4-s1b
@@ -1275,6 +1321,7 @@ units:
     locators:
       - page: 138
     destination:
+      editionBlockId: block-light-quanta-s3-p4-s2
       translationUnits:
         - s3-p4-s2
       argumentObligations:
@@ -1287,6 +1334,7 @@ units:
     locators:
       - page: 138
     destination:
+      editionBlockId: block-light-quanta-s3-p4-s3
       translationUnits:
         - s3-p4-s3
       argumentObligations:
@@ -1299,6 +1347,7 @@ units:
     locators:
       - page: 138
     destination:
+      editionBlockId: block-light-quanta-s3-p4-s4
       translationUnits:
         - s3-p4-s4
       argumentObligations:
@@ -1312,6 +1361,7 @@ units:
       - page: 138
       - page: 139
     destination:
+      editionBlockId: block-light-quanta-s3-p4-s5
       translationUnits:
         - s3-p4-s5
       argumentObligations:
@@ -1411,6 +1461,7 @@ units:
     locators:
       - page: 139
     destination:
+      editionBlockId: block-light-quanta-s4-p1-s1
       translationUnits:
         - s4-p1-s1a
         - s4-p1-s1b
@@ -1424,6 +1475,7 @@ units:
     locators:
       - page: 139
     destination:
+      editionBlockId: block-light-quanta-s4-p1-s2
       translationUnits:
         - s4-p1-s2
       argumentObligations:
@@ -1436,6 +1488,7 @@ units:
     locators:
       - page: 139
     destination:
+      editionBlockId: block-light-quanta-s4-p1-s3
       translationUnits:
         - s4-p1-s3
       argumentObligations:
@@ -1481,6 +1534,7 @@ units:
     locators:
       - page: 139
     destination:
+      editionBlockId: block-light-quanta-s4-p2-s1
       translationUnits:
         - s4-p2-s1a
         - s4-p2-s1b
@@ -1494,6 +1548,7 @@ units:
     locators:
       - page: 139
     destination:
+      editionBlockId: block-light-quanta-s4-p2-s2
       translationUnits:
         - s4-p2-s2
       argumentObligations:
@@ -1506,6 +1561,7 @@ units:
     locators:
       - page: 139
     destination:
+      editionBlockId: block-light-quanta-s4-p2-s3
       translationUnits:
         - s4-p2-s3
       argumentObligations:
@@ -1518,6 +1574,7 @@ units:
     locators:
       - page: 139
     destination:
+      editionBlockId: block-light-quanta-s4-p2-s4
       translationUnits:
         - s4-p2-s4
       argumentObligations:
@@ -1530,6 +1587,7 @@ units:
     locators:
       - page: 139
     destination:
+      editionBlockId: block-light-quanta-s4-p2-s5
       translationUnits:
         - s4-p2-s5
       argumentObligations:
@@ -1620,6 +1678,7 @@ units:
     locators:
       - page: 139
     destination:
+      editionBlockId: block-light-quanta-s4-p5-s1
       translationUnits:
         - s4-p5-s1
       argumentObligations:
@@ -1633,6 +1692,7 @@ units:
       - page: 139
       - page: 140
     destination:
+      editionBlockId: block-light-quanta-s4-p5-s2
       translationUnits:
         - s4-p5-s2
       argumentObligations:
@@ -1669,6 +1729,7 @@ units:
     locators:
       - page: 140
     destination:
+      editionBlockId: block-light-quanta-s5-p1-s1
       translationUnits:
         - s5-p1-s1
       argumentObligations:
@@ -1681,6 +1742,7 @@ units:
     locators:
       - page: 140
     destination:
+      editionBlockId: block-light-quanta-s5-p1-s2
       translationUnits:
         - s5-p1-s2
       argumentObligations:
@@ -1693,6 +1755,7 @@ units:
     locators:
       - page: 140
     destination:
+      editionBlockId: block-light-quanta-s5-p1-s3
       translationUnits:
         - s5-p1-s3
       argumentObligations:
@@ -1705,6 +1768,7 @@ units:
     locators:
       - page: 140
     destination:
+      editionBlockId: block-light-quanta-s5-p1-s4
       translationUnits:
         - s5-p1-s4
       argumentObligations:
@@ -1732,6 +1796,7 @@ units:
     locators:
       - page: 140
     destination:
+      editionBlockId: block-light-quanta-s5-p2-s1
       translationUnits:
         - s5-p2-s1
       argumentObligations:
@@ -1744,6 +1809,7 @@ units:
     locators:
       - page: 140
     destination:
+      editionBlockId: block-light-quanta-s5-p2-s2
       translationUnits:
         - s5-p2-s2
       argumentObligations:
@@ -1756,6 +1822,7 @@ units:
     locators:
       - page: 140
     destination:
+      editionBlockId: block-light-quanta-s5-p2-s3
       translationUnits:
         - s5-p2-s3a
         - s5-p2-s3b
@@ -1769,6 +1836,7 @@ units:
     locators:
       - page: 141
     destination:
+      editionBlockId: block-light-quanta-s5-p2-s4
       translationUnits:
         - s5-p2-s4
       argumentObligations:
@@ -1835,6 +1903,7 @@ units:
     locators:
       - page: 141
     destination:
+      editionBlockId: block-light-quanta-s5-p6-s1
       translationUnits:
         - s5-p6-s1a
         - s5-p6-s1b
@@ -1848,6 +1917,7 @@ units:
     locators:
       - page: 141
     destination:
+      editionBlockId: block-light-quanta-s5-p6-s2
       translationUnits:
         - s5-p6-s2
       argumentObligations:
@@ -1860,6 +1930,7 @@ units:
     locators:
       - page: 141
     destination:
+      editionBlockId: block-light-quanta-s5-p6-s3
       translationUnits:
         - s5-p6-s3
       argumentObligations:
@@ -1926,6 +1997,7 @@ units:
     locators:
       - page: 141
     destination:
+      editionBlockId: block-light-quanta-s5-p3-s1
       translationUnits:
         - s5-p3-s1
       argumentObligations:
@@ -1938,6 +2010,7 @@ units:
     locators:
       - page: 141
     destination:
+      editionBlockId: block-light-quanta-s5-p3-s2
       translationUnits:
         - s5-p3-s2
       argumentObligations:
@@ -1950,6 +2023,7 @@ units:
     locators:
       - page: 141
     destination:
+      editionBlockId: block-light-quanta-s5-p3-s3
       translationUnits:
         - s5-p3-s3
       argumentObligations:
@@ -1962,6 +2036,7 @@ units:
     locators:
       - page: 141
     destination:
+      editionBlockId: block-light-quanta-s5-p3-s4
       translationUnits:
         - s5-p3-s4
       argumentObligations:
@@ -1974,6 +2049,7 @@ units:
     locators:
       - page: 141
     destination:
+      editionBlockId: block-light-quanta-s5-p3-s5
       translationUnits:
         - s5-p3-s5
       argumentObligations:
@@ -1998,6 +2074,7 @@ units:
     locators:
       - page: 141
     destination:
+      editionBlockId: block-light-quanta-s5-p4-s1
       translationUnits:
         - s5-p4-s1
       argumentObligations:
@@ -2010,6 +2087,7 @@ units:
     locators:
       - page: 141
     destination:
+      editionBlockId: block-light-quanta-s5-p4-s2
       translationUnits:
         - s5-p4-s2
       argumentObligations:
@@ -2022,6 +2100,7 @@ units:
     locators:
       - page: 141
     destination:
+      editionBlockId: block-light-quanta-s5-p4-s3
       translationUnits:
         - s5-p4-s3
       argumentObligations:
@@ -2046,6 +2125,7 @@ units:
     locators:
       - page: 142
     destination:
+      editionBlockId: block-light-quanta-s5-p7-s1
       translationUnits:
         - s5-p7-s1
       argumentObligations:
@@ -2058,6 +2138,7 @@ units:
     locators:
       - page: 142
     destination:
+      editionBlockId: block-light-quanta-s5-p7-s2
       translationUnits:
         - s5-p7-s2
       argumentObligations:
@@ -2082,6 +2163,7 @@ units:
     locators:
       - page: 142
     destination:
+      editionBlockId: block-light-quanta-s5-p8-s1
       translationUnits:
         - s5-p8-s1a
         - s5-p8-s1b
@@ -2142,6 +2224,7 @@ units:
     locators:
       - page: 142
     destination:
+      editionBlockId: block-light-quanta-s5-p5-s1
       translationUnits:
         - s5-p5-s1
       argumentObligations:
@@ -2230,6 +2313,7 @@ units:
     locators:
       - page: 142
     destination:
+      editionBlockId: block-light-quanta-s6-p1-s1
       translationUnits:
         - s6-p1-s1
       argumentObligations:
@@ -2243,6 +2327,7 @@ units:
       - page: 142
       - page: 143
     destination:
+      editionBlockId: block-light-quanta-s6-p1-s2
       translationUnits:
         - s6-p1-s2a
         - s6-p1-s2b
@@ -2311,6 +2396,7 @@ units:
     locators:
       - page: 143
     destination:
+      editionBlockId: block-light-quanta-s6-p5-s1
       translationUnits:
         - s6-p5-s1
       argumentObligations:
@@ -2349,6 +2435,7 @@ units:
     locators:
       - page: 143
     destination:
+      editionBlockId: block-light-quanta-s6-p2-s1
       translationUnits:
         - s6-p2-s1
       argumentObligations:
@@ -2373,6 +2460,7 @@ units:
     locators:
       - page: 143
     destination:
+      editionBlockId: block-light-quanta-s6-p6-s1
       translationUnits:
         - s6-p6-s1
       argumentObligations:
@@ -2397,6 +2485,7 @@ units:
     locators:
       - page: 143
     destination:
+      editionBlockId: block-light-quanta-s6-p3-s1
       translationUnits:
         - s6-p3-s1
       argumentObligations:
@@ -2409,6 +2498,7 @@ units:
     locators:
       - page: 143
     destination:
+      editionBlockId: block-light-quanta-s6-p3-s2
       translationUnits:
         - s6-p3-s2
       argumentObligations:
@@ -2451,6 +2541,7 @@ units:
       - page: 143
       - page: 144
     destination:
+      editionBlockId: block-light-quanta-s6-p4-s1
       translationUnits:
         - s6-p4-s1
       argumentObligations:
@@ -2463,6 +2554,7 @@ units:
     locators:
       - page: 144
     destination:
+      editionBlockId: block-light-quanta-s6-p4-s2
       translationUnits:
         - s6-p4-s2
       argumentObligations:
@@ -2499,6 +2591,7 @@ units:
     locators:
       - page: 144
     destination:
+      editionBlockId: block-light-quanta-s7-p1-s1
       translationUnits:
         - s7-p1-s1
       argumentObligations:
@@ -2511,6 +2604,7 @@ units:
     locators:
       - page: 144
     destination:
+      editionBlockId: block-light-quanta-s7-p1-s2
       translationUnits:
         - s7-p1-s2
       argumentObligations:
@@ -2523,6 +2617,7 @@ units:
     locators:
       - page: 144
     destination:
+      editionBlockId: block-light-quanta-s7-p1-s3
       translationUnits:
         - s7-p1-s3
       argumentObligations:
@@ -2535,6 +2630,7 @@ units:
     locators:
       - page: 144
     destination:
+      editionBlockId: block-light-quanta-s7-p1-s4
       translationUnits:
         - s7-p1-s4
       argumentObligations:
@@ -2547,6 +2643,7 @@ units:
     locators:
       - page: 144
     destination:
+      editionBlockId: block-light-quanta-s7-p1-s5
       translationUnits:
         - s7-p1-s5a
         - s7-p1-s5b
@@ -2560,6 +2657,7 @@ units:
     locators:
       - page: 144
     destination:
+      editionBlockId: block-light-quanta-s7-p1-s6
       translationUnits:
         - s7-p1-s6
       argumentObligations:
@@ -2612,6 +2710,7 @@ units:
     locators:
       - page: 144
     destination:
+      editionBlockId: block-light-quanta-s7-p2-s1
       translationUnits:
         - s7-p2-s1
       argumentObligations:
@@ -2624,6 +2723,7 @@ units:
     locators:
       - page: 144
     destination:
+      editionBlockId: block-light-quanta-s7-p2-s2
       translationUnits:
         - s7-p2-s2
       argumentObligations:
@@ -2648,6 +2748,7 @@ units:
     locators:
       - page: 145
     destination:
+      editionBlockId: block-light-quanta-s7-p3-s1
       translationUnits:
         - s7-p3-s1
       argumentObligations:
@@ -2672,6 +2773,7 @@ units:
     locators:
       - page: 145
     destination:
+      editionBlockId: block-light-quanta-s7-p4-s1
       translationUnits:
         - s7-p4-s1
       argumentObligations:
@@ -2684,6 +2786,7 @@ units:
     locators:
       - page: 145
     destination:
+      editionBlockId: block-light-quanta-s7-p4-s2
       translationUnits:
         - s7-p4-s2
       argumentObligations:
@@ -2733,6 +2836,7 @@ units:
     locators:
       - page: 145
     destination:
+      editionBlockId: block-light-quanta-s8-p1-s1
       translationUnits:
         - s8-p1-s1
       argumentObligations:
@@ -2781,6 +2885,7 @@ units:
     locators:
       - page: 145
     destination:
+      editionBlockId: block-light-quanta-s8-p2-s1
       translationUnits:
         - s8-p2-s1
       argumentObligations:
@@ -2793,6 +2898,7 @@ units:
     locators:
       - page: 145
     destination:
+      editionBlockId: block-light-quanta-s8-p2-s2
       translationUnits:
         - s8-p2-s2
       argumentObligations:
@@ -2805,6 +2911,7 @@ units:
     locators:
       - page: 145
     destination:
+      editionBlockId: block-light-quanta-s8-p2-s3
       translationUnits:
         - s8-p2-s3
       argumentObligations:
@@ -2817,6 +2924,7 @@ units:
     locators:
       - page: 145
     destination:
+      editionBlockId: block-light-quanta-s8-p2-s4
       translationUnits:
         - s8-p2-s4
       argumentObligations:
@@ -2830,6 +2938,7 @@ units:
       - page: 145
       - page: 146
     destination:
+      editionBlockId: block-light-quanta-s8-p2-s5
       translationUnits:
         - s8-p2-s5
       argumentObligations:
@@ -2842,6 +2951,7 @@ units:
     locators:
       - page: 146
     destination:
+      editionBlockId: block-light-quanta-s8-p2-s6
       translationUnits:
         - s8-p2-s6
       argumentObligations:
@@ -2854,6 +2964,7 @@ units:
     locators:
       - page: 146
     destination:
+      editionBlockId: block-light-quanta-s8-p2-s7
       translationUnits:
         - s8-p2-s7
       argumentObligations:
@@ -2866,6 +2977,7 @@ units:
     locators:
       - page: 146
     destination:
+      editionBlockId: block-light-quanta-s8-p2-s8
       translationUnits:
         - s8-p2-s8
       argumentObligations:
@@ -2911,6 +3023,7 @@ units:
     locators:
       - page: 146
     destination:
+      editionBlockId: block-light-quanta-s8-p3-s1
       translationUnits:
         - s8-p3-s1a
         - s8-p3-s1b
@@ -2979,6 +3092,7 @@ units:
     locators:
       - page: 146
     destination:
+      editionBlockId: block-light-quanta-s8-p4-s1
       translationUnits:
         - s8-p4-s1
       argumentObligations:
@@ -3016,6 +3130,7 @@ units:
     locators:
       - page: 146
     destination:
+      editionBlockId: block-light-quanta-s8-p5-s1
       translationUnits:
         - s8-p5-s1
       argumentObligations:
@@ -3028,6 +3143,7 @@ units:
     locators:
       - page: 146
     destination:
+      editionBlockId: block-light-quanta-s8-p5-s2
       translationUnits:
         - s8-p5-s2
       argumentObligations:
@@ -3086,6 +3202,7 @@ units:
     locators:
       - page: 146
     destination:
+      editionBlockId: block-light-quanta-s8-p6-s1
       translationUnits:
         - s8-p6-s1
       argumentObligations:
@@ -3131,6 +3248,7 @@ units:
     locators:
       - page: 147
     destination:
+      editionBlockId: block-light-quanta-s8-p7-s1
       translationUnits:
         - s8-p7-s1
       argumentObligations:
@@ -3143,6 +3261,7 @@ units:
     locators:
       - page: 147
     destination:
+      editionBlockId: block-light-quanta-s8-p7-s2
       translationUnits:
         - s8-p7-s2
       argumentObligations:
@@ -3167,6 +3286,7 @@ units:
     locators:
       - page: 147
     destination:
+      editionBlockId: block-light-quanta-s8-p8-s1
       translationUnits:
         - s8-p8-s1
       argumentObligations:
@@ -3205,6 +3325,7 @@ units:
     locators:
       - page: 147
     destination:
+      editionBlockId: block-light-quanta-s8-p9-s1
       translationUnits:
         - s8-p9-s1
       argumentObligations:
@@ -3217,6 +3338,7 @@ units:
     locators:
       - page: 147
     destination:
+      editionBlockId: block-light-quanta-s8-p9-s2
       translationUnits:
         - s8-p9-s2
       argumentObligations:
@@ -3268,6 +3390,7 @@ units:
     locators:
       - page: 147
     destination:
+      editionBlockId: block-light-quanta-s8-p10-s1
       translationUnits:
         - s8-p10-s1
       argumentObligations:
@@ -3280,6 +3403,7 @@ units:
     locators:
       - page: 147
     destination:
+      editionBlockId: block-light-quanta-s8-p10-s2
       translationUnits:
         - s8-p10-s2
       argumentObligations:
@@ -3292,6 +3416,7 @@ units:
     locators:
       - page: 147
     destination:
+      editionBlockId: block-light-quanta-s8-p10-s3
       translationUnits:
         - s8-p10-s3
       argumentObligations:
@@ -3360,6 +3485,7 @@ units:
       - page: 147
       - page: 148
     destination:
+      editionBlockId: block-light-quanta-s9-p1-s1
       translationUnits:
         - s9-p1-s1
       argumentObligations:
@@ -3372,6 +3498,7 @@ units:
     locators:
       - page: 148
     destination:
+      editionBlockId: block-light-quanta-s9-p1-s2
       translationUnits:
         - s9-p1-s2
       argumentObligations:
@@ -3384,6 +3511,7 @@ units:
     locators:
       - page: 148
     destination:
+      editionBlockId: block-light-quanta-s9-p1-s3
       translationUnits:
         - s9-p1-s3
       argumentObligations:
@@ -3396,6 +3524,7 @@ units:
     locators:
       - page: 148
     destination:
+      editionBlockId: block-light-quanta-s9-p1-s4
       translationUnits:
         - s9-p1-s4
       argumentObligations:
@@ -3467,6 +3596,7 @@ units:
     locators:
       - page: 148
     destination:
+      editionBlockId: block-light-quanta-s9-p3-s1
       translationUnits:
         - s9-p3-s1
       argumentObligations:
@@ -3479,6 +3609,7 @@ units:
     locators:
       - page: 148
     destination:
+      editionBlockId: block-light-quanta-s9-p3-s2
       translationUnits:
         - s9-p3-s2
       argumentObligations:
@@ -3491,6 +3622,7 @@ units:
     locators:
       - page: 148
     destination:
+      editionBlockId: block-light-quanta-s9-p3-s3
       translationUnits:
         - s9-p3-s3
       argumentObligations:
@@ -3503,6 +3635,7 @@ units:
     locators:
       - page: 148
     destination:
+      editionBlockId: block-light-quanta-s9-p3-s4
       translationUnits:
         - s9-p3-s4
       argumentObligations:
@@ -3515,6 +3648,7 @@ units:
     locators:
       - page: 148
     destination:
+      editionBlockId: block-light-quanta-s9-p3-s5
       translationUnits:
         - s9-p3-s5
       argumentObligations:
@@ -3527,6 +3661,7 @@ units:
     locators:
       - page: 148
     destination:
+      editionBlockId: block-light-quanta-s9-p3-s6
       translationUnits:
         - s9-p3-s6
       argumentObligations:

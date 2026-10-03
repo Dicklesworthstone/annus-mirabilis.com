@@ -187,21 +187,17 @@ export const DECLARED_ABSENCES: AbsenceDeclarations = new Map([
   [
     "special-relativity",
     new Map<string, AbsenceDeclaration>([
-      [
-        "sentence",
-        {
-          kind: "debt",
-          reason:
-            "The manifest's own `unfrozenRequiredUnitKinds` names this gap. Its recorded blocker am-cm-source-manifest-6qa is closed and MANIFEST_UNIT_KINDS has carried `sentence` since owner ruling am-xz2d on 2026-09-20, so the stated block no longer holds; 381 sentence ids are authored and translated.",
-          bead: "am-edn-inventory-relativity-0u9",
-        },
-      ],
+      // The `sentence` debt was PAID on 2026-10-03, completing owner ruling am-xz2d for the last of
+      // the four inventories: 223 sentence units, a set equal to the distinct sentenceIds of this
+      // paper's alignment file. The manifest's own `unfrozenRequiredUnitKinds` lost its sentence row
+      // in the same change, along with the `blockedBy: am-cm-source-manifest-6qa` claim it had been
+      // making for thirteen days after that bead closed.
       [
         "inline-equation",
         {
           kind: "debt",
           reason:
-            "Named beside `sentence` in the manifest's own `unfrozenRequiredUnitKinds`, and unblocked by the same ruling.",
+            "The last unit class this paper's `unfrozenRequiredUnitKinds` still names. Not blocked: `inline-equation` is in MANIFEST_UNIT_KINDS and its id grammar derives from a sentence id, which is now a unit here. What it needs is the editorial judgment of which inline regions are substantive, read against the plates.",
           bead: "am-edn-inventory-relativity-0u9",
         },
       ],

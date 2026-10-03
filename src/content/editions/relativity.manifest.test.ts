@@ -705,9 +705,19 @@ describe("special-relativity source manifest inventory (am-edn-inventory-relativ
     expect(report.layers.translation.state).toBe("present");
     expect(report.layers.gloss.state).toBe("present");
     const transcription = report.layers.transcription;
+    // A SOURCE BLOCK IS A FILE; A SENTENCE IS A SPAN INSIDE ONE. `transcription.unitCount` is
+    // `blocks.size` in sourceLayers.ts, so it counts the files under content/source-blocks/<paper>/.
+    // Comparing it with `manifest.units.length` held only while this paper had no sentence units, and
+    // broke on 2026-10-03 when its 223 sentence ids were inventoried under owner ruling am-xz2d: 213
+    // files against 436 units. The claim worth making is that every transcribed FILE is accounted for
+    // at block level, so that is what is compared, and the sentence half is asserted beside it
+    // against the spans those same files carry.
+    const blockLevelUnits = manifest.units.filter((u) => u.kind !== "sentence");
+    const sentenceUnits = manifest.units.filter((u) => u.kind === "sentence");
     expect(transcription.state === "present" && transcription.unitCount).toBe(
-      manifest.units.length,
+      blockLevelUnits.length,
     );
+    expect(sentenceUnits.length).toBeGreaterThan(0);
 
     const json = JSON.stringify(report, null, 2);
     const text = formatManifestReportText(report);

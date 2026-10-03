@@ -9,24 +9,37 @@ pageRange:
   - 921
 idsFrozenAt: '2026-09-19T00:00:00Z'
 frozenBy: am-edn-inventory-relativity-0u9
-# FREEZE SCOPE (am-edn-inventory-relativity-0u9). This is NOT a whole-paper id freeze.
-# The ids below are frozen only for the unit classes the canonical manifest format can express.
-# Two unit classes required by this bead are not inventoried here and are therefore not frozen:
-#   - sentence units, id grammar s<n>-p<m>-s<k>
-#   - substantive inline-equation units, id grammar s<n>-p<m>-s<k>-m<i>
-# MANIFEST_UNIT_KINDS in src/content/manifest/types.ts has no `sentence` kind and ManifestLocator
-# addresses a page, not a span, so a sentence-scoped id cannot be expressed. `inline-equation` does
-# exist as a kind, but the id grammar this bead mandates for it is derived from a sentence id, so it
-# is blocked on the same decision. No sentence kind was invented here.
-# Blocked on: am-cm-source-manifest-6qa (format owner). Recorded as a blocking flag in
-# docs/editorial/special-relativity-difficulties.md section 5.
-# Until that is resolved, do not treat this paper as fully inventoried.
+# FREEZE SCOPE (am-edn-inventory-relativity-0u9). This is NOT YET a whole-paper id freeze, and the
+# reason has changed. One of the two unit classes this bead requires beyond the block level is now
+# inventoried and frozen; the other is not.
+#
+# SENTENCE UNITS ARE NOW HERE (2026-10-03). The original note said MANIFEST_UNIT_KINDS "has no
+# `sentence` kind and ManifestLocator addresses a page, not a span, so a sentence-scoped id cannot be
+# expressed", and recorded the work as "Blocked on: am-cm-source-manifest-6qa (format owner)". That
+# block was lifted on 2026-09-20 by owner ruling am-xz2d decision 1, verbatim "Add a sentence kind",
+# described as "the manifest format gains a sentence kind and the four inventories are extended to
+# carry s<n>-p<m>-s<k>"; the constant has carried `sentence` since, and brownian-motion was extended
+# the next day. The caveat stayed behind and told every reader for thirteen days that finished format
+# work was still blocking this paper. The 223 sentence ids below were not minted here: each was
+# already authored as a `sentenceSpans` entry on its paragraph source block with a character span and
+# a textDigest, and the set is equal to the distinct sentenceId values of
+# content/alignments/special-relativity.yaml (223 and 223, no member on either side the other lacks).
+# A sentence that contains a page turn recorded in its block's `pageTurns` carries both pages.
+#
+# SUBSTANTIVE INLINE-EQUATION UNITS ARE STILL ABSENT, and that is the one remaining gap. It is NOT
+# blocked either: `inline-equation` is in MANIFEST_UNIT_KINDS, and the id grammar
+# s<n>-p<m>-s<k>-m<i> derives from a sentence id, which now exists as a unit. What it needs is the
+# editorial judgment of which inline regions are substantive, read against the plates. It is tracked
+# as a declared debt in src/content/manifest/requiredUnitKinds.ts, which fails if the declaration is
+# dropped without the units appearing, and is reported by that file's test with this bead as owner.
+# Until it lands, do not treat this paper as fully inventoried.
 frozenUnitKinds:
   - masthead-title
   - masthead-author
   - part-heading
   - section-heading
   - paragraph
+  - sentence
   - display-equation
   - footnote
   - closing-ack
@@ -34,14 +47,10 @@ frozenUnitKinds:
   - closing-received
 frozenReferenceOccurrences: true
 unfrozenRequiredUnitKinds:
-  - kind: sentence
-    idGrammar: s<n>-p<m>-s<k>
-    blockedBy: am-cm-source-manifest-6qa
-    reason: MANIFEST_UNIT_KINDS has no sentence kind and locators are page-scoped.
   - kind: inline-equation
     idGrammar: s<n>-p<m>-s<k>-m<i>
-    blockedBy: am-cm-source-manifest-6qa
-    reason: The mandated id grammar is derived from a sentence id, which cannot be expressed.
+    owedBy: am-edn-inventory-relativity-0u9
+    reason: "Not blocked. `inline-equation` is in MANIFEST_UNIT_KINDS and the grammar derives from a sentence id, which is now a unit. What is missing is the editorial judgment of which inline regions are substantive, read against the plates. Declared as a debt with this bead as owner in src/content/manifest/requiredUnitKinds.ts."
 exportedResults:
   - id: eq-s8-d4
     resultId: eq-s8-d4
@@ -81,6 +90,72 @@ units:
         - trans-special-relativity-s0-p1
       argumentObligations:
         - obl-s0-electrodynamic-asymmetry
+
+  - id: s0-p1-s1
+    kind: sentence
+    section: s0
+    containedIn: s0-p1
+    locators:
+      - page: 891
+    destination:
+      editionBlockId: block-special-relativity-s0-p1-s1
+      translationUnits:
+        - s0-p1-s1
+      argumentObligations:
+        - obl-s0-electrodynamic-asymmetry
+
+  - id: s0-p1-s2
+    kind: sentence
+    section: s0
+    containedIn: s0-p1
+    locators:
+      - page: 891
+    destination:
+      editionBlockId: block-special-relativity-s0-p1-s2
+      translationUnits:
+        - s0-p1-s2
+      argumentObligations:
+        - obl-s0-electrodynamic-asymmetry
+
+  - id: s0-p1-s3
+    kind: sentence
+    section: s0
+    containedIn: s0-p1
+    locators:
+      - page: 891
+    destination:
+      editionBlockId: block-special-relativity-s0-p1-s3
+      translationUnits:
+        - s0-p1-s3
+      argumentObligations:
+        - obl-s0-electrodynamic-asymmetry
+
+  - id: s0-p1-s4
+    kind: sentence
+    section: s0
+    containedIn: s0-p1
+    locators:
+      - page: 891
+    destination:
+      editionBlockId: block-special-relativity-s0-p1-s4
+      translationUnits:
+        - s0-p1-s4
+      argumentObligations:
+        - obl-s0-electrodynamic-asymmetry
+
+  - id: s0-p1-s5
+    kind: sentence
+    section: s0
+    containedIn: s0-p1
+    locators:
+      - page: 891
+    destination:
+      editionBlockId: block-special-relativity-s0-p1-s5
+      translationUnits:
+        - s0-p1-s5
+      argumentObligations:
+        - obl-s0-electrodynamic-asymmetry
+
   - id: s0-p2
     kind: paragraph
     section: s0
@@ -91,6 +166,52 @@ units:
       editionBlockId: block-special-relativity-s0-p2
       translationUnits:
         - trans-special-relativity-s0-p2
+
+  - id: s0-p2-s1
+    kind: sentence
+    section: s0
+    containedIn: s0-p2
+    locators:
+      - page: 891
+    destination:
+      editionBlockId: block-special-relativity-s0-p2-s1
+      translationUnits:
+        - s0-p2-s1
+
+  - id: s0-p2-s2
+    kind: sentence
+    section: s0
+    containedIn: s0-p2
+    locators:
+      - page: 891
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-s0-p2-s2
+      translationUnits:
+        - s0-p2-s2
+
+  - id: s0-p2-s3
+    kind: sentence
+    section: s0
+    containedIn: s0-p2
+    locators:
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-s0-p2-s3
+      translationUnits:
+        - s0-p2-s3
+
+  - id: s0-p2-s4
+    kind: sentence
+    section: s0
+    containedIn: s0-p2
+    locators:
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-s0-p2-s4
+      translationUnits:
+        - s0-p2-s4
+
   - id: s0-p3
     kind: paragraph
     section: s0
@@ -100,6 +221,29 @@ units:
       editionBlockId: block-special-relativity-s0-p3
       translationUnits:
         - trans-special-relativity-s0-p3
+
+  - id: s0-p3-s1
+    kind: sentence
+    section: s0
+    containedIn: s0-p3
+    locators:
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-s0-p3-s1
+      translationUnits:
+        - s0-p3-s1
+
+  - id: s0-p3-s2
+    kind: sentence
+    section: s0
+    containedIn: s0-p3
+    locators:
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-s0-p3-s2
+      translationUnits:
+        - s0-p3-s2
+
   - id: part-1
     kind: part-heading
     locators:
@@ -128,6 +272,33 @@ units:
         - trans-special-relativity-s1-p1
       argumentObligations:
         - obl-s1-simultaneity-definition
+
+  - id: s1-p1-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p1
+    locators:
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-s1-p1-s1
+      translationUnits:
+        - s1-p1-s1
+      argumentObligations:
+        - obl-s1-simultaneity-definition
+
+  - id: s1-p1-s2
+    kind: sentence
+    section: s1
+    containedIn: s1-p1
+    locators:
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-s1-p1-s2
+      translationUnits:
+        - s1-p1-s2
+      argumentObligations:
+        - obl-s1-simultaneity-definition
+
   - id: s1-p2
     kind: paragraph
     section: s1
@@ -137,6 +308,18 @@ units:
       editionBlockId: block-special-relativity-s1-p2
       translationUnits:
         - trans-special-relativity-s1-p2
+
+  - id: s1-p2-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p2
+    locators:
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-s1-p2-s1
+      translationUnits:
+        - s1-p2-s1
+
   - id: s1-p3
     kind: paragraph
     section: s1
@@ -147,6 +330,51 @@ units:
       editionBlockId: block-special-relativity-s1-p3
       translationUnits:
         - trans-special-relativity-s1-p3
+
+  - id: s1-p3-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p3
+    locators:
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-s1-p3-s1
+      translationUnits:
+        - s1-p3-s1
+
+  - id: s1-p3-s2
+    kind: sentence
+    section: s1
+    containedIn: s1-p3
+    locators:
+      - page: 892
+    destination:
+      editionBlockId: block-special-relativity-s1-p3-s2
+      translationUnits:
+        - s1-p3-s2
+
+  - id: s1-p3-s3
+    kind: sentence
+    section: s1
+    containedIn: s1-p3
+    locators:
+      - page: 893
+    destination:
+      editionBlockId: block-special-relativity-s1-p3-s3
+      translationUnits:
+        - s1-p3-s3
+
+  - id: s1-p3-s4
+    kind: sentence
+    section: s1
+    containedIn: s1-p3
+    locators:
+      - page: 893
+    destination:
+      editionBlockId: block-special-relativity-s1-p3-s4
+      translationUnits:
+        - s1-p3-s4
+
   - id: s1-fn1
     kind: footnote
     section: s1
@@ -168,6 +396,29 @@ units:
       editionBlockId: block-special-relativity-s1-p5
       translationUnits:
         - trans-special-relativity-s1-p5
+
+  - id: s1-p5-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p5
+    locators:
+      - page: 893
+    destination:
+      editionBlockId: block-special-relativity-s1-p5-s1
+      translationUnits:
+        - s1-p5-s1
+
+  - id: s1-p5-s2
+    kind: sentence
+    section: s1
+    containedIn: s1-p5
+    locators:
+      - page: 893
+    destination:
+      editionBlockId: block-special-relativity-s1-p5-s2
+      translationUnits:
+        - s1-p5-s2
+
   - id: s1-p6
     kind: paragraph
     section: s1
@@ -177,6 +428,40 @@ units:
       editionBlockId: block-special-relativity-s1-p6
       translationUnits:
         - trans-special-relativity-s1-p6
+
+  - id: s1-p6-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p6
+    locators:
+      - page: 893
+    destination:
+      editionBlockId: block-special-relativity-s1-p6-s1
+      translationUnits:
+        - s1-p6-s1
+
+  - id: s1-p6-s2
+    kind: sentence
+    section: s1
+    containedIn: s1-p6
+    locators:
+      - page: 893
+    destination:
+      editionBlockId: block-special-relativity-s1-p6-s2
+      translationUnits:
+        - s1-p6-s2
+
+  - id: s1-p6-s3
+    kind: sentence
+    section: s1
+    containedIn: s1-p6
+    locators:
+      - page: 893
+    destination:
+      editionBlockId: block-special-relativity-s1-p6-s3
+      translationUnits:
+        - s1-p6-s3
+
   - id: s1-p7
     kind: paragraph
     section: s1
@@ -187,6 +472,74 @@ units:
       editionBlockId: block-special-relativity-s1-p7
       translationUnits:
         - trans-special-relativity-s1-p7
+
+  - id: s1-p7-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p7
+    locators:
+      - page: 893
+    destination:
+      editionBlockId: block-special-relativity-s1-p7-s1
+      translationUnits:
+        - s1-p7-s1
+
+  - id: s1-p7-s2
+    kind: sentence
+    section: s1
+    containedIn: s1-p7
+    locators:
+      - page: 893
+      - page: 894
+    destination:
+      editionBlockId: block-special-relativity-s1-p7-s2
+      translationUnits:
+        - s1-p7-s2
+
+  - id: s1-p7-s3
+    kind: sentence
+    section: s1
+    containedIn: s1-p7
+    locators:
+      - page: 894
+    destination:
+      editionBlockId: block-special-relativity-s1-p7-s3
+      translationUnits:
+        - s1-p7-s3
+
+  - id: s1-p7-s4
+    kind: sentence
+    section: s1
+    containedIn: s1-p7
+    locators:
+      - page: 894
+    destination:
+      editionBlockId: block-special-relativity-s1-p7-s4
+      translationUnits:
+        - s1-p7-s4
+
+  - id: s1-p7-s5
+    kind: sentence
+    section: s1
+    containedIn: s1-p7
+    locators:
+      - page: 894
+    destination:
+      editionBlockId: block-special-relativity-s1-p7-s5
+      translationUnits:
+        - s1-p7-s5
+
+  - id: s1-p7-s6
+    kind: sentence
+    section: s1
+    containedIn: s1-p7
+    locators:
+      - page: 894
+    destination:
+      editionBlockId: block-special-relativity-s1-p7-s6
+      translationUnits:
+        - s1-p7-s6
+
   - id: eq-s1-d1
     kind: display-equation
     section: s1
@@ -207,6 +560,40 @@ units:
       editionBlockId: block-special-relativity-s1-p8
       translationUnits:
         - trans-special-relativity-s1-p8
+
+  - id: s1-p8-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p8
+    locators:
+      - page: 894
+    destination:
+      editionBlockId: block-special-relativity-s1-p8-s1
+      translationUnits:
+        - s1-p8-s1
+
+  - id: s1-p8-s2
+    kind: sentence
+    section: s1
+    containedIn: s1-p8
+    locators:
+      - page: 894
+    destination:
+      editionBlockId: block-special-relativity-s1-p8-s2
+      translationUnits:
+        - s1-p8-s2
+
+  - id: s1-p8-s3
+    kind: sentence
+    section: s1
+    containedIn: s1-p8
+    locators:
+      - page: 894
+    destination:
+      editionBlockId: block-special-relativity-s1-p8-s3
+      translationUnits:
+        - s1-p8-s3
+
   - id: s1-p9
     kind: paragraph
     section: s1
@@ -216,6 +603,29 @@ units:
       editionBlockId: block-special-relativity-s1-p9
       translationUnits:
         - trans-special-relativity-s1-p9
+
+  - id: s1-p9-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p9
+    locators:
+      - page: 894
+    destination:
+      editionBlockId: block-special-relativity-s1-p9-s1
+      translationUnits:
+        - s1-p9-s1
+
+  - id: s1-p9-s2
+    kind: sentence
+    section: s1
+    containedIn: s1-p9
+    locators:
+      - page: 894
+    destination:
+      editionBlockId: block-special-relativity-s1-p9-s2
+      translationUnits:
+        - s1-p9-s2
+
   - id: s1-p10
     kind: paragraph
     section: s1
@@ -225,6 +635,19 @@ units:
       editionBlockId: block-special-relativity-s1-p10
       translationUnits:
         - trans-special-relativity-s1-p10
+
+  - id: s1-p10-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p10
+    locators:
+      - page: 894
+    destination:
+      editionBlockId: block-special-relativity-s1-p10-s1
+      translationUnits:
+        - s1-p10-s1a
+        - s1-p10-s1b
+
   - id: eq-s1-d2
     kind: display-equation
     section: s1
@@ -246,6 +669,19 @@ units:
       editionBlockId: block-special-relativity-s1-p11
       translationUnits:
         - trans-special-relativity-s1-p11
+
+  - id: s1-p11-s1
+    kind: sentence
+    section: s1
+    containedIn: s1-p11
+    locators:
+      - page: 894
+      - page: 895
+    destination:
+      editionBlockId: block-special-relativity-s1-p11-s1
+      translationUnits:
+        - s1-p11-s1
+
   - id: s2
     kind: section-heading
     section: s2
@@ -273,6 +709,60 @@ units:
         - trans-special-relativity-s2-p1
       argumentObligations:
         - obl-s2-relativity-lengths-times
+
+  - id: s2-p1-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p1
+    locators:
+      - page: 895
+    destination:
+      editionBlockId: block-special-relativity-s2-p1-s1
+      translationUnits:
+        - s2-p1-s1
+      argumentObligations:
+        - obl-s2-relativity-lengths-times
+
+  - id: s2-p1-s2
+    kind: sentence
+    section: s2
+    containedIn: s2-p1
+    locators:
+      - page: 895
+    destination:
+      editionBlockId: block-special-relativity-s2-p1-s2
+      translationUnits:
+        - s2-p1-s2
+      argumentObligations:
+        - obl-s2-relativity-lengths-times
+
+  - id: s2-p1-s3
+    kind: sentence
+    section: s2
+    containedIn: s2-p1
+    locators:
+      - page: 895
+    destination:
+      editionBlockId: block-special-relativity-s2-p1-s3
+      translationUnits:
+        - s2-p1-s3
+      argumentObligations:
+        - obl-s2-relativity-lengths-times
+
+  - id: s2-p1-s4
+    kind: sentence
+    section: s2
+    containedIn: s2-p1
+    locators:
+      - page: 895
+    destination:
+      editionBlockId: block-special-relativity-s2-p1-s4
+      translationUnits:
+        - s2-p1-s4a
+        - s2-p1-s4b
+      argumentObligations:
+        - obl-s2-relativity-lengths-times
+
   - id: eq-s2-d1
     kind: display-equation
     section: s2
@@ -301,6 +791,74 @@ units:
       editionBlockId: block-special-relativity-s2-p2
       translationUnits:
         - trans-special-relativity-s2-p2
+
+  - id: s2-p2-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p2
+    locators:
+      - page: 895
+    destination:
+      editionBlockId: block-special-relativity-s2-p2-s1
+      translationUnits:
+        - s2-p2-s1
+
+  - id: s2-p2-s2
+    kind: sentence
+    section: s2
+    containedIn: s2-p2
+    locators:
+      - page: 895
+    destination:
+      editionBlockId: block-special-relativity-s2-p2-s2
+      translationUnits:
+        - s2-p2-s2
+
+  - id: s2-p2-s3
+    kind: sentence
+    section: s2
+    containedIn: s2-p2
+    locators:
+      - page: 895
+    destination:
+      editionBlockId: block-special-relativity-s2-p2-s3
+      translationUnits:
+        - s2-p2-s3
+
+  - id: s2-p2-s4
+    kind: sentence
+    section: s2
+    containedIn: s2-p2
+    locators:
+      - page: 895
+    destination:
+      editionBlockId: block-special-relativity-s2-p2-s4
+      translationUnits:
+        - s2-p2-s4
+
+  - id: s2-p2-s5
+    kind: sentence
+    section: s2
+    containedIn: s2-p2
+    locators:
+      - page: 895
+    destination:
+      editionBlockId: block-special-relativity-s2-p2-s5
+      translationUnits:
+        - s2-p2-s5
+
+  - id: s2-p2-s6
+    kind: sentence
+    section: s2
+    containedIn: s2-p2
+    locators:
+      - page: 895
+      - page: 896
+    destination:
+      editionBlockId: block-special-relativity-s2-p2-s6
+      translationUnits:
+        - s2-p2-s6
+
   - id: s2-p3
     kind: paragraph
     section: s2
@@ -310,6 +868,18 @@ units:
       editionBlockId: block-special-relativity-s2-p3
       translationUnits:
         - trans-special-relativity-s2-p3
+
+  - id: s2-p3-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p3
+    locators:
+      - page: 896
+    destination:
+      editionBlockId: block-special-relativity-s2-p3-s1
+      translationUnits:
+        - s2-p3-s1
+
   - id: s2-p4
     kind: paragraph
     section: s2
@@ -319,6 +889,18 @@ units:
       editionBlockId: block-special-relativity-s2-p4
       translationUnits:
         - trans-special-relativity-s2-p4
+
+  - id: s2-p4-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p4
+    locators:
+      - page: 896
+    destination:
+      editionBlockId: block-special-relativity-s2-p4-s1
+      translationUnits:
+        - s2-p4-s1
+
   - id: s2-p5
     kind: paragraph
     section: s2
@@ -328,6 +910,18 @@ units:
       editionBlockId: block-special-relativity-s2-p5
       translationUnits:
         - trans-special-relativity-s2-p5
+
+  - id: s2-p5-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p5
+    locators:
+      - page: 896
+    destination:
+      editionBlockId: block-special-relativity-s2-p5-s1
+      translationUnits:
+        - s2-p5-s1
+
   - id: s2-p6
     kind: paragraph
     section: s2
@@ -337,6 +931,18 @@ units:
       editionBlockId: block-special-relativity-s2-p6
       translationUnits:
         - trans-special-relativity-s2-p6
+
+  - id: s2-p6-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p6
+    locators:
+      - page: 896
+    destination:
+      editionBlockId: block-special-relativity-s2-p6-s1
+      translationUnits:
+        - s2-p6-s1
+
   - id: s2-p7
     kind: paragraph
     section: s2
@@ -354,6 +960,54 @@ units:
       editionBlockId: block-special-relativity-s2-p7
       translationUnits:
         - trans-special-relativity-s2-p7
+
+  - id: s2-p7-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p7
+    locators:
+      - page: 896
+    destination:
+      editionBlockId: block-special-relativity-s2-p7-s1
+      translationUnits:
+        - s2-p7-s1
+
+  - id: s2-p7-s2
+    kind: sentence
+    section: s2
+    containedIn: s2-p7
+    locators:
+      - page: 896
+    destination:
+      editionBlockId: block-special-relativity-s2-p7-s2
+      translationUnits:
+        - s2-p7-s2
+
+  - id: s2-p7-s3
+    kind: sentence
+    section: s2
+    containedIn: s2-p7
+    locators:
+      - page: 896
+      - page: 897
+    destination:
+      editionBlockId: block-special-relativity-s2-p7-s3
+      translationUnits:
+        - s2-p7-s3a
+        - s2-p7-s3b
+        - s2-p7-s3c
+
+  - id: s2-p7-s4
+    kind: sentence
+    section: s2
+    containedIn: s2-p7
+    locators:
+      - page: 897
+    destination:
+      editionBlockId: block-special-relativity-s2-p7-s4
+      translationUnits:
+        - s2-p7-s4
+
   - id: s2-fn1
     kind: footnote
     section: s2
@@ -397,6 +1051,18 @@ units:
       editionBlockId: block-special-relativity-s2-p8
       translationUnits:
         - trans-special-relativity-s2-p8
+
+  - id: s2-p8-s1
+    kind: sentence
+    section: s2
+    containedIn: s2-p8
+    locators:
+      - page: 897
+    destination:
+      editionBlockId: block-special-relativity-s2-p8-s1
+      translationUnits:
+        - s2-p8-s1
+
   - id: s3
     kind: section-heading
     section: s3
@@ -417,6 +1083,46 @@ units:
         - trans-special-relativity-s3-p1
       argumentObligations:
         - obl-s3-coordinate-transformation
+
+  - id: s3-p1-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p1
+    locators:
+      - page: 897
+    destination:
+      editionBlockId: block-special-relativity-s3-p1-s1
+      translationUnits:
+        - s3-p1-s1
+      argumentObligations:
+        - obl-s3-coordinate-transformation
+
+  - id: s3-p1-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p1
+    locators:
+      - page: 897
+    destination:
+      editionBlockId: block-special-relativity-s3-p1-s2
+      translationUnits:
+        - s3-p1-s2
+      argumentObligations:
+        - obl-s3-coordinate-transformation
+
+  - id: s3-p1-s3
+    kind: sentence
+    section: s3
+    containedIn: s3-p1
+    locators:
+      - page: 897
+    destination:
+      editionBlockId: block-special-relativity-s3-p1-s3
+      translationUnits:
+        - s3-p1-s3
+      argumentObligations:
+        - obl-s3-coordinate-transformation
+
   - id: s3-p2
     kind: paragraph
     section: s3
@@ -426,6 +1132,29 @@ units:
       editionBlockId: block-special-relativity-s3-p2
       translationUnits:
         - trans-special-relativity-s3-p2
+
+  - id: s3-p2-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p2
+    locators:
+      - page: 897
+    destination:
+      editionBlockId: block-special-relativity-s3-p2-s1
+      translationUnits:
+        - s3-p2-s1
+
+  - id: s3-p2-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p2
+    locators:
+      - page: 897
+    destination:
+      editionBlockId: block-special-relativity-s3-p2-s2
+      translationUnits:
+        - s3-p2-s2
+
   - id: s3-p3
     kind: paragraph
     section: s3
@@ -449,6 +1178,30 @@ units:
       editionBlockId: block-special-relativity-s3-p3
       translationUnits:
         - trans-special-relativity-s3-p3
+
+  - id: s3-p3-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p3
+    locators:
+      - page: 897
+      - page: 898
+    destination:
+      editionBlockId: block-special-relativity-s3-p3-s1
+      translationUnits:
+        - s3-p3-s1
+
+  - id: s3-p3-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p3
+    locators:
+      - page: 898
+    destination:
+      editionBlockId: block-special-relativity-s3-p3-s2
+      translationUnits:
+        - s3-p3-s2
+
   - id: s3-p4
     kind: paragraph
     section: s3
@@ -458,6 +1211,18 @@ units:
       editionBlockId: block-special-relativity-s3-p4
       translationUnits:
         - trans-special-relativity-s3-p4
+
+  - id: s3-p4-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p4
+    locators:
+      - page: 898
+    destination:
+      editionBlockId: block-special-relativity-s3-p4-s1
+      translationUnits:
+        - s3-p4-s1
+
   - id: s3-p5
     kind: paragraph
     section: s3
@@ -467,6 +1232,18 @@ units:
       editionBlockId: block-special-relativity-s3-p5
       translationUnits:
         - trans-special-relativity-s3-p5
+
+  - id: s3-p5-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p5
+    locators:
+      - page: 898
+    destination:
+      editionBlockId: block-special-relativity-s3-p5-s1
+      translationUnits:
+        - s3-p5-s1
+
   - id: s3-p6
     kind: paragraph
     section: s3
@@ -483,6 +1260,40 @@ units:
       editionBlockId: block-special-relativity-s3-p6
       translationUnits:
         - trans-special-relativity-s3-p6
+
+  - id: s3-p6-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p6
+    locators:
+      - page: 898
+    destination:
+      editionBlockId: block-special-relativity-s3-p6-s1
+      translationUnits:
+        - s3-p6-s1
+
+  - id: s3-p6-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p6
+    locators:
+      - page: 898
+    destination:
+      editionBlockId: block-special-relativity-s3-p6-s2
+      translationUnits:
+        - s3-p6-s2
+
+  - id: s3-p6-s3
+    kind: sentence
+    section: s3
+    containedIn: s3-p6
+    locators:
+      - page: 898
+    destination:
+      editionBlockId: block-special-relativity-s3-p6-s3
+      translationUnits:
+        - s3-p6-s3
+
   - id: s3-p7
     kind: paragraph
     section: s3
@@ -493,6 +1304,32 @@ units:
       editionBlockId: block-special-relativity-s3-p7
       translationUnits:
         - trans-special-relativity-s3-p7
+
+  - id: s3-p7-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p7
+    locators:
+      - page: 898
+    destination:
+      editionBlockId: block-special-relativity-s3-p7-s1
+      translationUnits:
+        - s3-p7-s1a
+        - s3-p7-s1b
+
+  - id: s3-p7-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p7
+    locators:
+      - page: 898
+      - page: 899
+    destination:
+      editionBlockId: block-special-relativity-s3-p7-s2
+      translationUnits:
+        - s3-p7-s2a
+        - s3-p7-s2b
+
   - id: eq-s3-d1
     kind: display-equation
     section: s3
@@ -546,6 +1383,18 @@ units:
       editionBlockId: block-special-relativity-s3-p9
       translationUnits:
         - trans-special-relativity-s3-p9
+
+  - id: s3-p9-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p9
+    locators:
+      - page: 899
+    destination:
+      editionBlockId: block-special-relativity-s3-p9-s1
+      translationUnits:
+        - s3-p9-s1
+
   - id: s3-p10
     kind: paragraph
     section: s3
@@ -555,6 +1404,30 @@ units:
       editionBlockId: block-special-relativity-s3-p10
       translationUnits:
         - trans-special-relativity-s3-p10
+
+  - id: s3-p10-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p10
+    locators:
+      - page: 899
+    destination:
+      editionBlockId: block-special-relativity-s3-p10-s1
+      translationUnits:
+        - s3-p10-s1
+
+  - id: s3-p10-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p10
+    locators:
+      - page: 899
+    destination:
+      editionBlockId: block-special-relativity-s3-p10-s2
+      translationUnits:
+        - s3-p10-s2a
+        - s3-p10-s2b
+
   - id: eq-s3-d5
     kind: display-equation
     section: s3
@@ -587,6 +1460,67 @@ units:
       editionBlockId: block-special-relativity-s3-p12
       translationUnits:
         - trans-special-relativity-s3-p12
+
+  - id: s3-p12-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p12
+    locators:
+      - page: 899
+    destination:
+      editionBlockId: block-special-relativity-s3-p12-s1
+      translationUnits:
+        - s3-p12-s1
+
+  - id: s3-p12-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p12
+    locators:
+      - page: 899
+    destination:
+      editionBlockId: block-special-relativity-s3-p12-s2
+      translationUnits:
+        - s3-p12-s2a
+        - s3-p12-s2b
+
+  - id: s3-p12-s3
+    kind: sentence
+    section: s3
+    containedIn: s3-p12
+    locators:
+      - page: 899
+      - page: 900
+    destination:
+      editionBlockId: block-special-relativity-s3-p12-s3
+      translationUnits:
+        - s3-p12-s3
+
+  - id: s3-p12-s4
+    kind: sentence
+    section: s3
+    containedIn: s3-p12
+    locators:
+      - page: 900
+    destination:
+      editionBlockId: block-special-relativity-s3-p12-s4
+      translationUnits:
+        - s3-p12-s4
+
+  - id: s3-p12-s5
+    kind: sentence
+    section: s3
+    containedIn: s3-p12
+    locators:
+      - page: 900
+    destination:
+      editionBlockId: block-special-relativity-s3-p12-s5
+      translationUnits:
+        - s3-p12-s5a
+        - s3-p12-s5b
+        - s3-p12-s5c
+        - s3-p12-s5d
+
   - id: eq-s3-d7
     kind: display-equation
     section: s3
@@ -640,6 +1574,31 @@ units:
       editionBlockId: block-special-relativity-s3-p14
       translationUnits:
         - trans-special-relativity-s3-p14
+
+  - id: s3-p14-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p14
+    locators:
+      - page: 900
+    destination:
+      editionBlockId: block-special-relativity-s3-p14-s1
+      translationUnits:
+        - s3-p14-s1a
+        - s3-p14-s1b
+        - s3-p14-s1c
+
+  - id: s3-p14-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p14
+    locators:
+      - page: 900
+    destination:
+      editionBlockId: block-special-relativity-s3-p14-s2
+      translationUnits:
+        - s3-p14-s2
+
   - id: eq-s3-d11
     kind: display-equation
     section: s3
@@ -716,6 +1675,19 @@ units:
       editionBlockId: block-special-relativity-s3-p15
       translationUnits:
         - trans-special-relativity-s3-p15
+
+  - id: s3-p15-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p15
+    locators:
+      - page: 900
+      - page: 901
+    destination:
+      editionBlockId: block-special-relativity-s3-p15-s1
+      translationUnits:
+        - s3-p15-s1
+
   - id: s3-p16
     kind: paragraph
     section: s3
@@ -725,6 +1697,29 @@ units:
       editionBlockId: block-special-relativity-s3-p16
       translationUnits:
         - trans-special-relativity-s3-p16
+
+  - id: s3-p16-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p16
+    locators:
+      - page: 901
+    destination:
+      editionBlockId: block-special-relativity-s3-p16-s1
+      translationUnits:
+        - s3-p16-s1
+
+  - id: s3-p16-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p16
+    locators:
+      - page: 901
+    destination:
+      editionBlockId: block-special-relativity-s3-p16-s2
+      translationUnits:
+        - s3-p16-s2
+
   - id: eq-s3-d17
     kind: display-equation
     section: s3
@@ -757,6 +1752,17 @@ units:
       translationUnits:
         - trans-special-relativity-s3-p20
 
+  - id: s3-p20-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p20
+    locators:
+      - page: 901
+    destination:
+      editionBlockId: block-special-relativity-s3-p20-s1
+      translationUnits:
+        - s3-p20-s1
+
   - id: s3-p17
     kind: paragraph
     section: s3
@@ -766,6 +1772,29 @@ units:
       editionBlockId: block-special-relativity-s3-p17
       translationUnits:
         - trans-special-relativity-s3-p17
+
+  - id: s3-p17-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p17
+    locators:
+      - page: 901
+    destination:
+      editionBlockId: block-special-relativity-s3-p17-s1
+      translationUnits:
+        - s3-p17-s1
+
+  - id: s3-p17-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p17
+    locators:
+      - page: 901
+    destination:
+      editionBlockId: block-special-relativity-s3-p17-s2
+      translationUnits:
+        - s3-p17-s2
+
   - id: s3-p21
     kind: paragraph
     section: s3
@@ -776,6 +1805,17 @@ units:
       translationUnits:
         - trans-special-relativity-s3-p21
 
+  - id: s3-p21-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p21
+    locators:
+      - page: 901
+    destination:
+      editionBlockId: block-special-relativity-s3-p21-s1
+      translationUnits:
+        - s3-p21-s1
+
   - id: s3-p18
     kind: paragraph
     section: s3
@@ -785,6 +1825,40 @@ units:
       editionBlockId: block-special-relativity-s3-p18
       translationUnits:
         - trans-special-relativity-s3-p18
+
+  - id: s3-p18-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p18
+    locators:
+      - page: 901
+    destination:
+      editionBlockId: block-special-relativity-s3-p18-s1
+      translationUnits:
+        - s3-p18-s1
+
+  - id: s3-p18-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p18
+    locators:
+      - page: 901
+    destination:
+      editionBlockId: block-special-relativity-s3-p18-s2
+      translationUnits:
+        - s3-p18-s2
+
+  - id: s3-p18-s3
+    kind: sentence
+    section: s3
+    containedIn: s3-p18
+    locators:
+      - page: 901
+    destination:
+      editionBlockId: block-special-relativity-s3-p18-s3
+      translationUnits:
+        - s3-p18-s3
+
   - id: eq-s3-d19
     kind: display-equation
     section: s3
@@ -806,6 +1880,120 @@ units:
       editionBlockId: block-special-relativity-s3-p22
       translationUnits:
         - trans-special-relativity-s3-p22
+
+  - id: s3-p22-s1
+    kind: sentence
+    section: s3
+    containedIn: s3-p22
+    locators:
+      - page: 901
+      - page: 902
+    destination:
+      editionBlockId: block-special-relativity-s3-p22-s1
+      translationUnits:
+        - s3-p22-s1
+
+  - id: s3-p22-s2
+    kind: sentence
+    section: s3
+    containedIn: s3-p22
+    locators:
+      - page: 902
+    destination:
+      editionBlockId: block-special-relativity-s3-p22-s2
+      translationUnits:
+        - s3-p22-s2
+
+  - id: s3-p22-s3
+    kind: sentence
+    section: s3
+    containedIn: s3-p22
+    locators:
+      - page: 902
+    destination:
+      editionBlockId: block-special-relativity-s3-p22-s3
+      translationUnits:
+        - s3-p22-s3
+
+  - id: s3-p22-s4
+    kind: sentence
+    section: s3
+    containedIn: s3-p22
+    locators:
+      - page: 902
+    destination:
+      editionBlockId: block-special-relativity-s3-p22-s4
+      translationUnits:
+        - s3-p22-s4
+
+  - id: s3-p22-s5
+    kind: sentence
+    section: s3
+    containedIn: s3-p22
+    locators:
+      - page: 902
+    destination:
+      editionBlockId: block-special-relativity-s3-p22-s5
+      translationUnits:
+        - s3-p22-s5a
+        - s3-p22-s5b
+
+  - id: s3-p22-s6
+    kind: sentence
+    section: s3
+    containedIn: s3-p22
+    locators:
+      - page: 902
+    destination:
+      editionBlockId: block-special-relativity-s3-p22-s6
+      translationUnits:
+        - s3-p22-s6
+
+  - id: s3-p22-s7
+    kind: sentence
+    section: s3
+    containedIn: s3-p22
+    locators:
+      - page: 902
+    destination:
+      editionBlockId: block-special-relativity-s3-p22-s7
+      translationUnits:
+        - s3-p22-s7
+
+  - id: s3-p22-s8
+    kind: sentence
+    section: s3
+    containedIn: s3-p22
+    locators:
+      - page: 902
+    destination:
+      editionBlockId: block-special-relativity-s3-p22-s8
+      translationUnits:
+        - s3-p22-s8
+
+  - id: s3-p22-s9
+    kind: sentence
+    section: s3
+    containedIn: s3-p22
+    locators:
+      - page: 902
+    destination:
+      editionBlockId: block-special-relativity-s3-p22-s9
+      translationUnits:
+        - s3-p22-s9a
+        - s3-p22-s9b
+
+  - id: s3-p22-s10
+    kind: sentence
+    section: s3
+    containedIn: s3-p22
+    locators:
+      - page: 902
+    destination:
+      editionBlockId: block-special-relativity-s3-p22-s10
+      translationUnits:
+        - s3-p22-s10a
+        - s3-p22-s10b
 
   - id: eq-s3-d20
     kind: display-equation
@@ -904,6 +2092,59 @@ units:
         - trans-special-relativity-s4-p1
       argumentObligations:
         - obl-s4-physical-meaning
+
+  - id: s4-p1-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p1
+    locators:
+      - page: 903
+    destination:
+      editionBlockId: block-special-relativity-s4-p1-s1
+      translationUnits:
+        - s4-p1-s1
+      argumentObligations:
+        - obl-s4-physical-meaning
+
+  - id: s4-p1-s2
+    kind: sentence
+    section: s4
+    containedIn: s4-p1
+    locators:
+      - page: 903
+    destination:
+      editionBlockId: block-special-relativity-s4-p1-s2
+      translationUnits:
+        - s4-p1-s2
+      argumentObligations:
+        - obl-s4-physical-meaning
+
+  - id: s4-p1-s3
+    kind: sentence
+    section: s4
+    containedIn: s4-p1
+    locators:
+      - page: 903
+    destination:
+      editionBlockId: block-special-relativity-s4-p1-s3
+      translationUnits:
+        - s4-p1-s3
+      argumentObligations:
+        - obl-s4-physical-meaning
+
+  - id: s4-p1-s4
+    kind: sentence
+    section: s4
+    containedIn: s4-p1
+    locators:
+      - page: 903
+    destination:
+      editionBlockId: block-special-relativity-s4-p1-s4
+      translationUnits:
+        - s4-p1-s4
+      argumentObligations:
+        - obl-s4-physical-meaning
+
   - id: s4-fn1
     kind: footnote
     section: s4
@@ -958,6 +2199,40 @@ units:
       editionBlockId: block-special-relativity-s4-p3
       translationUnits:
         - trans-special-relativity-s4-p3
+
+  - id: s4-p3-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p3
+    locators:
+      - page: 903
+    destination:
+      editionBlockId: block-special-relativity-s4-p3-s1
+      translationUnits:
+        - s4-p3-s1
+
+  - id: s4-p3-s2
+    kind: sentence
+    section: s4
+    containedIn: s4-p3
+    locators:
+      - page: 903
+    destination:
+      editionBlockId: block-special-relativity-s4-p3-s2
+      translationUnits:
+        - s4-p3-s2
+
+  - id: s4-p3-s3
+    kind: sentence
+    section: s4
+    containedIn: s4-p3
+    locators:
+      - page: 903
+    destination:
+      editionBlockId: block-special-relativity-s4-p3-s3
+      translationUnits:
+        - s4-p3-s3
+
   - id: s4-p4
     kind: paragraph
     section: s4
@@ -967,6 +2242,18 @@ units:
       editionBlockId: block-special-relativity-s4-p4
       translationUnits:
         - trans-special-relativity-s4-p4
+
+  - id: s4-p4-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p4
+    locators:
+      - page: 903
+    destination:
+      editionBlockId: block-special-relativity-s4-p4-s1
+      translationUnits:
+        - s4-p4-s1
+
   - id: s4-p5
     kind: paragraph
     section: s4
@@ -977,6 +2264,30 @@ units:
       editionBlockId: block-special-relativity-s4-p5
       translationUnits:
         - trans-special-relativity-s4-p5
+
+  - id: s4-p5-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p5
+    locators:
+      - page: 903
+      - page: 904
+    destination:
+      editionBlockId: block-special-relativity-s4-p5-s1
+      translationUnits:
+        - s4-p5-s1
+
+  - id: s4-p5-s2
+    kind: sentence
+    section: s4
+    containedIn: s4-p5
+    locators:
+      - page: 904
+    destination:
+      editionBlockId: block-special-relativity-s4-p5-s2
+      translationUnits:
+        - s4-p5-s2
+
   - id: s4-p9
     kind: paragraph
     section: s4
@@ -986,6 +2297,30 @@ units:
       editionBlockId: block-special-relativity-s4-p9
       translationUnits:
         - trans-special-relativity-s4-p9
+
+  - id: s4-p9-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p9
+    locators:
+      - page: 904
+    destination:
+      editionBlockId: block-special-relativity-s4-p9-s1
+      translationUnits:
+        - s4-p9-s1a
+        - s4-p9-s1b
+
+  - id: s4-p9-s2
+    kind: sentence
+    section: s4
+    containedIn: s4-p9
+    locators:
+      - page: 904
+    destination:
+      editionBlockId: block-special-relativity-s4-p9-s2
+      translationUnits:
+        - s4-p9-s2a
+        - s4-p9-s2b
 
   - id: eq-s4-d4
     kind: display-equation
@@ -1029,6 +2364,29 @@ units:
       editionBlockId: block-special-relativity-s4-p6
       translationUnits:
         - trans-special-relativity-s4-p6
+
+  - id: s4-p6-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p6
+    locators:
+      - page: 904
+    destination:
+      editionBlockId: block-special-relativity-s4-p6-s1
+      translationUnits:
+        - s4-p6-s1
+
+  - id: s4-p6-s2
+    kind: sentence
+    section: s4
+    containedIn: s4-p6
+    locators:
+      - page: 904
+    destination:
+      editionBlockId: block-special-relativity-s4-p6-s2
+      translationUnits:
+        - s4-p6-s2
+
   - id: s4-p7
     kind: paragraph
     section: s4
@@ -1038,6 +2396,18 @@ units:
       editionBlockId: block-special-relativity-s4-p7
       translationUnits:
         - trans-special-relativity-s4-p7
+
+  - id: s4-p7-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p7
+    locators:
+      - page: 904
+    destination:
+      editionBlockId: block-special-relativity-s4-p7-s1
+      translationUnits:
+        - s4-p7-s1
+
   - id: s4-p8
     kind: paragraph
     section: s4
@@ -1048,6 +2418,30 @@ units:
       editionBlockId: block-special-relativity-s4-p8
       translationUnits:
         - trans-special-relativity-s4-p8
+
+  - id: s4-p8-s1
+    kind: sentence
+    section: s4
+    containedIn: s4-p8
+    locators:
+      - page: 904
+      - page: 905
+    destination:
+      editionBlockId: block-special-relativity-s4-p8-s1
+      translationUnits:
+        - s4-p8-s1
+
+  - id: s4-p8-s2
+    kind: sentence
+    section: s4
+    containedIn: s4-p8
+    locators:
+      - page: 905
+    destination:
+      editionBlockId: block-special-relativity-s4-p8-s2
+      translationUnits:
+        - s4-p8-s2
+
   - id: s5
     kind: section-heading
     section: s5
@@ -1068,6 +2462,21 @@ units:
         - trans-special-relativity-s5-p1
       argumentObligations:
         - obl-s5-velocity-addition
+
+  - id: s5-p1-s1
+    kind: sentence
+    section: s5
+    containedIn: s5-p1
+    locators:
+      - page: 905
+    destination:
+      editionBlockId: block-special-relativity-s5-p1-s1
+      translationUnits:
+        - s5-p1-s1a
+        - s5-p1-s1b
+      argumentObligations:
+        - obl-s5-velocity-addition
+
   - id: eq-s5-d1
     kind: display-equation
     section: s5
@@ -1096,6 +2505,109 @@ units:
       editionBlockId: block-special-relativity-s5-p2
       translationUnits:
         - trans-special-relativity-s5-p2
+
+  - id: s5-p2-s1
+    kind: sentence
+    section: s5
+    containedIn: s5-p2
+    locators:
+      - page: 905
+    destination:
+      editionBlockId: block-special-relativity-s5-p2-s1
+      translationUnits:
+        - s5-p2-s1
+
+  - id: s5-p2-s2
+    kind: sentence
+    section: s5
+    containedIn: s5-p2
+    locators:
+      - page: 905
+    destination:
+      editionBlockId: block-special-relativity-s5-p2-s2
+      translationUnits:
+        - s5-p2-s2
+
+  - id: s5-p2-s3
+    kind: sentence
+    section: s5
+    containedIn: s5-p2
+    locators:
+      - page: 905
+    destination:
+      editionBlockId: block-special-relativity-s5-p2-s3
+      translationUnits:
+        - s5-p2-s3
+
+  - id: s5-p2-s4
+    kind: sentence
+    section: s5
+    containedIn: s5-p2
+    locators:
+      - page: 905
+      - page: 906
+    destination:
+      editionBlockId: block-special-relativity-s5-p2-s4
+      translationUnits:
+        - s5-p2-s4a
+        - s5-p2-s4b
+        - s5-p2-s4c
+
+  - id: s5-p2-s5
+    kind: sentence
+    section: s5
+    containedIn: s5-p2
+    locators:
+      - page: 906
+    destination:
+      editionBlockId: block-special-relativity-s5-p2-s5
+      translationUnits:
+        - s5-p2-s5
+
+  - id: s5-p2-s6
+    kind: sentence
+    section: s5
+    containedIn: s5-p2
+    locators:
+      - page: 906
+    destination:
+      editionBlockId: block-special-relativity-s5-p2-s6
+      translationUnits:
+        - s5-p2-s6
+
+  - id: s5-p2-s7
+    kind: sentence
+    section: s5
+    containedIn: s5-p2
+    locators:
+      - page: 906
+    destination:
+      editionBlockId: block-special-relativity-s5-p2-s7
+      translationUnits:
+        - s5-p2-s7
+
+  - id: s5-p2-s8
+    kind: sentence
+    section: s5
+    containedIn: s5-p2
+    locators:
+      - page: 906
+    destination:
+      editionBlockId: block-special-relativity-s5-p2-s8
+      translationUnits:
+        - s5-p2-s8
+
+  - id: s5-p2-s9
+    kind: sentence
+    section: s5
+    containedIn: s5-p2
+    locators:
+      - page: 906
+    destination:
+      editionBlockId: block-special-relativity-s5-p2-s9
+      translationUnits:
+        - s5-p2-s9
+
   - id: eq-s5-d2
     kind: display-equation
     section: s5
@@ -1191,6 +2703,53 @@ units:
       editionBlockId: block-special-relativity-s5-p6
       translationUnits:
         - trans-special-relativity-s5-p6
+
+  - id: s5-p6-s1
+    kind: sentence
+    section: s5
+    containedIn: s5-p6
+    locators:
+      - page: 906
+    destination:
+      editionBlockId: block-special-relativity-s5-p6-s1
+      translationUnits:
+        - s5-p6-s1
+
+  - id: s5-p6-s2
+    kind: sentence
+    section: s5
+    containedIn: s5-p6
+    locators:
+      - page: 906
+    destination:
+      editionBlockId: block-special-relativity-s5-p6-s2
+      translationUnits:
+        - s5-p6-s2
+
+  - id: s5-p6-s3
+    kind: sentence
+    section: s5
+    containedIn: s5-p6
+    locators:
+      - page: 906
+    destination:
+      editionBlockId: block-special-relativity-s5-p6-s3
+      translationUnits:
+        - s5-p6-s3
+
+  - id: s5-p6-s4
+    kind: sentence
+    section: s5
+    containedIn: s5-p6
+    locators:
+      - page: 906
+      - page: 907
+    destination:
+      editionBlockId: block-special-relativity-s5-p6-s4
+      translationUnits:
+        - s5-p6-s4a
+        - s5-p6-s4b
+
   - id: eq-s5-d8
     kind: display-equation
     section: s5
@@ -1222,6 +2781,18 @@ units:
       editionBlockId: block-special-relativity-s5-p8
       translationUnits:
         - trans-special-relativity-s5-p8
+
+  - id: s5-p8-s1
+    kind: sentence
+    section: s5
+    containedIn: s5-p8
+    locators:
+      - page: 907
+    destination:
+      editionBlockId: block-special-relativity-s5-p8-s1
+      translationUnits:
+        - s5-p8-s1
+
   - id: part-2
     kind: part-heading
     locators:
@@ -1250,6 +2821,21 @@ units:
         - trans-special-relativity-s6-p1
       argumentObligations:
         - obl-s6-maxwell-hertz-transformation
+
+  - id: s6-p1-s1
+    kind: sentence
+    section: s6
+    containedIn: s6-p1
+    locators:
+      - page: 907
+    destination:
+      editionBlockId: block-special-relativity-s6-p1-s1
+      translationUnits:
+        - s6-p1-s1a
+        - s6-p1-s1b
+      argumentObligations:
+        - obl-s6-maxwell-hertz-transformation
+
   - id: eq-s6-d1
     kind: display-equation
     section: s6
@@ -1278,6 +2864,20 @@ units:
       editionBlockId: block-special-relativity-s6-p2
       translationUnits:
         - trans-special-relativity-s6-p2
+
+  - id: s6-p2-s1
+    kind: sentence
+    section: s6
+    containedIn: s6-p2
+    locators:
+      - page: 907
+      - page: 908
+    destination:
+      editionBlockId: block-special-relativity-s6-p2-s1
+      translationUnits:
+        - s6-p2-s1a
+        - s6-p2-s1b
+
   - id: eq-s6-d2
     kind: display-equation
     section: s6
@@ -1310,6 +2910,18 @@ units:
       editionBlockId: block-special-relativity-s6-p3
       translationUnits:
         - trans-special-relativity-s6-p3
+
+  - id: s6-p3-s1
+    kind: sentence
+    section: s6
+    containedIn: s6-p3
+    locators:
+      - page: 908
+    destination:
+      editionBlockId: block-special-relativity-s6-p3-s1
+      translationUnits:
+        - s6-p3-s1
+
   - id: eq-s6-d4
     kind: display-equation
     section: s6
@@ -1330,6 +2942,40 @@ units:
       editionBlockId: block-special-relativity-s6-p4
       translationUnits:
         - trans-special-relativity-s6-p4
+
+  - id: s6-p4-s1
+    kind: sentence
+    section: s6
+    containedIn: s6-p4
+    locators:
+      - page: 908
+    destination:
+      editionBlockId: block-special-relativity-s6-p4-s1
+      translationUnits:
+        - s6-p4-s1
+
+  - id: s6-p4-s2
+    kind: sentence
+    section: s6
+    containedIn: s6-p4
+    locators:
+      - page: 908
+    destination:
+      editionBlockId: block-special-relativity-s6-p4-s2
+      translationUnits:
+        - s6-p4-s2
+
+  - id: s6-p4-s3
+    kind: sentence
+    section: s6
+    containedIn: s6-p4
+    locators:
+      - page: 908
+    destination:
+      editionBlockId: block-special-relativity-s6-p4-s3
+      translationUnits:
+        - s6-p4-s3
+
   - id: eq-s6-d5
     kind: display-equation
     section: s6
@@ -1350,6 +2996,97 @@ units:
       editionBlockId: block-special-relativity-s6-p5
       translationUnits:
         - trans-special-relativity-s6-p5
+
+  - id: s6-p5-s1
+    kind: sentence
+    section: s6
+    containedIn: s6-p5
+    locators:
+      - page: 909
+    destination:
+      editionBlockId: block-special-relativity-s6-p5-s1
+      translationUnits:
+        - s6-p5-s1
+
+  - id: s6-p5-s2
+    kind: sentence
+    section: s6
+    containedIn: s6-p5
+    locators:
+      - page: 909
+    destination:
+      editionBlockId: block-special-relativity-s6-p5-s2
+      translationUnits:
+        - s6-p5-s2a
+        - s6-p5-s2b
+        - s6-p5-s2c
+
+  - id: s6-p5-s3
+    kind: sentence
+    section: s6
+    containedIn: s6-p5
+    locators:
+      - page: 909
+    destination:
+      editionBlockId: block-special-relativity-s6-p5-s3
+      translationUnits:
+        - s6-p5-s3
+
+  - id: s6-p5-s4
+    kind: sentence
+    section: s6
+    containedIn: s6-p5
+    locators:
+      - page: 909
+    destination:
+      editionBlockId: block-special-relativity-s6-p5-s4
+      translationUnits:
+        - s6-p5-s4
+
+  - id: s6-p5-s5
+    kind: sentence
+    section: s6
+    containedIn: s6-p5
+    locators:
+      - page: 909
+    destination:
+      editionBlockId: block-special-relativity-s6-p5-s5
+      translationUnits:
+        - s6-p5-s5
+
+  - id: s6-p5-s6
+    kind: sentence
+    section: s6
+    containedIn: s6-p5
+    locators:
+      - page: 909
+    destination:
+      editionBlockId: block-special-relativity-s6-p5-s6
+      translationUnits:
+        - s6-p5-s6
+
+  - id: s6-p5-s7
+    kind: sentence
+    section: s6
+    containedIn: s6-p5
+    locators:
+      - page: 909
+    destination:
+      editionBlockId: block-special-relativity-s6-p5-s7
+      translationUnits:
+        - s6-p5-s7
+
+  - id: s6-p5-s8
+    kind: sentence
+    section: s6
+    containedIn: s6-p5
+    locators:
+      - page: 909
+    destination:
+      editionBlockId: block-special-relativity-s6-p5-s8
+      translationUnits:
+        - s6-p5-s8
+
   - id: s6-fn1
     kind: footnote
     section: s6
@@ -1416,6 +3153,19 @@ units:
       editionBlockId: block-special-relativity-s6-p9
       translationUnits:
         - trans-special-relativity-s6-p9
+
+  - id: s6-p9-s1
+    kind: sentence
+    section: s6
+    containedIn: s6-p9
+    locators:
+      - page: 909
+      - page: 910
+    destination:
+      editionBlockId: block-special-relativity-s6-p9-s1
+      translationUnits:
+        - s6-p9-s1
+
   - id: s6-p10
     kind: paragraph
     section: s6
@@ -1425,6 +3175,18 @@ units:
       editionBlockId: block-special-relativity-s6-p10
       translationUnits:
         - trans-special-relativity-s6-p10
+
+  - id: s6-p10-s1
+    kind: sentence
+    section: s6
+    containedIn: s6-p10
+    locators:
+      - page: 910
+    destination:
+      editionBlockId: block-special-relativity-s6-p10-s1
+      translationUnits:
+        - s6-p10-s1
+
   - id: s6-p7
     kind: paragraph
     section: s6
@@ -1434,6 +3196,29 @@ units:
       editionBlockId: block-special-relativity-s6-p7
       translationUnits:
         - trans-special-relativity-s6-p7
+
+  - id: s6-p7-s1
+    kind: sentence
+    section: s6
+    containedIn: s6-p7
+    locators:
+      - page: 910
+    destination:
+      editionBlockId: block-special-relativity-s6-p7-s1
+      translationUnits:
+        - s6-p7-s1
+
+  - id: s6-p7-s2
+    kind: sentence
+    section: s6
+    containedIn: s6-p7
+    locators:
+      - page: 910
+    destination:
+      editionBlockId: block-special-relativity-s6-p7-s2
+      translationUnits:
+        - s6-p7-s2
+
   - id: s6-p8
     kind: paragraph
     section: s6
@@ -1450,6 +3235,29 @@ units:
       editionBlockId: block-special-relativity-s6-p8
       translationUnits:
         - trans-special-relativity-s6-p8
+
+  - id: s6-p8-s1
+    kind: sentence
+    section: s6
+    containedIn: s6-p8
+    locators:
+      - page: 910
+    destination:
+      editionBlockId: block-special-relativity-s6-p8-s1
+      translationUnits:
+        - s6-p8-s1
+
+  - id: s6-p8-s2
+    kind: sentence
+    section: s6
+    containedIn: s6-p8
+    locators:
+      - page: 910
+    destination:
+      editionBlockId: block-special-relativity-s6-p8-s2
+      translationUnits:
+        - s6-p8-s2
+
   - id: s7
     kind: section-heading
     section: s7
@@ -1470,6 +3278,33 @@ units:
         - trans-special-relativity-s7-p1
       argumentObligations:
         - obl-s7-doppler-aberration
+
+  - id: s7-p1-s1
+    kind: sentence
+    section: s7
+    containedIn: s7-p1
+    locators:
+      - page: 910
+    destination:
+      editionBlockId: block-special-relativity-s7-p1-s1
+      translationUnits:
+        - s7-p1-s1
+      argumentObligations:
+        - obl-s7-doppler-aberration
+
+  - id: s7-p1-s2
+    kind: sentence
+    section: s7
+    containedIn: s7-p1
+    locators:
+      - page: 910
+    destination:
+      editionBlockId: block-special-relativity-s7-p1-s2
+      translationUnits:
+        - s7-p1-s2
+      argumentObligations:
+        - obl-s7-doppler-aberration
+
   - id: eq-s7-d1
     kind: display-equation
     section: s7
@@ -1504,6 +3339,32 @@ units:
       editionBlockId: block-special-relativity-s7-p2
       translationUnits:
         - trans-special-relativity-s7-p2
+
+  - id: s7-p2-s1
+    kind: sentence
+    section: s7
+    containedIn: s7-p2
+    locators:
+      - page: 910
+      - page: 911
+    destination:
+      editionBlockId: block-special-relativity-s7-p2-s1
+      translationUnits:
+        - s7-p2-s1
+
+  - id: s7-p2-s2
+    kind: sentence
+    section: s7
+    containedIn: s7-p2
+    locators:
+      - page: 911
+    destination:
+      editionBlockId: block-special-relativity-s7-p2-s2
+      translationUnits:
+        - s7-p2-s2a
+        - s7-p2-s2b
+        - s7-p2-s2c
+
   - id: eq-s7-d2
     kind: display-equation
     section: s7
@@ -1569,6 +3430,52 @@ units:
       editionBlockId: block-special-relativity-s7-p3
       translationUnits:
         - trans-special-relativity-s7-p3
+
+  - id: s7-p3-s1
+    kind: sentence
+    section: s7
+    containedIn: s7-p3
+    locators:
+      - page: 911
+    destination:
+      editionBlockId: block-special-relativity-s7-p3-s1
+      translationUnits:
+        - s7-p3-s1
+
+  - id: s7-p3-s2
+    kind: sentence
+    section: s7
+    containedIn: s7-p3
+    locators:
+      - page: 911
+    destination:
+      editionBlockId: block-special-relativity-s7-p3-s2
+      translationUnits:
+        - s7-p3-s2
+
+  - id: s7-p3-s3
+    kind: sentence
+    section: s7
+    containedIn: s7-p3
+    locators:
+      - page: 911
+      - page: 912
+    destination:
+      editionBlockId: block-special-relativity-s7-p3-s3
+      translationUnits:
+        - s7-p3-s3
+
+  - id: s7-p3-s4
+    kind: sentence
+    section: s7
+    containedIn: s7-p3
+    locators:
+      - page: 912
+    destination:
+      editionBlockId: block-special-relativity-s7-p3-s4
+      translationUnits:
+        - s7-p3-s4
+
   - id: eq-s7-d7
     kind: display-equation
     section: s7
@@ -1600,6 +3507,40 @@ units:
       editionBlockId: block-special-relativity-s7-p5
       translationUnits:
         - trans-special-relativity-s7-p5
+
+  - id: s7-p5-s1
+    kind: sentence
+    section: s7
+    containedIn: s7-p5
+    locators:
+      - page: 912
+    destination:
+      editionBlockId: block-special-relativity-s7-p5-s1
+      translationUnits:
+        - s7-p5-s1
+
+  - id: s7-p5-s2
+    kind: sentence
+    section: s7
+    containedIn: s7-p5
+    locators:
+      - page: 912
+    destination:
+      editionBlockId: block-special-relativity-s7-p5-s2
+      translationUnits:
+        - s7-p5-s2
+
+  - id: s7-p5-s3
+    kind: sentence
+    section: s7
+    containedIn: s7-p5
+    locators:
+      - page: 912
+    destination:
+      editionBlockId: block-special-relativity-s7-p5-s3
+      translationUnits:
+        - s7-p5-s3
+
   - id: eq-s7-d9
     kind: display-equation
     section: s7
@@ -1631,6 +3572,30 @@ units:
       editionBlockId: block-special-relativity-s7-p6
       translationUnits:
         - trans-special-relativity-s7-p6
+
+  - id: s7-p6-s1
+    kind: sentence
+    section: s7
+    containedIn: s7-p6
+    locators:
+      - page: 912
+    destination:
+      editionBlockId: block-special-relativity-s7-p6-s1
+      translationUnits:
+        - s7-p6-s1
+
+  - id: s7-p6-s2
+    kind: sentence
+    section: s7
+    containedIn: s7-p6
+    locators:
+      - page: 912
+    destination:
+      editionBlockId: block-special-relativity-s7-p6-s2
+      translationUnits:
+        - s7-p6-s2a
+        - s7-p6-s2b
+
   - id: eq-s7-d11
     kind: display-equation
     section: s7
@@ -1662,6 +3627,18 @@ units:
       editionBlockId: block-special-relativity-s7-p7
       translationUnits:
         - trans-special-relativity-s7-p7
+
+  - id: s7-p7-s1
+    kind: sentence
+    section: s7
+    containedIn: s7-p7
+    locators:
+      - page: 912
+    destination:
+      editionBlockId: block-special-relativity-s7-p7-s1
+      translationUnits:
+        - s7-p7-s1
+
   - id: s8
     kind: section-heading
     section: s8
@@ -1682,6 +3659,73 @@ units:
         - trans-special-relativity-s8-p1
       argumentObligations:
         - obl-s8-energy-radiation-pressure
+
+  - id: s8-p1-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p1
+    locators:
+      - page: 913
+    destination:
+      editionBlockId: block-special-relativity-s8-p1-s1
+      translationUnits:
+        - s8-p1-s1
+      argumentObligations:
+        - obl-s8-energy-radiation-pressure
+
+  - id: s8-p1-s2
+    kind: sentence
+    section: s8
+    containedIn: s8-p1
+    locators:
+      - page: 913
+    destination:
+      editionBlockId: block-special-relativity-s8-p1-s2
+      translationUnits:
+        - s8-p1-s2
+      argumentObligations:
+        - obl-s8-energy-radiation-pressure
+
+  - id: s8-p1-s3
+    kind: sentence
+    section: s8
+    containedIn: s8-p1
+    locators:
+      - page: 913
+    destination:
+      editionBlockId: block-special-relativity-s8-p1-s3
+      translationUnits:
+        - s8-p1-s3
+      argumentObligations:
+        - obl-s8-energy-radiation-pressure
+
+  - id: s8-p1-s4
+    kind: sentence
+    section: s8
+    containedIn: s8-p1
+    locators:
+      - page: 913
+    destination:
+      editionBlockId: block-special-relativity-s8-p1-s4
+      translationUnits:
+        - s8-p1-s4a
+        - s8-p1-s4b
+      argumentObligations:
+        - obl-s8-energy-radiation-pressure
+
+  - id: s8-p1-s5
+    kind: sentence
+    section: s8
+    containedIn: s8-p1
+    locators:
+      - page: 913
+    destination:
+      editionBlockId: block-special-relativity-s8-p1-s5
+      translationUnits:
+        - s8-p1-s5
+      argumentObligations:
+        - obl-s8-energy-radiation-pressure
+
   - id: eq-s8-d1
     kind: display-equation
     section: s8
@@ -1703,6 +3747,42 @@ units:
       editionBlockId: block-special-relativity-s8-p2
       translationUnits:
         - trans-special-relativity-s8-p2
+
+  - id: s8-p2-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p2
+    locators:
+      - page: 913
+    destination:
+      editionBlockId: block-special-relativity-s8-p2-s1
+      translationUnits:
+        - s8-p2-s1
+
+  - id: s8-p2-s2
+    kind: sentence
+    section: s8
+    containedIn: s8-p2
+    locators:
+      - page: 913
+    destination:
+      editionBlockId: block-special-relativity-s8-p2-s2
+      translationUnits:
+        - s8-p2-s2
+
+  - id: s8-p2-s3
+    kind: sentence
+    section: s8
+    containedIn: s8-p2
+    locators:
+      - page: 913
+      - page: 914
+    destination:
+      editionBlockId: block-special-relativity-s8-p2-s3
+      translationUnits:
+        - s8-p2-s3a
+        - s8-p2-s3b
+
   - id: eq-s8-d2
     kind: display-equation
     section: s8
@@ -1756,6 +3836,18 @@ units:
       editionBlockId: block-special-relativity-s8-p5
       translationUnits:
         - trans-special-relativity-s8-p5
+
+  - id: s8-p5-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p5
+    locators:
+      - page: 914
+    destination:
+      editionBlockId: block-special-relativity-s8-p5-s1
+      translationUnits:
+        - s8-p5-s1
+
   - id: s8-p6
     kind: paragraph
     section: s8
@@ -1772,6 +3864,29 @@ units:
       editionBlockId: block-special-relativity-s8-p6
       translationUnits:
         - trans-special-relativity-s8-p6
+
+  - id: s8-p6-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p6
+    locators:
+      - page: 914
+    destination:
+      editionBlockId: block-special-relativity-s8-p6-s1
+      translationUnits:
+        - s8-p6-s1
+
+  - id: s8-p6-s2
+    kind: sentence
+    section: s8
+    containedIn: s8-p6
+    locators:
+      - page: 914
+    destination:
+      editionBlockId: block-special-relativity-s8-p6-s2
+      translationUnits:
+        - s8-p6-s2
+
   - id: s8-p7
     kind: paragraph
     section: s8
@@ -1782,6 +3897,55 @@ units:
       editionBlockId: block-special-relativity-s8-p7
       translationUnits:
         - trans-special-relativity-s8-p7
+
+  - id: s8-p7-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p7
+    locators:
+      - page: 914
+      - page: 915
+    destination:
+      editionBlockId: block-special-relativity-s8-p7-s1
+      translationUnits:
+        - s8-p7-s1
+
+  - id: s8-p7-s2
+    kind: sentence
+    section: s8
+    containedIn: s8-p7
+    locators:
+      - page: 914
+      - page: 915
+    destination:
+      editionBlockId: block-special-relativity-s8-p7-s2
+      translationUnits:
+        - s8-p7-s2
+
+  - id: s8-p7-s3
+    kind: sentence
+    section: s8
+    containedIn: s8-p7
+    locators:
+      - page: 914
+      - page: 915
+    destination:
+      editionBlockId: block-special-relativity-s8-p7-s3
+      translationUnits:
+        - s8-p7-s3
+
+  - id: s8-p7-s4
+    kind: sentence
+    section: s8
+    containedIn: s8-p7
+    locators:
+      - page: 914
+      - page: 915
+    destination:
+      editionBlockId: block-special-relativity-s8-p7-s4
+      translationUnits:
+        - s8-p7-s4
+
   - id: eq-s8-d6
     kind: display-equation
     section: s8
@@ -1868,6 +4032,62 @@ units:
       editionBlockId: block-special-relativity-s8-p10
       translationUnits:
         - trans-special-relativity-s8-p10
+
+  - id: s8-p10-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p10
+    locators:
+      - page: 915
+    destination:
+      editionBlockId: block-special-relativity-s8-p10-s1
+      translationUnits:
+        - s8-p10-s1
+
+  - id: s8-p10-s2
+    kind: sentence
+    section: s8
+    containedIn: s8-p10
+    locators:
+      - page: 915
+    destination:
+      editionBlockId: block-special-relativity-s8-p10-s2
+      translationUnits:
+        - s8-p10-s2
+
+  - id: s8-p10-s3
+    kind: sentence
+    section: s8
+    containedIn: s8-p10
+    locators:
+      - page: 915
+    destination:
+      editionBlockId: block-special-relativity-s8-p10-s3
+      translationUnits:
+        - s8-p10-s3
+
+  - id: s8-p10-s4
+    kind: sentence
+    section: s8
+    containedIn: s8-p10
+    locators:
+      - page: 915
+    destination:
+      editionBlockId: block-special-relativity-s8-p10-s4
+      translationUnits:
+        - s8-p10-s4
+
+  - id: s8-p10-s5
+    kind: sentence
+    section: s8
+    containedIn: s8-p10
+    locators:
+      - page: 915
+    destination:
+      editionBlockId: block-special-relativity-s8-p10-s5
+      translationUnits:
+        - s8-p10-s5
+
   - id: eq-s8-d13
     kind: display-equation
     section: s8
@@ -1899,6 +4119,40 @@ units:
       editionBlockId: block-special-relativity-s8-p12
       translationUnits:
         - trans-special-relativity-s8-p12
+
+  - id: s8-p12-s1
+    kind: sentence
+    section: s8
+    containedIn: s8-p12
+    locators:
+      - page: 915
+    destination:
+      editionBlockId: block-special-relativity-s8-p12-s1
+      translationUnits:
+        - s8-p12-s1
+
+  - id: s8-p12-s2
+    kind: sentence
+    section: s8
+    containedIn: s8-p12
+    locators:
+      - page: 915
+    destination:
+      editionBlockId: block-special-relativity-s8-p12-s2
+      translationUnits:
+        - s8-p12-s2
+
+  - id: s8-p12-s3
+    kind: sentence
+    section: s8
+    containedIn: s8-p12
+    locators:
+      - page: 915
+    destination:
+      editionBlockId: block-special-relativity-s8-p12-s3
+      translationUnits:
+        - s8-p12-s3
+
   - id: s9
     kind: section-heading
     section: s9
@@ -1919,6 +4173,35 @@ units:
         - trans-special-relativity-s9-p1
       argumentObligations:
         - obl-s9-convection-currents
+
+  - id: s9-p1-s1
+    kind: sentence
+    section: s9
+    containedIn: s9-p1
+    locators:
+      - page: 916
+    destination:
+      editionBlockId: block-special-relativity-s9-p1-s1
+      translationUnits:
+        - s9-p1-s1a
+        - s9-p1-s1b
+        - s9-p1-s1c
+      argumentObligations:
+        - obl-s9-convection-currents
+
+  - id: s9-p1-s2
+    kind: sentence
+    section: s9
+    containedIn: s9-p1
+    locators:
+      - page: 916
+    destination:
+      editionBlockId: block-special-relativity-s9-p1-s2
+      translationUnits:
+        - s9-p1-s2
+      argumentObligations:
+        - obl-s9-convection-currents
+
   - id: eq-s9-d1
     kind: display-equation
     section: s9
@@ -1970,6 +4253,30 @@ units:
       editionBlockId: block-special-relativity-s9-p2
       translationUnits:
         - trans-special-relativity-s9-p2
+
+  - id: s9-p2-s1
+    kind: sentence
+    section: s9
+    containedIn: s9-p2
+    locators:
+      - page: 916
+    destination:
+      editionBlockId: block-special-relativity-s9-p2-s1
+      translationUnits:
+        - s9-p2-s1a
+        - s9-p2-s1b
+
+  - id: s9-p2-s2
+    kind: sentence
+    section: s9
+    containedIn: s9-p2
+    locators:
+      - page: 917
+    destination:
+      editionBlockId: block-special-relativity-s9-p2-s2
+      translationUnits:
+        - s9-p2-s2
+
   - id: eq-s9-d3
     kind: display-equation
     section: s9
@@ -2001,6 +4308,18 @@ units:
       editionBlockId: block-special-relativity-s9-p3
       translationUnits:
         - trans-special-relativity-s9-p3
+
+  - id: s9-p3-s1
+    kind: sentence
+    section: s9
+    containedIn: s9-p3
+    locators:
+      - page: 917
+    destination:
+      editionBlockId: block-special-relativity-s9-p3-s1
+      translationUnits:
+        - s9-p3-s1
+
   - id: s10
     kind: section-heading
     section: s10
@@ -2021,6 +4340,20 @@ units:
         - trans-special-relativity-s10-p1
       argumentObligations:
         - obl-s10-electron-dynamics
+
+  - id: s10-p1-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p1
+    locators:
+      - page: 917
+    destination:
+      editionBlockId: block-special-relativity-s10-p1-s1
+      translationUnits:
+        - s10-p1-s1
+      argumentObligations:
+        - obl-s10-electron-dynamics
+
   - id: s10-p2
     kind: paragraph
     section: s10
@@ -2030,6 +4363,19 @@ units:
       editionBlockId: block-special-relativity-s10-p2
       translationUnits:
         - trans-special-relativity-s10-p2
+
+  - id: s10-p2-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p2
+    locators:
+      - page: 917
+    destination:
+      editionBlockId: block-special-relativity-s10-p2-s1
+      translationUnits:
+        - s10-p2-s1a
+        - s10-p2-s1b
+
   - id: eq-s10-d1
     kind: display-equation
     section: s10
@@ -2050,6 +4396,29 @@ units:
       editionBlockId: block-special-relativity-s10-p3
       translationUnits:
         - trans-special-relativity-s10-p3
+
+  - id: s10-p3-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p3
+    locators:
+      - page: 917
+    destination:
+      editionBlockId: block-special-relativity-s10-p3-s1
+      translationUnits:
+        - s10-p3-s1
+
+  - id: s10-p3-s2
+    kind: sentence
+    section: s10
+    containedIn: s10-p3
+    locators:
+      - page: 917
+    destination:
+      editionBlockId: block-special-relativity-s10-p3-s2
+      translationUnits:
+        - s10-p3-s2
+
   - id: s10-p4
     kind: paragraph
     section: s10
@@ -2060,6 +4429,30 @@ units:
       editionBlockId: block-special-relativity-s10-p4
       translationUnits:
         - trans-special-relativity-s10-p4
+
+  - id: s10-p4-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p4
+    locators:
+      - page: 917
+      - page: 918
+    destination:
+      editionBlockId: block-special-relativity-s10-p4-s1
+      translationUnits:
+        - s10-p4-s1
+
+  - id: s10-p4-s2
+    kind: sentence
+    section: s10
+    containedIn: s10-p4
+    locators:
+      - page: 918
+    destination:
+      editionBlockId: block-special-relativity-s10-p4-s2
+      translationUnits:
+        - s10-p4-s2
+
   - id: s10-p5
     kind: paragraph
     section: s10
@@ -2082,6 +4475,30 @@ units:
       editionBlockId: block-special-relativity-s10-p5
       translationUnits:
         - trans-special-relativity-s10-p5
+
+  - id: s10-p5-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p5
+    locators:
+      - page: 918
+    destination:
+      editionBlockId: block-special-relativity-s10-p5-s1
+      translationUnits:
+        - s10-p5-s1a
+        - s10-p5-s1b
+
+  - id: s10-p5-s2
+    kind: sentence
+    section: s10
+    containedIn: s10-p5
+    locators:
+      - page: 918
+    destination:
+      editionBlockId: block-special-relativity-s10-p5-s2
+      translationUnits:
+        - s10-p5-s2
+
   - id: eq-s10-d2
     kind: display-equation
     section: s10
@@ -2113,6 +4530,18 @@ units:
       editionBlockId: block-special-relativity-s10-p6
       translationUnits:
         - trans-special-relativity-s10-p6
+
+  - id: s10-p6-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p6
+    locators:
+      - page: 918
+    destination:
+      editionBlockId: block-special-relativity-s10-p6-s1
+      translationUnits:
+        - s10-p6-s1
+
   - id: eq-A
     kind: display-equation
     section: s10
@@ -2142,6 +4571,54 @@ units:
       editionBlockId: block-special-relativity-s10-p7
       translationUnits:
         - trans-special-relativity-s10-p7
+
+  - id: s10-p7-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p7
+    locators:
+      - page: 918
+      - page: 919
+    destination:
+      editionBlockId: block-special-relativity-s10-p7-s1
+      translationUnits:
+        - s10-p7-s1
+
+  - id: s10-p7-s2
+    kind: sentence
+    section: s10
+    containedIn: s10-p7
+    locators:
+      - page: 919
+    destination:
+      editionBlockId: block-special-relativity-s10-p7-s2
+      translationUnits:
+        - s10-p7-s2a
+        - s10-p7-s2b
+
+  - id: s10-p7-s3
+    kind: sentence
+    section: s10
+    containedIn: s10-p7
+    locators:
+      - page: 919
+    destination:
+      editionBlockId: block-special-relativity-s10-p7-s3
+      translationUnits:
+        - s10-p7-s3
+
+  - id: s10-p7-s4
+    kind: sentence
+    section: s10
+    containedIn: s10-p7
+    locators:
+      - page: 919
+    destination:
+      editionBlockId: block-special-relativity-s10-p7-s4
+      translationUnits:
+        - s10-p7-s4a
+        - s10-p7-s4b
+
   - id: eq-s10-d4
     kind: display-equation
     section: s10
@@ -2195,6 +4672,18 @@ units:
       editionBlockId: block-special-relativity-s10-p8
       translationUnits:
         - trans-special-relativity-s10-p8
+
+  - id: s10-p8-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p8
+    locators:
+      - page: 919
+    destination:
+      editionBlockId: block-special-relativity-s10-p8-s1
+      translationUnits:
+        - s10-p8-s1
+
   - id: s10-p9
     kind: paragraph
     section: s10
@@ -2204,6 +4693,18 @@ units:
       editionBlockId: block-special-relativity-s10-p9
       translationUnits:
         - trans-special-relativity-s10-p9
+
+  - id: s10-p9-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p9
+    locators:
+      - page: 919
+    destination:
+      editionBlockId: block-special-relativity-s10-p9-s1
+      translationUnits:
+        - s10-p9-s1
+
   - id: s10-p10
     kind: paragraph
     section: s10
@@ -2221,6 +4722,52 @@ units:
       editionBlockId: block-special-relativity-s10-p10
       translationUnits:
         - trans-special-relativity-s10-p10
+
+  - id: s10-p10-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p10
+    locators:
+      - page: 919
+    destination:
+      editionBlockId: block-special-relativity-s10-p10-s1
+      translationUnits:
+        - s10-p10-s1
+
+  - id: s10-p10-s2
+    kind: sentence
+    section: s10
+    containedIn: s10-p10
+    locators:
+      - page: 919
+      - page: 920
+    destination:
+      editionBlockId: block-special-relativity-s10-p10-s2
+      translationUnits:
+        - s10-p10-s2
+
+  - id: s10-p10-s3
+    kind: sentence
+    section: s10
+    containedIn: s10-p10
+    locators:
+      - page: 920
+    destination:
+      editionBlockId: block-special-relativity-s10-p10-s3
+      translationUnits:
+        - s10-p10-s3
+
+  - id: s10-p10-s4
+    kind: sentence
+    section: s10
+    containedIn: s10-p10
+    locators:
+      - page: 920
+    destination:
+      editionBlockId: block-special-relativity-s10-p10-s4
+      translationUnits:
+        - s10-p10-s4
+
   - id: eq-s10-d8
     kind: display-equation
     section: s10
@@ -2241,6 +4788,29 @@ units:
       editionBlockId: block-special-relativity-s10-p11
       translationUnits:
         - trans-special-relativity-s10-p11
+
+  - id: s10-p11-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p11
+    locators:
+      - page: 920
+    destination:
+      editionBlockId: block-special-relativity-s10-p11-s1
+      translationUnits:
+        - s10-p11-s1
+
+  - id: s10-p11-s2
+    kind: sentence
+    section: s10
+    containedIn: s10-p11
+    locators:
+      - page: 920
+    destination:
+      editionBlockId: block-special-relativity-s10-p11-s2
+      translationUnits:
+        - s10-p11-s2
+
   - id: s10-p12
     kind: paragraph
     section: s10
@@ -2250,6 +4820,18 @@ units:
       editionBlockId: block-special-relativity-s10-p12
       translationUnits:
         - trans-special-relativity-s10-p12
+
+  - id: s10-p12-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p12
+    locators:
+      - page: 920
+    destination:
+      editionBlockId: block-special-relativity-s10-p12-s1
+      translationUnits:
+        - s10-p12-s1
+
   - id: s10-p13
     kind: paragraph
     section: s10
@@ -2266,6 +4848,18 @@ units:
       editionBlockId: block-special-relativity-s10-p13
       translationUnits:
         - trans-special-relativity-s10-p13
+
+  - id: s10-p13-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p13
+    locators:
+      - page: 920
+    destination:
+      editionBlockId: block-special-relativity-s10-p13-s1
+      translationUnits:
+        - s10-p13-s1
+
   - id: s10-p15
     kind: paragraph
     section: s10
@@ -2282,6 +4876,29 @@ units:
       editionBlockId: block-special-relativity-s10-p15
       translationUnits:
         - trans-special-relativity-s10-p15
+
+  - id: s10-p15-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p15
+    locators:
+      - page: 920
+    destination:
+      editionBlockId: block-special-relativity-s10-p15-s1
+      translationUnits:
+        - s10-p15-s1
+
+  - id: s10-p15-s2
+    kind: sentence
+    section: s10
+    containedIn: s10-p15
+    locators:
+      - page: 920
+    destination:
+      editionBlockId: block-special-relativity-s10-p15-s2
+      translationUnits:
+        - s10-p15-s2
+
   - id: eq-s10-d9
     kind: display-equation
     section: s10
@@ -2302,6 +4919,18 @@ units:
       editionBlockId: block-special-relativity-s10-p16
       translationUnits:
         - trans-special-relativity-s10-p16
+
+  - id: s10-p16-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p16
+    locators:
+      - page: 920
+    destination:
+      editionBlockId: block-special-relativity-s10-p16-s1
+      translationUnits:
+        - s10-p16-s1
+
   - id: s10-p17
     kind: paragraph
     section: s10
@@ -2312,6 +4941,19 @@ units:
       editionBlockId: block-special-relativity-s10-p17
       translationUnits:
         - trans-special-relativity-s10-p17
+
+  - id: s10-p17-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p17
+    locators:
+      - page: 920
+      - page: 921
+    destination:
+      editionBlockId: block-special-relativity-s10-p17-s1
+      translationUnits:
+        - s10-p17-s1
+
   - id: eq-s10-d10
     kind: display-equation
     section: s10
@@ -2339,6 +4981,30 @@ units:
       editionBlockId: block-special-relativity-s10-p18
       translationUnits:
         - trans-special-relativity-s10-p18
+
+  - id: s10-p18-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p18
+    locators:
+      - page: 921
+    destination:
+      editionBlockId: block-special-relativity-s10-p18-s1
+      translationUnits:
+        - s10-p18-s1
+
+  - id: s10-p18-s2
+    kind: sentence
+    section: s10
+    containedIn: s10-p18
+    locators:
+      - page: 921
+    destination:
+      editionBlockId: block-special-relativity-s10-p18-s2
+      translationUnits:
+        - s10-p18-s2a
+        - s10-p18-s2b
+
   - id: eq-s10-d11
     kind: display-equation
     section: s10
@@ -2370,6 +5036,18 @@ units:
       editionBlockId: block-special-relativity-s10-p14
       translationUnits:
         - trans-special-relativity-s10-p14
+
+  - id: s10-p14-s1
+    kind: sentence
+    section: s10
+    containedIn: s10-p14
+    locators:
+      - page: 921
+    destination:
+      editionBlockId: block-special-relativity-s10-p14-s1
+      translationUnits:
+        - s10-p14-s1
+
   - id: closing-ack
     kind: closing-ack
     locators:

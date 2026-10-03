@@ -43,6 +43,7 @@ units:
     locators:
       - page: 639
     destination:
+      editionBlockId: s0-p1-s1
       translationUnits:
         - s0-p1-s1
       argumentObligations:
@@ -85,6 +86,7 @@ units:
     locators:
       - page: 639
     destination:
+      editionBlockId: s0-p2-s1
       translationUnits:
         - s0-p2-s1
       argumentObligations:
@@ -107,6 +109,7 @@ units:
     locators:
       - page: 639
     destination:
+      editionBlockId: s0-p3-s1
       translationUnits:
         - s0-p3-s1
       argumentObligations:
@@ -137,6 +140,7 @@ units:
     locators:
       - page: 639
     destination:
+      editionBlockId: s0-p4-s1
       translationUnits:
         - s0-p4-s1
       argumentObligations:
@@ -172,6 +176,7 @@ units:
     locators:
       - page: 639
     destination:
+      editionBlockId: s0-p5-s1
       translationUnits:
         - s0-p5-s1
       argumentObligations:
@@ -183,6 +188,7 @@ units:
     locators:
       - page: 639
     destination:
+      editionBlockId: s0-p5-s2
       translationUnits:
         - s0-p5-s2a
         - s0-p5-s2b
@@ -195,6 +201,7 @@ units:
     locators:
       - page: 639
     destination:
+      editionBlockId: s0-p5-s3
       translationUnits:
         - s0-p5-s3
       argumentObligations:
@@ -231,6 +238,7 @@ units:
     locators:
       - page: 640
     destination:
+      editionBlockId: s0-p6-s1
       translationUnits:
         - s0-p6-s1
       argumentObligations:
@@ -242,6 +250,7 @@ units:
     locators:
       - page: 640
     destination:
+      editionBlockId: s0-p6-s2
       translationUnits:
         - s0-p6-s2
       argumentObligations:
@@ -277,6 +286,7 @@ units:
     locators:
       - page: 640
     destination:
+      editionBlockId: s0-p7-s1
       translationUnits:
         - s0-p7-s1
       argumentObligations:
@@ -290,6 +300,7 @@ units:
     locators:
       - page: 640
     destination:
+      editionBlockId: s0-p7-s2
       translationUnits:
         - s0-p7-s2
       argumentObligations:
@@ -303,6 +314,7 @@ units:
     locators:
       - page: 640
     destination:
+      editionBlockId: s0-p7-s3
       translationUnits:
         - s0-p7-s3
       argumentObligations:
@@ -316,6 +328,7 @@ units:
     locators:
       - page: 640
     destination:
+      editionBlockId: s0-p7-s4
       translationUnits:
         - s0-p7-s4
       argumentObligations:
@@ -329,6 +342,7 @@ units:
     locators:
       - page: 640
     destination:
+      editionBlockId: s0-p7-s5
       translationUnits:
         - s0-p7-s5
       argumentObligations:
@@ -342,6 +356,7 @@ units:
     locators:
       - page: 640
     destination:
+      editionBlockId: s0-p7-s6
       translationUnits:
         - s0-p7-s6
       argumentObligations:
@@ -355,6 +370,7 @@ units:
     locators:
       - page: 640
     destination:
+      editionBlockId: s0-p7-s7
       translationUnits:
         - s0-p7-s7
       argumentObligations:
@@ -369,6 +385,7 @@ units:
       - page: 640
       - page: 641
     destination:
+      editionBlockId: s0-p7-s8
       translationUnits:
         - s0-p7-s8
       argumentObligations:
@@ -382,6 +399,7 @@ units:
     locators:
       - page: 641
     destination:
+      editionBlockId: s0-p7-s9
       translationUnits:
         - s0-p7-s9a
         - s0-p7-s9b
@@ -396,6 +414,7 @@ units:
     locators:
       - page: 641
     destination:
+      editionBlockId: s0-p7-s10
       translationUnits:
         - s0-p7-s10
       argumentObligations:
@@ -409,6 +428,7 @@ units:
     locators:
       - page: 641
     destination:
+      editionBlockId: s0-p7-s11
       translationUnits:
         - s0-p7-s11
       argumentObligations:
@@ -422,6 +442,7 @@ units:
     locators:
       - page: 641
     destination:
+      editionBlockId: s0-p7-s12
       translationUnits:
         - s0-p7-s12
       argumentObligations:
@@ -519,6 +540,7 @@ units:
     locators:
       - page: 641
     destination:
+      editionBlockId: s0-p11-s1
       translationUnits:
         - s0-p11-s1
       argumentObligations:
@@ -530,6 +552,7 @@ units:
     locators:
       - page: 641
     destination:
+      editionBlockId: s0-p11-s2
       translationUnits:
         - s0-p11-s2
       argumentObligations:
@@ -566,6 +589,7 @@ units:
     locators:
       - page: 641
     destination:
+      editionBlockId: s0-p12-s1
       translationUnits:
         - s0-p12-s1
       argumentObligations:
@@ -577,6 +601,7 @@ units:
     locators:
       - page: 641
     destination:
+      editionBlockId: s0-p12-s2
       translationUnits:
         - s0-p12-s2
       argumentObligations:
@@ -599,6 +624,7 @@ units:
     locators:
       - page: 641
     destination:
+      editionBlockId: s0-p13-s1
       translationUnits:
         - s0-p13-s1
       argumentObligations:
@@ -621,6 +647,7 @@ units:
     locators:
       - page: 641
     destination:
+      editionBlockId: s0-p14-s1
       translationUnits:
         - s0-p14-s1
       argumentObligations:
@@ -643,6 +670,7 @@ units:
     locators:
       - page: 641
     destination:
+      editionBlockId: s0-p15-s1
       translationUnits:
         - s0-p15-s1
       argumentObligations:
