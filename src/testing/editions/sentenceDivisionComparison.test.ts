@@ -205,30 +205,61 @@ describe("the real corpus: every printed number is pinned", () => {
       unplaceableManifestUnits: 0,
       unplaceableProposedSentences: 0,
     },
+    // Re-derived 2026-10-03: this paper's 135 sentence ids became manifest units of kind `sentence`
+    // under owner ruling am-xz2d, so all 17 pages are now COMPARABLE where all 17 were
+    // not-available. comparable 0 -> 17, notAvailable 17 -> 0, agreeing 0 -> 5, differing 0 -> 12.
+    // The direction is a population becoming measurable, not a division drifting: no sentence id
+    // changed and none was minted, the units were transcribed from the sentenceSpans already on the
+    // paragraph source blocks, and the set equals the distinct sentenceIds of the paper's alignment
+    // file exactly. The 12 disagreements are the segmenter's two documented weaknesses, the same
+    // ones the brownian note above records, and the deltas say so: ten of the twelve are +/-1 on a
+    // page (7 at +1, 3 at -1), and the two outliers are p139 +2 and p135 +5, the latter where the
+    // paper's inline mathematics is densest, which is the "does not cut before a sentence that
+    // opens with math" case. Counted from the printed deltas. unplaceableProposedSentences
+    // stays 1 because it never depended on manifest units.
     "light-quanta": {
       ledgerPages: 17,
-      comparable: 0,
-      notAvailable: 17,
-      agreeing: 0,
-      differing: 0,
+      comparable: 17,
+      notAvailable: 0,
+      agreeing: 5,
+      differing: 12,
       unplaceableManifestUnits: 0,
       unplaceableProposedSentences: 1,
     },
+    // Re-derived 2026-10-03: the 28 sentence ids of this paper's twelve paragraphs became manifest
+    // units under owner ruling am-xz2d, so all 3 pages are now comparable. comparable 0 -> 3,
+    // notAvailable 3 -> 0, agreeing 1, differing 2, with deltas p640 -2 and p641 +1. Same direction
+    // and same cause as light-quanta: a population becoming measurable rather than a drift. p640's
+    // -2 is the segmenter cutting twice where the manifest does not, which is the other recorded
+    // weakness (a cut at an abbreviation); p641 +1 is the manifest counting a sentence the
+    // segmenter joins.
     "mass-energy": {
       ledgerPages: 3,
-      comparable: 0,
-      notAvailable: 3,
-      agreeing: 0,
-      differing: 0,
+      comparable: 3,
+      notAvailable: 0,
+      agreeing: 1,
+      differing: 2,
       unplaceableManifestUnits: 0,
       unplaceableProposedSentences: 0,
     },
+    // Re-derived 2026-10-03: this paper's 223 sentence ids became manifest units under owner ruling
+    // am-xz2d, the last of the four inventories to be extended, so all 31 pages are now comparable.
+    // comparable 0 -> 31, notAvailable 31 -> 0, agreeing 0 -> 7, differing 0 -> 24. Every one of the
+    // 24 deltas is exactly +/-1, which is the strongest available evidence that this is the
+    // segmenter's heuristic disagreeing by one cut per page rather than a defective inventory: a
+    // drifted or invented division would not land within one sentence on all 24 pages. The split is
+    // exactly 12 at -1 (the segmenter cuts where the manifest joins) and 12 at +1 (the manifest
+    // counts a sentence the segmenter joins, typically one opening with math), counted from the
+    // printed deltas rather than estimated. unplaceableProposedSentences stays 15
+    // and unplaceableManifestUnits stays 0, the latter being worth noting: every one of the 223 new
+    // units resolved to exactly one printed page, including the 27 that carry two pages because
+    // they contain a recorded page turn.
     "special-relativity": {
       ledgerPages: 31,
-      comparable: 0,
-      notAvailable: 31,
-      agreeing: 0,
-      differing: 0,
+      comparable: 31,
+      notAvailable: 0,
+      agreeing: 7,
+      differing: 24,
       unplaceableManifestUnits: 0,
       // 5 -> 6 when p906 landed, 6 -> 7 when p907 landed. Re-derived each time, not nudged.
       // p906: "Wir setzen: ... alpha ist dann als der Winkel zwischen den Geschwindigkeiten v

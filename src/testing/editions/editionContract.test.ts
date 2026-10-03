@@ -413,7 +413,24 @@ describe("15-check composition with owner attribution (AC 5)", () => {
     // papers differ in a hundred ways, so a pair drawn from the corpus could never say which
     // difference the checks were responding to. Nothing is deleted to build it: the copy is
     // taken with a filter that never copies the transcripts directory in the first place.
-    for (const [slug, units, ledger] of [["mass-energy", 25, "complete"]] as const) {
+    // THE UNIT COUNT IS READ FROM THE MANIFEST, NOT WRITTEN HERE. This loop carried the literal 25
+    // and broke on 2026-10-03 when mass-energy's 28 sentence ids became manifest units under owner
+    // ruling am-xz2d, taking the roster to 53. A literal was also the weaker assertion: what this
+    // pair exists to show is that check 5 judges the REAL manifest rather than reporting a constant,
+    // and a check that always printed "25 unit(s) validated" would have satisfied the old line.
+    // Comparing against the roster on disk cannot be satisfied that way, and it does not break the
+    // next time a required unit class is inventoried.
+    for (const [slug, ledger] of [["mass-energy", "complete"]] as const) {
+      const manifestUnits = (
+        parseYaml(readFileSync(`content/source-blocks/${slug}/manifest.yaml`, "utf8")) as {
+          units?: unknown[];
+        }
+      ).units;
+      const units = Array.isArray(manifestUnits) ? manifestUnits.length : 0;
+      expect(
+        units,
+        `${slug}'s manifest must have units for this pair to prove anything`,
+      ).toBeGreaterThan(0);
       const r = assertEditionContract(slug, {});
       expect(r.ledger, `${slug}'s ledger state changed; this pair must span both`).toBe(ledger);
       const five = r.checks.find((c) => c.checkNumber === 5);
