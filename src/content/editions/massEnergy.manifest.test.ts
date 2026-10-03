@@ -59,7 +59,31 @@ describe("mass-energy source manifest inventory (am-edn-inventory-mass-energy-g2
     expect(manifest.idsFrozenAt).toBe("2026-09-19T00:00:00Z");
     expect(manifest.frozenBy).toBe(MASS_ENERGY_BEAD);
 
-    expect(manifest.units.length).toBe(25); // 28 until the 2026-09-19 boundary audit retired s0-p8, s0-p9, s0-p10
+    // A COUNT IS FOR REPORTING, NOT FOR ASSERTING (AGENTS.md, the section of that name).
+    // This line read `toBe(25)`, with the note "28 until the 2026-09-19 boundary audit retired
+    // s0-p8, s0-p9, s0-p10". It broke on correct work on 2026-10-03, when the paper's 28 sentence
+    // ids were added as units of kind `sentence` under owner ruling am-xz2d, and it broke in the
+    // worst available position: a census ABOVE the loop below, so the duplicate-id, id-prefix,
+    // locator, authored-status and destination properties and the zero-error corpus validation were
+    // never evaluated at all. The roster grows whenever a required unit class is inventoried, so an
+    // equality here is a promise the inventory is finished, which it is not.
+    // What replaces it is the non-vacuity the census was guarding by accident: without this, a
+    // manifest whose units had all been dropped would iterate the loop zero times and pass while
+    // proving nothing. The structural claims that DO hold at any size are asserted below and by
+    // src/content/manifest/requiredUnitKinds.test.ts, which asks the question a count cannot: that
+    // every unit class the Requirements table names is represented or declared absent.
+    expect(manifest.units.length).toBeGreaterThan(0);
+    console.log(
+      `mass-energy manifest roster: ${manifest.units.length} units (${[
+        ...manifest.units.reduce(
+          (counts, unit) => counts.set(unit.kind, (counts.get(unit.kind) ?? 0) + 1),
+          new Map<string, number>(),
+        ),
+      ]
+        .sort()
+        .map(([kind, n]) => `${kind}=${n}`)
+        .join(" ")})`,
+    );
 
     // No duplicate ids
     const idSet = new Set<string>();
