@@ -224,21 +224,16 @@ export const DECLARED_ABSENCES: AbsenceDeclarations = new Map([
             'AGENTS.md, naming conventions: "Paper 4 has no sections and uses `s0`". The printed paper has no numbered section headings, so no unit of this class can exist and no bead owes one.',
         },
       ],
-      [
-        "sentence",
-        {
-          kind: "debt",
-          reason:
-            "43 sentence ids are authored and translated; none is a manifest unit. The inventory bead was closed on 2026-09-28 without recording either this class or inline-equation, so the debt outlived its bead.",
-          bead: "am-edn-inventory-mass-energy-g2d",
-        },
-      ],
+      // The `sentence` debt was PAID on 2026-10-03, not forgiven: the twelve paragraphs' 28
+      // sentence ids are now units of kind `sentence` in this paper's manifest, and this entry was
+      // removed by the same change, which is what `staleAbsenceDeclarations` exists to force. It
+      // reported "mass-energy: 'sentence'" the moment the units landed.
       [
         "inline-equation",
         {
           kind: "debt",
           reason:
-            "The paper's three pages print inline mathematics; none is inventoried. Same closed bead as the sentence row.",
+            "The paper's three pages print inline mathematics; none is inventoried. Owed by the same closed bead that owed the sentence row.",
           bead: "am-edn-inventory-mass-energy-g2d",
         },
       ],

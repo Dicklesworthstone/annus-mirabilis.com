@@ -2,29 +2,66 @@
 # Pinned facsimile ap-18-639 verified and frozen 2026-09-19T00:00:00Z
 # 2026-09-19 boundary audit: s0-p8, s0-p9 and s0-p10 retired (merged into s0-p7); ids are
 # never reused and survivors keep their numbers, so the sequence gap p7 -> p11 is intentional.
-# Unit ids in printed order
+# 2026-10-03: the 28 sentence ids of the twelve paragraphs were added as units of kind
+# `sentence`, completing owner ruling am-xz2d decision 1 ("Add a sentence kind", 2026-09-20),
+# whose text asks that "the four inventories are extended to carry s<n>-p<m>-s<k>". The ids are
+# not new: each was already authored as a sentenceSpan on its paragraph source block, with a
+# character span and textDigest, and each is already keyed by a translation unit. No block id
+# changed and none was retired. s0-p5-s2 and s0-p7-s9 render as two English units each
+# (s2a/s2b, s9a/s9b) under the id scheme's split rule, and their destinations name both.
+# s0-p7-s8 straddles the page turn recorded in s0-p7.yaml (pageTurns, startsWith "Konstanten
+# der Energien") and therefore carries locators for both 640 and 641.
+# Unit ids in printed order (53 ids: 25 block-level, 28 sentence)
 masthead-title
 masthead-author
 s0-p1
+s0-p1-s1
 s0-fn1
 s0-p2
+s0-p2-s1
 s0-p3
+s0-p3-s1
 s0-p4
+s0-p4-s1
 s0-fn2
 s0-p5
+s0-p5-s1
+s0-p5-s2
+s0-p5-s3
 eq-s0-d1
 s0-p6
+s0-p6-s1
+s0-p6-s2
 s0-p7
+s0-p7-s1
+s0-p7-s2
+s0-p7-s3
+s0-p7-s4
+s0-p7-s5
+s0-p7-s6
+s0-p7-s7
+s0-p7-s8
+s0-p7-s9
+s0-p7-s10
+s0-p7-s11
+s0-p7-s12
 eq-s0-d2
 eq-s0-d3
 eq-s0-d4
 eq-s0-d5
 eq-s0-d6
 s0-p11
+s0-p11-s1
+s0-p11-s2
 eq-s0-d7
 s0-p12
+s0-p12-s1
+s0-p12-s2
 s0-p13
+s0-p13-s1
 s0-p14
+s0-p14-s1
 s0-p15
+s0-p15-s1
 closing-dateline
 closing-received

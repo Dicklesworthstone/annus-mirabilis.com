@@ -72,9 +72,37 @@ describe("every manifest unit gets a status from the tree", () => {
     ) as { edges: { source: { blockId: string } }[] };
     const alignedBlocks = new Set(alignment.edges.map((e) => e.source.blockId));
     const coverage = deriveUnitCoverage(ROOT, manifestOf(ROOT, "mass-energy"));
-    // Measured 2026-10-02: 25 block files, 25 aligned blocks, 25 units, all covered.
-    expect(blockFiles.length).toBe(coverage.length);
-    expect(alignedBlocks.size).toBe(coverage.length);
+    // A SOURCE BLOCK IS A FILE; A SENTENCE IS A SPAN INSIDE ONE. Measured 2026-10-02, this read
+    // `expect(blockFiles.length).toBe(coverage.length)` on 25 files and 25 units. That equality is
+    // not a property of the corpus, it was an artifact of this paper having no sentence units yet:
+    // brownian-motion has carried 178 units over about 90 block files since 2026-09-21, because
+    // sentences live as `sentenceSpans` inside their paragraph's file rather than as files of their
+    // own. On 2026-10-03 this paper's 28 sentence ids became units under owner ruling am-xz2d and
+    // the equality broke on correct work. So the census now compares like with like, and gains the
+    // sentence half it never had: block-level units against block FILES, sentence units against
+    // the span ids counted from those same files.
+    const blockLevel = coverage.filter((c) => c.kind !== "sentence");
+    const sentenceUnits = coverage.filter((c) => c.kind === "sentence");
+    const spanIds = new Set(
+      blockFiles.flatMap((f) => {
+        const text = readFileSync(join(ROOT, "content/source-blocks/mass-energy", f), "utf8");
+        const blockId = f.slice(0, -".yaml".length);
+        const spans = text.split("sentenceSpans:")[1];
+        return spans === undefined
+          ? []
+          : [...spans.matchAll(/^\s+- id: "([\w.-]+)"/gm)]
+              .map((m) => m[1] as string)
+              // A masthead, closing or footnote block carries ONE span that is the block itself, so
+              // it is not a sentence and is already inventoried as its own block-level unit.
+              .filter((id) => id !== blockId);
+      }),
+    );
+    expect(blockFiles.length).toBe(blockLevel.length);
+    expect(alignedBlocks.size).toBe(blockLevel.length);
+    // Every sentence id authored on a block is inventoried, and no unit is invented: set equality,
+    // not two counts that could agree while naming different members.
+    expect([...spanIds].sort()).toEqual(sentenceUnits.map((c) => c.id).sort());
+    expect(sentenceUnits.length).toBeGreaterThan(0);
     expect(coverage.every((c) => c.status === "covered")).toBe(true);
     const text = formatManifestReportText(
       generateManifestReport(
@@ -120,7 +148,17 @@ describe("a missing layer demotes exactly the unit it belongs to", () => {
     expect(readFileSync(path, "utf8")).not.toContain('blockId: "s0-p2"');
     const after = statuses(root);
     const changed = [...after].filter(([id, c]) => before.get(id)?.status !== c.status);
-    expect(changed.map(([id, c]) => `${id}:${c.status}`)).toEqual(["s0-p2:not-translated"]);
+    // TWO UNITS, AND THAT IS THE POINT. This expected ["s0-p2:not-translated"] alone until the
+    // paper's 28 sentence ids became units on 2026-10-03. The single edge cut above is the one that
+    // carries BOTH `blockId: "s0-p2"` and `sentenceId: "s0-p2-s1"`, so its removal takes the English
+    // rendering of the paragraph AND of the sentence it contains; a derivation that demoted only the
+    // paragraph would be judging the sentence by its parent instead of on its own evidence. What the
+    // test is really asserting survives unchanged and is what its title says: the demotion reaches
+    // exactly the unit the missing layer belongs to, and nothing else in the paper moves.
+    expect(changed.map(([id, c]) => `${id}:${c.status}`)).toEqual([
+      "s0-p2:not-translated",
+      "s0-p2-s1:not-translated",
+    ]);
   });
 
   test("setting one sentence's gloss aside un-glosses its paragraph, and only that one", () => {
@@ -131,7 +169,14 @@ describe("a missing layer demotes exactly the unit it belongs to", () => {
     renameSync(gloss, `${gloss}.set-aside`);
     const after = statuses(root);
     const changed = [...after].filter(([id, c]) => before.get(id)?.glossed !== c.glossed);
-    expect(changed.map(([id, c]) => `${id}:${c.glossed}`)).toEqual(["s0-p3:false"]);
+    // The sentence now appears beside its paragraph for the same reason as in the test above: since
+    // 2026-10-03 `s0-p3-s1` is a unit of its own, and the gloss set aside is precisely its gloss, so
+    // it is the unit most directly affected. Every other sentence and paragraph in the paper keeps
+    // its gloss, which is the "and only that one" the title promises.
+    expect(changed.map(([id, c]) => `${id}:${c.glossed}`)).toEqual([
+      "s0-p3:false",
+      "s0-p3-s1:false",
+    ]);
     // Gloss is reported, not gating: the status is unchanged.
     expect(after.get("s0-p3")?.status).toBe(before.get("s0-p3")?.status);
   });

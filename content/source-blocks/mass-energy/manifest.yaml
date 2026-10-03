@@ -37,6 +37,17 @@ units:
       notes:
         - "Opening sentence referencing recent electrodynamic investigation"
 
+  - id: s0-p1-s1
+    kind: sentence
+    containedIn: s0-p1
+    locators:
+      - page: 639
+    destination:
+      translationUnits:
+        - s0-p1-s1
+      argumentObligations:
+        - imported-result
+
   - id: s0-fn1
     kind: footnote
     footnoteMark: "1)"
@@ -68,6 +79,17 @@ units:
       notes:
         - "Premise statement: Maxwell-Hertz equations and principle of relativity"
 
+  - id: s0-p2-s1
+    kind: sentence
+    containedIn: s0-p2
+    locators:
+      - page: 639
+    destination:
+      translationUnits:
+        - s0-p2-s1
+      argumentObligations:
+        - imported-result
+
   - id: s0-p3
     kind: paragraph
     locators:
@@ -78,6 +100,17 @@ units:
         - imported-result
       notes:
         - "Quoted formulation of the principle of relativity (Relativitätsprinzip)"
+
+  - id: s0-p3-s1
+    kind: sentence
+    containedIn: s0-p3
+    locators:
+      - page: 639
+    destination:
+      translationUnits:
+        - s0-p3-s1
+      argumentObligations:
+        - imported-result
 
   - id: s0-p4
     kind: paragraph
@@ -97,6 +130,17 @@ units:
         - imported-result
       notes:
         - "Reference to §8 of special relativity paper"
+
+  - id: s0-p4-s1
+    kind: sentence
+    containedIn: s0-p4
+    locators:
+      - page: 639
+    destination:
+      translationUnits:
+        - s0-p4-s1
+      argumentObligations:
+        - imported-result
 
   - id: s0-fn2
     kind: footnote
@@ -121,6 +165,40 @@ units:
         - imported-result
       notes:
         - "Setup of plane light waves and light energy transformation"
+
+  - id: s0-p5-s1
+    kind: sentence
+    containedIn: s0-p5
+    locators:
+      - page: 639
+    destination:
+      translationUnits:
+        - s0-p5-s1
+      argumentObligations:
+        - imported-result
+
+  - id: s0-p5-s2
+    kind: sentence
+    containedIn: s0-p5
+    locators:
+      - page: 639
+    destination:
+      translationUnits:
+        - s0-p5-s2a
+        - s0-p5-s2b
+      argumentObligations:
+        - imported-result
+
+  - id: s0-p5-s3
+    kind: sentence
+    containedIn: s0-p5
+    locators:
+      - page: 639
+    destination:
+      translationUnits:
+        - s0-p5-s3
+      argumentObligations:
+        - imported-result
 
   - id: eq-s0-d1
     kind: display-equation
@@ -147,6 +225,28 @@ units:
       notes:
         - "Definition of rest body energy E_0 and moving body energy H_0"
 
+  - id: s0-p6-s1
+    kind: sentence
+    containedIn: s0-p6
+    locators:
+      - page: 640
+    destination:
+      translationUnits:
+        - s0-p6-s1
+      argumentObligations:
+        - equal-opposite-emissions
+
+  - id: s0-p6-s2
+    kind: sentence
+    containedIn: s0-p6
+    locators:
+      - page: 640
+    destination:
+      translationUnits:
+        - s0-p6-s2
+      argumentObligations:
+        - equal-opposite-emissions
+
   - id: s0-p7
     kind: paragraph
     locators:
@@ -170,6 +270,164 @@ units:
         - "Emission of two equal and opposite plane light pulses each of energy L/2"
         - "Runs on through the subtraction of the two energy balances, the reading of H - E as kinetic energy K plus a constant C, and the comparison with the electron kinetic energy of the relativity paper; spans pages 640-641"
         - "Absorbed the retired units s0-p8, s0-p9 and s0-p10 in the 2026-09-19 boundary audit; the three were flush resumptions after displays, not printed paragraph breaks. See content/aliases/mass-energy.yaml"
+
+  - id: s0-p7-s1
+    kind: sentence
+    containedIn: s0-p7
+    locators:
+      - page: 640
+    destination:
+      translationUnits:
+        - s0-p7-s1
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s2
+    kind: sentence
+    containedIn: s0-p7
+    locators:
+      - page: 640
+    destination:
+      translationUnits:
+        - s0-p7-s2
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s3
+    kind: sentence
+    containedIn: s0-p7
+    locators:
+      - page: 640
+    destination:
+      translationUnits:
+        - s0-p7-s3
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s4
+    kind: sentence
+    containedIn: s0-p7
+    locators:
+      - page: 640
+    destination:
+      translationUnits:
+        - s0-p7-s4
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s5
+    kind: sentence
+    containedIn: s0-p7
+    locators:
+      - page: 640
+    destination:
+      translationUnits:
+        - s0-p7-s5
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s6
+    kind: sentence
+    containedIn: s0-p7
+    locators:
+      - page: 640
+    destination:
+      translationUnits:
+        - s0-p7-s6
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s7
+    kind: sentence
+    containedIn: s0-p7
+    locators:
+      - page: 640
+    destination:
+      translationUnits:
+        - s0-p7-s7
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s8
+    kind: sentence
+    containedIn: s0-p7
+    locators:
+      - page: 640
+      - page: 641
+    destination:
+      translationUnits:
+        - s0-p7-s8
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s9
+    kind: sentence
+    containedIn: s0-p7
+    locators:
+      - page: 641
+    destination:
+      translationUnits:
+        - s0-p7-s9a
+        - s0-p7-s9b
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s10
+    kind: sentence
+    containedIn: s0-p7
+    locators:
+      - page: 641
+    destination:
+      translationUnits:
+        - s0-p7-s10
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s11
+    kind: sentence
+    containedIn: s0-p7
+    locators:
+      - page: 641
+    destination:
+      translationUnits:
+        - s0-p7-s11
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
+
+  - id: s0-p7-s12
+    kind: sentence
+    containedIn: s0-p7
+    locators:
+      - page: 641
+    destination:
+      translationUnits:
+        - s0-p7-s12
+      argumentObligations:
+        - equal-opposite-emissions
+        - energy-balances
+        - subtraction-kinetic-energy
 
   - id: eq-s0-d2
     kind: display-equation
@@ -255,6 +513,28 @@ units:
       notes:
         - "Expansion neglecting fourth and higher order quantities"
 
+  - id: s0-p11-s1
+    kind: sentence
+    containedIn: s0-p11
+    locators:
+      - page: 641
+    destination:
+      translationUnits:
+        - s0-p11-s1
+      argumentObligations:
+        - low-speed-expansion
+
+  - id: s0-p11-s2
+    kind: sentence
+    containedIn: s0-p11
+    locators:
+      - page: 641
+    destination:
+      translationUnits:
+        - s0-p11-s2
+      argumentObligations:
+        - low-speed-expansion
+
   - id: eq-s0-d7
     kind: display-equation
     editorialLabel: "ed:s0-d7"
@@ -280,6 +560,28 @@ units:
       notes:
         - "Deduction that body mass diminishes by L/V^2 upon radiation emission"
 
+  - id: s0-p12-s1
+    kind: sentence
+    containedIn: s0-p12
+    locators:
+      - page: 641
+    destination:
+      translationUnits:
+        - s0-p12-s1
+      argumentObligations:
+        - inertia-change-generalization
+
+  - id: s0-p12-s2
+    kind: sentence
+    containedIn: s0-p12
+    locators:
+      - page: 641
+    destination:
+      translationUnits:
+        - s0-p12-s2
+      argumentObligations:
+        - inertia-change-generalization
+
   - id: s0-p13
     kind: paragraph
     locators:
@@ -290,6 +592,17 @@ units:
         - inertia-change-generalization
       notes:
         - "Generalization: mass is measure of energy content; factor 9*10^20 in Erg and Grammen"
+
+  - id: s0-p13-s1
+    kind: sentence
+    containedIn: s0-p13
+    locators:
+      - page: 641
+    destination:
+      translationUnits:
+        - s0-p13-s1
+      argumentObligations:
+        - inertia-change-generalization
 
   - id: s0-p14
     kind: paragraph
@@ -302,6 +615,17 @@ units:
       notes:
         - "Empirical prospect: test with bodies of highly variable energy content such as radium salts"
 
+  - id: s0-p14-s1
+    kind: sentence
+    containedIn: s0-p14
+    locators:
+      - page: 641
+    destination:
+      translationUnits:
+        - s0-p14-s1
+      argumentObligations:
+        - empirical-closing-remarks
+
   - id: s0-p15
     kind: paragraph
     locators:
@@ -312,6 +636,17 @@ units:
         - empirical-closing-remarks
       notes:
         - "Closing conclusion: radiation transfers inertia between emitting and absorbing bodies"
+
+  - id: s0-p15-s1
+    kind: sentence
+    containedIn: s0-p15
+    locators:
+      - page: 641
+    destination:
+      translationUnits:
+        - s0-p15-s1
+      argumentObligations:
+        - empirical-closing-remarks
 
   - id: closing-dateline
     kind: closing-dateline
