@@ -88,7 +88,29 @@ function startStaticServer(rootDir: string): Promise<{ server: Server; origin: s
   });
 }
 
-/** Median gap between consecutive paragraph boxes that share a parent, in ems of their type. */
+/**
+ * Median WHITESPACE between consecutive paragraph boxes that share a parent, in ems of their type.
+ *
+ * WHY THIS IS NOT SIMPLY `b.top - a.bottom`, AND WHY IT USED TO MEASURE NOTHING (am-enpr). This read
+ * `if (a.nextElementSibling !== b) continue`, which skips any pair that is not immediately adjacent.
+ * On the German face EVERY paragraph is followed by a visible `p.fine.source-explained-by` note (32
+ * of 32 in brownian-motion, 12 of 12 in mass-energy), so no two source paragraphs are ever adjacent
+ * siblings and the German arm measured ZERO gaps for every paper at every width. The other half of
+ * the selector, `[data-german-draft] p`, matches nothing at all: that attribute was removed from the
+ * markup, and src/reader/PaperPage.test.tsx asserts its absence. So the German reference was null
+ * too, and the test reported "no paragraph gap to compare (English 80, German 0)" rather than
+ * comparing anything. It had never been able to see the face it names.
+ *
+ * The repair keeps the question and widens the reach. A pair still has to share a parent, so this
+ * never measures across a section boundary. But what is measured is the whitespace BETWEEN the two
+ * paragraphs: their box distance less the heights of the visible elements that sit between them. For
+ * an adjacent pair the subtraction is zero and the value is identical to what this returned before,
+ * so the English arm's numbers do not move and the comparison stays fair; for a pair separated by a
+ * note it is the space a reader sees around that note rather than the note's own height, which is
+ * the rhythm this test exists to compare. Measuring `b.top - a.bottom` alone would have made the
+ * German side look generously spaced purely because it carries more furniture, and the assertion
+ * that English is not more spread than German would have passed for the wrong reason.
+ */
 async function paragraphGapEm(page: Page, selector: string) {
   return page.evaluate((sel) => {
     const ps = [...document.querySelectorAll<HTMLElement>(sel)].filter(
@@ -98,9 +120,23 @@ async function paragraphGapEm(page: Page, selector: string) {
     for (let i = 0; i + 1 < ps.length; i++) {
       const a = ps[i] as HTMLElement;
       const b = ps[i + 1] as HTMLElement;
-      if (a.nextElementSibling !== b) continue;
+      if (a.parentElement === null || a.parentElement !== b.parentElement) continue;
+      // The visible elements strictly between a and b, whose heights are furniture and not gap.
+      let between = 0;
+      let reachedB = false;
+      for (let node = a.nextElementSibling; node !== null; node = node.nextElementSibling) {
+        if (node === b) {
+          reachedB = true;
+          break;
+        }
+        between += (node as HTMLElement).getBoundingClientRect().height;
+      }
+      // b must follow a in document order under the same parent; if it does not, the pair is not a
+      // forward-consecutive pair and is skipped rather than measured backwards.
+      if (!reachedB) continue;
       const em = Number.parseFloat(getComputedStyle(a).fontSize);
-      gaps.push((b.getBoundingClientRect().top - a.getBoundingClientRect().bottom) / em);
+      const box = b.getBoundingClientRect().top - a.getBoundingClientRect().bottom;
+      gaps.push((box - between) / em);
     }
     gaps.sort((x, y) => x - y);
     return { n: gaps.length, median: gaps.length ? (gaps[gaps.length >> 1] ?? 0) : null };
@@ -240,7 +276,14 @@ test("the English faces keep the German rhythm and headings, and show no alterna
   /** "<width> <face> <heading id>" to each paper's heading there, for the comparison across papers. */
   const acrossPapers = new Map<string, { paper: string; value: string }[]>();
   const browser: Browser = await chromium.launch({ headless: true });
-  /** Light quanta's German paragraph gap at each width: the reference where a paper has none. */
+  /**
+   * Light quanta's German paragraph gap at each width: the reference where a paper has none.
+   *
+   * The selector below was `[data-german-draft] p` and matched nothing, because that attribute is
+   * not in the markup: `grep -rl data-german-draft out/` finds it only in two compiled stylesheets,
+   * and src/reader/PaperPage.test.tsx asserts the German face does NOT contain it. So this reference
+   * was null at every width and the fallback it exists to provide never provided anything (am-enpr).
+   */
   const reference = new Map<number, number | null>();
   try {
     for (const width of WIDTHS) {
@@ -250,7 +293,7 @@ test("the English faces keep the German rhythm and headings, and show no alterna
       });
       const page = await context.newPage();
       await page.goto(`${origin}/papers/light-quanta/view/german/`, { waitUntil: "load" });
-      reference.set(width, (await paragraphGapEm(page, "[data-german-draft] p")).median);
+      reference.set(width, (await paragraphGapEm(page, "p.source-paragraph")).median);
       await context.close();
     }
     for (const paper of PAPERS)
@@ -272,7 +315,9 @@ test("the English faces keep the German rhythm and headings, and show no alterna
         let summary = "";
         try {
           await page.goto(`${origin}/papers/${paper}/view/german/`, { waitUntil: "load" });
-          const own = await paragraphGapEm(page, "[data-german-draft] p, p.source-paragraph");
+          // `p.source-paragraph` alone: the dead `[data-german-draft] p` half is dropped rather
+          // than left as a comforting-looking alternative that can never match (am-enpr).
+          const own = await paragraphGapEm(page, "p.source-paragraph");
           const german = { n: own.n, median: own.median ?? reference.get(width) ?? null };
           const germanHeadings = await firstHeadings(page);
           await page.goto(`${origin}/papers/${paper}/view/english/`, { waitUntil: "load" });
