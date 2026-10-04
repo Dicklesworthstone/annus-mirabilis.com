@@ -34,9 +34,11 @@
  */
 import { Fragment } from "react";
 import {
+  EXPLAINER_LINK_TEXT,
   explainerFragmentUrl,
   explainerHref,
   explainerId,
+  explainerLinkName,
 } from "../../equations/printed/explainerLinks.ts";
 import type { ExplainerLevels, ProsePart } from "../../equations/printed/printedExplanations.ts";
 import "./equationExplainer.css";
@@ -200,8 +202,16 @@ export function EquationExplainer({ explanation }: { explanation: ExplainerLevel
           back to. With script, ExplainerFragments.tsx keeps the reader here: it opens the panel and
           fetches the words. The link is the whole of what a face carries for an equation, so a page
           of ninety-eight displays pays for ninety-eight links and nothing else. */}
-      <a className="eq-explain-control" href={explainerHref(explanation)}>
-        Explain this equation
+      {/* The name says WHICH equation (am-enpr). Every one of these links renders the same words, so
+          a Results face offered 33 links all named "Explain this equation" going to 33 different
+          pages. The name is derived from the same id as the href, so one name means one destination
+          by construction, and it begins with the visible words for WCAG 2.5.3. */}
+      <a
+        className="eq-explain-control"
+        href={explainerHref(explanation)}
+        aria-label={explainerLinkName(explanation)}
+      >
+        {EXPLAINER_LINK_TEXT}
       </a>
       <span className="eq-explain-body">
         <span className="eq-explain-levels" aria-live="polite" />
