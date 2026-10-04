@@ -301,18 +301,6 @@ async function runChecks(
         expected,
         { timeout: 5000 },
       );
-      // BEST EFFORT, AND DELIBERATELY NOT AN ASSERTION. Waiting strictly on the stored value broke
-      // the planted negative below, which swallows the write on purpose and asserts the theme check
-      // fails with its OWN message; a strict wait turned that into a timeout and changed the failure
-      // mode the plant exists to pin. So this waits for the write when there is one and gives up
-      // quietly when there is not, leaving the reload assertion to say what went wrong.
-      await page
-        .waitForFunction(
-          ({ want, key }) => window.localStorage.getItem(key) === want,
-          { want: expected, key: THEME_STORAGE_KEY },
-          { timeout: 3000 },
-        )
-        .catch(() => undefined);
     };
 
     // TWO TRANSITIONS, DERIVED FROM THE STARTING STATE RATHER THAN ASSUMED. The radio version
@@ -328,6 +316,26 @@ async function runChecks(
     await press(start);
     // A third press only when the start was light, so the reload check always runs against dark.
     if (start !== DARK) await press(DARK);
+    // WAIT FOR THE CHOICE TO BE STORED BEFORE RELOADING (am-enpr), ONCE, HERE, AND BEST EFFORT.
+    //
+    // `press` waits on `data-theme`, which React sets, while the choice is persisted separately.
+    // Under load the reload fired between the two, the inline head script found nothing stored, and
+    // this reported "theme did not persist across reload: expected kramgasse-night, got null" about a
+    // toggle that works. Measured: this file passed 5 of 5 alone and failed both of its am-ahyb tests
+    // when run concurrently with three other browser files, which is how the node lane runs them.
+    //
+    // It is BEST EFFORT, and both halves of that matter. Strict, it broke the planted negative below,
+    // which swallows the write on purpose and pins the failure to the theme check's OWN message; a
+    // timeout here would replace that message. And it is done ONCE rather than inside `press`,
+    // because in the plant every press waits in vain, and three idle waits were enough to turn a
+    // Playwright route race ("Response has been disposed") from rare into reliable.
+    await page
+      .waitForFunction(
+        ({ want, key }) => window.localStorage.getItem(key) === want,
+        { want: DARK, key: THEME_STORAGE_KEY },
+        { timeout: 3000 },
+      )
+      .catch(() => undefined);
     await page.reload({ waitUntil: "domcontentloaded" });
     const afterReload = await read();
     if (afterReload !== DARK) {
