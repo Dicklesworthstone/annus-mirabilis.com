@@ -60,7 +60,21 @@ const expectedCover = () => {
 async function readCover(page: Page, scope: string) {
   return page.evaluate(
     ({ scope, lesson }) => {
-      const root = document.querySelector(`${scope} [data-foundation-construction="${lesson}"]`);
+      // THE LESSON HAS TWO CONSTRUCTIONS AND THE ATTRIBUTE NAMES THE LESSON, NOT THE CONSTRUCTION
+      // (am-enpr). `querySelector` took the first match, and since dispatch 444 that is
+      // OneAreaManyShapes, the rectangles the lesson opens with ("One area, three shapes. Every
+      // rectangle below encloses 12 square centimetres"). It carries no `.construction-display`, so
+      // the status read as "" and this reported a covering count of nothing about a construction it
+      // was not looking at. RepeatedIntervals, the one with the count, is the SECOND match.
+      //
+      // So the root is chosen by what is being read rather than by position: the construction that
+      // carries a display. Exactly one must, asserted below, so a future second display-bearing
+      // construction fails loudly instead of being silently picked or silently skipped.
+      const roots = [
+        ...document.querySelectorAll(`${scope} [data-foundation-construction="${lesson}"]`),
+      ];
+      const withDisplay = roots.filter((r) => r.querySelector(".construction-display") !== null);
+      const root = withDisplay[0];
       const status = (root?.querySelector(".construction-display")?.textContent ?? "").replace(
         /\s+/g,
         " ",
@@ -73,6 +87,9 @@ async function readCover(page: Page, scope: string) {
         rows: rows.length,
         covers: rows.filter((r) => /\bcovers\b/.test(r)).length,
         misses: rows.filter((r) => /\bmisses\b/.test(r)).length,
+        /** How many constructions the lesson rendered, and how many carry a display. */
+        constructions: roots.length,
+        withDisplay: withDisplay.length,
       };
     },
     { scope, lesson: ERROR },
@@ -81,6 +98,18 @@ async function readCover(page: Page, scope: string) {
 
 function checkCover(read: Awaited<ReturnType<typeof readCover>>) {
   const owner = expectedCover();
+  // The population this read chose from, asserted so a silent pick cannot happen again. The lesson
+  // renders two constructions and exactly one of them carries the covering display; if a second ever
+  // does, or if the display-bearing one disappears, this says so instead of reading "" (am-enpr).
+  assert.ok(
+    read.constructions >= 1,
+    `no construction for the lesson was found at all (${read.constructions})`,
+  );
+  assert.equal(
+    read.withDisplay,
+    1,
+    `exactly one construction must carry the covering display, found ${read.withDisplay} of ${read.constructions}`,
+  );
   assert.ok(
     read.status.includes(
       `${owner.covered} of ${owner.trials} intervals cover ${TRUE_DIFFUSIVITY} μm²/s.`,
